@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Bérlet</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="title">Bérlet</div>
+      <div id="sideLabel" class="side-label">ELEJE</div>
+    </header>
+
+    <section class="ticket-stage">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">🚌</div>
+        <div class="empty-title">Nincs még bérletfotó</div>
+        <div class="empty-text">Nyomd meg az <b>ÚJ BÉRLET</b> gombot.</div>
+      </div>
+      <img id="ticketImage" alt="Bérlet" draggable="false">
+    </section>
+
+    <nav class="bottom-actions" aria-label="Bérlet kezelése">
+      <button id="frontBtn" class="action-btn active" type="button">ELEJE</button>
+      <button id="backBtn" class="action-btn" type="button">HÁTULJA</button>
+      <button id="newBtn" class="action-btn primary" type="button">📷 ÚJ BÉRLET</button>
+    </nav>
+  </main>
+
+  <div id="captureSheet" class="sheet hidden" role="dialog" aria-modal="true">
+    <div class="sheet-card">
+      <div class="sheet-head">
+        <h2>Új bérlet</h2>
+        <button id="closeSheet" class="icon-btn" type="button">✕</button>
+      </div>
+      <p class="sheet-note">Fényképezd le mindkét oldalt. Mentéskor az előző bérletet felülírjuk.</p>
+      <div class="capture-grid">
+        <button id="captureFront" class="capture-btn" type="button">
+          <span class="capture-step">1</span><span class="capture-main">ELEJE FOTÓ</span><span id="frontStatus" class="capture-status">Nincs kép</span>
+        </button>
+        <button id="captureBack" class="capture-btn" type="button">
+          <span class="capture-step">2</span><span class="capture-main">HÁTULJA FOTÓ</span><span id="backStatus" class="capture-status">Nincs kép</span>
+        </button>
+      </div>
+      <button id="saveBtn" class="save-btn" type="button" disabled>MENTÉS</button>
+      <button id="cancelBtn" class="cancel-btn" type="button">MÉGSE</button>
+      <input id="frontInput" class="hidden-input" type="file" accept="image/*" capture="environment">
+      <input id="backInput" class="hidden-input" type="file" accept="image/*" capture="environment">
+    </div>
+  </div>
+
+  <div id="processing" class="processing hidden"><div class="spinner"></div><div>Kép igazítása…</div></div>
+  <script src="app.js"></script>
+</body>
+</html>
