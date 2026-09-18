@@ -312,26 +312,70 @@ function canvasWrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){
  for(let i=0;i<words.length;i++){const test=line?line+" "+words[i]:words[i];if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;lines++;line=words[i];if(maxLines&&lines>=maxLines)return y}else line=test}
  if(line&&(!maxLines||lines<maxLines)){ctx.fillText(line,x,y);y+=lineHeight}return y
 }
+function roundRectPath(ctx,x,y,w,h,r){
+ const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()
+}
+function fillRound(ctx,x,y,w,h,r,fill){roundRectPath(ctx,x,y,w,h,r);ctx.fillStyle=fill;ctx.fill()}
+function strokeRound(ctx,x,y,w,h,r,stroke,width=1){roundRectPath(ctx,x,y,w,h,r);ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}
+function canvasChip(ctx,text,x,y,padX=18){
+ ctx.font="900 21px Arial";const w=ctx.measureText(text).width+padX*2;fillRound(ctx,x,y-30,w,42,21,"rgba(255,255,255,.90)");ctx.fillStyle="#234637";ctx.fillText(text,x+padX,y);return w
+}
 async function studioCardBlob(d){
- const c=document.createElement("canvas");c.width=1200;c.height=1600;const x=c.getContext("2d");
- x.fillStyle="#f6f1e7";x.fillRect(0,0,c.width,c.height);
+ const c=document.createElement("canvas");c.width=1200;c.height=1600;const x=c.getContext("2d"),heroH=660;
+ x.fillStyle="#f6f0e4";x.fillRect(0,0,c.width,c.height);
+
  if(studioPhotoBlob){
-   const bm=await createImageBitmap(studioPhotoBlob,{imageOrientation:"from-image"}),box={x:0,y:0,w:1200,h:620},scale=Math.max(box.w/bm.width,box.h/bm.height),w=bm.width*scale,h=bm.height*scale;
-   x.drawImage(bm,(1200-w)/2,(620-h)/2,w,h);bm.close();
-   const g=x.createLinearGradient(0,430,0,620);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.55)");x.fillStyle=g;x.fillRect(0,400,1200,220)
+   const bm=await createImageBitmap(studioPhotoBlob,{imageOrientation:"from-image"}),scale=Math.max(c.width/bm.width,heroH/bm.height),w=bm.width*scale,h=bm.height*scale;
+   x.drawImage(bm,(c.width-w)/2,(heroH-h)/2,w,h);bm.close()
  }else{
-   const g=x.createLinearGradient(0,0,1200,620);g.addColorStop(0,"#d6e2d8");g.addColorStop(1,"#e9dfcc");x.fillStyle=g;x.fillRect(0,0,1200,620);
-   x.font="180px serif";x.textAlign="center";x.fillStyle="#254637";x.fillText(studioIcon(d.category,d.title),600,350);x.textAlign="left"
+   const g=x.createLinearGradient(0,0,c.width,heroH);g.addColorStop(0,"#dfe8df");g.addColorStop(.55,"#efe3cb");g.addColorStop(1,"#cbd9ce");x.fillStyle=g;x.fillRect(0,0,c.width,heroH);
+   x.textAlign="center";x.font="190px serif";x.fillStyle="#234637";x.fillText(studioIcon(d.category,d.title),600,355);x.textAlign="left"
  }
- x.fillStyle=studioPhotoBlob?"#fff":"#254637";x.font="900 30px Arial";x.fillText("LÉNA RECEPTTÁR",70,500);
- x.font="700 62px Georgia";let ty=canvasWrap(x,d.title,70,565,1060,68,2);
- x.fillStyle="#173a2e";x.fillRect(0,620,1200,980);
- x.fillStyle="#f6f1e7";x.font="900 25px Arial";x.fillText((d.category||"RECEPT").toUpperCase()+"  ·  "+d.servings+"  ·  "+d.time,70,690);
- x.font="700 38px Georgia";x.fillText("Hozzávalók",70,760);x.fillText("Elkészítés",640,760);
- x.font="27px Arial";let y1=815;d.ingredients.slice(0,12).forEach(v=>{x.fillStyle="#f6f1e7";x.fillText("•",70,y1);y1=canvasWrap(x,v,105,y1,465,38,2)+6});
- let y2=815;d.steps.slice(0,7).forEach((v,i)=>{x.fillStyle="#f6f1e7";x.font="900 26px Arial";x.fillText(String(i+1)+".",640,y2);x.font="26px Arial";y2=canvasWrap(x,v,690,y2,440,36,3)+10});
- x.fillStyle="#c7d7ca";x.font="22px Arial";x.fillText("Olvasható recept is automatikusan mentve",70,1540);
- return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Kártyagenerálási hiba")),"image/jpeg",.92))
+ const shade=x.createLinearGradient(0,0,0,heroH);shade.addColorStop(0,"rgba(9,24,18,.23)");shade.addColorStop(.45,"rgba(9,24,18,.03)");shade.addColorStop(1,"rgba(9,24,18,.78)");x.fillStyle=shade;x.fillRect(0,0,c.width,heroH);
+
+ fillRound(x,58,50,330,54,27,"rgba(247,242,231,.93)");
+ x.fillStyle="#214537";x.font="900 22px Arial";x.fillText("LÉNA RECEPTTÁR",80,85);
+ x.font="700 15px Arial";x.fillStyle="#65786d";x.fillText("GOLDEN RECEPTKÁRTYA",258,84);
+
+ x.fillStyle="#fff";x.font="900 22px Arial";x.fillText((d.category||"RECEPT").toUpperCase(),64,470);
+ x.font="700 68px Georgia";canvasWrap(x,d.title,64,535,1070,72,2);
+
+ let chipX=64;[d.servings,d.time,d.difficulty].filter(Boolean).forEach(v=>{chipX+=canvasChip(x,v,chipX,627)+10});
+
+ x.fillStyle="#f7f2e7";x.fillRect(0,heroH,c.width,c.height-heroH);
+ x.fillStyle="#214537";x.fillRect(0,heroH,14,c.height-heroH);
+
+ const left={x:54,y:708,w:512,h:760},right={x:594,y:708,w:552,h:760};
+ fillRound(x,left.x,left.y,left.w,left.h,28,"#fffdfa");strokeRound(x,left.x,left.y,left.w,left.h,28,"#d9dfd8",2);
+ fillRound(x,right.x,right.y,right.w,right.h,28,"#fffdfa");strokeRound(x,right.x,right.y,right.w,right.h,28,"#d9dfd8",2);
+
+ x.fillStyle="#214537";x.font="700 38px Georgia";x.fillText("Hozzávalók",88,770);x.fillText("Elkészítés",630,770);
+ x.fillStyle="#b78b54";x.fillRect(88,790,118,5);x.fillRect(630,790,118,5);
+
+ x.font="25px Arial";let y1=840;
+ d.ingredients.slice(0,13).forEach((v,i)=>{
+   if(y1>1415)return;
+   x.fillStyle="#d9eadf";x.beginPath();x.arc(100,y1-8,10,0,Math.PI*2);x.fill();
+   x.fillStyle="#214537";x.font="900 15px Arial";x.textAlign="center";x.fillText("✓",100,y1-3);x.textAlign="left";
+   x.fillStyle="#293a33";x.font="25px Arial";y1=canvasWrap(x,v,126,y1,392,34,2)+12
+ });
+
+ let y2=840;
+ d.steps.slice(0,8).forEach((v,i)=>{
+   if(y2>1410)return;
+   fillRound(x,626,y2-30,44,44,22,"#214537");x.fillStyle="#fff";x.font="900 20px Arial";x.textAlign="center";x.fillText(String(i+1),648,y2);x.textAlign="left";
+   x.fillStyle="#293a33";x.font="24px Arial";y2=canvasWrap(x,v,688,y2,410,33,3)+18
+ });
+
+ const notes=(d.notes||[]).filter(Boolean);
+ if(notes.length){
+   const note=notes[0];fillRound(x,594,1490,552,62,18,"#eaf1eb");x.fillStyle="#214537";x.font="900 17px Arial";x.fillText("LÉNA TIPP",618,1517);
+   x.fillStyle="#52655b";x.font="18px Arial";canvasWrap(x,note,720,1517,396,24,1)
+ }
+ x.fillStyle="#66766e";x.font="17px Arial";x.fillText("📖 Olvasható recept automatikusan mellékelve",58,1548);
+ x.textAlign="right";x.font="900 17px Arial";x.fillStyle="#214537";x.fillText("ZSOLT & MÓNIKA",1142,1548);x.textAlign="left";
+
+ return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Kártyagenerálási hiba")),"image/jpeg",.94))
 }
 async function studioFinalize(){
  if(!studioDraft)return;const d=studioPullEditor();if(!d.title||!d.category||!d.ingredients.length||!d.steps.length){alert("A véglegesítéshez kell cím, kategória, hozzávaló és elkészítés.");return}
