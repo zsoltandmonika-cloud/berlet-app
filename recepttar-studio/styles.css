@@ -125,3 +125,15 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 
 #studioProviderBadge.provider-ready{border-color:#a9cfb2;background:#e5f4e8;color:#215f35}
 #studioProviderBadge.provider-offline{border-color:#d8d8d0;background:#f1f1ed;color:#777}
+
+.studio-preview-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.studio-card-panel{display:grid;gap:14px}
+.studio-exact-card-wrap{border:1px solid var(--line);border-radius:16px;background:#fff;padding:10px}
+.studio-exact-card-wrap img{display:block;width:100%;height:auto;border-radius:11px;background:#ece8df}
+.studio-exact-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:2px 2px 9px;color:#28483a}
+.studio-exact-head small{color:var(--muted);text-align:right}
+.studio-readable-preview{display:grid;gap:12px}
+.studio-readable-preview .structured-section{margin:0}
+.studio-readable-preview #studioReadableTitle{font-size:28px;margin-bottom:8px}
+.studio-readable-preview .ingredient-row{pointer-events:none}
+@media(max-width:620px){.studio-exact-head{align-items:flex-start;flex-direction:column}.studio-exact-head small{text-align:left}}
