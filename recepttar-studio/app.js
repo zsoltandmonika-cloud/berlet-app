@@ -99,8 +99,8 @@ async function saveNew(){
 
 
 
-const STUDIO_TEXT_MODEL="openai/gpt-5.6-luna";
-const STUDIO_IMAGE_MODEL="google/imagen-4.0-fast";
+const STUDIO_TEXT_MODEL="gpt-5.6-luna";
+const STUDIO_IMAGE_MODEL="gpt-image-1-mini";
 
 function puterAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function"&&typeof puter.ai.txt2img==="function")}
 function updateStudioProviderBadge(){
@@ -152,7 +152,7 @@ async function puterFoodImage(recipe){
    "Vertical 4:5 composition with useful negative space, no text, no lettering, no labels, no watermark, no hands, no people."
  ].join(" ");
  let img;
- try{img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL,ratio:{w:4,h:5},quality:"1K"})}
+ try{img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL,ratio:{w:4,h:5},quality:"low"})}
  catch(first){console.warn("Studio primary image model fallback",first);img=await puter.ai.txt2img(prompt,{ratio:{w:4,h:5}})}
  if(!img||!img.src)throw new Error("A képgenerátor nem adott vissza képet.");
  return dataUrlToBlob(img.src)
