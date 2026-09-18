@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>Léna Recepttár 2.1</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="brand">
+    <div class="eyebrow">ZSOLT & MÓNIKA</div>
+    <div class="brand-title">Léna Recepttár</div>
+  </div>
+  <button id="topHome" class="square-btn" title="Főoldal">🏠</button>
+</header>
+
+<main id="homeView">
+  <section class="search-section">
+    <div class="searchbox"><span>🔎</span><input id="search" placeholder="Recept keresése…" autocomplete="off"><button id="clearSearch">×</button></div>
+    <div id="chips" class="chips"></div>
+  </section>
+  <div class="count-row"><span><b id="count">0</b> recept</span><button id="favFilter" class="small-pill">☆ Kedvencek</button></div>
+  <section id="grid" class="grid"></section>
+</main>
+
+<main id="recipeView" hidden>
+  <section class="recipe-toolbar">
+    <button id="homeBtn" class="nav-btn">🏠 Főoldal</button>
+    <button id="backBtn" class="nav-btn">← Vissza</button>
+    <button id="favBtn" class="nav-btn">☆</button>
+  </section>
+  <section class="recipe-head">
+    <div class="eyebrow" id="recipeCategory"></div>
+    <h1 id="recipeTitle"></h1>
+    <div class="mode-row">
+      <button id="originalMode" class="mode active">Eredeti kártya</button>
+      <button id="readableMode" class="mode" hidden>Olvasható recept</button>
+    </div>
+  </section>
+  <section id="originalPanel" class="original-panel">
+    <img id="recipeImage" alt="">
+    <iframe id="recipePdf" hidden></iframe>
+  </section>
+  <section id="readablePanel" class="readable-panel" hidden>
+    <div id="readableText" class="readable-text"></div>
+    <button id="editReadable" class="outline-btn">Receptszöveg javítása</button>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button id="navHome"><span>🏠</span><small>Home</small></button>
+  <button id="navFav"><span>☆</span><small>Kedvencek</small></button>
+  <button id="navAsk"><span>✨</span><small>Kérdezd Lénát</small></button>
+</nav>
+
+<dialog id="textDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Olvasható receptszöveg</h2>
+  <p>Itt csak a valóban javított szöveget tároljuk. Ha üres, az app az eredeti kártyát mutatja alapból.</p>
+  <textarea id="textEditor" rows="16" placeholder="Írd vagy illeszd be a javított receptszöveget…"></textarea>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveText" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<div id="toast" class="toast"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
