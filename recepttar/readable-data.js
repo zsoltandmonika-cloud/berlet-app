@@ -281,210 +281,516 @@ window.LENA_READABLE = {
     ]
   },
   "2ed3ffbca614ff74": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "25 dkg reszelt cukkini",
+      "20 dkg liszt",
+      "15 dkg cukor",
+      "2 tojás",
+      "3 ek kakaópor",
+      "1 dl olaj",
+      "1 tk sütőpor"
+    ],
+    "steps": [
+      "Keverd össze a tojást, cukrot és olajat.",
+      "Add hozzá a lisztet, kakaót, sütőport és a reszelt cukkinit.",
+      "Öntsd sütőpapíros formába.",
+      "Süsd tűpróbáig, majd hagyd kihűlni."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: egy marék dióval még izgalmasabb lesz az íze."
     ]
   },
   "f1d8de48a2564f18": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "30 dkg tészta",
+      "2 közepes cukkini",
+      "2 gerezd fokhagyma",
+      "1 dl főzőtejszín",
+      "5 dkg parmezán",
+      "Olívaolaj",
+      "Só, bors, bazsalikom"
+    ],
+    "steps": [
+      "Főzd ki a tésztát sós vízben.",
+      "Pirítsd meg az olajon a fokhagymát és a felkarikázott cukkinit.",
+      "Add hozzá a tejszínt és a parmezánt.",
+      "Forgasd össze a tésztával, majd tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: friss bazsalikommal és extra parmezánnal a legjobb."
     ]
   },
   "8b39e9ac4eb999f7": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "2 közepes cukkini",
+      "2 tojás",
+      "10 dkg liszt",
+      "8 dkg reszelt sajt",
+      "2 gerezd fokhagyma",
+      "Só, bors",
+      "Olaj a sütéshez"
+    ],
+    "steps": [
+      "A cukkinit reszeld le, sózd be, majd nyomkodd ki a levét.",
+      "Keverd össze a tojással, liszttel, sajttal és fokhagymával.",
+      "Forró olajban süss kis lepényeket aranybarnára.",
+      "Papírtörlőn csepegtesd le, majd tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: tejfölös mártogatással a legfinomabb."
     ]
   },
   "d73111fae6a3840e": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "3 közepes cukkini",
+      "2 dl tejszín",
+      "15 dkg reszelt sajt",
+      "2 gerezd fokhagyma",
+      "5 dkg parmezán",
+      "Vaj a tálhoz",
+      "Só, bors, szerecsendió"
+    ],
+    "steps": [
+      "A cukkinit karikázd fel, és rétegezd kivajazott tálba.",
+      "Keverd össze a tejszínt a fokhagymával és a fűszerekkel.",
+      "Öntsd a cukkinire, majd szórd meg sajttal.",
+      "Süsd aranybarnára, amíg szépen megpirul."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: köretként és önálló vacsoraként is remek."
     ]
   },
   "5cf32f45f3024e7e": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "2 közepes cukkini",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "7 dl alaplé",
+      "1 dl főzőtejszín",
+      "Olívaolaj, só, bors",
+      "Petrezselyem"
+    ],
+    "steps": [
+      "A hagymát dinszteld meg kevés olajon.",
+      "Add hozzá a felkockázott cukkinit és a fokhagymát.",
+      "Öntsd fel alaplével, majd főzd puhára.",
+      "Turmixold simára, keverd hozzá a tejszínt, végül fűszerezd."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pirított tökmaggal és friss petrezselyemmel még finomabb."
     ]
   },
   "67ea0ae0a16b8967": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 közepes sütőtök",
+      "2 ek olívaolaj",
+      "1 tk méz",
+      "1–2 ág rozmaring",
+      "Só, bors",
+      "Opcionálisan kevés feta"
+    ],
+    "steps": [
+      "Hámozd meg a sütőtököt, vágd cikkekre vagy kockákra.",
+      "Forgasd össze olívaolajjal, mézzel, sóval, borssal és rozmaringgal.",
+      "Terítsd tepsire, majd süsd 200 °C-on 25–35 percig.",
+      "Forrón tálald köretként vagy saláták mellé."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pirított tökmaggal és morzsolt fetával még izgalmasabb."
     ]
   },
   "d9f7ad99363e9bcf": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 csomag omlós pitetészta",
+      "500 g sült sütőtökpüré",
+      "2 tojás",
+      "2 dl habtejszín",
+      "120 g barna cukor",
+      "1 tk fahéj",
+      "1/2 tk gyömbér",
+      "Csipet szerecsendió"
+    ],
+    "steps": [
+      "Béleld ki a formát a tésztával, szurkáld meg villával.",
+      "Keverd össze a sütőtökpürét a tojással, tejszínnel, cukorral és fűszerekkel.",
+      "Öntsd a tölteléket a tésztára, majd süsd 180 °C-on kb. 45 percig.",
+      "Hűlés után szeleteld, és ízlés szerint tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: kevés narancshéjjal vagy vaníliával még illatosabb."
     ]
   },
   "d9637f55ccb4ade1": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "80 dkg sütőtök",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 kisebb burgonya",
+      "2 ek olívaolaj",
+      "8 dl alaplé",
+      "1 dl tejszín",
+      "Só, bors, csipet szerecsendió"
+    ],
+    "steps": [
+      "A hagymát dinszteld meg, majd add hozzá a felkockázott sütőtököt, a burgonyát és a fokhagymát.",
+      "Öntsd fel alaplével, főzd puhára, majd turmixold krémesre.",
+      "Lazítsd tejszínnel, fűszerezd, és pirított tökmaggal tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   },
   "235f17bb88da8ee4": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "800 g sütőtök",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "700 ml alaplé",
+      "2 dl főzőtejszín",
+      "Só, bors, szerecsendió",
+      "Tökmag",
+      "Kevés olívaolaj"
+    ],
+    "steps": [
+      "A hagymát dinszteld meg, add hozzá a felkockázott sütőtököt és a fokhagymát.",
+      "Öntsd fel az alaplével, majd főzd puhára.",
+      "Turmixold simára, keverd hozzá a tejszínt, ízesítsd.",
+      "Tálald pirított tökmaggal."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: kevés chilivel vagy pirított zsályával még izgalmasabb."
     ]
   },
   "fb3bfcde04e147ad": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "250 g liszt",
+      "200 g sütőtökpüré",
+      "2 tojás",
+      "120 g cukor",
+      "80 ml olaj",
+      "1 tk fahéj",
+      "1/2 tk sütőpor",
+      "Csipet gyömbér"
+    ],
+    "steps": [
+      "Keverd össze a nedves hozzávalókat: sütőtökpüré, tojás, cukor és olaj.",
+      "Add hozzá a lisztet, sütőport és a fűszereket.",
+      "Kanalazd a masszát muffinformába.",
+      "Süsd 180 °C-on 20–25 percig, amíg szép aranybarna lesz."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: darált dióval vagy csokidarabokkal még finomabb."
     ]
   },
   "f18b4c62142af41d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "300 g rizottórizs",
+      "400 g sütőtökpüré",
+      "1 fej hagyma",
+      "1 l zöldségalaplé",
+      "1 dl száraz fehérbor",
+      "40 g vaj",
+      "50 g parmezán",
+      "Pár levél zsálya"
+    ],
+    "steps": [
+      "Dinszteld meg a hagymát, add hozzá a rizst, majd öntsd fel a borral.",
+      "Fokozatosan adagold az alaplevet, és közben kevergesd.",
+      "Amikor a rizs majdnem puha, keverd hozzá a sütőtökpürét, a vajat és a parmezánt.",
+      "Tálald zsályával és frissen őrölt borssal."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pirított tökmaggal vagy extra parmezánnal tálalva a legjobb."
     ]
   },
   "cb1724f6bc2ecdfb": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "300 g tészta",
+      "350 g sütőtökpüré",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "2 dl főzőtejszín",
+      "40 g reszelt parmezán",
+      "Só, bors",
+      "Kevés olívaolaj"
+    ],
+    "steps": [
+      "Főzd ki a tésztát sós vízben.",
+      "Dinszteld meg a hagymát és a fokhagymát, majd add hozzá a sütőtökpürét.",
+      "Keverd bele a tejszínt és a parmezánt, majd forgasd össze a tésztával.",
+      "Frissen tálald, ízlés szerint extra sajttal."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: egy csipet chili vagy ropogós zsálya remekül illik hozzá."
     ]
   },
   "3427069270300025": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 liter friss must",
+      "35–40 dkg cukor",
+      "1 citrom leve",
+      "1 csomag zselésítő"
+    ],
+    "steps": [
+      "A mustot szűrd le, majd öntsd lábasba.",
+      "Add hozzá a cukrot, a citromlevet és a zselésítőt.",
+      "Forrald fel, és a csomagolás szerint főzd néhány percig.",
+      "Forrón töltsd steril üvegekbe, zárd le, majd hagyd kihűlni."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pirítósra, sajtok mellé és desszertekhez is remek."
     ]
   },
   "8b82061fd9663347": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "40 dkg szőlő",
+      "15 dkg kecskesajt",
+      "2 marék rukkola",
+      "1 marék dió",
+      "1 ek méz",
+      "1 tk balzsamecet",
+      "Kevés olívaolaj"
+    ],
+    "steps": [
+      "A szőlőt mosd meg, majd kevés olajjal locsold meg.",
+      "Forró sütőben süsd 15 percig, amíg kissé összeesik.",
+      "Tálald rukkolával, morzsold rá a kecskesajtot és szórd meg dióval.",
+      "Csorgass rá mézet és balzsamecetet, majd azonnal kínáld."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pirítóssal vagy előételként különösen finom."
     ]
   },
   "98a21f6474fa99ef": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "40 dkg liszt",
+      "2,5 dl langyos víz",
+      "2 dkg friss élesztő",
+      "2 ek olívaolaj",
+      "1 tk só",
+      "25 dkg szőlő",
+      "1 ág rozmaring"
+    ],
+    "steps": [
+      "Az élesztőt futtasd fel, majd dagaszd össze a tésztát.",
+      "Keleszd duplájára, ezután nyomkodd kiolajozott tepsibe.",
+      "Szórd rá a szőlőt és a rozmaringot, majd locsold meg kevés olívaolajjal.",
+      "200 °C-on süsd aranybarnára, langyosan tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: pár csepp mézzel még izgalmasabb, édes-sós falat lesz."
     ]
   },
   "f3ab56a245dd159b": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "25 dkg liszt",
+      "12 dkg vaj",
+      "4–5 ek hideg víz",
+      "45 dkg szőlő",
+      "8 dkg cukor",
+      "1 ek keményítő",
+      "1 tojás a kenéshez"
+    ],
+    "steps": [
+      "A lisztből, vajból és vízből készíts omlós tésztát, majd pihentesd.",
+      "A szőlőt keverd össze cukorral és keményítővel.",
+      "Nyújtsd ki a tésztát, halmozd rá a tölteléket, a széleket hajtsd vissza.",
+      "Kend meg tojással, majd 190 °C-on süsd pirosra."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: egy kevés fahéj vagy citromhéj nagyon jól áll neki."
     ]
   },
   "6e610c26c49ddcfb": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "50 dkg kékszőlő",
+      "20 dkg liszt",
+      "12 dkg hideg vaj",
+      "10 dkg cukor",
+      "1 citrom reszelt héja",
+      "1 csipet fahéj"
+    ],
+    "steps": [
+      "A szőlőt mosd meg, szemezd le, és tedd kivajazott tálba.",
+      "A lisztet, vajat, cukrot, citromhéjat és fahéjat morzsold össze.",
+      "Szórd a morzsát a gyümölcsre, majd 180 °C-on süsd aranybarnára.",
+      "Langyosan tálald, önmagában vagy vaníliafagyival."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Tipp: egy marék darált dióval még gazdagabb lesz."
     ]
   },
   "efd8b094572a17fc": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "2–3 gerezd fokhagyma",
+      "50 g reszelt parmezán",
+      "1 tk szárított oregánó",
+      "Kevés durva só"
+    ],
+    "steps": [
+      "Keverd be a tésztát a lisztből, élesztőből, sóból, vízből és olívaolajból.",
+      "Keleszd duplájára.",
+      "Tedd tepsibe, nyomkodd meg, kend meg kevés fokhagymás olívaolajjal, szórd meg parmezánnal és oregánóval.",
+      "Süsd 200 °C-on 20–25 percig aranybarnára."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez.",
+      "Tipp: a fokhagymát keverd az olívaolajba, így egyenletesen oszlik el a tésztán és nem ég meg könnyen."
     ]
   },
   "f39f0b9e36051226": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "1 nagy fej lilahagyma",
+      "100 g reszelt sajt",
+      "1 tk kakukkfű"
+    ],
+    "steps": [
+      "Dolgozd össze a tészta hozzávalóit, amíg sima, lágy masszát kapsz.",
+      "Hagyd kelni 1–1,5 órát.",
+      "Nyomkodd tepsibe, tedd rá a vékonyra szeletelt hagymát és a sajtot, hintsd meg kakukkfűvel.",
+      "Süsd 200 °C-on 20–25 percig, amíg a sajt megpirul."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez.",
+      "Tipp: ha enyhébb hagymát szeretnél, sütés előtt pár percig dinszteld meg a hagymaszeleteket."
     ]
   },
   "655b1d96ade6c276": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "200 g koktélparadicsom",
+      "1 marék friss bazsalikom",
+      "Kevés durva só"
+    ],
+    "steps": [
+      "Keverd össze a lisztet, élesztőt, sót, vizet és 2 ek olívaolajat, majd dolgozd össze lágy tésztává.",
+      "Letakarva keleszd 1–1,5 órán át.",
+      "Tedd kiolajozott tepsibe, nyomkodd meg ujjal, rakd rá a félbevágott koktélparadicsomokat, locsold meg olívaolajjal.",
+      "Süsd 200 °C-on 20–25 percig, majd friss bazsalikommal szórd meg."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez."
     ]
   },
   "b938597c000455a4": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "1 közepes főtt burgonya, áttörve",
+      "6–8 zsályalevél",
+      "Kevés durva só"
+    ],
+    "steps": [
+      "Keverd a liszthez az élesztőt és a sót, majd add hozzá a vizet, az olívaolajat és az áttört főtt burgonyát.",
+      "Dagaszd lágy tésztává, majd keleszd duplájára.",
+      "Tedd tepsibe, nyomkodd meg, szórd rá a zsályaleveleket és locsold meg olívaolajjal.",
+      "Süsd 200 °C-on 22–25 percig, míg szép aranybarna lesz."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez."
     ]
   },
   "cdef685c1687fd65": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "80 g fekete vagy zöld olívabogyó",
+      "80 g aszalt paradicsom",
+      "1 tk oregánó"
+    ],
+    "steps": [
+      "Gyúrd össze a lisztet, élesztőt, sót, vizet és olívaolajat.",
+      "Keleszd 1–1,5 órán át, míg szépen megemelkedik.",
+      "Nyomkodd tepsibe, készíts mélyedéseket, oszd el rajta az olívát és az aszalt paradicsomot.",
+      "Süsd 200 °C-on 20–25 percig, sütés végén hintsd meg oregánóval."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez."
     ]
   },
   "f3de155dcb55b7c7": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g búzaliszt",
+      "320 ml langyos víz",
+      "7 g szárított élesztő vagy 25 g friss élesztő",
+      "4 ek olívaolaj",
+      "2 tk só",
+      "2–3 ág friss rozmaring"
+    ],
+    "steps": [
+      "A lisztet keverd össze az élesztővel, sóval, add hozzá a langyos vizet és 2 ek olívaolajat. Dolgozd össze lágy, ragacsos tésztává.",
+      "Fedd le, és keleszd 1–1,5 órán át, amíg a duplájára nem nő.",
+      "Nyújtsd a tésztát egy kiolajozott tepsibe, ujjaiddal nyomkodd be a jellegzetes mélyedéseket. Locsold meg olívaolajjal, szórd meg rozmaringgal és durva sóval.",
+      "Süsd 200 °C-on 20–25 percig, amíg aranybarnára sül."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 nagy tepsihez."
     ]
   },
   "7cb2f38ce02c933c": {
