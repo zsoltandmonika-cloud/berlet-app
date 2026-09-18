@@ -102,7 +102,12 @@ async function saveNew(){
 const STUDIO_TEXT_MODEL="openai/gpt-5.6-luna";
 const STUDIO_IMAGE_MODEL="google/imagen-4.0-fast";
 
-function puterAvailable(){return !!(window.puter&&puter.ai&&puter.ai.chat&&puter.ai.txt2img)}
+function puterAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function"&&typeof puter.ai.txt2img==="function")}
+function updateStudioProviderBadge(){
+ const b=$("#studioProviderBadge");if(!b)return;
+ if(puterAvailable()){b.textContent="AI READY";b.classList.remove("provider-offline");b.classList.add("provider-ready")}
+ else{b.textContent="HELYI MÓD";b.classList.remove("provider-ready");b.classList.add("provider-offline")}
+}
 function puterText(resp){
  let c=resp&&resp.message?resp.message.content:resp;
  if(Array.isArray(c))c=c.map(x=>typeof x==="string"?x:(x&&x.text)||"").join("");
@@ -115,6 +120,12 @@ function parseRecipeJson(text){
  const first=s.indexOf("{"),last=s.lastIndexOf("}");if(first>=0&&last>first)s=s.slice(first,last+1);
  return JSON.parse(s)
 }
+function dataUrlToBlob(url){
+ const m=String(url||"").match(/^data:([^;,]+)?(?:;charset=[^;,]+)?;base64,(.*)$/);
+ if(!m)throw new Error("A képgenerátor nem data URL képet adott vissza.");
+ const bin=atob(m[2]),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+ return new Blob([a],{type:m[1]||"image/png"})
+}
 function studioAiPrompt(userText,currentRecipe=null){
  const categories=allCategories().join(", ");
  const schema='{"title":"...","category":"...","servings":"4 fő","time":"30 perc","difficulty":"Könnyű","ingredients":["..."],"steps":["..."],"notes":["..."]}';
@@ -125,9 +136,10 @@ function studioAiPrompt(userText,currentRecipe=null){
 }
 async function puterRecipe(prompt,currentRecipe=null){
  if(!puterAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
- const resp=await puter.ai.chat(studioAiPrompt(prompt,currentRecipe),{
-   model:STUDIO_TEXT_MODEL,normalize:true,temperature:0.2,max_tokens:2600
- });
+ const req=studioAiPrompt(prompt,currentRecipe);
+ let resp;
+ try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+ catch(first){console.warn("Studio primary text model fallback",first);resp=await puter.ai.chat(req,{normalize:true})}
  return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
 }
 async function puterFoodImage(recipe){
@@ -137,12 +149,13 @@ async function puterFoodImage(recipe){
    "Dish: "+recipe.title+".",
    "Key ingredients: "+recipe.ingredients.slice(0,8).join(", ")+".",
    "Finished dish only, appetizing and realistic, natural proportions, warm natural side light, elegant home dining setting, shallow depth of field.",
-   "Portrait-friendly composition, useful negative space, no text, no lettering, no labels, no watermark, no hands, no people."
+   "Vertical 4:5 composition with useful negative space, no text, no lettering, no labels, no watermark, no hands, no people."
  ].join(" ");
- const img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL});
+ let img;
+ try{img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL,ratio:{w:4,h:5},quality:"1K"})}
+ catch(first){console.warn("Studio primary image model fallback",first);img=await puter.ai.txt2img(prompt,{ratio:{w:4,h:5}})}
  if(!img||!img.src)throw new Error("A képgenerátor nem adott vissza képet.");
- const r=await fetch(img.src);if(!r.ok)throw new Error("A generált kép nem tölthető be.");
- return await r.blob()
+ return dataUrlToBlob(img.src)
 }
 
 let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null;
@@ -209,7 +222,7 @@ function resetStudio(){
  $("#studioStatus").textContent="A Studio AI-receptet és ételfotót készít fizetős API-kulcs nélkül.";
  $("#studioCentralSync").checked=false
 }
-function openStudio(){fillCategoryList();resetStudio();$("#studioDialog").showModal()}
+function openStudio(){fillCategoryList();resetStudio();updateStudioProviderBadge();$("#studioDialog").showModal()}
 function studioPullEditor(){
  if(!studioDraft)return null;
  studioDraft.title=$("#studioTitle").value.trim()||studioDraft.title;
@@ -419,4 +432,4 @@ $("#studioPhotoInput").onchange=e=>studioHandlePhoto(e.target.files&&e.target.fi
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{migrateCanonicalBaseState();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();void 0})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();void 0})().catch(e=>{console.error(e);renderHome()});
