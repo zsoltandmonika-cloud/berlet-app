@@ -57,13 +57,25 @@ window.LENA_READABLE = {
   },
 
   "760c839f3619c530": {
-    "status": "review",
-    "source": "image_only_unverified",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "50 dkg zöldborsó",
+      "1 fej vöröshagyma",
+      "1 sárgarépa",
+      "2 ek olívaolaj",
+      "1 csokor petrezselyem",
+      "1 tk pirospaprika",
+      "1 l víz vagy alaplé",
+      "Só, bors"
+    ],
+    "steps": [
+      "A hagymát futtasd meg az olajon, add hozzá a répát és a zöldborsót.",
+      "Szórd meg pirospaprikával, öntsd fel vízzel vagy alaplével, majd főzd puhára.",
+      "Ízesítsd, szórd meg petrezselyemmel, és forrón tálald."
+    ],
     "notes": [
-      "A korábbi automatikus felismerés ennél a receptnél jónak tűnt, de a forráshű strukturált szöveg jelenleg nincs biztonságosan visszaállítva.",
-      "Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   },
 
