@@ -121,47 +121,82 @@ window.LENA_READABLE = {
     ]
   },
   "729358bf7fb8a669": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_duplicate_pdf",
+    "ingredients": [
+      "1 csésze zabpehely (kb. 90 g)",
+      "2 alma, reszelve vagy finomra vágva",
+      "2 tojás",
+      "150 g natúr joghurt",
+      "1 teáskanál sütőpor",
+      "1/2 teáskanál fahéj (elhagyható)",
+      "1 csipet só",
+      "Opcionális: dió, chia vagy mazsola"
+    ],
+    "steps": [
+      "Alma: Mosd meg, szükség szerint hámozd meg, majd reszeld le vagy vágd finomra.",
+      "Keverés: Verd fel a tojásokat. Keverd hozzá a joghurtot, zabpelyhet, sütőport, fahéjat és sót, végül forgasd bele az almát és az opcionális extrákat.",
+      "Pihentetés: Hagyd állni 10 percig, hogy a zabpehely felszívja a nedvességet és a massza besűrűsödjön.",
+      "Sütés: Öntsd enyhén kiolajozott kisebb sütőformába. Süsd 175 °C-on 25–30 percig, amíg a teteje aranybarna és a közepe megszilárdul.",
+      "Tálalás: Pihentesd pár percig, majd kínáld melegen egy kanál natúr joghurttal vagy friss gyümölccsel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Más formában is: sütheted kisebb palacsintaként vagy muffinformában is.",
+      "Alma helyett körte vagy banán is használható; vanília és citromhéj jól áll neki.",
+      "Hűtve tárolható, újramelegíthető.",
+      "Ez a PDF-bejegyzés ugyanannak az Almás-Zabpelyhes Reggelinek a változata."
     ]
   },
   "0dace92dd37f0c2e": {
-    "status": "review",
-    "source": "draft_from_file_library_partial",
+    "status": "verified",
+    "source": "verified_from_recipe_card",
     "ingredients": [
       "Alap: 15 dkg zabpehely",
       "Alap: 10 dkg dió vagy mandula",
       "Alap: 6 db puha datolya",
       "Alap: 2 ek kókuszolaj, olvasztva",
       "Alap: 1 csipet só",
-      "Krém: 25 dkg natúr görög joghurt vagy növényi joghurt",
-      "Krém: 15 dkg túró vagy light krémsajt",
+      "Krém: 25 dkg natúr görög joghurt vagy növényi joghurt, például kókusz vagy szója",
+      "Krém: 15 dkg túró vagy krémsajt light",
       "Krém: 2 ek méz vagy juharszirup",
       "Krém: 1 tk vanília kivonat",
       "Krém: 1 citrom leve és héja",
       "Krém: 15 dkg bogyós gyümölcs, fagyasztott is lehet",
-      "Tetejére: friss gyümölcsök, például málna, áfonya, eper"
+      "Tetejére: friss gyümölcsök, például málna, áfonya vagy eper"
     ],
     "steps": [
       "Az alaphoz a zabpelyhet és a diót aprítógépben morzsásra daráljuk. Hozzáadjuk a datolyát, kókuszolajat és a csipet sót, majd összedolgozzuk.",
-      "Egy kapcsos tortaformát béleljünk ki sütőpapírral, nyomjuk bele az alapot, és tegyük hűtőbe."
+      "Egy kapcsos tortaformát béleljünk ki sütőpapírral, nyomjuk bele az alapot, és tegyük hűtőbe.",
+      "A krémhez a joghurtot, túrót vagy krémsajtot, mézet, vaníliát, citromlevet és héjat, valamint a bogyós gyümölcsöket turmixoljuk krémesre.",
+      "Öntsük az alapra, simítsuk el a tetejét, és tegyük vissza a hűtőbe legalább 2–4 órára.",
+      "Tálalás előtt díszítsük friss gyümölcsökkel."
     ],
     "notes": [
-      "A forrásból a további elkészítési lépések most nem nyerhetők vissza teljes bizonyossággal, ezért a recept Review státuszban marad.",
-      "Elkészítés: kb. 20 perc, hűtés: 2–4 óra, kb. 12 szelet."
+      "Elkészítés kb. 20 perc, hűtés 2–4 óra, kb. 12 szelet."
     ]
   },
   "05f45af58c97374c": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "4 nagy, érett banán",
+      "350–450 g kókuszreszelék",
+      "50–80 g kókuszreszelék a forgatáshoz",
+      "Opcionálisan 2–4 teáskanál porcukor, méz vagy eritrit ízlés szerint",
+      "Opcionálisan 100–150 g kimagozott, apróra vágott meggy"
+    ],
+    "steps": [
+      "A banánt villával teljesen pépesítsd.",
+      "Először kb. 350 g kókuszreszeléket keverj hozzá.",
+      "Hagyd állni 5–10 percet, mert a kókusz felszívja a nedvességet.",
+      "Add hozzá a meggyet, ha használsz, majd keverd össze.",
+      "Formázz kb. diónál kisebb golyókat.",
+      "Forgasd meg kókuszreszelékben.",
+      "Tedd hűtőbe legalább 1 órára. Hidegen stabilabb és még finomabb."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "8–10 személyre, kb. 40–50 kisebb golyó vagy fejenként 4–5 darab.",
+      "Variációk: 1–2 ek cukrozatlan kakaópor; darált dió a kókusz helyett; 1/2 tk fahéj; kevés vanília és étcsokoládé-reszelék; apróra vágott dió vagy mandula a közepébe."
     ]
   },
   "07cc29f70eea5c91": {
@@ -189,12 +224,31 @@ window.LENA_READABLE = {
     ]
   },
   "373c9eba01321bec": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "Alap: 200 g darált háztartási keksz",
+      "Alap: 80 g olvasztott vaj",
+      "Krém: 400 g görög joghurt",
+      "Krém: 250 g mascarpone",
+      "Krém: 200 ml habtejszín",
+      "Krém: 80 g porcukor vagy 3–4 ek méz",
+      "Krém: 2 citrom leve",
+      "Krém: 1 citrom reszelt héja",
+      "Krém: 1 csomag habfixáló",
+      "Krém: 1 tk vanília kivonat",
+      "Díszítéshez: citromszeletek, friss mentalevél és kevés reszelt citromhéj"
+    ],
+    "steps": [
+      "Keverd össze a darált kekszet az olvasztott vajjal, majd nyomkodd egy 20 cm-es tortaforma aljába. Tedd hűtőbe 10 percre.",
+      "A habtejszínt a habfixálóval verd fel.",
+      "Egy másik tálban keverd simára a görög joghurtot, a mascarponét, a porcukrot, a citromlevet, a citromhéjat és a vaníliát.",
+      "Óvatosan forgasd bele a felvert tejszínt.",
+      "Simítsd a krémet a kekszes alapra, majd tedd hűtőbe legalább 2–3 órára.",
+      "Tálalás előtt díszítsd citrommal és mentával."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "8 szelet. Tipp: könnyedebb változathoz a mascarpone egy részét extra görög joghurtra cserélheted."
     ]
   },
   "85f7f17e3ce75f9f": {
@@ -227,12 +281,35 @@ window.LENA_READABLE = {
     ]
   },
   "a59e9d3e28fbe06d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "Kávés burok: 300 g darált keksz",
+      "Kávés burok: 90 g porcukor",
+      "Kávés burok: 25 g kakaópor",
+      "Kávés burok: 100 g puha vaj",
+      "Kávés burok: 6 rövid, erős eszpresszó",
+      "Kávés burok: 1 ek rumaroma",
+      "Kávés burok: 1 csipet só",
+      "Vaníliás töltelék: 40 g kerek szemű rizs",
+      "Vaníliás töltelék: 180 ml laktózmentes tej",
+      "Vaníliás töltelék: 25 g cukor",
+      "Vaníliás töltelék: 1 csomag vaníliás cukor",
+      "Vaníliás töltelék: 20 g vaníliás pudingpor",
+      "Vaníliás töltelék: 40 ml hideg tej",
+      "Vaníliás töltelék: 1 csipet só",
+      "Bevonat: 2 ek kakaópor vagy 2–3 ek kókuszreszelék vagy 3 ek finomra aprított, pirított mandula"
+    ],
+    "steps": [
+      "A rizst főzd puhára 180 ml tejben, cukorral, vaníliás cukorral és sóval.",
+      "Add hozzá a 40 ml tejjel elkevert pudingport; főzd nagyon sűrűre.",
+      "Hűtsd ki, formázz kis golyókat, majd fagyaszd 45–60 percig.",
+      "A 6 eszpresszót főzd vissza 90 ml-re és hűtsd ki.",
+      "Gyúrd össze a burok hozzávalóit, majd zárd körbe a tölteléket.",
+      "Forgasd kakaóporba, kókuszreszelékbe vagy pirított mandulába; hűtsd 2 órát."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "16–18 darab, sütés nélkül."
     ]
   },
   "67c1707c2d5750c5": {
