@@ -198,12 +198,32 @@ window.LENA_READABLE = {
     ]
   },
   "85f7f17e3ce75f9f": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "200–220 g kerek szemű rizs",
+      "1 liter 1,5%-os laktózmentes tej",
+      "60–75 g cukor",
+      "1 csomag vaníliás cukor",
+      "1 kis csipet só",
+      "40–60 g mazsola",
+      "1 púpos evőkanál vaníliás pudingpor",
+      "Kb. 50–70 ml hideg tej a pudingporhoz"
+    ],
+    "steps": [
+      "A rizst gyorsan mosd át hideg vízben, amíg a víz már nem zavaros.",
+      "Tedd a rizst a rizsfőző edényébe, öntsd hozzá a 900 ml tejet, add hozzá a cukrot, vaníliás cukrot és a sót.",
+      "Válaszd a Porridge / Kása módot, és indítsd el a főzést.",
+      "Kb. a főzési idő felénél, 20–25 perc múlva keverd át, hogy ne tapadjon le, és add hozzá a mazsolát.",
+      "A végén a vaníliás pudingport keverd ki 50–70 ml hideg tejjel csomómentesre.",
+      "Öntsd a pudingos tejet a rizsfőzőbe, és alaposan keverd át.",
+      "Válaszd ismét a Porridge / Kása módot, vagy maradjon Melegen tartás funkción. Főzd még 5–10 percig.",
+      "Lefőzés után pihentesd 10 percig fedővel letakarva, így lesz igazán krémes és pudingos állagú."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–5 főre. Főzés kb. 45–55 perc.",
+      "A mazsolát előzőleg 10–15 percre langyos vízbe áztathatod.",
+      "A cukor mennyisége ízlés szerint csökkenthető."
     ]
   },
   "a59e9d3e28fbe06d": {
@@ -468,30 +488,71 @@ window.LENA_READABLE = {
     ]
   },
   "7cb2f38ce02c933c": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "2,5–3 kg kovászolni való uborka",
+      "Kb. 3–3,3 liter víz, amennyi ellepi",
+      "60–80 g só",
+      "2 nagy csokor kapor",
+      "7–10 gerezd fokhagyma",
+      "2 közepes szelet kenyér",
+      "Opcionális: 2 kisebb darab torma",
+      "Opcionális: 8–12 szem egész bors",
+      "Opcionális: 2–3 babérlevél"
+    ],
+    "steps": [
+      "Az uborkát alaposan mosd meg, a két végét vágd le.",
+      "Hosszában vágd be kereszt alakban, de ne vágd teljesen ketté.",
+      "Az üveg aljára menjen a kapor fele és a fokhagyma.",
+      "Az uborkákat állítva, szorosan rakd az üvegbe. Tedd rá a maradék kaprot.",
+      "A vizet forrald fel a sóval, majd hűtsd vissza langyosra.",
+      "Öntsd fel a langyos, sós lével az uborkát úgy, hogy teljesen ellepje.",
+      "A tetejére tedd a kenyeret, lehetőleg gézbe, tiszta textilbe vagy kis tányérra téve, hogy ne málljon szét.",
+      "Az üveget lazán fedd le egy kistányérral. Ne csavard rá légmentesen.",
+      "Érleld nagy melegben 2–3 napig, mérsékeltebb időben 3–5 napig. Akkor jó, amikor a leve opálos, savanykás illatú, az uborka roppanós, de már átérte a lé.",
+      "Ezután vedd le a kenyeret, szűrd le a levet, az uborkát és a levet tedd tiszta edénybe, majd hűtőben tárold."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "3 literes üveghez.",
+      "Sóarány: kb. 2–2,5%, vagyis 20–25 g só literenként.",
+      "Minden uborka legyen lé alatt; a túl forró lé és a tartós tűző nap rontja a roppanósságot."
     ]
   },
   "9701d74ca9c6a98b": {
     "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
+    "source": "partial_verified_from_file_library",
+    "ingredients": [
+      "50 dkg széles metélt",
+      "30 dkg búzadara",
+      "2 ek zsiradék",
+      "4,5 dl forró víz",
+      "Só",
+      "Kedvenc lekvár",
+      "Porcukor ízlés szerint",
+      "Sárgabaracklekvár tálaláshoz"
+    ],
     "steps": [],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "A hozzávalók biztosan visszanyerhetők, de az elkészítési lépések forráshű szövege még nincs teljesen ellenőrizve, ezért Review státuszban marad."
     ]
   },
   "895492be46aed4aa": {
     "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
+    "source": "partial_verified_from_file_library",
+    "ingredients": [
+      "50 dkg széles metélt",
+      "30 dkg búzadara",
+      "2 ek zsiradék",
+      "4,5 dl forró víz",
+      "Só",
+      "Kedvenc lekvár",
+      "Porcukor ízlés szerint",
+      "Sárgabaracklekvár tálaláshoz"
+    ],
     "steps": [],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "A hozzávalók biztosan visszanyerhetők, de az elkészítési lépések forráshű szövege még nincs teljesen ellenőrizve, ezért Review státuszban marad."
     ]
   },
   "5fef22e1a5fc03de": {
@@ -567,12 +628,62 @@ window.LENA_READABLE = {
     ]
   },
   "f281d3a8e0557f1d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "Pác: 1,65 kg csirkecombfilé, falatnyi darabokra vágva",
+      "Pác: 400–420 g natúr joghurt",
+      "Pác: 6–7 gerezd fokhagyma, zúzva",
+      "Pác: 4–5 cm friss gyömbér, reszelve",
+      "Pác: 1 ek citromlé",
+      "Pác: 2–3 ek tikka masala szósz/alap",
+      "Pác: 2 tk római kömény",
+      "Pác: 2 tk őrölt koriander",
+      "Pác: 2–3 tk fűszerpaprika",
+      "Pác: 1/2 tk kurkuma",
+      "Pác: 1–1,5 tk só",
+      "Pác: 3/4 tk frissen őrölt bors",
+      "Szósz: 3–4 ek vaj + 2 ek olaj",
+      "Szósz: 2 közepes hagyma, finomra vágva",
+      "Szósz: 6 gerezd fokhagyma, zúzva",
+      "Szósz: 4–5 cm gyömbér, reszelve",
+      "Szósz: 1 üveg Patak's Tikka Masala Curry Sauce",
+      "Szósz: 800–1200 g passzírozott paradicsom",
+      "Szósz: 350–450 ml főzőtejszín",
+      "Szósz: 300–450 ml víz vagy alaplé",
+      "Szósz: 1–2 tk curry por",
+      "Szósz: 1/2 tk kurkuma",
+      "Szósz: 1 tk római kömény",
+      "Szósz: 1–2 tk őrölt koriander",
+      "Szósz: 1,5–2 tk fűszerpaprika",
+      "Szósz: 2 tk cukor",
+      "Szósz: só csak a végén, kóstolás alapján",
+      "Naan: 500 g finomliszt",
+      "Naan: 7 g szárított élesztő vagy 20 g friss élesztő",
+      "Naan: 1 tk cukor",
+      "Naan: 1,5 tk só",
+      "Naan: 200 g natúr joghurt",
+      "Naan: 2 ek olaj",
+      "Naan: 180–220 ml langyos víz",
+      "Naan kenéséhez: 35–40 ml enyhe olívaolaj vagy semleges olaj + 2–3 gerezd fokhagyma",
+      "Basmati rizs: 500 g basmati rizs",
+      "Basmati rizs: 600–625 ml víz, ha a rizs át van mosva és 20 percet ázott",
+      "Basmati rizs: 1,5 tk só",
+      "Basmati rizs: 1 ek vaj vagy kevés olaj"
+    ],
+    "steps": [
+      "Pácolás: A pác hozzávalóit keverd össze a csirkével. Fedd le, és tedd hűtőbe minimum 12 órára. A 24 órás pác is jó, de a citromlé maradjon legfeljebb 1 evőkanál.",
+      "Naan tészta: A vízbe keverd bele a cukrot és az élesztőt. Hagyd 5–10 percig felfutni. Gyúrd össze a liszttel, sóval, joghurttal és olajjal. Dagaszd 8–10 percig, amíg puha és rugalmas lesz. Ha később sütöd, tedd hűtőbe, majd sütés előtt 45–60 perccel vedd ki.",
+      "Rizs: A basmatit 3–4 vízben mosd át, majd áztasd 20 percig. A rizsfőzőben add hozzá a vizet, sót és vajat. White Rice programon főzd, majd készülés után pihentesd még 10 percig.",
+      "Csirke elősütése: A bepácolt csirkét 2–3 adagban, kevés olajon, nagyobb lángon pirítsd meg. Nem kell teljesen készre sütni, csak kapjon színt. Tedd félre.",
+      "Szószalap: A vaj és olaj keverékén 6–8 perc alatt párold üvegesre a finomra vágott hagymát. Add hozzá a fokhagymát és a gyömbért, majd 1 perc múlva a curry port, kurkumát, római köményt, koriandert és fűszerpaprikát. Röviden futtasd meg.",
+      "Szósz felépítése: Öntsd hozzá a tikka masala szószt és a passzírozott paradicsomot. Add hozzá a cukrot. 15–20 percig rotyogtasd, majd botmixerrel simíthatod. Keverd bele a tejszínt, és vízzel vagy alaplével állítsd be az állagot.",
+      "Befejezés: Tedd vissza a csirkét a szószba, és lassú tűzön főzd még 12–15 percig. A végén kóstolás alapján sózd, és ha kell, adj még kevés tejszínt vagy 1 evőkanál vajat.",
+      "Naan sütése: A tésztát oszd 8 részre, nyújtsd oválisra. Forró, száraz serpenyőben oldalanként 1–2 percig süsd, amíg felhólyagosodik és barna foltok jelennek meg. Azonnal kend meg fokhagymás olajjal."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "6–8 főre. Pácolás 12–24 óra, aktív idő kb. 75–90 perc.",
+      "Gyors ízkorrekció: túl savas → kevés cukor vagy tejszín; túl sűrű → kevés víz/alaplé; túl erős curry → tejszín + vaj; kevés az íz → kevés curry por vagy tikka szósz."
     ]
   },
   "6016b9e35fff9b8f": {
@@ -740,12 +851,40 @@ window.LENA_READABLE = {
     ]
   },
   "25e8650282ab7c31": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "5–6 közepes burgonya",
+      "2–3 közepes sárgarépa",
+      "2–3 szál zellerszár",
+      "3–4 paprika, vegyesen",
+      "5–6 paradicsom + koktélparadicsom",
+      "2 nagy hagyma vagy lilahagyma",
+      "4–6 gerezd fokhagyma vagy 3–4 szál új fokhagyma",
+      "2–3 szál újhagyma",
+      "150–250 ml laktózmentes főzőkrém",
+      "2,5–3 liter víz vagy alaplé",
+      "2–3 ek olaj",
+      "Só ízlés szerint",
+      "1/2–1 tk bors",
+      "1 tk édes pirospaprika",
+      "1/2–1 tk oregánó vagy bazsalikom",
+      "1/2 tk cukor, csak ha savas a paradicsom",
+      "Pár csepp citromlé vagy ecet, ha túl édes vagy lapos"
+    ],
+    "steps": [
+      "Darabolás: A paprikát, paradicsomot, hagymát, répát és zellert vágd nagyobb darabokra. A répát vékonyabbra vágd.",
+      "Sütés air fryerben: 190 °C-on süsd 22–28 percig. Félidőnél forgasd át. Ne pakold túl, inkább 2 adagban süsd.",
+      "Fokhagyma: Ha apró vagy friss, csak az utolsó 10–12 percre tedd be, nehogy keserű legyen.",
+      "Krumpli főzése: A kockázott burgonyát 2,5–3 liter vízben vagy alaplében 15–20 perc alatt főzd puhára.",
+      "Összefőzés: A sült zöldségek menjenek a burgonyához. Főzd együtt még 8–10 percig.",
+      "Turmixolás: Botmixerrel krémesítsd. Ha túl sűrű, vízzel vagy alaplével állítsd be.",
+      "Krémesítés: Add hozzá a 150–250 ml laktózmentes főzőkrémet. Melegítsd át, de ne forrald vadul."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Kb. 4–5 liter, 8–10 tányér.",
+      "A salátát ne főzd bele; inkább külön vagy tálalás mellé használd.",
+      "Tálalás: pirított kenyérkocka, sajtos pirítós, kevés újhagymazöld vagy petrezselyem."
     ]
   },
   "d222b919048a9d64": {
