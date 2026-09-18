@@ -57,3 +57,31 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 @media(max-width:470px){.count-row{align-items:flex-start;flex-direction:column}.count-actions{width:100%}.count-actions button{flex:1}.admin-actions{grid-template-columns:1fr}}
 @media(min-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:0 14px}.card{border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.original-panel img{width:auto;max-width:min(100%,900px)}}
 @media(min-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Olvasható recept 2.0 */
+.readable-status-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+.status-badge{display:inline-flex;align-items:center;min-height:34px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900}
+.status-verified{background:#e3f3e7;color:#215f35;border:1px solid #b8d8c0}
+.status-review{background:#fff3cf;color:#775c0b;border:1px solid #e6cf83}
+.status-unprocessed{background:#efefec;color:#666a66;border:1px solid #d7d9d5}
+.status-edit-btn{border:1px solid #c3d0c8;background:#fff;color:#28513e;border-radius:10px;min-height:36px;padding:6px 10px;font-size:12px;font-weight:850}
+.readable-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.font-tools{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px}
+.font-btn{border:0;background:#eef4ef;color:#254b39;border-radius:9px;min-width:44px;min-height:40px;font-weight:900}
+#fontSizeLabel{min-width:26px;text-align:center;font-size:12px;color:var(--muted);font-weight:900}
+.compact-btn{min-height:40px;padding:7px 10px}
+.structured-recipe{--readable-size:18px;display:grid;gap:14px}
+.structured-section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px}
+.structured-section h2{margin:0 0 12px;font:700 23px Georgia,serif;color:#173a2e}
+.ingredients-list{display:grid;gap:8px}
+.ingredient-row{display:flex;align-items:flex-start;gap:11px;font-size:var(--readable-size);line-height:1.42;padding:8px 0;border-bottom:1px solid #eef0ec}
+.ingredient-row:last-child{border-bottom:0}
+.ingredient-row input{width:23px;height:23px;flex:none;margin-top:1px;accent-color:var(--accent)}
+.ingredient-row.checked span{text-decoration:line-through;color:#8a8e8a}
+.steps-list{margin:0;padding-left:30px;display:grid;gap:13px;font-size:var(--readable-size);line-height:1.52}
+.steps-list li{padding-left:5px}.steps-list li::marker{font-weight:900;color:var(--accent)}
+.notes-section{font-size:var(--readable-size);line-height:1.5}
+.notes-section p{margin:7px 0;color:#33483f}
+.full-width-btn{width:100%;margin-top:12px}
+.editor-help{font-size:12px!important;margin:4px 0 7px!important;color:var(--muted)!important}
+#structuredDialog textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;resize:vertical;line-height:1.4}
+@media(max-width:470px){.readable-status-row{align-items:stretch;flex-direction:column}.status-edit-btn{width:100%}.readable-tools{align-items:stretch;flex-direction:column}.font-tools{justify-content:center}.compact-btn{width:100%}}
