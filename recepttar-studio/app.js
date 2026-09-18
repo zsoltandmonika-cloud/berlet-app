@@ -120,6 +120,34 @@ function parseRecipeJson(text){
  const first=s.indexOf("{"),last=s.lastIndexOf("}");if(first>=0&&last>first)s=s.slice(first,last+1);
  return JSON.parse(s)
 }
+function studioQualityIssues(x){
+ const issues=[],tw=x.title.split(/\s+/).filter(Boolean).length;
+ if(tw<3||tw>9)issues.push("A cím legyen 3–9 szavas, konkrét és étvágygerjesztő.");
+ if(/^(csirkés|sertéses|marhás|zöldséges|tésztás|leves|desszert|egytálétel)$/i.test(x.title))issues.push("A cím túl általános.");
+ if(x.ingredients.length<4)issues.push("Kevés a hozzávaló.");
+ if(x.steps.length<4)issues.push("Kevés az elkészítési lépés.");
+ const promptLeak=/\b(szeretnék|szeretnem|ebből|ebbol|valami|legyen|főre szeretnék|fo-re szeretnek|készíts nekem|keszits nekem)\b/i;
+ if(x.ingredients.some(v=>promptLeak.test(v)))issues.push("Felhasználói kérés szövege került a hozzávalók közé.");
+ if(x.steps.some(v=>promptLeak.test(v)))issues.push("Felhasználói kérés szövege került az elkészítés közé.");
+ if(x.ingredients.some(v=>v.length>95))issues.push("Túl hosszú hozzávalósor.");
+ return issues
+}
+function normalizeStudioDraft(d){
+ if(!d||typeof d!=="object")throw new Error("A receptválasz nem értelmezhető.");
+ const x={
+  title:String(d.title||"").replace(/\s+/g," ").trim(),
+  category:String(d.category||"Egyébb").replace(/\s+/g," ").trim(),
+  servings:String(d.servings||"4 fő").replace(/\s+/g," ").trim(),
+  time:String(d.time||"30–40 perc").replace(/\s+/g," ").trim(),
+  difficulty:String(d.difficulty||"Könnyű").replace(/\s+/g," ").trim(),
+  ingredients:Array.isArray(d.ingredients)?d.ingredients.map(v=>String(v).replace(/\s+/g," ").trim()).filter(Boolean):[],
+  steps:Array.isArray(d.steps)?d.steps.map(v=>String(v).replace(/\s+/g," ").trim()).filter(Boolean):[],
+  notes:Array.isArray(d.notes)?d.notes.map(v=>String(v).replace(/\s+/g," ").trim()).filter(Boolean):[]
+ };
+ if(!x.title||!x.ingredients.length||!x.steps.length)throw new Error("A receptválasz hiányos.");
+ const issues=studioQualityIssues(x);if(issues.length){const e=new Error("Minőségi ellenőrzés: "+issues.join(" "));e.qualityIssues=issues;throw e}
+ return x
+}
 function dataUrlToBlob(url){
  const m=String(url||"").match(/^data:([^;,]+)?(?:;charset=[^;,]+)?;base64,(.*)$/);
  if(!m)throw new Error("A képgenerátor nem data URL képet adott vissza.");
@@ -129,7 +157,7 @@ function dataUrlToBlob(url){
 function studioAiPrompt(userText,currentRecipe=null){
  const categories=allCategories().join(", ");
  const schema='{"title":"...","category":"...","servings":"4 fő","time":"30 perc","difficulty":"Könnyű","ingredients":["..."],"steps":["..."],"notes":["..."]}';
- let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\n";
+ let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. A recept CÍME legyen étvágygerjesztő, konkrét és 3–7 szavas: nevezze meg a fő alapanyagot ÉS az ízvilágot/elkészítést/mártást. Tilos az egyszavas vagy semmitmondó cím, például: 'Csirkés', 'Zöldséges', 'Tésztás'. Jó cím például: 'Magyaros tejfölös-paprikás csirkemellragu', 'Krémes fokhagymás-gombás penne'. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\n";
  if(currentRecipe)p+="Jelenlegi recept:\n"+JSON.stringify(currentRecipe)+"\n\nMódosítási kérés:\n"+userText+"\n\nA teljes frissített receptet add vissza.";
  else p+="Felhasználói kérés:\n"+userText;
  return p
@@ -137,10 +165,20 @@ function studioAiPrompt(userText,currentRecipe=null){
 async function puterRecipe(prompt,currentRecipe=null){
  if(!puterAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
  const req=studioAiPrompt(prompt,currentRecipe);
- let resp;
- try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
- catch(first){console.warn("Studio primary text model fallback",first);resp=await puter.ai.chat(req,{normalize:true})}
- return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
+ async function ask(text,usePreferred=true){
+   if(usePreferred){try{return await puter.ai.chat(text,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(first){console.warn("Studio preferred model fallback",first)}}
+   return puter.ai.chat(text,{normalize:true})
+ }
+ let resp=await ask(req,true),raw=puterText(resp);
+ try{return normalizeStudioDraft(parseRecipeJson(raw))}
+ catch(firstQuality){
+   console.warn("Studio quality retry",firstQuality);
+   const issues=firstQuality.qualityIssues||[firstQuality.message];
+   const retry=req+"\n\nFONTOS MINŐSÉGI JAVÍTÁS: Az előző válasz nem ment át az ellenőrzésen. Hibák: "+issues.join(" | ")+
+     "\nAz előző válasz: "+raw+
+     "\nKészítsd újra a TELJES JSON receptet. Ne ismételd a felhasználó kérőmondatát hozzávalóként. A cím legyen konkrét, természetes magyar receptnév, ne általános jelző.";
+   resp=await ask(retry,false);return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
+ }
 }
 async function puterFoodImage(recipe){
  if(!puterAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
@@ -175,46 +213,71 @@ function studioCategoryFromPrompt(p){
  if(/penne|fusilli|spagetti|teszta|carbonara/.test(n))return"Tészták";
  if(/kenyer|zsemle|pogacsa|focaccia|stangli/.test(n))return"Kenyerek, Pékárú";
  if(/torta|suti|desszert|keksz|golyo/.test(n))return"Desszertek";
- if(/paprikas|lecso|fozelek|rakott krumpli/.test(n))return"Hungarikum";
+ if(/magyaros|paprikas|csirkepaprikas|lecso|fozelek|rakott krumpli|gulyas|porkolt/.test(n))return"Hungarikum";
  return"Egyébb"
 }
 function studioIngredientCandidates(prompt){
- const raw=(prompt||"").replace(/\n/g,",").split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
- const reject=/^(van|szeretnek|szeretném|legyen|valami|egy|gyors|finom|vacsora|ebed|fozes|fozni)/i;
- const out=[];
- raw.forEach(x=>{if(x.length>2&&!reject.test(norm(x))&&out.length<8)out.push(x.replace(/^és\s+/i,""))});
- const n=norm(prompt);
- const known=[
-  ["csirk","500 g csirkemell"],["brokk","1 fej brokkoli"],["tejszin","200 ml főzőtejszín"],["gouda","150 g reszelt Gouda"],
-  ["penne","500 g penne"],["cukkini","2 közepes cukkini"],["krumpli","700 g burgonya"],["paradics","400 g paradicsom"],
-  ["gomba","250 g gomba"],["rizs","300 g rizs"],["saj","150 g reszelt sajt"]
- ];
- known.forEach(([k,v])=>{if(n.includes(k)&&!out.some(x=>norm(x).includes(k)))out.push(v)});
+ const n=norm(prompt),out=[];
+ function qtyFor(pattern,def){
+   const raw=String(prompt||"").replace(/,/g,".");
+   const m=raw.match(new RegExp("(\\d+(?:\\.\\d+)?)\\s*(kg|g|dkg|ml|l)?\\s*"+pattern,"i"));
+   return m?((m[1]+" "+(m[2]||"")).trim()):def
+ }
+ if(n.includes("csirkemell"))out.push(qtyFor("csirkemell(?:em|et|ből|bol)?","1 kg")+" csirkemell");
+ else if(n.includes("csirk"))out.push(qtyFor("csirk(?:e|ét|et|ebol|éből)?","1 kg")+" csirkehús");
+ if(n.includes("paprika")){out.push("2 db húsos paprika");out.push("1,5 ek őrölt pirospaprika")}
+ if(n.includes("tejfol"))out.push(qtyFor("tejf[oö]l","400 g")+" tejföl");
+ if(n.includes("brokk"))out.push("1 nagy fej brokkoli");
+ if(n.includes("cukkini"))out.push("2 közepes cukkini");
+ if(n.includes("tejszin"))out.push(qtyFor("tejsz[ií]n","250 ml")+" főzőtejszín");
+ if(n.includes("gouda"))out.push("150 g reszelt Gouda");
+ if(n.includes("penne"))out.push(qtyFor("penne","500 g")+" penne");
+ if(n.includes("fusilli"))out.push(qtyFor("fusilli","500 g")+" fusilli");
+ if(n.includes("gomba"))out.push("300 g gomba");
+ if(n.includes("rizs"))out.push("300 g rizs");
+ if(n.includes("krumpli")||n.includes("burgonya"))out.push("800 g burgonya");
+ if(n.includes("paradics"))out.push("400 g paradicsom");
+ if(/magyaros|paprikas|tejfol/.test(n)){out.push("1 nagy vöröshagyma");out.push("2 gerezd fokhagyma")}
  if(!out.length)out.push("500 g választott fő hozzávaló");
- if(!out.some(x=>norm(x).includes("olaj")))out.push("2 ek olívaolaj");
+ if(!out.some(x=>norm(x).includes("olaj")))out.push("2 ek olaj");
  if(!out.some(x=>norm(x).includes("so")))out.push("Só és frissen őrölt bors");
- return out.slice(0,10)
+ return [...new Set(out)].slice(0,12)
 }
 function studioTitleFromPrompt(p,ingredients,category){
- const n=norm(p),names=[];
- [["csirk","csirkés"],["brokk","brokkolis"],["cukkini","cukkinis"],["gomba","gombás"],["penne","pennés"],["rizs","rizses"],["krumpli","burgonyás"],["paradics","paradicsomos"]].forEach(([k,v])=>{if(n.includes(k))names.push(v)});
- let base=names.slice(0,2).join(" ");
- if(!base)base=category==="Levesek"?"Krémleves":category==="Tészták"?"Krémes tészta":"Léna serpenyős receptje";
- if(n.includes("tejszin")||n.includes("kremes"))base="Krémes "+base;
- return base.charAt(0).toUpperCase()+base.slice(1)
+ const n=norm(p);
+ if(n.includes("csirk")&&n.includes("tejfol")&&n.includes("paprika"))return n.includes("magyaros")?"Magyaros tejfölös-paprikás csirkemellragu":"Tejfölös-paprikás csirkemellragu";
+ if(n.includes("csirk")&&n.includes("tejfol"))return"Tejfölös csirkemellragu";
+ if(n.includes("csirk")&&n.includes("paprika"))return"Paprikás csirkemellragu";
+ if(n.includes("csirk")&&n.includes("brokk"))return n.includes("tejszin")?"Krémes brokkolis csirkemell":"Brokkolis csirkemell serpenyőben";
+ if(n.includes("penne")&&n.includes("gomba"))return n.includes("tejszin")?"Krémes gombás penne":"Fokhagymás-gombás penne";
+ if(n.includes("fusilli")&&n.includes("brokk")&&n.includes("cukkini"))return"Brokkolis-cukkinis fusilli";
+ const names=[];[["csirk","csirkemell"],["brokk","brokkoli"],["cukkini","cukkini"],["gomba","gomba"],["penne","penne"],["fusilli","fusilli"],["rizs","rizs"],["krumpli","burgonya"],["paradics","paradicsom"]].forEach(([k,v])=>{if(n.includes(k))names.push(v)});
+ const main=names.slice(0,2).join("–");
+ if(main)return (n.includes("magyaros")?"Magyaros ":"")+(n.includes("kremes")||n.includes("tejszin")?"krémes ":"")+main+" egytálétel";
+ return category==="Levesek"?"Házi krémleves":category==="Tészták"?"Krémes házi tészta":"Léna házias serpenyős fogása"
 }
 function studioLocalDraft(prompt){
  const category=studioCategoryFromPrompt(prompt),ingredients=studioIngredientCandidates(prompt),title=studioTitleFromPrompt(prompt,ingredients,category);
  const n=norm(prompt),servings=(n.match(/(\d+)\s*(fo|adag)/)||[])[1];
- const steps=[
+ let steps=[
    "Készítsd elő és darabold fel a fő hozzávalókat.",
-   "Egy nagy serpenyőben vagy lábasban hevítsd fel az olívaolajat, majd kezdd el pirítani a fő hozzávalókat.",
+   "Egy nagy serpenyőben vagy lábasban hevítsd fel az olajat, majd kezdd el pirítani a fő hozzávalókat.",
    "Add hozzá a többi hozzávalót, ízesítsd, és közepes lángon főzd össze, amíg minden megfelelően megpuhul.",
    "A végén állítsd be a krémességet és a fűszerezést, majd frissen tálald."
  ];
+ if(n.includes("csirk")&&n.includes("tejfol")&&n.includes("paprika")){
+   steps=[
+    "A csirkemellet vágd nagyobb falatnyi kockákra, a hagymát és a paprikát aprítsd fel.",
+    "Az olajon dinszteld üvegesre a hagymát, majd húzd le röviden a tűzről és keverd hozzá az őrölt pirospaprikát.",
+    "Add hozzá a csirkemellet, pirítsd körbe, majd tedd bele a paprikát és a fokhagymát.",
+    "Sózd, borsozd, önts alá kevés vizet, és fedő alatt párold 15–20 percig, amíg a hús megpuhul.",
+    "A tejfölt keverd simára kevés forró szafttal, majd alacsony lángon forgasd a raguhoz. Ne forrald erősen.",
+    "Kóstold, igazítsd a fűszerezést, és nokedlivel, rizzsel vagy friss kenyérrel tálald."
+   ]
+ }
  if(category==="Tészták")steps.splice(0,1,"A tésztát főzd al dentére, és tegyél félre egy kevés főzővizet.");
  if(category==="Levesek"){steps[1]="A hagymás-fűszeres alapon párold át a zöldségeket.";steps[2]="Öntsd fel alaplével, főzd puhára, majd turmixold krémesre."}
- return{title,category,servings:servings?servings+" fő":"4 fő",time:"30–35 perc",difficulty:"Könnyű",ingredients,steps,notes:["Studio V1 helyi prototípus-javaslat. A végleges AI receptmotor bekötése után ugyanezt a struktúrát Léna tölti ki."]}
+ return{title,category,servings:servings?servings+" fő":"4–6 fő",time:n.includes("csirk")&&n.includes("tejfol")?"35–40 perc":"30–35 perc",difficulty:"Könnyű",ingredients,steps,notes:["Helyi tartalék-javaslat, ha az AI szolgáltatás átmenetileg nem érhető el."]}
 }
 function resetStudio(){
  studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
