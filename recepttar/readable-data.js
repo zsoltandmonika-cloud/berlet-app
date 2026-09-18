@@ -1209,39 +1209,101 @@ window.LENA_READABLE = {
     ]
   },
   "a5128b8a3beaca20": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "320 ml langyos víz",
+      "1,5 teáskanál só",
+      "1 teáskanál cukor",
+      "400 g búzakenyérliszt",
+      "100 g finomliszt",
+      "1,5 teáskanál instant szárított élesztő",
+      "Opcionálisan 1 evőkanál olívaolaj"
+    ],
+    "steps": [
+      "Tedd a kenyérsütő üstjébe a vizet.",
+      "Add hozzá a sót és a cukrot.",
+      "Szórd rá a liszteket.",
+      "A liszt tetejébe készített kis mélyedésbe tedd az élesztőt.",
+      "Válaszd a French / Francia kenyér programot, 750 g-os méretet és közepes vagy sötét héjat.",
+      "A dagasztás első 8–10 percében ellenőrizd a tésztát: puha, rugalmas gombóc legyen, amely csak enyhén tapad.",
+      "A program végén vedd ki a kenyeret, és rácson hűtsd legalább 45–60 percig."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Ha a tészta szétfolyik és tapad a falhoz, adj hozzá 1 evőkanál lisztet. Ha kemény, darabos és nem áll össze, adj hozzá 1 evőkanál vizet.",
+      "Programidő géptől függően kb. 3,5–4 óra."
     ]
   },
   "a834a3a8d35bb4f8": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "Búzakovász induláshoz: 30 g teljes kiőrlésű búzaliszt + 30 g langyos víz",
+      "Búzakovász etetéshez: 30 g kovász + 30 g liszt + 30 g víz",
+      "Rozskovász induláshoz: 30 g teljes kiőrlésű rozsliszt + 30 g langyos víz",
+      "Rozskovász etetéshez: 30 g kovász + 30 g rozsliszt + 30 g víz"
+    ],
+    "steps": [
+      "1. nap – búzakovász: keverj össze 30 g teljes kiőrlésű búzalisztet 30 g langyos vízzel tiszta üvegben, lazán fedd le. Rozskovásznál ugyanígy használj teljes kiőrlésű rozslisztet.",
+      "2. nap: hagyd szobahőmérsékleten. A búzakovász 22–25 °C-on enyhén zavaros lehet, kevés buborékkal; a rozskovász 22–26 °C-on már savanykásabb illatú és buborékosabb lehet. Etesd 1:1:1 arányban.",
+      "3. nap: etesd ismét. A búzakovászban több buborék és kellemes illat jelenik meg, a rozskovász aktívabbá válik.",
+      "4. nap: etesd ismét 1:1:1 arányban. Mindkét kovász egyre buborékosabb és erősebb lesz.",
+      "5–7. nap: a búzakovász etetés után 4–8 órán belül duplázódjon meg. A rozskovász gyakran már a 5. napon 4–6 órán belül megduplázódik.",
+      "A kovász akkor használható, ha etetés után 4–8 órán belül legalább megduplázódik és buborékos.",
+      "Hűtőben 4–6 °C-on hetente egyszer etesd. Használat előtt vedd ki egy nappal korábban, és etesd meg 1–2 alkalommal, hogy aktív legyen."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Használj klórmentes, pihentetett vagy szűrt vizet.",
+      "Tartsd 22–26 °C-on, huzatmentes helyen.",
+      "Az első napokban lehet furcsa, ecetes, joghurtos vagy élesztős szaga – ez normális.",
+      "Szőrös penész, rózsaszín, narancssárga vagy zöld elszíneződés esetén dobd ki."
     ]
   },
   "209c93f75e18b742": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "Búzakovászhoz: 50 g búzaliszt (BL80–BL100) + 50 g langyos víz",
+      "Rozskovászhoz: 50 g rozsliszt (RL1900) + 50 g langyos víz"
+    ],
+    "steps": [
+      "Búzakovász 1. nap: keverd össze az 50 g búzalisztet és 50 g langyos vizet, lazán fedd le.",
+      "Búzakovász 2. nap: dobd ki a felét, majd etesd 50 g liszttel és 50 g vízzel.",
+      "Búzakovász 3. nap: ismételd meg az etetést.",
+      "Búzakovász 4. nap: már buborékos, illatos és érezhetően megemelkedik.",
+      "Búzakovász 5–7. nap: akkor használd, ha 4–8 óra alatt a duplájára nő és kellemesen savanykás illatú.",
+      "Rozskovász 1. nap: keverd össze az 50 g rozslisztet és 50 g langyos vizet, lazán fedd le.",
+      "Rozskovász 2. nap: dobd ki a felét, etesd 50 g liszttel és 50 g vízzel.",
+      "Rozskovász 3. nap: ismételd meg az etetést.",
+      "Rozskovász 4–6. nap: aktív, buborékos, savanykás illatú – készen áll a használatra."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Hűtőben 7–10 napig eláll. Használat előtt etesd 1–2 alkalommal."
     ]
   },
   "d2fe434b4d81df6c": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "150 g aktív rozskovász, 100%-os hidratációval",
+      "280 ml langyos víz",
+      "350 g rozsliszt (RL1900)",
+      "150 g búzaliszt (BL80 vagy BL55)",
+      "50 g napraforgómag vagy tökmag – opcionális",
+      "10 g só",
+      "1 tk méz vagy malátaszirup (5 g)",
+      "Opcionálisan 1 ek olívaolaj"
+    ],
+    "steps": [
+      "Helyezd a hozzávalókat a kenyérsütő üstjébe a megadott sorrendben.",
+      "Válaszd a Teljes kiőrlésű / Rozskenyér programot. Ha nincs ilyen, válaszd az Alap / Normal programot.",
+      "Kérj közepes vagy sötét héjat.",
+      "Indítsd el a gépet.",
+      "A gép elvégzi a dagasztást, kelesztést és sütést."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "A kovász legyen aktív, etetés után 4–8 órán belül a duplájára növekedett.",
+      "Ha nagyon ragacsos a tészta, adj hozzá 1–2 evőkanál lisztet. A kovász miatt a tészta lágyabb lesz – ez rendben van."
     ]
   },
   "61c7f2b5a9751cbb": {
@@ -1272,48 +1334,140 @@ window.LENA_READABLE = {
     ]
   },
   "e08a08e0bd7c0a20": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "4 kg kovászos uborka",
+      "8–10 dl kovászosuborka-lé",
+      "1,5 kg tejföl vagy görög joghurt",
+      "3–4 dl hideg víz vagy tej",
+      "4 gerezd fokhagyma",
+      "2–3 tk szárított kapor",
+      "1 nagy marék snidling, a fele turmixolva, a fele a tetejére",
+      "1 marék friss petrezselyem",
+      "2–3 tk mustár",
+      "Frissen őrölt bors",
+      "1–2 tk cukor ízlés szerint",
+      "Só valószínűleg nem kell"
+    ],
+    "steps": [
+      "Az uborkát darabold fel.",
+      "Tedd turmixgépbe az uborkát a kovászosuborka-lével, a tejföllel vagy joghurttal, fokhagymával, a snidling felével, kaporral, petrezselyemmel és mustárral.",
+      "Turmixold teljesen simára.",
+      "Add hozzá a hideg vizet vagy tejet fokozatosan, amíg kellemesen krémes állagú nem lesz.",
+      "Kóstold meg, és ha túl savanyú, tegyél bele cukrot; szükség esetén még kevés tejet, joghurtot vagy vizet.",
+      "Tedd hűtőbe legalább 2 órára, hogy az ízek jól összeérjenek."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "12–16 adaghoz.",
+      "Tálalható pirított baconnel vagy szalonnakockával, apróra vágott kovászos uborkával, főtt tojással, snidlinggel, petrezselyemmel vagy pirított kenyérkockával."
     ]
   },
   "2fc18740f89bdfe9": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "240 g BL-80 kenyérliszt",
+      "160 g rozsliszt",
+      "285 ml langyos víz",
+      "1,5 ek olaj vagy kb. 20 g puha vaj",
+      "1 ek méz vagy barna cukor",
+      "1 tk almaecet",
+      "1 tk cukrozatlan kakaópor",
+      "1,5 tk só",
+      "1,5 tk instant szárított élesztő, kb. 5 g",
+      "Opcionálisan 1 tk őrölt kömény"
+    ],
+    "steps": [
+      "Ha a gépednél a folyadék megy alulra: tedd az üstbe a vizet, az olajat, a mézet és az almaecetet.",
+      "Add hozzá a BL-80 kenyérlisztet és a rozslisztet.",
+      "Szórd rá a kakaóport.",
+      "A sót tedd az egyik sarokba.",
+      "Az élesztőt a liszt közepébe készített mélyedésbe tedd.",
+      "Válaszd a Basic / Normal / White Bread programot, 750 g-os méretet és Dark / Sötét héjat.",
+      "A dagasztás első 8–10 percében ellenőrizd a tésztát."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Teljes idő kb. 3–3,5 óra.",
+      "Ha túl folyós, adj hozzá 1 evőkanál BL-80 lisztet; ha túl kemény és száraz, adj hozzá 1 evőkanál vizet."
     ]
   },
   "84c68a1afecea19d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "220 g BL-80 kenyérliszt",
+      "130 g teljes kiőrlésű búzaliszt",
+      "70 g világos rozsliszt",
+      "285 ml langyos víz",
+      "1 ek olaj",
+      "8 g só, kb. 1,5 tk",
+      "1 tk méz vagy cukor",
+      "Opcionálisan 1 tk almaecet",
+      "5 g szárított élesztő"
+    ],
+    "steps": [
+      "Tedd az üstbe a vizet.",
+      "Add hozzá az olajat és az almaecetet.",
+      "Szórd rá a három liszt összekeverve.",
+      "A mézet vagy cukrot tedd az egyik sarokba, a sót a másik sarokba.",
+      "A liszt közepébe készíts mélyedést, és abba tedd az élesztőt.",
+      "Válaszd a Teljes kiőrlésű / Whole Wheat programot, 500 vagy 750 g-os méretet, közepes vagy sötét héjjal.",
+      "A dagasztás közben ellenőrizd az állagot."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Ha a tészta lágy, de megtartja a formáját, jó. Ha száraz és kemény, adj hozzá 1 evőkanál vizet; ha túl lágy, 1 evőkanál BL-80 lisztet."
     ]
   },
   "5d7d0a80565ebdd4": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "253 g BL-80 kenyérliszt",
+      "168 g rozsliszt",
+      "300 ml langyos víz",
+      "21 g olaj vagy puha vaj",
+      "1 enyhén púpozott tk méz vagy barna cukor",
+      "1 enyhén púpozott tk almaecet",
+      "1 enyhén púpozott ek cukrozatlan kakaópor",
+      "1,5 tk só + egy csipet",
+      "5,3 g instant szárított élesztő",
+      "Opcionálisan 1 enyhén púpozott tk őrölt kömény"
+    ],
+    "steps": [
+      "Tedd az üstbe a vizet, az olajat vagy vajat, a mézet vagy cukrot és az almaecetet.",
+      "Add hozzá a kétféle lisztet, a kakaóport, a sót és a köményt.",
+      "A liszt tetején készíts mélyedést, és ebbe tedd az élesztőt.",
+      "Válassz normál vagy teljes kiőrlésű programot, 750 g-os méretet és közepes vagy sötét héjat."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Dagasztáskor lágy, kissé tapadós gombóc legyen. Ha túl lágy, adj hozzá 1 ek lisztet; ha száraz, 1 ek vizet."
     ]
   },
   "edc3f090bd3fcd07": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "250 g sovány túró",
+      "2 tojás",
+      "60 g zabpehelyliszt vagy finomra darált zabpehely",
+      "30 g őrölt lenmag",
+      "20 g útifűmaghéj",
+      "1 tk sütőpor",
+      "1/2 tk só",
+      "1–2 ek víz, ha szükséges",
+      "Tetejére: szezám-, tök- vagy napraforgómag"
+    ],
+    "steps": [
+      "Keverd össze az összes hozzávalót.",
+      "Hagyd állni 10 percig, hogy az útifűmaghéj megszívja magát.",
+      "Nedves kézzel formázz 5–6 kis zsemlét.",
+      "Szórd meg magokkal.",
+      "Süsd air fryerben 170 °C-on 18–22 percig, vagy sütőben 180 °C-on 25–30 percig.",
+      "Rácson hagyd kihűlni."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "5–6 darab. Fagyasztható."
     ]
   },
   "d9b864f9e89a0996": {
