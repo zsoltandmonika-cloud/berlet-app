@@ -99,40 +99,50 @@ async function saveNew(){
 
 
 
-const STUDIO_API_CONFIG_KEY="lena28:studioApi";
-function getStudioApiConfig(){try{return JSON.parse(localStorage.getItem(STUDIO_API_CONFIG_KEY)||"{}")}catch(e){return{}}}
-function studioLoadApiSettings(){
- const c=getStudioApiConfig();$("#studioApiUrl").value=c.url||"";$("#studioApiToken").value=c.token||"";
+const STUDIO_TEXT_MODEL="openai/gpt-5.6-luna";
+const STUDIO_IMAGE_MODEL="google/imagen-4.0-fast";
+
+function puterAvailable(){return !!(window.puter&&puter.ai&&puter.ai.chat&&puter.ai.txt2img)}
+function puterText(resp){
+ let c=resp&&resp.message?resp.message.content:resp;
+ if(Array.isArray(c))c=c.map(x=>typeof x==="string"?x:(x&&x.text)||"").join("");
+ if(c&&typeof c==="object"&&typeof c.text==="string")c=c.text;
+ return String(c||"").trim()
 }
-function studioSaveApiSettings(){
- const url=$("#studioApiUrl").value.trim().replace(/\/+$/,""),token=$("#studioApiToken").value.trim();
- if(!url){localStorage.removeItem(STUDIO_API_CONFIG_KEY);$("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="AI kapcsolat törölve. A Studio helyi prototípus módban működik.";return}
- localStorage.setItem(STUDIO_API_CONFIG_KEY,JSON.stringify({url,token}));
- $("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="✓ Studio API kapcsolat elmentve ezen az eszközön."
+function parseRecipeJson(text){
+ let s=String(text||"").trim();
+ s=s.replace(/^\s*\`\`\`(?:json)?\s*/i,"").replace(/\s*\`\`\`\s*$/,"").trim();
+ const first=s.indexOf("{"),last=s.lastIndexOf("}");if(first>=0&&last>first)s=s.slice(first,last+1);
+ return JSON.parse(s)
 }
-async function studioApiCall(action,payload){
- const c=getStudioApiConfig();if(!c.url)throw new Error("A Studio AI kapcsolat még nincs beállítva.");
- const headers={"Content-Type":"application/json"};if(c.token)headers.Authorization="Bearer "+c.token;
- const r=await fetch(c.url+"/"+action,{method:"POST",headers,body:JSON.stringify(payload)});
- let d={};try{d=await r.json()}catch(e){}
- if(!r.ok)throw new Error(d.error||("Studio API HTTP "+r.status));
- return d
+function studioAiPrompt(userText,currentRecipe=null){
+ const categories=allCategories().join(", ");
+ const schema='{"title":"...","category":"...","servings":"4 fő","time":"30 perc","difficulty":"Könnyű","ingredients":["..."],"steps":["..."],"notes":["..."]}';
+ let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\n";
+ if(currentRecipe)p+="Jelenlegi recept:\n"+JSON.stringify(currentRecipe)+"\n\nMódosítási kérés:\n"+userText+"\n\nA teljes frissített receptet add vissza.";
+ else p+="Felhasználói kérés:\n"+userText;
+ return p
 }
-function normalizeStudioDraft(d){
- if(!d||typeof d!=="object")throw new Error("A receptválasz nem értelmezhető.");
- const x={
-  title:String(d.title||"").trim(),category:String(d.category||"Egyébb").trim(),
-  servings:String(d.servings||"4 fő").trim(),time:String(d.time||"30–40 perc").trim(),
-  difficulty:String(d.difficulty||"Könnyű").trim(),
-  ingredients:Array.isArray(d.ingredients)?d.ingredients.map(String).map(s=>s.trim()).filter(Boolean):[],
-  steps:Array.isArray(d.steps)?d.steps.map(String).map(s=>s.trim()).filter(Boolean):[],
-  notes:Array.isArray(d.notes)?d.notes.map(String).map(s=>s.trim()).filter(Boolean):[]
- };
- if(!x.title||!x.ingredients.length||!x.steps.length)throw new Error("A receptválasz hiányos.");
- return x
+async function puterRecipe(prompt,currentRecipe=null){
+ if(!puterAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
+ const resp=await puter.ai.chat(studioAiPrompt(prompt,currentRecipe),{
+   model:STUDIO_TEXT_MODEL,normalize:true,temperature:0.2,max_tokens:2600
+ });
+ return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
 }
-function base64ImageBlob(b64,mime){
- const bin=atob(b64),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:mime||"image/jpeg"})
+async function puterFoodImage(recipe){
+ if(!puterAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
+ const prompt=[
+   "Photorealistic premium editorial food photography for a modern Hungarian recipe card.",
+   "Dish: "+recipe.title+".",
+   "Key ingredients: "+recipe.ingredients.slice(0,8).join(", ")+".",
+   "Finished dish only, appetizing and realistic, natural proportions, warm natural side light, elegant home dining setting, shallow depth of field.",
+   "Portrait-friendly composition, useful negative space, no text, no lettering, no labels, no watermark, no hands, no people."
+ ].join(" ");
+ const img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL});
+ if(!img||!img.src)throw new Error("A képgenerátor nem adott vissza képet.");
+ const r=await fetch(img.src);if(!r.ok)throw new Error("A generált kép nem tölthető be.");
+ return await r.blob()
 }
 
 let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null;
@@ -196,10 +206,10 @@ function studioLocalDraft(prompt){
 function resetStudio(){
  studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
  $("#studioPrompt").value="";$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";
- $("#studioStatus").textContent="A V1 már végigviszi a teljes kártya → olvasható recept → mentés folyamatot. Az AI-backend és a HD fotó a következő bekötési pont.";
+ $("#studioStatus").textContent="A Studio AI-receptet és ételfotót készít fizetős API-kulcs nélkül.";
  $("#studioCentralSync").checked=false
 }
-function openStudio(){fillCategoryList();resetStudio();studioLoadApiSettings();$("#studioDialog").showModal()}
+function openStudio(){fillCategoryList();resetStudio();$("#studioDialog").showModal()}
 function studioPullEditor(){
  if(!studioDraft)return null;
  studioDraft.title=$("#studioTitle").value.trim()||studioDraft.title;
@@ -227,42 +237,39 @@ function renderStudioPreview(){
 }
 async function studioGenerate(){
  const prompt=$("#studioPrompt").value.trim();if(!prompt){alert("Írd le, milyen receptet szeretnél.");return}
- const c=getStudioApiConfig();busy(true,c.url?"Léna receptjavaslatot készít…":"Helyi prototípus-javaslat készül…");
+ busy(true,"Léna receptjavaslatot készít…");
  try{
-   if(c.url){
-     const res=await studioApiCall("recipe",{prompt,categories:allCategories()});
-     studioDraft=normalizeStudioDraft(res.recipe||res);
-     $("#studioStatus").textContent="✓ Léna AI receptjavaslata elkészült. Finomíthatod vagy generálhatsz hozzá HD ételfotót.";
-   }else{
-     studioDraft=studioLocalDraft(prompt);
-     $("#studioStatus").textContent="✓ Helyi Studio prototípus-javaslat elkészült. Az AI kapcsolat beállítása után ugyanez valódi Léna receptgenerálással működik.";
-   }
-   studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();$("#studioPreview").scrollIntoView({behavior:"smooth",block:"start"})
- }catch(e){console.error(e);studioDraft=studioLocalDraft(prompt);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();$("#studioStatus").textContent="⚠ AI kapcsolat hiba: "+e.message+" Helyi prototípus-javaslatot mutatok helyette."}
- finally{busy(false)}
+   studioDraft=await puterRecipe(prompt);
+   $("#studioStatus").textContent="✓ AI receptjavaslat elkészült. Finomíthatod, generálhatsz hozzá ételfotót, majd véglegesítheted.";
+ }catch(e){
+   console.error(e);studioDraft=studioLocalDraft(prompt);
+   $("#studioStatus").textContent="⚠ AI hívás most nem sikerült ("+e.message+"). Helyi prototípus-javaslatot mutatok helyette.";
+ }
+ studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();$("#studioPreview").scrollIntoView({behavior:"smooth",block:"start"});busy(false)
 }
 async function studioRefine(){
  if(!studioDraft)return;studioPullEditor();const q=$("#studioRefineText").value.trim(),n=norm(q);if(!q)return;
- const c=getStudioApiConfig();if(c.url){busy(true,"Recept finomítása…");try{const res=await studioApiCall("refine",{recipe:studioDraft,instruction:q,categories:allCategories()});studioDraft=normalizeStudioDraft(res.recipe||res);studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("✓ Léna finomította a receptet.");return}catch(e){console.error(e);toast("AI finomítás hiba, helyi módosítást alkalmazok.")}finally{busy(false)}}
+ busy(true,"Léna finomítja a receptet…");
+ try{
+   studioDraft=await puterRecipe(q,studioDraft);studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("✓ Recept finomítva.");return
+ }catch(e){console.error(e);toast("AI finomítás most nem sikerült, helyi módosítást alkalmazok.")}
+ finally{busy(false)}
  const mult=(n.match(/(\d+)\s*(fo|adag)/)||[])[1];if(mult)studioDraft.servings=mult+" fő";
  if(n.includes("csipos")&&!studioDraft.ingredients.some(x=>norm(x).includes("chili")))studioDraft.ingredients.push("Chilipehely ízlés szerint");
  if(n.includes("laktozmentes"))studioDraft.ingredients=studioDraft.ingredients.map(x=>x.replace(/tejszín/gi,"laktózmentes tejszín").replace(/gouda/gi,"laktózmentes Gouda"));
  const pen=(n.match(/(\d+)\s*g\s*penne/)||[])[1];if(pen){const i=studioDraft.ingredients.findIndex(x=>norm(x).includes("penne"));if(i>=0)studioDraft.ingredients[i]=pen+" g penne";else studioDraft.ingredients.unshift(pen+" g penne")}
  if(n.includes("gyors"))studioDraft.time="20–25 perc";
  studioDraft.notes=(studioDraft.notes||[]).concat("Finomítási kérés: "+q);
- studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("Finomítás alkalmazva.")
+ studioFillEditor();renderStudioPreview();$("#studioRefineText").value=""
 }
 async function studioGenerateImage(){
- if(!studioDraft)return;studioPullEditor();const c=getStudioApiConfig();if(!c.url){$("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="A HD képgeneráláshoz előbb be kell kötni a Studio AI API-t.";document.querySelector(".studio-api-settings").open=true;return}
- busy(true,"HD ételfotó generálása…");
+ if(!studioDraft)return;studioPullEditor();busy(true,"AI ételfotó generálása…");
  try{
-   const res=await studioApiCall("image",{recipe:studioDraft});
-   if(!res.b64)throw new Error("A képgenerátor nem adott vissza képet.");
-   studioPhotoBlob=base64ImageBlob(res.b64,res.mime||"image/jpeg");
+   const raw=await puterFoodImage(studioDraft);studioPhotoBlob=await processImage(raw);
    if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);
    $("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;
    $("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo");
-   toast("✓ HD ételfotó elkészült.")
+   toast("✓ Ételfotó elkészült.")
  }catch(e){console.error(e);alert("A képgenerálás nem sikerült: "+e.message)}finally{busy(false)}
 }
 async function studioHandlePhoto(file){
@@ -402,7 +409,7 @@ $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#choose
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#backBtn").onclick=()=>history.back();$("#editBtn").onclick=openEdit;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#testToken").onclick=testGithubToken;$("#saveToken").onclick=saveGithubToken;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
-$("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioSaveApi").onclick=studioSaveApiSettings;
+$("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;
 $("#studioRefine").onclick=studioRefine;
 $("#studioRegenerateCard").onclick=()=>{studioPullEditor();renderStudioPreview();toast("Kártya előnézet frissítve.")};
 $("#studioFinalize").onclick=studioFinalize;
