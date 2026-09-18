@@ -313,48 +313,123 @@ window.LENA_READABLE = {
     ]
   },
   "67c1707c2d5750c5": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "170 g száraz quinoa",
+      "475 ml víz",
+      "150 g uborka",
+      "1/2 csokor petrezselyem",
+      "1/2 csokor menta",
+      "40 g vöröshagyma",
+      "60 g pirított, sózott, tisztított pisztácia",
+      "1 doboz csicseriborsó, kb. 425 g, lecsepegtetve",
+      "2 citrom leve",
+      "60 ml olívaolaj",
+      "Só, frissen őrölt bors",
+      "60 g feta"
+    ],
+    "steps": [
+      "A quinoát alaposan öblítsd át, majd 475 ml vízben forrald fel. Fedő alatt, kis lángon főzd kb. 15 percig, amíg felszívja a vizet. Villával lazítsd fel, és hűtsd 5–10 percig.",
+      "Kockázd fel az uborkát, aprítsd finomra a hagymát, a zöldfűszereket és a pisztáciát. A csicseriborsót öblítsd le és csepegtesd le.",
+      "Egy nagy tálban keverd össze a quinoát, az uborkát, a hagymát, a zöldfűszereket, a pisztáciát és a csicseriborsót.",
+      "Locsold meg a citromlével és az olívaolajjal, sózd, borsozd, majd forgasd össze. A végén morzsold rá a fetát. Tálald azonnal, vagy pihentesd néhány órát a hűtőben."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Jennifer Aniston-saláta. 4 adag, kb. 30 perc.",
+      "Krémesebb változathoz adhatsz hozzá kockázott avokádót."
     ]
   },
   "d54b84bc731bf14d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "250 g aprított karfiol",
+      "1 tojás",
+      "80 g reszelt mozzarella",
+      "20 g reszelt parmezán",
+      "1 tk oregánó",
+      "Só és bors ízlés szerint"
+    ],
+    "steps": [
+      "Párold vagy mikrózd meg a karfiolt, majd hagyd hűlni.",
+      "Konyharuhában nyomkodd ki belőle a nedvességet.",
+      "Keverd össze a tojással, sajttal és a fűszerekkel.",
+      "Sütőpapíron formázz belőle kerek lapot.",
+      "Süsd 200 °C-on 20–25 percig, aranybarnára.",
+      "Ha szeretnéd, tegyél rá feltétet, és süsd még 5–8 percig."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "1 közepes pizzalap."
     ]
   },
   "9559ad6a0fe99d7f": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "250 g polenta",
+      "Kb. 1 l víz vagy alaplé",
+      "1 tk só",
+      "30 g vaj",
+      "150–200 g füstölt kolbász",
+      "1 fej vöröshagyma",
+      "250 g tejföl",
+      "150–200 g reszelt sajt",
+      "1 gerezd fokhagyma",
+      "Bors, pirospaprika"
+    ],
+    "steps": [
+      "Főzd meg a polentát sós vízben vagy alaplében. Keverd bele a vajat és egy marék sajtot.",
+      "Pirítsd össze az apróra vágott hagymát és a felkarikázott kolbászt.",
+      "Keverd ki a tejfölt a zúzott fokhagymával, kevés sóval és borssal.",
+      "Rétegezd kivajazott tepsibe: polenta fele, kolbászos hagyma, tejföl fele, majd a maradék polenta.",
+      "Kend rá a többi tejfölt, szórd meg sajttal.",
+      "Süsd 200 °C-on 20–25 percig, amíg aranybarnára pirul."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–5 adag. Savanyú uborkával vagy csalamádéval az igazi."
     ]
   },
   "90559055052f57d2": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1–2 cső csemegekukorica",
+      "2–3 evőkanál víz",
+      "Vaj és só a tálaláshoz"
+    ],
+    "steps": [
+      "Tisztítsd meg és mosd meg a kukoricát.",
+      "Tedd mikrózható tálba, önts alá vizet, majd lazán fedd le.",
+      "Mikrózd 750 W-on: 1 csőnél kb. 4,5–5,5 percig, 2 csőnél kb. 7,5–8,5 percig.",
+      "Hagyd lefedve 2 percig pihenni.",
+      "Ha még kemény, mikrózd további 1 perces szakaszokban.",
+      "Sózd, vajazd, és már kész is."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Vigyázat: a fedő alatt forró gőz van."
     ]
   },
   "916eeee233f42173": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "2 tojás",
+      "150 g túró",
+      "1 ek útifűmaghéj",
+      "1 ek zabpehelyliszt vagy mandulaliszt",
+      "1/2 tk só",
+      "Ízlés szerint fokhagymapor vagy oregánó"
+    ],
+    "steps": [
+      "Keverd simára a hozzávalókat.",
+      "Hagyd állni 3 percig.",
+      "Oszd 2 részre.",
+      "Tapadásmentes serpenyőben, közepes lángon süsd 2–3 percig oldalanként.",
+      "Használd szendvicsalapnak vagy wrapként."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "2 nagy lepény."
     ]
   },
   "2ed3ffbca614ff74": {
@@ -1548,30 +1623,75 @@ window.LENA_READABLE = {
     ]
   },
   "d9b864f9e89a0996": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "70 dkg édesburgonya",
+      "5 dkg vaj",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 db alma",
+      "1 tk currypor",
+      "2 tk reszelt gyömbér",
+      "7,5 dl alaplé",
+      "1,5 dl tejszín",
+      "1 ek olívaolaj",
+      "Só, bors"
+    ],
+    "steps": [
+      "A sütőt előmelegítjük 200 °C-ra. Az édesburgonyát meghámozzuk, felkockázzuk, sózzuk, borsozzuk, meglocsoljuk olajjal, és 20–25 perc alatt készre sütjük.",
+      "Egy lábasban olajat és vajat hevítünk, hozzáadjuk a felaprított hagymát, sózzuk, borsozzuk, és üvegesre dinszteljük.",
+      "Hozzáadjuk a reszelt gyömbért, majd az apróra vágott fokhagymát, és curryporral fűszerezzük.",
+      "Ha az édesburgonya megpuhult, ezt is hozzáadjuk a hagymás alaphoz.",
+      "Az almát megmossuk, meghámozzuk, csutkáját és magházát eltávolítjuk, felkockázzuk, és ezt is az alaphoz rakjuk.",
+      "Felöntjük alaplével vagy vízzel, annyira, hogy éppen ellepje a keveréket, és nagyjából 10 percig főzzük.",
+      "Az egészet botmixerrel pürésítjük, hozzáadjuk a tejszínt, és összeforraljuk. Ízlés szerint sózzuk, borsozzuk."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adag."
     ]
   },
   "2c0aa09614bc5908": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 kg érett paradicsom",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 sárgarépa",
+      "2 ek olívaolaj",
+      "Só, bors",
+      "Friss bazsalikom"
+    ],
+    "steps": [
+      "A hagymát és a fokhagymát dinszteld meg, add hozzá a felkockázott paradicsomot és a répát.",
+      "Főzd puhára, majd turmixold simára.",
+      "Ízesítsd bazsalikommal, sóval, borssal, és tálald frissen."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   },
   "48a9ca4ab10ea8a4": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "60 dkg sárgarépa",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 kisebb burgonya",
+      "1 tk reszelt gyömbér",
+      "2 ek olívaolaj",
+      "8 dl alaplé",
+      "Só, bors"
+    ],
+    "steps": [
+      "A hagymát dinszteld meg, add hozzá a felkarikázott répát, a burgonyát, a fokhagymát és a gyömbért.",
+      "Öntsd fel alaplével, főzd puhára, majd turmixold krémesre.",
+      "Ízesítsd sóval, borssal, és tálald friss zöldfűszerrel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   },
   "25e8650282ab7c31": {
@@ -1612,57 +1732,175 @@ window.LENA_READABLE = {
     ]
   },
   "d222b919048a9d64": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 csomag zeller",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 közepes krumpli",
+      "1 evőkanál vaj vagy olívaolaj",
+      "7–8 dl alaplé vagy víz",
+      "Só, bors, szerecsendió",
+      "1 dl tejszín vagy 1–2 evőkanál tejföl"
+    ],
+    "steps": [
+      "Vágd le a barna, fás részeket.",
+      "Pirítsd meg a hagymát és a fokhagymát.",
+      "Add hozzá a zellert és a krumplit.",
+      "Öntsd fel alaplével vagy vízzel.",
+      "Főzd puhára 20–25 perc alatt.",
+      "Turmixold krémesre.",
+      "Lágyítsd tejszínnel vagy tejföllel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "3–4 adaghoz."
     ]
   },
   "7bafaf42d22dbd2f": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "400 g fusilli vagy kagylótészta",
+      "2 tubus vagy tömlős ömlesztett sajt, összesen kb. 200 g",
+      "200 g Gouda sajt, reszelve",
+      "35 g vaj",
+      "30–35 g finomliszt",
+      "550 ml tej",
+      "1 tk mustár",
+      "1 csipet fokhagymapor",
+      "Frissen őrölt bors",
+      "Só ízlés szerint"
+    ],
+    "steps": [
+      "Főzd meg a tésztát sós vízben, de 1 perccel az al dente előtt szűrd le.",
+      "Egy lábasban olvaszd fel a vajat, keverd hozzá a lisztet, és 1 percig főzd.",
+      "Fokozatosan add hozzá a tejet, keverd csomómentesre, majd sűrítsd be.",
+      "Keverd bele a tömlős sajtot, a reszelt Goudát, a mustárt, a fokhagymaport és a borsot. Ha kell, csak kevés sót adj hozzá.",
+      "Forgasd bele a tésztát, és 1–2 perc alatt főzd össze. Ha túl sűrű, lazítsd egy kis tejjel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Krémes Mac & Cheese – magyar bolti verzió. 4 adag."
     ]
   },
   "08197fa4423e277d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g teljes kiőrlésű fusilli",
+      "1 nagy fej brokkoli",
+      "2 közepes cukkini",
+      "1 nagy vagy 2 kisebb hagyma",
+      "1–2 paprika",
+      "3–4 gerezd fokhagyma",
+      "4 ek olívaolaj",
+      "2–3 dl tésztafőző víz",
+      "1,5 tk pirospaprika",
+      "1 tk oregánó vagy bazsalikom",
+      "Chili ízlés szerint",
+      "Só, bors",
+      "Sajt a tetejére – opcionális"
+    ],
+    "steps": [
+      "A fusillit főzd meg bő, sós vízben egy perccel rövidebb ideig, mint a csomagolás írja. Az utolsó 3–4 percben dobd a tésztához a brokkolit. Tegyél félre 2–3 dl tésztafőző vizet, majd szűrd le.",
+      "A wokban hevítsd fel az olajat, majd dinszteld meg az apróra vágott hagymát üvegesre.",
+      "Add hozzá a kockázott paprikákat, majd 3–4 perc múlva a felkarikázott vagy kockázott cukkinit. Magas lángon pirítsd, hogy kapjon egy kis színt, és ne csak levet eresszen.",
+      "Add hozzá az apróra vágott fokhagymát, a pirospaprikát, az oregánót, a borsot és a chilit. Röviden keverd át, nehogy megégjen a paprika.",
+      "Tedd a leszűrt tésztát és brokkolit a wokba. Önts hozzá először 1–1,5 dl főzővizet, és forgasd össze 1–2 percig. Ha szükséges, adj még főzővizet.",
+      "Kóstold meg, sózd, borsozd. Ha van, reszelj sajtot a tetejére, és forrón tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–5 adag."
     ]
   },
   "380ebe6b8f221d7d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g penne",
+      "250–300 g zöldborsó, fagyasztott is jó",
+      "2 gerezd fokhagyma",
+      "1 nagy marék friss mentalevél, kb. 20–25 g",
+      "1 citrom reszelt héja",
+      "Fél citrom leve",
+      "200 ml főzőtejszín",
+      "80–100 g reszelt parmezán vagy Grana Padano",
+      "2 ek olívaolaj",
+      "Só",
+      "Frissen őrölt fekete bors",
+      "Opcionálisan 150–200 g bacon vagy sonka",
+      "Opcionálisan 100 g feta",
+      "Kevés chilipehely"
+    ],
+    "steps": [
+      "A pennét főzd ki sós vízben al dentére. Tedd félre kb. 2 dl főzővizet. Az utolsó 3–4 percben dobd hozzá a zöldborsót, majd együtt szűrd le.",
+      "Egy nagy serpenyőben melegítsd fel az olívaolajat. Add hozzá az aprított fokhagymát, és csak 30–40 másodpercig pirítsd.",
+      "Öntsd hozzá a tejszínt, add hozzá a citromhéjat, sok fekete borsot és kb. fél deci tésztafőző vizet. Forrald össze.",
+      "Keverd bele a pennét és a borsót, majd add hozzá a reszelt sajtot. Ha túl sűrű, lazítsd még főzővízzel.",
+      "A mentát csak a legvégén vágd vékony csíkokra, és a citromlével együtt keverd a tésztába. Így megmarad a friss aromája.",
+      "Kóstold meg, sózd, borsozd, és tálald extra sajttal."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adag."
     ]
   },
   "bdaa0e504ae6c69d": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g penne, spaghetti vagy linguine",
+      "450 g fagyasztott tengeri gyümölcsei mix",
+      "2 gerezd fokhagyma",
+      "2 ek vaj",
+      "2 ek olívaolaj",
+      "300 ml főzőtejszín",
+      "1 citrom leve",
+      "1 tk reszelt citromhéj, ha van",
+      "12 db koktélparadicsom, félbevágva",
+      "1 csokor petrezselyem",
+      "1 tk chilipehely – opcionális",
+      "100–150 ml tésztafőző víz",
+      "Só, frissen őrölt bors"
+    ],
+    "steps": [
+      "A tésztát sós vízben főzd al dentére, majd tegyél félre 1–1,5 dl főzővizet.",
+      "Nagy serpenyőben hevítsd fel a vajat és az olívaolajat.",
+      "A fagyasztott tengeri mixet tedd közvetlenül a serpenyőbe, és nagy lángon 4–5 perc alatt párold el a kiengedett levet.",
+      "Add hozzá a félbevágott koktélparadicsomot, majd a zúzott fokhagymát, és a chili pelyhet; pirítsd 30–40 másodpercig.",
+      "Öntsd rá a tejszínt, adj hozzá 1 dl tésztafőző vizet, borsozd, és főzd 1–2 percig.",
+      "Forgasd bele a tésztát, majd a tűzről levéve add hozzá a citromlevet, a citromhéjat és az aprított petrezselymet.",
+      "Ha kell, még kevés főzővízzel lazíts rajta. Azonnal tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adag, kb. 20 perc."
     ]
   },
   "1acc658a74e3ed74": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g teljes kiőrlésű fusilli",
+      "10–12 gerezd fokhagyma",
+      "2,5 evőkanál olívaolaj",
+      "400 ml főzőtejszín, 10–12%-os",
+      "100 g reszelt parmezán vagy Grana Padano",
+      "250–300 g koktélparadicsom, kb. 20 szem, félbevágva",
+      "1 evőkanál citromlé",
+      "1–1,5 teáskanál szárított bazsalikom vagy egy nagy marék friss bazsalikom",
+      "Só, frissen őrölt bors",
+      "Chilipehely ízlés szerint",
+      "200–250 ml tésztafőző víz"
+    ],
+    "steps": [
+      "A fusillit főzd ki sós vízben al dentére. Tegyél félre legalább 3 dl tésztafőző vizet.",
+      "Az olívaolajon, alacsony lángon futtasd meg az aprított fokhagymát 30–40 másodpercig. Ne barnuljon meg.",
+      "Add hozzá a félbevágott paradicsomokat, és pirítsd 3–4 percig, amíg kissé megrogy.",
+      "Öntsd hozzá a tejszínt, majd keverd bele a parmezánt, a fűszereket és a citromlevet. Fokozatosan adj hozzá 200–250 ml tésztafőző vizet, amíg krémes, selymes mártást kapsz.",
+      "Add hozzá a kifőtt tésztát, és forgasd össze 1–2 percig. Ha a tészta beszívja a szószt, adj még hozzá kevés főzővizet.",
+      "Vedd le a tűzről, majd keverd bele a friss bazsalikomot. Tálaláskor mehet rá még egy kevés parmezán és frissen őrölt bors."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "5–6 adag."
     ]
   },
   "9f7c079e391918dc": {
@@ -1701,30 +1939,89 @@ window.LENA_READABLE = {
     ]
   },
   "8aee30fa5feb1071": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g fusilli tészta",
+      "180–200 g pancetta vagy guanciale",
+      "3 egész tojás",
+      "2 tojássárgája",
+      "100 g pecorino romano vagy parmezán",
+      "Frissen őrölt fekete bors",
+      "Só a tészta főzővizéhez"
+    ],
+    "steps": [
+      "A tészta főzése: forralj bő, sós vizet, és főzd a fusillit al dentére. Állítsd a csomagoláson jelzett időnél 1 perccel rövidebbre.",
+      "A pancetta sütése: közben a pancettát vágd kisebb kockákra. Száraz serpenyőben, közepes lángon süsd ropogósra, amíg a zsír szépen kiolvad és aranybarna lesz. Vedd le a tűzről.",
+      "A szósz alapja: egy tálban verd fel a 3 egész tojást és a 2 tojássárgáját. Add hozzá a reszelt pecorino vagy parmezán sajt 2/3-át, és borsozd ízlés szerint. Keverd simára.",
+      "Összeállítás: amikor a tészta kész, szűrd le, de tegyél félre legalább 200 ml főzővizet.",
+      "Add a forró tésztát a pancettához, keverd össze, majd vedd le a serpenyőt a tűzről.",
+      "Azonnal öntsd rá a tojásos-sajtos keveréket, és gyorsan keverd össze. A tészta hője selymes, krémes mártást készít. Ha túl sűrű, adj hozzá fokozatosan kevés főzővizet.",
+      "Tálalás: szórd meg a maradék sajttal és frissen őrölt borssal. Azonnal tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "6–7 adag. A serpenyő ne legyen forró, amikor a tojásos keveréket hozzáadod, különben rántotta lesz."
     ]
   },
   "44c8c41039b1c1e0": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g penne",
+      "300–350 g jó minőségű füstölt magyar kolbász",
+      "1 nagy vöröshagyma",
+      "5–6 gerezd fokhagyma",
+      "2 dl főzőtejszín",
+      "200 g mascarpone vagy natúr krémsajt",
+      "80–100 g frissen reszelt parmezán",
+      "1 teáskanál füstölt paprika",
+      "Kevés csípős paprika, ha a kolbász nem elég erős",
+      "Frissen őrölt bors",
+      "Kevés só, óvatosan, mert a kolbász sós",
+      "Olívaolaj",
+      "Egy merőkanál tésztafőző víz",
+      "1 teáskanál dijoni mustár – titkos extra"
+    ],
+    "steps": [
+      "Főzd ki a pennét sós, lobogó vízben al dentére.",
+      "A kolbászt karikázd vagy félkarikázd.",
+      "Száraz serpenyőben süsd ki belőle a zsírját.",
+      "Dobd rá a hagymát, és dinszteld üvegesre.",
+      "Add hozzá a fokhagymát, és pirítsd 1 percig.",
+      "Jöhet a gomba, ha használsz, pirítsd le, míg a leve elpárolog.",
+      "Add hozzá a füstölt paprikát és, ha kell, egy kevés csípős paprikát.",
+      "Öntsd hozzá a tejszínt és a mascarponét, keverd simára.",
+      "Reszeld bele a parmezánt, add hozzá a mustárt, és ízesítsd borssal.",
+      "Egy kevés tésztafőzővízzel selymesítsd a szószt.",
+      "Legvégén forgasd bele a visszatett kolbászt és a félbevágott koktélparadicsomot, ha használsz.",
+      "Keverd össze a kifőtt pennével, és forrón tálald."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–6 adag."
     ]
   },
   "4307cf445e4a9809": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g teljes kiőrlésű penne",
+      "250 g füstölt szalonnakocka",
+      "4 egész tojás + 2 tojássárgája",
+      "80–120 g reszelt sajt, ha van",
+      "Frissen őrölt fekete bors",
+      "Kevés só",
+      "Kb. 2 dl tésztafőző víz"
+    ],
+    "steps": [
+      "A szalonnát hideg, nagy serpenyőben, olaj nélkül kezdd sütni. Közepes lángon 8–10 perc alatt pirítsd ropogósra.",
+      "A tésztát kevésbé sós vízben főzd al dentére. Tegyél félre kb. 2 dl főzővizet.",
+      "A tojásokat keverd össze a reszelt sajttal és sok frissen őrölt borssal.",
+      "A tésztát forgasd át a szalonna kisült zsírjában. Ha túl sok a zsír, 2–3 evőkanállal önts le belőle.",
+      "Kapcsold le a tűzhelyet, várj 30–40 másodpercet, majd öntsd rá a tojásos keveréket.",
+      "Gyorsan keverd össze, és apránként adj hozzá főzővizet, amíg fényes, krémes szószt kapsz."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–5 adag. Ha nincs külön tojássárgája, használj 5 egész tojást."
     ]
   }
 };
