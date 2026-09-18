@@ -131,11 +131,28 @@ window.LENA_READABLE = {
   },
   "0dace92dd37f0c2e": {
     "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "source": "draft_from_file_library_partial",
+    "ingredients": [
+      "Alap: 15 dkg zabpehely",
+      "Alap: 10 dkg dió vagy mandula",
+      "Alap: 6 db puha datolya",
+      "Alap: 2 ek kókuszolaj, olvasztva",
+      "Alap: 1 csipet só",
+      "Krém: 25 dkg natúr görög joghurt vagy növényi joghurt",
+      "Krém: 15 dkg túró vagy light krémsajt",
+      "Krém: 2 ek méz vagy juharszirup",
+      "Krém: 1 tk vanília kivonat",
+      "Krém: 1 citrom leve és héja",
+      "Krém: 15 dkg bogyós gyümölcs, fagyasztott is lehet",
+      "Tetejére: friss gyümölcsök, például málna, áfonya, eper"
+    ],
+    "steps": [
+      "Az alaphoz a zabpelyhet és a diót aprítógépben morzsásra daráljuk. Hozzáadjuk a datolyát, kókuszolajat és a csipet sót, majd összedolgozzuk.",
+      "Egy kapcsos tortaformát béleljünk ki sütőpapírral, nyomjuk bele az alapot, és tegyük hűtőbe."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "A forrásból a további elkészítési lépések most nem nyerhetők vissza teljes bizonyossággal, ezért a recept Review státuszban marad.",
+      "Elkészítés: kb. 20 perc, hűtés: 2–4 óra, kb. 12 szelet."
     ]
   },
   "05f45af58c97374c": {
@@ -148,12 +165,27 @@ window.LENA_READABLE = {
     ]
   },
   "07cc29f70eea5c91": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_file_library",
+    "ingredients": [
+      "30 dkg háztartási keksz",
+      "20 dkg étcsokoládé",
+      "10 dkg vaj vagy kókuszolaj",
+      "2 ek kakaópor",
+      "2–3 ek méz vagy juharszirup",
+      "1 dl tej vagy növényi ital",
+      "1 tk vanília kivonat"
+    ],
+    "steps": [
+      "A csokoládét tördeljük össze, és a vajjal együtt olvasszuk meg gőz fölött vagy mikróban.",
+      "Keverjük hozzá a kakaóport, mézet, tejet és a vaníliát, majd hagyjuk kicsit hűlni.",
+      "A kekszet törjük kisebb darabokra, és forgassuk a csokis masszába.",
+      "Egy tortaformát béleljünk ki sütőpapírral, nyomjuk bele a masszát, és simítsuk el a tetejét.",
+      "Tegyük hűtőbe legalább 2–3 órára, amíg megdermed. Tálalás előtt szórjuk meg kakaóporral vagy csokireszelékkel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Elkészítés: kb. 15 perc, hűtés: 2–3 óra, kb. 12 szelet.",
+      "Még finomabb lesz, ha egy éjszakát pihen a hűtőben. Díszíthető dióval, mandulával vagy gyümölccsel."
     ]
   },
   "373c9eba01321bec": {
@@ -544,12 +576,32 @@ window.LENA_READABLE = {
     ]
   },
   "6016b9e35fff9b8f": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "320 ml langyos víz",
+      "1,5 ek olívaolaj",
+      "1,5 tk só",
+      "1 tk cukor vagy méz",
+      "300 g fehér búzakenyérliszt",
+      "180 g félbarna búzakenyérliszt",
+      "40 g világos rozsliszt",
+      "30 g teljes kiőrlésű búzaliszt",
+      "7 g instant élesztő"
+    ],
+    "steps": [
+      "Öntsd az üstbe a vizet, majd az olívaolajat.",
+      "Add hozzá a sót és a cukrot vagy mézet.",
+      "Szórd rá a kimért liszteket egyenletesen.",
+      "A liszt tetejébe készíts kis mélyedést, és oda tedd az élesztőt.",
+      "Indítsd el az alap kenyérprogramot.",
+      "8–10 perc dagasztás után nézz rá a tésztára.",
+      "Sütés után vedd ki, és rácson hűtsd legalább 25–30 percig."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Program: Basic / White bread; méret: 750 g; héj: közepes.",
+      "Az élesztő induláskor ne érjen közvetlenül a sóhoz.",
+      "10 perc után: ha morzsás/száraz, adj 1 ek vizet; ha nagyon ragacsos, adj 1 ek lisztet."
     ]
   },
   "a5128b8a3beaca20": {
@@ -589,12 +641,30 @@ window.LENA_READABLE = {
     ]
   },
   "61c7f2b5a9751cbb": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "200 g aktív rozskovász, 100%-os hidratáltság",
+      "350 g rozsliszt",
+      "150 g kenyérliszt vagy BL80",
+      "330–350 ml langyos víz",
+      "12 g só",
+      "1 tk méz, opcionális",
+      "Kevés olaj vagy sütőpapír a formához"
+    ],
+    "steps": [
+      "Keverj össze minden hozzávalót dagasztógéppel alacsony fokozaton 4–5 percig. Ragacsos massza lesz, nem kell gluténablak.",
+      "Lefedve keleszd 3–5 órát 24–26 °C-on, amíg láthatóan levegősebb és kb. 30–50%-kal nagyobb.",
+      "Tedd kb. 25 cm-es kenyér- vagy püspökkenyérformába, vizes kézzel vagy spatulával simítsd el.",
+      "Keleszd másodszor 1,5–3 órát, amíg a felszín enyhén púpos, és apró repedések jelenhetnek meg.",
+      "Melegítsd elő a sütőt 230 °C-ra. Az aljába tegyél egy üres fémtepsit.",
+      "Betoláskor önts kevés forró vizet a tepsibe a gőzhöz. Süsd 15 percig 230 °C-on.",
+      "Vedd ki a gőzös tepsit, csökkentsd 200 °C-ra, és süsd még 40–45 percig.",
+      "Vedd ki a formából, rácson hűtsd ki. Legalább 12 órát várj a szeleteléssel."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Légkeverésnél kb. 20 °C-kal alacsonyabb hőmérséklet javasolt: 210 °C, majd 180 °C.",
+      "Jó jel, ha az alja kopogtatva üregesen szól; a belső hőmérséklet kb. 96–98 °C."
     ]
   },
   "e08a08e0bd7c0a20": {
@@ -733,12 +803,38 @@ window.LENA_READABLE = {
     ]
   },
   "9f7c079e391918dc": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_pdf",
+    "ingredients": [
+      "500 g fusilli vagy teljes kiőrlésű fusilli",
+      "250–300 g brokkoli, rózsáira szedve",
+      "300–400 g cherry paradicsom, félbevágva",
+      "1–2 db kaliforniai paprika",
+      "1 nagy vagy 2 kisebb cukkini",
+      "100–200 g zöldborsó",
+      "1 közepes lila hagyma",
+      "3–4 gerezd fokhagyma",
+      "12–20 szem olívabogyó",
+      "1–2 nagy marék friss rukkola",
+      "1 jó marék friss bazsalikom",
+      "125 g mozzarella",
+      "40–60 g Grana Padano",
+      "1/2 citrom leve + kevés héj",
+      "5–6 ek extra szűz olívaolaj",
+      "Só, frissen őrölt bors ízlés szerint"
+    ],
+    "steps": [
+      "Főzd ki a fusillit bő, sós vízben al dentére. Az utolsó 2–3 percben dobd a főzővízbe a brokkolirózsákat. Leszűrés előtt tegyél félre 2–3 dl főzővizet.",
+      "Nagy serpenyőben vagy wokban olívaolajon dinszteld a lila hagymát 2–3 percig. Ne barnítsd meg.",
+      "Add hozzá a cukkinit és a kaliforniai paprikát. Közepesen magas hőn pirítsd 5–7 percig, maradjon kicsit roppanós.",
+      "Tedd rá a fokhagymát, és csak 30–40 másodpercig keverd, hogy ne égjen meg.",
+      "Mehet bele a félbevágott cherry paradicsom, a zöldborsó és az olívabogyó. 3–5 perc elég: engedjen levet, de ne főjön szét.",
+      "Tedd rá a fusillit és az előfőzött brokkolit. Adj hozzá 1–2 dl főzővizet, fél citrom levét, kevés citromhéjat, borsot és a Grana Padano felét. Forgasd 1–2 percig.",
+      "Lezárt tűznél forgasd bele a rukkolát, bazsalikomot és a mozzarellát. Tálaláskor mehet rá a maradék Grana Padano."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "A brokkoli maradjon élénkzöld és enyhén roppanós.",
+      "Sóval óvatosan: az olívabogyó és a Grana Padano is sós."
     ]
   },
   "8aee30fa5feb1071": {
