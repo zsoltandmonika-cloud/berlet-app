@@ -97,6 +97,43 @@ async function saveNew(){
 }
 
 
+
+const STUDIO_API_CONFIG_KEY="lena28:studioApi";
+function getStudioApiConfig(){try{return JSON.parse(localStorage.getItem(STUDIO_API_CONFIG_KEY)||"{}")}catch(e){return{}}}
+function studioLoadApiSettings(){
+ const c=getStudioApiConfig();$("#studioApiUrl").value=c.url||"";$("#studioApiToken").value=c.token||"";
+}
+function studioSaveApiSettings(){
+ const url=$("#studioApiUrl").value.trim().replace(/\/+$/,""),token=$("#studioApiToken").value.trim();
+ if(!url){localStorage.removeItem(STUDIO_API_CONFIG_KEY);$("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="AI kapcsolat törölve. A Studio helyi prototípus módban működik.";return}
+ localStorage.setItem(STUDIO_API_CONFIG_KEY,JSON.stringify({url,token}));
+ $("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="✓ Studio API kapcsolat elmentve ezen az eszközön."
+}
+async function studioApiCall(action,payload){
+ const c=getStudioApiConfig();if(!c.url)throw new Error("A Studio AI kapcsolat még nincs beállítva.");
+ const headers={"Content-Type":"application/json"};if(c.token)headers.Authorization="Bearer "+c.token;
+ const r=await fetch(c.url+"/"+action,{method:"POST",headers,body:JSON.stringify(payload)});
+ let d={};try{d=await r.json()}catch(e){}
+ if(!r.ok)throw new Error(d.error||("Studio API HTTP "+r.status));
+ return d
+}
+function normalizeStudioDraft(d){
+ if(!d||typeof d!=="object")throw new Error("A receptválasz nem értelmezhető.");
+ const x={
+  title:String(d.title||"").trim(),category:String(d.category||"Egyébb").trim(),
+  servings:String(d.servings||"4 fő").trim(),time:String(d.time||"30–40 perc").trim(),
+  difficulty:String(d.difficulty||"Könnyű").trim(),
+  ingredients:Array.isArray(d.ingredients)?d.ingredients.map(String).map(s=>s.trim()).filter(Boolean):[],
+  steps:Array.isArray(d.steps)?d.steps.map(String).map(s=>s.trim()).filter(Boolean):[],
+  notes:Array.isArray(d.notes)?d.notes.map(String).map(s=>s.trim()).filter(Boolean):[]
+ };
+ if(!x.title||!x.ingredients.length||!x.steps.length)throw new Error("A receptválasz hiányos.");
+ return x
+}
+function base64ImageBlob(b64,mime){
+ const bin=atob(b64),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:mime||"image/jpeg"})
+}
+
 let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null;
 
 function studioIcon(category,title){
@@ -161,7 +198,7 @@ function resetStudio(){
  $("#studioStatus").textContent="A V1 már végigviszi a teljes kártya → olvasható recept → mentés folyamatot. Az AI-backend és a HD fotó a következő bekötési pont.";
  $("#studioCentralSync").checked=true
 }
-function openStudio(){fillCategoryList();resetStudio();$("#studioDialog").showModal()}
+function openStudio(){fillCategoryList();resetStudio();studioLoadApiSettings();$("#studioDialog").showModal()}
 function studioPullEditor(){
  if(!studioDraft)return null;
  studioDraft.title=$("#studioTitle").value.trim()||studioDraft.title;
@@ -187,14 +224,25 @@ function renderStudioPreview(){
  $("#studioPreviewIngredients").innerHTML="";d.ingredients.slice(0,8).forEach(x=>{const li=document.createElement("li");li.textContent=x;$("#studioPreviewIngredients").appendChild(li)});
  $("#studioPreviewSteps").innerHTML="";d.steps.slice(0,4).forEach(x=>{const li=document.createElement("li");li.textContent=x;$("#studioPreviewSteps").appendChild(li)})
 }
-function studioGenerate(){
+async function studioGenerate(){
  const prompt=$("#studioPrompt").value.trim();if(!prompt){alert("Írd le, milyen receptet szeretnél.");return}
- studioDraft=studioLocalDraft(prompt);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();
- $("#studioStatus").textContent="✓ Első javaslat elkészült. Most finomíthatod, majd véglegesítheted és elmentheted.";
- $("#studioPreview").scrollIntoView({behavior:"smooth",block:"start"})
+ const c=getStudioApiConfig();busy(true,c.url?"Léna receptjavaslatot készít…":"Helyi prototípus-javaslat készül…");
+ try{
+   if(c.url){
+     const res=await studioApiCall("recipe",{prompt,categories:allCategories()});
+     studioDraft=normalizeStudioDraft(res.recipe||res);
+     $("#studioStatus").textContent="✓ Léna AI receptjavaslata elkészült. Finomíthatod vagy generálhatsz hozzá HD ételfotót.";
+   }else{
+     studioDraft=studioLocalDraft(prompt);
+     $("#studioStatus").textContent="✓ Helyi Studio prototípus-javaslat elkészült. Az AI kapcsolat beállítása után ugyanez valódi Léna receptgenerálással működik.";
+   }
+   studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();$("#studioPreview").scrollIntoView({behavior:"smooth",block:"start"})
+ }catch(e){console.error(e);studioDraft=studioLocalDraft(prompt);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();$("#studioStatus").textContent="⚠ AI kapcsolat hiba: "+e.message+" Helyi prototípus-javaslatot mutatok helyette."}
+ finally{busy(false)}
 }
-function studioRefine(){
+async function studioRefine(){
  if(!studioDraft)return;studioPullEditor();const q=$("#studioRefineText").value.trim(),n=norm(q);if(!q)return;
+ const c=getStudioApiConfig();if(c.url){busy(true,"Recept finomítása…");try{const res=await studioApiCall("refine",{recipe:studioDraft,instruction:q,categories:allCategories()});studioDraft=normalizeStudioDraft(res.recipe||res);studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("✓ Léna finomította a receptet.");return}catch(e){console.error(e);toast("AI finomítás hiba, helyi módosítást alkalmazok.")}finally{busy(false)}}
  const mult=(n.match(/(\d+)\s*(fo|adag)/)||[])[1];if(mult)studioDraft.servings=mult+" fő";
  if(n.includes("csipos")&&!studioDraft.ingredients.some(x=>norm(x).includes("chili")))studioDraft.ingredients.push("Chilipehely ízlés szerint");
  if(n.includes("laktozmentes"))studioDraft.ingredients=studioDraft.ingredients.map(x=>x.replace(/tejszín/gi,"laktózmentes tejszín").replace(/gouda/gi,"laktózmentes Gouda"));
@@ -202,6 +250,19 @@ function studioRefine(){
  if(n.includes("gyors"))studioDraft.time="20–25 perc";
  studioDraft.notes=(studioDraft.notes||[]).concat("Finomítási kérés: "+q);
  studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("Finomítás alkalmazva.")
+}
+async function studioGenerateImage(){
+ if(!studioDraft)return;studioPullEditor();const c=getStudioApiConfig();if(!c.url){$("#studioApiStatus").hidden=false;$("#studioApiStatus").textContent="A HD képgeneráláshoz előbb be kell kötni a Studio AI API-t.";document.querySelector(".studio-api-settings").open=true;return}
+ busy(true,"HD ételfotó generálása…");
+ try{
+   const res=await studioApiCall("image",{recipe:studioDraft});
+   if(!res.b64)throw new Error("A képgenerátor nem adott vissza képet.");
+   studioPhotoBlob=base64ImageBlob(res.b64,res.mime||"image/jpeg");
+   if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);
+   $("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;
+   $("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo");
+   toast("✓ HD ételfotó elkészült.")
+ }catch(e){console.error(e);alert("A képgenerálás nem sikerült: "+e.message)}finally{busy(false)}
 }
 async function studioHandlePhoto(file){
  if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.")}finally{busy(false)}
@@ -340,7 +401,7 @@ $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#choose
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#backBtn").onclick=()=>history.back();$("#editBtn").onclick=openEdit;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#testToken").onclick=testGithubToken;$("#saveToken").onclick=saveGithubToken;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
-$("#studioGenerate").onclick=studioGenerate;
+$("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioSaveApi").onclick=studioSaveApiSettings;
 $("#studioRefine").onclick=studioRefine;
 $("#studioRegenerateCard").onclick=()=>{studioPullEditor();renderStudioPreview();toast("Kártya előnézet frissítve.")};
 $("#studioFinalize").onclick=studioFinalize;
