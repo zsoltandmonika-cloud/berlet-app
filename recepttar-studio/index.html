@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f7f3ea">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=1">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 <header class="app-header">
@@ -260,7 +260,10 @@
         <b>📸 Ételfotó</b>
         <p>Most opcionálisan saját képet használhatsz. A következő lépcsőben ezt Léna HD képgenerálása tölti ki automatikusan.</p>
       </div>
-      <button id="studioChoosePhoto" type="button" class="outline-btn">Kép kiválasztása</button>
+      <div class="studio-photo-actions">
+        <button id="studioGenerateImage" type="button" class="primary-btn">✨ HD kép generálása</button>
+        <button id="studioChoosePhoto" type="button" class="outline-btn">Saját kép</button>
+      </div>
       <input id="studioPhotoInput" type="file" accept="image/*" hidden>
       <img id="studioPhotoPreview" class="studio-photo-preview" alt="Ételfotó előnézet" hidden>
     </section>
@@ -269,6 +272,17 @@
       <input id="studioCentralSync" type="checkbox" checked>
       <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept is bekerül a Recepttár adatállományába.</small></span>
     </label>
+
+    <details class="studio-api-settings">
+      <summary>⚙️ Studio AI kapcsolat</summary>
+      <p class="local-note">Az OpenAI kulcs nem kerül a böngészőbe. Itt csak a biztonságos Studio API címe és a személyes hozzáférési token tárolható ezen az eszközön.</p>
+      <label class="field-label" for="studioApiUrl">Studio API URL</label>
+      <input id="studioApiUrl" class="field-input" inputmode="url" placeholder="https://...workers.dev">
+      <label class="field-label" for="studioApiToken">Studio hozzáférési token</label>
+      <input id="studioApiToken" class="field-input" type="password" autocomplete="off" placeholder="••••••••">
+      <button id="studioSaveApi" type="button" class="outline-btn full-width-btn">Kapcsolat beállítása</button>
+      <p id="studioApiStatus" class="studio-status" hidden></p>
+    </details>
 
     <div class="studio-final-actions">
       <button id="studioRegenerateCard" type="button" class="outline-btn">🎨 Kártya frissítése</button>
@@ -283,6 +297,6 @@
 
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=1"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
