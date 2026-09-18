@@ -156,7 +156,7 @@ function studioLocalDraft(prompt){
  return{title,category,servings:servings?servings+" fő":"4 fő",time:"30–35 perc",difficulty:"Könnyű",ingredients,steps,notes:["Studio V1 helyi prototípus-javaslat. A végleges AI receptmotor bekötése után ugyanezt a struktúrát Léna tölti ki."]}
 }
 function resetStudio(){
- studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}
+ studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
  $("#studioPrompt").value="";$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";
  $("#studioStatus").textContent="A V1 már végigviszi a teljes kártya → olvasható recept → mentés folyamatot. Az AI-backend és a HD fotó a következő bekötési pont.";
  $("#studioCentralSync").checked=true
@@ -204,7 +204,7 @@ function studioRefine(){
  studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("Finomítás alkalmazva.")
 }
 async function studioHandlePhoto(file){
- if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.")}finally{busy(false)}
+ if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.")}finally{busy(false)}
 }
 function canvasWrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){
  const words=String(text||"").split(/\s+/);let line="",lines=0;
@@ -263,10 +263,10 @@ async function syncLocalRecipe(id){
    const out="window.LENA_RECIPES = "+JSON.stringify(rs,null,2)+";\nwindow.LENA_CATEGORIES = "+JSON.stringify(cs,null,2)+";\n";
    await ghRequest("/contents/recepttar/data.js",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Add recipe: "+row.title,content:encode64(out),sha:data.sha,branch:GH_BRANCH})});
    if(row.readable){
-     const rd=await ghRequest("/contents/recepttar/readable-data.js?ref="+GH_BRANCH),rtxt=decode64(rd.content),mm=rtxt.match(/window\\.LENA_READABLE\\s*=\\s*(\\{[\\s\\S]*\\});\\s*$/);
+     const rd=await ghRequest("/contents/recepttar/readable-data.js?ref="+GH_BRANCH),rtxt=decode64(rd.content),mm=rtxt.match(/window\.LENA_READABLE\s*=\s*(\{[\s\S]*\});\s*$/);
      if(!mm)throw new Error("A readable-data.js formátuma nem olvasható.");
      const ro=Function('"use strict";return ('+mm[1]+')')();ro[id]=row.readable;
-     const rout="window.LENA_READABLE = "+JSON.stringify(ro,null,2)+";\\n";
+     const rout="window.LENA_READABLE = "+JSON.stringify(ro,null,2)+";\n";
      await ghRequest("/contents/recepttar/readable-data.js",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Add readable recipe: "+row.title,content:encode64(rout),sha:rd.sha,branch:GH_BRANCH})});
    }
    row.pending=false;await dbPut(row);await loadCustomRecipes();renderHome();renderPending();toast("✓ Központi feltöltés kész. Kártya és olvasható recept is mentve.")
