@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f7f3ea">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 <header class="app-header">
@@ -221,6 +221,11 @@
   <p id="studioStatus" class="studio-status">A Studio közvetlenül tud AI-receptet és ételfotót készíteni, saját fizetős API-kulcs nélkül.</p>
 
   <section id="studioPreview" class="studio-preview" hidden>
+    <div class="studio-preview-tabs">
+      <button id="studioCardTab" type="button" class="mode active">🖼 Golden kártya</button>
+      <button id="studioReadableTab" type="button" class="mode">📖 Olvasható recept</button>
+    </div>
+    <section id="studioCardPanel" class="studio-card-panel">
     <div class="studio-card-preview">
       <div id="studioHero" class="studio-hero"><span id="studioHeroEmoji">🍲</span><small>RECEPT STUDIO ELŐNÉZET</small></div>
       <div class="studio-card-copy">
@@ -233,6 +238,30 @@
         </div>
       </div>
     </div>
+    <div id="studioExactCardWrap" class="studio-exact-card-wrap" hidden>
+      <div class="studio-exact-head"><b>Végleges kártya előnézet</b><small>Ezt a képet mentjük a Recepttárba.</small></div>
+      <img id="studioExactCard" alt="Golden receptkártya előnézet">
+    </div>
+    </section>
+
+    <section id="studioReadablePreview" class="studio-readable-preview" hidden>
+      <div class="structured-section">
+        <h2 id="studioReadableTitle"></h2>
+        <div id="studioReadableMeta" class="studio-meta"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Hozzávalók</h2>
+        <div id="studioReadableIngredients" class="ingredients-list"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Elkészítés</h2>
+        <ol id="studioReadableSteps" class="steps-list"></ol>
+      </div>
+      <div id="studioReadableNotesBox" class="structured-section notes-section" hidden>
+        <h2>Tippek</h2>
+        <div id="studioReadableNotes"></div>
+      </div>
+    </section>
 
     <details class="studio-editor" open>
       <summary>✏️ Recept finomítása</summary>
@@ -292,6 +321,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>
