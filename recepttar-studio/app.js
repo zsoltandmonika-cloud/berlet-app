@@ -320,62 +320,94 @@ function strokeRound(ctx,x,y,w,h,r,stroke,width=1){roundRectPath(ctx,x,y,w,h,r);
 function canvasChip(ctx,text,x,y,padX=18){
  ctx.font="900 21px Arial";const w=ctx.measureText(text).width+padX*2;fillRound(ctx,x,y-30,w,42,21,"rgba(255,255,255,.90)");ctx.fillStyle="#234637";ctx.fillText(text,x+padX,y);return w
 }
+function ingredientEmoji(text){
+ const n=norm(text||"");
+ if(n.includes("brokk"))return"🥦";if(n.includes("cukkini"))return"🥒";if(n.includes("paradics"))return"🍅";
+ if(n.includes("paprika"))return"🫑";if(n.includes("hagyma"))return"🧅";if(n.includes("fokhagy"))return"🧄";
+ if(n.includes("sajt"))return"🧀";if(n.includes("csirk"))return"🍗";if(n.includes("krumpli")||n.includes("burgonya"))return"🥔";
+ if(n.includes("gomba"))return"🍄";if(n.includes("citrom"))return"🍋";if(n.includes("rizs"))return"🍚";
+ return"🌿"
+}
+function drawCover(ctx,bm,x,y,w,h,focusX=.5,focusY=.5){
+ const scale=Math.max(w/bm.width,h/bm.height),dw=bm.width*scale,dh=bm.height*scale;
+ const dx=x-(dw-w)*focusX,dy=y-(dh-h)*focusY;ctx.drawImage(bm,dx,dy,dw,dh)
+}
+function magazineStepPhoto(ctx,bm,x,y,w,h,index){
+ ctx.save();roundRectPath(ctx,x,y,w,h,18);ctx.clip();
+ if(bm){const fx=[.25,.55,.75,.4][index%4],fy=[.45,.55,.35,.65][index%4];drawCover(ctx,bm,x,y,w,h,fx,fy)}
+ else{const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,"#e3e8db");g.addColorStop(1,"#f1dfc9");ctx.fillStyle=g;ctx.fillRect(x,y,w,h)}
+ ctx.restore();strokeRound(ctx,x,y,w,h,18,"#d8d2c6",2)
+}
 async function studioCardBlob(d){
- const c=document.createElement("canvas");c.width=1200;c.height=1600;const x=c.getContext("2d"),heroH=660;
- x.fillStyle="#f6f0e4";x.fillRect(0,0,c.width,c.height);
+ const c=document.createElement("canvas");c.width=1200;c.height=1600;const x=c.getContext("2d");
+ const cream="#f7f1e5",ink="#2b241f",green="#355f38",green2="#234c2b",line="#cdbda7",muted="#6f6258";
+ x.fillStyle=cream;x.fillRect(0,0,c.width,c.height);
+ let bm=null;if(studioPhotoBlob)bm=await createImageBitmap(studioPhotoBlob,{imageOrientation:"from-image"});
 
- if(studioPhotoBlob){
-   const bm=await createImageBitmap(studioPhotoBlob,{imageOrientation:"from-image"}),scale=Math.max(c.width/bm.width,heroH/bm.height),w=bm.width*scale,h=bm.height*scale;
-   x.drawImage(bm,(c.width-w)/2,(heroH-h)/2,w,h);bm.close()
+ // FELSŐ MAGAZIN FEJLÉC
+ x.fillStyle="#fffaf0";x.fillRect(0,0,1200,660);
+ if(bm){
+   x.save();x.beginPath();x.moveTo(610,0);x.quadraticCurveTo(655,165,615,330);x.quadraticCurveTo(575,505,635,660);x.lineTo(1200,660);x.lineTo(1200,0);x.closePath();x.clip();
+   drawCover(x,bm,545,-5,680,665,.52,.48);x.restore()
  }else{
-   const g=x.createLinearGradient(0,0,c.width,heroH);g.addColorStop(0,"#dfe8df");g.addColorStop(.55,"#efe3cb");g.addColorStop(1,"#cbd9ce");x.fillStyle=g;x.fillRect(0,0,c.width,heroH);
-   x.textAlign="center";x.font="190px serif";x.fillStyle="#234637";x.fillText(studioIcon(d.category,d.title),600,355);x.textAlign="left"
+   const g=x.createLinearGradient(600,0,1200,660);g.addColorStop(0,"#e2e9d9");g.addColorStop(1,"#d4c39f");x.fillStyle=g;x.fillRect(600,0,600,660)
  }
- const shade=x.createLinearGradient(0,0,0,heroH);shade.addColorStop(0,"rgba(9,24,18,.23)");shade.addColorStop(.45,"rgba(9,24,18,.03)");shade.addColorStop(1,"rgba(9,24,18,.78)");x.fillStyle=shade;x.fillRect(0,0,c.width,heroH);
+ x.fillStyle=green;x.font="900 25px Arial";x.fillText((d.category||"LÉNA RECEPT").toUpperCase(),42,65);
+ x.fillStyle=ink;x.font="900 66px Georgia";canvasWrap(x,String(d.title||"").toUpperCase(),42,140,535,72,3);
 
- fillRound(x,58,50,330,54,27,"rgba(247,242,231,.93)");
- x.fillStyle="#214537";x.font="900 22px Arial";x.fillText("LÉNA RECEPTTÁR",80,85);
- x.font="700 15px Arial";x.fillStyle="#65786d";x.fillText("GOLDEN RECEPTKÁRTYA",258,84);
+ // zöld szalag
+ const ribbonY=330;fillRound(x,40,ribbonY,505,66,9,green);
+ x.fillStyle="#fff";x.font="900 22px Arial";x.fillText("LÉNA RECEPTTÁR · GOLDEN KÁRTYA",64,ribbonY+42);
+ x.fillStyle="#7d4e3b";x.font="700 19px Arial";x.fillText("HÁZIAS • ÍZLETES • KÖNNYEN KÖVETHETŐ",44,430);
 
- x.fillStyle="#fff";x.font="900 22px Arial";x.fillText((d.category||"RECEPT").toUpperCase(),64,470);
- x.font="700 68px Georgia";canvasWrap(x,d.title,64,535,1070,72,2);
-
- let chipX=64;[d.servings,d.time,d.difficulty].filter(Boolean).forEach(v=>{chipX+=canvasChip(x,v,chipX,627)+10});
-
- x.fillStyle="#f7f2e7";x.fillRect(0,heroH,c.width,c.height-heroH);
- x.fillStyle="#214537";x.fillRect(0,heroH,14,c.height-heroH);
-
- const left={x:54,y:708,w:512,h:760},right={x:594,y:708,w:552,h:760};
- fillRound(x,left.x,left.y,left.w,left.h,28,"#fffdfa");strokeRound(x,left.x,left.y,left.w,left.h,28,"#d9dfd8",2);
- fillRound(x,right.x,right.y,right.w,right.h,28,"#fffdfa");strokeRound(x,right.x,right.y,right.w,right.h,28,"#d9dfd8",2);
-
- x.fillStyle="#214537";x.font="700 38px Georgia";x.fillText("Hozzávalók",88,770);x.fillText("Elkészítés",630,770);
- x.fillStyle="#b78b54";x.fillRect(88,790,118,5);x.fillRect(630,790,118,5);
-
- x.font="25px Arial";let y1=840;
- d.ingredients.slice(0,13).forEach((v,i)=>{
-   if(y1>1415)return;
-   x.fillStyle="#d9eadf";x.beginPath();x.arc(100,y1-8,10,0,Math.PI*2);x.fill();
-   x.fillStyle="#214537";x.font="900 15px Arial";x.textAlign="center";x.fillText("✓",100,y1-3);x.textAlign="left";
-   x.fillStyle="#293a33";x.font="25px Arial";y1=canvasWrap(x,v,126,y1,392,34,2)+12
+ // meta ikon sor
+ fillRound(x,38,462,522,142,16,"#fffdf8");strokeRound(x,38,462,522,142,16,line,2);
+ const metas=[["👥",d.servings||"4 fő","ADAG"],["⏱",d.time||"30 perc","IDŐ"],["🍲",d.difficulty||"Könnyű","NEHÉZSÉG"],["🍳",d.category||"Recept","STÍLUS"]];
+ const cellW=522/4;metas.forEach((m,i)=>{
+   const cx=38+i*cellW;if(i)x.fillStyle="#d9cec0",x.fillRect(cx,485,2,95);
+   x.textAlign="center";x.font="32px serif";x.fillText(m[0],cx+cellW/2,505);
+   x.fillStyle=ink;x.font="900 18px Arial";canvasWrap(x,m[1],cx+14,548,cellW-28,20,2);
+   x.fillStyle=muted;x.font="900 12px Arial";x.fillText(m[2],cx+cellW/2,584);x.textAlign="left"
  });
 
- let y2=840;
- d.steps.slice(0,8).forEach((v,i)=>{
-   if(y2>1410)return;
-   fillRound(x,626,y2-30,44,44,22,"#214537");x.fillStyle="#fff";x.font="900 20px Arial";x.textAlign="center";x.fillText(String(i+1),648,y2);x.textAlign="left";
-   x.fillStyle="#293a33";x.font="24px Arial";y2=canvasWrap(x,v,688,y2,410,33,3)+18
+ // ALSÓ RÉSZ 3 OSZLOP: HOZZÁVALÓ / KÉPSOR / LÉPÉSEK
+ const top=700,leftX=30,leftW=300,photoX=348,photoW=292,rightX=660,rightW=510;
+ fillRound(x,leftX,top,leftW,820,18,"#fffaf2");strokeRound(x,leftX,top,leftW,820,18,line,2);
+ fillRound(x,rightX,top,rightW,820,18,"#fffaf2");strokeRound(x,rightX,top,rightW,820,18,line,2);
+
+ fillRound(x,leftX+14,top-24,205,54,8,green);x.fillStyle="#fff";x.font="900 21px Arial";x.fillText("HOZZÁVALÓK",leftX+32,top+11);
+ fillRound(x,rightX+14,top-24,390,54,8,green);x.fillStyle="#fff";x.font="900 21px Arial";x.fillText("ELKÉSZÍTÉS LÉPÉSRŐL LÉPÉSRE",rightX+32,top+11);
+
+ // hozzávalók
+ let iy=760;x.font="21px Arial";
+ d.ingredients.slice(0,14).forEach((v,i)=>{
+   if(iy>1435)return;
+   x.fillStyle=green;x.beginPath();x.arc(leftX+26,iy-6,5,0,Math.PI*2);x.fill();
+   x.fillStyle=ink;x.font="21px Arial";iy=canvasWrap(x,v,leftX+43,iy,leftW-58,28,2)+8
  });
 
+ // dekoratív alapanyag ikonok
+ const deco=d.ingredients.slice(0,4).map(ingredientEmoji);x.font="54px serif";let ex=leftX+28;deco.forEach(e=>{x.fillText(e,ex,1490);ex+=60});
+
+ // középső képsor
+ const ph=182,gap=16;for(let i=0;i<4;i++){const py=top+40+i*(ph+gap);magazineStepPhoto(x,bm,photoX,py,photoW,ph,i)}
+
+ // lépések
+ let sy=760;
+ d.steps.slice(0,7).forEach((v,i)=>{
+   if(sy>1440)return;
+   fillRound(x,rightX+18,sy-25,38,38,9,green);x.fillStyle="#fff";x.font="900 20px Arial";x.textAlign="center";x.fillText(String(i+1),rightX+37,sy+2);x.textAlign="left";
+   x.fillStyle=ink;x.font="21px Arial";sy=canvasWrap(x,v,rightX+72,sy,rightW-94,29,4)+18;
+   x.fillStyle="#ddcfbd";x.fillRect(rightX+72,sy-7,rightW-96,1)
+ });
+
+ // tip / footer
  const notes=(d.notes||[]).filter(Boolean);
- if(notes.length){
-   const note=notes[0];fillRound(x,594,1490,552,62,18,"#eaf1eb");x.fillStyle="#214537";x.font="900 17px Arial";x.fillText("LÉNA TIPP",618,1517);
-   x.fillStyle="#52655b";x.font="18px Arial";canvasWrap(x,note,720,1517,396,24,1)
- }
- x.fillStyle="#66766e";x.font="17px Arial";x.fillText("📖 Olvasható recept automatikusan mellékelve",58,1548);
- x.textAlign="right";x.font="900 17px Arial";x.fillStyle="#214537";x.fillText("ZSOLT & MÓNIKA",1142,1548);x.textAlign="left";
-
- return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Kártyagenerálási hiba")),"image/jpeg",.94))
+ if(notes.length){fillRound(x,rightX+20,1460,rightW-40,46,12,"#eef3e9");x.fillStyle=green2;x.font="900 15px Arial";x.fillText("LÉNA TIPP",rightX+35,1488);x.fillStyle=muted;x.font="16px Arial";canvasWrap(x,notes[0],rightX+125,1488,rightW-165,20,1)}
+ x.fillStyle="#9a8977";x.font="15px Arial";x.fillText("Léna Recepttár · Zsolt & Mónika",38,1570);
+ x.textAlign="right";x.fillText("📖 Olvasható recept mellékelve",1162,1570);x.textAlign="left";
+ if(bm)bm.close();
+ return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Kártyagenerálási hiba")),"image/jpeg",.95))
 }
 async function studioFinalize(){
  if(!studioDraft)return;const d=studioPullEditor();if(!d.title||!d.category||!d.ingredients.length||!d.steps.length){alert("A véglegesítéshez kell cím, kategória, hozzávaló és elkészítés.");return}
