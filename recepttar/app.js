@@ -318,7 +318,7 @@ async function studioFinalize(){
  busy(true,"Golden kártya készítése és mentés…");
  try{
    const blob=await studioCardBlob(d),id=newId(),central=$("#studioCentralSync").checked,readable={status:"verified",source:"studio_v1",ingredients:d.ingredients,steps:d.steps,notes:[d.servings+" · "+d.time+" · "+d.difficulty].concat(d.notes||[]),updatedAt:new Date().toISOString()};
-   await dbPut({id,title:d.title,category:d.category,originalName:d.title+".jpg",blob,pending:central,createdAt:Date.now(),readable,studio:true});
+   await dbPut({id,title:d.title,category:d.category,originalName:d.title+".jpg",blob,heroBlob:studioPhotoBlob||null,pending:central,createdAt:Date.now(),readable,studio:true,studioData:{title:d.title,category:d.category,servings:d.servings,time:d.time,difficulty:d.difficulty,ingredients:d.ingredients,steps:d.steps,notes:d.notes||[]}});
    setReadable(id,readable);$("#studioDialog").close();await loadCustomRecipes();activeCategory="Mind";favoritesOnly=false;showHome(false);toast("✓ Studio recept elmentve.");
    if(central){if(getGithubToken())syncLocalRecipe(id);else setTimeout(()=>{openSyncSettings();toast("A recept helyben kész. A központi mentéshez add meg a GitHub kulcsot.")},350)}
  }catch(e){console.error(e);alert("A recept mentése nem sikerült: "+e.message)}finally{busy(false)}
@@ -336,10 +336,11 @@ async function putGithubFile(path,b64,message){let sha=null;try{const e=await gh
 async function syncLocalRecipe(id){
  const row=await dbGet(id);if(!row)return;if(!getGithubToken()){openSyncSettings();return}busy(true,"Feltöltés a központi Recepttárba…");
  try{
-   const fileName="user_"+id+".jpg";await putGithubFile("recepttar/recipes/"+fileName,await blobToBase64(row.blob),"Add recipe image: "+row.title);
+   const fileName="user_"+id+".jpg";await putGithubFile("recepttar/recipes/"+fileName,await blobToBase64(row.blob),"Add recipe card: "+row.title);
+   let heroFile=null;if(row.heroBlob){heroFile="recipes/user_"+id+"_hero.jpg";await putGithubFile("recepttar/"+heroFile,await blobToBase64(row.heroBlob),"Add recipe hero image: "+row.title)}
    const data=await ghRequest("/contents/recepttar/data.js?ref="+GH_BRANCH),txt=decode64(data.content),rm=txt.match(/window\.LENA_RECIPES\s*=\s*(\[[\s\S]*?\]);/),cm=txt.match(/window\.LENA_CATEGORIES\s*=\s*(\[[\s\S]*?\]);/);
    if(!rm||!cm)throw new Error("A data.js formátuma nem olvasható.");const rs=JSON.parse(rm[1]),cs=JSON.parse(cm[1]);const existing=rs.find(x=>x.id===id);
-   if(existing){existing.title=row.title;existing.category=row.category;existing.file="recipes/"+fileName;existing.mime="image/jpeg"}else rs.push({id,title:row.title,category:row.category,file:"recipes/"+fileName,mime:"image/jpeg",originalName:row.originalName||row.title+".jpg"});
+   if(existing){existing.title=row.title;existing.category=row.category;existing.file="recipes/"+fileName;existing.mime="image/jpeg";if(heroFile)existing.heroFile=heroFile}else rs.push({id,title:row.title,category:row.category,file:"recipes/"+fileName,mime:"image/jpeg",originalName:row.originalName||row.title+".jpg",...(heroFile?{heroFile}:{})});
    if(!cs.includes(row.category))cs.push(row.category);cs.sort((a,b)=>a.localeCompare(b,"hu"));
    const out="window.LENA_RECIPES = "+JSON.stringify(rs,null,2)+";\nwindow.LENA_CATEGORIES = "+JSON.stringify(cs,null,2)+";\n";
    await ghRequest("/contents/recepttar/data.js",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Add recipe: "+row.title,content:encode64(out),sha:data.sha,branch:GH_BRANCH})});
