@@ -109,3 +109,11 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 .studio-photo-box{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px dashed #9caea1;border-radius:15px;padding:13px;background:#f8faf7}.studio-photo-box p{font-size:12px;margin:4px 0 0}.studio-photo-preview{grid-column:1/-1;width:100%;max-height:280px;object-fit:contain;border-radius:12px;background:#eee}
 .studio-final-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px}
 @media(max-width:620px){.studio-preview-columns,.studio-edit-grid,.studio-refine-row,.studio-photo-box,.studio-final-actions{grid-template-columns:1fr}.studio-stage{gap:5px}.studio-step{padding:7px 5px;gap:5px}.studio-step b{font-size:10px}.studio-hero{min-height:180px}.studio-card-copy h3{font-size:25px}}
+
+.studio-photo-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.studio-api-settings{border:1px solid var(--line);border-radius:15px;background:#fbfcfa;padding:12px}
+.studio-api-settings summary{cursor:pointer;font-weight:900;color:#28483a}
+.studio-api-settings .full-width-btn{margin-top:12px}
+.studio-hero.has-photo{background-size:cover!important;background-position:center!important;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+.studio-hero.has-photo #studioHeroEmoji{opacity:0}
+@media(max-width:620px){.studio-photo-actions{justify-content:stretch}.studio-photo-actions button{flex:1}}
