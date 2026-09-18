@@ -91,13 +91,25 @@ window.LENA_READABLE = {
   },
 
   "617851399e30a0cd": {
-    "status": "review",
-    "source": "image_only_unverified",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1 közepes karfiol",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 kisebb burgonya",
+      "2 ek vaj vagy olívaolaj",
+      "8 dl alaplé",
+      "1 dl tejszín",
+      "Só, bors, petrezselyem"
+    ],
+    "steps": [
+      "A hagymát dinszteld meg, majd add hozzá a rózsáira szedett karfiolt, a burgonyát és a fokhagymát.",
+      "Öntsd fel az alaplével, főzd puhára, majd turmixold simára.",
+      "Keverd bele a tejszínt, ízesítsd, és pirított morzsával tálald."
+    ],
     "notes": [
-      "A receptkártya megvan, de a strukturált tartalom még nincs forráshűen ellenőrizve.",
-      "Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   }
 };
