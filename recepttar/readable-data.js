@@ -826,111 +826,298 @@ window.LENA_READABLE = {
     ]
   },
   "9701d74ca9c6a98b": {
-    "status": "review",
-    "source": "partial_verified_from_file_library",
+    "status": "verified",
+    "source": "verified_from_recipe_card",
     "ingredients": [
       "50 dkg széles metélt",
       "30 dkg búzadara",
-      "2 ek zsiradék",
+      "2 evőkanál zsiradék",
       "4,5 dl forró víz",
       "Só",
-      "Kedvenc lekvár",
-      "Porcukor ízlés szerint",
-      "Sárgabaracklekvár tálaláshoz"
+      "Sárgabaracklekvár",
+      "Porcukor ízlés szerint"
     ],
-    "steps": [],
+    "steps": [
+      "Egy nagyobb serpenyőben melegítsd fel az olajat.",
+      "Add hozzá a búzadarát, és közepes lángon, folyamatosan keverve pirítsd aranybarnára.",
+      "Húzd le a tűzről, óvatosan öntsd hozzá a vizet, majd keverd el.",
+      "Fedd le, és kis lángon párold 3–5 percig, amíg a dara felszívja a vizet és pergős lesz.",
+      "A tésztát sós, lobogó vízben főzd meg, majd alaposan csepegtesd le.",
+      "Keverd össze a tésztát a pirított darával, és még 1–2 percig melegítsd együtt."
+    ],
     "notes": [
-      "A hozzávalók biztosan visszanyerhetők, de az elkészítési lépések forráshű szövege még nincs teljesen ellenőrizve, ezért Review státuszban marad."
+      "Porcukorral és bőséges sárgabaracklekvárral tálald.",
+      "Tipp: a forró vizet fokozatosan add hozzá, hogy a dara szép pergős maradjon."
     ]
   },
   "895492be46aed4aa": {
-    "status": "review",
-    "source": "partial_verified_from_file_library",
+    "status": "verified",
+    "source": "verified_from_recipe_card",
     "ingredients": [
-      "50 dkg széles metélt",
-      "30 dkg búzadara",
-      "2 ek zsiradék",
-      "4,5 dl forró víz",
-      "Só",
-      "Kedvenc lekvár",
-      "Porcukor ízlés szerint",
-      "Sárgabaracklekvár tálaláshoz"
+      "300 g szélesmetélt",
+      "120 g búzadara",
+      "3 ek napraforgóolaj",
+      "240 ml forró víz",
+      "1 csipet só",
+      "Porcukor a tálaláshoz",
+      "Sárgabaracklekvár a tálaláshoz"
     ],
-    "steps": [],
+    "steps": [
+      "A tésztát sós vízben főzd al dentére, majd szűrd le.",
+      "Az olajon, közepes lángon pirítsd a búzadarát 6–8 percig, folyamatosan keverve, aranybarnára.",
+      "Óvatosan öntsd fel a forró vízzel. Keverd át, fedd le, és kis lángon párold 3 percig.",
+      "Zárd el, pihentesd fedővel 10 percig, majd villával lazítsd fel.",
+      "Forgasd össze a tésztával. Porcukorral és sárgabaracklekvárral tálald."
+    ],
     "notes": [
-      "A hozzávalók biztosan visszanyerhetők, de az elkészítési lépések forráshű szövege még nincs teljesen ellenőrizve, ezért Review státuszban marad."
+      "4 adaghoz."
     ]
   },
   "5fef22e1a5fc03de": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "250 g juhtúró",
+      "250 g tehéntúró",
+      "100–150 g tejföl",
+      "1 kisebb lilahagyma, nagyon finomra vágva",
+      "1 gerezd fokhagyma, zúzva",
+      "1 púpozott teáskanál édesnemes pirospaprika",
+      "1/2 teáskanál csípős pirospaprika vagy cayenne",
+      "1 teáskanál egész kömény, mozsárban kissé megtörve",
+      "1 teáskanál mustár",
+      "1/2 teáskanál őrölt fekete bors",
+      "1–2 teáskanál aprított kapribogyó vagy csemegeuborka – opcionális",
+      "Kevés só, csak kóstolás után",
+      "1 evőkanál sör – opcionális"
+    ],
+    "steps": [
+      "A juhtúrót és a tehéntúrót villával törd össze.",
+      "Keverd hozzá először csak 100 g tejfölt, majd a paprikákat, mustárt, köményt, borsot és fokhagymát.",
+      "Add hozzá a nagyon finomra vágott lilahagymát és az opcionális kapribogyót vagy uborkát.",
+      "Kóstold meg, és csak ezután sózd – a juhtúró önmagában is elég sós lehet.",
+      "Tedd hűtőbe legalább 1–2 órára, de másnap még jobb.",
+      "Tálalás előtt keverd át; ha túl sűrű, mehet bele még kevés tejföl vagy egy kanál sör."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–6 adaghoz."
     ]
   },
   "c54f3643e9d85faf": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "2 kg megtisztított lecsópaprika",
+      "700–800 g vöröshagyma",
+      "1–1,2 kg érett paradicsom",
+      "150–200 g füstölt szalonna",
+      "2–3 evőkanál sertészsír, ha a szalonna kevés zsírt enged",
+      "2 púpozott teáskanál őrölt pirospaprika",
+      "1 teáskanál füstölt paprika – opcionális",
+      "2–3 gerezd fokhagyma",
+      "1 csípős paprika ízlés szerint",
+      "2–2,5 teáskanál só, majd a végén igazítva",
+      "1 teáskanál frissen őrölt bors",
+      "1 teáskanál cukor, csak ha savas a paradicsom",
+      "1 teáskanál köménymag – opcionális"
+    ],
+    "steps": [
+      "A szalonnát kockázd fel, majd közepes lángon süsd ki a zsírját. A pörcöt kiszedheted, és a végén visszateheted, így nem puhul teljesen szét.",
+      "A visszamaradt zsiradékon dinszteld a félkarikára vágott vöröshagymát 12–15 percig. Ne kapkodd el: ettől lesz mély, édeskés alapíze.",
+      "Húzd le az edényt a tűzről, keverd bele az őrölt pirospaprikát és a füstölt paprikát, majd azonnal adj hozzá 2–3 evőkanál vizet vagy paradicsomlevet, hogy a paprika ne égjen meg.",
+      "Add hozzá a felkockázott paradicsomot, a fokhagymát, a köménymagot és a csípős paprikát. Főzd 10–15 percig, amíg a paradicsom levet enged és kissé szétesik.",
+      "Tedd bele a karikára vagy szélesebb csíkokra vágott paprikát. Sózd meg, borsozd, majd nagy lángon forgasd át 4–5 percig.",
+      "Fedő nélkül, közepes lángon főzd 25–35 percig. Időnként keverd meg, de ne törd péppé a paprikát.",
+      "Az utolsó 5 percben tedd vissza a szalonnapörcöt. Kóstold meg, szükség szerint adj még sót, csípőset vagy egy kevés cukrot."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "6–8 főre.",
+      "Extra ütős változat: a végén 20–25 dkg külön megpirított füstölt kolbásszal vagy 6–8 felvert tojással is gazdagítható."
     ]
   },
   "b52eee3b6e880f70": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g száraz barna lencse",
+      "150 g füstölt kolbász",
+      "1 nagy vöröshagyma",
+      "3 gerezd fokhagyma",
+      "2 ek olaj",
+      "2 csapott ek cukor",
+      "3 babérlevél",
+      "1 tk füstölt pirospaprika",
+      "Kb. 1,2 liter víz vagy alaplé",
+      "200 g laktózmentes tejföl",
+      "2 púpozott ek liszt",
+      "2 ek mustár",
+      "1–2 ek ecet",
+      "Só, frissen őrölt bors"
+    ],
+    "steps": [
+      "A lencsét mosd át, majd áztasd 4–6 órán keresztül.",
+      "A kolbászkarikákat pirítsd meg, majd tedd félre.",
+      "A visszamaradt zsírhoz add az olajat és a cukrot. Közepes lángon karamellizáld borostyánszínűre. Add hozzá óvatosan a hagymát, majd dinszteld meg. Keverd hozzá a fokhagymát; húzd le a tűzről, és szórd rá a pirospaprikát.",
+      "Add hozzá a lencsét, a babérlevelet és az alaplevet. Főzd puhára 35–45 perc alatt.",
+      "A tejfölt keverd simára a liszttel és kevés főzőlével. Habard be a főzeléket, majd főzd még 5 percig.",
+      "Tedd vissza a kolbászt. A mustárt és az ecetet csak a végén add hozzá. Sózd, borsozd."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "6 adaghoz. Áztatás: 4–6 óra, főzés: kb. 50–60 perc."
     ]
   },
   "ab860f2349b5b0a8": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "3 kg burgonya",
+      "60–75 dkg füstölt kolbász",
+      "30–40 dkg füstölt szalonna",
+      "5–6 közepes vöröshagyma",
+      "8–9 gerezd fokhagyma",
+      "3 nagyobb paradicsom",
+      "3 TV paprika",
+      "4–4,5 ek édesnemes őrölt paprika",
+      "1–1,5 tk csípős paprika vagy Erős Pista",
+      "2,5–3 tk őrölt kömény",
+      "Só, fekete bors",
+      "Kb. 1,8–2,2 liter víz",
+      "Szükség esetén 1–2 ek sertészsír"
+    ],
+    "steps": [
+      "A szalonnát süsd ki egy legalább 8–10 literes lábasban vagy bográcsban.",
+      "Add hozzá az apróra vágott hagymát, és pirítsd szép aranybarnára.",
+      "Tedd bele a kolbász körülbelül felét, majd a fokhagymát és a köményt.",
+      "Húzd le a tűzről, keverd hozzá az őrölt paprikát, majd azonnal jöhet a paradicsom és a paprika.",
+      "Add hozzá a nagyobb darabokra vágott burgonyát, sózd és borsozd.",
+      "Öntsd fel annyi vízzel, hogy a krumpli körülbelül háromnegyedéig érjen. Ne lepje el teljesen.",
+      "Fedő alatt főzd közepes lángon kb. 30–40 percig. Nagy adagnál inkább rázogasd az edényt, ne kavargasd agresszíven.",
+      "Az utolsó 10–15 percben add hozzá a maradék kolbászt.",
+      "A végén pár krumplidarabot nyomj szét a lében, és főzd fedő nélkül még 5 percig."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "12–15 főre."
     ]
   },
   "95185e899deaeb94": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g finomliszt",
+      "250 g hideg vaj",
+      "200 g tejföl",
+      "1 tojássárgája",
+      "10 g sütőpor",
+      "10–12 g só",
+      "150 g reszelt sajt a tésztába",
+      "1 felvert tojás a tetejére",
+      "150–200 g reszelt sajt a tetejére",
+      "Opcionálisan szezám- vagy köménymag"
+    ],
+    "steps": [
+      "A lisztet keverd össze a sütőporral és a sóval, majd morzsold el a hideg vajjal.",
+      "Add hozzá a tejfölt, a tojássárgáját és a sajtot. Gyorsan gyúrd össze.",
+      "Nyújtsd téglalapra, hajtsd háromba, fordítsd el, majd ismételd meg még egyszer.",
+      "Pihentesd hűtőben 45–60 percig.",
+      "Nyújtsd 8–10 mm vastagra. Kend meg tojással, és szórd meg sajttal.",
+      "Vágd kb. 1,5 × 8–10 cm-es rudakra.",
+      "Süsd 200 °C-on 15–18 percig aranybarnára."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Kb. 45–55 darab. Légkeverésnél 185–190 °C."
     ]
   },
   "4064e491b5fc7ce2": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "1,4–1,6 kg csirkecomb farrésszel",
+      "2 nagy vöröshagyma",
+      "1 ek sertészsír",
+      "2 púpozott ek édesnemes pirospaprika",
+      "1/2 tk csípős paprika – opcionális",
+      "1 TV-paprika",
+      "1 paradicsom",
+      "2 gerezd fokhagyma",
+      "300–330 g 20%-os tejföl",
+      "1 púpozott ek finomliszt",
+      "Kb. 300 ml víz vagy alaplé",
+      "Só, frissen őrölt bors",
+      "Nokedlihez: 400 g finomliszt",
+      "Nokedlihez: 3 tojás",
+      "Nokedlihez: 200–230 ml víz",
+      "Nokedlihez: 1 tk só",
+      "Nokedlihez: 1 tk zsír vagy vaj"
+    ],
+    "steps": [
+      "A sózott, borsozott combokat a zsíron, bőrös oldalukkal lefelé pirítsd meg, majd szedd ki.",
+      "A hagymát párold 8–10 percig. Add hozzá a paprikát, paradicsomot és fokhagymát.",
+      "Húzd le a tűzről, keverd bele a pirospaprikát. Tedd vissza a csirkét, önts alá kb. 250–300 ml folyadékot.",
+      "Fedő alatt, kis lángon főzd 40–50 percig.",
+      "A tejfölt keverd simára a liszttel és egy merőkanál forró szafttal. Öntsd vissza, majd főzd még 3–4 percig.",
+      "A nokedli hozzávalóit lazán keverd össze. Szaggasd lobogó sós vízbe, és feljövés után főzd még 1–2 percig."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4–5 kiadós adag."
     ]
   },
   "b693d8459553dfd0": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g rétesliszt",
+      "250 g hideg vaj vagy margarin",
+      "200 g tejföl",
+      "150 g reszelt sajt",
+      "1 tojássárgája",
+      "2 tk só",
+      "1 csomag sütőpor",
+      "1 felvert tojás a tetejére",
+      "100–150 g reszelt sajt a tetejére",
+      "Szezámmag, kömény vagy mák – opcionális"
+    ],
+    "steps": [
+      "A lisztet keverd össze a sütőporral és a sóval, majd morzsold el benne a hideg vajat.",
+      "Add hozzá a tejfölt, a tojássárgáját és 150 g sajtot. Gyorsan gyúrd össze.",
+      "Hűtőben pihentesd 30–60 percig.",
+      "Nyújtsd 5–6 mm vastagra. Kend meg tojással, szórd meg sajttal, és vágd kb. 1,5 × 10 cm-es rudakra.",
+      "Süsd 190 °C-on, alsó-felső sütéssel 15–18 percig, aranybarnára."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "Kb. 35–40 darab."
     ]
   },
   "1fc60fdd98a58cf3": {
-    "status": "review",
-    "source": "awaiting_ocr_batch",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "500 g finomliszt",
+      "200 g sertészsír",
+      "25 g friss élesztő vagy 7 g instant élesztő",
+      "150 ml langyos tej",
+      "1 tk cukor",
+      "2 tk só",
+      "1 egész tojás",
+      "2 ek tejföl",
+      "1 tojássárgája a kenéshez",
+      "Tetejére köménymag, szezámmag vagy reszelt sajt"
+    ],
+    "steps": [
+      "A langyos tejbe tedd a cukrot és az élesztőt. Hagyd 5–10 percig felfutni.",
+      "A lisztet keverd össze a sóval.",
+      "Morzsold bele a puha sertészsírt.",
+      "Add hozzá a tojást, tejfölt és az élesztős tejet.",
+      "Gyúrd össze puha, de nem ragacsos tésztává.",
+      "Letakarva keleszd 40–50 percig.",
+      "Nyújtsd kb. 1,5–2 cm vastagra.",
+      "A tetejét késsel finoman rácsozd be.",
+      "Szaggasd ki kb. 4–5 cm-es pogácsaszaggatóval.",
+      "Tedd sütőpapíros tepsire, majd hagyd még 15 percig pihenni.",
+      "Kend meg tojássárgájával, és mehet rá kömény, sajt vagy szezám."
+    ],
     "notes": [
-      "OCR-piszkozat előkészítésre vár. Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "200 °C-on, alsó-felső sütéssel 15–18 percig süsd, amíg szép aranybarna lesz.",
+      "Kb. 30–35 darab."
     ]
   },
   "f281d3a8e0557f1d": {
