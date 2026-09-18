@@ -2,6 +2,22 @@ const baseRecipes=window.LENA_RECIPES||[],baseCategories=window.LENA_CATEGORIES|
 const $=s=>document.querySelector(s);
 const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="main",DB_NAME="lena-recepttar-local",DB_STORE="recipes";
 let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],selectedNewBlob=null,selectedNewPreviewUrl=null;
+function migrateCanonicalBaseState(){
+  const flag="lena27:canonicalBaseMigration";
+  if(localStorage.getItem(flag)==="1")return;
+  const ids=new Set(baseRecipes.map(r=>r.id));
+  const remove=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith("lena22:meta:")){
+      const id=k.slice("lena22:meta:".length);
+      if(ids.has(id))remove.push(k);
+    }
+  }
+  remove.forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem(flag,"1");
+}
+
 
 function keyFav(id){return"lena21:fav:"+id}function keyText(id){return"lena21:text:"+id}function keyMeta(id){return"lena22:meta:"+id}
 function keyReadable(id){return"lena25:readable:"+id}
@@ -172,4 +188,4 @@ $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminAddRecipe").oncl
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=25").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=25").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
