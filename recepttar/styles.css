@@ -85,3 +85,27 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 .editor-help{font-size:12px!important;margin:4px 0 7px!important;color:var(--muted)!important}
 #structuredDialog textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;resize:vertical;line-height:1.4}
 @media(max-width:470px){.readable-status-row{align-items:stretch;flex-direction:column}.status-edit-btn{width:100%}.readable-tools{align-items:stretch;flex-direction:column}.font-tools{justify-content:center}.compact-btn{width:100%}}
+
+/* Léna Recept Studio V1 */
+.studio-launch-btn{border:0;background:#243f34;color:#fff;border-radius:12px;min-height:44px;padding:9px 13px;font-weight:850}
+.studio-dialog .dialog-card{width:min(95vw,860px)}
+.studio-shell{padding:18px}
+.studio-shell h2{margin:3px 0 0}
+.studio-stage{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.studio-step{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#f8faf7;font-size:12px;color:#40534a}
+.studio-step span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:900}
+.studio-main-action{width:100%;margin-top:10px;min-height:50px;font-size:16px}
+.studio-status{font-size:12px!important;line-height:1.4;background:#f3f6f2;border:1px solid #dce5dc;border-radius:12px;padding:10px 12px}
+.studio-preview{display:grid;gap:14px;margin-top:15px}
+.studio-card-preview{overflow:hidden;border:1px solid #cfd8d1;border-radius:18px;background:#fff;box-shadow:var(--shadow)}
+.studio-hero{min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(145deg,#d8e2d8,#ece7d9);color:#294438}
+.studio-hero span{font-size:72px}.studio-hero small{font-size:10px;font-weight:900;letter-spacing:.13em}
+.studio-card-copy{padding:17px}.studio-card-copy h3{font:700 29px Georgia,serif;color:#173a2e;margin:4px 0 10px}
+.studio-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.studio-meta span{background:#eef4ef;border:1px solid #d8e2da;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;color:#365447}
+.studio-preview-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}.studio-preview-columns b{font:700 19px Georgia,serif;color:#173a2e}.studio-preview-columns ul,.studio-preview-columns ol{padding-left:22px;margin:9px 0 0;line-height:1.4}
+.studio-editor{border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px}.studio-editor summary{cursor:pointer;font-weight:900;color:#28483a}
+.studio-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.studio-edit-grid label span{display:block;font-size:12px;font-weight:850;margin:0 0 5px;color:#40534a}
+.studio-refine-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.studio-photo-box{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px dashed #9caea1;border-radius:15px;padding:13px;background:#f8faf7}.studio-photo-box p{font-size:12px;margin:4px 0 0}.studio-photo-preview{grid-column:1/-1;width:100%;max-height:280px;object-fit:contain;border-radius:12px;background:#eee}
+.studio-final-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px}
+@media(max-width:620px){.studio-preview-columns,.studio-edit-grid,.studio-refine-row,.studio-photo-box,.studio-final-actions{grid-template-columns:1fr}.studio-stage{gap:5px}.studio-step{padding:7px 5px;gap:5px}.studio-step b{font-size:10px}.studio-hero{min-height:180px}.studio-card-copy h3{font-size:25px}}
