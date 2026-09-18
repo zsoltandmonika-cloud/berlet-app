@@ -196,6 +196,64 @@ async function puterFoodImage(recipe){
  return dataUrlToBlob(img.src)
 }
 
+let studioFridgeFile=null,studioFridgeUrl=null,studioFridgeIdeas=[];
+
+function fridgeVisionPrompt(){
+ return [
+  "Te Léna vagy, egy magyar konyhai asszisztens. Elemezd ezt a hűtő-, kamra- vagy alapanyagfotót.",
+  "Csak olyan élelmiszert nevezz meg, amely ténylegesen látható vagy a csomagolás alapján ésszerűen azonosítható. Ne találj ki rejtett alapanyagokat.",
+  "Az items listába rövid, magyar alapanyagnevek kerüljenek, becsült mennyiséggel csak akkor, ha a képből ésszerűen megállapítható.",
+  "Az uncertain listába tedd, amit nem tudsz biztosan azonosítani.",
+  "Adj 3 rövid, otthoni receptötletet a látható alapanyagokra építve. A missing listában csak a valószínűleg még szükséges alapanyagok legyenek.",
+  "Válaszolj kizárólag JSON-nal ebben a sémában:",
+  '{"items":["..."],"uncertain":["..."],"ideas":[{"title":"...","why":"...","missing":["..."]}]}'
+ ].join("\n")
+}
+function cleanFridgeVision(v){
+ if(!v||typeof v!=="object")throw new Error("A képelemzés válasza nem értelmezhető.");
+ return{
+  items:Array.isArray(v.items)?v.items.map(String).map(s=>s.trim()).filter(Boolean):[],
+  uncertain:Array.isArray(v.uncertain)?v.uncertain.map(String).map(s=>s.trim()).filter(Boolean):[],
+  ideas:Array.isArray(v.ideas)?v.ideas.slice(0,4).map(x=>({title:String(x?.title||"").trim(),why:String(x?.why||"").trim(),missing:Array.isArray(x?.missing)?x.missing.map(String).filter(Boolean):[]})).filter(x=>x.title):[]
+ }
+}
+function renderFridgeIdeas(){
+ const box=$("#studioFridgeIdeas");box.innerHTML="";
+ if(!studioFridgeIdeas.length){const d=document.createElement("div");d.className="empty-admin";d.textContent="Az alapanyaglista alapján a Recept Studio készít majd javaslatot.";box.appendChild(d);return}
+ studioFridgeIdeas.forEach((idea,i)=>{
+   const b=document.createElement("button");b.type="button";b.className="fridge-idea";
+   const t=document.createElement("b");t.textContent=idea.title;const s=document.createElement("small");
+   s.textContent=(idea.why||"Jó kiindulás a felismert alapanyagokból.")+(idea.missing.length?" · Még kellhet: "+idea.missing.join(", "):" · Valószínűleg minden fő alapanyag megvan.");
+   b.append(t,s);b.onclick=()=>useFridgeInventory(idea.title);box.appendChild(b)
+ })
+}
+function useFridgeInventory(chosenIdea=""){
+ const items=splitLines($("#studioDetectedItems").value);if(!items.length){alert("Nem látok használható alapanyaglistát.");return}
+ let p="Ezek az alapanyagok vannak itthon: "+items.join(", ")+". ";
+ if(chosenIdea)p+="Ezt szeretném elkészíteni: "+chosenIdea+". ";
+ p+="Elsősorban a meglévő alapanyagokat használd, és külön jelezd, ha valami alapvető hozzávaló még szükséges. Adj pontos, teljes receptet.";
+ $("#studioPrompt").value=p;studioGenerate()
+}
+async function analyzeFridgePhoto(file){
+ if(!file)return;studioFridgeFile=file;
+ if(studioFridgeUrl)URL.revokeObjectURL(studioFridgeUrl);studioFridgeUrl=URL.createObjectURL(file);$("#studioFridgePreview").src=studioFridgeUrl;
+ $("#studioFridgeResult").hidden=false;$("#studioDetectedItems").value="";$("#studioFridgeIdeas").innerHTML="";$("#studioUncertain").hidden=true;
+ busy(true,"Léna körbenéz a hűtőben…");
+ try{
+   if(!puterAvailable())throw new Error("A Puter Vision nem érhető el.");
+   let resp;
+   try{resp=await puter.ai.chat(fridgeVisionPrompt(),file,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+   catch(first){console.warn("Fridge vision preferred model fallback",first);resp=await puter.ai.chat(fridgeVisionPrompt(),file,{normalize:true})}
+   const vision=cleanFridgeVision(parseRecipeJson(puterText(resp)));
+   if(!vision.items.length)throw new Error("Nem sikerült biztosan felismerhető alapanyagot találni.");
+   $("#studioDetectedItems").value=vision.items.join("\n");studioFridgeIdeas=vision.ideas;renderFridgeIdeas();
+   if(vision.uncertain.length){$("#studioUncertain").hidden=false;$("#studioUncertain").textContent="🤔 Bizonytalan felismerés: "+vision.uncertain.join(", ")+" · Ezt érdemes ellenőrizni."}
+   $("#studioStatus").textContent="✓ A fotó elemzése elkészült. Ellenőrizd a listát, válassz egy ötletet vagy készíttess receptet az összes felismert alapanyagból."
+ }catch(e){
+   console.error(e);$("#studioDetectedItems").value="";studioFridgeIdeas=[];renderFridgeIdeas();$("#studioUncertain").hidden=false;$("#studioUncertain").textContent="A képelemzés most nem sikerült: "+e.message;
+ }finally{busy(false)}
+}
+
 let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null,studioCardPreviewUrl=null;
 
 function studioIcon(category,title){
@@ -280,8 +338,8 @@ function studioLocalDraft(prompt){
  return{title,category,servings:servings?servings+" fő":"4–6 fő",time:n.includes("csirk")&&n.includes("tejfol")?"35–40 perc":"30–35 perc",difficulty:"Könnyű",ingredients,steps,notes:["Helyi tartalék-javaslat, ha az AI szolgáltatás átmenetileg nem érhető el."]}
 }
 function resetStudio(){
- studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
- $("#studioPrompt").value="";$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";$("#studioExactCardWrap").hidden=true;$("#studioExactCard").removeAttribute("src");setStudioPreviewMode("card");
+ studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}if(studioFridgeUrl){URL.revokeObjectURL(studioFridgeUrl);studioFridgeUrl=null}studioFridgeFile=null;studioFridgeIdeas=[];$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
+ $("#studioPrompt").value="";$("#studioFridgeCamera").value="";$("#studioFridgeGallery").value="";$("#studioFridgeResult").hidden=true;$("#studioDetectedItems").value="";$("#studioFridgeIdeas").innerHTML="";$("#studioUncertain").hidden=true;$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";$("#studioExactCardWrap").hidden=true;$("#studioExactCard").removeAttribute("src");setStudioPreviewMode("card");
  $("#studioStatus").textContent="A Studio AI-receptet és ételfotót készít fizetős API-kulcs nélkül.";
  $("#studioCentralSync").checked=false
 }
@@ -581,7 +639,7 @@ $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#choose
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#backBtn").onclick=()=>history.back();$("#editBtn").onclick=openEdit;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#testToken").onclick=testGithubToken;$("#saveToken").onclick=saveGithubToken;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
-$("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioCardTab").onclick=()=>setStudioPreviewMode("card");$("#studioReadableTab").onclick=()=>setStudioPreviewMode("readable");
+$("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioFridgeCameraBtn").onclick=()=>$("#studioFridgeCamera").click();$("#studioFridgeGalleryBtn").onclick=()=>$("#studioFridgeGallery").click();$("#studioFridgeCamera").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioFridgeGallery").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioUseInventory").onclick=()=>useFridgeInventory();$("#studioCardTab").onclick=()=>setStudioPreviewMode("card");$("#studioReadableTab").onclick=()=>setStudioPreviewMode("readable");
 $("#studioRefine").onclick=studioRefine;
 $("#studioRegenerateCard").onclick=()=>{studioPullEditor();renderStudioPreview();studioRenderExactCard()};
 $("#studioFinalize").onclick=studioFinalize;
