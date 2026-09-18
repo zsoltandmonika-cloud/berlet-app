@@ -119,6 +119,18 @@ function parseRecipeJson(text){
  const first=s.indexOf("{"),last=s.lastIndexOf("}");if(first>=0&&last>first)s=s.slice(first,last+1);
  return JSON.parse(s)
 }
+function studioQualityIssues(x){
+ const issues=[],tw=x.title.split(/\s+/).filter(Boolean).length;
+ if(tw<3||tw>9)issues.push("A cím legyen 3–9 szavas, konkrét és étvágygerjesztő.");
+ if(/^(csirkés|sertéses|marhás|zöldséges|tésztás|leves|desszert|egytálétel)$/i.test(x.title))issues.push("A cím túl általános.");
+ if(x.ingredients.length<4)issues.push("Kevés a hozzávaló.");
+ if(x.steps.length<4)issues.push("Kevés az elkészítési lépés.");
+ const promptLeak=/\b(szeretnék|szeretnem|ebből|ebbol|valami|legyen|főre szeretnék|fo-re szeretnek|készíts nekem|keszits nekem)\b/i;
+ if(x.ingredients.some(v=>promptLeak.test(v)))issues.push("Felhasználói kérés szövege került a hozzávalók közé.");
+ if(x.steps.some(v=>promptLeak.test(v)))issues.push("Felhasználói kérés szövege került az elkészítés közé.");
+ if(x.ingredients.some(v=>v.length>95))issues.push("Túl hosszú hozzávalósor.");
+ return issues
+}
 function normalizeStudioDraft(d){
  if(!d||typeof d!=="object")throw new Error("A receptválasz nem értelmezhető.");
  const x={
@@ -132,7 +144,7 @@ function normalizeStudioDraft(d){
   notes:Array.isArray(d.notes)?d.notes.map(v=>String(v).replace(/\s+/g," ").trim()).filter(Boolean):[]
  };
  if(!x.title||!x.ingredients.length||!x.steps.length)throw new Error("A receptválasz hiányos.");
- if(x.title.split(/\s+/).length<2||/^(csirkés|sertéses|marhás|zöldséges|tésztás|leves|desszert)$/i.test(x.title))throw new Error("A recept címe túl általános.");
+ const issues=studioQualityIssues(x);if(issues.length){const e=new Error("Minőségi ellenőrzés: "+issues.join(" "));e.qualityIssues=issues;throw e}
  return x
 }
 function dataUrlToBlob(url){
@@ -152,10 +164,20 @@ function studioAiPrompt(userText,currentRecipe=null){
 async function puterRecipe(prompt,currentRecipe=null){
  if(!puterAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
  const req=studioAiPrompt(prompt,currentRecipe);
- let resp;
- try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
- catch(first){console.warn("Studio primary text model fallback",first);resp=await puter.ai.chat(req,{normalize:true})}
- return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
+ async function ask(text,usePreferred=true){
+   if(usePreferred){try{return await puter.ai.chat(text,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(first){console.warn("Studio preferred model fallback",first)}}
+   return puter.ai.chat(text,{normalize:true})
+ }
+ let resp=await ask(req,true),raw=puterText(resp);
+ try{return normalizeStudioDraft(parseRecipeJson(raw))}
+ catch(firstQuality){
+   console.warn("Studio quality retry",firstQuality);
+   const issues=firstQuality.qualityIssues||[firstQuality.message];
+   const retry=req+"\n\nFONTOS MINŐSÉGI JAVÍTÁS: Az előző válasz nem ment át az ellenőrzésen. Hibák: "+issues.join(" | ")+
+     "\nAz előző válasz: "+raw+
+     "\nKészítsd újra a TELJES JSON receptet. Ne ismételd a felhasználó kérőmondatát hozzávalóként. A cím legyen konkrét, természetes magyar receptnév, ne általános jelző.";
+   resp=await ask(retry,false);return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
+ }
 }
 async function puterFoodImage(recipe){
  if(!puterAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
