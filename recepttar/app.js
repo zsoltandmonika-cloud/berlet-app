@@ -96,6 +96,153 @@ async function saveNew(){
  if(central){if(getGithubToken())syncLocalRecipe(id);else setTimeout(()=>{openSyncSettings();toast("A recept helyben megvan. A központi szinkronhoz egyszer add meg a GitHub kulcsot.")},350)}
 }
 
+
+let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null;
+
+function studioIcon(category,title){
+ const n=norm((category||"")+" "+(title||""));
+ if(n.includes("teszta")||n.includes("penne")||n.includes("fus"))return"🍝";
+ if(n.includes("leves"))return"🍲";
+ if(n.includes("kenyer")||n.includes("pek"))return"🥖";
+ if(n.includes("desszert")||n.includes("torta")||n.includes("suti"))return"🍰";
+ if(n.includes("salata"))return"🥗";
+ return"🥘"
+}
+function studioCategoryFromPrompt(p){
+ const n=norm(p);
+ if(/leves|kremleves/.test(n))return"Levesek";
+ if(/penne|fusilli|spagetti|teszta|carbonara/.test(n))return"Tészták";
+ if(/kenyer|zsemle|pogacsa|focaccia|stangli/.test(n))return"Kenyerek, Pékárú";
+ if(/torta|suti|desszert|keksz|golyo/.test(n))return"Desszertek";
+ if(/paprikas|lecso|fozelek|rakott krumpli/.test(n))return"Hungarikum";
+ return"Egyébb"
+}
+function studioIngredientCandidates(prompt){
+ const raw=(prompt||"").replace(/\n/g,",").split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
+ const reject=/^(van|szeretnek|szeretném|legyen|valami|egy|gyors|finom|vacsora|ebed|fozes|fozni)/i;
+ const out=[];
+ raw.forEach(x=>{if(x.length>2&&!reject.test(norm(x))&&out.length<8)out.push(x.replace(/^és\s+/i,""))});
+ const n=norm(prompt);
+ const known=[
+  ["csirk","500 g csirkemell"],["brokk","1 fej brokkoli"],["tejszin","200 ml főzőtejszín"],["gouda","150 g reszelt Gouda"],
+  ["penne","500 g penne"],["cukkini","2 közepes cukkini"],["krumpli","700 g burgonya"],["paradics","400 g paradicsom"],
+  ["gomba","250 g gomba"],["rizs","300 g rizs"],["saj","150 g reszelt sajt"]
+ ];
+ known.forEach(([k,v])=>{if(n.includes(k)&&!out.some(x=>norm(x).includes(k)))out.push(v)});
+ if(!out.length)out.push("500 g választott fő hozzávaló");
+ if(!out.some(x=>norm(x).includes("olaj")))out.push("2 ek olívaolaj");
+ if(!out.some(x=>norm(x).includes("so")))out.push("Só és frissen őrölt bors");
+ return out.slice(0,10)
+}
+function studioTitleFromPrompt(p,ingredients,category){
+ const n=norm(p),names=[];
+ [["csirk","csirkés"],["brokk","brokkolis"],["cukkini","cukkinis"],["gomba","gombás"],["penne","pennés"],["rizs","rizses"],["krumpli","burgonyás"],["paradics","paradicsomos"]].forEach(([k,v])=>{if(n.includes(k))names.push(v)});
+ let base=names.slice(0,2).join(" ");
+ if(!base)base=category==="Levesek"?"Krémleves":category==="Tészták"?"Krémes tészta":"Léna serpenyős receptje";
+ if(n.includes("tejszin")||n.includes("kremes"))base="Krémes "+base;
+ return base.charAt(0).toUpperCase()+base.slice(1)
+}
+function studioLocalDraft(prompt){
+ const category=studioCategoryFromPrompt(prompt),ingredients=studioIngredientCandidates(prompt),title=studioTitleFromPrompt(prompt,ingredients,category);
+ const n=norm(prompt),servings=(n.match(/(\d+)\s*(fo|adag)/)||[])[1];
+ const steps=[
+   "Készítsd elő és darabold fel a fő hozzávalókat.",
+   "Egy nagy serpenyőben vagy lábasban hevítsd fel az olívaolajat, majd kezdd el pirítani a fő hozzávalókat.",
+   "Add hozzá a többi hozzávalót, ízesítsd, és közepes lángon főzd össze, amíg minden megfelelően megpuhul.",
+   "A végén állítsd be a krémességet és a fűszerezést, majd frissen tálald."
+ ];
+ if(category==="Tészták")steps.splice(0,1,"A tésztát főzd al dentére, és tegyél félre egy kevés főzővizet.");
+ if(category==="Levesek"){steps[1]="A hagymás-fűszeres alapon párold át a zöldségeket.";steps[2]="Öntsd fel alaplével, főzd puhára, majd turmixold krémesre."}
+ return{title,category,servings:servings?servings+" fő":"4 fő",time:"30–35 perc",difficulty:"Könnyű",ingredients,steps,notes:["Studio V1 helyi prototípus-javaslat. A végleges AI receptmotor bekötése után ugyanezt a struktúrát Léna tölti ki."]}
+}
+function resetStudio(){
+ studioDraft=null;studioPhotoBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}
+ $("#studioPrompt").value="";$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";
+ $("#studioStatus").textContent="A V1 már végigviszi a teljes kártya → olvasható recept → mentés folyamatot. Az AI-backend és a HD fotó a következő bekötési pont.";
+ $("#studioCentralSync").checked=true
+}
+function openStudio(){fillCategoryList();resetStudio();$("#studioDialog").showModal()}
+function studioPullEditor(){
+ if(!studioDraft)return null;
+ studioDraft.title=$("#studioTitle").value.trim()||studioDraft.title;
+ studioDraft.category=$("#studioCategory").value.trim()||studioDraft.category;
+ studioDraft.servings=$("#studioServings").value.trim()||studioDraft.servings;
+ studioDraft.time=$("#studioTime").value.trim()||studioDraft.time;
+ studioDraft.ingredients=splitLines($("#studioIngredients").value);
+ studioDraft.steps=splitLines($("#studioSteps").value);
+ studioDraft.notes=splitLines($("#studioNotes").value);
+ return studioDraft
+}
+function studioFillEditor(){
+ const d=studioDraft;if(!d)return;
+ $("#studioTitle").value=d.title;$("#studioCategory").value=d.category;$("#studioServings").value=d.servings;$("#studioTime").value=d.time;
+ $("#studioIngredients").value=d.ingredients.join("\n");$("#studioSteps").value=d.steps.join("\n");$("#studioNotes").value=(d.notes||[]).join("\n")
+}
+function renderStudioPreview(){
+ const d=studioPullEditor()||studioDraft;if(!d)return;
+ $("#studioPreviewTitle").textContent=d.title;$("#studioPreviewCategory").textContent=d.category;
+ $("#studioHeroEmoji").textContent=studioIcon(d.category,d.title);
+ $("#studioPreviewMeta").innerHTML="";
+ [d.servings,d.time,d.difficulty].filter(Boolean).forEach(x=>{const s=document.createElement("span");s.textContent=x;$("#studioPreviewMeta").appendChild(s)});
+ $("#studioPreviewIngredients").innerHTML="";d.ingredients.slice(0,8).forEach(x=>{const li=document.createElement("li");li.textContent=x;$("#studioPreviewIngredients").appendChild(li)});
+ $("#studioPreviewSteps").innerHTML="";d.steps.slice(0,4).forEach(x=>{const li=document.createElement("li");li.textContent=x;$("#studioPreviewSteps").appendChild(li)})
+}
+function studioGenerate(){
+ const prompt=$("#studioPrompt").value.trim();if(!prompt){alert("Írd le, milyen receptet szeretnél.");return}
+ studioDraft=studioLocalDraft(prompt);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();
+ $("#studioStatus").textContent="✓ Első javaslat elkészült. Most finomíthatod, majd véglegesítheted és elmentheted.";
+ $("#studioPreview").scrollIntoView({behavior:"smooth",block:"start"})
+}
+function studioRefine(){
+ if(!studioDraft)return;studioPullEditor();const q=$("#studioRefineText").value.trim(),n=norm(q);if(!q)return;
+ const mult=(n.match(/(\d+)\s*(fo|adag)/)||[])[1];if(mult)studioDraft.servings=mult+" fő";
+ if(n.includes("csipos")&&!studioDraft.ingredients.some(x=>norm(x).includes("chili")))studioDraft.ingredients.push("Chilipehely ízlés szerint");
+ if(n.includes("laktozmentes"))studioDraft.ingredients=studioDraft.ingredients.map(x=>x.replace(/tejszín/gi,"laktózmentes tejszín").replace(/gouda/gi,"laktózmentes Gouda"));
+ const pen=(n.match(/(\d+)\s*g\s*penne/)||[])[1];if(pen){const i=studioDraft.ingredients.findIndex(x=>norm(x).includes("penne"));if(i>=0)studioDraft.ingredients[i]=pen+" g penne";else studioDraft.ingredients.unshift(pen+" g penne")}
+ if(n.includes("gyors"))studioDraft.time="20–25 perc";
+ studioDraft.notes=(studioDraft.notes||[]).concat("Finomítási kérés: "+q);
+ studioFillEditor();renderStudioPreview();$("#studioRefineText").value="";toast("Finomítás alkalmazva.")
+}
+async function studioHandlePhoto(file){
+ if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.")}finally{busy(false)}
+}
+function canvasWrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+ const words=String(text||"").split(/\s+/);let line="",lines=0;
+ for(let i=0;i<words.length;i++){const test=line?line+" "+words[i]:words[i];if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;lines++;line=words[i];if(maxLines&&lines>=maxLines)return y}else line=test}
+ if(line&&(!maxLines||lines<maxLines)){ctx.fillText(line,x,y);y+=lineHeight}return y
+}
+async function studioCardBlob(d){
+ const c=document.createElement("canvas");c.width=1200;c.height=1600;const x=c.getContext("2d");
+ x.fillStyle="#f6f1e7";x.fillRect(0,0,c.width,c.height);
+ if(studioPhotoBlob){
+   const bm=await createImageBitmap(studioPhotoBlob,{imageOrientation:"from-image"}),box={x:0,y:0,w:1200,h:620},scale=Math.max(box.w/bm.width,box.h/bm.height),w=bm.width*scale,h=bm.height*scale;
+   x.drawImage(bm,(1200-w)/2,(620-h)/2,w,h);bm.close();
+   const g=x.createLinearGradient(0,430,0,620);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.55)");x.fillStyle=g;x.fillRect(0,400,1200,220)
+ }else{
+   const g=x.createLinearGradient(0,0,1200,620);g.addColorStop(0,"#d6e2d8");g.addColorStop(1,"#e9dfcc");x.fillStyle=g;x.fillRect(0,0,1200,620);
+   x.font="180px serif";x.textAlign="center";x.fillStyle="#254637";x.fillText(studioIcon(d.category,d.title),600,350);x.textAlign="left"
+ }
+ x.fillStyle=studioPhotoBlob?"#fff":"#254637";x.font="900 30px Arial";x.fillText("LÉNA RECEPTTÁR",70,500);
+ x.font="700 62px Georgia";let ty=canvasWrap(x,d.title,70,565,1060,68,2);
+ x.fillStyle="#173a2e";x.fillRect(0,620,1200,980);
+ x.fillStyle="#f6f1e7";x.font="900 25px Arial";x.fillText((d.category||"RECEPT").toUpperCase()+"  ·  "+d.servings+"  ·  "+d.time,70,690);
+ x.font="700 38px Georgia";x.fillText("Hozzávalók",70,760);x.fillText("Elkészítés",640,760);
+ x.font="27px Arial";let y1=815;d.ingredients.slice(0,12).forEach(v=>{x.fillStyle="#f6f1e7";x.fillText("•",70,y1);y1=canvasWrap(x,v,105,y1,465,38,2)+6});
+ let y2=815;d.steps.slice(0,7).forEach((v,i)=>{x.fillStyle="#f6f1e7";x.font="900 26px Arial";x.fillText(String(i+1)+".",640,y2);x.font="26px Arial";y2=canvasWrap(x,v,690,y2,440,36,3)+10});
+ x.fillStyle="#c7d7ca";x.font="22px Arial";x.fillText("Olvasható recept is automatikusan mentve",70,1540);
+ return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Kártyagenerálási hiba")),"image/jpeg",.92))
+}
+async function studioFinalize(){
+ if(!studioDraft)return;const d=studioPullEditor();if(!d.title||!d.category||!d.ingredients.length||!d.steps.length){alert("A véglegesítéshez kell cím, kategória, hozzávaló és elkészítés.");return}
+ busy(true,"Golden kártya készítése és mentés…");
+ try{
+   const blob=await studioCardBlob(d),id=newId(),central=$("#studioCentralSync").checked,readable={status:"verified",source:"studio_v1",ingredients:d.ingredients,steps:d.steps,notes:[d.servings+" · "+d.time+" · "+d.difficulty].concat(d.notes||[]),updatedAt:new Date().toISOString()};
+   await dbPut({id,title:d.title,category:d.category,originalName:d.title+".jpg",blob,pending:central,createdAt:Date.now(),readable,studio:true});
+   setReadable(id,readable);$("#studioDialog").close();await loadCustomRecipes();activeCategory="Mind";favoritesOnly=false;showHome(false);toast("✓ Studio recept elmentve.");
+   if(central){if(getGithubToken())syncLocalRecipe(id);else setTimeout(()=>{openSyncSettings();toast("A recept helyben kész. A központi mentéshez add meg a GitHub kulcsot.")},350)}
+ }catch(e){console.error(e);alert("A recept mentése nem sikerült: "+e.message)}finally{busy(false)}
+}
+
 function getGithubToken(){return sessionStorage.getItem("lena23:ghToken")||localStorage.getItem("lena23:ghToken")||""}
 function openSyncSettings(){const t=getGithubToken();$("#githubToken").value=t;$("#rememberToken").checked=!!localStorage.getItem("lena23:ghToken");$("#tokenStatus").hidden=true;if($("#adminDialog").open)$("#adminDialog").close();$("#syncDialog").showModal()}
 function saveGithubToken(){const t=$("#githubToken").value.trim();sessionStorage.removeItem("lena23:ghToken");localStorage.removeItem("lena23:ghToken");if(t){($("#rememberToken").checked?localStorage:sessionStorage).setItem("lena23:ghToken",t)}$("#syncDialog").close();toast(t?"GitHub kulcs elmentve.":"GitHub kulcs törölve.")}
@@ -115,7 +262,14 @@ async function syncLocalRecipe(id){
    if(!cs.includes(row.category))cs.push(row.category);cs.sort((a,b)=>a.localeCompare(b,"hu"));
    const out="window.LENA_RECIPES = "+JSON.stringify(rs,null,2)+";\nwindow.LENA_CATEGORIES = "+JSON.stringify(cs,null,2)+";\n";
    await ghRequest("/contents/recepttar/data.js",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Add recipe: "+row.title,content:encode64(out),sha:data.sha,branch:GH_BRANCH})});
-   row.pending=false;await dbPut(row);await loadCustomRecipes();renderHome();renderPending();toast("✓ Központi feltöltés kész. Rövidesen minden eszközön megjelenik.")
+   if(row.readable){
+     const rd=await ghRequest("/contents/recepttar/readable-data.js?ref="+GH_BRANCH),rtxt=decode64(rd.content),mm=rtxt.match(/window\\.LENA_READABLE\\s*=\\s*(\\{[\\s\\S]*\\});\\s*$/);
+     if(!mm)throw new Error("A readable-data.js formátuma nem olvasható.");
+     const ro=Function('"use strict";return ('+mm[1]+')')();ro[id]=row.readable;
+     const rout="window.LENA_READABLE = "+JSON.stringify(ro,null,2)+";\\n";
+     await ghRequest("/contents/recepttar/readable-data.js",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"Add readable recipe: "+row.title,content:encode64(rout),sha:rd.sha,branch:GH_BRANCH})});
+   }
+   row.pending=false;await dbPut(row);await loadCustomRecipes();renderHome();renderPending();toast("✓ Központi feltöltés kész. Kártya és olvasható recept is mentve.")
  }catch(e){console.error(e);toast("Szinkron hiba: "+e.message)}finally{busy(false)}
 }
 
@@ -182,10 +336,18 @@ $("#fontPlus").onclick=()=>changeReadableFont(1);
 $("#resetChecks").onclick=resetIngredientChecks;
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
-$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
+$("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#backBtn").onclick=()=>history.back();$("#editBtn").onclick=openEdit;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
-$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#testToken").onclick=testGithubToken;$("#saveToken").onclick=saveGithubToken;
+$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#testToken").onclick=testGithubToken;$("#saveToken").onclick=saveGithubToken;
+$("#closeStudio").onclick=()=>$("#studioDialog").close();
+$("#studioGenerate").onclick=studioGenerate;
+$("#studioRefine").onclick=studioRefine;
+$("#studioRegenerateCard").onclick=()=>{studioPullEditor();renderStudioPreview();toast("Kártya előnézet frissítve.")};
+$("#studioFinalize").onclick=studioFinalize;
+$("#studioChoosePhoto").onclick=()=>$("#studioPhotoInput").click();
+$("#studioPhotoInput").onchange=e=>studioHandlePhoto(e.target.files&&e.target.files[0]);
+["#studioTitle","#studioCategory","#studioServings","#studioTime","#studioIngredients","#studioSteps","#studioNotes"].forEach(s=>$(s).addEventListener("input",()=>{if(studioDraft)renderStudioPreview()}));
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{migrateCanonicalBaseState();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=25").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=35").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
