@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>Léna Recepttár 2.5 Studio</title>
+<link rel="icon" href="../recepttar/icon-192.png">
+<link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+<header class="app-header">
+  <div class="brand">
+    <div class="eyebrow">ZSOLT & MÓNIKA</div>
+    <div class="brand-title">Léna Recepttár</div>
+  </div>
+  <button id="topHome" class="square-btn" title="Főoldal">🏠</button>
+</header>
+
+<main id="homeView">
+  <section class="search-section">
+    <div class="searchbox"><span>🔎</span><input id="search" placeholder="Recept keresése…" autocomplete="off"><button id="clearSearch">×</button></div>
+    <div id="chips" class="chips"></div>
+  </section>
+  <div class="count-row">
+    <span><b id="count">0</b> recept</span>
+    <div class="count-actions">
+      <button id="studioBtn" class="studio-launch-btn">✨ Recept Studio</button>
+      <button id="addRecipeBtn" class="add-recipe-btn">＋ Kártya feltöltése</button>
+      <button id="favFilter" class="small-pill">☆ Kedvencek</button>
+    </div>
+  </div>
+  <section id="grid" class="grid"></section>
+</main>
+
+<main id="recipeView" hidden>
+  <section class="recipe-toolbar">
+    <button id="homeBtn" class="nav-btn">🏠 Főoldal</button>
+    <button id="backBtn" class="nav-btn">← Vissza</button>
+    <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
+    <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
+  </section>
+  <section class="recipe-head">
+    <div class="eyebrow" id="recipeCategory"></div>
+    <h1 id="recipeTitle"></h1>
+    <div class="mode-row">
+      <button id="originalMode" class="mode active">Eredeti kártya</button>
+      <button id="readableMode" class="mode" hidden>Olvasható recept</button>
+    </div>
+    <div class="readable-status-row">
+      <span id="readableStatusBadge" class="status-badge status-unprocessed">○ Nincs feldolgozva</span>
+      <button id="prepareReadable" class="status-edit-btn">✏️ Strukturált recept</button>
+    </div>
+  </section>
+  <section id="originalPanel" class="original-panel">
+    <img id="recipeImage" alt="">
+    <iframe id="recipePdf" hidden></iframe>
+  </section>
+  <section id="readablePanel" class="readable-panel" hidden>
+    <div class="readable-tools">
+      <div class="font-tools">
+        <button id="fontMinus" class="font-btn" title="Kisebb betű">A−</button>
+        <span id="fontSizeLabel">18</span>
+        <button id="fontPlus" class="font-btn" title="Nagyobb betű">A+</button>
+      </div>
+      <button id="resetChecks" class="outline-btn compact-btn">☐ Pipák törlése</button>
+    </div>
+    <div id="readableContent" class="structured-recipe">
+      <section class="structured-section">
+        <h2>Hozzávalók</h2>
+        <div id="ingredientsList" class="ingredients-list"></div>
+      </section>
+      <section class="structured-section">
+        <h2>Elkészítés</h2>
+        <ol id="stepsList" class="steps-list"></ol>
+      </section>
+      <section id="notesSection" class="structured-section notes-section" hidden>
+        <h2>Megjegyzés</h2>
+        <div id="notesList"></div>
+      </section>
+    </div>
+    <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button id="navHome"><span>🏠</span><small>Home</small></button>
+  <button id="navFav"><span>☆</span><small>Kedvencek</small></button>
+  <button id="navAdmin"><span>⚙️</span><small>Admin</small></button>
+  <button id="navAsk"><span>✨</span><small>Kérdezd Lénát</small></button>
+</nav>
+
+<dialog id="addDialog">
+<form method="dialog" class="dialog-card">
+  <h2>＋ Új recept</h2>
+  <button type="button" id="chooseImageBtn" class="photo-btn">📷 Kép kiválasztása / fotózás</button>
+  <input id="newImageInput" type="file" accept="image/*" hidden>
+  <div id="newPreviewWrap" class="new-preview" hidden><img id="newPreview" alt="Új recept előnézet"></div>
+  <label class="field-label" for="newTitle">Recept neve</label>
+  <input id="newTitle" class="field-input" autocomplete="off" placeholder="pl. Sajtos pogácsa">
+  <label class="field-label" for="newCategory">Kategória</label>
+  <input id="newCategory" class="field-input" list="categoryList" autocomplete="off" placeholder="Válassz vagy írj újat">
+  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Beállított GitHub-szinkronnal telefonon és PC-n is megjelenik.</small></span></label>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveNewRecipe" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="editDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Recept szerkesztése</h2>
+  <label class="field-label" for="editTitle">Név</label>
+  <input id="editTitle" class="field-input" autocomplete="off">
+  <label class="field-label" for="editCategory">Kategória</label>
+  <input id="editCategory" class="field-input" list="categoryList" autocomplete="off">
+  <datalist id="categoryList"></datalist>
+  <p class="local-note">A módosítás ezen az eszközön marad. Az eredeti receptfájl nem sérül.</p>
+  <div class="danger-row">
+    <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
+    <button type="button" id="deleteRecipe" class="danger-btn">🗑️ Törlés</button>
+  </div>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveRecipe" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="adminDialog">
+<div class="dialog-card">
+  <div class="dialog-title-row"><h2>Admin</h2><button id="closeAdmin" class="icon-close">×</button></div>
+  <div class="admin-actions">
+    <button id="adminStudio" class="primary-btn">✨ Recept Studio</button>
+    <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
+    <button id="syncSettingsBtn" class="outline-btn">☁ GitHub szinkron</button>
+  </div>
+  <p class="local-note">Az új recept először ezen az eszközön mentődik. GitHub-szinkronnal központilag is feltölthető.</p>
+  <h3>Helyi / szinkronra váró receptek</h3>
+  <div id="pendingList" class="deleted-list"></div>
+  <h3>Törölt receptek</h3>
+  <div id="deletedList" class="deleted-list"></div>
+</div>
+</dialog>
+
+<dialog id="syncDialog">
+<div class="dialog-card">
+  <div class="dialog-title-row"><h2>☁ GitHub szinkron</h2><button id="closeSync" class="icon-close">×</button></div>
+  <p class="local-note">A kulcs nem kerül bele a weboldal forrásába. Kizárólag a <b>berlet-app</b> repóra korlátozott fine-grained tokent használj, <b>Contents: Read and write</b> jogosultsággal.</p>
+  <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub kulcs létrehozása ↗</a>
+  <label class="field-label" for="githubToken">GitHub token</label>
+  <input id="githubToken" class="field-input" type="password" autocomplete="off" placeholder="github_pat_...">
+  <label class="remember-row"><input id="rememberToken" type="checkbox"> Megjegyzés ezen az eszközön</label>
+  <div class="dialog-actions">
+    <button id="testToken" type="button" class="outline-btn">Kapcsolat teszt</button>
+    <button id="saveToken" type="button" class="primary-btn">Mentés</button>
+  </div>
+  <p id="tokenStatus" class="local-note" hidden></p>
+</div>
+</dialog>
+
+<dialog id="structuredDialog">
+<form method="dialog" class="dialog-card">
+  <div class="dialog-title-row"><h2>Olvasható recept szerkesztése</h2><button value="cancel" class="icon-close">×</button></div>
+  <label class="field-label" for="structuredStatus">Állapot</label>
+  <select id="structuredStatus" class="field-input">
+    <option value="unprocessed">○ Nincs feldolgozva</option>
+    <option value="review">⚠️ Ellenőrzésre vár</option>
+    <option value="verified">✅ Ellenőrzött</option>
+  </select>
+  <label class="field-label" for="ingredientsEditor">Hozzávalók</label>
+  <p class="editor-help">Egy hozzávaló egy sor. Az app ezekből készíti a kipipálható listát.</p>
+  <textarea id="ingredientsEditor" rows="9" placeholder="50 dkg liszt&#10;2 tojás&#10;20 dkg sajt"></textarea>
+  <label class="field-label" for="stepsEditor">Elkészítés</label>
+  <p class="editor-help">Egy elkészítési lépés egy sor.</p>
+  <textarea id="stepsEditor" rows="10" placeholder="A hozzávalókat összekeverjük.&#10;A tésztát pihentetjük.&#10;Megsütjük."></textarea>
+  <label class="field-label" for="notesEditor">Megjegyzés / tippek</label>
+  <textarea id="notesEditor" rows="4" placeholder="Opcionális tippek, tálalás, variációk…"></textarea>
+  <p class="local-note">Csak az <b>✅ Ellenőrzött</b> változat jelenik meg automatikusan az „Olvasható recept” nézetben. A bizonytalan felismerést nem engedjük kész receptként megjelenni.</p>
+  <div class="dialog-actions">
+    <button type="button" id="clearStructured" class="outline-btn">Helyi javítás törlése</button>
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveStructured" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="textDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Olvasható receptszöveg</h2>
+  <p>Itt csak a valóban javított szöveget tároljuk. Ha üres, az app az eredeti kártyát mutatja alapból.</p>
+  <textarea id="textEditor" rows="16" placeholder="Írd vagy illeszd be a javított receptszöveget…"></textarea>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveText" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+
+<dialog id="studioDialog" class="studio-dialog">
+<div class="dialog-card studio-shell">
+  <div class="dialog-title-row">
+    <div>
+      <div class="eyebrow">LÉNA RECEPT STUDIO · V1</div>
+      <h2>✨ Új recept készítése</h2>
+    </div>
+    <button id="closeStudio" class="icon-close" type="button">×</button>
+  </div>
+
+  <section class="studio-stage">
+    <div class="studio-step"><span>1</span><b>Ötlet</b></div>
+    <div class="studio-step"><span>2</span><b>Javaslat</b></div>
+    <div class="studio-step"><span>3</span><b>Véglegesítés</b></div>
+  </section>
+
+  <label class="field-label" for="studioPrompt">Mit szeretnél főzni?</label>
+  <textarea id="studioPrompt" rows="5" placeholder="Pl. Van 500 g csirkemell, brokkoli, tejszín és Gouda. Egyedényes, gyors vacsorát szeretnék 4 főre."></textarea>
+  <button id="studioGenerate" type="button" class="primary-btn studio-main-action">✨ Javaslat készítése</button>
+  <p id="studioStatus" class="studio-status">A V1 már végigviszi a teljes kártya → olvasható recept → mentés folyamatot. Az AI-backend és a HD fotó a következő bekötési pont.</p>
+
+  <section id="studioPreview" class="studio-preview" hidden>
+    <div class="studio-card-preview">
+      <div id="studioHero" class="studio-hero"><span id="studioHeroEmoji">🍲</span><small>RECEPT STUDIO ELŐNÉZET</small></div>
+      <div class="studio-card-copy">
+        <div id="studioPreviewCategory" class="eyebrow"></div>
+        <h3 id="studioPreviewTitle"></h3>
+        <div id="studioPreviewMeta" class="studio-meta"></div>
+        <div class="studio-preview-columns">
+          <div><b>Hozzávalók</b><ul id="studioPreviewIngredients"></ul></div>
+          <div><b>Elkészítés</b><ol id="studioPreviewSteps"></ol></div>
+        </div>
+      </div>
+    </div>
+
+    <details class="studio-editor" open>
+      <summary>✏️ Recept finomítása</summary>
+      <div class="studio-edit-grid">
+        <label><span>Recept neve</span><input id="studioTitle" class="field-input"></label>
+        <label><span>Kategória</span><input id="studioCategory" class="field-input" list="categoryList"></label>
+        <label><span>Adag</span><input id="studioServings" class="field-input" placeholder="4 fő"></label>
+        <label><span>Idő</span><input id="studioTime" class="field-input" placeholder="30 perc"></label>
+      </div>
+      <label class="field-label" for="studioIngredients">Hozzávalók</label>
+      <textarea id="studioIngredients" rows="8"></textarea>
+      <label class="field-label" for="studioSteps">Elkészítés</label>
+      <textarea id="studioSteps" rows="8"></textarea>
+      <label class="field-label" for="studioNotes">Tippek / megjegyzések</label>
+      <textarea id="studioNotes" rows="4"></textarea>
+
+      <div class="studio-refine-row">
+        <input id="studioRefineText" class="field-input" placeholder="Pl. legyen csípősebb / legyen 6 adag / laktózmentesen">
+        <button id="studioRefine" type="button" class="outline-btn">✨ Finomítás</button>
+      </div>
+    </details>
+
+    <section class="studio-photo-box">
+      <div>
+        <b>📸 Ételfotó</b>
+        <p>Most opcionálisan saját képet használhatsz. A következő lépcsőben ezt Léna HD képgenerálása tölti ki automatikusan.</p>
+      </div>
+      <button id="studioChoosePhoto" type="button" class="outline-btn">Kép kiválasztása</button>
+      <input id="studioPhotoInput" type="file" accept="image/*" hidden>
+      <img id="studioPhotoPreview" class="studio-photo-preview" alt="Ételfotó előnézet" hidden>
+    </section>
+
+    <label class="sync-choice">
+      <input id="studioCentralSync" type="checkbox" checked>
+      <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept is bekerül a Recepttár adatállományába.</small></span>
+    </label>
+
+    <div class="studio-final-actions">
+      <button id="studioRegenerateCard" type="button" class="outline-btn">🎨 Kártya frissítése</button>
+      <button id="studioFinalize" type="button" class="primary-btn">✅ Véglegesítés és mentés</button>
+    </div>
+  </section>
+</div>
+</dialog>
+
+<div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><div id="busyText">Feldolgozás…</div></div>
+<div id="toast" class="toast"></div>
+
+<script src="../recepttar/data.js?v=24"></script>
+<script src="../recepttar/readable-data.js?v=34"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
