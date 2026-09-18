@@ -68,13 +68,25 @@ window.LENA_READABLE = {
   },
 
   "94cf606b00031d82": {
-    "status": "review",
-    "source": "image_only_unverified",
-    "ingredients": [],
-    "steps": [],
+    "status": "verified",
+    "source": "verified_from_recipe_card",
+    "ingredients": [
+      "2 közepes cukkini",
+      "1 fej vöröshagyma",
+      "2 gerezd fokhagyma",
+      "1 közepes burgonya",
+      "2 ek olívaolaj",
+      "7 dl alaplé",
+      "1 dl főzőtejszín",
+      "Só, bors, petrezselyem"
+    ],
+    "steps": [
+      "A hagymát és a fokhagymát dinszteld meg, majd add hozzá a felkockázott cukkinit és a burgonyát.",
+      "Öntsd fel az alaplével, főzd puhára, majd turmixold simára.",
+      "Keverd bele a tejszínt, ízesítsd, és friss petrezselyemmel tálald."
+    ],
     "notes": [
-      "A receptkártya megvan, de a korábbi OCR ennél a típusnál nem volt elég megbízható a hozzávalók és lépések automatikus publikálásához.",
-      "Az eredeti kártya marad az elsődleges nézet az ellenőrzésig."
+      "4 adaghoz."
     ]
   },
 
