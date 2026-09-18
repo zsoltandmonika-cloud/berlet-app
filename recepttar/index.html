@@ -101,7 +101,7 @@
   <input id="newTitle" class="field-input" autocomplete="off" placeholder="pl. Sajtos pogácsa">
   <label class="field-label" for="newCategory">Kategória</label>
   <input id="newCategory" class="field-input" list="categoryList" autocomplete="off" placeholder="Válassz vagy írj újat">
-  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Beállított GitHub-szinkronnal telefonon és PC-n is megjelenik.</small></span></label>
+  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Puter felhőmentéssel telefonon és PC-n is megjelenik.</small></span></label>
   <div class="dialog-actions">
     <button value="cancel" class="outline-btn">Mégse</button>
     <button type="button" id="saveNewRecipe" class="primary-btn">Mentés</button>
@@ -148,16 +148,14 @@
 <dialog id="syncDialog">
 <div class="dialog-card">
   <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
-  <p class="local-note">A központi tárhely a GitHubon van. A token csak feltöltéshez kell ezen az eszközön; másik gépen a receptek megnyitásához nem kell token. Kizárólag a <b>berlet-app</b> repóra korlátozott fine-grained tokent használj, <b>Contents: Read and write</b> jogosultsággal.</p>
-  <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub kulcs létrehozása ↗</a>
-  <label class="field-label" for="githubToken">GitHub token</label>
-  <input id="githubToken" class="field-input" type="password" autocomplete="off" placeholder="github_pat_...">
-  <label class="remember-row"><input id="rememberToken" type="checkbox"> Megjegyzés ezen az eszközön</label>
-  <div class="dialog-actions">
-    <button id="testToken" type="button" class="outline-btn">Kapcsolat teszt</button>
-    <button id="saveToken" type="button" class="primary-btn">Mentés</button>
+  <p class="local-note">A központi recepttár a Puter felhőben él. <b>Ugyanazzal a Puter-fiókkal</b> bejelentkezve a receptek PC-n, telefonon és másik gépen is megjelennek. Nincs GitHub-token és nincs saját fizetős API-kulcs.</p>
+  <div id="cloudAccountStatus" class="cloud-account-status">Kapcsolat ellenőrzése…</div>
+  <div class="dialog-actions cloud-actions">
+    <button id="cloudSignIn" type="button" class="primary-btn">🔐 Bejelentkezés</button>
+    <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ Fiókváltás</button>
+    <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
-  <p id="tokenStatus" class="local-note" hidden></p>
+  <p class="local-note">A helyben már elmentett, „szinkronra vár” recepteket a rendszer a bejelentkezés után automatikusan feltölti.</p>
 </div>
 </dialog>
 
@@ -325,7 +323,7 @@
 
     <label class="sync-choice">
       <input id="studioCentralSync" type="checkbox" checked>
-      <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept is bekerül a Recepttár adatállományába.</small></span>
+      <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept a Puter felhőbe is bekerül.</small></span>
     </label>
 
     <div class="studio-provider-note">
