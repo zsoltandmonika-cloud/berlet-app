@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f7f3ea">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 <header class="app-header">
@@ -134,9 +134,9 @@
   <div class="admin-actions">
     <button id="adminStudio" class="primary-btn">✨ Recept Studio</button>
     <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
-    <button id="syncSettingsBtn" class="outline-btn">☁ GitHub szinkron</button>
+    <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
-  <p class="local-note">Az új recept először ezen az eszközön mentődik. GitHub-szinkronnal központilag is feltölthető.</p>
+  <p class="local-note">Az új recept először ezen az eszközön mentődik. Központi mentéssel ugyanaz a recept PC-n, telefonon és másik gépen is megnyitható.</p>
   <h3>Helyi / szinkronra váró receptek</h3>
   <div id="pendingList" class="deleted-list"></div>
   <h3>Törölt receptek</h3>
@@ -146,8 +146,8 @@
 
 <dialog id="syncDialog">
 <div class="dialog-card">
-  <div class="dialog-title-row"><h2>☁ GitHub szinkron</h2><button id="closeSync" class="icon-close">×</button></div>
-  <p class="local-note">A kulcs nem kerül bele a weboldal forrásába. Kizárólag a <b>berlet-app</b> repóra korlátozott fine-grained tokent használj, <b>Contents: Read and write</b> jogosultsággal.</p>
+  <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
+  <p class="local-note">A központi tárhely a GitHubon van. A token csak feltöltéshez kell ezen az eszközön; másik gépen a receptek megnyitásához nem kell token. Kizárólag a <b>berlet-app</b> repóra korlátozott fine-grained tokent használj, <b>Contents: Read and write</b> jogosultsággal.</p>
   <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub kulcs létrehozása ↗</a>
   <label class="field-label" for="githubToken">GitHub token</label>
   <input id="githubToken" class="field-input" type="password" autocomplete="off" placeholder="github_pat_...">
@@ -346,6 +346,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
