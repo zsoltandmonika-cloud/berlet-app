@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
-<title>Léna Recepttár 2.1</title>
+<title>Léna Recepttár 2.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=22">
 </head>
 <body>
 <header class="app-header">
@@ -31,7 +31,8 @@
   <section class="recipe-toolbar">
     <button id="homeBtn" class="nav-btn">🏠 Főoldal</button>
     <button id="backBtn" class="nav-btn">← Vissza</button>
-    <button id="favBtn" class="nav-btn">☆</button>
+    <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
+    <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
   </section>
   <section class="recipe-head">
     <div class="eyebrow" id="recipeCategory"></div>
@@ -54,8 +55,38 @@
 <nav class="bottom-nav">
   <button id="navHome"><span>🏠</span><small>Home</small></button>
   <button id="navFav"><span>☆</span><small>Kedvencek</small></button>
+  <button id="navAdmin"><span>⚙️</span><small>Admin</small></button>
   <button id="navAsk"><span>✨</span><small>Kérdezd Lénát</small></button>
 </nav>
+
+<dialog id="editDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Recept szerkesztése</h2>
+  <label class="field-label" for="editTitle">Név</label>
+  <input id="editTitle" class="field-input" autocomplete="off">
+  <label class="field-label" for="editCategory">Kategória</label>
+  <input id="editCategory" class="field-input" list="categoryList" autocomplete="off">
+  <datalist id="categoryList"></datalist>
+  <p class="local-note">A módosítás ezen az eszközön marad. Az eredeti receptfájl nem sérül.</p>
+  <div class="danger-row">
+    <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
+    <button type="button" id="deleteRecipe" class="danger-btn">🗑️ Törlés</button>
+  </div>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveRecipe" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="adminDialog">
+<div class="dialog-card">
+  <div class="dialog-title-row"><h2>Admin</h2><button id="closeAdmin" class="icon-close">×</button></div>
+  <p class="local-note">A törlés biztonságos, csak elrejti a receptet ezen az eszközön. Innen bármikor visszaállítható.</p>
+  <h3>Törölt receptek</h3>
+  <div id="deletedList" class="deleted-list"></div>
+</div>
+</dialog>
 
 <dialog id="textDialog">
 <form method="dialog" class="dialog-card">
@@ -71,7 +102,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=22"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>
