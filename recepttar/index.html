@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f3ea">
-<title>Léna Recepttár 2.4</title>
+<meta name="theme-color" content="#171817">
+<title>Léna Recepttár 2.5 Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css?v=27">
+<link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
 <header class="app-header">
@@ -15,7 +15,7 @@
     <div class="eyebrow">ZSOLT & MÓNIKA</div>
     <div class="brand-title">Léna Recepttár</div>
   </div>
-  <button id="topHome" class="square-btn" title="Főoldal">🏠</button>
+  <button id="topHome" class="square-btn brand-line-icon" title="Főoldal" aria-label="Főoldal"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg></button>
 </header>
 
 <main id="homeView">
@@ -23,10 +23,35 @@
     <div class="searchbox"><span>🔎</span><input id="search" placeholder="Recept keresése…" autocomplete="off"><button id="clearSearch">×</button></div>
     <div id="chips" class="chips"></div>
   </section>
+  <section class="what-cook-home">
+    <div class="lena-master-banner lena-master-banner-final" role="group" aria-label="Léna, mit főzzünk? Gyors konyhai műveletek">
+      <img src="assets/lena-kitchen-banner-crisp.png?v=5" alt="Léna, mit főzzünk? Személyre szabott receptötletek 4 főre">
+      <button id="whatCookBtn" type="button" class="banner-hotspot banner-hotspot-main" aria-label="Mutasd a javaslatokat"></button>
+      <button id="bannerHomeStock" type="button" class="banner-hotspot banner-hotspot-stock" aria-label="Ami van otthon: nyisd meg a Recept Studiót"></button>
+      <button id="bannerTime" type="button" class="banner-hotspot banner-hotspot-time" aria-label="Mennyi időtök van: gyors receptjavaslat"></button>
+      <button id="bannerAvoid" type="button" class="banner-hotspot banner-hotspot-avoid" aria-label="Mit kerüljünk: add meg, mit ne ajánljak"></button>
+      <button id="bannerPersonal" type="button" class="banner-hotspot banner-hotspot-personal" aria-label="Személyre szabott ötletek"></button>
+    </div>
+  </section>
+  <section class="health-home">
+    <button id="healthBannerBtn" type="button" class="health-banner" aria-label="Health és Nutri Info">
+      <span class="health-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 41S7 31 7 18c0-6 4.4-10 10-10 3.4 0 5.8 1.6 7 4 1.2-2.4 3.6-4 7-4 5.6 0 10 4 10 10 0 13-17 23-17 23Z"/><path d="M15 24h6l3-7 4 13 3-6h4"/></svg>
+      </span>
+      <span class="health-banner-copy">
+        <small>HEALTH · NUTRI INFO</small>
+        <b>Mi van a tányéron?</b>
+        <span>Kalória · fehérje · szénhidrát · zsír · rost, adagonként</span>
+      </span>
+      <span class="health-banner-badge">AI becslés</span>
+      <span class="health-banner-arrow">›</span>
+    </button>
+  </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
     <div class="count-actions">
-      <button id="addRecipeBtn" class="add-recipe-btn">＋ Új recept</button>
+      <button id="studioBtn" class="studio-launch-btn">✨ Recept Studio</button>
+      <button id="addRecipeBtn" class="add-recipe-btn">＋ Kártya feltöltése</button>
       <button id="favFilter" class="small-pill">☆ Kedvencek</button>
     </div>
   </div>
@@ -43,17 +68,29 @@
   <section class="recipe-head">
     <div class="eyebrow" id="recipeCategory"></div>
     <h1 id="recipeTitle"></h1>
+    <div id="recipeNutriStrip" class="recipe-nutri-strip" hidden>
+      <span>🔥 <b id="recipeNutriKcal">–</b> kcal</span>
+      <i>·</i>
+      <span>🥩 <b id="recipeNutriProtein">–</b> fehérje</span>
+      <i>·</i>
+      <span>🍚 <b id="recipeNutriCarbs">–</b> szénhidrát</span>
+      <i>·</i>
+      <span>🥑 <b id="recipeNutriFat">–</b> zsír</span>
+      <i>·</i>
+      <span>🌾 <b id="recipeNutriFiber">–</b> rost</span>
+    </div>
     <div class="mode-row">
       <button id="originalMode" class="mode active">Eredeti kártya</button>
-      <button id="readableMode" class="mode" hidden>Olvasható recept</button>
+      <button id="readableMode" class="mode" hidden>Recept elkészítése</button>
     </div>
     <div class="readable-status-row">
       <span id="readableStatusBadge" class="status-badge status-unprocessed">○ Nincs feldolgozva</span>
-      <button id="prepareReadable" class="status-edit-btn">✏️ Strukturált recept</button>
+      <button id="prepareReadable" class="status-edit-btn">✏️ Recept elkészítése</button>
     </div>
   </section>
   <section id="originalPanel" class="original-panel">
-    <img id="recipeImage" alt="">
+    <img id="recipeImage" class="zoomable-recipe-image" alt="" title="Kattints a teljes képernyős nézethez">
+    <div id="recipeImageHint" class="recipe-image-hint">🔍 Kattints a képre a teljes képernyős ételfotóhoz</div>
     <iframe id="recipePdf" hidden></iframe>
   </section>
   <section id="readablePanel" class="readable-panel" hidden>
@@ -65,6 +102,7 @@
       </div>
       <button id="resetChecks" class="outline-btn compact-btn">☐ Pipák törlése</button>
     </div>
+    <button id="cookModeBtn" type="button" class="cook-launch-btn" hidden>👨‍🍳 Főzés mód</button>
     <div id="readableContent" class="structured-recipe">
       <section class="structured-section">
         <h2>Hozzávalók</h2>
@@ -78,16 +116,161 @@
         <h2>Megjegyzés</h2>
         <div id="notesList"></div>
       </section>
+      <section id="nutriCard" class="nutri-card" hidden>
+        <div class="nutri-card-head">
+          <div>
+            <div class="nutri-eyebrow">HEALTH · NUTRI INFO</div>
+            <h2>🥗 Becsült tápérték</h2>
+          </div>
+          <span id="nutriServings" class="nutri-serving-pill">4 fő</span>
+        </div>
+        <div id="nutriEmpty" class="nutri-empty">
+          <p>Még nincs tápérték-becslés ehhez a recepthez.</p>
+          <button id="nutriAnalyzeRecipe" type="button" class="primary-btn">✨ Nutri Info készítése</button>
+        </div>
+        <div id="nutriValues" hidden>
+          <div class="nutri-grid">
+            <div><strong id="nutriKcal">–</strong><small>kcal</small></div>
+            <div><strong id="nutriProtein">–</strong><small>fehérje</small></div>
+            <div><strong id="nutriCarbs">–</strong><small>szénhidrát</small></div>
+            <div><strong id="nutriFat">–</strong><small>zsír</small></div>
+            <div><strong id="nutriFiber">–</strong><small>rost</small></div>
+          </div>
+          <div class="nutri-footer">
+            <span>Adagonként · becsült érték</span>
+            <button id="nutriRefreshRecipe" type="button" class="outline-btn compact-btn">↻ Frissítés</button>
+          </div>
+        </div>
+      </section>
     </div>
     <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
   </section>
+  <section id="recipeFeedback" class="recipe-feedback">
+    <div class="feedback-title-row">
+      <div>
+        <div class="feedback-eyebrow">SAJÁT ÍZLÉSETEK</div>
+        <h2>⭐ Értékelés és megjegyzés</h2>
+      </div>
+      <span id="feedbackSaveState" class="feedback-save-state">helyi</span>
+    </div>
+    <div id="feedbackStars" class="feedback-stars" aria-label="Recept értékelése">
+      <button type="button" data-rating="1" aria-label="1 csillag">☆</button>
+      <button type="button" data-rating="2" aria-label="2 csillag">☆</button>
+      <button type="button" data-rating="3" aria-label="3 csillag">☆</button>
+      <button type="button" data-rating="4" aria-label="4 csillag">☆</button>
+      <button type="button" data-rating="5" aria-label="5 csillag">☆</button>
+    </div>
+    <textarea id="feedbackNote" rows="3" placeholder="pl. Nagyon jó, legközelebb több fokhagyma."></textarea>
+    <button id="saveFeedback" type="button" class="feedback-save-btn">💾 Értékelés mentése</button>
+    <p class="feedback-help">Léna ezt a későbbi receptjavaslatoknál és generálásnál ízlési jelzésként használja.</p>
+  </section>
 </main>
 
+<dialog id="healthDialog" class="health-dialog">
+  <div class="dialog-card health-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="health-kicker">HEALTH · NUTRI INFO</div>
+        <h2>🥗 Mi van a tányéron?</h2>
+      </div>
+      <button id="closeHealth" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="health-intro">Válassz egy strukturált receptet, és Léna készít egy adagonkénti tápérték-becslést.</p>
+    <label class="field-label" for="healthRecipeSelect">Recept</label>
+    <select id="healthRecipeSelect" class="field-input"></select>
+    <button id="healthAnalyzeBtn" type="button" class="primary-btn health-analyze-btn">✨ Nutri Info készítése</button>
+    <section id="healthResult" class="health-result" hidden>
+      <div class="health-result-title">
+        <b id="healthResultName"></b>
+        <span id="healthResultServing"></span>
+      </div>
+      <div class="nutri-grid health-grid">
+        <div><strong id="healthKcal">–</strong><small>kcal</small></div>
+        <div><strong id="healthProtein">–</strong><small>fehérje</small></div>
+        <div><strong id="healthCarbs">–</strong><small>szénhidrát</small></div>
+        <div><strong id="healthFat">–</strong><small>zsír</small></div>
+        <div><strong id="healthFiber">–</strong><small>rost</small></div>
+      </div>
+      <p class="health-disclaimer">Becsült tápérték az összetevők és mennyiségek alapján. Nem laboreredmény és nem orvosi étrendi számítás.</p>
+    </section>
+  </div>
+</dialog>
+
+<dialog id="whatCookDialog" class="what-cook-dialog">
+  <div class="what-cook-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="feedback-eyebrow">SZEMÉLYRE SZABOTT ÖTLETEK</div>
+        <h2>🧠 Léna, mit főzzünk?</h2>
+      </div>
+      <button id="closeWhatCook" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="what-cook-intro">Írd le röviden, mi van otthon, mit kellene elhasználni, mennyi időtök van, és mit ne ajánljak.</p>
+    <textarea id="whatCookPrompt" rows="4" placeholder="pl. Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta."></textarea>
+    <div class="what-cook-examples">
+      <button type="button" data-what="30 percünk van, valami gyors vacsora kell.">⏱ 30 perc</button>
+      <button type="button" data-what="Használjuk el, ami hamarosan megromolhat.">♻️ Használjuk el</button>
+      <button type="button" data-what="Ma valami könnyebb ételt szeretnénk.">🥗 Könnyebb</button>
+    </div>
+    <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 3 ötletet</button>
+    <div id="whatCookContext" class="what-cook-context"></div>
+    <div id="whatCookResults" class="what-cook-results"></div>
+  </div>
+</dialog>
+
+<dialog id="cookModeDialog" class="cook-mode-dialog">
+  <div class="cook-shell">
+    <header class="cook-header">
+      <div>
+        <div class="cook-eyebrow">👨‍🍳 FŐZÉS MÓD</div>
+        <h2 id="cookRecipeTitle"></h2>
+      </div>
+      <button id="closeCookMode" type="button" class="cook-close" aria-label="Bezárás">×</button>
+    </header>
+
+    <div class="cook-progress-row">
+      <strong id="cookStepCount">1 / 1</strong>
+      <div class="cook-progress"><span id="cookProgressBar"></span></div>
+    </div>
+
+    <main class="cook-step-card">
+      <div id="cookStepNumber" class="cook-step-number">1</div>
+      <div id="cookStepText" class="cook-step-text"></div>
+    </main>
+
+    <section id="cookTimerBox" class="cook-timer-box" hidden>
+      <button id="cookTimerStart" type="button" class="cook-timer-suggest">⏱ Időzítő indítása</button>
+      <div id="cookTimerRunning" class="cook-timer-running" hidden>
+        <div id="cookTimerLabel" class="cook-timer-label">Időzítő</div>
+        <div id="cookTimerDisplay" class="cook-timer-display">00:00</div>
+        <div class="cook-timer-actions">
+          <button id="cookTimerPause" type="button" class="outline-btn">⏸ Szünet</button>
+          <button id="cookTimerReset" type="button" class="outline-btn">↺ Nullázás</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="cook-nav">
+      <button id="cookPrev" type="button" class="cook-nav-btn secondary">← Előző</button>
+      <button id="cookNext" type="button" class="cook-nav-btn primary">Következő →</button>
+    </footer>
+  </div>
+</dialog>
+
+<dialog id="photoLightbox" class="photo-lightbox">
+  <button id="closePhotoLightbox" type="button" class="photo-lightbox-close" aria-label="Bezárás">×</button>
+  <div class="photo-lightbox-stage">
+    <div id="photoLightboxLoading" class="photo-lightbox-loading" hidden>Ételkép betöltése…</div>
+    <img id="photoLightboxImage" alt="">
+  </div>
+  <div id="photoLightboxCaption" class="photo-lightbox-caption"></div>
+</dialog>
+
 <nav class="bottom-nav">
-  <button id="navHome"><span>🏠</span><small>Home</small></button>
-  <button id="navFav"><span>☆</span><small>Kedvencek</small></button>
-  <button id="navAdmin"><span>⚙️</span><small>Admin</small></button>
-  <button id="navAsk"><span>✨</span><small>Kérdezd Lénát</small></button>
+  <button id="navHome"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg><small>Home</small></button>
+  <button id="navFav"><svg viewBox="0 0 48 48"><path d="m24 6 5.4 11 12.1 1.8-8.8 8.5 2.1 12.1L24 33.7l-10.8 5.7 2.1-12.1-8.8-8.5L18.6 17 24 6Z"/></svg><small>Kedvencek</small></button>
+  <button id="navAdmin"><svg viewBox="0 0 48 48"><path d="M8 13h15M31 13h9M8 24h6M22 24h18M8 35h20M36 35h4"/><circle cx="27" cy="13" r="4"/><circle cx="18" cy="24" r="4"/><circle cx="32" cy="35" r="4"/></svg><small>Admin</small></button>
+  <button id="navAsk" class="nav-lena"><svg viewBox="0 0 48 48"><path d="M22 7c-1 10-5 14-15 16 10 2 14 6 16 16 2-10 6-14 16-16-10-2-14-6-17-16Z"/><path d="M38 5v8M34 9h8"/></svg><small>Kérdezd Lénát</small></button>
 </nav>
 
 <dialog id="addDialog">
@@ -100,7 +283,7 @@
   <input id="newTitle" class="field-input" autocomplete="off" placeholder="pl. Sajtos pogácsa">
   <label class="field-label" for="newCategory">Kategória</label>
   <input id="newCategory" class="field-input" list="categoryList" autocomplete="off" placeholder="Válassz vagy írj újat">
-  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Beállított GitHub-szinkronnal telefonon és PC-n is megjelenik.</small></span></label>
+  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Puter felhőmentéssel telefonon és PC-n is megjelenik.</small></span></label>
   <div class="dialog-actions">
     <button value="cancel" class="outline-btn">Mégse</button>
     <button type="button" id="saveNewRecipe" class="primary-btn">Mentés</button>
@@ -132,10 +315,11 @@
 <div class="dialog-card">
   <div class="dialog-title-row"><h2>Admin</h2><button id="closeAdmin" class="icon-close">×</button></div>
   <div class="admin-actions">
-    <button id="adminAddRecipe" class="primary-btn">＋ Új recept</button>
-    <button id="syncSettingsBtn" class="outline-btn">☁ GitHub szinkron</button>
+    <button id="adminStudio" class="primary-btn">✨ Recept Studio</button>
+    <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
+    <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
-  <p class="local-note">Az új recept először ezen az eszközön mentődik. GitHub-szinkronnal központilag is feltölthető.</p>
+  <p class="local-note">Az új recept először ezen az eszközön mentődik. Központi mentéssel ugyanaz a recept PC-n, telefonon és másik gépen is megnyitható.</p>
   <h3>Helyi / szinkronra váró receptek</h3>
   <div id="pendingList" class="deleted-list"></div>
   <h3>Törölt receptek</h3>
@@ -145,17 +329,15 @@
 
 <dialog id="syncDialog">
 <div class="dialog-card">
-  <div class="dialog-title-row"><h2>☁ GitHub szinkron</h2><button id="closeSync" class="icon-close">×</button></div>
-  <p class="local-note">A kulcs nem kerül bele a weboldal forrásába. Kizárólag a <b>berlet-app</b> repóra korlátozott fine-grained tokent használj, <b>Contents: Read and write</b> jogosultsággal.</p>
-  <a class="token-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub kulcs létrehozása ↗</a>
-  <label class="field-label" for="githubToken">GitHub token</label>
-  <input id="githubToken" class="field-input" type="password" autocomplete="off" placeholder="github_pat_...">
-  <label class="remember-row"><input id="rememberToken" type="checkbox"> Megjegyzés ezen az eszközön</label>
-  <div class="dialog-actions">
-    <button id="testToken" type="button" class="outline-btn">Kapcsolat teszt</button>
-    <button id="saveToken" type="button" class="primary-btn">Mentés</button>
+  <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
+  <p class="local-note">A központi recepttár a Puter felhőben él. <b>Ugyanazzal a Puter-fiókkal</b> bejelentkezve a receptek PC-n, telefonon és másik gépen is megjelennek. Nincs GitHub-token és nincs saját fizetős API-kulcs.</p>
+  <div id="cloudAccountStatus" class="cloud-account-status">Kapcsolat ellenőrzése…</div>
+  <div class="dialog-actions cloud-actions">
+    <button id="cloudSignIn" type="button" class="primary-btn">🔐 Bejelentkezés</button>
+    <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ Fiókváltás</button>
+    <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
-  <p id="tokenStatus" class="local-note" hidden></p>
+  <p class="local-note">A helyben már elmentett, „szinkronra vár” recepteket a rendszer a bejelentkezés után automatikusan feltölti.</p>
 </div>
 </dialog>
 
@@ -197,11 +379,154 @@
 </form>
 </dialog>
 
+
+<dialog id="studioDialog" class="studio-dialog">
+<div class="dialog-card studio-shell">
+  <div class="dialog-title-row">
+    <div>
+      <div class="eyebrow">LÉNA RECEPT STUDIO · V1</div>
+      <h2>✨ Új recept készítése</h2>
+    </div>
+    <button id="closeStudio" class="icon-close" type="button">×</button>
+  </div>
+
+  <section class="studio-stage">
+    <div class="studio-step"><span>1</span><b>Ötlet</b></div>
+    <div class="studio-step"><span>2</span><b>Javaslat</b></div>
+    <div class="studio-step"><span>3</span><b>Véglegesítés</b></div>
+  </section>
+
+  <section class="fridge-scan-box">
+    <div class="fridge-scan-head">
+      <div><b>📷 Mi van itthon?</b><small>Fotózd le a hűtőt, kamrát vagy az alapanyagokat. Léna felismeri, amit lát, és receptötleteket ad.</small></div>
+      <span>VISION</span>
+    </div>
+    <div class="fridge-scan-actions">
+      <button id="studioFridgeCameraBtn" type="button" class="primary-btn">📷 Fotó készítése</button>
+      <button id="studioFridgeGalleryBtn" type="button" class="outline-btn">🖼 Kép kiválasztása</button>
+    </div>
+    <input id="studioFridgeCamera" type="file" accept="image/*" capture="environment" hidden>
+    <input id="studioFridgeGallery" type="file" accept="image/*" hidden>
+    <div id="studioFridgeResult" class="fridge-result" hidden>
+      <img id="studioFridgePreview" alt="Alapanyag fotó">
+      <label class="field-label" for="studioDetectedItems">Felismert alapanyagok</label>
+      <textarea id="studioDetectedItems" rows="5" placeholder="Itt javíthatod, ha valamit félrenézett."></textarea>
+      <div id="studioUncertain" class="fridge-uncertain" hidden></div>
+      <div>
+        <div class="field-label">Mit főzhetnénk?</div>
+        <div id="studioFridgeIdeas" class="fridge-ideas"></div>
+      </div>
+      <button id="studioUseInventory" type="button" class="primary-btn studio-main-action">🍳 Recept készítése ezekből</button>
+    </div>
+  </section>
+
+  <div class="studio-or"><span>vagy</span></div>
+  <label class="field-label" for="studioPrompt">Írd le, mit szeretnél főzni</label>
+  <textarea id="studioPrompt" rows="5" placeholder="Pl. Van 500 g csirkemell, brokkoli, tejszín és Gouda. Egyedényes, gyors vacsorát szeretnék 4 főre."></textarea>
+  <button id="studioGenerate" type="button" class="primary-btn studio-main-action">✨ Javaslat készítése</button>
+  <p id="studioStatus" class="studio-status">A Studio közvetlenül tud AI-receptet és ételfotót készíteni, saját fizetős API-kulcs nélkül.</p>
+
+  <section id="studioPreview" class="studio-preview" hidden>
+    <div class="studio-preview-tabs">
+      <button id="studioCardTab" type="button" class="mode active">🖼 Golden kártya</button>
+      <button id="studioReadableTab" type="button" class="mode">📖 Olvasható recept</button>
+    </div>
+    <section id="studioCardPanel" class="studio-card-panel">
+    <div class="studio-card-preview">
+      <div id="studioHero" class="studio-hero"><span id="studioHeroEmoji">🍲</span><small>RECEPT STUDIO ELŐNÉZET</small></div>
+      <div class="studio-card-copy">
+        <div id="studioPreviewCategory" class="eyebrow"></div>
+        <h3 id="studioPreviewTitle"></h3>
+        <div id="studioPreviewMeta" class="studio-meta"></div>
+        <div class="studio-preview-columns">
+          <div><b>Hozzávalók</b><ul id="studioPreviewIngredients"></ul></div>
+          <div><b>Elkészítés</b><ol id="studioPreviewSteps"></ol></div>
+        </div>
+      </div>
+    </div>
+    <div id="studioExactCardWrap" class="studio-exact-card-wrap" hidden>
+      <div class="studio-exact-head"><b>Végleges kártya előnézet</b><small>Ezt a képet mentjük a Recepttárba.</small></div>
+      <img id="studioExactCard" alt="Golden receptkártya előnézet">
+    </div>
+    </section>
+
+    <section id="studioReadablePreview" class="studio-readable-preview" hidden>
+      <div class="structured-section">
+        <h2 id="studioReadableTitle"></h2>
+        <div id="studioReadableMeta" class="studio-meta"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Hozzávalók</h2>
+        <div id="studioReadableIngredients" class="ingredients-list"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Elkészítés</h2>
+        <ol id="studioReadableSteps" class="steps-list"></ol>
+      </div>
+      <div id="studioReadableNotesBox" class="structured-section notes-section" hidden>
+        <h2>Tippek</h2>
+        <div id="studioReadableNotes"></div>
+      </div>
+    </section>
+
+    <details class="studio-editor" open>
+      <summary>✏️ Recept finomítása</summary>
+      <div class="studio-edit-grid">
+        <label><span>Recept neve</span><input id="studioTitle" class="field-input"></label>
+        <label><span>Kategória</span><input id="studioCategory" class="field-input" list="categoryList"></label>
+        <label><span>Adag</span><input id="studioServings" class="field-input" placeholder="4 fő"></label>
+        <label><span>Idő</span><input id="studioTime" class="field-input" placeholder="30 perc"></label>
+      </div>
+      <label class="field-label" for="studioIngredients">Hozzávalók</label>
+      <textarea id="studioIngredients" rows="8"></textarea>
+      <label class="field-label" for="studioSteps">Elkészítés</label>
+      <textarea id="studioSteps" rows="8"></textarea>
+      <label class="field-label" for="studioNotes">Tippek / megjegyzések</label>
+      <textarea id="studioNotes" rows="4"></textarea>
+
+      <div class="studio-refine-row">
+        <input id="studioRefineText" class="field-input" placeholder="Pl. legyen csípősebb / legyen 6 adag / laktózmentesen">
+        <button id="studioRefine" type="button" class="outline-btn">✨ Finomítás</button>
+      </div>
+    </details>
+
+    <section class="studio-photo-box">
+      <div>
+        <b>📸 Ételfotó</b>
+        <p>Most opcionálisan saját képet használhatsz. A következő lépcsőben ezt Léna HD képgenerálása tölti ki automatikusan.</p>
+      </div>
+      <div class="studio-photo-actions">
+        <button id="studioGenerateImage" type="button" class="primary-btn">✨ HD kép generálása</button>
+        <button id="studioChoosePhoto" type="button" class="outline-btn">Saját kép</button>
+      </div>
+      <input id="studioPhotoInput" type="file" accept="image/*" hidden>
+      <img id="studioPhotoPreview" class="studio-photo-preview" alt="Ételfotó előnézet" hidden>
+    </section>
+
+    <label class="sync-choice">
+      <input id="studioCentralSync" type="checkbox" checked>
+      <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept a Puter felhőbe is bekerül.</small></span>
+    </label>
+
+    <div class="studio-provider-note">
+      <div><b>✨ AI mód: Puter.js</b><small>Nincs fizetős API-kulcs és nincs saját AI-backend. Első AI-híváskor a szolgáltató kérhet Puter-bejelentkezést.</small></div>
+      <span id="studioProviderBadge">ELLENŐRZÉS…</span>
+    </div>
+
+    <div class="studio-final-actions">
+      <button id="studioRegenerateCard" type="button" class="outline-btn">🎨 Kártya frissítése</button>
+      <button id="studioFinalize" type="button" class="primary-btn">✅ Véglegesítés és mentés</button>
+    </div>
+  </section>
+</div>
+</dialog>
+
 <div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><div id="busyText">Feldolgozás…</div></div>
 <div id="toast" class="toast"></div>
 
+<script src="https://js.puter.com/v2/"></script>
 <script src="data.js?v=24"></script>
 <script src="readable-data.js?v=34"></script>
-<script src="app.js?v=27"></script>
+<script src="app.js?v=48"></script>
 </body>
 </html>
