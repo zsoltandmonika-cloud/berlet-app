@@ -1510,3 +1510,69 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
  .recipe-nutri-strip{gap:5px 8px;padding:9px 11px;font-size:12px;border-radius:14px}
  .recipe-nutri-strip i{display:none}
 }
+
+/* ===== LÉNA TIMER ===== */
+.cook-timer-box{
+  padding:14px!important;border:1px solid #51483f!important;border-radius:22px!important;
+  background:
+    radial-gradient(circle at 84% 5%,rgba(221,71,125,.14),transparent 33%),
+    linear-gradient(155deg,#2a241f,#1b1b18 72%)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.30)!important
+}
+.cook-timer-brand{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.cook-timer-brand-icon{
+  width:42px;height:42px;display:grid;place-items:center;border-radius:50%;
+  background:linear-gradient(180deg,#df4d80,#be2f65);color:#fff;
+  box-shadow:0 6px 16px rgba(176,42,91,.28)
+}
+.cook-timer-brand-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.cook-timer-brand b{display:block;color:#fff1e4;font:700 20px/1.05 Georgia,"Times New Roman",serif}
+.cook-timer-brand small{display:block;margin-top:3px;color:#a99f93;font-size:11px}
+.cook-timer-suggest{
+  width:100%;min-height:52px!important;border:1px solid rgba(255,255,255,.18)!important;
+  background:linear-gradient(180deg,#df4d80,#be2f65)!important;color:#fff!important;
+  font-weight:850!important;box-shadow:0 8px 22px rgba(158,36,82,.28),inset 0 1px 0 rgba(255,255,255,.22)!important
+}
+.cook-timer-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.cook-timer-presets button,.cook-timer-add button{
+  min-height:39px;border:1px solid #4d4a42;border-radius:999px;background:#2c2c27;color:#e9dfd2;
+  font-family:var(--lk-ui)!important;font-size:11px;font-weight:750
+}
+.cook-timer-presets button:active,.cook-timer-add button:active{background:#3a302f;color:#ff9fbb}
+.cook-timer-running{display:grid;justify-items:center;gap:10px}
+.cook-timer-label{width:100%;text-align:center;color:#cbbdaf!important;font-size:12px;font-weight:750;letter-spacing:.02em}
+.cook-timer-dial{
+  --timer-progress:0;width:min(55vw,190px);aspect-ratio:1;border-radius:50%;padding:9px;
+  background:conic-gradient(#df4d80 calc(var(--timer-progress) * 1turn),#443d36 0);
+  box-shadow:0 12px 30px rgba(0,0,0,.34),0 0 0 1px rgba(255,255,255,.06);
+  transition:background .25s linear,transform .25s ease
+}
+.cook-timer-dial-inner{
+  width:100%;height:100%;border-radius:50%;display:grid;place-items:center;align-content:center;
+  background:radial-gradient(circle at 35% 28%,#302b26,#171817 72%);
+  border:1px solid #4b453d;box-shadow:inset 0 5px 18px rgba(0,0,0,.35)
+}
+.cook-timer-display{
+  color:#fff2e5!important;font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-size:clamp(38px,11vw,58px)!important;line-height:1!important;font-weight:750!important;letter-spacing:-.045em!important;
+  font-variant-numeric:tabular-nums
+}
+.cook-timer-dial-inner small{margin-top:6px;color:#a99f93;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.cook-timer-dial.timer-done{
+  background:conic-gradient(#72a57c 1turn,#72a57c 0);
+  animation:lenaTimerDone .7s ease-in-out 2
+}
+.cook-timer-dial.timer-done .cook-timer-display{color:#bfe0c5!important;font-size:clamp(31px,9vw,46px)!important}
+@keyframes lenaTimerDone{0%,100%{transform:scale(1)}50%{transform:scale(1.035);filter:brightness(1.18)}}
+.cook-timer-add{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.cook-timer-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;width:100%}
+.cook-timer-actions button{min-height:44px!important}
+.cook-timer-sound-note{color:#9f968b;font-size:10px;text-align:center}
+@media(max-width:390px){
+ .cook-timer-box{padding:12px!important}
+ .cook-timer-brand-icon{width:38px;height:38px}
+ .cook-timer-brand b{font-size:18px}
+ .cook-timer-presets{gap:4px}
+ .cook-timer-presets button{font-size:10px;padding-left:4px;padding-right:4px}
+ .cook-timer-dial{width:min(58vw,176px)}
+}

@@ -1,7 +1,6 @@
 const baseRecipes=window.LENA_RECIPES||[],baseCategories=window.LENA_CATEGORIES||[],baseReadable=window.LENA_READABLE||{};
 const $=s=>document.querySelector(s);
-const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="feature/recipe-studio-v1",CLOUD_KEY_PREFIX="lena:recipe:",TASTE_KEY_PREFIX="lena:taste:",NUTRI_KEY_PREFIX="lena:nutri:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-studio-preview",DB_STORE="recipes";
-baseRecipes.forEach(r=>{if(r.file&&r.file.startsWith("recipes/"))r.file="../recepttar/"+r.file});
+const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="main",CLOUD_KEY_PREFIX="lena:recipe:",TASTE_KEY_PREFIX="lena:taste:",NUTRI_KEY_PREFIX="lena:nutri:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-local",DB_STORE="recipes";
 let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],sharedRecipes=[],sharedReadable={},tasteFeedback={},nutritionCache={},feedbackRating=0,selectedNewBlob=null,selectedNewPreviewUrl=null;
 function migrateCanonicalBaseState(){
   const flag="lena27:canonicalBaseMigration";
@@ -902,7 +901,7 @@ function renderReadableFor(id){
  if(notes.length){$("#notesSection").hidden=false;notes.forEach(n=>{const p=document.createElement("p");p.textContent=n;$("#notesList").appendChild(p)})}
  applyReadableFont();renderNutriCard(id)
 }
-let cookState={id:null,steps:[],index:0,timerSeconds:0,timerRemaining:0,timerEnd:0,timerRunning:false,timerInterval:null,wakeLock:null};
+let cookState={id:null,steps:[],index:0,timerSeconds:0,timerRemaining:0,timerEnd:0,timerRunning:false,timerInterval:null,wakeLock:null,audioCtx:null};
 function cookStepKey(id){return"lena:cookstep:"+id}
 function parseCookDuration(text){
  const s=String(text||"").toLocaleLowerCase("hu").replace(/,/g,".");
@@ -924,22 +923,55 @@ async function requestCookWakeLock(){
  try{if("wakeLock"in navigator&&document.visibilityState==="visible")cookState.wakeLock=await navigator.wakeLock.request("screen")}catch(e){console.warn("Wake lock nem érhető el",e)}
 }
 function releaseCookWakeLock(){try{cookState.wakeLock?.release()}catch(e){}cookState.wakeLock=null}
+function ensureCookAudio(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+  if(!cookState.audioCtx||cookState.audioCtx.state==="closed")cookState.audioCtx=new AC();
+  if(cookState.audioCtx.state==="suspended")cookState.audioCtx.resume().catch(()=>{});
+  return cookState.audioCtx
+ }catch(e){return null}
+}
 function cookBeep(){
  try{
-  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();
-  [0,.22,.44].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.setValueAtTime(.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t+.16);o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.18)});
-  setTimeout(()=>ac.close().catch(()=>{}),1000)
+  const ac=ensureCookAudio();if(ac){
+   const now=ac.currentTime+.03;
+   [0,.36].forEach((t,i)=>{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type="sine";o.frequency.value=i?1040:880;
+    g.gain.setValueAtTime(.0001,now+t);
+    g.gain.exponentialRampToValueAtTime(.24,now+t+.025);
+    g.gain.exponentialRampToValueAtTime(.0001,now+t+.24);
+    o.connect(g);g.connect(ac.destination);o.start(now+t);o.stop(now+t+.26)
+   })
+  }
  }catch(e){}
- try{navigator.vibrate?.([250,120,250,120,450])}catch(e){}
+ try{navigator.vibrate?.([300,150,420])}catch(e){}
+}
+function updateCookTimerDial(done=false){
+ const dial=$("#cookTimerDial");if(!dial)return;
+ const total=Math.max(1,cookState.timerSeconds||cookState.timerRemaining||1);
+ const remaining=Math.max(0,cookState.timerRemaining||0);
+ const progress=Math.max(0,Math.min(1,1-(remaining/total)));
+ dial.style.setProperty("--timer-progress",String(progress));
+ dial.classList.toggle("timer-done",!!done);
+ $("#cookTimerStateText").textContent=done?"kész, jöhet a következő lépés":cookState.timerRunning?"hátralévő idő":"szünet"
 }
 function renderCookTimer(){
- const box=$("#cookTimerBox"),start=$("#cookTimerStart"),running=$("#cookTimerRunning"),det=parseCookDuration(cookState.steps[cookState.index]||"");
+ const box=$("#cookTimerBox"),start=$("#cookTimerStart"),running=$("#cookTimerRunning"),presets=$("#cookTimerPresets"),det=parseCookDuration(cookState.steps[cookState.index]||"");
+ box.hidden=false;
  if(cookState.timerRunning||cookState.timerRemaining>0){
-  box.hidden=false;start.hidden=true;running.hidden=false;$("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);$("#cookTimerPause").textContent=cookState.timerRunning?"⏸ Szünet":"▶ Folytatás";return
+  start.hidden=true;presets.hidden=true;running.hidden=false;
+  $("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);
+  $("#cookTimerPause").textContent=cookState.timerRunning?"⏸ Szünet":"▶ Folytatás";
+  updateCookTimerDial(false);return
  }
- running.hidden=true;
- if(det){box.hidden=false;start.hidden=false;start.textContent="⏱ "+det.label+" indítása";start.dataset.seconds=String(det.seconds);start.dataset.label=det.label}
- else{box.hidden=true;start.hidden=true;start.dataset.seconds="";start.dataset.label=""}
+ running.hidden=true;presets.hidden=false;
+ if(det){
+  start.hidden=false;start.textContent="⏱ "+det.label+" indítása";
+  start.dataset.seconds=String(det.seconds);start.dataset.label=det.label
+ }else{
+  start.hidden=true;start.dataset.seconds="";start.dataset.label=""
+ }
 }
 function renderCookStep(){
  const n=cookState.steps.length,i=Math.max(0,Math.min(cookState.index,n-1));cookState.index=i;
@@ -960,24 +992,49 @@ function cookNext(){
 function cookPrev(){if(cookState.index>0){cookState.index--;renderCookStep()}}
 function updateCookTimer(){
  if(!cookState.timerRunning)return;
- cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));$("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);
+ cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));
+ $("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);updateCookTimerDial(false);
  if(cookState.timerRemaining<=0){
   cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;
-  $("#cookTimerDisplay").textContent="KÉSZ!";$("#cookTimerPause").textContent="▶ Újra";cookBeep();toast("⏰ Az időzítő lejárt.")
+  $("#cookTimerDisplay").textContent="KÉSZ!";$("#cookTimerPause").textContent="▶ Újra";
+  updateCookTimerDial(true);cookBeep();toast("🔔 Léna Timer: lejárt az idő.")
  }
+}
+function startCookTimerSeconds(sec,label="Időzítő"){
+ sec=Math.max(1,Math.round(Number(sec)||0));if(!sec)return;
+ ensureCookAudio();clearInterval(cookState.timerInterval);
+ cookState.timerSeconds=sec;cookState.timerRemaining=sec;cookState.timerEnd=Date.now()+sec*1000;cookState.timerRunning=true;
+ $("#cookTimerLabel").textContent=label+" · "+(cookState.index+1)+". lépés";
+ $("#cookTimerDial").classList.remove("timer-done");renderCookTimer();updateCookTimer();
+ cookState.timerInterval=setInterval(updateCookTimer,250)
 }
 function startCookTimer(){
  const b=$("#cookTimerStart"),sec=parseInt(b.dataset.seconds||"0",10);if(!sec)return;
- clearInterval(cookState.timerInterval);cookState.timerSeconds=sec;cookState.timerRemaining=sec;cookState.timerEnd=Date.now()+sec*1000;cookState.timerRunning=true;
- $("#cookTimerLabel").textContent=(b.dataset.label||"Időzítő")+" · "+(cookState.index+1)+". lépés";renderCookTimer();updateCookTimer();cookState.timerInterval=setInterval(updateCookTimer,250)
+ startCookTimerSeconds(sec,b.dataset.label||"Időzítő")
+}
+function startCookPreset(minutes){
+ const m=Math.max(1,Number(minutes)||0);startCookTimerSeconds(m*60,m+" perc")
+}
+function addCookTimer(seconds){
+ if(!(cookState.timerRemaining>0))return;
+ cookState.timerRemaining+=seconds;cookState.timerSeconds+=seconds;
+ if(cookState.timerRunning)cookState.timerEnd+=seconds*1000;
+ $("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);updateCookTimerDial(false)
 }
 function pauseCookTimer(){
- if(cookState.timerRunning){cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null}
- else if(cookState.timerRemaining>0){cookState.timerEnd=Date.now()+cookState.timerRemaining*1000;cookState.timerRunning=true;clearInterval(cookState.timerInterval);cookState.timerInterval=setInterval(updateCookTimer,250)}
+ if(cookState.timerRunning){
+  cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));
+  cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null
+ }else if(cookState.timerRemaining>0){
+  ensureCookAudio();cookState.timerEnd=Date.now()+cookState.timerRemaining*1000;cookState.timerRunning=true;
+  clearInterval(cookState.timerInterval);cookState.timerInterval=setInterval(updateCookTimer,250)
+ }
  renderCookTimer()
 }
 function resetCookTimer(){
- cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;cookState.timerRemaining=0;cookState.timerSeconds=0;cookState.timerEnd=0;renderCookTimer()
+ cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;
+ cookState.timerRemaining=0;cookState.timerSeconds=0;cookState.timerEnd=0;
+ $("#cookTimerDial")?.classList.remove("timer-done");renderCookTimer()
 }
 
 
@@ -1110,6 +1167,8 @@ $("#fontMinus").onclick=()=>changeReadableFont(-1);
 $("#fontPlus").onclick=()=>changeReadableFont(1);
 $("#resetChecks").onclick=resetIngredientChecks;
 $("#cookModeBtn").onclick=openCookMode;$("#closeCookMode").onclick=closeCookMode;$("#cookPrev").onclick=cookPrev;$("#cookNext").onclick=cookNext;$("#cookTimerStart").onclick=startCookTimer;$("#cookTimerPause").onclick=pauseCookTimer;$("#cookTimerReset").onclick=resetCookTimer;
+$("#cookTimerPresets").querySelectorAll("[data-cook-minutes]").forEach(b=>b.onclick=()=>startCookPreset(Number(b.dataset.cookMinutes)));
+$("#cookTimerPlus1").onclick=()=>addCookTimer(60);$("#cookTimerPlus5").onclick=()=>addCookTimer(300);
 $("#cookModeDialog").addEventListener("close",releaseCookWakeLock);
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;

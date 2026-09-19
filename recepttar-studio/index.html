@@ -237,15 +237,37 @@
       <div id="cookStepText" class="cook-step-text"></div>
     </main>
 
-    <section id="cookTimerBox" class="cook-timer-box" hidden>
+    <section id="cookTimerBox" class="cook-timer-box">
+      <div class="cook-timer-brand">
+        <span class="cook-timer-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><circle cx="24" cy="26" r="16"/><path d="M24 26V15M24 26l8 5M18 5h12M24 5v5"/></svg>
+        </span>
+        <div><b>Léna Timer</b><small>Időzítő a főzési lépésekhez</small></div>
+      </div>
       <button id="cookTimerStart" type="button" class="cook-timer-suggest">⏱ Időzítő indítása</button>
+      <div id="cookTimerPresets" class="cook-timer-presets">
+        <button type="button" data-cook-minutes="5">5 perc</button>
+        <button type="button" data-cook-minutes="10">10 perc</button>
+        <button type="button" data-cook-minutes="15">15 perc</button>
+        <button type="button" data-cook-minutes="30">30 perc</button>
+      </div>
       <div id="cookTimerRunning" class="cook-timer-running" hidden>
         <div id="cookTimerLabel" class="cook-timer-label">Időzítő</div>
-        <div id="cookTimerDisplay" class="cook-timer-display">00:00</div>
+        <div id="cookTimerDial" class="cook-timer-dial">
+          <div class="cook-timer-dial-inner">
+            <div id="cookTimerDisplay" class="cook-timer-display" aria-live="polite">00:00</div>
+            <small id="cookTimerStateText">hátralévő idő</small>
+          </div>
+        </div>
+        <div class="cook-timer-add">
+          <button type="button" id="cookTimerPlus1">+1 perc</button>
+          <button type="button" id="cookTimerPlus5">+5 perc</button>
+        </div>
         <div class="cook-timer-actions">
           <button id="cookTimerPause" type="button" class="outline-btn">⏸ Szünet</button>
           <button id="cookTimerReset" type="button" class="outline-btn">↺ Nullázás</button>
         </div>
+        <div class="cook-timer-sound-note">🔔 A végén dupla Léna-beep + rezgés</div>
       </div>
     </section>
 
