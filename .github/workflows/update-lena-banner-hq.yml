@@ -23,15 +23,18 @@ jobs:
             -H 'Accept: image/avif,image/webp,image/apng,image/*,*/*;q=0.8' \
             -H 'Accept-Language: hu-HU,hu;q=0.9,en;q=0.8' \
             'https://1drv.ms/u/c/bc1ff24af37ea2b0/IQQZd7DyqjssTKwPJnXwedXMATHdOxWG4ntf0fZqKuR8GRc?download=1' \
-            -o /tmp/lena-kitchen-banner.webp
+            -o /tmp/lena-kitchen-banner.png
           python - <<'PY'
           from pathlib import Path
-          p=Path('/tmp/lena-kitchen-banner.webp')
+          p=Path('/tmp/lena-kitchen-banner.png')
           b=p.read_bytes()
+          import struct
           print("Downloaded:", len(b), "bytes", b[:16])
-          assert len(b) > 100_000, f"Banner too small: {len(b)} bytes"
-          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', f"Not WebP: {b[:16]!r}"
-          print("HQ banner verified:", len(b), "bytes")
+          assert len(b) > 500_000, f"Banner too small: {len(b)} bytes"
+          assert b[:8] == b'\x89PNG\r\n\x1a\n', f"Not PNG: {b[:16]!r}"
+          w,h=struct.unpack(">II", b[16:24])
+          assert w >= 1800 and h >= 500, f"Banner dimensions too small: {w}x{h}"
+          print("HQ banner verified:", len(b), "bytes", w, "x", h)
           PY
       - name: Publish HQ banner to preview
         shell: bash
@@ -40,8 +43,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p recepttar-studio/assets
-          cp /tmp/lena-kitchen-banner.webp recepttar-studio/assets/lena-kitchen-banner.webp
-          git add recepttar-studio/assets/lena-kitchen-banner.webp
+          cp /tmp/lena-kitchen-banner.png recepttar-studio/assets/lena-kitchen-banner-hq.png
+          sed -i 's#assets/lena-kitchen-banner.webp#assets/lena-kitchen-banner-hq.png#g' recepttar-studio/index.html
+          git add recepttar-studio/assets/lena-kitchen-banner-hq.png recepttar-studio/index.html
           if ! git diff --cached --quiet; then
             git commit -m "Replace Lena preview banner with HQ asset"
             git push origin HEAD:main
@@ -53,8 +57,11 @@ jobs:
           git fetch origin feature/recipe-studio-v1
           git checkout -B feature/recipe-studio-v1 origin/feature/recipe-studio-v1
           mkdir -p recepttar/assets
-          cp /tmp/lena-kitchen-banner.webp recepttar/assets/lena-kitchen-banner.webp
-          git add recepttar/assets/lena-kitchen-banner.webp
+          cp /tmp/lena-kitchen-banner.png recepttar/assets/lena-kitchen-banner-hq.png
+          sed -i 's#assets/lena-kitchen-banner.webp#assets/lena-kitchen-banner-hq.png#g' recepttar/index.html
+          sed -i 's#lena-kitchen-banner.webp#lena-kitchen-banner-hq.png#g' recepttar/sw.js || true
+          sed -i 's#lena-recepttar-studio-57-shell#lena-recepttar-studio-58-shell#g' recepttar/sw.js || true
+          git add recepttar/assets/lena-kitchen-banner-hq.png recepttar/index.html recepttar/sw.js
           if ! git diff --cached --quiet; then
             git commit -m "Replace Lena banner with HQ asset"
             git push origin HEAD:feature/recipe-studio-v1
