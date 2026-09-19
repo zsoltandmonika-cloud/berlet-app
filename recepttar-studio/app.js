@@ -692,6 +692,24 @@ function currentReadableFont(){let n=parseInt(localStorage.getItem("lena25:font"
 function applyReadableFont(){
  const n=currentReadableFont(),box=$("#readableContent");if(box)box.style.setProperty("--readable-size",n+"px");if($("#fontSizeLabel"))$("#fontSizeLabel").textContent=n
 }
+function renderIngredientList(id,ingredients){
+ const box=$("#ingredientsList");box.innerHTML="";
+ const rows=ingredients.map((item,i)=>({item,i,checked:localStorage.getItem(ingredientCheckKey(id,i))==="1"}));
+ const checked=rows.filter(r=>r.checked),open=rows.filter(r=>!r.checked);
+ function group(title,list,done){
+  if(!list.length)return;
+  if(checked.length&&open.length){const h=document.createElement("div");h.className="ingredient-group-title "+(done?"done":"open");h.textContent=title;box.appendChild(h)}
+  list.forEach(r=>{
+    const label=document.createElement("label");label.className="ingredient-row"+(r.checked?" checked":"");
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=r.checked;
+    const span=document.createElement("span");span.textContent=r.item;
+    cb.onchange=()=>{localStorage.setItem(ingredientCheckKey(id,r.i),cb.checked?"1":"0");renderIngredientList(id,ingredients)};
+    label.append(cb,span);box.appendChild(label)
+  })
+ }
+ group("✓ Kipipálva",checked,true);
+ group("Még nincs kipipálva",open,false)
+}
 function renderReadableFor(id){
  const d=getReadable(id),info=statusInfo(d.status),badge=$("#readableStatusBadge");
  if(badge){badge.textContent=info[0];badge.className="status-badge "+info[1]}
@@ -701,13 +719,7 @@ function renderReadableFor(id){
  $("#prepareReadable").textContent=valid?"✏️ Olvasható recept javítása":"✏️ Strukturált recept";
  $("#ingredientsList").innerHTML="";$("#stepsList").innerHTML="";$("#notesList").innerHTML="";$("#notesSection").hidden=true;
  if(!valid){setMode("original");return}
- d.ingredients.forEach((item,i)=>{
-   const label=document.createElement("label");label.className="ingredient-row";
-   const cb=document.createElement("input");cb.type="checkbox";cb.checked=localStorage.getItem(ingredientCheckKey(id,i))==="1";
-   const span=document.createElement("span");span.textContent=item;label.classList.toggle("checked",cb.checked);
-   cb.onchange=()=>{localStorage.setItem(ingredientCheckKey(id,i),cb.checked?"1":"0");label.classList.toggle("checked",cb.checked)};
-   label.append(cb,span);$("#ingredientsList").appendChild(label)
- });
+ renderIngredientList(id,d.ingredients);
  d.steps.forEach(step=>{const li=document.createElement("li");li.textContent=step;$("#stepsList").appendChild(li)});
  const notes=Array.isArray(d.notes)?d.notes:[];
  if(notes.length){$("#notesSection").hidden=false;notes.forEach(n=>{const p=document.createElement("p");p.textContent=n;$("#notesList").appendChild(p)})}
