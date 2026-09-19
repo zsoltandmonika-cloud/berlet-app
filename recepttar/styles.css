@@ -1620,3 +1620,38 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   .cook-nav{gap:8px!important}
   .cook-nav-btn{min-height:50px!important;font-size:16px!important}
 }
+
+/* ===== COOK MODE MOBILE VIEWPORT FIX ===== */
+.cook-mode-dialog{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+@media(max-width:600px){
+  .cook-mode-dialog{
+    height:100dvh!important;
+    max-height:100dvh!important;
+  }
+  .cook-shell{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-height:100dvh!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding-bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  }
+  .cook-nav{
+    position:sticky!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    z-index:8!important;
+    padding:8px!important;
+    margin:0 -4px!important;
+    border:1px solid #3f4139!important;
+    border-radius:18px!important;
+    background:rgba(24,25,23,.96)!important;
+    backdrop-filter:blur(10px)!important;
+    box-shadow:0 -8px 24px rgba(0,0,0,.26)!important;
+  }
+  .cook-timer-box{flex:none!important}
+}
