@@ -1194,14 +1194,23 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   }
 }
 
-/* Crisp master banner, cache-busted path. */
+/* Force the crisp master banner path and native-quality rendering. */
 .lena-master-banner img{
-  display:block!important;width:100%!important;height:auto!important;max-width:100%!important;
-  object-fit:contain!important;object-position:center!important;filter:none!important;transform:none!important;
-  image-rendering:auto!important;backface-visibility:hidden
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:none!important;
+  transform:none!important;
+  image-rendering:auto!important;
+  backface-visibility:hidden;
 }
 
-/* ===== FINAL MOBILE HERO OVERRIDE ===== */
+/* ===== FINAL MOBILE HERO OVERRIDE =====
+   Keep the HQ PNG crisp, but restore the large portrait hero on phones.
+   This must stay AFTER the global crisp-image rule above. */
 @media(max-width:900px), (pointer:coarse) and (max-width:1024px){
   .lena-master-banner{
     height:clamp(315px,82vw,375px)!important;
@@ -1210,15 +1219,124 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
     border-radius:20px!important;
   }
   .lena-master-banner>img{
-    display:block!important;width:100%!important;height:100%!important;max-width:none!important;
-    object-fit:cover!important;object-position:left 46%!important;transform:none!important;filter:none!important;
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    object-fit:cover!important;
+    object-position:left 46%!important;
+    transform:none!important;
+    filter:none!important;
     image-rendering:auto!important;
   }
 }
 @media(max-width:430px){
-  .lena-master-banner{height:335px!important;min-height:335px!important}
-  .lena-master-banner>img{object-position:left 45%!important}
+  .lena-master-banner{
+    height:335px!important;
+    min-height:335px!important;
+  }
+  .lena-master-banner>img{
+    object-position:left 45%!important;
+  }
 }
 @media(max-width:380px){
-  .lena-master-banner{height:315px!important;min-height:315px!important}
+  .lena-master-banner{
+    height:315px!important;
+    min-height:315px!important;
+  }
+}
+
+/* ===== LÉNA LIVE HERO v2: NO BAKED TEXT, NO BLUR ===== */
+.mobile-banner-controls{display:none!important}
+.lena-master-banner{display:none!important}
+.what-cook-home{width:min(100%,1540px)!important;margin:0 auto!important;padding:10px 8px 5px!important}
+.lena-live-hero{
+  display:grid;grid-template-columns:minmax(330px,43%) 1fr;min-height:430px;overflow:hidden;
+  border:1px solid #584c41;border-radius:26px;
+  background:
+    radial-gradient(circle at 82% 12%,rgba(223,71,125,.13),transparent 30%),
+    linear-gradient(135deg,#2b241f,#191817 70%,#141514);
+  box-shadow:0 18px 44px rgba(0,0,0,.42)
+}
+.lena-live-photo{position:relative;min-height:430px;overflow:hidden;background:#141312}
+.lena-live-photo img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:17% 50%;
+  filter:none!important;image-rendering:auto!important
+}
+.lena-live-photo::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.02) 62%,rgba(20,17,14,.52) 100%)
+}
+.lena-live-motto{
+  position:absolute;z-index:2;left:22px;top:24px;color:#fff3e6;
+  font:800 15px/1.5 Georgia,serif;letter-spacing:.035em;text-shadow:0 2px 8px rgba(0,0,0,.65)
+}
+.lena-live-panel{
+  padding:30px clamp(24px,3.6vw,50px) 26px;display:flex;flex-direction:column;justify-content:center;min-width:0
+}
+.lena-live-title-row{display:flex;align-items:center;gap:14px}
+.lena-live-chef-icon,.lena-live-main-btn svg,.lena-live-quick-grid svg{
+  fill:none;stroke:currentColor;stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round
+}
+.lena-live-chef-icon{width:52px;height:52px;color:#fff;flex:0 0 52px}
+.lena-live-title{
+  color:#fff6e9;font-family:Georgia,"Times New Roman",serif!important;
+  font-size:clamp(34px,4vw,60px);line-height:1.02;font-weight:700;letter-spacing:-.035em
+}
+.lena-live-rule{height:5px;width:min(76%,520px);margin:10px 0 14px;border-radius:999px;background:linear-gradient(90deg,#df477d,#c9346d 75%,transparent)}
+.lena-live-copy{margin:0 0 17px;color:#eee5d9;font-size:clamp(15px,1.5vw,22px);line-height:1.45;max-width:760px}
+.lena-live-prompt{
+  display:flex;gap:12px;align-items:flex-start;background:#f7eee6;color:#726b65;
+  border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:15px 18px;
+  font-size:clamp(13px,1.25vw,18px);line-height:1.35;box-shadow:0 8px 22px rgba(0,0,0,.14)
+}
+.lena-live-main-btn{
+  margin-top:16px;width:100%;min-height:64px;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;
+  background:linear-gradient(180deg,#e34d81,#bd2e63)!important;color:#fff!important;
+  display:grid;grid-template-columns:38px 1fr 26px;align-items:center;gap:10px;padding:0 22px!important;
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-size:clamp(17px,1.55vw,23px);font-weight:850!important;
+  box-shadow:0 10px 28px rgba(160,34,84,.32),inset 0 1px 0 rgba(255,255,255,.27)!important
+}
+.lena-live-main-btn svg{width:34px;height:34px}.lena-live-main-btn .lena-live-arrow{width:24px;height:24px;stroke-width:2.6}
+.lena-live-quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:18px}
+.lena-live-quick-grid button{
+  min-width:0;border:0!important;background:transparent!important;color:#fff!important;
+  display:grid;justify-items:center;align-content:start;gap:6px;padding:6px 3px!important;
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  box-shadow:none!important;border-radius:14px!important
+}
+.lena-live-quick-grid button:hover{background:rgba(255,255,255,.045)!important}
+.lena-live-quick-grid button:active{background:rgba(223,71,125,.09)!important}
+.lena-live-quick-grid svg{width:37px;height:37px}
+.lena-live-quick-grid span{font-size:13px;line-height:1.18;font-weight:500;text-align:center;color:#f2e9df}
+@media(max-width:720px){
+  .what-cook-home{
+    width:100vw!important;max-width:none!important;margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;
+    padding:8px 6px 3px!important
+  }
+  .lena-live-hero{grid-template-columns:1fr;min-height:0;border-radius:20px}
+  .lena-live-photo{min-height:255px}
+  .lena-live-photo img{object-position:10% 42%}
+  .lena-live-photo::after{background:linear-gradient(180deg,rgba(0,0,0,0) 58%,rgba(20,17,14,.45) 100%)}
+  .lena-live-motto{left:15px;top:15px;font-size:12px}
+  .lena-live-panel{padding:18px 15px 17px}
+  .lena-live-title-row{gap:9px}
+  .lena-live-chef-icon{width:36px;height:36px;flex-basis:36px}
+  .lena-live-title{font-size:31px}
+  .lena-live-rule{height:4px;margin:7px 0 10px;width:82%}
+  .lena-live-copy{font-size:13px;margin-bottom:11px}
+  .lena-live-prompt{padding:11px 12px;border-radius:14px;font-size:12px;gap:8px}
+  .lena-live-main-btn{min-height:55px;margin-top:12px;grid-template-columns:31px 1fr 22px;padding:0 15px!important;font-size:15px}
+  .lena-live-main-btn svg{width:29px;height:29px}
+  .lena-live-main-btn .lena-live-arrow{width:21px;height:21px}
+  .lena-live-quick-grid{gap:2px;margin-top:13px}
+  .lena-live-quick-grid svg{width:29px;height:29px}
+  .lena-live-quick-grid span{font-size:10px}
+}
+@media(max-width:390px){
+  .lena-live-photo{min-height:230px}
+  .lena-live-title{font-size:28px}
+  .lena-live-main-btn{font-size:14px}
+  .lena-live-quick-grid span{font-size:9px}
 }
