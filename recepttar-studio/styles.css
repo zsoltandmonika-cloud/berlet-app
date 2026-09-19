@@ -944,3 +944,28 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   :where(.primary-btn,.studio-main-action,.photo-btn,.feedback-save-btn,.cook-nav-btn.primary,.what-cook-pick){min-height:48px!important}
   .dialog-card,.studio-shell{border-radius:20px!important}
 }
+
+/* ===== FINAL MASTER BANNER: ACTIVE IMAGE HOTSPOTS ===== */
+.lena-master-banner{position:relative!important}
+.lena-master-banner img{pointer-events:none}
+.banner-hotspot{
+ position:absolute;z-index:5;border:0!important;background:transparent!important;padding:0!important;margin:0!important;
+ box-shadow:none!important;border-radius:18px!important;cursor:pointer;-webkit-tap-highlight-color:transparent
+}
+.banner-hotspot:hover{background:rgba(255,255,255,.045)!important}
+.banner-hotspot:active{background:rgba(222,70,124,.10)!important;transform:scale(.985)}
+.banner-hotspot:focus-visible{outline:3px solid rgba(231,84,137,.88)!important;outline-offset:2px}
+.banner-hotspot-main{left:43.25%;top:46.3%;width:30.1%;height:18.0%;border-radius:999px!important}
+.banner-hotspot-stock{left:42.7%;top:66.7%;width:7.4%;height:28.5%}
+.banner-hotspot-time{left:50.0%;top:66.7%;width:7.5%;height:28.5%}
+.banner-hotspot-avoid{left:57.4%;top:66.7%;width:7.5%;height:28.5%}
+.banner-hotspot-personal{left:64.8%;top:66.2%;width:10.6%;height:29.0%}
+.fridge-scan-box.banner-target-pulse{
+ animation:bannerTargetPulse 1.35s ease-out 1!important;
+ box-shadow:0 0 0 3px rgba(222,70,124,.75),0 0 28px rgba(222,70,124,.30)!important
+}
+@keyframes bannerTargetPulse{
+ 0%{transform:scale(.985);filter:brightness(1)}
+ 45%{transform:scale(1.01);filter:brightness(1.12)}
+ 100%{transform:scale(1);filter:brightness(1)}
+}
