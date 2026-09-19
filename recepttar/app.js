@@ -889,12 +889,15 @@ function renderIngredientList(id,ingredients){
 function renderReadableFor(id){
  const d=getReadable(id),info=statusInfo(d.status),badge=$("#readableStatusBadge");
  if(badge){badge.textContent=info[0];badge.className="status-badge "+info[1]}
- const valid=d.status==="verified"&&Array.isArray(d.ingredients)&&d.ingredients.length>0&&Array.isArray(d.steps)&&d.steps.length>0;
- $("#readableMode").hidden=!valid;
- $("#cookModeBtn").hidden=!valid;
- $("#prepareReadable").textContent=valid?"✏️ Recept elkészítése javítása":"✏️ Recept elkészítése";
+ const hasData=Array.isArray(d.ingredients)&&d.ingredients.length>0&&Array.isArray(d.steps)&&d.steps.length>0;
+ const readable=(d.status==="verified"||d.status==="review")&&hasData;
+ const verified=d.status==="verified"&&hasData;
+ $("#readableMode").hidden=!readable;
+ $("#cookModeBtn").hidden=!verified;
+ $("#prepareReadable").textContent=d.status==="unprocessed"?"⚡ Feldolgozás":d.status==="review"?"✏️ Ellenőrzés / javítás":"✏️ Recept javítása";
+ $("#prepareReadable").classList.toggle("force-process",d.status==="unprocessed");
  $("#ingredientsList").innerHTML="";$("#stepsList").innerHTML="";$("#notesList").innerHTML="";$("#notesSection").hidden=true;
- if(!valid){setMode("original");return}
+ if(!readable){setMode("original");return}
  renderIngredientList(id,d.ingredients);
  d.steps.forEach(step=>{const li=document.createElement("li");li.textContent=step;$("#stepsList").appendChild(li)});
  const notes=Array.isArray(d.notes)?d.notes:[];
@@ -1127,6 +1130,65 @@ async function generateWhatCook(){
  finally{busy(false)}
 }
 
+
+function readableVisionPrompt(r){
+ return [
+  "Te Léna vagy, a Léna Recepttár receptfeldolgozó asszisztense.",
+  "A mellékelt képen egy receptkártya látható. A képen ténylegesen olvasható receptet alakítsd strukturált adattá.",
+  "NE találj ki új hozzávalót, mennyiséget vagy elkészítési lépést. Ha egy rész nem olvasható biztosan, inkább hagyd ki.",
+  "A hozzávalókat külön sorokban, mennyiséggel együtt add meg. Az elkészítést logikus, számozás nélküli lépésekre bontsd.",
+  "A megjegyzésekbe csak a képen szereplő tippek/opciók kerüljenek.",
+  "A recept címe kontextusként: "+r.title+".",
+  "Válaszolj kizárólag érvényes JSON-nal, markdown nélkül ebben a sémában:",
+  '{"ingredients":["..."],"steps":["..."],"notes":["..."]}'
+ ].join("\n")
+}
+async function recipeImageFileForVision(r){
+ if(!r||r.mime==="application/pdf")throw new Error("PDF automatikus feldolgozása még nem támogatott.");
+ let src=r.file;
+ if(r.central&&r.heroUrl)src=r.heroUrl;
+ if(!src)throw new Error("Ehhez a recepthez nincs feldolgozható kép.");
+ const res=await fetch(src);
+ if(!res.ok)throw new Error("A receptkép nem tölthető be.");
+ const blob=await res.blob();
+ return new File([blob],(r.title||"recept")+".jpg",{type:blob.type||"image/jpeg"})
+}
+function cleanReadableVision(v){
+ if(!v||typeof v!=="object")throw new Error("A feldolgozás válasza nem értelmezhető.");
+ const ingredients=Array.isArray(v.ingredients)?v.ingredients.map(String).map(s=>s.trim()).filter(Boolean):[];
+ const steps=Array.isArray(v.steps)?v.steps.map(String).map(s=>s.trim()).filter(Boolean):[];
+ const notes=Array.isArray(v.notes)?v.notes.map(String).map(s=>s.trim()).filter(Boolean):[];
+ if(ingredients.length<2||steps.length<2)throw new Error("A képről nem sikerült elég receptadatot kiolvasni.");
+ return{ingredients,steps,notes}
+}
+async function forceReadableProcessing(){
+ if(!currentId)return;
+ const r=getRecipe(currentId);if(!r)return;
+ if(r.mime==="application/pdf"){alert("Ehhez most a képes receptfeldolgozás működik. A PDF-ekhez külön feldolgozást teszek majd.");openReadableEditor();return}
+ if(!puterAvailable()){alert("Az automatikus feldolgozáshoz most nem érhető el az AI. Megnyitom a kézi szerkesztőt.");openReadableEditor();return}
+ busy(true,"⚡ Léna feldolgozza a receptkártyát…");
+ try{
+   const file=await recipeImageFileForVision(r);
+   let resp;
+   try{resp=await puter.ai.chat(readableVisionPrompt(r),file,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+   catch(first){console.warn("Readable vision preferred model fallback",first);resp=await puter.ai.chat(readableVisionPrompt(r),file,{normalize:true})}
+   const out=cleanReadableVision(parseRecipeJson(puterText(resp)));
+   setReadable(currentId,{status:"review",ingredients:out.ingredients,steps:out.steps,notes:out.notes,source:"vision_force_v1",updatedAt:new Date().toISOString()});
+   renderReadableFor(currentId);setMode("readable");
+   toast("⚡ Feldolgozva. Nézd át, majd jelöld Ellenőrzöttnek.");
+ }catch(e){
+   console.error("Recept feldolgozás hiba",e);
+   alert("A recept automatikus feldolgozása most nem sikerült. Megnyitom a kézi szerkesztőt.");
+   openReadableEditor();
+ }finally{busy(false)}
+}
+function handlePrepareReadable(){
+ if(!currentId)return;
+ const d=getReadable(currentId);
+ if((d.status||"unprocessed")==="unprocessed")forceReadableProcessing();
+ else openReadableEditor()
+}
+
 function openReadableEditor(){
  if(!currentId)return;const d=getReadable(currentId);
  $("#structuredStatus").value=d.status||"unprocessed";
@@ -1162,7 +1224,7 @@ $("#bannerPersonal").onclick=openWhatCook;
 $("#closeWhatCook").onclick=()=>$("#whatCookDialog").close();$("#generateWhatCook").onclick=generateWhatCook;$("#whatCookDialog").querySelectorAll("[data-what]").forEach(b=>b.onclick=()=>{$("#whatCookPrompt").value=b.dataset.what;generateWhatCook()});
 $("#feedbackStars").querySelectorAll("button").forEach(b=>b.onclick=()=>setFeedbackRating(Number(b.dataset.rating)));$("#saveFeedback").onclick=saveCurrentFeedback;
 $("#search").oninput=renderHome;$("#clearSearch").onclick=()=>{$("#search").value="";renderHome()};$("#favFilter").onclick=()=>{favoritesOnly=!favoritesOnly;renderHome()};
-$("#prepareReadable").onclick=openReadableEditor;
+$("#prepareReadable").onclick=handlePrepareReadable;
 $("#fontMinus").onclick=()=>changeReadableFont(-1);
 $("#fontPlus").onclick=()=>changeReadableFont(1);
 $("#resetChecks").onclick=resetIngredientChecks;

@@ -1700,3 +1700,11 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   .health-radar-export b{font-size:13px}
   .health-radar-export em{font-size:8px;padding:4px 6px}
 }
+
+/* ===== FORCE RECIPE PROCESSING ===== */
+.status-edit-btn.force-process{
+  border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;
+  background:linear-gradient(180deg,#dc4a7c 0%,#bf2f65 100%)!important;color:#fff!important;
+  font-weight:850!important;box-shadow:0 8px 22px rgba(161,42,88,.24),inset 0 1px 0 rgba(255,255,255,.22)!important
+}
+.status-edit-btn.force-process:active{transform:translateY(1px)}
