@@ -7,7 +7,7 @@
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css?v=40">
+<link rel="stylesheet" href="styles.css?v=41">
 </head>
 <body>
 <header class="app-header">
@@ -60,7 +60,10 @@
 
 <main id="recipeView" hidden>
   <section class="recipe-toolbar">
-    <button id="homeBtn" class="nav-btn">🏠 Főoldal</button>
+    <button id="homeBtn" class="nav-btn recipe-home-standard" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>
+      <span>Home</span>
+    </button>
     <button id="backBtn" class="nav-btn">← Vissza</button>
     <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
     <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
@@ -87,6 +90,11 @@
       <span id="readableStatusBadge" class="status-badge status-unprocessed">○ Nincs feldolgozva</span>
       <button id="prepareReadable" class="status-edit-btn">✏️ Recept elkészítése</button>
     </div>
+    <button id="healthRadarExportBtn" type="button" class="health-radar-export" title="Jövőbeli funkció: recept export HealthRadarba">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27S5 21 5 12.5C5 8.5 8 6 11.5 6c2.2 0 3.8 1 4.5 2.6C16.7 7 18.3 6 20.5 6 24 6 27 8.5 27 12.5 27 21 16 27 16 27Z"/><path d="M10 16h4l2-5 3 9 2-4h3"/></svg>
+      <span><b>Export to HealthRadar</b><small>Future feature · később aktiváljuk</small></span>
+      <em>HAMAROSAN</em>
+    </button>
   </section>
   <section id="originalPanel" class="original-panel">
     <img id="recipeImage" class="zoomable-recipe-image" alt="" title="Kattints a teljes képernyős nézethez">
