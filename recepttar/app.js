@@ -298,7 +298,7 @@ function studioAiPrompt(userText,currentRecipe=null){
  const categories=allCategories().join(", ");
  const schema='{"title":"...","category":"...","servings":"4 fő","time":"30 perc","difficulty":"Könnyű","ingredients":["..."],"steps":["..."],"notes":["..."]}';
  const taste=tasteContextText();
- let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. A recept CÍME legyen étvágygerjesztő, konkrét és 3–7 szavas: nevezze meg a fő alapanyagot ÉS az ízvilágot/elkészítést/mártást. Tilos az egyszavas vagy semmitmondó cím, például: 'Csirkés', 'Zöldséges', 'Tésztás'. Jó cím például: 'Magyaros tejfölös-paprikás csirkemellragu', 'Krémes fokhagymás-gombás penne'. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\nSAJÁT ÍZLÉSPROFIL (jelzés, nem merev szabály):\n"+taste+"\n\n";
+ let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Alapértelmezésben 4 főre tervezz, kivéve ha a felhasználó más adagszámot kér. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. A recept CÍME legyen étvágygerjesztő, konkrét és 3–7 szavas: nevezze meg a fő alapanyagot ÉS az ízvilágot/elkészítést/mártást. Tilos az egyszavas vagy semmitmondó cím, például: 'Csirkés', 'Zöldséges', 'Tésztás'. Jó cím például: 'Magyaros tejfölös-paprikás csirkemellragu', 'Krémes fokhagymás-gombás penne'. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\nSAJÁT ÍZLÉSPROFIL (jelzés, nem merev szabály):\n"+taste+"\n\n";
  if(currentRecipe)p+="Jelenlegi recept:\n"+JSON.stringify(currentRecipe)+"\n\nMódosítási kérés:\n"+userText+"\n\nA teljes frissített receptet add vissza.";
  else p+="Felhasználói kérés:\n"+userText;
  return p
@@ -866,6 +866,7 @@ function whatCookPromptText(userText){
  return [
   "Te Léna vagy, Zsolt és Mónika digitális receptkönyvének konyhai asszisztense.",
   "Adj pontosan 3, egymástól érdemben különböző vacsora/étel ötletet a felhasználó aktuális kérésére.",
+  "Alapértelmezésben 4 főre tervezz. Új ötletnél a prompt mezőben szerepeljen, hogy 4 főre készüljön, kivéve ha a felhasználó más adagszámot kér.",
   "Vedd figyelembe a saját értékeléseket és megjegyzéseket, de ne kezeld őket merev tiltásként. Lehetőleg ne ismételd a közelmúltban főzött ételeket, ha van jó alternatíva.",
   "Ha a meglévő recepttárból ajánlasz valamit, az existingTitle mezőben PONTOSAN a katalógusban szereplő címet add. Új ötletnél existingTitle legyen üres.",
   "A prompt mező legyen rövid magyar mondat, amelyből a Recept Studio teljes receptet tud generálni.",
@@ -902,6 +903,20 @@ function renderWhatCookContext(){
 function openWhatCook(){
  renderWhatCookContext();$("#whatCookResults").innerHTML="";$("#whatCookDialog").showModal();setTimeout(()=>$("#whatCookPrompt").focus(),80)
 }
+function openWhatCookWith(text=""){
+ openWhatCook();
+ if(text){$("#whatCookPrompt").value=text;setTimeout(()=>{$("#whatCookPrompt").focus();$("#whatCookPrompt").setSelectionRange($("#whatCookPrompt").value.length,$("#whatCookPrompt").value.length)},100)}
+}
+function openStudioStock(){
+ openStudio();
+ setTimeout(()=>{
+   const box=document.querySelector(".fridge-scan-box");
+   box?.scrollIntoView({behavior:"smooth",block:"start"});
+   box?.classList.add("banner-target-pulse");
+   setTimeout(()=>box?.classList.remove("banner-target-pulse"),1400);
+ },120)
+}
+
 function renderWhatCookIdeas(){
  const box=$("#whatCookResults");box.innerHTML="";
  whatCookIdeas.forEach((idea,i)=>{
@@ -917,7 +932,7 @@ function renderWhatCookIdeas(){
    btn.onclick=()=>{
      $("#whatCookDialog").close();
      if(existing){openRecipe(existing.id,true);return}
-     openStudio();$("#studioPrompt").value=idea.prompt||("Készíts teljes receptet ehhez: "+idea.title+". "+idea.why);studioGenerate()
+     openStudio();const p0=idea.prompt||("Készíts teljes receptet ehhez: "+idea.title+". "+idea.why);$("#studioPrompt").value=/\b\d+\s*(fő|adag|személy)/i.test(p0)?p0:(p0+" 4 főre.");studioGenerate()
    };
    copy.append(h,why,meta,btn);card.append(num,copy);box.appendChild(card)
  })
@@ -960,7 +975,12 @@ function clearStructuredOverride(){
  if(!currentId)return;if(!confirm("Töröljük ezen a recepten a helyi strukturált javítást?"))return;clearReadableLocal(currentId);$("#structuredDialog").close();renderReadableFor(currentId);toast("Helyi javítás törölve.")
 }
 
-$("#whatCookBtn").onclick=openWhatCook;$("#closeWhatCook").onclick=()=>$("#whatCookDialog").close();$("#generateWhatCook").onclick=generateWhatCook;$("#whatCookDialog").querySelectorAll("[data-what]").forEach(b=>b.onclick=()=>{$("#whatCookPrompt").value=b.dataset.what;generateWhatCook()});
+$("#whatCookBtn").onclick=openWhatCook;
+$("#bannerHomeStock").onclick=openStudioStock;
+$("#bannerTime").onclick=()=>openWhatCookWith("Kb. 30 percünk van, 4 főre szeretnénk valamit. ");
+$("#bannerAvoid").onclick=()=>openWhatCookWith("4 főre főzünk. Ma kerüljük: ");
+$("#bannerPersonal").onclick=openWhatCook;
+$("#closeWhatCook").onclick=()=>$("#whatCookDialog").close();$("#generateWhatCook").onclick=generateWhatCook;$("#whatCookDialog").querySelectorAll("[data-what]").forEach(b=>b.onclick=()=>{$("#whatCookPrompt").value=b.dataset.what;generateWhatCook()});
 $("#feedbackStars").querySelectorAll("button").forEach(b=>b.onclick=()=>setFeedbackRating(Number(b.dataset.rating)));$("#saveFeedback").onclick=saveCurrentFeedback;
 $("#search").oninput=renderHome;$("#clearSearch").onclick=()=>{$("#search").value="";renderHome()};$("#favFilter").onclick=()=>{favoritesOnly=!favoritesOnly;renderHome()};
 $("#prepareReadable").onclick=openReadableEditor;
