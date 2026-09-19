@@ -1207,3 +1207,41 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   image-rendering:auto!important;
   backface-visibility:hidden;
 }
+
+/* ===== FINAL MOBILE HERO OVERRIDE =====
+   Keep the HQ PNG crisp, but restore the large portrait hero on phones.
+   This must stay AFTER the global crisp-image rule above. */
+@media(max-width:900px), (pointer:coarse) and (max-width:1024px){
+  .lena-master-banner{
+    height:clamp(315px,82vw,375px)!important;
+    min-height:315px!important;
+    overflow:hidden!important;
+    border-radius:20px!important;
+  }
+  .lena-master-banner>img{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    object-fit:cover!important;
+    object-position:left 46%!important;
+    transform:none!important;
+    filter:none!important;
+    image-rendering:auto!important;
+  }
+}
+@media(max-width:430px){
+  .lena-master-banner{
+    height:335px!important;
+    min-height:335px!important;
+  }
+  .lena-master-banner>img{
+    object-position:left 45%!important;
+  }
+}
+@media(max-width:380px){
+  .lena-master-banner{
+    height:315px!important;
+    min-height:315px!important;
+  }
+}
