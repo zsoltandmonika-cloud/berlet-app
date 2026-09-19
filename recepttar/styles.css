@@ -858,3 +858,89 @@ dialog::backdrop{background:rgba(5,6,5,.78)!important;backdrop-filter:blur(5px)}
 /* Rating card follows the same family. */
 .recipe-feedback{background:linear-gradient(145deg,#28251f,#1b1c19)!important;border-color:#48433b!important}
 #feedbackNote{background:#171816!important;border-color:#47443d!important;color:#f0e7da!important}
+
+/* ===== LÉNA KITCHEN: MENÜK + GOMBRENDSZER ===== */
+:where(.primary-btn,.studio-main-action,.photo-btn,.feedback-save-btn,.cook-nav-btn.primary,.what-cook-pick){
+  min-height:50px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;
+  background:linear-gradient(180deg,#dc4a7c 0%,#bf2f65 100%)!important;color:#fff!important;
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-weight:800!important;letter-spacing:-.012em!important;
+  box-shadow:0 8px 22px rgba(161,42,88,.28),inset 0 1px 0 rgba(255,255,255,.28)!important
+}
+:where(.primary-btn,.studio-main-action,.photo-btn,.feedback-save-btn,.cook-nav-btn.primary,.what-cook-pick):active{
+  transform:translateY(1px);filter:brightness(.98)
+}
+:where(.outline-btn,.mode,.nav-btn,.cook-nav-btn.secondary){
+  border:1px solid #4a4c44!important;border-radius:999px!important;background:#292b27!important;
+  color:#eee5d9!important;font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-weight:700!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important
+}
+.danger-btn{
+  border-radius:999px!important;background:#6f2935!important;border:1px solid #944151!important;color:#fff!important
+}
+.icon-close,.cook-close,.photo-lightbox-close{
+  border:1px solid #4b4d45!important;background:#292b27!important;color:#f3eadd!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.22)!important
+}
+dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
+  background:rgba(7,8,7,.78)!important;backdrop-filter:blur(5px)
+}
+#addDialog .dialog-card,#editDialog .dialog-card,#adminDialog .dialog-card,#syncDialog .dialog-card,
+#structuredDialog .dialog-card,#textDialog .dialog-card,.studio-shell{
+  background:
+    radial-gradient(circle at 92% 0%,rgba(194,106,122,.09),transparent 27%),
+    linear-gradient(145deg,#282822,#1e201d 70%)!important;
+  color:#f2e8db!important;border:1px solid #484940!important;border-radius:24px!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.50)!important
+}
+.dialog-card h2,.studio-shell h2{
+  color:#fff4e5!important;font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:700!important;letter-spacing:-.025em!important
+}
+.dialog-card h3{color:#eadfce!important;font-family:Georgia,"Times New Roman",serif!important}
+.field-label,.editor-help{color:#bcb3a8!important}
+.field-input,.dialog-card input:not([type=checkbox]),.dialog-card textarea,.dialog-card select,
+.studio-shell textarea,.studio-shell input:not([type=checkbox]),.studio-shell select{
+  background:#171917!important;border:1px solid #45483f!important;color:#f1e9dc!important;
+  border-radius:14px!important
+}
+.field-input:focus,.dialog-card textarea:focus,.studio-shell textarea:focus,.studio-shell input:focus{
+  outline:none!important;border-color:#c9687c!important;box-shadow:0 0 0 3px rgba(194,102,120,.14)!important
+}
+.local-note,.cloud-account-status,.studio-status,.fridge-scan-box,.studio-preview,.studio-refine{
+  background:#252722!important;border-color:#42453c!important;color:#bdb5aa!important
+}
+.studio-step span{
+  background:#34362f!important;border-color:#55574f!important;color:#ddd3c7!important
+}
+.studio-step.active span{
+  background:linear-gradient(180deg,#dc4a7c,#bf2f65)!important;border-color:#e26b91!important;color:#fff!important
+}
+.studio-step b{color:#d9d0c4!important}
+.fridge-scan-head b,.studio-exact-head b{color:#f1e7d9!important}
+.sync-choice{background:#242621!important;border-color:#42453b!important;color:#eee4d7!important}
+.sync-choice small{color:#9f988e!important}
+.deleted-list>*{background:#242621!important;border-color:#3f4239!important;color:#e5dccf!important}
+.cook-mode-dialog{background:#171817!important;color:#f2e9dc!important}
+.cook-shell{
+  background:radial-gradient(circle at 12% 4%,rgba(165,94,82,.11),transparent 28%),#171817!important
+}
+.cook-header h2{color:#fff2e2!important}.cook-eyebrow{color:#c5b7a7!important}
+.cook-step-card{background:#23241f!important;border-color:#44463d!important;box-shadow:0 12px 34px rgba(0,0,0,.28)!important}
+.cook-step-number{background:linear-gradient(180deg,#dc4a7c,#bf2f65)!important}
+.cook-step-text{color:#f4eadc!important}
+.cook-progress{background:#363831!important}.cook-progress span{background:linear-gradient(90deg,#c86c7d,#d54879)!important}
+.cook-timer-box{background:#262821!important;border-color:#47483f!important}
+.cook-timer-suggest{border-radius:999px!important;background:linear-gradient(180deg,#dc4a7c,#bf2f65)!important}
+.cook-timer-label{color:#c7b9a8!important}.cook-timer-display{color:#fff0df!important}
+.bottom-nav{font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important}
+.bottom-nav button{gap:4px!important}
+.bottom-nav button>svg{
+  width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round
+}
+.bottom-nav button small{font-size:11px!important;font-weight:700!important;letter-spacing:-.01em}
+.bottom-nav .nav-lena{color:#dc6f8e!important}
+@media(max-width:600px){
+  :where(.primary-btn,.studio-main-action,.photo-btn,.feedback-save-btn,.cook-nav-btn.primary,.what-cook-pick){min-height:48px!important}
+  .dialog-card,.studio-shell{border-radius:20px!important}
+}
