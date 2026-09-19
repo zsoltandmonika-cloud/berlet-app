@@ -350,6 +350,18 @@
     <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
   <p class="local-note">Az új recept először ezen az eszközön mentődik. Központi mentéssel ugyanaz a recept PC-n, telefonon és másik gépen is megnyitható.</p>
+
+  <section class="category-admin-box">
+    <div class="category-admin-head">
+      <div><h3>📚 Kategóriák kezelése</h3><p>Új kategóriát adhatsz hozzá, meglévőt átnevezhetsz vagy elrejthetsz. A recepteket továbbra is egyenként is átteheted másik kategóriába.</p></div>
+    </div>
+    <div class="category-add-row">
+      <input id="newCategoryName" class="field-input" autocomplete="off" placeholder="pl. Air fryer">
+      <button id="addCategoryBtn" type="button" class="primary-btn">＋ Hozzáadás</button>
+    </div>
+    <div id="categoryManagerList" class="category-manager-list"></div>
+  </section>
+
   <h3>Helyi / szinkronra váró receptek</h3>
   <div id="pendingList" class="deleted-list"></div>
   <h3>Törölt receptek</h3>
