@@ -1238,16 +1238,65 @@ function renderWhatCookIdeas(){
    copy.append(h,why,meta,btn);card.append(num,copy);box.appendChild(card)
  })
 }
+function whatCookFallbackIdeas(q){
+ const words=norm(q).split(/[^a-z0-9áéíóöőúüű]+/i).filter(w=>w.length>2);
+ const recent=new Set(recentCookHistory().slice(0,6).map(x=>x.id));
+ const ranked=allRecipes().filter(r=>!r.deleted).map(r=>{
+   const hay=norm((r.title||"")+" "+(r.category||""));let score=0;
+   words.forEach(w=>{if(hay.includes(w))score+=4});
+   if(recent.has(r.id))score-=2;
+   return{r,score}
+ }).sort((a,b)=>b.score-a.score||String(a.r.title).localeCompare(String(b.r.title),"hu"));
+ const picks=ranked.slice(0,3).map(({r})=>({
+   title:r.title,
+   why:"Meglévő recept a Recepttárból, jó kiindulás a megadott szempontokhoz.",
+   time:"",
+   existingTitle:r.title,
+   prompt:""
+ }));
+ const generics=[
+   {title:"Gyors serpenyős vacsora",why:"30–40 perces, rugalmasan alakítható ötlet 4 főre.",time:"30–40 perc",existingTitle:"",prompt:"Készíts egy gyors, serpenyős vacsorát 4 főre a megadott szempontok alapján: "+q},
+   {title:"Krémes egyedényes főétel",why:"Kevés mosogatással elkészíthető, családi adag.",time:"35–45 perc",existingTitle:"",prompt:"Készíts egy krémes, egyedényes főételt 4 főre a megadott szempontok alapján: "+q},
+   {title:"Sütőben sült családi fogás",why:"Egyszerű előkészítés, a többit elvégzi a sütő.",time:"45–60 perc",existingTitle:"",prompt:"Készíts egy sütőben sült családi fogást 4 főre a megadott szempontok alapján: "+q}
+ ];
+ while(picks.length<3)picks.push(generics[picks.length]);
+ return picks.slice(0,3)
+}
 async function generateWhatCook(){
  const q=$("#whatCookPrompt").value.trim();if(!q){alert("Írd le legalább röviden, mire vágytok vagy mi van otthon.");return}
- busy(true,"Léna összerak 4 személyre szabott ötletet…");
+ busy(true,"Léna összerak 3 ötletet 4 főre…");
  try{
-  if(!puterAvailable())throw new Error("A Puter AI nem érhető el.");
-  let resp;try{resp=await puter.ai.chat(whatCookPromptText(q),{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(whatCookPromptText(q),{normalize:true})}
-  whatCookIdeas=cleanWhatCookIdeas(parseRecipeJson(puterText(resp)));if(!whatCookIdeas.length)throw new Error("Nem érkezett használható ötlet.");
-  renderWhatCookIdeas()
- }catch(e){console.error(e);$("#whatCookResults").innerHTML='<div class="empty-admin">Most nem sikerült AI-javaslatot kérni. A Recept Studio ettől még működik.</div>'}
- finally{busy(false)}
+  let ideas=[];
+  if(puterAvailable()){
+   const req=whatCookPromptText(q);
+   let resp=null,lastErr=null;
+   try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+   catch(e1){
+    lastErr=e1;console.warn("WhatCook preferred model fallback",e1);
+    try{resp=await puter.ai.chat(req,{normalize:true})}
+    catch(e2){
+      lastErr=e2;console.warn("WhatCook generic fallback",e2);
+      if(puterCloudReady()){
+        try{
+          await ensurePuterSignIn(false);
+          resp=await puter.ai.chat(req,{normalize:true})
+        }catch(e3){lastErr=e3;console.warn("WhatCook auth retry failed",e3)}
+      }
+    }
+   }
+   if(resp){
+     try{ideas=cleanWhatCookIdeas(parseRecipeJson(puterText(resp)))}catch(parseErr){console.warn("WhatCook parse fallback",parseErr)}
+   }else if(lastErr){console.warn("WhatCook AI unavailable, using local fallback",lastErr)}
+  }
+  whatCookIdeas=ideas.length?ideas:whatCookFallbackIdeas(q);
+  renderWhatCookIdeas();
+  if(!ideas.length)toast("🧠 Léna helyi javaslatokat mutat. Az AI-kapcsolat most nem válaszolt.")
+ }catch(e){
+  console.error(e);
+  whatCookIdeas=whatCookFallbackIdeas(q);
+  renderWhatCookIdeas();
+  toast("🧠 Helyi javaslatokra váltottam.")
+ }finally{busy(false)}
 }
 
 
