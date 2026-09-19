@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f7f3ea">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body>
 <header class="app-header">
@@ -21,6 +21,13 @@
   <section class="search-section">
     <div class="searchbox"><span>🔎</span><input id="search" placeholder="Recept keresése…" autocomplete="off"><button id="clearSearch">×</button></div>
     <div id="chips" class="chips"></div>
+  </section>
+  <section class="what-cook-home">
+    <button id="whatCookBtn" type="button" class="what-cook-launch">
+      <span class="what-cook-icon">🧠</span>
+      <span><b>Léna, mit főzzünk?</b><small>3 személyre szabott ötlet abból, ami most számít</small></span>
+      <span class="what-cook-arrow">›</span>
+    </button>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
@@ -83,7 +90,48 @@
     </div>
     <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
   </section>
+  <section id="recipeFeedback" class="recipe-feedback">
+    <div class="feedback-title-row">
+      <div>
+        <div class="feedback-eyebrow">SAJÁT ÍZLÉSETEK</div>
+        <h2>⭐ Értékelés és megjegyzés</h2>
+      </div>
+      <span id="feedbackSaveState" class="feedback-save-state">helyi</span>
+    </div>
+    <div id="feedbackStars" class="feedback-stars" aria-label="Recept értékelése">
+      <button type="button" data-rating="1" aria-label="1 csillag">☆</button>
+      <button type="button" data-rating="2" aria-label="2 csillag">☆</button>
+      <button type="button" data-rating="3" aria-label="3 csillag">☆</button>
+      <button type="button" data-rating="4" aria-label="4 csillag">☆</button>
+      <button type="button" data-rating="5" aria-label="5 csillag">☆</button>
+    </div>
+    <textarea id="feedbackNote" rows="3" placeholder="pl. Nagyon jó, legközelebb több fokhagyma."></textarea>
+    <button id="saveFeedback" type="button" class="feedback-save-btn">💾 Értékelés mentése</button>
+    <p class="feedback-help">Léna ezt a későbbi receptjavaslatoknál és generálásnál ízlési jelzésként használja.</p>
+  </section>
 </main>
+
+<dialog id="whatCookDialog" class="what-cook-dialog">
+  <div class="what-cook-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="feedback-eyebrow">SZEMÉLYRE SZABOTT ÖTLETEK</div>
+        <h2>🧠 Léna, mit főzzünk?</h2>
+      </div>
+      <button id="closeWhatCook" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="what-cook-intro">Írd le röviden, mi van otthon, mit kellene elhasználni, mennyi időtök van, és mit ne ajánljak.</p>
+    <textarea id="whatCookPrompt" rows="4" placeholder="pl. Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta."></textarea>
+    <div class="what-cook-examples">
+      <button type="button" data-what="30 percünk van, valami gyors vacsora kell.">⏱ 30 perc</button>
+      <button type="button" data-what="Használjuk el, ami hamarosan megromolhat.">♻️ Használjuk el</button>
+      <button type="button" data-what="Ma valami könnyebb ételt szeretnénk.">🥗 Könnyebb</button>
+    </div>
+    <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 3 ötletet</button>
+    <div id="whatCookContext" class="what-cook-context"></div>
+    <div id="whatCookResults" class="what-cook-results"></div>
+  </div>
+</dialog>
 
 <dialog id="cookModeDialog" class="cook-mode-dialog">
   <div class="cook-shell">
@@ -394,6 +442,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=18"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>

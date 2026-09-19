@@ -435,3 +435,36 @@ html,body{
 .ingredient-row.checked span{color:#58705d;text-decoration:line-through;text-decoration-thickness:1.5px}
 .ingredient-row:not(.checked){box-shadow:inset 4px 0 0 transparent}
 .ingredient-row:active{transform:scale(.995)}
+
+/* ===== SAJÁT ÉRTÉKELÉS + "LÉNA, MIT FŐZZÜNK?" ===== */
+.what-cook-home{padding:9px 10px 1px}
+.what-cook-launch{
+ width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;
+ border:1px solid #cdbb9f;border-radius:18px;padding:14px 15px;
+ background:linear-gradient(135deg,#f0dfc8,#e4d3bc 52%,#dce5d8);color:#35493e;
+ box-shadow:0 8px 20px rgba(78,58,36,.10)
+}
+.what-cook-icon{font-size:29px}.what-cook-launch b{display:block;font:700 21px Georgia,serif}.what-cook-launch small{display:block;margin-top:3px;color:#756b5d;font-size:12px;font-weight:750}.what-cook-arrow{font-size:30px;color:#6b796d}
+.recipe-feedback{
+ margin:13px 10px 18px;padding:15px;border:1px solid #d5c5ae;border-radius:18px;
+ background:linear-gradient(145deg,#f4ead9,#eee0ca);box-shadow:0 8px 22px rgba(76,58,37,.07)
+}
+.feedback-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.feedback-title-row h2{font:700 22px Georgia,serif;color:#405448;margin:3px 0 0}.feedback-eyebrow{font-size:10px;font-weight:950;letter-spacing:.13em;color:#7c705f}
+.feedback-save-state{white-space:nowrap;font-size:10px;font-weight:900;color:#637166;border:1px solid #cdbfa9;background:#f8f0e4;border-radius:999px;padding:5px 8px}
+.feedback-stars{display:flex;gap:3px;margin:12px 0 10px}.feedback-stars button{border:0;background:transparent;padding:1px;font-size:34px;line-height:1;color:#b49148}.feedback-stars button.active{color:#b47b20}
+#feedbackNote{width:100%;border:1px solid #d6c6af;border-radius:12px;padding:11px 12px;background:#fff9ef;resize:vertical;line-height:1.45}
+.feedback-save-btn{width:100%;min-height:46px;margin-top:9px;border:0;border-radius:12px;background:#536d58;color:#fff;font-weight:900}
+.feedback-help{margin:8px 2px 0;font-size:11px;color:#756b5d;line-height:1.4}
+.what-cook-dialog{width:min(94vw,720px);max-height:92dvh;border:0;padding:0;background:transparent}
+.what-cook-dialog::backdrop{background:rgba(39,32,24,.62);backdrop-filter:blur(3px)}
+.what-cook-shell{max-height:92dvh;overflow:auto;padding:18px;border:1px solid #d2c1a9;border-radius:20px;background:#f7efe2;box-shadow:0 24px 65px rgba(35,28,20,.28)}
+.what-cook-shell h2{margin:3px 0 0;font:700 27px Georgia,serif;color:#3a5043}.what-cook-intro{color:#756b5f;line-height:1.45}
+#whatCookPrompt{width:100%;border:1px solid #d4c3aa;border-radius:14px;padding:12px;background:#fffaf1;resize:vertical;line-height:1.45}
+.what-cook-examples{display:flex;gap:7px;overflow-x:auto;padding:9px 0 2px}.what-cook-examples button{white-space:nowrap;border:1px solid #d2c3ae;border-radius:999px;background:#efe5d6;color:#526255;padding:8px 10px;font-size:12px;font-weight:850}
+.what-cook-generate{width:100%;margin-top:10px;min-height:50px}
+.what-cook-context{margin:10px 0 0;padding:8px 10px;border-radius:10px;background:#ece3d5;color:#756b5f;font-size:11px;line-height:1.4}
+.what-cook-results{display:grid;gap:10px;margin-top:12px}
+.what-cook-card{display:grid;grid-template-columns:auto 1fr;gap:11px;border:1px solid #d7c7af;border-radius:16px;background:#fff9ee;padding:12px}
+.what-cook-num{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#58705d;color:#fff;font-weight:950}
+.what-cook-copy h3{margin:1px 0 5px;font:700 19px Georgia,serif;color:#394e42}.what-cook-copy p{margin:0;color:#655f55;font-size:13px;line-height:1.4}.what-cook-meta{margin:7px 0;color:#7a6955;font-size:12px;font-weight:850}.what-cook-pick{width:100%;min-height:43px;border:0;border-radius:11px;background:#49644f;color:#fff;font-weight:900}
+@media(min-width:760px){.recipe-feedback{margin-left:16px;margin-right:16px}.what-cook-home{padding-left:16px;padding-right:16px}}
