@@ -725,3 +725,45 @@ html,body{
   .what-cook-chef-title{font-size:28px}
   .what-cook-main-cta{font-size:14px}
 }
+
+/* ===== HERO LINE ICONS + TYPOGRAPHY ===== */
+.what-cook-main-cta{
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-weight:800!important;letter-spacing:-.015em!important;padding:0 18px 0 22px!important
+}
+.hero-cta-icon{
+  width:34px;height:34px;flex:0 0 34px;fill:none;stroke:currentColor;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round
+}
+.hero-cta-label{flex:1;text-align:center}
+.hero-cta-arrow{
+  width:25px;height:25px;flex:0 0 25px;fill:none;stroke:currentColor;stroke-width:2.5;
+  stroke-linecap:round;stroke-linejoin:round
+}
+.what-cook-feature-row{
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important
+}
+.what-cook-feature{
+  min-width:0;display:grid;justify-items:center;align-content:start;text-align:center;gap:7px
+}
+.what-cook-feature svg{
+  width:36px;height:36px;fill:none;stroke:#fff;stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.18))
+}
+.what-cook-feature small{
+  font-family:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,sans-serif!important;
+  font-size:13px!important;font-weight:500!important;letter-spacing:-.01em!important;line-height:1.18!important;
+  color:#f1e8dd!important
+}
+@media(max-width:720px){
+  .hero-cta-icon{width:29px;height:29px;flex-basis:29px}
+  .hero-cta-arrow{width:22px;height:22px;flex-basis:22px}
+  .what-cook-feature svg{width:29px;height:29px}
+  .what-cook-feature small{font-size:10px!important;line-height:1.16!important}
+}
+@media(max-width:390px){
+  .what-cook-main-cta{padding-left:15px!important;padding-right:12px!important}
+  .what-cook-feature-row{gap:2px!important}
+  .what-cook-feature svg{width:27px;height:27px}
+  .what-cook-feature small{font-size:9px!important}
+}
