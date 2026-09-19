@@ -1,0 +1,57 @@
+name: Update Lena banner HQ
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/update-lena-banner-hq.yml
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and verify HQ banner
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://1drv.ms/u/c/bc1ff24af37ea2b0/IQAZd7DyqjssTKwPJnXwedXMAWe8z8DMB4IRSrfsYYy1_0o?download=1' \
+            -o /tmp/lena-kitchen-banner.webp
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/lena-kitchen-banner.webp')
+          b=p.read_bytes()
+          assert len(b) > 150_000, f"Banner too small: {len(b)} bytes"
+          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', f"Not WebP: {b[:16]!r}"
+          print("HQ banner verified:", len(b), "bytes")
+          PY
+      - name: Publish HQ banner to preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p recepttar-studio/assets
+          cp /tmp/lena-kitchen-banner.webp recepttar-studio/assets/lena-kitchen-banner.webp
+          git add recepttar-studio/assets/lena-kitchen-banner.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "Replace Lena preview banner with HQ asset"
+            git push origin HEAD:main
+          fi
+      - name: Publish HQ banner to Studio feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/recipe-studio-v1
+          git checkout -B feature/recipe-studio-v1 origin/feature/recipe-studio-v1
+          mkdir -p recepttar/assets
+          cp /tmp/lena-kitchen-banner.webp recepttar/assets/lena-kitchen-banner.webp
+          git add recepttar/assets/lena-kitchen-banner.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "Replace Lena banner with HQ asset"
+            git push origin HEAD:feature/recipe-studio-v1
+          fi
