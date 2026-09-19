@@ -1157,3 +1157,39 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
   }
   .mobile-hero-cta{width:64%!important;max-width:250px!important;font-size:13px!important}
 }
+
+/* ===== S24 HERO FINE TUNE: FULL HEAD + MORE LEFT ARM ===== */
+@media(max-width:900px), (pointer:coarse) and (max-width:1024px){
+  .lena-master-banner{
+    height:clamp(300px,76vw,360px)!important;
+  }
+  .lena-master-banner img{
+    object-position:left center!important;
+    transform:none!important;
+    transform-origin:center!important;
+  }
+  .mobile-hero-cta{
+    width:58%!important;
+    max-width:225px!important;
+    min-height:48px!important;
+    grid-template-columns:25px 1fr 18px!important;
+    gap:6px!important;
+    padding:0 11px!important;
+    font-size:12.5px!important;
+  }
+  .mobile-hero-cta svg{width:24px!important;height:24px!important}
+  .mobile-hero-cta .mobile-hero-arrow{width:17px!important;height:17px!important}
+}
+@media(max-width:430px){
+  .lena-master-banner{height:315px!important}
+  .lena-master-banner img{
+    object-position:left center!important;
+    transform:none!important;
+  }
+  .mobile-hero-cta{
+    width:56%!important;
+    max-width:215px!important;
+    min-height:47px!important;
+    font-size:12px!important;
+  }
+}
