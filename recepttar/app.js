@@ -1,7 +1,7 @@
 const baseRecipes=window.LENA_RECIPES||[],baseCategories=window.LENA_CATEGORIES||[],baseReadable=window.LENA_READABLE||{};
 const $=s=>document.querySelector(s);
-const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="main",CLOUD_KEY_PREFIX="lena:recipe:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-local",DB_STORE="recipes";
-let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],sharedRecipes=[],sharedReadable={},selectedNewBlob=null,selectedNewPreviewUrl=null;
+const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="main",CLOUD_KEY_PREFIX="lena:recipe:",TASTE_KEY_PREFIX="lena:taste:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-local",DB_STORE="recipes";
+let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],sharedRecipes=[],sharedReadable={},tasteFeedback={},feedbackRating=0,selectedNewBlob=null,selectedNewPreviewUrl=null;
 function migrateCanonicalBaseState(){
   const flag="lena27:canonicalBaseMigration";
   if(localStorage.getItem(flag)==="1")return;
@@ -31,6 +31,62 @@ function isFav(id){return localStorage.getItem(keyFav(id))==="1"}function setFav
 function getText(id){return localStorage.getItem(keyText(id))||""}function setText(id,t){t.trim()?localStorage.setItem(keyText(id),t.trim()):localStorage.removeItem(keyText(id))}
 function getMeta(id){try{return JSON.parse(localStorage.getItem(keyMeta(id))||"{}")}catch(e){return{}}}function setMeta(id,m){localStorage.setItem(keyMeta(id),JSON.stringify(m))}
 function effective(r){const m=getMeta(r.id);return Object.assign({},r,{title:m.title||r.title,category:m.category||r.category,deleted:!!m.deleted})}
+function feedbackKey(id){return"lena:taste:local:"+id}
+function historyKey(){return"lena:taste:history"}
+function localFeedback(id){try{return JSON.parse(localStorage.getItem(feedbackKey(id))||"null")}catch(e){return null}}
+function getRecipeFeedback(id){return tasteFeedback[id]||localFeedback(id)||{rating:0,note:"",updatedAt:null}}
+async function loadTasteFeedback(){
+ const merged={};
+ for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i);if(!k||!k.startsWith("lena:taste:local:"))continue;
+   try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.id)merged[v.id]=v}catch(e){}
+ }
+ if(puterCloudReady()&&puter.auth.isSignedIn()){
+   try{
+     const rows=await puter.kv.list(TASTE_KEY_PREFIX+"*",true);
+     for(const row of rows){const v=row&&row.value;if(v&&v.id&&(v.rating||v.note))merged[String(v.id)]=v}
+   }catch(e){console.warn("Ízlésprofil felhőből nem tölthető",e)}
+ }
+ tasteFeedback=merged;return merged
+}
+function tasteContextText(){
+ const items=Object.values(tasteFeedback).concat(Object.keys(tasteFeedback).length?[]:allRecipes().map(r=>localFeedback(r.id)).filter(Boolean));
+ const seen=new Set(),lines=[];
+ items.sort((a,b)=>String(b.updatedAt||"").localeCompare(String(a.updatedAt||"")));
+ for(const f of items){
+   if(!f||seen.has(f.id)||(!f.rating&&!f.note))continue;seen.add(f.id);
+   const r=getRecipe(f.id),name=r?.title||f.title||"Recept";
+   lines.push("- "+name+": "+(f.rating?f.rating+"/5 csillag":"nincs csillag")+(f.note?" · Megjegyzés: "+f.note:""));
+   if(lines.length>=12)break
+ }
+ return lines.length?lines.join("\n"):"Még nincs elmentett saját értékelés."
+}
+function recentCookHistory(){
+ try{const a=JSON.parse(localStorage.getItem(historyKey())||"[]");return Array.isArray(a)?a:[]}catch(e){return[]}
+}
+function recentCookHistoryText(){
+ const a=recentCookHistory().slice(0,6);return a.length?a.map(x=>"- "+x.title+" ("+new Date(x.cookedAt).toLocaleDateString("hu-HU")+")").join("\n"):"Még nincs rögzített közelmúltbeli főzés."
+}
+function recordCookedRecipe(id){
+ const r=getRecipe(id);if(!r)return;let a=recentCookHistory().filter(x=>x.id!==id);a.unshift({id,title:r.title,cookedAt:new Date().toISOString()});a=a.slice(0,12);localStorage.setItem(historyKey(),JSON.stringify(a))
+}
+async function saveCurrentFeedback(){
+ if(!currentId)return;const r=getRecipe(currentId);if(!r)return;
+ const note=$("#feedbackNote").value.trim(),v={id:currentId,title:r.title,rating:feedbackRating,note,updatedAt:new Date().toISOString()};
+ localStorage.setItem(feedbackKey(currentId),JSON.stringify(v));tasteFeedback[currentId]=v;
+ $("#feedbackSaveState").textContent="✓ mentve helyben";
+ if(puterCloudReady()&&puter.auth.isSignedIn()){
+   try{await puter.kv.set(TASTE_KEY_PREFIX+currentId,v);$("#feedbackSaveState").textContent="☁ szinkronizálva"}catch(e){console.warn("Ízlésprofil felhőmentés hiba",e)}
+ }
+ toast("⭐ Saját értékelés elmentve.")
+}
+function renderRecipeFeedback(id){
+ const f=getRecipeFeedback(id);feedbackRating=Math.max(0,Math.min(5,Number(f.rating)||0));$("#feedbackNote").value=f.note||"";
+ $("#feedbackStars").querySelectorAll("button").forEach(b=>{const n=Number(b.dataset.rating);b.textContent=n<=feedbackRating?"★":"☆";b.classList.toggle("active",n<=feedbackRating)});
+ $("#feedbackSaveState").textContent=f.updatedAt?(puterCloudReady()&&puter.auth.isSignedIn()?"ízlésprofil":"helyi"):"nincs értékelve"
+}
+function setFeedbackRating(n){feedbackRating=n;$("#feedbackStars").querySelectorAll("button").forEach(b=>{const x=Number(b.dataset.rating);b.textContent=x<=n?"★":"☆";b.classList.toggle("active",x<=n)})}
+
 function norm(s){return(s||"").toLocaleLowerCase("hu").normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/\s+/g," ").trim()}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(()=>e.classList.remove("show"),2200)}
 function busy(on,text){$("#busyText").textContent=text||"Feldolgozás…";$("#busyOverlay").hidden=!on}
@@ -152,7 +208,7 @@ async function openRecipePhoto(){
 }
 function openRecipe(id,push){
  const r=getRecipe(id);if(!r||r.deleted){showHome(push);return}currentId=id;$("#homeView").hidden=true;$("#recipeView").hidden=false;$("#recipeCategory").textContent=r.category+(r.localCustom?" · helyi":r.central?" · ☁ központi":"");$("#recipeTitle").textContent=r.title;$("#favBtn").textContent=isFav(id)?"★":"☆";
- renderReadableFor(id);
+ renderReadableFor(id);renderRecipeFeedback(id);
  if(r.mime==="application/pdf"){$("#recipeImage").hidden=true;$("#recipeImageHint").hidden=true;$("#recipePdf").hidden=false;$("#recipePdf").src=r.file}else{$("#recipePdf").hidden=true;$("#recipeImage").hidden=false;$("#recipeImageHint").hidden=false;$("#recipeImage").src=r.file;$("#recipeImage").alt=r.title}
  setMode("original");if(push)history.pushState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));window.scrollTo({top:0,behavior:"instant"})
 }
@@ -241,7 +297,8 @@ function dataUrlToBlob(url){
 function studioAiPrompt(userText,currentRecipe=null){
  const categories=allCategories().join(", ");
  const schema='{"title":"...","category":"...","servings":"4 fő","time":"30 perc","difficulty":"Könnyű","ingredients":["..."],"steps":["..."],"notes":["..."]}';
- let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. A recept CÍME legyen étvágygerjesztő, konkrét és 3–7 szavas: nevezze meg a fő alapanyagot ÉS az ízvilágot/elkészítést/mártást. Tilos az egyszavas vagy semmitmondó cím, például: 'Csirkés', 'Zöldséges', 'Tésztás'. Jó cím például: 'Magyaros tejfölös-paprikás csirkemellragu', 'Krémes fokhagymás-gombás penne'. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\n";
+ const taste=tasteContextText();
+ let p="Te Léna vagy, a Léna Recepttár magyar receptasszisztense. Készíts pontos, hétköznapi konyhában megbízhatóan elkészíthető receptet. Tartsd meg a felhasználó által megadott mennyiségeket, adagokat és korlátozásokat. A mennyiségek legyenek konkrétak, az elkészítés sorrendhelyes, 4–9 lépés. A recept CÍME legyen étvágygerjesztő, konkrét és 3–7 szavas: nevezze meg a fő alapanyagot ÉS az ízvilágot/elkészítést/mártást. Tilos az egyszavas vagy semmitmondó cím, például: 'Csirkés', 'Zöldséges', 'Tésztás'. Jó cím például: 'Magyaros tejfölös-paprikás csirkemellragu', 'Krémes fokhagymás-gombás penne'. Válaszolj KIZÁRÓLAG érvényes JSON objektummal, markdown nélkül. Séma: "+schema+". Kategória lehetőleg ezek közül: "+categories+".\n\nSAJÁT ÍZLÉSPROFIL (jelzés, nem merev szabály):\n"+taste+"\n\n";
  if(currentRecipe)p+="Jelenlegi recept:\n"+JSON.stringify(currentRecipe)+"\n\nMódosítási kérés:\n"+userText+"\n\nA teljes frissített receptet add vissza.";
  else p+="Felhasználói kérés:\n"+userText;
  return p
@@ -777,7 +834,7 @@ async function openCookMode(){
 function closeCookMode(){releaseCookWakeLock();if($("#cookModeDialog").open)$("#cookModeDialog").close()}
 function cookNext(){
  if(cookState.index<cookState.steps.length-1){cookState.index++;renderCookStep();return}
- localStorage.removeItem(cookStepKey(cookState.id));closeCookMode();toast("👨‍🍳 Kész. Jó étvágyat!")
+ localStorage.removeItem(cookStepKey(cookState.id));recordCookedRecipe(cookState.id);closeCookMode();toast("👨‍🍳 Kész. Jó étvágyat!")
 }
 function cookPrev(){if(cookState.index>0){cookState.index--;renderCookStep()}}
 function updateCookTimer(){
@@ -800,6 +857,81 @@ function pauseCookTimer(){
 }
 function resetCookTimer(){
  cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;cookState.timerRemaining=0;cookState.timerSeconds=0;cookState.timerEnd=0;renderCookTimer()
+}
+
+
+let whatCookIdeas=[];
+function whatCookPromptText(userText){
+ const catalog=allRecipes().filter(r=>!r.deleted).slice(0,100).map(r=>r.title+" ["+r.category+"]").join("; ");
+ return [
+  "Te Léna vagy, Zsolt és Mónika digitális receptkönyvének konyhai asszisztense.",
+  "Adj pontosan 3, egymástól érdemben különböző vacsora/étel ötletet a felhasználó aktuális kérésére.",
+  "Vedd figyelembe a saját értékeléseket és megjegyzéseket, de ne kezeld őket merev tiltásként. Lehetőleg ne ismételd a közelmúltban főzött ételeket, ha van jó alternatíva.",
+  "Ha a meglévő recepttárból ajánlasz valamit, az existingTitle mezőben PONTOSAN a katalógusban szereplő címet add. Új ötletnél existingTitle legyen üres.",
+  "A prompt mező legyen rövid magyar mondat, amelyből a Recept Studio teljes receptet tud generálni.",
+  "Válasz kizárólag JSON legyen ebben a sémában:",
+  '{"ideas":[{"title":"...","why":"...","time":"...","existingTitle":"","prompt":"..."}]}',
+  "",
+  "AKTUÁLIS KÉRÉS:",
+  userText,
+  "",
+  "SAJÁT ÍZLÉSPROFIL:",
+  tasteContextText(),
+  "",
+  "MOSTANÁBAN FŐZÖTT:",
+  recentCookHistoryText(),
+  "",
+  "MEGLÉVŐ RECEPTTÁR:",
+  catalog
+ ].join("\n")
+}
+function cleanWhatCookIdeas(v){
+ const a=Array.isArray(v?.ideas)?v.ideas:[];
+ return a.slice(0,3).map(x=>({
+  title:String(x?.title||"").trim(),
+  why:String(x?.why||"").trim(),
+  time:String(x?.time||"").trim(),
+  existingTitle:String(x?.existingTitle||"").trim(),
+  prompt:String(x?.prompt||"").trim()
+ })).filter(x=>x.title)
+}
+function renderWhatCookContext(){
+ const rated=Object.values(tasteFeedback).filter(x=>x&&(x.rating||x.note)).length,hist=recentCookHistory().length;
+ $("#whatCookContext").textContent="Léna figyelembe veszi: "+rated+" saját értékelés · "+Math.min(hist,6)+" közelmúltbeli főzés · "+allRecipes().filter(r=>!r.deleted).length+" recept a tárban."
+}
+function openWhatCook(){
+ renderWhatCookContext();$("#whatCookResults").innerHTML="";$("#whatCookDialog").showModal();setTimeout(()=>$("#whatCookPrompt").focus(),80)
+}
+function renderWhatCookIdeas(){
+ const box=$("#whatCookResults");box.innerHTML="";
+ whatCookIdeas.forEach((idea,i)=>{
+   const card=document.createElement("article");card.className="what-cook-card";
+   const num=document.createElement("div");num.className="what-cook-num";num.textContent=i+1;
+   const copy=document.createElement("div");copy.className="what-cook-copy";
+   const h=document.createElement("h3");h.textContent=idea.title;
+   const why=document.createElement("p");why.textContent=idea.why||"Jó választás a megadott szempontok alapján.";
+   const meta=document.createElement("div");meta.className="what-cook-meta";meta.textContent=idea.time?"⏱ "+idea.time:"";
+   const btn=document.createElement("button");btn.type="button";btn.className="what-cook-pick";
+   const existing=idea.existingTitle?allRecipes().find(r=>norm(r.title)===norm(idea.existingTitle)&&!r.deleted):null;
+   btn.textContent=existing?"📖 Megnyitom":"✨ Készítsük el a receptet";
+   btn.onclick=()=>{
+     $("#whatCookDialog").close();
+     if(existing){openRecipe(existing.id,true);return}
+     openStudio();$("#studioPrompt").value=idea.prompt||("Készíts teljes receptet ehhez: "+idea.title+". "+idea.why);studioGenerate()
+   };
+   copy.append(h,why,meta,btn);card.append(num,copy);box.appendChild(card)
+ })
+}
+async function generateWhatCook(){
+ const q=$("#whatCookPrompt").value.trim();if(!q){alert("Írd le legalább röviden, mire vágytok vagy mi van otthon.");return}
+ busy(true,"Léna összerak 3 személyre szabott ötletet…");
+ try{
+  if(!puterAvailable())throw new Error("A Puter AI nem érhető el.");
+  let resp;try{resp=await puter.ai.chat(whatCookPromptText(q),{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(whatCookPromptText(q),{normalize:true})}
+  whatCookIdeas=cleanWhatCookIdeas(parseRecipeJson(puterText(resp)));if(!whatCookIdeas.length)throw new Error("Nem érkezett használható ötlet.");
+  renderWhatCookIdeas()
+ }catch(e){console.error(e);$("#whatCookResults").innerHTML='<div class="empty-admin">Most nem sikerült AI-javaslatot kérni. A Recept Studio ettől még működik.</div>'}
+ finally{busy(false)}
 }
 
 function openReadableEditor(){
@@ -828,6 +960,8 @@ function clearStructuredOverride(){
  if(!currentId)return;if(!confirm("Töröljük ezen a recepten a helyi strukturált javítást?"))return;clearReadableLocal(currentId);$("#structuredDialog").close();renderReadableFor(currentId);toast("Helyi javítás törölve.")
 }
 
+$("#whatCookBtn").onclick=openWhatCook;$("#closeWhatCook").onclick=()=>$("#whatCookDialog").close();$("#generateWhatCook").onclick=generateWhatCook;$("#whatCookDialog").querySelectorAll("[data-what]").forEach(b=>b.onclick=()=>{$("#whatCookPrompt").value=b.dataset.what;generateWhatCook()});
+$("#feedbackStars").querySelectorAll("button").forEach(b=>b.onclick=()=>setFeedbackRating(Number(b.dataset.rating)));$("#saveFeedback").onclick=saveCurrentFeedback;
 $("#search").oninput=renderHome;$("#clearSearch").onclick=()=>{$("#search").value="";renderHome()};$("#favFilter").onclick=()=>{favoritesOnly=!favoritesOnly;renderHome()};
 $("#prepareReadable").onclick=openReadableEditor;
 $("#fontMinus").onclick=()=>changeReadableFont(-1);
@@ -852,6 +986,6 @@ $("#studioPhotoInput").onchange=e=>studioHandlePhoto(e.target.files&&e.target.fi
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 let __lastCentralRefresh=Date.now();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true)}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=35").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=35").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
