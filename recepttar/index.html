@@ -7,7 +7,7 @@
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css?v=40">
+<link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
 <header class="app-header">
@@ -32,6 +32,20 @@
       <button id="bannerAvoid" type="button" class="banner-hotspot banner-hotspot-avoid" aria-label="Mit kerüljünk: add meg, mit ne ajánljak"></button>
       <button id="bannerPersonal" type="button" class="banner-hotspot banner-hotspot-personal" aria-label="Személyre szabott ötletek"></button>
     </div>
+  </section>
+  <section class="health-home">
+    <button id="healthBannerBtn" type="button" class="health-banner" aria-label="Health és Nutri Info">
+      <span class="health-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 41S7 31 7 18c0-6 4.4-10 10-10 3.4 0 5.8 1.6 7 4 1.2-2.4 3.6-4 7-4 5.6 0 10 4 10 10 0 13-17 23-17 23Z"/><path d="M15 24h6l3-7 4 13 3-6h4"/></svg>
+      </span>
+      <span class="health-banner-copy">
+        <small>HEALTH · NUTRI INFO</small>
+        <b>Mi van a tányéron?</b>
+        <span>Kalória · fehérje · szénhidrát · zsír · rost, adagonként</span>
+      </span>
+      <span class="health-banner-badge">AI becslés</span>
+      <span class="health-banner-arrow">›</span>
+    </button>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
@@ -91,6 +105,32 @@
         <h2>Megjegyzés</h2>
         <div id="notesList"></div>
       </section>
+      <section id="nutriCard" class="nutri-card" hidden>
+        <div class="nutri-card-head">
+          <div>
+            <div class="nutri-eyebrow">HEALTH · NUTRI INFO</div>
+            <h2>🥗 Becsült tápérték</h2>
+          </div>
+          <span id="nutriServings" class="nutri-serving-pill">4 fő</span>
+        </div>
+        <div id="nutriEmpty" class="nutri-empty">
+          <p>Még nincs tápérték-becslés ehhez a recepthez.</p>
+          <button id="nutriAnalyzeRecipe" type="button" class="primary-btn">✨ Nutri Info készítése</button>
+        </div>
+        <div id="nutriValues" hidden>
+          <div class="nutri-grid">
+            <div><strong id="nutriKcal">–</strong><small>kcal</small></div>
+            <div><strong id="nutriProtein">–</strong><small>fehérje</small></div>
+            <div><strong id="nutriCarbs">–</strong><small>szénhidrát</small></div>
+            <div><strong id="nutriFat">–</strong><small>zsír</small></div>
+            <div><strong id="nutriFiber">–</strong><small>rost</small></div>
+          </div>
+          <div class="nutri-footer">
+            <span>Adagonként · becsült érték</span>
+            <button id="nutriRefreshRecipe" type="button" class="outline-btn compact-btn">↻ Frissítés</button>
+          </div>
+        </div>
+      </section>
     </div>
     <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
   </section>
@@ -114,6 +154,36 @@
     <p class="feedback-help">Léna ezt a későbbi receptjavaslatoknál és generálásnál ízlési jelzésként használja.</p>
   </section>
 </main>
+
+<dialog id="healthDialog" class="health-dialog">
+  <div class="dialog-card health-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="health-kicker">HEALTH · NUTRI INFO</div>
+        <h2>🥗 Mi van a tányéron?</h2>
+      </div>
+      <button id="closeHealth" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="health-intro">Válassz egy strukturált receptet, és Léna készít egy adagonkénti tápérték-becslést.</p>
+    <label class="field-label" for="healthRecipeSelect">Recept</label>
+    <select id="healthRecipeSelect" class="field-input"></select>
+    <button id="healthAnalyzeBtn" type="button" class="primary-btn health-analyze-btn">✨ Nutri Info készítése</button>
+    <section id="healthResult" class="health-result" hidden>
+      <div class="health-result-title">
+        <b id="healthResultName"></b>
+        <span id="healthResultServing"></span>
+      </div>
+      <div class="nutri-grid health-grid">
+        <div><strong id="healthKcal">–</strong><small>kcal</small></div>
+        <div><strong id="healthProtein">–</strong><small>fehérje</small></div>
+        <div><strong id="healthCarbs">–</strong><small>szénhidrát</small></div>
+        <div><strong id="healthFat">–</strong><small>zsír</small></div>
+        <div><strong id="healthFiber">–</strong><small>rost</small></div>
+      </div>
+      <p class="health-disclaimer">Becsült tápérték az összetevők és mennyiségek alapján. Nem laboreredmény és nem orvosi étrendi számítás.</p>
+    </section>
+  </div>
+</dialog>
 
 <dialog id="whatCookDialog" class="what-cook-dialog">
   <div class="what-cook-shell">
@@ -446,6 +516,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="data.js?v=24"></script>
 <script src="readable-data.js?v=34"></script>
-<script src="app.js?v=49"></script>
+<script src="app.js?v=48"></script>
 </body>
 </html>
