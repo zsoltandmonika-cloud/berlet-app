@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171817">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=22">
+<link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
 <header class="app-header">
@@ -14,7 +14,7 @@
     <div class="eyebrow">ZSOLT & MÓNIKA</div>
     <div class="brand-title">Léna Recepttár</div>
   </div>
-  <button id="topHome" class="square-btn" title="Főoldal">🏠</button>
+  <button id="topHome" class="square-btn brand-line-icon" title="Főoldal" aria-label="Főoldal"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg></button>
 </header>
 
 <main id="homeView">
@@ -23,42 +23,10 @@
     <div id="chips" class="chips"></div>
   </section>
   <section class="what-cook-home">
-    <div class="what-cook-hero-full">
-      <div class="what-cook-hero-photo-wrap">
-        <img class="what-cook-hero-photo" src="assets/lena-chef-avatar.jpg" alt="Léna a konyhában">
-        <div class="what-cook-photo-motto">JÓ ÉTEL<br>JÓ HANGULAT<br>JOBB NAP ♡</div>
-      </div>
-      <div class="what-cook-hero-content">
-        <div class="what-cook-chef-title"><span class="chef-hat">♨</span> Léna, mit főzzünk?</div>
-        <div class="what-cook-title-line"></div>
-        <p>Mondd el, mi van otthon, mennyi időtök van, mihez van kedvetek. Én adok 3 személyre szabott receptötletet!</p>
-        <div class="what-cook-prompt-demo">✎ <span>Pl. „Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta.”</span></div>
-        <button id="whatCookBtn" type="button" class="what-cook-main-cta">
-          <svg class="hero-cta-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M15 34h18v7H15z"/><path d="M13 35V22c-5.2-1-8-5-6.8-9.2C7.3 9 10.8 6.5 15 6.7 17.1 3.9 20.3 2 24 2s6.9 1.9 9 4.7c4.2-.2 7.7 2.3 8.8 6.1C43 17 40.2 21 35 22v13"/><path d="M18 18c1.5-2 3.5-3 6-3s4.5 1 6 3"/></svg>
-          <span class="hero-cta-label">Mutasd a javaslatokat!</span>
-          <svg class="hero-cta-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
-        </button>
-        <div class="what-cook-feature-row">
-          <div class="what-cook-feature">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="14" y="5" width="20" height="38" rx="3"/><path d="M14 23h20M19 11v7M19 29v7"/></svg>
-            <small>Ami van<br>otthon</small>
-          </div>
-          <div class="what-cook-feature">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 13v12l8 5"/></svg>
-            <small>Mennyi<br>időtök van</small>
-          </div>
-          <div class="what-cook-feature">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M39 8C25 9 14 14 10 27c-2 7 3 12 9 10 13-4 18-15 20-29Z"/><path d="M13 35c8-8 13-13 21-20"/></svg>
-            <small>Mit<br>kerüljünk</small>
-          </div>
-          <div class="what-cook-feature">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M22 7c-1 10-5 14-15 16 10 2 14 6 16 16 2-10 6-14 16-16-10-2-14-6-17-16Z"/><path d="M37 5v8M33 9h8"/></svg>
-            <small>Személyre<br>szabott ötletek</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <button id="whatCookBtn" type="button" class="lena-master-banner" aria-label="Léna, mit főzzünk?">
+    <img src="assets/lena-kitchen-banner.webp" alt="Léna, mit főzzünk? Személyre szabott receptötletek">
+  </button>
+</section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
     <div class="count-actions">
@@ -212,10 +180,10 @@
 </dialog>
 
 <nav class="bottom-nav">
-  <button id="navHome"><span>🏠</span><small>Home</small></button>
-  <button id="navFav"><span>☆</span><small>Kedvencek</small></button>
-  <button id="navAdmin"><span>⚙️</span><small>Admin</small></button>
-  <button id="navAsk"><span>✨</span><small>Kérdezd Lénát</small></button>
+  <button id="navHome"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg><small>Home</small></button>
+  <button id="navFav"><svg viewBox="0 0 48 48"><path d="m24 6 5.4 11 12.1 1.8-8.8 8.5 2.1 12.1L24 33.7l-10.8 5.7 2.1-12.1-8.8-8.5L18.6 17 24 6Z"/></svg><small>Kedvencek</small></button>
+  <button id="navAdmin"><svg viewBox="0 0 48 48"><path d="M8 13h15M31 13h9M8 24h6M22 24h18M8 35h20M36 35h4"/><circle cx="27" cy="13" r="4"/><circle cx="18" cy="24" r="4"/><circle cx="32" cy="35" r="4"/></svg><small>Admin</small></button>
+  <button id="navAsk" class="nav-lena"><svg viewBox="0 0 48 48"><path d="M22 7c-1 10-5 14-15 16 10 2 14 6 16 16 2-10 6-14 16-16-10-2-14-6-17-16Z"/><path d="M38 5v8M34 9h8"/></svg><small>Kérdezd Lénát</small></button>
 </nav>
 
 <dialog id="addDialog">

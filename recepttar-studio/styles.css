@@ -767,3 +767,94 @@ html,body{
   .what-cook-feature svg{width:27px;height:27px}
   .what-cook-feature small{font-size:9px!important}
 }
+
+/* ===== LÉNA KITCHEN MASTER THEME v36 ===== */
+:root{
+ --lk-bg:#151614;--lk-panel:#211f1b;--lk-panel2:#2a2621;--lk-line:#50483f;
+ --lk-cream:#fff4e7;--lk-text:#eee4d7;--lk-muted:#b8ada1;
+ --lk-pink:#df477d;--lk-pink2:#b92e63;--lk-sage:#5d7a63;--lk-ivory:#f6ede5;
+ --lk-ui:"Avenir Next","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;
+ --lk-book:Georgia,"Times New Roman",serif
+}
+body,button,input,textarea,select{font-family:var(--lk-ui)!important}
+.brand-title,.recipe-head h1,.card-title,.dialog-card h2,.studio-shell h2,
+.what-cook-shell h2,.structured-section h2,.feedback-title-row h2{font-family:var(--lk-book)!important}
+
+/* The exact generated banner is shown whole, never cropped. */
+.what-cook-home{width:min(100%,1540px)!important;margin:0 auto!important;padding:10px 8px 5px!important}
+.lena-master-banner{display:block;width:100%;padding:0!important;border:1px solid #594c40!important;border-radius:24px!important;overflow:hidden;background:#171614!important;line-height:0;box-shadow:0 18px 44px rgba(0,0,0,.42)!important;cursor:pointer}
+.lena-master-banner img{display:block;width:100%!important;height:auto!important;object-fit:contain!important;filter:none!important}
+.lena-master-banner:active{transform:scale(.997)}
+@media(max-width:720px){.lena-master-banner{border-radius:18px!important}.what-cook-home{padding:8px 7px 3px!important}}
+
+/* Banner-like raspberry pill buttons throughout the app. */
+.primary-btn,.photo-btn,.studio-main-action,.studio-launch-btn,.feedback-save-btn,
+.what-cook-generate,.what-cook-pick,#cloudSignIn,.cook-timer-suggest{
+ border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;
+ background:linear-gradient(180deg,var(--lk-pink),var(--lk-pink2))!important;color:#fff!important;
+ font-weight:850!important;box-shadow:0 8px 22px rgba(158,36,82,.28),inset 0 1px 0 rgba(255,255,255,.22)!important
+}
+.outline-btn,.small-pill,.nav-btn,.mode,.font-btn,.status-edit-btn{
+ border:1px solid #504b43!important;border-radius:999px!important;background:#2a2925!important;color:#eee4d8!important;font-weight:750!important
+}
+.danger-btn{border-radius:999px!important}
+
+/* All submenus/dialogs inherit the dark kitchen language. */
+dialog::backdrop{background:rgba(5,6,5,.78)!important;backdrop-filter:blur(5px)}
+.dialog-card,.studio-shell,.what-cook-shell{
+ background:linear-gradient(145deg,#25231f,#1a1b18)!important;border:1px solid #49443c!important;
+ color:var(--lk-text)!important;box-shadow:0 30px 80px rgba(0,0,0,.55)!important
+}
+.dialog-card h2,.dialog-card h3,.studio-shell h2,.studio-shell h3,.what-cook-shell h2{color:var(--lk-cream)!important}
+.field-label,.editor-help,.local-note,.studio-status,.dialog-card p{color:var(--lk-muted)!important}
+.field-input,.dialog-card input:not([type="checkbox"]),.dialog-card textarea,.dialog-card select,
+#whatCookPrompt,#studioPrompt,#studioDetectedItems{
+ background:#171816!important;border:1px solid #48453e!important;color:#f3eadf!important;border-radius:16px!important
+}
+.field-input::placeholder,.dialog-card input::placeholder,.dialog-card textarea::placeholder{color:#89837b!important}
+.icon-close{background:#302f2a!important;color:#f3eadf!important;border:1px solid #4b4840!important;border-radius:50%!important}
+.local-note,.studio-status,.cloud-account-status,.sync-choice,.studio-provider-note{
+ background:#292923!important;border:1px solid #44463e!important;color:#d7cdc1!important;border-radius:16px!important
+}
+.cloud-account-status{color:#e9dfd2!important}
+.deleted-item,.fridge-scan-box,.studio-editor,.studio-photo-box,.studio-api-settings{
+ background:#242520!important;border-color:#474941!important;color:#ece2d6!important
+}
+.deleted-title,.studio-editor summary,.fridge-scan-head,.studio-api-settings summary{color:#f5ebde!important}
+.deleted-cat,.fridge-scan-head small,.fridge-idea small{color:#aaa197!important}
+.restore-btn,.sync-btn,.fridge-idea{
+ background:#2d302a!important;border-color:#4c5047!important;color:#eee5d8!important;border-radius:999px!important
+}
+.fridge-scan-head>span,#studioProviderBadge{background:#34362f!important;border-color:#53564d!important;color:#dfd4c7!important}
+
+/* Studio stages and preview chrome. */
+.studio-step{background:#292923!important;border-color:#474941!important;color:#e9dfd2!important;border-radius:16px!important}
+.studio-step span{background:linear-gradient(180deg,var(--lk-pink),var(--lk-pink2))!important}
+.studio-card-preview{background:#211f1b!important;border-color:#4a453d!important}
+.studio-card-copy h3,.studio-preview-columns b{color:var(--lk-cream)!important}
+.studio-meta span{background:#33312b!important;border-color:#504b43!important;color:#e8ddd0!important}
+.studio-exact-card-wrap{background:#1a1b18!important;border-color:#49443c!important}
+.studio-or{color:#918a82!important}.studio-or::before,.studio-or::after{background:#454139!important}
+
+/* Readable recipe remains a warm paper page inside the dark book. */
+.readable-panel,.studio-readable-preview{
+ background:#efe2cf!important;color:#34443a!important;border-color:#cdb89c!important
+}
+.readable-panel .structured-section,.studio-readable-preview .structured-section{
+ background:#faf1e4!important;border-color:#d5c1a7!important;color:#34443a!important
+}
+
+/* Line-icon navigation matching the banner. */
+.brand-line-icon svg,.bottom-nav svg{fill:none;stroke:currentColor;stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round}
+.brand-line-icon svg{width:27px;height:27px}
+.bottom-nav button{font-family:var(--lk-ui)!important;color:#d8cec2!important}
+.bottom-nav svg{width:28px;height:28px}
+.bottom-nav .nav-lena{color:#e47797!important}
+.bottom-nav small{font-weight:700!important}
+.searchbox,.count-row{border-color:#46433c!important}
+.chip{font-family:var(--lk-ui)!important}
+.chip.active{background:#57745e!important;border-color:#57745e!important}
+
+/* Rating card follows the same family. */
+.recipe-feedback{background:linear-gradient(145deg,#28251f,#1b1c19)!important;border-color:#48433b!important}
+#feedbackNote{background:#171816!important;border-color:#47443d!important;color:#f0e7da!important}
