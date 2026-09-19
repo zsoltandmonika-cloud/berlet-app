@@ -1193,3 +1193,17 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
     font-size:12px!important;
   }
 }
+
+/* Force the crisp master banner path and native-quality rendering. */
+.lena-master-banner img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:none!important;
+  transform:none!important;
+  image-rendering:auto!important;
+  backface-visibility:hidden;
+}
