@@ -1374,3 +1374,69 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
     scroll-snap-align:start;
   }
 }
+
+/* ===== FINAL SHARP MASTER BANNER =====
+   The complete generated banner is the visual source of truth.
+   No crop, zoom, blur, or live-text reconstruction. */
+.lena-live-hero{display:none!important}
+.what-cook-home{
+  width:min(100%,1540px)!important;
+  margin:0 auto!important;
+  padding:10px 8px 5px!important;
+}
+.lena-master-banner.lena-master-banner-final{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  border:1px solid #594c40!important;
+  border-radius:24px!important;
+  background:#171614!important;
+  line-height:0!important;
+  box-shadow:0 18px 44px rgba(0,0,0,.42)!important;
+}
+.lena-master-banner.lena-master-banner-final>img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  transform:none!important;
+  filter:none!important;
+  opacity:1!important;
+  image-rendering:auto!important;
+  backface-visibility:visible!important;
+}
+.lena-master-banner-final .banner-hotspot{
+  position:absolute!important;
+  z-index:8!important;
+  display:block!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.lena-master-banner-final .banner-hotspot:hover{background:rgba(255,255,255,.045)!important}
+.lena-master-banner-final .banner-hotspot:active{background:rgba(224,70,124,.12)!important;transform:scale(.985)}
+.lena-master-banner-final .banner-hotspot:focus-visible{outline:3px solid rgba(230,78,132,.92)!important;outline-offset:2px!important}
+.lena-master-banner-final .banner-hotspot-main{left:43.15%!important;top:46.0%!important;width:30.4%!important;height:18.4%!important;border-radius:999px!important}
+.lena-master-banner-final .banner-hotspot-stock{left:42.4%!important;top:66.0%!important;width:8.0%!important;height:29.5%!important}
+.lena-master-banner-final .banner-hotspot-time{left:49.8%!important;top:66.0%!important;width:8.0%!important;height:29.5%!important}
+.lena-master-banner-final .banner-hotspot-avoid{left:57.2%!important;top:66.0%!important;width:8.0%!important;height:29.5%!important}
+.lena-master-banner-final .banner-hotspot-personal{left:64.4%!important;top:65.5%!important;width:11.1%!important;height:30.0%!important}
+@media(max-width:720px){
+  .what-cook-home{padding:8px 7px 4px!important}
+  .lena-master-banner.lena-master-banner-final{border-radius:17px!important;box-shadow:0 12px 30px rgba(0,0,0,.34)!important}
+  .lena-master-banner-final .banner-hotspot-main{top:43%!important;height:24%!important}
+  .lena-master-banner-final .banner-hotspot-stock,
+  .lena-master-banner-final .banner-hotspot-time,
+  .lena-master-banner-final .banner-hotspot-avoid,
+  .lena-master-banner-final .banner-hotspot-personal{top:63%!important;height:35%!important}
+}

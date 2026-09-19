@@ -7,7 +7,7 @@
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css?v=39">
+<link rel="stylesheet" href="styles.css?v=40">
 </head>
 <body>
 <header class="app-header">
@@ -24,43 +24,13 @@
     <div id="chips" class="chips"></div>
   </section>
   <section class="what-cook-home">
-    <div class="lena-live-hero">
-      <div class="lena-live-photo">
-        <img src="assets/lena-kitchen-banner-hq.png?v=3" alt="Léna a konyhában">
-        <div class="lena-live-motto">JÓ ÉTEL<br>JÓ HANGULAT<br>JOBB NAP ♡</div>
-      </div>
-      <div class="lena-live-panel">
-        <div class="lena-live-title-row">
-          <svg class="lena-live-chef-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M15 34h18v7H15z"/><path d="M13 35V22c-5.2-1-8-5-6.8-9.2C7.3 9 10.8 6.5 15 6.7 17.1 3.9 20.3 2 24 2s6.9 1.9 9 4.7c4.2-.2 7.7 2.3 8.8 6.1C43 17 40.2 21 35 22v13"/></svg>
-          <div class="lena-live-title">Léna, mit főzzünk?</div>
-        </div>
-        <div class="lena-live-rule"></div>
-        <p class="lena-live-copy">Mondd el, mi van otthon, mennyi időtök van, mihez van kedvetek. Én adok 3 személyre szabott receptötletet, alapból 4 főre.</p>
-        <div class="lena-live-prompt">✎ <span>Pl. „Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta.”</span></div>
-        <button id="whatCookBtn" type="button" class="lena-live-main-btn">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 34h18v7H15z"/><path d="M13 35V22c-5.2-1-8-5-6.8-9.2C7.3 9 10.8 6.5 15 6.7 17.1 3.9 20.3 2 24 2s6.9 1.9 9 4.7c4.2-.2 7.7 2.3 8.8 6.1C43 17 40.2 21 35 22v13"/></svg>
-          <span>Mutasd a javaslatokat!</span>
-          <svg class="lena-live-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
-        </button>
-        <div class="lena-live-quick-grid">
-          <button id="bannerHomeStock" type="button">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="14" y="5" width="20" height="38" rx="3"/><path d="M14 23h20M19 11v7M19 29v7"/></svg>
-            <span>Ami van<br>otthon</span>
-          </button>
-          <button id="bannerTime" type="button">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 13v12l8 5"/></svg>
-            <span>Mennyi<br>időtök van</span>
-          </button>
-          <button id="bannerAvoid" type="button">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M39 8C25 9 14 14 10 27c-2 7 3 12 9 10 13-4 18-15 20-29Z"/><path d="M13 35c8-8 13-13 21-20"/></svg>
-            <span>Mit<br>kerüljünk</span>
-          </button>
-          <button id="bannerPersonal" type="button">
-            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M22 7c-1 10-5 14-15 16 10 2 14 6 16 16 2-10 6-14 16-16-10-2-14-6-17-16Z"/><path d="M37 5v8M33 9h8"/></svg>
-            <span>Személyre<br>szabott ötletek</span>
-          </button>
-        </div>
-      </div>
+    <div class="lena-master-banner lena-master-banner-final" role="group" aria-label="Léna, mit főzzünk? Gyors konyhai műveletek">
+      <img src="assets/lena-kitchen-banner-crisp.png?v=5" alt="Léna, mit főzzünk? Személyre szabott receptötletek 4 főre">
+      <button id="whatCookBtn" type="button" class="banner-hotspot banner-hotspot-main" aria-label="Mutasd a javaslatokat"></button>
+      <button id="bannerHomeStock" type="button" class="banner-hotspot banner-hotspot-stock" aria-label="Ami van otthon: nyisd meg a Recept Studiót"></button>
+      <button id="bannerTime" type="button" class="banner-hotspot banner-hotspot-time" aria-label="Mennyi időtök van: gyors receptjavaslat"></button>
+      <button id="bannerAvoid" type="button" class="banner-hotspot banner-hotspot-avoid" aria-label="Mit kerüljünk: add meg, mit ne ajánljak"></button>
+      <button id="bannerPersonal" type="button" class="banner-hotspot banner-hotspot-personal" aria-label="Személyre szabott ötletek"></button>
     </div>
   </section>
   <div class="count-row">
