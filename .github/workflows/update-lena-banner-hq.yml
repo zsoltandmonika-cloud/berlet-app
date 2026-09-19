@@ -19,6 +19,9 @@ jobs:
         run: |
           set -euo pipefail
           curl -L --fail --retry 3 --retry-delay 2 \
+            -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/142.0 Safari/537.36' \
+            -H 'Accept: image/avif,image/webp,image/apng,image/*,*/*;q=0.8' \
+            -H 'Accept-Language: hu-HU,hu;q=0.9,en;q=0.8' \
             'https://1drv.ms/u/c/bc1ff24af37ea2b0/IQAZd7DyqjssTKwPJnXwedXMAWe8z8DMB4IRSrfsYYy1_0o?download=1' \
             -o /tmp/lena-kitchen-banner.webp
           python - <<'PY'
