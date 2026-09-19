@@ -1,8 +1,8 @@
 const baseRecipes=window.LENA_RECIPES||[],baseCategories=window.LENA_CATEGORIES||[],baseReadable=window.LENA_READABLE||{};
 const $=s=>document.querySelector(s);
-const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="feature/recipe-studio-v1",CLOUD_KEY_PREFIX="lena:recipe:",TASTE_KEY_PREFIX="lena:taste:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-studio-preview",DB_STORE="recipes";
+const GH_OWNER="zsoltandmonika-cloud",GH_REPO="berlet-app",GH_BRANCH="feature/recipe-studio-v1",CLOUD_KEY_PREFIX="lena:recipe:",TASTE_KEY_PREFIX="lena:taste:",NUTRI_KEY_PREFIX="lena:nutri:",CLOUD_DIR="lena-recepttar",DB_NAME="lena-recepttar-studio-preview",DB_STORE="recipes";
 baseRecipes.forEach(r=>{if(r.file&&r.file.startsWith("recipes/"))r.file="../recepttar/"+r.file});
-let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],sharedRecipes=[],sharedReadable={},tasteFeedback={},feedbackRating=0,selectedNewBlob=null,selectedNewPreviewUrl=null;
+let activeCategory="Mind",favoritesOnly=false,currentId=null,customRecipes=[],sharedRecipes=[],sharedReadable={},tasteFeedback={},nutritionCache={},feedbackRating=0,selectedNewBlob=null,selectedNewPreviewUrl=null;
 function migrateCanonicalBaseState(){
   const flag="lena27:canonicalBaseMigration";
   if(localStorage.getItem(flag)==="1")return;
@@ -87,6 +87,114 @@ function renderRecipeFeedback(id){
  $("#feedbackSaveState").textContent=f.updatedAt?(puterCloudReady()&&puter.auth.isSignedIn()?"ízlésprofil":"helyi"):"nincs értékelve"
 }
 function setFeedbackRating(n){feedbackRating=n;$("#feedbackStars").querySelectorAll("button").forEach(b=>{const x=Number(b.dataset.rating);b.textContent=x<=n?"★":"☆";b.classList.toggle("active",x<=n)})}
+function nutriLocalKey(id){return"lena:nutri:local:"+id}
+function localNutrition(id){try{return JSON.parse(localStorage.getItem(nutriLocalKey(id))||"null")}catch(e){return null}}
+function getNutrition(id){return nutritionCache[id]||localNutrition(id)||null}
+function nutriNum(v,digits=0){
+ const n=Number(String(v??"").replace(",",".").replace(/[^0-9.+-]/g,""));
+ if(!Number.isFinite(n))return 0;
+ const p=Math.pow(10,digits);return Math.round(n*p)/p
+}
+function normalizeNutrition(v,id,title){
+ const p=v?.perServing||v?.per_serving||v||{};
+ return{
+  id,title,
+  servings:String(v?.servings||"4 fő").trim()||"4 fő",
+  perServing:{
+   kcal:Math.max(0,nutriNum(p.kcal)),
+   protein_g:Math.max(0,nutriNum(p.protein_g??p.protein,1)),
+   carbs_g:Math.max(0,nutriNum(p.carbs_g??p.carbs,1)),
+   fat_g:Math.max(0,nutriNum(p.fat_g??p.fat,1)),
+   fiber_g:Math.max(0,nutriNum(p.fiber_g??p.fiber,1))
+  },
+  updatedAt:new Date().toISOString(),
+  source:"ai_estimate"
+ }
+}
+async function loadNutritionCache(){
+ const merged={};
+ for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i);if(!k||!k.startsWith("lena:nutri:local:"))continue;
+   try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.id)merged[v.id]=v}catch(e){}
+ }
+ if(puterCloudReady()&&puter.auth.isSignedIn()){
+   try{
+     const rows=await puter.kv.list(NUTRI_KEY_PREFIX+"*",true);
+     for(const row of rows){const v=row&&row.value;if(v&&v.id)merged[String(v.id)]=v}
+   }catch(e){console.warn("Nutri Info felhőből nem tölthető",e)}
+ }
+ nutritionCache=merged;return merged
+}
+async function saveNutrition(v){
+ localStorage.setItem(nutriLocalKey(v.id),JSON.stringify(v));nutritionCache[v.id]=v;
+ if(puterCloudReady()&&puter.auth.isSignedIn()){
+   try{await puter.kv.set(NUTRI_KEY_PREFIX+v.id,v)}catch(e){console.warn("Nutri Info felhőmentés hiba",e)}
+ }
+}
+function formatNutriG(v){return nutriNum(v,1).toLocaleString("hu-HU",{maximumFractionDigits:1})+" g"}
+function recipeServingText(id,d){
+ const r=getRecipe(id),studio=r?.studioData;
+ if(studio?.servings)return String(studio.servings);
+ const note=(d?.notes||[]).find(x=>/\b\d+\s*(fő|adag|személy)/i.test(String(x)));
+ const m=String(note||"").match(/\b\d+\s*(?:fő|adag|személy)/i);
+ return m?m[0]:"4 fő"
+}
+function renderNutriCard(id){
+ const card=$("#nutriCard");if(!card)return;
+ const d=getReadable(id),valid=d.status==="verified"&&d.ingredients?.length;
+ card.hidden=!valid;if(!valid)return;
+ const n=getNutrition(id),empty=$("#nutriEmpty"),values=$("#nutriValues");
+ $("#nutriServings").textContent=n?.servings||recipeServingText(id,d);
+ empty.hidden=!!n;values.hidden=!n;
+ if(!n)return;
+ const p=n.perServing||{};
+ $("#nutriKcal").textContent=Math.round(p.kcal||0);
+ $("#nutriProtein").textContent=formatNutriG(p.protein_g);
+ $("#nutriCarbs").textContent=formatNutriG(p.carbs_g);
+ $("#nutriFat").textContent=formatNutriG(p.fat_g);
+ $("#nutriFiber").textContent=formatNutriG(p.fiber_g)
+}
+function renderHealthResult(id){
+ const box=$("#healthResult"),n=getNutrition(id),r=getRecipe(id);
+ if(!n||!r){box.hidden=true;return}
+ box.hidden=false;$("#healthResultName").textContent=r.title;$("#healthResultServing").textContent=(n.servings||"4 fő")+" · adagonként";
+ const p=n.perServing||{};$("#healthKcal").textContent=Math.round(p.kcal||0);$("#healthProtein").textContent=formatNutriG(p.protein_g);
+ $("#healthCarbs").textContent=formatNutriG(p.carbs_g);$("#healthFat").textContent=formatNutriG(p.fat_g);$("#healthFiber").textContent=formatNutriG(p.fiber_g)
+}
+function populateHealthRecipes(preferId=null){
+ const sel=$("#healthRecipeSelect");sel.innerHTML="";
+ const list=allRecipes().filter(r=>!r.deleted).map(r=>({r,d:getReadable(r.id)})).filter(x=>x.d.status==="verified"&&x.d.ingredients?.length).sort((a,b)=>a.r.title.localeCompare(b.r.title,"hu"));
+ list.forEach(({r})=>{const o=document.createElement("option");o.value=r.id;o.textContent=r.title;sel.appendChild(o)});
+ if(!list.length){const o=document.createElement("option");o.value="";o.textContent="Nincs még strukturált recept";sel.appendChild(o);$("#healthAnalyzeBtn").disabled=true;$("#healthResult").hidden=true;return}
+ $("#healthAnalyzeBtn").disabled=false;
+ const id=preferId&&list.some(x=>x.r.id===preferId)?preferId:list[0].r.id;sel.value=id;renderHealthResult(id)
+}
+function openHealth(){
+ populateHealthRecipes(currentId);$("#healthDialog").showModal()
+}
+async function estimateNutrition(id){
+ const d=getReadable(id),r=getRecipe(id);if(!r||d.status!=="verified"||!d.ingredients?.length){alert("Ehhez előbb kell egy strukturált, olvasható recept.");return null}
+ if(!puterAvailable()){alert("A Nutri Info AI most nem érhető el.");return null}
+ const servings=recipeServingText(id,d);
+ const req=[
+  "Te egy élelmiszer-tápérték becslő asszisztens vagy. Becsüld meg az alábbi recept tápértékét adagonként.",
+  "A becslést a megadott mennyiségekből készítsd. Ne állítsd, hogy laborpontosságú. Ha egy mennyiség bizonytalan, használj ésszerű tipikus értéket.",
+  "Válaszolj KIZÁRÓLAG érvényes JSON-nal, markdown nélkül.",
+  'Séma: {"servings":"4 fő","perServing":{"kcal":0,"protein_g":0,"carbs_g":0,"fat_g":0,"fiber_g":0}}',
+  "Recept: "+r.title,
+  "Adag: "+servings,
+  "Hozzávalók:",
+  d.ingredients.join("\n")
+ ].join("\n");
+ busy(true,"Nutri Info számítása…");
+ try{
+  let resp;try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(req,{normalize:true})}
+  const v=normalizeNutrition(parseRecipeJson(puterText(resp)),id,r.title);v.servings=servings;
+  await saveNutrition(v);if(currentId===id)renderNutriCard(id);renderHealthResult(id);toast("🥗 Nutri Info elkészült.");return v
+ }catch(e){console.error(e);alert("A Nutri Info számítása most nem sikerült: "+(e.message||e));return null}
+ finally{busy(false)}
+}
+
 
 function norm(s){return(s||"").toLocaleLowerCase("hu").normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/\s+/g," ").trim()}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(()=>e.classList.remove("show"),2200)}
@@ -780,7 +888,7 @@ function renderReadableFor(id){
  d.steps.forEach(step=>{const li=document.createElement("li");li.textContent=step;$("#stepsList").appendChild(li)});
  const notes=Array.isArray(d.notes)?d.notes:[];
  if(notes.length){$("#notesSection").hidden=false;notes.forEach(n=>{const p=document.createElement("p");p.textContent=n;$("#notesList").appendChild(p)})}
- applyReadableFont()
+ applyReadableFont();renderNutriCard(id)
 }
 let cookState={id:null,steps:[],index:0,timerSeconds:0,timerRemaining:0,timerEnd:0,timerRunning:false,timerInterval:null,wakeLock:null};
 function cookStepKey(id){return"lena:cookstep:"+id}
@@ -976,6 +1084,7 @@ function clearStructuredOverride(){
  if(!currentId)return;if(!confirm("Töröljük ezen a recepten a helyi strukturált javítást?"))return;clearReadableLocal(currentId);$("#structuredDialog").close();renderReadableFor(currentId);toast("Helyi javítás törölve.")
 }
 
+$("#healthBannerBtn").onclick=openHealth;$("#closeHealth").onclick=()=>$("#healthDialog").close();$("#healthRecipeSelect").onchange=e=>renderHealthResult(e.target.value);$("#healthAnalyzeBtn").onclick=()=>{const id=$("#healthRecipeSelect").value;if(id)estimateNutrition(id)};$("#nutriAnalyzeRecipe").onclick=()=>currentId&&estimateNutrition(currentId);$("#nutriRefreshRecipe").onclick=()=>currentId&&estimateNutrition(currentId);
 $("#whatCookBtn").onclick=openWhatCook;
 $("#bannerHomeStock").onclick=openStudioStock;
 $("#bannerTime").onclick=()=>openWhatCookWith("Kb. 30 percünk van, 4 főre szeretnénk valamit. ");
@@ -1007,6 +1116,6 @@ $("#studioPhotoInput").onchange=e=>studioHandlePhoto(e.target.files&&e.target.fi
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 let __lastCentralRefresh=Date.now();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback();loadNutritionCache()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
