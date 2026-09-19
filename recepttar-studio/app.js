@@ -584,14 +584,27 @@ async function updateCloudStatus(){
  if(!puter.auth.isSignedIn()){s.textContent="Nincs bejelentkezve. Ugyanazzal a Puter-fiókkal lépj be minden eszközön.";return}
  const u=await currentPuterUser();s.textContent=u?"✓ Bejelentkezve: "+(u.username||u.email||"Puter felhasználó"):"✓ Bejelentkezve a Puter felhőbe."
 }
-function openSyncSettings(){if($("#adminDialog").open)$("#adminDialog").close();$("#syncDialog").showModal();updateCloudStatus()}
+async function openSyncSettings(){
+ if($("#adminDialog").open)$("#adminDialog").close();$("#syncDialog").showModal();await updateCloudStatus();
+ if(puterCloudReady()&&puter.auth.isSignedIn()){await syncPendingToCloud();await updateCloudStatus()}
+}
 async function cloudSignIn(forcePick=false){
  const s=$("#cloudAccountStatus");s.textContent="Bejelentkezés…";
- try{await ensurePuterSignIn(forcePick);await refreshSharedRecipes(true);await updateCloudStatus();toast("✓ Központi tárhely csatlakoztatva.")}catch(e){console.error(e);s.textContent="✕ Bejelentkezés nem sikerült: "+(e.msg||e.message||e)}
+ try{
+   await ensurePuterSignIn(forcePick);
+   const n=await syncPendingToCloud();
+   await refreshSharedRecipes(true);await updateCloudStatus();
+   toast(n?"☁ "+n+" helyi recept feltöltve.":"✓ Központi tárhely csatlakoztatva.")
+ }catch(e){console.error(e);s.textContent="✕ Bejelentkezés nem sikerült: "+(e.msg||e.message||e)}
 }
 async function cloudRefresh(){
- const s=$("#cloudAccountStatus");s.textContent="Frissítés…";
- try{if(!puter.auth.isSignedIn())await ensurePuterSignIn();await refreshSharedRecipes(true);await updateCloudStatus();toast("✓ Központi receptek frissítve.")}catch(e){console.error(e);s.textContent="✕ Frissítés nem sikerült: "+(e.msg||e.message||e)}
+ const s=$("#cloudAccountStatus");s.textContent="Szinkronizálás…";
+ try{
+   if(!puter.auth.isSignedIn())await ensurePuterSignIn();
+   const n=await syncPendingToCloud();
+   await refreshSharedRecipes(true);await updateCloudStatus();
+   toast(n?"☁ "+n+" helyi recept feltöltve és frissítve.":"✓ Központi receptek frissítve.")
+ }catch(e){console.error(e);s.textContent="✕ Frissítés nem sikerült: "+(e.msg||e.message||e)}
 }
 async function syncLocalRecipe(id,{silent=false,refresh=true}={}){
  const row=await dbGet(id);if(!row)return false;
@@ -612,10 +625,11 @@ async function syncLocalRecipe(id,{silent=false,refresh=true}={}){
  finally{if(!silent)busy(false)}
 }
 async function syncPendingToCloud(){
- if(!puterCloudReady()||!puter.auth.isSignedIn())return;
- const rows=(await dbAll()).filter(r=>r.pending);if(!rows.length)return;
+ if(!puterCloudReady()||!puter.auth.isSignedIn())return 0;
+ const rows=(await dbAll()).filter(r=>r.pending);if(!rows.length)return 0;
  let ok=0;for(const row of rows){if(await syncLocalRecipe(row.id,{silent:true,refresh:false}))ok++}
- if(ok){await loadSharedRecipes();await loadCustomRecipes();renderHome();renderPending();toast("☁ "+ok+" helyi recept központilag is elmentve.")}
+ if(ok){await loadSharedRecipes();await loadCustomRecipes();renderHome();renderPending()}
+ return ok
 }
 
 function renderPending(){const box=$("#pendingList");box.innerHTML="";const list=customRecipes.slice().sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!list.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="Nincs csak helyben tárolt új recept.";box.appendChild(e);return}list.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category+(r.pending?" · szinkronra vár":" · feltöltve, frissítésre vár");main.append(t,c);const b=document.createElement("button");b.className="sync-btn";b.textContent=r.pending?"☁ Feltöltés":"✓ Fent";b.disabled=!r.pending;b.onclick=()=>syncLocalRecipe(r.id);row.append(main,b);box.appendChild(row)})}
