@@ -101,10 +101,39 @@ function renderHome(){
 }
 function showHome(push){currentId=null;$("#recipeView").hidden=true;$("#homeView").hidden=false;if(push)history.pushState({view:"home"},"","#home");window.scrollTo({top:0,behavior:"instant"});renderHome()}
 function setMode(mode){const o=mode==="original";$("#originalPanel").hidden=!o;$("#readablePanel").hidden=o;$("#originalMode").classList.toggle("active",o);$("#readableMode").classList.toggle("active",!o)}
+let photoLightboxObjectUrl=null;
+function closeRecipePhoto(){
+ const d=$("#photoLightbox");if(d.open)d.close();
+ if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}
+ $("#photoLightboxImage").removeAttribute("src");$("#photoLightboxCaption").textContent="";
+}
+async function recipeHeroSource(r){
+ if(!r)return null;
+ if(r.localCustom){
+   const row=await dbGet(r.id);
+   if(row&&row.heroBlob){photoLightboxObjectUrl=URL.createObjectURL(row.heroBlob);return photoLightboxObjectUrl}
+ }
+ if(r.central&&r.heroPath&&puterCloudReady()&&puter.auth.isSignedIn()){
+   try{const b=await puter.fs.read(r.heroPath);photoLightboxObjectUrl=URL.createObjectURL(b);return photoLightboxObjectUrl}catch(e){console.warn("Központi ételfotó nem olvasható",e)}
+ }
+ return r.file||null
+}
+async function openRecipePhoto(){
+ const r=currentId?getRecipe(currentId):null;if(!r||r.mime==="application/pdf")return;
+ const d=$("#photoLightbox"),img=$("#photoLightboxImage"),loading=$("#photoLightboxLoading");
+ if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}
+ img.removeAttribute("src");img.alt=r.title;$("#photoLightboxCaption").textContent=r.title;loading.hidden=false;
+ d.showModal();
+ try{
+   const src=await recipeHeroSource(r);if(!src)throw new Error("Nincs megjeleníthető kép.");
+   img.src=src;
+ }catch(e){console.error(e);$("#photoLightboxCaption").textContent="A kép most nem tölthető be."}
+ finally{loading.hidden=true}
+}
 function openRecipe(id,push){
  const r=getRecipe(id);if(!r||r.deleted){showHome(push);return}currentId=id;$("#homeView").hidden=true;$("#recipeView").hidden=false;$("#recipeCategory").textContent=r.category+(r.localCustom?" · helyi":r.central?" · ☁ központi":"");$("#recipeTitle").textContent=r.title;$("#favBtn").textContent=isFav(id)?"★":"☆";
  renderReadableFor(id);
- if(r.mime==="application/pdf"){$("#recipeImage").hidden=true;$("#recipePdf").hidden=false;$("#recipePdf").src=r.file}else{$("#recipePdf").hidden=true;$("#recipeImage").hidden=false;$("#recipeImage").src=r.file;$("#recipeImage").alt=r.title}
+ if(r.mime==="application/pdf"){$("#recipeImage").hidden=true;$("#recipeImageHint").hidden=true;$("#recipePdf").hidden=false;$("#recipePdf").src=r.file}else{$("#recipePdf").hidden=true;$("#recipeImage").hidden=false;$("#recipeImageHint").hidden=false;$("#recipeImage").src=r.file;$("#recipeImage").alt=r.title}
  setMode("original");if(push)history.pushState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));window.scrollTo({top:0,behavior:"instant"})
 }
 function askLena(){const r=currentId?getRecipe(currentId):null,prefix=r?"Léna, ezt a receptet nézem: "+r.title+". ":"";navigator.clipboard?.writeText(prefix).catch(()=>{});window.open("https://chatgpt.com/","_blank","noopener");if(r)toast("A recept címe a vágólapra került.")}
@@ -699,6 +728,7 @@ $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#choose
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#backBtn").onclick=()=>history.back();$("#editBtn").onclick=openEdit;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=()=>cloudSignIn(false);$("#cloudSwitchAccount").onclick=()=>cloudSignIn(true);$("#cloudRefresh").onclick=cloudRefresh;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
+$("#recipeImage").onclick=openRecipePhoto;$("#closePhotoLightbox").onclick=closeRecipePhoto;$("#photoLightbox").onclick=e=>{if(e.target===$("#photoLightbox"))closeRecipePhoto()};$("#photoLightbox").addEventListener("close",()=>{if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}});
 $("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioFridgeCameraBtn").onclick=()=>$("#studioFridgeCamera").click();$("#studioFridgeGalleryBtn").onclick=()=>$("#studioFridgeGallery").click();$("#studioFridgeCamera").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioFridgeGallery").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioUseInventory").onclick=()=>useFridgeInventory();$("#studioCardTab").onclick=()=>setStudioPreviewMode("card");$("#studioReadableTab").onclick=()=>setStudioPreviewMode("readable");
 $("#studioRefine").onclick=studioRefine;
 $("#studioRegenerateCard").onclick=()=>{studioPullEditor();renderStudioPreview();studioRenderExactCard()};
