@@ -237,7 +237,7 @@ async function loadSharedRecipes(){
     const v=row&&row.value;if(!v||!v.id||!v.title||!v.cardPath)continue;
     try{
       const cardBlob=await puter.fs.read(v.cardPath),url=URL.createObjectURL(cardBlob);
-      next.push({id:String(v.id),title:String(v.title),category:String(v.category||"Egyébb"),file:url,mime:"image/jpeg",originalName:String(v.originalName||v.title+".jpg"),central:true,createdAt:v.createdAt||null,heroPath:v.heroPath||null,studioData:v.studioData||null,_url:url});
+      next.push({id:String(v.id),title:String(v.title),category:String(v.category||"Egyébb"),file:url,mime:"image/jpeg",originalName:String(v.originalName||v.title+".jpg"),central:true,createdAt:v.createdAt||null,cardPath:v.cardPath||null,heroPath:v.heroPath||null,studioData:v.studioData||null,_url:url});
       if(v.readable)readable[String(v.id)]=v.readable
     }catch(fileErr){console.warn("Központi receptkép nem olvasható",v.id,fileErr)}
   }
@@ -480,7 +480,18 @@ async function saveNew(){
 const STUDIO_TEXT_MODEL="gpt-5.6-luna";
 const STUDIO_IMAGE_MODEL="gpt-image-1-mini";
 
-function puterAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function"&&typeof puter.ai.txt2img==="function")}
+function puterChatAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function")}
+function puterAvailable(){return !!(puterChatAvailable()&&typeof puter.ai.txt2img==="function")}
+async function puterVisionChat(prompt,media){
+ if(!puterChatAvailable())throw new Error("A Puter Vision nem érhető el.");
+ let firstErr=null;
+ try{return await puter.ai.chat(prompt,media,false,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+ catch(e){firstErr=e;console.warn("Vision preferred model fallback",e)}
+ try{return await puter.ai.chat(prompt,media,false,{normalize:true})}
+ catch(e){console.warn("Vision default model fallback",e)}
+ try{return await puter.ai.chat(prompt,media)}
+ catch(e){throw firstErr||e}
+}
 function updateStudioProviderBadge(){
  const b=$("#studioProviderBadge");if(!b)return;
  if(puterAvailable()){b.textContent="AI READY";b.classList.remove("provider-offline");b.classList.add("provider-ready")}
@@ -619,10 +630,8 @@ async function analyzeFridgePhoto(file){
  $("#studioFridgeResult").hidden=false;$("#studioDetectedItems").value="";$("#studioFridgeIdeas").innerHTML="";$("#studioUncertain").hidden=true;
  busy(true,"Léna körbenéz a hűtőben…");
  try{
-   if(!puterAvailable())throw new Error("A Puter Vision nem érhető el.");
-   let resp;
-   try{resp=await puter.ai.chat(fridgeVisionPrompt(),file,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
-   catch(first){console.warn("Fridge vision preferred model fallback",first);resp=await puter.ai.chat(fridgeVisionPrompt(),file,{normalize:true})}
+   if(!puterChatAvailable())throw new Error("A Puter Vision nem érhető el.");
+   const resp=await puterVisionChat(fridgeVisionPrompt(),file)
    const vision=cleanFridgeVision(parseRecipeJson(puterText(resp)));
    if(!vision.items.length)throw new Error("Nem sikerült biztosan felismerhető alapanyagot találni.");
    $("#studioDetectedItems").value=vision.items.join("\n");studioFridgeIdeas=vision.ideas;renderFridgeIdeas();
@@ -1314,13 +1323,20 @@ function readableVisionPrompt(r){
 }
 async function recipeImageFileForVision(r){
  if(!r||r.mime==="application/pdf")throw new Error("PDF automatikus feldolgozása még nem támogatott.");
- let src=r.file;
- if(r.central&&r.heroUrl)src=r.heroUrl;
- if(!src)throw new Error("Ehhez a recepthez nincs feldolgozható kép.");
- const res=await fetch(src);
- if(!res.ok)throw new Error("A receptkép nem tölthető be.");
- const blob=await res.blob();
- return new File([blob],(r.title||"recept")+".jpg",{type:blob.type||"image/jpeg"})
+ let blob=null;
+ if(r.localCustom){
+   const row=await dbGet(r.id);blob=row?row.blob:null
+ }
+ if(!blob&&r.central&&r.cardPath&&puterCloudReady()&&puter.auth.isSignedIn()){
+   try{blob=await puter.fs.read(r.cardPath)}catch(e){console.warn("Központi receptkártya közvetlen olvasása sikertelen",e)}
+ }
+ if(!blob&&r._blob)blob=r._blob;
+ if(!blob&&r.file){
+   const res=await fetch(r.file,{cache:"no-store"});if(!res.ok)throw new Error("A receptkép nem tölthető be ("+res.status+").");blob=await res.blob()
+ }
+ if(!blob)throw new Error("Ehhez a recepthez nincs feldolgozható kép.");
+ const type=blob.type||"image/jpeg",ext=type.includes("png")?".png":type.includes("webp")?".webp":".jpg";
+ return new File([blob],(r.title||"recept")+ext,{type})
 }
 function cleanReadableVision(v){
  if(!v||typeof v!=="object")throw new Error("A feldolgozás válasza nem értelmezhető.");
@@ -1330,24 +1346,64 @@ function cleanReadableVision(v){
  if(ingredients.length<2||steps.length<2)throw new Error("A képről nem sikerült elég receptadatot kiolvasni.");
  return{ingredients,steps,notes}
 }
+async function readableOcrFallback(file,r){
+ if(!window.puter?.ai||typeof puter.ai.img2txt!=="function")throw new Error("OCR tartalék mód nem érhető el.");
+ const raw=await puter.ai.img2txt(file);
+ const text=String(raw||"").trim();if(text.length<20)throw new Error("Az OCR nem talált elég olvasható szöveget.");
+ const prompt=[
+  "Te Léna vagy, a Léna Recepttár receptfeldolgozó asszisztense.",
+  "Az alábbi OCR-szöveg egy receptkártyáról származik. Csak a ténylegesen szereplő információt strukturáld, ne találj ki hiányzó adatot.",
+  "Recept címe: "+r.title+".",
+  "Válaszolj kizárólag JSON-nal ebben a sémában:",
+  '{"ingredients":["..."],"steps":["..."],"notes":["..."]}',
+  "",
+  "OCR SZÖVEG:",
+  text
+ ].join("\n");
+ let resp;try{resp=await puter.ai.chat(prompt,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
+ catch(e){resp=await puter.ai.chat(prompt)}
+ return cleanReadableVision(parseRecipeJson(puterText(resp)))
+}
+async function persistProcessedReadable(id,data,r){
+ setReadable(id,data);
+ if(r?.localCustom){
+   try{
+    const row=await dbGet(id);if(row){row.readable=data;row.pending=true;await dbPut(row);
+      if(puterCloudReady()&&puter.auth.isSignedIn())syncLocalRecipe(id,{silent:true,refresh:false}).catch(()=>{})
+    }
+   }catch(e){console.warn("Feldolgozott recept helyi/felhő mentése sikertelen",e)}
+ }else if(r?.central&&puterCloudReady()&&puter.auth.isSignedIn()){
+   try{
+    const key=CLOUD_KEY_PREFIX+id,entry=await puter.kv.get(key);
+    if(entry&&typeof entry==="object"){entry.readable=data;entry.updatedAt=new Date().toISOString();await puter.kv.set(key,entry);sharedReadable[id]=data}
+   }catch(e){console.warn("Feldolgozott recept felhőmentése sikertelen",e)}
+ }
+}
+
 async function forceReadableProcessing(){
  if(!currentId)return;
- const r=getRecipe(currentId);if(!r)return;
+ const id=currentId,r=getRecipe(id);if(!r)return;
  if(r.mime==="application/pdf"){alert("Ehhez most a képes receptfeldolgozás működik. A PDF-ekhez külön feldolgozást teszek majd.");openReadableEditor();return}
- if(!puterAvailable()){alert("Az automatikus feldolgozáshoz most nem érhető el az AI. Megnyitom a kézi szerkesztőt.");openReadableEditor();return}
+ if(!puterChatAvailable()){alert("Az automatikus feldolgozáshoz most nem érhető el az AI. Megnyitom a kézi szerkesztőt.");openReadableEditor();return}
+ try{
+   if(window.puter?.auth&&!puter.auth.isSignedIn())await ensurePuterSignIn();
+ }catch(e){console.warn("Vision bejelentkezés kihagyva",e)}
  busy(true,"⚡ Léna feldolgozza a receptkártyát…");
  try{
    const file=await recipeImageFileForVision(r);
-   let resp;
-   try{resp=await puter.ai.chat(readableVisionPrompt(r),file,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
-   catch(first){console.warn("Readable vision preferred model fallback",first);resp=await puter.ai.chat(readableVisionPrompt(r),file,{normalize:true})}
-   const out=cleanReadableVision(parseRecipeJson(puterText(resp)));
-   setReadable(currentId,{status:"review",ingredients:out.ingredients,steps:out.steps,notes:out.notes,source:"vision_force_v1",updatedAt:new Date().toISOString()});
-   renderReadableFor(currentId);setMode("readable");
+   let out=null,visionErr=null;
+   try{
+     const resp=await puterVisionChat(readableVisionPrompt(r),file);
+     out=cleanReadableVision(parseRecipeJson(puterText(resp)))
+   }catch(e){visionErr=e;console.warn("Közvetlen Vision feldolgozás sikertelen, OCR tartalék mód indul",e)}
+   if(!out)out=await readableOcrFallback(file,r);
+   const data={status:"review",ingredients:out.ingredients,steps:out.steps,notes:out.notes,source:visionErr?"ocr_fallback_v2":"vision_v2",updatedAt:new Date().toISOString()};
+   await persistProcessedReadable(id,data,r);
+   if(currentId===id){renderReadableFor(id);setMode("readable")}
    toast("⚡ Feldolgozva. Nézd át, majd jelöld Ellenőrzöttnek.");
  }catch(e){
    console.error("Recept feldolgozás hiba",e);
-   alert("A recept automatikus feldolgozása most nem sikerült. Megnyitom a kézi szerkesztőt.");
+   alert("A recept automatikus feldolgozása most nem sikerült.\n\n"+(e?.message||e)+"\n\nMegnyitom a kézi szerkesztőt.");
    openReadableEditor();
  }finally{busy(false)}
 }
