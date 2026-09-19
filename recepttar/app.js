@@ -89,7 +89,28 @@ function getRecipe(id){return allRecipes().find(x=>x.id===id)||null}
 function allCategories(){const s=new Set(baseCategories);allRecipes().forEach(r=>r.category&&s.add(r.category));return Array.from(s).sort((a,b)=>a.localeCompare(b,"hu"))}
 function fillCategoryList(){const d=$("#categoryList");d.innerHTML="";allCategories().forEach(c=>{const o=document.createElement("option");o.value=c;d.appendChild(o)})}
 
-function renderChips(){const c=$("#chips");c.innerHTML="";["Mind"].concat(allCategories()).forEach(cat=>{const b=document.createElement("button");b.className="chip"+(activeCategory===cat?" active":"");b.textContent=cat;b.onclick=()=>{activeCategory=cat;renderHome()};c.appendChild(b)})}
+function categoryChipPalette(cat,index){
+ const p=[
+  ["#e7efe6","#b9ccb9","#294a32","#587b59"],
+  ["#f4e2d7","#d9b8a6","#6d3d2c","#a85f43"],
+  ["#f3ead0","#d8c889","#69541d","#9a7c2c"],
+  ["#e0eaf0","#b6c9d5","#365667","#597b8d"],
+  ["#ebe0ea","#cab7c8","#5e415b","#81617d"],
+  ["#e8ead7","#c5ca9f","#4e542a","#737a3e"],
+  ["#f2deda","#d8b5ae","#6e4239","#9b6558"],
+  ["#dcebea","#aecbc8","#315957","#4f7d79"]
+ ];
+ if(cat==="Mind")return["#e5ece5","#b8c7ba","#29483a","#45674f"];
+ let h=0;for(let i=0;i<cat.length;i++)h=(h*31+cat.charCodeAt(i))>>>0;return p[(h+index)%p.length]
+}
+function renderChips(){
+ const c=$("#chips");c.innerHTML="";["Mind"].concat(allCategories()).forEach((cat,i)=>{
+  const b=document.createElement("button"),p=categoryChipPalette(cat,i);
+  b.className="chip"+(activeCategory===cat?" active":"");b.textContent=cat;
+  b.style.setProperty("--chip-bg",p[0]);b.style.setProperty("--chip-border",p[1]);b.style.setProperty("--chip-ink",p[2]);b.style.setProperty("--chip-active",p[3]);
+  b.onclick=()=>{activeCategory=cat;renderHome()};c.appendChild(b)
+ })
+}
 function visibleRecipes(){const q=norm($("#search").value);return allRecipes().filter(r=>!r.deleted&&(activeCategory==="Mind"||r.category===activeCategory)&&(!favoritesOnly||isFav(r.id))&&(!q||norm(r.title+" "+r.category).includes(q))).sort((a,b)=>a.title.localeCompare(b.title,"hu"))}
 function renderHome(){
  renderChips();const list=visibleRecipes();$("#count").textContent=list.length;$("#grid").innerHTML="";$("#favFilter").textContent=(favoritesOnly?"★ ":"☆ ")+"Kedvencek";
