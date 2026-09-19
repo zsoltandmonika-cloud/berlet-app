@@ -68,13 +68,24 @@
   <section class="recipe-head">
     <div class="eyebrow" id="recipeCategory"></div>
     <h1 id="recipeTitle"></h1>
+    <div id="recipeNutriStrip" class="recipe-nutri-strip" hidden>
+      <span>🔥 <b id="recipeNutriKcal">–</b> kcal</span>
+      <i>·</i>
+      <span>🥩 <b id="recipeNutriProtein">–</b> fehérje</span>
+      <i>·</i>
+      <span>🍚 <b id="recipeNutriCarbs">–</b> szénhidrát</span>
+      <i>·</i>
+      <span>🥑 <b id="recipeNutriFat">–</b> zsír</span>
+      <i>·</i>
+      <span>🌾 <b id="recipeNutriFiber">–</b> rost</span>
+    </div>
     <div class="mode-row">
       <button id="originalMode" class="mode active">Eredeti kártya</button>
-      <button id="readableMode" class="mode" hidden>Olvasható recept</button>
+      <button id="readableMode" class="mode" hidden>Recept elkészítése</button>
     </div>
     <div class="readable-status-row">
       <span id="readableStatusBadge" class="status-badge status-unprocessed">○ Nincs feldolgozva</span>
-      <button id="prepareReadable" class="status-edit-btn">✏️ Strukturált recept</button>
+      <button id="prepareReadable" class="status-edit-btn">✏️ Recept elkészítése</button>
     </div>
   </section>
   <section id="originalPanel" class="original-panel">
