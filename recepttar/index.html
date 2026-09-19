@@ -7,7 +7,7 @@
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css?v=33">
+<link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
 <header class="app-header">
@@ -24,15 +24,25 @@
     <div id="chips" class="chips"></div>
   </section>
   <section class="what-cook-home">
-    <button id="whatCookBtn" type="button" class="what-cook-launch what-cook-chef">
-      <img class="what-cook-chef-photo" src="assets/lena-chef-avatar.jpg" alt="Léna a konyhában">
-      <span class="what-cook-chef-copy">
-        <small class="what-cook-kicker">SZEMÉLYRE SZABOTT KONYHAI ÖTLETEK</small>
-        <b>Léna, mit főzzünk?</b>
-        <span class="what-cook-chef-sub">Mondd el, mi van otthon és mennyi időtök van. Én hozok 3 ötletet.</span>
-        <span class="what-cook-chef-cta">✨ Mutasd a javaslatokat <strong>›</strong></span>
-      </span>
-    </button>
+    <div class="what-cook-hero-full">
+      <div class="what-cook-hero-photo-wrap">
+        <img class="what-cook-hero-photo" src="assets/lena-chef-avatar.jpg" alt="Léna a konyhában">
+        <div class="what-cook-photo-motto">JÓ ÉTEL<br>JÓ HANGULAT<br>JOBB NAP ♡</div>
+      </div>
+      <div class="what-cook-hero-content">
+        <div class="what-cook-chef-title"><span class="chef-hat">♨</span> Léna, mit főzzünk?</div>
+        <div class="what-cook-title-line"></div>
+        <p>Mondd el, mi van otthon, mennyi időtök van, mihez van kedvetek. Én adok 3 személyre szabott receptötletet!</p>
+        <div class="what-cook-prompt-demo">✎ <span>Pl. „Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta.”</span></div>
+        <button id="whatCookBtn" type="button" class="what-cook-main-cta"><span>♨</span> Mutasd a javaslatokat! <b>›</b></button>
+        <div class="what-cook-feature-row">
+          <div><span>▣</span><small>Ami van<br>otthon</small></div>
+          <div><span>◷</span><small>Mennyi<br>időtök van</small></div>
+          <div><span>◒</span><small>Mit<br>kerüljünk</small></div>
+          <div><span>✦</span><small>Személyre<br>szabott ötletek</small></div>
+        </div>
+      </div>
+    </div>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>

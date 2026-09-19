@@ -636,3 +636,92 @@ html,body{
   .what-cook-chef-sub{font-size:14px;max-width:520px}
   .what-cook-chef-cta{font-size:14px;padding:10px 14px}
 }
+
+/* ===== FULL LÉNA KITCHEN HERO ===== */
+.what-cook-hero-full{
+  width:100%;display:grid;grid-template-columns:minmax(250px,42%) 1fr;
+  min-height:420px;overflow:hidden;border:1px solid #4a433a;border-radius:26px;
+  background:
+    radial-gradient(circle at 76% 12%,rgba(198,120,104,.14),transparent 30%),
+    linear-gradient(135deg,#2b241e 0%,#1a1917 60%,#151615 100%);
+  box-shadow:0 18px 44px rgba(0,0,0,.36)
+}
+.what-cook-hero-photo-wrap{position:relative;min-height:420px;overflow:hidden;background:#111}
+.what-cook-hero-photo{
+  width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center;
+  filter:saturate(.96) contrast(1.03)
+}
+.what-cook-hero-photo-wrap::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.03) 50%,rgba(20,18,15,.55) 100%);
+  pointer-events:none
+}
+.what-cook-photo-motto{
+  position:absolute;z-index:2;top:24px;left:22px;
+  font:800 15px/1.5 Georgia,serif;letter-spacing:.04em;color:rgba(255,246,232,.88);
+  transform:rotate(-3deg);text-shadow:0 2px 8px rgba(0,0,0,.55)
+}
+.what-cook-hero-content{
+  min-width:0;padding:34px clamp(24px,4vw,52px) 28px;display:flex;flex-direction:column;justify-content:center
+}
+.what-cook-chef-title{
+  color:#fff6e9;font:700 clamp(34px,4.2vw,58px)/1.02 Georgia,"Times New Roman",serif;
+  letter-spacing:-.035em
+}
+.what-cook-chef-title .chef-hat{font-family:system-ui;font-size:.72em;color:#fff;vertical-align:.1em}
+.what-cook-title-line{
+  width:min(76%,480px);height:5px;margin:11px 0 15px;border-radius:999px;
+  background:linear-gradient(90deg,#c76d7d,#be6677 72%,transparent)
+}
+.what-cook-hero-content>p{
+  margin:0 0 18px;color:#e7ded2;font-size:clamp(15px,1.7vw,22px);line-height:1.45;max-width:720px
+}
+.what-cook-prompt-demo{
+  display:flex;align-items:flex-start;gap:12px;width:100%;padding:15px 18px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.16);border-radius:18px;background:#f7eee5;
+  color:#756e68;font-size:clamp(13px,1.35vw,18px);line-height:1.35;
+  box-shadow:0 8px 22px rgba(0,0,0,.16)
+}
+.what-cook-prompt-demo::first-letter{font-size:22px}.what-cook-prompt-demo span{min-width:0}
+.what-cook-main-cta{
+  width:100%;min-height:62px;border:1px solid rgba(255,255,255,.16);border-radius:999px;
+  background:linear-gradient(180deg,#d94a7a,#be2f65);color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:clamp(16px,1.65vw,23px);font-weight:950;letter-spacing:-.01em;
+  box-shadow:0 9px 24px rgba(150,37,83,.30),inset 0 1px 0 rgba(255,255,255,.26);
+  cursor:pointer
+}
+.what-cook-main-cta span{font-size:25px}.what-cook-main-cta b{margin-left:auto;margin-right:18px;font-size:34px;line-height:.7}
+.what-cook-main-cta:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.what-cook-main-cta:active{transform:translateY(1px)}
+.what-cook-feature-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px;color:#f2e9df
+}
+.what-cook-feature-row>div{display:grid;justify-items:center;text-align:center;gap:6px}
+.what-cook-feature-row span{font-size:30px;line-height:1;color:#fff}
+.what-cook-feature-row small{font-size:12px;line-height:1.25;color:#ddd3c7;font-weight:700}
+@media(max-width:720px){
+  .what-cook-home{padding:9px 9px 3px!important}
+  .what-cook-hero-full{grid-template-columns:1fr;min-height:0;border-radius:22px}
+  .what-cook-hero-photo-wrap{min-height:230px}
+  .what-cook-hero-photo{object-position:center 30%}
+  .what-cook-photo-motto{top:16px;left:14px;font-size:12px}
+  .what-cook-hero-photo-wrap::after{
+    background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(22,20,17,.78) 100%)
+  }
+  .what-cook-hero-content{padding:18px 16px 19px}
+  .what-cook-chef-title{font-size:31px}
+  .what-cook-title-line{margin:8px 0 11px;height:4px;width:82%}
+  .what-cook-hero-content>p{font-size:13px;margin-bottom:12px}
+  .what-cook-prompt-demo{padding:12px 13px;border-radius:14px;font-size:12px;margin-bottom:12px}
+  .what-cook-main-cta{min-height:54px;font-size:15px}
+  .what-cook-main-cta b{font-size:29px;margin-right:12px}
+  .what-cook-feature-row{grid-template-columns:repeat(4,1fr);gap:4px;margin-top:14px}
+  .what-cook-feature-row span{font-size:23px}
+  .what-cook-feature-row small{font-size:9px}
+}
+@media(max-width:390px){
+  .what-cook-hero-photo-wrap{min-height:210px}
+  .what-cook-chef-title{font-size:28px}
+  .what-cook-main-cta{font-size:14px}
+}
