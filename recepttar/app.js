@@ -696,6 +696,7 @@ function renderReadableFor(id){
  if(badge){badge.textContent=info[0];badge.className="status-badge "+info[1]}
  const valid=d.status==="verified"&&Array.isArray(d.ingredients)&&d.ingredients.length>0&&Array.isArray(d.steps)&&d.steps.length>0;
  $("#readableMode").hidden=!valid;
+ $("#cookModeBtn").hidden=!valid;
  $("#prepareReadable").textContent=valid?"✏️ Olvasható recept javítása":"✏️ Strukturált recept";
  $("#ingredientsList").innerHTML="";$("#stepsList").innerHTML="";$("#notesList").innerHTML="";$("#notesSection").hidden=true;
  if(!valid){setMode("original");return}
@@ -711,6 +712,84 @@ function renderReadableFor(id){
  if(notes.length){$("#notesSection").hidden=false;notes.forEach(n=>{const p=document.createElement("p");p.textContent=n;$("#notesList").appendChild(p)})}
  applyReadableFont()
 }
+let cookState={id:null,steps:[],index:0,timerSeconds:0,timerRemaining:0,timerEnd:0,timerRunning:false,timerInterval:null,wakeLock:null};
+function cookStepKey(id){return"lena:cookstep:"+id}
+function parseCookDuration(text){
+ const s=String(text||"").toLocaleLowerCase("hu").replace(/,/g,".");
+ if(/fél\s+ór/.test(s))return{seconds:1800,label:"30 perc"};
+ const range=s.match(/(\d+(?:\.\d+)?)\s*[–—-]\s*(\d+(?:\.\d+)?)\s*(másodperc|másodpercig|mp|perc|percig|óra|óráig|órán)/i);
+ const one=s.match(/(\d+(?:\.\d+)?)\s*(másodperc|másodpercig|mp|perc|percig|óra|óráig|órán)/i);
+ const m=range||one;if(!m)return null;
+ const amount=range?Number(m[2]):Number(m[1]),unit=range?m[3]:m[2];if(!Number.isFinite(amount)||amount<=0)return null;
+ let seconds=amount;if(/perc/.test(unit))seconds*=60;else if(/ór/.test(unit))seconds*=3600;
+ seconds=Math.max(1,Math.round(seconds));
+ const label=seconds>=3600&&seconds%3600===0?(seconds/3600)+" óra":seconds>=60&&seconds%60===0?(seconds/60)+" perc":seconds+" mp";
+ return{seconds,label}
+}
+function formatCookTime(sec){
+ sec=Math.max(0,Math.ceil(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+ return h?String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"):String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")
+}
+async function requestCookWakeLock(){
+ try{if("wakeLock"in navigator&&document.visibilityState==="visible")cookState.wakeLock=await navigator.wakeLock.request("screen")}catch(e){console.warn("Wake lock nem érhető el",e)}
+}
+function releaseCookWakeLock(){try{cookState.wakeLock?.release()}catch(e){}cookState.wakeLock=null}
+function cookBeep(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();
+  [0,.22,.44].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.setValueAtTime(.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t+.16);o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.18)});
+  setTimeout(()=>ac.close().catch(()=>{}),1000)
+ }catch(e){}
+ try{navigator.vibrate?.([250,120,250,120,450])}catch(e){}
+}
+function renderCookTimer(){
+ const box=$("#cookTimerBox"),start=$("#cookTimerStart"),running=$("#cookTimerRunning"),det=parseCookDuration(cookState.steps[cookState.index]||"");
+ if(cookState.timerRunning||cookState.timerRemaining>0){
+  box.hidden=false;start.hidden=true;running.hidden=false;$("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);$("#cookTimerPause").textContent=cookState.timerRunning?"⏸ Szünet":"▶ Folytatás";return
+ }
+ running.hidden=true;
+ if(det){box.hidden=false;start.hidden=false;start.textContent="⏱ "+det.label+" indítása";start.dataset.seconds=String(det.seconds);start.dataset.label=det.label}
+ else{box.hidden=true;start.hidden=true;start.dataset.seconds="";start.dataset.label=""}
+}
+function renderCookStep(){
+ const n=cookState.steps.length,i=Math.max(0,Math.min(cookState.index,n-1));cookState.index=i;
+ $("#cookStepCount").textContent=(i+1)+" / "+n+" lépés";$("#cookStepNumber").textContent=i+1;$("#cookStepText").textContent=cookState.steps[i]||"";
+ $("#cookProgressBar").style.width=((i+1)/Math.max(1,n)*100)+"%";$("#cookPrev").disabled=i===0;$("#cookNext").textContent=i===n-1?"✓ Kész":"Következő →";
+ localStorage.setItem(cookStepKey(cookState.id),String(i));renderCookTimer()
+}
+async function openCookMode(){
+ if(!currentId)return;const d=getReadable(currentId),r=getRecipe(currentId);if(!r||d.status!=="verified"||!d.steps?.length)return;
+ cookState.id=currentId;cookState.steps=d.steps.slice();cookState.index=Math.max(0,Math.min(parseInt(localStorage.getItem(cookStepKey(currentId))||"0",10)||0,d.steps.length-1));
+ $("#cookRecipeTitle").textContent=r.title;renderCookStep();$("#cookModeDialog").showModal();await requestCookWakeLock()
+}
+function closeCookMode(){releaseCookWakeLock();if($("#cookModeDialog").open)$("#cookModeDialog").close()}
+function cookNext(){
+ if(cookState.index<cookState.steps.length-1){cookState.index++;renderCookStep();return}
+ localStorage.removeItem(cookStepKey(cookState.id));closeCookMode();toast("👨‍🍳 Kész. Jó étvágyat!")
+}
+function cookPrev(){if(cookState.index>0){cookState.index--;renderCookStep()}}
+function updateCookTimer(){
+ if(!cookState.timerRunning)return;
+ cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));$("#cookTimerDisplay").textContent=formatCookTime(cookState.timerRemaining);
+ if(cookState.timerRemaining<=0){
+  cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;
+  $("#cookTimerDisplay").textContent="KÉSZ!";$("#cookTimerPause").textContent="▶ Újra";cookBeep();toast("⏰ Az időzítő lejárt.")
+ }
+}
+function startCookTimer(){
+ const b=$("#cookTimerStart"),sec=parseInt(b.dataset.seconds||"0",10);if(!sec)return;
+ clearInterval(cookState.timerInterval);cookState.timerSeconds=sec;cookState.timerRemaining=sec;cookState.timerEnd=Date.now()+sec*1000;cookState.timerRunning=true;
+ $("#cookTimerLabel").textContent=(b.dataset.label||"Időzítő")+" · "+(cookState.index+1)+". lépés";renderCookTimer();updateCookTimer();cookState.timerInterval=setInterval(updateCookTimer,250)
+}
+function pauseCookTimer(){
+ if(cookState.timerRunning){cookState.timerRemaining=Math.max(0,Math.ceil((cookState.timerEnd-Date.now())/1000));cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null}
+ else if(cookState.timerRemaining>0){cookState.timerEnd=Date.now()+cookState.timerRemaining*1000;cookState.timerRunning=true;clearInterval(cookState.timerInterval);cookState.timerInterval=setInterval(updateCookTimer,250)}
+ renderCookTimer()
+}
+function resetCookTimer(){
+ cookState.timerRunning=false;clearInterval(cookState.timerInterval);cookState.timerInterval=null;cookState.timerRemaining=0;cookState.timerSeconds=0;cookState.timerEnd=0;renderCookTimer()
+}
+
 function openReadableEditor(){
  if(!currentId)return;const d=getReadable(currentId);
  $("#structuredStatus").value=d.status||"unprocessed";
@@ -742,6 +821,8 @@ $("#prepareReadable").onclick=openReadableEditor;
 $("#fontMinus").onclick=()=>changeReadableFont(-1);
 $("#fontPlus").onclick=()=>changeReadableFont(1);
 $("#resetChecks").onclick=resetIngredientChecks;
+$("#cookModeBtn").onclick=openCookMode;$("#closeCookMode").onclick=closeCookMode;$("#cookPrev").onclick=cookPrev;$("#cookNext").onclick=cookNext;$("#cookTimerStart").onclick=startCookTimer;$("#cookTimerPause").onclick=pauseCookTimer;$("#cookTimerReset").onclick=resetCookTimer;
+$("#cookModeDialog").addEventListener("close",releaseCookWakeLock);
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
@@ -759,6 +840,6 @@ $("#studioPhotoInput").onchange=e=>studioHandlePhoto(e.target.files&&e.target.fi
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=()=>setMode("original");$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
 let __lastCentralRefresh=Date.now();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true)}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true)}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
 (async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=35").catch(()=>{})})().catch(e=>{console.error(e);renderHome()});
