@@ -139,6 +139,18 @@ function recipeServingText(id,d){
  const m=String(note||"").match(/\b\d+\s*(?:fő|adag|személy)/i);
  return m?m[0]:"4 fő"
 }
+function renderRecipeNutriStrip(id){
+ const strip=$("#recipeNutriStrip");if(!strip)return;
+ const n=getNutrition(id);
+ strip.hidden=!n;
+ if(!n)return;
+ const p=n.perServing||{};
+ $("#recipeNutriKcal").textContent=Math.round(p.kcal||0);
+ $("#recipeNutriProtein").textContent=formatNutriG(p.protein_g);
+ $("#recipeNutriCarbs").textContent=formatNutriG(p.carbs_g);
+ $("#recipeNutriFat").textContent=formatNutriG(p.fat_g);
+ $("#recipeNutriFiber").textContent=formatNutriG(p.fiber_g)
+}
 function renderNutriCard(id){
  const card=$("#nutriCard");if(!card)return;
  const d=getReadable(id),valid=d.status==="verified"&&d.ingredients?.length;
@@ -152,7 +164,7 @@ function renderNutriCard(id){
  $("#nutriProtein").textContent=formatNutriG(p.protein_g);
  $("#nutriCarbs").textContent=formatNutriG(p.carbs_g);
  $("#nutriFat").textContent=formatNutriG(p.fat_g);
- $("#nutriFiber").textContent=formatNutriG(p.fiber_g)
+ $("#nutriFiber").textContent=formatNutriG(p.fiber_g);renderRecipeNutriStrip(id)
 }
 function renderHealthResult(id){
  const box=$("#healthResult"),n=getNutrition(id),r=getRecipe(id);
@@ -317,7 +329,7 @@ async function openRecipePhoto(){
 }
 function openRecipe(id,push){
  const r=getRecipe(id);if(!r||r.deleted){showHome(push);return}currentId=id;$("#homeView").hidden=true;$("#recipeView").hidden=false;$("#recipeCategory").textContent=r.category+(r.localCustom?" · helyi":r.central?" · ☁ központi":"");$("#recipeTitle").textContent=r.title;$("#favBtn").textContent=isFav(id)?"★":"☆";
- renderReadableFor(id);renderRecipeFeedback(id);
+ renderReadableFor(id);renderRecipeFeedback(id);renderRecipeNutriStrip(id);
  if(r.mime==="application/pdf"){$("#recipeImage").hidden=true;$("#recipeImageHint").hidden=true;$("#recipePdf").hidden=false;$("#recipePdf").src=r.file}else{$("#recipePdf").hidden=true;$("#recipeImage").hidden=false;$("#recipeImageHint").hidden=false;$("#recipeImage").src=r.file;$("#recipeImage").alt=r.title}
  setMode("original");if(push)history.pushState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));window.scrollTo({top:0,behavior:"instant"})
 }
@@ -881,7 +893,7 @@ function renderReadableFor(id){
  const valid=d.status==="verified"&&Array.isArray(d.ingredients)&&d.ingredients.length>0&&Array.isArray(d.steps)&&d.steps.length>0;
  $("#readableMode").hidden=!valid;
  $("#cookModeBtn").hidden=!valid;
- $("#prepareReadable").textContent=valid?"✏️ Olvasható recept javítása":"✏️ Strukturált recept";
+ $("#prepareReadable").textContent=valid?"✏️ Recept elkészítése javítása":"✏️ Recept elkészítése";
  $("#ingredientsList").innerHTML="";$("#stepsList").innerHTML="";$("#notesList").innerHTML="";$("#notesSection").hidden=true;
  if(!valid){setMode("original");return}
  renderIngredientList(id,d.ingredients);
@@ -974,7 +986,7 @@ function whatCookPromptText(userText){
  const catalog=allRecipes().filter(r=>!r.deleted).slice(0,100).map(r=>r.title+" ["+r.category+"]").join("; ");
  return [
   "Te Léna vagy, Zsolt és Mónika digitális receptkönyvének konyhai asszisztense.",
-  "Adj pontosan 3, egymástól érdemben különböző vacsora/étel ötletet a felhasználó aktuális kérésére.",
+  "Adj pontosan 4, egymástól érdemben különböző vacsora/étel ötletet a felhasználó aktuális kérésére.",
   "Alapértelmezésben 4 főre tervezz. Új ötletnél a prompt mezőben szerepeljen, hogy 4 főre készüljön, kivéve ha a felhasználó más adagszámot kér.",
   "Vedd figyelembe a saját értékeléseket és megjegyzéseket, de ne kezeld őket merev tiltásként. Lehetőleg ne ismételd a közelmúltban főzött ételeket, ha van jó alternatíva.",
   "Ha a meglévő recepttárból ajánlasz valamit, az existingTitle mezőben PONTOSAN a katalógusban szereplő címet add. Új ötletnél existingTitle legyen üres.",
@@ -997,7 +1009,7 @@ function whatCookPromptText(userText){
 }
 function cleanWhatCookIdeas(v){
  const a=Array.isArray(v?.ideas)?v.ideas:[];
- return a.slice(0,3).map(x=>({
+ return a.slice(0,4).map(x=>({
   title:String(x?.title||"").trim(),
   why:String(x?.why||"").trim(),
   time:String(x?.time||"").trim(),
@@ -1048,7 +1060,7 @@ function renderWhatCookIdeas(){
 }
 async function generateWhatCook(){
  const q=$("#whatCookPrompt").value.trim();if(!q){alert("Írd le legalább röviden, mire vágytok vagy mi van otthon.");return}
- busy(true,"Léna összerak 3 személyre szabott ötletet…");
+ busy(true,"Léna összerak 4 személyre szabott ötletet…");
  try{
   if(!puterAvailable())throw new Error("A Puter AI nem érhető el.");
   let resp;try{resp=await puter.ai.chat(whatCookPromptText(q),{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(whatCookPromptText(q),{normalize:true})}

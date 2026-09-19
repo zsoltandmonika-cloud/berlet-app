@@ -1494,3 +1494,19 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
  .nutri-grid{grid-template-columns:repeat(3,1fr)}.nutri-grid>div:nth-child(n+4){grid-column:auto}
  .health-result-title{display:block}.health-result-title span{display:block;margin-top:4px}
 }
+
+/* ===== OPENED RECIPE: TOP NUTRITION STRIP ===== */
+.recipe-nutri-strip{
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:10px 0 14px;
+  padding:10px 14px;border:1px solid #4b463e;border-radius:16px;
+  background:linear-gradient(135deg,#2a2722,#201f1c);
+  color:#f0e6d9;font-family:var(--lk-ui)!important;font-size:14px;line-height:1.3;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
+}
+.recipe-nutri-strip[hidden]{display:none!important}
+.recipe-nutri-strip span{white-space:nowrap}.recipe-nutri-strip b{color:#fff4e7}
+.recipe-nutri-strip i{font-style:normal;color:#7f786f}
+@media(max-width:600px){
+ .recipe-nutri-strip{gap:5px 8px;padding:9px 11px;font-size:12px;border-radius:14px}
+ .recipe-nutri-strip i{display:none}
+}
