@@ -381,6 +381,14 @@ async function renameManagedCategory(oldCat){
  }finally{busy(false)}
 }
 function fillCategoryList(){const d=$("#categoryList");d.innerHTML="";allCategories().forEach(c=>{const o=document.createElement("option");o.value=c;d.appendChild(o)})}
+function fillEditCategorySelect(selectedCategory){
+ const select=$("#editCategory");if(!select)return;
+ const current=cleanCategoryName(selectedCategory),categories=allCategories();
+ if(current&&!categories.includes(current))categories.unshift(current);
+ select.innerHTML="";
+ categories.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;select.appendChild(o)});
+ select.value=current
+}
 
 function categoryChipPalette(cat,index){
  const p=[
@@ -451,7 +459,7 @@ function openRecipe(id,push){
 }
 function askLena(){const r=currentId?getRecipe(currentId):null,prefix=r?"Léna, ezt a receptet nézem: "+r.title+". ":"";navigator.clipboard?.writeText(prefix).catch(()=>{});window.open("https://chatgpt.com/","_blank","noopener");if(r)toast("A recept címe a vágólapra került.")}
 function editText(){openReadableEditor()}
-function openEdit(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;fillCategoryList();$("#editTitle").value=r.title;$("#editCategory").value=r.category;$("#editDialog").showModal()}
+function openEdit(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;fillCategoryList();fillEditCategorySelect(r.category);$("#editTitle").value=r.title;$("#editDialog").showModal()}
 async function saveEdit(){
  if(!currentId)return;const r=getRecipe(currentId);if(!r)return;const title=$("#editTitle").value.trim()||r.title,category=cleanCategoryName($("#editCategory").value)||r.category;
  ensureManagedCategory(category);await saveCategoryConfig();
@@ -460,7 +468,7 @@ async function saveEdit(){
  $("#editDialog").close();openRecipe(currentId,false);renderHome();toast("Recept adatai elmentve.")
 }
 function deleteCurrent(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;const m=getMeta(currentId);m.deleted=true;setMeta(currentId,m);$("#editDialog").close();showHome(true);toast("Recept a kukába került.")}
-function resetCurrent(){if(!currentId)return;const m=getMeta(currentId);delete m.title;delete m.category;m.deleted=false;if(Object.keys(m).length)setMeta(currentId,m);else localStorage.removeItem(keyMeta(currentId));const r=getRecipe(currentId);$("#editTitle").value=r.title;$("#editCategory").value=r.category;toast("Alapadatok visszaállítva.")}
+function resetCurrent(){if(!currentId)return;const m=getMeta(currentId);delete m.title;delete m.category;m.deleted=false;if(Object.keys(m).length)setMeta(currentId,m);else localStorage.removeItem(keyMeta(currentId));const r=getRecipe(currentId);$("#editTitle").value=r.title;fillEditCategorySelect(r.category);toast("Alapadatok visszaállítva.")}
 
 function filenameTitle(name){return(name||"").replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").trim()}
 async function processImage(file){const bm=await createImageBitmap(file,{imageOrientation:"from-image"}),max=1800,scale=Math.min(1,max/Math.max(bm.width,bm.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(bm.width*scale));c.height=Math.max(1,Math.round(bm.height*scale));const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(bm,0,0,c.width,c.height);bm.close();return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Képfeldolgozási hiba")),"image/jpeg",.9))}
