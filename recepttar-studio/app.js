@@ -1489,10 +1489,8 @@ $("#cookModeBtn").onclick=openCookMode;$("#closeCookMode").onclick=closeCookMode
 $("#cookTimerPresets").querySelectorAll("[data-cook-minutes]").forEach(b=>b.onclick=()=>startCookPreset(Number(b.dataset.cookMinutes)));
 $("#cookTimerPlus1").onclick=()=>addCookTimer(60);$("#cookTimerPlus5").onclick=()=>addCookTimer(300);
 $("#cookModeDialog").addEventListener("close",releaseCookWakeLock);
-$("#goldenTimerStart").onclick=toggleGoldenTimer;$("#goldenTimerReset").onclick=resetGoldenTimer;$("#goldenTimerStopAlarm").onclick=stopGoldenTimerAlarm;
-$("#goldenTimerMinus1").onclick=()=>adjustGoldenTimer(-60);$("#goldenTimerPlus1").onclick=()=>adjustGoldenTimer(60);$("#goldenTimerPlus5").onclick=()=>adjustGoldenTimer(300);
-$("#goldenTimerPresets").querySelectorAll("[data-golden-minutes]").forEach(b=>b.onclick=()=>setGoldenTimer(Number(b.dataset.goldenMinutes)));initGoldenTimer();
-$("#homeTimerBtn").onclick=openHomeTimer;$("#closeHomeTimer").onclick=closeHomeTimer;$("#homeTimerStart").onclick=toggleGoldenTimer;$("#homeTimerReset").onclick=resetGoldenTimer;$("#homeTimerStopAlarm").onclick=stopGoldenTimerAlarm;
+initGoldenTimer();
+$("#homeTimerBtn").onclick=openHomeTimer;$("#recipeTimerBtn").onclick=openHomeTimer;$("#closeHomeTimer").onclick=closeHomeTimer;$("#homeTimerStart").onclick=toggleGoldenTimer;$("#homeTimerReset").onclick=resetGoldenTimer;$("#homeTimerStopAlarm").onclick=stopGoldenTimerAlarm;
 $("#homeTimerMinus1").onclick=()=>adjustGoldenTimer(-60);$("#homeTimerPlus1").onclick=()=>adjustGoldenTimer(60);$("#homeTimerPlus5").onclick=()=>adjustGoldenTimer(300);
 $("#homeTimerPresets").querySelectorAll("[data-home-timer-minutes]").forEach(b=>b.onclick=()=>setGoldenTimer(Number(b.dataset.homeTimerMinutes)));
 $("#homeTimerDialog").onclick=e=>{if(e.target===$("#homeTimerDialog"))closeHomeTimer()};
