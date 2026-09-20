@@ -1206,14 +1206,33 @@ function goldenTimerStoredDuration(){
 }
 function saveGoldenTimerDuration(){localStorage.setItem(GOLDEN_TIMER_KEY,String(goldenTimerState.duration))}
 function renderGoldenTimer(){
- const display=$("#goldenTimerDisplay");if(!display)return;
- const s=goldenTimerState,status=$("#goldenTimerStatus"),start=$("#goldenTimerStart");
- display.textContent=s.alarming?"KÉSZ!":formatCookTime(s.remaining);
- status.textContent=s.alarming?"RIASZTÁS":s.running?"FUT":"KÉSZEN";status.className="golden-timer-status"+(s.alarming?" alarm":s.running?" running":"");
- $("#goldenTimerCaption").textContent=s.alarming?"lejárt az idő":s.running?"hátralévő idő":s.remaining===0?"válassz új időt":"válassz időt vagy indítsd el";
- start.textContent=s.running?"⏸ Szünet":s.remaining===0?"▶ Újra":"▶ Indítás";
- $("#goldenTimerStopAlarm").hidden=!s.alarming;
- $("#goldenTimerPresets").querySelectorAll("[data-golden-minutes]").forEach(b=>b.classList.toggle("active",Number(b.dataset.goldenMinutes)*60===s.duration))
+ const s=goldenTimerState;
+ const displayText=s.alarming?"KÉSZ!":formatCookTime(s.remaining);
+ const statusText=s.alarming?"RIASZTÁS":s.running?"FUT":"KÉSZEN";
+ const captionText=s.alarming?"lejárt az idő":s.running?"hátralévő idő":s.remaining===0?"válassz új időt":"válassz időt vagy indítsd el";
+ const startText=s.running?"⏸ Szünet":s.remaining===0?"▶ Újra":"▶ Indítás";
+ const statusClass=s.alarming?" alarm":s.running?" running":"";
+ const display=$("#goldenTimerDisplay"),status=$("#goldenTimerStatus"),start=$("#goldenTimerStart");
+ if(display)display.textContent=displayText;
+ if(status){status.textContent=statusText;status.className="golden-timer-status"+statusClass}
+ if($("#goldenTimerCaption"))$("#goldenTimerCaption").textContent=captionText;
+ if(start)start.textContent=startText;
+ if($("#goldenTimerStopAlarm"))$("#goldenTimerStopAlarm").hidden=!s.alarming;
+ $("#goldenTimerPresets")?.querySelectorAll("[data-golden-minutes]").forEach(b=>b.classList.toggle("active",Number(b.dataset.goldenMinutes)*60===s.duration));
+
+ const homeDisplay=$("#homeTimerDisplay"),homeStatus=$("#homeTimerStatus"),homeDial=$("#homeTimerDial");
+ if(homeDisplay)homeDisplay.textContent=displayText;
+ if(homeStatus){homeStatus.textContent=statusText;homeStatus.className="home-timer-status"+statusClass}
+ if($("#homeTimerCaption"))$("#homeTimerCaption").textContent=captionText;
+ if($("#homeTimerStart"))$("#homeTimerStart").textContent=startText;
+ if($("#homeTimerStopAlarm"))$("#homeTimerStopAlarm").hidden=!s.alarming;
+ $("#homeTimerPresets")?.querySelectorAll("[data-home-timer-minutes]").forEach(b=>b.classList.toggle("active",Number(b.dataset.homeTimerMinutes)*60===s.duration));
+ if(homeDial){
+  const total=Math.max(1,s.duration||s.remaining||1),ratio=Math.max(0,Math.min(1,s.remaining/total)),elapsed=Math.max(0,total-s.remaining);
+  homeDial.style.setProperty("--home-timer-progress",(ratio*360)+"deg");
+  homeDial.style.setProperty("--home-timer-hand",((elapsed%60)*6)+"deg");
+  homeDial.classList.toggle("alarm",s.alarming)
+ }
 }
 function primeGoldenTimerAudio(){
  try{const ac=ensureCookAudio();if(!ac)return;const o=ac.createOscillator(),g=ac.createGain(),now=ac.currentTime;o.connect(g);g.connect(ac.destination);g.gain.value=.0001;o.start(now);o.stop(now+.01)}catch(e){}
@@ -1249,7 +1268,7 @@ function setGoldenTimer(minutes){
 }
 function adjustGoldenTimer(seconds){
  stopGoldenTimerAlarm();const s=goldenTimerState;
- if(s.running){s.remaining=Math.max(0,Math.min(10800,s.remaining+seconds));s.end=Date.now()+s.remaining*1000;if(s.remaining===0){s.running=false;clearInterval(s.interval);s.interval=null;startGoldenTimerAlarm();return}}
+ if(s.running){s.remaining=Math.max(0,Math.min(10800,s.remaining+seconds));s.duration=Math.max(60,Math.min(10800,s.duration+seconds));s.end=Date.now()+s.remaining*1000;saveGoldenTimerDuration();if(s.remaining===0){s.running=false;clearInterval(s.interval);s.interval=null;startGoldenTimerAlarm();return}}
  else{s.remaining=Math.max(0,Math.min(10800,s.remaining+seconds));s.duration=Math.max(60,s.remaining||60);saveGoldenTimerDuration()}
  renderGoldenTimer()
 }
@@ -1262,6 +1281,8 @@ function resetGoldenTimer(){
  stopGoldenTimerAlarm();const s=goldenTimerState;s.running=false;clearInterval(s.interval);s.interval=null;s.remaining=s.duration;s.end=0;renderGoldenTimer()
 }
 function initGoldenTimer(){goldenTimerState.duration=goldenTimerStoredDuration();goldenTimerState.remaining=goldenTimerState.duration;renderGoldenTimer()}
+function openHomeTimer(){renderGoldenTimer();const d=$("#homeTimerDialog");if(d&&!d.open)d.showModal()}
+function closeHomeTimer(){const d=$("#homeTimerDialog");if(d?.open)d.close()}
 
 
 let whatCookIdeas=[];
@@ -1471,6 +1492,10 @@ $("#cookModeDialog").addEventListener("close",releaseCookWakeLock);
 $("#goldenTimerStart").onclick=toggleGoldenTimer;$("#goldenTimerReset").onclick=resetGoldenTimer;$("#goldenTimerStopAlarm").onclick=stopGoldenTimerAlarm;
 $("#goldenTimerMinus1").onclick=()=>adjustGoldenTimer(-60);$("#goldenTimerPlus1").onclick=()=>adjustGoldenTimer(60);$("#goldenTimerPlus5").onclick=()=>adjustGoldenTimer(300);
 $("#goldenTimerPresets").querySelectorAll("[data-golden-minutes]").forEach(b=>b.onclick=()=>setGoldenTimer(Number(b.dataset.goldenMinutes)));initGoldenTimer();
+$("#homeTimerBtn").onclick=openHomeTimer;$("#closeHomeTimer").onclick=closeHomeTimer;$("#homeTimerStart").onclick=toggleGoldenTimer;$("#homeTimerReset").onclick=resetGoldenTimer;$("#homeTimerStopAlarm").onclick=stopGoldenTimerAlarm;
+$("#homeTimerMinus1").onclick=()=>adjustGoldenTimer(-60);$("#homeTimerPlus1").onclick=()=>adjustGoldenTimer(60);$("#homeTimerPlus5").onclick=()=>adjustGoldenTimer(300);
+$("#homeTimerPresets").querySelectorAll("[data-home-timer-minutes]").forEach(b=>b.onclick=()=>setGoldenTimer(Number(b.dataset.homeTimerMinutes)));
+$("#homeTimerDialog").onclick=e=>{if(e.target===$("#homeTimerDialog"))closeHomeTimer()};
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;

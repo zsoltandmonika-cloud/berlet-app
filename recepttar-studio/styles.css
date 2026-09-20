@@ -1763,3 +1763,109 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
  .category-manager-row{grid-template-columns:1fr}
  .category-manager-actions{justify-content:flex-start}
 }
+
+/* ===== FŐOLDALI GOLDEN TIMER ===== */
+.home-timer-launch{
+ position:absolute!important;z-index:12!important;left:80.3%!important;top:5.2%!important;
+ width:clamp(48px,6.4vw,78px)!important;aspect-ratio:1!important;
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ padding:5px!important;border:1px solid rgba(226,204,146,.68)!important;border-radius:50%!important;
+ background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.10),transparent 34%),rgba(9,10,9,.72)!important;
+ color:#edd89e!important;box-shadow:0 7px 20px rgba(0,0,0,.42),inset 0 0 0 2px rgba(255,255,255,.035)!important;
+ cursor:pointer;line-height:1!important;-webkit-tap-highlight-color:transparent;
+ transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease
+}
+.home-timer-launch:hover{border-color:#f1d895!important;box-shadow:0 8px 24px rgba(0,0,0,.50),0 0 18px rgba(213,181,99,.20)!important}
+.home-timer-launch:active{transform:scale(.94)}
+.home-timer-launch:focus-visible{outline:3px solid #e34f84!important;outline-offset:3px}
+.home-timer-launch-icon{display:block;width:72%;height:61%;overflow:hidden}
+.home-timer-launch-icon img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;object-fit:initial!important;transform:none!important;filter:none!important}
+.home-timer-launch>span:last-child{font-size:clamp(7px,.72vw,9px);font-weight:950;letter-spacing:.14em;color:#e8d49a}
+
+.home-timer-dialog{
+ width:min(96vw,620px);max-width:620px;max-height:96dvh;margin:auto;padding:0;border:0;border-radius:28px;
+ background:transparent;color:#fff;overflow:visible
+}
+.home-timer-dialog::backdrop{background:rgba(5,8,6,.82);backdrop-filter:blur(7px)}
+.home-timer-shell{
+ max-height:96dvh;overflow:auto;padding:22px;
+ border:1px solid #b99c52;border-radius:28px;
+ background:
+  radial-gradient(circle at 82% 2%,rgba(229,198,112,.22),transparent 29%),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px),
+  linear-gradient(150deg,#254a3a,#173528 64%,#11291f);
+ box-shadow:0 30px 90px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.12)
+}
+.home-timer-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.home-timer-eyebrow{font-size:10px;font-weight:950;letter-spacing:.16em;color:#dcc57f}
+.home-timer-header h2{margin:4px 0 0;font:700 30px/1.05 Georgia,serif;color:#fff7df}
+.home-timer-close{
+ flex:none;width:48px;height:48px;padding:0;border:1px solid rgba(231,211,154,.60);border-radius:50%;
+ background:rgba(255,255,255,.075);color:#fff4d5;font-size:30px;line-height:1
+}
+.home-stopwatch{position:relative;width:min(75vw,340px);margin:25px auto 20px;padding-top:12px}
+.home-stopwatch-crown{
+ position:absolute;z-index:0;left:50%;top:0;width:62px;height:28px;transform:translate(-50%,-44%);
+ border:2px solid #cdb064;border-radius:11px 11px 5px 5px;
+ background:linear-gradient(180deg,#725b30,#c9aa58 50%,#6c542b);
+ box-shadow:0 6px 12px rgba(0,0,0,.25)
+}
+.home-timer-dial{
+ --home-timer-progress:360deg;--home-timer-hand:0deg;
+ position:relative;isolation:isolate;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+ border:8px solid #c7a755;
+ background:
+  radial-gradient(circle at center,#1a3529 0 61%,transparent 61.5%),
+  repeating-conic-gradient(from -90deg,#ead99f 0deg 1.3deg,transparent 1.3deg 6deg),
+  conic-gradient(from -90deg,#d8ba65 0 var(--home-timer-progress),rgba(255,255,255,.10) var(--home-timer-progress) 360deg);
+ box-shadow:0 18px 42px rgba(0,0,0,.42),inset 0 0 0 5px #162d23,inset 0 0 0 7px rgba(239,216,151,.38)
+}
+.home-timer-dial::before{
+ content:"";position:absolute;z-index:0;inset:9.5%;border:1px solid rgba(232,211,150,.28);border-radius:50%;
+ box-shadow:inset 0 0 30px rgba(0,0,0,.28)
+}
+.home-timer-hand{
+ position:absolute;z-index:1;left:calc(50% - 1.5px);top:12%;width:3px;height:39%;border-radius:999px;
+ background:linear-gradient(#ed6b65,#c43c41);transform-origin:50% 97.5%;transform:rotate(var(--home-timer-hand));
+ box-shadow:0 0 8px rgba(232,72,72,.45);transition:transform .18s linear
+}
+.home-timer-hub{position:absolute;z-index:3;width:13px;height:13px;border-radius:50%;background:#e4ca82;border:3px solid #8e7134;box-shadow:0 2px 7px rgba(0,0,0,.38)}
+.home-timer-dial-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center}
+.home-timer-dial-inner small{font-size:10px;font-weight:800;color:#bfc9c0;letter-spacing:.02em}
+.home-timer-display{margin:7px 0 10px;font:850 clamp(48px,13vw,70px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.015em;color:#fff4d4;text-shadow:0 3px 0 rgba(0,0,0,.22)}
+.home-timer-status{padding:6px 10px;border:1px solid rgba(234,214,156,.55);border-radius:999px;background:rgba(5,17,12,.34);color:#efd997;font-size:9px;font-weight:950;letter-spacing:.12em}
+.home-timer-status.running{background:#95752d;color:#fff}.home-timer-status.alarm{background:#a63f34;color:#fff;animation:goldenTimerPulse .7s ease-in-out infinite alternate}
+.home-timer-dial.alarm{animation:homeTimerAlarm .58s ease-in-out infinite alternate}
+@keyframes homeTimerAlarm{from{box-shadow:0 18px 42px rgba(0,0,0,.42),0 0 0 rgba(255,102,79,0)}to{box-shadow:0 18px 42px rgba(0,0,0,.42),0 0 34px rgba(255,102,79,.82)}}
+.home-timer-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.home-timer-adjust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.home-timer-presets button,.home-timer-adjust button{
+ min-height:44px;border:1px solid rgba(229,207,146,.52);border-radius:12px;background:rgba(255,255,255,.075);color:#fff5dc;font-weight:900
+}
+.home-timer-presets button.active{background:#d4b461;color:#173429;border-color:#f2dc99}
+.home-timer-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:9px;margin-top:13px}
+.home-timer-actions button,.home-timer-stop{min-height:52px;border-radius:14px;font-size:15px;font-weight:950}
+.home-timer-primary{border:1px solid #f0d78f;background:linear-gradient(180deg,#e3c878,#caa64f);color:#173429;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+.home-timer-secondary{border:1px solid rgba(232,212,158,.55);background:rgba(255,255,255,.075);color:#fff7e2}
+.home-timer-stop{width:100%;margin-top:9px;border:1px solid #ffc0b4;background:#a43d32;color:#fff}
+.home-timer-note{margin:11px 0 0;text-align:center;color:#ddcfa9;font-size:10px;font-weight:800}
+body:has(.home-timer-dialog[open]){overflow:hidden}
+@media(max-width:620px){
+ .home-timer-dialog{width:100vw;max-width:none;height:100dvh;max-height:none;border-radius:0}
+ .home-timer-shell{min-height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+ .home-stopwatch{width:min(78vw,330px);margin-top:21px;margin-bottom:17px}
+ .home-timer-presets{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:430px){
+ .home-timer-launch{left:79.4%!important;top:4.2%!important;width:48px!important}
+ .home-timer-launch-icon{width:68%;height:59%}
+ .home-timer-header h2{font-size:26px}
+ .home-timer-close{width:46px;height:46px}
+ .home-stopwatch{width:min(76vw,300px)}
+ .home-timer-display{font-size:52px}
+ .home-timer-actions{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-timer-launch,.home-timer-hand{transition:none}
+ .home-timer-dial.alarm,.home-timer-status.alarm{animation:none}
+}

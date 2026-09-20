@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171817">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=27">
+<link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
 <header class="app-header">
@@ -25,6 +25,10 @@
   <section class="what-cook-home">
     <div class="lena-master-banner lena-master-banner-final" role="group" aria-label="Léna, mit főzzünk? Gyors konyhai műveletek">
       <img src="assets/lena-kitchen-banner-master.png?v=1" alt="Léna, mit főzzünk? Személyre szabott receptötletek 4 főre">
+      <button id="homeTimerBtn" type="button" class="home-timer-launch" aria-label="Léna Golden Timer megnyitása" title="Golden Timer">
+        <span class="home-timer-launch-icon" aria-hidden="true"><img src="data:image/png;base64,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" alt=""></span>
+        <span>TIMER</span>
+      </button>
       <button id="whatCookBtn" type="button" class="banner-hotspot banner-hotspot-main" aria-label="Mutasd a javaslatokat"></button>
       <button id="bannerHomeStock" type="button" class="banner-hotspot banner-hotspot-stock" aria-label="Ami van otthon: nyisd meg a Recept Studiót"></button>
       <button id="bannerTime" type="button" class="banner-hotspot banner-hotspot-time" aria-label="Mennyi időtök van: gyors receptjavaslat"></button>
@@ -254,6 +258,49 @@
     <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 3 ötletet</button>
     <div id="whatCookContext" class="what-cook-context"></div>
     <div id="whatCookResults" class="what-cook-results"></div>
+  </div>
+</dialog>
+
+<dialog id="homeTimerDialog" class="home-timer-dialog">
+  <div class="home-timer-shell">
+    <header class="home-timer-header">
+      <div>
+        <div class="home-timer-eyebrow">LÉNA · GOLDEN STANDARD</div>
+        <h2>Golden Timer</h2>
+      </div>
+      <button id="closeHomeTimer" type="button" class="home-timer-close" aria-label="Timer bezárása">×</button>
+    </header>
+
+    <section class="home-stopwatch" aria-label="Analóg és digitális visszaszámláló">
+      <div class="home-stopwatch-crown" aria-hidden="true"></div>
+      <div id="homeTimerDial" class="home-timer-dial">
+        <div class="home-timer-hand" aria-hidden="true"></div>
+        <div class="home-timer-hub" aria-hidden="true"></div>
+        <div class="home-timer-dial-inner">
+          <small id="homeTimerCaption">válassz időt vagy indítsd el</small>
+          <div id="homeTimerDisplay" class="home-timer-display" aria-live="polite">10:00</div>
+          <span id="homeTimerStatus" class="home-timer-status">KÉSZEN</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="homeTimerPresets" class="home-timer-presets" aria-label="Gyors időválasztás">
+      <button type="button" data-home-timer-minutes="5">5 perc</button>
+      <button type="button" data-home-timer-minutes="10">10 perc</button>
+      <button type="button" data-home-timer-minutes="15">15 perc</button>
+      <button type="button" data-home-timer-minutes="30">30 perc</button>
+    </div>
+    <div class="home-timer-adjust" aria-label="Idő módosítása">
+      <button id="homeTimerMinus1" type="button">−1 perc</button>
+      <button id="homeTimerPlus1" type="button">+1 perc</button>
+      <button id="homeTimerPlus5" type="button">+5 perc</button>
+    </div>
+    <div class="home-timer-actions">
+      <button id="homeTimerStart" type="button" class="home-timer-primary">▶ Indítás</button>
+      <button id="homeTimerReset" type="button" class="home-timer-secondary">↺ Újrakezdés</button>
+    </div>
+    <button id="homeTimerStopAlarm" type="button" class="home-timer-stop" hidden>🔇 Riasztás leállítása</button>
+    <p class="home-timer-note">🔔 Erős Léna-riasztás 5 másodpercig</p>
   </div>
 </dialog>
 
@@ -600,6 +647,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=30"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>
