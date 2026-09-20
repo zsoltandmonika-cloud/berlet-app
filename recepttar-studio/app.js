@@ -489,7 +489,15 @@ async function saveNew(){
 const STUDIO_TEXT_MODEL="gpt-5.6-luna";
 const STUDIO_IMAGE_MODEL="gpt-image-1-mini";
 
-function puterAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function"&&typeof puter.ai.txt2img==="function")}
+function puterChatAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function")}
+function puterImageAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.txt2img==="function")}
+function puterAvailable(){return puterChatAvailable()}
+async function ensurePuterAiSession(){
+ if(!puterChatAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
+ if(puter.auth&&typeof puter.auth.isSignedIn==="function"&&typeof puter.auth.signIn==="function"&&!puter.auth.isSignedIn()){
+   await puter.auth.signIn({attempt_temp_user_creation:true})
+ }
+}
 function updateStudioProviderBadge(){
  const b=$("#studioProviderBadge");if(!b)return;
  if(puterAvailable()){b.textContent="AI READY";b.classList.remove("provider-offline");b.classList.add("provider-ready")}
@@ -569,7 +577,7 @@ async function puterRecipe(prompt,currentRecipe=null){
  }
 }
 async function puterFoodImage(recipe){
- if(!puterAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
+ if(!puterImageAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
  const prompt=[
    "Photorealistic premium editorial food photography for a modern Hungarian recipe card.",
    "Dish: "+recipe.title+".",
@@ -1276,11 +1284,16 @@ async function recipeImageFileForVision(r){
  if(!r||r.mime==="application/pdf")throw new Error("PDF automatikus feldolgozása még nem támogatott.");
  let src=r.file;
  if(r.central&&r.heroUrl)src=r.heroUrl;
- if(!src)throw new Error("Ehhez a recepthez nincs feldolgozható kép.");
- const res=await fetch(src);
- if(!res.ok)throw new Error("A receptkép nem tölthető be.");
- const blob=await res.blob();
- return new File([blob],(r.title||"recept")+".jpg",{type:blob.type||"image/jpeg"})
+ let blob=r._blob instanceof Blob?r._blob:null;
+ if(!blob){
+   if(!src)throw new Error("Ehhez a recepthez nincs feldolgozható kép.");
+   const res=await fetch(src);
+   if(!res.ok)throw new Error("A receptkép nem tölthető be.");
+   blob=await res.blob()
+ }
+ if(!blob.type.startsWith("image/"))throw new Error("A receptkártya nem felismerhető képfájl.");
+ const ext=(blob.type.split("/")[1]||"jpg").replace("jpeg","jpg").replace(/[^a-z0-9]/gi,"")||"jpg";
+ return new File([blob],(r.title||"recept")+"."+ext,{type:blob.type})
 }
 function cleanReadableVision(v){
  if(!v||typeof v!=="object")throw new Error("A feldolgozás válasza nem értelmezhető.");
@@ -1294,9 +1307,11 @@ async function forceReadableProcessing(){
  if(!currentId)return;
  const r=getRecipe(currentId);if(!r)return;
  if(r.mime==="application/pdf"){alert("Ehhez most a képes receptfeldolgozás működik. A PDF-ekhez külön feldolgozást teszek majd.");openReadableEditor();return}
- if(!puterAvailable()){alert("Az automatikus feldolgozáshoz most nem érhető el az AI. Megnyitom a kézi szerkesztőt.");openReadableEditor();return}
- busy(true,"⚡ Léna feldolgozza a receptkártyát…");
  try{
+   // A bejelentkezést közvetlenül a gombnyomásból indítjuk, mielőtt bármely
+   // képbetöltés megszakíthatná a böngésző által elvárt felhasználói gesztust.
+   await ensurePuterAiSession();
+   busy(true,"⚡ Léna feldolgozza a receptkártyát…");
    const file=await recipeImageFileForVision(r);
    let resp;
    try{resp=await puter.ai.chat(readableVisionPrompt(r),file,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
@@ -1307,7 +1322,13 @@ async function forceReadableProcessing(){
    toast("⚡ Feldolgozva. Nézd át, majd jelöld Ellenőrzöttnek.");
  }catch(e){
    console.error("Recept feldolgozás hiba",e);
-   alert("A recept automatikus feldolgozása most nem sikerült. Megnyitom a kézi szerkesztőt.");
+   const code=String(e&&((e.error||e.code)||"")).toLowerCase();
+   const msg=code==="popup_blocked"
+     ?"A Puter belépési ablakát blokkolta a böngésző. Engedélyezd a felugró ablakot, majd próbáld újra. Addig megnyitom a kézi szerkesztőt."
+     :code==="auth_window_closed"
+       ?"A receptfeldolgozáshoz szükséges belépés megszakadt. Próbáld újra, amikor készen állsz; addig megnyitom a kézi szerkesztőt."
+       :"A recept automatikus feldolgozása most nem sikerült. Megnyitom a kézi szerkesztőt, így a recept hibakód nélkül javítható.";
+   alert(msg);
    openReadableEditor();
  }finally{busy(false)}
 }
