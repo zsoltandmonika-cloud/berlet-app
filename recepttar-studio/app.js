@@ -1199,6 +1199,70 @@ function resetCookTimer(){
  $("#cookTimerDial")?.classList.remove("timer-done");renderCookTimer()
 }
 
+const GOLDEN_TIMER_KEY="lena25:goldenTimerSeconds";
+let goldenTimerState={duration:600,remaining:600,end:0,running:false,interval:null,alarming:false,alarmNodes:[],alarmTimeout:null};
+function goldenTimerStoredDuration(){
+ const n=parseInt(localStorage.getItem(GOLDEN_TIMER_KEY)||"600",10);return Number.isFinite(n)?Math.max(60,Math.min(10800,n)):600
+}
+function saveGoldenTimerDuration(){localStorage.setItem(GOLDEN_TIMER_KEY,String(goldenTimerState.duration))}
+function renderGoldenTimer(){
+ const display=$("#goldenTimerDisplay");if(!display)return;
+ const s=goldenTimerState,status=$("#goldenTimerStatus"),start=$("#goldenTimerStart");
+ display.textContent=s.alarming?"KÉSZ!":formatCookTime(s.remaining);
+ status.textContent=s.alarming?"RIASZTÁS":s.running?"FUT":"KÉSZEN";status.className="golden-timer-status"+(s.alarming?" alarm":s.running?" running":"");
+ $("#goldenTimerCaption").textContent=s.alarming?"lejárt az idő":s.running?"hátralévő idő":s.remaining===0?"válassz új időt":"válassz időt vagy indítsd el";
+ start.textContent=s.running?"⏸ Szünet":s.remaining===0?"▶ Újra":"▶ Indítás";
+ $("#goldenTimerStopAlarm").hidden=!s.alarming;
+ $("#goldenTimerPresets").querySelectorAll("[data-golden-minutes]").forEach(b=>b.classList.toggle("active",Number(b.dataset.goldenMinutes)*60===s.duration))
+}
+function primeGoldenTimerAudio(){
+ try{const ac=ensureCookAudio();if(!ac)return;const o=ac.createOscillator(),g=ac.createGain(),now=ac.currentTime;o.connect(g);g.connect(ac.destination);g.gain.value=.0001;o.start(now);o.stop(now+.01)}catch(e){}
+}
+function stopGoldenTimerAlarm(){
+ clearTimeout(goldenTimerState.alarmTimeout);goldenTimerState.alarmTimeout=null;
+ goldenTimerState.alarmNodes.forEach(o=>{try{o.stop()}catch(e){}});goldenTimerState.alarmNodes=[];goldenTimerState.alarming=false;renderGoldenTimer()
+}
+function startGoldenTimerAlarm(){
+ stopGoldenTimerAlarm();goldenTimerState.alarming=true;renderGoldenTimer();
+ try{
+  const ac=ensureCookAudio();if(ac){
+   const start=ac.currentTime+.02;
+   for(let t=0;t<5;t+=.5){
+    [0,.18].forEach((offset,i)=>{
+     const o=ac.createOscillator(),g=ac.createGain(),at=start+t+offset;o.type="triangle";o.frequency.value=i?1320:880;
+     g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(i?.3:.34,at+.018);g.gain.exponentialRampToValueAtTime(.0001,at+.15);
+     o.connect(g);g.connect(ac.destination);o.start(at);o.stop(at+.17);goldenTimerState.alarmNodes.push(o)
+    })
+   }
+  }
+ }catch(e){}
+ goldenTimerState.alarmTimeout=setTimeout(stopGoldenTimerAlarm,5000);toast("🔔 Léna Golden Timer: lejárt az idő.")
+}
+function goldenTimerTick(){
+ if(!goldenTimerState.running)return;
+ goldenTimerState.remaining=Math.max(0,Math.ceil((goldenTimerState.end-Date.now())/1000));renderGoldenTimer();
+ if(goldenTimerState.remaining<=0){goldenTimerState.running=false;clearInterval(goldenTimerState.interval);goldenTimerState.interval=null;startGoldenTimerAlarm()}
+}
+function setGoldenTimer(minutes){
+ stopGoldenTimerAlarm();const sec=Math.max(60,Math.min(10800,Math.round(Number(minutes)||10)*60));
+ goldenTimerState.running=false;clearInterval(goldenTimerState.interval);goldenTimerState.interval=null;goldenTimerState.duration=sec;goldenTimerState.remaining=sec;goldenTimerState.end=0;saveGoldenTimerDuration();renderGoldenTimer()
+}
+function adjustGoldenTimer(seconds){
+ stopGoldenTimerAlarm();const s=goldenTimerState;
+ if(s.running){s.remaining=Math.max(0,Math.min(10800,s.remaining+seconds));s.end=Date.now()+s.remaining*1000;if(s.remaining===0){s.running=false;clearInterval(s.interval);s.interval=null;startGoldenTimerAlarm();return}}
+ else{s.remaining=Math.max(0,Math.min(10800,s.remaining+seconds));s.duration=Math.max(60,s.remaining||60);saveGoldenTimerDuration()}
+ renderGoldenTimer()
+}
+function toggleGoldenTimer(){
+ stopGoldenTimerAlarm();const s=goldenTimerState;
+ if(s.running){s.remaining=Math.max(0,Math.ceil((s.end-Date.now())/1000));s.running=false;clearInterval(s.interval);s.interval=null;renderGoldenTimer();return}
+ if(s.remaining<=0)s.remaining=s.duration||600;primeGoldenTimerAudio();s.running=true;s.end=Date.now()+s.remaining*1000;clearInterval(s.interval);s.interval=setInterval(goldenTimerTick,250);renderGoldenTimer()
+}
+function resetGoldenTimer(){
+ stopGoldenTimerAlarm();const s=goldenTimerState;s.running=false;clearInterval(s.interval);s.interval=null;s.remaining=s.duration;s.end=0;renderGoldenTimer()
+}
+function initGoldenTimer(){goldenTimerState.duration=goldenTimerStoredDuration();goldenTimerState.remaining=goldenTimerState.duration;renderGoldenTimer()}
+
 
 let whatCookIdeas=[];
 function whatCookPromptText(userText){
@@ -1404,6 +1468,9 @@ $("#cookModeBtn").onclick=openCookMode;$("#closeCookMode").onclick=closeCookMode
 $("#cookTimerPresets").querySelectorAll("[data-cook-minutes]").forEach(b=>b.onclick=()=>startCookPreset(Number(b.dataset.cookMinutes)));
 $("#cookTimerPlus1").onclick=()=>addCookTimer(60);$("#cookTimerPlus5").onclick=()=>addCookTimer(300);
 $("#cookModeDialog").addEventListener("close",releaseCookWakeLock);
+$("#goldenTimerStart").onclick=toggleGoldenTimer;$("#goldenTimerReset").onclick=resetGoldenTimer;$("#goldenTimerStopAlarm").onclick=stopGoldenTimerAlarm;
+$("#goldenTimerMinus1").onclick=()=>adjustGoldenTimer(-60);$("#goldenTimerPlus1").onclick=()=>adjustGoldenTimer(60);$("#goldenTimerPlus5").onclick=()=>adjustGoldenTimer(300);
+$("#goldenTimerPresets").querySelectorAll("[data-golden-minutes]").forEach(b=>b.onclick=()=>setGoldenTimer(Number(b.dataset.goldenMinutes)));initGoldenTimer();
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;

@@ -367,6 +367,31 @@ html,body{
  background:linear-gradient(135deg,#49654f,#355241);color:#fff;font-size:17px;font-weight:900;
  box-shadow:0 7px 18px rgba(54,78,61,.18)
 }
+.golden-timer-card{
+ position:relative;overflow:hidden;margin:0 0 14px;padding:17px;border:1px solid #c8a958;border-radius:20px;color:#fff;
+ background:radial-gradient(circle at 90% 0,rgba(230,199,112,.22),transparent 35%),linear-gradient(145deg,#183d30,#294f3d 58%,#183a2e);
+ box-shadow:0 12px 28px rgba(29,54,42,.2),inset 0 1px 0 rgba(255,255,255,.12)
+}
+.golden-timer-card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(120deg,transparent 15%,rgba(255,255,255,.055) 48%,transparent 72%)}
+.golden-timer-head,.golden-timer-brand,.golden-timer-actions,.golden-timer-adjust{display:flex;align-items:center}
+.golden-timer-head{position:relative;z-index:1;justify-content:space-between;gap:12px}
+.golden-timer-brand{gap:11px}.golden-timer-brand div{display:grid;gap:2px}.golden-timer-brand small{font-size:9px;font-weight:950;letter-spacing:.16em;color:#e5cd8d}.golden-timer-brand b{font:700 22px Georgia,serif;color:#fff8e7}
+.golden-timer-icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid #d7bd78;border-radius:50%;background:rgba(255,255,255,.08);color:#f0d58f}
+.golden-timer-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.golden-timer-status{border:1px solid rgba(235,211,150,.58);border-radius:999px;padding:6px 9px;font-size:10px;font-weight:950;letter-spacing:.1em;color:#f2dda5;background:rgba(8,25,19,.24)}
+.golden-timer-status.running{color:#fff;background:#92732a}.golden-timer-status.alarm{color:#fff;background:#a23d31;animation:goldenTimerPulse .7s ease-in-out infinite alternate}
+.golden-timer-display-wrap{position:relative;z-index:1;text-align:center;padding:14px 0 12px}.golden-timer-display{font:800 clamp(48px,13vw,76px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;color:#fff5d8;text-shadow:0 2px 0 rgba(0,0,0,.16)}
+.golden-timer-display-wrap small{display:block;margin-top:6px;color:#d8dfd9;font-size:11px;font-weight:800}
+.golden-timer-presets{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.golden-timer-presets button,.golden-timer-adjust button{min-height:42px;border:1px solid rgba(226,204,146,.54);border-radius:11px;background:rgba(255,255,255,.08);color:#fff8e7;font-weight:850}
+.golden-timer-presets button.active{background:#d4b461;color:#19372c;border-color:#f1d894;box-shadow:0 4px 12px rgba(8,20,15,.2)}
+.golden-timer-adjust{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+.golden-timer-actions{position:relative;z-index:1;display:grid;grid-template-columns:1.35fr 1fr;gap:9px;margin-top:12px}.golden-timer-actions button,.golden-timer-stop{min-height:50px;border-radius:13px;font-weight:950;font-size:15px}
+.golden-timer-primary{border:1px solid #f0d78f;background:linear-gradient(180deg,#e1c573,#caa64f);color:#19362b;box-shadow:0 7px 16px rgba(8,21,16,.24)}
+.golden-timer-secondary{border:1px solid rgba(232,212,158,.55);background:rgba(255,255,255,.08);color:#fff8e7}
+.golden-timer-stop{position:relative;z-index:1;width:100%;margin-top:9px;border:1px solid #ffb7aa;background:#9f382e;color:#fff}
+.golden-timer-note{position:relative;z-index:1;margin-top:10px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.03em;color:#dacda8}
+@keyframes goldenTimerPulse{from{box-shadow:0 0 0 rgba(255,173,145,0)}to{box-shadow:0 0 16px rgba(255,173,145,.7)}}
+@media(max-width:470px){.golden-timer-card{padding:14px}.golden-timer-presets{grid-template-columns:repeat(2,1fr)}.golden-timer-actions{grid-template-columns:1fr}.golden-timer-brand b{font-size:20px}}
 .cook-mode-dialog{
  width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;
  background:#efe6d7;color:#2f4036;overflow:hidden
