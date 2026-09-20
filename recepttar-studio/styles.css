@@ -1894,3 +1894,39 @@ body:has(.home-timer-dialog[open]){overflow:hidden}
  .readable-action-row{grid-template-columns:minmax(0,1fr) 62px;gap:8px}
  .recipe-timer-launch{min-height:56px}
 }
+
+/* ===== EREDETI RECEPTKÁRTYA: EDGE-TO-EDGE NÉZET ===== */
+body.original-card-fullscreen{overflow:hidden!important;padding-bottom:0!important}
+body.original-card-fullscreen #originalPanel{
+ position:fixed!important;z-index:200!important;inset:0!important;
+ width:100vw!important;height:100dvh!important;margin:0!important;padding:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ border:0!important;border-radius:0!important;background:#050505!important;
+ overflow:auto!important;overscroll-behavior:contain
+}
+body.original-card-fullscreen #originalPanel #recipeImage:not([hidden]){
+ display:block;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+ margin:0!important;border:0!important;border-radius:0!important;background:#050505!important;
+ object-fit:contain!important;object-position:center!important;cursor:default!important;
+ touch-action:pan-x pan-y pinch-zoom
+}
+body.original-card-fullscreen #originalPanel #recipePdf:not([hidden]){
+ display:block;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+ margin:0!important;border:0!important;border-radius:0!important;background:#fff!important
+}
+body.original-card-fullscreen #recipeImageHint{display:none!important}
+body.original-card-fullscreen #originalMode{
+ position:fixed!important;z-index:210!important;
+ top:max(12px,env(safe-area-inset-top))!important;right:max(12px,env(safe-area-inset-right))!important;
+ width:auto!important;min-width:104px!important;min-height:48px!important;padding:10px 15px!important;
+ border:1px solid rgba(255,255,255,.44)!important;border-radius:999px!important;
+ background:rgba(10,12,11,.78)!important;color:#fff7e8!important;
+ box-shadow:0 8px 24px rgba(0,0,0,.42)!important;backdrop-filter:blur(8px)
+}
+body.original-card-fullscreen #originalMode:focus-visible{outline:3px solid #df4d80!important;outline-offset:3px}
+@media(max-width:600px){
+ body.original-card-fullscreen #originalMode{
+  top:max(9px,env(safe-area-inset-top))!important;right:max(9px,env(safe-area-inset-right))!important;
+  min-width:96px!important;min-height:46px!important;padding:9px 13px!important;font-size:13px!important
+ }
+}
