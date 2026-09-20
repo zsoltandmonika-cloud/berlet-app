@@ -73,12 +73,16 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 .structured-section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px}
 .structured-section h2{margin:0 0 12px;font:700 23px Georgia,serif;color:#173a2e}
 .ingredients-list{display:grid;gap:8px}
-.ingredient-row{display:flex;align-items:flex-start;gap:11px;font-size:var(--readable-size);line-height:1.42;padding:8px 0;border-bottom:1px solid #eef0ec}
+.ingredient-row,.step-row{display:flex;align-items:flex-start;gap:11px;font-size:var(--readable-size);line-height:1.42;padding:8px 0;border-bottom:1px solid #eef0ec;cursor:pointer}
 .ingredient-row:last-child{border-bottom:0}
-.ingredient-row input{width:23px;height:23px;flex:none;margin-top:1px;accent-color:var(--accent)}
+.ingredient-row input,.step-row input{width:23px;height:23px;flex:none;margin-top:1px;accent-color:var(--accent)}
 .ingredient-row.checked span{text-decoration:line-through;color:#8a8e8a}
 .steps-list{margin:0;padding-left:30px;display:grid;gap:13px;font-size:var(--readable-size);line-height:1.52}
 .steps-list li{padding-left:5px}.steps-list li::marker{font-weight:900;color:var(--accent)}
+.step-row{line-height:1.52;padding:8px 0 12px}
+.steps-list li:last-child .step-row{border-bottom:0}
+.steps-list li.checked .step-text{text-decoration:line-through;color:#8a8e8a}
+.steps-list li.checked::marker{color:#a1a7a3}
 .notes-section{font-size:var(--readable-size);line-height:1.5}
 .notes-section p{margin:7px 0;color:#33483f}
 .full-width-btn{width:100%;margin-top:12px}

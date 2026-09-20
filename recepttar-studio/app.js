@@ -1001,6 +1001,19 @@ function openAdmin(){renderPending();renderDeleted();renderCategoryManager();$("
 
 
 function ingredientCheckKey(id,i){return"lena25:checked:"+id+":"+i}
+function stepCheckKey(id,i){return"lena25:stepchecked:"+id+":"+i}
+function playCheckClick(checked){
+ try{
+  const ac=ensureCookAudio();if(!ac)return;
+  const sound=()=>{
+   const now=ac.currentTime+.008,o=ac.createOscillator(),g=ac.createGain();
+   o.type="triangle";o.frequency.setValueAtTime(checked?760:560,now);o.frequency.exponentialRampToValueAtTime(checked?920:460,now+.04);
+   g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.045,now+.004);g.gain.exponentialRampToValueAtTime(.0001,now+.045);
+   o.connect(g);g.connect(ac.destination);o.start(now);o.stop(now+.05)
+  };
+  if(ac.state==="suspended")ac.resume().then(sound).catch(()=>{});else sound()
+ }catch(e){}
+}
 function currentReadableFont(){let n=parseInt(localStorage.getItem("lena25:font")||"18",10);if(!Number.isFinite(n))n=18;return Math.max(15,Math.min(26,n))}
 function applyReadableFont(){
  const n=currentReadableFont(),box=$("#readableContent");if(box)box.style.setProperty("--readable-size",n+"px");if($("#fontSizeLabel"))$("#fontSizeLabel").textContent=n
@@ -1016,12 +1029,21 @@ function renderIngredientList(id,ingredients){
     const label=document.createElement("label");label.className="ingredient-row"+(r.checked?" checked":"");
     const cb=document.createElement("input");cb.type="checkbox";cb.checked=r.checked;
     const span=document.createElement("span");span.textContent=r.item;
-    cb.onchange=()=>{localStorage.setItem(ingredientCheckKey(id,r.i),cb.checked?"1":"0");renderIngredientList(id,ingredients)};
+    cb.onchange=()=>{playCheckClick(cb.checked);localStorage.setItem(ingredientCheckKey(id,r.i),cb.checked?"1":"0");renderIngredientList(id,ingredients)};
     label.append(cb,span);box.appendChild(label)
   })
  }
  group("✓ Kipipálva",checked,true);
  group("Még nincs kipipálva",open,false)
+}
+function renderStepList(id,steps){
+ const box=$("#stepsList");box.innerHTML="";
+ steps.forEach((step,i)=>{
+  const checked=localStorage.getItem(stepCheckKey(id,i))==="1",li=document.createElement("li"),label=document.createElement("label"),cb=document.createElement("input"),span=document.createElement("span");
+  li.className=checked?"checked":"";label.className="step-row";cb.type="checkbox";cb.checked=checked;span.className="step-text";span.textContent=step;
+  cb.onchange=()=>{playCheckClick(cb.checked);localStorage.setItem(stepCheckKey(id,i),cb.checked?"1":"0");li.classList.toggle("checked",cb.checked)};
+  label.append(cb,span);li.appendChild(label);box.appendChild(li)
+ })
 }
 function renderReadableFor(id){
  const d=getReadable(id),info=statusInfo(d.status),badge=$("#readableStatusBadge");
@@ -1036,7 +1058,7 @@ function renderReadableFor(id){
  $("#ingredientsList").innerHTML="";$("#stepsList").innerHTML="";$("#notesList").innerHTML="";$("#notesSection").hidden=true;
  if(!readable){setMode("original");return}
  renderIngredientList(id,d.ingredients);
- d.steps.forEach(step=>{const li=document.createElement("li");li.textContent=step;$("#stepsList").appendChild(li)});
+ renderStepList(id,d.steps);
  const notes=Array.isArray(d.notes)?d.notes:[];
  if(notes.length){$("#notesSection").hidden=false;notes.forEach(n=>{const p=document.createElement("p");p.textContent=n;$("#notesList").appendChild(p)})}
  applyReadableFont();renderNutriCard(id)
@@ -1356,7 +1378,7 @@ function saveStructuredReadable(){
  if(status==="verified"){setMode("readable");toast("✓ Olvasható recept ellenőrzöttként elmentve.")}else if(status==="review"){setMode("original");toast("Mentve: ellenőrzésre vár.")}else{setMode("original");toast("Mentve: nincs feldolgozva.")}
 }
 function resetIngredientChecks(){
- if(!currentId)return;const d=getReadable(currentId);(d.ingredients||[]).forEach((_,i)=>localStorage.removeItem(ingredientCheckKey(currentId,i)));renderReadableFor(currentId);toast("Hozzávaló-pipák törölve.")
+ if(!currentId)return;const d=getReadable(currentId);(d.ingredients||[]).forEach((_,i)=>localStorage.removeItem(ingredientCheckKey(currentId,i)));(d.steps||[]).forEach((_,i)=>localStorage.removeItem(stepCheckKey(currentId,i)));renderReadableFor(currentId);toast("Minden pipa törölve.")
 }
 function changeReadableFont(delta){
  const n=Math.max(15,Math.min(26,currentReadableFont()+delta));localStorage.setItem("lena25:font",String(n));applyReadableFont()
