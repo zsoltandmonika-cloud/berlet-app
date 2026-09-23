@@ -28,7 +28,9 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 .pdf-tile{width:100%;height:100%;display:grid;place-items:center;font-size:60px;background:#eee8df}
 .card-body{padding:11px 13px 13px}.card-title{font:700 20px Georgia,serif;color:#173a2e;margin:0 0 7px}
 .card-sub{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}.card-actions button{border:0;background:transparent;font-size:23px;min-width:44px;min-height:44px}
-.recipe-toolbar{position:sticky;top:70px;z-index:25;background:rgba(247,243,234,.96);display:grid;grid-template-columns:1fr 1fr 54px 54px;gap:7px;padding:8px;border-bottom:1px solid var(--line)}
+.recipe-toolbar{position:sticky;top:70px;z-index:25;background:rgba(247,243,234,.96);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) repeat(3,48px);gap:7px;padding:8px;border-bottom:1px solid var(--line)}
+.recipe-icon-btn{display:grid;place-items:center;padding:8px!important}
+.recipe-icon-btn svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .recipe-head{padding:12px 14px 9px}.recipe-head h1{font:700 30px Georgia,serif;color:#173a2e;margin:4px 0 10px;line-height:1.1}
 .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mode.active{background:var(--accent);color:white;border-color:var(--accent)}
 .original-panel{width:100%;background:#eceae5}.original-panel img{display:block;width:100vw;max-width:100%;height:auto;object-fit:contain;margin:0 auto;touch-action:pan-y pinch-zoom}
@@ -47,6 +49,8 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 .sync-choice{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fbfcfa}.sync-choice input{margin-top:4px;width:20px;height:20px}.sync-choice span{display:grid;gap:2px}.sync-choice small{color:var(--muted);line-height:1.35}
 .remember-row{display:flex;align-items:center;gap:8px;margin-top:12px;color:#40534a}.remember-row input{width:19px;height:19px}.token-link{display:block;margin:10px 0;color:#245b42;font-weight:800}
 .danger-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.dialog-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.dialog-title-row h2{margin:0}
+.golden-regenerate-btn{width:100%;display:flex;align-items:center;gap:12px;margin-top:14px;padding:13px 14px;border:1px solid #c9aa5a;border-radius:14px;background:linear-gradient(135deg,#fff8dd,#efe0a7);color:#344a3b;text-align:left}
+.golden-regenerate-btn>span:first-child{font-size:27px}.golden-regenerate-btn>span:last-child{display:grid;gap:2px}.golden-regenerate-btn b{font-size:14px}.golden-regenerate-btn small{font-size:12px;line-height:1.35;color:#75684f}
 .icon-close{width:44px;height:44px;border:0;border-radius:12px;background:#eef1ed;font-size:25px;color:#334b40}.admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
 .deleted-list{display:grid;gap:8px}.deleted-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:#fffdf9}
 .deleted-main{min-width:0}.deleted-title{font-weight:850;color:#244235;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deleted-cat{font-size:12px;color:var(--muted);margin-top:2px}
@@ -936,6 +940,11 @@ dialog:not(.photo-lightbox):not(.cook-mode-dialog)::backdrop{
 .field-input:focus,.dialog-card textarea:focus,.studio-shell textarea:focus,.studio-shell input:focus{
   outline:none!important;border-color:#c9687c!important;box-shadow:0 0 0 3px rgba(194,102,120,.14)!important
 }
+.golden-regenerate-btn{
+  background:linear-gradient(135deg,#3b3526,#292a23)!important;border-color:#9c8444!important;color:#fff0c9!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 24px rgba(0,0,0,.22)
+}
+.golden-regenerate-btn small{color:#c9bea8!important}
 .local-note,.cloud-account-status,.studio-status,.fridge-scan-box,.studio-preview,.studio-refine{
   background:#252722!important;border-color:#42453c!important;color:#bdb5aa!important
 }

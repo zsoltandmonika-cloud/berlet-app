@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171817">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=30">
+<link rel="stylesheet" href="styles.css?v=31">
 </head>
 <body>
 <header class="app-header">
@@ -68,6 +68,9 @@
       <span>Home</span>
     </button>
     <button id="backBtn" class="nav-btn">← Vissza</button>
+    <button id="shareBtn" class="nav-btn recipe-icon-btn" title="Megosztás" aria-label="Recept megosztása">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.2M8.7 13.3l6.6 4.2"/></svg>
+    </button>
     <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
     <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
   </section>
@@ -381,6 +384,10 @@
   <label class="field-label" for="editCategory">Kategória</label>
   <select id="editCategory" class="field-input"></select>
   <datalist id="categoryList"></datalist>
+  <button type="button" id="editRegenerateCard" class="golden-regenerate-btn">
+    <span aria-hidden="true">🎨</span>
+    <span><b>Kép és receptkártya újragenerálása</b><small>A recept a Léna Golden Standard szerkesztőben nyílik meg.</small></span>
+  </button>
   <p class="local-note">A módosítás ezen az eszközön marad. Az eredeti receptfájl nem sérül.</p>
   <div class="danger-row">
     <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
@@ -478,8 +485,8 @@
 <div class="dialog-card studio-shell">
   <div class="dialog-title-row">
     <div>
-      <div class="eyebrow">LÉNA RECEPT STUDIO · V1</div>
-      <h2>✨ Új recept készítése</h2>
+      <div class="eyebrow">LÉNA RECEPT STUDIO · GOLDEN STANDARD</div>
+      <h2 id="studioDialogTitle">✨ Új recept készítése</h2>
     </div>
     <button id="closeStudio" class="icon-close" type="button">×</button>
   </div>
@@ -586,11 +593,11 @@
 
     <section class="studio-photo-box">
       <div>
-        <b>📸 Ételfotó</b>
-        <p>Most opcionálisan saját képet használhatsz. A következő lépcsőben ezt Léna HD képgenerálása tölti ki automatikusan.</p>
+        <b>📸 Golden Standard illusztrációk</b>
+        <p>Léna részletes címlapfotót és lépésről lépésre képsort készít, a klasszikus Fusilli-kártya stílusában.</p>
       </div>
       <div class="studio-photo-actions">
-        <button id="studioGenerateImage" type="button" class="primary-btn">✨ HD kép generálása</button>
+        <button id="studioGenerateImage" type="button" class="primary-btn">✨ Golden kép újragenerálása</button>
         <button id="studioChoosePhoto" type="button" class="outline-btn">Saját kép</button>
       </div>
       <input id="studioPhotoInput" type="file" accept="image/*" hidden>
@@ -621,6 +628,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=33"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>
