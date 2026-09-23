@@ -891,10 +891,41 @@ async function studioRenderExactCard(){
    $("#studioExactCard").src=studioCardPreviewUrl;$("#studioExactCardWrap").hidden=false;setStudioPreviewMode("card");$("#studioExactCardWrap").scrollIntoView({behavior:"smooth",block:"nearest"})
  }catch(e){console.error(e);toast("Kártyaelőnézet hiba: "+e.message)}finally{busy(false)}
 }
+function canvasTextTokens(ctx,text,maxWidth){
+ const tokens=[];
+ String(text||"").trim().split(/\s+/).filter(Boolean).forEach(word=>{
+   const pieces=word.match(/[^-]+-?/g)||[word];
+   pieces.forEach((piece,pieceIndex)=>{
+     let chunk="",chunkIndex=0;
+     [...piece].forEach(ch=>{
+       const test=chunk+ch;
+       if(chunk&&ctx.measureText(test).width>maxWidth){tokens.push({text:chunk,attach:pieceIndex>0||chunkIndex>0});chunk=ch;chunkIndex++}
+       else chunk=test
+     });
+     if(chunk)tokens.push({text:chunk,attach:pieceIndex>0||chunkIndex>0})
+   })
+ });
+ return tokens
+}
+function canvasTextLines(ctx,text,maxWidth){
+ const lines=[];let line="";
+ canvasTextTokens(ctx,text,maxWidth).forEach(token=>{
+   const separator=line&&!token.attach?" ":"",test=line+separator+token.text;
+   if(line&&ctx.measureText(test).width>maxWidth){lines.push(line);line=token.text}else line=test
+ });
+ if(line)lines.push(line);return lines
+}
 function canvasWrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){
- const words=String(text||"").split(/\s+/);let line="",lines=0;
- for(let i=0;i<words.length;i++){const test=line?line+" "+words[i]:words[i];if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;lines++;line=words[i];if(maxLines&&lines>=maxLines)return y}else line=test}
- if(line&&(!maxLines||lines<maxLines)){ctx.fillText(line,x,y);y+=lineHeight}return y
+ const lines=canvasTextLines(ctx,text,maxWidth),visible=maxLines?lines.slice(0,maxLines):lines;
+ visible.forEach(line=>{ctx.fillText(line,x,y);y+=lineHeight});return y
+}
+function drawGoldenTitle(ctx,text,x,y,maxWidth,maxHeight){
+ let size=60,lineHeight=62,lines=[];
+ for(;size>=34;size-=2){
+   ctx.font=`900 ${size}px Georgia`;lineHeight=Math.round(size*1.04);lines=canvasTextLines(ctx,String(text||"").toUpperCase(),maxWidth);
+   if(lines.length<=4&&size+(Math.max(0,lines.length-1)*lineHeight)<=maxHeight)break
+ }
+ lines.slice(0,4).forEach(line=>{ctx.fillText(line,x,y);y+=lineHeight});return y
 }
 function roundRectPath(ctx,x,y,w,h,r){
  const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()
@@ -940,8 +971,8 @@ async function studioCardBlob(d){
  }else{
    const g=x.createLinearGradient(590,0,1200,530);g.addColorStop(0,"#e2e9d9");g.addColorStop(1,"#d4c39f");x.fillStyle=g;x.fillRect(590,0,610,530)
  }
- x.fillStyle=green;x.font="900 27px Arial";x.fillText((d.category||"LÉNA RECEPT").toUpperCase(),32,60);
- x.fillStyle=ink;x.font="900 60px Georgia";canvasWrap(x,String(d.title||"").toUpperCase(),30,125,535,62,3);
+ x.fillStyle=green;x.font="900 27px Arial";canvasWrap(x,(d.category||"LÉNA RECEPT").toUpperCase(),32,55,535,28,2);
+ x.fillStyle=ink;drawGoldenTitle(x,d.title,30,122,535,184);
 
  // zöld szalag
  const ribbonY=315;fillRound(x,30,ribbonY,535,58,7,green);
@@ -949,13 +980,13 @@ async function studioCardBlob(d){
  x.fillStyle="#7d4e3b";x.font="700 17px Arial";x.fillText("LÉNA RECEPTTÁR · GOLDEN STANDARD",32,394);
 
  // meta ikon sor
- fillRound(x,28,410,540,104,14,"#fffdf8");strokeRound(x,28,410,540,104,14,line,2);
+ fillRound(x,28,410,540,110,14,"#fffdf8");strokeRound(x,28,410,540,110,14,line,2);
  const metas=[["👥",d.servings||"4 fő","ADAG"],["⏱",d.time||"30 perc","IDŐ"],["🍲",d.difficulty||"Könnyű","FŐZÉS"],["🍳",d.category||"Recept","STÍLUS"]];
  const cellW=540/4;metas.forEach((m,i)=>{
-   const cx=28+i*cellW;if(i)x.fillStyle="#d9cec0",x.fillRect(cx,425,2,72);
-   x.textAlign="center";x.font="27px serif";x.fillText(m[0],cx+cellW/2,442);
-   x.fillStyle=ink;x.font="900 15px Arial";canvasWrap(x,m[1],cx+12,475,cellW-24,17,2);
-   x.fillStyle=muted;x.font="900 11px Arial";x.fillText(m[2],cx+cellW/2,504);x.textAlign="left"
+   const cx=28+i*cellW;if(i)x.fillStyle="#d9cec0",x.fillRect(cx,423,2,82);
+   x.textAlign="center";x.font="27px serif";x.fillText(m[0],cx+cellW/2,441);
+   x.fillStyle=ink;x.font="900 15px Arial";canvasWrap(x,m[1],cx+cellW/2,466,cellW-24,17,2);
+   x.fillStyle=muted;x.font="900 11px Arial";x.fillText(m[2],cx+cellW/2,509);x.textAlign="left"
  });
 
  // ALSÓ RÉSZ 3 OSZLOP: HOZZÁVALÓ / KÉPSOR / LÉPÉSEK
