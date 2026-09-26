@@ -55,6 +55,8 @@ dialog{border:0;padding:0;background:transparent}dialog::backdrop{background:rgb
 .deleted-list{display:grid;gap:8px}.deleted-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:#fffdf9}
 .deleted-main{min-width:0}.deleted-title{font-weight:850;color:#244235;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deleted-cat{font-size:12px;color:var(--muted);margin-top:2px}
 .restore-btn,.sync-btn{flex:none;border:1px solid #bfcfc5;background:#eef6f0;color:#214d38;border-radius:10px;min-height:40px;padding:8px 10px;font-weight:800}.empty-admin{color:var(--muted);padding:10px 2px}
+.deleted-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.deleted-permanent-btn{min-height:40px!important;padding:8px 11px!important;border-radius:10px!important;font-size:13px}
+@media(max-width:560px){.deleted-item{align-items:flex-start;flex-direction:column}.deleted-actions{width:100%;justify-content:stretch}.deleted-actions button{flex:1}}
 .busy-overlay{position:fixed;inset:0;z-index:100;background:rgba(18,31,25,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-weight:850;gap:14px}
 .spinner{width:44px;height:44px;border-radius:50%;border:5px solid rgba(255,255,255,.28);border-top-color:#fff;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .toast{position:fixed;z-index:110;left:50%;bottom:86px;transform:translate(-50%,20px);opacity:0;transition:.2s;background:#1f322a;color:#fff;padding:10px 15px;border-radius:999px;pointer-events:none;text-align:center;max-width:88vw;font-weight:750}.toast.show{opacity:1;transform:translate(-50%,0)}
