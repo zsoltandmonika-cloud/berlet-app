@@ -565,11 +565,40 @@ const STUDIO_IMAGE_MODEL="gpt-image-2";
 function puterChatAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function")}
 function puterImageAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.txt2img==="function")}
 function puterAvailable(){return puterChatAvailable()}
-async function ensurePuterAiSession(){
+function ensurePuterAiSession(){
  if(!puterChatAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
- if(puter.auth&&typeof puter.auth.isSignedIn==="function"&&typeof puter.auth.signIn==="function"&&!puter.auth.isSignedIn()){
-   await puter.auth.signIn({attempt_temp_user_creation:true})
- }
+ // A Puter AI-hívások saját maguk kezelik a szükséges hitelesítést. A kézi
+ // signIn() itt külön felugró ablakot nyitott, és egyes böngészőkben a
+ // generálás látható visszajelzés nélkül ezen a lépésen maradt.
+ return true
+}
+function puterErrorCode(error){
+ const nested=error&&typeof error.error==="object"?error.error:null;
+ return String(error&&(
+   error.code||error.errorCode||(nested&&(nested.code||nested.errorCode))||
+   (typeof error.error==="string"?error.error:"")
+ )||"").toLowerCase()
+}
+function puterErrorText(error){
+ const nested=error&&typeof error.error==="object"?error.error:null;
+ const value=error&&(
+   error.message||error.msg||(nested&&(nested.message||nested.msg))||
+   (typeof error.error==="string"?error.error:"")||error.code||error.errorCode
+ );
+ return String(value||"Ismeretlen Puter AI-hiba.")
+}
+function puterImageErrorMessage(error){
+ const code=puterErrorCode(error),text=puterErrorText(error);
+ if(code.includes("popup_blocked"))return"A böngésző blokkolta a Puter engedélyező ablakát. Engedélyezd a felugró ablakokat, majd próbáld újra.";
+ if(code.includes("auth_window_closed"))return"A Puter AI engedélyezése megszakadt. Indítsd újra a generálást, és fejezd be a megjelenő engedélyezést.";
+ if(code.includes("unauthorized")||code.includes("auth_required"))return"A Puter AI használatát előbb engedélyezni kell a megjelenő ablakban.";
+ if(code.includes("insufficient_funds"))return"A Puter-fiók elérhető AI-kerete nem elegendő ehhez a képgeneráláshoz.";
+ if(code.includes("moderation_flagged"))return"A képgenerátor tartalmi szűrője elutasította ezt a leírást. Módosítsd kissé a recept nevét vagy a hozzávalókat.";
+ return text
+}
+function canRetryImageWithFallback(error){
+ const code=puterErrorCode(error);
+ return !["popup_blocked","auth_window_closed","unauthorized","auth_required","insufficient_funds","moderation_flagged"].some(x=>code.includes(x))
 }
 function updateStudioProviderBadge(){
  const b=$("#studioProviderBadge");if(!b)return;
@@ -678,7 +707,11 @@ async function puterFoodImage(recipe,kind="hero"){
  let img;
  const ratio=isSteps?{w:2,h:3}:{w:4,h:3};
  try{img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL,ratio,quality:"high"})}
- catch(first){console.warn("Studio primary image model fallback",first);img=await puter.ai.txt2img(prompt,{ratio})}
+ catch(first){
+   if(!canRetryImageWithFallback(first))throw first;
+   console.warn("Studio primary image model fallback",first);
+   img=await puter.ai.txt2img(prompt,{model:"gemini-3.1-flash-image",ratio,quality:"1K"})
+ }
  return generatedImageBlob(img)
 }
 
@@ -919,8 +952,9 @@ async function studioRefine(){
 }
 async function studioGenerateImage(){
  if(!studioDraft)return;studioPullEditor();
+ busy(true,"Puter AI előkészítése…");
  try{
-   await ensurePuterAiSession();busy(true,"Golden címlapkép generálása…");
+   ensurePuterAiSession();busy(true,"Golden címlapkép generálása…");
    const raw=await puterFoodImage(studioDraft,"hero");studioPhotoBlob=await processImage(raw);
    if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);
    $("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;
@@ -929,7 +963,7 @@ async function studioGenerateImage(){
    try{const stepsRaw=await puterFoodImage(studioDraft,"steps");studioProcessBlob=await processImage(stepsRaw);if(studioProcessUrl)URL.revokeObjectURL(studioProcessUrl);studioProcessUrl=URL.createObjectURL(studioProcessBlob)}
    catch(stepError){console.warn("A lépésillusztrációk külön generálása nem sikerült",stepError);studioProcessBlob=null}
    await studioRenderExactCard();toast("✓ Golden címlapkép és részletes kártya elkészült.")
- }catch(e){console.error(e);alert("A képgenerálás nem sikerült: "+e.message)}finally{busy(false)}
+ }catch(e){console.error(e);alert("A képgenerálás nem sikerült: "+puterImageErrorMessage(e))}finally{busy(false)}
 }
 async function studioHandlePhoto(file){
  if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);studioProcessBlob=null;if(studioProcessUrl){URL.revokeObjectURL(studioProcessUrl);studioProcessUrl=null}if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.");busy(false);return}busy(false);await studioRenderExactCard()
@@ -1576,11 +1610,9 @@ async function forceReadableProcessing(){
  if(!currentId)return;
  const r=getRecipe(currentId);if(!r)return;
  if(r.mime==="application/pdf"){alert("Ehhez most a képes receptfeldolgozás működik. A PDF-ekhez külön feldolgozást teszek majd.");openReadableEditor();return}
+ busy(true,"⚡ Léna előkészíti a receptfeldolgozást…");
  try{
-   // A bejelentkezést közvetlenül a gombnyomásból indítjuk, mielőtt bármely
-   // képbetöltés megszakíthatná a böngésző által elvárt felhasználói gesztust.
-   await ensurePuterAiSession();
-   busy(true,"⚡ Léna feldolgozza a receptkártyát…");
+   ensurePuterAiSession();busy(true,"⚡ Léna feldolgozza a receptkártyát…");
    const file=await recipeImageFileForVision(r);
    const resp=await puterVisionChat(readableVisionPrompt(r),file);
    const out=cleanReadableVision(parseRecipeJson(puterText(resp)));
