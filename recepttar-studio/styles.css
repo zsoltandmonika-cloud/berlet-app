@@ -1939,3 +1939,72 @@ body.original-card-fullscreen #originalMode:focus-visible{outline:3px solid #df4
   min-width:96px!important;min-height:46px!important;padding:9px 13px!important;font-size:13px!important
  }
 }
+
+/* ===== RECEPTHEZ RENDELT YOUTUBE-VIDEÓ ===== */
+.recipe-video-section{
+ margin:14px 16px;padding:14px;border:1px solid #45483f;border-radius:20px;
+ background:
+  radial-gradient(circle at 92% 0,rgba(218,74,117,.14),transparent 34%),
+  linear-gradient(145deg,#272822,#1c1e1b);
+ box-shadow:0 12px 28px rgba(0,0,0,.18)
+}
+.recipe-video-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
+.recipe-video-heading small,.youtube-dialog-head small{display:block;color:#d5b86f;font-size:9px;font-weight:950;letter-spacing:.15em}
+.recipe-video-heading h2,.youtube-dialog-head h2{margin:3px 0 0;color:#f5eadc;font:700 20px/1.1 Georgia,"Times New Roman",serif}
+.recipe-video-heading>span{flex:none;padding:5px 8px;border:1px solid #68535a;border-radius:999px;background:#35262b;color:#f08bad;font-size:9px;font-weight:950;letter-spacing:.08em}
+.recipe-video-card{
+ width:100%;min-height:104px;padding:0;display:grid;grid-template-columns:minmax(132px,38%) minmax(0,1fr) 28px;align-items:center;gap:12px;
+ overflow:hidden;border:1px solid #4a4c43;border-radius:16px;background:#20221e;color:#f4eadc;text-align:left;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.035);cursor:pointer
+}
+.recipe-video-card:hover{border-color:#76635d;background:#252720}
+.recipe-video-card:active{transform:translateY(1px)}
+.recipe-video-card:focus-visible{outline:3px solid #df4d80;outline-offset:3px}
+.recipe-video-thumb-wrap{position:relative;display:block;width:100%;aspect-ratio:16/9;align-self:stretch;min-height:104px;background:#111;overflow:hidden}
+.recipe-video-thumb-wrap img{display:block;width:100%;height:100%;object-fit:cover}
+.recipe-video-thumb-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 68%,rgba(32,34,30,.45))}
+.recipe-video-play{
+ position:absolute;z-index:2;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);
+ display:grid;place-items:center;padding-left:3px;border:2px solid rgba(255,255,255,.92);border-radius:50%;
+ background:rgba(197,42,91,.88);color:#fff;font-size:18px;box-shadow:0 7px 18px rgba(0,0,0,.38)
+}
+.recipe-video-copy{min-width:0;display:flex;flex-direction:column;gap:5px}
+.recipe-video-copy b{display:block;color:#f3e9dc;font-size:14px;line-height:1.25}
+.recipe-video-copy small{display:block;color:#a9a198;font-size:10px;line-height:1.35}
+.recipe-video-arrow{color:#d6bd7e;font-size:31px;line-height:1}
+
+.youtube-dialog{width:min(94vw,920px);max-width:920px;margin:auto;padding:0;border:0;border-radius:25px;background:transparent;color:#fff;overflow:visible}
+.youtube-dialog::backdrop{background:rgba(4,6,5,.86);backdrop-filter:blur(8px)}
+.youtube-shell{padding:18px;border:1px solid #55574d;border-radius:25px;background:linear-gradient(150deg,#22251f,#151714);box-shadow:0 28px 90px rgba(0,0,0,.65)}
+.youtube-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.youtube-dialog-head h2{font-size:clamp(20px,4vw,28px)}
+.youtube-close{flex:none;width:48px;height:48px;padding:0;border:1px solid #625e55;border-radius:50%;background:#2c2e29;color:#fff4e4;font-size:30px;line-height:1}
+.youtube-player-frame{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border:1px solid #45473f;border-radius:16px;background:#050505;box-shadow:0 14px 34px rgba(0,0,0,.36)}
+.youtube-player-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.youtube-external{display:block;margin-top:12px;padding:12px 14px;border:1px solid #4d5047;border-radius:13px;background:#242620;color:#ebd99f;text-align:center;font-size:12px;font-weight:900;text-decoration:none}
+.youtube-external:hover{background:#2a2d26;border-color:#6b6e62}
+body:has(.youtube-dialog[open]){overflow:hidden}
+
+.youtube-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.youtube-edit-row .compact-btn{min-height:46px}
+.optional-label{color:#918a81;font-weight:600}
+.youtube-invalid{margin:6px 0 0!important;color:#f29a9a!important;font-size:11px;font-weight:800}
+.youtube-edit-preview{margin:9px 0 12px;display:grid;grid-template-columns:112px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border:1px solid #45483f;border-radius:14px;background:#22241f}
+.youtube-edit-preview[hidden]{display:none!important}
+.youtube-edit-preview img{display:block;width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:9px;background:#111}
+.youtube-edit-preview span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.youtube-edit-preview b{color:#efe5d8;font-size:12px}.youtube-edit-preview small{color:#a59e95;font-size:10px;line-height:1.3}
+
+@media(min-width:700px){.recipe-video-section{max-width:900px;margin-left:auto;margin-right:auto}}
+@media(max-width:520px){
+ .recipe-video-section{margin:11px 12px;padding:11px;border-radius:18px}
+ .recipe-video-heading h2{font-size:18px}
+ .recipe-video-card{grid-template-columns:128px minmax(0,1fr) 20px;gap:9px;min-height:82px}
+ .recipe-video-thumb-wrap{min-height:82px}
+ .recipe-video-play{width:39px;height:39px;font-size:16px}
+ .recipe-video-copy b{font-size:12px}.recipe-video-copy small{font-size:9px}
+ .youtube-dialog{width:100vw;max-width:none;height:100dvh;max-height:none;border-radius:0}
+ .youtube-shell{box-sizing:border-box;width:100%;min-height:100dvh;padding:max(16px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border:0;border-radius:0;display:flex;flex-direction:column;justify-content:center}
+ .youtube-edit-row{grid-template-columns:1fr}.youtube-edit-row .compact-btn{min-height:42px}
+ .youtube-edit-preview{grid-template-columns:96px minmax(0,1fr)}.youtube-edit-preview img{width:96px}
+}
