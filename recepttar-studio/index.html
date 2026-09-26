@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171817">
 <title>Léna Recepttár 2.5 Studio</title>
 <link rel="icon" href="../recepttar/icon-192.png">
-<link rel="stylesheet" href="styles.css?v=31">
+<link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
 <header class="app-header">
@@ -165,6 +165,20 @@
     </div>
     <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
   </section>
+  <section id="recipeVideoSection" class="recipe-video-section" hidden>
+    <div class="recipe-video-heading">
+      <div><small>LÉNA · VIDEÓSEGÍTSÉG</small><h2>🎬 Kapcsolódó elkészítési videó</h2></div>
+      <span>YouTube</span>
+    </div>
+    <button id="recipeVideoCard" type="button" class="recipe-video-card">
+      <span class="recipe-video-thumb-wrap">
+        <img id="recipeVideoThumb" alt="YouTube-videó előképe">
+        <span class="recipe-video-play" aria-hidden="true">▶</span>
+      </span>
+      <span class="recipe-video-copy"><b id="recipeVideoName"></b><small>Kattints a videó lejátszásához az alkalmazáson belül</small></span>
+      <span class="recipe-video-arrow" aria-hidden="true">›</span>
+    </button>
+  </section>
   <section id="recipeFeedback" class="recipe-feedback">
     <div class="feedback-title-row">
       <div>
@@ -185,6 +199,19 @@
     <p class="feedback-help">Léna ezt a későbbi receptjavaslatoknál és generálásnál ízlési jelzésként használja.</p>
   </section>
 </main>
+
+<dialog id="youtubeDialog" class="youtube-dialog">
+  <div class="youtube-shell">
+    <div class="youtube-dialog-head">
+      <div><small>LÉNA · VIDEÓSEGÍTSÉG</small><h2 id="youtubePlayerTitle">Kapcsolódó videó</h2></div>
+      <button id="closeYoutube" type="button" class="youtube-close" aria-label="Videó bezárása">×</button>
+    </div>
+    <div class="youtube-player-frame">
+      <iframe id="youtubePlayer" title="Kapcsolódó YouTube-videó" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <a id="youtubeOpenExternal" class="youtube-external" href="#" target="_blank" rel="noopener noreferrer">Megnyitás a YouTube-on ↗</a>
+  </div>
+</dialog>
 
 <dialog id="healthDialog" class="health-dialog">
   <div class="dialog-card health-shell">
@@ -384,11 +411,21 @@
   <label class="field-label" for="editCategory">Kategória</label>
   <select id="editCategory" class="field-input"></select>
   <datalist id="categoryList"></datalist>
+  <label class="field-label" for="editYoutubeUrl">Kapcsolódó YouTube-videó linkje <span class="optional-label">(opcionális)</span></label>
+  <div class="youtube-edit-row">
+    <input id="editYoutubeUrl" class="field-input" type="url" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…">
+    <button id="editYoutubeClear" type="button" class="outline-btn compact-btn">Törlés</button>
+  </div>
+  <p id="editYoutubeInvalid" class="youtube-invalid" hidden>Nem felismerhető YouTube-link.</p>
+  <div id="editYoutubePreview" class="youtube-edit-preview" hidden>
+    <img id="editYoutubeThumb" alt="A kiválasztott YouTube-videó előképe">
+    <span><b>Videó felismerve</b><small>Mentés után megjelenik a receptoldalon.</small></span>
+  </div>
   <button type="button" id="editRegenerateCard" class="golden-regenerate-btn">
     <span aria-hidden="true">🎨</span>
     <span><b>Kép és receptkártya újragenerálása</b><small>A recept a Léna Golden Standard szerkesztőben nyílik meg.</small></span>
   </button>
-  <p class="local-note">A módosítás ezen az eszközön marad. Az eredeti receptfájl nem sérül.</p>
+  <p class="local-note">Az alapadatok és a videólink helyben mentődnek; Puter-bejelentkezéssel a többi eszközre is szinkronizálódnak. Az eredeti receptfájl nem sérül.</p>
   <div class="danger-row">
     <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
     <button type="button" id="deleteRecipe" class="danger-btn">🗑️ Törlés</button>
@@ -628,6 +665,6 @@
 <script src="https://js.puter.com/v2/"></script>
 <script src="../recepttar/data.js?v=24"></script>
 <script src="../recepttar/readable-data.js?v=34"></script>
-<script src="app.js?v=35"></script>
+<script src="app.js?v=36"></script>
 </body>
 </html>
