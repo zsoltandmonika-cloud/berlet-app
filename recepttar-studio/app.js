@@ -429,6 +429,23 @@ function renderChips(){
   b.onclick=()=>{activeCategory=cat;renderHome()};c.appendChild(b)
  })
 }
+function initCategoryStripScroll(){
+ const strip=$("#chips");if(!strip)return;
+ strip.tabIndex=0;strip.setAttribute("role","toolbar");strip.setAttribute("aria-label","Receptkategóriák – vízszintesen görgethető");
+ strip.addEventListener("wheel",e=>{
+   if(strip.scrollWidth<=strip.clientWidth)return;
+   const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;
+   const before=strip.scrollLeft;strip.scrollLeft+=delta;
+   if(strip.scrollLeft!==before)e.preventDefault()
+ },{passive:false});
+ strip.addEventListener("keydown",e=>{
+   if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="Home"&&e.key!=="End")return;
+   if(e.key==="Home")strip.scrollTo({left:0,behavior:"smooth"});
+   else if(e.key==="End")strip.scrollTo({left:strip.scrollWidth,behavior:"smooth"});
+   else strip.scrollBy({left:e.key==="ArrowLeft"?-220:220,behavior:"smooth"});
+   e.preventDefault()
+ })
+}
 function visibleRecipes(){const q=norm($("#search").value);return allRecipes().filter(r=>!r.deleted&&(activeCategory==="Mind"||r.category===activeCategory)&&(!favoritesOnly||isFav(r.id))&&(!q||norm(r.title+" "+r.category).includes(q))).sort((a,b)=>a.title.localeCompare(b.title,"hu"))}
 function renderHome(){
  renderChips();const list=visibleRecipes();$("#count").textContent=list.length;$("#grid").innerHTML="";$("#favFilter").textContent=(favoritesOnly?"★ ":"☆ ")+"Kedvencek";
@@ -1732,6 +1749,7 @@ function clearStructuredOverride(){
  if(!currentId)return;if(!confirm("Töröljük ezen a recepten a helyi strukturált javítást?"))return;clearReadableLocal(currentId);$("#structuredDialog").close();renderReadableFor(currentId);toast("Helyi javítás törölve.")
 }
 
+initCategoryStripScroll();
 $("#healthBannerBtn").onclick=openHealth;$("#closeHealth").onclick=()=>$("#healthDialog").close();$("#healthRecipeSelect").onchange=e=>renderHealthResult(e.target.value);$("#healthAnalyzeBtn").onclick=()=>{const id=$("#healthRecipeSelect").value;if(id)estimateNutrition(id)};$("#nutriAnalyzeRecipe").onclick=()=>currentId&&estimateNutrition(currentId);$("#nutriRefreshRecipe").onclick=()=>currentId&&estimateNutrition(currentId);
 $("#whatCookBtn").onclick=openWhatCook;
 $("#bannerHomeStock").onclick=openStudioStock;
