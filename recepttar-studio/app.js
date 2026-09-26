@@ -771,7 +771,7 @@ async function analyzeFridgePhoto(file){
  }finally{busy(false)}
 }
 
-let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null,studioProcessBlob=null,studioProcessUrl=null,studioCardPreviewUrl=null,studioEditingId=null;
+let studioDraft=null,studioPhotoBlob=null,studioPhotoUrl=null,studioProcessBlob=null,studioProcessUrl=null,studioCardPreviewUrl=null,studioEditingId=null,studioImageGenerating=false;
 
 function studioIcon(category,title){
  const n=norm((category||"")+" "+(title||""));
@@ -952,6 +952,7 @@ async function studioRefine(){
 }
 async function studioGenerateImage(){
  if(!studioDraft)return;studioPullEditor();
+ studioImageGenerating=true;$("#studioStatus").textContent="⏳ A Golden címlapkép generálása elindult…";
  busy(true,"Puter AI előkészítése…");
  try{
    ensurePuterAiSession();busy(true,"Golden címlapkép generálása…");
@@ -959,11 +960,12 @@ async function studioGenerateImage(){
    if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);
    $("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;
    $("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo");
+   $("#studioStatus").textContent="⏳ A címlapkép elkészült, készülnek a részletes lépésillusztrációk…";
    busy(true,"Hat részletes lépésillusztráció készítése…");
    try{const stepsRaw=await puterFoodImage(studioDraft,"steps");studioProcessBlob=await processImage(stepsRaw);if(studioProcessUrl)URL.revokeObjectURL(studioProcessUrl);studioProcessUrl=URL.createObjectURL(studioProcessBlob)}
    catch(stepError){console.warn("A lépésillusztrációk külön generálása nem sikerült",stepError);studioProcessBlob=null}
-   await studioRenderExactCard();toast("✓ Golden címlapkép és részletes kártya elkészült.")
- }catch(e){console.error(e);alert("A képgenerálás nem sikerült: "+puterImageErrorMessage(e))}finally{busy(false)}
+   await studioRenderExactCard();$("#studioStatus").textContent="✓ Golden címlapkép és részletes kártya elkészült.";toast("✓ Golden címlapkép és részletes kártya elkészült.")
+ }catch(e){const message=puterImageErrorMessage(e);console.error(e);$("#studioStatus").textContent="⚠ A képgenerálás nem sikerült: "+message;alert("A képgenerálás nem sikerült: "+message)}finally{studioImageGenerating=false;busy(false)}
 }
 async function studioHandlePhoto(file){
  if(!file)return;busy(true,"Ételfotó előkészítése…");try{studioPhotoBlob=await processImage(file);studioProcessBlob=null;if(studioProcessUrl){URL.revokeObjectURL(studioProcessUrl);studioProcessUrl=null}if(studioPhotoUrl)URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}catch(e){console.error(e);alert("A kép feldolgozása nem sikerült.");busy(false);return}busy(false);await studioRenderExactCard()
@@ -973,7 +975,7 @@ async function studioRenderExactCard(){
  try{
    const blob=await studioCardBlob(d);if(studioCardPreviewUrl)URL.revokeObjectURL(studioCardPreviewUrl);studioCardPreviewUrl=URL.createObjectURL(blob);
    $("#studioExactCard").src=studioCardPreviewUrl;$("#studioExactCardWrap").hidden=false;setStudioPreviewMode("card");$("#studioExactCardWrap").scrollIntoView({behavior:"smooth",block:"nearest"})
- }catch(e){console.error(e);toast("Kártyaelőnézet hiba: "+e.message)}finally{busy(false)}
+ }catch(e){console.error(e);toast("Kártyaelőnézet hiba: "+e.message)}finally{if(!studioImageGenerating)busy(false)}
 }
 function canvasTextTokens(ctx,text,maxWidth){
  const tokens=[];
