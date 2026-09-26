@@ -33,7 +33,7 @@ function getText(id){return localStorage.getItem(keyText(id))||""}function setTe
 function getMeta(id){try{return JSON.parse(localStorage.getItem(keyMeta(id))||"{}")}catch(e){return{}}}function setMeta(id,m){localStorage.setItem(keyMeta(id),JSON.stringify(m))}
 function effective(r){
  const m=getMeta(r.id),hasYoutube=Object.prototype.hasOwnProperty.call(m,"youtubeId");
- return Object.assign({},r,{title:m.title||r.title,category:m.category||r.category,deleted:!!m.deleted,youtubeId:hasYoutube?m.youtubeId:(r.youtubeId||"")})
+ return Object.assign({},r,{title:m.title||r.title,category:m.category||r.category,deleted:!!(m.deleted||m.permanentlyDeleted),youtubeId:hasYoutube?m.youtubeId:(r.youtubeId||"")})
 }
 function youtubeVideoId(value){
  const raw=String(value||"").trim();if(!raw)return"";
@@ -951,7 +951,7 @@ async function studioRefine(){
  studioFillEditor();renderStudioPreview();$("#studioRefineText").value=""
 }
 async function studioGenerateImage(){
- if(!studioDraft)return;studioPullEditor();
+ if(!studioDraft||studioImageGenerating)return;studioPullEditor();
  studioImageGenerating=true;$("#studioStatus").textContent="⏳ A Golden címlapkép generálása elindult…";
  busy(true,"Puter AI előkészítése…");
  try{
@@ -1194,7 +1194,73 @@ async function syncPendingToCloud(){
 }
 
 function renderPending(){const box=$("#pendingList");box.innerHTML="";const list=customRecipes.slice().sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!list.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="Nincs csak helyben tárolt új recept.";box.appendChild(e);return}list.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category+(r.pending?" · szinkronra vár":" · feltöltve, frissítésre vár");main.append(t,c);const b=document.createElement("button");b.className="sync-btn";b.textContent=r.pending?"☁ Feltöltés":"✓ Fent";b.disabled=!r.pending;b.onclick=()=>syncLocalRecipe(r.id);row.append(main,b);box.appendChild(row)})}
-function renderDeleted(){const box=$("#deletedList");box.innerHTML="";const del=allRecipes().filter(r=>r.deleted).sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!del.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="A kuka üres.";box.appendChild(e);return}del.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category;main.append(t,c);const b=document.createElement("button");b.className="restore-btn";b.textContent="↩ Vissza";b.onclick=()=>{const m=getMeta(r.id);m.deleted=false;setMeta(r.id,m);renderDeleted();renderHome();toast("Recept visszaállítva.")};row.append(main,b);box.appendChild(row)})}
+function clearRecipeLocalState(id,{keepMeta=false}={}){
+ const exact=[keyFav(id),keyText(id),keyReadable(id),feedbackKey(id),nutriLocalKey(id),cookStepKey(id)];
+ if(!keepMeta)exact.push(keyMeta(id));
+ exact.forEach(k=>localStorage.removeItem(k));
+ const prefixes=["lena25:checked:"+id+":","lena25:stepchecked:"+id+":"];
+ const remove=[];
+ for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i);if(k&&prefixes.some(p=>k.startsWith(p)))remove.push(k)
+ }
+ remove.forEach(k=>localStorage.removeItem(k));
+ const history=recentCookHistory().filter(x=>x.id!==id);localStorage.setItem(historyKey(),JSON.stringify(history));
+ delete tasteFeedback[id];delete nutritionCache[id]
+}
+function puterDeleteNotFound(error){
+ const code=String(error&&(error.code||error.errorCode||error.error?.code)||"").toLowerCase();
+ const message=String(error&&(error.message||error.msg||error.error?.message)||"").toLowerCase();
+ return code.includes("not_found")||code.includes("not-found")||message.includes("not found")||message.includes("nem található")
+}
+async function deleteCloudRecipeData(id){
+ if(!puterCloudReady())throw new Error("A Puter felhő nem érhető el.");
+ if(!puter.auth.isSignedIn())await ensurePuterSignIn();
+ try{await puter.fs.delete(CLOUD_DIR+"/"+id,{recursive:true})}catch(e){if(!puterDeleteNotFound(e))throw e}
+ await puter.kv.del(CLOUD_KEY_PREFIX+id);
+ await Promise.allSettled([
+   puter.kv.del(RECIPE_META_KEY_PREFIX+id),
+   puter.kv.del(TASTE_KEY_PREFIX+id),
+   puter.kv.del(NUTRI_KEY_PREFIX+id)
+ ])
+}
+async function permanentlyDeleteRecipe(id){
+ const r=getRecipe(id);if(!r||!r.deleted)return;
+ const builtIn=baseRecipes.some(x=>x.id===id),cloudRecipe=sharedRecipes.some(x=>x.id===id);
+ const action=builtIn?"véglegesen elrejted":"véglegesen törlöd";
+ if(!confirm("Biztosan "+action+" ezt a receptet?\n\n"+r.title+"\n\nEz a művelet nem vonható vissza."))return;
+ const answer=prompt("Biztonsági megerősítésként írd be: TÖRLÉS");
+ if(norm(answer)!=="torles"){if(answer!==null)toast("A végleges törlés megszakadt.");return}
+ busy(true,builtIn?"Recept végleges elrejtése…":"Recept végleges törlése…");
+ try{
+   if(cloudRecipe)await deleteCloudRecipeData(id);
+   try{await dbDelete(id)}catch(e){console.warn("A helyi receptrekord nem törölhető",e);if(!builtIn&&!cloudRecipe)throw e}
+   sharedRecipes.filter(x=>x.id===id).forEach(x=>x._url&&URL.revokeObjectURL(x._url));
+   customRecipes.filter(x=>x.id===id).forEach(x=>x._url&&URL.revokeObjectURL(x._url));
+   sharedRecipes=sharedRecipes.filter(x=>x.id!==id);customRecipes=customRecipes.filter(x=>x.id!==id);delete sharedReadable[id];
+   if(builtIn){
+     const m={...getMeta(id),deleted:true,permanentlyDeleted:true,updatedAt:new Date().toISOString()};setMeta(id,m);await saveRecipeMetaCloud(id,m);clearRecipeLocalState(id,{keepMeta:true})
+   }else clearRecipeLocalState(id);
+   renderDeleted();renderPending();renderHome();toast(builtIn?"Recept véglegesen elrejtve.":"Recept véglegesen törölve.")
+ }catch(e){
+   console.error("Végleges recepttörlés hiba",e);alert("A végleges törlés nem sikerült. A recept a Kukában maradt.\n\n"+(e.msg||e.message||e))
+ }finally{busy(false)}
+}
+function renderDeleted(){
+ const box=$("#deletedList");box.innerHTML="";
+ const del=allRecipes().filter(r=>r.deleted&&!getMeta(r.id).permanentlyDeleted).sort((a,b)=>a.title.localeCompare(b.title,"hu"));
+ if(!del.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="A kuka üres.";box.appendChild(e);return}
+ del.forEach(r=>{
+   const row=document.createElement("div");row.className="deleted-item";
+   const main=document.createElement("div");main.className="deleted-main";
+   const t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;
+   const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category;main.append(t,c);
+   const actions=document.createElement("div");actions.className="deleted-actions";
+   const restore=document.createElement("button");restore.className="restore-btn";restore.textContent="↩ Vissza";
+   restore.onclick=async()=>{const m=getMeta(r.id);m.deleted=false;m.updatedAt=new Date().toISOString();setMeta(r.id,m);await saveRecipeMetaCloud(r.id,m);renderDeleted();renderHome();toast("Recept visszaállítva.")};
+   const permanent=document.createElement("button");permanent.className="danger-btn deleted-permanent-btn";permanent.textContent=baseRecipes.some(x=>x.id===r.id)?"Végleges elrejtés":"Végleges törlés";permanent.onclick=()=>permanentlyDeleteRecipe(r.id);
+   actions.append(restore,permanent);row.append(main,actions);box.appendChild(row)
+ })
+}
 function openAdmin(){renderPending();renderDeleted();renderCategoryManager();$("#adminDialog").showModal()}
 
 
