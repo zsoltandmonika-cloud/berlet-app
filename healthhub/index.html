@@ -5,15 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v1.11">
+<meta name="healthhub-live-build" content="v1.12">
 <style>
-html,body{margin:0;height:100%;background:#07192b;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:white}
-.boot{height:100%;display:grid;place-items:center;text-align:center}
-.boot b{font-size:22px}.boot small{display:block;margin-top:8px;opacity:.7}
+html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#0b2d50}
+.boot{display:none!important}
 </style>
 </head>
 <body>
-<div class="boot"><div><b>HealthHub</b><small>Betöltés…</small></div></div>
+<div class="boot" aria-hidden="true"></div>
 <script>window.HH_CHUNKS=[];</script>
 <script src="./bundle/HHB13_00.js"></script>
 <script src="./bundle/HHB13_01.js"></script>
@@ -40,7 +39,7 @@ html,body{margin:0;height:100%;background:#07192b;font-family:system-ui,-apple-s
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
   }
-  const live=html.replace('</body>','<script src="./live-v111.js?v=111-20260930-0115"><\/script></body>');
+  const live=html.replace('</body>','<script src="./live-v111.js?v=111-20260930-0115"><\/script><script src="./live-v112.js?v=112-20260930-0140"><\/script></body>');
   document.open();
   document.write(live);
   document.close();
