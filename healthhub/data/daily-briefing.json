@@ -1,8 +1,112 @@
 {
   "schemaVersion": 1,
-  "date": null,
-  "generatedAt": null,
-  "headline": "A mai briefing 07:00 után lesz elérhető.",
-  "sections": [],
-  "sources": []
+  "date": "2026-09-29",
+  "generatedAt": "2026-09-29T22:58:00+02:00",
+  "headline": "Energiaárak, ukrajnai diplomácia, magyar elszámoltatási ügyek és az AI-biztonsági vita adják a nap fő döntési témáit.",
+  "sections": [
+    {
+      "id": "executive",
+      "title": "Vezetői összefoglaló",
+      "items": [
+        "A kötvényhozamok magasak maradtak, miközben az olajár 2,5% körüli napi esést mutatott a közel-keleti export részleges helyreállásának jeleire.",
+        "Washingtonban orosz és amerikai tisztviselők az ukrajnai háborúról és lehetséges későbbi energetikai együttműködésről tárgyaltak.",
+        "Magyarországon a Hankó Balázshoz kapcsolódó NKA-ügy és több kapcsolódó elszámoltatási eljárás maradt a belföldi közélet egyik fő témája.",
+        "Az AI-szektorban erősödött a vita az önfejlesztő rendszerek biztonsági kockázatairól, miközben a technológiai befektetési ciklus továbbra is erős."
+      ]
+    },
+    {
+      "id": "overnight",
+      "title": "Éjszakai fejlemények",
+      "items": [
+        "Belgium három F-16-os átadását tervezi Ukrajnának 2026 végéig; Ukrajna további légvédelmi és rakétaellátási támogatásról is beszámolt.",
+        "Oroszország több európai vállalat oroszországi eszközeit ideiglenes állami kezelés alá vonta, amit Moszkva az EU-val szembeni válaszlépésként keretez."
+      ]
+    },
+    {
+      "id": "geopolitics",
+      "title": "Külpolitika / Geopolitika",
+      "items": [
+        "Az amerikai–orosz egyeztetések fókuszában az ukrajnai háború lezárási lehetőségei és a konfliktus utáni energetikai együttműködés állt.",
+        "A közel-keleti export javulása enyhítette az olajárakat, de a régiós konfliktus továbbra is jelentős ellátási kockázat."
+      ]
+    },
+    {
+      "id": "hungary",
+      "title": "Magyarország",
+      "items": [
+        "Az NKA-támogatások ügyében folyó eljárások és a Hankó Balázs őrizetbe vételéhez kapcsolódó politikai reakciók dominálták a nap belföldi híreit.",
+        "A különböző politikai szereplők eltérően értelmezik az eljárások jelentőségét; az ügy jogi részleteinek megítélésében a nyomozati és bírósági folyamat lesz meghatározó."
+      ]
+    },
+    {
+      "id": "economy",
+      "title": "Gazdaság / Piacok",
+      "items": [
+        "A globális részvénypiacok enyhén gyengültek, miközben a hosszú amerikai állampapírhozamok több évtizedes csúcsok közelében maradtak.",
+        "Az európai piacokat a magas hozamok és energiaár-kitettség nyomta, miközben a technológiai részvényeket az AI-szektor iránti optimizmus támogatta."
+      ]
+    },
+    {
+      "id": "technology",
+      "title": "Technológia / AI",
+      "items": [
+        "Jelenlegi és korábbi AI-kutatók fokozott biztonsági kontrollt sürgetnek az önfejlesztő rendszerek fejlesztésénél.",
+        "Google jogi úton támadja az EU Digital Markets Act alapján előírt hozzáférési kötelezettségeket, adatvédelmi és biztonsági kockázatokra hivatkozva."
+      ]
+    },
+    {
+      "id": "risks",
+      "title": "Mai kockázatok",
+      "items": [
+        "Energiaellátási zavarok és a közel-keleti konfliktus újabb eszkalációja.",
+        "Magas kötvényhozamok és újabb monetáris szigorítás lehetősége a fontos amerikai inflációs adatok előtt.",
+        "Az orosz–európai gazdasági ellenlépések további vállalati eszközöket érinthetnek."
+      ]
+    },
+    {
+      "id": "watch",
+      "title": "Mi számít igazán / Figyelmi szint",
+      "items": [
+        "Figyelni érdemes az ukrajnai diplomácia konkrét eredményeit, a közel-keleti export tartósságát, az amerikai inflációs adatokat és a magyarországi jogi eljárások következő hivatalos lépéseit."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Oil prices settle down 2.5% on signs Middle East exports recovering",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/business/energy/oil-prices-rise-second-session-continued-middle-east-supply-concern-2026-09-29/",
+      "publishedAt": "2026-09-29"
+    },
+    {
+      "title": "Putin envoy, US officials discussed Ukraine war and energy initiatives",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/putin-envoy-us-officials-discussed-ukraine-war-energy-initiatives-us-official-2026-09-29/",
+      "publishedAt": "2026-09-29"
+    },
+    {
+      "title": "Belgium to transfer three F-16s to Ukraine this year",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/business/aerospace-defense/belgium-transfer-three-f-16s-ukraine-this-year-zelenskiy-says-2026-09-29/",
+      "publishedAt": "2026-09-29"
+    },
+    {
+      "title": "Moscow sends EU message with widening corporate crackdown",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/europe/let-them-be-scared-moscow-sends-eu-message-with-widening-corporate-crackdown-2026-09-29/",
+      "publishedAt": "2026-09-29"
+    },
+    {
+      "title": "AI researchers warn companies rushing self-improving systems despite safety risks",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/ai-researchers-warn-companies-rushing-self-improving-systems-despite-safety-2026-09-29/",
+      "publishedAt": "2026-09-29"
+    },
+    {
+      "title": "Orbán Viktor bejelentést tett, jön a Hankó Balázs-interjú",
+      "publisher": "Index",
+      "url": "https://index.hu/belfold/2026/09/29/orban-viktor-hanko-balazs-interju-bortonbuntetes/",
+      "publishedAt": "2026-09-29"
+    }
+  ]
 }
