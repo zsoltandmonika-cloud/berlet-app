@@ -1,17 +1,31 @@
 {
   "schemaVersion": 1,
-  "date": null,
-  "generatedAt": null,
+  "date": "2026-09-29",
+  "generatedAt": "2026-09-29T22:55:00+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "A mai Daily Spark még nem érkezett meg.",
-      "sections": {}
+      "headline": "Ma az apró rendrakás hozhat nagyobb nyugalmat: egy félbehagyott ügy lezárása több energiát szabadíthat fel, mint hinnéd.",
+      "sections": {
+        "focus": "Válassz ki egyetlen régóta húzódó feladatot, és vidd el egy tiszta következő lépésig. Ma a fókusz többet ér a szétszórt lendületnél.",
+        "workMoney": "A precíz, nyugodt egyeztetés most erősebb lehet, mint a gyors reagálás. Érdemes a részletekben keresni az előnyt.",
+        "relationships": "Egy őszinte, rövid beszélgetés könnyebben rendezhet egy félreértést, mint egy hosszú magyarázat.",
+        "energy": "A ritmusod akkor marad stabil, ha hagysz kis szüneteket a koncentrált blokkok között.",
+        "evening": "Jól eshet valami ismerős, egyszerű program, ami tényleg kikapcsol.",
+        "lenaThought": "Nem minden előrelépés látványos. Van, amelyik egyszerűen csak végre a helyére kerül."
+      }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "A mai Daily Spark még nem érkezett meg.",
-      "sections": {}
+      "headline": "Ma egy szokatlan ötlet vagy váratlan beszélgetés adhat új nézőpontot egy olyan ügyhöz, amit eddig túl egyenesen próbáltál megoldani.",
+      "sections": {
+        "focus": "Adj helyet egy nem szokványos megoldásnak. Nem kell mindent a megszokott sorrendben végigvinni ahhoz, hogy jó eredmény szülessen.",
+        "workMoney": "Egy praktikus, kézzelfogható ötlet most többet érhet, mint egy túlkomplikált terv. Tartsd egyszerűen és ellenőrizhetően.",
+        "relationships": "Könnyebb lehet kapcsolódni, ha nem akarod előre megírni a beszélgetés végét.",
+        "energy": "A változatosság jót tehet: egy kis mozgás vagy környezetváltás könnyen visszahozhatja a lendületet.",
+        "evening": "Engedj magadnak valami könnyű, inspiráló programot, ami nem teljesítményről szól.",
+        "lenaThought": "Néha a jó irány nem az, amit előre megterveztünk, hanem az, amit közben észrevettünk."
+      }
     }
   }
 }
