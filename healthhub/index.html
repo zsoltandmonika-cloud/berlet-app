@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
+<meta name="healthhub-live-build" content="v1.11">
 <style>
 html,body{margin:0;height:100%;background:#07192b;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:white}
 .boot{height:100%;display:grid;place-items:center;text-align:center}
@@ -39,8 +40,9 @@ html,body{margin:0;height:100%;background:#07192b;font-family:system-ui,-apple-s
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
   }
+  const live=html.replace('</body>','<script src="./live-v111.js?v=111-20260930-0110"><\/script></body>');
   document.open();
-  document.write(html);
+  document.write(live);
   document.close();
 })();
 </script>
