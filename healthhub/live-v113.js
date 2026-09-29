@@ -9,7 +9,7 @@ const VAULT='hh-health-vault-v1';
 
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=()=>{try{return JSON.parse(localStorage.getItem(VAULT)||'null')}catch(_){return null}};
-const pkey=()=>window.cur==='m'?'monika':'zsolt';
+const pkey=()=>localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 const pname=()=>pkey()==='monika'?'Mónika':'Zsolt';
 const prof=()=>read()?.profiles?.[pkey()]||null;
 const sortDateDesc=a=>[...a].sort((x,y)=>String(y.date||y.implantedAt||'').localeCompare(String(x.date||x.implantedAt||'')));
