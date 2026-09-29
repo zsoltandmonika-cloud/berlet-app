@@ -1,0 +1,1248 @@
+{
+  "schemaVersion": 1,
+  "locale": "hu-HU",
+  "type": "main_hungarian_namedays",
+  "source": "davidfegyver/nevnapok-json (MIT), derived from Magyar Elektronikus Könyvtár",
+  "namedays": {
+    "1": {
+      "1": [
+        "Fruzsina"
+      ],
+      "2": [
+        "Ábel"
+      ],
+      "3": [
+        "Benjámin",
+        "Genovéva"
+      ],
+      "4": [
+        "Leona",
+        "Titusz"
+      ],
+      "5": [
+        "Simon"
+      ],
+      "6": [
+        "Boldizsár"
+      ],
+      "7": [
+        "Attila",
+        "Ramóna"
+      ],
+      "8": [
+        "Gyöngyvér"
+      ],
+      "9": [
+        "Marcell"
+      ],
+      "10": [
+        "Melánia"
+      ],
+      "11": [
+        "Ágota"
+      ],
+      "12": [
+        "Ernő"
+      ],
+      "13": [
+        "Veronika"
+      ],
+      "14": [
+        "Bódog"
+      ],
+      "15": [
+        "Loránd",
+        "Lóránt"
+      ],
+      "16": [
+        "Gusztáv"
+      ],
+      "17": [
+        "Antal",
+        "Antónia"
+      ],
+      "18": [
+        "Piroska"
+      ],
+      "19": [
+        "Márió",
+        "Sára"
+      ],
+      "20": [
+        "Fábián",
+        "Sebestyén"
+      ],
+      "21": [
+        "Ágnes"
+      ],
+      "22": [
+        "Artúr",
+        "Vince"
+      ],
+      "23": [
+        "Rajmund",
+        "Zelma"
+      ],
+      "24": [
+        "Timót"
+      ],
+      "25": [
+        "Pál"
+      ],
+      "26": [
+        "Paula",
+        "Vanda"
+      ],
+      "27": [
+        "Angelika"
+      ],
+      "28": [
+        "Karola",
+        "Károly"
+      ],
+      "29": [
+        "Adél"
+      ],
+      "30": [
+        "Gerda",
+        "Martina"
+      ],
+      "31": [
+        "Marcella"
+      ]
+    },
+    "2": {
+      "1": [
+        "Ignác"
+      ],
+      "2": [
+        "Aida",
+        "Karolina"
+      ],
+      "3": [
+        "Balázs"
+      ],
+      "4": [
+        "Csenge",
+        "Ráhel"
+      ],
+      "5": [
+        "Ágota",
+        "Ingrid"
+      ],
+      "6": [
+        "Dóra",
+        "Dorottya"
+      ],
+      "7": [
+        "Rómeó",
+        "Tódor"
+      ],
+      "8": [
+        "Aranka"
+      ],
+      "9": [
+        "Abigél",
+        "Alex"
+      ],
+      "10": [
+        "Elvira"
+      ],
+      "11": [
+        "Bertold",
+        "Marietta"
+      ],
+      "12": [
+        "Lídia",
+        "Lívia"
+      ],
+      "13": [
+        "Ella",
+        "Linda"
+      ],
+      "14": [
+        "Bálint",
+        "Valentin"
+      ],
+      "15": [
+        "Georgina",
+        "Kolos"
+      ],
+      "16": [
+        "Julianna",
+        "Lilla"
+      ],
+      "17": [
+        "Donát"
+      ],
+      "18": [
+        "Bernadett"
+      ],
+      "19": [
+        "Zsuzsanna"
+      ],
+      "20": [
+        "Aladár",
+        "Álmos"
+      ],
+      "21": [
+        "Eleonóra"
+      ],
+      "22": [
+        "Gerzson"
+      ],
+      "23": [
+        "Alfréd"
+      ],
+      "24": [
+        "Mátyás"
+      ],
+      "25": [
+        "Géza"
+      ],
+      "26": [
+        "Edina"
+      ],
+      "27": [
+        "Ákos",
+        "Bátor"
+      ],
+      "28": [
+        "Elemér"
+      ]
+    },
+    "3": {
+      "1": [
+        "Albin"
+      ],
+      "2": [
+        "Lujza"
+      ],
+      "3": [
+        "Kornélia"
+      ],
+      "4": [
+        "Kázmér"
+      ],
+      "5": [
+        "Adorján",
+        "Adrián"
+      ],
+      "6": [
+        "Inez",
+        "Leonóra"
+      ],
+      "7": [
+        "Tamás"
+      ],
+      "8": [
+        "Zoltán"
+      ],
+      "9": [
+        "Fanni",
+        "Franciska"
+      ],
+      "10": [
+        "Ildikó"
+      ],
+      "11": [
+        "Szilárd"
+      ],
+      "12": [
+        "Gergely"
+      ],
+      "13": [
+        "Ajtony",
+        "Krisztián"
+      ],
+      "14": [
+        "Matild"
+      ],
+      "15": [
+        "Kristóf"
+      ],
+      "16": [
+        "Henrietta"
+      ],
+      "17": [
+        "Gertrúd",
+        "Patrik"
+      ],
+      "18": [
+        "Ede",
+        "Sándor"
+      ],
+      "19": [
+        "Bánk",
+        "József"
+      ],
+      "20": [
+        "Klaudia"
+      ],
+      "21": [
+        "Benedek"
+      ],
+      "22": [
+        "Beáta",
+        "Izolda"
+      ],
+      "23": [
+        "Emőke"
+      ],
+      "24": [
+        "Gábor",
+        "Karina"
+      ],
+      "25": [
+        "Irén",
+        "Írisz"
+      ],
+      "26": [
+        "Emánuel"
+      ],
+      "27": [
+        "Hajnalka"
+      ],
+      "28": [
+        "Gedeon",
+        "Johanna"
+      ],
+      "29": [
+        "Auguszta"
+      ],
+      "30": [
+        "Zalán"
+      ],
+      "31": [
+        "Árpád"
+      ]
+    },
+    "4": {
+      "1": [
+        "Hugó"
+      ],
+      "2": [
+        "Áron"
+      ],
+      "3": [
+        "Buda",
+        "Richárd"
+      ],
+      "4": [
+        "Izidor"
+      ],
+      "5": [
+        "Vince"
+      ],
+      "6": [
+        "Bíborka",
+        "Vilmos"
+      ],
+      "7": [
+        "Herman"
+      ],
+      "8": [
+        "Dénes"
+      ],
+      "9": [
+        "Erhard"
+      ],
+      "10": [
+        "Zsolt"
+      ],
+      "11": [
+        "Leó",
+        "Szaniszló"
+      ],
+      "12": [
+        "Gyula"
+      ],
+      "13": [
+        "Ida"
+      ],
+      "14": [
+        "Tibor"
+      ],
+      "15": [
+        "Anasztázia",
+        "Tas"
+      ],
+      "16": [
+        "Csongor"
+      ],
+      "17": [
+        "Rudolf"
+      ],
+      "18": [
+        "Andrea",
+        "Ilma"
+      ],
+      "19": [
+        "Emma"
+      ],
+      "20": [
+        "Tivadar"
+      ],
+      "21": [
+        "Konrád"
+      ],
+      "22": [
+        "Csilla",
+        "Noémi"
+      ],
+      "23": [
+        "Béla"
+      ],
+      "24": [
+        "György"
+      ],
+      "25": [
+        "Márk"
+      ],
+      "26": [
+        "Ervin"
+      ],
+      "27": [
+        "Zita"
+      ],
+      "28": [
+        "Valéria"
+      ],
+      "29": [
+        "Péter"
+      ],
+      "30": [
+        "Katalin",
+        "Kitti"
+      ]
+    },
+    "5": {
+      "1": [
+        "Fülöp",
+        "Jakab"
+      ],
+      "2": [
+        "Zsigmond"
+      ],
+      "3": [
+        "Irma",
+        "Tímea"
+      ],
+      "4": [
+        "Flórián",
+        "Mónika"
+      ],
+      "5": [
+        "Györgyi"
+      ],
+      "6": [
+        "Frida",
+        "Ivett"
+      ],
+      "7": [
+        "Gizella"
+      ],
+      "8": [
+        "Mihály"
+      ],
+      "9": [
+        "Gergely"
+      ],
+      "10": [
+        "Ármin",
+        "Pálma"
+      ],
+      "11": [
+        "Ferenc"
+      ],
+      "12": [
+        "Pongrác"
+      ],
+      "13": [
+        "Imola",
+        "Szervác"
+      ],
+      "14": [
+        "Bonifác"
+      ],
+      "15": [
+        "Szonja",
+        "Zsófia"
+      ],
+      "16": [
+        "Botond",
+        "Mózes"
+      ],
+      "17": [
+        "Paszkál"
+      ],
+      "18": [
+        "Alexandra",
+        "Erik"
+      ],
+      "19": [
+        "Ivó",
+        "Milán"
+      ],
+      "20": [
+        "Bernát",
+        "Felícia"
+      ],
+      "21": [
+        "Konstantin"
+      ],
+      "22": [
+        "Júlia",
+        "Rita"
+      ],
+      "23": [
+        "Dezső"
+      ],
+      "24": [
+        "Eliza",
+        "Eszter"
+      ],
+      "25": [
+        "Orbán"
+      ],
+      "26": [
+        "Evelin",
+        "Fülöp"
+      ],
+      "27": [
+        "Hella"
+      ],
+      "28": [
+        "Csanád",
+        "Emil"
+      ],
+      "29": [
+        "Magdolna"
+      ],
+      "30": [
+        "Janka",
+        "Zsanett"
+      ],
+      "31": [
+        "Angéla",
+        "Petronella"
+      ]
+    },
+    "6": {
+      "1": [
+        "Tünde"
+      ],
+      "2": [
+        "Anita",
+        "Kármen"
+      ],
+      "3": [
+        "Klotild"
+      ],
+      "4": [
+        "Bulcsú"
+      ],
+      "5": [
+        "Fatime"
+      ],
+      "6": [
+        "Cintia",
+        "Norbert"
+      ],
+      "7": [
+        "Róbert"
+      ],
+      "8": [
+        "Medárd"
+      ],
+      "9": [
+        "Félix"
+      ],
+      "10": [
+        "Gréta",
+        "Margit"
+      ],
+      "11": [
+        "Barnabás"
+      ],
+      "12": [
+        "Villő"
+      ],
+      "13": [
+        "Anett",
+        "Antal"
+      ],
+      "14": [
+        "Vazul"
+      ],
+      "15": [
+        "Jolán",
+        "Vid"
+      ],
+      "16": [
+        "Jusztin"
+      ],
+      "17": [
+        "Alida",
+        "Laura"
+      ],
+      "18": [
+        "Arnold",
+        "Levente"
+      ],
+      "19": [
+        "Gyárfás"
+      ],
+      "20": [
+        "Rafael"
+      ],
+      "21": [
+        "Alajos",
+        "Leila"
+      ],
+      "22": [
+        "Paulina"
+      ],
+      "23": [
+        "Zoltán"
+      ],
+      "24": [
+        "Iván"
+      ],
+      "25": [
+        "Vilmos"
+      ],
+      "26": [
+        "János",
+        "Pál"
+      ],
+      "27": [
+        "László"
+      ],
+      "28": [
+        "Irén",
+        "Levente"
+      ],
+      "29": [
+        "Pál",
+        "Péter"
+      ],
+      "30": [
+        "Pál"
+      ]
+    },
+    "7": {
+      "1": [
+        "Annamária",
+        "Tihamér"
+      ],
+      "2": [
+        "Ottó"
+      ],
+      "3": [
+        "Kornél",
+        "Soma"
+      ],
+      "4": [
+        "Ulrik"
+      ],
+      "5": [
+        "Emese",
+        "Sarolta"
+      ],
+      "6": [
+        "Csaba"
+      ],
+      "7": [
+        "Apollónia"
+      ],
+      "8": [
+        "Ellák"
+      ],
+      "9": [
+        "Lukrécia"
+      ],
+      "10": [
+        "Amália"
+      ],
+      "11": [
+        "Lili",
+        "Nóra"
+      ],
+      "12": [
+        "Dalma",
+        "Izabella"
+      ],
+      "13": [
+        "Jenő"
+      ],
+      "14": [
+        "Örs",
+        "Stella"
+      ],
+      "15": [
+        "Henrik",
+        "Roland"
+      ],
+      "16": [
+        "Valter"
+      ],
+      "17": [
+        "Elek",
+        "Endre"
+      ],
+      "18": [
+        "Frigyes"
+      ],
+      "19": [
+        "Emília"
+      ],
+      "20": [
+        "Illés"
+      ],
+      "21": [
+        "Dániel",
+        "Daniella"
+      ],
+      "22": [
+        "Magdolna"
+      ],
+      "23": [
+        "Lenke"
+      ],
+      "24": [
+        "Kincső",
+        "Kinga"
+      ],
+      "25": [
+        "Jakab",
+        "Kristóf"
+      ],
+      "26": [
+        "Anikó",
+        "Anna"
+      ],
+      "27": [
+        "Liliána",
+        "Olga"
+      ],
+      "28": [
+        "Szabolcs"
+      ],
+      "29": [
+        "Flóra",
+        "Márta"
+      ],
+      "30": [
+        "Judit",
+        "Xénia"
+      ],
+      "31": [
+        "Oszkár"
+      ]
+    },
+    "8": {
+      "1": [
+        "Boglárka"
+      ],
+      "2": [
+        "Lehel"
+      ],
+      "3": [
+        "Hermina"
+      ],
+      "4": [
+        "Dominika",
+        "Domonkos"
+      ],
+      "5": [
+        "Krisztina"
+      ],
+      "6": [
+        "Berta",
+        "Bettina"
+      ],
+      "7": [
+        "Ibolya"
+      ],
+      "8": [
+        "László"
+      ],
+      "9": [
+        "Emőd"
+      ],
+      "10": [
+        "Lőrinc"
+      ],
+      "11": [
+        "Tiborc",
+        "Zsuzsanna"
+      ],
+      "12": [
+        "Klára"
+      ],
+      "13": [
+        "Ipoly"
+      ],
+      "14": [
+        "Marcell"
+      ],
+      "15": [
+        "Mária"
+      ],
+      "16": [
+        "Ábrahám"
+      ],
+      "17": [
+        "Jácint"
+      ],
+      "18": [
+        "Ilona"
+      ],
+      "19": [
+        "Huba"
+      ],
+      "20": [
+        "István"
+      ],
+      "21": [
+        "Hajna",
+        "Sámuel"
+      ],
+      "22": [
+        "Menyhért",
+        "Mirjam"
+      ],
+      "23": [
+        "Bence"
+      ],
+      "24": [
+        "Bertalan"
+      ],
+      "25": [
+        "Lajos",
+        "Patrícia"
+      ],
+      "26": [
+        "Izsó"
+      ],
+      "27": [
+        "Gáspár"
+      ],
+      "28": [
+        "Ágoston"
+      ],
+      "29": [
+        "Beatrix",
+        "Erna"
+      ],
+      "30": [
+        "Rózsa"
+      ],
+      "31": [
+        "Bella",
+        "Erika"
+      ]
+    },
+    "9": {
+      "1": [
+        "Egon",
+        "Egyed"
+      ],
+      "2": [
+        "Dorina",
+        "Rebeka"
+      ],
+      "3": [
+        "Hilda"
+      ],
+      "4": [
+        "Rozália"
+      ],
+      "5": [
+        "Lőrinc",
+        "Viktor"
+      ],
+      "6": [
+        "Zakariás"
+      ],
+      "7": [
+        "Regina"
+      ],
+      "8": [
+        "Adrienn",
+        "Mária"
+      ],
+      "9": [
+        "Ádám"
+      ],
+      "10": [
+        "Hunor",
+        "Nikolett"
+      ],
+      "11": [
+        "Teodóra"
+      ],
+      "12": [
+        "Mária"
+      ],
+      "13": [
+        "Kornél"
+      ],
+      "14": [
+        "Roxána",
+        "Szeréna"
+      ],
+      "15": [
+        "Enikő",
+        "Melitta"
+      ],
+      "16": [
+        "Edit"
+      ],
+      "17": [
+        "Zsófia"
+      ],
+      "18": [
+        "Diána"
+      ],
+      "19": [
+        "Vilhelmina"
+      ],
+      "20": [
+        "Friderika"
+      ],
+      "21": [
+        "Máté",
+        "Mirella"
+      ],
+      "22": [
+        "Móric"
+      ],
+      "23": [
+        "Tekla"
+      ],
+      "24": [
+        "Gellért",
+        "Mercédesz"
+      ],
+      "25": [
+        "Eufrozina",
+        "Kende"
+      ],
+      "26": [
+        "Jusztina"
+      ],
+      "27": [
+        "Adalbert"
+      ],
+      "28": [
+        "Vencel"
+      ],
+      "29": [
+        "Mihály"
+      ],
+      "30": [
+        "Jeromos"
+      ]
+    },
+    "10": {
+      "1": [
+        "Malvin"
+      ],
+      "2": [
+        "Petra"
+      ],
+      "3": [
+        "Helga"
+      ],
+      "4": [
+        "Ferenc"
+      ],
+      "5": [
+        "Aurél"
+      ],
+      "6": [
+        "Brúnó",
+        "Renáta"
+      ],
+      "7": [
+        "Amália"
+      ],
+      "8": [
+        "Koppány"
+      ],
+      "9": [
+        "Dénes"
+      ],
+      "10": [
+        "Gedeon"
+      ],
+      "11": [
+        "Brigitta"
+      ],
+      "12": [
+        "Miksa"
+      ],
+      "13": [
+        "Ede",
+        "Kálmán"
+      ],
+      "14": [
+        "Helén"
+      ],
+      "15": [
+        "Teréz"
+      ],
+      "16": [
+        "Gál"
+      ],
+      "17": [
+        "Hedvig"
+      ],
+      "18": [
+        "Lukács"
+      ],
+      "19": [
+        "Nándor"
+      ],
+      "20": [
+        "Vendel"
+      ],
+      "21": [
+        "Orsolya"
+      ],
+      "22": [
+        "Előd"
+      ],
+      "23": [
+        "Gyöngyi"
+      ],
+      "24": [
+        "Salamon"
+      ],
+      "25": [
+        "Bianka",
+        "Blanka"
+      ],
+      "26": [
+        "Dömötör"
+      ],
+      "27": [
+        "Szabina"
+      ],
+      "28": [
+        "Simon",
+        "Szimonetta"
+      ],
+      "29": [
+        "Nárcisz"
+      ],
+      "30": [
+        "Alfonz"
+      ],
+      "31": [
+        "Farkas"
+      ]
+    },
+    "11": {
+      "1": [
+        "Marianna"
+      ],
+      "2": [
+        "Achilles"
+      ],
+      "3": [
+        "Győző"
+      ],
+      "4": [
+        "Károly"
+      ],
+      "5": [
+        "Imre"
+      ],
+      "6": [
+        "Lénárd"
+      ],
+      "7": [
+        "Rezső"
+      ],
+      "8": [
+        "Zsombor"
+      ],
+      "9": [
+        "Tivadar"
+      ],
+      "10": [
+        "Réka"
+      ],
+      "11": [
+        "Márton"
+      ],
+      "12": [
+        "Jónás",
+        "Renátó"
+      ],
+      "13": [
+        "Szilvia"
+      ],
+      "14": [
+        "Aliz"
+      ],
+      "15": [
+        "Adalbert",
+        "Lipót"
+      ],
+      "16": [
+        "Ödön"
+      ],
+      "17": [
+        "Gergő",
+        "Hortenzia"
+      ],
+      "18": [
+        "Jenő"
+      ],
+      "19": [
+        "Erzsébet"
+      ],
+      "20": [
+        "Jolán"
+      ],
+      "21": [
+        "Olivér"
+      ],
+      "22": [
+        "Cecília"
+      ],
+      "23": [
+        "Kelemen"
+      ],
+      "24": [
+        "Emma"
+      ],
+      "25": [
+        "Katalin"
+      ],
+      "26": [
+        "Virág"
+      ],
+      "27": [
+        "Virgil"
+      ],
+      "28": [
+        "Stefánia"
+      ],
+      "29": [
+        "Taksony"
+      ],
+      "30": [
+        "Andor",
+        "András"
+      ]
+    },
+    "12": {
+      "1": [
+        "Elza"
+      ],
+      "2": [
+        "Melinda",
+        "Vivien"
+      ],
+      "3": [
+        "Ferenc",
+        "Olívia"
+      ],
+      "4": [
+        "Barbara",
+        "Borbála"
+      ],
+      "5": [
+        "Vilma"
+      ],
+      "6": [
+        "Miklós"
+      ],
+      "7": [
+        "Ambrus"
+      ],
+      "8": [
+        "Mária"
+      ],
+      "9": [
+        "Natália"
+      ],
+      "10": [
+        "Judit"
+      ],
+      "11": [
+        "Árpád"
+      ],
+      "12": [
+        "Gabriella"
+      ],
+      "13": [
+        "Luca",
+        "Otília"
+      ],
+      "14": [
+        "Szilárda"
+      ],
+      "15": [
+        "Valér"
+      ],
+      "16": [
+        "Aletta",
+        "Etelka"
+      ],
+      "17": [
+        "Lázár",
+        "Olimpia"
+      ],
+      "18": [
+        "Auguszta"
+      ],
+      "19": [
+        "Viola"
+      ],
+      "20": [
+        "Teofil"
+      ],
+      "21": [
+        "Tamás"
+      ],
+      "22": [
+        "Zénó"
+      ],
+      "23": [
+        "Viktória"
+      ],
+      "24": [
+        "Ádám",
+        "Éva"
+      ],
+      "25": [
+        "Eugénia"
+      ],
+      "26": [
+        "István"
+      ],
+      "27": [
+        "János"
+      ],
+      "28": [
+        "Kamilla"
+      ],
+      "29": [
+        "Tamara",
+        "Tamás"
+      ],
+      "30": [
+        "Dávid"
+      ],
+      "31": [
+        "Szilveszter"
+      ]
+    }
+  }
+}
