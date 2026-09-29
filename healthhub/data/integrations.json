@@ -1,8 +1,73 @@
 {
-  "schemaVersion": 1,
-  "legacyHealthRadar": {
-    "mode": "access-only",
-    "url": "https://healthradar-zsolt-monika.zsolt-monika.chatgpt.site/",
-    "note": "A nyers egészségügyi adatok nem kerülnek a nyilvános GitHub Pages tárhelyre."
-  }
+  "schemaVersion": 2,
+  "updatedAt": "2026-09-29T23:05:00+02:00",
+  "integrations": [
+    {
+      "id": "weather",
+      "label": "Időjárás",
+      "status": "live",
+      "source": "Open-Meteo",
+      "mode": "client-live",
+      "refreshMinutes": 10,
+      "privacy": "public",
+      "note": "Aktuális hőmérséklet, időjáráskód és nappal/éjszaka állapot."
+    },
+    {
+      "id": "namedays",
+      "label": "Névnap",
+      "status": "live",
+      "source": "healthhub/data/namedays.json",
+      "mode": "local-database",
+      "refresh": "daily",
+      "privacy": "public",
+      "note": "Magyar fő névnapok helyi adatbázisból, külső API-fallback lehetőséggel."
+    },
+    {
+      "id": "dailySpark",
+      "label": "Daily Spark",
+      "status": "live-pipeline",
+      "source": "ChatGPT Task → GitHub JSON",
+      "mode": "scheduled",
+      "schedule": "06:00 Europe/Budapest",
+      "target": "healthhub/data/daily-spark.json",
+      "privacy": "personal-light",
+      "note": "Zsolt és Mónika profilhoz külön napi szórakoztató asztrológiai/lifestyle tartalom."
+    },
+    {
+      "id": "dailyBriefing",
+      "label": "Daily Presidential Briefing",
+      "status": "live-pipeline",
+      "source": "ChatGPT Task → GitHub JSON",
+      "mode": "scheduled",
+      "schedule": "07:00 Europe/Budapest",
+      "target": "healthhub/data/daily-briefing.json",
+      "privacy": "public-news",
+      "note": "Semleges, forrásolt napi hírszemle; Home headline + teljes briefing."
+    },
+    {
+      "id": "legacyHealthRadar",
+      "label": "HealthRadar archívum",
+      "status": "access-only",
+      "source": "https://healthradar-zsolt-monika.zsolt-monika.chatgpt.site/",
+      "mode": "link",
+      "privacy": "sensitive-health",
+      "note": "A HealthHub publikus GitHub Pages buildje nem másolja át a nyers személyes egészségügyi adatokat. A régi HealthRadar külön hozzáférési pont marad."
+    },
+    {
+      "id": "outlookCalendar",
+      "label": "Outlook Calendar",
+      "status": "pending-secure-bridge",
+      "mode": "oauth-required",
+      "privacy": "personal",
+      "note": "A ChatGPT connector hozzáférése nem vihető át automatikusan a GitHub Pages kliensbe. Külön Microsoft OAuth vagy biztonságos bridge szükséges."
+    },
+    {
+      "id": "samsungHealth",
+      "label": "Samsung Health / Health Connect",
+      "status": "planned",
+      "mode": "android-bridge-required",
+      "privacy": "sensitive-health",
+      "note": "Weboldal közvetlenül nem olvassa a Health Connect adatokat; Android bridge szükséges."
+    }
+  ]
 }
