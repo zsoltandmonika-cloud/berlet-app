@@ -132,14 +132,15 @@ if(window.heroH){
  heroH.innerHTML=`<div class="heroBtns">
  <button class="round" onclick="toast('Keresés hamarosan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.4-3.4"/></svg></button>
  <button class="round" onclick="toast('Naptár integráció következik')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></button></div>
- <div class="healthHeroOnlyTitle">HealthRadar</div>`;
+ <div class="healthHeroOnlyTitle">HealthRadar</div>
+ <div aria-hidden="true" style="display:none"><img id="personH"><span id="nameH"></span><span id="dateH"></span><span id="weatherH"></span><span id="namedayH"></span></div>`;
 }
 
 /* Private HealthRadar migration surface. No health data is bundled here. */
 const VAULT_KEY='hh-health-vault-v1';
 function readVault(){try{return JSON.parse(localStorage.getItem(VAULT_KEY)||'null')}catch(_){return null}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function profileKey(){return window.cur==='m'?'monika':'zsolt'}
+function profileKey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function profile(){return readVault()?.profiles?.[profileKey()]||null}
 window.healthSectionKind='overview';
 function hrow(icon,title,sub,tag='',click=''){return `<div class="hrRow${click?' clickable':''}"${click?` onclick="${click}"`:''}><div class="hrIco">${icon}</div><div><b>${esc(title)}</b><small>${esc(sub||'')}</small></div>${tag?`<span class="hrTag">${esc(tag)}</span>`:''}</div>`}
