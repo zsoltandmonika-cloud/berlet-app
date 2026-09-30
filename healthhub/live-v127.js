@@ -62,9 +62,7 @@ async function syncFullMigrationDashboard(){
   const next=document.getElementById('nextH'),nextSub=document.getElementById('nextSub');
   if(next)next.textContent=a?fmtDate(a):'Nincs betervezett';
   if(nextSub)nextSub.textContent=a?(a.title||'orvosi időpont'):'időpont';
-  const hn=document.getElementById('homeNext'),hs=document.getElementById('homeNextSub');
-  if(hn)hn.textContent=a?fmtDate(a):'Nincs betervezett';
-  if(hs)hs.textContent=a?(a.title||'orvosi időpont'):'következő időpont';
+  // Home / Today upcoming appointment is owned by the later appointments module (v1.34+).
 
   const latestBP=meas.filter(x=>x.systolic!=null&&x.diastolic!=null).sort((a,b)=>String(b.measuredAt||'').localeCompare(String(a.measuredAt||'')))[0];
   const bp=document.getElementById('bpH');
