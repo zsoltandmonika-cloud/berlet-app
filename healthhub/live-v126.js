@@ -180,7 +180,8 @@ window.renderHealthSection=async function(){
   }
   if(k==='medications'){
     let arr=MEDICATIONS[p]||[];if(q)arr=arr.filter(x=>JSON.stringify(x).toLocaleLowerCase('hu').includes(q));
-    c.innerHTML=`<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3>${arr.length?arr.map(x=>hrow('💊',x.name,x.dose,x.status,`openHrDetail('medication','${x.id}')`)).join(''):'<div class="hrEmpty">Nincs találat.</div>'}</div>`;
+    const medRow=x=>`<div class="hrRow clickable" onclick="openHrDetail('medication','${x.id}')"><div class="hrIco">💊</div><div><b>${esc(x.name)}</b><small>${esc(x.dose||'')}</small></div><span style="display:flex;align-items:center;gap:4px;justify-content:flex-end;flex-wrap:wrap"><span class="hrTag">${esc(x.status||'')}</span><button type="button" class="hhMedPurposeBtn" onclick="event.stopPropagation();hhMedicationPurpose('${esc(x.name)}')" style="border:0;border-radius:11px;padding:5px 8px;background:#eaf8f4;color:#317f77;font-size:7.5px;font-weight:850;white-space:nowrap;cursor:pointer">Mire való?</button></span></div>`;
+    c.innerHTML=`<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3>${arr.length?arr.map(medRow).join(''):'<div class="hrEmpty">Nincs találat.</div>'}</div>`;
     return;
   }
   if(k==='measurements'){
