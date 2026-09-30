@@ -1,112 +1,119 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29",
-  "generatedAt": "2026-09-29T22:58:00+02:00",
-  "headline": "Energiaárak, ukrajnai diplomácia, magyar elszámoltatási ügyek és az AI-biztonsági vita adják a nap fő döntési témáit.",
+  "date": "2026-09-30",
+  "generatedAt": "2026-09-30T08:30:00+02:00",
+  "headline": "Az amerikai–iráni feszültség, a magas kötvényhozamok és az AI-szabályozási vita adják a reggel fő kockázati témáit.",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "A kötvényhozamok magasak maradtak, miközben az olajár 2,5% körüli napi esést mutatott a közel-keleti export részleges helyreállásának jeleire.",
-        "Washingtonban orosz és amerikai tisztviselők az ukrajnai háborúról és lehetséges későbbi energetikai együttműködésről tárgyaltak.",
-        "Magyarországon a Hankó Balázshoz kapcsolódó NKA-ügy és több kapcsolódó elszámoltatási eljárás maradt a belföldi közélet egyik fő témája.",
-        "Az AI-szektorban erősödött a vita az önfejlesztő rendszerek biztonsági kockázatairól, miközben a technológiai befektetési ciklus továbbra is erős."
+        "Az olajárak emelkedtek, miután Donald Trump amerikai elnök cáfolta, hogy kész lenne enyhíteni az Iránnal szembeni szankciókon.",
+        "A globális kötvénypiacok nehéz hónapot zárnak: a magas hozamok tartósan növelik a finanszírozási költségeket, miközben a részvénypiacok viszonylag ellenállók maradtak.",
+        "Az Egyesült Államokban a fogyasztói bizalom 12 és fél éves mélypont közelébe esett, miközben a munkaerőpiaci kilátásokkal kapcsolatos aggodalmak erősödtek.",
+        "Az AI-szektorban egyszerre erősödik az autonóm rendszerek fejlesztése és a biztonsági kontrollokról szóló vita."
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "Belgium három F-16-os átadását tervezi Ukrajnának 2026 végéig; Ukrajna további légvédelmi és rakétaellátási támogatásról is beszámolt.",
-        "Oroszország több európai vállalat oroszországi eszközeit ideiglenes állami kezelés alá vonta, amit Moszkva az EU-val szembeni válaszlépésként keretez."
+        "Kína hivatalos feldolgozóipari beszerzésimenedzser-indexe szeptemberben ismét 50 fölé került, ami mérsékelt bővülést jelez.",
+        "Az olajpiac továbbra is érzékenyen reagál az amerikai–iráni diplomácia és a közel-keleti exportkilátások minden változására."
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "Az amerikai–orosz egyeztetések fókuszában az ukrajnai háború lezárási lehetőségei és a konfliktus utáni energetikai együttműködés állt.",
-        "A közel-keleti export javulása enyhítette az olajárakat, de a régiós konfliktus továbbra is jelentős ellátási kockázat."
+        "Az amerikai–iráni tárgyalások körüli bizonytalanság továbbra is közvetlen hatással van az energiaárakra és a globális inflációs kockázatokra.",
+        "Az Európai Bizottság új biztosítékokat vizsgál az EU-bővítéshez, amelyek célja a későbbi intézményi és külpolitikai blokkolás kockázatának csökkentése."
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Az NKA-támogatások ügyében folyó eljárások és a Hankó Balázs őrizetbe vételéhez kapcsolódó politikai reakciók dominálták a nap belföldi híreit.",
-        "A különböző politikai szereplők eltérően értelmezik az eljárások jelentőségét; az ügy jogi részleteinek megítélésében a nyomozati és bírósági folyamat lesz meghatározó."
+        "A magyar kormány 119 milliárd forintos átcsoportosításról döntött a rezsivédelemhez kapcsolódóan.",
+        "Csődbűntett gyanúja miatt feljelentést tettek a Dunakeszi Járműjavító korábbi osztalékkifizetései ügyében; az eljárás további részletei még tisztázásra várnak."
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "A globális részvénypiacok enyhén gyengültek, miközben a hosszú amerikai állampapírhozamok több évtizedes csúcsok közelében maradtak.",
-        "Az európai piacokat a magas hozamok és energiaár-kitettség nyomta, miközben a technológiai részvényeket az AI-szektor iránti optimizmus támogatta."
+        "A kötvényhozamok több nagy piacon évtizedes csúcsok közelében mozognak, ami tartósan drágább finanszírozási környezetet jelez.",
+        "A részvénypiacokat az erős vállalati eredményvárakozások és az AI-beruházások iránti optimizmus részben ellensúlyozza a magas kamatkörnyezet hatását.",
+        "A piacok a következő napok inflációs és munkaerőpiaci adatait figyelik a kamatpálya újraárazása miatt."
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "Jelenlegi és korábbi AI-kutatók fokozott biztonsági kontrollt sürgetnek az önfejlesztő rendszerek fejlesztésénél.",
-        "Google jogi úton támadja az EU Digital Markets Act alapján előírt hozzáférési kötelezettségeket, adatvédelmi és biztonsági kockázatokra hivatkozva."
+        "Nagy AI-vállalatok önkéntes biztonsági megállapodást írtak alá az Egyesült Államokban, miközben folytatódik a vita az autonóm rendszerek ellenőrizhetőségéről.",
+        "Az OpenAI új, folyamatosan működő autonóm agent-megoldásokat mutatott be vállalati felhasználásra, ami tovább erősíti az agent-alapú automatizálási versenyt."
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Energiaellátási zavarok és a közel-keleti konfliktus újabb eszkalációja.",
-        "Magas kötvényhozamok és újabb monetáris szigorítás lehetősége a fontos amerikai inflációs adatok előtt.",
-        "Az orosz–európai gazdasági ellenlépések további vállalati eszközöket érinthetnek."
+        "Az amerikai–iráni feszültség újabb energiaár-emelkedést okozhat.",
+        "A magas kötvényhozamok további nyomást helyezhetnek a részvény-, hitel- és ingatlanpiacokra.",
+        "A gyorsan terjedő autonóm AI-rendszereknél a képességek és a biztonsági kontrollok közötti rés továbbra is kulcskockázat."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "Figyelni érdemes az ukrajnai diplomácia konkrét eredményeit, a közel-keleti export tartósságát, az amerikai inflációs adatokat és a magyarországi jogi eljárások következő hivatalos lépéseit."
+        "Ma az energiaárak, az amerikai kötvényhozamok, az európai inflációs adatok és az AI-biztonsági szabályozás új fejleményei érdemlik a legnagyobb figyelmet."
       ]
     }
   ],
   "sources": [
     {
-      "title": "Oil prices settle down 2.5% on signs Middle East exports recovering",
+      "title": "Oil gains after Trump denies he is willing to ease sanctions on Iran",
       "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/energy/oil-prices-rise-second-session-continued-middle-east-supply-concern-2026-09-29/",
+      "url": "https://www.reuters.com/business/energy/oil-climbs-after-trump-denies-he-is-willing-ease-sanctions-iran-2026-09-30/",
+      "publishedAt": "2026-09-30"
+    },
+    {
+      "title": "Bonds set for bruising September but stocks little fazed",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/china/global-markets-global-markets-2026-09-30/",
+      "publishedAt": "2026-09-30"
+    },
+    {
+      "title": "US consumer confidence near 12-1/2-year low amid labor market fears",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/business/us-consumer-confidence-dives-more-than-12-year-low-september-2026-09-29/",
       "publishedAt": "2026-09-29"
     },
     {
-      "title": "Putin envoy, US officials discussed Ukraine war and energy initiatives",
+      "title": "Chinese factory activity expands in September amid AI boom",
       "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/putin-envoy-us-officials-discussed-ukraine-war-energy-initiatives-us-official-2026-09-29/",
+      "url": "https://www.reuters.com/world/china/chinese-factory-activity-returns-growth-september-amid-ai-boom-2026-09-30/",
+      "publishedAt": "2026-09-30"
+    },
+    {
+      "title": "Trump, AI CEOs sign voluntary safety pact, back data center expansion",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/legal/government/trump-host-zuckerberg-anthropics-amodei-other-ai-titans-tuesday-2026-09-29/",
       "publishedAt": "2026-09-29"
     },
     {
-      "title": "Belgium to transfer three F-16s to Ukraine this year",
+      "title": "OpenAI takes on Meta with dots agent in autonomous AI push",
       "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/aerospace-defense/belgium-transfer-three-f-16s-ukraine-this-year-zelenskiy-says-2026-09-29/",
+      "url": "https://www.reuters.com/business/openai-takes-meta-with-always-on-dots-agent-enterprise-ai-push-2026-09-29/",
       "publishedAt": "2026-09-29"
     },
     {
-      "title": "Moscow sends EU message with widening corporate crackdown",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/europe/let-them-be-scared-moscow-sends-eu-message-with-widening-corporate-crackdown-2026-09-29/",
-      "publishedAt": "2026-09-29"
-    },
-    {
-      "title": "AI researchers warn companies rushing self-improving systems despite safety risks",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/ai-researchers-warn-companies-rushing-self-improving-systems-despite-safety-2026-09-29/",
-      "publishedAt": "2026-09-29"
-    },
-    {
-      "title": "Orbán Viktor bejelentést tett, jön a Hankó Balázs-interjú",
+      "title": "Gazdaság - 2026. szeptember 30.",
       "publisher": "Index",
-      "url": "https://index.hu/belfold/2026/09/29/orban-viktor-hanko-balazs-interju-bortonbuntetes/",
-      "publishedAt": "2026-09-29"
+      "url": "https://index.hu/gazdasag/2026/",
+      "publishedAt": "2026-09-30"
     }
   ]
 }
