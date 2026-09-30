@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-09-30",
-  "liveBuild": "v1.44",
+  "liveBuild": "v1.45",
   "currentFocus": "HealthRadar migráció lezáró ellenőrzése → kétprofilos Health Connect Bridge",
   "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-006 – Android Bridge + kétprofilos device binding + reggeli háttérszinkron",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
@@ -1091,6 +1091,24 @@
       "targetDate": "2026-09-30",
       "actualDone": "2026-09-30",
       "notes": "v1.44 refreshes every 10 minutes, refreshes again when the app returns to foreground, and keeps a short local cache for graceful fallback."
+    },
+    {
+      "id": "HH-CORE-013",
+      "epic": "HealthHub Core",
+      "feature": "Dynamic Hero",
+      "title": "Show scenic daypart photographs without excessive dimming",
+      "acceptanceCriteria": "Both profile Home/Today heroes retain visible photographic detail in every season and daypart; autumn night shows illuminated Budapest or moonlit Rockies with the moon and water inside the frame; title remains legible.",
+      "priority": "High",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 2,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-CORE-012",
+      "targetDate": "2026-09-30",
+      "actualDone": "2026-09-30",
+      "notes": "v1.45 removes the full-frame 48–72% night veil and evening/day veils, uses local title shading, and installs two wide autumn night photographs. Other seasonal assets remain in the shared HERO_BG map. Browser verification is recorded after deployment."
     }
   ],
   "changeLog": [
@@ -1108,6 +1126,14 @@
       "actionId": "HH-CORE-012",
       "type": "Bugfix",
       "summary": "Unified current Budapest weather and daypart logic. Weather refreshes from Open-Meteo and the Home hero switches according to the same actual sunrise/sunset data.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-09-30",
+      "release": "v1.45",
+      "actionId": "HH-CORE-013",
+      "type": "Bugfix",
+      "summary": "Removed excessive full-image hero dimming for both profiles and all dayparts. Added wide autumn night scenes with moonlit water for Zsolt and illuminated Budapest with Danube reflections for Mónika.",
       "status": "Done"
     }
   ]
