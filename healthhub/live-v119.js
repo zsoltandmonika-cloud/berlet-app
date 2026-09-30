@@ -23,6 +23,11 @@ function hhPolishHome(){
 
   const headline=document.querySelector("#home .newsStrip b");
   if(headline) headline.textContent="Daily Headline";
+
+  const briefingTop=document.querySelector("#briefing .detailTop b");
+  if(briefingTop) briefingTop.textContent="Daily Headline";
+  const briefingTitle=document.querySelector("#briefing .detailTitle h1");
+  if(briefingTitle) briefingTitle.textContent="Daily Headline";
 }
 
 hhPolishHome();
@@ -46,5 +51,5 @@ const obs=new MutationObserver(()=>hhPolishHome());
   if(el) obs.observe(el,{childList:true,characterData:true,subtree:true});
 });
 
-window.HH_LIVE_BUILD="v1.19";
+window.HH_LIVE_BUILD="v1.20";
 })();
