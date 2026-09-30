@@ -6,7 +6,7 @@ const css=`
   height:205px!important;
   min-height:205px!important;
   max-height:205px!important;
-  background-image:url("https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/assets/daily-spark-approved.webp?v=120")!important;
+  background-image:url("https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/assets/daily-spark-approved.webp?v=121")!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
@@ -33,5 +33,5 @@ const s=document.createElement("style");
 s.id="hh-v115-style";
 s.textContent=css;
 document.head.appendChild(s);
-window.HH_LIVE_BUILD="v1.17";
+window.HH_LIVE_BUILD="v1.18";
 })();
