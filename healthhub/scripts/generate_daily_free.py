@@ -199,8 +199,24 @@ def main():
     mode=(sys.argv[1] if len(sys.argv)>1 else "auto").lower()
     hour=now_local().hour
     if mode=="auto":
-        if hour==6: mode="spark"
-        elif hour==7: mode="briefing"
+        if hour==6:
+            try:
+                current=json.loads((DATA / "daily-spark.json").read_text(encoding="utf-8"))
+                if current.get("date")==now_local().strftime("%Y-%m-%d"):
+                    print("Daily Spark already current; fallback not needed.")
+                    return
+            except Exception:
+                pass
+            mode="spark"
+        elif hour==7:
+            try:
+                current=json.loads((DATA / "daily-briefing.json").read_text(encoding="utf-8"))
+                if current.get("date")==now_local().strftime("%Y-%m-%d"):
+                    print("Daily Headline already current; fallback not needed.")
+                    return
+            except Exception:
+                pass
+            mode="briefing"
         else:
             print("No HealthHub generation scheduled for local hour",hour)
             return
