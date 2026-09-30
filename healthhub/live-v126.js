@@ -35,19 +35,35 @@ function toastMsg(s){try{window.toast?.(s)}catch(_){}}
 function fmtDate(s){if(!s)return '';const d=new Date(s);if(Number.isNaN(d.getTime()))return String(s);return new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'2-digit',day:'2-digit',hour:s.includes('T')?'2-digit':undefined,minute:s.includes('T')?'2-digit':undefined}).format(d)}
 function hrow(icon,title,sub,tag='',click=''){return `<div class="hrRow${click?' clickable':''}"${click?` onclick="${click}"`:''}><div class="hrIco">${icon}</div><div><b>${esc(title)}</b><small>${esc(sub||'')}</small></div>${tag?`<span class="hrTag">${esc(tag)}</span>`:''}</div>`}
 
+let hhDbRepairing=false;
+function buildDbSchema(db){
+  if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta',{keyPath:'key'});
+  if(!db.objectStoreNames.contains('profiles')) db.createObjectStore('profiles',{keyPath:'profile'});
+  if(!db.objectStoreNames.contains('documents')){const s=db.createObjectStore('documents',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
+  if(!db.objectStoreNames.contains('documentBlobs')) db.createObjectStore('documentBlobs',{keyPath:'id'});
+  if(!db.objectStoreNames.contains('measurements')){const s=db.createObjectStore('measurements',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
+  if(!db.objectStoreNames.contains('appointments')){const s=db.createObjectStore('appointments',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
+}
 function openDb(){
   return new Promise((resolve,reject)=>{
     const req=indexedDB.open(DB_NAME,DB_VERSION);
-    req.onupgradeneeded=()=>{
+    req.onupgradeneeded=()=>buildDbSchema(req.result);
+    req.onsuccess=()=>{
       const db=req.result;
-      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta',{keyPath:'key'});
-      if(!db.objectStoreNames.contains('profiles')) db.createObjectStore('profiles',{keyPath:'profile'});
-      if(!db.objectStoreNames.contains('documents')){const s=db.createObjectStore('documents',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
-      if(!db.objectStoreNames.contains('documentBlobs')) db.createObjectStore('documentBlobs',{keyPath:'id'});
-      if(!db.objectStoreNames.contains('measurements')){const s=db.createObjectStore('measurements',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
-      if(!db.objectStoreNames.contains('appointments')){const s=db.createObjectStore('appointments',{keyPath:'id'});s.createIndex('profile','profile',{unique:false});}
+      const required=['meta','profiles','documents','documentBlobs','measurements','appointments'];
+      const missing=required.filter(n=>!db.objectStoreNames.contains(n));
+      if(missing.length&&!hhDbRepairing){
+        db.close();
+        hhDbRepairing=true;
+        const del=indexedDB.deleteDatabase(DB_NAME);
+        del.onsuccess=()=>{hhDbRepairing=false;openDb().then(resolve,reject)};
+        del.onerror=()=>{hhDbRepairing=false;reject(del.error||new Error('A helyi HealthRadar tárhely nem javítható.'))};
+        del.onblocked=()=>{hhDbRepairing=false;reject(new Error('A helyi HealthRadar tárhely zárolva van. Frissítsd az oldalt, majd próbáld újra.'))};
+        return;
+      }
+      if(missing.length){db.close();reject(new Error('Hiányzó helyi adattár: '+missing.join(', ')));return}
+      resolve(db);
     };
-    req.onsuccess=()=>resolve(req.result);
     req.onerror=()=>reject(req.error);
   });
 }
@@ -88,7 +104,7 @@ async function saveFullMigration(entries,sourceFileName){
     const m=e.name.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     if(m)blobById.set(m[0],new Blob([e.bytes],{type:'application/pdf'}));
   }
-  if(blobById.size!==docs.length)throw new Error(`Dokumentumfájl eltérés: ${blobById.size}/${docs.length}.`);
+  const missingBlobs=docs.filter(x=>!blobById.has(x.id));
 
   const db=await openDb();
   await new Promise((resolve,reject)=>{
@@ -99,18 +115,18 @@ async function saveFullMigration(entries,sourceFileName){
     for(const x of docs)tx.objectStore('documents').put(x);
     for(const x of meas)tx.objectStore('measurements').put(x);
     for(const x of apps)tx.objectStore('appointments').put(x);
-    for(const x of docs)tx.objectStore('documentBlobs').put({id:x.id,blob:blobById.get(x.id)});
-    tx.objectStore('meta').put({key:META_KEY,importedAt:new Date().toISOString(),sourceFileName,manifest,counts:{documents:docs.length,measurements:meas.length,profiles:profs.length,appointments:apps.length}});
+    for(const x of docs){const b=blobById.get(x.id);if(b)tx.objectStore('documentBlobs').put({id:x.id,blob:b});}
+    tx.objectStore('meta').put({key:META_KEY,importedAt:new Date().toISOString(),sourceFileName,manifest,counts:{documents:docs.length,documentFiles:blobById.size,documentFilesMissing:missingBlobs.length,measurements:meas.length,profiles:profs.length,appointments:apps.length}});
   });
   db.close();
-  return {docs:docs.length,meas:meas.length,profiles:profs.length,apps:apps.length};
+  return {docs:docs.length,files:blobById.size,missing:missingBlobs.length,meas:meas.length,profiles:profs.length,apps:apps.length};
 }
 
 async function importTar(file){
   toastMsg('HealthRadar teljes migráció importálása…');
   const entries=parseTar(await file.arrayBuffer());
   const c=await saveFullMigration(entries,file.name);
-  toastMsg(`HealthRadar kész: ${c.docs} lelet · ${c.meas} mérés`);
+  toastMsg(`HealthRadar kész: ${c.docs} lelet · ${c.meas} mérés${c.missing?` · ${c.missing} fájl hiányzik`:''}`);
   await window.renderHealthSection();
 }
 
