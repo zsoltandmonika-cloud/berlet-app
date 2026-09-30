@@ -1,13 +1,21 @@
 (function(){
 "use strict";
-/* HealthHub v1.19 home microcopy polish:
-   - remove profile-name chevron glyph
-   - full Hungarian weekday on hero date
-   - Daily Headline without 07:00 suffix */
+/* HealthHub v1.21 UI fixes:
+   - idempotent home microcopy polish (no MutationObserver loop)
+   - reliable profile switching on picker buttons
+   - full Hungarian weekday
+   - Daily Headline labels */
+
+function setTextIfChanged(el, value){
+  if(el && el.textContent !== value) el.textContent = value;
+}
+
 function hhPolishHome(){
   ["nameHome","nameH","nameT"].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.textContent=(el.textContent||"").replace(/[⌄∨v]\s*$/,"").trim();
+    if(!el) return;
+    const clean=(el.textContent||"").replace(/[⌄∨v]\s*$/,"").trim();
+    setTextIfChanged(el,clean);
   });
 
   const d=new Date();
@@ -17,39 +25,69 @@ function hhPolishHome(){
     weekday:"long"
   }).format(d);
   ["dateHome","dateH","dateT"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent=full+" · Budapest";
+    setTextIfChanged(document.getElementById(id),full+" · Budapest");
   });
 
-  const headline=document.querySelector("#home .newsStrip b");
-  if(headline) headline.textContent="Daily Headline";
+  setTextIfChanged(document.querySelector("#home .newsStrip b"),"Daily Headline");
+  setTextIfChanged(document.querySelector("#briefing .detailTop b"),"Daily Headline");
+  setTextIfChanged(document.querySelector("#briefing .detailTitle h1"),"Daily Headline");
+}
 
-  const briefingTop=document.querySelector("#briefing .detailTop b");
-  if(briefingTop) briefingTop.textContent="Daily Headline";
-  const briefingTitle=document.querySelector("#briefing .detailTitle h1");
-  if(briefingTitle) briefingTitle.textContent="Daily Headline";
+function hhSwitchProfile(profile){
+  if(profile!=="z" && profile!=="m") return;
+  try{
+    window.cur=profile;
+    if(typeof cur!=="undefined") cur=profile;
+  }catch(_){}
+  localStorage.setItem("hh-profile",profile);
+  if(typeof window.apply==="function") window.apply();
+  else if(typeof apply==="function") apply();
+  const overlay=document.getElementById("overlay");
+  if(overlay) overlay.classList.remove("on");
+  setTimeout(hhPolishHome,0);
+}
+
+window.hhSwitchProfile=hhSwitchProfile;
+
+// Keep the original app API working, but remove the fragile wrapper chain.
+window.setProfile=hhSwitchProfile;
+
+function bindProfilePicker(){
+  const overlay=document.getElementById("overlay");
+  if(!overlay) return;
+
+  const choices=overlay.querySelectorAll(".choice");
+  choices.forEach(btn=>{
+    const label=(btn.textContent||"").toLowerCase();
+    const profile=label.includes("mónika")||label.includes("monika") ? "m" : "z";
+    btn.onclick=function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      hhSwitchProfile(profile);
+    };
+    btn.style.pointerEvents="auto";
+    btn.style.cursor="pointer";
+  });
+
+  overlay.style.pointerEvents="auto";
+  const picker=overlay.querySelector(".picker");
+  if(picker) picker.style.pointerEvents="auto";
 }
 
 hhPolishHome();
+bindProfilePicker();
 
-if(typeof window.setProfile==="function"){
-  const prevSetProfile=window.setProfile;
-  window.setProfile=function(){
-    const r=prevSetProfile.apply(this,arguments);
-    setTimeout(hhPolishHome,0);
-    return r;
+if(typeof window.dateFmt==="function"){
+  const originalDateFmt=window.dateFmt;
+  window.dateFmt=function(){
+    try{ originalDateFmt.apply(this,arguments); }catch(_){}
+    hhPolishHome();
   };
 }
 
-if(typeof window.dateFmt==="function"){
-  window.dateFmt=function(){ hhPolishHome(); };
-}
+// Observe only the overlay being rebuilt; do not observe name text mutations.
+const bodyObs=new MutationObserver(()=>bindProfilePicker());
+bodyObs.observe(document.body,{childList:true,subtree:true});
 
-const obs=new MutationObserver(()=>hhPolishHome());
-["nameHome","nameH","nameT"].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el) obs.observe(el,{childList:true,characterData:true,subtree:true});
-});
-
-window.HH_LIVE_BUILD="v1.20";
+window.HH_LIVE_BUILD="v1.21";
 })();
