@@ -26,7 +26,13 @@ function fmtShort(a){
  if(!a)return 'Nincs betervezett';
  var d=new Date(a.appointmentDate+'T00:00:00');
  if(isNaN(d.getTime()))return a.appointmentDate||'Időpont';
- return new Intl.DateTimeFormat('hu-HU',{month:'short',day:'numeric'}).format(d).replace('.','.');
+ return new Intl.DateTimeFormat('hu-HU',{month:'short',day:'numeric'}).format(d);
+}
+function fmtTodayFull(a){
+ if(!a)return '';
+ var d=new Date(a.appointmentDate+'T00:00:00');
+ var date=isNaN(d.getTime())?(a.appointmentDate||''):new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(d);
+ return date+(a.startTime?' · '+a.startTime:'');
 }
 function fmtLong(a){
  if(!a)return '';
@@ -49,8 +55,9 @@ function ensureStyle(){
  var s=document.createElement('style');s.id='hh-v134-style';
  s.textContent=
  '.todayRow.hhUpcomingRow{cursor:pointer}.todayRow.hhUpcomingRow:hover{background:color-mix(in srgb,var(--soft) 55%,transparent);border-radius:12px;padding-left:4px;padding-right:4px}'+
- '.todayRow .ico.hhTodayIcon{width:31px;height:31px;border-radius:10px;background:var(--soft);color:var(--a);display:grid;place-items:center;flex:0 0 31px}'+
- '.todayRow .ico.hhTodayIcon svg{width:16px;height:16px}'+
+ '.todayRow .ico.hhTodayIcon{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#fff,#f4f7fb);display:grid;place-items:center;flex:0 0 38px;box-shadow:0 5px 14px rgba(38,74,101,.08);font-size:21px;line-height:1}'+
+ '.todayRow .ico.hhTodayIcon span{display:block;transform:translateY(.5px)}'+
+ '.todayRow .hhNextMeta{display:block}.todayRow .hhNextDate{display:block;font-size:8.4px;font-weight:800;color:#405d75;line-height:1.35}.todayRow .hhNextTitle{display:block;font-size:7.9px;color:#72879a;line-height:1.35;margin-top:2px}'+
  '.hhCalendarHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}'+
  '.hhCalendarTitle{display:flex;align-items:flex-start;gap:9px}.hhCalendarTitle .hrIco svg{width:18px;height:18px}';
  document.head.appendChild(s);
@@ -68,22 +75,27 @@ function reorderToday(){
  nextRow.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();window.hhOpenNearestAppointment()}};
 
  var ni=nextRow.querySelector('.ico');
- if(ni){ni.classList.add('hhTodayIcon');ni.innerHTML=calSvg()}
+ if(ni){ni.classList.add('hhTodayIcon');ni.innerHTML='<span aria-hidden="true">📅</span>'}
  var ii=insightRow.querySelector('.ico');
- if(ii){ii.classList.add('hhTodayIcon');ii.innerHTML=bulbSvg()}
+ if(ii){ii.classList.add('hhTodayIcon');ii.innerHTML='<span aria-hidden="true">💡</span>'}
 
  if(card.children[1]!==nextRow) card.insertBefore(nextRow,card.children[1]);
  if(nextRow.nextElementSibling!==insightRow) card.insertBefore(insightRow,nextRow.nextElementSibling);
 
- var b=nextRow.querySelector('b');if(b&&b.id==='homeNext'&&b.textContent==='Nincs betervezett')b.textContent='Nincs közelgő időpont';
+ var b=nextRow.querySelector('b');if(b&&b.id==='homeNext')b.textContent='Közelgő időpont';
 }
 
 async function syncToday(){
  ensureStyle();reorderToday();
  var arr=await upcoming(),a=arr[0]||null;
  var n=document.getElementById('homeNext'),s=document.getElementById('homeNextSub');
- if(n)n.textContent=a?fmtShort(a):'Nincs közelgő időpont';
- if(s)s.textContent=a?((a.title||'Orvosi időpont')+(a.startTime?' · '+a.startTime:'')):'következő időpont';
+ if(n)n.textContent='Közelgő időpont';
+ if(s){
+   s.classList.add('hhNextMeta');
+   s.innerHTML=a
+     ? '<span class="hhNextDate">'+esc(fmtTodayFull(a))+'</span><span class="hhNextTitle">'+esc(a.title||'Orvosi időpont')+'</span>'
+     : '<span class="hhNextDate">Nincs betervezett időpont</span>';
+ }
  var row=n&&n.closest('.todayRow');if(row){row.dataset.apptId=a?a.id:'';row.style.opacity=a?'1':'.72'}
  reorderToday();
 }
