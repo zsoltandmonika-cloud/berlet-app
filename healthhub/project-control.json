@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-09-30",
-  "liveBuild": "v1.45",
+  "updatedAt": "2026-10-01",
+  "liveBuild": "v1.46",
   "currentFocus": "HealthRadar migráció lezáró ellenőrzése → kétprofilos Health Connect Bridge",
   "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-006 – Android Bridge + kétprofilos device binding + reggeli háttérszinkron",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
@@ -1109,6 +1109,24 @@
       "targetDate": "2026-09-30",
       "actualDone": "2026-09-30",
       "notes": "v1.45 removes the full-frame 48–72% night veil and evening/day veils, uses local title shading, and installs two wide autumn night photographs. Other seasonal assets remain in the shared HERO_BG map. Browser verification is recorded after deployment."
+    },
+    {
+      "id": "HH-CORE-014",
+      "epic": "HealthHub Core",
+      "feature": "App Identity",
+      "title": "Own favicon and home-screen shortcut identity",
+      "acceptanceCriteria": "HealthHub has its own heart-and-cross favicon, Apple touch icon and separate app manifest with HealthHub-only start URL and scope; icons survive bundled page reconstruction.",
+      "priority": "Medium",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 1,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-CORE-008",
+      "targetDate": "2026-10-01",
+      "actualDone": "2026-10-01",
+      "notes": "User selected red heart with white medical cross and blue ring. ICO and 16/32/48px PNG favicons, 180px Apple icon, 96/192/512px launcher icons and maskable icon. Metadata is preserved through document.write. Existing shortcuts may need to be recreated by the user."
     }
   ],
   "changeLog": [
@@ -1134,6 +1152,14 @@
       "actionId": "HH-CORE-013",
       "type": "Bugfix",
       "summary": "Removed excessive full-image hero dimming for both profiles and all dayparts. Added wide autumn night scenes with moonlit water for Zsolt and illuminated Budapest with Danube reflections for Mónika.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-01",
+      "release": "v1.46",
+      "actionId": "HH-CORE-014",
+      "type": "Feature",
+      "summary": "Added a distinctive HealthHub heart-and-cross favicon and launcher identity, with a dedicated manifest scoped to HealthHub and icon metadata preserved during bundled HTML loading.",
       "status": "Done"
     }
   ]

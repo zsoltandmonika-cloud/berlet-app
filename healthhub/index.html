@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v1.45">
+<meta name="healthhub-live-build" content="v1.46" data-hh-shortcut>
+<link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
+<link rel="icon" type="image/png" sizes="48x48" href="./assets/icons/healthhub-48-v146.png" data-hh-shortcut>
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/healthhub-180-v146.png" data-hh-shortcut>
+<link rel="manifest" href="./manifest.webmanifest?v=146" data-hh-shortcut>
+<meta name="application-name" content="HealthHub" data-hh-shortcut>
+<meta name="apple-mobile-web-app-title" content="HealthHub" data-hh-shortcut>
+<meta name="apple-mobile-web-app-capable" content="yes" data-hh-shortcut>
+<meta name="apple-mobile-web-app-status-bar-style" content="default" data-hh-shortcut>
 <style>
 html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#0b2d50}
 .boot{display:none!important}
@@ -34,7 +44,9 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
 <script src="./bundle/HHB13_17.js"></script>
 <script>
 (function(){
-  const html=(window.HH_CHUNKS||[]).join('');
+  /* Keep shortcut metadata when replacing the boot page with bundled HTML. */
+  const shortcutHead=Array.from(document.head.querySelectorAll('[data-hh-shortcut]')).map(el=>el.outerHTML).join('\n');
+  const html=(window.HH_CHUNKS||[]).join('').replace('</head>',shortcutHead+'</head>');
   if(!html.startsWith('<!doctype html>')){
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
