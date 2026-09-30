@@ -16,7 +16,7 @@ const css=`
   height:205px!important;
   min-height:205px!important;
   max-height:205px!important;
-  background-image:url("./assets/daily-news-approved.webp?v=115")!important;
+  background-image:url("./assets/daily-news-approved.webp?v=116")!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
