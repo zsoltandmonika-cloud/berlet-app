@@ -202,6 +202,9 @@ if(typeof window.setProfile==='function'){
   window.setProfile=function(x){prevSet(x);setTimeout(()=>{syncHealthDashboard();syncHomeToday();bindHealthHero()},0)};
 }
 
+window.hhSyncHealthDashboard=syncHealthDashboard;
+window.hhSyncHealthHome=syncHomeToday;
+window.hhBindHealthHero=bindHealthHero;
 bindHomeModules();bindHealthHero();syncHealthDashboard();syncHomeToday();ensureAsk();
 setTimeout(()=>{bindHomeModules();bindHealthHero();syncHealthDashboard();syncHomeToday()},250);
 window.HH_LIVE_BUILD='v1.13';
