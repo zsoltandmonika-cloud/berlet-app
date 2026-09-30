@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-09-30",
-  "liveBuild": "v1.43",
+  "liveBuild": "v1.44",
   "currentFocus": "HealthRadar migráció lezáró ellenőrzése → kétprofilos Health Connect Bridge",
   "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-006 – Android Bridge + kétprofilos device binding + reggeli háttérszinkron",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
@@ -1073,6 +1073,24 @@
       "targetDate": "2026-09-30",
       "actualDone": "2026-09-30",
       "notes": "v1.43 fixes the old fixed 18:00–21:30 evening window. Sunrise/sunset is now fetched from Open-Meteo for Budapest and rechecked every minute."
+    },
+    {
+      "id": "HH-CORE-012",
+      "epic": "HealthHub Core",
+      "feature": "Weather + Daypart",
+      "title": "Unify current Budapest weather and sunset-aware hero",
+      "acceptanceCriteria": "Home weather refreshes from current Budapest Open-Meteo data; icon/condition match the live weather; hero uses the same sunrise/sunset cycle and switches to night at actual sunset.",
+      "priority": "High",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 2,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-CORE-011",
+      "targetDate": "2026-09-30",
+      "actualDone": "2026-09-30",
+      "notes": "v1.44 refreshes every 10 minutes, refreshes again when the app returns to foreground, and keeps a short local cache for graceful fallback."
     }
   ],
   "changeLog": [
@@ -1082,6 +1100,14 @@
       "actionId": "HH-CORE-011",
       "type": "Bugfix",
       "summary": "Home hero daypart logic changed from fixed clock windows to actual Budapest sunrise/sunset. After sunset the dark/night background is applied automatically.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-09-30",
+      "release": "v1.44",
+      "actionId": "HH-CORE-012",
+      "type": "Bugfix",
+      "summary": "Unified current Budapest weather and daypart logic. Weather refreshes from Open-Meteo and the Home hero switches according to the same actual sunrise/sunset data.",
       "status": "Done"
     }
   ]
