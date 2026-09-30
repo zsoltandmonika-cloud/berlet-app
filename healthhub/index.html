@@ -55,6 +55,21 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
   document.open();
   document.write(live);
   document.close();
+  /* document.open may retain the parser's original head. Keep one copy of
+     each shortcut tag, always in head, in either browser parsing mode. */
+  function normalizeShortcutHead(){
+    const seen=new Set();
+    document.querySelectorAll('[data-hh-shortcut]').forEach(el=>{
+      const key=[el.tagName,el.getAttribute('rel')||el.getAttribute('name'),el.getAttribute('sizes')||''].join('|');
+      if(seen.has(key)){el.remove();return;}
+      seen.add(key);
+      if(el.parentNode!==document.head)document.head.appendChild(el);
+    });
+    document.documentElement.dataset.healthhubShortcut='1.46';
+    window.HH_LIVE_BUILD='v1.46-shortcut';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',normalizeShortcutHead,{once:true});
+  else normalizeShortcutHead();
 })();
 </script>
 </body>
