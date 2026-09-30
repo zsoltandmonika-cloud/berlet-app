@@ -1,12 +1,12 @@
 (function(){
 "use strict";
 const css=`
-/* HealthHub v1.15 approved Daily hero assets */
+/* HealthHub v1.16 hero loading fix */
 .sparkHero{
   height:205px!important;
   min-height:205px!important;
   max-height:205px!important;
-  background-image:url("./assets/daily-spark-approved.webp?v=115")!important;
+  background-image:var(--spark-hero)!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
@@ -16,7 +16,7 @@ const css=`
   height:205px!important;
   min-height:205px!important;
   max-height:205px!important;
-  background-image:url("./assets/daily-news-approved.webp?v=117")!important;
+  background-image:url("https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/assets/daily-news-approved.webp?v=118")!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
@@ -33,5 +33,5 @@ const s=document.createElement("style");
 s.id="hh-v115-style";
 s.textContent=css;
 document.head.appendChild(s);
-window.HH_LIVE_BUILD="v1.15";
+window.HH_LIVE_BUILD="v1.16";
 })();
