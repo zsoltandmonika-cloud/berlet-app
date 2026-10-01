@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30",
-  "generatedAt": "2026-09-30T08:30:00+02:00",
+  "date": "2026-10-01",
+  "generatedAt": "2026-10-01T15:54:38+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Ma egy kis rendrakás és egy tiszta döntés többet érhet, mint tíz félig elkezdett ötlet.",
+      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
       "sections": {
-        "focus": "Válassz ki egyetlen ügyet, amely ma valóban számít, és vidd el egy konkrét következő lépésig.",
-        "workMoney": "A részletek ma segítenek. Egy rövid ellenőrzés vagy pontosítás megelőzhet egy fölösleges kört.",
-        "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
-        "energy": "Dolgozz rövidebb, fókuszált blokkokban, majd válts környezetet vagy mozogj pár percet.",
-        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
+        "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
+        "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
+        "relationships": "Egy kisebb félreértést érdemes gyorsan tisztázni, mielőtt önálló életet kezd.",
+        "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
+        "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
         "lenaThought": "A haladás néha nem látványos. Néha csak annyi, hogy eggyel kevesebb nyitott szál marad."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Egy friss nézőpont ma egyszerűbb utat mutathat valamire, amit eddig túl bonyolultan próbáltál megoldani.",
+      "headline": "A mai nap akkor működik jól, ha a fontos dolgoknak valódi helyet hagysz.",
       "sections": {
-        "focus": "Ne ragaszkodj automatikusan az első megoldáshoz. Egy kis kerülőút ma meglepően praktikus lehet.",
+        "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
         "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
         "relationships": "Egy spontán beszélgetés könnyen közelebb hozhat valakit, ha nem akarod előre irányítani.",
         "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
-        "evening": "Valami könnyű és inspiráló program jobban feltölt, mint még egy feladat kipipálása.",
-        "lenaThought": "A jó ötletek ritkán kérnek engedélyt. Érdemes észrevenni őket, mielőtt továbbmennek."
+        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
+        "lenaThought": "Nem minden problémának kell ma teljes megoldás. Néha a következő jó lépés bőven elég."
       }
     }
   }

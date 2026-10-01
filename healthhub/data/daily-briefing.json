@@ -1,119 +1,226 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30",
-  "generatedAt": "2026-09-30T08:30:00+02:00",
-  "headline": "Az amerikai–iráni feszültség, a magas kötvényhozamok és az AI-szabályozási vita adják a reggel fő kockázati témáit.",
+  "date": "2026-10-01",
+  "generatedAt": "2026-10-01T15:54:38+02:00",
+  "headline": "A reggel fő témái: US death row inmate survives execution attempt after two lethal injections; What happened in failed execution of Christa Pike - and what next?",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "Az olajárak emelkedtek, miután Donald Trump amerikai elnök cáfolta, hogy kész lenne enyhíteni az Iránnal szembeni szankciókon.",
-        "A globális kötvénypiacok nehéz hónapot zárnak: a magas hozamok tartósan növelik a finanszírozási költségeket, miközben a részvénypiacok viszonylag ellenállók maradtak.",
-        "Az Egyesült Államokban a fogyasztói bizalom 12 és fél éves mélypont közelébe esett, miközben a munkaerőpiaci kilátásokkal kapcsolatos aggodalmak erősödtek.",
-        "Az AI-szektorban egyszerre erősödik az autonóm rendszerek fejlesztése és a biztonsági kontrollokról szóló vita."
+        "BBC World: US death row inmate survives execution attempt after two lethal injections",
+        "BBC World: What happened in failed execution of Christa Pike - and what next?",
+        "BBC World: Too early to say if Iran involved in Dubai-Tel Aviv flight attack, Israeli PM says",
+        "BBC World: Rosenberg: Putin shows no sign of stopping the war as Russia doubles down on Ukraine"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "Kína hivatalos feldolgozóipari beszerzésimenedzser-indexe szeptemberben ismét 50 fölé került, ami mérsékelt bővülést jelez.",
-        "Az olajpiac továbbra is érzékenyen reagál az amerikai–iráni diplomácia és a közel-keleti exportkilátások minden változására."
+        "BBC World: US death row inmate survives execution attempt after two lethal injections",
+        "BBC World: What happened in failed execution of Christa Pike - and what next?",
+        "BBC World: Too early to say if Iran involved in Dubai-Tel Aviv flight attack, Israeli PM says"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "Az amerikai–iráni tárgyalások körüli bizonytalanság továbbra is közvetlen hatással van az energiaárakra és a globális inflációs kockázatokra.",
-        "Az Európai Bizottság új biztosítékokat vizsgál az EU-bővítéshez, amelyek célja a későbbi intézményi és külpolitikai blokkolás kockázatának csökkentése."
+        "BBC World: US death row inmate survives execution attempt after two lethal injections",
+        "BBC World: What happened in failed execution of Christa Pike - and what next?",
+        "BBC World: Too early to say if Iran involved in Dubai-Tel Aviv flight attack, Israeli PM says"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "A magyar kormány 119 milliárd forintos átcsoportosításról döntött a rezsivédelemhez kapcsolódóan.",
-        "Csődbűntett gyanúja miatt feljelentést tettek a Dunakeszi Járműjavító korábbi osztalékkifizetései ügyében; az eljárás további részletei még tisztázásra várnak."
+        "Világgazdaság: Rendkívüli: Oroszország hivatalosan bejelentette Magyarország megbüntetését – ez a válasz Orbán Anita lépésére - Világgazdaság",
+        "Magyarország Kormánya: Elindult a jelentkezés a Magyar Közigazgatási Ösztöndíjprogramba - Magyarország Kormánya",
+        "Euronews.com: Magyarország diplomáciai jelenléte Oroszországban fennmarad - Euronews.com"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "A kötvényhozamok több nagy piacon évtizedes csúcsok közelében mozognak, ami tartósan drágább finanszírozási környezetet jelez.",
-        "A részvénypiacokat az erős vállalati eredményvárakozások és az AI-beruházások iránti optimizmus részben ellensúlyozza a magas kamatkörnyezet hatását.",
-        "A piacok a következő napok inflációs és munkaerőpiaci adatait figyelik a kamatpálya újraárazása miatt."
+        "BBC Business: AI boom could trigger market shocks, Bank of England boss warns",
+        "BBC Business: Trump's AI rebrand causes 'unprecedented' demand for Slovenian website names",
+        "BBC Business: Travelodge failed sex assault victim 'at every stage'"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "Nagy AI-vállalatok önkéntes biztonsági megállapodást írtak alá az Egyesült Államokban, miközben folytatódik a vita az autonóm rendszerek ellenőrizhetőségéről.",
-        "Az OpenAI új, folyamatosan működő autonóm agent-megoldásokat mutatott be vállalati felhasználásra, ami tovább erősíti az agent-alapú automatizálási versenyt."
+        "BBC Technology: Trump's AI rebrand causes 'unprecedented' demand for Slovenian website names",
+        "BBC Technology: AI boom could trigger market shocks, Bank of England boss warns",
+        "BBC Technology: Tiny image sparks big backlash in Nikon photo contest"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Az amerikai–iráni feszültség újabb energiaár-emelkedést okozhat.",
-        "A magas kötvényhozamok további nyomást helyezhetnek a részvény-, hitel- és ingatlanpiacokra.",
-        "A gyorsan terjedő autonóm AI-rendszereknél a képességek és a biztonsági kontrollok közötti rés továbbra is kulcskockázat."
+        "Figyelmi pont: Too early to say if Iran involved in Dubai-Tel Aviv flight attack, Israeli PM says (BBC World).",
+        "Figyelmi pont: Rosenberg: Putin shows no sign of stopping the war as Russia doubles down on Ukraine (BBC World).",
+        "Figyelmi pont: AI boom could trigger market shocks, Bank of England boss warns (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "Ma az energiaárak, az amerikai kötvényhozamok, az európai inflációs adatok és az AI-biztonsági szabályozás új fejleményei érdemlik a legnagyobb figyelmet."
+        "BBC World: US death row inmate survives execution attempt after two lethal injections",
+        "BBC World: What happened in failed execution of Christa Pike - and what next?"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Oil gains after Trump denies he is willing to ease sanctions on Iran",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/energy/oil-climbs-after-trump-denies-he-is-willing-ease-sanctions-iran-2026-09-30/",
+      "title": "US death row inmate survives execution attempt after two lethal injections",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq8r6rjdvlx6o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "What happened in failed execution of Christa Pike - and what next?",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ckge4eql4q7eo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Too early to say if Iran involved in Dubai-Tel Aviv flight attack, Israeli PM says",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqgmrm7xd8wyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Rosenberg: Putin shows no sign of stopping the war as Russia doubles down on Ukraine",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqx2ze420kpyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Swiss glaciers suffer 'disastrous' year of ice loss, threatening water supplies",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6n9w0ypjwl9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Japan raises permanent residency fee by 20 times",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6y8z8xeg8j1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Trump's AI rebrand causes 'unprecedented' demand for Slovenian website names",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqx2z23xj555o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Explosions heard in Ethiopia's capital after drone flights banned",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c3vgygpqky9zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Rendkívüli: Oroszország hivatalosan bejelentette Magyarország megbüntetését – ez a válasz Orbán Anita lépésére - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPMDkzX1FpWkVVaHlYUnBpQnJMT0tRNFZvOVZNTkFDUDROdDZfUVJkVDZJcTlKQzhNX19wQzRxbmtPZ2oyRHIydTh5OFh5XzhPR1JvR3hoZm42NnNZdHp0SEJBMjh5UkpNNDRtUGlTS3FaY0ltSHJUWVBUY1NJd3hKajJIWnlHTUpfeFhTTGdLUWo4dw?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Elindult a jelentkezés a Magyar Közigazgatási Ösztöndíjprogramba - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPTkNfU3lKNnNUQ3R3UGVxMllIOFpEQUxEZkoyUmJHRkotQzlWaVduVmZ1VjkxVE1RNzBLU2NYS0V2Z294V0FEOS1SM1ZQdUN3NUJYQlBfSE92UVh6YUpDbmRiNkpRcHhLR0RKaWhiOHFmNl9laXNQNDdRYjhfekxEYklpc2FONVpaSFMxWjZ3UFZxLUU?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Magyarország diplomáciai jelenléte Oroszországban fennmarad - Euronews.com",
+      "publisher": "Euronews.com",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQWlRRUW5VcmxZcmxSaE45QnRPT0Exc0tvcEZHbWg2WFkzUGlxU1VBVkNlZWlyYWJxRVliZEludTdFcDhwaGZfcTh2a00yYUtWNE5SQzhVNU96TDJnRnFmTFoxTVJNR3JpS0FCMWNaa1RaV1dNMnFrUzZGcFAyeDNWUlQ5ZXBwYW9NUHBCUWhxR1N4Tk9ZOVE0TTR3?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Magyarország Dubajban: négy nap a közel-keleti turizmus üzleti központjában - Turizmus.com",
+      "publisher": "Turizmus.com",
+      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNR3dLUmdPNVhCX3F4Y2NnMy1jUjJIdzE3Tm03TWE3X0l3VlktcDBuZWlVWE1VMEhIQktRa0JENzN5a2pUX1FlYXNydWFrdUlSemdTNENiNnJxVURabnRwN3NrN3VRZDVwczdzd0o5SDZkdXQ2RGFBTzdkRU9ENzNjNV9QSzh4emhodi1Qc0tJeU1QOWpsSk5NUkZndHhNZUVFaFYxMDJvemJMYnA0T0c0MEhDQ1A?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Különleges helyzetben Magyarország az európai gáztérképen - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNWlQ4cE5nNGFEZ0pRaFpfYzE4WXJUeVFxT2NPTjRLZTZHQlpGcTgtMk9KVFRvaFFlLTRNaFZVVl9lYllQdDRzaFVRckc2azZGWXFMUmM5Z0FvU19RLTFYQ1hleTJBQnFMTzV5YTZZRHNaMnVHLU5UTTN0UVZDUDdoY0NFQkl4ZjlMTGhuY09VSTRVUDY5ZVBFZno5aWgtQVRaamNIUVdzUnJ0djVFSXNFWNIBsAFBVV95cUxNWlQ4cE5nNGFEZ0pRaFpfYzE4WXJUeVFxT2NPTjRLZTZHQlpGcTgtMk9KVFRvaFFlLTRNaFZVVl9lYllQdDRzaFVRckc2azZGWXFMUmM5Z0FvU19RLTFYQ1hleTJBQnFMTzV5YTZZRHNaMnVHLU5UTTN0UVZDUDdoY0NFQkl4ZjlMTGhuY09VSTRVUDY5ZVBFZno5aWgtQVRaamNIUVdzUnJ0djVFSXNFWA?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "„Magyarország az otthonom lett, de Grúziáért harcolok” – interjú Ilia Beriasvilivel - Nemzeti Sport Online",
+      "publisher": "Nemzeti Sport Online",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNaWQ3NzhpWUJ4QTFfM0FYeHdoeXBCWUJubm1PY0dBZWV1QXUtcy1mWUUteHlxbEhrbzdwZXBseEZSTnJNVUljVUh1RDktZlBXZUlNR1Z6c0VTbjYwMkpqWmZwTHBlNEw5NW5xbEVUY3FKM2VkbUIyei11LXlBQ1JjbUtKMXFDWnNRdXMyeGEycTVfVVhKZkx3RTV6SEh3cWpkTlI5ZnRJY0h6ZVVDMW9vLURyS0U0NmFpRU5va3JWZ0tidw?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Nemzeti parkjaink erdei égnek a biomassza-erőművekben - WWF Magyarország",
+      "publisher": "WWF Magyarország",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1zM3JEOGY4cmFKbHp0VDhqbzRBQ1JwUE5IbXVMUy1nSkxJbnlMc3FXQkJuemhkeWxRR2R4TXR5dTFPM19nYkJ0SnpoZEVRYnRocG5UQTZQNmMyVFVQNmVUbGVwLXpzTThiUC1rZjRFd0VUcEJDQmxtdQ?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Magyarország előtt bezárult az ENSZ kapuja - Dunaújváros Online",
+      "publisher": "Dunaújváros Online",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPZk9PT29kSG5Vdm4xWE56WTRocHhROS1Jc2NCNFktLTRWU3hEY2F6bnFpVjhFd3RpUFF3c0tpaG5GNGp5MnA1Z0JlMjhHY09QaGRiM2VJT1VpV1hLUHlsa2FnOXZnVmZZWUk0czRhX3pubTlYM2lHcHJheHJwOWZocnJ2cWxjQQ?oc=5",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "AI boom could trigger market shocks, Bank of England boss warns",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cv8e30enrkxyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Travelodge failed sex assault victim 'at every stage'",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c93429dg425o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Vape tax comes into effect - but prices won't rise yet",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6j4jrjgv2j7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Employers should teach primary-age children about work, says Milburn",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cr2kwlw0p3v9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "The AI telling farmers when to harvest",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cgk53dkmyxko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Energy bills are rising by £60 a year - here's how you can bring that down",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/crm4rygl4m3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
+    },
+    {
+      "title": "Household energy bills forecast to see biggest rise in four years",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cwz0zvj4m1myo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-09-30"
     },
     {
-      "title": "Bonds set for bruising September but stocks little fazed",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/china/global-markets-global-markets-2026-09-30/",
-      "publishedAt": "2026-09-30"
-    },
-    {
-      "title": "US consumer confidence near 12-1/2-year low amid labor market fears",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/us-consumer-confidence-dives-more-than-12-year-low-september-2026-09-29/",
-      "publishedAt": "2026-09-29"
-    },
-    {
-      "title": "Chinese factory activity expands in September amid AI boom",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/china/chinese-factory-activity-returns-growth-september-amid-ai-boom-2026-09-30/",
-      "publishedAt": "2026-09-30"
-    },
-    {
-      "title": "Trump, AI CEOs sign voluntary safety pact, back data center expansion",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/legal/government/trump-host-zuckerberg-anthropics-amodei-other-ai-titans-tuesday-2026-09-29/",
-      "publishedAt": "2026-09-29"
-    },
-    {
-      "title": "OpenAI takes on Meta with dots agent in autonomous AI push",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/openai-takes-meta-with-always-on-dots-agent-enterprise-ai-push-2026-09-29/",
-      "publishedAt": "2026-09-29"
-    },
-    {
-      "title": "Gazdaság - 2026. szeptember 30.",
-      "publisher": "Index",
-      "url": "https://index.hu/gazdasag/2026/",
-      "publishedAt": "2026-09-30"
+      "title": "Tiny image sparks big backlash in Nikon photo contest",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/ck4gjn1yzprno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-01"
     }
   ]
 }
