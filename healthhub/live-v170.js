@@ -102,8 +102,13 @@ function ensurePage(){
 }
 function wireButton(){
  var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(b){var x=b.querySelector('b');return x&&x.textContent.trim()==='Sleep'});
- if(!btn||btn.dataset.hhSleepWired==='1')return;
- btn.dataset.hhSleepWired='1';btn.removeAttribute('onclick');btn.addEventListener('click',function(){window.hhOpenSleep()});
+ if(btn){btn.dataset.hhSleepWired='1';btn.removeAttribute('onclick');btn.style.pointerEvents='auto';btn.style.cursor='pointer'}
+}
+function delegatedSleepClick(e){
+ var btn=e.target&&e.target.closest?e.target.closest('.homeModule'):null;if(!btn)return;
+ var lab=btn.querySelector('b');if(!lab||lab.textContent.trim()!=='Sleep')return;
+ e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+ window.hhOpenSleep();
 }
 window.hhOpenSleep=function(){ensurePage();var p=document.getElementById('sleep');p.classList.add('on');p.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div></div>';requestAnimationFrame(function(){render().catch(function(e){console.error(e);var q=document.getElementById('sleep');if(q)q.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepEmpty big">Az alvásadatok betöltése nem sikerült. Frissítsd az oldalt, majd próbáld újra.</div></div>'})})};
 window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('sleep');if(p)p.classList.remove('on')};
@@ -159,8 +164,8 @@ function style(){
  '#hhSleepHelperOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(35,22,21,var(--fade,.95));transition:background 2s;color:#fff}#hhSleepHelperOverlay.on{display:flex}.hhHelperClose{position:absolute;right:18px;top:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.18);color:#fff;font-size:22px}.hhBreathOrb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#ffd8a6,#b97954 60%,rgba(89,50,40,.2));box-shadow:0 0 70px rgba(255,178,111,.35);animation:hhBreathe 10s ease-in-out infinite}.mode-light .hhBreathOrb{animation:none}.mode-brown .hhBreathOrb,.mode-soft .hhBreathOrb{animation:hhGlow 14s ease-in-out infinite}.hhHelperClock{font-size:28px;font-weight:800;margin-top:28px;letter-spacing:.04em}.hhHelperHint{font-size:10px;opacity:.72;margin-top:6px}@keyframes hhBreathe{0%,100%{transform:scale(.72);opacity:.5}45%{transform:scale(1.12);opacity:1}}@keyframes hhGlow{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.03);opacity:.9}}';
  document.head.appendChild(s);
 }
-style();ensurePage();wireButton();
+style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('sleep')?.classList.contains('on'))render()},60);return r};
-setTimeout(wireButton,300);
-document.documentElement.dataset.healthhubSleep='1.72';
+setTimeout(wireButton,300);setInterval(wireButton,2000);
+document.documentElement.dataset.healthhubSleep='1.73';
 })();
