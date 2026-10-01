@@ -2,7 +2,7 @@
 'use strict';
 
 /* HealthRadar parity: measurement filters, trend chart and period summary. */
-var DB='healthhub-healthradar-v2';
+var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1';
 var state=window.hhMeasurementState||{metric:'pulse',period:'90d'};
 window.hhMeasurementState=state;
 
@@ -11,20 +11,22 @@ var METRICS=[
   {key:'pulse',label:'Pulzus',short:'Pulzus',unit:'/perc'},
   {key:'weightKg',label:'Testsúly',short:'Testsúly',unit:'kg'},
   {key:'bloodGlucose',label:'Vércukor',short:'Vércukor',unit:'mmol/l'},
-  {key:'oxygenSaturation',label:'Véroxigén',short:'SpO₂',unit:'%'}
+  {key:'oxygenSaturation',label:'Véroxigén',short:'SpO₂',unit:'%'},
+  {key:'steps',label:'Lépések',short:'Lépések',unit:'lépés'}
 ];
 var PERIODS=[
-  {key:'7d',label:'7 nap'},{key:'30d',label:'30 nap'},{key:'90d',label:'90 nap'},
-  {key:'6m',label:'6 hónap'},{key:'1y',label:'1 év'},{key:'all',label:'Teljes'}
+  {key:'7d',label:'Heti'},{key:'30d',label:'Havi'},{key:'90d',label:'3 hónap'}
 ];
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 async function byProfile(store,p){var db=await openDb();try{return await reqP(db.transaction(store,'readonly').objectStore(store).index('profile').getAll(p))}finally{db.close()}}
+async function stepsByProfile(p){try{var db=await openBridgeDb();try{var all=await reqP(db.transaction('activity','readonly').objectStore('activity').getAll())||[];return all.filter(function(x){return x.profile===p&&/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||''))})}finally{db.close()}}catch(e){return[]}}
 function n(x){return x==null||x===''?null:Number(x)}
-function has(m,x){return m==='bloodPressure'?n(x.systolic)!=null&&n(x.diastolic)!=null:n(x[m])!=null}
+function has(m,x){if(m==='bloodPressure')return n(x.systolic)!=null&&n(x.diastolic)!=null;if(m==='steps')return n(x.steps)!=null;return n(x[m])!=null}
 function metric(){return METRICS.find(function(x){return x.key===state.metric})||METRICS[1]}
 function periodStart(){
   if(state.period==='all')return null;
@@ -48,6 +50,7 @@ function downsample(a,max){
 function valueText(m,x){
   if(!x)return '—';
   if(m==='bloodPressure')return fmtNum(n(x.systolic))+'/'+fmtNum(n(x.diastolic))+' Hgmm';
+  if(m==='steps')return Math.round(n(x.steps)||0).toLocaleString('hu-HU')+' lépés';
   var mm=METRICS.find(function(z){return z.key===m});
   return fmtNum(n(x[m]))+' '+mm.unit;
 }
@@ -57,6 +60,7 @@ function metricIcon(k){
   if(k==='weightKg')return '⚖️';
   if(k==='bloodGlucose')return '🩸';
   if(k==='oxygenSaturation')return '🫁';
+  if(k==='steps')return '🚶';
   return '•';
 }
 
@@ -75,8 +79,9 @@ function ensureStyle(){
  document.head.appendChild(s);
 }
 
+function rowTime(x){return x&&x.measuredAt?x.measuredAt:(x&&x.date?x.date+'T12:00:00':'')}
 function latestCard(label,key,latest,unit){
- return '<div class="hhMetricCard"><span class="mi">'+metricIcon(key)+'</span><small>'+esc(label)+'</small><b>'+esc(latest?valueText(key,latest):'—')+'</b><em>'+esc(latest?fmtDateTime(latest.measuredAt):'Még nincs adat')+'</em></div>';
+ return '<div class="hhMetricCard"><span class="mi">'+metricIcon(key)+'</span><small>'+esc(label)+'</small><b>'+esc(latest?valueText(key,latest):'—')+'</b><em>'+esc(latest?(key==='steps'?fmtDate(rowTime(latest)):fmtDateTime(rowTime(latest))):'Még nincs adat')+'</em></div>';
 }
 function linePath(points,w,h,pad,min,max,key){
  if(!points.length)return '';
@@ -107,7 +112,7 @@ function chartSvg(rows){
  }else{
    paths='<path d="'+linePath(pts,w,h,pad,min,max,state.metric)+'" fill="none" stroke="#b0739d" stroke-width="2.4"/>';
  }
- var first=fmtDate(rows[0].measuredAt),last=fmtDate(rows[rows.length-1].measuredAt);
+ var first=fmtDate(rowTime(rows[0])),last=fmtDate(rowTime(rows[rows.length-1]));
  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-label="'+esc(m.label)+' trend">'+grid+paths+
  '<text x="'+pad+'" y="'+(h-5)+'" font-size="8" fill="#8a9aaa">'+esc(first)+'</text>'+
  '<text x="'+(w-pad)+'" y="'+(h-5)+'" text-anchor="end" font-size="8" fill="#8a9aaa">'+esc(last)+'</text></svg>';
@@ -127,11 +132,11 @@ function summaryHtml(rows){
  }
  var vals=rows.map(function(x){return n(x[state.metric])}),latest=vals[vals.length-1],first=vals[0],unit=m.unit;
  return '<div class="hhSummary"><h4>Időszak összegzése</h4>'+
-  sum('Legutóbbi',fmtNum(latest)+' '+unit)+
-  sum('Átlag',fmtNum(avg(vals))+' '+unit)+
-  sum('Minimum / maximum',fmtNum(Math.min.apply(null,vals))+' / '+fmtNum(Math.max.apply(null,vals))+' '+unit)+
-  sum('Változás',(latest-first>0?'+':'')+fmtNum(latest-first)+' '+unit)+
-  sum('Mérések',rows.length+' db')+'</div>';
+  sum('Legutóbbi',state.metric==='steps'?Math.round(latest).toLocaleString('hu-HU')+' '+unit:fmtNum(latest)+' '+unit)+
+  sum('Átlag',state.metric==='steps'?Math.round(avg(vals)).toLocaleString('hu-HU')+' '+unit:fmtNum(avg(vals))+' '+unit)+
+  sum('Minimum / maximum',state.metric==='steps'?Math.round(Math.min.apply(null,vals)).toLocaleString('hu-HU')+' / '+Math.round(Math.max.apply(null,vals)).toLocaleString('hu-HU')+' '+unit:fmtNum(Math.min.apply(null,vals))+' / '+fmtNum(Math.max.apply(null,vals))+' '+unit)+
+  sum('Változás',state.metric==='steps'?((latest-first>0?'+':'')+Math.round(latest-first).toLocaleString('hu-HU')+' '+unit):((latest-first>0?'+':'')+fmtNum(latest-first)+' '+unit))+
+  sum(state.metric==='steps'?'Napok':'Mérések',rows.length+' db')+'</div>';
 }
 function sum(label,val){return '<div class="hhSumRow"><small>'+esc(label)+'</small><b>'+esc(val)+'</b></div>'}
 
@@ -142,34 +147,36 @@ async function render(){
  if(window.healthSectionKind!=='measurements')return;
  ensureStyle();
  var root=document.getElementById('healthSubContent');if(!root)return;
- var all=await byProfile('measurements',pkey());
+ var all=await byProfile('measurements',pkey()),stepRows=await stepsByProfile(pkey());
  all.sort(function(a,b){return new Date(a.measuredAt)-new Date(b.measuredAt)});
+ stepRows.sort(function(a,b){return String(a.date).localeCompare(String(b.date))});
  var latest={
    bloodPressure:[...all].reverse().find(function(x){return has('bloodPressure',x)}),
    pulse:[...all].reverse().find(function(x){return has('pulse',x)}),
    weightKg:[...all].reverse().find(function(x){return has('weightKg',x)}),
    bloodGlucose:[...all].reverse().find(function(x){return has('bloodGlucose',x)}),
-   oxygenSaturation:[...all].reverse().find(function(x){return has('oxygenSaturation',x)})
+   oxygenSaturation:[...all].reverse().find(function(x){return has('oxygenSaturation',x)}),
+   steps:[...stepRows].reverse().find(function(x){return has('steps',x)})
  };
  var start=periodStart();
- var rows=all.filter(function(x){return has(state.metric,x)&&(start==null||new Date(x.measuredAt).getTime()>=start)});
- var recent=[...rows].reverse().slice(0,12);
+ var sourceRows=state.metric==='steps'?stepRows:all;
+ var rows=sourceRows.filter(function(x){return has(state.metric,x)&&(start==null||new Date(rowTime(x)).getTime()>=start)});
+ var recent=state.metric==='steps'?[]:[...rows].reverse().slice(0,12);
  var m=metric();
 
- root.innerHTML='<div class="hrSectionCard"><div style="font-size:7px;font-weight:900;letter-spacing:.13em;color:#317f77;text-transform:uppercase">Hosszú távú napló</div><h3 style="margin:4px 0 3px">Mérések és trendek</h3><small style="color:#70869a">Havi és éves változások áttekintése egy helyen.</small>'+
+ root.innerHTML='<div class="hrSectionCard"><div style="font-size:7px;font-weight:900;letter-spacing:.13em;color:#317f77;text-transform:uppercase">TRENDNÉZET</div><h3 style="margin:4px 0 3px">Egészségügyi trendek</h3><small style="color:#70869a">Heti, havi és 3 havi változások egy helyen.</small>'+
  '<div class="hhLatestMetrics" style="margin-top:10px">'+
   latestCard('Vérnyomás','bloodPressure',latest.bloodPressure,'Hgmm')+
   latestCard('Pulzus','pulse',latest.pulse,'/perc')+
   latestCard('Testsúly','weightKg',latest.weightKg,'kg')+
   latestCard('Vércukor','bloodGlucose',latest.bloodGlucose,'mmol/l')+
   latestCard('Véroxigén','oxygenSaturation',latest.oxygenSaturation,'%')+
+  latestCard('Lépések','steps',latest.steps,'lépés')+
  '</div>'+
  '<div class="hhMeasToolbar"><div class="hhMeasChips">'+METRICS.map(function(x){return '<button class="hhMeasChip '+(state.metric===x.key?'on':'')+'" onclick="hhSetMeasurementMetric(\''+x.key+'\')">'+esc(x.short)+'</button>'}).join('')+'</div>'+
  '<div class="hhMeasChips">'+PERIODS.map(function(x){return '<button class="hhMeasChip '+(state.period===x.key?'on':'')+'" onclick="hhSetMeasurementPeriod(\''+x.key+'\')">'+esc(x.label)+'</button>'}).join('')+'</div></div>'+
  '<div class="hhTrendGrid"><div class="hhChartBox"><div class="hhChartTitle"><div><div style="font-size:7px;font-weight:900;letter-spacing:.13em;color:#317f77;text-transform:uppercase">Vizuális trend</div><h3>'+esc(m.label)+'</h3></div><span class="hrTag">'+esc(PERIODS.find(function(x){return x.key===state.period}).label)+'</span></div>'+chartSvg(rows)+'<p class="privacyNote" style="margin-bottom:0">A grafikon a rögzített értékeket mutatja; nem helyettesít orvosi értékelést.</p></div>'+summaryHtml(rows)+'</div>'+
- '<div class="hhMeasList"><h3>Legutóbbi mérések</h3>'+(
-   recent.length?recent.map(function(x){return '<div class="hrRow clickable" onclick="openHrDetail(\'measurement\',\''+esc(x.id)+'\')"><div class="hrIco">📈</div><div><b>'+esc(valueText(state.metric,x))+'</b><small>'+esc(fmtDateTime(x.measuredAt))+(x.notes?' · '+esc(x.notes):'')+'</small></div><span class="hrTag">'+esc(m.short)+'</span></div>'}).join(''):'<div class="hrEmpty">Nincs mérés ebben az időszakban.</div>'
- )+'</div></div>';
+ (state.metric==='steps'?'<div class="hhMeasList"><h3>Napi lépések</h3>'+(rows.length?[...rows].reverse().slice(0,12).map(function(x){return '<div class="hrRow"><div class="hrIco">🚶</div><div><b>'+esc(valueText('steps',x))+'</b><small>'+esc(fmtDate(rowTime(x)))+'</small></div><span class="hrTag">Lépések</span></div>'}).join(''):'<div class="hrEmpty">Nincs lépésadat ebben az időszakban.</div>')+'</div>':'<div class="hhMeasList"><h3>Legutóbbi mérések</h3>'+(recent.length?recent.map(function(x){return '<div class="hrRow clickable" onclick="openHrDetail(\'measurement\',\''+esc(x.id)+'\')"><div class="hrIco">📈</div><div><b>'+esc(valueText(state.metric,x))+'</b><small>'+esc(fmtDateTime(x.measuredAt))+(x.notes?' · '+esc(x.notes):'')+'</small></div><span class="hrTag">'+esc(m.short)+'</span></div>'}).join(''):'<div class="hrEmpty">Nincs mérés ebben az időszakban.</div>')+'</div>')+'</div>';
  if(window.hhEnsureHealthProfileSwitches)window.hhEnsureHealthProfileSwitches();
 }
 
@@ -178,6 +185,6 @@ if(typeof prev==='function'){
  window.renderHealthSection=async function(){var r=await prev.apply(this,arguments);await render();return r};
 }
 ensureStyle();setTimeout(render,150);
-document.documentElement.dataset.healthhubMeasurements='1.36';
-window.HH_LIVE_BUILD='v1.36-measurement-trends';
+document.documentElement.dataset.healthhubMeasurements='1.69';
+window.HH_LIVE_BUILD='v1.69-trend-view';
 })();
