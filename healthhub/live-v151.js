@@ -19,8 +19,23 @@ async function latestBundle(){
    try{
     var r=db.transaction('imports').objectStore('imports').getAll();
     r.onsuccess=function(){
-     var x=(r.result||[]).filter(function(i){return i.profile===pkey()&&i.bundle&&i.bundle.records}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});
-     db.close();ok(x[0]||null)
+     var imports=(r.result||[]).filter(function(i){return i.profile===pkey()&&i.bundle&&i.bundle.records}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});
+     db.close();
+     if(!imports.length){ok(null);return}
+     var merged={schemaVersion:imports[0].bundle.schemaVersion||'',records:{}};
+     var keys=['dailyActivity','dailySteps','exerciseSessions','sleepSessions','dailyNutrition','restingHeartRate','vo2Max','bodyFat'];
+     keys.forEach(function(k){
+       var out=[],seen=new Set();
+       imports.forEach(function(im){
+         var arr=Array.isArray(im.bundle.records&&im.bundle.records[k])?im.bundle.records[k]:[];
+         arr.forEach(function(x){
+           var sig=String(x.id||x.date||x.time||x.startTime||JSON.stringify(x));
+           if(seen.has(sig))return;seen.add(sig);out.push(x)
+         })
+       });
+       merged.records[k]=out;
+     });
+     ok({profile:pkey(),importedAt:imports[0].importedAt||'',bundle:merged,imports:imports})
     };
     r.onerror=function(){db.close();ok(null)}
    }catch(e){db.close();ok(null)}
