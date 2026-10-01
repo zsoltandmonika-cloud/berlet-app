@@ -24,7 +24,7 @@ import org.json.JSONObject
 class MainActivity : ComponentActivity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var status: TextView
-    private lateinit var profileSpinner: Spinner
+    private lateinit var profileSpinner: Spinner\n    private lateinit var saveButton: Button
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
 
@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
             text = "2. Utolsó 30 nap beolvasása"
             setOnClickListener { readHealthData() }
         })
-        root.addView(Button(this).apply {
+        saveButton = Button(this).apply {
             text = "3. JSON mentése"
             isEnabled = false
             tag = "save"
@@ -108,7 +108,8 @@ class MainActivity : ComponentActivity() {
                 val p = selectedProfile()
                 saveLauncher.launch("healthhub-healthconnect-${p}-${System.currentTimeMillis()}.json")
             }
-        })
+        }
+        root.addView(saveButton)
         root.addView(Button(this).apply {
             text = "HealthHub megnyitása"
             setOnClickListener {
@@ -139,7 +140,7 @@ class MainActivity : ComponentActivity() {
                 status.text = "Health Connect adatok olvasása…"
                 val json: JSONObject = HealthConnectExporter(hc).export(selectedProfile())
                 pendingJson = json.toString(2)
-                findViewWithTag<Button>("save")?.isEnabled = true
+                saveButton.isEnabled = true
                 val c = json.getJSONObject("counts")
                 status.text = "✓ Kész. Vérnyomás: ${c.getInt("bloodPressure")}, súly: ${c.getInt("weight")}, vércukor: ${c.getInt("bloodGlucose")}, SpO₂: ${c.getInt("oxygenSaturation")}, pulzusrekord: ${c.getInt("heartRateRecords")}, lépésnap: ${c.getInt("stepDays")}."
             } catch (e: Exception) {
