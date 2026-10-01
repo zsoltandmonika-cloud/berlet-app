@@ -102,18 +102,23 @@ async function render(){
   tile('🔥','Elégetett kalória',cal?val(cal.caloriesKcal,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories')+
  '</div>';
 }
+function arrangeHealthRadar(){
+ var health=document.getElementById('health');if(!health)return;
+ var ask=health.querySelector('.ask'),lists=health.querySelector('.two');
+ if(ask&&lists&&ask.nextElementSibling!==lists)ask.insertAdjacentElement('afterend',lists);
+}
 function style(){
  if(document.getElementById('hh-v179-style'))return;
  var s=document.createElement('style');s.id='hh-v179-style';s.textContent=
  '#health .kpiCard{padding:10px!important}.hhLiveHead{margin-bottom:8px!important}.hhLiveHead small{color:var(--a)!important}.hhLiveGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.hhLiveKpi{min-width:0;min-height:104px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #e5edf2;border-radius:14px;padding:8px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(31,65,91,.035)}.hhLiveKpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--a);opacity:.42}.hhLiveIcon{font-size:15px;line-height:1}.hhLiveLabel{font-size:6.8px;color:#6d8292;font-weight:850;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveValue{font-size:16px;line-height:1.1;color:#173f62;font-weight:900;margin-top:4px;letter-spacing:-.02em;white-space:nowrap}.hhLiveUnit{font-size:6.6px;color:#8a99a5;min-height:10px;margin-top:1px}.hhLiveMeta{font-size:6.3px;color:var(--a);font-weight:750;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveKpi.bp:after{opacity:.65}.hhLiveKpi.sleep,.hhLiveKpi.exercise,.hhLiveKpi.steps,.hhLiveKpi.calories{background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--soft) 24%,#fff))}@media(max-width:360px){.hhLiveGrid{gap:4px}.hhLiveKpi{padding:6px;min-height:98px}.hhLiveValue{font-size:14px}.hhLiveLabel{font-size:6.3px}}';
  document.head.appendChild(s);
 }
-style();
+style();arrangeHealthRadar();
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(render,100);return r};
 var prevShow=window.show;if(typeof prevShow==='function')window.show=function(){var r=prevShow.apply(this,arguments);setTimeout(render,120);return r};
 window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
-setTimeout(render,250);setInterval(render,60000);
-window.hhRenderLiveKpis=render;
+setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);
+window.hhRenderLiveKpis=render;window.hhArrangeHealthRadar=arrangeHealthRadar;
 document.documentElement.dataset.healthhubLiveKpi='1.79';
 })();
