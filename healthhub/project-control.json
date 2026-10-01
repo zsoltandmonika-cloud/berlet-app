@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.53",
-  "currentFocus": "Fix Health Connect lifestyle render race between legacy v1.49 and restored v1.51/v1.52 components",
-  "nextDevelopment": "Validate v1.53 on phone. Legacy v1.49 renderer must no longer remove the restored lifestyle block after it appears.",
+  "liveBuild": "v1.56",
+  "currentFocus": "Fix Daily Spark/Daily Headline fallback reliability and HealthRadar profile switching",
+  "nextDevelopment": "Validate v1.56: same-day daily content repair after delayed GitHub Actions schedule, and correct HealthRadar profile picker behavior.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1130,6 +1130,13 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.56",
+      "type": "Bugfix",
+      "summary": "Daily fallback no longer depends on the workflow starting in an exact local hour; delayed scheduled runs repair any stale morning feed. Added an immediate push-trigger repair when fallback logic changes. HealthRadar profile control now opens the canonical profile picker instead of using the wrong navigation/switch path.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.53",
