@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "hu.zsoltmonika.healthhubbridge"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "hu.zsoltmonika.healthhubbridge"
