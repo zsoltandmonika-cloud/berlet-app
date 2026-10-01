@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.61 — Dropbox App Folder Health Vault (PKCE, no app secret) */
+/* HealthHub v1.62 — Dropbox Health Vault auto-sync */
 var APP_KEY='o2oe9qclhtoic9s';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
 var TOKEN_KEY='hh-dropbox-token-v1', PKCE_KEY='hh-dropbox-pkce-v1';
@@ -48,7 +48,7 @@ async function handleCallback(){
  localStorage.removeItem(PKCE_KEY);
  history.replaceState({},'',REDIRECT);
  toast('Dropbox Health Vault csatlakoztatva');
- setTimeout(decorate,80);
+ setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'oauth')},80);
 }
 async function accessToken(){
  var t=readToken();if(!t||!t.refresh_token)throw new Error('A Dropbox nincs csatlakoztatva.');
@@ -81,7 +81,7 @@ async function uploadCurrent(silent){
  var profile=pkey(),data=await snapshot(profile),token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error((j.error_summary)||'Dropbox feltöltési hiba');
- localStorage.setItem('hh-dropbox-last-push-'+profile,new Date().toISOString());if(!silent)toast(pname(profile)+' Health Vault feltöltve');decorate();return j;
+ var now=new Date().toISOString();localStorage.setItem('hh-dropbox-last-push-'+profile,now);localStorage.setItem('hh-dropbox-last-sync-'+profile,j.server_modified||now);if(!silent)toast(pname(profile)+' Health Vault feltöltve');decorate();return j;
 }
 async function download(profile){
  var token=await accessToken(),r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile)})}});
@@ -105,7 +105,7 @@ async function mergeVault(data){
  if(data.legacyProfile){
   try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null')||{schemaVersion:'healthhub.local.v1',profiles:{}};v.profiles=v.profiles||{};v.profiles[profile]=Object.assign({},v.profiles[profile]||{},data.legacyProfile);localStorage.setItem(LEGACY_KEY,JSON.stringify(v))}catch(e){}
  }
- localStorage.setItem('hh-dropbox-last-pull-'+profile,new Date().toISOString());
+ var pulledAt=new Date().toISOString();localStorage.setItem('hh-dropbox-last-pull-'+profile,pulledAt);localStorage.setItem('hh-dropbox-last-sync-'+profile,(data&&data.exportedAt)||pulledAt);
  if(window.renderHealthSection)await window.renderHealthSection();
  if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
  decorate();
@@ -113,11 +113,35 @@ async function mergeVault(data){
 async function pullCurrent(){
  var profile=pkey(),data=await download(profile);await mergeVault(data);toast(pname(profile)+' Health Vault letöltve és egyesítve');
 }
+async function remoteMeta(profile){
+ var token=await accessToken(),r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:vaultPath(profile),include_media_info:false,include_deleted:false})});
+ if(r.status===409)return null;
+ var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox metaadat hiba');return j;
+}
+var syncBusy=false,lastCheckedProfile='',lastCheckedAt=0;
+async function autoSync(profile,reason){
+ profile=profile||pkey();if(!connected()||syncBusy)return false;
+ var now=Date.now();if(profile===lastCheckedProfile&&now-lastCheckedAt<15000)return false;
+ lastCheckedProfile=profile;lastCheckedAt=now;syncBusy=true;
+ try{
+  var meta=await remoteMeta(profile);if(!meta)return false;
+  var remoteAt=Date.parse(meta.server_modified||meta.client_modified||'')||0;
+  var last=Date.parse(localStorage.getItem('hh-dropbox-last-sync-'+profile)||localStorage.getItem('hh-dropbox-last-push-'+profile)||localStorage.getItem('hh-dropbox-last-pull-'+profile)||'')||0;
+  if(remoteAt>last+1500){
+   var data=await download(profile);await mergeVault(data);
+   localStorage.setItem('hh-dropbox-last-sync-'+profile,meta.server_modified||new Date(remoteAt).toISOString());
+   if(reason!=='startup')toast(pname(profile)+' Dropbox Vault szinkronizálva');
+   return true;
+  }
+  return false;
+ }finally{syncBusy=false;decorate()}
+}
 window.hhDropboxConnect=function(){connect().catch(function(e){console.error(e);toast(e.message||'Dropbox csatlakozási hiba')})};
 window.hhDropboxPush=function(){uploadCurrent(false).catch(function(e){console.error(e);toast(e.message||'Dropbox feltöltési hiba')})};
 window.hhDropboxPull=function(){pullCurrent().catch(function(e){console.error(e);toast(e.message||'Dropbox letöltési hiba')})};
 window.hhDropboxDisconnect=function(){clearToken();toast('Dropbox kapcsolat törölve ezen az eszközön');decorate()};
 window.hhDropboxPushCurrentProfile=function(){if(!connected())return Promise.resolve(null);return uploadCurrent(true)};
+window.hhDropboxAutoSync=function(profile,reason){return autoSync(profile,reason).catch(function(e){console.error(e);if(reason!=='startup')toast(e.message||'Dropbox automatikus szinkron hiba');return false})};
 
 function fmt(s){if(!s)return 'még nem';var d=new Date(s);return isNaN(d)?'még nem':d.toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
 function style(){
@@ -131,16 +155,24 @@ function decorate(){
  var root=document.getElementById('healthSubContent');if(!root)return;
  var old=document.getElementById('hhDropboxVaultCard');if(old)old.remove();
  var profile=pkey(),on=connected(),card=document.createElement('div');card.id='hhDropboxVaultCard';card.className='hhDbxCard';
- var push=localStorage.getItem('hh-dropbox-last-push-'+profile),pull=localStorage.getItem('hh-dropbox-last-pull-'+profile);
+ var push=localStorage.getItem('hh-dropbox-last-push-'+profile),pull=localStorage.getItem('hh-dropbox-last-pull-'+profile),sync=localStorage.getItem('hh-dropbox-last-sync-'+profile);
  card.innerHTML='<div class="hhDbxTop"><div class="hhDbxIcon">◆</div><div class="hhDbxText"><b>Dropbox Health Vault</b><small>Dedikált App Folder · '+esc(pname(profile))+' profil</small></div><span class="hhDbxStatus '+(on?'':'off')+'">'+(on?'Csatlakoztatva':'Nincs kapcsolat')+'</span></div>'+
  (on?'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxPush()">Feltöltés</button><button class="hhDbxBtn alt" onclick="hhDropboxPull()">Letöltés + egyesítés</button><button class="hhDbxBtn alt" onclick="hhDropboxDisconnect()">Leválasztás</button></div><div class="hhDbxMeta">Utolsó feltöltés: '+esc(fmt(push))+' · Utolsó letöltés: '+esc(fmt(pull))+'<br>Fájl: '+esc(vaultPath(profile))+'</div>':'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxConnect()">Dropbox csatlakoztatása</button></div><div class="hhDbxMeta">Egyszeri Dropbox engedélyezés szükséges. A HealthHub csak a saját App Folder mappáját használja.</div>');
  var admin=document.getElementById('hhAdminMenuCard');if(admin&&admin.parentNode===root)admin.insertAdjacentElement('afterend',card);else root.insertBefore(card,root.firstChild);
 }
 var prev=window.renderHealthSection;if(typeof prev==='function')window.renderHealthSection=async function(){var x=await prev.apply(this,arguments);style();decorate();return x};
 style();
-handleCallback().catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
-setTimeout(decorate,180);
-window.addEventListener('focus',function(){setTimeout(decorate,100)});
-document.documentElement.dataset.healthhubDropboxVault='1.61';
-window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull};
+var previousSetProfile=window.setProfile;
+if(typeof previousSetProfile==='function'){
+ window.setProfile=function(p){
+  var r=previousSetProfile.apply(this,arguments);
+  setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'profile')},250);
+  return r;
+ };
+}
+handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},500)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
+setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},900);
+window.addEventListener('focus',function(){setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'focus')},150)});
+document.documentElement.dataset.healthhubDropboxVault='1.62';
+window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync};
 })();
