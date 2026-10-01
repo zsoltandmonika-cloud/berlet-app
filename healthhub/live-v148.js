@@ -15,7 +15,42 @@ async function readMeasurements(){
  var db=await openDb();try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}
 }
 async function readBridge(profile){
- var out={steps:null,lastSync:null};try{var db=await openBridgeDb();var t=db.transaction(['activity','imports']);var ac=t.objectStore('activity'),im=t.objectStore('imports');var acts=await reqP(ac.getAll()),ims=await reqP(im.getAll());acts=acts.filter(function(x){return x.profile===profile}).sort(function(a,b){return String(b.date).localeCompare(String(a.date))});ims=ims.filter(function(x){return x.profile===profile}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});out.steps=acts[0]||null;out.lastSync=ims[0]||null;db.close()}catch(e){}return out
+ var out={steps:null,lastSync:null,pulse:null,previousPulse:null};
+ try{
+  var db=await openBridgeDb();
+  var t=db.transaction(['activity','imports']);
+  var ac=t.objectStore('activity'),im=t.objectStore('imports');
+  var acts=await reqP(ac.getAll()),ims=await reqP(im.getAll());
+  acts=acts.filter(function(x){return x.profile===profile}).sort(function(a,b){return String(b.date).localeCompare(String(a.date))});
+  ims=ims.filter(function(x){return x.profile===profile}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});
+  out.steps=acts[0]||null;
+  out.lastSync=ims[0]||null;
+
+  /* Heart-rate samples are continuous Health Connect data. They are not the
+     same thing as the pulse value attached to a blood-pressure measurement.
+     Collect raw samples from all imported bundles and use the newest sample. */
+  var heart=[],seen=new Set();
+  ims.forEach(function(imp){
+   var recs=imp&&imp.bundle&&imp.bundle.records;
+   var hrs=recs&&Array.isArray(recs.heartRate)?recs.heartRate:[];
+   hrs.forEach(function(hr){
+    var samples=Array.isArray(hr.samples)?hr.samples:[];
+    samples.forEach(function(s){
+     var at=s&&s.time, bpm=Number(s&&s.bpm), ts=Date.parse(at||0);
+     if(!Number.isFinite(ts)||!Number.isFinite(bpm)||bpm<25||bpm>250)return;
+     var sig=String(at)+'|'+String(bpm);
+     if(seen.has(sig))return;
+     seen.add(sig);
+     heart.push({measuredAt:new Date(ts).toISOString(),pulse:Math.round(bpm)});
+    });
+   });
+  });
+  heart.sort(function(a,b){return Date.parse(b.measuredAt)-Date.parse(a.measuredAt)});
+  out.pulse=heart[0]||null;
+  out.previousPulse=heart[1]||null;
+  db.close();
+ }catch(e){}
+ return out
 }
 function item(icon,label,value,meta,extra,cls){return '<div class="hhNowItem '+(cls||'')+'"><div class="hhNowIcon">'+icon+'</div><div class="hhNowTxt"><small>'+label+'</small><b>'+value+'</b><span>'+meta+'</span></div>'+(extra||'')+'</div>'}
 async function render(){
@@ -25,10 +60,11 @@ async function render(){
  var bridge=await readBridge(pkey());
  var bp=latest(rows,function(x){return x.systolic!=null&&x.diastolic!=null}), pulse=latest(rows,function(x){return x.pulse!=null}), wt=latest(rows,function(x){return x.weightKg!=null}), spo2=latest(rows,function(x){return x.oxygenSaturation!=null}), glu=latest(rows,function(x){return x.bloodGlucose!=null});
  if(bp&&bp.pulse!=null&&(!pulse||Date.parse(bp.measuredAt)>Date.parse(pulse.measuredAt)))pulse=bp;
+ if(bridge.pulse&&(!pulse||Date.parse(bridge.pulse.measuredAt)>Date.parse(pulse.measuredAt)))pulse=bridge.pulse;
  var today=new Date().toISOString().slice(0,10), step=bridge.steps;
  var html='<section class="hhNow" id="hhNowPanel"><div class="hhNowHead"><div><small>MAI ÁLLAPOT</small><h3>'+new Date().toLocaleDateString('hu-HU',{weekday:'long',month:'long',day:'numeric'})+'</h3></div><div class="hhSyncPill">♥ '+(bridge.lastSync?'Szinkron: '+fmtDate(bridge.lastSync.importedAt):'Health Connect')+'</div></div><div class="hhNowGrid">';
  if(bp)html+=item('🫀','Vérnyomás',Math.round(bp.systolic)+'/'+Math.round(bp.diastolic)+' <em>Hgmm</em>',fmtDate(bp.measuredAt),delta(bp,previous(rows,function(x){return x.systolic!=null&&x.diastolic!=null},bp),'systolic','Hgmm'),'bp');
- if(pulse)html+=item('♥','Pulzus',Math.round(pulse.pulse)+' <em>/perc</em>',fmtDate(pulse.measuredAt),delta(pulse,previous(rows,function(x){return x.pulse!=null},pulse),'pulse','/perc'),'pulse');
+ if(pulse){var pulsePrev=(bridge.pulse&&pulse===bridge.pulse)?bridge.previousPulse:previous(rows,function(x){return x.pulse!=null},pulse);html+=item('♥','Pulzus',Math.round(pulse.pulse)+' <em>/perc</em>',fmtDate(pulse.measuredAt),delta(pulse,pulsePrev,'pulse','/perc'),'pulse');}
  if(spo2)html+=item('🫁','SpO₂',Math.round(spo2.oxygenSaturation*10)/10+' <em>%</em>',fmtDate(spo2.measuredAt),delta(spo2,previous(rows,function(x){return x.oxygenSaturation!=null},spo2),'oxygenSaturation','%'),'spo2');
  if(wt)html+=item('⚖','Testsúly',Math.round(wt.weightKg*10)/10+' <em>kg</em>',fmtDate(wt.measuredAt),delta(wt,previous(rows,function(x){return x.weightKg!=null},wt),'weightKg','kg'),'weight');
  if(glu)html+=item('●','Vércukor',Math.round(glu.bloodGlucose*10)/10+' <em>mmol/L</em>',fmtDate(glu.measuredAt),'','glucose');
