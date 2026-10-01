@@ -66,6 +66,7 @@ async function commit(){
  toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve');
  pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
  try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
+ try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
  if(window.hhDropboxPushCurrentProfile){
   try{
    var synced=await window.hhDropboxPushCurrentProfile();
