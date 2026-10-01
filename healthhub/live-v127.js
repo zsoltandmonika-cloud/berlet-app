@@ -107,26 +107,42 @@ function openHealthProfilePicker(ev){
   else localStorage.setItem('hh-profile',next);
   setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();if(typeof window.renderHealthSection==='function'&&document.getElementById('healthSection')?.classList.contains('on'))window.renderHealthSection();},80);
 }
+function bindProfileAction(btn){
+  if(!btn||btn.dataset.hhProfileBound==='1')return;
+  btn.dataset.hhProfileBound='1';
+  btn.addEventListener('click',openHealthProfilePicker,{capture:true});
+}
 function ensureProfileSwitches(){
+  const mainHero=document.getElementById('heroH');
+  if(mainHero&&!mainHero.querySelector('.hhHealthPortraitHit')){
+    const hit=document.createElement('button');
+    hit.type='button';
+    hit.className='hhHealthPortraitHit';
+    hit.setAttribute('aria-label','Profilváltás');
+    hit.title='Profilváltás';
+    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'5',cursor:'pointer'});
+    bindProfileAction(hit);
+    mainHero.appendChild(hit);
+  }
   const hero=document.querySelector('#heroH .heroBtns');
   if(hero&&!hero.querySelector('.hhHealthProfileSwitch')){
     const b=document.createElement('button');
     b.type='button';b.className='round hhHealthProfileSwitch';
     Object.assign(b.style,{padding:'2px',overflow:'hidden',borderRadius:'50%'});
-    b.onclick=openHealthProfilePicker;
+    bindProfileAction(b);
     hero.prepend(b);
   }
-  const hb=document.querySelector('#heroH .hhHealthProfileSwitch');if(hb)fillSwitchButton(hb);
+  const hb=document.querySelector('#heroH .hhHealthProfileSwitch');if(hb){bindProfileAction(hb);fillSwitchButton(hb);}
 
   const sub=document.querySelector('#healthSection .healthSubHero');
   if(sub&&!sub.querySelector('.hhHealthSubProfileSwitch')){
     const b=document.createElement('button');
     b.type='button';b.className='round hhHealthSubProfileSwitch';
     Object.assign(b.style,{position:'absolute',right:'55px',top:'18px',padding:'2px',overflow:'hidden',borderRadius:'50%',zIndex:'8',background:'rgba(255,255,255,.86)',border:'1px solid rgba(23,63,97,.14)',boxShadow:'0 4px 12px rgba(31,65,91,.10)'});
-    b.onclick=openHealthProfilePicker;
+    bindProfileAction(b);
     sub.appendChild(b);
   }
-  const sb=document.querySelector('#healthSection .hhHealthSubProfileSwitch');if(sb)fillSwitchButton(sb);
+  const sb=document.querySelector('#healthSection .hhHealthSubProfileSwitch');if(sb){bindProfileAction(sb);fillSwitchButton(sb);}
 }
 
 const prevSet=window.setProfile;
