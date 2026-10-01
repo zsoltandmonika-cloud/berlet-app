@@ -40,6 +40,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var status: TextView
     private lateinit var profileSpinner: Spinner
     private lateinit var saveButton: Button
+    private lateinit var ownerLabel: TextView
+    private lateinit var ownerButton: Button
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
@@ -102,9 +104,11 @@ class MainActivity : ComponentActivity() {
         if (data.scheme != "healthhubconnect") return
         when (data.host) {
             "sync" -> {
-                val p = data.getQueryParameter("profile")
-                if (p == "monika") profileSpinner.setSelection(1) else profileSpinner.setSelection(0)
-                syncNow()
+                val requested = if (data.getQueryParameter("profile") == "monika") "monika" else "zsolt"
+                if (deviceOwnerProfile() == null) {
+                    if (requested == "monika") profileSpinner.setSelection(1) else profileSpinner.setSelection(0)
+                }
+                syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
         }
@@ -131,7 +135,15 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 8, 0, 24)
         })
 
-        root.addView(TextView(this).apply { text = "Profil"; textSize = 15f })
+        root.addView(TextView(this).apply { text = "Telefon tulajdonosa"; textSize = 15f })
+        ownerLabel = TextView(this).apply {
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF173F62.toInt())
+            setPadding(0, 6, 0, 6)
+        }
+        root.addView(ownerLabel)
+
         profileSpinner = Spinner(this)
         profileSpinner.adapter = ArrayAdapter(
             this,
@@ -139,6 +151,16 @@ class MainActivity : ComponentActivity() {
             listOf("Zsolt", "Mónika")
         )
         root.addView(profileSpinner)
+
+        ownerButton = Button(this).apply {
+            text = "Tulajdonos módosítása"
+            setOnClickListener {
+                prefs.edit().remove("device_owner_profile").apply()
+                updateOwnerUi()
+                status.text = "A telefon tulajdonosa feloldva. A következő SYNC NOW rögzíti az aktuális profilt."
+            }
+        }
+        root.addView(ownerButton)
 
         root.addView(Button(this).apply {
             text = "🔄 SYNC NOW"
@@ -181,11 +203,45 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 28, 0, 0)
         }
         root.addView(status)
+        updateOwnerUi()
         return root
     }
 
+    private fun deviceOwnerProfile(): String? {
+        val p = prefs.getString("device_owner_profile", null)
+        return if (p == "zsolt" || p == "monika") p else null
+    }
+
+    private fun profileName(profile: String) = if (profile == "monika") "Mónika" else "Zsolt"
+
+    private fun updateOwnerUi() {
+        if (!::profileSpinner.isInitialized || !::ownerLabel.isInitialized || !::ownerButton.isInitialized) return
+        val owner = deviceOwnerProfile()
+        if (owner == null) {
+            ownerLabel.text = "Nincs még rögzítve"
+            profileSpinner.isEnabled = true
+            profileSpinner.visibility = View.VISIBLE
+            ownerButton.visibility = View.GONE
+        } else {
+            ownerLabel.text = "✓ ${profileName(owner)} telefonja"
+            if (owner == "monika") profileSpinner.setSelection(1) else profileSpinner.setSelection(0)
+            profileSpinner.isEnabled = false
+            profileSpinner.visibility = View.GONE
+            ownerButton.visibility = View.VISIBLE
+        }
+    }
+
+    private fun bindOwnerIfNeeded(requestedProfile: String? = null): String {
+        val existing = deviceOwnerProfile()
+        if (existing != null) return existing
+        val chosen = requestedProfile ?: if (profileSpinner.selectedItemPosition == 1) "monika" else "zsolt"
+        prefs.edit().putString("device_owner_profile", chosen).apply()
+        updateOwnerUi()
+        return chosen
+    }
+
     private fun selectedProfile() =
-        if (profileSpinner.selectedItemPosition == 1) "monika" else "zsolt"
+        deviceOwnerProfile() ?: if (profileSpinner.selectedItemPosition == 1) "monika" else "zsolt"
 
     private fun readHealthData() {
         val hc = client ?: run {
@@ -211,9 +267,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun syncNow() {
+    private fun syncNow(requestedProfile: String? = null) {
         val hc = client ?: run {
             status.text = "Health Connect nem elérhető."
+            return
+        }
+        val owner = bindOwnerIfNeeded(requestedProfile)
+        if (requestedProfile != null && requestedProfile != owner) {
+            status.text = "⛔ Ez ${profileName(owner)} telefonja. A ${profileName(requestedProfile)} profil szinkronja ezen az eszközön letiltva."
             return
         }
         scope.launch {
@@ -227,10 +288,10 @@ class MainActivity : ComponentActivity() {
                 }
                 if (prefs.getString("dropbox_refresh_token", null).isNullOrBlank()) {
                     status.text = "Első alkalom: Dropbox engedélyezés…"
-                    startDropboxAuth(selectedProfile())
+                    startDropboxAuth(owner)
                     return@launch
                 }
-                exportAndUpload(selectedProfile())
+                exportAndUpload(owner)
             } catch (e: Exception) {
                 status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}"
             }
@@ -314,8 +375,9 @@ class MainActivity : ComponentActivity() {
                     .remove("dropbox_pkce_verifier")
                     .remove("dropbox_oauth_state")
                     .apply()
-                if (profile == "monika") profileSpinner.setSelection(1) else profileSpinner.setSelection(0)
-                exportAndUpload(profile)
+                val owner = bindOwnerIfNeeded(profile)
+                if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
+                exportAndUpload(owner)
             } catch (e: Exception) {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
             }
