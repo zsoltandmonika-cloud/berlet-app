@@ -2,7 +2,7 @@ name: HealthHub Daily Free
 
 on:
   schedule:
-    - cron: "5 4-6 * * *"
+    - cron: "17 4-8 * * *"
   workflow_dispatch:
     inputs:
       mode:
