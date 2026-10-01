@@ -65,6 +65,14 @@ async function commit(){
  }finally{b.close()}
  toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve');
  pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
+ if(window.hhDropboxPushCurrentProfile){
+  try{
+   var synced=await window.hhDropboxPushCurrentProfile();
+   if(synced)toast('Health Connect import kész · Dropbox Vault frissítve');
+  }catch(e){
+   console.error(e);toast('Health Connect import kész · Dropbox sync sikertelen');
+  }
+ }
 }
 function ensure(){
  if(document.getElementById('hhHealthConnectInput'))return;
