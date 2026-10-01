@@ -135,10 +135,20 @@ function ensureProfileSwitches(){
   const hb=document.querySelector('#heroH .hhHealthProfileSwitch');if(hb){bindProfileAction(hb);fillSwitchButton(hb);}
 
   const sub=document.querySelector('#healthSection .healthSubHero');
+  if(sub&&!sub.querySelector('.hhHealthSubPortraitHit')){
+    const hit=document.createElement('button');
+    hit.type='button';
+    hit.className='hhHealthSubPortraitHit';
+    hit.setAttribute('aria-label','Profilváltás');
+    hit.title='Profilváltás';
+    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'7',cursor:'pointer'});
+    bindProfileAction(hit);
+    sub.appendChild(hit);
+  }
   if(sub&&!sub.querySelector('.hhHealthSubProfileSwitch')){
     const b=document.createElement('button');
     b.type='button';b.className='round hhHealthSubProfileSwitch';
-    Object.assign(b.style,{position:'absolute',right:'55px',top:'18px',padding:'2px',overflow:'hidden',borderRadius:'50%',zIndex:'8',background:'rgba(255,255,255,.86)',border:'1px solid rgba(23,63,97,.14)',boxShadow:'0 4px 12px rgba(31,65,91,.10)'});
+    Object.assign(b.style,{position:'absolute',right:'55px',top:'18px',padding:'2px',overflow:'hidden',borderRadius:'50%',zIndex:'9',background:'rgba(255,255,255,.86)',border:'1px solid rgba(23,63,97,.14)',boxShadow:'0 4px 12px rgba(31,65,91,.10)'});
     bindProfileAction(b);
     sub.appendChild(b);
   }
