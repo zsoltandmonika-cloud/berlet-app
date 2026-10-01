@@ -2,7 +2,7 @@ name: HealthHub Bridge Android APK
 
 on:
   push:
-    branches: ["main", "health-connect-mvp", "healthhub-hc-expanded-v149"]
+    branches: ["main", "health-connect-mvp", "healthhub-hc-expanded-v149", "healthhub-bridge-v060-scheduled-sync"]
     paths:
       - "healthhub/android-bridge/**"
       - ".github/workflows/healthhub-bridge-android.yml"
