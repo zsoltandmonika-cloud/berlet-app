@@ -45,6 +45,17 @@ function normalize(raw){
 async function existingIds(ids){
  var db=await openDb(),set=new Set();try{var st=db.transaction('measurements').objectStore('measurements');for(var i=0;i<ids.length;i++){if(await reqP(st.get(ids[i])))set.add(ids[i])}return set}finally{db.close()}
 }
+async function importRawDirect(raw,fileName){
+ var n=normalize(raw);
+ if(n.profile!==pkey())throw new Error('A Dropboxból érkező Health Connect adat '+pname(n.profile)+' profiljához tartozik.');
+ var old=await existingIds(n.measurements.map(function(x){return x.id}));
+ n.newMeasurements=n.measurements.filter(function(x){return !old.has(x.id)});
+ n.duplicates=n.measurements.length-n.newMeasurements.length;
+ n.fileName=fileName||('dropbox-'+n.profile+'.json');
+ pending=n;
+ await commit();
+ return {profile:n.profile,newMeasurements:n.newMeasurements.length,duplicates:n.duplicates};
+}
 async function prepare(file){
  var raw=JSON.parse(await file.text()),n=normalize(raw);
  if(n.profile!==pkey())throw new Error('Ez a fájl '+pname(n.profile)+' profiljához tartozik. Előbb válts át erre a profilra.');
@@ -68,7 +79,6 @@ async function commit(){
  toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve'+(dropboxOk?' · Dropbox Vault frissítve':''));
  pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
  try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
- try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
 }
 function ensure(){
  if(document.getElementById('hhHealthConnectInput'))return;
@@ -85,7 +95,7 @@ function showPreview(){
 }
 function closePreview(){document.getElementById('hhHealthConnectOverlay')?.classList.remove('on')}
 window.hhOpenHealthConnectImport=function(){ensure();document.getElementById('hhHealthConnectInput').click()};
-window.hhCommitHealthConnectImport=commit;window.hhCloseHealthConnectPreview=closePreview;
+window.hhCommitHealthConnectImport=commit;window.hhCloseHealthConnectPreview=closePreview;window.hhImportHealthConnectRaw=importRawDirect;
 function decorate(){
  if(window.healthSectionKind!=='measurements')return;var root=document.getElementById('healthSubContent');if(!root)return;var card=root.querySelector('.hrSectionCard');if(!card||card.querySelector('.hhHcBtn'))return;
  var host=card.querySelector('.hhImportTools')||card.querySelector('.hhMeasCrudBar');if(host){var b=document.createElement('button');b.className='hhHcBtn';b.textContent='♥ Health Connect JSON';b.onclick=window.hhOpenHealthConnectImport;host.appendChild(b)}
