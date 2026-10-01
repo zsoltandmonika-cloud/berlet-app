@@ -18,6 +18,7 @@ function card(icon,label,value,meta){return '<div class="hhLifeCard"><div class=
 async function render(){
  if(window.healthSectionKind!=='measurements')return;
  var host=document.getElementById('hhNowPanel');if(!host)return;
+ if(document.querySelector('.hhLifeV151'))return;
  var old=document.getElementById('hhLifePanel');if(old)old.remove();
  var imp=await latestBundle();if(!imp||!imp.bundle||!imp.bundle.records)return;
  var r=imp.bundle.records, cards=[], act=latestNonZero(r.dailyActivity,['steps','distanceMeters','caloriesKcal']), nut=latestNonZero(r.dailyNutrition,['energyKcal','proteinGrams','carbsGrams','fatGrams']), sl=latestByTime(r.sleepSessions,'endTime'), ex=latestByTime(r.exerciseSessions,'endTime'), bf=latestByTime(r.bodyFat,'time'), vo=latestByTime(r.vo2Max,'time'), rh=latestByTime(r.restingHeartRate,'time');
