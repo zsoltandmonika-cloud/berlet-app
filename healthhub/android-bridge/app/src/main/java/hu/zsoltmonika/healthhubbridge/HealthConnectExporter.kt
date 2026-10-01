@@ -53,8 +53,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 arr.put(JSONObject()
                     .put("id", r.metadata.id)
                     .put("time", r.time.toString())
-                    .put("systolic", r.systolic.millimetersOfMercury)
-                    .put("diastolic", r.diastolic.millimetersOfMercury)
+                    .put("systolic", r.systolic.inMillimetersOfMercury)
+                    .put("diastolic", r.diastolic.inMillimetersOfMercury)
                     .put("sourcePackage", r.metadata.dataOrigin.packageName))
             }
         })
@@ -72,7 +72,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 arr.put(JSONObject()
                     .put("id", r.metadata.id)
                     .put("time", r.time.toString())
-                    .put("mmolL", r.level.millimolesPerLiter)
+                    .put("mmolL", r.level.inMillimolesPerLiter)
                     .put("sourcePackage", r.metadata.dataOrigin.packageName))
             }
         })
