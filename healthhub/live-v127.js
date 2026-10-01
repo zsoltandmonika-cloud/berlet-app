@@ -96,7 +96,12 @@ function fillSwitchButton(btn){
     btn.style.fontWeight='900';
   }
 }
-function toggleProfile(){
+function openHealthProfilePicker(ev){
+  if(ev){ev.preventDefault();ev.stopPropagation();}
+  if(typeof window.openPicker==='function'){
+    window.openPicker();
+    return;
+  }
   const next=profileCode()==='m'?'z':'m';
   if(typeof window.setProfile==='function')window.setProfile(next);
   else localStorage.setItem('hh-profile',next);
@@ -108,7 +113,7 @@ function ensureProfileSwitches(){
     const b=document.createElement('button');
     b.type='button';b.className='round hhHealthProfileSwitch';
     Object.assign(b.style,{padding:'2px',overflow:'hidden',borderRadius:'50%'});
-    b.onclick=toggleProfile;
+    b.onclick=openHealthProfilePicker;
     hero.prepend(b);
   }
   const hb=document.querySelector('#heroH .hhHealthProfileSwitch');if(hb)fillSwitchButton(hb);
@@ -118,7 +123,7 @@ function ensureProfileSwitches(){
     const b=document.createElement('button');
     b.type='button';b.className='round hhHealthSubProfileSwitch';
     Object.assign(b.style,{position:'absolute',right:'55px',top:'18px',padding:'2px',overflow:'hidden',borderRadius:'50%',zIndex:'8',background:'rgba(255,255,255,.86)',border:'1px solid rgba(23,63,97,.14)',boxShadow:'0 4px 12px rgba(31,65,91,.10)'});
-    b.onclick=toggleProfile;
+    b.onclick=openHealthProfilePicker;
     sub.appendChild(b);
   }
   const sb=document.querySelector('#healthSection .hhHealthSubProfileSwitch');if(sb)fillSwitchButton(sb);

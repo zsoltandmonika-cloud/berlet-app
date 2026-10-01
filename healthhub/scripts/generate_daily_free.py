@@ -195,31 +195,43 @@ def generate_brief():
     write_json(DATA / "daily-briefing.json", out)
     print("Generated Daily Headline", date)
 
+def is_current(path, date):
+    try:
+        current=json.loads(path.read_text(encoding="utf-8"))
+        return current.get("date")==date
+    except Exception:
+        return False
+
 def main():
     mode=(sys.argv[1] if len(sys.argv)>1 else "auto").lower()
-    hour=now_local().hour
+    now=now_local()
+    hour=now.hour
+    date=now.strftime("%Y-%m-%d")
+
     if mode=="auto":
-        if hour==6:
-            try:
-                current=json.loads((DATA / "daily-spark.json").read_text(encoding="utf-8"))
-                if current.get("date")==now_local().strftime("%Y-%m-%d"):
-                    print("Daily Spark already current; fallback not needed.")
-                    return
-            except Exception:
-                pass
-            mode="spark"
-        elif hour==7:
-            try:
-                current=json.loads((DATA / "daily-briefing.json").read_text(encoding="utf-8"))
-                if current.get("date")==now_local().strftime("%Y-%m-%d"):
-                    print("Daily Headline already current; fallback not needed.")
-                    return
-            except Exception:
-                pass
-            mode="briefing"
-        else:
-            print("No HealthHub generation scheduled for local hour",hour)
-            return
+        did_work=False
+
+        # GitHub scheduled workflows can start late. Never infer the intended
+        # job from the actual start hour; repair every stale morning feed that
+        # should already exist by the time this run finally starts.
+        if hour>=6:
+            if is_current(DATA / "daily-spark.json", date):
+                print("Daily Spark already current; fallback not needed.")
+            else:
+                generate_spark()
+                did_work=True
+
+        if hour>=7:
+            if is_current(DATA / "daily-briefing.json", date):
+                print("Daily Headline already current; fallback not needed.")
+            else:
+                generate_brief()
+                did_work=True
+
+        if not did_work and hour<6:
+            print("Morning fallback not due yet; local hour",hour)
+        return
+
     if mode in ("spark","both"): generate_spark()
     if mode in ("briefing","both"): generate_brief()
 
