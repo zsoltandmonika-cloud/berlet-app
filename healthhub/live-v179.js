@@ -105,7 +105,7 @@ async function render(){
 function arrangeHealthRadar(){
  var health=document.getElementById('health');if(!health)return;
  var ask=health.querySelector('.ask'),lists=health.querySelector('.two');
- if(ask&&lists&&ask.nextElementSibling!==lists)ask.insertAdjacentElement('afterend',lists);
+ if(ask&&lists&&lists.nextElementSibling!==ask)lists.insertAdjacentElement('afterend',ask);
 }
 function style(){
  if(document.getElementById('hh-v179-style'))return;
