@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 /* HealthHub v1.47 — Health Connect Bridge JSON receiver */
-var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', SCHEMA='healthhub.healthconnect.bridge/1.0', pending=null;
+var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', SCHEMA='healthhub.healthconnect.bridge/1.0', SCHEMA11='healthhub.healthconnect.bridge/1.1', pending=null;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -27,7 +27,7 @@ function nearestPulse(at,heart){
  return bd<=300000?best:null;
 }
 function normalize(raw){
- if(!raw||raw.schemaVersion!==SCHEMA)throw new Error('Ez nem HealthHub Health Connect exportfájl.');
+ if(!raw||(raw.schemaVersion!==SCHEMA&&raw.schemaVersion!==SCHEMA11))throw new Error('Ez nem támogatott HealthHub Health Connect exportfájl.');
  var profile=String(raw.profile||'').toLowerCase();
  if(profile!=='zsolt'&&profile!=='monika')throw new Error('Hiányzó vagy hibás profil az exportban.');
  var r=raw.records||{}, heart=flattenHeart(arr(r,'heartRate')), ms=[];
@@ -60,7 +60,7 @@ async function commit(){
  try{
   var t=b.transaction(['imports','activity'],'readwrite'),im=t.objectStore('imports'),ac=t.objectStore('activity');
   p.steps.forEach(function(x){ac.put(x)});
-  im.put({id:'imp-'+Date.now()+'-'+hash(p.fileName),profile:p.profile,importedAt:now,fileName:p.fileName,schemaVersion:SCHEMA,measurementCount:p.measurements.length,stepDays:p.steps.length,heartSamples:p.heart.length,bundle:p.raw});
+  im.put({id:'imp-'+Date.now()+'-'+hash(p.fileName),profile:p.profile,importedAt:now,fileName:p.fileName,schemaVersion:p.raw.schemaVersion||SCHEMA,measurementCount:p.measurements.length,stepDays:p.steps.length,heartSamples:p.heart.length,exerciseSessions:arr(p.raw.records,'exerciseSessions').length,sleepSessions:arr(p.raw.records,'sleepSessions').length,nutritionDays:arr(p.raw.records,'dailyNutrition').length,bundle:p.raw});
   await txDone(t);
  }finally{b.close()}
  toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve');
@@ -75,7 +75,8 @@ function ensure(){
 }
 function showPreview(){
  ensure();var p=pending;if(!p)return;
- document.getElementById('hhHealthConnectBody').innerHTML='<p class="privacyNote">'+esc(p.fileName)+' · '+esc(pname(p.profile))+'</p><div class="hhHcStats"><div><small>ÚJ MÉRÉS</small><b>'+p.newMeasurements.length+'</b></div><div><small>MÁR MEGLÉVŐ</small><b>'+p.duplicates+'</b></div><div><small>LÉPÉSNAP</small><b>'+p.steps.length+'</b></div><div><small>PULZUSMINTA</small><b>'+p.heart.length+'</b></div></div><p class="privacyNote">A pulzusmintákat nem tesszük ezrével a Mérések listába. A vérnyomásmérésekhez legfeljebb ±5 percen belüli pulzust párosítunk; a teljes pulzus- és lépésadat a Health Connect bridge tárban marad.</p><div class="hhCrudActions"><button class="hhCrudBtn" onclick="hhCommitHealthConnectImport()">Importálás most</button><button class="hhCrudBtn alt" onclick="hhCloseHealthConnectPreview()">Mégse</button></div>';
+ var rr=p.raw.records||{}, ex=arr(rr,'exerciseSessions').length, sl=arr(rr,'sleepSessions').length, nu=arr(rr,'dailyNutrition').filter(function(x){return Number(x.energyKcal)||Number(x.proteinGrams)||Number(x.carbsGrams)||Number(x.fatGrams)}).length;
+ document.getElementById('hhHealthConnectBody').innerHTML='<p class="privacyNote">'+esc(p.fileName)+' · '+esc(pname(p.profile))+'</p><div class="hhHcStats"><div><small>ÚJ MÉRÉS</small><b>'+p.newMeasurements.length+'</b></div><div><small>MÁR MEGLÉVŐ</small><b>'+p.duplicates+'</b></div><div><small>LÉPÉSNAP</small><b>'+p.steps.length+'</b></div><div><small>PULZUSMINTA</small><b>'+p.heart.length+'</b></div><div><small>EDZÉS</small><b>'+ex+'</b></div><div><small>ALVÁS</small><b>'+sl+'</b></div><div><small>TÁPLÁLKOZÁSI NAP</small><b>'+nu+'</b></div></div><p class="privacyNote">A nagy sűrűségű pulzus-, aktivitás-, alvás- és táplálkozási adatokat nem tesszük ezrével a Mérések listába. A teljes Health Connect csomag a bridge tárban marad, a HealthHub ebből készít összesített nézeteket.</p><div class="hhCrudActions"><button class="hhCrudBtn" onclick="hhCommitHealthConnectImport()">Importálás most</button><button class="hhCrudBtn alt" onclick="hhCloseHealthConnectPreview()">Mégse</button></div>';
  document.getElementById('hhHealthConnectOverlay').classList.add('on');
 }
 function closePreview(){document.getElementById('hhHealthConnectOverlay')?.classList.remove('on')}
