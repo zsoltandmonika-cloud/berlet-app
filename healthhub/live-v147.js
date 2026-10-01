@@ -63,18 +63,12 @@ async function commit(){
   im.put({id:'imp-'+Date.now()+'-'+hash(p.fileName),profile:p.profile,importedAt:now,fileName:p.fileName,schemaVersion:p.raw.schemaVersion||SCHEMA,measurementCount:p.measurements.length,stepDays:p.steps.length,heartSamples:p.heart.length,exerciseSessions:arr(p.raw.records,'exerciseSessions').length,sleepSessions:arr(p.raw.records,'sleepSessions').length,nutritionDays:arr(p.raw.records,'dailyNutrition').length,bundle:p.raw});
   await txDone(t);
  }finally{b.close()}
- toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve');
+ var dropboxOk=false;
+ if(window.hhDropboxPushCurrentProfile){try{dropboxOk=!!(await window.hhDropboxPushCurrentProfile())}catch(e){console.error(e);toast('Health Connect import kész · Dropbox sync sikertelen')}}
+ toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve'+(dropboxOk?' · Dropbox Vault frissítve':''));
  pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
  try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
  try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
- if(window.hhDropboxPushCurrentProfile){
-  try{
-   var synced=await window.hhDropboxPushCurrentProfile();
-   if(synced)toast('Health Connect import kész · Dropbox Vault frissítve');
-  }catch(e){
-   console.error(e);toast('Health Connect import kész · Dropbox sync sikertelen');
-  }
- }
 }
 function ensure(){
  if(document.getElementById('hhHealthConnectInput'))return;
