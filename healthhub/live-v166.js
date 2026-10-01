@@ -14,7 +14,8 @@ function statusText(profile){
  var pending=localStorage.getItem('hh-sync-now-pending-'+profile);
  if(pending){
   var pt=Date.parse(pending)||0,lt=Date.parse(last||'')||0;
-  if(pt>lt)return {kind:'pending',text:'⏳ SYNC NOW folyamatban · '+pname(profile)};
+  if(pt&&Date.now()-pt>10*60*1000){localStorage.removeItem('hh-sync-now-pending-'+profile);pending=null}
+  else if(pt>lt)return {kind:'pending',text:'⏳ SYNC NOW folyamatban · '+pname(profile)};
  }
  if(last)return {kind:'ok',text:'✓ Utolsó sikeres sync: '+fmt(last)+' · Health Connect → Dropbox → HealthHub'};
  return {kind:'idle',text:'Még nincs sikeres SYNC NOW ezen a profilon.'};
