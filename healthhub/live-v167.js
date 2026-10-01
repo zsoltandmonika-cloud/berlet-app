@@ -94,6 +94,34 @@ if(typeof originalOpen==='function'){
   return r;
  };
 }
-ensure();
-document.documentElement.dataset.healthhubSmartDelete='1.67';
+
+function decorateMeasurementRows(){
+ if(window.healthSectionKind!=='measurements')return;
+ var root=document.getElementById('healthSubContent');if(!root)return;
+ root.querySelectorAll('.hhMeasList .hrRow').forEach(function(r){
+  if(r.dataset.hhTapFixed==='1')return;
+  var src=r.getAttribute('onclick')||'',m=src.match(/measurement','([^']+)'/);
+  if(!m)return;
+  var id=m[1];
+  r.dataset.hhTapFixed='1';
+  r.style.cursor='pointer';
+  r.removeAttribute('onclick');
+  r.addEventListener('click',function(e){
+   if(e.target&&e.target.closest&&e.target.closest('.hhInlineDelete'))return;
+   e.preventDefault();e.stopPropagation();
+   window.hhOpenMeasurement&&window.hhOpenMeasurement(id);
+  });
+  var del=document.createElement('button');
+  del.type='button';del.className='hhInlineDelete';del.textContent='🗑';
+  del.setAttribute('aria-label','Mérés törlése');
+  Object.assign(del.style,{marginLeft:'8px',border:'0',background:'#fff0f1',color:'#a94352',borderRadius:'10px',padding:'6px 8px',fontSize:'10px',cursor:'pointer',flex:'none'});
+  del.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();window.hhDeleteMeasurementSmart&&window.hhDeleteMeasurementSmart(id)});
+  r.appendChild(del);
+ });
+}
+
+var prevRender167=window.renderHealthSection;
+if(typeof prevRender167==='function')window.renderHealthSection=async function(){var r=await prevRender167.apply(this,arguments);setTimeout(decorateMeasurementRows,0);return r};
+ensure();setTimeout(decorateMeasurementRows,180);
+document.documentElement.dataset.healthhubSmartDelete='1.68';
 })();
