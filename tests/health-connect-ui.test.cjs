@@ -1,0 +1,20 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const {JSDOM}=require('jsdom');const {IDBFactory}=require('fake-indexeddb');
+test('file selection, preview and atomic commit preserve other profile; repeat is skipped',async()=>{
+ const dom=new JSDOM('<div id="healthSubContent"></div>',{url:'https://example.com/healthhub/',runScripts:'outside-only'});const w=dom.window;
+ w.indexedDB=new IDBFactory();w.healthSectionKind='devices';w.renderHealthSection=async()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
+ const db=await new Promise((ok,no)=>{const r=w.indexedDB.open('healthhub-healthradar-v2',1);r.onupgradeneeded=()=>{r.result.createObjectStore('measurements',{keyPath:'id'});r.result.createObjectStore('meta',{keyPath:'key'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+ const tx=db.transaction(['measurements','meta'],'readwrite');tx.objectStore('measurements').put({id:'other',profile:'monika',pulse:60});tx.objectStore('meta').put({key:'full-migration',counts:{measurements:1,documents:157}});await new Promise(r=>tx.oncomplete=r);
+ for(const f of ['healthhub/connect/core.js','healthhub/live-v147.js'])w.eval(fs.readFileSync(path.join(__dirname,'..',f),'utf8'));
+ assert.ok(w.document.querySelector('.hhHcCard'));
+ const batch={format:'healthhub-health-connect',schemaVersion:1,profile:'zsolt',exportedAt:new Date().toISOString(),measurements:[{recordType:'bloodPressure',recordId:'synthetic',origin:'example.synthetic',measuredAt:'2026-01-01T12:00:00Z',lastModifiedAt:'2026-01-01T12:00:00Z',systolic:120,diastolic:80}]};
+ const input=w.document.querySelector('input[type=file]');const file={size:1000,text:async()=>JSON.stringify(batch)};Object.defineProperty(input,'files',{value:[file]});
+ w.hhOpenHealthConnect();await input.onchange();assert.match(w.document.getElementById('hhHcStatus').textContent,/Új: 1/);
+ await w.document.getElementById('hhHcCommit').onclick();assert.match(w.document.getElementById('hhHcStatus').textContent,/Sikeres import/);
+ const getAll=()=>new Promise(r=>{db.transaction('measurements').objectStore('measurements').getAll().onsuccess=e=>r(e.target.result)});
+ let rows=await getAll();assert.equal(rows.length,2);assert.equal(rows.find(x=>x.id==='other').profile,'monika');
+ w.hhOpenHealthConnect();await input.onchange();assert.match(w.document.getElementById('hhHcStatus').textContent,/Ismétlődő: 1/);assert.equal(w.document.getElementById('hhHcCommit').hidden,true);
+ w.localStorage.setItem('hh-profile','m');w.hhOpenHealthConnect();await input.onchange();assert.match(w.document.getElementById('hhHcStatus').textContent,/Eltérő profil/);assert.equal((await getAll()).length,2);
+ const meta=await new Promise(r=>{db.transaction('meta').objectStore('meta').get('full-migration').onsuccess=e=>r(e.target.result)});assert.equal(meta.counts.measurements,2);assert.equal(meta.counts.documents,157);
+ db.close();w.close();
+});

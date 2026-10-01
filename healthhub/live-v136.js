@@ -11,7 +11,8 @@ var METRICS=[
   {key:'pulse',label:'Pulzus',short:'Pulzus',unit:'/perc'},
   {key:'weightKg',label:'Testsúly',short:'Testsúly',unit:'kg'},
   {key:'bloodGlucose',label:'Vércukor',short:'Vércukor',unit:'mmol/l'},
-  {key:'oxygenSaturation',label:'Véroxigén',short:'SpO₂',unit:'%'}
+  {key:'oxygenSaturation',label:'Véroxigén',short:'SpO₂',unit:'%'},
+  {key:'steps',label:'Napi lépések',short:'Lépések',unit:'lépés/nap'}
 ];
 var PERIODS=[
   {key:'7d',label:'7 nap'},{key:'30d',label:'30 nap'},{key:'90d',label:'90 nap'},
