@@ -82,7 +82,7 @@ function trendSummary(rows){
  return '<div class="hhSleepSummary"><div><small>ÁTLAG</small><b>'+durText(avg(mins))+'</b></div><div><small>LEGUTÓBBI</small><b>'+durText(mins[mins.length-1])+'</b></div><div><small>LEGHOSSZABB</small><b>'+durText(Math.max.apply(null,mins))+'</b></div><div><small>VÁLTOZÁS</small><b>'+(delta>0?'+':'')+Math.round(delta)+' p</b></div></div>';
 }
 async function render(){
- var page=document.getElementById('sleep');if(!page)return;
+ var page=document.getElementById('hhSleepPage');if(!page)return;
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>';
  var rows=await sleepSessions(),latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
@@ -97,8 +97,8 @@ async function render(){
  '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>';
 }
 function ensurePage(){
- if(document.getElementById('sleep'))return;
- var s=document.createElement('section');s.id='sleep';s.className='hhSleepPage';document.body.appendChild(s);
+ if(document.getElementById('hhSleepPage'))return;
+ var s=document.createElement('section');s.id='hhSleepPage';s.className='hhSleepPage';document.body.appendChild(s);
 }
 function wireButton(){
  var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(b){var x=b.querySelector('b');return x&&x.textContent.trim()==='Sleep'});
@@ -110,8 +110,8 @@ function delegatedSleepClick(e){
  e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
  window.hhOpenSleep();
 }
-window.hhOpenSleep=function(){ensurePage();var p=document.getElementById('sleep');p.classList.add('on');p.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div></div>';requestAnimationFrame(function(){render().catch(function(e){console.error(e);var q=document.getElementById('sleep');if(q)q.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepEmpty big">Az alvásadatok betöltése nem sikerült. Frissítsd az oldalt, majd próbáld újra.</div></div>'})})};
-window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('sleep');if(p)p.classList.remove('on')};
+window.hhOpenSleep=function(){ensurePage();var p=document.getElementById('hhSleepPage');p.classList.add('on');p.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div></div>';requestAnimationFrame(function(){render().catch(function(e){console.error(e);var q=document.getElementById('hhSleepPage');if(q)q.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepEmpty big">Az alvásadatok betöltése nem sikerült. Frissítsd az oldalt, majd próbáld újra.</div></div>'})})};
+window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('hhSleepPage');if(p)p.classList.remove('on')};
 window.hhRenderSleep=render;
 window.hhSleepPeriod=function(p){sleepState.period=p;render()};
 window.hhHelperMinutes=function(m,el){helper.minutes=m;document.querySelectorAll('.hhHelperTimes button').forEach(function(b){b.classList.toggle('on',b===el)})};
@@ -165,7 +165,7 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
-var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('sleep')?.classList.contains('on'))render()},60);return r};
+var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},60);return r};
 setTimeout(wireButton,300);setInterval(wireButton,2000);
-document.documentElement.dataset.healthhubSleep='1.73';
+document.documentElement.dataset.healthhubSleep='1.74';
 })();
