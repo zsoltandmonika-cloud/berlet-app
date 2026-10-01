@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.47",
-  "currentFocus": "Health Connect MVP end-to-end phone test → two-profile device binding → incremental/background sync",
-  "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-007 – install verified Android Bridge APK on S24 Ultra, grant Health Connect permissions, export/import real records, then add persistent device binding and safe incremental sync",
+  "liveBuild": "v1.48",
+  "currentFocus": "Health Connect real-device validation → visual health dashboard → persistent device binding → incremental/background sync",
+  "nextDevelopment": "Validate Mónika profile import, then implement persistent per-device owner binding and checkpoint-based sync; keep background sync gated behind safe profile binding.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -616,13 +616,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.85,
+      "progress": 0.95,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-001",
       "targetDate": "2026-10-10",
       "actualDone": null,
-      "notes": "HealthHub Connect Android MVP v0.1.0 implemented and CI-built successfully on 2026-10-01. Debug APK artifact verified as a signed Android package. Real S24 Ultra permission/read test still pending."
+      "notes": "Android Bridge APK passed real S24 Ultra Health Connect read/export and HealthHub import for Zsolt. Mónika profile validation in progress."
     },
     {
       "id": "HH-SH-003",
@@ -634,13 +634,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.6,
+      "progress": 0.8,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-13",
       "actualDone": null,
-      "notes": "MVP maps BP, nearest pulse, weight, SpO2, blood glucose and aggregated daily steps into schema healthhub.healthconnect.bridge/1.0. Raw heart-rate samples and step days are retained separately. Sleep mapping remains for the next iteration."
+      "notes": "Live mapping validated on S24 Ultra for BP/pulse/weight/SpO2 and daily steps. v1.48 adds a compact visual snapshot of latest measurements and source sync time."
     },
     {
       "id": "HH-SH-004",
@@ -706,13 +706,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.65,
+      "progress": 0.7,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-18",
       "actualDone": null,
-      "notes": "Receiver uses stable Health Connect record IDs to create deterministic measurement IDs; repeated imports overwrite the same records instead of duplicating them. Checkpoint/change-token sync remains to implement."
+      "notes": "Deterministic Health Connect IDs keep re-import idempotent; v1.48 surfaces last Health Connect import time. Checkpoint/change-token sync remains."
     },
     {
       "id": "HH-REC-001",
@@ -1130,6 +1130,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.48",
+      "actionId": "HH-SH-003",
+      "type": "UX",
+      "summary": "Added a visual 'Mai állapot' health snapshot with prominent latest BP, pulse, SpO2, weight, glucose and steps, measurement deltas, timestamps and last Health Connect sync indicator. Built on the successful real S24 Ultra Zsolt end-to-end import.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.47",
