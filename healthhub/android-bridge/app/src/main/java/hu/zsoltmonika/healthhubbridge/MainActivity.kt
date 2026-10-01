@@ -1,5 +1,6 @@
 package hu.zsoltmonika.healthhubbridge
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
@@ -10,11 +11,14 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Spinner
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.permission.HealthPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,6 +31,9 @@ import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -42,9 +49,12 @@ class MainActivity : ComponentActivity() {
     private lateinit var saveButton: Button
     private lateinit var ownerLabel: TextView
     private lateinit var ownerButton: Button
+    private lateinit var scheduleSummary: TextView
+    private lateinit var scheduleToggleButton: Button
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
+    private var pendingScheduleEnable = false
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -63,6 +73,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val backgroundPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { granted ->
+        val ok = HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND in granted
+        if (ok && pendingScheduleEnable) {
+            pendingScheduleEnable = false
+            if (SyncScheduler.times(this).isEmpty()) SyncScheduler.addTime(this, "07:30")
+            SyncScheduler.setEnabled(this, true)
+            status.text = "✓ Automatikus sync engedélyezve."
+            updateScheduleUi()
+        } else if (!ok) {
+            pendingScheduleEnable = false
+            status.text = "A háttérben olvasás engedélye nélkül az ütemezett sync nem kapcsolható be."
+            updateScheduleUi()
+        }
+    }
+
     private val saveLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -77,6 +104,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
         initHealthConnect()
+        SyncScheduler.scheduleAll(this)
+        updateScheduleUi()
         handleIntent(intent)
     }
 
@@ -116,11 +145,14 @@ class MainActivity : ComponentActivity() {
 
     private fun buildUi(): View {
         val pad = 30
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(0xFFEEF7FB.toInt())
+        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad, pad, pad)
-            setBackgroundColor(0xFFEEF7FB.toInt())
         }
+        scroll.addView(root)
 
         root.addView(TextView(this).apply {
             text = "HealthHub Connect"
@@ -174,6 +206,53 @@ class MainActivity : ComponentActivity() {
             }
         })
 
+        root.addView(TextView(this).apply {
+            text = "Automatikus sync"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 22, 0, 4)
+        })
+        scheduleSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 2, 0, 8)
+        }
+        root.addView(scheduleSummary)
+
+        scheduleToggleButton = Button(this).apply {
+            setOnClickListener {
+                val enabled = prefs.getBoolean(SyncScheduler.KEY_ENABLED, false)
+                if (enabled) {
+                    SyncScheduler.setEnabled(this@MainActivity, false)
+                    status.text = "Automatikus sync kikapcsolva."
+                    updateScheduleUi()
+                } else {
+                    enableScheduledSync()
+                }
+            }
+        }
+        root.addView(scheduleToggleButton)
+
+        root.addView(Button(this).apply {
+            text = "Időpont hozzáadása"
+            setOnClickListener { pickScheduleTime() }
+        })
+        root.addView(Button(this).apply {
+            text = "Ütemezett időpontok törlése"
+            setOnClickListener {
+                SyncScheduler.clear(this@MainActivity)
+                status.text = "Ütemezett időpontok törölve."
+                updateScheduleUi()
+            }
+        })
+        root.addView(TextView(this).apply {
+            text = "Az Android a megadott idő környékén futtatja a háttérszinkront; energiatakarékosság miatt lehet kisebb késés."
+            textSize = 12f
+            setTextColor(0xFF6A7F91.toInt())
+            setPadding(0, 4, 0, 10)
+        })
+
         root.addView(Button(this).apply {
             text = "Csak beolvasás"
             setOnClickListener { readHealthData() }
@@ -204,7 +283,8 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(status)
         updateOwnerUi()
-        return root
+        updateScheduleUi()
+        return scroll
     }
 
     private fun deviceOwnerProfile(): String? {
@@ -242,6 +322,57 @@ class MainActivity : ComponentActivity() {
 
     private fun selectedProfile() =
         deviceOwnerProfile() ?: if (profileSpinner.selectedItemPosition == 1) "monika" else "zsolt"
+
+    private fun enableScheduledSync() {
+        val hc = client ?: run {
+            status.text = "Health Connect nem elérhető."
+            return
+        }
+        val feature = hc.features.getFeatureStatus(
+            HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND
+        )
+        if (feature != HealthConnectFeatures.FEATURE_STATUS_AVAILABLE) {
+            status.text = "Ezen az eszközön a Health Connect háttérolvasás jelenleg nem elérhető."
+            return
+        }
+        scope.launch {
+            val granted = hc.permissionController.getGrantedPermissions()
+            if (HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND in granted) {
+                if (SyncScheduler.times(this@MainActivity).isEmpty()) SyncScheduler.addTime(this@MainActivity, "07:30")
+                SyncScheduler.setEnabled(this@MainActivity, true)
+                status.text = "✓ Automatikus sync engedélyezve."
+                updateScheduleUi()
+            } else {
+                pendingScheduleEnable = true
+                status.text = "Háttérben olvasás engedélyezése…"
+                backgroundPermissionLauncher.launch(setOf(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND))
+            }
+        }
+    }
+
+    private fun pickScheduleTime() {
+        TimePickerDialog(this, { _, hour, minute ->
+            val value = String.format(Locale.ROOT, "%02d:%02d", hour, minute)
+            SyncScheduler.addTime(this, value)
+            status.text = "✓ Ütemezett sync hozzáadva: $value"
+            updateScheduleUi()
+        }, 7, 30, true).show()
+    }
+
+    private fun updateScheduleUi() {
+        if (!::scheduleSummary.isInitialized || !::scheduleToggleButton.isInitialized) return
+        val enabled = prefs.getBoolean(SyncScheduler.KEY_ENABLED, false)
+        val times = SyncScheduler.times(this)
+        val last = prefs.getLong("last_auto_sync_ms", 0L)
+        val err = prefs.getString("last_auto_sync_error", null)
+        val fmt = SimpleDateFormat("MM.dd HH:mm", Locale.getDefault())
+        val lastText = if (last > 0L) fmt.format(Date(last)) else "még nem futott"
+        scheduleToggleButton.text = if (enabled) "Scheduled Sync: BE ✓" else "Scheduled Sync: KI"
+        scheduleSummary.text =
+            "Időpontok: " + (if (times.isEmpty()) "nincs" else times.joinToString(", ")) +
+            "\nUtolsó automatikus sync: $lastText" +
+            (if (!err.isNullOrBlank()) "\nUtolsó hiba: $err" else "")
+    }
 
     private fun readHealthData() {
         val hc = client ?: run {
@@ -311,6 +442,7 @@ class MainActivity : ComponentActivity() {
             uploadIncoming(profile, json.toString(), token)
         }
         status.text = "✓ SYNC kész · ${if (profile == "monika") "Mónika" else "Zsolt"} · Dropbox frissítve."
+        updateScheduleUi()
 
         val back = Uri.parse(HEALTHHUB_URL).buildUpon()
             .appendQueryParameter("bridgeSync", "1")
