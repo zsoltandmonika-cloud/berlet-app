@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.48",
-  "currentFocus": "Health Connect real-device validation → visual health dashboard → persistent device binding → incremental/background sync",
-  "nextDevelopment": "Validate Mónika profile import, then implement persistent per-device owner binding and checkpoint-based sync; keep background sync gated behind safe profile binding.",
+  "liveBuild": "v1.49",
+  "currentFocus": "Expanded Health Connect connector validation: activity + sleep + nutrition + body metrics → then persistent device binding and incremental/background sync",
+  "nextDevelopment": "Build and phone-test the expanded Android bridge (activity, exercise, distance, calories, sleep, nutrition/YAZIO, body fat, resting HR, VO2max). If real Health Connect records are present, validate v1.49 HealthHub lifestyle cards, then continue device binding + incremental sync.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -634,13 +634,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.8,
+      "progress": 0.9,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-13",
       "actualDone": null,
-      "notes": "Live mapping validated on S24 Ultra for BP/pulse/weight/SpO2 and daily steps. v1.48 adds a compact visual snapshot of latest measurements and source sync time."
+      "notes": "Bridge schema 1.1 adds activity (distance/calories/exercise), sleep sessions/stages, nutrition aggregates, body fat, resting heart rate and VO2max while retaining BP/HR/weight/glucose/SpO2/steps. v1.49 adds lifestyle dashboard cards. Real-device validation pending."
     },
     {
       "id": "HH-SH-004",
@@ -1130,6 +1130,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.49",
+      "actionId": "HH-SH-003",
+      "type": "Feature",
+      "summary": "Expanded Health Connect Bridge schema to 1.1 with activity, exercise, distance, total calories, sleep sessions/stages, nutrition macros/energy, body fat, resting heart rate and VO2max. HealthHub receiver accepts both 1.0 and 1.1 and adds lifestyle summary cards.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.48",
