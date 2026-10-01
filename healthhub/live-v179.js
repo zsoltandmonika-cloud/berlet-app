@@ -68,8 +68,9 @@ function latestDailyActivity(imports){
  return all.filter(function(x){return Number(x.steps)||Number(x.caloriesKcal)||Number(x.distanceMeters)}).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))})[0]||null;
 }
 function val(v,dec){var n=Number(v);return Number.isFinite(n)?n.toLocaleString('hu-HU',{maximumFractionDigits:dec==null?1:dec}):'—'}
-function tile(icon,label,value,unit,meta,cls){
- return '<div class="hhLiveKpi '+(cls||'')+'"><div class="hhLiveIcon">'+icon+'</div><div class="hhLiveLabel">'+esc(label)+'</div><div class="hhLiveValue">'+value+'</div><div class="hhLiveUnit">'+esc(unit||'')+'</div><div class="hhLiveMeta">'+esc(meta||'nincs adat')+'</div></div>';
+function tile(icon,label,value,unit,meta,cls,target){
+ var click=target?' onclick="hhOpenLiveKpi(\\\''+esc(target)+'\\\')" role="button" tabindex="0"':'';
+ return '<div class="hhLiveKpi '+(cls||'')+'"'+click+'><div class="hhLiveIcon">'+icon+'</div><div class="hhLiveLabel">'+esc(label)+'</div><div class="hhLiveValue">'+value+'</div><div class="hhLiveUnit">'+esc(unit||'')+'</div><div class="hhLiveMeta">'+esc(meta||'nincs adat')+'</div></div>';
 }
 async function render(){
  var card=document.querySelector('#health .kpiCard');if(!card)return;
@@ -91,17 +92,34 @@ async function render(){
  if(!act&&daily)act={date:daily.date,steps:daily.steps};
  var cal=daily&&Number(daily.caloriesKcal)>0?daily:null;
  card.innerHTML='<div class="cardHead hhLiveHead"><h3>▥ Fő egészségügyi mutatók</h3><small>Legfrissebb adatok</small></div><div class="hhLiveGrid">'+
-  tile('🫀','Vérnyomás',bp?Math.round(bp.systolic)+'/'+Math.round(bp.diastolic):'—','Hgmm',bp?fmtDateTime(bp.measuredAt):'nincs adat','bp')+
-  tile('♥','Pulzus',hr?Math.round(hr.bpm):'—','/perc',hr?fmtDateTime(hr.time):'nincs adat','pulse')+
-  tile('🫁','Véroxigén',spo2?val(spo2.oxygenSaturation,1):'—','%',spo2?fmtDateTime(spo2.measuredAt):'nincs adat','spo2')+
-  tile('💧','Vércukor',glu?val(glu.bloodGlucose,1):'—','mmol/L',glu?fmtDateTime(glu.measuredAt):'nincs adat','glucose')+
-  tile('⚖','Testsúly',wt?val(wt.weightKg,1):'—','kg',wt?fmtDateTime(wt.measuredAt):'nincs adat','weight')+
-  tile('🌙','Alvás',sleep?dur(sleep.startTime,sleep.endTime):'—','',sleep?fmtDateTime(sleep.endTime):'nincs adat','sleep')+
-  tile('🏃','Edzés',ex?dur(ex.startTime,ex.endTime):'—','',ex?fmtDateTime(ex.endTime):'nincs adat','exercise')+
-  tile('🚶','Lépések',act?val(act.steps,0):'—','lépés',act?fmtDay(act.date):'nincs adat','steps')+
-  tile('🔥','Elégetett kalória',cal?val(cal.caloriesKcal,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories')+
+  tile('🫀','Vérnyomás',bp?Math.round(bp.systolic)+'/'+Math.round(bp.diastolic):'—','Hgmm',bp?fmtDateTime(bp.measuredAt):'nincs adat','bp','bloodPressure')+
+  tile('♥','Pulzus',hr?Math.round(hr.bpm):'—','/perc',hr?fmtDateTime(hr.time):'nincs adat','pulse','pulse')+
+  tile('🫁','Véroxigén',spo2?val(spo2.oxygenSaturation,1):'—','%',spo2?fmtDateTime(spo2.measuredAt):'nincs adat','spo2','oxygenSaturation')+
+  tile('💧','Vércukor',glu?val(glu.bloodGlucose,1):'—','mmol/L',glu?fmtDateTime(glu.measuredAt):'nincs adat','glucose','bloodGlucose')+
+  tile('⚖','Testsúly',wt?val(wt.weightKg,1):'—','kg',wt?fmtDateTime(wt.measuredAt):'nincs adat','weight','weightKg')+
+  tile('🌙','Alvás',sleep?dur(sleep.startTime,sleep.endTime):'—','',sleep?fmtDateTime(sleep.endTime):'nincs adat','sleep','sleep')+
+  tile('🏃','Edzés',ex?dur(ex.startTime,ex.endTime):'—','',ex?fmtDateTime(ex.endTime):'nincs adat','exercise','lifestyle')+
+  tile('🚶','Lépések',act?val(act.steps,0):'—','lépés',act?fmtDay(act.date):'nincs adat','steps','steps')+
+  tile('🔥','Elégetett kalória',cal?val(cal.caloriesKcal,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','lifestyle')+
  '</div>';
 }
+window.hhOpenLiveKpi=function(target){
+ if(target==='sleep'){
+  if(typeof window.hhOpenSleep==='function')window.hhOpenSleep();
+  return;
+ }
+ if(window.hhMeasurementState&&target!=='lifestyle')window.hhMeasurementState.metric=target;
+ if(typeof window.openHealthSection==='function')window.openHealthSection('measurements');
+ else {window.healthSectionKind='measurements';if(typeof window.show==='function')window.show('healthSection');if(typeof window.renderHealthSection==='function')window.renderHealthSection();}
+ setTimeout(function(){
+  if(target==='lifestyle'){
+   var x=document.querySelector('#hhLifePanel,.hhLifeV151');if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
+  }else{
+   var x=document.querySelector('#healthSubContent .hhTrendGrid,#healthSubContent .hhChartBox');if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+ },350);
+};
+
 function arrangeHealthRadar(){
  var health=document.getElementById('health');if(!health)return;
  var ask=health.querySelector('.ask'),lists=health.querySelector('.two');
@@ -110,7 +128,7 @@ function arrangeHealthRadar(){
 function style(){
  if(document.getElementById('hh-v179-style'))return;
  var s=document.createElement('style');s.id='hh-v179-style';s.textContent=
- '#health .kpiCard{padding:10px!important}.hhLiveHead{margin-bottom:8px!important}.hhLiveHead small{color:var(--a)!important}.hhLiveGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.hhLiveKpi{min-width:0;min-height:112px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #e5edf2;border-radius:14px;padding:9px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(31,65,91,.035)}.hhLiveKpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--a);opacity:.42}.hhLiveIcon{font-size:19px;line-height:1}.hhLiveLabel{font-size:7.5px;color:#6d8292;font-weight:850;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveValue{font-size:18px;line-height:1.1;color:#173f62;font-weight:900;margin-top:4px;letter-spacing:-.02em;white-space:nowrap}.hhLiveUnit{font-size:7.2px;color:#8a99a5;min-height:10px;margin-top:1px}.hhLiveMeta{font-size:7px;color:var(--a);font-weight:750;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveKpi.bp:after{opacity:.65}.hhLiveKpi.sleep,.hhLiveKpi.exercise,.hhLiveKpi.steps,.hhLiveKpi.calories{background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--soft) 24%,#fff))}@media(max-width:360px){.hhLiveGrid{gap:4px}.hhLiveKpi{padding:7px;min-height:106px}.hhLiveIcon{font-size:17px}.hhLiveValue{font-size:16px}.hhLiveLabel{font-size:6.9px}.hhLiveMeta{font-size:6.5px}}';
+ '#health .kpiCard{padding:10px!important}.hhLiveHead{margin-bottom:8px!important}.hhLiveHead small{color:var(--a)!important}.hhLiveGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.hhLiveKpi{min-width:0;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;min-height:112px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #e5edf2;border-radius:14px;padding:9px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(31,65,91,.035)}.hhLiveKpi:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(31,65,91,.08)}.hhLiveKpi:active{transform:scale(.985)}.hhLiveKpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--a);opacity:.42}.hhLiveIcon{font-size:19px;line-height:1}.hhLiveLabel{font-size:7.5px;color:#6d8292;font-weight:850;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveValue{font-size:18px;line-height:1.1;color:#173f62;font-weight:900;margin-top:4px;letter-spacing:-.02em;white-space:nowrap}.hhLiveUnit{font-size:7.2px;color:#8a99a5;min-height:10px;margin-top:1px}.hhLiveMeta{font-size:7px;color:var(--a);font-weight:750;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhLiveKpi.bp:after{opacity:.65}.hhLiveKpi.sleep,.hhLiveKpi.exercise,.hhLiveKpi.steps,.hhLiveKpi.calories{background:linear-gradient(180deg,#fff,color-mix(in srgb,var(--soft) 24%,#fff))}@media(max-width:360px){.hhLiveGrid{gap:4px}.hhLiveKpi{padding:7px;min-height:106px}.hhLiveIcon{font-size:17px}.hhLiveValue{font-size:16px}.hhLiveLabel{font-size:6.9px}.hhLiveMeta{font-size:6.5px}}';
  document.head.appendChild(s);
 }
 style();arrangeHealthRadar();
