@@ -5,6 +5,7 @@
 var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1';
 var state=window.hhMeasurementState||{metric:'pulse',period:'90d'};
 window.hhMeasurementState=state;
+if(!['7d','30d','90d'].includes(state.period))state.period='90d';
 
 var METRICS=[
   {key:'bloodPressure',label:'Vérnyomás',short:'Vérnyomás',unit:'Hgmm'},
@@ -70,7 +71,7 @@ function ensureStyle(){
  s.textContent=
  '.hhMeasToolbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:flex-start;margin-bottom:10px}'+
  '.hhMeasChips{display:flex;flex-wrap:wrap;gap:5px}.hhMeasChip{border:1px solid #dbe5ed;background:#fff;color:#425f77;border-radius:13px;padding:6px 9px;font-size:8px;font-weight:750;cursor:pointer}.hhMeasChip.on{background:#eaf8f4;border-color:#9fded2;color:#26766e}'+
- '.hhLatestMetrics{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px}@media(min-width:760px){.hhLatestMetrics{grid-template-columns:repeat(5,1fr)}}'+
+ '.hhLatestMetrics{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px}@media(min-width:760px){.hhLatestMetrics{grid-template-columns:repeat(6,1fr)}}'+
  '.hhMetricCard{border:1px solid #edf1f4;background:#fff;border-radius:14px;padding:10px;box-shadow:0 5px 14px rgba(38,74,101,.05)}.hhMetricCard .mi{width:27px;height:27px;border-radius:9px;background:#f3f6fb;display:grid;place-items:center;font-size:14px;margin-bottom:6px}.hhMetricCard small{display:block;font-size:7.2px;color:#72879a}.hhMetricCard b{display:block;font-size:11px;color:#183c5d;margin-top:3px}.hhMetricCard em{display:block;font-style:normal;font-size:6.9px;color:#8a9aaa;margin-top:3px}'+
  '.hhTrendGrid{display:grid;grid-template-columns:1fr;gap:9px}@media(min-width:760px){.hhTrendGrid{grid-template-columns:minmax(0,1fr) 170px}}'+
  '.hhChartBox{border:1px solid #edf1f4;background:#fff;border-radius:15px;padding:10px;min-width:0}.hhChartBox svg{width:100%;height:220px;display:block}.hhChartTitle{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:5px}.hhChartTitle h3{margin:2px 0 0}'+
