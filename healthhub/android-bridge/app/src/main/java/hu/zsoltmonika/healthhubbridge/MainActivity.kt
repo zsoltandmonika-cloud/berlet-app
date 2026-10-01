@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
             setTextColor(0xFF0B2D50.toInt())
         })
         root.addView(TextView(this).apply {
-            text = "Samsung Health → Health Connect → HealthHub\nMVP: helyi, szerver nélküli import"
+            text = "Samsung Health / YAZIO → Health Connect → HealthHub\nVitals + aktivitás + alvás + táplálkozás"
             textSize = 16f
             setTextColor(0xFF315F98.toInt())
             setPadding(0, 8, 0, 24)
@@ -143,7 +143,7 @@ class MainActivity : ComponentActivity() {
                 pendingJson = json.toString(2)
                 saveButton.isEnabled = true
                 val c = json.getJSONObject("counts")
-                status.text = "✓ Kész. Vérnyomás: ${c.getInt("bloodPressure")}, súly: ${c.getInt("weight")}, vércukor: ${c.getInt("bloodGlucose")}, SpO₂: ${c.getInt("oxygenSaturation")}, pulzusrekord: ${c.getInt("heartRateRecords")}, lépésnap: ${c.getInt("stepDays")}."
+                status.text = "✓ Kész. Vérnyomás: ${c.getInt("bloodPressure")}, súly: ${c.getInt("weight")}, testzsír: ${c.getInt("bodyFat")}, vércukor: ${c.getInt("bloodGlucose")}, SpO₂: ${c.getInt("oxygenSaturation")}, pulzus: ${c.getInt("heartRateRecords")}, nyugalmi pulzus: ${c.getInt("restingHeartRate")}, VO₂max: ${c.getInt("vo2Max")}, edzés: ${c.getInt("exerciseSessions")}, alvás: ${c.getInt("sleepSessions")}, aktivitásnap: ${c.getInt("activityDays")}, táplálkozásnap: ${c.getInt("nutritionDays")}."
             } catch (e: Exception) {
                 status.text = "Hiba: ${e.message ?: e.javaClass.simpleName}"
             }
