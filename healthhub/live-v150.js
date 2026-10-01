@@ -25,10 +25,24 @@ function ensureStyle(){
  '@media(max-width:430px){.healthSubHero{height:205px!important}.healthSubHero>div{left:55%!important;right:34px!important}.healthSubHero h1{font-size:25px!important}.hhNowItem{min-height:86px!important}.hhMetricCard b{font-size:13.5px!important}}';
  document.head.appendChild(s);
 }
+function syncHeroExact(){
+ var source=document.getElementById('heroH'), hero=document.querySelector('#healthSection .healthSubHero');
+ if(!source||!hero)return;
+ var cs=getComputedStyle(source);
+ hero.style.setProperty('height',cs.height,'important');
+ hero.style.setProperty('min-height',cs.height,'important');
+ hero.style.setProperty('background-image',cs.backgroundImage,'important');
+ hero.style.setProperty('background-size',cs.backgroundSize,'important');
+ hero.style.setProperty('background-position',cs.backgroundPosition,'important');
+ hero.style.setProperty('background-repeat',cs.backgroundRepeat,'important');
+ hero.style.setProperty('border-radius',cs.borderRadius,'important');
+ hero.setAttribute('data-hh-hero-source','heroH');
+}
 function decorate(){
  ensureStyle();
  var hero=document.querySelector('#healthSection .healthSubHero');
- if(hero)hero.setAttribute('data-hh-unified-hero','1.50');
+ if(hero)hero.setAttribute('data-hh-unified-hero','1.53');
+ syncHeroExact();
  var root=document.getElementById('healthSubContent');
  if(root&&window.healthSectionKind==='measurements'){
    var card=root.querySelector('.hrSectionCard');
@@ -38,7 +52,7 @@ function decorate(){
 ensureStyle();
 var prev=window.renderHealthSection;
 if(typeof prev==='function')window.renderHealthSection=async function(){var r=await prev.apply(this,arguments);decorate();return r};
-setTimeout(decorate,180);
+setTimeout(decorate,120);setTimeout(syncHeroExact,260);window.addEventListener('resize',syncHeroExact);
 document.documentElement.dataset.healthhubHealthradarPolish='1.50';
 window.HH_LIVE_BUILD='v1.50-healthradar-polish';
 })();
