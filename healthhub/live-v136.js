@@ -52,11 +52,12 @@ function valueText(m,x){
   return fmtNum(n(x[m]))+' '+mm.unit;
 }
 function metricIcon(k){
-  if(k==='bloodPressure')return '◔';
-  if(k==='pulse')return '♡';
-  if(k==='weightKg')return '⚖';
-  if(k==='bloodGlucose')return '◉';
-  return '∿';
+  if(k==='bloodPressure')return '🫀';
+  if(k==='pulse')return '❤️';
+  if(k==='weightKg')return '⚖️';
+  if(k==='bloodGlucose')return '🩸';
+  if(k==='oxygenSaturation')return '🫁';
+  return '•';
 }
 
 function ensureStyle(){
