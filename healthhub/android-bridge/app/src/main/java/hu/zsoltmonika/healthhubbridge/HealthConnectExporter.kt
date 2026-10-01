@@ -55,7 +55,22 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val bodyFat = client.readRecords(ReadRecordsRequest(BodyFatRecord::class, range)).records
         val glucose = client.readRecords(ReadRecordsRequest(BloodGlucoseRecord::class, range)).records
         val oxygen = client.readRecords(ReadRecordsRequest(OxygenSaturationRecord::class, range)).records
-        val heart = client.readRecords(ReadRecordsRequest(HeartRateRecord::class, range)).records
+        // Heart rate is high-volume data. ReadRecordsRequest defaults to 1000
+        // records, so a 30-day export can otherwise stop well before today.
+        // Follow every Health Connect page token and keep the full interval.
+        val heart = mutableListOf<HeartRateRecord>()
+        var heartPageToken: String? = null
+        do {
+            val heartPage = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = HeartRateRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = heartPageToken
+                )
+            )
+            heart.addAll(heartPage.records)
+            heartPageToken = heartPage.pageToken
+        } while (!heartPageToken.isNullOrEmpty())
         val restingHeart = client.readRecords(ReadRecordsRequest(RestingHeartRateRecord::class, range)).records
         val exercise = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, range)).records
         val sleep = client.readRecords(ReadRecordsRequest(SleepSessionRecord::class, range)).records
