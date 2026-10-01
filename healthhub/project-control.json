@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.49",
-  "currentFocus": "Expanded Health Connect connector validation: activity + sleep + nutrition + body metrics → then persistent device binding and incremental/background sync",
-  "nextDevelopment": "Build and phone-test the expanded Android bridge (activity, exercise, distance, calories, sleep, nutrition/YAZIO, body fat, resting HR, VO2max). If real Health Connect records are present, validate v1.49 HealthHub lifestyle cards, then continue device binding + incremental sync.",
+  "liveBuild": "v1.50",
+  "currentFocus": "HealthRadar visual consistency + measurement UX polish → expanded Health Connect device validation → device binding/incremental sync",
+  "nextDevelopment": "Validate v1.50 unified HealthRadar hero and measurement selectors on phone/desktop, then continue expanded Health Connect data validation and persistent device binding.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1130,6 +1130,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.50",
+      "actionId": "HH-SH-003",
+      "type": "UX",
+      "summary": "Unified HealthRadar-related pages to the same hero image/height/layout language as the main HealthRadar hero. Fixed measurement delta overlap, enlarged metric cards, converted metric categories into visual selector cards, and improved period controls for touch use.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.49",
