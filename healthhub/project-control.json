@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.46",
-  "currentFocus": "HealthRadar migráció lezáró ellenőrzése → kétprofilos Health Connect Bridge",
-  "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-006 – Android Bridge + kétprofilos device binding + reggeli háttérszinkron",
+  "liveBuild": "v1.47",
+  "currentFocus": "Health Connect MVP end-to-end phone test → two-profile device binding → incremental/background sync",
+  "nextDevelopment": "HH-SH-002 / HH-SH-005 / HH-SH-007 – install verified Android Bridge APK on S24 Ultra, grant Health Connect permissions, export/import real records, then add persistent device binding and safe incremental sync",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -615,14 +615,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Ready",
-      "progress": 0.05,
+      "status": "Testing",
+      "progress": 0.85,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-001",
       "targetDate": "2026-10-10",
       "actualDone": null,
-      "notes": "NEXT DEVELOPMENT. Native bridge required; web app alone cannot read Health Connect."
+      "notes": "HealthHub Connect Android MVP v0.1.0 implemented and CI-built successfully on 2026-10-01. Debug APK artifact verified as a signed Android package. Real S24 Ultra permission/read test still pending."
     },
     {
       "id": "HH-SH-003",
@@ -633,14 +633,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Ready",
-      "progress": 0.05,
+      "status": "Testing",
+      "progress": 0.6,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-13",
       "actualDone": null,
-      "notes": "OMRON data expected through Samsung Health/Health Connect where available."
+      "notes": "MVP maps BP, nearest pulse, weight, SpO2, blood glucose and aggregated daily steps into schema healthhub.healthconnect.bridge/1.0. Raw heart-rate samples and step days are retained separately. Sleep mapping remains for the next iteration."
     },
     {
       "id": "HH-SH-004",
@@ -652,13 +652,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Backlog",
-      "progress": 0,
+      "progress": 0.1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-16",
       "actualDone": null,
-      "notes": ""
+      "notes": "MVP shows export/import counts and receiver preview. Persistent last-sync/retry/error status panel remains to implement."
     },
     {
       "id": "HH-SH-005",
@@ -669,14 +669,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Ready",
-      "progress": 0.1,
+      "status": "Testing",
+      "progress": 0.65,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-12",
       "actualDone": null,
-      "notes": "Two-profile architecture approved 2026-09-30."
+      "notes": "Bridge has explicit Zsolt/Mónika profile selection and HealthHub receiver rejects cross-profile imports. Persistent per-device owner binding remains to implement."
     },
     {
       "id": "HH-SH-006",
@@ -694,7 +694,7 @@
       "dependency": "HH-SH-003;HH-SH-005",
       "targetDate": "2026-10-19",
       "actualDone": null,
-      "notes": "Target user experience: data ready by morning."
+      "notes": "Not implemented in MVP. Background Health Connect read requires the additional background permission and WorkManager scheduling."
     },
     {
       "id": "HH-SH-007",
@@ -705,14 +705,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "Testing",
+      "progress": 0.65,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-18",
       "actualDone": null,
-      "notes": "Health Connect record ID + measured_at used for idempotency."
+      "notes": "Receiver uses stable Health Connect record IDs to create deterministic measurement IDs; repeated imports overwrite the same records instead of duplicating them. Checkpoint/change-token sync remains to implement."
     },
     {
       "id": "HH-REC-001",
@@ -1130,6 +1130,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.47",
+      "actionId": "HH-SH-002",
+      "type": "Feature",
+      "summary": "Added HealthHub Connect Android MVP and live Health Connect JSON receiver. Android bridge reads BP, HR, weight, glucose, SpO2 and aggregated daily steps; receiver enforces profile separation and deterministic dedupe. Verified debug APK build; phone E2E test pending.",
+      "status": "Testing"
+    },
     {
       "date": "2026-09-30",
       "release": "v1.43",
