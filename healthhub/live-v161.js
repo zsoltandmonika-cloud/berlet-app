@@ -73,8 +73,8 @@ function legacyProfile(profile){
  try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');return v&&v.profiles&&v.profiles[profile]?v.profiles[profile]:null}catch(e){return null}
 }
 async function snapshot(profile){
- var all=await dbAll(),br=await bridgeAll();
- return {schemaVersion:'healthhub.dropbox.vault/1.0',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile})};
+ var all=await dbAll(),br=await bridgeAll(),ignored=(window.hhGetHealthConnectIgnoreList?window.hhGetHealthConnectIgnoreList(profile):[]);
+ return {schemaVersion:'healthhub.dropbox.vault/1.0',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored};
 }
 function vaultPath(profile){return '/'+profile+'-data.json'}
 async function uploadCurrent(silent){
@@ -105,6 +105,7 @@ async function mergeVault(data){
  if(data.legacyProfile){
   try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null')||{schemaVersion:'healthhub.local.v1',profiles:{}};v.profiles=v.profiles||{};v.profiles[profile]=Object.assign({},v.profiles[profile]||{},data.legacyProfile);localStorage.setItem(LEGACY_KEY,JSON.stringify(v))}catch(e){}
  }
+ if(window.hhMergeHealthConnectIgnoreList&&Array.isArray(data.healthConnectIgnored)){window.hhMergeHealthConnectIgnoreList(profile,data.healthConnectIgnored);if(window.hhPurgeIgnoredHealthConnect)await window.hhPurgeIgnoredHealthConnect(profile)}
  var pulledAt=new Date().toISOString();localStorage.setItem('hh-dropbox-last-pull-'+profile,pulledAt);localStorage.setItem('hh-dropbox-last-sync-'+profile,(data&&data.exportedAt)||pulledAt);
  if(window.renderHealthSection)await window.renderHealthSection();
  if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
