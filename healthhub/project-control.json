@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-01",
-  "liveBuild": "v1.51",
-  "currentFocus": "Restore and stabilize Health Connect lifestyle cards after v1.50 visual polish → validate steps/walk/exercise/distance/calories/sleep/nutrition → then device binding/incremental sync",
-  "nextDevelopment": "Validate v1.51 lifestyle cards on phone for both profiles and confirm all available Health Connect categories remain visible after HealthRadar re-render.",
+  "liveBuild": "v1.52",
+  "currentFocus": "Health Connect lifestyle history recovery after visual refactor → validate steps/walk/distance/calories/exercise/sleep/nutrition visibility → then device binding/incremental sync",
+  "nextDevelopment": "Validate v1.52 on phone. Lifestyle cards now merge relevant data across prior Health Connect imports instead of trusting only the newest import bundle.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1130,6 +1130,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-01",
+      "release": "v1.52",
+      "actionId": "HH-SH-003",
+      "type": "Bugfix",
+      "summary": "Lifestyle dashboard now reconstructs activity/sleep/nutrition/body metrics across Health Connect import history, preventing a later minimal import from hiding previously imported steps, distance, calories, exercise, sleep, nutrition, resting HR, VO2max or body-fat data.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.51",
