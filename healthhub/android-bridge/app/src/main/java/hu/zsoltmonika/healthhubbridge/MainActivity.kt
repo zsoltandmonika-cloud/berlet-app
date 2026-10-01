@@ -24,7 +24,8 @@ import org.json.JSONObject
 class MainActivity : ComponentActivity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var status: TextView
-    private lateinit var profileSpinner: Spinner\n    private lateinit var saveButton: Button
+    private lateinit var profileSpinner: Spinner
+    private lateinit var saveButton: Button
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
 
