@@ -22,15 +22,26 @@ function stageClass(v){return ({1:'awake',2:'sleep',3:'out',4:'light',5:'deep',6
 async function sleepSessions(){
  try{
   var db=await openBridgeDb();try{
-   var all=await reqP(db.transaction('imports').objectStore('imports').getAll())||[],map=new Map();
-   all.filter(function(i){return i.profile===pkey()&&i.bundle&&i.bundle.records}).forEach(function(i){
-    var a=Array.isArray(i.bundle.records.sleepSessions)?i.bundle.records.sleepSessions:[];
-    a.forEach(function(s){
-      var id=String(s.id||s.startTime+'|'+s.endTime);
-      var prev=map.get(id);if(!prev||Date.parse(i.importedAt||0)>Date.parse(prev._importedAt||0)){var x=Object.assign({},s,{_importedAt:i.importedAt});map.set(id,x)}
-    });
+   var cutoff=Date.now()-95*86400000,map=new Map(),profile=pkey();
+   return await new Promise(function(resolve){
+    var tx=db.transaction('imports'),st=tx.objectStore('imports'),req=st.openCursor(null,'prev');
+    req.onerror=function(){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}))};
+    req.onsuccess=function(){
+     var cur=req.result;if(!cur){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));return}
+     var i=cur.value;
+     if(i&&i.profile===profile&&i.bundle&&i.bundle.records){
+      var a=Array.isArray(i.bundle.records.sleepSessions)?i.bundle.records.sleepSessions:[];
+      a.forEach(function(s){
+       if(Date.parse(s.endTime||0)<cutoff)return;
+       var id=String(s.id||s.startTime+'|'+s.endTime);
+       if(!map.has(id))map.set(id,Object.assign({},s,{_importedAt:i.importedAt}));
+      });
+      var oldest=Infinity;map.forEach(function(s){oldest=Math.min(oldest,Date.parse(s.endTime||0)||Infinity)});
+      if(map.size&&oldest<cutoff){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));return}
+     }
+     cur.continue();
+    };
    });
-   return Array.from(map.values()).filter(function(s){return durMin(s.startTime,s.endTime)>0}).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
   }finally{db.close()}
  }catch(e){return[]}
 }
@@ -72,6 +83,7 @@ function trendSummary(rows){
 }
 async function render(){
  var page=document.getElementById('sleep');if(!page)return;
+ page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>';
  var rows=await sleepSessions(),latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div>'+
@@ -93,7 +105,7 @@ function wireButton(){
  if(!btn||btn.dataset.hhSleepWired==='1')return;
  btn.dataset.hhSleepWired='1';btn.removeAttribute('onclick');btn.addEventListener('click',function(){window.hhOpenSleep()});
 }
-window.hhOpenSleep=function(){ensurePage();render();if(window.show)window.show('sleep');else{document.querySelectorAll('.page').forEach(function(x){x.classList.remove('on')});document.getElementById('sleep').classList.add('on');scrollTo(0,0)}};
+window.hhOpenSleep=function(){ensurePage();if(window.show)window.show('sleep');else{document.querySelectorAll('.page').forEach(function(x){x.classList.remove('on')});document.getElementById('sleep').classList.add('on');scrollTo(0,0)};render().catch(function(e){console.error(e);var p=document.getElementById('sleep');if(p)p.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepEmpty big">Az alvásadatok betöltése nem sikerült. Frissítsd az oldalt, majd próbáld újra.</div></div>'})};
 window.hhCloseSleep=function(){stopHelper();if(window.show)window.show('home')};
 window.hhRenderSleep=render;
 window.hhSleepPeriod=function(p){sleepState.period=p;render()};
@@ -143,12 +155,12 @@ window.hhStopSleepHelper=stopHelper;
 function style(){
  if(document.getElementById('hh-v170-style'))return;
  var s=document.createElement('style');s.id='hh-v170-style';s.textContent=
- '.hhSleepHero{min-height:280px}.hhSleepSurface{padding-top:12px;padding-bottom:80px}.hhSleepTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px}.hhSleepTop small,.hhSleepCardHead small{font-size:7px;font-weight:900;letter-spacing:.12em;color:#6e65bd}.hhSleepTop h2{font-size:16px;margin:2px 0;color:#173f62}.hhSleepProfile{font-size:8px;font-weight:850;color:#6e65bd;background:#f0eefc;border-radius:999px;padding:6px 8px}.hhSleepHeroCard{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#242a55,#584a9a);color:#fff;border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(51,45,105,.18)}.hhSleepHeroCard .moon{font-size:32px}.hhSleepHeroCard small{font-size:7px;letter-spacing:.1em;opacity:.8;font-weight:850}.hhSleepHeroCard b{display:block;font-size:25px;margin:2px 0}.hhSleepHeroCard span{font-size:8px;opacity:.88}.hhStageBar{display:flex;height:18px;margin:9px 2px 3px;border-radius:9px;overflow:hidden;background:#edf0f8}.hhStageBar i{display:block;min-width:1px}.hhStageBar .awake{background:#e9a6b1}.hhStageBar .light{background:#9ea9ef}.hhStageBar .deep{background:#5752a8}.hhStageBar .rem{background:#8ed5d1}.hhStageBar .sleep{background:#aeb8e9}.hhStageBar .out,.hhStageBar .unknown{background:#dce0ea}.hhStageLegend{display:flex;justify-content:space-between;font-size:6.8px;color:#7c879a;margin:0 4px 9px}.hhSleepStageGrid,.hhSleepSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:9px 0}.hhSleepStageGrid div,.hhSleepSummary div{background:#fff;border:1px solid #e8ebf3;border-radius:12px;padding:8px}.hhSleepStageGrid small,.hhSleepSummary small{display:block;font-size:6.5px;color:#8993a5;font-weight:850}.hhSleepStageGrid b,.hhSleepSummary b{display:block;font-size:11px;color:#27375b;margin-top:2px}.hhSleepCard{background:#fff;border-radius:17px;padding:12px;margin-top:9px;box-shadow:0 6px 17px rgba(38,74,101,.055)}.hhSleepCardHead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.hhSleepCardHead h3{font-size:13px;margin:2px 0;color:#173f62}.hhSleepPeriods,.hhHelperTimes,.hhHelperModes{display:flex;flex-wrap:wrap;gap:5px}.hhSleepPeriods button,.hhHelperTimes button,.hhHelperModes button{border:1px solid #dfe4ed;background:#fff;color:#52627a;border-radius:11px;padding:6px 8px;font-size:8px;font-weight:800}.hhSleepPeriods button.on,.hhHelperTimes button.on,.hhHelperModes button.on{background:#eceafb;border-color:#b7b0ea;color:#5b50aa}.hhSleepCard svg{width:100%;height:180px;margin-top:8px}.hhSleepEmpty{font-size:8.5px;color:#7f8b9a;padding:10px;text-align:center}.hhSleepEmpty.big{background:#fff;border-radius:16px;padding:20px}.helperCard p{font-size:8.5px;line-height:1.4;color:#607188}.hhHelperTimes{margin:9px 0}.hhHelperModes{margin-bottom:9px}.hhHelperStart{width:100%;border:0;border-radius:14px;padding:11px;background:linear-gradient(135deg,#51458e,#756bc1);color:#fff;font-size:10px;font-weight:900}.hhSleepSummary{margin-bottom:0}'+
+ '.hhSleepHero{min-height:280px}.hhSleepLoading{display:flex;align-items:center;gap:10px;min-height:72px}.hhSleepLoading b{display:block;font-size:10px;color:#27375b}.hhSleepLoading small{display:block;font-size:7px;color:#8993a5}.hhSleepSpinner{width:22px;height:22px;border:3px solid #e5e1f6;border-top-color:#6e65bd;border-radius:50%;animation:hhSpin .8s linear infinite}@keyframes hhSpin{to{transform:rotate(360deg)}}.hhSleepSurface{padding-top:12px;padding-bottom:80px}.hhSleepTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px}.hhSleepTop small,.hhSleepCardHead small{font-size:7px;font-weight:900;letter-spacing:.12em;color:#6e65bd}.hhSleepTop h2{font-size:16px;margin:2px 0;color:#173f62}.hhSleepProfile{font-size:8px;font-weight:850;color:#6e65bd;background:#f0eefc;border-radius:999px;padding:6px 8px}.hhSleepHeroCard{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#242a55,#584a9a);color:#fff;border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(51,45,105,.18)}.hhSleepHeroCard .moon{font-size:32px}.hhSleepHeroCard small{font-size:7px;letter-spacing:.1em;opacity:.8;font-weight:850}.hhSleepHeroCard b{display:block;font-size:25px;margin:2px 0}.hhSleepHeroCard span{font-size:8px;opacity:.88}.hhStageBar{display:flex;height:18px;margin:9px 2px 3px;border-radius:9px;overflow:hidden;background:#edf0f8}.hhStageBar i{display:block;min-width:1px}.hhStageBar .awake{background:#e9a6b1}.hhStageBar .light{background:#9ea9ef}.hhStageBar .deep{background:#5752a8}.hhStageBar .rem{background:#8ed5d1}.hhStageBar .sleep{background:#aeb8e9}.hhStageBar .out,.hhStageBar .unknown{background:#dce0ea}.hhStageLegend{display:flex;justify-content:space-between;font-size:6.8px;color:#7c879a;margin:0 4px 9px}.hhSleepStageGrid,.hhSleepSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:9px 0}.hhSleepStageGrid div,.hhSleepSummary div{background:#fff;border:1px solid #e8ebf3;border-radius:12px;padding:8px}.hhSleepStageGrid small,.hhSleepSummary small{display:block;font-size:6.5px;color:#8993a5;font-weight:850}.hhSleepStageGrid b,.hhSleepSummary b{display:block;font-size:11px;color:#27375b;margin-top:2px}.hhSleepCard{background:#fff;border-radius:17px;padding:12px;margin-top:9px;box-shadow:0 6px 17px rgba(38,74,101,.055)}.hhSleepCardHead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.hhSleepCardHead h3{font-size:13px;margin:2px 0;color:#173f62}.hhSleepPeriods,.hhHelperTimes,.hhHelperModes{display:flex;flex-wrap:wrap;gap:5px}.hhSleepPeriods button,.hhHelperTimes button,.hhHelperModes button{border:1px solid #dfe4ed;background:#fff;color:#52627a;border-radius:11px;padding:6px 8px;font-size:8px;font-weight:800}.hhSleepPeriods button.on,.hhHelperTimes button.on,.hhHelperModes button.on{background:#eceafb;border-color:#b7b0ea;color:#5b50aa}.hhSleepCard svg{width:100%;height:180px;margin-top:8px}.hhSleepEmpty{font-size:8.5px;color:#7f8b9a;padding:10px;text-align:center}.hhSleepEmpty.big{background:#fff;border-radius:16px;padding:20px}.helperCard p{font-size:8.5px;line-height:1.4;color:#607188}.hhHelperTimes{margin:9px 0}.hhHelperModes{margin-bottom:9px}.hhHelperStart{width:100%;border:0;border-radius:14px;padding:11px;background:linear-gradient(135deg,#51458e,#756bc1);color:#fff;font-size:10px;font-weight:900}.hhSleepSummary{margin-bottom:0}'+
  '#hhSleepHelperOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(35,22,21,var(--fade,.95));transition:background 2s;color:#fff}#hhSleepHelperOverlay.on{display:flex}.hhHelperClose{position:absolute;right:18px;top:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.18);color:#fff;font-size:22px}.hhBreathOrb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#ffd8a6,#b97954 60%,rgba(89,50,40,.2));box-shadow:0 0 70px rgba(255,178,111,.35);animation:hhBreathe 10s ease-in-out infinite}.mode-light .hhBreathOrb{animation:none}.mode-brown .hhBreathOrb,.mode-soft .hhBreathOrb{animation:hhGlow 14s ease-in-out infinite}.hhHelperClock{font-size:28px;font-weight:800;margin-top:28px;letter-spacing:.04em}.hhHelperHint{font-size:10px;opacity:.72;margin-top:6px}@keyframes hhBreathe{0%,100%{transform:scale(.72);opacity:.5}45%{transform:scale(1.12);opacity:1}}@keyframes hhGlow{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.03);opacity:.9}}';
  document.head.appendChild(s);
 }
 style();ensurePage();wireButton();
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('sleep')?.classList.contains('on'))render()},60);return r};
 setTimeout(wireButton,300);
-document.documentElement.dataset.healthhubSleep='1.70';
+document.documentElement.dataset.healthhubSleep='1.71';
 })();
