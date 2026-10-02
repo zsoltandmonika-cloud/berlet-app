@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-01",
-  "liveBuild": "v1.56",
-  "currentFocus": "Fix Daily Spark/Daily Headline fallback reliability and HealthRadar profile switching",
-  "nextDevelopment": "Validate v1.56: same-day daily content repair after delayed GitHub Actions schedule, and correct HealthRadar profile picker behavior.",
+  "updatedAt": "2026-10-02",
+  "liveBuild": "v1.98",
+  "currentFocus": "Validate Samsung Health → Health Connect → HealthHub Activity parity on both profiles after HealthHub Connect v0.7.0, including active calories, distance, active time, exercise categories and session detail.",
+  "nextDevelopment": "Complete real-device validation of HealthHub Connect v0.7.0 on both phones; confirm Activity daily totals and session mapping, then close the Activity parity test or adjust remaining source-specific mappings.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -256,13 +256,13 @@
       "sprint": "S1",
       "milestone": "M1 Foundation",
       "status": "Done",
-      "progress": 0.98,
+      "progress": 1,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-HR-001",
       "targetDate": "2026-10-05",
-      "actualDone": "2026-09-30",
-      "notes": "Main modules migrated; final field-by-field audit remains."
+      "actualDone": "2026-10-02",
+      "notes": "Core HealthRadar modules are migrated and usable for both profiles. v1.78 added profile-specific medication reminders; v1.98 added five selectable reminder sounds, 20–100% volume control, live sound preview and profile-specific audio settings."
     },
     {
       "id": "HH-HR-004",
@@ -616,13 +616,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.95,
+      "progress": 0.98,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-001",
       "targetDate": "2026-10-10",
       "actualDone": null,
-      "notes": "Android Bridge APK passed real S24 Ultra Health Connect read/export and HealthHub import for Zsolt. Mónika profile validation in progress."
+      "notes": "HealthHub Connect Android Bridge is at v0.7.0. Real S24 Ultra end-to-end read/export/import is proven. v0.7.0 adds active-calorie permission/data and richer exercise-session metrics; final two-profile parity validation is in progress."
     },
     {
       "id": "HH-SH-003",
@@ -634,13 +634,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.9,
+      "progress": 0.97,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-13",
       "actualDone": null,
-      "notes": "Bridge schema 1.1 adds activity (distance/calories/exercise), sleep sessions/stages, nutrition aggregates, body fat, resting heart rate and VO2max while retaining BP/HR/weight/glucose/SpO2/steps. v1.49 adds lifestyle dashboard cards. Real-device validation pending."
+      "notes": "Bridge schema 1.2 maps BP/HR/weight/glucose/SpO2/steps plus distance, active and total calories, exercise sessions, sleep, nutrition, body fat, resting HR and VO2max. Activity v1.94 recognizes Pilates; v1.97 aligns daily Activity calculations to Health Connect active calories, calendar-day boundaries and movement-only pace. Final Samsung parity validation remains."
     },
     {
       "id": "HH-SH-004",
@@ -651,14 +651,14 @@
       "priority": "High",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Backlog",
-      "progress": 0.1,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-16",
-      "actualDone": null,
-      "notes": "MVP shows export/import counts and receiver preview. Persistent last-sync/retry/error status panel remains to implement."
+      "actualDone": "2026-10-01",
+      "notes": "v1.65 added one-tap SYNC NOW; v1.66 added persistent last-success/pending status and error-safe device-owner flow. Manual retry and sync visibility are live."
     },
     {
       "id": "HH-SH-005",
@@ -669,14 +669,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Testing",
-      "progress": 0.65,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-12",
-      "actualDone": null,
-      "notes": "Bridge has explicit Zsolt/Mónika profile selection and HealthHub receiver rejects cross-profile imports. Persistent per-device owner binding remains to implement."
+      "actualDone": "2026-10-01",
+      "notes": "HealthHub Connect v0.5.0 introduced persistent device-owner binding. A phone rejects SYNC NOW requests for the other profile, preventing cross-profile Health Connect imports."
     },
     {
       "id": "HH-SH-006",
@@ -687,14 +687,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Ready",
-      "progress": 0.05,
+      "status": "Testing",
+      "progress": 0.9,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003;HH-SH-005",
       "targetDate": "2026-10-19",
       "actualDone": null,
-      "notes": "Not implemented in MVP. Background Health Connect read requires the additional background permission and WorkManager scheduling."
+      "notes": "HealthHub Connect v0.6.0 implements WorkManager-based scheduled background sync with background Health Connect permission and multiple user-configurable sync times. Real overnight reliability validation remains."
     },
     {
       "id": "HH-SH-007",
@@ -706,13 +706,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.7,
+      "progress": 0.8,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-18",
       "actualDone": null,
-      "notes": "Deterministic Health Connect IDs keep re-import idempotent; v1.48 surfaces last Health Connect import time. Checkpoint/change-token sync remains."
+      "notes": "Deterministic Health Connect IDs keep repeated imports idempotent; ignored/deleted Health Connect records are preserved in the Dropbox Vault. Full change-token/checkpoint incremental sync remains future hardening."
     },
     {
       "id": "HH-REC-001",
@@ -1127,9 +1127,139 @@
       "targetDate": "2026-10-01",
       "actualDone": "2026-10-01",
       "notes": "User selected red heart with white medical cross and blue ring. ICO and 16/32/48px PNG favicons, 180px Apple icon, 96/192/512px launcher icons and maskable icon. Metadata is preserved through document.write. Existing shortcuts may need to be recreated by the user."
+    },
+    {
+      "id": "HH-ACT-001",
+      "epic": "Activity",
+      "feature": "Activity Dashboard",
+      "title": "Samsung/Health Connect activity dashboard parity",
+      "acceptanceCriteria": "Profile-scoped daily/weekly/monthly/year activity shows steps, active calories, active time, distance, heart rate, pace, exercise categories and recent sessions; manual activity is supported; Samsung/Health Connect totals are validated on real devices.",
+      "priority": "Critical",
+      "sprint": "S2",
+      "milestone": "M2 Health Connect Auto Sync",
+      "status": "Testing",
+      "progress": 0.95,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SH-003;HH-SH-005",
+      "targetDate": "2026-10-03",
+      "actualDone": null,
+      "notes": "v1.84–v1.91 built the Activity dashboard and approved visual; v1.93 uses the real profile avatar; v1.94 adds Pilates classification; v1.95 uses a 4×2 category grid; v1.96 fixes bottom navigation; v1.97 corrects day boundaries, active-calorie source and movement-only pace. Final Samsung parity test remains."
+    },
+    {
+      "id": "HH-HR-009",
+      "epic": "HealthRadar Migration",
+      "feature": "Medication Reminder",
+      "title": "Profile-specific daily medication reminders",
+      "acceptanceCriteria": "Each profile can configure reminder times, associated medications, selectable reminder sound, audible preview and volume; reminder modal supports snooze and taken actions.",
+      "priority": "High",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 3,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-HR-003",
+      "targetDate": "2026-10-02",
+      "actualDone": "2026-10-02",
+      "notes": "v1.78 added profile-specific medication reminders. v1.98 expanded audio to five generated tones plus 20–100% volume control and live preview; user confirmed working."
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-02",
+      "release": "v1.98",
+      "actionId": "HH-HR-009",
+      "type": "Feature",
+      "summary": "Medication reminders now offer five selectable generated sounds, a 20–100% volume slider, immediate preview using the current selection, and profile-specific sound/volume persistence. Existing reminder settings migrate with an 85% default volume.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.97 / Connect v0.7.0",
+      "actionId": "HH-ACT-001",
+      "type": "Integration",
+      "summary": "Activity data mapping was aligned more closely with Samsung Health through Health Connect: active calories are separated from total calories, exercise sessions carry distance and active calories, 'Ma' uses the local calendar day, and pace is calculated only from distance-bearing walking/running sessions. HealthHub Connect v0.7.0 adds the required active-calorie permission and schema 1.2 export fields.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.96",
+      "actionId": "HH-ACT-001",
+      "type": "Bugfix",
+      "summary": "Activity bottom navigation is now anchored to the viewport bottom instead of the scroll container, preventing the task bar from covering category cards and page content.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.94–v1.95",
+      "actionId": "HH-ACT-001",
+      "type": "UX/Bugfix",
+      "summary": "Health Connect Pilates sessions are classified into a dedicated Pilates category instead of Egyéb. Activity categories were reorganized into a balanced 4×2 mobile grid.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.93",
+      "actionId": "HH-ACT-001",
+      "type": "UX",
+      "summary": "Activity hero now uses the real current HealthHub profile avatar and canonical profile picker rather than generated placeholder portraits.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.91–v1.92",
+      "actionId": "HH-ACT-001",
+      "type": "Feature",
+      "summary": "Activity was rebuilt from the approved visual baseline with functional period controls, KPI cards, charts, activity categories, recent sessions and manual activity entry. The approved HD hero was integrated as the live visual.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.84–v1.90",
+      "actionId": "HH-ACT-001",
+      "type": "Feature/UX",
+      "summary": "Introduced the Activity summary module and iterated its approved mobile visual, hero fit, pixel alignment, live controls, category handling and manual-entry workflow.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.78",
+      "actionId": "HH-HR-009",
+      "type": "Feature",
+      "summary": "Added profile-specific daily medication reminders with configurable times, medication selection, browser notification request, sound preview, reminder modal, 10-minute snooze and 'Bevettem' acknowledgement.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-02",
+      "release": "v1.70–v1.77",
+      "type": "Feature/UX",
+      "summary": "Added the Sleep dashboard and Sleep Helper, fixed loading/click/page collisions, applied HealthRadar visual theming, and introduced API-free/visual Insights.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-01",
+      "release": "v1.65–v1.69",
+      "actionId": "HH-SH-004",
+      "type": "Feature/Bugfix",
+      "summary": "Added one-tap Health Connect SYNC NOW, persistent device-owner protection and sync status, scheduled background sync support in Connect v0.6.0, Health Connect-aware measurement deletion, tap fixes and expanded trend views.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-01",
+      "release": "v1.61–v1.64",
+      "type": "Feature",
+      "summary": "Added Dropbox Health Vault with PKCE, automatic push/pull synchronization after Health Connect import, autosave hardening and live app-version visibility in Admin Data Hub.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-01",
+      "release": "v1.57–v1.60",
+      "actionId": "HH-SH-002",
+      "type": "Bugfix/Feature",
+      "summary": "Hardened profile switching across HealthRadar pages, fixed latest raw Health Connect heart-rate selection with paginated reads, and automated HealthHub Connect APK release publishing/version metadata.",
+      "status": "Done"
+    },
     {
       "date": "2026-10-01",
       "release": "v1.56",
