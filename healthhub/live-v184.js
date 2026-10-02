@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-/* HealthHub v1.86 — Activity hero fit + overflow fix */
+/* HealthHub v1.87 — Activity pixel-match layout */
 var DB='healthhub-connect-v1';
-var state=window.hhActivityState||{period:'7d'};window.hhActivityState=state;
+var state=window.hhActivityState||{period:'1d'};window.hhActivityState=state;
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
@@ -46,76 +46,78 @@ function collect(raw){
 }
 function hrFor(s,heart){
  var a=Date.parse(s.startTime),b=Date.parse(s.endTime),v=heart.filter(function(x){var t=Date.parse(x.time);return t>=a&&t<=b&&Number.isFinite(Number(x.bpm))}).map(function(x){return Number(x.bpm)});
- return v.length?{avg:avg(v),max:Math.max.apply(null,v),count:v.length}:null;
+ return v.length?{avg:avg(v),max:Math.max.apply(null,v)}:null;
 }
 function typeLabel(s){
  if(s.title&&String(s.title)!=='null')return String(s.title);
- var t=Number(s.exerciseType);
- var map={2:'Kerékpár',8:'Elliptikus tréner',16:'Túrázás',20:'Futás',25:'Evezés',35:'Erősítés',56:'Gyaloglás',79:'Jóga'};
+ var t=Number(s.exerciseType),map={2:'Kerékpár',8:'Elliptikus tréner',16:'Túrázás',20:'Futás',25:'Evezés',35:'Erősítés',56:'Gyaloglás',79:'Jóga'};
  return map[t]||'Edzés';
 }
+function periodDays(){return state.period==='1d'?1:(state.period==='7d'?7:(state.period==='30d'?30:365))}
 function avgHrByDay(heart){
  var m={};heart.forEach(function(x){var k=dayKey(x.time),b=Number(x.bpm);if(!k||!Number.isFinite(b))return;(m[k]||(m[k]=[])).push(b)});
  var out={};Object.keys(m).forEach(function(k){out[k]=avg(m[k])});return out;
 }
-function activityChart(rows,heart){
- if(!rows.length)return '<div class="hhActNo">Nincs napi aktivitásadat.</div>';
- var hr=avgHrByDay(heart),w=360,h=150,p=24,maxS=Math.max.apply(null,rows.map(function(x){return Number(x.steps)||0}).concat([1])),maxC=Math.max.apply(null,rows.map(function(x){return Number(x.caloriesKcal)||0}).concat([1]));
- var vals=rows.map(function(x){return Number(hr[x.date])||null}).filter(function(v){return v!=null}),minH=vals.length?Math.min.apply(null,vals):60,maxH=vals.length?Math.max.apply(null,vals):180;if(maxH-minH<30){minH=Math.max(40,minH-15);maxH+=15}
- var gap=(w-2*p)/rows.length,bw=Math.max(2,gap*.34),blue='',orange='',pts=[];
+function chart(rows,heart){
+ if(!rows.length)return '<div class="hhActNo">Nincs aktivitásadat.</div>';
+ var hr=avgHrByDay(heart),w=392,h=112,p=18,maxS=Math.max.apply(null,rows.map(function(x){return Number(x.steps)||0}).concat([1])),maxC=Math.max.apply(null,rows.map(function(x){return Number(x.caloriesKcal)||0}).concat([1]));
+ var hv=rows.map(function(x){return Number(hr[x.date])}).filter(Number.isFinite),minH=hv.length?Math.min.apply(null,hv):60,maxH=hv.length?Math.max.apply(null,hv):180;if(maxH-minH<30){minH=Math.max(40,minH-15);maxH+=15}
+ var gap=(w-2*p)/rows.length,bw=Math.max(2,gap*.30),blue='',orange='',pts=[];
  rows.forEach(function(x,i){
   var xx=p+i*gap,sv=Number(x.steps)||0,cv=Number(x.caloriesKcal)||0,sh=(h-2*p)*(sv/maxS),ch=(h-2*p)*(cv/maxC);
-  blue+='<rect x="'+(xx+gap*.10).toFixed(1)+'" y="'+(h-p-sh).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+sh.toFixed(1)+'" rx="2" fill="#27a7f7" fill-opacity=".86"/>';
-  orange+='<rect x="'+(xx+gap*.50).toFixed(1)+'" y="'+(h-p-ch).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+ch.toFixed(1)+'" rx="2" fill="#ff941a" fill-opacity=".86"/>';
-  var hv=hr[x.date];if(Number.isFinite(hv)){var yy=h-p-(h-2*p)*((hv-minH)/(maxH-minH));pts.push((xx+gap*.5).toFixed(1)+','+yy.toFixed(1))}
+  blue+='<rect x="'+(xx+gap*.15).toFixed(1)+'" y="'+(h-p-sh).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+sh.toFixed(1)+'" rx="1.5" fill="#23a7f6"/>';
+  orange+='<rect x="'+(xx+gap*.52).toFixed(1)+'" y="'+(h-p-ch).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+ch.toFixed(1)+'" rx="1.5" fill="#ff9418"/>';
+  var hrv=hr[x.date];if(Number.isFinite(hrv)){var yy=h-p-(h-2*p)*((hrv-minH)/(maxH-minH));pts.push((xx+gap*.5).toFixed(1)+','+yy.toFixed(1))}
  });
- var poly=pts.length>1?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#ff2f7f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>':'';
- return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><line x1="'+p+'" y1="'+(h-p)+'" x2="'+(w-p)+'" y2="'+(h-p)+'" stroke="#e7edf2"/>'+blue+orange+poly+'</svg>';
+ var line=pts.length>1?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#ff2f7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>':'';
+ return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><line x1="'+p+'" y1="'+(h-p)+'" x2="'+(w-p)+'" y2="'+(h-p)+'" stroke="#e8eef3"/>'+blue+orange+line+'</svg>';
 }
-function metric(icon,label,value,unit,cls){
- return '<div class="hhActMetric '+(cls||'')+'"><span class="hhActMetricIcon">'+icon+'</span><div class="hhActMetricText"><small>'+esc(label)+'</small><b>'+value+'</b><em>'+esc(unit||'')+'</em></div></div>';
+function metric(icon,label,value,unit,accent){
+ return '<div class="hhActMetric '+(accent||'')+'"><span class="ico">'+icon+'</span><small>'+esc(label)+'</small><div><b>'+value+'</b><em>'+esc(unit||'')+'</em></div></div>';
 }
-function ensure(){
- if(document.getElementById('hhActivityPage'))return;
- var p=document.createElement('section');p.id='hhActivityPage';p.className='hhActivityPage';document.body.appendChild(p);
-}
+function ensure(){if(document.getElementById('hhActivityPage'))return;var p=document.createElement('section');p.id='hhActivityPage';p.className='hhActivityPage';document.body.appendChild(p)}
 function hero(){
- return '<div class="hhActHero"><img src="./assets/activity-hero-v184.webp" alt="Activity hero"><button class="hhActHeroHit h0" onclick="hhActivityPeriod(\'1d\')" aria-label="Ma"></button><button class="hhActHeroHit h1" onclick="hhActivityPeriod(\'7d\')" aria-label="Hét"></button><button class="hhActHeroHit h2" onclick="hhActivityPeriod(\'30d\')" aria-label="Hónap"></button><button class="hhActHeroHit h3" onclick="hhActivityPeriod(\'30d\')" aria-label="Év"></button></div>';
+ return '<div class="hhActHero"><img src="./assets/activity-hero-v184.webp" alt="Activity hero"><button class="hit t0" onclick="hhActivityPeriod(\'1d\')" aria-label="Ma"></button><button class="hit t1" onclick="hhActivityPeriod(\'7d\')" aria-label="Hét"></button><button class="hit t2" onclick="hhActivityPeriod(\'30d\')" aria-label="Hónap"></button><button class="hit t3" onclick="hhActivityPeriod(\'365d\')" aria-label="Év"></button></div>';
 }
 function nav(){
  return '<nav class="hhActNav"><button onclick="hhCloseActivity()"><span>⌂</span><b>Kezdőlap</b></button><button onclick="hhCloseActivity();if(window.show)show(\'health\')"><span>♡</span><b>HealthRadar</b></button><button class="on"><span>🏃</span><b>Activity</b></button><button onclick="hhCloseActivity();if(window.hhOpenInsights)hhOpenInsights()"><span>▥</span><b>Elemzések</b></button><button onclick="hhCloseActivity();if(window.show)show(\'home\')"><span>•••</span><b>Továbbiak</b></button></nav>';
 }
+
 async function render(){
  var p=document.getElementById('hhActivityPage');if(!p)return;
- p.innerHTML=hero()+'<div class="surface hhActSurface"><div class="hhActLoading"><i></i><div><b>Aktivitásadatok betöltése…</b><small>Health Connect · '+esc(pname())+'</small></div></div></div>'+nav();
+ p.innerHTML=hero()+'<div class="hhActBody"><div class="hhActLoading"><i></i><div><b>Aktivitásadatok betöltése…</b><small>Health Connect · '+esc(pname())+'</small></div></div></div>'+nav();
 
- var c=collect(await load()),days=state.period==='1d'?1:(state.period==='30d'?30:7),cut=Date.now()-days*86400000,today=dayKey(Date.now());
- var sessions=c.sessions.filter(function(s){return Date.parse(s.endTime||0)>=cut}),daily=c.daily.filter(function(x){return Date.parse(x.date+'T23:59:59')>=cut});
+ var c=collect(await load()),days=periodDays(),cut=Date.now()-days*86400000,today=dayKey(Date.now());
+ var sessions=c.sessions.filter(function(s){return Date.parse(s.endTime||0)>=cut});
+ var daily=c.daily.filter(function(x){return Date.parse(x.date+'T23:59:59')>=cut});
  var latestDay=c.daily.find(function(x){return x.date===today})||c.daily[c.daily.length-1]||null;
  var todays=c.sessions.filter(function(s){return dayKey(s.startTime)===today});
  var active=todays.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
- var latestSession=c.sessions[0]||null,latestHr=latestSession?hrFor(latestSession,c.heart):null;
- var totalMin=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
+ var latestSession=c.sessions[0]||null,latestHr=latestSession?hrFor(latestSession,c.heart):null,totalMin=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
  var typeMap={};sessions.forEach(function(s){var k=typeLabel(s);typeMap[k]=(typeMap[k]||0)+1});
  var types=Object.entries(typeMap).sort(function(a,b){return b[1]-a[1]}).slice(0,5),icons=['🚶','🏃','🚴','🏋️','🧘'];
  var recent=c.sessions.slice(0,3);
 
- p.innerHTML=hero()+'<div class="surface hhActSurface">'+
-  '<div class="hhActGrid top">'+
-    metric('👣','Lépések',latestDay?n(latestDay.steps,0):'—','lépés','steps')+
-    metric('🔥','Elégetett kalória',latestDay?n(latestDay.caloriesKcal,0):'—','kcal','cal')+
-    metric('⏱️','Aktív idő',dur(active),'','time')+
-    metric('📍','Távolság',latestDay?n((Number(latestDay.distanceMeters)||0)/1000,1):'—','km','dist')+
+ p.innerHTML=hero()+'<div class="hhActBody">'+
+  '<div class="hhActTopGrid">'+
+   metric('👣','Lépések',latestDay?n(latestDay.steps,0):'—','lépés','pink')+
+   metric('🔥','Elégetett kalória',latestDay?n(latestDay.caloriesKcal,0):'—','kcal','orange')+
+   metric('⏱️','Aktív idő',dur(active),'','green')+
+   metric('📍','Távolság',latestDay?n((Number(latestDay.distanceMeters)||0)/1000,1):'—','km','violet')+
   '</div>'+
-  '<div class="hhActGrid lower">'+
-    metric('💗','Átlag pulzus',latestHr?n(latestHr.avg,0):'—','bpm','hr')+
-    metric('💓','Max. pulzus',latestHr?n(latestHr.max,0):'—','bpm','hr')+
-    metric('🏃','Edzések',String(sessions.length),'db','work')+
-    metric('⌛','Edzésidő',dur(totalMin),'','work')+
+  '<div class="hhActSmallGrid">'+
+   metric('💗','Átlag pulzus',latestHr?n(latestHr.avg,0):'—','bpm','pink')+
+   metric('💓','Max. pulzus',latestHr?n(latestHr.max,0):'—','bpm','pink')+
+   metric('🏃','Edzések',String(sessions.length),'db','orange')+
+   metric('⌛','Edzésidő',dur(totalMin),'','violet')+
   '</div>'+
-  '<section class="hhActCard hhActChartCard"><div class="hhActCardHead"><span>📊</span><h3>Aktivitás az időszakban</h3><div class="hhActLegend"><i class="blue"></i>Lépések <i class="orange"></i>Kalória <i class="pink"></i>Pulzus</div></div><div class="hhActChart">'+activityChart(daily,c.heart)+'</div></section>'+
-  '<section class="hhActCard"><div class="hhActCardHead"><span>🏃</span><h3>Aktivitás típusok</h3><b>Összes ›</b></div><div class="hhActTypes">'+(types.length?types.map(function(x,i){return '<div class="'+(i===0?'on':'')+'"><span>'+icons[i%icons.length]+'</span><b>'+esc(x[0])+'</b><small>'+x[1]+' alkalom</small></div>'}).join(''):'<div class="hhActNo">Nincs edzéstípus adat.</div>')+'</div></section>'+
-  '<section class="hhActCard"><div class="hhActCardHead"><span>🕘</span><h3>Legutóbbi edzések</h3><b>Összes ›</b></div><div class="hhActRecent">'+(recent.length?recent.map(function(s,i){var h=hrFor(s,c.heart);return '<div><span class="hhActRecentIcon">'+icons[(i+1)%icons.length]+'</span><div class="hhActRecentText"><b>'+esc(typeLabel(s))+'</b><small>'+esc(fmtDate(s.startTime))+'</small></div><div class="hhActRecentStats"><span>⏱ '+dur(mins(s.startTime,s.endTime))+'</span>'+(h?'<span>💗 '+n(h.avg,0)+' bpm</span>':'')+'</div><strong>›</strong></div>'}).join(''):'<div class="hhActNo">Nincs rögzített edzés.</div>')+'</div></section>'+
+  '<section class="hhActChartCard"><div class="hhActTitle"><span>📊</span><b>Aktivitás a nap folyamán</b><div class="leg"><i class="b"></i>Lépések <i class="o"></i>Aktív kalória <i class="p"></i>Pulzus</div></div><div class="hhActChart">'+chart(daily.slice(-Math.min(days,30)),c.heart)+'</div></section>'+
+  '<section class="hhActTypesCard"><div class="hhActTitle"><span>🏃</span><b>Aktivitás típusok</b><strong>Összes ›</strong></div><div class="hhActTypes">'+
+   (types.length?types.map(function(x,i){return '<div class="'+(i===0?'on':'')+'"><span>'+icons[i%icons.length]+'</span><b>'+esc(x[0])+'</b><small>'+x[1]+' alkalom</small></div>'}).join(''):'<div class="hhActNo">Nincs adat.</div>')+
+  '</div></section>'+
+  '<section class="hhActRecentCard"><div class="hhActTitle"><span>🕘</span><b>Legutóbbi edzések</b><strong>Összes ›</strong></div><div class="hhActRecent">'+
+   (recent.length?recent.map(function(s,i){var h=hrFor(s,c.heart);return '<div class="row"><span class="rI">'+icons[(i+1)%icons.length]+'</span><div class="rT"><b>'+esc(typeLabel(s))+'</b><small>'+esc(fmtDate(s.startTime))+'</small></div><div class="rS"><span>📍 — km</span><span>⏱ '+dur(mins(s.startTime,s.endTime))+'</span><span>🔥 — kcal</span>'+(h?'<span>💗 '+n(h.avg,0)+' bpm</span>':'')+'</div><strong>›</strong></div>'}).join(''):'<div class="hhActNo">Nincs rögzített edzés.</div>')+
+  '</div></section>'+
  '</div>'+nav();
 }
 window.hhOpenActivity=function(){ensure();var p=document.getElementById('hhActivityPage');p.classList.add('on');render()};
@@ -128,20 +130,24 @@ function wire(){
  if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}
 }
 function style(){
- if(document.getElementById('hh-v185-style'))return;
- var s=document.createElement('style');s.id='hh-v185-style';s.textContent=
- '.hhActivityPage{display:none;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);z-index:5200;overflow-y:auto;overflow-x:hidden;background:#f3fbff;width:100%;max-width:420px;padding-bottom:62px;box-sizing:border-box}.hhActivityPage.on{display:block}'+
- '.hhActHero{position:relative;width:100%;aspect-ratio:880/430;overflow:hidden;background:#dceef8}.hhActHero img{width:100%;height:100%;display:block;object-fit:contain;object-position:center center}.hhActHeroHit{position:absolute;bottom:7px;height:27px;width:50px;border:0;background:transparent;z-index:4}.hhActHeroHit.h0{left:17px}.hhActHeroHit.h1{left:69px}.hhActHeroHit.h2{left:121px}.hhActHeroHit.h3{left:173px}'+
- '.hhActSurface{margin:0!important;padding:7px 7px 72px!important;background:#f3fbff!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow-x:hidden!important}'+
- '.hhActGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:5px;width:100%;max-width:100%;box-sizing:border-box}.hhActMetric{background:#fff;border:1px solid #e5edf2;border-radius:13px;padding:7px 6px;min-width:0;min-height:92px;position:relative;box-shadow:0 4px 12px rgba(31,65,91,.035)}.hhActGrid.lower .hhActMetric{min-height:70px}.hhActMetric:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#ff7db2;border-radius:0 0 13px 13px}.hhActMetricIcon{font-size:20px;display:block;line-height:1}.hhActMetricText small{display:block;font-size:6px;line-height:1.1;color:#667d91;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActMetricText b{display:inline-block;font-size:16px;line-height:1.05;color:#153b5e;margin-top:4px;letter-spacing:-.02em}.hhActMetricText em{font-style:normal;font-size:6px;color:#8395a4;margin-left:2px}.hhActGrid.lower .hhActMetricText b{font-size:15px}.hhActGrid.lower .hhActMetricIcon{font-size:19px}'+
- '.hhActCard{width:100%;max-width:100%;min-width:0;box-sizing:border-box;overflow:hidden;background:#fff;border-radius:14px;padding:9px;margin-top:6px;border:1px solid #e9eff3;box-shadow:0 4px 12px rgba(31,65,91,.035)}.hhActCardHead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px}.hhActCardHead>span{font-size:17px}.hhActCardHead h3{font-size:11px;color:#153b5e;margin:0}.hhActCardHead>b{font-size:7px;color:#2c9df4}.hhActLegend{font-size:5.8px;color:#73889a;white-space:normal;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px;min-width:0}.hhActLegend i{display:inline-block;width:6px;height:6px;border-radius:50%;margin:0 2px 0 5px}.hhActLegend .blue{background:#27a7f7}.hhActLegend .orange{background:#ff941a}.hhActLegend .pink{background:#ff2f7f}.hhActChart{height:118px;margin-top:5px}.hhActChart svg{width:100%;height:100%;display:block}'+
- '.hhActTypes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:8px;width:100%;max-width:100%;min-width:0}.hhActTypes>div{background:linear-gradient(180deg,#fff,#f6f9fc);border-radius:11px;padding:7px 2px;text-align:center;border:1px solid #edf1f4;min-width:0}.hhActTypes>div.on{border-color:#ff2f7f;background:#fff8fb}.hhActTypes span{display:block;font-size:19px}.hhActTypes b{display:block;font-size:6.5px;color:#173f62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActTypes small{display:block;font-size:5.7px;color:#778a9a;margin-top:2px}'+
- '.hhActRecent{min-width:0;max-width:100%;overflow:hidden}.hhActRecent>div{display:grid;grid-template-columns:30px minmax(0,1fr) auto 10px;gap:6px;align-items:center;padding:6px 0;border-top:1px solid #edf1f5}.hhActRecent>div:first-child{border-top:0}.hhActRecentIcon{width:30px;height:30px;border-radius:50%;background:#eefaf3;display:grid;place-items:center;font-size:15px}.hhActRecentText b{display:block;font-size:7.5px;color:#173f62}.hhActRecentText small{display:block;font-size:5.8px;color:#7a8e9e;margin-top:1px}.hhActRecentStats{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.hhActRecentStats span{font-size:5.8px;color:#61778a;white-space:nowrap}.hhActRecent strong{font-size:14px;color:#59748a}.hhActNo{min-height:60px;display:grid;place-items:center;font-size:7px;color:#8495a2}'+
- '.hhActLoading{display:flex;align-items:center;gap:9px;background:#fff;border-radius:14px;padding:14px}.hhActLoading i{width:22px;height:22px;border-radius:50%;border:3px solid #e5edf2;border-top-color:#ff2f7f;animation:hhActSpin .8s linear infinite}.hhActLoading b{display:block;font-size:9px;color:#173f62}.hhActLoading small{font-size:7px;color:#8192a0}'+
- '.hhActNav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:7300;width:100%;max-width:420px;height:57px;background:rgba(255,255,255,.98);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;box-shadow:0 -5px 18px rgba(28,66,92,.07)}.hhActNav button{border:0;background:transparent;color:#6f8597;font-size:7px;display:flex;flex-direction:column;align-items:center;gap:1px}.hhActNav button span{font-size:19px}.hhActNav button b{font-size:7px}.hhActNav button.on{color:#ff2f7f}'+
- '@keyframes hhActSpin{to{transform:rotate(360deg)}}@media(max-width:360px){.hhActSurface{padding-left:5px!important;padding-right:5px!important}.hhActGrid{gap:4px}.hhActMetric{padding:6px 4px;min-height:86px}.hhActMetricIcon{font-size:18px}.hhActMetricText b{font-size:14px}.hhActTypes{gap:3px}.hhActRecentStats{display:none}}';
+ if(document.getElementById('hh-v187-style'))return;
+ var s=document.createElement('style');s.id='hh-v187-style';s.textContent=
+ '.hhActivityPage{display:none;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);z-index:5200;width:100%;max-width:419px;overflow-y:auto;overflow-x:hidden;background:#f4fbff;box-sizing:border-box}.hhActivityPage.on{display:block}'+
+ '.hhActHero{position:relative;width:100%;height:auto;aspect-ratio:419/198;overflow:hidden;background:#dceef8}.hhActHero img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;image-rendering:auto}.hhActHero .hit{position:absolute;bottom:0;height:34px;width:52px;border:0;background:transparent}.hhActHero .t0{left:8px}.hhActHero .t1{left:60px}.hhActHero .t2{left:112px}.hhActHero .t3{left:164px}'+
+ '.hhActBody{padding:3px 4px 48px;background:#f4fbff;box-sizing:border-box;width:100%;overflow:hidden}'+
+ '.hhActTopGrid,.hhActSmallGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;box-sizing:border-box}.hhActTopGrid{margin-bottom:4px}.hhActSmallGrid{margin-bottom:4px}'+
+ '.hhActMetric{background:#fff;border:1px solid #e4edf3;border-radius:11px;min-width:0;box-sizing:border-box;position:relative;overflow:hidden;padding:7px 6px 6px}.hhActTopGrid .hhActMetric{height:84px}.hhActSmallGrid .hhActMetric{height:48px;padding:5px 6px}.hhActMetric:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#ff74a9}.hhActMetric.orange:after{background:#ff9b28}.hhActMetric.green:after{background:#26c98b}.hhActMetric.violet:after{background:#7d4cff}.hhActMetric .ico{display:block;font-size:20px;line-height:1}.hhActSmallGrid .ico{font-size:16px;float:left;margin-right:5px}.hhActMetric small{display:block;font-size:5.9px;line-height:1.15;color:#5f7488;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActSmallGrid small{font-size:5.6px;margin-top:0}.hhActMetric div{white-space:nowrap}.hhActMetric b{font-size:17px;line-height:1;color:#113b60;letter-spacing:-.02em}.hhActMetric em{font-style:normal;font-size:6px;color:#7d8f9f;margin-left:2px}.hhActSmallGrid b{font-size:13px}.hhActSmallGrid em{font-size:5.8px}'+
+ '.hhActChartCard,.hhActTypesCard,.hhActRecentCard{background:#fff;border:1px solid #e8eef3;border-radius:11px;box-sizing:border-box;width:100%;overflow:hidden}.hhActChartCard{height:111px;padding:6px 7px 4px;margin-bottom:4px}.hhActTypesCard{height:86px;padding:6px 7px;margin-bottom:4px}.hhActRecentCard{height:95px;padding:6px 7px}'+
+ '.hhActTitle{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:5px;min-width:0}.hhActTitle>span{font-size:13px}.hhActTitle>b{font-size:9px;color:#123a5e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActTitle>strong{font-size:6px;color:#2a9cf4;font-weight:700}.hhActTitle .leg{font-size:4.9px;color:#6f8394;display:flex;align-items:center;white-space:nowrap}.hhActTitle .leg i{width:5px;height:5px;border-radius:50%;display:inline-block;margin:0 2px 0 5px}.hhActTitle .leg .b{background:#23a7f6}.hhActTitle .leg .o{background:#ff9418}.hhActTitle .leg .p{background:#ff2f7f}'+
+ '.hhActChart{height:84px;margin-top:1px}.hhActChart svg{display:block;width:100%;height:100%}'+
+ '.hhActTypes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:5px}.hhActTypes>div{height:59px;background:linear-gradient(180deg,#fff,#f7fafc);border:1px solid #edf1f4;border-radius:9px;text-align:center;padding:4px 2px;box-sizing:border-box;min-width:0}.hhActTypes>div.on{border-color:#ff4f8d;background:#fff8fb}.hhActTypes span{display:block;font-size:17px;line-height:1}.hhActTypes b{display:block;font-size:6px;color:#163d60;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActTypes small{display:block;font-size:5.2px;color:#748899;margin-top:1px}'+
+ '.hhActRecent{margin-top:3px}.hhActRecent .row{display:grid;grid-template-columns:24px minmax(0,1fr) auto 8px;gap:4px;align-items:center;height:24px;border-top:1px solid #eef2f5}.hhActRecent .row:first-child{border-top:0}.hhActRecent .rI{width:22px;height:22px;border-radius:50%;background:#eefaf3;display:grid;place-items:center;font-size:12px}.hhActRecent .rT{min-width:0}.hhActRecent .rT b{display:block;font-size:5.9px;color:#173f62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActRecent .rT small{display:block;font-size:4.8px;color:#7b8d9c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hhActRecent .rS{display:flex;gap:4px;white-space:nowrap}.hhActRecent .rS span{font-size:4.7px;color:#61778a}.hhActRecent .row>strong{font-size:10px;color:#607a8f}.hhActNo{display:grid;place-items:center;height:100%;font-size:6px;color:#8495a2}'+
+ '.hhActLoading{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:12px}.hhActLoading i{width:20px;height:20px;border:3px solid #e6edf2;border-top-color:#ff2f7f;border-radius:50%;animation:hhActSpin .8s linear infinite}.hhActLoading b{display:block;font-size:8px;color:#173f62}.hhActLoading small{font-size:6px;color:#8192a0}'+
+ '.hhActNav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:7300;width:100%;max-width:419px;height:42px;background:rgba(255,255,255,.98);display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -3px 10px rgba(28,66,92,.07)}.hhActNav button{border:0;background:transparent;color:#6f8597;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}.hhActNav button span{font-size:15px;line-height:1}.hhActNav button b{font-size:5.7px}.hhActNav button.on{color:#ff2f7f}'+
+ '@keyframes hhActSpin{to{transform:rotate(360deg)}}'+
+ '@media(max-width:360px){.hhActBody{padding-left:3px;padding-right:3px}.hhActTopGrid,.hhActSmallGrid{gap:3px}.hhActMetric{padding-left:4px;padding-right:4px}.hhActRecent .rS span:nth-child(1),.hhActRecent .rS span:nth-child(3){display:none}}';
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1800);
-document.documentElement.dataset.healthhubActivity='1.86';
+document.documentElement.dataset.healthhubActivity='1.87';
 })();
