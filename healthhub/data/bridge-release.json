@@ -1,8 +1,8 @@
 {
-  "version": "0.6.0",
-  "versionCode": 6,
-  "tag": "healthhub-connect-v0.6.0",
-  "builtAt": "2026-10-01T20:39:38Z",
-  "downloadUrl": "https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-v0.6.0/HealthHub-Connect-v0.6.0.apk",
-  "sourceCommit": "82dc4cdb67b49864354bc3435e49ede9cd7024c0"
+  "version": "0.7.0",
+  "versionCode": 7,
+  "tag": "healthhub-connect-v0.7.0",
+  "builtAt": "2026-10-02T12:52:06Z",
+  "downloadUrl": "https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-v0.7.0/HealthHub-Connect-v0.7.0.apk",
+  "sourceCommit": "3e7c114d8f6546c8449a7ea13e82bfe95194ed2e"
 }\n
