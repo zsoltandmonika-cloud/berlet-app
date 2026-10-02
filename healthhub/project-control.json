@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-02",
-  "liveBuild": "v1.98",
-  "currentFocus": "Validate Samsung Health → Health Connect → HealthHub Activity parity on both profiles after HealthHub Connect v0.7.0, including active calories, distance, active time, exercise categories and session detail.",
-  "nextDevelopment": "Complete real-device validation of HealthHub Connect v0.7.0 on both phones; confirm Activity daily totals and session mapping, then close the Activity parity test or adjust remaining source-specific mappings.",
+  "liveBuild": "v1.99",
+  "currentFocus": "Validate Samsung Health → Health Connect → HealthHub Activity parity and verify the new in-app original PDF viewer on mobile/PWA.",
+  "nextDevelopment": "Complete real-device Activity parity validation and confirm inline opening of migrated/uploaded PDF records across both profiles.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -244,7 +244,7 @@
       "dependency": "HH-HR-001",
       "targetDate": "2026-10-04",
       "actualDone": "2026-09-30",
-      "notes": "PDF/JPG/PNG/HEIC/ZIP + SHA-256 duplicate detection."
+      "notes": "Document library parity is live. v1.99 adds an in-app original document viewer so stored PDFs open for reading first, with separate external-open and download actions."
     },
     {
       "id": "HH-HR-003",
@@ -1166,6 +1166,14 @@
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-02",
+      "release": "v1.99",
+      "actionId": "HH-HR-002",
+      "type": "UX",
+      "summary": "Leletek now open the original stored PDF inside a dedicated HealthHub viewer instead of relying only on a browser blob-tab/download flow. The viewer includes separate external-open and download actions and also supports stored image documents.",
+      "status": "Testing"
+    },
     {
       "date": "2026-10-02",
       "release": "v1.98",
