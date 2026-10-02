@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.91 — Activity clean rebuild from approved visual */
+/* HealthHub v1.94 — Activity clean rebuild + Health Connect Pilates classification */
 var DB='healthhub-connect-v1';
 var MANUAL_KEY='hh-activity-manual-v185-';
 var state=window.hhActivity191State||{period:'1d'};window.hhActivity191State=state;
@@ -34,7 +34,7 @@ var CATS=[
 function cat(k){return CATS.find(function(x){return x.k===k})||CATS[7]}
 function infer(s){
  var q=(((s&&s.title)||'')+' '+((s&&s.manualType)||'')).toLocaleLowerCase('hu-HU'),t=Number(s&&s.exerciseType);
- if(q.includes('pilat'))return'pilates';
+ if(q.includes('pilat')||t===48)return'pilates';
  if(q.includes('jóga')||q.includes('yoga')||t===79)return'yoga';
  if(q.includes('túra')||q.includes('hike')||t===16)return'hike';
  if(q.includes('séta')||q.includes('gyalog')||q.includes('walk')||t===56)return'walk';
@@ -185,6 +185,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.92';
-window.HH_LIVE_BUILD='v1.92-activity-hero';
+document.documentElement.dataset.healthhubActivity='1.94';
+window.HH_LIVE_BUILD='v1.94-activity-pilates';
 })();
