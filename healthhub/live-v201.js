@@ -41,9 +41,9 @@ function svgPlus(){
  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg>';
 }
 function ensure(){
+ if(document.getElementById('hh-v201-style')&&document.getElementById('hhOriginalDocViewer'))return;
  var old=document.getElementById('hhOriginalDocViewer');if(old)old.remove();
  var oldStyle=document.getElementById('hh-v199-style');if(oldStyle)oldStyle.remove();
- if(document.getElementById('hh-v201-style'))return;
 
  var s=document.createElement('style');s.id='hh-v201-style';s.textContent=
  '.hhOriginalDocViewer{position:fixed;inset:0;z-index:12000;display:none;background:#eef7fb;color:#0b2d50;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overscroll-behavior:none}.hhOriginalDocViewer.on{display:block}.hhPdfShell{height:100dvh;max-width:820px;margin:0 auto;background:#f5f9fc;display:grid;grid-template-rows:132px 48px minmax(0,1fr);box-shadow:0 0 34px rgba(18,52,78,.15)}'+
