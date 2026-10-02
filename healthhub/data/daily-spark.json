@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-01",
-  "generatedAt": "2026-10-01T15:54:38+02:00",
+  "date": "2026-10-02",
+  "generatedAt": "2026-10-02T12:33:20+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
+      "headline": "A mai nap akkor működik jól, ha a fontos dolgoknak valódi helyet hagysz.",
       "sections": {
-        "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
+        "focus": "A mai nap akkor lesz könnyebb, ha a három fontos feladatból először a legkisebb bizonytalanságút zárod le.",
         "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
-        "relationships": "Egy kisebb félreértést érdemes gyorsan tisztázni, mielőtt önálló életet kezd.",
-        "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
+        "relationships": "A figyelem most többet adhat a másiknak, mint bármilyen nagy gesztus.",
+        "energy": "Ne várd meg, amíg teljesen elfogy a lendület. Egy kis váltás időben sokat számít.",
         "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
         "lenaThought": "A haladás néha nem látványos. Néha csak annyi, hogy eggyel kevesebb nyitott szál marad."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "A mai nap akkor működik jól, ha a fontos dolgoknak valódi helyet hagysz.",
+      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
       "sections": {
         "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
-        "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
-        "relationships": "Egy spontán beszélgetés könnyen közelebb hozhat valakit, ha nem akarod előre irányítani.",
+        "workMoney": "A jó kompromisszum ma az, amelyik később is könnyen visszaellenőrizhető.",
+        "relationships": "A figyelem most többet adhat a másiknak, mint bármilyen nagy gesztus.",
         "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
         "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
         "lenaThought": "Nem minden problémának kell ma teljes megoldás. Néha a következő jó lépés bőven elég."
