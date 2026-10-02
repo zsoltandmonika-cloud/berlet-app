@@ -15,7 +15,7 @@ function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFin
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
 function fmtDate(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
 function periodDays(){return state.period==='1d'?1:state.period==='7d'?7:state.period==='30d'?30:365}
-function cutMs(){return Date.now()-periodDays()*86400000}
+function cutMs(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(periodDays()-1));return d.getTime()}
 function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:null}
 function pct(v,g){return g>0?Math.max(0,Math.min(100,Math.round((Number(v)||0)/g*100))):0}
 function pace(min,km){if(!km||km<=0)return '—';var x=min/km,mi=Math.floor(x),se=Math.round((x-mi)*60);return mi+':'+String(se).padStart(2,'0')}
@@ -94,11 +94,18 @@ function caloriesOf(s){var c=Number(s.caloriesKcal);if(c>0)return c;c=Number(s.e
 function sessionHr(s,heart){if(Number(s.avgBpm)>0)return Number(s.avgBpm);var a=Date.parse(s.startTime),b=Date.parse(s.endTime),v=heart.filter(function(x){var t=Date.parse(x.time),z=Number(x.bpm);return t>=a&&t<=b&&Number.isFinite(z)}).map(function(x){return Number(x.bpm)});return avg(v)}
 function metrics(c){
  var cut=cutMs(),daily=c.daily.filter(function(x){return Date.parse(x.date+'T23:59:59')>=cut}),sessions=c.sessions.filter(function(s){return Date.parse(s.endTime||s.startTime||0)>=cut});
- var steps=daily.reduce(function(a,x){return a+(Number(x.steps)||0)},0),cal=daily.reduce(function(a,x){return a+(Number(x.caloriesKcal)||0)},0),dist=daily.reduce(function(a,x){return a+(Number(x.distanceMeters)||0)/1000},0);var manual=sessions.filter(function(s){return s._manual});cal+=manual.reduce(function(a,s){return a+(caloriesOf(s)||0)},0);dist+=manual.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
- var active=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
+ var steps=daily.reduce(function(a,x){return a+(Number(x.steps)||0)},0);
+ var cal=daily.reduce(function(a,x){var v=Number(x.activeCaloriesKcal);if(!Number.isFinite(v))v=Number(x.caloriesKcal);return a+(Number.isFinite(v)?v:0)},0);
+ var dist=daily.reduce(function(a,x){return a+(Number(x.distanceMeters)||0)/1000},0);
+ var manual=sessions.filter(function(s){return s._manual});cal+=manual.reduce(function(a,s){return a+(caloriesOf(s)||0)},0);dist+=manual.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
+ var dailyActive=daily.reduce(function(a,x){return a+(Number(x.activeMinutes)||0)},0);
+ var sessionActive=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
+ var active=dailyActive>0?dailyActive:sessionActive;
+ var moving=sessions.filter(function(s){var k=infer(s);return (k==='walk'||k==='run')&&(distanceOf(s)||0)>0});
+ var movingMin=moving.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0),movingKm=moving.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
  var hv=hrIn(cut,c.heart),ah=avg(hv),mh=hv.length?Math.max.apply(null,hv):null;
  var factor=periodDays(),goals={steps:10000*factor,cal:500*factor,active:60*factor,dist:8*factor};
- return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,dist:dist,active:active,avgHr:ah,maxHr:mh,pace:pace(active,dist),goals:goals};
+ return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,dist:dist,active:active,avgHr:ah,maxHr:mh,pace:pace(movingMin,movingKm),goals:goals};
 }
 function kpi(kind,label,val,unit,p,goal,accent){
  return '<div class="a191Kpi '+accent+'"><div class="a191KpiIcon">'+kpiIcon(kind)+'</div><small>'+esc(label)+'</small><div class="a191Value"><b>'+val+'</b><em>'+esc(unit||'')+'</em></div>'+(goal?'<div class="a191Progress"><i style="width:'+p+'%"></i></div><div class="a191Goal"><b>'+p+'%</b><span>Cél: '+esc(goal)+'</span></div>':'')+'</div>';
@@ -185,6 +192,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.96';
-window.HH_LIVE_BUILD='v1.96-activity-bottom-nav';
+document.documentElement.dataset.healthhubActivity='1.97';
+window.HH_LIVE_BUILD='v1.97-activity-samsung-parity';
 })();

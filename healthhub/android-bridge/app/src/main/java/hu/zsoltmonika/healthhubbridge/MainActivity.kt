@@ -58,10 +58,14 @@ class MainActivity : ComponentActivity() {
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
+    private fun requiredPermissions(): Set<String> =
+        client?.let { HealthConnectExporter.requiredPermissions(it) }
+            ?: HealthConnectExporter.REQUIRED_PERMISSIONS
+
     private val permissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
-        if (granted.containsAll(HealthConnectExporter.REQUIRED_PERMISSIONS)) {
+        if (granted.containsAll(requiredPermissions())) {
             status.text = "✓ Health Connect engedélyek rendben."
             if (pendingAutoSync) {
                 pendingAutoSync = false
@@ -202,7 +206,7 @@ class MainActivity : ComponentActivity() {
         root.addView(Button(this).apply {
             text = "Health Connect engedélyek"
             setOnClickListener {
-                permissionLauncher.launch(HealthConnectExporter.REQUIRED_PERMISSIONS)
+                permissionLauncher.launch(requiredPermissions())
             }
         })
 
@@ -382,7 +386,7 @@ class MainActivity : ComponentActivity() {
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
-                if (!granted.containsAll(HealthConnectExporter.REQUIRED_PERMISSIONS)) {
+                if (!granted.containsAll(requiredPermissions())) {
                     status.text = "Előbb add meg a Health Connect engedélyeket."
                     return@launch
                 }
@@ -411,10 +415,10 @@ class MainActivity : ComponentActivity() {
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
-                if (!granted.containsAll(HealthConnectExporter.REQUIRED_PERMISSIONS)) {
+                if (!granted.containsAll(requiredPermissions())) {
                     pendingAutoSync = true
                     status.text = "Health Connect engedély szükséges…"
-                    permissionLauncher.launch(HealthConnectExporter.REQUIRED_PERMISSIONS)
+                    permissionLauncher.launch(requiredPermissions())
                     return@launch
                 }
                 if (prefs.getString("dropbox_refresh_token", null).isNullOrBlank()) {

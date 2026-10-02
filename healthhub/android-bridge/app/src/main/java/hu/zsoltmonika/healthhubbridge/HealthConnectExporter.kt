@@ -1,7 +1,10 @@
 package hu.zsoltmonika.healthhubbridge
 
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.ActivityIntensityRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
@@ -37,18 +40,33 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             HealthPermission.getReadPermission(OxygenSaturationRecord::class),
             HealthPermission.getReadPermission(StepsRecord::class),
             HealthPermission.getReadPermission(DistanceRecord::class),
+            HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
             HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
             HealthPermission.getReadPermission(ExerciseSessionRecord::class),
             HealthPermission.getReadPermission(SleepSessionRecord::class),
             HealthPermission.getReadPermission(Vo2MaxRecord::class),
             HealthPermission.getReadPermission(NutritionRecord::class)
         )
+
+        fun requiredPermissions(client: HealthConnectClient): Set<String> {
+            val permissions = REQUIRED_PERMISSIONS.toMutableSet()
+            if (
+                client.features.getFeatureStatus(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY) ==
+                HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+            ) {
+                permissions += HealthPermission.getReadPermission(ActivityIntensityRecord::class)
+            }
+            return permissions
+        }
     }
 
     suspend fun export(profile: String, days: Long = 30): JSONObject {
         val end = Instant.now()
         val start = end.minusSeconds(days * 86400)
         val range = TimeRangeFilter.between(start, end)
+        val activityIntensityAvailable =
+            client.features.getFeatureStatus(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY) ==
+                HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
 
         val bp = client.readRecords(ReadRecordsRequest(BloodPressureRecord::class, range)).records
         val weight = client.readRecords(ReadRecordsRequest(WeightRecord::class, range)).records
@@ -77,11 +95,12 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val vo2 = client.readRecords(ReadRecordsRequest(Vo2MaxRecord::class, range)).records
 
         val root = JSONObject()
-            .put("schemaVersion", "healthhub.healthconnect.bridge/1.1")
+            .put("schemaVersion", "healthhub.healthconnect.bridge/1.2")
             .put("profile", profile)
             .put("exportedAt", end.toString())
             .put("rangeStart", start.toString())
             .put("rangeEnd", end.toString())
+            .put("activityIntensityAvailable", activityIntensityAvailable)
 
         val records = JSONObject()
 
@@ -174,6 +193,17 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
 
         records.put("exerciseSessions", JSONArray().also { arr ->
             exercise.forEach { r ->
+                val sessionAgg = client.aggregate(
+                    AggregateRequest(
+                        metrics = setOf(
+                            DistanceRecord.DISTANCE_TOTAL,
+                            ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL
+                        ),
+                        timeRangeFilter = TimeRangeFilter.between(r.startTime, r.endTime)
+                    )
+                )
+                val sessionDistance = sessionAgg[DistanceRecord.DISTANCE_TOTAL]
+                val sessionActiveCalories = sessionAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
                 arr.put(JSONObject()
                     .put("id", r.metadata.id)
                     .put("startTime", r.startTime.toString())
@@ -181,6 +211,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     .put("exerciseType", r.exerciseType)
                     .put("title", r.title ?: JSONObject.NULL)
                     .put("notes", r.notes ?: JSONObject.NULL)
+                    .put("distanceKm", (sessionDistance?.inMeters ?: 0.0) / 1000.0)
+                    .put("caloriesKcal", sessionActiveCalories?.inKilocalories ?: 0.0)
                     .put("sourcePackage", r.metadata.dataOrigin.packageName))
             }
         })
@@ -222,21 +254,47 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     metrics = setOf(
                         StepsRecord.COUNT_TOTAL,
                         DistanceRecord.DISTANCE_TOTAL,
-                        TotalCaloriesBurnedRecord.ENERGY_TOTAL
+                        ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL,
+                        TotalCaloriesBurnedRecord.ENERGY_TOTAL,
+                        ExerciseSessionRecord.EXERCISE_DURATION_TOTAL
                     ),
                     timeRangeFilter = dayRange
                 )
             )
             val stepTotal = activityAgg[StepsRecord.COUNT_TOTAL] ?: 0L
             val distance = activityAgg[DistanceRecord.DISTANCE_TOTAL]
-            val calories = activityAgg[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
+            val activeCalories = activityAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
+            val totalCalories = activityAgg[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
+            val exerciseMinutes =
+                activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]?.toMinutes()?.toDouble() ?: 0.0
+
+            var intensityMinutes: Double? = null
+            if (activityIntensityAvailable) {
+                try {
+                    val intensityAgg = client.aggregate(
+                        AggregateRequest(
+                            metrics = setOf(ActivityIntensityRecord.DURATION_TOTAL),
+                            timeRangeFilter = dayRange
+                        )
+                    )
+                    intensityMinutes =
+                        intensityAgg[ActivityIntensityRecord.DURATION_TOTAL]?.toMinutes()?.toDouble()
+                } catch (_: Exception) {
+                    intensityMinutes = null
+                }
+            }
+            val effectiveActiveMinutes = intensityMinutes ?: exerciseMinutes
 
             steps.put(JSONObject().put("date", date.toString()).put("count", stepTotal))
             dailyActivity.put(JSONObject()
                 .put("date", date.toString())
                 .put("steps", stepTotal)
                 .put("distanceMeters", distance?.inMeters ?: 0.0)
-                .put("caloriesKcal", calories?.inKilocalories ?: 0.0))
+                .put("activeCaloriesKcal", activeCalories?.inKilocalories ?: 0.0)
+                .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
+                .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
+                .put("activeMinutes", effectiveActiveMinutes)
+                .put("activeMinutesSource", if (intensityMinutes != null) "activityIntensity" else "exerciseSessions"))
 
             val nutritionAgg = client.aggregate(
                 AggregateRequest(

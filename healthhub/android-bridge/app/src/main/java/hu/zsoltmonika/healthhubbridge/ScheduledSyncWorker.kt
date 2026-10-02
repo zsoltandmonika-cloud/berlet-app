@@ -43,7 +43,7 @@ class ScheduledSyncWorker(
 
             val client = HealthConnectClient.getOrCreate(applicationContext)
             val granted = client.permissionController.getGrantedPermissions()
-            if (!granted.containsAll(HealthConnectExporter.REQUIRED_PERMISSIONS)) {
+            if (!granted.containsAll(HealthConnectExporter.requiredPermissions(client))) {
                 error("Hiányzó Health Connect adatengedély")
             }
             if (HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND !in granted) {
