@@ -1,10 +1,8 @@
 package hu.zsoltmonika.healthhubbridge
 
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.ActivityIntensityRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
@@ -24,6 +22,7 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -48,34 +47,71 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             HealthPermission.getReadPermission(NutritionRecord::class)
         )
 
-        fun requiredPermissions(client: HealthConnectClient): Set<String> {
-            val permissions = REQUIRED_PERMISSIONS.toMutableSet()
-            if (
-                client.features.getFeatureStatus(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY) ==
-                HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
-            ) {
-                permissions += HealthPermission.getReadPermission(ActivityIntensityRecord::class)
+        fun requiredPermissions(@Suppress("UNUSED_PARAMETER") client: HealthConnectClient): Set<String> =
+            REQUIRED_PERMISSIONS
+    }
+
+    private fun mergedActiveMinutes(
+        records: List<ActiveCaloriesBurnedRecord>,
+        dayStart: Instant,
+        dayEnd: Instant
+    ): Double {
+        val intervals = records.asSequence()
+            .filter { it.energy.inKilocalories > 0.0 }
+            .mapNotNull { r ->
+                val s = if (r.startTime.isAfter(dayStart)) r.startTime else dayStart
+                val e = if (r.endTime.isBefore(dayEnd)) r.endTime else dayEnd
+                if (e.isAfter(s)) Pair(s, e) else null
             }
-            return permissions
+            .sortedBy { it.first }
+            .toList()
+
+        if (intervals.isEmpty()) return 0.0
+
+        var currentStart = intervals[0].first
+        var currentEnd = intervals[0].second
+        var totalMillis = 0L
+
+        for (i in 1 until intervals.size) {
+            val (s, e) = intervals[i]
+            if (!s.isAfter(currentEnd)) {
+                if (e.isAfter(currentEnd)) currentEnd = e
+            } else {
+                totalMillis += Duration.between(currentStart, currentEnd).toMillis()
+                currentStart = s
+                currentEnd = e
+            }
         }
+        totalMillis += Duration.between(currentStart, currentEnd).toMillis()
+        return totalMillis / 60000.0
     }
 
     suspend fun export(profile: String, days: Long = 30): JSONObject {
         val end = Instant.now()
         val start = end.minusSeconds(days * 86400)
         val range = TimeRangeFilter.between(start, end)
-        val activityIntensityAvailable =
-            client.features.getFeatureStatus(HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY) ==
-                HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
 
         val bp = client.readRecords(ReadRecordsRequest(BloodPressureRecord::class, range)).records
         val weight = client.readRecords(ReadRecordsRequest(WeightRecord::class, range)).records
         val bodyFat = client.readRecords(ReadRecordsRequest(BodyFatRecord::class, range)).records
         val glucose = client.readRecords(ReadRecordsRequest(BloodGlucoseRecord::class, range)).records
         val oxygen = client.readRecords(ReadRecordsRequest(OxygenSaturationRecord::class, range)).records
-        // Heart rate is high-volume data. ReadRecordsRequest defaults to 1000
-        // records, so a 30-day export can otherwise stop well before today.
-        // Follow every Health Connect page token and keep the full interval.
+
+        val activeCaloriesRecords = mutableListOf<ActiveCaloriesBurnedRecord>()
+        var activeCaloriesPageToken: String? = null
+        do {
+            val page = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = ActiveCaloriesBurnedRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = activeCaloriesPageToken
+                )
+            )
+            activeCaloriesRecords.addAll(page.records)
+            activeCaloriesPageToken = page.pageToken
+        } while (!activeCaloriesPageToken.isNullOrEmpty())
+
+        // Heart rate is high-volume data. Follow every Health Connect page token.
         val heart = mutableListOf<HeartRateRecord>()
         var heartPageToken: String? = null
         do {
@@ -89,6 +125,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             heart.addAll(heartPage.records)
             heartPageToken = heartPage.pageToken
         } while (!heartPageToken.isNullOrEmpty())
+
         val restingHeart = client.readRecords(ReadRecordsRequest(RestingHeartRateRecord::class, range)).records
         val exercise = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, range)).records
         val sleep = client.readRecords(ReadRecordsRequest(SleepSessionRecord::class, range)).records
@@ -100,7 +137,6 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("exportedAt", end.toString())
             .put("rangeStart", start.toString())
             .put("rangeEnd", end.toString())
-            .put("activityIntensityAvailable", activityIntensityAvailable)
 
         val records = JSONObject()
 
@@ -268,22 +304,10 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             val exerciseMinutes =
                 activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]?.toMinutes()?.toDouble() ?: 0.0
 
-            var intensityMinutes: Double? = null
-            if (activityIntensityAvailable) {
-                try {
-                    val intensityAgg = client.aggregate(
-                        AggregateRequest(
-                            metrics = setOf(ActivityIntensityRecord.DURATION_TOTAL),
-                            timeRangeFilter = dayRange
-                        )
-                    )
-                    intensityMinutes =
-                        intensityAgg[ActivityIntensityRecord.DURATION_TOTAL]?.toMinutes()?.toDouble()
-                } catch (_: Exception) {
-                    intensityMinutes = null
-                }
-            }
-            val effectiveActiveMinutes = intensityMinutes ?: exerciseMinutes
+            val intervalMinutes = mergedActiveMinutes(activeCaloriesRecords, dayStart, dayEnd)
+            val useIntervalMinutes =
+                intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
+            val effectiveActiveMinutes = if (useIntervalMinutes) intervalMinutes else exerciseMinutes
 
             steps.put(JSONObject().put("date", date.toString()).put("count", stepTotal))
             dailyActivity.put(JSONObject()
@@ -294,7 +318,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
                 .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
                 .put("activeMinutes", effectiveActiveMinutes)
-                .put("activeMinutesSource", if (intensityMinutes != null) "activityIntensity" else "exerciseSessions"))
+                .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions"))
 
             val nutritionAgg = client.aggregate(
                 AggregateRequest(
@@ -327,6 +351,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("bloodGlucose", glucose.size)
             .put("oxygenSaturation", oxygen.size)
             .put("heartRateRecords", heart.size)
+            .put("activeCaloriesRecords", activeCaloriesRecords.size)
             .put("restingHeartRate", restingHeart.size)
             .put("vo2Max", vo2.size)
             .put("exerciseSessions", exercise.size)
