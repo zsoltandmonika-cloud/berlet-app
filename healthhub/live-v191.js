@@ -183,6 +183,13 @@ function ensure(){
  var m=document.getElementById('hh191Modal');if(!m){m=document.createElement('div');m.id='hh191Modal';m.className='a191Modal';document.body.appendChild(m)}
 }
 window.hhOpenActivity=function(){ensure();document.getElementById('hhActivityPage191').classList.add('on');render()}
+window.hhRenderActivity191=render;
+function refreshIfOpen(){
+ var p=document.getElementById('hhActivityPage191');
+ if(p&&p.classList.contains('on'))setTimeout(render,40);
+}
+window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
+window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen);
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
 
