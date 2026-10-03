@@ -76,6 +76,13 @@ async function downloadJsonPath(path){
  if(!r.ok){var t='';try{t=await r.text()}catch(e){};var j={};try{j=JSON.parse(t)}catch(e){};var er=new Error(j.error_summary||('Dropbox letöltési hiba ('+r.status+')'));er.status=r.status;er.payload=j;throw er}
  return await r.json();
 }
+async function ensureFolderPath(path){
+ var token=await accessToken(),r=await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:path,autorename:false})});
+ if(r.ok)return true;
+ var t='';try{t=await r.text()}catch(e){}
+ if(r.status===409&&/conflict/i.test(t))return true;
+ throw new Error('Dropbox mappa létrehozási hiba');
+}
 
 async function dbAll(){
  var db=await openDb();try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}
@@ -98,7 +105,7 @@ async function snapshot(profile){
 function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
 async function uploadCurrent(silent){
- var profile=pkey(),data=await snapshot(profile),token=await accessToken(),body=JSON.stringify(data);
+ var profile=pkey(),data=await snapshot(profile);await ensureFolderPath('/HealthHub');await ensureFolderPath('/HealthHub/profiles');var token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error((j.error_summary)||'Dropbox feltöltési hiba');
  var now=new Date().toISOString();localStorage.setItem('hh-dropbox-last-push-'+profile,now);localStorage.setItem('hh-dropbox-last-sync-'+profile,j.server_modified||now);if(!silent)toast(pname(profile)+' Health Vault feltöltve');decorate();return j;
