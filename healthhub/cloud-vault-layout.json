@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "schema": "healthhub-cloud-vault-v1",
+  "provider": "dropbox",
+  "providerMode": "app_folder",
+  "root": "/HealthHub",
+  "localCache": {
+    "structured": "IndexedDB",
+    "daily": "localStorage",
+    "strategy": "offline-first"
+  },
+  "collections": {
+    "profiles": "/HealthHub/profiles",
+    "documents": "/HealthHub/documents",
+    "explanations": "/HealthHub/explanations",
+    "devices": "/HealthHub/devices",
+    "measurements": "/HealthHub/measurements",
+    "appointments": "/HealthHub/appointments",
+    "daily": "/HealthHub/daily",
+    "sync": "/HealthHub/sync"
+  },
+  "daily": {
+    "spark": "/HealthHub/daily/daily-spark.json",
+    "briefing": "/HealthHub/daily/daily-briefing.json",
+    "readPriority": [
+      "dropbox",
+      "local-cache",
+      "github-fallback"
+    ],
+    "sparkSelfHeal": true,
+    "briefingGenerator": "external-scheduler-pending"
+  },
+  "binary": {
+    "documentFiles": "/HealthHub/documents/files",
+    "deviceImages": "/HealthHub/devices/images"
+  },
+  "syncModel": {
+    "mode": "cloud-primary-local-cache",
+    "conflictPolicy": "updatedAt-last-write-wins",
+    "requireEntityUpdatedAt": true,
+    "tombstones": "/HealthHub/sync/tombstones.json",
+    "manifest": "/HealthHub/manifest.json"
+  },
+  "security": {
+    "oauth": "authorization-code-pkce",
+    "tokenLocation": "local IndexedDB only",
+    "repositoryStoresTokens": false,
+    "repositoryStoresPrivateHealthData": false
+  }
+}
