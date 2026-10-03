@@ -18,11 +18,12 @@ class ScheduledSyncWorker(
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
-        private const val APP_KEY = "o2oe9qclhtoic9s"
+        private const val APP_KEY = DropboxVaultClient.APP_KEY
     }
 
     override suspend fun doWork(): Result {
         val prefs = applicationContext.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
+        DropboxVaultClient.ensureCredentialVersion(prefs)
         if (!prefs.getBoolean(SyncScheduler.KEY_ENABLED, false)) return Result.success()
 
         val profile = prefs.getString("device_owner_profile", null)
