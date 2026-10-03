@@ -14,6 +14,24 @@ function delta(cur,prev,key,unit){if(!cur||!prev)return '';var a=Number(cur[key]
 async function readMeasurements(){
  var db=await openDb();try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}
 }
+async function readCloud(profile){
+ try{
+  var v=window.HH_DROPBOX_VAULT;if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
+  var raw=null,path='/HealthHub/profiles/'+profile+'-health-connect.json';
+  try{raw=await v.downloadJson(path)}catch(e){
+   if(e&&e.status!==409)throw e;
+   path='/incoming-'+profile+'.json';
+   raw=await v.downloadJson(path);
+  }
+  if(!raw||String(raw.profile||'').toLowerCase()!==profile)return null;
+  localStorage.setItem('hh-healthradar-cloud-last-'+profile,new Date().toISOString());
+  return raw;
+ }catch(e){
+  console.warn('HealthRadar cloud read failed',e);
+  localStorage.setItem('hh-healthradar-cloud-error-'+profile,String(e&&e.message||e));
+  return null;
+ }
+}
 async function readBridge(profile){
  var out={steps:null,lastSync:null,pulse:null,previousPulse:null};
  try{
@@ -49,6 +67,21 @@ async function readBridge(profile){
   out.pulse=heart[0]||null;
   out.previousPulse=heart[1]||null;
   db.close();
+ }catch(e){}
+ try{
+  var raw=await readCloud(profile),rec=raw&&raw.records||null;
+  if(rec){
+   var da=Array.isArray(rec.dailyActivity)?rec.dailyActivity:[];
+   if(da.length){
+    var x=da.slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))})[0];
+    if(x&&x.date)out.steps={profile:profile,date:x.date,steps:Number(x.steps)||0,distanceMeters:Number(x.distanceMeters)||0,caloriesKcal:Number(x.caloriesKcal)||Number(x.activeCaloriesKcal)||0,activeMinutes:Number(x.activeMinutes)||0,source:'dropbox-health-connect'};
+   }
+   var hs=[];
+   (Array.isArray(rec.heartRate)?rec.heartRate:[]).forEach(function(hr){(Array.isArray(hr.samples)?hr.samples:[]).forEach(function(s){var t=Date.parse(s&&s.time||0),b=Number(s&&s.bpm);if(Number.isFinite(t)&&Number.isFinite(b)&&b>=25&&b<=250)hs.push({measuredAt:new Date(t).toISOString(),pulse:Math.round(b)})})});
+   hs.sort(function(a,b){return Date.parse(b.measuredAt)-Date.parse(a.measuredAt)});
+   if(hs.length){out.pulse=hs[0];out.previousPulse=hs[1]||null}
+   if(raw.exportedAt)out.lastSync={importedAt:raw.exportedAt,fileName:'Dropbox Health Cloud'};
+  }
  }catch(e){}
  return out
 }
