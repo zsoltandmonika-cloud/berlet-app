@@ -1,9 +1,9 @@
 (function(){
 'use strict';
 /* HealthHub v1.62 — Dropbox Health Vault auto-sync */
-var APP_KEY='o2oe9qclhtoic9s';
+var APP_KEY='t68rmbb5f1l8d85';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
-var TOKEN_KEY='hh-dropbox-token-v1', PKCE_KEY='hh-dropbox-pkce-v1';
+var TOKEN_KEY='hh-dropbox-token-v2', PKCE_KEY='hh-dropbox-pkce-v2';
 var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', LEGACY_KEY='hh-health-vault-v1';
 
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -32,6 +32,7 @@ async function connect(){
  u.searchParams.set('code_challenge',challenge);
  u.searchParams.set('code_challenge_method','S256');
  u.searchParams.set('token_access_type','offline');
+ u.searchParams.set('scope','files.metadata.write files.content.read files.content.write');
  u.searchParams.set('state',state);
  location.href=u.toString();
 }
@@ -58,6 +59,18 @@ async function accessToken(){
  var j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||'Dropbox token frissítési hiba');
  t.access_token=j.access_token;t.expires_at=Date.now()+((Number(j.expires_in)||14400)-60)*1000;saveToken(t);return t.access_token;
 }
+
+async function uploadJsonPath(path,data){
+ var token=await accessToken(),body=JSON.stringify(data,null,2)+'\n';
+ var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:path,mode:'overwrite',autorename:false,mute:true})},body:body});
+ var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox feltöltési hiba');return j;
+}
+async function downloadJsonPath(path){
+ var token=await accessToken(),r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:path})}});
+ if(!r.ok){var t='';try{t=await r.text()}catch(e){};var j={};try{j=JSON.parse(t)}catch(e){};var er=new Error(j.error_summary||('Dropbox letöltési hiba ('+r.status+')'));er.status=r.status;er.payload=j;throw er}
+ return await r.json();
+}
+
 async function dbAll(){
  var db=await openDb();try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}
 }
@@ -174,6 +187,6 @@ if(typeof previousSetProfile==='function'){
 handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},500)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},900);
 window.addEventListener('focus',function(){setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'focus')},150)});
-document.documentElement.dataset.healthhubDropboxVault='1.62';
-window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync};
+document.documentElement.dataset.healthhubDropboxVault='1.105';
+window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,appKey:APP_KEY,redirect:REDIRECT};
 })();
