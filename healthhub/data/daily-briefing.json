@@ -1,226 +1,212 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-02",
-  "generatedAt": "2026-10-02T12:33:20+02:00",
-  "headline": "A reggel fő témái: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot; Christa Pike in critical condition after surviving two lethal injections, lawyer says",
+  "date": "2026-10-03",
+  "generatedAt": "2026-10-03T11:54:46+02:00",
+  "headline": "A reggel fő témái: Flydubai co-pilot attacked captain with axe, UAE official says; Russia strikes second major bridge in Kyiv, mayor says",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot",
-        "BBC World: Christa Pike in critical condition after surviving two lethal injections, lawyer says",
-        "BBC World: A 'dark cloud' and 'dismal' mood: How it feels on Cornell campus right now",
-        "BBC World: Seoul warns 'further action' if Ukraine does not apologise over prisoner-of-war row"
+        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
+        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
+        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat",
+        "BBC World: US murderer Christa Pike unconscious and on ventilator after failed execution, lawyers say"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot",
-        "BBC World: A 'dark cloud' and 'dismal' mood: How it feels on Cornell campus right now",
-        "BBC World: Seoul warns 'further action' if Ukraine does not apologise over prisoner-of-war row"
+        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
+        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
+        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot",
-        "BBC World: Christa Pike in critical condition after surviving two lethal injections, lawyer says",
-        "BBC World: A 'dark cloud' and 'dismal' mood: How it feels on Cornell campus right now"
+        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
+        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
+        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Megemelték Magyarország finanszírozási tervét, rekordra ugrott az állam pénzügyi tartaléka - Portfolio.hu",
-        "Növekedés.hu: Elkészült Magyarország innovációs és tudományos stratégiája - Növekedés.hu",
-        "ORIGO: Georgia az utolsó pillanatban nagyon kiszúrt Marco Rossival és a magyar válogatottal - ORIGO"
+        "MédiaKlikk: UEFA Nemzetek Ligája Magyarország - Georgia mérkőzés - MédiaKlikk",
+        "| hvg.hu: Kidobott élelmiszerek: Magyarország egész jól áll az uniós mezőnyben, de így is sok pénz landol a kukában - | hvg.hu",
+        "444: A vagyonadóval nem lesz igazságosabb Magyarország - 444"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: 'It could cost me £10k but I need the money now': Why Gen Z are opting out of pensions",
-        "BBC Business: What's gone wrong at Nike? How the world's sportswear giant lost its mojo",
-        "BBC Business: UK diesel price hits £2 a litre for first time, RAC says"
+        "BBC Business: G7 to release millions of barrels of oil and diesel after Trump threat",
+        "BBC Business: UK diesel prices top £2 a litre for first time, RAC says",
+        "BBC Business: US jobs market sees sharp slowdown ahead of midterm elections"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: OpenAI fires workers for 'mishandling sensitive information'",
-        "BBC Technology: Crypto thieves attack man in home and threaten to kill pregnant wife's baby in 'horrific' robbery",
-        "BBC Technology: Trump's AI rebrand causes 'unprecedented' demand for Slovenian website names"
+        "BBC Technology: OpenAI fires workers for 'mishandling sensitive information'"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot (BBC World).",
-        "Figyelmi pont: Seoul warns 'further action' if Ukraine does not apologise over prisoner-of-war row (BBC World).",
-        "Figyelmi pont: Netanyahu says Flydubai attacker had 'Islamist radical indoctrination' (BBC World)."
+        "Figyelmi pont: Flydubai co-pilot attacked captain with axe, UAE official says (BBC World).",
+        "Figyelmi pont: Russia strikes second major bridge in Kyiv, mayor says (BBC World).",
+        "Figyelmi pont: G7 to release millions of barrels of oil and diesel after Trump threat (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: 'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot",
-        "BBC World: Christa Pike in critical condition after surviving two lethal injections, lawyer says"
+        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
+        "BBC World: Russia strikes second major bridge in Kyiv, mayor says"
       ]
     }
   ],
   "sources": [
     {
-      "title": "'I was not going to let others die' - pilot of Flydubai flight describes cockpit attack by co-pilot",
+      "title": "Flydubai co-pilot attacked captain with axe, UAE official says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c639m98gde00o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c61wv7lgex13o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Russia strikes second major bridge in Kyiv, mayor says",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c83vqxzdg1yko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "G7 to release millions of barrels of oil and diesel after Trump threat",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck87zg8jnwngo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "US murderer Christa Pike unconscious and on ventilator after failed execution, lawyers say",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c3kgqw7zvz47o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Christa Pike in critical condition after surviving two lethal injections, lawyer says",
+      "title": "Riot police clash with students as education protests rage in France",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmn4540d4z87o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ck3r5dxxwqzpo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "A 'dark cloud' and 'dismal' mood: How it feels on Cornell campus right now",
+      "title": "Women given shorts at Oktoberfest to prevent upskirting",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm0e3ed1er1yo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cjwyzyqvx1zxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Kim wins Asian Games gold to secure military exemption",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/sport/golf/articles/cmy0rn425k4xo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Spanish PM Sánchez loses key housing crisis vote after eviction of woman, 87",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c623dlk4y75mo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Seoul warns 'further action' if Ukraine does not apologise over prisoner-of-war row",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm1dld14weero?at_medium=RSS&at_campaign=rss",
+      "title": "UEFA Nemzetek Ligája Magyarország - Georgia mérkőzés - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPWldVZzc3WXBOQUxBTDRhSDV4UlAwQzg1TXdmMlVRQlJWMXBwdEVzUkJacDF1T3lsMnpKREg1cnBVMllEQVhScnhVM1VMS3A1ZE1wazFnQzk1UlFzcTA4WEV5QmhHdmhHaG9FUTR1dGF2bDhYcEpaYVE5anExSU4zV09uZlZNU3Y5bVU2N3d6ajVVeU0?oc=5",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Japan's first mayor to take maternity leave lands on TIME100 Next list",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqj3d3d37nxgo?at_medium=RSS&at_campaign=rss",
+      "title": "Kidobott élelmiszerek: Magyarország egész jól áll az uniós mezőnyben, de így is sok pénz landol a kukában - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPc1lWYkZYLUdRS0pVR0lkTUNhVHd2WFdGTVg1aDlTeTh0Y0NaQnZfY19KWHVjaWcxQlZpM3VSeGRtcVpvS0xnSk1VRFJuUlpJNHlmaGZ4dm11eTJKYTMwakJva3hhNG9tQ0pFdWtyaHZYbXRpYWk4R0I1cEZIWndQOElsTElzM1MzbEV4V3d1VDVkQXIzSG5xZzJZTQ?oc=5",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "A vagyonadóval nem lesz igazságosabb Magyarország - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPSjVPMjRqcklEeklpMWhpX0hUcHQ2ejdtOVJzWlladnI2YzB3N3lhYzhfMDduX1h6ZjNiU0U3bTVpYVNNRGZlbTZnSU5zRlZsOTYyZUQ4VUFrdVhlMndRLU1YV285RUktbTBfbGNkRDJKOGdyaUJCRWRFYW9yUU5PWg?oc=5",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Jobb volt Grúziánál a magyar válogatott, de keserves győzelmet aratott - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOUEFLajdQaThmcDc5Vzd6eVlISm00WUVXdlNPeGhBc1AzbmhiT3JHbnpOY2REY2FRV2d1YW5qNHI1RjQ4dXV6YVhYd0doNFBqZlBKeXFsRVBNd0Y5SDJrcDhqMDM4OFdROU1ja1lBaWpHWlA1SkhNQVQ5WEQ3bzVxbS1GOHFlaE5IOGc?oc=5",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Óriási csapást kapott Európa: ezt a pusztítást Magyarország sem ússza meg - Agrárszektor",
+      "publisher": "Agrárszektor",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPWWNhVUQxbU8zWjN5LWs2bXlaV3ZGN3d6TlBZanIxSDVCWHFwOV81NF9jdUdXUFpyenNUYUs1VlhxOGkzREZrYTRBYnNKOF9JODJEUnJpMk8yX2JZMDRvOWtJTkRDSWJDcjRUM056UTZYVldDVXk0YVpRYVh0SXFmT01jSzh1NS1VVHdUaklCQVIxdURUWVlJTnZGUTdWVTJ3bFR0dHZCOTg3QVR3R0pjVVdud1N1QndBeHZ2SDdHTQ?oc=5",
+      "publishedAt": "2026-10-03"
+    },
+    {
+      "title": "Magyarország-Georgia: megtört a jég, Kerkez góljával nyert a válogatott - nb1.hu",
+      "publisher": "nb1.hu",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE0tN0pFdkliUmlJLVRoWGdwaThjNzFUbzBBYlhjZzBycnF3T1gxaHk0Sk9MWGpNdmxzZnRZa0hSS1VueUxVQk1DLVZnMVlLblFTZHV3V3dTa3VONzJGTjFkTjNhemRCSm93N0czUA?oc=5",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "OpenAI fires workers for 'mishandling sensitive information'",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6y9z9r4ejzwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
+      "title": "Ilyen az igazi Szoboszlai – osztálynapló, Magyarország-Georgia 1-0 - 24.hu",
+      "publisher": "24.hu",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOZ3lqTzlPbWRRMEtQUlRwNVNqeUkzaVdBeF9wSnFpS0RFSVdHMUJxeHd4aTJIZjZQY240SXMweUZ1dklwWmVWSFI2VjRncldIcUVOcmgtZm1zYllZVnN0QlRfUUlUQTRqTE80WlhQWjNMTWRyMjRsMHR4SVpkektvR1Zack9pckpwekMzUWRPS1B4WGo2?oc=5",
+      "publishedAt": "2026-10-03"
     },
     {
-      "title": "Netanyahu says Flydubai attacker had 'Islamist radical indoctrination'",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crje8edqyej9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-01"
-    },
-    {
-      "title": "Ethiopia and Eritrea cut diplomatic ties as northern conflict escalates",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crpd0d0jl0y0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Megemelték Magyarország finanszírozási tervét, rekordra ugrott az állam pénzügyi tartaléka - Portfolio.hu",
+      "title": "Új uniós pénzekre pályázik Magyarország: nagysebességű vasút és reptéri fejlesztés is a listán - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNMUtWUjNtc2JoamllNzI4QzluVWd3cWdDV3dlbk1fc0lHNlFfZkVmS012dzFrQUhURk5mMkJNbWxZdlZybWVVUEp6MnhOZmdSRUJPSDlwTG9tNVhUNjFxVWd1Z2xYQ1pNaUxRMHdJczVRbXRvc1RkOHJ5T3o4TVU0NDB0WDItd1NIbWNVQURwOHBmMU1XYTN3OVJDRm96UnFNandjMUhQN29wUlRWYkVhdlJEcVFyOVFTOUlFMjJscjRZa282ZWFxZFBmV1Bnd3h0TkhOZ1BB0gHbAUFVX3lxTFB3cS0tUDBEem5HRUdVV0YyM2RGRjFYXzJ5ZGJkVHduMmNfd2U1ZHNlaWZGMDhHRHViNEM5elBZWDljNHkzM2xzSkRiTS1XcmtqNlpiM2tCVTVxbm5rR2NJTkpWeUN2cUFlTC1kdlZqb3A4TFpCR1JGaXJXZ3dieng4bmxBeDRiME9hVkhFOFZaaGluWk5ZMDlvRU9kakZMa2E3MHlmdnBRbmRZNWktY1E2WTdVRUNyVVNteWNsRFNtMzA5cDhjN2tEV0RBWndkZVNHemNfUkdVcDY0RQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNSk1TMWdvMVV1ME1vZFkybUlVd0pGM1R5X3Nxc05LRWt6X3JKUE9OekJkaDRJSU1OZXVDSjI1ZTcwUEZ3TzlwZ2tKVWNhRjdwV20xY19VUTJ3UVdEY29GeXJkLVhuZE1wQWN0RmRtMjJOdFBrSlgtbS1KRnQ5eGJWNGpJaFJDRVpfMEFYbEV3TF9qcjJZZG5JVGhQSnFGYlJhckUxODAwNWpGRldLSWdGRDJtTEs4bzlJZV9EcGNmVW5rTVdBaFhQTmR4YnJTUFVZcWFXUHBqSThURXJLQTROamJtONIB6AFBVV95cUxPTUJEdDVCaWJPS2hOcUdOQnZuNW12NElLaWZoekRJRmR2TzBpTWZNY01SVVdYb0Y1clFXbVRmeGFPc0dhX19RaGNwUmJ6TWlXVTJnbUUxRGY2RUZESTJfa1RJZDJGdXVmYk1JX2l0OGJUTFFwSDI5MmhGLUgteVdHWDJwYW5NaEhZTVAwQXNTNHVxSUhzM0kyTnFhcDBscnJQVVRGbGV0eHlDR04tVWY0SENncFROaWtIOEkzSEI5OTZNTVpKWUpRd0gxWXg0aUpxQVd4V2lNTkVNUS1QOHRORmRxY0pxY3hQ?oc=5",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Elkészült Magyarország innovációs és tudományos stratégiája - Növekedés.hu",
-      "publisher": "Növekedés.hu",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQQVhmYkY1ZzlzWWNacUhxeWMyRXVRZklmTWxZcV9qRlc3cDNvMlB1dmZNcmhxUExWYmxPejZQZlVlTHFVWktYX1FkcnBXVXU4Wlg1eGY2bmcxWFBQMUFfNHhkYXB6aTZSMnVBRldnUEJIT25mNzV4TUlrOEUzREg5aVZYNkZMbXFPRFNCNUUyaw?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Georgia az utolsó pillanatban nagyon kiszúrt Marco Rossival és a magyar válogatottal - ORIGO",
-      "publisher": "ORIGO",
-      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQMXdrMWo1b0hXalh4QWxUOHgwQmdWTXV3cG8ybGJzaUFVWGkyN0I1VFVjbkJzNFpyU1VYN2RpZ185RkloYXJKR25xcWhwTU8wYXV6S0thWlRoaVh4MHdveG51ZDZoblZFeUZuSVpleDdtRFh6S0JDTUVXemg1TGdrZkxMTklkWTdGeHY5N3ZuakFrMjZp?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Magyarország egyik legmeghatározóbbprémium natív portfólióját építi fel az AD MAX - DigitalHungary -",
-      "publisher": "DigitalHungary -",
-      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQS28xOXR0S21HVERTYURpRDhlNllVdjFEUTN5NC1LMWdmSFhweXhodU5LU2Ryc082b09HWmtWMUJudUNzQ0llckI1aHpNaWxCdUF1M2NydjdXbWxmVm5rUkxuYk1XVmNVTGhIbFdkY001V0RXVVZfRzhGT3dOQVk0bUdCbXhTcjcxOFhwczZJeVQ3akhQMlFqeDVPcHZ3VjJfU1NzVzE1ektOSllqWTVNU0owZkNJRFo4OV96TE1tc0h1Zw?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "A Bel- és Igazságügyi Tanács belügyi ülése Luxemburgban - kormany.hu",
-      "publisher": "kormany.hu",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOMV9vNy1hZDdkOWJjUEZHckJqMjZwWVlSNXhEWGowemU0NGtwS05QVkt4dDJQTlp2MDlCUWFTSUp3cmZsUzFYMENjVUh1YU1qU29uTW1wV1REMTFLUGZGdTczcHVtNTZPM0dGMHJ4c3N2ZHVtVkpFMkxHWGExeFp1RDBJeGdGbWw3OEotZ0NLaUxHbGlKUTRwTDBTeDl0TjhTaFE?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Nincs vége, Orbán Anita nem lehet nyugodt, megszólalt Putyin jobbkeze: sokkal durvább orosz büntetést kaphat Magyarország, nem csak a diplomatákat tilthatják ki – „Sajnos, nem zárnám ki” - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPYmd5OFlVYlVvdTMxS0h4SkdwZkE5UDR2RnRoVkFSa1pIM2ZBbXVIQy1hT1FWMkZMMmxIUzdGel9vSkNWU2RwWnM3WWtMaVBvUU9WNlQwd0pvdURkWFNqaDFSV3dsbjRFTEtPZlczdmxBNUpIZEdRQlRZd2g3UnRLeU1LbW9vLU43Rk5aWWV4OVpGZw?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Magyarország-Georgia: Négyet lőttek a magyarok, sima győzelem grúzok ellen - HAON",
-      "publisher": "HAON",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOOTBzVHd6bldXeXhJLXBKdDg4VU96ZlRvOGUxMVdUUTRGRjJycXdMaFpxZlNCRGczZWdMLXVVZHpRVDFPWE4zVXJkUVQyaTI2dTZ2Z0swQURUNjJMSlRnN0QtQlhnZ0RGdVJueUhmYmtoaEtXOEhmbW9nWlNCYzBhZHMzdHpSNHdQYnVsQllR?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Új igazgatót nevezett ki a Yettel Magyarország – Saranyik Csaba felel az AI- és adatstratégiáért - Media1",
-      "publisher": "Media1",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQVG9kcVV0T0YtVjdEVEJsb3dHRnN3dkN4TjVVRzZONkY1emFKZFUtdmtMaktYb2U0blpTeE8yc21QcHB6NlNZeVpsZ0x2M0xkRWlfZTdLQ05FV3dwMmVucURid01MOEozOE9NVDU2XzRrRFFRSUhESkdxVmh2Ry1ucE5wTUliQXpLanExUGRVMm1hWXRPMkE?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "'It could cost me £10k but I need the money now': Why Gen Z are opting out of pensions",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c68xk0ndqz8jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "What's gone wrong at Nike? How the world's sportswear giant lost its mojo",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6je85jzk9y7o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "UK diesel price hits £2 a litre for first time, RAC says",
+      "title": "UK diesel prices top £2 a litre for first time, RAC says",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/crn8e86y5n0zo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Crypto thieves attack man in home and threaten to kill pregnant wife's baby in 'horrific' robbery",
+      "title": "US jobs market sees sharp slowdown ahead of midterm elections",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6eq84eygz0qo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm2d6gg0642yo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "The wealthy Cuban Americans ready and waiting for Havana to fall",
+      "title": "No more cereal at the end of the aisle? New rules in Scotland's supermarkets",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckrerylrlg9vo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmwyzye21463o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-02"
     },
     {
-      "title": "Thames Water apologises after £145,000 customer billing mistake",
+      "title": "Why UK diesel prices have breached the £2 per litre mark",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck24j46424veo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-01"
+      "url": "https://www.bbc.co.uk/news/articles/c20zgjzz0e4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-02"
     },
     {
-      "title": "PM warned Rosebank oil field could breach West Bank sanctions",
+      "title": "OpenAI fires workers for 'mishandling sensitive information'",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmrl6lz454lgo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-01"
+      "url": "https://www.bbc.co.uk/news/articles/c6y9z9r4ejzwo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-02"
     },
     {
-      "title": "Trump's AI rebrand causes 'unprecedented' demand for Slovenian website names",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cqx2z23xj555o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-01"
+      "title": "US pressures Europe to release diesel reserves as Trump threatens export ban",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c5zjzjgdeneeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-02"
     }
   ]
 }
