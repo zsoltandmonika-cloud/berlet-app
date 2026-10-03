@@ -52,10 +52,13 @@ class ScheduledSyncWorker(
             }
 
             val json: JSONObject = HealthConnectExporter(client).export(profile)
-            val token = getAccessToken()
-            withContext(Dispatchers.IO) {
-                uploadIncoming(profile, json.toString(), token)
-            }
+            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
+            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
+            DropboxVaultClient.uploadText(
+                prefs,
+                DropboxVaultClient.healthConnectPath(profile),
+                json.toString(2) + "\n"
+            )
 
             prefs.edit()
                 .putLong("last_auto_sync_ms", System.currentTimeMillis())
