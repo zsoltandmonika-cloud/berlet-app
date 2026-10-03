@@ -40,6 +40,12 @@ async function handleCallback(){
  var u=new URL(location.href),code=u.searchParams.get('code'),state=u.searchParams.get('state'),err=u.searchParams.get('error');
  if(err){toast('Dropbox engedélyezés sikertelen: '+(u.searchParams.get('error_description')||err));history.replaceState({},'',REDIRECT);return}
  if(!code)return;
+ if(state&&state.indexOf('hhbridge_')===0){
+  var handoff='healthhubconnect://dropbox?code='+encodeURIComponent(code)+'&state='+encodeURIComponent(state);
+  history.replaceState({},'',REDIRECT);
+  location.href=handoff;
+  return;
+ }
  var pk;try{pk=JSON.parse(localStorage.getItem(PKCE_KEY)||'null')}catch(e){}
  if(!pk||!pk.verifier||!pk.state||pk.state!==state){toast('Dropbox OAuth állapotellenőrzés sikertelen.');return}
  var body=new URLSearchParams({code:code,grant_type:'authorization_code',redirect_uri:REDIRECT,code_verifier:pk.verifier,client_id:APP_KEY});
