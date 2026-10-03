@@ -182,7 +182,10 @@ function ensure(){
  var p=document.getElementById('hhActivityPage191');if(!p){p=document.createElement('section');p.id='hhActivityPage191';p.className='a191Page';document.body.appendChild(p)}
  var m=document.getElementById('hh191Modal');if(!m){m=document.createElement('div');m.id='hh191Modal';m.className='a191Modal';document.body.appendChild(m)}
 }
-window.hhOpenActivity=function(){ensure();document.getElementById('hhActivityPage191').classList.add('on');render()}
+window.hhOpenActivity=function(){
+ ensure();document.getElementById('hhActivityPage191').classList.add('on');render();
+ if(typeof window.hhHealthCloudSync==='function')window.hhHealthCloudSync(false).then(function(changed){if(changed)render()}).catch(function(){});
+}
 window.hhRenderActivity191=render;
 function refreshIfOpen(){
  var p=document.getElementById('hhActivityPage191');
