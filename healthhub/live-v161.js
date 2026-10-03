@@ -95,7 +95,8 @@ async function snapshot(profile){
  var all=await dbAll(),br=await bridgeAll(),ignored=(window.hhGetHealthConnectIgnoreList?window.hhGetHealthConnectIgnoreList(profile):[]);
  return {schemaVersion:'healthhub.dropbox.vault/1.0',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored};
 }
-function vaultPath(profile){return '/'+profile+'-data.json'}
+function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
+function legacyVaultPath(profile){return '/'+profile+'-data.json'}
 async function uploadCurrent(silent){
  var profile=pkey(),data=await snapshot(profile),token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
@@ -103,10 +104,18 @@ async function uploadCurrent(silent){
  var now=new Date().toISOString();localStorage.setItem('hh-dropbox-last-push-'+profile,now);localStorage.setItem('hh-dropbox-last-sync-'+profile,j.server_modified||now);if(!silent)toast(pname(profile)+' Health Vault feltöltve');decorate();return j;
 }
 async function download(profile){
- var token=await accessToken(),r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile)})}});
- if(r.status===409)throw new Error('Ehhez a profilhoz még nincs Dropbox Vault fájl.');
- if(!r.ok)throw new Error('Dropbox letöltési hiba');
- return await r.json();
+ var token=await accessToken();
+ async function one(path){
+  var r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:path})}});
+  if(r.status===409)return null;
+  if(!r.ok)throw new Error('Dropbox letöltési hiba');
+  return await r.json();
+ }
+ var data=await one(vaultPath(profile));
+ if(data)return data;
+ data=await one(legacyVaultPath(profile));
+ if(data){try{await uploadJsonPath(vaultPath(profile),data)}catch(e){};return data}
+ throw new Error('Ehhez a profilhoz még nincs Dropbox Vault fájl.');
 }
 async function mergeVault(data){
  if(!data||data.schemaVersion!=='healthhub.dropbox.vault/1.0')throw new Error('Nem támogatott HealthHub Vault fájl.');
@@ -134,9 +143,13 @@ async function pullCurrent(){
  var profile=pkey(),data=await download(profile);await mergeVault(data);toast(pname(profile)+' Health Vault letöltve és egyesítve');
 }
 async function remoteMeta(profile){
- var token=await accessToken(),r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:vaultPath(profile),include_media_info:false,include_deleted:false})});
- if(r.status===409)return null;
- var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox metaadat hiba');return j;
+ var token=await accessToken();
+ async function one(path){
+  var r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:path,include_media_info:false,include_deleted:false})});
+  if(r.status===409)return null;
+  var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox metaadat hiba');return j;
+ }
+ return (await one(vaultPath(profile)))||(await one(legacyVaultPath(profile)));
 }
 var syncBusy=false,lastCheckedProfile='',lastCheckedAt=0;
 async function autoSync(profile,reason){
