@@ -13,8 +13,11 @@ object DropboxVaultClient {
     const val WEB_REDIRECT = "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/"
     const val ROOT = "/HealthHub"
     const val DAILY_DIR = "/HealthHub/daily"
+    const val PROFILES_DIR = "/HealthHub/profiles"
     const val DAILY_SPARK = "/HealthHub/daily/daily-spark.json"
     const val DAILY_BRIEFING = "/HealthHub/daily/daily-briefing.json"
+
+    fun healthConnectPath(profile: String): String = PROFILES_DIR + "/" + profile + "-health-connect.json"
 
     private const val CLIENT_MARKER = "dropbox_client_id_v2"
 
