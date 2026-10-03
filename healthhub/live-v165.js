@@ -1,93 +1,89 @@
 (function(){
 'use strict';
-/* HealthHub v1.65 — one-tap Health Connect Sync Now */
-var APP_KEY='o2oe9qclhtoic9s', TOKEN_KEY='hh-dropbox-token-v1';
+/* HealthHub v1.108 — unified Health + Activity Cloud sync */
+var busy=false;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
-function readToken(){try{return JSON.parse(localStorage.getItem(TOKEN_KEY)||'null')}catch(e){return null}}
-async function accessToken(){
- var t=readToken();if(!t||!t.refresh_token)throw new Error('A Dropbox nincs csatlakoztatva a HealthHubban.');
- if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
- var body=new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP_KEY});
- var r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body});
- var j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||'Dropbox token frissítési hiba');
- t.access_token=j.access_token;t.expires_at=Date.now()+((Number(j.expires_in)||14400)-60)*1000;localStorage.setItem(TOKEN_KEY,JSON.stringify(t));return t.access_token;
+function isAndroid(){return /Android/i.test(navigator.userAgent||'')}
+function cloudPath(profile){return '/HealthHub/profiles/'+profile+'-health-connect.json'}
+function legacyPath(profile){return '/incoming-'+profile+'.json'}
+function vault(){return window.HH_DROPBOX_VAULT}
+function connected(){try{return !!(vault()&&vault().connected&&vault().connected())}catch(e){return false}}
+
+async function downloadRaw(profile){
+ var v=vault();if(!v||typeof v.downloadJson!=='function')throw new Error('A HealthHub Cloud Vault még nem érhető el.');
+ try{return {raw:await v.downloadJson(cloudPath(profile)),path:cloudPath(profile)}}
+ catch(e){
+  if(e&&e.status!==409)throw e;
+  return {raw:await v.downloadJson(legacyPath(profile)),path:legacyPath(profile)};
+ }
 }
-function incomingPath(profile){return '/incoming-'+profile+'.json'}
-async function meta(profile){
- var token=await accessToken(),r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:incomingPath(profile),include_deleted:false})});
- if(r.status===409)return null;
- var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox incoming metaadat hiba');return j;
-}
-async function downloadIncoming(profile){
- var token=await accessToken(),r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path:incomingPath(profile)})}});
- if(!r.ok)throw new Error('Dropbox incoming letöltési hiba');
- return await r.json();
-}
-var busy=false;
 async function processIncoming(profile,force){
- if(busy||typeof window.hhImportHealthConnectRaw!=='function')return false;
+ if(busy||typeof window.hhImportHealthConnectRaw!=='function'||!connected())return false;
  busy=true;
  try{
-  var m=await meta(profile);if(!m)return false;
-  var stamp=m.server_modified||m.client_modified||'';
-  var key='hh-incoming-last-'+profile,last=localStorage.getItem(key)||'';
-  if(!force&&stamp&&last===stamp)return false;
-  var raw=await downloadIncoming(profile);
-  if(String(raw.profile||'').toLowerCase()!==profile)throw new Error('A beérkező Health Connect profil nem egyezik.');
-  toast('SYNC NOW · '+pname(profile)+' adatainak feldolgozása…');
-  await window.hhImportHealthConnectRaw(raw,'Dropbox '+incomingPath(profile));
-  if(stamp)localStorage.setItem(key,stamp);
-  localStorage.setItem('hh-sync-now-last-'+profile,new Date().toISOString());
-  toast('✓ SYNC NOW kész · '+pname(profile)+' adatai frissítve');
+  var got;
+  try{got=await downloadRaw(profile)}catch(e){if(e&&e.status===409)return false;throw e}
+  var raw=got&&got.raw;if(!raw)return false;
+  if(String(raw.profile||'').toLowerCase()!==profile)throw new Error('A Health Connect Cloud profil nem egyezik.');
+  var exportedAt=raw.exportedAt||raw.rangeEnd||'';
+  var key='hh-health-cloud-exported-'+profile,last=localStorage.getItem(key)||'';
+  if(!force&&exportedAt&&Date.parse(exportedAt)<=Date.parse(last||0))return false;
+  toast('Health + Activity Cloud · '+pname(profile)+' adatainak frissítése…');
+  await window.hhImportHealthConnectRaw(raw,'Dropbox '+got.path);
+  var now=new Date().toISOString();
+  if(exportedAt)localStorage.setItem(key,exportedAt);
+  localStorage.setItem('hh-sync-now-last-'+profile,now);
+  localStorage.setItem('hh-health-cloud-last-'+profile,now);
+  localStorage.setItem('hh-health-cloud-path-'+profile,got.path);
+  toast('✓ Health + Activity frissítve · '+pname(profile));
+  try{window.dispatchEvent(new CustomEvent('healthhub:health-cloud-synced',{detail:{profile:profile,exportedAt:exportedAt,path:got.path}}))}catch(e){}
   return true;
  }finally{busy=false}
 }
-function isAndroid(){return /Android/i.test(navigator.userAgent||'')}
+
+window.hhHealthCloudSync=function(force){
+ return processIncoming(pkey(),!!force).catch(function(e){console.error(e);toast('Health + Activity sync hiba: '+(e.message||e));return false});
+};
 window.hhSyncNow=function(){
  var profile=pkey();
  if(!isAndroid()){
   toast('A SYNC NOW a HealthHub Connect Android appot indítja. Telefonon használd.');
   return;
  }
- var url='healthhubconnect://sync?profile='+encodeURIComponent(profile);
- var hidden=false;
- var onVis=function(){if(document.hidden)hidden=true};
- document.addEventListener('visibilitychange',onVis,{once:true});
- location.href=url;
- setTimeout(function(){
-  document.removeEventListener('visibilitychange',onVis);
-  if(!hidden&&!document.hidden)toast('A HealthHub Connect nem nyílt meg. Plan B: használd a Health Connect JSON importot.');
- },1400);
+ localStorage.setItem('hh-sync-now-pending-'+profile,new Date().toISOString());
+ location.href='healthhubconnect://sync?profile='+encodeURIComponent(profile);
 };
+
 function decorate(){
  if(window.healthSectionKind!=='measurements')return;
  var root=document.getElementById('healthSubContent');if(!root)return;
  var card=root.querySelector('.hrSectionCard');if(!card)return;
  var host=card.querySelector('.hhImportTools')||card.querySelector('.hhMeasCrudBar');if(!host)return;
- if(!host.querySelector('.hhSyncNowBtn')){
-  var b=document.createElement('button');b.type='button';b.className='hhSyncNowBtn';b.textContent='🔄 SYNC NOW';b.onclick=window.hhSyncNow;
+ var b=host.querySelector('.hhSyncNowBtn');
+ if(!b){
+  b=document.createElement('button');b.type='button';b.className='hhSyncNowBtn';b.textContent='🔄 HEALTH + ACTIVITY SYNC';b.onclick=window.hhSyncNow;
   Object.assign(b.style,{border:'0',borderRadius:'12px',background:'#173f62',color:'#fff',padding:'8px 11px',fontSize:'8px',fontWeight:'900',cursor:'pointer'});
   host.insertBefore(b,host.firstChild);
- }
+ }else b.textContent='🔄 HEALTH + ACTIVITY SYNC';
  var json=host.querySelector('.hhHcBtn');if(json)json.textContent='Plan B · Health Connect JSON';
 }
-var prev=window.renderHealthSection;
-if(typeof prev==='function')window.renderHealthSection=async function(){var r=await prev.apply(this,arguments);decorate();return r};
+
 function startup(){
  decorate();
  var u=new URL(location.href),bridge=u.searchParams.get('bridgeSync')==='1',profile=u.searchParams.get('profile')||pkey();
  if(profile!=='monika'&&profile!=='zsolt')profile=pkey();
  if(bridge){
-  setTimeout(function(){processIncoming(profile,true).catch(function(e){console.error(e);toast('SYNC NOW hiba: '+(e.message||e))})},180);
+  setTimeout(function(){processIncoming(profile,true).catch(function(e){console.error(e);toast('Health + Activity sync hiba: '+(e.message||e))})},220);
   u.searchParams.delete('bridgeSync');u.searchParams.delete('profile');u.searchParams.delete('ts');
   history.replaceState({},'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash);
- }else{
-  setTimeout(function(){processIncoming(pkey(),false).catch(function(e){console.warn(e)})},500);
- }
+ }else setTimeout(function(){processIncoming(pkey(),false).catch(function(e){console.warn(e)})},900);
 }
-window.addEventListener('focus',function(){setTimeout(function(){processIncoming(pkey(),false).catch(function(e){console.warn(e)})},250)});
+var prev=window.renderHealthSection;
+if(typeof prev==='function')window.renderHealthSection=async function(){var r=await prev.apply(this,arguments);decorate();return r};
+window.addEventListener('focus',function(){setTimeout(function(){decorate();processIncoming(pkey(),false).catch(function(e){console.warn(e)})},300)});
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(function(){processIncoming(pkey(),false).catch(function(e){console.warn(e)})},300)});
 startup();
-document.documentElement.dataset.healthhubSyncNow='1.65';
+document.documentElement.dataset.healthhubSyncNow='1.108';
 })();
