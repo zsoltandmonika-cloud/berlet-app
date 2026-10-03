@@ -347,7 +347,7 @@ async function startDropboxAuth(appKey){
   u.searchParams.set('code_challenge',challenge);
   u.searchParams.set('code_challenge_method','S256');
   u.searchParams.set('token_access_type','offline');
-  u.searchParams.set('scope','files.content.read files.content.write');
+  u.searchParams.set('scope','files.metadata.write files.content.read files.content.write');
   u.searchParams.set('state',state);
   location.href=u.toString();
 }
