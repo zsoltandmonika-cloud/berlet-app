@@ -77,7 +77,7 @@ async function tokenGet(){
   const db=await openTokenDb();try{return await reqP(db.transaction(TOKEN_STORE,'readonly').objectStore(TOKEN_STORE).get(DROPBOX_TOKEN_KEY))}finally{db.close()}
 }
 async function tokenPut(t){
-  const db=await openTokenDb();try{await reqP(db.transaction(TOKEN_STORE,'readwrite').objectStore(TOKEN_STORE).put(Object.assign({id:DROPBOX_TOKEN_KEY},t))}finally{db.close()}
+  const db=await openTokenDb();try{await reqP(db.transaction(TOKEN_STORE,'readwrite').objectStore(TOKEN_STORE).put(Object.assign({id:DROPBOX_TOKEN_KEY},t)))}finally{db.close()}
 }
 async function tokenDelete(){
   const db=await openTokenDb();try{await reqP(db.transaction(TOKEN_STORE,'readwrite').objectStore(TOKEN_STORE).delete(DROPBOX_TOKEN_KEY))}finally{db.close()}
