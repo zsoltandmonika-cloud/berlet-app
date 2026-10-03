@@ -451,12 +451,15 @@ class MainActivity : ComponentActivity() {
         pendingJson = json.toString(2)
         saveButton.isEnabled = true
 
-        status.text = "Dropbox Vault frissítése…"
-        val token = getAccessToken()
-        withContext(Dispatchers.IO) {
-            uploadIncoming(profile, json.toString(), token)
-        }
-        status.text = "✓ SYNC kész · ${if (profile == "monika") "Mónika" else "Zsolt"} · Dropbox frissítve."
+        status.text = "Dropbox Cloud Vault frissítése…"
+        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
+        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
+        DropboxVaultClient.uploadText(
+            prefs,
+            DropboxVaultClient.healthConnectPath(profile),
+            json.toString(2) + "\n"
+        )
+        status.text = "✓ SYNC kész · ${if (profile == "monika") "Mónika" else "Zsolt"} · Health + Activity Cloud frissítve."
         updateScheduleUi()
 
         val back = Uri.parse(HEALTHHUB_URL).buildUpon()
