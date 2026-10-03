@@ -34,6 +34,8 @@ function html(){
  var pull=localStorage.getItem('hh-dropbox-last-pull-'+p);
  var sync=localStorage.getItem('hh-dropbox-last-sync-'+p);
  var spark=dailySource('spark'),brief=dailySource('briefing');
+ var healthLast=localStorage.getItem('hh-health-cloud-last-'+p)||localStorage.getItem('hh-sync-now-last-'+p);
+ var healthPath=localStorage.getItem('hh-health-cloud-path-'+p)||('/HealthHub/profiles/'+p+'-health-connect.json');
 
  return '<div class="hhUcTop">'+
    '<div class="hhUcIcon">◆</div>'+
@@ -41,7 +43,8 @@ function html(){
    '<span class="hhUcStatus '+(on?'on':'off')+'">'+(on?'Dropbox kapcsolva':'Nincs kapcsolat')+'</span>'+
   '</div>'+
   '<div class="hhUcGrid">'+
-   '<div class="hhUcMetric"><span>Profil Vault</span><b>'+esc('/'+p+'-data.json')+'</b><small>Utolsó sync: '+esc(fmt(sync||pull||push))+'</small></div>'+
+   '<div class="hhUcMetric"><span>Profil Vault</span><b>'+esc('/HealthHub/profiles/'+p+'-vault.json')+'</b><small>Utolsó sync: '+esc(fmt(sync||pull||push))+'</small></div>'+
+   '<div class="hhUcMetric"><span>Health + Activity Cloud</span><b>'+esc(healthPath)+'</b><small>Utolsó sync: '+esc(fmt(healthLast))+'</small></div>'+
    '<div class="hhUcMetric"><span>Daily Cloud</span><b>Daily Spark + Morning Briefing</b><small>Spark: '+esc(spark)+' · Brief: '+esc(brief)+'</small></div>'+
   '</div>'+
   (on
@@ -93,6 +96,7 @@ window.hhUnifiedSyncAll=async function(){
   var tasks=[];
   if(typeof window.hhDropboxPushCurrentProfile==='function')tasks.push(window.hhDropboxPushCurrentProfile());
   if(typeof window.hhCloudSyncDaily==='function')tasks.push(window.hhCloudSyncDaily());
+  if(typeof window.hhHealthCloudSync==='function')tasks.push(window.hhHealthCloudSync(false));
   await Promise.allSettled(tasks);
   try{window.toast&&window.toast('HealthHub Cloud Vault szinkronizálva')}catch(e){}
  }finally{
@@ -131,6 +135,6 @@ style();
 ensureObserver();
 setTimeout(queue,180);
 window.addEventListener('focus',function(){setTimeout(queue,180)});
-document.documentElement.dataset.healthhubUnifiedVault='1.106';
-window.HH_LIVE_BUILD='v1.106-unified-cloud-vault';
+document.documentElement.dataset.healthhubUnifiedVault='1.108';
+window.HH_LIVE_BUILD='v1.108-unified-health-activity-cloud';
 })();
