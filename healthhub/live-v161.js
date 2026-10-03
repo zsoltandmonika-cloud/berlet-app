@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 /* HealthHub v1.62 — Dropbox Health Vault auto-sync */
-var APP_KEY='t68rmbb5f1l8d85';
+var APP_KEY='t68rmhh5f1l8d85';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
 var TOKEN_KEY='hh-dropbox-token-v2', PKCE_KEY='hh-dropbox-pkce-v2';
 var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', LEGACY_KEY='hh-health-vault-v1';
