@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 /* HealthHub v1.47 — Health Connect Bridge JSON receiver */
-var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', SCHEMA='healthhub.healthconnect.bridge/1.0', SCHEMA11='healthhub.healthconnect.bridge/1.1', pending=null;
+var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', SCHEMA='healthhub.healthconnect.bridge/1.0', SCHEMA11='healthhub.healthconnect.bridge/1.1', SCHEMA12='healthhub.healthconnect.bridge/1.2', pending=null;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -27,7 +27,7 @@ function nearestPulse(at,heart){
  return bd<=300000?best:null;
 }
 function normalize(raw){
- if(!raw||(raw.schemaVersion!==SCHEMA&&raw.schemaVersion!==SCHEMA11))throw new Error('Ez nem támogatott HealthHub Health Connect exportfájl.');
+ if(!raw||(raw.schemaVersion!==SCHEMA&&raw.schemaVersion!==SCHEMA11&&raw.schemaVersion!==SCHEMA12))throw new Error('Ez nem támogatott HealthHub Health Connect exportfájl.');
  var profile=String(raw.profile||'').toLowerCase();
  if(profile!=='zsolt'&&profile!=='monika')throw new Error('Hiányzó vagy hibás profil az exportban.');
  var r=raw.records||{}, heart=flattenHeart(arr(r,'heartRate')), ms=[];
