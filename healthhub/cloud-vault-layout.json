@@ -28,7 +28,12 @@
       "github-fallback"
     ],
     "sparkSelfHeal": true,
-    "briefingGenerator": "external-scheduler-pending"
+    "briefingGenerator": "healthhub-connect-android",
+    "schedule": {
+      "spark": "05:30",
+      "briefing": "06:00",
+      "timezone": "Europe/Budapest"
+    }
   },
   "binary": {
     "documentFiles": "/HealthHub/documents/files",
@@ -43,8 +48,27 @@
   },
   "security": {
     "oauth": "authorization-code-pkce",
-    "tokenLocation": "local IndexedDB only",
+    "tokenLocation": "Web localStorage (current) + Android SharedPreferences",
     "repositoryStoresTokens": false,
-    "repositoryStoresPrivateHealthData": false
+    "repositoryStoresPrivateHealthData": false,
+    "tokenHardening": "planned"
+  },
+  "profiles": {
+    "vaultTemplate": "/HealthHub/profiles/{profile}-vault.json",
+    "healthConnectTemplate": "/HealthHub/profiles/{profile}-health-connect.json",
+    "legacyVaultFallback": "/{profile}-data.json",
+    "legacyHealthConnectFallback": "/incoming-{profile}.json"
+  },
+  "healthConnect": {
+    "source": "Android Health Connect",
+    "writer": "HealthHub Connect",
+    "cloudPath": "/HealthHub/profiles/{profile}-health-connect.json",
+    "consumers": [
+      "HealthRadar",
+      "Activity",
+      "Sleep",
+      "Insights"
+    ],
+    "webImportCache": "IndexedDB healthhub-connect-v1"
   }
 }
