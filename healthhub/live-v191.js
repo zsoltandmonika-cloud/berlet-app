@@ -68,12 +68,53 @@ function kpiIcon(k){
 function heroSrc(){return window.HH_ACTIVITY_HERO_V192?'data:image/webp;base64,'+window.HH_ACTIVITY_HERO_V192:'./assets/activity-hero-v184.webp'}
 
 function manualLoad(){try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+pkey())||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+async function cloudBundle(){
+ try{
+  var v=window.HH_DROPBOX_VAULT,p=pkey();
+  if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
+  var raw=null,path='/HealthHub/profiles/'+p+'-health-connect.json';
+  try{raw=await v.downloadJson(path)}catch(e){
+   if(e&&e.status!==409)throw e;
+   path='/incoming-'+p+'.json';
+   raw=await v.downloadJson(path);
+  }
+  if(!raw||String(raw.profile||'').toLowerCase()!==p)return null;
+  localStorage.setItem('hh-activity-cloud-last-'+p,new Date().toISOString());
+  localStorage.setItem('hh-activity-cloud-exported-'+p,String(raw.exportedAt||''));
+  return {id:'cloud-'+p,profile:p,importedAt:raw.exportedAt||new Date().toISOString(),fileName:path,schemaVersion:raw.schemaVersion||'',bundle:raw,_cloud:true};
+ }catch(e){
+  console.warn('Activity Cloud read failed',e);
+  localStorage.setItem('hh-activity-cloud-error-'+pkey(),String(e&&e.message||e));
+  return null;
+ }
+}
 function manualSession(x){return {id:x.id,title:cat(x.type).label,manualType:x.type,startTime:x.startTime,endTime:new Date(Date.parse(x.startTime)+(Number(x.duration)||0)*60000).toISOString(),distanceKm:Number(x.distance)||0,caloriesKcal:Number(x.calories)||0,avgBpm:Number(x.avgBpm)||0,_manual:true}}
 async function load(){
  var out={imports:[],activity:[]};
  try{var db=await openDb();try{var tx=db.transaction(['imports','activity']);out.imports=await req(tx.objectStore('imports').getAll())||[];out.activity=await req(tx.objectStore('activity').getAll())||[]}finally{db.close()}}catch(e){}
  out.imports=out.imports.filter(function(x){return x.profile===pkey()&&x.bundle});
  out.activity=out.activity.filter(function(x){return x.profile===pkey()});
+ var cloud=await cloudBundle();
+ if(cloud){
+  out.imports=out.imports.filter(function(x){return !x._cloud});
+  out.imports.unshift(cloud);
+  var da=cloud.bundle&&cloud.bundle.records&&cloud.bundle.records.dailyActivity;
+  if(Array.isArray(da))da.forEach(function(x){
+   if(!x||!x.date)return;
+   out.activity.push({
+    id:'cloud-activity-'+pkey()+'-'+x.date,
+    profile:pkey(),
+    date:x.date,
+    steps:Number(x.steps)||0,
+    distanceMeters:Number(x.distanceMeters)||0,
+    caloriesKcal:Number(x.caloriesKcal)||Number(x.activeCaloriesKcal)||0,
+    activeCaloriesKcal:Number(x.activeCaloriesKcal)||Number(x.caloriesKcal)||0,
+    activeMinutes:Number(x.activeMinutes)||0,
+    source:'dropbox-health-connect',
+    updatedAt:cloud.importedAt
+   });
+  });
+ }
  return out;
 }
 function collect(raw){
