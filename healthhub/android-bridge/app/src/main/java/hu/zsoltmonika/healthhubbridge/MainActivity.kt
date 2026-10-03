@@ -37,9 +37,9 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     companion object {
-        private const val DROPBOX_APP_KEY = "o2oe9qclhtoic9s"
-        private const val DROPBOX_REDIRECT = "healthhubconnect://dropbox"
-        private const val HEALTHHUB_URL = "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/"
+        private const val DROPBOX_APP_KEY = DropboxVaultClient.APP_KEY
+        private const val DROPBOX_REDIRECT = DropboxVaultClient.WEB_REDIRECT
+        private const val HEALTHHUB_URL = DropboxVaultClient.WEB_REDIRECT
         private const val PREFS = "healthhub_connect"
     }
 
@@ -107,8 +107,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildUi())
+        DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
         SyncScheduler.scheduleAll(this)
+        DailyContentScheduler.schedule(this)
         updateScheduleUi()
         handleIntent(intent)
     }
@@ -201,6 +203,14 @@ class MainActivity : ComponentActivity() {
         root.addView(Button(this).apply {
             text = "🔄 SYNC NOW"
             setOnClickListener { syncNow() }
+        })
+
+        root.addView(Button(this).apply {
+            text = "☀ Daily Cloud frissítés"
+            setOnClickListener {
+                DailyContentScheduler.runNow(this@MainActivity)
+                status.text = "Daily Spark + Morning Briefing frissítés elindítva…"
+            }
         })
 
         root.addView(Button(this).apply {
@@ -427,6 +437,7 @@ class MainActivity : ComponentActivity() {
                     return@launch
                 }
                 exportAndUpload(owner)
+                DailyContentScheduler.runNow(this@MainActivity)
             } catch (e: Exception) {
                 status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}"
             }
@@ -459,7 +470,7 @@ class MainActivity : ComponentActivity() {
     private fun startDropboxAuth(profile: String) {
         val verifier = randomUrlSafe(64)
         val challenge = sha256UrlSafe(verifier)
-        val state = randomUrlSafe(24)
+        val state = "hhbridge_" + randomUrlSafe(24)
         prefs.edit()
             .putString("dropbox_pkce_verifier", verifier)
             .putString("dropbox_oauth_state", state)
@@ -473,6 +484,7 @@ class MainActivity : ComponentActivity() {
             .appendQueryParameter("code_challenge", challenge)
             .appendQueryParameter("code_challenge_method", "S256")
             .appendQueryParameter("token_access_type", "offline")
+            .appendQueryParameter("scope", "files.metadata.write files.content.read files.content.write")
             .appendQueryParameter("state", state)
             .build()
         startActivity(Intent(Intent.ACTION_VIEW, url))
