@@ -134,6 +134,36 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun openHealthConnectSettings() {
+        val sdk = HealthConnectClient.getSdkStatus(this)
+        if (sdk != HealthConnectClient.SDK_AVAILABLE) {
+            status.text = if (sdk == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+                "A Health Connect frissítése szükséges."
+            } else {
+                "A Health Connect ezen az eszközön jelenleg nem elérhető."
+            }
+            return
+        }
+
+        try {
+            status.text = "Health Connect megnyitása…"
+            startActivity(Intent(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS))
+        } catch (_: Exception) {
+            scope.launch {
+                val hc = client ?: HealthConnectClient.getOrCreate(this@MainActivity)
+                val granted = hc.permissionController.getGrantedPermissions()
+                val missing = requiredPermissions() - granted
+                if (missing.isNotEmpty()) {
+                    status.text = "Health Connect engedélyek megadása…"
+                    permissionLauncher.launch(missing)
+                } else {
+                    status.text = "✓ Minden szükséges Health Connect engedély megvan."
+                }
+            }
+        }
+    }
+
+
     private fun handleIntent(i: Intent?) {
         val data = i?.data ?: return
         if (data.scheme != "healthhubconnect") return
@@ -214,9 +244,9 @@ class MainActivity : ComponentActivity() {
         })
 
         root.addView(Button(this).apply {
-            text = "Health Connect engedélyek"
+            text = "❤️ Health Connect megnyitása"
             setOnClickListener {
-                permissionLauncher.launch(requiredPermissions())
+                openHealthConnectSettings()
             }
         })
 
