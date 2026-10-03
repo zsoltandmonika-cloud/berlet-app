@@ -134,6 +134,89 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun runHealthConnectDiagnostic() {
+        val hc = client ?: run {
+            status.text = "Health Connect nem elérhető."
+            return
+        }
+        scope.launch {
+            try {
+                val granted = hc.permissionController.getGrantedPermissions()
+                val missing = requiredPermissions() - granted
+                if (missing.isNotEmpty()) {
+                    status.text = "Hiányzik ${missing.size} Health Connect olvasási engedély."
+                    permissionLauncher.launch(missing)
+                    return@launch
+                }
+
+                status.text = "Health Connect adatok ellenőrzése…"
+                val json = HealthConnectExporter(hc).export(selectedProfile(), 7)
+                val records = json.getJSONObject("records")
+                val daily = records.optJSONArray("dailyActivity")
+                val heart = records.optJSONArray("heartRate")
+                val exercise = records.optJSONArray("exerciseSessions")
+                val weight = records.optJSONArray("weight")
+
+                fun lastArrayObject(arr: org.json.JSONArray?): org.json.JSONObject? =
+                    if (arr != null && arr.length() > 0) arr.optJSONObject(arr.length() - 1) else null
+
+                val todayActivity = lastArrayObject(daily)
+                var latestHeartTime: String? = null
+                if (heart != null) {
+                    for (i in 0 until heart.length()) {
+                        val hr = heart.optJSONObject(i) ?: continue
+                        val samples = hr.optJSONArray("samples") ?: continue
+                        for (j in 0 until samples.length()) {
+                            val s = samples.optJSONObject(j) ?: continue
+                            val t = s.optString("time")
+                            if (t.isNotBlank() && (latestHeartTime == null || t > latestHeartTime!!)) latestHeartTime = t
+                        }
+                    }
+                }
+
+                var latestExercise: String? = null
+                if (exercise != null) {
+                    for (i in 0 until exercise.length()) {
+                        val e = exercise.optJSONObject(i) ?: continue
+                        val t = e.optString("endTime")
+                        if (t.isNotBlank() && (latestExercise == null || t > latestExercise!!)) latestExercise = t
+                    }
+                }
+
+                var latestWeight: String? = null
+                if (weight != null) {
+                    for (i in 0 until weight.length()) {
+                        val w = weight.optJSONObject(i) ?: continue
+                        val t = w.optString("time")
+                        if (t.isNotBlank() && (latestWeight == null || t > latestWeight!!)) latestWeight = t
+                    }
+                }
+
+                val steps = todayActivity?.optLong("steps", 0L) ?: 0L
+                val date = todayActivity?.optString("date").orEmpty()
+                val exerciseCount = exercise?.length() ?: 0
+                val heartCount = heart?.length() ?: 0
+
+                val summary = buildString {
+                    append("Health Connect közvetlen adat\n")
+                    append("Mai/legutóbbi aktivitás: ").append(if (date.isBlank()) "nincs" else date + " · " + steps + " lépés").append("\n")
+                    append("Pulzusrekordok (7 nap): ").append(heartCount).append("\n")
+                    append("Legutóbbi pulzus: ").append(latestHeartTime ?: "nincs").append("\n")
+                    append("Edzések (7 nap): ").append(exerciseCount).append("\n")
+                    append("Legutóbbi edzés: ").append(latestExercise ?: "nincs").append("\n")
+                    append("Legutóbbi testsúly: ").append(latestWeight ?: "nincs")
+                }
+                prefs.edit()
+                    .putString("last_health_diagnostic", summary)
+                    .putLong("last_health_diagnostic_ms", System.currentTimeMillis())
+                    .apply()
+                status.text = summary
+            } catch (e: Exception) {
+                status.text = "Health Connect ellenőrzési hiba: ${e.message ?: e.javaClass.simpleName}"
+            }
+        }
+    }
+
     private fun openHealthConnectSettings() {
         val sdk = HealthConnectClient.getSdkStatus(this)
         if (sdk != HealthConnectClient.SDK_AVAILABLE) {
@@ -249,6 +332,13 @@ class MainActivity : ComponentActivity() {
                 openHealthConnectSettings()
             }
         })
+        root.addView(Button(this).apply {
+            text = "🔎 Health Connect adatellenőrzés"
+            setOnClickListener {
+                runHealthConnectDiagnostic()
+            }
+        })
+
 
         root.addView(TextView(this).apply {
             text = "Automatikus sync"
@@ -481,7 +571,14 @@ class MainActivity : ComponentActivity() {
         pendingJson = json.toString(2)
         saveButton.isEnabled = true
 
-        status.text = "Dropbox Cloud Vault frissítése…"
+        val recs = json.getJSONObject("records")
+        val daily = recs.optJSONArray("dailyActivity")
+        val latestDay = if (daily != null && daily.length() > 0) daily.optJSONObject(daily.length() - 1) else null
+        val hcDate = latestDay?.optString("date").orEmpty()
+        val hcSteps = latestDay?.optLong("steps", 0L) ?: 0L
+        status.text = "Health Connect beolvasva · " +
+            (if (hcDate.isBlank()) "nincs napi aktivitás" else hcDate + " · " + hcSteps + " lépés") +
+            " · Dropbox feltöltés…"
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
         DropboxVaultClient.uploadText(
