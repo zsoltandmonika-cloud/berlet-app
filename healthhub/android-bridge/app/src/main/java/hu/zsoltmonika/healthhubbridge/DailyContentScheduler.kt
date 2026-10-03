@@ -18,8 +18,7 @@ object DailyContentScheduler {
     private const val TAG = "healthhub-daily-cloud"
 
     fun schedule(context: Context) {
-        scheduleMode(context, "spark", "06:05")
-        scheduleMode(context, "briefing", "07:05")
+        scheduleMode(context, "both", "06:00")
     }
 
     fun runNow(context: Context) {
