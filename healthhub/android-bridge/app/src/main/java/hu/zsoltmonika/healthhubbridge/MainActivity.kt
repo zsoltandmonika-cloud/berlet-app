@@ -525,6 +525,7 @@ class MainActivity : ComponentActivity() {
                     .apply()
                 val owner = bindOwnerIfNeeded(profile)
                 if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
+                DailyContentScheduler.runNow(this@MainActivity)
                 exportAndUpload(owner)
             } catch (e: Exception) {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
