@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.223 — clean shared Timeline hero.
+/* HealthHub v1.224 — clean shared Timeline hero.
    Only "Zsolt Timeline" / "Mónika Timeline" remains visible in the hero,
    with direct one-click profile switching. */
 
@@ -17,9 +17,10 @@ function ensureStyle(){
   s.textContent=
     '#heroT .heroBtns,#heroT #personT,#heroT .heroCopy .screenTitle,#heroT .heroCopy .date,#heroT .heroCopy .weather,#heroT .heroCopy .nameday{display:none!important}'+
     '#heroT .heroCopy{left:165px!important;right:12px!important;top:18px!important;z-index:8!important;text-shadow:0 2px 7px rgba(0,0,0,.38)!important}'+
-    '#heroT .heroCopy h1{font-size:22px!important;line-height:1.1!important;margin:0!important;font-weight:900!important;white-space:nowrap!important}'+
+    '#heroT .heroCopy h1{font-size:0!important;line-height:1.1!important;margin:0!important;font-weight:900!important;white-space:nowrap!important}'+
+    '#heroT .heroCopy h1::after{content:attr(data-hh-title);font-size:22px!important;line-height:1.1!important}'+
     '#heroT .profileHit{left:0!important;top:0!important;width:100%!important;height:100%!important;z-index:7!important;cursor:pointer!important}'+
-    '@media(max-width:380px){#heroT .heroCopy{left:145px!important;right:8px!important;top:16px!important}#heroT .heroCopy h1{font-size:20px!important}}';
+    '@media(max-width:380px){#heroT .heroCopy{left:145px!important;right:8px!important;top:16px!important}#heroT .heroCopy h1::after{font-size:20px!important}}';
   document.head.appendChild(s);
 }
 
@@ -39,9 +40,14 @@ function paintTimelineHero(){
   hero.classList.remove('night','evening');
 
   var name=document.getElementById('nameT');
-  if(name)name.textContent=profileName()+' Timeline';
+  if(name){
+    var title=profileName()+' Timeline';
+    name.textContent=title;
+    name.setAttribute('data-hh-title',title);
+    name.setAttribute('aria-label',title);
+  }
 
-  document.documentElement.dataset.healthhubTimelineHero='v223-lena-clean';
+  document.documentElement.dataset.healthhubTimelineHero='v224-lena-clean';
 }
 
 function bindDirectTimelineToggle(){
@@ -75,5 +81,5 @@ if(typeof prevSetProfile==='function'){
 }
 
 window.addEventListener('focus',function(){setTimeout(function(){paintTimelineHero();bindDirectTimelineToggle()},30)});
-window.HH_LIVE_BUILD='v1.223-timeline-clean-one-click';
+window.HH_LIVE_BUILD='v1.224-timeline-title-lock';
 })();
