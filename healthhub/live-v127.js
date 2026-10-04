@@ -96,21 +96,23 @@ function fillSwitchButton(btn){
     btn.style.fontWeight='900';
   }
 }
-function openHealthProfilePicker(ev){
+function switchHealthProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
-  if(typeof window.openPicker==='function'){
-    window.openPicker();
-    return;
-  }
   const next=profileCode()==='m'?'z':'m';
   if(typeof window.setProfile==='function')window.setProfile(next);
   else localStorage.setItem('hh-profile',next);
-  setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();if(typeof window.renderHealthSection==='function'&&document.getElementById('healthSection')?.classList.contains('on'))window.renderHealthSection();},80);
+  setTimeout(()=>{
+    ensureProfileSwitches();
+    syncFullMigrationDashboard();
+    if(typeof window.renderHealthSection==='function'&&document.getElementById('healthSection')?.classList.contains('on')){
+      window.renderHealthSection();
+    }
+  },40);
 }
 function bindProfileAction(btn){
   if(!btn||btn.dataset.hhProfileBound==='1')return;
   btn.dataset.hhProfileBound='1';
-  btn.addEventListener('click',openHealthProfilePicker,{capture:true});
+  btn.addEventListener('click',switchHealthProfileOneClick,{capture:true});
 }
 function ensureProfileSwitches(){
   const mainHero=document.getElementById('heroH');
@@ -118,41 +120,36 @@ function ensureProfileSwitches(){
     const hit=document.createElement('button');
     hit.type='button';
     hit.className='hhHealthPortraitHit';
-    hit.setAttribute('aria-label','Profilváltás');
-    hit.title='Profilváltás';
-    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'5',cursor:'pointer'});
+    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'7',cursor:'pointer'});
     bindProfileAction(hit);
     mainHero.appendChild(hit);
   }
-  const hero=document.querySelector('#heroH .heroBtns');
-  if(hero&&!hero.querySelector('.hhHealthProfileSwitch')){
-    const b=document.createElement('button');
-    b.type='button';b.className='round hhHealthProfileSwitch';
-    Object.assign(b.style,{padding:'2px',overflow:'hidden',borderRadius:'50%'});
-    bindProfileAction(b);
-    hero.prepend(b);
+  const mainHit=mainHero&&mainHero.querySelector('.hhHealthPortraitHit');
+  if(mainHit){
+    bindProfileAction(mainHit);
+    mainHit.title='Váltás '+otherName()+' profiljára';
+    mainHit.setAttribute('aria-label','Egy kattintás: váltás '+otherName()+' profiljára');
   }
-  const hb=document.querySelector('#heroH .hhHealthProfileSwitch');if(hb){bindProfileAction(hb);fillSwitchButton(hb);}
+
+  document.querySelectorAll('#heroH .hhHealthProfileSwitch').forEach(el=>el.remove());
 
   const sub=document.querySelector('#healthSection .healthSubHero');
   if(sub&&!sub.querySelector('.hhHealthSubPortraitHit')){
     const hit=document.createElement('button');
     hit.type='button';
     hit.className='hhHealthSubPortraitHit';
-    hit.setAttribute('aria-label','Profilváltás');
-    hit.title='Profilváltás';
-    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'7',cursor:'pointer'});
+    Object.assign(hit.style,{position:'absolute',left:'0',top:'0',width:'52%',height:'100%',border:'0',background:'transparent',padding:'0',zIndex:'9',cursor:'pointer'});
     bindProfileAction(hit);
     sub.appendChild(hit);
   }
-  if(sub&&!sub.querySelector('.hhHealthSubProfileSwitch')){
-    const b=document.createElement('button');
-    b.type='button';b.className='round hhHealthSubProfileSwitch';
-    Object.assign(b.style,{position:'absolute',right:'55px',top:'18px',padding:'2px',overflow:'hidden',borderRadius:'50%',zIndex:'9',background:'rgba(255,255,255,.86)',border:'1px solid rgba(23,63,97,.14)',boxShadow:'0 4px 12px rgba(31,65,91,.10)'});
-    bindProfileAction(b);
-    sub.appendChild(b);
+  const subHit=sub&&sub.querySelector('.hhHealthSubPortraitHit');
+  if(subHit){
+    bindProfileAction(subHit);
+    subHit.title='Váltás '+otherName()+' profiljára';
+    subHit.setAttribute('aria-label','Egy kattintás: váltás '+otherName()+' profiljára');
   }
-  const sb=document.querySelector('#healthSection .hhHealthSubProfileSwitch');if(sb){bindProfileAction(sb);fillSwitchButton(sb);}
+
+  document.querySelectorAll('#healthSection .hhHealthSubProfileSwitch').forEach(el=>el.remove());
 }
 
 const prevSet=window.setProfile;
@@ -188,6 +185,6 @@ syncFullMigrationDashboard();
 setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();},400);
 setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();},1400);
 
-document.documentElement.dataset.healthhubParityBuild='1.27';
-window.HH_LIVE_BUILD='v1.27-parity1';
+document.documentElement.dataset.healthhubParityBuild='1.220';
+window.HH_LIVE_BUILD='v1.220-health-one-click-profile';
 })();
