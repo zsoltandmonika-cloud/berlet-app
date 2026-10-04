@@ -1,11 +1,11 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.215 — single-source static HOME hero.
+/* HealthHub v1.216 — single-source static HOME hero.
    HOME has exactly two images: Léna+Zsolt and Léna+Mónika.
    Seasonal/daypart/weather logic must never change HOME background. */
 
-var STYLE_ID='hh-v215-home-hero-style';
+var STYLE_ID='hh-v216-home-hero-style';
 function profile(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
 
 function style(){
@@ -31,8 +31,9 @@ function style(){
 }
 
 function heroUrl(p){
-  return p==='m'
-    ? './assets/hero-home-m-approved-v215.webp?v=215'
+  if(p==='m')return './assets/hero-home-m-approved-v215.webp?v=215';
+  return window.HH_HOME_HERO_Z_V216
+    ? 'data:image/webp;base64,'+window.HH_HOME_HERO_Z_V216
     : './assets/hero-home-z-approved-v215.webp?v=215';
 }
 function paint(p){
@@ -46,7 +47,7 @@ function paint(p){
   hero.removeAttribute('data-daypart');
   var person=document.getElementById('personHome');
   if(person){person.removeAttribute('src');person.style.setProperty('display','none','important');}
-  document.documentElement.dataset.healthhubHomeHero='v215-static-two-profile';
+  document.documentElement.dataset.healthhubHomeHero='v216-static-two-profile';
 }
 function apply(){style();paint(profile())}
 
@@ -99,5 +100,5 @@ function hooks(){
 function boot(){preloadHeroes();style();apply();hooks();setTimeout(apply,120)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.219-zsolt-image-position';
+window.HH_LIVE_BUILD='v1.220-zsolt-home-hero-v216';
 })();
