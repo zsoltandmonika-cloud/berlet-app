@@ -40,7 +40,7 @@ function paint(p){
   document.documentElement.dataset.hhHomeProfile=p;
   hero.style.setProperty('background-image','url("'+heroUrl(p)+'")','important');
   hero.style.setProperty('background-size','cover','important');
-  hero.style.setProperty('background-position','center center','important');
+  hero.style.setProperty('background-position',p==='z'?'46% center':'50% center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
   hero.classList.remove('night','evening');
   hero.removeAttribute('data-daypart');
@@ -73,5 +73,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.216-home-copy-left-weather-wrap';
+window.HH_LIVE_BUILD='v1.217-zsolt-hero-right-shift';
 })();
