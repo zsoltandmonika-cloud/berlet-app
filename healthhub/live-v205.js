@@ -93,12 +93,34 @@ window.hhUnifiedSyncAll=async function(){
  if(window.__hhUnifiedSyncBusy)return;
  window.__hhUnifiedSyncBusy=true;
  try{
-  var tasks=[];
-  if(typeof window.hhDropboxPushCurrentProfile==='function')tasks.push(window.hhDropboxPushCurrentProfile());
-  if(typeof window.hhCloudSyncDaily==='function')tasks.push(window.hhCloudSyncDaily());
-  if(typeof window.hhHealthCloudSync==='function')tasks.push(window.hhHealthCloudSync(false));
-  await Promise.allSettled(tasks);
-  try{window.toast&&window.toast('HealthHub Cloud Vault szinkronizálva')}catch(e){}
+  var jobs=[];
+  if(typeof window.hhDropboxPushCurrentProfile==='function')jobs.push({name:'Profile Vault',run:function(){return window.hhDropboxPushCurrentProfile()}});
+  if(typeof window.hhCloudSyncDaily==='function')jobs.push({name:'Daily Cloud',run:function(){return window.hhCloudSyncDaily()}});
+  if(typeof window.hhHealthCloudSync==='function')jobs.push({name:'Health + Activity Cloud',run:function(){return window.hhHealthCloudSync(false)}});
+  if(typeof window.hhDeviceCloudSync==='function')jobs.push({name:'Devices Cloud',run:function(){return window.hhDeviceCloudSync(true)}});
+
+  var results=await Promise.allSettled(jobs.map(function(j){
+    try{return Promise.resolve(j.run())}catch(e){return Promise.reject(e)}
+  }));
+  var failed=[];
+  results.forEach(function(r,i){
+    if(r.status==='rejected'){
+      failed.push(jobs[i].name);
+      try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','unified-sync:'+jobs[i].name,(r.reason&&r.reason.message)||r.reason||'Sync hiba',r.reason&&r.reason.stack||r.reason)}catch(e){}
+    }
+  });
+
+  if(failed.length){
+    var msg='Sync hiba: '+failed.join(', ');
+    try{window.toast&&window.toast(msg)}catch(e){}
+    try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','unified-sync',msg,{failed:failed,total:jobs.length})}catch(e){}
+  }else{
+    try{window.toast&&window.toast('HealthHub Cloud Vault szinkronizálva')}catch(e){}
+  }
+ }catch(e){
+  try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','unified-sync','A sync task nem indítható',e&&e.stack||e)}catch(_){}
+  try{window.toast&&window.toast('Sync task could not be started')}catch(_){}
+  throw e;
  }finally{
   window.__hhUnifiedSyncBusy=false;
   setTimeout(consolidate,120);
@@ -135,6 +157,6 @@ style();
 ensureObserver();
 setTimeout(queue,180);
 window.addEventListener('focus',function(){setTimeout(queue,180)});
-document.documentElement.dataset.healthhubUnifiedVault='1.108';
-window.HH_LIVE_BUILD='v1.108-unified-health-activity-cloud';
+document.documentElement.dataset.healthhubUnifiedVault='1.231';
+window.HH_LIVE_BUILD='v1.231-unified-sync-diagnostics';
 })();
