@@ -10,7 +10,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function fmtTime(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}):'—'}
 function fmtDate(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleDateString('hu-HU',{month:'short',day:'numeric'}):'—'}
 function durMin(a,b){var v=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(v)&&v>0?v:0}
