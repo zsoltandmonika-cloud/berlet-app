@@ -40,7 +40,7 @@ function paint(p){
   document.documentElement.dataset.hhHomeProfile=p;
   hero.style.setProperty('background-image','url("'+heroUrl(p)+'")','important');
   hero.style.setProperty('background-size','cover','important');
-  hero.style.setProperty('background-position',p==='z'?'46% center':'50% center','important');
+  hero.style.setProperty('background-position',p==='z'?'43% center':'50% center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
   hero.classList.remove('night','evening');
   hero.removeAttribute('data-daypart');
@@ -99,5 +99,5 @@ function hooks(){
 function boot(){preloadHeroes();style();apply();hooks();setTimeout(apply,120)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.218-direct-profile-toggle';
+window.HH_LIVE_BUILD='v1.219-zsolt-image-position';
 })();
