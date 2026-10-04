@@ -1,11 +1,11 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.212 — remove legacy heroCopy overlay.
+/* HealthHub v1.214 — approved clean Zsolt Home hero.
    HOME only. HealthRadar/Timeline/Activity/category heroes remain untouched.
    Existing dynamic HOME layers remain live: name, HealthHub title, date, weather and nameday. */
 
-var STYLE_ID='hh-v212-home-hero-style';
+var STYLE_ID='hh-v214-home-hero-style';
 function profile(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
 
 function style(){
@@ -32,27 +32,33 @@ function apply(){
   style();
   var hero=document.getElementById('heroHome'); if(!hero)return;
   var p=profile();
-  var b64=p==='m'?window.HH_HOME_HERO_M_V207:(window.HH_HOME_HERO_Z_V213||window.HH_HOME_HERO_Z_V209);
-  if(!b64)return;
+  var bg;
+  if(p==='m'){
+    var b64=window.HH_HOME_HERO_M_V207;
+    if(!b64)return;
+    bg='url("data:image/webp;base64,'+b64+'")';
+  }else{
+    bg='url("./assets/hero-z-home-v214.webp?v=214")';
+  }
   document.documentElement.dataset.hhHomeProfile=p;
-  hero.style.setProperty('background-image','url("data:image/webp;base64,'+b64+'")','important');
+  hero.style.setProperty('background-image',bg,'important');
   hero.style.setProperty('background-size','cover','important');
   hero.style.setProperty('background-position','center center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
   var person=document.getElementById('personHome');
   if(person)person.style.setProperty('display','none','important');
-  document.documentElement.dataset.healthhubHomeHero='v212';
+  document.documentElement.dataset.healthhubHomeHero='v214';
 }
 
 function hooks(){
   var original=window.setProfile;
-  if(typeof original==='function'&&!original.__hhV212){
+  if(typeof original==='function'&&!original.__hhV214){
     var wrapped=function(){var r=original.apply(this,arguments);setTimeout(apply,0);setTimeout(apply,100);return r};
-    wrapped.__hhV212=true;window.setProfile=wrapped;
+    wrapped.__hhV214=true;window.setProfile=wrapped;
   }
   var name=document.getElementById('nameHome');
-  if(name&&!name.__hhV212Observer){
-    name.__hhV212Observer=true;
+  if(name&&!name.__hhV214Observer){
+    name.__hhV214Observer=true;
     new MutationObserver(function(){setTimeout(apply,0)}).observe(name,{childList:true,subtree:true,characterData:true});
   }
   window.addEventListener('storage',function(e){if(e.key==='hh-profile')apply()});
@@ -61,5 +67,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.213-approved-zsolt-home-hero';
+window.HH_LIVE_BUILD='v1.214-approved-clean-zsolt-home-hero';
 })();
