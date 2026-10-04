@@ -32,7 +32,7 @@ function apply(){
   style();
   var hero=document.getElementById('heroHome'); if(!hero)return;
   var p=profile();
-  var b64=p==='m'?window.HH_HOME_HERO_M_V207:window.HH_HOME_HERO_Z_V209;
+  var b64=p==='m'?window.HH_HOME_HERO_M_V207:(window.HH_HOME_HERO_Z_V213||window.HH_HOME_HERO_Z_V209);
   if(!b64)return;
   document.documentElement.dataset.hhHomeProfile=p;
   hero.style.setProperty('background-image','url("data:image/webp;base64,'+b64+'")','important');
@@ -61,5 +61,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.212-home-hero-no-overlay';
+window.HH_LIVE_BUILD='v1.213-approved-zsolt-home-hero';
 })();
