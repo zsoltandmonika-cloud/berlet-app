@@ -12,7 +12,7 @@ function latestNonZero(a,keys){return (Array.isArray(a)?a:[]).slice().reverse().
 function card(icon,label,value,meta,cls){return '<div class="hhLifeCard '+(cls||'')+'"><div class="hhLifeIcon">'+icon+'</div><div class="hhLifeText"><small>'+esc(label)+'</small><b>'+value+'</b><span>'+meta+'</span></div></div>'}
 async function latestBundle(){
  return new Promise(function(ok){
-  var q=indexedDB.open(BRIDGE_DB,1);
+  var q=indexedDB.open(BRIDGE_DB,2);
   q.onerror=function(){ok(null)};
   q.onsuccess=function(){
    var db=q.result;
