@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.44 — unified Budapest weather + sunset/daypart controller.
+/* HealthHub v1.215 — Budapest weather + Timeline sunset/daypart controller.
    Fresh current weather + sunrise/sunset from one Open-Meteo call. */
 
 var CACHE_KEY='hh-budapest-weather-v144';
@@ -65,7 +65,7 @@ function bgFor(p,part){
 function render(){
   var dp=daypart(),bg=bgFor(profile(),dp);
   if(bg)document.documentElement.style.setProperty('--hero','url("'+bg+'")');
-  ['heroHome','heroT'].forEach(function(id){
+  ['heroT'].forEach(function(id){
     var el=document.getElementById(id);if(!el)return;
     el.classList.remove('night','evening');
     if(dp==='night')el.classList.add('night');
@@ -128,6 +128,6 @@ if(typeof oldSet==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubWeather='1.44';
-window.HH_LIVE_BUILD='v1.44-weather-sunset';
+document.documentElement.dataset.healthhubWeather='1.215-home-static';
+window.HH_LIVE_BUILD='v1.215-weather-home-static';
 })();

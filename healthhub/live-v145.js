@@ -18,19 +18,19 @@ try{
 var style=document.createElement('style');
 style.id='hh-v145-scenic-heroes';
 style.textContent=`
-#heroHome,#heroT,
-#heroHome.night,#heroT.night,
-#heroHome.evening,#heroT.evening{
+#heroT,
+#heroT.night,
+#heroT.evening{
   background-image:var(--hero)!important;
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
 }
-#heroHome .heroCopy,#heroT .heroCopy{
+#heroT .heroCopy{
   isolation:isolate;
   text-shadow:0 1px 2px rgba(0,0,0,.92),0 2px 5px rgba(0,0,0,.70);
 }
-#heroHome .heroCopy::before,#heroT .heroCopy::before{
+#heroT .heroCopy::before{
   content:"";
   position:absolute;
   inset:-7px -8px;
@@ -39,7 +39,7 @@ style.textContent=`
   background:linear-gradient(90deg,rgba(3,17,40,.30),rgba(3,17,40,.16) 78%,transparent);
   pointer-events:none;
 }
-#heroHome .heroBtns .round,#heroT .heroBtns .round{
+#heroT .heroBtns .round{
   filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));
 }
 `;
@@ -48,7 +48,7 @@ document.head.appendChild(style);
 /* All existing controllers read this same map on their next render.
    Reapply now as well, so the first frame already uses the new asset. */
 var p=localStorage.getItem('hh-profile')==='m'?'m':'z';
-var hero=document.getElementById('heroHome');
+var hero=document.getElementById('heroT');
 var part=document.documentElement.dataset.healthhubDaypart||
   (hero&&hero.dataset.daypart)||
   (typeof window.daypart==='function'?window.daypart():'day');
@@ -58,6 +58,6 @@ try{
   if(bg)document.documentElement.style.setProperty('--hero','url("'+bg+'")');
 }catch(e){}
 
-document.documentElement.dataset.healthhubHeroPhotography='1.45';
-window.HH_LIVE_BUILD='v1.45-scenic-night-heroes';
+document.documentElement.dataset.healthhubHeroPhotography='1.215-timeline-only';
+window.HH_LIVE_BUILD='v1.215-scenic-timeline-only';
 })();

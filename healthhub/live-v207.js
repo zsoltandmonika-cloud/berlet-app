@@ -1,11 +1,11 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.214 — approved clean Zsolt Home hero.
-   HOME only. HealthRadar/Timeline/Activity/category heroes remain untouched.
-   Existing dynamic HOME layers remain live: name, HealthHub title, date, weather and nameday. */
+/* HealthHub v1.215 — single-source static HOME hero.
+   HOME has exactly two images: Léna+Zsolt and Léna+Mónika.
+   Seasonal/daypart/weather logic must never change HOME background. */
 
-var STYLE_ID='hh-v214-home-hero-style';
+var STYLE_ID='hh-v215-home-hero-style';
 function profile(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
 
 function style(){
@@ -28,37 +28,41 @@ function style(){
   document.head.appendChild(s);
 }
 
-function apply(){
-  style();
+function heroUrl(p){
+  return p==='m'
+    ? './assets/hero-home-m-approved-v215.webp?v=215'
+    : './assets/hero-home-z-approved-v215.webp?v=215';
+}
+function paint(p){
   var hero=document.getElementById('heroHome'); if(!hero)return;
-  var p=profile();
-  var bg;
-  if(p==='m'){
-    var b64=window.HH_HOME_HERO_M_V207;
-    if(!b64)return;
-    bg='url("data:image/webp;base64,'+b64+'")';
-  }else{
-    bg='url("./assets/hero-z-home-v214.webp?v=214")';
-  }
   document.documentElement.dataset.hhHomeProfile=p;
-  hero.style.setProperty('background-image',bg,'important');
+  hero.style.setProperty('background-image','url("'+heroUrl(p)+'")','important');
   hero.style.setProperty('background-size','cover','important');
   hero.style.setProperty('background-position','center center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
+  hero.classList.remove('night','evening');
+  hero.removeAttribute('data-daypart');
   var person=document.getElementById('personHome');
-  if(person)person.style.setProperty('display','none','important');
-  document.documentElement.dataset.healthhubHomeHero='v214';
+  if(person){person.removeAttribute('src');person.style.setProperty('display','none','important');}
+  document.documentElement.dataset.healthhubHomeHero='v215-static-two-profile';
 }
+function apply(){style();paint(profile())}
 
 function hooks(){
   var original=window.setProfile;
-  if(typeof original==='function'&&!original.__hhV214){
-    var wrapped=function(){var r=original.apply(this,arguments);setTimeout(apply,0);setTimeout(apply,100);return r};
-    wrapped.__hhV214=true;window.setProfile=wrapped;
+  if(typeof original==='function'&&!original.__hhV215){
+    var wrapped=function(){
+      var p=arguments[0]==='m'?'m':arguments[0]==='z'?'z':profile();
+      paint(p);
+      var r=original.apply(this,arguments);
+      paint(p);
+      return r
+    };
+    wrapped.__hhV215=true;window.setProfile=wrapped;
   }
   var name=document.getElementById('nameHome');
-  if(name&&!name.__hhV214Observer){
-    name.__hhV214Observer=true;
+  if(name&&!name.__hhV215Observer){
+    name.__hhV215Observer=true;
     new MutationObserver(function(){setTimeout(apply,0)}).observe(name,{childList:true,subtree:true,characterData:true});
   }
   window.addEventListener('storage',function(e){if(e.key==='hh-profile')apply()});
@@ -67,5 +71,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.214-approved-clean-zsolt-home-hero';
+window.HH_LIVE_BUILD='v1.215-static-two-profile-home-hero';
 })();

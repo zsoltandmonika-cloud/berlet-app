@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.43 — sunset-aware Home hero daypart hotfix.
+/* HealthHub v1.215 — sunset-aware Timeline hero only.
    Uses Budapest sunrise/sunset instead of the old fixed 18:00 / 21:30 cutoffs. */
 
 var SUN_KEY='hh-budapest-sun-v1';
@@ -60,7 +60,7 @@ function bgFor(profile,part){
 function applySunHero(){
   var part=realPart(),profile=currentProfile(),bg=bgFor(profile,part);
   if(bg)document.documentElement.style.setProperty('--hero','url("'+bg+'")');
-  ['heroHome','heroT'].forEach(function(id){
+  ['heroT'].forEach(function(id){
     var h=document.getElementById(id);if(!h)return;
     h.classList.remove('night','evening');
     if(part==='night')h.classList.add('night');
@@ -91,6 +91,6 @@ refreshSun();
 setInterval(applySunHero,60000);
 setInterval(refreshSun,21600000);
 
-document.documentElement.dataset.healthhubSunsetHero='1.43';
-window.HH_LIVE_BUILD='v1.43-sunset-aware-hero';
+document.documentElement.dataset.healthhubSunsetHero='1.215-timeline-only';
+window.HH_LIVE_BUILD='v1.215-sunset-timeline-only';
 })();
