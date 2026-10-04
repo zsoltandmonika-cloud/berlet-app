@@ -73,6 +73,31 @@ object DropboxVaultClient {
     suspend fun ensureFolder(prefs: SharedPreferences, path: String) {
         val token = accessToken(prefs)
         withContext(Dispatchers.IO) {
+            fun metadataExists(): Boolean {
+                val body = JSONObject()
+                    .put("path", path)
+                    .put("include_media_info", false)
+                    .put("include_deleted", false)
+                    .toString()
+                val conn = (URL("https://api.dropboxapi.com/2/files/get_metadata").openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    doOutput = true
+                    connectTimeout = 20_000
+                    readTimeout = 20_000
+                    setRequestProperty("Authorization", "Bearer $token")
+                    setRequestProperty("Content-Type", "application/json")
+                }
+                conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
+                val text = responseText(conn)
+                if (conn.responseCode in 200..299) {
+                    return try { JSONObject(text).optString(".tag") == "folder" } catch (_: Exception) { false }
+                }
+                if (conn.responseCode == 409) return false
+                error("Dropbox mappa ellenőrzési hiba " + conn.responseCode + ": " + text)
+            }
+
+            if (metadataExists()) return@withContext
+
             val body = JSONObject().put("path", path).put("autorename", false).toString()
             val conn = (URL("https://api.dropboxapi.com/2/files/create_folder_v2").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -84,9 +109,17 @@ object DropboxVaultClient {
             }
             conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
             val text = responseText(conn)
-            if (conn.responseCode !in 200..299 && !(conn.responseCode == 409 && text.contains("conflict", ignoreCase = true))) {
-                error("Dropbox mappa hiba " + conn.responseCode + ": " + text)
+            if (conn.responseCode in 200..299) return@withContext
+
+            if (conn.responseCode == 409) {
+                try {
+                    if (metadataExists()) return@withContext
+                } catch (_: Exception) {
+                    // Fall through to the original Dropbox response below.
+                }
             }
+
+            error("Dropbox mappa hiba " + path + " · HTTP " + conn.responseCode + ": " + text)
         }
     }
 
