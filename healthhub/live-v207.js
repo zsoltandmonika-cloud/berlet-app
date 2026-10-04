@@ -50,6 +50,31 @@ function paint(p){
 }
 function apply(){style();paint(profile())}
 
+var heroPreload=[];
+function preloadHeroes(){
+  ['z','m'].forEach(function(p){
+    var img=new Image();
+    img.src=heroUrl(p);
+    heroPreload.push(img);
+  });
+}
+
+function bindDirectProfileToggle(){
+  var hit=document.querySelector('#heroHome .profileHit');
+  if(!hit||hit.__hhDirectToggle)return;
+  hit.__hhDirectToggle=true;
+  hit.setAttribute('aria-label','Profilváltás egy kattintással');
+  hit.title='Profilváltás';
+  hit.onclick=function(e){
+    if(e){e.preventDefault();e.stopPropagation();}
+    var next=profile()==='m'?'z':'m';
+    paint(next);
+    if(typeof window.setProfile==='function')window.setProfile(next);
+    else{localStorage.setItem('hh-profile',next);paint(next);}
+    return false;
+  };
+}
+
 function hooks(){
   var original=window.setProfile;
   if(typeof original==='function'&&!original.__hhV215){
@@ -68,10 +93,11 @@ function hooks(){
     new MutationObserver(function(){setTimeout(apply,0)}).observe(name,{childList:true,subtree:true,characterData:true});
   }
   window.addEventListener('storage',function(e){if(e.key==='hh-profile')apply()});
+  bindDirectProfileToggle();
 }
 
-function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
+function boot(){preloadHeroes();style();apply();hooks();setTimeout(apply,120)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.217-zsolt-hero-right-shift';
+window.HH_LIVE_BUILD='v1.218-direct-profile-toggle';
 })();
