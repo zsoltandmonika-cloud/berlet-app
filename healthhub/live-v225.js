@@ -14,7 +14,7 @@ function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
 function accent(){return pkey()==='monika'?'#ef3f89':'#178ed8'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function mins(a,b){var x=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(x)&&x>0?x:0}
 function dur(m){m=Math.max(0,Math.round(Number(m)||0));var h=Math.floor(m/60),x=m%60;return h+'h '+String(x).padStart(2,'0')+'m'}
 function shortDur(m){m=Math.max(0,Math.round(Number(m)||0));var h=Math.floor(m/60),x=m%60;return h+':'+String(x).padStart(2,'0')}
