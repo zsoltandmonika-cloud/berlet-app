@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.70 — Sleep dashboard + Sleep Helper */
+/* HealthHub v1.228 — Sleep dashboard + Cloud Health Connect + Sleep Helper */
 var BRIDGE_DB='healthhub-connect-v1';
 var sleepState=window.hhSleepState||{period:'7d'};
 window.hhSleepState=sleepState;
@@ -20,30 +20,59 @@ function stageName(v){return ({0:'Ismeretlen',1:'Ébren',2:'Alvás',3:'Ágyon k�
 function stageClass(v){return ({1:'awake',2:'sleep',3:'out',4:'light',5:'deep',6:'rem'})[Number(v)]||'unknown'}
 
 async function sleepSessions(){
+ var map=new Map(),profile=pkey(),cutoff=Date.now()-95*86400000,cloudUsed=false;
+
+ function addRows(a,importedAt){
+  if(!Array.isArray(a))return;
+  a.forEach(function(s){
+   if(!s||!s.startTime||!s.endTime)return;
+   if(Date.parse(s.endTime||0)<cutoff)return;
+   var id=String(s.id||s.startTime+'|'+s.endTime);
+   if(!map.has(id))map.set(id,Object.assign({},s,{_importedAt:importedAt||''}));
+  });
+ }
+
+ /* Cloud first: this is the same Health Connect bundle used by Activity.
+    That makes Sleep visible on PC and every other HealthHub device too. */
+ try{
+  var v=window.HH_DROPBOX_VAULT;
+  if(v&&v.connected&&v.connected()&&typeof v.downloadJson==='function'){
+   var raw=null,path='/HealthHub/profiles/'+profile+'-health-connect.json';
+   try{raw=await v.downloadJson(path)}
+   catch(e){
+    if(e&&e.status!==409)throw e;
+    path='/incoming-'+profile+'.json';
+    raw=await v.downloadJson(path);
+   }
+   if(raw&&String(raw.profile||'').toLowerCase()===profile){
+    addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
+    cloudUsed=true;
+    localStorage.setItem('hh-sleep-cloud-last-'+profile,new Date().toISOString());
+    localStorage.setItem('hh-sleep-cloud-path-'+profile,path);
+   }
+  }
+ }catch(e){console.warn('Sleep Cloud read failed',e)}
+
+ /* Local fallback / merge for the phone or a browser that already imported data. */
  try{
   var db=await openBridgeDb();try{
-   var cutoff=Date.now()-95*86400000,map=new Map(),profile=pkey();
-   return await new Promise(function(resolve){
+   await new Promise(function(resolve){
     var tx=db.transaction('imports'),st=tx.objectStore('imports'),req=st.openCursor(null,'prev');
-    req.onerror=function(){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}))};
+    req.onerror=function(){resolve()};
     req.onsuccess=function(){
-     var cur=req.result;if(!cur){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));return}
+     var cur=req.result;if(!cur){resolve();return}
      var i=cur.value;
      if(i&&i.profile===profile&&i.bundle&&i.bundle.records){
-      var a=Array.isArray(i.bundle.records.sleepSessions)?i.bundle.records.sleepSessions:[];
-      a.forEach(function(s){
-       if(Date.parse(s.endTime||0)<cutoff)return;
-       var id=String(s.id||s.startTime+'|'+s.endTime);
-       if(!map.has(id))map.set(id,Object.assign({},s,{_importedAt:i.importedAt}));
-      });
-      var oldest=Infinity;map.forEach(function(s){oldest=Math.min(oldest,Date.parse(s.endTime||0)||Infinity)});
-      if(map.size&&oldest<cutoff){resolve(Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));return}
+      addRows(i.bundle.records.sleepSessions,i.importedAt);
      }
      cur.continue();
     };
    });
   }finally{db.close()}
- }catch(e){return[]}
+ }catch(e){}
+
+ window.hhSleepDataSource=cloudUsed?'Dropbox Cloud + Health Connect':'Helyi Health Connect cache';
+ return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
 }
 function periodDays(){return sleepState.period==='30d'?30:sleepState.period==='90d'?90:7}
 function filtered(rows){var min=Date.now()-periodDays()*86400000;return rows.filter(function(x){return Date.parse(x.endTime)>=min})}
@@ -86,8 +115,8 @@ function trendSummary(rows){
 }
 async function render(){
  var page=document.getElementById('hhSleepPage');if(!page)return;
- page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
- var rows=await sleepSessions(),latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;
+ page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
+ var rows=await sleepSessions(),latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><span class="hhSleepProfile">'+esc(pname())+'</span></div>'+
  (latest?'<div class="hhSleepHeroCard"><div class="moon">🌙</div><div><small>LEGUTÓBBI ALVÁS</small><b>'+durText(total)+'</b><span>'+fmtTime(latest.startTime)+' → '+fmtTime(latest.endTime)+' · '+fmtDate(latest.endTime)+'</span></div></div>'+stageBar(latest)+stageSummary(latest):
@@ -170,5 +199,5 @@ function style(){
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},60);return r};
 setTimeout(wireButton,300);setInterval(wireButton,2000);
-document.documentElement.dataset.healthhubSleep='1.75';
+document.documentElement.dataset.healthhubSleep='1.228';window.HH_LIVE_BUILD='v1.228-sleep-cloud-direct';
 })();
