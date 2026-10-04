@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.221 — cross-device sync for HealthRadar device library. */
+/* HealthHub v1.232 — robust cross-device sync for HealthRadar device library. */
 
 var DB='healthhub-device-library-v1', STORE='devices';
 var syncing=false, editingId=null, observer=null;
@@ -87,18 +87,49 @@ function hydrate(x){
   return y;
 }
 
+async function folderMeta(path,token){
+  var r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{
+    method:'POST',
+    headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({path:path,include_media_info:false,include_deleted:false})
+  });
+  if(r.ok){
+    var j={};try{j=await r.json()}catch(e){}
+    return j&&j['.tag']==='folder'?j:null;
+  }
+  if(r.status===409)return null;
+  var txt='';try{txt=await r.text()}catch(e){}
+  var er=new Error('Dropbox mappa ellenőrzési hiba (HTTP '+r.status+')'+(txt?' · '+txt.slice(0,500):''));
+  er.status=r.status;er.body=txt;throw er;
+}
 async function ensureFolder(path){
   var v=vault();if(!v||!v.accessToken)return;
   var token=await v.accessToken();
+
+  /* If it already exists, do not ask Dropbox to create it again. */
+  var existing=await folderMeta(path,token);
+  if(existing)return true;
+
   var r=await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{
     method:'POST',
     headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify({path:path,autorename:false})
   });
-  if(r.ok)return;
+  if(r.ok)return true;
+
   var txt='';try{txt=await r.text()}catch(e){}
-  if(r.status===409&&/conflict/i.test(txt))return;
-  throw new Error('Dropbox mappa létrehozási hiba');
+
+  /* Dropbox may return 409 when another sync created the folder between
+     get_metadata and create_folder_v2. Re-check instead of treating that as
+     a hard failure. */
+  if(r.status===409){
+    try{if(await folderMeta(path,token))return true}catch(e){}
+  }
+
+  var er=new Error('Dropbox mappa létrehozási hiba: '+path+' (HTTP '+r.status+')'+(txt?' · '+txt.slice(0,500):''));
+  er.status=r.status;er.body=txt;er.path=path;
+  try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','device-cloud:ensureFolder',er.message,txt)}catch(e){}
+  throw er;
 }
 async function ensureFolders(){await ensureFolder('/HealthHub');await ensureFolder('/HealthHub/devices')}
 async function downloadRemote(p){
@@ -237,13 +268,6 @@ if(typeof oldDelete==='function')window.hhDeleteDevice=async function(){
   return r;
 };
 
-var oldUnified=window.hhUnifiedSyncAll;
-if(typeof oldUnified==='function')window.hhUnifiedSyncAll=async function(){
-  var a=oldUnified.apply(this,arguments),b=sync(true);
-  await Promise.allSettled([Promise.resolve(a),Promise.resolve(b)]);
-  decorate();
-};
-
 var oldSet=window.setProfile;
 if(typeof oldSet==='function')window.setProfile=function(){
   var r=oldSet.apply(this,arguments);
@@ -255,6 +279,6 @@ if(typeof oldSet==='function')window.setProfile=function(){
 observe();
 setTimeout(function(){decorate();sync(true)},1700);
 window.addEventListener('focus',function(){setTimeout(function(){sync(true);decorate()},250)});
-document.documentElement.dataset.healthhubDeviceCloud='1.221';
-window.HH_LIVE_BUILD='v1.221-device-cloud-sync';
+document.documentElement.dataset.healthhubDeviceCloud='1.232';
+window.HH_LIVE_BUILD='v1.232-device-cloud-sync';
 })();
