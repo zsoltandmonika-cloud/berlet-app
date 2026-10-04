@@ -1,11 +1,11 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.209 — HOME hero quality + transparency hotfix.
+/* HealthHub v1.210 — HOME hero clean text overlay.
    HOME only. HealthRadar/Timeline/Activity/category heroes remain untouched.
    Existing dynamic HOME layers remain live: name, HealthHub title, date, weather and nameday. */
 
-var STYLE_ID='hh-v209-home-hero-style';
+var STYLE_ID='hh-v210-home-hero-style';
 function profile(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
 
 function style(){
@@ -19,9 +19,7 @@ function style(){
     '#heroHome:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;}'+
     'html[data-hh-home-profile="m"] #heroHome:before{background:linear-gradient(90deg,rgba(91,35,67,.22) 0%,rgba(104,46,77,.12) 28%,rgba(104,46,77,.02) 48%,rgba(104,46,77,0) 62%);}'+
     'html[data-hh-home-profile="z"] #heroHome:before{background:linear-gradient(90deg,rgba(4,39,70,.22) 0%,rgba(7,54,91,.12) 28%,rgba(7,54,91,.02) 48%,rgba(7,54,91,0) 62%);}'+
-    '#heroHome .heroCopy{left:20px!important;right:155px!important;top:42px!important;z-index:4!important;text-shadow:0 2px 7px rgba(0,0,0,.44)!important;padding:8px 10px!important;border-radius:14px!important;backdrop-filter:blur(3px)!important;-webkit-backdrop-filter:blur(3px)!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:none!important;}'+
-    'html[data-hh-home-profile="m"] #heroHome .heroCopy{background:rgba(92,38,68,.12)!important;}'+
-    'html[data-hh-home-profile="z"] #heroHome .heroCopy{background:rgba(6,43,72,.10)!important;}'+
+    '#heroHome .heroCopy{left:20px!important;right:155px!important;top:42px!important;z-index:4!important;text-shadow:0 2px 7px rgba(0,0,0,.52)!important;padding:0!important;border-radius:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:0!important;box-shadow:none!important;background:transparent!important;}'+
     '#heroHome .heroCopy h1{font-size:28px!important;line-height:.98!important;font-weight:900!important;margin:0!important;}'+
     '#heroHome .heroCopy .screenTitle{font-size:20px!important;font-weight:850!important;margin-top:4px!important;}'+
     '#heroHome .heroCopy .date{font-size:12px!important;font-weight:760!important;margin-top:6px!important;}'+
@@ -44,18 +42,18 @@ function apply(){
   hero.style.setProperty('background-repeat','no-repeat','important');
   var person=document.getElementById('personHome');
   if(person)person.style.setProperty('display','none','important');
-  document.documentElement.dataset.healthhubHomeHero='v209';
+  document.documentElement.dataset.healthhubHomeHero='v210';
 }
 
 function hooks(){
   var original=window.setProfile;
-  if(typeof original==='function'&&!original.__hhV209){
+  if(typeof original==='function'&&!original.__hhV210){
     var wrapped=function(){var r=original.apply(this,arguments);setTimeout(apply,0);setTimeout(apply,100);return r};
-    wrapped.__hhV209=true;window.setProfile=wrapped;
+    wrapped.__hhV210=true;window.setProfile=wrapped;
   }
   var name=document.getElementById('nameHome');
-  if(name&&!name.__hhV209Observer){
-    name.__hhV209Observer=true;
+  if(name&&!name.__hhV210Observer){
+    name.__hhV210Observer=true;
     new MutationObserver(function(){setTimeout(apply,0)}).observe(name,{childList:true,subtree:true,characterData:true});
   }
   window.addEventListener('storage',function(e){if(e.key==='hh-profile')apply()});
@@ -64,5 +62,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.209-home-hero-quality';
+window.HH_LIVE_BUILD='v1.210-home-hero-clean';
 })();
