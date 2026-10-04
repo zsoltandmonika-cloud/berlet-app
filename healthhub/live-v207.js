@@ -18,13 +18,15 @@ function style(){
     '#heroHome .heroBtns{display:none!important;}'+
     '#heroHome:before{content:none!important;display:none!important;background:none!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}'+
     '#heroHome .heroCopy::before,#heroHome .heroCopy::after{content:none!important;display:none!important;background:none!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;}'+
-    '#heroHome .heroCopy{left:20px!important;right:155px!important;top:42px!important;z-index:4!important;text-shadow:0 2px 7px rgba(0,0,0,.52)!important;padding:0!important;border-radius:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:0!important;box-shadow:none!important;background:transparent!important;}'+
+    '#heroHome .heroCopy{left:10px!important;right:155px!important;top:42px!important;z-index:4!important;text-shadow:0 2px 7px rgba(0,0,0,.52)!important;padding:0!important;border-radius:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:0!important;box-shadow:none!important;background:transparent!important;}'+
     '#heroHome .heroCopy h1{font-size:28px!important;line-height:.98!important;font-weight:900!important;margin:0!important;}'+
     '#heroHome .heroCopy .screenTitle{font-size:20px!important;font-weight:850!important;margin-top:4px!important;}'+
     '#heroHome .heroCopy .date{font-size:12px!important;font-weight:760!important;margin-top:6px!important;}'+
     '#heroHome .heroCopy .weather,#heroHome .heroCopy .nameday{font-size:12px!important;font-weight:780!important;}'+
+    '#heroHome #weatherHome .weatherSep{display:none!important;}'+
+    '#heroHome #weatherHome span:last-child{display:block!important;margin-top:1px!important;}'+
     '#heroHome .profileHit{z-index:7!important;}'+
-    '@media(max-width:380px){#heroHome .heroCopy{left:16px!important;right:142px!important;top:40px!important}#heroHome .heroCopy h1{font-size:26px!important}#heroHome .heroCopy .screenTitle{font-size:19px!important}}';
+    '@media(max-width:380px){#heroHome .heroCopy{left:8px!important;right:142px!important;top:40px!important}#heroHome .heroCopy h1{font-size:26px!important}#heroHome .heroCopy .screenTitle{font-size:19px!important}}';
   document.head.appendChild(s);
 }
 
@@ -71,5 +73,5 @@ function hooks(){
 function boot(){style();apply();hooks();setTimeout(apply,120);setTimeout(apply,450)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 window.addEventListener('focus',function(){setTimeout(apply,50)});
-window.HH_LIVE_BUILD='v1.215-static-two-profile-home-hero';
+window.HH_LIVE_BUILD='v1.216-home-copy-left-weather-wrap';
 })();
