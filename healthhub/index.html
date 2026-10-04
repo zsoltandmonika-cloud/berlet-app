@@ -48,7 +48,7 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
   const shortcutHead=Array.from(document.head.querySelectorAll('[data-hh-shortcut]')).map(el=>el.outerHTML).join('\n');
   const hp=localStorage.getItem('hh-profile')==='m'?'m':'z';
   const hhHomeBoot='<style id="hh-home-static-bootstrap">#heroHome{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important}#heroHome #personHome{display:none!important}#heroHome.night,#heroHome.evening{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important}</style>';
-  const html=(window.HH_CHUNKS||[]).join('').replace('</head>',shortcutHead+'\\n'+hhHomeBoot+'</head>');
+  const html=(window.HH_CHUNKS||[]).join('').replace('</head>',shortcutHead+'\n'+hhHomeBoot+'</head>');
   if(!html.startsWith('<!doctype html>')){
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
