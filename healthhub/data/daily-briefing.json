@@ -1,211 +1,131 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-03",
-  "generatedAt": "2026-10-03T11:54:46+02:00",
-  "headline": "A reggel fő témái: Flydubai co-pilot attacked captain with axe, UAE official says; Russia strikes second major bridge in Kyiv, mayor says",
+  "date": "2026-10-04",
+  "generatedAt": "2026-10-04T06:58:30+02:00",
+  "headline": "Oroszország további nagyszabású ukrajnai csapásokat helyezett kilátásba, miközben Kijev fokozná az orosz finomítók elleni támadásokat, és a közel-keleti energia-infrastruktúra körül is nő a kockázat.",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
-        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
-        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat",
-        "BBC World: US murderer Christa Pike unconscious and on ventilator after failed execution, lawyers say"
+        "Oroszország október 3-án közölte, hogy folytatja a nagyszabású csapásokat Kijev és más ukrán városok ellen, és a külföldi diplomatákat távozásra szólította fel.",
+        "Volodimir Zelenszkij szerint Ukrajna válaszul fokozni fogja az orosz olajfinomítók elleni támadásokat; Kijev közben a Donbaszban 140 négyzetkilométer visszafoglalásáról számolt be.",
+        "A húszik azt állítják, hogy rakétákkal és drónokkal támadtak egy rijádi Saudi Aramco-létesítményt; füstöt és tüzet láttak a közelben, de szaúdi vagy Aramco-megerősítés egyelőre nincs.",
+        "Magyarországon az erdőbényei kihelyezett kormányülés ma folytatódik; a napirend gazdasági, költségvetési, közigazgatási, energetikai és vízgazdálkodási kérdéseket tartalmaz.",
+        "AI-politikában amerikai sajtóértesülés szerint Donald Trump Jay Claytont nevezte ki egy új Fehér Házi AI-munkacsoport élére; hivatalos részletek további ellenőrzést igényelnek."
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
-        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
-        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat"
+        "Friedrich Merz német kancellár október 4-én megérkezett Kijevbe; a látogatás az erősödő orosz légicsapások közepette zajlik.",
+        "A kijevi Északi hidat is találat érte; a forgalmat felfüggesztették, személyi sérülést nem jelentettek.",
+        "A közel-keleti fronton a húszik rijádi Aramco-célpont elleni támadást állítanak, de a felelősség és a kár mértéke nincs függetlenül megerősítve."
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
-        "BBC World: Russia strikes second major bridge in Kyiv, mayor says",
-        "BBC World: G7 to release millions of barrels of oil and diesel after Trump threat"
+        "Moszkva további nagyszabású ukrajnai légicsapásokat helyezett kilátásba, és azt állítja, hogy ezek ukrán támadásokra adott válaszok; Ukrajna szerint Oroszország városi és kritikus infrastruktúrát támad.",
+        "Zelenszkij bejelentette, hogy Ukrajna fokozza az orosz finomítók elleni csapásokat, miközben saját légvédelmét drónokkal és rakétákkal próbálja erősíteni.",
+        "Egy libériai zászló alatt közlekedő teherhajót orosz támadás ért az odesszai térség egyik kikötőjében; az ukrán kikötői hatóság szerint egy ember meghalt és három megsérült."
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "MédiaKlikk: UEFA Nemzetek Ligája Magyarország - Georgia mérkőzés - MédiaKlikk",
-        "| hvg.hu: Kidobott élelmiszerek: Magyarország egész jól áll az uniós mezőnyben, de így is sok pénz landol a kukában - | hvg.hu",
-        "444: A vagyonadóval nem lesz igazságosabb Magyarország - 444"
+        "Az erdőbényei kihelyezett kormányülés október 4-én folytatódik; az Index szerint a gazdaság, költségvetés, közigazgatás, energetika, vízgazdálkodás és klímahelyzet szerepel a napirenden.",
+        "A reggeli ellenőrzéskor nem azonosítható új, végleges kormányzati döntés a kihelyezett ülésről; a nap folyamán megjelenő konkrét határozatok lesznek érdemiek."
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: G7 to release millions of barrels of oil and diesel after Trump threat",
-        "BBC Business: UK diesel prices top £2 a litre for first time, RAC says",
-        "BBC Business: US jobs market sees sharp slowdown ahead of midterm elections"
+        "A pénteki amerikai piaci zárásban a gyenge munkaerőpiaci adat növelte a Fed-lazítási várakozásokat; a részvények emelkedtek, miközben a kötvénypiaci feszültség nem szűnt meg.",
+        "A közel-keleti energia-infrastruktúra elleni újabb támadási állítások a hétfői olajpiaci nyitás előtt felfelé mutató kockázatot jelentenek.",
+        "A globális kötvénypiacokon továbbra is magasak a hosszú hozamok, így az energiaárak újabb emelkedése ismét erősíthetné az inflációs és finanszírozási nyomást."
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: OpenAI fires workers for 'mishandling sensitive information'"
+        "A Wall Street Journal értesülésére hivatkozó Reuters szerint Jay Clayton egy új Fehér Házi AI-munkacsoportot vezethet, amelynek 120 napon belül kell jelentést készítenie az AI kockázatairól és lehetőségeiről.",
+        "Az elmúlt 24 órában nem jelent meg olyan új, több megbízható forrással megerősített OpenAI- vagy Anthropic-fejlemény, amely indokolná a korábbi szabályozási történetek ismétlését."
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Flydubai co-pilot attacked captain with axe, UAE official says (BBC World).",
-        "Figyelmi pont: Russia strikes second major bridge in Kyiv, mayor says (BBC World).",
-        "Figyelmi pont: G7 to release millions of barrels of oil and diesel after Trump threat (BBC World)."
+        "Ukrajna: további nagyszabású orosz csapások és az ukrán finomítóellenes válaszlépések kölcsönös eszkalációja.",
+        "Közel-Kelet: újabb támadás szaúdi energia-infrastruktúra ellen, illetve a rijádi incidens hivatalos megerősítése.",
+        "Piacok: a közel-keleti hírek hétfői olajár-hatása és a magas kötvényhozamok fennmaradása.",
+        "Magyarország: a kihelyezett kormányülésről érkező konkrét költségvetési és gazdaságpolitikai döntések."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Flydubai co-pilot attacked captain with axe, UAE official says",
-        "BBC World: Russia strikes second major bridge in Kyiv, mayor says"
+        "Magas figyelmi szint: az orosz és ukrán csapásmérési stratégia egyaránt az ellenfél gazdasági és kritikus infrastruktúráját célozza, ami növeli a téli eszkaláció kockázatát.",
+        "Magas figyelmi szint: a szaúdi energia-infrastruktúra elleni állítólagos húszi támadás megerősítése esetén új kockázati prémium jelenhet meg az olajpiacon.",
+        "Közepes figyelmi szint: a magyar kormányülésből ma akkor lesz valódi új hír, ha konkrét költségvetési, energetikai vagy közigazgatási döntést jelentenek be.",
+        "Közepes figyelmi szint: az amerikai AI-munkacsoport mandátuma és összetétele jelezheti, merre mozdul a washingtoni AI-szabályozás."
       ]
     }
   ],
   "sources": [
     {
-      "title": "Flydubai co-pilot attacked captain with axe, UAE official says",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c61wv7lgex13o?at_medium=RSS&at_campaign=rss",
+      "title": "Russia pledges to continue massive strikes on Kyiv, urges foreign diplomats to leave city",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/russia-pledges-continue-massive-strikes-kyiv-urges-foreign-diplomats-leave-city-2026-10-03/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "Russia strikes second major bridge in Kyiv, mayor says",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c83vqxzdg1yko?at_medium=RSS&at_campaign=rss",
+      "title": "Ukraine will hit Russian refineries in response to Moscow's 'new doctrine' of airstrikes, Zelenskiy says",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/business/aerospace-defense/ukraine-will-hit-russian-refineries-response-moscows-new-doctrine-airstrikes-2026-10-03/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "G7 to release millions of barrels of oil and diesel after Trump threat",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck87zg8jnwngo?at_medium=RSS&at_campaign=rss",
+      "title": "Russia hits Liberian-flagged ship in Ukraine's Odesa port, kills one",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/russia-hits-liberian-flagged-ship-ukraines-odesa-port-kills-one-2026-10-03/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "US murderer Christa Pike unconscious and on ventilator after failed execution, lawyers say",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3kgqw7zvz47o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Riot police clash with students as education protests rage in France",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck3r5dxxwqzpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Women given shorts at Oktoberfest to prevent upskirting",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cjwyzyqvx1zxo?at_medium=RSS&at_campaign=rss",
+      "title": "Yemen's Houthis say they attacked Aramco facility in Riyadh with missiles, drones",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/business/energy/fire-smoke-seen-near-aramco-facility-riyadh-witness-says-2026-10-03/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "Kim wins Asian Games gold to secure military exemption",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/sport/golf/articles/cmy0rn425k4xo?at_medium=RSS&at_campaign=rss",
+      "title": "German Chancellor Friedrich Merz arrives in Kyiv",
+      "publisher": "Reuters",
+      "url": "https://www.reutersconnect.com/item/german-chancellor-friedrich-merz-arrives-at-a-railway-station-amid-russias-attack-on-ukraine-in-kyiv/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX1JDMjRXTkFHSlVIVQ",
+      "publishedAt": "2026-10-04"
+    },
+    {
+      "title": "„Megviselten, de bizakodóan” – Magyar Péter a kihelyezett kormányülésről jelentkezett",
+      "publisher": "Index",
+      "url": "https://index.hu/belfold/2026/10/03/magyar-peter-miniszterelnok-kormanyules-erdobenye/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "Spanish PM Sánchez loses key housing crisis vote after eviction of woman, 87",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c623dlk4y75mo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "UEFA Nemzetek Ligája Magyarország - Georgia mérkőzés - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPWldVZzc3WXBOQUxBTDRhSDV4UlAwQzg1TXdmMlVRQlJWMXBwdEVzUkJacDF1T3lsMnpKREg1cnBVMllEQVhScnhVM1VMS3A1ZE1wazFnQzk1UlFzcTA4WEV5QmhHdmhHaG9FUTR1dGF2bDhYcEpaYVE5anExSU4zV09uZlZNU3Y5bVU2N3d6ajVVeU0?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Kidobott élelmiszerek: Magyarország egész jól áll az uniós mezőnyben, de így is sok pénz landol a kukában - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPc1lWYkZYLUdRS0pVR0lkTUNhVHd2WFdGTVg1aDlTeTh0Y0NaQnZfY19KWHVjaWcxQlZpM3VSeGRtcVpvS0xnSk1VRFJuUlpJNHlmaGZ4dm11eTJKYTMwakJva3hhNG9tQ0pFdWtyaHZYbXRpYWk4R0I1cEZIWndQOElsTElzM1MzbEV4V3d1VDVkQXIzSG5xZzJZTQ?oc=5",
+      "title": "Trump names intelligence chief Clayton as AI czar, to head task force, WSJ reports",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/us/jay-clayton-lead-trumps-ai-task-force-deliver-report-120-days-wsj-reports-2026-10-03/",
       "publishedAt": "2026-10-03"
     },
     {
-      "title": "A vagyonadóval nem lesz igazságosabb Magyarország - 444",
-      "publisher": "444",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPSjVPMjRqcklEeklpMWhpX0hUcHQ2ejdtOVJzWlladnI2YzB3N3lhYzhfMDduX1h6ZjNiU0U3bTVpYVNNRGZlbTZnSU5zRlZsOTYyZUQ4VUFrdVhlMndRLU1YV285RUktbTBfbGNkRDJKOGdyaUJCRWRFYW9yUU5PWg?oc=5",
-      "publishedAt": "2026-10-03"
-    },
-    {
-      "title": "Jobb volt Grúziánál a magyar válogatott, de keserves győzelmet aratott - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOUEFLajdQaThmcDc5Vzd6eVlISm00WUVXdlNPeGhBc1AzbmhiT3JHbnpOY2REY2FRV2d1YW5qNHI1RjQ4dXV6YVhYd0doNFBqZlBKeXFsRVBNd0Y5SDJrcDhqMDM4OFdROU1ja1lBaWpHWlA1SkhNQVQ5WEQ3bzVxbS1GOHFlaE5IOGc?oc=5",
-      "publishedAt": "2026-10-03"
-    },
-    {
-      "title": "Óriási csapást kapott Európa: ezt a pusztítást Magyarország sem ússza meg - Agrárszektor",
-      "publisher": "Agrárszektor",
-      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPWWNhVUQxbU8zWjN5LWs2bXlaV3ZGN3d6TlBZanIxSDVCWHFwOV81NF9jdUdXUFpyenNUYUs1VlhxOGkzREZrYTRBYnNKOF9JODJEUnJpMk8yX2JZMDRvOWtJTkRDSWJDcjRUM056UTZYVldDVXk0YVpRYVh0SXFmT01jSzh1NS1VVHdUaklCQVIxdURUWVlJTnZGUTdWVTJ3bFR0dHZCOTg3QVR3R0pjVVdud1N1QndBeHZ2SDdHTQ?oc=5",
-      "publishedAt": "2026-10-03"
-    },
-    {
-      "title": "Magyarország-Georgia: megtört a jég, Kerkez góljával nyert a válogatott - nb1.hu",
-      "publisher": "nb1.hu",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE0tN0pFdkliUmlJLVRoWGdwaThjNzFUbzBBYlhjZzBycnF3T1gxaHk0Sk9MWGpNdmxzZnRZa0hSS1VueUxVQk1DLVZnMVlLblFTZHV3V3dTa3VONzJGTjFkTjNhemRCSm93N0czUA?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Ilyen az igazi Szoboszlai – osztálynapló, Magyarország-Georgia 1-0 - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOZ3lqTzlPbWRRMEtQUlRwNVNqeUkzaVdBeF9wSnFpS0RFSVdHMUJxeHd4aTJIZjZQY240SXMweUZ1dklwWmVWSFI2VjRncldIcUVOcmgtZm1zYllZVnN0QlRfUUlUQTRqTE80WlhQWjNMTWRyMjRsMHR4SVpkektvR1Zack9pckpwekMzUWRPS1B4WGo2?oc=5",
-      "publishedAt": "2026-10-03"
-    },
-    {
-      "title": "Új uniós pénzekre pályázik Magyarország: nagysebességű vasút és reptéri fejlesztés is a listán - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNSk1TMWdvMVV1ME1vZFkybUlVd0pGM1R5X3Nxc05LRWt6X3JKUE9OekJkaDRJSU1OZXVDSjI1ZTcwUEZ3TzlwZ2tKVWNhRjdwV20xY19VUTJ3UVdEY29GeXJkLVhuZE1wQWN0RmRtMjJOdFBrSlgtbS1KRnQ5eGJWNGpJaFJDRVpfMEFYbEV3TF9qcjJZZG5JVGhQSnFGYlJhckUxODAwNWpGRldLSWdGRDJtTEs4bzlJZV9EcGNmVW5rTVdBaFhQTmR4YnJTUFVZcWFXUHBqSThURXJLQTROamJtONIB6AFBVV95cUxPTUJEdDVCaWJPS2hOcUdOQnZuNW12NElLaWZoekRJRmR2TzBpTWZNY01SVVdYb0Y1clFXbVRmeGFPc0dhX19RaGNwUmJ6TWlXVTJnbUUxRGY2RUZESTJfa1RJZDJGdXVmYk1JX2l0OGJUTFFwSDI5MmhGLUgteVdHWDJwYW5NaEhZTVAwQXNTNHVxSUhzM0kyTnFhcDBscnJQVVRGbGV0eHlDR04tVWY0SENncFROaWtIOEkzSEI5OTZNTVpKWUpRd0gxWXg0aUpxQVd4V2lNTkVNUS1QOHRORmRxY0pxY3hQ?oc=5",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "UK diesel prices top £2 a litre for first time, RAC says",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/crn8e86y5n0zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "US jobs market sees sharp slowdown ahead of midterm elections",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm2d6gg0642yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "No more cereal at the end of the aisle? New rules in Scotland's supermarkets",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmwyzye21463o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "Why UK diesel prices have breached the £2 per litre mark",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c20zgjzz0e4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "OpenAI fires workers for 'mishandling sensitive information'",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6y9z9r4ejzwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-02"
-    },
-    {
-      "title": "US pressures Europe to release diesel reserves as Trump threatens export ban",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c5zjzjgdeneeo?at_medium=RSS&at_campaign=rss",
+      "title": "Stocks rise after weak US jobs data but bonds resume selling",
+      "publisher": "Reuters",
+      "url": "https://www.reuters.com/world/china/global-markets-wrapup-1-2026-10-02/",
       "publishedAt": "2026-10-02"
     }
   ]
