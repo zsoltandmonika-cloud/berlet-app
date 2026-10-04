@@ -5,7 +5,7 @@ var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1';
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,1);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function fmtDate(s){if(!s)return '—';var d=new Date(s);if(!Number.isFinite(d.getTime()))return '—';return d.toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
 function sameDay(a,b){return a&&b&&String(a).slice(0,10)===String(b).slice(0,10)}
 function latest(rows,test){return rows.filter(test).sort(function(a,b){return Date.parse(b.measuredAt||0)-Date.parse(a.measuredAt||0)})[0]||null}
