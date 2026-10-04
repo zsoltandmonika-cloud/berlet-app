@@ -1,10 +1,10 @@
 (function(){
 'use strict';
 
-/* HealthHub v1.229 — HealthRadar profile repair + cross-device persistence.
-   The rich overview/editor reads IndexedDB "profiles", while the existing
-   Dropbox profile Vault historically restores legacy profile data to
-   localStorage. This bridge keeps the two stores consistent. */
+/* HealthHub v1.230 — HealthRadar profile schema repair + cross-device persistence.
+   Older HealthRadar imports keep the actual personal fields under
+   legacyProfile.profileData. The current editor reads flat IndexedDB fields.
+   This bridge flattens that historical schema without discarding either copy. */
 
 var DB='healthhub-healthradar-v2';
 var LEGACY_KEY='hh-health-vault-v1';
@@ -43,15 +43,47 @@ function legacyProfile(profile){
 function useful(v){
   if(v==null||v==='')return false;
   if(Array.isArray(v))return v.length>0;
+  if(typeof v==='object')return Object.keys(v).length>0;
   return true;
 }
+function flatProfile(src,profile){
+  if(!src||typeof src!=='object')return null;
+
+  /* Full TAR migration v1.25 stored the real health profile here. */
+  var nested=(src.profileData&&typeof src.profileData==='object')?src.profileData:{};
+
+  /* Nested historical values first, then any already-flat current values.
+     Empty current values must not erase useful migrated data. */
+  var out=Object.assign({},nested);
+  Object.keys(src).forEach(function(k){
+    if(k==='profileData')return;
+    var v=src[k];
+    if(useful(v)||!useful(out[k]))out[k]=v;
+  });
+
+  /* A few harmless historical aliases used by older exports. */
+  if(!useful(out.birthDate)&&useful(out.dateOfBirth))out.birthDate=out.dateOfBirth;
+  if(!useful(out.heightCm)&&useful(out.height))out.heightCm=out.height;
+  if(!useful(out.weightKg)&&useful(out.weight))out.weightKg=out.weight;
+  if(!useful(out.doctorName)&&useful(out.gpName))out.doctorName=out.gpName;
+  if(!useful(out.clinicAddress)&&useful(out.doctorAddress))out.clinicAddress=out.doctorAddress;
+  if(!useful(out.doctorPhone)&&useful(out.gpPhone))out.doctorPhone=out.gpPhone;
+  if(!useful(out.doctorEmail)&&useful(out.gpEmail))out.doctorEmail=out.gpEmail;
+
+  out.profile=profile;
+  return out;
+}
 function mergeProfiles(legacy,current,profile){
-  var out=Object.assign({},legacy||{},current||{});
-  if(legacy&&current){
-    Object.keys(legacy).forEach(function(k){
-      if(!useful(out[k])&&useful(legacy[k]))out[k]=legacy[k];
-    });
-  }
+  var l=flatProfile(legacy,profile)||{};
+  var c=flatProfile(current,profile)||{};
+  var out=Object.assign({},l);
+
+  /* Current IndexedDB wins only when it really contains a value.
+     This is important after the broken bridge created empty flat fields. */
+  Object.keys(c).forEach(function(k){
+    if(useful(c[k])||!useful(out[k]))out[k]=c[k];
+  });
+
   out.profile=profile;
   return out;
 }
@@ -59,7 +91,14 @@ function mirrorLegacy(profile,rec){
   if(!rec)return;
   var v=readLegacy()||{schemaVersion:'healthhub.local.v1',profiles:{}};
   v.profiles=v.profiles||{};
-  v.profiles[profile]=Object.assign({},v.profiles[profile]||{},rec,{profile:profile});
+  var old=v.profiles[profile]||{};
+  var merged=Object.assign({},old,rec,{profile:profile});
+
+  /* Keep profileData in sync as well because Dropbox Vault snapshots the
+     legacy object and older clients still know this nested shape. */
+  merged.profileData=Object.assign({},old.profileData||{},rec,{profile:profile});
+
+  v.profiles[profile]=merged;
   localStorage.setItem(LEGACY_KEY,JSON.stringify(v));
 }
 async function cloudFallback(profile){
@@ -78,9 +117,15 @@ async function ensureProfile(profile){
     try{
       var current=await dbGet(profile);
       var legacy=legacyProfile(profile);
-      if(!current&&!legacy)legacy=await cloudFallback(profile);
-      if(!current&&!legacy)return null;
-      var merged=mergeProfiles(legacy,current,profile);
+
+      /* Even when a malformed/empty IndexedDB record already exists, try the
+         cloud legacy copy as an additional source instead of giving up. */
+      var cloud=null;
+      if(!legacy||!flatProfile(legacy,profile))cloud=await cloudFallback(profile);
+      if(!current&&!legacy&&!cloud)return null;
+
+      var base=mergeProfiles(cloud,legacy,profile);
+      var merged=mergeProfiles(base,current,profile);
       await dbPut(merged);
       mirrorLegacy(profile,merged);
       return merged;
@@ -176,6 +221,6 @@ window.addEventListener('focus',function(){
   },160);
 });
 
-document.documentElement.dataset.healthhubProfileRepair='1.229';
-window.HH_PROFILE_REPAIR='1.229';
+document.documentElement.dataset.healthhubProfileRepair='1.230';
+window.HH_PROFILE_REPAIR='1.230';
 })();
