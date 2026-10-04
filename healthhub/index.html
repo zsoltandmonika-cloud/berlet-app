@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="48x48" href="./assets/icons/healthhub-48-v146.png" data-hh-shortcut>
 <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/healthhub-180-v146.png" data-hh-shortcut>
-<link rel="manifest" href="./manifest.webmanifest?v=146" data-hh-shortcut>
+<link rel="manifest" href="./manifest.webmanifest?v=225" data-hh-shortcut>
 <meta name="application-name" content="HealthHub" data-hh-shortcut>
 <meta name="apple-mobile-web-app-title" content="HealthHub" data-hh-shortcut>
 <meta name="apple-mobile-web-app-capable" content="yes" data-hh-shortcut>
@@ -23,6 +23,18 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
 </head>
 <body>
 <div class="boot" aria-hidden="true"></div>
+<script>
+(function(){
+  var v='225';
+  try{
+    var u=new URL(location.href);
+    if(u.searchParams.get('hhv')!==v){
+      u.searchParams.set('hhv',v);
+      location.replace(u.toString());
+    }
+  }catch(e){}
+})();
+</script>
 <script>window.HH_CHUNKS=[];</script>
 <script src="./bundle/HHB13_00.js"></script>
 <script src="./bundle/HHB13_01.js"></script>
