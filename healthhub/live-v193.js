@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.241 — Activity runner one-click profile switch. The top-left profile card is removed; only running Léna toggles the canonical active profile. */
+/* HealthHub v1.242 — runner-only one-click profile switch; legacy baked profile faces are visually removed. */
 
 function profileCode(){
  try{
@@ -20,25 +20,48 @@ function toggleActivityProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
   var next=profileCode()==='m'?'z':'m';
   var nextProfile=next==='m'?'monika':'zsolt';
-  localStorage.setItem('hh-profile',next);
+
+  /* Use the exact same canonical switch path that already works in HealthRadar. */
   if(typeof window.setProfile==='function')window.setProfile(next);
-  try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:nextProfile,source:'activity-card'}}))}catch(e){}
-  if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
-  setTimeout(ensureProfileSwitch,30);
+  else localStorage.setItem('hh-profile',next);
+
+  setTimeout(function(){
+    /* Defensive sync in case an older wrapper forgot to persist the base profile. */
+    if(localStorage.getItem('hh-profile')!==next)localStorage.setItem('hh-profile',next);
+
+    var finish=function(){
+      if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
+      ensureProfileSwitch();
+    };
+
+    if(typeof window.hhHealthCloudSync==='function'){
+      Promise.resolve(window.hhHealthCloudSync(false)).catch(function(){}).finally(finish);
+    }else finish();
+
+    try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:nextProfile,source:'activity-runner'}}))}catch(e){}
+  },60);
   return false;
 }
 function ensureProfileSwitch(){
   var hero=document.querySelector('#hhActivityPage191 .a191Hero');
   if(!hero)return;
 
-  /* Remove every old Activity profile control. The runner herself is the switch. */
+  /* No profile buttons/cards. The runner is the only profile switch. */
   hero.querySelectorAll('.a191HeroHits .prof,.a193ProfileSwitch').forEach(function(el){el.remove()});
 
-  var hit=hero.querySelector('.a241RunnerProfileHit');
+  var mask=hero.querySelector('.a242FaceMask');
+  if(!mask){
+    mask=document.createElement('div');
+    mask.className='a242FaceMask';
+    mask.setAttribute('aria-hidden','true');
+    hero.appendChild(mask);
+  }
+
+  var hit=hero.querySelector('.a242RunnerProfileHit');
   if(!hit){
     hit=document.createElement('button');
     hit.type='button';
-    hit.className='a241RunnerProfileHit';
+    hit.className='a242RunnerProfileHit';
     hit.addEventListener('click',toggleActivityProfileOneClick,{capture:true});
     hero.appendChild(hit);
   }
@@ -50,10 +73,11 @@ function style(){
   var s=document.createElement('style');
   s.id='hh-v193-style';
   s.textContent=
-  '.a191HeroHits .prof,.a193ProfileSwitch{display:none!important}'+
-  '.a241RunnerProfileHit{position:absolute;left:35%;top:2%;width:31%;height:83%;z-index:12;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:45%}'+
-  '.a241RunnerProfileHit:active{background:rgba(255,255,255,.05)}'+
-  '@media(max-width:390px){.a241RunnerProfileHit{left:34%;width:32%;height:82%}}';
+  '.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit{display:none!important}'+
+  '.a242FaceMask{position:absolute;left:0;top:0;width:24.5%;height:31%;z-index:10;pointer-events:none;border:0;border-radius:0 0 28px 0;background:linear-gradient(135deg,rgba(227,240,218,.96) 0%,rgba(196,220,178,.88) 56%,rgba(170,207,154,.38) 100%);backdrop-filter:blur(28px) saturate(.82);-webkit-backdrop-filter:blur(28px) saturate(.82);box-shadow:10px 8px 24px rgba(74,105,64,.06)}'+
+  '.a242RunnerProfileHit{position:absolute;left:32%;top:0;width:34%;height:88%;z-index:14;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:44%}'+
+  '.a242RunnerProfileHit:active{background:rgba(255,255,255,.055)}'+
+  '@media(max-width:390px){.a242FaceMask{width:25%;height:31%}.a242RunnerProfileHit{left:31%;width:35%;height:88%}}';
   document.head.appendChild(s);
 }
 style();
@@ -79,6 +103,6 @@ if(typeof oldOpen==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubActivityProfile='1.241';
-window.HH_LIVE_BUILD='v1.241-activity-runner-profile-switch';
+document.documentElement.dataset.healthhubActivityProfile='1.242';
+window.HH_LIVE_BUILD='v1.242-activity-runner-profile-reload';
 })();
