@@ -8,7 +8,13 @@ window.hhSleepState=sleepState;
 var helper={ctx:null,source:null,gain:null,timer:null,endAt:0,wake:null,raf:null,mode:'brown',minutes:10};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
+function activeProfileCode(){
+ try{
+  if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur;
+ }catch(e){}
+ return localStorage.getItem('hh-profile')==='m'?'m':'z';
+}
+function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
 function otherName(){return pkey()==='monika'?'Zsolt':'Mónika'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
@@ -115,12 +121,12 @@ function trendSummary(rows){
  var mins=rows.map(function(x){return durMin(x.startTime,x.endTime)}),latest=rows[rows.length-1],first=rows[0],delta=mins[mins.length-1]-mins[0];
  return '<div class="hhSleepSummary"><div><small>ÁTLAG</small><b>'+durText(avg(mins))+'</b></div><div><small>LEGUTÓBBI</small><b>'+durText(mins[mins.length-1])+'</b></div><div><small>LEGHOSSZABB</small><b>'+durText(Math.max.apply(null,mins))+'</b></div><div><small>VÁLTOZÁS</small><b>'+(delta>0?'+':'')+Math.round(delta)+' p</b></div></div>';
 }
-async function render(){
+async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
- var renderId=++sleepRenderSeq,requestedProfile=pkey();
+ var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
  var rows=await sleepSessions(requestedProfile);
- if(renderId!==sleepRenderSeq||requestedProfile!==pkey())return;
+ if(renderId!==sleepRenderSeq)return;
  var latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
@@ -152,12 +158,18 @@ window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('hhSle
 window.hhRenderSleep=render;
 window.hhSleepToggleProfile=function(e){
  if(e){e.preventDefault();e.stopPropagation();}
- /* Invalidate any in-flight Sleep read before changing profile. */
  sleepRenderSeq++;
- var next=pkey()==='monika'?'z':'m';
- if(typeof window.setProfile==='function')window.setProfile(next);
- else localStorage.setItem('hh-profile',next);
- if(document.getElementById('hhSleepPage')?.classList.contains('on'))render();
+ var nextCode=activeProfileCode()==='m'?'z':'m';
+ var nextProfile=nextCode==='m'?'monika':'zsolt';
+
+ /* Keep the two HealthHub profile states in lockstep. */
+ localStorage.setItem('hh-profile',nextCode);
+ try{
+  if(typeof window.setProfile==='function')window.setProfile(nextCode);
+ }catch(err){console.warn('Sleep profile switch',err)}
+ try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:nextProfile,source:'sleep'}}))}catch(err){}
+
+ if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(nextProfile);
  return false;
 };
 window.hhSleepPeriod=function(p){sleepState.period=p;render()};
@@ -212,7 +224,7 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
-var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},60);return r};
+var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(wireButton,2000);
-document.documentElement.dataset.healthhubSleep='1.238';window.HH_LIVE_BUILD='v1.238-sleep-profile-source-lock';
+document.documentElement.dataset.healthhubSleep='1.239';window.HH_LIVE_BUILD='v1.239-sleep-canonical-active-profile';
 })();
