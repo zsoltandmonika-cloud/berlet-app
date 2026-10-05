@@ -1,10 +1,15 @@
 (function(){
 'use strict';
-/* HealthHub v1.93 — Activity profile switch parity
-   Uses the real current HealthHub avatar and the existing profile picker.
-   The generated hero portrait block is fully covered, never used as identity. */
+/* HealthHub v1.240 — Activity direct one-click profile switch.
+   Uses the real current HealthHub avatar and the canonical active profile.
+   No picker and no separate switch badge. */
 
-function profileCode(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
+function profileCode(){
+ try{
+  if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur;
+ }catch(e){}
+ return localStorage.getItem('hh-profile')==='m'?'m':'z';
+}
 function profileName(){return profileCode()==='m'?'Mónika':'Zsolt'}
 function otherName(){return profileCode()==='m'?'Zsolt':'Mónika'}
 
@@ -13,19 +18,17 @@ function currentAvatarSrc(){
   return (a&&(a.currentSrc||a.src))||'';
 }
 
-function openProfilePicker(ev){
+function toggleActivityProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
-  if(typeof window.openPicker==='function'){
-    window.openPicker();
-  }else{
-    var next=profileCode()==='m'?'z':'m';
-    if(typeof window.setProfile==='function')window.setProfile(next);
-    else localStorage.setItem('hh-profile',next);
-  }
-  setTimeout(ensureProfileSwitch,80);
-  setTimeout(ensureProfileSwitch,260);
+  var next=profileCode()==='m'?'z':'m';
+  var nextProfile=next==='m'?'monika':'zsolt';
+  localStorage.setItem('hh-profile',next);
+  if(typeof window.setProfile==='function')window.setProfile(next);
+  try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:nextProfile,source:'activity-card'}}))}catch(e){}
+  if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
+  setTimeout(ensureProfileSwitch,30);
+  return false;
 }
-
 function ensureProfileSwitch(){
   var hero=document.querySelector('#hhActivityPage191 .a191Hero');
   if(!hero)return;
@@ -38,7 +41,7 @@ function ensureProfileSwitch(){
     b=document.createElement('button');
     b.type='button';
     b.className='a193ProfileSwitch';
-    b.addEventListener('click',openProfilePicker,{capture:true});
+    b.addEventListener('click',toggleActivityProfileOneClick,{capture:true});
     hero.appendChild(b);
   }
 
@@ -63,19 +66,12 @@ function ensureProfileSwitch(){
   if(!txt){
     txt=document.createElement('span');
     txt.className='a193ProfileText';
-    txt.innerHTML='<b></b><small>Profilváltás</small>';
+    txt.innerHTML='<b></b><small>Profilváltás · 1 kattintás</small>';
     b.appendChild(txt);
   }
   txt.querySelector('b').textContent=name;
 
-  var badge=b.querySelector('.a193SwitchBadge');
-  if(!badge){
-    badge=document.createElement('span');
-    badge.className='a193SwitchBadge';
-    badge.textContent='⇄';
-    badge.setAttribute('aria-hidden','true');
-    b.appendChild(badge);
-  }
+
 }
 
 function style(){
@@ -89,9 +85,7 @@ function style(){
   '.a193Avatar{width:47px;height:47px;flex:0 0 47px;border-radius:50%;object-fit:cover;display:block;background:#eef5f8;border:3px solid #198fe6;box-shadow:0 2px 8px rgba(22,64,94,.13)}'+
   '.a193ProfileSwitch.monika .a193Avatar{border-color:#ff2f7f}.a193ProfileSwitch.zsolt .a193Avatar{border-color:#198fe6}'+
   '.a193ProfileText{display:block;min-width:0;line-height:1.05}.a193ProfileText b{display:block;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a193ProfileText small{display:block;margin-top:4px;font-size:6.7px;color:#6f8495;white-space:nowrap}'+
-  '.a193SwitchBadge{position:absolute;right:5px;bottom:4px;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#173d61;color:#fff;font-size:10px;font-weight:900;line-height:1;box-shadow:0 2px 5px rgba(20,55,80,.18)}'+
-  '.a193ProfileSwitch.monika .a193SwitchBadge{background:#ff2f7f}'+
-  '@media(max-width:390px){.a193ProfileSwitch{width:32.5%;padding:4px 5px;gap:4px}.a193Avatar{width:43px;height:43px;flex-basis:43px}.a193ProfileText b{font-size:9.5px}.a193ProfileText small{font-size:6px}.a193SwitchBadge{width:15px;height:15px;font-size:9px}}';
+      '@media(max-width:390px){.a193ProfileSwitch{width:32.5%;padding:4px 5px;gap:4px}.a193Avatar{width:43px;height:43px;flex-basis:43px}.a193ProfileText b{font-size:9.5px}.a193ProfileText small{font-size:6px}}';
   document.head.appendChild(s);
 }
 
@@ -118,6 +112,6 @@ if(typeof oldOpen==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubActivityProfile='1.93';
-window.HH_LIVE_BUILD='v1.93-activity-real-profile';
+document.documentElement.dataset.healthhubActivityProfile='1.240';
+window.HH_LIVE_BUILD='v1.240-activity-one-click-profile';
 })();
