@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.62 — Dropbox Health Vault auto-sync */
+/* HealthHub v1.234 — Dropbox Profile Vault schema + folder repair */
 var APP_KEY='t68rmhh5f1l8d85';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
 var TOKEN_KEY='hh-dropbox-token-v2', PKCE_KEY='hh-dropbox-pkce-v2';
@@ -13,7 +13,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function txDone(t){return new Promise(function(ok,no){t.oncomplete=ok;t.onerror=function(){no(t.error)};t.onabort=function(){no(t.error||new Error('A művelet megszakadt'))}})}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,1);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function b64url(bytes){var s='';bytes.forEach(function(b){s+=String.fromCharCode(b)});return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function randomToken(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a)}
 async function sha256b64(s){var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return b64url(new Uint8Array(d))}
@@ -77,11 +77,27 @@ async function downloadJsonPath(path){
  return await r.json();
 }
 async function ensureFolderPath(path){
- var token=await accessToken(),r=await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:path,autorename:false})});
+ var token=await accessToken();
+
+ async function exists(){
+  var r=await fetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:path,include_media_info:false,include_deleted:false})});
+  if(r.ok){var j={};try{j=await r.json()}catch(e){};return j&&j['.tag']==='folder'}
+  if(r.status===409)return false;
+  var t='';try{t=await r.text()}catch(e){}
+  throw new Error('Dropbox mappa ellenőrzési hiba '+path+' (HTTP '+r.status+')'+(t?' · '+t.slice(0,400):''));
+ }
+
+ if(await exists())return true;
+
+ var r=await fetch('https://api.dropboxapi.com/2/files/create_folder_v2',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({path:path,autorename:false})});
  if(r.ok)return true;
  var t='';try{t=await r.text()}catch(e){}
- if(r.status===409&&/conflict/i.test(t))return true;
- throw new Error('Dropbox mappa létrehozási hiba');
+ if(r.status===409){
+  try{if(await exists())return true}catch(e){}
+ }
+ var er=new Error('Dropbox mappa létrehozási hiba '+path+' (HTTP '+r.status+')'+(t?' · '+t.slice(0,400):''));
+ try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','profile-vault:ensureFolder',er.message,t)}catch(e){}
+ throw er;
 }
 
 async function dbAll(){
@@ -213,6 +229,6 @@ if(typeof previousSetProfile==='function'){
 handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},500)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},900);
 window.addEventListener('focus',function(){setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'focus')},150)});
-document.documentElement.dataset.healthhubDropboxVault='1.105';
+document.documentElement.dataset.healthhubDropboxVault='1.234';
 window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,appKey:APP_KEY,redirect:REDIRECT};
 })();
