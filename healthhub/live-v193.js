@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.242 — runner-only one-click profile switch; legacy baked profile faces are visually removed. */
+/* HealthHub v1.243 — runner-only canonical profile switch; baked faces patched from the hero background. */
 
 function profileCode(){
  try{
@@ -18,51 +18,48 @@ function currentAvatarSrc(){
 
 function toggleActivityProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
-  var next=profileCode()==='m'?'z':'m';
+  var current=profileCode();
+  var next=current==='m'?'z':'m';
   var nextProfile=next==='m'?'monika':'zsolt';
 
-  /* Use the exact same canonical switch path that already works in HealthRadar. */
+  /* Exact HealthHub base profile path: setProfile -> cur + localStorage + apply(). */
+  localStorage.setItem('hh-profile',next);
   if(typeof window.setProfile==='function')window.setProfile(next);
-  else localStorage.setItem('hh-profile',next);
 
   setTimeout(function(){
-    /* Defensive sync in case an older wrapper forgot to persist the base profile. */
-    if(localStorage.getItem('hh-profile')!==next)localStorage.setItem('hh-profile',next);
-
-    var finish=function(){
-      if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
-      ensureProfileSwitch();
-    };
-
-    if(typeof window.hhHealthCloudSync==='function'){
-      Promise.resolve(window.hhHealthCloudSync(false)).catch(function(){}).finally(finish);
-    }else finish();
-
-    try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:nextProfile,source:'activity-runner'}}))}catch(e){}
-  },60);
+    /* Some legacy wrappers repaint asynchronously; force the canonical value once more. */
+    localStorage.setItem('hh-profile',next);
+    if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
+    ensureProfileSwitch();
+  },45);
   return false;
 }
 function ensureProfileSwitch(){
   var hero=document.querySelector('#hhActivityPage191 .a191Hero');
   if(!hero)return;
 
-  /* No profile buttons/cards. The runner is the only profile switch. */
-  hero.querySelectorAll('.a191HeroHits .prof,.a193ProfileSwitch').forEach(function(el){el.remove()});
+  /* Remove every legacy profile control. */
+  hero.querySelectorAll('.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit').forEach(function(el){el.remove()});
 
-  var mask=hero.querySelector('.a242FaceMask');
-  if(!mask){
-    mask=document.createElement('div');
-    mask.className='a242FaceMask';
-    mask.setAttribute('aria-hidden','true');
-    hero.appendChild(mask);
+  /* The approved v192 hero has the old two faces baked into the bitmap.
+     Patch that small source area with a neighbouring tree segment from the same hero image. */
+  var patch=hero.querySelector('.a243HeroPatch');
+  if(!patch){
+    patch=document.createElement('div');
+    patch.className='a243HeroPatch';
+    var img=hero.querySelector('img');
+    var src=img&&(img.currentSrc||img.src);
+    if(src)patch.style.backgroundImage='url("'+src.replace(/"/g,'%22')+'")';
+    patch.setAttribute('aria-hidden','true');
+    hero.appendChild(patch);
   }
 
-  var hit=hero.querySelector('.a242RunnerProfileHit');
+  var hit=hero.querySelector('.a243RunnerProfileHit');
   if(!hit){
     hit=document.createElement('button');
     hit.type='button';
-    hit.className='a242RunnerProfileHit';
-    hit.addEventListener('click',toggleActivityProfileOneClick,{capture:true});
+    hit.className='a243RunnerProfileHit';
+    hit.onclick=toggleActivityProfileOneClick;
     hero.appendChild(hit);
   }
   hit.title='Profilváltás: '+otherName();
@@ -73,11 +70,11 @@ function style(){
   var s=document.createElement('style');
   s.id='hh-v193-style';
   s.textContent=
-  '.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit{display:none!important}'+
-  '.a242FaceMask{position:absolute;left:0;top:0;width:24.5%;height:31%;z-index:10;pointer-events:none;border:0;border-radius:0 0 28px 0;background:linear-gradient(135deg,rgba(227,240,218,.96) 0%,rgba(196,220,178,.88) 56%,rgba(170,207,154,.38) 100%);backdrop-filter:blur(28px) saturate(.82);-webkit-backdrop-filter:blur(28px) saturate(.82);box-shadow:10px 8px 24px rgba(74,105,64,.06)}'+
-  '.a242RunnerProfileHit{position:absolute;left:32%;top:0;width:34%;height:88%;z-index:14;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:44%}'+
-  '.a242RunnerProfileHit:active{background:rgba(255,255,255,.055)}'+
-  '@media(max-width:390px){.a242FaceMask{width:25%;height:31%}.a242RunnerProfileHit{left:31%;width:35%;height:88%}}';
+  '.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit{display:none!important}'+
+  '.a243HeroPatch{position:absolute;left:0;top:0;width:24.5%;height:31%;z-index:10;pointer-events:none;background-repeat:no-repeat;background-size:416.7% 322.6%;background-position:26.3% 0;border:0}'+
+  '.a243RunnerProfileHit{position:absolute;left:25%;top:0;width:43%;height:91%;z-index:15;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:42%}'+
+  '.a243RunnerProfileHit:active{background:rgba(255,255,255,.045)}'+
+  '@media(max-width:390px){.a243HeroPatch{width:25%;height:31%}.a243RunnerProfileHit{left:24%;width:45%;height:91%}}';
   document.head.appendChild(s);
 }
 style();
@@ -103,6 +100,6 @@ if(typeof oldOpen==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubActivityProfile='1.242';
-window.HH_LIVE_BUILD='v1.242-activity-runner-profile-reload';
+document.documentElement.dataset.healthhubActivityProfile='1.243';
+window.HH_LIVE_BUILD='v1.243-activity-runner-canonical-switch';
 })();
