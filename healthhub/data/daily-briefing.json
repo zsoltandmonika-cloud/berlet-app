@@ -1,132 +1,211 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-04",
-  "generatedAt": "2026-10-04T06:58:30+02:00",
-  "headline": "Oroszország további nagyszabású ukrajnai csapásokat helyezett kilátásba, miközben Kijev fokozná az orosz finomítók elleni támadásokat, és a közel-keleti energia-infrastruktúra körül is nő a kockázat.",
+  "date": "2026-10-05",
+  "generatedAt": "2026-10-05T13:34:35+02:00",
+  "headline": "A reggel fő témái: Spanish PM Sánchez calls early election after housing protests; Right-wing Flávio Bolsonaro wins first round of Brazil election",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "Oroszország október 3-án közölte, hogy folytatja a nagyszabású csapásokat Kijev és más ukrán városok ellen, és a külföldi diplomatákat távozásra szólította fel.",
-        "Volodimir Zelenszkij szerint Ukrajna válaszul fokozni fogja az orosz olajfinomítók elleni támadásokat; Kijev közben a Donbaszban 140 négyzetkilométer visszafoglalásáról számolt be.",
-        "A húszik azt állítják, hogy rakétákkal és drónokkal támadtak egy rijádi Saudi Aramco-létesítményt; füstöt és tüzet láttak a közelben, de szaúdi vagy Aramco-megerősítés egyelőre nincs.",
-        "Magyarországon az erdőbényei kihelyezett kormányülés ma folytatódik; a napirend gazdasági, költségvetési, közigazgatási, energetikai és vízgazdálkodási kérdéseket tartalmaz.",
-        "AI-politikában amerikai sajtóértesülés szerint Donald Trump Jay Claytont nevezte ki egy új Fehér Házi AI-munkacsoport élére; hivatalos részletek további ellenőrzést igényelnek."
+        "BBC World: Spanish PM Sánchez calls early election after housing protests",
+        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
+        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings",
+        "BBC World: US air force removes all bombers from British military base RAF Fairford"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "Friedrich Merz német kancellár október 4-én megérkezett Kijevbe; a látogatás az erősödő orosz légicsapások közepette zajlik.",
-        "A kijevi Északi hidat is találat érte; a forgalmat felfüggesztették, személyi sérülést nem jelentettek.",
-        "A közel-keleti fronton a húszik rijádi Aramco-célpont elleni támadást állítanak, de a felelősség és a kár mértéke nincs függetlenül megerősítve."
+        "BBC World: Spanish PM Sánchez calls early election after housing protests",
+        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
+        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "Moszkva további nagyszabású ukrajnai légicsapásokat helyezett kilátásba, és azt állítja, hogy ezek ukrán támadásokra adott válaszok; Ukrajna szerint Oroszország városi és kritikus infrastruktúrát támad.",
-        "Zelenszkij bejelentette, hogy Ukrajna fokozza az orosz finomítók elleni csapásokat, miközben saját légvédelmét drónokkal és rakétákkal próbálja erősíteni.",
-        "Egy libériai zászló alatt közlekedő teherhajót orosz támadás ért az odesszai térség egyik kikötőjében; az ukrán kikötői hatóság szerint egy ember meghalt és három megsérült."
+        "BBC World: Spanish PM Sánchez calls early election after housing protests",
+        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
+        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Az erdőbényei kihelyezett kormányülés október 4-én folytatódik; az Index szerint a gazdaság, költségvetés, közigazgatás, energetika, vízgazdálkodás és klímahelyzet szerepel a napirenden.",
-        "A reggeli ellenőrzéskor nem azonosítható új, végleges kormányzati döntés a kihelyezett ülésről; a nap folyamán megjelenő konkrét határozatok lesznek érdemiek."
+        "NB1.hu: Ukrajna–Magyarország: három lehetséges kimenetel, három különböző következmény - NB1.hu",
+        "Nemzeti Sport Online: Az esélylesés alapján Magyarország harmadik lehet az NL-csoportjában - Nemzeti Sport Online",
+        "| hvg.hu: Gazdaság: Balásy Gyula cége megpróbált keresztbe feküdni Magyarország népszerűsítésének - | hvg.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "A pénteki amerikai piaci zárásban a gyenge munkaerőpiaci adat növelte a Fed-lazítási várakozásokat; a részvények emelkedtek, miközben a kötvénypiaci feszültség nem szűnt meg.",
-        "A közel-keleti energia-infrastruktúra elleni újabb támadási állítások a hétfői olajpiaci nyitás előtt felfelé mutató kockázatot jelentenek.",
-        "A globális kötvénypiacokon továbbra is magasak a hosszú hozamok, így az energiaárak újabb emelkedése ismét erősíthetné az inflációs és finanszírozási nyomást."
+        "BBC Business: Average five-year mortgage rate hits 6% for first time in three years",
+        "BBC Business: BT agrees rescue deal to buy broadband operator TalkTalk",
+        "BBC Business: The job interview question you don't have to answer"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "A Wall Street Journal értesülésére hivatkozó Reuters szerint Jay Clayton egy új Fehér Házi AI-munkacsoportot vezethet, amelynek 120 napon belül kell jelentést készítenie az AI kockázatairól és lehetőségeiről.",
-        "Az elmúlt 24 órában nem jelent meg olyan új, több megbízható forrással megerősített OpenAI- vagy Anthropic-fejlemény, amely indokolná a korábbi szabályozási történetek ismétlését."
+        "BBC Technology: Trump chooses top spy boss to run new AI taskforce"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Ukrajna: további nagyszabású orosz csapások és az ukrán finomítóellenes válaszlépések kölcsönös eszkalációja.",
-        "Közel-Kelet: újabb támadás szaúdi energia-infrastruktúra ellen, illetve a rijádi incidens hivatalos megerősítése.",
-        "Piacok: a közel-keleti hírek hétfői olajár-hatása és a magas kötvényhozamok fennmaradása.",
-        "Magyarország: a kihelyezett kormányülésről érkező konkrét költségvetési és gazdaságpolitikai döntések."
+        "Figyelmi pont: Nobel Prize awarded for showing how nerve cells shape feelings (BBC World).",
+        "Figyelmi pont: Average five-year mortgage rate hits 6% for first time in three years (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "Magas figyelmi szint: az orosz és ukrán csapásmérési stratégia egyaránt az ellenfél gazdasági és kritikus infrastruktúráját célozza, ami növeli a téli eszkaláció kockázatát.",
-        "Magas figyelmi szint: a szaúdi energia-infrastruktúra elleni állítólagos húszi támadás megerősítése esetén új kockázati prémium jelenhet meg az olajpiacon.",
-        "Közepes figyelmi szint: a magyar kormányülésből ma akkor lesz valódi új hír, ha konkrét költségvetési, energetikai vagy közigazgatási döntést jelentenek be.",
-        "Közepes figyelmi szint: az amerikai AI-munkacsoport mandátuma és összetétele jelezheti, merre mozdul a washingtoni AI-szabályozás."
+        "BBC World: Spanish PM Sánchez calls early election after housing protests",
+        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Russia pledges to continue massive strikes on Kyiv, urges foreign diplomats to leave city",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/russia-pledges-continue-massive-strikes-kyiv-urges-foreign-diplomats-leave-city-2026-10-03/",
-      "publishedAt": "2026-10-03"
+      "title": "Spanish PM Sánchez calls early election after housing protests",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmdx39k49xw0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "Ukraine will hit Russian refineries in response to Moscow's 'new doctrine' of airstrikes, Zelenskiy says",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/aerospace-defense/ukraine-will-hit-russian-refineries-response-moscows-new-doctrine-airstrikes-2026-10-03/",
-      "publishedAt": "2026-10-03"
+      "title": "Right-wing Flávio Bolsonaro wins first round of Brazil election",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck1l34ed592no?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "Russia hits Liberian-flagged ship in Ukraine's Odesa port, kills one",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/russia-hits-liberian-flagged-ship-ukraines-odesa-port-kills-one-2026-10-03/",
-      "publishedAt": "2026-10-03"
+      "title": "Nobel Prize awarded for showing how nerve cells shape feelings",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c5ev3ypmzly8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "Yemen's Houthis say they attacked Aramco facility in Riyadh with missiles, drones",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/business/energy/fire-smoke-seen-near-aramco-facility-riyadh-witness-says-2026-10-03/",
-      "publishedAt": "2026-10-03"
+      "title": "US air force removes all bombers from British military base RAF Fairford",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmwyve191dlko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "German Chancellor Friedrich Merz arrives in Kyiv",
-      "publisher": "Reuters",
-      "url": "https://www.reutersconnect.com/item/german-chancellor-friedrich-merz-arrives-at-a-railway-station-amid-russias-attack-on-ukraine-in-kyiv/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX1JDMjRXTkFHSlVIVQ",
-      "publishedAt": "2026-10-04"
+      "title": "'Not again': Arrest of US marine for murder reignites protests in Japan's Okinawa",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwgkv70gg1j3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "„Megviselten, de bizakodóan” – Magyar Péter a kihelyezett kormányülésről jelentkezett",
-      "publisher": "Index",
-      "url": "https://index.hu/belfold/2026/10/03/magyar-peter-miniszterelnok-kormanyules-erdobenye/",
-      "publishedAt": "2026-10-03"
+      "title": "France closes up to 500 schools Monday over student protests",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwkg5n7lm3y5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "Trump names intelligence chief Clayton as AI czar, to head task force, WSJ reports",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/us/jay-clayton-lead-trumps-ai-task-force-deliver-report-120-days-wsj-reports-2026-10-03/",
-      "publishedAt": "2026-10-03"
+      "title": "All six passengers presumed dead after plane went missing off US coast",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmze4g8r6nr9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     },
     {
-      "title": "Stocks rise after weak US jobs data but bonds resume selling",
-      "publisher": "Reuters",
-      "url": "https://www.reuters.com/world/china/global-markets-wrapup-1-2026-10-02/",
-      "publishedAt": "2026-10-02"
+      "title": "Supporters of jailed ex-PM Imran Khan begin march in Pakistan",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmkg79z04w4zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Ukrajna–Magyarország: három lehetséges kimenetel, három különböző következmény - NB1.hu",
+      "publisher": "NB1.hu",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9DOG1RN19WT2lZalNfV1o2Q3pWTUlFMjk5LWYyRnJHZ1o0NlhMOUdlWDZNRG5YYldpelM2OTdYcGZEenVKMTRVR3FUek41ZmFBUkJfSlFoNUQzRm9Sa2V2Wld6N0F2N2s?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Az esélylesés alapján Magyarország harmadik lehet az NL-csoportjában - Nemzeti Sport Online",
+      "publisher": "Nemzeti Sport Online",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPdGJWc3NXZ19fQUszdE5CcnB4THZtQTIyZlo3NlhEVmRTWTVIaWl1eFBtbFlXN1JuYTV4MVA0VlZCQ0hmY3pQODdDYjZ1UVpLWmJ2ZTN0SzRqZGt0NFNrcEQzZEdwbTc5V1dYZFhVbnkzVjFyZndKZU1fdVUtTDJSQW5SbU5rd3NOZU9vNDcza0FKaXVnN2pnQjkwUjR4WWJpTE1qRVlsQXowNGFNNF9BNk9pcVZYaHQ2OXVhWFhJSQ?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Gazdaság: Balásy Gyula cége megpróbált keresztbe feküdni Magyarország népszerűsítésének - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0xBWWVQaG9CTUU5MVJ1WVYxRzF1NFJHamJRRDdDajU2YjdoR05kUnllVmdjdTlMNFBSZjdRb0Y5VlY4TmVqTFkwbVBuNDAtdFBPbE9aUUJualZkUTJld3FvU2pkN3YySmlmLU5wWVlsNUhJeXBkYVY1YzRERU5lVUpRLXNvN3lhNDkwaHN0TGg?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Furcsa mintázat Magyarország felett – itt a magyarázat - infostart.hu",
+      "publisher": "infostart.hu",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPTWlIY2FOa1Nlc2lSemFNMlZDQmQ4M3doUURQbmpTOHpFQmRDUWZ2U1ZZTDVYRjNWbnRKVXV1OGFmUjE3MEp6WXVwNzdjdENESGFFUWZmbHNnMEE4XzMyYzQ3NDQ2UjA5NDNCMDNScUZxVHJ6V1N5SW4zN0RWQlhDX2M1Z3RPSGs0VVN0aVlweEtJSGFvZDd5MmRB?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Bemutatjuk, hogyan működik a Nemzeti Kulturális Alap támogatási rendszere - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOWHEzN1M3V0NVczJMTURBMHh6UEw3Rk95S2EwRVIxLTR4bTZVZGdqUkJKUHhaZEVjLVVUdnZ2blpUN3VQb3hRU29FT0JuVEFtUThsZXYyQ2JDemtuc09NUnp0MWhjOFFZdGY0TVpUUzhYRVZveGNCOXZScE11aXBJbTEydkh6OGdVbzU2Vk9nQ0lLaTMyS0xIMkFmVFJ2UQ?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Két első és egy harmadik helyezést ért el Magyarország a 34. Európai Madármegfigyelő Napokon - felvidek.ma",
+      "publisher": "felvidek.ma",
+      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQVGx4QlI3bERldjcyczZPRFA3TEFkS2VRXy1uVkd2ZTkzT1p0ZmpHVjVfdkNXem1pNkctZWUza2wtSFVqdTNoRmJiR2JKUWQtb09Yekk4MXNMNmk2bGxnNTh3dF9XbDJQTGdlQlltZkhiLTFDRW5wTk8yUnhIcnJyMkcwdlRrWnBhY0hERm16aUp5TF9YUUhvUXZpN2VNNVFYNHZCdUNtdHFUS2REd3E0X0RsRW1HaWRwR2xidy1LQ2o?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Egy régi sérelmünk: Magyarország államadóssága nagyon szigorú ítéleteket kap - Tudás.hu",
+      "publisher": "Tudás.hu",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQbG1yNTBjaWtqSGJHREVlNi0xenJKQWFDR05GRXdScGhWcHdwWFpoU29OQUJiYWJkWFY2Wk9aMlhadHZ2SENHQWF0NE9fcmlLRzZLa1NBWmM3N0l5YmpvX2g1d0Rud3VqX1lRVllKRGNmc1N6TzRXSFFaZThuQ2dSaHp5TmdjMURNRkI2UTNseHNMTHI0WnZCcw?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Káosz uralkodik a színfalak mögött az Ukrajna-Magyarország meccs előtt? - ORIGO",
+      "publisher": "ORIGO",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNVnFYYlgzX3ExLWZkdWRPRm01Y3huNkRNQkpnTzRpVHBEdUVVZHppUW1mcHNKbEJxY0pVVFhBT3F2dm11U1RLLW91QVQyZU1DZi1GaUlUUkNJa094blhtNGV5Zm1oQ2RsUlNTUFljalJVdi1qRWE2am1mV1lDMi1PcGpTWmRCcUVvRVdwODNSSFVuUjRFeWx4aXdvYzZEdw?oc=5",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Average five-year mortgage rate hits 6% for first time in three years",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c8r4yxpry5e9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "BT agrees rescue deal to buy broadband operator TalkTalk",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cvze4g06526ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "The job interview question you don't have to answer",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cje3r35p0qeno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Shadow chancellor to unveil Tory plans to cut taxes and regulations",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqj9kje82jm1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "Trump chooses top spy boss to run new AI taskforce",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqj6jenp26zyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
+    },
+    {
+      "title": "How India became dangerously addicted to Chinese imports",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c5pve834grpno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-05"
     }
   ]
 }
