@@ -21,8 +21,8 @@ function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0
 function stageName(v){return ({0:'Ismeretlen',1:'Ébren',2:'Alvás',3:'Ágyon kívül',4:'Könnyű',5:'Mély',6:'REM'})[Number(v)]||'Szakasz'}
 function stageClass(v){return ({1:'awake',2:'sleep',3:'out',4:'light',5:'deep',6:'rem'})[Number(v)]||'unknown'}
 
-async function sleepSessions(){
- var map=new Map(),profile=pkey(),cutoff=Date.now()-95*86400000,cloudUsed=false;
+async function sleepSessions(profile){
+ var map=new Map(),cutoff=Date.now()-95*86400000,cloudUsed=false;
 
  function addRows(a,importedAt){
   if(!Array.isArray(a))return;
@@ -34,28 +34,28 @@ async function sleepSessions(){
   });
  }
 
- /* Cloud first: this is the same Health Connect bundle used by Activity.
-    That makes Sleep visible on PC and every other HealthHub device too. */
+ /* Canonical Cloud file is authoritative for the selected profile.
+    Do NOT mix it with old local imports, because stale historical imports can
+    otherwise overwrite the visible "latest sleep" after a profile switch. */
  try{
   var v=window.HH_DROPBOX_VAULT;
   if(v&&v.connected&&v.connected()&&typeof v.downloadJson==='function'){
-   var raw=null,path='/HealthHub/profiles/'+profile+'-health-connect.json';
-   try{raw=await v.downloadJson(path)}
-   catch(e){
-    if(e&&e.status!==409)throw e;
-    path='/incoming-'+profile+'.json';
-    raw=await v.downloadJson(path);
-   }
+   var path='/HealthHub/profiles/'+profile+'-health-connect.json';
+   var raw=await v.downloadJson(path);
    if(raw&&String(raw.profile||'').toLowerCase()===profile){
     addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
     cloudUsed=true;
     localStorage.setItem('hh-sleep-cloud-last-'+profile,new Date().toISOString());
     localStorage.setItem('hh-sleep-cloud-path-'+profile,path);
+    window.hhSleepDataSource='Dropbox Cloud · '+profile;
+    return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
    }
   }
- }catch(e){console.warn('Sleep Cloud read failed',e)}
+ }catch(e){
+  if(!(e&&e.status===409))console.warn('Sleep Cloud read failed',e);
+ }
 
- /* Local fallback / merge for the phone or a browser that already imported data. */
+ /* Local fallback is used only when the canonical Cloud file is unavailable. */
  try{
   var db=await openBridgeDb();try{
    await new Promise(function(resolve){
@@ -73,7 +73,7 @@ async function sleepSessions(){
   }finally{db.close()}
  }catch(e){}
 
- window.hhSleepDataSource=cloudUsed?'Dropbox Cloud + Health Connect':'Helyi Health Connect cache';
+ window.hhSleepDataSource='Helyi Health Connect cache · '+profile;
  return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
 }
 function periodDays(){return sleepState.period==='30d'?30:sleepState.period==='90d'?90:7}
@@ -119,11 +119,11 @@ async function render(){
  var page=document.getElementById('hhSleepPage');if(!page)return;
  var renderId=++sleepRenderSeq,requestedProfile=pkey();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
- var rows=await sleepSessions();
+ var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq||requestedProfile!==pkey())return;
  var latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
- '<div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
+ '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
  (latest?'<div class="hhSleepHeroCard"><div class="moon">🌙</div><div><small>LEGUTÓBBI ALVÁS</small><b>'+durText(total)+'</b><span>'+fmtTime(latest.startTime)+' → '+fmtTime(latest.endTime)+' · '+fmtDate(latest.endTime)+'</span></div></div>'+stageBar(latest)+stageSummary(latest):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
@@ -214,5 +214,5 @@ function style(){
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},60);return r};
 setTimeout(wireButton,300);setInterval(wireButton,2000);
-document.documentElement.dataset.healthhubSleep='1.237';window.HH_LIVE_BUILD='v1.237-sleep-profile-race-fix';
+document.documentElement.dataset.healthhubSleep='1.238';window.HH_LIVE_BUILD='v1.238-sleep-profile-source-lock';
 })();
