@@ -1,32 +1,32 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-02",
-  "liveBuild": "v1.99",
-  "currentFocus": "Validate Samsung Health → Health Connect → HealthHub Activity parity and verify the new in-app original PDF viewer on mobile/PWA.",
-  "nextDevelopment": "Complete real-device Activity parity validation and confirm inline opening of migrated/uploaded PDF records across both profiles.",
+  "updatedAt": "2026-10-05",
+  "liveBuild": "v234",
+  "currentFocus": "Post-stabilization verification: the live HealthHub core functional modules now appear stable after fixing Profile Vault, Health Connect/Activity/Sleep sync, device cloud sync, profile schema restore, medication explanations and runtime diagnostics.",
+  "nextDevelopment": "Run a short regression pass on the stable core, then continue with the remaining parity items: per-document Léna explanation completeness, explicit Measurement CRUD acceptance, Ask Léna voice/text parity and the longer-term security/privacy model.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
     {
-      "actionId": "HH-HR-006",
-      "label": "Measurement CRUD",
-      "detail": "v1.40 live, készülékes elfogadási teszt kell"
-    },
-    {
       "actionId": "HH-HR-004",
       "label": "Léna magyarázat",
-      "detail": "minden migrált dokumentum teljességi auditja kell"
+      "detail": "A dokumentumonkénti mechanizmus működik; a migrált leletek teljes magyarázat-lefedettségének auditja még hátra van."
+    },
+    {
+      "actionId": "HH-HR-006",
+      "label": "Measurement CRUD acceptance",
+      "detail": "A funkció telepítve van; külön végső készülékes elfogadási teszt még kell."
     },
     {
       "actionId": "HH-AL-003",
       "label": "Ask Léna voice",
-      "detail": "a régi mikrofonos funkció még nincs visszahozva"
+      "detail": "A régi mikrofonos funkció még nincs visszahozva."
     },
     {
       "actionId": "HH-CORE-005",
       "label": "Security model",
-      "detail": "legacy login-gated modell vs. lokális IndexedDB modell lezárása"
+      "detail": "A lokális/private + Dropbox Vault modell működik; a végleges hosszú távú security modell lezárása még hátra van."
     }
   ],
   "actions": [
@@ -94,13 +94,13 @@
       "sprint": "S1",
       "milestone": "M1 Foundation",
       "status": "In Progress",
-      "progress": 0.6,
+      "progress": 0.85,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-CORE-002",
       "targetDate": "2026-10-12",
       "actualDone": null,
-      "notes": "HealthRadar timeline exists; cross-module unified timeline still pending."
+      "notes": "A Timeline működik; v222–v224 bevezette a közös Timeline hero képet, a tiszta Zsolt/Mónika Timeline címet és az egykattintásos profilváltást. A teljes cross-module unified timeline még hátra van."
     },
     {
       "id": "HH-CORE-005",
@@ -262,7 +262,7 @@
       "dependency": "HH-HR-001",
       "targetDate": "2026-10-05",
       "actualDone": "2026-10-02",
-      "notes": "Core HealthRadar modules are migrated and usable for both profiles. v1.78 added profile-specific medication reminders; v1.98 added five selectable reminder sounds, 20–100% volume control, live sound preview and profile-specific audio settings."
+      "notes": "A profil, gyógyszerek, időpontok és eszközök működnek mindkét profilnál. 2026-10-05: a profil editor régi profileData sémájának visszatöltése és a Profile Vault szinkron stabilizálva; a privát gyógyszermagyarázat ('Mire való?') ismét működik."
     },
     {
       "id": "HH-HR-004",
@@ -328,13 +328,13 @@
       "sprint": "S1",
       "milestone": "M1 Foundation",
       "status": "In Progress",
-      "progress": 0.7,
+      "progress": 0.9,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-HR-002;HH-HR-003;HH-HR-005",
       "targetDate": "2026-10-05",
       "actualDone": null,
-      "notes": "Migration parity matrix added to tracker."
+      "notes": "2026-10-05 stabilizációs kör után a felhasználó szerint a jelenlegi funkcionális modulok hibamentesnek tűnnek. Hátralévő parity closure: dokumentum-magyarázat teljesség, Measurement CRUD explicit acceptance és Ask Léna parity."
     },
     {
       "id": "HH-HR-008",
@@ -370,7 +370,7 @@
       "dependency": "HH-CORE-008",
       "targetDate": "2026-10-03",
       "actualDone": "2026-09-30",
-      "notes": "v1.37 live; entry moved into Továbbiak in v1.38."
+      "notes": "Admin Data Hub működik. v231-től persistent Error Log rögzíti a JavaScript, Promise, Cloud Vault és sync hibákat; export/copy/clear támogatott. A diagnosztika a 2026-10-05 stabilizáció során több gyökérokot azonosított."
     },
     {
       "id": "HH-DATA-002",
@@ -615,14 +615,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Testing",
-      "progress": 0.98,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-001",
       "targetDate": "2026-10-10",
-      "actualDone": null,
-      "notes": "HealthHub Connect Android Bridge is at v0.7.0. Real S24 Ultra end-to-end read/export/import is proven. v0.7.0 adds active-calorie permission/data and richer exercise-session metrics; final two-profile parity validation is in progress."
+      "actualDone": "2026-10-05",
+      "notes": "HealthHub Connect Android bridge működőképes. v0.9.3 megerősítette a Dropbox mappaellenőrzést és a Health sync útvonalat; APK release elkészült és a live pipeline hibái weboldali IndexedDB javításokkal lezárásra kerültek."
     },
     {
       "id": "HH-SH-003",
@@ -633,14 +633,14 @@
       "priority": "Critical",
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
-      "status": "Testing",
-      "progress": 0.97,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-002",
       "targetDate": "2026-10-13",
-      "actualDone": null,
-      "notes": "Bridge schema 1.2 maps BP/HR/weight/glucose/SpO2/steps plus distance, active and total calories, exercise sessions, sleep, nutrition, body fat, resting HR and VO2max. Activity v1.94 recognizes Pilates; v1.97 aligns daily Activity calculations to Health Connect active calories, calendar-day boundaries and movement-only pace. Final Samsung parity validation remains."
+      "actualDone": "2026-10-05",
+      "notes": "BP, pulse, weight, SpO2, glucose, activity and sleep mapping live. Sleep cloud dashboard és Health Connect stage adatok működnek; v233 a bridge IndexedDB sémát egységesen v2-re emelte."
     },
     {
       "id": "HH-SH-004",
@@ -658,7 +658,7 @@
       "dependency": "HH-SH-003",
       "targetDate": "2026-10-16",
       "actualDone": "2026-10-01",
-      "notes": "v1.65 added one-tap SYNC NOW; v1.66 added persistent last-success/pending status and error-safe device-owner flow. Manual retry and sync visibility are live."
+      "notes": "Manual sync/retry/status működik. v231 persistent Error Log + per-subsystem sync diagnostics; v232–v234 részletes Dropbox/Profile Vault hibák és robusztus retry/folder handling."
     },
     {
       "id": "HH-SH-005",
@@ -1138,13 +1138,13 @@
       "sprint": "S2",
       "milestone": "M2 Health Connect Auto Sync",
       "status": "Testing",
-      "progress": 0.95,
+      "progress": 0.98,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SH-003;HH-SH-005",
       "targetDate": "2026-10-03",
       "actualDone": null,
-      "notes": "v1.84–v1.91 built the Activity dashboard and approved visual; v1.93 uses the real profile avatar; v1.94 adds Pilates classification; v1.95 uses a 4×2 category grid; v1.96 fixes bottom navigation; v1.97 corrects day boundaries, active-calorie source and movement-only pace. Final Samsung parity test remains."
+      "notes": "Activity dashboard és Health Connect cloud adatútvonal működik. v233 egységesítette a bridge IndexedDB sémát és megszüntette az imports/activity object-store hibát. Rövid végső Samsung-parity regresszió még célszerű."
     },
     {
       "id": "HH-HR-009",
@@ -1163,9 +1163,116 @@
       "targetDate": "2026-10-02",
       "actualDone": "2026-10-02",
       "notes": "v1.78 added profile-specific medication reminders. v1.98 expanded audio to five generated tones plus 20–100% volume control and live preview; user confirmed working."
+    },
+    {
+      "id": "HH-DATA-006",
+      "epic": "HealthHub Data Platform",
+      "feature": "Diagnostics",
+      "title": "Persistent Admin Error Log",
+      "acceptanceCriteria": "Runtime, Promise, Cloud Vault and sync failures are captured with timestamp, profile, build and stack/detail; log can be refreshed, copied, exported and cleared.",
+      "priority": "High",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 3,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-DATA-001",
+      "targetDate": "2026-10-05",
+      "actualDone": "2026-10-05",
+      "notes": "v231 live. The log immediately exposed Dropbox folder creation, IndexedDB object-store and Profile Vault failures during stabilization."
+    },
+    {
+      "id": "HH-HR-010",
+      "epic": "HealthRadar Migration",
+      "feature": "Medication Explanation",
+      "title": "Restore private 'Mire való?' medication helper",
+      "acceptanceCriteria": "Profile medication rows expose a private local explanation with purpose, benefit and caution; private JSON reference can be imported without publishing medical data.",
+      "priority": "High",
+      "sprint": "S1",
+      "milestone": "M1 Foundation",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 2,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-HR-003",
+      "targetDate": "2026-10-05",
+      "actualDone": "2026-10-05",
+      "notes": "healthhub-private-reference-v1 JSON restored for the current medication set. User imported the private reference and confirmed the 'Mire való?' explanation works."
     }
   ],
   "changeLog": [
+    {
+      "date": "2026-10-05",
+      "release": "Stabilization checkpoint",
+      "type": "Milestone",
+      "summary": "User confirmed that the currently functional HealthHub modules now appear stable after the day’s fixes. Sync, Health Connect, Sleep, Profile Vault, profile data handling, medication explanations and diagnostics are operating without the previously observed blockers.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "Private medication reference",
+      "actionId": "HH-HR-010",
+      "type": "Data/Feature",
+      "summary": "Restored the private healthhub-private-reference-v1 medication explanation package used by the 'Mire való?' helper. The package remains private/local rather than a public GitHub asset. Import was tested by the user and confirmed working.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "v234",
+      "actionId": "HH-HR-003",
+      "type": "Bugfix",
+      "summary": "Repaired Profile Vault sync by upgrading its Health Connect bridge IndexedDB access to schema v2 and hardening Dropbox /HealthHub and /HealthHub/profiles folder checks. User confirmed sync working.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "v233",
+      "actionId": "HH-SH-003",
+      "type": "Bugfix",
+      "summary": "Fixed the Health + Activity sync failure caused by missing IndexedDB object stores. All active Health Connect consumers were aligned to bridge database schema v2 so imports/activity stores are created consistently.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "Connect v0.9.3 / v232",
+      "actionId": "HH-SH-002",
+      "type": "Integration/Bugfix",
+      "summary": "Hardened Dropbox folder handling in both the Android HealthHub Connect bridge and Device Cloud sync. Existing folders are checked before creation, 409 races are revalidated and detailed HTTP/path diagnostics are logged.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "v231",
+      "actionId": "HH-DATA-006",
+      "type": "Feature",
+      "summary": "Added persistent Admin Error Log with runtime error, unhandled Promise, console warning/error and sync failure capture. Added refresh, copy, JSON export and clear controls plus subsystem-level sync diagnostics.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-05",
+      "release": "v229–v230",
+      "actionId": "HH-HR-003",
+      "type": "Bugfix",
+      "summary": "Repaired editable profile data restoration. Historical migrated values stored under legacy profileData are flattened into the current profile schema without allowing empty new fields to overwrite useful migrated data; legacy and current representations remain synchronized.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-04",
+      "release": "v228",
+      "actionId": "HH-SH-003",
+      "type": "Bugfix/Feature",
+      "summary": "Consolidated Sleep onto the canonical dashboard, removed duplicate competing Sleep handlers and made the page read Health Connect sleepSessions from Dropbox Cloud Vault with local IndexedDB fallback.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-04",
+      "release": "v222–v224",
+      "actionId": "HH-CORE-004",
+      "type": "UX",
+      "summary": "Added the shared Timeline hero visual, reduced the hero copy to only Zsolt Timeline / Mónika Timeline, removed legacy dropdown artifacts and implemented direct one-click profile switching.",
+      "status": "Done"
+    },
     {
       "date": "2026-10-02",
       "release": "v1.99",
