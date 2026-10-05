@@ -181,7 +181,7 @@ function recent(c){
 }
 function hero(){
  var p=state.period;
- return '<div class="a191Hero"><img src="'+heroSrc()+'" alt="Activity"><div class="a191HeroHits"><button class="runnerProfile" onclick="return hh191ToggleProfile(event)" aria-label="Futó Léna · profilváltás"></button><button class="cal" onclick="hh191Calendar()" aria-label="Naptár"></button><button class="weather" onclick="hh191Weather()" aria-label="Időjárás"></button><button class="gear" onclick="hh191Settings()" aria-label="Beállítások"></button></div><div class="a191Periods"><button class="'+(p==='1d'?'on':'')+'" onclick="hh191Period(\'1d\')">Ma</button><button class="'+(p==='7d'?'on':'')+'" onclick="hh191Period(\'7d\')">Hét</button><button class="'+(p==='30d'?'on':'')+'" onclick="hh191Period(\'30d\')">Hónap</button><button class="'+(p==='365d'?'on':'')+'" onclick="hh191Period(\'365d\')">Év</button></div></div>';
+ return '<div class="a191Hero"><img src="'+heroSrc()+'" alt="Activity"><div class="a191HeroHits"><button class="runnerProfile" onclick="return hh191ToggleProfile()" aria-label="Futó Léna · profilváltás"></button><button class="cal" onclick="hh191Calendar()" aria-label="Naptár"></button><button class="weather" onclick="hh191Weather()" aria-label="Időjárás"></button><button class="gear" onclick="hh191Settings()" aria-label="Beállítások"></button></div><div class="a191Periods"><button class="'+(p==='1d'?'on':'')+'" onclick="hh191Period(\'1d\')">Ma</button><button class="'+(p==='7d'?'on':'')+'" onclick="hh191Period(\'7d\')">Hét</button><button class="'+(p==='30d'?'on':'')+'" onclick="hh191Period(\'30d\')">Hónap</button><button class="'+(p==='365d'?'on':'')+'" onclick="hh191Period(\'365d\')">Év</button></div></div>';
 }
 function nav(){
  function svgHome(){return '<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>'}
@@ -227,14 +227,11 @@ window.hh191Profile=function(p){
  if(typeof window.setProfile==='function')window.setProfile(code);
  try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile,source:'activity'}}))}catch(e){}
  render(profile);
- if(typeof window.hhHealthCloudSync==='function'){
-  Promise.resolve(window.hhHealthCloudSync(false)).then(function(){render(profile)}).catch(function(){});
- }
  return false;
 };
-window.hh191ToggleProfile=function(e){
- if(e){e.preventDefault();e.stopPropagation();}
- var next=pkey()==='monika'?'z':'m';
+window.hh191ToggleProfile=function(){
+ var current=localStorage.getItem('hh-profile')==='m'?'m':'z';
+ var next=current==='m'?'z':'m';
  return window.hh191Profile(next);
 };
 window.hh191Weather=function(){var w=null;try{w=JSON.parse(localStorage.getItem('hh-budapest-weather-v144')||'null')}catch(e){};modal('<div class="a191SheetHead"><div><small>BUDAPEST · IDŐJÁRÁS</small><h3>'+(w&&Number.isFinite(Number(w.temp))?Math.round(w.temp)+' °C':'Időjárás')+'</h3></div><button onclick="hh191CloseModal()">×</button></div><div class="a191Weather">'+(w?'<b>'+Math.round(w.temp)+' °C</b><span>Hőérzet: '+Math.round(Number(w.apparent)||Number(w.temp))+' °C</span><span>Szél: '+Math.round(Number(w.wind)||0)+' km/h</span><span>Napkelte: '+esc((w.sunrise||'').slice(11,16))+' · Napnyugta: '+esc((w.sunset||'').slice(11,16))+'</span>':'Az időjárásadat frissítése folyamatban van.')+'</div>')}
@@ -272,6 +269,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.245';
+document.documentElement.dataset.healthhubActivity='1.246';
 window.HH_LIVE_BUILD='v1.97-activity-samsung-parity';
 })();
