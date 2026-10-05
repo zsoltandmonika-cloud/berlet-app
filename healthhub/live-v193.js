@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.244 — runner tap directly calls hh191Profile; baked faces removed with same-image canvas tree patch. */
+/* HealthHub v1.245 — visual hero cleanup only; runner click is owned by live-v191. */
 
 function profileCode(){
  try{
@@ -64,17 +64,8 @@ function ensureProfileSwitch(){
     else heroImg.addEventListener('load',paintPatch,{once:true});
   }
 
-  /* Capture taps directly on the runner area. No separate visible control. */
-  if(hero.dataset.a244RunnerBound!=='1'){
-    hero.dataset.a244RunnerBound='1';
-    hero.addEventListener('pointerup',function(ev){
-      var r=hero.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,y=(ev.clientY-r.top)/r.height;
-      if(x>=.25&&x<=.69&&y>=0&&y<=.88){
-        toggleActivityProfileOneClick(ev);
-      }
-    },true);
-  }
-  hero.title='Futó Léna: 1 kattintásos profilváltás';
+  /* Runner click is owned by the permanent .runnerProfile button in live-v191. */
+
 }
 function style(){
   var old=document.getElementById('hh-v193-style');if(old)old.remove();
@@ -109,6 +100,6 @@ if(typeof oldOpen==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubActivityProfile='1.244';
-window.HH_LIVE_BUILD='v1.244-activity-runner-direct';
+document.documentElement.dataset.healthhubActivityProfile='1.245';
+window.HH_LIVE_BUILD='v1.245-activity-runner-button';
 })();
