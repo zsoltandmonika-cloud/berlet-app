@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.234 — Dropbox Profile Vault schema + folder repair */
+/* HealthHub v1.235 — Profile Vault + private medication explanations */
 var APP_KEY='t68rmhh5f1l8d85';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
 var TOKEN_KEY='hh-dropbox-token-v2', PKCE_KEY='hh-dropbox-pkce-v2';
@@ -103,6 +103,20 @@ async function ensureFolderPath(path){
 async function dbAll(){
  var db=await openDb();try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}
 }
+async function privateMedicationReference(){
+ var db=await openDb();try{
+  if(!db.objectStoreNames.contains('meta'))return null;
+  var x=await reqP(db.transaction('meta','readonly').objectStore('meta').get('private-reference'));
+  return x&&x.payload?x.payload:null;
+ }finally{db.close()}
+}
+async function putPrivateMedicationReference(payload){
+ if(!payload)return;
+ var db=await openDb();try{
+  if(!db.objectStoreNames.contains('meta'))return;
+  await reqP(db.transaction('meta','readwrite').objectStore('meta').put({key:'private-reference',importedAt:new Date().toISOString(),payload:payload}));
+ }finally{db.close()}
+}
 async function bridgeAll(){
  var db=await openBridgeDb();try{
   var t=db.transaction(['imports','activity']);
@@ -115,8 +129,8 @@ function legacyProfile(profile){
  try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');return v&&v.profiles&&v.profiles[profile]?v.profiles[profile]:null}catch(e){return null}
 }
 async function snapshot(profile){
- var all=await dbAll(),br=await bridgeAll(),ignored=(window.hhGetHealthConnectIgnoreList?window.hhGetHealthConnectIgnoreList(profile):[]);
- return {schemaVersion:'healthhub.dropbox.vault/1.0',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored};
+ var all=await dbAll(),br=await bridgeAll(),ignored=(window.hhGetHealthConnectIgnoreList?window.hhGetHealthConnectIgnoreList(profile):[]),privateRef=await privateMedicationReference();
+ return {schemaVersion:'healthhub.dropbox.vault/1.1',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored,privateMedicationReference:privateRef};
 }
 function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
@@ -141,7 +155,7 @@ async function download(profile){
  throw new Error('Ehhez a profilhoz még nincs Dropbox Vault fájl.');
 }
 async function mergeVault(data){
- if(!data||data.schemaVersion!=='healthhub.dropbox.vault/1.0')throw new Error('Nem támogatott HealthHub Vault fájl.');
+ if(!data||!['healthhub.dropbox.vault/1.0','healthhub.dropbox.vault/1.1'].includes(data.schemaVersion))throw new Error('Nem támogatott HealthHub Vault fájl.');
  var profile=data.profile;if(profile!=='zsolt'&&profile!=='monika')throw new Error('Hibás profil a Vault fájlban.');
  var db=await openDb();try{
   var tx=db.transaction('measurements','readwrite'),st=tx.objectStore('measurements');
@@ -155,6 +169,9 @@ async function mergeVault(data){
  }finally{bd.close()}
  if(data.legacyProfile){
   try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null')||{schemaVersion:'healthhub.local.v1',profiles:{}};v.profiles=v.profiles||{};v.profiles[profile]=Object.assign({},v.profiles[profile]||{},data.legacyProfile);localStorage.setItem(LEGACY_KEY,JSON.stringify(v))}catch(e){}
+ }
+ if(data.privateMedicationReference){
+  try{await putPrivateMedicationReference(data.privateMedicationReference)}catch(e){console.warn('Privát gyógyszermagyarázat Vault restore hiba',e)}
  }
  if(window.hhMergeHealthConnectIgnoreList&&Array.isArray(data.healthConnectIgnored)){window.hhMergeHealthConnectIgnoreList(profile,data.healthConnectIgnored);if(window.hhPurgeIgnoredHealthConnect)await window.hhPurgeIgnoredHealthConnect(profile)}
  var pulledAt=new Date().toISOString();localStorage.setItem('hh-dropbox-last-pull-'+profile,pulledAt);localStorage.setItem('hh-dropbox-last-sync-'+profile,(data&&data.exportedAt)||pulledAt);
@@ -229,6 +246,6 @@ if(typeof previousSetProfile==='function'){
 handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},500)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},900);
 window.addEventListener('focus',function(){setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'focus')},150)});
-document.documentElement.dataset.healthhubDropboxVault='1.234';
+document.documentElement.dataset.healthhubDropboxVault='1.235';
 window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,appKey:APP_KEY,redirect:REDIRECT};
 })();
