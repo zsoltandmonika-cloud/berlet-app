@@ -4,9 +4,16 @@
 var DB='healthhub-connect-v1';
 var MANUAL_KEY='hh-activity-manual-v185-';
 var state=window.hhActivity191State||{period:'1d'};window.hhActivity191State=state;
+var activityRenderSeq=0;
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
+function activeProfileCode(){
+ try{
+  if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur;
+ }catch(e){}
+ return localStorage.getItem('hh-profile')==='m'?'m':'z';
+}
+function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
@@ -67,10 +74,10 @@ function kpiIcon(k){
 }
 function heroSrc(){return window.HH_ACTIVITY_HERO_V192?'data:image/webp;base64,'+window.HH_ACTIVITY_HERO_V192:'./assets/activity-hero-v184.webp'}
 
-function manualLoad(){try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+pkey())||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
-async function cloudBundle(){
+function manualLoad(profile){profile=profile||pkey();try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+profile)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+async function cloudBundle(profile){
  try{
-  var v=window.HH_DROPBOX_VAULT,p=pkey();
+  var v=window.HH_DROPBOX_VAULT,p=profile||pkey();
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
   var raw=null,path='/HealthHub/profiles/'+p+'-health-connect.json';
   try{raw=await v.downloadJson(path)}catch(e){
@@ -84,17 +91,18 @@ async function cloudBundle(){
   return {id:'cloud-'+p,profile:p,importedAt:raw.exportedAt||new Date().toISOString(),fileName:path,schemaVersion:raw.schemaVersion||'',bundle:raw,_cloud:true};
  }catch(e){
   console.warn('Activity Cloud read failed',e);
-  localStorage.setItem('hh-activity-cloud-error-'+pkey(),String(e&&e.message||e));
+  localStorage.setItem('hh-activity-cloud-error-'+(profile||pkey()),String(e&&e.message||e));
   return null;
  }
 }
 function manualSession(x){return {id:x.id,title:cat(x.type).label,manualType:x.type,startTime:x.startTime,endTime:new Date(Date.parse(x.startTime)+(Number(x.duration)||0)*60000).toISOString(),distanceKm:Number(x.distance)||0,caloriesKcal:Number(x.calories)||0,avgBpm:Number(x.avgBpm)||0,_manual:true}}
-async function load(){
+async function load(profile){
+ profile=profile||pkey();
  var out={imports:[],activity:[]};
  try{var db=await openDb();try{var tx=db.transaction(['imports','activity']);out.imports=await req(tx.objectStore('imports').getAll())||[];out.activity=await req(tx.objectStore('activity').getAll())||[]}finally{db.close()}}catch(e){}
- out.imports=out.imports.filter(function(x){return x.profile===pkey()&&x.bundle});
- out.activity=out.activity.filter(function(x){return x.profile===pkey()});
- var cloud=await cloudBundle();
+ out.imports=out.imports.filter(function(x){return x.profile===profile&&x.bundle});
+ out.activity=out.activity.filter(function(x){return x.profile===profile});
+ var cloud=await cloudBundle(profile);
  if(cloud){
   out.imports=out.imports.filter(function(x){return !x._cloud});
   out.imports.unshift(cloud);
@@ -102,8 +110,8 @@ async function load(){
   if(Array.isArray(da))da.forEach(function(x){
    if(!x||!x.date)return;
    out.activity.push({
-    id:'cloud-activity-'+pkey()+'-'+x.date,
-    profile:pkey(),
+    id:'cloud-activity-'+profile+'-'+x.date,
+    profile:profile,
     date:x.date,
     steps:Number(x.steps)||0,
     distanceMeters:Number(x.distanceMeters)||0,
@@ -117,7 +125,7 @@ async function load(){
  }
  return out;
 }
-function collect(raw){
+function collect(raw,profile){
  var sm=new Map(),dm=new Map(),hm=new Map();
  raw.imports.sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)}).forEach(function(imp){
   var r=imp.bundle&&imp.bundle.records||{};
@@ -126,7 +134,7 @@ function collect(raw){
   (Array.isArray(r.heartRate)?r.heartRate:[]).forEach(function(hr){(Array.isArray(hr.samples)?hr.samples:[]).forEach(function(s){var k=String(s.time)+'|'+String(s.bpm);if(!hm.has(k))hm.set(k,s)})});
  });
  raw.activity.forEach(function(x){if(x&&x.date){var old=dm.get(x.date)||{};dm.set(x.date,Object.assign({},old,x))}});
- manualLoad().forEach(function(x){sm.set(x.id,manualSession(x))});
+ manualLoad(profile).forEach(function(x){sm.set(x.id,manualSession(x))});
  return {sessions:Array.from(sm.values()).sort(function(a,b){return Date.parse(b.endTime||b.startTime||0)-Date.parse(a.endTime||a.startTime||0)}),daily:Array.from(dm.values()).sort(function(a,b){return String(a.date).localeCompare(String(b.date))}),heart:Array.from(hm.values()).sort(function(a,b){return Date.parse(a.time||0)-Date.parse(b.time||0)})};
 }
 function hrIn(cut,heart){return heart.filter(function(x){var t=Date.parse(x.time),b=Number(x.bpm);return t>=cut&&Number.isFinite(b)}).map(function(x){return Number(x.bpm)})}
@@ -180,10 +188,13 @@ function nav(){
  function svgPill(){return '<svg viewBox="0 0 24 24"><path d="M8.5 20.5a5 5 0 0 1-7-7l8-8a5 5 0 0 1 7 7zM6 9l7 7"/></svg>'}
  return '<nav class="a191Nav"><button onclick="hh191Go(\'home\')"><span>'+svgHome()+'</span><b>Kezdőlap</b></button><button onclick="hh191Go(\'health\')"><span>'+svgHeart()+'</span><b>HealthRadar</b></button><button class="on"><span>'+icon('run')+'</span><b>Activity</b></button><button onclick="hh191Quick(\'Leletek\')"><span>'+svgDoc()+'</span><b>Leletek</b></button><button onclick="hh191Quick(\'Gyógyszerek\')"><span>'+svgPill()+'</span><b>Gyógyszerek</b></button><button onclick="hh191Quick(\'Továbbiak\')"><span class="dots">•••</span><b>Továbbiak</b></button></nav>';
 }
-async function render(){
+async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
+ var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
  page.innerHTML=hero()+'<div class="a191Body"><div class="a191Load">Activity adatok betöltése…</div></div>'+nav();
- var c=collect(await load()),m=metrics(c);window.hhActivity191Cache=c;
+ var raw=await load(requestedProfile);
+ if(renderId!==activityRenderSeq)return;
+ var c=collect(raw,requestedProfile),m=metrics(c);window.hhActivity191Cache=c;
  var f=periodDays(),g=m.goals;
  page.innerHTML=hero()+'<div class="a191Body">'+
  '<div class="a191Top">'+
@@ -207,7 +218,14 @@ async function render(){
 function modal(html){var m=document.getElementById('hh191Modal');if(!m)return;m.innerHTML='<div class="a191Sheet">'+html+'</div>';m.classList.add('on')}
 window.hh191CloseModal=function(){var m=document.getElementById('hh191Modal');if(m)m.classList.remove('on')}
 window.hh191Period=function(p){state.period=p;render()}
-window.hh191Profile=function(p){if(typeof window.setProfile==='function')window.setProfile(p);else localStorage.setItem('hh-profile',p);setTimeout(render,80)}
+window.hh191Profile=function(p){
+ var code=p==='m'?'m':'z',profile=code==='m'?'monika':'zsolt';
+ activityRenderSeq++;
+ localStorage.setItem('hh-profile',code);
+ if(typeof window.setProfile==='function')window.setProfile(code);
+ try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile,source:'activity'}}))}catch(e){}
+ render(profile);
+}
 window.hh191Weather=function(){var w=null;try{w=JSON.parse(localStorage.getItem('hh-budapest-weather-v144')||'null')}catch(e){};modal('<div class="a191SheetHead"><div><small>BUDAPEST · IDŐJÁRÁS</small><h3>'+(w&&Number.isFinite(Number(w.temp))?Math.round(w.temp)+' °C':'Időjárás')+'</h3></div><button onclick="hh191CloseModal()">×</button></div><div class="a191Weather">'+(w?'<b>'+Math.round(w.temp)+' °C</b><span>Hőérzet: '+Math.round(Number(w.apparent)||Number(w.temp))+' °C</span><span>Szél: '+Math.round(Number(w.wind)||0)+' km/h</span><span>Napkelte: '+esc((w.sunrise||'').slice(11,16))+' · Napnyugta: '+esc((w.sunset||'').slice(11,16))+'</span>':'Az időjárásadat frissítése folyamatban van.')+'</div>')}
 window.hh191Calendar=function(){var d=new Date().toISOString().slice(0,10);modal('<div class="a191SheetHead"><div><small>ACTIVITY CALENDAR</small><h3>Napi aktivitás</h3></div><button onclick="hh191CloseModal()">×</button></div><input id="a191Date" class="a191Date" type="date" value="'+d+'" onchange="hh191CalendarDay(this.value)"><div id="a191CalBody"></div>');setTimeout(function(){window.hh191CalendarDay(d)},0)}
 window.hh191CalendarDay=function(date){var c=window.hhActivity191Cache||{sessions:[],daily:[],heart:[]},day=c.daily.find(function(x){return x.date===date}),ss=c.sessions.filter(function(s){return dayKey(s.startTime)===date}),el=document.getElementById('a191CalBody');if(!el)return;el.innerHTML='<div class="a191CalStats"><div><small>LÉPÉSEK</small><b>'+(day?n(day.steps,0):'—')+'</b></div><div><small>KALÓRIA</small><b>'+(day?n(day.caloriesKcal,0):'—')+'</b></div><div><small>TÁVOLSÁG</small><b>'+(day?n((Number(day.distanceMeters)||0)/1000,1):'—')+' km</b></div><div><small>EDZÉSEK</small><b>'+ss.length+'</b></div></div>'}
@@ -243,6 +261,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.97';
+document.documentElement.dataset.healthhubActivity='1.240';
 window.HH_LIVE_BUILD='v1.97-activity-samsung-parity';
 })();
