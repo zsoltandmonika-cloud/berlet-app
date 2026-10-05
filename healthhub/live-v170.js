@@ -3,6 +3,7 @@
 /* HealthHub v1.228 — Sleep dashboard + Cloud Health Connect + Sleep Helper */
 var BRIDGE_DB='healthhub-connect-v1';
 var sleepState=window.hhSleepState||{period:'7d'};
+var sleepRenderSeq=0;
 window.hhSleepState=sleepState;
 var helper={ctx:null,source:null,gain:null,timer:null,endAt:0,wake:null,raf:null,mode:'brown',minutes:10};
 
@@ -116,8 +117,11 @@ function trendSummary(rows){
 }
 async function render(){
  var page=document.getElementById('hhSleepPage');if(!page)return;
+ var renderId=++sleepRenderSeq,requestedProfile=pkey();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
- var rows=await sleepSessions(),latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
+ var rows=await sleepSessions();
+ if(renderId!==sleepRenderSeq||requestedProfile!==pkey())return;
+ var latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
  (latest?'<div class="hhSleepHeroCard"><div class="moon">🌙</div><div><small>LEGUTÓBBI ALVÁS</small><b>'+durText(total)+'</b><span>'+fmtTime(latest.startTime)+' → '+fmtTime(latest.endTime)+' · '+fmtDate(latest.endTime)+'</span></div></div>'+stageBar(latest)+stageSummary(latest):
@@ -148,10 +152,12 @@ window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('hhSle
 window.hhRenderSleep=render;
 window.hhSleepToggleProfile=function(e){
  if(e){e.preventDefault();e.stopPropagation();}
+ /* Invalidate any in-flight Sleep read before changing profile. */
+ sleepRenderSeq++;
  var next=pkey()==='monika'?'z':'m';
  if(typeof window.setProfile==='function')window.setProfile(next);
  else localStorage.setItem('hh-profile',next);
- setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},20);
+ if(document.getElementById('hhSleepPage')?.classList.contains('on'))render();
  return false;
 };
 window.hhSleepPeriod=function(p){sleepState.period=p;render()};
@@ -208,5 +214,5 @@ function style(){
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render()},60);return r};
 setTimeout(wireButton,300);setInterval(wireButton,2000);
-document.documentElement.dataset.healthhubSleep='1.236';window.HH_LIVE_BUILD='v1.236-sleep-one-click-profile';
+document.documentElement.dataset.healthhubSleep='1.237';window.HH_LIVE_BUILD='v1.237-sleep-profile-race-fix';
 })();
