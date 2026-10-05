@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.243 — runner-only canonical profile switch; baked faces patched from the hero background. */
+/* HealthHub v1.244 — runner tap directly calls hh191Profile; baked faces removed with same-image canvas tree patch. */
 
 function profileCode(){
  try{
@@ -18,63 +18,72 @@ function currentAvatarSrc(){
 
 function toggleActivityProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
-  var current=profileCode();
-  var next=current==='m'?'z':'m';
-  var nextProfile=next==='m'?'monika':'zsolt';
+  var next=profileCode()==='m'?'z':'m';
 
-  /* Exact HealthHub base profile path: setProfile -> cur + localStorage + apply(). */
-  localStorage.setItem('hh-profile',next);
-  if(typeof window.setProfile==='function')window.setProfile(next);
-
-  setTimeout(function(){
-    /* Some legacy wrappers repaint asynchronously; force the canonical value once more. */
+  /* Use Activity's own canonical switch + explicit profile render. */
+  if(typeof window.hh191Profile==='function'){
+    window.hh191Profile(next);
+  }else{
+    var profile=next==='m'?'monika':'zsolt';
     localStorage.setItem('hh-profile',next);
-    if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(nextProfile);
-    ensureProfileSwitch();
-  },45);
+    if(typeof window.setProfile==='function')window.setProfile(next);
+    if(typeof window.hhRenderActivity191==='function')window.hhRenderActivity191(profile);
+  }
+  setTimeout(ensureProfileSwitch,40);
   return false;
 }
 function ensureProfileSwitch(){
   var hero=document.querySelector('#hhActivityPage191 .a191Hero');
   if(!hero)return;
 
-  /* Remove every legacy profile control. */
-  hero.querySelectorAll('.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit').forEach(function(el){el.remove()});
+  /* Remove all legacy profile buttons and previous visual patches. */
+  hero.querySelectorAll('.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit,.a243HeroPatch,.a243RunnerProfileHit').forEach(function(el){el.remove()});
 
-  /* The approved v192 hero has the old two faces baked into the bitmap.
-     Patch that small source area with a neighbouring tree segment from the same hero image. */
-  var patch=hero.querySelector('.a243HeroPatch');
-  if(!patch){
-    patch=document.createElement('div');
-    patch.className='a243HeroPatch';
-    var img=hero.querySelector('img');
-    var src=img&&(img.currentSrc||img.src);
-    if(src)patch.style.backgroundImage='url("'+src.replace(/"/g,'%22')+'")';
-    patch.setAttribute('aria-hidden','true');
-    hero.appendChild(patch);
+  /* Cover baked profile faces with a clean tree sample taken from the same hero bitmap. */
+  var canvas=hero.querySelector('.a244HeroCanvasPatch');
+  if(!canvas){
+    canvas=document.createElement('canvas');
+    canvas.className='a244HeroCanvasPatch';
+    canvas.setAttribute('aria-hidden','true');
+    hero.appendChild(canvas);
+  }
+  function paintPatch(){
+    var img=hero.querySelector('img');if(!img||!img.naturalWidth||!img.naturalHeight)return;
+    var w=320,h=120;canvas.width=w;canvas.height=h;
+    var ctx=canvas.getContext('2d');if(!ctx)return;
+    ctx.clearRect(0,0,w,h);
+    var sx=img.naturalWidth*.235,sy=0,sw=img.naturalWidth*.105,sh=img.naturalHeight*.31;
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,w/2,h);
+    ctx.save();ctx.translate(w,0);ctx.scale(-1,1);
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,w/2,h);
+    ctx.restore();
+  }
+  var heroImg=hero.querySelector('img');
+  if(heroImg){
+    if(heroImg.complete)paintPatch();
+    else heroImg.addEventListener('load',paintPatch,{once:true});
   }
 
-  var hit=hero.querySelector('.a243RunnerProfileHit');
-  if(!hit){
-    hit=document.createElement('button');
-    hit.type='button';
-    hit.className='a243RunnerProfileHit';
-    hit.onclick=toggleActivityProfileOneClick;
-    hero.appendChild(hit);
+  /* Capture taps directly on the runner area. No separate visible control. */
+  if(hero.dataset.a244RunnerBound!=='1'){
+    hero.dataset.a244RunnerBound='1';
+    hero.addEventListener('pointerup',function(ev){
+      var r=hero.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,y=(ev.clientY-r.top)/r.height;
+      if(x>=.25&&x<=.69&&y>=0&&y<=.88){
+        toggleActivityProfileOneClick(ev);
+      }
+    },true);
   }
-  hit.title='Profilváltás: '+otherName();
-  hit.setAttribute('aria-label','Futó Léna. Egy kattintás: váltás '+otherName()+' profiljára.');
+  hero.title='Futó Léna: 1 kattintásos profilváltás';
 }
 function style(){
   var old=document.getElementById('hh-v193-style');if(old)old.remove();
   var s=document.createElement('style');
   s.id='hh-v193-style';
   s.textContent=
-  '.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit{display:none!important}'+
-  '.a243HeroPatch{position:absolute;left:0;top:0;width:24.5%;height:31%;z-index:10;pointer-events:none;background-repeat:no-repeat;background-size:416.7% 322.6%;background-position:26.3% 0;border:0}'+
-  '.a243RunnerProfileHit{position:absolute;left:25%;top:0;width:43%;height:91%;z-index:15;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:42%}'+
-  '.a243RunnerProfileHit:active{background:rgba(255,255,255,.045)}'+
-  '@media(max-width:390px){.a243HeroPatch{width:25%;height:31%}.a243RunnerProfileHit{left:24%;width:45%;height:91%}}';
+  '.a191HeroHits .prof,.a193ProfileSwitch,.a241RunnerProfileHit,.a242FaceMask,.a242RunnerProfileHit,.a243HeroPatch,.a243RunnerProfileHit{display:none!important}'+
+  '.a244HeroCanvasPatch{position:absolute;left:0;top:0;width:24.5%;height:31%;z-index:10;pointer-events:none;display:block}'+
+  '#hhActivityPage191 .a191Hero{cursor:pointer}';
   document.head.appendChild(s);
 }
 style();
@@ -100,6 +109,6 @@ if(typeof oldOpen==='function'){
   };
 }
 
-document.documentElement.dataset.healthhubActivityProfile='1.243';
-window.HH_LIVE_BUILD='v1.243-activity-runner-canonical-switch';
+document.documentElement.dataset.healthhubActivityProfile='1.244';
+window.HH_LIVE_BUILD='v1.244-activity-runner-direct';
 })();
