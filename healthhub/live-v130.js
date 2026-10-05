@@ -47,7 +47,8 @@ function ensurePrivateInput(){
       var j=JSON.parse(await f.text());
       if(j.schema!=='healthhub-private-reference-v1'||!j.profiles)throw new Error('Nem megfelelő privát HealthRadar referenciafájl.');
       await metaPut({key:'private-reference',importedAt:new Date().toISOString(),payload:j});
-      toastMsg('Gyógyszermagyarázatok betöltve');
+      try{if(typeof window.hhDropboxPushCurrentProfile==='function')await window.hhDropboxPushCurrentProfile()}catch(e){console.warn('Gyógyszermagyarázat Cloud Vault sync hiba',e)}
+      toastMsg('Gyógyszermagyarázatok betöltve és Cloud Vaultba mentve');
       document.getElementById('hrDetailOverlay')?.classList.remove('on');
       if(window.renderHealthSection)await window.renderHealthSection();
     }catch(err){console.error(err);toastMsg(err.message||'A privát referencia nem importálható.')}
@@ -78,6 +79,6 @@ if(typeof prev==='function'){
 }
 ensurePrivateInput();
 setTimeout(decorate,100);
-document.documentElement.dataset.healthhubMedicationPurpose='1.30';
-window.HH_LIVE_BUILD='v1.30-med-purpose';
+document.documentElement.dataset.healthhubMedicationPurpose='1.235';
+window.HH_LIVE_BUILD='v1.235-med-purpose-cloud';
 })();
