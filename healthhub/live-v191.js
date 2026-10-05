@@ -104,8 +104,10 @@ async function load(profile){
  out.activity=out.activity.filter(function(x){return x.profile===profile});
  var cloud=await cloudBundle(profile);
  if(cloud){
-  out.imports=out.imports.filter(function(x){return !x._cloud});
-  out.imports.unshift(cloud);
+  /* Same rule as Sleep: canonical profile Cloud data is authoritative.
+     Never merge stale local Health Connect imports back into the selected profile. */
+  out.imports=[cloud];
+  out.activity=[];
   var da=cloud.bundle&&cloud.bundle.records&&cloud.bundle.records.dailyActivity;
   if(Array.isArray(da))da.forEach(function(x){
    if(!x||!x.date)return;
@@ -261,6 +263,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.240';
+document.documentElement.dataset.healthhubActivity='1.241';
 window.HH_LIVE_BUILD='v1.97-activity-samsung-parity';
 })();
