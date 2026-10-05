@@ -193,6 +193,7 @@ function nav(){
 async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
+ window.hhActivityRenderedProfile=requestedProfile;
  page.innerHTML=hero()+'<div class="a191Body"><small class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><div class="a191Load">Activity adatok betöltése…</div></div>'+nav();
  var raw=await load(requestedProfile);
  if(renderId!==activityRenderSeq)return;
@@ -223,15 +224,19 @@ window.hh191Period=function(p){state.period=p;render()}
 window.hh191Profile=function(p){
  var code=p==='m'?'m':'z',profile=code==='m'?'monika':'zsolt';
  activityRenderSeq++;
+ window.hhActivityRenderedProfile=profile;
  localStorage.setItem('hh-profile',code);
+ try{
+  if(typeof cur!=='undefined')cur=code;
+ }catch(e){}
  if(typeof window.setProfile==='function')window.setProfile(code);
  try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile,source:'activity'}}))}catch(e){}
  render(profile);
  return false;
 };
 window.hh191ToggleProfile=function(){
- var current=localStorage.getItem('hh-profile')==='m'?'m':'z';
- var next=current==='m'?'z':'m';
+ var rendered=window.hhActivityRenderedProfile||pkey();
+ var next=rendered==='monika'?'z':'m';
  return window.hh191Profile(next);
 };
 function delegatedActivityProfileClick(e){
@@ -273,7 +278,7 @@ window.hhOpenActivity=function(){
 window.hhRenderActivity191=render;
 function refreshIfOpen(){
  var p=document.getElementById('hhActivityPage191');
- if(p&&p.classList.contains('on'))setTimeout(render,40);
+ if(p&&p.classList.contains('on'))setTimeout(function(){render(window.hhActivityRenderedProfile||pkey())},40);
 }
 window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
 window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen);
@@ -286,6 +291,6 @@ function style(){
  document.head.appendChild(s);
 }
 style();ensure();wire();document.addEventListener('click',delegatedActivityProfileClick,true);setInterval(wire,1500);
-document.documentElement.dataset.healthhubActivity='1.248';
+document.documentElement.dataset.healthhubActivity='1.249';
 window.HH_LIVE_BUILD='v1.97-activity-samsung-parity';
 })();
