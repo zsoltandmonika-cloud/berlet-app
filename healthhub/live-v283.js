@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.283 — fast wheel picker weight entry with audio/haptic feedback */
+/* HealthHub v1.284 — fast wheel picker + save ta-da feedback */
 var DB='healthhub-healthradar-v2', PAGE='hhWeightPage270', MODAL='hhWeightWheel283', STYLE='hh-v283-style';
 var state={step:'weight',weight:null,fat:null,baseWeight:null,baseFat:null};
 var audioCtx=null,lastTick=null,itemH=46,raf=0;
@@ -63,6 +63,26 @@ function tick(){
   }
  }catch(e){}
  try{if(navigator.vibrate)navigator.vibrate(7)}catch(e){}
+}
+function successTada(){
+ initAudio();
+ try{
+  if(!audioCtx)return;
+  var t=audioCtx.currentTime+.02;
+  function note(freq,start,dur,vol){
+   var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+   o.type='sine';o.frequency.setValueAtTime(freq,start);
+   g.gain.setValueAtTime(.0001,start);
+   g.gain.exponentialRampToValueAtTime(vol,start+.018);
+   g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+   o.connect(g);g.connect(audioCtx.destination);o.start(start);o.stop(start+dur+.02);
+  }
+  note(523.25,t,.16,.045);
+  note(659.25,t+.13,.34,.038);
+  note(783.99,t+.13,.34,.038);
+  note(1046.50,t+.13,.38,.03);
+ }catch(e){}
+ try{if(navigator.vibrate)navigator.vibrate([18,35,34])}catch(e){}
 }
 function rangeFor(step){
  var base=step==='weight'?(state.weight!=null?state.weight:(state.baseWeight!=null?state.baseWeight:75)):(state.fat!=null?state.fat:(state.baseFat!=null?state.baseFat:30));
@@ -136,6 +156,7 @@ async function save(){
   try{window.dispatchEvent(new CustomEvent('healthhub:measurement-saved',{detail:{profile:profile,type:'weight',id:x.id}}))}catch(e){}
   if(window.hhRenderWeight270)await window.hhRenderWeight270();
   if(window.hhRenderWeightTrend277)setTimeout(window.hhRenderWeightTrend277,60);
+  successTada();
   toast('Mérés mentve · '+fmt(x.weightKg)+' kg · '+fmt(x.bodyFatPercent)+'%');
  }catch(e){console.error(e);toast('A mérés mentése nem sikerült.')}
 }
@@ -155,5 +176,5 @@ function hook(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
 window.addEventListener('healthhub:profile-changed',function(){close();setTimeout(hook,30)});
 window.hhOpenWeightWheel283=function(){open('weight')};
-document.documentElement.dataset.healthhubWeightWheel='1.283';
+document.documentElement.dataset.healthhubWeightWheel='1.284';
 })();
