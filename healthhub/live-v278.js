@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.278 — Camera OCR experiment with history-aware plausibility guard */
+/* HealthHub v1.280 — split-row camera OCR with history-aware plausibility guard */
 var DB='healthhub-healthradar-v2', PAGE='hhWeightPage270', FILE_ID='hhWeightCamera278', LOAD_ID='hhWeightOcrLoad278';
 var SCRIPT='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
 var busy=false;
@@ -64,6 +64,21 @@ async function prep(src){
  var d=g.getImageData(0,0,w,h),p=d.data;
  for(var i=0;i<p.length;i+=4){var y=.299*p[i]+.587*p[i+1]+.114*p[i+2];var v=clamp((y-128)*1.75+128,0,255);p[i]=p[i+1]=p[i+2]=v}
  g.putImageData(d,0,0);return c;
+}
+function sliceForOcr(canvas,top){
+ var sx=Math.round(canvas.width*.03),sw=Math.round(canvas.width*.79);
+ var sy=top?Math.round(canvas.height*.03):Math.round(canvas.height*.51);
+ var sh=Math.round(canvas.height*.45),scale=2;
+ var out=document.createElement('canvas');out.width=sw*scale;out.height=sh*scale;
+ var g=out.getContext('2d',{alpha:false});g.imageSmoothingEnabled=true;
+ g.fillStyle='#fff';g.fillRect(0,0,out.width,out.height);
+ g.drawImage(canvas,sx,sy,sw,sh,0,0,out.width,out.height);
+ return out;
+}
+function chooseOne(text,expected,type){
+ var c=candidates(text),best=null;
+ c.forEach(function(x){var s=score(x.n,expected,type);if(!best||s>best.s)best={v:x.n,s:s,raw:x.raw}});
+ return best&&best.s>-1000?best:null;
 }
 function variants(n){
  var out=[n];
@@ -136,15 +151,27 @@ async function processSource(src){
  if(busy)return;busy=true;var o=loader();o.classList.add('on');setProgress(5,'Kép előkészítése…');
  var h={weight:null,fat:null},res={weight:null,fat:null},conf=null,failed=false;
  try{
-  h=await history();var canvas=await prep(src);setProgress(15,'OCR motor betöltése…');
-  var T=await loadTesseract();setProgress(22,'Számok felismerése…');
-  var rr=await T.recognize(canvas,'eng',{
-    logger:function(m){
-      if(m.status==='recognizing text'){var p=22+(Number(m.progress)||0)*68;setProgress(p,'Felismerés · '+Math.round((Number(m.progress)||0)*100)+'%')}
-    },
-    tessedit_char_whitelist:'0123456789.,%kgKG '
+  h=await history();var canvas=await prep(src),topCanvas=sliceForOcr(canvas,true),bottomCanvas=sliceForOcr(canvas,false);
+  setProgress(15,'OCR motor betöltése…');
+  var T=await loadTesseract();
+  setProgress(24,'Testsúly felismerése…');
+  var top=await T.recognize(topCanvas,'eng',{
+    logger:function(m){if(m.status==='recognizing text'){setProgress(24+(Number(m.progress)||0)*28,'Testsúly · '+Math.round((Number(m.progress)||0)*100)+'%')}},
+    tessedit_char_whitelist:'0123456789.,',
+    tessedit_pageseg_mode:'7'
   });
-  var text=rr&&rr.data&&rr.data.text||'';conf=rr&&rr.data?Number(rr.data.confidence):null;res=choose(text,h);setProgress(94,'Előzmények ellenőrzése…');
+  setProgress(54,'Testzsír felismerése…');
+  var bottom=await T.recognize(bottomCanvas,'eng',{
+    logger:function(m){if(m.status==='recognizing text'){setProgress(54+(Number(m.progress)||0)*30,'Testzsír · '+Math.round((Number(m.progress)||0)*100)+'%')}},
+    tessedit_char_whitelist:'0123456789.,',
+    tessedit_pageseg_mode:'7'
+  });
+  var topText=top&&top.data&&top.data.text||'',bottomText=bottom&&bottom.data&&bottom.data.text||'';
+  var w=chooseOne(topText,h.weight,'w'),f=chooseOne(bottomText,h.fat,'f');
+  res={weight:w&&w.v,fat:f&&f.v,raw:topText+' | '+bottomText};
+  var tc=top&&top.data?Number(top.data.confidence):NaN,bc=bottom&&bottom.data?Number(bottom.data.confidence):NaN;
+  var cs=[tc,bc].filter(Number.isFinite);conf=cs.length?cs.reduce(function(a,b){return a+b},0)/cs.length:null;
+  setProgress(92,'Előzmények ellenőrzése…');
  }catch(e){console.warn('Weight OCR experiment',e);failed=true;window.toast&&window.toast('OCR nem sikerült · kézi bevitel használható')}
  finally{
   setProgress(100,'Kész');await delay(180);o.classList.remove('on');busy=false;
@@ -167,5 +194,5 @@ function hook(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
 window.addEventListener('healthhub:profile-changed',function(){setTimeout(hook,30)});
-document.documentElement.dataset.healthhubWeightOcr='1.278';
+document.documentElement.dataset.healthhubWeightOcr='1.280';
 })();
