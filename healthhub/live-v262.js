@@ -210,8 +210,9 @@ async function enhance(profileOverride){
 window.hhSleepDeepWindow262=function(hours){
  sleepWindowHours=Number(hours)===12?12:24;
  localStorage.setItem('hh-sleep-window-hours',String(sleepWindowHours));
+ if(typeof window.hhRenderSleep==='function')return window.hhRenderSleep(profileKey());
  var old=document.getElementById('hhSleepDeep262');if(old)old.remove();
- enhance();
+ return enhance();
 };
 
 /* Preserve v170 rendering and enhance only after it has completed. */
@@ -244,13 +245,7 @@ if(page&&window.MutationObserver){
  mo.observe(page,{childList:true,subtree:true});
 }
 
-window.addEventListener('healthhub:profile-changed',function(){
- setTimeout(function(){var x=document.getElementById('hhSleepDeep262');if(x)x.remove();enhance()},180);
-});
-window.addEventListener('healthhub:health-cloud-synced',function(e){
- var d=e&&e.detail||{},p=profileKey();if(d.profile&&d.profile!==p)return;
- setTimeout(function(){var x=document.getElementById('hhSleepDeep262');if(x)x.remove();enhance(p)},120);
-});
+/* Profile/cloud changes are already routed through the canonical v260 renderer. */
 
 setTimeout(function(){enhance()},250);
 window.HH_LIVE_BUILD='v262-deep-sleep-night-analysis';
