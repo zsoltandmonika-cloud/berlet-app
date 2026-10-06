@@ -50,13 +50,11 @@ async function refreshVisibleProfileData(code,seq,reason){
   if(refreshing&&reason==='followup')return false;
   refreshing=true;
   try{
-    /* Repair/prepare the selected HealthRadar profile before rendering it. */
     if(typeof window.hhEnsureHealthProfile==='function'){
       try{await window.hhEnsureHealthProfile(profile)}catch(e){console.warn('HealthHub profile prepare',e)}
     }
     if(seq!==switchSeq||currentCode()!==code)return false;
 
-    /* Home + HealthRadar summary cards. These functions read hh-profile. */
     var jobs=[];
     [window.hhSyncHealthDashboard,window.hhSyncHealthHome,window.hhSyncFullMigrationDashboard].forEach(function(fn){
       try{var r=callSafe(fn);if(r&&typeof r.then==='function')jobs.push(r)}catch(e){}
@@ -64,7 +62,6 @@ async function refreshVisibleProfileData(code,seq,reason){
     if(jobs.length){try{await Promise.allSettled(jobs)}catch(e){}}
     if(seq!==switchSeq||currentCode()!==code)return false;
 
-    /* Re-render only the page that is actually visible. */
     if(isOn('healthSection')&&typeof window.renderHealthSection==='function'){
       try{await window.renderHealthSection()}catch(e){console.warn('HealthHub HealthRadar rerender',e)}
     }
@@ -75,7 +72,6 @@ async function refreshVisibleProfileData(code,seq,reason){
       try{await window.hhRenderSleep(profile)}catch(e){console.warn('HealthHub Sleep rerender',e)}
     }
 
-    /* Keep profile-specific device metadata aligned without blocking the UI. */
     if(typeof window.hhDeviceCloudSync==='function'){
       Promise.resolve().then(function(){
         if(seq===switchSeq&&currentCode()===code)return window.hhDeviceCloudSync(true);
@@ -98,9 +94,6 @@ function scheduleRefresh(code,seq){
 function canonicalSetProfile(p,options){
   var code=codeOf(p),source=options&&options.source||'one-click';
   var seq=++switchSeq;
-
-  /* Preserve useful side-effects from existing modules, but enforce the
-     canonical state again afterwards in case an old wrapper lags behind. */
   try{
     if(typeof previousSetProfile==='function')previousSetProfile.call(window,code);
   }catch(e){console.warn('HealthHub legacy profile chain',e)}
@@ -115,14 +108,11 @@ function toggleProfile(source){
   return canonicalSetProfile(currentCode()==='m'?'z':'m',{source:source||'one-click-toggle'});
 }
 
-/* Final authority. Older wrappers are intentionally kept only behind this call. */
 window.setProfile=canonicalSetProfile;
 window.hhSwitchProfile=canonicalSetProfile;
 window.hhSetActiveProfile=canonicalSetProfile;
 window.hhToggleProfileOneClick=function(){return toggleProfile('global-toggle')};
 
-/* Activity and Sleep already expose one-click controls. Route them through the
-   same controller so they cannot maintain a second profile state. */
 if(typeof window.hh191Profile==='function'){
   window.hh191Profile=function(p){canonicalSetProfile(p,{source:'activity'});return false};
   window.hh191ToggleProfile=function(){toggleProfile('activity');return false};
@@ -135,8 +125,6 @@ if(typeof window.hhSleepToggleProfile==='function'){
   };
 }
 
-/* The legacy picker buttons had their own closure-bound handler. Intercept them
-   in capture phase so picker selection also uses the canonical controller. */
 document.addEventListener('click',function(e){
   var choice=e.target&&e.target.closest?e.target.closest('#overlay .choice'):null;
   if(!choice)return;
@@ -148,8 +136,6 @@ document.addEventListener('click',function(e){
   canonicalSetProfile(code,{source:'picker'});
 },true);
 
-/* Canonical cloud refresh event: when new Health Connect data arrives for the
-   active profile, repaint the currently visible profile-owned screen. */
 window.addEventListener('healthhub:health-cloud-synced',function(e){
   var detail=e&&e.detail||{};
   if(detail.profile&&detail.profile!==currentKey())return;
@@ -157,7 +143,6 @@ window.addEventListener('healthhub:health-cloud-synced',function(e){
   setTimeout(function(){refreshVisibleProfileData(currentCode(),seq,'cloud')},30);
 });
 
-/* Cross-tab / installed-PWA consistency. */
 window.addEventListener('storage',function(e){
   if(e.key!=='hh-profile')return;
   var code=codeOf(e.newValue);
@@ -167,7 +152,6 @@ window.addEventListener('storage',function(e){
   scheduleRefresh(code,seq);
 });
 
-/* Normalize the page once after all older modules have finished booting. */
 (function boot(){
   var code=syncCoreState(currentCode());
   var seq=++switchSeq;
@@ -177,8 +161,7 @@ window.addEventListener('storage',function(e){
   scheduleRefresh(code,seq);
 })();
 
-/* v261 records quick-switch hotload. Kept separate so the stable v260
-   controller remains the single owner of profile state. */
+/* v261 records quick-switch hotload. */
 (function loadRecordsQuickSwitch(){
   if(document.querySelector('script[data-hh-v261]')||document.documentElement.dataset.healthhubRecordsProfileSwitch)return;
   var s=document.createElement('script');
@@ -188,5 +171,15 @@ window.addEventListener('storage',function(e){
   document.head.appendChild(s);
 })();
 
-window.HH_LIVE_BUILD='v260c-canonical-one-click-profile';
+/* v262 deep Sleep analysis hotload. */
+(function loadDeepSleep(){
+  if(document.querySelector('script[data-hh-v262]')||document.documentElement.dataset.healthhubSleepDeep)return;
+  var s=document.createElement('script');
+  s.src='./live-v262.js?v=262-deep-sleep-night-analysis-20261006';
+  s.async=false;
+  s.dataset.hhV262='1';
+  document.head.appendChild(s);
+})();
+
+window.HH_LIVE_BUILD='v260d-canonical-profile-plus-sleep262';
 })();
