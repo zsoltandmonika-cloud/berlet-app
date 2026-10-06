@@ -187,5 +187,14 @@ window.addEventListener('storage',function(e){
   document.head.appendChild(s);
 })();
 
-window.HH_LIVE_BUILD='v260e-canonical-profile-plus-health263';
+(function loadCanonicalHealthLanding(){
+  if(document.querySelector('script[data-hh-v264]')||document.documentElement.dataset.healthhubHealthLandingCanonical)return;
+  var s=document.createElement('script');
+  s.src='./live-v264.js?v=264-health-landing-canonical-data-20261006';
+  s.async=false;
+  s.dataset.hhV264='1';
+  document.head.appendChild(s);
+})();
+
+window.HH_LIVE_BUILD='v260f-canonical-profile-plus-health264';
 })();
