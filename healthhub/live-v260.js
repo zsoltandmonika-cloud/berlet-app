@@ -177,5 +177,16 @@ window.addEventListener('storage',function(e){
   scheduleRefresh(code,seq);
 })();
 
-window.HH_LIVE_BUILD='v260-canonical-one-click-profile';
+/* v261 records quick-switch hotload. Kept separate so the stable v260
+   controller remains the single owner of profile state. */
+(function loadRecordsQuickSwitch(){
+  if(document.querySelector('script[data-hh-v261]')||document.documentElement.dataset.healthhubRecordsProfileSwitch)return;
+  var s=document.createElement('script');
+  s.src='./live-v261.js?v=261-records-one-click-profile-20261006';
+  s.async=false;
+  s.dataset.hhV261='1';
+  document.head.appendChild(s);
+})();
+
+window.HH_LIVE_BUILD='v260c-canonical-one-click-profile';
 })();
