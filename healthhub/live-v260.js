@@ -28,7 +28,6 @@ function syncCoreState(code){
   try{window.cur=code}catch(e){}
   try{if(typeof cur!=='undefined')cur=code}catch(e){}
 
-  /* Re-apply the original theme/name/home values immediately. */
   try{
     if(typeof apply==='function')apply();
     else if(typeof window.apply==='function')window.apply();
@@ -161,7 +160,6 @@ window.addEventListener('storage',function(e){
   scheduleRefresh(code,seq);
 })();
 
-/* v261 records quick-switch hotload. */
 (function loadRecordsQuickSwitch(){
   if(document.querySelector('script[data-hh-v261]')||document.documentElement.dataset.healthhubRecordsProfileSwitch)return;
   var s=document.createElement('script');
@@ -171,7 +169,6 @@ window.addEventListener('storage',function(e){
   document.head.appendChild(s);
 })();
 
-/* v262 deep Sleep analysis hotload. */
 (function loadDeepSleep(){
   if(document.querySelector('script[data-hh-v262]')||document.documentElement.dataset.healthhubSleepDeep)return;
   var s=document.createElement('script');
@@ -181,5 +178,14 @@ window.addEventListener('storage',function(e){
   document.head.appendChild(s);
 })();
 
-window.HH_LIVE_BUILD='v260d-canonical-profile-plus-sleep262';
+(function loadHealthMainSwitch(){
+  if(document.querySelector('script[data-hh-v263]')||document.documentElement.dataset.healthhubHealthMainSwitch)return;
+  var s=document.createElement('script');
+  s.src='./live-v263.js?v=263-health-main-one-click-profile-20261006';
+  s.async=false;
+  s.dataset.hhV263='1';
+  document.head.appendChild(s);
+})();
+
+window.HH_LIVE_BUILD='v260e-canonical-profile-plus-health263';
 })();
