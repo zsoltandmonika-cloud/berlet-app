@@ -1,210 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-05",
-  "generatedAt": "2026-10-05T13:34:35+02:00",
-  "headline": "A reggel fő témái: Spanish PM Sánchez calls early election after housing protests; Right-wing Flávio Bolsonaro wins first round of Brazil election",
+  "date": "2026-10-06",
+  "generatedAt": "2026-10-06T13:19:51+02:00",
+  "headline": "A reggel fő témái: Former German spy chief arrested for espionage and treason; Trump says 'threat' led US to pull bombers from RAF Fairford",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Spanish PM Sánchez calls early election after housing protests",
-        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
-        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings",
-        "BBC World: US air force removes all bombers from British military base RAF Fairford"
+        "BBC World: Former German spy chief arrested for espionage and treason",
+        "BBC World: Trump says 'threat' led US to pull bombers from RAF Fairford",
+        "BBC World: Fort Hood shooter to be executed by firing squad - a first for US military since World War Two",
+        "BBC World: 'Ghost particles' from space telescope wins physics Nobel"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Spanish PM Sánchez calls early election after housing protests",
-        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
-        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings"
+        "BBC World: Former German spy chief arrested for espionage and treason",
+        "BBC World: Trump says 'threat' led US to pull bombers from RAF Fairford",
+        "BBC World: Fort Hood shooter to be executed by firing squad - a first for US military since World War Two"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Spanish PM Sánchez calls early election after housing protests",
-        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election",
-        "BBC World: Nobel Prize awarded for showing how nerve cells shape feelings"
+        "BBC World: Former German spy chief arrested for espionage and treason",
+        "BBC World: Trump says 'threat' led US to pull bombers from RAF Fairford",
+        "BBC World: Fort Hood shooter to be executed by firing squad - a first for US military since World War Two"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "NB1.hu: Ukrajna–Magyarország: három lehetséges kimenetel, három különböző következmény - NB1.hu",
-        "Nemzeti Sport Online: Az esélylesés alapján Magyarország harmadik lehet az NL-csoportjában - Nemzeti Sport Online",
-        "| hvg.hu: Gazdaság: Balásy Gyula cége megpróbált keresztbe feküdni Magyarország népszerűsítésének - | hvg.hu"
+        "Portfolio.hu: Közeleg az orosz gáz búcsúja: nagy lehetőség nyílik Magyarország előtt, de egy valami nagyon hiányzik - Portfolio.hu",
+        "| hvg.hu: Gazdaság: Meddig mehet szembe Magyarország a nemzetközi kamatemelkedéssel? - | hvg.hu",
+        "M4 Sport: Kerkez helyén Nagy Zsolt, Vitális a középpályán – megvan az ukránok elleni kezdőcsapat - M4 Sport"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Average five-year mortgage rate hits 6% for first time in three years",
-        "BBC Business: BT agrees rescue deal to buy broadband operator TalkTalk",
-        "BBC Business: The job interview question you don't have to answer"
+        "BBC Business: ASOS app users receive push notifications apparently sent by hackers",
+        "BBC Business: We're saving £100 a month for our kids but they won't get it until they're 57",
+        "BBC Business: Lego fraudster among last year's most high-profile insurance scammers"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Trump chooses top spy boss to run new AI taskforce"
+        "BBC Technology: ASOS app users receive push notifications apparently sent by hackers",
+        "BBC Technology: Ofcom investigates Meta over Instagram Instants feature",
+        "BBC Technology: Lego fraudster among last year's most high-profile insurance scammers"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Nobel Prize awarded for showing how nerve cells shape feelings (BBC World).",
-        "Figyelmi pont: Average five-year mortgage rate hits 6% for first time in three years (BBC Business)."
+        "Figyelmi pont: Fort Hood shooter to be executed by firing squad - a first for US military since World War Two (BBC World).",
+        "Figyelmi pont: Sailors missing after fresh attacks on Black Sea vessels, Bulgaria says (BBC World).",
+        "Figyelmi pont: Gazdaság: Meddig mehet szembe Magyarország a nemzetközi kamatemelkedéssel? - | hvg.hu (| hvg.hu)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Spanish PM Sánchez calls early election after housing protests",
-        "BBC World: Right-wing Flávio Bolsonaro wins first round of Brazil election"
+        "BBC World: Former German spy chief arrested for espionage and treason",
+        "BBC World: Trump says 'threat' led US to pull bombers from RAF Fairford"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Spanish PM Sánchez calls early election after housing protests",
+      "title": "Former German spy chief arrested for espionage and treason",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmdx39k49xw0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/c58jzyer1kr0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Right-wing Flávio Bolsonaro wins first round of Brazil election",
+      "title": "Trump says 'threat' led US to pull bombers from RAF Fairford",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck1l34ed592no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cwj3413e5m1lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Nobel Prize awarded for showing how nerve cells shape feelings",
+      "title": "Fort Hood shooter to be executed by firing squad - a first for US military since World War Two",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c5ev3ypmzly8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cq8ezkkkrpy1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "US air force removes all bombers from British military base RAF Fairford",
+      "title": "'Ghost particles' from space telescope wins physics Nobel",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmwyve191dlko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cq203mymlvkeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "'Not again': Arrest of US marine for murder reignites protests in Japan's Okinawa",
+      "title": "Sailors missing after fresh attacks on Black Sea vessels, Bulgaria says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwgkv70gg1j3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/c8ly0v5r602eo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "France closes up to 500 schools Monday over student protests",
+      "title": "Saudi Arabia urged to spare man sentenced to death over Facebook post",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwkg5n7lm3y5o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cq14d438vx24o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "All six passengers presumed dead after plane went missing off US coast",
+      "title": "Indian opposition MPs detained in protest against election chief",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmze4g8r6nr9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/crpdgvx82831o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Supporters of jailed ex-PM Imran Khan begin march in Pakistan",
+      "title": "Yemeni military says it has 'secured' Red Sea waterway",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmkg79z04w4zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cw8rzd6lp0xpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Ukrajna–Magyarország: három lehetséges kimenetel, három különböző következmény - NB1.hu",
-      "publisher": "NB1.hu",
-      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9DOG1RN19WT2lZalNfV1o2Q3pWTUlFMjk5LWYyRnJHZ1o0NlhMOUdlWDZNRG5YYldpelM2OTdYcGZEenVKMTRVR3FUek41ZmFBUkJfSlFoNUQzRm9Sa2V2Wld6N0F2N2s?oc=5",
-      "publishedAt": "2026-10-05"
+      "title": "Közeleg az orosz gáz búcsúja: nagy lehetőség nyílik Magyarország előtt, de egy valami nagyon hiányzik - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxORkhIcnQ2ejlyUWlYMHFaclZXMUlJLXhFcGJLUW1CQlpkTnNwNTBJYkF1cTZSd0ZST2tubURRSEoxbk9vZ1ZvWjBxeEVPaTlhR3V0T21rcU1mUW1ValJlTl85SUEwSGQ1MWRaanJiTllRVG9NX2gxXzJtaEM3Y2R2SzhmTVhOWGxqV2xkRGY2anA3RVpKYTVzcFpkZXF5dzhFam45RUtfN1ZnM0dTOXFPQTQ2S3gzbzZPOXdWWFhXNzAwc00ySklpaV9BQlVOa0JKckVkTEc3aWN6VWw4d05DX2s2b9IB6AFBVV95cUxPM2hsZHBFWkU4aTRxY3pWTERCRmFadG5Mckd1LUl2N1RNS2hiaDVRWUxTLS0wUFZvUVhoS0t6NUtPbmtJT2MyYzd6ZW51TzJMU1FaWlI2WXdoazdzUmpYNFNVQ0VyNVNzWndSOERVSXhqNUdMVTdpeGIybm1nUk1ReE9HdnU0aHRyaUZIVWlRaVp1VFp6elk0NHp5RXg3bV94WWttYkttM2JvVHpZeEtxVnRfYkxldUE5cTZRblh6emFUSDBXX1lGdURuMFRBY0tuS2VCQUx1Mk5BWlBCSFVNZEVDclV4MXM1?oc=5",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Az esélylesés alapján Magyarország harmadik lehet az NL-csoportjában - Nemzeti Sport Online",
-      "publisher": "Nemzeti Sport Online",
-      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPdGJWc3NXZ19fQUszdE5CcnB4THZtQTIyZlo3NlhEVmRTWTVIaWl1eFBtbFlXN1JuYTV4MVA0VlZCQ0hmY3pQODdDYjZ1UVpLWmJ2ZTN0SzRqZGt0NFNrcEQzZEdwbTc5V1dYZFhVbnkzVjFyZndKZU1fdVUtTDJSQW5SbU5rd3NOZU9vNDcza0FKaXVnN2pnQjkwUjR4WWJpTE1qRVlsQXowNGFNNF9BNk9pcVZYaHQ2OXVhWFhJSQ?oc=5",
-      "publishedAt": "2026-10-05"
-    },
-    {
-      "title": "Gazdaság: Balásy Gyula cége megpróbált keresztbe feküdni Magyarország népszerűsítésének - | hvg.hu",
+      "title": "Gazdaság: Meddig mehet szembe Magyarország a nemzetközi kamatemelkedéssel? - | hvg.hu",
       "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0xBWWVQaG9CTUU5MVJ1WVYxRzF1NFJHamJRRDdDajU2YjdoR05kUnllVmdjdTlMNFBSZjdRb0Y5VlY4TmVqTFkwbVBuNDAtdFBPbE9aUUJualZkUTJld3FvU2pkN3YySmlmLU5wWVlsNUhJeXBkYVY1YzRERU5lVUpRLXNvN3lhNDkwaHN0TGg?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQZ01GbG5oRXM5WF84UEhkV3hCN0tIU0l3SXR6Rkk1WGszRWlyQVJZOGg0aUJHR1A4ZmhCWk9pSXFVLXItQkpUTmJ6V3lleExtMkdldWxKX3ZRYjVYZVE0bm8yT0VvZXFvellLNDdUa1c5NWdMaUlhVHp5Tkd0TTdpcE5zRlFHc2NPWi01Vw?oc=5",
+      "publishedAt": "2026-10-06"
+    },
+    {
+      "title": "Kerkez helyén Nagy Zsolt, Vitális a középpályán – megvan az ukránok elleni kezdőcsapat - M4 Sport",
+      "publisher": "M4 Sport",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQYlAzZzZ3MzI3cHpuRU52b1ZmUFNwNXdQLUxvVFJmbV9NTS1ITDNpRjZoaFdqMGZVZ3pjSWhUVVg3Y1c5NnRpWUpzMnlHU0ZWcjZWcDlOR1k5dlRGcmY1UEFJVFc1dzFmLWtodWk2bWJvakpaRHFZX0Q5Yl9sTUFEMzFaUVFmcVo0UXZEdG9ya0F3THA0RHN2TXZTMnVIVDJRLVEzeGE0M3hscnl0RDRxaG03SGpqRW5SWlp4OWF1Q09IWjBvazVTS0N3ZHlvZk53YlE?oc=5",
+      "publishedAt": "2026-10-06"
+    },
+    {
+      "title": "Magyarország egy lépéssel közelebb engedi Ukrajnát az EU-hoz, ha ez a feltétel teljesül - forbes.hu",
+      "publisher": "forbes.hu",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9HUzFodGJqODZPaXZJdHlaY0NReXRBZVg1dHg3S1VtOWRLaENiejBmbUpYQ29CS3loM2ctQk8zN1ZLRC1yb3dMcExhd2pPZkF4ZmtGdTAycm14LXpEU3A2Z2pYR19HZmhJa3U3U0psTkpLcG11LVdDdVhoNl8?oc=5",
       "publishedAt": "2026-10-05"
     },
     {
-      "title": "Furcsa mintázat Magyarország felett – itt a magyarázat - infostart.hu",
-      "publisher": "infostart.hu",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPTWlIY2FOa1Nlc2lSemFNMlZDQmQ4M3doUURQbmpTOHpFQmRDUWZ2U1ZZTDVYRjNWbnRKVXV1OGFmUjE3MEp6WXVwNzdjdENESGFFUWZmbHNnMEE4XzMyYzQ3NDQ2UjA5NDNCMDNScUZxVHJ6V1N5SW4zN0RWQlhDX2M1Z3RPSGs0VVN0aVlweEtJSGFvZDd5MmRB?oc=5",
-      "publishedAt": "2026-10-05"
+      "title": "UEFA Labdarúgó Nemzetek Ligája, Ukrajna - Magyarország mérkőzés - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNdGZaendiNXFpUUxjRkN1NnE5MkJhRzJCZDM1SHVzSkREUHVaTzFCTVl4MXR2eVM5dzNQXzBOLU01alotQjNCTjVYYVpMMzVtMjZsc08zNVVfa3RsZWpsRDZoSmV2TjF3UDNQQzVzN2dhYXEyd0lUQUVTZ3FYRTRyRmNrSFdhWmhhSGlLU0RoemhldTB2ejJfOHhJNkl2V3Y2?oc=5",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Bemutatjuk, hogyan működik a Nemzeti Kulturális Alap támogatási rendszere - Magyarország Kormánya",
+      "title": "Az 1848-49-es szabadságharc mártírjaira emlékeztek az ország vezetői - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOWHEzN1M3V0NVczJMTURBMHh6UEw3Rk95S2EwRVIxLTR4bTZVZGdqUkJKUHhaZEVjLVVUdnZ2blpUN3VQb3hRU29FT0JuVEFtUThsZXYyQ2JDemtuc09NUnp0MWhjOFFZdGY0TVpUUzhYRVZveGNCOXZScE11aXBJbTEydkh6OGdVbzU2Vk9nQ0lLaTMyS0xIMkFmVFJ2UQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNbFdQWVlKQTZwbEx6VkVhOGw2VUlOWVB4Tk5IZmk1QXAwZ3RockJ5RXVmSWFCRHdXMzhqYzVVZmM5M0Ruek41UmpKS25KR2RieFI2M3BFcm5meFJGMURJZUxBamNBZDlmbUdod1FlMERMd2xSWkYwc0QxeU5lT1VBaWhFQ0hiZ19XdUprRUFYektwZUF4ckFpaA?oc=5",
+      "publishedAt": "2026-10-06"
+    },
+    {
+      "title": "Sikerült visszavágni a budapesti vereségért: Ukrajna – Magyarország 1-2 - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTFAtdHQ4XzdIRDVraGlXQ1V6ZzJ1Y1QwcV9IdlcxcVFwVF84VmFqbzZtYlFCMENZUkRhQ3ZNa2pBazhHVmhkSkh2OFRFNmliUmtTVWtIWmZhcUJWNTlySkRWU2lXWTBnc2RwTUVBcG5sdWJjR3BBU1ZHajdR?oc=5",
       "publishedAt": "2026-10-05"
     },
     {
-      "title": "Két első és egy harmadik helyezést ért el Magyarország a 34. Európai Madármegfigyelő Napokon - felvidek.ma",
-      "publisher": "felvidek.ma",
-      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQVGx4QlI3bERldjcyczZPRFA3TEFkS2VRXy1uVkd2ZTkzT1p0ZmpHVjVfdkNXem1pNkctZWUza2wtSFVqdTNoRmJiR2JKUWQtb09Yekk4MXNMNmk2bGxnNTh3dF9XbDJQTGdlQlltZkhiLTFDRW5wTk8yUnhIcnJyMkcwdlRrWnBhY0hERm16aUp5TF9YUUhvUXZpN2VNNVFYNHZCdUNtdHFUS2REd3E0X0RsRW1HaWRwR2xidy1LQ2o?oc=5",
-      "publishedAt": "2026-10-05"
+      "title": "Brutális csapással fenyegettek meg mindenkit az oroszok, Magyarország azonnal reagált: itt van Orbán Anitáék válasza Moszkvának – „Maradunk Kijevben” - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9ZSkRZLUhEbHdFeU1uS3lTYmxFMFRXLTFEcHRYdDFCeEE1d0FmZ1FndFR2ZjRZN0lhQ29oOVZxTzE2eXZNZ2dIMDRSYWh5VG1ibkU0Y1B0cDA0b291S1FTaktaVmN3YnduenBRYVFRRk1wMHBORmhPX2lVUm4?oc=5",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Egy régi sérelmünk: Magyarország államadóssága nagyon szigorú ítéleteket kap - Tudás.hu",
-      "publisher": "Tudás.hu",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQbG1yNTBjaWtqSGJHREVlNi0xenJKQWFDR05GRXdScGhWcHdwWFpoU29OQUJiYWJkWFY2Wk9aMlhadHZ2SENHQWF0NE9fcmlLRzZLa1NBWmM3N0l5YmpvX2g1d0Rud3VqX1lRVllKRGNmc1N6TzRXSFFaZThuQ2dSaHp5TmdjMURNRkI2UTNseHNMTHI0WnZCcw?oc=5",
-      "publishedAt": "2026-10-05"
-    },
-    {
-      "title": "Káosz uralkodik a színfalak mögött az Ukrajna-Magyarország meccs előtt? - ORIGO",
-      "publisher": "ORIGO",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNVnFYYlgzX3ExLWZkdWRPRm01Y3huNkRNQkpnTzRpVHBEdUVVZHppUW1mcHNKbEJxY0pVVFhBT3F2dm11U1RLLW91QVQyZU1DZi1GaUlUUkNJa094blhtNGV5Zm1oQ2RsUlNTUFljalJVdi1qRWE2am1mV1lDMi1PcGpTWmRCcUVvRVdwODNSSFVuUjRFeWx4aXdvYzZEdw?oc=5",
-      "publishedAt": "2026-10-05"
-    },
-    {
-      "title": "Average five-year mortgage rate hits 6% for first time in three years",
+      "title": "ASOS app users receive push notifications apparently sent by hackers",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c8r4yxpry5e9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cj62ylzpr6d3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "BT agrees rescue deal to buy broadband operator TalkTalk",
+      "title": "We're saving £100 a month for our kids but they won't get it until they're 57",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cvze4g06526ro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cme3r9eq2w0lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "The job interview question you don't have to answer",
+      "title": "Lego fraudster among last year's most high-profile insurance scammers",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cje3r35p0qeno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cm86z9npj5deo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Shadow chancellor to unveil Tory plans to cut taxes and regulations",
+      "title": "OpenAI admits response to Australian government hacks 'not good enough'",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqj9kje82jm1o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/cmx2qne2j88wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "Trump chooses top spy boss to run new AI taskforce",
+      "title": "Last call for the mall? How shopping centres are reinventing themselves",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqj6jenp26zyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-05"
+      "url": "https://www.bbc.co.uk/news/articles/ck9qrq1d19w4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
     },
     {
-      "title": "How India became dangerously addicted to Chinese imports",
+      "title": "Wood Group offshore workers launch 48-hour strike in row over pay",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c5pve834grpno?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm79pn0y8257o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
+    },
+    {
+      "title": "Five reasons India's stock market is sinking even when its economy is growing",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cwp9g5p1gy7yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-06"
+    },
+    {
+      "title": "Pentagon stops using Anthropic AI tools after blacklisting company, BBC told",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c5j9x9pr0240o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-05"
     }
   ]

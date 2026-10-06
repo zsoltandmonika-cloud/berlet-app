@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-05",
-  "generatedAt": "2026-10-05T13:34:35+02:00",
+  "date": "2026-10-06",
+  "generatedAt": "2026-10-06T13:19:51+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Egy egyszerűbb megközelítés ma többet érhet, mint egy túlkomplikált terv.",
+      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
       "sections": {
-        "focus": "A fókusz ma nem több erőfeszítést jelent, hanem kevesebb felesleges váltást.",
-        "workMoney": "A mai döntéseknél különítsd el azt, ami sürgős attól, ami csak hangos.",
-        "relationships": "Egy spontán beszélgetés könnyen közelebb hozhat valakit, ha nem akarod előre irányítani.",
+        "focus": "A mai nap akkor lesz könnyebb, ha a három fontos feladatból először a legkisebb bizonytalanságút zárod le.",
+        "workMoney": "A részletek ma segítenek. Egy rövid ellenőrzés vagy pontosítás megelőzhet egy fölösleges kört.",
+        "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
         "energy": "Ne várd meg, amíg teljesen elfogy a lendület. Egy kis váltás időben sokat számít.",
-        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
-        "lenaThought": "A nap végén az számít, mi lett egyszerűbb, nem az, hány dolgot mozgattál meg."
+        "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
+        "lenaThought": "Nem minden problémának kell ma teljes megoldás. Néha a következő jó lépés bőven elég."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Egy egyszerűbb megközelítés ma többet érhet, mint egy túlkomplikált terv.",
+      "headline": "Ma a tiszta prioritás és egy jól időzített döntés hozhat nyugodtabb ritmust.",
       "sections": {
         "focus": "A mai nap akkor lesz könnyebb, ha a három fontos feladatból először a legkisebb bizonytalanságút zárod le.",
-        "workMoney": "A mai döntéseknél különítsd el azt, ami sürgős attól, ami csak hangos.",
+        "workMoney": "A jó kompromisszum ma az, amelyik később is könnyen visszaellenőrizhető.",
         "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
-        "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
+        "energy": "Ne várd meg, amíg teljesen elfogy a lendület. Egy kis váltás időben sokat számít.",
         "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
-        "lenaThought": "Nem minden problémának kell ma teljes megoldás. Néha a következő jó lépés bőven elég."
+        "lenaThought": "A haladás néha nem látványos. Néha csak annyi, hogy eggyel kevesebb nyitott szál marad."
       }
     }
   }
