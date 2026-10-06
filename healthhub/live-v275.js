@@ -1,9 +1,9 @@
 (function(){
 'use strict';
-/* HealthHub v1.275 — crisp vector scale + exact live LCD overlay */
+/* HealthHub v1.276 — crisp vector scale + reduced live LCD digits */
 var ID='hh-v275-weight-style';
 function install(){
-  if(document.getElementById(ID)) return;
+  var old=document.getElementById(ID); if(old) old.remove();
   var s=document.createElement('style'); s.id=ID;
   s.textContent=[
     '.hhWScale{overflow:hidden!important;border-radius:24px!important;filter:drop-shadow(0 10px 18px rgba(24,56,82,.16))!important;}',
@@ -14,16 +14,16 @@ function install(){
     '.hhWLcdTop{border-bottom:2px solid rgba(239,255,255,.94)!important;border-radius:0!important;}',
     '.hhWLcdBottom{border-radius:0!important;}',
     '.hhWLcdTag{display:none!important;}',
-    '.hhWLcdTop>span:nth-child(2),.hhWLcdBottom>span:nth-child(2){display:flex!important;align-items:center!important;width:100%!important;height:100%!important;min-width:0!important;}',
-    '.hhWSeg{display:block!important;width:100%!important;height:100%!important;max-height:none!important;overflow:visible!important;}',
-    '.hhWLcdBottom .hhWSeg{height:100%!important;}',
-    '.hhWSeg .on{fill:#efffff!important;filter:drop-shadow(0 0 1.4px rgba(255,255,255,.8))!important;}',
+    '.hhWLcdTop>span:nth-child(2),.hhWLcdBottom>span:nth-child(2){display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;min-width:0!important;}',
+    '.hhWSeg{display:block!important;width:86%!important;height:86%!important;max-height:none!important;overflow:visible!important;margin:auto!important;}',
+    '.hhWLcdBottom .hhWSeg{width:86%!important;height:86%!important;}',
+    '.hhWSeg .on{fill:#efffff!important;filter:drop-shadow(0 0 1.2px rgba(255,255,255,.75))!important;}',
     '.hhWSeg .off{fill:rgba(225,252,255,.07)!important;}',
-    '.hhWLcdUnit{font-size:clamp(10px,3.2vw,18px)!important;font-weight:850!important;line-height:1!important;color:#efffff!important;align-self:end!important;justify-self:end!important;padding:0 0 14% 0!important;text-shadow:0 0 2px rgba(255,255,255,.35)!important;}'
+    '.hhWLcdUnit{font-size:clamp(10px,3.0vw,17px)!important;font-weight:850!important;line-height:1!important;color:#efffff!important;align-self:end!important;justify-self:end!important;padding:0 0 14% 0!important;text-shadow:0 0 2px rgba(255,255,255,.35)!important;}'
   ].join('');
   document.head.appendChild(s);
-  document.documentElement.dataset.healthhubWeight='1.275';
-  window.HH_LIVE_BUILD='v275-weight-vector';
+  document.documentElement.dataset.healthhubWeight='1.276';
+  window.HH_LIVE_BUILD='v276-weight-digit-fit';
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true}); else install();
 window.addEventListener('healthhub:profile-changed',install);
