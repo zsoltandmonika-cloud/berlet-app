@@ -2,7 +2,7 @@
 'use strict';
 /* HealthHub v1.273 — Weight module phase 1: exact Beurer scale image + large LCD */
 var DB='healthhub-healthradar-v2', BRIDGE='healthhub-connect-v1';
-var SCALE_IMG=window.HH_WEIGHT_SCALE_V273||window.HH_WEIGHT_SCALE_V270||'';
+var SCALE_IMG='./assets/weight-scale-v275.svg?v=275';
 var pageId='hhWeightPage270',sheetId='hhWeightSheet270';
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
