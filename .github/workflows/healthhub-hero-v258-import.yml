@@ -21,7 +21,7 @@ jobs:
       - name: Download approved hero
         run: |
           set -euo pipefail
-          curl -fL --retry 5 --retry-delay 2 'https://1drv.ms/u/c/bc1ff24af37ea2b0/IQCxgEMuyNRSS6MJmv8BA7meATfRBlp4VNnzjDUhwZV-7VA?download=1' -o healthhub/assets/activity-hero-approved-v258.webp
+          curl -fL --retry 5 --retry-delay 2 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/142.0 Safari/537.36' -e 'https://onedrive.live.com/' 'https://1drv.ms/u/c/bc1ff24af37ea2b0/IQCxgEMuyNRSS6MJmv8BA7meATfRBlp4VNnzjDUhwZV-7VA?download=1' -o healthhub/assets/activity-hero-approved-v258.webp
           python - <<'PY'
           from pathlib import Path
           p=Path('healthhub/assets/activity-hero-approved-v258.webp')
