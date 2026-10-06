@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.269 — live HealthRadar KPI dashboard · delegated destination navigation */
+/* HealthHub v1.270 — live HealthRadar KPI dashboard · Weight module navigation */
 var DB='healthhub-healthradar-v2',BRIDGE_DB='healthhub-connect-v1';
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -125,6 +125,10 @@ function bindKpiNavigation(){
 
 window.hhOpenLiveKpi=function(target){
  /* Existing destination modules first: the landing page is a hub, not a dead-end dashboard. */
+ if(target==='weightKg'){
+  if(typeof window.hhOpenWeight==='function')window.hhOpenWeight();
+  return;
+ }
  if(target==='sleep'){
   if(typeof window.hhOpenSleep==='function')window.hhOpenSleep();
   return;
@@ -169,5 +173,5 @@ window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
 setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);
 window.hhRenderLiveKpis=render;window.hhArrangeHealthRadar=arrangeHealthRadar;
-document.documentElement.dataset.healthhubLiveKpi='1.269';
+document.documentElement.dataset.healthhubLiveKpi='1.270';
 })();
