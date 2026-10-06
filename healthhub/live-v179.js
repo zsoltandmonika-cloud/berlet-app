@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.79 — live 3x3 HealthRadar KPI dashboard */
+/* HealthHub v1.267 — live 3x3 HealthRadar KPI dashboard · Health Connect DB v2 */
 var DB='healthhub-healthradar-v2',BRIDGE_DB='healthhub-connect-v1';
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -20,7 +20,8 @@ function dur(a,b){
  var h=Math.floor(m/60),mm=Math.round(m%60);return h?h+'ó '+mm+'p':Math.round(m)+'p';
 }
 function openDb(name){
- return new Promise(function(ok,no){var r=indexedDB.open(name,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}});
+ var ver=name===BRIDGE_DB?2:1;
+ return new Promise(function(ok,no){var r=indexedDB.open(name,ver);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}});
 }
 async function readMeasurements(){
  try{var db=await openDb(DB);try{return await reqP(db.transaction('measurements').objectStore('measurements').getAll())||[]}finally{db.close()}}catch(e){return[]}
@@ -65,7 +66,7 @@ function latestActivity(activity){
 function latestDailyActivity(imports){
  var all=[];
  imports.forEach(function(imp){var r=imp&&imp.bundle&&imp.bundle.records,a=r&&Array.isArray(r.dailyActivity)?r.dailyActivity:[];a.forEach(function(x){all.push(x)})});
- return all.filter(function(x){return Number(x.steps)||Number(x.caloriesKcal)||Number(x.distanceMeters)}).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))})[0]||null;
+ return all.filter(function(x){return Number(x.steps)||Number(x.caloriesKcal)||Number(x.activeCaloriesKcal)||Number(x.distanceMeters)}).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))})[0]||null;
 }
 function val(v,dec){var n=Number(v);return Number.isFinite(n)?n.toLocaleString('hu-HU',{maximumFractionDigits:dec==null?1:dec}):'—'}
 function tile(icon,label,value,unit,meta,cls,target){
@@ -90,7 +91,7 @@ async function render(){
   if(mp)hr={time:mp.measuredAt,bpm:mp.pulse};
  }
  if(!act&&daily)act={date:daily.date,steps:daily.steps};
- var cal=daily&&Number(daily.caloriesKcal)>0?daily:null;
+ var cal=daily&&(Number(daily.caloriesKcal)>0||Number(daily.activeCaloriesKcal)>0)?daily:null;
  card.innerHTML='<div class="cardHead hhLiveHead"><h3>▥ Fő egészségügyi mutatók</h3><small>Legfrissebb adatok</small></div><div class="hhLiveGrid">'+
   tile('🫀','Vérnyomás',bp?Math.round(bp.systolic)+'/'+Math.round(bp.diastolic):'—','Hgmm',bp?fmtDateTime(bp.measuredAt):'nincs adat','bp','bloodPressure')+
   tile('♥','Pulzus',hr?Math.round(hr.bpm):'—','/perc',hr?fmtDateTime(hr.time):'nincs adat','pulse','pulse')+
@@ -100,7 +101,7 @@ async function render(){
   tile('🌙','Alvás',sleep?dur(sleep.startTime,sleep.endTime):'—','',sleep?fmtDateTime(sleep.endTime):'nincs adat','sleep','sleep')+
   tile('🏃','Edzés',ex?dur(ex.startTime,ex.endTime):'—','',ex?fmtDateTime(ex.endTime):'nincs adat','exercise','lifestyle')+
   tile('🚶','Lépések',act?val(act.steps,0):'—','lépés',act?fmtDay(act.date):'nincs adat','steps','steps')+
-  tile('🔥','Elégetett kalória',cal?val(cal.caloriesKcal,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','lifestyle')+
+  tile('🔥','Elégetett kalória',cal?val(Number(cal.caloriesKcal)||Number(cal.activeCaloriesKcal)||0,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','lifestyle')+
  '</div>';
 }
 window.hhOpenLiveKpi=function(target){
@@ -138,5 +139,5 @@ window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
 setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);
 window.hhRenderLiveKpis=render;window.hhArrangeHealthRadar=arrangeHealthRadar;
-document.documentElement.dataset.healthhubLiveKpi='1.82';
+document.documentElement.dataset.healthhubLiveKpi='1.267';
 })();
