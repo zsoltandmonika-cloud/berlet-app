@@ -72,7 +72,12 @@ function kpiIcon(k){
  if(k==='elev')return '<svg viewBox="0 0 64 64"><g fill="'+c+'"><rect x="8" y="39" width="7" height="17" rx="3"/><rect x="19" y="29" width="7" height="27" rx="3"/><rect x="30" y="19" width="7" height="37" rx="3"/><rect x="41" y="10" width="7" height="46" rx="3"/></g></svg>';
  return '<svg viewBox="0 0 64 64"><path d="M32 55S8 42 8 24c0-9 6-15 14-15 5 0 9 3 10 7 2-4 6-7 11-7 8 0 14 6 14 15 0 18-25 31-25 31z" fill="'+c+'"/></svg>';
 }
-function heroSrc(){return window.HH_ACTIVITY_HERO_V253?'data:image/webp;base64,'+window.HH_ACTIVITY_HERO_V253:(window.HH_ACTIVITY_HERO_V192?'data:image/webp;base64,'+window.HH_ACTIVITY_HERO_V192:'./assets/activity-hero-v184.webp')}
+function heroSrc(){
+ var h=window.HH_ACTIVITY_HERO_V253||'';
+ if(h.length>110000)return 'data:image/webp;base64,'+h;
+ if(window.HH_ACTIVITY_HERO_V192)return 'data:image/webp;base64,'+window.HH_ACTIVITY_HERO_V192;
+ return './assets/activity-hero-v184.webp?v=257';
+}
 
 function manualLoad(profile){profile=profile||pkey();try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+profile)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
 async function cloudBundle(profile){
