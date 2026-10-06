@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-05",
-  "liveBuild": "v234",
-  "currentFocus": "Post-stabilization verification: the live HealthHub core functional modules now appear stable after fixing Profile Vault, Health Connect/Activity/Sleep sync, device cloud sync, profile schema restore, medication explanations and runtime diagnostics.",
-  "nextDevelopment": "Run a short regression pass on the stable core, then continue with the remaining parity items: per-document Léna explanation completeness, explicit Measurement CRUD acceptance, Ask Léna voice/text parity and the longer-term security/privacy model.",
+  "updatedAt": "2026-10-07",
+  "liveBuild": "v299",
+  "currentFocus": "v299 Smart Ask Léna / Léna Research Engine stabil mérföldkő. A teljes forrásalapú workflow éles és mobilon end-to-end elfogadási teszten átment: Ask Léna → hang/szöveg kérdés → Health Context → Research Router → eredeti Drive leletek → Evidence Engine → forrásolt Answer Composer → ChatGPT handoff → PDF / mobil PDF.",
+  "nextDevelopment": "A v299-et rövid távon stabil mérföldkőként kezeljük. Következő lépés: célzott regressziós teszt Zsolt és Mónika profilján, eltérő kérdéstípusokkal; ezután Consultation Log, jóváhagyott health-record mentés, OCR fallback és privacy/security audit.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -17,11 +17,6 @@
       "actionId": "HH-HR-006",
       "label": "Measurement CRUD acceptance",
       "detail": "A funkció telepítve van; külön végső készülékes elfogadási teszt még kell."
-    },
-    {
-      "actionId": "HH-AL-003",
-      "label": "Ask Léna voice",
-      "detail": "A régi mikrofonos funkció még nincs visszahozva."
     },
     {
       "actionId": "HH-CORE-005",
@@ -459,8 +454,8 @@
       "owner": "Léna + Zsolt",
       "dependency": "HH-CORE-002",
       "targetDate": "2026-10-20",
-      "actualDone": "2026-09-30",
-      "notes": "HealthHub context handoff to ChatGPT is live."
+      "actualDone": "2026-10-07",
+      "notes": "v299 Smart Ask Léna entry point live. A normál Ask Léna gomb megnyitja a Smart Health Research ablakot, profil-aware kutatási folyamattal és ChatGPT handoffal."
     },
     {
       "id": "HH-AL-002",
@@ -471,14 +466,14 @@
       "priority": "Critical",
       "sprint": "S3",
       "milestone": "M3 Ask Léna Parity",
-      "status": "In Progress",
-      "progress": 0.65,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 3,
       "owner": "Léna + Zsolt",
       "dependency": "HH-AL-001",
       "targetDate": "2026-10-22",
-      "actualDone": null,
-      "notes": "Current flow uses clipboard/context + ChatGPT; embedded response parity not complete."
+      "actualDone": "2026-10-07",
+      "notes": "v299-ben a szöveges kérdés teljes end-to-end flow-ja működik: Health Context → Research Router → Document Retrieval → Evidence → Answer Composer → ChatGPT handoff. Mobil acceptance sikeres."
     },
     {
       "id": "HH-AL-003",
@@ -489,14 +484,14 @@
       "priority": "High",
       "sprint": "S3",
       "milestone": "M3 Ask Léna Parity",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-AL-001",
       "targetDate": "2026-10-24",
-      "actualDone": null,
-      "notes": "Legacy capability not yet restored."
+      "actualDone": "2026-10-07",
+      "notes": "v299 magyar SpeechRecognition/Web Speech hangbevitelt ad, ahol a böngésző támogatja; a felismert szöveg a Smart Ask Léna kutatási folyamba kerül. A ChatGPT Voice mód külső automatikus indítása platformkorlát miatt nem garantálható."
     },
     {
       "id": "HH-AL-004",
@@ -1199,6 +1194,42 @@
       "targetDate": "2026-10-05",
       "actualDone": "2026-10-05",
       "notes": "healthhub-private-reference-v1 JSON restored for the current medication set. User imported the private reference and confirmed the 'Mire való?' explanation works."
+    },
+    {
+      "id": "HH-DATA-007",
+      "epic": "HealthHub Data Platform",
+      "feature": "Private Research Archive",
+      "title": "Private Google Drive original document archive for Léna research",
+      "acceptanceCriteria": "Original Zsolt/Mónika health documents are mirrored privately, profile-separated, sequentially and resumably; Léna can retrieve targeted originals without public GitHub exposure.",
+      "priority": "Critical",
+      "sprint": "S3",
+      "milestone": "M3 Ask Léna Parity",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-HR-002;HH-CORE-005",
+      "targetDate": "2026-10-07",
+      "actualDone": "2026-10-07",
+      "notes": "v294 live. HealthHub Lena Archive/Monika and /Zsolt created in private Drive. One-blob-at-a-time upload, resumable state, delta sync, no documentBlobs.getAll()."
+    },
+    {
+      "id": "HH-AL-009",
+      "epic": "Ask Léna",
+      "feature": "Research Engine",
+      "title": "Source-grounded Léna Research Engine",
+      "acceptanceCriteria": "A natural-language health question is routed to profile/time/domain, relevant originals are read, evidence is ranked, a concise sourced answer is composed, and the result is handed to ChatGPT.",
+      "priority": "Critical",
+      "sprint": "S3",
+      "milestone": "M3 Ask Léna Parity",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 13,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-AL-001;HH-DATA-007",
+      "targetDate": "2026-10-07",
+      "actualDone": "2026-10-07",
+      "notes": "v295 Research Router; v296 Document Retrieval; v297 Clinical Relevance + Evidence; v298 Answer Composer; v299 Smart Ask Léna orchestration. Real mobile E2E acceptance passed, including correct complete answer plus normal and mobile PDF generation."
     }
   ],
   "changeLog": [
@@ -1468,6 +1499,78 @@
       "actionId": "HH-CORE-014",
       "type": "Feature",
       "summary": "Added a distinctive HealthHub heart-and-cross favicon and launcher identity, with a dedicated manifest scoped to HealthHub and icon metadata preserved during bundled HTML loading.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-06",
+      "release": "v289/v293",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Introduced lightweight profile-scoped Léna Health Context and later filtered invalid zero clinical placeholders. Context includes measurements, sleep, activity, medications, appointments, document index and signals without bulk-reading PDF blobs.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-06",
+      "release": "v291/v292",
+      "actionId": "HH-DATA-007",
+      "type": "Feature",
+      "summary": "Added private Léna Context cloud mirrors to Dropbox and Google Drive. Google OAuth uses drive.file scope and session-only access tokens; no private medical payload is committed to public GitHub.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-06",
+      "release": "v294",
+      "actionId": "HH-DATA-007",
+      "type": "Feature",
+      "summary": "Added resumable, sequential full original-document mirror to private Google Drive, separated into Monika and Zsolt folders. Uploads one source blob at a time and later runs as delta sync.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-06",
+      "release": "v295",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Added Léna Research Router: natural-language question → profile, timeframe, clinical domains, required data sources and ranked document candidates.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v296",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Added Document Retrieval Engine: targeted Drive originals are opened sequentially and PDF.js extracts searchable source text; OCR-needed files are flagged. Initial acceptance: 5/5 documents, 0 failures, 22,072 extracted characters.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v297",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Added clinical/temporal relevance refinement, evidence extraction and source-aware timeline building. Historical questions now prioritize documents near the strongest event anchor instead of merely matching category.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v298",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Added Answer Composer with concise human-readable response sections: documented facts, likely interpretation, and what cannot be established. Source chips link claims back to original Drive documents.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v299",
+      "actionId": "HH-AL-009",
+      "type": "Feature",
+      "summary": "Added Smart Ask Léna orchestration with text or supported Hungarian speech input. One action runs Health Context refresh, routing, retrieval, evidence, answer composition and private ChatGPT handoff.",
+      "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v299 Acceptance",
+      "actionId": "HH-AL-009",
+      "type": "Acceptance",
+      "summary": "Real mobile end-to-end test passed via Ask Léna voice input and Research + ChatGPT. The system returned the correct complete historical answer and successfully produced both standard PDF and mobile PDF outputs.",
       "status": "Done"
     }
   ]
