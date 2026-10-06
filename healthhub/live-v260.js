@@ -117,6 +117,7 @@ function toggleProfile(source){
 
 /* Final authority. Older wrappers are intentionally kept only behind this call. */
 window.setProfile=canonicalSetProfile;
+window.hhSwitchProfile=canonicalSetProfile;
 window.hhSetActiveProfile=canonicalSetProfile;
 window.hhToggleProfileOneClick=function(){return toggleProfile('global-toggle')};
 
@@ -133,6 +134,19 @@ if(typeof window.hhSleepToggleProfile==='function'){
     return false;
   };
 }
+
+/* The legacy picker buttons had their own closure-bound handler. Intercept them
+   in capture phase so picker selection also uses the canonical controller. */
+document.addEventListener('click',function(e){
+  var choice=e.target&&e.target.closest?e.target.closest('#overlay .choice'):null;
+  if(!choice)return;
+  var label=String(choice.textContent||'').toLowerCase();
+  var code=(label.indexOf('mónika')>=0||label.indexOf('monika')>=0)?'m':'z';
+  e.preventDefault();
+  e.stopPropagation();
+  if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  canonicalSetProfile(code,{source:'picker'});
+},true);
 
 /* Canonical cloud refresh event: when new Health Connect data arrives for the
    active profile, repaint the currently visible profile-owned screen. */
