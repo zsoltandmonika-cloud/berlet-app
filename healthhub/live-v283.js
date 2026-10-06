@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.284 — fast wheel picker + save ta-da feedback */
+/* HealthHub v1.285 — reliable save ta-da feedback */
 var DB='healthhub-healthradar-v2', PAGE='hhWeightPage270', MODAL='hhWeightWheel283', STYLE='hh-v283-style';
 var state={step:'weight',weight:null,fat:null,baseWeight:null,baseFat:null};
 var audioCtx=null,lastTick=null,itemH=46,raf=0;
@@ -65,24 +65,25 @@ function tick(){
  try{if(navigator.vibrate)navigator.vibrate(7)}catch(e){}
 }
 function successTada(){
- initAudio();
  try{
+  if(!audioCtx){initAudio()}
   if(!audioCtx)return;
-  var t=audioCtx.currentTime+.02;
-  function note(freq,start,dur,vol){
+  var t=audioCtx.currentTime+.015;
+  function note(freq,start,dur,vol,type){
    var o=audioCtx.createOscillator(),g=audioCtx.createGain();
-   o.type='sine';o.frequency.setValueAtTime(freq,start);
+   o.type=type||'triangle';
+   o.frequency.setValueAtTime(freq,start);
    g.gain.setValueAtTime(.0001,start);
-   g.gain.exponentialRampToValueAtTime(vol,start+.018);
+   g.gain.exponentialRampToValueAtTime(vol,start+.012);
    g.gain.exponentialRampToValueAtTime(.0001,start+dur);
-   o.connect(g);g.connect(audioCtx.destination);o.start(start);o.stop(start+dur+.02);
+   o.connect(g);g.connect(audioCtx.destination);o.start(start);o.stop(start+dur+.03);
   }
-  note(523.25,t,.16,.045);
-  note(659.25,t+.13,.34,.038);
-  note(783.99,t+.13,.34,.038);
-  note(1046.50,t+.13,.38,.03);
- }catch(e){}
- try{if(navigator.vibrate)navigator.vibrate([18,35,34])}catch(e){}
+  note(523.25,t,.18,.075,'triangle');
+  note(659.25,t+.11,.28,.065,'triangle');
+  note(783.99,t+.11,.32,.060,'triangle');
+  note(1046.50,t+.24,.42,.055,'sine');
+ }catch(e){console.warn('HealthHub tada',e)}
+ try{if(navigator.vibrate)navigator.vibrate([20,28,20,28,42])}catch(e){}
 }
 function rangeFor(step){
  var base=step==='weight'?(state.weight!=null?state.weight:(state.baseWeight!=null?state.baseWeight:75)):(state.fat!=null?state.fat:(state.baseFat!=null?state.baseFat:30));
@@ -132,8 +133,10 @@ async function open(step){
 }
 function close(){var o=document.getElementById(MODAL);if(o)o.classList.remove('on')}
 async function next(){
+ initAudio();
  tick();
  if(state.step==='weight'){state.step='fat';fillStep();return}
+ try{if(audioCtx&&audioCtx.state==='suspended')await audioCtx.resume()}catch(e){}
  await save();
 }
 async function save(){
@@ -176,5 +179,5 @@ function hook(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
 window.addEventListener('healthhub:profile-changed',function(){close();setTimeout(hook,30)});
 window.hhOpenWeightWheel283=function(){open('weight')};
-document.documentElement.dataset.healthhubWeightWheel='1.284';
+document.documentElement.dataset.healthhubWeightWheel='1.285';
 })();
