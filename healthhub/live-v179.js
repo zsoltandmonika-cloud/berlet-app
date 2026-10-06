@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.268 — live HealthRadar KPI dashboard · destination-aware navigation */
+/* HealthHub v1.269 — live HealthRadar KPI dashboard · delegated destination navigation */
 var DB='healthhub-healthradar-v2',BRIDGE_DB='healthhub-connect-v1';
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -70,11 +70,12 @@ function latestDailyActivity(imports){
 }
 function val(v,dec){var n=Number(v);return Number.isFinite(n)?n.toLocaleString('hu-HU',{maximumFractionDigits:dec==null?1:dec}):'—'}
 function tile(icon,label,value,unit,meta,cls,target){
- var click=target?' onclick="hhOpenLiveKpi(\\\''+esc(target)+'\\\')" role="button" tabindex="0"':'';
- return '<div class="hhLiveKpi '+(cls||'')+'"'+click+'><div class="hhLiveIcon">'+icon+'</div><div class="hhLiveLabel">'+esc(label)+'</div><div class="hhLiveValue">'+value+'</div><div class="hhLiveUnit">'+esc(unit||'')+'</div><div class="hhLiveMeta">'+esc(meta||'nincs adat')+'</div></div>';
+ var nav=target?' data-hh-kpi-target="'+esc(target)+'" role="button" tabindex="0"':'';
+ return '<div class="hhLiveKpi '+(cls||'')+'"'+nav+'><div class="hhLiveIcon">'+icon+'</div><div class="hhLiveLabel">'+esc(label)+'</div><div class="hhLiveValue">'+value+'</div><div class="hhLiveUnit">'+esc(unit||'')+'</div><div class="hhLiveMeta">'+esc(meta||'nincs adat')+'</div></div>';
 }
 async function render(){
  var card=document.querySelector('#health .kpiCard');if(!card)return;
+ bindKpiNavigation();
  var p=pkey(),data=await Promise.all([readMeasurements(),readBridge()]),rows=data[0].filter(function(x){return x.profile===p}),bridge=data[1],
      imports=bridge.imports.filter(function(x){return x.profile===p}),activity=bridge.activity.filter(function(x){return x.profile===p});
  var bp=latestMeasurement(rows,function(x){return x.systolic!=null&&x.diastolic!=null}),
@@ -104,6 +105,24 @@ async function render(){
   tile('🔥','Elégetett kalória',cal?val(Number(cal.caloriesKcal)||Number(cal.activeCaloriesKcal)||0,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','calories')+
  '</div>';
 }
+function bindKpiNavigation(){
+ var card=document.querySelector('#health .kpiCard');if(!card||card.__hhKpiNav269)return;
+ card.__hhKpiNav269=true;
+ card.addEventListener('click',function(e){
+  var el=e.target&&e.target.closest?e.target.closest('[data-hh-kpi-target]'):null;
+  if(!el||!card.contains(el))return;
+  e.preventDefault();
+  window.hhOpenLiveKpi(el.getAttribute('data-hh-kpi-target'));
+ });
+ card.addEventListener('keydown',function(e){
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  var el=e.target&&e.target.closest?e.target.closest('[data-hh-kpi-target]'):null;
+  if(!el||!card.contains(el))return;
+  e.preventDefault();
+  window.hhOpenLiveKpi(el.getAttribute('data-hh-kpi-target'));
+ });
+}
+
 window.hhOpenLiveKpi=function(target){
  /* Existing destination modules first: the landing page is a hub, not a dead-end dashboard. */
  if(target==='sleep'){
@@ -150,5 +169,5 @@ window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
 setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);
 window.hhRenderLiveKpis=render;window.hhArrangeHealthRadar=arrangeHealthRadar;
-document.documentElement.dataset.healthhubLiveKpi='1.268';
+document.documentElement.dataset.healthhubLiveKpi='1.269';
 })();
