@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.267 — live 3x3 HealthRadar KPI dashboard · Health Connect DB v2 */
+/* HealthHub v1.268 — live HealthRadar KPI dashboard · destination-aware navigation */
 var DB='healthhub-healthradar-v2',BRIDGE_DB='healthhub-connect-v1';
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -99,25 +99,36 @@ async function render(){
   tile('💧','Vércukor',glu?val(glu.bloodGlucose,1):'—','mmol/L',glu?fmtDateTime(glu.measuredAt):'nincs adat','glucose','bloodGlucose')+
   tile('⚖','Testsúly',wt?val(wt.weightKg,1):'—','kg',wt?fmtDateTime(wt.measuredAt):'nincs adat','weight','weightKg')+
   tile('🌙','Alvás',sleep?dur(sleep.startTime,sleep.endTime):'—','',sleep?fmtDateTime(sleep.endTime):'nincs adat','sleep','sleep')+
-  tile('🏃','Edzés',ex?dur(ex.startTime,ex.endTime):'—','',ex?fmtDateTime(ex.endTime):'nincs adat','exercise','lifestyle')+
+  tile('🏃','Edzés',ex?dur(ex.startTime,ex.endTime):'—','',ex?fmtDateTime(ex.endTime):'nincs adat','exercise','exercise')+
   tile('🚶','Lépések',act?val(act.steps,0):'—','lépés',act?fmtDay(act.date):'nincs adat','steps','steps')+
-  tile('🔥','Elégetett kalória',cal?val(Number(cal.caloriesKcal)||Number(cal.activeCaloriesKcal)||0,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','lifestyle')+
+  tile('🔥','Elégetett kalória',cal?val(Number(cal.caloriesKcal)||Number(cal.activeCaloriesKcal)||0,0):'—','kcal',cal?fmtDay(cal.date):'nincs adat','calories','calories')+
  '</div>';
 }
 window.hhOpenLiveKpi=function(target){
+ /* Existing destination modules first: the landing page is a hub, not a dead-end dashboard. */
  if(target==='sleep'){
   if(typeof window.hhOpenSleep==='function')window.hhOpenSleep();
   return;
  }
- if(window.hhMeasurementState&&target!=='lifestyle')window.hhMeasurementState.metric=target;
+ if(target==='activity'||target==='exercise'||target==='steps'||target==='calories'||target==='lifestyle'){
+  if(window.hhActivity191State)window.hhActivity191State.period='1d';
+  if(typeof window.hhOpenActivity==='function'){
+   window.hhOpenActivity();
+   setTimeout(function(){
+    var x=null;
+    if(target==='exercise')x=document.querySelector('#hhActivityPage191 .a191Recent');
+    else x=document.querySelector('#hhActivityPage191 .a191Top');
+    if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
+   },500);
+  }
+  return;
+ }
+ if(window.hhMeasurementState)window.hhMeasurementState.metric=target;
  if(typeof window.openHealthSection==='function')window.openHealthSection('measurements');
  else {window.healthSectionKind='measurements';if(typeof window.show==='function')window.show('healthSection');if(typeof window.renderHealthSection==='function')window.renderHealthSection();}
  setTimeout(function(){
-  if(target==='lifestyle'){
-   var x=document.querySelector('#hhLifePanel,.hhLifeV151');if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
-  }else{
-   var x=document.querySelector('#healthSubContent .hhTrendGrid,#healthSubContent .hhChartBox');if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
-  }
+  var x=document.querySelector('#healthSubContent .hhTrendGrid,#healthSubContent .hhChartBox');
+  if(x)x.scrollIntoView({behavior:'smooth',block:'start'});
  },350);
 };
 
@@ -139,5 +150,5 @@ window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
 setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);
 window.hhRenderLiveKpis=render;window.hhArrangeHealthRadar=arrangeHealthRadar;
-document.documentElement.dataset.healthhubLiveKpi='1.267';
+document.documentElement.dataset.healthhubLiveKpi='1.268';
 })();
