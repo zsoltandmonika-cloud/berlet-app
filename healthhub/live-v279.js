@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-/* HealthHub v1.279 — framed live camera with pan/zoom and display-only OCR capture */
+/* HealthHub v1.280 — framed live camera, 6–9x pan/zoom, display-only OCR capture */
 var CAM_ID='hhWeightLiveCam279', STYLE_ID='hh-v279-style';
-var stream=null, opening=false, zoom=1, panX=0, panY=0, pointers=new Map(), pinchStartDist=0, pinchStartZoom=1;
+var stream=null, opening=false, zoom=6, panX=0, panY=0, pointers=new Map(), pinchStartDist=0, pinchStartZoom=6;
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
@@ -26,16 +26,16 @@ function ui(){
  '<div class="hhWCamTop"><button class="hhWCamClose" type="button" aria-label="Bezárás">×</button><div class="hhWCamTitle"><b>Mérleg kijelző beolvasása</b><small>HEALTHHUB · KAMERA OCR</small></div><div class="hhWCamProfile"></div></div>'+
  '<div class="hhWCamStage"><div class="hhWCamScale"><div class="hhWCamWindow"><video playsinline muted autoplay></video><div class="hhWCamGhost"><span>00.0 kg</span><span>00.0 %</span></div><div class="hhWCamGuide"></div></div></div></div>'+
  '<div class="hhWCamHint"><b>Igazítsd a valódi mérleg kijelzőjét a világító ablakba.</b><small>Egy ujjal mozgatás · két ujjal zoom · vagy használd a csúszkát.</small></div>'+
- '<div class="hhWCamControls"><button class="hhWCamMinus" type="button">−</button><div class="hhWCamZoom"><b>1,0×</b><input type="range" min="1" max="4" step="0.05" value="1"></div><button class="hhWCamReset" type="button">Közép</button></div>'+
+ '<div class="hhWCamControls"><button class="hhWCamMinus" type="button">−</button><div class="hhWCamZoom"><b>1,0×</b><input type="range" min="6" max="9" step="0.1" value="6"></div><button class="hhWCamReset" type="button">Közép</button></div>'+
  '<div class="hhWCamBottom"><button class="hhWCamFallback" type="button">Natív kamera</button><button class="hhWCamShot" type="button" aria-label="Fotó készítése"></button><div class="hhWCamReady">KIJELZŐ OCR</div></div>';
  document.body.appendChild(o);
  o.querySelector('.hhWCamClose').addEventListener('click',closeCamera);
  o.querySelector('.hhWCamFallback').addEventListener('click',function(){closeCamera();if(window.hhWeightOcrNative278)window.hhWeightOcrNative278()});
  o.querySelector('.hhWCamShot').addEventListener('click',capture);
  var slider=o.querySelector('.hhWCamZoom input');
- slider.addEventListener('input',function(){zoom=clamp(Number(slider.value)||1,1,4);clampPan();layoutVideo()});
- o.querySelector('.hhWCamMinus').addEventListener('click',function(){zoom=clamp(zoom-.25,1,4);syncZoom();clampPan();layoutVideo()});
- o.querySelector('.hhWCamReset').addEventListener('click',function(){zoom=1;panX=0;panY=0;syncZoom();layoutVideo()});
+ slider.addEventListener('input',function(){zoom=clamp(Number(slider.value)||6,6,9);clampPan();layoutVideo()});
+ o.querySelector('.hhWCamMinus').addEventListener('click',function(){zoom=clamp(zoom-.5,6,9);syncZoom();clampPan();layoutVideo()});
+ o.querySelector('.hhWCamReset').addEventListener('click',function(){zoom=6;panX=0;panY=0;syncZoom();layoutVideo()});
  var w=o.querySelector('.hhWCamWindow');
  w.addEventListener('pointerdown',pointerDown);
  w.addEventListener('pointermove',pointerMove);
@@ -73,7 +73,7 @@ function pointerMove(e){
  if(!pointers.has(e.pointerId))return;e.preventDefault();
  var p=pointers.get(e.pointerId),oldX=p.x,oldY=p.y;p.x=e.clientX;p.y=e.clientY;pointers.set(e.pointerId,p);
  if(pointers.size===1){panX+=p.x-oldX;panY+=p.y-oldY;clampPan();layoutVideo();return}
- if(pointers.size>=2){var a=Array.from(pointers.values()),d=Math.max(1,dist(a[0],a[1]));zoom=clamp(pinchStartZoom*d/pinchStartDist,1,4);clampPan();layoutVideo()}
+ if(pointers.size>=2){var a=Array.from(pointers.values()),d=Math.max(1,dist(a[0],a[1]));zoom=clamp(pinchStartZoom*d/pinchStartDist,6,9);clampPan();layoutVideo()}
 }
 function pointerUp(e){
  pointers.delete(e.pointerId);
@@ -90,7 +90,7 @@ function closeCamera(){
 async function openCamera(){
  if(opening)return;opening=true;
  var o=ui(),v=o.querySelector('video'),p=o.querySelector('.hhWCamProfile');if(p)p.textContent=pname();
- zoom=1;panX=0;panY=0;syncZoom();o.classList.add('on','loading');
+ zoom=6;panX=0;panY=0;syncZoom();o.classList.add('on','loading');
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
   closeCamera();if(window.hhWeightOcrNative278)window.hhWeightOcrNative278();return;
  }
@@ -125,5 +125,5 @@ window.hhCloseWeightCamera279=closeCamera;
 window.addEventListener('resize',function(){if(document.getElementById(CAM_ID)?.classList.contains('on')){clampPan();layoutVideo()}});
 document.addEventListener('visibilitychange',function(){if(document.hidden)closeCamera()});
 style();ui();
-document.documentElement.dataset.healthhubWeightCamera='1.279';
+document.documentElement.dataset.healthhubWeightCamera='1.280';
 })();
