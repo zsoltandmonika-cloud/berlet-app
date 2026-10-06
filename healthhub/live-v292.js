@@ -261,6 +261,8 @@ function renderStatus(){
   };
 }
 
+window.hhGetGoogleDriveToken292=function(interactive){return ensureToken(!!interactive)};
+window.hhGoogleDriveAuthorized292=authorized;
 window.hhConnectGoogleDrive292=connectAll;
 window.hhMirrorLenaContextDrive292=function(p){return mirror(p||pkey(),true,'manual')};
 window.hhGetLenaContextDriveState292=function(p){return state(p||pkey())};
