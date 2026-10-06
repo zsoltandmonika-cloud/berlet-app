@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.289 — lightweight local Léna Health Context collector.
+/* HealthHub v1.293 — lightweight local Léna Health Context collector (zero-value clinical filter).
    No PDF/blob reads. No MutationObserver. No network. Event-driven + debounced. */
 
 var HR='healthhub-healthradar-v2', HC='healthhub-connect-v1';
@@ -199,10 +199,10 @@ async function build(profile,reason){
     var raw=imp&&imp.bundle||null;
     var sl=sleepRows(raw),hr=heartRows(raw),ac=activityRows(raw,rs[5],p);
     var wl=latest(meas,function(x){var v=num(x.weightKg);return v!=null&&v>=20&&v<=400});
-    var bp=latest(meas,function(x){return num(x.systolic)!=null&&num(x.diastolic)!=null});
-    var gl=latest(meas,function(x){return num(x.bloodGlucose)!=null});
-    var ox=latest(meas,function(x){return num(x.oxygenSaturation)!=null});
-    var pr=meas.filter(function(x){return num(x.pulse)!=null});
+    var bp=latest(meas,function(x){var s=num(x.systolic),d=num(x.diastolic);return s!=null&&d!=null&&s>0&&d>0});
+    var gl=latest(meas,function(x){var v=num(x.bloodGlucose);return v!=null&&v>0});
+    var ox=latest(meas,function(x){var v=num(x.oxygenSaturation);return v!=null&&v>0});
+    var pr=meas.filter(function(x){var v=num(x.pulse);return v!=null&&v>0});
     var di=documentsIndex(rs[2],legacy,p);
 
     var c={
@@ -222,9 +222,9 @@ async function build(profile,reason){
           delta30d:delta(meas,'weightKg',30,function(x){var v=num(x.weightKg);return v!=null&&v>=20})
         },
         bloodPressure:{
-          latest:bp?{measuredAt:bp.measuredAt,systolic:num(bp.systolic),diastolic:num(bp.diastolic),pulse:num(bp.pulse),source:bp.source||null}:null,
-          h72:{systolicAvg:avg(within(meas,3,function(x){return num(x.systolic)!=null}).map(function(x){return x.systolic})),diastolicAvg:avg(within(meas,3,function(x){return num(x.diastolic)!=null}).map(function(x){return x.diastolic}))},
-          d7:{systolicAvg:avg(within(meas,7,function(x){return num(x.systolic)!=null}).map(function(x){return x.systolic})),diastolicAvg:avg(within(meas,7,function(x){return num(x.diastolic)!=null}).map(function(x){return x.diastolic}))}
+          latest:bp?{measuredAt:bp.measuredAt,systolic:num(bp.systolic),diastolic:num(bp.diastolic),pulse:(num(bp.pulse)>0?num(bp.pulse):null),source:bp.source||null}:null,
+          h72:{systolicAvg:avg(within(meas,3,function(x){var v=num(x.systolic);return v!=null&&v>0}).map(function(x){return x.systolic})),diastolicAvg:avg(within(meas,3,function(x){var v=num(x.diastolic);return v!=null&&v>0}).map(function(x){return x.diastolic}))},
+          d7:{systolicAvg:avg(within(meas,7,function(x){var v=num(x.systolic);return v!=null&&v>0}).map(function(x){return x.systolic})),diastolicAvg:avg(within(meas,7,function(x){var v=num(x.diastolic);return v!=null&&v>0}).map(function(x){return x.diastolic}))}
         },
         pulse:{latest:latest(pr)?{measuredAt:latest(pr).measuredAt,value:num(latest(pr).pulse)}:null,h72Avg:avg(within(pr,3).map(function(x){return x.pulse})),d7Avg:avg(within(pr,7).map(function(x){return x.pulse}))},
         glucose:{latest:gl?{measuredAt:gl.measuredAt,bloodGlucose:num(gl.bloodGlucose),source:gl.source||null}:null},
@@ -286,5 +286,5 @@ try{
 }catch(e){}
 
 setTimeout(function(){renderStatus();schedule(pkey(),'startup',1200)},1000);
-document.documentElement.dataset.healthhubLenaContext='1.289-local';
+document.documentElement.dataset.healthhubLenaContext='1.293-zero-filter';
 })();
