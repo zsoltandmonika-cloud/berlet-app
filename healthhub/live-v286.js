@@ -31,6 +31,9 @@ document.addEventListener('click',function(e){
   e.preventDefault();
   e.stopPropagation();
   e.stopImmediatePropagation();
+  if(typeof window.hhOpenLenaSmart299==='function'){
+    try{window.hhOpenLenaSmart299();return}catch(err){console.warn('HealthHub v299 handoff fallback',err)}
+  }
   openChatGPT();
 },true);
 
