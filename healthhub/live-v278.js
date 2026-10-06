@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.280 — split-row camera OCR with history-aware plausibility guard */
+/* HealthHub v1.282 — Beurer blue LCD seven-segment recognition + OCR fallback */
 var DB='healthhub-healthradar-v2', PAGE='hhWeightPage270', FILE_ID='hhWeightCamera278', LOAD_ID='hhWeightOcrLoad278';
 var SCRIPT='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
 var busy=false;
@@ -65,6 +65,100 @@ async function prep(src){
  for(var i=0;i<p.length;i+=4){var y=.299*p[i]+.587*p[i+1]+.114*p[i+2];var v=clamp((y-128)*1.75+128,0,255);p[i]=p[i+1]=p[i+2]=v}
  g.putImageData(d,0,0);return c;
 }
+
+function beurerMask(canvas){
+ var g=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height,d=g.getImageData(0,0,w,h).data;
+ var m=new Uint8Array(w*h);
+ for(var i=0,p=0;i<d.length;i+=4,p++){
+  var r=d[i],gg=d[i+1],b=d[i+2],avg=(r+gg+b)/3;
+  if(b>65&&avg>70&&r>b*.18&&gg>b*.52)m[p]=1;
+ }
+ return {m:m,w:w,h:h};
+}
+function maskBox(mask,x0,x1){
+ var m=mask.m,w=mask.w,h=mask.h,minY=h,maxY=-1,count=0;
+ x0=Math.max(0,Math.floor(x0));x1=Math.min(w,Math.ceil(x1));
+ for(var y=0;y<h;y++)for(var x=x0;x<x1;x++)if(m[y*w+x]){count++;if(y<minY)minY=y;if(y>maxY)maxY=y}
+ return count?{x0:x0,x1:x1,y0:minY,y1:maxY+1,count:count}:null;
+}
+function zoneFill(mask,box,xa,xb,ya,yb){
+ var m=mask.m,w=mask.w,W=box.x1-box.x0,H=box.y1-box.y0;
+ var x0=box.x0+Math.floor(W*xa),x1=box.x0+Math.ceil(W*xb),y0=box.y0+Math.floor(H*ya),y1=box.y0+Math.ceil(H*yb),n=0,t=0;
+ for(var y=y0;y<y1;y++)for(var x=x0;x<x1;x++){t++;if(m[y*w+x])n++}
+ return t?n/t:0;
+}
+function digitFromBox(mask,box){
+ var r=[
+  zoneFill(mask,box,.20,.80,.00,.18),
+  zoneFill(mask,box,.68,1.00,.12,.48),
+  zoneFill(mask,box,.68,1.00,.52,.88),
+  zoneFill(mask,box,.20,.80,.82,1.00),
+  zoneFill(mask,box,.00,.32,.52,.88),
+  zoneFill(mask,box,.00,.32,.12,.48),
+  zoneFill(mask,box,.20,.80,.41,.59)
+ ];
+ var patterns={
+  '0':[1,1,1,1,1,1,0],'1':[0,1,1,0,0,0,0],'2':[1,1,0,1,1,0,1],
+  '3':[1,1,1,1,0,0,1],'4':[0,1,1,0,0,1,1],'5':[1,0,1,1,0,1,1],
+  '6':[1,0,1,1,1,1,1],'7':[1,1,1,0,0,0,0],'8':[1,1,1,1,1,1,1],
+  '9':[1,1,1,1,0,1,1]
+ };
+ var best=null;
+ Object.keys(patterns).forEach(function(k){
+  var p=patterns[k],loss=0;
+  for(var i=0;i<7;i++){
+   var target=p[i]?((i===0||i===3)?.45:.62):.08;
+   var weight=(i===0||i===3||i===6)?1.05:1;
+   loss+=Math.abs(r[i]-target)*weight;
+  }
+  if(!best||loss<best.loss)best={digit:k,loss:loss,ratios:r};
+ });
+ var conf=Math.max(0,Math.min(100,100-best.loss/4.2*100));
+ return {digit:best.digit,confidence:conf,ratios:r};
+}
+function beurerSevenSeg(canvas,hist){
+ var mask=beurerMask(canvas),w=mask.w,h=mask.h,m=mask.m,col=new Int32Array(w);
+ var yLimit=Math.floor(h*.96);
+ for(var y=0;y<yLimit;y++)for(var x=0;x<w;x++)if(m[y*w+x])col[x]++;
+ var threshold=Math.max(3,Math.floor(h*.035)),runs=[],st=-1;
+ for(var x=0;x<=w;x++){
+  var on=x<w&&col[x]>threshold;
+  if(on&&st<0)st=x;
+  if(!on&&st>=0){if(x-st>=3)runs.push([st,x]);st=-1}
+ }
+ var boxes=[];
+ runs.forEach(function(r){
+  var b=maskBox(mask,r[0],r[1]);if(!b)return;
+  var bw=b.x1-b.x0,bh=b.y1-b.y0;
+  if(bh>h*.42&&bw>h*.09&&bw<h*.60)boxes.push(b);
+ });
+ boxes.sort(function(a,b){return a.x0-b.x0});
+ if(!boxes.length||boxes.length>4)return null;
+ var digits=[],confs=[];
+ boxes.forEach(function(b){var d=digitFromBox(mask,b);digits.push(d.digit);confs.push(d.confidence)});
+ var decimal=-1;
+ for(var i=0;i<boxes.length-1;i++){
+  var gx0=boxes[i].x1,gx1=boxes[i+1].x0;
+  if(gx1<=gx0)continue;
+  var gy0=Math.floor(h*.52),n=0,total=(gx1-gx0)*(h-gy0);
+  for(var yy=gy0;yy<h;yy++)for(var xx=gx0;xx<gx1;xx++)if(m[yy*w+xx])n++;
+  if(total&&n/total>.006){decimal=i+1}
+ }
+ var s=digits.join('');
+ if(decimal>0&&decimal<s.length)s=s.slice(0,decimal)+'.'+s.slice(decimal);
+ var value=Number(s);
+ if(!Number.isFinite(value))return null;
+ if(decimal<0&&value>=100&&value<=2000){
+  var v10=value/10;
+  if((hist.weight!=null&&Math.abs(v10-hist.weight)<Math.abs(value-hist.weight))||
+     (hist.fat!=null&&Math.abs(v10-hist.fat)<Math.abs(value-hist.fat)))value=v10;
+ }
+ var ws=score(value,hist.weight,'w'),fs=score(value,hist.fat,'f'),type=ws>=fs?'w':'f';
+ if(ws<-1000&&fs<-1000)return null;
+ var confidence=confs.length?confs.reduce(function(a,b){return a+b},0)/confs.length:0;
+ return {value:value,type:type,confidence:confidence,digits:digits.join(''),decimal:decimal,weight:type==='w'?value:null,fat:type==='f'?value:null};
+}
+
 function sliceForOcr(canvas,top){
  var sx=Math.round(canvas.width*.03),sw=Math.round(canvas.width*.79);
  var sy=top?Math.round(canvas.height*.03):Math.round(canvas.height*.51);
@@ -151,27 +245,28 @@ async function processSource(src){
  if(busy)return;busy=true;var o=loader();o.classList.add('on');setProgress(5,'Kép előkészítése…');
  var h={weight:null,fat:null},res={weight:null,fat:null},conf=null,failed=false;
  try{
-  h=await history();var canvas=await prep(src),topCanvas=sliceForOcr(canvas,true),bottomCanvas=sliceForOcr(canvas,false);
-  setProgress(15,'OCR motor betöltése…');
-  var T=await loadTesseract();
-  setProgress(24,'Testsúly felismerése…');
-  var top=await T.recognize(topCanvas,'eng',{
-    logger:function(m){if(m.status==='recognizing text'){setProgress(24+(Number(m.progress)||0)*28,'Testsúly · '+Math.round((Number(m.progress)||0)*100)+'%')}},
+  h=await history();var canvas=await prep(src);
+  setProgress(18,'7-szegmenses kijelző elemzése…');
+  var seven=beurerSevenSeg(canvas,h);
+  if(seven&&seven.confidence>=38){
+   res={weight:seven.weight,fat:seven.fat,raw:'7SEG '+seven.digits};
+   conf=Math.max(55,seven.confidence);
+   setProgress(92,'Előzmények ellenőrzése…');
+  }else{
+   setProgress(22,'Tartalék OCR betöltése…');
+   var T=await loadTesseract();
+   setProgress(34,'Kijelző felismerése…');
+   var rr=await T.recognize(canvas,'eng',{
+    logger:function(m){if(m.status==='recognizing text'){setProgress(34+(Number(m.progress)||0)*50,'OCR · '+Math.round((Number(m.progress)||0)*100)+'%')}},
     tessedit_char_whitelist:'0123456789.,',
     tessedit_pageseg_mode:'7'
-  });
-  setProgress(54,'Testzsír felismerése…');
-  var bottom=await T.recognize(bottomCanvas,'eng',{
-    logger:function(m){if(m.status==='recognizing text'){setProgress(54+(Number(m.progress)||0)*30,'Testzsír · '+Math.round((Number(m.progress)||0)*100)+'%')}},
-    tessedit_char_whitelist:'0123456789.,',
-    tessedit_pageseg_mode:'7'
-  });
-  var topText=top&&top.data&&top.data.text||'',bottomText=bottom&&bottom.data&&bottom.data.text||'';
-  var w=chooseOne(topText,h.weight,'w'),f=chooseOne(bottomText,h.fat,'f');
-  res={weight:w&&w.v,fat:f&&f.v,raw:topText+' | '+bottomText};
-  var tc=top&&top.data?Number(top.data.confidence):NaN,bc=bottom&&bottom.data?Number(bottom.data.confidence):NaN;
-  var cs=[tc,bc].filter(Number.isFinite);conf=cs.length?cs.reduce(function(a,b){return a+b},0)/cs.length:null;
-  setProgress(92,'Előzmények ellenőrzése…');
+   });
+   var tx=rr&&rr.data&&rr.data.text||'',one=chooseOne(tx,h.weight,'w'),two=chooseOne(tx,h.fat,'f');
+   if(one&&(!two||one.s>=two.s))res={weight:one.v,fat:null,raw:tx};
+   else if(two)res={weight:null,fat:two.v,raw:tx};
+   conf=rr&&rr.data?Number(rr.data.confidence):null;
+   setProgress(92,'Előzmények ellenőrzése…');
+  }
  }catch(e){console.warn('Weight OCR experiment',e);failed=true;window.toast&&window.toast('OCR nem sikerült · kézi bevitel használható')}
  finally{
   setProgress(100,'Kész');await delay(180);o.classList.remove('on');busy=false;
@@ -194,5 +289,5 @@ function hook(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
 window.addEventListener('healthhub:profile-changed',function(){setTimeout(hook,30)});
-document.documentElement.dataset.healthhubWeightOcr='1.280';
+document.documentElement.dataset.healthhubWeightOcr='1.282';
 })();
