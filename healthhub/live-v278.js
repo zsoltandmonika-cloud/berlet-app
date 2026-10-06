@@ -128,15 +128,15 @@ async function openReview(src,res,h,confidence,ocrFailed){
  (severe?'<label class="hhWOcrConfirm"><input type="checkbox" id="hhWOcrConfirm278"> <span>Az eltérést ellenőriztem, és a fenti értékeket ennek ellenére menteni szeretném.</span></label>':'')+
  '<button class="hhWOcrAgain" type="button">📷 Újrafotózás</button>';
  var form=sheet.querySelector('.hhWForm');sheet.insertBefore(card,form);
- card.querySelector('.hhWOcrAgain').addEventListener('click',function(){document.getElementById('hhWeightSheet270').classList.remove('on');ensureFile().click()});
+ card.querySelector('.hhWOcrAgain').addEventListener('click',function(){document.getElementById('hhWeightSheet270').classList.remove('on');if(typeof window.hhOpenWeightCamera279==='function')window.hhOpenWeightCamera279();else ensureFile().click()});
  if(severe&&save){save.disabled=true;var ck=card.querySelector('#hhWOcrConfirm278');ck.addEventListener('change',function(){save.disabled=!ck.checked})}
  [kg,fat].forEach(function(el){el.addEventListener('input',function(){if(save&&severe)save.disabled=false},{once:true})});
 }
-async function processFile(file){
+async function processSource(src){
  if(busy)return;busy=true;var o=loader();o.classList.add('on');setProgress(5,'Kép előkészítése…');
- var src=null,h={weight:null,fat:null},res={weight:null,fat:null},conf=null,failed=false;
+ var h={weight:null,fat:null},res={weight:null,fat:null},conf=null,failed=false;
  try{
-  src=await readDataUrl(file);h=await history();var canvas=await prep(src);setProgress(15,'OCR motor betöltése…');
+  h=await history();var canvas=await prep(src);setProgress(15,'OCR motor betöltése…');
   var T=await loadTesseract();setProgress(22,'Számok felismerése…');
   var rr=await T.recognize(canvas,'eng',{
     logger:function(m){
@@ -151,12 +151,18 @@ async function processFile(file){
   if(src)await openReview(src,res,h,conf,failed);
  }
 }
+async function processFile(file){
+ if(busy)return;var src=await readDataUrl(file);await processSource(src);
+}
+window.hhWeightOcrProcessSource278=processSource;
+window.hhWeightOcrNative278=function(){ensureFile().click()};
+
 function hook(){
  style();ensureFile();var page=document.getElementById(PAGE);if(!page){setTimeout(hook,140);return}
  if(page.dataset.hhOcr278)return;page.dataset.hhOcr278='1';
  page.addEventListener('click',function(e){
    var b=e.target&&e.target.closest&&e.target.closest('[data-act="new"]');if(!b)return;
-   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();ensureFile().click();
+   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(typeof window.hhOpenWeightCamera279==='function')window.hhOpenWeightCamera279();else ensureFile().click();
  },true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook,{once:true});else hook();
