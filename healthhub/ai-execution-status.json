@@ -1,8 +1,8 @@
 {
   "schema": "healthhub.ai-execution-status/1",
-  "updatedAt": "2026-10-07T15:33:06.699Z",
+  "updatedAt": "2026-10-07T16:27:39.894Z",
   "engine": {
-    "build": "v301",
+    "build": "v302",
     "status": "ready",
     "mode": "approval-gated",
     "backupGuard": "active",
@@ -12,6 +12,46 @@
     "note": "No GitHub/API secret is stored in the browser or public repository."
   },
   "jobs": [
+    {
+      "jobId": "JOB-WISH-007-1791387240265",
+      "wishId": "WISH-007",
+      "title": "Central Manual Sync",
+      "status": "Testing",
+      "phase": "Quality Gate",
+      "progress": 72,
+      "startedAt": "2026-10-07T15:44:00Z",
+      "steps": [
+        {
+          "name": "Approve",
+          "status": "Done"
+        },
+        {
+          "name": "Backup",
+          "status": "Done"
+        },
+        {
+          "name": "Analyze",
+          "status": "Done"
+        },
+        {
+          "name": "Patch",
+          "status": "Done"
+        },
+        {
+          "name": "Test",
+          "status": "Running"
+        },
+        {
+          "name": "Deploy",
+          "status": "Pending"
+        },
+        {
+          "name": "Verify",
+          "status": "Pending"
+        }
+      ],
+      "message": "v302 Central Manual Sync implemented on feature branch; quality gate pending."
+    },
     {
       "jobId": "HH-L3-V301-INFRA",
       "wishIds": [
