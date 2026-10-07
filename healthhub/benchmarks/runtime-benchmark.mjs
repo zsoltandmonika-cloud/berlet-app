@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 
 const baseURL = process.env.HEALTHHUB_URL || 'http://127.0.0.1:8000/healthhub/';
+const mode = process.env.BENCH_MODE || 'clean';
 const browser = await chromium.launch({headless:true});
 const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } });
 
@@ -85,7 +86,46 @@ await cdp.send('Profiler.start');
 const navStart=Date.now();
 await page.goto(baseURL,{waitUntil:'domcontentloaded',timeout:45000});
 await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
-await settle(2500);
+await settle(1800);
+
+if(mode==='localstate'){
+  await page.evaluate(()=>{
+    const now=Date.now(), iso=new Date().toISOString();
+    const errors=Array.from({length:180},(_,i)=>({
+      id:'bench-e-'+i,createdAt:new Date(now-i*60000).toISOString(),level:i%4===0?'warn':'error',
+      source:'benchmark.synthetic',message:'Synthetic historical HealthHub diagnostic '+i,
+      detail:'stack '+('x'.repeat(1800))
+    }));
+    localStorage.setItem('hh-error-log-v1',JSON.stringify(errors));
+    const health=Array.from({length:60},(_,i)=>({
+      at:new Date(now-i*3600000).toISOString(),score:55+(i%35),rag:{k:'amber',label:'AMBER',icon:'🟠'},
+      errors:{errors24:53,warnings24:40},perf:{avgLoad:1900,longTasks:250,storage:{usage:90000000,quota:10800000000}}
+    }));
+    localStorage.setItem('hh-ai-health-history-v1',JSON.stringify(health));
+    const wishes=Array.from({length:20},(_,i)=>({
+      id:'WISH-'+String(i+1).padStart(3,'0'),title:'Synthetic benchmark wish '+(i+1),
+      type:'Feature',impact:'High',complexity:'M',feasibility:'High',requestedBy:'Zsolt',
+      status:i<8?'Approved':'Backlog',executionStatus:i<8?'Queued':'',description:'Benchmark wish '+('d'.repeat(240))
+    }));
+    localStorage.setItem('hh-ai-wishlist-v1',JSON.stringify(wishes));
+    const jobs=Array.from({length:20},(_,i)=>({
+      jobId:'JOB-BENCH-'+i,wishId:'WISH-'+String(i+1).padStart(3,'0'),title:'Benchmark job '+i,
+      status:i<6?'Queued':'Done',phase:i<6?'Awaiting AI executor':'Verify',progress:i<6?8:100,
+      createdAt:iso,updatedAt:iso,message:'Benchmark '+('m'.repeat(180)),
+      steps:['Approve','Backup','Analyze','Patch','Test','Deploy','Verify'].map((n,j)=>({name:n,status:j<(i<6?1:7)?'Done':'Pending'}))
+    }));
+    localStorage.setItem('hh-ai-code-jobs-v1',JSON.stringify(jobs));
+    const days={};
+    for(let i=0;i<30;i++){
+      const d=new Date(now-i*86400000).toISOString().slice(0,10);
+      days[d]={sessions:3,loadCount:3,loadTotalMs:5800,longTaskCount:300,longTaskTotalMs:200000,healthChecks:10,healthCheckTotalMs:7};
+    }
+    localStorage.setItem('hh-ai-telemetry-v1',JSON.stringify({schema:'healthhub.ops-telemetry/1',days,lastStorage:{usage:90000000,quota:10800000000}}));
+  });
+  await page.reload({waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
+  await settle(1800);
+}
 const loadWallMs=Date.now()-navStart;
 
 await page.evaluate(()=>{
@@ -99,6 +139,40 @@ await page.evaluate(()=>{
   };
 });
 
+const idbInventory=await page.evaluate(async()=>{
+  const result=[];
+  if(!indexedDB.databases)return result;
+  for(const info of await indexedDB.databases()){
+    if(!info.name)continue;
+    try{
+      const row=await new Promise(resolve=>{
+        const req=indexedDB.open(info.name);
+        req.onerror=()=>resolve({name:info.name,error:String(req.error||'open failed')});
+        req.onsuccess=async()=>{
+          const db=req.result,stores=[];
+          for(const name of Array.from(db.objectStoreNames)){
+            try{
+              const tx=db.transaction(name,'readonly'),store=tx.objectStore(name);
+              const count=await new Promise(r=>{const q=store.count();q.onsuccess=()=>r(q.result);q.onerror=()=>r(-1)});
+              stores.push({name,count,keyPath:store.keyPath,autoIncrement:store.autoIncrement});
+            }catch(e){stores.push({name,error:String(e)})}
+          }
+          db.close();resolve({name:info.name,version:info.version,stores});
+        };
+      });
+      result.push(row);
+    }catch(e){result.push({name:info.name,error:String(e)})}
+  }
+  return result;
+});
+const localState=await page.evaluate(()=>{
+  let bytes=0,keys={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i),v=localStorage.getItem(k)||'';bytes+=(k.length+v.length)*2;
+    if(/^hh-(error|ai|profile|health|dropbox)/.test(k))keys[k]=v.length;
+  }
+  return {entries:localStorage.length,approxBytes:bytes,selectedKeyLengths:keys};
+});
 const startMetrics=await getMetrics();
 const startSnap=await snap('loaded');
 const actions=[];
@@ -158,7 +232,7 @@ const hotspots=[...sampleTime.entries()].map(([id,us])=>{
 }).filter(x=>x.ms>0).sort((a,b)=>b.ms-a.ms).slice(0,40);
 
 const report={
-  generatedAt:new Date().toISOString(),baseURL,loadWallMs,start:startSnap,final:finalSnap,
+  generatedAt:new Date().toISOString(),baseURL,mode,loadWallMs,start:startSnap,final:finalSnap,idbInventory,localState,
   actions,scroll:scrollBench,
   totals:{
     taskMs:+(delta(startMetrics,endMetrics,'TaskDuration')*1000).toFixed(1),
@@ -182,11 +256,13 @@ const report={
 };
 
 await fs.mkdir('benchmark-results',{recursive:true});
-await fs.writeFile('benchmark-results/healthhub-runtime-benchmark.json',JSON.stringify(report,null,2));
+await fs.writeFile('benchmark-results/healthhub-runtime-benchmark-'+mode+'.json',JSON.stringify(report,null,2));
 const md=[
-  '# HealthHub Runtime Benchmark',
+  '# HealthHub Runtime Benchmark · '+mode.toUpperCase(),
   '',
+  '- Mode: **'+mode+'**',
   '- Build: '+(report.start.build||'unknown'),
+  '- localStorage: **'+Math.round(localState.approxBytes/1024)+' KB / '+localState.entries+' keys**',
   '- Load wall time: **'+report.loadWallMs+' ms**',
   '- Total main-thread task time: **'+report.totals.taskMs+' ms**',
   '- Total script time: **'+report.totals.scriptMs+' ms**',
@@ -214,7 +290,7 @@ const md=[
   '|---:|---|---|',
   ...hotspots.slice(0,20).map(h=>'| '+h.ms+' | '+String(h.function).replaceAll('|','\\|')+' | '+String(h.url).replace(baseURL,'./')+':'+h.line+' |')
 ].join('\n');
-await fs.writeFile('benchmark-results/healthhub-runtime-benchmark.md',md);
+await fs.writeFile('benchmark-results/healthhub-runtime-benchmark-'+mode+'.md',md);
 
 console.log(md);
 await browser.close();
