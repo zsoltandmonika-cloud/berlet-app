@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.94 — Activity clean rebuild + Health Connect Pilates classification */
+/* HealthHub v1.94.1 — Activity clean rebuild + Health Connect Pilates classification · bridge schema v3 */
 var DB='healthhub-connect-v1';
 var MANUAL_KEY='hh-activity-manual-v185-';
 var state=window.hhActivity191State||{period:'1d'};window.hhActivity191State=state;
@@ -16,7 +16,7 @@ function activeProfileCode(){
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function dayKey(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
 function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(m)&&m>0?m:0}
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
