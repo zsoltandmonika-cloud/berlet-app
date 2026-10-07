@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v300.3-wishlist-execution",
-  "currentFocus": "v300.3 Wishlist execution hotfix: MEHET now creates a visible execution state and triggers mapped actions instead of silently changing status.",
+  "liveBuild": "v300.4-code-implementation-labels",
+  "currentFocus": "v300.4 Wishlist UX clarification: distinguish validation actions from future code implementation actions with explicit labels and queued state.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1373,7 +1373,7 @@
       "dependency": "HH-AI-001;HH-AL-009",
       "targetDate": "2026-10-07",
       "actualDone": null,
-      "notes": "v300.3 makes MEHET actionable: visible Running/Done/Queued execution states. WISH-002 directly runs System Health Check + RAG validation; unimplemented wishes enter the AI implementation queue."
+      "notes": "v300.4 replaces ambiguous MEHET/ÚJRAFUTTAT labels with RUN VALIDATION, MEHET → CODE IMPLEMENTATION, CODE IMPLEMENTATION · RUNNING, and CODE IMPLEMENTATION · QUEUED."
     },
     {
       "id": "HH-AI-005",
@@ -1791,6 +1791,14 @@
       "actionId": "HH-AI-004",
       "type": "Hotfix/UX",
       "summary": "Wishlist MEHET is now an execution action rather than a silent status change. WISH-002 runs System Health Check + RAG and reports Running → Done; already implemented foundation items can validate immediately; future items enter a visible AI implementation queue.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v300.4",
+      "actionId": "HH-AI-004",
+      "type": "UX",
+      "summary": "Wishlist actions now explicitly distinguish validation from code implementation. Completed/implemented items show RUN VALIDATION; proposed code work shows MEHET → CODE IMPLEMENTATION; approved queued work shows CODE IMPLEMENTATION · QUEUED.",
       "status": "Testing"
     }
   ]
