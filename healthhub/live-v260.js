@@ -4,9 +4,9 @@
    One source of truth for profile state, then refresh every visible profile-owned surface.
    Loaded last so older module wrappers cannot replace this controller afterwards. */
 
-var previousSetProfile=window.setProfile;
 var switchSeq=0;
 var refreshing=false;
+var idleTimer=0;
 
 function codeOf(p){
   return (p==='m'||p==='monika')?'m':'z';
@@ -42,25 +42,14 @@ function dispatchProfileChanged(code,source){
   }catch(e){}
 }
 
-async function refreshVisibleProfileData(code,seq,reason){
+async function refreshVisibleProfileData(code,seq){
   code=codeOf(code);
   var profile=keyOf(code);
-  if(seq!==switchSeq||currentCode()!==code)return false;
-  if(refreshing&&reason==='followup')return false;
+  if(seq!==switchSeq||currentCode()!==code||refreshing)return false;
   refreshing=true;
   try{
-    if(typeof window.hhEnsureHealthProfile==='function'){
-      try{await window.hhEnsureHealthProfile(profile)}catch(e){console.warn('HealthHub profile prepare',e)}
-    }
-    if(seq!==switchSeq||currentCode()!==code)return false;
-
-    var jobs=[];
-    [window.hhSyncHealthDashboard,window.hhSyncHealthHome,window.hhSyncFullMigrationDashboard].forEach(function(fn){
-      try{var r=callSafe(fn);if(r&&typeof r.then==='function')jobs.push(r)}catch(e){}
-    });
-    if(jobs.length){try{await Promise.allSettled(jobs)}catch(e){}}
-    if(seq!==switchSeq||currentCode()!==code)return false;
-
+    /* Critical path: update only currently visible profile-owned surfaces.
+       Cloud sync, profile repair and legacy wrapper work are deliberately excluded. */
     if(isOn('healthSection')&&typeof window.renderHealthSection==='function'){
       try{await window.renderHealthSection()}catch(e){console.warn('HealthHub HealthRadar rerender',e)}
     }
@@ -70,13 +59,6 @@ async function refreshVisibleProfileData(code,seq,reason){
     if(isOn('hhSleepPage')&&typeof window.hhRenderSleep==='function'){
       try{await window.hhRenderSleep(profile)}catch(e){console.warn('HealthHub Sleep rerender',e)}
     }
-
-    if(typeof window.hhDeviceCloudSync==='function'){
-      Promise.resolve().then(function(){
-        if(seq===switchSeq&&currentCode()===code)return window.hhDeviceCloudSync(true);
-      }).catch(function(e){console.warn('HealthHub device profile sync',e)});
-    }
-
     document.documentElement.dataset.hhActiveProfile=code;
     document.documentElement.dataset.hhActiveProfileData=profile;
     return true;
@@ -84,19 +66,28 @@ async function refreshVisibleProfileData(code,seq,reason){
     refreshing=false;
   }
 }
-
+function idleRefresh(code,seq){
+  clearTimeout(idleTimer);
+  idleTimer=setTimeout(function(){
+    if(seq!==switchSeq||currentCode()!==code)return;
+    [window.hhSyncHealthDashboard,window.hhSyncHealthHome,window.hhSyncFullMigrationDashboard].forEach(function(fn){
+      try{
+        if(typeof requestIdleCallback==='function')requestIdleCallback(function(){callSafe(fn)},{timeout:1200});
+        else setTimeout(function(){callSafe(fn)},0);
+      }catch(e){}
+    });
+  },350);
+}
 function scheduleRefresh(code,seq){
-  requestAnimationFrame(function(){refreshVisibleProfileData(code,seq,'frame')});
-  setTimeout(function(){refreshVisibleProfileData(code,seq,'followup')},120);
+  requestAnimationFrame(function(){refreshVisibleProfileData(code,seq)});
+  idleRefresh(code,seq);
 }
 
 function canonicalSetProfile(p,options){
   var code=codeOf(p),source=options&&options.source||'one-click';
+  if(code===currentCode()&&source!=='storage')return code;
   var seq=++switchSeq;
-  try{
-    if(typeof previousSetProfile==='function')previousSetProfile.call(window,code);
-  }catch(e){console.warn('HealthHub legacy profile chain',e)}
-
+  /* v303: bypass the historical setProfile wrapper chain entirely. */
   syncCoreState(code);
   dispatchProfileChanged(code,source);
   scheduleRefresh(code,seq);
@@ -154,7 +145,7 @@ window.addEventListener('storage',function(e){
 (function boot(){
   var code=syncCoreState(currentCode());
   var seq=++switchSeq;
-  document.documentElement.dataset.healthhubProfileController='1.260';
+  document.documentElement.dataset.healthhubProfileController='1.303';
   document.documentElement.dataset.hhActiveProfile=code;
   dispatchProfileChanged(code,'boot');
   scheduleRefresh(code,seq);
@@ -187,5 +178,5 @@ window.addEventListener('storage',function(e){
   document.head.appendChild(s);
 })();
 
-window.HH_LIVE_BUILD='v260g-canonical-profile-health265-direct';
+window.HH_LIVE_BUILD='v303-canonical-profile-fast-path';
 })();
