@@ -235,12 +235,14 @@ function decorate(){
 }
 function observe(){
   if(observer)return;
+  var root=document.getElementById('healthSubContent');
+  if(!root){setTimeout(observe,500);return}
   observer=new MutationObserver(function(){
     if(document.getElementById('hhUnifiedCloudVaultCard')&&!document.getElementById('hhUcDeviceMetric')){
       setTimeout(decorate,20);
     }
   });
-  observer.observe(document.body,{childList:true,subtree:true});
+  observer.observe(root,{childList:true,subtree:true});
 }
 
 var oldEdit=window.hhEditDevice;
@@ -278,7 +280,7 @@ if(typeof oldSet==='function')window.setProfile=function(){
 
 observe();
 setTimeout(function(){decorate();sync(true)},1700);
-window.addEventListener('focus',function(){setTimeout(function(){sync(true);decorate()},250)});
-document.documentElement.dataset.healthhubDeviceCloud='1.232';
+window.addEventListener('focus',function(){setTimeout(decorate,250)});
+document.documentElement.dataset.healthhubDeviceCloud='1.232.1';
 window.HH_LIVE_BUILD='v1.232-device-cloud-sync';
 })();
