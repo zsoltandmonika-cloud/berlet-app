@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v303.3-profile-vault-schema",
-  "currentFocus": "v303.3 hotfix: align Profile Vault bridge IndexedDB access with schema v3 after Health Connect schema migration.",
+  "liveBuild": "v303.4-activity-schema",
+  "currentFocus": "v303.4 hotfix: restore Activity data by aligning Activity bridge readers with IndexedDB schema v3.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1889,6 +1889,14 @@
       "actionId": "HH-HOTFIX-PROFILE-VAULT-SCHEMA",
       "type": "Hotfix / Data Sync",
       "summary": "Profile Vault now opens healthhub-connect-v1 at schema version 3, matching the Health Connect migration and preventing IndexedDB VersionError during vault snapshot/upload.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-08",
+      "release": "v303.4",
+      "actionId": "HH-HOTFIX-ACTIVITY-SCHEMA",
+      "type": "Hotfix / Activity",
+      "summary": "Activity readers now open healthhub-connect-v1 at schema v3, self-heal missing imports/activity stores during upgrade, and Guard blocks future v2 bridge regressions.",
       "status": "Testing"
     }
   ]
