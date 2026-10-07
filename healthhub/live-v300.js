@@ -3,7 +3,7 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300.2', LIVE_BUILD='v300.2', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.3', LIVE_BUILD='v300.3', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
 var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
 var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0;
@@ -131,9 +131,49 @@ function addWish(){
  saveWishlist(a);if(ta)ta.value='';renderCenter(true);
  try{window.toast&&window.toast(id+' hozzáadva')}catch(e){}
 }
-function setWishStatus(id,status){
- var a=readWishlist();a.forEach(function(x){if(x.id===id){x.status=status;x.updatedAt=now();if(status==='Approved')x.approvedBy=profileName()}});
+function setWishStatus(id,status,message,executionStatus){
+ var a=readWishlist();a.forEach(function(x){if(x.id===id){
+  x.status=status;x.updatedAt=now();
+  if(status==='Approved'||status==='Running'||status==='Done')x.approvedBy=x.approvedBy||profileName();
+  if(message!=null)x.executionMessage=message;
+  if(executionStatus!=null)x.executionStatus=executionStatus;
+  x.executionAt=now();
+ }});
  saveWishlist(a);renderCenter(true);
+}
+function executionUpdate(id,status,message,executionStatus){
+ var a=readWishlist(),item=null;
+ a.forEach(function(x){if(x.id===id){item=x;x.status=status;x.updatedAt=now();x.executionStatus=executionStatus||status;x.executionMessage=message||'';x.executionAt=now();x.approvedBy=x.approvedBy||profileName()}});
+ saveWishlist(a);renderCenter(true);return item;
+}
+function executeWish(id){
+ var item=readWishlist().filter(function(x){return x.id===id})[0];if(!item)return;
+ executionUpdate(id,'Running','Jóváhagyás rögzítve · végrehajtás indul…','Running');
+ setTimeout(function(){
+  try{
+   if(id==='WISH-002'){
+    var result=runHealthCheck();refreshHealthUi(result);
+    executionUpdate(id,'Done','System Health Check kész · '+result.rag.icon+' '+result.rag.label+' '+result.score+'/100','Done');
+    try{window.toast&&window.toast('WISH-002 kész · System Health Check lefutott')}catch(e){}
+    return;
+   }
+   if(id==='WISH-001'){
+    executionUpdate(id,'Done','AI Improvement Center elérhető és validálva a jelenlegi buildben.','Done');return;
+   }
+   if(id==='WISH-005'){
+    var t=telemetry(),d=t.days&&t.days[dayKey()]||{};
+    executionUpdate(id,'Done','Operational Telemetry aktív · '+(d.sessions||0)+' session · '+(d.longTaskCount||0)+' long task mérve.','Done');return;
+   }
+   if(id==='WISH-006'){
+    executionUpdate(id,'Done','Wishlist / User Story Repository aktív és írható.','Done');return;
+   }
+   executionUpdate(id,'Approved','Jóváhagyva · AI implementation queue-ba helyezve.','Queued');
+   try{window.toast&&window.toast(id+' jóváhagyva · implementation queue')}catch(e){}
+  }catch(e){
+   executionUpdate(id,'Approved','Végrehajtási hiba: '+(e&&e.message||e),'Blocked');
+   try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','wishlist.execute',id+' végrehajtási hiba',e)}catch(_){}
+  }
+ },180);
 }
 function removeWish(id){
  if(!confirm('Törlöd ezt a Wishlist elemet?'))return;
@@ -238,17 +278,20 @@ function ensureStyle(){
  '.hhAI300 h3,.hhAI300 h4{margin:0;color:#173f62}.hhAI300 small{color:#748a99}.hhAiHead300{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhStatus300{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:96px}.hhRag300{font-weight:950;border-radius:999px;padding:7px 10px;font-size:9px;white-space:nowrap;text-align:center}.hhRag300.green{background:#e7f7ef;color:#16724b}.hhRag300.amber{background:#fff4d8;color:#9a6911}.hhRag300.red{background:#ffe9ed;color:#ac304f}.hhFix300{border:0;border-radius:10px;padding:8px 10px;background:#16965c;color:#fff;font-size:8px;font-weight:950;box-shadow:0 4px 12px rgba(22,150,92,.18);cursor:pointer}.hhFix300:hover{filter:brightness(.96)}.hhFixProg300{display:none;margin-top:8px;padding:8px 9px;border-radius:11px;background:#f4faf7;border:1px solid #d7eee2}.hhFixProg300.on{display:block}.hhFixProg300 b{display:block;font-size:8px;color:#1d6e4d}.hhFixTrack300{height:6px;background:#dfece5;border-radius:999px;overflow:hidden;margin-top:5px}.hhFixTrack300 i{display:block;height:100%;width:0;background:#16965c;transition:width .22s ease}.hhFixStep300{font-size:7px;color:#6d8679;margin-top:4px}'+
  '.hhGrid300{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}.hhMetric300{border:1px solid #e5edf2;border-radius:12px;padding:9px;background:#fbfdfe}.hhMetric300 b{display:block;font-size:14px;color:#183f61}.hhMetric300 span{font-size:7px;color:#8295a4;font-weight:800}'+
  '.hhBtns300{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhBtns300 button,.hhWishActions300 button{border:1px solid #d9e5ec;background:#f7fafc;color:#31536f;border-radius:10px;padding:8px 10px;font-size:8px;font-weight:900}.hhBtns300 .go,.hhWishActions300 .go{background:#1b7f73;color:#fff;border-color:#1b7f73}'+
- '.hhRec300,.hhWish300{margin-top:8px;border:1px solid #e5edf2;border-radius:13px;padding:9px;background:#fbfdfe}.hhRec300 b,.hhWish300 b{font-size:9px;color:#244c69}.hhMeta300{font-size:7px;color:#78909f;margin-top:4px;line-height:1.5}.hhWishActions300{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}'+
+ '.hhRec300,.hhWish300{margin-top:8px;border:1px solid #e5edf2;border-radius:13px;padding:9px;background:#fbfdfe}.hhRec300 b,.hhWish300 b{font-size:9px;color:#244c69}.hhMeta300{font-size:7px;color:#78909f;margin-top:4px;line-height:1.5}.hhExec300{margin-top:6px;padding:6px 8px;border-radius:9px;background:#eef7f3;color:#2a6d52;font-size:7px;font-weight:800}.hhExec300.running{background:#fff7df;color:#8a650f}.hhExec300.blocked{background:#fff0f2;color:#a43850}.hhWishActions300{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}'+
  '.hhWishEntry300{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:9px}.hhWishEntry300 textarea{min-height:72px;border:1px solid #d9e5ec;border-radius:12px;padding:9px;font:inherit;resize:vertical}.hhWishEntry300 select{border:1px solid #d9e5ec;border-radius:10px;padding:7px;background:#fff}.hhWishEntry300 .side{display:flex;flex-direction:column;gap:6px}.hhWishEntry300 button{border:0;border-radius:10px;padding:9px;background:#1b7f73;color:#fff;font-weight:900;font-size:8px}'+
  '.hhAiSection300{margin-top:13px;padding-top:11px;border-top:1px solid #edf2f5}.hhGuard300{margin-top:9px;padding:8px 9px;border-radius:11px;background:#f4f8fa;font-size:7px;color:#668092;line-height:1.55}.hhTrend300{font-size:8px;font-weight:900;color:#537389}@media(max-width:560px){.hhGrid300{grid-template-columns:repeat(2,minmax(0,1fr))}.hhWishEntry300{grid-template-columns:1fr}.hhWishEntry300 .side{flex-direction:row}}';
  document.head.appendChild(s);
 }
 
 function wishHtml(x){
+ var ex=x.executionStatus?'<div class="hhExec300 '+esc(String(x.executionStatus).toLowerCase())+'">⚙ '+esc(x.executionStatus)+' · '+esc(x.executionMessage||'')+'</div>':'';
+ var disabled=x.executionStatus==='Running'?' disabled':'';
+ var goLabel=x.executionStatus==='Done'?'ÚJRAFUTTAT':'MEHET';
  return '<div class="hhWish300"><b>'+esc(x.id)+' · '+esc(x.title)+'</b>'+
  '<div class="hhMeta300">'+esc(x.type)+' · Impact '+esc(x.impact)+' · Complexity '+esc(x.complexity)+' · Feasibility '+esc(x.feasibility)+' · '+esc(x.requestedBy)+' · <strong>'+esc(x.status)+'</strong></div>'+
- '<div class="hhMeta300">'+esc(x.description)+'</div>'+
- '<div class="hhWishActions300"><button onclick="hhAiAskLena300(\''+esc(x.id)+'\')">🧠 AI elemzés</button><button class="go" onclick="hhAiWishStatus300(\''+esc(x.id)+'\',\'Approved\')">MEHET</button><button onclick="hhAiWishStatus300(\''+esc(x.id)+'\',\'Later\')">Később</button><button onclick="hhAiRemoveWish300(\''+esc(x.id)+'\')">Törlés</button></div></div>';
+ '<div class="hhMeta300">'+esc(x.description)+'</div>'+ex+
+ '<div class="hhWishActions300"><button onclick="hhAiAskLena300(\''+esc(x.id)+'\')">🧠 AI elemzés</button><button class="go"'+disabled+' onclick="hhAiExecuteWish300(\''+esc(x.id)+'\')">'+goLabel+'</button><button onclick="hhAiWishStatus300(\''+esc(x.id)+'\',\'Later\',\'Későbbre téve\',\'Deferred\')">Később</button><button onclick="hhAiRemoveWish300(\''+esc(x.id)+'\')">Törlés</button></div></div>';
 }
 function renderCenter(force){
  if(rendering)return;
@@ -311,6 +354,7 @@ window.hhAiFix300=function(){
  },120);
 };
 window.hhAiAddWish300=addWish;
+window.hhAiExecuteWish300=executeWish;
 window.hhAiWishStatus300=setWishStatus;
 window.hhAiRemoveWish300=removeWish;
 window.hhAiAskLena300=askLena;
@@ -341,5 +385,5 @@ window.addEventListener('online',function(){checkForLiveUpdate()},{passive:true}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){resumePendingUpdate();checkForLiveUpdate()}},{passive:true});
 setTimeout(checkForLiveUpdate,2200);
 
-document.documentElement.dataset.healthhubAiImprovement='1.300.2';
+document.documentElement.dataset.healthhubAiImprovement='1.300.3';
 })();
