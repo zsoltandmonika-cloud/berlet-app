@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.51 — robust Health Connect lifestyle restore */
+/* HealthHub v1.51.1 — robust Health Connect lifestyle restore · bridge schema v3 */
 var BRIDGE_DB='healthhub-connect-v1';
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -12,7 +12,8 @@ function latestNonZero(a,keys){return (Array.isArray(a)?a:[]).slice().reverse().
 function card(icon,label,value,meta,cls){return '<div class="hhLifeCard '+(cls||'')+'"><div class="hhLifeIcon">'+icon+'</div><div class="hhLifeText"><small>'+esc(label)+'</small><b>'+value+'</b><span>'+meta+'</span></div></div>'}
 async function latestBundle(){
  return new Promise(function(ok){
-  var q=indexedDB.open(BRIDGE_DB,2);
+  var q=indexedDB.open(BRIDGE_DB,3);
+  q.onupgradeneeded=function(){var d=q.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};
   q.onerror=function(){ok(null)};
   q.onsuccess=function(){
    var db=q.result;
