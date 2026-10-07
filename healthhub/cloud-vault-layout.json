@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "schema": "healthhub-cloud-vault-v1",
+  "schemaVersion": 2,
+  "schema": "healthhub-cloud-vault-v2",
   "provider": "dropbox",
   "providerMode": "app_folder",
   "root": "/HealthHub",
@@ -17,7 +17,8 @@
     "measurements": "/HealthHub/measurements",
     "appointments": "/HealthHub/appointments",
     "daily": "/HealthHub/daily",
-    "sync": "/HealthHub/sync"
+    "sync": "/HealthHub/sync",
+    "master": "/HealthHub/master"
   },
   "daily": {
     "spark": "/HealthHub/daily/daily-spark.json",
@@ -44,7 +45,8 @@
     "conflictPolicy": "updatedAt-last-write-wins",
     "requireEntityUpdatedAt": true,
     "tombstones": "/HealthHub/sync/tombstones.json",
-    "manifest": "/HealthHub/manifest.json"
+    "manifest": "/HealthHub/manifest.json",
+    "structuredSourceOfTruth": "/HealthHub/master"
   },
   "security": {
     "oauth": "authorization-code-pkce",
@@ -70,5 +72,19 @@
       "Insights"
     ],
     "webImportCache": "IndexedDB healthhub-connect-v1"
+  },
+  "master": {
+    "role": "single-source-of-truth-for-structured-json",
+    "root": "/HealthHub/master",
+    "files": {
+      "manifest": "/HealthHub/master/manifest.json",
+      "documents": "/HealthHub/master/documents.json",
+      "explanations": "/HealthHub/master/explanations.json",
+      "medications": "/HealthHub/master/medications.json",
+      "profiles": "/HealthHub/master/profiles.json",
+      "appointments": "/HealthHub/master/appointments.json"
+    },
+    "localCache": "IndexedDB healthhub-healthradar-v2",
+    "bootstrap": "merge-local-and-cloud-without-destructive-delete"
   }
 }
