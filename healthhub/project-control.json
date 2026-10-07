@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v300.2-ai-improvement-auto-refresh",
-  "currentFocus": "v300.2 usability/stability hotfix: FIX completion now refreshes RAG immediately, and event-driven live-build detection refreshes HealthHub after a new deployment without requiring a browser/PWA restart.",
+  "liveBuild": "v300.3-wishlist-execution",
+  "currentFocus": "v300.3 Wishlist execution hotfix: MEHET now creates a visible execution state and triggers mapped actions instead of silently changing status.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1367,13 +1367,13 @@
       "sprint": "S4",
       "milestone": "M4 AI Continuous Improvement",
       "status": "Testing",
-      "progress": 0.95,
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-AI-001;HH-AL-009",
       "targetDate": "2026-10-07",
       "actualDone": null,
-      "notes": "Seed backlog includes the first 10 wishes gathered during design, including Central Manual Sync and Sync Orchestrator."
+      "notes": "v300.3 makes MEHET actionable: visible Running/Done/Queued execution states. WISH-002 directly runs System Health Check + RAG validation; unimplemented wishes enter the AI implementation queue."
     },
     {
       "id": "HH-AI-005",
@@ -1783,6 +1783,14 @@
       "actionId": "HH-AI-002",
       "type": "Hotfix/UX",
       "summary": "FIX completion now updates the top RAG badge and metrics immediately. Added low-overhead event-driven live-build detection so future HealthHub deployments refresh automatically when the app regains focus/visibility or Admin opens, avoiding manual browser/PWA restart.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v300.3",
+      "actionId": "HH-AI-004",
+      "type": "Hotfix/UX",
+      "summary": "Wishlist MEHET is now an execution action rather than a silent status change. WISH-002 runs System Health Check + RAG and reports Running → Done; already implemented foundation items can validate immediately; future items enter a visible AI implementation queue.",
       "status": "Testing"
     }
   ]
