@@ -213,6 +213,7 @@ function installWriters(){
  wrap('hhResetLenaExplanation','explanation-reset',function(a){return touchDocument(a[0])});
  wrap('hhImportExplanationPackage','explanation-import',function(){return touchExplanationDocs()});
  wrap('hhImportPrivateReference','medication-reference');
+ wrap('hhDropboxPushCurrentProfile','profile-vault-write');
 }
 installWriters();
 setTimeout(installWriters,500);
