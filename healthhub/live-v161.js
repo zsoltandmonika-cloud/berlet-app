@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.235 — Profile Vault + private medication explanations */
+/* HealthHub v1.235.1 — Profile Vault + private medication explanations · bridge schema v3 */
 var APP_KEY='t68rmhh5f1l8d85';
 var REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/';
 var TOKEN_KEY='hh-dropbox-token-v2', PKCE_KEY='hh-dropbox-pkce-v2';
@@ -13,7 +13,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function txDone(t){return new Promise(function(ok,no){t.oncomplete=ok;t.onerror=function(){no(t.error)};t.onabort=function(){no(t.error||new Error('A művelet megszakadt'))}})}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function b64url(bytes){var s='';bytes.forEach(function(b){s+=String.fromCharCode(b)});return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function randomToken(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a)}
 async function sha256b64(s){var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return b64url(new Uint8Array(d))}
