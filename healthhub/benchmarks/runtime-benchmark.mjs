@@ -90,7 +90,7 @@ await settle(1800);
 
 if(mode==='livewarm'){
   try{
-    await page.evaluate(async()=>{if(navigator.serviceWorker){try{await navigator.serviceWorker.ready}catch{}}});
+    await page.evaluate(async()=>{if(navigator.serviceWorker){try{await Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(r,2000))])}catch{}}});
   }catch{}
   await page.reload({waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
