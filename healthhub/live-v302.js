@@ -22,7 +22,7 @@ function ensureStyle(){
  var s=document.createElement('style');s.id=STYLE;s.textContent=
  '#'+SECTION+'{margin-top:10px}.hhCms302{background:#fff;border:1px solid #dce8ee;border-radius:18px;padding:12px;box-shadow:0 8px 22px rgba(31,65,91,.055)}'+
  '.hhCmsHead302{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhCmsHead302 h3{margin:0;color:#173f62}.hhCmsHead302 small{display:block;color:#758a98;margin-top:2px}.hhCmsBadge302{font-size:7.5px;font-weight:950;padding:6px 8px;border-radius:999px;background:#eef3f6;color:#6e8290;white-space:nowrap}.hhCmsBadge302.running{background:#fff4d8;color:#8d6812}.hhCmsBadge302.done{background:#e7f7ef;color:#18714c}.hhCmsBadge302.partial,.hhCmsBadge302.failed{background:#ffe9ed;color:#a83750}'+
- '.hhCmsSteps302{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:10px}.hhCmsStep302{padding:7px 4px;border-radius:9px;background:#eef3f6;color:#788e9b;text-align:center;font-size:6.3px;font-weight:850;line-height:1.25}.hhCmsStep302.running{background:#fff4d8;color:#8d6812}.hhCmsStep302.done{background:#e7f7ef;color:#18714c}.hhCmsStep302.failed{background:#ffe9ed;color:#a83750}.hhCmsStep302.skipped{background:#f3f4f5;color:#9aa5ad}'+
+ '.hhCmsSteps302{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:10px}.hhCmsStep302{padding:7px 4px;border-radius:9px;background:#eef3f6;color:#788e9b;text-align:center;font-size:6.3px;font-weight:850;line-height:1.25}.hhCmsStep302.running{background:#fff4d8;color:#8d6812}.hhCmsStep302.done{background:#e7f7ef;color:#18714c}.hhCmsStep302.failed{background:#ffe9ed;color:#a83750}.hhCmsStep302.skipped{background:#f3f4f5;color:#9aa5ad}'+
  '.hhCmsMeta302{font-size:7px;color:#718895;line-height:1.5;margin-top:8px}.hhCmsActions302{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.hhCmsActions302 button{border:1px solid #d8e4eb;background:#f7fafc;color:#31536f;border-radius:11px;padding:8px 10px;font-size:7.8px;font-weight:900;cursor:pointer;touch-action:manipulation}.hhCmsActions302 .primary{background:#1b7f73;border-color:#1b7f73;color:#fff}.hhCmsActions302 button:disabled{opacity:.55;cursor:wait}'+
  '.hhCmsNote302{margin-top:9px;padding:8px 9px;border-radius:11px;background:#f4f8fa;color:#667f8e;font-size:7px;line-height:1.5}@media(max-width:560px){.hhCmsSteps302{grid-template-columns:repeat(2,minmax(0,1fr))}}';
  document.head.appendChild(s);
@@ -31,6 +31,7 @@ function ensureStyle(){
 function taskDefs(profile){
  return [
   {id:'profile',name:'Profile Vault',available:typeof window.hhDropboxPushCurrentProfile==='function',run:function(){return window.hhDropboxPushCurrentProfile()}},
+  {id:'master',name:'Structured Vault',available:typeof window.hhMasterStructuredSync304==='function',run:function(){return window.hhMasterStructuredSync304(true)}},
   {id:'daily',name:'Daily Cloud',available:typeof window.hhCloudSyncDaily==='function',run:function(){return window.hhCloudSyncDaily()}},
   {id:'health',name:'Health + Activity',available:typeof window.hhHealthCloudSync==='function',run:function(){return window.hhHealthCloudSync(true)}},
   {id:'devices',name:'Devices Cloud',available:typeof window.hhDeviceCloudSync==='function',run:function(){return window.hhDeviceCloudSync(true)}},
@@ -54,7 +55,7 @@ function render(){
   '<div class="hhCmsMeta302">Utolsó indítás: '+esc(fmt(s.startedAt))+' · Befejezés: '+esc(fmt(s.completedAt))+'</div>'+
   '<div class="hhCmsMeta302">'+esc(s.message||'')+'</div>'+
   '<div class="hhCmsActions302"><button type="button" class="primary" id="hhCmsRun302" '+(busy||s.status==='Running'?'disabled':'')+'>↻ SYNC ACTIVE PROFILE NOW</button><button type="button" id="hhCmsReset302">↺ STATUS RESET</button></div>'+
-  '<div class="hhCmsNote302"><b>Scope v302:</b> az aktív profil központi manuális szinkronja. Profile Vault, Daily Cloud, Health + Activity, Devices Cloud és Léna Context. Az összes profil / összes eszköz egyparancsos orchestrációja külön WISH-008.</div>'+
+  '<div class="hhCmsNote302"><b>Scope v302:</b> az aktív profil központi manuális szinkronja. Profile Vault, Central Structured Vault, Daily Cloud, Health + Activity, Devices Cloud és Léna Context. Az összes profil / összes eszköz egyparancsos orchestrációja külön WISH-008.</div>'+
  '</section>';
  var base=document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(base)base.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
