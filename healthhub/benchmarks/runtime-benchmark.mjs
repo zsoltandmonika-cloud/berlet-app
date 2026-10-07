@@ -88,7 +88,7 @@ await page.goto(baseURL,{waitUntil:'domcontentloaded',timeout:45000});
 await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
 await settle(1800);
 
-if(mode==='localstate'){
+if(mode==='localstate'||mode==='idbstress'){
   await page.evaluate(()=>{
     const now=Date.now(), iso=new Date().toISOString();
     const errors=Array.from({length:180},(_,i)=>({
@@ -122,6 +122,62 @@ if(mode==='localstate'){
     }
     localStorage.setItem('hh-ai-telemetry-v1',JSON.stringify({schema:'healthhub.ops-telemetry/1',days,lastStorage:{usage:90000000,quota:10800000000}}));
   });
+
+  if(mode==='idbstress'){
+    await page.evaluate(async()=>{
+      if(!indexedDB.databases)return;
+      const dbs=await indexedDB.databases();
+      const now=Date.now();
+      const payload='p'.repeat(640);
+      for(const info of dbs){
+        if(!info.name)continue;
+        await new Promise(resolve=>{
+          const req=indexedDB.open(info.name);
+          req.onerror=()=>resolve();
+          req.onsuccess=async()=>{
+            const db=req.result;
+            const targets=[];
+            for(const name of Array.from(db.objectStoreNames)){
+              const lower=name.toLowerCase();
+              let count=0;
+              if(lower.includes('measurement'))count=2500;
+              else if(lower.includes('document')&&!lower.includes('blob'))count=700;
+              else if(lower.includes('appointment'))count=600;
+              else if(lower.includes('medication'))count=400;
+              else if(lower.includes('sleep'))count=1200;
+              else if(lower.includes('activity'))count=1200;
+              if(count)targets.push({name,count});
+            }
+            for(const target of targets){
+              try{
+                const tx=db.transaction(target.name,'readwrite'),store=tx.objectStore(target.name);
+                const kp=store.keyPath;
+                let hasUnique=false;
+                for(const iname of Array.from(store.indexNames)){
+                  try{if(store.index(iname).unique){hasUnique=true;break}}catch{}
+                }
+                if(hasUnique||!kp||Array.isArray(kp))continue;
+                for(let i=0;i<target.count;i++){
+                  const t=new Date(now-i*60000).toISOString();
+                  const rec={
+                    profile:i%2?'zsolt':'monika', measuredAt:t, date:t.slice(0,10), appointmentDate:t,
+                    createdAt:t, updatedAt:t, title:'Benchmark '+target.name+' '+i, name:'Benchmark '+i,
+                    category:'benchmark', systolic:120+(i%8), diastolic:75+(i%6), pulse:65+(i%15),
+                    weightKg:78+(i%20)/10, bloodGlucose:5.4, oxygenSaturation:97,
+                    steps:5000+(i%5000), durationMinutes:420, notes:payload
+                  };
+                  rec[kp]='bench-'+target.name+'-'+i;
+                  try{store.put(rec)}catch{}
+                }
+                await new Promise(r=>{tx.oncomplete=r;tx.onerror=r;tx.onabort=r});
+              }catch{}
+            }
+            db.close();resolve();
+          };
+        });
+      }
+    });
+  }
   await page.reload({waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
   await settle(1800);
@@ -263,6 +319,7 @@ const md=[
   '- Mode: **'+mode+'**',
   '- Build: '+(report.start.build||'unknown'),
   '- localStorage: **'+Math.round(localState.approxBytes/1024)+' KB / '+localState.entries+' keys**',
+  '- IndexedDB: '+idbInventory.map(db=>db.name+' ['+(db.stores||[]).map(s=>s.name+':'+s.count).join(', ')+']').join(' · '),
   '- Load wall time: **'+report.loadWallMs+' ms**',
   '- Total main-thread task time: **'+report.totals.taskMs+' ms**',
   '- Total script time: **'+report.totals.scriptMs+' ms**',
