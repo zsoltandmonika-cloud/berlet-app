@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [clean, localstate]
+        mode: [idbstress]
     steps:
       - name: Checkout benchmark branch
         uses: actions/checkout@v4
