@@ -1,15 +1,15 @@
 {
   "schema": "healthhub.ai-execution-status/1",
-  "updatedAt": "2026-10-07T16:35:47.096Z",
+  "updatedAt": "2026-10-07T19:12:51.190Z",
   "engine": {
-    "build": "v302",
+    "build": "v303",
     "status": "ready",
     "mode": "approval-gated",
     "backupGuard": "active",
     "rollbackGuard": "active",
     "qualityGate": "active",
     "executor": "ChatGPT + GitHub connector",
-    "note": "No GitHub/API secret is stored in the browser or public repository."
+    "note": "v303 canonical runtime core active: profile switching bypasses historical wrapper chains; heavy Admin workspaces are lazy-rendered."
   },
   "jobs": [
     {
