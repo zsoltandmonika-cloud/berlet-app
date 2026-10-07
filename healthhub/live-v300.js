@@ -3,10 +3,10 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300.1', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.2', LIVE_BUILD='v300.2', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
 var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
-var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null;
+var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -36,6 +36,56 @@ function dayKey(){return new Date().toISOString().slice(0,10)}
 function fmtMs(n){n=Math.round(Number(n)||0);return n<1000?n+' ms':(n/1000).toFixed(2)+' s'}
 function fmtBytes(n){n=Number(n)||0;if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB'}
 function rag(score){return score>=85?{k:'green',label:'GREEN',icon:'🟢'}:score>=60?{k:'amber',label:'AMBER',icon:'🟠'}:{k:'red',label:'RED',icon:'🔴'}}
+function refreshHealthUi(result){
+ if(!result)return;
+ var rg=result.rag||rag(result.score||0),badge=document.querySelector('#'+SECTION+' .hhRag300'),status=document.querySelector('#'+SECTION+' .hhStatus300');
+ if(badge){badge.className='hhRag300 '+rg.k;badge.textContent=rg.icon+' '+rg.label+' '+result.score+'/100'}
+ if(status){
+  var fix=status.querySelector('.hhFix300');
+  if(rg.k==='green'&&fix)fix.remove();
+  else if(rg.k!=='green'&&!fix){status.insertAdjacentHTML('beforeend','<button class="hhFix300" onclick="hhAiFix300()">✓ FIX</button>')}
+ }
+ var vals=document.querySelectorAll('#'+SECTION+' .hhMetric300 b');
+ if(vals.length>=4){
+  vals[0].textContent=result.errors&&result.errors.errors24!=null?result.errors.errors24:'0';
+  vals[1].textContent=fmtMs(result.perf&&result.perf.avgLoad||0);
+  vals[2].textContent=result.perf&&result.perf.longTasks!=null?result.perf.longTasks:'0';
+  var s=result.perf&&result.perf.storage;
+  vals[3].textContent=s&&s.quota?(Math.round((s.usage/s.quota)*1000)/10)+'%':'0%';
+ }
+}
+function safeForAutoReload(){
+ var a=document.activeElement,tag=a&&a.tagName||'';
+ if(/^(INPUT|TEXTAREA|SELECT)$/.test(tag))return false;
+ var smart=document.getElementById('hhLenaSmart299');
+ if(smart&&smart.classList.contains('on'))return false;
+ return true;
+}
+async function checkForLiveUpdate(){
+ if(updateChecking||!navigator.onLine)return;
+ var n=Date.now();if(n-lastUpdateCheck<8000)return;lastUpdateCheck=n;updateChecking=true;
+ try{
+  var r=await fetch('./index.html?hh-update-check='+n,{cache:'no-store',credentials:'same-origin'});
+  if(!r.ok)return;
+  var txt=await r.text(),m=txt.match(/healthhub-live-build"\s+content="([^"]+)"/i);
+  var live=m&&m[1]||'';
+  if(live&&live!==LIVE_BUILD){
+   try{window.toast&&window.toast('Új HealthHub verzió: '+live+' · frissítés…')}catch(e){}
+   if(safeForAutoReload()){
+    setTimeout(function(){try{var u=new URL(location.href);u.searchParams.set('hhv',live.replace(/^v/i,''));location.replace(u.toString())}catch(e){location.reload()}},450);
+   }else{
+    try{sessionStorage.setItem('hh-pending-live-build',live)}catch(e){}
+   }
+  }
+ }catch(e){}finally{updateChecking=false}
+}
+function resumePendingUpdate(){
+ var live='';try{live=sessionStorage.getItem('hh-pending-live-build')||''}catch(e){}
+ if(live&&live!==LIVE_BUILD&&safeForAutoReload()){
+  try{sessionStorage.removeItem('hh-pending-live-build')}catch(e){}
+  setTimeout(function(){try{var u=new URL(location.href);u.searchParams.set('hhv',live.replace(/^v/i,''));location.replace(u.toString())}catch(e){location.reload()}},250);
+ }
+}
 
 var seeds=[
  {id:'WISH-001',title:'AI Improvement Center',description:'Folyamatos stabilitási, teljesítmény-, UX- és fejlesztési javaslatok az Admin Console-ban.',requestedBy:'Zsolt',type:'Epic',impact:'High',complexity:'High',feasibility:'High',status:'Building'},
@@ -253,8 +303,8 @@ window.hhAiFix300=function(){
     var result=runHealthCheck();
     setTimeout(function(){
      fixProgress('5/5 · Kész · '+result.rag.icon+' '+result.rag.label+' '+result.score+'/100',100);
+     refreshHealthUi(result);
      try{window.toast&&window.toast('FIX kész · új baseline aktív')}catch(e){}
-     setTimeout(function(){renderCenter(true)},900);
     },250);
    },250);
   },180);
@@ -280,12 +330,16 @@ function attachAdminWatcher(){
  if(!ov){watcherTimer=setTimeout(attachAdminWatcher,500);return}
  if(adminObserver)adminObserver.disconnect();
  adminObserver=new MutationObserver(function(){
-  if(ov.classList.contains('on'))setTimeout(function(){renderCenter(true)},40);
+  if(ov.classList.contains('on')){setTimeout(function(){renderCenter(true)},40);checkForLiveUpdate()}
  });
  adminObserver.observe(ov,{attributes:true,attributeFilter:['class']});
  if(ov.classList.contains('on'))renderCenter(true);
 }
 attachAdminWatcher();
+window.addEventListener('focus',function(){resumePendingUpdate();checkForLiveUpdate()},{passive:true});
+window.addEventListener('online',function(){checkForLiveUpdate()},{passive:true});
+document.addEventListener('visibilitychange',function(){if(!document.hidden){resumePendingUpdate();checkForLiveUpdate()}},{passive:true});
+setTimeout(checkForLiveUpdate,2200);
 
-document.documentElement.dataset.healthhubAiImprovement='1.300.1';
+document.documentElement.dataset.healthhubAiImprovement='1.300.2';
 })();
