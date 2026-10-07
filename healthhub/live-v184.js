@@ -8,7 +8,7 @@ function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function dayKey(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
 function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(m)&&m>0?m:0}
 function dur(m){m=Math.round(m||0);var h=Math.floor(m/60),x=m%60;return h?(h+'ó '+x+'p'):(m+'p')}
