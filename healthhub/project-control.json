@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v300.1-ai-improvement-hotfix",
-  "currentFocus": "v300.1 stabilization: stop AI Improvement Center self-triggered render loop, reset invalid v300 telemetry baseline, add safe FIX remediation and event-driven remediation progress indicator.",
+  "liveBuild": "v300.2-ai-improvement-auto-refresh",
+  "currentFocus": "v300.2 usability/stability hotfix: FIX completion now refreshes RAG immediately, and event-driven live-build detection refreshes HealthHub after a new deployment without requiring a browser/PWA restart.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1331,13 +1331,13 @@
       "sprint": "S4",
       "milestone": "M4 AI Continuous Improvement",
       "status": "Testing",
-      "progress": 0.98,
+      "progress": 0.99,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-DATA-001",
       "targetDate": "2026-10-07",
       "actualDone": null,
-      "notes": "v300.1 hotfix stops the self-triggered Admin render loop, introduces baseline-aware error scoring and safe local remediation."
+      "notes": "v300.2 adds immediate RAG/UI refresh after remediation and event-driven live-build update detection on focus/visibility/online/admin-open. No continuous polling."
     },
     {
       "id": "HH-AI-003",
@@ -1775,6 +1775,14 @@
       "actionId": "HH-AI-002",
       "type": "Hotfix",
       "summary": "Stopped the AI Improvement Center self-triggered DOM render loop that caused rapidly increasing long tasks and visible slowdown. Added baseline-aware error scoring, safe FIX remediation with telemetry archive/reset, and an event-driven remediation progress indicator.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v300.2",
+      "actionId": "HH-AI-002",
+      "type": "Hotfix/UX",
+      "summary": "FIX completion now updates the top RAG badge and metrics immediately. Added low-overhead event-driven live-build detection so future HealthHub deployments refresh automatically when the app regains focus/visibility or Admin opens, avoiding manual browser/PWA restart.",
       "status": "Testing"
     }
   ]
