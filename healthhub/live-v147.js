@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.47 — Health Connect Bridge JSON receiver */
+/* HealthHub v1.47.1 — Health Connect Bridge JSON receiver · bridge schema v3 repair */
 var DB='healthhub-healthradar-v2', BRIDGE_DB='healthhub-connect-v1', SCHEMA='healthhub.healthconnect.bridge/1.0', SCHEMA11='healthhub.healthconnect.bridge/1.1', SCHEMA12='healthhub.healthconnect.bridge/1.2', pending=null;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -9,7 +9,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function txDone(t){return new Promise(function(ok,no){t.oncomplete=ok;t.onerror=function(){no(t.error)};t.onabort=function(){no(t.error||new Error('A művelet megszakadt'))}})}
 function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,1);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(16)}
 function validIso(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toISOString():null}
 function clamp(v,min,max){v=Number(v);return Number.isFinite(v)&&v>=min&&v<=max?v:null}

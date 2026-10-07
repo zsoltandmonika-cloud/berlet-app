@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v1.49 — Health Connect activity / sleep / nutrition snapshot */
+/* HealthHub v1.49.1 — Health Connect activity / sleep / nutrition snapshot · bridge schema v3 */
 var BRIDGE_DB='healthhub-connect-v1';
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
@@ -10,7 +10,7 @@ function dur(a,b){var m=Math.max(0,(Date.parse(b)-Date.parse(a))/60000);if(!Numb
 function when(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
 async function latestBundle(){
  return new Promise(function(ok){
-  var r=indexedDB.open(BRIDGE_DB,2);r.onerror=function(){ok(null)};r.onsuccess=function(){var db=r.result;try{var q=db.transaction('imports').objectStore('imports').getAll();q.onsuccess=function(){var x=(q.result||[]).filter(function(i){return i.profile===pkey()&&i.bundle}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});db.close();ok(x[0]||null)};q.onerror=function(){db.close();ok(null)}}catch(e){db.close();ok(null)}}})
+  var r=indexedDB.open(BRIDGE_DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onerror=function(){ok(null)};r.onsuccess=function(){var db=r.result;try{var q=db.transaction('imports').objectStore('imports').getAll();q.onsuccess=function(){var x=(q.result||[]).filter(function(i){return i.profile===pkey()&&i.bundle}).sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)});db.close();ok(x[0]||null)};q.onerror=function(){db.close();ok(null)}}catch(e){db.close();ok(null)}}})
 }
 function latestNonZero(a,keys){return (a||[]).slice().reverse().find(function(x){return keys.some(function(k){return Number(x[k])>0})})||null}
 function latestByTime(a,key){return (a||[]).slice().sort(function(x,y){return Date.parse(y[key]||0)-Date.parse(x[key]||0)})[0]||null}
