@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v300.4-code-implementation-labels",
-  "currentFocus": "v300.4 Wishlist UX clarification: distinguish validation actions from future code implementation actions with explicit labels and queued state.",
+  "liveBuild": "v301-level3-execution",
+  "currentFocus": "v301 Level 3 Code Execution Engine: approval-gated code jobs, secure ChatGPT/GitHub execution handoff, automatic pre-change backup, quality gate, rollback guard, execution status manifest and Admin execution control plane.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1382,16 +1382,16 @@
       "title": "Approval-gated self remediation with backup and rollback",
       "acceptanceCriteria": "AI can propose a patch and implementation plan; after explicit MEHET approval the pipeline creates a restore point, implements, tests, deploys, measures outcome and can roll back automatically on failed validation.",
       "priority": "Critical",
-      "sprint": "NEXT",
+      "sprint": "S4",
       "milestone": "M4 AI Continuous Improvement",
-      "status": "Next",
-      "progress": 0.15,
+      "status": "Testing",
+      "progress": 0.9,
       "storyPoints": 13,
       "owner": "Léna + Zsolt",
       "dependency": "HH-AI-001;HH-AI-002;HH-DATA-003",
       "targetDate": null,
       "actualDone": null,
-      "notes": "Architecture gate is visible in v300. Production writes remain forbidden without approval and a restore point."
+      "notes": "v301 implements the Level 3 execution control plane and secure AI executor handoff. Browser stores no GitHub/API secret. GitHub workflow creates pre-change backup and auto-rolls back a failed main validation."
     },
     {
       "id": "HH-AI-006",
@@ -1410,6 +1410,24 @@
       "targetDate": null,
       "actualDone": null,
       "notes": "Requires device-side Android agent / bridge capability for reliable remote execution."
+    },
+    {
+      "id": "HH-AI-007",
+      "epic": "AI Continuous Improvement",
+      "feature": "Backup & Rollback",
+      "title": "Automatic pre-change backup + rollback guard",
+      "acceptanceCriteria": "Every HealthHub main push creates a recoverable backup branch before validation; failed main validation auto-reverts only if main has not moved, preventing unsafe rollback races.",
+      "priority": "Critical",
+      "sprint": "S4",
+      "milestone": "M4 AI Continuous Improvement",
+      "status": "Testing",
+      "progress": 0.9,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-AI-005;HH-DATA-003",
+      "targetDate": "2026-10-07",
+      "actualDone": null,
+      "notes": "Implemented in .github/workflows/healthhub-level3-guard.yml with safe branch-head check and rollback-loop protection."
     }
   ],
   "changeLog": [
@@ -1799,6 +1817,14 @@
       "actionId": "HH-AI-004",
       "type": "UX",
       "summary": "Wishlist actions now explicitly distinguish validation from code implementation. Completed/implemented items show RUN VALIDATION; proposed code work shows MEHET → CODE IMPLEMENTATION; approved queued work shows CODE IMPLEMENTATION · QUEUED.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v301",
+      "actionId": "HH-AI-005",
+      "type": "Milestone",
+      "summary": "Implemented Level 3 Code Execution foundation: Admin execution jobs, secure Google Drive/ChatGPT handoff, GitHub execution status manifest, automatic pre-change backup branch, static quality gate and safe automatic rollback on failed main validation. No GitHub/API secret is stored client-side.",
       "status": "Testing"
     }
   ]
