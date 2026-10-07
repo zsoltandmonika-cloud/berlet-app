@@ -6,7 +6,6 @@
 
 var switchSeq=0;
 var refreshing=false;
-var idleTimer=0;
 
 function codeOf(p){
   return (p==='m'||p==='monika')?'m':'z';
@@ -66,21 +65,8 @@ async function refreshVisibleProfileData(code,seq){
     refreshing=false;
   }
 }
-function idleRefresh(code,seq){
-  clearTimeout(idleTimer);
-  idleTimer=setTimeout(function(){
-    if(seq!==switchSeq||currentCode()!==code)return;
-    [window.hhSyncHealthDashboard,window.hhSyncHealthHome,window.hhSyncFullMigrationDashboard].forEach(function(fn){
-      try{
-        if(typeof requestIdleCallback==='function')requestIdleCallback(function(){callSafe(fn)},{timeout:1200});
-        else setTimeout(function(){callSafe(fn)},0);
-      }catch(e){}
-    });
-  },350);
-}
 function scheduleRefresh(code,seq){
   requestAnimationFrame(function(){refreshVisibleProfileData(code,seq)});
-  idleRefresh(code,seq);
 }
 
 function canonicalSetProfile(p,options){
@@ -89,6 +75,7 @@ function canonicalSetProfile(p,options){
   var seq=++switchSeq;
   /* v303: bypass the historical setProfile wrapper chain entirely. */
   syncCoreState(code);
+  var overlay=document.getElementById('overlay');if(overlay)overlay.classList.remove('on');
   dispatchProfileChanged(code,source);
   scheduleRefresh(code,seq);
   return code;
