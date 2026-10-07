@@ -90,6 +90,12 @@ async function upload(path,data){
  return v.uploadJson(path,data);
 }
 
+function legacyProfiles(){
+ try{
+  var v=JSON.parse(localStorage.getItem('hh-health-vault-v1')||'null');
+  return v&&v.profiles&&typeof v.profiles==='object'?clone(v.profiles):{};
+ }catch(e){return {}}
+}
 async function localSnapshot(){
  var docs=await all('documents'),profiles=await all('profiles'),appointments=await all('appointments');
  var ref=await one('meta','private-reference').catch(function(){return null});
@@ -97,6 +103,7 @@ async function localSnapshot(){
   documents:docs.map(docBase),
   explanations:docs.map(explanationRow).filter(Boolean),
   profiles:profiles,
+  legacyProfiles:legacyProfiles(),
   appointments:appointments,
   medications:ref&&ref.payload?{payload:clone(ref.payload),updatedAt:ref.importedAt||null}:null
  };
@@ -113,6 +120,7 @@ function makePackages(local,remote){
  var docs=mergeById(local.documents,remoteArray(remote.documents,'documents'));
  var exps=mergeById(local.explanations,remoteArray(remote.explanations,'explanations'));
  var profiles=mergeById(local.profiles,remoteArray(remote.profiles,'profiles'),'profile');
+ var remoteLegacy=(remote.profiles&&remote.profiles.legacyProfiles)||{},legacy=Object.assign({},clone(remoteLegacy),clone(local.legacyProfiles||{}));
  var apps=mergeById(local.appointments,remoteArray(remote.appointments,'appointments'));
  var localMed=local.medications&&local.medications.payload,localMedAt=local.medications&&local.medications.updatedAt;
  var remoteMed=remote.medications&&remote.medications.privateReference,remoteMedAt=remote.medications&&remote.medications.updatedAt;
@@ -122,7 +130,7 @@ function makePackages(local,remote){
   documents:{schema:'healthhub.master.documents/1',updatedAt:t,documents:docs},
   explanations:{schema:'healthhub.master.explanations/1',updatedAt:t,explanations:exps},
   medications:{schema:'healthhub.master.medications/1',updatedAt:t,privateReference:meds||null},
-  profiles:{schema:'healthhub.master.profiles/1',updatedAt:t,profiles:profiles},
+  profiles:{schema:'healthhub.master.profiles/1',updatedAt:t,profiles:profiles,legacyProfiles:legacy},
   appointments:{schema:'healthhub.master.appointments/1',updatedAt:t,appointments:apps}
  };
 }
@@ -131,9 +139,12 @@ async function applyLocal(pkgs){
  var docs=(pkgs.documents.documents||[]).map(function(d){return applyExplanation(d,em.get(String(d.id)))});
  await putAll('documents',docs);
  await putAll('profiles',pkgs.profiles.profiles||[]);
+ if(pkgs.profiles.legacyProfiles&&typeof pkgs.profiles.legacyProfiles==='object'){
+  try{localStorage.setItem('hh-health-vault-v1',JSON.stringify({schemaVersion:'healthhub.local.v1',profiles:clone(pkgs.profiles.legacyProfiles)}))}catch(e){}
+ }
  await putAll('appointments',pkgs.appointments.appointments||[]);
  if(pkgs.medications.privateReference)await putMeta({key:'private-reference',importedAt:now(),payload:clone(pkgs.medications.privateReference)});
- return {documents:docs.length,explanations:em.size,profiles:(pkgs.profiles.profiles||[]).length,appointments:(pkgs.appointments.appointments||[]).length,medications:pkgs.medications.privateReference?1:0};
+ return {documents:docs.length,explanations:em.size,profiles:(pkgs.profiles.profiles||[]).length,legacyProfiles:Object.keys(pkgs.profiles.legacyProfiles||{}).length,appointments:(pkgs.appointments.appointments||[]).length,medications:pkgs.medications.privateReference?1:0};
 }
 async function pushAll(pkgs,counts){
  await upload(FILES.documents,pkgs.documents);
