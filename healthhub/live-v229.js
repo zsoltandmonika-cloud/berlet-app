@@ -8,7 +8,7 @@
 
 var DB='healthhub-healthradar-v2';
 var LEGACY_KEY='hh-health-vault-v1';
-var repairing={};
+var repairing={},verified={};
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function toastMsg(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -110,16 +110,15 @@ async function cloudFallback(profile){
     return raw.profileData||raw.legacyProfile||null;
   }catch(e){return null}
 }
-async function ensureProfile(profile){
+async function ensureProfile(profile,force){
   profile=profile||pkey();
+  if(!force&&verified[profile])return await dbGet(profile);
   if(repairing[profile])return repairing[profile];
   repairing[profile]=(async function(){
     try{
       var current=await dbGet(profile);
       var legacy=legacyProfile(profile);
 
-      /* Even when a malformed/empty IndexedDB record already exists, try the
-         cloud legacy copy as an additional source instead of giving up. */
       var cloud=null;
       if(!legacy||!flatProfile(legacy,profile))cloud=await cloudFallback(profile);
       if(!current&&!legacy&&!cloud)return null;
@@ -128,6 +127,7 @@ async function ensureProfile(profile){
       var merged=mergeProfiles(base,current,profile);
       await dbPut(merged);
       mirrorLegacy(profile,merged);
+      verified[profile]=true;
       return merged;
     }catch(e){
       console.warn('HealthHub profile repair failed',profile,e);
@@ -143,6 +143,7 @@ async function persistCurrentProfile(){
     var profile=pkey(),rec=await dbGet(profile);
     if(!rec)return;
     rec.profile=profile;
+    verified[profile]=true;
     mirrorLegacy(profile,rec);
     if(typeof window.hhDropboxPushCurrentProfile==='function'){
       await window.hhDropboxPushCurrentProfile();
@@ -151,12 +152,8 @@ async function persistCurrentProfile(){
 }
 
 var previousRender=window.renderHealthSection;
-if(typeof previousRender==='function'){
-  window.renderHealthSection=async function(){
-    await ensureProfile(pkey());
-    return await previousRender.apply(this,arguments);
-  };
-}
+/* Performance: profile repair is startup/exception logic, not a per-render task.
+   Keep the existing render chain untouched. */
 
 var previousEdit=window.hhEditHealthProfile;
 if(typeof previousEdit==='function'){
@@ -198,11 +195,8 @@ var previousSetProfile=window.setProfile;
 if(typeof previousSetProfile==='function'){
   window.setProfile=function(){
     var r=previousSetProfile.apply(this,arguments);
-    setTimeout(function(){
-      ensureProfile(pkey()).then(function(){
-        if(window.healthSectionKind==='overview'&&typeof window.renderHealthSection==='function')window.renderHealthSection();
-      });
-    },80);
+    var p=pkey();
+    if(!verified[p])setTimeout(function(){ensureProfile(p)},180);
     return r;
   };
 }
@@ -213,14 +207,6 @@ window.hhPersistHealthProfile=persistCurrentProfile;
 Promise.allSettled([ensureProfile('zsolt'),ensureProfile('monika')]).then(function(){
   if(window.healthSectionKind==='overview'&&typeof window.renderHealthSection==='function')window.renderHealthSection();
 });
-window.addEventListener('focus',function(){
-  setTimeout(function(){
-    ensureProfile(pkey()).then(function(){
-      if(window.healthSectionKind==='overview'&&typeof window.renderHealthSection==='function')window.renderHealthSection();
-    });
-  },160);
-});
-
-document.documentElement.dataset.healthhubProfileRepair='1.230';
-window.HH_PROFILE_REPAIR='1.230';
+document.documentElement.dataset.healthhubProfileRepair='1.230.1';
+window.HH_PROFILE_REPAIR='1.230.1';
 })();
