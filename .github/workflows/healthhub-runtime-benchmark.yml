@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [idbstress]
+        mode: [livewarm]
     steps:
       - name: Checkout benchmark branch
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
 
       - name: Run Chromium benchmark
         env:
-          HEALTHHUB_URL: http://127.0.0.1:8000/healthhub/
+          HEALTHHUB_URL: https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/
           BENCH_MODE: ${{ matrix.mode }}
         run: node healthhub/benchmarks/runtime-benchmark.mjs
 
