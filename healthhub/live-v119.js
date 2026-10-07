@@ -85,9 +85,13 @@ if(typeof window.dateFmt==="function"){
   };
 }
 
-// Observe only the overlay being rebuilt; do not observe name text mutations.
-const bodyObs=new MutationObserver(()=>bindProfilePicker());
-bodyObs.observe(document.body,{childList:true,subtree:true});
+// Observe only the profile overlay, not the entire document body.
+(function attachProfileOverlayObserver(){
+  const overlay=document.getElementById("overlay");
+  if(!overlay){setTimeout(attachProfileOverlayObserver,500);return;}
+  const overlayObs=new MutationObserver(()=>bindProfilePicker());
+  overlayObs.observe(overlay,{childList:true,subtree:true});
+})();
 
-window.HH_LIVE_BUILD="v1.21";
+window.HH_LIVE_BUILD="v1.21.1";
 })();
