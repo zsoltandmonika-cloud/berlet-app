@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v303.1-device-trace",
-  "currentFocus": "v303.1 on-device performance diagnostics: reproduce runtime lag on the actual Windows/Edge/PWA environment with technical-only tracing and optional Drive handoff.",
+  "liveBuild": "v303.2-longtask-attribution",
+  "currentFocus": "v303.2 diagnostics: attribute Edge-only multi-second post-profile-switch long tasks to exact scripts/functions using Long Animation Frame timing.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1873,6 +1873,14 @@
       "actionId": "HH-AI-005",
       "type": "Diagnostics",
       "summary": "Added Admin Device Performance Trace. Measures real-device profile switch latency, Admin scroll frame gaps, event-loop lag, long tasks, DOM size, localStorage size, IndexedDB record counts, memory/browser/GPU metadata and optionally uploads the technical JSON trace to Google Drive. No clinical values are collected.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v303.2",
+      "actionId": "HH-AI-005",
+      "type": "Diagnostics / Performance",
+      "summary": "Device Performance Trace now records Long Animation Frame script attribution, including source URL, function name, invoker type, blocking duration and forced style/layout time.",
       "status": "Testing"
     }
   ]
