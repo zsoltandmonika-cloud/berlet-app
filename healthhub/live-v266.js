@@ -206,13 +206,8 @@ if(surface&&window.MutationObserver){
   mo.observe(surface,{subtree:true,childList:true,characterData:true});
 }
 
-/* Final safety net: only when HealthRadar is visible and profile changed. */
-setInterval(function(){
-  var page=document.getElementById('health');
-  if(page&&page.classList.contains('on')&&lastProfile!==pkey())repaint(pkey());
-},350);
-
+/* Profile changes are event-driven; no 350 ms safety polling needed. */
 repaint(pkey());
-document.documentElement.dataset.healthhubHealthLandingCanonical='1.266';
+document.documentElement.dataset.healthhubHealthLandingCanonical='1.266.1';
 window.HH_LIVE_BUILD='v266-health-landing-profile-data-lock';
 })();

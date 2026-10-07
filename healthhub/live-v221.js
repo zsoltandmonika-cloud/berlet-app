@@ -274,13 +274,15 @@ var oldSet=window.setProfile;
 if(typeof oldSet==='function')window.setProfile=function(){
   var r=oldSet.apply(this,arguments);
   editingId=null;
-  setTimeout(function(){sync(true);decorate()},260);
+  setTimeout(decorate,80);
   return r;
 };
 
+/* Performance: Device Cloud sync is explicit/manual or save-triggered.
+   Do not sync merely because the profile changed or the app regained focus. */
 observe();
-setTimeout(function(){decorate();sync(true)},1700);
+setTimeout(decorate,1700);
 window.addEventListener('focus',function(){setTimeout(decorate,250)});
-document.documentElement.dataset.healthhubDeviceCloud='1.232.1';
+document.documentElement.dataset.healthhubDeviceCloud='1.232.2';
 window.HH_LIVE_BUILD='v1.232-device-cloud-sync';
 })();

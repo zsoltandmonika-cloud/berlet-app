@@ -89,7 +89,7 @@ setTimeout(ensureProfileSwitch,350);
 setInterval(function(){
   var p=document.getElementById('hhActivityPage191');
   if(p&&p.classList.contains('on'))ensureProfileSwitch();
-},1200);
+},5000);
 
 var oldOpen=window.hhOpenActivity;
 if(typeof oldOpen==='function'){

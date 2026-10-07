@@ -237,15 +237,17 @@ var prev=window.renderHealthSection;if(typeof prev==='function')window.renderHea
 style();
 var previousSetProfile=window.setProfile;
 if(typeof previousSetProfile==='function'){
- window.setProfile=function(p){
+ window.setProfile=function(){
   var r=previousSetProfile.apply(this,arguments);
-  setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'profile')},250);
+  setTimeout(decorate,60);
   return r;
  };
 }
-handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},500)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
-setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},900);
-window.addEventListener('focus',function(){setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'focus')},150)});
-document.documentElement.dataset.healthhubDropboxVault='1.235';
+/* Performance: automatic Dropbox sync is no longer on the profile/focus critical path.
+   One startup freshness check remains; manual/central sync is authoritative. */
+handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},700)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
+setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},1400);
+window.addEventListener('focus',function(){setTimeout(decorate,150)});
+document.documentElement.dataset.healthhubDropboxVault='1.235.1';
 window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,appKey:APP_KEY,redirect:REDIRECT};
 })();

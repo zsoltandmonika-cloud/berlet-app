@@ -189,6 +189,6 @@ function style(){
  '@media(max-width:360px){.hhActBody{padding-left:3px;padding-right:3px}.hhActTopGrid,.hhActSmallGrid{gap:3px}.hhActMetric{padding-left:4px;padding-right:4px}.hhActRecent .rS span:nth-child(1),.hhActRecent .rS span:nth-child(3){display:none}}';
  document.head.appendChild(s);
 }
-style();ensure();wire();setInterval(wire,1800);
+style();ensure();wire();setInterval(function(){var p=document.getElementById('hhActivityPage');if(p&&p.classList.contains('on'))wire()},5000);
 document.documentElement.dataset.healthhubActivity='1.88';
 })();

@@ -225,6 +225,6 @@ function style(){
 }
 style();ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
-setTimeout(wireButton,300);setInterval(wireButton,2000);
+setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
 document.documentElement.dataset.healthhubSleep='1.239';window.HH_LIVE_BUILD='v1.239-sleep-canonical-active-profile';
 })();

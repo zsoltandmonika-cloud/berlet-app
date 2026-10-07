@@ -6,6 +6,7 @@
    - adds one-tap profile switching with the existing profile picture
    No HealthHub layout redesign. */
 const DB_NAME='healthhub-healthradar-v2';
+let dashboardTimer=0;
 
 function profileKey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function profileCode(){return profileKey()==='monika'?'m':'z'}
@@ -96,18 +97,16 @@ function fillSwitchButton(btn){
     btn.style.fontWeight='900';
   }
 }
+function scheduleDashboardSync(delay){
+  clearTimeout(dashboardTimer);
+  dashboardTimer=setTimeout(function(){syncFullMigrationDashboard()},delay==null?120:delay);
+}
 function switchHealthProfileOneClick(ev){
   if(ev){ev.preventDefault();ev.stopPropagation();}
   const next=profileCode()==='m'?'z':'m';
   if(typeof window.setProfile==='function')window.setProfile(next);
   else localStorage.setItem('hh-profile',next);
-  setTimeout(()=>{
-    ensureProfileSwitches();
-    syncFullMigrationDashboard();
-    if(typeof window.renderHealthSection==='function'&&document.getElementById('healthSection')?.classList.contains('on')){
-      window.renderHealthSection();
-    }
-  },40);
+  setTimeout(ensureProfileSwitches,40);
 }
 function bindProfileAction(btn){
   if(!btn||btn.dataset.hhProfileBound==='1')return;
@@ -156,7 +155,8 @@ const prevSet=window.setProfile;
 if(typeof prevSet==='function'){
   window.setProfile=function(p){
     const r=prevSet.apply(this,arguments);
-    setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();},60);
+    setTimeout(ensureProfileSwitches,60);
+    scheduleDashboardSync(140);
     return r;
   };
 }
@@ -164,7 +164,12 @@ const prevShow=window.show;
 if(typeof prevShow==='function'){
   window.show=function(id){
     const r=prevShow.apply(this,arguments);
-    setTimeout(()=>{if(id==='health'||id==='healthSection')ensureProfileSwitches();syncFullMigrationDashboard();},40);
+    if(id==='health'||id==='healthSection'){
+      setTimeout(ensureProfileSwitches,40);
+      scheduleDashboardSync(100);
+    }else if(id==='home'){
+      scheduleDashboardSync(100);
+    }
     return r;
   };
 }
@@ -181,10 +186,8 @@ window.hhSyncFullMigrationDashboard=syncFullMigrationDashboard;
 window.hhEnsureHealthProfileSwitches=ensureProfileSwitches;
 
 ensureProfileSwitches();
-syncFullMigrationDashboard();
-setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();},400);
-setTimeout(()=>{ensureProfileSwitches();syncFullMigrationDashboard();},1400);
+scheduleDashboardSync(300);
 
-document.documentElement.dataset.healthhubParityBuild='1.220';
+document.documentElement.dataset.healthhubParityBuild='1.220.1';
 window.HH_LIVE_BUILD='v1.220-health-one-click-profile';
 })();
