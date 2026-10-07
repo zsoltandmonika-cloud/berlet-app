@@ -93,7 +93,7 @@ function style(){if(document.getElementById('hh-v190-style'))return;var s=docume
 style();
 var obs=new MutationObserver(function(){clearTimeout(window.__hh190);window.__hh190=setTimeout(enhance,35)});
 function start(){var p=document.getElementById('hhActivityPage');if(p)obs.observe(p,{childList:true,subtree:true});enhance()}
-setTimeout(start,200);setInterval(enhance,1200);
+setTimeout(start,200);setInterval(function(){var p=document.getElementById('hhActivityPage');if(p&&p.classList.contains('on'))enhance()},4000);
 var op=window.hhOpenActivity;if(typeof op==='function')window.hhOpenActivity=function(){var r=op.apply(this,arguments);setTimeout(enhance,80);return r};
 var per=window.hhActivityPeriod;if(typeof per==='function')window.hhActivityPeriod=function(v){state().period=v;var r=per.apply(this,arguments);setTimeout(enhance,90);return r};
 document.documentElement.dataset.healthhubActivity='1.90';
