@@ -127,7 +127,7 @@ function summaryHtml(t){
 function render(){
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
  ensureStyle();var old=document.getElementById(SECTION);if(old)old.remove();
- var html='<section id="'+SECTION+'" class="hhDt3031"><div class="top"><div><h3>🧪 DEVICE PERFORMANCE TRACE</h3><small>Valódi böngésző/gép benchmark · technikai adatok בלבד</small></div><span class="badge '+(busy?'run':'')+'">'+(busy?'RUNNING':'READY')+'</span></div>'+
+ var html='<section id="'+SECTION+'" class="hhDt3031"><div class="top"><div><h3>🧪 DEVICE PERFORMANCE TRACE</h3><small>Valódi böngésző/gép benchmark · csak technikai adatok</small></div><span class="badge '+(busy?'run':'')+'">'+(busy?'RUNNING':'READY')+'</span></div>'+
  '<div class="summary" id="hhDtSummary3031">'+summaryHtml(lastTrace)+'</div>'+
  '<div class="actions"><button class="primary" id="hhDtRun3031" '+(busy?'disabled':'')+'>▶ RUN DEVICE BENCHMARK</button><button id="hhDtCopy3031" '+(!lastTrace?'disabled':'')+'>⧉ COPY LAST TRACE</button></div>'+
  '<div class="note">Nem olvas ki vérnyomást, gyógyszert, lelettartalmat vagy dokumentumot. Csak teljesítménymutatókat és rekorddarabszámokat mér.</div></section>';
