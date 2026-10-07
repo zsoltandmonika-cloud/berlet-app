@@ -80,13 +80,9 @@ function queue(){
  setTimeout(function(){scheduled=false;consolidate()},40);
 }
 function ensureObserver(){
- if(observer)return;
- observer=new MutationObserver(function(){
-  if(window.healthSectionKind!=='more')return;
-  var root=document.getElementById('healthSubContent');if(!root)return;
-  if(root.querySelector('#hhCloudVaultCard,#hhDropboxVaultCard')||!root.querySelector('#'+CARD_ID))queue();
- });
- observer.observe(document.body,{childList:true,subtree:true});
+ /* Performance: renderHealthSection hook + explicit queue calls are sufficient.
+    Avoid observing the entire document body for Cloud Vault decoration. */
+ observer=null;
 }
 
 window.hhUnifiedSyncAll=async function(){
