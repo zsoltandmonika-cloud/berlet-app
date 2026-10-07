@@ -3,14 +3,34 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.1', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
-var rendering=false, longTaskObserver=null;
+var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
+var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function readJson(k,f){try{var x=JSON.parse(localStorage.getItem(k)||'null');return x==null?f:x}catch(e){return f}}
 function writeJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function archiveState(reason){
+ try{
+  var a=readJson(ARCH,[]);if(!Array.isArray(a))a=[];
+  a.unshift({at:now(),reason:reason||'manual',build:BUILD,telemetry:readJson(TKEY,null),healthHistory:readJson(HKEY,[])});
+  writeJson(ARCH,a.slice(0,8));
+ }catch(e){}
+}
+function resetOpsBaseline(reason){
+ archiveState(reason||'baseline-reset');
+ try{localStorage.setItem(EBASE,now())}catch(e){}
+ writeJson(TKEY,{schema:'healthhub.ops-telemetry/1',days:{},lastStorage:null});
+ writeJson(HKEY,[]);
+ try{sessionStorage.removeItem(SESSION)}catch(e){}
+}
+function initializeHotfix(){
+ if(localStorage.getItem(HOTFIX))return;
+ resetOpsBaseline('v300-render-loop-hotfix');
+ try{localStorage.setItem(HOTFIX,JSON.stringify({at:now(),build:BUILD,patch:'PATCH-HH300-001'}))}catch(e){}
+}
 function profileName(){return localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function dayKey(){return new Date().toISOString().slice(0,10)}
 function fmtMs(n){n=Math.round(Number(n)||0);return n<1000?n+' ms':(n/1000).toFixed(2)+' s'}
@@ -125,9 +145,9 @@ function telemetryInit(){
 function errorStats(){
  var a=[];try{a=typeof window.hhErrorLogRead==='function'?window.hhErrorLogRead():readJson('hh-error-log-v1',[])}catch(e){a=[]}
  if(!Array.isArray(a))a=[];
- var since=Date.now()-24*3600*1000,e=0,w=0;
- a.forEach(function(x){var ts=Date.parse(x.at||0);if(ts>=since){if(x.level==='error')e++;else if(x.level==='warn')w++}});
- return {errors24:e,warns24:w,total:a.length};
+ var baseline=Date.parse(localStorage.getItem(EBASE)||'')||0,since=Math.max(Date.now()-24*3600*1000,baseline),e=0,w=0,historical=0;
+ a.forEach(function(x){var ts=Date.parse(x.at||0);if(ts>=since){if(x.level==='error')e++;else if(x.level==='warn')w++}else historical++});
+ return {errors24:e,warns24:w,total:a.length,historical:historical,baselineAt:baseline?new Date(baseline).toISOString():null};
 }
 function currentPerf(){
  var t=telemetry(),d=t.days[dayKey()]||{},avgLoad=d.loadCount?d.loadTotalMs/d.loadCount:0;
@@ -165,7 +185,7 @@ function ensureStyle(){
  if(document.getElementById(STYLE))return;
  var s=document.createElement('style');s.id=STYLE;s.textContent=
  '#'+SECTION+'{margin-top:10px}.hhAI300{background:#fff;border:1px solid #dfe9ef;border-radius:18px;padding:12px;box-shadow:0 8px 22px rgba(31,65,91,.06)}'+
- '.hhAI300 h3,.hhAI300 h4{margin:0;color:#173f62}.hhAI300 small{color:#748a99}.hhAiHead300{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhRag300{font-weight:950;border-radius:999px;padding:7px 10px;font-size:9px;white-space:nowrap}.hhRag300.green{background:#e7f7ef;color:#16724b}.hhRag300.amber{background:#fff4d8;color:#9a6911}.hhRag300.red{background:#ffe9ed;color:#ac304f}'+
+ '.hhAI300 h3,.hhAI300 h4{margin:0;color:#173f62}.hhAI300 small{color:#748a99}.hhAiHead300{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhStatus300{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:96px}.hhRag300{font-weight:950;border-radius:999px;padding:7px 10px;font-size:9px;white-space:nowrap;text-align:center}.hhRag300.green{background:#e7f7ef;color:#16724b}.hhRag300.amber{background:#fff4d8;color:#9a6911}.hhRag300.red{background:#ffe9ed;color:#ac304f}.hhFix300{border:0;border-radius:10px;padding:8px 10px;background:#16965c;color:#fff;font-size:8px;font-weight:950;box-shadow:0 4px 12px rgba(22,150,92,.18);cursor:pointer}.hhFix300:hover{filter:brightness(.96)}'+
  '.hhGrid300{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}.hhMetric300{border:1px solid #e5edf2;border-radius:12px;padding:9px;background:#fbfdfe}.hhMetric300 b{display:block;font-size:14px;color:#183f61}.hhMetric300 span{font-size:7px;color:#8295a4;font-weight:800}'+
  '.hhBtns300{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhBtns300 button,.hhWishActions300 button{border:1px solid #d9e5ec;background:#f7fafc;color:#31536f;border-radius:10px;padding:8px 10px;font-size:8px;font-weight:900}.hhBtns300 .go,.hhWishActions300 .go{background:#1b7f73;color:#fff;border-color:#1b7f73}'+
  '.hhRec300,.hhWish300{margin-top:8px;border:1px solid #e5edf2;border-radius:13px;padding:9px;background:#fbfdfe}.hhRec300 b,.hhWish300 b{font-size:9px;color:#244c69}.hhMeta300{font-size:7px;color:#78909f;margin-top:4px;line-height:1.5}.hhWishActions300{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}'+
@@ -193,7 +213,7 @@ function renderCenter(force){
   var storage=p.storage&&p.storage.quota?Math.round((p.storage.usage/p.storage.quota)*1000)/10:0;
   var wishes=readWishlist();
   var html='<section id="'+SECTION+'" class="hhAI300">'+
-   '<div class="hhAiHead300"><div><h3>🧠 AI Improvement Center · v300</h3><small>Continuous Improvement Engine · System Health · Wishlist · Backlog Intelligence</small></div><span class="hhRag300 '+rg.k+'">'+rg.icon+' '+rg.label+' '+h.score+'/100</span></div>'+
+   '<div class="hhAiHead300"><div><h3>🧠 AI Improvement Center · v300</h3><small>Continuous Improvement Engine · System Health · Wishlist · Backlog Intelligence</small></div><div class="hhStatus300"><span class="hhRag300 '+rg.k+'">'+rg.icon+' '+rg.label+' '+h.score+'/100</span>'+(rg.k!=='green'?'<button class="hhFix300" onclick="hhAiFix300()">✓ FIX</button>':'')+'</div></div>'+
    '<div class="hhMeta300">Trend: <span class="hhTrend300">'+trend+'</span> · Last check: '+esc(new Date(h.at).toLocaleString('hu-HU'))+' · Telemetry overhead: '+fmtMs(h.overheadMs)+'</div>'+
    '<div class="hhGrid300"><div class="hhMetric300"><b>'+h.errors.errors24+'</b><span>ERROR / 24H</span></div><div class="hhMetric300"><b>'+fmtMs(p.avgLoad||0)+'</b><span>AVG LOAD</span></div><div class="hhMetric300"><b>'+p.longTasks+'</b><span>LONG TASK / DAY</span></div><div class="hhMetric300"><b>'+storage+'%</b><span>STORAGE USE</span></div></div>'+
    '<div class="hhBtns300"><button class="go" onclick="hhAiRunHealth300()">↻ RUN HEALTH CHECK</button><button onclick="hhAiExport300()">⬇ EXPORT OPS DATA</button></div>'+
@@ -210,6 +230,14 @@ function renderCenter(force){
 }
 
 window.hhAiRunHealth300=function(){runHealthCheck();renderCenter(true);try{window.toast&&window.toast('System Health Check kész')}catch(e){}};
+window.hhAiFix300=function(){
+ var ok=confirm('Biztonságos remediation futtatása?\n\n• a jelenlegi működési telemetria archiválása\n• új error baseline létrehozása\n• long-task / health history reset\n• friss System Health Check\n\nKlinikai adatot nem módosít.');
+ if(!ok)return;
+ resetOpsBaseline('manual-fix');
+ try{sessionStorage.removeItem(SESSION)}catch(e){}
+ telemetryInit();
+ setTimeout(function(){runHealthCheck();renderCenter(true);try{window.toast&&window.toast('FIX kész · új baseline aktív')}catch(e){}},350);
+};
 window.hhAiAddWish300=addWish;
 window.hhAiWishStatus300=setWishStatus;
 window.hhAiRemoveWish300=removeWish;
@@ -220,13 +248,22 @@ window.hhAiExport300=function(){
 };
 window.hhAiImprovementRead300=function(){return {health:lastHealth(),telemetry:telemetry(),wishlist:readWishlist()}};
 
+initializeHotfix();
 telemetryInit();
 readWishlist();
 setTimeout(function(){try{runHealthCheck()}catch(e){}},1400);
 
-var obs=new MutationObserver(function(){setTimeout(renderCenter,60)});
-obs.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-setInterval(function(){var o=document.getElementById('haOv');if(o&&o.classList.contains('on'))renderCenter()},2200);
+function attachAdminWatcher(){
+ var ov=document.getElementById('haOv');
+ if(!ov){watcherTimer=setTimeout(attachAdminWatcher,500);return}
+ if(adminObserver)adminObserver.disconnect();
+ adminObserver=new MutationObserver(function(){
+  if(ov.classList.contains('on'))setTimeout(function(){renderCenter(true)},40);
+ });
+ adminObserver.observe(ov,{attributes:true,attributeFilter:['class']});
+ if(ov.classList.contains('on'))renderCenter(true);
+}
+attachAdminWatcher();
 
-document.documentElement.dataset.healthhubAiImprovement='1.300';
+document.documentElement.dataset.healthhubAiImprovement='1.300.1';
 })();
