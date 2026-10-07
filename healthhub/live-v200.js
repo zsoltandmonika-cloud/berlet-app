@@ -98,8 +98,7 @@ if(typeof prev==='function'){
   var r=await prev.apply(this,arguments);setTimeout(decorate,20);return r;
  };
 }
-new MutationObserver(function(){setTimeout(decorate,30)}).observe(document.documentElement,{subtree:true,childList:true});
 setTimeout(decorate,500);
-document.documentElement.dataset.healthhubDocumentRecovery='1.100';
+document.documentElement.dataset.healthhubDocumentRecovery='1.100.1';
 window.HH_LIVE_BUILD='v1.100-documents-recovery';
 })();

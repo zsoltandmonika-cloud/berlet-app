@@ -131,10 +131,17 @@ window.hhErrorLogCopy=async function(){
   try{await navigator.clipboard.writeText(txt);window.toast&&window.toast('Error Log a vágólapra másolva')}catch(e){record('warn','clipboard','Error Log másolása sikertelen',e)}
 };
 
-/* Observe Admin opening/re-rendering. */
-var obs=new MutationObserver(function(){decorateSoon()});
-obs.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-setInterval(function(){if(document.getElementById('haOv')?.classList.contains('on'))decorate()},1800);
+/* Observe only Admin overlay visibility. Avoid full-document mutation watching/polling. */
+function attachAdminErrorLogObserver(){
+  var ov=document.getElementById('haOv');
+  if(!ov){setTimeout(attachAdminErrorLogObserver,500);return}
+  var obs=new MutationObserver(function(){
+    if(ov.classList.contains('on'))decorateSoon();
+  });
+  obs.observe(ov,{attributes:true,attributeFilter:['class']});
+  if(ov.classList.contains('on'))decorateSoon();
+}
+attachAdminErrorLogObserver();
 
-document.documentElement.dataset.healthhubErrorLog='1.231';
+document.documentElement.dataset.healthhubErrorLog='1.231.1';
 })();
