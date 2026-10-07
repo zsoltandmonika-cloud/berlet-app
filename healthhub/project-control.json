@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v303-runtime-core",
-  "currentFocus": "v303 canonical runtime core: bypass historical setProfile wrapper chain, coalesce HealthRadar repaint bursts, migrate profile side effects to one profile-changed event, and lazy-render heavy Admin workspaces/jobs/error details.",
+  "liveBuild": "v303.1-device-trace",
+  "currentFocus": "v303.1 on-device performance diagnostics: reproduce runtime lag on the actual Windows/Edge/PWA environment with technical-only tracing and optional Drive handoff.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1865,6 +1865,14 @@
       "actionId": "HH-AI-005",
       "type": "Architecture / Performance",
       "summary": "Introduced canonical profile fast path that bypasses historical setProfile wrapper chains; migrated required UI side effects to the healthhub:profile-changed event; coalesced multi-stage HealthRadar repaint bursts; lazy-rendered AI Improvement Workspace, Level 3 jobs and Error Log details; extended the release Guard to the canonical runtime core.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v303.1",
+      "actionId": "HH-AI-005",
+      "type": "Diagnostics",
+      "summary": "Added Admin Device Performance Trace. Measures real-device profile switch latency, Admin scroll frame gaps, event-loop lag, long tasks, DOM size, localStorage size, IndexedDB record counts, memory/browser/GPU metadata and optionally uploads the technical JSON trace to Google Drive. No clinical values are collected.",
       "status": "Testing"
     }
   ]
