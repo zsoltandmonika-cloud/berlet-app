@@ -1,0 +1,108 @@
+name: HealthHub Level 3 Guard
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/**"
+      - ".github/workflows/healthhub-level3-guard.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/**"
+      - ".github/workflows/healthhub-level3-guard.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: healthhub-level3-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create pre-change backup branch
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          SHORT="$(echo "${GITHUB_SHA}" | cut -c1-8)"
+          BRANCH="auto-backup/healthhub-${SHORT}"
+          echo "Creating ${BRANCH} -> ${BEFORE}"
+          git push origin "${BEFORE}:refs/heads/${BRANCH}" || echo "Backup branch already exists or could not be recreated."
+
+      - name: Validate HealthHub release
+        id: validate
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          function fail(msg){ console.error('HEALTHHUB GUARD FAIL:', msg); process.exitCode = 1; }
+          function read(p){ return fs.readFileSync(p,'utf8'); }
+
+          const index = read('healthhub/index.html');
+          const meta = (index.match(/healthhub-live-build" content="([^"]+)"/)||[])[1];
+          const boot = (index.match(/var v='([^']+)'/)||[])[1];
+          if(!meta || !boot) fail('Missing live build markers in index.html');
+          if(meta !== 'v'+boot) fail('Live build mismatch: meta='+meta+' boot='+boot);
+
+          for (const file of ['healthhub/live-v300.js','healthhub/live-v301.js']) {
+            if(!fs.existsSync(file)) { if(file.endsWith('v301.js')) fail('Missing '+file); continue; }
+            try { new Function(read(file)); console.log('Syntax PASS', file); }
+            catch(e) { fail('JavaScript syntax error in '+file+': '+e.message); }
+          }
+
+          for (const file of ['healthhub/project-control.json','healthhub/ai-execution-status.json']) {
+            try { JSON.parse(read(file)); console.log('JSON PASS', file); }
+            catch(e) { fail('Invalid JSON in '+file+': '+e.message); }
+          }
+
+          const v301Ref = /live-v301\.js\?v=301/.test(index);
+          if(!v301Ref) fail('index.html does not load live-v301.js?v=301...');
+
+          const combined = read('healthhub/live-v301.js') + '\n' + read('healthhub/ai-execution-status.json');
+          const secretPatterns = [
+            /ghp_[A-Za-z0-9]{20,}/,
+            /github_pat_[A-Za-z0-9_]{20,}/,
+            /sk-[A-Za-z0-9_-]{20,}/,
+            /client_secret\s*[:=]\s*["'][^"']+/i
+          ];
+          secretPatterns.forEach(re => { if(re.test(combined)) fail('Possible secret detected by '+re); });
+
+          if(process.exitCode) process.exit(process.exitCode);
+          console.log('HealthHub Level 3 validation PASS · build', meta);
+          NODE
+
+      - name: Automatic rollback on failed main validation
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "HealthHub Level 3 Guard"
+          git config user.email "healthhub-guard@users.noreply.github.com"
+          git fetch origin main
+          CURRENT="$(git rev-parse origin/main)"
+          if [ "$CURRENT" != "$GITHUB_SHA" ]; then
+            echo "Main moved to $CURRENT after this run started. Automatic rollback is blocked for safety."
+            exit 1
+          fi
+          MSG="$(git log -1 --pretty=%B "$GITHUB_SHA")"
+          if [[ "$MSG" == "[AUTO-ROLLBACK]"* ]]; then
+            echo "Rollback commit failed validation; refusing rollback loop."
+            exit 1
+          fi
+          git checkout -B main origin/main
+          if ! git revert --no-edit "$GITHUB_SHA"; then
+            git revert --abort || true
+            git revert -m 1 --no-edit "$GITHUB_SHA"
+          fi
+          git commit --amend -m "[AUTO-ROLLBACK] HealthHub validation failed for $GITHUB_SHA"
+          git push origin main
