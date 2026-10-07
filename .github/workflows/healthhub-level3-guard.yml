@@ -54,7 +54,7 @@ jobs:
           if(!meta || !boot) fail('Missing live build markers in index.html');
           if(meta !== 'v'+boot) fail('Live build mismatch: meta='+meta+' boot='+boot);
 
-          for (const file of ['healthhub/live-v147.js','healthhub/live-v148.js','healthhub/live-v149.js','healthhub/live-v151.js','healthhub/live-v161.js','healthhub/live-v260.js','healthhub/live-v266.js','healthhub/live-v300.js','healthhub/live-v301.js','healthhub/live-v303a.js']) {
+          for (const file of ['healthhub/live-v147.js','healthhub/live-v148.js','healthhub/live-v149.js','healthhub/live-v151.js','healthhub/live-v161.js','healthhub/live-v184.js','healthhub/live-v191.js','healthhub/live-v260.js','healthhub/live-v266.js','healthhub/live-v300.js','healthhub/live-v301.js','healthhub/live-v303a.js']) {
             if(!fs.existsSync(file)) { if(file.endsWith('v301.js')) fail('Missing '+file); continue; }
             try { new Function(read(file)); console.log('Syntax PASS', file); }
             catch(e) { fail('JavaScript syntax error in '+file+': '+e.message); }
@@ -63,6 +63,11 @@ jobs:
           for (const file of ['healthhub/project-control.json','healthhub/ai-execution-status.json']) {
             try { JSON.parse(read(file)); console.log('JSON PASS', file); }
             catch(e) { fail('Invalid JSON in '+file+': '+e.message); }
+          }
+
+          for (const file of ['healthhub/live-v147.js','healthhub/live-v148.js','healthhub/live-v149.js','healthhub/live-v151.js','healthhub/live-v161.js','healthhub/live-v184.js','healthhub/live-v191.js']) {
+            const src = read(file);
+            if (/indexedDB\.open\((?:DB|BRIDGE_DB),\s*2\)/.test(src)) fail('Bridge schema regression: '+file+' still opens healthhub-connect-v1 as v2');
           }
 
           const v301Ref = /live-v301\.js\?v=301/.test(index);
