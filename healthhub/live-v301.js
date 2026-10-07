@@ -5,7 +5,7 @@
 
 var BUILD='1.301', LIVE='v301', SECTION='hhLevel3V301', STYLE='hhLevel3V301Style';
 var WKEY='hh-ai-wishlist-v1', JKEY='hh-ai-code-jobs-v1', DRIVE_ID='hh-ai-code-handoff-drive-id-v1';
-var rendering=false, adminObserver=null, watcherTimer=null, legacyExecute=window.hhAiExecuteWish300;
+var rendering=false, adminObserver=null, watcherTimer=null, legacyExecute=window.hhAiExecuteWish300, remoteBusy=false, lastRemoteRefresh=0, lastRemoteSignature='';
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -194,18 +194,32 @@ async function prepare(job){
   try{window.hhErrorLogRecord&&window.hhErrorLogRecord('error','level3.handoff','AI code handoff hiba',e)}catch(_){}
  }
 }
-async function refreshRemote(){
+async function refreshRemote(force){
+ if(remoteBusy)return;
+ var t=Date.now();
+ if(!force&&t-lastRemoteRefresh<15000)return;
+ remoteBusy=true;lastRemoteRefresh=t;
  try{
-  var r=await fetch('./ai-execution-status.json?ts='+Date.now(),{cache:'no-store'});
+  var r=await fetch('./ai-execution-status.json?ts='+t,{cache:'no-store'});
   if(!r.ok)return;
-  var remote=await r.json(),rjobs=Array.isArray(remote.jobs)?remote.jobs:[],jobs=readJobs(),changed=false;
+  var remote=await r.json(),rjobs=Array.isArray(remote.jobs)?remote.jobs:[],signature='';
+  try{signature=JSON.stringify(rjobs)}catch(e){}
+  if(!force&&signature&&signature===lastRemoteSignature)return;
+  if(signature)lastRemoteSignature=signature;
+  var jobs=readJobs(),changed=false;
   rjobs.forEach(function(x){
    var local=jobs.filter(function(j){return j.jobId===x.jobId})[0];
-   if(local){['status','phase','progress','steps','message','completedAt','updatedAt'].forEach(function(k){if(x[k]!=null)local[k]=x[k]});changed=true}
+   if(!local)return;
+   ['status','phase','progress','steps','message','completedAt','updatedAt'].forEach(function(k){
+    if(x[k]==null)return;
+    var before='',after='';
+    try{before=JSON.stringify(local[k])}catch(e){before=String(local[k])}
+    try{after=JSON.stringify(x[k])}catch(e){after=String(x[k])}
+    if(before!==after){local[k]=x[k];changed=true}
+   });
   });
-  if(changed)saveJobs(jobs);
-  render(true);
- }catch(e){}
+  if(changed){saveJobs(jobs);render(true)}
+ }catch(e){}finally{remoteBusy=false}
 }
 function executeWish(id){
  var w=wishById(id);if(!w)return;
@@ -226,7 +240,7 @@ function rollbackBrief(id){
 
 window.hhAiExecuteWish300=executeWish;
 window.hhL3Prepare301=prepare;
-window.hhL3Refresh301=refreshRemote;
+window.hhL3Refresh301=function(){return refreshRemote(true)};
 window.hhL3Copy301=copyBrief;
 window.hhL3RollbackBrief301=rollbackBrief;
 window.hhL3ReadJobs301=readJobs;

@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v302-central-manual-sync",
-  "currentFocus": "v302 WISH-007 Central Manual Sync: Admin Data Hub can run a controlled manual sync for the active profile across Profile Vault, Daily Cloud, Health + Activity Cloud, Devices Cloud and Léna Context.",
+  "liveBuild": "v302.1-performance-hotfix",
+  "currentFocus": "v302.1 performance hotfix: throttle Level 3 remote status refresh, skip unchanged execution-status renders, and reduce redundant Admin work on focus/visibility changes.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1833,6 +1833,14 @@
       "actionId": "HH-AI-006",
       "type": "Feature",
       "summary": "Implemented WISH-007 Central Manual Sync in Admin Data Hub. One command synchronizes the active profile across Profile Vault, Daily Cloud, Health + Activity Cloud, Devices Cloud and Léna Context with step-by-step status, failure isolation and persistent last-run state.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v302.1",
+      "actionId": "HH-AI-005",
+      "type": "Performance Hotfix",
+      "summary": "Reduced Admin/Level 3 UI overhead by throttling remote execution-status refresh to 15 seconds, skipping unchanged status payloads, and preventing unnecessary full Level 3 rerenders. Manual refresh remains immediate.",
       "status": "Testing"
     }
   ]
