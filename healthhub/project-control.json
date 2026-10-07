@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v302.2-performance-cleanup",
-  "currentFocus": "v302.2 performance cleanup: remove legacy full-document/body MutationObservers, stop Error Log polling, disable expensive dynamic typography rescans, and prevent focus-triggered Device Cloud sync.",
+  "liveBuild": "v302.3-runtime-consolidation",
+  "currentFocus": "v302.3 runtime consolidation: remove network/database work from profile switching, virtualize Error Log, reduce hidden-page UI polling, and let Chromium skip offscreen Admin sections.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1849,6 +1849,14 @@
       "actionId": "HH-AI-005",
       "type": "Performance Cleanup",
       "summary": "Removed legacy high-overhead DOM watchers: Error Log no longer observes the full document or polls every 1.8s; Document Recovery no longer watches the full document; profile picker observer is scoped to its overlay; dynamic typography full-body observer is disabled; Cloud Vault full-body observer is removed; Device Cloud observer is scoped and no longer auto-syncs on every window focus.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v302.3",
+      "actionId": "HH-AI-005",
+      "type": "Runtime Performance",
+      "summary": "Removed Dropbox/Device/Léna cloud work from profile/focus critical paths; made Profile Repair startup/exception-only instead of per-render; deduplicated Health dashboard IndexedDB refresh; virtualized Error Log to 12 entries; reduced hidden Sleep/Insights/Activity polling; removed 350ms HealthRadar safety polling; enabled content-visibility for large Admin sections.",
       "status": "Testing"
     }
   ]
