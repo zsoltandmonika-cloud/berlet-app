@@ -5,7 +5,7 @@
 
 var BUILD='1.301', LIVE='v301', SECTION='hhLevel3V301', STYLE='hhLevel3V301Style';
 var WKEY='hh-ai-wishlist-v1', JKEY='hh-ai-code-jobs-v1', DRIVE_ID='hh-ai-code-handoff-drive-id-v1';
-var rendering=false, adminObserver=null, watcherTimer=null, legacyExecute=window.hhAiExecuteWish300, remoteBusy=false, lastRemoteRefresh=0, lastRemoteSignature='';
+var rendering=false, adminObserver=null, watcherTimer=null, legacyExecute=window.hhAiExecuteWish300, remoteBusy=false, lastRemoteRefresh=0, lastRemoteSignature='', jobsOpen=false;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -103,7 +103,8 @@ function render(force){
    '<div class="hhL3Head301"><div><h3>🛠 Level 3 Code Execution · v301</h3><small>Approve · Backup · Analyze · Patch · Test · Deploy · Verify · Rollback</small></div><span class="hhL3Ready301">● ENGINE READY</span></div>'+
    '<div class="hhL3Grid301"><div class="hhL3Metric301"><b>ACTIVE</b><span>BACKUP GUARD</span></div><div class="hhL3Metric301"><b>ACTIVE</b><span>AUTO ROLLBACK</span></div><div class="hhL3Metric301"><b>'+queued+'</b><span>QUEUED JOBS</span></div><div class="hhL3Metric301"><b>'+(running+failed)+'</b><span>RUNNING / ATTENTION</span></div></div>'+
    '<div class="hhL3Note301"><b>Security:</b> GitHub token és AI/API kulcs nem kerül a HealthHub kliensbe. A kliens jóváhagyja és előkészíti a jobot; a tényleges forráskód-változtatás ChatGPT + GitHub oldalon történik, GitHub backup/quality/rollback guard mellett.</div>'+
-   (jobs.length?jobs.slice(0,10).map(jobHtml).join(''):'<div class="hhL3Note301">Nincs code implementation job.</div>')+
+   '<div class="hhJobBtns301"><button onclick="hhL3ToggleJobs303()">'+(jobsOpen?'▾ HIDE JOBS':'▸ SHOW JOBS · '+jobs.length)+'</button></div>'+
+   (jobsOpen?(jobs.length?jobs.slice(0,10).map(jobHtml).join(''):'<div class="hhL3Note301">Nincs code implementation job.</div>'):'')+
   '</section>';
   if(base)base.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
  }finally{rendering=false}
@@ -241,6 +242,7 @@ function rollbackBrief(id){
 window.hhAiExecuteWish300=executeWish;
 window.hhL3Prepare301=prepare;
 window.hhL3Refresh301=function(){return refreshRemote(true)};
+window.hhL3ToggleJobs303=function(){jobsOpen=!jobsOpen;render(true)};
 window.hhL3Copy301=copyBrief;
 window.hhL3RollbackBrief301=rollbackBrief;
 window.hhL3ReadJobs301=readJobs;
@@ -258,5 +260,5 @@ function attach(){
 attach();
 window.addEventListener('focus',function(){var o=document.getElementById('haOv');if(o&&o.classList.contains('on'))refreshRemote()},{passive:true});
 document.addEventListener('visibilitychange',function(){var o=document.getElementById('haOv');if(!document.hidden&&o&&o.classList.contains('on'))refreshRemote()},{passive:true});
-document.documentElement.dataset.healthhubLevel3='1.301';
+document.documentElement.dataset.healthhubLevel3='1.303';
 })();
