@@ -54,7 +54,7 @@ jobs:
           if(!meta || !boot) fail('Missing live build markers in index.html');
           if(meta !== 'v'+boot) fail('Live build mismatch: meta='+meta+' boot='+boot);
 
-          for (const file of ['healthhub/live-v300.js','healthhub/live-v301.js']) {
+          for (const file of ['healthhub/live-v260.js','healthhub/live-v266.js','healthhub/live-v300.js','healthhub/live-v301.js']) {
             if(!fs.existsSync(file)) { if(file.endsWith('v301.js')) fail('Missing '+file); continue; }
             try { new Function(read(file)); console.log('Syntax PASS', file); }
             catch(e) { fail('JavaScript syntax error in '+file+': '+e.message); }
@@ -68,7 +68,7 @@ jobs:
           const v301Ref = /live-v301\.js\?v=301/.test(index);
           if(!v301Ref) fail('index.html does not load live-v301.js?v=301...');
 
-          const combined = read('healthhub/live-v301.js') + '\n' + read('healthhub/ai-execution-status.json');
+          const combined = read('healthhub/live-v260.js') + '\n' + read('healthhub/live-v266.js') + '\n' + read('healthhub/live-v301.js') + '\n' + read('healthhub/ai-execution-status.json');
           const secretPatterns = [
             /ghp_[A-Za-z0-9]{20,}/,
             /github_pat_[A-Za-z0-9_]{20,}/,
