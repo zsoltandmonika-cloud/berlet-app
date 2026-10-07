@@ -80,6 +80,7 @@ if(typeof prevSetProfile==='function'){
   };
 }
 
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(function(){paintTimelineHero();bindDirectTimelineToggle()},20)});
 window.addEventListener('focus',function(){setTimeout(function(){paintTimelineHero();bindDirectTimelineToggle()},30)});
 window.HH_LIVE_BUILD='v1.224-timeline-title-lock';
 })();
