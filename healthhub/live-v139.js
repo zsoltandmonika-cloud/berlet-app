@@ -61,18 +61,14 @@ function boostAdded(root){
   });
 }
 function installObserver(){
-  if(window.hhFontBoostObserver)return;
-  var o=new MutationObserver(function(ms){
-    ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1)boostAdded(n)})});
-  });
-  o.observe(document.body,{childList:true,subtree:true});
-  window.hhFontBoostObserver=o;
+  /* Performance: dynamic full-body typography observer disabled.
+     Initial typography boost remains; later components use their own styles. */
+  window.hhFontBoostObserver=null;
 }
 function run(){
-  if(document.documentElement.dataset.healthhubTypography==='1.39')return;
+  if(document.documentElement.dataset.healthhubTypography==='1.39.1')return;
   initialBoost();
-  installObserver();
-  document.documentElement.dataset.healthhubTypography='1.39';
+  document.documentElement.dataset.healthhubTypography='1.39.1';
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(run,0)},{once:true});
 else setTimeout(run,0);
