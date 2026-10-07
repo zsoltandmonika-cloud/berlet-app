@@ -14,6 +14,10 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [clean, localstate]
     steps:
       - name: Checkout benchmark branch
         uses: actions/checkout@v4
@@ -43,6 +47,7 @@ jobs:
       - name: Run Chromium benchmark
         env:
           HEALTHHUB_URL: http://127.0.0.1:8000/healthhub/
+          BENCH_MODE: ${{ matrix.mode }}
         run: node healthhub/benchmarks/runtime-benchmark.mjs
 
       - name: Publish benchmark summary
@@ -56,6 +61,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: healthhub-runtime-benchmark
+          name: healthhub-runtime-benchmark-${{ matrix.mode }}
           path: benchmark-results/
           if-no-files-found: warn
