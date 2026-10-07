@@ -277,21 +277,8 @@ window.addEventListener('healthhub:lena-context-cloud-synced',function(e){
   setTimeout(renderStatus,180);
   schedule(p,'dropbox-context-synced',1200);
 });
-window.addEventListener('healthhub:profile-changed',function(e){
-  setTimeout(renderStatus,180);
-  var p=e&&e.detail&&e.detail.profile||pkey();
-  var c=ctx(p),st=state(p);
-  if(c&&authorized()&&(!st.ok||st.contextGeneratedAt!==c.generatedAt)){
-    schedule(p,'profile-changed',1500);
-  }
-});
-window.addEventListener('focus',function(){
-  setTimeout(renderStatus,220);
-  var p=pkey(),c=ctx(p),st=state(p);
-  if(c&&authorized()&&(!st.ok||st.contextGeneratedAt!==c.generatedAt)){
-    schedule(p,'focus-catchup',1700);
-  }
-});
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(renderStatus,180)});
+window.addEventListener('focus',function(){setTimeout(renderStatus,220)});
 setTimeout(function(){
   renderStatus();
   var p=pkey(),c=ctx(p),st=state(p);
@@ -300,5 +287,5 @@ setTimeout(function(){
   }
 },1600);
 
-document.documentElement.dataset.healthhubLenaDriveMirror='1.292';
+document.documentElement.dataset.healthhubLenaDriveMirror='1.292.1';
 })();
