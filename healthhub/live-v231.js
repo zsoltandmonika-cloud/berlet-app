@@ -5,7 +5,7 @@
    Captures runtime errors, unhandled promise rejections, console errors/warnings,
    and explicit sync failures. Stored locally on this device only. */
 
-var KEY='hh-error-log-v1',MAX=180,decorating=false,viewCount=12;
+var KEY='hh-error-log-v1',MAX=180,decorating=false,viewCount=12,mem=null,flushTimer=0,lastSig='',lastSigAt=0;
 var originalError=console.error.bind(console),originalWarn=console.warn.bind(console);
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -23,10 +23,17 @@ function clip(v,n){
   }catch(e){return String(v).slice(0,n)}
 }
 function read(){
-  try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}
+  if(Array.isArray(mem))return mem;
+  try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');mem=Array.isArray(a)?a:[];return mem}catch(e){mem=[];return mem}
+}
+function flush(){
+  flushTimer=0;
+  try{localStorage.setItem(KEY,JSON.stringify((mem||[]).slice(0,MAX)))}catch(e){}
 }
 function write(a){
-  try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,MAX)))}catch(e){}
+  mem=a.slice(0,MAX);
+  if(flushTimer)return;
+  flushTimer=setTimeout(flush,500);
 }
 function build(){
   var el=document.documentElement;
@@ -34,13 +41,16 @@ function build(){
 }
 function record(level,source,message,detail){
   try{
-    var a=read();
+    var msg=clip(message,1200),sig=String(level||'error')+'|'+String(source||'runtime')+'|'+msg,ts=Date.now();
+    if(sig===lastSig&&ts-lastSigAt<1500)return;
+    lastSig=sig;lastSigAt=ts;
+    var a=read().slice();
     a.unshift({
       id:'err-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
       at:now(),
       level:String(level||'error'),
       source:String(source||'runtime'),
-      message:clip(message,1200),
+      message:msg,
       detail:clip(detail||'',3500),
       profile:pkey(),
       build:String(build()),
@@ -49,7 +59,8 @@ function record(level,source,message,detail){
       ua:(navigator.userAgent||'').slice(0,500)
     });
     write(a);
-    decorateSoon();
+    var ov=document.getElementById('haOv');
+    if(ov&&ov.classList.contains('on'))decorateSoon();
   }catch(e){}
 }
 window.hhErrorLogRecord=record;
@@ -122,7 +133,7 @@ window.hhErrorLogRefresh=decorate;
 window.hhErrorLogMore=function(){viewCount=Math.min(read().length,viewCount+12);decorate()};
 window.hhErrorLogClear=function(){
   if(!confirm('Törlöd az ezen az eszközön tárolt HealthHub hibanaplót?'))return;
-  localStorage.removeItem(KEY);viewCount=12;decorate();
+  localStorage.removeItem(KEY);mem=[];viewCount=12;decorate();
 };
 window.hhErrorLogExport=function(){
   var blob=new Blob([JSON.stringify({schema:'healthhub.errorlog/1',exportedAt:now(),entries:read()},null,2)],{type:'application/json'});
@@ -145,5 +156,7 @@ function attachAdminErrorLogObserver(){
 }
 attachAdminErrorLogObserver();
 
-document.documentElement.dataset.healthhubErrorLog='1.231.2';
+window.addEventListener('pagehide',flush,{passive:true});
+document.addEventListener('visibilitychange',function(){if(document.hidden)flush()},{passive:true});
+document.documentElement.dataset.healthhubErrorLog='1.231.3';
 })();
