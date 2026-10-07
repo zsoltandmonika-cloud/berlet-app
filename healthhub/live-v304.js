@@ -7,12 +7,12 @@
 var BUILD='1.304', ROOT='/HealthHub/master', DB='healthhub-healthradar-v2';
 var busy=false, lastRunAt=0, deferredTimer=null;
 var FILES={
- manifest:ROOT+'/manifest.json',
- documents:ROOT+'/documents.json',
- explanations:ROOT+'/explanations.json',
- medications:ROOT+'/medications.json',
- profiles:ROOT+'/profiles.json',
- appointments:ROOT+'/appointments.json'
+ manifest:'/HealthHub/master/manifest.json',
+ documents:'/HealthHub/master/documents.json',
+ explanations:'/HealthHub/master/explanations.json',
+ medications:'/HealthHub/master/medications.json',
+ profiles:'/HealthHub/master/profiles.json',
+ appointments:'/HealthHub/master/appointments.json'
 };
 function now(){return new Date().toISOString()}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
