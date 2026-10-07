@@ -4,7 +4,7 @@
   "updatedAt": "2026-10-07",
   "liveBuild": "v299",
   "currentFocus": "v299 Smart Ask Léna / Léna Research Engine stabil mérföldkő. A teljes forrásalapú workflow éles és mobilon end-to-end elfogadási teszten átment: Ask Léna → hang/szöveg kérdés → Health Context → Research Router → eredeti Drive leletek → Evidence Engine → forrásolt Answer Composer → ChatGPT handoff → PDF / mobil PDF.",
-  "nextDevelopment": "A v299-et rövid távon stabil mérföldkőként kezeljük. Következő lépés: célzott regressziós teszt Zsolt és Mónika profilján, eltérő kérdéstípusokkal; ezután Consultation Log, jóváhagyott health-record mentés, OCR fallback és privacy/security audit.",
+  "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1230,6 +1230,78 @@
       "targetDate": "2026-10-07",
       "actualDone": "2026-10-07",
       "notes": "v295 Research Router; v296 Document Retrieval; v297 Clinical Relevance + Evidence; v298 Answer Composer; v299 Smart Ask Léna orchestration. Real mobile E2E acceptance passed, including correct complete answer plus normal and mobile PDF generation."
+    },
+    {
+      "id": "HH-SYM-001",
+      "epic": "Symptom Journal",
+      "feature": "Ad-hoc Health Event Log",
+      "title": "Quick symptom / health problem logging",
+      "acceptanceCriteria": "Zsolt or Mónika can quickly record a symptom/problem with profile, start time, severity, body area/type, free-text note and current status.",
+      "priority": "Critical",
+      "sprint": "NEXT",
+      "milestone": "M4 Symptom Journal",
+      "status": "Next",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-CORE-002;HH-CORE-003",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Next module after v299 stabilization. Examples: headache, abdominal pain, joint pain, muscle pain, dizziness, cold/flu-like symptoms."
+    },
+    {
+      "id": "HH-SYM-002",
+      "epic": "Symptom Journal",
+      "feature": "OTC / PRN Medication Intake",
+      "title": "Record what was taken for a symptom",
+      "acceptanceCriteria": "A symptom event can link one or more medication intakes with product/active ingredient, dose, intake time, reason, effect and optional side-effect note.",
+      "priority": "Critical",
+      "sprint": "NEXT",
+      "milestone": "M4 Symptom Journal",
+      "status": "Next",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SYM-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Designed for ad-hoc use such as Advil Ultra / ibuprofen and other non-routine medicines. Must remain distinct from the regular medication list."
+    },
+    {
+      "id": "HH-SYM-003",
+      "epic": "Symptom Journal",
+      "feature": "Episode Lifecycle",
+      "title": "Track symptom progression and outcome",
+      "acceptanceCriteria": "An event can progress through Active → Improving → Resolved → Doctor visit, with follow-up severity and outcome timestamps.",
+      "priority": "High",
+      "sprint": "NEXT",
+      "milestone": "M4 Symptom Journal",
+      "status": "Next",
+      "progress": 0,
+      "storyPoints": 3,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SYM-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "If medical care follows, link the home symptom episode to the later appointment/document where possible."
+    },
+    {
+      "id": "HH-SYM-004",
+      "epic": "Symptom Journal",
+      "feature": "Timeline + Léna Research",
+      "title": "Integrate symptom history into timeline and research",
+      "acceptanceCriteria": "Logged symptoms and PRN medication use appear profile-scoped in the Health Context, unified timeline and Léna Research; answers distinguish documented facts, temporal associations and uncertain causality.",
+      "priority": "Critical",
+      "sprint": "NEXT",
+      "milestone": "M4 Symptom Journal",
+      "status": "Next",
+      "progress": 0,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SYM-001;HH-SYM-002;HH-AL-009",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Enable questions such as frequency of headaches, OTC use in the last 30 days, response to treatment, and associations with sleep/BP/activity without diagnosing from correlation. Red-flag patterns must trigger safety guidance."
     }
   ],
   "changeLog": [
@@ -1572,6 +1644,14 @@
       "type": "Acceptance",
       "summary": "Real mobile end-to-end test passed via Ask Léna voice input and Research + ChatGPT. The system returned the correct complete historical answer and successfully produced both standard PDF and mobile PDF outputs.",
       "status": "Done"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "Roadmap",
+      "actionId": "HH-SYM-001",
+      "type": "Planning",
+      "summary": "Symptom Journal / Ad-hoc Health Event Log promoted to the next HealthHub development priority ahead of Nutrition Connect, Cognitive tracking and Digital Wellbeing. Scope includes symptom episodes, PRN/OTC medication intake, outcome tracking and Léna Research integration.",
+      "status": "Next"
     }
   ]
 }
