@@ -182,6 +182,7 @@ if(typeof prevRender==='function'){
   };
 }
 
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(ensureProfileSwitches,40);scheduleDashboardSync(120)});
 window.hhSyncFullMigrationDashboard=syncFullMigrationDashboard;
 window.hhEnsureHealthProfileSwitches=ensureProfileSwitches;
 

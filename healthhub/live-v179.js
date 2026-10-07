@@ -169,6 +169,7 @@ function style(){
 style();arrangeHealthRadar();
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);setTimeout(render,100);return r};
 var prevShow=window.show;if(typeof prevShow==='function')window.show=function(){var r=prevShow.apply(this,arguments);setTimeout(render,120);return r};
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(render,100)});
 window.addEventListener('focus',function(){setTimeout(render,100)});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(render,100)});
 setTimeout(function(){arrangeHealthRadar();render()},250);setInterval(render,60000);

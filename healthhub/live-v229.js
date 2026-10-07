@@ -201,6 +201,7 @@ if(typeof previousSetProfile==='function'){
   };
 }
 
+window.addEventListener('healthhub:profile-changed',function(e){var p=e&&e.detail&&e.detail.profile||pkey();if(!verified[p])setTimeout(function(){ensureProfile(p)},180)});
 window.hhEnsureHealthProfile=ensureProfile;
 window.hhPersistHealthProfile=persistCurrentProfile;
 

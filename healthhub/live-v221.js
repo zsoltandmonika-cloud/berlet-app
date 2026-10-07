@@ -280,6 +280,7 @@ if(typeof oldSet==='function')window.setProfile=function(){
 
 /* Performance: Device Cloud sync is explicit/manual or save-triggered.
    Do not sync merely because the profile changed or the app regained focus. */
+window.addEventListener('healthhub:profile-changed',function(){editingId=null;setTimeout(decorate,80)});
 observe();
 setTimeout(decorate,1700);
 window.addEventListener('focus',function(){setTimeout(decorate,250)});

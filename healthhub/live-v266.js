@@ -155,9 +155,17 @@ async function paint(profileOverride){
   return true;
 }
 
+var repaintFrame=0,repaintLate=0,pendingProfile='';
 function repaint(profile){
-  var p=pkey(profile);
-  [0,40,120,300,700,1400].forEach(function(ms){setTimeout(function(){paint(p)},ms)});
+  pendingProfile=pkey(profile);
+  if(!repaintFrame){
+    repaintFrame=requestAnimationFrame(function(){
+      repaintFrame=0;
+      paint(pendingProfile);
+    });
+  }
+  clearTimeout(repaintLate);
+  repaintLate=setTimeout(function(){paint(pendingProfile)},140);
 }
 
 window.hhSyncHealthDashboard=paint;
@@ -208,6 +216,6 @@ if(surface&&window.MutationObserver){
 
 /* Profile changes are event-driven; no 350 ms safety polling needed. */
 repaint(pkey());
-document.documentElement.dataset.healthhubHealthLandingCanonical='1.266.1';
-window.HH_LIVE_BUILD='v266-health-landing-profile-data-lock';
+document.documentElement.dataset.healthhubHealthLandingCanonical='1.303';
+window.HH_LIVE_BUILD='v303-health-landing-coalesced';
 })();

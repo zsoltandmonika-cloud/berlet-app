@@ -5,7 +5,7 @@
    Captures runtime errors, unhandled promise rejections, console errors/warnings,
    and explicit sync failures. Stored locally on this device only. */
 
-var KEY='hh-error-log-v1',MAX=180,decorating=false,viewCount=12,mem=null,flushTimer=0,lastSig='',lastSigAt=0;
+var KEY='hh-error-log-v1',MAX=180,decorating=false,viewCount=12,logOpen=false,mem=null,flushTimer=0,lastSig='',lastSigAt=0;
 var originalError=console.error.bind(console),originalWarn=console.warn.bind(console);
 
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
@@ -101,9 +101,9 @@ function sectionHtml(){
   var a=read(),errors=a.filter(function(x){return x.level==='error'}).length,warns=a.filter(function(x){return x.level==='warn'}).length;
   return '<section id="hhErrorLogSection" class="hhErrCard">'+
    '<div class="hhErrHead"><div><h3>🧯 Error Log</h3><small>JavaScript, Promise, Cloud Vault és sync hibák helyi naplója</small></div><span>'+errors+' hiba · '+warns+' figyelmeztetés</span></div>'+
-   '<div class="hhErrActions"><button onclick="hhErrorLogRefresh()">↻ Frissítés</button><button onclick="hhErrorLogExport()">⬇ Export JSON</button><button onclick="hhErrorLogCopy()">⧉ Másolás</button><button class="danger" onclick="hhErrorLogClear()">Törlés</button></div>'+
-   '<div class="hhErrList">'+(a.length?a.slice(0,viewCount).map(line).join(''):'<div class="hhErrEmpty">Még nincs rögzített hiba ezen az eszközön.</div>')+'</div>'+
-   (a.length>viewCount?'<button class="hhErrMore" onclick="hhErrorLogMore()">További '+Math.min(12,a.length-viewCount)+' bejegyzés</button>':'')+
+   '<div class="hhErrActions"><button onclick="hhErrorLogToggle303()">'+(logOpen?'▾ HIDE ERROR LOG':'▸ SHOW ERROR LOG')+'</button><button onclick="hhErrorLogRefresh()">↻ Frissítés</button><button onclick="hhErrorLogExport()">⬇ Export JSON</button><button onclick="hhErrorLogCopy()">⧉ Másolás</button><button class="danger" onclick="hhErrorLogClear()">Törlés</button></div>'+
+   (logOpen?('<div class="hhErrList">'+(a.length?a.slice(0,viewCount).map(line).join(''):'<div class="hhErrEmpty">Még nincs rögzített hiba ezen az eszközön.</div>')+'</div>'+
+   (a.length>viewCount?'<button class="hhErrMore" onclick="hhErrorLogMore()">További '+Math.min(12,a.length-viewCount)+' bejegyzés</button>':'')):'')+
    '<div class="hhErrNote">A napló ezen az eszközön, localStorage-ban marad. Jelszót vagy Dropbox tokent nem ment.</div>'+
   '</section>';
 }
@@ -130,6 +130,7 @@ function decorate(){
 }
 function decorateSoon(){setTimeout(decorate,40)}
 window.hhErrorLogRefresh=decorate;
+window.hhErrorLogToggle303=function(){logOpen=!logOpen;decorate()};
 window.hhErrorLogMore=function(){viewCount=Math.min(read().length,viewCount+12);decorate()};
 window.hhErrorLogClear=function(){
   if(!confirm('Törlöd az ezen az eszközön tárolt HealthHub hibanaplót?'))return;
@@ -158,5 +159,5 @@ attachAdminErrorLogObserver();
 
 window.addEventListener('pagehide',flush,{passive:true});
 document.addEventListener('visibilitychange',function(){if(document.hidden)flush()},{passive:true});
-document.documentElement.dataset.healthhubErrorLog='1.231.3';
+document.documentElement.dataset.healthhubErrorLog='1.303';
 })();

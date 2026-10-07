@@ -245,6 +245,7 @@ if(typeof previousSetProfile==='function'){
 }
 /* Performance: automatic Dropbox sync is no longer on the profile/focus critical path.
    One startup freshness check remains; manual/central sync is authoritative. */
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(decorate,60)});
 handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},700)}).catch(function(e){console.error(e);toast(e.message||'Dropbox OAuth hiba')});
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},1400);
 window.addEventListener('focus',function(){setTimeout(decorate,150)});

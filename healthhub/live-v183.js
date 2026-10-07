@@ -58,6 +58,7 @@ if(typeof prevShow==='function'){
   return r;
  };
 }
+window.addEventListener('healthhub:profile-changed',function(){setTimeout(syncInsight,120)});
 var obs=new MutationObserver(function(m){
  if(m.some(function(x){return x.target&&x.target.id==='insightH'}))syncInsight();
 });

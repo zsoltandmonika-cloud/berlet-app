@@ -207,6 +207,7 @@ if(typeof prevSet==='function'){
  window.setProfile=function(p){var r=prevSet.apply(this,arguments);st.profile=p==='m'?'monika':'zsolt';st.showAll=false;return r};
 }
 
+window.addEventListener('healthhub:profile-changed',function(e){var d=e&&e.detail||{};st.profile=d.profile||((d.code==='m')?'monika':'zsolt');st.showAll=false});
 ensureUpload();ensureTool();
 document.documentElement.dataset.healthhubDocParity='1.28';
 window.HH_LIVE_BUILD='v1.28-documents';

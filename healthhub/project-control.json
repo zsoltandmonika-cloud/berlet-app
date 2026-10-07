@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v302.3-runtime-consolidation",
-  "currentFocus": "v302.3 runtime consolidation: remove network/database work from profile switching, virtualize Error Log, reduce hidden-page UI polling, and let Chromium skip offscreen Admin sections.",
+  "liveBuild": "v303-runtime-core",
+  "currentFocus": "v303 canonical runtime core: bypass historical setProfile wrapper chain, coalesce HealthRadar repaint bursts, migrate profile side effects to one profile-changed event, and lazy-render heavy Admin workspaces/jobs/error details.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1857,6 +1857,14 @@
       "actionId": "HH-AI-005",
       "type": "Runtime Performance",
       "summary": "Removed Dropbox/Device/Léna cloud work from profile/focus critical paths; made Profile Repair startup/exception-only instead of per-render; deduplicated Health dashboard IndexedDB refresh; virtualized Error Log to 12 entries; reduced hidden Sleep/Insights/Activity polling; removed 350ms HealthRadar safety polling; enabled content-visibility for large Admin sections.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v303",
+      "actionId": "HH-AI-005",
+      "type": "Architecture / Performance",
+      "summary": "Introduced canonical profile fast path that bypasses historical setProfile wrapper chains; migrated required UI side effects to the healthhub:profile-changed event; coalesced multi-stage HealthRadar repaint bursts; lazy-rendered AI Improvement Workspace, Level 3 jobs and Error Log details; extended the release Guard to the canonical runtime core.",
       "status": "Testing"
     }
   ]

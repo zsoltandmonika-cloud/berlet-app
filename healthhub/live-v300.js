@@ -3,10 +3,10 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300.4', LIVE_BUILD='v302.3', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.4', LIVE_BUILD='v303', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
 var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
-var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0;
+var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0, workspaceOpen=false;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -312,24 +312,29 @@ function renderCenter(force){
   if(Array.isArray(hist)&&hist.length>1){var d=h.score-hist[1].score;trend=d>=3?'↑ javul':d<=-3?'↓ romlik':'→ stabil'}
   var storage=p.storage&&p.storage.quota?Math.round((p.storage.usage/p.storage.quota)*1000)/10:0;
   var wishes=readWishlist();
+  var workspaceToggle='<div class="hhBtns300"><button onclick="hhAiToggleWorkspace303()">'+(workspaceOpen?'▾ HIDE IMPROVEMENT WORKSPACE':'▸ OPEN IMPROVEMENT WORKSPACE · '+wishes.length+' WISH')+'</button></div>';
   var html='<section id="'+SECTION+'" class="hhAI300">'+
    '<div class="hhAiHead300"><div><h3>🧠 AI Improvement Center · v300</h3><small>Continuous Improvement Engine · System Health · Wishlist · Backlog Intelligence</small></div><div class="hhStatus300"><span class="hhRag300 '+rg.k+'">'+rg.icon+' '+rg.label+' '+h.score+'/100</span>'+(rg.k!=='green'?'<button class="hhFix300" onclick="hhAiFix300()">✓ FIX</button>':'')+'</div></div>'+
    '<div class="hhMeta300">Trend: <span class="hhTrend300">'+trend+'</span> · Last check: '+esc(new Date(h.at).toLocaleString('hu-HU'))+' · Telemetry overhead: '+fmtMs(h.overheadMs)+'</div><div id="hhFixProg300" class="hhFixProg300"><b id="hhFixTitle300">Remediation folyamat</b><div class="hhFixTrack300"><i id="hhFixBar300"></i></div><div id="hhFixStep300" class="hhFixStep300">Várakozás…</div></div>'+
    '<div class="hhGrid300"><div class="hhMetric300"><b>'+h.errors.errors24+'</b><span>ERROR / 24H</span></div><div class="hhMetric300"><b>'+fmtMs(p.avgLoad||0)+'</b><span>AVG LOAD</span></div><div class="hhMetric300"><b>'+p.longTasks+'</b><span>LONG TASK / DAY</span></div><div class="hhMetric300"><b>'+storage+'%</b><span>STORAGE USE</span></div></div>'+
    '<div class="hhBtns300"><button class="go" onclick="hhAiRunHealth300()">↻ RUN HEALTH CHECK</button><button onclick="hhAiExport300()">⬇ EXPORT OPS DATA</button></div>'+
    '<div class="hhGuard300"><b>Guardrail:</b> a v300 telemetria local-first és non-blocking. Nem gyűjt vérnyomást, gyógyszert, leletet vagy más klinikai értéket. Ha a mérés maga érezhető terhelést okozna, a nem kritikus gyűjtés eldobható.</div>'+
-   '<div class="hhAiSection300"><h4>💡 AI / Rule-based Improvement Suggestions</h4><small>Valós működési jelekből generált következő lépések. A végrehajtás mindig approval-gated.</small>'+
-   recs.map(function(r){return '<div class="hhRec300"><b>'+esc(r.kind)+' · '+esc(r.title)+'</b><div class="hhMeta300">'+esc(r.why)+'</div><div class="hhMeta300">Impact '+r.impact+' · Complexity '+r.complexity+' · Risk '+r.risk+'</div></div>'}).join('')+'</div>'+
-   '<div class="hhAiSection300"><h4>✨ Wishlist / User Story Repository</h4><small>Zsolt vagy Mónika természetes nyelven rögzítheti, mit szeretne elérni.</small>'+
-   '<div class="hhWishEntry300"><textarea id="hhWishText300" placeholder="Pl. Központilag indítható manuális sync az összes profilra és eszközre…"></textarea><div class="side"><select id="hhWishWho300"><option>Zsolt</option><option>Mónika</option><option>AI</option></select><button onclick="hhAiAddWish300()">+ WISH</button></div></div>'+
-   wishes.slice(0,20).map(wishHtml).join('')+'</div>'+
-   '<div class="hhAiSection300"><h4>🛡️ Level 3 Remediation Gate</h4><div class="hhGuard300">Observe → Diagnose → Recommend → <b>Approve</b> → Backup → Remediate → Test → Deploy → Measure. Automatikus production módosítás approval és visszaállítási pont nélkül tiltott.</div></div>'+
+   workspaceToggle+
+   (workspaceOpen?
+    '<div class="hhAiSection300"><h4>💡 AI / Rule-based Improvement Suggestions</h4><small>Valós működési jelekből generált következő lépések. A végrehajtás mindig approval-gated.</small>'+
+    recs.map(function(r){return '<div class="hhRec300"><b>'+esc(r.kind)+' · '+esc(r.title)+'</b><div class="hhMeta300">'+esc(r.why)+'</div><div class="hhMeta300">Impact '+r.impact+' · Complexity '+r.complexity+' · Risk '+r.risk+'</div></div>'}).join('')+'</div>'+
+    '<div class="hhAiSection300"><h4>✨ Wishlist / User Story Repository</h4><small>Zsolt vagy Mónika természetes nyelven rögzítheti, mit szeretne elérni.</small>'+
+    '<div class="hhWishEntry300"><textarea id="hhWishText300" placeholder="Pl. Központilag indítható manuális sync az összes profilra és eszközre…"></textarea><div class="side"><select id="hhWishWho300"><option>Zsolt</option><option>Mónika</option><option>AI</option></select><button onclick="hhAiAddWish300()">+ WISH</button></div></div>'+
+    wishes.slice(0,20).map(wishHtml).join('')+'</div>'+
+    '<div class="hhAiSection300"><h4>🛡️ Level 3 Remediation Gate</h4><div class="hhGuard300">Observe → Diagnose → Recommend → <b>Approve</b> → Backup → Remediate → Test → Deploy → Measure. Automatikus production módosítás approval és visszaállítási pont nélkül tiltott.</div></div>'
+    :'')+
   '</section>';
   body.insertAdjacentHTML('afterbegin',html);
  }finally{rendering=false}
 }
 
 window.hhAiRunHealth300=function(){runHealthCheck();renderCenter(true);try{window.toast&&window.toast('System Health Check kész')}catch(e){}};
+window.hhAiToggleWorkspace303=function(){workspaceOpen=!workspaceOpen;renderCenter(true)};
 function fixProgress(step,pct){
  var box=document.getElementById('hhFixProg300'),bar=document.getElementById('hhFixBar300'),tx=document.getElementById('hhFixStep300');
  if(box)box.classList.add('on');if(bar)bar.style.width=Math.max(0,Math.min(100,pct||0))+'%';if(tx)tx.textContent=step||'';
@@ -392,5 +397,5 @@ window.addEventListener('online',function(){checkForLiveUpdate()},{passive:true}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){resumePendingUpdate();checkForLiveUpdate()}},{passive:true});
 setTimeout(checkForLiveUpdate,2200);
 
-document.documentElement.dataset.healthhubAiImprovement='1.300.4';
+document.documentElement.dataset.healthhubAiImprovement='1.303';
 })();
