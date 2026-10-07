@@ -274,8 +274,8 @@ window.hhGetLenaHealthContextText289=function(p){var x=window.hhGetLenaHealthCon
 
 window.addEventListener('healthhub:health-cloud-synced',function(e){schedule(e&&e.detail&&e.detail.profile,'health-connect-sync',650)});
 window.addEventListener('healthhub:measurement-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'measurement-saved',650)});
-window.addEventListener('healthhub:profile-changed',function(e){renderStatus();schedule(e&&e.detail&&e.detail.profile||pkey(),'profile-changed',800)});
-window.addEventListener('focus',function(){renderStatus();schedule(pkey(),'focus-refresh',1200)});
+window.addEventListener('healthhub:profile-changed',function(){renderStatus()});
+window.addEventListener('focus',function(){renderStatus()});
 
 try{
   if(typeof window.renderHealthSection==='function'&&!window.renderHealthSection.__lena289){
@@ -286,5 +286,5 @@ try{
 }catch(e){}
 
 setTimeout(function(){renderStatus();schedule(pkey(),'startup',1200)},1000);
-document.documentElement.dataset.healthhubLenaContext='1.293-zero-filter';
+document.documentElement.dataset.healthhubLenaContext='1.293.1-perf';
 })();
