@@ -3,7 +3,7 @@
 /* HealthHub v303.1 — on-device performance trace.
    Technical metadata only. No clinical values or document contents are collected. */
 
-var BUILD='1.303.1', SECTION='hhDeviceTrace3031', STYLE='hhDeviceTrace3031Style';
+var BUILD='1.303.2', SECTION='hhDeviceTrace3031', STYLE='hhDeviceTrace3031Style';
 var busy=false, observer=null, lastTrace=null, DRIVE_ID='hh-device-trace-drive-id-v3031';
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -149,9 +149,41 @@ function ensureStyle(){
 }
 async function runTrace(){
  if(busy)return;busy=true;render();toast('Device benchmark indul…');
- var longTasks=[],po=null,orig=profileCode();
+ var longTasks=[],loafFrames=[],po=null,loafObserver=null,orig=profileCode();
  try{
   try{po=new PerformanceObserver(function(list){list.getEntries().forEach(function(e){longTasks.push({startTime:fmt(e.startTime),duration:fmt(e.duration),name:e.name})})});po.observe({entryTypes:['longtask']})}catch(e){}
+  try{
+   if(PerformanceObserver.supportedEntryTypes&&PerformanceObserver.supportedEntryTypes.indexOf('long-animation-frame')>=0){
+    loafObserver=new PerformanceObserver(function(list){
+     list.getEntries().forEach(function(e){
+      var scripts=[];
+      try{
+       scripts=(e.scripts||[]).map(function(s){
+        return {
+         invoker:s.invoker||null,
+         invokerType:s.invokerType||null,
+         sourceURL:s.sourceURL||null,
+         sourceFunctionName:s.sourceFunctionName||null,
+         sourceCharPosition:s.sourceCharPosition||null,
+         duration:fmt(s.duration||0),
+         pauseDuration:fmt(s.pauseDuration||0),
+         forcedStyleAndLayoutDuration:fmt(s.forcedStyleAndLayoutDuration||0)
+        };
+       }).sort(function(a,b){return b.duration-a.duration}).slice(0,20);
+      }catch(x){}
+      loafFrames.push({
+       startTime:fmt(e.startTime),
+       duration:fmt(e.duration),
+       blockingDuration:fmt(e.blockingDuration||0),
+       renderStart:fmt(e.renderStart||0),
+       styleAndLayoutStart:fmt(e.styleAndLayoutStart||0),
+       scripts:scripts
+      });
+     });
+    });
+    loafObserver.observe({type:'long-animation-frame',buffered:true});
+   }
+  }catch(e){}
   var start=performance.now(),beforeNodes=document.getElementsByTagName('*').length;
   var env={
    at:now(),build:document.querySelector('meta[name="healthhub-live-build"]')?.content||null,
@@ -169,7 +201,7 @@ async function runTrace(){
   var trace={
    schema:'healthhub.device-performance-trace/1',env:env,localStorage:ls,indexedDB:idb,eventLoop:loop,
    actions:[a1,a2],adminScroll:scroll,longTaskCount:longTasks.length,longTaskTotalMs:fmt(longTasks.reduce(function(s,x){return s+x.duration},0)),
-   longTasks:longTasks.slice(0,100),domNodes:document.getElementsByTagName('*').length,domNodesBefore:beforeNodes,
+   longTasks:longTasks.slice(0,100),longAnimationFrames:loafFrames.slice(0,100),domNodes:document.getElementsByTagName('*').length,domNodesBefore:beforeNodes,
    totalBenchmarkMs:fmt(performance.now()-start)
   };
   try{localStorage.setItem('hh-device-performance-trace-v3031',JSON.stringify(trace))}catch(e){}
@@ -183,6 +215,7 @@ async function runTrace(){
   render();toast('Device benchmark hiba');
  }finally{
   try{po&&po.disconnect()}catch(e){}
+  try{loafObserver&&loafObserver.disconnect()}catch(e){}
   busy=false;render();
  }
 }
@@ -198,5 +231,5 @@ function attach(){
  if(ov.classList.contains('on'))render();
 }
 attach();
-document.documentElement.dataset.healthhubDeviceTrace='1.303.1';
+document.documentElement.dataset.healthhubDeviceTrace='1.303.2';
 })();
