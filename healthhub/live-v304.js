@@ -98,7 +98,7 @@ async function localSnapshot(){
   explanations:docs.map(explanationRow).filter(Boolean),
   profiles:profiles,
   appointments:appointments,
-  medications:ref&&ref.payload?clone(ref.payload):null
+  medications:ref&&ref.payload?{payload:clone(ref.payload),updatedAt:ref.importedAt||null}:null
  };
 }
 function remoteArray(pkg,key){
@@ -114,8 +114,9 @@ function makePackages(local,remote){
  var exps=mergeById(local.explanations,remoteArray(remote.explanations,'explanations'));
  var profiles=mergeById(local.profiles,remoteArray(remote.profiles,'profiles'),'profile');
  var apps=mergeById(local.appointments,remoteArray(remote.appointments,'appointments'));
- var localMed=local.medications,remoteMed=remote.medications&&remote.medications.privateReference;
- var meds=mergeEntity(localMed,remoteMed);
+ var localMed=local.medications&&local.medications.payload,localMedAt=local.medications&&local.medications.updatedAt;
+ var remoteMed=remote.medications&&remote.medications.privateReference,remoteMedAt=remote.medications&&remote.medications.updatedAt;
+ var meds=(Date.parse(localMedAt||0)>Date.parse(remoteMedAt||0))?clone(localMed):mergeEntity(localMed,remoteMed);
  var t=now();
  return {
   documents:{schema:'healthhub.master.documents/1',updatedAt:t,documents:docs},
@@ -171,17 +172,36 @@ async function sync(reason,silent){
 window.hhMasterStructuredSync304=function(silent){return sync('manual',!!silent)};
 window.hhMasterStructuredSyncState304=function(){return {connected:connected(),busy:busy,lastSync:localStorage.getItem('hh-master-vault-last-sync')||null,root:ROOT,files:clone(FILES)}};
 
+async function touchDocument(id){
+ if(!id)return;
+ try{
+  var d=await one('documents',id);if(!d)return;
+  d.updatedAt=now();await putAll('documents',[d]);
+ }catch(e){}
+}
+async function touchExplanationDocs(){
+ try{
+  var docs=await all('documents'),t=now(),changed=[];
+  docs.forEach(function(d){if(d&&(d.lenaExplanationManual||d.lenaExplanationImported)){d.updatedAt=t;changed.push(d)}});
+  if(changed.length)await putAll('documents',changed);
+ }catch(e){}
+}
 function scheduleLocalChange(reason){
  clearTimeout(deferredTimer);
  deferredTimer=setTimeout(function(){if(connected())sync(reason||'local-change',true).catch(function(){})},700);
 }
-function wrap(name,reason){
+function wrap(name,reason,after){
  var old=window[name];if(typeof old!=='function'||old.__hh304)return;
- var fn=async function(){var r=await old.apply(this,arguments);scheduleLocalChange(reason||name);return r};
+ var fn=async function(){var args=arguments,r=await old.apply(this,args);if(after)try{await after(args)}catch(e){}scheduleLocalChange(reason||name);return r};
  fn.__hh304=true;window[name]=fn;
 }
 function installWriters(){
- ['hhCommitDocumentUpload','hhSaveDocumentMeta','hhSaveLenaExplanation','hhResetLenaExplanation','hhImportExplanationPackage','hhImportPrivateReference'].forEach(function(n){wrap(n,n)});
+ wrap('hhCommitDocumentUpload','document-upload');
+ wrap('hhSaveDocumentMeta','document-meta',function(a){return touchDocument(a[0])});
+ wrap('hhSaveLenaExplanation','explanation-save',function(a){return touchDocument(a[0])});
+ wrap('hhResetLenaExplanation','explanation-reset',function(a){return touchDocument(a[0])});
+ wrap('hhImportExplanationPackage','explanation-import',function(){return touchExplanationDocs()});
+ wrap('hhImportPrivateReference','medication-reference');
 }
 installWriters();
 setTimeout(installWriters,500);
