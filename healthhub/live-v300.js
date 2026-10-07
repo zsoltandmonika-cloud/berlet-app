@@ -3,7 +3,7 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300.3', LIVE_BUILD='v300.3', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.4', LIVE_BUILD='v300.4', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
 var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
 var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0;
@@ -167,7 +167,7 @@ function executeWish(id){
    if(id==='WISH-006'){
     executionUpdate(id,'Done','Wishlist / User Story Repository aktív és írható.','Done');return;
    }
-   executionUpdate(id,'Approved','Jóváhagyva · AI implementation queue-ba helyezve.','Queued');
+   executionUpdate(id,'Approved','CODE IMPLEMENTATION jóváhagyva · AI implementation queue-ba helyezve.','Queued');
    try{window.toast&&window.toast(id+' jóváhagyva · implementation queue')}catch(e){}
   }catch(e){
    executionUpdate(id,'Approved','Végrehajtási hiba: '+(e&&e.message||e),'Blocked');
@@ -284,14 +284,21 @@ function ensureStyle(){
  document.head.appendChild(s);
 }
 
+function wishExecutionUi(x){
+ var validation=/^WISH-(001|002|005|006)$/.test(String(x.id||''));
+ if(x.executionStatus==='Running')return {label:validation?'RUNNING VALIDATION…':'CODE IMPLEMENTATION · RUNNING',disabled:true,mode:validation?'VALIDATION':'CODE'};
+ if(x.executionStatus==='Queued')return {label:'CODE IMPLEMENTATION · QUEUED',disabled:true,mode:'CODE'};
+ if(x.executionStatus==='Done')return {label:'RUN VALIDATION',disabled:false,mode:'VALIDATION'};
+ if(validation)return {label:'RUN VALIDATION',disabled:false,mode:'VALIDATION'};
+ return {label:'MEHET → CODE IMPLEMENTATION',disabled:false,mode:'CODE'};
+}
 function wishHtml(x){
  var ex=x.executionStatus?'<div class="hhExec300 '+esc(String(x.executionStatus).toLowerCase())+'">⚙ '+esc(x.executionStatus)+' · '+esc(x.executionMessage||'')+'</div>':'';
- var disabled=x.executionStatus==='Running'?' disabled':'';
- var goLabel=x.executionStatus==='Done'?'ÚJRAFUTTAT':'MEHET';
+ var ui=wishExecutionUi(x),disabled=ui.disabled?' disabled':'';
  return '<div class="hhWish300"><b>'+esc(x.id)+' · '+esc(x.title)+'</b>'+
- '<div class="hhMeta300">'+esc(x.type)+' · Impact '+esc(x.impact)+' · Complexity '+esc(x.complexity)+' · Feasibility '+esc(x.feasibility)+' · '+esc(x.requestedBy)+' · <strong>'+esc(x.status)+'</strong></div>'+
+ '<div class="hhMeta300">'+esc(x.type)+' · Impact '+esc(x.impact)+' · Complexity '+esc(x.complexity)+' · Feasibility '+esc(x.feasibility)+' · '+esc(x.requestedBy)+' · <strong>'+esc(x.status)+'</strong> · '+esc(ui.mode)+'</div>'+
  '<div class="hhMeta300">'+esc(x.description)+'</div>'+ex+
- '<div class="hhWishActions300"><button onclick="hhAiAskLena300(\''+esc(x.id)+'\')">🧠 AI elemzés</button><button class="go"'+disabled+' onclick="hhAiExecuteWish300(\''+esc(x.id)+'\')">'+goLabel+'</button><button onclick="hhAiWishStatus300(\''+esc(x.id)+'\',\'Later\',\'Későbbre téve\',\'Deferred\')">Később</button><button onclick="hhAiRemoveWish300(\''+esc(x.id)+'\')">Törlés</button></div></div>';
+ '<div class="hhWishActions300"><button onclick="hhAiAskLena300(\''+esc(x.id)+'\')">🧠 AI elemzés</button><button class="go"'+disabled+' onclick="hhAiExecuteWish300(\''+esc(x.id)+'\')">'+esc(ui.label)+'</button><button onclick="hhAiWishStatus300(\''+esc(x.id)+'\',\'Later\',\'Későbbre téve\',\'Deferred\')">Később</button><button onclick="hhAiRemoveWish300(\''+esc(x.id)+'\')">Törlés</button></div></div>';
 }
 function renderCenter(force){
  if(rendering)return;
@@ -385,5 +392,5 @@ window.addEventListener('online',function(){checkForLiveUpdate()},{passive:true}
 document.addEventListener('visibilitychange',function(){if(!document.hidden){resumePendingUpdate();checkForLiveUpdate()}},{passive:true});
 setTimeout(checkForLiveUpdate,2200);
 
-document.documentElement.dataset.healthhubAiImprovement='1.300.3';
+document.documentElement.dataset.healthhubAiImprovement='1.300.4';
 })();
