@@ -88,6 +88,18 @@ await page.goto(baseURL,{waitUntil:'domcontentloaded',timeout:45000});
 await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
 await settle(1800);
 
+if(mode==='livewarm'){
+  try{
+    await page.evaluate(async()=>{if(navigator.serviceWorker){try{await navigator.serviceWorker.ready}catch{}}});
+  }catch{}
+  await page.reload({waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
+  await settle(1400);
+  await page.reload({waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>document.body && document.body.innerText.includes('HealthHub'),null,{timeout:30000});
+  await settle(1400);
+}
+
 if(mode==='localstate'||mode==='idbstress'){
   await page.evaluate(()=>{
     const now=Date.now(), iso=new Date().toISOString();
@@ -221,6 +233,16 @@ const idbInventory=await page.evaluate(async()=>{
   }
   return result;
 });
+const runtimeEnv=await page.evaluate(async()=>{
+  const out={href:location.href,serviceWorkerController:navigator.serviceWorker?.controller?.scriptURL||null,caches:[]};
+  try{
+    for(const name of await caches.keys()){
+      const cache=await caches.open(name),keys=await cache.keys();
+      out.caches.push({name,entries:keys.length});
+    }
+  }catch{}
+  return out;
+});
 const localState=await page.evaluate(()=>{
   let bytes=0,keys={};
   for(let i=0;i<localStorage.length;i++){
@@ -288,7 +310,7 @@ const hotspots=[...sampleTime.entries()].map(([id,us])=>{
 }).filter(x=>x.ms>0).sort((a,b)=>b.ms-a.ms).slice(0,40);
 
 const report={
-  generatedAt:new Date().toISOString(),baseURL,mode,loadWallMs,start:startSnap,final:finalSnap,idbInventory,localState,
+  generatedAt:new Date().toISOString(),baseURL,mode,loadWallMs,start:startSnap,final:finalSnap,idbInventory,localState,runtimeEnv,
   actions,scroll:scrollBench,
   totals:{
     taskMs:+(delta(startMetrics,endMetrics,'TaskDuration')*1000).toFixed(1),
@@ -320,6 +342,8 @@ const md=[
   '- Build: '+(report.start.build||'unknown'),
   '- localStorage: **'+Math.round(localState.approxBytes/1024)+' KB / '+localState.entries+' keys**',
   '- IndexedDB: '+idbInventory.map(db=>db.name+' ['+(db.stores||[]).map(s=>s.name+':'+s.count).join(', ')+']').join(' · '),
+  '- Service worker: **'+(runtimeEnv.serviceWorkerController||'none')+'**',
+  '- Cache Storage: '+runtimeEnv.caches.map(x=>x.name+' ('+x.entries+')').join(', '),
   '- Load wall time: **'+report.loadWallMs+' ms**',
   '- Total main-thread task time: **'+report.totals.taskMs+' ms**',
   '- Total script time: **'+report.totals.scriptMs+' ms**',
