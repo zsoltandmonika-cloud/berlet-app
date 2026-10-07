@@ -185,7 +185,7 @@ function ensureStyle(){
  if(document.getElementById(STYLE))return;
  var s=document.createElement('style');s.id=STYLE;s.textContent=
  '#'+SECTION+'{margin-top:10px}.hhAI300{background:#fff;border:1px solid #dfe9ef;border-radius:18px;padding:12px;box-shadow:0 8px 22px rgba(31,65,91,.06)}'+
- '.hhAI300 h3,.hhAI300 h4{margin:0;color:#173f62}.hhAI300 small{color:#748a99}.hhAiHead300{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhStatus300{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:96px}.hhRag300{font-weight:950;border-radius:999px;padding:7px 10px;font-size:9px;white-space:nowrap;text-align:center}.hhRag300.green{background:#e7f7ef;color:#16724b}.hhRag300.amber{background:#fff4d8;color:#9a6911}.hhRag300.red{background:#ffe9ed;color:#ac304f}.hhFix300{border:0;border-radius:10px;padding:8px 10px;background:#16965c;color:#fff;font-size:8px;font-weight:950;box-shadow:0 4px 12px rgba(22,150,92,.18);cursor:pointer}.hhFix300:hover{filter:brightness(.96)}'+
+ '.hhAI300 h3,.hhAI300 h4{margin:0;color:#173f62}.hhAI300 small{color:#748a99}.hhAiHead300{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.hhStatus300{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:96px}.hhRag300{font-weight:950;border-radius:999px;padding:7px 10px;font-size:9px;white-space:nowrap;text-align:center}.hhRag300.green{background:#e7f7ef;color:#16724b}.hhRag300.amber{background:#fff4d8;color:#9a6911}.hhRag300.red{background:#ffe9ed;color:#ac304f}.hhFix300{border:0;border-radius:10px;padding:8px 10px;background:#16965c;color:#fff;font-size:8px;font-weight:950;box-shadow:0 4px 12px rgba(22,150,92,.18);cursor:pointer}.hhFix300:hover{filter:brightness(.96)}.hhFixProg300{display:none;margin-top:8px;padding:8px 9px;border-radius:11px;background:#f4faf7;border:1px solid #d7eee2}.hhFixProg300.on{display:block}.hhFixProg300 b{display:block;font-size:8px;color:#1d6e4d}.hhFixTrack300{height:6px;background:#dfece5;border-radius:999px;overflow:hidden;margin-top:5px}.hhFixTrack300 i{display:block;height:100%;width:0;background:#16965c;transition:width .22s ease}.hhFixStep300{font-size:7px;color:#6d8679;margin-top:4px}'+
  '.hhGrid300{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}.hhMetric300{border:1px solid #e5edf2;border-radius:12px;padding:9px;background:#fbfdfe}.hhMetric300 b{display:block;font-size:14px;color:#183f61}.hhMetric300 span{font-size:7px;color:#8295a4;font-weight:800}'+
  '.hhBtns300{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhBtns300 button,.hhWishActions300 button{border:1px solid #d9e5ec;background:#f7fafc;color:#31536f;border-radius:10px;padding:8px 10px;font-size:8px;font-weight:900}.hhBtns300 .go,.hhWishActions300 .go{background:#1b7f73;color:#fff;border-color:#1b7f73}'+
  '.hhRec300,.hhWish300{margin-top:8px;border:1px solid #e5edf2;border-radius:13px;padding:9px;background:#fbfdfe}.hhRec300 b,.hhWish300 b{font-size:9px;color:#244c69}.hhMeta300{font-size:7px;color:#78909f;margin-top:4px;line-height:1.5}.hhWishActions300{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}'+
@@ -214,7 +214,7 @@ function renderCenter(force){
   var wishes=readWishlist();
   var html='<section id="'+SECTION+'" class="hhAI300">'+
    '<div class="hhAiHead300"><div><h3>🧠 AI Improvement Center · v300</h3><small>Continuous Improvement Engine · System Health · Wishlist · Backlog Intelligence</small></div><div class="hhStatus300"><span class="hhRag300 '+rg.k+'">'+rg.icon+' '+rg.label+' '+h.score+'/100</span>'+(rg.k!=='green'?'<button class="hhFix300" onclick="hhAiFix300()">✓ FIX</button>':'')+'</div></div>'+
-   '<div class="hhMeta300">Trend: <span class="hhTrend300">'+trend+'</span> · Last check: '+esc(new Date(h.at).toLocaleString('hu-HU'))+' · Telemetry overhead: '+fmtMs(h.overheadMs)+'</div>'+
+   '<div class="hhMeta300">Trend: <span class="hhTrend300">'+trend+'</span> · Last check: '+esc(new Date(h.at).toLocaleString('hu-HU'))+' · Telemetry overhead: '+fmtMs(h.overheadMs)+'</div><div id="hhFixProg300" class="hhFixProg300"><b id="hhFixTitle300">Remediation folyamat</b><div class="hhFixTrack300"><i id="hhFixBar300"></i></div><div id="hhFixStep300" class="hhFixStep300">Várakozás…</div></div>'+
    '<div class="hhGrid300"><div class="hhMetric300"><b>'+h.errors.errors24+'</b><span>ERROR / 24H</span></div><div class="hhMetric300"><b>'+fmtMs(p.avgLoad||0)+'</b><span>AVG LOAD</span></div><div class="hhMetric300"><b>'+p.longTasks+'</b><span>LONG TASK / DAY</span></div><div class="hhMetric300"><b>'+storage+'%</b><span>STORAGE USE</span></div></div>'+
    '<div class="hhBtns300"><button class="go" onclick="hhAiRunHealth300()">↻ RUN HEALTH CHECK</button><button onclick="hhAiExport300()">⬇ EXPORT OPS DATA</button></div>'+
    '<div class="hhGuard300"><b>Guardrail:</b> a v300 telemetria local-first és non-blocking. Nem gyűjt vérnyomást, gyógyszert, leletet vagy más klinikai értéket. Ha a mérés maga érezhető terhelést okozna, a nem kritikus gyűjtés eldobható.</div>'+
@@ -230,13 +230,35 @@ function renderCenter(force){
 }
 
 window.hhAiRunHealth300=function(){runHealthCheck();renderCenter(true);try{window.toast&&window.toast('System Health Check kész')}catch(e){}};
+function fixProgress(step,pct){
+ var box=document.getElementById('hhFixProg300'),bar=document.getElementById('hhFixBar300'),tx=document.getElementById('hhFixStep300');
+ if(box)box.classList.add('on');if(bar)bar.style.width=Math.max(0,Math.min(100,pct||0))+'%';if(tx)tx.textContent=step||'';
+}
 window.hhAiFix300=function(){
  var ok=confirm('Biztonságos remediation futtatása?\n\n• a jelenlegi működési telemetria archiválása\n• új error baseline létrehozása\n• long-task / health history reset\n• friss System Health Check\n\nKlinikai adatot nem módosít.');
  if(!ok)return;
- resetOpsBaseline('manual-fix');
- try{sessionStorage.removeItem(SESSION)}catch(e){}
- telemetryInit();
- setTimeout(function(){runHealthCheck();renderCenter(true);try{window.toast&&window.toast('FIX kész · új baseline aktív')}catch(e){}},350);
+ fixProgress('1/5 · Backup / archive',12);
+ setTimeout(function(){
+  archiveState('manual-fix-pre');
+  fixProgress('2/5 · Új baseline létrehozása',32);
+  setTimeout(function(){
+   try{localStorage.setItem(EBASE,now())}catch(e){}
+   writeJson(TKEY,{schema:'healthhub.ops-telemetry/1',days:{},lastStorage:null});
+   writeJson(HKEY,[]);
+   fixProgress('3/5 · Telemetry restart',55);
+   try{sessionStorage.removeItem(SESSION)}catch(e){}
+   telemetryInit();
+   setTimeout(function(){
+    fixProgress('4/5 · System Health Check',78);
+    var result=runHealthCheck();
+    setTimeout(function(){
+     fixProgress('5/5 · Kész · '+result.rag.icon+' '+result.rag.label+' '+result.score+'/100',100);
+     try{window.toast&&window.toast('FIX kész · új baseline aktív')}catch(e){}
+     setTimeout(function(){renderCenter(true)},900);
+    },250);
+   },250);
+  },180);
+ },120);
 };
 window.hhAiAddWish300=addWish;
 window.hhAiWishStatus300=setWishStatus;
