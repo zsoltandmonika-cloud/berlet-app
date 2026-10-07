@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-07",
-  "liveBuild": "v300-ai-continuous-improvement",
-  "currentFocus": "v300 Continuous AI Improvement Engine foundation: Admin-only System Health, lightweight telemetry, RAG status, AI/rule-based improvement suggestions and Wishlist/User Story Repository with approval-gated remediation design.",
+  "liveBuild": "v300.1-ai-improvement-hotfix",
+  "currentFocus": "v300.1 stabilization: stop AI Improvement Center self-triggered render loop, reset invalid v300 telemetry baseline, add safe FIX remediation and event-driven remediation progress indicator.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1331,13 +1331,13 @@
       "sprint": "S4",
       "milestone": "M4 AI Continuous Improvement",
       "status": "Testing",
-      "progress": 0.95,
+      "progress": 0.98,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-DATA-001",
       "targetDate": "2026-10-07",
       "actualDone": null,
-      "notes": "v300 health score is local-first and measurable. Trend history stored locally."
+      "notes": "v300.1 hotfix stops the self-triggered Admin render loop, introduces baseline-aware error scoring and safe local remediation."
     },
     {
       "id": "HH-AI-003",
@@ -1767,6 +1767,14 @@
       "actionId": "HH-AI-001",
       "type": "Milestone",
       "summary": "Implemented the Continuous AI Improvement Engine foundation in the Admin Console: operational System Health + RAG, lightweight local-first telemetry, measurable improvement suggestions, Wishlist/User Story Repository and the Level 3 approval/backup/remediation/validation guardrail.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-07",
+      "release": "v300.1",
+      "actionId": "HH-AI-002",
+      "type": "Hotfix",
+      "summary": "Stopped the AI Improvement Center self-triggered DOM render loop that caused rapidly increasing long tasks and visible slowdown. Added baseline-aware error scoring, safe FIX remediation with telemetry archive/reset, and an event-driven remediation progress indicator.",
       "status": "Testing"
     }
   ]
