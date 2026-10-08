@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v304-central-structured-vault",
-  "currentFocus": "v304: centralize HealthHub structured JSON in Dropbox /HealthHub/master as the single source of truth; IndexedDB becomes local cache.",
+  "liveBuild": "v305-sync-orchestrator",
+  "currentFocus": "v305: central cross-device sync orchestration with Dropbox command/status plane and Android WorkManager command execution.",
   "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1905,6 +1905,14 @@
       "actionId": "HH-CENTRAL-STRUCTURED-VAULT",
       "type": "Architecture / Data Sync",
       "summary": "Added Dropbox /HealthHub/master single-source-of-truth JSON vault for document metadata, Léna explanations, medication/private reference data, profiles and appointments. Local IndexedDB is cache; bootstrap is non-destructive union/merge. Central Manual Sync now includes Structured Vault.",
+      "status": "Testing"
+    },
+    {
+      "date": "2026-10-08",
+      "release": "v305",
+      "actionId": "HH-SYNC-ORCH-001",
+      "type": "Architecture / Sync Orchestration",
+      "summary": "Added Central Sync Orchestrator. Admin can dispatch Full Sync or scoped sync commands to all registered devices, Zsolt devices, Mónika devices, or a single device. Web clients use lightweight startup/focus/visibility/online plus visible 60s command checks; Android HealthHub Connect v0.10.0 uses WorkManager background command checks and owner-profile Health Connect execution. Offline devices keep pending commands until next availability. Orchestrator status contains technical metadata only, not clinical values.",
       "status": "Testing"
     }
   ]
