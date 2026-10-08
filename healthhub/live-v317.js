@@ -43,7 +43,9 @@ function decode(){
 }
 function record(obj,key){if(!obj[key]||typeof obj[key]!=='object')obj[key]={items:{},custom:[],aiOptIn:false};return obj[key]}
 function persist(obj){
- try{localStorage.setItem(STORE,JSON.stringify(obj));return true}catch(e){return false}
+ try{localStorage.setItem(STORE,JSON.stringify(obj));
+  if(window.HH_DAILY_HEALTH_SYNC_V319)window.HH_DAILY_HEALTH_SYNC_V319.onLocalChange();
+  return true}catch(e){return false}
 }
 function legacy(){try{return JSON.parse(localStorage.getItem(OLD)||'{}')||{}}catch(e){return {}}}
 function saveLegacy(v){try{localStorage.setItem(OLD,JSON.stringify(v));return true}catch(e){return false}}
@@ -196,14 +198,15 @@ function draw(){
    '<label class="dh317Consent"><input data-legacy="headache" type="checkbox" '+(old.headache?'checked':'')+'> Légnyomásváltozásnál fejfájásnapló-emlékeztető</label>';
  p.innerHTML='<div class="dh317Hero"><button data-action="back" type="button" aria-label="Vissza">‹</button><h1>⚙️ Daily Health<br>Beállítások</h1></div>'+
   '<div class="dh317Body"><div class="dh317Card"><h2>💚 Személyes figyelési tényezők</h2><p>Az ellenőrzött diagnózisokat és a feltételezett érzékenységeket te jelölöd ki. A pipa figyelést jelent, nem új diagnózist.</p>'+
-  '<div class="dh317Switch"><button type="button" data-profile="m" aria-pressed="'+(owner==='m')+'" class="'+(owner==='m'?'on':'')+'">Mónika</button><button type="button" data-profile="z" aria-pressed="'+(owner==='z')+'" class="'+(owner==='z'?'on':'')+'">Zsolt</button></div></div>'+
+  '<div class="dh317Switch"><button type="button" data-profile="m" aria-pressed="'+(owner==='m')+'" class="'+(owner==='m'?'on':'')+'">Mónika</button><button type="button" data-profile="z" aria-pressed="'+(owner==='z')+'" class="'+(owner==='z'?'on':'')+'">Zsolt</button></div><div id="hh317PrivateSync"></div></div>'+
   '<div class="dh317Card"><h2>📋 '+name+' · bekapcsolható tényezők</h2><div class="dh317Cats">'+CATS.map(function(c){return '<button data-cat="'+esc(c)+'" class="'+(c===category?'on':'')+'">'+esc(c)+'</button>'}).join('')+'</div><div class="dh317Bulk"><button type="button" data-action="check-category">☑ Mind kijelölése</button><button type="button" data-action="uncheck-category">☐ Mind törlése</button></div><p class="dh317BulkHelp">Csak '+esc(name)+' · '+esc(category)+' kategóriája. A kijelölés figyelést jelent, nem diagnózist.</p>'+
   toggles+'</div>'+
   '<div class="dh317Card"><h2>➕ Egyéni tényező hozzáadása</h2><div class="dh317Row"><input type="text" id="dh317NewTitle" maxlength="90" placeholder="Pl. saját megfigyelési szempont"></div><div class="dh317Row"><select id="dh317NewTrigger">'+triggerOptions('pressure')+'</select></div><button class="dh317Add" type="button" data-action="add">+ Hozzáadás és bepipálás</button></div>'+
   '<div class="dh317Card"><h2>🔔 Korábbi emlékeztető</h2>'+legacyBlock+'</div>'+
   '<div class="dh317Card"><h2>🧠 Léna AI · külön hozzájárulás</h2><label class="dh317Consent"><input type="checkbox" data-action="consent" '+(rec.aiOptIn?'checked':'')+'> Külön indított Léna-elemzéskor a bekapcsolt tényezők megjelenhetnek a kitöltött kérdésben.</label>'+
   '<p class="dh317Foot">A bejelölés NEM indít automatikus adatküldést. A nyilvános, reggeli AI-jelentés személyes egészségügyi adatokat nem tartalmaz. A reggeli privát AI-elemzéshez külön biztonságos szerverintegráció szükséges.</p></div>'+
-  '<div class="dh317Card"><h2>🔒 Adatvédelem</h2><p class="dh317Foot">A kipipált elemek és a megjegyzések jelenleg csak ebben a böngészőben (localStorage), titkosítás és eszközök közötti szinkronizálás nélkül tárolódnak. Ne írj ide azonosítókat, leletszámokat vagy szükségtelenül részletes személyes adatokat. A nyilvános GitHub nem kapja meg őket.</p><p class="dh317Foot">A jelzések tájékoztató jellegűek, nem diagnózisok, és nem helyettesítik a kezelőorvosi tervet. Súlyos panasz esetén ne várj reggeli AI-jelentésre.</p></div></div>';
+  '<div class="dh317Card"><h2>🔒 Adatvédelem</h2><p class="dh317Foot">A helyi példány a böngészőben tárolódik, és nem titkosított. A központi feltöltés kizárólag belépés és külön, profilhoz kötött első jóváhagyás után indulhat. A nyilvános GitHub nem kap egészségügyi adatokat, és a nyilvános AI-jelentés nem tartalmaz személyes adatokat.</p><p class="dh317Foot">A jelzések tájékoztató jellegűek, nem diagnózisok, és nem helyettesítik a kezelőorvosi tervet. Súlyos panasz esetén ne várj reggeli AI-jelentésre.</p></div></div>';
+ if(window.HH_DAILY_HEALTH_SYNC_V319)window.HH_DAILY_HEALTH_SYNC_V319.mount(el('hh317PrivateSync'));
 }
 function open(){
  ensure();owner=localStorage.getItem('hh-profile')==='m'?'m':'z';category='Szív és keringés';draw();
@@ -219,6 +222,6 @@ function close(){
  else if(typeof window.show==='function')window.show('health');
 }
 window.hhOpenDailyHealthSettings317=open;
-window.HH_DAILY_HEALTH_SETTINGS_V317={open:open,getEnabled:getEnabled,renderPersonal:personal,promptContext:promptContext};
+window.HH_DAILY_HEALTH_SETTINGS_V317={open:open,refresh:draw,getEnabled:getEnabled,renderPersonal:personal,promptContext:promptContext};
 document.documentElement.dataset.healthhubDailyHealthSettings='v317';
 })();
