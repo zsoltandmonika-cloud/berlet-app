@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v307.7-symptom-journal",
-  "currentFocus": "v307.7: profile-aware Symptom Journal live with HealthRadar Léna hero, one-click profile switching, editable centrally synced categories, structured symptom/PRN medication capture, linked measurements and trend views.",
+  "liveBuild": "v307.9-symptom-edit-timeline",
+  "currentFocus": "v307.9: Symptom Journal live with centrally synced editable categories, safe edit/delete tombstones, and profile-scoped Today Timeline integration.",
   "nextDevelopment": "NEXT PRIORITY: integrate Symptom Journal events into the unified Health Analytics / Timeline / Léna Research context. Wishlist after that: Ask Léna voice-to-structured symptom entry and automatic weather/front context for temporal association analysis.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1247,7 +1247,7 @@
       "dependency": "HH-CORE-002;HH-CORE-003",
       "targetDate": null,
       "actualDone": "2026-10-08",
-      "notes": "v307 Symptom Journal live: profile-scoped timestamped symptom logging, body area/type, 0–10 severity, notes, HealthRadar hero/theme and one-click profile switching. v307.6 adds centrally synced editable category dictionaries."
+      "notes": "v307.9 Symptom Journal live: profile-scoped structured symptom logging, editable centrally synced categories, existing-entry edit/delete with tombstones, and tap-to-edit history."
     },
     {
       "id": "HH-SYM-002",
@@ -1292,16 +1292,16 @@
       "title": "Integrate symptom history into timeline and research",
       "acceptanceCriteria": "Logged symptoms and PRN medication use appear profile-scoped in the Health Context, unified timeline and Léna Research; answers distinguish documented facts, temporal associations and uncertain causality.",
       "priority": "Critical",
-      "sprint": "NEXT",
+      "sprint": "S4",
       "milestone": "M4 Symptom Journal",
-      "status": "Next",
-      "progress": 0.15,
+      "status": "In Progress",
+      "progress": 0.55,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SYM-001;HH-SYM-002;HH-AL-009",
       "targetDate": null,
       "actualDone": null,
-      "notes": "Next major step: feed structured symptom events into Health Analytics, unified Timeline and Léna Research. Correlations must be presented as temporal associations, not diagnosis or proof of causation."
+      "notes": "v307.9 adds profile-scoped same-day symptom events to the shared Timeline, in chronological order, with tap-through to edit. Remaining: historical Timeline ranges, unified Health Analytics and Léna Research context integration."
     },
     {
       "id": "HH-AI-001",
@@ -1955,6 +1955,11 @@
       "date": "2026-10-08",
       "version": "v307.7",
       "change": "Symptom Journal live; wishlist expanded with AI voice-to-structured entry and automatic weather/front context for analytics."
+    },
+    {
+      "date": "2026-10-08",
+      "version": "v307.9",
+      "change": "Added safe symptom entry edit/delete with synced tombstones and profile-aware Today Timeline integration with tap-through editing."
     }
   ]
 }
