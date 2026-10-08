@@ -95,6 +95,10 @@ function style(){
  '#'+PAGE+' .dh317Cats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%;max-width:100%;min-width:0;box-sizing:border-box;gap:7px;overflow:visible;padding:3px 0 9px}'+
  '#'+PAGE+' .dh317Cats button{width:100%;max-width:100%;min-width:0;box-sizing:border-box;white-space:normal!important;overflow-wrap:break-word;line-height:1.2;min-height:36px;padding:7px 5px;border:1px solid #d7e7ed;border-radius:12px;background:#eff7fa;color:#35617b;font-size:10px;font-weight:850}'+
  '#'+PAGE+' .dh317Cats button.on{background:var(--dh-accent)!important;border-color:var(--dh-accent)!important;color:#fff!important}'+
+ '#'+PAGE+' .dh317Bulk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 9px}'+
+ '#'+PAGE+' .dh317Bulk button{min-width:0;width:100%;box-sizing:border-box;padding:9px 5px;border-radius:10px;border:1px solid #d3e5e9;font-size:10px;font-weight:850;color:#16425d;background:#f1f7fa}'+
+ '#'+PAGE+' .dh317Bulk button:first-child{color:#fff;background:var(--dh-accent);border-color:var(--dh-accent)}'+
+ '#'+PAGE+' .dh317BulkHelp{color:#708a95;font-size:10px;line-height:1.45;margin:0 0 8px}'+
  '#'+PAGE+' .dh317Risk{padding:10px 3px;border-top:1px solid #eaf0f1}'+
  '#'+PAGE+' .dh317Risk:first-of-type{border-top:0}'+
  '#'+PAGE+' .dh317Pick{display:flex;gap:8px;align-items:flex-start;line-height:1.35;font-size:12px;font-weight:750}'+
@@ -122,6 +126,8 @@ function ensure(){
   if(a.dataset.action==='back'){close();return}
   if(a.dataset.action==='add'){addCustom();return}
   if(a.dataset.action==='remove'){removeCustom(a.dataset.id);return}
+  if(a.dataset.action==='check-category'){bulkCategory(true);return}
+  if(a.dataset.action==='uncheck-category'){bulkCategory(false);return}
  });
  p.addEventListener('change',function(e){
   var t=e.target,k=t.dataset;if(!k)return;
@@ -155,6 +161,17 @@ function addCustom(){
  p.custom.push({id:id,title:name,category:'Egyéni',triggers:[trigger]});
  p.items[id]={enabled:true,note:''};persist(d);category='Egyéni';draw();
 }
+function bulkCategory(enabled){
+ var d=decode(),r=record(d,owner);
+ BASE.concat(r.custom||[]).filter(function(a){return a.category===category}).forEach(function(a){
+  var v=r.items[a.id]||{};
+  v.enabled=enabled;
+  r.items[a.id]=v;
+ });
+ if(!persist(d)){window.alert('Nem sikerült elmenteni a beállításokat ezen az eszközön.');return}
+ draw();
+ if(window.HH_DAILY_HEALTH_V312&&window.HH_DAILY_HEALTH_V312.render)window.HH_DAILY_HEALTH_V312.render();
+}
 function removeCustom(id){
  var d=decode(),p=record(d,owner);
  p.custom=p.custom.filter(function(x){return x.id!==id});delete p.items[id];persist(d);draw();
@@ -180,7 +197,7 @@ function draw(){
  p.innerHTML='<div class="dh317Hero"><button data-action="back" type="button" aria-label="Vissza">‹</button><h1>⚙️ Daily Health<br>Beállítások</h1></div>'+
   '<div class="dh317Body"><div class="dh317Card"><h2>💚 Személyes figyelési tényezők</h2><p>Az ellenőrzött diagnózisokat és a feltételezett érzékenységeket te jelölöd ki. A pipa figyelést jelent, nem új diagnózist.</p>'+
   '<div class="dh317Switch"><button type="button" data-profile="m" aria-pressed="'+(owner==='m')+'" class="'+(owner==='m'?'on':'')+'">Mónika</button><button type="button" data-profile="z" aria-pressed="'+(owner==='z')+'" class="'+(owner==='z'?'on':'')+'">Zsolt</button></div></div>'+
-  '<div class="dh317Card"><h2>📋 '+name+' · bekapcsolható tényezők</h2><div class="dh317Cats">'+CATS.map(function(c){return '<button data-cat="'+esc(c)+'" class="'+(c===category?'on':'')+'">'+esc(c)+'</button>'}).join('')+'</div>'+
+  '<div class="dh317Card"><h2>📋 '+name+' · bekapcsolható tényezők</h2><div class="dh317Cats">'+CATS.map(function(c){return '<button data-cat="'+esc(c)+'" class="'+(c===category?'on':'')+'">'+esc(c)+'</button>'}).join('')+'</div><div class="dh317Bulk"><button type="button" data-action="check-category">☑ Mind kijelölése</button><button type="button" data-action="uncheck-category">☐ Mind törlése</button></div><p class="dh317BulkHelp">Csak '+esc(name)+' · '+esc(category)+' kategóriája. A kijelölés figyelést jelent, nem diagnózist.</p>'+
   toggles+'</div>'+
   '<div class="dh317Card"><h2>➕ Egyéni tényező hozzáadása</h2><div class="dh317Row"><input type="text" id="dh317NewTitle" maxlength="90" placeholder="Pl. saját megfigyelési szempont"></div><div class="dh317Row"><select id="dh317NewTrigger">'+triggerOptions('pressure')+'</select></div><button class="dh317Add" type="button" data-action="add">+ Hozzáadás és bepipálás</button></div>'+
   '<div class="dh317Card"><h2>🔔 Korábbi emlékeztető</h2>'+legacyBlock+'</div>'+
