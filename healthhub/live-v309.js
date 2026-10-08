@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.5';
+var BUILD='1.309.6';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -56,6 +56,7 @@ function ensureStyle(){
  '#'+PAGE+' .env309Glass h1{font-size:19px;line-height:1;margin:0 0 3px}#'+PAGE+' .env309Glass>small{font-size:8px;opacity:.82}'+
  '#'+PAGE+' .env309HeroGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:9px}'+
  '#'+PAGE+' .env309HeroMetric{min-width:0;border-radius:10px;padding:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17)}'+
+ '#'+PAGE+' .env309Reserved{min-height:45px;background:rgba(255,255,255,.035);border:1px dashed rgba(255,255,255,.11)}'+
  '#'+PAGE+' .env309HeroMetric small{display:block;font-size:6.5px;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '#'+PAGE+' .env309HeroMetric b{display:block;font-size:13px;margin-top:2px;white-space:nowrap}#'+PAGE+' .env309HeroMetric em{display:block;font-size:6.5px;font-style:normal;opacity:.78;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '#'+PAGE+' .env309Body{position:relative;z-index:8;margin-top:-15px;border-radius:22px 22px 0 0;background:linear-gradient(180deg,#f2fbff,#edf8f5);padding:12px 10px 76px}'+
@@ -68,7 +69,7 @@ function ensureStyle(){
  '#'+PAGE+' .env309Trend{margin-top:7px;padding-top:7px;border-top:1px solid #edf2f4;font-size:8px;color:#607a8d;line-height:1.55}'+
  '#'+PAGE+' .env309Future{background:linear-gradient(145deg,#f7fff9,#fff);border-color:#d9eee0}#'+PAGE+' .env309Future .env309Big{color:#4a9d57}'+
  '#'+PAGE+' .env309Wide{grid-column:1/-1}#'+PAGE+' .env309Source{margin-top:9px;text-align:center;color:#8295a2;font-size:7.5px}#'+PAGE+' .env309Source a{color:var(--a);font-weight:900;text-decoration:none}'+
- '@media(max-width:390px){#'+PAGE+' .env309Hero{height:255px;background-size:auto 100%!important;background-position:left center!important}#'+PAGE+' .env309Hero:before{width:64%;background:linear-gradient(90deg,rgba(18,117,184,.10),rgba(5,78,139,.52));backdrop-filter:blur(8px) saturate(1.05)}#'+PAGE+' .env309Glass{right:6px;top:45px;width:62%;padding:8px;min-height:185px;background:linear-gradient(145deg,rgba(7,94,158,.72),rgba(8,75,135,.64));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:16px}#'+PAGE+' .env309HeroMetric b{font-size:11px}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
+ '@media(max-width:390px){#'+PAGE+' .env309Hero{height:318px;background-size:auto 100%!important;background-position:left center!important}#'+PAGE+' .env309Hero:before{width:54%;background:linear-gradient(90deg,rgba(18,117,184,.06),rgba(5,78,139,.50));backdrop-filter:blur(7px) saturate(1.04)}#'+PAGE+' .env309Glass{right:6px;top:43px;width:52%;padding:8px;min-height:254px;background:linear-gradient(145deg,rgba(7,94,158,.70),rgba(8,75,135,.62));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:14.5px;line-height:1.05}#'+PAGE+' .env309Glass>small{font-size:6.8px;line-height:1.2;display:block}#'+PAGE+' .env309HeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:8px}#'+PAGE+' .env309HeroMetric{padding:5px;min-height:45px}#'+PAGE+' .env309HeroMetric small{font-size:6.1px}#'+PAGE+' .env309HeroMetric b{font-size:10.5px}#'+PAGE+' .env309HeroMetric em{font-size:6.1px}#'+PAGE+' .env309Reserved{min-height:42px}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
  document.head.appendChild(s);
 }
 
@@ -99,7 +100,9 @@ function heroMetrics(x){
  '<div class="env309HeroMetric"><small>Szél</small><b>'+val(c.windSpeed,0,' km/h')+'</b><em>Lökés '+val(c.windGust,0,' km/h')+'</em></div>'+
  '<div class="env309HeroMetric"><small>Légnyomás</small><b>'+val(c.pressureMsl,0,' hPa')+'</b><em>'+esc(pressureLabel(x))+'</em></div>'+
  '<div class="env309HeroMetric"><small>UV index</small><b>'+val(c.uvIndex,1,'')+'</b><em>'+esc(uvLabel(c.uvIndex))+'</em></div>'+
- '<div class="env309HeroMetric"><small>Pollen</small><b>V1.1</b><em>következő szelet</em></div>';
+ '<div class="env309HeroMetric"><small>Pollen</small><b>V1.1</b><em>következő szelet</em></div>'+
+ '<div class="env309HeroMetric env309Reserved" aria-hidden="true"></div>'+
+ '<div class="env309HeroMetric env309Reserved" aria-hidden="true"></div>';
 }
 
 function pageHtml(x){
@@ -227,7 +230,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.5';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.6';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
