@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.16';
+var BUILD='1.309.17';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -154,7 +154,7 @@ function pageHtml(x){
    '<div class="env309Card"><h3>🌿 Pollen</h3><div class="env309Big">'+esc(pollenSummary(x&&x.pollen).name)+'</div><div class="env309Sub">'+esc(pollenSummary(x&&x.pollen).label)+' · domináns pollen</div><div class="env309Trend">'+esc(pollenDetails(x&&x.pollen))+'</div></div>'+
    '<div class="env309Card"><h3>🌫️ Levegőminőség</h3><div class="env309Big">'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</div><div class="env309Sub">'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+' · European AQI</div><div class="env309Trend">PM2.5 <b>'+val(x&&x.airQuality&&x.airQuality.pm25,1,' µg/m³')+'</b> · PM10 <b>'+val(x&&x.airQuality&&x.airQuality.pm10,1,' µg/m³')+'</b></div></div>'+
   '</div>'+
-  '<div class="env309Source">Frissítve: '+esc(ft)+' · Open-Meteo + CAMS Europe · <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noopener">forrás ↗</a></div>'+
+  '<div class="env309Source">Frissítve: '+esc(ft)+' · Open-Meteo + CAMS ENSEMBLE · <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noopener">forrás ↗</a></div>'+
  '</div>';
 }
 
@@ -254,7 +254,7 @@ function hookShow(){
  }
 }
 function syncSystemInfoBuild(){
- var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.16';
+ var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.17';
  window.HH_LIVE_BUILD=live;
  var all=Array.from(document.querySelectorAll('body *'));
  all.forEach(function(el){
@@ -270,7 +270,7 @@ function syncSystemInfoBuild(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();syncSystemInfoBuild();
- document.documentElement.dataset.healthhubEnvironmental='1.309.16';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.17';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
