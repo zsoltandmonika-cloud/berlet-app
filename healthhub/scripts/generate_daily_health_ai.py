@@ -100,11 +100,21 @@ def main():
         "max_output_tokens": 1200,
         "text": {"format": {"type": "json_schema", "name": "healthhub_daily_health", "strict": True, "schema": SCHEMA}}
     }
+    headers = {"Authorization": "Bearer " + key, "Content-Type": "application/json"}
+    org = os.environ.get("OPENAI_ORG_ID", "").strip()
+    project = os.environ.get("OPENAI_PROJECT_ID", "").strip()
+    if org:
+        if not org.startswith(("org-", "org_")):
+            raise ValueError("Invalid OPENAI_ORG_ID")
+        headers["OpenAI-Organization"] = org
+    if project:
+        if not project.startswith("proj_"):
+            raise ValueError("Invalid OPENAI_PROJECT_ID")
+        headers["OpenAI-Project"] = project
     request = urllib.request.Request(
         "https://api.openai.com/v1/responses",
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        method="POST",
-        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"}
+        method="POST", headers=headers
     )
     try:
         with urllib.request.urlopen(request, timeout=65) as response:
