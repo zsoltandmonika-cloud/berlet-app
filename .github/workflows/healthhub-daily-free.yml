@@ -54,8 +54,6 @@ jobs:
         shell: bash
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_ORG_ID: ${{ vars.OPENAI_ORG_ID }}
-          OPENAI_PROJECT_ID: ${{ vars.OPENAI_PROJECT_ID }}
           HEALTHHUB_AI_MODEL: gpt-4.1-mini
         run: |
           python3 healthhub/scripts/generate_daily_ai.py auto
