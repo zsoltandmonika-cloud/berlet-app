@@ -62,9 +62,13 @@ def llm(instruction,input_data,schema,label):
  except urllib.error.HTTPError as e:
   try:
    err=json.loads(e.read(8192)).get("error",{})
-   code=str(err.get("code") or err.get("type") or "")
-  except Exception:code=""
-  safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute","credit_balance_exhausted","organization_usage_limit_exceeded","organization_spend_limit_exceeded","project_spend_limit_exceeded","slow_down") else "unspecified"
+   code=str(err.get("code") or "")
+   etype=str(err.get("type") or "")
+  except Exception:
+   code=etype=""
+  safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute","credit_balance_exhausted","organization_usage_limit_exceeded","organization_spend_limit_exceeded","project_spend_limit_exceeded","slow_down","invalid_api_key","invalid_organization","invalid_project","invalid_authentication","organization_not_found","project_not_found","permission_denied","invalid_org","invalid_request_error") else "unspecified"
+  safe_type=etype if etype in ("authentication_error","invalid_request_error","permission_error","insufficient_quota","rate_limit_error","invalid_api_key") else "unspecified"
+  print("AI provider_error_type",safe_type,file=sys.stderr)
   print("AI request HTTP",e.code,"provider_error_code",safe,"request_id",str(e.headers.get("x-request-id") or "unavailable")[:130],file=sys.stderr)
   org=str(e.headers.get("openai-organization") or "") if e.headers else ""
   org=org if org.startswith(("org_","org-")) and 7<=len(org)<=110 and all(ch.isalnum() or ch in "_-" for ch in org) else "not-in-response"
