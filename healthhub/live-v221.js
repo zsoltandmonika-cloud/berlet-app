@@ -181,10 +181,10 @@ async function mergeSnapshots(p,remote){
   return {devices:out,deleted:deleted};
 }
 
-async function sync(silent){
+async function sync(silent,profileOverride){
   if(syncing||!connected())return false;
   syncing=true;
-  var p=pkey();
+  var p=profileOverride==='monika'?'monika':profileOverride==='zsolt'?'zsolt':pkey();
   try{
     var remote=await downloadRemote(p);
     var merged=await mergeSnapshots(p,remote);
@@ -202,7 +202,7 @@ async function sync(silent){
     localStorage.setItem(lastKey(p),now);
     localStorage.setItem('hh-device-cloud-path-'+p,pathFor(p));
     decorate();
-    if(window.healthSectionKind==='devices'&&typeof window.renderHealthSection==='function')await window.renderHealthSection();
+    if(p===pkey()&&window.healthSectionKind==='devices'&&typeof window.renderHealthSection==='function')await window.renderHealthSection();
     if(!silent)toast(pname(p)+' eszközei szinkronizálva');
     return true;
   }catch(e){
@@ -212,6 +212,7 @@ async function sync(silent){
   }finally{syncing=false}
 }
 window.hhDeviceCloudSync=function(silent){return sync(!!silent)};
+window.hhDeviceCloudSyncProfile=function(profile,silent){return sync(!!silent,profile)};
 
 function fmtLast(p){
   var s=localStorage.getItem(lastKey(p));if(!s)return 'még nem';
