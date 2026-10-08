@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.3';
+var BUILD='1.309.4';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -38,11 +38,11 @@ function statusText(x){return x&&x.assessment&&x.assessment.summary||'Az aktuál
 function ensureStyle(){
  if(document.getElementById(STYLE))return;
  var s=document.createElement('style');s.id=STYLE;s.textContent=
- '.homeModules{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}.homeModule{min-height:98px!important;padding:10px 6px!important;gap:5px!important}.homeModules .homeModule .mi{font-size:31px!important}.homeModules .homeModule img{width:72px!important;height:72px!important;object-fit:contain!important}.homeModules .homeModule b{font-size:11.2px!important;line-height:1.15!important}.homeModules .homeModule small{font-size:8.4px!important;line-height:1.2!important}'+
+ '.homeModules{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}.homeModule{min-height:98px!important;padding:10px 6px!important;gap:5px!important}.homeModules .homeModule .mi{font-size:34px!important}.homeModules .homeModule img{width:84px!important;height:84px!important;object-fit:contain!important}.homeModules .homeModule b{font-size:11.2px!important;line-height:1.15!important}.homeModules .homeModule small{font-size:8.4px!important;line-height:1.2!important}'+
  '@media(min-width:760px){.homeModules{grid-template-columns:repeat(5,minmax(0,1fr))!important}.homeModule{min-height:112px!important}.homeModules .homeModule img{width:78px!important;height:78px!important}.homeModules .homeModule b{font-size:11.8px!important}}'+
  '#'+TILE+'{position:relative;overflow:hidden;background:rgba(255,255,255,.96)!important;color:#183c5d!important;border:0!important;box-shadow:0 6px 17px rgba(38,74,101,.055)!important}'+
  '#'+TILE+':before{content:none!important}'+
- '#'+TILE+' .env309Icon{position:relative;width:62px;height:62px;border-radius:20px;display:grid;place-items:center;font-size:37px;background:linear-gradient(145deg,#dff5ff,#8fc9ec);border:1px solid rgba(255,255,255,.92);box-shadow:inset 0 2px 5px rgba(255,255,255,.78),0 7px 16px rgba(52,104,138,.16);text-shadow:0 3px 8px rgba(0,77,119,.16)}'+
+ '#'+TILE+' .env309Icon{position:relative;width:78px;height:78px;display:grid;place-items:center;font-size:46px;background:transparent!important;border:0!important;box-shadow:none!important;text-shadow:0 4px 10px rgba(0,77,119,.14)}'+
  '#'+TILE+' b{position:relative;color:#183c5d!important;text-shadow:none!important}'+
  '#'+TILE+' small{position:relative;color:#72879a!important;text-shadow:none!important;opacity:1}'+
  '#'+PAGE+'{background:linear-gradient(180deg,#dff4ff,#edf9f6);min-height:100vh;padding-bottom:68px}'+
@@ -226,7 +226,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.3';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.4';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
