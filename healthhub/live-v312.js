@@ -21,12 +21,16 @@ function safePollen(p){
  if('dominant' in p)return {available:!!p.available,name:p.dominant,level:num(p.level),value:num(p.countGrainsM3)};
  if('name' in p)return {available:!!p.available,name:p.name,level:num(p.level),value:num(p.value)};
  var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'};
- var all=Object.keys(names).map(function(k){return {key:k,name:names[k],value:num(p[k])}}).filter(function(o){return o.value!==null});
+ var all=Object.keys(names).map(function(k){
+  var value=num(p[k]),tree=['alder','birch','olive'].indexOf(k)!==-1;
+  var risk=value==null?null:value<=10?0:value<=(tree?100:30)?1:value<=(tree?500:100)?2:3;
+  return {key:k,name:names[k],value:value,level:risk};
+ }).filter(function(o){return o.value!==null});
  if(!all.length)return {available:false};
- all.sort(function(a,b){return b.value-a.value});
- var best=all[0],tree=['alder','birch','olive'].indexOf(best.key)!==-1,v=best.value;
- var level=v<=10?0:v<=(tree?100:30)?1:v<=(tree?500:100)?2:3;
- return {available:true,name:best.name,value:v,level:level};
+ // Pick the highest *risk* first, not the largest raw grain count.
+ all.sort(function(a,b){return b.level-a.level||b.value-a.value});
+ var best=all[0];
+ return {available:true,name:best.name,value:best.value,level:best.level};
 }
 function publicSnap(x){
  return x&&x.schema==='healthhub.daily-health-public/1'&&x.date===day()&&x.weather&&x.air?x:null;
@@ -63,7 +67,17 @@ function context(){
    infection:pub&&pub.infection||{available:false,stale:true},
    generatedAt:pub&&pub.generatedAt||null,source:pub?'Reggeli nyilvános pillanatkép':'Helyi adatok'};
  // Use more recent environmental reading, but never silently use an outdated cache.
- if(live.weather.available){result.weather=live.weather;result.source='Friss környezeti mérés + NNGYK';}
+ if(live.weather.available){
+  result.weather=Object.assign({},result.weather,live.weather);
+  // A mostani hőérzet/UV nem helyettesítheti a reggeli teljes napi MAXIMUM-előrejelzést.
+  if(pub&&pub.weather&&pub.weather.available){
+   var forecastFeel=num(pub.weather.daytimeMaxFeelsLike),observedFeel=num(live.weather.apparentTemperature);
+   if(forecastFeel!=null)result.weather.daytimeMaxFeelsLike=observedFeel!=null?Math.max(forecastFeel,observedFeel):forecastFeel;
+   var forecastUv=num(pub.weather.uvMax),observedUv=num(live.weather.uvMax);
+   if(forecastUv!=null)result.weather.uvMax=observedUv!=null?Math.max(forecastUv,observedUv):forecastUv;
+  }
+  result.source='Reggeli előrejelzés + friss környezeti mérés + NNGYK';
+ }
  if(live.air.available)result.air=live.air;
  if(live.infection.available)result.infection=live.infection;
  return result;
