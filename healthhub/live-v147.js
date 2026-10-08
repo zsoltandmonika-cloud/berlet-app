@@ -40,6 +40,7 @@ function normalize(raw){
  arr(r,'bloodGlucose').forEach(function(x){var at=validIso(x.time),v=clamp(x.mmolL,0.1,60);if(at&&v!=null)ms.push({id:recordId('glucose',x,at),profile:profile,measuredAt:at,systolic:null,diastolic:null,pulse:null,weightKg:null,bloodGlucose:Math.round(v*10)/10,oxygenSaturation:null,source:'health_connect',sourceRecordId:x.id||null,notes:sourceNote(x.sourcePackage),createdAt:raw.exportedAt||new Date().toISOString()})});
  arr(r,'oxygenSaturation').forEach(function(x){var at=validIso(x.time),v=clamp(x.percent,50,100);if(at&&v!=null)ms.push({id:recordId('spo2',x,at),profile:profile,measuredAt:at,systolic:null,diastolic:null,pulse:null,weightKg:null,bloodGlucose:null,oxygenSaturation:Math.round(v*10)/10,source:'health_connect',sourceRecordId:x.id||null,notes:sourceNote(x.sourcePackage),createdAt:raw.exportedAt||new Date().toISOString()})});
  if(window.hhShouldIgnoreHealthConnect)ms=ms.filter(function(x){return !window.hhShouldIgnoreHealthConnect(profile,x)});
+ ms.forEach(function(x){x.id='hc-'+profile+'-'+x.id.replace(/^hc-/,'')});
  var steps=arr(r,'dailySteps').map(function(x){var d=/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||''))?String(x.date):null,c=clamp(x.count,0,200000);return d&&c!=null?{id:'hc-steps-'+profile+'-'+d,profile:profile,date:d,steps:Math.round(c),source:'health_connect',updatedAt:raw.exportedAt||new Date().toISOString()}:null}).filter(Boolean);
  return {raw:raw,profile:profile,measurements:ms,steps:steps,heart:heart};
 }
@@ -48,13 +49,14 @@ async function existingIds(ids){
 }
 async function importRawDirect(raw,fileName){
  var n=normalize(raw);
- if(n.profile!==pkey())throw new Error('A Dropboxból érkező Health Connect adat '+pname(n.profile)+' profiljához tartozik.');
+ // Explicit profile in the validated payload supports background refresh of either profile.
  var old=await existingIds(n.measurements.map(function(x){return x.id}));
  n.newMeasurements=n.measurements.filter(function(x){return !old.has(x.id)});
  n.duplicates=n.measurements.length-n.newMeasurements.length;
  n.fileName=fileName||('dropbox-'+n.profile+'.json');
- pending=n;
- await commit();
+ n.canonical=raw.canonicalSnapshot===true;
+ if(n.canonical)await backupBeforeCanonical(n.profile);
+ await commit(n);
  return {profile:n.profile,newMeasurements:n.newMeasurements.length,duplicates:n.duplicates};
 }
 async function prepare(file){
@@ -65,20 +67,33 @@ async function prepare(file){
  n.duplicates=n.measurements.length-n.newMeasurements.length;
  n.fileName=file.name;pending=n;showPreview();
 }
-async function commit(){
- if(!pending)return;var p=pending,now=new Date().toISOString(),db=await openDb();
- try{var tx=db.transaction('measurements','readwrite'),st=tx.objectStore('measurements');p.measurements.forEach(function(x){x.updatedAt=now;st.put(x)});await txDone(tx)}finally{db.close()}
+async function backupBeforeCanonical(profile){
+ if(localStorage.getItem('hh-hc-canonical-'+profile)==='1')return;
+ var db=await openDb(),measurements;
+ try{measurements=(await reqP(db.transaction('measurements').objectStore('measurements').getAll())).filter(function(x){return x.profile===profile&&x.source==='health_connect'})}finally{db.close()}
+ var b=await openBridgeDb(),imports,activity;
+ try{var tx=b.transaction(['imports','activity']);var ir=tx.objectStore('imports').getAll(),ar=tx.objectStore('activity').getAll();imports=(await reqP(ir)).filter(function(x){return x.profile===profile});activity=(await reqP(ar)).filter(function(x){return x.profile===profile&&x.source==='health_connect'})}finally{b.close()}
+ if(!measurements.length&&!imports.length&&!activity.length)return;
+ if(!window.HH_DROPBOX_VAULT?.uploadJson)throw new Error('Az áttérés előtt a régi HC előzményeket a privát felhőbe kell archiválni.');
+ await window.HH_DROPBOX_VAULT.uploadJson('/HealthHub/profiles/'+profile+'-hc-migration-'+crypto.randomUUID()+'.json',{schema:'healthhub.hc.migration-backup/1',profile:profile,createdAt:new Date().toISOString(),measurements:measurements,imports:imports,activity:activity});
+}
+async function commit(input){
+ if(!input&&!pending)return;var p=input||pending,now=new Date().toISOString(),db=await openDb();
+ try{var tx=db.transaction('measurements','readwrite'),st=tx.objectStore('measurements');function writeMeasurements(){p.measurements.forEach(function(x){x.updatedAt=now;st.put(x)})}
+ if(p.canonical){var cur=st.openCursor();cur.onsuccess=function(){var c=cur.result;if(!c){writeMeasurements();return}var x=c.value;if(x.profile===p.profile&&x.source==='health_connect')c.delete();c.continue()};}else writeMeasurements();await txDone(tx)}finally{db.close()}
  var b=await openBridgeDb();
  try{
   var t=b.transaction(['imports','activity'],'readwrite'),im=t.objectStore('imports'),ac=t.objectStore('activity');
-  p.steps.forEach(function(x){ac.put(x)});
-  im.put({id:'imp-'+Date.now()+'-'+hash(p.fileName),profile:p.profile,importedAt:now,fileName:p.fileName,schemaVersion:p.raw.schemaVersion||SCHEMA,measurementCount:p.measurements.length,stepDays:p.steps.length,heartSamples:p.heart.length,exerciseSessions:arr(p.raw.records,'exerciseSessions').length,sleepSessions:arr(p.raw.records,'sleepSessions').length,nutritionDays:arr(p.raw.records,'dailyNutrition').length,bundle:p.raw});
+  function writeActivity(){p.steps.forEach(function(x){ac.put(x)})}
+  function writeImport(){im.put({id:p.canonical?'hc-canonical-'+p.profile:'imp-'+Date.now()+'-'+hash(p.fileName),profile:p.profile,importedAt:now,fileName:p.fileName,schemaVersion:p.raw.schemaVersion||SCHEMA,measurementCount:p.measurements.length,stepDays:p.steps.length,heartSamples:p.heart.length,exerciseSessions:arr(p.raw.records,'exerciseSessions').length,sleepSessions:arr(p.raw.records,'sleepSessions').length,nutritionDays:arr(p.raw.records,'dailyNutrition').length,bundle:p.raw})}
+  if(p.canonical){[im,ac].forEach(function(store){var cursor=store.openCursor();cursor.onsuccess=function(){var c=cursor.result;if(!c){if(store===im)writeImport();else writeActivity();return}if(c.value.profile===p.profile&&(store===im||c.value.source==='health_connect'))c.delete();c.continue()}})}else{writeActivity();writeImport()}
   await txDone(t);
  }finally{b.close()}
  var dropboxOk=false;
- if(window.hhDropboxPushCurrentProfile){try{dropboxOk=!!(await window.hhDropboxPushCurrentProfile())}catch(e){console.error(e);toast('Health Connect import kész · Dropbox sync sikertelen')}}
+ if(p.canonical)localStorage.setItem('hh-hc-canonical-'+p.profile,'1');
+ if(!p.canonical&&window.hhDropboxPushCurrentProfile){try{dropboxOk=!!(await window.hhDropboxPushCurrentProfile())}catch(e){console.error(e);toast('Health Connect import kész · Dropbox sync sikertelen')}}
  toast(p.newMeasurements.length+' új Health Connect mérés · '+p.steps.length+' lépésnap frissítve'+(dropboxOk?' · Dropbox Vault frissítve':''));
- pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
+ if(!input)pending=null;closePreview();if(window.renderHealthSection)await window.renderHealthSection();window.hhSyncFullMigrationDashboard&&window.hhSyncFullMigrationDashboard();
  try{window.dispatchEvent(new CustomEvent('healthhub:healthconnect-imported',{detail:{profile:p.profile,importedAt:now,fileName:p.fileName}}))}catch(e){}
 }
 function ensure(){

@@ -66,7 +66,7 @@ function categoryCounts(){
  return counts;
 }
 function fixTypes(){
- var host=document.querySelector('#hhActivityPage .hhActTypes');if(!host)return,c=categoryCounts(),defs=[['walk','Gyaloglás'],['run','Futás'],['bike','Kerékpár'],['workout','Edzés'],['yoga','Jóga'],['pilates','Pilates'],['hike','Túrázás'],['other','Egyéb']];
+ var host=document.querySelector('#hhActivityPage .hhActTypes');if(!host)return;var c=categoryCounts(),defs=[['walk','Gyaloglás'],['run','Futás'],['bike','Kerékpár'],['workout','Edzés'],['yoga','Jóga'],['pilates','Pilates'],['hike','Túrázás'],['other','Egyéb']];
  host.innerHTML=defs.map(function(d,i){return '<button class="hhActType '+d[0]+(i===0?' on':'')+'" onclick="hhActivityManualOpen(\''+d[0]+'\')"><span class="vicon">'+icon(d[0])+'</span><b>'+d[1]+'</b><small>'+(c[d[0]]||0)+' alkalom</small></button>'}).join('');
 }
 function fixManual(){
