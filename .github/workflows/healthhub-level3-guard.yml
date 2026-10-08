@@ -5,11 +5,15 @@ on:
     paths:
       - "healthhub/**"
       - ".github/workflows/healthhub-level3-guard.yml"
+      - ".github/workflows/healthhub-daily-free.yml"
+      - ".github/workflows/healthhub-daily-health.yml"
   push:
     branches: [main]
     paths:
       - "healthhub/**"
       - ".github/workflows/healthhub-level3-guard.yml"
+      - ".github/workflows/healthhub-daily-free.yml"
+      - ".github/workflows/healthhub-daily-health.yml"
 
 permissions:
   contents: write

@@ -29,6 +29,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Always load the newest data branch, including manual re-runs of old run IDs.
+          ref: main
       - name: Generate public-only daily health context
         shell: bash
         run: |
