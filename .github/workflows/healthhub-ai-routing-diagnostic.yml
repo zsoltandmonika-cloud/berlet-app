@@ -1,0 +1,30 @@
+name: HealthHub AI Routing Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/healthhub-ai-routing-diagnostic.yml"
+      - "healthhub/scripts/diagnose_openai_routing.py"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Compile diagnostic
+        run: python3 -m py_compile healthhub/scripts/diagnose_openai_routing.py
+      - name: Verify HealthHub OpenAI key and billing route
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_ORG_ID: ${{ vars.OPENAI_ORG_ID }}
+          OPENAI_PROJECT_ID: ${{ vars.OPENAI_PROJECT_ID }}
+          HEALTHHUB_AI_MODEL: gpt-4.1-mini
+        run: python3 healthhub/scripts/diagnose_openai_routing.py
