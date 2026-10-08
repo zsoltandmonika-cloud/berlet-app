@@ -123,7 +123,7 @@ def main():
             code=str(err.get("code") or err.get("type") or "")
         except Exception:
             code=""
-        safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute") else "unspecified"
+        safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute","credit_balance_exhausted","organization_usage_limit_exceeded","organization_spend_limit_exceeded","project_spend_limit_exceeded","slow_down") else "unspecified"
         print("AI Daily Health HTTP",e.code,"provider_error_code",safe,file=sys.stderr)
         return
     except Exception as e:
