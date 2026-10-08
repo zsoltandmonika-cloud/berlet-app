@@ -36,7 +36,7 @@ function saveLocal(x){
   localStorage.setItem(HISTORY,JSON.stringify(h));
  }catch(e){}
 }
-function cachedFresh(x){return !!(x&&Date.now()-Date.parse(x.fetchedAt||0)<CACHE_MS)}
+function cachedFresh(x){return !!(x&&x.airQuality&&x.pollen&&Date.now()-Date.parse(x.fetchedAt||0)<CACHE_MS)}
 
 function ensureStyle(){
  if(document.getElementById(STYLE))return;
@@ -141,7 +141,7 @@ function normalize(j,loc){
  var uv=Array.isArray(h.uv_index)&&idx>=0?n(h.uv_index[idx],1):null;
  var x={
   schema:'healthhub.environment/1',
-  version:'1.0',
+  version:'1.1',
   source:{provider:'Open-Meteo',dataset:'Forecast API · best_match',url:'https://open-meteo.com/',retrievedAt:now()},
   location:{label:loc.label||'Helyzeted',lat:n(loc.lat,2),lon:n(loc.lon,2),timezone:j.timezone||null},
   fetchedAt:now(),
