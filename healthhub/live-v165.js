@@ -67,7 +67,7 @@ function decorate(){
  var host=card.querySelector('.hhImportTools')||card.querySelector('.hhMeasCrudBar');if(!host)return;
  var b=host.querySelector('.hhSyncNowBtn');
  if(!b){
-  b=document.createElement('button');b.type='button';b.className='hhSyncNowBtn';b.textContent='🔄 HEALTH + ACTIVITY SYNC';b.onclick=function(){window.hhSyncNow()};
+  b=document.createElement('button');b.type='button';b.className='hhSyncNowBtn';b.textContent='🔄 HEALTH + ACTIVITY SYNC';b.onclick=window.hhSyncNow;
   Object.assign(b.style,{border:'0',borderRadius:'12px',background:'#173f62',color:'#fff',padding:'8px 11px',fontSize:'8px',fontWeight:'900',cursor:'pointer'});
   host.insertBefore(b,host.firstChild);
  }else b.textContent='🔄 HEALTH + ACTIVITY SYNC';

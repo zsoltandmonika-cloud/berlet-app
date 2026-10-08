@@ -249,12 +249,6 @@ async function dispatch(profileScope,deviceFilter){
  if(!selected.length)throw new Error('Nincs megfelelő regisztrált eszköz.');
  var scope=scopeFromUi(),id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
-  if(d.deviceType==='android'){
-   if(d.protocolVersion!==2)throw new Error('Android bridge frissítés szükséges: '+d.name);
-   if(scope!=='full'&&scope!=='health')return;
-   await window.HHBridgeControl.createClient(vault()).send(d,d.activeProfile,1,'sync');
-   return;
-  }
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
