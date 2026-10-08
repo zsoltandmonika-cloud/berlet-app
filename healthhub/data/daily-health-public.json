@@ -1,7 +1,7 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-10-08",
-  "generatedAt": "2026-10-08T22:19:07+02:00",
+  "generatedAt": "2026-10-08T22:21:01+02:00",
   "location": "Budapest",
   "weather": {
     "available": true,
