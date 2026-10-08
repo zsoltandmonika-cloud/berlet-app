@@ -54,11 +54,11 @@ def air():
         "current":",".join(["european_aqi","pm2_5","pm10"]+list(POLLEN))})
     c=j.get("current") or {}
     found=[(k,n(c.get(k))) for k in POLLEN if n(c.get(k)) is not None]
-    top=max(found,key=lambda x:x[1]) if found else None
-    level=None
-    if top:
-        v=top[1];tree=top[0] in ("alder_pollen","birch_pollen","olive_pollen")
-        level=0 if v<=10 else 1 if v<=(100 if tree else 30) else 2 if v<=(500 if tree else 100) else 3
+    def risk(x):
+        key,v=x;tree=key in ("alder_pollen","birch_pollen","olive_pollen")
+        return 0 if v<=10 else 1 if v<=(100 if tree else 30) else 2 if v<=(500 if tree else 100) else 3
+    top=max(found,key=lambda x:(risk(x),x[1])) if found else None
+    level=risk(top) if top else None
     return {"available":True,"observedAt":c.get("time"),"aqi":n(c.get("european_aqi")),
         "pm25":n(c.get("pm2_5")),"pollen":{"available":bool(top),"name":POLLEN[top[0]] if top else None,
         "value":top[1] if top else None,"level":level}}
