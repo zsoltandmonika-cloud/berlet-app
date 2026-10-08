@@ -5,11 +5,11 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.1';
+var BUILD='1.309.2';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
-var HERO_CHUNKS=[0,1,2,3,4,5].map(function(i){return './assets/environmental-hero-v309-650-0'+i+'.b64?v=3091'});
+var HERO_CHUNKS=['00','01','02','03a','03b','04','05'].map(function(i){return './assets/environmental-hero-v309-650-'+i+'.b64?v=3092'});
 var heroDataUrl='';
 var heroPromise=null;
 var baseShow=null;
@@ -203,7 +203,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.1';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.2';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
