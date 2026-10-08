@@ -129,10 +129,11 @@ function styles(){
  n.textContent=
  '#home .hhHealthStrip312{background:linear-gradient(135deg,#066e73,#1b9d8a);color:#fff}'+
  '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,#eaf7f4,#f5fbfc);padding-bottom:95px;color:#153f56;box-sizing:border-box}'+
- '#'+PAGE+' .dh312Top{height:268px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#184970;background-image:linear-gradient(180deg,rgba(2,30,54,.06) 10%,rgba(2,30,54,.10) 42%,rgba(2,30,54,.90) 100%),var(--doc-img);background-repeat:no-repeat;background-size:cover;background-position:center,center 22%;color:#fff}'+
- '#'+PAGE+' .dh312Back{position:absolute;z-index:3;top:14px;left:14px;width:38px;height:38px;border-radius:50%;border:1px solid #ffffffb3;background:#10375066;color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(7px)}'+
- '#'+PAGE+' .dh312Top h1{position:absolute;z-index:2;left:16px;right:16px;bottom:50px;font-size:24px;line-height:1.15;margin:0;font-weight:900;text-shadow:0 2px 7px #092d48}'+
- '#'+PAGE+' .dh312Top p{position:absolute;z-index:2;left:16px;right:16px;bottom:15px;font-size:12px;line-height:1.4;margin:0;color:#e6f7f5;text-shadow:0 1px 5px #092d48}'+
+ '#'+PAGE+' .dh312Top{height:205px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#eaf6fc;background-image:var(--hh-role-atlas);background-repeat:no-repeat;background-size:100% 200%;background-position:0 0;color:#0b2d50}'+
+ '#'+PAGE+' .dh312Back{position:absolute;z-index:3;top:14px;left:14px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(23,63,97,.16);background:rgba(255,255,255,.78);color:#173f61;font-size:22px;cursor:pointer;backdrop-filter:blur(7px)}'+
+ '#'+PAGE+' .dh312Top h1{position:absolute;z-index:2;left:56%;right:7px;top:50%;transform:translateY(-50%);font-size:clamp(18px,5vw,23px);line-height:1.12;margin:0;font-weight:900;letter-spacing:-.5px;color:#0b2d50;text-shadow:0 1px 0 rgba(255,255,255,.92)}'+
+ '#'+PAGE+' .dh312Top h1 span{display:block;white-space:nowrap}'+
+  '#'+PAGE+' .dh312Subline{font-size:11px;line-height:1.4;margin:0;padding:9px 13px 3px;color:#40677c;background:#eaf7f4}'+
  '#'+PAGE+' .dh312Body{padding:13px;max-width:780px;margin:0 auto;display:grid;gap:10px}'+
  '#'+PAGE+' .dh312Card{border:1px solid #dcebe9;background:white;padding:14px;border-radius:16px;box-shadow:0 4px 13px rgba(19,74,93,.055)}'+
  '#'+PAGE+' .dh312Card h2{font-size:15px;margin:0 0 8px}'+
@@ -149,14 +150,14 @@ function styles(){
  '#'+PAGE+' .dh312Form label{display:flex;gap:8px;align-items:center}'+
  '#'+PAGE+' .dh312Form input[type=text]{width:100%;box-sizing:border-box;padding:10px;border:1px solid #bcd1d6;border-radius:9px;font-size:14px}'+
  '#'+PAGE+' .dh312Foot{font-size:10px;color:#607886;line-height:1.5}'+
- '@media(max-width:380px){#'+PAGE+' .dh312Top h1{font-size:20px}}';
+ '@media(max-width:380px){#'+PAGE+' .dh312Top h1{font-size:17px;left:55%}}';
  document.head.appendChild(n);
 }
 function ensurePage(){
  var page=el(PAGE);if(page)return page;
  var app=document.querySelector('.app')||document.body;
  page=document.createElement('section');page.id=PAGE;page.className='page';
- page.innerHTML='<div class="dh312Top"><button class="dh312Back" type="button" aria-label="Vissza a főoldalra">‹</button><h1>🩺 Léna Daily Health</h1><p>Közös reggeli egészségügyi helyzetkép · Zsolt és Mónika</p></div><div class="dh312Body"><div id="dh312Content" class="dh312Card"><p>Adatok betöltése…</p></div></div>';
+ page.innerHTML='<div class="dh312Top"><button class="dh312Back" type="button" aria-label="Vissza a főoldalra">‹</button><h1><span>Léna</span><span>Daily Health</span></h1></div><p class="dh312Subline">🩺 Közös reggeli egészségügyi helyzetkép · Zsolt és Mónika</p><div class="dh312Body"><div id="dh312Content" class="dh312Card"><p>Adatok betöltése…</p></div></div>';
  app.appendChild(page);
  page.querySelector('.dh312Back').addEventListener('click',function(){if(typeof window.show==='function')window.show('home')});
  return page;
