@@ -1,18 +1,18 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-10-08",
-  "generatedAt": "2026-10-08T22:22:58+02:00",
+  "generatedAt": "2026-10-08T22:49:16+02:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-10-08T22:15",
-    "temperature": 18.7,
-    "apparentTemperature": 19.4,
+    "observedAt": "2026-10-08T22:45",
+    "temperature": 18.5,
+    "apparentTemperature": 19.2,
     "daytimeMaxFeelsLike": 21.2,
     "uvMax": 3.1,
-    "pressureHpa": 1009.8,
+    "pressureHpa": 1009.9,
     "pressureChange6h": 0.8,
-    "windGust": 30.2
+    "windGust": 26.3
   },
   "air": {
     "available": true,
