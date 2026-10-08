@@ -1,0 +1,57 @@
+name: HealthHub Daily Health Public
+
+on:
+  schedule:
+    # 07:15 in Europe/Budapest: 05:15 UTC summer, 06:15 UTC winter.
+    # 07:15 UTC is a fallback for delayed GitHub schedules.
+    - cron: "15 5,6,7 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/healthhub-daily-health.yml"
+      - "healthhub/scripts/generate_daily_health.py"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: healthhub-daily-health
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate public-only daily health context
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            python3 healthhub/scripts/generate_daily_health.py auto
+          else
+            python3 healthhub/scripts/generate_daily_health.py force
+          fi
+      - name: Validate generated content
+        shell: bash
+        run: |
+          if [ -f healthhub/data/daily-health-public.json ]; then
+            python3 -m json.tool healthhub/data/daily-health-public.json >/dev/null
+          fi
+      - name: Publish public snapshot
+        shell: bash
+        run: |
+          git config user.name "healthhub-health-bot"
+          git config user.email "healthhub-health-bot@users.noreply.github.com"
+          git add healthhub/data/daily-health-public.json
+          if git diff --cached --quiet; then
+            echo "No new Daily Health data"
+            exit 0
+          fi
+          git commit -m "data: Daily Health public morning snapshot"
+          git pull --rebase origin main
+          git push origin HEAD:main
