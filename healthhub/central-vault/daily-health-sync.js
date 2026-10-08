@@ -6,7 +6,7 @@
 var CFG=window.HH_CENTRAL_VAULT||{},STORE='hh-daily-health-factors-317',
  SKEY='hh-supabase-health-session-v1',SLUG=CFG.householdSlug||'zsolt-monika';
 var states={m:{mode:'local',revision:0,snapshot:null,remote:null},z:{mode:'local',revision:0,snapshot:null,remote:null}};
-var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null;
+var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null,autoAttempted=false;
 function el(id){return document.getElementById(id)}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[c]})}
 function active(){return CFG.enabled===true&&/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(CFG.supabaseUrl||''))&&typeof CFG.publishableKey==='string'&&CFG.publishableKey.length>12}
@@ -48,12 +48,13 @@ async function login(email,password){
   var v=await call('/auth/v1/token?grant_type=password',{method:'POST',data:{email:email,password:password}});
   if(!v||!v.access_token||!v.refresh_token)throw new Error('A bejelentkezés nem sikerült.');
   sSave({access_token:v.access_token,refresh_token:v.refresh_token,expires_at:Math.floor(Date.now()/1000)+Number(v.expires_in||3600)});
+  autoAttempted=true;
   await fetchCloud();
  }catch(e){lastError=e.httpStatus===400||e.httpStatus===401?'Sikertelen bejelentkezés. Ellenőrizd az e-mailt és a jelszót.':(e.message||'Központi hiba.');if(e.httpStatus===401)sSave(null)}
  finally{busy=false;draw()}
 }
 function logout(){
- sSave(null);profiles=null;household=null;lastError='';
+ sSave(null);profiles=null;household=null;lastError='';autoAttempted=false;
  ['m','z'].forEach(function(k){states[k]={mode:'local',revision:0,snapshot:null,remote:null}});
  draw();
 }
@@ -188,8 +189,8 @@ function mount(host){
   });
  }
  draw();
- if(session&&!profiles&&!busy){
-  busy=true;fetchCloud().catch(function(err){lastError=err.message||'Nem érhető el a központi tárhely.'}).finally(function(){busy=false;draw()});
+ if(session&&!profiles&&!busy&&!autoAttempted){
+  autoAttempted=true;busy=true;fetchCloud().catch(function(err){lastError=err.message||'Nem érhető el a központi tárhely.'}).finally(function(){busy=false;draw()});
  }
 }
 sSave(active()?sRead():null);
