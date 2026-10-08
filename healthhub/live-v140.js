@@ -32,7 +32,7 @@ function form(x){
  '<label>Pulzus<input id="hhMcPulse" inputmode="decimal" value="'+esc(x.pulse??'')+'" placeholder="/perc"></label><label>Testsúly<input id="hhMcWeight" inputmode="decimal" value="'+esc(x.weightKg??'')+'" placeholder="kg"></label>'+
  '<label>Vércukor<input id="hhMcGlucose" inputmode="decimal" value="'+esc(x.bloodGlucose??'')+'" placeholder="mmol/l"></label><label>SpO₂<input id="hhMcSpo2" inputmode="decimal" value="'+esc(x.oxygenSaturation??'')+'" placeholder="%"></label></div>'+
  '<div class="hhCrudFull"><label>Megjegyzés<textarea id="hhMcNotes" rows="3">'+esc(x.notes||'')+'</textarea></label></div>'+
- '<div class="hhCrudActions"><button class="hhCrudBtn" onclick="hhSaveMeasurement(''+esc(x.id||'')+'')">Mentés</button><button class="hhCrudBtn alt" onclick="hhCloseMeasurement()">Mégse</button>'+(isEdit?'<button class="hhCrudBtn danger" onclick="hhDeleteMeasurement(''+esc(x.id)+'')">Mérés törlése</button>':'')+'</div>'+
+ '<div class="hhCrudActions"><button class="hhCrudBtn" data-record-id="'+esc(x.id||'')+'" onclick="hhSaveMeasurement(this.dataset.recordId)">Mentés</button><button class="hhCrudBtn alt" onclick="hhCloseMeasurement()">Mégse</button>'+(isEdit?'<button class="hhCrudBtn danger" data-record-id="'+esc(x.id)+'" onclick="hhDeleteMeasurement(this.dataset.recordId)">Mérés törlése</button>':'')+'</div>'+
  '<p class="privacyNote">Csak a ténylegesen megmért mezőket töltsd ki. A módosítás azonnal megjelenik a trendgrafikonon.</p>';
 }
 window.hhOpenMeasurement=async function(id){ensure();var x=id?await one(id):null;form(x);document.getElementById('hhMeasCrudOverlay').classList.add('on')};

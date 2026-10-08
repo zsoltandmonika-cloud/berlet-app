@@ -1,0 +1,63 @@
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const {request,state,createClient} = require('../bridge-control.js');
+const device = {deviceId:'android-one',deviceType:'android',protocolVersion:2,activeProfile:'zsolt'};
+test('all supported windows; wrong profile/device/window rejected', () => {
+  for (const days of [1,7,30]) assert.equal(request(device,'zsolt',days).days,days);
+  assert.throws(()=>request(device,'monika',1));
+  assert.throws(()=>request({...device,deviceId:'../bad'},'zsolt',1));
+  assert.throws(()=>request(device,'zsolt',365));
+});
+test('status correlation prevents another request/device/profile reporting success', () => {
+  const cmd=request(device,'zsolt',1);
+  assert.equal(state(cmd,{requestId:'other',state:'done'}),'pending');
+  assert.equal(state(cmd,{requestId:cmd.requestId,deviceId:'other',profile:'zsolt',state:'done'}),'pending');
+  assert.equal(state(cmd,null,Date.parse(cmd.expiresAt)),'expired');
+});
+test('PC queue survives offline phone, simultaneous requests never overwrite, status belongs to phone', async () => {
+  const files = new Map();
+  const vault={accessToken:async()=> 'mock',uploadJson:async(p,v)=>files.set(p,v),downloadJson:async p=>files.get(p)||null};
+  const api=createClient(vault,async()=>({ok:true,json:async()=>({})}));
+  const [a,b]=await Promise.all([api.send(device,'zsolt',1,'sync'),api.send(device,'zsolt',7,'sync')]);
+  assert.notEqual(a.requestId,b.requestId); assert.equal(files.size,2);
+  assert.ok([...files.keys()].every(p=>p.includes('/requests/')));
+  assert.equal(state(a,null),'pending');
+  assert.equal(state(a,{requestId:a.requestId,deviceId:device.deviceId,profile:'zsolt',state:'done'}),'done');
+});
+test('folder pagination is consumed and authorization failures are surfaced', async () => {
+  let pages=0;
+  const vault={accessToken:async()=> 'mock',downloadJson:async p=>({...device,deviceId:p.includes('two')?'android-two':'android-one'})};
+  const api=createClient(vault,async()=>({ok:true,json:async()=>({entries:[{'.tag':'file',name:'d.json',path_lower:++pages===1?'one':'two'}],has_more:pages===1,cursor:'next'})}));
+  assert.equal((await api.devices()).length,2);
+  const denied=createClient(vault,async()=>({ok:false,status:401,json:async()=>({error_summary:'unauthorized'})}));
+  await assert.rejects(denied.devices(),/unauthorized/);
+});
+test('canonical import replaces only target HC cache, is idempotent and does not push profile copies', async () => {
+  const {indexedDB}=require('../../.tooling/node_modules/fake-indexeddb');
+  const req = r => new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+  const open=indexedDB.open('healthhub-healthradar-v2',1);
+  open.onupgradeneeded=()=>open.result.createObjectStore('measurements',{keyPath:'id'});
+  const db=await req(open);
+  const tx=db.transaction('measurements','readwrite');
+  for(const row of [{id:'manual',profile:'zsolt',source:'manual'},{id:'old',profile:'zsolt',source:'health_connect'},{id:'monika',profile:'monika',source:'health_connect'}])tx.objectStore('measurements').put(row);
+  await new Promise(ok=>tx.oncomplete=ok);db.close();
+  const store=new Map([['hh-profile','z']]);let pushes=0;
+  let backups=0;
+  const context={indexedDB,console,crypto,HH_DROPBOX_VAULT:{uploadJson:async(path,payload)=>{backups++;assert.ok(path.includes('hc-migration'));assert.equal(payload.measurements.length,1)}},setTimeout:()=>0,CustomEvent:class{},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},document:{documentElement:{dataset:{}},getElementById:id=>id==='hhHealthConnectInput'?{}:null}};
+  context.window=context; context.dispatchEvent=()=>{};context.hhDropboxPushCurrentProfile=async()=>{pushes++};
+  vm.runInNewContext(fs.readFileSync('healthhub/live-v147.js','utf8'),context);
+  const raw={schemaVersion:'healthhub.healthconnect.bridge/1.2',profile:'zsolt',canonicalSnapshot:true,exportedAt:'2026-10-08T08:00:00Z',records:{weight:[{id:'new',time:'2026-10-08T07:00:00Z',kg:80}],dailySteps:[{date:'2026-10-08',count:42}]}};
+  await context.hhImportHealthConnectRaw(raw,'cloud');await context.hhImportHealthConnectRaw(raw,'cloud');
+  const check=await req(indexedDB.open('healthhub-healthradar-v2',1));
+  const rows=await req(check.transaction('measurements').objectStore('measurements').getAll());check.close();
+  assert.equal(rows.length,3); assert.equal(pushes,0); assert.equal(backups,1); assert.ok(rows.find(x=>x.id==='manual'));assert.ok(rows.find(x=>x.id==='monika'));assert.ok(!rows.find(x=>x.id==='old'));
+  const bridge=await req(indexedDB.open('healthhub-connect-v1',3));
+  assert.equal((await req(bridge.transaction('imports').objectStore('imports').getAll())).length,1);bridge.close();
+  await context.hhImportHealthConnectRaw({...raw,profile:'monika'},'cloud');
+  const both=await req(indexedDB.open('healthhub-healthradar-v2',1));
+  const merged=await req(both.transaction('measurements').objectStore('measurements').getAll());both.close();
+  assert.ok(merged.some(x=>x.id==='hc-zsolt-weight-new'));
+  assert.ok(merged.some(x=>x.id==='hc-monika-weight-new'));
+});

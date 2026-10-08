@@ -32,7 +32,7 @@ async function connect(){
  u.searchParams.set('code_challenge',challenge);
  u.searchParams.set('code_challenge_method','S256');
  u.searchParams.set('token_access_type','offline');
- u.searchParams.set('scope','files.metadata.write files.content.read files.content.write');
+ u.searchParams.set('scope','files.metadata.read files.metadata.write files.content.read files.content.write');
  u.searchParams.set('state',state);
  location.href=u.toString();
 }
@@ -128,9 +128,10 @@ async function bridgeAll(){
 function legacyProfile(profile){
  try{var v=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');return v&&v.profiles&&v.profiles[profile]?v.profiles[profile]:null}catch(e){return null}
 }
+function canonical(profile){return localStorage.getItem('hh-hc-canonical-'+profile)==='1'}
 async function snapshot(profile){
  var all=await dbAll(),br=await bridgeAll(),ignored=(window.hhGetHealthConnectIgnoreList?window.hhGetHealthConnectIgnoreList(profile):[]),privateRef=await privateMedicationReference();
- return {schemaVersion:'healthhub.dropbox.vault/1.1',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile}),bridgeImports:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored,privateMedicationReference:privateRef};
+ return {schemaVersion:'healthhub.dropbox.vault/1.1',profile:profile,exportedAt:new Date().toISOString(),legacyProfile:legacyProfile(profile),measurements:all.filter(function(x){return x.profile===profile&&(!canonical(profile)||x.source!=='health_connect')}),bridgeImports:canonical(profile)?[]:br.imports.filter(function(x){return x.profile===profile}),bridgeActivity:canonical(profile)?[]:br.activity.filter(function(x){return x.profile===profile}),healthConnectIgnored:ignored,privateMedicationReference:privateRef};
 }
 function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
@@ -161,12 +162,12 @@ async function mergeVault(data){
  var profile=data.profile;if(profile!=='zsolt'&&profile!=='monika')throw new Error('Hibás profil a Vault fájlban.');
  var db=await openDb();try{
   var tx=db.transaction('measurements','readwrite'),st=tx.objectStore('measurements');
-  (Array.isArray(data.measurements)?data.measurements:[]).forEach(function(x){st.put(x)});await txDone(tx);
+  (Array.isArray(data.measurements)?data.measurements:[]).forEach(function(x){if(x.profile===profile&&(!canonical(profile)||x.source!=='health_connect'))st.put(x)});await txDone(tx);
  }finally{db.close()}
  var bd=await openBridgeDb();try{
   var bt=bd.transaction(['imports','activity'],'readwrite'),im=bt.objectStore('imports'),ac=bt.objectStore('activity');
-  (Array.isArray(data.bridgeImports)?data.bridgeImports:[]).forEach(function(x){im.put(x)});
-  (Array.isArray(data.bridgeActivity)?data.bridgeActivity:[]).forEach(function(x){ac.put(x)});
+  (!canonical(profile)&&Array.isArray(data.bridgeImports)?data.bridgeImports:[]).forEach(function(x){im.put(x)});
+  (!canonical(profile)&&Array.isArray(data.bridgeActivity)?data.bridgeActivity:[]).forEach(function(x){ac.put(x)});
   await txDone(bt);
  }finally{bd.close()}
  if(data.legacyProfile){
