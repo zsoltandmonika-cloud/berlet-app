@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v305-sync-orchestrator",
-  "currentFocus": "v305: central cross-device sync orchestration with Dropbox command/status plane and Android WorkManager command execution.",
-  "nextDevelopment": "NEXT PRIORITY: Symptom Journal / Ad-hoc Health Event Log. Build fast self-reported symptom/event capture with severity, timing, notes, OTC medication intake and outcome, then integrate it into the unified timeline and Léna Research. Nutrition Connect, Cognitive tracking and Digital Wellbeing follow after this module.",
+  "liveBuild": "v307.7-symptom-journal",
+  "currentFocus": "v307.7: profile-aware Symptom Journal live with HealthRadar Léna hero, one-click profile switching, editable centrally synced categories, structured symptom/PRN medication capture, linked measurements and trend views.",
+  "nextDevelopment": "NEXT PRIORITY: integrate Symptom Journal events into the unified Health Analytics / Timeline / Léna Research context. Wishlist after that: Ask Léna voice-to-structured symptom entry and automatic weather/front context for temporal association analysis.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1238,16 +1238,16 @@
       "title": "Quick symptom / health problem logging",
       "acceptanceCriteria": "Zsolt or Mónika can quickly record a symptom/problem with profile, start time, severity, body area/type, free-text note and current status.",
       "priority": "Critical",
-      "sprint": "NEXT",
+      "sprint": "S4",
       "milestone": "M4 Symptom Journal",
-      "status": "Next",
-      "progress": 0,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-CORE-002;HH-CORE-003",
       "targetDate": null,
-      "actualDone": null,
-      "notes": "Next module after v299 stabilization. Examples: headache, abdominal pain, joint pain, muscle pain, dizziness, cold/flu-like symptoms."
+      "actualDone": "2026-10-08",
+      "notes": "v307 Symptom Journal live: profile-scoped timestamped symptom logging, body area/type, 0–10 severity, notes, HealthRadar hero/theme and one-click profile switching. v307.6 adds centrally synced editable category dictionaries."
     },
     {
       "id": "HH-SYM-002",
@@ -1256,16 +1256,16 @@
       "title": "Record what was taken for a symptom",
       "acceptanceCriteria": "A symptom event can link one or more medication intakes with product/active ingredient, dose, intake time, reason, effect and optional side-effect note.",
       "priority": "Critical",
-      "sprint": "NEXT",
+      "sprint": "S4",
       "milestone": "M4 Symptom Journal",
-      "status": "Next",
-      "progress": 0,
+      "status": "Done",
+      "progress": 1,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SYM-001",
       "targetDate": null,
-      "actualDone": null,
-      "notes": "Designed for ad-hoc use such as Advil Ultra / ibuprofen and other non-routine medicines. Must remain distinct from the regular medication list."
+      "actualDone": "2026-10-08",
+      "notes": "v307 supports ad-hoc treatment/remedy, PRN medication, dose, outcome and response-time capture, kept separate from the regular medication list."
     },
     {
       "id": "HH-SYM-003",
@@ -1274,16 +1274,16 @@
       "title": "Track symptom progression and outcome",
       "acceptanceCriteria": "An event can progress through Active → Improving → Resolved → Doctor visit, with follow-up severity and outcome timestamps.",
       "priority": "High",
-      "sprint": "NEXT",
+      "sprint": "S4",
       "milestone": "M4 Symptom Journal",
-      "status": "Next",
-      "progress": 0,
+      "status": "In Progress",
+      "progress": 0.75,
       "storyPoints": 3,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SYM-001",
       "targetDate": null,
       "actualDone": null,
-      "notes": "If medical care follows, link the home symptom episode to the later appointment/document where possible."
+      "notes": "Current journal captures outcome and response time and plots symptom trends. Full multi-step episode lifecycle with later follow-up timestamps / doctor-visit linking remains to be added."
     },
     {
       "id": "HH-SYM-004",
@@ -1295,13 +1295,13 @@
       "sprint": "NEXT",
       "milestone": "M4 Symptom Journal",
       "status": "Next",
-      "progress": 0,
+      "progress": 0.15,
       "storyPoints": 8,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SYM-001;HH-SYM-002;HH-AL-009",
       "targetDate": null,
       "actualDone": null,
-      "notes": "Enable questions such as frequency of headaches, OTC use in the last 30 days, response to treatment, and associations with sleep/BP/activity without diagnosing from correlation. Red-flag patterns must trigger safety guidance."
+      "notes": "Next major step: feed structured symptom events into Health Analytics, unified Timeline and Léna Research. Correlations must be presented as temporal associations, not diagnosis or proof of causation."
     },
     {
       "id": "HH-AI-001",
@@ -1428,6 +1428,42 @@
       "targetDate": "2026-10-07",
       "actualDone": null,
       "notes": "Implemented in .github/workflows/healthhub-level3-guard.yml with safe branch-head check and rollback-loop protection."
+    },
+    {
+      "id": "HH-SYM-005",
+      "epic": "Symptom Journal",
+      "feature": "Ask Léna Voice Entry",
+      "title": "Voice-to-structured symptom journal entry",
+      "acceptanceCriteria": "User can tap 'Mondd el Lénának', speak a free-form symptom story, review AI-filled structured fields, correct uncertain values and explicitly save only after confirmation.",
+      "priority": "Medium",
+      "sprint": "Backlog",
+      "milestone": "Future",
+      "status": "Idea",
+      "progress": 0,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SYM-001;HH-AL-003",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "AI showcase / bragging-rights feature. Speech transcript must never auto-save health data. Reuse the existing Symptom Journal schema and wheel editor as the review surface."
+    },
+    {
+      "id": "HH-SYM-006",
+      "epic": "Symptom Journal",
+      "feature": "Weather / Front Context",
+      "title": "Attach automatic weather and front context to symptom events",
+      "acceptanceCriteria": "For each symptom episode, HealthHub can attach time-matched weather context such as temperature, barometric pressure, pressure change, humidity and relevant weather/front indicators, then analyze repeated temporal associations by profile without claiming causation.",
+      "priority": "Medium",
+      "sprint": "Backlog",
+      "milestone": "Future",
+      "status": "Idea",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SYM-001;HH-SYM-004",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Prefer raw measurable weather features and pressure-change windows (for example 3h/6h/12h/24h deltas) over simplistic 'front caused it' labels. Useful for headache and musculoskeletal symptom pattern analysis."
     }
   ],
   "changeLog": [
@@ -1914,6 +1950,11 @@
       "type": "Architecture / Sync Orchestration",
       "summary": "Added Central Sync Orchestrator. Admin can dispatch Full Sync or scoped sync commands to all registered devices, Zsolt devices, Mónika devices, or a single device. Web clients use lightweight startup/focus/visibility/online plus visible 60s command checks; Android HealthHub Connect v0.10.0 uses WorkManager background command checks and owner-profile Health Connect execution. Offline devices keep pending commands until next availability. Orchestrator status contains technical metadata only, not clinical values.",
       "status": "Testing"
+    },
+    {
+      "date": "2026-10-08",
+      "version": "v307.7",
+      "change": "Symptom Journal live; wishlist expanded with AI voice-to-structured entry and automatic weather/front context for analytics."
     }
   ]
 }
