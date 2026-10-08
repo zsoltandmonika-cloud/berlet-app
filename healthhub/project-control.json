@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v307.10-symptom-bottom-nav",
-  "currentFocus": "v307.9: Symptom Journal live with centrally synced editable categories, safe edit/delete tombstones, and profile-scoped Today Timeline integration.",
+  "liveBuild": "v308-environmental-health-v1",
+  "currentFocus": "HH-ENV-001 Environmental Health V1 deployed for acceptance testing: normalized temperature, apparent temperature, humidity, wind/gust, UV, pressure and 3/6/12/24h pressure deltas with a HealthRadar environmental-load card.",
   "nextDevelopment": "PRIORITIZED BACKLOG: Contextual Health Intelligence sliced by dependencies: Environmental Health V1 → Pollen → Communicable Disease Watch → Home Daily Health Watch → Symptom Environmental Snapshot → Association Analytics → Red-Flag Safety Gate → Profile-aware Self-care/OTC Library → Léna Health Assessment → Doctor Escalation → Nutrition Context → Voice Entry.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1471,9 +1471,9 @@
       "owner": "Léna + Zsolt",
       "targetDate": null,
       "actualDone": null,
-      "status": "Idea",
-      "progress": 0,
-      "sprint": "Backlog",
+      "status": "Testing",
+      "progress": 0.9,
+      "sprint": "S5",
       "id": "HH-ENV-001",
       "epic": "Contextual Health Intelligence",
       "feature": "Environmental Health V1",
@@ -1484,7 +1484,7 @@
       "storyPoints": 5,
       "dependency": "HH-DATA-001",
       "backlogRank": 1,
-      "notes": "Foundation layer; raw measurable variables first, no causality claims."
+      "notes": "v308 deployed. Reuses the HealthHub's existing Open-Meteo weather source; stores source-dated normalized environmental snapshots locally, exposes window.HH_ENVIRONMENT_V1 for later symptom snapshots, and renders a HealthRadar card. Pending real-device/browser acceptance. Official HungaroMet alerts/front layer intentionally deferred to a later slice rather than fragile scraping."
     },
     {
       "owner": "Léna + Zsolt",
@@ -2157,6 +2157,11 @@
       "date": "2026-10-08",
       "version": "Backlog planning",
       "change": "Contextual Health Intelligence epic sliced into 12 dependency-ranked deliverables from environmental data foundation through assessment, escalation, nutrition context and voice entry."
+    },
+    {
+      "date": "2026-10-08",
+      "version": "v308",
+      "change": "HH-ENV-001 Environmental Health V1 deployed: normalized weather-health context, pressure deltas, UV, heat/cold/wind heuristics, source freshness, local history and HealthRadar card."
     }
   ]
 }
