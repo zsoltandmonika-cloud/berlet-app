@@ -129,10 +129,10 @@ function styles(){
  n.textContent=
  '#home .hhHealthStrip312{background:linear-gradient(135deg,#066e73,#1b9d8a);color:#fff}'+
  '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,#eaf7f4,#f5fbfc);padding-bottom:95px;color:#153f56;box-sizing:border-box}'+
- '#'+PAGE+' .dh312Top{padding:24px 16px 18px;background:linear-gradient(135deg,#146c7d,#184970);color:#fff}'+
- '#'+PAGE+' .dh312Back{width:38px;height:38px;border-radius:50%;border:1px solid #ffffff80;background:#ffffff22;color:#fff;font-size:22px;cursor:pointer}'+
- '#'+PAGE+' .dh312Top h1{font-size:23px;line-height:1.1;margin:17px 0 4px;font-weight:900}'+
- '#'+PAGE+' .dh312Top p{font-size:12px;line-height:1.5;margin:0;color:#e6f7f5}'+
+ '#'+PAGE+' .dh312Top{height:268px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#184970;background-image:linear-gradient(180deg,rgba(2,30,54,.06) 10%,rgba(2,30,54,.10) 42%,rgba(2,30,54,.90) 100%),var(--doc-img);background-repeat:no-repeat;background-size:cover;background-position:center,center 22%;color:#fff}'+
+ '#'+PAGE+' .dh312Back{position:absolute;z-index:3;top:14px;left:14px;width:38px;height:38px;border-radius:50%;border:1px solid #ffffffb3;background:#10375066;color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(7px)}'+
+ '#'+PAGE+' .dh312Top h1{position:absolute;z-index:2;left:16px;right:16px;bottom:50px;font-size:24px;line-height:1.15;margin:0;font-weight:900;text-shadow:0 2px 7px #092d48}'+
+ '#'+PAGE+' .dh312Top p{position:absolute;z-index:2;left:16px;right:16px;bottom:15px;font-size:12px;line-height:1.4;margin:0;color:#e6f7f5;text-shadow:0 1px 5px #092d48}'+
  '#'+PAGE+' .dh312Body{padding:13px;max-width:780px;margin:0 auto;display:grid;gap:10px}'+
  '#'+PAGE+' .dh312Card{border:1px solid #dcebe9;background:white;padding:14px;border-radius:16px;box-shadow:0 4px 13px rgba(19,74,93,.055)}'+
  '#'+PAGE+' .dh312Card h2{font-size:15px;margin:0 0 8px}'+
@@ -167,7 +167,7 @@ function ensureStrip(){
  if(!s){
   s=document.createElement('button');s.type='button';s.id=STRIP;s.className='dailyStrip hhHealthStrip312';
   s.innerHTML='<span class="stripIcon" aria-hidden="true">🩺</span><span><b>Daily Health</b><p id="dh312Teaser">Reggeli egészségügyi helyzetkép betöltése…</p></span><span class="arr" aria-hidden="true">›</span>';
-  s.addEventListener('click',openPage);
+  // Clicks are handled by delegation, including when Home is re-rendered.
  }
  if(news.nextElementSibling!==s)news.after(s);
 }
@@ -236,12 +236,14 @@ function render(){
  if(teaser)teaser.textContent=!available?'Jelenleg nincs friss adat':warn.length?warn.length+' tényező figyelmet érdemel · Zsolt és Mónika':'Mai környezeti helyzet · Zsolt és Mónika';
 }
 function openPage(){
- ensurePage();
- if(typeof window.show==='function')window.show('home');
- document.querySelectorAll('.page').forEach(function(node){node.classList.remove('on')});
- el(PAGE).classList.add('on');
- var navs=['navTimelineBar','navHealthBar','navHomeBar','navDetailBar'];
- navs.forEach(function(id){var n=el(id);if(n)n.style.display='none'});
+ var page=ensurePage();
+ // Route directly to Daily Health instead of toggling Home on and immediately off.
+ if(typeof window.show==='function')window.show(PAGE);
+ if(!page.classList.contains('on')){
+  document.querySelectorAll('.page').forEach(function(node){node.classList.remove('on')});
+  page.classList.add('on');
+ }
+ ['navTimelineBar','navHealthBar','navHomeBar','navDetailBar'].forEach(function(id){var n=el(id);if(n)n.style.display='none'});
  window.scrollTo(0,0);
  render();
 }
@@ -273,6 +275,13 @@ async function loadAi(){
 }
 function init(){
  styles();ensurePage();ensureStrip();
+ // Delegation survives a Home DOM replacement; a direct per-element listener does not.
+ document.addEventListener('click',function(e){
+  var button=e.target&&e.target.closest&&e.target.closest('#'+STRIP);
+  if(!button)return;
+  e.preventDefault();e.stopPropagation();
+  openPage();
+ },true);
  render();load(false);loadAi();
  var home=el('home');
  if(home&&window.MutationObserver){
