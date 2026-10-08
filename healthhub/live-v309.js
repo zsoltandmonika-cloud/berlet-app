@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.15';
+var BUILD='1.309.16';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -30,6 +30,31 @@ function uvLabel(v){
 function pressureLabel(x){
  var p=x&&x.pressureDelta||{},m=Math.max(Math.abs(p.h6||0),Math.abs(p.h12||0),Math.abs(p.h24||0));
  return m>=10?'Gyors változás':m>=6?'Változó':'Stabilabb';
+}
+function aqiLabel(v){
+ if(v==null)return 'Nincs adat';
+ if(v<20)return 'Jó';
+ if(v<40)return 'Megfelelő';
+ if(v<60)return 'Közepes';
+ if(v<80)return 'Rossz';
+ if(v<100)return 'Nagyon rossz';
+ return 'Extrém rossz';
+}
+function pollenSummary(p){
+ var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'},best=null;
+ Object.keys(names).forEach(function(k){
+  var v=p&&p[k];if(v==null||!Number.isFinite(Number(v)))return;
+  v=Number(v);if(!best||v>best.value)best={key:k,name:names[k],value:v};
+ });
+ if(!best)return {name:'—',value:null,label:'Nincs adat'};
+ if(best.value<=0)return {name:'Nincs',value:0,label:'0 grains/m³'};
+ return {name:best.name,value:Number(best.value.toFixed(1)),label:Number(best.value.toFixed(1))+' grains/m³'};
+}
+function pollenDetails(p){
+ var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'},a=[];
+ Object.keys(names).forEach(function(k){var v=p&&p[k];if(v!=null&&Number.isFinite(Number(v))&&Number(v)>0)a.push({name:names[k],value:Number(v)})});
+ a.sort(function(x,y){return y.value-x.value});
+ return a.slice(0,4).map(function(x){return x.name+' '+Number(x.value.toFixed(1))}).join(' · ')||'Jelenleg nincs kimutatható pollenadat.';
 }
 function statusKey(x){return x&&x.assessment&&x.assessment.key||'normal'}
 function statusLabel(x){return x&&x.assessment&&x.assessment.label||'Környezeti állapot'}
@@ -104,8 +129,8 @@ function heroMetrics(x){
  '<div class="env309HeroMetric"><small>Szél</small><b>'+val(c.windSpeed,0,' km/h')+'</b><em>Lökés '+val(c.windGust,0,' km/h')+'</em></div>'+
  '<div class="env309HeroMetric"><small>Légnyomás</small><b>'+val(c.pressureMsl,0,' hPa')+'</b><em>'+esc(pressureLabel(x))+'</em></div>'+
  '<div class="env309HeroMetric"><small>UV index</small><b>'+val(c.uvIndex,1,'')+'</b><em>'+esc(uvLabel(c.uvIndex))+'</em></div>'+
- '<div class="env309HeroMetric"><small>Pollen</small><b>V1.1</b><em>következő szelet</em></div>'+
- '<div class="env309HeroMetric env309Reserved" aria-hidden="true"></div>'+
+ '<div class="env309HeroMetric"><small>Pollen</small><b>'+esc(pollenSummary(x&&x.pollen).name)+'</b><em>'+esc(pollenSummary(x&&x.pollen).label)+'</em></div>'+
+ '<div class="env309HeroMetric"><small>Levegő</small><b>'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</b><em>'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+'</em></div>'+
  '<div class="env309HeroMetric env309Reserved" aria-hidden="true"></div>';
 }
 
@@ -126,10 +151,10 @@ function pageHtml(x){
    '<div class="env309Card"><h3>🌬️ Szél</h3><div class="env309Big">'+val(c.windSpeed,0,' km/h')+'</div><div class="env309Sub">Széllökés: '+val(c.windGust,0,' km/h')+'</div></div>'+
    '<div class="env309Card"><h3>☀️ UV terhelés</h3><div class="env309Big">'+val(c.uvIndex,1,'')+'</div><div class="env309Sub">'+esc(uvLabel(c.uvIndex))+' UV-index</div></div>'+
    '<div class="env309Card env309Wide"><h3>🌀 Légnyomás és változás</h3><div class="env309Big">'+val(c.pressureMsl,0,' hPa')+'</div><div class="env309Sub">'+esc(pressureLabel(x))+'</div><div class="env309Trend">3 óra: <b>'+signed(p.h3,1,' hPa')+'</b> · 6 óra: <b>'+signed(p.h6,1,' hPa')+'</b> · 12 óra: <b>'+signed(p.h12,1,' hPa')+'</b> · 24 óra: <b>'+signed(p.h24,1,' hPa')+'</b></div></div>'+
-   '<div class="env309Card env309Future"><h3>🌿 Pollen</h3><div class="env309Big">Következik</div><div class="env309Sub">HH-ENV-002 · hivatalos napi pollenterhelés és fő allergének.</div></div>'+
-   '<div class="env309Card env309Future"><h3>🌫️ Levegőminőség</h3><div class="env309Big">Előkészítve</div><div class="env309Sub">A következő környezeti réteghez fenntartott hely.</div></div>'+
+   '<div class="env309Card"><h3>🌿 Pollen</h3><div class="env309Big">'+esc(pollenSummary(x&&x.pollen).name)+'</div><div class="env309Sub">'+esc(pollenSummary(x&&x.pollen).label)+' · domináns pollen</div><div class="env309Trend">'+esc(pollenDetails(x&&x.pollen))+'</div></div>'+
+   '<div class="env309Card"><h3>🌫️ Levegőminőség</h3><div class="env309Big">'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</div><div class="env309Sub">'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+' · European AQI</div><div class="env309Trend">PM2.5 <b>'+val(x&&x.airQuality&&x.airQuality.pm25,1,' µg/m³')+'</b> · PM10 <b>'+val(x&&x.airQuality&&x.airQuality.pm10,1,' µg/m³')+'</b></div></div>'+
   '</div>'+
-  '<div class="env309Source">Frissítve: '+esc(ft)+' · adatmotor: Environmental Health V1 · <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo ↗</a></div>'+
+  '<div class="env309Source">Frissítve: '+esc(ft)+' · Open-Meteo + CAMS Europe · <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noopener">forrás ↗</a></div>'+
  '</div>';
 }
 
@@ -229,7 +254,7 @@ function hookShow(){
  }
 }
 function syncSystemInfoBuild(){
- var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.15';
+ var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.16';
  window.HH_LIVE_BUILD=live;
  var all=Array.from(document.querySelectorAll('body *'));
  all.forEach(function(el){
@@ -245,7 +270,7 @@ function syncSystemInfoBuild(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();syncSystemInfoBuild();
- document.documentElement.dataset.healthhubEnvironmental='1.309.15';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.16';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
