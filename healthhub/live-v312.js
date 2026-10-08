@@ -178,6 +178,7 @@ function ensureStrip(){
  if(news.nextElementSibling!==s)news.after(s);
 }
 function personalHtml(keys,x){
+ if(window.HH_DAILY_HEALTH_SETTINGS_V317&&typeof window.HH_DAILY_HEALTH_SETTINGS_V317.renderPersonal==='function')return window.HH_DAILY_HEALTH_SETTINGS_V317.renderPersonal(keys,x);
  var p=prefs(),out=[];
  if(keys.some(function(k){return k.key==='pollen'})){
   out.push('<p>🌿 <b>Mónika:</b> magas pollenterhelés látszik. Allergiás érzékenység esetén érdemes ellenőrizni az előírt napi rutinodat.'+
@@ -217,18 +218,21 @@ function render(){
  '<div class="dh312Card"><h2>🌦️ Környezeti tényezők</h2><div class="dh312List">'+sourceInfo(x).map(function(s){return '<div>'+s+'</div>'}).join('')+'</div></div>'+
  '<div class="dh312Card"><h2>⚠️ Figyelmeztetések és javaslatok</h2>'+detail+'</div>'+
  '<div class="dh312Card"><h2>💚 Kettőtöknek személyre szabva</h2>'+pRows+'<p class="dh312Meta">A személyes emlékeztetők csak külön bekapcsolás után jelennek meg; orvosi utasítást nem helyettesítenek.</p></div>'+
- '<div class="dh312Card"><h2>⚙️ Személyes emlékeztetők</h2><div class="dh312Form"><label><input id="dh312Allergy" type="checkbox" '+(p.allergy?'checked':'')+'> Mónika: allergiagyógyszer ellenőrzése magas pollen esetén</label><input id="dh312Med" type="text" maxlength="60" placeholder="A korábban felírt allergiagyógyszer neve (nem kötelező)" value="'+esc(p.allergyName)+'"><label><input id="dh312Headache" type="checkbox" '+(p.headache?'checked':'')+'> Zsolt: fejfájás-napló emlékeztető nyomásváltozásnál</label><button id="dh312Save" class="dh312Btn" type="button">💾 Emlékeztetők mentése</button><div class="dh312Meta">Ezeket a beállításokat csak a jelenlegi böngésző helyi tárhelye őrzi, nem kerülnek a nyilvános GitHubba. A böngésző helyi tárhelye nem titkosított egészségügyi adatbázis.</div></div></div>'+
+ '<div class="dh312Card"><h2>⚙️ Személyes emlékeztetők</h2><p>Az egyéni egészségügyi tényezőket és figyelési beállításokat külön, profilváltós oldalon kezelhetitek.</p><button id="dh312OpenSettings" class="dh312Btn" type="button">⚙️ Beállítások megnyitása</button><p class="dh312Meta">Helyi, nem titkosított tárolás · automatikus személyes AI-adatküldés nincs.</p></div>'+
  '<div class="dh312Card"><h2>🤖 Kérdezd Lénát</h2><p>Külön indítható AI-kutatás a meglévő Ask Léna felületen. A tényleges AI-elemzéshez saját jóváhagyásod szükséges.</p><button id="dh312Ask" class="dh312Btn" type="button">🧠 Elemzés indítása Lénával</button><button id="dh312Refresh" class="dh312Btn secondary" type="button">🔄 Környezeti adatok frissítése</button></div>'+
  '<div class="dh312Card"><h2>📅 Korábbi reggelek</h2><p class="dh312Meta">'+(read(ARCHIVE,[]).slice(1,8).map(function(v){return esc(v.date)+' · '+v.warningCount+' figyelmeztetés'}).join('<br>')||'Az archívum most indul. A korábbi napok rövid összesítése ezen az eszközön marad.')+'</p><p class="dh312Foot">'+disclaimer+'</p></div></div>';
- el('dh312Save').onclick=function(){
-  save(SETTINGS,{allergy:el('dh312Allergy').checked,allergyName:el('dh312Med').value.trim().slice(0,60),headache:el('dh312Headache').checked});
-  render();
+ el('dh312OpenSettings').onclick=function(){
+  if(typeof window.hhOpenDailyHealthSettings317==='function')window.hhOpenDailyHealthSettings317();
+  else window.alert('Az egészségügyi beállítások még betöltés alatt vannak.');
  };
  el('dh312Ask').onclick=function(){
   if(typeof window.hhOpenLenaSmart299!=='function'){alert('Az Ask Léna jelenleg nem érhető el.');return}
   window.hhOpenLenaSmart299();
   var q=el('hhSQ299');
-  if(q)q.value='Kérlek, értelmezd a mai környezeti tényezőket a HealthHubban. Ellenőrizd a legfrissebb forrásokat, jelezd a bizonytalanságokat. Kérdezz rá, mielőtt személyes egészségügyi adatot használsz. A mai nyilvános figyelmeztetések: '+warn.map(function(v){return v.title.replace(/[^\p{L}\p{N}\s]/gu,'')}).join(', ')+'. Ne javasolj gyógyszeradag módosítást.';
+  if(q){
+   var privateOptIn=window.HH_DAILY_HEALTH_SETTINGS_V317&&window.HH_DAILY_HEALTH_SETTINGS_V317.promptContext();
+   q.value='Kérlek, értelmezd a mai környezeti tényezőket a HealthHubban. Ellenőrizd a friss forrásokat és jelezd a bizonytalanságokat. Mai nyilvános figyelmeztetések: '+warn.map(function(v){return v.title.replace(/[^\p{L}\p{N}\s]/gu,'')}).join(', ')+'. '+(privateOptIn||'Személyes egészségügyi adatokat még nem engedélyeztem.')+' Ne állíts fel diagnózist, ne javasolj gyógyszeradag módosítást. Kérdezz vissza az egyéni tünetekről.';
+  }
  };
  el('dh312Refresh').onclick=async function(){
   this.disabled=true;this.textContent='Frissítés…';
@@ -303,5 +307,5 @@ function init(){
  document.addEventListener('visibilitychange',function(){if(!document.hidden){load(false);loadAi()}});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.HH_DAILY_HEALTH_V312={open:openPage,refresh:function(){return Promise.all([load(true),loadAi()])},getPublic:function(){return current},getPublicAI:function(){return aiCurrent}};
+window.HH_DAILY_HEALTH_V312={open:openPage,render:render,getContext:context,getAlerts:interpret,refresh:function(){return Promise.all([load(true),loadAi()])},getPublic:function(){return current},getPublicAI:function(){return aiCurrent}};
 })();
