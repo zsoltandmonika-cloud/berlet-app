@@ -3,7 +3,7 @@
 /* HealthHub v1.300 — Continuous AI Improvement Engine foundation.
    Admin-only, local-first operational telemetry. No clinical values are collected. */
 
-var BUILD='1.300.4', LIVE_BUILD='v305', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
+var BUILD='1.300.5', LIVE_BUILD=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v306', SECTION='hhAiImprovement300', STYLE='hhAiImprovement300Style';
 var WKEY='hh-ai-wishlist-v1', TKEY='hh-ai-telemetry-v1', HKEY='hh-ai-health-history-v1', SESSION='hh-ai-session-v1';
 var HOTFIX='hh-ai-hotfix-v3001', EBASE='hh-ai-error-baseline-v3001', ARCH='hh-ai-remediation-archive-v1';
 var rendering=false, longTaskObserver=null, adminObserver=null, watcherTimer=null, updateChecking=false, lastUpdateCheck=0, workspaceOpen=false;
@@ -81,6 +81,7 @@ async function checkForLiveUpdate(){
 }
 function resumePendingUpdate(){
  var live='';try{live=sessionStorage.getItem('hh-pending-live-build')||''}catch(e){}
+ if(live&&live===LIVE_BUILD){try{sessionStorage.removeItem('hh-pending-live-build')}catch(e){};return}
  if(live&&live!==LIVE_BUILD&&safeForAutoReload()){
   try{sessionStorage.removeItem('hh-pending-live-build')}catch(e){}
   setTimeout(function(){try{var u=new URL(location.href);u.searchParams.set('hhv',live.replace(/^v/i,''));location.replace(u.toString())}catch(e){location.reload()}},250);
