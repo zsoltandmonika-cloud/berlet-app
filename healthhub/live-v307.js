@@ -262,7 +262,7 @@ function syncProfileShell(){
  var page=document.getElementById(PAGE);if(!page)return;
  var p=pkey(),name=document.getElementById('nameH'),date=document.getElementById('dateH'),weather=document.getElementById('weatherH'),nameday=document.getElementById('namedayH');
  var jn=page.querySelector('#hhSJName'),jd=page.querySelector('#hhSJHeroDate'),jw=page.querySelector('#hhSJWeather'),jnd=page.querySelector('#hhSJNameday'),sw=page.querySelector('.hhSJProfileSwitch307');
- if(jn)jn.textContent=(name&&name.textContent?name.textContent:(pname(p)+'⌄'));
+ if(jn){var displayName=name&&name.textContent?name.textContent:pname(p);jn.textContent=String(displayName).replace(/[⌄▼▾vV]+\s*$/,'').trim()||pname(p)}
  if(jd)jd.textContent=date&&date.textContent?date.textContent:new Intl.DateTimeFormat('hu-HU',{month:'long',day:'numeric',weekday:'short'}).format(new Date())+' · Budapest';
  if(jw&&weather)jw.innerHTML=weather.innerHTML;
  if(jnd&&nameday)jnd.innerHTML=nameday.innerHTML;
@@ -479,7 +479,7 @@ function installLaunchGuard(){
 }
 function decorate(){
  ensurePage();ensureLaunch();installLaunchGuard();
- document.documentElement.dataset.healthhubSymptomJournal='1.307.6';
+ document.documentElement.dataset.healthhubSymptomJournal='1.307.7';
 }
 window.hhOpenSymptomJournal307=openJournal;
 window.hhSymptomJournalSync307=async function(){await pullCloud();if(connected())await pushCloud();renderTrend();return true};
