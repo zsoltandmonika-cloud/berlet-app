@@ -5,7 +5,7 @@
    Normalized, source-dated environmental context for HealthRadar.
    Foundation only: no diagnosis and no symptom-causality claims. */
 
-var BUILD='1.308.2';
+var BUILD='1.308.3';
 var CARD='hhEnvCard308';
 var STYLE='hh-env-v308-style';
 var LOCAL='hh-environment-v1';
@@ -102,9 +102,15 @@ function pollenSummary(p){
   var v=p&&p[k];if(v==null||!Number.isFinite(Number(v)))return;
   v=Number(v);if(!best||v>best.value)best={key:k,name:names[k],value:v};
  });
- if(!best)return {available:false,name:'—',value:null,label:'nincs adat'};
- if(best.value<=0)return {available:true,name:'Nincs kimutatható',value:0,label:'0 grains/m³'};
- return {available:true,name:best.name,value:n(best.value,1),label:n(best.value,1)+' grains/m³'};
+ if(!best)return {available:false,key:null,name:'—',value:null,label:'nincs adat',level:0,category:'nincs adat'};
+ var tree={alder:1,birch:1,olive:1},level=0;
+ if(best.value>0){
+  if(tree[best.key])level=best.value<=10?0:best.value<=100?1:best.value<=500?2:3;
+  else level=best.value<=10?0:best.value<=30?1:best.value<=100?2:3;
+ }
+ var category=['alacsony','közepes','magas','nagyon magas'][level];
+ if(best.value<=0)return {available:true,key:best.key,name:'Nincs kimutatható',value:0,label:'0 grains/m³',level:0,category:'alacsony'};
+ return {available:true,key:best.key,name:best.name,value:n(best.value,1),label:n(best.value,1)+' grains/m³',level:level,category:category};
 }
 function assess(x){
  var flags=[],level=0,feel=x.current.apparentTemperature,uv=x.current.uvIndex,gust=x.current.windGust;
@@ -118,6 +124,10 @@ function assess(x){
  if(gust!=null){if(gust>=75)add(2,'erős széllökések');else if(gust>=50)add(1,'szeles idő')}
  var aqi=x.airQuality&&x.airQuality.europeanAqi;
  if(aqi!=null){if(aqi>=60)add(2,'rossz levegőminőség');else if(aqi>=40)add(1,'közepes levegőminőség')}
+ var pol=pollenSummary(x.pollen);
+ if(pol&&pol.available&&pol.level>=3)add(2,'nagyon magas '+String(pol.name||'').toLowerCase()+' pollenterhelés');
+ else if(pol&&pol.available&&pol.level===2)add(2,'magas '+String(pol.name||'').toLowerCase()+' pollenterhelés');
+ else if(pol&&pol.available&&pol.level===1)add(1,'közepes '+String(pol.name||'').toLowerCase()+' pollenterhelés');
  if(d6>=7||d12>=10||d24>=14)add(2,'gyors légnyomásváltozás');
  else if(d6>=4||d12>=6||d24>=9)add(1,'légnyomásváltozás');
  var label=level===2?'Magas környezeti terhelés':level===1?'Figyelmet érdemlő környezet':'Normál környezeti terhelés';
@@ -281,7 +291,7 @@ async function refresh(force){
   try{
    var loc=lastLocation||await resolveLocation();lastLocation=loc;
    var x=await fetchEnvironment(loc);saveLocal(x);render(x);
-   document.documentElement.dataset.healthhubEnvironment='1.308.2';
+   document.documentElement.dataset.healthhubEnvironment='1.308.3';
    window.dispatchEvent(new CustomEvent('healthhub:environment-updated',{detail:{fetchedAt:x.fetchedAt,observedAt:x.observedAt,level:x.assessment&&x.assessment.key}}));
    return x;
   }catch(e){console.warn('HealthHub ENV V1',e);renderError('A környezeti adatok most nem érhetők el.');return loadLocal()}
