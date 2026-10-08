@@ -118,7 +118,13 @@ def main():
         check(content)
     except urllib.error.HTTPError as e:
         # Never log the response body or request authorization headers.
-        print("AI Daily Health API refused request; status", e.code, file=sys.stderr)
+        try:
+            err=json.loads(e.read(8192)).get("error",{})
+            code=str(err.get("code") or err.get("type") or "")
+        except Exception:
+            code=""
+        safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute") else "unspecified"
+        print("AI Daily Health HTTP",e.code,"provider_error_code",safe,file=sys.stderr)
         return
     except Exception as e:
         print("AI Daily Health unavailable; safe rule-based fallback remains. Error type:",
