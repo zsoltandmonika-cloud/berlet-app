@@ -111,6 +111,8 @@ class MainActivity : ComponentActivity() {
         initHealthConnect()
         SyncScheduler.scheduleAll(this)
         DailyContentScheduler.schedule(this)
+        OrchestratorScheduler.schedule(this)
+        OrchestratorScheduler.runNow(this)
         updateScheduleUi()
         handleIntent(intent)
     }
@@ -119,6 +121,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntent(intent)
+        OrchestratorScheduler.runNow(this)
     }
 
     private fun initHealthConnect() {
@@ -588,6 +591,7 @@ class MainActivity : ComponentActivity() {
         )
         status.text = "✓ SYNC kész · ${if (profile == "monika") "Mónika" else "Zsolt"} · Health + Activity Cloud frissítve."
         updateScheduleUi()
+        OrchestratorScheduler.runNow(this@MainActivity)
 
         val back = Uri.parse(HEALTHHUB_URL).buildUpon()
             .appendQueryParameter("bridgeSync", "1")
@@ -656,6 +660,8 @@ class MainActivity : ComponentActivity() {
                 val owner = bindOwnerIfNeeded(profile)
                 if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
                 DailyContentScheduler.runNow(this@MainActivity)
+                OrchestratorScheduler.schedule(this@MainActivity)
+                OrchestratorScheduler.runNow(this@MainActivity)
                 exportAndUpload(owner)
             } catch (e: Exception) {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
