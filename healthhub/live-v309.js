@@ -5,11 +5,11 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.0';
+var BUILD='1.309.1';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
-var HERO_B64='./assets/environmental-hero-v309-650.b64?v=3090';
+var HERO_CHUNKS=[0,1,2,3,4,5].map(function(i){return './assets/environmental-hero-v309-650-0'+i+'.b64?v=3091'});
 var heroDataUrl='';
 var heroPromise=null;
 var baseShow=null;
@@ -74,8 +74,12 @@ function ensureStyle(){
 async function loadHero(){
  if(heroDataUrl)return heroDataUrl;
  if(heroPromise)return heroPromise;
- heroPromise=fetch(HERO_B64,{cache:'force-cache'}).then(function(r){if(!r.ok)throw new Error('hero '+r.status);return r.text()}).then(function(b64){
-  heroDataUrl='data:image/webp;base64,'+b64.trim();
+ heroPromise=Promise.all(HERO_CHUNKS.map(function(url){
+  return fetch(url,{cache:'force-cache'}).then(function(r){if(!r.ok)throw new Error('hero '+r.status+' '+url);return r.text()});
+ })).then(function(parts){
+  var b64=parts.map(function(x){return String(x||'').trim()}).join('');
+  if(b64.length<30000||b64.slice(0,5)!=='UklGR')throw new Error('hero chunks invalid');
+  heroDataUrl='data:image/webp;base64,'+b64;
   var h=document.querySelector('#'+PAGE+' .env309Hero');if(h)h.style.backgroundImage='url("'+heroDataUrl+'")';
   return heroDataUrl;
  }).catch(function(e){console.warn('ENV hero',e);return ''}).finally(function(){heroPromise=null});
@@ -199,7 +203,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.0';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.1';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
