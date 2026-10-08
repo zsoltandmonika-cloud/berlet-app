@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v311.2: compact, attention-only infection signals in the last environmental hero cell.
+/* HealthHub v311.3: compact, attention-only infection signals in the last environmental hero cell.
    Shows disease names rather than category totals. Official NNGYK week is source-dated. */
 var PAGE='hhEnvironmental309', BLOCK='hhInfectionWatch310', CELL='hhInfectionHero311', STYLE='hhInfectionHero311Style';
 var observer=null,started=false;
@@ -14,7 +14,10 @@ function style(){
  s.textContent=
  '#'+PAGE+' #'+CELL+'{cursor:pointer;outline-offset:2px;min-height:45px;max-height:100%;box-sizing:border-box;padding:4px 4px 3px!important;display:flex;flex-direction:column;align-items:stretch;gap:1px;overflow:hidden;user-select:none;text-align:left}'+
  '#'+PAGE+' #'+CELL+':focus-visible{outline:2px solid #fff}'+
- '#'+PAGE+' #'+CELL+' .hh311Title{display:block;font-size:6.1px!important;line-height:6.8px!important;font-weight:800;letter-spacing:-.11px;text-transform:none!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin:0 0 1px}'+
+ '#'+PAGE+' #'+CELL+' .hh311Heading{display:flex;flex-direction:row;align-items:center;gap:3px;min-width:0;min-height:17px;margin:0 0 1px}'+
+ '#'+PAGE+' #'+CELL+' .hh311Icon{display:block;flex:0 0 16px;width:16px;font-size:16px!important;line-height:17px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,75,40,.24))}'+
+ '#'+PAGE+' #'+CELL+' .hh311TitleWords{display:flex;min-width:0;flex-direction:column;align-items:flex-start;font-size:7px!important;font-weight:900;line-height:8px;letter-spacing:-.12px;text-transform:none}'+
+ '#'+PAGE+' #'+CELL+' .hh311TitleWords span{display:block;white-space:nowrap}'+
  '#'+PAGE+' #'+CELL+' .hh311Signals{display:flex;flex-direction:column;min-width:0;gap:1px}'+
  '#'+PAGE+' #'+CELL+' .hh311Signal{display:flex;align-items:center;gap:3px;min-width:0;line-height:8px;font-size:7px;font-weight:800;white-space:nowrap}'+
  '#'+PAGE+' #'+CELL+' .hh311Dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex:0 0 5px;border:1px solid rgba(255,255,255,.65);box-sizing:content-box}'+
@@ -44,7 +47,7 @@ function draw(){
  var cls='env309HeroMetric'+(risk?' envRisk'+risk:'')+(isStale?' hh311Stale':'');
  if(cell.className!==cls)cell.className=cls;
  if(cell.id!==CELL){cell.id=CELL;cell.setAttribute('role','button');cell.setAttribute('tabindex','0');cell.removeAttribute('aria-hidden')}
- var title='<small class="hh311Title">🦠 Fertőzési<br>helyzet</small>';
+ var title='<span class="hh311Heading"><span class="hh311Icon" aria-hidden="true">🦠</span><span class="hh311TitleWords"><span>Fertőzési</span><span>Helyzet</span></span></span>';
  var shown=signals.slice(0,2);
  var extra=signals.length>shown.length?'<span class="hh311Extra">+'+(signals.length-shown.length)+' további</span>':'';
  var main=isStale?'<span class="hh311Empty">⚪ Régi adat</span>':
