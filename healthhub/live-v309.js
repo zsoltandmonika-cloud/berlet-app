@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.17';
+var BUILD='1.309.18';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -40,15 +40,23 @@ function aqiLabel(v){
  if(v<100)return 'Nagyon rossz';
  return 'Extrém rossz';
 }
+function pollenRiskFromBest(best){
+ if(!best||best.value==null)return {level:0,label:'Nincs adat'};
+ var tree={alder:1,birch:1,olive:1},v=Number(best.value),level=0;
+ if(tree[best.key])level=v<=10?0:v<=100?1:v<=500?2:3;
+ else level=v<=10?0:v<=30?1:v<=100?2:3;
+ return {level:level,label:['Alacsony','Közepes','Magas','Nagyon magas'][level]};
+}
 function pollenSummary(p){
  var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'},best=null;
  Object.keys(names).forEach(function(k){
   var v=p&&p[k];if(v==null||!Number.isFinite(Number(v)))return;
   v=Number(v);if(!best||v>best.value)best={key:k,name:names[k],value:v};
  });
- if(!best)return {name:'—',value:null,label:'Nincs adat'};
- if(best.value<=0)return {name:'Nincs',value:0,label:'0 grains/m³'};
- return {name:best.name,value:Number(best.value.toFixed(1)),label:Number(best.value.toFixed(1))+' grains/m³'};
+ if(!best)return {key:null,name:'—',value:null,label:'Nincs adat',category:'Nincs adat',level:0};
+ if(best.value<=0)return {key:best.key,name:'Nincs',value:0,label:'0 grains/m³',category:'Alacsony',level:0};
+ var r=pollenRiskFromBest(best);
+ return {key:best.key,name:best.name,value:Number(best.value.toFixed(1)),label:Number(best.value.toFixed(1))+' grains/m³',category:r.label,level:r.level};
 }
 function pollenDetails(p){
  var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'},a=[];
@@ -56,6 +64,13 @@ function pollenDetails(p){
  a.sort(function(x,y){return y.value-x.value});
  return a.slice(0,4).map(function(x){return x.name+' '+Number(x.value.toFixed(1))}).join(' · ')||'Jelenleg nincs kimutatható pollenadat.';
 }
+function riskClass(n){return n>0?' envRisk'+Math.min(3,Number(n)||0):''}
+function heatRisk(v){v=Number(v);if(!Number.isFinite(v))return 0;if(v>=40||v<=-30)return 3;if(v>=35||v<=-20)return 2;if(v>=30||v<=-8)return 1;return 0}
+function humidityRisk(v){v=Number(v);if(!Number.isFinite(v))return 0;if(v>=90||v<=10)return 3;if(v>=80||v<=20)return 2;if(v>=70||v<=30)return 1;return 0}
+function windRisk(v){v=Number(v);if(!Number.isFinite(v))return 0;return v>=100?3:v>=75?2:v>=50?1:0}
+function pressureRisk(x){var p=x&&x.pressureDelta||{},m=Math.max(Math.abs(p.h6||0),Math.abs(p.h12||0),Math.abs(p.h24||0));return m>=14?3:m>=10?2:m>=6?1:0}
+function uvRisk(v){v=Number(v);if(!Number.isFinite(v))return 0;return v>=8?3:v>=6?2:v>=3?1:0}
+function aqiRisk(v){v=Number(v);if(!Number.isFinite(v))return 0;return v>=60?3:v>=40?2:v>=20?1:0}
 function statusKey(x){return x&&x.assessment&&x.assessment.key||'normal'}
 function statusLabel(x){return x&&x.assessment&&x.assessment.label||'Környezeti állapot'}
 function statusText(x){return x&&x.assessment&&x.assessment.summary||'Az aktuális környezeti adatok betöltése folyamatban.'}
@@ -84,7 +99,10 @@ function ensureStyle(){
  '#'+PAGE+' .env309Glass h1{font-size:19px;line-height:.98;margin:0;font-weight:900;letter-spacing:-.015em}'+
  '#'+PAGE+' .env309Glass h1 span{display:block}#'+PAGE+' .env309Glass>small{font-size:8px;opacity:.82}'+
  '#'+PAGE+' .env309HeroGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:9px}'+
- '#'+PAGE+' .env309HeroMetric{min-width:0;border-radius:10px;padding:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17)}'+
+ '#'+PAGE+' .env309HeroMetric{min-width:0;border-radius:10px;padding:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17);transition:background .2s ease,border-color .2s ease}'+
+ '#'+PAGE+' .env309HeroMetric.envRisk1{background:rgba(244,193,48,.19);border-color:rgba(255,222,112,.62)}'+
+ '#'+PAGE+' .env309HeroMetric.envRisk2{background:rgba(241,137,35,.23);border-color:rgba(255,174,92,.72)}'+
+ '#'+PAGE+' .env309HeroMetric.envRisk3{background:rgba(220,65,78,.27);border-color:rgba(255,128,137,.78)}'+
  '#'+PAGE+' .env309Reserved{min-height:45px;background:rgba(255,255,255,.035);border:1px dashed rgba(255,255,255,.11)}'+
  '#'+PAGE+' .env309HeroMetric small{display:block;font-size:6.5px;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '#'+PAGE+' .env309HeroMetric b{display:block;font-size:13px;margin-top:2px;white-space:nowrap}#'+PAGE+' .env309HeroMetric em{display:block;font-size:6.5px;font-style:normal;opacity:.78;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
@@ -93,7 +111,10 @@ function ensureStyle(){
  '#'+PAGE+' .env309Dot{width:10px;height:10px;border-radius:50%;margin-top:3px;background:#35a66f}#'+PAGE+' .env309Status.watch .env309Dot{background:#e5a21d}#'+PAGE+' .env309Status.high .env309Dot{background:#e04b5f}'+
  '#'+PAGE+' .env309Status b{font-size:12px;color:#173f62}#'+PAGE+' .env309Status small{display:block;font-size:8.5px;color:#738997;line-height:1.35;margin-top:2px}'+
  '#'+PAGE+' .env309Cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}'+
- '#'+PAGE+' .env309Card{border-radius:16px;padding:11px;background:#fff;border:1px solid #e1ecf1;box-shadow:0 6px 16px rgba(31,75,101,.055)}'+
+ '#'+PAGE+' .env309Card{border-radius:16px;padding:11px;background:#fff;border:1px solid #e1ecf1;box-shadow:0 6px 16px rgba(31,75,101,.055);transition:background .2s ease,border-color .2s ease}'+
+ '#'+PAGE+' .env309Card.envRisk1{background:linear-gradient(145deg,#fffdf3,#fff);border-color:#efd98a}#'+PAGE+' .env309Card.envRisk1 .env309Big{color:#9a7608}'+
+ '#'+PAGE+' .env309Card.envRisk2{background:linear-gradient(145deg,#fff7ed,#fff);border-color:#f0b36d}#'+PAGE+' .env309Card.envRisk2 .env309Big{color:#c66a12}'+
+ '#'+PAGE+' .env309Card.envRisk3{background:linear-gradient(145deg,#fff1f2,#fff);border-color:#e89aa4}#'+PAGE+' .env309Card.envRisk3 .env309Big{color:#c43d50}'+
  '#'+PAGE+' .env309Card h3{font-size:11px;color:#193f60;margin:0 0 8px}#'+PAGE+' .env309Big{font-size:21px;font-weight:950;color:#15527c}#'+PAGE+' .env309Sub{font-size:8px;color:#7c8f9c;margin-top:2px;line-height:1.35}'+
  '#'+PAGE+' .env309Trend{margin-top:7px;padding-top:7px;border-top:1px solid #edf2f4;font-size:8px;color:#607a8d;line-height:1.55}'+
  '#'+PAGE+' .env309Future{background:linear-gradient(145deg,#f7fff9,#fff);border-color:#d9eee0}#'+PAGE+' .env309Future .env309Big{color:#4a9d57}'+
@@ -122,15 +143,15 @@ function current(){
 }
 
 function heroMetrics(x){
- var c=x&&x.current||{},p=x&&x.pressureDelta||{};
+ var c=x&&x.current||{},p=x&&x.pressureDelta||{},ps=pollenSummary(x&&x.pollen),aq=x&&x.airQuality&&x.airQuality.europeanAqi;
  return ''+
- '<div class="env309HeroMetric"><small>Hőmérséklet</small><b>'+val(c.temperature,0,'°C')+'</b><em>Hőérzet '+val(c.apparentTemperature,0,'°C')+'</em></div>'+
- '<div class="env309HeroMetric"><small>Páratartalom</small><b>'+val(c.humidity,0,'%')+'</b><em>relatív</em></div>'+
- '<div class="env309HeroMetric"><small>Szél</small><b>'+val(c.windSpeed,0,' km/h')+'</b><em>Lökés '+val(c.windGust,0,' km/h')+'</em></div>'+
- '<div class="env309HeroMetric"><small>Légnyomás</small><b>'+val(c.pressureMsl,0,' hPa')+'</b><em>'+esc(pressureLabel(x))+'</em></div>'+
- '<div class="env309HeroMetric"><small>UV index</small><b>'+val(c.uvIndex,1,'')+'</b><em>'+esc(uvLabel(c.uvIndex))+'</em></div>'+
- '<div class="env309HeroMetric"><small>Pollen</small><b>'+esc(pollenSummary(x&&x.pollen).name)+'</b><em>'+esc(pollenSummary(x&&x.pollen).label)+'</em></div>'+
- '<div class="env309HeroMetric"><small>Levegő</small><b>'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</b><em>'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(heatRisk(c.apparentTemperature))+'"><small>Hőmérséklet</small><b>'+val(c.temperature,0,'°C')+'</b><em>Hőérzet '+val(c.apparentTemperature,0,'°C')+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(humidityRisk(c.humidity))+'"><small>Páratartalom</small><b>'+val(c.humidity,0,'%')+'</b><em>relatív</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(windRisk(c.windGust))+'"><small>Szél</small><b>'+val(c.windSpeed,0,' km/h')+'</b><em>Lökés '+val(c.windGust,0,' km/h')+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(pressureRisk(x))+'"><small>Légnyomás</small><b>'+val(c.pressureMsl,0,' hPa')+'</b><em>'+esc(pressureLabel(x))+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(uvRisk(c.uvIndex))+'"><small>UV index</small><b>'+val(c.uvIndex,1,'')+'</b><em>'+esc(uvLabel(c.uvIndex))+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(ps.level)+'"><small>Pollen</small><b>'+esc(ps.name)+'</b><em>'+esc(ps.category)+' · '+esc(ps.label)+'</em></div>'+
+ '<div class="env309HeroMetric'+riskClass(aqiRisk(aq))+'"><small>Levegő</small><b>'+val(aq,0,' AQI')+'</b><em>'+esc(aqiLabel(aq))+'</em></div>'+
  '<div class="env309HeroMetric env309Reserved" aria-hidden="true"></div>';
 }
 
@@ -146,13 +167,13 @@ function pageHtml(x){
  '<div class="env309Body">'+
   '<div class="env309Status '+esc(key)+'"><span class="env309Dot"></span><span><b>'+esc(statusLabel(x))+'</b><small>'+esc(statusText(x))+'</small></span></div>'+
   '<div class="env309Cards">'+
-   '<div class="env309Card"><h3>🌡️ Hőterhelés</h3><div class="env309Big">'+val(c.apparentTemperature,0,'°C')+'</div><div class="env309Sub">Aktuális hőérzet · tényleges '+val(c.temperature,0,'°C')+'</div></div>'+
-   '<div class="env309Card"><h3>💧 Páratartalom</h3><div class="env309Big">'+val(c.humidity,0,'%')+'</div><div class="env309Sub">Relatív páratartalom</div></div>'+
-   '<div class="env309Card"><h3>🌬️ Szél</h3><div class="env309Big">'+val(c.windSpeed,0,' km/h')+'</div><div class="env309Sub">Széllökés: '+val(c.windGust,0,' km/h')+'</div></div>'+
-   '<div class="env309Card"><h3>☀️ UV terhelés</h3><div class="env309Big">'+val(c.uvIndex,1,'')+'</div><div class="env309Sub">'+esc(uvLabel(c.uvIndex))+' UV-index</div></div>'+
-   '<div class="env309Card env309Wide"><h3>🌀 Légnyomás és változás</h3><div class="env309Big">'+val(c.pressureMsl,0,' hPa')+'</div><div class="env309Sub">'+esc(pressureLabel(x))+'</div><div class="env309Trend">3 óra: <b>'+signed(p.h3,1,' hPa')+'</b> · 6 óra: <b>'+signed(p.h6,1,' hPa')+'</b> · 12 óra: <b>'+signed(p.h12,1,' hPa')+'</b> · 24 óra: <b>'+signed(p.h24,1,' hPa')+'</b></div></div>'+
-   '<div class="env309Card"><h3>🌿 Pollen</h3><div class="env309Big">'+esc(pollenSummary(x&&x.pollen).name)+'</div><div class="env309Sub">'+esc(pollenSummary(x&&x.pollen).label)+' · domináns pollen</div><div class="env309Trend">'+esc(pollenDetails(x&&x.pollen))+'</div></div>'+
-   '<div class="env309Card"><h3>🌫️ Levegőminőség</h3><div class="env309Big">'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</div><div class="env309Sub">'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+' · European AQI</div><div class="env309Trend">PM2.5 <b>'+val(x&&x.airQuality&&x.airQuality.pm25,1,' µg/m³')+'</b> · PM10 <b>'+val(x&&x.airQuality&&x.airQuality.pm10,1,' µg/m³')+'</b></div></div>'+
+   '<div class="env309Card'+riskClass(heatRisk(c.apparentTemperature))+'"><h3>🌡️ Hőterhelés</h3><div class="env309Big">'+val(c.apparentTemperature,0,'°C')+'</div><div class="env309Sub">Aktuális hőérzet · tényleges '+val(c.temperature,0,'°C')+'</div></div>'+
+   '<div class="env309Card'+riskClass(humidityRisk(c.humidity))+'"><h3>💧 Páratartalom</h3><div class="env309Big">'+val(c.humidity,0,'%')+'</div><div class="env309Sub">Relatív páratartalom</div></div>'+
+   '<div class="env309Card'+riskClass(windRisk(c.windGust))+'"><h3>🌬️ Szél</h3><div class="env309Big">'+val(c.windSpeed,0,' km/h')+'</div><div class="env309Sub">Széllökés: '+val(c.windGust,0,' km/h')+'</div></div>'+
+   '<div class="env309Card'+riskClass(uvRisk(c.uvIndex))+'"><h3>☀️ UV terhelés</h3><div class="env309Big">'+val(c.uvIndex,1,'')+'</div><div class="env309Sub">'+esc(uvLabel(c.uvIndex))+' UV-index</div></div>'+
+   '<div class="env309Card env309Wide'+riskClass(pressureRisk(x))+'"><h3>🌀 Légnyomás és változás</h3><div class="env309Big">'+val(c.pressureMsl,0,' hPa')+'</div><div class="env309Sub">'+esc(pressureLabel(x))+'</div><div class="env309Trend">3 óra: <b>'+signed(p.h3,1,' hPa')+'</b> · 6 óra: <b>'+signed(p.h6,1,' hPa')+'</b> · 12 óra: <b>'+signed(p.h12,1,' hPa')+'</b> · 24 óra: <b>'+signed(p.h24,1,' hPa')+'</b></div></div>'+
+   '<div class="env309Card'+riskClass(pollenSummary(x&&x.pollen).level)+'"><h3>🌿 Pollen</h3><div class="env309Big">'+esc(pollenSummary(x&&x.pollen).name)+'</div><div class="env309Sub">'+esc(pollenSummary(x&&x.pollen).category)+' · '+esc(pollenSummary(x&&x.pollen).label)+' · domináns pollen</div><div class="env309Trend">'+esc(pollenDetails(x&&x.pollen))+'</div></div>'+
+   '<div class="env309Card'+riskClass(aqiRisk(x&&x.airQuality&&x.airQuality.europeanAqi))+'"><h3>🌫️ Levegőminőség</h3><div class="env309Big">'+val(x&&x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</div><div class="env309Sub">'+esc(aqiLabel(x&&x.airQuality&&x.airQuality.europeanAqi))+' · European AQI</div><div class="env309Trend">PM2.5 <b>'+val(x&&x.airQuality&&x.airQuality.pm25,1,' µg/m³')+'</b> · PM10 <b>'+val(x&&x.airQuality&&x.airQuality.pm10,1,' µg/m³')+'</b></div></div>'+
   '</div>'+
   '<div class="env309Source">Frissítve: '+esc(ft)+' · Open-Meteo + CAMS ENSEMBLE · <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noopener">forrás ↗</a></div>'+
  '</div>';
@@ -254,7 +275,7 @@ function hookShow(){
  }
 }
 function syncSystemInfoBuild(){
- var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.17';
+ var live=(document.querySelector('meta[name="healthhub-live-build"]')||{}).content||'v309.18';
  window.HH_LIVE_BUILD=live;
  var all=Array.from(document.querySelectorAll('body *'));
  all.forEach(function(el){
@@ -270,7 +291,7 @@ function syncSystemInfoBuild(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();syncSystemInfoBuild();
- document.documentElement.dataset.healthhubEnvironmental='1.309.17';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.18';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
