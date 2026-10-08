@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v309-environmental-health-module",
-  "currentFocus": "v309 dedicated Environmental Health module deployed for acceptance: 10-tile responsive Home grid, HD/glassy Environmental Health tile, approved Léna/Budapest hero with live overlay, Environmental Health V1 detail page and shared HealthRadar bottom navigation.",
+  "liveBuild": "v309.2-environmental-health-acceptance",
+  "currentFocus": "v309.2 Environmental Health acceptance build: dedicated module, responsive 10-tile Home grid, verified approved hero asset, live environmental overlay and shared bottom navigation.",
   "nextDevelopment": "PRIORITIZED BACKLOG: Contextual Health Intelligence sliced by dependencies: Environmental Health V1 → Pollen → Communicable Disease Watch → Home Daily Health Watch → Symptom Environmental Snapshot → Association Analytics → Red-Flag Safety Gate → Profile-aware Self-care/OTC Library → Léna Health Assessment → Doctor Escalation → Nutrition Context → Voice Entry.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -1472,7 +1472,7 @@
       "targetDate": null,
       "actualDone": null,
       "status": "Testing",
-      "progress": 0.98,
+      "progress": 0.99,
       "sprint": "S5",
       "id": "HH-ENV-001",
       "epic": "Contextual Health Intelligence",
@@ -1484,7 +1484,7 @@
       "storyPoints": 5,
       "dependency": "HH-DATA-001",
       "backlogRank": 1,
-      "notes": "v309 acceptance candidate: v308 data engine retained; dedicated Environmental Health page added, Home modules become 2x5 on mobile / 5x2 on wide screens, approved Léna/Budapest hero is optimized and loaded as a web asset, static hero readings are covered by a live data overlay, and the shared HealthRadar bottom nav is reused. HH-ENV-002 Pollen remains the next slice."
+      "notes": "v309.2 acceptance build deployed. Hero asset verified as 33,604-character WebP base64 across seven safe chunks. Dedicated Home tile/page, live v308 data overlay, 2x5 mobile / 5x2 wide grid and shared HealthRadar navigation ready for user acceptance. Pollen remains HH-ENV-002."
     },
     {
       "owner": "Léna + Zsolt",
@@ -2167,6 +2167,11 @@
       "date": "2026-10-08",
       "version": "v309",
       "change": "Environmental Health promoted to a dedicated HealthHub module with responsive 10-tile Home grid, glassy launcher, approved hero, live environmental overlay and shared bottom navigation."
+    },
+    {
+      "date": "2026-10-08",
+      "version": "v309.2",
+      "change": "Environmental Health acceptance build: repaired/verified chunked hero asset and refreshed production cache key."
     }
   ]
 }
