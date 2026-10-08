@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.10';
+var BUILD='1.309.11';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -53,7 +53,7 @@ function ensureStyle(){
  '#'+PAGE+' .env309Top{position:absolute;z-index:6;left:12px;top:12px;display:flex;align-items:center}'+
  '#'+PAGE+' .env309Top button{height:34px;border-radius:18px;border:1px solid rgba(255,255,255,.55);background:rgba(6,55,91,.33);color:#fff;backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(5,50,84,.12);font-weight:900}'+
  '#'+PAGE+' .env309Back{width:34px;font-size:20px}'+
- '#'+PAGE+' .env309Glass{position:absolute;z-index:5;right:12px;top:18px;width:min(59%,510px);min-height:190px;border-radius:18px;padding:11px;background:linear-gradient(145deg,rgba(7,94,158,.74),rgba(8,75,135,.66));border:1px solid rgba(255,255,255,.58);box-shadow:0 12px 28px rgba(2,55,96,.22),inset 0 1px 0 rgba(255,255,255,.38);backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14);color:#fff}'+
+ '#'+PAGE+' .env309Glass{position:absolute;z-index:5;right:12px;top:18px;width:min(59%,510px);min-height:190px;border-radius:18px;padding:11px;background:linear-gradient(145deg,rgba(7,94,158,.50),rgba(8,75,135,.50));border:1px solid rgba(255,255,255,.58);box-shadow:0 12px 28px rgba(2,55,96,.22),inset 0 1px 0 rgba(255,255,255,.38);backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14);color:#fff}'+
  '#'+PAGE+' .env309Glass h1{font-size:19px;line-height:1;margin:0 0 3px}#'+PAGE+' .env309Glass>small{font-size:8px;opacity:.82}'+
  '#'+PAGE+' .env309HeroGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:9px}'+
  '#'+PAGE+' .env309HeroMetric{min-width:0;border-radius:10px;padding:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17)}'+
@@ -70,7 +70,7 @@ function ensureStyle(){
  '#'+PAGE+' .env309Trend{margin-top:7px;padding-top:7px;border-top:1px solid #edf2f4;font-size:8px;color:#607a8d;line-height:1.55}'+
  '#'+PAGE+' .env309Future{background:linear-gradient(145deg,#f7fff9,#fff);border-color:#d9eee0}#'+PAGE+' .env309Future .env309Big{color:#4a9d57}'+
  '#'+PAGE+' .env309Wide{grid-column:1/-1}#'+PAGE+' .env309Source{margin-top:9px;text-align:center;color:#8295a2;font-size:7.5px}#'+PAGE+' .env309Source a{color:var(--a);font-weight:900;text-decoration:none}'+
- '@media(max-width:390px){#'+PAGE+' .env309Hero{height:318px;background-size:auto 100%!important;background-position:-42px center!important}#'+PAGE+' .env309Hero:before{width:45%;background:linear-gradient(90deg,rgba(18,117,184,.035),rgba(5,78,139,.47));backdrop-filter:blur(7px) saturate(1.04)}#'+PAGE+' .env309Glass{right:6px;top:8px;bottom:8px;width:43%;padding:7px;min-height:0;display:flex;flex-direction:column;background:linear-gradient(145deg,rgba(7,94,158,.69),rgba(8,75,135,.61));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:14.2px;line-height:1.04;margin-bottom:3px}#'+PAGE+' .env309Glass>small{font-size:6.7px;line-height:1.15;display:block}#'+PAGE+' .env309HeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;margin-top:7px;flex:1}#'+PAGE+' .env309HeroMetric{padding:4px;min-height:0}#'+PAGE+' .env309HeroMetric small{font-size:6.25px}#'+PAGE+' .env309HeroMetric b{font-size:11px}#'+PAGE+' .env309HeroMetric em{font-size:6.25px}#'+PAGE+' .env309Reserved{min-height:0}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
+ '@media(max-width:390px){#'+PAGE+' .env309Hero{height:318px;background-size:auto 100%!important;background-position:-42px center!important}#'+PAGE+' .env309Hero:before{width:45%;background:linear-gradient(90deg,rgba(18,117,184,.035),rgba(5,78,139,.47));backdrop-filter:blur(7px) saturate(1.04)}#'+PAGE+' .env309Glass{right:6px;top:8px;bottom:8px;width:43%;padding:7px;min-height:0;display:flex;flex-direction:column;background:linear-gradient(145deg,rgba(7,94,158,.50),rgba(8,75,135,.50));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:14.2px;line-height:1.04;margin-bottom:3px}#'+PAGE+' .env309Glass>small{font-size:6.7px;line-height:1.15;display:block}#'+PAGE+' .env309HeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;margin-top:7px;flex:1}#'+PAGE+' .env309HeroMetric{padding:4px;min-height:0}#'+PAGE+' .env309HeroMetric small{font-size:6.25px}#'+PAGE+' .env309HeroMetric b{font-size:11px}#'+PAGE+' .env309HeroMetric em{font-size:6.25px}#'+PAGE+' .env309Reserved{min-height:0}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
  document.head.appendChild(s);
 }
 
@@ -227,7 +227,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.10';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.11';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
