@@ -198,11 +198,16 @@ function ensurePage(){
 function ensureLaunch(){
  var q=document.querySelector('#health .quick');if(!q)return;
  q.classList.add('hhSJQuick307');
- if(q.querySelector('.hhSJLaunch307'))return;
- var b=document.createElement('button');b.type='button';b.className='q hhSJLaunch307';
- b.innerHTML='<span class="qbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V5h10v11"/><path d="M9 9h6M12 6v6"/><path d="M9 16h6"/></svg></span><span>Tünet-<br>napló</span>';
- b.onclick=openJournal;
- var last=q.lastElementChild;q.insertBefore(b,last||null);
+ var b=q.querySelector('.hhSJLaunch307');
+ if(!b){
+  b=document.createElement('button');b.type='button';b.className='q hhSJLaunch307';
+  b.innerHTML='<span class="qbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V5h10v11"/><path d="M9 9h6M12 6v6"/><path d="M9 16h6"/></svg></span><span>Tünet-<br>napló</span>';
+  var last=q.lastElementChild;q.insertBefore(b,last||null);
+ }
+ /* HealthRadar can rebuild .quick with innerHTML. Rebind even when the button survives
+    visually but its DOM event handler was discarded by the rebuild. */
+ b.type='button';
+ b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}openJournal()};
 }
 async function readMeasurements(){
  return new Promise(function(ok){
@@ -298,9 +303,32 @@ async function openJournal(){
  ensurePage();showPage();renderDraft();renderTrend();
  var before=pkgLocal().events.length;await pullCloud();if(pkgLocal().events.length!==before)renderTrend();
 }
+var launchObserver=null,launchRepairTimer=null;
+function installLaunchGuard(){
+ if(document.documentElement.dataset.hhSJLaunchGuard307==='1')return;
+ document.documentElement.dataset.hhSJLaunchGuard307='1';
+ /* Delegated fallback: survives every HealthRadar DOM rebuild. */
+ document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('.hhSJLaunch307'):null;
+  if(!b)return;
+  e.preventDefault();e.stopPropagation();
+  openJournal();
+ },true);
+ var health=document.getElementById('health');
+ if(health&&window.MutationObserver){
+  launchObserver=new MutationObserver(function(){
+   clearTimeout(launchRepairTimer);
+   launchRepairTimer=setTimeout(ensureLaunch,30);
+  });
+  launchObserver.observe(health,{childList:true,subtree:true});
+ }
+ /* Tiny watchdog for older WebViews where mutation callbacks can be skipped while
+    pages are being swapped. It only repairs the launch button; it does no sync work. */
+ setInterval(function(){if(document.getElementById('health'))ensureLaunch()},2500);
+}
 function decorate(){
- ensurePage();ensureLaunch();
- document.documentElement.dataset.healthhubSymptomJournal='1.307';
+ ensurePage();ensureLaunch();installLaunchGuard();
+ document.documentElement.dataset.healthhubSymptomJournal='1.307.1';
 }
 window.hhOpenSymptomJournal307=openJournal;
 window.hhSymptomJournalSync307=async function(){await pullCloud();if(connected())await pushCloud();renderTrend();return true};
