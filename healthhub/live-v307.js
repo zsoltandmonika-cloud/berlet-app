@@ -226,7 +226,8 @@ function applyWheel(){
 function showPage(){
  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('on')});
  var p=document.getElementById(PAGE);if(p)p.classList.add('on');
- ['navTimelineBar','navHealthBar','navHomeBar','navDetailBar'].forEach(function(id){var n=document.getElementById(id);if(n)n.style.display='none'});
+ ['navTimelineBar','navHomeBar','navDetailBar'].forEach(function(id){var n=document.getElementById(id);if(n)n.style.display='none'});
+ var healthNav=document.getElementById('navHealthBar');if(healthNav)healthNav.style.display='grid';
  window.scrollTo(0,0);
 }
 function backHealth(){
@@ -542,7 +543,7 @@ function installLaunchGuard(){
 }
 function decorate(){
  ensurePage();ensureLaunch();installLaunchGuard();renderTimelineSymptoms();
- document.documentElement.dataset.healthhubSymptomJournal='1.307.9';
+ document.documentElement.dataset.healthhubSymptomJournal='1.307.10';
 }
 window.hhOpenSymptomJournal307=openJournal;
 window.hhSymptomJournalSync307=async function(){await pullCloud();if(connected())await pushCloud();renderTrend();return true};
