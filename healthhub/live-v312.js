@@ -176,7 +176,7 @@ function personalHtml(keys,x){
 function render(){
  ensureStrip();var page=ensurePage(),box=el('dh312Content');if(!box)return;
  var x=context(),warn=interpret(x),p=prefs();
- var available=!!(x.weather.available||x.air.available||x.infection.available);
+ var available=!!(x.weather.available||x.air.available||(x.infection.available&&!x.infection.stale));
  archive(x,warn);
  var pRows=personalHtml(warn,x);
  var detail=warn.length?warn.map(function(v){return '<div class="dh312Warn '+esc(v.level)+'"><b>'+esc(v.title)+'</b><p>'+esc(v.body)+'</p></div>'}).join(''):'<p>🟢 Nincs kiemelt jelzés a most elérhető adatokból. Ez nem jelenti azt, hogy minden kockázat kizárható.</p>';
@@ -243,7 +243,8 @@ function init(){
   observer=new MutationObserver(function(){if(!el(STRIP))ensureStrip()});
   observer.observe(home,{childList:true,subtree:true});
  }
- setInterval(function(){ensureStrip();if(el(PAGE).classList.contains('on'))render()},60000);
+ var lastDay=day();
+ setInterval(function(){ensureStrip();if(day()!==lastDay){lastDay=day();load(false)}},60000);
  window.addEventListener('healthhub:environment-updated',function(){render()});
  window.addEventListener('focus',function(){load(false)});
  document.addEventListener('visibilitychange',function(){if(!document.hidden)load(false)});
