@@ -55,7 +55,7 @@ function render(){
   '<div class="hhCmsMeta302">Utolsó indítás: '+esc(fmt(s.startedAt))+' · Befejezés: '+esc(fmt(s.completedAt))+'</div>'+
   '<div class="hhCmsMeta302">'+esc(s.message||'')+'</div>'+
   '<div class="hhCmsActions302"><button type="button" class="primary" id="hhCmsRun302" '+(busy||s.status==='Running'?'disabled':'')+'>↻ SYNC ACTIVE PROFILE NOW</button><button type="button" id="hhCmsReset302">↺ STATUS RESET</button></div>'+
-  '<div class="hhCmsNote302"><b>Scope v302:</b> az aktív profil központi manuális szinkronja. Profile Vault, Central Structured Vault, Daily Cloud, Health + Activity, Devices Cloud és Léna Context. Az összes profil / összes eszköz egyparancsos orchestrációja külön WISH-008.</div>'+
+  '<div class="hhCmsNote302"><b>Scope v302:</b> az aktív profil központi manuális szinkronja. Profile Vault, Central Structured Vault, Daily Cloud, Health + Activity, Devices Cloud és Léna Context. Az összes profil / összes regisztrált eszköz központi orchestrációját a v305 Central Sync Orchestrator kezeli.</div>'+
  '</section>';
  var base=document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(base)base.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
