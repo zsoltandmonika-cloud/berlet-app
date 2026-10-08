@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/healthhub-daily-free.yml"
       - "healthhub/scripts/generate_daily_free.py"
+      - "healthhub/scripts/generate_daily_ai.py"
   workflow_dispatch:
     inputs:
       mode:
@@ -46,6 +47,14 @@ jobs:
           else
             python3 healthhub/scripts/generate_daily_free.py auto
           fi
+
+      - name: Generate public AI versions of Spark and Headline
+        shell: bash
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HEALTHHUB_AI_MODEL: gpt-4.1-mini
+        run: |
+          python3 healthhub/scripts/generate_daily_ai.py auto
 
       - name: Validate JSON
         shell: bash
