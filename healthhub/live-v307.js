@@ -348,12 +348,20 @@ function ensureLaunch(){
  var q=document.querySelector('#health .quick');if(!q)return;
  q.classList.add('hhSJQuick307');
  var b=q.querySelector('.hhSJLaunch307');
- if(b&&b!==q.lastElementChild)q.appendChild(b);
  if(!b){
   b=document.createElement('button');b.type='button';b.className='q hhSJLaunch307';
   b.innerHTML='<span class="qbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V5h10v11"/><path d="M9 9h6M12 6v6"/><path d="M9 16h6"/></svg></span><span>Tünet-<br>napló</span>';
   q.appendChild(b);
  }
+ /* Keep the actual buttons (and their handlers) intact, only swap their positions:
+    Tünetnapló becomes 6th and Továbbiak 7th. Run idempotently because
+    HealthRadar frequently rebuilds its shortcut row. */
+ var more=Array.from(q.children).find(function(x){
+  return x!==b && x.classList.contains('q') && /további/i.test((x.textContent||'').replace(/\s+/g,' ').trim());
+ });
+ if(more){
+  if(b.nextElementSibling!==more)q.insertBefore(b,more);
+ }else if(b!==q.lastElementChild)q.appendChild(b);
  /* HealthRadar can rebuild .quick with innerHTML. Rebind even when the button survives
     visually but its DOM event handler was discarded by the rebuild. */
  b.type='button';
