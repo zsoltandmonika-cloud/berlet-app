@@ -9,7 +9,7 @@ var BUILD='1.305', ROOT='/HealthHub/orchestrator';
 var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status';
 var DEVICE_KEY='hh-orchestrator-device-id-v1', LAST_CMD='hh-orchestrator-last-command-v1';
 var CHECK_MS=60000, CHECK_THROTTLE=12000, ADMIN_ID='hhSyncOrchestrator305', STYLE_ID='hhSyncOrchestrator305Style';
-var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[];
+var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[],foldersReady=false;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -80,7 +80,7 @@ async function ensureFolder(path){
  if(r.status===409&&await folderExists(path,t))return true;
  throw new Error('Dropbox mappa létrehozási hiba · '+path+' · '+r.status);
 }
-async function ensureFolders(){await ensureFolder('/HealthHub');await ensureFolder(ROOT);await ensureFolder(DEVICES);await ensureFolder(COMMANDS);await ensureFolder(STATUS)}
+async function ensureFolders(){if(foldersReady)return true;await ensureFolder('/HealthHub');await ensureFolder(ROOT);await ensureFolder(DEVICES);await ensureFolder(COMMANDS);await ensureFolder(STATUS);foldersReady=true;return true}
 async function upload(path,data){var v=vault();if(!v||!v.uploadJson)throw new Error('Dropbox Vault API nem elérhető.');return v.uploadJson(path,data)}
 async function download(path){var v=vault();if(!v||!v.downloadJson)throw new Error('Dropbox Vault API nem elérhető.');try{return await v.downloadJson(path)}catch(e){if(e&&e.status===409)return null;throw e}}
 async function listFolder(path){
@@ -248,13 +248,18 @@ async function dispatch(profileScope,deviceFilter){
  });
  if(!selected.length)throw new Error('Nincs megfelelő regisztrált eszköz.');
  var scope=scopeFromUi(),id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
- await Promise.all(selected.map(function(d){
+ await Promise.all(selected.map(async function(d){
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
    requestedBy:deviceId(),profileScope:profileScope,scopes:[scope],state:'pending'
   };
-  return upload(commandPath(d.deviceId),cmd);
+  await upload(commandPath(d.deviceId),cmd);
+  await upload(statusPath(d.deviceId),{
+   schema:'healthhub.orchestrator.status/1',deviceId:d.deviceId,deviceType:d.deviceType||'device',
+   commandId:id,state:'pending',updatedAt:issued,startedAt:null,completedAt:null,
+   profileScope:profileScope,scopes:[scope],steps:[],message:'Központi sync parancs várakozik.'
+  });
  }));
  try{window.toast&&window.toast('✓ Sync parancs elküldve · '+selected.length+' eszköz')}catch(e){}
  await checkCommand(true);
@@ -317,7 +322,15 @@ function scheduleChecks(){
  window.addEventListener('online',function(){checkCommand(true)});
  setTimeout(function(){checkCommand(true)},2200);
 }
-attachAdmin();scheduleChecks();
+function markWish008Done(){
+ try{
+  var key='hh-ai-wishlist-v1',a=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(a))return;
+  var changed=false,t=now();
+  a.forEach(function(x){if(x&&x.id==='WISH-008'){x.status='Done';x.executionStatus='Done';x.executionMessage='v305 Central Sync Orchestrator aktív · összes profil / regisztrált eszköz központi command queue-val.';x.executionAt=t;x.updatedAt=t;changed=true}});
+  if(changed)localStorage.setItem(key,JSON.stringify(a));
+ }catch(e){}
+}
+attachAdmin();scheduleChecks();markWish008Done();
 setTimeout(function(){heartbeat().catch(function(){})},1400);
 
 document.documentElement.dataset.healthhubSyncOrchestrator='1.305';
