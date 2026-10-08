@@ -46,6 +46,10 @@ async function processIncoming(profile,force){
 window.hhHealthCloudSync=function(force){
  return processIncoming(pkey(),!!force).catch(function(e){console.error(e);toast('Health + Activity sync hiba: '+(e.message||e));return false});
 };
+window.hhHealthCloudSyncProfile=function(profile,force){
+ profile=profile==='monika'?'monika':'zsolt';
+ return processIncoming(profile,!!force).catch(function(e){console.error(e);toast('Health + Activity sync hiba: '+(e.message||e));return false});
+};
 window.hhSyncNow=function(){
  var profile=pkey();
  if(!isAndroid()){

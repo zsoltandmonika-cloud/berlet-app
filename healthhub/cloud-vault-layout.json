@@ -18,7 +18,8 @@
     "appointments": "/HealthHub/appointments",
     "daily": "/HealthHub/daily",
     "sync": "/HealthHub/sync",
-    "master": "/HealthHub/master"
+    "master": "/HealthHub/master",
+    "orchestrator": "/HealthHub/orchestrator"
   },
   "daily": {
     "spark": "/HealthHub/daily/daily-spark.json",
@@ -86,5 +87,19 @@
     },
     "localCache": "IndexedDB healthhub-healthradar-v2",
     "bootstrap": "merge-local-and-cloud-without-destructive-delete"
+  },
+  "orchestrator": {
+    "schema": "healthhub.orchestrator/1",
+    "root": "/HealthHub/orchestrator",
+    "devices": "/HealthHub/orchestrator/devices/{deviceId}.json",
+    "commands": "/HealthHub/orchestrator/commands/{deviceId}.json",
+    "status": "/HealthHub/orchestrator/status/{deviceId}.json",
+    "execution": {
+      "web": "startup + focus/visibility/online + visible 60s command check",
+      "android": "WorkManager 15 minute background check + immediate app-open check",
+      "offline": "pending command is executed on next available check"
+    },
+    "privacy": "technical device/status metadata only; no clinical values in orchestrator records",
+    "commandExpiryHours": 24
   }
 }
