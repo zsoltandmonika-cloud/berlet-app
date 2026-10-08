@@ -39,9 +39,18 @@ def llm(instruction,input_data,schema,label):
           "input":json.dumps(input_data,ensure_ascii=False),
           "max_output_tokens":1800,
           "text":{"format":{"type":"json_schema","name":label,"strict":True,"schema":schema}}}
+ headers={"Authorization":"Bearer "+key,"Content-Type":"application/json"}
+ org=os.environ.get("OPENAI_ORG_ID","").strip()
+ project=os.environ.get("OPENAI_PROJECT_ID","").strip()
+ if org:
+  if not org.startswith(("org-","org_")):raise ValueError("Invalid OPENAI_ORG_ID")
+  headers["OpenAI-Organization"]=org
+ if project:
+  if not project.startswith("proj_"):raise ValueError("Invalid OPENAI_PROJECT_ID")
+  headers["OpenAI-Project"]=project
  req=urllib.request.Request("https://api.openai.com/v1/responses",
       data=json.dumps(payload,ensure_ascii=False).encode("utf-8"),
-      method="POST",headers={"Authorization":"Bearer "+key,"Content-Type":"application/json"})
+      method="POST",headers=headers)
  try:
   with urllib.request.urlopen(req,timeout=75) as r:raw=r.read(150_001)
   if len(raw)>150000:raise ValueError("response too large")
