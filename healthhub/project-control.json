@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v309.3-environmental-home-polish",
-  "currentFocus": "v309.3 Home module polish: fixed 5x2 semantic ordering, Environmental Health tile now matches the white module family, and Home icons/title typography are enlarged.",
-  "nextDevelopment": "PRIORITIZED BACKLOG: Contextual Health Intelligence sliced by dependencies: Environmental Health V1 → Pollen → Communicable Disease Watch → Home Daily Health Watch → Symptom Environmental Snapshot → Association Analytics → Red-Flag Safety Gate → Profile-aware Self-care/OTC Library → Léna Health Assessment → Doctor Escalation → Nutrition Context → Voice Entry.",
+  "liveBuild": "v309.17-environmental-air-pollen",
+  "currentFocus": "Environmental Health live data acceptance: weather, UV, barometric trend, pollen and European AQI/PM2.5/PM10 are wired into the dedicated module and live board.",
+  "nextDevelopment": "Validate live pollen/AQI on device, then continue with Communicable Disease Watch and Daily Health Watch.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -1470,9 +1470,9 @@
     {
       "owner": "Léna + Zsolt",
       "targetDate": null,
-      "actualDone": null,
-      "status": "Testing",
-      "progress": 0.99,
+      "actualDone": "2026-10-08",
+      "status": "Done",
+      "progress": 1,
       "sprint": "S5",
       "id": "HH-ENV-001",
       "epic": "Contextual Health Intelligence",
@@ -1484,15 +1484,15 @@
       "storyPoints": 5,
       "dependency": "HH-DATA-001",
       "backlogRank": 1,
-      "notes": "v309.2 acceptance build deployed. Hero asset verified as 33,604-character WebP base64 across seven safe chunks. Dedicated Home tile/page, live v308 data overlay, 2x5 mobile / 5x2 wide grid and shared HealthRadar navigation ready for user acceptance. Pollen remains HH-ENV-002."
+      "notes": "Accepted dedicated Environmental Health module. v309.17 live board + detailed cards; weather/UV/pressure foundation complete."
     },
     {
       "owner": "Léna + Zsolt",
       "targetDate": null,
       "actualDone": null,
-      "status": "Idea",
-      "progress": 0,
-      "sprint": "Backlog",
+      "status": "Testing",
+      "progress": 0.95,
+      "sprint": "S5",
       "id": "HH-ENV-002",
       "epic": "Contextual Health Intelligence",
       "feature": "Pollen",
@@ -1503,7 +1503,26 @@
       "storyPoints": 3,
       "dependency": "HH-ENV-001",
       "backlogRank": 2,
-      "notes": "Prefer official Hungarian pollen data."
+      "notes": "v308.2/v309.17 wired to Open-Meteo Air Quality API / CAMS ENSEMBLE. Six pollen types ingested; hero shows dominant pollen and grains/m³. Final mobile live-data acceptance pending."
+    },
+    {
+      "owner": "Léna + Zsolt",
+      "targetDate": null,
+      "actualDone": null,
+      "status": "Testing",
+      "progress": 0.95,
+      "sprint": "S5",
+      "id": "HH-ENV-003",
+      "epic": "Contextual Health Intelligence",
+      "feature": "Air Quality",
+      "title": "Live European air-quality exposure layer",
+      "acceptanceCriteria": "Show source-dated European AQI, PM2.5 and PM10 with documented EEA bands and source attribution.",
+      "priority": "High",
+      "milestone": "M5 Contextual Health Intelligence",
+      "storyPoints": 3,
+      "dependency": "HH-ENV-001",
+      "backlogRank": 3,
+      "notes": "v308.2/v309.17 wired to Open-Meteo Air Quality API / CAMS ENSEMBLE. European AQI + PM2.5 + PM10 live; final mobile acceptance pending."
     },
     {
       "owner": "Léna + Zsolt",
