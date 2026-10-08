@@ -1,0 +1,67 @@
+{
+  "schema": "healthhub.infection-watch/1",
+  "edition": "2026-10-08-v1",
+  "sourceWeek": "2026. 39. hét",
+  "periodStart": "2026-09-21",
+  "periodEnd": "2026-09-27",
+  "reviewedOn": "2026-10-08",
+  "geography": "Budapest · országos kitekintés",
+  "overall": {
+    "level": "watch",
+    "label": "FIGYELMET ÉRDEMEL",
+    "description": "Budapesten a COVID-19 szennyvízjelzés, országosan a hepatitis A jelentések indokolnak figyelmet. Ez nem egyéni fertőzési kockázat vagy egészségügyi riasztási fokozat."
+  },
+  "items": [
+    {
+      "key": "influenza",
+      "name": "Influenza A",
+      "level": "low",
+      "label": "Alacsony jelzés",
+      "scope": "Országos",
+      "summary": "Az influenza A szennyvízjelzése nem haladta meg a kimutatási határt; a 75 sentinel légúti mintában influenzavírust nem mutattak ki.",
+      "detail": "Az influenzaszerű tünetekkel orvoshoz fordulók aránya ugyanakkor 100,8-ról 134,7-re emelkedett 100 000 főre a 38. és 39. héten. A tünetek önmagukban nem bizonyítanak influenzafertőzést."
+    },
+    {
+      "key": "covid",
+      "name": "COVID-19 / SARS-CoV-2",
+      "level": "watch",
+      "label": "Emelkedő szennyvízjelzés",
+      "scope": "Budapest + országos",
+      "summary": "Országosan enyhén emelkedő SARS-CoV-2 szennyvízkoncentráció. Budapesten több ellátási területen kimutatható; Dél-Pesten emelkedő trend.",
+      "detail": "A 75 sentinel mintából egy volt SARS-CoV-2-pozitív. A szennyvíz előrejelző jelzés, nem az új fertőzések száma."
+    },
+    {
+      "key": "rsv",
+      "name": "RSV",
+      "level": "low",
+      "label": "Alacsony jelzés",
+      "scope": "Országos",
+      "summary": "Az RSV szennyvízszintje stagnált, egyik vizsgált ellátási területen sem haladta meg a kimutatási határt.",
+      "detail": "A 39. heti sentinel mintákban RSV-t nem mutattak ki. A 0 pozitív minta nem jelenti a vírus teljes hiányát."
+    },
+    {
+      "key": "gastro",
+      "name": "Gyomor-bélrendszeri fertőzések",
+      "level": "unknown",
+      "label": "Trend nem megállapítható",
+      "scope": "Budapest",
+      "summary": "Budapest: 17 campylobacteriosis, 8 salmonellosis és 27 rotavírus-gastroenteritis bejelentés a 39. héten.",
+      "detail": "Ez három külön betegség előzetes, jelentett esetszáma; nem egy közös járványindex. A budapesti trendhez több heti, összevethető helyi adat kell."
+    },
+    {
+      "key": "hepatitis",
+      "name": "Hepatitis A",
+      "level": "elevated",
+      "label": "Országosan medián felett",
+      "scope": "Országos · Budapest külön",
+      "summary": "Országos jelentés: 32 eset a 39. héten, szemben a 2020–2024-es 5 éves heti mediánnal (10). Budapesten nem szerepel jelentett eset ebben a heti táblázatban.",
+      "detail": "A 38. héten országosan 28 esetet jelentettek. A 32/10-es összevetés országos többletjelzés, nem Budapest-specifikus kockázati mutató."
+    }
+  ],
+  "sources": {
+    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-39-het.html",
+    "weekly": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai",
+    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_39_het_eece973e2c.pdf"
+  },
+  "methodology": "A színek az NNGYK által közölt megfigyelések leíró jelzői, nem hivatalos járványügyi riasztási szintek. A különböző surveillance mérőszámok nem adhatók össze. Az előzetes heti esetjelentés nem azonos a tárgyhéten megfertőződöttek számával."
+}
