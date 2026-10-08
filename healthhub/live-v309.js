@@ -5,7 +5,7 @@
    Home tile + responsive 2x5/5x2 module grid + dedicated page.
    Reads HH_ENVIRONMENT_V1 only; does not alter the v308 data engine. */
 
-var BUILD='1.309.8';
+var BUILD='1.309.9';
 var PAGE='hhEnvironmental309';
 var STYLE='hh-environmental-v309-style';
 var TILE='hhEnvironmentalTile309';
@@ -46,6 +46,7 @@ function ensureStyle(){
  '#'+TILE+' b{position:relative;color:#183c5d!important;text-shadow:none!important}'+
  '#'+TILE+' small{position:relative;color:#72879a!important;text-shadow:none!important;opacity:1}'+
  '#'+PAGE+'{background:linear-gradient(180deg,#dff4ff,#edf9f6);min-height:100vh;padding-bottom:68px}'+
+ 'html.hh-env309-open .hhHealthMainSwitch263,html.hh-env309-open [aria-label^="Egy kattintás: váltás"]{display:none!important}'+
  '#'+PAGE+' .env309Hero{height:268px;position:relative;overflow:hidden;background:linear-gradient(145deg,#61bff1,#1476bd);background-size:cover;background-position:center center}'+
  '#'+PAGE+' .env309Hero:before{content:"";position:absolute;z-index:3;right:0;top:0;bottom:0;width:68%;background:linear-gradient(90deg,rgba(18,117,184,.18),rgba(5,78,139,.48));backdrop-filter:blur(7px) saturate(1.05);pointer-events:none}'+
  '#'+PAGE+' .env309Hero:after{content:"";position:absolute;z-index:4;inset:0;background:linear-gradient(90deg,rgba(3,50,83,.02),rgba(2,43,79,.04) 42%,rgba(1,47,83,.12));pointer-events:none}'+
@@ -69,7 +70,7 @@ function ensureStyle(){
  '#'+PAGE+' .env309Trend{margin-top:7px;padding-top:7px;border-top:1px solid #edf2f4;font-size:8px;color:#607a8d;line-height:1.55}'+
  '#'+PAGE+' .env309Future{background:linear-gradient(145deg,#f7fff9,#fff);border-color:#d9eee0}#'+PAGE+' .env309Future .env309Big{color:#4a9d57}'+
  '#'+PAGE+' .env309Wide{grid-column:1/-1}#'+PAGE+' .env309Source{margin-top:9px;text-align:center;color:#8295a2;font-size:7.5px}#'+PAGE+' .env309Source a{color:var(--a);font-weight:900;text-decoration:none}'+
- '@media(max-width:390px){#'+PAGE+' .env309Hero{height:318px;background-size:auto 100%!important;background-position:-18px center!important}#'+PAGE+' .env309Hero:before{width:54%;background:linear-gradient(90deg,rgba(18,117,184,.06),rgba(5,78,139,.50));backdrop-filter:blur(7px) saturate(1.04)}#'+PAGE+' .env309Glass{right:6px;top:12px;width:52%;padding:8px;min-height:254px;background:linear-gradient(145deg,rgba(7,94,158,.70),rgba(8,75,135,.62));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:14.5px;line-height:1.05}#'+PAGE+' .env309Glass>small{font-size:6.8px;line-height:1.2;display:block}#'+PAGE+' .env309HeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:8px}#'+PAGE+' .env309HeroMetric{padding:5px;min-height:45px}#'+PAGE+' .env309HeroMetric small{font-size:6.1px}#'+PAGE+' .env309HeroMetric b{font-size:10.5px}#'+PAGE+' .env309HeroMetric em{font-size:6.1px}#'+PAGE+' .env309Reserved{min-height:42px}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
+ '@media(max-width:390px){#'+PAGE+' .env309Hero{height:318px;background-size:auto 100%!important;background-position:-42px center!important}#'+PAGE+' .env309Hero:before{width:48%;background:linear-gradient(90deg,rgba(18,117,184,.04),rgba(5,78,139,.48));backdrop-filter:blur(7px) saturate(1.04)}#'+PAGE+' .env309Glass{right:6px;top:4px;bottom:7px;width:46%;padding:7px;min-height:0;display:flex;flex-direction:column;background:linear-gradient(145deg,rgba(7,94,158,.69),rgba(8,75,135,.61));backdrop-filter:blur(18px) saturate(1.14);-webkit-backdrop-filter:blur(18px) saturate(1.14)}#'+PAGE+' .env309Glass h1{font-size:13.5px;line-height:1.05;margin-bottom:2px}#'+PAGE+' .env309Glass>small{font-size:6.2px;line-height:1.15;display:block}#'+PAGE+' .env309HeroGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;margin-top:7px;flex:1}#'+PAGE+' .env309HeroMetric{padding:4px;min-height:0}#'+PAGE+' .env309HeroMetric small{font-size:5.8px}#'+PAGE+' .env309HeroMetric b{font-size:10px}#'+PAGE+' .env309HeroMetric em{font-size:5.8px}#'+PAGE+' .env309Reserved{min-height:0}#'+PAGE+' .env309Cards{grid-template-columns:1fr 1fr}}';
  document.head.appendChild(s);
 }
 
@@ -180,6 +181,9 @@ function ensureTile(){
  reorderHomeModules();
 }
 
+function setEnvPageState(on){
+ document.documentElement.classList.toggle('hh-env309-open',!!on);
+}
 function hideNavs(){
  ['navTimelineBar','navHealthBar','navHomeBar','navDetailBar'].forEach(function(id){var n=document.getElementById(id);if(n)n.style.display='none'});
  var nav=document.getElementById('navHealthBar');if(nav)nav.style.display='grid';
@@ -187,7 +191,7 @@ function hideNavs(){
 function openPage(){
  var page=ensurePage();
  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('on')});
- page.classList.add('on');hideNavs();window.scrollTo(0,0);
+ page.classList.add('on');setEnvPageState(true);hideNavs();window.scrollTo(0,0);
  if(window.HH_ENVIRONMENT_V1&&window.HH_ENVIRONMENT_V1.refresh){
   var x=current();
   if(!x||Date.now()-Date.parse(x.fetchedAt||0)>15*60*1000){
@@ -197,6 +201,7 @@ function openPage(){
 }
 function closePage(){
  var p=document.getElementById(PAGE);if(p)p.classList.remove('on');
+ setEnvPageState(false);
  if(baseShow)baseShow('home');else if(typeof window.show==='function')window.show('home');
 }
 function render(){
@@ -214,6 +219,7 @@ function hookShow(){
   var wrapped=function(id){
    if(id==='environmental'||id===PAGE){openPage();return}
    var p=document.getElementById(PAGE);if(p)p.classList.remove('on');
+   setEnvPageState(false);
    return baseShow.apply(this,arguments);
   };
   wrapped.__hhEnv309=true;window.show=wrapped;
@@ -221,7 +227,7 @@ function hookShow(){
 }
 function decorate(){
  ensureTile();reorderHomeModules();ensurePage();hookShow();
- document.documentElement.dataset.healthhubEnvironmental='1.309.8';
+ document.documentElement.dataset.healthhubEnvironmental='1.309.9';
 }
 window.hh309OpenEnvironment=openPage;
 window.hh309CloseEnvironment=closePage;
