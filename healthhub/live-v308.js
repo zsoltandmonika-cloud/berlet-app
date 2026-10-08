@@ -5,7 +5,7 @@
    Normalized, source-dated environmental context for HealthRadar.
    Foundation only: no diagnosis and no symptom-causality claims. */
 
-var BUILD='1.308.1';
+var BUILD='1.308.2';
 var CARD='hhEnvCard308';
 var STYLE='hh-env-v308-style';
 var LOCAL='hh-environment-v1';
@@ -191,7 +191,7 @@ function render(x){
    '<div class="envCell"><small>Pollen</small><b>'+esc(pollenSummary(x.pollen).name)+'</b><em>'+esc(pollenSummary(x.pollen).label)+'</em></div>'+
   '</div>'+
   '<div class="envPressure"><b>Légnyomás trend:</b> <span>3h '+signed(pd.h3,1,' hPa')+'</span><span>6h '+signed(pd.h6,1,' hPa')+'</span><span>12h '+signed(pd.h12,1,' hPa')+'</span><span>24h '+signed(pd.h24,1,' hPa')+'</span></div>'+
-  '<div class="envFoot"><span>Frissítve '+esc(time)+' · forrásdátummal tárolva</span><a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo ↗</a></div>';
+  '<div class="envFoot"><span>Frissítve '+esc(time)+' · Open-Meteo + CAMS ENSEMBLE</span><a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noopener">forrás ↗</a></div>';
  c.querySelector('.envRefresh').onclick=function(){refresh(true)};
 }
 
@@ -281,7 +281,7 @@ async function refresh(force){
   try{
    var loc=lastLocation||await resolveLocation();lastLocation=loc;
    var x=await fetchEnvironment(loc);saveLocal(x);render(x);
-   document.documentElement.dataset.healthhubEnvironment='1.308.1';
+   document.documentElement.dataset.healthhubEnvironment='1.308.2';
    window.dispatchEvent(new CustomEvent('healthhub:environment-updated',{detail:{fetchedAt:x.fetchedAt,observedAt:x.observedAt,level:x.assessment&&x.assessment.key}}));
    return x;
   }catch(e){console.warn('HealthHub ENV V1',e);renderError('A környezeti adatok most nem érhetők el.');return loadLocal()}
