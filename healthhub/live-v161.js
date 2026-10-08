@@ -134,12 +134,14 @@ async function snapshot(profile){
 }
 function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
-async function uploadCurrent(silent){
- var profile=pkey(),data=await snapshot(profile);await ensureFolderPath('/HealthHub');await ensureFolderPath('/HealthHub/profiles');var token=await accessToken(),body=JSON.stringify(data);
+async function uploadProfile(profile,silent){
+ profile=profile==='monika'?'monika':'zsolt';
+ var data=await snapshot(profile);await ensureFolderPath('/HealthHub');await ensureFolderPath('/HealthHub/profiles');var token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error((j.error_summary)||'Dropbox feltöltési hiba');
  var now=new Date().toISOString();localStorage.setItem('hh-dropbox-last-push-'+profile,now);localStorage.setItem('hh-dropbox-last-sync-'+profile,j.server_modified||now);if(!silent)toast(pname(profile)+' Health Vault feltöltve');decorate();return j;
 }
+async function uploadCurrent(silent){return uploadProfile(pkey(),silent)}
 async function download(profile){
  var token=await accessToken();
  async function one(path){
@@ -214,6 +216,7 @@ window.hhDropboxPush=function(){uploadCurrent(false).catch(function(e){console.e
 window.hhDropboxPull=function(){pullCurrent().catch(function(e){console.error(e);toast(e.message||'Dropbox letöltési hiba')})};
 window.hhDropboxDisconnect=function(){clearToken();toast('Dropbox kapcsolat törölve ezen az eszközön');decorate()};
 window.hhDropboxPushCurrentProfile=function(){if(!connected())return Promise.resolve(null);return uploadCurrent(true)};
+window.hhDropboxPushProfile=function(profile,silent){if(!connected())return Promise.resolve(null);return uploadProfile(profile,!!silent)};
 window.hhDropboxAutoSync=function(profile,reason){return autoSync(profile,reason).catch(function(e){console.error(e);if(reason!=='startup')toast(e.message||'Dropbox automatikus szinkron hiba');return false})};
 
 function fmt(s){if(!s)return 'még nem';var d=new Date(s);return isNaN(d)?'még nem':d.toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
