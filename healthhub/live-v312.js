@@ -127,7 +127,12 @@ function styles(){
  if(el(STYLES))return;
  var n=document.createElement('style');n.id=STYLES;
  n.textContent=
- '#home .hhHealthStrip312{background:linear-gradient(135deg,#066e73,#1b9d8a);color:#fff}'+
+ /* Three morning strips only: standalone icons, no colored tile backgrounds. */
+  '#home .dailyStrip.sparkStrip,#home .dailyStrip.newsStrip,#home .dailyStrip.hhHealthStrip312{min-height:88px!important;grid-template-columns:74px minmax(0,1fr) 18px!important;gap:8px!important;padding:8px 11px!important}'+
+  '#home .dailyStrip.sparkStrip .stripIcon,#home .dailyStrip.newsStrip .stripIcon,#home .dailyStrip.hhHealthStrip312 .stripIcon{width:72px!important;height:72px!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;display:grid!important;place-items:center!important;font-size:55px!important;line-height:1!important}'+
+  '#home .dailyStrip.sparkStrip .stripIcon .atlasIcon,#home .dailyStrip.newsStrip .stripIcon .atlasIcon{width:70px!important;height:70px!important;margin:0!important;filter:drop-shadow(0 3px 4px rgba(37,70,105,.13))!important}'+
+  '#home .hhHealthStrip312 .stripIcon{filter:drop-shadow(0 2px 3px rgba(37,70,105,.09))}'+
+  '#home .hhHealthStrip312{background:linear-gradient(135deg,#066e73,#1b9d8a);color:#fff}'+
  '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,#eaf7f4,#f5fbfc);padding-bottom:95px;color:#153f56;box-sizing:border-box}'+
  '#'+PAGE+' .dh312Top{height:205px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#eaf6fc;background-image:var(--hh-role-atlas);background-repeat:no-repeat;background-size:auto 200%;background-position:left top;color:#0b2d50}'+
  '#'+PAGE+' .dh312Back{position:absolute;z-index:3;top:14px;left:14px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(23,63,97,.16);background:rgba(255,255,255,.78);color:#173f61;font-size:22px;cursor:pointer;backdrop-filter:blur(7px)}'+
