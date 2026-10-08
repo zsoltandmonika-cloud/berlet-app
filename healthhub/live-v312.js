@@ -129,7 +129,7 @@ function styles(){
  n.textContent=
  '#home .hhHealthStrip312{background:linear-gradient(135deg,#066e73,#1b9d8a);color:#fff}'+
  '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,#eaf7f4,#f5fbfc);padding-bottom:95px;color:#153f56;box-sizing:border-box}'+
- '#'+PAGE+' .dh312Top{height:205px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#eaf6fc;background-image:var(--hh-role-atlas);background-repeat:no-repeat;background-size:100% 200%;background-position:0 0;color:#0b2d50}'+
+ '#'+PAGE+' .dh312Top{height:205px;box-sizing:border-box;position:relative;overflow:hidden;padding:16px;background-color:#eaf6fc;background-image:var(--hh-role-atlas);background-repeat:no-repeat;background-size:auto 200%;background-position:left top;color:#0b2d50}'+
  '#'+PAGE+' .dh312Back{position:absolute;z-index:3;top:14px;left:14px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(23,63,97,.16);background:rgba(255,255,255,.78);color:#173f61;font-size:22px;cursor:pointer;backdrop-filter:blur(7px)}'+
  '#'+PAGE+' .dh312Top h1{position:absolute;z-index:2;left:56%;right:7px;top:50%;transform:translateY(-50%);font-size:clamp(18px,5vw,23px);line-height:1.12;margin:0;font-weight:900;letter-spacing:-.5px;color:#0b2d50;text-shadow:0 1px 0 rgba(255,255,255,.92)}'+
  '#'+PAGE+' .dh312Top h1 span{display:block;white-space:nowrap}'+
@@ -244,7 +244,9 @@ function openPage(){
   document.querySelectorAll('.page').forEach(function(node){node.classList.remove('on')});
   page.classList.add('on');
  }
- ['navTimelineBar','navHealthBar','navHomeBar','navDetailBar'].forEach(function(id){var n=el(id);if(n)n.style.display='none'});
+ ['navTimelineBar','navHomeBar','navDetailBar'].forEach(function(id){var n=el(id);if(n)n.style.display='none'});
+ // Daily Health shares the same persistent five-button navigation as HealthRadar.
+ var healthNav=el('navHealthBar');if(healthNav)healthNav.style.display='grid';
  window.scrollTo(0,0);
  render();
 }
