@@ -23,7 +23,7 @@ function validPayload(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.ite
 function call(path,opts){
  opts=opts||{};
  var headers={'apikey':CFG.publishableKey,'Content-Type':'application/json'};
- if(session&&session.access_token)headers.Authorization='Bearer '+session.access_token;
+ if(session&&session.access_token&&!path.startsWith('/auth/v1/'))headers.Authorization='Bearer '+session.access_token;
  if(opts.prefer)headers.Prefer=opts.prefer;
  return fetch(url(path),{method:opts.method||'GET',headers:headers,body:opts.data===undefined?undefined:JSON.stringify(opts.data),cache:'no-store'})
   .then(async function(r){
@@ -116,12 +116,12 @@ function download(k){
 function localChanged(){
  if(!active()||!session||!profiles)return;
  clearTimeout(saving);
- saving=setTimeout(function(){
+ saving=setTimeout(async function(){
   var data=local();
-  ['m','z'].forEach(function(k){
+  for(var k of ['m','z']){
    var st=states[k];
-   if(st.mode==='synced'&&st.snapshot!==JSON.stringify(profile(data,k)))upload(k);
-  });
+   if(st.mode==='synced'&&st.snapshot!==JSON.stringify(profile(data,k)))await upload(k);
+  }
  },900);
 }
 function profilePanel(k){
@@ -188,6 +188,9 @@ function mount(host){
   });
  }
  draw();
+ if(session&&!profiles&&!busy){
+  busy=true;fetchCloud().catch(function(err){lastError=err.message||'Nem érhető el a központi tárhely.'}).finally(function(){busy=false;draw()});
+ }
 }
 sSave(active()?sRead():null);
 window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}}};
