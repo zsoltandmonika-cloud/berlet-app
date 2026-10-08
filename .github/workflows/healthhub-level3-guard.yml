@@ -92,6 +92,8 @@ jobs:
           console.log('HealthHub Level 3 validation PASS · build', meta);
           NODE
           python3 -m py_compile healthhub/scripts/generate_daily_health.py
+          python3 -m py_compile healthhub/scripts/generate_daily_health_ai.py
+          python3 -m py_compile healthhub/scripts/generate_daily_ai.py
 
       - name: Automatic rollback on failed main validation
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
