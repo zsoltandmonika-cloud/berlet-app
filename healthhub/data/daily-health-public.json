@@ -1,0 +1,68 @@
+{
+  "schema": "healthhub.daily-health-public/1",
+  "date": "2026-10-08",
+  "generatedAt": "2026-10-08T21:02:30+02:00",
+  "location": "Budapest",
+  "weather": {
+    "available": true,
+    "observedAt": "2026-10-08T21:00",
+    "temperature": 19.2,
+    "apparentTemperature": 19.0,
+    "daytimeMaxFeelsLike": 21.2,
+    "uvMax": 3.1,
+    "pressureHpa": 1009.5,
+    "pressureChange6h": -0.4,
+    "windGust": 31.7
+  },
+  "air": {
+    "available": true,
+    "observedAt": "2026-10-08T21:00",
+    "aqi": 27.0,
+    "pm25": 8.3,
+    "pollen": {
+      "available": true,
+      "name": "Üröm",
+      "value": 1.4,
+      "level": 0
+    }
+  },
+  "infection": {
+    "available": true,
+    "stale": false,
+    "sourceWeek": "2026. 39. hét",
+    "periodEnd": "2026-09-27",
+    "signals": [
+      {
+        "name": "COVID-19 / SARS-CoV-2",
+        "level": "watch"
+      },
+      {
+        "name": "Hepatitis A",
+        "level": "elevated"
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "key": "infection",
+      "level": "watch",
+      "title": "NNGYK heti figyelő",
+      "explanation": "A hivatalos jelentés kiemelt jelzéseket tartalmaz; nem napi személyes fertőzési kockázat."
+    }
+  ],
+  "methodology": "Szabályalapú, tájékoztató összefoglaló, nem orvosi diagnózis, AI-modell vagy gyógyszerrendelés.",
+  "sources": [
+    {
+      "title": "Open-Meteo Forecast",
+      "url": "https://open-meteo.com/en/docs"
+    },
+    {
+      "title": "Open-Meteo Air Quality",
+      "url": "https://open-meteo.com/en/docs/air-quality-api"
+    },
+    {
+      "title": "NNGYK heti járványügy",
+      "url": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai"
+    }
+  ]
+}
