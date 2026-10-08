@@ -165,7 +165,7 @@ function ensureStrip(){
  var s=el(STRIP);
  if(!s){
   s=document.createElement('button');s.type='button';s.id=STRIP;s.className='dailyStrip hhHealthStrip312';
-  s.innerHTML='<span class="stripIcon" aria-hidden="true">🩺</span><span><b>Daily Health · 07:15</b><p id="dh312Teaser">Reggeli egészségügyi helyzetkép betöltése…</p></span><span class="arr" aria-hidden="true">›</span>';
+  s.innerHTML='<span class="stripIcon" aria-hidden="true">🩺</span><span><b>Daily Health</b><p id="dh312Teaser">Reggeli egészségügyi helyzetkép betöltése…</p></span><span class="arr" aria-hidden="true">›</span>';
   s.addEventListener('click',openPage);
  }
  if(news.nextElementSibling!==s)news.after(s);
