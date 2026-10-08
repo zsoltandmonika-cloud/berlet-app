@@ -18,7 +18,8 @@ function local(){
  return {schema:'healthhub.daily-health-factors/1',m:{items:{},custom:[],aiOptIn:false},z:{items:{},custom:[],aiOptIn:false}};
 }
 function profile(d,key){return d[key]&&typeof d[key]==='object'?d[key]:{items:{},custom:[],aiOptIn:false}}
-function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function canonical(v){return JSON.stringify(v,function(key,value){if(value&&typeof value==='object'&&!Array.isArray(value)){var sorted={};Object.keys(value).sort().forEach(function(k){sorted[k]=value[k]});return sorted}return value})}
+function same(a,b){return canonical(a)===canonical(b)}
 function validPayload(x){return x&&typeof x==='object'&&!Array.isArray(x)&&x.items&&typeof x.items==='object'&&!Array.isArray(x.items)&&Array.isArray(x.custom)&&typeof x.aiOptIn==='boolean'}
 function call(path,opts){
  opts=opts||{};
@@ -77,7 +78,7 @@ async function fetchCloud(){
   var remote=row&&row.settings&&validPayload(row.settings)?row.settings:null;
   states[k].remote=remote;
   states[k].revision=row?Number(row.revision)||0:0;
-  states[k].snapshot=remote?JSON.stringify(remote):null;
+  states[k].snapshot=remote?canonical(remote):null;
   states[k].mode=remote&&same(localCopy,remote)?'synced':remote?'choice':'first';
  });
 }
@@ -99,7 +100,7 @@ async function upload(k){
    await fetchCloud();return;
   }
   state.revision=Number(r.revision)||state.revision+1;
-  state.snapshot=JSON.stringify(payload);state.remote=payload;state.mode='synced';
+  state.snapshot=canonical(payload);state.remote=payload;state.mode='synced';
  }catch(e){lastError=e.message||'Szinkronhiba';state.mode=state.mode==='synced'?'pending':state.mode}
  finally{busy=false;draw()}
 }
@@ -109,7 +110,7 @@ function download(k){
  var d=local();d[k]=state.remote;
  try{localStorage.setItem(STORE,JSON.stringify(d))}
  catch(e){lastError='Nem sikerült elmenteni a letöltött adatokat.';draw();return}
- state.mode='synced';state.snapshot=JSON.stringify(state.remote);lastError='';
+ state.mode='synced';state.snapshot=canonical(state.remote);lastError='';
  if(window.HH_DAILY_HEALTH_SETTINGS_V317&&window.HH_DAILY_HEALTH_SETTINGS_V317.refresh)window.HH_DAILY_HEALTH_SETTINGS_V317.refresh();
  if(window.HH_DAILY_HEALTH_V312&&window.HH_DAILY_HEALTH_V312.render)window.HH_DAILY_HEALTH_V312.render();
  draw();
@@ -121,7 +122,7 @@ function localChanged(){
   var data=local();
   for(var k of ['m','z']){
    var st=states[k];
-   if(st.mode==='synced'&&st.snapshot!==JSON.stringify(profile(data,k)))await upload(k);
+   if(st.mode==='synced'&&st.snapshot!==canonical(profile(data,k)))await upload(k);
   }
  },900);
 }
