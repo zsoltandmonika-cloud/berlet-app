@@ -1,70 +1,70 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-08",
-  "generatedAt": "2026-10-08T13:25:47+02:00",
-  "headline": "A reggel fő témái: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge; US and Lebanon protecting wanted Syrian general, BBC finds",
+  "generatedAt": "2026-10-08T22:29:08+02:00",
+  "headline": "A reggel fő témái: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge; Christa Pike now walking after failed US execution, lawyer tells BBC",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: US and Lebanon protecting wanted Syrian general, BBC finds",
-        "BBC World: Most UK diplomats to leave East Jerusalem consulate, Israel says, as Miliband says 'vital services' to remain",
-        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC"
+        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
+        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
+        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture",
+        "BBC World: Protesters blame 'vulture funds' for Spain's housing crisis"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: US and Lebanon protecting wanted Syrian general, BBC finds",
-        "BBC World: Most UK diplomats to leave East Jerusalem consulate, Israel says, as Miliband says 'vital services' to remain"
+        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
+        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
+        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: US and Lebanon protecting wanted Syrian general, BBC finds",
-        "BBC World: Most UK diplomats to leave East Jerusalem consulate, Israel says, as Miliband says 'vital services' to remain"
+        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
+        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
+        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "HOLD Alapkezelő: A Ratkó-korszak ma is alakítja Magyarország demográfiai helyét - HOLD Alapkezelő",
-        "24.hu: Térkép mutatja meg Magyarország szentélyerdőit - 24.hu",
-        "Világgazdaság: Adóösztönzőkkel a kortárs művészetért: mit tanulhat Magyarország Európától? - Világgazdaság"
+        "Portfolio.hu: Megváltozik az elektronikus útdíjrendszer Magyarország szomszédjában - Portfolio.hu",
+        "Világgazdaság: Törökország felé nyit a Tisza-kormány, Orbán Anita fontos üzenetet vitt Ankarába: Magyarország konkrét segítséget ad az uniós ügyekben - Világgazdaság",
+        "HOLD Alapkezelő: A Ratkó-korszak ma is alakítja Magyarország demográfiai helyét - HOLD Alapkezelő"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: 'Come all the way' back to EU, French finance minister tells UK",
         "BBC Business: Asos hackers took more personal details than first revealed, BBC finds",
-        "BBC Business: We spent thousands on a Tui river cruise but ended up on coach trips"
+        "BBC Business: We spent thousands on a Tui river cruise but ended up on coach trips",
+        "BBC Business: White House blocks Microsoft from foreign worker hiring program"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
+        "BBC Technology: White House blocks Microsoft from foreign worker hiring program",
         "BBC Technology: Asos hackers took more personal details than first revealed, BBC finds",
-        "BBC Technology: AI chip boom pushes Samsung profits to record $80bn",
-        "BBC Technology: Fuel prices added to Google Maps as petrol and diesel costs soar"
+        "BBC Technology: AI chip boom pushes Samsung profits to record $80bn"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge (BBC World).",
-        "Figyelmi pont: South Korea recalls Ukraine envoy over prisoner-of-war row (BBC World).",
+        "Figyelmi pont: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge (BBC World).",
+        "Figyelmi pont: Protesters blame 'vulture funds' for Spain's housing crisis (BBC World).",
         "Figyelmi pont: How oil-rich Alberta's economy might fare if it broke away from Canada (BBC Business)."
       ]
     },
@@ -72,28 +72,16 @@
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: US and Lebanon protecting wanted Syrian general, BBC finds"
+        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
+        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Russian strike on buses kills 33, say officials, as deadly attacks on Ukraine surge",
+      "title": "Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/c875pwq134l3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "US and Lebanon protecting wanted Syrian general, BBC finds",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c81dldewl5gwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Most UK diplomats to leave East Jerusalem consulate, Israel says, as Miliband says 'vital services' to remain",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw33xd6vegnno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
@@ -103,27 +91,51 @@
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "Tanker hit by multiple projectiles in Gulf off Qatar, maritime agency says",
+      "title": "Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqlydk7796wdo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c5pvgn7xvxpzo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "Spanish pensioner whose eviction sparked nationwide protests dies",
+      "title": "Protesters blame 'vulture funds' for Spain's housing crisis",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6e3x21ev9wwo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c3j4790elkx7o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "New York court hears arguments in ongoing 9/11 families' lawsuit against Saudi Arabia",
+      "title": "Italy approves elections overhaul as opposition accuse Meloni of 'scam'",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwvgrxlylj72o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6zxjdw8rdl5o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "South Korea recalls Ukraine envoy over prisoner-of-war row",
+      "title": "US deportations to African countries unlawful and exploit suffering, rights group says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckwy48rrz95vo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c9p8gn55433jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Teacher who sexually abused pupil back in Indonesia jail after BBC investigation",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ckgel9r341gdo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Residents airlifted to safety after flooding in central Chile",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck5yn8jn677vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Megváltozik az elektronikus útdíjrendszer Magyarország szomszédjában - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQeF95V3JHdGlxMzJqMFpRcEUzZnBmUzJ6UGxwekNDeHJlM1M4U2RpVzhaUjcwRm9BeE1YWVoxcHBCbTBMN3cxZWtWMU9jMXlKV2wwYlhTUk1GQ2lyQTVkYXpIU0Rjc0R1eEI4NC1uMXhQb0RkRTl4R0NyWWdvZEJUUEtvMzkyVkcweDRvcEFmYmVmbFZJSXNJRVBsUzI2VXpsaEtaWENlSWQyVE96ZW1iUEFleTJWNVNYM0HSAb8BQVVfeXFMTVhSNko2ck9uN1RYYUoxTVowSnNJRHRJNWwzN0lnTlpOdW1vbksyZWVYUXVJMUJPOUtUV3BiSjIxc3c0Qlp4U3JDVlBiOFVyZV9nbVBaQXFUQnJPM2FhY2hiOHZGN20tX01LYmZueUFVaFhCTHM5RV9SeFpVUjYwQzcxa2hyTU1sYkcxenVGbWROMlpXN1lCbkVDSmpaRkJ5NnFHc0tkZUsydWl4SERhc1RpdWJHQ25KS2E1MjROdnc?oc=5",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Törökország felé nyit a Tisza-kormány, Orbán Anita fontos üzenetet vitt Ankarába: Magyarország konkrét segítséget ad az uniós ügyekben - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQWk83Qk9IQ0t5NVJCaW12VTQ0dUxPRDdnVUxCWXE1TmhQeS1EVVNSN2xfYlVsM2dZeFVKRS04MU5yOWRRaHNHcmFSUUNMMldTTnNNQVgxLWlLZXVVZEg5UDdaSTBaZ0hJLXRlYUFEX0FKaTUxUkFBTWdtZzVtVmFobHFwVnJiemV3TG1UZXhiVQ?oc=5",
       "publishedAt": "2026-10-08"
     },
     {
@@ -133,51 +145,33 @@
       "publishedAt": "2026-10-08"
     },
     {
+      "title": "Gondolta volna? Magyarország itt már lehagyta a V4-eket - mfor.hu",
+      "publisher": "mfor.hu",
+      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNbG1VRFFEa1U0ZFQybk1TSGJpRnAzRzluV2h5VEFqV3JPWWNYbF9WVUZzYTRQTGQ0Q3pudWZTVHZfQkFsY1J6Tm55YXNqYm1EZnBNVFc1SDA1U09pUnp3RURITG5BbWNzc3k1RUhaVG5DY3ZPR2xCOHpOSFRpbUhxMk44X3VtZl95cllua1NSY1E2ZGhSbFE?oc=5",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Magyarország a V4 élén az AI-használatban - Piac&Profit",
+      "publisher": "Piac&Profit",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQUWdibHNEaFAxdFE0X3otM3d3dTFtUWtqYXZCZElyVDZOaERQeGstT195cE1tanlsSi1Bb1ZvV0VFMDVXMDFneDBvN1pKMFNIV2JDcVFfWGlROVhXb3VoMy1nbzhWeFRxQ251dHdkaUZfeUF2VnJBOTNTTDc0V0stV0c1clE0RTJiUWNjRDNMbw?oc=5",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "A Szilvafácska lett Magyarország Cukormentes Tortája - Trade magazin",
+      "publisher": "Trade magazin",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxORTV5NUI5aGk4cElqMjFDR1BqdVJGWGZMTEwyTTJ3RzhlNktZelhHWVRHYjh2M2xlMzl5ZmsyV3NNdXZyelREaVpIaGdlandDaHdlRlpkYU1oZ29GZm9fRGxkVlhsbm9fT29BdFVvY1ptaEpOYXNwb3VqM205bTJiRm1GYTYwRXc?oc=5",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "A teljes interjú elérhető a Magyarország Kormánya YouTube-csatornáján. - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxPQjBzYkNHRUhJaHEwZTNZRDdYc2F3ZUI2MU5Nc2QtWF9CODhfTVgtdFdzUi15ZHdwejdTQ0kybDVUV0tJUnJJblNlVE5XcVkwN1lxX18xVDUzZzBDaHRWSUkybUdnRFFhelNFOWRWTFNBaDBoS3YxVW83cF9HRjJSU1NkTS1iQXJSdlRIN2Ryb3JOWmZISmZkakdiVXp0bFBQWUJzYVFRcENKNDhvZ2JfNGZ3aG5tYVZmRHAtQ2dBYjhCQWZ3M2lvblFodDY2M0FQWlN0Vkd1X2RDanR0c09GVF9xMklEOVp0RkZSa2RlVFVBNThEazQ4?oc=5",
+      "publishedAt": "2026-10-08"
+    },
+    {
       "title": "Térkép mutatja meg Magyarország szentélyerdőit - 24.hu",
       "publisher": "24.hu",
       "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQRmp4cFNmM21PRUV2dUtsRTlKZ1c2QnhxLTVXenZuVFA3OEN5RW93SmpQcHc2QkdTUVBtbm1PUFhNU1AxaC0zd3JIYXZEekhxejJ2V3pIb2JfbXg4MWJxRzc2d2w5cXlQQ1VLTThsU21fOW1UMDQ1aF9wenNybk9ZSldXX29GeDgzOHFRQ25XZWxoUzA?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Adóösztönzőkkel a kortárs művészetért: mit tanulhat Magyarország Európától? - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQdVNsRldWdm1HUWZoNlpxNlN3OXduRnlpdVdicU9HQ0hPcUNTN0diNERvbFJWSzV1ZlNSSlZpaUg0YUpBMFFYeHZUUm1OQlVEcEphbGNFSmJMRXZjY0RQSTdHTlRUdC1WdW1SZXlXQlU3ekIwS1VzMUl2S2RkbnZBRlpWNmh2N19EcjdSUmRTYm1YM2JfeGt6b1IyOVE?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "„Magyarországnak alig volt helyzete\" - panaszkodnak az ukránok a vereség után - ORIGO",
-      "publisher": "ORIGO",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPbjNkb1BWcGpmR3JsR3JMN0hzRVJqTFdycVVGZDQ3TkpKb2JGY1FFdjhtdmNORy1YeWhVRTlPTF9FaDUybUNyNEgyRDFsXzVMV2o0eThGOUxCOGN5RV9YSjhqeXJJeUpHdUI3TXR2M1pxTUdwdDB1a2JCTzRqbGd1YXNIelZwcnZ3eUZkV0RkTUo?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Kemény beismerés az államtitkártól: súlyos versenyhátrányba került Magyarország - Economx.hu",
-      "publisher": "Economx.hu",
-      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQb2RlaTRwSm5WUTNYM2FOLW5UQkh0a1c2a2cyQ0taam5FZ3lRT2xNVHZRWWxoM2FMX3NaNHdYaFd5OW5qUTMtbWNfaWFZZ0FLQzNFa2pQc3JqZTdhWWNVV2hCZTl3QkZRandzQVF1Qjg4SDFvUUdoNXhtS2dNOW9vX24tdC1HZG9kbTVfSGlaS1o2V1pUNW1NcUptbkxKZ0dOSE4zMUdHdUU?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "ICIJ: Hogyan tolt be milliárdokat az Orbán-féle propagandagépezetbe Magyarország leggazdagabb embere? - Klubrádió",
-      "publisher": "Klubrádió",
-      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQMmtyaHFkZmxqMERSOFZlR3pvTXMxV29SM0FCRVRfYmlmUXJCeGdHQk5mX3hrTFF0b3Njd3pZdXFTdGNMMVJTeEZ1emVaMGNkVUlXVHl5QkZHVGlTUUpKUzBTYVl5TEhhVlQtQlNKWkNWTFNxLUQzdU9ZaUxWdmNDZ1J0YmlpY3cxWkVpVDdPTnFnSGR1SzExY3RGYlBBeHBWTi1XQnNNTDJ5M241Mk1vU0d4bkVUdWRHVl9LOGdCV19ISWNmZ2RtdWhJVEl1SDlyZDZJ?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Húsbavágó: csúnyán szembe megy a forgalommal Magyarország – szívják is fogukat a dízelesek - Privátbankár.hu",
-      "publisher": "Privátbankár.hu",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNMUxLRWFfOFo5Z2tOenFuTzE5Z2N0Wll6TWhXN1h3N0xncUJDd0o1LUpVQUhEV3VMUWlrYlFNSTMwOXBlWWtzbk1LZkwwWGRpa3lNNEZaT0tTd2pfWWFMM190N3R3UVFfVHJ2V1RvaUVJQlhldWJUZFlSdDNJbDROOURkdnk1VmxOaDJPLUh0X3dpYkU2V21qb002UmxCX1AwU3c?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Mai evangélium – 2026. október 8., Szűz Mária, Magyarok Nagyasszonya, Magyarország főpátrónája - Magyar Kurír - katolikus hírportál",
-      "publisher": "Magyar Kurír - katolikus hírportál",
-      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQVThvdU04UG1iWl9CNFJBdXFkRHFRLWpFZHRIZzRrX3dibzZhMUlOZzVTOTJydXZ3UktWdXdlWnVKc3lIQmxsTm5NTUNFVGlsbzdwM0ZveEw2Ul9uclR3WERDcUx1dlEtSzgwQzUzcFpiZEVHWlE5TGl3M1FpNWhlR3JMVmNZYzdCdjA3aWdPT19YNEJvcGx3Rnc2NVhQZWhlazFBci02eGYyR3JLMW1qN0FFS3Q?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "'Come all the way' back to EU, French finance minister tells UK",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqdjvg3xww2go?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
@@ -193,15 +187,21 @@
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "'Stop throwing shade' - the woman trying to stop firms leaving the UK",
+      "title": "White House blocks Microsoft from foreign worker hiring program",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmgqwydpd4xwo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ck5yngl2y4gpo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "The wildlife winners set to appear on your banknotes revealed",
+      "title": "Adidas sues Australian label White Fox over four stripes design",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwe8ld517ry3o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c9e8ld448km8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-08"
+    },
+    {
+      "title": "Chrysler Building to get its crown restored after being sold",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c8g47z3r4dzvo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
@@ -211,15 +211,15 @@
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "Fuel prices added to Google Maps as petrol and diesel costs soar",
+      "title": "'Come all the way' back to EU, French finance minister tells UK",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckx2d4ddjn2eo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cqdjvg3xww2go?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "New electric car 'make or break for Jaguar'",
+      "title": "'Stop throwing shade' - the woman trying to stop firms leaving the UK",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwvgrx5ner6go?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmgqwydpd4xwo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     }
   ]
