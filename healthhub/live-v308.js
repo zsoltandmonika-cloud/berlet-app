@@ -5,7 +5,7 @@
    Normalized, source-dated environmental context for HealthRadar.
    Foundation only: no diagnosis and no symptom-causality claims. */
 
-var BUILD='1.308.0';
+var BUILD='1.308.1';
 var CARD='hhEnvCard308';
 var STYLE='hh-env-v308-style';
 var LOCAL='hh-environment-v1';
@@ -86,6 +86,26 @@ function pressureLabel(d6,d12,d24){
  if(m>=6)return 'észrevehető változás';
  return 'stabilabb';
 }
+function aqiLabel(v){
+ if(v==null)return 'nincs adat';
+ if(v<20)return 'jó';
+ if(v<40)return 'megfelelő';
+ if(v<60)return 'közepes';
+ if(v<80)return 'rossz';
+ if(v<100)return 'nagyon rossz';
+ return 'extrém rossz';
+}
+function pollenSummary(p){
+ var names={alder:'Éger',birch:'Nyír',grass:'Fűfélék',mugwort:'Üröm',olive:'Olajfa',ragweed:'Parlagfű'};
+ var best=null;
+ Object.keys(names).forEach(function(k){
+  var v=p&&p[k];if(v==null||!Number.isFinite(Number(v)))return;
+  v=Number(v);if(!best||v>best.value)best={key:k,name:names[k],value:v};
+ });
+ if(!best)return {available:false,name:'—',value:null,label:'nincs adat'};
+ if(best.value<=0)return {available:true,name:'Nincs kimutatható',value:0,label:'0 grains/m³'};
+ return {available:true,name:best.name,value:n(best.value,1),label:n(best.value,1)+' grains/m³'};
+}
 function assess(x){
  var flags=[],level=0,feel=x.current.apparentTemperature,uv=x.current.uvIndex,gust=x.current.windGust;
  var d6=Math.abs(x.pressureDelta.h6||0),d12=Math.abs(x.pressureDelta.h12||0),d24=Math.abs(x.pressureDelta.h24||0);
@@ -96,6 +116,8 @@ function assess(x){
  }
  if(uv!=null){if(uv>=8)add(2,'nagyon erős UV');else if(uv>=6)add(1,'magas UV')}
  if(gust!=null){if(gust>=75)add(2,'erős széllökések');else if(gust>=50)add(1,'szeles idő')}
+ var aqi=x.airQuality&&x.airQuality.europeanAqi;
+ if(aqi!=null){if(aqi>=60)add(2,'rossz levegőminőség');else if(aqi>=40)add(1,'közepes levegőminőség')}
  if(d6>=7||d12>=10||d24>=14)add(2,'gyors légnyomásváltozás');
  else if(d6>=4||d12>=6||d24>=9)add(1,'légnyomásváltozás');
  var label=level===2?'Magas környezeti terhelés':level===1?'Figyelmet érdemlő környezet':'Normál környezeti terhelés';
@@ -165,6 +187,8 @@ function render(x){
    '<div class="envCell"><small>UV index</small><b>'+fmt(cur.uvIndex,1,'')+'</b><em>'+esc(uvLabel(cur.uvIndex))+'</em></div>'+
    '<div class="envCell"><small>Légnyomás</small><b>'+fmt(cur.pressureMsl,0,' hPa')+'</b><em>'+esc(pressureLabel(pd.h6,pd.h12,pd.h24))+'</em></div>'+
    '<div class="envCell"><small>24h változás</small><b>'+signed(pd.h24,1,' hPa')+'</b><em>6h '+signed(pd.h6,1,'')+' · 12h '+signed(pd.h12,1,'')+'</em></div>'+
+   '<div class="envCell"><small>Levegő</small><b>'+fmt(x.airQuality&&x.airQuality.europeanAqi,0,' AQI')+'</b><em>'+esc(aqiLabel(x.airQuality&&x.airQuality.europeanAqi))+'</em></div>'+
+   '<div class="envCell"><small>Pollen</small><b>'+esc(pollenSummary(x.pollen).name)+'</b><em>'+esc(pollenSummary(x.pollen).label)+'</em></div>'+
   '</div>'+
   '<div class="envPressure"><b>Légnyomás trend:</b> <span>3h '+signed(pd.h3,1,' hPa')+'</span><span>6h '+signed(pd.h6,1,' hPa')+'</span><span>12h '+signed(pd.h12,1,' hPa')+'</span><span>24h '+signed(pd.h24,1,' hPa')+'</span></div>'+
   '<div class="envFoot"><span>Frissítve '+esc(time)+' · forrásdátummal tárolva</span><a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo ↗</a></div>';
@@ -191,6 +215,39 @@ function resolveLocation(){
   }catch(e){if(!done){done=true;clearTimeout(t);ok(DEFAULT_LOC)}}
  });
 }
+async function fetchAirQuality(loc){
+ var qs=new URLSearchParams({
+  latitude:String(loc.lat),longitude:String(loc.lon),
+  current:'european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,sulphur_dioxide,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen',
+  timezone:'auto'
+ });
+ var ctl=window.AbortController?new AbortController():null;
+ var timer=ctl?setTimeout(function(){ctl.abort()},9000):null;
+ try{
+  var r=await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?'+qs.toString(),{cache:'no-store',signal:ctl&&ctl.signal});
+  if(!r.ok)throw new Error('Air HTTP '+r.status);
+  var j=await r.json(),a=j.current||{};
+  return {
+   observedAt:a.time||null,
+   airQuality:{
+    europeanAqi:n(a.european_aqi,0),
+    pm25:n(a.pm2_5,1),
+    pm10:n(a.pm10,1),
+    nitrogenDioxide:n(a.nitrogen_dioxide,1),
+    ozone:n(a.ozone,1),
+    sulphurDioxide:n(a.sulphur_dioxide,1)
+   },
+   pollen:{
+    alder:n(a.alder_pollen,1),
+    birch:n(a.birch_pollen,1),
+    grass:n(a.grass_pollen,1),
+    mugwort:n(a.mugwort_pollen,1),
+    olive:n(a.olive_pollen,1),
+    ragweed:n(a.ragweed_pollen,1)
+   }
+  };
+ }finally{if(timer)clearTimeout(timer)}
+}
 async function fetchEnvironment(loc){
  var qs=new URLSearchParams({
   latitude:String(loc.lat),longitude:String(loc.lon),
@@ -201,9 +258,18 @@ async function fetchEnvironment(loc){
  var ctl=window.AbortController?new AbortController():null;
  var timer=ctl?setTimeout(function(){ctl.abort()},9000):null;
  try{
+  var airPromise=fetchAirQuality(loc).catch(function(e){console.warn('HealthHub AIR/POLLEN V1',e);return null});
   var r=await fetch('https://api.open-meteo.com/v1/forecast?'+qs.toString(),{cache:'no-store',signal:ctl&&ctl.signal});
   if(!r.ok)throw new Error('HTTP '+r.status);
-  var j=await r.json();return normalize(j,loc);
+  var j=await r.json(),x=normalize(j,loc),air=await airPromise;
+  if(air){
+   x.airQuality=air.airQuality;
+   x.pollen=air.pollen;
+   x.airObservedAt=air.observedAt;
+   x.source.airQuality={provider:'Open-Meteo',dataset:'Air Quality API · CAMS Europe',url:'https://open-meteo.com/en/docs/air-quality-api',retrievedAt:now()};
+   x.assessment=assess(x);
+  }
+  return x;
  }finally{if(timer)clearTimeout(timer)}
 }
 async function refresh(force){
@@ -215,7 +281,7 @@ async function refresh(force){
   try{
    var loc=lastLocation||await resolveLocation();lastLocation=loc;
    var x=await fetchEnvironment(loc);saveLocal(x);render(x);
-   document.documentElement.dataset.healthhubEnvironment='1.308.0';
+   document.documentElement.dataset.healthhubEnvironment='1.308.1';
    window.dispatchEvent(new CustomEvent('healthhub:environment-updated',{detail:{fetchedAt:x.fetchedAt,observedAt:x.observedAt,level:x.assessment&&x.assessment.key}}));
    return x;
   }catch(e){console.warn('HealthHub ENV V1',e);renderError('A környezeti adatok most nem érhetők el.');return loadLocal()}
