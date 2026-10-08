@@ -125,6 +125,9 @@ def main():
             code=""
         safe=code if code in ("insufficient_quota","rate_limit_exceeded","rate_limit_error","billing_hard_limit_reached","tokens_per_minute","credit_balance_exhausted","organization_usage_limit_exceeded","organization_spend_limit_exceeded","project_spend_limit_exceeded","slow_down") else "unspecified"
         print("AI Daily Health HTTP",e.code,"provider_error_code",safe,"request_id",str(e.headers.get("x-request-id") or "unavailable")[:130],file=sys.stderr)
+        org=str(e.headers.get("openai-organization") or "") if e.headers else ""
+        org=org if org.startswith(("org_","org-")) and 7<=len(org)<=110 and all(ch.isalnum() or ch in "_-" for ch in org) else "not-in-response"
+        print("AI billing org (response header):",org,file=sys.stderr)
         return
     except Exception as e:
         print("AI Daily Health unavailable; safe rule-based fallback remains. Error type:",
