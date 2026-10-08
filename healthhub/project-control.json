@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-08",
-  "liveBuild": "v309.2-environmental-health-acceptance",
-  "currentFocus": "v309.2 Environmental Health acceptance build: dedicated module, responsive 10-tile Home grid, verified approved hero asset, live environmental overlay and shared bottom navigation.",
+  "liveBuild": "v309.3-environmental-home-polish",
+  "currentFocus": "v309.3 Home module polish: fixed 5x2 semantic ordering, Environmental Health tile now matches the white module family, and Home icons/title typography are enlarged.",
   "nextDevelopment": "PRIORITIZED BACKLOG: Contextual Health Intelligence sliced by dependencies: Environmental Health V1 → Pollen → Communicable Disease Watch → Home Daily Health Watch → Symptom Environmental Snapshot → Association Analytics → Red-Flag Safety Gate → Profile-aware Self-care/OTC Library → Léna Health Assessment → Doctor Escalation → Nutrition Context → Voice Entry.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
@@ -2172,6 +2172,11 @@
       "date": "2026-10-08",
       "version": "v309.2",
       "change": "Environmental Health acceptance build: repaired/verified chunked hero asset and refreshed production cache key."
+    },
+    {
+      "date": "2026-10-08",
+      "version": "v309.3",
+      "change": "Locked Home module order to HealthRadar/Environmental, Sleep/Activity, Cognitive/Wellbeing, Nutrition/Receptár, Insights/Ask Léna; matched Environmental tile to white module styling and enlarged Home icons/titles."
     }
   ]
 }
