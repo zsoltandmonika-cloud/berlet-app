@@ -31,6 +31,20 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
 function uuid(){try{return crypto.randomUUID()}catch(e){return 'sym-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)}}
 function dtLocal(iso){var d=new Date(iso||Date.now());if(isNaN(d.getTime()))d=new Date();var z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,16)}
+function dateParts(iso){
+ var d=new Date(iso||Date.now());if(isNaN(d.getTime()))d=new Date();
+ return {year:d.getFullYear(),month:d.getMonth()+1,day:d.getDate(),hour:d.getHours(),minute:d.getMinutes()};
+}
+function pad2(n){return String(n).padStart(2,'0')}
+function setDatePart(field,value){
+ var d=new Date(draft&&draft.eventAt||Date.now());if(isNaN(d.getTime()))d=new Date();
+ if(field==='year')d.setFullYear(Number(value));
+ if(field==='month'){var oldDay=d.getDate();d.setDate(1);d.setMonth(Number(value)-1);d.setDate(Math.min(oldDay,new Date(d.getFullYear(),Number(value),0).getDate()))}
+ if(field==='day')d.setDate(Number(value));
+ if(field==='hour')d.setHours(Number(value));
+ if(field==='minute')d.setMinutes(Number(value));
+ draft.eventAt=d.toISOString();
+}
 function fmtDate(iso){var d=new Date(iso);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
 function locations(){return LOCATIONS[draft&&draft.symptom]||LOCATIONS.default}
 function defaultDraft(){
@@ -112,7 +126,7 @@ function ensureStyle(){
  if(document.getElementById('hh-v307-style'))return;
  var s=document.createElement('style');s.id='hh-v307-style';s.textContent=
  '#health .quick.hhSJQuick307{grid-template-columns:repeat(7,minmax(0,1fr));gap:1px}#health .quick.hhSJQuick307 .qbox{width:40px;height:40px;padding:8px}#health .quick.hhSJQuick307 .q span{font-size:7.5px}.hhSJLaunch307 .qbox{background:linear-gradient(135deg,#12a6a2,#6d63e8)!important}.hhSJLaunch307 svg{width:24px;height:24px}'+
- '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,color-mix(in srgb,var(--a) 5%,#eef7fb),#f7fbfd);padding-bottom:76px}.hhSJHero{position:relative;height:178px;overflow:hidden;background:linear-gradient(135deg,#dff5f4,#edf0ff)}.hhSJHero img{width:100%;height:100%;object-fit:cover;display:block}.hhSJShade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,37,57,.76),rgba(7,37,57,.20) 62%,rgba(7,37,57,.04))}.hhSJTop{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:center;color:#fff}.hhSJBack{width:38px;height:38px;border:0;border-radius:50%;background:#ffffffdf;color:#244b66;font-size:26px;line-height:1}.hhSJBuild{font-size:8px;font-weight:900;background:#ffffffd8;color:#2b5873;padding:6px 9px;border-radius:999px}.hhSJCopy{position:absolute;left:16px;bottom:17px;color:white;text-shadow:0 2px 9px rgba(0,0,0,.35)}.hhSJCopy h1{font-size:27px;margin:0 0 3px}.hhSJCopy p{font-size:10px;margin:0}.hhSJBody{padding:10px;max-width:430px;margin:auto}.hhSJCard{background:#fff;border:1px solid #e3edf2;border-radius:18px;padding:11px;margin-bottom:9px;box-shadow:0 7px 18px rgba(31,69,95,.055)}.hhSJCard h3{font-size:13px;margin:0 0 2px;color:#173f62}.hhSJCard>small{font-size:8px;color:#788e9e}.hhSJTime{display:grid;grid-template-columns:38px 1fr;align-items:center;gap:8px;margin-top:9px}.hhSJTime span{font-size:22px}.hhSJTime input{width:100%;box-sizing:border-box;border:1px solid #dbe7ee;border-radius:12px;padding:10px;font:inherit;color:#294e69;background:#fbfdfe}.hhSJGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.hhSJChoice{min-height:66px;border:1px solid #e0eaf0;border-radius:14px;background:#fbfdfe;color:#294e69;padding:8px;display:grid;grid-template-columns:28px 1fr 12px;gap:6px;align-items:center;text-align:left}.hhSJChoice .hhSJCI{font-size:20px}.hhSJChoice small{display:block;font-size:7px;color:#8295a4;font-weight:800}.hhSJChoice b{display:block;font-size:10px;margin-top:2px;line-height:1.15}.hhSJCaret{font-size:19px;color:var(--a)}.hhSJMeasurement{margin-top:8px;padding:9px;border-radius:13px;background:color-mix(in srgb,var(--a) 7%,#f7fbfd);border:1px solid color-mix(in srgb,var(--a) 18%,#dfe9ef);font-size:8px;color:#49677c}.hhSJMeasurement b{display:block;font-size:11px;color:#244d68;margin-bottom:2px}.hhSJNotes{width:100%;box-sizing:border-box;margin-top:8px;border:1px solid #dce7ed;border-radius:13px;padding:10px;min-height:66px;resize:vertical;font:inherit;font-size:10px;color:#294e69}.hhSJSave{width:100%;height:50px;border:0;border-radius:15px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:12px;font-weight:950;box-shadow:0 8px 18px color-mix(in srgb,var(--a) 25%,transparent)}.hhSJSave:disabled{opacity:.55}.hhSJPrivacy{text-align:center;font-size:7px;color:#8a9ba8;margin:7px 4px 0}.hhSJTrendHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.hhSJTrendHead select{max-width:155px;border:1px solid #dce7ed;border-radius:10px;padding:6px;background:#fff;font-size:8px}.hhSJRange{display:flex;gap:5px;margin:8px 0}.hhSJRange button{border:1px solid #dce7ed;border-radius:999px;padding:6px 9px;background:#fff;color:#587388;font-size:7px;font-weight:900}.hhSJRange button.on{background:var(--a);color:#fff;border-color:var(--a)}.hhSJMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.hhSJM{padding:8px;border-radius:12px;background:#f7fafc;border:1px solid #e7eef2}.hhSJM b{display:block;font-size:14px;color:#173f62}.hhSJM small{font-size:6.8px;color:#8195a3}.hhSJChart{height:128px;margin-top:8px;border-radius:14px;background:linear-gradient(180deg,#fbfdfe,#f4f9fc);border:1px solid #e5edf2;overflow:hidden}.hhSJChart svg{width:100%;height:100%;display:block}.hhSJLog{margin-top:9px}.hhSJRow{border-top:1px solid #edf2f5;padding:9px 0;display:grid;grid-template-columns:35px 1fr;gap:8px}.hhSJRow:first-child{border-top:0}.hhSJRowIcon{width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--a) 11%,#fff);display:grid;place-items:center;font-size:18px}.hhSJRow b{font-size:9px;color:#244d68}.hhSJRow small{display:block;font-size:7.5px;color:#7b8f9e;margin-top:2px;line-height:1.35}.hhSJEmpty{text-align:center;padding:18px 8px;color:#7c909e;font-size:9px}'+
+ '#'+PAGE+'{min-height:100vh;background:linear-gradient(180deg,color-mix(in srgb,var(--a) 5%,#eef7fb),#f7fbfd);padding-bottom:76px}.hhSJHero.hero{height:198px}.hhSJHero .hhSJBack{font-size:24px;line-height:1}.hhSJHero .hhSJBuild{position:absolute;right:10px;bottom:10px;z-index:8;font-size:7px;font-weight:900;background:#ffffffdc;color:#2b5873;padding:5px 8px;border-radius:999px;text-shadow:none}.hhSJBody{padding:0 10px 10px;max-width:430px;margin:-13px auto 0;position:relative;z-index:10;background:linear-gradient(180deg,var(--wash2),var(--wash));border-radius:24px 24px 0 0}.hhSJCard{background:#fff;border:1px solid #e3edf2;border-radius:18px;padding:11px;margin-bottom:9px;box-shadow:0 7px 18px rgba(31,69,95,.055)}.hhSJCard h3{font-size:13px;margin:0 0 2px;color:#173f62}.hhSJCard>small{font-size:8px;color:#788e9e}.hhSJTime{margin-top:10px}.hhSJTimeLabel{font-size:7px;font-weight:900;color:#8094a3;letter-spacing:.04em;margin:0 0 5px 2px}.hhSJDateGrid{display:grid;grid-template-columns:1.18fr .8fr .8fr;gap:6px}.hhSJClockGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.hhSJTimePart{min-height:54px;border:1px solid #dbe7ee;border-radius:13px;background:#fbfdfe;color:#294e69;padding:7px 6px;text-align:center}.hhSJTimePart small{display:block;font-size:6.5px;color:#8799a6;font-weight:900;text-transform:uppercase}.hhSJTimePart b{display:block;font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}.hhSJTimeSep{font-size:8px;color:#8295a4;text-align:center;margin-top:5px}.hhSJGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.hhSJChoice{min-height:66px;border:1px solid #e0eaf0;border-radius:14px;background:#fbfdfe;color:#294e69;padding:8px;display:grid;grid-template-columns:28px 1fr 12px;gap:6px;align-items:center;text-align:left}.hhSJChoice .hhSJCI{font-size:20px}.hhSJChoice small{display:block;font-size:7px;color:#8295a4;font-weight:800}.hhSJChoice b{display:block;font-size:10px;margin-top:2px;line-height:1.15}.hhSJCaret{font-size:19px;color:var(--a)}.hhSJMeasurement{margin-top:8px;padding:9px;border-radius:13px;background:color-mix(in srgb,var(--a) 7%,#f7fbfd);border:1px solid color-mix(in srgb,var(--a) 18%,#dfe9ef);font-size:8px;color:#49677c}.hhSJMeasurement b{display:block;font-size:11px;color:#244d68;margin-bottom:2px}.hhSJNotes{width:100%;box-sizing:border-box;margin-top:8px;border:1px solid #dce7ed;border-radius:13px;padding:10px;min-height:66px;resize:vertical;font:inherit;font-size:10px;color:#294e69}.hhSJSave{width:100%;height:50px;border:0;border-radius:15px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:12px;font-weight:950;box-shadow:0 8px 18px color-mix(in srgb,var(--a) 25%,transparent)}.hhSJSave:disabled{opacity:.55}.hhSJPrivacy{text-align:center;font-size:7px;color:#8a9ba8;margin:7px 4px 0}.hhSJTrendHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.hhSJTrendHead select{max-width:155px;border:1px solid #dce7ed;border-radius:10px;padding:6px;background:#fff;font-size:8px}.hhSJRange{display:flex;gap:5px;margin:8px 0}.hhSJRange button{border:1px solid #dce7ed;border-radius:999px;padding:6px 9px;background:#fff;color:#587388;font-size:7px;font-weight:900}.hhSJRange button.on{background:var(--a);color:#fff;border-color:var(--a)}.hhSJMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.hhSJM{padding:8px;border-radius:12px;background:#f7fafc;border:1px solid #e7eef2}.hhSJM b{display:block;font-size:14px;color:#173f62}.hhSJM small{font-size:6.8px;color:#8195a3}.hhSJChart{height:128px;margin-top:8px;border-radius:14px;background:linear-gradient(180deg,#fbfdfe,#f4f9fc);border:1px solid #e5edf2;overflow:hidden}.hhSJChart svg{width:100%;height:100%;display:block}.hhSJLog{margin-top:9px}.hhSJRow{border-top:1px solid #edf2f5;padding:9px 0;display:grid;grid-template-columns:35px 1fr;gap:8px}.hhSJRow:first-child{border-top:0}.hhSJRowIcon{width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--a) 11%,#fff);display:grid;place-items:center;font-size:18px}.hhSJRow b{font-size:9px;color:#244d68}.hhSJRow small{display:block;font-size:7.5px;color:#7b8f9e;margin-top:2px;line-height:1.35}.hhSJEmpty{text-align:center;padding:18px 8px;color:#7c909e;font-size:9px}'+
  '#'+WHEEL+'{display:none;position:fixed;inset:0;z-index:9600;background:rgba(5,25,40,.58);backdrop-filter:blur(8px);align-items:flex-end}#'+WHEEL+'.on{display:flex}.hhSJWCard{width:min(100vw,430px);margin:0 auto;background:linear-gradient(180deg,#fbfdff,#f4f9fc);border-radius:25px 25px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 44px rgba(0,0,0,.22);color:#173f62}.hhSJWHead{display:grid;grid-template-columns:42px 1fr 42px;align-items:center}.hhSJWClose{width:38px;height:38px;border:0;border-radius:50%;background:#eaf2f7;color:#284d69;font-size:22px}.hhSJWTitle{text-align:center}.hhSJWTitle small{display:block;font-size:8px;font-weight:900;color:var(--a)}.hhSJWTitle b{display:block;font-size:16px;margin-top:2px}.hhSJPickerWrap{position:relative;height:230px;margin:12px 9px;border-radius:18px;background:#fff;border:1px solid #dfeaf1;overflow:hidden}.hhSJPicker{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:92px 0}.hhSJPicker::-webkit-scrollbar{display:none}.hhSJItem{height:46px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:15px;font-weight:760;color:#9caeba;transition:.12s}.hhSJItem.near{color:#667f91;font-size:17px}.hhSJItem.sel{font-size:22px;font-weight:900;color:#173f62;transform:scale(1.035)}.hhSJFocus{position:absolute;left:10px;right:10px;top:92px;height:46px;border-top:1px solid color-mix(in srgb,var(--a) 28%,#dbe8ef);border-bottom:1px solid color-mix(in srgb,var(--a) 28%,#dbe8ef);background:color-mix(in srgb,var(--a) 7%,transparent);pointer-events:none;border-radius:10px}.hhSJFadeT,.hhSJFadeB{position:absolute;left:0;right:0;height:72px;pointer-events:none;z-index:2}.hhSJFadeT{top:0;background:linear-gradient(#fff,rgba(255,255,255,0))}.hhSJFadeB{bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff)}.hhSJWOk{width:100%;height:46px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:10px;font-weight:950}'+
  '@media(max-width:360px){#health .quick.hhSJQuick307 .qbox{width:36px;height:36px}.hhSJGrid{grid-template-columns:1fr}.hhSJHero{height:165px}}';
  document.head.appendChild(s);
@@ -128,6 +142,12 @@ function ensureWheel(){
  return o;
 }
 function fieldConfig(field){
+ var dp=dateParts(draft&&draft.eventAt);
+ if(field==='year'){var ys=[];for(var y=2015;y<=new Date().getFullYear()+1;y++)ys.push(String(y));return {title:'Év',values:ys,current:String(dp.year)}}
+ if(field==='month')return {title:'Hónap',values:Array.from({length:12},function(_,i){return pad2(i+1)}),current:pad2(dp.month)};
+ if(field==='day'){var max=new Date(dp.year,dp.month,0).getDate();return {title:'Nap',values:Array.from({length:max},function(_,i){return pad2(i+1)}),current:pad2(dp.day)}}
+ if(field==='hour')return {title:'Óra · 24 órás',values:Array.from({length:24},function(_,i){return pad2(i)}),current:pad2(dp.hour)};
+ if(field==='minute')return {title:'Perc',values:Array.from({length:60},function(_,i){return pad2(i)}),current:pad2(dp.minute)};
  if(field==='symptom')return {title:'Tünet',values:SYMPTOMS,current:draft.symptom};
  if(field==='location')return {title:'Hely / jelleg',values:locations(),current:draft.location};
  if(field==='severity')return {title:'Erősség',values:Array.from({length:11},function(_,i){return severityLabel(i)}),current:severityLabel(draft.severity)};
@@ -157,7 +177,8 @@ function closeWheel(){document.getElementById(WHEEL)?.classList.remove('on');whe
 function applyWheel(){
  if(!wheelState)return;
  var raw=wheelState.values[wheelState.index],field=wheelState.field;
- if(field==='severity')draft.severity=parseInt(raw,10)||0;else draft[field]=raw;
+ if(['year','month','day','hour','minute'].indexOf(field)>=0)setDatePart(field,raw);
+ else if(field==='severity')draft.severity=parseInt(raw,10)||0;else draft[field]=raw;
  if(field==='symptom'){
   var ls=locations();if(ls.indexOf(draft.location)<0)draft.location=ls[0];
  }
@@ -176,23 +197,38 @@ function backHealth(){
  var n=document.getElementById('navHealthBar');if(n)n.style.display='grid';
  window.scrollTo(0,0);
 }
-function doctorSrc(){return document.querySelector('#health .ask img')?.getAttribute('src')||document.querySelector('.ask img')?.getAttribute('src')||''}
+var activeJournalProfile=null;
+function syncProfileShell(){
+ var page=document.getElementById(PAGE);if(!page)return;
+ var p=pkey(),person=document.getElementById('personH'),name=document.getElementById('nameH'),date=document.getElementById('dateH'),weather=document.getElementById('weatherH'),nameday=document.getElementById('namedayH');
+ var jp=page.querySelector('#hhSJPerson'),jn=page.querySelector('#hhSJName'),jd=page.querySelector('#hhSJHeroDate'),jw=page.querySelector('#hhSJWeather'),jnd=page.querySelector('#hhSJNameday');
+ if(jp&&person)jp.src=person.src;
+ if(jn)jn.textContent=(name&&name.textContent?name.textContent:(pname(p)+'⌄'));
+ if(jd)jd.textContent=date&&date.textContent?date.textContent:new Intl.DateTimeFormat('hu-HU',{month:'long',day:'numeric',weekday:'short'}).format(new Date())+' · Budapest';
+ if(jw&&weather)jw.innerHTML=weather.innerHTML;
+ if(jnd&&nameday)jnd.innerHTML=nameday.innerHTML;
+ if(activeJournalProfile!==null&&activeJournalProfile!==p&&page.classList.contains('on')){
+  draft=defaultDraft();selectedTrendSymptom=draft.symptom;renderDraft();renderTrend();pullCloud().then(renderTrend);
+ }
+ activeJournalProfile=p;
+}
 function ensurePage(){
  ensureStyle();
  var page=document.getElementById(PAGE);
  if(!page){
   page=document.createElement('section');page.id=PAGE;page.className='page';
-  page.innerHTML='<div class="hhSJHero"><img class="hhSJDoctor" alt="Léna"><div class="hhSJShade"></div><div class="hhSJTop"><button class="hhSJBack" type="button">‹</button><span class="hhSJBuild">TÜNETNAPLÓ · V1</span></div><div class="hhSJCopy"><h1>Tünetnapló</h1><p><span id="hhSJProfile"></span> · eseti panaszok, kezelés és kimenetel</p></div></div><div class="hhSJBody"><section class="hhSJCard"><h3>🩺 Új egészségügyi esemény</h3><small>Automatikus időbélyeg · minden mező mentés előtt ellenőrizhető</small><div class="hhSJTime"><span>🕒</span><input id="hhSJTime" type="datetime-local"></div><div class="hhSJGrid" id="hhSJGrid"></div><div class="hhSJMeasurement" id="hhSJMeasurement"><b>Kapcsolódó mérés</b>Mérést keresek az esemény időpontja körül…</div><textarea class="hhSJNotes" id="hhSJNotes" placeholder="Opcionális megjegyzés…"></textarea><button class="hhSJSave" id="hhSJSave" type="button">💾 MENTÉS</button><div class="hhSJPrivacy">A Tünetnapló megfigyelési napló, nem diagnózis és nem gyógyszerajánló.</div></section><section class="hhSJCard"><div class="hhSJTrendHead"><div><h3>📈 Eseménytrend</h3><small>gyakoriság · erősség · kimenetel</small></div><select id="hhSJTrendSymptom"></select></div><div class="hhSJRange"><button data-days="7">7 nap</button><button data-days="30" class="on">30 nap</button><button data-days="90">90 nap</button><button data-days="365">1 év</button></div><div class="hhSJMetrics" id="hhSJMetrics"></div><div class="hhSJChart" id="hhSJChart"></div><div class="hhSJLog" id="hhSJLog"></div></section></div>';
+  page.innerHTML='<div class="hero hhSJHero"><img id="hhSJPerson" class="person"><button class="profileHit hhSJProfileHit" type="button"></button><div class="heroBtns"><button class="round hhSJBack" type="button">‹</button></div><div class="heroCopy"><h1 id="hhSJName">Zsolt⌄</h1><div class="screenTitle">Tünetnapló</div><div id="hhSJHeroDate" class="date"></div><div id="hhSJWeather" class="weather"></div><div id="hhSJNameday" class="nameday"></div></div><span class="hhSJBuild">HEALTHRADAR · V1</span></div><div class="hhSJBody"><section class="hhSJCard"><h3>🩺 Új egészségügyi esemény</h3><small>Automatikus időbélyeg · minden mező mentés előtt ellenőrizhető</small><div class="hhSJTime"><div class="hhSJTimeLabel">DÁTUM ÉS IDŐ</div><div class="hhSJDateGrid"><button type="button" class="hhSJTimePart" data-timefield="year"><small>Év</small><b id="hhSJYear"></b></button><button type="button" class="hhSJTimePart" data-timefield="month"><small>Hónap</small><b id="hhSJMonth"></b></button><button type="button" class="hhSJTimePart" data-timefield="day"><small>Nap</small><b id="hhSJDay"></b></button></div><div class="hhSJClockGrid"><button type="button" class="hhSJTimePart" data-timefield="hour"><small>Óra · 24H</small><b id="hhSJHour"></b></button><button type="button" class="hhSJTimePart" data-timefield="minute"><small>Perc</small><b id="hhSJMinute"></b></button></div><div class="hhSJTimeSep" id="hhSJTimeSummary"></div></div><div class="hhSJGrid" id="hhSJGrid"></div><div class="hhSJMeasurement" id="hhSJMeasurement"><b>Kapcsolódó mérés</b>Mérést keresek az esemény időpontja körül…</div><textarea class="hhSJNotes" id="hhSJNotes" placeholder="Opcionális megjegyzés…"></textarea><button class="hhSJSave" id="hhSJSave" type="button">💾 MENTÉS</button><div class="hhSJPrivacy">A Tünetnapló megfigyelési napló, nem diagnózis és nem gyógyszerajánló.</div></section><section class="hhSJCard"><div class="hhSJTrendHead"><div><h3>📈 Eseménytrend</h3><small>gyakoriság · erősség · kimenetel</small></div><select id="hhSJTrendSymptom"></select></div><div class="hhSJRange"><button data-days="7">7 nap</button><button data-days="30" class="on">30 nap</button><button data-days="90">90 nap</button><button data-days="365">1 év</button></div><div class="hhSJMetrics" id="hhSJMetrics"></div><div class="hhSJChart" id="hhSJChart"></div><div class="hhSJLog" id="hhSJLog"></div></section></div>';
   document.querySelector('.app')?.appendChild(page);
   page.querySelector('.hhSJBack').onclick=backHealth;
+  page.querySelector('.hhSJProfileHit').onclick=function(){try{window.openPicker&&window.openPicker()}catch(e){}};
   page.querySelector('#hhSJSave').onclick=save;
-  page.querySelector('#hhSJTime').onchange=function(){draft.eventAt=new Date(this.value).toISOString();findMeasurement();renderDraft(false)};
+  page.querySelector('.hhSJTime').onclick=function(e){var b=e.target.closest('[data-timefield]');if(b)openWheel(b.dataset.timefield)};
   page.querySelector('#hhSJNotes').oninput=function(){draft.notes=this.value};
   page.querySelector('.hhSJGrid').onclick=function(e){var b=e.target.closest('[data-field]');if(b)openWheel(b.dataset.field)};
   page.querySelector('.hhSJRange').onclick=function(e){var b=e.target.closest('[data-days]');if(!b)return;selectedDays=Number(b.dataset.days)||30;page.querySelectorAll('[data-days]').forEach(function(x){x.classList.toggle('on',x===b)});renderTrend()};
   page.querySelector('#hhSJTrendSymptom').onchange=function(){selectedTrendSymptom=this.value;renderTrend()};
  }
- var src=doctorSrc();if(src)page.querySelector('.hhSJDoctor').src=src;
+ syncProfileShell();
  return page;
 }
 function ensureLaunch(){
@@ -239,9 +275,14 @@ function renderMeasurement(){
  el.innerHTML='<b>🩺 Kapcsolódó mérés automatikusan felismerve</b>'+esc(bp+pulse)+' · '+esc(new Date(m.measuredAt).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}));
 }
 function renderDraft(findBp){
- var page=ensurePage();if(!draft)draft=defaultDraft();
- page.querySelector('#hhSJProfile').textContent=pname(pkey());
- var inp=page.querySelector('#hhSJTime');if(document.activeElement!==inp)inp.value=dtLocal(draft.eventAt);
+ var page=ensurePage();if(!draft)draft=defaultDraft();syncProfileShell();
+ var dp=dateParts(draft.eventAt);
+ page.querySelector('#hhSJYear').textContent=dp.year;
+ page.querySelector('#hhSJMonth').textContent=pad2(dp.month);
+ page.querySelector('#hhSJDay').textContent=pad2(dp.day);
+ page.querySelector('#hhSJHour').textContent=pad2(dp.hour);
+ page.querySelector('#hhSJMinute').textContent=pad2(dp.minute);
+ page.querySelector('#hhSJTimeSummary').textContent=dp.year+' · '+pad2(dp.month)+' · '+pad2(dp.day)+' · '+pad2(dp.hour)+':'+pad2(dp.minute);
  page.querySelector('#hhSJGrid').innerHTML=
   choice('symptom','Tünet',draft.symptom,'🤕')+
   choice('location','Hely / jelleg',draft.location,'📍')+
@@ -318,17 +359,17 @@ function installLaunchGuard(){
  if(health&&window.MutationObserver){
   launchObserver=new MutationObserver(function(){
    clearTimeout(launchRepairTimer);
-   launchRepairTimer=setTimeout(ensureLaunch,30);
+   launchRepairTimer=setTimeout(function(){ensureLaunch();syncProfileShell()},30);
   });
   launchObserver.observe(health,{childList:true,subtree:true});
  }
  /* Tiny watchdog for older WebViews where mutation callbacks can be skipped while
     pages are being swapped. It only repairs the launch button; it does no sync work. */
- setInterval(function(){if(document.getElementById('health'))ensureLaunch()},2500);
+ setInterval(function(){if(document.getElementById('health')){ensureLaunch();if(document.getElementById(PAGE)?.classList.contains('on'))syncProfileShell()}},2500);
 }
 function decorate(){
  ensurePage();ensureLaunch();installLaunchGuard();
- document.documentElement.dataset.healthhubSymptomJournal='1.307.1';
+ document.documentElement.dataset.healthhubSymptomJournal='1.307.2';
 }
 window.hhOpenSymptomJournal307=openJournal;
 window.hhSymptomJournalSync307=async function(){await pullCloud();if(connected())await pushCloud();renderTrend();return true};
