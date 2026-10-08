@@ -5,7 +5,8 @@
 var PAGE='hhDailyHealth312',STRIP='hhDailyHealthStrip312',STYLES='hhDailyHealthStyle312';
 var SETTINGS='hh-daily-health-312-preferences',ARCHIVE='hh-daily-health-312-archive';
 var REPORT='./data/daily-health-public.json';
-var current=null,loading=null,observer=null;
+var AI_REPORT='./data/daily-health-ai-public.json';
+var current=null,aiCurrent=null,loading=null,observer=null;
 var WARN={watch:1,elevated:2,high:3};
 function el(id){return document.getElementById(id)}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -195,9 +196,18 @@ function render(){
  var pRows=personalHtml(warn,x);
  var detail=warn.length?warn.map(function(v){return '<div class="dh312Warn '+esc(v.level)+'"><b>'+esc(v.title)+'</b><p>'+esc(v.body)+'</p></div>'}).join(''):'<p>🟢 Nincs kiemelt jelzés a most elérhető adatokból. Ez nem jelenti azt, hogy minden kockázat kizárható.</p>';
  var d=day();
- var disclaimer='Az összefoglaló automatikus, <b>szabályalapú tájékoztató</b>, nem AI-orvosi vélemény vagy diagnózis. Gyógyszert ne kezdjetek, ne emeljetek és ne módosítsatok ilyen jelzés alapján.';
+ var validAi=aiCurrent&&aiCurrent.schema==='healthhub.daily-health-ai-public/1'&&aiCurrent.date===day()&&aiCurrent.brief;
+ var ab=validAi?aiCurrent.brief:null;
+ var aiBlock=ab?
+  '<p><b>'+esc(ab.headline)+'</b></p><p>'+esc(ab.overview)+'</p><p>'+esc(ab.attention)+'</p>'+
+  '<div class="dh312List">'+(Array.isArray(ab.tips)?ab.tips:[]).map(function(t){return '<div>💡 '+esc(t)+'</div>'}).join('')+'</div>'+
+  '<p class="dh312Meta">Bizonytalanságok: '+esc(ab.uncertainty)+'</p>'+
+  '<p class="dh312Meta">Valódi AI-összefoglaló, kizárólag nyilvános környezeti adatokból. Személyes kórtörténet nem került az AI-hoz.</p>':
+  '<p class="dh312Meta">A mai AI-összefoglaló még nem érhető el. A környezeti elemzés szabályalapú változata továbbra is működik.</p>';
+ var disclaimer='A környezeti figyelmeztetések automatikusan készülnek, a külön jelzett AI-szöveg valós modellhívás eredménye lehet. Nem diagnózis. Gyógyszert ne kezdjetek, ne emeljetek és ne módosítsatok ilyen jelzés alapján.';
  box.outerHTML='<div id="dh312Content">'+
  '<div class="dh312Card"><h2>☀️ Mai helyzet · '+esc(d)+'</h2><p>'+(!available?'⚪ Most nincs megbízhatóan friss forrásadat.':warn.length?'🟡 '+warn.length+' figyelmet érdemlő jelzés.':'🟢 Nincs kiemelt környezeti figyelmeztetés.')+'</p><div class="dh312Meta">'+esc(x.source)+(x.generatedAt?' · automatikus reggeli frissítés: '+esc(String(x.generatedAt).slice(11,16)):' · frissül az alkalmazás megnyitásakor')+'</div></div>'+
+ '<div class="dh312Card"><h2>🧠 Léna AI · Mai egészségügyi összefoglaló</h2>'+aiBlock+'</div>'+
  '<div class="dh312Card"><h2>🌦️ Környezeti tényezők</h2><div class="dh312List">'+sourceInfo(x).map(function(s){return '<div>'+s+'</div>'}).join('')+'</div></div>'+
  '<div class="dh312Card"><h2>⚠️ Figyelmeztetések és javaslatok</h2>'+detail+'</div>'+
  '<div class="dh312Card"><h2>💚 Kettőtöknek személyre szabva</h2>'+pRows+'<p class="dh312Meta">A személyes emlékeztetők csak külön bekapcsolás után jelennek meg; orvosi utasítást nem helyettesítenek.</p></div>'+
@@ -249,9 +259,21 @@ async function load(force){
  })().finally(function(){loading=null});
  return loading;
 }
+async function loadAi(){
+ try{
+  var response=await fetch(AI_REPORT+'?d='+encodeURIComponent(day()),{cache:'no-store'});
+  if(!response.ok){aiCurrent=null;return}
+  var value=await response.json();
+  aiCurrent=value&&value.schema==='healthhub.daily-health-ai-public/1'&&
+   value.date===day()&&value.brief&&
+   ['headline','overview','attention','uncertainty'].every(function(k){return typeof value.brief[k]==='string'})&&
+   Array.isArray(value.brief.tips)?value:null;
+ }catch(e){aiCurrent=null;console.info('Daily Health AI will use safe fallback',e)}
+ render();
+}
 function init(){
  styles();ensurePage();ensureStrip();
- render();load(false);
+ render();load(false);loadAi();
  var home=el('home');
  if(home&&window.MutationObserver){
   observer=new MutationObserver(function(){if(!el(STRIP))ensureStrip()});
@@ -260,9 +282,9 @@ function init(){
  var lastDay=day();
  setInterval(function(){ensureStrip();if(day()!==lastDay){lastDay=day();load(false)}},60000);
  window.addEventListener('healthhub:environment-updated',function(){render()});
- window.addEventListener('focus',function(){load(false)});
- document.addEventListener('visibilitychange',function(){if(!document.hidden)load(false)});
+ window.addEventListener('focus',function(){load(false);loadAi()});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden){load(false);loadAi()}});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.HH_DAILY_HEALTH_V312={open:openPage,refresh:function(){return load(true)},getPublic:function(){return current}};
+window.HH_DAILY_HEALTH_V312={open:openPage,refresh:function(){return Promise.all([load(true),loadAi()])},getPublic:function(){return current},getPublicAI:function(){return aiCurrent}};
 })();
