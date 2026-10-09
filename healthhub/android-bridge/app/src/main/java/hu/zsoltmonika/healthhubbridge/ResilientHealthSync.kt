@@ -107,7 +107,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             return Result.success()
 
         prefs.edit().putLong(ResilientHealthSync.KEY_LAST_ATTEMPT, System.currentTimeMillis()).apply()
-        try {
+        return try {
             if (HealthConnectClient.getSdkStatus(applicationContext) != HealthConnectClient.SDK_AVAILABLE) {
                 requiresAction(prefs, "Health Connect nem elérhető ezen a telefonon.")
                 return Result.success()
