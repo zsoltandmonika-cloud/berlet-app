@@ -2,7 +2,7 @@
 'use strict';
 // v355: one Admin connection dashboard. A green icon requires observed success;
 // saved credentials or an enabled scheduler alone do not prove online status.
-var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null;
+var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='';
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -83,7 +83,7 @@ function connectionRows(){
 }
 function styles(){
  if(el(CSS))return;var s=document.createElement('style');s.id=CSS;s.textContent=[
- '#'+ID+'{margin:10px 0 16px;padding:17px 14px;background:#fff;border:1px solid #d8e6ed;border-radius:20px;box-shadow:0 5px 19px #1740610b;font:13px/1.5 system-ui;color:#2a4b61}',
+ '#hhHealthConnect306{display:none!important}#'+ID+'{margin:10px 0 16px;padding:17px 14px;background:#fff;border:1px solid #d8e6ed;border-radius:20px;box-shadow:0 5px 19px #1740610b;font:13px/1.5 system-ui;color:#2a4b61}',
  '#'+ID+' .hhCxHead355{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}',
  '#'+ID+' h2{color:#173f62;font-size:20px;margin:0 0 3px}',
  '#'+ID+' .hhCxIntro355{color:#657f90;font-size:12px;margin:0 0 11px;line-height:1.55}',
@@ -134,9 +134,9 @@ function render(){
   card.append(left,button);list.append(card);
  });
  panel.append(list,elem('div','hhCxLog355','🟢 Sikeres, friss ellenőrzés vagy feltöltés · 🟠 nem igazolt / várakozik · 🔴 valódi hiba vagy leválasztott kapcsolat. A reconnect gomb a kapcsolatnak megfelelő műveletet indítja; a telefonos jóváhagyást nem lehet távolról megkerülni.'));
- var result=elem('div','hhCxResult355');result.id='hhCxResult355';panel.append(result);
+ var result=elem('div','hhCxResult355',lastMessage);result.id='hhCxResult355';result.setAttribute('role','status');panel.append(result);
 }
-function message(s){var x=el('hhCxResult355');if(x)x.textContent=s||''}
+function message(s){lastMessage=String(s||'');var x=el('hhCxResult355');if(x)x.textContent=lastMessage}
 async function checkDropbox(){
  if(!connected()){probeState='red';probeAt=Date.now();return false}
  try{
@@ -206,7 +206,7 @@ async function reconnect(id){
    }else{await checkSupa();message('Supabase AI-végpont ellenőrzése befejeződött.')}
   }
  }catch(e){message('⚠️ '+String(e.message||e));if(id.indexOf('phone-')!==0)update(id,false,String(e.message||e))}
- finally{busy[id]=false;await checkDevices();render();var er=el('hhCxResult355');if(er&&!er.textContent){if(id.indexOf('phone-')===0)er.textContent='📡 Remote Sync elküldve. A feldolgozás később következik.'}}
+ finally{busy[id]=false;await checkDevices();render()}
 }
 function install(){
  var ov=el('haOv');if(!ov){setTimeout(install,500);return}
