@@ -19,6 +19,7 @@ function sRead(){
 }
 function sSave(v,remember){
  session=v;
+ if(remember===false)try{localStorage.removeItem(REM);localStorage.removeItem(SKEY)}catch(e){}
  if(remember===true)try{localStorage.setItem(REM,'yes')}catch(e){}
  try{if(v)sessionStorage.setItem(SKEY,JSON.stringify(v));else sessionStorage.removeItem(SKEY)}catch(e){}
  try{
