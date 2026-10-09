@@ -271,7 +271,14 @@ async function run(){
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
   var route=window.hhRouteLenaResearch295(question,p);
   var candidates=(route?.route?.candidateDocuments||[]).filter(function(d){return d?.driveArchive?.fileId});
-  if(!candidates.length)throw Error('Nincs elérhető Drive-lelet ehhez a kérdéshez. Ellenőrizd a dokumentumok Drive-archiválását és a profil helyességét.');
+  if(!candidates.length){
+   var diag=route&&route.route&&route.route.retrievalReadiness||{};
+   var indexed=Number(st.docs)||0,mapped=Number(st.mapped)||0;
+   throw Error('Ehhez a kérdéshez nincs archivált, releváns Drive-lelet ('+
+    'aktív profil: '+pn(p)+', helyi index: '+indexed+', Drive-hivatkozás: '+mapped+
+    ', releváns: '+(diag.relevantDocuments||0)+', ebből elérhető: '+(diag.archivedRelevantDocuments||0)+
+    '). Ellenőrizd a profilod, majd az eredeti leletek Drive-archiválását a Léna Health Context / Teljes leletarchívum Drive Sync résznél. A szinkron személyes dokumentumokat tölthet fel, ezért csak külön jóváhagyással indítsd.'); 
+  }
   status('3/6 · RAG · eredeti dokumentumok','A Google Drive-források szövegének olvasása.',40,'');
   var bundle=await window.hhPrepareLenaResearchBundle296(route,true);
   if(!bundle?.retrieval?.totalExtractedChars)throw Error('Nem sikerült forrásszöveget kiolvasni. A PDF lehet szkennelt vagy a Drive nem elérhető.');
@@ -371,5 +378,5 @@ window.hhOpenLenaSmart299=open;
 window.hhRunLenaSmart299=run;
 window.hhGetLenaHandoff299=function(){return getLocal(HKEY,null)};
 window.addEventListener('healthhub:profile-changed',function(){driveVerified=false;driveIssue='';driveCheckedProfile='';refresh()});
-document.documentElement.dataset.healthhubAskLenaSmart='1.325';
+document.documentElement.dataset.healthhubAskLenaSmart='1.326';
 })();
