@@ -63,6 +63,26 @@ function delta(a,field,days,fn){
   var a0=num(x[0][field]),a1=num(x[x.length-1][field]);
   return a0==null||a1==null?null:r1(a1-a0);
 }
+// Weight quality guard: do not turn a cross-profile/import outlier into a claimed 7-day change.
+function weightQuality(meas,days){
+ var values=within(meas,days,function(x){var v=num(x.weightKg);return v!=null&&v>=20&&v<=400})
+   .sort(function(a,b){return ts(a)-ts(b)});
+ if(values.length<2)return {delta:null,warning:null};
+ var start=num(values[0].weightKg),end=num(values[values.length-1].weightKg),difference=r1(end-start);
+ var cap=days<=7?7:12;
+ var discrepant=Math.abs(difference)>cap||Math.abs(difference)>start*(days<=7?.10:.16);
+ if(!discrepant){
+  // A single anomalous value between two otherwise close measures must not create a clinical trend.
+  var central=values.map(function(x){return num(x.weightKg)}).sort(function(a,b){return a-b});
+  var median=central[Math.floor(central.length/2)];
+  var outlier=values.find(function(x){return Math.abs(num(x.weightKg)-median)>12});
+  if(outlier)return {delta:null,warning:'Kiugró testsúlyrekord: '+r1(outlier.weightKg)+' kg ('+
+   String(outlier.measuredAt||outlier.date||'dátum nélkül').slice(0,16)+'). Ellenőrizd a profilhozzárendelést és az importot.'};
+  return {delta:difference,warning:null};
+ }
+ return {delta:null,warning:'Gyanús '+days+' napos testsúlysor: '+start+' kg → '+end+
+  ' kg ('+difference+' kg). Valószínű hibás rekord vagy profilmixelés, újramérés kell.'};
+}
 function arr(v){return Array.isArray(v)?v:[]}
 function trim(v,max){var s=String(v==null?'':v).replace(/\s+/g,' ').trim();return max&&s.length>max?s.slice(0,max-1)+'…':s}
 function legacyProfile(p){try{var v=JSON.parse(localStorage.getItem('hh-health-vault-v1')||'null');return v&&v.profiles&&v.profiles[p]||null}catch(e){return null}}
@@ -204,7 +224,7 @@ async function build(profile,reason){
     var ox=latest(meas,function(x){var v=num(x.oxygenSaturation);return v!=null&&v>0});
     var pr=meas.filter(function(x){var v=num(x.pulse);return v!=null&&v>0});
     var di=documentsIndex(rs[2],legacy,p);
-
+    var w7=weightQuality(meas,7),w30=weightQuality(meas,30);
     var c={
       schema:'healthhub.lena.context/1.1-local',
       generatedAt:new Date().toISOString(),reason:reason||'refresh',
@@ -218,8 +238,8 @@ async function build(profile,reason){
       metrics:{
         weight:{
           latest:wl?{measuredAt:wl.measuredAt,weightKg:r1(wl.weightKg),bodyFatPercent:r1(wl.bodyFatPercent),source:wl.source||null}:null,
-          delta7d:delta(meas,'weightKg',7,function(x){var v=num(x.weightKg);return v!=null&&v>=20}),
-          delta30d:delta(meas,'weightKg',30,function(x){var v=num(x.weightKg);return v!=null&&v>=20})
+          delta7d:w7.delta, delta30d:w30.delta,
+          qualityWarning7d:w7.warning,qualityWarning30d:w30.warning
         },
         bloodPressure:{
           latest:bp?{measuredAt:bp.measuredAt,systolic:num(bp.systolic),diastolic:num(bp.diastolic),pulse:(num(bp.pulse)>0?num(bp.pulse):null),source:bp.source||null}:null,
@@ -238,7 +258,10 @@ async function build(profile,reason){
       healthConnect:{importedAt:imp&&imp.importedAt||null,exportedAt:raw&&raw.exportedAt||raw&&raw.rangeEnd||null,source:'local-cache'},
       signals:[]
     };
-    c.signals=signals(c);c.summary=summary(c);
+    c.signals=signals(c);
+    if(w7.warning)c.signals.unshift({type:'weight_quality_warning_7d',text:'Adatellenőrzés: '+w7.warning});
+    if(w30.warning)c.signals.unshift({type:'weight_quality_warning_30d',text:'Adatellenőrzés: '+w30.warning});
+    c.summary=summary(c);
     localStorage.setItem(KEY+p,JSON.stringify(c));
     localStorage.setItem(KEY+p+'-status',JSON.stringify({ok:true,updatedAt:c.generatedAt,reason:c.reason}));
     try{window.dispatchEvent(new CustomEvent('healthhub:lena-context-updated',{detail:{profile:p,generatedAt:c.generatedAt,local:true}}))}catch(e){}
