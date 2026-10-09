@@ -65,7 +65,7 @@ function markup(){
   '<label class="askConsent"><input type="checkbox" id="askConsent323"><span>Engedélyezem, hogy a kiválasztott profil releváns egészségügyi forrásai és a kutatásból származó válaszcsomag a saját Google Drive-területemen tárolódjanak a ChatGPT-átadáshoz. A ChatGPT-ben történő további feldolgozást külön indítom.</span></label>'+
   '<div class="askProgress" id="hhProg299" role="status" aria-live="polite"><h3 id="hhStep299">Várakozás…</h3><div class="askBar"><i></i></div><span id="hhTxt299"></span>'+
   '<div class="askMore" id="askMore323"><button type="button" class="askBtn" id="askCopy323">📋 Handoff-utasítás másolása</button>'+
-  '<button type="button" class="askBtn askBtnMain" id="askChat323">↗ ChatGPT megnyitása</button></div></div></div>'+
+  '<button type="button" class="askBtn askBtnMain" id="askChat323">↗ ChatGPT megnyitása</button><button type="button" class="askBtn askBtnMain" id="askGeneric327" style="display:none">📋 Kérdés másolása a ChatGPT-hez</button></div></div></div>'+
   '<div class="askCard"><h2>🔎 RAG · kutatási készültség <span id="askOverall323" class="askBadge warn">Ellenőrzés alatt</span></h2>'+
   '<p class="askHint">A RAG itt a helyi egészségügyi dokumentum-indexből kiválasztott, majd Google Drive-ból ténylegesen beolvasott forrásokra épül. A zöld jelzés csak ellenőrzött hozzáférést jelent, nem azt, hogy minden lelet teljes vagy az AI már megnyílt.</p>'+
   '<div id="askChecks323" class="askChecks"></div>'+
@@ -87,6 +87,7 @@ function ensure(){
  el('askDrive323').addEventListener('click',testDrive);
  el('askCopy323').addEventListener('click',copyPrompt);
  el('askChat323').addEventListener('click',launchChatGPT);
+ el('askGeneric327').addEventListener('click',plainChat);
  if(!(window.SpeechRecognition||window.webkitSpeechRecognition)){
   el('hhMic299').disabled=true;
   el('askSpeech323').textContent='Ez a böngésző nem támogatja a webes diktálást. Androidon a billentyűzet mikrofonja használható helyette.';
@@ -229,6 +230,8 @@ async function plainChat(){
   status(ok?'✅ Kérdés a vágólapon':'⚠ Nem sikerült másolni',ok?'Kattints a ChatGPT megnyitása gombra, majd illeszd be a kérdésed.':'A kérdést kézzel is át tudod másolni.',100,ok?'done':'fail');
   el('askMore323').classList.add('on');
   el('askCopy323').style.display='none';
+  el('askGeneric327').style.display='none';
+  el('askChat323').style.display='';
  }else{launchChatGPT()}
 }
 async function token(){
@@ -255,15 +258,11 @@ async function run(){
  if(busy){inlineStatus('⏳ Már folyamatban van egy kutatás, kérlek várd meg az eredményt.','info',true);return}
  var question=(el('hhSQ299').value||'').trim();
  if(!question){status('⚠ Hiányzik a kérdés','Először írd be a kérdésed a nagy szövegdobozba. A példaszöveg nem beírt kérdés.',0,'fail');return}
- if(!el('askConsent323').checked){
-  status('⚠ Külön hozzájárulás szükséges','Jelöld be a Kutatás gomb alatti engedélyező négyzetet: a kutatás privát Google Drive-ba menti a leletekből készített forráscsomagot. A ChatGPT gombhoz ez nem szükséges.',0,'fail');return;
- }
  var st=checks();
- if(!st.ready){
-  var missing=st.checks.filter(function(c){return !c.ok}).map(function(c){return c.label});
-  status('⚠ A RAG még nincs kész','Hiányzik: '+missing.join(', ')+'. Görgess a RAG-készültség részhez. A Drive-tesztet és az archív dokumentumok meglétét külön ellenőrizni kell.',0,'fail');refresh();return;
- }
  busy=true;lock(true);stopMic();el('askMore323').classList.remove('on');
+ el('askGeneric327').style.display='none';
+ el('askChat323').style.display='';
+ el('askCopy323').style.display='';
  try{
   var p=pk();
   status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
@@ -274,10 +273,27 @@ async function run(){
   if(!candidates.length){
    var diag=route&&route.route&&route.route.retrievalReadiness||{};
    var indexed=Number(st.docs)||0,mapped=Number(st.mapped)||0;
-   throw Error('Ehhez a kérdéshez nincs archivált, releváns Drive-lelet ('+
-    'aktív profil: '+pn(p)+', helyi index: '+indexed+', Drive-hivatkozás: '+mapped+
-    ', releváns: '+(diag.relevantDocuments||0)+', ebből elérhető: '+(diag.archivedRelevantDocuments||0)+
-    '). Ellenőrizd a profilod, majd az eredeti leletek Drive-archiválását a Léna Health Context / Teljes leletarchívum Drive Sync résznél. A szinkron személyes dokumentumokat tölthet fel, ezért csak külön jóváhagyással indítsd.'); 
+   status('ℹ️ Ehhez a kérdéshez nem találtam releváns személyes leletet',
+     'A '+pn(p)+' profil dokumentumtárában '+indexed+' indexbejegyzés és '+mapped+
+     ' Drive-hivatkozás található, de a kérdéshez most '+(diag.relevantDocuments||0)+
+     ' kapcsolódó leletet találtam. Ez nem azt jelenti, hogy a Drive üres vagy a szinkron hibás. '+
+     'Általános egészségügyi kérdésként továbbviheted a ChatGPT-be, saját leletek automatikus átadása nélkül. '+
+     'A kérdés elküldése előtt te döntesz.',100,'info');
+   el('askMore323').classList.add('on');
+   el('askCopy323').style.display='none';
+   el('askChat323').style.display='none';
+   el('askGeneric327').style.display='';
+   return;
+  }
+  if(!el('askConsent323').checked){
+   status('⚠ Külön hozzájárulás szükséges',
+    'Ehhez a kérdéshez találtam Drive-on archivált leletet. A személyes dokumentumok kutatásba bevonása és a forráscsomag mentése előtt jelöld be a Kutatás gomb alatti engedélyező négyzetet.',0,'fail');return;
+  }
+  if(!st.ready){
+   var missing=st.checks.filter(function(c){return !c.ok}).map(function(c){return c.label});
+   status('⚠ A leletalapú RAG még nincs kész',
+    'Hiányzik: '+missing.join(', ')+'. Ellenőrizd a RAG-készültségi blokkban az állapotot. '+ 
+    'Az általános ChatGPT gomb ettől függetlenül használható, saját leletek nélkül.',0,'fail');refresh();return;
   }
   status('3/6 · RAG · eredeti dokumentumok','A Google Drive-források szövegének olvasása.',40,'');
   var bundle=await window.hhPrepareLenaResearchBundle296(route,true);
@@ -378,5 +394,5 @@ window.hhOpenLenaSmart299=open;
 window.hhRunLenaSmart299=run;
 window.hhGetLenaHandoff299=function(){return getLocal(HKEY,null)};
 window.addEventListener('healthhub:profile-changed',function(){driveVerified=false;driveIssue='';driveCheckedProfile='';refresh()});
-document.documentElement.dataset.healthhubAskLenaSmart='1.326';
+document.documentElement.dataset.healthhubAskLenaSmart='1.327';
 })();
