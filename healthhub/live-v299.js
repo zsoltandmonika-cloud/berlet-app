@@ -291,8 +291,9 @@ async function run(mode){
  if(busy){inlineStatus('⏳ Már folyamatban van egy kutatás, kérlek várd meg az eredményt.','info',true);return}
  var question=(el('hhSQ299').value||'').trim();
  if(!question){status('⚠ Hiányzik a kérdés','Először írd be a kérdésed a nagy szövegdobozba. A példaszöveg nem beírt kérdés.',0,'fail');return}
- var st=checks();
- busy=true;lock(true);stopMic();work330Begin(deep);el('askMore323').classList.remove('on');
+ var st=checks(),answerMade=false;
+ busy=true;lock(true);stopMic();work330Begin(deep);
+ if(window.HH_LENA_LOCAL_ANSWER_V329&&window.HH_LENA_LOCAL_ANSWER_V329.clear)window.HH_LENA_LOCAL_ANSWER_V329.clear();el('askMore323').classList.remove('on');
  el('askGeneric327').style.display='none';
  el('askChat323').style.display='';
  el('askCopy323').style.display='';
@@ -315,7 +316,7 @@ async function run(mode){
   var report=preview;
   if(!report||report.profile!==p)throw Error('Nem sikerült a HealthHub adatait ellenőrizni. Futtasd újra az Intelligence adatellenőrzést.');
   if(!window.HH_LENA_UNIVERSAL_V330||typeof window.HH_LENA_UNIVERSAL_V330.show!=='function')throw Error('A Léna v330 univerzális kutatási modul nem töltődött be.');
-  window.HH_LENA_UNIVERSAL_V330.show(report,question);
+  window.HH_LENA_UNIVERSAL_V330.show(report,question);answerMade=true;
   if(pk()!==p)throw Error('A profil megváltozott a válaszkészítés közben.');
   work330Stage('❤️ Léna javaslata elkészült','Kész a kérdésre szabott helyi elemzés, konkrét forrásértékekkel.',98);
   if(!deep){
@@ -371,8 +372,7 @@ async function run(mode){
   work330End(true,'A leletalapú kiegészítés is elkészült.');
  }catch(e){
   console.error('HealthHub Ask Léna',e);
-  var existing=window.HH_LENA_LOCAL_ANSWER_V329&&window.HH_LENA_LOCAL_ANSWER_V329.getLast();
-  if(existing&&existing.profile===pk()){
+  if(answerMade&&pk()===p){
    status('✅ Léna javaslata kész · opcionális kutatási kiegészítés hibázott',
     'A HealthHubból készült helyi elemzés elérhető. A külön PDF/Drive-kutatás nem fejeződött be: '+String(e?.message||e),100,'done');
    work330End(true,'A helyi válasz elkészült; a külön leletmélykutatás hibáját jelzem.');
