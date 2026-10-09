@@ -104,12 +104,12 @@ function renderAnswerText(raw){
  var normalized=String(raw||'').slice(0,7000).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
  normalized=parts.map(function(chunk){
-  if(chunk.length<420 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
+  if(chunk.length<380 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
   var sentences=chunk.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ])/u);
   if(sentences.length<2)return chunk;
   var result=[],acc='';
   sentences.forEach(function(sentence){
-   if(acc.length>240&&acc.length+sentence.length>410){
+   if(acc.length>160&&acc.length+sentence.length>355){
     result.push(acc);acc=sentence;
    }else acc+=(acc?' ':'')+sentence;
   });
