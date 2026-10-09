@@ -295,6 +295,7 @@ function install(){
 }
 window.addEventListener('healthhub:ask-lena-open',function(){install()});
 window.addEventListener('healthhub:ask-lena-start',function(e){
+ var journal=el('hhLenaJournal344');if(journal)journal.remove();
  if(!e.detail||e.detail.profile!==profile())return;
  focusPanel('hhAi331Terminal');
 });
@@ -307,6 +308,7 @@ window.addEventListener('healthhub:ask-lena-complete',function(e){
  symptomJournalOffer(d);
 });
 window.addEventListener('healthhub:profile-changed',function(){
+ var journal=el('hhLenaJournal344');if(journal)journal.remove();
  var p=profile(),q=el('hhSQ299');
  if(lastProfile&&lastProfile!==p&&q){
   drafts[lastProfile]=q.value;
