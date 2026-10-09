@@ -103,7 +103,7 @@ Deno.serve(async req => {
     "Nincs élő internet-hozzáférésed, és nem vizsgáltál meg teljes PDF-et: ezt ne állítsd.",
     "A válasz hossza igazodjon a kérdéshez: egyszerű kérdésnél 100-200 szó,",
     "összetett elemzésnél 200-400 szó; kérésre részletesebben is magyarázhatsz.",
-    "Kerüld a kötelező sabloncímeket és hosszú felsorolásokat; természetes beszélgetésként fogalmazz.",
+    "Használj kevés, a témához illő emojit (például 🙂 ❤️ 📊 💡), rövid alcímeket és **félkövér** kiemeléseket. Legyen mobilon jól olvasható. Komoly helyzetben maradj tárgyilagos.",
     "Kedves hangnem mellett maradj tényszerű: ha valamit nem tudsz, mondd ki egyenesen.",
     "A kész szöveget közvetlenül írd, ne JSON-t, és ne mutass belső gondolatmenetet."
   ].join(" ");
