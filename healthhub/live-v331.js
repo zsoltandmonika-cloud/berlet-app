@@ -315,7 +315,8 @@ function errorText(code,status){
  if(code==='ai_upstream_401'||code==='ai_upstream_402'||code==='ai_upstream_429')return 'Az AI-szolgáltatás kulcsa, kerete vagy limitje ellenőrzést igényel ('+code+').';
  return 'AI-kutatás sikertelen: '+safe(code||'kapcsolati vagy szerverhiba',140)+'.';
 }
-async function run(){
+async function run(opts){
+ var deep=!!(opts&&opts.depth==='detailed');
  ui();if(active){print('Már fut egy kutatás.');return}
  var q=el('hhSQ299'),p=profile(),question=q&&q.value.trim();
  var term=el('hhAi331Terminal'),result=el('hhAi331Answer'),err=el('hhAi331Error');
@@ -335,7 +336,7 @@ async function run(){
  el('hhRun299').disabled=true;q.disabled=true;
  try{q.blur()}catch(e){}
  window.dispatchEvent(new CustomEvent('healthhub:ask-lena-start',{detail:{profile:p}}));
- print('Kapcsolódás a kutatómotorhoz…');
+ print(deep?'Részletes kutatás indul, több forrás összevetésével…':'Kapcsolódás a kutatómotorhoz…');
  try{
   if(!svc.probe)throw Error('A biztonságos AI-szerver ellenőrző modulja még nem töltődött be.');
   var connection;
@@ -351,8 +352,7 @@ async function run(){
   var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
   if(ctx&&ctx.profile!==p)throw Error('Profilazonosítási eltérés, feldolgozás leállítva.');
   var extra=addExtra(ctx,question),data=simplify(report,extra);
-  data.depth=window.HH_LENA_RESEARCH_DEPTH==='detailed'?'detailed':'standard';
-  window.HH_LENA_RESEARCH_DEPTH='standard';
+  data.depth=deep?'detailed':'standard';
   data.question=question;
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
@@ -408,12 +408,19 @@ window.addEventListener('healthhub:profile-changed',function(){cancel();
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
-window.HH_ASK_LENA_AI_V331={initialize:ui,version:'343',isBusy:function(){return!!active},showStoredAnswer:function(entry){
+window.HH_ASK_LENA_AI_V331={initialize:ui,version:'344',isBusy:function(){return!!active},runDetailed:function(){return run({depth:'detailed'})},showStoredAnswer:function(entry){
  if(!entry||!['monika','zsolt'].includes(entry.profile)||entry.profile!==profile())return false;
  var result=el('hhAi331Answer'),q=el('hhSQ299'),foot=el('hhAi331Foot');
  if(!result||!q||typeof entry.answer!=='string'||typeof entry.question!=='string')return false;
  setAnswerProfile(entry.profile);q.value=entry.question;renderAnswerText(entry.answer);
- if(foot)foot.textContent='🕘 Korábbi, mentett válasz · '+new Date(entry.generatedAt).toLocaleString('hu-HU')+' · Helyi előzmény, nem új kutatás.';
+ if(foot){
+  foot.textContent='🕘 Korábbi, mentett válasz · '+new Date(entry.generatedAt).toLocaleString('hu-HU')+' · Helyi előzmény, nem új kutatás.';
+  if(/(?:-39[.,][0-9]+|-3[5-9][.,][0-9]+)\s*kg/i.test(entry.answer)){
+   var warn=document.createElement('p');warn.style.color='#a13c31';
+   warn.textContent='⚠️ Ebben a régi válaszban valószínűleg hibás testsúlytrend szerepel. Indíts új kutatást; ne tekintsd ezt hiteles mérésnek.';
+   foot.appendChild(warn);
+  }
+ }
  result.classList.add('on');var terminal=el('hhAi331Terminal');if(terminal)terminal.classList.remove('on');
  return true;
  }};
