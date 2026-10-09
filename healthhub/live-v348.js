@@ -39,8 +39,20 @@ function collectDictionaries(){
   found=true;if(sources.indexOf(source)<0)sources.push(source);
  }
  function walk(root,source,depth){
-  if(depth>4||!root||typeof root!=='object')return;
-  if(Array.isArray(root))return;
+  if(depth>5||!root||typeof root!=='object')return;
+  if(Array.isArray(root)){
+   root.slice(0,120).forEach(function(item){
+    if(!item||typeof item!=='object'||Array.isArray(item))return;
+    var group=norm(item.key||item.id||item.category||item.type||item.name);
+    KEYS.forEach(function(k){
+     if(!k.aliases.some(function(alias){return norm(alias)===group}))return;
+     ['values','items','options','entries','base','custom','defaults','builtin','user','system'].forEach(function(field){
+      if(Array.isArray(item[field]))merge(k,item[field],source);
+     });
+    });
+   });
+   return;
+  }
   Object.keys(root).forEach(function(prop){
    var val=root[prop],key=norm(prop);
    KEYS.forEach(function(k){
@@ -53,8 +65,8 @@ function collectDictionaries(){
      }
     }
    });
-   if(val&&typeof val==='object'&&!Array.isArray(val)&&
-      /^(dictionaries|dictionary|szotarak|szotar|vocabulary|vocab|options|lists|lookup|lookups|catalog|catalogs|settings|data|symptoms|definitions|categories|payload|master)$/.test(key)){
+   if(val&&typeof val==='object'&&
+      /^(dictionaries|dictionary|szotarak|szotar|vocabulary|vocab|options|dropdowns|selectoptions|lists|lookup|lookups|catalog|catalogs|settings|data|symptoms|definitions|categories|groups|fields|collections|payload|master)$/.test(key)){
      walk(val,source,depth+1);
    }
   });
