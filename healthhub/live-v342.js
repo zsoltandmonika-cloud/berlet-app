@@ -47,6 +47,14 @@ function setCss(){
  '#hhLenaSmart299 .hhLenaHistoryNote342{padding:7px 4px;color:#69818d;font-size:11px;line-height:1.5}',
  '#hhLenaSmart299 #hhLenaHistClear342{margin:7px 3px 0;padding:8px 10px;border:1px solid #e3cbd8;border-radius:9px;color:var(--lena-ui-dark);background:var(--lena-ui-soft);font-size:11px;cursor:pointer}',
  '#hhLenaSmart299 .hhLenaDeepAction342{display:block;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px solid var(--lena-ui-border);border-radius:14px;color:var(--lena-ui-dark);background:var(--lena-ui-soft);font-size:13px;line-height:1.5;font-weight:760;cursor:pointer}',
+ '#hhLenaSmart299 .hhLenaJournal344{margin-top:18px;border:1px solid var(--lena-ui-border);background:var(--lena-ui-soft);border-radius:17px;padding:13px;line-height:1.55}',
+ '#hhLenaSmart299 .hhLenaJournal344 p{margin:0 0 9px;font-size:13px;color:var(--lena-ui-dark);font-weight:750}',
+ '#hhLenaSmart299 .hhLenaJournal344 button{background:#fff;border:1px solid var(--lena-ui-border);border-radius:10px;color:var(--lena-ui-dark);padding:9px 12px;font:700 12px/1.3 system-ui;cursor:pointer;min-height:38px}',
+ '#hhLenaSmart299 .hhLenaJournal344 .hhLenaJournalForm344{display:grid;gap:10px;margin:9px 0}',
+ '#hhLenaSmart299 .hhLenaJournal344 label{display:grid;gap:4px;font:650 12px/1.35 system-ui;color:var(--lena-ui-dark)}',
+ '#hhLenaSmart299 .hhLenaJournal344 textarea,#hhLenaSmart299 .hhLenaJournal344 input{box-sizing:border-box;width:100%;padding:10px;background:#fff;border:1px solid var(--lena-ui-border);border-radius:10px;color:#263f55;font:400 15px/1.4 system-ui}',
+ '#hhLenaSmart299 .hhLenaJournal344 .hhLenaJournalActions344{display:flex;flex-wrap:wrap;gap:8px}',
+ '#hhLenaSmart299 .hhLenaJournal344 button.hhLenaJournalSave344{background:var(--lena-ui);color:white;border-color:var(--lena-ui)}',
  '#hhLenaSmart299 #hhAi331Terminal,#hhLenaSmart299 #hhAi331Answer{scroll-margin-top:78px}',
  '@media(prefers-reduced-motion:reduce){#hhLenaSmart299 #hhSP299{transition:none}}'
  ].join('');
@@ -126,6 +134,7 @@ function renderItem(entry,p){
   var api=window.HH_ASK_LENA_AI_V331;
   if(api&&api.isBusy&&api.isBusy())return;
   if(api&&api.showStoredAnswer&&api.showStoredAnswer(entry)){
+   var oldJournal=el('hhLenaJournal344');if(oldJournal)oldJournal.remove();
    var input=el('hhSQ299');if(input)input.dispatchEvent(new Event('input',{bubbles:true}));
    var details=el('hhLenaHistory342');if(details)details.open=false;
    var foot=el('hhAi331Foot');
@@ -185,6 +194,58 @@ async function refreshHistory(){
   if(turn===historyEpoch)showHistoryError();
  }
 }
+
+function symptomLikely(question){
+ return /f[aá]j|f[aá]jdal|dagad|duzzad|k[oö]h[oö]g|h[oő]emelk|l[aá]z|sz[uú]r|[eé]g|cs[ií]p|sz[eé]d[uü]l|f[aá]rad|l[eé]gszom|fullad|[eé]mely|ki[uü]t[eé]s|viszket|[oö]d[eé]ma|hasmen|h[aá]ny|g[oö]rcs|puffad|rosszull[eé]t|zsibbad|fejf[aá]j|bok[aá]m|mellkas/i.test(String(question||''));
+}
+function symptomJournalOffer(d){
+ var answer=el('hhAi331Answer');if(!answer||!d||!symptomLikely(d.question))return;
+ var prev=el('hhLenaJournal344');if(prev)prev.remove();
+ var box=document.createElement('section');box.id='hhLenaJournal344';box.className='hhLenaJournal344';
+ var ask=document.createElement('p');ask.textContent='📝 Szeretnéd, hogy ezt rögzítsem az eseti tünetnaplódban?';
+ var begin=document.createElement('button');begin.type='button';begin.textContent='Igen, rögzítsük';
+ var area=document.createElement('div');area.className='hhLenaJournalForm344';area.hidden=true;
+ var symptom=document.createElement('label');symptom.textContent='Tünet leírása';
+ var txt=document.createElement('textarea');txt.rows=2;txt.maxLength=280;
+ txt.value=String(d.question||'').trim().slice(0,280);symptom.appendChild(txt);
+ var severity=document.createElement('label');severity.textContent='Erősség (0–10), ha tudod';
+ var score=document.createElement('input');score.type='number';score.min='0';score.max='10';score.step='1';score.placeholder='Opcionális';severity.appendChild(score);
+ var notes=document.createElement('label');notes.textContent='Megjegyzés (opcionális)';
+ var note=document.createElement('textarea');note.rows=2;note.maxLength=450;
+ note.placeholder='Például: mikor kezdődött, mi javítja vagy rontja';notes.appendChild(note);
+ var buttons=document.createElement('div');buttons.className='hhLenaJournalActions344';
+ var saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.className='hhLenaJournalSave344';saveBtn.textContent='💗 Mentés';
+ var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Mégsem';
+ buttons.append(saveBtn,cancel);area.append(symptom,severity,notes,buttons);
+ var meta=document.createElement('small');meta.textContent='Csak a kiválasztott profil helyi tünetnaplójába kerül. Nem automatikus AI-diagnózis, nem felhőmentés.';
+ meta.style.display='block';meta.style.marginTop='9px';
+ begin.addEventListener('click',function(){begin.hidden=true;area.hidden=false;txt.focus({preventScroll:true})});
+ cancel.addEventListener('click',function(){area.hidden=true;begin.hidden=false});
+ saveBtn.addEventListener('click',function(){
+  var p=profile(),v=txt.value.trim(),n=note.value.trim();
+  if(p!==d.profile){ask.textContent='⚠ Időközben profilváltás történt. Indítsd újra a megfelelő profillal.';return}
+  if(v.length<3){txt.focus();return}
+  var scoreText=score.value.trim(),sev=scoreText===''?null:Number(scoreText);
+  if(sev!==null&&(!Number.isInteger(sev)||sev<0||sev>10)){score.focus();return}
+  try{
+   var key='hh-symptom-journal-v1',obj=JSON.parse(localStorage.getItem(key)||'{"events":[]}' );
+   if(!obj||typeof obj!=='object'||Array.isArray(obj)||!Array.isArray(obj.events))throw Error('format');
+   var stamp=new Date().toISOString();
+   var id='asklena-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+   obj.events.push({id:id,profile:p,eventAt:stamp,createdAt:stamp,symptom:v,
+    severity:sev===null?'':sev,outcome:n,notes:n,source:'ask-lena'});
+   localStorage.setItem(key,JSON.stringify(obj));
+   try{window.dispatchEvent(new CustomEvent('healthhub:symptom-journal-changed',{detail:{profile:p,eventId:id}}))}catch(e){}
+   ask.textContent='✅ Rögzítettem '+name(p)+' helyi eseti tünetnaplójában.';
+   area.remove();begin.remove();meta.textContent='A következő Ask Léna kutatás már felhasználhatja ezt a bejegyzést.';
+  }catch(e){
+   ask.textContent='⚠ Nem sikerült a helyi napló mentése. A korábbi naplóhoz nem nyúltam.';
+  }
+ });
+ box.append(ask,begin,area,meta);
+ answer.appendChild(box);
+}
+
 function profileSwitch(){
  var pill=el('hhSP299');if(!pill||pill.dataset.hhLenaSwitch342)return;
  pill.dataset.hhLenaSwitch342='1';
@@ -242,6 +303,7 @@ window.addEventListener('healthhub:ask-lena-complete',function(e){
  focusPanel('hhAi331Answer');
  if(typeof d.question!=='string'||typeof d.answer!=='string'||!d.answer.trim())return;
  save(d).then(refreshHistory).catch(showHistoryError);
+ symptomJournalOffer(d);
 });
 window.addEventListener('healthhub:profile-changed',function(){
  var p=profile(),q=el('hhSQ299');
