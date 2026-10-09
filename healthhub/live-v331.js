@@ -39,6 +39,8 @@ function styles(){
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaIcon{font-size:19px;display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;flex:0 0 31px;border-radius:11px;background:var(--lena-soft);margin-right:8px;vertical-align:middle}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock>p{margin:0}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock>h3{font-size:15px;line-height:1.42;color:var(--lena-accent-deep);margin:0 0 8px}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNature353{background:linear-gradient(155deg,#edf9ee,#fff 78%);border:1px solid #aad7b1;box-shadow:0 4px 13px #247b4021}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNature353 h3{color:#247341!important}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock ul{margin:6px 0 0;padding-left:22px}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaMetric{color:var(--lena-accent-deep);font-weight:790;white-space:normal}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlockHeader{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-weight:790;color:var(--lena-accent-deep);font-size:13px}'+
@@ -141,6 +143,7 @@ function renderAnswerText(raw){
   var tag=String(node.tagName||'').toLowerCase();
   if(tag==='h3'){
    current=document.createElement('section');current.className='hhLenaBlock';
+   if(/természetes praktik|otthoni praktik|természetes enyhítés/i.test(node.textContent||''))current.className+=' hhLenaNature353';
    current.appendChild(node);visual.appendChild(current);idx++;return;
   }
   if(tag==='ul'){
