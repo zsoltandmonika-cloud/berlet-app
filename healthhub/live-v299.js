@@ -45,18 +45,20 @@ function styles(){
  '#'+PAGE+' .askMore{display:none;margin-top:9px}#'+PAGE+' .askMore.on{display:grid;gap:8px}'+
  '#'+PAGE+' .askFooter{font-size:11px;line-height:1.55;color:#617e8a;margin:0}'+
  '@media(max-width:350px){#'+PAGE+' .askActions{grid-template-columns:1fr}#'+PAGE+' .askBtnWide{grid-column:1}}';
+ s.textContent += "\n/* HealthRadar-consistent polished Ask Lena v324 layout, reusing the approved role hero atlas. */\n#hhLenaSmart299{\n --ask-accent:#2f78b7; --ask-accent-soft:#edf6ff;\n background:linear-gradient(180deg,#eaf4fa 0%,#f7fafb 310px);color:#173f59;\n}\n#hhLenaSmart299[data-profile=\"monika\"]{\n --ask-accent:#d95690;--ask-accent-soft:#fff0f7;\n background:linear-gradient(180deg,#fff0f7 0%,#f9fbfc 310px);\n}\n#hhLenaSmart299 .askHero{\n height:215px;position:relative;overflow:hidden;\n background-color:#e8f3f8;\n background-image:var(--hh-role-atlas,linear-gradient(110deg,#dcecf3,#f6fbff));\n background-position:left top;background-size:auto 200%;background-repeat:no-repeat;\n padding:0; color:#173d59;\n}\n#hhLenaSmart299 .askHero:after{\n content:\"\";position:absolute;inset:0;pointer-events:none;\n background:linear-gradient(90deg,transparent 28%,rgba(245,251,254,.10) 47%,rgba(245,251,254,.36) 100%);\n}\n#hhLenaSmart299 .askHeroInner{\n max-width:820px;margin:auto;height:100%;padding:0 17px;\n position:relative;display:flex;align-items:center;justify-content:flex-end;box-sizing:border-box;\n}\n#hhLenaSmart299 .askHeroCopy{position:relative;z-index:2;width:49%;padding-top:24px}\n#hhLenaSmart299 .askBack{\n position:absolute;top:13px;left:13px;z-index:4;display:inline-flex;align-items:center;justify-content:center;\n width:43px;height:43px;border-radius:50%;padding:0;\n border:1px solid #c6dce4;background:rgba(255,255,255,.86);color:#1c5977;\n box-shadow:0 4px 13px #1b53601d;font-size:24px;\n}\n#hhLenaSmart299 h1{margin:0 0 7px;font-size:clamp(22px,5.5vw,29px);letter-spacing:-.6px;color:#183c58;text-shadow:0 1px 8px #ffffff99}\n#hhLenaSmart299 .askSub{font-size:12px;line-height:1.4;margin:0 0 9px;color:#3c647a;text-shadow:0 1px 7px #ffffffc7}\n#hhLenaSmart299 .askProfile{\n background:rgba(255,255,255,.90);color:var(--ask-accent);\n border:1px solid #ffffffa8;box-shadow:0 3px 10px #23526a11;\n font-size:11px;font-weight:900;padding:6px 10px;\n}\n#hhLenaSmart299 .askWidth{max-width:790px;padding:16px 13px 0;gap:15px}\n#hhLenaSmart299 .askCard{\n background:linear-gradient(175deg,rgba(255,255,255,.98),rgba(251,254,255,.95));\n border:1px solid #dfebef;border-radius:23px;\n padding:19px 16px 18px;\n box-shadow:0 8px 25px rgba(25,79,106,.073);\n}\n#hhLenaSmart299 .askCard h2{font-size:17px;font-weight:870;line-height:1.32;letter-spacing:-.2px;margin:0 0 11px;color:#244a65}\n#hhLenaSmart299 .askQuestion{\n min-height:184px;height:197px;border:1.5px solid #bcdbe1;\n border-radius:18px;background:#fff;\n padding:16px 16px;font-size:16px;line-height:1.65;\n box-shadow:inset 0 1px 3px #28567209,0 2px 8px #20556a08;\n outline-color:var(--ask-accent);\n}\n#hhLenaSmart299 .askQuestion:focus{border-color:var(--ask-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--ask-accent) 10%,transparent)}\n#hhLenaSmart299 .askHint{font-size:12px;line-height:1.58;color:#687f8a;margin:10px 1px}\n#hhLenaSmart299 .askActions{gap:10px;margin-top:15px}\n#hhLenaSmart299 .askBtn{\n background:linear-gradient(180deg,#f5fafc,#eaf4f7);border:1px solid #d5e5eb;\n color:#2a6077;min-height:49px;border-radius:15px;padding:11px 12px;\n font-size:13px;font-weight:850;box-shadow:0 2px 4px #254d6009;\n}\n#hhLenaSmart299 .askBtn:active{transform:translateY(1px)}\n#hhLenaSmart299 .askBtnMain{\n color:white;background:linear-gradient(135deg,var(--ask-accent),color-mix(in srgb,var(--ask-accent) 83%,#135b7c));\n border-color:var(--ask-accent);\n box-shadow:0 6px 14px color-mix(in srgb,var(--ask-accent) 20%,transparent);\n}\n#hhLenaSmart299 .askBtnWide{font-size:15px;min-height:54px;letter-spacing:.1px}\n#hhLenaSmart299 .askKeyboard{\n border:0;background:transparent;display:block;color:#357c93;text-align:left;\n padding:8px 2px 4px;font-size:12px;font-weight:750;min-height:38px;text-decoration:underline;text-underline-offset:2px;\n}\n#hhLenaSmart299 #askSpeech323{\n background:#f3f8fa;border-radius:11px;padding:9px 10px;line-height:1.45;\n font-size:11px;margin:8px 0 3px;min-height:22px;\n}\n#hhLenaSmart299 .askConsent{\n background:#f7fafb;border:1px solid #e4edf1;border-radius:15px;\n padding:12px;margin:15px 0 0;font-size:12px;color:#466a7f;\n}\n#hhLenaSmart299 .askConsent input{accent-color:var(--ask-accent)}\n#hhLenaSmart299 .askChecks{gap:9px}\n#hhLenaSmart299 .askCheck{\n border-color:#e8f0f3;background:#fbfdfd;border-radius:14px;\n padding:12px 11px;\n}\n#hhLenaSmart299 .askCheck strong{font-size:13px}\n#hhLenaSmart299 .askCheck span{font-size:11.5px;line-height:1.48}\n#hhLenaSmart299 .askBadge{margin-top:5px;padding:5px 10px;vertical-align:middle}\n#hhLenaSmart299 .askProgress{background:var(--ask-accent-soft);border-radius:17px}\n#hhLenaSmart299 .askBar i{background:var(--ask-accent)}\n#hhLenaSmart299 .askFooter{padding:2px 5px 20px;font-size:11.5px}\n@media(max-width:440px){\n #hhLenaSmart299 .askHero{height:205px}\n #hhLenaSmart299 .askHeroCopy{width:52%}\n #hhLenaSmart299 .askHeroInner{padding:0 12px}\n #hhLenaSmart299 h1{font-size:24px}\n #hhLenaSmart299 .askSub{font-size:10.5px}\n #hhLenaSmart299 .askCard{padding:17px 15px}\n}\n";
  document.head.appendChild(s);
 }
 function markup(){
- return '<div class="askHero"><div class="askHeroInner"><button type="button" class="askBack" id="askBack323">‹ Vissza</button>'+
-  '<h1>🧠 Ask Léna</h1><p class="askSub">Személyes kutatási központ · kérdés, források, RAG-előkészítés és ChatGPT-átadás</p>'+
-  '<span class="askProfile" id="hhSP299">Aktív profil: '+esc(pn(pk()))+'</span></div></div>'+
+ return '<div class="askHero"><div class="askHeroInner"><button type="button" class="askBack" id="askBack323" aria-label="Vissza">‹</button>'+
+  '<div class="askHeroCopy"><h1>🧠 Ask Léna</h1><p class="askSub">Smart Health Research<br>Kutatás és egészségügyi kérdések</p>'+
+  '<span class="askProfile" id="hhSP299">Aktív profil: '+esc(pn(pk()))+'</span></div></div></div>'+
   '<div class="askWidth"><div class="askCard"><h2>✍️ Mit szeretnél megkérdezni?</h2>'+
   '<textarea id="hhSQ299" class="askQuestion" aria-label="Kérdés Lénának" placeholder="Írd ide a kérdésed…\nPéldául: Miért lehetnek hiányosak az intenzív osztályon töltött napok emlékei?"></textarea>'+
   '<p class="askHint">Írhatsz, vagy megpróbálhatod a diktálást. A böngésző hangfelismerése készülékenként eltérően működik.</p>'+
-  '<div class="askActions"><button type="button" class="askBtn askBtnMain askBtnWide" id="hhRun299">📚 Kutatás + ChatGPT-átadás</button>'+
+  '<div class="askActions"><button type="button" class="askBtn askBtnMain askBtnWide" id="hhRun299">📚 Kutatás</button>'+
   '<button type="button" class="askBtn" id="hhMic299">🎙️ Diktálás</button>'+
-  '<button type="button" class="askBtn" id="hhPlain299">💬 Csak ChatGPT</button></div>'+
+  '<button type="button" class="askBtn" id="hhPlain299">💬 ChatGPT</button></div>'+
+  '<button type="button" class="askKeyboard" id="askKeyboard324">⌨️ Inkább a telefon billentyűzetével diktálok</button>'+
   '<p class="askHint" id="askSpeech323" role="status"></p>'+
   '<label class="askConsent"><input type="checkbox" id="askConsent323"><span>Engedélyezem, hogy a kiválasztott profil releváns egészségügyi forrásai és a kutatásból származó válaszcsomag a saját Google Drive-területemen tárolódjanak a ChatGPT-átadáshoz. A ChatGPT-ben történő további feldolgozást külön indítom.</span></label>'+
   '<div class="askProgress" id="hhProg299" role="status" aria-live="polite"><h3 id="hhStep299">Várakozás…</h3><div class="askBar"><i></i></div><span id="hhTxt299"></span>'+
@@ -78,6 +80,7 @@ function ensure(){
  el('hhRun299').addEventListener('click',run);
  el('hhMic299').addEventListener('click',mic);
  el('hhPlain299').addEventListener('click',plainChat);
+ el('askKeyboard324').addEventListener('click',keyboardMic);
  el('askRefresh323').addEventListener('click',refreshContext);
  el('askDrive323').addEventListener('click',testDrive);
  el('askCopy323').addEventListener('click',copyPrompt);
@@ -91,6 +94,7 @@ function ensure(){
 }
 function open(){
  var page=ensure(),old=document.querySelector('.page.on');
+ page.dataset.profile=pk();
  if(old&&old.id!==PAGE)previousPage=old.id;
  document.querySelectorAll('.page').forEach(function(n){n.classList.remove('on')});
  page.classList.add('on');
@@ -100,6 +104,7 @@ function open(){
  refresh();window.scrollTo(0,0);
 }
 function stopMic(){
+ micManuallyStopped=true;
  if(!rec)return;
  try{rec.stop()}catch(e){}
  rec=null;
@@ -139,6 +144,7 @@ function checks(){
 function refresh(){
  if(!el('askChecks323'))return;
  var p=pk(),data=checks(),o=el('askOverall323');
+ var section=el(PAGE);if(section)section.dataset.profile=p;
  o.className='askBadge '+(data.ready?'good':data.checks.some(function(x){return !x.ok&&!x.maybe})?'error':'warn');
  o.textContent=data.ready?'✅ Kutatásra kész':'⚠ Ellenőrzés / előkészítés szükséges';
  el('askChecks323').innerHTML=data.checks.map(function(x){
@@ -281,55 +287,79 @@ async function run(){
   status('⚠ A kutatás megállt',String(e?.message||e),100,'fail');
  }finally{busy=false;lock(false);refresh()}
 }
-function mic(){
+
+function keyboardMic(){
+ stopMic();
+ var q=el('hhSQ299');
+ if(q){
+  q.focus();q.scrollIntoView({block:'center',behavior:'smooth'});
+  el('askSpeech323').textContent='⌨️ A telefon billentyűzete megnyílt. Koppints a Samsung/Gboard mikrofon ikonjára a magyar diktáláshoz. Ez a böngésző hangfelismerő szolgáltatásától független.';
+ }
+}
+var micManuallyStopped=false;
+function startMic(attempt){
  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){el('askSpeech323').textContent='A böngésző nem támogatja a mikrofonos diktálást. Használd a billentyűzet mikrofonját.';return}
- if(rec){stopMic();el('hhMic299').textContent='🎙️ Diktálás';el('askSpeech323').textContent='Diktálás leállítva.';return}
+ if(!SR){
+  el('askSpeech323').textContent='A böngészős beszédfelismerés nem elérhető. Használd a telefon billentyűzetének mikrofonját.';
+  return;
+ }
  try{
-  var r=new SR();rec=r;recognitionStarted=Date.now();recognitionHadText=false;recognitionError='';lastSpeech='';
+  var r=new SR();rec=r;micManuallyStopped=false;
+  recognitionStarted=Date.now();recognitionHadText=false;recognitionError='';lastSpeech='';
   questionBeforeSpeech=el('hhSQ299').value||'';
-  r.lang='hu-HU';r.interimResults=true;r.continuous=true;
-  var b=el('hhMic299');b.textContent='⏹️ Leállítás';el('askSpeech323').textContent='🎙️ A mikrofonra várunk… beszélj magyarul.';
-  r.onstart=function(){el('askSpeech323').textContent='🔴 Diktálás folyamatban. A Leállítás gombbal befejezheted.'};
-  r.onresult=function(evt){
-   var transcript='';
-   for(var i=0;i<evt.results.length;i++)transcript+=evt.results[i][0].transcript+' ';
-   lastSpeech=transcript.trim();recognitionHadText=!!lastSpeech;
-   var base=questionBeforeSpeech.trim();
-   el('hhSQ299').value=(base?base+' ':'')+lastSpeech;
-   el('askSpeech323').textContent='📝 Felismert szöveg: '+(lastSpeech||'…');
+  r.lang='hu-HU';r.interimResults=true;r.continuous=false;
+  el('hhMic299').textContent='⏹️ Leállítás';
+  el('askSpeech323').textContent=attempt?'🎙️ Újrapróbálkozás… kérlek beszélj a mikrofonhoz.':'🎙️ Mikrofon indítása…';
+  r.onstart=function(){
+   el('askSpeech323').textContent='🔴 Diktálás bekapcsolva, beszélj magyarul. A felismert szöveg bekerül a kérdésmezőbe.';
   };
-  r.onerror=function(e){
-   recognitionError=String(e?.error||'ismeretlen hiba');
-   var tips={
-    'not-allowed':'Mikrofonengedély elutasítva. Engedélyezd a Chrome/Edge mikrofont a webhelyhez.',
+  r.onresult=function(evt){
+   var t='';
+   for(var i=0;i<evt.results.length;i++)t+=evt.results[i][0].transcript+' ';
+   lastSpeech=t.trim();recognitionHadText=!!lastSpeech;
+   el('hhSQ299').value=(questionBeforeSpeech.trim()?questionBeforeSpeech.trim()+' ':'')+lastSpeech;
+   el('askSpeech323').textContent='📝 '+(lastSpeech||'A hang felismerése folyamatban…');
+  };
+  r.onerror=function(evt){
+   recognitionError=String(evt?.error||'ismeretlen hiba');
+   var reasons={
+    'not-allowed':'A böngésző nem kapott mikrofonengedélyt.',
     'service-not-allowed':'A böngésző hangfelismerő szolgáltatása nem engedélyezett.',
-    'network':'Hálózati hiba történt a böngésző hangfelismerésében.',
-    'no-speech':'A rendszer nem érzékelt beszédet. Próbálkozz újra.',
-    'audio-capture':'A mikrofon nem érhető el; lehet, hogy másik alkalmazás használja.',
+    'network':'A böngésző hangfelismerő szolgáltatása hálózati hibát jelzett.',
+    'no-speech':'A böngésző nem érzékelt beszédet.',
+    'audio-capture':'Nem érhető el a mikrofon.',
     'aborted':'A diktálás megszakadt.'
    };
-   el('askSpeech323').textContent='⚠️ '+(tips[recognitionError]||'Hangfelismerési hiba: '+recognitionError)+' Androidon a billentyűzet mikrofonja általában megbízhatóbb.';
+   el('askSpeech323').textContent='⚠️ '+(reasons[recognitionError]||'Hangfelismerési hiba: '+recognitionError)+' Használd a billentyűzet mikrofonját is, ha szükséges.';
   };
   r.onend=function(){
    if(rec===r)rec=null;
    el('hhMic299').textContent='🎙️ Diktálás';
-   var time=Date.now()-recognitionStarted;
-   if(!recognitionError&&!recognitionHadText){
-    el('askSpeech323').textContent=time<2500?'⚠️ A böngésző '+(time/1000).toFixed(1)+' másodperc után leállította a hangfelismerést. Ellenőrizd a mikrofonengedélyt, vagy használd a Samsung billentyűzet mikrofonját.':'Nem érkezett felismerhető szöveg. Próbáld újra vagy használd a billentyűzet mikrofonját.';
-   }else if(!recognitionError&&recognitionHadText){
-    el('askSpeech323').textContent='✅ A diktált szöveg bekerült a kérdésmezőbe. Szükség esetén javítsd ki, mielőtt elindítod a kutatást.';
+   if(micManuallyStopped){el('askSpeech323').textContent='⏹️ Diktálás leállítva.';return}
+   var elapsed=Date.now()-recognitionStarted;
+   if(!recognitionError&&!recognitionHadText&&elapsed<2500&&attempt===0){
+    el('askSpeech323').textContent='⚠️ A böngésző '+(elapsed/1000).toFixed(1)+' másodperc után megszakította a hangfelismerést. Egyszer újrapróbálom…';
+    setTimeout(function(){if(!micManuallyStopped&&el(PAGE)?.classList.contains('on')&&!rec)startMic(1)},450);
+    return;
    }
+   if(!recognitionError&&!recognitionHadText)
+    el('askSpeech323').textContent='⚠️ A böngésző '+(elapsed/1000).toFixed(1)+' másodperc után leállt, nem adott szöveget. A telefon billentyűzetének mikrofonja megbízhatóbb lehet.';
+   else if(!recognitionError&&recognitionHadText)
+    el('askSpeech323').textContent='✅ A felismert szöveg bekerült a kérdésmezőbe. Ellenőrizd, majd indítsd a kutatást.';
   };
   r.start();
  }catch(e){
   rec=null;el('hhMic299').textContent='🎙️ Diktálás';
-  el('askSpeech323').textContent='⚠️ A mikrofon nem indult el: '+String(e?.message||e);
+  el('askSpeech323').textContent='⚠️ A böngészős mikrofon nem indult el: '+String(e?.message||e)+'. A telefon billentyűzetének mikrofonját használd.';
  }
+}
+function mic(){
+ if(rec){micManuallyStopped=true;stopMic();el('hhMic299').textContent='🎙️ Diktálás';return}
+ startMic(0);
 }
 window.hhOpenLenaSmart299=open;
 window.hhRunLenaSmart299=run;
 window.hhGetLenaHandoff299=function(){return getLocal(HKEY,null)};
 window.addEventListener('healthhub:profile-changed',function(){driveVerified=false;driveIssue='';driveCheckedProfile='';refresh()});
-document.documentElement.dataset.healthhubAskLenaSmart='1.323';
+document.documentElement.dataset.healthhubAskLenaSmart='1.324';
 })();
