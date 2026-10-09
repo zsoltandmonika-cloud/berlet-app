@@ -58,6 +58,40 @@ function print(message){
   lines.scrollTop=lines.scrollHeight;if(index<text.length)setTimeout(type,12)
  })();
 }
+function renderAnswerText(raw){
+ var host=el('hhAi331Text');if(!host)return;
+ var frag=document.createDocumentFragment(),para=null,list=null;
+ function addFormatted(node,value){
+  var pattern=/\*\*([^*\n]+)\*\*/g,m,start=0;
+  while((m=pattern.exec(value))){
+   node.appendChild(document.createTextNode(value.slice(start,m.index)));
+   var b=document.createElement('strong');b.textContent=m[1];node.appendChild(b);
+   start=pattern.lastIndex;
+  }
+  node.appendChild(document.createTextNode(value.slice(start)));
+ }
+ String(raw||'').slice(0,7000).split('\n').forEach(function(row){
+  var line=row.trim(),h=line.match(/^#{1,3}\s+(.+)$/),plainHeading=line.match(/^\*\*(.+?)\*\*:?$/),
+   item=line.match(/^(?:[-*]|[0-9]+[.)])\s+(.+)$/);
+  if(!line){para=null;list=null;return}
+  if(h||plainHeading){
+   para=null;list=null;
+   var heading=document.createElement('h3');heading.textContent=h?h[1]:plainHeading[1];
+   if(/[⚠🚨]/u.test(heading.textContent))heading.style.color='#ac503a';
+   frag.appendChild(heading);return;
+  }
+  if(item){
+   para=null;
+   if(!list){list=document.createElement('ul');frag.appendChild(list)}
+   var li=document.createElement('li');addFormatted(li,item[1]);list.appendChild(li);return;
+  }
+  list=null;
+  if(!para){para=document.createElement('p');frag.appendChild(para)}
+  else para.appendChild(document.createElement('br'));
+  addFormatted(para,line);
+ });
+ host.replaceChildren(frag);
+}
 function showError(message){
  var err=el('hhAi331Error');if(err){err.textContent='⚠ '+message;err.classList.add('on')}
  print('A kutatás megszakadt.');
