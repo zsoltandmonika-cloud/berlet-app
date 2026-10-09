@@ -98,6 +98,7 @@ function clear(){last=null;var host=el(BOX);if(host)host.remove()}
 window.HH_LENA_LOCAL_ANSWER_V329={
  compose:compose,
  show:function(report,question){var a=compose(report,question);last=a;return render(a)},
+ present:function(answer){if(!answer||answer.profile!==pkey())throw Error('Nem megfelelő profiladat.');last=answer;return render(answer)},
  getLast:function(){return last},
  clear:clear
 };
