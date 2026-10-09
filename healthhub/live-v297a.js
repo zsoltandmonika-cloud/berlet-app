@@ -47,9 +47,12 @@ function refine(packet){
  if(!docs.length)return packet;
  var first=docs.map(function(d){return{d:d,s:directScore(d,packet.question,tk,cats)}}).sort(function(a,b){return b.s-a.s||String(b.d.date||'').localeCompare(String(a.d.date||''))});
  var anchor=first[0]&&first[0].s>=7?first[0].d:null,explicit=packet.route&&packet.route.timeframe&&packet.route.timeframe.mode!=='all';
+ // Temporal clustering helps reconstruct intensive-care event sequences, but can
+ // falsely label unrelated lab/EKG reports as evidence for general symptoms.
+ var temporalCluster=!!(anchor&&!explicit&&arr(packet.route&&packet.route.domains).some(function(x){return x.id==='icu'}));
  var scored=docs.map(function(d){
   var s=directScore(d,packet.question,tk,cats),dist=anchor&&anchor.date&&d.date?days(anchor.date,d.date):99999;
-  if(anchor&&!explicit){
+  if(temporalCluster){
    if(dist===0)s+=14;else if(dist<=3)s+=12;else if(dist<=14)s+=10;else if(dist<=45)s+=7;else if(dist<=120)s+=3;else if(dist>365)s-=8;
    if(d.date&&anchor.date&&String(d.date).slice(0,4)===String(anchor.date).slice(0,4))s+=2;
   }
@@ -69,7 +72,7 @@ function refine(packet){
   archivedRelevantDocuments:accessible.length,
   note:accessible.length?'archived relevant originals selected':'relevant originals are not archived or accessible from this device'
  };
- packet.route.relevance={engine:'v297',anchorDocument:anchor?{id:anchor.id,date:anchor.date,title:anchor.title}:null,temporalClustering:!!(anchor&&!explicit),refinedAt:new Date().toISOString()};
+ packet.route.relevance={engine:'v297',anchorDocument:anchor?{id:anchor.id,date:anchor.date,title:anchor.title}:null,temporalClustering:temporalCluster,refinedAt:new Date().toISOString()};
  write(REQ,packet);emit('healthhub:lena-research-refined',packet);return packet;
 }
 if(typeof oldRoute==='function'){
