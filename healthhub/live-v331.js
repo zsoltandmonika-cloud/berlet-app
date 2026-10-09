@@ -154,7 +154,7 @@ function renderAnswerText(raw){
   var val=node.textContent||'';
   var urgent=/azonnal|mentőt|112|sürgősségi|eszméletveszt|erős mellkasi fájdalom/i.test(val);
   var isLead=idx===0;
-  var label='🔎 Részletek';
+  var label='💬 Amit még érdemes tudnod';
   if(isLead)label=urgent?'⚠️ Fontos':'🙂 Röviden';
   else if(urgent)label='⚠️ Fontos teendő';
   else if(/javaslom|érdemes|figyelj|próbálj|keresd|fordulj|orvoshoz|kérj vizsgálatot/i.test(val))label='💡 Mit érdemes tenni?';
@@ -350,7 +350,7 @@ async function run(){
   if(!(response.headers.get('Content-Type')||'').includes('text/event-stream')||!response.body)
    throw Error('Az AI-kiszolgáló nem küldött élő, ellenőrizhető válaszfolyamot.');
   print('Kapcsolat létrejött. A válasz ténylegesen érkező szövegrészleteit megjelenítem.');
-  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false,answerText='';
+  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false,answerText='',renderPending=false;
   function eventHandler(chunk){
    var raw=chunk.split('\n'),kind='',val='';
    raw.forEach(function(line){if(line.startsWith('event:'))kind=line.slice(6).trim();if(line.startsWith('data:'))val+=line.slice(5).trim()});
@@ -359,9 +359,11 @@ async function run(){
    if(kind==='stage'){print('AI: '+safe(item.message,160));return}
    if(kind==='delta'){
     if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');}
-    answerText+=String(item.text||'');renderAnswerText(answerText);return;
+    answerText+=String(item.text||'');
+    if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
+    return;
    }
-   if(kind==='done'){complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
+   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
@@ -391,7 +393,7 @@ window.addEventListener('healthhub:profile-changed',function(){cancel();
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
-window.HH_ASK_LENA_AI_V331={initialize:ui,version:'342',showStoredAnswer:function(entry){
+window.HH_ASK_LENA_AI_V331={initialize:ui,version:'343',isBusy:function(){return!!active},showStoredAnswer:function(entry){
  if(!entry||!['monika','zsolt'].includes(entry.profile)||entry.profile!==profile())return false;
  var result=el('hhAi331Answer'),q=el('hhSQ299'),foot=el('hhAi331Foot');
  if(!result||!q||typeof entry.answer!=='string'||typeof entry.question!=='string')return false;
