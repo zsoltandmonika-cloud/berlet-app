@@ -53,7 +53,7 @@ function markup(){
  return '<div class="askHero"><div class="askHeroInner"><button type="button" class="askBack" id="askBack323" aria-label="Vissza">‹</button>'+
   '<div class="askHeroCopy"><h1>🧠 Ask Léna</h1><p class="askSub">Smart Health Research<br>Kutatás és egészségügyi kérdések</p>'+
   '<span class="askProfile" id="hhSP299">Aktív profil: '+esc(pn(pk()))+'</span></div></div></div>'+
-  '<div class="askWidth"><div class="askCard"><h2>✍️ Mit szeretnél megkérdezni?</h2>'+
+  '<div class="askWidth"><div class="askCard"><h2>💬 Kérdezd Lénát</h2>'+
   '<textarea id="hhSQ299" class="askQuestion" aria-label="Kérdés Lénának" placeholder="Írd ide a kérdésed…\nPéldául: Miért lehetnek hiányosak az intenzív osztályon töltött napok emlékei?"></textarea>'+
   '<p class="askHint">Írhatsz, vagy megpróbálhatod a diktálást. A böngésző hangfelismerése készülékenként eltérően működik.</p>'+
   '<div class="askActions"><button type="button" class="askBtn askBtnMain askBtnWide" id="hhRun299">📚 Kutatás</button>'+
