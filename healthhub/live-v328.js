@@ -139,7 +139,7 @@ function collect(question,forcedProfile){
  dr.push(entry('Indexelt leletek',String(docs.length),'db',null,'Csak indexadatok, a PDF-eket a Bridge nem nyitja meg'));
  dr.push(entry('Drive-hivatkozásos leletek',String(docsAvail),'db',null,'Nem bizonyítja, hogy a fájl itt olvasható'));
  if(hitDocs.length)hitDocs.slice(0,3).forEach(function(d){dr.push(entry('Kapcsolódó lelet',short(d.title,88),'',d.date,'Indexben talált egyezés, nem PDF-bizonyíték'))});
- sources.push(source('records','📁','Kórlapok · leletek',c?dr:[],null,'archive',
+ sources.push(source('records','📁','Kórlapok · leletek',c&&docs.length?dr:[],null,'archive',
   hitDocs.length+' index szerinti keresési találat. Az eredeti dokumentumhoz külön Drive-jóváhagyás szükséges.'));
  var priority=domains(q);sources.forEach(function(s){s.relevant=priority.indexOf(s.id)>=0});
  return {schema:'healthhub.intelligence.context/1',build:'v328',generatedAt:new Date().toISOString(),
