@@ -68,7 +68,25 @@ function ui(){
  var privacy=document.createElement('p');privacy.id='hhAi331Privacy';
  privacy.textContent='A Kutatás gombbal az aktív profil releváns adatait az OpenAI API feldolgozza az adott válaszhoz. Eredeti PDF nem kerül továbbításra.';
  actions.parentNode.insertBefore(privacy,actions.nextSibling);
- var mic=el('hhMic299');if(mic){mic.setAttribute('aria-label','Diktálás');mic.title='Diktálás';mic.textContent='🎤';}
+ var mic=el('hhMic299');if(mic){
+  mic.setAttribute('aria-label','Diktálás');mic.title='Diktálás';mic.textContent='🎤';
+  if(!(window.SpeechRecognition||window.webkitSpeechRecognition)){
+   mic.disabled=false;
+   mic.addEventListener('click',function(e){
+    e.stopImmediatePropagation();e.preventDefault();
+    q.focus();q.scrollIntoView({block:'nearest',behavior:'smooth'});
+   },true);
+   mic.title='A telefon billentyűzetének mikrofonjával diktálhatsz';
+  }else{
+   var mo=new MutationObserver(function(){
+    if(!mic.isConnected){mo.disconnect();return}
+    var now=mic.textContent;
+    var desired=/Leállítás/.test(now)?'⏹️':'🎤';
+    if(now!==desired)mic.textContent=desired;
+   });
+   mo.observe(mic,{childList:true,characterData:true,subtree:true});
+  }
+ }
  var term=document.createElement('section');term.id='hhAi331Terminal';term.setAttribute('role','status');term.setAttribute('aria-live','polite');
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
  actions.parentNode.insertBefore(term,actions.nextSibling);
