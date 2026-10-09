@@ -105,6 +105,9 @@ function open(){
  var nav=el('navHealthBar');if(nav)nav.style.display='grid';
  var prof=el('hhSP299');if(prof)prof.textContent='Aktív profil: '+pn(pk());
  refresh();window.scrollTo(0,0);
+ // Independent v328 Bridge listens after the Ask Léna page is mounted.
+ // No modification to the legacy research, RAG, consent or sync pipeline.
+ try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-open',{detail:{profile:pk()}}))}catch(e){}
 }
 function stopMic(){
  micManuallyStopped=true;
@@ -265,6 +268,13 @@ async function run(){
  el('askCopy323').style.display='';
  try{
   var p=pk();
+  // v328: collect and display the eight available HealthHub data sources first.
+  // This independent, on-device preview makes the Kutatás button useful even
+  // when no question-specific original PDF exists; the legacy RAG is unchanged.
+  if(window.HH_LENA_CONTEXT_BRIDGE_V328&&typeof window.HH_LENA_CONTEXT_BRIDGE_V328.run==='function'){
+   await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
+  }
+  if(pk()!==p)throw Error('Profilváltás történt a kutatás közben. Az új aktív profilnál indítsd újra; személyes adatokat nem keverünk.');
   status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
   await window.hhRefreshLenaHealthContext289(p,'ask-lena-v323');
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
