@@ -13,7 +13,13 @@ function ctx(p){try{return JSON.parse(localStorage.getItem('hh-lena-context-v289
 function amap(){return read('hh-lena-doc-drive-v294-map',{})}
 function emit(n,d){try{window.dispatchEvent(new CustomEvent(n,{detail:d||{}}))}catch(e){}}
 function days(a,b){var x=Date.parse(a),y=Date.parse(b);return isFinite(x)&&isFinite(y)?Math.abs(x-y)/86400000:99999}
-function qtokens(q){var stop=new Set(['hogy','miert','mikor','volt','van','most','egy','az','es','vagy','meg','monika','zsolt','neki','nekem','olyan','keveset','keves','rol','bol','ban','ben']);return norm(q).split(' ').filter(function(x){return x.length>2&&!stop.has(x)})}
+function qtokens(q){
+ var stop=new Set(['hogy','miert','mikor','volt','van','most','egy','az','es','vagy','meg','monika','zsolt','neki','nekem','olyan','keveset','keves','rol','bol','ban','ben']);
+ var n=norm(q),t=n.split(' ').filter(function(x){return x.length>2&&!stop.has(x)});
+ // Headache-related inflections should find explicitly head-related original reports.
+ if(/\b(fejem|fej|fejfaj\w*|migren\w*)\b/.test(n)&&!t.includes('fej'))t.push('fej');
+ return t;
+}
 function domainCats(packet){
  var d=arr(packet&&packet.route&&packet.route.domains).map(function(x){return x.id}),s=new Set();
  if(d.includes('icu'))['emergency','cardiology','general','laboratory'].forEach(function(x){s.add(x)});
