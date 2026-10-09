@@ -15,7 +15,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.TimeUnit
 
 /**
@@ -88,39 +87,41 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
         private val lock = Mutex()
     }
 
-    override suspend fun doWork(): Result = lock.withLock {
+    override suspend fun doWork(): Result {
+        lock.lock()
+        try {
         val prefs = applicationContext.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
-        if (!ResilientHealthSync.isEnabled(prefs)) return@withLock Result.success()
+        if (!ResilientHealthSync.isEnabled(prefs)) return Result.success()
         DropboxVaultClient.ensureCredentialVersion(prefs)
         val owner = prefs.getString("device_owner_profile", null)
         if (owner != "monika" && owner != "zsolt") {
             requiresAction(prefs, "Nincs megadva a telefon saját profilja.")
-            return@withLock Result.success()
+            return Result.success()
         }
         if (!DropboxVaultClient.hasRefreshToken(prefs)) {
             requiresAction(prefs, "Dropbox kapcsolat engedélyezése szükséges az alkalmazásban.")
-            return@withLock Result.success()
+            return Result.success()
         }
         // Do not repeat a successful sync while both jobs are queued.
         if (System.currentTimeMillis() - prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L) < 20 * 60_000L)
-            return@withLock Result.success()
+            return Result.success()
 
         prefs.edit().putLong(ResilientHealthSync.KEY_LAST_ATTEMPT, System.currentTimeMillis()).apply()
         try {
             if (HealthConnectClient.getSdkStatus(applicationContext) != HealthConnectClient.SDK_AVAILABLE) {
                 requiresAction(prefs, "Health Connect nem elérhető ezen a telefonon.")
-                return@withLock Result.success()
+                return Result.success()
             }
             val hc = HealthConnectClient.getOrCreate(applicationContext)
             val grants = hc.permissionController.getGrantedPermissions()
             val needed = HealthConnectExporter.requiredPermissions(hc)
             if (!grants.containsAll(needed)) {
                 requiresAction(prefs, "Health Connect olvasási engedélyt kell megadni a HealthHub Connect alkalmazásnak.")
-                return@withLock Result.success()
+                return Result.success()
             }
             if (HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND !in grants) {
                 requiresAction(prefs, "Health Connect háttérben olvasás engedély szükséges.")
-                return@withLock Result.success()
+                return Result.success()
             }
 
             val exporter = HealthConnectExporter(hc)
@@ -128,7 +129,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             if (!exporter.hasUsefulData(payload)) {
                 // Retain existing cloud file. No 'success' for artificial zero-filled dates.
                 requiresAction(prefs, "Nincs tényleges mérési rekord az elmúlt 30 napban. Ellenőrizd a Samsung Health adatmegosztást.")
-                return@withLock Result.success()
+                return Result.success()
             }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
@@ -153,6 +154,9 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 .putBoolean(ResilientHealthSync.KEY_NEEDS_ACTION, unrecoverable)
                 .apply()
             if (unrecoverable) Result.success() else Result.retry()
+        }
+        } finally {
+            lock.unlock()
         }
     }
 
