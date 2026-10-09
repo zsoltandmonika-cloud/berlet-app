@@ -136,7 +136,35 @@ function renderAnswerText(raw){
   else para.appendChild(document.createElement('br'));
   addFormatted(para,line);
  });
- host.replaceChildren(frag);
+ var visual=document.createDocumentFragment(),current=null,idx=0;
+ Array.from(frag.childNodes).forEach(function(node){
+  var tag=String(node.tagName||'').toLowerCase();
+  if(tag==='h3'){
+   current=document.createElement('section');current.className='hhLenaBlock';
+   current.appendChild(node);visual.appendChild(current);idx++;return;
+  }
+  if(tag==='ul'){
+   if(!current){current=document.createElement('section');current.className='hhLenaBlock';visual.appendChild(current)}
+   current.appendChild(node);return;
+  }
+  if(tag!=='p'){visual.appendChild(node);return}
+  var val=node.textContent||'';
+  var urgent=/azonnal|mentőt|112|sürgősségi|eszméletveszt|erős mellkasi fájdalom/i.test(val);
+  var isLead=idx===0;
+  var label='🔎 Részletek';
+  if(isLead)label=urgent?'⚠️ Fontos':'🙂 Röviden';
+  else if(urgent)label='⚠️ Fontos teendő';
+  else if(/javaslom|érdemes|figyelj|próbálj|keresd|fordulj|orvoshoz|kérj vizsgálatot/i.test(val))label='💡 Mit érdemes tenni?';
+  else if(/időjárás|légnyomás|pollen|hőmérséklet|páratartalom/i.test(val))label='🌤️ Környezeti tényezők';
+  else if(/vérnyomás|pulzus|oxigén|vércukor|testsúly|mérések|értékek/i.test(val))label='📊 Mérések és adatok';
+  else if(/összefügg|lehetséges|hatására|okozhat|kiváltó/i.test(val))label='🧩 Lehetséges összefüggések';
+  var box=document.createElement('section');
+  box.className='hhLenaBlock'+(isLead?' hhLenaLead':'')+(urgent?' hhLenaUrgent':'');
+  var header=document.createElement('div');header.className='hhLenaBlockHeader';header.textContent=label;
+  box.appendChild(header);box.appendChild(node);visual.appendChild(box);
+  current=box;idx++;
+ });
+ host.replaceChildren(visual);
 }
 function showError(message){
  var err=el('hhAi331Error');if(err){err.textContent='⚠ '+message;err.classList.add('on')}
