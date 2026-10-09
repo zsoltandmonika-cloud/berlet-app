@@ -8,7 +8,7 @@ var busy=false,previousPage='home',rec=null,recognitionStarted=0,recognitionHadT
 function el(id){return document.getElementById(id)}
 function pk(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pn(p){return p==='monika'?'Mónika':'Zsolt'}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function getLocal(k,fallback){try{var j=JSON.parse(localStorage.getItem(k)||'null');return j===null?fallback:j}catch(e){return fallback}}
 function styles(){
  if(el(CSS))return;
@@ -132,7 +132,7 @@ function checks(){
   {label:'Helyi Health Context',ok:!!context,maybe:false,detail:context?'Profilkontextus található; '+(context.generatedAt||'dátum nélkül'):'Még nem készült profilkontextus ezen az eszközön'},
   {label:'Dokumentum-index',ok:docs.length>0,maybe:false,detail:docs.length+' helyi dokumentum bejegyzés'},
   {label:'Drive-on archivált források',ok:mapped>0,maybe:false,detail:mapped+' / '+docs.length+' dokumentumhoz van Drive-hivatkozás'},
-  {label:'Google Drive olvasási kapcsolat',ok:driveVerified,maybe:!driveIssue,detail:driveVerified?'Tényleges Drive API-kérés sikeres':driveIssue||'Nincs ezen a lapon ellenőrizve; kattints a Drive-kapcsolat tesztje gombra'}
+  {label:'Google Drive olvasási kapcsolat',ok:driveVerified,maybe:!driveIssue,detail:driveVerified?'Tényleges Drive API-kérés és archivált forrás ellenőrzése sikeres, ha van hivatkozás':driveIssue||'Nincs ezen a lapon ellenőrizve; kattints a Drive-kapcsolat tesztje gombra'}
  ];
  return {checks:c,ready:c.every(function(x){return x.ok}),docs:docs.length,mapped:mapped,context:context};
 }
@@ -158,6 +158,12 @@ async function testDrive(){
    headers:{Authorization:'Bearer '+access},cache:'no-store'
   });
   if(!response.ok)throw Error('Drive API HTTP '+response.status+'; ellenőrizd a Google-fiókot és a jogosultságokat');
+  var data=checks(),ctx=data.context,docs=ctx?.documents?.index||[],map=getLocal('hh-lena-doc-drive-v294-map',{});
+  var sample=docs.map(function(d){return d?.driveArchive?.fileId||map[String(d.id)]?.fileId}).find(Boolean);
+  if(sample){
+   var checkFile=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(sample)+'?fields=id,name,mimeType',{headers:{Authorization:'Bearer '+access},cache:'no-store'});
+   if(!checkFile.ok)throw Error('A dokumentum-archívum egyik ellenőrzött fájlja nem érhető el (HTTP '+checkFile.status+'). A Drive szinkronizálását javítani kell');
+  }
   driveVerified=true;
   status('✅ Google Drive ellenőrizve','A hitelesített Drive API-hívás sikerült. Most ellenőrizd a RAG-lista többi sorát.',100,'done');
  }catch(e){
