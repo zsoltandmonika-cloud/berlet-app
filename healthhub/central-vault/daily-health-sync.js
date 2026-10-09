@@ -61,19 +61,18 @@ function logout(){
 }
 async function fetchCloud(){
  await ensureToken();
- var hh=await call('/rest/v1/healthhub_households?select=id&slug=eq.'+encodeURIComponent(SLUG));
- if(!Array.isArray(hh)||hh.length!==1)throw new Error('A családi Health Vault nincs hozzákapcsolva ehhez a fiókhoz.');
- household=hh[0].id;
- var pp=await call('/rest/v1/healthhub_profiles?select=id,profile_key&household_id=eq.'+encodeURIComponent(household));
- if(!Array.isArray(pp))throw new Error('Nem érhetők el a profilok.');
+ // Use the existing, RLS-protected HealthHub-Core schema.
+ var pp=await call('/rest/v1/hh_profiles?select=profile_key');
+ if(!Array.isArray(pp))throw new Error('Nem érhetők el a családi profilok.');
  profiles={};
- pp.forEach(function(p){if(p.profile_key==='monika')profiles.m=p.id;if(p.profile_key==='zsolt')profiles.z=p.id});
- if(!profiles.m||!profiles.z)throw new Error('Hiányoznak a családi profilok az adatbázisból.');
- var items=await call('/rest/v1/healthhub_daily_health_settings?select=profile_id,settings,revision,updated_at&profile_id=in.('+encodeURIComponent(profiles.m)+','+encodeURIComponent(profiles.z)+')');
+ pp.forEach(function(p){if(p.profile_key==='monika')profiles.m='monika';if(p.profile_key==='zsolt')profiles.z='zsolt'});
+ if(!profiles.m||!profiles.z)throw new Error('Hiányzik a két engedélyezett családi profil.');
+ household=SLUG;
+ var items=await call('/rest/v1/hh_daily_health_settings?select=profile_key,settings,revision,updated_at&profile_key=in.(monika,zsolt)');
  if(!Array.isArray(items))throw new Error('A napi egészségbeállítási tábla nem érhető el.');
  var loc=local();
  ['m','z'].forEach(function(k){
-  var row=items.find(function(x){return x.profile_id===profiles[k]});
+  var row=items.find(function(x){return x.profile_key===profiles[k]});
   var localCopy=profile(loc,k);
   var remote=row&&row.settings&&validPayload(row.settings)?row.settings:null;
   states[k].remote=remote;
