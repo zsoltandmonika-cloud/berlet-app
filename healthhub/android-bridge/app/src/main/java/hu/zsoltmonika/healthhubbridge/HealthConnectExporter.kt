@@ -51,6 +51,16 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             REQUIRED_PERMISSIONS
     }
 
+    fun hasUsefulData(json: JSONObject): Boolean =
+        json.optJSONObject("counts")?.optBoolean("hasSourceData", false) == true
+
+    fun countSummary(json: JSONObject): String {
+        val c = json.optJSONObject("counts") ?: return "Hiányzik az adatösszesítő"
+        return "pulzus: ${c.optInt("heartRateRecords")} · lépéses napok: ${c.optInt("activeDaysWithData")}" +
+            " · súly: ${c.optInt("weight")} · vérnyomás: ${c.optInt("bloodPressure")}" +
+            " · alvás: ${c.optInt("sleepSessions")} · edzés: ${c.optInt("exerciseSessions")}"
+    }
+
     private fun mergedActiveMinutes(
         records: List<ActiveCaloriesBurnedRecord>,
         dayStart: Instant,
@@ -344,6 +354,27 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         records.put("dailyNutrition", dailyNutrition)
         root.put("records", records)
 
+        // Aggregation creates a dailyActivity row even when Health Connect contains
+        // NO source measurements for that day. These rows are not evidence of a sync.
+        var activeDaysWithData = 0
+        var nutritionDaysWithData = 0
+        for (i in 0 until dailyActivity.length()) {
+            val row = dailyActivity.optJSONObject(i) ?: continue
+            if (row.optLong("steps", 0) > 0L ||
+                row.optDouble("distanceMeters", 0.0) > 0.0 ||
+                row.optDouble("activeCaloriesKcal", 0.0) > 0.0 ||
+                row.optDouble("activeMinutes", 0.0) > 0.0) activeDaysWithData++
+        }
+        for (i in 0 until dailyNutrition.length()) {
+            val row = dailyNutrition.optJSONObject(i) ?: continue
+            if (row.optDouble("energyKcal", 0.0) > 0.0 ||
+                row.optDouble("proteinGrams", 0.0) > 0.0) nutritionDaysWithData++
+        }
+        val sourceRecordCount =
+            bp.size + weight.size + bodyFat.size + glucose.size + oxygen.size +
+            heart.size + restingHeart.size + exercise.size + sleep.size + vo2.size +
+            activeCaloriesRecords.size + activeDaysWithData + nutritionDaysWithData
+
         root.put("counts", JSONObject()
             .put("bloodPressure", bp.size)
             .put("weight", weight.size)
@@ -358,7 +389,11 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("sleepSessions", sleep.size)
             .put("stepDays", steps.length())
             .put("activityDays", dailyActivity.length())
-            .put("nutritionDays", dailyNutrition.length()))
+            .put("nutritionDays", dailyNutrition.length())
+            .put("activeDaysWithData", activeDaysWithData)
+            .put("nutritionDaysWithData", nutritionDaysWithData)
+            .put("sourceRecordCount", sourceRecordCount)
+            .put("hasSourceData", sourceRecordCount > 0))
 
         return root
     }
