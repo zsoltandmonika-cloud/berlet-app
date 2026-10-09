@@ -49,7 +49,7 @@ Deno.serve(async req => {
   if (!authHeader.startsWith("Bearer ")) return reply({ok:false,error:"login_required"},401);
   let body: any;
   try {
-    if (Number(req.headers.get("content-length") || 0) > 18000) return reply({ok:false,error:"request_too_large"},413);
+    if (Number(req.headers.get("content-length") || 0) > 24000) return reply({ok:false,error:"request_too_large"},413);
     body = await req.json();
   } catch {return reply({ok:false,error:"bad_json"},400);}
   if (body?.consent !== true || !["zsolt","monika"].includes(body?.profile) ||
