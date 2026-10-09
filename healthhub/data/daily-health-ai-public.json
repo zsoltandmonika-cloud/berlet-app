@@ -1,0 +1,35 @@
+{
+  "schema": "healthhub.daily-health-ai-public/1",
+  "date": "2026-10-09",
+  "generatedAt": "2026-10-09T03:14:46+02:00",
+  "brief": {
+    "headline": "Budapesten kedvező levegőminőség mellett a járványügyi heti jelzések érdemelnek figyelmet.",
+    "overview": "Az éjféli budapesti környezeti mérés 18,3 °C-ot, 22-es európai levegőminőségi indexet és alacsony ürömpollen-jelzést mutatott. Az előrejelzett UV-maximum 1,2. Ez általános környezeti helyzetkép, nem személyre szabott egészségi kockázatbecslés.",
+    "attention": "Az NNGYK 2026. 39. heti, szeptember 27-ig tartó időszakra vonatkozó adatai COVID-19-figyelő jelzést és emelkedett hepatitis A-jelzést tartalmaznak. Ezek heti országos járványügyi információk, nem a mai budapesti fertőzési valószínűséget mérik.",
+    "tips": [
+      "Kültéri program előtt frissítsétek az időjárási és levegőminőségi adatokat, mert az éjféli állapot napközben változhat.",
+      "Légúti tünetek esetén tartsátok szem előtt az általános fertőzésmegelőzési szabályokat, és szükség esetén kérjetek egészségügyi tanácsot.",
+      "A figyelési jelzések miatt önmagukban ne változtassatok gyógyszeren, folyadékbeviteli terven vagy orvosi előíráson."
+    ],
+    "uncertainty": "Az időjárási és levegőminőségi adatok 00:00 órás pillanatképet tükröznek; az NNGYK-jelzések a 39. hét összesítéséből származnak. Személyes egészségügyi adat vagy diagnózis nem került az AI-hoz."
+  },
+  "sources": [
+    {
+      "title": "HealthHub nyilvános környezeti adatpillanatkép",
+      "url": "./daily-health-public.json",
+      "snapshotDate": "2026-10-09"
+    },
+    {
+      "title": "Open-Meteo Forecast",
+      "url": "https://open-meteo.com/en/docs"
+    },
+    {
+      "title": "Open-Meteo Air Quality",
+      "url": "https://open-meteo.com/en/docs/air-quality-api"
+    },
+    {
+      "title": "NNGYK heti járványügy",
+      "url": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai"
+    }
+  ]
+}
