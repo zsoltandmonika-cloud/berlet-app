@@ -210,7 +210,7 @@ function tileKey(el){
 }
 function reorderHomeModules(){
  var grid=document.querySelector('#home .homeModules');if(!grid)return;
- var desired=['healthradar','environment','sleep','activity','cognitive','wellbeing','nutrition','recipes','insights','ask'];
+ var desired=['healthradar','environment','insights','ask','sleep','activity','cognitive','wellbeing','nutrition','recipes'];
  var nodes=Array.from(grid.children);
  var by={};
  nodes.forEach(function(n){var k=tileKey(n);if(k&&!by[k])by[k]=n});
