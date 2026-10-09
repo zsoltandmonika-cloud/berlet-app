@@ -222,7 +222,7 @@ async function run(){
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
   print('A kérdés elemzése és a válasz készítése…');
-  var response=await svc.stream('/functions/v1/healthhub-ask-lena',data,ctrl.signal);
+  var response=await svc.stream('/functions/v1/smooth-endpoint',data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
    throw Error(errorText(body.error,response.status));
