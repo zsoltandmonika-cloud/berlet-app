@@ -194,5 +194,5 @@ function mount(host){
  }
 }
 sSave(active()?sRead():null);
-window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})}};
+window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})},stream:async function(path,data,signal){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return fetch(url(path),{method:'POST',headers:{apikey:CFG.publishableKey,'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(data),cache:'no-store',signal:signal})}};
 })();
