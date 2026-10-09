@@ -239,7 +239,7 @@ function fmtAge(s){
  if(sec<60)return sec+' mp';if(sec<3600)return Math.round(sec/60)+' p';if(sec<86400)return Math.round(sec/3600)+' ó';return Math.round(sec/86400)+' n';
 }
 function scopeFromUi(){var e=document.getElementById('hhOrchScope305');return e?e.value:'full'}
-async function dispatch(profileScope,deviceFilter){
+async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var devices=await loadDevices(),selected=devices.filter(function(d){
   if(deviceFilter&&d.deviceId!==deviceFilter)return false;
@@ -247,14 +247,9 @@ async function dispatch(profileScope,deviceFilter){
   return (d.profileCapability||[]).indexOf(profileScope)>=0;
  });
  if(!selected.length)throw new Error('Nincs megfelelő regisztrált eszköz.');
- var scope=scopeFromUi(),id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
+ var scope=overrideScope||scopeFromUi(),id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
-  if(d.deviceType==='android'){
-   if(d.protocolVersion!==2)throw new Error('Android bridge frissítés szükséges: '+d.name);
-   if(scope!=='full'&&scope!=='health')return;
-   await window.HHBridgeControl.createClient(vault()).send(d,d.activeProfile,1,'sync');
-   return;
-  }
+  if(d.deviceType==='android'&&scope!=='full'&&scope!=='health'&&scope!=='daily')return;
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
@@ -273,6 +268,7 @@ async function dispatch(profileScope,deviceFilter){
  return {commandId:id,devices:selected.length};
 }
 window.hhOrchestratorDispatch305=function(profile,device){return dispatch(profile||'all',device||null)};
+window.hhOrchestratorDispatchScope355=function(profile,device,scope){return dispatch(profile||'all',device||null,scope||'health')};
 window.hhOrchestratorCheck305=function(){return checkCommand(true)};
 window.hhOrchestratorHeartbeat305=heartbeat;
 window.hhOrchestratorDevices305=loadDevices;
