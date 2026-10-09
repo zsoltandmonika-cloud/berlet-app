@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
     private var pendingScheduleEnable = false
+    private var resilientSummary: TextView? = null
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -110,11 +111,13 @@ class MainActivity : ComponentActivity() {
         DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
         SyncScheduler.scheduleAll(this)
+        ResilientHealthSync.schedule(this)
         DailyContentScheduler.schedule(this)
         OrchestratorScheduler.schedule(this)
         OrchestratorScheduler.runNow(this)
         updateScheduleUi()
         handleIntent(intent)
+        updateResilientStatus()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -122,6 +125,8 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         handleIntent(intent)
         OrchestratorScheduler.runNow(this)
+        ResilientHealthSync.schedule(this)
+        updateResilientStatus()
     }
 
     private fun initHealthConnect() {
@@ -344,6 +349,35 @@ class MainActivity : ComponentActivity() {
 
 
         root.addView(TextView(this).apply {
+            text = "🛡️ Self-Healing Connect · automatikus újracsatlakozás"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 20, 0, 6)
+        })
+        resilientSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 2, 0, 8)
+        }
+        root.addView(resilientSummary)
+        root.addView(Button(this).apply {
+            text = "🔄 Kapcsolat ellenőrzése / Újrapróbálás"
+            setOnClickListener {
+                ResilientHealthSync.kick(this@MainActivity)
+                updateResilientStatus()
+                status.text = "Az újrapróbálás háttérben elindult. Az eredményt a státusz mutatja."
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "⏯ Self-Healing BE/KI"
+            setOnClickListener {
+                ResilientHealthSync.setEnabled(this@MainActivity,!ResilientHealthSync.isEnabled(prefs))
+                updateResilientStatus()
+            }
+        })
+
+        root.addView(TextView(this).apply {
             text = "Automatikus sync"
             textSize = 18f
             setTypeface(typeface, Typeface.BOLD)
@@ -496,6 +530,18 @@ class MainActivity : ComponentActivity() {
         }, 7, 30, true).show()
     }
 
+    private fun updateResilientStatus() {
+        val last = prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L)
+        val error = prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null)
+        val enabled = ResilientHealthSync.isEnabled(prefs)
+        val stamp = if (last > 0L) SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault()).format(Date(last)) else "még nincs"
+        val t = if (enabled) "BE · 3 óránként + automatikus újrapróbálás" else "KI"
+        val txt = "🔄 Automatikus kapcsolattartás: $t\nUtolsó sikeres Health Connect → Dropbox feltöltés: $stamp" +
+            (if (!error.isNullOrBlank()) "\n⚠️ Utolsó probléma: $error" else "") +
+            "\n" + prefs.getString(ResilientHealthSync.KEY_COUNTS, "Még nincs rekordösszesítő")
+        resilientSummary?.text = txt
+    }
+
     private fun updateScheduleUi() {
         if (!::scheduleSummary.isInitialized || !::scheduleToggleButton.isInitialized) return
         val enabled = prefs.getBoolean(SyncScheduler.KEY_ENABLED, false)
@@ -597,6 +643,13 @@ class MainActivity : ComponentActivity() {
             DropboxVaultClient.healthConnectPath(profile),
             json.toString(2) + "\n"
         )
+        prefs.edit()
+            .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
+            .putString(ResilientHealthSync.KEY_COUNTS, summary)
+            .remove(ResilientHealthSync.KEY_LAST_ERROR)
+            .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
+            .apply()
+        ResilientHealthSync.schedule(this)
         status.text = "✓ Dropbox feltöltés kész · ${profileName(profile)} · " + summary +
             "\nForrásértékek ellenőrizve; ez a feltöltést igazolja, nem a webes megjelenítést."
         updateScheduleUi()
@@ -672,6 +725,7 @@ class MainActivity : ComponentActivity() {
                 OrchestratorScheduler.schedule(this@MainActivity)
                 OrchestratorScheduler.runNow(this@MainActivity)
                 exportAndUpload(owner)
+                ResilientHealthSync.schedule(this@MainActivity)
             } catch (e: Exception) {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
             }
@@ -772,6 +826,14 @@ class MainActivity : ComponentActivity() {
     private fun sha256UrlSafe(value: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8))
         return Base64.encodeToString(digest, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::status.isInitialized) {
+            ResilientHealthSync.schedule(this)
+            updateResilientStatus()
+        }
     }
 
     override fun onDestroy() {
