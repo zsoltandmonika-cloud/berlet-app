@@ -27,7 +27,7 @@ function classify(q){
  if(/fertoz|virus|influenz|covid|kohog|laz|jarvany|torok/.test(s))return'infection';
  if(/mozgas|aktivitas|lepes|edzes|seta|sport|terheles/.test(s))return'activity';
  if(/lelet|korhaz|intenziv|mutet|korlap|vizsgalat|diagnoz|kezeles|kardiolog|anamnezis/.test(s))return'records';
- if(/taplalkoz|etel|etkezes|kaloria|folyadek|koffein|diet|feherje|cukorfogyaszt/.test(s))return'nutrition';
+ if(/taplalkoz|etel|etkezes|ettem|etteme|eszem|ittam|iszom|kaloria|folyadek|koffein|diet|feherje|cukorfogyaszt/.test(s))return'nutrition';
  if(/kepernyoido|telefonhasznalat|digital|digitalis|internet|media|screen/.test(s))return'digital';
  if(/memoria|figyelem|koncentraci|kognitiv|feledekeny/.test(s))return'cognitive';
  if(/faj|szedul|tunet|panasz|rosszul|zsibbad|legszomj|hanyinger/.test(s))return'symptoms';
