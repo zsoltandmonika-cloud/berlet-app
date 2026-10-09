@@ -269,7 +269,7 @@ async function run(){
   if(!(response.headers.get('Content-Type')||'').includes('text/event-stream')||!response.body)
    throw Error('Az AI-kiszolgáló nem küldött élő, ellenőrizhető válaszfolyamot.');
   print('Kapcsolat létrejött. A válasz ténylegesen érkező szövegrészleteit megjelenítem.');
-  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false;
+  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false,answerText='';
   function eventHandler(chunk){
    var raw=chunk.split('\n'),kind='',val='';
    raw.forEach(function(line){if(line.startsWith('event:'))kind=line.slice(6).trim();if(line.startsWith('data:'))val+=line.slice(5).trim()});
@@ -279,7 +279,7 @@ async function run(){
    if(kind==='delta'){
     if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');
      try{result.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}}
-    el('hhAi331Text').textContent+=String(item.text||'');return;
+    answerText+=String(item.text||'');renderAnswerText(answerText);return;
    }
    if(kind==='done'){complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
