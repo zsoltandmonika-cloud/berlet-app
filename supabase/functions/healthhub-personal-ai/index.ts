@@ -97,14 +97,31 @@ async function reserveReport(admin: any, profileKey: string, day: string): Promi
   if (!result.error) return "reserved";
   if (result.error.code !== "23505") throw new Error("Nem sikerült lefoglalni a jelentés készítését");
 
-  const old = await admin.from(TABLE).select("status, attempts, updated_at")
+  const old = await admin.from(TABLE).select("status, attempts, updated_at, last_error")
     .eq("profile_key", profileKey).eq("report_date", day).single();
   if (old.error) throw new Error("Jelentésállapot nem olvasható");
   if (old.data.status === "ready") return "ready";
   if (old.data.status === "generating") return "pending";
+
+  // Migration-safe, one-time recovery for reports consumed by the OLD code
+  // before today's PUBLIC observations existed. The source is verified fresh
+  // BEFORE calling reserveReport, so this cannot re-trigger on stale data.
+  // Keep the DB constraint attempts BETWEEN 1 AND 2 unchanged.
+  const staleSourceFailure = typeof old.data.last_error === "string" &&
+    old.data.last_error.includes("A nyilvános környezeti adatok nem az aktuális napra vonatkoznak");
+  if (old.data.status === "failed" && old.data.attempts >= 2 && staleSourceFailure) {
+    const rescued = await admin.from(TABLE).update({
+      status: "generating", attempts: 1, last_error: null,
+      updated_at: new Date().toISOString()
+    }).eq("profile_key", profileKey).eq("report_date", day)
+      .eq("status", "failed").eq("attempts", 2)
+      .eq("last_error", old.data.last_error).select("profile_key");
+    if (rescued.error) throw new Error("A forráshiány miatti jelentészárolás nem állítható helyre");
+    return rescued.data?.length ? "reserved" : "pending";
+  }
   if (old.data.attempts >= 2) return "attempts_exhausted";
 
-  // At most two attempts per profile/day, including a failed first attempt.
+  // At most two genuine AI attempts per profile/day.
   const retry = await admin.from(TABLE).update({
     status: "generating", attempts: 2, last_error: null,
     updated_at: new Date().toISOString()
@@ -119,14 +136,40 @@ async function generate(profileKey: string, day: string, admin: any): Promise<an
   if (pref.error) throw new Error("Nem olvashatók a privát beállítások");
   if (pref.data?.settings?.aiDailyOptIn !== true) return { ok: false, reason: "no_consent" };
 
+  // The scheduled public snapshot is normally published AFTER 07:15 Budapest.
+  // PRE-FLIGHT it before reserving an AI attempt: yesterday's context or a
+  // temporarily missing public file must never exhaust the daily retry budget.
+  let source: any;
+  try {
+    source = await publicObservations(day);
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : "";
+    return {
+      ok: false,
+      reason: reason.includes("nem az aktuális napra") ? "source_not_ready" : "source_unavailable"
+    };
+  }
+  const apiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!apiKey) return { ok: false, reason: "ai_not_configured" };
+
   const reserve = await reserveReport(admin, profileKey, day);
-  if (reserve !== "reserved") return { ok: reserve === "ready", reason: reserve };
+  if (reserve !== "reserved") {
+    if (reserve === "attempts_exhausted") {
+      const old = await admin.from(TABLE).select("last_error")
+        .eq("profile_key", profileKey).eq("report_date", day).maybeSingle();
+      const reason = String(old.data?.last_error || "");
+      const cause = reason.includes("HTTP 429") ? "ai_rate_limit" :
+        reason.includes("HTTP 401") || reason.includes("HTTP 403") ? "ai_auth" :
+        reason.includes("Hibás AI jelentésformátum") || reason.includes("Nem érkezett AI-szöveg") ?
+          "model_output" : reason.includes("nyilvános környezeti adatok") ? "public_source" :
+        "server_failure";
+      return { ok: false, reason: reserve, cause };
+    }
+    return { ok: reserve === "ready", reason: reserve };
+  }
 
   try {
     const factors = selectedFactors(pref.data.settings);
-    const source = await publicObservations(day);
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!apiKey) throw new Error("OPENAI_API_KEY nincs beállítva");
 
     // Privacy minimization: no names, medical notes, medication list or record history.
     // Factors are user-selected tracking topics, NOT verified diagnoses.
