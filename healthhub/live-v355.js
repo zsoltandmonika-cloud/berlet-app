@@ -11,7 +11,13 @@ function connected(){var v=vault();try{return!!(v&&v.connected&&v.connected())}c
 function cached(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){return{}}}
 function update(id,ok,info){var obj=cached();obj[id]={at:new Date().toISOString(),ok:!!ok,info:String(info||'').slice(0,180)};try{localStorage.setItem(KEY,JSON.stringify(obj))}catch(e){}}
 function time(t){if(!t)return 'Nincs megerősített időpont';var n=Date.parse(t);return Number.isFinite(n)?new Date(n).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Ismeretlen időpont'}
-function age(t){return t?Date.now()-Date.parse(t):Infinity}
+function age(t){
+ // Dropbox probes use Date.now() in epoch milliseconds; sync events use ISO.
+ // Date.parse(epochNumber) is NaN and made all successful probes look stale.
+ if(!t)return Infinity;
+ var timestamp=typeof t==='number'?t:Date.parse(t);
+ return Number.isFinite(timestamp)?Date.now()-timestamp:Infinity;
+}
 function status(st,msg,at){return {status:st,text:msg||'',at:at||null}}
 function recent(t,h){return !!t&&age(t)>=0&&age(t)<h*3600000}
 function knownRow(id,label,detail,current,reconnect){return {id:id,label:label,detail:detail,state:current,reconnect:reconnect}}
