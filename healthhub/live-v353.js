@@ -88,7 +88,13 @@ function takeFile(file){
  compress(file).then(function(data){
   if(id!==turn)return;
   if(!askPhotoApproval()){selected=null;view();text('A fotó engedély nélkül nem kerül a kutatásba. A kérdést továbbra is elküldheted.');return}
-  selected=data;view();text('');var rev=el('hhCameraReview353');
+  selected=data;view();text('');
+  // A photo-only question should be usable on the move without more tapping.
+  var input=el('hhSQ299');if(input&&!input.value.trim()){
+   input.value='Mit látsz ezen a fotón, és milyen biztonságos, praktikus teendőket javasolsz?';
+   input.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  var rev=el('hhCameraReview353');
   if(rev)rev.scrollIntoView({block:'nearest',behavior:'smooth'});
  }).catch(function(e){if(id===turn){selected=null;view();text('⚠️ '+(e.message||'Képhiba'))}});
 }
