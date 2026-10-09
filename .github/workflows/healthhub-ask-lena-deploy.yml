@@ -1,0 +1,48 @@
+name: HealthHub Ask Léna Edge deploy (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the exact current HealthHub implementation
+        uses: actions/checkout@v4
+
+      - name: Validate client-side JavaScript syntax
+        run: |
+          node --check healthhub/live-v331.js
+          node --check healthhub/central-vault/daily-health-sync.js
+
+      - name: Check deployment authorization
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::error::Missing GitHub repository secret SUPABASE_ACCESS_TOKEN. No deployment happened."
+            exit 1
+          fi
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy Ask Léna AI function
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          # The SQL rate-limit migration must have been executed first.
+          # verify_jwt=false is intentional: the function checks getUser() and hh_profile_access itself.
+          supabase functions deploy healthhub-ask-lena --project-ref vhsrupphzcjkdrusonzh --no-verify-jwt
+
+      - name: Deployment reminder
+        run: |
+          echo "Function deployed. Verify private migration and OPENAI_API_KEY in the Supabase project."
+          echo "A successful deploy does not prove an authenticated, opt-in end-to-end model response."
