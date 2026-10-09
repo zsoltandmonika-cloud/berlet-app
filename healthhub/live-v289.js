@@ -68,20 +68,23 @@ function weightQuality(meas,days){
  var values=within(meas,days,function(x){var v=num(x.weightKg);return v!=null&&v>=20&&v<=400})
    .sort(function(a,b){return ts(a)-ts(b)});
  if(values.length<2)return {delta:null,warning:null};
- var start=num(values[0].weightKg),end=num(values[values.length-1].weightKg),difference=r1(end-start);
+ var raw=values.map(function(x){return num(x.weightKg)});
+ var sorted=raw.slice().sort(function(a,b){return a-b});
+ var median=(sorted.length%2)?sorted[(sorted.length-1)/2]:
+  (sorted[sorted.length/2-1]+sorted[sorted.length/2])/2;
+ var glitch=raw.length>=3?values.filter(function(x){return Math.abs(num(x.weightKg)-median)>12}):[];
+ var clean=values.filter(function(x){return glitch.indexOf(x)<0});
+ var caution=glitch.length?glitch.map(function(x){return r1(x.weightKg)+' kg ('+
+    String(x.measuredAt||x.date||'dátum nélkül').slice(0,16)+')'}).join(', '):null;
+ if(clean.length<2)return {delta:null,warning:'Ellentmondó testsúlyrekordok, nem számítható hiteles trend.'};
+ var start=num(clean[0].weightKg),end=num(clean[clean.length-1].weightKg),difference=r1(end-start);
  var cap=days<=7?7:12;
  var discrepant=Math.abs(difference)>cap||Math.abs(difference)>start*(days<=7?.10:.16);
- if(!discrepant){
-  // A single anomalous value between two otherwise close measures must not create a clinical trend.
-  var central=values.map(function(x){return num(x.weightKg)}).sort(function(a,b){return a-b});
-  var median=central[Math.floor(central.length/2)];
-  var outlier=values.find(function(x){return Math.abs(num(x.weightKg)-median)>12});
-  if(outlier)return {delta:null,warning:'Kiugró testsúlyrekord: '+r1(outlier.weightKg)+' kg ('+
-   String(outlier.measuredAt||outlier.date||'dátum nélkül').slice(0,16)+'). Ellenőrizd a profilhozzárendelést és az importot.'};
-  return {delta:difference,warning:null};
- }
- return {delta:null,warning:'Gyanús '+days+' napos testsúlysor: '+start+' kg → '+end+
-  ' kg ('+difference+' kg). Valószínű hibás rekord vagy profilmixelés, újramérés kell.'};
+ if(discrepant)return {delta:null,warning:'Gyanús '+days+' napos testsúlyeltérés: '+
+  start+' kg → '+end+' kg ('+difference+' kg). Az adatforrást sürgősen ellenőrizd;'+
+  ' ha valódi, különösen szívbetegségnél, mielőbb orvosi egyeztetés indokolt.'};
+ return {delta:difference,warning:caution?'Kiugró rekord(ok) kihagyva a trendből: '+caution+
+  '. Az eredeti mérés változatlan maradt, ellenőrizd a profilt és az importot.':null};
 }
 function arr(v){return Array.isArray(v)?v:[]}
 function trim(v,max){var s=String(v==null?'':v).replace(/\s+/g,' ').trim();return max&&s.length>max?s.slice(0,max-1)+'…':s}
