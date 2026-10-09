@@ -53,16 +53,49 @@ async function load(force,preserveOutcome){
  }catch(e){error=e.message||'Nem sikerült a privát adatok lekérése.'}
  finally{busy=false;paint()}
 }
+// Prevent users from losing server-side attempts while the scheduled
+// public-only snapshot still refers to yesterday.
+async function publicReady(){
+ var path='./data/daily-health-public.json?check='+Date.now();
+ try{
+  var res=await fetch(path,{cache:'no-store'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  var info=await res.json();
+  if(!info||info.schema!=='healthhub.daily-health-public/1')
+   throw new Error('Hibás nyilvános adatcsomag');
+  if(info.date!==day()){
+   return {ok:false,message:'🌅 A mai környezeti háttéradat még nem készült el (elérhető: '+String(info.date||'ismeretlen nap')+'). A napi adatfrissítés reggel 7:15 után várható. Emiatt most nem indítok AI-próbálkozást.'};
+  }
+  return {ok:true};
+ }catch(e){
+  return {ok:false,message:'A napi nyilvános háttéradat jelenleg nem ellenőrizhető. Nem indítok AI-próbálkozást, hogy ne fogyjon el a napi keret.'};
+ }
+}
+function generationFailure(answer){
+ if(!answer)return 'A privát AI-generálás nem adott értelmezhető választ.';
+ if(answer.reason==='source_not_ready')return '🌅 A mai nyilvános környezeti adatok még nem készültek el. Reggel 7:15 után próbáld újra. Ez az új szerververzióban nem fogyaszt próbálkozást.';
+ if(answer.reason==='source_unavailable')return 'A nyilvános környezeti adatforrás átmenetileg nem elérhető. Nem fogyott el AI-próbálkozás.';
+ if(answer.reason==='ai_not_configured')return 'A privát AI-kiszolgálóhoz hiányzik a szerveroldali OpenAI API-beállítás. Adminisztrátori ellenőrzés szükséges.';
+ if(answer.reason==='generation_failed')return 'A jelentés generálása meghiúsult. Az AI-kiszolgáló naplójában ellenőrizni kell a kiváltó okot.';
+ if(answer.reason==='attempts_exhausted'){
+  var causes={ai_rate_limit:'Az AI-szolgáltatás korlátozása miatt.',ai_auth:'Az AI-kulcs hitelesítési problémája miatt.',model_output:'Az AI válaszformátuma nem volt használható.',public_source:'Korábbi napi környezeti adat hiánya miatt.',server_failure:'Szerveroldali hiba miatt.'};
+  return '⚠️ A mai AI-generálási keret lezárult. '+(causes[answer.cause]||'')+
+   ' A frissített szerver az idő előtti, hiányzó adat miatt beragadt jelentést automatikusan helyre tudja állítani, amint a mai adatok elérhetők. Ne indíts egymás után újabb próbálkozásokat.';
+ }
+ return 'A privát Daily Health nem készült el ('+String(answer.reason||'ismeretlen hiba').slice(0,60)+').';
+}
 async function generate(k){
  if(!signed()||busy)return;
  if(!consent(k==='monika'?'m':'z')){error='Először add meg a külön napi AI-hozzájárulást.';paint();return}
  busy=true;message='';error='';paint();
  try{
+  var inputCheck=await publicReady();
+  if(!inputCheck.ok){error=inputCheck.message;return}
   var answer=await API.request('/functions/v1/healthhub-personal-ai',{method:'POST',data:{mode:'generate',profile_key:k}});
   if(answer&&answer.ok)message=answer.reason==='ready'?'A mai jelentés már elkészült.':'A mai személyes AI-jelentés elkészült.';
   else if(answer?.reason==='no_consent')error='A felhőben még nincs engedélyezve a napi AI-elemzés. Ellenőrizd a zöld szinkronállapotot.';
   else if(answer?.reason==='pending')error='Egy jelentés már készül. Várj egy percet, majd frissíts.';
-  else error='A generálás nem fejeződött be ('+String(answer?.reason||'hiba')+').';
+  else error=generationFailure(answer);
  }catch(e){error=e.message||'Nem sikerült elindítani a szerveroldali AI-elemzést.'}
  finally{busy=false;lastLoad=0;await load(true,true)}
 }
