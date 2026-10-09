@@ -111,11 +111,11 @@ function install(){
  q.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!e.ctrlKey&&!e.altKey){
    e.preventDefault();
-   if(!send.disabled){primeAudio();send.click()}
+   if(!send.disabled){alertPlayed=false;primeAudio();send.click()}
   }
  });
- send.addEventListener('pointerdown',primeAudio,{passive:true});
- send.addEventListener('keydown',primeAudio);
+ send.addEventListener('pointerdown',function(){alertPlayed=false;primeAudio()},{passive:true});
+ send.addEventListener('keydown',function(){alertPlayed=false;primeAudio()});
  mic.addEventListener('pointerdown',primeAudio,{passive:true});
  syncEntry();
 }
