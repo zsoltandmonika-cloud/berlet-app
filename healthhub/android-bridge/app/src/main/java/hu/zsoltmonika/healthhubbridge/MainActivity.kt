@@ -573,6 +573,14 @@ class MainActivity : ComponentActivity() {
         val json: JSONObject = HealthConnectExporter(hc).export(profile)
         pendingJson = json.toString(2)
         saveButton.isEnabled = true
+        val exporter = HealthConnectExporter(hc)
+        val summary = exporter.countSummary(json)
+        if (!exporter.hasUsefulData(json)) {
+            status.text = "⚠️ ${profileName(profile)}: nincs kiolvasható mérés az utolsó 30 napban. " +
+                "A Dropbox-fájlt NEM írtam felül.\n" + summary +
+                "\nEllenőrizd: Samsung Health → Health Connect adatmegosztás és HealthHub Connect olvasási engedélyek."
+            return
+        }
 
         val recs = json.getJSONObject("records")
         val daily = recs.optJSONArray("dailyActivity")
@@ -589,7 +597,8 @@ class MainActivity : ComponentActivity() {
             DropboxVaultClient.healthConnectPath(profile),
             json.toString(2) + "\n"
         )
-        status.text = "✓ SYNC kész · ${if (profile == "monika") "Mónika" else "Zsolt"} · Health + Activity Cloud frissítve."
+        status.text = "✓ Dropbox feltöltés kész · ${profileName(profile)} · " + summary +
+            "\nForrásértékek ellenőrizve; ez a feltöltést igazolja, nem a webes megjelenítést."
         updateScheduleUi()
         OrchestratorScheduler.runNow(this@MainActivity)
 
