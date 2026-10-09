@@ -268,6 +268,12 @@ async function run(){
  el('askCopy323').style.display='';
  try{
   var p=pk();
+  // v328: collect and display the eight available HealthHub data sources first.
+  // This independent, on-device preview makes the Kutatás button useful even
+  // when no question-specific original PDF exists; the legacy RAG is unchanged.
+  if(window.HH_LENA_CONTEXT_BRIDGE_V328&&typeof window.HH_LENA_CONTEXT_BRIDGE_V328.run==='function'){
+   await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
+  }
   status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
   await window.hhRefreshLenaHealthContext289(p,'ask-lena-v323');
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
