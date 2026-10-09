@@ -151,8 +151,10 @@ function refresh(){
  if(!el('askChecks323'))return;
  var p=pk(),data=checks(),o=el('askOverall323');
  var section=el(PAGE);if(section)section.dataset.profile=p;
- o.className='askBadge '+(data.ready?'good':data.checks.some(function(x){return !x.ok&&!x.maybe})?'error':'warn');
- o.textContent=data.ready?'✅ Kutatásra kész':'⚠ Ellenőrzés / előkészítés szükséges';
+ var answer=window.HH_LENA_LOCAL_ANSWER_V329&&window.HH_LENA_LOCAL_ANSWER_V329.getLast();
+ var answered=!!(answer&&answer.profile===p&&answer.question===(el('hhSQ299')?.value||'').trim());
+ o.className='askBadge '+(answered||data.ready?'good':data.checks.some(function(x){return !x.ok&&!x.maybe})?'error':'warn');
+ o.textContent=answered?'✅ Léna-válasz kész · PDF opcionális':data.ready?'✅ Leletkutatásra kész':'⚠ PDF-leletkutatás nincs előkészítve';
  el('askChecks323').innerHTML=data.checks.map(function(x){
   return '<div class="askCheck"><div class="askCheckIcon">'+(x.ok?'✅':x.maybe?'🔎':'⚠️')+'</div><div><strong>'+esc(x.label)+'</strong><span>'+esc(x.detail)+'</span></div></div>'
  }).join('');
