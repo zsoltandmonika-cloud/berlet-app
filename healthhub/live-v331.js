@@ -91,7 +91,22 @@ function renderAnswerText(raw){
   }
   node.appendChild(document.createTextNode(value.slice(start)));
  }
- String(raw||'').slice(0,7000).split('\n').forEach(function(row){
+ var normalized=String(raw||'').slice(0,7000).replace(/\r\n?/g,'\n');
+ var parts=normalized.split(/\n\s*\n/);
+ normalized=parts.map(function(chunk){
+  if(chunk.length<420 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
+  var sentences=chunk.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ])/u);
+  if(sentences.length<2)return chunk;
+  var result=[],acc='';
+  sentences.forEach(function(sentence){
+   if(acc.length>240&&acc.length+sentence.length>410){
+    result.push(acc);acc=sentence;
+   }else acc+=(acc?' ':'')+sentence;
+  });
+  if(acc)result.push(acc);
+  return result.join('\n\n');
+ }).join('\n\n');
+ normalized.split('\n').forEach(function(row){
   var line=row.trim(),h=line.match(/^#{1,3}\s+(.+)$/),plainHeading=line.match(/^\*\*(.+?)\*\*:?$/),
    item=line.match(/^(?:[-*]|[0-9]+[.)])\s+(.+)$/);
   if(!line){para=null;list=null;return}
