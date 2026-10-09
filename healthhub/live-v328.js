@@ -31,8 +31,9 @@ function source(id,icon,title,entries,at,kind,detail){
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function relevant(q,s){
  var x=norm(q),w=norm(s);if(!x)return true;
+ // Headache must not be matched to every other pain entry simply by "fáj".
+ if(/fejem|fejfaj|migren|\bfej\b/.test(x))return /fej|migren/.test(w);
  var tokens=x.split(' ').filter(function(t){return t.length>=4});
- if(/fejem|fejfaj|migren/.test(x))tokens.push('fej');
  if(/orrdugul|szena|allerg/.test(x))tokens.push('orr','allerg');
  return tokens.some(function(t){return w.indexOf(t)>=0||w.split(' ').some(function(v){return v.slice(0,Math.min(4,v.length))===t.slice(0,Math.min(4,t.length))})});
 }
