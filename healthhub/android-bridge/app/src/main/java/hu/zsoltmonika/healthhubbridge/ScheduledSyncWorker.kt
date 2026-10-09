@@ -51,7 +51,11 @@ class ScheduledSyncWorker(
                 error("Hiányzik a háttérben olvasás engedélye")
             }
 
-            val json: JSONObject = HealthConnectExporter(client).export(profile)
+            val exporter = HealthConnectExporter(client)
+            val json: JSONObject = exporter.export(profile)
+            if (!exporter.hasUsefulData(json)) {
+                error("Nem érkezett tényleges Health Connect-mérés az elmúlt 30 napban: " + exporter.countSummary(json))
+            }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
             DropboxVaultClient.uploadText(
