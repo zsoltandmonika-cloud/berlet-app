@@ -84,6 +84,50 @@ function locations(){return valuesFor('locations',LOCATIONS[draft&&draft.symptom
 function defaultDraft(){
  return {eventAt:now(),symptom:'Fejfájás',location:'Homlok / fejtető',severity:6,action:'Gyógyszer',medication:'Advil Ultra Forte',dose:'400 mg',outcome:'Megszűnt',response:'60 perc',measurement:null,notes:''};
 }
+function askPrefill351(data){
+ if(!data||typeof data.question!=='string')return null;
+ var raw=data.question.trim().slice(0,550);
+ if(raw.length<3)return null;
+ var t=raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ var d={eventAt:now(),symptom:'Egyéb',location:'',severity:null,action:'',
+  medication:'',dose:'',outcome:'',response:'',measurement:null,
+  notes:'Ask Léna kérdés (ellenőrizd): '+raw,askPrefilled351:true};
+ var patterns=[[/fejfaj|fejem faj|migren/,'Fejfájás'],[/szedul/,'Szédülés'],
+  [/orrdugul/,'Orrdugulás'],[/gyomor|hasam faj|hasfaj|hanyinger/,'Gyomorpanasz'],
+  [/hatfaj|derekam faj/,'Hátfájás'],[/mellkasi faj|mellkasom faj|mellkasi nyom/,'Mellkasi kellemetlenség'],
+  [/lazam van|lazas/,'Láz'],[/allergi|pollen/,'Allergiás panasz'],
+  [/megserult|megutottem|kificamod|megrandult/,'Sérülés']];
+ patterns.some(function(x){if(x[0].test(t)){d.symptom=x[1];return true}return false});
+ var cats=valuesFor('symptoms',SYMPTOMS);
+ if(d.symptom==='Egyéb'){
+  var found=cats.filter(function(x){return x.length>4&&x!=='Egyéb'&&t.indexOf(x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''))>=0});
+  if(found.length)d.symptom=found[0];
+ }
+ if(!cats.includes(d.symptom))d.symptom='Egyéb';
+ var locs=valuesFor('locations',LOCATIONS[d.symptom]||LOCATIONS.default);
+ [[/homlok.*fejtet|fejtet.*homlok/,'Homlok / fejtető'],[/homlok/,'Homlok'],
+  [/fejtet/,'Fejtető'],[/tarko/,'Tarkó'],[/bal halantek/,'Bal halánték'],
+  [/jobb halantek/,'Jobb halánték'],[/boka|labfej|labam/,'Láb / lábfej'],
+  [/bal mellkas/,'Bal mellkas'],[/jobb mellkas/,'Jobb mellkas']].some(function(x){
+   if(x[0].test(t)&&locs.includes(x[1])){d.location=x[1];return true}return false});
+ var intensity=t.match(/\b(10|[0-9])\s*\/\s*10\b/);
+ if(intensity)d.severity=Number(intensity[1]);
+ // NEVER guess medication/treatment from the assistant's research answer.
+ if(/bevettem|vettem be/.test(t)){
+  var meds=valuesFor('medications',MEDS);
+  var med=meds.find(function(x){return x!=='Egyéb'&&x!=='Nem vettem be'&&t.indexOf(x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''))>=0});
+  if(med){
+   d.action='Gyógyszer';d.medication=med;
+   var dose=t.match(/\b(\d{2,4})\s*mg\b/);
+   if(dose&&valuesFor('doses',DOSES).includes(dose[1]+' mg'))d.dose=dose[1]+' mg';
+  }
+ }
+ if(!d.action&&/jegeltem/.test(t))d.action='Hideg borogatás';
+ if(!d.action&&/pihentem/.test(t))d.action='Pihenés';
+ if(/mar elmult|megszunt/.test(t))d.outcome='Megszűnt';
+ else if(/javult|enyhult/.test(t))d.outcome='Javult';
+ return d;
+}
 function pkgLocal(){
  try{
   var x=JSON.parse(localStorage.getItem(LOCAL)||'null');
@@ -189,7 +233,7 @@ function fieldConfig(field){
  if(field==='minute')return {title:'Perc',values:Array.from({length:60},function(_,i){return pad2(i)}),current:pad2(dp.minute)};
  if(field==='symptom')return {title:'Tünet',values:valuesFor('symptoms',SYMPTOMS),current:draft.symptom};
  if(field==='location')return {title:'Hely / jelleg',values:locations(),current:draft.location};
- if(field==='severity')return {title:'Erősség',values:Array.from({length:11},function(_,i){return severityLabel(i)}),current:severityLabel(draft.severity)};
+ if(field==='severity')return {title:'Erősség',values:['Nincs megadva'].concat(Array.from({length:11},function(_,i){return severityLabel(i)})),current:draft.severity==null?'Nincs megadva':severityLabel(draft.severity)};
  if(field==='action')return {title:'Mit tettél?',values:valuesFor('actions',ACTIONS),current:draft.action};
  if(field==='medication')return {title:'Eseti gyógyszer',values:valuesFor('medications',MEDS),current:draft.medication};
  if(field==='dose')return {title:'Dózis',values:valuesFor('doses',DOSES),current:draft.dose};
@@ -217,7 +261,7 @@ function applyWheel(){
  if(!wheelState)return;
  var raw=wheelState.values[wheelState.index],field=wheelState.field;
  if(['year','month','day','hour','minute'].indexOf(field)>=0)setDatePart(field,raw);
- else if(field==='severity')draft.severity=parseInt(raw,10)||0;else draft[field]=raw;
+ else if(field==='severity')draft.severity=raw==='Nincs megadva'?null:parseInt(raw,10);else draft[field]=raw;
  if(field==='symptom'){
   var ls=locations();if(ls.indexOf(draft.location)<0)draft.location=ls[0];
  }
@@ -408,13 +452,22 @@ function renderDraft(findBp){
  page.querySelector('#hhSJGrid').innerHTML=
   choice('symptom','Tünet',draft.symptom,'🤕')+
   choice('location','Hely / jelleg',draft.location,'📍')+
-  choice('severity','Erősség',severityLabel(draft.severity),'◉')+
-  choice('action','Mit tettél?',draft.action,'🧰')+
-  choice('medication','Eseti gyógyszer',draft.medication,'💊')+
-  choice('dose','Dózis',draft.dose,'⚖️')+
-  choice('outcome','Kimenetel',draft.outcome,'✅')+
-  choice('response','Hatás ideje',draft.response,'⏱️');
+  choice('severity','Erősség',draft.severity==null?'Nincs megadva':severityLabel(draft.severity),'◉')+
+  choice('action','Mit tettél?',(draft.action||'Nincs megadva'),'🧰')+
+  choice('medication','Eseti gyógyszer',(draft.medication||'Nincs megadva'),'💊')+
+  choice('dose','Dózis',(draft.dose||'Nincs megadva'),'⚖️')+
+  choice('outcome','Kimenetel',(draft.outcome||'Nincs megadva'),'✅')+
+  choice('response','Hatás ideje',(draft.response||'Nincs megadva'),'⏱️');
  if(document.activeElement!==page.querySelector('#hhSJNotes'))page.querySelector('#hhSJNotes').value=draft.notes||'';
+ var hint=page.querySelector('#hhSJAskPrefill351');
+ if(draft.askPrefilled351){
+  if(!hint){
+   hint=document.createElement('div');hint.id='hhSJAskPrefill351';hint.setAttribute('role','status');
+   hint.style.cssText='margin:9px 0;padding:10px 12px;background:color-mix(in srgb,var(--a) 8%,white);border:1px solid color-mix(in srgb,var(--a) 27%,#dce7ed);border-radius:13px;font-size:12px;line-height:1.6;color:#28516a';
+   page.querySelector('.hhSJCardTitle').insertAdjacentElement('afterend',hint);
+  }
+  hint.textContent='✨ Léna előkitöltése · Csak a kérdésedben egyértelműen szereplő adatokat vettem át. Ellenőrizd a dátumot és a mezőket! Ismeretlen gyógyszert, dózist, erősséget vagy kimenetelt nem találok ki.';
+ }else if(hint)hint.remove();
  var saveBtn=page.querySelector('#hhSJSave'),acts=page.querySelector('#hhSJEditActions');
  if(saveBtn)saveBtn.textContent=editingId?'💾 MÓDOSÍTÁS MENTÉSE':'💾 MENTÉS';
  if(acts)acts.classList.toggle('on',!!editingId);
@@ -453,7 +506,7 @@ async function save(){
  var btn=document.getElementById('hhSJSave');if(btn)btn.disabled=true;
  try{
   var p=pkey(),x=pkgLocal(),t=now(),existing=editingId?x.events.find(function(e){return e.id===editingId&&!e.deletedAt}):null;
-  var row={schema:'healthhub.symptom.event/1',id:existing?existing.id:'sym-'+uuid(),profile:p,eventAt:draft.eventAt,symptom:draft.symptom,location:draft.location,severity:Number(draft.severity)||0,action:draft.action,medication:draft.action==='Gyógyszer'?draft.medication:null,dose:draft.action==='Gyógyszer'?draft.dose:null,outcome:draft.outcome,response:draft.response,measurement:draft.measurement||null,notes:(draft.notes||'').trim(),source:'healthhub_manual',createdAt:existing&&existing.createdAt?existing.createdAt:t,updatedAt:t};
+  var row={schema:'healthhub.symptom.event/1',id:existing?existing.id:'sym-'+uuid(),profile:p,eventAt:draft.eventAt,symptom:draft.symptom,location:draft.location,severity:draft.severity==null?null:Number(draft.severity),action:draft.action||null,medication:draft.action==='Gyógyszer'?draft.medication||null:null,dose:draft.action==='Gyógyszer'?draft.dose||null:null,outcome:draft.outcome||null,response:draft.response||null,measurement:draft.measurement||null,notes:(draft.notes||'').trim(),source:'healthhub_manual',createdAt:existing&&existing.createdAt?existing.createdAt:t,updatedAt:t};
   x.events=mergeEvents(x.events,[row]);writeLocal(x);renderTrend();renderTimelineSymptoms();tada();toast(existing?'✓ Módosítás elmentve · Tünetnapló':'✓ Esemény elmentve · Tünetnapló');
   try{var ok=await pushCloud();if(ok)toast('✓ Esemény elmentve · központi tárhely frissítve')}catch(e){console.warn(e);toast('Esemény elmentve · cloud sync később újrapróbálható')}
   var wasEdit=!!existing;editingId=null;draft=defaultDraft();renderDraft();
@@ -481,14 +534,14 @@ function renderTrend(){
  if(!selectedTrendSymptom)selectedTrendSymptom=draft&&draft.symptom||'Fejfájás';
  if(syms.indexOf(selectedTrendSymptom)<0)selectedTrendSymptom=syms[0]||'Fejfájás';
  sel.innerHTML=syms.map(function(s){return '<option'+(s===selectedTrendSymptom?' selected':'')+'>'+esc(s)+'</option>'}).join('');
- var rows=trendEvents(),avg=rows.length?rows.reduce(function(a,x){return a+(Number(x.severity)||0)},0)/rows.length:0,done=rows.filter(function(x){return x.outcome==='Megszűnt'||x.outcome==='Jelentősen javult'||x.outcome==='Javult'}).length;
- page.querySelector('#hhSJMetrics').innerHTML='<div class="hhSJM"><b>'+rows.length+'</b><small>ESEMÉNY</small></div><div class="hhSJM"><b>'+avg.toFixed(rows.length?1:0)+'</b><small>ÁTLAG ERŐSSÉG / 10</small></div><div class="hhSJM"><b>'+(rows.length?Math.round(done/rows.length*100):0)+'%</b><small>JAVULT / MEGSZŰNT</small></div>';
- page.querySelector('#hhSJChart').innerHTML=chartSvg(rows);
+ var rows=trendEvents(),rated=rows.filter(function(x){return x.severity!=null&&x.severity!==''}),avg=rated.length?rated.reduce(function(a,x){return a+Number(x.severity)},0)/rated.length:null,done=rows.filter(function(x){return x.outcome==='Megszűnt'||x.outcome==='Jelentősen javult'||x.outcome==='Javult'}).length;
+ page.querySelector('#hhSJMetrics').innerHTML='<div class="hhSJM"><b>'+rows.length+'</b><small>ESEMÉNY</small></div><div class="hhSJM"><b>'+(avg==null?'—':avg.toFixed(1))+'</b><small>ÁTLAG ERŐSSÉG / 10</small></div><div class="hhSJM"><b>'+(rows.length?Math.round(done/rows.length*100):0)+'%</b><small>JAVULT / MEGSZŰNT</small></div>';
+ page.querySelector('#hhSJChart').innerHTML=chartSvg(rated);
  var recent=all.sort(function(a,b){return Date.parse(b.eventAt)-Date.parse(a.eventAt)}).slice(0,12);
  page.querySelector('#hhSJLog').innerHTML=recent.length?recent.map(function(x){
   var med=x.medication?(' · 💊 '+x.medication+(x.dose?' '+x.dose:'')):'';
   var bp=x.measurement&&x.measurement.systolic!=null?(' · 🩺 '+x.measurement.systolic+'/'+(x.measurement.diastolic??'—')):'';
-  return '<div class="hhSJRow" data-event-id="'+esc(x.id)+'"><span class="hhSJRowIcon">🤕</span><span><b>'+esc(x.symptom)+' · '+esc(severityLabel(x.severity))+'</b><small>'+esc(fmtDate(x.eventAt))+' · '+esc(x.location||'')+med+bp+'</small><small>'+esc(x.outcome||'')+(x.response?' · '+esc(x.response):'')+'</small><small class="hhSJRowEdit">✏️ Koppints a szerkesztéshez</small></span></div>';
+  return '<div class="hhSJRow" data-event-id="'+esc(x.id)+'"><span class="hhSJRowIcon">🤕</span><span><b>'+esc(x.symptom)+' · '+esc(x.severity==null?'Nincs megadva':severityLabel(x.severity))+'</b><small>'+esc(fmtDate(x.eventAt))+' · '+esc(x.location||'')+med+bp+'</small><small>'+esc(x.outcome||'')+(x.response?' · '+esc(x.response):'')+'</small><small class="hhSJRowEdit">✏️ Koppints a szerkesztéshez</small></span></div>';
  }).join(''):'<div class="hhSJEmpty">A napló még üres. Az első mentés után itt azonnal megjelenik az esemény és a trend.</div>';
 }
 function sameLocalDay(iso,date){
@@ -514,10 +567,10 @@ function renderTimelineSymptoms(){
  var ev=document.getElementById('events');if(ev)ev.textContent=String(children.length);
 }
 window.hhRenderSymptomTimeline307=renderTimelineSymptoms;
-async function openJournal(){
- initAudio();editingId=null;draft=defaultDraft();selectedTrendSymptom=draft.symptom;
+async function openJournal(aiDraft){
+ initAudio();editingId=null;draft=aiDraft&&aiDraft.askPrefilled351?aiDraft:defaultDraft();selectedTrendSymptom=draft.symptom;
  ensurePage();showPage();renderDraft();renderTrend();
- await pullCloud();renderTrend();renderTimelineSymptoms();
+ await pullCloud();renderDraft(false);renderTrend();renderTimelineSymptoms();
 }
 var launchObserver=null,launchRepairTimer=null;
 function installLaunchGuard(){
@@ -554,6 +607,12 @@ function decorate(){
  document.documentElement.dataset.healthhubSymptomJournal='1.307.10';
 }
 window.hhOpenSymptomJournal307=openJournal;
+window.hhOpenSymptomJournalPrefilled307=function(data){
+ if(!data||data.profile!==pkey())return Promise.resolve(false);
+ var result=askPrefill351(data);
+ if(!result)return Promise.resolve(false);
+ return openJournal(result).then(function(){return true});
+};
 window.hhSymptomJournalSync307=async function(){await pullCloud();if(connected())await pushCloud();renderTrend();return true};
 window.addEventListener('healthhub:profile-changed',function(){
  renderTimelineSymptoms();
