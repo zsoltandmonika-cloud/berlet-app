@@ -200,51 +200,28 @@ function symptomLikely(question){
  return /f[aá]j|f[aá]jdal|dagad|duzzad|k[oö]h[oö]g|h[oő]emelk|l[aá]z|sz[uú]r|[eé]g|cs[ií]p|sz[eé]d[uü]l|f[aá]rad|l[eé]gszom|fullad|[eé]mely|ki[uü]t[eé]s|viszket|[oö]d[eé]ma|hasmen|h[aá]ny|g[oö]rcs|puffad|rosszull[eé]t|zsibbad|fejf[aá]j|bok[aá]m|mellkas/i.test(String(question||''));
 }
 function symptomJournalOffer(d){
- var answer=el('hhAi331Answer');if(!answer||!d||!symptomLikely(d.question))return;
+ var answer=el('hhAi331Answer');
+ if(!answer||!d||!symptomLikely(d.question)||d.profile!==profile())return;
  var prev=el('hhLenaJournal344');if(prev)prev.remove();
  var box=document.createElement('section');box.id='hhLenaJournal344';box.className='hhLenaJournal344';
- var ask=document.createElement('p');ask.textContent='📝 Szeretnéd, hogy ezt rögzítsem az eseti tünetnaplódban?';
- var begin=document.createElement('button');begin.type='button';begin.textContent='Igen, rögzítsük';
- var area=document.createElement('div');area.className='hhLenaJournalForm344';area.hidden=true;
- var symptom=document.createElement('label');symptom.textContent='Tünet leírása';
- var txt=document.createElement('textarea');txt.rows=2;txt.maxLength=280;
- txt.value=String(d.question||'').trim().slice(0,280);symptom.appendChild(txt);
- var severity=document.createElement('label');severity.textContent='Erősség (0–10), ha tudod';
- var score=document.createElement('input');score.type='number';score.min='0';score.max='10';score.step='1';score.placeholder='Opcionális';severity.appendChild(score);
- var notes=document.createElement('label');notes.textContent='Megjegyzés (opcionális)';
- var note=document.createElement('textarea');note.rows=2;note.maxLength=450;
- note.placeholder='Például: mikor kezdődött, mi javítja vagy rontja';notes.appendChild(note);
- var buttons=document.createElement('div');buttons.className='hhLenaJournalActions344';
- var saveBtn=document.createElement('button');saveBtn.type='button';saveBtn.className='hhLenaJournalSave344';saveBtn.textContent='💗 Mentés';
- var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Mégsem';
- buttons.append(saveBtn,cancel);area.append(symptom,severity,notes,buttons);
- var meta=document.createElement('small');meta.textContent='Csak a kiválasztott profil helyi tünetnaplójába kerül. Nem automatikus AI-diagnózis, nem felhőmentés.';
- meta.style.display='block';meta.style.marginTop='9px';
- begin.addEventListener('click',function(){begin.hidden=true;area.hidden=false;txt.focus({preventScroll:true})});
- cancel.addEventListener('click',function(){area.hidden=true;begin.hidden=false});
- saveBtn.addEventListener('click',function(){
-  var p=profile(),v=txt.value.trim(),n=note.value.trim();
-  if(p!==d.profile){ask.textContent='⚠ Időközben profilváltás történt. Indítsd újra a megfelelő profillal.';return}
-  if(v.length<3){txt.focus();return}
-  var scoreText=score.value.trim(),sev=scoreText===''?null:Number(scoreText);
-  if(sev!==null&&(!Number.isInteger(sev)||sev<0||sev>10)){score.focus();return}
+ var title=document.createElement('p');title.textContent='📝 Szeretnéd, hogy ezt rögzítsük az eseti tünetnaplódban?';
+ var subtitle=document.createElement('div');
+ subtitle.textContent='A megszokott tünetnapló nyílik meg, ugyanazokkal a választókkal. Amit a kérdésedből biztosan felismerünk, előre kitöltjük. A többit te adhatod meg.';
+ subtitle.style.cssText='font-size:12px;line-height:1.55;margin:4px 0 12px;color:#58788c';
+ var button=document.createElement('button');button.type='button';button.textContent='✨ Megnyitom az előkitöltött tünetnaplót';
+ var status=document.createElement('small');status.style.cssText='display:block;font-size:11px;color:#708c9e;margin-top:10px';
+ status.textContent='Nem mentünk automatikusan. Mentés előtt ellenőrizhetsz és módosíthatsz mindent.';
+ button.addEventListener('click',async function(){
+  if(profile()!==d.profile){status.textContent='⚠️ Profilváltás történt. Indíts új kutatást az aktív profillal.';return}
+  var open=window.hhOpenSymptomJournalPrefilled307;
+  if(typeof open!=='function'){status.textContent='⚠️ Az eredeti Eseti tünetnapló nem érhető el. Próbáld frissíteni az oldalt.';return}
+  button.disabled=true;
   try{
-   var key='hh-symptom-journal-v1',obj=JSON.parse(localStorage.getItem(key)||'{"events":[]}' );
-   if(!obj||typeof obj!=='object'||Array.isArray(obj)||!Array.isArray(obj.events))throw Error('format');
-   var stamp=new Date().toISOString();
-   var id='asklena-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
-   obj.events.push({id:id,profile:p,eventAt:stamp,createdAt:stamp,symptom:v,
-    severity:sev===null?'':sev,outcome:n,notes:n,source:'ask-lena'});
-   localStorage.setItem(key,JSON.stringify(obj));
-   try{window.dispatchEvent(new CustomEvent('healthhub:symptom-journal-changed',{detail:{profile:p,eventId:id}}))}catch(e){}
-   ask.textContent='✅ Rögzítettem '+name(p)+' helyi eseti tünetnaplójában.';
-   area.remove();begin.remove();meta.textContent='A következő Ask Léna kutatás már felhasználhatja ezt a bejegyzést.';
-  }catch(e){
-   ask.textContent='⚠ Nem sikerült a helyi napló mentése. A korábbi naplóhoz nem nyúltam.';
-  }
+   var ok=await open({profile:d.profile,question:d.question});
+   if(!ok){status.textContent='⚠️ Nem tudtam előkészíteni a naplót.';button.disabled=false}
+  }catch(e){status.textContent='⚠️ A napló most nem nyitható meg. A kutatási válaszod nem veszett el.';button.disabled=false}
  });
- box.append(ask,begin,area,meta);
- answer.appendChild(box);
+ box.append(title,subtitle,button,status);answer.appendChild(box);
 }
 
 function profileSwitch(){
