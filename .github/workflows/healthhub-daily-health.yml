@@ -2,9 +2,12 @@ name: HealthHub Daily Health Public
 
 on:
   schedule:
-    # 07:15 in Europe/Budapest: 05:15 UTC summer, 06:15 UTC winter.
-    # 07:15 UTC is a fallback for delayed GitHub schedules.
-    - cron: "15 5,6,7 * * *"
+    # Midnight context for private Daily Health: 00:30 Budapest is 22:30
+    # previous day UTC in summer, or 23:30 UTC in winter.
+    # Morning refresh for public Daily Health: 07:30 Budapest is 05:30
+    # UTC in summer or 06:30 UTC in winter. Extra 07:30 UTC is fallback.
+    # Python checks actual Europe/Budapest local time and skips wrong slots.
+    - cron: "30 22,23,5,6,7 * * *"
   workflow_dispatch:
   push:
     branches: [main]
