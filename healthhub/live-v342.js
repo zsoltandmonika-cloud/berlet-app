@@ -123,6 +123,7 @@ function renderItem(entry,p){
  open.addEventListener('click',function(){
   if(profile()!==p)return;
   var api=window.HH_ASK_LENA_AI_V331;
+  if(api&&api.isBusy&&api.isBusy())return;
   if(api&&api.showStoredAnswer&&api.showStoredAnswer(entry)){
    var input=el('hhSQ299');if(input)input.dispatchEvent(new Event('input',{bubbles:true}));
    var details=el('hhLenaHistory342');if(details)details.open=false;
