@@ -51,6 +51,7 @@ function setCss(){
  '#hhLenaSmart299 .hhLenaJournal344 p{margin:0 0 9px;font-size:13px;color:var(--lena-ui-dark);font-weight:750}',
  '#hhLenaSmart299 .hhLenaJournal344 button{background:#fff;border:1px solid var(--lena-ui-border);border-radius:10px;color:var(--lena-ui-dark);padding:9px 12px;font:700 12px/1.3 system-ui;cursor:pointer;min-height:38px}',
  '#hhLenaSmart299 .hhLenaJournal344 .hhLenaJournalForm344{display:grid;gap:10px;margin:9px 0}',
+ '#hhLenaSmart299 .hhLenaJournal344 .hhLenaJournalForm344[hidden],#hhLenaSmart299 .hhLenaJournal344 button[hidden]{display:none!important}',
  '#hhLenaSmart299 .hhLenaJournal344 label{display:grid;gap:4px;font:650 12px/1.35 system-ui;color:var(--lena-ui-dark)}',
  '#hhLenaSmart299 .hhLenaJournal344 textarea,#hhLenaSmart299 .hhLenaJournal344 input{box-sizing:border-box;width:100%;padding:10px;background:#fff;border:1px solid var(--lena-ui-border);border-radius:10px;color:#263f55;font:400 15px/1.4 system-ui}',
  '#hhLenaSmart299 .hhLenaJournal344 .hhLenaJournalActions344{display:flex;flex-wrap:wrap;gap:8px}',
