@@ -148,6 +148,9 @@ function renderAnswerText(raw){
    current.appendChild(node);return;
   }
   if(tag!=='p'){visual.appendChild(node);return}
+  if(current&&current.children&&current.children.length===1&&current.children[0].tagName==='H3'){
+   current.appendChild(node);return;
+  }
   var val=node.textContent||'';
   var urgent=/azonnal|mentőt|112|sürgősségi|eszméletveszt|erős mellkasi fájdalom/i.test(val);
   var isLead=idx===0;
