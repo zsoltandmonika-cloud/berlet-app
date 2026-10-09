@@ -93,13 +93,28 @@ def alerts(w,a,infect):
 def main():
     today=NOW.strftime("%Y-%m-%d")
     mode=(sys.argv[1] if len(sys.argv)>1 else "auto").lower()
-    if mode=="auto" and (NOW.hour<7 or NOW.hour==7 and NOW.minute<15):
-        print("Morning window not reached in Budapest");return
-    if mode=="auto" and OUTPUT.exists():
-        try:
-            if json.loads(OUTPUT.read_text(encoding="utf-8")).get("date")==today:
-                print("Snapshot current");return
-        except Exception:pass
+    if mode=="auto":
+        # The private, opt-in Daily Health report can be requested after midnight.
+        # Run an early public snapshot at 00:10 Budapest (UTC DST-aware crons
+        # are filtered here), then refresh it after 07:15 for morning accuracy.
+        early=NOW.hour==0 and NOW.minute>=10
+        morning=NOW.hour>7 or NOW.hour==7 and NOW.minute>=15
+        if not (early or morning):
+            print("Outside Budapest midnight / morning generation windows");return
+        if OUTPUT.exists():
+            try:
+                old=json.loads(OUTPUT.read_text(encoding="utf-8"))
+                if old.get("date")==today:
+                    previously=old.get("generatedAt","")
+                    try:
+                        prev_time=datetime.fromisoformat(previously)
+                    except (ValueError,TypeError):
+                        prev_time=None
+                    if early or (morning and prev_time and prev_time.hour>=7 and (
+                        prev_time.hour>7 or prev_time.minute>=15)):
+                        print("Today's public snapshot already generated for this window");return
+            except (ValueError,OSError,TypeError):
+                pass
     w={"available":False};a={"available":False};i={"available":False,"stale":True}
     try:w=weather(today)
     except Exception as e:print("Weather unavailable:",e,file=sys.stderr)
