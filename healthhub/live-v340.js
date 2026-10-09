@@ -14,10 +14,10 @@ function style(){
  '#hhLenaSmart299 .hhLenaLegacyActions340{display:none!important}',
  '#hhLenaSmart299 .askCard:has(#hhLenaComposer340)>h2{display:block!important;color:var(--lena-ui-dark)!important;margin:1px 4px 12px!important;font-size:18px!important;line-height:1.35!important}',
  '#hhLenaSmart299 .askCard:has(#hhLenaComposer340){padding:14px!important}',
- '#hhLenaSmart299 #hhLenaComposer340{position:relative;box-sizing:border-box;width:100%;height:142px;min-height:142px;display:flex;flex-direction:column;border:2px solid var(--lena-ui-border);border-radius:28px;background:#fff;box-shadow:0 6px 24px rgba(52,88,117,.06);padding:15px 14px 10px;transition:border-color .18s,box-shadow .18s}',
+ '#hhLenaSmart299 #hhLenaComposer340{position:relative;box-sizing:border-box;width:100%;height:284px;min-height:284px;display:flex;flex-direction:column;border:2px solid var(--lena-ui-border);border-radius:28px;background:#fff;box-shadow:0 6px 24px rgba(52,88,117,.06);padding:15px 14px 10px;transition:border-color .18s,box-shadow .18s}',
  '#hhLenaSmart299 #hhLenaComposer340:focus-within{border-color:var(--lena-ui);box-shadow:0 0 0 3px color-mix(in srgb,var(--lena-ui) 12%,transparent)}',
  '#hhLenaSmart299 #hhLenaComposer340 .hhLenaInput340{position:relative;flex:1;min-height:45px}',
- '#hhLenaSmart299 #hhLenaComposer340 #hhSQ299{display:block!important;box-sizing:border-box!important;width:100%!important;height:48px!important;min-height:48px!important;max-height:71px!important;resize:none!important;overflow-y:auto!important;margin:0!important;padding:1px 3px!important;border:0!important;box-shadow:none!important;outline:0!important;background:transparent!important;font:500 17px/1.5 system-ui,sans-serif!important;color:#253d4d!important;caret-color:var(--lena-ui)!important}',
+ '#hhLenaSmart299 #hhLenaComposer340 #hhSQ299{display:block!important;box-sizing:border-box!important;width:100%!important;height:160px!important;min-height:160px!important;max-height:190px!important;resize:none!important;overflow-y:auto!important;margin:0!important;padding:1px 3px!important;border:0!important;box-shadow:none!important;outline:0!important;background:transparent!important;font:500 17px/1.5 system-ui,sans-serif!important;color:#253d4d!important;caret-color:var(--lena-ui)!important}',
  '#hhLenaSmart299 #hhLenaComposer340 #hhSQ299::placeholder{color:#667e8e;opacity:1}',
  '#hhLenaSmart299 #hhLenaComposer340 .hhLenaFakeCaret340{position:absolute;top:5px;left:84px;width:2px;height:21px;background:var(--lena-ui);pointer-events:none;display:none;animation:hhLenaCaret340 .95s steps(2,start) infinite}',
  '#hhLenaSmart299 #hhLenaComposer340:not(.has-value):not(.focused) .hhLenaFakeCaret340{display:block}',
@@ -29,14 +29,14 @@ function style(){
  '#hhLenaSmart299 #hhLenaComposer340 #hhRun299{display:grid!important;place-items:center!important;box-sizing:border-box!important;flex:0 0 42px!important;width:42px!important;height:42px!important;min-height:42px!important;padding:0 0 3px!important;border:0!important;border-radius:50%!important;background:var(--lena-ui)!important;color:white!important;box-shadow:0 3px 11px color-mix(in srgb,var(--lena-ui) 23%,transparent)!important;font:700 29px/1 system-ui,sans-serif!important}',
  '#hhLenaSmart299 #hhLenaComposer340 #hhRun299:disabled{opacity:.55!important}',
  '#hhLenaSmart299 #hhAi331Privacy{margin:8px 3px 8px!important;font-size:10px!important;color:#718391!important}',
- '#hhLenaSmart299 #hhAi331Terminal{display:none;box-sizing:border-box;width:100%;height:142px;min-height:142px;max-height:142px;overflow:hidden;border-radius:26px!important;background:#fff!important;color:var(--lena-ui-dark)!important;border:2px solid var(--lena-ui-border)!important;padding:15px!important;margin:14px 0 8px!important;box-shadow:0 5px 18px rgba(49,87,112,.055)!important;font:13px/1.6 ui-monospace,Consolas,monospace!important}',
+ '#hhLenaSmart299 #hhAi331Terminal{display:none;box-sizing:border-box;width:100%;height:284px;min-height:284px;max-height:284px;overflow:hidden;border-radius:26px!important;background:#fff!important;color:var(--lena-ui-dark)!important;border:2px solid var(--lena-ui-border)!important;padding:15px!important;margin:14px 0 8px!important;box-shadow:0 5px 18px rgba(49,87,112,.055)!important;font:13px/1.6 ui-monospace,Consolas,monospace!important}',
  '#hhLenaSmart299 #hhAi331Terminal.on{display:block!important}',
  '#hhLenaSmart299 #hhAi331Terminal .hhAi331Title{color:var(--lena-ui-dark)!important;font-size:13px!important;font-weight:800!important;margin:0 0 8px!important}',
  '#hhLenaSmart299 #hhAi331Terminal .hhAi331Cursor{background:var(--lena-ui)!important;height:15px!important}',
- '#hhLenaSmart299 #hhAi331Lines{min-height:36px;max-height:72px!important;overflow:auto!important;color:var(--lena-ui-dark)!important;font-size:13px!important;line-height:1.63!important}',
+ '#hhLenaSmart299 #hhAi331Lines{min-height:36px;max-height:202px!important;overflow:auto!important;color:var(--lena-ui-dark)!important;font-size:13px!important;line-height:1.63!important}',
  '#hhLenaSmart299 #hhAi331Lines p{margin:3px 0!important}',
  '#hhLenaSmart299 #hhAi331Answer{box-sizing:border-box;width:100%;margin-top:12px}',
- '@media(max-width:440px){#hhLenaSmart299 #hhLenaComposer340{padding:13px 12px 8px;height:142px;min-height:142px}#hhLenaSmart299 #hhAi331Terminal{padding:13px!important;height:142px;min-height:142px}}',
+ '@media(max-width:440px){#hhLenaSmart299 #hhLenaComposer340{padding:13px 12px 8px;height:284px;min-height:284px}#hhLenaSmart299 #hhAi331Terminal{padding:13px!important;height:284px;min-height:284px}}',
  '@media(prefers-reduced-motion:reduce){#hhLenaSmart299 #hhLenaComposer340 .hhLenaFakeCaret340{animation:none}}'
  ].join('');
  document.head.appendChild(s);
@@ -74,8 +74,8 @@ function tada(){
 function syncEntry(){
  var q=el('hhSQ299'),shell=el('hhLenaComposer340');if(!q||!shell)return;
  shell.classList.toggle('has-value',!!q.value);
- q.style.setProperty('height','48px','important');
- q.style.setProperty('height',Math.max(48,Math.min(q.scrollHeight,71))+'px','important');
+ q.style.setProperty('height','160px','important');
+ q.style.setProperty('height',Math.max(160,Math.min(q.scrollHeight,190))+'px','important');
 }
 function setProfile(){
  var page=el('hhLenaSmart299');if(page)page.dataset.profile=currentProfile();
