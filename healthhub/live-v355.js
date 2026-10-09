@@ -33,14 +33,15 @@ function bridgeState(p){
  if(!d)return status('yellow','Nincs regisztrált telefon vagy még nem jelentkezett');
  var st=d.status||{},last=d.lastHealthSyncAt,online=recent(d.lastSeenAt,0.75);
  var build=String(d.build||'ismeretlen'),legacy=/^0\.(?:[0-9]|10)\./.test(build);
- var app=legacy?' · Connect v'+build+' (új APK szükséges)':' · Connect v'+build;
+ var app=legacy?' · Connect v'+build+' ⚠ régi APK, 0.11.0 szükséges':' · Connect v'+build;
  var lastError=d.lastHealthError;
  if(st.state==='pending'||st.state==='running'){
   var pendingAge=age(st.updatedAt),seenSince=Number.isFinite(Date.parse(d.lastSeenAt||''))&&
    Number.isFinite(Date.parse(st.updatedAt||''))&&Date.parse(d.lastSeenAt)>=Date.parse(st.updatedAt);
   var elapsed=pendingAge>0?Math.round(pendingAge/60000):0;
   return status('yellow','Remote '+st.state+' · '+elapsed+' perce vár · '+
-   (seenSince?'telefon jelentkezett azóta':'nincs új telefon-visszajelzés')+app,st.updatedAt);
+   (seenSince?'telefon jelentkezett azóta':'nincs új telefon-visszajelzés')+
+   (last?' · Utolsó sikeres feltöltés: '+time(last):' · Nincs igazolt feltöltés')+app,st.updatedAt);
  }
  if(st.state==='partial'||st.state==='failed'||st.state==='expired')
   return status('red','Távoli parancs: '+st.state+' · '+(st.message||'ellenőrzés szükséges')+app,st.updatedAt);
@@ -134,7 +135,9 @@ function render(){
  var head=elem('div','hhCxHead355'),title=elem('div');title.append(elem('h2',null,'🛡️ Kapcsolatok & Sync Center'),elem('div','hhCxIntro355','Egy helyen minden adatút. Csak ellenőrzött siker kap zöld jelzést.'));
  var refresh=elem('button',null,loading?'🔄 Ellenőrzés…':'🔎 Összes kapcsolat ellenőrzése');
  refresh.type='button';refresh.disabled=loading;refresh.addEventListener('click',function(){checkAll(true)});
- head.append(title,refresh);panel.append(head);
+ var diagnostics=elem('button',null,'📋 Diagnosztika');
+ diagnostics.type='button';diagnostics.addEventListener('click',copyDiagnostics);
+ head.append(title,refresh,diagnostics);panel.append(head);
  var summary=elem('div','hhCxSummary355','🟢 '+greens+' ellenőrzött · 🔴 '+reds+' hibás/leválasztott · 🟠 '+(rows.length-greens-reds)+' ellenőrzésre vár · profil: '+name(profile()));
  panel.append(summary);
  var list=elem('div','hhCxRows355');
@@ -155,34 +158,30 @@ function render(){
 }
 function message(s){lastMessage=String(s||'');var x=el('hhCxResult355');if(x)x.textContent=lastMessage}
 async function checkDropbox(){
- if(!connected()){
-  probeState='red';probeAt=Date.now();probeError='nincs csatlakoztatott munkamenet';return false;
- }
+ if(!connected()){probeState='red';probeAt=Date.now();probeError='Nincs aktív Dropbox-bejelentkezés';return false}
+ var v=vault(),fileError=null;
+ // Exercise the exact READ endpoint used for HealthHub data.
+ // A metadata/list scope failure does not mean the cloud file is inaccessible.
  try{
-  var v=vault(),token=await v.accessToken();
-  if(!token)throw Error('Nincs érvényes Dropbox token');
-  // Test precisely the file API used by HealthHub. The account-info endpoint
-  // can lack account_info.read permission even with perfectly working files.
-  var res=await fetch('https://api.dropboxapi.com/2/files/list_folder',{
+  if(!v||typeof v.downloadJson!=='function')throw Error('Dropbox fájlletöltés modul hiányzik');
+  var manifest=await v.downloadJson('/HealthHub/master/manifest.json');
+  if(!manifest||typeof manifest!=='object'||Array.isArray(manifest))throw Error('A manifest tartalma nem használható JSON');
+  probeState='green';probeAt=Date.now();probeError='';return true;
+ }catch(e){fileError=e}
+ try{
+  var token=await v.accessToken();if(!token)throw Error('Nincs hozzáférési token');
+  var r=await fetch('https://api.dropboxapi.com/2/files/list_folder',{
    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
    body:JSON.stringify({path:'',recursive:false,limit:1}),cache:'no-store'
   });
-  if(!res.ok){
-   var json={};try{json=await res.json()}catch(e){}
-   var err=Error('HTTP '+res.status+(json.error_summary?' · '+String(json.error_summary).slice(0,110):''));
-   err.status=res.status;throw err;
-  }
-  var data=await res.json();
-  if(!data||!Array.isArray(data.entries))throw Error('A Dropbox fájllista válasza érvénytelen');
-  probeState='green';probeAt=Date.now();probeError='';return true;
+  var j={};try{j=await r.json()}catch(e){}
+  if(r.ok&&Array.isArray(j.entries)){probeState='green';probeAt=Date.now();probeError='';return true}
+  var err=Error('HTTP '+r.status+(j.error_summary?' · '+String(j.error_summary).slice(0,90):''));
+  err.status=r.status;throw err;
  }catch(e){
-  probeError=String(e.message||e).slice(0,160);
-  // Network / OAuth scope / API errors need investigation, not a false
-  // categorical "Dropbox disconnected" when other file syncs still work.
-  probeState=e.status===401?'red':'yellow';
-  probeAt=Date.now();
-  message('Dropbox fájl-API ellenőrzés: '+probeError);
-  return false;
+  probeError=('Fájl: '+String(fileError&&fileError.message||fileError).slice(0,90)+' | Lista: '+String(e.message||e)).slice(0,195);
+  probeState=e.status===401?'red':'yellow';probeAt=Date.now();
+  message('Dropbox ellenőrzés: '+probeError);return false;
  }
 }
 async function checkSupa(){
@@ -245,6 +244,26 @@ async function reconnect(id){
   }
  }catch(e){message('⚠️ '+String(e.message||e));if(id.indexOf('phone-')!==0)update(id,false,String(e.message||e))}
  finally{busy[id]=false;await checkDevices();render()}
+}
+function diagnosticText(){
+ var rows=connectionRows(),lines=[
+  'HealthHub Connections · v357 · '+new Date().toISOString(),
+  'Aktív profil: '+name(profile()),
+  'Dropbox fájlpróba: '+probeState+(probeError?' · '+probeError:''),
+  'Személyes mérést, hozzáférési tokent a jelentés nem tartalmaz.'
+ ];
+ rows.forEach(function(r){lines.push(r.label+' | '+r.state.status+' | '+r.state.text+' | '+(r.state.at||'nincs időpont'))});
+ if(deviceError)lines.push('Eszközlista hiba: '+deviceError.slice(0,150));
+ return lines.join('\n');
+}
+async function copyDiagnostics(){
+ var info=diagnosticText();
+ try{
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+   await navigator.clipboard.writeText(info);
+   message('📋 A kapcsolatdiagnosztikát a vágólapra másoltam.');
+  }else message('📋 Kapcsolatdiagnosztika:\n'+info);
+ }catch(e){message('📋 Kapcsolatdiagnosztika:\n'+info)}
 }
 function install(){
  var ov=el('haOv');if(!ov){setTimeout(install,500);return}
