@@ -308,6 +308,8 @@ function logSource(data){
 }
 function errorText(code,status){
  if(status===404)return 'Az AI-kiszolgáló még nincs telepítve. Nem állítom, hogy kutatás történt.';
+ if(code==='invalid_photo_or_consent')return 'A fotóhoz hiányzik a jóváhagyás, vagy a kép nem megfelelő formátumú. Csatold újra a fényképet.';
+ if(code==='request_too_large')return 'A kép túl nagy az AI-kiszolgáló számára. Próbálj kisebb fotót csatolni.';
  if(status===401||code==='login_required')return 'Jelentkezz be a Központi Health Vaultba, hogy a személyes AI-kutatás biztonságosan elindulhasson.';
  if(status===403||code==='forbidden_profile')return 'Ehhez a profilhoz nincs igazolt hozzáférés. Nincs adatküldés.';
  if(status===429||code==='rate_limit')return 'Óránként legfeljebb 20 AI-kutatás indítható.';
@@ -354,9 +356,17 @@ async function run(opts){
   var extra=addExtra(ctx,question),data=simplify(report,extra);
   data.depth=deep?'detailed':'standard';
   data.question=question;
+  var camera=window.HH_ASK_LENA_PHOTO_V353;
+  var shot=camera&&camera.get?camera.get(p):null;
+  if(shot){
+   if(!shot.approved)throw Error('A fényképes elemzéshez egyszeri hozzájárulás szükséges. Nyisd meg a kamera menüt.');
+   data.photo={mime:'image/jpeg',base64:shot.base64};
+   data.photoConsent=true;
+   print('📷 Engedélyezett fotó előkészítése az AI-feldolgozáshoz…');
+  }
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
-  print('A kérdés elemzése és a válasz készítése…');
+  print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
   var response=await svc.stream('/functions/v1/smooth-endpoint',data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
@@ -378,7 +388,7 @@ async function run(opts){
     if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
     return;
    }
-   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
+   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
