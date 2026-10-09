@@ -27,7 +27,7 @@ object OrchestratorScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             PERIODIC,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
             req
         )
     }
