@@ -58,7 +58,7 @@ function collect(question,forcedProfile){
  var c=null;try{if(window.hhGetLenaHealthContext289)c=window.hhGetLenaHealthContext289(p)}catch(e){}
  if(!c)c=read(CACHE+p);
  // Prevent accidentally mixing two profiles after an asynchronous profile change.
- if(c&&c.profile&&profile(c.profile)!==p)c=null;
+ if(c&&c.profile){var actual=c.profile==='m'?'monika':c.profile==='z'?'zsolt':c.profile;if(actual!==p)c=null;}
  var sources=[],at=c&&c.generatedAt||null;
  var local=read(SYM),events=arr(local&&local.events).filter(function(x){return x&&x.profile===p&&!x.deletedAt&&epoch(x.eventAt)!=null})
   .sort(function(a,b){return epoch(b.eventAt)-epoch(a.eventAt)});
