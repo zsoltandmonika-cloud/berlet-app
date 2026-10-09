@@ -85,4 +85,5 @@ function mount(target){
 }
 window.HH_PRIVATE_DAILY_AI_V321={mount:mount,refresh:function(){return load(true)}};
 window.addEventListener('healthhub:central-auth-changed',function(){loadedDay='';lastLoad=0;load(true)});
+setTimeout(function(){if(window.HH_DAILY_HEALTH_V312&&window.HH_DAILY_HEALTH_V312.render)window.HH_DAILY_HEALTH_V312.render()},0);
 })();
