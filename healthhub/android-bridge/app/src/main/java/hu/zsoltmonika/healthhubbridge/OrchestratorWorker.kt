@@ -134,7 +134,11 @@ class OrchestratorWorker(
         if (HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND !in granted) {
             error("Hiányzik a háttérben olvasás engedélye")
         }
-        val json = HealthConnectExporter(client).export(owner)
+        val exporter = HealthConnectExporter(client)
+        val json = exporter.export(owner)
+        if (!exporter.hasUsefulData(json)) {
+            error("Nincs tényleges Health Connect-adat; az előző Dropbox-fájl érintetlen. " + exporter.countSummary(json))
+        }
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
         DropboxVaultClient.uploadText(
