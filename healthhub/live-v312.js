@@ -214,6 +214,7 @@ function render(){
  var disclaimer='A környezeti figyelmeztetések automatikusan készülnek, a külön jelzett AI-szöveg valós modellhívás eredménye lehet. Nem diagnózis. Gyógyszert ne kezdjetek, ne emeljetek és ne módosítsatok ilyen jelzés alapján.';
  box.outerHTML='<div id="dh312Content">'+
  '<div class="dh312Card"><h2>☀️ Mai helyzet · '+esc(d)+'</h2><p>'+(!available?'⚪ Most nincs megbízhatóan friss forrásadat.':warn.length?'🟡 '+warn.length+' figyelmet érdemlő jelzés.':'🟢 Nincs kiemelt környezeti figyelmeztetés.')+'</p><div class="dh312Meta">'+esc(x.source)+(x.generatedAt?' · automatikus reggeli frissítés: '+esc(String(x.generatedAt).slice(11,16)):' · frissül az alkalmazás megnyitásakor')+'</div></div>'+
+ '<div class="dh312Card"><h2>🔐 Személyes Daily Health AI · privát jelentések</h2><div id="hhPrivateDailyAi321"><p>Bejelentkezés után megjelennek az engedélyezett személyes jelentések.</p></div></div>'+
  '<div class="dh312Card"><h2>🧠 Léna AI · Mai egészségügyi összefoglaló</h2>'+aiBlock+'</div>'+
  '<div class="dh312Card"><h2>🌦️ Környezeti tényezők</h2><div class="dh312List">'+sourceInfo(x).map(function(s){return '<div>'+s+'</div>'}).join('')+'</div></div>'+
  '<div class="dh312Card"><h2>⚠️ Figyelmeztetések és javaslatok</h2>'+detail+'</div>'+
@@ -221,6 +222,7 @@ function render(){
  '<div class="dh312Card"><h2>⚙️ Személyes emlékeztetők</h2><p>Az egyéni egészségügyi tényezőket és figyelési beállításokat külön, profilváltós oldalon kezelhetitek.</p><button id="dh312OpenSettings" class="dh312Btn" type="button">⚙️ Beállítások megnyitása</button><p class="dh312Meta">Helyi, nem titkosított tárolás · automatikus személyes AI-adatküldés nincs.</p></div>'+
  '<div class="dh312Card"><h2>🤖 Kérdezd Lénát</h2><p>Külön indítható AI-kutatás a meglévő Ask Léna felületen. A tényleges AI-elemzéshez saját jóváhagyásod szükséges.</p><button id="dh312Ask" class="dh312Btn" type="button">🧠 Elemzés indítása Lénával</button><button id="dh312Refresh" class="dh312Btn secondary" type="button">🔄 Környezeti adatok frissítése</button></div>'+
  '<div class="dh312Card"><h2>📅 Korábbi reggelek</h2><p class="dh312Meta">'+(read(ARCHIVE,[]).slice(1,8).map(function(v){return esc(v.date)+' · '+v.warningCount+' figyelmeztetés'}).join('<br>')||'Az archívum most indul. A korábbi napok rövid összesítése ezen az eszközön marad.')+'</p><p class="dh312Foot">'+disclaimer+'</p></div></div>';
+ if(window.HH_PRIVATE_DAILY_AI_V321)window.HH_PRIVATE_DAILY_AI_V321.mount(el('hhPrivateDailyAi321'));
  el('dh312OpenSettings').onclick=function(){
   if(typeof window.hhOpenDailyHealthSettings317==='function')window.hhOpenDailyHealthSettings317();
   else window.alert('Az egészségügyi beállítások még betöltés alatt vannak.');
