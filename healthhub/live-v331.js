@@ -82,14 +82,24 @@ function setAnswerProfile(p){
 function renderAnswerText(raw){
  var host=el('hhAi331Text');if(!host)return;
  var frag=document.createDocumentFragment(),para=null,list=null;
+ function appendMeasured(node,chunk){
+  var rx=/\d{4}[.\/-]\d{1,2}[.\/-]\d{1,2}|\d{2,3}\/\d{2,3}(?:\s*(?:Hgmm|mmHg))?|\d+(?:[.,]\d+)?\s*(?:kg|hPa|mmol\/L|mmHg|Hgmm|%|°C|\/perc|perc)/gi;
+  var match,start=0;
+  while((match=rx.exec(chunk))){
+   if(match.index>start)node.appendChild(document.createTextNode(chunk.slice(start,match.index)));
+   var metric=document.createElement('strong');metric.className='hhLenaMetric';
+   metric.textContent=match[0];node.appendChild(metric);start=rx.lastIndex;
+  }
+  if(start<chunk.length)node.appendChild(document.createTextNode(chunk.slice(start)));
+ }
  function addFormatted(node,value){
   var pattern=/\*\*([^*\n]+)\*\*/g,m,start=0;
   while((m=pattern.exec(value))){
-   node.appendChild(document.createTextNode(value.slice(start,m.index)));
+   appendMeasured(node,value.slice(start,m.index));
    var b=document.createElement('strong');b.textContent=m[1];node.appendChild(b);
    start=pattern.lastIndex;
   }
-  node.appendChild(document.createTextNode(value.slice(start)));
+  appendMeasured(node,value.slice(start));
  }
  var normalized=String(raw||'').slice(0,7000).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
