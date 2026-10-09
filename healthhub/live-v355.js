@@ -2,7 +2,7 @@
 'use strict';
 // v355: one Admin connection dashboard. A green icon requires observed success;
 // saved credentials or an enabled scheduler alone do not prove online status.
-var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='';
+var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='',probeError='';
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -29,15 +29,30 @@ function bridge(p){
 }
 function bridgeState(p){
  if(!connected())return status('red','Dropbox nem elérhető');
- var d=bridge(p);if(!d)return status('yellow','Nincs regisztrált telefon vagy még nem jelentkezett');
- var last=d.lastHealthSyncAt,online=recent(d.lastSeenAt,0.75);
- var st=d.status||{},lastError=d.lastHealthError;
- if(st.state==='pending'||st.state==='running')return status('yellow','Remote sync: '+st.state+(online?' · telefon jelentkezett':''),st.updatedAt);
- if(st.state==='partial'||st.state==='failed')return status('red',st.message||'Remote sync hiba',st.updatedAt);
- if(lastError&&!recent(last,8))return status('red',lastError,last);
- if(recent(last,8))return status('green',(online?'Telefon elérhető · ':'Utolsó feltöltés rendben · ')+(d.lastHealthSummary||'Mért adatok feltöltve'),last);
- if(last)return status('yellow','Régebbi feltöltés · '+(online?'telefon jelentkezett':'telefon régen jelentkezett'),last);
- return status('yellow',online?'Telefon jelentkezett, de adatfeltöltés még nem igazolt':'Várakozás a telefonra');
+ var d=bridge(p);
+ if(!d)return status('yellow','Nincs regisztrált telefon vagy még nem jelentkezett');
+ var st=d.status||{},last=d.lastHealthSyncAt,online=recent(d.lastSeenAt,0.75);
+ var build=String(d.build||'ismeretlen'),legacy=/^0\.(?:[0-9]|10)\./.test(build);
+ var app=legacy?' · Connect v'+build+' (új APK szükséges)':' · Connect v'+build;
+ var lastError=d.lastHealthError;
+ if(st.state==='pending'||st.state==='running'){
+  var pendingAge=age(st.updatedAt),seenSince=Number.isFinite(Date.parse(d.lastSeenAt||''))&&
+   Number.isFinite(Date.parse(st.updatedAt||''))&&Date.parse(d.lastSeenAt)>=Date.parse(st.updatedAt);
+  var elapsed=pendingAge>0?Math.round(pendingAge/60000):0;
+  return status('yellow','Remote '+st.state+' · '+elapsed+' perce vár · '+
+   (seenSince?'telefon jelentkezett azóta':'nincs új telefon-visszajelzés')+app,st.updatedAt);
+ }
+ if(st.state==='partial'||st.state==='failed'||st.state==='expired')
+  return status('red','Távoli parancs: '+st.state+' · '+(st.message||'ellenőrzés szükséges')+app,st.updatedAt);
+ if(st.state==='done' && Array.isArray(st.scopes)&&st.scopes.includes('health')){
+  var step=Array.isArray(st.steps)?st.steps.find(function(x){return x.id==='health'}):null;
+  if(step&&step.status==='done')return status('green','Távoli Health Connect feltöltés igazolva'+app,st.completedAt||st.updatedAt);
+  return status('yellow','Parancs lezárult, de sikeres Health Connect feltöltés nincs igazolva'+app,st.completedAt||st.updatedAt);
+ }
+ if(lastError&&!recent(last,8))return status('red',lastError+app,last);
+ if(recent(last,8))return status('green',(online?'Telefon elérhető':'Utolsó feltöltés rendben')+' · '+(d.lastHealthSummary||'Mért adatok feltöltve')+app,last);
+ if(last)return status('yellow','Régebbi feltöltés'+app,last);
+ return status('yellow',(online?'Telefon jelentkezett, mérésfeltöltés nem igazolt':'Telefon-visszajelzésre vár')+app,d.lastSeenAt);
 }
 function masterState(){
  if(!connected())return status('red','Dropbox nincs csatlakoztatva');
@@ -65,7 +80,9 @@ function supaState(){
 }
 function connectionRows(){
  var p=profile(),is=connected(),dropStatus=probeState==='green'&&recent(probeAt,1)?status('green','Dropbox API válaszolt',new Date(probeAt).toISOString()):
-  probeState==='red'?status('red','A kapcsolatellenőrzés sikertelen'):is?status('yellow','Munkamenet megvan; még nem ellenőrzött'):status('red','Nincs aktív Dropbox munkamenet');
+  probeState==='red'?status('red','Dropbox fájl-API elutasította a kérést: '+probeError,new Date(probeAt).toISOString()):
+  probeState==='yellow'?status('yellow','Dropbox fájl-API ellenőrzés bizonytalan: '+probeError,new Date(probeAt).toISOString()):
+  is?status('yellow','Munkamenet megvan; még nem ellenőrzött'):status('red','Nincs aktív Dropbox munkamenet');
  var healthImport=cachedState('health-'+p,'Health + Activity',is);
  var x=window.hhMasterStructuredSyncState304&&window.hhMasterStructuredSyncState304();
  return [
@@ -138,14 +155,35 @@ function render(){
 }
 function message(s){lastMessage=String(s||'');var x=el('hhCxResult355');if(x)x.textContent=lastMessage}
 async function checkDropbox(){
- if(!connected()){probeState='red';probeAt=Date.now();return false}
+ if(!connected()){
+  probeState='red';probeAt=Date.now();probeError='nincs csatlakoztatott munkamenet';return false;
+ }
  try{
   var v=vault(),token=await v.accessToken();
   if(!token)throw Error('Nincs érvényes Dropbox token');
-  var res=await fetch('https://api.dropboxapi.com/2/users/get_current_account',{method:'POST',headers:{Authorization:'Bearer '+token},cache:'no-store'});
-  if(!res.ok)throw Error('Dropbox API HTTP '+res.status);
-  probeState='green';probeAt=Date.now();return true;
- }catch(e){probeState='red';probeAt=Date.now();message('Dropbox ellenőrzés: '+String(e.message||e));return false}
+  // Test precisely the file API used by HealthHub. The account-info endpoint
+  // can lack account_info.read permission even with perfectly working files.
+  var res=await fetch('https://api.dropboxapi.com/2/files/list_folder',{
+   method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+   body:JSON.stringify({path:'',recursive:false,limit:1}),cache:'no-store'
+  });
+  if(!res.ok){
+   var json={};try{json=await res.json()}catch(e){}
+   var err=Error('HTTP '+res.status+(json.error_summary?' · '+String(json.error_summary).slice(0,110):''));
+   err.status=res.status;throw err;
+  }
+  var data=await res.json();
+  if(!data||!Array.isArray(data.entries))throw Error('A Dropbox fájllista válasza érvénytelen');
+  probeState='green';probeAt=Date.now();probeError='';return true;
+ }catch(e){
+  probeError=String(e.message||e).slice(0,160);
+  // Network / OAuth scope / API errors need investigation, not a false
+  // categorical "Dropbox disconnected" when other file syncs still work.
+  probeState=e.status===401?'red':'yellow';
+  probeAt=Date.now();
+  message('Dropbox fájl-API ellenőrzés: '+probeError);
+  return false;
+ }
 }
 async function checkSupa(){
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
@@ -178,8 +216,8 @@ async function reconnect(id){
    if(!connected()){
     var connectFn=v&&(v.connect||v.authorize||v.signIn||v.startLogin);
     if(typeof connectFn==='function'){await connectFn.call(v);message('Dropbox hitelesítés elindítva. A siker után ellenőrizd újra.')}
-    else message('Dropbox nincs csatlakoztatva. Az Admin Dropbox kapcsolat gombjával engedélyezd újra; innen nem lehet jogosultságot kényszeríteni.');
-   }else{if(await checkDropbox())message('✅ Dropbox kapcsolat ellenőrizve.')}
+    else message('A Dropbox jogosultság lejárhatott. Az Admin Dropbox-kapcsolat gombjával újra engedélyezheted.');
+   }else{if(await checkDropbox())message('✅ Dropbox fájlhozzáférés ellenőrizve. Nem kell újracsatlakoztatni.');}
   }else if(id.indexOf('phone-')===0){
    var target=id.slice(6),device=bridge(target);
    if(!connected())throw Error('A távoli parancshoz aktív Dropbox Vault kell.');
