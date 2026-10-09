@@ -47,7 +47,7 @@ function ui(){
  btn.title='Valódi, hitelesített AI-válasz. Csak külön adatkezelési jóváhagyással.';
  var actions=btn.closest('.askActions');if(!actions)return;
  var consent=document.createElement('label');consent.id='hhAi331Consent';
- consent.innerHTML='<input type="checkbox" id="hhAi331Opt"><span><b>Egyszeri AI-hozzájárulás</b><br>A kiválasztott profil releváns méréseit, alvását, aktivitását, gyógyszereit, tüneteit és helyi lelet-metaadatait a védett AI-szolgáltatás elemzi. Az eredeti PDF-eket nem küldöm el. A kérdés és a válasz nem kerül nyilvános GitHub-fájlba. A válaszadás külső AI-feldolgozással jár.</span>';
+ consent.innerHTML='<input type="checkbox" id="hhAi331Opt"><span><b>Egyszeri AI-hozzájárulás</b><br>A kiválasztott profil rögzített alapadatait, méréseit, alvását, aktivitását, tünetnaplóját, gyógyszereit, leletindexét és elmentett leletmagyarázatait a védett AI-szolgáltatás elemzi. Az eredeti PDF-eket nem küldöm el. A kérdés és a válasz nem kerül nyilvános GitHub-fájlba. A válaszadás külső AI-feldolgozással jár.</span>';
  actions.parentNode.insertBefore(consent,actions);
  var term=document.createElement('section');term.id='hhAi331Terminal';term.setAttribute('role','status');term.setAttribute('aria-live','polite');
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
