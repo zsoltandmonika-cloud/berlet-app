@@ -2,7 +2,7 @@
 'use strict';
 // v355: one Admin connection dashboard. A green icon requires observed success;
 // saved credentials or an enabled scheduler alone do not prove online status.
-var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='',probeError='',healthEvidence={zsolt:null,monika:null};
+var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='',probeError='',probeEvidence='',healthEvidence={zsolt:null,monika:null};
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -80,7 +80,7 @@ function supaState(){
  return status('yellow','Bejelentkezve · AI végpont ellenőrzésre vár');
 }
 function connectionRows(){
- var p=profile(),is=connected(),dropStatus=probeState==='green'&&recent(probeAt,1)?status('green','Dropbox API válaszolt',new Date(probeAt).toISOString()):
+ var p=profile(),is=connected(),dropStatus=probeState==='green'&&recent(probeAt,1)?status('green','Dropbox fájlhozzáférés igazolt · '+(probeEvidence||'API sikeres'),new Date(probeAt).toISOString()):
   probeState==='red'?status('red','Dropbox fájl-API elutasította a kérést: '+probeError,new Date(probeAt).toISOString()):
   probeState==='yellow'?status('yellow','Dropbox fájl-API ellenőrzés bizonytalan: '+probeError,new Date(probeAt).toISOString()):
   is?status('yellow','Munkamenet megvan; még nem ellenőrzött'):status('red','Nincs aktív Dropbox munkamenet');
@@ -171,7 +171,7 @@ async function checkDropbox(){
   if(!v||typeof v.downloadJson!=='function')throw Error('Dropbox fájlletöltés modul hiányzik');
   var manifest=await v.downloadJson('/HealthHub/master/manifest.json');
   if(!manifest||typeof manifest!=='object'||Array.isArray(manifest))throw Error('A manifest tartalma nem használható JSON');
-  probeState='green';probeAt=Date.now();probeError='';return true;
+  probeState='green';probeAt=Date.now();probeError='';probeEvidence='master manifest beolvasva';return true;
  }catch(e){fileError=e}
  try{
   var token=await v.accessToken();if(!token)throw Error('Nincs hozzáférési token');
@@ -180,7 +180,7 @@ async function checkDropbox(){
    body:JSON.stringify({path:'',recursive:false,limit:1}),cache:'no-store'
   });
   var j={};try{j=await r.json()}catch(e){}
-  if(r.ok&&Array.isArray(j.entries)){probeState='green';probeAt=Date.now();probeError='';return true}
+  if(r.ok&&Array.isArray(j.entries)){probeState='green';probeAt=Date.now();probeError='';probeEvidence='Dropbox fájllista válaszolt';return true}
   var err=Error('HTTP '+r.status+(j.error_summary?' · '+String(j.error_summary).slice(0,90):''));
   err.status=r.status;throw err;
  }catch(e){
@@ -242,6 +242,7 @@ async function checkHealthBoth(){
  await Promise.all(['zsolt','monika'].map(checkHealthProfile));
  if(probeState!=='green'&&Object.values(healthEvidence).some(function(x){return x&&x.ok})){
   probeState='green';probeAt=Date.now();probeError='';
+  probeEvidence='valódi Health Connect adatcsomag visszaolvasva';
  }
 }
 
@@ -253,8 +254,16 @@ async function checkSupa(){
 }
 async function checkDevices(){
  if(!connected()||typeof window.hhOrchestratorDevices305!=='function'){devices=[];return}
- try{devices=await window.hhOrchestratorDevices305();deviceError='';lastRefresh=Date.now()}
- catch(e){deviceError=String(e.message||e);devices=[]}
+ try{
+  var observed=await window.hhOrchestratorDevices305();
+  if(!Array.isArray(observed))throw Error('Érvénytelen eszközlista-válasz');
+  devices=observed;deviceError='';lastRefresh=Date.now();
+  // The orchestrator list uses authenticated Dropbox file APIs and downloads
+  // the registered device documents. This is a real connection proof even
+  // when an optional master manifest or list of root files is inaccessible.
+  probeState='green';probeAt=Date.now();probeError='';
+  probeEvidence='orchestrátor-eszközlista sikeresen beolvasva';
+ }catch(e){deviceError=String(e.message||e);devices=[]}
 }
 async function checkAll(force){
  if(loading)return;loading=true;render();
@@ -310,7 +319,7 @@ function diagnosticText(){
  var rows=connectionRows(),lines=[
   'HealthHub Connections · v357 · '+new Date().toISOString(),
   'Aktív profil: '+name(profile()),
-  'Dropbox fájlpróba: '+probeState+(probeError?' · '+probeError:''),
+  'Dropbox fájlpróba: '+probeState+(probeEvidence?' · '+probeEvidence:'')+(probeError?' · '+probeError:''),
   'Health Connect fájl (Zsolt): '+(healthEvidence.zsolt&&healthEvidence.zsolt.ok?'érvényes · '+time(healthEvidence.zsolt.exportedAt):healthEvidence.zsolt&&healthEvidence.zsolt.error||'nem ellenőrzött'),
   'Health Connect fájl (Mónika): '+(healthEvidence.monika&&healthEvidence.monika.ok?'érvényes · '+time(healthEvidence.monika.exportedAt):healthEvidence.monika&&healthEvidence.monika.error||'nem ellenőrzött'),
   'Személyes mérést, hozzáférési tokent a jelentés nem tartalmaz.'
