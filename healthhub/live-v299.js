@@ -62,11 +62,11 @@ function markup(){
   '<div id="askInlineFeedback325" class="askInlineFeedback" role="status" aria-live="polite"></div>'+
   '<button type="button" class="askKeyboard" id="askKeyboard324">⌨️ Inkább a telefon billentyűzetével diktálok</button>'+
   '<p class="askHint" id="askSpeech323" role="status"></p>'+
-  '<label class="askConsent"><input type="checkbox" id="askConsent323"><span>Engedélyezem, hogy a kiválasztott profil releváns egészségügyi forrásai és a kutatásból származó válaszcsomag a saját Google Drive-területemen tárolódjanak a ChatGPT-átadáshoz. A ChatGPT-ben történő további feldolgozást külön indítom.</span></label>'+
+  '<label class="askConsent"><input type="checkbox" id="askConsent323"><span><b>Opcionális kórlap-kutatás:</b> engedélyezem, hogy a kiválasztott profil releváns eredeti leletei és a leletalapú forráscsomag a saját Google Drive-területemen tárolódjanak a kézi ChatGPT-átadáshoz. A HealthHub-mérésekből készülő helyi Léna-válaszhoz ez nem szükséges.</span></label>'+
   '<div class="askProgress" id="hhProg299" role="status" aria-live="polite"><h3 id="hhStep299">Várakozás…</h3><div class="askBar"><i></i></div><span id="hhTxt299"></span>'+
   '<div class="askMore" id="askMore323"><button type="button" class="askBtn" id="askCopy323">📋 Handoff-utasítás másolása</button>'+
   '<button type="button" class="askBtn askBtnMain" id="askChat323">↗ ChatGPT megnyitása</button><button type="button" class="askBtn askBtnMain" id="askGeneric327" style="display:none">📋 Kérdés másolása a ChatGPT-hez</button></div></div></div>'+
-  '<div class="askCard"><h2>🔎 RAG · kutatási készültség <span id="askOverall323" class="askBadge warn">Ellenőrzés alatt</span></h2>'+
+  '<div class="askCard"><h2>📁 Kórlap-kutatás · opcionális <span id="askOverall323" class="askBadge warn">Ellenőrzés alatt</span></h2>'+
   '<p class="askHint">A RAG itt a helyi egészségügyi dokumentum-indexből kiválasztott, majd Google Drive-ból ténylegesen beolvasott forrásokra épül. A zöld jelzés csak ellenőrzött hozzáférést jelent, nem azt, hogy minden lelet teljes vagy az AI már megnyílt.</p>'+
   '<div id="askChecks323" class="askChecks"></div>'+
   '<div class="askActions"><button type="button" class="askBtn" id="askRefresh323">↻ Állapot frissítése</button>'+
@@ -271,14 +271,15 @@ async function run(){
   // v328: collect and display the eight available HealthHub data sources first.
   // This independent, on-device preview makes the Kutatás button useful even
   // when no question-specific original PDF exists; the legacy RAG is unchanged.
+  var preview=null;
   if(window.HH_LENA_CONTEXT_BRIDGE_V328&&typeof window.HH_LENA_CONTEXT_BRIDGE_V328.run==='function'){
-   await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
+   preview=await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
   }
+  if(!preview||preview.profile!==p)throw Error('A profilhoz tartozó Intelligence adatellenőrzés nem készült el. Ellenőrizd a nyolc adatforrás paneljét.');
   if(pk()!==p)throw Error('Profilváltás történt a kutatás közben. Az új aktív profilnál indítsd újra; személyes adatokat nem keverünk.');
-  status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
-  await window.hhRefreshLenaHealthContext289(p,'ask-lena-v323');
+  status('1/6 · Health Context','A profil méréseit és naplóit ellenőriztem.',8,'');
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
-  var report=window.HH_LENA_CONTEXT_BRIDGE_V328&&window.HH_LENA_CONTEXT_BRIDGE_V328.getLast();
+  var report=preview;
   if(!report||report.profile!==p)throw Error('Nem sikerült a HealthHub adatait ellenőrizni. Futtasd újra az Intelligence adatellenőrzést.');
   if(typeof window.HH_LENA_LOCAL_ANSWER_V329!=='object')throw Error('Nem töltődött be a Léna javaslata modul.');
   window.HH_LENA_LOCAL_ANSWER_V329.show(report,question);
