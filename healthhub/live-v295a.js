@@ -41,7 +41,13 @@ var DOMAINS=[
  {id:'ortho',label:'mozgásszervi',kw:['ortoped','reuma','vall','ujj','izulet','fajdalom'],cats:['orthopedics','rheumatology'],src:['documents','medications']}
 ];
 var STOP=new Set(['hogy','miert','mikor','volt','van','most','es','vagy','egy','az','a','de','is','meg','mit','milyen','monika','zsolt','nekem','neki','szerint','lehet','tudod','nezd','megnezned','kerlek']);
-function tokens(q){return norm(q).split(' ').filter(function(x){return x.length>2&&!STOP.has(x)})}
+function tokens(q){
+ var n=norm(q),t=n.split(' ').filter(function(x){return x.length>2&&!STOP.has(x)});
+ // Hungarian colloquial symptom: "fáj a fejem" vs indexed "fejfájás".
+ // Boost only head-related terms, never arbitrary "pain" documents.
+ if(/\b(fejem|fej|fejfaj\w*|migren\w*)\b/.test(n)&&!t.includes('fej'))t.push('fej');
+ return t;
+}
 function detectProfile(q,f){var n=norm(q);if(/\bmonika\b/.test(n))return'monika';if(/\bzsolt\b/.test(n))return'zsolt';return pk(f)}
 function domains(q){var n=norm(q),out=[];DOMAINS.forEach(function(d){var hit=d.kw.filter(function(k){return n.indexOf(k)>=0}).length;if(hit)out.push({id:d.id,label:d.label,score:hit,cats:d.cats,src:d.src})});return out.sort(function(a,b){return b.score-a.score})}
 function inRange(d,t){if(!d)return t.mode==='all';if(t.from&&String(d)<t.from)return false;if(t.to&&String(d)>t.to)return false;return true}
