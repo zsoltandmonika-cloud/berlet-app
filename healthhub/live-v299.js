@@ -465,7 +465,7 @@ function micStartRecognizer353(){
    // Bound retries: no infinite hot-mic loop, even on a broken browser.
    var stillWaiting=!micCollected&&empty<26000;
    var continuing=!!micCollected&&elapsed<90000&&empty<16000;
-   if(elapsed<90000&&(stillWaiting||continuing)&&micRestarts<12){
+   if(elapsed<90000&&(stillWaiting||continuing)&&micRestarts<28){
     micRestarts++;
     micNotify('retry',stillWaiting?'🎙️ Még várok rád, nem kell sietned…':'🎙️ Folytathatod, figyelek…');
     micRestartTimer=setTimeout(function(){
@@ -473,7 +473,7 @@ function micStartRecognizer353(){
         el(PAGE)&&el(PAGE).classList.contains('on')&&pk()===micQuestionProfile){
        micStartRecognizer353();
      }else if(micSessionActive){micStop353()}
-    },Math.min(1200,380+micRestarts*90));
+    },Math.min(1500,800+micRestarts*90));
     return;
    }
    var finish=micCollected?'✅ A diktálás véget ért. Ellenőrizd a szöveget, majd küldd el.':
@@ -484,7 +484,7 @@ function micStartRecognizer353(){
  }catch(e){
   if(rec===r)rec=null;
   if(micSessionActive){
-   if(micRestarts<12&&Date.now()-micSessionStart<26000){
+   if(micRestarts<28&&Date.now()-micSessionStart<26000){
     micRestarts++;micRestartTimer=setTimeout(function(){if(micSessionActive)micStartRecognizer353()},900);
    }else micStop353('⚠️ A telefon hangfelismerője nem indult. Használd a billentyűzet mikrofonját.');
   }
