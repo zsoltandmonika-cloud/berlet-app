@@ -50,7 +50,7 @@ assert.equal(z.sources[0].entries.length,1,'Unrelated back pain must not count a
 assert.equal(z.sources[0].entries[0].name,'Fejfájás');
 assert(z.sources[1].entries.some(x=>x.name==='Vérnyomás'&&x.value==='124/81'));
 assert(z.sources[2].entries.some(x=>x.name==='Legutóbbi alvás'&&x.value==='350'));
-assert(z.sources[3].entries.some(x=>x.name==='Legutóbbi napi lépésszám'&&x.value==='4 200'||x.value==='4200'));
+assert(z.sources[3].entries.some(x=>x.name==='Legutóbbi napi lépésszám'&&x.value.replace(/\s/g,'')==='4200'));
 assert(z.sources[4].entries.some(x=>x.name==='Légnyomás'&&x.value==='1012'));
 assert(z.sources[6].entries.some(x=>x.name==='Rögzített gyógyszer'));
 assert(z.sources[7].entries.some(x=>x.name==='Indexelt leletek'));
