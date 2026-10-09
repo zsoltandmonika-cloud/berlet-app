@@ -62,11 +62,11 @@ function markup(){
   '<div id="askInlineFeedback325" class="askInlineFeedback" role="status" aria-live="polite"></div>'+
   '<button type="button" class="askKeyboard" id="askKeyboard324">⌨️ Inkább a telefon billentyűzetével diktálok</button>'+
   '<p class="askHint" id="askSpeech323" role="status"></p>'+
-  '<label class="askConsent"><input type="checkbox" id="askConsent323"><span>Engedélyezem, hogy a kiválasztott profil releváns egészségügyi forrásai és a kutatásból származó válaszcsomag a saját Google Drive-területemen tárolódjanak a ChatGPT-átadáshoz. A ChatGPT-ben történő további feldolgozást külön indítom.</span></label>'+
+  '<label class="askConsent"><input type="checkbox" id="askConsent323"><span><b>Opcionális kórlap-kutatás:</b> engedélyezem, hogy a kiválasztott profil releváns eredeti leletei és a leletalapú forráscsomag a saját Google Drive-területemen tárolódjanak a kézi ChatGPT-átadáshoz. A HealthHub-mérésekből készülő helyi Léna-válaszhoz ez nem szükséges.</span></label>'+
   '<div class="askProgress" id="hhProg299" role="status" aria-live="polite"><h3 id="hhStep299">Várakozás…</h3><div class="askBar"><i></i></div><span id="hhTxt299"></span>'+
   '<div class="askMore" id="askMore323"><button type="button" class="askBtn" id="askCopy323">📋 Handoff-utasítás másolása</button>'+
   '<button type="button" class="askBtn askBtnMain" id="askChat323">↗ ChatGPT megnyitása</button><button type="button" class="askBtn askBtnMain" id="askGeneric327" style="display:none">📋 Kérdés másolása a ChatGPT-hez</button></div></div></div>'+
-  '<div class="askCard"><h2>🔎 RAG · kutatási készültség <span id="askOverall323" class="askBadge warn">Ellenőrzés alatt</span></h2>'+
+  '<div class="askCard"><h2>📁 Kórlap-kutatás · opcionális <span id="askOverall323" class="askBadge warn">Ellenőrzés alatt</span></h2>'+
   '<p class="askHint">A RAG itt a helyi egészségügyi dokumentum-indexből kiválasztott, majd Google Drive-ból ténylegesen beolvasott forrásokra épül. A zöld jelzés csak ellenőrzött hozzáférést jelent, nem azt, hogy minden lelet teljes vagy az AI már megnyílt.</p>'+
   '<div id="askChecks323" class="askChecks"></div>'+
   '<div class="askActions"><button type="button" class="askBtn" id="askRefresh323">↻ Állapot frissítése</button>'+
@@ -151,8 +151,10 @@ function refresh(){
  if(!el('askChecks323'))return;
  var p=pk(),data=checks(),o=el('askOverall323');
  var section=el(PAGE);if(section)section.dataset.profile=p;
- o.className='askBadge '+(data.ready?'good':data.checks.some(function(x){return !x.ok&&!x.maybe})?'error':'warn');
- o.textContent=data.ready?'✅ Kutatásra kész':'⚠ Ellenőrzés / előkészítés szükséges';
+ var answer=window.HH_LENA_LOCAL_ANSWER_V329&&window.HH_LENA_LOCAL_ANSWER_V329.getLast();
+ var answered=!!(answer&&answer.profile===p&&answer.question===(el('hhSQ299')?.value||'').trim());
+ o.className='askBadge '+(answered||data.ready?'good':data.checks.some(function(x){return !x.ok&&!x.maybe})?'error':'warn');
+ o.textContent=answered?'✅ Léna-válasz kész · PDF opcionális':data.ready?'✅ Leletkutatásra kész':'⚠ PDF-leletkutatás nincs előkészítve';
  el('askChecks323').innerHTML=data.checks.map(function(x){
   return '<div class="askCheck"><div class="askCheckIcon">'+(x.ok?'✅':x.maybe?'🔎':'⚠️')+'</div><div><strong>'+esc(x.label)+'</strong><span>'+esc(x.detail)+'</span></div></div>'
  }).join('');
@@ -271,39 +273,38 @@ async function run(){
   // v328: collect and display the eight available HealthHub data sources first.
   // This independent, on-device preview makes the Kutatás button useful even
   // when no question-specific original PDF exists; the legacy RAG is unchanged.
+  var preview=null;
   if(window.HH_LENA_CONTEXT_BRIDGE_V328&&typeof window.HH_LENA_CONTEXT_BRIDGE_V328.run==='function'){
-   await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
+   preview=await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
   }
+  if(!preview||preview.profile!==p)throw Error('A profilhoz tartozó Intelligence adatellenőrzés nem készült el. Ellenőrizd a nyolc adatforrás paneljét.');
   if(pk()!==p)throw Error('Profilváltás történt a kutatás közben. Az új aktív profilnál indítsd újra; személyes adatokat nem keverünk.');
-  status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
-  await window.hhRefreshLenaHealthContext289(p,'ask-lena-v323');
+  status('1/6 · Health Context','A profil méréseit és naplóit ellenőriztem.',8,'');
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
+  var report=preview;
+  if(!report||report.profile!==p)throw Error('Nem sikerült a HealthHub adatait ellenőrizni. Futtasd újra az Intelligence adatellenőrzést.');
+  if(typeof window.HH_LENA_LOCAL_ANSWER_V329!=='object')throw Error('Nem töltődött be a Léna javaslata modul.');
+  window.HH_LENA_LOCAL_ANSWER_V329.show(report,question);
   var route=window.hhRouteLenaResearch295(question,p);
   var candidates=(route?.route?.candidateDocuments||[]).filter(function(d){return d?.driveArchive?.fileId});
   if(!candidates.length){
-   var diag=route&&route.route&&route.route.retrievalReadiness||{};
-   var indexed=Number(st.docs)||0,mapped=Number(st.mapped)||0;
-   status('ℹ️ Ehhez a kérdéshez nem találtam releváns személyes leletet',
-     'A '+pn(p)+' profil dokumentumtárában '+indexed+' indexbejegyzés és '+mapped+
-     ' Drive-hivatkozás található, de a kérdéshez most '+(diag.relevantDocuments||0)+
-     ' kapcsolódó leletet találtam. Ez nem azt jelenti, hogy a Drive üres vagy a szinkron hibás. '+
-     'Általános egészségügyi kérdésként továbbviheted a ChatGPT-be, saját leletek automatikus átadása nélkül. '+
-     'A kérdés elküldése előtt te döntesz.',100,'info');
-   el('askMore323').classList.add('on');
-   el('askCopy323').style.display='none';
-   el('askChat323').style.display='none';
-   el('askGeneric327').style.display='';
+   // PDF absence cannot block a source-backed local answer.
+   status('✅ Léna javaslata elkészült',
+    'A HealthHub mérései és naplói alapján elkészült az első helyi elemzés. Kórlap nélkül is működik; az eredeti leletek kutatása csak opcionális kiegészítés.',100,'done');
+   el('askMore323').classList.remove('on');
+   var answerCard=el('hhLenaAnswer329');
+   if(answerCard)try{answerCard.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
    return;
   }
   if(!el('askConsent323').checked){
-   status('⚠ Külön hozzájárulás szükséges',
-    'Ehhez a kérdéshez találtam Drive-on archivált leletet. A személyes dokumentumok kutatásba bevonása és a forráscsomag mentése előtt jelöld be a Kutatás gomb alatti engedélyező négyzetet.',0,'fail');return;
+   status('✅ Léna javaslata elkészült · opcionális leletbővítés',
+    'A személyes mérésekből és naplókból készült helyi elemzés fent olvasható. Kapcsolódó eredeti Drive-leletek bevonásához külön hozzájárulás kell, de ez nem feltétele a helyi kutatásnak.',100,'done');return;
   }
   if(!st.ready){
    var missing=st.checks.filter(function(c){return !c.ok}).map(function(c){return c.label});
-   status('⚠ A leletalapú RAG még nincs kész',
-    'Hiányzik: '+missing.join(', ')+'. Ellenőrizd a RAG-készültségi blokkban az állapotot. '+ 
-    'Az általános ChatGPT gomb ettől függetlenül használható, saját leletek nélkül.',0,'fail');refresh();return;
+   status('✅ Léna javaslata kész · a Drive-kiegészítés még nem elérhető',
+    'A helyi elemzés elkészült. A kapcsolódó PDF-ekhez még hiányzik: '+missing.join(', ')+'. A HealthHub-mérések kutatása ettől függetlenül működik.',100,'done');
+   refresh();return;
   }
   status('3/6 · RAG · eredeti dokumentumok','A Google Drive-források szövegének olvasása.',40,'');
   var bundle=await window.hhPrepareLenaResearchBundle296(route,true);
@@ -326,8 +327,14 @@ async function run(){
   status('✅ Kutatás és RAG-forráscsomag kész',copied?'A ChatGPT-indító szöveg a vágólapon. A ChatGPT-t a gombbal nyisd meg, majd illeszd be.':'A privát handoff mentve a Drive-ba. A ChatGPT-t a gombbal nyisd meg; a Drive-csatlakozást külön ellenőrizd.',100,'done');
   el('askCopy323').style.display='';el('askMore323').classList.add('on');
  }catch(e){
-  console.error('HealthHub v323 Ask Léna',e);
-  status('⚠ A kutatás megállt',String(e?.message||e),100,'fail');
+  console.error('HealthHub Ask Léna',e);
+  var existing=window.HH_LENA_LOCAL_ANSWER_V329&&window.HH_LENA_LOCAL_ANSWER_V329.getLast();
+  if(existing&&existing.profile===pk()){
+   status('✅ Léna javaslata kész · opcionális kutatási kiegészítés hibázott',
+    'A HealthHubból készült helyi elemzés elérhető. A külön PDF/Drive-kutatás nem fejeződött be: '+String(e?.message||e),100,'done');
+  }else{
+   status('⚠ A kutatás megállt',String(e?.message||e),100,'fail');
+  }
  }finally{busy=false;lock(false);refresh()}
 }
 

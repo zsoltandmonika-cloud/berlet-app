@@ -220,8 +220,8 @@ async function run(){
    if(!refreshed)throw Error('Nem sikerült frissíteni a helyi Health Contextot. Ellenőrizd az importált méréseket.');
   }
   if(token!==revision||profile()!==p)throw Error('Profilváltás történt az ellenőrzés alatt. Futtasd újra az aktív profilnál.');
-  var report=collect(q,p);last=report;render(report);
- }catch(e){var m=el('hh328Summary');if(m){m.classList.add('on');m.textContent='⚠ '+String(e&&e.message||e)}}
+  var report=collect(q,p);last=report;render(report);return report;
+ }catch(e){last=null;var m=el('hh328Summary');if(m){m.classList.add('on');m.textContent='⚠ '+String(e&&e.message||e)}return null}
  finally{busy=false;if(btn){btn.disabled=false;btn.textContent='🔎 Intelligence adatellenőrzés'}}
 }
 window.HH_LENA_CONTEXT_BRIDGE_V328={collect:collect,show:mount,run:run,getLast:function(){return last}};
