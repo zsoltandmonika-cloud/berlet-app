@@ -105,6 +105,9 @@ function open(){
  var nav=el('navHealthBar');if(nav)nav.style.display='grid';
  var prof=el('hhSP299');if(prof)prof.textContent='Aktív profil: '+pn(pk());
  refresh();window.scrollTo(0,0);
+ // Independent v328 Bridge listens after the Ask Léna page is mounted.
+ // No modification to the legacy research, RAG, consent or sync pipeline.
+ try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-open',{detail:{profile:pk()}}))}catch(e){}
 }
 function stopMic(){
  micManuallyStopped=true;
