@@ -371,6 +371,7 @@ async function run(){
    for(var packet of packets)eventHandler(packet);
   }
   if(!complete)throw Error('Nem érkezett teljes AI-válasz. A részleges szöveget töröltem.');
+  if(turn===epoch&&profile()===p){try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true}}))}catch(e){}}
  }catch(e){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
