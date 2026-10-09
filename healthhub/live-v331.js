@@ -79,10 +79,16 @@ function addExtra(context,q){
  }
  ['heightCm','bloodType','allergies','knownConditions'].forEach(function(k){put('profile',k,pc[k])});
  if(pc.birthDate)put('profile','Születési dátum',pc.birthDate);
+ var journal=read('hh-symptom-journal-v1');
+ (journal&&Array.isArray(journal.events)?journal.events:[]).filter(function(x){return x&&x.profile===profile()&&!x.deletedAt})
+  .sort(function(a,b){return String(b.eventAt||'').localeCompare(String(a.eventAt||''))})
+  .slice(0,8).forEach(function(x){
+   put('symptoms','Tünetnapló',safe(x.symptom,80)+' · súlyosság '+safe(x.severity,10)+'/10 · '+safe(x.outcome,50),x.eventAt);
+  });
  var bp=m.bloodPressure||{},wt=m.weight||{},p=m.pulse||{};
  if(bp.latest)put('trends','Vérnyomás utolsó mérés',bp.latest.systolic+'/'+bp.latest.diastolic+' Hgmm',bp.latest.measuredAt);
- if(bp.h72)put('trends','Vérnyomás 72h átlag',bp.h72.systolicAvg+'/'+bp.h72.diastolicAvg+' Hgmm');
- if(bp.d7)put('trends','Vérnyomás 7n átlag',bp.d7.systolicAvg+'/'+bp.d7.diastolicAvg+' Hgmm');
+ if(bp.h72&&bp.h72.systolicAvg!=null&&bp.h72.diastolicAvg!=null)put('trends','Vérnyomás 72h átlag',bp.h72.systolicAvg+'/'+bp.h72.diastolicAvg+' Hgmm');
+ if(bp.d7&&bp.d7.systolicAvg!=null&&bp.d7.diastolicAvg!=null)put('trends','Vérnyomás 7n átlag',bp.d7.systolicAvg+'/'+bp.d7.diastolicAvg+' Hgmm');
  if(wt.latest&&wt.latest.bodyFatPercent!=null)put('trends','Testzsír arány',wt.latest.bodyFatPercent+'%',wt.latest.measuredAt);
  if(wt.delta7d!=null)put('trends','Testsúly 7n változás',wt.delta7d+' kg');
  if(wt.delta30d!=null)put('trends','Testsúly 30n változás',wt.delta30d+' kg');
