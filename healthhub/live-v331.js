@@ -101,7 +101,7 @@ function renderAnswerText(raw){
   }
   appendMeasured(node,value.slice(start));
  }
- var normalized=String(raw||'').slice(0,7000).replace(/\r\n?/g,'\n');
+ var normalized=String(raw||'').slice(0,17000).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
  normalized=parts.map(function(chunk){
   if(chunk.length<380 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
@@ -252,7 +252,14 @@ function addExtra(context,q){
  if(bp.h72&&bp.h72.systolicAvg!=null&&bp.h72.diastolicAvg!=null)put('trends','Vérnyomás 72h átlag',bp.h72.systolicAvg+'/'+bp.h72.diastolicAvg+' Hgmm');
  if(bp.d7&&bp.d7.systolicAvg!=null&&bp.d7.diastolicAvg!=null)put('trends','Vérnyomás 7n átlag',bp.d7.systolicAvg+'/'+bp.d7.diastolicAvg+' Hgmm');
  if(wt.latest&&wt.latest.bodyFatPercent!=null)put('trends','Testzsír arány',wt.latest.bodyFatPercent+'%',wt.latest.measuredAt);
- if(wt.delta7d!=null)put('trends','Testsúly 7n változás',wt.delta7d+' kg');
+ if(wt.delta7d!=null){
+  var w7=Number(wt.delta7d),w30=Number(wt.delta30d);
+  if(Math.abs(w7)>7||(Number.isFinite(w30)&&Math.abs(w7-w30)>12)){
+   put('trends','HIBAGYANÚ: irreális 7n testsúlyváltozás',wt.delta7d+' kg; ellenőrizendő forrásadat, nem valós trend');
+  }else put('trends','Testsúly 7n változás',wt.delta7d+' kg');
+ }
+ if(wt.qualityWarning7d)put('trends','Karanténba helyezett testsúlytrend',wt.qualityWarning7d);
+ if(wt.qualityWarning30d)put('trends','Ellenőrzendő 30n testsúlytrend',wt.qualityWarning30d);
  if(wt.delta30d!=null)put('trends','Testsúly 30n változás',wt.delta30d+' kg');
  if(p.d7Avg!=null)put('trends','Pulzus 7n átlag',p.d7Avg+'/perc');
  var heart=context.heartRate||{};
@@ -260,17 +267,23 @@ function addExtra(context,q){
  (sl.recent||[]).slice(0,12).forEach(function(x){put('sleep','Alvásszakasz',x.durationMin+' perc, '+safe(x.startTime,30)+' → '+safe(x.endTime,30),x.endTime)});
  (ac.recent||[]).slice(0,12).forEach(function(x){put('activity','Napi aktivitás',x.steps+' lépés, '+x.activeMinutes+' aktív perc, '+x.distanceKm+' km',x.date)});
  (context.medications||[]).slice(0,12).forEach(function(x){put('medication','Rögzített gyógyszer',x.name+' '+safe(x.strength,45)+' '+safe(x.schedule,80)+' · '+safe(x.status,35))});
- var words=safe(q,240).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/[^a-z0-9]+/).filter(function(v){return v.length>=5});
+ var normalizedQ=safe(q,300).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ var cardiac=/sziv|kardio|crt|ritmus|defibr|pacemaker|ejekcio|infarkt|szivelegtelenseg|pitvar/i.test(normalizedQ);
+ var words=normalizedQ.split(/[^a-z0-9]+/).filter(function(v){return v.length>=3});
  var matching=(docs.index||[]).map(function(d){
-  var src=safe(d.title,120).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  return {d:d,score:words.reduce(function(sum,w){return sum+(src.indexOf(w)>=0?1:0)},0)}
+  var src=(safe(d.title,140)+' '+safe(d.category,60)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  var cardiacWeight=cardiac&&/sziv|kardio|crt|defibr|ritmus|echo|echokard|ejekcio|hospital|korhaz|elektrofiz|pacemaker/i.test(src)?12:0;
+  return {d:d,score:cardiacWeight+words.reduce(function(sum,w){return sum+(src.indexOf(w)>=0?1:0)},0)}
  }).sort(function(a,b){return b.score-a.score});
- var limit=8;
+ var limit=cardiac?12:8;
  matching.slice(0,limit).forEach(function(x){
   var d=x.d;
   put('documents','Leletindex · '+safe(d.category,35),d.title,d.date);
   var explanation=d.explanation;
-  if(explanation&&explanation.summary)put('documents','Korábbi leletmagyarázat (nem eredeti PDF)',explanation.summary,d.date)
+  if(explanation&&explanation.summary)put('documents','Korábbi leletmagyarázat (nem eredeti PDF)',explanation.summary,d.date);
+  if(explanation&&explanation.keyFindings&&Array.isArray(explanation.keyFindings))
+   explanation.keyFindings.slice(0,2).forEach(function(v){put('documents','Korábbi leletmagyarázat · megállapítás',v,d.date)});
+
  });
  (context.appointments||[]).slice(0,3).forEach(function(x){
   put('appointments','Rögzített időpont',x.title||x.reason||x.type||'Egészségügyi időpont',x.startAt||x.date||x.scheduledAt)
@@ -338,6 +351,8 @@ async function run(){
   var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
   if(ctx&&ctx.profile!==p)throw Error('Profilazonosítási eltérés, feldolgozás leállítva.');
   var extra=addExtra(ctx,question),data=simplify(report,extra);
+  data.depth=window.HH_LENA_RESEARCH_DEPTH==='detailed'?'detailed':'standard';
+  window.HH_LENA_RESEARCH_DEPTH='standard';
   data.question=question;
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
