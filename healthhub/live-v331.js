@@ -320,6 +320,8 @@ async function run(){
  if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');return}
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
+ try{q.blur()}catch(e){}
+ window.dispatchEvent(new CustomEvent('healthhub:ask-lena-start',{detail:{profile:p}}));
  print('Kapcsolódás a kutatómotorhoz…');
  try{
   if(!svc.probe)throw Error('A biztonságos AI-szerver ellenőrző modulja még nem töltődött be.');
@@ -356,8 +358,7 @@ async function run(){
    var item;try{item=JSON.parse(val)}catch{return}
    if(kind==='stage'){print('AI: '+safe(item.message,160));return}
    if(kind==='delta'){
-    if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');
-     try{result.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}}
+    if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');}
     answerText+=String(item.text||'');renderAnswerText(answerText);return;
    }
    if(kind==='done'){complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
@@ -371,7 +372,7 @@ async function run(){
    for(var packet of packets)eventHandler(packet);
   }
   if(!complete)throw Error('Nem érkezett teljes AI-válasz. A részleges szöveget töröltem.');
-  if(turn===epoch&&profile()===p){try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true}}))}catch(e){}}
+  if(turn===epoch&&profile()===p){try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString()}}))}catch(e){}}
  }catch(e){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
@@ -390,6 +391,14 @@ window.addEventListener('healthhub:profile-changed',function(){cancel();
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
-window.HH_ASK_LENA_AI_V331={initialize:ui,version:'333'};
+window.HH_ASK_LENA_AI_V331={initialize:ui,version:'342',showStoredAnswer:function(entry){
+ if(!entry||!['monika','zsolt'].includes(entry.profile)||entry.profile!==profile())return false;
+ var result=el('hhAi331Answer'),q=el('hhSQ299'),foot=el('hhAi331Foot');
+ if(!result||!q||typeof entry.answer!=='string'||typeof entry.question!=='string')return false;
+ setAnswerProfile(entry.profile);q.value=entry.question;renderAnswerText(entry.answer);
+ if(foot)foot.textContent='🕘 Korábbi, mentett válasz · '+new Date(entry.generatedAt).toLocaleString('hu-HU')+' · Helyi előzmény, nem új kutatás.';
+ result.classList.add('on');var terminal=el('hhAi331Terminal');if(terminal)terminal.classList.remove('on');
+ return true;
+ }};
 document.documentElement.dataset.healthhubRealAi='1.333';
 })();
