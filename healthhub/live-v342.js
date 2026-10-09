@@ -46,6 +46,7 @@ function setCss(){
  '#hhLenaSmart299 .hhLenaHistDel342{border:1px solid #dde6e8;background:#fff;border-radius:9px;padding:7px;min-height:36px;font-size:13px;cursor:pointer;color:#966371}',
  '#hhLenaSmart299 .hhLenaHistoryNote342{padding:7px 4px;color:#69818d;font-size:11px;line-height:1.5}',
  '#hhLenaSmart299 #hhLenaHistClear342{margin:7px 3px 0;padding:8px 10px;border:1px solid #e3cbd8;border-radius:9px;color:var(--lena-ui-dark);background:var(--lena-ui-soft);font-size:11px;cursor:pointer}',
+ '#hhLenaSmart299 .hhLenaDeepAction342{display:block;width:100%;margin:14px 0 4px;padding:12px 14px;border:1px solid var(--lena-ui-border);border-radius:14px;color:var(--lena-ui-dark);background:var(--lena-ui-soft);font-size:13px;line-height:1.5;font-weight:760;cursor:pointer}',
  '#hhLenaSmart299 #hhAi331Terminal,#hhLenaSmart299 #hhAi331Answer{scroll-margin-top:78px}',
  '@media(prefers-reduced-motion:reduce){#hhLenaSmart299 #hhSP299{transition:none}}'
  ].join('');
@@ -82,7 +83,7 @@ async function save(entry){
  return new Promise(function(resolve,reject){
   var tx=db.transaction(STORE,'readwrite'),st=tx.objectStore(STORE);
   st.put({id:id,profile:entry.profile,question:entry.question.slice(0,1200),
-   answer:entry.answer.slice(0,9000),generatedAt:entry.generatedAt});
+   answer:entry.answer.slice(0,17000),generatedAt:entry.generatedAt});
   var req=st.index('by_profile').getAll(entry.profile);
   req.onsuccess=function(){
    var rows=req.result||[];
@@ -127,6 +128,18 @@ function renderItem(entry,p){
   if(api&&api.showStoredAnswer&&api.showStoredAnswer(entry)){
    var input=el('hhSQ299');if(input)input.dispatchEvent(new Event('input',{bubbles:true}));
    var details=el('hhLenaHistory342');if(details)details.open=false;
+   var foot=el('hhAi331Foot');
+   if(foot){
+    var detail=document.createElement('button');detail.type='button';
+    detail.className='hhLenaDeepAction342';
+    detail.textContent='🔬 Részletesebb kutatás friss adatokkal';
+    detail.setAttribute('aria-label','A korábbi kérdés új, részletes kutatása');
+    detail.addEventListener('click',function(){
+     if(profile()!==p||api.isBusy&&api.isBusy())return;
+     api.runDetailed();
+    });
+    foot.appendChild(detail);
+   }
    focusPanel('hhAi331Answer');
   }
  });
