@@ -78,7 +78,7 @@ function ensure(){
  el('hhRun299').addEventListener('click',run);
  el('hhMic299').addEventListener('click',mic);
  el('hhPlain299').addEventListener('click',plainChat);
- el('askRefresh323').addEventListener('click',refresh);
+ el('askRefresh323').addEventListener('click',refreshContext);
  el('askDrive323').addEventListener('click',testDrive);
  el('askCopy323').addEventListener('click',copyPrompt);
  el('askChat323').addEventListener('click',launchChatGPT);
@@ -131,7 +131,7 @@ function checks(){
   {label:'Kutatási modulok',ok:okMods,maybe:false,detail:modules.filter(function(m){return !m[1]}).map(function(x){return x[0]}).join(', ')||'6/6 komponens betöltve'},
   {label:'Helyi Health Context',ok:!!context,maybe:false,detail:context?'Profilkontextus található; '+(context.generatedAt||'dátum nélkül'):'Még nem készült profilkontextus ezen az eszközön'},
   {label:'Dokumentum-index',ok:docs.length>0,maybe:false,detail:docs.length+' helyi dokumentum bejegyzés'},
-  {label:'Drive-on archivált források',ok:mapped>0,maybe:false,detail:mapped+' / '+docs.length+' dokumentumhoz van Drive-hivatkozás'},
+  {label:'Drive-on archivált források',ok:mapped>0,maybe:false,detail:mapped+' / '+docs.length+' dokumentumhoz van Drive-hivatkozás'+(mapped?'':'. A leletek Drive-archiválását külön be kell állítani')},
   {label:'Google Drive olvasási kapcsolat',ok:driveVerified,maybe:!driveIssue,detail:driveVerified?'Tényleges Drive API-kérés és archivált forrás ellenőrzése sikeres, ha van hivatkozás':driveIssue||'Nincs ezen a lapon ellenőrizve; kattints a Drive-kapcsolat tesztje gombra'}
  ];
  return {checks:c,ready:c.every(function(x){return x.ok}),docs:docs.length,mapped:mapped,context:context};
@@ -145,6 +145,16 @@ function refresh(){
   return '<div class="askCheck"><div class="askCheckIcon">'+(x.ok?'✅':x.maybe?'🔎':'⚠️')+'</div><div><strong>'+esc(x.label)+'</strong><span>'+esc(x.detail)+'</span></div></div>'
  }).join('');
  var prof=el('hhSP299');if(prof)prof.textContent='Aktív profil: '+pn(p);
+}
+async function refreshContext(){
+ var btn=el('askRefresh323');if(busy||!btn)return;
+ btn.disabled=true;btn.textContent='🔄 Kontextus frissítése…';
+ try{
+  if(typeof window.hhRefreshLenaHealthContext289!=='function')throw Error('A Health Context modul nem érhető el');
+  await window.hhRefreshLenaHealthContext289(pk(),'ask-lena-readiness-check');
+  status('✅ Health Context ellenőrizve','Újraépítettem a helyi profilkontextust. Az archivált dokumentumok és Drive-jogosultságok állapota külön ellenőrizendő.',100,'done');
+ }catch(e){status('⚠ Kontextus nem frissült',String(e?.message||e),100,'fail')}
+ finally{btn.disabled=false;btn.textContent='↻ Állapot frissítése';refresh()}
 }
 async function testDrive(){
  if(busy)return;
