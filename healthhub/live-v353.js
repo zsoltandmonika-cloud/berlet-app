@@ -1,7 +1,17 @@
 (function(){
 'use strict';
 // Ask Léna v353: camera/gallery optional one-time consented photo, no photo persistence.
-var selected=null,turn=0,busy=false,liveMic=false;
+var selected=null,turn=0;
+var PHOTO_PERMISSION_KEY='hh-ask-lena-photo-upload-approved-v1';
+function permissionKey(){return PHOTO_PERMISSION_KEY+'-'+profile()}
+function permissionGranted(){try{return localStorage.getItem(permissionKey())==='true'}catch(e){return false}}
+function askPhotoApproval(){
+ if(permissionGranted())return true;
+ var yes=window.confirm('📷 Egyszeri engedély az Ask Léna fényképes elemzéséhez\n\nA kifejezetten csatolt fényképeidet a Kutatás gombbal az OpenAI AI-modelljéhez küldjük elemzésre. A képet nem mentjük az előzményekbe vagy a GitHubra.\n\nEzt a jóváhagyást megjegyezzük ehhez a profilhoz és böngészőhöz. Csak a tudatosan csatolt képeket küldjük el. Az engedély a kamera menüjében visszavonható.\n\nEngedélyezed?');
+ if(!yes)return false;
+ try{localStorage.setItem(permissionKey(),'true')}catch(e){}
+ return true;
+}
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function ensureCss(){
@@ -32,14 +42,14 @@ function ensureCss(){
 }
 function text(msg){var e=el('hhCameraFeedback353');if(e)e.textContent=msg||''}
 function view(){
- var preview=el('hhCameraReview353'),img=el('hhCameraThumb353'),check=el('hhCameraConsent353');
- if(!preview||!img||!check)return;
+ var preview=el('hhCameraReview353'),img=el('hhCameraThumb353');
+ if(!preview||!img)return;
  preview.hidden=!selected;
- if(selected){img.src='data:image/jpeg;base64,'+selected.base64;check.checked=!!selected.approved}
- else{img.removeAttribute('src');check.checked=false}
+ if(selected)img.src='data:image/jpeg;base64,'+selected.base64;
+ else img.removeAttribute('src');
 }
 function clear(){
- turn++;selected=null;busy=false;
+ turn++;selected=null;
  var menu=el('hhCameraMenu353');if(menu)menu.hidden=true;
  var b=el('hhCameraToggle353');if(b)b.setAttribute('aria-expanded','false');
  text('');view();
@@ -77,6 +87,7 @@ function takeFile(file){
  var id=++turn;selected=null;view();text('📷 A fotót előkészítem…');
  compress(file).then(function(data){
   if(id!==turn)return;
+  if(!askPhotoApproval()){selected=null;view();text('A fotó engedély nélkül nem kerül a kutatásba. A kérdést továbbra is elküldheted.');return}
   selected=data;view();text('');var rev=el('hhCameraReview353');
   if(rev)rev.scrollIntoView({block:'nearest',behavior:'smooth'});
  }).catch(function(e){if(id===turn){selected=null;view();text('⚠️ '+(e.message||'Képhiba'))}});
@@ -95,7 +106,9 @@ function install(){
  var gallery=document.createElement('button');gallery.type='button';gallery.textContent='🖼️ Kép kiválasztása';
  var cameraInput=document.createElement('input');cameraInput.type='file';cameraInput.accept='image/jpeg,image/png,image/webp';cameraInput.setAttribute('capture','environment');cameraInput.hidden=true;
  var uploadInput=document.createElement('input');uploadInput.type='file';uploadInput.accept='image/jpeg,image/png,image/webp';uploadInput.hidden=true;
- menu.append(take,gallery,cameraInput,uploadInput);
+ var revoke=document.createElement('button');revoke.type='button';revoke.textContent='🔒 Fotóengedély visszavonása';revoke.title='Korábbi egyszeri jóváhagyás törlése';
+ revoke.onclick=function(){try{localStorage.removeItem(permissionKey())}catch(e){}clear();text('A fényképes elemzés engedélyét visszavontad.');};
+ menu.append(take,gallery,revoke,cameraInput,uploadInput);
  composer.insertAdjacentElement('afterend',menu);
  take.onclick=function(){cameraInput.click()};gallery.onclick=function(){uploadInput.click()};
  cameraInput.onchange=function(){var f=cameraInput.files&&cameraInput.files[0];cameraInput.value='';menu.hidden=true;cam.setAttribute('aria-expanded','false');if(f)takeFile(f)};
@@ -103,15 +116,12 @@ function install(){
  cam.onclick=function(){menu.hidden=!menu.hidden;cam.setAttribute('aria-expanded',String(!menu.hidden))};
  var review=document.createElement('div');review.id='hhCameraReview353';review.className='hhCameraReview353';review.hidden=true;
  var image=document.createElement('img');image.id='hhCameraThumb353';image.alt='Csatolt fotó előnézete';
- var col=document.createElement('div'),label=document.createElement('label');
- var check=document.createElement('input');check.type='checkbox';check.id='hhCameraConsent353';
- var span=document.createElement('span');span.textContent='Engedélyezem, hogy Léna ezt a képet az AI-kutatáshoz elküldje.';
- label.append(check,span);
+ var col=document.createElement('div');
  var note=document.createElement('div');note.className='hhCameraDesc353';
- note.textContent='🔒 A fotó nem kerül a Historyba vagy a GitHubra. Kizárólag a jóváhagyott, aktuális AI-kéréshez használjuk.';
- col.append(label,note);
+ note.textContent='✅ Fotó csatolva. A Kutatás gombbal az AI elemzi; a kép nem kerül a Historyba vagy a GitHubra. Az egyszeri engedély a kamera menüjében visszavonható.';
+ col.append(note);
  var remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.title='Fotó eltávolítása';remove.setAttribute('aria-label','Fotó eltávolítása');
- remove.onclick=clear;check.onchange=function(){if(selected)selected.approved=check.checked};
+ remove.onclick=clear;
  review.append(image,col,remove);menu.insertAdjacentElement('afterend',review);
  var info=document.createElement('div');info.id='hhCameraFeedback353';info.className='hhCameraFeedback353';review.insertAdjacentElement('afterend',info);
  var status=document.createElement('div');status.id='hhMicStatus353';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
@@ -129,10 +139,10 @@ window.addEventListener('healthhub:mic-status',function(evt){
 window.HH_ASK_LENA_PHOTO_V353={
  get:function(p){
   if(!selected||p!==selected.profile)return null;
-  return {mime:'image/jpeg',base64:selected.base64,approved:!!selected.approved};
+  return {mime:'image/jpeg',base64:selected.base64,approved:permissionGranted()};
  },
  clear:clear,
- hasPhoto:function(){return!!selected}
+ hasPhoto:function(){return!!selected}, permissionGranted:permissionGranted
 };
 document.documentElement.dataset.healthhubAskPhoto='353';
 })();
