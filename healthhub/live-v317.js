@@ -140,6 +140,9 @@ function ensure(){
   if(k.action==='consent'){
    var all=decode();record(all,owner).aiOptIn=t.checked;persist(all);
   }
+  if(k.action==='daily-consent'){
+   var allDaily=decode();record(allDaily,owner).aiDailyOptIn=!!t.checked;persist(allDaily);
+  }
   if(k.legacy){var a=legacy();a[k.legacy]=k.legacy==='allergyName'?t.value.slice(0,60):!!t.checked;saveLegacy(a)}
   if(window.HH_DAILY_HEALTH_V312&&window.HH_DAILY_HEALTH_V312.render)window.HH_DAILY_HEALTH_V312.render();
  });
@@ -204,7 +207,9 @@ function draw(){
   '<div class="dh317Card"><h2>➕ Egyéni tényező hozzáadása</h2><div class="dh317Row"><input type="text" id="dh317NewTitle" maxlength="90" placeholder="Pl. saját megfigyelési szempont"></div><div class="dh317Row"><select id="dh317NewTrigger">'+triggerOptions('pressure')+'</select></div><button class="dh317Add" type="button" data-action="add">+ Hozzáadás és bepipálás</button></div>'+
   '<div class="dh317Card"><h2>🔔 Korábbi emlékeztető</h2>'+legacyBlock+'</div>'+
   '<div class="dh317Card"><h2>🧠 Léna AI · külön hozzájárulás</h2><label class="dh317Consent"><input type="checkbox" data-action="consent" '+(rec.aiOptIn?'checked':'')+'> Külön indított Léna-elemzéskor a bekapcsolt tényezők megjelenhetnek a kitöltött kérdésben.</label>'+
-  '<p class="dh317Foot">A bejelölés NEM indít automatikus adatküldést. A nyilvános, reggeli AI-jelentés személyes egészségügyi adatokat nem tartalmaz. A reggeli privát AI-elemzéshez külön biztonságos szerverintegráció szükséges.</p></div>'+
+  '<p class="dh317Foot">Ez a pipa kizárólag a külön indított elemzésre vonatkozik, nem a reggeli automatizációra.</p>'+
+  '<label class="dh317Consent"><input type="checkbox" data-action="daily-consent" '+(rec.aiDailyOptIn?'checked':'')+'> <span><b>Engedélyezem a napi privát AI-elemzést:</b> a kiválasztott figyelési tényezőimet a HealthHub szervere naponta automatikusan továbbíthatja az OpenAI API-nak a személyes reggeli jelentés elkészítéséhez.</span></label>'+
+  '<p class="dh317Foot">A hozzájárulás külön-külön vonatkozik Mónikára és Zsoltra; bármikor visszavonható. A rendszer nem küldi el a saját megjegyzéseket, gyógyszerlistát vagy kórtörténetet. A jelentés csak bejelentkezve érhető el. A pipa önmagában még nem indít AI-hívást; előbb sikeres központi szinkron és szervertelepítés kell.</p></div>'+
   '<div class="dh317Card"><h2>🔒 Adatvédelem</h2><p class="dh317Foot">A helyi példány a böngészőben tárolódik, és nem titkosított. A központi feltöltés kizárólag belépés és külön, profilhoz kötött első jóváhagyás után indulhat. A nyilvános GitHub nem kap egészségügyi adatokat, és a nyilvános AI-jelentés nem tartalmaz személyes adatokat.</p><p class="dh317Foot">A jelzések tájékoztató jellegűek, nem diagnózisok, és nem helyettesítik a kezelőorvosi tervet. Súlyos panasz esetén ne várj reggeli AI-jelentésre.</p></div></div>';
  if(window.HH_DAILY_HEALTH_SYNC_V319)window.HH_DAILY_HEALTH_SYNC_V319.mount(el('hh317PrivateSync'));
 }

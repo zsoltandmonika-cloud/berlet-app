@@ -52,12 +52,12 @@ async function login(email,password){
   autoAttempted=true;
   await fetchCloud();
  }catch(e){lastError=e.httpStatus===400||e.httpStatus===401?'Sikertelen bejelentkezés. Ellenőrizd az e-mailt és a jelszót.':(e.message||'Központi hiba.');if(e.httpStatus===401)sSave(null)}
- finally{busy=false;draw()}
+ finally{busy=false;draw();window.dispatchEvent(new Event('healthhub:central-auth-changed'))}
 }
 function logout(){
  sSave(null);profiles=null;household=null;lastError='';autoAttempted=false;
  ['m','z'].forEach(function(k){states[k]={mode:'local',revision:0,snapshot:null,remote:null}});
- draw();
+ draw();window.dispatchEvent(new Event('healthhub:central-auth-changed'));
 }
 async function fetchCloud(){
  await ensureToken();
@@ -194,5 +194,5 @@ function mount(host){
  }
 }
 sSave(active()?sRead():null);
-window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}}};
+window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})}};
 })();
