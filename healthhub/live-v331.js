@@ -55,7 +55,7 @@ function print(message){
 }
 function showError(message){
  var err=el('hhAi331Error');if(err){err.textContent='⚠ '+message;err.classList.add('on')}
- print('A kutatás nem fejeződött be. Nincs automatikus sablonválasz.');
+ print('A kutatás megszakadt.');
 }
 function ui(){
  var btn=el('hhRun299'),q=el('hhSQ299');
@@ -206,8 +206,8 @@ async function run(){
  try{
   if(!svc.probe)throw Error('A biztonságos AI-szerver ellenőrző modulja még nem töltődött be.');
   var connection;
-  try{connection=await svc.probe()}catch(e){throw Error('Az AI-szerver nem érhető el a böngészőből. Lehetséges ok: a Supabase Edge Function nincs telepítve, vagy a CORS/hálózati kapcsolat hibás. A személyes adatok elküldése nem indult el.')}
-  if(!connection.ok)throw Error('Az AI-szerver nem áll készen (HTTP '+connection.status+'). A személyes adatok elküldése nem indult el.');
+  try{connection=await svc.probe()}catch(e){throw Error('A kutatómotor még nem elérhető. A szerverkapcsolat beállítása hiányzik. Személyes adatot nem továbbítottam.')}
+  if(!connection.ok)throw Error('A kutatómotor jelenleg nem indítható ('+connection.status+'). Személyes adatot nem továbbítottam.');
   print('Személyes adatok biztonságos beolvasása…');
   var bridge=window.HH_LENA_CONTEXT_BRIDGE_V328;
   if(!bridge||!bridge.run)throw Error('Az egészségügyi adatgyűjtő modul nem működik.');
@@ -257,7 +257,7 @@ async function run(){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
    var msg=e&&e.message||'Ismeretlen AI-hiba.';
-   if(/failed to fetch|networkerror|load failed/i.test(msg))msg='Az AI-kiszolgáló kapcsolat megszakadt. Ellenőrizni kell a Supabase Edge Function telepítését, a CORS-beállításokat és a hálózatot. A személyes adatokkal kapcsolatos hiba ebből nem következik.';
+   if(/failed to fetch|networkerror|load failed/i.test(msg))msg='A kutatómotor nem érhető el. Nincs kész válasz. Ellenőrizni kell a szerverkapcsolatot.';
    showError(msg);
   }
  }finally{
