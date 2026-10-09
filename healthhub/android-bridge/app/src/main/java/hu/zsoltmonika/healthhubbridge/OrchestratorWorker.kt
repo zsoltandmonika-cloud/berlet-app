@@ -68,6 +68,12 @@ class OrchestratorWorker(
             .put("activeProfile", owner ?: JSONObject.NULL)
             .put("capabilities", JSONArray().put("health").put("daily"))
             .put("lastSeenAt", java.time.Instant.now().toString())
+            .put("lastHealthSyncAt",
+                prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L).takeIf { it > 0L }?.let {
+                    java.time.Instant.ofEpochMilli(it).toString()
+                } ?: JSONObject.NULL)
+            .put("lastHealthSummary", prefs.getString(ResilientHealthSync.KEY_COUNTS, null) ?: JSONObject.NULL)
+            .put("lastHealthError", prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null) ?: JSONObject.NULL)
             .put("lastCommandId", prefs.getString(LAST_COMMAND_KEY, null) ?: JSONObject.NULL)
             .put("visible", false)
         DropboxVaultClient.uploadText(prefs, DEVICES + "/" + id + ".json", obj.toString(2) + "\n")
@@ -146,6 +152,12 @@ class OrchestratorWorker(
             DropboxVaultClient.healthConnectPath(owner),
             json.toString(2) + "\n"
         )
+        prefs.edit()
+            .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
+            .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(json))
+            .remove(ResilientHealthSync.KEY_LAST_ERROR)
+            .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
+            .apply()
     }
 
     override suspend fun doWork(): Result {
