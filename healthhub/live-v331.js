@@ -74,6 +74,11 @@ function print(message){
   lines.scrollTop=lines.scrollHeight;if(index<text.length)setTimeout(type,12)
  })();
 }
+function setAnswerProfile(p){
+ var card=el('hhAi331Answer'),heading=el('hhAi331Heading');
+ if(card)card.setAttribute('data-profile',p);
+ if(heading)heading.textContent=p==='monika'?'💗 Léna válasza Mónikának':'💙 Léna válasza Zsoltnak';
+}
 function renderAnswerText(raw){
  var host=el('hhAi331Text');if(!host)return;
  var frag=document.createDocumentFragment(),para=null,list=null;
@@ -148,6 +153,7 @@ function ui(){
  var answer=document.createElement('section');answer.id='hhAi331Answer';answer.setAttribute('aria-label','Léna valódi AI-válasza');
  answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
+ setAnswerProfile(profile());
  var err=document.createElement('div');err.id='hhAi331Error';term.parentNode.insertBefore(err,answer.nextSibling);
 
  btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();run()},true);
@@ -244,6 +250,7 @@ async function run(){
  ui();if(active){print('Már fut egy kutatás.');return}
  var q=el('hhSQ299'),p=profile(),question=q&&q.value.trim();
  var term=el('hhAi331Terminal'),result=el('hhAi331Answer'),err=el('hhAi331Error');
+ setAnswerProfile(p);
  term.classList.add('on');el('hhAi331Lines').innerHTML='';err.classList.remove('on');result.classList.remove('on');
  el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
  var old=el('hhLenaAnswer329');if(old)old.remove();
