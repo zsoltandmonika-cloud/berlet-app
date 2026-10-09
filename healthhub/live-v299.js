@@ -113,10 +113,7 @@ function open(){
  try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-open',{detail:{profile:pk()}}))}catch(e){}
 }
 function stopMic(){
- micManuallyStopped=true;
- if(!rec)return;
- try{rec.stop()}catch(e){}
- rec=null;
+ micStop353();
 }
 function close(){
  if(busy)return;
@@ -391,67 +388,128 @@ function keyboardMic(){
   el('askSpeech323').textContent='⌨️ A telefon billentyűzete megnyílt. Koppints a Samsung/Gboard mikrofon ikonjára a magyar diktáláshoz. Ez a böngésző hangfelismerő szolgáltatásától független.';
  }
 }
-var micManuallyStopped=false;
-function startMic(attempt){
+var micManuallyStopped=false,micSessionActive=false,micSessionStart=0,micLastHeard=0;
+var micRestarts=0,micRestartTimer=null,micCollected='',micSessionIndex=0,micQuestionProfile='';
+function micNotify(mode,msg){
+ var v=el('askSpeech323');if(v)v.textContent=msg;
+ try{window.dispatchEvent(new CustomEvent('healthhub:mic-status',{detail:{status:mode,text:msg}}))}catch(e){}
+}
+function micButton(active){
+ var b=el('hhMic299');if(!b)return;
+ b.textContent=active?'⏹️ Leállítás':'🎙️ Diktálás';
+ b.setAttribute('aria-label',active?'Diktálás leállítása':'Diktálás indítása');
+ b.title=active?'Diktálás befejezése':'Diktálás indítása';
+}
+function micText(current){
+ var input=el('hhSQ299');if(!input)return;
+ var speech=(micCollected+' '+String(current||'')).trim();
+ input.value=(questionBeforeSpeech.trim()+' '+speech).trim();
+ input.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function micStop353(message){
+ micManuallyStopped=true;micSessionActive=false;micSessionIndex++;
+ clearTimeout(micRestartTimer);micRestartTimer=null;
+ var r=rec;rec=null;
+ try{if(r)r.stop()}catch(e){}
+ micButton(false);
+ if(message)micNotify('stopped',message);
+}
+function micStartRecognizer353(){
  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){
-  el('askSpeech323').textContent='A böngészős beszédfelismerés nem elérhető. Használd a telefon billentyűzetének mikrofonját.';
-  return;
- }
+ if(!SR||!micSessionActive||micManuallyStopped)return;
+ var currentIndex=micSessionIndex;
  try{
-  var r=new SR();rec=r;micManuallyStopped=false;
-  recognitionStarted=Date.now();recognitionHadText=false;recognitionError='';lastSpeech='';
-  questionBeforeSpeech=el('hhSQ299').value||'';
-  r.lang='hu-HU';r.interimResults=true;r.continuous=false;
-  el('hhMic299').textContent='⏹️ Leállítás';
-  el('askSpeech323').textContent=attempt?'🎙️ Újrapróbálkozás… kérlek beszélj a mikrofonhoz.':'🎙️ Mikrofon indítása…';
+  var r=new SR();rec=r;lastSpeech='';recognitionError='';recognitionHadText=false;
+  r.lang='hu-HU';r.interimResults=true;
+  // Android engines may ignore continuous mode and end the session at silence.
+  // We gently restart while the user still wants to dictate.
+  r.continuous=true;
   r.onstart=function(){
-   el('askSpeech323').textContent='🔴 Diktálás bekapcsolva, beszélj magyarul. A felismert szöveg bekerül a kérdésmezőbe.';
+   if(!micSessionActive||currentIndex!==micSessionIndex)return;
+   micNotify('listening',micRestarts?'🎙️ Figyelek, folytathatod…':'🎙️ Figyelek. Ráérsz elkezdeni…');
   };
   r.onresult=function(evt){
+   if(!micSessionActive||currentIndex!==micSessionIndex)return;
    var t='';
-   for(var i=0;i<evt.results.length;i++)t+=evt.results[i][0].transcript+' ';
-   lastSpeech=t.trim();recognitionHadText=!!lastSpeech;
-   el('hhSQ299').value=(questionBeforeSpeech.trim()?questionBeforeSpeech.trim()+' ':'')+lastSpeech;
-   el('askSpeech323').textContent='📝 '+(lastSpeech||'A hang felismerése folyamatban…');
+   for(var i=0;i<evt.results.length;i++){
+    var item=evt.results[i];if(item&&item[0])t+=item[0].transcript+' ';
+   }
+   lastSpeech=t.trim();
+   if(lastSpeech){recognitionHadText=true;micLastHeard=Date.now()}
+   micText(lastSpeech);
+   micNotify('listening',lastSpeech?'✍️ '+lastSpeech.slice(-95):'🎙️ Figyelek…');
   };
   r.onerror=function(evt){
-   recognitionError=String(evt?.error||'ismeretlen hiba');
-   var reasons={
-    'not-allowed':'A böngésző nem kapott mikrofonengedélyt.',
-    'service-not-allowed':'A böngésző hangfelismerő szolgáltatása nem engedélyezett.',
-    'network':'A böngésző hangfelismerő szolgáltatása hálózati hibát jelzett.',
-    'no-speech':'A böngésző nem érzékelt beszédet.',
-    'audio-capture':'Nem érhető el a mikrofon.',
-    'aborted':'A diktálás megszakadt.'
-   };
-   el('askSpeech323').textContent='⚠️ '+(reasons[recognitionError]||'Hangfelismerési hiba: '+recognitionError)+' Használd a billentyűzet mikrofonját is, ha szükséges.';
-  };
-  r.onend=function(){
-   if(rec===r)rec=null;
-   el('hhMic299').textContent='🎙️ Diktálás';
-   if(micManuallyStopped){el('askSpeech323').textContent='⏹️ Diktálás leállítva.';return}
-   var elapsed=Date.now()-recognitionStarted;
-   if(!recognitionError&&!recognitionHadText&&elapsed<2500&&attempt===0){
-    el('askSpeech323').textContent='⚠️ A böngésző '+(elapsed/1000).toFixed(1)+' másodperc után megszakította a hangfelismerést. Egyszer újrapróbálom…';
-    setTimeout(function(){if(!micManuallyStopped&&el(PAGE)?.classList.contains('on')&&!rec)startMic(1)},450);
+   if(!micSessionActive||currentIndex!==micSessionIndex)return;
+   recognitionError=String(evt&&evt.error||'unknown');
+   if(['not-allowed','service-not-allowed','audio-capture'].includes(recognitionError)){
+    micStop353('⚠️ Mikrofonengedély vagy hangrögzítés nem érhető el. Használhatod a Samsung billentyűzet mikrofonját.');
     return;
    }
-   if(!recognitionError&&!recognitionHadText)
-    el('askSpeech323').textContent='⚠️ A böngésző '+(elapsed/1000).toFixed(1)+' másodperc után leállt, nem adott szöveget. A telefon billentyűzetének mikrofonja megbízhatóbb lehet.';
-   else if(!recognitionError&&recognitionHadText)
-    el('askSpeech323').textContent='✅ A felismert szöveg bekerült a kérdésmezőbe. Ellenőrizd, majd indítsd a kutatást.';
+   if(recognitionError==='network'){
+    micNotify('retry','📶 Hangfelismerési hálózati hiba. Röviden újrapróbálom…');
+   }else{
+    micNotify('retry','🎙️ A hangfelismerés megállt. Még figyelek…');
+   }
+  };
+  r.onend=function(){
+   if(currentIndex!==micSessionIndex)return;
+   if(rec===r)rec=null;
+   if(lastSpeech){
+    micCollected=(micCollected+' '+lastSpeech).trim();
+    micText('');
+   }
+   lastSpeech='';
+   if(!micSessionActive||micManuallyStopped)return;
+   var now=Date.now(),elapsed=now-micSessionStart,empty=now-micLastHeard;
+   // Bound retries: no infinite hot-mic loop, even on a broken browser.
+   var stillWaiting=!micCollected&&empty<26000;
+   var continuing=!!micCollected&&elapsed<90000&&empty<16000;
+   if(elapsed<90000&&(stillWaiting||continuing)&&micRestarts<12){
+    micRestarts++;
+    micNotify('retry',stillWaiting?'🎙️ Még várok rád, nem kell sietned…':'🎙️ Folytathatod, figyelek…');
+    micRestartTimer=setTimeout(function(){
+     if(micSessionActive&&!micManuallyStopped&&currentIndex===micSessionIndex&&
+        el(PAGE)&&el(PAGE).classList.contains('on')&&pk()===micQuestionProfile){
+       micStartRecognizer353();
+     }else if(micSessionActive){micStop353()}
+    },Math.min(1200,380+micRestarts*90));
+    return;
+   }
+   var finish=micCollected?'✅ A diktálás véget ért. Ellenőrizd a szöveget, majd küldd el.':
+     '🎙️ Nem hallottam beszédet. Újra megnyomhatod a mikrofont, vagy használhatod a telefon billentyűzetét.';
+   micStop353(finish);
   };
   r.start();
  }catch(e){
-  rec=null;el('hhMic299').textContent='🎙️ Diktálás';
-  el('askSpeech323').textContent='⚠️ A böngészős mikrofon nem indult el: '+String(e?.message||e)+'. A telefon billentyűzetének mikrofonját használd.';
+  if(rec===r)rec=null;
+  if(micSessionActive){
+   if(micRestarts<12&&Date.now()-micSessionStart<26000){
+    micRestarts++;micRestartTimer=setTimeout(function(){if(micSessionActive)micStartRecognizer353()},900);
+   }else micStop353('⚠️ A telefon hangfelismerője nem indult. Használd a billentyűzet mikrofonját.');
+  }
  }
 }
-function mic(){
- if(rec){micManuallyStopped=true;stopMic();el('hhMic299').textContent='🎙️ Diktálás';return}
- startMic(0);
+function startMic(){
+ if(micSessionActive)return;
+ if(!(window.SpeechRecognition||window.webkitSpeechRecognition)){
+  micNotify('error','⚠️ A böngésző nem támogatja a hangfelismerést. A telefon billentyűzetének mikrofonja használható.');
+  return;
+ }
+ micManuallyStopped=false;micSessionActive=true;micSessionStart=Date.now();micLastHeard=micSessionStart;
+ micSessionIndex++;micRestarts=0;micCollected='';lastSpeech='';
+ micQuestionProfile=pk();questionBeforeSpeech=el('hhSQ299').value||'';
+ micButton(true);
+ micNotify('waiting','🎙️ Mikrofon bekapcsolva. Nem kell azonnal beszélned…');
+ micStartRecognizer353();
 }
+function mic(){
+ if(micSessionActive){micStop353('✅ Diktálás befejezve. A szöveg megmaradt.');return}
+ startMic();
+}
+window.addEventListener('healthhub:ask-lena-start',function(){micStop353()});
+window.addEventListener('healthhub:profile-changed',function(){micStop353()});
+
 window.hhOpenLenaSmart299=open;
 window.hhRunLenaSmart299=run;
 window.hhGetLenaHandoff299=function(){return getLocal(HKEY,null)};
