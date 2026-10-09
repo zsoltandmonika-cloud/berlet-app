@@ -27,6 +27,21 @@ function styles(){
  '#hhAi331Error{display:none;background:#fff2f0;border:1px solid #e9bcb3;padding:12px;border-radius:13px;color:#833d38;font-size:12px;line-height:1.6;margin-top:9px}'+
  '#hhAi331Error.on{display:block}'+
  '#hhAi331Local{border:0;background:transparent;color:#5e8392;font-size:12px;text-decoration:underline;padding:10px 0 0;cursor:pointer}';
+ css.textContent +=
+ '#hhLenaSmart299 .askCard:has(#askOverall323),#hhLenaSmart299 #hhIntelligence328,#hhLenaSmart299 #askDeep330,'+
+ '#hhLenaSmart299 .askConsent,#hhLenaSmart299 .askFooter,#hhLenaSmart299 #askKeyboard324,'+
+ '#hhLenaSmart299 #askSpeech323,#hhLenaSmart299 #hhProg299,#hhLenaSmart299 #askInlineFeedback325,'+
+ '#hhLenaSmart299 #askWork330,#hhLenaSmart299 #hhPlain299,#hhLenaSmart299 .askHint,'+
+ '#hhLenaSmart299 #hhAi331Auth,#hhLenaSmart299 #hhAi331Consent,#hhLenaSmart299 #hhAi331Local{display:none!important}'+
+ '#hhLenaSmart299 .askActions{display:flex!important;align-items:stretch;gap:10px!important}'+
+ '#hhLenaSmart299 #hhRun299{flex:1 1 auto!important;grid-column:auto!important;font-size:17px!important;min-height:55px!important}'+
+ '#hhLenaSmart299 #hhMic299{display:flex!important;flex:0 0 66px!important;align-items:center;justify-content:center;font-size:27px!important;min-height:55px!important;padding:8px!important}'+
+ '#hhLenaSmart299 .askQuestion{height:150px!important;min-height:125px!important;max-height:34vh!important}'+
+ '#hhLenaSmart299 .askWidth{gap:10px!important}'+
+ '#hhLenaSmart299 #hhAi331Privacy{font-size:10px;line-height:1.45;color:#688290;margin:8px 1px 0}'+
+ '#hhLenaSmart299 #hhAi331Terminal{max-width:100%;margin:12px 0 8px!important}'+
+ '#hhLenaSmart299 #hhAi331Lines{max-height:125px!important;overflow:auto}'+
+ '@media(max-width:440px){#hhLenaSmart299 .askCard{padding:13px!important}#hhLenaSmart299 .askQuestion{height:135px!important}}';
  document.head.appendChild(css);
 }
 function print(message){
@@ -45,21 +60,15 @@ function showError(message){
 function ui(){
  var btn=el('hhRun299'),q=el('hhSQ299');
  if(!btn||!q||btn.dataset.ai331)return;
- styles();btn.dataset.ai331='1';btn.textContent='🧠 AI-kutatás · valódi elemzés';
- btn.title='Valódi, hitelesített AI-válasz. Csak külön adatkezelési jóváhagyással.';
+ styles();btn.dataset.ai331='1';btn.textContent='🔎 Kutatás';
+ btn.title='Kutatás a kiválasztott profil elérhető adatai alapján';
  var actions=btn.closest('.askActions');if(!actions)return;
- var auth=document.createElement('div');auth.id='hhAi331Auth';
- auth.innerHTML='<span id="hhAi331AuthState">🔐 Központi bejelentkezés ellenőrzése…</span><button type="button" id="hhAi331AuthOpen">🔐 Bejelentkezés</button>';
- actions.parentNode.insertBefore(auth,actions);
- el('hhAi331AuthOpen').addEventListener('click',function(){
-  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
-  if(svc&&svc.openLogin)svc.openLogin();
-  else window.alert('A központi Health Vault bejelentkező felülete jelenleg nem érhető el.');
- });
- refreshAuth();
- var consent=document.createElement('label');consent.id='hhAi331Consent';
- consent.innerHTML='<input type="checkbox" id="hhAi331Opt"><span><b>Egyszeri AI-hozzájárulás</b><br>A kiválasztott profil rögzített alapadatait, méréseit, alvását, aktivitását, tünetnaplóját, gyógyszereit, leletindexét és elmentett leletmagyarázatait a védett AI-szolgáltatás elemzi. Az eredeti PDF-eket nem küldöm el. A kérdés és a válasz nem kerül nyilvános GitHub-fájlba. A válaszadás külső AI-feldolgozással jár.</span>';
- actions.parentNode.insertBefore(consent,actions);
+ // One deliberate user action authorizes this one AI request; no extra checkbox.
+ // We still tell the user exactly where sensitive health data goes.
+ var privacy=document.createElement('p');privacy.id='hhAi331Privacy';
+ privacy.textContent='A Kutatás gombbal az aktív profil releváns adatait az OpenAI API feldolgozza az adott válaszhoz. Eredeti PDF nem kerül továbbításra.';
+ actions.parentNode.insertBefore(privacy,actions.nextSibling);
+ var mic=el('hhMic299');if(mic){mic.setAttribute('aria-label','Diktálás');mic.title='Diktálás';mic.textContent='🎤';}
  var term=document.createElement('section');term.id='hhAi331Terminal';term.setAttribute('role','status');term.setAttribute('aria-live','polite');
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
  actions.parentNode.insertBefore(term,actions.nextSibling);
@@ -67,14 +76,7 @@ function ui(){
  answer.innerHTML='<h2>🧠 Léna elemzése · AI</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
  var err=document.createElement('div');err.id='hhAi331Error';term.parentNode.insertBefore(err,answer.nextSibling);
- var local=document.createElement('button');local.type='button';local.id='hhAi331Local';
- local.textContent='📊 Csak helyi adatösszesítés (AI nélkül)';
- term.parentNode.insertBefore(local,err.nextSibling);
- local.addEventListener('click',function(){
-  if(active)return;cancel();
-  print('Helyi, szabályalapú előnézet indul. Ez NEM AI-kutatás.');
-  if(typeof window.hhRunLenaSmart299==='function')window.hhRunLenaSmart299('standard');
- });
+
  btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();run()},true);
 }
 function refreshAuth(){
@@ -154,10 +156,7 @@ function simplify(report,extra){
 }
 function logSource(data){
  var all=data.sources||[];
- print('Aktív profil: '+(data.profile==='monika'?'Mónika':'Zsolt')+' · elkülönítés ellenőrizve.');
- print(all.length+' forráscsoportból érkezett adat, '+(data.extra||[]).length+' további trend/előzmény.');
- print('Adatkategóriák: '+all.map(function(s){return safe(s.title,26)}).join(' · '));
- print('Eredeti PDF-szöveget nem olvastam és nem továbbítottam.');
+ print((data.profile==='monika'?'Mónika':'Zsolt')+' · '+all.length+' adatforrás beolvasva');
 }
 function errorText(code,status){
  if(status===404)return 'Az AI-kiszolgáló még nincs telepítve. Nem állítom, hogy kutatás történt.';
@@ -170,7 +169,7 @@ function errorText(code,status){
 }
 async function run(){
  ui();if(active){print('Már fut egy kutatás.');return}
- var q=el('hhSQ299'),check=el('hhAi331Opt'),p=profile(),question=q&&q.value.trim();
+ var q=el('hhSQ299'),p=profile(),question=q&&q.value.trim();
  var term=el('hhAi331Terminal'),result=el('hhAi331Answer'),err=el('hhAi331Error');
  term.classList.add('on');el('hhAi331Lines').innerHTML='';err.classList.remove('on');result.classList.remove('on');
  el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
@@ -178,34 +177,33 @@ async function run(){
  var legacy=el('hhProg299');if(legacy)legacy.classList.remove('on');
  if(el('askWork330'))el('askWork330').classList.remove('on');
  if(!question||question.length<3){showError('Írj be egy érdemi kérdést.');return}
- if(!check.checked){showError('A személyes adatok AI-feldolgozásához jelöld be az egyszeri hozzájárulást. Enélkül semmit nem küldök.');return}
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
  if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');return}
- if(!svc.getStatus().authenticated){showError('Nincs központi bejelentkezés. A 🔐 Bejelentkezés gombbal beléphetsz itt, ezen az oldalon.');refreshAuth();return}
+ if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');if(svc.openLogin)svc.openLogin();return}
  var allowed=svc.getStatus().authorizedProfiles;
  if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');return}
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
- print('A kérdést fogadtam. Először személyes adatok nélkül ellenőrzöm az AI-szervert…');
+ print('Kapcsolódás a kutatómotorhoz…');
  try{
   if(!svc.probe)throw Error('A biztonságos AI-szerver ellenőrző modulja még nem töltődött be.');
   var connection;
   try{connection=await svc.probe()}catch(e){throw Error('Az AI-szerver nem érhető el a böngészőből. Lehetséges ok: a Supabase Edge Function nincs telepítve, vagy a CORS/hálózati kapcsolat hibás. A személyes adatok elküldése nem indult el.')}
   if(!connection.ok)throw Error('Az AI-szerver nem áll készen (HTTP '+connection.status+'). A személyes adatok elküldése nem indult el.');
-  print('AI-szerver elérhető. Indítom az aktív profil adatgyűjtését…');
+  print('Személyes adatok biztonságos beolvasása…');
   var bridge=window.HH_LENA_CONTEXT_BRIDGE_V328;
   if(!bridge||!bridge.run)throw Error('Az egészségügyi adatgyűjtő modul nem működik.');
   var report=await bridge.run();
   if(turn!==epoch||profile()!==p)throw Error('A profil közben megváltozott; a kutatás törölve.');
   if(!report||report.profile!==p)throw Error('Nem készíthető hiteles profiladat-összesítés.');
-  print('Helyi HealthHub-források beolvasva. Frissesség és hiányok ellenőrizve.');
+  print('Időpontok, mérések és összefüggések ellenőrzése…');
   var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
   if(ctx&&ctx.profile!==p)throw Error('Profilazonosítási eltérés, feldolgozás leállítva.');
   var extra=addExtra(ctx,question),data=simplify(report,extra);
   data.question=question;
   logSource(data);
-  if(!data.sources.length)throw Error('A jelenlegi profilhoz nincs beolvasható forrás. Nem állíthatok elő személyes elemzést.');
-  print('A jóváhagyott adatcsomagot hitelesített kapcsolaton továbbítom az AI-nak…');
+  if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
+  print('A kérdés elemzése és a válasz készítése…');
   var response=await svc.stream('/functions/v1/healthhub-ask-lena',data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
@@ -245,16 +243,16 @@ async function run(){
    showError(msg);
   }
  }finally{
-  if(turn===epoch){active=null;el('hhRun299').disabled=false;q.disabled=false;check.checked=false}
+  if(turn===epoch){active=null;el('hhRun299').disabled=false;q.disabled=false}
  }
 }
-window.addEventListener('healthhub:ask-lena-open',function(){ui();refreshAuth();var check=el('hhAi331Opt');if(check)check.checked=false});
+window.addEventListener('healthhub:ask-lena-open',function(){ui()});
 window.addEventListener('healthhub:central-auth-changed',refreshAuth);
-window.addEventListener('healthhub:profile-changed',function(){cancel();refreshAuth();var e=el('hhAi331Opt');if(e)e.checked=false;
+window.addEventListener('healthhub:profile-changed',function(){cancel();
  var a=el('hhAi331Answer');if(a)a.classList.remove('on');var t=el('hhAi331Text');if(t)t.textContent='';
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
-window.HH_ASK_LENA_AI_V331={initialize:ui,version:'331'};
-document.documentElement.dataset.healthhubRealAi='1.331';
+window.HH_ASK_LENA_AI_V331={initialize:ui,version:'333'};
+document.documentElement.dataset.healthhubRealAi='1.333';
 })();
