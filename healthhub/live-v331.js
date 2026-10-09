@@ -28,6 +28,22 @@ function styles(){
  '#hhAi331Answer .hhAi331Text strong{color:#155875;font-weight:850}'+
  '#hhAi331Answer .hhAi331Text ul{margin:5px 0 13px;padding-left:22px}'+
  '#hhAi331Answer .hhAi331Text li{margin:5px 0}'+
+ '#hhLenaSmart299 #hhAi331Answer{--lena-accent:#2f78b7;--lena-accent-deep:#185b91;--lena-ink:#173d58;--lena-soft:#ecf6ff;--lena-border:#bcd9ed;background:linear-gradient(165deg,#f0f8ff,#fff 65%);border-color:var(--lena-border);color:var(--lena-ink);padding:18px 16px}'+
+ '#hhLenaSmart299 #hhAi331Answer[data-profile="monika"]{--lena-accent:#d95690;--lena-accent-deep:#aa336a;--lena-ink:#582d48;--lena-soft:#fff0f7;--lena-border:#efbed7;background:linear-gradient(165deg,#fff0f7,#fff 65%)}'+
+ '#hhLenaSmart299 #hhAi331Answer h2{color:var(--lena-accent-deep);font-size:19px;line-height:1.35;margin:0 0 14px;display:flex;align-items:center;gap:8px}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text{font-size:clamp(15px,3.8vw,17px);line-height:1.68;color:var(--lena-ink)}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text strong{color:var(--lena-accent-deep);font-weight:850}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{background:#fff;border:1px solid var(--lena-border);border-radius:16px;margin:0 0 11px;padding:13px 14px;box-shadow:0 3px 11px rgba(23,73,101,.045);min-width:0}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaLead{background:var(--lena-soft);border-color:var(--lena-border)}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaUrgent{background:#fff3ee;border-color:#e5b1a3}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaIcon{font-size:19px;display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;flex:0 0 31px;border-radius:11px;background:var(--lena-soft);margin-right:8px;vertical-align:middle}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock>p{margin:0}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock>h3{font-size:15px;line-height:1.42;color:var(--lena-accent-deep);margin:0 0 8px}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock ul{margin:6px 0 0;padding-left:22px}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaMetric{color:var(--lena-accent-deep);font-weight:790;white-space:normal}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlockHeader{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-weight:790;color:var(--lena-accent-deep);font-size:13px}'+
+ '#hhLenaSmart299 #hhAi331Answer .hhAi331Foot{border-top-color:var(--lena-border);color:#667d8b}'+
+ '@media(max-width:440px){#hhLenaSmart299 #hhAi331Answer{padding:15px 12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{padding:12px}}'+
  '#hhAi331Answer .hhAi331Foot{font-size:11px;line-height:1.6;color:#678392;margin-top:14px;border-top:1px solid #d2e9e4;padding-top:9px}'+
  '#hhAi331Error{display:none;background:#fff2f0;border:1px solid #e9bcb3;padding:12px;border-radius:13px;color:#833d38;font-size:12px;line-height:1.6;margin-top:9px}'+
  '#hhAi331Error.on{display:block}'+
@@ -130,7 +146,7 @@ function ui(){
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
  actions.parentNode.insertBefore(term,privacy.nextSibling);
  var answer=document.createElement('section');answer.id='hhAi331Answer';answer.setAttribute('aria-label','Léna valódi AI-válasza');
- answer.innerHTML='<h2>🧠 Léna elemzése · AI</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
+ answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
  var err=document.createElement('div');err.id='hhAi331Error';term.parentNode.insertBefore(err,answer.nextSibling);
 
