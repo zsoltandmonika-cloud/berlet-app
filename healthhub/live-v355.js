@@ -2,7 +2,7 @@
 'use strict';
 // v355: one Admin connection dashboard. A green icon requires observed success;
 // saved credentials or an enabled scheduler alone do not prove online status.
-var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='',probeError='';
+var ID='hhConnectionCenter355',CSS='hhConnectionCenter355CSS',KEY='hh-connection-center355',busy={},probeState='unknown',probeAt=0,devices=[],deviceError='',lastRefresh=0,loading=false,ob=null,lastMessage='',probeError='',healthEvidence={zsolt:null,monika:null};
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -84,7 +84,12 @@ function connectionRows(){
   probeState==='red'?status('red','Dropbox fájl-API elutasította a kérést: '+probeError,new Date(probeAt).toISOString()):
   probeState==='yellow'?status('yellow','Dropbox fájl-API ellenőrzés bizonytalan: '+probeError,new Date(probeAt).toISOString()):
   is?status('yellow','Munkamenet megvan; még nem ellenőrzött'):status('red','Nincs aktív Dropbox munkamenet');
- var healthImport=cachedState('health-'+p,'Health + Activity',is);
+ var e=healthEvidence[p],healthImport;
+ if(!is)healthImport=status('red','Dropbox-munkamenet hiányzik');
+ else if(e&&e.ok&&recent(e.exportedAt,24))healthImport=status('green','Beolvasott, friss egészségügyi adatcsomag · '+e.recordCount+' adatpont',e.exportedAt);
+ else if(e&&e.ok)healthImport=status('yellow','A Dropbox-adatcsomag régi · '+e.recordCount+' adatpont',e.exportedAt);
+ else if(e&&e.error)healthImport=status('yellow','Nem sikerült ellenőrizni: '+e.error,e.checkedAt);
+ else healthImport=status('yellow','A tényleges egészségügyi adatcsomag ellenőrzésre vár');
  var x=window.hhMasterStructuredSyncState304&&window.hhMasterStructuredSyncState304();
  return [
   knownRow('dropbox','☁️ Dropbox Vault','Közös fájltár, strukturált leletek és sync-parancsok',dropStatus,'dropbox'),
@@ -184,6 +189,62 @@ async function checkDropbox(){
   message('Dropbox ellenőrzés: '+probeError);return false;
  }
 }
+
+function validRecordCount(payload){
+ var c=payload&&payload.counts||{};
+ if(c.hasSourceData===false)return 0;
+ var explicit=Number(c.sourceRecordCount);
+ if(Number.isFinite(explicit)&&explicit>0&&explicit<1000000)return Math.round(explicit);
+ var rs=payload&&payload.records||{},n=0;
+ Object.keys(rs).forEach(function(k){
+  var arr=rs[k];if(!Array.isArray(arr))return;
+  if(['dailyActivity','dailyNutrition','dailySteps','steps'].includes(k)){
+   n+=arr.filter(function(x){
+    return x&&typeof x==='object'&&
+      ['steps','count','value','energyKcal','activeCaloriesKcal','distanceMeters','energy','proteinGrams'].some(function(field){
+        return Number(x[field])>0;
+      });
+   }).length;
+  }else n+=arr.length;
+ });
+ return Math.min(999999,n);
+}
+async function checkHealthProfile(p){
+ var entry={ok:false,checkedAt:new Date().toISOString()},v=vault();
+ if(!connected()||!v||typeof v.downloadJson!=='function'){
+  entry.error='Dropbox nem csatlakozott';healthEvidence[p]=entry;return entry;
+ }
+ var candidate=['/HealthHub/profiles/'+p+'-health-connect.json','/incoming-'+p+'.json'];
+ try{
+  var data=null,path=null,notFound=false;
+  for(var i=0;i<candidate.length;i++){
+   try{data=await v.downloadJson(candidate[i]);path=candidate[i];break}
+   catch(e){if(e&&e.status===409){notFound=true;continue}throw e}
+  }
+  if(!data){entry.error=notFound?'Még nincs felhőbe feltöltött Health Connect-fájl':'Nem érkezett adat';}
+  else if(data.profile!==p)entry.error='Profilazonosító eltérés, az adatot nem használjuk';
+  else if(!data.records||typeof data.records!=='object')entry.error='A Health Connect csomag szerkezete érvénytelen';
+  else {
+   var n=validRecordCount(data),ts=Date.parse(data.exportedAt||'');
+   if(n<1)entry.error='Az adatcsomag nem tartalmaz igazolt mérési rekordot';
+   else if(!Number.isFinite(ts)||ts>Date.now()+600000)entry.error='A feltöltési időbélyeg hiányzik vagy hibás';
+   else{
+    entry.ok=true;entry.exportedAt=data.exportedAt;entry.recordCount=n;entry.path=path;
+   }
+  }
+ }catch(e){entry.error=String(e.message||e).slice(0,160)}
+ healthEvidence[p]=entry;
+ return entry;
+}
+async function checkHealthBoth(){
+ if(!connected())return;
+ // Read-only proof: never push/upload a partial or empty health payload.
+ await Promise.all(['zsolt','monika'].map(checkHealthProfile));
+ if(probeState!=='green'&&Object.values(healthEvidence).some(function(x){return x&&x.ok})){
+  probeState='green';probeAt=Date.now();probeError='';
+ }
+}
+
 async function checkSupa(){
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
  if(!svc||!svc.getStatus||!svc.getStatus().authenticated)return;
@@ -197,7 +258,7 @@ async function checkDevices(){
 }
 async function checkAll(force){
  if(loading)return;loading=true;render();
- try{await checkDropbox();await Promise.all([checkSupa(),checkDevices()])}
+ try{await checkDropbox();await Promise.all([checkSupa(),checkDevices(),checkHealthBoth()])}
  finally{loading=false;render();if(deviceError)message('Eszközlista: '+deviceError)}
 }
 async function runFn(id,fun){
@@ -225,11 +286,11 @@ async function reconnect(id){
    var result=await window.hhOrchestratorDispatchScope355(target,device.deviceId,'health');
    message('📡 '+name(target)+' telefonjára küldtem a parancsot. Ez még NEM a sikeres szinkron! A telefon az Android ütemezése szerint dolgozza fel; itt ellenőrizd az új állapotot.');
   }else if(id.indexOf('health-')===0){
-   var t=id.slice(7);await runFn(id,function(){
-    if(typeof window.hhHealthCloudSyncProfile==='function')return window.hhHealthCloudSyncProfile(t,true);
-    if(t===p&&typeof window.hhHealthCloudSync==='function')return window.hhHealthCloudSync(true);
-    throw Error('Health + Activity modul nem elérhető');
-   });
+   var t=id.slice(7),verified=await checkHealthProfile(t);
+   if(!verified.ok)throw Error('A mérések nem igazolhatók: '+(verified.error||'ismeretlen hiba'));
+   // The dashboard checks actual Dropbox input. Do not force a data overwrite.
+   message('✅ '+name(t)+' valódi, beolvasható Health Connect csomagja megtalálható: '+verified.recordCount+
+    ' adatpont. Az Activity képernyő betöltése külön történik.');
   }else if(id==='master')await runFn(id,function(){return window.hhMasterStructuredSync304(true)});
   else if(id==='profile')await runFn(id,function(){return window.hhDropboxPushCurrentProfile()});
   else if(id==='devices')await runFn(id,function(){return window.hhDeviceCloudSync(true)});
@@ -250,6 +311,8 @@ function diagnosticText(){
   'HealthHub Connections · v357 · '+new Date().toISOString(),
   'Aktív profil: '+name(profile()),
   'Dropbox fájlpróba: '+probeState+(probeError?' · '+probeError:''),
+  'Health Connect fájl (Zsolt): '+(healthEvidence.zsolt&&healthEvidence.zsolt.ok?'érvényes · '+time(healthEvidence.zsolt.exportedAt):healthEvidence.zsolt&&healthEvidence.zsolt.error||'nem ellenőrzött'),
+  'Health Connect fájl (Mónika): '+(healthEvidence.monika&&healthEvidence.monika.ok?'érvényes · '+time(healthEvidence.monika.exportedAt):healthEvidence.monika&&healthEvidence.monika.error||'nem ellenőrzött'),
   'Személyes mérést, hozzáférési tokent a jelentés nem tartalmaz.'
  ];
  rows.forEach(function(r){lines.push(r.label+' | '+r.state.status+' | '+r.state.text+' | '+(r.state.at||'nincs időpont'))});
