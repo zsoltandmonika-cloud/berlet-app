@@ -194,5 +194,5 @@ function mount(host){
  }
 }
 sSave(active()?sRead():null);
-window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}}};
+window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode}},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})}};
 })();
