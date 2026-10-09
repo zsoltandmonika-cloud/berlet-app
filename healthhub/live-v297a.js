@@ -53,7 +53,16 @@ function refine(packet){
   if(ar&&ar.fileId)s+=1;
   return{id:d.id,date:d.date,category:d.category,title:d.title,score:s,driveArchive:ar||null,hasExplanation:!!d.explanation,anchorDistanceDays:dist<99999?Math.round(dist):null};
  }).filter(function(x){return x.score>2}).sort(function(a,b){return b.score-a.score||String(b.date||'').localeCompare(String(a.date||''))});
- packet.route.candidateDocuments=scored.slice(0,8);
+ // Only originals actually archived on Drive can be read by the existing v296 retriever.
+ // Previously the first eight scored documents could all be local-only, hiding
+ // older but relevant archived originals and falsely reporting "no Drive record".
+ var accessible=scored.filter(function(d){return !!(d.driveArchive&&d.driveArchive.fileId)});
+ packet.route.candidateDocuments=accessible.length?accessible.slice(0,8):scored.slice(0,8);
+ packet.route.retrievalReadiness={
+  relevantDocuments:scored.length,
+  archivedRelevantDocuments:accessible.length,
+  note:accessible.length?'archived relevant originals selected':'relevant originals are not archived or accessible from this device'
+ };
  packet.route.relevance={engine:'v297',anchorDocument:anchor?{id:anchor.id,date:anchor.date,title:anchor.title}:null,temporalClustering:!!(anchor&&!explicit),refinedAt:new Date().toISOString()};
  write(REQ,packet);emit('healthhub:lena-research-refined',packet);return packet;
 }
