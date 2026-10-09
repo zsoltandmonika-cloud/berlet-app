@@ -92,10 +92,22 @@ async function readyPublic(today){
   return j&&j.schema==='healthhub.daily-health-public/1'&&j.date===today;
  }catch(e){return false}
 }
+function attemptedRecently(key){
+ if(autoAttempted[key])return true;
+ try{
+  var t=Number(sessionStorage.getItem('hhpai-auto-'+key)||0);
+  return Number.isFinite(t)&&t>0&&Date.now()-t<45*60000;
+ }catch(e){return false}
+}
+function noteAttempt(key,on){
+ autoAttempted[key]=!!on;
+ try{if(on)sessionStorage.setItem('hhpai-auto-'+key,String(Date.now()));
+ else sessionStorage.removeItem('hhpai-auto-'+key)}catch(e){}
+}
 async function autoGenerate(today){
  if(autoRunning||!signed()||today!==day())return;
  var eligible=['monika','zsolt'].filter(function(k){
-  return consent(k)&&!reportRows(k).some(function(r){return r.report_date===today})&&!autoAttempted[today+':'+k];
+  return consent(k)&&!reportRows(k).some(function(r){return r.report_date===today})&&!attemptedRecently(today+':'+k);
  });
  if(!eligible.length)return;
  if(!(await readyPublic(today)))return;
@@ -104,11 +116,11 @@ async function autoGenerate(today){
  try{
   for(var i=0;i<eligible.length;i++){
    var k=eligible[i],key=today+':'+k;
-   autoAttempted[key]=true; // one attempt per profile/day per open page, never an infinite loop
+   noteAttempt(key,true); // avoid repeated AI charges across page reloads
    try{
     var result=await api().request('/functions/v1/healthhub-personal-ai',{method:'POST',data:{mode:'generate',profile_key:k}});
     if(result&&result.ok)changed=true;
-    else if(result&&result.reason==='source_not_ready')autoAttempted[key]=false;
+    else if(result&&result.reason==='source_not_ready')noteAttempt(key,false);
     else if(result&&result.reason==='generation_failed')notice='⚠️ A napi generálás szerveroldali hibát jelzett. A korábbi briefing továbbra is elérhető.';
    }catch(e){notice='⚠️ Az automatikus jelentéskészítés átmenetileg nem elérhető. Az archívum megmarad.'}
   }
