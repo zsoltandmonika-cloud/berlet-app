@@ -66,7 +66,7 @@ function ui(){
  // One deliberate user action authorizes this one AI request; no extra checkbox.
  // We still tell the user exactly where sensitive health data goes.
  var privacy=document.createElement('p');privacy.id='hhAi331Privacy';
- privacy.textContent='A Kutatás gombbal az aktív profil releváns adatait az OpenAI API feldolgozza az adott válaszhoz. Eredeti PDF nem kerül továbbításra.';
+ privacy.textContent='A Kutatás az aktív profil releváns egészségadatait az OpenAI API-val dolgoztatja fel. Az eredeti PDF-eket nem küldjük el.';
  actions.parentNode.insertBefore(privacy,actions.nextSibling);
  var mic=el('hhMic299');if(mic){
   mic.setAttribute('aria-label','Diktálás');mic.title='Diktálás';mic.textContent='🎤';
@@ -89,7 +89,7 @@ function ui(){
  }
  var term=document.createElement('section');term.id='hhAi331Terminal';term.setAttribute('role','status');term.setAttribute('aria-live','polite');
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
- actions.parentNode.insertBefore(term,actions.nextSibling);
+ actions.parentNode.insertBefore(term,privacy.nextSibling);
  var answer=document.createElement('section');answer.id='hhAi331Answer';answer.setAttribute('aria-label','Léna valódi AI-válasza');
  answer.innerHTML='<h2>🧠 Léna elemzése · AI</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
