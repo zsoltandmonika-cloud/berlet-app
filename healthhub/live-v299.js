@@ -274,6 +274,7 @@ async function run(){
   if(window.HH_LENA_CONTEXT_BRIDGE_V328&&typeof window.HH_LENA_CONTEXT_BRIDGE_V328.run==='function'){
    await window.HH_LENA_CONTEXT_BRIDGE_V328.run();
   }
+  if(pk()!==p)throw Error('Profilváltás történt a kutatás közben. Az új aktív profilnál indítsd újra; személyes adatokat nem keverünk.');
   status('1/6 · Health Context','Az aktív profil releváns adatai frissülnek.',8,'');
   await window.hhRefreshLenaHealthContext289(p,'ask-lena-v323');
   status('2/6 · Research Router','Kérdés és dokumentumok relevancia szerinti kiválasztása.',21,'');
