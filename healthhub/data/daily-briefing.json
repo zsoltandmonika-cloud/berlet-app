@@ -1,226 +1,278 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-08",
-  "generatedAt": "2026-10-08T22:29:08+02:00",
-  "headline": "A reggel fő témái: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge; Christa Pike now walking after failed US execution, lawyer tells BBC",
+  "date": "2026-10-09",
+  "generatedAt": "2026-10-09T13:22:28+02:00",
+  "headline": "Nemzetközi és magyar hírek 2026. október 9.",
   "sections": [
+    {
+      "id": "ai-summary",
+      "title": "🧠 Léna AI-elemzése",
+      "items": [
+        "A nemzetközi hírek között szerepel a Pentagon döntése a kivégzés élő közvetítéséről, a monacói bombamerénylet gyanúsítottjának nyilatkozata, valamint a szaúdi és ukrajnai konfliktusok alakulása. Magyarországon az MI-használat és külügyi párbeszéd a fókuszban, miközben természeti és politikai kihívások is megjelennek."
+      ]
+    },
+    {
+      "id": "ai-geopolitics",
+      "title": "🌍 Geopolitikai összefüggések",
+      "items": [
+        "A közel-keleti konfliktusok, különösen a szaúdi repülőtér elleni támadások, valamint az orosz-ukrán helyzet továbbra is feszültséget okoznak, amely hatással lehet a regionális stabilitásra és migrációra."
+      ]
+    },
+    {
+      "id": "ai-hungary",
+      "title": "🇭🇺 Magyarországi fejlemények",
+      "items": [
+        "Magyarországon folytatódik a külügyi párbeszéd Törökországgal, és az államtitkár területi egyeztetéseket tart, miközben a tanszélben az MI-használatban vezető helyet foglal el a visegrádi országok között. Környezetvédelem érdekében az SOS Balaton aláírásgyűjtést indít a természetes partszakaszok megőrzéséért."
+      ]
+    },
+    {
+      "id": "ai-economy",
+      "title": "📈 Gazdasági értelmezés",
+      "items": [
+        "Az USA-ban Donald Trump az üzemanyagárak csökkentését célozza a félidős választások előtt. A globális üzleti hírek között visszatérésekkel és csalásokkal kapcsolatos vizsgálatok is szerepelnek. A magyar gazdaság szempontjából az MI nyújthat versenyelőnyt."
+      ]
+    },
+    {
+      "id": "ai-tech",
+      "title": "💡 Technológia / AI",
+      "items": [
+        "Az MI-használatban Magyarország vezető szerepet tölt be a visegrádi országok körében. A technológiai szektorban a Meta üzleti eredményei jól teljesítenek a vezető presztízsproblémái ellenére. Felmerül a megújuló energiahasználat kérdése a napelemtetők kapcsán."
+      ]
+    },
+    {
+      "id": "ai-risks",
+      "title": "⚠️ Mai kockázatok",
+      "items": [
+        "Az élő kivégzés közvetítése morális és biztonsági aggályokat vet fel. A közel-keleti és ukrajnai konfliktusok növekvő emberi és politikai kockázatokat hordoznak. A természeti események, például a mediterrán ciklon közeledése komoly időjárási kockázatokat jelent Magyarországon."
+      ]
+    },
+    {
+      "id": "ai-watch",
+      "title": "🔎 Figyelendő témák",
+      "items": [
+        "Figyelemre méltó továbbá a WhatsApp csalások kivizsgálása és a nemzetközi munkaerő-piaci korlátozások, mint a Microsoft külföldi dolgozókat érintő programjának blokkolása az Egyesült Államokban."
+      ]
+    },
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
-        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture",
-        "BBC World: Protesters blame 'vulture funds' for Spain's housing crisis"
+        "BBC World: Firing squad execution to be livestreamed, Pentagon says",
+        "BBC World: Fort Hood survivor supports gunman's execution by firing squad but questions livestream",
+        "BBC World: Suspect linked to Monaco bomb attack on millionaire speaks to BBC",
+        "BBC World: Thieves steal 30,000 wine bottles worth €5m in Italy, reports say"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
-        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture"
+        "BBC World: Firing squad execution to be livestreamed, Pentagon says",
+        "BBC World: Fort Hood survivor supports gunman's execution by firing squad but questions livestream",
+        "BBC World: Thieves steal 30,000 wine bottles worth €5m in Italy, reports say"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC",
-        "BBC World: Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture"
+        "BBC World: Firing squad execution to be livestreamed, Pentagon says",
+        "BBC World: Fort Hood survivor supports gunman's execution by firing squad but questions livestream",
+        "BBC World: Suspect linked to Monaco bomb attack on millionaire speaks to BBC"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Megváltozik az elektronikus útdíjrendszer Magyarország szomszédjában - Portfolio.hu",
-        "Világgazdaság: Törökország felé nyit a Tisza-kormány, Orbán Anita fontos üzenetet vitt Ankarába: Magyarország konkrét segítséget ad az uniós ügyekben - Világgazdaság",
-        "HOLD Alapkezelő: A Ratkó-korszak ma is alakítja Magyarország demográfiai helyét - HOLD Alapkezelő"
+        "Jogászvilág: Magyarország legszebb szőlőbirtokai 2026-ban - Jogászvilág",
+        "Vatican News: Parolin bíboros: A Szentszék és Magyarország közti kötelék ezeréves történelemre nyúlik vissza - Vatican News",
+        "Magyarország Kormánya: Területi vezetőkkel egyeztetett az új államtitkár - Magyarország Kormánya"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Asos hackers took more personal details than first revealed, BBC finds",
-        "BBC Business: We spent thousands on a Tui river cruise but ended up on coach trips",
-        "BBC Business: White House blocks Microsoft from foreign worker hiring program"
+        "BBC Business: Trump wants to reduce the cost of fuel as the midterms loom - will it work?",
+        "BBC Business: 'Add me on WhatsApp' scam calls to be investigated",
+        "BBC Business: I've been with my boyfriend for two years and don't know his salary"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: White House blocks Microsoft from foreign worker hiring program",
-        "BBC Technology: Asos hackers took more personal details than first revealed, BBC finds",
-        "BBC Technology: AI chip boom pushes Samsung profits to record $80bn"
+        "BBC Technology: Fired OpenAI researchers say they were let go for 'prioritising safety'",
+        "BBC Technology: Nvidia-backed data centre firm scraps IPO as AI valuation concerns deepen",
+        "BBC Technology: 'Careless use of AI is the real threat - not the ghost stories'"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge (BBC World).",
-        "Figyelmi pont: Protesters blame 'vulture funds' for Spain's housing crisis (BBC World).",
-        "Figyelmi pont: How oil-rich Alberta's economy might fare if it broke away from Canada (BBC Business)."
+        "Figyelmi pont: Suspect linked to Monaco bomb attack on millionaire speaks to BBC (BBC World).",
+        "Figyelmi pont: Three Saudi nationals killed in Houthi attacks on Riyadh airport (BBC World).",
+        "Figyelmi pont: Russian strikes and approaching winter force some in Kyiv to pack bags and flee (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
-        "BBC World: Christa Pike now walking after failed US execution, lawyer tells BBC"
+        "BBC World: Firing squad execution to be livestreamed, Pentagon says",
+        "BBC World: Fort Hood survivor supports gunman's execution by firing squad but questions livestream"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Russian strike on buses kills at least 30, say officials, as deadly attacks on Ukraine surge",
+      "title": "Firing squad execution to be livestreamed, Pentagon says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c875pwq134l3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cmy0r96xygx6o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Christa Pike now walking after failed US execution, lawyer tells BBC",
+      "title": "Fort Hood survivor supports gunman's execution by firing squad but questions livestream",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c60rln74yzvxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/ck1wvqw4lzdvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Venezuela's ex-leader Nicolás Maduro charged with conspiracy to commit torture",
+      "title": "Suspect linked to Monaco bomb attack on millionaire speaks to BBC",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c5pvgn7xvxpzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/ckgel9044vqeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Protesters blame 'vulture funds' for Spain's housing crisis",
+      "title": "Thieves steal 30,000 wine bottles worth €5m in Italy, reports say",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3j4790elkx7o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cme3xl8ln2vko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Italy approves elections overhaul as opposition accuse Meloni of 'scam'",
+      "title": "ICE agent shoots man in New York City",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6zxjdw8rdl5o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/c59vzk9yypn3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "US deportations to African countries unlawful and exploit suffering, rights group says",
+      "title": "Crazy Rich Asians to return as TV show with original film's stars",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c9p8gn55433jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cm5yne8k6zw8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Teacher who sexually abused pupil back in Indonesia jail after BBC investigation",
+      "title": "Three Saudi nationals killed in Houthi attacks on Riyadh airport",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckgel9r341gdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cmz7xe37g5wro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Residents airlifted to safety after flooding in central Chile",
+      "title": "Russian strikes and approaching winter force some in Kyiv to pack bags and flee",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck5yn8jn677vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/c6zjx7jexz1do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Megváltozik az elektronikus útdíjrendszer Magyarország szomszédjában - Portfolio.hu",
+      "title": "Magyarország legszebb szőlőbirtokai 2026-ban - Jogászvilág",
+      "publisher": "Jogászvilág",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQLU5RczFvR25EM2lQamRja1RmR1YzMnRXejZFUFFxaVd5djhJWVVMUG5IV3pRZlNsdkdsakpVTV9BY0JZT0puZV9tYWpORV9rOVRhR1dCenZsUWdYTmpzNGo2WWp5ZEk2VmdqUFYwZzFDQVZqTko0NDU4TzhHX1NGUzRn?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "Parolin bíboros: A Szentszék és Magyarország közti kötelék ezeréves történelemre nyúlik vissza - Vatican News",
+      "publisher": "Vatican News",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPR2E2N1NscTM0R3dIb1RfZWFPNzdDZlRXbVRUZmdKNDZiUk44MC0wR1IyQzhqLXBrMkdKTDFkSmZFeFJYVEQ3ZFNOSHpoWWFjVTliVkd1bG85c0MwaWR2R0U5MnY2Q1dLem1aVWtfWmo5cFgwUHAwbDRhUWR6MFhZZjRBY25wNFJQTUc1SDkzT3JWdEx1bEhIMXJsVVBmaUw0OHZsdC1pZW1neDJvOTdxLUZud1BnUzA?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "Területi vezetőkkel egyeztetett az új államtitkár - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9LWV9uOTduNHRmR0pDanRKYnNfWkhkYS1PbjM2ZkxYY0NwaW1zYVFMVDZXNUdMQVJ5bEgyZFBuTGxhWjJ6bGNNS3pmMThsOGRjNXI1cFYxSlhxNFdJakNUb2NGb09oU1RNUHhna3BjM01OVFpoNUFmUHBwb3pMc2M?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "SOS Balaton: aláírásgyűjtés indul a természetes partszakaszok megmentéséért - Greenpeace",
+      "publisher": "Greenpeace",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQX09vUjRGX21KQlJ1N3Z0WUN6WWNGOVVUM2p4SjI1Y25zNFBtU2o1a2lVaWZIX1EtcmpIOURPVkxhTjBWTU5IandjcmZaZE5fY3lfeFZIMHZmRjUyT0VyZGdXVGNyblpDMGZ6c0tFOGpOc2o2RzdwR2ZPVlNjZlN4ZEh1VkdPcnRWQ3Z4dmhtR24wR2NPcnA1NVRxaWFrcXlIZ0R0Q0ZQSEVYdGl6SldTQzAzc2tIeEN6Q2VwZExjUXd6ZDVoT1JZS2lfcw?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "MI-használatban Magyarország az élen áll a visegrádi országok között - AzÜzlet",
+      "publisher": "AzÜzlet",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPb1FRM1RwbTh6cjhDZVhaZWhsUU93VWVsRVl2UGRkSkRRYmtYYmtyUDJnTHFpMFpncXhudVNwWll5RUV1djVOY25mbEtaV1FPbm1uZXZISmVkLXRHcXl0YkppbTZ2eE9kSGlIazJyR0RSVVJjcTVVdjlQR2x0SFY0b0JzOFlLck9XdTFnbnM3RU55Zw?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "Magyarország visszanyerte a szabadságát, de a liberális demokráciát megteremtő rendszerváltás még nem zárult le - Klubrádió",
+      "publisher": "Klubrádió",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQR2NZeDJqRTdYUFJOdmZLTmZ3UWN0UkZnRlpnZFFuVW1fVnRuTEJJY0w3QkdTbXQ5WWZjV0xRcXFQajJFSXJFdVZ5RktwOHRYU2RwUmtBOW4tUnpJbU5pXzQwTERvM0NCa1MyNVZuZGVqUmlYQTdyQlNoMHJZMm8wcXNhV0NDVFVzbklCbUtrTkwzZ0huOF9RbFpsMzhIOG13RnhyOGFWMVI5OG85R3NCNFl4WFhfWGVRamd4U0dESk9VaXlKOG1MVU5CeGpBMXJiRlFvYnpZamsxMVdHVlg2ZVJhWQ?oc=5",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "Mediterrán ciklon közelít Magyarország felé, ez határozza meg a hétvége időjárását - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQeF95V3JHdGlxMzJqMFpRcEUzZnBmUzJ6UGxwekNDeHJlM1M4U2RpVzhaUjcwRm9BeE1YWVoxcHBCbTBMN3cxZWtWMU9jMXlKV2wwYlhTUk1GQ2lyQTVkYXpIU0Rjc0R1eEI4NC1uMXhQb0RkRTl4R0NyWWdvZEJUUEtvMzkyVkcweDRvcEFmYmVmbFZJSXNJRVBsUzI2VXpsaEtaWENlSWQyVE96ZW1iUEFleTJWNVNYM0HSAb8BQVVfeXFMTVhSNko2ck9uN1RYYUoxTVowSnNJRHRJNWwzN0lnTlpOdW1vbksyZWVYUXVJMUJPOUtUV3BiSjIxc3c0Qlp4U3JDVlBiOFVyZV9nbVBaQXFUQnJPM2FhY2hiOHZGN20tX01LYmZueUFVaFhCTHM5RV9SeFpVUjYwQzcxa2hyTU1sYkcxenVGbWROMlpXN1lCbkVDSmpaRkJ5NnFHc0tkZUsydWl4SERhc1RpdWJHQ25KS2E1MjROdnc?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNMWlIenQ5dHlWc0FhRkZCcTVKNVQ1bjZkajhHYk1Ia3lZX0FYcFNTMDZydVNZZDZtWjVBNDBjUG43OHRQTXV1SHF3X3BOR2FRUldSa0U0TmZCX2pOeGlWZmduMThjd2NydllkSVF0aUt6UEVGeUpBeW9Cay1JYTU3WmRWMERvdUN4WnN1S1dxWTFsdGtrckZ5WU4yaVlyTUhwVEJJR0F5MWJwZjB4Sm9zcWFEZm1pRDNvcENxbHZhY1FEeU1ZVVpvem5ZUdIB0AFBVV95cUxORVlyUEtUQVJyU09SVURLcDFHcGw3aWJMYlFZWEotalpXaGh4V2E5Tm52VGlHblBPTU81dXFIUkRpQnNlRlBjZWR2YktrV3BMamFCOXAwdUxRZWVlMHBXaW1nWHZoQTVFcWcxeGZkUVRTcGtzODdnRWowRWdwczZzYkdZQnpzM3U3OXdNQjZLLXVfdmhiTm5RdmVzNTA5MU9EOXBYY3J1eXdnb0kzMEtOU0cwUldGM3BYd1Y3cnRIS0hOaEJ1ajFXWFNyaXQ2Ui1i?oc=5",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "Törökország felé nyit a Tisza-kormány, Orbán Anita fontos üzenetet vitt Ankarába: Magyarország konkrét segítséget ad az uniós ügyekben - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQWk83Qk9IQ0t5NVJCaW12VTQ0dUxPRDdnVUxCWXE1TmhQeS1EVVNSN2xfYlVsM2dZeFVKRS04MU5yOWRRaHNHcmFSUUNMMldTTnNNQVgxLWlLZXVVZEg5UDdaSTBaZ0hJLXRlYUFEX0FKaTUxUkFBTWdtZzVtVmFobHFwVnJiemV3TG1UZXhiVQ?oc=5",
-      "publishedAt": "2026-10-08"
+      "title": "Ismét külügyi párbeszéd zajlik Magyarország és Törökország között, szorosabb együttműködés jöhet - www.atv.hu",
+      "publisher": "www.atv.hu",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE42RFgyN0sycVdLa0JoUDlDLTZGdnlxVmg1emZuazRSZC1teFoyZzlVLW5hT2lzTHZaQUVRaERjNGpFWW1aY0dSd19BeTk1Wm1yMTFEbGJmUk16aENKcVFKclBzcXhQZnJURnVSZm1aeWU?oc=5",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "A Ratkó-korszak ma is alakítja Magyarország demográfiai helyét - HOLD Alapkezelő",
-      "publisher": "HOLD Alapkezelő",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5lQ1RGMjNKWUNIY1VsMlJwU3djeGJLODd0NnJRX2t0T25JUmQ4cnhmUnBZLUp6UnpQRFdCUmplVFF2TEdwNmtiU3pJSzctZ2R4QTlFLXQ2aWJoSEU?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Gondolta volna? Magyarország itt már lehagyta a V4-eket - mfor.hu",
-      "publisher": "mfor.hu",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNbG1VRFFEa1U0ZFQybk1TSGJpRnAzRzluV2h5VEFqV3JPWWNYbF9WVUZzYTRQTGQ0Q3pudWZTVHZfQkFsY1J6Tm55YXNqYm1EZnBNVFc1SDA1U09pUnp3RURITG5BbWNzc3k1RUhaVG5DY3ZPR2xCOHpOSFRpbUhxMk44X3VtZl95cllua1NSY1E2ZGhSbFE?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Magyarország a V4 élén az AI-használatban - Piac&Profit",
-      "publisher": "Piac&Profit",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQUWdibHNEaFAxdFE0X3otM3d3dTFtUWtqYXZCZElyVDZOaERQeGstT195cE1tanlsSi1Bb1ZvV0VFMDVXMDFneDBvN1pKMFNIV2JDcVFfWGlROVhXb3VoMy1nbzhWeFRxQ251dHdkaUZfeUF2VnJBOTNTTDc0V0stV0c1clE0RTJiUWNjRDNMbw?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "A Szilvafácska lett Magyarország Cukormentes Tortája - Trade magazin",
-      "publisher": "Trade magazin",
-      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxORTV5NUI5aGk4cElqMjFDR1BqdVJGWGZMTEwyTTJ3RzhlNktZelhHWVRHYjh2M2xlMzl5ZmsyV3NNdXZyelREaVpIaGdlandDaHdlRlpkYU1oZ29GZm9fRGxkVlhsbm9fT29BdFVvY1ptaEpOYXNwb3VqM205bTJiRm1GYTYwRXc?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "A teljes interjú elérhető a Magyarország Kormánya YouTube-csatornáján. - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxPQjBzYkNHRUhJaHEwZTNZRDdYc2F3ZUI2MU5Nc2QtWF9CODhfTVgtdFdzUi15ZHdwejdTQ0kybDVUV0tJUnJJblNlVE5XcVkwN1lxX18xVDUzZzBDaHRWSUkybUdnRFFhelNFOWRWTFNBaDBoS3YxVW83cF9HRjJSU1NkTS1iQXJSdlRIN2Ryb3JOWmZISmZkakdiVXp0bFBQWUJzYVFRcENKNDhvZ2JfNGZ3aG5tYVZmRHAtQ2dBYjhCQWZ3M2lvblFodDY2M0FQWlN0Vkd1X2RDanR0c09GVF9xMklEOVp0RkZSa2RlVFVBNThEazQ4?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Térkép mutatja meg Magyarország szentélyerdőit - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQRmp4cFNmM21PRUV2dUtsRTlKZ1c2QnhxLTVXenZuVFA3OEN5RW93SmpQcHc2QkdTUVBtbm1PUFhNU1AxaC0zd3JIYXZEekhxejJ2V3pIb2JfbXg4MWJxRzc2d2w5cXlQQ1VLTThsU21fOW1UMDQ1aF9wenNybk9ZSldXX29GeDgzOHFRQ25XZWxoUzA?oc=5",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "Asos hackers took more personal details than first revealed, BBC finds",
+      "title": "Trump wants to reduce the cost of fuel as the midterms loom - will it work?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3zxjdw5ywgpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cv2d6x749lwro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "We spent thousands on a Tui river cruise but ended up on coach trips",
+      "title": "'Add me on WhatsApp' scam calls to be investigated",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cq62j2lzlnm8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cqd09g4l2k9yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "White House blocks Microsoft from foreign worker hiring program",
+      "title": "I've been with my boyfriend for two years and don't know his salary",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c8wyz69r0nnpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
+    },
+    {
+      "title": "White House blocks Microsoft from foreign worker hiring programme",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/ck5yngl2y4gpo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-08"
     },
     {
-      "title": "Adidas sues Australian label White Fox over four stripes design",
+      "title": "Mark Zuckerberg has an image problem - so why is Meta's business booming?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c9e8ld448km8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cq8rzjv8g7ejo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "Chrysler Building to get its crown restored after being sold",
+      "title": "Why are more roofs not made of solar tiles?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c8g47z3r4dzvo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cdr7n610rmzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "How oil-rich Alberta's economy might fare if it broke away from Canada",
+      "title": "'You cannot build this car anywhere else in the world'",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cy745jznvxpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/cmx2q7rlxxw8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     },
     {
-      "title": "'Come all the way' back to EU, French finance minister tells UK",
+      "title": "Nvidia-backed data centre firm scraps IPO as AI valuation concerns deepen",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqdjvg3xww2go?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
-    },
-    {
-      "title": "'Stop throwing shade' - the woman trying to stop firms leaving the UK",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmgqwydpd4xwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-08"
+      "url": "https://www.bbc.co.uk/news/articles/ck9dzpw4ll8po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-09"
     }
-  ]
+  ],
+  "aiGenerated": true,
+  "aiModel": "gpt-4.1-mini",
+  "aiLimit": "AI elemzés kizárólag RSS-címek alapján; teljes cikkek nem kerültek feldolgozásra."
 }

@@ -1,31 +1,33 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-08",
-  "generatedAt": "2026-10-08T22:29:08+02:00",
+  "date": "2026-10-09",
+  "generatedAt": "2026-10-09T13:22:18+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
+      "headline": "Ma a részletekben rejlő lehetőségek napja!",
       "sections": {
-        "focus": "A fókusz ma nem több erőfeszítést jelent, hanem kevesebb felesleges váltást.",
-        "workMoney": "Egy kis adminisztratív rendrakás később időt és idegeskedést spórolhat.",
-        "relationships": "Egy kisebb félreértést érdemes gyorsan tisztázni, mielőtt önálló életet kezd.",
-        "energy": "A nap közepén egy rövid szünet többet érhet, mint még egy erőből végigvitt óra.",
-        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
-        "lenaThought": "A jó ötletek ritkán kérnek engedélyt. Érdemes észrevenni őket, mielőtt továbbmennek."
+        "focus": "Ma érdemes az apró részletekre figyelni, mert ezek adják meg a siker alapját.",
+        "workMoney": "Az aprólékos hozzáállásod ma különösen értékes, ami akár inspiráló ötleteket is hozhat.",
+        "relationships": "Az odafigyelésed mások apró gesztusainak felfedezésében mutatkozik meg, ami közelebb hoz másokat.",
+        "energy": "A precíz és szervezett energiád segít átlendülni a kisebb akadályokon.",
+        "evening": "Este szánj időt a pihenésre és az elmélkedésre, hogy újult erővel kezdhesd a holnapot.",
+        "lenaThought": "A gondos, részletekre figyelő hozzáállásod ma valódi kincseket hozhat a nap végén."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Ma a tiszta prioritás és egy jól időzített döntés hozhat nyugodtabb ritmust.",
+      "headline": "Engedd szabadon az ötleteidet, és hagyd, hogy szárnyaljanak!",
       "sections": {
-        "focus": "Ne próbálj mindent egyszerre optimalizálni. Egy jól befejezett dolog ma többet ér három félkésznél.",
-        "workMoney": "A mai döntéseknél különítsd el azt, ami sürgős attól, ami csak hangos.",
-        "relationships": "A figyelem most többet adhat a másiknak, mint bármilyen nagy gesztus.",
-        "energy": "A tempó ma fontosabb, mint a sebesség: legyen benne ritmus és pihenő is.",
-        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
-        "lenaThought": "A tisztább döntés gyakran abból születik, amit kihagysz, nem abból, amit még hozzáadsz."
+        "focus": "Ma a kreativitás és szabadság iránti vágyad vezéreljen, merj új utakat keresni.",
+        "workMoney": "Egy váratlan ötlet vagy megoldás ma könnyen előrelendítheti a munkádat.",
+        "relationships": "Merj megosztani szokatlan gondolatokat, mert ezek értékes beszélgetéseket indíthatnak el.",
+        "energy": "Az energiád ma a változatosságból és az újdonságokból táplálkozik.",
+        "evening": "Este adj időt magadnak egy inspiráló olvasásra vagy gondolatébresztő filmre.",
+        "lenaThought": "Az egyediség és nyitottság ma különösen vonzóvá tesz mások szemében."
       }
     }
-  }
+  },
+  "aiGenerated": true,
+  "aiModel": "gpt-4.1-mini"
 }
