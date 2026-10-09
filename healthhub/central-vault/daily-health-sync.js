@@ -52,12 +52,12 @@ async function login(email,password){
   autoAttempted=true;
   await fetchCloud();
  }catch(e){lastError=e.httpStatus===400||e.httpStatus===401?'Sikertelen bejelentkezés. Ellenőrizd az e-mailt és a jelszót.':(e.message||'Központi hiba.');if(e.httpStatus===401)sSave(null)}
- finally{busy=false;draw()}
+ finally{busy=false;draw();window.dispatchEvent(new Event('healthhub:central-auth-changed'))}
 }
 function logout(){
  sSave(null);profiles=null;household=null;lastError='';autoAttempted=false;
  ['m','z'].forEach(function(k){states[k]={mode:'local',revision:0,snapshot:null,remote:null}});
- draw();
+ draw();window.dispatchEvent(new Event('healthhub:central-auth-changed'));
 }
 async function fetchCloud(){
  await ensureToken();
