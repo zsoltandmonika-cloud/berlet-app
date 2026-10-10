@@ -21,6 +21,12 @@ android {
         // remains on minSdk 26 for backwards compatibility.
         minSdk = if (withSamsungSdk) 29 else 26
         targetSdk = 35
+        // Keep the existing HealthHub Connect installed. SDK development gets
+        // its own sandboxed app ID and signing identity, so it cannot overwrite
+        // the user's working Dropbox/HC configuration.
+        if (withSamsungSdk) applicationIdSuffix = ".samsungbeta"
+        manifestPlaceholders["healthHubLabel"] = if (withSamsungSdk) "HH Samsung Beta" else "HealthHub Connect"
+        manifestPlaceholders["healthHubScheme"] = if (withSamsungSdk) "healthhubsamsungbeta" else "healthhubconnect"
         versionCode = 18
         versionName = "0.12.0"
     }
