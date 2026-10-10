@@ -68,7 +68,11 @@ function calculate(profile,records,core,measurement){
  var steps=Math.max(0,n(d.steps)||0);
  var rawKm=(n(d.distanceMeters)||0)/1000;
  var stepKm=steps*h/100/1000*(sx==='female'?0.413:0.415);
- var dailyKm=rawKm>0?rawKm:stepKm;
+ var distanceEngine=window.HH_DISTANCE_ENGINE_V369;
+ var estimatedDistance=distanceEngine&&distanceEngine.estimate(profile,steps,h);
+ // Align the calorie model with the Activity card's OWN step/height distance.
+ // Imported HC distance is retained as secondary evidence, not treated as total walks.
+ var dailyKm=estimatedDistance&&steps>0?estimatedDistance.km:(rawKm>0?rawKm:stepKm);
  var sessions=(records.sessions||[]).filter(function(s){return s&&day(s.startTime)===d.date});
  var runKm=0,exerciseKcal=0,reportedWorkoutMinutes=0;
  var seen=new Set();
@@ -100,12 +104,12 @@ function calculate(profile,records,core,measurement){
  if(samsung!=null&&samsung<=0)samsung=null;
  var warning=[];
  if(!x.measuredAt||(Date.now()-x.measuredAt.getTime())>30*86400000)warning.push('régebbi súlyadat');
- if(rawKm<=0&&steps>0)warning.push('becsült lépéshossz');
+ if(estimatedDistance&&steps>0&&!estimatedDistance.calibrated)warning.push('nem kalibrált lépéshossz');
  if(!sx)warning.push('hiányzó profilnem');
  if(!fatRecent)warning.push('nincs friss testzsír-keresztellenőrzés');
  if(!hasActivity)warning.push('hiányzó aktivitás');
  return {date:d.date,active:active,rest:rest,total:rest+active,samsung:samsung,bmr:rmr,katch:katch,mifflin:mifflin,
-  kg:kg,steps:steps,km:dailyKm,measuredAt:x.measuredAt,model:'Mifflin–St Jeor + nettó mozgási becslés',
+  kg:kg,steps:steps,km:dailyKm,hcKm:rawKm,measuredAt:x.measuredAt,model:'Mifflin–St Jeor + nettó mozgási becslés',
   confidence:warning.length<=1?'közepes':'korlátozott',warnings:warning,fullDay:d.date!==today,
   pulseUsed:false, genderKnown:!!sx,hasActivity:hasActivity};
 }
