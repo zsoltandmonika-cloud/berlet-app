@@ -3,8 +3,10 @@ package hu.zsoltmonika.healthhubbridge
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
@@ -29,6 +31,23 @@ object SamsungBetaScheduler {
         context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_ENABLED, safe).apply()
         schedule(context)
+    }
+
+    /** Single background test for acceptance, without waiting four hours. */
+    fun runTestNow(context: Context) {
+        check(SamsungSdkDailyReader.available && isEnabled(context)) {
+            "Előbb külön engedélyezd az automatikus Samsung Beta szinkront."
+        }
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val req = OneTimeWorkRequestBuilder<SamsungBetaSyncWorker>()
+            .setConstraints(constraints)
+            .addTag(TAG)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "hh-samsung-beta-direct-test", ExistingWorkPolicy.REPLACE, req
+        )
     }
 
     fun schedule(context: Context) {
