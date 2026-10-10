@@ -56,30 +56,40 @@ function clear(){
 }
 function compress(file){
  return new Promise(function(resolve,reject){
-  if(!file||!/^image\/(jpeg|jpg|png|webp)$/.test(file.type.toLowerCase())){reject(Error('Csak JPEG, PNG vagy WebP képet tudok elemezni.'));return}
-  if(file.size>12000000){reject(Error('A kép túl nagy (max. 12 MB).'));return}
+  if(!file||!/^image\/(jpeg|jpg|png|webp|heic|heif|avif)$/i.test(file.type||'')){
+   reject(Error('JPEG, PNG, WebP vagy a böngésző által kezelhető HEIC/AVIF képet válassz.'));return;
+  }
+  // Original phone photos can be >12 MB. Enforce a decode guard, not the old 12 MB upload limit.
+  if(file.size>35000000){reject(Error('A forrásfotó 35 MB feletti. Készíts normál (12 MP) fotót.'));return;}
   var url=URL.createObjectURL(file),img=new Image();
+  function release(){try{URL.revokeObjectURL(url)}catch(e){}}
   img.onload=function(){
-   URL.revokeObjectURL(url);
+   release();
    try{
     var w=img.naturalWidth,h=img.naturalHeight;
-    if(!w||!h)throw Error('A kép nem olvasható.');
-    var max=1280,scale=Math.min(1,max/Math.max(w,h)),data='';
-    for(var attempt=0;attempt<5;attempt++){
-     var cw=Math.max(1,Math.round(w*scale)),ch=Math.max(1,Math.round(h*scale));
+    if(!w||!h)throw Error('Nem olvasható a kép.');
+    if(w*h>110000000)throw Error('Ez a fotó túl nagy felbontású a telefon biztonságos feldolgozásához. Használd a kamera 12 MP módját.');
+    var limit=1440,scale=Math.min(1,limit/Math.max(w,h)),data='',cw=0,ch=0;
+    // A server-side request limit applies to the FULL JSON payload, not the photo alone.
+    for(var attempt=0;attempt<9;attempt++){
+     cw=Math.max(1,Math.round(w*scale));ch=Math.max(1,Math.round(h*scale));
      var canvas=document.createElement('canvas');canvas.width=cw;canvas.height=ch;
      var ctx=canvas.getContext('2d');
-     if(!ctx)throw Error('A fotó feldolgozása nem támogatott.');
+     if(!ctx)throw Error('A böngésző nem tudja feldolgozni a fényképet.');
+     ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);
      ctx.drawImage(img,0,0,cw,ch);
-     data=canvas.toDataURL('image/jpeg',Math.max(.48,.78-attempt*.07));
-     if(data.startsWith('data:image/jpeg;base64,')&&data.length<730000)break;
-     scale*=.76;
+     data=canvas.toDataURL('image/jpeg',Math.max(.48,.82-attempt*.045));
+     canvas.width=1;canvas.height=1;
+     if(data.startsWith('data:image/jpeg;base64,')&&data.length<=340000)break;
+     scale*=.79;
     }
-    if(!data.startsWith('data:image/jpeg;base64,')||data.length>730000)throw Error('A fotót nem sikerült biztonságos méretűre csökkenteni.');
-    resolve({mime:'image/jpeg',base64:data.split(',')[1],bytes:Math.floor(data.length*.75),approved:false,profile:profile()});
+    if(!data.startsWith('data:image/jpeg;base64,')||data.length>340000)
+     throw Error('A kép nem tömöríthető az AI fogadási mérete alá.');
+    var b64=data.split(',')[1];
+    resolve({mime:'image/jpeg',base64:b64,bytes:Math.floor(b64.length*.75),width:cw,height:ch,approved:false,profile:profile()});
    }catch(e){reject(e)}
   };
-  img.onerror=function(){URL.revokeObjectURL(url);reject(Error('Nem sikerült megnyitni a képet. HEIC helyett készíts JPEG-fotót.'))};
+  img.onerror=function(){release();reject(Error('A kép nem nyitható meg. HEIC esetén válts JPEG-re a Kamera beállításaiban.'))};
   img.src=url;
  });
 }
@@ -88,7 +98,7 @@ function takeFile(file){
  compress(file).then(function(data){
   if(id!==turn)return;
   if(!askPhotoApproval()){selected=null;view();text('A fotó engedély nélkül nem kerül a kutatásba. A kérdést továbbra is elküldheted.');return}
-  selected=data;view();text('');
+  selected=data;view();text('✅ Optimalizálva: '+data.width+'×'+data.height+' px · '+Math.round(data.bytes/1024)+' KB.');
   // A photo-only question should be usable on the move without more tapping.
   var input=el('hhSQ299');if(input&&!input.value.trim()){
    input.value='Mit látsz ezen a fotón, és milyen biztonságos, praktikus teendőket javasolsz?';
@@ -110,8 +120,8 @@ function install(){
  var menu=document.createElement('div');menu.className='hhCameraMenu353';menu.id='hhCameraMenu353';menu.hidden=true;
  var take=document.createElement('button');take.type='button';take.textContent='📸 Fotó készítése';
  var gallery=document.createElement('button');gallery.type='button';gallery.textContent='🖼️ Kép kiválasztása';
- var cameraInput=document.createElement('input');cameraInput.type='file';cameraInput.accept='image/jpeg,image/png,image/webp';cameraInput.setAttribute('capture','environment');cameraInput.hidden=true;
- var uploadInput=document.createElement('input');uploadInput.type='file';uploadInput.accept='image/jpeg,image/png,image/webp';uploadInput.hidden=true;
+ var cameraInput=document.createElement('input');cameraInput.type='file';cameraInput.accept='image/*';cameraInput.setAttribute('capture','environment');cameraInput.hidden=true;
+ var uploadInput=document.createElement('input');uploadInput.type='file';uploadInput.accept='image/*';uploadInput.hidden=true;
  var revoke=document.createElement('button');revoke.type='button';revoke.textContent='🔒 Fotóengedély visszavonása';revoke.title='Korábbi egyszeri jóváhagyás törlése';
  revoke.onclick=function(){try{localStorage.removeItem(permissionKey())}catch(e){}clear();text('A fényképes elemzés engedélyét visszavontad.');};
  menu.append(take,gallery,revoke,cameraInput,uploadInput);
