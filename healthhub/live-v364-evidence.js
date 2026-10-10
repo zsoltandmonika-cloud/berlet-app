@@ -33,7 +33,8 @@ function rank(docs,question){
 }
 function datePrecision(s){
  s=String(s||'').trim();
- if(/^\d{4}[-./]\d{1,2}[-./]\d{1,2}(?:[T\s]\d{1,2}:\d{2})?/.test(s))return'day';
+ if(/^\d{4}[-./]\d{1,2}[-./]\d{1,2}\.?(?:[T\s]\d{1,2}:\d{2})/.test(s))return'minute';
+ if(/^\d{4}[-./]\d{1,2}[-./]\d{1,2}/.test(s))return'day';
  if(/^\d{4}[-./]\d{1,2}$/.test(s))return'month';
  if(/^\d{4}$/.test(s))return'year';
  return'unknown';
@@ -41,7 +42,7 @@ function datePrecision(s){
 function dateMentions(text){
  var found=new Set(),raw=String(text||'');
  // Only possible calendar dates, not assumed injury dates.
- var patterns=[/\b(?:19|20)\d{2}[-./]\d{1,2}[-./]\d{1,2}(?:[ T]\d{1,2}:\d{2})?/g,
+ var patterns=[/\b(?:19|20)\d{2}[-./]\d{1,2}[-./]\d{1,2}\.?(?:[ T]\d{1,2}:\d{2})?/g,
   /\b\d{1,2}[-./]\d{1,2}[-./](?:19|20)\d{2}(?:\s+\d{1,2}:\d{2})?/g];
  patterns.forEach(function(rx){var match;while((match=rx.exec(raw))&&found.size<12)found.add(match[0])});
  return Array.from(found).slice(0,8);
