@@ -66,9 +66,9 @@ object SamsungSdkDailyReader {
             try {
                 val req = DataType.ActivitySummaryType.TOTAL_ACTIVE_CALORIES_BURNED
                     .requestBuilder.setLocalTimeFilter(filter).build()
-                val values = store.aggregateData(req).dataList
+                val values = store.aggregateData(req).dataList.mapNotNull { it.value }
                 if (values.isNotEmpty()) {
-                    val kcal = values.sumOf { it.value.toDouble() }
+                    val kcal = values.sumOf { it.toDouble() }
                     if (kcal.isFinite() && kcal in 0.0..25000.0) {
                         row.put("activeCaloriesKcal", kcal)
                         hasAnySourceField = true
@@ -79,9 +79,9 @@ object SamsungSdkDailyReader {
             try {
                 val req = DataType.ActivitySummaryType.TOTAL_ACTIVE_TIME
                     .requestBuilder.setLocalTimeFilter(filter).build()
-                val values = store.aggregateData(req).dataList
+                val values = store.aggregateData(req).dataList.mapNotNull { it.value }
                 if (values.isNotEmpty()) {
-                    val minutes = values.sumOf { it.value.toMillis().toDouble() } / 60000.0
+                    val minutes = values.sumOf { it.toMillis().toDouble() } / 60000.0
                     if (minutes.isFinite() && minutes in 0.0..1440.0) {
                         row.put("activeMinutes", minutes)
                         hasAnySourceField = true
@@ -92,9 +92,9 @@ object SamsungSdkDailyReader {
             try {
                 val req = DataType.ActivitySummaryType.TOTAL_DISTANCE
                     .requestBuilder.setLocalTimeFilter(filter).build()
-                val values = store.aggregateData(req).dataList
+                val values = store.aggregateData(req).dataList.mapNotNull { it.value }
                 if (values.isNotEmpty()) {
-                    val meters = values.sumOf { it.value.toDouble() }
+                    val meters = values.sumOf { it.toDouble() }
                     if (meters.isFinite() && meters in 0.0..250000.0) {
                         row.put("distanceMeters", meters)
                         hasAnySourceField = true
@@ -105,9 +105,9 @@ object SamsungSdkDailyReader {
             try {
                 val req = DataType.FloorsClimbedType.TOTAL
                     .requestBuilder.setLocalTimeFilter(filter).build()
-                val values = store.aggregateData(req).dataList
+                val values = store.aggregateData(req).dataList.mapNotNull { it.value }
                 if (values.isNotEmpty()) {
-                    val total = values.sumOf { it.value.toDouble() }
+                    val total = values.sumOf { it.toDouble() }
                     if (total.isFinite() && total in 0.0..1000.0) {
                         row.put("floorsClimbed", total)
                         hasAnySourceField = true
