@@ -137,6 +137,7 @@ async function load(profile){
    });
   });
  }
+ out.latestCloud=cloud||null;
  return out;
 }
 function collect(raw,profile){
@@ -144,10 +145,22 @@ function collect(raw,profile){
  raw.imports.sort(function(a,b){return Date.parse(b.importedAt||0)-Date.parse(a.importedAt||0)}).forEach(function(imp){
   var r=imp.bundle&&imp.bundle.records||{};
   (Array.isArray(r.exerciseSessions)?r.exerciseSessions:[]).forEach(function(s){var id=String(s.id||s.startTime+'|'+s.endTime);if(!sm.has(id))sm.set(id,s)});
-  (Array.isArray(r.dailyActivity)?r.dailyActivity:[]).forEach(function(x){if(x&&x.date&&!dm.has(x.date))dm.set(x.date,x)});
+  (Array.isArray(r.dailyActivity)?r.dailyActivity:[]).forEach(function(x){
+    if(x&&x.date&&!dm.has(x.date))dm.set(x.date,Object.assign({},x,{_hhBundleAt:imp.importedAt||''}));
+   });
   (Array.isArray(r.heartRate)?r.heartRate:[]).forEach(function(hr){(Array.isArray(hr.samples)?hr.samples:[]).forEach(function(s){var k=String(s.time)+'|'+String(s.bpm);if(!hm.has(k))hm.set(k,s)})});
  });
- raw.activity.forEach(function(x){if(x&&x.date){var old=dm.get(x.date)||{};dm.set(x.date,Object.assign({},old,x))}});
+ // Previously the local cache overrode fresh cloud rows unconditionally.
+ // Compare actual source timestamps, and keep supplementary fields from the losing row.
+ raw.activity.slice().sort(function(a,b){
+  return (Date.parse(a.updatedAt||a.measuredAt||a.createdAt||0)||0)-(Date.parse(b.updatedAt||b.measuredAt||b.createdAt||0)||0);
+ }).forEach(function(x){
+  if(!x||!x.date)return;
+  var old=dm.get(x.date)||{},cloudTime=Date.parse(old._hhBundleAt||'')||0;
+  var localTime=Date.parse(x.updatedAt||x.measuredAt||x.createdAt||'')||0;
+  var localWins=!cloudTime||localTime>cloudTime;
+  dm.set(x.date,localWins?Object.assign({},old,x,{_hhBundleAt:x.updatedAt||x.measuredAt||x.createdAt||''}):Object.assign({},x,old));
+ });
  manualLoad(profile).forEach(function(x){sm.set(x.id,manualSession(x))});
  return {sessions:Array.from(sm.values()).sort(function(a,b){return Date.parse(b.endTime||b.startTime||0)-Date.parse(a.endTime||a.startTime||0)}),daily:Array.from(dm.values()).sort(function(a,b){return String(a.date).localeCompare(String(b.date))}),heart:Array.from(hm.values()).sort(function(a,b){return Date.parse(a.time||0)-Date.parse(b.time||0)})};
 }
@@ -164,6 +177,7 @@ function sumIfRecorded(rows,field){
 function metrics(c,profile,heightCm){
  var cut=cutMs(),daily=c.daily.filter(function(x){return Date.parse(x.date+'T23:59:59')>=cut}),sessions=c.sessions.filter(function(s){return Date.parse(s.endTime||s.startTime||0)>=cut});
  var steps=daily.reduce(function(a,x){return a+(Number(x.steps)||0)},0);
+ var confirmedCalories=daily.some(function(x){return Number(x.activeCaloriesKcal)>0||Number(x.caloriesKcal)>0});
  var cal=daily.reduce(function(a,x){var v=Number(x.activeCaloriesKcal);if(!Number.isFinite(v))v=Number(x.caloriesKcal);return a+(Number.isFinite(v)?v:0)},0);
  var hcDist=daily.reduce(function(a,x){return a+(Number(x.distanceMeters)||0)/1000},0);
  var engine=window.HH_DISTANCE_ENGINE_V369;
@@ -180,7 +194,7 @@ function metrics(c,profile,heightCm){
  var hv=hrIn(cut,c.heart),ah=avg(hv),mh=hv.length?Math.max.apply(null,hv):null;
  var terrain=sumIfRecorded(daily,'elevationGainMeters'),floors=sumIfRecorded(daily,'floorsClimbed');
  var factor=periodDays(),goals={steps:10000*factor,cal:500*factor,active:60*factor,dist:8*factor};
- return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,dist:dist,hcDist:hcDist,
+ return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,confirmedCalories:confirmedCalories||cal>0,dist:dist,hcDist:hcDist,
   heightCm:heightCm,estimated:!!(hasStepData&&derived),strideCm:derived&&derived.strideCm,
   calibrated:!!(derived&&derived.calibrated),active:active,avgHr:ah,maxHr:mh,
   pace:pace(movingMin,movingKm),terrain:terrain,floors:floors,goals:goals};
@@ -229,12 +243,15 @@ async function render(profileOverride){
  if(renderId!==activityRenderSeq)return;
  var c=collect(raw,requestedProfile),m=metrics(c,requestedProfile,profileHeight);
  window.hhActivity191Cache=c;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
+ window.hhActivity191CurrentProfile=requestedProfile;
+ window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily};
  var f=periodDays(),g=m.goals;
- page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div>'+
+ page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
+  '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+
  '<div class="a191Top">'+
  kpi('steps','Lépések',n(m.steps,0),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
- kpi('cal','Elégetett kalória',n(m.cal,0),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
- kpi('time','Aktív idő',Math.round(m.active),'perc',pct(m.active,g.active),n(g.active,0),'green')+
+ kpi('cal','Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
+ kpi('time','Aktív idő',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
  '</div>'+
  '<div class="a191Small">'+
@@ -283,6 +300,34 @@ window.hh191ToggleProfile=function(){
 window.hh191Weather=function(){var w=null;try{w=JSON.parse(localStorage.getItem('hh-budapest-weather-v144')||'null')}catch(e){};modal('<div class="a191SheetHead"><div><small>BUDAPEST · IDŐJÁRÁS</small><h3>'+(w&&Number.isFinite(Number(w.temp))?Math.round(w.temp)+' °C':'Időjárás')+'</h3></div><button onclick="hh191CloseModal()">×</button></div><div class="a191Weather">'+(w?'<b>'+Math.round(w.temp)+' °C</b><span>Hőérzet: '+Math.round(Number(w.apparent)||Number(w.temp))+' °C</span><span>Szél: '+Math.round(Number(w.wind)||0)+' km/h</span><span>Napkelte: '+esc((w.sunrise||'').slice(11,16))+' · Napnyugta: '+esc((w.sunset||'').slice(11,16))+'</span>':'Az időjárásadat frissítése folyamatban van.')+'</div>')}
 window.hh191Calendar=function(){var d=new Date().toISOString().slice(0,10);modal('<div class="a191SheetHead"><div><small>ACTIVITY CALENDAR</small><h3>Napi aktivitás</h3></div><button onclick="hh191CloseModal()">×</button></div><input id="a191Date" class="a191Date" type="date" value="'+d+'" onchange="hh191CalendarDay(this.value)"><div id="a191CalBody"></div>');setTimeout(function(){window.hh191CalendarDay(d)},0)}
 window.hh191CalendarDay=function(date){var c=window.hhActivity191Cache||{sessions:[],daily:[],heart:[]},day=c.daily.find(function(x){return x.date===date}),ss=c.sessions.filter(function(s){return dayKey(s.startTime)===date}),el=document.getElementById('a191CalBody');if(!el)return;el.innerHTML='<div class="a191CalStats"><div><small>LÉPÉSEK</small><b>'+(day?n(day.steps,0):'—')+'</b></div><div><small>KALÓRIA</small><b>'+(day?n(day.caloriesKcal,0):'—')+'</b></div><div><small>TÁVOLSÁG</small><b>'+(day&&window.HH_DISTANCE_ENGINE_V369&&window.hhActivity191Height&&window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height)?n(window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height).km,1):'—')+' km</b></div><div><small>EDZÉSEK</small><b>'+ss.length+'</b></div></div>'}
+window.hh191SourceDetails=function(){
+ var src=window.hhActivity191Source||{},profile=src.profile||pkey(),cloud=src.cloud,bundle=cloud&&cloud.bundle||{},counts=bundle.counts||{},m=window.hhActivity191DistanceMetrics||{};
+ var d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
+ var displayed=(src.rows||[]).find(function(x){return x.date===today});
+ function value(r,key,dec,unit){var x=r&&r[key];return x!=null&&Number.isFinite(Number(x))?n(x,dec)+(unit?' '+unit:''):'nincs';}
+ function row(label,data){return '<div class="a191SourceRow"><b>'+esc(label)+'</b><span>'+esc(data)+'</span></div>'}
+ var html='<div class="a191SheetHead"><div><small>📡 HEALTHHUB · '+esc(profile.toUpperCase())+'</small><h3>Activity adatforrások</h3></div><button onclick="hh191CloseModal()">×</button></div>'+
+ '<div class="a191Weather"><span>'+(cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
+ '<span>Export ideje: '+esc(cloud?fmtDate(cloud.importedAt):'nincs információ')+'</span>'+
+ '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span></div>'+
+ '<div class="a191SourceTable">'+
+ row('Lépések · HC export',value(direct,'steps',0,'lépés'))+
+ row('Lépések · kijelzett',value(displayed,'steps',0,'lépés'))+
+ row('Aktív kcal · HC',Number(direct&&direct.activeCaloriesKcal)>0?value(direct,'activeCaloriesKcal',0,'kcal'):'nincs pozitív adat')+
+ row('Aktív kcal rekordok · 30 nap',counts.activeCaloriesRecords==null?'nem ismert':String(counts.activeCaloriesRecords))+
+ row('Aktív idő · HC',value(direct,'activeMinutes',0,'perc'))+
+ row('Aktív idő forrása',direct&&direct.activeMinutesSource==='activeCaloriesIntervals'?'Kalória-időintervallum':direct&&direct.activeMinutesSource==='exerciseSessions'?'Edzésidő':'nem ismert')+
+ row('Aktív idő · kijelzett',m.active>0?n(m.active,0)+' perc':'nincs adat')+
+ row('Távolság · HC',value(direct,'distanceMeters',0,'m'))+
+ row('Távolság · saját becslés',m.estimated?n(m.dist,2)+' km':'nincs becslés')+
+ row('Szintemelkedés · HC',value(direct,'elevationGainMeters',1,'m'))+
+ row('Emeletek · HC',value(direct,'floorsClimbed',1,'emelet'))+
+ row('Szintemelkedés olvasás',counts.elevationPermissionGranted==null?'nem ismert':counts.elevationPermissionGranted?'engedélyezve':'nincs engedély')+
+ row('Emeletek olvasás',counts.floorsPermissionGranted==null?'nem ismert':counts.floorsPermissionGranted?'engedélyezve':'nincs engedély')+
+ '</div><p style="font-size:10px;color:#547084;line-height:1.6">A hiányzó aktív kalória, emelet vagy szintemelkedés nem tekinthető mért nullának. A Samsung saját napösszesítője ettől eltérhet.</p>';
+ modal(html);
+};
 window.hh191DistanceDetails=function(){
  var p=pkey(),m=window.hhActivity191DistanceMetrics||{},h=window.hhActivity191Height,
   engine=window.HH_DISTANCE_ENGINE_V369;
@@ -348,7 +393,8 @@ function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).fin
 function style(){
  if(document.getElementById('a191Style'))return;var s=document.createElement('style');s.id='a191Style';s.textContent=
  '.a191Page{display:none;position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;z-index:7600;width:100%;max-width:430px;height:100dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,var(--wash2),var(--wash));color:#0c3260;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.a191Page.on{display:block}.a191Page *{box-sizing:border-box}.a191Hero{position:relative;width:100%;aspect-ratio:853/428;overflow:hidden;background:#dceef8}.a191Hero>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;image-rendering:auto}.a191HeroHits{position:absolute;inset:0;z-index:13;pointer-events:none}.a191HeroHits button{position:absolute;border:0;background:transparent;pointer-events:auto;-webkit-tap-highlight-color:transparent}.a191HeroHits .runnerProfile{left:25%;top:0;width:44%;height:88%;border-radius:42%;cursor:pointer}.a191HeroHits .cal{right:22%;top:2%;width:11%;height:21%;border-radius:50%}.a191HeroHits .weather{right:11%;top:2%;width:10%;height:21%;border-radius:50%}.a191HeroHits .gear{right:0;top:2%;width:10%;height:21%;border-radius:50%}.a191Periods{position:absolute;left:3.7%;bottom:1.5%;z-index:4;width:48%;height:10.5%;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.97);border-radius:999px;overflow:hidden;box-shadow:0 4px 13px rgba(20,62,91,.13)}.a191Periods button{border:0;background:transparent;color:#173b61;font-weight:850;font-size:10px}.a191Periods button.on{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;border-radius:999px}.a191Body{padding:8px 8px calc(78px + env(safe-area-inset-bottom));}.a191ProfileDiag{font-size:7px;font-weight:900;letter-spacing:.12em;margin:0 0 6px 4px}.a191ProfileDiag.zsolt,.a191ProfileDiag.monika{color:var(--a)}.a191Top,.a191Small{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:7px}.a191Kpi{position:relative;overflow:hidden;background:#fff;border-radius:15px;padding:10px 9px 9px;box-shadow:0 6px 18px rgba(31,82,114,.06);min-width:0}.a191Top .a191Kpi{height:121px}.a191Small .a191Kpi{height:82px}.a191Kpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--a)}.a191Kpi.orange:after{background:#ff9418}.a191Kpi.green:after{background:#16bd86}.a191Kpi.violet:after{background:#7646ed}.a191KpiIcon{width:34px;height:34px}.a191KpiIcon svg{width:100%;height:100%;display:block}.a191Small .a191KpiIcon{width:28px;height:28px;float:left;margin-right:5px}.a191Kpi small{display:block;font-size:8px;color:#607789;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a191Small .a191Kpi small{font-size:7.6px;margin-top:0}.a191Value{white-space:nowrap}.a191Value b{font-size:23px;line-height:1;color:#0b315e;letter-spacing:-.03em}.a191Value em{font-style:normal;font-size:8px;color:#61788a;margin-left:3px}.a191Small .a191Value b{font-size:17px}.a191Progress{height:7px;background:#e8edf7;border-radius:9px;overflow:hidden;margin-top:7px}.a191Progress i{display:block;height:100%;border-radius:9px;background:var(--a)}.a191Kpi.orange .a191Progress i{background:#ff9418}.a191Kpi.green .a191Progress i{background:#14bb84}.a191Kpi.violet .a191Progress i{background:#7b43ed}.a191Goal{display:flex;justify-content:space-between;font-size:7px;margin-top:4px}.a191Goal b{color:var(--a)}.a191Kpi.orange .a191Goal b{color:#ff8b12}.a191Kpi.green .a191Goal b{color:#13ad79}.a191Kpi.violet .a191Goal b{color:#7b43ed}.a191Goal span{color:#74889a}.a191Card{background:#fff;border-radius:16px;box-shadow:0 6px 18px rgba(31,82,114,.055);margin-bottom:8px;padding:10px 11px}.a191Head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px}.a191Head>b{font-size:12px}.a191Head>strong{font-size:8.5px;color:var(--a)}.a191Head .runner{width:23px;height:23px}.a191Head .runner svg{width:100%;height:100%}.pinkbars,.clock{font-size:18px;color:var(--a);font-weight:900}.legend{display:flex;align-items:center;gap:4px;font-size:6.8px;color:#61788b;white-space:nowrap}.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}.legend .b{background:#22a5f2}.legend .o{background:#ff9418}.legend .p{background:#ff2f7f}.a191Chart{height:134px;margin-top:3px}.a191Chart svg{display:block;width:100%;height:100%}.a191Empty{display:grid;place-items:center;min-height:70px;color:#8092a0;font-size:8px}.a191Types{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px 8px;margin-top:9px}.a191Type{height:88px;border:1px solid #e7edf3;border-radius:14px;background:linear-gradient(180deg,#fff,#f8fbfd);color:#143b5f;padding:7px 2px}.a191Type.on{border:1.5px solid var(--a);background:var(--soft)}.a191Type span{display:block;width:34px;height:34px;margin:0 auto 2px}.a191Type span svg{width:100%;height:100%}.a191Type b{display:block;font-size:8.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a191Type em{display:block;font-style:normal;font-size:7.3px;color:#264b70;margin-top:2px}.a191Type small{display:block;font-size:6.5px;color:#71879a}.a191Recent{margin-top:5px}.a191RecentRow{display:grid;grid-template-columns:34px minmax(0,1fr) auto 9px;gap:6px;align-items:center;min-height:43px;border-top:1px solid #edf2f5}.a191RecentRow:first-child{border-top:0}.a191RecentIcon{width:31px;height:31px;border-radius:50%;background:#eef8f5;padding:4px}.a191RecentIcon svg{width:100%;height:100%}.a191RecentName b{display:block;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a191RecentName small{display:block;font-size:6.5px;color:#72879a}.a191RecentMeta{display:flex;gap:8px;white-space:nowrap}.a191RecentMeta span{font-size:6.7px;color:#4f6c85}.a191RecentRow>strong{font-size:15px;color:#244c6f}.a191Card.manual{display:flex;align-items:center;gap:8px;padding:9px 10px}.a191ManualTitle{display:flex;align-items:center;gap:5px;white-space:nowrap}.a191ManualTitle span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font-size:21px}.a191ManualTitle b{font-size:10px}.a191ManualBtns{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;flex:1}.a191ManualBtns button{height:44px;border:0;border-radius:10px;background:#f7fafc;color:#163d61;padding:3px;display:flex;align-items:center;justify-content:center;gap:2px;min-width:0}.a191ManualBtns button span{width:23px;height:23px}.a191ManualBtns button span svg{width:100%;height:100%}.a191ManualBtns button b{font-size:6.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.a191ManualBtns .dots{font-size:15px;width:auto;color:#173d61}.a191Nav{position:fixed;left:0;right:0;bottom:0;margin:0 auto;transform:none;z-index:7700;width:100%;max-width:430px;height:62px;padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.985);display:grid;grid-template-columns:repeat(6,1fr);box-shadow:0 -4px 15px rgba(29,66,92,.06)}.a191Nav button{border:0;background:transparent;color:#496e8d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;min-width:0}.a191Nav button span{width:23px;height:23px}.a191Nav button span svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.a191Nav button:nth-child(3) span svg{fill:none;stroke:none}.a191Nav button b{font-size:6.8px;white-space:nowrap}.a191Nav button.on{color:var(--a);background:var(--soft);border-radius:16px}.a191Nav .dots{font-size:20px;line-height:18px;width:auto;height:22px}.a191Load{background:#fff;border-radius:14px;padding:18px;text-align:center;color:#58758e;font-size:9px}.a191Modal{display:none;position:fixed;inset:0;z-index:9900;background:rgba(13,38,57,.38);backdrop-filter:blur(5px);align-items:flex-end;justify-content:center}.a191Modal.on{display:flex}.a191Sheet{width:min(100%,430px);max-height:82vh;overflow:auto;background:linear-gradient(180deg,#fff,var(--wash2));border-radius:22px 22px 0 0;padding:14px 13px 24px}.a191SheetHead{display:flex;justify-content:space-between;gap:9px;align-items:flex-start}.a191SheetHead small{font-size:6.5px;color:var(--a);font-weight:900;letter-spacing:.08em}.a191SheetHead h3{font-size:16px;margin:2px 0 10px;color:#173e61}.a191SheetHead button{width:32px;height:32px;border:0;border-radius:50%;background:#f1f6f9;color:#55728a;font-size:19px}.a191Weather{display:grid;gap:7px;background:#fff;border:1px solid #e5edf3;border-radius:15px;padding:13px}.a191Weather b{font-size:25px}.a191Weather span{font-size:9px;color:#698095}.a191Date{width:100%;height:43px;border:1px solid #dce6ed;border-radius:11px;background:#fff;padding:8px;font-size:15px;color:#173f62}.a191CalStats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:9px}.a191CalStats div{background:#fff;border:1px solid #e6edf2;border-radius:12px;padding:10px}.a191CalStats small{display:block;font-size:6.5px;color:#718699}.a191CalStats b{font-size:15px}.a191More{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.a191More button{border:1px solid #e4edf3;background:#fff;border-radius:14px;padding:11px;color:#173f62}.a191More span{display:block;width:43px;height:43px;margin:auto}.a191More span svg{width:100%;height:100%}.a191More b{font-size:9px}.a191Form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.a191Form label{position:relative;font-size:8px;font-weight:800;color:#647d90}.a191Form input,.a191Form select{display:block;width:100%;height:42px;margin-top:4px;border:1px solid #dae6ee;border-radius:11px;background:#fff;padding:8px;color:#173f62;font-size:14px}.a191Form label>span{position:absolute;right:8px;bottom:12px;font-size:8px;color:#8395a4}.a191Save{grid-column:1/-1;height:44px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:900;font-size:12px;box-shadow:0 7px 18px color-mix(in srgb,var(--a) 20%,transparent)}@media(max-width:390px){.a191Body{padding-left:6px;padding-right:6px}.a191Types{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px 6px}.a191Type{height:84px;padding-left:1px;padding-right:1px}.a191Type span{width:31px;height:31px}.a191Type b{font-size:8px}.a191Top,.a191Small{gap:5px}.a191Top .a191Kpi{height:114px;padding-left:7px;padding-right:7px}.a191Kpi small{font-size:7.4px}.a191Value b{font-size:21px}.a191ManualCard{display:block}.a191Card.manual{display:block}.a191ManualBtns{margin-top:7px}.a191RecentMeta span:nth-child(1){display:none}.a191Nav button b{font-size:6.3px}}';
- s.textContent+='.a191Small{grid-template-columns:repeat(3,minmax(0,1fr))!important}.a191Small .a191Kpi{height:78px}';
+ s.textContent+='.a191Small{grid-template-columns:repeat(3,minmax(0,1fr))!important}.a191Small .a191Kpi{height:78px}'; 
+ s.textContent+='.a191ProfileDiag{display:flex;align-items:center;justify-content:space-between;gap:5px}.a191SourceButton{border:1px solid #e5dce6;background:#fff;color:var(--a);border-radius:15px;padding:5px 8px;font-weight:800;font-size:9px;white-space:nowrap}.a191SourceTable{display:grid;gap:3px;margin:11px 0}.a191SourceRow{display:flex;gap:7px;justify-content:space-between;align-items:baseline;border-bottom:1px solid #e8edf2;padding:7px 2px;font-size:11px;color:#365a78}.a191SourceRow b{max-width:61%}.a191SourceRow span{text-align:right}';
  document.head.appendChild(s);
 }
 style();ensure();wire();setInterval(function(){var p=document.getElementById('hhActivityPage191');if(p&&p.classList.contains('on'))wire()},4000);
