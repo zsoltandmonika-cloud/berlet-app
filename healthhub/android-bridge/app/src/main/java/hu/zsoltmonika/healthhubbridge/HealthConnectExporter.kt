@@ -7,6 +7,9 @@ import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -47,6 +50,13 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             HealthPermission.getReadPermission(NutritionRecord::class)
         )
 
+        // Noncritical: optional terrain records should never block the established
+        // BP, weight, heart, steps, sleep and Dropbox background sync paths.
+        val OPTIONAL_TERRAIN_PERMISSIONS = setOf(
+            HealthPermission.getReadPermission(ElevationGainedRecord::class),
+            HealthPermission.getReadPermission(FloorsClimbedRecord::class)
+        )
+
         fun requiredPermissions(@Suppress("UNUSED_PARAMETER") client: HealthConnectClient): Set<String> =
             REQUIRED_PERMISSIONS
     }
@@ -58,7 +68,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val c = json.optJSONObject("counts") ?: return "Hiányzik az adatösszesítő"
         return "pulzus: ${c.optInt("heartRateRecords")} · lépéses napok: ${c.optInt("activeDaysWithData")}" +
             " · súly: ${c.optInt("weight")} · vérnyomás: ${c.optInt("bloodPressure")}" +
-            " · alvás: ${c.optInt("sleepSessions")} · edzés: ${c.optInt("exerciseSessions")}"
+            " · alvás: ${c.optInt("sleepSessions")} · edzés: ${c.optInt("exerciseSessions")}" +
+            " · emelkedős napok: ${c.optInt("elevationDaysWithData")} · emeletes napok: ${c.optInt("floorsDaysWithData")}"
     }
 
     private fun mergedActiveMinutes(
@@ -100,6 +111,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val end = Instant.now()
         val start = end.minusSeconds(days * 86400)
         val range = TimeRangeFilter.between(start, end)
+        val granted = client.permissionController.getGrantedPermissions()
+        val elevationAllowed = granted.contains(HealthPermission.getReadPermission(ElevationGainedRecord::class))
+        val floorsAllowed = granted.contains(HealthPermission.getReadPermission(FloorsClimbedRecord::class))
 
         val bp = client.readRecords(ReadRecordsRequest(BloodPressureRecord::class, range)).records
         val weight = client.readRecords(ReadRecordsRequest(WeightRecord::class, range)).records
@@ -142,7 +156,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val vo2 = client.readRecords(ReadRecordsRequest(Vo2MaxRecord::class, range)).records
 
         val root = JSONObject()
-            .put("schemaVersion", "healthhub.healthconnect.bridge/1.2")
+            .put("schemaVersion", "healthhub.healthconnect.bridge/1.3")
             .put("profile", profile)
             .put("exportedAt", end.toString())
             .put("rangeStart", start.toString())
@@ -288,6 +302,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val steps = JSONArray()
         val dailyActivity = JSONArray()
         val dailyNutrition = JSONArray()
+        var elevationDaysWithData = 0
+        var floorsDaysWithData = 0
 
         for (i in (days.toInt() - 1) downTo 0) {
             val date = today.minusDays(i.toLong())
@@ -319,8 +335,22 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
             val effectiveActiveMinutes = if (useIntervalMinutes) intervalMinutes else exerciseMinutes
 
+            // Terrain aggregations are optional, and cannot hold the entire sync hostage.
+            val terrainMetrics = mutableSetOf<AggregateMetric<*>>()
+            if (elevationAllowed) terrainMetrics.add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
+            if (floorsAllowed) terrainMetrics.add(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL)
+            val terrainAgg = if (terrainMetrics.isNotEmpty()) {
+                try {
+                    client.aggregate(AggregateRequest(metrics = terrainMetrics, timeRangeFilter = dayRange))
+                } catch (_: Exception) { null }
+            } else null
+            val elevation = if (elevationAllowed) terrainAgg?.get(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)?.inMeters else null
+            val floors = if (floorsAllowed) terrainAgg?.get(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL) else null
+            if (elevation != null) elevationDaysWithData++
+            if (floors != null) floorsDaysWithData++
+
             steps.put(JSONObject().put("date", date.toString()).put("count", stepTotal))
-            dailyActivity.put(JSONObject()
+            val dayActivity = JSONObject()
                 .put("date", date.toString())
                 .put("steps", stepTotal)
                 .put("distanceMeters", distance?.inMeters ?: 0.0)
@@ -328,7 +358,10 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
                 .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
                 .put("activeMinutes", effectiveActiveMinutes)
-                .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions"))
+                .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions")
+            if (elevation != null) dayActivity.put("elevationGainMeters", elevation.coerceAtLeast(0.0))
+            if (floors != null) dayActivity.put("floorsClimbed", floors.coerceAtLeast(0.0))
+            dailyActivity.put(dayActivity)
 
             val nutritionAgg = client.aggregate(
                 AggregateRequest(
@@ -363,7 +396,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             if (row.optLong("steps", 0) > 0L ||
                 row.optDouble("distanceMeters", 0.0) > 0.0 ||
                 row.optDouble("activeCaloriesKcal", 0.0) > 0.0 ||
-                row.optDouble("activeMinutes", 0.0) > 0.0) activeDaysWithData++
+                row.optDouble("activeMinutes", 0.0) > 0.0 ||
+                row.optDouble("elevationGainMeters", 0.0) > 0.0 ||
+                row.optDouble("floorsClimbed", 0.0) > 0.0) activeDaysWithData++
         }
         for (i in 0 until dailyNutrition.length()) {
             val row = dailyNutrition.optJSONObject(i) ?: continue
@@ -392,6 +427,10 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("nutritionDays", dailyNutrition.length())
             .put("activeDaysWithData", activeDaysWithData)
             .put("nutritionDaysWithData", nutritionDaysWithData)
+            .put("elevationPermissionGranted", elevationAllowed)
+            .put("floorsPermissionGranted", floorsAllowed)
+            .put("elevationDaysWithData", elevationDaysWithData)
+            .put("floorsDaysWithData", floorsDaysWithData)
             .put("sourceRecordCount", sourceRecordCount)
             .put("hasSourceData", sourceRecordCount > 0))
 
