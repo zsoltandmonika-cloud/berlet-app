@@ -145,11 +145,6 @@ class MainActivity : ComponentActivity() {
         updateResilientStatus()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (SamsungSdkDailyReader.available && ::status.isInitialized) updateSamsungBetaUi()
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -1279,7 +1274,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::status.isInitialized && !SamsungSdkDailyReader.available) {
+        if (!::status.isInitialized) return
+        if (SamsungSdkDailyReader.available) {
+            updateSamsungBetaUi()
+        } else {
             ResilientHealthSync.schedule(this)
             updateResilientStatus()
         }
