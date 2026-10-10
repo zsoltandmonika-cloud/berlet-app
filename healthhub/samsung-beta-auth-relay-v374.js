@@ -10,6 +10,7 @@ var state=q.get('state')||'',code=q.get('code'),error=q.get('error');
 if(!/^hhbeta_[A-Za-z0-9_-]{16,128}$/.test(state)||(!code&&!error))return;
 if(code&&(code.length>4096||!/^[\w.~-]+$/.test(code)))return;
 if(error&&error.length>300)return;
+window.HH_SAMSUNG_BETA_OAUTH_PENDING=true;
 var target=new URL('healthhubsamsungbeta://dropbox');
 target.searchParams.set('state',state);
 if(code)target.searchParams.set('code',code);
