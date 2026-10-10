@@ -138,6 +138,25 @@ async function render(profile,cache){
  var w=bestWeight(db&&db.measurements,ctx);
  var val=calculate(profile,cache,core,w);
  if(val.error){box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>'+esc(val.error)+'</p>';return}
+ // Only when measured active calories are missing, display the separately
+ // labelled HealthHub estimate in the top KPI for the current day. Original HC
+ // data, historical totals and the independent model remain untouched.
+ var activity=window.hhActivity191DistanceMetrics,activityState=window.hhActivity191State;
+ if(activity&&window.hhActivity191CurrentProfile===profile&&
+    activityState&&activityState.period==='1d'&&!activity.confirmedCalories&&
+    val.date===day(new Date())&&val.hasActivity&&Number.isFinite(val.active)&&val.active>0){
+  var card=page.querySelector('.a191Top .a191Kpi:nth-child(2)');
+  if(card){
+   var title=card.querySelector('small'),v=card.querySelector('.a191Value b'),
+    prog=card.querySelector('.a191Progress i'),pctText=card.querySelector('.a191Goal b');
+   if(title)title.textContent='Kalória ≈ becslés';
+   if(v)v.textContent='≈'+fmt(val.active);
+   var progress=Math.max(0,Math.min(100,Math.round(val.active/500*100)));
+   if(prog)prog.style.width=progress+'%';
+   if(pctText)pctText.textContent=progress+'%';
+   card.title='HealthHub saját számítása. Nem Samsung Health által mért aktív kalória.';
+  }
+ }
  var compare=val.samsung==null?'Samsung: nincs összehasonlítható adat':
   'Samsung Health: '+fmt(val.samsung)+' aktív kcal · eltérés '+(val.active>=val.samsung?'+':'')+fmt(val.active-val.samsung)+' kcal';
  box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3>'+
