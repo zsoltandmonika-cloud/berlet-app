@@ -28,7 +28,7 @@ function styles(){
  '#hhAi331Answer .hhAi331Text strong{color:#155875;font-weight:850}'+
  '#hhAi331Answer .hhAi331Text ul{margin:5px 0 13px;padding-left:22px}'+
  '#hhAi331Answer .hhAi331Text li{margin:5px 0}'+
- '#hhLenaSmart299 #hhAi331Answer{--lena-accent:#2f78b7;--lena-accent-deep:#185b91;--lena-ink:#173d58;--lena-soft:#ecf6ff;--lena-border:#bcd9ed;background:linear-gradient(165deg,#f0f8ff,#fff 65%);border-color:var(--lena-border);color:var(--lena-ink);padding:18px 16px}'+
+ '#hhLenaSmart299 #hhAi331Answer{scroll-margin-top:calc(env(safe-area-inset-top, 0px) + 5px);--lena-accent:#2f78b7;--lena-accent-deep:#185b91;--lena-ink:#173d58;--lena-soft:#ecf6ff;--lena-border:#bcd9ed;background:linear-gradient(165deg,#f0f8ff,#fff 65%);border-color:var(--lena-border);color:var(--lena-ink);padding:18px 16px}'+
  '#hhLenaSmart299 #hhAi331Answer[data-profile="monika"]{--lena-accent:#d95690;--lena-accent-deep:#aa336a;--lena-ink:#582d48;--lena-soft:#fff0f7;--lena-border:#efbed7;background:linear-gradient(165deg,#fff0f7,#fff 65%)}'+
  '#hhLenaSmart299 #hhAi331Answer h2{color:var(--lena-accent-deep);font-size:19px;line-height:1.35;margin:0 0 14px;display:flex;align-items:center;gap:8px}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text{font-size:clamp(15px,3.8vw,17px);line-height:1.68;color:var(--lena-ink)}'+
@@ -171,6 +171,16 @@ function renderAnswerText(raw){
   current=box;idx++;
  });
  host.replaceChildren(visual);
+}
+// Bring the answer header to the top of the mobile viewport, below any safe area.
+function alignAnswerTop(){
+ var answer=el('hhAi331Answer'),page=el('hhLenaSmart299');
+ if(!answer||!answer.classList.contains('on')||!page||!page.classList.contains('on'))return;
+ requestAnimationFrame(function(){
+  if(!answer.isConnected||!answer.classList.contains('on'))return;
+  try{answer.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'})}
+  catch(e){answer.scrollIntoView(true)}
+ });
 }
 function showError(message){
  var err=el('hhAi331Error');if(err){err.textContent='⚠ '+message;err.classList.add('on')}
@@ -402,7 +412,7 @@ async function run(opts){
    var item;try{item=JSON.parse(val)}catch{return}
    if(kind==='stage'){print('AI: '+safe(item.message,160));return}
    if(kind==='delta'){
-    if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');}
+    if(!received){received=true;result.classList.add('on');print('A generált szöveg részletekben megérkezik…');setTimeout(alignAnswerTop,60);}
     answerText+=String(item.text||'');
     if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
     return;
@@ -451,7 +461,7 @@ window.HH_ASK_LENA_AI_V331={initialize:ui,version:'344',isBusy:function(){return
   }
  }
  result.classList.add('on');var terminal=el('hhAi331Terminal');if(terminal)terminal.classList.remove('on');
- return true;
+ setTimeout(alignAnswerTop,70);return true;
  }};
 document.documentElement.dataset.healthhubRealAi='1.333';
 })();
