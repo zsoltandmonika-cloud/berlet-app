@@ -93,7 +93,7 @@ async function prepare(question,p){
  // JSON explanations are already HealthHub data; their provenance is explicitly labelled.
  docs.forEach(function(d){
   var e=d.explanation||null;if(!e)return;
-  var v=[e.summary||'',(e.keyFindings||[]).join('; '),(e.meaning||[]).join('; ')].filter(Boolean).join(' · ').slice(0,2350);
+  var v=[e.summary||'',Array.isArray(e.keyFindings)?e.keyFindings.join('; '):'',Array.isArray(e.meaning)?e.meaning.join('; '):''].filter(Boolean).join(' · ').slice(0,2350);
   if(v)items.push({type:'json_summary',documentId:String(d.id||''),title:field(d.title),date:field(d.date),text:v});
  });
  var originalCount=0;
