@@ -5,6 +5,7 @@
 
 var CLIENT_ID='178857972266-tnpne28tk60ce9dqadh593uilipi0p32.apps.googleusercontent.com';
 var SCOPE='https://www.googleapis.com/auth/drive.file';
+var GOOGLE_ACCOUNT='zsoltandmonika@gmail.com';
 var GIS_SRC='https://accounts.google.com/gsi/client';
 var CTX_PREFIX='hh-lena-context-v289-';
 var STATE_PREFIX='hh-lena-context-v292-drive-';
@@ -37,7 +38,7 @@ function fmt(s){
 }
 function currentToken(){
   var t=readSession(TOKEN_KEY,null);
-  if(t&&t.access_token&&Number(t.expiresAt)>Date.now()+60000)return t;
+  if(t&&t.access_token&&t.verifiedAccount===GOOGLE_ACCOUNT&&Number(t.expiresAt)>Date.now()+60000)return t;
   return null;
 }
 function clearToken(){try{sessionStorage.removeItem(TOKEN_KEY)}catch(e){}}
@@ -63,10 +64,24 @@ function loadGIS(){
   });
   return gisPromise;
 }
+async function verifyDriveAccount(accessToken){
+  var r=await fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{
+    headers:{Authorization:'Bearer '+accessToken}
+  });
+  if(!r.ok)throw new Error('Google Drive fiók ellenőrzése sikertelen (HTTP '+r.status+').');
+  var info=await r.json();
+  var email=String(info&&info.user&&info.user.emailAddress||'').toLowerCase().trim();
+  if(email!==GOOGLE_ACCOUNT){
+    throw new Error('Nem a HealthHub közös Google-fiókja van kiválasztva. Elvárt: '+GOOGLE_ACCOUNT+'. Kapott: '+(email||'ismeretlen')+'.');
+  }
+  return email;
+}
 async function ensureToken(interactive){
   var t=currentToken();
   if(t)return t.access_token;
   if(tokenPromise)return tokenPromise;
+  // Never open Google's account picker from a timer or a background sync.
+  if(!interactive)return Promise.reject(new Error('Google Drive újracsatlakoztatás szükséges (kézi engedélyezés).'));
   tokenPromise=(async function(){
     await loadGIS();
     return await new Promise(function(resolve,reject){
@@ -75,23 +90,33 @@ async function ensureToken(interactive){
           tokenClient=google.accounts.oauth2.initTokenClient({
             client_id:CLIENT_ID,
             scope:SCOPE,
+            login_hint:GOOGLE_ACCOUNT,
+            prompt:'',
             callback:function(){}
           });
         }
-        tokenClient.callback=function(resp){
+        tokenClient.callback=async function(resp){
           if(!resp||resp.error){
             reject(new Error(resp&&resp.error_description||resp&&resp.error||'Google Drive engedélyezés sikertelen'));
             return;
           }
-          var expires=Number(resp.expires_in)||3600;
-          writeSession(TOKEN_KEY,{access_token:resp.access_token,expiresAt:Date.now()+expires*1000});
-          markAuthorized();
-          resolve(resp.access_token);
+          try{
+            // login_hint is only a preference, never proof of account identity.
+            // Health contexts must not be copied into any other Google Drive.
+            await verifyDriveAccount(resp.access_token);
+            var expires=Number(resp.expires_in)||3600;
+            writeSession(TOKEN_KEY,{access_token:resp.access_token,expiresAt:Date.now()+expires*1000,verifiedAccount:GOOGLE_ACCOUNT});
+            markAuthorized();
+            resolve(resp.access_token);
+          }catch(e){
+            clearToken();
+            reject(e);
+          }
         };
         tokenClient.error_callback=function(err){
           reject(new Error(err&&err.type||'Google OAuth ablak bezárva'));
         };
-        tokenClient.requestAccessToken({prompt:interactive?(authorized()?'select_account':'consent'):''});
+        tokenClient.requestAccessToken({prompt:'',login_hint:GOOGLE_ACCOUNT});
       }catch(e){reject(e)}
     });
   })().finally(function(){tokenPromise=null});
