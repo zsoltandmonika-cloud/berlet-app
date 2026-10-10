@@ -193,8 +193,11 @@ function metrics(c,profile,heightCm){
  var movingMin=moving.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0),movingKm=moving.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
  var hv=hrIn(cut,c.heart),ah=avg(hv),mh=hv.length?Math.max.apply(null,hv):null;
  var terrain=sumIfRecorded(daily,'elevationGainMeters'),floors=sumIfRecorded(daily,'floorsClimbed');
+ var hasSamsungCalories=daily.some(function(x){return x._hhFieldSources&&x._hhFieldSources.activeCaloriesKcal==='samsung-direct'});
+ var hasSamsungActiveTime=daily.some(function(x){return x._hhFieldSources&&x._hhFieldSources.activeMinutes==='samsung-direct'});
+ var hasSamsungFloors=daily.some(function(x){return x._hhFieldSources&&x._hhFieldSources.floorsClimbed==='samsung-direct'});
  var factor=periodDays(),goals={steps:10000*factor,cal:500*factor,active:60*factor,dist:8*factor};
- return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,confirmedCalories:confirmedCalories||cal>0,dist:dist,hcDist:hcDist,
+ return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,confirmedCalories:confirmedCalories||cal>0,hasSamsungCalories:hasSamsungCalories,hasSamsungActiveTime:hasSamsungActiveTime,hasSamsungFloors:hasSamsungFloors,dist:dist,hcDist:hcDist,
   heightCm:heightCm,estimated:!!(hasStepData&&derived),strideCm:derived&&derived.strideCm,
   calibrated:!!(derived&&derived.calibrated),active:active,avgHr:ah,maxHr:mh,
   pace:pace(movingMin,movingKm),terrain:terrain,floors:floors,goals:goals};
@@ -241,17 +244,24 @@ async function render(profileOverride){
  var profileHeight=null,distEngine=window.HH_DISTANCE_ENGINE_V369;
  if(distEngine&&distEngine.height){try{profileHeight=await distEngine.height(requestedProfile)}catch(e){}}
  if(renderId!==activityRenderSeq)return;
- var c=collect(raw,requestedProfile),m=metrics(c,requestedProfile,profileHeight);
+ var c=collect(raw,requestedProfile),samsungState={status:'not_configured',data:null},samsungApi=window.HH_SAMSUNG_SOURCE_V371;
+ if(samsungApi&&samsungApi.load){
+  samsungState=await samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT);
+  if(renderId!==activityRenderSeq)return;
+  c=samsungApi.merge(c,samsungState,requestedProfile);
+ }
+ var m=metrics(c,requestedProfile,profileHeight);
+ window.hhActivity191SamsungSource=samsungState;
  window.hhActivity191Cache=c;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
  window.hhActivity191CurrentProfile=requestedProfile;
- window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily};
+ window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState};
  var f=periodDays(),g=m.goals;
  page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+
  '<div class="a191Top">'+
  kpi('steps','Lépések',n(m.steps,0),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
- kpi('cal','Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
- kpi('time','Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
+ kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
+ kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
  '</div>'+
  '<div class="a191Small">'+
@@ -259,7 +269,7 @@ async function render(profileOverride){
  kpi('max','Max. pulzus',m.maxHr?n(m.maxHr,0):'—','bpm',0,null,'pink')+
  kpi('pace','Tempó',m.pace,'perc/km',0,null,'pink')+
  kpi('elev','Szintemelkedés',m.terrain==null?'—':n(m.terrain,0),'m',0,null,'pink')+
- kpi('floors','Emeletek',m.floors==null?'—':n(m.floors,1),'emelet',0,null,'pink')+
+ kpi('floors',m.hasSamsungFloors?'Emeletek · Samsung':'Emeletek',m.floors==null?'—':n(m.floors,1),'emelet',0,null,'pink')+
  '</div>'+
  '<section class="a191Card chart"><div class="a191Head"><span class="pinkbars">▥</span><b>Aktivitás a nap folyamán</b><div class="legend"><i class="b"></i>Lépések<i class="o"></i>Aktív kalória<i class="p"></i>Pulzus (bpm)</div></div><div class="a191Chart">'+chart(c,m)+'</div></section>'+
  '<section class="a191Card types"><div class="a191Head"><span class="runner">'+icon('run')+'</span><b>Aktivitás típusok</b><strong>Összes ›</strong></div><div class="a191Types">'+categoryCards(c,m)+'</div></section>'+
@@ -305,24 +315,35 @@ window.hh191SourceDetails=function(){
  var d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
  var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
  var displayed=(src.rows||[]).find(function(x){return x.date===today});
+ var samsung=src.samsung||{},sd=samsung.data&&samsung.data.days&&samsung.data.days.get(today);
+ var directStatus=samsung.status==='ready'?'✅ Samsung Data SDK export betöltve':
+   samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
+   samsung.status==='invalid'?'⚠️ Érvénytelen Samsung SDK export':
+   'Nincs közvetlen Samsung-adatkapcsolat';
+
  function value(r,key,dec,unit){var x=r&&r[key];return x!=null&&Number.isFinite(Number(x))?n(x,dec)+(unit?' '+unit:''):'nincs';}
  function row(label,data){return '<div class="a191SourceRow"><b>'+esc(label)+'</b><span>'+esc(data)+'</span></div>'}
  var html='<div class="a191SheetHead"><div><small>📡 HEALTHHUB · '+esc(profile.toUpperCase())+'</small><h3>Activity adatforrások</h3></div><button onclick="hh191CloseModal()">×</button></div>'+
  '<div class="a191Weather"><span>'+(cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
  '<span>Export ideje: '+esc(cloud?fmtDate(cloud.importedAt):'nincs információ')+'</span>'+
- '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span></div>'+
+ '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span>'+
+ '<span>'+esc(directStatus)+(samsung.data&&samsung.data.exportedAt?' · '+esc(fmtDate(samsung.data.exportedAt)):'')+'</span></div>'+
  '<div class="a191SourceTable">'+
  row('Lépések · HC export',value(direct,'steps',0,'lépés'))+
  row('Lépések · kijelzett',value(displayed,'steps',0,'lépés'))+
  row('Aktív kcal · HC',Number(direct&&direct.activeCaloriesKcal)>0?value(direct,'activeCaloriesKcal',0,'kcal'):'nincs pozitív adat')+
+ row('Aktív kcal · Samsung SDK',value(sd,'activeCaloriesKcal',0,'kcal'))+
  row('Aktív kcal rekordok · 30 nap',counts.activeCaloriesRecords==null?'nem ismert':String(counts.activeCaloriesRecords))+
  row('Aktív idő · HC',value(direct,'activeMinutes',0,'perc'))+
+ row('Aktív idő · Samsung SDK',value(sd,'activeMinutes',0,'perc'))+
  row('Aktív idő forrása',direct&&direct.activeMinutesSource==='activeCaloriesIntervals'?'Kalória-időintervallum':direct&&direct.activeMinutesSource==='exerciseSessions'?'Edzésidő':'nem ismert')+
  row('Aktív idő · kijelzett',m.active>0?n(m.active,0)+' perc':'nincs adat')+
  row('Távolság · HC',value(direct,'distanceMeters',0,'m'))+
  row('Távolság · saját becslés',m.estimated?n(m.dist,2)+' km':'nincs becslés')+
+ row('Távolság · Samsung SDK',value(sd,'distanceMeters',0,'m'))+
  row('Szintemelkedés · HC',value(direct,'elevationGainMeters',1,'m'))+
  row('Emeletek · HC',value(direct,'floorsClimbed',1,'emelet'))+
+ row('Emeletek · Samsung SDK',value(sd,'floorsClimbed',1,'emelet'))+
  row('Szintemelkedés olvasás',counts.elevationPermissionGranted==null?'nem ismert':counts.elevationPermissionGranted?'engedélyezve':'nincs engedély')+
  row('Emeletek olvasás',counts.floorsPermissionGranted==null?'nem ismert':counts.floorsPermissionGranted?'engedélyezve':'nincs engedély')+
  '</div><p style="font-size:10px;color:#547084;line-height:1.6">A hiányzó aktív kalória, emelet vagy szintemelkedés nem tekinthető mért nullának. A Samsung saját napösszesítője ettől eltérhet.</p>';
