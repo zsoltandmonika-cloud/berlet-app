@@ -41,7 +41,7 @@ function normalize(p,raw){
  var hourly=[],seenHours=new Set();
  var inputHourly=raw.records&&raw.records.hourlySteps;
  if(Array.isArray(inputHourly))inputHourly.slice(0,72).forEach(function(r){
-  if(!r||!isDay(r.date)||r.date>new Date().toISOString().slice(0,10))return;
+  if(!r||!isDay(r.date)||Date.parse(r.date+'T00:00:00Z')>now+86400000)return;
   var h=number(r.hour,0,23),steps=number(r.steps,0,100000);
   if(h==null||h!==Math.floor(h)||steps==null)return;
   var key=r.date+'|'+h;if(seenHours.has(key))return;seenHours.add(key);
