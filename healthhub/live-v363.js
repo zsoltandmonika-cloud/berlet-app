@@ -127,23 +127,23 @@ async function render(profile,cache){
  if(!host)return;
  var box=page.querySelector('#hhCal363');
  if(!box){box=document.createElement('section');box.id='hhCal363';box.className='hhCal363';host.insertAdjacentElement('afterend',box)}
- css();box.innerHTML='<h3>🔥 HealthHub Calorie Engine · BETA</h3><p>Saját energia-becslés számítása…</p>';
+ css();box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>Saját energia-becslés számítása…</p>';
  var db=await readDb(profile),ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(profile);
  if((localStorage.getItem('hh-profile')==='m'?'monika':'zsolt')!==profile||!box.isConnected)return;
  var core=Object.assign({},ctx&&ctx.profileCore||{},db&&db.profile||{});
  var w=bestWeight(db&&db.measurements,ctx);
  var val=calculate(profile,cache,core,w);
- if(val.error){box.innerHTML='<h3>🔥 HealthHub Calorie Engine · BETA</h3><p>'+esc(val.error)+'</p>';return}
+ if(val.error){box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>'+esc(val.error)+'</p>';return}
  var compare=val.samsung==null?'Samsung: nincs összehasonlítható adat':
   'Samsung Health: '+fmt(val.samsung)+' aktív kcal · eltérés '+(val.active>=val.samsung?'+':'')+fmt(val.active-val.samsung)+' kcal';
- box.innerHTML='<h3>🔥 HealthHub Calorie Engine · BETA</h3>'+
+ box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3>'+
   '<div class="hhCal363Grid">'+
   '<div><small>Saját aktív becslés</small><b>'+fmt(val.active)+'</b><small>kcal</small></div>'+
   '<div><small>Nyugalmi rész</small><b>'+fmt(val.rest)+'</b><small>kcal</small></div>'+
   '<div><small>Együtt, becslés</small><b>'+fmt(val.total)+'</b><small>kcal</small></div></div>'+
   '<p><b>'+esc(val.date)+(val.fullDay?' · lezárt nap':' · mai nap eddig')+'</b> · '+esc(compare)+'.</p>'+
-  '<p>Alap: '+fmt(val.kg)+' kg, '+fmt(val.steps)+' lépés, '+val.km.toFixed(1)+' km. Modell: '+esc(val.model)+'. Adatminőség: '+esc(val.confidence)+(val.warnings.length?' ('+esc(val.warnings.join(', '))+')':'')+'.</p>'+
-  '<p>⚠️ Nem laboratóriumi mérés. A pulzus nem kalóriaszorzó; különösen béta-blokkoló mellett lenne félrevezető. A teljes napi érték nem tartalmaz minden energiafelhasználási tételt.</p>';
+  '<p>Alap: '+fmt(val.kg)+' kg, '+fmt(val.steps)+' lépés, '+val.km.toFixed(1)+' km. Modell: '+esc(val.model)+'. Adatminőség: '+esc(val.confidence)+(val.warnings.length?' ('+esc(val.warnings.join(', '))+')':'')+'.</p>';
+
 }
 window.HH_CALORIE_ENGINE_V363={render:render,estimate:calculate,version:'363'};
 })();
