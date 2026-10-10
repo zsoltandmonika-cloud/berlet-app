@@ -437,7 +437,12 @@ async function run(opts){
    for(var packet of packets)eventHandler(packet);
   }
   if(!complete)throw Error('Nem érkezett teljes AI-válasz. A részleges szöveget töröltem.');
-  if(turn===epoch&&profile()===p){try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString()}}))}catch(e){}}
+  if(turn===epoch&&profile()===p){
+   try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString()}}))}catch(e){}
+   // Re-align once after completion callbacks and final DOM updates.
+   // No competing smooth animation: keep the last streaming position at the top.
+   setTimeout(function(){if(turn===epoch&&profile()===p)alignAnswerTop()},90);
+  }
  }catch(e){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
