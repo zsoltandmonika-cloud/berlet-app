@@ -7,10 +7,6 @@ plugins {
 // Without it, compile the ordinary working Health Connect build unchanged.
 val samsungSdkAar = file("libs/samsung-health-data-api.aar")
 val withSamsungSdk = samsungSdkAar.isFile
-if (withSamsungSdk) {
-    pluginManager.apply("kotlin-parcelize")
-}
-
 android {
     namespace = "hu.zsoltmonika.healthhubbridge"
     compileSdk = 36
