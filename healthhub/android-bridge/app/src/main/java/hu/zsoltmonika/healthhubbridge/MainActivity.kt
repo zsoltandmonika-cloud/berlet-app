@@ -647,14 +647,15 @@ class MainActivity : ComponentActivity() {
                 val outProfile = payload.optString("profile")
                 val schema = payload.optString("schemaVersion")
                 val rows = payload.optJSONObject("records")?.optJSONArray("dailySummary")
-                check(outProfile == profile && schema == "healthhub.samsung.daily/1" && rows != null && rows.length() > 0) {
+                val rowCount = rows?.length() ?: 0
+                check(outProfile == profile && schema == "healthhub.samsung.daily/1" && rowCount > 0) {
                     "A Samsung napi export nem teljes vagy másik profilhoz tartozik."
                 }
-                status.text = "Samsung Health: ${rows!!.length()} nap beolvasva · külön Dropbox-feltöltés…"
+                status.text = "Samsung Health: ${rowCount} nap beolvasva · külön Dropbox-feltöltés…"
                 val remote = DropboxVaultClient.PROFILES_DIR + "/" + profile + "-samsung-health.json"
                 DropboxVaultClient.uploadText(prefs, remote, payload.toString(2) + "\n")
                 status.text = "✓ Samsung Health közvetlen napi export kész · ${profileName(profile)} · " +
-                    "${rows.length()} nap · Dropbox feltöltve. Nyisd meg a HealthHub Activity-t."
+                    "${rowCount} nap · Dropbox feltöltve. Nyisd meg a HealthHub Activity-t."
             } catch (e: Exception) {
                 status.text = "Samsung SDK külön import nem sikerült: ${e.message ?: e.javaClass.simpleName}\n" +
                     "A szokásos Health Connect és Dropbox szinkron változatlanul működik."
