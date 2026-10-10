@@ -16,12 +16,46 @@ function rank(docs,question){
  if(/fej|migren|szedul|headach/.test(q))synonyms.push('fej','migr','neurolog','vernyomas');
  if(/sziv|mellkas|ritmus|pulzus|kardio|crt|defibr/.test(q))synonyms.push('kardio','sziv','ekg','crt','ritmus');
  if(/alvas|alud|farad|kimerult/.test(q))synonyms.push('alvas','sleep','apno');
+ // Hungarian inflections: bokám/bokája ≠ 'boka' as a literal search token.
+ // Include both injury records when multiple ankle sprains occurred in one year.
+ if(/bok|bokaj|labfej|ficam|randul|kibicsak|bokaszalag/.test(q))
+  synonyms.push('boka','bokaj','ficam','randul','kibicsak','szalag','rogzit','gipsz','ortoped','rontgen');
  terms=terms.concat(synonyms);
  return (docs||[]).map(function(d){
-  var name=norm(d.title||''),summary=norm(d.explanation&&d.explanation.summary||''),findings=norm((d.explanation&&d.explanation.keyFindings||[]).join(' '));
+  var explain=d.explanation||{};
+  var name=norm(d.title||''),summary=norm(explain.summary||''),
+   findings=norm([...(Array.isArray(explain.keyFindings)?explain.keyFindings:[]),
+    ...(Array.isArray(explain.meaning)?explain.meaning:[]),
+    ...(Array.isArray(explain.attention)?explain.attention:[])].join(' '));
   var score=terms.reduce(function(a,t){return a+(name.includes(t)?6:0)+(summary.includes(t)?3:0)+(findings.includes(t)?2:0)},0);
   return {d:d,score:score};
- }).filter(function(x){return x.score>=3}).sort(function(a,b){return b.score-a.score||String(b.d.date||'').localeCompare(String(a.d.date||''))}).slice(0,5).map(function(x){return x.d});
+ }).filter(function(x){return x.score>=3}).sort(function(a,b){return b.score-a.score||String(b.d.date||'').localeCompare(String(a.d.date||''))}).slice(0,8).map(function(x){return x.d});
+}
+function datePrecision(s){
+ s=String(s||'').trim();
+ if(/^\d{4}[-./]\d{1,2}[-./]\d{1,2}(?:[T\s]\d{1,2}:\d{2})?/.test(s))return'day';
+ if(/^\d{4}[-./]\d{1,2}$/.test(s))return'month';
+ if(/^\d{4}$/.test(s))return'year';
+ return'unknown';
+}
+function dateMentions(text){
+ var found=new Set(),raw=String(text||'');
+ // Only possible calendar dates, not assumed injury dates.
+ var patterns=[/\b(?:19|20)\d{2}[-./]\d{1,2}[-./]\d{1,2}(?:[ T]\d{1,2}:\d{2})?/g,
+  /\b\d{1,2}[-./]\d{1,2}[-./](?:19|20)\d{2}(?:\s+\d{1,2}:\d{2})?/g];
+ patterns.forEach(function(rx){var match;while((match=rx.exec(raw))&&found.size<12)found.add(match[0])});
+ return Array.from(found).slice(0,8);
+}
+function historicalText(e){
+ // Treatment information is not interchangeable with diagnosis.
+ // Preserve recommendations and original mention dates even in short AI packets.
+ var parts=[
+  e.summary?'Korábbi összefoglaló: '+String(e.summary).slice(0,1050):'',
+  Array.isArray(e.keyFindings)&&e.keyFindings.length?'Leletmegállapítások: '+e.keyFindings.join('; ').slice(0,520):'',
+  Array.isArray(e.meaning)&&e.meaning.length?'Értelmezés: '+e.meaning.join('; ').slice(0,310):'',
+  Array.isArray(e.attention)&&e.attention.length?'Akkori javaslat / kontroll / teendő (ha szerepel): '+e.attention.join('; ').slice(0,480):''
+ ];
+ return parts.filter(Boolean).join(' · ').slice(0,2420);
 }
 function mount(){
  var comp=el('hhLenaComposer340');if(!comp)return;
@@ -89,12 +123,20 @@ async function prepare(question,p){
  if(p!==profile())throw Error('Profilváltás miatt a leletkutatás megszakadt.');
  var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
  if(!ctx||ctx.profile!==p)return {items:[],originals:0,summaries:0};
- var docs=rank(ctx.documents&&ctx.documents.index,question),allowed=!!(el('hhAskOriginalCheckbox364')&&el('hhAskOriginalCheckbox364').checked),items=[];
+ var docs=rank(ctx.documents&&ctx.documents.index,question),
+  allowed=!!(el('hhAskOriginalCheckbox364')&&el('hhAskOriginalCheckbox364').checked),items=[];
  // JSON explanations are already HealthHub data; their provenance is explicitly labelled.
- docs.forEach(function(d){
+ docs.slice(0,5).forEach(function(d){
   var e=d.explanation||null;if(!e)return;
-  var v=[e.summary||'',Array.isArray(e.keyFindings)?e.keyFindings.join('; '):'',Array.isArray(e.meaning)?e.meaning.join('; '):''].filter(Boolean).join(' · ').slice(0,2350);
-  if(v)items.push({type:'json_summary',documentId:String(d.id||''),title:field(d.title),date:field(d.date),text:v});
+  var v=historicalText(e);
+  if(v)items.push({
+   type:'json_summary',documentId:String(d.id||''),title:field(d.title),
+   date:d.dateSource==='upload'?'':field(d.date),
+   datePrecision:d.dateSource==='upload'?'unknown':datePrecision(d.date),
+   uploadDate:d.uploadedAt?String(d.uploadedAt).slice(0,35):'',
+   datesMentioned:dateMentions([d.title||'',v].join(' ')),
+   text:v
+  });
  });
  var originalCount=0;
  if(allowed){
@@ -103,7 +145,14 @@ async function prepare(question,p){
    status('📚 Eredeti leletek ellenőrzése: '+(i+1)+'/'+Math.min(docs.length,3));
    var full=await extractText(docs[i],question);
    if(full&&full.text.length>=80){
-    items.push({type:'original_pdf_extract',documentId:String(docs[i].id||''),title:field(docs[i].title),date:field(docs[i].date),page:full.page,text:full.text.slice(0,2200)});
+    items.push({
+     type:'original_pdf_extract',documentId:String(docs[i].id||''),title:field(docs[i].title),
+     date:docs[i].dateSource==='upload'?'':field(docs[i].date),
+     datePrecision:docs[i].dateSource==='upload'?'unknown':datePrecision(docs[i].date),
+     uploadDate:docs[i].uploadedAt?String(docs[i].uploadedAt).slice(0,35):'',
+     datesMentioned:dateMentions([docs[i].title||'',full.text].join(' ')),
+     page:full.page,text:full.text.slice(0,2200)
+    });
     originalCount++;
    }
   }
@@ -113,5 +162,5 @@ async function prepare(question,p){
 }
 window.addEventListener('healthhub:ask-lena-open',function(){mount();status('📚 A leletösszefoglalókat kérdés alapján választom ki. Az eredeti PDF külön engedélyes.')});
 window.addEventListener('healthhub:profile-changed',function(){var c=el('hhAskOriginalCheckbox364');if(c)c.checked=false;status('')});
-window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare};
+window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare,rank:rank,dateMentions:dateMentions,datePrecision:datePrecision};
 })();
