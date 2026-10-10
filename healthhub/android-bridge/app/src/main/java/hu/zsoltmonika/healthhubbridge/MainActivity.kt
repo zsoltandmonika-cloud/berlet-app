@@ -78,6 +78,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Optional terrain access has its own launcher so refusal cannot disable ordinary sync.
+    private val terrainPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { granted ->
+        val obtained = granted.intersect(HealthConnectExporter.OPTIONAL_TERRAIN_PERMISSIONS)
+        status.text = if (obtained.size == HealthConnectExporter.OPTIONAL_TERRAIN_PERMISSIONS.size) {
+            "✓ Szintemelkedés és megmászott emeletek hozzáférése engedélyezve. Indíts SYNC NOW-t."
+        } else {
+            "ℹ️ A szintemelkedés és emeletadatok opcionálisak. A normál Health Connect szinkron változatlanul működik."
+        }
+    }
+
     private val backgroundPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
@@ -344,6 +356,29 @@ class MainActivity : ComponentActivity() {
             text = "🔎 Health Connect adatellenőrzés"
             setOnClickListener {
                 runHealthConnectDiagnostic()
+            }
+        })
+
+        root.addView(Button(this).apply {
+            text = "⛰️ Szintemelkedés + emeletek engedélyezése"
+            setOnClickListener {
+                scope.launch {
+                    val hc = client ?: run {
+                        status.text = "Health Connect nem elérhető."
+                        return@launch
+                    }
+                    try {
+                        val granted = hc.permissionController.getGrantedPermissions()
+                        val missing = HealthConnectExporter.OPTIONAL_TERRAIN_PERMISSIONS - granted
+                        if (missing.isEmpty()) {
+                            status.text = "✓ Szintemelkedés és emelet engedélyek már megvannak. Indíts SYNC NOW-t."
+                        } else {
+                            terrainPermissionLauncher.launch(missing)
+                        }
+                    } catch (e: Exception) {
+                        status.text = "Opcionális adatengedély hiba: ${e.message ?: e.javaClass.simpleName}"
+                    }
+                }
             }
         })
 
