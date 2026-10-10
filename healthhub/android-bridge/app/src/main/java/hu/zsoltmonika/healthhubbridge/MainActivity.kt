@@ -119,6 +119,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (SamsungSdkDailyReader.available) {
+            // This is a separate app ID. No HC, auto-schedulers, orchestrators or
+            // ordinary sync buttons are ever started in the Samsung beta.
+            setContentView(buildSamsungBetaUi())
+            status.text = "Samsung Health Direct Beta · csak tesztolvasás. Az éles Connect érintetlen."
+            return
+        }
         setContentView(buildUi())
         DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
@@ -135,6 +142,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (SamsungSdkDailyReader.available) return
         handleIntent(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
@@ -279,6 +287,109 @@ class MainActivity : ComponentActivity() {
                 syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
+        }
+    }
+
+    /** Minimal Samsung-only test interface. Does not touch existing Health Connect data,
+     * Dropbox tokens, scheduled sync, or the production HealthHub Connect package.
+     */
+    private fun buildSamsungBetaUi(): View {
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(30, 30, 30, 30)
+            setBackgroundColor(0xFFEEF7FB.toInt())
+        }
+        root.addView(TextView(this).apply {
+            text = "📱 HH Samsung Beta"
+            textSize = 24f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF123C62.toInt())
+        })
+        root.addView(TextView(this).apply {
+            text = "Samsung Health Data SDK · külön fejlesztői próba\n" +
+                "Az éles HealthHub Connect és Dropbox szinkron nincs módosítva."
+            textSize = 13f
+            setPadding(0, 12, 0, 26)
+        })
+        ownerLabel = TextView(this).apply { textSize = 15f; setPadding(0, 10, 0, 10) }
+        root.addView(ownerLabel)
+        profileSpinner = Spinner(this).apply {
+            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item,
+                listOf("Zsolt", "Mónika"))
+        }
+        root.addView(profileSpinner)
+        ownerButton = Button(this).apply {
+            text = "Telefon tulajdonosának módosítása"
+            setOnClickListener {
+                prefs.edit().remove("device_owner_profile").apply()
+                updateOwnerUi()
+            }
+        }
+        root.addView(ownerButton)
+        root.addView(Button(this).apply {
+            text = "🔎 Samsung Health napi adatok beolvasása"
+            setOnClickListener { readSamsungBetaNow() }
+        })
+        saveButton = Button(this).apply {
+            text = "💾 Samsung eredmény mentése saját JSON-fájlba"
+            isEnabled = false
+            setOnClickListener {
+                val owner = deviceOwnerProfile() ?: return@setOnClickListener
+                if (pendingJson != null) {
+                    saveLauncher.launch("healthhub-samsung-${owner}-daily.json")
+                }
+            }
+        }
+        root.addView(saveButton)
+        status = TextView(this).apply {
+            text = "Fejlesztői teszt. A Samsung adatok olvasásához külön engedély kell."
+            textSize = 14f
+            setTextColor(0xFF234E73.toInt())
+            setPadding(0, 16, 0, 12)
+        }
+        root.addView(status)
+        updateOwnerUi()
+        return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun readSamsungBetaNow() {
+        if (!SamsungSdkDailyReader.available) {
+            status.text = "Samsung SDK nem érhető el."
+            return
+        }
+        val profile = bindOwnerIfNeeded()
+        scope.launch {
+            try {
+                saveButton.isEnabled = false
+                pendingJson = null
+                status.text = "Samsung Health Data SDK olvasás, külön engedélykérés…"
+                val data = SamsungSdkDailyReader.collect(this@MainActivity, profile)
+                check(data.optString("profile") == profile &&
+                    data.optString("schemaVersion") == "healthhub.samsung.daily/1") {
+                    "Profil vagy Samsung exportformátum hiba."
+                }
+                val days = data.optJSONObject("records")?.optJSONArray("dailySummary")
+                check(days != null && days.length() > 0) { "Nincs kiolvasható Samsung napösszesítő." }
+                pendingJson = data.toString(2)
+                saveButton.isEnabled = true
+                val today = java.time.LocalDate.now().toString()
+                val summary = (0 until days.length()).mapNotNull { days.optJSONObject(it) }
+                    .firstOrNull { it.optString("date") == today }
+                status.text = "✅ Samsung SDK sikeres · ${profileName(profile)} · " +
+                    "${days.length()} aktivitásnap. Ma: " +
+                    (summary?.let {
+                        "${it.optString("activeCaloriesKcal", "—")} kcal, " +
+                        "${it.optString("activeMinutes", "—")} perc, " +
+                        "${it.optString("floorsClimbed", "—")} emelet"
+                    } ?: "nincs napi összesítő") +
+                    "\nEz csak helyi olvasás. A Dropboxba nem töltöttünk fel semmit."
+            } catch (e: Exception) {
+                pendingJson = null
+                saveButton.isEnabled = false
+                status.text = "Samsung közvetlen olvasás nem sikerült: " +
+                    (e.message ?: e.javaClass.simpleName) +
+                    "\nAz éles HealthHub Connect továbbra is működik."
+            }
         }
     }
 
@@ -912,7 +1023,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::status.isInitialized) {
+        if (::status.isInitialized && !SamsungSdkDailyReader.available) {
             ResilientHealthSync.schedule(this)
             updateResilientStatus()
         }
