@@ -1,12 +1,14 @@
 (function(){
 'use strict';
 // Profile-scoped Ask Léna history: RLS-protected Supabase sync + local offline fallback.
-var STORE='hh-ask-lena-history-v364-',MAX=60,inFlight={},versions={},mounted=false;
+var STORE='hh-ask-lena-history-v364-',STATE='hh-ask-lena-history-sync-v364-',MAX=60,inFlight={},versions={};
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function svc(){return window.HH_DAILY_HEALTH_SYNC_V319}
 function connected(){try{var s=svc(),x=s&&s.getStatus();return !!(s&&s.request&&x&&x.authenticated&&(!x.authorizedProfiles||x.authorizedProfiles.includes(profile())))}catch(e){return false}}
 function entries(p){try{var r=JSON.parse(localStorage.getItem(STORE+p)||'[]');return Array.isArray(r)?r:[]}catch(e){return[]}}
+function state(p){try{return JSON.parse(localStorage.getItem(STATE+p)||'{}')}catch(e){return{}}}
+function saveState(p,x){try{localStorage.setItem(STATE+p,JSON.stringify(x||{}))}catch(e){}}
 function dateKey(x){var d=new Date(x);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Dátum nélkül'}
 function write(p,arr){var m=new Map();arr.forEach(function(x){if(x&&x.id&&x.profile===p&&x.question&&x.answer)m.set(x.id,x)});
  var rows=Array.from(m.values()).sort(function(a,b){return Date.parse(b.generatedAt)-Date.parse(a.generatedAt)}).slice(0,MAX);
@@ -35,9 +37,12 @@ function mount(){
 }
 function render(){
  var box=mount();if(!box)return;
- var p=profile(),arr=entries(p),state=connected()?'☁️ Bejelentkezve · történet felhőben szinkronizálható':'📱 Helyi előzmények · jelentkezz be a Központi Health Vaultba a más eszközös eléréshez';
+ var p=profile(),arr=entries(p),st=state(p);
+ var statusText=!connected()?'📱 Helyi előzmények · Központi Health Vault belépéssel tudod eszközök között szinkronizálni':
+  st.error?'⚠️ Felhőszinkron: '+String(st.error).slice(0,110):
+  st.updatedAt?'✅ Felhőszinkron: '+dateKey(st.updatedAt):'☁️ Szinkronizálás indul…';
  box.innerHTML='<button type="button" class="hhHistRefresh364" id="hhHistRefresh364">↻ Sync</button>'+
- '<h3>🗂️ Ask Léna · Előzmények</h3><div class="hhHistStatus364">'+esc(state)+'</div>'+
+ '<h3>🗂️ Ask Léna · Előzmények</h3><div class="hhHistStatus364">'+esc(statusText)+'</div>'+
  '<div class="hhHistList364">'+(arr.length?arr.map(function(x){
   return '<button type="button" class="hhHistRow364" data-history-id="'+esc(x.id)+'"><b>'+esc(x.question.slice(0,170))+'</b><small>'+esc(dateKey(x.generatedAt))+' · '+esc(x.profile==='monika'?'Mónika':'Zsolt')+'</small></button>';
  }).join(''):'<p class="hhHistStatus364">Még nincs mentett válasz ezen a profilon.</p>')+'</div>';
@@ -72,10 +77,8 @@ async function sync(p,manual){
   var existing=entries(p);
   var seen=new Set(mapped.map(function(x){return x.id}));
   write(p,mapped.concat(existing.filter(function(x){return !seen.has(x.id)})));
-  if(manual&&p===profile())render();
- }catch(e){console.warn('Ask Léna history sync',e);if(manual&&p===profile()){
-  var x=mount();if(x){var m=x.querySelector('.hhHistStatus364');if(m)m.textContent='⚠️ Felhőszinkron nem sikerült: '+String(e.message||e).slice(0,100)}
- }}finally{inFlight[p]=false;if(p===profile())render();if(versions[p]!==stamp)setTimeout(function(){sync(p,false)},600)}
+  saveState(p,{updatedAt:new Date().toISOString(),error:null});
+ }catch(e){console.warn('Ask Léna history sync',e);saveState(p,{updatedAt:state(p).updatedAt||null,error:String(e.message||e).slice(0,130)})}finally{inFlight[p]=false;if(p===profile())render();if(versions[p]!==stamp)setTimeout(function(){sync(p,false)},600)}
 }
 function save(ev){
  var x=ev&&ev.detail||{};
