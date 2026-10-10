@@ -1,5 +1,24 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+## v372 fejlesztői állapot: natív olvasó előkészítve (draft PR)
+- Elkészült a `src/samsungSdk/java/.../SamsungSdkDailyReader.kt` natív Samsung napi aggregáló forrás: aktív kalória, aktív idő, távolság, megmászott emeletek.
+- A Samsung SDK saját, *külön* engedélykérő képernyője szükséges. A felhasználói gomb csak SDK-val ténylegesen buildelt APK-ban jelenik meg.
+- Az SDK-ból szerzett adat önálló `<profile>-samsung-health.json` fájlba kerül Dropboxban; soha nem írja felül a Health Connect archívumot.
+- A normal `app/libs/samsung-health-data-api.aar` nélkül épülő verzió továbbra is `src/samsungStub/java/` helyettesítő osztályt használ, amely soha nem állítja, hogy Samsung-napi adatot szerzett.
+- A gyártó v1.1.0-s **AAR fájlja még nincs itt**, ezért az SDK-s Android-fordítás és valós Samsung-telefonos ellenőrzés NEM történt meg. A v372-t szándékosan nem élesítjük, amíg nincs ellenőrzött SDK-fordítás.
+- A jelenlegi Android app **0.12.0**, amelyet nem szükséges lecserélni és nem szabad eltávolítani.
+- A Samsung hivatalos szabályai szerint a fejlesztői teszt *partnerjóváhagyás előtt is lehetséges*, de kizárólag Samsung Health fejlesztői tesztmóddal. Ez **nem** azonos a publikus/általános terjesztéssel; annak SHA-256 tanúsítvány/regisztráció szükséges.
+- A Samsung SDK 1.1.0 minimum Samsung Health 6.30.2-t, Android 10-et és Java 17-et igényel.
+
+### A következő valódi blokkoldó lépés
+A Samsung hivatalos `Samsung Health Data SDK v1.1.0` ZIP-jét a fejlesztői oldalon le kell tölteni, és ellenőrzött helyi projektben kinyerni belőle a `samsung-health-data-api.aar` állományt. Ne publikáld GitHubon; a gyártói SDK-t kizárólag a fordításhoz kell átadni biztonságos csatornán. Ezután teljes natív Android build, kézi teszt és aláírás/telepíthetőség ellenőrzés szükséges.
+
+**Forrás:** https://developer.samsung.com/health/data/process.html
+**Teszt mód:** https://developer.samsung.com/health/data/guide/developer-mode.html
+
+---
+
+
 **Státusz: ELŐKÉSZÍTETT, MÉG NEM KAPCSOLÓDOTT.**
 A v371 webes adatfogadó kódja és forrásszétválasztása kész. **A Samsung Health Data SDK Android-olvasója nincs beépítve az APK-ba**, nincs Samsung jóváhagyás, és a v371 önmagában nem oldja meg a hiányzó kalória/aktív idő/emeletszám importját. A meglévő Health Connect → Dropbox kapcsolat továbbra is működik.
 
