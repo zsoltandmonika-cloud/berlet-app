@@ -24,13 +24,16 @@ function sanitizeExtra(input:unknown):Extra[]{
  return input.slice(0,72).filter(e=>e&&ids.has(e.domain)).map(e=>({domain:String(e.domain),label:safeText(e.label,90),value:safeText(e.value,240),at:safeText(e.at,35)})).filter(e=>e.label&&e.value);
 }
 
-type Evidence = {type:"json_summary"|"original_pdf_extract",documentId:string,title:string,date:string,page?:number,text:string};
+type Evidence = {type:"json_summary"|"original_pdf_extract",documentId:string,title:string,date:string,datePrecision?:string,uploadDate?:string,datesMentioned?:string[],page?:number,text:string};
 function sanitizeEvidence(input:unknown, originalAllowed:boolean):Evidence[]{
  if(!Array.isArray(input))return [];
  return input.slice(0,8).filter((v:any)=>v&&["json_summary","original_pdf_extract"].includes(v.type)&&
   (v.type!=="original_pdf_extract"||originalAllowed)).map((v:any)=>({
   type:v.type,documentId:safeText(v.documentId,100),
   title:safeText(v.title,200),date:safeText(v.date,32),
+  datePrecision:["day","month","year","unknown"].includes(v.datePrecision)?v.datePrecision:"unknown",
+  uploadDate:safeText(v.uploadDate,35),
+  datesMentioned:Array.isArray(v.datesMentioned)?v.datesMentioned.slice(0,8).map((t:unknown)=>safeText(t,30)):[],
   page:Number.isInteger(v.page)&&v.page>=1&&v.page<=5000?v.page:undefined,
   text:safeText(v.text,2450)
  })).filter((v:Evidence)=>v.text.length>=30&&v.title.length>0);
@@ -130,16 +133,23 @@ Deno.serve(async req => {
     "Nincs élő internet-hozzáférésed, és nem vizsgáltál meg teljes PDF-et.",
     "Ha képet is kaptál, csak azt állítsd, amit valóban látsz rajta; ne diagnosztizálj fotóról, és jelezd a kép korlátait.",
     "A priorDocuments rekordok kérdésre rangsorolt, dátummal ellátott korábbi leletek: json_summary egy korábban készített összefoglaló, original_pdf_extract pedig az eredeti PDF-ből ténylegesen kinyert részlet. A két forrást NE mosd össze.",
-    "Ha találtál releváns korábbi leletet, NE elégedj meg a címével: mutasd be konkrétan a dokumentum dátumát, a hozzá kapcsolódó megállapítást, és hogy ez hogyan viszonyul a mai tünethez vagy méréshez.",
+    "Ha találtál releváns korábbi leletet, NE elégedj meg a címével: mutasd be a dokumentum pontos dátumát (év, hónap, nap), az akkori megállapítást és az igazolható akkori ellátást vagy javasolt kezelést, valamint a mai tünettel való lehetséges kapcsolatot.",
+    "FONTOS: ha ugyanabban az évben több külön sérülés, például két bokaficam vagy bokarándulás történt, külön eseményként vezesd végig őket. Soha ne vond össze a két külön esetet csak a közös év miatt.",
+    "A datePrecision=day forrásdátum teljes napi pontosságú. datePrecision=year vagy month esetén NE találj ki hónapot/napot: közöld, hogy a pontos nap nem áll rendelkezésre. A datesMentioned dátumjelöltek, csak akkor nevezd sérülési vagy vizsgálati dátumnak, ha a kapcsolódó leletszöveg ezt kifejezetten igazolja.",
+    "Az uploadDate feltöltési technikai időpont, soha ne tüntesd fel a vizsgálat vagy baleset időpontjaként.",
+    "Írd le az AKKORI ellátást külön: pl. rögzítés, jegelés, pihentetés, gyógyszer, gyógytorna, kontroll csak akkor, ha a releváns leletből vagy JSON-magyarázatból valóban alátámasztható; ezek példák, nem automatikus kezelési javaslatok.",
+    "Ha nincs dokumentált korábbi kezelés vagy pontos nap, mondd ezt ki, ne helyettesítsd feltételezésekkel. A vizsgálatot, sérülés dátumát és kezelés időpontját ne keverd.",
+    "A múltbeli eseményeknél hivatkozz röviden a dokumentum címére, pontos forrásdátumára és PDF-oldalára, ha ismert; különítsd el az eredeti PDF-kivonatot a későbbi JSON-értelmezéstől.",
     "Külön mondd el, mit tudunk a múltról, mit tudunk a jelenről és mi csak lehetséges kapcsolat. Kerüld a bizonyítatlan oksági állításokat.",
     "Az eredeti leletkivonatot lehet oldalmegjelöléssel idézni a cím és dátum mellett; összefoglaló esetén hangsúlyozd, hogy nem az eredeti PDF bizonyítéka.",
     "Ha a múlt és jelen összevetéséhez érdemi információ hiányzik, a végén tegyél fel legfeljebb egy célzott tisztázó kérdést, amit a felhasználó meg tud válaszolni.",
     "A válasz legyen kérdéshez illően 90-420 szó; részletes leletösszehasonlításnál lehet hosszabb.",
-    "Szerkezet: közvetlen válasz, konkrét személyes adatok és időbélyegek (ha relevánsak), bizonytalanság, világos következő lépés.",
+    "Egészségügyi előzmény esetén legyen külön rövid Korábbi esetek / Dátum és akkori kezelés; Jelenlegi tünetek; Összefüggés és következő lépés. Nem releváns kérdésnél ne erőltess sablont.",
+    "Szerkezet: közvetlen válasz, pontos forrásdátumokkal alátámasztott előzmények, mai helyzet, bizonytalanság, világos következő lépés.",
     "A kész szöveget közvetlenül írd, ne JSON-t, és ne mutass belső gondolatmenetet."
   ].join(" ");
   const requestBody = {
-    model: MODEL, temperature: 0.2, max_completion_tokens: 1600,
+    model: MODEL, temperature: 0.2, max_completion_tokens: 1900,
     store: false, stream: true,
     messages: [
       { role: "system", content: prompt },
