@@ -1,5 +1,18 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+## Samsung Health Data SDK v1.1.0 ZIP validálása · 2026-10-10
+
+A gyártó eredeti `samsung-health-data-sdk-1.1.0.zip` csomagja megérkezett **magán a beszélgetésen keresztül**. A csomagot nem másoltuk a GitHubba. A belső `1.1.0/libs/samsung-health-data-api-1.1.0.aar` valódi Java API-osztályait közvetlenül, `javap`-pal ellenőriztük. A natív olvasóban két fordítási akadályt találtunk és javítottunk:
+
+- A `AggregatedData<T>.value` **nullable**; az aggregátum-számításokat `dataList.mapNotNull { it.value }` mintára állítottuk. Valódi AAR + Kotlin 1.9 fordítási próbában az API-használat sikeresen fordult egyszerű Android osztályhelyettesítőkkel. Ez még nem teljes Android-alkalmazás build.
+- Az AAR `AndroidManifest.xml` **minSdkVersion 29** értéket követel, ezért a Samsung SDK-val buildelt variáns minimum SDK 29-es. A normál Health Connect app minimum SDK 26-os marad.
+
+**Telepítési biztonság:** a Samsung SDK-val buildelt alkalmazás külön béta csomagazonosítót kap, `hu.zsoltmonika.healthhubbridge.samsungbeta`. Az eredeti, működő HealthHub Connect nem íródik felül. A béta Dropbox OAuth deep-link átirányítását végig kell még tesztelni, mielőtt tényleges használatba adnánk.
+
+**Még nem történt meg:** teljes Gradle/Android SDK build, APK-aláírás, Samsung telefonos engedélykérés, Samsung Developer hozzáférési ellenőrzés és Dropbox béta OAuth végpont-teszt. A nyilvános PR-t **DRAFT** állapotban kell hagyni. Az eredeti `0.12.0` APK az éles változat. A következő ellenőrzési fázishoz teljes, SDK-val felszerelt Android buildkörnyezet kell.
+
+---
+
 ## v372 fejlesztői állapot: natív olvasó előkészítve (draft PR)
 - Elkészült a `src/samsungSdk/java/.../SamsungSdkDailyReader.kt` natív Samsung napi aggregáló forrás: aktív kalória, aktív idő, távolság, megmászott emeletek.
 - A Samsung SDK saját, *külön* engedélykérő képernyője szükséges. A felhasználói gomb csak SDK-val ténylegesen buildelt APK-ban jelenik meg.
