@@ -24,6 +24,17 @@ function sanitizeExtra(input:unknown):Extra[]{
  return input.slice(0,72).filter(e=>e&&ids.has(e.domain)).map(e=>({domain:String(e.domain),label:safeText(e.label,90),value:safeText(e.value,240),at:safeText(e.at,35)})).filter(e=>e.label&&e.value);
 }
 
+type Evidence = {type:"json_summary"|"original_pdf_extract",documentId:string,title:string,date:string,page?:number,text:string};
+function sanitizeEvidence(input:unknown, originalAllowed:boolean):Evidence[]{
+ if(!Array.isArray(input))return [];
+ return input.slice(0,8).filter((v:any)=>v&&["json_summary","original_pdf_extract"].includes(v.type)&&
+  (v.type!=="original_pdf_extract"||originalAllowed)).map((v:any)=>({
+  type:v.type,documentId:safeText(v.documentId,100),
+  title:safeText(v.title,200),date:safeText(v.date,32),
+  page:Number.isInteger(v.page)&&v.page>=1&&v.page<=5000?v.page:undefined,
+  text:safeText(v.text,2450)
+ })).filter((v:Evidence)=>v.text.length>=30&&v.title.length>0);
+}
 function sanitizeSources(input: unknown): Source[] {
   if (!Array.isArray(input)) return [];
   const ids = new Set(["symptoms","vitals","sleep","activity","environment","medication","records","infection"]);
@@ -71,6 +82,13 @@ Deno.serve(async req => {
     return reply({ok:false,error:"invalid_photo_or_consent"},400);
   }
   const photoData = hasPhoto ? "data:image/jpeg;base64," + body.photo.base64 : null;
+  if(Array.isArray(body?.documentEvidence)&&body.documentEvidence.some((x:any)=>x?.type==="original_pdf_extract")&&body?.originalDocumentsConsent!==true)
+    return reply({ok:false,error:"invalid_document_consent"},400);
+  const documents=sanitizeEvidence(body?.documentEvidence,body?.originalDocumentsConsent===true);
+  const follow=body?.followup&&typeof body.followup==="object"?{
+    previousQuestion:safeText(body.followup.previousQuestion,1200),
+    previousAnswer:safeText(body.followup.previousAnswer,2300)
+  }:null;
   const sources = sanitizeSources(body?.sources);
   const extra = sanitizeExtra(body?.extra);
   if (!sources.length || JSON.stringify({sources,extra}).length > 19000) return reply({ok:false,error:"invalid_sources"},400);
@@ -111,7 +129,12 @@ Deno.serve(async req => {
     "Ne adj személyre szabott gyógyszer-adagmódosítást; akut veszélyjelekre adj megfelelő sürgősségi útmutatást.",
     "Nincs élő internet-hozzáférésed, és nem vizsgáltál meg teljes PDF-et.",
     "Ha képet is kaptál, csak azt állítsd, amit valóban látsz rajta; ne diagnosztizálj fotóról, és jelezd a kép korlátait.",
-    "A válasz legyen kérdéshez illően 70-300 szó; részletes kérésnél lehet hosszabb.",
+    "A priorDocuments rekordok kérdésre rangsorolt, dátummal ellátott korábbi leletek: json_summary egy korábban készített összefoglaló, original_pdf_extract pedig az eredeti PDF-ből ténylegesen kinyert részlet. A két forrást NE mosd össze.",
+    "Ha találtál releváns korábbi leletet, NE elégedj meg a címével: mutasd be konkrétan a dokumentum dátumát, a hozzá kapcsolódó megállapítást, és hogy ez hogyan viszonyul a mai tünethez vagy méréshez.",
+    "Külön mondd el, mit tudunk a múltról, mit tudunk a jelenről és mi csak lehetséges kapcsolat. Kerüld a bizonyítatlan oksági állításokat.",
+    "Az eredeti leletkivonatot lehet oldalmegjelöléssel idézni a cím és dátum mellett; összefoglaló esetén hangsúlyozd, hogy nem az eredeti PDF bizonyítéka.",
+    "Ha a múlt és jelen összevetéséhez érdemi információ hiányzik, a végén tegyél fel legfeljebb egy célzott tisztázó kérdést, amit a felhasználó meg tud válaszolni.",
+    "A válasz legyen kérdéshez illően 90-420 szó; részletes leletösszehasonlításnál lehet hosszabb.",
     "Szerkezet: közvetlen válasz, konkrét személyes adatok és időbélyegek (ha relevánsak), bizonytalanság, világos következő lépés.",
     "A kész szöveget közvetlenül írd, ne JSON-t, és ne mutass belső gondolatmenetet."
   ].join(" ");
@@ -123,12 +146,12 @@ Deno.serve(async req => {
       { role: "user", content: photoData ? [
         { type:"text", text:JSON.stringify({
           question: body.question.trim(), profile: body.profile,
-          dataReadAt: new Date().toISOString(), sources, extra
+          dataReadAt: new Date().toISOString(), sources, extra, priorDocuments:documents, followup:follow
         }) },
         { type:"image_url", image_url:{url:photoData, detail:"auto"} }
       ] : JSON.stringify({
         question: body.question.trim(), profile: body.profile,
-        dataReadAt: new Date().toISOString(), sources, extra
+        dataReadAt: new Date().toISOString(), sources, extra, priorDocuments:documents, followup:follow
       }) }
     ]
   };
