@@ -60,15 +60,16 @@ function tone(f,start,duration,volume){
 }
 function tada(){
  try{
-  if(navigator.vibrate)navigator.vibrate([80,55,120]);
+  if(navigator.vibrate)navigator.vibrate(35);
  }catch(e){}
  try{
   if(!audio||audio.state!=='running')return;
-  // Bright, restrained three-note "ta-da" chime; only after an actual successful AI stream.
-  tone(523.25,.01,.16,.055);
-  tone(659.25,.18,.16,.060);
-  tone(783.99,.37,.36,.065);
-  tone(1046.5,.37,.34,.040);
+  // Quiet confirmation only after a real completed answer, not at mic pauses.
+  // SpeechRecognition system sounds are controlled by Android rather than this app.
+  tone(523.25,.01,.13,.009);
+  tone(659.25,.15,.13,.010);
+  tone(783.99,.31,.23,.011);
+  tone(1046.5,.31,.20,.006);
  }catch(e){}
 }
 function syncEntry(){
