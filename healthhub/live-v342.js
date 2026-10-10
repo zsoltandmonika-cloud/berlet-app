@@ -278,8 +278,9 @@ window.addEventListener('healthhub:ask-lena-start',function(e){
 });
 window.addEventListener('healthhub:ask-lena-complete',function(e){
  var d=e.detail;if(!d||!d.successful||d.profile!==profile())return;
- // Focus finished answer only once, never during every streamed character.
- focusPanel('hhAi331Answer');
+ // v380: Do not focusPanel() here. It smooth-scrolls 78px ABOVE the answer
+ // on completion (at the Ta-da), overriding the v379 top alignment.
+ // live-v331 owns the final answer scroll position.
  if(typeof d.question!=='string'||typeof d.answer!=='string'||!d.answer.trim())return;
  save(d).then(refreshHistory).catch(showHistoryError);
  symptomJournalOffer(d);
