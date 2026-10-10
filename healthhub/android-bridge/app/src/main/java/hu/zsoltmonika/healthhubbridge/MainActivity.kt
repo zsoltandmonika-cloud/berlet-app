@@ -450,8 +450,10 @@ class MainActivity : ComponentActivity() {
                     .putString("samsung_beta_last_read_profile", profile)
                     .apply()
                 updateSamsungBetaUi()
+                val hourlyCount = data.optJSONObject("records")?.optJSONArray("hourlySteps")?.length() ?: 0
+                val exerciseCount = data.optJSONObject("records")?.optJSONArray("exerciseSessions")?.length() ?: 0
                 status.text = "✅ Samsung SDK sikeres · ${profileName(profile)} · " +
-                    "${days.length()} aktivitásnap. Ma: " +
+                    "${days.length()} aktivitásnap · ${hourlyCount} valódi órás lépésblokk · ${exerciseCount} edzés. Ma: " +
                     (summary?.let {
                         "${it.optString("activeCaloriesKcal", "—")} kcal, " +
                         "${it.optString("activeMinutes", "—")} perc, " +

@@ -1,6 +1,23 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
 
+## v375 fejlesztői béta: értelmezhető napszakgrafikon, edzés-tempó és szintemelkedés
+
+**Állapot:** source code és önálló Windows build kit előkészítve. A két új Samsung SDK engedély és a valódi telefonos adatok még NINCSENEK tesztelve. A v374 automatikus napi archívum és az éles HealthHub Connect működése marad a stabil alap.
+
+- Új, opcionális Samsung Health Data SDK READ engedélyek: **STEPS** és **EXERCISE**. Elutasításuk nem akadályozhatja a már működő ACTIVITY_SUMMARY/FLOORS adatokat; a háttérfolyamat soha nem kér új jogosultságot.
+- A natív olvasó a mai nap 0–23 óráira külön **StepsType.TOTAL** órás Samsung aggregátumokat kér. Csak valóban jelen lévő mérés kerül a `records.hourlySteps[]` tömbbe. Hiányzó óra soha nem generál automatikusan 0 értéket.
+- A Samsung **ExerciseSession** valós `distance`, `duration`, opcionális `altitudeGain` adatai a `records.exerciseSessions[]` tömbbe kerülnek. Perc/km csak valós séta/futás/túra edzésből számolható; a napi általános aktív időből NEM.
+- A napi `exerciseElevationGainMeters` kizárólag az időbélyegzett, valódi Samsung edzések szintemelkedése; nem összekeverendő a teljes napi magassági úttal. A UI „Szint · edzés” címkével jelöli; ha HC teljes napi szintemelkedés van, az kap elsőbbséget.
+- Web v375 Ma-nézet: 24 órás grafikon kék Samsung mért lépésoszlopokkal, narancs edzéssávokkal és HC órás átlagpulzussal, pontos óracímkékkel. Ha csak v374 napi összesítés van, nincs hamis óránkénti diagram.
+- A v374 JSON változatlanul elfogadott (`schemaVersion: healthhub.samsung.daily/1`), az új tömbök opcionálisak; minden zsolt/monika profilválasztás a korábbi szigorú tulajdonosi szabályok alatt marad.
+- A natív Samsung Beta build **0.14.0-beta / versionCode 20**, éles HealthHub Connect változatlan. A módosítások külön v375-es béta feature branchben vannak.
+- Új helyszíni teszt: **Zsolt S24 Ultra** → SDK engedélyek megadása → `Samsung Health napi adatok beolvasása` → órás blokkok és edzések számának ellenőrzése → Dropbox kézi felülírás → web Ma grafikon, Tempó, Szint · edzés. Valódi háttérfrissítést a külön engedélyezett AUTO ütemezés következő alkalma után ellenőrizni.
+- Mónika telefonját addig nem módosítjuk, amíg az új STEPS/EXERCISE olvasást Zsolt telefonján nem igazoltuk.
+
+---
+
+
 ## v374: Samsung Direct automatikus béta adatút (ELŐKÉSZÍTVE, MÉG NEM TELEFONON TESZTELVE)
 
 A korábbi SDK-függőséghibát követően **2026. október 10-én mindkét Galaxy készüléken a v372-es natív olvasás sikerült** (Zsolt 414,09 aktív kcal / 69,14 perc / 2 emelet, Mónika 311,61 kcal / 71,28 perc / 1 emelet). A 30 napos profil-specifikus JSON export a v373 webes kézi import után a HealthHubban is helyesen megjelent. A v374 erre az igazolt adatútra épít, de a háttérben futó SDK-olvasás és a Dropbox OAuth még NINCS bizonyítva.
