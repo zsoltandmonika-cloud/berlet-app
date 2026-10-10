@@ -145,6 +145,11 @@ class MainActivity : ComponentActivity() {
         updateResilientStatus()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (SamsungSdkDailyReader.available && ::status.isInitialized) updateSamsungBetaUi()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -339,6 +344,10 @@ class MainActivity : ComponentActivity() {
                     .remove("dropbox_pkce_verifier")
                     .remove("dropbox_oauth_state")
                     .remove("dropbox_pending_profile")
+                    .remove("samsung_beta_last_read_ms")
+                    .remove("samsung_beta_last_read_profile")
+                    .remove("samsung_beta_last_success_ms")
+                    .remove("samsung_beta_last_success_profile")
                     .apply()
                 pendingJson = null
                 saveButton.isEnabled = false
@@ -376,6 +385,18 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { toggleSamsungBetaAutomatic() }
         }
         root.addView(betaAutoButton)
+        root.addView(Button(this).apply {
+            text = "🧪 Háttérszinkron próbafuttatás MOST"
+            setOnClickListener {
+                if (SamsungBetaScheduler.isEnabled(this@MainActivity)) {
+                    SamsungBetaScheduler.runTestNow(this@MainActivity)
+                    status.text = "🧪 WorkManager tesztütemezés elindítva. Várj 1–2 percet, nyisd meg újra az alkalmazást az eredményért."
+                    updateSamsungBetaUi()
+                } else {
+                    status.text = "Előbb kapcsold be az automatikus Samsung Beta szinkront."
+                }
+            }
+        })
         betaConnectionLabel = TextView(this).apply {
             textSize = 12f
             setTextColor(0xFF234E73.toInt())
@@ -391,7 +412,19 @@ class MainActivity : ComponentActivity() {
         root.addView(status)
         updateOwnerUi()
         updateSamsungBetaUi()
-        return ScrollView(this).apply { addView(root) }
+        return ScrollView(this).apply {
+            addView(root)
+            clipToPadding = false
+            // Android 15 targetSdk=35 defaults to edge-to-edge. Respect real
+            // status/navigation bar insets so the beta heading is not hidden.
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                setOnApplyWindowInsetsListener { view, insets ->
+                    val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                    view.setPadding(0, bars.top, 0, bars.bottom)
+                    insets
+                }
+            }
+        }
     }
 
     private fun readSamsungBetaNow() {
@@ -419,6 +452,7 @@ class MainActivity : ComponentActivity() {
                     .firstOrNull { it.optString("date") == today }
                 prefs.edit()
                     .putLong("samsung_beta_last_read_ms", System.currentTimeMillis())
+                    .putString("samsung_beta_last_read_profile", profile)
                     .apply()
                 updateSamsungBetaUi()
                 status.text = "✅ Samsung SDK sikeres · ${profileName(profile)} · " +
@@ -515,7 +549,8 @@ class MainActivity : ComponentActivity() {
         if (!SamsungSdkDailyReader.available) return
         val hasVault = DropboxVaultClient.hasRefreshToken(prefs)
         val enabled = SamsungBetaScheduler.isEnabled(this)
-        betaAutoButton?.text = "🔄 Automatikus Samsung-szinkron: " + if (enabled) "BE (kb. 4 óránként)" else "KI"
+        betaAutoButton?.text = "🔄 Automatikus Samsung-szinkron: " +
+            (if (enabled) "BE (kb. 4 óránként)" else "KI")
         val success = prefs.getLong("samsung_beta_last_success_ms", 0L)
         val failure = prefs.getString("samsung_beta_last_error", null)
         val stamp = if (success > 0L) {
@@ -539,7 +574,8 @@ class MainActivity : ComponentActivity() {
                 status.text = "Előbb engedélyezd a BETA Dropbox kapcsolatát."
                 return
             }
-            if (prefs.getLong("samsung_beta_last_read_ms", 0L) == 0L) {
+            if (prefs.getLong("samsung_beta_last_read_ms", 0L) == 0L ||
+                prefs.getString("samsung_beta_last_read_profile", null) != owner) {
                 status.text = "Először teszteld a Samsung SDK olvasását és az engedélykérést."
                 return
             }
