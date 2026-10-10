@@ -338,6 +338,15 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { syncNow() }
         })
 
+        // Samsung Health's daily Activity Tracker aggregates can be unavailable
+        // from Health Connect. Show a separate, opt-in action only in SDK builds.
+        if (SamsungSdkDailyReader.available) {
+            root.addView(Button(this).apply {
+                text = "📱 Samsung Health napi adatok → Dropbox"
+                setOnClickListener { syncSamsungDailyNow() }
+            })
+        }
+
         root.addView(Button(this).apply {
             text = "☀ Daily Cloud frissítés"
             setOnClickListener {
@@ -612,6 +621,43 @@ class MainActivity : ComponentActivity() {
                 status.text = "✓ Beolvasva. Pulzusrekord: ${c.getInt("heartRateRecords")}, aktivitásnap: ${c.getInt("activityDays")}, alvás: ${c.getInt("sleepSessions")}."
             } catch (e: Exception) {
                 status.text = "Hiba: ${e.message ?: e.javaClass.simpleName}"
+            }
+        }
+    }
+
+    /**
+     * Independent, explicitly user-triggered Samsung SDK import.
+     * This never replaces or blocks the established HC / Dropbox scheduled sync.
+     * User consent is collected by SamsungSdkDailyReader on the device.
+     */
+    private fun syncSamsungDailyNow() {
+        if (!SamsungSdkDailyReader.available) {
+            status.text = "A közvetlen Samsung SDK nincs benne ebben az APK-ban."
+            return
+        }
+        val profile = bindOwnerIfNeeded()
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            status.text = "Előbb csatlakoztasd a Dropbox Vaultot a szokásos SYNC NOW gombbal."
+            return
+        }
+        scope.launch {
+            try {
+                status.text = "Samsung Health hozzáférés és napi adatok ellenőrzése…"
+                val payload = SamsungSdkDailyReader.collect(this@MainActivity, profile)
+                val outProfile = payload.optString("profile")
+                val schema = payload.optString("schemaVersion")
+                val rows = payload.optJSONObject("records")?.optJSONArray("dailySummary")
+                check(outProfile == profile && schema == "healthhub.samsung.daily/1" && rows != null && rows.length() > 0) {
+                    "A Samsung napi export nem teljes vagy másik profilhoz tartozik."
+                }
+                status.text = "Samsung Health: ${rows!!.length()} nap beolvasva · külön Dropbox-feltöltés…"
+                val remote = DropboxVaultClient.PROFILES_DIR + "/" + profile + "-samsung-health.json"
+                DropboxVaultClient.uploadText(prefs, remote, payload.toString(2) + "\n")
+                status.text = "✓ Samsung Health közvetlen napi export kész · ${profileName(profile)} · " +
+                    "${rows.length()} nap · Dropbox feltöltve. Nyisd meg a HealthHub Activity-t."
+            } catch (e: Exception) {
+                status.text = "Samsung SDK külön import nem sikerült: ${e.message ?: e.javaClass.simpleName}\n" +
+                    "A szokásos Health Connect és Dropbox szinkron változatlanul működik."
             }
         }
     }
