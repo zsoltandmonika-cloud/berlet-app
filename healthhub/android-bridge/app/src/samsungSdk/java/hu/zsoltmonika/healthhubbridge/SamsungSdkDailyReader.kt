@@ -1,6 +1,7 @@
 package hu.zsoltmonika.healthhubbridge
 
 import android.app.Activity
+import android.content.Context
 import com.samsung.android.sdk.health.data.HealthDataService
 import com.samsung.android.sdk.health.data.permission.AccessType
 import com.samsung.android.sdk.health.data.permission.Permission
@@ -26,22 +27,33 @@ import java.time.LocalDateTime
 object SamsungSdkDailyReader {
     const val available = true
 
-    suspend fun collect(activity: Activity, profile: String, days: Int = 30): JSONObject {
+    suspend fun collect(activity: Activity, profile: String, days: Int = 30): JSONObject =
+        collectInternal(activity.applicationContext, profile, days, activity)
+
+    /** WorkManager may only use previously GRANTED permissions. It must never
+     * show an authorization dialog or borrow permissions from another app.
+     */
+    suspend fun collectBackground(context: Context, profile: String, days: Int = 30): JSONObject =
+        collectInternal(context.applicationContext, profile, days, null)
+
+    private suspend fun collectInternal(
+        context: Context, profile: String, days: Int, permissionActivity: Activity?
+    ): JSONObject {
         require(profile == "zsolt" || profile == "monika") { "Ismeretlen HealthHub-profil." }
         require(days in 1..30) { "Legfeljebb 30 nap kérhető." }
         require(android.os.Build.VERSION.SDK_INT >= 29) {
             "A Samsung Health Data SDK használatához Android 10 vagy újabb szükséges."
         }
 
-        val store = HealthDataService.getStore(activity.applicationContext)
+        val store = HealthDataService.getStore(context)
         val required = setOf(
             Permission.of(DataTypes.ACTIVITY_SUMMARY, AccessType.READ),
             Permission.of(DataTypes.FLOORS_CLIMBED, AccessType.READ)
         )
         var granted = store.getGrantedPermissions(required)
-        if (!granted.containsAll(required)) {
-            // Samsung-owned permission UI; the user can deny one or both types.
-            store.requestPermissions(required - granted, activity)
+        if (!granted.containsAll(required) && permissionActivity != null) {
+            // Never request permissions from background or surprise the user.
+            store.requestPermissions(required - granted, permissionActivity)
             granted = store.getGrantedPermissions(required)
         }
         // Activity summary is required for the primary kcal/time metrics.
