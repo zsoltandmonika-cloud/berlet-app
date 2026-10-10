@@ -359,6 +359,22 @@ async function run(opts){
   var extra=addExtra(ctx,question),data=simplify(report,extra);
   data.depth=deep?'detailed':'standard';
   data.question=question;
+  var evidence=window.HH_ASK_LENA_EVIDENCE_V364;
+  if(evidence&&evidence.prepare){
+   print('📚 Kapcsolódó leletek és JSON-összefoglalók keresése…');
+   var documents=await evidence.prepare(question,p);
+   if(turn!==epoch||profile()!==p)throw Error('Profilváltás miatt a leletkutatás megszakadt.');
+   if(documents.items&&documents.items.length){
+    data.documentEvidence=documents.items;
+    data.originalDocumentsConsent=!!documents.originalConsent;
+    print('📚 '+documents.summaries+' kapcsolódó JSON, '+documents.originals+' ellenőrzött eredeti PDF-kivonat.');
+   }
+  }
+  var follow=window.HH_LENA_FOLLOWUP_V364;
+  if(follow&&follow.consume){
+   var previous=follow.consume(p,question);
+   if(previous)data.followup=previous;
+  }
   var camera=window.HH_ASK_LENA_PHOTO_V353;
   var shot=camera&&camera.get?camera.get(p):null;
   if(shot){
@@ -391,7 +407,7 @@ async function run(opts){
     if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
     return;
    }
-   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+'. A források összesítése nem jelenti a teljes PDF-ek feldolgozását.';print('AI-kutatás befejeződött.');return}
+   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.');print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
