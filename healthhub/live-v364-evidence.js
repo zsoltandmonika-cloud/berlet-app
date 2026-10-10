@@ -139,6 +139,12 @@ async function extractText(d,question){
 }
 async function prepare(question,p){
  if(p!==profile())throw Error('Profilváltás miatt a leletkutatás megszakadt.');
+ // Refresh IndexedDB-backed provenance before researching historical medical dates.
+ if(typeof window.hhRefreshLenaHealthContext289==='function'){
+  try{await window.hhRefreshLenaHealthContext289(p,'ask-lena-date-precision')}
+  catch(e){console.warn('Leletindex frissítés nem sikerült:',e)}
+ }
+ if(p!==profile())throw Error('Profilváltás: előzménykutatás megszakítva.');
  var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
  if(!ctx||ctx.profile!==p)return {items:[],originals:0,summaries:0};
  var docs=rank(ctx.documents&&ctx.documents.index,question),
