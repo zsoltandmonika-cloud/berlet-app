@@ -23,8 +23,8 @@ android {
         if (withSamsungSdk) applicationIdSuffix = ".samsungbeta"
         manifestPlaceholders["healthHubLabel"] = if (withSamsungSdk) "HH Samsung Beta" else "HealthHub Connect"
         manifestPlaceholders["healthHubScheme"] = if (withSamsungSdk) "healthhubsamsungbeta" else "healthhubconnect"
-        versionCode = if (withSamsungSdk) 19 else 18
-        versionName = if (withSamsungSdk) "0.13.0-beta" else "0.12.0"
+        versionCode = if (withSamsungSdk) 20 else 18
+        versionName = if (withSamsungSdk) "0.14.0-beta" else "0.12.0"
     }
 
     buildFeatures {
