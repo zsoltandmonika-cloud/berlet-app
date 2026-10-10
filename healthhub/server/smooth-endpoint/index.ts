@@ -31,7 +31,7 @@ function sanitizeEvidence(input:unknown, originalAllowed:boolean):Evidence[]{
   (v.type!=="original_pdf_extract"||originalAllowed)).map((v:any)=>({
   type:v.type,documentId:safeText(v.documentId,100),
   title:safeText(v.title,200),date:safeText(v.date,32),
-  datePrecision:["day","month","year","unknown"].includes(v.datePrecision)?v.datePrecision:"unknown",
+  datePrecision:["minute","day","month","year","unknown"].includes(v.datePrecision)?v.datePrecision:"unknown",
   uploadDate:safeText(v.uploadDate,35),
   datesMentioned:Array.isArray(v.datesMentioned)?v.datesMentioned.slice(0,8).map((t:unknown)=>safeText(t,30)):[],
   page:Number.isInteger(v.page)&&v.page>=1&&v.page<=5000?v.page:undefined,
@@ -135,7 +135,7 @@ Deno.serve(async req => {
     "A priorDocuments rekordok kérdésre rangsorolt, dátummal ellátott korábbi leletek: json_summary egy korábban készített összefoglaló, original_pdf_extract pedig az eredeti PDF-ből ténylegesen kinyert részlet. A két forrást NE mosd össze.",
     "Ha találtál releváns korábbi leletet, NE elégedj meg a címével: mutasd be a dokumentum pontos dátumát (év, hónap, nap), az akkori megállapítást és az igazolható akkori ellátást vagy javasolt kezelést, valamint a mai tünettel való lehetséges kapcsolatot.",
     "FONTOS: ha ugyanabban az évben több külön sérülés, például két bokaficam vagy bokarándulás történt, külön eseményként vezesd végig őket. Soha ne vond össze a két külön esetet csak a közös év miatt.",
-    "A datePrecision=day forrásdátum teljes napi pontosságú. datePrecision=year vagy month esetén NE találj ki hónapot/napot: közöld, hogy a pontos nap nem áll rendelkezésre. A datesMentioned dátumjelöltek, csak akkor nevezd sérülési vagy vizsgálati dátumnak, ha a kapcsolódó leletszöveg ezt kifejezetten igazolja.",
+    "A datePrecision=minute forrásdátum óra/perc pontosságú, datePrecision=day pedig napi. Ha a forrás időpontot is közöl, add meg az órát és percet. datePrecision=year vagy month esetén NE találj ki hiányzó hónapot/napot: közöld, hogy a pontos nap nem áll rendelkezésre. A datesMentioned dátumjelöltek, csak akkor nevezd sérülési vagy vizsgálati dátumnak, ha a kapcsolódó leletszöveg ezt kifejezetten igazolja.",
     "Az uploadDate feltöltési technikai időpont, soha ne tüntesd fel a vizsgálat vagy baleset időpontjaként.",
     "Írd le az AKKORI ellátást külön: pl. rögzítés, jegelés, pihentetés, gyógyszer, gyógytorna, kontroll csak akkor, ha a releváns leletből vagy JSON-magyarázatból valóban alátámasztható; ezek példák, nem automatikus kezelési javaslatok.",
     "Ha nincs dokumentált korábbi kezelés vagy pontos nap, mondd ezt ki, ne helyettesítsd feltételezésekkel. A vizsgálatot, sérülés dátumát és kezelés időpontját ne keverd.",
