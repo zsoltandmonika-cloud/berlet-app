@@ -226,6 +226,9 @@ async function render(profileOverride){
  '<section class="a191Card recent"><div class="a191Head"><span class="clock">◷</span><b>Legutóbbi edzések</b><strong>Összes ›</strong></div><div class="a191Recent">'+recent(c)+'</div></section>'+
  '<section class="a191Card manual"><div class="a191ManualTitle"><span>＋</span><b>Manuális rögzítés</b></div><div class="a191ManualBtns">'+['walk','run','bike','workout','yoga'].map(function(k){var x=cat(k);return '<button onclick="hh191ManualOpen(\''+k+'\')"><span>'+icon(k)+'</span><b>'+esc(x.short)+'</b></button>'}).join('')+'<button onclick="hh191More()"><span class="dots">•••</span><b>További</b></button></div></section>'+
  '</div>'+nav();
+ // Render the independent estimate only after the profile-specific Activity dashboard is ready.
+ if(window.HH_CALORIE_ENGINE_V363&&window.HH_CALORIE_ENGINE_V363.render)
+  window.HH_CALORIE_ENGINE_V363.render(requestedProfile,c).catch(function(e){console.warn('Calorie Engine',e)});
 }
 function modal(html){var m=document.getElementById('hh191Modal');if(!m)return;m.innerHTML='<div class="a191Sheet">'+html+'</div>';m.classList.add('on')}
 window.hh191CloseModal=function(){var m=document.getElementById('hh191Modal');if(m)m.classList.remove('on')}
