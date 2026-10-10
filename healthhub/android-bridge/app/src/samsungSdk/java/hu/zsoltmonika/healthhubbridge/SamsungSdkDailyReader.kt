@@ -44,8 +44,16 @@ object SamsungSdkDailyReader {
             store.requestPermissions(required - granted, activity)
             granted = store.getGrantedPermissions(required)
         }
-        if (!granted.containsAll(required)) {
-            throw SecurityException("Samsung Health adathozzáférés nincs engedélyezve.")
+        // Activity summary is required for the primary kcal/time metrics.
+        // Floors are optional: refusal must not block daily energy/time export.
+        val hasActivitySummary = granted.contains(
+            Permission.of(DataTypes.ACTIVITY_SUMMARY, AccessType.READ)
+        )
+        val hasFloorsPermission = granted.contains(
+            Permission.of(DataTypes.FLOORS_CLIMBED, AccessType.READ)
+        )
+        if (!hasActivitySummary) {
+            throw SecurityException("A Samsung napi aktivitási összesítő olvasása nincs engedélyezve.")
         }
 
         val today = LocalDate.now()
@@ -102,7 +110,7 @@ object SamsungSdkDailyReader {
                 }
             } catch (_: Exception) { /* Unavailable field is omitted. */ }
 
-            try {
+            if (hasFloorsPermission) try {
                 val req = DataType.FloorsClimbedType.TOTAL
                     .requestBuilder.setLocalTimeFilter(filter).build()
                 val values = store.aggregateData(req).dataList.mapNotNull { it.value }
