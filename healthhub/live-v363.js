@@ -95,8 +95,8 @@ function calculate(profile,records,core,measurement){
  var hasActivity=steps>0||dailyKm>0||reportedWorkoutMinutes>0;
  var dayFraction=d.date===today?Math.max(0.01,Math.min(1,(now.getTime()-time.getTime())/86400000)):1;
  var rest=rmr*dayFraction;
+ // Compare active with active only. An unqualified caloriesKcal field may be TOTAL energy.
  var samsung=n(d.activeCaloriesKcal);
- if(samsung==null||samsung<=0)samsung=n(d.caloriesKcal);
  if(samsung!=null&&samsung<=0)samsung=null;
  var warning=[];
  if(!x.measuredAt||(Date.now()-x.measuredAt.getTime())>30*86400000)warning.push('régebbi súlyadat');
