@@ -167,6 +167,21 @@ function sleepOverview(rows){
   card('🕒 UTOLSÓ 24 ÓRA',durText(rolling),esc(Math.round(slept)+' p alvás az ablakban'))+
   '</div><p class="hhSleepInfo363">Az alvási ablak az éjszaka teljes időtartama, az ébrenlétekkel együtt. A 24 órás érték a mért alvásösszegeket átfedés nélkül adja össze.</p>';
 }
+// A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
+function sleepLenaComment(rows,profile){
+ if(!rows.length)return'';
+ var to=Date.now(),from=to-24*3600000;
+ var recent=rows.filter(function(x){return Date.parse(x.endTime)>from&&Date.parse(x.startTime)<to});
+ var mins=hhSleepOverlaps(hhSleepIntervals(recent),from,to);
+ var healthy=recent.length&&mins>=15;
+ var firstName=profile==='monika'?'Mónika':'Zsolt';
+ var icon='😶',title='Kevés adat',msg='Még nem látok elegendő alvásadatot a biztosabb értékeléshez. Előbb nézzük meg a szinkront.';
+ if(healthy&&mins<360){icon='😴';title='Pihenésre fel!';msg=firstName+', az elmúlt 24 órában '+durText(mins)+' alvást látok. Ez kevésnek tűnik; ha teheted, ma adj több időt a pihenésnek.'}
+ else if(healthy&&mins<420){icon='🙂';title='Van még tartalék';msg=firstName+', most '+durText(mins)+' jött össze 24 óra alatt. Egy kicsivel hosszabb éjszaka segíthet a napközbeni energiaszinten.'}
+ else if(healthy&&mins<=540){icon='😌';title='Jól néz ki';msg=firstName+', '+durText(mins)+' pihenés már egész biztató. Remélhetőleg az energiaszinted is hálás lesz érte.'}
+ else if(healthy){icon='🌙';title='Hosszabb pihenés';msg=firstName+', '+durText(mins)+' alvást rögzítettem. Ha ez szokatlan, az alvásminőséget és a közérzetet is érdemes figyelni.'}
+ return '<aside class="hhSleepLena364" aria-label="Léna gyors alvásértékelése"><div class="hhSleepMood364">'+icon+'</div><div class="hhSleepLenaText364"><b>💬 Léna · '+esc(title)+'</b><p>'+esc(msg)+'</p><small>⌚ Óraadatokból készült becslés, nem alvásdiagnózis.</small></div></aside>';
+}
 function chart(rows){
  if(!rows.length)return '<div class="hhSleepEmpty">Nincs alvásadat ebben az időszakban.</div>';
  var vals=rows.map(function(x){return durMin(x.startTime,x.endTime)/60}),max=Math.max.apply(null,vals.concat([8])),w=620,h=180,pad=26;
@@ -191,7 +206,7 @@ async function render(profileOverride){
  var latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?sleepOverview(rows)+stageBar(latest)+stageSummary(latest):
+ (latest?sleepOverview(rows)+sleepLenaComment(rows,requestedProfile)+stageBar(latest)+stageSummary(latest):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -298,7 +313,10 @@ style();
  '.hhSleepPage .hhStageBar i{display:block;position:absolute;top:0;height:100%;min-width:0}'+
  '.hhSleepClockTicks{display:flex;justify-content:space-between;font-size:10px;line-height:1.3;font-weight:750;color:#465d78;margin:2px 1px 4px}'+
  '.hhSleepPage .hhStageLegend{font-size:9px!important;margin:3px 3px 5px!important}'+
- '@media(max-width:355px){.hhSleepStat363 small{font-size:8px}.hhSleepStat363 b{font-size:16px}.hhSleepStat363 span{font-size:7px}}';
+ '.hhSleepLena364{display:flex;align-items:flex-start;gap:9px;margin:6px 0 8px;padding:10px 11px;background:linear-gradient(100deg,var(--soft),#fff);border:1px solid color-mix(in srgb,var(--a) 28%,#fff);border-radius:13px}'+
+'.hhSleepMood364{font-size:27px;line-height:1.1;flex:0 0 28px}.hhSleepLenaText364{min-width:0}'+
+'.hhSleepLenaText364 b{font-size:12px;color:var(--a)}.hhSleepLenaText364 p{font-size:11px;line-height:1.4;margin:4px 0;color:#254961}.hhSleepLenaText364 small{font-size:8px;color:#627c8b}'+
+'@media(max-width:355px){.hhSleepStat363 small{font-size:8px}.hhSleepStat363 b{font-size:16px}.hhSleepStat363 span{font-size:7px}}';
  document.head.appendChild(c);
 })();
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
