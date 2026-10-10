@@ -71,7 +71,7 @@ function render(c,m){
  var maxHour=-1,maxHourlyValue=-1;
  data.hourly.forEach(function(v,h){if(v!=null&&v>maxHourlyValue){maxHourlyValue=v;maxHour=h;}});
  var lead=data.hasSteps?'<div class="a191TimelineSummary">'+
-  '<div><small>LEGMÖZGALMASABB ÓRA</small><b>'+String(maxHour).padStart(2,'0')+':00–'+String(maxHour+1).padStart(2,'0')+':00</b><span>'+nn(maxHourlyValue)+' mért lépés</span></div>'+
+  '<div><small>LEGMOZGALMASABB ÓRA</small><b>'+String(maxHour).padStart(2,'0')+':00–'+String(maxHour+1).padStart(2,'0')+':00</b><span>'+nn(maxHourlyValue)+' mért lépés</span></div>'+
   '<div><small>ÓRÁNKÉNTI ÖSSZESÍTÉS</small><b>'+nn(totalHourly)+' lépés</b><span>Samsung SDK · csak meglévő órák</span></div></div>':'';
  if(data.hasSteps){
   msg.push('Samsung SDK: '+filled+' órában van mért lépésadat.');
