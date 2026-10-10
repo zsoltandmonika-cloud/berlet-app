@@ -1,0 +1,7 @@
+libs/*.aar
+libs/*.zip
+libs/*.jar
+*.jks
+*.keystore
+*.p12
+*.pfx

@@ -24,7 +24,7 @@
     </queries>
     <application
         android:allowBackup="false"
-        android:label="HealthHub Connect"
+        android:label="${healthHubLabel}"
         android:theme="@style/AppTheme">
         <activity android:name=".PermissionsRationaleActivity" android:exported="true">
             <intent-filter>
@@ -52,13 +52,13 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="healthhubconnect" android:host="sync" />
+                <data android:scheme="${healthHubScheme}" android:host="sync" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="healthhubconnect" android:host="dropbox" />
+                <data android:scheme="${healthHubScheme}" android:host="dropbox" />
             </intent-filter>
         </activity>
     </application>
