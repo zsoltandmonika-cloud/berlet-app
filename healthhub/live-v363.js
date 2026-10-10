@@ -157,8 +157,11 @@ async function render(profile,cache){
    card.title='HealthHub saját számítása. Nem Samsung Health által mért aktív kalória.';
   }
  }
- var compare=val.samsung==null?'Samsung: nincs összehasonlítható adat':
-  'Samsung Health: '+fmt(val.samsung)+' aktív kcal · eltérés '+(val.active>=val.samsung?'+':'')+fmt(val.active-val.samsung)+' kcal';
+ var todayRow=Array.isArray(cache&&cache.daily)?cache.daily.find(function(d){return d&&d.date===val.date}):null;
+ var sdkMeasured=!!(todayRow&&todayRow._hhFieldSources&&todayRow._hhFieldSources.activeCaloriesKcal==='samsung-direct');
+ var comparisonSource=sdkMeasured?'Samsung Health Data SDK':'Health Connect';
+ var compare=val.samsung==null?'Nincs összehasonlítható aktívkalória-adat':
+  comparisonSource+': '+fmt(val.samsung)+' aktív kcal · eltérés '+(val.active>=val.samsung?'+':'')+fmt(val.active-val.samsung)+' kcal';
  box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3>'+
   '<div class="hhCal363Grid">'+
   '<div><small>Saját aktív becslés</small><b>'+fmt(val.active)+'</b><small>kcal</small></div>'+
