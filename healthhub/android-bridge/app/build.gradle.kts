@@ -53,6 +53,11 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.11.2")
     if (withSamsungSdk) {
         implementation(files(samsungSdkAar))
+        // Samsung Health Data SDK 1.1.0 uses Kotlin Parcelize classes in its
+        // Binder/Parcelable responses. This runtime MUST be packaged inside
+        // the APK: without kotlinx.parcelize.Parceler Android crashes when
+        // ActivitySummary aggregate results are unmarshalled.
+        implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:2.0.21")
         implementation("com.google.code.gson:gson:2.11.0")
     }
 }
