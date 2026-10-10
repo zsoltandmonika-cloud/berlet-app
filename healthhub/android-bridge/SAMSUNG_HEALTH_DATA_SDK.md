@@ -1,5 +1,30 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+
+## v374: Samsung Direct automatikus béta adatút (ELŐKÉSZÍTVE, MÉG NEM TELEFONON TESZTELVE)
+
+A korábbi SDK-függőséghibát követően **2026. október 10-én mindkét Galaxy készüléken a v372-es natív olvasás sikerült** (Zsolt 414,09 aktív kcal / 69,14 perc / 2 emelet, Mónika 311,61 kcal / 71,28 perc / 1 emelet). A 30 napos profil-specifikus JSON export a v373 webes kézi import után a HealthHubban is helyesen megjelent. A v374 erre az igazolt adatútra épít, de a háttérben futó SDK-olvasás és a Dropbox OAuth még NINCS bizonyítva.
+
+### BETA app v0.13.0: v374 feladatok
+
+- Külön Samsung Beta appban explicit **Dropbox PKCE engedélyező gomb**; a meglévő Dropbox HTTPS redirectet a webes v374 hhbeta_ state esetén relézi vissza a healthhubsamsungbeta://dropbox intenttel. A PKCE state, verifier és a telefon tulajdonosa ellenőrzendő a natív tokenváltás előtt.
+- Külön „Samsung adatok feltöltése MOST” tesztgomb; kizárólag /HealthHub/profiles/<owner>-samsung-health.json felülírása, ha a helyi export szigorúan újabb és a régi remote sémája/profilja ismert. Letöltéssel ellenőrzi az eredményt.
+- **Automatikus frissítés KI alaphelyzetben.** A felhasználó külön kapcsolhatja BE, ha már Samsung SDK olvasása sikeres és a BETA saját Dropbox tokenje megvan. WorkManager **kb. 4 óránként**, hálózat mellett, Android energiatakarékossági késleltetéssel.
+- A háttérkód csak korábban megadott Samsung SDK-engedéllyel olvas, **soha nem mutat engedélykérőt**, soha nem módosítja a Health Connect archívumot vagy az éles Connect munkáit. Sikertelenség naplózódik; nincs „becsült Samsung mért adat”.
+- Tulajdonos-váltásnál a BETA ütemezés kikapcsolódik, a BETA saját Dropbox-hitelesítése törlődik. Másik profilra nem tölt fel.
+- Külön béta app versionCode 19 / versionName 0.13.0-beta; normál Health Connect app marad versionCode 18 / v0.12.0.
+
+### Tesztelés előfeltétele
+
+1. A webes v374 callbacknek ki kell kerülnie a HealthHubra (a meglévő, felhasználó által már használt v373-as kézi import nem változik).
+2. A korábbi Windows BUILD KIT újrafuttatható, mert az v372 nevű **fejlesztői** branchet klónozza, ahol ez a v374 kód is van. Kijavított v374-es kit verziózott kimenetet kap.
+3. Samsung Beta helyszíni build + telepítés: a tényleges 0.13.0-beta app azonos csomagazonosítón, **azonos signing key** mellett frissüljön. Ha Android aláírási hibát ad, nem szabad automatikusan törölni az adatokat; külön meg kell beszélni.
+4. Először Zsolt telefonján: Samsung olvasás → Beta Dropbox OAuth → kézi feltöltés → HealthHub Activity ellenőrzés → egyértelmű BE gomb. A háttérszinkron első tényleges WorkManager futását készüléknaplóval/Dropbox időbélyeggel ellenőrizni kell; **Samsung SDK háttérhozzáférési tiltása lehetséges**.
+5. Sikeres teszt után ugyanez Mónikán. **Nem minősül késznek**, amíg a telefonspecifikus háttérfutást és a 2 profil izolációját nem bizonyítottuk.
+6. A natív v374 a *DRAFT* #114 PR-ben marad a tesztig. A Samsung hivatalos partnerengedélyezése és stabil aláírása külön követelmény a hosszú távú használathoz.
+
+---
+
 ## v372 Android telefonos teszt: a valódi összeomlás oka és javítása
 
 **2026-10-10, S24 Ultra logcat, 20:28:56:** a Samsung Health a béta csomagazonosítóját sikeresen igazolta (`PrivilegedHealthService: …samsungbeta is verified`), tehát a korábbi 2003-as policy-blokk már nem volt aktív. A `ActivitySummary` SDK-aggregálás utáni Binder válasz visszaolvasásakor az alkalmazás megállt:
