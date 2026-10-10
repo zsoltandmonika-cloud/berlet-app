@@ -200,12 +200,14 @@ function metrics(c,profile,heightCm){
  return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,confirmedCalories:confirmedCalories||cal>0,hasSamsungCalories:hasSamsungCalories,hasSamsungActiveTime:hasSamsungActiveTime,hasSamsungFloors:hasSamsungFloors,dist:dist,hcDist:hcDist,
   heightCm:heightCm,estimated:!!(hasStepData&&derived),strideCm:derived&&derived.strideCm,
   calibrated:!!(derived&&derived.calibrated),active:active,avgHr:ah,maxHr:mh,
-  pace:pace(movingMin,movingKm),terrain:terrain,floors:floors,goals:goals};
+  pace:pace(movingMin,movingKm),terrain:terrain,hasSamsungExerciseElevation:daily.some(function(x){return !!x._hhExerciseElevationOnly}),floors:floors,goals:goals};
 }
 function kpi(kind,label,val,unit,p,goal,accent){
  return '<div class="a191Kpi '+accent+'"><div class="a191KpiIcon">'+kpiIcon(kind)+'</div><small>'+esc(label)+'</small><div class="a191Value"><b>'+val+'</b><em>'+esc(unit||'')+'</em></div>'+(goal?'<div class="a191Progress"><i style="width:'+p+'%"></i></div><div class="a191Goal"><b>'+p+'%</b><span>Cél: '+esc(goal)+'</span></div>':'')+'</div>';
 }
 function chart(c,m){
+ if(state.period==='1d'&&window.HH_ACTIVITY_TIMELINE_V375)
+  return window.HH_ACTIVITY_TIMELINE_V375.render(c,m);
  var rows=m.daily.slice(-(state.period==='365d'?30:periodDays())),w=760,h=130,l=42,r=38,t=12,b=24;
  if(!rows.length)return '<div class="a191Empty">Még nincs aktivitásadat ehhez az időszakhoz.</div>';
  var maxS=Math.max.apply(null,rows.map(function(x){return Number(x.steps)||0}).concat([1])),maxC=Math.max.apply(null,rows.map(function(x){return Number(x.caloriesKcal)||0}).concat([1]));
@@ -268,10 +270,13 @@ async function render(profileOverride){
  kpi('heart','Átlag pulzus',m.avgHr?n(m.avgHr,0):'—','bpm',0,null,'pink')+
  kpi('max','Max. pulzus',m.maxHr?n(m.maxHr,0):'—','bpm',0,null,'pink')+
  kpi('pace','Tempó',m.pace,'perc/km',0,null,'pink')+
- kpi('elev','Szintemelkedés',m.terrain==null?'—':n(m.terrain,0),'m',0,null,'pink')+
+ kpi('elev',m.hasSamsungExerciseElevation?'Szint · edzés':'Szintemelkedés',m.terrain==null?'—':n(m.terrain,0),'m',0,null,'pink')+
  kpi('floors',m.hasSamsungFloors?'Emeletek · Samsung':'Emeletek',m.floors==null?'—':n(m.floors,1),'emelet',0,null,'pink')+
  '</div>'+
- '<section class="a191Card chart"><div class="a191Head"><span class="pinkbars">▥</span><b>Aktivitás a nap folyamán</b><div class="legend"><i class="b"></i>Lépések<i class="o"></i>Aktív kalória<i class="p"></i>Pulzus (bpm)</div></div><div class="a191Chart">'+chart(c,m)+'</div></section>'+
+ '<section class="a191Card chart"><div class="a191Head"><span class="pinkbars">▥</span><b>'+
+  (state.period==='1d'?'Mozgás a nap folyamán':'Aktivitási trend · napok')+
+  '</b>'+(state.period==='1d'?'':'<div class="legend"><i class="b"></i>Lépések<i class="o"></i>Aktív kalória<i class="p"></i>Átl. pulzus</div>')+
+  '</div><div class="a191Chart">'+chart(c,m)+'</div></section>'+
  '<section class="a191Card types"><div class="a191Head"><span class="runner">'+icon('run')+'</span><b>Aktivitás típusok</b><strong>Összes ›</strong></div><div class="a191Types">'+categoryCards(c,m)+'</div></section>'+
  '<section class="a191Card recent"><div class="a191Head"><span class="clock">◷</span><b>Legutóbbi edzések</b><strong>Összes ›</strong></div><div class="a191Recent">'+recent(c)+'</div></section>'+
  '<section class="a191Card manual"><div class="a191ManualTitle"><span>＋</span><b>Manuális rögzítés</b></div><div class="a191ManualBtns">'+['walk','run','bike','workout','yoga'].map(function(k){var x=cat(k);return '<button onclick="hh191ManualOpen(\''+k+'\')"><span>'+icon(k)+'</span><b>'+esc(x.short)+'</b></button>'}).join('')+'<button onclick="hh191More()"><span class="dots">•••</span><b>További</b></button></div></section>'+
@@ -347,7 +352,7 @@ window.hh191SourceDetails=function(){
  row('Szintemelkedés olvasás',counts.elevationPermissionGranted==null?'nem ismert':counts.elevationPermissionGranted?'engedélyezve':'nincs engedély')+
  row('Emeletek olvasás',counts.floorsPermissionGranted==null?'nem ismert':counts.floorsPermissionGranted?'engedélyezve':'nincs engedély')+
  '</div><p style="font-size:10px;color:#547084;line-height:1.6">A hiányzó aktív kalória, emelet vagy szintemelkedés nem tekinthető mért nullának. A Samsung saját napösszesítője ettől eltérhet.</p>'+
- '<div class="a191Weather" style="margin:12px 0 5px"><span><b>📱 Samsung Direct · kézi import</b></span><span>A HH Samsung Beta alkalmazásban mentett JSON-fájlt itt töltheted fel a kiválasztott profil elkülönített Dropbox Vault Samsung-fájljába. A feltöltést külön jóvá kell hagyni.</span><button type="button" style="background:var(--a);color:#fff;border:0;border-radius:10px;padding:12px;font-size:12px;font-weight:750" onclick="hh191SamsungImport()">📤 Samsung JSON kiválasztása</button><span>A Health Connect-archívumhoz nem nyúlunk. Automatikus frissítés még nincs.</span></div>';
+ '<div class="a191Weather" style="margin:12px 0 5px"><span><b>📱 Samsung Direct · kézi import</b></span><span>A HH Samsung Beta alkalmazásban mentett JSON-fájlt itt töltheted fel a kiválasztott profil elkülönített Dropbox Vault Samsung-fájljába. A feltöltést külön jóvá kell hagyni.</span><button type="button" style="background:var(--a);color:#fff;border:0;border-radius:10px;padding:12px;font-size:12px;font-weight:750" onclick="hh191SamsungImport()">📤 Samsung JSON kiválasztása</button><span>A Health Connect-archívumhoz nem nyúlunk. Ha a Samsung Beta automatikus Dropbox-szinkronja bekapcsolt, nincs szükség kézi JSON-importra. Ez a gomb tartalék megoldás.</span></div>';
  modal(html);
 };
 window.hh191DistanceDetails=function(){
