@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-08",
-  "liveBuild": "v309.17-environmental-air-pollen",
-  "currentFocus": "Environmental Health live data acceptance: weather, UV, barometric trend, pollen and European AQI/PM2.5/PM10 are wired into the dedicated module and live board.",
-  "nextDevelopment": "Validate live pollen/AQI on device, then continue with Communicable Disease Watch and Daily Health Watch.",
+  "updatedAt": "2026-10-11",
+  "liveBuild": "v380",
+  "currentFocus": "Stabil v380 checkpoint; következő ciklus: S1 Health Intelligence Quality Audit és az Ask Léna forrás-, időpont-, profil- és adatminőség-ellenőrzése. UI feature freeze.",
+  "nextDevelopment": "IQ-S1: 20 kérdéses regression set, baseline Quality Scorecard, profile-isolation/data-provenance audit; majd Ask Léna 2.0 időbeli kontextus, Insights trendmotor, Daily Health AI 2.0.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -491,7 +491,7 @@
       "dependency": "HH-AL-001",
       "targetDate": "2026-10-24",
       "actualDone": "2026-10-07",
-      "notes": "v299 magyar SpeechRecognition/Web Speech hangbevitelt ad, ahol a böngésző támogatja; a felismert szöveg a Smart Ask Léna kutatási folyamba kerül. A ChatGPT Voice mód külső automatikus indítása platformkorlát miatt nem garantálható."
+      "notes": "v378: magyar diktálás kumulatív felismerési részleteinek deduplikálása, Android Web Speech automatikus újraindításának leállítása és látható felvételi állapot. A felhasználó pozitív visszajelzést adott; eszköz- és böngészőkombináció-függő hangfelismerési pontosság további QA tárgya."
     },
     {
       "id": "HH-AL-004",
@@ -502,14 +502,14 @@
       "priority": "Critical",
       "sprint": "S3",
       "milestone": "M3 Ask Léna Parity",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "Testing",
+      "progress": 0.8,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-AL-001",
       "targetDate": "2026-10-26",
       "actualDone": null,
-      "notes": ""
+      "notes": "v353: Ask Léna fotó csatolási/hozzájárulási komponens a jelenlegi alkalmazásban. Az end-to-end, tömörítési, méretkorlát- és adatvédelmi acceptance teszt dokumentálása hátravan."
     },
     {
       "id": "HH-AL-005",
@@ -538,14 +538,14 @@
       "priority": "Critical",
       "sprint": "S3",
       "milestone": "M3 Ask Léna Parity",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "Testing",
+      "progress": 0.8,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-CORE-002",
       "targetDate": "2026-10-29",
       "actualDone": null,
-      "notes": ""
+      "notes": "v364: profilhoz kötött Ask Léna kérdés-válasz előzmény, helyi cache + RLS-védett Supabase szinkron és előzmény-visszanyitás már megvalósítva. Eszközök közti visszaállítás, törlés/retention és audit teszt még nyitott."
     },
     {
       "id": "HH-AL-007",
@@ -1229,7 +1229,7 @@
       "dependency": "HH-AL-001;HH-DATA-007",
       "targetDate": "2026-10-07",
       "actualDone": "2026-10-07",
-      "notes": "v295 Research Router; v296 Document Retrieval; v297 Clinical Relevance + Evidence; v298 Answer Composer; v299 Smart Ask Léna orchestration. Real mobile E2E acceptance passed, including correct complete answer plus normal and mobile PDF generation."
+      "notes": "v295 Research Router; v296 Document Retrieval; v297 Clinical Relevance + Evidence; v298 Answer Composer; v299 Smart Ask Léna orchestration. Real mobile E2E acceptance passed, including correct complete answer plus normal and mobile PDF generation. 2026-10-11: v331+ valós szerveroldali AI-válaszfolyam, v342 UI, v364 előzmény, v378 diktálás, v379–v380 válaszdoboz felső pozíció/TADÁ konkurens görgetés megszüntetve. A forrásalapú orvosi állítások minősége NINCS még auditálva, külön IQ-S1."
     },
     {
       "id": "HH-SYM-001",
@@ -1675,6 +1675,150 @@
       "dependency": "HH-REC-003;HH-AN-001",
       "backlogRank": 11,
       "notes": "Future context layer after nutrition logging is stable."
+    },
+    {
+      "id": "HH-IQ-001",
+      "epic": "AI Intelligence Quality",
+      "feature": "Quality Baseline",
+      "title": "20 kérdéses Ask Léna regressziós teszt és első, tényleges Quality Scorecard",
+      "acceptanceCriteria": "20 reprodukálható, anonim/szintetikus kérdés; profil, dátum, mértékegység, forrás és hibakimenet dokumentált; baseline pontszám csak mérés után",
+      "priority": "Critical",
+      "sprint": "IQ-S1",
+      "milestone": "M6 Intelligence",
+      "status": "Ready",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-002",
+      "epic": "AI Intelligence Quality",
+      "feature": "Provenance & Time",
+      "title": "Forrásazonosítás és időbeli kontextus audit",
+      "acceptanceCriteria": "Minden kulcsállításhoz profil, eredet, mérésidő, szinkronidő és frissesség; régi adatok nem állíthatók be frissnek",
+      "priority": "Critical",
+      "sprint": "IQ-S1",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-003",
+      "epic": "AI Intelligence Quality",
+      "feature": "Clinical Safety",
+      "title": "Orvosi óvatosság és bizonytalanság validáció",
+      "acceptanceCriteria": "Nincs kitalált mérés, téves oksági állítás, bizonyítatlan diagnózis vagy indokolatlan vészjelzés; kritikus tünetek megfelelő orvosi felülvizsgálati jelzést kapnak",
+      "priority": "Critical",
+      "sprint": "IQ-S1",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-004",
+      "epic": "AI Intelligence Quality",
+      "feature": "Cross-profile Isolation",
+      "title": "Zsolt/Mónika profil- és jogosultság-izoláció regresszió",
+      "acceptanceCriteria": "A két profil válasza, idővonala, forrása és napi briefingje sem cache, sem stream, sem előzmény, sem sync útján nem keveredik",
+      "priority": "Critical",
+      "sprint": "IQ-S1",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-005",
+      "epic": "AI Intelligence Quality",
+      "feature": "Context Synthesis",
+      "title": "Ask Léna 2.0 kérdésfüggő, időbeli egészségügyi kontextus",
+      "acceptanceCriteria": "7/30/90 napos, kérdésre releváns trendek; megfigyelés vs hipotézis vs bizonyíték elkülönül; források visszakövethetők",
+      "priority": "High",
+      "sprint": "IQ-S2",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-001;HH-IQ-002;HH-IQ-003;HH-IQ-004",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-006",
+      "epic": "AI Intelligence Quality",
+      "feature": "Intelligence Engine",
+      "title": "Health Insights statisztikai trend- és nem oksági összefüggésmotor",
+      "acceptanceCriteria": "Mértékegység-normalizálás, deduplikáció, hiányzó adatok, 7/30/90 napos trendek, minimális elemszám és bizonytalanság látható",
+      "priority": "High",
+      "sprint": "IQ-S3",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-007",
+      "epic": "AI Intelligence Quality",
+      "feature": "Daily AI 2.0",
+      "title": "Személyre szabott napi változásjelentések",
+      "acceptanceCriteria": "Mit változott / miért releváns / mire figyelj; csak igazolt forrás és adatfrissesség; profil és RLS megmarad; visszakereshetőség",
+      "priority": "High",
+      "sprint": "IQ-S4",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-006",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
+    },
+    {
+      "id": "HH-IQ-008",
+      "epic": "AI Intelligence Quality",
+      "feature": "Release Gate",
+      "title": "Végponttól végpontig acceptance és visszagörgetési kapu",
+      "acceptanceCriteria": "20+ teszt ismételt futása két profilon, telefonon és böngészőben, negatív esetek; rollback és adatvédelmi gate; nincs kiadás minőségmérés nélkül",
+      "priority": "Critical",
+      "sprint": "IQ-S5",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IQ-001;HH-IQ-007",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-11 roadmap approved; no implementation started."
     }
   ],
   "changeLog": [
@@ -2196,6 +2340,30 @@
       "date": "2026-10-08",
       "version": "v309.3",
       "change": "Locked Home module order to HealthRadar/Environmental, Sleep/Activity, Cognitive/Wellbeing, Nutrition/Receptár, Insights/Ask Léna; matched Environmental tile to white module styling and enlarged Home icons/titles."
+    },
+    {
+      "date": "2026-10-10",
+      "version": "v378",
+      "type": "Bugfix",
+      "change": "PR #121: Ask Léna magyar Web Speech részeredmények ismétlődésének kezelése, automatikus Android-mikrofon restart megszüntetése és aktív mikrofon állapot. GitHub Pages ellenőrzés sikeres; élő telefonos pontosság eszközfüggő."
+    },
+    {
+      "date": "2026-10-11",
+      "version": "v379",
+      "type": "UX",
+      "change": "PR #122: Ask Léna AI-válaszát a képernyő felső széléhez igazító direkt dokumentumgörgetés. Github Pages sikeres. Végső befejezési átugrás a v379-ben még megmaradt."
+    },
+    {
+      "date": "2026-10-11",
+      "version": "v380",
+      "type": "Bugfix/Milestone",
+      "change": "PR #123: A végső TADÁ utáni ütköző smooth görgetési parancs eltávolítása, AI-válasz végső felső pozíciójának stabilizálása. GitHub Level 3 Guard + Pages sikeres; felhasználó megerősítette: szuper lett."
+    },
+    {
+      "date": "2026-10-11",
+      "version": "IQ-S1 planning",
+      "type": "Roadmap",
+      "change": "Mai munkazárás: v380 változtatási checkpoint, adatminőség/AI-intelligencia fejlesztési prioritás elfogadva. Következő lépés: 20 esetből álló alapteszt, Quality Scorecard és forrás/profil/idő/klinikai biztonság audit. Nem implementáció, csak dokumentáció."
     }
   ]
 }
