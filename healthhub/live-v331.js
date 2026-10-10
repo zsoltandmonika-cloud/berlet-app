@@ -185,7 +185,7 @@ function ui(){
  // One deliberate user action authorizes this one AI request; no extra checkbox.
  // We still tell the user exactly where sensitive health data goes.
  var privacy=document.createElement('p');privacy.id='hhAi331Privacy';
- privacy.textContent='A Kutatás az aktív profil releváns egészségadatait az OpenAI API-val dolgoztatja fel. Az eredeti PDF-eket nem küldjük el.';
+ privacy.textContent='A Kutatás az aktív profil méréseit és kapcsolódó JSON-leletösszefoglalóit az OpenAI API-val dolgoztatja fel. Eredeti PDF-ből csak külön bepipált jóváhagyás esetén továbbítunk rövid kivonatokat; teljes PDF-et nem küldünk.';
  actions.parentNode.insertBefore(privacy,actions.nextSibling);
  var mic=el('hhMic299');if(mic){
   mic.setAttribute('aria-label','Diktálás');mic.title='Diktálás';mic.textContent='🎤';
