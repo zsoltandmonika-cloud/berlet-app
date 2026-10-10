@@ -127,6 +127,7 @@ function documentsIndex(docs,legacy,p){
     seen.add(String(d.id));
     out.push({
       id:d.id,date:d.documentDate||(d.uploadedAt?String(d.uploadedAt).slice(0,10):null),
+      dateSource:d.documentDate?'document':(d.uploadedAt?'upload':'unknown'),
       uploadedAt:d.uploadedAt||null,category:d.category||'general',
       title:d.originalName||d.title||'Egészségügyi dokumentum',
       sourceType:d.sourceType||'healthhub',sizeBytes:num(d.sizeBytes),explanation:explanation(d)
