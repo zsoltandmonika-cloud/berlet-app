@@ -388,8 +388,12 @@ function keyboardMic(){
   el('askSpeech323').textContent='⌨️ A telefon billentyűzete megnyílt. Koppints a Samsung/Gboard mikrofon ikonjára a magyar diktáláshoz. Ez a böngésző hangfelismerő szolgáltatásától független.';
  }
 }
+// Android can close Web Speech on short pauses irrespective of continuous=true.
+// Keep user dictation resumable and bound potentially noisy re-initialization loops.
+var MIC_FIRST_SPEECH_GRACE=60000,MIC_PAUSE_GRACE=45000,MIC_MAX_SESSION=240000,MIC_MAX_RESTARTS=24;
 var micManuallyStopped=false,micSessionActive=false,micSessionStart=0,micLastHeard=0;
 var micRestarts=0,micRestartTimer=null,micCollected='',micSessionIndex=0,micQuestionProfile='';
+var micRecognizerStarted=0,micRapidEnds=0;
 function micNotify(mode,msg){
  var v=el('askSpeech323');if(v)v.textContent=msg;
  try{window.dispatchEvent(new CustomEvent('healthhub:mic-status',{detail:{status:mode,text:msg}}))}catch(e){}
@@ -419,14 +423,15 @@ function micStartRecognizer353(){
  if(!SR||!micSessionActive||micManuallyStopped)return;
  var currentIndex=micSessionIndex;
  try{
-  var r=new SR();rec=r;lastSpeech='';recognitionError='';recognitionHadText=false;
+  var r=new SR();rec=r;lastSpeech='';recognitionError='';recognitionHadText=false;micRecognizerStarted=Date.now();
   r.lang='hu-HU';r.interimResults=true;
   // Android engines may ignore continuous mode and end the session at silence.
   // We gently restart while the user still wants to dictate.
   r.continuous=true;
   r.onstart=function(){
    if(!micSessionActive||currentIndex!==micSessionIndex)return;
-   micNotify('listening',micRestarts?'🎙️ Figyelek, folytathatod…':'🎙️ Figyelek. Ráérsz elkezdeni…');
+   micRecognizerStarted=Date.now();
+   micNotify('listening',micRestarts?'🎙️ Folytathatod, még figyelek…':'🎙️ Nyugodtan beszélj, hosszabb szünet is belefér…');
   };
   r.onresult=function(evt){
    if(!micSessionActive||currentIndex!==micSessionIndex)return;
@@ -435,7 +440,7 @@ function micStartRecognizer353(){
     var item=evt.results[i];if(item&&item[0])t+=item[0].transcript+' ';
    }
    lastSpeech=t.trim();
-   if(lastSpeech){recognitionHadText=true;micLastHeard=Date.now()}
+   if(lastSpeech){recognitionHadText=true;micLastHeard=Date.now();micRapidEnds=0}
    micText(lastSpeech);
    micNotify('listening',lastSpeech?'✍️ '+lastSpeech.slice(-95):'🎙️ Figyelek…');
   };
@@ -462,30 +467,38 @@ function micStartRecognizer353(){
    lastSpeech='';
    if(!micSessionActive||micManuallyStopped)return;
    var now=Date.now(),elapsed=now-micSessionStart,empty=now-micLastHeard;
-   // Bound retries: no infinite hot-mic loop, even on a broken browser.
-   var stillWaiting=!micCollected&&empty<26000;
-   var continuing=!!micCollected&&elapsed<90000&&empty<16000;
-   if(elapsed<90000&&(stillWaiting||continuing)&&micRestarts<28){
+   // Repeated ultra-short recognizer sessions can each sound Android's system beep.
+   if(!recognitionHadText&&now-micRecognizerStarted<2200)micRapidEnds++;
+   else if(recognitionHadText||now-micRecognizerStarted>=5000)micRapidEnds=0;
+   var stillWaiting=!micCollected&&empty<MIC_FIRST_SPEECH_GRACE;
+   var continuing=!!micCollected&&empty<MIC_PAUSE_GRACE;
+   if(micRapidEnds>=5){
+    micStop353('🎙️ A telefon hangfelismerője többször megszakadt. Az eddigi szöveg megmaradt; a billentyűzet mikrofonjával csendesebben folytathatod.');
+    return;
+   }
+   if(elapsed<MIC_MAX_SESSION&&(stillWaiting||continuing)&&micRestarts<MIC_MAX_RESTARTS){
     micRestarts++;
-    micNotify('retry',stillWaiting?'🎙️ Még várok rád, nem kell sietned…':'🎙️ Folytathatod, figyelek…');
+    micNotify('retry',stillWaiting?'🎙️ Nem kell sietned, még várok…':'🎙️ Szünetet tartasz? Folytathatod…');
+    // Longer backoff reduces Android microphone on/off chime frequency.
+    var delay=recognitionHadText?1000:Math.min(3600,1500+micRapidEnds*420);
     micRestartTimer=setTimeout(function(){
      if(micSessionActive&&!micManuallyStopped&&currentIndex===micSessionIndex&&
         el(PAGE)&&el(PAGE).classList.contains('on')&&pk()===micQuestionProfile){
        micStartRecognizer353();
      }else if(micSessionActive){micStop353()}
-    },Math.min(1500,800+micRestarts*90));
+    },delay);
     return;
    }
-   var finish=micCollected?'✅ A diktálás véget ért. Ellenőrizd a szöveget, majd küldd el.':
-     '🎙️ Nem hallottam beszédet. Újra megnyomhatod a mikrofont, vagy használhatod a telefon billentyűzetét.';
+   var finish=micCollected?'✅ A diktálás szünetel. A szöveg megmaradt; a mikrofonra koppintva folytathatod.':
+     '🎙️ A hangfelismerés befejeződött. A mikrofonra koppintva újraindíthatod.';
    micStop353(finish);
   };
   r.start();
  }catch(e){
   if(rec===r)rec=null;
   if(micSessionActive){
-   if(micRestarts<28&&Date.now()-micSessionStart<26000){
-    micRestarts++;micRestartTimer=setTimeout(function(){if(micSessionActive)micStartRecognizer353()},900);
+   if(micRestarts<5&&Date.now()-micSessionStart<MIC_FIRST_SPEECH_GRACE){
+    micRestarts++;micRestartTimer=setTimeout(function(){if(micSessionActive)micStartRecognizer353()},Math.min(3500,1300+micRestarts*400));
    }else micStop353('⚠️ A telefon hangfelismerője nem indult. Használd a billentyűzet mikrofonját.');
   }
  }
@@ -497,10 +510,10 @@ function startMic(){
   return;
  }
  micManuallyStopped=false;micSessionActive=true;micSessionStart=Date.now();micLastHeard=micSessionStart;
- micSessionIndex++;micRestarts=0;micCollected='';lastSpeech='';
+ micSessionIndex++;micRestarts=0;micRapidEnds=0;micRecognizerStarted=0;micCollected='';lastSpeech='';
  micQuestionProfile=pk();questionBeforeSpeech=el('hhSQ299').value||'';
  micButton(true);
- micNotify('waiting','🎙️ Mikrofon bekapcsolva. Nem kell azonnal beszélned…');
+ micNotify('waiting','🎙️ Mikrofon bekapcsolva. Ráérsz, a hosszabb szünetekre is figyelek.');
  micStartRecognizer353();
 }
 function mic(){
