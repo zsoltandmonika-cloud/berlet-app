@@ -33,9 +33,39 @@ function normalize(p,raw){
   if(distance!=null){row.distanceMeters=distance;any=true}
   var floors=number(r.floorsClimbed,0,1000);
   if(floors!=null){row.floorsClimbed=floors;any=true}
+  var exerciseElevation=number(r.exerciseElevationGainMeters,0,12000);
+  if(exerciseElevation!=null){row.exerciseElevationGainMeters=exerciseElevation;any=true}
   if(any)days.set(r.date,row);
  });
- return {profile:p,exportedAt:raw.exportedAt,days:days,rawVersion:raw.schemaVersion,file:path(p)};
+ // Optional v375 source records. Old v374 exports remain fully supported.
+ var hourly=[],seenHours=new Set();
+ var inputHourly=raw.records&&raw.records.hourlySteps;
+ if(Array.isArray(inputHourly))inputHourly.slice(0,72).forEach(function(r){
+  if(!r||!isDay(r.date)||r.date>new Date().toISOString().slice(0,10))return;
+  var h=number(r.hour,0,23),steps=number(r.steps,0,100000);
+  if(h==null||h!==Math.floor(h)||steps==null)return;
+  var key=r.date+'|'+h;if(seenHours.has(key))return;seenHours.add(key);
+  hourly.push({date:r.date,hour:h,steps:steps,source:'samsung-direct'});
+ });
+ var sessions=[],seenSession=new Set();
+ var inputSessions=raw.records&&raw.records.exerciseSessions;
+ if(Array.isArray(inputSessions))inputSessions.slice(0,600).forEach(function(r){
+  if(!r)return;var start=dateMs(r.startTime),end=dateMs(r.endTime);
+  if(start==null||end==null||end<=start||end-start>86400000||start>now+300000||start<now-400*86400000)return;
+  var typ=String(r.exerciseType||'OTHER').toUpperCase();
+  if(!/^[A-Z_]{2,50}$/.test(typ))typ='OTHER';
+  var key=String(start)+'|'+String(end)+'|'+typ;
+  if(seenSession.has(key))return;seenSession.add(key);
+  var dur=(end-start)/60000,dist=number(r.distanceMeters,0,250000),rise=number(r.altitudeGainMeters,0,12000);
+  var name={WALKING:'Samsung séta',RUNNING:'Samsung futás',TRACK_RUNNING:'Samsung futás',HIKING:'Samsung túrázás',TREADMILL:'Samsung futás',BIKING:'Samsung kerékpár',STATIONARY_BIKING:'Samsung kerékpár'}[typ]||'Samsung edzés';
+  var ss={id:'sdk-'+key,startTime:r.startTime,endTime:r.endTime,title:name,
+   samsungExerciseType:typ,_samsung:true,source:'samsung-health-data-sdk-1.1.0'};
+  if(dist!=null)ss.distanceKm=dist/1000;
+  if(rise!=null)ss.altitudeGainMeters=rise;
+  sessions.push(ss);
+ });
+ return {profile:p,exportedAt:raw.exportedAt,days:days,rawVersion:raw.schemaVersion,
+  file:path(p),hourlySteps:hourly,exerciseSessions:sessions};
 }
 async function load(profile,vault){
  if(!profileOk(profile)||!vault||typeof vault.downloadJson!=='function'||!vault.connected||!vault.connected())
@@ -55,6 +85,23 @@ function merge(c, result, requestedProfile){
   return c;
  var days=result.data.days,found=0;
  var out=Object.assign({},c);
+ out.samsungHourlySteps=result.data.hourlySteps||[];
+ out.samsungSessions=result.data.exerciseSessions||[];
+ out.sessions=(Array.isArray(c.sessions)?c.sessions:[]).slice();
+ // Prefer existing HC exercise session; enrich its missing distance from
+ // measured Samsung workout, but never count the same session twice.
+ out.samsungSessions.forEach(function(s){
+  var start=Date.parse(s.startTime),end=Date.parse(s.endTime),match=out.sessions.find(function(x){
+   return Math.abs(Date.parse(x.startTime)-start)<180000&&Math.abs(Date.parse(x.endTime)-end)<180000;
+  });
+  if(match){
+   if(!(Number(match.distanceKm)>0)&&Number(s.distanceKm)>0){
+    match=Object.assign({},match,{distanceKm:s.distanceKm,_hhSamsungExerciseDistance:true});
+    var idx=out.sessions.findIndex(function(x){return x.id===match.id});if(idx>=0)out.sessions[idx]=match;
+   }
+  }else out.sessions.push(s);
+ });
+ out.sessions.sort(function(a,b){return Date.parse(b.endTime)-Date.parse(a.endTime)});
  out.daily=(Array.isArray(c.daily)?c.daily:[]).map(function(day){
   var samsung=days.get(day.date);if(!samsung)return day;
   found++;
@@ -76,6 +123,11 @@ function merge(c, result, requestedProfile){
   if(sources.activeCaloriesKcal)next.caloriesKcal=samsung.activeCaloriesKcal;
   if(Object.prototype.hasOwnProperty.call(samsung,'distanceMeters')){
    next._hhSamsungDistanceMeters=samsung.distanceMeters;
+  }
+  if(samsung.exerciseElevationGainMeters!=null && day.elevationGainMeters==null){
+   next.elevationGainMeters=samsung.exerciseElevationGainMeters;
+   next._hhExerciseElevationOnly=true;
+   sources.elevationGainMeters='samsung-exercise';
   }
   next._hhFieldSources=sources;
   return next;
