@@ -1,5 +1,20 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+## v372 Android telefonos teszt: a valódi összeomlás oka és javítása
+
+**2026-10-10, S24 Ultra logcat, 20:28:56:** a Samsung Health a béta csomagazonosítóját sikeresen igazolta (`PrivilegedHealthService: …samsungbeta is verified`), tehát a korábbi 2003-as policy-blokk már nem volt aktív. A `ActivitySummary` SDK-aggregálás utáni Binder válasz visszaolvasásakor az alkalmazás megállt:
+
+```
+java.lang.NoClassDefFoundError: Failed resolution of: Lkotlinx/parcelize/Parceler;
+Caused by: java.lang.ClassNotFoundException: Didn't find class "kotlinx.parcelize.Parceler"
+```
+
+**Gyökérok:** az előkészített AAR nem hozza automatikusan a Samsung SDK által használt `kotlin-parcelize-runtime` függőséget. A Samsung-függvények lefordultak, de az `Parcelable` Binder válaszban a hiányzó osztály miatt futásidőben dőltek el. **Javítás:** kizárólag a `withSamsungSdk` béta ágba `implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:2.0.21")`, megegyezve a projekt Kotlin verziójával. Nem kell új SDK, új Samsung-engedély vagy a produktív Connect átalakítása.
+
+**Ellenőrzés:** a javítás forráskódba bekerült. A friss APK újrafordítása és valódi készülékes teszt MÉG hátravan. Az eredeti BUILD KIT újrafuttatáskor törli a helyi béta-clone-t és frissen tölti le ezt a fejlesztői ágat. A régi APK nem javul meg magától; szükséges az új build és a HH Samsung Beta frissítése. Éles HealthHub Connect változatlan.
+
+---
+
 ## Samsung Health Data SDK v1.1.0 ZIP validálása · 2026-10-10
 
 A gyártó eredeti `samsung-health-data-sdk-1.1.0.zip` csomagja megérkezett **magán a beszélgetésen keresztül**. A csomagot nem másoltuk a GitHubba. A belső `1.1.0/libs/samsung-health-data-api-1.1.0.aar` valódi Java API-osztályait közvetlenül, `javap`-pal ellenőriztük. A natív olvasóban két fordítási akadályt találtunk és javítottunk:
