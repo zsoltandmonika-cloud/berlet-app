@@ -17,7 +17,9 @@ android {
 
     defaultConfig {
         applicationId = "hu.zsoltmonika.healthhubbridge"
-        minSdk = 26
+        // Vendor AAR 1.1.0 declares minSdk=29; the legacy HC-only APK
+        // remains on minSdk 26 for backwards compatibility.
+        minSdk = if (withSamsungSdk) 29 else 26
         targetSdk = 35
         versionCode = 18
         versionName = "0.12.0"
