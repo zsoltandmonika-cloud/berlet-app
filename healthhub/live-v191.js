@@ -273,6 +273,11 @@ async function render(profileOverride){
  kpi('elev',m.hasSamsungExerciseElevation?'Szint · edzés':'Szintemelkedés',m.terrain==null?'—':n(m.terrain,0),'m',0,null,'pink')+
  kpi('floors',m.hasSamsungFloors?'Emeletek · Samsung':'Emeletek',m.floors==null?'—':n(m.floors,1),'emelet',0,null,'pink')+
  '</div>'+
+ ((m.pace==='—'||m.terrain==null)?
+ '<div class="a191MetricsHint">'+
+ (m.pace==='—'?'🏃 <b>Tempó:</b> nincs mért séta- vagy futóedzéshez tartozó megfelelő idő és távolság. A napi aktív idő nem futótempó.<br>':'')+
+ (m.terrain==null?'⛰️ <b>Szintemelkedés:</b> nincs méterben mért emelkedés. Az emeletek száma ettől különböző adat.':'')+
+ '</div>':'')+
  '<section class="a191Card chart"><div class="a191Head"><span class="pinkbars">▥</span><b>'+
   (state.period==='1d'?'Mozgás a nap folyamán':'Aktivitási trend · napok')+
   '</b>'+(state.period==='1d'?'':'<div class="legend"><i class="b"></i>Lépések<i class="o"></i>Aktív kalória<i class="p"></i>Átl. pulzus</div>')+
