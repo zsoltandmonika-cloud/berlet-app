@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* HealthHub v321: authenticated private daily AI report viewer. No report stored in GitHub or localStorage. */
+/* HealthHub v377: authenticated private daily AI report viewer and direct Vault login. No report stored in GitHub or localStorage. */
 var API=window.HH_DAILY_HEALTH_SYNC_V319;
 
 var host=null,rows=[],loadedDay='',lastLoad=0,busy=false,error='',notice='',hasMore=false;
@@ -51,7 +51,11 @@ function panel(k){
 function paint(){
  if(!host||!host.isConnected)return;
  if(!signed()){
-  host.innerHTML='<div class="hhpai-panel"><p>🔐 A privát briefingek és előzményeik csak a Központi Health Vaultba való bejelentkezéssel érhetők el.</p></div>';
+  host.innerHTML='<div class="hhpai-panel hhpai-locked">'+
+   '<p>🔐 Ezen a telefonon / böngészőben még nincs aktív <b>Központi Health Vault</b>-bejelentkezés. A privát jelentések biztonságosan a központi archívumban maradnak.</p>'+
+   '<button type="button" data-hhpai-login="1">🔐 Belépés a Központi Health Vaultba</button>'+
+   '<p class="hhpai-muted">A Dropbox, a Google-fiók és a Health Connect engedélyezése ettől különálló kapcsolat. Belépés után a meglévő jelentések külön újragenerálás nélkül betöltődnek.</p>'+
+   '</div>';
   return;
  }
  host.innerHTML='<div class="hhpai-panel"><p class="hhpai-muted">🔒 Automatikusan készülő privát jelentések. Mónika és Zsolt előzményei külön, jogosultságvédett tárhelyen maradnak. A figyelési témák önmagukban nem diagnózisok.</p>'+
@@ -146,7 +150,10 @@ function mount(target){
    '.hhpai-history-label select{display:block;box-sizing:border-box;width:100%;min-height:42px;border:1px solid #bedde8;border-radius:10px;padding:9px;background:#fff;color:#194b65;margin-top:6px;font:inherit}',
    '.hhpai-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}',
    '.hhpai-panel button{background:#e5f3fb;border:1px solid #bddde8;color:#194b65;border-radius:9px;padding:10px 12px;font-size:11px;font-weight:800}',
-   '.hhpai-panel button:disabled{opacity:.55}'
+   '.hhpai-panel button:disabled{opacity:.55}',
+   '.hhpai-locked{border:1px solid #cfe3ee;border-radius:14px;background:#f8fcff;padding:14px}',
+   '.hhpai-locked button[data-hhpai-login]{display:block;width:100%;min-height:46px;margin:13px 0;font-size:13px;font-weight:850;background:#e2f3fd;border-color:#9fccdf}',
+   '.hhpai-locked .hhpai-muted{font-size:10px;line-height:1.55}'
   ].join('');
   document.head.appendChild(css);
  }
@@ -154,6 +161,11 @@ function mount(target){
   host.dataset.hhpaiBound='1';
   host.addEventListener('click',function(e){
    var b=e.target.closest('button[data-hhpai-refresh],button[data-hhpai-more]');
+   var login=e.target.closest('button[data-hhpai-login]');
+   if(login){
+    if(api()&&typeof api().openLogin==='function')api().openLogin();
+    return;
+   }
    if(!b)return;
    if(b.dataset.hhpaiRefresh)load(true,false);
    if(b.dataset.hhpaiMore)load(true,true);
