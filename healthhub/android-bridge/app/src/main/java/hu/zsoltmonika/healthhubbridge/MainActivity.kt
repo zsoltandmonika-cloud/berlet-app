@@ -47,6 +47,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var status: TextView
     private lateinit var profileSpinner: Spinner
     private lateinit var saveButton: Button
+    private var betaAutoButton: Button? = null
+    private var betaConnectionLabel: TextView? = null
     private lateinit var ownerLabel: TextView
     private lateinit var ownerButton: Button
     private lateinit var scheduleSummary: TextView
@@ -120,10 +122,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (SamsungSdkDailyReader.available) {
-            // This is a separate app ID. No HC, auto-schedulers, orchestrators or
-            // ordinary sync buttons are ever started in the Samsung beta.
+            // Beta has independent settings/tokens and a separate periodic worker.
+            // The production Health Connect app and its workers are not touched.
+            DropboxVaultClient.ensureCredentialVersion(prefs)
             setContentView(buildSamsungBetaUi())
-            status.text = "Samsung Health Direct Beta · csak tesztolvasás. Az éles Connect érintetlen."
+            SamsungBetaScheduler.schedule(this)
+            status.text = "Samsung Health Direct Beta · külön Dropbox Sync teszt. Az éles Connect érintetlen."
+            updateSamsungBetaUi()
+            handleSamsungBetaIntent(intent)
             return
         }
         setContentView(buildUi())
@@ -142,7 +148,10 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (SamsungSdkDailyReader.available) return
+        if (SamsungSdkDailyReader.available) {
+            handleSamsungBetaIntent(intent)
+            return
+        }
         handleIntent(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
@@ -321,8 +330,21 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Telefon tulajdonosának módosítása"
             setOnClickListener {
-                prefs.edit().remove("device_owner_profile").apply()
+                SamsungBetaScheduler.setEnabled(this@MainActivity, false)
+                prefs.edit()
+                    .remove("device_owner_profile")
+                    .remove("dropbox_refresh_token")
+                    .remove("dropbox_access_token")
+                    .remove("dropbox_access_expires")
+                    .remove("dropbox_pkce_verifier")
+                    .remove("dropbox_oauth_state")
+                    .remove("dropbox_pending_profile")
+                    .apply()
+                pendingJson = null
+                saveButton.isEnabled = false
                 updateOwnerUi()
+                updateSamsungBetaUi()
+                status.text = "A profil rögzítését és a Dropbox kapcsolatot töröltük a BETA alkalmazásból. Az éles Connect nem érintett."
             }
         }
         root.addView(ownerButton)
@@ -341,6 +363,25 @@ class MainActivity : ComponentActivity() {
             }
         }
         root.addView(saveButton)
+        root.addView(Button(this).apply {
+            text = "☁️ Dropbox Vault engedélyezése a Samsung Betához"
+            setOnClickListener { connectSamsungBetaDropbox() }
+        })
+        root.addView(Button(this).apply {
+            text = "📤 Samsung adatok feltöltése MOST"
+            setOnClickListener { uploadSamsungBetaNow() }
+        })
+        betaAutoButton = Button(this).apply {
+            text = "🔄 Automatikus Samsung-szinkron: KI"
+            setOnClickListener { toggleSamsungBetaAutomatic() }
+        }
+        root.addView(betaAutoButton)
+        betaConnectionLabel = TextView(this).apply {
+            textSize = 12f
+            setTextColor(0xFF234E73.toInt())
+            setPadding(0, 12, 0, 12)
+        }
+        root.addView(betaConnectionLabel)
         status = TextView(this).apply {
             text = "Fejlesztői teszt. A Samsung adatok olvasásához külön engedély kell."
             textSize = 14f
@@ -349,6 +390,7 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(status)
         updateOwnerUi()
+        updateSamsungBetaUi()
         return ScrollView(this).apply { addView(root) }
     }
 
@@ -375,6 +417,10 @@ class MainActivity : ComponentActivity() {
                 val today = java.time.LocalDate.now().toString()
                 val summary = (0 until days.length()).mapNotNull { days.optJSONObject(it) }
                     .firstOrNull { it.optString("date") == today }
+                prefs.edit()
+                    .putLong("samsung_beta_last_read_ms", System.currentTimeMillis())
+                    .apply()
+                updateSamsungBetaUi()
                 status.text = "✅ Samsung SDK sikeres · ${profileName(profile)} · " +
                     "${days.length()} aktivitásnap. Ma: " +
                     (summary?.let {
@@ -382,13 +428,187 @@ class MainActivity : ComponentActivity() {
                         "${it.optString("activeMinutes", "—")} perc, " +
                         "${it.optString("floorsClimbed", "—")} emelet"
                     } ?: "nincs napi összesítő") +
-                    "\nEz csak helyi olvasás. A Dropboxba nem töltöttünk fel semmit."
+                    "\nEz csak helyi olvasás. A Dropboxba feltöltés külön gombbal vagy engedélyezett ütemezéssel történik."
             } catch (e: Exception) {
                 pendingJson = null
                 saveButton.isEnabled = false
                 status.text = "Samsung közvetlen olvasás nem sikerült: " +
                     (e.message ?: e.javaClass.simpleName) +
                     "\nAz éles HealthHub Connect továbbra is működik."
+            }
+        }
+    }
+
+
+    /** The only OAuth callback accepted by the isolated beta identity. */
+    private fun handleSamsungBetaIntent(i: Intent?) {
+        val uri = i?.data ?: return
+        if (uri.scheme != "healthhubsamsungbeta" || uri.host != "dropbox") return
+        val errorCode = uri.getQueryParameter("error")
+        if (!errorCode.isNullOrBlank()) {
+            status.text = "Dropbox engedélyezés elutasítva: $errorCode"
+            return
+        }
+        val code = uri.getQueryParameter("code") ?: return
+        val state = uri.getQueryParameter("state")
+        val expectedState = prefs.getString("dropbox_oauth_state", null)
+        val verifier = prefs.getString("dropbox_pkce_verifier", null)
+        val pendingOwner = prefs.getString("dropbox_pending_profile", null)
+        if (state.isNullOrBlank() || state != expectedState || verifier.isNullOrBlank() ||
+            pendingOwner == null || pendingOwner != deviceOwnerProfile()) {
+            status.text = "Dropbox BETA: hibás OAuth állapot vagy telefon-tulajdonos. Nincs kapcsolat."
+            return
+        }
+        // Reject duplicate callback while the code is exchanged.
+        prefs.edit().remove("dropbox_oauth_state").apply()
+        scope.launch {
+            try {
+                status.text = "Dropbox engedélyezés befejezése…"
+                val token = withContext(Dispatchers.IO) { exchangeCode(code, verifier) }
+                val refresh = token.optString("refresh_token")
+                check(refresh.isNotBlank()) { "Dropbox nem adott vissza frissítő tokent." }
+                check(deviceOwnerProfile() == pendingOwner) { "Közben megváltozott a telefon-tulajdonos." }
+                prefs.edit()
+                    .putString("dropbox_refresh_token", refresh)
+                    .putString("dropbox_access_token", token.optString("access_token"))
+                    .putLong("dropbox_access_expires",
+                        System.currentTimeMillis() + (token.optLong("expires_in", 14400L) - 60L) * 1000L)
+                    .remove("dropbox_pkce_verifier")
+                    .remove("dropbox_pending_profile")
+                    .apply()
+                status.text = "✅ Dropbox kapcsolat kész a HH Samsung Betában. A háttérszinkron továbbra is KI, amíg külön be nem kapcsolod."
+                updateSamsungBetaUi()
+            } catch (e: Exception) {
+                status.text = "Dropbox BETA kapcsolat nem sikerült: ${e.message ?: e.javaClass.simpleName}"
+            }
+        }
+    }
+
+    private fun connectSamsungBetaDropbox() {
+        val owner = bindOwnerIfNeeded()
+        if (!SamsungSdkDailyReader.available) return
+        val verifier = randomUrlSafe(64)
+        val challenge = sha256UrlSafe(verifier)
+        val state = "hhbeta_" + randomUrlSafe(24)
+        prefs.edit()
+            .putString("dropbox_pkce_verifier", verifier)
+            .putString("dropbox_oauth_state", state)
+            .putString("dropbox_pending_profile", owner)
+            .apply()
+        // Same HTTPS redirect already registered for the shared Dropbox app.
+        // Only hhbeta_ states are relayed to healthhubsamsungbeta://dropbox.
+        val url = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
+            .appendQueryParameter("client_id", DROPBOX_APP_KEY)
+            .appendQueryParameter("response_type", "code")
+            .appendQueryParameter("redirect_uri", DROPBOX_REDIRECT)
+            .appendQueryParameter("code_challenge", challenge)
+            .appendQueryParameter("code_challenge_method", "S256")
+            .appendQueryParameter("token_access_type", "offline")
+            .appendQueryParameter("scope", "files.metadata.write files.content.read files.content.write")
+            .appendQueryParameter("state", state)
+            .build()
+        status.text = "A Dropbox engedélyezőoldala nyílik. Csak a Samsung Beta saját tokenjét érinti."
+        startActivity(Intent(Intent.ACTION_VIEW, url))
+    }
+
+    private fun updateSamsungBetaUi() {
+        if (!SamsungSdkDailyReader.available) return
+        val hasVault = DropboxVaultClient.hasRefreshToken(prefs)
+        val enabled = SamsungBetaScheduler.isEnabled(this)
+        betaAutoButton?.text = "🔄 Automatikus Samsung-szinkron: " + if (enabled) "BE (kb. 4 óránként)" else "KI"
+        val success = prefs.getLong("samsung_beta_last_success_ms", 0L)
+        val failure = prefs.getString("samsung_beta_last_error", null)
+        val stamp = if (success > 0L) {
+            java.text.SimpleDateFormat("yyyy.MM.dd. HH:mm", Locale.getDefault()).format(Date(success))
+        } else "még nem volt"
+        betaConnectionLabel?.text = (if (hasVault) "✅ Dropbox BETA csatlakozva" else "⚠️ Dropbox BETA még nincs összekötve") +
+            "\nLegutóbbi automatikus siker: $stamp" +
+            (if (failure.isNullOrBlank()) "" else "\n⚠️ Utolsó háttérhiba: " + failure) +
+            "\nAz ütemezés nem pontos időpont: Android energiatakarékosság késleltetheti."
+    }
+
+    /** Optional toggle only after authenticated vault AND a successful local read. */
+    private fun toggleSamsungBetaAutomatic() {
+        val owner = deviceOwnerProfile()
+        if (!SamsungBetaScheduler.isEnabled(this)) {
+            if (owner != "zsolt" && owner != "monika") {
+                status.text = "Előbb rögzítsd a telefon tulajdonosát egy Samsung beolvasással."
+                return
+            }
+            if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+                status.text = "Előbb engedélyezd a BETA Dropbox kapcsolatát."
+                return
+            }
+            if (prefs.getLong("samsung_beta_last_read_ms", 0L) == 0L) {
+                status.text = "Először teszteld a Samsung SDK olvasását és az engedélykérést."
+                return
+            }
+            // Explicit user tap opt-in; background permissions are never prompted automatically.
+            SamsungBetaScheduler.setEnabled(this, true)
+            status.text = "✅ Samsung BETA háttérfrissítés BE (kb. 4 óránként). A Samsung SDK háttérhozzáférését még készüléken kell ellenőrizni."
+        } else {
+            SamsungBetaScheduler.setEnabled(this, false)
+            status.text = "Samsung BETA háttérfrissítés kikapcsolva."
+        }
+        updateSamsungBetaUi()
+    }
+
+    private fun uploadSamsungBetaNow() {
+        val owner = deviceOwnerProfile()
+        if (owner != "zsolt" && owner != "monika") {
+            status.text = "Előbb rögzítsd a saját telefonprofilt."
+            return
+        }
+        val text = pendingJson
+        if (text.isNullOrBlank()) {
+            status.text = "Először nyomd meg a Samsung Health napi adatok beolvasása gombot."
+            return
+        }
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            status.text = "Előbb engedélyezd a Dropbox Vaultot a HH Samsung Betában."
+            return
+        }
+        scope.launch {
+            try {
+                val data = JSONObject(text)
+                val days = data.optJSONObject("records")?.optJSONArray("dailySummary")
+                check(data.optString("profile") == owner &&
+                    data.optString("source") == "samsung-health-data-sdk-1.1.0" &&
+                    data.optString("schemaVersion") == "healthhub.samsung.daily/1" &&
+                    days != null && days.length() > 0) { "Samsung JSON profilja / forrása nem megfelelő." }
+                status.text = "☁️ Samsung adatok feltöltése a külön profilfájlba…"
+                val path = DropboxVaultClient.PROFILES_DIR + "/" + owner + "-samsung-health.json"
+                DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
+                DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
+                val previous = DropboxVaultClient.downloadTextOrNull(prefs, path)
+                if (!previous.isNullOrBlank()) {
+                    val old = JSONObject(previous)
+                    check(old.optString("profile") == owner &&
+                        old.optString("schemaVersion") == "healthhub.samsung.daily/1") {
+                        "A Dropboxban ismeretlen Samsung-fájl található; nem írtuk felül."
+                    }
+                    val oldTime = java.time.Instant.parse(old.getString("exportedAt"))
+                    val newTime = java.time.Instant.parse(data.getString("exportedAt"))
+                    if (!newTime.isAfter(oldTime)) {
+                        status.text = "ℹ️ A Dropboxban már azonos vagy frissebb Samsung-export van."
+                        return@launch
+                    }
+                }
+                check(deviceOwnerProfile() == owner) { "Közben megváltozott a profil." }
+                DropboxVaultClient.uploadText(prefs, path, data.toString(2) + "\n")
+                val verify = DropboxVaultClient.downloadTextOrNull(prefs, path)
+                check(verify != null && JSONObject(verify).optString("exportedAt") == data.optString("exportedAt")) {
+                    "Az export visszaellenőrzése sikertelen."
+                }
+                prefs.edit()
+                    .putLong("samsung_beta_last_success_ms", System.currentTimeMillis())
+                    .putString("samsung_beta_last_success_profile", owner)
+                    .remove("samsung_beta_last_error")
+                    .apply()
+                status.text = "✅ Samsung Direct → Dropbox sikeres · ${profileName(owner)} · ${days.length()} nap. Az éles Health Connect változatlan."
+                updateSamsungBetaUi()
+            } catch (e: Exception) {
+                status.text = "Samsung BETA Dropbox hiba: ${e.message ?: e.javaClass.simpleName}. Kézi JSON-import továbbra is használható."
             }
         }
     }
