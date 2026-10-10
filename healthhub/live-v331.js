@@ -22,6 +22,7 @@ function styles(){
  '@keyframes hhAiBlink{50%{opacity:0}}'+
  '#hhAi331Answer{display:none;border:1px solid #c2dee2;border-radius:20px;padding:17px;background:linear-gradient(140deg,#eefcf8,#fff);color:#16475e;box-shadow:0 8px 22px #28615912;margin-top:12px}'+
  '#hhAi331Answer.on{display:block}#hhAi331Answer h2{font-size:18px;color:#116652;margin:0 0 12px}'+
+  '#hhLenaSmart299 #hhAi331Answer.on{min-height:calc(100dvh - env(safe-area-inset-top, 0px) - 20px)}'+
  '#hhAi331Answer .hhAi331Text{font-size:14px;line-height:1.74;overflow-wrap:anywhere}'+
  '#hhAi331Answer .hhAi331Text p{margin:0 0 12px}'+
  '#hhAi331Answer .hhAi331Text h3{margin:15px 0 8px;font-size:15px;line-height:1.5;color:#126e62}'+
@@ -172,14 +173,21 @@ function renderAnswerText(raw){
  });
  host.replaceChildren(visual);
 }
-// Bring the answer header to the top of the mobile viewport, below any safe area.
+// Align the visible answer box with the TOP of the web viewport, not the
+// internal overflow:hidden .app. scrollIntoView may scroll the clipped ancestor
+// and leave the completed research monitor above the answer on Android.
 function alignAnswerTop(){
  var answer=el('hhAi331Answer'),page=el('hhLenaSmart299');
  if(!answer||!answer.classList.contains('on')||!page||!page.classList.contains('on'))return;
  requestAnimationFrame(function(){
-  if(!answer.isConnected||!answer.classList.contains('on'))return;
-  try{answer.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'})}
-  catch(e){answer.scrollIntoView(true)}
+  requestAnimationFrame(function(){
+   if(!answer.isConnected||!answer.classList.contains('on')||!page.classList.contains('on'))return;
+   var rect=answer.getBoundingClientRect();
+   var root=document.scrollingElement||document.documentElement;
+   var maxScroll=Math.max(0,root.scrollHeight-window.innerHeight);
+   var target=Math.max(0,Math.min(maxScroll,rect.top+window.scrollY-6));
+   window.scrollTo({top:target,behavior:'instant'});
+  });
  });
 }
 function showError(message){
