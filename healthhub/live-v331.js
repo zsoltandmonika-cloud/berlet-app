@@ -468,8 +468,17 @@ async function run(opts){
   }
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
-  print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
-  var response=await svc.stream('/functions/v1/smooth-endpoint',data,ctrl.signal);
+  // v395 pilot: Only explicitly initiated, detailed clinical questions go
+  // through the separate two-stage verified-excerpt endpoint. Routine AI,
+  // photo mode and prior quick answers keep the stable existing function.
+  var clinicalPilot=customized.plan.mode==='deep'&&!!customized.plan.clinical&&!shot;
+  if(clinicalPilot){
+   data.researchMode='clinical-v395';
+   print('🧪 Clinical Evidence v395: külön kétmenetes ellenőrzött kutatás indul.');
+   print('📑 Első menet: szó szerinti PDF-bizonyítékok. Második: értelmezés, majd állításellenőrzés.');
+  }else print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
+  var aiRoute=clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
+  var response=await svc.stream(aiRoute,data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
    throw Error(errorText(body.error,response.status));
@@ -490,14 +499,19 @@ async function run(opts){
     if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
     return;
    }
-   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
+   if(kind==='done'){
+    var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
+    renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
      (intelligence.trendsQuality?' · 📈 I-03: 7 napos lefedettség (lépések/alvás/pulzus): '+intelligence.trendsQuality.stepCoverage7+'% / '+intelligence.trendsQuality.sleepCoverage7+'% / '+intelligence.trendsQuality.pulseCoverage7+'%; csak lezárt napok.':'')+
      ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.'+
       ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
       (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
-      (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'');
+      (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'')+
+      (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti kivonathoz szövegszerűen ellenőrzött tény, '+
+        audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+
+        ' bizonyítatlan állítás visszaminősítve. Az ellenőrzés nem teljes orvosi szakvélemény.':'');
     var proof=clinicalEngine.createPanel(clinical,p);
     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     print('AI-kutatás befejeződött.');return}
