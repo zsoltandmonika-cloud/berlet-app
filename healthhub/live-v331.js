@@ -110,7 +110,7 @@ function renderAnswerText(raw){
   }
   appendMeasured(node,value.slice(start));
  }
- var normalized=String(raw||'').slice(0,17000).replace(/\r\n?/g,'\n');
+ var normalized=String(raw||'').slice(0,26000).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
  normalized=parts.map(function(chunk){
   if(chunk.length<380 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
