@@ -20,14 +20,16 @@ function otherName(){return pkey()==='monika'?'Zsolt':'Mónika'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function fmtTime(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}):'—'}
+function fmtDateFull(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleDateString('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}):'Ismeretlen dátum'}
 function fmtDate(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleDateString('hu-HU',{month:'short',day:'numeric'}):'—'}
 function durMin(a,b){var v=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(v)&&v>0?v:0}
 function durText(min){min=Math.round(min||0);var h=Math.floor(min/60),m=min%60;return h?h+' ó '+m+' p':m+' p'}
 function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0}
-function stageName(v){return ({0:'Ismeretlen',1:'Ébren',2:'Alvás',3:'Ágyon kívül',4:'Könnyű',5:'Mély',6:'REM'})[Number(v)]||'Szakasz'}
-function stageClass(v){return ({1:'awake',2:'sleep',3:'out',4:'light',5:'deep',6:'rem'})[Number(v)]||'unknown'}
+function stageName(v){return ({0:'Ismeretlen',1:'Ébren',2:'Alvás',3:'Ágyon kívül',4:'Könnyű',5:'Mély',6:'REM',7:'Ébren (ágyban)'})[Number(v)]||'Szakasz'}
+function stageClass(v){return ({1:'awake',2:'sleep',3:'awake',4:'light',5:'deep',6:'rem',7:'awake'})[Number(v)]||'unknown'}
 
 async function sleepSessions(profile){
+ window.hhSleepSourceMeta={profile:profile,source:'cache',exportedAt:null};
  var map=new Map(),cutoff=Date.now()-95*86400000,cloudUsed=false;
 
  function addRows(a,importedAt){
@@ -50,6 +52,7 @@ async function sleepSessions(profile){
    var raw=await v.downloadJson(path);
    if(raw&&String(raw.profile||'').toLowerCase()===profile){
     addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
+    window.hhSleepSourceMeta={profile:profile,source:'Dropbox / Health Connect',exportedAt:raw.exportedAt||null};
     cloudUsed=true;
     localStorage.setItem('hh-sleep-cloud-last-'+profile,new Date().toISOString());
     localStorage.setItem('hh-sleep-cloud-path-'+profile,path);
@@ -80,6 +83,8 @@ async function sleepSessions(profile){
  }catch(e){}
 
  window.hhSleepDataSource='Helyi Health Connect cache · '+profile;
+ var fallbackDates=Array.from(map.values()).map(function(x){return Date.parse(x._importedAt||'')}).filter(Number.isFinite);
+ window.hhSleepSourceMeta={profile:profile,source:'helyi Health Connect cache',exportedAt:fallbackDates.length?new Date(Math.max.apply(null,fallbackDates)).toISOString():null};
  return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
 }
 function periodDays(){return sleepState.period==='30d'?30:sleepState.period==='90d'?90:7}
@@ -113,7 +118,7 @@ function stageBar(s){
 }
 function stageSummary(s){
  var out={1:0,4:0,5:0,6:0},st=Array.isArray(s&&s.stages)?s.stages:[];
- st.forEach(function(x){var k=Number(x.stage);if(out[k]!=null)out[k]+=durMin(x.startTime,x.endTime)});
+ st.forEach(function(x){var k=Number(x.stage);if(k===7||k===3)k=1;if(out[k]!=null)out[k]+=durMin(x.startTime,x.endTime)});
  var total=Object.values(out).reduce(function(a,b){return a+b},0)||durMin(s.startTime,s.endTime);
  function p(k){return total?Math.round(out[k]/total*100):0}
  return '<div class="hhSleepStageGrid"><div><small>KÖNNYŰ</small><b>'+p(4)+'%</b></div><div><small>MÉLY</small><b>'+p(5)+'%</b></div><div><small>REM</small><b>'+p(6)+'%</b></div><div><small>ÉBREN</small><b>'+p(1)+'%</b></div></div>';
@@ -124,7 +129,8 @@ function hhSleepIntervals(rows){
  (rows||[]).forEach(function(s){
   var st=Array.isArray(s.stages)?s.stages:[];
   var sleep=st.filter(function(x){return [2,4,5,6].includes(Number(x.stage))});
-  var periods=sleep.length?sleep:[s];
+  // If stages exist but none marks sleep, never treat the entire window as asleep.
+  var periods=st.length?sleep:[s];
   periods.forEach(function(x){
    var start=Date.parse(x.startTime),end=Date.parse(x.endTime);
    if(Number.isFinite(start)&&Number.isFinite(end)&&end>start)a.push([start,end]);
@@ -142,8 +148,8 @@ function hhSleepIntervals(rows){
 function hhSleepOverlaps(intervals,start,end){
  return intervals.reduce(function(acc,x){return acc+Math.max(0,Math.min(end,x[1])-Math.max(start,x[0]))},0)/60000;
 }
-function sleepOverview(rows){
- if(!rows.length)return '<div class="hhSleepEmpty big">Nincs szinkronizált alvásadat.</div>';
+function hhLatestNight(rows){
+ if(!Array.isArray(rows)||!rows.length)return null;
  var last=rows[rows.length-1],group=[last],start=Date.parse(last.startTime),end=Date.parse(last.endTime);
  for(var i=rows.length-2;i>=0;i--){
   var x=rows[i],prevEnd=Date.parse(x.endTime),prevStart=Date.parse(x.startTime);
@@ -151,21 +157,60 @@ function sleepOverview(rows){
   if(start-prevEnd>90*60000)break;
   group.unshift(x);start=Math.min(start,prevStart);
  }
- var intervals=hhSleepIntervals(group);
- var slept=hhSleepOverlaps(intervals,start,end);
- var windowMins=(end-start)/60000;
- var lastIntervals=hhSleepIntervals([last]);
- var lastTotal=hhSleepOverlaps(lastIntervals,Date.parse(last.startTime),end);
- var from24=Date.now()-24*3600000, allIntervals=hhSleepIntervals(rows);
- var rolling=hhSleepOverlaps(allIntervals,from24,Date.now());
+ return {startTime:new Date(start).toISOString(),endTime:new Date(end).toISOString(),
+  stages:group.reduce(function(a,x){return a.concat(Array.isArray(x.stages)?x.stages:[])},[]),
+  sessions:group};
+}
+function hhSleepSource381(last){
+ if(!last)return '';
+ var meta=window.hhSleepSourceMeta||{},now=new Date(),end=new Date(last.endTime);
+ var currentDay=now.toLocaleDateString('sv-SE'),lastDay=end.toLocaleDateString('sv-SE');
+ var stale=lastDay!==currentDay;
+ var imported=meta.exportedAt?' · Utolsó adatimport: '+fmtDateFull(meta.exportedAt)+' '+fmtTime(meta.exportedAt):' · Import ideje ismeretlen';
+ return '<div class="hhSleepSource381'+(stale?' stale':'')+'"><b>📅 Utolsó mért éjszaka: '+esc(fmtDateFull(last.endTime))+'</b>'+
+ '<span>'+esc((meta.source||'Health Connect')+imported)+'</span>'+
+ (stale?'<strong>⚠️ A mai alvás még nem szerepel az átvett adatokban. A webes frissítés csak a már szinkronizált adatokat olvassa újra.</strong>':'')+
+ '</div>';
+}
+function sleepFactorCards381(night){
+ if(!night)return '';
+ var stages=Array.isArray(night.stages)?night.stages:[],hasStages=stages.length>0;
+ var mins={4:0,5:0,6:0,1:0},sleepStageCount=0;
+ stages.forEach(function(x){
+  var k=Number(x.stage);if(k===3||k===7)k=1;
+  if([2,4,5,6].includes(k))sleepStageCount++;
+  if(mins[k]!=null)mins[k]+=durMin(x.startTime,x.endTime);
+ });
+ var actual=sleepStageCount?hhSleepOverlaps(hhSleepIntervals(night.sessions),Date.parse(night.startTime),Date.parse(night.endTime)):null;
+ function card(name,value,detail){
+  return '<div class="hhSleepFactor381"><small>'+name+'</small><b>'+value+'</b><span>'+detail+'</span></div>';
+ }
+ function val(n){return n==null?'—':durText(n)}
+ var known=hasStages?'Health Connect · mért szakasz':'Nem érkezett szakaszadat';
+ return '<div class="hhSleepFactorTitle381">Alvási tényezők · Samsung Health szerinti kategóriák</div>'+
+ '<div class="hhSleepFactors381">'+
+ card('💤 Tényleges alvás',val(actual),actual!=null?'Ébrenlét nélkül':'Nem számítható')+
+ card('🌤 Könnyű alvás',hasStages?val(mins[4]):'—',known)+
+ card('🌑 Mély alvás',hasStages?val(mins[5]):'—',known)+
+ card('🌙 REM alvás',hasStages?val(mins[6]):'—',known)+
+ card('👀 Ébrenlét',hasStages?val(mins[1]):'—',known)+
+ card('⏳ Elalvási idő','—','Health Connect nem ad külön Samsung értéket')+
+ card('⭐ Samsung alváspontszám','—','Csak engedélyezett Samsung Data SDK forrásból')+
+ '</div>';
+}
+function sleepOverview(rows){
+ if(!rows.length)return '<div class="hhSleepEmpty big">Nincs szinkronizált alvásadat.</div>';
+ var night=hhLatestNight(rows),last=rows[rows.length-1],start=Date.parse(night.startTime),end=Date.parse(night.endTime);
+ var intervals=hhSleepIntervals(night.sessions),slept=hhSleepOverlaps(intervals,start,end);
+ var from24=Date.now()-24*3600000,rolling=hhSleepOverlaps(hhSleepIntervals(rows),from24,Date.now());
  function card(title,value,details){
   return '<div class="hhSleepStat363"><small>'+title+'</small><b>'+value+'</b><span>'+details+'</span></div>';
  }
  return '<div class="hhSleepOverview363">'+
-  card('🌙 ALVÁSI ABLAK',durText(windowMins),esc(fmtTime(start)+'–'+fmtTime(end)))+
-  card('💤 UTOLSÓ ALVÁS',durText(lastTotal),esc(fmtTime(last.startTime)+'–'+fmtTime(last.endTime)))+
-  card('🕒 UTOLSÓ 24 ÓRA',durText(rolling),esc(Math.round(slept)+' p alvás az ablakban'))+
-  '</div><p class="hhSleepInfo363">Az alvási ablak az éjszaka teljes időtartama, az ébrenlétekkel együtt. A 24 órás érték a mért alvásösszegeket átfedés nélkül adja össze.</p>';
+  card('🌙 ALVÁSI ABLAK',durText((end-start)/60000),esc(fmtTime(start)+'–'+fmtTime(end)))+
+  card('💤 TÉNYLEGES ALVÁS',durText(slept),esc(fmtTime(start)+'–'+fmtTime(end)))+
+  card('🕒 UTOLSÓ 24 ÓRA',durText(rolling),esc('Mért alvás 24 óra alatt'))+
+  '</div><p class="hhSleepInfo363">Az alvási ablak az éjszaka teljes ideje, az ébrenléttel együtt. A tényleges alvás és a 24 órás összeg nem számolja kétszer az átfedő szakaszokat.</p>';
 }
 // A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
 function sleepLenaComment(rows,profile){
@@ -176,7 +221,8 @@ function sleepLenaComment(rows,profile){
  var healthy=recent.length&&mins>=15;
  var firstName=profile==='monika'?'Mónika':'Zsolt';
  var icon='😶',title='Kevés adat',msg='Még nem látok elegendő alvásadatot a biztosabb értékeléshez. Előbb nézzük meg a szinkront.';
- if(healthy&&mins<360){icon='😴';title='Pihenésre fel!';msg=firstName+', az elmúlt 24 órában '+durText(mins)+' alvást látok. Ez kevésnek tűnik; ha teheted, ma adj több időt a pihenésnek.'}
+ if(!healthy&&recent.length===0){icon='🔄';title='Friss alvásadat hiányzik';msg='A legutóbbi 24 órából nem érkezett alvásmérés. Ez adatkapcsolati hiány, nem a tényleges alvásod értékelése.'}
+ else if(healthy&&mins<360){icon='😴';title='Pihenésre fel!';msg=firstName+', az elmúlt 24 órában '+durText(mins)+' alvást látok. Ez kevésnek tűnik; ha teheted, ma adj több időt a pihenésnek.'}
  else if(healthy&&mins<420){icon='🙂';title='Van még tartalék';msg=firstName+', most '+durText(mins)+' jött össze 24 óra alatt. Egy kicsivel hosszabb éjszaka segíthet a napközbeni energiaszinten.'}
  else if(healthy&&mins<=540){icon='😌';title='Jól néz ki';msg=firstName+', '+durText(mins)+' pihenés már egész biztató. Remélhetőleg az energiaszinted is hálás lesz érte.'}
  else if(healthy){icon='🌙';title='Hosszabb pihenés';msg=firstName+', '+durText(mins)+' alvást rögzítettem. Ha ez szokatlan, az alvásminőséget és a közérzetet is érdemes figyelni.'}
@@ -203,10 +249,10 @@ async function render(profileOverride){
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
  var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq)return;
- var latest=rows[rows.length-1]||null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
+ var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?sleepOverview(rows)+sleepLenaComment(rows,requestedProfile)+stageBar(latest)+stageSummary(latest):
+ (latest?hhSleepSource381(latest)+sleepOverview(rows)+sleepLenaComment(rows,requestedProfile)+sleepFactorCards381(night)+stageBar(night)+stageSummary(night):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -303,7 +349,7 @@ style();
 (function(){
  if(document.getElementById('hhSleep363Css'))return;
  var c=document.createElement('style');c.id='hhSleep363Css';
- c.textContent='.hhSleepOverview363{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:4px 0 5px}'+
+ c.textContent='.hhSleepSource381{display:flex;flex-direction:column;gap:4px;background:#f1f8fc;border:1px solid #cce4ef;border-radius:13px;padding:10px;margin:5px 0 8px;font-size:11px;color:#234966}.hhSleepSource381 span{color:#547185;font-size:10px}.hhSleepSource381.stale{background:#fff7e8;border-color:#f0ca87}.hhSleepSource381 strong{font-size:10px;color:#965500}.hhSleepFactorTitle381{font-size:12px;font-weight:850;margin:12px 2px 7px;color:#1f4a66}.hhSleepFactors381{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.hhSleepFactor381{min-width:0;background:white;border:1px solid #d8e5ee;border-radius:13px;padding:11px 10px;display:flex;flex-direction:column;gap:4px}.hhSleepFactor381 small{font-size:11px;font-weight:800;color:#477896}.hhSleepFactor381 b{font-size:18px;color:#183d59}.hhSleepFactor381 span{font-size:9px;color:#607889;line-height:1.3}.hhSleepOverview363{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:4px 0 5px}'+
  '.hhSleepStat363{min-width:0;padding:9px 5px 8px;border-radius:12px;background:#fff;border:1px solid color-mix(in srgb,var(--a) 26%,#fff);text-align:center}'+
  '.hhSleepStat363 small{display:block;font-size:9px;line-height:1.22;color:var(--a);font-weight:850;min-height:24px;letter-spacing:0}'+
  '.hhSleepStat363 b{display:block;font-size:18px;line-height:1.24;color:#193e63;font-weight:850}'+
