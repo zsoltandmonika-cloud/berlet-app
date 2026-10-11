@@ -118,7 +118,7 @@ function rate(stars){
  schedule(p,1300);schedule(p,5200);
 }
 function schedule(p,delay){
- clearTimeout(timeouts[p]);timeouts[p]=setTimeout(function(){sync(p)},delay);
+ var key=p+'-'+delay;clearTimeout(timeouts[key]);timeouts[key]=setTimeout(function(){sync(p)},delay);
 }
 async function sync(p){
  if(busy[p]||!connected(p))return;
