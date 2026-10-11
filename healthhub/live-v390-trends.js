@@ -134,8 +134,12 @@ function calculate(ledger,context,opts){
  };
  TYPES.forEach(function(type){
   var map=datasets[type];
+  // The last finished overnight sleep episode can end *this morning*.
+  // In contrast, today's steps / daytime vitals remain a partial calendar day.
+  var cutoff=type==='sleep_minutes'?plusDay(today,1):today;
   records[type]={type:type,label:LABEL[type],unit:UNIT[type],measuredDays:map.size,
-   windows:{d7:assess(map,today,7),d30:assess(map,today,30),d90:assess(map,today,90)}};
+   timeBasis:type==='sleep_minutes'?'rögzített éjszakák, a mai reggelig':'lezárt naptári napok',
+   windows:{d7:assess(map,cutoff,7),d30:assess(map,cutoff,30),d90:assess(map,cutoff,90)}};
  });
  var todaySteps=datasets.steps.has(today)?datasets.steps.get(today):null;
  if(todaySteps!=null)issues.push('A mai '+todaySteps+' lépés résznapos adat; nem szerepel a lezárt napok átlagában.');
@@ -155,7 +159,7 @@ function brief(result){
  if(!result||result.schema!==SCHEMA)return [];
  var out=[];
  function put(label,value){out.push({domain:'trends',label:label,value:value,at:result.completedThrough})}
- put('Intelligence trendablakok','Csak lezárt napok és forrással igazolt mérések; a mai résznap és a hiányzó napok nem nullák.');
+ put('Intelligence trendablakok','Aktivitás/pulzus: csak lezárt napok. Alvás: a mai reggelen lezárult, rögzített szakaszok is szerepelhetnek. A résznap és a hiányzó nap nem nulla.');
  ['steps','active_minutes','sleep_minutes','pulse_bpm'].forEach(function(type){
   var m=result.metrics[type],w=m.windows.d7,c=w.current,t=w.trend;
   var stat=m.label+': '+c.presentDays+'/7 nap ('+c.coveragePercent+'% lefedettség). ';
