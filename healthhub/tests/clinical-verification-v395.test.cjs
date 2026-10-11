@@ -43,15 +43,17 @@ const assert=require('node:assert/strict');
  assert.ok(res.stats.unsupportedDurations>=1,'20 minutes rejected, EF 20% irrelevant');
  assert.ok(res.stats.unsupportedDates>=1,'fabricated date removed');
  assert.equal(res.stats.badCitations,1);
- assert.equal(res.sections[0].paragraphs[1].kind,'unknown');
- assert.ok(!res.sections[0].paragraphs[1].text.includes('20 perc'));
- assert.ok(res.sections[1].paragraphs[1].text.startsWith('Lehetséges magyarázat:'));
+ assert.equal(res.sections[0].paragraphs.length,1,'unsafe paragraphs are silently withheld');
+ assert.ok(res.sections[0].paragraphs.every(x=>!x.text.includes('20 perc')));
+ assert.ok(res.sections[1].paragraphs[1].text.startsWith('Lehetséges, hogy'));
  const formatted=x.formatClinicalAnswer(res,idx);
- assert.ok(formatted.includes('[D1:p3] Szintetikus kórházi lap · 2024-06-17 · 3. oldal'));
+ assert.ok(formatted.includes('Forrás: Szintetikus kórházi lap (2024-06-17, 3. oldal)'));
  assert.ok(!formatted.includes('D17:p5'));
  assert.ok(!formatted.includes('2024.08.19'));
  assert.ok(formatted.includes('legalább 20 perc')===false);
- assert.ok(formatted.includes('Bizonyítékellenőrzés'));
+ assert.ok(!formatted.includes('Bizonyítékellenőrzés'),'audit is not another public lecture');
+ assert.ok(!formatted.includes('A mentő kiérkezési időpontja nem ismert.'),'avoid repetitive missing-data sections');
+ assert.ok(!formatted.includes('**📄 Dokumentált tény**'),'narrative does not have stamped labels');
  // A newly synthesized claim matching the numerical VALUE but not unit
  // is invalid: EF 20% is never a 20-minute unconsciousness report.
  const fake=x.verifyExtractedFacts({facts:[{
