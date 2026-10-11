@@ -56,7 +56,7 @@ function get(c){const l=ledger.build(c,c.profile,{now});return engine.calculate(
  assert.equal(JSON.stringify(c),beforeJson,'source data stays untouched');
  const b=engine.brief(r);
  assert.ok(b.some(x=>x.label.includes('Lépések')&&x.value.includes('40%')));
- assert.ok(b.some(x=>x.label.includes('Pulzus')&&x.value.includes('nem hitelesíthető')));
+ assert.ok(b.some(x=>/pulzus/i.test(x.label)&&x.value.includes('nem hitelesíthető')));
  assert.ok(b.every(x=>x.domain==='trends'));
 }
 {
