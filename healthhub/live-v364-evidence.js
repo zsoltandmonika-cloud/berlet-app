@@ -255,12 +255,15 @@ async function extractText(d,question,p,plan){
    var text=raw.slice(0,12000),n=norm(text);
    var score=terms.reduce(function(sum,t){return sum+(n.indexOf(t)>=0?2:0)},0);
    score+=yearMatch.some(function(y){return n.indexOf(y)>=0})?6:0;
+   var requested=dateQuery(question),pageDates=dateMentions(raw);
+   if(requested&&pageDates.some(function(t){return datedMetadata(t)===requested}))score+=50;
    if(/mento|omsz|cpr|rosc|fibrill|szedal|eszmelet|defibr|intenziv/.test(norm(question)))
     score+=(n.match(/cpr|rosc|fibrill|omsz|mento|intenziv|szedal|eszmelet|ujraeleszt|defibr/g)||[]).length;
    candidates.push({page:page,text:text.slice(0,plan&&plan.excerptMax||1950),score:score});
   }
   candidates.sort(function(a,b){return b.score-a.score||a.page-b.page});
-  var take=plan&&plan.mode==='deep'?2:1;
+  // Chronological reconstruction needs distinct records for each stage.
+  var take=plan&&plan.chronology?1:plan&&plan.mode==='deep'?2:1;
   return {pages:candidates.slice(0,take),reason:candidates.length?'pdf_text_extracted':'no_searchable_pdf_text',
    scannedPages:limit,totalPages:pdf.numPages,origin:checked.reason};
  }catch(e){
