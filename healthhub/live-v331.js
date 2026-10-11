@@ -376,6 +376,16 @@ async function run(opts){
   var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
   if(ctx&&ctx.profile!==p)throw Error('Profilazonosítási eltérés, feldolgozás leállítva.');
   var extra=addExtra(ctx,question),data=simplify(report,extra);
+  // Intelligence Foundation: require source/provenance validation locally.
+  // No extra network or local health-data writes are performed.
+  var intelligenceGate=window.HH_INTELLIGENCE_GATE_V388;
+  if(!intelligenceGate||typeof intelligenceGate.prepare!=='function')
+   throw Error('Intelligence adatellenőrzés nem érhető el. Nem indítok ellenőrizetlen AI-kutatást.');
+  var intelligence=intelligenceGate.prepare(data,ctx);
+  data=intelligence.payload;
+  if(intelligence.flags.length){
+   print('🔎 Adatminőség: '+intelligence.flags.length+' ellenőrzendő forrás. Régi méréseket nem kezelünk aktuálisként.');
+  }else print('✅ Adatminőség: források és időbélyegek ellenőrizve.');
   data.depth=deep?'detailed':'standard';
   data.question=question;
   var evidence=window.HH_ASK_LENA_EVIDENCE_V364;
@@ -426,7 +436,8 @@ async function run(opts){
     if(!renderPending){renderPending=true;setTimeout(function(){renderPending=false;if(turn===epoch&&profile()===p)renderAnswerText(answerText)},70)}
     return;
    }
-   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.');print('AI-kutatás befejeződött.');return}
+   if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
+    (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.');print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
