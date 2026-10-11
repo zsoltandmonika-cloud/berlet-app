@@ -70,13 +70,38 @@ function dateAllowed(text,evidenceFacts){
 function isPersonalAssertion(s){
  return /\b(Mónika|Zsolt|nálad|veled|téged|a te|benned|agyad|szíved|voltál|kaptál|beültették|mentők|újraélesztettek)\b/i.test(s);
 }
+function quotedDoctorNames(text){
+ const names=String(text||'').match(/\b(?:Dr\.?|dr\.?)\s+[A-ZÁÉÍÓÖŐÚÜŰ][\p{L}-]+(?:\s+[A-ZÁÉÍÓÖŐÚÜŰ][\p{L}-]+){1,3}/gu)||[];
+ return names.map(n=>norm(n).replace(/^dr\.?\s*/,'')); 
+}
+export function buildEventCandidates(validated){
+ const facts=Array.isArray(validated?.facts)?validated.facts:[];
+ const eventDate=quote=>{
+  const q=String(quote||'');
+  const iso=q.match(/\b((?:19|20)\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})\b/);
+  if(!iso)return null;
+  const y=Number(iso[1]),m=Number(iso[2]),d=Number(iso[3]);
+  const date=new Date(Date.UTC(y,m-1,d));
+  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return null;
+  return date.toISOString().slice(0,10);
+ };
+ return facts.map(f=>({
+  sourceId:f.sourceId,documentTitle:f.documentTitle,page:f.page,
+  // Do not mistake a discharge summary DATE for the underlying event time.
+  eventDate:eventDate(f.quote),documentDate:f.documentDate||'',
+  fact:f.fact
+ })).sort((a,b)=>{
+  if(a.eventDate&&b.eventDate)return a.eventDate.localeCompare(b.eventDate);
+  return a.eventDate?-1:b.eventDate?1:0;
+ }).slice(0,22);
+}
 const allowedKinds=new Set(['documented','general','possible','unknown']);
 export function auditClinicalDraft(response,evidence,validated){
  const trusted=new Map(evidence.map(d=>[d.id,d]));
  const facts=Array.isArray(validated?.facts)?validated.facts:[];
  const factRefs=new Set(facts.map(f=>f.sourceId));
  const sections=[],stats={paragraphs:0,documented:0,demoted:0,unsupportedDurations:0,
-  unsupportedDates:0,unsupportedClinicalNumbers:0,badCitations:0,verifiedFacts:facts.length};
+  unsupportedDates:0,unsupportedClinicalNumbers:0,unsupportedDoctors:0,badCitations:0,verifiedFacts:facts.length};
  const modelSections=Array.isArray(response?.sections)?response.sections:[];
  for(const sec of modelSections.slice(0,9)){
   const heading=compact(sec?.heading).slice(0,135)||'További megállapítások';
@@ -99,21 +124,27 @@ export function auditClinicalDraft(response,evidence,validated){
    const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote+' '+f.documentDate)));
    const unsupportedNumbers=kind==='documented'?
     numTokens(txt).filter(n=>!anchoredNumbers.has(n)):[];
+   const medicalNames=kind==='documented'?quotedDoctorNames(txt):[];
+   const citedText=relevantFacts.map(f=>f.quote).join(' ');
+   const unsupportedDoctors=medicalNames.filter(n=>!norm(citedText).includes(n));
    stats.paragraphs++;
    if(unknownIds.length||invalidInline)stats.badCitations++;
    if(unsupported.length)stats.unsupportedDurations+=unsupported.length;
    if(dateExceptions.length)stats.unsupportedDates+=dateExceptions.length;
    if(unsupportedNumbers.length)stats.unsupportedClinicalNumbers+=unsupportedNumbers.length;
-   if(unsupported.length||dateExceptions.length||unsupportedNumbers.length||unknownIds.length||invalidInline||
+   if(unsupportedDoctors.length)stats.unsupportedDoctors+=unsupportedDoctors.length;
+   if(unsupported.length||dateExceptions.length||unsupportedNumbers.length||unsupportedDoctors.length||unknownIds.length||invalidInline||
       (kind==='documented'&&!validRefs.length)||
       (kind==='general'&&isPersonalAssertion(txt))){
-    paragraphs.push({text:'Ez a konkrét, személyes állítás a rendelkezésre álló eredeti leletkivonatokból nem igazolható. A pontos részlethez az eredeti dokumentum és szükség esetén orvosi értelmezés kell.',kind:'unknown',sourceIds:[]});
+    // Quietly withhold unsupported claims from the public story.
+    // Reasons remain in the private evidence audit counters, never
+    // multiplied into six repetitive warning panels.
     stats.demoted++;
     continue;
    }
    if(kind==='documented')stats.documented++;
    if(kind==='possible'&&!/(lehetséges|elképzelhető|felmerülhet|nem bizonyít|összefügghet|lehetőség)/i.test(txt))
-    txt='Lehetséges magyarázat: '+txt;
+    txt='Lehetséges, hogy '+txt.charAt(0).toLowerCase()+txt.slice(1);
    // Never trust unverified freehand citation strings in the model's prose.
    txt=txt.replace(/\[D\d+:p\d+\]/g,'').trim();
    paragraphs.push({text:txt,kind,sourceIds:kind==='documented'?validRefs:[]});
@@ -125,21 +156,30 @@ export function auditClinicalDraft(response,evidence,validated){
  return {sections,stats};
 }
 export function formatClinicalAnswer(report,index){
- const lines=[],labels={documented:'📄 Dokumentált tény',general:'🧠 Általános orvosi magyarázat',
-  possible:'🔎 Lehetséges értelmezés',unknown:'❔ Nem igazolt / hiányzó adat'};
+ const lines=[];
  for(const section of report.sections){
-  lines.push('## '+section.heading);
+  // Keep topic cards from v394 while making the core read like a coherent
+  // personal narrative. Labels like "Documentált tény" are NOT chapter titles.
+  const paragraphs=[];
   for(const p of section.paragraphs){
-   const refs=(p.sourceIds||[]).filter(id=>index.some(s=>s.id===id)).map(id=>{
+   if(p.kind==='unknown')continue; // uncertainties stay in the quiet audit
+   let text=compact(p.text);
+   if(!text)continue;
+   const refs=Array.from(new Set((p.sourceIds||[]))).map(id=>{
     const s=index.find(x=>x.id===id);
-    return '['+id+'] '+s.title+' · '+(s.documentDate||'dátum nem igazolt')+
-     ' · '+s.page+'. oldal';
-   });
-   lines.push('**'+labels[p.kind]+'**\n'+p.text+(refs.length?'\nForrás: '+refs.join('; '):''));
+    if(!s)return '';
+    return s.title+' ('+(s.documentDate||'keltezés nélkül')+', '+s.page+'. oldal)';
+   }).filter(Boolean);
+   if(refs.length)text+='\n*Forrás: '+refs.join('; ')+'*';
+   paragraphs.push(text);
+  }
+  if(paragraphs.length){
+   lines.push('## '+section.heading);
+   lines.push(paragraphs.join('\n\n'));
   }
  }
- const x=report.stats;
- if(x.demoted>0)lines.push('## Bizonyítékellenőrzés\n'+
-  x.demoted+' állítás esetében hiányzott a megfelelő bizonyíték; ezeket nem kezeljük biztos személyes tényként.');
+ // Never turn every unsupported claim into its own warning. If absolutely
+ // no source-backed statement is retained, state the limitation once.
+ if(!lines.length)return 'A rendelkezésre álló kivonatokból ehhez a konkrét kérdéshez most nem sikerült ellenőrzött személyes eseményleírást összeállítani.';
  return lines.join('\n\n').slice(0,16500);
 }
