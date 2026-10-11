@@ -18,7 +18,7 @@ function ctx(exportAt,profile='monika'){return {profile,generatedAt:'2026-10-11T
   healthConnect:{exportedAt:exportAt},sleep:{recent:[]}}}
 {
  const original=req(),snapshot=JSON.stringify(original);
- const result=gate.prepare(original,ctx('2026-10-11T12:28:00+02:00'),{now});
+ const result=gate.prepare(original,ctx('2026-10-11T08:28:00+02:00'),{now});
  assert.equal(result.payload.sources[0].status,'stale');
  assert.ok(result.flags.some(f=>f.code==='activity_not_fresh'));
  assert.ok(result.flags.some(f=>f.code==='vitals_not_recent'));
