@@ -398,17 +398,34 @@ async function run(opts){
   if(intelligence.flags.length){
    print('🔎 Adatminőség: '+intelligence.flags.length+' ellenőrzendő forrás. Régi méréseket nem kezelünk aktuálisként.');
   }else print('✅ Adatminőség: források és időbélyegek ellenőrizve.');
-  data.depth=deep?'detailed':'standard';
+  var research=window.HH_DEEP_RESEARCH_V393;
+  if(!research||!research.decide||!research.apply)
+   throw Error('Mélyelemzés: a kutatási terv nem érhető el. Nem küldök ellenőrizetlen AI-kérést.');
+  var researchPlan=research.decide(question);
+  if(deep)researchPlan.mode='deep';
+  print(researchPlan.mode==='deep'?'🧠 MÉLYKUTATÁS: eredeti források átvizsgálása és időrend összeállítása…':
+   '🔎 Személyes kutatás: kérdéshez illesztett forrásellenőrzés…');
+  data.depth=researchPlan.mode==='deep'?'detailed':'standard';
   data.question=question;
   var evidence=window.HH_ASK_LENA_EVIDENCE_V364;
   if(evidence&&evidence.prepare){
    print('📚 Kapcsolódó leletek és JSON-összefoglalók keresése…');
-   var documents=await evidence.prepare(question,p);
+   var documents=await evidence.prepare(question,p,{plan:researchPlan});
    if(turn!==epoch||profile()!==p)throw Error('Profilváltás miatt a leletkutatás megszakadt.');
-   if(documents.items&&documents.items.length){
-    data.documentEvidence=documents.items;
-    data.originalDocumentsConsent=!!documents.originalConsent;
-    print('📚 '+documents.summaries+' kapcsolódó JSON, '+documents.originals+' ellenőrzött eredeti PDF-kivonat.');
+   data.documentEvidence=documents.items||[];
+   data.originalDocumentsConsent=!!documents.originalConsent;
+   print('📚 Forrásfelderítés: '+(documents.diagnostics&&documents.diagnostics.matched||0)+
+    ' kapcsolódó lelet · '+documents.originals+' eredeti PDF-oldal · '+
+    documents.summaries+' korábbi JSON-magyarázat.');
+   if(researchPlan.documents&&documents.diagnostics){
+    var dd=documents.diagnostics;
+    var statusText=dd.status==='no_original_consent'?'eredeti PDF-feldolgozás nincs engedélyezve':
+      dd.status==='original_pages_unavailable'?'nem sikerült eredeti PDF-kivonatot olvasni':
+      dd.status==='original_pages_available'?'eredeti oldalkivonatok elérhetők':'nincs kapcsolódó lelet';
+    print('📚 PDF-hozzáférés: '+dd.attempted+' fájl / '+dd.pagesScanned+' átvizsgált oldal · '+statusText);
+    if(!documents.originals&&researchPlan.clinical){
+     print('⚠️ Mély klinikai elemzés korlátja: NINCS eredeti PDF-szöveg. Mentési perceket és szedálási okokat nem találhatok ki.');
+    }
    }
   }
   // I-04: clinical evidence validation after existing authorized retrieval.
@@ -421,6 +438,10 @@ async function run(opts){
    throw Error('Clinical Intelligence: profil- vagy kontextuseltérés, a kutatás megszakadt.');
   var clinical=clinicalEngine.assemble(data,clinicalCtx,{expectedProfile:p});
   data=clinical.payload;
+  var customized=research.apply(data,question,clinical);
+  data=customized.payload;
+  print('🧠 Kutatási mélység: '+(customized.plan.mode==='deep'?'részletes':'fókuszált')+
+   ' · '+clinical.quality.originals+' eredeti PDF-oldal · bizonytalan állítások külön megjelölve.');
   print('📚 Clinical Evidence I-04: '+clinical.quality.originals+' eredeti PDF-kivonat · '+
    clinical.quality.summaries+' JSON-magyarázat · '+clinical.quality.medications+
    ' profilban szereplő gyógyszer · '+clinical.quality.rejected+' kizárt forrás.');
@@ -467,7 +488,10 @@ async function run(opts){
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
      (intelligence.trendsQuality?' · 📈 I-03: 7 napos lefedettség (lépések/alvás/pulzus): '+intelligence.trendsQuality.stepCoverage7+'% / '+intelligence.trendsQuality.sleepCoverage7+'% / '+intelligence.trendsQuality.pulseCoverage7+'%; csak lezárt napok.':'')+
-     ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.';
+     ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.'+
+      ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
+      (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
+      (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'');
     var proof=clinicalEngine.createPanel(clinical,p);
     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     print('AI-kutatás befejeződött.');return}
