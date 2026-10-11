@@ -26,24 +26,82 @@ function answerText(record){
   '\n\nKÉRDÉS\n'+clean(record.question)+'\n\nLÉNA VÁLASZA\n'+clean(record.answer)+
   (clean(record.sources)?'\n\nFORRÁSOK / ELLENŐRZÉSEK\n'+clean(record.sources):'');
 }
+function printAnswerSections(record){
+ // Render existing on-screen topic sections first: the current mobile UI
+ // has already transformed Markdown headings into real H3 elements.
+ var sections=Array.isArray(record.printSections)&&record.printSections.length?
+  record.printSections:[];
+ if(!sections.length){
+  var raw=clean(record.answer).replace(/\r\n?/g,'\n');
+  raw.split(/(?=^\s*(?:#{1,3}\s+|\([1-9][0-9]?\)\s+))/m).forEach(function(part){
+   var lines=part.trim().split('\n'),h=lines[0]||'';
+   var explicit=/^\s*#{1,3}\s+/.test(h)||/^\s*\([1-9][0-9]?\)\s+/.test(h);
+   sections.push({heading:explicit?h.replace(/^\s*#{1,3}\s+/,''):'' ,
+    content:(explicit?lines.slice(1):lines).join('\n')});
+  });
+ }
+ return sections.map(function(section){
+  var title=clean(section.heading),body=clean(section.content);
+  var paragraphs=body.split(/\n\s*\n/).filter(Boolean);
+  var inner=paragraphs.map(function(p){
+   var lines=p.split('\n'),isBullets=lines.every(function(s){return /^\s*[-*]\s+/.test(s)});
+   if(isBullets)return '<ul>'+lines.map(function(s){
+    return '<li>'+html(s.replace(/^\s*[-*]\s+/,''))+'</li>'}).join('')+'</ul>';
+   return '<p>'+html(p).replace(/\n/g,'<br>')+'</p>';
+  }).join('');
+  return '<section class="chapter">'+(title?'<h2>'+html(title)+'</h2>':'')+
+   (inner||'<p></p>')+'</section>';
+ }).join('');
+}
 function printMarkup(record){
+ // Clean, multi-page A4 dossier for a clinician or the family's own archive.
+ // Never embed network images, JavaScript, or links to private records.
+ var title='HealthHub · Ask Léna · '+profileName(record.profile);
  var parts=[
   '<!doctype html><html lang="hu"><head><meta charset="utf-8">',
   '<meta name="viewport" content="width=device-width,initial-scale=1">',
-  '<title>HealthHub · Ask Léna · '+html(profileName(record.profile))+'</title>',
-  '<style>body{font-family:Arial,Helvetica,sans-serif;color:#1c3548;background:#fff;max-width:800px;margin:28px auto;padding:0 24px;line-height:1.62}',
-  'h1{font-size:22px;color:#186b69;margin-bottom:4px}.meta{font-size:12px;color:#526978;padding-bottom:14px;border-bottom:2px solid #dbe8ed}',
-  'h2{font-size:15px;color:#186b69;margin:25px 0 8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;font:inherit;margin:0}',
-  '.sources{font-size:12px;border-top:1px solid #ddd;margin-top:24px;padding-top:10px;color:#486477}',
-  '.toolbar{margin:0 0 20px}.toolbar button{padding:10px;border:1px solid #b2c8d1;background:#e9f6f8;border-radius:10px}',
-  '@media print{body{max-width:none;margin:0;padding:0;font-size:11pt}.toolbar{display:none!important}h2{break-after:avoid}pre{white-space:pre-wrap}}</style>',
-  '</head><body><div class="toolbar"><button onclick="window.print()">🖨️ Nyomtatás / Mentés PDF-ként</button></div>',
-  '<h1>HealthHub · Ask Léna</h1><p class="meta">Profil: '+html(profileName(record.profile))+
-  (record.generatedAt?' · '+html(record.generatedAt):'')+'</p>',
-  '<h2>Kérdés</h2><pre>'+html(record.question)+'</pre>',
-  '<h2>Léna válasza</h2><pre>'+html(record.answer)+'</pre>'
+  '<title>'+html(title)+'</title>',
+  '<style>',
+  '@page{size:A4;margin:18mm 17mm 19mm}',
+  '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#173246;',
+  'max-width:188mm;margin:24px auto;padding:0 20px;font-size:11pt;line-height:1.58}',
+  '.head{border-bottom:2px solid #bdd7df;padding-bottom:14px;margin-bottom:23px}',
+  '.eyebrow{font-size:9pt;font-weight:700;letter-spacing:1.1px;color:#46818a;text-transform:uppercase}',
+  'h1{font-size:20pt;line-height:1.2;margin:8px 0 6px;color:#153952}',
+  '.meta{font-size:9pt;color:#526978;margin:0}',
+  '.question{background:#f5fafb;border-left:3px solid #62a0aa;padding:11px 14px;margin:20px 0 25px}',
+  '.question-label{font-size:9pt;color:#316477;font-weight:700;margin:0 0 4px}',
+  '.question p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}',
+  '.chapter{margin:0 0 24px;padding:0}',
+  'h2{font-size:13.6pt;line-height:1.38;color:#186a78;margin:0 0 11px;',
+  'padding:0 0 6px;border-bottom:1px solid #dae8eb;break-after:avoid;page-break-after:avoid}',
+  '.chapter p,.chapter li{font-size:10.8pt;line-height:1.63;margin:0 0 10px;',
+  'orphans:3;widows:3;overflow-wrap:anywhere}',
+  '.chapter p+ p{margin-top:5px}',
+  'ul{padding-left:20px;margin:7px 0 11px}',
+  '.sources{break-before:page;page-break-before:always;border-top:2px solid #bdd7df;',
+  'margin-top:24px;padding-top:15px;font-size:9pt;color:#365669}',
+  '.sources h2{font-size:13pt}.sources pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}',
+  '.toolbar{margin-bottom:24px}.toolbar button{padding:10px 14px;border:1px solid #accbd2;',
+  'background:#eaf6f7;border-radius:10px;color:#174961;font-weight:700}',
+  '@media print{body{margin:0;padding:0;max-width:none;color:#173246}',
+  '.toolbar{display:none!important}.chapter{break-inside:auto;page-break-inside:auto}',
+  '.question{print-color-adjust:exact;-webkit-print-color-adjust:exact}',
+  'a{color:inherit;text-decoration:none}}',
+  '</style></head><body>',
+  '<div class="toolbar"><button onclick="window.print()">🖨️ Nyomtatás / Mentés PDF-ként</button></div>',
+  '<header class="head"><div class="eyebrow">HealthHub · klinikai kutatási összefoglaló</div>',
+  '<h1>Ask Léna · '+html(profileName(record.profile))+'</h1>',
+  '<p class="meta">Profil: '+html(profileName(record.profile))+
+   (record.generatedAt?' · Elkészítve: '+html(record.generatedAt):'')+'</p></header>',
+  '<div class="question"><div class="question-label">Kutatási kérdés</div>',
+  '<p>'+html(record.question)+'</p></div>',
+  '<main>'+printAnswerSections(record)+'</main>'
  ];
- if(record.sources)parts.push('<section class="sources"><h2>Források és ellenőrzések</h2><pre>'+html(record.sources)+'</pre></section>');
+ if(clean(record.sources))parts.push(
+  '<section class="sources"><h2>Források és technikai ellenőrzések</h2>',
+  '<p>Az ellenőrzési napló nem helyettesíti a hivatkozott eredeti leleteket.</p>',
+  '<pre>'+html(record.sources)+'</pre></section>');
  parts.push('</body></html>');
  return parts.join('');
 }
@@ -52,7 +110,24 @@ function currentAnswer(){
  if(!box||!q||!answer||!box.classList.contains('on'))return null;
  var p=box.dataset.profile;
  if(!['monika','zsolt'].includes(p)||p!==activeProfile())return null;
+ var sections=[];
+ if(answer.querySelectorAll){
+  Array.from(answer.querySelectorAll('.hhLenaBlock')).forEach(function(card){
+   var heading=card.querySelector('h3'),bodyParts=[];
+   Array.from(card.children||[]).forEach(function(node){
+    if(node===heading)return;
+    if(node.tagName==='UL'){
+     bodyParts.push(Array.from(node.querySelectorAll('li')).map(function(li){
+      return '- '+clean(li.innerText||li.textContent)}).join('\n'));
+    }else bodyParts.push(clean(node.innerText||node.textContent));
+   });
+   if(bodyParts.length||heading)sections.push({
+    heading:heading?clean(heading.innerText||heading.textContent):'',
+    content:bodyParts.join('\n\n')});
+  });
+ }
  var record={profile:p,question:clean(q.value),answer:clean(answer.innerText||answer.textContent),
+  printSections:sections,
   sources:clean((byId('hhAi331Foot')||{}).innerText||''),generatedAt:new Date().toLocaleString('hu-HU')};
  return answerText(record)?record:null;
 }
