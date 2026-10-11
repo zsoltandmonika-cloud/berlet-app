@@ -33,10 +33,10 @@ function instruction(plan,coverage){
  out+='Érvénytelen személyes diagnózis, gyógyszermódosítás és emlék-visszaállítási ígéret tilos.';
  return out.slice(0,1480);
 }
-function apply(data,question,coverage){
+function apply(data,question,coverage,chosenPlan){
  if(!data||!['monika','zsolt'].includes(data.profile)||data.consent!==true)
   throw Error('Mélyelemzés: profil vagy hozzájárulás hiányzik.');
- var plan=decide(question),q=trimmed(question,1600);
+ var plan=chosenPlan||decide(question),q=trimmed(question,1600);
  // Preserve original question in UI and history; a compact research
  // instruction is deliberately part of the model-facing question.
  var guide=instruction(plan,coverage);
