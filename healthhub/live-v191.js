@@ -260,6 +260,7 @@ async function render(profileOverride){
  var f=periodDays(),g=m.goals;
  page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+
+ (samsungState.data&&samsungState.data.staleToday?'<div class="a191MetricsHint"><b>📡 A mai Samsung-export nem naprakész.</b> A frissebb Health Connect adatait mutatjuk, a hiányzó kalóriát nem tüntetjük fel mért értékként. Részletek: ⓘ Adatforrások.</div>':'')+
  '<div class="a191Top">'+
  kpi('steps','Lépések',n(m.steps,0),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
  kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
@@ -326,7 +327,8 @@ window.hh191SourceDetails=function(){
  var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
  var displayed=(src.rows||[]).find(function(x){return x.date===today});
  var samsung=src.samsung||{},sd=samsung.data&&samsung.data.days&&samsung.data.days.get(today);
- var directStatus=samsung.status==='ready'?'✅ Samsung Data SDK export betöltve':
+ var directStatus=samsung.status==='ready'?
+   (samsung.data&&samsung.data.staleToday?'⚠️ Samsung SDK-export mai napi adatai elavultak, ezért nem használjuk őket':'✅ Samsung Data SDK export betöltve'):
    samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
    samsung.status==='invalid'?'⚠️ Érvénytelen Samsung SDK export':
    'Nincs közvetlen Samsung-adatkapcsolat';
@@ -337,7 +339,8 @@ window.hh191SourceDetails=function(){
  '<div class="a191Weather"><span>'+(cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
  '<span>Export ideje: '+esc(cloud?fmtDate(cloud.importedAt):'nincs információ')+'</span>'+
  '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span>'+
- '<span>'+esc(directStatus)+(samsung.data&&samsung.data.exportedAt?' · '+esc(fmtDate(samsung.data.exportedAt)):'')+'</span></div>'+
+ '<span>'+esc(directStatus)+(samsung.data&&samsung.data.exportedAt?' · '+esc(fmtDate(samsung.data.exportedAt)):'')+'</span>'+
+ (samsung.data&&samsung.data.staleToday?'<span><b>Mai nap:</b> a frissebb Health Connect export élvez elsőbbséget. A régi Samsung kcal és aktív perc csak forrásadatként látható, nem kerül a fő kártyákra. Hiányzó kcal esetén csak külön jelölt becslés jelenhet meg.</span>':'')+'</div>'+
  '<div class="a191SourceTable">'+
  row('Lépések · HC export',value(direct,'steps',0,'lépés'))+
  row('Lépések · kijelzett',value(displayed,'steps',0,'lépés'))+

@@ -1,0 +1,32 @@
+name: HealthHub Activity · source freshness regression
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v371-samsung.js"
+      - "healthhub/live-v191.js"
+      - "healthhub/tests/activity-samsung-freshness.test.cjs"
+      - ".github/workflows/healthhub-activity-source-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v371-samsung.js"
+      - "healthhub/live-v191.js"
+      - "healthhub/tests/activity-samsung-freshness.test.cjs"
+      - ".github/workflows/healthhub-activity-source-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-activity-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source syntax and precedence
+        run: |
+          node --check healthhub/live-v371-samsung.js
+          node --check healthhub/live-v191.js
+          node healthhub/tests/activity-samsung-freshness.test.cjs

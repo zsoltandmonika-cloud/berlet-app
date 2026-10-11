@@ -11,6 +11,8 @@ function finite(x){if(x==null||x==='')return null;var n=Number(x);return Number.
 function number(x,lo,hi){var n=finite(x);return n!=null&&n>=lo&&n<=hi?n:null}
 function isDay(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(Date.parse(s+'T12:00:00Z'))}
 function dateMs(s){var n=Date.parse(s);return Number.isFinite(n)?n:null}
+function localDay(now){var d=new Date(now);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+var MAX_TODAY_SDK_AGE_MS=90*60*1000; // Today is live data. Historical completed days are unaffected.
 function path(p){return profileOk(p)?ROOT+p+'-samsung-health.json':null}
 function normalize(p,raw){
  if(!profileOk(p)||!raw||raw.profile!==p||!/^healthhub\.samsung\.daily\/1(?:\.\d+)?$/.test(raw.schemaVersion||''))return null;
@@ -84,6 +86,22 @@ function merge(c, result, requestedProfile){
  if(!c||!result||result.status!=='ready'||!result.data||result.data.profile!==requestedProfile)
   return c;
  var days=result.data.days,found=0;
+ var stamp=dateMs(result.data.exportedAt),now=Date.now();
+ // The Samsung SDK JSON is a snapshot, not a live Samsung Health connection.
+ // Never replace *today's* newer Health Connect values with a Samsung
+ // snapshot older than 90 minutes. Keep completed days and source records.
+ var staleToday=stamp==null || now-stamp>MAX_TODAY_SDK_AGE_MS;
+ // Prefer a more recent, successful HC export whenever one exists for today.
+ // It is not safe to silently overwrite a newer day's data with an older
+ // snapshot, even when the snapshot itself is less than 90 minutes old.
+ var today=localDay(now);
+ var todayHC=(Array.isArray(c.daily)?c.daily:[]).find(function(d){return d.date===today});
+ var hcStamp=todayHC&&dateMs(todayHC._hhBundleAt);
+ var newerHc=hcStamp!=null&&stamp!=null&&hcStamp>stamp;
+ var skipToday=staleToday||newerHc;
+ result.data.staleToday=skipToday;
+ result.data.staleReason=staleToday?'Samsung export túl régi a mai élő összesítőhöz':
+  (newerHc?'Health Connect export újabb, mint a Samsung-pillanatkép':null);
  var out=Object.assign({},c);
  out.samsungHourlySteps=result.data.hourlySteps||[];
  out.samsungSessions=result.data.exerciseSessions||[];
@@ -104,6 +122,12 @@ function merge(c, result, requestedProfile){
  out.sessions.sort(function(a,b){return Date.parse(b.endTime)-Date.parse(a.endTime)});
  out.daily=(Array.isArray(c.daily)?c.daily:[]).map(function(day){
   var samsung=days.get(day.date);if(!samsung)return day;
+  if(day.date===today&&skipToday){
+   // No silent stale priority for active minutes or calories. We deliberately
+   // retain the HC missing-data state instead of presenting 12:28 as "now".
+   out.samsungTodaySkipped=true;
+   return day;
+  }
   found++;
   var next=Object.assign({},day);
   next._hhSamsung=samsung;
@@ -137,5 +161,5 @@ function merge(c, result, requestedProfile){
  out.samsungMergeCount=found;
  return out;
 }
-window.HH_SAMSUNG_SOURCE_V371={path:path,normalize:normalize,load:load,merge:merge,version:'371'};
+window.HH_SAMSUNG_SOURCE_V371={path:path,normalize:normalize,load:load,merge:merge,version:'387-source-freshness'};
 })();
