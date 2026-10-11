@@ -3,7 +3,7 @@
  * network calls, application globals, or user-specific rules.
  * An original PDF excerpt is NOT a comprehensive medical record.
  */
-const MAX_ORIGINALS=8;
+const MAX_ORIGINALS=12;
 const compact=x=>String(x==null?'':x).replace(/\s+/g,' ').trim();
 const norm=x=>compact(x).toLocaleLowerCase('hu-HU');
 const numTokens=x=>(compact(x).match(/\d+(?:[.,]\d+)?/g)||[]).map(v=>v.replace(',','.'));
@@ -25,7 +25,7 @@ export function buildEvidenceIndex(documents,profile){
 export function verifyExtractedFacts(response,evidence){
  const trusted=new Map(evidence.map(d=>[d.id,d])),out=[],seen=new Set(),issues=[];
  const proposed=Array.isArray(response?.facts)?response.facts:[];
- for(const f of proposed.slice(0,32)){
+ for(const f of proposed.slice(0,48)){
   if(!f||!validId(f.sourceId)||!trusted.has(f.sourceId)){issues.push('unrecognized_source');continue;}
   const source=trusted.get(f.sourceId),quote=compact(f.quote),claim=compact(f.fact);
   if(quote.length<18||quote.length>480||claim.length<10||claim.length>390){issues.push('invalid_claim_length');continue;}
@@ -39,7 +39,7 @@ export function verifyExtractedFacts(response,evidence){
   out.push({sourceId:f.sourceId,quote,fact:claim,documentTitle:source.title,
    documentDate:source.documentDate,page:source.page});
  }
- return {facts:out.slice(0,22),rejected:issues.length,issues:issues.slice(0,12)};
+ return {facts:out.slice(0,40),rejected:issues.length,issues:issues.slice(0,12)};
 }
 function durationValues(text){
  // A cardiac EF of 20% does NOT validate a 20-minute cardiac arrest.
@@ -62,7 +62,7 @@ function datesIn(text){
  return compact(text).match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[];
 }
 function dateAllowed(text,evidenceFacts){
- let content=evidenceFacts.map(f=>f.quote+' '+f.documentDate).join(' ');
+ let content=evidenceFacts.map(f=>f.quote).join(' ');
  const normalizeDate=s=>s.replace(/[^\d]/g,'');
  let dates=new Set((content.match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[]).map(normalizeDate));
  return datesIn(text).filter(date=>!dates.has(normalizeDate(date)));
@@ -70,13 +70,48 @@ function dateAllowed(text,evidenceFacts){
 function isPersonalAssertion(s){
  return /\b(Mónika|Zsolt|nálad|veled|téged|a te|benned|agyad|szíved|voltál|kaptál|beültették|mentők|újraélesztettek)\b/i.test(s);
 }
+function quotedDoctorNames(text){
+ const names=String(text||'').match(/\b(?:Dr\.?|dr\.?)\s+[A-ZÁÉÍÓÖŐÚÜŰ][\p{L}-]+(?:\s+[A-ZÁÉÍÓÖŐÚÜŰ][\p{L}-]+){1,3}/gu)||[];
+ return names.map(n=>norm(n).replace(/^dr\.?\s*/,'')); 
+}
+export function buildEventCandidates(validated){
+ const facts=Array.isArray(validated?.facts)?validated.facts:[];
+ function eventDate(quote){
+  const q=String(quote||'');
+  const iso=q.match(/\b((?:19|20)\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})\b/);
+  if(!iso)return null;
+  const y=Number(iso[1]),m=Number(iso[2]),d=Number(iso[3]);
+  const date=new Date(Date.UTC(y,m-1,d));
+  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return null;
+  return date.toISOString().slice(0,10);
+ }
+ function eventTime(quote){
+  // Time must be explicitly in the source quote; do not extrapolate
+  // a time of event from hospital/discharge document metadata.
+  const q=String(quote||''),t=q.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  if(!t)return null;
+  return String(Number(t[1])).padStart(2,'0')+':'+t[2];
+ }
+ return facts.map(f=>({
+  sourceId:f.sourceId,documentTitle:f.documentTitle,page:f.page,
+  eventDate:eventDate(f.quote),eventTime:eventTime(f.quote),
+  documentDate:f.documentDate||'',fact:f.fact
+ })).sort((a,b)=>{
+  if(a.eventDate&&b.eventDate){
+   const d=a.eventDate.localeCompare(b.eventDate);if(d)return d;
+   if(a.eventTime&&b.eventTime)return a.eventTime.localeCompare(b.eventTime);
+   return a.eventTime?-1:b.eventTime?1:0;
+  }
+  return a.eventDate?-1:b.eventDate?1:0;
+ }).slice(0,40);
+}
 const allowedKinds=new Set(['documented','general','possible','unknown']);
 export function auditClinicalDraft(response,evidence,validated){
  const trusted=new Map(evidence.map(d=>[d.id,d]));
  const facts=Array.isArray(validated?.facts)?validated.facts:[];
  const factRefs=new Set(facts.map(f=>f.sourceId));
  const sections=[],stats={paragraphs:0,documented:0,demoted:0,unsupportedDurations:0,
-  unsupportedDates:0,unsupportedClinicalNumbers:0,badCitations:0,verifiedFacts:facts.length};
+  unsupportedDates:0,unsupportedClinicalNumbers:0,unsupportedDoctors:0,badCitations:0,verifiedFacts:facts.length};
  const modelSections=Array.isArray(response?.sections)?response.sections:[];
  for(const sec of modelSections.slice(0,9)){
   const heading=compact(sec?.heading).slice(0,135)||'További megállapítások';
@@ -90,30 +125,36 @@ export function auditClinicalDraft(response,evidence,validated){
    const validRefs=Array.from(new Set(cited.filter(id=>trusted.has(id)&&factRefs.has(id))));
    const invalidInline=(txt.match(/\[D\d+:p\d+\]/g)||[]).some(mark=>
     !trusted.has(mark.slice(1,-1))||!factRefs.has(mark.slice(1,-1)));
-   const unsupported=unexpectedDurations(txt,facts);
+   const relevantFacts=facts.filter(f=>validRefs.includes(f.sourceId));
+   const unsupported=unexpectedDurations(txt,kind==='documented'?relevantFacts:facts);
    const dateExceptions=kind==='documented'?dateAllowed(txt,facts):[];
    // Other numeric medical values (EF%, vitals, device shocks) need direct
    // documentary support too, not just time values. The date metadata of a
    // genuinely cited page can explain its header date but not an invented EF.
-   const relevantFacts=facts.filter(f=>validRefs.includes(f.sourceId));
-   const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote+' '+f.documentDate)));
+   const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote)));
    const unsupportedNumbers=kind==='documented'?
     numTokens(txt).filter(n=>!anchoredNumbers.has(n)):[];
+   const medicalNames=kind==='documented'?quotedDoctorNames(txt):[];
+   const citedText=relevantFacts.map(f=>f.quote).join(' ');
+   const unsupportedDoctors=medicalNames.filter(n=>!norm(citedText).includes(n));
    stats.paragraphs++;
    if(unknownIds.length||invalidInline)stats.badCitations++;
    if(unsupported.length)stats.unsupportedDurations+=unsupported.length;
    if(dateExceptions.length)stats.unsupportedDates+=dateExceptions.length;
    if(unsupportedNumbers.length)stats.unsupportedClinicalNumbers+=unsupportedNumbers.length;
-   if(unsupported.length||dateExceptions.length||unsupportedNumbers.length||unknownIds.length||invalidInline||
+   if(unsupportedDoctors.length)stats.unsupportedDoctors+=unsupportedDoctors.length;
+   if(unsupported.length||dateExceptions.length||unsupportedNumbers.length||unsupportedDoctors.length||unknownIds.length||invalidInline||
       (kind==='documented'&&!validRefs.length)||
       (kind==='general'&&isPersonalAssertion(txt))){
-    paragraphs.push({text:'Ez a konkrét, személyes állítás a rendelkezésre álló eredeti leletkivonatokból nem igazolható. A pontos részlethez az eredeti dokumentum és szükség esetén orvosi értelmezés kell.',kind:'unknown',sourceIds:[]});
+    // Quietly withhold unsupported claims from the public story.
+    // Reasons remain in the private evidence audit counters, never
+    // multiplied into six repetitive warning panels.
     stats.demoted++;
     continue;
    }
    if(kind==='documented')stats.documented++;
    if(kind==='possible'&&!/(lehetséges|elképzelhető|felmerülhet|nem bizonyít|összefügghet|lehetőség)/i.test(txt))
-    txt='Lehetséges magyarázat: '+txt;
+    txt='Lehetséges, hogy '+txt.charAt(0).toLowerCase()+txt.slice(1);
    // Never trust unverified freehand citation strings in the model's prose.
    txt=txt.replace(/\[D\d+:p\d+\]/g,'').trim();
    paragraphs.push({text:txt,kind,sourceIds:kind==='documented'?validRefs:[]});
@@ -125,21 +166,30 @@ export function auditClinicalDraft(response,evidence,validated){
  return {sections,stats};
 }
 export function formatClinicalAnswer(report,index){
- const lines=[],labels={documented:'📄 Dokumentált tény',general:'🧠 Általános orvosi magyarázat',
-  possible:'🔎 Lehetséges értelmezés',unknown:'❔ Nem igazolt / hiányzó adat'};
+ const lines=[];
  for(const section of report.sections){
-  lines.push('## '+section.heading);
+  // Keep topic cards from v394 while making the core read like a coherent
+  // personal narrative. Labels like "Documentált tény" are NOT chapter titles.
+  const paragraphs=[];
   for(const p of section.paragraphs){
-   const refs=(p.sourceIds||[]).filter(id=>index.some(s=>s.id===id)).map(id=>{
+   if(p.kind==='unknown')continue; // uncertainties stay in the quiet audit
+   let text=compact(p.text);
+   if(!text)continue;
+   const refs=Array.from(new Set((p.sourceIds||[]))).map(id=>{
     const s=index.find(x=>x.id===id);
-    return '['+id+'] '+s.title+' · '+(s.documentDate||'dátum nem igazolt')+
-     ' · '+s.page+'. oldal';
-   });
-   lines.push('**'+labels[p.kind]+'**\n'+p.text+(refs.length?'\nForrás: '+refs.join('; '):''));
+    if(!s)return '';
+    return s.title+' ('+(s.documentDate||'keltezés nélkül')+', '+s.page+'. oldal)';
+   }).filter(Boolean);
+   if(refs.length)text+='\n**Forrás:** '+refs.join('; ');
+   paragraphs.push(text);
+  }
+  if(paragraphs.length){
+   lines.push('## '+section.heading);
+   lines.push(paragraphs.join('\n\n'));
   }
  }
- const x=report.stats;
- if(x.demoted>0)lines.push('## Bizonyítékellenőrzés\n'+
-  x.demoted+' állítás esetében hiányzott a megfelelő bizonyíték; ezeket nem kezeljük biztos személyes tényként.');
- return lines.join('\n\n').slice(0,16500);
+ // Never turn every unsupported claim into its own warning. If absolutely
+ // no source-backed statement is retained, state the limitation once.
+ if(!lines.length)return 'A rendelkezésre álló kivonatokból ehhez a konkrét kérdéshez most nem sikerült ellenőrzött személyes eseményleírást összeállítani.';
+ return lines.join('\n\n').slice(0,26000);
 }

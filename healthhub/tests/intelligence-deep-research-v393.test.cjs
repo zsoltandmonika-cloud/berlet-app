@@ -71,7 +71,7 @@ function prepareFixtures(){
  assert.ok(mode.pagesPerDocument>12,'deep mode must inspect more than the first 12 pages');
  const a=plan.apply({schema:'healthhub.ask-lena/1',profile:'monika',consent:true,extra:[]},question,
   {quality:{originals:0,summaries:3}},mode);
- assert.ok(a.payload.question.includes('NINCS eredeti PDF'),'missing originals must be visible to model');
+ assert.ok(a.payload.question.includes('eredeti kivonatok hiánya nem azonos az esemény dokumentálatlanságával'),'missing source text must not be conflated with missing clinical documentation');
  assert.ok(a.payload.question.includes('NE')||a.payload.question.includes('ne '),'prompt contains safety limits');
  assert.ok(a.payload.question.includes('Mikor érkeztek'));
  assert.equal(a.payload.depth,'detailed');
@@ -85,7 +85,7 @@ function prepareFixtures(){
  const res=await evid.prepare(question,'monika',{plan:mode});
  assert.equal(res.diagnostics.status,'original_pages_available');
  assert.ok(res.originals>=2,'original PDF excerpts must be available when metadata/permission is correct');
- assert.ok(res.originals<=6,'bound original extracts');
+ assert.ok(res.originals<=12,'bound original extracts');
  assert.ok(res.summaries>=1);
  assert.ok(res.items.length<=8);
  assert.ok(res.items.some(x=>x.type==='original_pdf_extract'&&x.page===15),

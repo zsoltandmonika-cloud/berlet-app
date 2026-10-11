@@ -7,7 +7,7 @@
  * Original PDF excerpts are handled only by the separately authorized v364
  * retriever. This module validates and labels that retriever's result.
  */
-var VERSION='391',MAX_DOCS=8,MAX_FUTURE=300000;
+var VERSION='391',MAX_DOCS=16,MAX_FUTURE=300000;
 function str(v,n){return String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,n||120)}
 function isProfile(p){return p==='zsolt'||p==='monika'}
 function validCalendarDate(raw){
@@ -84,7 +84,7 @@ function assemble(request,context,opts){
    dateMeaning:explainDate(normalized)
   });
  });
- if(rawDocs.length>MAX_DOCS)warnings.push('Csak az első nyolc kérdéshez rangsorolt leletet vizsgáltuk.');
+ if(rawDocs.length>MAX_DOCS)warnings.push('Csak az első tizenhat kérdéshez rangsorolt leletet vizsgáltuk.');
  // All medication fields are self-reported PROFILE records, not a clinically
  // reconciled list. Do not assume that they are still being taken or that a
  // recorded interaction or a treatment plan has been verified.

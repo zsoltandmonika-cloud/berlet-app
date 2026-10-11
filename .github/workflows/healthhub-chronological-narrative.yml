@@ -1,0 +1,51 @@
+name: HealthHub v396 · Clinical Chronology and Narrative
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v364-evidence.js"
+      - "healthhub/live-v393-research.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/live-v392-share-print.js"
+      - "healthhub/live-v391-clinical.js"
+      - "supabase/functions/smooth-endpoint-v395/**"
+      - "healthhub/tests/chronological-narrative-v396.test.cjs"
+      - "healthhub/tests/print-clinical-report-v396.test.cjs"
+      - "healthhub/tests/clinical-verification-v395.test.cjs"
+      - ".github/workflows/healthhub-chronological-narrative.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v364-evidence.js"
+      - "healthhub/live-v393-research.js"
+      - "healthhub/live-v331.js"
+      - "supabase/functions/smooth-endpoint-v395/**"
+      - "healthhub/tests/chronological-narrative-v396.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  narrative-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Clinical chronology syntax
+        run: |
+          node --check healthhub/live-v364-evidence.js
+          node --check healthhub/live-v393-research.js
+          node --check healthhub/live-v331.js
+          node --check healthhub/live-v392-share-print.js
+          node --check healthhub/live-v391-clinical.js
+          node --check supabase/functions/smooth-endpoint-v395/audit.mjs
+          deno check supabase/functions/smooth-endpoint-v395/index.ts
+      - name: New chronology, clinical audit and prior-regression tests
+        run: |
+          node healthhub/tests/chronological-narrative-v396.test.cjs
+          node healthhub/tests/print-clinical-report-v396.test.cjs
+          node healthhub/tests/clinical-verification-v395.test.cjs
+          node healthhub/tests/intelligence-deep-research-v393.test.cjs
+          node healthhub/tests/answer-layout-v394.test.cjs
+          node healthhub/tests/share-print-v392.test.cjs

@@ -8,30 +8,39 @@ function norm(v){return String(v||'').toLocaleLowerCase('hu').normalize('NFD').r
 function trimmed(v,n){return String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,n||220)}
 function decide(question){
  var q=norm(question),long=q.length>=90;
+ // A personal question with an explicit historic date belongs to the
+ // clinical-history workflow even when it says only "Mi történt velem?".
+ // Do NOT require keywords such as "szív" or "kórház".
+ var yearOrDate=/(?:19|20)\d{2}/.test(q);
+ var firstPerson=/(?:\bvelem\b|\bnekem\b|\bvelem\s+tortent\b|\baznap\b|\bmi\s+tortent\b|\bmi\s+volt\b|\bemlekszem\b)/.test(q);
+ var personalHistoricEvent=yearOrDate&&firstPerson;
+
  var medical=/(korhaz|intenziv|mento|mentes|betegseg|diagn|sziv|kardio|fibrill|ujraeleszt|eszmelet|koma|szedal|neurolog|emlekezet|amnezi|lelet|mutet|beavatkozas|gyogyszer|kognitiv|orvos)/.test(q);
  var sequence=/(mikor|hany perc|hany ora|idosor|idovonal|kronolog|torten|esemeny|elso nap|kezdete|vege|elozmeny)/.test(q);
  var detailed=/(reszlet|mely|alapos|osszes|teljes|osszevet|magyara|kovetkeztet|miert|hogyan|rekonstru|elemzes|egesz nap|allapotban)/.test(q);
  var asksMechanism=/(miert|hogyan|mechanizm|okozhat|kovetkezmen|folyamat|tortenik|hatasa|kepesseg)/.test(q);
- var docs=medical||sequence||/(lelet|dokumentum|adat|forras)/.test(q);
- var deep=(sequence&&medical)||(medical&&(detailed||long))||(long&&detailed);
+ var docs=medical||sequence||personalHistoricEvent||/(lelet|dokumentum|adat|forras)/.test(q);
+ var deep=personalHistoricEvent||(sequence&&medical)||(medical&&(detailed||long))||(long&&detailed);
  var mode=deep?'deep':'standard';
- return {mode:mode,clinical:medical,chronology:medical&&sequence,physiology:medical&&asksMechanism,
-  documents:docs,maxDocs:deep?8:5,maxOriginalDocs:deep?6:3,pagesPerDocument:deep?24:12,
+ return {mode:mode,clinical:medical||personalHistoricEvent,chronology:personalHistoricEvent||(medical&&sequence),
+  historicalDateQuery:personalHistoricEvent,physiology:medical&&asksMechanism,
+  documents:docs,maxDocs:deep?16:5,maxOriginalDocs:deep?12:3,pagesPerDocument:deep?24:12,
   excerptMax:deep?2100:1750,profileRequirements:['active-profile','explicit-pdf-consent','cited-evidence']};
 }
 function instruction(plan,coverage){
  var full=plan.mode==='deep';
  var c=coverage||{},originals=Number(c.originals)||0;
- var out='\n\n[KUTATÁSI UTASÍTÁS: HealthHub, személyre szabott válasz] ';
- out+='Ne általános közhelyet adj. A rendelkezésre bocsátott egyedi leletek pontos dátumait és PDF-oldalait nevezd meg CSAK ha ténylegesen jelen vannak. ';
- out+='Tagold: (1) dokumentált tények és időrend; (2) részletes, közérthető élettani összefüggések; (3) az adott személyre alkalmazhatóság és korlátok; (4) hiányzó bizonyítékok; (5) biztonságos gyakorlati következő lépések. ';
- out+='Jelöld külön az [IGAZOLT LELET], [ÁLTALÁNOS ORVOSTUDOMÁNY], [LEHETSÉGES MAGYARÁZAT], [NEM TUDHATÓ] részeket. ';
- if(full)out+='A fenti részeket több bekezdésben, alapos érveléssel fejtsd ki, ne adj 3 mondatos összefoglalót. ';
- if(plan.chronology)out+='Időrend: eseményenként forrás, dátum és a pontos perc CSAK ha dokumentált; mentőkiérkezést vagy eszméletlenség hosszát SOHA ne tippeld. ';
- if(plan.physiology)out+='A mechanizmusokat lépésenként magyarázd, de ne állítsd, hogy egy általános mechanizmus bizonyítottan e beteggel is megtörtént. ';
- if(originals===0&&plan.documents)out+='NINCS eredeti PDF-oldalkivonat: kizárólag korábbi értelmezések és megadott adatok állnak rendelkezésre, ezért a klinikai rekonstrukció NEM lehet teljes. ';
- out+='Érvénytelen személyes diagnózis, gyógyszermódosítás és emlék-visszaállítási ígéret tilos.';
- return out.slice(0,1480);
+ var out='\n\n[KUTATÁSI ELV: HealthHub · személyre szabott történet] ';
+ out+='A válaszod emberi, világos, összefüggő szöveg legyen. Először mondd el a rendelkezésre álló, konkrét és forrásokkal igazolt eseményeket, szigorú időrendi sorrendben. ';
+ out+='Utána részletesen magyarázd el az élettani mechanizmusokat és az igazolt személyes összefüggéseket. ';
+ out+='Adj beszédes időrendi címsorokat, de ne ismételj minden bekezdés előtt "Dokumentált tény", "Fontos teendő" vagy "Nem tudható" feliratokat. ';
+ out+='A releváns eredeti leletek címét, dátumát és PDF-oldalát a történet megfelelő pontjához kösd. ';
+ if(full)out+='A részletesség minimum egy gondosan megírt, kronológiai ChatGPT-válaszé, érdemi orvosi magyarázattal és következtetésekkel. ';
+ if(plan.chronology)out+='Múltbeli személyes eseménynél a hiteles időrend a fő törzs: előzmény, rosszullét, mentés, ellátás, felépülés csak a ténylegesen alátámasztott részletekkel. ';
+ if(plan.physiology)out+='Az okok, következmények és kognitív hatások mechanizmusát érthetően indokold. ';
+ if(originals===0&&plan.documents)out+='Az eredeti kivonatok hiánya nem azonos az esemény dokumentálatlanságával; a nem bizonyítható részleteket egyszerűen ne állítsd tényként. ';
+ out+='Ne találj ki percszámot, orvosnevet, diagnózist vagy gyógyszermódosítást. Nem kell külön hiánylistát írnod, kivéve ha a felhasználó egyenesen erre kérdez.';
+ return out.slice(0,1450);
 }
 function apply(data,question,coverage,chosenPlan){
  if(!data||!['monika','zsolt'].includes(data.profile)||data.consent!==true)
