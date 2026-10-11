@@ -389,6 +389,12 @@ async function run(opts){
     (intelligence.sourceDisagreements?' · '+intelligence.sourceDisagreements+' forráseltérés (nem diagnózis)':'')+
     (intelligence.ledgerWarnings?' · '+intelligence.ledgerWarnings+' adatminőségi jelzés':''));
   }
+  if(intelligence.trendsQuality){
+   var tq=intelligence.trendsQuality;
+   print('📈 Intelligence Trends I-03: lezárt napok '+tq.completedThrough+
+    ' · lépések '+tq.stepCoverage7+'%, alvás '+tq.sleepCoverage7+'%, pulzus '+tq.pulseCoverage7+
+    '% lefedettség (7 nap) · '+tq.issues+' adatkorlát jelzés');
+  }
   if(intelligence.flags.length){
    print('🔎 Adatminőség: '+intelligence.flags.length+' ellenőrzendő forrás. Régi méréseket nem kezelünk aktuálisként.');
   }else print('✅ Adatminőség: források és időbélyegek ellenőrizve.');
@@ -444,7 +450,8 @@ async function run(opts){
    }
    if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
-     (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'');print('AI-kutatás befejeződött.');return}
+     (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
+     (intelligence.trendsQuality?' · 📈 I-03: 7 napos lefedettség (lépések/alvás/pulzus): '+intelligence.trendsQuality.stepCoverage7+'% / '+intelligence.trendsQuality.sleepCoverage7+'% / '+intelligence.trendsQuality.pulseCoverage7+'%; csak lezárt napok.':'');print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
