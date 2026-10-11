@@ -89,11 +89,21 @@ function prepare(input,context,opts){
    fact('Adatminőség · '+f.code,f.message);
   });
  }
- var out=Object.assign({},input,{sources:snapshot,extra:facts.concat(input.extra)});
+ var ledgerApi=window.HH_INTELLIGENCE_LEDGER_V389;
+ if(!ledgerApi||typeof ledgerApi.build!=='function'||typeof ledgerApi.brief!=='function')
+  throw Error('Intelligence: az egységes mérési napló nem érhető el. Az AI-kutatást biztonságosan leállítottam.');
+ var sdkSource=window.hhActivity191CurrentProfile===input.profile?
+  window.hhActivity191SamsungSource:null;
+ var ledger=ledgerApi.build(context,input.profile,{now:now,samsung:sdkSource});
+ var ledgerBrief=ledgerApi.brief(ledger,now);
+ // Only a minimal, explicitly source-labeled summary travels with the
+ // existing user-initiated AI request. Never transmit the full ledger.
+ var out=Object.assign({},input,{sources:snapshot,extra:facts.concat(ledgerBrief,input.extra)});
  while(JSON.stringify({sources:out.sources,extra:out.extra}).length>16500&&out.extra.length>facts.length)out.extra.pop();
  if(JSON.stringify({sources:out.sources,extra:out.extra}).length>18000)
   throw Error('Intelligence: túl sok adat a biztonságos forrásellenőrzéshez.');
  return {payload:out,flags:flags,profile:input.profile,checkedAt:new Date(now).toISOString(),
+  ledgerQuality:ledger.quality,ledgerWarnings:ledger.warnings.length,sourceDisagreements:ledger.comparisons.length,
   sourceStatus:snapshot.map(function(s){return {id:s.id,status:s.status}})};
 }
 window.HH_INTELLIGENCE_GATE_V388={prepare:prepare,version:'388',ageHours:ageHours};
