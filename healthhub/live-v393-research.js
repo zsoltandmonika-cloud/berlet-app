@@ -30,16 +30,17 @@ function decide(question){
 function instruction(plan,coverage){
  var full=plan.mode==='deep';
  var c=coverage||{},originals=Number(c.originals)||0;
- var out='\n\n[KUTATÁSI UTASÍTÁS: HealthHub, személyre szabott válasz] ';
- out+='Ne általános közhelyet adj. A rendelkezésre bocsátott egyedi leletek pontos dátumait és PDF-oldalait nevezd meg CSAK ha ténylegesen jelen vannak. ';
- out+='Tagold: (1) dokumentált tények és időrend; (2) részletes, közérthető élettani összefüggések; (3) az adott személyre alkalmazhatóság és korlátok; (4) hiányzó bizonyítékok; (5) biztonságos gyakorlati következő lépések. ';
- out+='Jelöld külön az [IGAZOLT LELET], [ÁLTALÁNOS ORVOSTUDOMÁNY], [LEHETSÉGES MAGYARÁZAT], [NEM TUDHATÓ] részeket. ';
- if(full)out+='A fenti részeket több bekezdésben, alapos érveléssel fejtsd ki, ne adj 3 mondatos összefoglalót. ';
- if(plan.chronology)out+='Időrend: eseményenként forrás, dátum és a pontos perc CSAK ha dokumentált; mentőkiérkezést vagy eszméletlenség hosszát SOHA ne tippeld. ';
- if(plan.physiology)out+='A mechanizmusokat lépésenként magyarázd, de ne állítsd, hogy egy általános mechanizmus bizonyítottan e beteggel is megtörtént. ';
- if(originals===0&&plan.documents)out+='NINCS eredeti PDF-oldalkivonat: kizárólag korábbi értelmezések és megadott adatok állnak rendelkezésre, ezért a klinikai rekonstrukció NEM lehet teljes. ';
- out+='Érvénytelen személyes diagnózis, gyógyszermódosítás és emlék-visszaállítási ígéret tilos.';
- return out.slice(0,1480);
+ var out='\n\n[KUTATÁSI ELV: HealthHub · személyre szabott történet] ';
+ out+='A válaszod emberi, világos, összefüggő szöveg legyen. Először mondd el a rendelkezésre álló, konkrét és forrásokkal igazolt eseményeket, szigorú időrendi sorrendben. ';
+ out+='Utána részletesen magyarázd el az élettani mechanizmusokat és az igazolt személyes összefüggéseket. ';
+ out+='Adj beszédes időrendi címsorokat, de ne ismételj minden bekezdés előtt "Dokumentált tény", "Fontos teendő" vagy "Nem tudható" feliratokat. ';
+ out+='A releváns eredeti leletek címét, dátumát és PDF-oldalát a történet megfelelő pontjához kösd. ';
+ if(full)out+='A részletesség minimum egy gondosan megírt, kronológiai ChatGPT-válaszé, érdemi orvosi magyarázattal és következtetésekkel. ';
+ if(plan.chronology)out+='Múltbeli személyes eseménynél a hiteles időrend a fő törzs: előzmény, rosszullét, mentés, ellátás, felépülés csak a ténylegesen alátámasztott részletekkel. ';
+ if(plan.physiology)out+='Az okok, következmények és kognitív hatások mechanizmusát érthetően indokold. ';
+ if(originals===0&&plan.documents)out+='Az eredeti kivonatok hiánya nem azonos az esemény dokumentálatlanságával; a nem bizonyítható részleteket egyszerűen ne állítsd tényként. ';
+ out+='Ne találj ki percszámot, orvosnevet, diagnózist vagy gyógyszermódosítást. Nem kell külön hiánylistát írnod, kivéve ha a felhasználó egyenesen erre kérdez.';
+ return out.slice(0,1450);
 }
 function apply(data,question,coverage,chosenPlan){
  if(!data||!['monika','zsolt'].includes(data.profile)||data.consent!==true)
