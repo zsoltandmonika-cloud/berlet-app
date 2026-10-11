@@ -105,8 +105,17 @@ object OtaUpdateManager {
             val raw = connection.useConnection { conn ->
                 if (conn.responseCode == 404) return@useConnection null
                 if (conn.responseCode != 200) error("Frissítési kiszolgáló: HTTP ${conn.responseCode}")
-                val bytes = conn.inputStream.use { it.readNBytes(8193) }
-                if (bytes.size > 8192) error("Túlméretes frissítési leíró.")
+                val bytes = conn.inputStream.use { input ->
+                    val output = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(1024)
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        if (output.size() + n > 8192) error("Túlméretes frissítési leíró.")
+                        output.write(buffer, 0, n)
+                    }
+                    output.toByteArray()
+                }
                 String(bytes, Charsets.UTF_8)
             }
             val candidate = raw?.let { parseCandidate(context, JSONObject(it)) }
