@@ -188,55 +188,78 @@ async function extractText(d,question,p,plan){
   return {pages:[],reason:'pdf_read_failed'};
  }finally{if(pdf)try{pdf.destroy()}catch(e){}}
 }
-async function prepare(question,p){
+async function prepare(question,p,options){
  if(p!==profile())throw Error('Profilváltás miatt a leletkutatás megszakadt.');
- // Refresh IndexedDB-backed provenance before researching historical medical dates.
+ var planner=window.HH_DEEP_RESEARCH_V393;
+ var plan=options&&options.plan||planner&&planner.decide(question)||{mode:'standard',documents:true,maxOriginalDocs:3,pagesPerDocument:12,excerptMax:1950};
+ // Refresh the already-authorized local document index before research.
  if(typeof window.hhRefreshLenaHealthContext289==='function'){
-  try{await window.hhRefreshLenaHealthContext289(p,'ask-lena-date-precision')}
-  catch(e){console.warn('Leletindex frissítés nem sikerült:',e)}
+  try{await window.hhRefreshLenaHealthContext289(p,'ask-lena-original-document-retrieval')}
+  catch(e){console.warn('Leletindex nem frissíthető, helyi adatokból folytatjuk.')}
  }
  if(p!==profile())throw Error('Profilváltás: előzménykutatás megszakítva.');
  var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
- if(!ctx||ctx.profile!==p)return {items:[],originals:0,summaries:0};
- var docs=rank(ctx.documents&&ctx.documents.index,question),
-  allowed=approved(p),items=[];
- // JSON explanations are already HealthHub data; their provenance is explicitly labelled.
- docs.slice(0,5).forEach(function(d){
-  var e=d.explanation||null;if(!e)return;
-  var v=historicalText(e);
-  if(v)items.push({
-   type:'json_summary',documentId:String(d.id||''),title:field(d.title),
+ var empty={items:[],originals:0,summaries:0,originalConsent:approved(p),
+  diagnostics:{matched:0,attempted:0,pagesScanned:0,missing:[],status:'no_context'}};
+ if(!ctx||ctx.profile!==p)return empty;
+ if(!plan.documents){empty.diagnostics.status='non_document_question';return empty}
+ var docs=rank(ctx.documents&&ctx.documents.index,question,plan),allowed=approved(p);
+ var originals=[],summaries=[],reasons=[],attempted=0,pagesScanned=0;
+ if(allowed){
+  // Bounded work, but inspect more than the old top-three PDFs. Each doc
+  // may contribute two page-level records, maximum eight evidence items.
+  for(var i=0;i<Math.min(docs.length,plan.maxOriginalDocs||3);i++){
+   if(p!==profile())throw Error('Profilváltás: leletkutatás leállítva.');
+   status('📚 Eredeti PDF-ek keresése: '+(i+1)+'/'+Math.min(docs.length,plan.maxOriginalDocs||3));
+   attempted++;
+   var extraction=await extractText(docs[i],question,p,plan);
+   pagesScanned+=extraction.scannedPages||0;
+   if(!extraction.pages||!extraction.pages.length){
+    reasons.push(extraction.reason||'unavailable_original');continue;
+   }
+   extraction.pages.forEach(function(page){
+    if(originals.length>=6)return;
+    if(!page||!page.page||!page.text||page.text.length<80)return;
+    originals.push({
+     type:'original_pdf_extract',documentId:String(docs[i].id),title:field(docs[i].title),
+     date:docs[i].dateSource==='upload'?'':field(docs[i].date),
+     datePrecision:docs[i].dateSource==='upload'?'unknown':datePrecision(docs[i].date),
+     uploadDate:docs[i].uploadedAt?String(docs[i].uploadedAt).slice(0,35):'',
+     datesMentioned:dateMentions([docs[i].title||'',page.text].join(' ')),
+     page:page.page,text:page.text.slice(0,plan.excerptMax||1950)
+    });
+   });
+   if(originals.length>=6)break;
+  }
+ }else if(docs.length){
+  reasons.push('original_pdf_consent_disabled');
+ }
+ // The original excerpts go first. Historical assistant summaries are
+ // secondary and cannot silently crowd out all genuine PDF pages.
+ docs.slice(0,8).forEach(function(d){
+  var e=d.explanation;
+  if(!e)return;
+  var v=historicalText(e);if(!v)return;
+  summaries.push({
+   type:'json_summary',documentId:String(d.id),title:field(d.title),
    date:d.dateSource==='upload'?'':field(d.date),
    datePrecision:d.dateSource==='upload'?'unknown':datePrecision(d.date),
    uploadDate:d.uploadedAt?String(d.uploadedAt).slice(0,35):'',
    datesMentioned:dateMentions([d.title||'',v].join(' ')),
-   text:v
+   text:v.slice(0,plan.mode==='deep'?1900:1550)
   });
  });
- var originalCount=0;
- if(allowed){
-  for(var i=0;i<Math.min(docs.length,3);i++){
-   if(p!==profile())throw Error('Profilváltás: leletolvasás leállítva.');
-   status('📚 Eredeti leletek ellenőrzése: '+(i+1)+'/'+Math.min(docs.length,3));
-   var full=null;
-   try{full=await extractText(docs[i],question)}catch(e){console.warn('Eredeti PDF nem olvasható:',e)}
-   if(full&&full.text.length>=80){
-    items.push({
-     type:'original_pdf_extract',documentId:String(docs[i].id||''),title:field(docs[i].title),
-     date:docs[i].dateSource==='upload'?'':field(docs[i].date),
-     datePrecision:docs[i].dateSource==='upload'?'unknown':datePrecision(docs[i].date),
-     uploadDate:docs[i].uploadedAt?String(docs[i].uploadedAt).slice(0,35):'',
-     datesMentioned:dateMentions([docs[i].title||'',full.text].join(' ')),
-     page:full.page,text:full.text.slice(0,2200)
-    });
-    originalCount++;
-   }
-  }
- }
+ var items=originals.concat(summaries.slice(0,Math.max(0,8-originals.length))).slice(0,8);
+ var countSummaries=items.filter(function(x){return x.type==='json_summary'}).length;
  status('');
- return {items:items.slice(0,8),originals:originalCount,summaries:items.length-originalCount,originalConsent:allowed};
+ return {items:items,originals:originals.length,summaries:countSummaries,originalConsent:allowed,
+  diagnostics:{matched:docs.length,attempted:attempted,pagesScanned:pagesScanned,
+   missing:reasons.slice(0,8),status:!allowed?'no_original_consent':
+    originals.length?'original_pages_available':'original_pages_unavailable',
+   planMode:plan.mode,
+   locallyAvailable:originals.length>0}};
 }
 window.addEventListener('healthhub:ask-lena-open',function(){mount();status('')});
 window.addEventListener('healthhub:profile-changed',function(){syncIcon();status('')});
-window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare,rank:rank,dateMentions:dateMentions,datePrecision:datePrecision};
+window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare,rank:rank,dateMentions:dateMentions,datePrecision:datePrecision,version:'393-deep'};
 })();
