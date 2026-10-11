@@ -76,7 +76,7 @@ function request(profile='monika',doc=[summary(),pdf()]){
  req.documentEvidence[0].datePrecision='unknown';
  const report=engine.assemble(req,ctx(),{now});
  assert.equal(report.manifest[0].date,'');
- assert.ok(report.manifest[0].dateMeaning.includes('nem igazolva'));
+ assert.ok(report.manifest[0].dateMeaning.includes('nincs igazolva'));
  assert.ok(report.payload.documentEvidence[0].uploadDate);
 }
 {
