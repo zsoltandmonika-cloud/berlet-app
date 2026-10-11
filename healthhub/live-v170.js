@@ -160,16 +160,19 @@ function stageBar(s){
   var a=Math.max(start,Date.parse(x.startTime)),b=Math.min(end,Date.parse(x.endTime));
   if(!Number.isFinite(a)||!Number.isFinite(b)||b<=a)return '';
   var left=(a-start)/span*100,width=(b-a)/span*100;
-  return '<i class="'+stageClass(x.stage)+'" style="left:'+left.toFixed(2)+'%;width:'+width.toFixed(2)+'%" title="'+esc(stageName(x.stage)+' · '+fmtTime(x.startTime)+'–'+fmtTime(x.endTime))+'"></i>';
+  return '<i class="'+stageClass(x.stage)+'" style="left:'+left.toFixed(3)+'%;width:'+width.toFixed(3)+'%" title="'+esc(stageName(x.stage)+' · '+fmtTime(x.startTime)+'–'+fmtTime(x.endTime))+'"></i>';
  }).join('');
  var tickCount=span<90*60000?3:5,ticks=[];
  for(var i=0;i<tickCount;i++){
   var when=new Date(start+span*i/(tickCount-1));
   ticks.push('<span>'+fmtTime(when.toISOString())+'</span>');
  }
- return '<div class="hhStageBar" aria-label="Alvási szakaszok időarányosan">'+bars+'</div>'+
+ return '<section class="hhSleepTimeline386" aria-label="Alvásfázisok idővonala">'+
+  '<div class="hhSleepTimelineTitle386">🌙 Alvásfázisok idővonala</div>'+
+  '<div class="hhStageBar hhStageBar386" role="img" aria-label="A mért ébrenlét, könnyű, mély és REM szakaszok időarányos megjelenítése">'+bars+'</div>'+
   '<div class="hhSleepClockTicks">'+ticks.join('')+'</div>'+
-  '<div class="hhStageLegend"><span>Ébren</span><span>Könnyű</span><span>Mély</span><span>REM</span></div>';
+  '<div class="hhStageLegend386"><span><i class="awake"></i>Ébren</span><span><i class="light"></i>Könnyű</span><span><i class="deep"></i>Mély</span><span><i class="rem"></i>REM</span></div>'+
+  '</section>';
 }
 function stageSummary(s){
  var out={1:0,4:0,5:0,6:0},st=Array.isArray(s&&s.stages)?s.stages:[];
@@ -367,21 +370,120 @@ function sleepLenaComment(rows,profile){
  }
  return '<aside class="hhSleepLena364" aria-label="Léna gyors alvásértékelése"><div class="hhSleepMood364">'+icon+'</div><div class="hhSleepLenaText364"><b>💬 Léna · '+esc(title)+'</b><p>'+esc(msg)+'</p><small>⌚ Óraadatokból készült becslés, nem alvásdiagnózis.</small></div></aside>';
 }
+/* Trend data: one measured sleep duration per local waking day.
+   Multiple overlapping sessions are unioned; missing days never become artificial zeros. */
+function hhSleepTrendDaily386(rows){
+ var groups=new Map();
+ (rows||[]).forEach(function(s){
+  var end=Date.parse(s&&s.endTime);
+  if(!Number.isFinite(end))return;
+  var d=new Date(end).toLocaleDateString('sv-SE');
+  if(!groups.has(d))groups.set(d,[]);
+  groups.get(d).push(s);
+ });
+ return Array.from(groups.entries()).sort(function(a,b){return a[0].localeCompare(b[0])}).map(function(row){
+  var known=row[1].filter(function(s){return Array.isArray(s.stages)&&s.stages.some(function(t){return [2,4,5,6].includes(Number(t.stage))&&durMin(t.startTime,t.endTime)>0})});
+  if(!known.length)return {date:row[0],minutes:null,sessions:row[1].length};
+  var spans=hhSleepIntervals(known),minutes=spans.reduce(function(sum,p){return sum+(p[1]-p[0])/60000},0);
+  return {date:row[0],minutes:Math.max(0,Math.round(minutes)),sessions:row[1].length};
+ });
+}
+function hhSleepTrendSeries386(rows){
+ var days=periodDays(),now=new Date(),daily=hhSleepTrendDaily386(rows),byDate=new Map(daily.map(function(x){return [x.date,x]}));
+ var buckets=[];
+ for(var offset=days-1;offset>=0;offset--){
+  var d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-offset),key=d.toLocaleDateString('sv-SE'),item=byDate.get(key);
+  buckets.push({date:key,label:d.toLocaleDateString('hu-HU',{month:'numeric',day:'numeric'}),minutes:item&&item.minutes!=null?item.minutes:null,count:item&&item.minutes!=null?1:0});
+ }
+ if(days!==90)return buckets;
+ // Weekly average of observed nights, never add a week's total as if it were one night.
+ var weeks=[];
+ for(var i=0;i<buckets.length;i+=7){
+  var part=buckets.slice(i,i+7),seen=part.filter(function(x){return x.minutes!=null});
+  var value=seen.length?Math.round(seen.reduce(function(a,x){return a+x.minutes},0)/seen.length):null;
+  weeks.push({date:part[part.length-1].date,label:part[0].label+'–'+part[part.length-1].label,
+   minutes:value,count:seen.length});
+ }
+ return weeks;
+}
 function chart(rows){
- if(!rows.length)return '<div class="hhSleepEmpty">Nincs alvásadat ebben az időszakban.</div>';
- var vals=rows.map(function(x){return durMin(x.startTime,x.endTime)/60}),max=Math.max.apply(null,vals.concat([8])),w=620,h=180,pad=26;
- var pts=rows.map(function(x,i){var xx=pad+(w-pad*2)*(rows.length===1?.5:i/(rows.length-1)),yy=h-pad-(h-pad*2)*(vals[i]/max);return {x:xx,y:yy}});
- var path=pts.map(function(p,i){return(i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)}).join(' ');
- var grid='';for(var g=0;g<4;g++){var y=pad+(h-pad*2)*(g/3),v=max-(max)*(g/3);grid+='<line x1="'+pad+'" y1="'+y+'" x2="'+(w-pad)+'" y2="'+y+'" stroke="#e9edf6"/><text x="2" y="'+(y+3)+'" font-size="8" fill="#8893aa">'+v.toFixed(1)+'h</text>'}
- return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none">'+grid+'<path d="'+path+'" fill="none" stroke="var(--a)" stroke-width="2.5"/>'+
- pts.map(function(p){return '<circle cx="'+p.x+'" cy="'+p.y+'" r="2.8" fill="var(--a)"/>'}).join('')+
- '<text x="'+pad+'" y="'+(h-4)+'" font-size="8" fill="#8893aa">'+esc(fmtDate(rows[0].endTime))+'</text><text x="'+(w-pad)+'" y="'+(h-4)+'" text-anchor="end" font-size="8" fill="#8893aa">'+esc(fmtDate(rows[rows.length-1].endTime))+'</text></svg>';
+ var points=hhSleepTrendSeries386(rows),values=points.filter(function(p){return p.minutes!=null});
+ if(!values.length)return '<div class="hhSleepEmpty hhSleepNoTrend386">Ebben az időszakban nincs alvásfázisokkal igazolt alvásidő. A hiányzó napokat nem tekintjük 0 órának.</div>';
+ var isWeekly=periodDays()===90,w=360,h=238,left=39,right=12,top=26,bottom=185;
+ var maxH=Math.max.apply(null,values.map(function(p){return p.minutes/60}).concat([9]));
+ var topH=Math.max(10,Math.ceil((maxH+0.2)/2)*2);
+ var px=function(i){return left+(w-left-right)*(points.length===1?.5:i/(points.length-1))};
+ var py=function(hours){return bottom-(bottom-top)*Math.max(0,Math.min(1,hours/topH))};
+ var lastMeasuredIndex=-1;points.forEach(function(p,i){if(p.minutes!=null)lastMeasuredIndex=i});
+ var segments=[],segment=[],circles='',labels='',grid='';
+ function flush(){if(segment.length){segments.push(segment.join(' '));segment=[]}}
+ points.forEach(function(p,i){
+  if(p.minutes==null){flush();return}
+  var x=px(i),y=py(p.minutes/60);
+  segment.push((segment.length?'L':'M')+x.toFixed(1)+' '+y.toFixed(1));
+  var dateLabel=p.date.slice(0,4)+'. '+p.date.slice(5,7)+'. '+p.date.slice(8,10)+'.';
+  var duration=durText(p.minutes),weekHint=isWeekly?' · '+p.count+' mért éjszaka':'';
+  var title=dateLabel+' · '+duration+weekHint;
+  circles+='<g class="hhSleepTrendPoint386'+(i===lastMeasuredIndex?' on':'')+'" role="button" tabindex="0" data-date="'+esc(p.date)+'" data-date-label="'+esc(dateLabel)+'" data-minutes="'+p.minutes+'" data-count="'+p.count+'" aria-label="'+esc(title)+'" >'+
+   '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="14" fill="transparent"></circle>'+
+   '<circle class="hhSleepDot386" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.9" fill="#fff" stroke="var(--a)" stroke-width="3"></circle>'+
+   '<title>'+esc(title)+'</title></g>';
+  if(periodDays()===7){
+   labels+='<text x="'+x.toFixed(1)+'" y="'+Math.max(14,y-12).toFixed(1)+'" fill="#234b6b" font-size="10" font-weight="800" text-anchor="middle">'+esc((p.minutes/60).toFixed(1).replace('.',',')+' ó')+'</text>';
+  }
+ });
+ flush();
+ for(var v=0;v<=topH;v+=2){
+  var gy=py(v);
+  grid+='<line x1="'+left+'" y1="'+gy.toFixed(1)+'" x2="'+(w-right)+'" y2="'+gy.toFixed(1)+'" stroke="#dae6ef" stroke-width="'+(v?'.8':'1.2')+'"></line>'+
+    '<text x="'+(left-8)+'" y="'+(gy+4).toFixed(1)+'" text-anchor="end" font-size="11" font-weight="650" fill="#496478">'+v+' ó</text>';
+ }
+ // 7–9 hours is a general adult reference range; do not suggest that every user needs the same amount.
+ var targetTop=py(9),targetBottom=py(7);
+ var band='<rect x="'+left+'" y="'+targetTop.toFixed(1)+'" width="'+(w-left-right)+'" height="'+(targetBottom-targetTop).toFixed(1)+'" fill="#e7f5e9" opacity=".9"></rect>'+
+   '<line x1="'+left+'" y1="'+targetBottom.toFixed(1)+'" x2="'+(w-right)+'" y2="'+targetBottom.toFixed(1)+'" stroke="#76ad89" stroke-width="1.2" stroke-dasharray="4 4"></line>'+
+   '<line x1="'+left+'" y1="'+targetTop.toFixed(1)+'" x2="'+(w-right)+'" y2="'+targetTop.toFixed(1)+'" stroke="#76ad89" stroke-width="1.2" stroke-dasharray="4 4"></line>';
+ var area='',paths='';
+ segments.forEach(function(seg){paths+='<path d="'+seg+'" fill="none" stroke="var(--a)" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"></path>'});
+ var tickStep=periodDays()===7?1:periodDays()===30?6:3;
+ points.forEach(function(p,i){
+  if(i%tickStep===0||i===points.length-1){
+   var name=periodDays()===7?p.label:isWeekly?p.label.split('–')[0]:p.label;
+   var anchor=i===0?'start':i===points.length-1?'end':'middle';
+   labels+='<text x="'+px(i).toFixed(1)+'" y="'+(bottom+19)+'" fill="#435f73" font-size="10.5" font-weight="700" text-anchor="'+anchor+'">'+esc(name)+'</text>';
+  }
+ });
+ var selected=values[values.length-1],latest=selected.date.slice(0,4)+'. '+selected.date.slice(5,7)+'. '+selected.date.slice(8,10)+'.';
+ var info='Kijelölt '+(isWeekly?'hét':'nap')+': '+latest+' · '+durText(selected.minutes)+(isWeekly?' ('+selected.count+' mért éjszaka átlaga)':'');
+ var observed=values.length,missing=points.length-observed;
+ var meta=isWeekly?'13 heti átlagból '+observed+' héten van adat':observed+' / '+points.length+' napból van mért alvás';
+ return '<div class="hhSleepTrend386">'+
+  '<div class="hhSleepTrendIntro386"><span>💤 Tényleges alvásidő</span><small>'+esc(meta)+'</small></div>'+
+  '<svg class="hhSleepTrendSvg386" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Alvásidő trend. Érintsd meg a mérési pontokat a pontos értékért.">'+
+  '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="transparent"></rect>'+band+grid+paths+circles+labels+
+  '<text x="'+(w-right)+'" y="14" text-anchor="end" font-size="10" font-weight="700" fill="#3a8060">7–9 ó referencia</text></svg>'+
+  '<div class="hhSleepTrendPickInfo386" aria-live="polite">'+esc(info)+'</div>'+
+  '<div class="hhSleepTrendFoot386">● Érintsd meg az egyes pontokat a részletekhez. A hiányzó napok nem számítanak 0 órának.</div>'+
+  '</div>';
 }
 function trendSummary(rows){
- if(!rows.length)return '';
- var mins=rows.map(function(x){return durMin(x.startTime,x.endTime)}),latest=rows[rows.length-1],first=rows[0],delta=mins[mins.length-1]-mins[0];
- return '<div class="hhSleepSummary"><div><small>ÁTLAG</small><b>'+durText(avg(mins))+'</b></div><div><small>LEGUTÓBBI</small><b>'+durText(mins[mins.length-1])+'</b></div><div><small>LEGHOSSZABB</small><b>'+durText(Math.max.apply(null,mins))+'</b></div><div><small>VÁLTOZÁS</small><b>'+(delta>0?'+':'')+Math.round(delta)+' p</b></div></div>';
+ var nights=hhSleepTrendDaily386(rows).filter(function(r){return r.minutes!=null}),minutes=nights.map(function(r){return r.minutes});
+ if(!minutes.length)return '';
+ var delta=minutes[minutes.length-1]-minutes[0];
+ return '<div class="hhSleepSummary"><div><small>ÁTLAG / MÉRT NAP</small><b>'+durText(avg(minutes))+'</b></div>'+
+ '<div><small>LEGUTÓBBI</small><b>'+durText(minutes[minutes.length-1])+'</b></div>'+
+ '<div><small>LEGHOSSZABB</small><b>'+durText(Math.max.apply(null,minutes))+'</b></div>'+
+ '<div><small>VÁLTOZÁS</small><b>'+(delta>0?'+':'')+Math.round(delta)+' p</b></div></div>';
 }
+window.hhSleepTrendPick386=function(el){
+ if(!el||!el.dataset)return;
+ var box=el.closest('.hhSleepTrend386'),value=box&&box.querySelector('.hhSleepTrendPickInfo386');
+ if(!value)return;
+ var minutes=Number(el.dataset.minutes),count=Number(el.dataset.count);
+ if(!Number.isFinite(minutes)||minutes<0)return;
+ box.querySelectorAll('.hhSleepTrendPoint386').forEach(function(g){g.classList.toggle('on',g===el)});
+ value.textContent='Kijelölt '+(periodDays()===90?'hét':'nap')+': '+(el.dataset.dateLabel||el.dataset.date)+' · '+durText(minutes)+(periodDays()===90?' ('+count+' mért éjszaka átlaga)':'');
+};
 async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
  var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey();
@@ -508,8 +610,11 @@ style();
 (function(){if(document.getElementById('hhSleep383Css'))return;var el=document.createElement('style');el.id='hhSleep383Css';el.textContent="/* v383: hero heading below top controls, further right/up. */\n.hhSleepPage .hhSleepDoctorTitle{left:62%;right:8px;top:36%;width:auto;max-width:none}\n.hhSleepPage .hhSleepDoctorTitle span{display:block;font-size:8px;line-height:1.25;overflow-wrap:break-word}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383{margin:10px 2px 7px;align-items:end}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383 h3{font-size:19px}\n.hhSleepPage .hhSleepFactorsSection381{margin-top:4px}\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{margin-top:4px}\n@media(max-width:355px){.hhSleepPage .hhSleepDoctorTitle{left:60%;right:6px;top:38%}.hhSleepPage .hhSleepDoctorTitle h1{font-size:27px}.hhSleepPage .hhSleepDoctorTitle span{font-size:7px}}\n";document.head.appendChild(el)})();
 (function(){if(document.getElementById('hhSleep384Css'))return;var el=document.createElement('style');el.id='hhSleep384Css';el.textContent="/* v384: shorter cards everywhere, readable on 320–420 CSS-px Android screens. */\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363{padding:9px 7px!important;min-height:73px!important;gap:2px!important;border-radius:13px!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:21px!important;line-height:1.15!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:9px!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 span{font-size:8px!important}\n.hhSleepPage .hhSleepOverview382{gap:7px!important;margin:3px 0 5px!important}\n.hhSleepPage .hhSleepScoreStrip381{padding:8px 10px!important;gap:7px!important;border-radius:13px!important}\n.hhSleepPage .hhSleepScoreSymbol381{width:30px!important;height:30px!important;flex-basis:30px!important;font-size:19px!important}\n.hhSleepPage .hhSleepScoreText381 b{font-size:11px!important}\n.hhSleepPage .hhSleepScoreText381 small{font-size:8px!important}\n.hhSleepPage .hhSleepScoreText381 .hhSleepFactorStatus381{padding:2px 6px!important;min-height:19px!important;margin-top:2px!important;font-size:9px!important}\n.hhSleepPage .hhSleepScoreStrip381>strong{font-size:25px!important;line-height:1.05!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.bad>strong{color:#ae272b!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.warn>strong{color:#936000!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.good>strong{color:#176b3e!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.muted>strong{color:#617786!important}\n.hhSleepPage .hhSleepFactors381{gap:7px!important}\n.hhSleepPage .hhSleepFactor381{min-height:105px!important;padding:9px 9px 8px!important;gap:3px!important;border-radius:14px!important;box-shadow:none!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorLabel381{font-size:11px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorIcon381{font-size:14px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorValue381{font-size:22px!important;line-height:1.12!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorStatus381{font-size:9px!important;min-height:19px!important;padding:3px 7px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorDetail381{font-size:8px!important;line-height:1.25!important;margin-top:2px!important}\n.hhSleepPage .hhSleepFactor381:last-child:nth-child(odd){grid-column:1/-1}\n.hhSleepPage .hhSleepFactorFoot381{margin:5px 2px 7px!important;font-size:9px!important}\n.hhSleepPage .hhSleepFactorsSection381{margin-top:2px!important}\n.hhSleepPage .hhSleepIndexMethod382 summary{min-height:27px!important}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383{margin:5px 2px 5px!important}\n@media(max-width:355px){\n .hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:18px!important}\n .hhSleepPage .hhSleepFactor381{min-height:103px!important;padding:8px 7px!important}\n .hhSleepPage .hhSleepFactor381 .hhSleepFactorValue381{font-size:20px!important}\n .hhSleepPage .hhSleepScoreStrip381>strong{font-size:22px!important}\n}\n";document.head.appendChild(el)})();
 (function(){if(document.getElementById('hhSleep385Css'))return;var st=document.createElement('style');st.id='hhSleep385Css';st.textContent="/* v385 small Sleep UI finishing pass: move hero caption right/up, avoid action buttons. */\n.hhSleepPage .hhSleepDoctorTitle{left:67%;right:5px;top:29%;width:auto;max-width:none}\n.hhSleepPage .hhSleepDoctorTitle h1{font-size:30px;line-height:1.03}\n.hhSleepPage .hhSleepDoctorTitle span{display:block;font-size:7.5px;line-height:1.28;overflow-wrap:break-word}\n@media(max-width:355px){\n .hhSleepPage .hhSleepDoctorTitle{left:64%;right:5px;top:30%}\n .hhSleepPage .hhSleepDoctorTitle h1{font-size:27px}\n .hhSleepPage .hhSleepDoctorTitle span{font-size:7px}\n}\n";document.head.appendChild(st)})();
+(function(){if(document.getElementById('hhSleep386Css'))return;var node=document.createElement('style');node.id='hhSleep386Css';node.textContent="/* Sleep v386: readable, touch-friendly visualizations. */\n.hhSleepPage .hhSleepTimeline386{margin:10px 0 8px;padding:9px 9px 7px;border:1px solid color-mix(in srgb,var(--a) 20%,#e3edf4);border-radius:14px;background:#fff}\n.hhSleepPage .hhSleepTimelineTitle386{font-size:11px;color:#234663;font-weight:850;margin:0 0 6px}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386{height:29px!important;min-height:29px!important;margin:0!important;border-radius:9px!important;background:#edf1f5}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 i{height:100%;box-shadow:inset 0 0 0 .55px rgba(255,255,255,.27)}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 .awake{background:#dc7a88}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 .light{background:#93c9ee}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 .deep{background:#245a9b}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 .rem{background:#8e76cb}\n.hhSleepPage .hhSleepTimeline386 .hhStageBar386 .sleep{background:#aac9ec}\n.hhSleepPage .hhSleepTimeline386 .hhSleepClockTicks{font-size:11px!important;font-weight:800!important;color:#304f69!important;margin:5px 0 6px!important}\n.hhSleepPage .hhStageLegend386{display:flex;gap:6px;flex-wrap:wrap;justify-content:space-between;font-size:10px;color:#38556c;font-weight:700}\n.hhSleepPage .hhStageLegend386 span{display:inline-flex;align-items:center;gap:4px}\n.hhSleepPage .hhStageLegend386 i{display:inline-block;width:9px;height:9px;border-radius:3px}\n.hhSleepPage .hhStageLegend386 .awake{background:#dc7a88}\n.hhSleepPage .hhStageLegend386 .light{background:#93c9ee}\n.hhSleepPage .hhStageLegend386 .deep{background:#245a9b}\n.hhSleepPage .hhStageLegend386 .rem{background:#8e76cb}\n.hhSleepPage .hhSleepTrend386{margin:6px 0 7px}\n.hhSleepPage .hhSleepTrendIntro386{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#234663;font-size:12px;font-weight:800}\n.hhSleepPage .hhSleepTrendIntro386 small{color:#637d8e;font-size:9px;font-weight:700;text-align:right}\n.hhSleepPage .hhSleepCard .hhSleepTrendSvg386{display:block;width:100%;height:auto!important;max-height:none!important;margin:5px 0 2px!important;overflow:visible}\n.hhSleepPage .hhSleepTrendPoint386{cursor:pointer;outline:0}\n.hhSleepPage .hhSleepTrendPoint386.on .hhSleepDot386,.hhSleepPage .hhSleepTrendPoint386:focus-visible .hhSleepDot386{stroke-width:5;filter:drop-shadow(0 0 3px rgba(32,79,145,.28))}\n.hhSleepPage .hhSleepTrendPickInfo386{font-size:11px;font-weight:850;color:#173f62;background:var(--soft);border:1px solid color-mix(in srgb,var(--a) 27%,#e0ebf4);border-radius:10px;padding:8px 9px}\n.hhSleepPage .hhSleepTrendFoot386{font-size:9.5px;color:#5c7587;line-height:1.4;margin:5px 1px 0}\n.hhSleepPage .hhSleepNoTrend386{font-size:11px;text-align:left;padding:20px 8px}\n.hhSleepPage .hhSleepSummary small{font-size:8px!important}\n.hhSleepPage .hhSleepSummary b{font-size:11px!important}\n@media(max-width:355px){.hhSleepPage .hhSleepTrendIntro386 small{font-size:8px}.hhSleepPage .hhStageLegend386{font-size:9px}.hhSleepPage .hhSleepTrendPickInfo386{font-size:10px}}\n";document.head.appendChild(node)})();
+document.addEventListener('click',function(e){var p=e.target&&e.target.closest?e.target.closest('.hhSleepTrendPoint386'):null;if(p)window.hhSleepTrendPick386(p)},true);
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var p=e.target&&e.target.closest?e.target.closest('.hhSleepTrendPoint386'):null;if(p){e.preventDefault();window.hhSleepTrendPick386(p)}},true);
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
-document.documentElement.dataset.healthhubSleep='1.385';window.HH_LIVE_BUILD='v385-sleep-hero-meta-label';
+document.documentElement.dataset.healthhubSleep='1.386';window.HH_LIVE_BUILD='v386-sleep-readable-trends';
 })();
