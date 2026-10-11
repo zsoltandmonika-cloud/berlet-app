@@ -172,58 +172,111 @@ function hhSleepSource381(last){
  (stale?'<strong>⚠️ A mai alvás még nem szerepel az átvett adatokban. A webes frissítés csak a már szinkronizált adatokat olvassa újra.</strong>':'')+
  '</div>';
 }
+/* RAG = red / amber / green. This is a HealthRadar display indicator, not a medical diagnosis.
+   Stage quotas (REM/deep) are intentionally informational: wrist devices do not diagnose sleep stages. */
+function hhSleepMetrics382(night){
+ if(!night)return null;
+ var start=Date.parse(night.startTime),end=Date.parse(night.endTime),windowMin=(end-start)/60000;
+ if(!Number.isFinite(windowMin)||windowMin<=0||windowMin>16*60)return null;
+ var stages=Array.isArray(night.stages)?night.stages:[];
+ var enough=stages.some(function(s){return [2,4,5,6].includes(Number(s.stage))&&durMin(s.startTime,s.endTime)>0});
+ var actual=enough?hhSleepOverlaps(hhSleepIntervals(night.sessions),start,end):null;
+ if(actual!=null&&(actual<0||actual>windowMin*1.02))actual=null;
+ var knownStageIntervals=stages.filter(function(st){return [1,2,3,4,5,6,7].includes(Number(st.stage))}).map(function(st){
+  return [Math.max(start,Date.parse(st.startTime)),Math.min(end,Date.parse(st.endTime))];
+ }).filter(function(a){return Number.isFinite(a[0])&&Number.isFinite(a[1])&&a[1]>a[0]}).sort(function(a,b){return a[0]-b[0]});
+ var covered=0,left=null,right=null;
+ knownStageIntervals.forEach(function(pair){
+  if(left==null){left=pair[0];right=pair[1]}else if(pair[0]<=right){right=Math.max(right,pair[1])}
+  else{covered+=right-left;left=pair[0];right=pair[1]}
+ });
+ if(left!=null)covered+=right-left;
+ var coverage=Math.min(1,Math.max(0,covered/60000/windowMin));
+ return {start:start,end:end,windowMin:windowMin,actual:actual,efficiency:actual==null?null:actual/windowMin,coverage:coverage,stages:stages};
+}
+function hhSleepTone382(min){
+ if(min==null||!Number.isFinite(min))return {tone:'muted',label:'Nincs értékelhető adat'};
+ if(min<360)return {tone:'bad',label:'6 óránál rövidebb'};
+ if(min<420)return {tone:'warn',label:'6–7 óra'};
+ if(min<=540)return {tone:'good',label:'7–9 óra'};
+ return {tone:'warn',label:'9 óránál hosszabb'};
+}
+function hhSleepEfficiency382(ratio){
+ if(ratio==null||!Number.isFinite(ratio))return {tone:'muted',label:'Nincs adat'};
+ if(ratio<.75)return {tone:'bad',label:'Sok ébrenlét'};
+ if(ratio<.90)return {tone:'warn',label:'Megszakított alvás'};
+ return {tone:'good',label:'Kevés ébrenlét'};
+}
+/* HealthRadar v1 experimental sleep index: 65% duration progress (8 h target)
+   +35% measured sleep efficiency (90% target, 50% zero baseline).
+   Caps: under 6h <=59, under 7h <=79, efficiency under 75% <=79.
+   It is NOT Samsung's proprietary score and NOT a validated clinical instrument.
+   Less than 80% valid sleep-stage timeline coverage => no computed index. */
+function hhSleepIndex382(m){
+ if(!m||m.actual==null||m.windowMin<=0||m.actual<15||m.efficiency==null||m.coverage<.80)return null;
+ var durationPart=65*Math.max(0,Math.min(1,m.actual/480));
+ var efficiencyPart=35*Math.max(0,Math.min(1,(m.efficiency-.5)/.4));
+ var score=Math.round(durationPart+efficiencyPart);
+ if(m.actual<360)score=Math.min(score,59);
+ else if(m.actual<420)score=Math.min(score,79);
+ if(m.efficiency<.75)score=Math.min(score,79);
+ return {score:score,tone:score<60?'bad':score<80?'warn':'good',
+  label:score<60?'Figyelmet igényel':score<80?'Fejleszthető':'Kedvező',
+  durationPart:Math.round(durationPart),efficiencyPart:Math.round(efficiencyPart),efficiency:m.efficiency};
+}
 function sleepFactorCards381(night){
  if(!night)return '';
- var stages=Array.isArray(night.stages)?night.stages:[],hasStages=stages.length>0;
- var mins={4:0,5:0,6:0,1:0},sleepStageCount=0;
- stages.forEach(function(x){
-  var k=Number(x.stage);if(k===3||k===7)k=1;
-  if([2,4,5,6].includes(k))sleepStageCount++;
-  if(mins[k]!=null)mins[k]+=durMin(x.startTime,x.endTime);
+ var m=hhSleepMetrics382(night),stages=m?m.stages:[],hasStages=stages.length>0;
+ var mins={4:0,5:0,6:0,1:0};
+ stages.forEach(function(s){
+  var k=Number(s.stage);if(k===3||k===7)k=1;
+  if(mins[k]!=null)mins[k]+=durMin(s.startTime,s.endTime);
  });
- var from=Date.parse(night.startTime),to=Date.parse(night.endTime);
- var actual=sleepStageCount?hhSleepOverlaps(hhSleepIntervals(night.sessions),from,to):null;
- var inBed=Number.isFinite(to-from)?(to-from)/60000:0;
+ var idx=hhSleepIndex382(m),durationTone=hhSleepTone382(m&&m.actual);
+ var efficiencyTone=hhSleepEfficiency382(m&&m.efficiency);
  function share(n,base){return base>0?Math.round(n/base*100)+'%':'—'}
  function val(n){return n==null?'—':durText(n)}
  function card(icon,name,value,status,tone,detail){
-  return '<div class="hhSleepFactor381">'+
+  return '<div class="hhSleepFactor381 hhSleepRag382 '+esc(tone)+'">'+
    '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+'</span><span>'+esc(name)+'</span></div>'+
    '<strong class="hhSleepFactorValue381">'+esc(value)+'</strong>'+
    '<span class="hhSleepFactorStatus381 '+esc(tone)+'">'+esc(status)+'</span>'+
    '<small class="hhSleepFactorDetail381">'+esc(detail)+'</small></div>';
  }
- var durationStatus=actual==null?'Nincs szakaszadat':actual<420?'Rövidebb alvás':actual<=540?'7–9 órás tartomány':'Hosszabb alvás';
- var durationTone=actual==null?'muted':actual<420?'warn':actual<=540?'good':'info';
- var known=hasStages?'Mért alvásfázis':'Nincs szakaszadat';
- var score='<div class="hhSleepScoreStrip381"><div class="hhSleepScoreSymbol381" aria-hidden="true">☾</div>'+
-   '<div class="hhSleepScoreText381"><b>Samsung alváspontszám</b><small>Nem szerepel a Health Connect átadott adatai között</small></div>'+
-   '<strong>— <small>/ 100</small></strong></div>';
+ var score='<div class="hhSleepScoreStrip381 hhSleepRag382 '+(idx?idx.tone:'muted')+'">'+
+   '<div class="hhSleepScoreSymbol381" aria-hidden="true">☾</div>'+
+   '<div class="hhSleepScoreText381"><b>HealthRadar alvásindex</b>'+
+   '<small>Saját, becsült pihenésindex · nem Samsung-pontszám</small>'+
+   (idx?'<span class="hhSleepFactorStatus381 '+idx.tone+'">'+idx.label+'</span>':'<span class="hhSleepFactorStatus381 muted">Nincs elég adat</span>')+
+   '</div><strong>'+(idx?idx.score:'—')+' <small>/ 100</small></strong></div>';
+ var expl='<details class="hhSleepIndexMethod382"><summary>ℹ️ Hogyan számoljuk az alvásindexet?</summary>'+
+  '<p>Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. 80%-nál hiányosabb alvásfázis-idővonalból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.</p></details>';
  return '<section class="hhSleepFactorsSection381" aria-label="Alvási tényezők">'+
   '<div class="hhSleepFactorHeading381"><div><small>ALVÁSELEMZÉS</small><h3>Alvási tényezők</h3></div><span class="hhSleepFactorSource381">⌚ Health Connect</span></div>'+
-  score+
+  score+expl+
   '<div class="hhSleepFactors381">'+
-   card('💤','Tényleges alvás',val(actual),durationStatus,durationTone,'Az ébrenléti idő nélkül')+
-   card('🌑','Mély alvás',hasStages?val(mins[5]):'—',hasStages?share(mins[5],actual):'Nincs adat',hasStages?'info':'muted',known)+
-   card('🌙','REM alvás',hasStages?val(mins[6]):'—',hasStages?share(mins[6],actual):'Nincs adat',hasStages?'info':'muted',known)+
-   card('👁️','Ébrenlét',hasStages?val(mins[1]):'—',hasStages?share(mins[1],inBed):'Nincs adat',hasStages?'info':'muted','Az alvási ablakból')+
+   card('💤','Tényleges alvás',val(m&&m.actual),durationTone.label,durationTone.tone,'Mért alvás, ébrenlét nélkül')+
+   card('🌑','Mély alvás',hasStages?val(mins[5]):'—',hasStages?share(mins[5],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   card('🌙','REM alvás',hasStages?val(mins[6]):'—',hasStages?share(mins[6],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   card('👁️','Ébrenlét',hasStages?val(mins[1]):'—',efficiencyTone.label,efficiencyTone.tone,'Alváshatékonyság: '+(m&&m.efficiency!=null?Math.round(m.efficiency*100)+'%':'—'))+
    card('⏳','Elalvási idő','—','Nincs adat','muted','A Samsung egyedi értéke nem érhető el')+
-   card('☁️','Könnyű alvás',hasStages?val(mins[4]):'—',hasStages?share(mins[4],actual):'Nincs adat',hasStages?'info':'muted',known)+
-  '</div><p class="hhSleepFactorFoot381">Az időtartamok a Health Connect mért adataiból származnak. A színes címkék HealthHub-tájékoztatók, nem Samsung-minősítések vagy orvosi diagnózisok.</p></section>';
+   card('☁️','Könnyű alvás',hasStages?val(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+  '</div><p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
 }
 function sleepOverview(rows){
  if(!rows.length)return '<div class="hhSleepEmpty big">Nincs szinkronizált alvásadat.</div>';
- var night=hhLatestNight(rows),last=rows[rows.length-1],start=Date.parse(night.startTime),end=Date.parse(night.endTime);
- var intervals=hhSleepIntervals(night.sessions),slept=hhSleepOverlaps(intervals,start,end);
+ var night=hhLatestNight(rows),m=hhSleepMetrics382(night);
+ var windowMins=m&&m.windowMin,actual=m&&m.actual;
  var from24=Date.now()-24*3600000,rolling=hhSleepOverlaps(hhSleepIntervals(rows),from24,Date.now());
- function card(title,value,details){
-  return '<div class="hhSleepStat363"><small>'+title+'</small><b>'+value+'</b><span>'+details+'</span></div>';
+ var hasRecent=rows.some(function(x){return Date.parse(x.endTime)>from24&&Date.parse(x.startTime)<Date.now()});
+ var recentMinutes=hasRecent?rolling:null;
+ function card(title,value,details,state){
+  return '<div class="hhSleepStat363 hhSleepRag382 '+esc(state)+'"><small>'+title+'</small><b>'+value+'</b><span>'+details+'</span></div>';
  }
- return '<div class="hhSleepOverview363">'+
-  card('🌙 ALVÁSI ABLAK',durText((end-start)/60000),esc(fmtTime(start)+'–'+fmtTime(end)))+
-  card('💤 TÉNYLEGES ALVÁS',durText(slept),esc(fmtTime(start)+'–'+fmtTime(end)))+
-  card('🕒 UTOLSÓ 24 ÓRA',durText(rolling),esc('Mért alvás 24 óra alatt'))+
-  '</div><p class="hhSleepInfo363">Az alvási ablak az éjszaka teljes ideje, az ébrenléttel együtt. A tényleges alvás és a 24 órás összeg nem számolja kétszer az átfedő szakaszokat.</p>';
+ return '<div class="hhSleepOverview363 hhSleepOverview382">'+
+  card('💤 UTOLSÓ ALVÁS',actual==null?'—':durText(actual),esc(fmtTime(night.startTime)+'–'+fmtTime(night.endTime)),hhSleepTone382(actual).tone)+
+  card('🕒 UTOLSÓ 24 ÓRA',recentMinutes==null?'—':durText(recentMinutes),'Mért alvás 24 óra alatt',hhSleepTone382(recentMinutes).tone)+
+  '</div><p class="hhSleepInfo363">A két csempe tényleges alvásidőt mutat, nem az ébrenlétet is tartalmazó alvási ablakot. A 24 órás érték átfedés nélkül összesített.</p>';
 }
 // A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
 function sleepLenaComment(rows,profile){
@@ -250,7 +303,7 @@ function sleepLenaComment(rows,profile){
     else if(k===6)stageMins.rem+=m;
     else if(k===1||k===3||k===7)stageMins.awake+=m;
    });
-   msg+=' A Health Connect fázisadataiban '+durText(stageMins.deep)+' mély, '+durText(stageMins.rem)+' REM és '+durText(stageMins.awake)+' ébrenléti idő látszik. Az alváspontszámot nem becsülöm meg.';
+   msg+=' A Health Connect fázisadataiban '+durText(stageMins.deep)+' mély, '+durText(stageMins.rem)+' REM és '+durText(stageMins.awake)+' ébrenléti idő látszik. A HealthRadar saját alvásindexe tájékoztató jellegű, nem Samsung-pontszám.';
   }
  }
  return '<aside class="hhSleepLena364" aria-label="Léna gyors alvásértékelése"><div class="hhSleepMood364">'+icon+'</div><div class="hhSleepLenaText364"><b>💬 Léna · '+esc(title)+'</b><p>'+esc(msg)+'</p><small>⌚ Óraadatokból készült becslés, nem alvásdiagnózis.</small></div></aside>';
@@ -279,7 +332,7 @@ async function render(profileOverride){
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?hhSleepSource381(latest)+sleepOverview(rows)+sleepLenaComment(rows,requestedProfile)+sleepFactorCards381(night)+stageBar(night):
+ (latest?hhSleepSource381(latest)+sleepOverview(rows)+sleepFactorCards381(night)+sleepLenaComment(rows,requestedProfile)+stageBar(night):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -392,8 +445,9 @@ style();
 '@media(max-width:355px){.hhSleepStat363 small{font-size:8px}.hhSleepStat363 b{font-size:16px}.hhSleepStat363 span{font-size:7px}}';
  document.head.appendChild(c);
 })();
+(function(){if(document.getElementById('hhSleepRag382Css'))return;var e=document.createElement('style');e.id='hhSleepRag382Css';e.textContent="/* v382 RAG: color is a transparent measurement signal, not a diagnosis. */\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:7px 0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363{padding:12px 8px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:4px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:10px;line-height:1.28;min-height:0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:23px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 span{font-size:9px}\n.hhSleepPage .hhSleepRag382.good{border-color:#4bb981!important;background:linear-gradient(135deg,#f2fcf6,#e6f8ec)!important}\n.hhSleepPage .hhSleepRag382.warn{border-color:#edb350!important;background:linear-gradient(135deg,#fffaf1,#fff0d8)!important}\n.hhSleepPage .hhSleepRag382.bad{border-color:#e27676!important;background:linear-gradient(135deg,#fff7f6,#ffe8e7)!important}\n.hhSleepPage .hhSleepRag382.muted{border-color:#cbd9e3!important;background:#f4f8fa!important}\n.hhSleepPage .hhSleepRag382.info{border-color:color-mix(in srgb,var(--a) 35%,#d9e7ee)!important;background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--soft) 28%,#fff))!important}\n.hhSleepPage .hhSleepFactorStatus381.bad{background:#ffe0df;color:#a62525}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382{margin-bottom:4px}\n.hhSleepPage .hhSleepScoreText381 .hhSleepFactorStatus381{margin-top:5px;font-size:10px!important;display:inline-flex}\n.hhSleepPage .hhSleepIndexMethod382{margin:0 0 10px 2px;color:#566f81;font-size:10px}\n.hhSleepPage .hhSleepIndexMethod382 summary{cursor:pointer;font-weight:750;min-height:30px;display:flex;align-items:center}\n.hhSleepPage .hhSleepIndexMethod382 p{margin:0 3px 8px;line-height:1.5;border-left:3px solid var(--a);padding-left:8px}\n.hhSleepPage .hhSleepLena364{margin:12px 0 11px}\n@media(max-width:355px){.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:19px}.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:9px}}\n";document.head.appendChild(e)})();
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
-document.documentElement.dataset.healthhubSleep='1.239';window.HH_LIVE_BUILD='v1.239-sleep-canonical-active-profile';
+document.documentElement.dataset.healthhubSleep='1.382';window.HH_LIVE_BUILD='v382-sleep-rag-healthradar-index';
 })();
