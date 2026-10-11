@@ -86,7 +86,7 @@ assert.ok(guided.includes('forrásokkal igazolt'));
  const answer=x.formatClinicalAnswer(audited,idx);
  assert.ok(answer.includes('🚑 2024. június 17. – A rosszullét'));
  assert.ok(answer.indexOf('🚑')<answer.indexOf('🏥'));
- assert.ok(answer.includes('Forrás: Szintetikus sürgősségi lap (2024-06-19, 2. oldal)'));
+ assert.ok(answer.includes('**Forrás:** Szintetikus sürgősségi lap (2024-06-19, 2. oldal)'));
  assert.ok(answer.includes('Dr. Próba Anna'));
  assert.ok(!answer.includes('Dr. Kitalált Béla'));
  assert.ok(!answer.includes('legalább 20 percig'));
