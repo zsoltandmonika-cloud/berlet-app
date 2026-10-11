@@ -1,6 +1,9 @@
 package hu.zsoltmonika.healthhubbridge
 
+import android.Manifest
 import android.app.TimePickerDialog
+import android.os.Build
+import android.provider.Settings
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
@@ -56,6 +59,7 @@ class MainActivity : ComponentActivity() {
     private var pendingAutoSync = false
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
+    private lateinit var otaSummary: TextView
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -107,6 +111,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val otaNotificationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        status.text = if (granted) "✓ HealthHub frissítési értesítések engedélyezve."
+            else "A frissítések manuálisan továbbra is ellenőrizhetők."
+    }
+
     private val saveLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -127,9 +138,17 @@ class MainActivity : ComponentActivity() {
         DailyContentScheduler.schedule(this)
         OrchestratorScheduler.schedule(this)
         OrchestratorScheduler.runNow(this)
+        OtaUpdateManager.schedule(this)
         updateScheduleUi()
         handleIntent(intent)
         updateResilientStatus()
+        updateOtaStatus()
+        checkOta(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::otaSummary.isInitialized) updateOtaStatus()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -336,6 +355,43 @@ class MainActivity : ComponentActivity() {
         root.addView(Button(this).apply {
             text = "🔄 SYNC NOW"
             setOnClickListener { syncNow() }
+        })
+
+        root.addView(TextView(this).apply {
+            text = "📦 HealthHub Connect · OTA Updates"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        otaSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 3, 0, 8)
+        }
+        root.addView(otaSummary)
+        root.addView(Button(this).apply {
+            text = "🔎 Új Connect-verzió ellenőrzése"
+            setOnClickListener { checkOta(true) }
+        })
+        root.addView(Button(this).apply {
+            text = "📥 Ellenőrzött frissítés telepítése"
+            setOnClickListener { installOta() }
+        })
+        root.addView(Button(this).apply {
+            text = "🔔 Frissítési értesítések engedélyezése"
+            setOnClickListener {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    otaNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    status.text = "✓ A frissítési értesítések használhatók."
+                }
+            }
+        })
+        root.addView(TextView(this).apply {
+            text = "A frissítés csak ellenőrzött, aláírt csomaggal és telefonos jóváhagyással telepíthető."
+            textSize = 12f
+            setTextColor(0xFF6A7F91.toInt())
         })
 
         root.addView(Button(this).apply {
@@ -563,6 +619,67 @@ class MainActivity : ComponentActivity() {
             status.text = "✓ Ütemezett sync hozzáadva: $value"
             updateScheduleUi()
         }, 7, 30, true).show()
+    }
+
+    private fun updateOtaStatus() {
+        if (!::otaSummary.isInitialized) return
+        val candidate = OtaUpdateManager.cached(this)
+        val checked = OtaUpdateManager.lastChecked(this)
+        val whenChecked = if (checked > 0L)
+            SimpleDateFormat("yyyy.MM.dd. HH:mm", Locale("hu", "HU")).format(Date(checked))
+        else "még nem ellenőrizve"
+        val offer = if (candidate != null) "🟢 Új, aláírt kiadás: v${candidate.version} · telepítés kérhető"
+            else "Nincs ehhez a telefonhoz jóváhagyott új kiadás."
+        val problem = OtaUpdateManager.lastError(this)
+        otaSummary.text = "Telepített: v${BuildConfig.VERSION_NAME} (#${BuildConfig.VERSION_CODE})\\n" +
+            "Utolsó ellenőrzés: $whenChecked\\n" + offer +
+            (if (problem.isNullOrBlank()) "" else "\\n⚠️ $problem")
+    }
+
+    private fun checkOta(showResult: Boolean) {
+        scope.launch {
+            if (showResult) status.text = "Connect OTA frissítések ellenőrzése…"
+            try {
+                val found = OtaUpdateManager.check(this@MainActivity)
+                updateOtaStatus()
+                if (showResult) status.text = if (found == null)
+                    "✓ Nincs telepíthető, ehhez a készülékhez engedélyezett új verzió."
+                else "✓ v${found.version} elérhető. A telepítéshez külön jóváhagyás szükséges."
+            } catch (e: Exception) {
+                updateOtaStatus()
+                if (showResult) status.text = "OTA ellenőrzés: ${e.message ?: "kapcsolati hiba"}"
+            }
+        }
+    }
+
+    private fun installOta() {
+        scope.launch {
+            try {
+                // This is a sideloaded app. Android controls permission and
+                // the final installer screen, not the HealthHub backend.
+                if (!OtaUpdateManager.unknownSourcesAllowed(this@MainActivity)) {
+                    status.text = "Engedélyezd ezen az eszközön a HealthHub Connect telepítéseit, majd nyomd meg ismét a telepítést."
+                    startActivity(Intent(
+                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:$packageName")
+                    ))
+                    return@launch
+                }
+                status.text = "A legfrissebb jóváhagyott OTA-csomag ellenőrzése…"
+                val candidate = OtaUpdateManager.check(this@MainActivity)
+                updateOtaStatus()
+                if (candidate == null) {
+                    status.text = "Ehhez a telefonhoz nincs jóváhagyott új OTA-kiadás."
+                    return@launch
+                }
+                status.text = "APK letöltése és SHA-256 ellenőrzése…"
+                val content = OtaUpdateManager.downloadVerified(this@MainActivity, candidate)
+                status.text = "v${candidate.version} ellenőrizve. A telepítést az Android rendszerében kell jóváhagyni."
+                OtaUpdateManager.openSystemInstaller(this@MainActivity, content)
+            } catch (e: Exception) {
+                status.text = "OTA telepítés nem indult: ${e.message ?: e.javaClass.simpleName}"
+            }
+        }
     }
 
     private fun updateResilientStatus() {
