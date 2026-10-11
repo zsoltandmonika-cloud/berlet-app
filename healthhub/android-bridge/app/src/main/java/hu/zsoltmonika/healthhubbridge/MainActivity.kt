@@ -146,11 +146,6 @@ class MainActivity : ComponentActivity() {
         checkOta(false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (::otaSummary.isInitialized) updateOtaStatus()
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -986,6 +981,7 @@ class MainActivity : ComponentActivity() {
             ResilientHealthSync.schedule(this)
             updateResilientStatus()
         }
+        if (::otaSummary.isInitialized) updateOtaStatus()
     }
 
     override fun onDestroy() {
