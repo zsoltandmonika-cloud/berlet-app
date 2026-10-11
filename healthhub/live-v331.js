@@ -438,7 +438,7 @@ async function run(opts){
    throw Error('Clinical Intelligence: profil- vagy kontextuseltérés, a kutatás megszakadt.');
   var clinical=clinicalEngine.assemble(data,clinicalCtx,{expectedProfile:p});
   data=clinical.payload;
-  var customized=research.apply(data,question,clinical);
+  var customized=research.apply(data,question,clinical,researchPlan);
   data=customized.payload;
   print('🧠 Kutatási mélység: '+(customized.plan.mode==='deep'?'részletes':'fókuszált')+
    ' · '+clinical.quality.originals+' eredeti PDF-oldal · bizonytalan állítások külön megjelölve.');
