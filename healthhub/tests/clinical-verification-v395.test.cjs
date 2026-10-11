@@ -28,6 +28,7 @@ const assert=require('node:assert/strict');
    {kind:'documented',text:'2024.06.17-én hirtelen eszméletvesztés történt.',sourceIds:['D1:p3']},
    {kind:'documented',text:'Az agy legalább 20 percig nem kapott megfelelő vért.',sourceIds:['D1:p3']},
    {kind:'documented',text:'A beteg 2024.08.19-én hazaérkezett.',sourceIds:['D1:p3']},
+   {kind:'documented',text:'A későbbi EF 65%-os lett.',sourceIds:['D1:p3']},
    {kind:'documented',text:'Biztosan intubációt végeztek.',sourceIds:['D17:p5']},
   ]},
   {heading:'Élettani értelmezés',paragraphs:[
@@ -37,7 +38,8 @@ const assert=require('node:assert/strict');
   ]}
  ]},idx,vetted);
  assert.equal(res.stats.documented,1,'only cited verified historic assertion remains');
- assert.equal(res.stats.demoted,3);
+ assert.equal(res.stats.demoted,4);
+ assert.ok(res.stats.unsupportedClinicalNumbers>=1,'fabricated EF 65% must be blocked');
  assert.ok(res.stats.unsupportedDurations>=1,'20 minutes rejected, EF 20% irrelevant');
  assert.ok(res.stats.unsupportedDates>=1,'fabricated date removed');
  assert.equal(res.stats.badCitations,1);
