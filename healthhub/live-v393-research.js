@@ -8,15 +8,23 @@ function norm(v){return String(v||'').toLocaleLowerCase('hu').normalize('NFD').r
 function trimmed(v,n){return String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,n||220)}
 function decide(question){
  var q=norm(question),long=q.length>=90;
+ // A personal question with an explicit historic date belongs to the
+ // clinical-history workflow even when it says only "Mi történt velem?".
+ // Do NOT require keywords such as "szív" or "kórház".
+ var yearOrDate=/(?:19|20)\d{2}/.test(q);
+ var firstPerson=/(?:\bvelem\b|\bnekem\b|\bvelem\s+tortent\b|\baznap\b|\bmi\s+tortent\b|\bmi\s+volt\b|\bemlekszem\b)/.test(q);
+ var personalHistoricEvent=yearOrDate&&firstPerson;
+
  var medical=/(korhaz|intenziv|mento|mentes|betegseg|diagn|sziv|kardio|fibrill|ujraeleszt|eszmelet|koma|szedal|neurolog|emlekezet|amnezi|lelet|mutet|beavatkozas|gyogyszer|kognitiv|orvos)/.test(q);
  var sequence=/(mikor|hany perc|hany ora|idosor|idovonal|kronolog|torten|esemeny|elso nap|kezdete|vege|elozmeny)/.test(q);
  var detailed=/(reszlet|mely|alapos|osszes|teljes|osszevet|magyara|kovetkeztet|miert|hogyan|rekonstru|elemzes|egesz nap|allapotban)/.test(q);
  var asksMechanism=/(miert|hogyan|mechanizm|okozhat|kovetkezmen|folyamat|tortenik|hatasa|kepesseg)/.test(q);
- var docs=medical||sequence||/(lelet|dokumentum|adat|forras)/.test(q);
- var deep=(sequence&&medical)||(medical&&(detailed||long))||(long&&detailed);
+ var docs=medical||sequence||personalHistoricEvent||/(lelet|dokumentum|adat|forras)/.test(q);
+ var deep=personalHistoricEvent||(sequence&&medical)||(medical&&(detailed||long))||(long&&detailed);
  var mode=deep?'deep':'standard';
- return {mode:mode,clinical:medical,chronology:medical&&sequence,physiology:medical&&asksMechanism,
-  documents:docs,maxDocs:deep?8:5,maxOriginalDocs:deep?6:3,pagesPerDocument:deep?24:12,
+ return {mode:mode,clinical:medical||personalHistoricEvent,chronology:personalHistoricEvent||(medical&&sequence),
+  historicalDateQuery:personalHistoricEvent,physiology:medical&&asksMechanism,
+  documents:docs,maxDocs:deep?16:5,maxOriginalDocs:deep?12:3,pagesPerDocument:deep?24:12,
   excerptMax:deep?2100:1750,profileRequirements:['active-profile','explicit-pdf-consent','cited-evidence']};
 }
 function instruction(plan,coverage){
