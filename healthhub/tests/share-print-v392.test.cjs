@@ -65,7 +65,7 @@ function setAnswer(profile,question,answer,foot){
  assert.ok(printed[0].html.includes('&lt;script&gt;'),'print output must HTML-escape question and answer');
  assert.ok(!printed[0].html.includes('<script>alert(1)</script>'));
  assert.ok(printed[0].html.includes('Klinikai forrás: eredeti PDF'));
- assert.ok(printed[0].html.includes(huge.slice(-70)));
+ assert.ok(printed[0].html.includes(huge.trim().slice(-70)),'print includes the full meaningful answer tail');
 
  // Only patient-specific local records can be shared, not cached private URLs.
  docStore={id:'monika-document-1',profile:'monika',originalName:'Mónika-lelet.pdf'};
