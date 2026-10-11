@@ -414,6 +414,7 @@ function chart(rows){
  var topH=Math.max(10,Math.ceil((maxH+0.2)/2)*2);
  var px=function(i){return left+(w-left-right)*(points.length===1?.5:i/(points.length-1))};
  var py=function(hours){return bottom-(bottom-top)*Math.max(0,Math.min(1,hours/topH))};
+ var lastMeasuredIndex=-1;points.forEach(function(p,i){if(p.minutes!=null)lastMeasuredIndex=i});
  var segments=[],segment=[],circles='',labels='',grid='';
  function flush(){if(segment.length){segments.push(segment.join(' '));segment=[]}}
  points.forEach(function(p,i){
@@ -423,7 +424,7 @@ function chart(rows){
   var dateLabel=p.date.slice(0,4)+'. '+p.date.slice(5,7)+'. '+p.date.slice(8,10)+'.';
   var duration=durText(p.minutes),weekHint=isWeekly?' · '+p.count+' mért éjszaka':'';
   var title=dateLabel+' · '+duration+weekHint;
-  circles+='<g class="hhSleepTrendPoint386" role="button" tabindex="0" data-date="'+esc(p.date)+'" data-date-label="'+esc(dateLabel)+'" data-minutes="'+p.minutes+'" data-count="'+p.count+'" aria-label="'+esc(title)+'" >'+
+  circles+='<g class="hhSleepTrendPoint386'+(i===lastMeasuredIndex?' on':'')+'" role="button" tabindex="0" data-date="'+esc(p.date)+'" data-date-label="'+esc(dateLabel)+'" data-minutes="'+p.minutes+'" data-count="'+p.count+'" aria-label="'+esc(title)+'" >'+
    '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="14" fill="transparent"></circle>'+
    '<circle class="hhSleepDot386" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.9" fill="#fff" stroke="var(--a)" stroke-width="3"></circle>'+
    '<title>'+esc(title)+'</title></g>';
