@@ -62,7 +62,7 @@ function datesIn(text){
  return compact(text).match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[];
 }
 function dateAllowed(text,evidenceFacts){
- let content=evidenceFacts.map(f=>f.quote+' '+f.documentDate).join(' ');
+ let content=evidenceFacts.map(f=>f.quote).join(' ');
  const normalizeDate=s=>s.replace(/[^\d]/g,'');
  let dates=new Set((content.match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[]).map(normalizeDate));
  return datesIn(text).filter(date=>!dates.has(normalizeDate(date)));
@@ -125,13 +125,13 @@ export function auditClinicalDraft(response,evidence,validated){
    const validRefs=Array.from(new Set(cited.filter(id=>trusted.has(id)&&factRefs.has(id))));
    const invalidInline=(txt.match(/\[D\d+:p\d+\]/g)||[]).some(mark=>
     !trusted.has(mark.slice(1,-1))||!factRefs.has(mark.slice(1,-1)));
-   const unsupported=unexpectedDurations(txt,facts);
+   const relevantFacts=facts.filter(f=>validRefs.includes(f.sourceId));
+   const unsupported=unexpectedDurations(txt,kind==='documented'?relevantFacts:facts);
    const dateExceptions=kind==='documented'?dateAllowed(txt,facts):[];
    // Other numeric medical values (EF%, vitals, device shocks) need direct
    // documentary support too, not just time values. The date metadata of a
    // genuinely cited page can explain its header date but not an invented EF.
-   const relevantFacts=facts.filter(f=>validRefs.includes(f.sourceId));
-   const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote+' '+f.documentDate)));
+   const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote)));
    const unsupportedNumbers=kind==='documented'?
     numTokens(txt).filter(n=>!anchoredNumbers.has(n)):[];
    const medicalNames=kind==='documented'?quotedDoctorNames(txt):[];
