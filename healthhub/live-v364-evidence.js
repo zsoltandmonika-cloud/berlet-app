@@ -10,31 +10,80 @@ function el(id){return document.getElementById(id)}
 function norm(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ')}
 function words(s){return [...new Set(norm(s).split(' ').filter(function(x){return x.length>=4}).slice(0,28))]}
 function field(x){return String(x||'').slice(0,2600)}
+var MONTHS={januar:1,februar:2,marcius:3,aprilis:4,majus:5,junius:6,julius:7,
+ augusztus:8,szeptember:9,oktober:10,november:11,december:12};
+function validDay(y,m,d){
+ var t=Date.UTC(Number(y),Number(m)-1,Number(d));
+ var a=new Date(t);
+ return Number.isFinite(t)&&a.getUTCFullYear()===Number(y)&&
+  a.getUTCMonth()+1===Number(m)&&a.getUTCDate()===Number(d)?
+  a.toISOString().slice(0,10):null;
+}
+function dateQuery(text){
+ var s=norm(text),m=s.match(/\b((?:19|20)\d{2})\s+(\d{1,2})\s+(\d{1,2})\b/);
+ if(m)return validDay(m[1],m[2],m[3]);
+ var years=[...s.matchAll(/\b((?:19|20)\d{2})\b/g)];
+ for(var j=0;j<years.length;j++){
+  var year=years[j][1],tail=s.slice(years[j].index+4,years[j].index+50);
+  for(var month in MONTHS){
+   var mm=tail.match(new RegExp('^\\s*'+month+'\\s+(\\d{1,2})\\b'));
+   if(mm){var result=validDay(year,MONTHS[month],mm[1]);if(result)return result}
+  }
+ }
+ return null;
+}
+function datedMetadata(s){
+ var date=String(s||''),m=date.match(/\b((?:19|20)\d{2})[-./](\d{1,2})[-./](\d{1,2})\b/);
+ if(m)return validDay(m[1],m[2],m[3]);
+ return dateQuery(date);
+}
+function dateDistance(a,b){
+ var x=Date.parse(String(a)+'T00:00:00Z'),y=Date.parse(String(b)+'T00:00:00Z');
+ return Number.isFinite(x)&&Number.isFinite(y)?Math.round((x-y)/86400000):null;
+}
 function rank(docs,question,options){
  var q=norm(question),terms=words(question),deep=options&&options.mode==='deep';
- var chronology=/korhaz|mento|omsz|ujraeleszt|intenziv|eszmelet|koma|tortenet|esemeny|idosor|kronolog|beultetes|mutet|szedal|emlekezet/.test(q);
+ var desiredDate=dateQuery(question),history=!!(options&&options.historicalDateQuery);
+ var chronology=history||/(korhaz|mento|omsz|ujraeleszt|intenziv|eszmelet|koma|tortenet|tortent|esemeny|idosor|kronolog|beultetes|mutet|szedal|emlekezet)/.test(q);
  var synonyms=[];
  if(/sziv|kardio|fibrill|ritmus|defibr|crt|pacemaker|ujraeleszt|szivmegall/.test(q))
   synonyms.push('sziv','szivmegall','kardi','ekg','crt','ritmus','defibr','osztaly','zaro','omsz');
- if(/koma|szedal|eszmelet|neurolog|emlekezet|intenziv|agy|felbreszt|felébred/.test(q))
+ if(/koma|szedal|eszmelet|neurolog|emlekezet|intenziv|agy|felbreszt/.test(q))
   synonyms.push('intenziv','neurolog','szedal','eszmelet','anesthes','agy','epikr','zaro','mento');
+ if(history) synonyms.push('mento','omsz','korhaz','intenziv','zaro','epikriz','ellatas','surgoss');
  if(/alvas|farad|kimerult/.test(q))synonyms.push('alvas','sleep');
  if(/bok|bokaj|labfej|ficam|randul/.test(q))synonyms.push('boka','bokaj','ficam','randul','szalag','ortoped');
  var yr=q.match(/\b(?:19|20)\d{2}\b/g)||[];
  var termsUnique=Array.from(new Set(terms.concat(synonyms))).slice(0,45);
- var max=deep?12:8;
+ var max=options&&options.maxDocs|| (deep?16:8);
  return (docs||[]).filter(function(d){return d&&d.id&&d.title}).map(function(d){
   var explain=d.explanation||{};
   var title=norm([d.title,d.category,d.sourceType].join(' ')),description=norm([explain.summary,
    ...(Array.isArray(explain.keyFindings)?explain.keyFindings:[])].join(' '));
-  var date=String(d.date||'');
-  var yearWeight=yr.some(function(y){return date.slice(0,4)===y})?14:0;
-  var score=yearWeight+termsUnique.reduce(function(a,t){return a+
-    (title.indexOf(t)>=0?6:0)+(description.indexOf(t)>=0?3:0)},0);
+  var date=datedMetadata(d.date),titleDate=datedMetadata(d.title);
+  var score=termsUnique.reduce(function(a,t){return a+
+   (title.indexOf(t)>=0?6:0)+(description.indexOf(t)>=0?3:0)},0);
   if(chronology&&/(zaro|korhaz|intenziv|surgoss|surg|omsz|mento|anamnez|epikriz)/.test(title))score+=9;
-  return {d:d,score:score};
+  if(desiredDate){
+   // A discharge summary dated 2–30 days AFTER the event is more
+   // relevant than a distant outpatient record from the same year.
+   var gap=dateDistance(date,desiredDate),titleGap=dateDistance(titleDate,desiredDate);
+   if(gap!==null){
+    score+=gap===0?125:gap>0&&gap<=14?78:gap>14&&gap<=45?44:
+     gap<0&&gap>=-5?20:Math.abs(gap)<=70?12:0;
+   }
+   if(titleGap===0)score+=95;
+   var dateLabel=desiredDate.replace(/-/g,'[.\\/-]?');
+   if(explain.summary&&new RegExp(dateLabel).test(String(explain.summary)))score+=75;
+  }else if(yr.some(function(y){return String(d.date||'').slice(0,4)===y})){
+   score+=14;
+  }
+  return {d:d,score:score,chronologyGap:desiredDate?dateDistance(date,desiredDate):null};
  }).filter(function(x){return x.score>0}).sort(function(a,b){
-  return b.score-a.score||String(a.d.date||'').localeCompare(String(b.d.date||''));
+  return b.score-a.score||
+   (Math.abs(a.chronologyGap==null?1e6:a.chronologyGap)-
+    Math.abs(b.chronologyGap==null?1e6:b.chronologyGap))||
+   String(a.d.date||'').localeCompare(String(b.d.date||''));
  }).slice(0,max).map(function(x){return x.d});
 }
 function datePrecision(s){
@@ -262,5 +311,6 @@ async function prepare(question,p,options){
 }
 window.addEventListener('healthhub:ask-lena-open',function(){mount();status('')});
 window.addEventListener('healthhub:profile-changed',function(){syncIcon();status('')});
-window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare,rank:rank,dateMentions:dateMentions,datePrecision:datePrecision,version:'393-deep'};
+window.HH_ASK_LENA_EVIDENCE_V364={prepare:prepare,rank:rank,dateQuery:dateQuery,
+ dateMentions:dateMentions,datePrecision:datePrecision,version:'396-dated-chronology'};
 })();
