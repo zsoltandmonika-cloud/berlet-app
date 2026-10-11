@@ -29,9 +29,9 @@ The existing `smooth-endpoint` remains unchanged. The new opt-in, authenticated,
 
 ## Rollout checklist
 - [x] Static structure and safety tests with synthetic data
-- [ ] Node and Deno checks in GitHub CI green
-- [ ] Deploy **new** `smooth-endpoint-v395` without touching `smooth-endpoint`
-- [ ] Verify new function version is active and no authentication bypass
+- [x] Node and Deno checks in GitHub CI green
+- [x] Deploy **new** `smooth-endpoint-v395` (Supabase ACTIVE version 2) without touching `smooth-endpoint`
+- [x] Verify new function version is active and the deployed source performs explicit JWT/profile checks. Unauthenticated network invocation smoke-test remains blocked by this environment, so runtime authorization cannot yet be independently confirmed.
 - [ ] Merge web frontend route switch; run GitHub Pages deployment
 - [ ] Real consented user test on Mónika's 2024 case, then Zsolt, inspect disclosed source IDs and inferred timelines
 - [ ] Reevaluate any unsourced episode minute counts against original OMSZ and ICU source times, not estimated CPR duration
