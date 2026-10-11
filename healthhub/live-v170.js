@@ -28,8 +28,57 @@ function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0
 function stageName(v){return ({0:'Ismeretlen',1:'Ébren',2:'Alvás',3:'Ágyon kívül',4:'Könnyű',5:'Mély',6:'REM',7:'Ébren (ágyban)'})[Number(v)]||'Szakasz'}
 function stageClass(v){return ({1:'awake',2:'sleep',3:'awake',4:'light',5:'deep',6:'rem',7:'awake'})[Number(v)]||'unknown'}
 
+/* v384: Health Connect records kept in memory per profile; no cross-person fallback. */
+var hhSleepVitals384={zsolt:null,monika:null};
+function hhSelectNightVitals384(profile,records,sessions){
+ var night=hhLatestNight(sessions||[]),nullValue={nightKey:'',heartRate:[],oxygenSaturation:[]};
+ if(!night||!records||typeof records!=='object'){hhSleepVitals384[profile]=nullValue;return;}
+ var start=Date.parse(night.startTime),end=Date.parse(night.endTime);
+ if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){hhSleepVitals384[profile]=nullValue;return;}
+ // Only keep the latest measured night, not a 30-day heart-rate history in browser memory.
+ var heart=Array.isArray(records.heartRate)?records.heartRate.filter(function(r){
+  return r&&Array.isArray(r.samples)&&Date.parse(r.startTime)<=end&&Date.parse(r.endTime)>=start;
+ }).slice(-400):[];
+ var oxy=Array.isArray(records.oxygenSaturation)?records.oxygenSaturation.filter(function(r){
+  var t=Date.parse(r&&r.time);return Number.isFinite(t)&&t>=start&&t<=end;
+ }).slice(-800):[];
+ hhSleepVitals384[profile]={nightKey:night.startTime+'|'+night.endTime,heartRate:heart,oxygenSaturation:oxy};
+}
+function hhNightBiometrics384(night,profile){
+ var stored=hhSleepVitals384[profile],out={pulse:null,oxygen:null};
+ if(!night||!stored||stored.nightKey!==night.startTime+'|'+night.endTime)return out;
+ // Exclude awake periods; a watch sample merely inside time-in-bed is not always sleep.
+ var sleepTimes=hhSleepIntervals(night.sessions);
+ if(!sleepTimes.length)return out;
+ function validTime(t){return Number.isFinite(t)&&sleepTimes.some(function(s){return t>=s[0]&&t<=s[1]})}
+ function aggregate(records,type){
+  var bins=new Map(),count=0;
+  function push(time,value,low,high){
+   var t=Date.parse(time),v=Number(value);
+   if(!validTime(t)||!Number.isFinite(v)||v<low||v>high)return;
+   var minute=Math.floor(t/60000),row=bins.get(minute)||{sum:0,n:0};
+   row.sum+=v;row.n+=1;bins.set(minute,row);count++;
+  }
+  if(type==='pulse'){
+   records.slice(0,400).forEach(function(r){
+    if(!r||!Array.isArray(r.samples))return;
+    r.samples.slice(0,5000).forEach(function(s){push(s&&s.time,s&&s.bpm,25,240)});
+   });
+  }else{
+   records.slice(0,800).forEach(function(r){push(r&&r.time,r&&r.percent,50,100)});
+  }
+  if(!bins.size)return null;
+  var minuteMeans=Array.from(bins.values()).map(function(v){return v.sum/v.n});
+  return {value:Math.round(minuteMeans.reduce(function(a,b){return a+b},0)/minuteMeans.length),
+    minutes:minuteMeans.length,samples:count};
+ }
+ out.pulse=aggregate(stored.heartRate,'pulse');
+ out.oxygen=aggregate(stored.oxygenSaturation,'oxygen');
+ return out;
+}
 async function sleepSessions(profile){
  window.hhSleepSourceMeta={profile:profile,source:'cache',exportedAt:null};
+ hhSleepVitals384[profile]=null;
  var map=new Map(),cutoff=Date.now()-95*86400000,cloudUsed=false;
 
  function addRows(a,importedAt){
@@ -52,6 +101,7 @@ async function sleepSessions(profile){
    var raw=await v.downloadJson(path);
    if(raw&&String(raw.profile||'').toLowerCase()===profile){
     addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
+    hhSelectNightVitals384(profile,raw.records,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
     window.hhSleepSourceMeta={profile:profile,source:'Dropbox / Health Connect',exportedAt:raw.exportedAt||null};
     cloudUsed=true;
     localStorage.setItem('hh-sleep-cloud-last-'+profile,new Date().toISOString());
@@ -65,6 +115,7 @@ async function sleepSessions(profile){
  }
 
  /* Local fallback is used only when the canonical Cloud file is unavailable. */
+ var localVitals=null,localLatestEnd=-Infinity;
  try{
   var db=await openBridgeDb();try{
    await new Promise(function(resolve){
@@ -75,6 +126,9 @@ async function sleepSessions(profile){
      var i=cur.value;
      if(i&&i.profile===profile&&i.bundle&&i.bundle.records){
       addRows(i.bundle.records.sleepSessions,i.importedAt);
+      var endValues=(i.bundle.records.sleepSessions||[]).map(function(s){return Date.parse(s&&s.endTime)}).filter(Number.isFinite);
+      var newest=endValues.length?Math.max.apply(null,endValues):-Infinity;
+      if(newest>localLatestEnd){localLatestEnd=newest;localVitals=i.bundle.records;}
      }
      cur.continue();
     };
@@ -82,6 +136,7 @@ async function sleepSessions(profile){
   }finally{db.close()}
  }catch(e){}
 
+ hhSelectNightVitals384(profile,localVitals,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
  window.hhSleepDataSource='Helyi Health Connect cache · '+profile;
  var fallbackDates=Array.from(map.values()).map(function(x){return Date.parse(x._importedAt||'')}).filter(Number.isFinite);
  window.hhSleepSourceMeta={profile:profile,source:'helyi Health Connect cache',exportedAt:fallbackDates.length?new Date(Math.max.apply(null,fallbackDates)).toISOString():null};
@@ -227,7 +282,7 @@ function hhSleepIndex382(m){
 function sleepFactorHeading383(){
  return '<div class="hhSleepFactorHeading381 hhSleepFactorTop383"><div><small>ALVÁSELEMZÉS</small><h3>Alvási tényezők</h3></div><span class="hhSleepFactorSource381">⌚ Health Connect</span></div>';
 }
-function sleepFactorCards381(night){
+function sleepFactorCards381(night,profile){
  if(!night)return '';
  var m=hhSleepMetrics382(night),stages=m?m.stages:[],hasStages=stages.length>0;
  var mins={4:0,5:0,6:0,1:0};
@@ -235,7 +290,7 @@ function sleepFactorCards381(night){
   var k=Number(s.stage);if(k===3||k===7)k=1;
   if(mins[k]!=null)mins[k]+=durMin(s.startTime,s.endTime);
  });
- var idx=hhSleepIndex382(m),durationTone=hhSleepTone382(m&&m.actual);
+ var idx=hhSleepIndex382(m),durationTone=hhSleepTone382(m&&m.actual),vitals=hhNightBiometrics384(night,profile);
  var efficiencyTone=hhSleepEfficiency382(m&&m.efficiency);
  function share(n,base){return base>0?Math.round(n/base*100)+'%':'—'}
  function val(n){return n==null?'—':durText(n)}
@@ -262,8 +317,9 @@ function sleepFactorCards381(night){
    card('🌑','Mély alvás',hasStages?val(mins[5]):'—',hasStages?share(mins[5],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
    card('🌙','REM alvás',hasStages?val(mins[6]):'—',hasStages?share(mins[6],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
    card('👁️','Ébrenlét',hasStages?val(mins[1]):'—',efficiencyTone.label,efficiencyTone.tone,'Alváshatékonyság: '+(m&&m.efficiency!=null?Math.round(m.efficiency*100)+'%':'—'))+
-   card('⏳','Elalvási idő','—','Nincs adat','muted','A Samsung egyedi értéke nem érhető el')+
    card('☁️','Könnyű alvás',hasStages?val(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
+   (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')+
   '</div><p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
 }
 function sleepOverview(rows){
@@ -335,7 +391,7 @@ async function render(profileOverride){
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?hhSleepSource381(latest)+sleepFactorHeading383()+sleepOverview(rows)+sleepFactorCards381(night)+sleepLenaComment(rows,requestedProfile)+stageBar(night):
+ (latest?hhSleepSource381(latest)+sleepFactorHeading383()+sleepOverview(rows)+sleepFactorCards381(night,requestedProfile)+sleepLenaComment(rows,requestedProfile)+stageBar(night):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -450,8 +506,9 @@ style();
 })();
 (function(){if(document.getElementById('hhSleepRag382Css'))return;var e=document.createElement('style');e.id='hhSleepRag382Css';e.textContent="/* v382 RAG: color is a transparent measurement signal, not a diagnosis. */\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:7px 0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363{padding:12px 8px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:4px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:10px;line-height:1.28;min-height:0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:23px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 span{font-size:9px}\n.hhSleepPage .hhSleepRag382.good{border-color:#4bb981!important;background:linear-gradient(135deg,#f2fcf6,#e6f8ec)!important}\n.hhSleepPage .hhSleepRag382.warn{border-color:#edb350!important;background:linear-gradient(135deg,#fffaf1,#fff0d8)!important}\n.hhSleepPage .hhSleepRag382.bad{border-color:#e27676!important;background:linear-gradient(135deg,#fff7f6,#ffe8e7)!important}\n.hhSleepPage .hhSleepRag382.muted{border-color:#cbd9e3!important;background:#f4f8fa!important}\n.hhSleepPage .hhSleepRag382.info{border-color:color-mix(in srgb,var(--a) 35%,#d9e7ee)!important;background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--soft) 28%,#fff))!important}\n.hhSleepPage .hhSleepFactorStatus381.bad{background:#ffe0df;color:#a62525}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382{margin-bottom:4px}\n.hhSleepPage .hhSleepScoreText381 .hhSleepFactorStatus381{margin-top:5px;font-size:10px!important;display:inline-flex}\n.hhSleepPage .hhSleepIndexMethod382{margin:0 0 10px 2px;color:#566f81;font-size:10px}\n.hhSleepPage .hhSleepIndexMethod382 summary{cursor:pointer;font-weight:750;min-height:30px;display:flex;align-items:center}\n.hhSleepPage .hhSleepIndexMethod382 p{margin:0 3px 8px;line-height:1.5;border-left:3px solid var(--a);padding-left:8px}\n.hhSleepPage .hhSleepLena364{margin:12px 0 11px}\n@media(max-width:355px){.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:19px}.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:9px}}\n";document.head.appendChild(e)})();
 (function(){if(document.getElementById('hhSleep383Css'))return;var el=document.createElement('style');el.id='hhSleep383Css';el.textContent="/* v383: hero heading below top controls, further right/up. */\n.hhSleepPage .hhSleepDoctorTitle{left:62%;right:8px;top:36%;width:auto;max-width:none}\n.hhSleepPage .hhSleepDoctorTitle span{display:block;font-size:8px;line-height:1.25;overflow-wrap:break-word}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383{margin:10px 2px 7px;align-items:end}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383 h3{font-size:19px}\n.hhSleepPage .hhSleepFactorsSection381{margin-top:4px}\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{margin-top:4px}\n@media(max-width:355px){.hhSleepPage .hhSleepDoctorTitle{left:60%;right:6px;top:38%}.hhSleepPage .hhSleepDoctorTitle h1{font-size:27px}.hhSleepPage .hhSleepDoctorTitle span{font-size:7px}}\n";document.head.appendChild(el)})();
+(function(){if(document.getElementById('hhSleep384Css'))return;var el=document.createElement('style');el.id='hhSleep384Css';el.textContent="/* v384: shorter cards everywhere, readable on 320–420 CSS-px Android screens. */\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363{padding:9px 7px!important;min-height:73px!important;gap:2px!important;border-radius:13px!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:21px!important;line-height:1.15!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:9px!important}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 span{font-size:8px!important}\n.hhSleepPage .hhSleepOverview382{gap:7px!important;margin:3px 0 5px!important}\n.hhSleepPage .hhSleepScoreStrip381{padding:8px 10px!important;gap:7px!important;border-radius:13px!important}\n.hhSleepPage .hhSleepScoreSymbol381{width:30px!important;height:30px!important;flex-basis:30px!important;font-size:19px!important}\n.hhSleepPage .hhSleepScoreText381 b{font-size:11px!important}\n.hhSleepPage .hhSleepScoreText381 small{font-size:8px!important}\n.hhSleepPage .hhSleepScoreText381 .hhSleepFactorStatus381{padding:2px 6px!important;min-height:19px!important;margin-top:2px!important;font-size:9px!important}\n.hhSleepPage .hhSleepScoreStrip381>strong{font-size:25px!important;line-height:1.05!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.bad>strong{color:#ae272b!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.warn>strong{color:#936000!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.good>strong{color:#176b3e!important}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.muted>strong{color:#617786!important}\n.hhSleepPage .hhSleepFactors381{gap:7px!important}\n.hhSleepPage .hhSleepFactor381{min-height:105px!important;padding:9px 9px 8px!important;gap:3px!important;border-radius:14px!important;box-shadow:none!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorLabel381{font-size:11px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorIcon381{font-size:14px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorValue381{font-size:22px!important;line-height:1.12!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorStatus381{font-size:9px!important;min-height:19px!important;padding:3px 7px!important}\n.hhSleepPage .hhSleepFactor381 .hhSleepFactorDetail381{font-size:8px!important;line-height:1.25!important;margin-top:2px!important}\n.hhSleepPage .hhSleepFactor381:last-child:nth-child(odd){grid-column:1/-1}\n.hhSleepPage .hhSleepFactorFoot381{margin:5px 2px 7px!important;font-size:9px!important}\n.hhSleepPage .hhSleepFactorsSection381{margin-top:2px!important}\n.hhSleepPage .hhSleepIndexMethod382 summary{min-height:27px!important}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383{margin:5px 2px 5px!important}\n@media(max-width:355px){\n .hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:18px!important}\n .hhSleepPage .hhSleepFactor381{min-height:103px!important;padding:8px 7px!important}\n .hhSleepPage .hhSleepFactor381 .hhSleepFactorValue381{font-size:20px!important}\n .hhSleepPage .hhSleepScoreStrip381>strong{font-size:22px!important}\n}\n";document.head.appendChild(el)})();
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
-document.documentElement.dataset.healthhubSleep='1.383';window.HH_LIVE_BUILD='v383-sleep-hero-heading-polish';
+document.documentElement.dataset.healthhubSleep='1.384';window.HH_LIVE_BUILD='v384-sleep-compact-vitals-rag-score';
 })();
