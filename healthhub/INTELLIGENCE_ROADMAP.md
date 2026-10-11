@@ -31,12 +31,28 @@ authenticated, explicitly consented Ask Léna AI request → streamed, sourced a
 - Regression tests: no shared-profile data, consent required, input immutability, stale and fresh source handling.
 - No change to mobile APK, medication data or underlying Dropbox health records.
 
-### I-02 · Unified measurement evidence ledger
-- Canonical read-only schema per observation: profile, source application, origin (Health Connect/Samsung/manual),
-  measuredAt, exportedAt, receivedAt, quality, unit, original value, derived status and deduplication key.
-- Merge by source time and authority; preserve both records where measurements legitimately differ.
-- Eliminate stale Samsung summary overwriting new Health Connect (already mitigated for today's Activity in v387).
-- Test on real anonymized scenarios for each profile and missing/duplicated observations.
+### I-02 (v389) · Unified measurement evidence ledger — FIRST IMPLEMENTATION
+- Pure read-only, profile-scoped in-memory ledger `healthhub.intelligence.ledger/1`.
+- For each verified source datum: profile, measurement type, value, unit, observedAt with day/instant precision,
+  exportedAt when known, source system, classification (measured/reported/derived/estimated),
+  traceable data path and source-aware deduplication ID.
+- Preserve overlapping HC/context and Samsung SDK records as **different observations**.
+  Source disagreements are reported, not converted into diagnostic errors.
+- The source that exported more recently can be identified without asserting its value is medically correct.
+- A legacy `0` in the v289 Activity cache might mean an unavailable measurement;
+  it MUST NOT automatically become a measured zero active calorie value.
+- Sleep intervals remain individual segments, not fabricated whole nights.
+- Includes safe bounds, impossible future timestamps, and strict cross-profile handling.
+- Builds locally during a consented Ask Léna request. Only a limited **provenance summary**
+  is attached to the existing approved AI payload, never the full ledger, raw report or tokens.
+- Reads Samsung snapshot **only if the existing Activity screen has already loaded and
+  verified the same profile**, otherwise does not claim Samsung current-day measurements.
+- Regression tests cover Mónika's 39 vs 16 active-minute divergence, duplicate data,
+  source timestamp ordering, missing zeros, sleep segments and profile separation.
+- **Still to do:** produce truly canonical per-observation source metadata at native ingestion
+  (v289 source cache currently merges HC and local records), measuredAt exact times for daily
+  aggregates where providers expose them, and an independently tested persistent private
+  evidence-ledger cache. No source records are mutated in v389.
 
 ### I-03 · Time-series intelligence
 - Daily and weekly trends for steps, measured pulse, sleep duration and actual readings.
