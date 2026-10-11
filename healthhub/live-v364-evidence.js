@@ -10,26 +10,32 @@ function el(id){return document.getElementById(id)}
 function norm(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ')}
 function words(s){return [...new Set(norm(s).split(' ').filter(function(x){return x.length>=4}).slice(0,28))]}
 function field(x){return String(x||'').slice(0,2600)}
-function rank(docs,question){
- var terms=words(question),synonyms=[];
- var q=norm(question);
- if(/fej|migren|szedul|headach/.test(q))synonyms.push('fej','migr','neurolog','vernyomas');
- if(/sziv|mellkas|ritmus|pulzus|kardio|crt|defibr/.test(q))synonyms.push('kardio','sziv','ekg','crt','ritmus');
- if(/alvas|alud|farad|kimerult/.test(q))synonyms.push('alvas','sleep','apno');
- // Hungarian inflections: bokám/bokája ≠ 'boka' as a literal search token.
- // Include both injury records when multiple ankle sprains occurred in one year.
- if(/bok|bokaj|labfej|ficam|randul|kibicsak|bokaszalag/.test(q))
-  synonyms.push('boka','bokaj','ficam','randul','kibicsak','szalag','rogzit','gipsz','ortoped','rontgen');
- terms=terms.concat(synonyms);
- return (docs||[]).map(function(d){
+function rank(docs,question,options){
+ var q=norm(question),terms=words(question),deep=options&&options.mode==='deep';
+ var chronology=/korhaz|mento|omsz|ujraeleszt|intenziv|eszmelet|koma|tortenet|esemeny|idosor|kronolog|beultetes|mutet|szedal|emlekezet/.test(q);
+ var synonyms=[];
+ if(/sziv|kardio|fibrill|ritmus|defibr|crt|pacemaker|ujraeleszt|szivmegall/.test(q))
+  synonyms.push('sziv','szivmegall','kardi','ekg','crt','ritmus','defibr','osztaly','zaro','omsz');
+ if(/koma|szedal|eszmelet|neurolog|emlekezet|intenziv|agy|felbreszt|felébred/.test(q))
+  synonyms.push('intenziv','neurolog','szedal','eszmelet','anesthes','agy','epikr','zaro','mento');
+ if(/alvas|farad|kimerult/.test(q))synonyms.push('alvas','sleep');
+ if(/bok|bokaj|labfej|ficam|randul/.test(q))synonyms.push('boka','bokaj','ficam','randul','szalag','ortoped');
+ var yr=q.match(/\b(?:19|20)\d{2}\b/g)||[];
+ var termsUnique=Array.from(new Set(terms.concat(synonyms))).slice(0,45);
+ var max=deep?12:8;
+ return (docs||[]).filter(function(d){return d&&d.id&&d.title}).map(function(d){
   var explain=d.explanation||{};
-  var name=norm(d.title||''),summary=norm(explain.summary||''),
-   findings=norm([...(Array.isArray(explain.keyFindings)?explain.keyFindings:[]),
-    ...(Array.isArray(explain.meaning)?explain.meaning:[]),
-    ...(Array.isArray(explain.attention)?explain.attention:[])].join(' '));
-  var score=terms.reduce(function(a,t){return a+(name.includes(t)?6:0)+(summary.includes(t)?3:0)+(findings.includes(t)?2:0)},0);
+  var title=norm([d.title,d.category,d.sourceType].join(' ')),description=norm([explain.summary,
+   ...(Array.isArray(explain.keyFindings)?explain.keyFindings:[])].join(' '));
+  var date=String(d.date||'');
+  var yearWeight=yr.some(function(y){return date.slice(0,4)===y})?14:0;
+  var score=yearWeight+termsUnique.reduce(function(a,t){return a+
+    (title.indexOf(t)>=0?6:0)+(description.indexOf(t)>=0?3:0)},0);
+  if(chronology&&/(zaro|korhaz|intenziv|surgoss|surg|omsz|mento|anamnez|epikriz)/.test(title))score+=9;
   return {d:d,score:score};
- }).filter(function(x){return x.score>=3}).sort(function(a,b){return b.score-a.score||String(b.d.date||'').localeCompare(String(a.d.date||''))}).slice(0,8).map(function(x){return x.d});
+ }).filter(function(x){return x.score>0}).sort(function(a,b){
+  return b.score-a.score||String(a.d.date||'').localeCompare(String(b.d.date||''));
+ }).slice(0,max).map(function(x){return x.d});
 }
 function datePrecision(s){
  s=String(s||'').trim();
