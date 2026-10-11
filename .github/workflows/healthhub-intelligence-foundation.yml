@@ -1,0 +1,19 @@
+name: HealthHub Intelligence Source Tests
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v388-intelligence.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/intelligence-v388.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check healthhub/live-v388-intelligence.js
+          node --check healthhub/live-v331.js
+          node healthhub/tests/intelligence-v388.test.cjs
