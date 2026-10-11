@@ -226,6 +226,20 @@ function sleepLenaComment(rows,profile){
  else if(healthy&&mins<420){icon='🙂';title='Van még tartalék';msg=firstName+', most '+durText(mins)+' jött össze 24 óra alatt. Egy kicsivel hosszabb éjszaka segíthet a napközbeni energiaszinten.'}
  else if(healthy&&mins<=540){icon='😌';title='Jól néz ki';msg=firstName+', '+durText(mins)+' pihenés már egész biztató. Remélhetőleg az energiaszinted is hálás lesz érte.'}
  else if(healthy){icon='🌙';title='Hosszabb pihenés';msg=firstName+', '+durText(mins)+' alvást rögzítettem. Ha ez szokatlan, az alvásminőséget és a közérzetet is érdemes figyelni.'}
+ // Stage-aware explanation, never a replacement for Samsung's own proprietary sleep score.
+ if(healthy){
+  var latestNight=hhLatestNight(recent),stages=latestNight&&latestNight.stages||[];
+  if(stages.length){
+   var stageMins={deep:0,rem:0,awake:0};
+   stages.forEach(function(st){
+    var k=Number(st.stage),m=durMin(st.startTime,st.endTime);
+    if(k===5)stageMins.deep+=m;
+    else if(k===6)stageMins.rem+=m;
+    else if(k===1||k===3||k===7)stageMins.awake+=m;
+   });
+   msg+=' A Health Connect fázisadataiban '+durText(stageMins.deep)+' mély, '+durText(stageMins.rem)+' REM és '+durText(stageMins.awake)+' ébrenléti idő látszik. Az alváspontszámot nem becsülöm meg.';
+  }
+ }
  return '<aside class="hhSleepLena364" aria-label="Léna gyors alvásértékelése"><div class="hhSleepMood364">'+icon+'</div><div class="hhSleepLenaText364"><b>💬 Léna · '+esc(title)+'</b><p>'+esc(msg)+'</p><small>⌚ Óraadatokból készült becslés, nem alvásdiagnózis.</small></div></aside>';
 }
 function chart(rows){
