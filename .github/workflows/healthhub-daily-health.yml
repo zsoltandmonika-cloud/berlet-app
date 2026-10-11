@@ -8,6 +8,10 @@ on:
     # UTC in summer or 06:30 UTC in winter. Extra 07:30 UTC is fallback.
     # Python checks actual Europe/Budapest local time and skips wrong slots.
     - cron: "30 22,23,5,6,7 * * *"
+    # Recovery slots: GitHub may skip/delay individual schedules. Each job is
+    # idempotent, generating at most one early + one morning public snapshot.
+    # Local date and DST are checked in generate_daily_health.py.
+    - cron: "17 0,1,2,3,4,8,9,10 * * *"
   workflow_dispatch:
   push:
     branches: [main]
