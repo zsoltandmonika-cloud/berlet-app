@@ -76,7 +76,7 @@ export function auditClinicalDraft(response,evidence,validated){
  const facts=Array.isArray(validated?.facts)?validated.facts:[];
  const factRefs=new Set(facts.map(f=>f.sourceId));
  const sections=[],stats={paragraphs:0,documented:0,demoted:0,unsupportedDurations:0,
-  unsupportedDates:0,badCitations:0,verifiedFacts:facts.length};
+  unsupportedDates:0,unsupportedClinicalNumbers:0,badCitations:0,verifiedFacts:facts.length};
  const modelSections=Array.isArray(response?.sections)?response.sections:[];
  for(const sec of modelSections.slice(0,9)){
   const heading=compact(sec?.heading).slice(0,135)||'További megállapítások';
@@ -92,11 +92,19 @@ export function auditClinicalDraft(response,evidence,validated){
     !trusted.has(mark.slice(1,-1))||!factRefs.has(mark.slice(1,-1)));
    const unsupported=unexpectedDurations(txt,facts);
    const dateExceptions=kind==='documented'?dateAllowed(txt,facts):[];
+   // Other numeric medical values (EF%, vitals, device shocks) need direct
+   // documentary support too, not just time values. The date metadata of a
+   // genuinely cited page can explain its header date but not an invented EF.
+   const relevantFacts=facts.filter(f=>validRefs.includes(f.sourceId));
+   const anchoredNumbers=new Set(relevantFacts.flatMap(f=>numTokens(f.quote+' '+f.documentDate)));
+   const unsupportedNumbers=kind==='documented'?
+    numTokens(txt).filter(n=>!anchoredNumbers.has(n)):[];
    stats.paragraphs++;
    if(unknownIds.length||invalidInline)stats.badCitations++;
    if(unsupported.length)stats.unsupportedDurations+=unsupported.length;
    if(dateExceptions.length)stats.unsupportedDates+=dateExceptions.length;
-   if(unsupported.length||dateExceptions.length||unknownIds.length||invalidInline||
+   if(unsupportedNumbers.length)stats.unsupportedClinicalNumbers+=unsupportedNumbers.length;
+   if(unsupported.length||dateExceptions.length||unsupportedNumbers.length||unknownIds.length||invalidInline||
       (kind==='documented'&&!validRefs.length)||
       (kind==='general'&&isPersonalAssertion(txt))){
     paragraphs.push({text:'Ez a konkrét, személyes állítás a rendelkezésre álló eredeti leletkivonatokból nem igazolható. A pontos részlethez az eredeti dokumentum és szükség esetén orvosi értelmezés kell.',kind:'unknown',sourceIds:[]});
