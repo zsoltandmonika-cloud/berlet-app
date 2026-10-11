@@ -148,6 +148,7 @@ function streamClinicalV395(key:string,question:string,profile:string,documents:
       unverifiedDowngraded:audited.stats.demoted,
       unsupportedDurations:audited.stats.unsupportedDurations,
       unsupportedDates:audited.stats.unsupportedDates,
+      unsupportedClinicalNumbers:audited.stats.unsupportedClinicalNumbers,
       invalidCitations:audited.stats.badCitations}}));
    }catch(error){
     const reason=error instanceof Error?error.message:"clinical_research_unavailable";
