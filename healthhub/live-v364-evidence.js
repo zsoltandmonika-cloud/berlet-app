@@ -203,7 +203,8 @@ async function prepare(question,p,options){
   diagnostics:{matched:0,attempted:0,pagesScanned:0,missing:[],status:'no_context'}};
  if(!ctx||ctx.profile!==p)return empty;
  if(!plan.documents){empty.diagnostics.status='non_document_question';return empty}
- var docs=rank(ctx.documents&&ctx.documents.index,question,plan),allowed=approved(p);
+ var scoped=(ctx.documents&&ctx.documents.index||[]).filter(function(d){return d&&(!d.profile||d.profile===p)});
+ var docs=rank(scoped,question,plan),allowed=approved(p);
  var originals=[],summaries=[],reasons=[],attempted=0,pagesScanned=0;
  if(allowed){
   // Bounded work, but inspect more than the old top-three PDFs. Each doc
