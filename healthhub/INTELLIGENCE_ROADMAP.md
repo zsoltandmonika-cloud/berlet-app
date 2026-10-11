@@ -91,6 +91,23 @@ authenticated, explicitly consented Ask Léna AI request → streamed, sourced a
 - **Still to do:** a server-side structured clinical claim/citation verifier, reliable medical document coverage analysis, professional clinical review of any risk rules, and a supervised UX for uncertainty and adverse medication interactions. AI-generated prose may still contain interpretation errors; the local panel shows which excerpts were supplied, **not that every generated claim is proven**.
 - Existing v364 retrieval can only read a bounded subset of PDF pages and question-ranked documents. Missing evidence must not be presented as proof that a disease or finding is absent.
 
+
+### I-04b (v393) · Adaptive Deep Research & original medical PDF retrieval — FIRST PASS
+**Trigger:** User feedback on a multiweek, historical medical history question. A three-summary/no-original answer was medically generic despite many records in the personal vault.
+
+- A *generic* Hungarian query-aware research planner distinguishes quick questions from medical history, physiological explanation and complex timeline/reconstruction questions. No condition- or patient-specific fixed answer.
+- For deep clinical questions, ranks up to 12 potentially related personal documents by keywords, medical synonyms, document date/year, category and prior explanation. More diverse records (including ambulance, intensive care, admissions and discharge) can be considered, rather than reading only 3 top summaries.
+- Within an existing explicit original-PDF consent, searches up to 6 candidate PDF files and 24 pages each, retaining up to 6 high-ranked page-numbered PDF excerpts, plus short historic JSON explanations (8 evidence items in total).
+- Reads patient-owned, original IndexedDB PDF bytes with same-profile metadata and optional already-authorized Google Drive archived files. Dropbox *structured JSON vault* must not be mistaken for a universally accessible PDF storage service.
+- A scanned image PDF without a searchable text layer remains an unavailable original-text source. No OCR or false page citation is added.
+- Emits provenance status: related files ranked, PDF files attempted, pages scanned, original-page extracts present, and why original records might be missing. If none, the AI prompt explicitly says personal clinical detail cannot be confirmed.
+- Enriches the existing **user-initiated** server-side AI request with a concise reasoning guideline (clinical facts vs generic physiology vs possible causes vs unknowns). Seeks a detailed answer when the question merits it, rather than equating brevity with quality.
+- Does **not** assert any ambulance arrival time, total arrest/no-flow interval, sedation rationale, neurological prognosis, or recovered memory without original primary documentation.
+- Original question remains unchanged in UI and Ask Léna history. All earlier v388–v392 safety, provenance and sharing behaviors must be preserved.
+- **Current limitation:** client-side request steering cannot force the remote model's output length, grant access to missing PDFs, verify every generated sentence, OCR scanned documents or guarantee a complete event chart. A future server-managed multipass evidence gathering and claim-validation workflow is still needed.
+
+**Acceptance criteria:** synthetic test proves beyond-12th-page original extraction, multiple distinct same-year records, explicit PDF consent, wrong-profile prevention, missing-original warnings and no mutation of originals. Real patient validation should include timestamp-by-timestamp evidence, named document references and honest missing segments.
+
 ### I-05 · Continual monitoring and operational reliability
 - Admin Center visibility into latest source date, stale inputs, sync lag, unsuccessful analyses and model availability.
 - Separate app OTA deployment from record synchronization; don't disrupt current Connect.
