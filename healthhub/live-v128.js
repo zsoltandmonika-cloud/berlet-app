@@ -163,7 +163,7 @@ window.hhOpenDocumentDetail=async function(id){
  var opts=Object.keys(CATS).map(function(k){return '<option value="'+k+'"'+(d.category===k?' selected':'')+'>'+esc(CATS[k])+'</option>'}).join('');
  var o=document.getElementById('hrDetailOverlay'),c=document.getElementById('hrDetailContent');if(!o||!c)return;
  c.innerHTML='<h2>'+esc(d.originalName)+'</h2><div class="hrDetailMeta">'+esc(pname(d.profile))+' · '+esc(CATS[d.category]||d.category||'')+' · '+esc(fmtDate(d.documentDate))+'</div>'+
- '<div class="vaultTools"><button class="vaultBtn primary" onclick="openHrDocument(\''+d.id+'\')">Megnyitás</button><button class="vaultBtn" onclick="hhPrintDocument(\''+d.id+'\')">Nyomtatás</button></div>'+
+ '<div class="vaultTools"><button class="vaultBtn primary" onclick="openHrDocument(\''+d.id+'\')">📄 Megnyitás</button><button class="vaultBtn" onclick="hhDocShareV392(\''+d.id+'\')">📤 Megosztás</button><button class="vaultBtn" onclick="hhDocPrintV392(\''+d.id+'\')">🖨️ Nyomtatás</button></div>'+
  '<h4>Dokumentum adatai</h4><label><small>Dokumentumnév</small><input id="hhDeName" value="'+esc(d.originalName)+'" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 10px;margin-top:4px"></label>'+
  '<div class="hrStatGrid" style="margin-top:9px"><label><small>Profil</small><select id="hhDeProfile" style="width:100%;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 8px;margin-top:4px"><option value="zsolt"'+(d.profile==='zsolt'?' selected':'')+'>Zsolt</option><option value="monika"'+(d.profile==='monika'?' selected':'')+'>Mónika</option></select></label><label><small>Dátum</small><input id="hhDeDate" type="date" value="'+esc(d.documentDate||'')+'" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 8px;margin-top:4px"></label></div>'+
  '<label><small>Kategória</small><select id="hhDeCategory" style="width:100%;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 8px;margin-top:4px">'+opts+'</select></label>'+
@@ -175,10 +175,11 @@ window.hhSaveDocumentMeta=async function(id){
  d.originalName=(document.getElementById('hhDeName').value||d.originalName).trim();d.profile=document.getElementById('hhDeProfile').value;d.category=document.getElementById('hhDeCategory').value;d.documentDate=document.getElementById('hhDeDate').value||null;
  await put('documents',d);document.getElementById('hrDetailOverlay').classList.remove('on');toastMsg('Dokumentum adatai mentve');await window.renderHealthSection();if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
 };
-window.hhPrintDocument=async function(id){
- var x=await one('documentBlobs',id);if(!x||!x.blob){toastMsg('A dokumentumfájl nem található.');return}
- var url=URL.createObjectURL(x.blob),w=window.open(url,'_blank');if(!w){URL.revokeObjectURL(url);toastMsg('A böngésző letiltotta az új ablakot.');return}
- setTimeout(function(){try{w.focus();w.print()}catch(e){toastMsg('A dokumentum megnyílt; válaszd a Nyomtatás lehetőséget.')}},900);setTimeout(function(){URL.revokeObjectURL(url)},120000);
+window.hhPrintDocument=function(id){
+ // Retain old callers, use the same profile-gated full original print flow.
+ if(window.hhDocPrintV392)return window.hhDocPrintV392(id);
+ toastMsg('A nyomtatási modul még betöltés alatt áll.');
+ return false;
 };
 
 var prevRender=window.renderHealthSection;
