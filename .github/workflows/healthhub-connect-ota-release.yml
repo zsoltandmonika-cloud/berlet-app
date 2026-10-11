@@ -1,0 +1,158 @@
+name: HealthHub Connect · Signed OTA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/android-bridge/**"
+      - ".github/workflows/healthhub-connect-ota-release.yml"
+  workflow_dispatch:
+    inputs:
+      rollout:
+        description: "Engedélyezett profilok: pilot=Zsolt; all=Zsolt és Mónika"
+        required: true
+        default: "pilot"
+        type: choice
+        options:
+          - pilot
+          - all
+
+permissions:
+  contents: write
+
+concurrency:
+  group: healthhub-connect-ota-release
+  cancel-in-progress: false
+
+jobs:
+  ota_release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
+      ROLLOUT: ${{ github.event.inputs.rollout || 'pilot' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Confirm long-lived signing credentials
+        id: signing
+        shell: bash
+        run: |
+          if [[ -n "$HH_OTA_KEYSTORE_B64" && -n "$HH_OTA_KEYSTORE_PASSWORD" && -n "$HH_OTA_KEY_ALIAS" && -n "$HH_OTA_KEY_PASSWORD" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::OTA signing not configured. NO update is released. See healthhub/android-bridge/OTA_DEPLOYMENT.md"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-java@v4
+        if: steps.signing.outputs.ready == 'true'
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK 36
+        if: steps.signing.outputs.ready == 'true'
+        shell: bash
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.signing.outputs.ready == 'true'
+        with:
+          gradle-version: "8.13"
+
+      - name: Build, verify and stage release
+        if: steps.signing.outputs.ready == 'true'
+        id: package
+        shell: bash
+        working-directory: healthhub/android-bridge
+        run: |
+          set -euo pipefail
+          export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-connect-ota-signing.jks"
+          trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 -d > "$HH_OTA_KEYSTORE_PATH"
+          chmod 600 "$HH_OTA_KEYSTORE_PATH"
+          gradle :app:assembleRelease --no-daemon --stacktrace
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
+          CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -1)"
+          test -n "$VERSION" && test -n "$CODE"
+          DEST="$GITHUB_WORKSPACE/HealthHub-Connect-v${VERSION}-ota.apk"
+          cp "$APK" "$DEST"
+          SHA="$(sha256sum "$DEST" | cut -d' ' -f1)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Publish immutable signed release
+        if: steps.signing.outputs.ready == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.package.outputs.version }}
+          SHA: ${{ steps.package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          TAG="healthhub-connect-ota-v$VERSION"
+          APK="HealthHub-Connect-v$VERSION-ota.apk"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Existing signed release: verifying existing asset without overwriting."
+            mkdir -p "$RUNNER_TEMP/ota-existing"
+            gh release download "$TAG" --pattern "$APK" --dir "$RUNNER_TEMP/ota-existing"
+            mv "$RUNNER_TEMP/ota-existing/$APK" "$APK"
+          else
+            gh release create "$TAG" "$APK" \
+              --title "HealthHub Connect v$VERSION · signed OTA" \
+              --notes "HealthHub signed, checksum-verified APK. Android confirmation required. Initial rollout: Zsolt."
+          fi
+          ASSET_SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
+          echo "ASSET_SHA256=$ASSET_SHA" >> "$GITHUB_ENV"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Publish staged OTA manifest
+        if: steps.signing.outputs.ready == 'true'
+        shell: bash
+        env:
+          VERSION: ${{ steps.package.outputs.version }}
+          VERSION_CODE: ${{ steps.package.outputs.version_code }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib
+          version = os.environ['VERSION']
+          profiles = ['zsolt', 'monika'] if os.environ['ROLLOUT'] == 'all' else ['zsolt']
+          tag = os.environ['TAG']
+          out = {
+              'schema': 'healthhub.connect.ota/1',
+              'channel': 'signed-release',
+              'applicationId': 'hu.zsoltmonika.healthhubbridge',
+              'version': version,
+              'versionCode': int(os.environ['VERSION_CODE']),
+              'rolloutProfiles': profiles,
+              'downloadUrl': 'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/' + tag + '/HealthHub-Connect-v' + version + '-ota.apk',
+              'sha256': os.environ['ASSET_SHA256']
+          }
+          p = pathlib.Path('healthhub/data/bridge-ota.json')
+          p.write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print('OTA manifest prepared, rollout:', len(profiles), 'profile(s); sha256 verified.')
+          PY
+          git config user.name "healthhub-ota-bot"
+          git config user.email "healthhub-ota-bot@users.noreply.github.com"
+          git add healthhub/data/bridge-ota.json
+          if git diff --staged --quiet; then
+            echo "OTA manifest already current."
+            exit 0
+          fi
+          git commit -m "release: signed HealthHub Connect v$VERSION OTA · $ROLLOUT"
+          git pull --rebase origin main
+          git push origin HEAD:main

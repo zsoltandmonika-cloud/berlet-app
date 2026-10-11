@@ -64,6 +64,14 @@ class OrchestratorWorker(
             .put("platform", "Android " + Build.VERSION.RELEASE)
             .put("browser", JSONObject.NULL)
             .put("build", BuildConfig.VERSION_NAME)
+            .put("buildCode", BuildConfig.VERSION_CODE)
+            .put("otaUpdateAvailable", OtaUpdateManager.cached(applicationContext) != null)
+            .put("otaCandidateVersion", OtaUpdateManager.cached(applicationContext)?.version ?: JSONObject.NULL)
+            .put("otaLastCheckedAt",
+                OtaUpdateManager.lastChecked(applicationContext).takeIf { it > 0L }?.let {
+                    java.time.Instant.ofEpochMilli(it).toString()
+                } ?: JSONObject.NULL)
+            .put("otaLastError", OtaUpdateManager.lastError(applicationContext) ?: JSONObject.NULL)
             .put("profileCapability", profiles)
             .put("activeProfile", owner ?: JSONObject.NULL)
             .put("capabilities", JSONArray().put("health").put("daily"))
@@ -213,6 +221,19 @@ class OrchestratorWorker(
                         failed++
                         steps.put(step("health", "Health + Activity", "failed", e.message ?: e.javaClass.simpleName))
                     }
+                }
+            }
+
+            if ("ota" in requestedScopes) {
+                try {
+                    val candidate = OtaUpdateManager.check(applicationContext)
+                    if (candidate != null) OtaUpdateManager.notifyAvailable(applicationContext, candidate)
+                    steps.put(step("ota", "Software Update", "done",
+                        if (candidate == null) "Nincs engedélyezett új kiadás."
+                        else "v${candidate.version} értesítés elküldve; telepítéshez telefonos jóváhagyás szükséges."))
+                } catch (e: Exception) {
+                    failed++
+                    steps.put(step("ota", "Software Update", "failed", e.message ?: e.javaClass.simpleName))
                 }
             }
 

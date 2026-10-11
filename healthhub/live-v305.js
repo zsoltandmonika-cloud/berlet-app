@@ -241,15 +241,16 @@ function fmtAge(s){
 function scopeFromUi(){var e=document.getElementById('hhOrchScope305');return e?e.value:'full'}
 async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
- var devices=await loadDevices(),selected=devices.filter(function(d){
+ var scope=overrideScope||scopeFromUi(),devices=await loadDevices(),selected=devices.filter(function(d){
   if(deviceFilter&&d.deviceId!==deviceFilter)return false;
+  if(scope==='ota'&&d.deviceType!=='android')return false;
   if(profileScope==='all')return true;
   return (d.profileCapability||[]).indexOf(profileScope)>=0;
  });
  if(!selected.length)throw new Error('Nincs megfelelő regisztrált eszköz.');
- var scope=overrideScope||scopeFromUi(),id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
+ var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
-  if(d.deviceType==='android'&&scope!=='full'&&scope!=='health'&&scope!=='daily')return;
+  if(d.deviceType==='android'&&scope!=='full'&&scope!=='health'&&scope!=='daily'&&scope!=='ota')return;
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
@@ -287,10 +288,11 @@ function renderAdmin(){
  ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
  var rows=deviceCache.map(function(d){
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
+  var ota=d.deviceType==='android'?(' · Connect v'+esc(d.build||'?')+(d.otaUpdateAvailable?' · 🟡 OTA v'+esc(d.otaCandidateVersion||'?')+' ELÉRHETŐ':' · OTA: nincs frissítés')):'';
   return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'">SYNC</button></div>';
  }).join('');
  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · minden regisztrált eszköz központilag indítható</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="full">FULL SYNC</option><option value="structured">Structured Vault</option><option value="profile">Profile Vault</option><option value="health">Health + Activity</option><option value="devices">Devices Cloud</option><option value="lena">Léna Context</option><option value="daily">Daily Cloud</option></select><button class="primary" id="hhOrchAll305">↻ ALL DEVICES</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="full">FULL SYNC</option><option value="structured">Structured Vault</option><option value="profile">Profile Vault</option><option value="health">Health + Activity</option><option value="devices">Devices Cloud</option><option value="lena">Léna Context</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ ALL DEVICES</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>Működés:</b> a nyitott webes kliensek legfeljebb kb. 60 mp-en belül veszik fel a parancsot. Offline kliens Pending marad és a következő induláskor végrehajtja. A HealthHub Connect Android háttérben WorkManagerrel ellenőriz; az Android nem kap valótlan „instant push” ígéretet.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
