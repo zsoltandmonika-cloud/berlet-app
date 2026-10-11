@@ -94,13 +94,14 @@ def main():
     today=NOW.strftime("%Y-%m-%d")
     mode=(sys.argv[1] if len(sys.argv)>1 else "auto").lower()
     if mode=="auto":
-        # The private, opt-in Daily Health report can be requested after midnight.
-        # Run an early public snapshot at 00:10 Budapest (UTC DST-aware crons
-        # are filtered here), then refresh it after 07:15 for morning accuracy.
-        early=NOW.hour==0 and NOW.minute>=10
-        morning=NOW.hour>7 or NOW.hour==7 and NOW.minute>=15
-        if not (early or morning):
-            print("Outside Budapest midnight / morning generation windows");return
+        # GitHub schedule can be delayed by hours. Any scheduled run after
+        # 00:10 local time may supply today's early source until 07:15;
+        # after 07:15 refresh once for the morning snapshot. Never silently
+        # skip a late midnight job just because it is now 03:00 local.
+        if NOW.hour==0 and NOW.minute<10:
+            print("Daily Health: waiting until 00:10 Budapest");return
+        early=NOW.hour<7 or (NOW.hour==7 and NOW.minute<15)
+        morning=not early
         if OUTPUT.exists():
             try:
                 old=json.loads(OUTPUT.read_text(encoding="utf-8"))
