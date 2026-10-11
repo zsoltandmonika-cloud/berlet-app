@@ -170,7 +170,7 @@ export function formatClinicalAnswer(report,index){
     if(!s)return '';
     return s.title+' ('+(s.documentDate||'keltezés nélkül')+', '+s.page+'. oldal)';
    }).filter(Boolean);
-   if(refs.length)text+='\n*Forrás: '+refs.join('; ')+'*';
+   if(refs.length)text+='\n**Forrás:** '+refs.join('; ');
    paragraphs.push(text);
   }
   if(paragraphs.length){
