@@ -1,0 +1,36 @@
+name: HealthHub Intelligence · Deep Evidence Research
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v364-evidence.js"
+      - "healthhub/live-v393-research.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/intelligence-deep-research-v393.test.cjs"
+      - ".github/workflows/healthhub-deep-research.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v364-evidence.js"
+      - "healthhub/live-v393-research.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/intelligence-deep-research-v393.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deep-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify request preparation and older Intelligence regressions
+        run: |
+          node --check healthhub/live-v364-evidence.js
+          node --check healthhub/live-v393-research.js
+          node --check healthhub/live-v331.js
+          node healthhub/tests/intelligence-deep-research-v393.test.cjs
+          node healthhub/tests/intelligence-clinical-v391.test.cjs
+          node healthhub/tests/intelligence-trends-v390.test.cjs
+          node healthhub/tests/intelligence-ledger-v389.test.cjs
+          node healthhub/tests/intelligence-v388.test.cjs
+          node healthhub/tests/share-print-v392.test.cjs
