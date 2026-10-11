@@ -100,49 +100,93 @@ async function pdfLib(){
  if(!libPromise)libPromise=import(PDF).then(function(z){if(z.GlobalWorkerOptions)z.GlobalWorkerOptions.workerSrc=WORKER;return z});
  return libPromise;
 }
-function idbBlob(id){
- return new Promise(function(ok){
+function idbOriginal(id,p){
+ return new Promise(function(resolve){
+  var settled=false;
+  function finish(v){if(!settled){settled=true;resolve(v)}}
   try{
    var r=indexedDB.open('healthhub-healthradar-v2',1);
-   r.onerror=function(){ok(null)};
+   r.onerror=function(){finish({blob:null,reason:'local_db_unavailable'})};
    r.onsuccess=function(){
     var db=r.result;
-    if(!db.objectStoreNames.contains('documentBlobs')){db.close();ok(null);return}
-    var q=db.transaction('documentBlobs','readonly').objectStore('documentBlobs').get(id);
-    q.onsuccess=function(){var x=q.result;db.close();ok(x&&x.blob||null)};
-    q.onerror=function(){db.close();ok(null)};
-   }
-  }catch(e){ok(null)}
+    if(!db.objectStoreNames.contains('documentBlobs')||!db.objectStoreNames.contains('documents')){
+     db.close();finish({blob:null,reason:'local_document_store_missing'});return;
+    }
+    var tx=db.transaction(['documents','documentBlobs'],'readonly'),metadata=null,blobs=null,ready=0;
+    function done(){
+     if(++ready!==2)return;
+     db.close();
+     if(!metadata){finish({blob:null,reason:'local_document_missing'});return}
+     if(metadata.profile!==p){finish({blob:null,reason:'profile_mismatch'});return}
+     finish({blob:blobs&&blobs.blob instanceof Blob?blobs.blob:null,
+      reason:blobs&&blobs.blob instanceof Blob?'local_original':'local_pdf_missing'});
+    }
+    var m=tx.objectStore('documents').get(id),b=tx.objectStore('documentBlobs').get(id);
+    m.onsuccess=function(){metadata=m.result;done()};
+    b.onsuccess=function(){blobs=b.result;done()};
+    m.onerror=b.onerror=function(){db.close();finish({blob:null,reason:'local_db_read_error'})};
+   };
+  }catch(e){finish({blob:null,reason:'local_db_unavailable'})}
  });
 }
-async function originalBlob(d){
- var local=await idbBlob(d.id);if(local instanceof Blob)return local;
+async function originalBlob(d,p){
+ if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+ var local=await idbOriginal(d.id,p);
+ if(local.reason==='profile_mismatch')return {blob:null,reason:'profile_mismatch'};
+ if(local.blob&&local.blob.size<=15000000)return {blob:local.blob,reason:'local_original'};
+ if(local.blob&&local.blob.size>15000000)return {blob:null,reason:'local_pdf_too_large'};
+ // External originals are only ever fetched by the already explicitly
+ // authorized same-profile Google Drive token. Dropbox structured vault
+ // holds JSON records, NOT a verified mirror of original PDF files.
  var map=window.hhGetLenaArchiveMap294&&window.hhGetLenaArchiveMap294()||{};
  var archive=d.driveArchive||map[String(d.id)]||null;
- if(!archive||!archive.fileId||typeof window.hhGetGoogleDriveToken292!=='function')return null;
- var tok=await window.hhGetGoogleDriveToken292(false); // Never display OAuth account chooser here.
- var res=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(archive.fileId)+'?alt=media',
+ if(!archive||!archive.fileId)return {blob:null,reason:local.reason||'no_original_file_locator'};
+ if(typeof window.hhGetGoogleDriveToken292!=='function')
+  return {blob:null,reason:'google_drive_not_authorized'};
+ var tok=null;
+ try{tok=await window.hhGetGoogleDriveToken292(false)}catch(e){}
+ if(!tok)return {blob:null,reason:'google_drive_not_authorized'};
+ if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+ try{
+  var resp=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(archive.fileId)+'?alt=media',
    {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
- if(!res.ok)return null;
- var buf=await res.blob();return buf.size<=10000000?buf:null;
+  if(!resp.ok)return {blob:null,reason:resp.status===403||resp.status===401?'google_drive_no_permission':'google_drive_unavailable'};
+  var b=await resp.blob();
+  if(b.size>15000000)return {blob:null,reason:'remote_pdf_too_large'};
+  return {blob:b,reason:'authorized_google_drive'};
+ }catch(e){return {blob:null,reason:'google_drive_download_failed'}}
 }
-async function extractText(d,question){
- var blob=await originalBlob(d);
- if(!blob||blob.size>10000000||!(blob.type==='application/pdf'||/\.pdf$/i.test(d.title||'')))return null;
+async function extractText(d,question,p,plan){
+ var checked=await originalBlob(d,p),blob=checked.blob;
+ if(!blob)return {pages:[],reason:checked.reason};
+ if(!/pdf/i.test(blob.type||'')&&!/\.pdf$/i.test(d.title||''))return {pages:[],reason:'not_pdf'};
  var pdf=null;
  try{
-  var lib=await pdfLib();pdf=await lib.getDocument({data:new Uint8Array(await blob.arrayBuffer())}).promise;
-  var terms=words(question),best=null,bestScore=-1;
-  for(var page=1;page<=Math.min(pdf.numPages,12);page++){
-   var obj=await pdf.getPage(page),raw=(await obj.getTextContent()).items.map(function(x){return x.str||''}).join(' ').replace(/\s+/g,' ');
-   var txt=raw.slice(0,3800);if(txt.length<80)continue;
-   var lower=norm(txt),score=terms.reduce(function(a,t){return a+(lower.includes(t)?1:0)},0);
-   if(score>bestScore){bestScore=score;best={text:txt.slice(0,2200),page:page}};
-   if(score>=5)break;
+  var lib=await pdfLib(),buf=new Uint8Array(await blob.arrayBuffer());
+  if(p!==profile())throw Error('Profilváltás: PDF-olvasás megszakítva.');
+  pdf=await lib.getDocument({data:buf}).promise;
+  var terms=words(question),yearMatch=String(question||'').match(/\b(?:19|20)\d{2}\b/g)||[];
+  var limit=Math.min(pdf.numPages,plan&&plan.pagesPerDocument||12),candidates=[];
+  for(var page=1;page<=limit;page++){
+   if(p!==profile())throw Error('Profilváltás: PDF-olvasás megszakítva.');
+   var obj=await pdf.getPage(page);
+   var raw=(await obj.getTextContent()).items.map(function(x){return x.str||''}).join(' ').replace(/\s+/g,' ');
+   if(raw.length<80)continue;
+   var text=raw.slice(0,12000),n=norm(text);
+   var score=terms.reduce(function(sum,t){return sum+(n.indexOf(t)>=0?2:0)},0);
+   score+=yearMatch.some(function(y){return n.indexOf(y)>=0})?6:0;
+   if(/mento|omsz|cpr|rosc|fibrill|szedal|eszmelet|defibr|intenziv/.test(norm(question)))
+    score+=(n.match(/cpr|rosc|fibrill|omsz|mento|intenziv|szedal|eszmelet|ujraeleszt|defibr/g)||[]).length;
+   candidates.push({page:page,text:text.slice(0,plan&&plan.excerptMax||1950),score:score});
   }
-  return best;
- }catch(e){return null}
- finally{if(pdf)try{pdf.destroy()}catch(e){}}
+  candidates.sort(function(a,b){return b.score-a.score||a.page-b.page});
+  var take=plan&&plan.mode==='deep'?2:1;
+  return {pages:candidates.slice(0,take),reason:candidates.length?'pdf_text_extracted':'no_searchable_pdf_text',
+   scannedPages:limit,totalPages:pdf.numPages,origin:checked.reason};
+ }catch(e){
+  if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+  return {pages:[],reason:'pdf_read_failed'};
+ }finally{if(pdf)try{pdf.destroy()}catch(e){}}
 }
 async function prepare(question,p){
  if(p!==profile())throw Error('Profilváltás miatt a leletkutatás megszakadt.');
