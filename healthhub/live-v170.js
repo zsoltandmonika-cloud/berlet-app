@@ -182,7 +182,17 @@ function hhSleepMetrics382(night){
  var enough=stages.some(function(s){return [2,4,5,6].includes(Number(s.stage))&&durMin(s.startTime,s.endTime)>0});
  var actual=enough?hhSleepOverlaps(hhSleepIntervals(night.sessions),start,end):null;
  if(actual!=null&&(actual<0||actual>windowMin*1.02))actual=null;
- return {start:start,end:end,windowMin:windowMin,actual:actual,efficiency:actual==null?null:actual/windowMin,stages:stages};
+ var knownStageIntervals=stages.filter(function(st){return [1,2,3,4,5,6,7].includes(Number(st.stage))}).map(function(st){
+  return [Math.max(start,Date.parse(st.startTime)),Math.min(end,Date.parse(st.endTime))];
+ }).filter(function(a){return Number.isFinite(a[0])&&Number.isFinite(a[1])&&a[1]>a[0]}).sort(function(a,b){return a[0]-b[0]});
+ var covered=0,left=null,right=null;
+ knownStageIntervals.forEach(function(pair){
+  if(left==null){left=pair[0];right=pair[1]}else if(pair[0]<=right){right=Math.max(right,pair[1])}
+  else{covered+=right-left;left=pair[0];right=pair[1]}
+ });
+ if(left!=null)covered+=right-left;
+ var coverage=Math.min(1,Math.max(0,covered/60000/windowMin));
+ return {start:start,end:end,windowMin:windowMin,actual:actual,efficiency:actual==null?null:actual/windowMin,coverage:coverage,stages:stages};
 }
 function hhSleepTone382(min){
  if(min==null||!Number.isFinite(min))return {tone:'muted',label:'Nincs értékelhető adat'};
@@ -201,9 +211,9 @@ function hhSleepEfficiency382(ratio){
    +35% measured sleep efficiency (90% target, 50% zero baseline).
    Caps: under 6h <=59, under 7h <=79, efficiency under 75% <=79.
    It is NOT Samsung's proprietary score and NOT a validated clinical instrument.
-   Insufficient stage coverage => no computed index. */
+   Less than 80% valid sleep-stage timeline coverage => no computed index. */
 function hhSleepIndex382(m){
- if(!m||m.actual==null||m.windowMin<=0||m.actual<15||m.efficiency==null)return null;
+ if(!m||m.actual==null||m.windowMin<=0||m.actual<15||m.efficiency==null||m.coverage<.80)return null;
  var durationPart=65*Math.max(0,Math.min(1,m.actual/480));
  var efficiencyPart=35*Math.max(0,Math.min(1,(m.efficiency-.5)/.4));
  var score=Math.round(durationPart+efficiencyPart);
@@ -240,7 +250,7 @@ function sleepFactorCards381(night){
    (idx?'<span class="hhSleepFactorStatus381 '+idx.tone+'">'+idx.label+'</span>':'<span class="hhSleepFactorStatus381 muted">Nincs elég adat</span>')+
    '</div><strong>'+(idx?idx.score:'—')+' <small>/ 100</small></strong></div>';
  var expl='<details class="hhSleepIndexMethod382"><summary>ℹ️ Hogyan számoljuk az alvásindexet?</summary>'+
-  '<p>Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. Hiányzó alvásszakasz-adatokból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.</p></details>';
+  '<p>Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. 80%-nál hiányosabb alvásfázis-idővonalból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.</p></details>';
  return '<section class="hhSleepFactorsSection381" aria-label="Alvási tényezők">'+
   '<div class="hhSleepFactorHeading381"><div><small>ALVÁSELEMZÉS</small><h3>Alvási tényezők</h3></div><span class="hhSleepFactorSource381">⌚ Health Connect</span></div>'+
   score+expl+
