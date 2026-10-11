@@ -47,7 +47,7 @@ const assert=require('node:assert/strict');
  assert.ok(res.sections[0].paragraphs.every(x=>!x.text.includes('20 perc')));
  assert.ok(res.sections[1].paragraphs[1].text.startsWith('Lehetséges, hogy'));
  const formatted=x.formatClinicalAnswer(res,idx);
- assert.ok(formatted.includes('Forrás: Szintetikus kórházi lap (2024-06-17, 3. oldal)'));
+ assert.ok(formatted.includes('**Forrás:** Szintetikus kórházi lap (2024-06-17, 3. oldal)'));
  assert.ok(!formatted.includes('D17:p5'));
  assert.ok(!formatted.includes('2024.08.19'));
  assert.ok(formatted.includes('legalább 20 perc')===false);
