@@ -3,7 +3,7 @@
  * network calls, application globals, or user-specific rules.
  * An original PDF excerpt is NOT a comprehensive medical record.
  */
-const MAX_ORIGINALS=8;
+const MAX_ORIGINALS=12;
 const compact=x=>String(x==null?'':x).replace(/\s+/g,' ').trim();
 const norm=x=>compact(x).toLocaleLowerCase('hu-HU');
 const numTokens=x=>(compact(x).match(/\d+(?:[.,]\d+)?/g)||[]).map(v=>v.replace(',','.'));
@@ -25,7 +25,7 @@ export function buildEvidenceIndex(documents,profile){
 export function verifyExtractedFacts(response,evidence){
  const trusted=new Map(evidence.map(d=>[d.id,d])),out=[],seen=new Set(),issues=[];
  const proposed=Array.isArray(response?.facts)?response.facts:[];
- for(const f of proposed.slice(0,32)){
+ for(const f of proposed.slice(0,48)){
   if(!f||!validId(f.sourceId)||!trusted.has(f.sourceId)){issues.push('unrecognized_source');continue;}
   const source=trusted.get(f.sourceId),quote=compact(f.quote),claim=compact(f.fact);
   if(quote.length<18||quote.length>480||claim.length<10||claim.length>390){issues.push('invalid_claim_length');continue;}
@@ -39,7 +39,7 @@ export function verifyExtractedFacts(response,evidence){
   out.push({sourceId:f.sourceId,quote,fact:claim,documentTitle:source.title,
    documentDate:source.documentDate,page:source.page});
  }
- return {facts:out.slice(0,22),rejected:issues.length,issues:issues.slice(0,12)};
+ return {facts:out.slice(0,40),rejected:issues.length,issues:issues.slice(0,12)};
 }
 function durationValues(text){
  // A cardiac EF of 20% does NOT validate a 20-minute cardiac arrest.
@@ -93,7 +93,7 @@ export function buildEventCandidates(validated){
  })).sort((a,b)=>{
   if(a.eventDate&&b.eventDate)return a.eventDate.localeCompare(b.eventDate);
   return a.eventDate?-1:b.eventDate?1:0;
- }).slice(0,22);
+ }).slice(0,40);
 }
 const allowedKinds=new Set(['documented','general','possible','unknown']);
 export function auditClinicalDraft(response,evidence,validated){
@@ -181,5 +181,5 @@ export function formatClinicalAnswer(report,index){
  // Never turn every unsupported claim into its own warning. If absolutely
  // no source-backed statement is retained, state the limitation once.
  if(!lines.length)return 'A rendelkezésre álló kivonatokból ehhez a konkrét kérdéshez most nem sikerült ellenőrzött személyes eseményleírást összeállítani.';
- return lines.join('\n\n').slice(0,16500);
+ return lines.join('\n\n').slice(0,26000);
 }
