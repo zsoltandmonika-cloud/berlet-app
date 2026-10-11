@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-10",
-  "generatedAt": "2026-10-10T12:39:34+02:00",
+  "date": "2026-10-11",
+  "generatedAt": "2026-10-11T12:52:14+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "A részletekben rejlő varázslat napja",
+      "headline": "Szűz nap: Rendet teremteni a kreativitásban",
       "sections": {
-        "focus": "Ma engedd meg magadnak, hogy apró részletekre koncentrálj, mert ezek hozzák el a legnagyobb előrelépést.",
-        "workMoney": "Egy jól átgondolt lépés ma előrébb visz, ne siess, inkább légy alapos.",
-        "relationships": "Figyelj az apró gesztusokra a kapcsolataidban, ezek erősítik a bizalmat.",
-        "energy": "Engedj időt magadnak a regenerálódásra, energiád akkor lesz igazán termékeny, ha nem hajszolod túl magad.",
-        "evening": "Az estét töltsd olvasással vagy kellemes elmélkedéssel, így szellemileg is feltöltődsz.",
-        "lenaThought": "Az apróságokban rejlő szépség ma különösen inspiráló lehet számodra."
+        "focus": "Ma különösen jól jössz ki a részletek megértésével, használd ezt építő ötletek kidolgozására.",
+        "workMoney": "Az aprólékos tervezés segít abban, hogy egy váratlan helyzetben is magabiztos maradj.",
+        "relationships": "Az őszinte beszélgetések most mélyebb kapcsolódást hozhatnak közted és szeretteid között.",
+        "energy": "Figyelj a tested apró jelzéseire, a kiegyensúlyozott rutin javíthatja a közérzeted.",
+        "evening": "Szánj időt egy kreatív hobbira, ami segít ellazulni és feltöltődni.",
+        "lenaThought": "Az apróságokra való odafigyelésed most épp úgy ragyog, mint egy jól csiszolt drágakő."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Szokatlan utak és friss ötletek napja",
+      "headline": "Vízöntő nap: Szabadítsd fel a gondolataidat",
       "sections": {
-        "focus": "Merj kilépni a megszokott keretekből, mert új ötletek születhetnek a szabad gondolkodásból.",
-        "workMoney": "Engedd meg magadnak ma a kreatív megközelítéseket, a szokatlan megoldások segítenek előbbre jutni.",
-        "relationships": "Nyitottságoddal ma könnyen teremthetsz új, izgalmas kapcsolatokat, vagy frissítheted a régieket.",
-        "energy": "Próbálj meg ma valami szokatlan mozgásformát, ami feldobja a napodat és feltölt energiával.",
-        "evening": "Az este lehetőséget ad mélyebb társalgásra barátokkal vagy szeretteiddel, élj vele.",
-        "lenaThought": "Az eredetiség és a szabadság ma a legjobb szövetségeseid."
+        "focus": "Az innovatív ötleteid ma új megoldásokat szülhetnek, merj kilépni a megszokott keretek közül.",
+        "workMoney": "Egy váratlan inspiráció segíthet átlendülni egy nehéz feladaton, figyelj a jelekre.",
+        "relationships": "Nyitottságoddal és humánus hozzáállásoddal mások szemében mai nap te vagy a biztató szikra.",
+        "energy": "Engedd, hogy a kíváncsiságod vezessen, de figyelj arra is, hogy pihenj és töltődj fel.",
+        "evening": "Egy könnyed társas esemény vagy beszélgetés feldobhatja a hangulatod és új perspektívákat adhat.",
+        "lenaThought": "Szárnyalj bátran, hiszen a mai nap a szabadság és a megújulás ünnepe lehet számodra."
       }
     }
   },

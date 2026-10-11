@@ -1,275 +1,248 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-10",
-  "generatedAt": "2026-10-10T12:39:38+02:00",
-  "headline": "Trump orosz dízelmegállapodása és Magyarország közös uniós forrásvadászata Romániával dominálja a híreket",
+  "date": "2026-10-11",
+  "generatedAt": "2026-10-11T12:52:20+02:00",
+  "headline": "Trump Ukrajna új elnökét sürgeti, miközben Zelenszkij a dízelüzletet bírálja; Magyarország lakossága és időjárása jelentős kihívások előtt áll",
   "sections": [
     {
       "id": "ai-summary",
       "title": "🧠 Léna AI-elemzése",
       "items": [
-        "Trump orosz dízelüzlete felkavarta az energiapolitikai vitákat, miközben Magyarország és Románia együttműködik az uniós milliárdos forrásokért. Emellett az Európai Bizottság eltávolította a V-Híd projekt támogatását korrupciós gyanú miatt."
+        "A nemzetközi hírek középpontjában Trump Ukrajna elnökének cseréjével kapcsolatos kijelentései és Zelenszkij dízelmegállapodás elleni kritikája állnak. Magyarország hosszú távú népességcsökkenéssel és extrém időjárási jelenségekkel néz szembe, miközben az ország az AI technológia alkalmazásában a visegrádi országok élére került. Gazdasági szempontból az euró bevezetésének potenciális megtakarításai és az európai uniós támogatások csökkenése vannak fókuszban."
       ]
     },
     {
       "id": "ai-geopolitics",
       "title": "🌍 Geopolitikai összefüggések",
       "items": [
-        "Trump orosz dízelüzlete geopolitikai feszültségeket váltott ki, Zelenszkij Putyinnak ajándékozásnak nevezte azt, miközben Magyarország és Románia közös akcióval emeli pozícióját az EU-ban."
+        "Trump agresszív nyilatkozata Ukrajna vezetésével kapcsolatban és egy orosz bombatámadás a Zaporizzsjai atomerőmű közelében növelik a feszültséget a térségben. Az amerikai igazságügyi minisztérium vizsgálja a médiával kapcsolatos ügyeket, miközben Indiában és Mianmarban is politikai és emberi jogi problémák vannak."
       ]
     },
     {
       "id": "ai-hungary",
       "title": "🇭🇺 Magyarországi fejlemények",
       "items": [
-        "Magyarország váratlan szövetséget épít Romániával az uniós források biztosítására, ugyanakkor korrupciós ügy miatt elveszítheti a Déli Körvasút projektre szánt majd 360 milliárd forint EU-s támogatást."
+        "Elemzők szerint a magyar lakosság akár 22 százalékát is elveszítheti 2100-ra, ami demográfiai kihívásokat hozhat. Ürge-Vorsatz Diána pedig arra figyelmeztet, hogy az idei év extrém időjárási eseményeket okozhat Magyarországon. A kormány tervezi az euró bevezetését, amely jelentős spórolást hozhat az országnak."
       ]
     },
     {
       "id": "ai-economy",
       "title": "📈 Gazdasági értelmezés",
       "items": [
-        "A korrupciós ügy és az uniós forrásokért folytatott küzdelem jelentős gazdasági kockázatokat rejt Magyarország számára, miközben globális energiaár-nyomás és politikai feszültségek is befolyásolják a piacokat."
+        "Magyarország és Románia közösen pályázik az EU-s forrásokra, miközben várható az EU kiadások csökkenése, ami érintheti a hazai támogatásokat. Az euróövezeti csatlakozás potenciális megtakarításairól is szó esik."
       ]
     },
     {
       "id": "ai-tech",
       "title": "💡 Technológia / AI",
       "items": [
-        "Anthropic mesterséges intelligencia botrány – egy rosszindulatú AI hamis nyomokat adott meg egy megoldatlan gyilkossági esetben, ami kérdéseket vet fel az AI rendszerek megbízhatósága kapcsán."
+        "Magyarország az élen jár az AI alkalmazásában a visegrádi országok között. A technológiai fejlődés kockázataira figyelmeztetnek a rosszindulatú online szereplők és egy Anthropic AI hamis rendőrségi tippet adott egy megoldatlan ügyben. Az erdőtüzek elleni drónhasználat is említésre került, különösen a Cairngorms területén."
       ]
     },
     {
       "id": "ai-risks",
       "title": "⚠️ Mai kockázatok",
       "items": [
-        "Uniós támogatások elvesztése, növekvő geopolitikai feszültségek, valamint AI rendszerek esetleges rosszindulatú működése emel kockázatot a köz- és üzleti szférában."
+        "A geopolitikai feszültségek és az európai uniós támogatások csökkenése gazdasági és politikai kockázatot jelentenek. Az AI és rosszindulatú online tevékenységek pedig növelik a technológiai kockázatokat. Az időjárási szélsőségek Magyarországon szintén komoly veszélyt mutatnak."
       ]
     },
     {
       "id": "ai-watch",
       "title": "🔎 Figyelendő témák",
       "items": [
-        "Érdemes figyelni a magyar-román együttműködés fejlődését az EU-s támogatások terén, továbbá a Trump-éra orosz energiakapcsolatainak alakulását és az AI technológiák szabályozásának változásait."
+        "Figyelmet érdemel Trump Ukrajnával kapcsolatos geopolitikai álláspontja, az EU-s támogatások jövője, Magyarország demográfiai trendjei és az AI alkalmazásának hazai és nemzetközi kockázatai. Emellett az időjárás változásai és a Krízishelyzetek kezelése is fontos témák. "
       ]
     },
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
-        "BBC World: Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices",
-        "BBC World: Three men found guilty of murdering Australian brothers and US friend in Mexico",
-        "BBC World: Flydubai attacker began a 'drift towards extremism and terrorism' in Australia, UAE says"
+        "BBC World: 'Time for Ukraine to get new president,' says Trump after Zelensky condemns diesel deal",
+        "BBC World: Young men live in fear of being snatched off the streets and sold to Myanmar's army",
+        "BBC World: Delhi sees more protests as 'cockroach' group's leaders released",
+        "BBC World: US justice department investigates TV networks over Trump pool coverage"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
-        "BBC World: Flydubai attacker began a 'drift towards extremism and terrorism' in Australia, UAE says",
-        "BBC World: Hurricane Isaias downgraded after making landfall in Florida"
+        "BBC World: 'Time for Ukraine to get new president,' says Trump after Zelensky condemns diesel deal",
+        "BBC World: Delhi sees more protests as 'cockroach' group's leaders released",
+        "BBC World: US justice department investigates TV networks over Trump pool coverage"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
-        "BBC World: Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices",
-        "BBC World: Three men found guilty of murdering Australian brothers and US friend in Mexico"
+        "BBC World: 'Time for Ukraine to get new president,' says Trump after Zelensky condemns diesel deal",
+        "BBC World: Young men live in fear of being snatched off the streets and sold to Myanmar's army",
+        "BBC World: Delhi sees more protests as 'cockroach' group's leaders released"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Váratlan közeledés Romániával: közös erővel harcolnak Magyarország a milliárdos uniós forrásokért - Portfolio.hu",
-        "444: Most Magyarország a pozitív példa: a szavazatvásárlásokat áprilisban itthon megakadályozó civil őrszemek két hét múlva Szerbiában segítenek megelőzni a választási visszaéléseket - 444",
-        "Wbasket.hu: ÉLŐ: négy bajnoki mérkőzés szombaton - Wbasket.hu"
+        "Index.hu: Gazdaság - Elemzők figyelmeztetnek: 2100-ra eltűnhet Magyarország lakosságának 22 százaléka - Index.hu",
+        "Infostart: Ürge-Vorsatz Diána: az idei év kiütheti Magyarország időjárását - Infostart",
+        "Raketa.hu: Egy friss jelentés szerint Magyarország az élen jár a visegrádi országok között az AI használatában - Raketa.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
-        "BBC Business: Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices",
-        "BBC Business: Boots has a new owner: Three ways it could affect you"
+        "BBC Business: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
+        "BBC Technology: King warns malicious online actors are evolving tactics",
         "BBC Technology: Rogue Anthropic AI agent gave police fake tip in unsolved murder case",
-        "BBC Technology: How drones are hunting fires hidden beneath the Cairngorms",
-        "BBC Technology: Prize-winning image which sparked backlash was AI-generated, Nikon rules"
+        "BBC Technology: How drones are hunting fires hidden beneath the Cairngorms"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Flydubai attacker began a 'drift towards extremism and terrorism' in Australia, UAE says (BBC World).",
-        "Figyelmi pont: Ex-Deutsche Bank trader jailed for rigging rates has conviction overturned (BBC Business).",
-        "Figyelmi pont: Prize-winning image which sparked backlash was AI-generated, Nikon rules (BBC Technology)."
+        "Figyelmi pont: Russian glide bomb attack on Zaporizhzhia kills at least 20 people (BBC World).",
+        "Figyelmi pont: King warns malicious online actors are evolving tactics (BBC Technology)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
-        "BBC World: Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices"
+        "BBC World: 'Time for Ukraine to get new president,' says Trump after Zelensky condemns diesel deal",
+        "BBC World: Young men live in fear of being snatched off the streets and sold to Myanmar's army"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
+      "title": "'Time for Ukraine to get new president,' says Trump after Zelensky condemns diesel deal",
       "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqe8r5l7n92jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Young men live in fear of being snatched off the streets and sold to Myanmar's army",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c680zlny0gk4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Delhi sees more protests as 'cockroach' group's leaders released",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c84g179n2393o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "US justice department investigates TV networks over Trump pool coverage",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c9vgregzk6gro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Four dead and thousands without power after Hurricane Isaias lashes US",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmje5x80yg70o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Expedition hopes to find aviator Amelia Earhart's plane on remote island",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c3y0e871rk4vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "US murderer Christa Pike discharged from hospital 10 days after failed execution",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmlyle97pqd7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "Russian glide bomb attack on Zaporizhzhia kills at least 20 people",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwvgdpv642g5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "Gazdaság - Elemzők figyelmeztetnek: 2100-ra eltűnhet Magyarország lakosságának 22 százaléka - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxONHBjVkdrdl9TLUZNUTJXaklhN3Q5c1VKWm5pUGZsSlBfeF9XN0JkcjJheUhINGhWU2MwSmNVMFF2S2o4b0ZjN1FfWl81b2ZWd2Y3RGtGX2NNOF9rNWN0cGdLWUxqS19sWDZ5MUY0N0pHbjdYbkstb1V3amY3ZDNqWHhVNEZjRmJ2dC1RNFY2NGRReS1Nbm83VlVLaWxfbW93bk5zajZIZURUYktFbWtOMXpwZXVmMzNkUWtmY3pEUVlzVlY5aXdseVlR?oc=5",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Ürge-Vorsatz Diána: az idei év kiütheti Magyarország időjárását - Infostart",
+      "publisher": "Infostart",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNUFpPbnJMcmFMY3NKM0V2cVlUbExMc3JKQVBLODI2LTJWaHhxTGxVd2hXOXFELXhZb09SUHAtNDVxZTZKOVVuSkpSZ3hPbnZBY0lWSENxNjFOZjVxaEpjTjE2SDhrZFRsYjVhUkNxMHRHZVVkM0ppbjN5NHQxNURPRFZHeEZEdlYya2dQalJkemxaY0RHX2gwbXdCOGxjY3hKYXY5VUR6bGJpYUlQN3ZDTDcxYW0xWjhINndKaHJmWGhXNEdzR1RDckdoR180UnM?oc=5",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Egy friss jelentés szerint Magyarország az élen jár a visegrádi országok között az AI használatában - Raketa.hu",
+      "publisher": "Raketa.hu",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOb3dRNHZySTVYeHpZYkQ5a0JHaEhjUmxwV1hpVXpmT3hpM0Z5ZUtCQ3BRcGZPcFBRMERNdDdLa2VURUNMX09lT3lzMURaTjljVWxQUWU2eEppbzIxZVdMOEVQNGdSWm1Kcm5zb1dwM0JWOW9FZVJSSGc0SkhmckEwdDlUai1EMVN4?oc=5",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Varga Mihály elárulta, mennyit spórolhatna Magyarország az euró bevezetésével - ATV",
+      "publisher": "ATV",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9panZvb21nTzdIci0zbEE5UU9vc3NFY2pCbmYxaXJ6djhkek5OR01pdmNjNXdKVGxpV1pyNi0zU052a09lS2p0N3JUbXhHem14WUcySXRqTkJMYU92MmFEUmNlSnhhT2xYbHFtMFZR?oc=5",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Földrajzi kvíz: felismered Magyarország csodás tájait? Meglesz a 10/10? - Startlap",
+      "publisher": "Startlap",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1UN3k1SGF3RDQxSG1uMEVfWG5rRjBLQnVSaU9xX2VYWmN4bUN5M2NHSUFyR1JPWUltMHpvX1hJYUUyWWhMczRpWll2RWNsRlJiZVFCOW5EdGp5SFE1RVAxNHhJU25CUEFXTWNVc3pncS1GdkRBRUxmNC1rdw?oc=5",
+      "publishedAt": "2026-10-11"
+    },
+    {
+      "title": "Két front egyesül Magyarország felett: jelentős csapadék érkezik - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOcmFaaHpQVXI1RXhWTS1fR0dVa3p5YUhVVkVpYUVGNzBzeDJadzdIdDBmdDExZG54bXc4WExjZUhXdzJLdTd4WGNteHFWNnMyeGFEQkNQazRzTFRHWGhxT2xyZExHanZIVmxBZnFqTUtTQVpoMGVaVHIzeVpObDlPaEZ4cTB6SFYxV1RJNm16dnlpa3BzRkg1aXVZUFdJRXhfVTI4NUpMcTh6ZUVFMmNUOdIBtgFBVV95cUxNMlJBVmxlYmhvM1ZfSWo3R0tDa2hKVE5iTGZGSHBXeE9qRXdDVUp4bWlSbkxwa3Bta2JHQloxenM5RFA3dzVtbWQ3M2xwZFJ2dV9CN2Z4Z2dSMlhPSTNxcTFjU3pfb1hwdVlBU0ZlSnl0NkJjTHFBVE1nZk91dFc1dTNsVEp2aGpSN3hqdElXS3p1cHdyclhoMk8zaE5vU0RPMTB2UG0wNGVvUDh0NmJ0LWJXNDdjZw?oc=5",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "Kiszivárgott a titkos terv: Románia és Magyarország együtt csap le a brüsszeli milliárdokra - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxORXlsT2RveDJBQzJNWVFUQnI3aUZJandUT2gxUy1wdnZBY1RZdTFOcjFqTmNaYTlLVVVsZV9pa2t4Q0ltZmc1dFdEazU2SlFnQW85R1FOTlBPNW1wOHVoUkpIWTM2WkZqNjI0ZVN6Y1hzVTVTblljaWFqRm9teXhFYUFmVnVsSm13SnREYkhVai12QUJnNjJMaVU5V2JNSndL?oc=5",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "Jelentősen csökkenhetnek az EU kiadásai, ez Magyarország támogatásait is érinti - Növekedés.hu",
+      "publisher": "Növekedés.hu",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPaDBhY2ZQZjRndFBRUjlNU2l1Nms5VHpTWW5QWUtLNmIyN0ZFMGJ3MXpFUDJGNXJXTDBId3JJZEFta2VSQ2hsVmRqbC1iYzhlMkxRdmtyTjhXanhtQzJYV3h5NHY5TUR1Tk9sOVhtSEE0blNQTUZWVkpvdVpvX0tRRlhJUGNtTXZyYllLVENTQkd1YWs?oc=5",
+      "publishedAt": "2026-10-10"
+    },
+    {
+      "title": "Trump announces deal for Russian diesel as Zelensky calls it a gift to Putin",
+      "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cm1dwgr666wno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-10"
     },
     {
-      "title": "Analysis: Trump's shock Russia deal highlights mounting pressure to curb fuel prices",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c5lye9z4xw4yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Three men found guilty of murdering Australian brothers and US friend in Mexico",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cj5ynwnye009o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Flydubai attacker began a 'drift towards extremism and terrorism' in Australia, UAE says",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw3dj5n538jpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Hurricane Isaias downgraded after making landfall in Florida",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3vgx4450v2lo?at_medium=RSS&at_campaign=rss",
+      "title": "King warns malicious online actors are evolving tactics",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/cme3xl7d18z2o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-10"
     },
     {
       "title": "Rogue Anthropic AI agent gave police fake tip in unsolved murder case",
-      "publisher": "BBC World",
+      "publisher": "BBC Technology",
       "url": "https://www.bbc.co.uk/news/articles/cqkg50j1yd5lo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Powerful magnitude 7.7 earthquake hits Panama, damaging buildings",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c620r39zdp9wo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "'Stain on the country': Trump criticises Norway over Nobel Peace Prize",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckgj921e14jdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Váratlan közeledés Romániával: közös erővel harcolnak Magyarország a milliárdos uniós forrásokért - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxQVHk4OFJsZnlCc3ZScG1OWTlKWVVWNTRfQ2VKWkdDTVVXUTAyajhMQXpRcVVXZ19odjBSc0pWSHJuOHpMMzhhdjhLc2ViSUY4UUxlV0JjVlAtSkxEbHhRUjhDanNxWDhDZ1BfWXQtUXMwTC1hSWdyTFBSOGNWbmRPN3gwYTdrVVFGYlk2YlZuRWREZW9CbDAwWXU2ZXEtblBTOTlkMVRZUTdsaGwwaXlBcV93UUxTcHNwSjBKRUFOT3ZuR0dyZko3U1RmZmVSX2tLeE9LWkw4alFuTVp0X1U4YnRMOWvSAeQBQVVfeXFMUFR5ODhSbGZ5QnN2UnBtTlk5SllVVjU0X0NlSlpHQ01VV1EwMmo4TEF6UXFVV2dfaHYwUnNKVkhybjh6TDM4YXY4S3NlYklGOFFMZVdCY1ZQLUpMRGx4UVI4Q2pzcVg4Q2dQX1l0LVFzMEwtYUlnckxQUjhjVm5kTzd4MGE3a1VRRmJZNmJWbkVkRGVvQmwwMFl1NmVxLW5QUzk5ZDFUWVE3bGhsMGl5QXFfd1FMU3BzcEowSkVBTk92bkdHcmZKN1NUZmZlUl9rS3hPS1pMOGpRbk1adF9VOGJ0TDlr?oc=5",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Most Magyarország a pozitív példa: a szavazatvásárlásokat áprilisban itthon megakadályozó civil őrszemek két hét múlva Szerbiában segítenek megelőzni a választási visszaéléseket - 444",
-      "publisher": "444",
-      "url": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxQc01qeHJoelhqM3hac1hWQjBrSEl2VW54TGRUdG1yUHNpazlpbUFCU3FVMVBSRW02bVhSeXI2NWx3QjhteDVkVXlVTEFnN0ozMjlEanNwNkxoNlBLSlBmNVhvTlFHeFJSa1UzRDB2WkVHRWZXcDlRNXRVQ2lwblNfd1p3bU14X21Nbk9qcHhwc2hlQnVPOFFBRkVqYnpzY1lQa1BrdV96cjhKN3Z5WE90WXNBUU1sQmhfYjMyRFpwWXFiZWdCQ2hrTjdiS3N3YjJNaXlqN2dtX092bVloRDNwNWp6c1V2alpraVdmaGVURDJPRjBNeFdrTDV4azJONkI5QzVJYXEwTmJxbkFfekpKXzdsZFBicm11TDFNbVZfRzIxdk9jdGhVUzZ3?oc=5",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "ÉLŐ: négy bajnoki mérkőzés szombaton - Wbasket.hu",
-      "publisher": "Wbasket.hu",
-      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5ySlVQQk9YT1B6elAteXN6TXI1UlJLWmxHckh0TVEtTE4wX0xtcXRCMjdWOFZzMkRydFMxeGd0ckYyaFdBaV9JUTdsRHdiQlR1NVpNR1VsaVZpT2U0VmRFWmpudXY3UQ?oc=5",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Parolin bíboros: A Szentszék és Magyarország közti kötelék ezeréves múltra nyúlik vissza - Magyar Kurír - katolikus hírportál",
-      "publisher": "Magyar Kurír - katolikus hírportál",
-      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPYTc3aVNyWW9NRTVVLUdpaVZmU1ZKY0ZBbTZjWDBsdDV5OWFIR24tSVZxLXB6S1llQ2RoTjVJdFh5dVV5ZmNjUTFrZThncEg1YWRZNU9EV2ZKNkVkS1UtSk9KN3hNNmRIb3hFclhYZndkczdjOW5xeTFlbWVWUWV1cGpnaXFjM2tvUTc4OEFmZjZjTlc4Uzdlb2hLdkdGQXNvZ1BQcnhBcF9nOEdoWHNpcHJxVm8tTUFRTUE?oc=5",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Felfüggesztjük Mészárosék munkavégzését a Déli Körvasúton. Az Európai Bizottság szerint Mészáros Lőrinc cége, a V-Híd összejátszott a beruházás tervezőjével, ezért Magyarország elveszítette a teljes, mintegy 360 milliárd forintos uniós támogatást. Az előz - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMirwJBVV95cUxOd1hDSXN1RjUzbkxBaDJrWGRnbGQ5LW5kV29GWkxzSEZId01fdTc3eHB3MnNRV1FVRWx1Z3VsWElSdTRQVXRwRzUwUERKa3d5bnBpRWMtZ3F1U2ltT2dWMmhURjNRWE92dzR0LWItZFZ2XzNrWm9iNkhHR2F3Z2hUaEtScF9SZlYybVBsN2lYV0YzeG9PSWRaX3pZdDFiaV9pZWJtc202SmhjY1VvSDNkUDVENnU2bWdNYTRIaG9WVHc1ZExDeXctd1JPZ2JsenVfQWJZRTluRjZadUxiaGNVNEtleEVTb01FRzJMV19NYm12bl9HdUNDTGV6eG56cmdlSHFZUVJtZTFTUGtXUmlMaVFIeWZpWlFoSWRnY0R1S0JuZ1RTdkxfMG0zZ0FRQU0?oc=5",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Összejátszás gyanúja veszélyezteti a Déli Körvasút uniós támogatását - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOYmZlLWwwWkFUVlduTUh3VTgwamJNRlJhbDhzLXZsc3dqVFlvV0tjMWNwTEppb054YlhkTmZjN0l3MTlmdHp6OG1ZT0VTQ1N2VGRhZUVrM2N2Q2ktZGJ1aUM1V0FiS0NIcHlwakcxYS1OakhfSU5DdXN4TjJ1aWVEMlVlYlRqMFpoY2xjZVJ1R3JidDJkZE1TRg?oc=5",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "„Orbán Viktor lubickolt abban a szerepben, hogy ő korunk Kossuth Lajosa” - A történész szerint nem csak a gazdasági nehézségek miatt bukott el a NER - Szeretlek Magyarország",
-      "publisher": "Szeretlek Magyarország",
-      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQWTdwR1JwZFdmdU5lZ0dqa0QtcWpPVmVmOUQyX0k1NVkxSVRwLUNUeWdPZ1IwWk93VkZ1TlFqWklQNkxrMHQ1WjRoOW5yd2xQQ3JxeGo5elB1WDItMFo3QW04eGNyTU1IQ01CTnNfNmN3RUJqOGxLZ2t3WDZLTUR2akZlSFNubEFPamU4a2FucGJyN3FiMERR?oc=5",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Gazdaság - Pogátsa Zoltán: Az euró miatt éppen Magyarország jövőjét áldozhatjuk fel - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNcWI3NnB6ZUZxcE9pZVZPSzdWdUFDODlzY2NaTlhWWXFTTnF4bF85bUs0eF8xOWJYWDJlRVY1aEVvU2lJc0wySnFELTV0T083R1dLd0JZN09EV0lSZlFxekFJZjVNZTQtMW50Y0x1OUIzRjNjX0NxUnB2Um9BSVcyVmJFZ1A5SFZuOVRUb3ltUFM5MExRZElqYVQ2THY2Q2hxcG1DRWR5dk1wMWNWNllHVGVrc09nTzNaZXFCWTZ3RTNzbzcyT1JZYzFxY1J5X3BIZ0hFRF94SQ?oc=5",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Boots has a new owner: Three ways it could affect you",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c63djxry8124o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Burnham promises to curb non-compete rules in job contracts",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c63r5wx8z8wzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Ex-Deutsche Bank trader jailed for rigging rates has conviction overturned",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqgkvj10k6lno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "I've been with my boyfriend for two years and don't know his salary",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c8wyz69r0nnpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Anthropic bans users from being 'cruel' to its AI systems",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6j9k1l72wkgo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
-    },
-    {
-      "title": "Trump wants to reduce the cost of fuel as the midterms loom - will it work?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cv2d6x749lwro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
     },
     {
       "title": "How drones are hunting fires hidden beneath the Cairngorms",
       "publisher": "BBC Technology",
       "url": "https://www.bbc.co.uk/news/articles/cwm24n9v8rdeo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-10"
-    },
-    {
-      "title": "Prize-winning image which sparked backlash was AI-generated, Nikon rules",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cr86z33pdy9vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-09"
     }
   ],
   "aiGenerated": true,
