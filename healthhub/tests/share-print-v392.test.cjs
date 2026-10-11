@@ -57,7 +57,7 @@ function setAnswer(profile,question,answer,foot){
  setAnswer('monika','Mit mutat a lelet? <script>alert(1)</script>',huge,'Klinikai forrás: eredeti PDF, 3. oldal');
  assert.equal(await sandbox.window.hhAskLenaShareV392(),true);
  assert.ok(shared.length===1);
- assert.ok(shared[0].text.includes(huge),'share preserves the entire response, no 600-character truncation');
+ assert.ok(shared[0].text.includes(huge.trim()),'share preserves the full meaningful answer without truncating it');
  assert.ok(shared[0].text.includes('KÉRDÉS'),'full question is present');
  assert.ok(shared[0].text.includes('Klinikai forrás: eredeti PDF'));
  assert.ok(!('url' in shared[0]),'no private HealthHub URL may be copied to receiver');
@@ -65,7 +65,7 @@ function setAnswer(profile,question,answer,foot){
  assert.ok(printed[0].html.includes('&lt;script&gt;'),'print output must HTML-escape question and answer');
  assert.ok(!printed[0].html.includes('<script>alert(1)</script>'));
  assert.ok(printed[0].html.includes('Klinikai forrás: eredeti PDF'));
- assert.ok(printed[0].html.includes(huge.slice(-70)));
+ assert.ok(printed[0].html.includes(huge.trim().slice(-70)),'print includes the full meaningful answer tail');
 
  // Only patient-specific local records can be shared, not cached private URLs.
  docStore={id:'monika-document-1',profile:'monika',originalName:'Mónika-lelet.pdf'};
