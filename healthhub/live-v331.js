@@ -45,8 +45,14 @@ function styles(){
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock ul{margin:6px 0 0;padding-left:22px}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaMetric{color:var(--lena-accent-deep);font-weight:790;white-space:normal}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlockHeader{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-weight:790;color:var(--lena-accent-deep);font-size:13px}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394{padding:17px 18px;margin-bottom:14px}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394>p{margin:0 0 13px;line-height:1.75}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394>p:last-child{margin-bottom:0}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394>p+p{margin-top:7px}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394>h3{font-size:16px;line-height:1.5;margin:0 0 15px;color:var(--lena-accent-deep)}'+
+  '#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394>ul{margin:4px 0 12px;padding-left:22px}'+
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Foot{border-top-color:var(--lena-border);color:#667d8b}'+
- '@media(max-width:440px){#hhLenaSmart299 #hhAi331Answer{padding:15px 12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{padding:12px}}'+
+ '@media(max-width:440px){#hhLenaSmart299 #hhAi331Answer{padding:15px 12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{padding:12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394{padding:15px 14px}}'+
  '#hhAi331Answer .hhAi331Foot{font-size:11px;line-height:1.6;color:#678392;margin-top:14px;border-top:1px solid #d2e9e4;padding-top:9px}'+
  '#hhAi331Error{display:none;background:#fff2f0;border:1px solid #e9bcb3;padding:12px;border-radius:13px;color:#833d38;font-size:12px;line-height:1.6;margin-top:9px}'+
  '#hhAi331Error.on{display:block}'+
@@ -86,7 +92,7 @@ function renderAnswerText(raw){
  var host=el('hhAi331Text');if(!host)return;
  var frag=document.createDocumentFragment(),para=null,list=null;
  function appendMeasured(node,chunk){
-  var rx=/\d{4}[.\/-]\d{1,2}[.\/-]\d{1,2}|\d{2,3}\/\d{2,3}(?:\s*(?:Hgmm|mmHg))?|\d+(?:[.,]\d+)?\s*(?:kg|hPa|mmol\/L|mmHg|Hgmm|%|°C|\/perc|perc)/gi;
+  var rx=/\d{4}[.\\/-]\d{1,2}[.\\/-]\d{1,2}|\d{2,3}\/\d{2,3}(?:\s*(?:Hgmm|mmHg))?|\d+(?:[.,]\d+)?\s*(?:kg|hPa|mmol\/L|mmHg|Hgmm|%|°C|\/perc|perc)/gi;
   var match,start=0;
   while((match=rx.exec(chunk))){
    if(match.index>start)node.appendChild(document.createTextNode(chunk.slice(start,match.index)));
@@ -120,13 +126,16 @@ function renderAnswerText(raw){
   return result.join('\n\n');
  }).join('\n\n');
  normalized.split('\n').forEach(function(row){
-  var line=row.trim(),h=line.match(/^#{1,3}\s+(.+)$/),plainHeading=line.match(/^\*\*(.+?)\*\*:?$/),
+  var line=row.trim(),h=line.match(/^#{1,3}\s+(.+)$/),
+   plainHeading=line.match(/^\*\*(.+?)\*\*:?$/),
+   // Clinical models often number sections "(1) Facts" without markdown.
+   numberedHeading=line.match(/^\(([1-9][0-9]?)\)\s+(.{3,130})$/),
    item=line.match(/^(?:[-*]|[0-9]+[.)])\s+(.+)$/);
   if(!line){para=null;list=null;return}
-  if(h||plainHeading){
+  if(h||plainHeading||numberedHeading){
    para=null;list=null;
-   var heading=document.createElement('h3');heading.textContent=h?h[1]:plainHeading[1];
-   if(/[⚠🚨]/u.test(heading.textContent))heading.style.color='#ac503a';
+   var heading=document.createElement('h3');
+   heading.textContent=h?h[1]:plainHeading?plainHeading[1]:'('+numberedHeading[1]+') '+numberedHeading[2];
    frag.appendChild(heading);return;
   }
   if(item){
@@ -139,37 +148,34 @@ function renderAnswerText(raw){
   else para.appendChild(document.createElement('br'));
   addFormatted(para,line);
  });
- var visual=document.createDocumentFragment(),current=null,idx=0;
+ // v394: one readable card for EACH genuine topic, not one per paragraph.
+ // Auto labels such as "⚠️ Fontos teendő" were previously assigned to
+ // historical descriptions of loss of consciousness, blood pressure etc.
+ // Those are not new medical instructions; keep their narrative together.
+ var visual=document.createDocumentFragment(),current=null,sectionCount=0;
+ function newCard(lead){
+  var box=document.createElement('section');
+  box.className='hhLenaBlock hhLenaNarrative394'+(lead?' hhLenaLead':'');
+  visual.appendChild(box);sectionCount++;return box;
+ }
  Array.from(frag.childNodes).forEach(function(node){
   var tag=String(node.tagName||'').toLowerCase();
   if(tag==='h3'){
-   current=document.createElement('section');current.className='hhLenaBlock';
-   if(/természetes praktik|otthoni praktik|természetes enyhítés/i.test(node.textContent||''))current.className+=' hhLenaNature353';
-   current.appendChild(node);visual.appendChild(current);idx++;return;
-  }
-  if(tag==='ul'){
-   if(!current){current=document.createElement('section');current.className='hhLenaBlock';visual.appendChild(current)}
+   current=newCard(sectionCount===0);
+   if(/természetes praktik|otthoni praktik|természetes enyhítés/i.test(node.textContent||''))
+    current.className+=' hhLenaNature353';
+   // Only the author's explicit emergency heading gets the alert styling.
+   // Historic events or measurements must not trigger an urgent badge.
+   if(/^(?:⚠️?\s*)?(?:azonnali teendő|sürgős teendő|vészhelyzet)/i.test(node.textContent||''))
+    current.className+=' hhLenaUrgent';
    current.appendChild(node);return;
   }
-  if(tag!=='p'){visual.appendChild(node);return}
-  if(current&&current.children&&current.children.length===1&&current.children[0].tagName==='H3'){
+  if(tag==='p'||tag==='ul'){
+   if(!current)current=newCard(sectionCount===0);
    current.appendChild(node);return;
   }
-  var val=node.textContent||'';
-  var urgent=/azonnal|mentőt|112|sürgősségi|eszméletveszt|erős mellkasi fájdalom/i.test(val);
-  var isLead=idx===0;
-  var label='💬 Amit még érdemes tudnod';
-  if(isLead)label=urgent?'⚠️ Fontos':'🙂 Röviden';
-  else if(urgent)label='⚠️ Fontos teendő';
-  else if(/javaslom|érdemes|figyelj|próbálj|keresd|fordulj|orvoshoz|kérj vizsgálatot/i.test(val))label='💡 Mit érdemes tenni?';
-  else if(/időjárás|légnyomás|pollen|hőmérséklet|páratartalom/i.test(val))label='🌤️ Környezeti tényezők';
-  else if(/vérnyomás|pulzus|oxigén|vércukor|testsúly|mérések|értékek/i.test(val))label='📊 Mérések és adatok';
-  else if(/összefügg|lehetséges|hatására|okozhat|kiváltó/i.test(val))label='🧩 Lehetséges összefüggések';
-  var box=document.createElement('section');
-  box.className='hhLenaBlock'+(isLead?' hhLenaLead':'')+(urgent?' hhLenaUrgent':'');
-  var header=document.createElement('div');header.className='hhLenaBlockHeader';header.textContent=label;
-  box.appendChild(header);box.appendChild(node);visual.appendChild(box);
-  current=box;idx++;
+  if(!current)current=newCard(sectionCount===0);
+  current.appendChild(node);
  });
  host.replaceChildren(visual);
 }
