@@ -186,6 +186,11 @@ window.openHrDocument=async function(id){
  }
 };
 window.hhCloseOriginalDoc=function(){cleanDocument();setOpen(false)};
+window.hhDocCurrentIdV392=function(){
+ // Read-only share/print entry point for the currently visible original file.
+ var viewer=document.getElementById('hhOriginalDocViewer');
+ return viewer&&viewer.classList.contains('on')&&state.blob?state.id:null;
+};
 window.hhDocGoHome=function(){
  window.hhCloseOriginalDoc();try{window.closeHrDetail&&window.closeHrDetail()}catch(e){}
  try{window.show&&window.show('home')}catch(e){}
