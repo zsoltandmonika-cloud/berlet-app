@@ -1,8 +1,8 @@
-name: HealthHub Bridge Android APK
+name: HealthHub Connect · Debug Build (not OTA)
 
 on:
   push:
-    branches: ["main", "health-connect-mvp", "healthhub-hc-expanded-v149"]
+    branches: ["main", "health-connect-mvp", "healthhub-hc-expanded-v149", "feature/healthhub-connect-ota-staged-v014"]
     paths:
       - "healthhub/android-bridge/**"
       - ".github/workflows/healthhub-bridge-android.yml"
@@ -57,48 +57,7 @@ jobs:
           name: healthhub-connect-v${{ steps.version.outputs.version }}
           path: healthhub/android-bridge/HealthHub-Connect-v${{ steps.version.outputs.version }}.apk
           if-no-files-found: error
-      - name: Publish GitHub Release
-        if: github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          TAG="healthhub-connect-v${{ steps.version.outputs.version }}"
-          APK="HealthHub-Connect-v${{ steps.version.outputs.version }}.apk"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK" --clobber
-          else
-            gh release create "$TAG" "$APK" --title "HealthHub Connect v${{ steps.version.outputs.version }}" --notes "Automatikusan buildelt HealthHub Connect Android APK."
-          fi
-      - name: Update HealthHub bridge release metadata
-        if: github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          TAG="healthhub-connect-v${{ steps.version.outputs.version }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          VERSION_CODE="${{ steps.version.outputs.version_code }}"
-          BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          DOWNLOAD_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/HealthHub-Connect-v${VERSION}.apk"
-          cd "$GITHUB_WORKSPACE"
-          python3 -c 'import json, pathlib, os; d={"version":os.environ["VERSION"],"versionCode":int(os.environ["VERSION_CODE"]),"tag":os.environ["TAG"],"builtAt":os.environ["BUILT_AT"],"downloadUrl":os.environ["DOWNLOAD_URL"],"sourceCommit":os.environ["GITHUB_SHA"]}; pathlib.Path("healthhub/data/bridge-release.json").write_text(json.dumps(d, ensure_ascii=False, indent=2)+"\\n", encoding="utf-8")'
-        env:
-          TAG: healthhub-connect-v${{ steps.version.outputs.version }}
-          VERSION: ${{ steps.version.outputs.version }}
-          VERSION_CODE: ${{ steps.version.outputs.version_code }}
-          BUILT_AT: ${{ github.run_started_at }}
-          DOWNLOAD_URL: https://github.com/${{ github.repository }}/releases/download/healthhub-connect-v${{ steps.version.outputs.version }}/HealthHub-Connect-v${{ steps.version.outputs.version }}.apk
-      - name: Commit bridge release metadata
-        if: github.ref == 'refs/heads/main'
-        working-directory: .
-        shell: bash
-        run: |
-          git config user.name "healthhub-bridge-bot"
-          git config user.email "healthhub-bridge-bot@users.noreply.github.com"
-          git add healthhub/data/bridge-release.json
-          if git diff --cached --quiet; then
-            echo "Bridge release metadata already current."
-            exit 0
-          fi
-          git commit -m "HealthHub bridge release metadata v${{ steps.version.outputs.version }}"
-          git pull --rebase origin main
-          git push origin HEAD:main
+      # Debug artifacts intentionally remain CI-only. Each GitHub runner
+      # generates a different debug signing key; those APKs CANNOT replace
+      # one another in place. Only the separate secret-signed OTA workflow
+      # publishes installable auto-update releases.
