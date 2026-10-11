@@ -43,7 +43,7 @@ function request(profile='monika'){
  assert.ok(l.quality.duplicatesSkipped>=3);
  const todayMinutes=l.observations.filter(x=>x.type==='active_minutes'&&x.observedAt===today);
  assert.equal(todayMinutes.length,2,'older Samsung and newer HC values both retained');
- assert.deepEqual(todayMinutes.map(x=>x.value).sort((a,b)=>a-b),[16,39]);
+ assert.equal(todayMinutes.map(x=>x.value).sort((a,b)=>a-b).join(','),'16,39');
  assert.ok(l.comparisons.length>=2,'both active time and measured distance can diverge');
  const activeConflict=l.comparisons.find(x=>x.type==='active_minutes');
  assert.ok(activeConflict);
