@@ -79,7 +79,7 @@ function streamClinicalV395(key:string,question:string,profile:string,documents:
    try{
     const originals=buildEvidenceIndex(documents,profile);
     stage("I-04 Clinical Evidence v395: eredeti leletoldalak és a forrásazonosítók ellenőrzése…");
-    let verified={facts:[],rejected:0,issues:[]};
+    let verified:any={facts:[],rejected:0,issues:[]};
     if(originals.length){
      stage("1/2 · Klinikai tények és szó szerinti forrásidézetek összegyűjtése…");
      const extraction=await upstreamJson(key,[
@@ -108,7 +108,7 @@ function streamClinicalV395(key:string,question:string,profile:string,documents:
      "A korábbi események részletes, ellenőrzött időrendjét mutasd be, ha az eredeti tények elegendők.",
      "Külön magyarázd el az élettani folyamatokat, de az általános mechanizmus NEM bizonyítja, hogy a beteggel pontosan ez történt.",
      "Klinikai, személyhez kötött tényt KIZÁRÓLAG a verifiedFacts alapján állíthatsz.",
-     "Minden ilyen bekezdés kind=\\\"documented\\\", és sourceIds mezője csak a verifiedFacts sourceId értéke lehet.",
+     "Minden ilyen bekezdés kind=documented, és sourceIds mezője csak a verifiedFacts sourceId értéke lehet.",
      "A korábbi JSON-magyarázat csak másodlagos háttér, nem eredeti klinikai bizonyíték.",
      "Amiről nincs igazolt forrásadat, külön mondd ki kind=\\\"unknown\\\" bekezdésben.",
      "Élettani magyarázat kind=\\\"general\\\", semmilyen személyes bizonyítatlan tényt ne tartalmazzon.",
