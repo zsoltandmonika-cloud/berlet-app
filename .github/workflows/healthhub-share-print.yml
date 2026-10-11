@@ -1,0 +1,31 @@
+name: HealthHub v392 · Share and Print
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v392-share-print.js"
+      - "healthhub/live-v128.js"
+      - "healthhub/live-v201.js"
+      - "healthhub/tests/share-print-v392.test.cjs"
+      - ".github/workflows/healthhub-share-print.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v392-share-print.js"
+      - "healthhub/live-v128.js"
+      - "healthhub/live-v201.js"
+      - "healthhub/tests/share-print-v392.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Share/Print security and syntax checks
+        run: |
+          node --check healthhub/live-v392-share-print.js
+          node --check healthhub/live-v128.js
+          node --check healthhub/live-v201.js
+          node healthhub/tests/share-print-v392.test.cjs
