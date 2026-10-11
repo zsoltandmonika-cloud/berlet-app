@@ -1,0 +1,38 @@
+name: HealthHub v395 · Clinical Evidence Verification
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/smooth-endpoint-v395/**"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/clinical-verification-v395.test.cjs"
+      - ".github/workflows/healthhub-clinical-verification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/smooth-endpoint-v395/**"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/clinical-verification-v395.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clinical-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Verify clinical module and server imports
+        run: |
+          node --check supabase/functions/smooth-endpoint-v395/audit.mjs
+          node --check healthhub/live-v331.js
+          deno check supabase/functions/smooth-endpoint-v395/index.ts
+          node healthhub/tests/clinical-verification-v395.test.cjs
+      - name: Existing Intelligence regression
+        run: |
+          node healthhub/tests/intelligence-deep-research-v393.test.cjs
+          node healthhub/tests/intelligence-clinical-v391.test.cjs
+          node healthhub/tests/answer-layout-v394.test.cjs
+          node healthhub/tests/share-print-v392.test.cjs
