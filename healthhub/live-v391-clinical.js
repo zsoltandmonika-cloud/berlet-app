@@ -19,8 +19,9 @@ function parseDocDate(raw,precision){
  var date=str(raw,35),precisionValue=['minute','day','month','year','unknown'].includes(precision)?precision:'unknown';
  if(!date)return {date:'',precision:'unknown',valid:false};
  if(precisionValue==='minute'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(date)){
-  var t=Date.parse(date);
-  return {date:Number.isFinite(t)?date:'',precision:Number.isFinite(t)?'minute':'unknown',valid:Number.isFinite(t)};
+  var t=Date.parse(date),calendarOk=validCalendarDate(date.slice(0,10));
+  var valueOk=calendarOk&&Number.isFinite(t)&&/^\d{2}:[0-5]\d/.test(date.slice(11));
+  return {date:valueOk?date:'',precision:valueOk?'minute':'unknown',valid:valueOk};
  }
  if(validCalendarDate(date))return {date:date,precision:'day',valid:true};
  if(precisionValue==='month'&&/^(19|20)\d{2}-\d{2}$/.test(date)&&Number(date.slice(5))<=12&&Number(date.slice(5))>0)
