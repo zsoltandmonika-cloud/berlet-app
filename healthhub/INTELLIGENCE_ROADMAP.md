@@ -54,12 +54,29 @@ authenticated, explicitly consented Ask Léna AI request → streamed, sourced a
   aggregates where providers expose them, and an independently tested persistent private
   evidence-ledger cache. No source records are mutated in v389.
 
-### I-03 · Time-series intelligence
-- Daily and weekly trends for steps, measured pulse, sleep duration and actual readings.
-- Quantify completeness before making comparisons; partial days, missing days, sleep interruptions and
-  inferred calorie values require explicit caveats.
-- For Mónika's cardiac context: stricter limits on inference and follow-up suggestions.
-- Clinical-risk escalation stays separate from wellness trends.
+### I-03 (v390) · Time-series intelligence — FIRST IMPLEMENTATION
+- Read-only, profile-scoped 7/30/90-day temporal analytics built from the already normalized I-02 ledger.
+- Separate activity's **completed Budapest-calendar days** from today's ongoing totals.
+  Today's partial steps NEVER inflate last-seven-day averages.
+- Reports numeric **coverage** and minimum quality threshold (at least 70% of days) for every window.
+  Missing values are **not zeros**, and an average or percentage comparison is withheld if either
+  current or previous comparison window lacks sufficient measured-day coverage.
+- Calculates separate metric windows for steps, source-reported active minutes, timestamped measured pulse,
+  and recorded sleep intervals; a single pulse reading does not become a pulse trend or resting heart rate.
+- Groups nocturnal sleep sessions by Budapest night, counts overlapping intervals just once,
+  excludes intervening wake periods and daytime naps, and *never calls the result a confirmed full night*.
+  A session closed this morning is eligible for the newest night window even when daytime activity is partial.
+- If only 35 daily activity rows/14 recent sleep sessions are accessible, 90-day coverage is correctly
+  insufficient; no fabricated history, benchmark or correlation.
+- A bounded, source-labeled 7/30/90 evidence brief is included in the existing consented Ask Léna request;
+  complete session records and time-series arrays remain in local memory.
+- The research monitor and response provenance disclose I-03 coverage. The feature is explanatory, not
+  diagnostic: absence of an association is not medical reassurance, and correlation is not causality.
+- Synthetic regression tests include 7-vs-7 trends, partially observed days, 30/90 insufficiency,
+  fragmented sleep, duplicate and overlapping records, new morning sleep and profile isolation.
+- **Still to do:** a richer native time series and individual sensor timestamps, broader sleep-stage
+  completeness, measured resting pulse (if source supports it), and robust cross-domain relationships.
+  For Mónika, clinical-risk escalation must be a separate, conservatively validated safety pipeline.
 
 ### I-04 · Evidence-backed Ask Léna answers
 - Retrieve relevant records with date provenance and page references where permitted.

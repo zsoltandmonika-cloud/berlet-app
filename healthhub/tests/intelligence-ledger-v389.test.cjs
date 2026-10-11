@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const window={};
 const context=vm.createContext({window,console,Map,Date,Number});
-for(const file of ['healthhub/live-v389-ledger.js','healthhub/live-v388-intelligence.js']){
+for(const file of ['healthhub/live-v389-ledger.js','healthhub/live-v390-trends.js','healthhub/live-v388-intelligence.js']){
  vm.runInContext(fs.readFileSync(file,'utf8'),context,{filename:file});
 }
 const ledgerApi=window.HH_INTELLIGENCE_LEDGER_V389,gate=window.HH_INTELLIGENCE_GATE_V388;
