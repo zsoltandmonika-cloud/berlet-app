@@ -62,6 +62,8 @@ assert.ok(guided.includes('forrásokkal igazolt'));
  const candidates=x.buildEventCandidates(extract);
  assert.equal(candidates.length,2);
  assert.equal(candidates[0].eventDate,'2024-06-17');
+ assert.equal(candidates[0].eventTime,'17:30','clock time is extracted from the original page quote');
+ assert.equal(candidates[1].eventTime,'19:13','second event is ordered by real clock time, not the discharge date');
  assert.equal(candidates[0].sourceId,'D1:p2');
  assert.equal(candidates[1].sourceId,'D2:p3');
  assert.ok(candidates[1].documentDate==='2024-06-19');
