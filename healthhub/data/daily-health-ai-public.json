@@ -1,21 +1,22 @@
 {
   "schema": "healthhub.daily-health-ai-public/1",
-  "date": "2026-10-10",
-  "generatedAt": "2026-10-10T13:17:08+02:00",
+  "date": "2026-10-11",
+  "generatedAt": "2026-10-11T13:02:32+02:00",
   "model": "gpt-4.1-mini",
   "kind": "public-environment-only",
   "containsPersonalHealthData": false,
-  "sourceDate": "2026-10-10",
-  "sourceGeneratedAt": "2026-10-10T13:17:03+02:00",
+  "sourceDate": "2026-10-11",
+  "sourceGeneratedAt": "2026-10-11T13:02:26+02:00",
   "brief": {
-    "headline": "Kellemes őszi idő Budapesten, alacsony légszennyezettséggel",
-    "overview": "Október 10-én Budapest időjárása mérsékelten hűvös, 18,5 °C körül alakul, a nappali hőérzet kissé alacsonyabb, 16,4 °C. A légnyomás enyhén csökkent az elmúlt hat órában, UV-sugárzás alacsony, ami kevésbé veszélyes a bőrre. A légszennyezettségi mutatók alacsonyak, a PM2,5 koncentráció 5,5 µg/m³, az AQI érték 27, így a levegő tiszta minőségű.",
-    "attention": "A NNGYK heti járványügyi megfigyelése jelzi a COVID-19 fertőzési helyzetét figyelmeztetés alatt, valamint enyhe emelkedést regisztráltak Hepatitis A esetekben, de ez nem jelent azonnali személyes kockázatot. Az üröm pollen koncentrációja nagyon alacsony, allergiások számára ez nem jelent jelentős problémát.",
+    "headline": "Nyugodt idő és alacsony légszennyezettség Budapesten",
+    "overview": "2026. október 11-én, Budapesten enyhe, 17 fok körüli hőmérsékletre számíthatunk, csak enyhén hűvösnek érezhető az idő. A légnyomás kissé emelkedik, a szél élénk, de a levegőminőség kiváló: az AQI 22, a PM2.5 szint alacsony, a pollen koncentráció igen gyenge, az üröm pollenek szintje nem éri el az allergiás tüneteket okozó szintet.",
+    "attention": "Az NNGYK figyelmeztető jelzése szerint a COVID-19 továbbra is figyelendő, illetve a Hepatitis A esetében emelkedett a kockázat. Ezek nem jelentik a napi személyes fertőzési veszélyt, mégis jó odafigyelni a higiénére.",
     "tips": [
-      "Tartsuk meg az alapvető higiéniai szabályokat a fertőzések elkerülése érdekében.",
-      "Az alacsony UV-sugárzás miatt a napozás nem jelent különösebb kockázatot, de a bőr kímélése mindig ajánlott.",
-      "Figyeljünk rá, hogy a változó időjáráshoz igazítsuk ruházkodásunkat."
+      "Figyeljünk az időjáráshoz igazodó ruházatra, mert a hűvösebb hatás miatt szükség lehet réteges öltözködésre.",
+      "Használjunk napszemüveget és megfelelő fényvédelmet, mivel az UV sugárzás mérsékelt, de nem elhanyagolható.",
+      "Tartsuk be az alapvető higiéniai szabályokat a fertőzések megelőzése érdekében.",
+      "Könnyű, jól szellőző helyen végezzük a napi tevékenységeket, hogy élvezzük a jó levegőminőséget."
     ],
-    "uncertainty": "A járványügyi adatok heti összesítések, ezért nem közvetlenül a mai napi személyes fertőzési kockázatot tükrözik."
+    "uncertainty": "A pollenadatok részben elérhetőek, így részletesebb információ a többi pollentípusról nem áll rendelkezésre. A járványügyi adatok heti összesítések alapján vannak, ezért a napi helyzetet csak óvatosan tükrözik."
   }
 }
