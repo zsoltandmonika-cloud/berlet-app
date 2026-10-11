@@ -96,14 +96,24 @@ function prepare(input,context,opts){
   window.hhActivity191SamsungSource:null;
  var ledger=ledgerApi.build(context,input.profile,{now:now,samsung:sdkSource});
  var ledgerBrief=ledgerApi.brief(ledger,now);
- // Only a minimal, explicitly source-labeled summary travels with the
- // existing user-initiated AI request. Never transmit the full ledger.
- var out=Object.assign({},input,{sources:snapshot,extra:facts.concat(ledgerBrief,input.extra)});
+ var trendApi=window.HH_INTELLIGENCE_TRENDS_V390;
+ if(!trendApi||typeof trendApi.calculate!=='function'||typeof trendApi.brief!=='function')
+  throw Error('Intelligence: az idősoros adatellenőrzés nem érhető el. A kutatás nem indul el ellenőrizetlen adatokkal.');
+ var trends=trendApi.calculate(ledger,context,{now:now});
+ if(trends.profile!==input.profile)throw Error('Intelligence: trendprofil-eltérés, kérés leállítva.');
+ var trendBrief=trendApi.brief(trends);
+ // Only a tiny, explicitly source-labeled summary goes in the existing
+ // consented AI request. Neither ledger nor time series leave the browser.
+ var out=Object.assign({},input,{sources:snapshot,extra:facts.concat(ledgerBrief,trendBrief,input.extra)});
  while(JSON.stringify({sources:out.sources,extra:out.extra}).length>16500&&out.extra.length>facts.length)out.extra.pop();
  if(JSON.stringify({sources:out.sources,extra:out.extra}).length>18000)
   throw Error('Intelligence: túl sok adat a biztonságos forrásellenőrzéshez.');
  return {payload:out,flags:flags,profile:input.profile,checkedAt:new Date(now).toISOString(),
   ledgerQuality:ledger.quality,ledgerWarnings:ledger.warnings.length,sourceDisagreements:ledger.comparisons.length,
+  trendsQuality:{completedThrough:trends.completedThrough,issues:trends.issues.length,
+   stepCoverage7:trends.metrics.steps.windows.d7.current.coveragePercent,
+   sleepCoverage7:trends.metrics.sleep_minutes.windows.d7.current.coveragePercent,
+   pulseCoverage7:trends.metrics.pulse_bpm.windows.d7.current.coveragePercent},
   sourceStatus:snapshot.map(function(s){return {id:s.id,status:s.status}})};
 }
 window.HH_INTELLIGENCE_GATE_V388={prepare:prepare,version:'388',ageHours:ageHours};
