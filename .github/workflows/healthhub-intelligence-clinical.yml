@@ -1,0 +1,35 @@
+name: HealthHub Intelligence · Clinical Evidence
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v391-clinical.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/intelligence-clinical-v391.test.cjs"
+      - ".github/workflows/healthhub-intelligence-clinical.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v391-clinical.js"
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/intelligence-clinical-v391.test.cjs"
+      - ".github/workflows/healthhub-intelligence-clinical.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and clinical source safety
+        run: |
+          node --check healthhub/live-v391-clinical.js
+          node --check healthhub/live-v331.js
+          node healthhub/tests/intelligence-clinical-v391.test.cjs
+          node healthhub/tests/intelligence-trends-v390.test.cjs
+          node healthhub/tests/intelligence-ledger-v389.test.cjs
+          node healthhub/tests/intelligence-v388.test.cjs

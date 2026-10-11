@@ -78,11 +78,18 @@ authenticated, explicitly consented Ask Léna AI request → streamed, sourced a
   completeness, measured resting pulse (if source supports it), and robust cross-domain relationships.
   For Mónika, clinical-risk escalation must be a separate, conservatively validated safety pipeline.
 
-### I-04 · Evidence-backed Ask Léna answers
-- Retrieve relevant records with date provenance and page references where permitted.
-- Structure answers with measured facts, context, possible interpretations, uncertainties and a sensible next step.
-- No automatic reading of arbitrary patient documents and no assertion of unverified links.
-- Benchmark against synthetic, anonymized questions and real sources only with explicit permission.
+### I-04 (v391) · Clinical Intelligence & Evidence Engine — FIRST IMPLEMENTATION
+- Integrates an explicit, read-only Clinical Evidence preflight **after the existing v364 authorized RAG** retrieval and before Ask Léna's authenticated server call. The I-04 module itself does not read additional documents, fetch files, or store medical data.
+- Validates active patient profile, prior user-initiated AI consent, original PDF excerpt-specific consent, document identity, excerpt length, page number, and source timestamps.
+- Blocks unauthorized PDF extracts; rejects page-less 'original' extracts; keeps independent documents and events from the same year separate. Source identifiers are tied to the specific document and page.
+- Clinical document date and file upload date are different. A date *mentioned within* a PDF is not automatically a verified injury/event or treatment date. Invalid date metadata becomes 'unknown' rather than hallucinated precision.
+- Distinguishes **original page-identified PDF excerpts** from **previously written JSON summaries**. Neither is treated as a fully reviewed medical chart by default.
+- Renders an expandable original-source verification panel beneath completed AI answers. Each listed source has a type, date-precision disclaimer, title and PDF page when actually present, without inventing clickable links.
+- Profile medication list is **not reconciled with actual prescriptions or ingestion**. Source quality warnings explicitly avoid asserting current medication use, drug interaction, clinical diagnoses or treatment changes.
+- Sends only the already-approved excerpts plus compact provenance metadata in the existing explicitly user-initiated, server-authorized Ask Léna request. No new unrestricted background AI or health-data transfer is introduced.
+- Synthetic tests exercise same-year distinct records, PDF permission, missing page, malformed clinical dates, upload-versus-event dates, client-data immutability and cross-profile fail-closed behavior.
+- **Still to do:** a server-side structured clinical claim/citation verifier, reliable medical document coverage analysis, professional clinical review of any risk rules, and a supervised UX for uncertainty and adverse medication interactions. AI-generated prose may still contain interpretation errors; the local panel shows which excerpts were supplied, **not that every generated claim is proven**.
+- Existing v364 retrieval can only read a bounded subset of PDF pages and question-ranked documents. Missing evidence must not be presented as proof that a disease or finding is absent.
 
 ### I-05 · Continual monitoring and operational reliability
 - Admin Center visibility into latest source date, stale inputs, sync lag, unsuccessful analyses and model availability.
