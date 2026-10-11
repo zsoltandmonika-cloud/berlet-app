@@ -118,3 +118,72 @@ function prepare(input,context,opts){
 }
 window.HH_INTELLIGENCE_GATE_V388={prepare:prepare,version:'388',ageHours:ageHours};
 })();
+
+
+/* HealthHub Virtual Genius v1: passive, metadata-only answer quality telemetry.
+ * No patient names, questions, answers, medical documents, or source excerpts stored.
+ * No network calls, clinical judgement, auto-prompts, or record modification.
+ * Assessment runs after answer completion, off the foreground rendering path.
+ */
+(function(){
+ 'use strict';
+ if(window.HH_VIRTUAL_GENIUS_V1)return;
+ var samples=[],MAX=100,startedAt=0;
+ function count(rx,text){var m=String(text||'').match(rx);return m?m.length:0}
+ function inspect(detail){
+  detail=detail||{};
+  var a=typeof detail.answer==='string'?detail.answer:'';
+  var q=typeof detail.question==='string'?detail.question:'';
+  if(!a.trim())return;
+  // Observable writing signals, NOT validated clinical quality scores.
+  var paragraphs=a.split(/\n\s*\n/).filter(function(x){return x.trim().length>0});
+  var words=a.trim().split(/\s+/).length;
+  var listLines=count(/^\s*(?:[-*•]|\d+[.)])\s/gm,a);
+  var citations=count(/\b(?:forrás|lelet|dokumentum|zárójelentés|vizsgálat)\b/gi,a);
+  var jargonExplanations=count(/\b(?:vagyis|azaz|ez azt jelenti|más szóval)\b/gi,a);
+  var features={
+   words:words,paragraphs:paragraphs.length,listLines:listLines,
+   sourceMentions:citations,terminologyExplanations:jargonExplanations,
+   hasConcludingSection:/\b(?:összefoglalva|összességében|a lényeg|röviden)\b/i.test(a),
+   durationMs:startedAt?Math.max(0,Date.now()-startedAt):null
+  };
+  var flags=[];
+  if(words<130&&q.length>60)flags.push('possibly_shallow_answer');
+  if(listLines>8&&listLines>paragraphs.length*2)flags.push('fragmented_narrative');
+  if(jargonExplanations===0&&words>250)flags.push('terminology_explanation_review');
+  if(citations===0&&words>250)flags.push('source_reference_review');
+  // Scores require verified clinical review, do not manufacture them.
+  samples.push({time:new Date().toISOString(),version:'v1-pilot',
+   signals:features,flags:flags,clinicalScore:null,reviewed:false});
+  if(samples.length>MAX)samples.shift();
+ }
+ function schedule(d){
+  // Do not retain the medical answer in any background queue when scheduling.
+  // Event detail lives only in the existing caller's transient event object.
+  var run=function(){try{inspect(d)}catch(_){}};
+  if(typeof requestIdleCallback==='function')requestIdleCallback(run,{timeout:3500});
+  else setTimeout(run,0);
+ }
+ window.addEventListener('healthhub:ask-lena-start',function(){startedAt=Date.now()});
+ window.addEventListener('healthhub:ask-lena-complete',function(e){
+  if(e&&e.detail&&e.detail.successful===true)schedule(e.detail);
+ });
+ window.HH_VIRTUAL_GENIUS_V1=Object.freeze({
+  version:'1.0-pilot',
+  report:function(){
+   var flags={},total=0;
+   samples.forEach(function(s){total+=s.signals.words;s.flags.forEach(function(k){flags[k]=(flags[k]||0)+1})});
+   return {schema:'healthhub.virtual-genius/1',sampleCount:samples.length,
+    averageWords:samples.length?Math.round(total/samples.length):null,
+    anomalies:flags,clinicalQuality:'not_assessed',storage:'memory_only',
+    latest:samples.length?{time:samples[samples.length-1].time,
+     signals:Object.assign({},samples[samples.length-1].signals),
+     flags:samples[samples.length-1].flags.slice()}:null};
+  },
+  clear:function(){samples=[]},
+  getSignals:function(){return samples.map(function(s){
+    return {time:s.time,version:s.version,signals:Object.assign({},s.signals),
+     flags:s.flags.slice(),clinicalScore:s.clinicalScore};
+  })}
+ });
+})();
