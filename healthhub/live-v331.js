@@ -429,6 +429,27 @@ async function run(opts){
       dd.status==='original_pages_unavailable'?'nem sikerült eredeti PDF-kivonatot olvasni':
       dd.status==='original_pages_available'?'eredeti oldalkivonatok elérhetők':'nincs kapcsolódó lelet';
     print('📚 PDF-hozzáférés: '+dd.attempted+' fájl / '+dd.pagesScanned+' átvizsgált oldal · '+statusText);
+    if(dd.totalIndexed){
+     print('📂 Eredeti leletindex: '+dd.totalIndexed+' profilhoz tartozó irat · '+
+      dd.matched+' releváns jelölt · '+dd.rankedWithExplanation+' korábbi értelmezéssel.');
+    }
+    if(!documents.originals&&dd.reasonsByCode){
+     var reasonKeys=Object.keys(dd.reasonsByCode);
+     var labels={
+      google_drive_not_authorized:'Drive-kapcsolat nem elérhető',
+      google_drive_reconnect_required:'Drive ismételt engedélyezése szükséges ezen a böngészőn',
+      local_document_missing:'helyi dokumentummásolat hiányzik',
+      local_pdf_missing:'a helyi eredeti PDF hiányzik',
+      drive_archive_file_missing:'nem található az eredeti fájl a Drive-archívumban',
+      no_searchable_pdf_text:'a PDF-ben nincs kereshető szövegréteg',
+      pdf_read_failed:'a PDF beolvasása nem sikerült',
+      drive_archive_identity_mismatch:'az archív fájl profilazonossága nem egyezik',
+      drive_archive_metadata_failed:'a távoli fájl azonossága nem ellenőrizhető',
+      drive_archive_search_failed:'Drive-archívum lekérdezési hiba'
+     };
+     var errors=reasonKeys.slice(0,3).map(function(k){return(dd.reasonsByCode[k]||0)+'× '+(labels[k]||k)});
+     if(errors.length)print('🔎 Eredeti PDF-ek elérésének akadálya: '+errors.join('; '));
+    }
     if(!documents.originals&&researchPlan.clinical){
      print('⚠️ Mély klinikai elemzés korlátja: NINCS eredeti PDF-szöveg. Mentési perceket és szedálási okokat nem találhatok ki.');
     }
@@ -444,6 +465,20 @@ async function run(opts){
    throw Error('Clinical Intelligence: profil- vagy kontextuseltérés, a kutatás megszakadt.');
   var clinical=clinicalEngine.assemble(data,clinicalCtx,{expectedProfile:p});
   data=clinical.payload;
+  if(documents&&researchPlan.documents&&Array.isArray(documents.inventory)&&documents.inventory.length){
+   var idxItems=documents.inventory.slice(0,8).map(function(d){
+    return (d.date||'Dátum nem igazolt')+' · '+String(d.title||'').slice(0,95)+
+     (d.summaryAvailable?' · korábbi leletmagyarázattal':' · csak nyilvántartási adat');
+   });
+   var indexed='A HealthHub-ban már nyilvántartott releváns iratok ('+
+    documents.diagnostics.totalIndexed+' összes profilhoz tartozó dokumentum, '+
+    documents.diagnostics.matched+' keresési találat). Az index nem eredeti PDF-szöveg, '+
+    'de az irat meglétét mutatja. '+idxItems.join(' | ');
+   if(!clinical.quality.originals)indexed+=' | FIGYELEM: az eredeti fájlok ebben a futásban nem voltak kiolvashatók. Ez NEM jelenti azt, hogy a történelmi esemény nincs dokumentálva.';
+   var indexFact={domain:'documents',label:'I-04 v396 · dokumentumindex és hozzáférési korlát',
+    value:indexed.slice(0,1700)};
+   data.extra=(Array.isArray(data.extra)?data.extra:[]).concat([indexFact]);
+  }
   var customized=research.apply(data,question,clinical,researchPlan);
   data=customized.payload;
   print('🧠 Kutatási mélység: '+(customized.plan.mode==='deep'?'részletes':'fókuszált')+
