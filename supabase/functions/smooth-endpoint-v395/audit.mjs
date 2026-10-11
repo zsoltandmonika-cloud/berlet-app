@@ -33,7 +33,7 @@ export function verifyExtractedFacts(response,evidence){
   // Every number in the fact must be present in the exact excerpt, including
   // uncertain durations and dates. No invented 20-minute ischemia interval.
   const quoteNums=new Set(numTokens(quote));
-  if(numTokens(claim).some(n=>!quoteNums.has(n))){issues.push('unsupported_numeric_claim');continue;}
+  if(numTokens(claim).some(n=>!quoteNums.has(n))||unexpectedDurations(claim,[{quote}]).length){issues.push('unsupported_numeric_claim');continue;}
   const key=f.sourceId+'|'+norm(quote);
   if(seen.has(key))continue;seen.add(key);
   out.push({sourceId:f.sourceId,quote,fact:claim,documentTitle:source.title,
@@ -41,15 +41,22 @@ export function verifyExtractedFacts(response,evidence){
  }
  return {facts:out.slice(0,22),rejected:issues.length,issues:issues.slice(0,12)};
 }
-function sourceNumerics(evidenceFacts){return new Set(evidenceFacts.flatMap(f=>numTokens(f.quote)))}
+function durationValues(text){
+ // A cardiac EF of 20% does NOT validate a 20-minute cardiac arrest.
+ // Numerical precision is accepted only with the same temporal unit.
+ const rx=/\b(\d+(?:[.,]\d+)?)\s*(perc(?:ig|en|et|cel)?|óra(?:ig|n|t)?|órá(?:ig|n|t)?|nap(?:ig|on|ot)?|hét(?:ig|en)?)\b/gi;
+ const values=[];let m;
+ while((m=rx.exec(String(text||'')))){
+  const unit=m[2].toLocaleLowerCase('hu-HU');
+  const category=unit.startsWith('perc')?'perc':unit.startsWith('ór')?'óra':
+   unit.startsWith('nap')?'nap':'hét';
+  values.push({value:m[1].replace(',','.'),unit:category,phrase:m[0]});
+ }
+ return values;
+}
 function unexpectedDurations(text,facts){
- // Only exact durations in retained original source quotes qualify as
- // person-specific facts. Vague/unsupported numbers are not inferred.
- const allowed=sourceNumerics(facts);
- const rx=/\b(\d+(?:[.,]\d+)?)\s*(?:perc(?:ig|en|et|cel)?|órá?(?:ig|n|t)?|nap(?:ig|on|ot)?|hét(?:ig|en)?)\b/gi;
- const bad=[];let m;
- while((m=rx.exec(text)))if(!allowed.has(m[1].replace(',','.')))bad.push(m[0]);
- return bad;
+ const allowed=new Set(facts.flatMap(f=>durationValues(f.quote).map(v=>v.value+':'+v.unit)));
+ return durationValues(text).filter(v=>!allowed.has(v.value+':'+v.unit)).map(v=>v.phrase);
 }
 function datesIn(text){
  return compact(text).match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[];
