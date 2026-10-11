@@ -1,0 +1,27 @@
+name: HealthHub Ask Lena · Continuous Topic Layout
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/answer-layout-v394.test.cjs"
+      - ".github/workflows/healthhub-ask-layout.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/live-v331.js"
+      - "healthhub/tests/answer-layout-v394.test.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-answer-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify renderer and previous research regression
+        run: |
+          node --check healthhub/live-v331.js
+          node healthhub/tests/answer-layout-v394.test.cjs
+          node healthhub/tests/intelligence-deep-research-v393.test.cjs
+          node healthhub/tests/share-print-v392.test.cjs
