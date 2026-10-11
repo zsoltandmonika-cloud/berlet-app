@@ -11,17 +11,37 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 18
-        versionName = "0.12.0"
+        versionCode = 20
+        versionName = "0.14.0"
     }
 
     buildFeatures {
         buildConfig = true
     }
 
+    // OTA key is created once, stored only in GitHub Actions encrypted secrets.
+    // Unsigned release builds are deliberately never published as OTA updates.
+    signingConfigs {
+        if (listOf(
+                System.getenv("HH_OTA_KEYSTORE_PATH"),
+                System.getenv("HH_OTA_KEYSTORE_PASSWORD"),
+                System.getenv("HH_OTA_KEY_ALIAS"),
+                System.getenv("HH_OTA_KEY_PASSWORD")
+            ).all { !it.isNullOrBlank() }) {
+            create("ota") {
+                storeFile = file(System.getenv("HH_OTA_KEYSTORE_PATH"))
+                storePassword = System.getenv("HH_OTA_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("HH_OTA_KEY_ALIAS")
+                keyPassword = System.getenv("HH_OTA_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (signingConfigs.findByName("ota") != null) {
+                signingConfig = signingConfigs.getByName("ota")
+            }
         }
     }
     compileOptions {
