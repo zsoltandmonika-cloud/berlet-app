@@ -224,6 +224,9 @@ function hhSleepIndex382(m){
   label:score<60?'Figyelmet igényel':score<80?'Fejleszthető':'Kedvező',
   durationPart:Math.round(durationPart),efficiencyPart:Math.round(efficiencyPart),efficiency:m.efficiency};
 }
+function sleepFactorHeading383(){
+ return '<div class="hhSleepFactorHeading381 hhSleepFactorTop383"><div><small>ALVÁSELEMZÉS</small><h3>Alvási tényezők</h3></div><span class="hhSleepFactorSource381">⌚ Health Connect</span></div>';
+}
 function sleepFactorCards381(night){
  if(!night)return '';
  var m=hhSleepMetrics382(night),stages=m?m.stages:[],hasStages=stages.length>0;
@@ -252,7 +255,7 @@ function sleepFactorCards381(night){
  var expl='<details class="hhSleepIndexMethod382"><summary>ℹ️ Hogyan számoljuk az alvásindexet?</summary>'+
   '<p>Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. 80%-nál hiányosabb alvásfázis-idővonalból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.</p></details>';
  return '<section class="hhSleepFactorsSection381" aria-label="Alvási tényezők">'+
-  '<div class="hhSleepFactorHeading381"><div><small>ALVÁSELEMZÉS</small><h3>Alvási tényezők</h3></div><span class="hhSleepFactorSource381">⌚ Health Connect</span></div>'+
+  
   score+expl+
   '<div class="hhSleepFactors381">'+
    card('💤','Tényleges alvás',val(m&&m.actual),durationTone.label,durationTone.tone,'Mért alvás, ébrenlét nélkül')+
@@ -276,7 +279,7 @@ function sleepOverview(rows){
  return '<div class="hhSleepOverview363 hhSleepOverview382">'+
   card('💤 UTOLSÓ ALVÁS',actual==null?'—':durText(actual),esc(fmtTime(night.startTime)+'–'+fmtTime(night.endTime)),hhSleepTone382(actual).tone)+
   card('🕒 UTOLSÓ 24 ÓRA',recentMinutes==null?'—':durText(recentMinutes),'Mért alvás 24 óra alatt',hhSleepTone382(recentMinutes).tone)+
-  '</div><p class="hhSleepInfo363">A két csempe tényleges alvásidőt mutat, nem az ébrenlétet is tartalmazó alvási ablakot. A 24 órás érték átfedés nélkül összesített.</p>';
+  '</div>';
 }
 // A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
 function sleepLenaComment(rows,profile){
@@ -332,7 +335,7 @@ async function render(profileOverride){
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?hhSleepSource381(latest)+sleepOverview(rows)+sleepFactorCards381(night)+sleepLenaComment(rows,requestedProfile)+stageBar(night):
+ (latest?hhSleepSource381(latest)+sleepFactorHeading383()+sleepOverview(rows)+sleepFactorCards381(night)+sleepLenaComment(rows,requestedProfile)+stageBar(night):
  '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -446,8 +449,9 @@ style();
  document.head.appendChild(c);
 })();
 (function(){if(document.getElementById('hhSleepRag382Css'))return;var e=document.createElement('style');e.id='hhSleepRag382Css';e.textContent="/* v382 RAG: color is a transparent measurement signal, not a diagnosis. */\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:7px 0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363{padding:12px 8px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;gap:4px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:10px;line-height:1.28;min-height:0}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:23px}\n.hhSleepPage .hhSleepOverview382 .hhSleepStat363 span{font-size:9px}\n.hhSleepPage .hhSleepRag382.good{border-color:#4bb981!important;background:linear-gradient(135deg,#f2fcf6,#e6f8ec)!important}\n.hhSleepPage .hhSleepRag382.warn{border-color:#edb350!important;background:linear-gradient(135deg,#fffaf1,#fff0d8)!important}\n.hhSleepPage .hhSleepRag382.bad{border-color:#e27676!important;background:linear-gradient(135deg,#fff7f6,#ffe8e7)!important}\n.hhSleepPage .hhSleepRag382.muted{border-color:#cbd9e3!important;background:#f4f8fa!important}\n.hhSleepPage .hhSleepRag382.info{border-color:color-mix(in srgb,var(--a) 35%,#d9e7ee)!important;background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--soft) 28%,#fff))!important}\n.hhSleepPage .hhSleepFactorStatus381.bad{background:#ffe0df;color:#a62525}\n.hhSleepPage .hhSleepScoreStrip381.hhSleepRag382{margin-bottom:4px}\n.hhSleepPage .hhSleepScoreText381 .hhSleepFactorStatus381{margin-top:5px;font-size:10px!important;display:inline-flex}\n.hhSleepPage .hhSleepIndexMethod382{margin:0 0 10px 2px;color:#566f81;font-size:10px}\n.hhSleepPage .hhSleepIndexMethod382 summary{cursor:pointer;font-weight:750;min-height:30px;display:flex;align-items:center}\n.hhSleepPage .hhSleepIndexMethod382 p{margin:0 3px 8px;line-height:1.5;border-left:3px solid var(--a);padding-left:8px}\n.hhSleepPage .hhSleepLena364{margin:12px 0 11px}\n@media(max-width:355px){.hhSleepPage .hhSleepOverview382 .hhSleepStat363 b{font-size:19px}.hhSleepPage .hhSleepOverview382 .hhSleepStat363 small{font-size:9px}}\n";document.head.appendChild(e)})();
+(function(){if(document.getElementById('hhSleep383Css'))return;var el=document.createElement('style');el.id='hhSleep383Css';el.textContent="/* v383: hero heading below top controls, further right/up. */\n.hhSleepPage .hhSleepDoctorTitle{left:62%;right:8px;top:36%;width:auto;max-width:none}\n.hhSleepPage .hhSleepDoctorTitle span{display:block;font-size:8px;line-height:1.25;overflow-wrap:break-word}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383{margin:10px 2px 7px;align-items:end}\n.hhSleepPage .hhSleepFactorHeading381.hhSleepFactorTop383 h3{font-size:19px}\n.hhSleepPage .hhSleepFactorsSection381{margin-top:4px}\n.hhSleepPage .hhSleepOverview363.hhSleepOverview382{margin-top:4px}\n@media(max-width:355px){.hhSleepPage .hhSleepDoctorTitle{left:60%;right:6px;top:38%}.hhSleepPage .hhSleepDoctorTitle h1{font-size:27px}.hhSleepPage .hhSleepDoctorTitle span{font-size:7px}}\n";document.head.appendChild(el)})();
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
-document.documentElement.dataset.healthhubSleep='1.382';window.HH_LIVE_BUILD='v382-sleep-rag-healthradar-index';
+document.documentElement.dataset.healthhubSleep='1.383';window.HH_LIVE_BUILD='v383-sleep-hero-heading-polish';
 })();
