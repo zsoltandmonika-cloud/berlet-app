@@ -383,6 +383,12 @@ async function run(opts){
    throw Error('Intelligence adatellenőrzés nem érhető el. Nem indítok ellenőrizetlen AI-kutatást.');
   var intelligence=intelligenceGate.prepare(data,ctx);
   data=intelligence.payload;
+  if(intelligence.ledgerQuality){
+   print('🧠 Intelligence Ledger I-02: '+intelligence.ledgerQuality.count+
+    ' egyedi mérési bejegyzés · '+intelligence.ledgerQuality.uniqueSources+' adatforrás'+
+    (intelligence.sourceDisagreements?' · '+intelligence.sourceDisagreements+' forráseltérés (nem diagnózis)':'')+
+    (intelligence.ledgerWarnings?' · '+intelligence.ledgerWarnings+' adatminőségi jelzés':''));
+  }
   if(intelligence.flags.length){
    print('🔎 Adatminőség: '+intelligence.flags.length+' ellenőrzendő forrás. Régi méréseket nem kezelünk aktuálisként.');
   }else print('✅ Adatminőség: források és időbélyegek ellenőrizve.');
@@ -437,7 +443,8 @@ async function run(opts){
     return;
    }
    if(kind==='done'){renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
-    (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.');print('AI-kutatás befejeződött.');return}
+    (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
+     (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'');print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
   while(true){
