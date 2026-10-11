@@ -310,7 +310,7 @@ async function prepare(question,p,options){
     reasons.push(extraction.reason||'unavailable_original');continue;
    }
    extraction.pages.forEach(function(page){
-    if(originals.length>=6)return;
+    if(originals.length>=12)return;
     if(!page||!page.page||!page.text||page.text.length<80)return;
     originals.push({
      type:'original_pdf_extract',documentId:String(docs[i].id),title:field(docs[i].title),
@@ -321,7 +321,7 @@ async function prepare(question,p,options){
      page:page.page,text:page.text.slice(0,plan.excerptMax||1950)
     });
    });
-   if(originals.length>=6)break;
+   if(originals.length>=12)break;
   }
  }else if(docs.length){
   reasons.push('original_pdf_consent_disabled');
@@ -343,7 +343,7 @@ async function prepare(question,p,options){
    text:v.slice(0,plan.mode==='deep'?1900:1550)
   });
  });
- var items=originals.concat(summaries.slice(0,Math.max(0,8-originals.length))).slice(0,8);
+ var items=originals.concat(summaries.slice(0,Math.max(0,16-originals.length))).slice(0,16);
  var countSummaries=items.filter(function(x){return x.type==='json_summary'}).length;
  var reasonsByCode={};
  reasons.forEach(function(r){reasonsByCode[r]=(reasonsByCode[r]||0)+1});
