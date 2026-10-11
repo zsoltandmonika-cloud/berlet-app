@@ -5,6 +5,7 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 const sandbox={window:{},console};
 vm.runInNewContext(fs.readFileSync('healthhub/live-v389-ledger.js','utf8'),sandbox);
+vm.runInNewContext(fs.readFileSync('healthhub/live-v390-trends.js','utf8'),sandbox);
 vm.runInNewContext(fs.readFileSync('healthhub/live-v388-intelligence.js','utf8'),sandbox);
 const gate=sandbox.window.HH_INTELLIGENCE_GATE_V388;
 const now=Date.parse('2026-10-11T16:10:00+02:00');
