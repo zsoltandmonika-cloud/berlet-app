@@ -254,6 +254,14 @@ async function prepare(question,p,options){
  if(!plan.documents){empty.diagnostics.status='non_document_question';return empty}
  var scoped=(ctx.documents&&ctx.documents.index||[]).filter(function(d){return d&&(!d.profile||d.profile===p)});
  var docs=rank(scoped,question,plan),allowed=approved(p);
+ var targetDate=dateQuery(question),inventory=docs.slice(0,10).map(function(d){
+  var documentDate=d.dateSource==='upload'?'':datedMetadata(d.date);
+  return {documentId:String(d.id),title:field(d.title).slice(0,105),
+   date:documentDate||'',kind:field(d.category||'').slice(0,45),
+   summaryAvailable:!!d.explanation,originalFileAvailable:'not_checked',
+   nearTarget:!!(targetDate&&documentDate&&
+    dateDistance(documentDate,targetDate)>=0&&dateDistance(documentDate,targetDate)<=45)};
+ });
  var originals=[],summaries=[],reasons=[],attempted=0,pagesScanned=0;
  if(allowed){
   // Bounded work, but inspect more than the old top-three PDFs. Each doc
@@ -286,7 +294,9 @@ async function prepare(question,p,options){
  }
  // The original excerpts go first. Historical assistant summaries are
  // secondary and cannot silently crowd out all genuine PDF pages.
- docs.slice(0,8).forEach(function(d){
+ // Search across the complete ranked candidate set for prior explanations;
+ // the first eight matching original-file references may have no summary.
+ docs.filter(function(d){return !!d.explanation}).slice(0,12).forEach(function(d){
   var e=d.explanation;
   if(!e)return;
   var v=historicalText(e);if(!v)return;
@@ -301,9 +311,14 @@ async function prepare(question,p,options){
  });
  var items=originals.concat(summaries.slice(0,Math.max(0,8-originals.length))).slice(0,8);
  var countSummaries=items.filter(function(x){return x.type==='json_summary'}).length;
+ var reasonsByCode={};
+ reasons.forEach(function(r){reasonsByCode[r]=(reasonsByCode[r]||0)+1});
  status('');
  return {items:items,originals:originals.length,summaries:countSummaries,originalConsent:allowed,
-  diagnostics:{matched:docs.length,attempted:attempted,pagesScanned:pagesScanned,
+  inventory:inventory,requestedDate:targetDate||'',
+  diagnostics:{matched:docs.length,totalIndexed:scoped.length,
+   attempted:attempted,pagesScanned:pagesScanned,rankedWithExplanation:docs.filter(function(d){return!!d.explanation}).length,
+   reasonsByCode:reasonsByCode,requestedDate:targetDate||'',
    missing:reasons.slice(0,8),status:!allowed?'no_original_consent':
     originals.length?'original_pages_available':'original_pages_unavailable',
    planMode:plan.mode,
