@@ -631,9 +631,9 @@ class MainActivity : ComponentActivity() {
         val offer = if (candidate != null) "🟢 Új, aláírt kiadás: v${candidate.version} · telepítés kérhető"
             else "Nincs ehhez a telefonhoz jóváhagyott új kiadás."
         val problem = OtaUpdateManager.lastError(this)
-        otaSummary.text = "Telepített: v${BuildConfig.VERSION_NAME} (#${BuildConfig.VERSION_CODE})\\n" +
-            "Utolsó ellenőrzés: $whenChecked\\n" + offer +
-            (if (problem.isNullOrBlank()) "" else "\\n⚠️ $problem")
+        otaSummary.text = "Telepített: v${BuildConfig.VERSION_NAME} (#${BuildConfig.VERSION_CODE})\n" +
+            "Utolsó ellenőrzés: $whenChecked\n" + offer +
+            (if (problem.isNullOrBlank()) "" else "\n⚠️ $problem")
     }
 
     private fun checkOta(showResult: Boolean) {
