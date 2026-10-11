@@ -76,7 +76,7 @@ function quotedDoctorNames(text){
 }
 export function buildEventCandidates(validated){
  const facts=Array.isArray(validated?.facts)?validated.facts:[];
- const eventDate=quote=>{
+ function eventDate(quote){
   const q=String(quote||'');
   const iso=q.match(/\b((?:19|20)\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})\b/);
   if(!iso)return null;
@@ -84,14 +84,24 @@ export function buildEventCandidates(validated){
   const date=new Date(Date.UTC(y,m-1,d));
   if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return null;
   return date.toISOString().slice(0,10);
- };
+ }
+ function eventTime(quote){
+  // Time must be explicitly in the source quote; do not extrapolate
+  // a time of event from hospital/discharge document metadata.
+  const q=String(quote||''),t=q.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  if(!t)return null;
+  return String(Number(t[1])).padStart(2,'0')+':'+t[2];
+ }
  return facts.map(f=>({
   sourceId:f.sourceId,documentTitle:f.documentTitle,page:f.page,
-  // Do not mistake a discharge summary DATE for the underlying event time.
-  eventDate:eventDate(f.quote),documentDate:f.documentDate||'',
-  fact:f.fact
+  eventDate:eventDate(f.quote),eventTime:eventTime(f.quote),
+  documentDate:f.documentDate||'',fact:f.fact
  })).sort((a,b)=>{
-  if(a.eventDate&&b.eventDate)return a.eventDate.localeCompare(b.eventDate);
+  if(a.eventDate&&b.eventDate){
+   const d=a.eventDate.localeCompare(b.eventDate);if(d)return d;
+   if(a.eventTime&&b.eventTime)return a.eventTime.localeCompare(b.eventTime);
+   return a.eventTime?-1:b.eventTime?1:0;
+  }
   return a.eventDate?-1:b.eventDate?1:0;
  }).slice(0,40);
 }
