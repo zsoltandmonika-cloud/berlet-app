@@ -91,9 +91,17 @@ function merge(c, result, requestedProfile){
  // Never replace *today's* newer Health Connect values with a Samsung
  // snapshot older than 90 minutes. Keep completed days and source records.
  var staleToday=stamp==null || now-stamp>MAX_TODAY_SDK_AGE_MS;
- result.data.staleToday=staleToday;
- result.data.staleReason=staleToday?'Samsung export túl régi a mai élő összesítőhöz':null;
+ // Prefer a more recent, successful HC export whenever one exists for today.
+ // It is not safe to silently overwrite a newer day's data with an older
+ // snapshot, even when the snapshot itself is less than 90 minutes old.
  var today=localDay(now);
+ var todayHC=(Array.isArray(c.daily)?c.daily:[]).find(function(d){return d.date===today});
+ var hcStamp=todayHC&&dateMs(todayHC._hhBundleAt);
+ var newerHc=hcStamp!=null&&stamp!=null&&hcStamp>stamp;
+ var skipToday=staleToday||newerHc;
+ result.data.staleToday=skipToday;
+ result.data.staleReason=staleToday?'Samsung export túl régi a mai élő összesítőhöz':
+  (newerHc?'Health Connect export újabb, mint a Samsung-pillanatkép':null);
  var out=Object.assign({},c);
  out.samsungHourlySteps=result.data.hourlySteps||[];
  out.samsungSessions=result.data.exerciseSessions||[];
@@ -114,7 +122,7 @@ function merge(c, result, requestedProfile){
  out.sessions.sort(function(a,b){return Date.parse(b.endTime)-Date.parse(a.endTime)});
  out.daily=(Array.isArray(c.daily)?c.daily:[]).map(function(day){
   var samsung=days.get(day.date);if(!samsung)return day;
-  if(day.date===today&&staleToday){
+  if(day.date===today&&skipToday){
    // No silent stale priority for active minutes or calories. We deliberately
    // retain the HC missing-data state instead of presenting 12:28 as "now".
    out.samsungTodaySkipped=true;
