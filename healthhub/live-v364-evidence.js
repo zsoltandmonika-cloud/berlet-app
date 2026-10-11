@@ -218,6 +218,16 @@ async function originalBlob(d,p){
    fileId=matched.id;
   }
   if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+  // Never trust only a locally cached Drive map ID. The remote metadata
+  // must bind the file to the exact patient and clinical document.
+  var metadataResult=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(fileId)+
+   '?fields=id,appProperties,mimeType,trashed',{headers:{Authorization:'Bearer '+tok},cache:'no-store'});
+  if(!metadataResult.ok)return {blob:null,reason:'drive_archive_metadata_failed'};
+  var metadata=await metadataResult.json();
+  if(metadata.trashed||!metadata.appProperties||
+    metadata.appProperties.profile!==p||metadata.appProperties.documentId!==String(d.id))
+   return {blob:null,reason:'drive_archive_identity_mismatch'};
+  if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
   var resp=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(fileId)+'?alt=media',
    {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
   if(!resp.ok)return {blob:null,reason:resp.status===403||resp.status===401?'google_drive_no_permission':'google_drive_unavailable'};
