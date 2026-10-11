@@ -189,15 +189,36 @@ async function originalBlob(d,p){
  // holds JSON records, NOT a verified mirror of original PDF files.
  var map=window.hhGetLenaArchiveMap294&&window.hhGetLenaArchiveMap294()||{};
  var archive=d.driveArchive||map[String(d.id)]||null;
- if(!archive||!archive.fileId)return {blob:null,reason:local.reason||'no_original_file_locator'};
+ if(archive&&archive.profile&&archive.profile!==p)return {blob:null,reason:'profile_mismatch'};
  if(typeof window.hhGetGoogleDriveToken292!=='function')
   return {blob:null,reason:'google_drive_not_authorized'};
  var tok=null;
  try{tok=await window.hhGetGoogleDriveToken292(false)}catch(e){}
- if(!tok)return {blob:null,reason:'google_drive_not_authorized'};
+ if(!tok)return {blob:null,reason:'google_drive_reconnect_required'};
  if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
  try{
-  var resp=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(archive.fileId)+'?alt=media',
+  var fileId=archive&&archive.fileId||'';
+  if(!fileId){
+   // The cross-device local archive map is not guaranteed to exist on
+   // another browser. Search ONLY files explicitly created by the HealthHub
+   // document archive and tagged for THIS document and THIS patient.
+   var key=String(d.id||'');
+   if(!/^[A-Za-z0-9-]{6,140}$/.test(key))
+    return {blob:null,reason:local.reason||'drive_archive_locator_missing'};
+   var q="trashed = false and appProperties has { key = 'documentId' and value = '"+key+
+    "' } and appProperties has { key = 'profile' and value = '"+p+"' }";
+   var list=await fetch('https://www.googleapis.com/drive/v3/files?spaces=drive&pageSize=10&fields=files(id,name,appProperties),nextPageToken&q='+encodeURIComponent(q),
+    {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
+   if(!list.ok)return {blob:null,reason:list.status===401?'google_drive_reconnect_required':'drive_archive_search_failed'};
+   var found=(await list.json()).files||[];
+   var matched=found.find(function(x){
+    return x&&x.id&&x.appProperties&&x.appProperties.profile===p&&x.appProperties.documentId===key;
+   });
+   if(!matched)return {blob:null,reason:'drive_archive_file_missing'};
+   fileId=matched.id;
+  }
+  if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+  var resp=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(fileId)+'?alt=media',
    {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
   if(!resp.ok)return {blob:null,reason:resp.status===403||resp.status===401?'google_drive_no_permission':'google_drive_unavailable'};
   var b=await resp.blob();
