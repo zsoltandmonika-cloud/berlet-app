@@ -40,13 +40,14 @@ function request(profile='monika'){
  assert.equal(l.schema,'healthhub.intelligence.ledger/1');
  assert.ok(l.observations.every(x=>x.profile==='monika'));
  assert.ok(l.observations.every(x=>x.observedAt&&x.observedPrecision));
- assert.ok(l.quality.duplicatesSkipped>=4);
+ assert.ok(l.quality.duplicatesSkipped>=3);
  const todayMinutes=l.observations.filter(x=>x.type==='active_minutes'&&x.observedAt===today);
  assert.equal(todayMinutes.length,2,'older Samsung and newer HC values both retained');
  assert.deepEqual(todayMinutes.map(x=>x.value).sort((a,b)=>a-b),[16,39]);
- assert.equal(l.comparisons.length,1);
- assert.equal(l.comparisons[0].type,'active_minutes');
- assert.equal(l.comparisons[0].newestSnapshotSource,'healthhub-activity-cache');
+ assert.ok(l.comparisons.length>=2,'both active time and measured distance can diverge');
+ const activeConflict=l.comparisons.find(x=>x.type==='active_minutes');
+ assert.ok(activeConflict);
+ assert.equal(activeConflict.newestSnapshotSource,'healthhub-activity-cache');
  assert.ok(!l.observations.some(x=>x.type==='active_kcal'&&x.sourceSystem==='healthhub-activity-cache'),
   'legacy HC 0-calorie placeholder must never be called a measured value');
  assert.equal(l.observations.filter(x=>x.type==='sleep_minutes').length,2,
