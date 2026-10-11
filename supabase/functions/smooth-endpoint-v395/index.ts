@@ -22,7 +22,13 @@ type Extra = {domain:string,label:string,value:string,at?:string};
 function sanitizeExtra(input:unknown):Extra[]{
  const ids = new Set(["profile","trends","sleep","activity","medication","documents","appointments","symptoms","device"]);
  if(!Array.isArray(input))return [];
- return input.slice(0,72).filter(e=>e&&ids.has(e.domain)).map(e=>({domain:String(e.domain),label:safeText(e.label,90),value:safeText(e.value,240),at:safeText(e.at,35)})).filter(e=>e.label&&e.value);
+ return input.slice(0,72).filter(e=>e&&ids.has(e.domain)).map(e=>({
+  domain:String(e.domain),label:safeText(e.label,90),
+  // The already-consented clinical index may carry a short inventory of
+  // dated document titles. Avoid truncating it to one source name.
+  value:safeText(e.value,e.domain==="documents"?1200:240),
+  at:safeText(e.at,35)
+ })).filter(e=>e.label&&e.value);
 }
 
 type Evidence = {type:"json_summary"|"original_pdf_extract",documentId:string,title:string,date:string,datePrecision?:string,uploadDate?:string,datesMentioned?:string[],page?:number,text:string};
