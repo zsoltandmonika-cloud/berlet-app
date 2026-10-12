@@ -25,12 +25,9 @@ function memorySections(r){
  */
 export function extractOriginalQuestion(modelQuestion){
  const full=String(modelQuestion||'');
- // v406: actual newline-delimited instructions were NOT stripped by v405,
- // whose strings matched literal backslash+n instead of line breaks.
- const marker=/\r?\n\s*\r?\n\s*\[(?:KUTATÁSI ELV:|I-06\s*·\s*Válaszstílus\])/i;
- const match=marker.exec(full);
- const literal=full.search(/\\n\\n\[(?:KUTATÁSI ELV:|I-06\s*·\s*Válaszstílus\])/i);
- const stop=Math.min(match?match.index:full.length,literal>=0?literal:full.length);
+ const markers=['\\n\\n[KUTATÁSI ELV:', '\\n\\n[I-06 · Válaszstílus]'];
+ let stop=full.length;
+ for(const term of markers){const pos=full.indexOf(term);if(pos>=0)stop=Math.min(stop,pos)}
  return full.slice(0,stop).trim();
 }
 export function chooseNonRegressingFocus(question,baseline,originalFacts,secondaryFacts){
