@@ -253,9 +253,10 @@ function enable(p,value){
  emit();
 }
 function compareMeta(file,existing){
- return existing&&existing.status==='complete'&&
+ return !!(existing&&existing.status==='complete'&&
   Number(existing.size_bytes)===Number(file.size)&&
-  Date.parse(existing.source_modified_at||0)===Date.parse(file.modified||0);
+  Number.isFinite(Date.parse(existing.source_modified_at||''))&&
+  Date.parse(existing.source_modified_at)===Date.parse(file.modified||''));
 }
 function isPdfDocument(file){return !!file&&file.id&&/\.pdf$/i.test(file.name||'')}
 async function audit(p){
@@ -294,6 +295,12 @@ async function run(p,opts){
    var record=mapped.get('drive_'+file.id),id=record&&record.id;
    try{
     var bytes=await blobFor(file,p),sha=await hash(bytes);
+    if(record&&record.sha256&&record.sha256!==sha&&record.pages_indexed>0){
+     // Do not contaminate the knowledge base with stale pages after a Drive overwrite.
+     await docStatus(p,record.id,{status:'changed_needs_review',
+      notes:'Az archív eredeti SHA-256 ellenőrzőösszege megváltozott; külön verzióellenőrzés szükséges.'});
+     st.done++;emit();continue;
+    }
     var canonical=existing.find(x=>x.profile_key===p&&x.source_file_id!=='drive_'+file.id&&
      x.sha256===sha&&x.status==='complete'&&!x.duplicate_of);
     // A repeated binary has one canonical, searchable page set.
@@ -311,7 +318,9 @@ async function run(p,opts){
     mapped.set('drive_'+file.id,row);existing.push(row);
    }catch(e){
     // Never put sensitive PDF text or tokens in logs or error messages.
-    if(id)try{await docStatus(p,id,{status:'failed',notes:'Feldolgozási hiba; ismételt ellenőrzés szükséges.'})}catch(_){}
+    if(id&&(!record||record.status!=='complete'))try{
+     await docStatus(p,id,{status:'failed',notes:'Feldolgozási hiba; ismételt ellenőrzés szükséges.'})
+    }catch(_){}
     st.error=String(e&&e.message||'PDF feldolgozási hiba').slice(0,135);
    }
    st.done++;emit();
