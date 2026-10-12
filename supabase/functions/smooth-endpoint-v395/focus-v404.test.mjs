@@ -106,4 +106,27 @@ test('No alteration of caller report and source evidence',()=>{
  const before=JSON.stringify(story);enforceContextRelevance(story,focus);
  assert.equal(JSON.stringify(story),before);
 });
+test('Mixed neurological heading retains other medically relevant recovery facts',()=>{
+ const mixed={sections:[
+  {heading:'A kezelés és a felépülés',paragraphs:[p('A kórházi ellátás folytatódott.','S3')]},
+  {heading:'Ébredés és emlékezetzavar',paragraphs:[
+   p('A beteg az ébredés után megfigyelés alatt állt.','S3'),
+   p('Az emlékezetzavarról hosszú elemzést írt a korábbi összefoglaló. A memória helyreállása külön témát érdemelne.','S3')
+  ]}
+ ]};
+ const x=enforceContextRelevance(mixed,focus);
+ assert.equal(x.report.sections.length,2);
+ assert.match(x.report.sections[1].paragraphs[0].text,/ébredés/);
+ assert.ok(x.report.sections.every(s=>!s.heading.includes('emlékezetzavar')));
+});
+test('Extended unrequested memory essay inside recovery paragraph is trimmed',()=>{
+ const own={sections:[{heading:'Felépülés és hazatérés',paragraphs:[
+  p('A beteg kórházi hazabocsátása megtörtént.','S5'),
+  p('Az emlékezetzavar lehetséges összetett oka több tényezőre vezethető vissza. A memória tárolási problémái számos neurológiai mechanizmust érinthetnek. Ezek a részletes magyarázatok önálló választ alkotnának.','S3')
+ ]}]};
+ const x=enforceContextRelevance(own,focus);
+ assert.ok(x.trimmed>0);
+ assert.equal(x.briefMentions,1);
+ assert.ok(x.report.sections[0].paragraphs.some(p=>p.text.includes('hazabocsátása')));
+});
 console.log('OK '+n+' focused narrative checks');
