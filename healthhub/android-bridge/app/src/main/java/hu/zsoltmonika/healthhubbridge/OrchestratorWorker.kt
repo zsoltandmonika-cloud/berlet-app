@@ -82,6 +82,8 @@ class OrchestratorWorker(
                 } ?: JSONObject.NULL)
             .put("lastHealthSummary", prefs.getString(ResilientHealthSync.KEY_COUNTS, null) ?: JSONObject.NULL)
             .put("lastHealthError", prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null) ?: JSONObject.NULL)
+            // No clinical values: source dates/counts, sync statuses and error categories only.
+            .put("collectorTelemetry", CollectorTelemetry.snapshot(applicationContext))
             .put("lastCommandId", prefs.getString(LAST_COMMAND_KEY, null) ?: JSONObject.NULL)
             .put("visible", false)
         DropboxVaultClient.uploadText(prefs, DEVICES + "/" + id + ".json", obj.toString(2) + "\n")
@@ -178,6 +180,14 @@ class OrchestratorWorker(
 
         return try {
             ensureFolders(prefs)
+            // Device-initiated, non-privileged remote policy check. Failures here
+            // must never prevent existing HC commands and heartbeat monitoring.
+            try {
+                CollectorRemoteConfig.poll(applicationContext, prefs, id, owner)
+            } catch (e: Exception) {
+                CollectorRemoteConfig.notePollFailure(applicationContext,
+                    e.message ?: e.javaClass.simpleName)
+            }
             uploadHeartbeat(prefs, id, owner)
 
             val text = DropboxVaultClient.downloadTextOrNull(prefs, COMMANDS + "/" + id + ".json")
