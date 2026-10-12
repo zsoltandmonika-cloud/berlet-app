@@ -105,4 +105,29 @@ test('General physiology is not silently promoted to a personal event',()=>{
  assert.equal(x.stats.documented,0);assert.equal(x.stats.reported,0);
  assert.match(formatClinicalAnswer(x,[],si),/elektromos/);
 });
+test('Hungarian calendar text equals the same numerically written date',()=>{
+ const y=verifySecondaryFacts({facts:[{sourceId:'S1',quote:goodQuote,
+ fact:'A korábbi összefoglaló 2024. június 17-én kamrafibrillációt említ Mónikánál.'}]},si);
+ assert.equal(y.facts.length,1);
+ const draft=auditClinicalDraft({sections:[{heading:'Időrend',paragraphs:[
+  {kind:'reported',sourceIds:['S1'],
+   text:'A korábbi leletmagyarázat szerint Mónikánál 2024. június 17-én kamrafibrilláció történt.'}]}]},[],{facts:[]},si,y);
+ assert.equal(draft.stats.reported,1);
+});
+test('A changed clinical event date is never accepted',()=>{
+ const x=verifySecondaryFacts({facts:[{sourceId:'S1',quote:goodQuote,
+ fact:'2024. június 18-án Mónikánál kamrafibrilláció történt.'}]},si);
+ assert.equal(x.facts.length,0);
+});
+test('Impossible calendar date never becomes a timeline event',()=>{
+ const x=verifySecondaryFacts({facts:[{sourceId:'S1',quote:goodQuote,
+ fact:'2024. február 31-én Mónikánál kamrafibrilláció történt.'}]},si);
+ assert.equal(x.facts.length,0);
+});
+test('Hungarian-form day appears in the event timeline',()=>{
+ const x=verifySecondaryFacts({facts:[{sourceId:'S1',
+ quote:'Az összefoglaló szerint 2024.06.17-én Mónikánál kamrafibrilláció történt.',
+ fact:'A korábbi összefoglaló szerint 2024. június 17-én kamrafibrilláció történt.'}]},si);
+ assert.equal(x.facts.length,1);
+});
 console.log('OK '+count+' clinical storytelling checks');
