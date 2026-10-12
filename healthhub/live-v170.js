@@ -336,7 +336,7 @@ function sleepOverview(rows){
   return '<div class="hhSleepStat363 hhSleepRag382 '+esc(state)+'"><small>'+title+'</small><b>'+value+'</b><span>'+details+'</span></div>';
  }
  return '<div class="hhSleepOverview363 hhSleepOverview382">'+
-  card('💤 UTOLSÓ ALVÁS',actual==null?'—':durText(actual),esc(fmtTime(night.startTime)+'–'+fmtTime(night.endTime)),hhSleepTone382(actual).tone)+
+  card('💤 ALVÁSI IDŐSZAK',windowMins==null?'—':durText(windowMins),esc(fmtTime(night.startTime)+'–'+fmtTime(night.endTime)),'muted')+
   card('🕒 UTOLSÓ 24 ÓRA',recentMinutes==null?'—':durText(recentMinutes),'Mért alvás 24 óra alatt',hhSleepTone382(recentMinutes).tone)+
   '</div>';
 }
