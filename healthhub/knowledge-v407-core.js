@@ -18,7 +18,7 @@ function visualSignals(title,text,ops){
  var imageOps=Number(ops&&ops.images)||0,paths=Number(ops&&ops.paths)||0;
  var watchEkg=/(samsung|galaxy|watch).*(ekg|ecg)/.test(file);
  var ekgDocument=/(ekg|ecg|elektrokardi|ritmuscsik|rhythm strip)/.test(file);
- var negativeEkg=/(ekg|ecg)[\\s:]*nem tortent/.test(n);
+ var negativeEkg=/(ekg|ecg)[\s:]*nem tortent/.test(n);
  var ekgMention=/(ekg|ecg|elektrokardi|ritmuscsik|rhythm strip)/.test(n)&&!negativeEkg;
  var ems=/(omsz|orszagos mentoszolgalat)/.test(file);
  var ekg=watchEkg||ekgDocument||ekgMention;
