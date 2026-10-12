@@ -7,7 +7,7 @@
 var ROOT='/HealthHub/orchestrator';
 var PATH=ROOT+'/device-registry-v401.json';
 var PANEL='hhDeviceRegistry401', STYLE='hhDeviceRegistry401Style';
-var registry=null,devices=[],loading=false,writing=false,error='',note='',observer=null,timer=null,interactionUntil=0;
+var registry=null,devices=[],loading=false,writing=false,syncing=false,error='',note='',observer=null,timer=null,interactionUntil=0;
 var idOK=function(id){return typeof id==='string'&&/^[a-zA-Z0-9-]{1,90}$/.test(id)};
 var clean=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]})};
 var online=function(d){var n=Date.parse(d.lastSeenAt||'');return Number.isFinite(n)&&Date.now()-n<=20*60000};
@@ -18,7 +18,7 @@ var cloud=function(){var v=api();return !!(v&&v.connected&&v.connected()&&v.uplo
 var isPhone=function(d,p){return !!(d&&d.deviceType==='android'&&idOK(d.deviceId)&&(p?d.activeProfile===p:['zsolt','monika'].includes(d.activeProfile)))};
 function normalize(r){
  if(r==null)return stub();
- if(r.schema!=='healthhub.device_registry/1'||!r.activePhones||!Array.isArray(r.archived)||!Array.isArray(r.history))throw Error('Eszközregiszter sérült vagy ismeretlen verzió. Nem írjuk felül.');
+ if(r.schema!=='healthhub.device_registry/1'||!r.activePhones||typeof r.activePhones!=='object'||Array.isArray(r.activePhones)||!Array.isArray(r.archived)||!Array.isArray(r.history))throw Error('Eszközregiszter sérült vagy ismeretlen verzió. Nem írjuk felül.');
  var out=Object.assign({},r);
  out.activePhones={zsolt:idOK(r.activePhones.zsolt)?r.activePhones.zsolt:null,monika:idOK(r.activePhones.monika)?r.activePhones.monika:null};
  out.archived=r.archived.filter(idOK);
@@ -75,7 +75,7 @@ function panel(force){
   web.concat(others).map(function(d){return '<p>'+label(d)+' · '+clean(stamp(d.lastSeenAt))+'</p>'}).join('')+'</details>';
  html+='<div class="hhRegBottom401"><button type="button" data-hh-reg-action="refresh">↻ Állapot frissítése</button>'+
  (registry&&registry.history.length?'<button type="button" data-hh-reg-action="undo">↩ Utolsó változás visszavonása</button>':'')+'</div>'+
- '<p class="hhRegNote401">A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
+ '<p class="hhRegNote401">A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
  el.innerHTML=html;
 }
 function style(){
@@ -135,13 +135,14 @@ async function saveChange(action,dev){
   var backup=ROOT+'/device-registry-backup-'+next.updatedAt.replace(/[:.]/g,'-')+'-'+Math.random().toString(36).slice(2,8)+'.json';
   await api().uploadJson(backup,{schema:'healthhub.device_registry.backup/1',savedAt:next.updatedAt,previous:current});
   await api().uploadJson(PATH,next);
-  registry=next;devices=present;note='✓ Mentés és regiszterfrissítés kész. Visszavonható.';
+  registry=next;devices=present;error='';note='✓ Mentés és regiszterfrissítés kész. Visszavonható.';
   window.dispatchEvent(new CustomEvent('healthhub:device-registry-updated',{detail:{action:action}}));
  }catch(e){error=String(e.message||e)}
  finally{writing=false;panel(true)}
 }
 async function sync(id){
- if(writing||loading)return;
+ if(writing||loading||syncing)return;
+ syncing=true;
  try{
   if(!cloud())throw Error('Dropbox nem csatlakozik.');
   var fresh=await read(),all=await window.hhOrchestratorDevices305();
@@ -152,6 +153,7 @@ async function sync(id){
   note='✓ Távoli kérés feladva. Ellenőrizd a telefon visszajelzését.';
   await refresh(true);
  }catch(e){error=String(e.message||e);panel(true)}
+ finally{syncing=false}
 }
 function attach(){
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
@@ -167,6 +169,7 @@ function attach(){
  });
  observer=new MutationObserver(function(){if(ov.classList.contains('on'))refresh()});
  observer.observe(ov,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(function(){if(ov.classList.contains('on')&&!document.getElementById(PANEL))panel(true)}).observe(body,{childList:true});
  timer=setInterval(function(){if(ov.classList.contains('on')&&document.visibilityState==='visible'&&Date.now()>interactionUntil)refresh()},60000);
  if(ov.classList.contains('on'))refresh();
 }
