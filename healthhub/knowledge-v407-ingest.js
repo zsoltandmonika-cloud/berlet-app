@@ -90,7 +90,7 @@ async function pdfjs(){
  return pdfLibPromise;
 }
 async function readDocuments(p){
- return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
+ return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
 }
 
 function rawText(items){
@@ -143,11 +143,18 @@ function srcClass(name){
 }
 async function upsertDocument(p,file,sha,existing,duplicate){
  var svc=active(p);
- if(existing&&existing.sha256===sha&&existing.status==='complete')return existing;
+ if(existing&&existing.sha256===sha&&existing.status==='complete'&&!duplicate){
+  if(!compareMeta(file,existing)){
+   await docStatus(p,existing.id,{source_modified_at:file.modified,size_bytes:file.size});
+  }
+  return existing;
+ }
  var obj={profile_key:p,source_file_id:'drive_'+file.id,source_document_id:file.documentId||null,
   original_name:file.name,source_modified_at:file.modified,
   size_bytes:file.size,sha256:sha,status:duplicate?'complete':'processing',
-  source_class:srcClass(file.name),classification_status:'pending',
+  source_class:existing&&existing.classification_status==='reviewed'?
+   existing.source_class:srcClass(file.name),
+  classification_status:existing&&existing.classification_status==='reviewed'?'reviewed':'pending',
   total_pages:duplicate?duplicate.total_pages:0,pages_indexed:duplicate?duplicate.pages_indexed:0,
   pages_needing_ocr:0,visual_pages:duplicate?duplicate.visual_pages:0,
   duplicate_of:duplicate?duplicate.id:null,notes:duplicate?'Azonos SHA-256 eredeti másik fájlban.':''
