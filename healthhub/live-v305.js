@@ -267,13 +267,13 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
-   requestedBy:deviceId(),profileScope:profileScope,scopes:[scope],state:'pending'
+   requestedBy:deviceId(),profileScope:d.activeProfile,scopes:[scope],state:'pending'
   };
   await upload(commandPath(d.deviceId),cmd);
   await upload(statusPath(d.deviceId),{
    schema:'healthhub.orchestrator.status/1',deviceId:d.deviceId,deviceType:d.deviceType||'device',
    commandId:id,state:'pending',updatedAt:issued,startedAt:null,completedAt:null,
-   profileScope:profileScope,scopes:[scope],steps:[],message:'Központi sync parancs várakozik.'
+   profileScope:d.activeProfile,scopes:[scope],steps:[],message:'Központi sync parancs várakozik.'
   });
  }));
  try{window.toast&&window.toast('✓ Sync parancs elküldve · '+selected.length+' eszköz')}catch(e){}
