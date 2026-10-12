@@ -6,7 +6,31 @@
 const MAX_ORIGINALS=12;
 const compact=x=>String(x==null?'':x).replace(/\s+/g,' ').trim();
 const norm=x=>compact(x).toLocaleLowerCase('hu-HU');
-const numTokens=x=>(compact(x).match(/\d+(?:[.,]\d+)?/g)||[]).map(v=>v.replace(',','.'));
+const MONTHS={január:1,február:2,március:3,április:4,május:5,június:6,
+ július:7,augusztus:8,szeptember:9,október:10,november:11,december:12};
+const NUM_DATE=/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g;
+const HUN_DATE=/((?:19|20)\d{2})\.\s*(január|február|március|április|május|június|július|augusztus|szeptember|október|november|december)\s+(\d{1,2})/giu;
+function dateKey(y,m,d){
+ const t=new Date(Date.UTC(Number(y),Number(m)-1,Number(d)));
+ if(t.getUTCFullYear()!==Number(y)||t.getUTCMonth()+1!==Number(m)||t.getUTCDate()!==Number(d))return null;
+ return String(y)+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
+function dateMatches(input){
+ const s=String(input||''),dates=[];
+ for(const m of s.matchAll(new RegExp(NUM_DATE.source,'g'))){
+  const p=m[0].split(/[.\/-]/),key=dateKey(p[0],p[1],p[2]);
+  if(key)dates.push(key);
+ }
+ for(const m of s.matchAll(new RegExp(HUN_DATE.source,'giu'))){
+  const key=dateKey(m[1],MONTHS[m[2].toLocaleLowerCase('hu-HU')],m[3]);
+  if(key)dates.push(key);
+ }
+ return dates;
+}
+function noCalendarDates(x){
+ return compact(x).replace(NUM_DATE,' ').replace(HUN_DATE,' ');
+}
+const numTokens=x=>(noCalendarDates(x).match(/\d+(?:[.,]\d+)?/g)||[]).map(v=>v.replace(',','.'));
 const validId=s=>typeof s==='string'&&/^(?:D\d+:p\d+|S\d+)$/.test(s);
 const originalId=s=>typeof s==='string'&&/^D\d+:p\d+$/.test(s);
 const secondaryId=s=>typeof s==='string'&&/^S\d+$/.test(s);
@@ -35,7 +59,8 @@ export function verifyExtractedFacts(response,evidence){
   // Every number in the fact must be present in the exact excerpt, including
   // uncertain durations and dates. No invented 20-minute ischemia interval.
   const quoteNums=new Set(numTokens(quote));
-  if(numTokens(claim).some(n=>!quoteNums.has(n))||unexpectedDurations(claim,[{quote}]).length){issues.push('unsupported_numeric_claim');continue;}
+  if(numTokens(claim).some(n=>!quoteNums.has(n))||dateAllowed(claim,[{quote}]).length||
+   unexpectedDurations(claim,[{quote}]).length){issues.push('unsupported_numeric_claim');continue;}
   const key=f.sourceId+'|'+norm(quote);
   if(seen.has(key))continue;seen.add(key);
   out.push({sourceId:f.sourceId,quote,fact:claim,documentTitle:source.title,
@@ -60,14 +85,9 @@ function unexpectedDurations(text,facts){
  const allowed=new Set(facts.flatMap(f=>durationValues(f.quote).map(v=>v.value+':'+v.unit)));
  return durationValues(text).filter(v=>!allowed.has(v.value+':'+v.unit)).map(v=>v.phrase);
 }
-function datesIn(text){
- return compact(text).match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[];
-}
 function dateAllowed(text,evidenceFacts){
- let content=evidenceFacts.map(f=>f.quote).join(' ');
- const normalizeDate=s=>s.replace(/[^\d]/g,'');
- let dates=new Set((content.match(/(?:19|20)\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}/g)||[]).map(normalizeDate));
- return datesIn(text).filter(date=>!dates.has(normalizeDate(date)));
+ const allowed=new Set(dateMatches(evidenceFacts.map(f=>f.quote).join(' ')));
+ return dateMatches(text).filter(date=>!allowed.has(date));
 }
 function isPersonalAssertion(s){
  return /\b(Mónika|Zsolt|nálad|veled|téged|a te|benned|agyad|szíved|voltál|kaptál|beültették|mentők|újraélesztettek)\b/i.test(s);
@@ -80,12 +100,7 @@ export function buildEventCandidates(validated){
  const facts=Array.isArray(validated?.facts)?validated.facts:[];
  function eventDate(quote){
   const q=String(quote||'');
-  const iso=q.match(/\b((?:19|20)\d{2})[.\/-](\d{1,2})[.\/-](\d{1,2})\b/);
-  if(!iso)return null;
-  const y=Number(iso[1]),m=Number(iso[2]),d=Number(iso[3]);
-  const date=new Date(Date.UTC(y,m-1,d));
-  if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return null;
-  return date.toISOString().slice(0,10);
+  return dateMatches(q)[0]||null;
  }
  function eventTime(quote){
   // Time must be explicitly in the source quote; do not extrapolate
@@ -133,7 +148,8 @@ export function verifySecondaryFacts(response,index){
   if(quote.length<18||quote.length>500||fact.length<10||fact.length>390){issues.push('secondary_claim_length');continue}
   if(!norm(src.text).includes(norm(quote))){issues.push('secondary_quote_not_in_text');continue}
   const nums=new Set(numTokens(quote));
-  if(numTokens(fact).some(n=>!nums.has(n))||unexpectedDurations(fact,[{quote}]).length){
+  if(numTokens(fact).some(n=>!nums.has(n))||dateAllowed(fact,[{quote}]).length||
+     unexpectedDurations(fact,[{quote}]).length){
    issues.push('secondary_unsupported_number');continue;
   }
   if(quotedDoctorNames(fact).some(n=>!norm(quote).includes(n))){
