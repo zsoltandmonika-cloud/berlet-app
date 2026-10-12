@@ -61,11 +61,16 @@ export function assessCompleteStory(report,contract){
  const missing=focus.chronology?contract.mandatory.filter(k=>!found.found[k]):[];
  // An introduction that begins with a mid-treatment fact is not an introduction.
  const first=grounded[0]||null;
- const leadingPhase=first?PHASES.find(([phase])=>contract.events.some(e=>e.phase===phase&&
-   first.sourceIds.some(id=>id===e.sourceId)&&
-   (first.text.toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .includes(phase==='start'?'rosszull':phase==='rescue'?'ujraeleszt':
-     phase==='hospital'?'korhaz':phase==='intervention'?'beultet':'hazabocsat'))))?.[0]||null:null;
+ const textFold=first?first.text.toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,''):'';
+ const startWords=/(rosszull|osszees|kamrafibrill|szivmegall|eszmeletveszt|elajul)/;
+ const rescueWords=/(ujraeleszt|aed|cpr|defibrill|mento)/;
+ const hospitalWords=/(intenziv|korhazi felvetel|korhazi ellatas|kateter|szivultrahang)/;
+ const interventionWords=/(beultet|implant|crt.d|pacemaker|mutet)/;
+ const dischargeWords=/(hazabocsat|hazaenged|hazaadas|hazater|elbocsat)/;
+ const match=[startWords,rescueWords,hospitalWords,interventionWords,dischargeWords];
+ const leadingPhase=first?PHASES.find(([phase],i)=>
+   match[i].test(textFold)&&contract.events.some(e=>e.phase===phase&&
+   first.sourceIds.includes(e.sourceId)))?.[0]||null:null;
  const badOpening=focus.chronology&&contract.availability.availability.start&&
   leadingPhase!=='start';
  const missingClosing=focus.chronology&&focus.explicitEnd&&
