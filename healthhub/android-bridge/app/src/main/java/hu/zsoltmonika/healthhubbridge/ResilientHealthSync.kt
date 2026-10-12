@@ -126,6 +126,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
 
             val exporter = HealthConnectExporter(hc)
             val payload = exporter.export(owner)
+            CollectorTelemetry.noteHealthRead(applicationContext, payload)
             if (!exporter.hasUsefulData(payload)) {
                 // Retain existing cloud file. No 'success' for artificial zero-filled dates.
                 requiresAction(prefs, "Nincs tényleges mérési rekord az elmúlt 30 napban. Ellenőrizd a Samsung Health adatmegosztást.")
@@ -142,6 +143,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 .remove(ResilientHealthSync.KEY_LAST_ERROR)
                 .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
                 .apply()
+            CollectorTelemetry.noteHealthUpload(applicationContext)
             Result.success()
         } catch (e: Exception) {
             val msg = (e.message ?: e.javaClass.simpleName).take(200)
