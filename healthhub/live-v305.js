@@ -219,7 +219,7 @@ async function checkCommand(force){
  }
 }
 
-var telemetryMirror305={},telemetryMirrorBusy305={};
+var telemetryMirror305={},telemetryMirrorBusy305={},lastCloudFetch305=0;
 async function mirrorOneTelemetry305(d){
  var t=d&&d.collectorTelemetry,service=window.HH_DAILY_HEALTH_SYNC_V319;
  if(!d||d.deviceType!=='android'||!/^android-[0-9a-f-]{36}$/i.test(d.deviceId||'')||!['zsolt','monika'].includes(d.activeProfile)||
@@ -260,7 +260,7 @@ async function loadDevices(){
  var statuses=await Promise.all(ds.map(async function(d){try{return await download(statusPath(d.deviceId))}catch(e){return null}}));
  ds.forEach(function(d,i){d.status=statuses[i]||null});
  ds.sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
- deviceCache=ds;
+ deviceCache=ds;lastCloudFetch305=Date.now();
  // Private metadata mirror; never block Dropbox sync when Supabase is absent.
  mirrorTelemetry305(ds).catch(function(){});
  return ds;
@@ -470,8 +470,12 @@ function renderAdmin(){
  }).join('');
  var cloudSvc=window.HH_DAILY_HEALTH_SYNC_V319,cloudStatus=null;
   try{cloudStatus=cloudSvc&&cloudSvc.getStatus&&cloudSvc.getStatus()}catch(e){}
-  var dbStatus=cloudStatus&&cloudStatus.authenticated?{level:'green',label:'Hitelesítve'}:{level:'amber',label:'Admin-belépés szükséges'};
-  var dropStatus=connected()?{level:'green',label:'Vault elérhető'}:{level:'red',label:'Vault nincs csatlakoztatva'};
+  var dbStatus=cloudStatus&&cloudStatus.authenticated?
+    (Object.keys(telemetryMirror305).length?{level:'green',label:'Telemetria mentve'}:{level:'amber',label:'Hitelesítve, adatkapcsolat ellenőrzendő'}):
+    {level:'unknown',label:'Admin-belépés szükséges'};
+  var dropStatus=!connected()?{level:'red',label:'Vault nincs csatlakoztatva'}:
+    (lastCloudFetch305&&Date.now()-lastCloudFetch305<15*60000?
+      {level:'green',label:'Visszaigazolt felhőkapcsolat'}:{level:'amber',label:'Felhőkapcsolat ellenőrzésre vár'});
   var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🛡️ HealthHub · Remote Control Center</h3><small>Eszközönkénti RAG monitoring · Dropbox vezérlőcsatorna · v0.15 kísérleti funkciók</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
   '<div class="hhOrchRags305 cloud">'+ragBadge305('Dropbox Admin',dropStatus)+ragBadge305('Supabase Admin',dbStatus)+'</div>'+
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
