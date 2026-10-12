@@ -31,7 +31,9 @@ function readiness(state){
 }
 function checksumBytes(a){return Array.from(new Uint8Array(a)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function allowedProfile(p){return p==='monika'||p==='zsolt'}
-var exported={norm:norm,classify:classify,visualSignals:visualSignals,readiness:readiness,checksumBytes:checksumBytes,allowedProfile:allowedProfile};
+function isPdfSignature(bytes){return bytes instanceof Uint8Array&&bytes.length>=4&&
+ bytes[0]===37&&bytes[1]===80&&bytes[2]===68&&bytes[3]===70}
+var exported={norm:norm,classify:classify,visualSignals:visualSignals,readiness:readiness,checksumBytes:checksumBytes,allowedProfile:allowedProfile,isPdfSignature:isPdfSignature};
 if(typeof module==='object'&&module.exports)module.exports=exported;
 else root.HH_KB_CORE_V407=exported;
 })(typeof window!=='undefined'?window:globalThis);
