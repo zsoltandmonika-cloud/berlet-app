@@ -273,7 +273,11 @@ async function testCloudConnectors305(){
  }
  renderAdmin();
  if(problems.length)throw Error('Connector diagnosztika: '+problems.join(', ')+' · a zöld státusz letiltva.');
- try{window.toast&&window.toast('✓ Felhőcsatlakozók ellenőrizve.')}catch(e){}
+ try{
+  window.toast&&window.toast(cloudDiagnostic305.supabase==='not-authenticated'?
+   'Dropbox ellenőrizve · Supabase Admin-belépés szükséges':
+   '✓ Dropbox és Supabase API ellenőrizve.');
+ }catch(e){}
  return cloudDiagnostic305;
 }
 async function loadDevices(){
