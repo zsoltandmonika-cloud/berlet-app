@@ -270,18 +270,5 @@ function openLogin(){
 }
 
 sSave(active()?sRead():null);
-window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,openLogin:openLogin,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode,authorizedProfiles:profiles?Object.keys(profiles).filter(function(k){return!!profiles[k]}).map(function(k){return k==='m'?'monika':'zsolt'}):null}},probe:async function(){return fetch(url('/functions/v1/smooth-endpoint'),{method:'OPTIONS',cache:'no-store',mode:'cors'})},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})},
-binary:async function(path,method,blob,mime){
- if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');
- if(!/^\/storage\/v1\/object\/hh-kb-visuals\/(?:monika|zsolt)\/[a-f0-9-]{36}\/[A-Za-z0-9._-]+$/.test(path))
-  throw new Error('Nem engedélyezett tudástár-képútvonal.');
- await ensureToken();
- var verb=method==='GET'?'GET':method==='POST'?'POST':null;
- if(!verb)throw new Error('Nem engedélyezett fájlművelet.');
- var headers={apikey:CFG.publishableKey,Authorization:'Bearer '+session.access_token};
- if(verb==='POST')headers['Content-Type']=mime||'image/png';
- var resp=await fetch(url(path),{method:verb,headers:headers,body:verb==='POST'?blob:undefined,cache:'no-store'});
- if(!resp.ok){var e=new Error('Privát képátvitel HTTP '+resp.status);e.httpStatus=resp.status;throw e}
- return verb==='GET'?resp.blob():resp.json();
-},stream:async function(path,data,signal){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return fetch(url(path),{method:'POST',headers:{apikey:CFG.publishableKey,'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(data),cache:'no-store',signal:signal})}};
+window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,openLogin:openLogin,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode,authorizedProfiles:profiles?Object.keys(profiles).filter(function(k){return!!profiles[k]}).map(function(k){return k==='m'?'monika':'zsolt'}):null}},probe:async function(){return fetch(url('/functions/v1/smooth-endpoint'),{method:'OPTIONS',cache:'no-store',mode:'cors'})},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})},stream:async function(path,data,signal){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return fetch(url(path),{method:'POST',headers:{apikey:CFG.publishableKey,'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(data),cache:'no-store',signal:signal})}};
 })();
