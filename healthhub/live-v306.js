@@ -25,14 +25,14 @@
       const history = histories[d.deviceId] || [];
       const last = history[0];
       const counts = Object.entries(d.counts || {}).map(([key, count]) => esc(key) + ': ' + esc(count)).join(' · ') || 'Még nincs beolvasás';
-      const ready = d.protocolVersion === 2 && connected();
+      const ready = d.protocolVersion === 2 && connected() && !!window.hhDeviceRegistry401?.isSelected(d);
       return '<article><h4>' + esc(d.name) + '</h4><p>' + (fresh ? 'Nemrég jelentkezett' : 'Offline / nincs friss visszajelzés') + ' · ' + esc(names[d.activeProfile]) + ' · v' + esc(d.build) + '</p>' +
         '<dl><dt>Health Connect</dt><dd>' + (d.healthConnectAvailable === true ? 'Elérhető' : d.healthConnectAvailable === false ? 'Nem elérhető' : 'Ismeretlen') + '</dd>' +
         '<dt>Háttérhozzáférés</dt><dd>' + (d.backgroundGranted ? 'Engedélyezve' : d.backgroundSupported === false ? 'Nem támogatott' : d.backgroundGranted === false ? 'Nincs engedély' : 'Ismeretlen') + '</dd>' +
         '<dt>Utolsó HC olvasás</dt><dd>' + esc(fmt(d.lastHealthRead)) + '</dd><dt>Utolsó cloud sync</dt><dd>' + esc(fmt(d.lastCloudSync)) + '</dd><dt>Eszköz jelentkezése</dt><dd>' + esc(fmt(d.lastSeenAt)) + '</dd></dl>' +
         '<details><summary>Jogosultságok · ' + Object.values(permissions).filter(Boolean).length + '/' + Object.keys(permissions).length + '</summary>' + permissionText + '</details>' +
         '<details><summary>Importált rekordok (utolsó olvasás)</summary>' + counts + '</details>' +
-        '<div class="hc306-actions"><button data-sync="' + esc(d.deviceId) + '" ' + (!ready || sending ? 'disabled' : '') + '>SYNC NOW</button><button data-diagnostics="' + esc(d.deviceId) + '" ' + (!ready || sending ? 'disabled' : '') + '>Diagnostics</button></div>' +
+        '<div class="hc306-actions"><button data-sync="' + esc(d.deviceId) + '" ' + (!ready || sending ? 'disabled title="Jelöld ki a telefont a v401 Eszközregiszterben"' : '') + '>SYNC NOW</button><button data-diagnostics="' + esc(d.deviceId) + '" ' + (!ready || sending ? 'disabled title="Jelöld ki a telefont a v401 Eszközregiszterben"' : '') + '>Diagnostics</button></div>' +
         '<p role="status">' + (last ? esc(labels[last.state] || last.state) + ' · ' + esc(last.result?.message || 'A kérés a központi sorban van.') : 'Még nincs szinkronkérés.') + '</p>' +
         (last?.state === 'done' && last.command.action === 'sync' ? '<p>Helyi nézet: ' + (imported.has(last.command.requestId) ? 'frissítve a felhőből ✓' : 'frissítésre vár') + '</p>' : '') +
         '<details><summary>Kérések és diagnosztika</summary>' + history.map(h => '<p>' + esc(fmt(h.command.issuedAt)) + ' · ' + esc(h.command.action) + ' · ' + esc(labels[h.state] || h.state) + '<br>' + esc(h.result?.message || '') + '</p>').join('') + '</details></article>';
@@ -75,6 +75,7 @@
     sending = true; error = ''; render();
     try {
       const d = devices.find(d => d.deviceId === id);
+      if(!d || !window.hhDeviceRegistry401 || !await window.hhDeviceRegistry401.ensureSelected(d))throw Error('Először a v401 Eszközregiszterben jelöld ki ezt a fizikai telefont.');
       await client().send(d, profile(), selectedDays, action);
       window.toast?.('Szinkronkérés a központi sorban.');
     } catch (e) { error = e.message; }
@@ -84,7 +85,7 @@
     if (!connected()) { window.toast?.('Előbb csatlakoztasd a Dropbox Vaultot az Adminban.'); return; }
     try {
       devices = await client().devices();
-      const candidates = devices.filter(d => d.activeProfile === profile() && d.protocolVersion === 2);
+      const candidates = devices.filter(d => d.activeProfile === profile() && d.protocolVersion === 2 && window.hhDeviceRegistry401?.isSelected(d));
       if (candidates.length !== 1) { window.toast?.('Az Admin → Health Connect panelen válaszd ki a telefont.'); return; }
       await send(candidates[0].deviceId, 'sync');
     } catch (e) { window.toast?.(e.message); }
@@ -104,6 +105,7 @@
     if (overlay.classList.contains('on')) refresh();
   }
   window.addEventListener('healthhub:profile-changed', () => { error = ''; refresh(); });
+  window.addEventListener('healthhub:device-registry-updated', () => { error = ''; refresh(); });
   window.addEventListener('focus', refresh);
   setInterval(() => { if (document.visibilityState === 'visible' && document.getElementById('haOv')?.classList.contains('on')) refresh(); }, 15000);
   attach();
