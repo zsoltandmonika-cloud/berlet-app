@@ -76,6 +76,16 @@ jobs:
         working-directory: healthhub/android-bridge
         run: |
           set -euo pipefail
+          # Never publish a v0.15.0 "unified" APK unless the licensed Samsung
+          # SDK was supplied privately to the build environment. The ordinary
+          # fallback/stub APK is useful for CI, not a legitimate v0.15 OTA.
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
+          if [[ "$VERSION" == "0.15.0" || "$VERSION" == 0.15.* ]]; then
+            if [[ ! -s app/libs/samsung-health-data-api.aar ]]; then
+              echo "::error::Unified Connect OTA BLOCKED: Samsung vendor AAR was not privately provided."
+              exit 1
+            fi
+          fi
           export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-connect-ota-signing.jks"
           trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
           printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 -d > "$HH_OTA_KEYSTORE_PATH"
