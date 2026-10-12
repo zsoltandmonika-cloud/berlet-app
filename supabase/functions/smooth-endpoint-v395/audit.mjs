@@ -133,7 +133,7 @@ export function verifySecondaryFacts(response,index){
   if(quote.length<18||quote.length>500||fact.length<10||fact.length>390){issues.push('secondary_claim_length');continue}
   if(!norm(src.text).includes(norm(quote))){issues.push('secondary_quote_not_in_text');continue}
   const nums=new Set(numTokens(quote));
-  if(numTokens(fact).some(n=>!nums.has(n))||unexpectedDurations(fact,[{quote}])){
+  if(numTokens(fact).some(n=>!nums.has(n))||unexpectedDurations(fact,[{quote}]).length){
    issues.push('secondary_unsupported_number');continue;
   }
   if(quotedDoctorNames(fact).some(n=>!norm(quote).includes(n))){
