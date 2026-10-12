@@ -23,6 +23,13 @@ function memorySections(r){
 /** Experiment result includes the v403 baseline intact if the candidate is unsafe.
  *  Reasons are internal QA labels, never a reason to discard the story.
  */
+export function extractOriginalQuestion(modelQuestion){
+ const full=String(modelQuestion||'');
+ const markers=['\\n\\n[KUTATÁSI ELV:', '\\n\\n[I-06 · Válaszstílus]'];
+ let stop=full.length;
+ for(const term of markers){const pos=full.indexOf(term);if(pos>=0)stop=Math.min(stop,pos)}
+ return full.slice(0,stop).trim();
+}
 export function chooseNonRegressingFocus(question,baseline,originalFacts,secondaryFacts){
  const status={mode:'v403_baseline',reason:'unchanged',baselineGrounded:0,candidateGrounded:0,
   focusApplied:false,omittedBefore:[],omittedAfter:[]};
@@ -32,7 +39,7 @@ export function chooseNonRegressingFocus(question,baseline,originalFacts,seconda
   return {report:baseline,status:{...status,reason:'baseline_has_no_grounded_story'}};
  }
  let intent;
- try{intent=analyzeQuestionIntent(question)}
+ try{intent=analyzeQuestionIntent(extractOriginalQuestion(question))}
  catch(e){return {report:baseline,status:{...status,reason:'invalid_question'}}}
  if(!intent.chronology||intent.explicitMemory){
   return {report:baseline,status:{...status,reason:'question_does_not_need_tangent_trimming'}};
