@@ -52,10 +52,10 @@ function row(d,p){
  (!active&&!archived?'<button data-hh-reg-action="archive" data-id="'+clean(d.deviceId)+'">📦 Archiválás</button>':'')+
  '</div></div>';
 }
-function panel(){
+function panel(force){
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
  if(!ov||!body||!ov.classList.contains('on'))return;
- if(Date.now()<interactionUntil)return;
+ if(!force&&Date.now()<interactionUntil)return;
  var el=document.getElementById(PANEL);
  if(!el){el=document.createElement('section');el.id=PANEL;var anchor=document.getElementById('hhSyncOrchestrator305');if(anchor)anchor.insertAdjacentElement('beforebegin',el);else body.prepend(el)}
  var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
@@ -86,18 +86,18 @@ function style(){
  '.hhRegHead401{display:flex;justify-content:space-between;gap:8px;align-items:start}.hhRegHead401 h3{font-size:15px;margin:0 0 4px}.hhRegHead401 small,.hhRegRow401 small{font-size:10px;color:#648094;line-height:1.5;display:block}.hhRegHead401 span{font-size:9px;white-space:nowrap}.hhRegGroup401{background:#f5f9fc;padding:9px;border-radius:13px;margin-top:10px}.hhRegGroup401 h4{font-size:13px;margin:0 0 8px}.hhRegRow401{background:#fff;border:1px solid #e3edf2;padding:10px;border-radius:11px;margin-top:6px;overflow-wrap:anywhere}.hhRegRow401 b{font-size:11px}.hhRegId401{color:#698399;font-size:9px}.hhRegBtns401,.hhRegBottom401{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.hhRegMinor401{margin:12px 2px}.hhRegMinor401 summary{font-size:11px;cursor:pointer}.hhRegMinor401 p,.hhRegNote401{color:#627f91;background:#f5f9fc;padding:9px;border-radius:9px;font-size:10px;line-height:1.55}.hhRegWarn401{color:#a13333;background:#ffeceb;padding:9px;border-radius:9px;font-size:11px}';
  document.head.appendChild(x);
 }
-async function refresh(){
+async function refresh(force){
  if(loading||writing||!cloud()) {if(!cloud()){error='Dropbox Vault nincs csatlakoztatva.';panel()}return}
  loading=true;try{
   var results=await Promise.all([read(),window.hhOrchestratorDevices305?window.hhOrchestratorDevices305():Promise.resolve([])]);
   registry=results[0];devices=results[1].filter(function(d){return d&&idOK(d.deviceId)});
   error='';
  }catch(e){error=String(e.message||e);registry=null}
- finally{loading=false;panel()}
+ finally{loading=false;panel(!!force)}
 }
 async function saveChange(action,dev){
  if(writing||loading) return;
- if(!cloud()){error='Dropbox Vault nincs csatlakoztatva.';panel();return}
+ if(!cloud()){error='Dropbox Vault nincs csatlakoztatva.';panel(true);return}
  writing=true;
  try{
   var current=await read();
@@ -136,7 +136,7 @@ async function saveChange(action,dev){
   registry=next;devices=present;note='✓ Mentés és regiszterfrissítés kész. Visszavonható.';
   window.dispatchEvent(new CustomEvent('healthhub:device-registry-updated',{detail:{action:action}}));
  }catch(e){error=String(e.message||e)}
- finally{writing=false;panel()}
+ finally{writing=false;panel(true)}
 }
 async function sync(id){
  if(writing||loading)return;
@@ -148,8 +148,8 @@ async function sync(id){
   if(!confirm('Szinkronkérés a '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' telefonjára?\nEz nem azonnali végrehajtás.'))return;
   await window.hhOrchestratorDispatchScope355(d.activeProfile,d.deviceId,'health');
   note='✓ Távoli kérés feladva. Ellenőrizd a telefon visszajelzését.';
-  await refresh();
- }catch(e){error=String(e.message||e);panel()}
+  await refresh(true);
+ }catch(e){error=String(e.message||e);panel(true)}
 }
 function attach(){
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
@@ -160,7 +160,7 @@ function attach(){
   var b=e.target.closest&&e.target.closest('button[data-hh-reg-action]');
   if(!b||!b.closest('#'+PANEL))return;
   var action=b.getAttribute('data-hh-reg-action'),id=b.getAttribute('data-id');
-  if(action==='refresh')refresh();else if(action==='sync')sync(id);
+  if(action==='refresh')refresh(true);else if(action==='sync')sync(id);
   else saveChange(action,id);
  });
  observer=new MutationObserver(function(){if(ov.classList.contains('on'))refresh()});
