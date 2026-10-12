@@ -1,0 +1,2 @@
+-- HealthHub v407: private document knowledge base.
+-- Original PDFs remain in Google Drive. Derived pages live under RLS.
