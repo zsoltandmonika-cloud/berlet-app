@@ -91,7 +91,8 @@ function clearImages(){urls.forEach(x=>{try{URL.revokeObjectURL(x)}catch(e){}});
 async function runAudit(){
  busy=true;show('🔎 Drive–tudástár egyeztetés…');
  try{var x=await engine().audit(profile());
-  show('📁 '+x.drive+' Drive PDF · ✅ '+x.complete+' feldolgozott · '+x.new+' új · '+x.partial+' ellenőrizendő')}
+  show('📁 '+x.drive+' Drive PDF · ✅ '+x.complete+' feldolgozott · '+x.new+' új · '+x.partial+' ellenőrizendő');
+  await listDocuments()}
  catch(e){show('⚠️ Audit: '+String(e.message||e).slice(0,140))}
  finally{busy=false;draw()}
 }
@@ -104,6 +105,37 @@ async function runFull(){
  finally{busy=false;draw()}
 }
 
+async function listDocuments(){
+ var p=profile(),root=resultRoot();if(!root)return;
+ root.textContent='';
+ try{
+  var rows=await service().request('/rest/v1/hh_kb_documents?select=id,original_name,status,total_pages,pages_indexed,duplicate_of,visual_pages,classification_status'+
+   '&profile_key=eq.'+p+'&order=updated_at.desc&limit=200',{method:'GET'});
+  if(!rows.length){root.textContent='Az új, központi tudástár még üres. Indítsd a PDF-feldolgozást.';return}
+  var cap=document.createElement('small');
+  cap.textContent='📋 Dokumentumonkénti állapot · az ismétlődő példányok egyetlen logikai leletre mutatnak.';
+  root.appendChild(cap);
+  var scroll=document.createElement('div');scroll.style.maxHeight='390px';scroll.style.overflow='auto';
+  for(const d of rows){
+   var box=document.createElement('div');box.className='kbResult';
+   var h=document.createElement('strong');
+   var icon=d.duplicate_of?'🔁':d.status==='complete'?'✅':d.status==='partial'?'🟠':
+    d.status==='changed_needs_review'?'⚠️':d.status==='failed'?'🔴':'⏳';
+   h.textContent=icon+' '+d.original_name;
+   var small=document.createElement('small');
+   small.textContent=d.duplicate_of?'Azonos SHA-256 · eredeti megtartva':
+    '📄 '+d.pages_indexed+'/'+d.total_pages+' oldal · 🫀 '+d.visual_pages+
+    ' képi oldal · '+(d.classification_status==='reviewed'?'Forrás ellenőrizve':'Forrásbesorolás ellenőrzendő');
+   box.append(h,small);
+   if(d.visual_pages>0){
+    var btn=document.createElement('button');btn.dataset.kb='list-images';btn.dataset.doc=d.id;
+    btn.textContent='🖼️ Mellékletek';box.appendChild(btn);
+   }
+   scroll.appendChild(box);
+  }
+  root.appendChild(scroll);
+ }catch(e){root.textContent='Dokumentumlista-hiba: '+String(e.message||e).slice(0,120)}
+}
 async function search(){
  var svc=service(),root=resultRoot(),p=profile(),query=String(el('hhKb407Query')?.value||'').trim();
  if(!root)return;
@@ -188,5 +220,16 @@ window.addEventListener('healthhub:lena-context-updated',()=>{mount();draw()});
 window.addEventListener('healthhub:central-auth-changed',()=>{mount();draw()});
 window.addEventListener('focus',()=>{mount();draw()});
 [150,950,2900,7000].forEach(ms=>setTimeout(mount,ms));
-window.HH_KB_UI_V407={mount:mount,audit:runAudit,openGallery:listGallery};
+function hookHealthRenderer(){
+ var old=window.renderHealthSection;
+ if(typeof old!=='function'||old.__hhKb407)return;
+ var wrap=function(){
+  var x=old.apply(this,arguments);
+  Promise.resolve(x).finally(()=>setTimeout(mount,120));
+  return x;
+ };
+ wrap.__hhKb407=true;window.renderHealthSection=wrap;
+}
+[1100,3200,6200].forEach(t=>setTimeout(hookHealthRenderer,t));
+window.HH_KB_UI_V407={mount:mount,audit:runAudit,openGallery:listGallery,showDocuments:listDocuments};
 })();
