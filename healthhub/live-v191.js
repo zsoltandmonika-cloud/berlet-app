@@ -4,6 +4,10 @@
 var DB='healthhub-connect-v1';
 var MANUAL_KEY='hh-activity-manual-v185-';
 var state=window.hhActivity191State||{period:'1d'};window.hhActivity191State=state;
+state.selectedDay=state.selectedDay||null;
+function localToday(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function validDay(v){return /^\d{4}-\d{2}-\d{2}$/.test(String(v||''))&&Number.isFinite(Date.parse(v+'T12:00:00'))&&new Date(v+'T12:00:00').getFullYear()===Number(v.slice(0,4))&&new Date(v+'T12:00:00').getMonth()+1===Number(v.slice(5,7))&&new Date(v+'T12:00:00').getDate()===Number(v.slice(8,10))}
+function dayView(c){var selected=state.period==='1d'&&state.selectedDay;if(!selected)return c;return {daily:c.daily.filter(function(x){return x.date===selected}),sessions:c.sessions.filter(function(x){return dayKey(x.startTime)===selected}),heart:c.heart.filter(function(x){return dayKey(x.time)===selected}),samsungHourlySteps:(c.samsungHourlySteps||[]).filter(function(x){return x.date===selected})}}
 var activityRenderSeq=0;
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -22,7 +26,7 @@ function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFin
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
 function fmtDate(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
 function periodDays(){return state.period==='1d'?1:state.period==='7d'?7:state.period==='30d'?30:365}
-function cutMs(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(periodDays()-1));return d.getTime()}
+function cutMs(){if(state.period==='1d'&&state.selectedDay)return new Date(state.selectedDay+'T00:00:00').getTime();var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(periodDays()-1));return d.getTime()}
 function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:null}
 function pct(v,g){return g>0?Math.max(0,Math.min(100,Math.round((Number(v)||0)/g*100))):0}
 function pace(min,km){if(!km||km<=0)return '—';var x=min/km,mi=Math.floor(x),se=Math.round((x-mi)*60);return mi+':'+String(se).padStart(2,'0')}
@@ -252,9 +256,9 @@ async function render(profileOverride){
   if(renderId!==activityRenderSeq)return;
   c=samsungApi.merge(c,samsungState,requestedProfile);
  }
- var m=metrics(c,requestedProfile,profileHeight);
+ var view=dayView(c),m=metrics(view,requestedProfile,profileHeight);
  window.hhActivity191SamsungSource=samsungState;
- window.hhActivity191Cache=c;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
+ window.hhActivity191Cache=c;window.hhActivity191View=view;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
  window.hhActivity191CurrentProfile=requestedProfile;
  window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState};
  var f=periodDays(),g=m.goals;
@@ -262,8 +266,10 @@ async function render(profileOverride){
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (samsungState.data&&samsungState.data.staleToday?'<div class="a191MetricsHint"><b>📡 A mai Samsung-export nem naprakész.</b> A frissebb Health Connect adatait mutatjuk, a hiányzó kalóriát nem tüntetjük fel mért értékként. Részletek: ⓘ Adatforrások.</div>':'')+
+ (state.period==='1d'&&state.selectedDay?'<div class="a191CalendarBar"><div class="a191CalendarOpen" style="background:var(--soft)"><span>📅 '+esc(state.selectedDay)+' · kiválasztott nap</span><button type="button" onclick="hh191Today()" style="border:0;border-radius:9px;padding:6px 9px;background:var(--a);color:#fff;font-weight:800">Ma ↩</button></div></div>':'')+
+ (state.period==='1d'&&state.selectedDay&&!view.daily.length?'<div class="a191MetricsHint">Nincs erre a napra aktivitási rekord. A hiányzó adat nem mért nulla.</div>':'')+
  '<div class="a191Top">'+
- kpi('steps','Lépések',n(m.steps,0),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
+ kpi('steps','Lépések',(state.selectedDay&&state.period==='1d'&&!view.daily.length?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
  kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
  kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
@@ -283,9 +289,9 @@ async function render(profileOverride){
  '<section class="a191Card chart"><div class="a191Head"><span class="pinkbars">▥</span><b>'+
   (state.period==='1d'?'Mozgás a nap folyamán':'Aktivitási trend · napok')+
   '</b>'+(state.period==='1d'?'':'<div class="legend"><i class="b"></i>Lépések<i class="o"></i>Aktív kalória<i class="p"></i>Átl. pulzus</div>')+
-  '</div><div class="a191Chart">'+chart(c,m)+'</div></section>'+
- '<section class="a191Card types"><div class="a191Head"><span class="runner">'+icon('run')+'</span><b>Aktivitás típusok</b><strong>Összes ›</strong></div><div class="a191Types">'+categoryCards(c,m)+'</div></section>'+
- '<section class="a191Card recent"><div class="a191Head"><span class="clock">◷</span><b>Legutóbbi edzések</b><strong>Összes ›</strong></div><div class="a191Recent">'+recent(c)+'</div></section>'+
+  '</div><div class="a191Chart">'+chart(view,m)+'</div></section>'+
+ '<section class="a191Card types"><div class="a191Head"><span class="runner">'+icon('run')+'</span><b>Aktivitás típusok</b><strong>Összes ›</strong></div><div class="a191Types">'+categoryCards(view,m)+'</div></section>'+
+ '<section class="a191Card recent"><div class="a191Head"><span class="clock">◷</span><b>Legutóbbi edzések</b><strong>Összes ›</strong></div><div class="a191Recent">'+recent(view)+'</div></section>'+
  '<section class="a191Card manual"><div class="a191ManualTitle"><span>＋</span><b>Manuális rögzítés</b></div><div class="a191ManualBtns">'+['walk','run','bike','workout','yoga'].map(function(k){var x=cat(k);return '<button onclick="hh191ManualOpen(\''+k+'\')"><span>'+icon(k)+'</span><b>'+esc(x.short)+'</b></button>'}).join('')+'<button onclick="hh191More()"><span class="dots">•••</span><b>További</b></button></div></section>'+
  '</div>'+nav();
  // The distance tile opens the calculated and imported source values.
@@ -300,14 +306,17 @@ async function render(profileOverride){
  }
  // Render the independent estimate only after the profile-specific Activity dashboard is ready.
  if(window.HH_CALORIE_ENGINE_V363&&window.HH_CALORIE_ENGINE_V363.render)
-  window.HH_CALORIE_ENGINE_V363.render(requestedProfile,c).catch(function(e){console.warn('Calorie Engine',e)});
+  window.HH_CALORIE_ENGINE_V363.render(requestedProfile,view).catch(function(e){console.warn('Calorie Engine',e)});
 }
 function modal(html){var m=document.getElementById('hh191Modal');if(!m)return;m.innerHTML='<div class="a191Sheet">'+html+'</div>';m.classList.add('on')}
 window.hh191CloseModal=function(){var m=document.getElementById('hh191Modal');if(m)m.classList.remove('on')}
-window.hh191Period=function(p){state.period=p;render()}
+window.hh191Period=function(p){state.period=p;state.selectedDay=null;render()}
+window.hh191Today=function(){state.period='1d';state.selectedDay=null;render()}
+window.hh191SelectDay=function(d){if(!validDay(d)||d>localToday())return;state.period='1d';state.selectedDay=d;window.hh191CloseModal();render()}
 window.hh191Profile=function(p){
  var code=p==='m'?'m':'z',profile=code==='m'?'monika':'zsolt';
  activityRenderSeq++;
+ state.selectedDay=null;
  localStorage.setItem('hh-profile',code);
  if(typeof window.setProfile==='function')window.setProfile(code);
  try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile,source:'activity'}}))}catch(e){}
@@ -321,7 +330,7 @@ window.hh191ToggleProfile=function(){
 };
 window.hh191Weather=function(){var w=null;try{w=JSON.parse(localStorage.getItem('hh-budapest-weather-v144')||'null')}catch(e){};modal('<div class="a191SheetHead"><div><small>BUDAPEST · IDŐJÁRÁS</small><h3>'+(w&&Number.isFinite(Number(w.temp))?Math.round(w.temp)+' °C':'Időjárás')+'</h3></div><button onclick="hh191CloseModal()">×</button></div><div class="a191Weather">'+(w?'<b>'+Math.round(w.temp)+' °C</b><span>Hőérzet: '+Math.round(Number(w.apparent)||Number(w.temp))+' °C</span><span>Szél: '+Math.round(Number(w.wind)||0)+' km/h</span><span>Napkelte: '+esc((w.sunrise||'').slice(11,16))+' · Napnyugta: '+esc((w.sunset||'').slice(11,16))+'</span>':'Az időjárásadat frissítése folyamatban van.')+'</div>')}
 window.hh191Calendar=function(){var now=new Date(),d=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');modal('<div class="a191SheetHead"><div><small>ACTIVITY CALENDAR</small><h3>Napi aktivitás</h3></div><button onclick="hh191CloseModal()">×</button></div><input id="a191Date" class="a191Date" type="date" value="'+d+'" onchange="hh191CalendarDay(this.value)"><div id="a191CalBody"></div>');setTimeout(function(){window.hh191CalendarDay(d)},0)}
-window.hh191CalendarDay=function(date){var c=window.hhActivity191Cache||{sessions:[],daily:[],heart:[]},day=c.daily.find(function(x){return x.date===date}),ss=c.sessions.filter(function(s){return dayKey(s.startTime)===date}),el=document.getElementById('a191CalBody');if(!el)return;el.innerHTML='<div class="a191CalStats"><div><small>LÉPÉSEK</small><b>'+(day?n(day.steps,0):'—')+'</b></div><div><small>KALÓRIA</small><b>'+(day?n(day.caloriesKcal,0):'—')+'</b></div><div><small>TÁVOLSÁG</small><b>'+(day&&window.HH_DISTANCE_ENGINE_V369&&window.hhActivity191Height&&window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height)?n(window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height).km,1):'—')+' km</b></div><div><small>EDZÉSEK</small><b>'+ss.length+'</b></div></div>'}
+window.hh191CalendarDay=function(date){var c=window.hhActivity191Cache||{sessions:[],daily:[],heart:[]},day=c.daily.find(function(x){return x.date===date}),ss=c.sessions.filter(function(s){return dayKey(s.startTime)===date}),el=document.getElementById('a191CalBody');if(!el)return;el.innerHTML='<div class="a191CalStats"><div><small>LÉPÉSEK</small><b>'+(day?n(day.steps,0):'—')+'</b></div><div><small>KALÓRIA</small><b>'+(day?n(day.caloriesKcal,0):'—')+'</b></div><div><small>TÁVOLSÁG</small><b>'+(day&&window.HH_DISTANCE_ENGINE_V369&&window.hhActivity191Height&&window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height)?n(window.HH_DISTANCE_ENGINE_V369.estimate(pkey(),day.steps,window.hhActivity191Height).km,1):'—')+' km</b></div><div><small>EDZÉSEK</small><b>'+ss.length+'</b></div></div><button type="button" class="a191CalendarOpen" style="margin-top:12px" onclick="hh191SelectDay(\''+esc(date)+'\')">📅 Megnyitás a főképernyőn ›</button>'}
 window.hh191SourceDetails=function(){
  var src=window.hhActivity191Source||{},profile=src.profile||pkey(),cloud=src.cloud,bundle=cloud&&cloud.bundle||{},counts=bundle.counts||{},m=window.hhActivity191DistanceMetrics||{};
  var d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
