@@ -45,15 +45,17 @@ async function filesByQuery(q,p,fields,one){
 async function archiveFolder(p){
  if(folderCache[p])return folderCache[p];
  var key='hh-lena-doc-drive-v294-'+p+'-folder';
- var id=localStorage.getItem(key)||'';
- if(id){folderCache[p]=id;return id}
+ var id='';
+ // Cached folder IDs alone cannot establish profile identity; verify by parent lookup.
  // Read existing archive only. Never create a new folder during ingestion.
  var roots=await filesByQuery("name='HealthHub Lena Archive' and mimeType='application/vnd.google-apps.folder' and trashed=false",p,null,true);
  if(roots.length!==1)throw Error('A Drive HealthHub-archívummappája nem egyértelmű. Előbb ellenőrizd az archívumot.');
  var name=p==='monika'?'Monika':'Zsolt';
  var folders=await filesByQuery("name='"+name+"' and '"+escapeQuery(roots[0].id)+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false",p,null,true);
  if(folders.length!==1)throw Error('A profilhoz tartozó Drive-mappa nem egyértelmű.');
- id=folders[0].id;folderCache[p]=id;return id;
+ id=folders[0].id;folderCache[p]=id;
+ try{localStorage.setItem(key,id)}catch(_){}
+ return id;
 }
 async function listFiles(p){
  var folder=await archiveFolder(p);
@@ -157,8 +159,8 @@ async function upsertDocument(p,file,sha,existing,duplicate){
   source_class:existing&&existing.classification_status==='reviewed'?
    existing.source_class:srcClass(file.name),
   classification_status:existing&&existing.classification_status==='reviewed'?'reviewed':'pending',
-  total_pages:duplicate?duplicate.total_pages:0,pages_indexed:duplicate?duplicate.pages_indexed:0,
-  pages_needing_ocr:0,visual_pages:duplicate?duplicate.visual_pages:0,
+  total_pages:duplicate?duplicate.total_pages:0,pages_indexed:0,
+  pages_needing_ocr:0,visual_pages:0,
   duplicate_of:duplicate?duplicate.id:null,notes:duplicate?'Azonos SHA-256 eredeti másik fájlban.':''
  };
  // Profile-specific upsert, RLS prevents cross-profile replacements.
@@ -196,7 +198,7 @@ async function docStatus(p,docId,patch){
 }
 async function extractDocument(p,file,bytes,docId){
  var lib=await pdfjs(),pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;
- var result={totalPages:pdf.numPages,pagesIndexed:0,pagesNeedingOcr:0,visualPages:0,
+ var result={totalPages:pdf.numPages,pagesIndexed:0,pagesNeedingOcr:0,ocrPagesPendingReview:0,visualPages:0,
   failedPages:0,visualFailed:0},reasons=[];
  if(pdf.numPages>3000)throw Error('A PDF 3000 oldalnál hosszabb; kézi audit kell.');
  try{
@@ -234,6 +236,10 @@ async function extractDocument(p,file,bytes,docId){
       needs_review:needOcr||visual||method==='ocr',
       text_sha256:digest});
     result.pagesIndexed++;
+    if(method==='ocr'){
+     result.ocrPagesPendingReview++;
+     reasons.push('OCR ellenőrzendő: '+pageNo+'. oldal');
+    }
     if(needOcr){result.pagesNeedingOcr++;reasons.push('Nem kiolvasható oldal: '+pageNo)}
     if(visual){
      try{
