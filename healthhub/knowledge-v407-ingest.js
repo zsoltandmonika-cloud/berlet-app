@@ -291,7 +291,13 @@ async function run(p,opts){
   var mapped=new Map(existing.map(x=>[x.source_file_id,x]));
   // Process originals with known nonduplicate records first; deduplicate by SHA-256 later.
   var remaining=files.filter(f=>!compareMeta(f,mapped.get('drive_'+f.id)));
-  st.total=Math.min(remaining.length,opts.maxDocs||1000);emit();
+  if(opts.pilotType){
+   if(!['watch-ekg','omsz'].includes(opts.pilotType))
+    throw Error('Ismeretlen próbafeldolgozási dokumentumtípus.');
+   remaining=CORE.pilotCandidates(remaining,opts.pilotType);
+   if(!remaining.length)throw Error('Nincs feldolgozatlan ilyen típusú PDF az ellenőrzött archívumban.');
+  }
+  st.total=Math.min(remaining.length,opts.pilotType?1:(opts.maxDocs||1000));emit();
   for(const file of remaining.slice(0,st.total)){
    if(st.stop)break;active(p);
    st.current=file.name;emit();

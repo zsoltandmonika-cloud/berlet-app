@@ -31,9 +31,27 @@ function readiness(state){
 }
 function checksumBytes(a){return Array.from(new Uint8Array(a)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function allowedProfile(p){return p==='monika'||p==='zsolt'}
+function pilotCandidates(files,type){
+ var kind=String(type||'');
+ if(kind!=='watch-ekg'&&kind!=='omsz')return [];
+ var good=(Array.isArray(files)?files:[]).filter(f=>{
+  if(!f||typeof f.name!=='string'||typeof f.id!=='string')return false;
+  var v=norm(f.name);
+  return kind==='watch-ekg' ? /samsung.*(ekg|ecg)|watch.*(ekg|ecg)/.test(v) :
+   /omsz|orszagos mentoszolgalat/.test(v);
+ });
+ // Smallest suitable source is the safest first full-PDF trial.
+ return good.sort((a,b)=>{
+  var x=Number(a.size),y=Number(b.size);
+  if(!Number.isFinite(x)||x<=0)x=Infinity;
+  if(!Number.isFinite(y)||y<=0)y=Infinity;
+  return x-y||String(a.name).localeCompare(String(b.name))||
+   String(a.id).localeCompare(String(b.id));
+ });
+}
 function isPdfSignature(bytes){return bytes instanceof Uint8Array&&bytes.length>=4&&
  bytes[0]===37&&bytes[1]===80&&bytes[2]===68&&bytes[3]===70}
-var exported={norm:norm,classify:classify,visualSignals:visualSignals,readiness:readiness,checksumBytes:checksumBytes,allowedProfile:allowedProfile,isPdfSignature:isPdfSignature};
+var exported={norm:norm,classify:classify,visualSignals:visualSignals,readiness:readiness,checksumBytes:checksumBytes,allowedProfile:allowedProfile,isPdfSignature:isPdfSignature,pilotCandidates:pilotCandidates};
 if(typeof module==='object'&&module.exports)module.exports=exported;
 else root.HH_KB_CORE_V407=exported;
 })(typeof window!=='undefined'?window:globalThis);
