@@ -290,11 +290,20 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota'].includes(scope))throw new Error('Android távoli sync: FULL, Health + Activity, Daily vagy OTA választható.');
+ if(!['full','health','daily','ota','diagnostics','retry','samsung'].includes(scope))
+  throw new Error('Távoli parancs nincs az engedélyezett műveletek között.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
  });
  if(!selected.length)throw new Error('Nincs kijelölt, ehhez a profilhoz tartozó telefon. Az Eszközregiszterben állítsd be.');
+ if(['diagnostics','retry','samsung'].includes(scope)){
+  if(selected.some(function(d){return !(Array.isArray(d.capabilities)&&d.capabilities.includes(scope));}))
+    throw new Error('A kiválasztott telefon még nem támogatja ezt a távoli műveletet. A v0.15-ös Connect szükséges.');
+ }
+ if(selected.some(function(d){
+  var state=d.status||{},age=Date.now()-Date.parse(state.updatedAt||'');
+  return ['pending','running'].includes(state.state)&&Number.isFinite(age)&&age<10*60*1000;
+ }))throw new Error('Az egyik készüléken már folyamatban van egy parancs. Előbb frissítsd az állapotot.');
  if(new Set(selected.map(function(d){return d.activeProfile})).size!==selected.length)throw new Error('Duplikált fizikai telefon-hozzárendelés.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
