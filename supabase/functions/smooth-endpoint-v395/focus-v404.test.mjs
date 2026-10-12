@@ -129,4 +129,18 @@ test('Extended unrequested memory essay inside recovery paragraph is trimmed',()
  assert.equal(x.briefMentions,1);
  assert.ok(x.report.sections[0].paragraphs.some(p=>p.text.includes('hazabocsátása')));
 });
+test('Grounded discharge requires a citation to the actual discharge source',()=>{
+ const fake={sections:[{heading:'Hazabocsátás',paragraphs:[
+  p('A hazabocsátás megtörtént, a lelet szerint.', 'S1')
+ ]}]};
+ const c=narrativeCoverage(fake,focus,available);
+ assert.ok(c.omitted.includes('discharge'));
+});
+test('AED device use alone does not prove a later implant',()=>{
+ const e=evidencePhases({facts:[]},{facts:[
+  {sourceId:'S1',quote:'Az AED készülékkel újraélesztést végeztek.'}
+ ]});
+ assert.equal(e.availability.rescue,true);
+ assert.equal(e.availability.intervention,false);
+});
 console.log('OK '+n+' focused narrative checks');
