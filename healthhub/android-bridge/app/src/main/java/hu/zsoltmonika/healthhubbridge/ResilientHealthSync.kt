@@ -30,6 +30,10 @@ object ResilientHealthSync {
     const val KEY_LAST_ERROR = "resilient_health_sync_last_error"
     const val KEY_NEEDS_ACTION = "resilient_health_sync_needs_action"
     const val KEY_COUNTS = "resilient_health_sync_record_summary"
+    const val KEY_LAST_WORKER_START = "resilient_health_worker_start_ms"
+    const val KEY_LAST_SOURCE_READ = "resilient_health_source_read_ms"
+    const val KEY_LAST_STAGE = "resilient_health_last_stage"
+    const val KEY_LAST_RUN_ID = "resilient_health_last_run_id"
     private const val PERIODIC = "healthhub-resilient-health-periodic-v1"
     private const val ON_DEMAND = "healthhub-resilient-health-once-v1"
 
@@ -91,7 +95,13 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
         lock.lock()
         try {
         val prefs = applicationContext.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
-        if (!ResilientHealthSync.isEnabled(prefs)) return Result.success()
+        prefs.edit().putLong(ResilientHealthSync.KEY_LAST_WORKER_START, System.currentTimeMillis())
+            .putString(ResilientHealthSync.KEY_LAST_RUN_ID, id.toString())
+            .putString(ResilientHealthSync.KEY_LAST_STAGE, "worker_started").apply()
+        if (!ResilientHealthSync.isEnabled(prefs)) {
+            prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "disabled").apply()
+            return Result.success()
+        }
         DropboxVaultClient.ensureCredentialVersion(prefs)
         val owner = prefs.getString("device_owner_profile", null)
         if (owner != "monika" && owner != "zsolt") {
@@ -106,7 +116,8 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
         if (System.currentTimeMillis() - prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L) < 20 * 60_000L)
             return Result.success()
 
-        prefs.edit().putLong(ResilientHealthSync.KEY_LAST_ATTEMPT, System.currentTimeMillis()).apply()
+        prefs.edit().putLong(ResilientHealthSync.KEY_LAST_ATTEMPT, System.currentTimeMillis())
+            .putString(ResilientHealthSync.KEY_LAST_STAGE, "permission_check").apply()
         return try {
             if (HealthConnectClient.getSdkStatus(applicationContext) != HealthConnectClient.SDK_AVAILABLE) {
                 requiresAction(prefs, "Health Connect nem elérhető ezen a telefonon.")
@@ -124,8 +135,11 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 return Result.success()
             }
 
+            prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "source_reading").apply()
             val exporter = HealthConnectExporter(hc)
             val payload = exporter.export(owner)
+            prefs.edit().putLong(ResilientHealthSync.KEY_LAST_SOURCE_READ, System.currentTimeMillis())
+                .putString(ResilientHealthSync.KEY_LAST_STAGE, "source_read_complete").apply()
             if (!exporter.hasUsefulData(payload)) {
                 // Retain existing cloud file. No 'success' for artificial zero-filled dates.
                 requiresAction(prefs, "Nincs tényleges mérési rekord az elmúlt 30 napban. Ellenőrizd a Samsung Health adatmegosztást.")
@@ -133,9 +147,11 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
+            prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "uploading").apply()
             DropboxVaultClient.uploadText(
                 prefs, DropboxVaultClient.healthConnectPath(owner), payload.toString(2) + "\n"
             )
+            prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "dropbox_upload_returned").apply()
             prefs.edit()
                 .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
                 .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(payload))
@@ -149,7 +165,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 msg.contains("revoked", true) ||
                 msg.contains("not_allowed", true) ||
                 msg.contains("PERMISSION_DENIED", true)
-            prefs.edit()
+            prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "failed")
                 .putString(ResilientHealthSync.KEY_LAST_ERROR, msg)
                 .putBoolean(ResilientHealthSync.KEY_NEEDS_ACTION, unrecoverable)
                 .apply()
@@ -161,7 +177,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
     }
 
     private fun requiresAction(prefs: SharedPreferences, message: String) {
-        prefs.edit()
+        prefs.edit().putString(ResilientHealthSync.KEY_LAST_STAGE, "needs_action")
             .putString(ResilientHealthSync.KEY_LAST_ERROR, message)
             .putBoolean(ResilientHealthSync.KEY_NEEDS_ACTION, true)
             .apply()
