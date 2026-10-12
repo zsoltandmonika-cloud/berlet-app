@@ -32,6 +32,7 @@ The existing **Central Sync Orchestrator** panel is extended in place, not repla
 | ↻ RETRY | `retry` | Queue Health Connect resilient worker | QUEUED, then observe later verified health upload |
 | 📦 OTA CHECK | `ota` | Check existing signed GitHub APK release metadata; potentially notify owner | DONE for check, but never silently install |
 | ↻ STATUS | local | Re-read Dropbox device heartbeats and per-device status | Immediate result from cloud; no remote phone wake required |
+| 🔌 CONNECTOR TEST | local | Test a real Dropbox folder read + authenticated Supabase metadata API read | Distinguish a valid login from a working API roundtrip; show actual RAG outcome |
 
 **No remote shell, no arbitrary code, no permission grant, no credential export and no silent APK installation.** Android can delay WorkManager and require user permission.
 
