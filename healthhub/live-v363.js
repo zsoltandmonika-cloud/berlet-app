@@ -132,6 +132,13 @@ async function render(profile,cache){
  var box=page.querySelector('#hhCal363');
  if(!box){box=document.createElement('section');box.id='hhCal363';box.className='hhCal363';host.insertAdjacentElement('afterend',box)}
  css();box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>Saját energia-becslés számítása…</p>';
+  // This independent model estimates one day only. Never present today's values
+  // below weekly/monthly/yearly Activity KPIs as if they represented that period.
+  var period=window.hhActivity191State&&window.hhActivity191State.period||'1d';
+  if(period!=='1d'){
+    box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>A fenti kártyák a kiválasztott időszak összesített adatait mutatják. A Calorie Engine jelenleg kizárólag napi becslést támogat. Napi értékekhez válaszd a Ma nézetet; korábbi napok adatai a 📅 Nap kiválasztása gomb alatt érhetők el.</p>';
+    return;
+  }
  var db=await readDb(profile),ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(profile);
  if((localStorage.getItem('hh-profile')==='m'?'monika':'zsolt')!==profile||!box.isConnected)return;
  var core=Object.assign({},ctx&&ctx.profileCore||{},db&&db.profile||{});
