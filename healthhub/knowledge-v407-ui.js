@@ -109,8 +109,9 @@ async function runPilot(type){
 }
 async function runFull(){
  if(!auth()){show('🔒 Bejelentkezés szükséges a Központi Health Vaultba.');return}
- busy=true;engine().enable(profile(),true);
- show('⏳ Első feldolgozás indul; a folyamat az eszközön fut és folytatható.');
+ busy=true;
+ // A one-off full pass must not silently opt the device into continuous monitoring.
+ show('⏳ Egyszeri feldolgozás indul; az automatikus feldolgozás külön engedélyezhető.');
  try{await engine().run(profile())}
  catch(e){show('⚠️ Feldolgozás: '+String(e.message||e).slice(0,140))}
  finally{busy=false;draw()}
@@ -120,7 +121,7 @@ async function listDocuments(){
  var p=profile(),root=resultRoot();if(!root)return;
  root.textContent='';
  try{
-  var rows=await service().request('/rest/v1/hh_kb_documents?select=id,original_name,status,total_pages,pages_indexed,duplicate_of,visual_pages,classification_status'+
+  var rows=await service().request('/rest/v1/hh_kb_documents?select=id,original_name,status,total_pages,pages_indexed,duplicate_of,visual_pages,classification_status,notes'+
    '&profile_key=eq.'+p+'&order=updated_at.desc&limit=200',{method:'GET'});
   if(!rows.length){root.textContent='Az új, központi tudástár még üres. Indítsd a PDF-feldolgozást.';return}
   var cap=document.createElement('small');
@@ -136,7 +137,8 @@ async function listDocuments(){
    var small=document.createElement('small');
    small.textContent=d.duplicate_of?'Azonos SHA-256 · eredeti megtartva':
     '📄 '+d.pages_indexed+'/'+d.total_pages+' oldal · 🫀 '+d.visual_pages+
-    ' képi oldal · '+(d.classification_status==='reviewed'?'Forrás ellenőrizve':'Forrásbesorolás ellenőrzendő');
+    ' képi oldal · '+(d.classification_status==='reviewed'?'Forrás ellenőrizve':'Forrásbesorolás ellenőrzendő')+
+    (d.status==='partial'&&d.notes?' · ⚠️ '+String(d.notes).slice(0,170):'');
    box.append(h,small);
    if(d.visual_pages>0){
     var btn=document.createElement('button');btn.dataset.kb='list-images';btn.dataset.doc=d.id;
@@ -184,7 +186,7 @@ async function listGallery(){
    var div=document.createElement('div');div.className='kbResult';
    var h=document.createElement('strong');h.textContent='🫀 '+doc.original_name;
    var label=document.createElement('small');
-   label.textContent=doc.visual_pages+' képi oldal · '+doc.source_class+' · EKG-azonosítás ellenőrzendő';
+   label.textContent=doc.visual_pages+' képi oldal · '+doc.source_class+' · Képtípus ellenőrzendő (EKG vagy más ábra)';
    var btn=document.createElement('button');btn.dataset.kb='list-images';btn.dataset.doc=doc.id;
    btn.textContent='🔎 Képek megnyitása';
    div.append(h,label,btn);root.appendChild(div);
@@ -199,7 +201,7 @@ async function listForDoc(docId){
   root.textContent='';
   if(!rows.length){root.textContent='Ehhez a dokumentumhoz még nincs feldolgozott képi oldal.';return}
   var info=document.createElement('small');info.textContent=
-   'A képek eredeti dokumentumoldal-kivonatok. Az EKG minősítés orvosi felülvizsgálatra vár.';
+   'Eredeti PDF-oldalak privát képi másolatai. Az ábra típusa és klinikai értelmezése még ellenőrizendő.';
   root.appendChild(info);
   for(const r of rows.slice(0,40)){
    var box=document.createElement('div');box.className='kbResult';
