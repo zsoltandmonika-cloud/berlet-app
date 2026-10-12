@@ -63,3 +63,26 @@
 | Upload completes | Readback validates profile and export timestamp |
 | App reboot / background restrictions | Worker resumes opportunistically, lateness and errors observable |
 | Phone OTA signing mismatch | Android rejects in-place update; do not delete production app automatically |
+
+## v0.15.1 draft extension: screenshot-free data monitoring and remote policy
+
+The single Android Connect now publishes the following **low-cardinality**, private diagnostic metadata inside the existing Dropbox orchestrator device heartbeat:
+
+- Per source: available/authorized source, enabled background job, last collected daily data **date**, sample count (not measured samples), source export/read/upload times, categorized error, needs-action/late indicator.
+- Samsung specifically: SDK presence, days with valid calorie/active minute/floor/distance fields, last no-change decision, readback-verified Dropbox upload time.
+- Health Connect specifically: daily row count, exercise/heart/weight **record counts** only, last read and last completed upload time.
+- Remote configuration: device-bound JSON from the existing Dropbox orchestrator path `/HealthHub/orchestrator/config/{android-device-id}.json`; only allowlisted 4/6/8/12/24-hour Samsung WorkManager interval, with monotonic revision and expiry. No remote code execution, permission grant, OAuth-token movement or profile changes. Bounded policy is enabled only after owner locally consented to Samsung.
+- A/B configuration slots and a last-good fallback; only **actual unattended background SDK read + verified upload**, not a manual test tap, can promote a trial revision. On failure/timeout, roll back scheduling policy.
+- The existing Admin Center Orchestrator (`live-v305.js`) displays collapsible, source-separated monitoring per device without screenshots. It continues to operate normally for 0.14 devices, for which the new telemetry is not yet present.
+
+### Direct read via the existing Supabase connection
+
+A profile-RLS-protected metadata-only table `public.hh_collector_telemetry` was created in the **existing HealthHub-Core** Supabase project with primary key `(profile_key, device_id)`. It contains at most one **latest snapshot** per physical device/profile. It does **not** contain underlying measured steps, heart rates, calories, PDFs, names, access tokens, raw SDK records or free-form health narratives.
+
+When the HealthHub Admin Center is opened by an **authenticated user with HealthHub profile access**, `live-v305.js` can mirror a fresh private Dropbox heartbeat into this Supabase table. This permits later **direct structured diagnostic SQL reads by an authorized administrator**, with zero screenshot/OCR overhead. Unauthenticated sessions have no access; all operations are guarded with RLS.
+
+**Operational limitation:** This browser-mediated mirror does NOT work while every authenticated HealthHub browser is closed. The phone still uploads diagnostic heartbeats to existing Dropbox independently. Fully unattended continuous Supabase replication would require a separately authorized server-side bridge or a direct, secure device-authentication flow. Neither is claimed as implemented.
+
+**Privacy:** Medical data remains in existing per-profile health vault files. Only metadata is copied into Supabase; no new account or paid service was provisioned.
+
+**Verification required:** CI compiles no-vendor HC fallback and JS has been syntax-checked; vendor-included SDK build, signed OTA installation, real phone telemetry and a successful authenticated Supabase mirror remain separate release gates.
