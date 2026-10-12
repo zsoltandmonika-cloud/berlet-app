@@ -102,3 +102,22 @@ CREATE POLICY hh_kb_visuals_update ON public.hh_kb_visuals FOR UPDATE TO authent
   ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())))
  WITH CHECK(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
   ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())));
+-- Full-page medical image snapshots are private; no public URLs.
+INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+ VALUES('hh-kb-visuals','hh-kb-visuals',false,12000000,ARRAY['image/png','image/webp'])
+ ON CONFLICT(id) DO NOTHING;
+CREATE POLICY hh_kb_storage_read ON storage.objects FOR SELECT TO authenticated
+ USING(bucket_id='hh-kb-visuals' AND EXISTS(
+  SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+   ON a.profile_key=d.profile_key
+   WHERE d.id::text=split_part(storage.objects.name,'/',2)
+    AND d.profile_key=split_part(storage.objects.name,'/',1)
+    AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_storage_insert ON storage.objects FOR INSERT TO authenticated
+ WITH CHECK(bucket_id='hh-kb-visuals'
+  AND storage.extension(storage.objects.name) IN('png','webp')
+  AND EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+   ON a.profile_key=d.profile_key
+   WHERE d.id::text=split_part(storage.objects.name,'/',2)
+    AND d.profile_key=split_part(storage.objects.name,'/',1)
+    AND a.user_id=(SELECT auth.uid())));
