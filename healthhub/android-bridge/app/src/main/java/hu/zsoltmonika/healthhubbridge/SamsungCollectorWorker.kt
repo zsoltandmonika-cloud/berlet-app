@@ -28,13 +28,14 @@ class SamsungCollectorWorker(appContext: Context, params: WorkerParameters) :
             return Result.success()
         }
         if (!DropboxVaultClient.hasRefreshToken(prefs)) {
-            fail(prefs, "Dropbox nincs összekötve a Samsung Betával.")
+            fail(prefs, "Dropbox nincs összekötve a Connecttel.")
             return Result.success()
         }
         return try {
             // Explicit Samsung permissions must have been granted interactively first.
             // The background reader must NEVER display a Samsung permission dialog.
             val data: JSONObject = SamsungSdkDailyReader.collectBackground(applicationContext, owner)
+            CollectorTelemetry.noteSamsungRead(applicationContext, data)
             val records = data.optJSONObject("records")?.optJSONArray("dailySummary")
             check(data.optString("schemaVersion") == "healthhub.samsung.daily/1" &&
                 data.optString("source") == "samsung-health-data-sdk-1.1.0" &&
@@ -83,9 +84,11 @@ class SamsungCollectorWorker(appContext: Context, params: WorkerParameters) :
                 .putString("samsung_collector_last_success_profile", owner)
                 .remove("samsung_collector_last_error")
                 .apply()
+            CollectorTelemetry.noteSamsungUpload(applicationContext)
             Result.success()
         } catch (e: Exception) {
             fail(prefs, e.message ?: e.javaClass.simpleName)
+            CollectorRemoteConfig.onCollectorFailure(applicationContext)
             // Transient network failures retry, but never hot-loop.
             if (runAttemptCount < 2) Result.retry() else Result.success()
         }
