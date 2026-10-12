@@ -152,6 +152,7 @@ class OrchestratorWorker(
         }
         val exporter = HealthConnectExporter(client)
         val json = exporter.export(owner)
+        CollectorTelemetry.noteHealthRead(applicationContext, json)
         if (!exporter.hasUsefulData(json)) {
             error("Nincs tényleges Health Connect-adat; az előző Dropbox-fájl érintetlen. " + exporter.countSummary(json))
         }
@@ -168,6 +169,7 @@ class OrchestratorWorker(
             .remove(ResilientHealthSync.KEY_LAST_ERROR)
             .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
             .apply()
+        CollectorTelemetry.noteHealthUpload(applicationContext)
     }
 
     override suspend fun doWork(): Result {
