@@ -250,6 +250,32 @@ async function mirrorTelemetry305(devices){
   await mirrorOneTelemetry305(d);
  }
 }
+var cloudDiagnostic305={lastChecked:0,dropbox:'unknown',supabase:'unknown'};
+async function testCloudConnectors305(){
+ cloudDiagnostic305={lastChecked:Date.now(),dropbox:'unknown',supabase:'unknown'};
+ var problems=[];
+ try{
+  await ensureFolders();
+  await listFolder(DEVICES);
+  cloudDiagnostic305.dropbox='ok';
+  lastCloudFetch305=Date.now();
+ }catch(e){cloudDiagnostic305.dropbox='error';problems.push('Dropbox kapcsolat');}
+ var s=window.HH_DAILY_HEALTH_SYNC_V319,st=null;
+ try{st=s&&s.getStatus&&s.getStatus()}catch(e){}
+ if(!st||!st.authenticated||typeof s.request!=='function'){
+  cloudDiagnostic305.supabase='not-authenticated';
+ }else{
+  try{
+   var rows=await s.request('/rest/v1/hh_collector_telemetry?select=profile_key&limit=1',{method:'GET'});
+   if(!Array.isArray(rows))throw Error('invalid health profile response');
+   cloudDiagnostic305.supabase='ok';
+  }catch(e){cloudDiagnostic305.supabase='error';problems.push('Supabase API');}
+ }
+ renderAdmin();
+ if(problems.length)throw Error('Connector diagnosztika: '+problems.join(', ')+' · a zöld státusz letiltva.');
+ try{window.toast&&window.toast('✓ Felhőcsatlakozók ellenőrizve.')}catch(e){}
+ return cloudDiagnostic305;
+}
 async function loadDevices(){
  if(!connected())return[];
  await ensureFolders();
@@ -470,15 +496,18 @@ function renderAdmin(){
  }).join('');
  var cloudSvc=window.HH_DAILY_HEALTH_SYNC_V319,cloudStatus=null;
   try{cloudStatus=cloudSvc&&cloudSvc.getStatus&&cloudSvc.getStatus()}catch(e){}
-  var dbStatus=cloudStatus&&cloudStatus.authenticated?
-    (Object.keys(telemetryMirror305).length?{level:'green',label:'Telemetria mentve'}:{level:'amber',label:'Hitelesítve, adatkapcsolat ellenőrzendő'}):
-    {level:'unknown',label:'Admin-belépés szükséges'};
+  var cloudCheckRecent=Date.now()-cloudDiagnostic305.lastChecked<15*60000;
+  var dbStatus=!cloudStatus||!cloudStatus.authenticated?{level:'unknown',label:'Admin-belépés szükséges'}:
+    cloudCheckRecent&&cloudDiagnostic305.supabase==='error'?{level:'red',label:'Supabase API hiba'}:
+    ((cloudCheckRecent&&cloudDiagnostic305.supabase==='ok')||Object.keys(telemetryMirror305).length?
+      {level:'green',label:'API / mentés ellenőrizve'}:{level:'amber',label:'Hitelesítve, adatkapcsolat ellenőrzendő'});
   var dropStatus=!connected()?{level:'red',label:'Vault nincs csatlakoztatva'}:
+    cloudCheckRecent&&cloudDiagnostic305.dropbox==='error'?{level:'red',label:'Dropbox API hiba'}:
     (lastCloudFetch305&&Date.now()-lastCloudFetch305<15*60000?
       {level:'green',label:'Visszaigazolt felhőkapcsolat'}:{level:'amber',label:'Felhőkapcsolat ellenőrzésre vár'});
   var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🛡️ HealthHub · Remote Control Center</h3><small>Eszközönkénti RAG monitoring · Dropbox vezérlőcsatorna · v0.15 kísérleti funkciók</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
   '<div class="hhOrchRags305 cloud">'+ragBadge305('Dropbox Admin',dropStatus)+ragBadge305('Supabase Admin',dbStatus)+'</div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button><button id="hhOrchCloudTest305">🔌 CONNECTOR TEST</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>v0.15 biztonság:</b> Csak a v401-ben kijelölt telefonok fogadnak távoli parancsot. A Samsung-szinkronhoz előzetes helyi Samsung-engedélyezés kell. A RAG a dátumozott beolvasásból és feltöltésből számolódik. PENDING / QUEUED nem egyenlő a sikerrel; Android háttérfeladatok késhetnek.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
@@ -516,6 +545,7 @@ function ensureOrchestratorHandlers(){
    dispatch('all',remoteDevice,action).catch(toastErr);return;
   }
   if(id==='hhOrchRefresh305'){refreshAdmin(true);return}
+  if(id==='hhOrchCloudTest305'){testCloudConnectors305().catch(toastErr);return}
   var job=id==='hhOrchAll305'?dispatch('all'):
    id==='hhOrchZ305'?dispatch('zsolt'):
    id==='hhOrchM305'?dispatch('monika'):
