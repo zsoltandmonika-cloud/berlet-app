@@ -6,6 +6,11 @@ on:
     paths:
       - "healthhub/android-bridge/**"
       - ".github/workflows/healthhub-bridge-android.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "healthhub/android-bridge/**"
+      - ".github/workflows/healthhub-bridge-android.yml"
   workflow_dispatch:
 
 permissions:

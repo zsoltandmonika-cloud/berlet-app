@@ -681,9 +681,19 @@ class MainActivity : ComponentActivity() {
         val last = prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L)
         val error = prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null)
         val enabled = ResilientHealthSync.isEnabled(prefs)
-        val stamp = if (last > 0L) SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault()).format(Date(last)) else "még nincs"
+        val fmt = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
+        fun stamp(ms: Long): String = if (ms > 0L) fmt.format(Date(ms)) else "még nincs"
         val t = if (enabled) "BE · 3 óránként + automatikus újrapróbálás" else "KI"
-        val txt = "🔄 Automatikus kapcsolattartás: $t\nUtolsó sikeres Health Connect → Dropbox feltöltés: $stamp" +
+        val started = prefs.getLong(ResilientHealthSync.KEY_LAST_WORKER_START, 0L)
+        val source = prefs.getLong(ResilientHealthSync.KEY_LAST_SOURCE_READ, 0L)
+        val stage = prefs.getString(ResilientHealthSync.KEY_LAST_STAGE, "még nincs diagnosztika")
+        // Explicitly distinguish native worker execution from cloud ingestion.
+        val txt = "🔄 Automatikus kapcsolattartás: $t\nUtolsó sikeres Health Connect → Dropbox feltöltés: ${stamp(last)}" +
+            "\n🔎 v411 diagnosztika (helyi):" +
+            "\nHáttérfolyamat elindult: ${stamp(started)}" +
+            "\nHealth Connect olvasás befejezve: ${stamp(source)}" +
+            "\nUtolsó szakasz: $stage" +
+            "\nMegjegyzés: a feltöltési visszajelzés még nem bizonyítja a HealthHub megjelenítést." +
             (if (!error.isNullOrBlank()) "\n⚠️ Utolsó probléma: $error" else "") +
             "\n" + prefs.getString(ResilientHealthSync.KEY_COUNTS, "Még nincs rekordösszesítő")
         resilientSummary?.text = txt
