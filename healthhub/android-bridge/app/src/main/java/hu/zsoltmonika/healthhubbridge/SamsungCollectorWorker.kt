@@ -84,7 +84,7 @@ class SamsungCollectorWorker(appContext: Context, params: WorkerParameters) :
                 .putString("samsung_collector_last_success_profile", owner)
                 .remove("samsung_collector_last_error")
                 .apply()
-            CollectorTelemetry.noteSamsungUpload(applicationContext)
+            CollectorTelemetry.noteSamsungUpload(applicationContext, fromScheduledWorker = true)
             Result.success()
         } catch (e: Exception) {
             fail(prefs, e.message ?: e.javaClass.simpleName)
