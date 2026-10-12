@@ -6,11 +6,11 @@
    Native Android HealthHub Connect uses the same protocol with WorkManager. */
 
 var BUILD='1.305', ROOT='/HealthHub/orchestrator';
-var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status';
+var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status', DEVICE_REGISTRY=ROOT+'/device-registry-v401.json';
 var DEVICE_KEY='hh-orchestrator-device-id-v1', LAST_CMD='hh-orchestrator-last-command-v1';
 var CHECK_MS=60000, CHECK_THROTTLE=12000, ADMIN_ID='hhSyncOrchestrator305', STYLE_ID='hhSyncOrchestrator305Style';
 var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[],foldersReady=false;
-var orchSelectedScope='full',orchInteractingUntil=0;
+var orchSelectedScope='health',orchInteractingUntil=0,phoneRegistryCache=null;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -240,18 +240,30 @@ function fmtAge(s){
  if(sec<60)return sec+' mp';if(sec<3600)return Math.round(sec/60)+' p';if(sec<86400)return Math.round(sec/3600)+' ó';return Math.round(sec/86400)+' n';
 }
 function scopeFromUi(){var e=document.getElementById('hhOrchScope305');return e?e.value:orchSelectedScope}
+async function verifiedPhoneRegistry(){
+ var r=await download(DEVICE_REGISTRY);
+ if(!r||r.schema!=='healthhub.device_registry/1'||!r.activePhones||!Array.isArray(r.archived))
+  throw new Error('Először jelöld ki Zsolt és Mónika telefonját az Eszközregiszter v401 panelen.');
+ phoneRegistryCache=r;return r;
+}
+function eligiblePhone(d,r,profile){
+ if(!d||d.deviceType!=='android'||!['zsolt','monika'].includes(d.activeProfile))return false;
+ if(profile!=='all'&&d.activeProfile!==profile)return false;
+ if(r.archived.includes(d.deviceId))return false;
+ return r.activePhones[d.activeProfile]===d.deviceId;
+}
 async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
- var scope=overrideScope||scopeFromUi(),devices=await loadDevices(),selected=devices.filter(function(d){
-  if(deviceFilter&&d.deviceId!==deviceFilter)return false;
-  if(scope==='ota'&&d.deviceType!=='android')return false;
-  if(profileScope==='all')return true;
-  return (d.profileCapability||[]).indexOf(profileScope)>=0;
+ var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
+ if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
+ if(!['full','health','daily','ota'].includes(scope))throw new Error('Android távoli sync: FULL, Health + Activity, Daily vagy OTA választható.');
+ var selected=devices.filter(function(d){
+  return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
  });
- if(!selected.length)throw new Error('Nincs megfelelő regisztrált eszköz.');
+ if(!selected.length)throw new Error('Nincs kijelölt, ehhez a profilhoz tartozó telefon. Az Eszközregiszterben állítsd be.');
+ if(new Set(selected.map(function(d){return d.activeProfile})).size!==selected.length)throw new Error('Duplikált fizikai telefon-hozzárendelés.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
-  if(d.deviceType==='android'&&scope!=='full'&&scope!=='health'&&scope!=='daily'&&scope!=='ota')return;
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
@@ -265,7 +277,6 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
   });
  }));
  try{window.toast&&window.toast('✓ Sync parancs elküldve · '+selected.length+' eszköz')}catch(e){}
- await checkCommand(true);
  setTimeout(function(){refreshAdmin(true)},800);
  return {commandId:id,devices:selected.length};
 }
@@ -289,14 +300,15 @@ function renderAdmin(){
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
  ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
  var rows=deviceCache.map(function(d){
+  var isPrimary=phoneRegistryCache&&eligiblePhone(d,phoneRegistryCache,'all');
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
   var ota=d.deviceType==='android'?(' · Connect v'+esc(d.build||'?')+(d.otaUpdateAvailable?' · 🟡 OTA v'+esc(d.otaCandidateVersion||'?')+' ELÉRHETŐ':' · OTA: nincs frissítés')):'';
-  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'">SYNC</button></div>';
+  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button></div>';
  }).join('');
  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · minden regisztrált eszköz központilag indítható</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="full">FULL SYNC</option><option value="structured">Structured Vault</option><option value="profile">Profile Vault</option><option value="health">Health + Activity</option><option value="devices">Devices Cloud</option><option value="lena">Léna Context</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ ALL DEVICES</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
- '<div class="hhOrchNote305"><b>Működés:</b> a nyitott webes kliensek legfeljebb kb. 60 mp-en belül veszik fel a parancsot. Offline kliens Pending marad és a következő induláskor végrehajtja. A HealthHub Connect Android háttérben WorkManagerrel ellenőriz; az Android nem kap valótlan „instant push” ígéretet.</div></section>';
+ '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
  var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
@@ -327,8 +339,8 @@ function ensureOrchestratorHandlers(){
 }
 function toastErr(e){try{window.toast&&window.toast('Orchestrator hiba: '+(e&&e.message||e))}catch(_){}}
 async function refreshAdmin(force){
- if(!connected()){deviceCache=[];if(force||Date.now()>orchInteractingUntil)renderAdmin();return}
- try{await loadDevices()}catch(e){console.warn(e)}
+ if(!connected()){deviceCache=[];phoneRegistryCache=null;if(force||Date.now()>orchInteractingUntil)renderAdmin();return}
+ try{await loadDevices();phoneRegistryCache=await download(DEVICE_REGISTRY)}catch(e){phoneRegistryCache=null;console.warn(e)}
  if(force||Date.now()>orchInteractingUntil)renderAdmin();
 }
 function attachAdmin(){
