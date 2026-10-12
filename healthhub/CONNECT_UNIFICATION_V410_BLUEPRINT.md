@@ -124,3 +124,73 @@ HealthHubConnect
 **Not completed:** native code migration, Samsung entitlement check, build, APK signing, installation, autonomous cycle test.
 
 Do not start changing the production browser bootstrap to compensate for a missing native Android integration. It cannot provide proprietary SDK access or OS-scheduled background execution.
+
+## 9. Remote managed collector and A/B self-healing design (v0.15.0 scope refinement)
+
+**Goal:** Once installed, the minimal Android collector should accept safe, authenticated, limited remote maintenance and configuration without routine physical phone interaction. The cloud handles the orchestration, transformation and observability; the device keeps only the hardware-bound data acquisition, local queue and scheduler.
+
+### 9.1 Clear update classes and platform boundaries
+
+| Update class | Remotely deployable without a new APK? | Mechanism |
+| --- | --- | --- |
+| Interval, sync window, retry/backoff, logging level, source-preference policy | Yes (when device checks in and command is valid) | Versioned, signed remote configuration |
+| Enable/disable supported collector, select safe diagnostic request, refresh cloud credentials | Yes, within existing capabilities | Strict allowlisted commands with expiry/ack, user-approved permissions |
+| Server normalization, conflict resolution and dashboard presentation | Yes | GitHub + server-side deployments within existing cloud stack |
+| Kotlin/Java code, native Samsung SDK dependency, Android permissions/manifest | No; real signed APK update required | Verified release package, certificate/package continuity |
+| Unattended APK installation | **Not promised** | Normally Android installation consent or a special eligible installer/update channel; see Android PackageInstaller rules |
+
+**Never** implement generic remote shell, fetched executable scripts, code evaluation, dynamic dex loading, unrestricted file browser or permission escalation. No remote control of other applications or phone settings without user action.
+
+**Vendor and OS caveat:** Android PackageInstaller allows no-user-action installation only under enumerated installer/ownership/permission/target SDK conditions. A sideloaded APK and ad hoc GitHub download do **not** automatically satisfy them. On unsupported setups, show a safe update notification and obtain user confirmation.
+
+### 9.2 Device-initiated remote channel (no inbound port, no paid service prerequisite)
+
+- Use current authenticated Dropbox command queue or the existing Supabase backend as transport; choose one **after** confirming authentication, cost and authorization. Do not create a new account/subscription during development.
+- Phone initiates TLS polling during reliable local background jobs, on foreground and on connectivity return; server does not require inbound access to a home/mobile network.
+- Registered device identity, profile binding, credentials stored in Android secure storage; rotate and revoke on loss. Use least-privilege backend service keys and enforce RLS. Do not treat a Google/Dropbox OAuth session alone as authority to execute admin commands.
+- Commands contain a UUID, device ID, profile ID, action enum, schema version, issued/expiry timestamps, monotonic sequence, operator/approval, optional payload digest, and authenticated signature/HMAC. Reject replay, unknown command, wrong device/profile, stale/expired, oversized payload, unknown schema. Log hash/command status, not sensitive medical values.
+- Restrict to: `read_source`, `enqueue_sync`, `refresh_config`, `diagnostic_summary`, `rotate_token`, `report_health`, `check_release`. Sensitive scope or device permission changes remain a local confirmation step.
+- Outbound states: `received` -> `validated` -> `queued` -> `running` -> `uploaded` -> `verified` / `failed` with retry reason. No green state for a merely queued command.
+
+### 9.3 A/B LAST-KNOWN-GOOD configuration slots (not two Android boots)
+
+- One signed installed collector binary, two atomic local **configuration** slots: A (active) and B (last-known-good, if valid).
+- Download schema-versioned config to inactive slot; verify authenticity, checksum, profile, supported feature flags and expiry.
+- Dry-run parse and validate constraints; activate only after healthcheck / an actual successful read+verified upload within an agreed observation window.
+- If crash-loop, repeated invalid JSON, job timeout, auth error or upload failure is due to new config, revert active pointer to known-good slot and report to cloud.
+- Keep a non-overwritable minimal safe built-in configuration that retries and uploads when connectivity returns. Never erase pending measurements when reverting.
+- A/B config is **not** a full application binary rollback. For signed APK, preserve old verified release, offer explicit user-assisted rollback/upgrade plan; Android package downgrade may be blocked.
+- Separate config version from APK version; no attempts to run new native SDK behavior via cloud configuration if binary does not support it.
+
+### 9.4 Self-healing, durability and actual guarantees
+
+- WorkManager or current verified native equivalent for unique periodic jobs, persisted after app/device restart, with sensible backoff and allowed battery/network constraints; no duplicate recurrent workers.
+- Reschedule/check on boot and app update within Android broadcast/background execution restrictions; on screen-open perform opportunistic sync if stale.
+- Encrypted at-rest local queue with idempotent item keys, retention limits, upload receipts; do not delete queued data until server acknowledged a digest or record manifest.
+- Fail clearly on permission revoked, forced stop, app uninstall, storage exhaustion, damaged secure token, battery policy lockout or Samsung SDK block. A collector cannot bypass these constraints.
+- Android WorkManager periodic execution is inexact under Doze and battery optimization; server may request, but cannot guarantee immediate device wake.
+- Server health monitor triggers alert when last *actual source read* or verified upload exceeds policy, not when just a file timestamp advances.
+- Keep a plain-language diagnostic screen on device as a last-resort recovery path.
+
+### 9.5 Update/release safety
+
+1. Admin publishes a **signed versioned manifest**, with SHA-256 APK digest, minimum compatible collector version, target device ring, release notes, permissions diff and rollback instructions.
+2. Canary on one opted-in test device, confirm permissions, source read, upload, profile safety and battery drain.
+3. Expand to remaining devices only after verified autonomous sync and no regression; freeze and stop rollout if error thresholds exceed limits.
+4. For pure remote config, A/B rollback on local validation/healthcheck failure; for APK updates, require appropriate Android-supported verified installation flow and user approval whenever required.
+5. Never publish signing keys, Dropbox secrets, OAuth refresh tokens, health record content or device unique identifiers to a public GitHub repo.
+
+### 9.6 Acceptance criteria to add
+
+- [ ] Remote config applies on next device check-in, validated and acked without physical interaction.
+- [ ] Corrupt remote config rejected; proven last-good config survives app restart and Android reboot.
+- [ ] 1 revoked/expired/wrong-profile remote command causes zero data mutation or privileged action.
+- [ ] Collector keeps durable measurements offline and safely uploads on reconnection without duplicates.
+- [ ] Server displays last check-in, last source read, last data event, upload receipt and last applied config separately.
+- [ ] Application binary updates and Android permissions are never claimed to be silently remotely installable without satisfying platform rules.
+- [ ] Operating costs remain within existing GitHub/Supabase/Dropbox accounts during family development; no additional recurring service by default.
+
+Official Android references:
+- https://developer.android.com/develop/background-work/background-tasks/persistent
+- https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work
+- https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams
