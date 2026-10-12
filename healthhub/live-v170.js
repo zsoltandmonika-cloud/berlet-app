@@ -297,8 +297,8 @@ function sleepFactorCards381(night,profile){
  var efficiencyTone=hhSleepEfficiency382(m&&m.efficiency);
  function share(n,base){return base>0?Math.round(n/base*100)+'%':'—'}
  function val(n){return n==null?'—':durText(n)}
- // Samsung's per-stage cards present completed whole minutes. Keep raw intervals
- // unchanged; avoid rounding partial stage minutes up on display.
+ // Display complete elapsed minutes for per-stage cards, without changing raw
+ // Health Connect intervals. Exact Samsung parity still requires phone comparison.
  function stageVal(n){return n==null?'—':durText(Math.floor(n+1e-8))}
  function card(icon,name,value,status,tone,detail){
   return '<div class="hhSleepFactor381 hhSleepRag382 '+esc(tone)+'">'+
