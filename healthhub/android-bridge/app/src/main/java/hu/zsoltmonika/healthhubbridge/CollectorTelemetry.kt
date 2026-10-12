@@ -149,7 +149,7 @@ object CollectorTelemetry {
         val health = quality(prefs.getString(HEALTH_QUALITY, null))
             .put("autoEnabled", ResilientHealthSync.isEnabled(prefs))
             .put("lastReadAt", instant(prefs.getLong(HEALTH_READ, 0L)))
-            .put("lastVerifiedUploadAt", instant(prefs.getLong(HEALTH_UPLOAD, hLast).coerceAtLeast(hLast)))
+            .put("lastUploadAt", instant(prefs.getLong(HEALTH_UPLOAD, hLast).coerceAtLeast(hLast)))
             .put("lastAttemptAt", instant(prefs.getLong(ResilientHealthSync.KEY_LAST_ATTEMPT, 0L)))
             .put("errorKind", errorKind(hError))
             .put("needsUserAction", prefs.getBoolean(ResilientHealthSync.KEY_NEEDS_ACTION, false))
