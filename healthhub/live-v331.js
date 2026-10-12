@@ -528,12 +528,8 @@ async function run(opts){
   // photo mode and prior quick answers keep the stable existing function.
   var clinicalPilot=customized.plan.mode==='deep'&&!!customized.plan.clinical&&!shot;
   if(clinicalPilot){
-   // v404: server intent detection must see the USER'S question, not the
-   // v393/I-06 style instructions appended to the model-facing question.
-   // The clinical server already owns the detailed narrative policy.
-   data.question=question;
    data.researchMode='clinical-v395';
-   print('🧪 Klinikai kutatás: az eredeti kérdés fókuszának ellenőrzése indul.');
+   print('🧪 Clinical Evidence v395: külön kétmenetes ellenőrzött kutatás indul.');
    print('📑 Első menet: szó szerinti PDF-bizonyítékok. Második: értelmezés, majd állításellenőrzés.');
   }else print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
   var aiRoute=clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
