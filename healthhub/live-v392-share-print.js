@@ -23,8 +23,7 @@ function answerText(record){
  if(!record||!['monika','zsolt'].includes(record.profile)||!clean(record.question)||!clean(record.answer))return '';
  return 'HEALTHHUB · ASK LÉNA\nProfil: '+profileName(record.profile)+
   (record.generatedAt?'\nIdőpont: '+record.generatedAt:'')+
-  '\n\nKÉRDÉS\n'+clean(record.question)+'\n\nLÉNA VÁLASZA\n'+clean(record.answer)+
-  (clean(record.sources)?'\n\nFORRÁSOK / ELLENŐRZÉSEK\n'+clean(record.sources):'');
+  '\n\nKÉRDÉS\n'+clean(record.question)+'\n\nLÉNA VÁLASZA\n'+clean(record.answer);
 }
 function printAnswerSections(record){
  // Render existing on-screen topic sections first: the current mobile UI
@@ -79,9 +78,7 @@ function printMarkup(record){
   'orphans:3;widows:3;overflow-wrap:anywhere}',
   '.chapter p+ p{margin-top:5px}',
   'ul{padding-left:20px;margin:7px 0 11px}',
-  '.sources{break-before:page;page-break-before:always;border-top:2px solid #bdd7df;',
-  'margin-top:24px;padding-top:15px;font-size:9pt;color:#365669}',
-  '.sources h2{font-size:13pt}.sources pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}',
+  '.source-note{border-top:1px solid #d9e4e9;margin-top:22px;padding-top:9px;font-size:8.5pt;color:#5a7281}',
   '.toolbar{margin-bottom:24px}.toolbar button{padding:10px 14px;border:1px solid #accbd2;',
   'background:#eaf6f7;border-radius:10px;color:#174961;font-weight:700}',
   '@media print{body{margin:0;padding:0;max-width:none;color:#173246}',
@@ -96,12 +93,9 @@ function printMarkup(record){
    (record.generatedAt?' · Elkészítve: '+html(record.generatedAt):'')+'</p></header>',
   '<div class="question"><div class="question-label">Kutatási kérdés</div>',
   '<p>'+html(record.question)+'</p></div>',
-  '<main>'+printAnswerSections(record)+'</main>'
+  '<main>'+printAnswerSections(record)+'</main>',
+  '<footer class="source-note">Az eredeti leletoldalak és a korábbi leletmagyarázatok a szövegben külön forrásként szerepelnek, amennyiben felhasználásra kerültek. Az AI-összefoglaló nem helyettesíti az orvosi dokumentációt.</footer>'
  ];
- if(clean(record.sources))parts.push(
-  '<section class="sources"><h2>Források és technikai ellenőrzések</h2>',
-  '<p>Az ellenőrzési napló nem helyettesíti a hivatkozott eredeti leleteket.</p>',
-  '<pre>'+html(record.sources)+'</pre></section>');
  parts.push('</body></html>');
  return parts.join('');
 }
