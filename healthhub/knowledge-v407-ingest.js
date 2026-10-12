@@ -94,8 +94,10 @@ async function readDocuments(p){
 }
 
 function rawText(items){
- return (items||[]).map(x=>typeof x.str==='string'?x.str:'').join(' ')
-  .replace(/[ \t]+/g,' ').replace(/\r/g,'').trim();
+ // Preserve the complete Unicode text layer and PDF.js line boundaries.
+ // Do not compress spaces or drop punctuation from medical tables.
+ return (items||[]).map(x=>(typeof x.str==='string'?x.str:'')+(x.hasEOL?'\n':' ')).join('')
+  .replace(/\r/g,'').trim();
 }
 function flags(page,lib){
  var ops=page&&page.fnArray||[],o=lib.OPS||{},images=0,paths=0;
@@ -228,7 +230,8 @@ async function extractDocument(p,file,bytes,docId){
     }
     var digest=text?await hash(new TextEncoder().encode(text)):null;
     await savePage(docId,p,{page_no:pageNo,page_text:text,extraction_method:method,
-      visual_candidate:visual,visual_hint:signal.hint,needs_review:needOcr||visual,
+      visual_candidate:visual,visual_hint:signal.hint,
+      needs_review:needOcr||visual||method==='ocr',
       text_sha256:digest});
     result.pagesIndexed++;
     if(needOcr){result.pagesNeedingOcr++;reasons.push('Nem kiolvasható oldal: '+pageNo)}
