@@ -93,7 +93,9 @@ object CollectorRemoteConfig {
     private fun checkTrialTimeout(context: Context, p: SharedPreferences) {
         if (!p.getBoolean(KEY_TRIAL, false)) return
         val start = p.getLong(KEY_TRIAL_START, 0L)
-        if (start > 0L && System.currentTimeMillis() - start > TRIAL_TIMEOUT_MS) {
+        val observationWindow = maxOf(TRIAL_TIMEOUT_MS,
+            (intervalHours(context) + 8L) * 60L * 60L * 1000L)
+        if (start > 0L && System.currentTimeMillis() - start > observationWindow) {
             rollback(context, p, "A próbakonfiguráció 12 órán belül nem igazolt sikeres feltöltést.")
         }
     }
