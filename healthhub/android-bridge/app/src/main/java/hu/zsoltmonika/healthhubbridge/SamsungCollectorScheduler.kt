@@ -50,7 +50,7 @@ object SamsungCollectorScheduler {
         )
     }
 
-    fun schedule(context: Context) {
+    fun schedule(context: Context, forceUpdate: Boolean = false) {
         val work = WorkManager.getInstance(context)
         if (!SamsungSdkDailyReader.available || !isEnabled(context)) {
             work.cancelUniqueWork(UNIQUE_WORK)
@@ -59,10 +59,15 @@ object SamsungCollectorScheduler {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-        val req = PeriodicWorkRequestBuilder<SamsungCollectorWorker>(4, TimeUnit.HOURS)
+        val hours = CollectorRemoteConfig.intervalHours(context)
+        val req = PeriodicWorkRequestBuilder<SamsungCollectorWorker>(hours, TimeUnit.HOURS)
             .setConstraints(constraints)
             .addTag(TAG)
             .build()
-        work.enqueueUniquePeriodicWork(UNIQUE_WORK, ExistingPeriodicWorkPolicy.KEEP, req)
+        work.enqueueUniquePeriodicWork(
+            UNIQUE_WORK,
+            if (forceUpdate) ExistingPeriodicWorkPolicy.UPDATE else ExistingPeriodicWorkPolicy.KEEP,
+            req
+        )
     }
 }
