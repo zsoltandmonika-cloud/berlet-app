@@ -219,6 +219,37 @@ async function checkCommand(force){
  }
 }
 
+var telemetryMirror305={},telemetryMirrorBusy305={};
+async function mirrorOneTelemetry305(d){
+ var t=d&&d.collectorTelemetry,service=window.HH_DAILY_HEALTH_SYNC_V319;
+ if(!d||d.deviceType!=='android'||!/^android-[0-9a-f-]{36}$/i.test(d.deviceId||'')||!['zsolt','monika'].includes(d.activeProfile)||
+    !t||t.schema!=='healthhub.collector.telemetry/1'||!t.healthConnect||!t.samsung)return false;
+ if(!service||typeof service.getStatus!=='function'||typeof service.request!=='function')return false;
+ var st=service.getStatus();
+ if(!st||!st.authenticated||(Array.isArray(st.authorizedProfiles)&&!st.authorizedProfiles.includes(d.activeProfile)))return false;
+ var date=Date.parse(t.reportedAt||'');
+ if(!Number.isFinite(date)||date<Date.UTC(2025,0,1)||date>Date.now()+5*60000)return false;
+ var allow=['schema','reportedAt','connectedToDropbox','healthConnect','samsung','remotePolicy'];
+ if(Object.keys(t).some(function(key){return !allow.includes(key)})||JSON.stringify(t).length>10500)return false;
+ var key=d.activeProfile+':'+d.deviceId,stamp=t.reportedAt;
+ if(telemetryMirror305[key]===stamp||telemetryMirrorBusy305[key])return false;
+ telemetryMirrorBusy305[key]=true;
+ try{
+  await service.request('/rest/v1/hh_collector_telemetry?on_conflict=profile_key,device_id',{
+   method:'POST',prefer:'resolution=merge-duplicates,return=minimal',
+   data:{profile_key:d.activeProfile,device_id:d.deviceId,reported_at:stamp,snapshot:t,mirrored_at:new Date().toISOString()}
+  });
+  telemetryMirror305[key]=stamp;return true;
+ }catch(e){
+  console.warn('Collector telemetry private Supabase mirror unavailable');
+  return false;
+ }finally{delete telemetryMirrorBusy305[key]}
+}
+async function mirrorTelemetry305(devices){
+ for(var d of (devices||[]).filter(function(x){return x&&x.collectorTelemetry}).slice(0,8)){
+  await mirrorOneTelemetry305(d);
+ }
+}
 async function loadDevices(){
  if(!connected())return[];
  await ensureFolders();
@@ -229,7 +260,10 @@ async function loadDevices(){
  var statuses=await Promise.all(ds.map(async function(d){try{return await download(statusPath(d.deviceId))}catch(e){return null}}));
  ds.forEach(function(d,i){d.status=statuses[i]||null});
  ds.sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
- deviceCache=ds;return ds;
+ deviceCache=ds;
+ // Private metadata mirror; never block Dropbox sync when Supabase is absent.
+ mirrorTelemetry305(ds).catch(function(){});
+ return ds;
 }
 function online(d){
  var age=Date.now()-Date.parse(d.lastSeenAt||0),limit=d.deviceType==='android'?20*60*1000:2.5*60*1000;
