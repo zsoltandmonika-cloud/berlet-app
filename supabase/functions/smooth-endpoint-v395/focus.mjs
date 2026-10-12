@@ -9,7 +9,7 @@ const PHASES={
  start:/(rosszullet|rosszul lett|osszees|szivmegall|kamrafibrill|eset kezdete|eszmeletveszt|elajul)/,
  rescue:/(ujraeleszt|defibrill|aed|cpr|mento|mellkaskompresszio|sokk)/,
  hospital:/(korhazi felvetel|intenziv osztaly|korhazi ellatas|kateter|szivultrahang|korhazi vizsgalat)/,
- intervention:/(beultet|implant|crt.d|pacemaker|ritmusszabalyozo|keszulek|mutet|beavatkozas)/,
+ intervention:/(beultet|implant|crt.d|pacemaker|ritmusszabalyozo|mutet|beavatkozas)/,
  discharge:/(hazabocsat|hazaenged|hazaadas|kienged|korhazbol haza|otthonaba tavoz|elbocsat|haza tavoz)/
 };
 const MEM=/(emlekezet|memoria|amnezi|emleksz|nem emleksz|emlekieses|emlekezes|kognitiv|neurolog)/;
@@ -48,9 +48,17 @@ export function evidencePhases(verified,secondary){
 export function narrativeCoverage(report,focus,available){
  const found=Object.fromEntries(LIMIT_PHASES.map(p=>[p,false]));
  const paras=(report?.sections||[]).flatMap(s=>(s.paragraphs||[])
-  .filter(p=>p&&['reported','documented'].includes(p.kind))
-  .map(p=>fold(p.text)));
- for(const phrase of paras)for(const p of LIMIT_PHASES)if(PHASES[p].test(phrase))found[p]=true;
+  .filter(p=>p&&['reported','documented'].includes(p.kind)));
+ for(const para of paras){
+  const phrase=fold(para.text),refs=Array.isArray(para.sourceIds)?para.sourceIds:[];
+  for(const phase of LIMIT_PHASES){
+   // A phase is covered only if the paragraph cites an already verified
+   // excerpt that actually mentions that phase. A random document reference
+   // attached to a plausible sentence is not timeline coverage.
+   if(PHASES[phase].test(phrase)&&refs.some(id=>(available.refs?.[phase]||[]).includes(id)))
+    found[phase]=true;
+  }
+ }
  const important=['start','rescue','hospital','intervention','discharge'].filter(p=>
   (p!=='start'||focus.explicitStart)&&(p!=='discharge'||focus.explicitEnd));
  const omitted=focus.chronology?important.filter(p=>available.availability[p]&&!found[p]):[];
