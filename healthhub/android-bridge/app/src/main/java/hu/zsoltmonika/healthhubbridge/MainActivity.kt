@@ -903,6 +903,7 @@ class MainActivity : ComponentActivity() {
         val hc = client ?: error("Health Connect nem elérhető")
         status.text = "Health Connect friss adatok beolvasása…"
         val json: JSONObject = HealthConnectExporter(hc).export(profile)
+        CollectorTelemetry.noteHealthRead(this, json)
         pendingJson = json.toString(2)
         saveButton.isEnabled = true
         val exporter = HealthConnectExporter(hc)
@@ -935,6 +936,7 @@ class MainActivity : ComponentActivity() {
             .remove(ResilientHealthSync.KEY_LAST_ERROR)
             .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
             .apply()
+        CollectorTelemetry.noteHealthUpload(this)
         ResilientHealthSync.schedule(this)
         status.text = "✓ Dropbox feltöltés kész · ${profileName(profile)} · " + summary +
             "\nForrásértékek ellenőrizve; ez a feltöltést igazolja, nem a webes megjelenítést."
