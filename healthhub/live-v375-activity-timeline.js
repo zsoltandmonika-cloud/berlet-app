@@ -8,7 +8,7 @@ function html(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retu
 function localDay(d){var x=new Date(d);return isNaN(+x)?'':x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')}
 function nn(v){return Number.isFinite(v)?Math.round(v).toLocaleString('hu-HU'):'—'}
 function shape(c,m){
- var now=new Date(),today=localDay(now);
+ var selected=window.hhActivity191State&&window.hhActivity191State.period==='1d'&&window.hhActivity191State.selectedDay; var now=selected?new Date(selected+'T12:00:00'):new Date(),today=selected||localDay(now);
  var hourly=new Array(24).fill(null),hrs=new Array(24).fill(null).map(function(){return []});
  (c.samsungHourlySteps||[]).forEach(function(r){var h=Number(r.hour),st=Number(r.steps);
   if(r.date===today&&Number.isInteger(h)&&h>=0&&h<24&&Number.isFinite(st)&&st>=0)hourly[h]=st;
