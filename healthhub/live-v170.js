@@ -297,6 +297,9 @@ function sleepFactorCards381(night,profile){
  var efficiencyTone=hhSleepEfficiency382(m&&m.efficiency);
  function share(n,base){return base>0?Math.round(n/base*100)+'%':'—'}
  function val(n){return n==null?'—':durText(n)}
+ // Display complete elapsed minutes for per-stage cards, without changing raw
+ // Health Connect intervals. Exact Samsung parity still requires phone comparison.
+ function stageVal(n){return n==null?'—':durText(Math.floor(n+1e-8))}
  function card(icon,name,value,status,tone,detail){
   return '<div class="hhSleepFactor381 hhSleepRag382 '+esc(tone)+'">'+
    '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+'</span><span>'+esc(name)+'</span></div>'+
@@ -317,10 +320,10 @@ function sleepFactorCards381(night,profile){
   score+expl+
   '<div class="hhSleepFactors381">'+
    card('💤','Tényleges alvás',val(m&&m.actual),durationTone.label,durationTone.tone,'Mért alvás, ébrenlét nélkül')+
-   card('🌑','Mély alvás',hasStages?val(mins[5]):'—',hasStages?share(mins[5],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
-   card('🌙','REM alvás',hasStages?val(mins[6]):'—',hasStages?share(mins[6],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
-   card('👁️','Ébrenlét',hasStages?val(mins[1]):'—',efficiencyTone.label,efficiencyTone.tone,'Alváshatékonyság: '+(m&&m.efficiency!=null?Math.round(m.efficiency*100)+'%':'—'))+
-   card('☁️','Könnyű alvás',hasStages?val(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   card('🌑','Mély alvás',hasStages?stageVal(mins[5]):'—',hasStages?share(mins[5],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   card('🌙','REM alvás',hasStages?stageVal(mins[6]):'—',hasStages?share(mins[6],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+   card('👁️','Ébrenlét',hasStages?stageVal(mins[1]):'—',efficiencyTone.label,efficiencyTone.tone,'Alváshatékonyság: '+(m&&m.efficiency!=null?Math.round(m.efficiency*100)+'%':'—'))+
+   card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
    (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
    (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')+
   '</div><p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
@@ -329,44 +332,36 @@ function sleepOverview(rows){
  if(!rows.length)return '<div class="hhSleepEmpty big">Nincs szinkronizált alvásadat.</div>';
  var night=hhLatestNight(rows),m=hhSleepMetrics382(night);
  var windowMins=m&&m.windowMin,actual=m&&m.actual;
- var from24=Date.now()-24*3600000,rolling=hhSleepOverlaps(hhSleepIntervals(rows),from24,Date.now());
- var hasRecent=rows.some(function(x){return Date.parse(x.endTime)>from24&&Date.parse(x.startTime)<Date.now()});
- var recentMinutes=hasRecent?rolling:null;
  function card(title,value,details,state){
   return '<div class="hhSleepStat363 hhSleepRag382 '+esc(state)+'"><small>'+title+'</small><b>'+value+'</b><span>'+details+'</span></div>';
  }
+ // The last night is directly tied to one verifiable time range. Do not silently
+ // mix in earlier rolling-24h intervals until their exact record origins are shown.
  return '<div class="hhSleepOverview363 hhSleepOverview382">'+
   card('💤 ALVÁSI IDŐSZAK',windowMins==null?'—':durText(windowMins),esc(fmtTime(night.startTime)+'–'+fmtTime(night.endTime)),'muted')+
-  card('🕒 UTOLSÓ 24 ÓRA',recentMinutes==null?'—':durText(recentMinutes),'Mért alvás 24 óra alatt',hhSleepTone382(recentMinutes).tone)+
+  card('🌙 TÉNYLEGES ALVÁS',actual==null?'—':durText(actual),'Ébrenlét nélkül · utolsó éjszaka',hhSleepTone382(actual).tone)+
   '</div>';
 }
 // A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
 function sleepLenaComment(rows,profile){
  if(!rows.length)return'';
- var to=Date.now(),from=to-24*3600000;
- var recent=rows.filter(function(x){return Date.parse(x.endTime)>from&&Date.parse(x.startTime)<to});
- var mins=hhSleepOverlaps(hhSleepIntervals(recent),from,to);
- var healthy=recent.length&&mins>=15;
- var firstName=profile==='monika'?'Mónika':'Zsolt';
- var icon='😶',title='Kevés adat',msg='Még nem látok elegendő alvásadatot a biztosabb értékeléshez. Előbb nézzük meg a szinkront.';
- if(!healthy&&recent.length===0){icon='🔄';title='Friss alvásadat hiányzik';msg='A legutóbbi 24 órából nem érkezett alvásmérés. Ez adatkapcsolati hiány, nem a tényleges alvásod értékelése.'}
- else if(healthy&&mins<360){icon='😴';title='Pihenésre fel!';msg=firstName+', az elmúlt 24 órában '+durText(mins)+' alvást látok. Ez kevésnek tűnik; ha teheted, ma adj több időt a pihenésnek.'}
- else if(healthy&&mins<420){icon='🙂';title='Van még tartalék';msg=firstName+', most '+durText(mins)+' jött össze 24 óra alatt. Egy kicsivel hosszabb éjszaka segíthet a napközbeni energiaszinten.'}
- else if(healthy&&mins<=540){icon='😌';title='Jól néz ki';msg=firstName+', '+durText(mins)+' pihenés már egész biztató. Remélhetőleg az energiaszinted is hálás lesz érte.'}
- else if(healthy){icon='🌙';title='Hosszabb pihenés';msg=firstName+', '+durText(mins)+' alvást rögzítettem. Ha ez szokatlan, az alvásminőséget és a közérzetet is érdemes figyelni.'}
- // Stage-aware explanation, never a replacement for Samsung's own proprietary sleep score.
- if(healthy){
-  var latestNight=hhLatestNight(recent),stages=latestNight&&latestNight.stages||[];
-  if(stages.length){
-   var stageMins={deep:0,rem:0,awake:0};
-   stages.forEach(function(st){
-    var k=Number(st.stage),m=durMin(st.startTime,st.endTime);
-    if(k===5)stageMins.deep+=m;
-    else if(k===6)stageMins.rem+=m;
-    else if(k===1||k===3||k===7)stageMins.awake+=m;
-   });
-   msg+=' A Health Connect fázisadataiban '+durText(stageMins.deep)+' mély, '+durText(stageMins.rem)+' REM és '+durText(stageMins.awake)+' ébrenléti idő látszik. A HealthRadar saját alvásindexe tájékoztató jellegű, nem Samsung-pontszám.';
-  }
+ var night=hhLatestNight(rows),measured=hhSleepMetrics382(night);
+ var mins=measured&&measured.actual,healthy=mins!=null&&mins>=15;
+ var name=profile==='monika'?'Mónika':'Zsolt';
+ var icon='😶',title='Kevés adat',msg='Az utolsó éjszakáról még nincs elég fázisadat a tényleges alvás megállapításához.';
+ if(healthy&&mins<360){icon='😴';title='Pihenésre fel!';msg=name+', az utolsó éjszaka '+durText(mins)+' tényleges alvást mértem. Ez kevésnek tűnik; ha teheted, ma adj több időt a pihenésnek.'}
+ else if(healthy&&mins<420){icon='🙂';title='Van még tartalék';msg=name+', az utolsó éjszaka '+durText(mins)+' tényleges alvást látok. Egy hosszabb éjszaka segíthet a regenerációban.'}
+ else if(healthy&&mins<=540){icon='😌';title='Jól néz ki';msg=name+', az utolsó éjszaka '+durText(mins)+' tényleges alvást rögzítettem. Figyeld meg, mennyire érzed magad kipihentnek.'}
+ else if(healthy){icon='🌙';title='Hosszabb pihenés';msg=name+', az utolsó éjszaka '+durText(mins)+' tényleges alvást rögzítettem. Ha ez szokatlan, a közérzetedet is érdemes figyelni.'}
+ if(healthy&&night&&Array.isArray(night.stages)&&night.stages.length){
+  var stageMins={deep:0,rem:0,awake:0};
+  night.stages.forEach(function(st){
+   var k=Number(st.stage),m=durMin(st.startTime,st.endTime);
+   if(k===5)stageMins.deep+=m;
+   else if(k===6)stageMins.rem+=m;
+   else if(k===1||k===3||k===7)stageMins.awake+=m;
+  });
+  msg+=' A Health Connect fázisadataiban '+durText(Math.floor(stageMins.deep+1e-8))+' mély, '+durText(Math.floor(stageMins.rem+1e-8))+' REM és '+durText(Math.floor(stageMins.awake+1e-8))+' ébrenléti idő látszik. A HealthRadar saját alvásindexe tájékoztató jellegű, nem Samsung-pontszám.';
  }
  return '<aside class="hhSleepLena364" aria-label="Léna gyors alvásértékelése"><div class="hhSleepMood364">'+icon+'</div><div class="hhSleepLenaText364"><b>💬 Léna · '+esc(title)+'</b><p>'+esc(msg)+'</p><small>⌚ Óraadatokból készült becslés, nem alvásdiagnózis.</small></div></aside>';
 }
