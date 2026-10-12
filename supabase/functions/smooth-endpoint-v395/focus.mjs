@@ -67,6 +67,11 @@ function recoveryHeading(s){
  return /(felepul|hazabocsat|hazater|korhazi napok|ebredes|otthoni|allapot|utokezel|tavozas)/.test(fold(s));
 }
 function isMemoryHeading(s){return MEM.test(fold(s))}
+function dedicatedMemoryParagraph(s){
+ const t=fold(s),mentions=(t.match(/emlekezet|memoria|amnezi|emleksz|kognitiv|neurolog/g)||[]).length;
+ return mentions>0&&(mentions>=2&&t.length>195||
+  /^(az? )?(emlekezet|memoria|amnezi|kognitiv|neurolog)/.test(t)&&t.length>210);
+}
 export function enforceContextRelevance(report,focus){
  if(!report||!Array.isArray(report.sections))throw Error('focus_invalid_audited_report');
  if(!focus?.chronology||focus.explicitMemory)
@@ -75,8 +80,9 @@ export function enforceContextRelevance(report,focus){
  const sections=report.sections.map(s=>({...s,paragraphs:(s.paragraphs||[]).map(p=>({...p}))}));
  let stored=null,trimmed=0;
  for(const sec of sections){
-  if(!isMemoryHeading(sec.heading))continue;
-  const memory=(sec.paragraphs||[]).filter(p=>p&&MEM.test(fold(p.text)));
+  const wholeSection=isMemoryHeading(sec.heading);
+  const memory=(sec.paragraphs||[]).filter(p=>p&&MEM.test(fold(p.text))&&
+   (wholeSection||dedicatedMemoryParagraph(p.text)));
   if(!memory.length)continue;
   trimmed+=Math.max(0,memory.length-1);
   if(!stored){
@@ -85,7 +91,10 @@ export function enforceContextRelevance(report,focus){
     stored={...memory[0],text:snippet};trimmed+=snippet!==memory[0].text?1:0;
    }else trimmed++;
   }else trimmed+=memory.length;
-  sec.paragraphs=[]; // no separate unsolicited memory essay
+  // Preserve non-memory recovery/clinical facts even if the model used a
+  // mixed heading such as "Ébredés és emlékezet". Never erase these facts.
+  sec.paragraphs=sec.paragraphs.filter(p=>!memory.includes(p));
+  if(wholeSection&&sec.paragraphs.length)sec.heading='A felépülés további eseményei';
  }
  let cleaned=sections.filter(s=>s.paragraphs.length>0);
  let briefMentions=0;
