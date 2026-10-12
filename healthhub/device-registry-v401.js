@@ -109,6 +109,8 @@ async function saveChange(action,dev){
    if(next.activePhones[d.activeProfile]===d.deviceId&&!next.archived.includes(d.deviceId))return;
    if(!confirm('Biztosan a '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' profil fő telefonja legyen ez a készülék?\nAzonosító: '+d.deviceId))return;
    next.activePhones[d.activeProfile]=d.deviceId;
+   var other=d.activeProfile==='zsolt'?'monika':'zsolt';
+   if(next.activePhones[other]===d.deviceId)next.activePhones[other]=null;
    next.archived=next.archived.filter(function(x){return x!==d.deviceId});
   }else if(action==='archive'){
    if(Object.values(next.activePhones).includes(d.deviceId))throw Error('A kijelölt fő telefon nem archiválható. Előbb válassz másikat.');
@@ -170,6 +172,7 @@ function attach(){
 }
 window.hhDeviceRegistry401={
  isSelected:function(d){return chosen(d)},
+ ensureSelected:async function(d){return chosen(d,await read())},
  reload:refresh,
  registry:function(){return registry}
 };
