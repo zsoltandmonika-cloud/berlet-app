@@ -532,7 +532,13 @@ async function run(opts){
    print('🧪 Clinical Evidence v395: külön kétmenetes ellenőrzött kutatás indul.');
    print('📑 Első menet: szó szerinti PDF-bizonyítékok. Második: értelmezés, majd állításellenőrzés.');
   }else print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
-  var aiRoute=clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
+  // Explicit opt-in ONLY: normal HealthHub still calls unchanged v403.
+  // Query switch exists solely for controlled Golden Standard comparison.
+  var narrativeQAMode=clinicalPilot&&typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhNarrativeQA')==='v405';
+  var aiRoute=narrativeQAMode?'/functions/v1/smooth-endpoint-v405-preview':
+   clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
+  if(narrativeQAMode)print('🧪 v405 kísérleti próba: alapja v403, a fókuszszűrő csak ellenőrzés után használható.');
   var response=await svc.stream(aiRoute,data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
@@ -569,6 +575,11 @@ async function run(opts){
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
+    if(narrativeQAMode){
+     el('hhAi331Foot').textContent='🧪 KÍSÉRLETI v405 · '+el('hhAi331Foot').textContent+
+       ' · narratív-fókusz: '+safe(audit&&audit.qaFocusMode||'nincs válasz',40)+
+       ' · védelem: '+safe(audit&&audit.qaFocusReason||'ismeretlen',55);
+    }
     var proof=clinicalEngine.createPanel(clinical,p);
     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     print('AI-kutatás befejeződött.');return}
