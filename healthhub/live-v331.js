@@ -534,11 +534,13 @@ async function run(opts){
   }else print(shot?'📷 A kép és az egészségügyi adatok együttes elemzése…':'A kérdés elemzése és a válasz készítése…');
   // Explicit opt-in ONLY: normal HealthHub still calls unchanged v403.
   // Query switch exists solely for controlled Golden Standard comparison.
-  var narrativeQAMode=clinicalPilot&&typeof URLSearchParams==='function'&&
-   new URLSearchParams(window.location.search).get('hhNarrativeQA')==='v405';
-  var aiRoute=narrativeQAMode?'/functions/v1/smooth-endpoint-v405-preview':
+  var narrativeQAVersion=clinicalPilot&&typeof URLSearchParams==='function'?
+   new URLSearchParams(window.location.search).get('hhNarrativeQA'):'';
+  var narrativeQAMode=narrativeQAVersion==='v405'||narrativeQAVersion==='v406';
+  var aiRoute=narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
+   narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
-  if(narrativeQAMode)print('🧪 v405 kísérleti próba: alapja v403, a fókuszszűrő csak ellenőrzés után használható.');
+  if(narrativeQAMode)print('🧪 '+narrativeQAVersion+' kísérleti ellenőrzés: az éles v403 válaszmotor változatlan.');
   var response=await svc.stream(aiRoute,data,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
@@ -576,9 +578,14 @@ async function run(opts){
       ' · '+qualityResult.message+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
     if(narrativeQAMode){
-     el('hhAi331Foot').textContent='🧪 KÍSÉRLETI v405 · '+el('hhAi331Foot').textContent+
+     el('hhAi331Foot').textContent='🧪 KÍSÉRLETI '+narrativeQAVersion+' · '+el('hhAi331Foot').textContent+
        ' · narratív-fókusz: '+safe(audit&&audit.qaFocusMode||'nincs válasz',40)+
-       ' · védelem: '+safe(audit&&audit.qaFocusReason||'ismeretlen',55);
+       ' · védelem: '+safe(audit&&audit.qaFocusReason||'ismeretlen',55)+
+       (narrativeQAVersion==='v406'?
+        ' · Történetellenőrzés: '+safe(audit&&audit.qaStoryReason||'nincs eredmény',60)+
+        ' · forráshoz kötött bekezdés: '+Number(audit&&audit.qaStoryGrounded||0)+
+        ' · hiányzó, forrással rendelkezésre álló szakaszok: '+Number((audit&&audit.qaStoryMissingStages||[]).length)+
+        ' · forrásalapú pótlás: '+(audit&&audit.qaSourceFallbackUsed?'igen':'nem'):'');
     }
     var proof=clinicalEngine.createPanel(clinical,p);
     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
