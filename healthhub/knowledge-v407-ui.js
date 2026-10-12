@@ -76,7 +76,7 @@ function draw(){
  buttons.forEach(b=>{b.disabled=!!s.running&&b.dataset.kb!=='stop'||!s.running&&b.dataset.kb==='stop'});
 }
 function handleClick(e){
- var b=e.target.closest('button[data-kb]');if(!b||busy)return;
+ var b=e.target.closest('button[data-kb]');if(!b||(busy&&b.dataset.kb!=='stop'))return;
  var op=b.dataset.kb;
  if(op==='audit')runAudit();
  if(op==='start')runFull();
@@ -103,3 +103,90 @@ async function runFull(){
  catch(e){show('⚠️ Feldolgozás: '+String(e.message||e).slice(0,140))}
  finally{busy=false;draw()}
 }
+
+async function search(){
+ var svc=service(),root=resultRoot(),p=profile(),query=String(el('hhKb407Query')?.value||'').trim();
+ if(!root)return;
+ clearImages();root.textContent='';
+ if(!query||query.length<3){root.textContent='Legalább 3 karaktert írj a kereséshez.';return}
+ if(!auth()){root.textContent='🔒 Bejelentkezés szükséges.';return}
+ try{
+  // Indexed PAGE content, not filename-only search. RLS protects all pages.
+  var rows=await svc.request('/rest/v1/hh_kb_pages?select=document_id,page_no,page_text,hh_kb_documents!inner(original_name,profile_key,source_class,status)&'+
+   'hh_kb_documents.profile_key=eq.'+p+'&page_text=fts.'+encodeURIComponent(query)+
+   '&limit=30',{method:'GET'});
+  if(!rows?.length){root.textContent='Nem találtam egyezést a már feldolgozott dokumentumoldalakban.';return}
+  rows.forEach(row=>{
+   var card=document.createElement('div');card.className='kbResult';
+   var h=document.createElement('strong');h.textContent=row.hh_kb_documents?.original_name||'Dokumentum';
+   var desc=document.createElement('small');desc.textContent='📄 '+row.page_no+'. oldal · Forrás: '+
+    (row.hh_kb_documents?.source_class||'ellenőrizendő')+' · Állapot: '+(row.hh_kb_documents?.status||'');
+   var snippet=document.createElement('p');snippet.textContent=String(row.page_text||'').slice(0,550)+
+    (String(row.page_text||'').length>550?'…':'');
+   var button=document.createElement('button');button.dataset.kb='list-images';button.dataset.doc=row.document_id;
+   button.textContent='🖼️ Oldalképek';
+   card.append(h,desc,snippet,button);root.appendChild(card);
+  });
+ }catch(e){root.textContent='Keresési hiba: '+String(e.message||e).slice(0,130)}
+}
+async function listGallery(){
+ var p=profile(),root=resultRoot();if(!root)return;
+ root.textContent='🫀 Képi mellékletek ellenőrzése…';clearImages();
+ try{
+  var docs=await service().request('/rest/v1/hh_kb_documents?select=id,original_name,visual_pages,status,source_class'+
+   '&profile_key=eq.'+p+'&visual_pages=gt.0&order=updated_at.desc&limit=60',{method:'GET'});
+  root.textContent='';
+  if(!docs.length){root.textContent='Még nincs feldolgozott képi melléklet. Indítsd a teljes feldolgozást.';return}
+  for(const doc of docs){
+   var div=document.createElement('div');div.className='kbResult';
+   var h=document.createElement('strong');h.textContent='🫀 '+doc.original_name;
+   var label=document.createElement('small');
+   label.textContent=doc.visual_pages+' képi oldal · '+doc.source_class+' · EKG-azonosítás ellenőrzendő';
+   var btn=document.createElement('button');btn.dataset.kb='list-images';btn.dataset.doc=doc.id;
+   btn.textContent='🔎 Képek megnyitása';
+   div.append(h,label,btn);root.appendChild(div);
+  }
+ }catch(e){root.textContent='Képtárhiba: '+String(e.message||e).slice(0,130)}
+}
+async function listForDoc(docId){
+ var p=profile(),root=resultRoot();
+ if(!root)return;clearImages();root.textContent='🖼️ Privát oldalképek betöltése…';
+ try{
+  var rows=await engine().listVisuals(p,docId);
+  root.textContent='';
+  if(!rows.length){root.textContent='Ehhez a dokumentumhoz még nincs feldolgozott képi oldal.';return}
+  var info=document.createElement('small');info.textContent=
+   'A képek eredeti dokumentumoldal-kivonatok. Az EKG minősítés orvosi felülvizsgálatra vár.';
+  root.appendChild(info);
+  for(const r of rows.slice(0,40)){
+   var box=document.createElement('div');box.className='kbResult';
+   var text=document.createElement('span');text.textContent='📄 '+r.page_no+'. oldal · '+r.kind;
+   var b=document.createElement('button');b.dataset.kb='open-image';b.dataset.doc=docId;
+   b.dataset.page=String(r.page_no);b.textContent='🔍 Oldal mutatása';
+   box.append(text,b);root.appendChild(box);
+  }
+ }catch(e){root.textContent='A képek nem érhetők el: '+String(e.message||e).slice(0,130)}
+}
+async function openVisual(docId,page){
+ var p=profile(),root=resultRoot();if(!root)return;
+ try{
+  var rows=await engine().listVisuals(p,docId);
+  var row=rows.find(r=>String(r.page_no)===String(page));
+  if(!row)throw Error('Nincs ilyen oldalkép.');
+  var blob=await engine().imageBlob(p,row.storage_path);
+  var url=URL.createObjectURL(blob);urls.push(url);
+  var box=document.createElement('div');box.className='kbResult';
+  var h=document.createElement('strong');h.textContent='📄 '+page+'. oldal · Eredeti oldal képe';
+  var im=document.createElement('img');im.src=url;im.alt='Orvosi dokumentum '+page+'. oldalának képe';
+  box.append(h,im);root.prepend(box);
+ }catch(e){root.textContent='Képmegnyitási hiba: '+String(e.message||e).slice(0,130)}
+}
+window.addEventListener('healthhub:kb-progress',draw);
+window.addEventListener('healthhub:profile-changed',()=>{clearImages();statusText='';mount();draw()});
+window.addEventListener('healthhub:lena-archive-state',()=>{mount();draw()});
+window.addEventListener('healthhub:lena-context-updated',()=>{mount();draw()});
+window.addEventListener('healthhub:central-auth-changed',()=>{mount();draw()});
+window.addEventListener('focus',()=>{mount();draw()});
+[150,950,2900,7000].forEach(ms=>setTimeout(mount,ms));
+window.HH_KB_UI_V407={mount:mount,audit:runAudit,openGallery:listGallery};
+})();
