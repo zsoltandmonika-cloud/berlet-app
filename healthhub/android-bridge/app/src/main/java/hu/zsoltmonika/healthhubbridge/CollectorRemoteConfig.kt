@@ -162,6 +162,18 @@ object CollectorRemoteConfig {
         return "trial-revision-$next"
     }
 
+    /** Safe, low-cardinality diagnostic reason; no remote payload or token is logged. */
+    fun notePollFailure(context: Context, reason: String) {
+        val code = when {
+            "profil" in reason.lowercase() || "telefon" in reason.lowercase() -> "profile"
+            "séma" in reason.lowercase() || "konfiguráció" in reason.lowercase() -> "schema"
+            "lejárt" in reason.lowercase() || "jövőbeli" in reason.lowercase() -> "expiration"
+            "revízió" in reason.lowercase() || "gyakoriság" in reason.lowercase() -> "policy"
+            else -> "network-or-other"
+        }
+        prefs(context).edit().putString(KEY_REASON, "Távoli konfiguráció: " + code).apply()
+    }
+
     /** Only a VERIFIED uploaded Samsung payload can mark a remote config as stable. */
     fun onVerifiedUpload(context: Context) {
         val p = prefs(context)
