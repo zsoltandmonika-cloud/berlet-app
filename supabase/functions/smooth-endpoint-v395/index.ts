@@ -170,8 +170,42 @@ function streamClinicalV395(key:string,question:string,profile:string,documents:
      })}
     ],8500,140000);
     stage("Kimeneti ellenőrzés: oldalszámok, igazolt időtartamok és hivatkozások auditálása…");
-    const audited=auditClinicalDraft(draft,originals,verified,summaries,summaryVerified);
-    const text=formatClinicalAnswer(audited,originals,summaries);
+    let audited=auditClinicalDraft(draft,originals,verified,summaries,summaryVerified);
+    let text=formatClinicalAnswer(audited,originals,summaries);
+    // Narrative is a first-class deliverable. If rich sourced material leads
+    // to a skeletal answer, retry ONCE with exactly the same verified facts.
+    // A second attempt cannot add clinical evidence or relax citation checks.
+    const sourcedFacts=verified.facts.length+summaryVerified.facts.length;
+    let retryUsed=false;
+    if(sourcedFacts>=5&&(text.length<850||audited.sections.length<3)){
+     stage("Túl rövid történet: egyszeri forráshű narratív újraszerkesztés…");
+     try{
+      const reDraft=await upstreamJson(key,[
+       {role:"system",content:clinicalInstruction+" "+
+        "FONTOS MÁSODIK PRÓBA: A korábbi változat a rendelkezésre álló forrásokhoz képest túl rövid volt. "+
+        "Írj 4-8 valódi, időrendileg indokolt fejezetet, ha a tényjelöltek ezt lehetővé teszik. "+
+        "Minden személyes állítást KIZÁRÓLAG egyetlen forrásrétegből idézett D vagy S sourceIds igazoljon. "+
+        "Csak kind=documented/D és kind=reported/S bekezdést használj személyes tényhez; "+
+        "a S tényeket a korábbi HealthHub-összefoglalónak tulajdonítsd. "+
+        "A text mezőbe NE írj [S1] vagy [D1:p3] hivatkozást: erre a sourceIds tömb szolgál. "+
+        "A forrásban nem szereplő konkrét számot, nevet vagy dátumot ne állíts, "+
+        "egy kétes állítás helyett fogalmazz meg világos általános magyarázatot."},
+       {role:"user",content:JSON.stringify({question,profile,
+        verifiedFacts:verified.facts,summaryFacts:summaryVerified.facts,
+        eventCandidates:buildEventCandidates(verified),
+        summaryEventCandidates:buildEventCandidates(summaryVerified),
+        previousAudit:{retainedParagraphs:audited.stats.documented+audited.stats.reported,
+         excludedParagraphs:audited.stats.demoted},
+        objective:"Összefüggő, megbízható, forrásrétegekhez kötött történet."})}
+      ],9000,140000);
+      const second=auditClinicalDraft(reDraft,originals,verified,summaries,summaryVerified);
+      const secondText=formatClinicalAnswer(second,originals,summaries);
+      retryUsed=true;
+      if(secondText.length>text.length&&secondText.length<=MAX_DEEP_OUTPUT){
+       audited=second;text=secondText;
+      }
+     }catch(e){stage("A második narratív változat nem lett felhasználva; a korábbi, auditált válasz marad.");}
+    }
     if(text.length<40||text.length>MAX_DEEP_OUTPUT)throw Error("clinical_answer_invalid_length");
     if(!audited.sections.length)throw Error("clinical_no_sections");
     stage("Forrásellenőrzés kész: "+verified.facts.length+" eredeti PDF-tény, "+summaryVerified.facts.length+" idézett másodlagos állítás, "+audited.stats.demoted+" nem igazolható bekezdés kihagyva.");
@@ -181,6 +215,8 @@ function streamClinicalV395(key:string,question:string,profile:string,documents:
      evidenceAudit:{mode:"clinical-v395",sourcePages:originals.length,verifiedFacts:verified.facts.length,
       summaryFacts:summaryVerified.facts.length,summaryParagraphs:audited.stats.reported,
       summarySourceCount:summaries.length,summaryRejected:summaryVerified.rejected,
+      narrativeCharacters:text.length,narrativeSections:audited.sections.length,
+      narrativeRetryUsed:retryUsed,
       rejectedExtracted:verified.rejected,checkedParagraphs:audited.stats.paragraphs,
       unverifiedDowngraded:audited.stats.demoted,
       unsupportedDurations:audited.stats.unsupportedDurations,
