@@ -74,7 +74,9 @@ class OrchestratorWorker(
             .put("otaLastError", OtaUpdateManager.lastError(applicationContext) ?: JSONObject.NULL)
             .put("profileCapability", profiles)
             .put("activeProfile", owner ?: JSONObject.NULL)
-            .put("capabilities", JSONArray().put("health").put("daily"))
+            .put("capabilities", JSONArray().put("health").put("daily").put("ota")
+                .put("diagnostics").put("retry")
+                .also { if (SamsungSdkDailyReader.available && SamsungCollectorScheduler.isEnabled(applicationContext)) it.put("samsung") })
             .put("lastSeenAt", java.time.Instant.now().toString())
             .put("lastHealthSyncAt",
                 prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L).takeIf { it > 0L }?.let {
