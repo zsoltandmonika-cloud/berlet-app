@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {chooseNonRegressingFocus} from './focus-guard-v405.mjs';
+import {chooseNonRegressingFocus,extractOriginalQuestion} from './focus-guard-v405.mjs';
 import {narrativeCoverage,analyzeQuestionIntent,evidencePhases} from './focus.mjs';
 import {auditClinicalDraft,formatClinicalAnswer} from './audit.mjs';
 let passes=0;
@@ -116,5 +116,11 @@ t('roundtrip audit -> focus guard -> output retains source notice',()=>{
  const focused=chooseNonRegressingFocus(question,report,original,secondary);
  const txt=formatClinicalAnswer(focused.report,[],summaries);
  assert.match(txt,/hazabocsátása/);assert.match(txt,/Másodlagos forrás/);
+});
+t('model-only style instructions cannot masquerade as explicit user memory questions',()=>{
+ const augmented=question+'\\n\\n[KUTATÁSI ELV: HealthHub · személyre szabott történet] Az emlékezetzavar és amnézia magyarázata.\\n\\n[I-06 · Válaszstílus] Klinikai kérdés.';
+ assert.equal(extractOriginalQuestion(augmented),question);
+ const x=chooseNonRegressingFocus(augmented,complete,original,secondary);
+ assert.equal(x.status.mode,'v405_focus_preview',JSON.stringify(x.status));
 });
 console.log('OK '+passes+' narrative nonregression tests');
