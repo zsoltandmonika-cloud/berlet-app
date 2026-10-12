@@ -107,9 +107,11 @@ object CollectorTelemetry {
     }
 
     /** Only call after confirmed Dropbox upload + readback. */
-    fun noteSamsungUpload(context: Context) {
+    fun noteSamsungUpload(context: Context, fromScheduledWorker: Boolean = false) {
         p(context).edit().putLong(SAMSUNG_UPLOAD, System.currentTimeMillis()).apply()
-        CollectorRemoteConfig.onVerifiedUpload(context)
+        // A manual upload is not evidence that a remotely changed periodic
+        // schedule ran unattended. Only the real background worker can approve it.
+        if (fromScheduledWorker) CollectorRemoteConfig.onVerifiedUpload(context)
     }
 
     /**
