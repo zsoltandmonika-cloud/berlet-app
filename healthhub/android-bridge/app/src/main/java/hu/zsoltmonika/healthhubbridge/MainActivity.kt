@@ -335,6 +335,7 @@ class MainActivity : ComponentActivity() {
             try {
                 status.text = "Samsung Health: egyszeri hozzájárulás és valódi adatok olvasása…"
                 val payload = SamsungSdkDailyReader.collect(this@MainActivity, owner)
+                CollectorTelemetry.noteSamsungRead(this@MainActivity, payload)
                 val rows = payload.optJSONObject("records")?.optJSONArray("dailySummary")
                 val validDayCount = rows?.length() ?: 0
                 check(deviceOwnerProfile() == owner &&
@@ -370,6 +371,7 @@ class MainActivity : ComponentActivity() {
                         "Samsung Dropbox feltöltés visszaellenőrzése sikertelen."
                     }
                     prefs.edit().putLong("samsung_collector_last_success_ms", System.currentTimeMillis()).apply()
+                    CollectorTelemetry.noteSamsungUpload(this@MainActivity)
                 }
                 SamsungCollectorScheduler.setEnabled(this@MainActivity, true)
                 prefs.edit().remove("samsung_collector_last_error").apply()
