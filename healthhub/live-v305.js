@@ -341,6 +341,60 @@ function ensureStyle(){
  document.head.appendChild(s);
 }
 var telemetryOpen305=new Set();
+// Red / Amber / Green status derived from READ and VERIFIED UPLOAD times,
+// not from the mere freshness of a heartbeat or a file export timestamp.
+function rag305(type,d){
+ var t=d&&d.collectorTelemetry||{},src=type==='samsung'?t.samsung:t.healthConnect;
+ if(type==='phone'){
+  if(!d||!d.lastSeenAt)return {level:'unknown',label:'Nincs jelentkezés'};
+  var seen=Date.now()-Date.parse(d.lastSeenAt);
+  if(!Number.isFinite(seen)||seen<0)return {level:'unknown',label:'Időbélyeg hibás'};
+  if(seen<=45*60000)return {level:'green',label:'Kapcsolódott'};
+  if(seen<=8*3600000)return {level:'amber',label:'Késik a jelzés'};
+  return {level:'red',label:'Régóta nem jelentkezett'};
+ }
+ if(type==='dropbox'){
+  if(!t||t.schema!=='healthhub.collector.telemetry/1')return {level:'unknown',label:'Nincs telemetria'};
+  if(t.connectedToDropbox===false)return {level:'red',label:'Újraengedélyezés kell'};
+  if(t.connectedToDropbox!==true)return {level:'unknown',label:'Ismeretlen kapcsolat'};
+  return rag305('phone',d).level==='green'?{level:'green',label:'Kapcsolat jelentve'}:
+   {level:'amber',label:'Kapcsolat állapota régi'};
+ }
+ if(!src||typeof src!=='object')return {level:'unknown',label:'Nincs diagnosztika'};
+ if(type==='samsung'&&src.sdkIncluded===false)return {level:'unknown',label:'SDK még nincs'};
+ if(src.autoEnabled===false)return {level:'unknown',label:'Automatika kikapcsolva'};
+ if(src.needsUserAction===true)return {level:'red',label:'Telefonos jóváhagyás kell'};
+ if(src.errorKind&&src.errorKind!=='none')return {level:'red',label:'Hiba: '+src.errorKind};
+ var stamp=src.lastVerifiedUploadAt||src.lastUploadAt||null;
+ if(!stamp)return {level:'amber',label:'Még nincs feltöltés'};
+ var age=Date.now()-Date.parse(stamp);
+ if(!Number.isFinite(age)||age<0)return {level:'unknown',label:'Időbélyeg hibás'};
+ if(age>24*3600000)return {level:'red',label:'24 óránál régebbi'};
+ if(age>8*3600000)return {level:'amber',label:'Késő feltöltés'};
+ var readAge=Date.now()-Date.parse(src.lastReadAt||'');
+ if(!Number.isFinite(readAge)||readAge<0||readAge>8*3600000)return {level:'amber',label:'Olvasás ellenőrzendő'};
+ var day=Date.parse((src.latestDataDay||'')+'T23:59:59Z');
+ if(!Number.isFinite(day)||Date.now()-day>48*3600000)return {level:'amber',label:'Mérés dátuma régi'};
+ return {level:'green',label:'Friss olvasás és feltöltés'};
+}
+function ragBadge305(name,state){
+ var level=state&&state.level||'unknown',label=state&&state.label||'Nem ismert';
+ return '<span class="hhRag305 '+level+'" title="'+esc(label)+'"><i aria-hidden="true"></i>'+
+  '<b>'+esc(name)+'</b> '+esc(label)+'</span>';
+}
+function remoteActions305(d,selected){
+ if(d.deviceType!=='android')return '';
+ var caps=Array.isArray(d.capabilities)?d.capabilities:[],disabled=selected?'':' disabled title="Előbb jelöld ki a fizikai telefont az Eszközregiszterben"';
+ var buttons=[
+  ['health','❤️ HC SYNC'],['samsung','⌚ SAMSUNG'],['diagnostics','🔎 DIAG'],
+  ['retry','↻ RETRY'],['ota','📦 OTA CHECK']
+ ];
+ return '<div class="hhOrchRemote305">'+buttons.map(function(x){
+  var supported=caps.includes(x[0])||(x[0]==='health'&&d.deviceType==='android')||(x[0]==='ota'&&d.deviceType==='android');
+  return '<button type="button" data-hh-remote-action="'+esc(x[0])+'" data-hh-remote-device="'+esc(d.deviceId)+'" '+
+   (supported?disabled:'disabled title="Ez a Connect verzió még nem támogatja"')+'>'+esc(x[1])+'</button>'
+ }).join('')+'</div>';
+}
 function telemetryPanel305(d){
  var marker=' data-telemetry-id="'+esc(d.deviceId)+'"'+(telemetryOpen305.has(d.deviceId)?' open':'');
  var t=d&&d.collectorTelemetry;
