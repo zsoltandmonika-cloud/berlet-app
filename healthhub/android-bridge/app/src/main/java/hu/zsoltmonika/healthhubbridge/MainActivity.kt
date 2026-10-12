@@ -336,11 +336,12 @@ class MainActivity : ComponentActivity() {
                 status.text = "Samsung Health: egyszeri hozzájárulás és valódi adatok olvasása…"
                 val payload = SamsungSdkDailyReader.collect(this@MainActivity, owner)
                 val rows = payload.optJSONObject("records")?.optJSONArray("dailySummary")
+                val validDayCount = rows?.length() ?: 0
                 check(deviceOwnerProfile() == owner &&
                     payload.optString("profile") == owner &&
                     payload.optString("source") == "samsung-health-data-sdk-1.1.0" &&
                     payload.optString("schemaVersion") == "healthhub.samsung.daily/1" &&
-                    rows != null && rows.length() > 0) {
+                    validDayCount > 0) {
                     "Samsung adatok hiányoznak, vagy másik profilhoz tartoznak."
                 }
                 prefs.edit().putLong("samsung_collector_last_read_ms", System.currentTimeMillis()).apply()
@@ -372,7 +373,7 @@ class MainActivity : ComponentActivity() {
                 }
                 SamsungCollectorScheduler.setEnabled(this@MainActivity, true)
                 prefs.edit().remove("samsung_collector_last_error").apply()
-                status.text = "✅ Samsung engedélyezve, " + rows.length() +
+                status.text = "✅ Samsung engedélyezve, " + validDayCount +
                     " valódi napi rekord; háttérszinkron BE (kb. 4 óránként). " +
                     (if (uploadRequired) "Dropbox feltöltve." else "A Dropboxban frissebb export van.")
             } catch (e: Exception) {
