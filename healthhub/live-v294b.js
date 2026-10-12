@@ -4,6 +4,33 @@ var MK='hh-lena-doc-drive-v294-map',SK='hh-lena-doc-drive-v294-state';
 function jget(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d}catch(e){return d}}
 function pk(p){return p==='m'||p==='monika'?'monika':p==='z'||p==='zsolt'?'zsolt':(localStorage.getItem('hh-profile')==='m'?'monika':'zsolt')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var kbLoadPromise=null;
+function loadKnowledgeUi(){
+ if(window.HH_KB_UI_V407&&typeof window.HH_KB_UI_V407.mount==='function'){
+  window.HH_KB_UI_V407.mount();return Promise.resolve(true);
+ }
+ if(kbLoadPromise)return kbLoadPromise;
+ function load(src){
+  return new Promise(function(ok,no){
+   var el=document.createElement('script');
+   el.src=src;el.async=false;el.onload=ok;
+   el.onerror=function(){no(Error('A tudástár egyik modulja nem töltődött be.'))};
+   document.head.appendChild(el);
+  });
+ }
+ kbLoadPromise=load('./knowledge-v407-core.js?v=408-pilot')
+  .then(function(){return load('./knowledge-v407-ingest.js?v=408-pilot')})
+  .then(function(){return load('./knowledge-v407-ui.js?v=408-pilot')})
+  .then(function(){
+   if(!window.HH_KB_UI_V407)throw Error('A tudástár felülete nem indult el.');
+   window.HH_KB_UI_V407.mount();
+   var panel=document.getElementById('hhKb407');
+   if(panel)panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+   return true;
+  }).catch(function(e){kbLoadPromise=null;throw e});
+ return kbLoadPromise;
+}
+
 function fmt(s){if(!s)return'—';var d=new Date(s);return isNaN(d)?String(s):d.toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
 function decorateContext(p,cloud){
  var key='hh-lena-context-v289-'+p,c=jget(key,null),m=jget(MK,{});if(!c||!c.documents||!Array.isArray(c.documents.index))return false;
@@ -32,10 +59,17 @@ function render(){
   ((st.failed||st.missingBlob)?('<span style="color:#9a6b28">Hiba: '+(st.failed||0)+' · hiányzó eredeti fájl: '+(st.missingBlob||0)+'</span><br>'):'')+
   '<button type="button" id="hhArchiveBtn294" style="margin-top:6px;border:0;border-radius:9px;padding:7px 9px;background:#6c4fc4;color:#fff;font-size:7.5px;font-weight:900;cursor:pointer">'+
   (st.running?'Sync leállítása':(mapped?'Archívum / delta sync most':'Teljes leletarchívum Drive Sync'))+'</button>'+
-  '<br><span style="color:#8b98a5">Kézi indítás · egy fájl egyszerre · megszakítás után folytatható</span>';
+  '<br><span style="color:#8b98a5">Kézi indítás · egy fájl egyszerre · megszakítás után folytatható</span>'+
+  '<div style="margin-top:9px"><button type="button" id="hhKbOpen294" style="min-height:40px;border:1px solid #b5d5e9;background:#e7f6ff;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;color:#1d5d80;cursor:pointer">🫀 Tudástár és orvosi képek · próba</button></div>';
  host.appendChild(d);
  var b=d.querySelector('#hhArchiveBtn294');
  if(b)b.onclick=function(){if(st.running&&typeof window.hhStopLenaArchive294==='function')window.hhStopLenaArchive294();else if(typeof window.hhSyncFullLenaArchive294==='function')window.hhSyncFullLenaArchive294()};
+ var kb=d.querySelector('#hhKbOpen294');
+ if(kb)kb.onclick=function(){
+  kb.disabled=true;kb.textContent='⏳ Tudástár megnyitása…';
+  loadKnowledgeUi().then(function(){kb.disabled=false;kb.textContent='🫀 Tudástár és orvosi képek · próba'})
+   .catch(function(e){kb.disabled=false;kb.textContent='🔁 Tudástár újrapróbálása';try{window.toast&&window.toast(e.message)}catch(_){}});
+ };
 }
 window.addEventListener('healthhub:lena-archive-state',function(){setTimeout(render,40)});
 window.addEventListener('healthhub:lena-archive-complete',function(){decorateAll(true);setTimeout(render,80)});
