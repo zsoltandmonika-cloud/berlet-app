@@ -266,7 +266,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  }));
  try{window.toast&&window.toast('✓ Sync parancs elküldve · '+selected.length+' eszköz')}catch(e){}
  await checkCommand(true);
- setTimeout(function(){refreshAdmin()},800);
+ setTimeout(function(){refreshAdmin(true)},800);
  return {commandId:id,devices:selected.length};
 }
 window.hhOrchestratorDispatch305=function(profile,device){return dispatch(profile||'all',device||null)};
@@ -317,7 +317,7 @@ function ensureOrchestratorHandlers(){
   var btn=e.target.closest&&e.target.closest('button');
   if(!btn||!btn.closest('#'+ADMIN_ID))return;
   var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
-  if(id==='hhOrchRefresh305'){refreshAdmin();return}
+  if(id==='hhOrchRefresh305'){refreshAdmin(true);return}
   var job=id==='hhOrchAll305'?dispatch('all'):
    id==='hhOrchZ305'?dispatch('zsolt'):
    id==='hhOrchM305'?dispatch('monika'):
@@ -326,10 +326,10 @@ function ensureOrchestratorHandlers(){
  });
 }
 function toastErr(e){try{window.toast&&window.toast('Orchestrator hiba: '+(e&&e.message||e))}catch(_){}}
-async function refreshAdmin(){
- if(!connected()){deviceCache=[];if(Date.now()>orchInteractingUntil)renderAdmin();return}
+async function refreshAdmin(force){
+ if(!connected()){deviceCache=[];if(force||Date.now()>orchInteractingUntil)renderAdmin();return}
  try{await loadDevices()}catch(e){console.warn(e)}
- if(Date.now()>orchInteractingUntil)renderAdmin();
+ if(force||Date.now()>orchInteractingUntil)renderAdmin();
 }
 function attachAdmin(){
  var ov=document.getElementById('haOv');if(!ov){setTimeout(attachAdmin,500);return}
