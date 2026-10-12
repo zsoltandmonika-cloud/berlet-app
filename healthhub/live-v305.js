@@ -340,7 +340,7 @@ function ensureOrchestratorHandlers(){
 function toastErr(e){try{window.toast&&window.toast('Orchestrator hiba: '+(e&&e.message||e))}catch(_){}}
 async function refreshAdmin(force){
  if(!connected()){deviceCache=[];phoneRegistryCache=null;if(force||Date.now()>orchInteractingUntil)renderAdmin();return}
- try{await loadDevices();phoneRegistryCache=await download(DEVICE_REGISTRY)}catch(e){phoneRegistryCache=null;console.warn(e)}
+ try{await loadDevices();var reg=await download(DEVICE_REGISTRY);phoneRegistryCache=reg&&reg.schema==='healthhub.device_registry/1'&&reg.activePhones&&Array.isArray(reg.archived)?reg:null}catch(e){phoneRegistryCache=null;console.warn(e)}
  if(force||Date.now()>orchInteractingUntil)renderAdmin();
 }
 function attachAdmin(){
