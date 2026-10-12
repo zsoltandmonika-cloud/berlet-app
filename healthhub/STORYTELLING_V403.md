@@ -23,7 +23,7 @@ A `live-v392-share-print.js` megőrzi az érdemi, fejezetekre bontott narratív�
 A v403 **nem javítja automatikusan** a `local_document_missing`, `google_drive_reconnect_required`, `drive_archive_file_missing`, `no_searchable_pdf_text` jellegű hibákat. Ezeket az adott böngésző profilhoz rendelt Drive/IndexedDB állapotában célzottan meg kell vizsgálni. A v403 megakadályozza, hogy az ilyen hozzáférési hiba önmagában nullára csökkentse a korábbi, idézhető leletmagyarázatokból írható történet minőségét.
 
 ## Kódtesztek és elfogadás
-`node supabase/functions/smooth-endpoint-v395/storytelling-v403.test.mjs` – 14 szintetikus eset:
+`node supabase/functions/smooth-endpoint-v395/storytelling-v403.test.mjs` – 18 szintetikus eset:
 - PDF-eredeti és JSON-összefoglaló rétegek elkülönítése,
 - idézetekhez kötött állítás,
 - kitalált számok és orvosnevek elutasítása,
@@ -31,7 +31,8 @@ A v403 **nem javítja automatikusan** a `local_document_missing`, `google_drive_
 - téves `kind=documented` elutasítása `S` forrással,
 - eredeti `D` idézet és hivatkozás szabályos kezelése,
 - hibás inline citation kiszűrése,
-- nincs profilkeveredés vagy duplikált summary index.
+- nincs profilkeveredés vagy duplikált summary index,
+- azonos nap magyar és numerikus dátumformátumban elfogadható, eltérő vagy lehetetlen dátum nem.
 
 ### Emberi Golden Standard elfogadási teszt
 Az éles 2024.06.17-i referenciakérdést **ugyanazon profilban**, azonos adatforrásokból futtatni, majd az exportált PDF-et ellenőrizni:
@@ -43,3 +44,6 @@ Az éles 2024.06.17-i referenciakérdést **ugyanazon profilban**, azonos adatfo
 6. a felhasználói tesztig **nem** tekintjük a Storytelling-eredményt elfogadottnak.
 
 Szerver deploy: a GitHub Pages `main` frissítése **nem** telepíti a Supabase `smooth-endpoint-v395` Edge Function-t. Ehhez külön `deploy_edge_function` szükséges az eddigi `verify_jwt=false` beállítással (az endpoint továbbra is maga ellenőrzi a JWT-t és a profiljogosultságot).
+
+### További regresszió: I-05
+Az eredeti `healthhub/tests/intelligence-v402.test.cjs` tesztcsomag 14 szintetikus esettel frissült. A klinikai audit csak valóban eredeti PDF-tény esetén kaphat `verified_excerpt_audit` jelzést; nulla eredeti tény és idézett JSON-adat esetén `secondary_reported`.
