@@ -479,8 +479,20 @@ async function run(opts){
     value:indexed.slice(0,1700)};
    data.extra=(Array.isArray(data.extra)?data.extra:[]).concat([indexFact]);
   }
+  // I-07: connect only timestamped, source-backed observations. A link is not a diagnosis.
+  var contextualEngine=window.HH_CONTEXTUAL_REASONING_I07_V402;
+  if(!contextualEngine||typeof contextualEngine.prepare!=='function')
+   throw Error('I-07 Contextual Reasoning nem érhető el; nem küldünk részleges klinikai kontextust.');
+  var contextual=contextualEngine.prepare(data,clinicalCtx,clinical);
+  data=contextual.payload;
+  if(contextual.links.length)print('🔗 I-07: '+contextual.links.length+' forráshoz kötött kapcsolat; ok-okozati állítás nélkül.');
   var customized=research.apply(data,question,clinical,researchPlan);
   data=customized.payload;
+  var narrativeEngine=window.HH_NARRATIVE_INTELLIGENCE_I06_V402;
+  if(!narrativeEngine||typeof narrativeEngine.apply!=='function')
+   throw Error('I-06 Narrative Intelligence nem érhető el.');
+  var narrative=narrativeEngine.apply(data,question,customized.plan,clinical);
+  data=narrative.payload;
   print('🧠 Kutatási mélység: '+(customized.plan.mode==='deep'?'részletes':'fókuszált')+
    ' · '+clinical.quality.originals+' eredeti PDF-oldal · bizonytalan állítások külön megjelölve.');
   print('📚 Clinical Evidence I-04: '+clinical.quality.originals+' eredeti PDF-kivonat · '+
@@ -501,6 +513,14 @@ async function run(opts){
    data.photoConsent=true;
    print('📷 Engedélyezett fotó előkészítése az AI-feldolgozáshoz…');
   }
+  // I-05: final source hygiene after I-02/03/04 + I-06/07 and any approved photo.
+  var qualityEngine=window.HH_CLINICAL_QUALITY_GATE_I05_V402;
+  if(!qualityEngine||typeof qualityEngine.preflight!=='function'||typeof qualityEngine.finalAudit!=='function')
+   throw Error('I-05 Clinical Quality Gate nem érhető el.');
+  var quality=qualityEngine.preflight(data,p);
+  data=quality.payload;
+  if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
+  else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
   logSource(data);
   if(!data.sources.length)throw Error('Ehhez a profilhoz most nem sikerült mérést vagy előzményt beolvasni.');
   // v395 pilot: Only explicitly initiated, detailed clinical questions go
@@ -536,6 +556,8 @@ async function run(opts){
    }
    if(kind==='done'){
     var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
+    // A completed AI stream is not automatically a clinically verified answer.
+    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot);
     renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
@@ -546,7 +568,9 @@ async function run(opts){
       (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'')+
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti kivonathoz szövegszerűen ellenőrzött tény, '+
         audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+
-        ' bizonyítatlan állítás visszaminősítve. Az ellenőrzés nem teljes orvosi szakvélemény.':'');
+        ' bizonyítatlan állítás visszaminősítve. Az ellenőrzés nem teljes orvosi szakvélemény.':'')+
+      ' · '+qualityResult.message+
+      (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
     var proof=clinicalEngine.createPanel(clinical,p);
     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     print('AI-kutatás befejeződött.');return}
