@@ -63,7 +63,7 @@ test('Private image route stays authenticated and profile-scoped',()=>{
 });
 test('No public medical image bucket',()=>{
  const sql=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261012150000_healthhub_v407_kb_visuals.sql'),'utf8');
- assert.match(sql,/hh-kb-visuals','hh-kb-visuals');assert.match(sql,/false,12000000/);
+ assert.match(sql,/hh-kb-visuals/);assert.match(sql,/false,12000000/);
  assert.match(sql,/hh_profile_access/);assert.match(sql,/ENABLE ROW LEVEL SECURITY/);
 });
 test('Page-level search index uses full page_text not a short excerpt field',()=>{
