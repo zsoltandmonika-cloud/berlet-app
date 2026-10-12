@@ -1,33 +1,31 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-11",
-  "generatedAt": "2026-10-11T12:52:14+02:00",
+  "date": "2026-10-12",
+  "generatedAt": "2026-10-12T14:05:51+02:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Szűz nap: Rendet teremteni a kreativitásban",
+      "headline": "Egy egyszerűbb megközelítés ma többet érhet, mint egy túlkomplikált terv.",
       "sections": {
-        "focus": "Ma különösen jól jössz ki a részletek megértésével, használd ezt építő ötletek kidolgozására.",
-        "workMoney": "Az aprólékos tervezés segít abban, hogy egy váratlan helyzetben is magabiztos maradj.",
-        "relationships": "Az őszinte beszélgetések most mélyebb kapcsolódást hozhatnak közted és szeretteid között.",
-        "energy": "Figyelj a tested apró jelzéseire, a kiegyensúlyozott rutin javíthatja a közérzeted.",
-        "evening": "Szánj időt egy kreatív hobbira, ami segít ellazulni és feltöltődni.",
-        "lenaThought": "Az apróságokra való odafigyelésed most épp úgy ragyog, mint egy jól csiszolt drágakő."
+        "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
+        "workMoney": "A jó kompromisszum ma az, amelyik később is könnyen visszaellenőrizhető.",
+        "relationships": "A figyelem most többet adhat a másiknak, mint bármilyen nagy gesztus.",
+        "energy": "A tempó ma fontosabb, mint a sebesség: legyen benne ritmus és pihenő is.",
+        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
+        "lenaThought": "A nap végén az számít, mi lett egyszerűbb, nem az, hány dolgot mozgattál meg."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Vízöntő nap: Szabadítsd fel a gondolataidat",
+      "headline": "Ma a tiszta prioritás és egy jól időzített döntés hozhat nyugodtabb ritmust.",
       "sections": {
-        "focus": "Az innovatív ötleteid ma új megoldásokat szülhetnek, merj kilépni a megszokott keretek közül.",
-        "workMoney": "Egy váratlan inspiráció segíthet átlendülni egy nehéz feladaton, figyelj a jelekre.",
-        "relationships": "Nyitottságoddal és humánus hozzáállásoddal mások szemében mai nap te vagy a biztató szikra.",
-        "energy": "Engedd, hogy a kíváncsiságod vezessen, de figyelj arra is, hogy pihenj és töltődj fel.",
-        "evening": "Egy könnyed társas esemény vagy beszélgetés feldobhatja a hangulatod és új perspektívákat adhat.",
-        "lenaThought": "Szárnyalj bátran, hiszen a mai nap a szabadság és a megújulás ünnepe lehet számodra."
+        "focus": "Válassz ki egyetlen ügyet, amely ma valóban számít, és vidd el egy konkrét következő lépésig.",
+        "workMoney": "A mai döntéseknél különítsd el azt, ami sürgős attól, ami csak hangos.",
+        "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
+        "energy": "A nap közepén egy rövid szünet többet érhet, mint még egy erőből végigvitt óra.",
+        "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
+        "lenaThought": "A jó ötletek ritkán kérnek engedélyt. Érdemes észrevenni őket, mielőtt továbbmennek."
       }
     }
-  },
-  "aiGenerated": true,
-  "aiModel": "gpt-4.1-mini"
+  }
 }
