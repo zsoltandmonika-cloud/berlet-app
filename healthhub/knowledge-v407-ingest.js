@@ -75,7 +75,7 @@ async function blobFor(file,p){
  if(Number(m.size)>25000000)throw Error('25 MB feletti PDF: külön feldolgozás szükséges.');
  var response=await drive(API+'/'+id+'?alt=media',{},p);
  var bytes=await response.arrayBuffer();
- if(new Uint8Array(bytes).slice(0,4).map(x=>String.fromCharCode(x)).join('')!=='%PDF')
+ if(Array.from(new Uint8Array(bytes).slice(0,4),x=>String.fromCharCode(x)).join('')!=='%PDF')
   throw Error('A fájl nem érvényes PDF.');
  return bytes;
 }
