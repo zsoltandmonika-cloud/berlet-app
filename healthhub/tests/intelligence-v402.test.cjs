@@ -50,12 +50,19 @@ test('I-05 clinical answer requires real server audit',()=>{
  const p=q.preflight(base(),'monika');
  assert.throws(()=>q.finalAudit('A klinikai történet megfogalmazott bekezdése.',p,null,true),/szerveroldali/);
  assert.equal(q.finalAudit('A klinikai történet megfogalmazott bekezdése.',p,
- {mode:'clinical-v395',checkedParagraphs:2,unsupportedDates:0},true).kind,'verified_excerpt_audit');
+ {mode:'clinical-v395',checkedParagraphs:2,verifiedFacts:1,unsupportedDates:0},true).kind,'verified_excerpt_audit');
 });
 test('I-05 clinical audit flags unsupported numbers',()=>{
  const p=q.preflight(base(),'monika');
  assert.equal(q.finalAudit('A klinikai történet megfogalmazott bekezdése.',p,
- {mode:'clinical-v395',checkedParagraphs:2,unsupportedDates:1},true).kind,'limited');
+ {mode:'clinical-v395',checkedParagraphs:2,verifiedFacts:1,unsupportedDates:1},true).kind,'limited');
+});
+test('I-05 distinguishes secondary-only from original PDF proof',()=>{
+ const p=q.preflight(base(),'monika');
+ const x=q.finalAudit('A korábbi leletmagyarázat alapján megfogalmazott egészségügyi történet.',p,
+  {mode:'clinical-v395',checkedParagraphs:3,verifiedFacts:0,summaryFacts:6},true);
+ assert.equal(x.kind,'secondary_reported');
+ assert.match(x.message,/nem eredeti kórházi PDF/);
 });
 test('I-06 natural narrative asks for source-backed chronology',()=>{
  const x=n.guide({mode:'deep',chronology:true},{quality:{originals:2}});

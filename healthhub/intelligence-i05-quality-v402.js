@@ -50,10 +50,18 @@ function finalAudit(text,report,serverAudit,clinicalPilot){
    throw Error('I-05: hiányzik a klinikai szerveroldali válaszaudit. A válasz nem tekinthető késznek.');
   var issues=(Number(serverAudit.invalidCitations)||0)+(Number(serverAudit.unsupportedDurations)||0)+
    (Number(serverAudit.unsupportedDates)||0)+(Number(serverAudit.unsupportedClinicalNumbers)||0);
+  var originalFacts=Number(serverAudit.verifiedFacts)||0,summaryFacts=Number(serverAudit.summaryFacts)||0;
+  if(!originalFacts){
+   return {kind:summaryFacts?'secondary_reported':'limited',
+    message:summaryFacts?
+     'I-05: a történet idézett korábbi leletmagyarázatokra épül, nem eredeti kórházi PDF-ekkel igazolt eseménysor.':
+     'I-05: nem sikerült személyes eseményt eredeti PDF-kivonattal igazolni.',
+    issues:issues,originalFacts:0,secondaryFacts:summaryFacts};
+  }
   return {kind:issues?'limited':'verified_excerpt_audit',
-   message:issues?'I-05: klinikai szerveraudit készült, néhány állítás korlátozással szerepel.':
-    'I-05: eredeti kivonatokra vonatkozó klinikai szerveraudit készült; nem teljes orvosi ellenőrzés.',
-   issues:issues};
+   message:issues?'I-05: a klinikai forrásaudit bizonyos állításokat kizárt; az eredeti PDF-ek csak a megtartott tényeket támasztják alá.':
+    'I-05: az eredeti PDF-kivonatok tényállításai ellenőrizve, ez nem teljes orvosi szakvélemény.',
+   issues:issues,originalFacts:originalFacts,secondaryFacts:summaryFacts};
  }
  return {kind:'preflight_only',
   message:'I-05: adatforrások előellenőrizve; a generált válasz állításai nincsenek teljes körűen klinikailag igazolva.',

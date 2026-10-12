@@ -450,8 +450,8 @@ async function run(opts){
      var errors=reasonKeys.slice(0,3).map(function(k){return(dd.reasonsByCode[k]||0)+'× '+(labels[k]||k)});
      if(errors.length)print('🔎 Eredeti PDF-ek elérésének akadálya: '+errors.join('; '));
     }
-    if(!documents.originals&&researchPlan.clinical){
-     print('⚠️ Mély klinikai elemzés korlátja: NINCS eredeti PDF-szöveg. Mentési perceket és szedálási okokat nem találhatok ki.');
+    if(!documents.originals&&researchPlan.clinical&&!documents.summaries){
+     print('📚 Ehhez a részletes történethez most nincs feldolgozható leletszöveg.');
     }
    }
   }
@@ -565,10 +565,8 @@ async function run(opts){
      ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.'+
       ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
       (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
-      (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'')+
-      (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti kivonathoz szövegszerűen ellenőrzött tény, '+
-        audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+
-        ' bizonyítatlan állítás visszaminősítve. Az ellenőrzés nem teljes orvosi szakvélemény.':'')+
+      (!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
+      (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
     var proof=clinicalEngine.createPanel(clinical,p);
