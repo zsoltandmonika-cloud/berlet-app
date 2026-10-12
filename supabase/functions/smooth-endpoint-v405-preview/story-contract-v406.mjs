@@ -71,8 +71,10 @@ export function assessCompleteStory(report,contract){
  const leadingPhase=first?PHASES.find(([phase],i)=>
    match[i].test(textFold)&&contract.events.some(e=>e.phase===phase&&
    first.sourceIds.includes(e.sourceId)))?.[0]||null:null;
+ const firstVisible=full.find(p=>p.kind!=='unknown')||null;
+ const opensWithExplanation=firstVisible&&['general','possible'].includes(firstVisible.kind);
  const badOpening=focus.chronology&&contract.availability.availability.start&&
-  leadingPhase!=='start';
+  (leadingPhase!=='start'||!!opensWithExplanation);
  const missingClosing=focus.chronology&&focus.explicitEnd&&
   contract.availability.availability.discharge&&!found.found.discharge;
  const onlyGeneric=grounded.length===0;
