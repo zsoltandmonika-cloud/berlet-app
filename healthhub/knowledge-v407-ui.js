@@ -41,6 +41,7 @@ function mount(){
   '<label><input id="hhKb407Auto" type="checkbox"> Új PDF-ek automatikus feldolgozása a Drive-archíválás után</label>'+
   '<small>A képeket privát tárhelyre másoljuk. Az OCR ezen az eszközön dolgozik. Az eredeti PDF a Drive-ban változatlan marad.</small>'+
   '<div class="kbActions"><input id="hhKb407Query" type="search" placeholder="Keresés a teljes szövegben…">'+
+  '<label><input id="hhKb407Exact" type="checkbox"> Pontos karakter</label>'+
   '<button type="button" data-kb="search">🔎 Keresés</button>'+
   '<button type="button" data-kb="visuals">🫀 Képi mellékletek</button></div>'+
   '<div id="hhKb407Results"></div>';
@@ -137,24 +138,24 @@ async function listDocuments(){
  }catch(e){root.textContent='Dokumentumlista-hiba: '+String(e.message||e).slice(0,120)}
 }
 async function search(){
- var svc=service(),root=resultRoot(),p=profile(),query=String(el('hhKb407Query')?.value||'').trim();
+ var svc=service(),root=resultRoot(),p=profile(),query=String(el('hhKb407Query')?.value||'').trim(),
+  exact=!!el('hhKb407Exact')?.checked;
  if(!root)return;
  clearImages();root.textContent='';
- if(!query||query.length<3){root.textContent='Legalább 3 karaktert írj a kereséshez.';return}
+ if(!query||(query.length<2&&!exact)){root.textContent='Kulcsszónál legalább 2 karakter, pontos keresésnél 1 karakter szükséges.';return}
  if(!auth()){root.textContent='🔒 Bejelentkezés szükséges.';return}
  try{
   // Indexed PAGE content, not filename-only search. RLS protects all pages.
-  var rows=await svc.request('/rest/v1/hh_kb_pages?select=document_id,page_no,page_text,hh_kb_documents!inner(original_name,profile_key,source_class,status)&'+
-   'hh_kb_documents.profile_key=eq.'+p+'&page_text=fts.'+encodeURIComponent(query)+
-   '&limit=30',{method:'GET'});
+  var rows=await svc.request('/rest/v1/rpc/hh_kb_search',{
+   method:'POST',data:{p_profile_key:p,p_query:query.slice(0,120),p_exact:exact,p_limit:30}
+  });
   if(!rows?.length){root.textContent='Nem találtam egyezést a már feldolgozott dokumentumoldalakban.';return}
   rows.forEach(row=>{
    var card=document.createElement('div');card.className='kbResult';
-   var h=document.createElement('strong');h.textContent=row.hh_kb_documents?.original_name||'Dokumentum';
+   var h=document.createElement('strong');h.textContent=row.original_name||'Dokumentum';
    var desc=document.createElement('small');desc.textContent='📄 '+row.page_no+'. oldal · Forrás: '+
-    (row.hh_kb_documents?.source_class||'ellenőrizendő')+' · Állapot: '+(row.hh_kb_documents?.status||'');
-   var snippet=document.createElement('p');snippet.textContent=String(row.page_text||'').slice(0,550)+
-    (String(row.page_text||'').length>550?'…':'');
+    (row.source_class||'ellenőrizendő')+' · Állapot: '+(row.status||'');
+   var snippet=document.createElement('p');snippet.textContent=String(row.snippet||'').slice(0,800);
    var button=document.createElement('button');button.dataset.kb='list-images';button.dataset.doc=row.document_id;
    button.textContent='🖼️ Oldalképek';
    card.append(h,desc,snippet,button);root.appendChild(card);
