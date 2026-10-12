@@ -437,7 +437,7 @@ function renderAdmin(){
   '<div class="hhOrchRags305 cloud">'+ragBadge305('Dropbox Admin',dropStatus)+ragBadge305('Supabase Admin',dbStatus)+'</div>'+
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
- '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
+ '<div class="hhOrchNote305"><b>v0.15 biztonság:</b> Csak a v401-ben kijelölt telefonok fogadnak távoli parancsot. A Samsung-szinkronhoz előzetes helyi Samsung-engedélyezés kell. A RAG a dátumozott beolvasásból és feltöltésből számolódik. PENDING / QUEUED nem egyenlő a sikerrel; Android háttérfeladatok késhetnek.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
  var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
@@ -458,6 +458,12 @@ function ensureOrchestratorHandlers(){
   var btn=e.target.closest&&e.target.closest('button');
   if(!btn||!btn.closest('#'+ADMIN_ID))return;
   var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
+  var action=btn.getAttribute('data-hh-remote-action'),remoteDevice=btn.getAttribute('data-hh-remote-device');
+  if(action&&remoteDevice){
+   if(btn.disabled||!['health','samsung','diagnostics','retry','ota'].includes(action))return;
+   orchInteractingUntil=Date.now()+5000;
+   dispatch('all',remoteDevice,action).catch(toastErr);return;
+  }
   if(id==='hhOrchRefresh305'){refreshAdmin(true);return}
   var job=id==='hhOrchAll305'?dispatch('all'):
    id==='hhOrchZ305'?dispatch('zsolt'):
