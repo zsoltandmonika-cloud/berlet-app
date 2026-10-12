@@ -10,24 +10,30 @@ function classify(name){
   return {sourceClass:'device',hint:'ekg_candidate',review:true};
  if(/lena|chatgpt|ai[- _]?osszefoglal|sajat jegyzet|magyarázat|magyarazat|sajat osszefoglal/.test(n))
   return {sourceClass:'secondary_summary',hint:'none',review:true};
- if(/omsz|mento/.test(n))return {sourceClass:'unverified',hint:'ekg_candidate',review:true};
+ if(/omsz|mento/.test(n))return {sourceClass:'unverified',hint:'none',review:true};
  return {sourceClass:'unverified',hint:/ekg|ecg|elektrokardi/.test(n)?'ekg_candidate':'none',review:true};
 }
 function visualSignals(title,text,ops){
- var n=norm(title+' '+String(text||'').slice(0,1400));
+ var file=norm(title),n=norm(String(text||'').slice(0,4000));
  var imageOps=Number(ops&&ops.images)||0,paths=Number(ops&&ops.paths)||0;
- var ekg=/(ekg|ecg|elektrokardi|ritmuscsik|rhythm strip)/.test(n);
- var omzs=/(omsz|orszagos mentoszolgalat)/.test(n);
- var wanted=ekg||omzs||imageOps>0||paths>240;
+ var watchEkg=/(samsung|galaxy|watch).*(ekg|ecg)/.test(file);
+ var ekgDocument=/(ekg|ecg|elektrokardi|ritmuscsik|rhythm strip)/.test(file);
+ var negativeEkg=/(ekg|ecg)[\\s:]*nem tortent/.test(n);
+ var ekgMention=/(ekg|ecg|elektrokardi|ritmuscsik|rhythm strip)/.test(n)&&!negativeEkg;
+ var ems=/(omsz|orszagos mentoszolgalat)/.test(file);
+ var ekg=watchEkg||ekgDocument||ekgMention;
+ // EMS alone is never proof that an ECG waveform is on the page.
+ var wanted=ekg||ems||imageOps>0||paths>240;
  return {capture:wanted,review:wanted,
-  hint:ekg||omzs?'ekg_candidate':imageOps?'image_or_chart':paths>240?'image_or_chart':'none',
-  reason:ekg||omzs?'clinical_context':imageOps?'embedded_image':paths>240?'vector_drawing':'text_only'};
+  hint:ekg?'ekg_candidate':(imageOps||paths>240||ems)?'image_or_chart':'none',
+  reason:ekg?'ekg_mentioned_unverified':ems?'ems_page_preservation':imageOps?'embedded_image':paths>240?'vector_drawing':'text_only'};
 }
 function readiness(state){
  var total=Number(state.totalPages)||0,done=Number(state.pagesIndexed)||0;
  var missing=Number(state.pagesNeedingOcr)||0,failed=Number(state.failedPages)||0;
  var visualsMissing=Number(state.visualFailed)||0;
- return total>0&&done===total&&missing===0&&failed===0&&visualsMissing===0?'complete':done?'partial':'failed';
+ var unverifiedOcr=Number(state.ocrPagesPendingReview)||0;
+ return total>0&&done===total&&missing===0&&failed===0&&visualsMissing===0&&unverifiedOcr===0?'complete':done?'partial':'failed';
 }
 function checksumBytes(a){return Array.from(new Uint8Array(a)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function allowedProfile(p){return p==='monika'||p==='zsolt'}
