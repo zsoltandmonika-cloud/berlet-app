@@ -28,7 +28,9 @@ function dateMatches(input){
  return dates;
 }
 function noCalendarDates(x){
- return compact(x).replace(NUM_DATE,' ').replace(HUN_DATE,' ');
+ return compact(x)
+  .replace(NUM_DATE,v=>{const p=v.split(/[.\/-]/);return dateKey(p[0],p[1],p[2])?' ':v})
+  .replace(HUN_DATE,(v,y,month,d)=>dateKey(y,MONTHS[month.toLocaleLowerCase('hu-HU')],d)?' ':v);
 }
 const numTokens=x=>(noCalendarDates(x).match(/\d+(?:[.,]\d+)?/g)||[]).map(v=>v.replace(',','.'));
 const validId=s=>typeof s==='string'&&/^(?:D\d+:p\d+|S\d+)$/.test(s);
