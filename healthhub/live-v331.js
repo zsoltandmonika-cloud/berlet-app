@@ -566,9 +566,7 @@ async function run(opts){
       ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
       (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
       (!clinical.quality.originals&&researchPlan.clinical?' · ⚠️ Az események részletes rekonstrukciójához nem került eredeti PDF-oldal feldolgozásra.':'')+
-      (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti kivonathoz szövegszerűen ellenőrzött tény, '+
-        audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+
-        ' bizonyítatlan állítás visszaminősítve. Az ellenőrzés nem teljes orvosi szakvélemény.':'')+
+      (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
     var proof=clinicalEngine.createPanel(clinical,p);
