@@ -94,7 +94,7 @@ test('Cross-patient secondary evidence index fails closed',()=>{
  assert.throws(()=>buildSecondaryIndex(json,'unknown'),/unknown_profile/);
 });
 test('Summary duplicate document index does not overcount',()=>{
- const x=buildSecondaryIndex([json,json],'monika');
+ const x=buildSecondaryIndex([...json,...json],'monika');
  assert.equal(x.length,1);
 });
 test('General physiology is not silently promoted to a personal event',()=>{
