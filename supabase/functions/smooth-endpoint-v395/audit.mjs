@@ -162,7 +162,10 @@ export function auditClinicalDraft(response,evidence,validated,secondary=[],seco
   const heading=compact(sec?.heading).slice(0,135)||'További megállapítások';
   const paragraphs=[];
   for(const p of (Array.isArray(sec?.paragraphs)?sec.paragraphs:[]).slice(0,7)){
-   let txt=compact(p?.text).slice(0,1250);
+   const rawText=compact(p?.text).slice(0,1250);
+   // Strip citation markers BEFORE numeric validation, while validating the
+   // raw citation separately. [D1:p3] is a reference, not a 1/3 result.
+   let txt=rawText.replace(/\[(?:D\d+:p\d+|S\d+)\]/g,'').trim();
    if(txt.length<12)continue;
    const kind=allowedKinds.has(p?.kind)?p.kind:'unknown';
    const cited=Array.isArray(p?.sourceIds)?p.sourceIds.filter(validId):[];
@@ -170,7 +173,7 @@ export function auditClinicalDraft(response,evidence,validated,secondary=[],seco
    const sourceIndex=kind==='documented'?trusted:kind==='reported'?summaries:new Map();
    const unknownIds=cited.filter(id=>!sourceIndex.has(id)||!checkedRefs.has(id));
    const validRefs=Array.from(new Set(cited.filter(id=>sourceIndex.has(id)&&checkedRefs.has(id))));
-   const invalidInline=(txt.match(/\[(?:D\d+:p\d+|S\d+)\]/g)||[]).some(mark=>
+   const invalidInline=(rawText.match(/\[(?:D\d+:p\d+|S\d+)\]/g)||[]).some(mark=>
     !sourceIndex.has(mark.slice(1,-1))||!checkedRefs.has(mark.slice(1,-1)));
    const relevantFacts=(kind==='reported'?summaryFacts:facts).filter(f=>validRefs.includes(f.sourceId));
    const referencedFacts=kind==='documented'||kind==='reported';
