@@ -1,0 +1,5 @@
+# Samsung proprietary binaries must be provisioned privately for local/CI builds.
+# Never commit a vendor AAR or Android signing material to this public repository.
+/libs/*.aar
+*.keystore
+*.jks
