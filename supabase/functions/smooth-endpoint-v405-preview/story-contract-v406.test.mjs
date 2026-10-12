@@ -92,7 +92,7 @@ test('Auditor accepts source-only fallback with exact evidence IDs',()=>{
 test('Story instructions insist on outsider-readable full arc without fabricated phases',()=>{
  const ins=narrativeInstructions(base);
  assert.match(ins,/IDEGEN OLVASÓ/);assert.match(ins,/legelső bekezdés/);
- assert.match(ins,/TILOS|nem szerepelhet|nem találj/);
+ assert.match(ins,/tilos|nem szerepelhet|nem találj/i);
 });
 test('Generic nonhistorical question receives no forced hospital chronology',()=>{
  const v=buildStoryContract('Mire való a CRT-D készülék?',{facts:[]},facts);
