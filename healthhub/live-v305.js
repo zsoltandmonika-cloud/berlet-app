@@ -293,8 +293,30 @@ function ensureStyle(){
  '.hhOrchHead305{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.hhOrchHead305 h3{margin:0;color:#173f62}.hhOrchHead305 small{display:block;color:#758a98;margin-top:2px;line-height:1.4}.hhOrchBadge305{font-size:7px;font-weight:900;padding:5px 7px;border-radius:999px;background:#e7f7ef;color:#18714c;white-space:nowrap}.hhOrchBadge305.off{background:#f0f3f6;color:#758392}'+
  '.hhOrchControls305{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhOrchControls305 button,.hhOrchControls305 select{border:1px solid #d8e4eb;border-radius:10px;padding:8px 9px;font-size:7.4px;font-weight:850;background:#f7fafc;color:#31536f}.hhOrchControls305 button.primary{background:#173f62;color:white;border-color:#173f62}.hhOrchControls305 button:disabled{opacity:.5}'+
  '.hhOrchControls305,.hhOrchDevices305{position:relative;z-index:2;pointer-events:auto!important}.hhOrchControls305 button,.hhOrchControls305 select,.hhOrchDevice305 button{position:relative;z-index:3;pointer-events:auto!important;touch-action:manipulation;cursor:pointer;min-height:34px}'+
- '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}';
+ '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}'+
+ '.hhOrchTelemetry305{grid-column:1/-1;min-width:0;padding:7px;background:#f7fbff;border-radius:10px}.hhOrchTelemetry305 summary{font-size:9px;font-weight:900;cursor:pointer;color:#244e6c;min-height:28px}.hhOrchTelemetry305 p{font-size:8px;line-height:1.55;color:#60798d}.hhOrchSrc305{margin:6px 0;padding:7px;border:1px solid #deebf3;border-radius:9px;background:white}.hhOrchSrc305 h5{font-size:9px;margin:0 0 7px;color:#173f62}.hhOrchGrid305{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.hhOrchGrid305 span{font-size:8.5px;overflow-wrap:anywhere;color:#31536f;line-height:1.4}.hhOrchGrid305 strong{font-size:7.5px;color:#698296}';
  document.head.appendChild(s);
+}
+function telemetryPanel305(d){
+ var t=d&&d.collectorTelemetry;
+ if(!t||t.schema!=='healthhub.collector.telemetry/1')return '<details class="hhOrchTelemetry305"><summary>🔎 Adatmonitoring</summary><p>Telemetria a v0.15 Thin Collector telepítése után érkezik.</p></details>';
+ function fmt(x){var v=Date.parse(x||'');return Number.isFinite(v)?new Date(v).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
+ function cell(a,b){return '<span><strong>'+esc(a)+'</strong><br>'+esc(b==null?'—':String(b))+'</span>'}
+ function source(title,v,samsung){v=v||{};return '<section class="hhOrchSrc305"><h5>'+esc(title)+(v.alert?' ⚠':'')+'</h5><div class="hhOrchGrid305">'+
+ cell('Automatika',v.autoEnabled===true?'BE':v.autoEnabled===false?'KI':'—')+
+ (samsung?cell('SDK',v.sdkIncluded===true?'elérhető':'hiányzik'):'')+
+ cell('Adatnap',v.latestDataDay||'—')+cell('Olvasás',fmt(v.lastReadAt))+
+ cell('Feltöltés',fmt(v.lastVerifiedUploadAt||v.lastUploadAt))+
+ cell('Napi rekordok',v.dailyRecordCount)+
+ cell('Hibakategória',v.errorKind==='none'?'nincs':v.errorKind||'—')+
+ (samsung?cell('Kalóriaadat · napok',v.daysWithActiveCalories):cell('Edzések',v.exerciseRecordCount))+
+ '</div></section>'}
+ var cfg=t.remotePolicy||{};
+ return '<details class="hhOrchTelemetry305"><summary>🔎 Adatmonitoring · HC + Samsung'+((t.samsung&&t.samsung.alert)||(t.healthConnect&&t.healthConnect.alert)?' ⚠':'')+'</summary>'+
+ '<p>Források, dátumok, rekordszámok, hibák. Nincsenek benne egészségügyi mért értékek.</p>'+
+ source('❤️ Health Connect',t.healthConnect,false)+source('⌚ Samsung Health',t.samsung,true)+
+ '<p>Ütemezés: '+esc(String(cfg.syncIntervalHours||4))+' óra · A/B verzió: '+esc(String(cfg.activeRevision||0))+(cfg.trial?' · próba':'')+
+ ' · Jelentés: '+esc(fmt(t.reportedAt))+'</p></details>'
 }
 function renderAdmin(){
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
@@ -302,7 +324,7 @@ function renderAdmin(){
  var rows=deviceCache.map(function(d){
   var isPrimary=phoneRegistryCache&&eligiblePhone(d,phoneRegistryCache,'all');
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
-  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button></div>';
+  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button>'+telemetryPanel305(d)+'</div>';
  }).join('');
  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
