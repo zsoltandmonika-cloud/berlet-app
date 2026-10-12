@@ -10,6 +10,7 @@ var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status';
 var DEVICE_KEY='hh-orchestrator-device-id-v1', LAST_CMD='hh-orchestrator-last-command-v1';
 var CHECK_MS=60000, CHECK_THROTTLE=12000, ADMIN_ID='hhSyncOrchestrator305', STYLE_ID='hhSyncOrchestrator305Style';
 var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[],foldersReady=false;
+var orchSelectedScope='full',orchInteractingUntil=0;
 
 function now(){return new Date().toISOString()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -238,7 +239,7 @@ function fmtAge(s){
  var n=Date.parse(s||'');if(!n)return 'még nem';var sec=Math.max(0,Math.round((Date.now()-n)/1000));
  if(sec<60)return sec+' mp';if(sec<3600)return Math.round(sec/60)+' p';if(sec<86400)return Math.round(sec/3600)+' ó';return Math.round(sec/86400)+' n';
 }
-function scopeFromUi(){var e=document.getElementById('hhOrchScope305');return e?e.value:'full'}
+function scopeFromUi(){var e=document.getElementById('hhOrchScope305');return e?e.value:orchSelectedScope}
 async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),devices=await loadDevices(),selected=devices.filter(function(d){
@@ -277,9 +278,10 @@ window.hhOrchestratorDevices305=loadDevices;
 function ensureStyle(){
  if(document.getElementById(STYLE_ID))return;
  var s=document.createElement('style');s.id=STYLE_ID;s.textContent=
- '#'+ADMIN_ID+'{margin-top:10px;content-visibility:auto;contain-intrinsic-size:360px}.hhOrch305{background:#fff;border:1px solid #dce8ee;border-radius:18px;padding:12px;box-shadow:0 8px 22px rgba(31,65,91,.055)}'+
+ '#'+ADMIN_ID+'{margin-top:10px;content-visibility:auto;contain-intrinsic-size:360px;position:relative!important;z-index:65!important;isolation:isolate;pointer-events:auto!important}.hhOrch305{background:#fff;border:1px solid #dce8ee;border-radius:18px;padding:12px;box-shadow:0 8px 22px rgba(31,65,91,.055)}'+
  '.hhOrchHead305{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.hhOrchHead305 h3{margin:0;color:#173f62}.hhOrchHead305 small{display:block;color:#758a98;margin-top:2px;line-height:1.4}.hhOrchBadge305{font-size:7px;font-weight:900;padding:5px 7px;border-radius:999px;background:#e7f7ef;color:#18714c;white-space:nowrap}.hhOrchBadge305.off{background:#f0f3f6;color:#758392}'+
  '.hhOrchControls305{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhOrchControls305 button,.hhOrchControls305 select{border:1px solid #d8e4eb;border-radius:10px;padding:8px 9px;font-size:7.4px;font-weight:850;background:#f7fafc;color:#31536f}.hhOrchControls305 button.primary{background:#173f62;color:white;border-color:#173f62}.hhOrchControls305 button:disabled{opacity:.5}'+
+ '.hhOrchControls305,.hhOrchDevices305{position:relative;z-index:2;pointer-events:auto!important}.hhOrchControls305 button,.hhOrchControls305 select,.hhOrchDevice305 button{position:relative;z-index:3;pointer-events:auto!important;touch-action:manipulation;cursor:pointer;min-height:34px}'+
  '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}';
  document.head.appendChild(s);
 }
@@ -297,18 +299,37 @@ function renderAdmin(){
  '<div class="hhOrchNote305"><b>Működés:</b> a nyitott webes kliensek legfeljebb kb. 60 mp-en belül veszik fel a parancsot. Offline kliens Pending marad és a következő induláskor végrehajtja. A HealthHub Connect Android háttérben WorkManagerrel ellenőriz; az Android nem kap valótlan „instant push” ígéretet.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
- var a=document.getElementById('hhOrchAll305'),z=document.getElementById('hhOrchZ305'),m=document.getElementById('hhOrchM305'),r=document.getElementById('hhOrchRefresh305');
- if(a)a.onclick=function(){dispatch('all').catch(function(e){toastErr(e)})};
- if(z)z.onclick=function(){dispatch('zsolt').catch(function(e){toastErr(e)})};
- if(m)m.onclick=function(){dispatch('monika').catch(function(e){toastErr(e)})};
- if(r)r.onclick=function(){refreshAdmin()};
- document.querySelectorAll('[data-hh-orch-device]').forEach(function(b){b.onclick=function(){dispatch('all',b.getAttribute('data-hh-orch-device')).catch(function(e){toastErr(e)})}});
+ var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
+ // Stable delegated handlers survive Admin panel redraws and do not create duplicate sends.
+ ensureOrchestratorHandlers();
+}
+function ensureOrchestratorHandlers(){
+ var body=document.getElementById('haBody');
+ if(!body||body.dataset.hhOrchUi400==='1')return;
+ body.dataset.hhOrchUi400='1';
+ body.addEventListener('pointerdown',function(e){
+  if(e.target.closest&&e.target.closest('#'+ADMIN_ID+' button, #'+ADMIN_ID+' select'))orchInteractingUntil=Date.now()+2500;
+ },{passive:true});
+ body.addEventListener('change',function(e){
+  if(e.target&&e.target.id==='hhOrchScope305')orchSelectedScope=e.target.value;
+ });
+ body.addEventListener('click',function(e){
+  var btn=e.target.closest&&e.target.closest('button');
+  if(!btn||!btn.closest('#'+ADMIN_ID))return;
+  var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
+  if(id==='hhOrchRefresh305'){refreshAdmin();return}
+  var job=id==='hhOrchAll305'?dispatch('all'):
+   id==='hhOrchZ305'?dispatch('zsolt'):
+   id==='hhOrchM305'?dispatch('monika'):
+   device?dispatch('all',device):null;
+  if(job)job.catch(toastErr);
+ });
 }
 function toastErr(e){try{window.toast&&window.toast('Orchestrator hiba: '+(e&&e.message||e))}catch(_){}}
 async function refreshAdmin(){
- if(!connected()){deviceCache=[];renderAdmin();return}
+ if(!connected()){deviceCache=[];if(Date.now()>orchInteractingUntil)renderAdmin();return}
  try{await loadDevices()}catch(e){console.warn(e)}
- renderAdmin();
+ if(Date.now()>orchInteractingUntil)renderAdmin();
 }
 function attachAdmin(){
  var ov=document.getElementById('haOv');if(!ov){setTimeout(attachAdmin,500);return}
