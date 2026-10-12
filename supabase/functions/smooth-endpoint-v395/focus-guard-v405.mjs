@@ -52,11 +52,20 @@ export function chooseNonRegressingFocus(question,baseline,originalFacts,seconda
  const lostPhase=Object.keys(before.found).some(phase=>before.found[phase]&&!after.found[phase]);
  const lostGrounded=base.grounded.length-now.grounded.length;
  const maxDiscard=Math.max(1,Math.floor(base.grounded.length*0.28));
+ const memoryTopic=/(emlekezet|memoria|amnezi|emleksz|kognitiv|neurolog)/i;
+ const retained=base.grounded.map(p=>now.grounded.some(q=>srcKey(q)===srcKey(p)&&
+  String(p.text||'').startsWith(String(q.text||''))));
+ const lostOther=base.grounded.filter((p,i)=>!retained[i]&&
+  !memoryTopic.test(String(p.text||'').toLocaleLowerCase('hu-HU')
+   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
  const stillSubstantial=now.chars>=Math.min(230,base.chars*0.56);
  const noNewMissing=after.omitted.every(phase=>before.omitted.includes(phase));
- if(!sourceValid||lostPhase||lostGrounded>maxDiscard||!stillSubstantial||!noNewMissing){
+ if(!sourceValid||lostPhase||lostOther.length>0||lostGrounded>Math.max(maxDiscard,base.grounded.filter(
+  p=>memoryTopic.test(String(p.text||'').toLocaleLowerCase('hu-HU')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,''))).length)||!stillSubstantial||!noNewMissing){
   return {report:baseline,status:{...status,reason:!sourceValid?'invalid_provenance':
    lostPhase?'lost_grounded_timeline_stage':
+   lostOther.length?'removed_non_memory_clinical_fact':
    lostGrounded>maxDiscard?'too_many_grounded_paragraphs_removed':
    !stillSubstantial?'narrative_collapsed':'new_timeline_gap'}};
  }
