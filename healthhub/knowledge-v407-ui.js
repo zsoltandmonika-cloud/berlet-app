@@ -36,7 +36,7 @@ function mount(){
   '<small>Teljes PDF-szöveg · magyar OCR · EKG/OMSZ képi oldalak · ellenőrzött forrásazonosítók</small>'+
   '<div id="hhKb407Status" class="kbStatus" aria-live="polite">Audit még nem indult.</div>'+
   '<div class="kbActions"><button type="button" data-kb="audit">🔍 Dokumentumaudit</button>'+
-  '<button type="button" data-kb="pilot">🧪 Próba: 1 PDF</button><button type="button" data-kb="start">▶ Teljes feldolgozás</button>'+
+  '<button type="button" data-kb="pilot-ekg">🫀 Próba: 1 EKG</button><button type="button" data-kb="pilot-omsz">🚑 Próba: 1 OMSZ</button><button type="button" data-kb="start">▶ Teljes feldolgozás</button>'+
   '<button type="button" data-kb="stop">⏸ Megállítás</button></div>'+
   '<label><input id="hhKb407Auto" type="checkbox"> Új PDF-ek automatikus feldolgozása a Drive-archíválás után</label>'+
   '<small>A képeket privát tárhelyre másoljuk. Az OCR ezen az eszközön dolgozik. Az eredeti PDF a Drive-ban változatlan marad.</small>'+
@@ -81,7 +81,8 @@ function handleClick(e){
  var op=b.dataset.kb;
  if(op==='audit')runAudit();
  if(op==='start')runFull();
- if(op==='pilot')runPilot();
+ if(op==='pilot-ekg')runPilot('watch-ekg');
+ if(op==='pilot-omsz')runPilot('omsz');
  if(op==='stop')engine()?.stop();
  if(op==='search')search();
  if(op==='visuals')listGallery();
@@ -98,10 +99,11 @@ async function runAudit(){
  catch(e){show('⚠️ Audit: '+String(e.message||e).slice(0,140))}
  finally{busy=false;draw()}
 }
-async function runPilot(){
+async function runPilot(type){
  if(!auth()){show('🔒 Bejelentkezés szükséges a Központi Health Vaultba.');return}
- busy=true;show('🧪 Biztonságos próba: egy dokumentum feldolgozása.');
- try{await engine().run(profile(),{maxDocs:1})}
+ if(!['watch-ekg','omsz'].includes(type))return;
+ busy=true;show('🧪 Biztonságos próba: egy '+(type==='omsz'?'OMSZ':'EKG')+' PDF feldolgozása.');
+ try{await engine().run(profile(),{pilotType:type,maxDocs:1})}
  catch(e){show('⚠️ Próbafeldolgozás: '+String(e.message||e).slice(0,130))}
  finally{busy=false;draw()}
 }
