@@ -29,7 +29,7 @@ export function extractOriginalQuestion(modelQuestion){
  // whose strings matched literal backslash+n instead of line breaks.
  const marker=/\r?\n\s*\r?\n\s*\[(?:KUTATÁSI ELV:|I-06\s*·\s*Válaszstílus\])/i;
  const match=marker.exec(full);
- const literal=full.search(/\\\\n\\\\n\[(?:KUTATÁSI ELV:|I-06\s*·\s*Válaszstílus\])/i);
+ const literal=full.search(/\\n\\n\[(?:KUTATÁSI ELV:|I-06\s*·\s*Válaszstílus\])/i);
  const stop=Math.min(match?match.index:full.length,literal>=0?literal:full.length);
  return full.slice(0,stop).trim();
 }
