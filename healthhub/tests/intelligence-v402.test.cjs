@@ -67,7 +67,7 @@ test('I-06 preserves original question and backend 2400-char limit',()=>{
  const a=n.apply(b,'Mónika kérdése?',{mode:'deep',chronology:true},{quality:{originals:1}});
  assert.ok(a.payload.question.startsWith('Mónika kérdése?'));
  assert.ok(a.payload.question.length<=2400);
- assert.equal(b.question.length,1516);
+ assert.equal(b.question.length,('Mónika kérdése?'+'x'.repeat(1500)).length);
 });
 test('I-06 rejects cross-identity consent',()=>{
  assert.throws(()=>n.apply({...base(),consent:false},'A kérdésem?',{},{}),/I-06/);
