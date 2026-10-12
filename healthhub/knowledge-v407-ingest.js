@@ -92,3 +92,149 @@ async function pdfjs(){
 async function readDocuments(p){
  return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
 }
+
+function rawText(items){
+ return (items||[]).map(x=>typeof x.str==='string'?x.str:'').join(' ')
+  .replace(/[ \t]+/g,' ').replace(/\r/g,'').trim();
+}
+function flags(page,lib){
+ var ops=page&&page.fnArray||[],o=lib.OPS||{},images=0,paths=0;
+ var imageOps=[o.paintImageXObject,o.paintInlineImageXObject,o.paintJpegXObject,
+  o.paintImageXObjectRepeat,o.paintInlineImageXObjectGroup];
+ ops.forEach(k=>{if(imageOps.includes(k))images++;if(k===o.constructPath)paths++});
+ return {images:images,paths:paths};
+}
+async function loadOcr(){
+ if(ocrWorker)return ocrWorker;
+ if(!ocrLoader)ocrLoader=(async function(){
+  if(!window.Tesseract){
+   await new Promise((resolve,reject)=>{
+    var el=document.createElement('script');el.src=TESS;el.async=true;
+    el.onload=resolve;el.onerror=()=>reject(Error('A magyar OCR betöltése sikertelen.'));
+    document.head.appendChild(el);
+   });
+  }
+  // OCR runs locally in the browser: only language models are downloaded.
+  // No page images sent to a third-party OCR API.
+  ocrWorker=await window.Tesseract.createWorker('hun+eng',1);
+  return ocrWorker;
+ })().catch(e=>{ocrLoader=null;throw e});
+ return ocrLoader;
+}
+async function canvasPage(page){
+ var start=page.getViewport({scale:1}),factor=Math.min(2.4,3000/start.width,4000/start.height);
+ var viewport=page.getViewport({scale:Math.max(1,factor)});
+ var canvas=document.createElement('canvas');canvas.width=Math.round(viewport.width);
+ canvas.height=Math.round(viewport.height);
+ if(canvas.width*canvas.height>12000000)throw Error('Az orvosi oldal képének mérete túl nagy.');
+ var ctx=canvas.getContext('2d',{alpha:false});
+ if(!ctx)throw Error('A dokumentum-képrenderelő nem elérhető.');
+ await page.render({canvasContext:ctx,viewport:viewport}).promise;
+ return canvas;
+}
+function png(canvas){
+ return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Képkivonat nem hozható létre.')),'image/png'));
+}
+function clearCanvas(canvas){
+ if(canvas){canvas.width=0;canvas.height=0}
+}
+function srcClass(name){
+ return CORE.classify(name).sourceClass;
+}
+async function upsertDocument(p,file,sha,existing,duplicate){
+ var svc=active(p);
+ if(existing&&existing.sha256===sha&&existing.status==='complete')return existing;
+ var obj={profile_key:p,source_file_id:'drive_'+file.id,source_document_id:file.documentId||null,
+  original_name:file.name,source_modified_at:file.modified,
+  size_bytes:file.size,sha256:sha,status:duplicate?'complete':'processing',
+  source_class:srcClass(file.name),classification_status:'pending',
+  total_pages:duplicate?duplicate.total_pages:0,pages_indexed:duplicate?duplicate.pages_indexed:0,
+  pages_needing_ocr:0,visual_pages:duplicate?duplicate.visual_pages:0,
+  duplicate_of:duplicate?duplicate.id:null,notes:duplicate?'Azonos SHA-256 eredeti másik fájlban.':''
+ };
+ // Profile-specific upsert, RLS prevents cross-profile replacements.
+ var rows=await svc.request('/rest/v1/hh_kb_documents?on_conflict=profile_key,source_file_id',{
+  method:'POST',prefer:'resolution=merge-duplicates,return=representation',data:obj
+ });
+ if(!Array.isArray(rows)||!rows[0]?.id)throw Error('Nem sikerült nyilvántartásba venni a leletet.');
+ return rows[0];
+}
+async function savePage(docId,p,info){
+ await active(p).request('/rest/v1/hh_kb_pages?on_conflict=document_id,page_no',{
+  method:'POST',prefer:'resolution=merge-duplicates,return=minimal',
+  data:Object.assign({document_id:docId},info)
+ });
+}
+async function saveVisual(p,docId,pageNo,blob,canvas){
+ if(blob.size>=12000000)throw Error('A kép 12 MB felett van, tömörítés szükséges.');
+ var b=await blob.arrayBuffer(),digest=await hash(b);
+ var path=p+'/'+docId+'/'+pageNo+'-'+digest.slice(0,16)+'.png';
+ try{
+  await active(p).binary('/storage/v1/object/hh-kb-visuals/'+path,'POST',blob,'image/png');
+ }catch(e){if(e.httpStatus!==409)throw e} // Idempotent reprocessing.
+ await active(p).request('/rest/v1/hh_kb_visuals?on_conflict=document_id,page_no',{
+  method:'POST',prefer:'resolution=merge-duplicates,return=minimal',data:{
+   document_id:docId,page_no:pageNo,storage_path:path,kind:'visual_candidate',
+   bytes:blob.size,mime_type:'image/png',pixel_width:canvas.width,pixel_height:canvas.height
+  }
+ });
+}
+async function docStatus(p,docId,patch){
+ await active(p).request('/rest/v1/hh_kb_documents?id=eq.'+encodeURIComponent(docId),{
+  method:'PATCH',prefer:'return=minimal',
+  data:Object.assign({updated_at:new Date().toISOString()},patch)
+ });
+}
+async function extractDocument(p,file,bytes,docId){
+ var lib=await pdfjs(),pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;
+ var result={totalPages:pdf.numPages,pagesIndexed:0,pagesNeedingOcr:0,visualPages:0,
+  failedPages:0,visualFailed:0},reasons=[];
+ if(pdf.numPages>3000)throw Error('A PDF 3000 oldalnál hosszabb; kézi audit kell.');
+ try{
+  for(var pageNo=1;pageNo<=pdf.numPages;pageNo++){
+   if(st.stop)break;active(p);
+   st.current=file.name+' · '+pageNo+'/'+pdf.numPages+'. oldal';emit();
+   var page=await pdf.getPage(pageNo),text='',method='none',needOcr=false;
+   var can=null,visual=false,signal={capture:false,hint:'none'};
+   try{
+    var raw=await page.getTextContent();
+    text=rawText(raw.items);
+    method=text.length>=80?'embedded':'none';
+    var ops=flags(await page.getOperatorList(),lib);
+    signal=CORE.visualSignals(file.name,text,ops);
+    visual=signal.capture;
+    needOcr=text.length<80;
+    if(needOcr||visual){
+     can=await canvasPage(page);
+     if(needOcr){
+      try{
+       var worker=await loadOcr(),recognized=await worker.recognize(can);
+       var candidate=String(recognized.data?.text||'').trim();
+       if(candidate.length>=80){text=candidate;method='ocr';needOcr=false}
+      }catch(e){reasons.push('OCR függőben: '+pageNo+'. oldal')}
+     }
+    }
+    if(text.length>60000){
+     // Never label a clipped source page fully processed.
+     reasons.push('Nagyon hosszú szöveges oldal: '+pageNo);result.failedPages++;
+     text=text.slice(0,60000);
+    }
+    var digest=text?await hash(new TextEncoder().encode(text)):null;
+    await savePage(docId,p,{page_no:pageNo,page_text:text,extraction_method:method,
+      visual_candidate:visual,visual_hint:signal.hint,needs_review:needOcr||visual,
+      text_sha256:digest});
+    result.pagesIndexed++;
+    if(needOcr){result.pagesNeedingOcr++;reasons.push('Nem kiolvasható oldal: '+pageNo)}
+    if(visual){
+     try{
+      var picture=await png(can);await saveVisual(p,docId,pageNo,picture,can);
+      result.visualPages++;
+     }catch(e){result.visualFailed++;reasons.push('Képi melléklet mentési hiba: '+pageNo)}
+    }
+   }catch(e){result.failedPages++;reasons.push('Oldal feldolgozási hiba: '+pageNo)}
+   finally{clearCanvas(can);try{page.cleanup()}catch(e){}}
+  }
+ }finally{try{await pdf.destroy()}catch(e){}}
+ result.reasons=reasons.slice(0,8);
+ return result;
+}
