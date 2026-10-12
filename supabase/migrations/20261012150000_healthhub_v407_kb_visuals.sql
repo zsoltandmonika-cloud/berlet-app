@@ -61,3 +61,44 @@ CREATE TABLE IF NOT EXISTS public.hh_kb_visuals(
  PRIMARY KEY(document_id,page_no),
  FOREIGN KEY(document_id,page_no) REFERENCES public.hh_kb_pages(document_id,page_no) ON DELETE CASCADE
 );
+-- All derived text and metadata are private and profile-bound.
+ALTER TABLE public.hh_kb_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hh_kb_pages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hh_kb_visuals ENABLE ROW LEVEL SECURITY;
+GRANT SELECT, INSERT, UPDATE ON public.hh_kb_documents,public.hh_kb_pages,public.hh_kb_visuals TO authenticated;
+
+CREATE POLICY hh_kb_docs_select ON public.hh_kb_documents FOR SELECT TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_profile_access a
+  WHERE a.profile_key=hh_kb_documents.profile_key AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_docs_insert ON public.hh_kb_documents FOR INSERT TO authenticated
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_profile_access a
+  WHERE a.profile_key=hh_kb_documents.profile_key AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_docs_update ON public.hh_kb_documents FOR UPDATE TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_profile_access a
+  WHERE a.profile_key=hh_kb_documents.profile_key AND a.user_id=(SELECT auth.uid())))
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_profile_access a
+  WHERE a.profile_key=hh_kb_documents.profile_key AND a.user_id=(SELECT auth.uid())));
+
+CREATE POLICY hh_kb_pages_select ON public.hh_kb_pages FOR SELECT TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_pages.document_id AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_pages_insert ON public.hh_kb_pages FOR INSERT TO authenticated
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_pages.document_id AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_pages_update ON public.hh_kb_pages FOR UPDATE TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_pages.document_id AND a.user_id=(SELECT auth.uid())))
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_pages.document_id AND a.user_id=(SELECT auth.uid())));
+
+CREATE POLICY hh_kb_visuals_select ON public.hh_kb_visuals FOR SELECT TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_visuals_insert ON public.hh_kb_visuals FOR INSERT TO authenticated
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())));
+CREATE POLICY hh_kb_visuals_update ON public.hh_kb_visuals FOR UPDATE TO authenticated
+ USING(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())))
+ WITH CHECK(EXISTS(SELECT 1 FROM public.hh_kb_documents d JOIN public.hh_profile_access a
+  ON a.profile_key=d.profile_key WHERE d.id=hh_kb_visuals.document_id AND a.user_id=(SELECT auth.uid())));
