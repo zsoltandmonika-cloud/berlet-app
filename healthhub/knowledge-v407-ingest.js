@@ -238,3 +238,103 @@ async function extractDocument(p,file,bytes,docId){
  result.reasons=reasons.slice(0,8);
  return result;
 }
+
+function enabled(p){try{return localStorage.getItem('hh-kb-v407-enabled-'+p)==='yes'}catch(e){return false}}
+function enable(p,value){
+ if(!CORE.allowedProfile(p))return;
+ try{localStorage.setItem('hh-kb-v407-enabled-'+p,value?'yes':'no')}catch(e){}
+ emit();
+}
+function compareMeta(file,existing){
+ return existing&&existing.status==='complete'&&
+  Number(existing.size_bytes)===Number(file.size)&&
+  Date.parse(existing.source_modified_at||0)===Date.parse(file.modified||0);
+}
+function isPdfDocument(file){return !!file&&file.id&&/\.pdf$/i.test(file.name||'')}
+async function audit(p){
+ active(p);
+ var files=await listFiles(p),indexed=await readDocuments(p);
+ var known=new Map(indexed.map(r=>[r.source_file_id,r]));
+ var newCount=0,complete=0,partial=0,duplicates=0;
+ files.forEach(f=>{
+  var record=known.get('drive_'+f.id);
+  if(!record)newCount++;
+  else if(record.status==='complete'&&compareMeta(f,record))complete++;
+  else partial++;
+  if(record&&record.duplicate_of)duplicates++;
+ });
+ var stat={profile:p,drive:files.length,knowledgeBase:indexed.length,new:newCount,
+  complete:complete,partial:partial,duplicates:duplicates,
+  visualPages:indexed.reduce((n,x)=>n+Number(x.visual_pages||0),0),
+  pagesIndexed:indexed.filter(x=>!x.duplicate_of).reduce((n,x)=>n+Number(x.pages_indexed||0),0),
+  batchRunning:st.running};
+ st.last=stat;emit();return stat;
+}
+async function run(p,opts){
+ opts=opts||{};
+ if(st.running)return null;
+ p=p||profile();active(p);if(!CORE.allowedProfile(p))throw Error('Érvénytelen profil.');
+ st.running=true;st.stop=false;st.error='';st.done=0;st.current='Archívum egyeztetése…';emit();
+ try{
+  var files=(await listFiles(p)).filter(isPdfDocument),existing=await readDocuments(p);
+  var mapped=new Map(existing.map(x=>[x.source_file_id,x]));
+  // Process originals with known nonduplicate records first; deduplicate by SHA-256 later.
+  var remaining=files.filter(f=>!compareMeta(f,mapped.get('drive_'+f.id)));
+  st.total=Math.min(remaining.length,opts.maxDocs||1000);emit();
+  for(const file of remaining.slice(0,st.total)){
+   if(st.stop)break;active(p);
+   st.current=file.name;emit();
+   var record=mapped.get('drive_'+file.id),id=record&&record.id;
+   try{
+    var bytes=await blobFor(file,p),sha=await hash(bytes);
+    var canonical=existing.find(x=>x.profile_key===p&&x.source_file_id!=='drive_'+file.id&&
+     x.sha256===sha&&x.status==='complete'&&!x.duplicate_of);
+    // A repeated binary has one canonical, searchable page set.
+    var saved=await upsertDocument(p,file,sha,record,canonical||null);
+    id=saved.id;
+    if(canonical){mapped.set('drive_'+file.id,saved);existing.push(saved);st.done++;emit();continue}
+    if(record&&record.sha256===sha&&record.status==='complete'){st.done++;continue}
+    var result=await extractDocument(p,file,bytes,id),quality=CORE.readiness(result);
+    if(st.stop)quality='partial';
+    await docStatus(p,id,{status:quality,total_pages:result.totalPages,
+     pages_indexed:result.pagesIndexed,pages_needing_ocr:result.pagesNeedingOcr,
+     visual_pages:result.visualPages,notes:(result.reasons||[]).join('; ').slice(0,1100)});
+    var row=Object.assign({},saved,{status:quality,total_pages:result.totalPages,
+     pages_indexed:result.pagesIndexed,visual_pages:result.visualPages});
+    mapped.set('drive_'+file.id,row);existing.push(row);
+   }catch(e){
+    // Never put sensitive PDF text or tokens in logs or error messages.
+    if(id)try{await docStatus(p,id,{status:'failed',notes:'Feldolgozási hiba; ismételt ellenőrzés szükséges.'})}catch(_){}
+    st.error=String(e&&e.message||'PDF feldolgozási hiba').slice(0,135);
+   }
+   st.done++;emit();
+   await new Promise(resolve=>setTimeout(resolve,50));
+  }
+  return await audit(p);
+ }finally{st.running=false;st.current='';emit()}
+}
+async function listVisuals(p,docId){
+ if(!/^[a-f0-9-]{36}$/i.test(String(docId||'')))throw Error('Hibás dokumentumazonosító.');
+ active(p);
+ return await active(p).request('/rest/v1/hh_kb_visuals?select=document_id,page_no,storage_path,kind,pixel_width,pixel_height&document_id=eq.'+
+  encodeURIComponent(docId)+'&order=page_no.asc&limit=200',{method:'GET'});
+}
+async function imageBlob(p,path){
+ if(!String(path).startsWith(p+'/'))throw Error('Eltérő profilhoz tartozó kép.');
+ return active(p).binary('/storage/v1/object/hh-kb-visuals/'+path,'GET');
+}
+var autoTimer=null;
+function scheduleAuto(){
+ clearTimeout(autoTimer);var p=profile();
+ if(!enabled(p)||st.running)return;
+ autoTimer=setTimeout(function(){
+  if(enabled(p)&&p===profile()&&!st.running)run(p,{maxDocs:4,auto:true}).catch(()=>{});
+ },4500);
+}
+window.addEventListener('healthhub:lena-archive-complete',scheduleAuto);
+window.addEventListener('healthhub:lena-context-updated',scheduleAuto);
+window.addEventListener('healthhub:central-auth-changed',scheduleAuto);
+window.HH_KB_INGEST_V407={run:run,stop:function(){st.stop=true;emit()},audit:audit,
+ listFiles:listFiles,listVisuals:listVisuals,imageBlob:imageBlob,
+ enable:enable,enabled:enabled,getState:function(){return Object.assign({},st)}};
+})();
