@@ -6,7 +6,7 @@
    Native Android HealthHub Connect uses the same protocol with WorkManager. */
 
 var BUILD='1.305', ROOT='/HealthHub/orchestrator';
-var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status', DEVICE_REGISTRY=ROOT+'/device-registry-v401.json';
+var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status', CONFIGS=ROOT+'/config', DEVICE_REGISTRY=ROOT+'/device-registry-v401.json';
 var DEVICE_KEY='hh-orchestrator-device-id-v1', LAST_CMD='hh-orchestrator-last-command-v1';
 var CHECK_MS=60000, CHECK_THROTTLE=12000, ADMIN_ID='hhSyncOrchestrator305', STYLE_ID='hhSyncOrchestrator305Style';
 var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[],foldersReady=false;
@@ -383,6 +383,44 @@ function ragBadge305(name,state){
  return '<span class="hhRag305 '+level+'" title="'+esc(label)+'"><i aria-hidden="true"></i>'+
   '<b>'+esc(name)+'</b> '+esc(label)+'</span>';
 }
+function remotePolicy305(d,selected){
+ var t=d&&d.collectorTelemetry,policy=t&&t.remotePolicy;
+ var allowed=!!(selected&&d.deviceType==='android'&&
+  Array.isArray(d.capabilities)&&d.capabilities.includes('samsung')&&
+  t&&t.samsung&&t.samsung.autoEnabled===true&&policy&&!policy.trial);
+ if(!policy||!Array.isArray(d.capabilities)||!d.capabilities.includes('samsung'))
+  return '';
+ var current=Number(policy.syncIntervalHours)||4;
+ return '<div class="hhOrchPolicy305">'+
+  '<label>Samsung időzítés <select data-hh-policy-hours="'+esc(d.deviceId)+'" '+(allowed?'':'disabled')+'>'+
+  [4,6,8,12,24].map(function(h){return '<option value="'+h+'"'+(h===current?' selected':'')+'>'+h+' óra</option>'}).join('')+
+  '</select></label><button type="button" data-hh-policy-send="'+esc(d.deviceId)+'" '+(allowed?'':'disabled')+'>☁️ Beállítás küldése</button>'+
+  '<small>'+esc(policy.trial?'A/B próba folyamatban.':(policy.lastReason||'Engedélyezett, korlátozott távoli ütemezés.'))+'</small></div>';
+}
+async function pushPolicy305(deviceId,hours){
+ if(!connected())throw Error('Dropbox Vault nincs csatlakoztatva.');
+ hours=Number(hours);if(![4,6,8,12,24].includes(hours))throw Error('Érvénytelen időzítés.');
+ var r=await verifiedPhoneRegistry(),devices=await loadDevices(),d=devices.find(function(x){return x.deviceId===deviceId});
+ if(!d||!eligiblePhone(d,r,d.activeProfile))throw Error('Nem kijelölt telefon.');
+ var t=d.collectorTelemetry,policy=t&&t.remotePolicy;
+ if(!policy||policy.trial||!t.samsung||t.samsung.autoEnabled!==true||!Array.isArray(d.capabilities)||!d.capabilities.includes('samsung'))
+  throw Error('A Samsung ütemezés nem módosítható: telepítés, telefonos engedély vagy korábbi próba hiányzik.');
+ var service=window.HH_DAILY_HEALTH_SYNC_V319,auth=service&&service.getStatus&&service.getStatus();
+ if(!auth||!auth.authenticated||!Array.isArray(auth.authorizedProfiles)||!auth.authorizedProfiles.includes(d.activeProfile))
+  throw Error('Hitelesített, jogosult HealthHub Admin-belépés szükséges.');
+ if(hours===Number(policy.syncIntervalHours))throw Error('Ez az időzítés már aktív.');
+ if(!window.confirm('Samsung adatgyűjtés: '+esc(d.name||d.activeProfile)+' · '+hours+' óránként? A telefon a következő jelentkezéskor veszi át.'))return false;
+ var revision=Math.max(Number(policy.lastSeenRevision)||0,Number(policy.activeRevision)||0,Number(policy.verifiedRevision)||0)+1;
+ if(!Number.isSafeInteger(revision)||revision<1||revision>1000000000)throw Error('Konfigurációs revízió érvénytelen.');
+ await ensureFolder(CONFIGS);
+ var issued=now(),payload={schema:'healthhub.collector.config/1',deviceId:d.deviceId,
+  profile:d.activeProfile,revision:revision,issuedAt:issued,
+  expiresAt:new Date(Date.now()+7*86400000).toISOString(),samsungSyncHours:hours};
+ await upload(CONFIGS+'/'+d.deviceId+'.json',payload);
+ try{window.toast&&window.toast('✓ Ütemezés elküldve · átvétel a telefon következő jelentkezésekor')}catch(e){}
+ await refreshAdmin(true);
+ return true;
+}
 function remoteActions305(d,selected){
  if(d.deviceType!=='android')return '';
  var caps=Array.isArray(d.capabilities)?d.capabilities:[],disabled=selected?'':' disabled title="Előbb jelöld ki a fizikai telefont az Eszközregiszterben"';
@@ -427,7 +465,7 @@ function renderAdmin(){
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
   return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button>'+
   '<div class="hhOrchRags305">'+ragBadge305('Telefon',rag305('phone',d))+ragBadge305('Health Connect',rag305('health',d))+ragBadge305('Samsung',rag305('samsung',d))+ragBadge305('Dropbox',rag305('dropbox',d))+'</div>'+
-  remoteActions305(d,isPrimary)+telemetryPanel305(d)+'</div>';
+  remoteActions305(d,isPrimary)+remotePolicy305(d,isPrimary)+telemetryPanel305(d)+'</div>';
  }).join('');
  var cloudSvc=window.HH_DAILY_HEALTH_SYNC_V319,cloudStatus=null;
   try{cloudStatus=cloudSvc&&cloudSvc.getStatus&&cloudSvc.getStatus()}catch(e){}
