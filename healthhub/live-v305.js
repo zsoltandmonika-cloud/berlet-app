@@ -297,9 +297,11 @@ function ensureStyle(){
  '.hhOrchTelemetry305{grid-column:1/-1;min-width:0;padding:7px;background:#f7fbff;border-radius:10px}.hhOrchTelemetry305 summary{font-size:9px;font-weight:900;cursor:pointer;color:#244e6c;min-height:28px}.hhOrchTelemetry305 p{font-size:8px;line-height:1.55;color:#60798d}.hhOrchSrc305{margin:6px 0;padding:7px;border:1px solid #deebf3;border-radius:9px;background:white}.hhOrchSrc305 h5{font-size:9px;margin:0 0 7px;color:#173f62}.hhOrchGrid305{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.hhOrchGrid305 span{font-size:8.5px;overflow-wrap:anywhere;color:#31536f;line-height:1.4}.hhOrchGrid305 strong{font-size:7.5px;color:#698296}';
  document.head.appendChild(s);
 }
+var telemetryOpen305=new Set();
 function telemetryPanel305(d){
+ var marker=' data-telemetry-id="'+esc(d.deviceId)+'"'+(telemetryOpen305.has(d.deviceId)?' open':'');
  var t=d&&d.collectorTelemetry;
- if(!t||t.schema!=='healthhub.collector.telemetry/1')return '<details class="hhOrchTelemetry305"><summary>🔎 Adatmonitoring</summary><p>Telemetria a v0.15 Thin Collector telepítése után érkezik.</p></details>';
+ if(!t||t.schema!=='healthhub.collector.telemetry/1')return '<details class="hhOrchTelemetry305"'+marker+'><summary>🔎 Adatmonitoring</summary><p>Telemetria a v0.15 Thin Collector telepítése után érkezik.</p></details>';
  function fmt(x){var v=Date.parse(x||'');return Number.isFinite(v)?new Date(v).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
  function cell(a,b){return '<span><strong>'+esc(a)+'</strong><br>'+esc(b==null?'—':String(b))+'</span>'}
  function source(title,v,samsung){v=v||{};return '<section class="hhOrchSrc305"><h5>'+esc(title)+(v.alert?' ⚠':'')+'</h5><div class="hhOrchGrid305">'+
@@ -312,7 +314,7 @@ function telemetryPanel305(d){
  (samsung?cell('Kalóriaadat · napok',v.daysWithActiveCalories):cell('Edzések',v.exerciseRecordCount))+
  '</div></section>'}
  var cfg=t.remotePolicy||{};
- return '<details class="hhOrchTelemetry305"><summary>🔎 Adatmonitoring · HC + Samsung'+((t.samsung&&t.samsung.alert)||(t.healthConnect&&t.healthConnect.alert)?' ⚠':'')+'</summary>'+
+ return '<details class="hhOrchTelemetry305"'+marker+'><summary>🔎 Adatmonitoring · HC + Samsung'+((t.samsung&&t.samsung.alert)||(t.healthConnect&&t.healthConnect.alert)?' ⚠':'')+'</summary>'+
  '<p>Források, dátumok, rekordszámok, hibák. Nincsenek benne egészségügyi mért értékek.</p>'+
  source('❤️ Health Connect',t.healthConnect,false)+source('⌚ Samsung Health',t.samsung,true)+
  '<p>Ütemezés: '+esc(String(cfg.syncIntervalHours||4))+' óra · A/B verzió: '+esc(String(cfg.activeRevision||0))+(cfg.trial?' · próba':'')+
@@ -320,7 +322,8 @@ function telemetryPanel305(d){
 }
 function renderAdmin(){
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
- ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
+ ensureStyle();var old=document.getElementById(ADMIN_ID);
+ if(old){telemetryOpen305=new Set(Array.from(old.querySelectorAll('details.hhOrchTelemetry305')).filter(function(n){return n.open}).map(function(n){return n.getAttribute('data-telemetry-id')}).filter(Boolean));old.remove()}
  var rows=deviceCache.map(function(d){
   var isPrimary=phoneRegistryCache&&eligiblePhone(d,phoneRegistryCache,'all');
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
