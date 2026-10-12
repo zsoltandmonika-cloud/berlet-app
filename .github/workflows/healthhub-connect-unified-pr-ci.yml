@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "healthhub/android-bridge/**"
+      - "healthhub/live-v305.js"
+      - "healthhub/tests/collector-remote-rag-v015.test.js"
       - ".github/workflows/healthhub-connect-unified-pr-ci.yml"
 
 permissions:
@@ -52,3 +54,27 @@ jobs:
           test -s "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep "package: name='hu.zsoltmonika.healthhubbridge'"
           echo "Fallback APK compiled; no OTA release and no Samsung SDK functionality claimed."
+
+  admin-rag-remote-checks:
+    name: Admin RAG + Remote Control regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify Admin script syntax
+        run: node --check healthhub/live-v305.js
+      - name: Verify RAG status and stale-data guards
+        run: node --test healthhub/tests/collector-remote-rag-v015.test.js
+      - name: Check remote scope allowlist stays in Android client
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OrchestratorWorker.kt
+          grep -Fq 'val allowedRemote = setOf(' "$FILE"
+          grep -Fq 'if ("diagnostics" in requestedScopes)' "$FILE"
+          grep -Fq 'if ("samsung" in requestedScopes)' "$FILE"
+          grep -Fq 'if ("retry" in requestedScopes)' "$FILE"
+          grep -Fq 'SamsungCollectorScheduler.isEnabled(applicationContext)' "$FILE"
