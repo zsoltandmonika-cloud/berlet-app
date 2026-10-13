@@ -7,6 +7,10 @@ on:
       - ".github/workflows/healthhub-level3-guard.yml"
       - ".github/workflows/healthhub-daily-free.yml"
       - ".github/workflows/healthhub-daily-health.yml"
+  schedule:
+    # 00:15 Budapest local time: summer 22:15 UTC, winter 23:15 UTC.
+    - cron: '15 22,23 * * *'
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -99,28 +103,25 @@ jobs:
           python3 -m py_compile healthhub/scripts/generate_daily_health_ai.py
           python3 -m py_compile healthhub/scripts/generate_daily_ai.py
 
-      - name: Automatic rollback on failed main validation
-        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      # The validation must pass before any new Golden Backup is created.
+      # A Git annotated tag is the immutable source-code snapshot and audit entry.
+      # Rollback is intentionally MANUAL; a failing check never changes main.
+      - name: Golden Backup after successful HealthCheck
+        if: success() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
+        env:
+          VERIFIED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          git config user.name "HealthHub Level 3 Guard"
-          git config user.email "healthhub-guard@users.noreply.github.com"
-          git fetch origin main
-          CURRENT="$(git rev-parse origin/main)"
-          if [ "$CURRENT" != "$GITHUB_SHA" ]; then
-            echo "Main moved to $CURRENT after this run started. Automatic rollback is blocked for safety."
-            exit 1
+          # Cron runs twice to cover DST; only local midnight is accepted.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            HOUR="$(TZ=Europe/Budapest date +%H)"
+            if [ "$HOUR" != "00" ]; then
+              echo "Scheduled run outside Budapest midnight ($HOUR): skip backup."
+              exit 0
+            fi
           fi
-          MSG="$(git log -1 --pretty=%B "$GITHUB_SHA")"
-          if [[ "$MSG" == "[AUTO-ROLLBACK]"* ]]; then
-            echo "Rollback commit failed validation; refusing rollback loop."
-            exit 1
-          fi
-          git checkout -B main origin/main
-          if ! git revert --no-edit "$GITHUB_SHA"; then
-            git revert --abort || true
-            git revert -m 1 --no-edit "$GITHUB_SHA"
-          fi
-          git commit --amend -m "[AUTO-ROLLBACK] HealthHub validation failed for $GITHUB_SHA"
-          git push origin main
+          bash healthhub/scripts/golden-backup.sh
