@@ -83,7 +83,7 @@ assert.match(actualTicks,/00:00/,'First night start must be shown as a real cloc
 assert.match(actualTicks,/04:00/,'End of nighttime sleep must be shown as a real clock time');
 assert.match(actualTicks,/12:00/,'Afternoon nap start must be shown as a real clock time');
 assert.match(actualTicks,/12:45/,'Nap end must follow its actual time-axis position');
-assert.match(actualTicks,/left:\\d+\\.\\d+%/,'Tick positions must be proportional, not evenly invented');
+assert.match(actualTicks,/left:\d+\.\d+%/,'Tick positions must be proportional, not evenly invented');
 const emptyView=sleep.timelineViewport([],NOW-24*3600000,NOW);
 assert.equal(emptyView.zoom,false,'No-record case keeps the complete 24h scale');
 assert.equal(emptyView.end-emptyView.start,24*3600000);
