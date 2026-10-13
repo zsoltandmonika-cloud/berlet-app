@@ -94,7 +94,8 @@ class MainActivity : Activity() {
                     .setMessage("A részletes alkalmazásneveket és időpontokat azonnal törlöm. " +
                         "Az összesített óraszámok ettől még megmaradnak.")
                     .setPositiveButton("Kikapcsolás és törlés") { _, _ ->
-                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, false).apply()
+                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, false)
+                            .remove(PilotState.APP_DETAIL_CONSENT_START_MS).apply()
                         owner?.let { AppDetailLedger.clear(this, it) }
                         refresh()
                     }
@@ -106,10 +107,12 @@ class MainActivity : Activity() {
                     .setTitle("Részletes alkalmazáslista?")
                     .setMessage("A saját telefonod alkalmazásainak azonosítóit és óránkénti " +
                         "előtéridejét is gyűjti a PILOT. Ez érzékenyebb adat, ezért külön jóváhagyás kell. " +
-                        "Csak a telefonon marad, 30 napig, internet és felhőfeltöltés nélkül. " +
+                        "Csak a jóváhagyásod UTÁNI használatot méri, 30 napig a telefonon; internet és felhőfeltöltés nélkül. " +
                         "A ChatGPT-beszélgetések tartalmát nem olvassa.")
                     .setPositiveButton("Engedélyezem") { _, _ ->
-                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, true).apply()
+                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, true)
+                            .putLong(PilotState.APP_DETAIL_CONSENT_START_MS, System.currentTimeMillis())
+                            .apply()
                         if (prefs.getBoolean(PilotState.ENABLED, false)) {
                             CollectionScheduler.collectNow(this)
                         }
@@ -135,6 +138,7 @@ class MainActivity : Activity() {
                     val prefs = PilotState.prefs(this)
                     prefs.edit().putBoolean(PilotState.ENABLED, false)
                         .putBoolean(PilotState.APP_DETAIL_ENABLED, false)
+                        .remove(PilotState.APP_DETAIL_CONSENT_START_MS)
                         .remove(PilotState.LAST_NOTE).remove(PilotState.LAST_RUN).apply()
                     CollectionScheduler.stop(this)
                     PilotState.owner(this)?.let {
