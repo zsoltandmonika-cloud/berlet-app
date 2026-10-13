@@ -106,6 +106,14 @@ jobs:
       # The validation must pass before any new Golden Backup is created.
       # A Git annotated tag is the immutable source-code snapshot and audit entry.
       # Rollback is intentionally MANUAL; a failing check never changes main.
+      - name: Verify Sleep v428 formulas and JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check healthhub/sleep-three-views-v428.js
+          node --check healthhub/live-v170.js
+          node healthhub/tests/sleep-v428.test.js
+
       - name: Golden Backup after successful HealthCheck
         if: success() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
