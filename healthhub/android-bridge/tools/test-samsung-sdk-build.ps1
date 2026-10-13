@@ -19,9 +19,9 @@ try {
         $tempDir = Join-Path ([IO.Path]::GetTempPath()) ('hh-samsung-sdk-' + [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $tempDir | Out-Null
         Expand-Archive -LiteralPath $sdk -DestinationPath $tempDir
-        $candidates = @(Get-ChildItem -Path $tempDir -Recurse -File -Filter 'samsung-health-data-api.aar')
+        $candidates = @(Get-ChildItem -Path $tempDir -Recurse -File -Filter 'samsung-health-data-api*.aar')
         if ($candidates.Count -ne 1) {
-            throw "Expected exactly one samsung-health-data-api.aar in the private SDK ZIP; found $($candidates.Count)."
+            throw "Expected exactly one samsung-health-data-api*.aar in the private SDK ZIP; found $($candidates.Count)."
         }
         $sdk = $candidates[0].FullName
     }
