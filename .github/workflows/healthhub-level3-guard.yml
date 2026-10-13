@@ -123,7 +123,7 @@ jobs:
           fi
 
           TAG="hh-golden-${VERIFIED_SHA:0:12}"
-          VERSION="$(node -e "let h=require('fs').readFileSync('healthhub/index.html','utf8');process.stdout.write((h.match(/healthhub-live-build\\\" content=\\\"([^\\\"]+)/)||[])[1]||'unknown')")"
+          VERSION="$(node -p '((require("fs").readFileSync("healthhub/index.html","utf8").match(/healthhub-live-build" content="([^"]+)"/)||[])[1]||"unknown")')"
           CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           RUN_URL="$SERVER_URL/$REPOSITORY/actions/runs/$RUN_ID"
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
