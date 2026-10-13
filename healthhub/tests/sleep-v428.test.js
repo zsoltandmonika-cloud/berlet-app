@@ -4,9 +4,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('healthhub/sleep-three-views-v428.js','utf8');
+// Freeze the test clock so tomorrow's midnight HealthCheck is deterministic too.
+const FIXED_NOW=Date.parse('2026-10-13T12:00:00Z');
+class FixedDate extends Date { static now(){return FIXED_NOW;} }
 function load(enabled=true){
  const window={location:{search:enabled?'?hh_sleep_v428_preview=1':''}};
- const ctx={window,URLSearchParams,Intl,Date,Number,Array,Math,String,Set,
+ const ctx={window,URLSearchParams,Intl,Date:FixedDate,Number,Array,Math,String,Set,
   document:{addEventListener:function(){}},localStorage:{getItem:()=> 'z'},
   requestAnimationFrame:function(){}};
  vm.runInNewContext(source,ctx,{filename:'sleep-three-views-v428.js'});
@@ -17,7 +20,7 @@ function rec(a,b,stages,id){
  return {id:id||a,startTime:a,endTime:b,stages:(stages||[]).map(x=>({
   stage:x[0],startTime:x[1],endTime:x[2]})),sourcePackage:'com.sec.android.app.shealth'};
 }
-const NOW=Date.parse('2026-10-13T12:00:00Z'); // Budapest 14:00
+const NOW=FIXED_NOW; // Budapest 14:00, stable regardless of CI run date
 const night=rec('2026-10-12T22:00:00Z','2026-10-13T02:00:00Z',
  [[4,'2026-10-12T22:00:00Z','2026-10-13T02:00:00Z']],'night');
 const nap=rec('2026-10-13T10:00:00Z','2026-10-13T10:45:00Z',
@@ -61,12 +64,35 @@ assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
  '24h timeline must be a short, flat ribbon');
 assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
-assert.match(html,/sleep-three-views-v428\.css\?v=429-compact-three-cards/,
+assert.match(html,/sleep-three-views-v428\.css\?v=430-dynamic-ticks/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=429-flat-timeline/,
+assert.match(html,/sleep-three-views-v428\.js\?v=430-auto-zoom-ticks/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
 assert.doesNotMatch(sleep.top([night,nap],'zsolt'),/style="top:/,
  'Sleep-phase spans may not be four-level vertical stacks');
-console.log('HealthHub Sleep v428 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
+
+// v430: Zoom only the visual domain; never alter actual 24h measured totals.
+const visual=sleep.timelineViewport([night,nap],NOW-24*3600000,NOW);
+assert.equal(visual.zoom,true,'The domain should dynamically zoom to the measured sessions');
+assert.ok(visual.start < Date.parse(night.startTime),'Viewport adds context before the first sleep');
+assert.ok(visual.end > Date.parse(nap.endTime),'Viewport adds context after the last sleep');
+assert.ok(visual.end-visual.start < 17*3600000,'Zoom should remove irrelevant outer empty hours');
+assert.equal(sleep.summarize([night,nap],NOW).daily,285*60000,
+ 'Visual zoom must not change the measured 24-hour sum');
+const actualTicks=sleep.timelineTicks([night,nap],visual.start,visual.end);
+assert.match(actualTicks,/00:00/,'First night start must be shown as a real clock time');
+assert.match(actualTicks,/04:00/,'End of nighttime sleep must be shown as a real clock time');
+assert.match(actualTicks,/12:00/,'Afternoon nap start must be shown as a real clock time');
+assert.match(actualTicks,/12:45/,'Nap end must follow its actual time-axis position');
+assert.match(actualTicks,/left:\d+\.\d+%/,'Tick positions must be proportional, not evenly invented');
+const emptyView=sleep.timelineViewport([],NOW-24*3600000,NOW);
+assert.equal(emptyView.zoom,false,'No-record case keeps the complete 24h scale');
+assert.equal(emptyView.end-emptyView.start,24*3600000);
+const alone=sleep.timelineViewport([nap],NOW-24*3600000,NOW);
+assert.ok(alone.end-alone.start>=150*60000,'Short naps keep enough time context to read');
+assert.ok(alone.end-alone.start<24*3600000,'A single nap still zooms in');
+assert.match(sleep.top([night,nap],'zsolt'),/Automatikusan nagyított idővonal/,
+ 'The UI must explicitly explain that the visual time scale has changed');
+console.log('HealthHub Sleep v430 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
