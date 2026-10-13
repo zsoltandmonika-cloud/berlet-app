@@ -24,3 +24,14 @@ A különálló előnézeti naptár kártyái letisztultak, a legfrissebb napok 
 ## Offline regressziós ellenőrzés
 
 `node healthhub/tests/sleep-v428.test.js`: legutóbbi nappali alvás, éjjeli fő alvás megőrzése, nappali alvás hozzáadása az elmúlt 24 órához, átfedések duplázásmentessége, határlevágás, hiányzó fázisadat, profil elkülönítés és default-off flag.
+
+
+## v430 · dinamikusan nagyított 24 órás grafikon
+
+- A „Elmúlt 24 óra” **mért alvásideje változatlanul a gördülő 24 óra** rekordjaiból számolódik, a mérési időszakok uniójával.
+- **Csak a grafikon** időtartományát nagyítjuk a ténylegesen szereplő alvásrekordok kezdete és vége köré, minimális időtartam és kis szegély biztosításával.
+- A grafikonon megjelenő időbélyegek **a rekordok valódi kezdetéhez és végéhez** kötődnek, és a nagyított tengelyen időarányosan helyezkednek el. Sűrű eseményeknél a közeli feliratokat ritkítjuk a mobil olvashatóságért.
+- A nagyított időtartományt külön kiírjuk, így **nem keverhető össze a teljes 24 órás skálával**. Ha nincs rekord vagy a mért időszak majdnem kitölti a napot, a teljes 24 órás idővonal marad.
+- Az alvások közötti hézagokat nem tömörítjük külön: **az időbeli távolságok tényleges aránya megmarad**, hogy a grafikon ne legyen megtévesztő.
+- A széles nézet reszponzív százalékos pozicionálást használ; a Sleep oldal normál verziója változatlan, a v430 ugyanazon `?hh_sleep_v428_preview=1` előnézetkapcsolóval érhető el.
+- Offline regressziós tesztek: két alvás (éjjeli+nappali), 24 órás összeg megőrzése, valódi időcímkék, egyetlen rövid szieszta, üres adatok.
