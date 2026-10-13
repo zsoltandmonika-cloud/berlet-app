@@ -45,3 +45,9 @@
 **HealthHub → Family Network → Home/Life → külső családok zárt pilotja → esetleges általános közösségi termék.** A migráció adatvédelmi, betegbiztonsági, jogosultsági és fenntartható üzemeltetési követelményeken múlik, nem csupán a UI kialakításán.
 
 **Megjegyzés:** Ez a dokumentum az elfogadott prioritásokat és moduláris architektúrát rögzíti, **nem állítja, hogy az új Safety vagy Sleep AI 2.0 funkció már éles lenne.**
+## HealthRadar · állandó, élő modul (2026-10-13 pontosítás)
+**A HealthRadar a HealthHub állandóan működő és folyamatosan bővülő egészségügyi modulja.** Nem cél a HealthRadar modul lezárása, funkcióinak befagyasztása vagy megszüntetése. Új egészségügyi funkciók, új almodulok és személyes AI Intelligence képességek rendszeresen csatlakozhatnak hozzá a közös moduláris architektúrában.
+
+A `HH-HR-008` **kizárólag a történeti, különálló HealthRadar webhely** lehetséges egyszeri, read-only archiválására vonatkozik. Ez csak a teljes adatmigráció/feature parity és a felhasználó külön jóváhagyása után merülhet fel; **nem** jelenti a HealthHubon belüli HealthRadar élettartamának végét.
+
+Új állandó termékfeladat: `HH-HR-011` (Continuous HealthRadar Evolution). A közeljövő aktív fejlesztése változatlanul `HH-SLI-001` Sleep Evidence Vault / Sleep Intelligence 2.0. Az Emergency CPR/AED a Nutrition elé sorolt stratégiai modul marad.
