@@ -116,3 +116,23 @@
 .hh431HistoryDetails{border-top:1px solid #d8e6f0;padding:9px 0 0;margin:4px 0 0}
 .hh431HistoryDetails>summary{font-size:12px;color:#2e678e;cursor:pointer;line-height:1.45;font-weight:750;padding:3px 2px}
 .hh431HistoryDetails[open]>summary{margin-bottom:10px}
+
+/* v432 · Golden Standard sleep factors: fixed two-column rhythm, even when
+ * wearable vitals are absent. Applied to opt-in Sleep preview only. */
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
+ align-items:stretch!important;
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{
+ grid-column:auto!important;
+ width:auto!important;
+ max-width:none!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorValue381{overflow-wrap:anywhere}
+@media(max-width:365px){
+ #hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{gap:7px!important}
+}
