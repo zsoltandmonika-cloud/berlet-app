@@ -161,8 +161,8 @@ class ThinPilotActivity : Activity() {
                     "Edzésből származó szintemelkedés: $gain${if (gain == "nincs adat") "" else " m"}\n\n" +
                     "Az olvasás helyi, adatfeltöltés nem történt."
 
-                val hourly = records.optJSONArray("hourlySteps")
-                val exercises = records.optJSONArray("exerciseSessions")
+                val hourly = records?.optJSONArray("hourlySteps")
+                val exercises = records?.optJSONArray("exerciseSessions")
                 diagnostic.text = "ADATDIAGNOSZTIKA · Samsung SDK\n" +
                     "Forrás: ${payload.optString("source", "ismeretlen")}\n" +
                     "Napi rekordok: ${days.length()}\n" +
