@@ -200,10 +200,10 @@ class ThinPilotActivity : Activity() {
                     }
                 }
                 diagnostic.text = "ADATDIAGNOSZTIKA · Samsung SDK\n" +
-                    "Kért időszak: $requestedDays nap\\n" +
-                    "Jogosultságok: aktivitás ${granted("activitySummaryPermission")}, emelet ${granted("floorsPermission")}, lépések ${granted("stepsPermission")}, edzés ${granted("exercisePermission")}\\n" +
-                    "Emeletlekérdezés (naponként):\\n${dates.joinToString("\\n").ifBlank { "nincs napi rekord" }}\\n" +
-                    "Mai óránkénti lépések:\\n${hourRows.joinToString("\\n").ifBlank { "nincs elérhető órás rekord" }}\\n\\n" +
+                    "Kért időszak: $requestedDays nap\n" +
+                    "Jogosultságok: aktivitás ${granted("activitySummaryPermission")}, emelet ${granted("floorsPermission")}, lépések ${granted("stepsPermission")}, edzés ${granted("exercisePermission")}\n" +
+                    "Emeletlekérdezés (naponként):\n${dates.joinToString("\n").ifBlank { "nincs napi rekord" }}\n" +
+                    "Mai óránkénti lépések:\n${hourRows.joinToString("\n").ifBlank { "nincs elérhető órás rekord" }}\n\n" +
                     "Forrás: ${payload.optString("source", "ismeretlen")}\n" +
                     "Napi rekordok: ${days.length()}\n" +
                     "Óránkénti lépésrekordok: ${hourly?.length() ?: 0}\n" +
