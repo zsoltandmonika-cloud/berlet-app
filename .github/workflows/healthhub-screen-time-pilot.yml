@@ -46,7 +46,7 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='hu.zsoltmonika.healthhub.screentimepilot'"
       - uses: actions/upload-artifact@v4
         with:
-          name: HH-Screen-Time-PILOT-v0.1.0-DEBUG-NOT-PRODUCTION
+          name: HH-Screen-Time-PILOT-v0.2.0-DEBUG-NOT-PRODUCTION
           path: healthhub/screen-time-pilot/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
           if-no-files-found: error
