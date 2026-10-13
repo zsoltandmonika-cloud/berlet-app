@@ -10,7 +10,7 @@ import android.content.Context
  * NO upload, background exfiltration, chat content or raw app-name history.
  */
 internal object UsageCollector {
-    data class CollectOutcome(val hoursObserved: Int, val storedHours: Int, val signals: Int)
+    data class CollectOutcome(val hoursObserved: Int, val storedHours: Int, val signals: Int, val detailedAppHours: Int)
     private const val WINDOW_HOURS = 48L
     private const val START_LOOKBACK_HOURS = 12L
 
@@ -41,6 +41,13 @@ internal object UsageCollector {
         val observed = UsageSessionizer.aggregate(signals, start, end)
         // Intentionally don't write fabricated zero-hour entries.
         val stored = LocalLedger.merge(context, owner, observed, now)
-        return CollectOutcome(observed.size, stored, signals.size)
+        val detailed = if (PilotState.prefs(context).getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
+            val apps = AppUsageAggregator.aggregate(signals, start, end)
+            AppDetailLedger.merge(context, owner, apps, now)
+        } else {
+            // No new per-app identity is stored without a second opt-in.
+            0
+        }
+        return CollectOutcome(observed.size, stored, signals.size, detailed)
     }
 }
