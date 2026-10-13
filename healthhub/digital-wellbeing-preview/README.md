@@ -49,3 +49,13 @@ A user-shared Samsung Digital Wellbeing screenshot motivated the **layout**:
 The dashboard preview can be deployed at a separate unlinked GitHub Pages URL. **Do not change the existing Home Hero, Sleep v433, or production Android Connect** as part of this PR. The new funny Léna Hero generated in conversation is **a candidate**, not the replacement, until user approval and an appropriately optimized image asset is staged and reviewed separately.
 
 Next: compare actual Samsung screen-time data and event coverage on an explicit phone test. Extend the separate \`screen-time-pilot\` collector to app-level aggregate + validated local-clock trend **before** any cloud-sync implementation. Only then wire the shared private event source into Sleep and Digital Wellbeing.
+
+## Stage 2 private-source adapter (pre-integration, 2026-10-13)
+A new read-only staging utility `private-source-adapter.js` is provided but **NOT loaded by the public Golden Preview**. It has zero networking, file-storage or cookie access. It accepts **only a validated private caller-supplied** `healthhub.digital-usage.detail-pilot/1` local Android result with:
+- Explicit `consentConfirmed` and authenticated caller-supplied `profileKey` (the adapter does **not** replace server authorization/RLS).
+- Exact source, profile and recent collection-time checks; fixed upper input size; valid nonnegative UTC hour, bounded durations, deduplication and source provenance.
+- Stated `observed_app_foreground` semantics, never a reconstructed Samsung official screen-time measurement.
+- NAP/7/30 daily grouping in Budapest time, including autumn DST duplicated local hours and missing-as-unknown bins.
+- Explicit no live integration: no HealthHub Connect or production Sleep access, no Dropbox server credentials or local device data; read-side logic only. CI test: `verify-private-source-adapter.cjs`.
+
+The **approved Golden dashboard remains unchanged**. Further steps: separately authorized native Samsung pilot, verify collection accuracy and two unattended cycles; then authenticated, consented profile-private vault ingestion and strictly read-only binding into the dashboard and Sleep AI. No public file may contain real app-use telemetry.
