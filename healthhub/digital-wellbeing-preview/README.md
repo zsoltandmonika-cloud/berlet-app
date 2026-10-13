@@ -3,12 +3,13 @@
 **2026-10-13** · **STATIC PREVIEW / NOT LIVE**. This standalone demo is served under \`/healthhub/digital-wellbeing-preview/\`, with **synthetic data only**. It does not touch or replace the HealthHub homepage, the v433 Sleep interface, private storage, production Android Connect, or authenticated services.
 
 ## Screenshot-informed design
-The user provided a Samsung Digital Wellbeing screenshot (21:34, Oct 13) showing:
-- Top card: **Screen time today 3 h 11 m**.
-- Most used apps: Edge **1 h 37 m**, Messenger **24 m**, Facebook **24 m**.
-- Categories: Social **2 h 32 m**, Productivity and finance **20 m**, Maps and travel **3 m**.
-- Timer section visibly lists Edge **2 h 12 m** and Social **3 h 4 m**, which **do not match the top-card row**. These may represent different time windows or different metrics; **never assume they reconcile** without phone-side validation.
-- Timer buttons and screen-time goal, as separate **configuration** features.
+A user-shared Samsung Digital Wellbeing screenshot motivated the **layout**:
+- Main "Screen time today" total and separately ranked app rows.
+- App-category cards and a separate "app timers" section.
+- Screen-time goal settings as distinct **configuration**, not a historical measurement.
+- **Source reconciliation requirement:** timer-section values can differ from top-card app totals. They may represent different time windows or metrics; **do not assert equality** without direct Android/Samsung validation.
+
+**Do not copy real screenshot timestamps, per-app names/time totals, personal identifiers or other behavioral data into this public source repository.** Use generated synthetic values exclusively in examples and the preview.
 
 **None of the screenshot's numbers have been silently imported into this preview or the user's HealthHub health records.** All dashboard numbers are synthetic and clearly labeled. Screenshot data are not reliable historical machine-readable records and must not seed automatic trends.
 
