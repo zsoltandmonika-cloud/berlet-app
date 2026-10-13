@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://healthhub.local/schemas/device-health-envelope-v1.schema.json",
+  "title": "HealthHub device health observation envelope v1",
+  "description": "Future-ready common record for Health Connect, Samsung Health SDK and wearable origins. Schema only; does not enable collection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "ownerProfile",
+    "origin",
+    "measurement",
+    "observedAt",
+    "availability"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "healthhub.device.observation/1"
+    },
+    "ownerProfile": {
+      "enum": [
+        "zsolt",
+        "monika"
+      ]
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collector",
+        "sourceApp"
+      ],
+      "properties": {
+        "collector": {
+          "enum": [
+            "health_connect",
+            "samsung_health_sdk",
+            "manual",
+            "other"
+          ]
+        },
+        "sourceApp": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "Per-profile privacy-preserving, locally maintained pseudonym; not a hardware serial."
+        },
+        "deviceFamily": {
+          "enum": [
+            "galaxy_watch",
+            "phone",
+            "blood_pressure_monitor",
+            "scale",
+            "other",
+            "unknown"
+          ]
+        },
+        "modelLabel": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Source native record ID, when supplied; do not invent."
+        },
+        "originalRecordSource": {
+          "type": "string",
+          "description": "Original producing app/device when available. Different from import/transit app."
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "steps",
+            "active_calories",
+            "active_minutes",
+            "distance",
+            "floors",
+            "elevation_gain",
+            "exercise_session",
+            "heart_rate",
+            "resting_heart_rate",
+            "heart_rate_variability",
+            "oxygen_saturation",
+            "blood_pressure",
+            "blood_glucose",
+            "body_temperature",
+            "skin_temperature",
+            "sleep_session",
+            "sleep_stage",
+            "sleep_score",
+            "energy_score",
+            "stress",
+            "weight",
+            "body_fat",
+            "skeletal_muscle_mass",
+            "water_intake",
+            "nutrition",
+            "vo2_max",
+            "other"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 48
+        },
+        "stage": {
+          "type": "string",
+          "description": "For sleep_stage; preserve source label."
+        },
+        "systolic": {
+          "type": "number"
+        },
+        "diastolic": {
+          "type": "number"
+        },
+        "details": {
+          "type": "object",
+          "description": "Source-specific structured fields, validated by kind-specific adapter."
+        }
+      }
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intervalEnd": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceTimezone": {
+      "type": "string",
+      "description": "IANA time zone if known, never infer from UTC alone."
+    },
+    "availability": {
+      "enum": [
+        "measured",
+        "missing",
+        "permission_denied",
+        "source_unavailable",
+        "unsupported",
+        "query_failed"
+      ]
+    },
+    "confidence": {
+      "enum": [
+        "direct_source",
+        "derived_from_measurement",
+        "user_entered"
+      ]
+    },
+    "collectedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Not every measurement is supported by every watch/API; leave absent until confirmed."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "availability": {
+            "const": "measured"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "confidence"
+        ]
+      }
+    }
+  ],
+  "examples": []
+}
