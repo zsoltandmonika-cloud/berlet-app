@@ -1,6 +1,6 @@
 package hu.zsoltmonika.healthhubbridge
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import android.os.Build
 import android.os.Bundle
 import android.graphics.Color
@@ -37,7 +37,7 @@ import kotlin.reflect.KClass
  * v422 read-only, no-network Health Connect pilot.
  * Never writes data, exports files, binds a user profile or schedules background work.
  */
-class HcPilotActivity : Activity() {
+class HcPilotActivity : ComponentActivity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var status: TextView
     private lateinit var details: TextView
