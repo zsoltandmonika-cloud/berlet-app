@@ -74,6 +74,11 @@ internal object AppDetailLedger {
             byKey[it.hourStartMs to it.packageName] = it
         }
         validateHourTotals(incoming)
+        // A resampled hour is one coherent snapshot: clear its OLD app mix
+        // before inserting the NEW mix. Retaining an old app absent in the
+        // new reading could double-count one UTC hour after a reimport.
+        val replacedHours = incoming.map { it.hourStartMs }.toSet()
+        byKey.keys.removeAll { it.first in replacedHours }
         for (entry in incoming) {
             validate(entry)
             if (entry.hourStartMs >= cutoff && entry.hourStartMs < nowMs) {
