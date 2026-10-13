@@ -162,20 +162,22 @@ function timelineTicks(rows,start,end){
   if(Number.isFinite(a)&&Number.isFinite(b)&&b>a)points.push(a,b);
  });
  points.sort(function(a,b){return a-b});
- var kept=[];
+ var kept=[],lastAt=[-Infinity,-Infinity];
  points.forEach(function(ms){
   var x=(ms-start)/(end-start);
-  if(kept.some(function(prev){return Math.abs(x-prev.x)<.13}))return;
-  kept.push({ms:ms,x:x});
+  if(kept.some(function(prev){return prev.ms===ms}))return;
+  // Keep true start and end markers. Close labels get a second row instead
+  // of disappearing, while the flat ribbon retains its original height.
+  var row=x-lastAt[0]>=.13?0:(x-lastAt[1]>=.13?1:-1);
+  if(row<0)return;
+  kept.push({ms:ms,x:x,row:row});lastAt[row]=x;
  });
- // On days with many fragments, retain the earliest and latest meaningful time.
- if(kept.length>6){
-  kept=[kept[0]].concat(kept.slice(1,-1).filter(function(_,i){return i%Math.ceil((kept.length-2)/4)===0}).slice(0,4),[kept[kept.length-1]]);
- }
- if(!kept.length)kept=[{ms:start,x:0},{ms:end,x:1}];
+ // Bound crowding if a wearable provides many small fragmented sessions.
+ if(kept.length>8)kept=[kept[0]].concat(kept.slice(1,-1).filter(function(_,i){return i%Math.ceil((kept.length-2)/6)===0}).slice(0,6),[kept[kept.length-1]]);
+ if(!kept.length)kept=[{ms:start,x:0,row:0},{ms:end,x:1,row:0}];
  return kept.map(function(p){
-  var pct=p.x*100;
-  return '<span class="hh430Tick" style="left:'+pct.toFixed(3)+'%" aria-label="'+esc(clock(p.ms))+'">'+esc(clock(p.ms))+'</span>';
+  var pct=p.x*100,align=p.x<.07?' hh430Tick--left':p.x>.93?' hh430Tick--right':'';
+  return '<span class="hh430Tick'+(p.row?' hh430Tick--second':'')+align+'" style="left:'+pct.toFixed(3)+'%" aria-label="'+esc(clock(p.ms))+'">'+esc(clock(p.ms))+'</span>';
  }).join('');
 }
 function timebar(rows,start,end,label){
@@ -188,7 +190,7 @@ function timebar(rows,start,end,label){
   '<small>'+esc(rangeLabel)+'</small></div>'+
   '<div class="hh428Timebar" role="img" aria-label="'+esc(label+'. '+(view.zoom?'Nagyított':'24 órás')+' idősáv: '+rangeLabel)+'">'+
   (blocks||'<span class="hh428NoStage">Nincs részletes fázisadat.</span>')+'</div>'+
-  '<div class="hh430Axis" aria-label="Alvásrekordok kezdetének és végének időpontja">'+
+  '<div class="hh430Axis'+(timelineTicks(rows,a,b).includes('hh430Tick--second')?' hh430Axis--two':'')+'" aria-label="Alvásrekordok kezdetének és végének időpontja">'+
   timelineTicks(rows,a,b)+'</div>';
 }
 function activeProfile(){
