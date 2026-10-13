@@ -315,7 +315,7 @@ function sleepFactorCards381(night,profile){
    '</div><strong>'+(idx?idx.score:'—')+' <small>/ 100</small></strong></div>';
  var expl='<details class="hhSleepIndexMethod382"><summary>ℹ️ Hogyan számoljuk az alvásindexet?</summary>'+
   '<p>Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. 80%-nál hiányosabb alvásfázis-idővonalból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.</p></details>';
- return '<section class="hhSleepFactorsSection381" aria-label="Alvási tényezők">'+
+ return '<section class="hhSleepFactorsSection381'+(window.HH_SLEEP_V428_ENABLED===true?' hhSleepFactorsV432':'')+'" aria-label="Alvási tényezők">'+
   
   score+expl+
   '<div class="hhSleepFactors381">'+
