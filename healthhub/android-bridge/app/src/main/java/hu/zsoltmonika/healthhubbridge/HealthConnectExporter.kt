@@ -115,11 +115,39 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val elevationAllowed = granted.contains(HealthPermission.getReadPermission(ElevationGainedRecord::class))
         val floorsAllowed = granted.contains(HealthPermission.getReadPermission(FloorsClimbedRecord::class))
 
-        val bp = client.readRecords(ReadRecordsRequest(BloodPressureRecord::class, range)).records
+        // BloodPressureRecord may span multiple Health Connect pages over 30 days.
+        // Never interpret the first page as the entire history.
+        val bp = mutableListOf<BloodPressureRecord>()
+        var bpPageToken: String? = null
+        do {
+            val page = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = BloodPressureRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = bpPageToken
+                )
+            )
+            bp.addAll(page.records)
+            bpPageToken = page.pageToken
+        } while (!bpPageToken.isNullOrEmpty())
         val weight = client.readRecords(ReadRecordsRequest(WeightRecord::class, range)).records
         val bodyFat = client.readRecords(ReadRecordsRequest(BodyFatRecord::class, range)).records
         val glucose = client.readRecords(ReadRecordsRequest(BloodGlucoseRecord::class, range)).records
-        val oxygen = client.readRecords(ReadRecordsRequest(OxygenSaturationRecord::class, range)).records
+        // OxygenSaturationRecord may span multiple Health Connect pages over 30 days.
+        // Never interpret the first page as the entire history.
+        val oxygen = mutableListOf<OxygenSaturationRecord>()
+        var oxygenPageToken: String? = null
+        do {
+            val page = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = OxygenSaturationRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = oxygenPageToken
+                )
+            )
+            oxygen.addAll(page.records)
+            oxygenPageToken = page.pageToken
+        } while (!oxygenPageToken.isNullOrEmpty())
 
         val activeCaloriesRecords = mutableListOf<ActiveCaloriesBurnedRecord>()
         var activeCaloriesPageToken: String? = null
@@ -150,9 +178,37 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             heartPageToken = heartPage.pageToken
         } while (!heartPageToken.isNullOrEmpty())
 
-        val restingHeart = client.readRecords(ReadRecordsRequest(RestingHeartRateRecord::class, range)).records
+        // RestingHeartRateRecord may span multiple Health Connect pages over 30 days.
+        // Never interpret the first page as the entire history.
+        val restingHeart = mutableListOf<RestingHeartRateRecord>()
+        var restingHeartPageToken: String? = null
+        do {
+            val page = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = RestingHeartRateRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = restingHeartPageToken
+                )
+            )
+            restingHeart.addAll(page.records)
+            restingHeartPageToken = page.pageToken
+        } while (!restingHeartPageToken.isNullOrEmpty())
         val exercise = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, range)).records
-        val sleep = client.readRecords(ReadRecordsRequest(SleepSessionRecord::class, range)).records
+        // SleepSessionRecord may span multiple Health Connect pages over 30 days.
+        // Never interpret the first page as the entire history.
+        val sleep = mutableListOf<SleepSessionRecord>()
+        var sleepPageToken: String? = null
+        do {
+            val page = client.readRecords(
+                ReadRecordsRequest(
+                    recordType = SleepSessionRecord::class,
+                    timeRangeFilter = range,
+                    pageToken = sleepPageToken
+                )
+            )
+            sleep.addAll(page.records)
+            sleepPageToken = page.pageToken
+        } while (!sleepPageToken.isNullOrEmpty())
         val vo2 = client.readRecords(ReadRecordsRequest(Vo2MaxRecord::class, range)).records
 
         val root = JSONObject()
