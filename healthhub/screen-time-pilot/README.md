@@ -1,4 +1,4 @@
-# HealthHub Screen Time Collector · isolated Android pilot v0.1.0
+# HealthHub Screen Time Collector · isolated Android pilot v0.2.0
 
 **State: TECHNICAL PILOT ONLY. NOT INSTALLED / NOT LIVE. Stage 2 = opt-in detailed app-hour diagnostics.** Built separately from the production HealthHub Connect v0.14.0; app ID: `hu.zsoltmonika.healthhub.screentimepilot`.
 
