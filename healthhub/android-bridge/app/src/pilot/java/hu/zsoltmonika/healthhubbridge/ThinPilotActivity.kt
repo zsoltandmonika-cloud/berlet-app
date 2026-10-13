@@ -210,28 +210,28 @@ class ThinPilotActivity : Activity() {
                         val ascent = number(item, "altitudeGainMeters", 1)
                         val startTime = item.optString("startTime", "")
                         val endTime = item.optString("endTime", "")
-                        "$whenDate · $exerciseType\\n" +
+                        "$whenDate · $exerciseType\n" +
                             "  Idő: ${if (duration == "nincs adat") duration else "$duration perc"}" +
-                            " · Táv: ${if (meters == "nincs adat") meters else "$meters m"}\\n" +
+                            " · Táv: ${if (meters == "nincs adat") meters else "$meters m"}\n" +
                             "  Tempó: ${if (pace == "nincs adat") pace else "$pace perc/km"}" +
                             " · Edzés-szintemelkedés: ${if (ascent == "nincs adat") ascent else "$ascent m"}" +
                             (if (startTime.isNotBlank() && endTime.isNotBlank())
-                                "\\n  Kezdés: $startTime · Vég: $endTime" else "")
+                                "\n  Kezdés: $startTime · Vég: $endTime" else "")
                     }
                 }
                 val exerciseDetails = if (exerciseRows.isEmpty()) {
                     "Nincs elérhető edzésrekord."
                 } else {
-                    exerciseRows.take(12).joinToString("\\n\\n") +
-                        if (exerciseRows.size > 12) "\\n... további ${exerciseRows.size - 12} rekord nincs kibontva." else ""
+                    exerciseRows.take(12).joinToString("\n\n") +
+                        if (exerciseRows.size > 12) "\n... további ${exerciseRows.size - 12} rekord nincs kibontva." else ""
                 }
                 diagnostic.text = "ADATDIAGNOSZTIKA · Samsung SDK\n" +
                     "Kért időszak: $requestedDays nap\n" +
                     "Jogosultságok: aktivitás ${granted("activitySummaryPermission")}, emelet ${granted("floorsPermission")}, lépések ${granted("stepsPermission")}, edzés ${granted("exercisePermission")}\n" +
                     "Emeletlekérdezés (naponként):\n${dates.joinToString("\n").ifBlank { "nincs napi rekord" }}\n" +
                     "Mai óránkénti lépések:\n${hourRows.joinToString("\n").ifBlank { "nincs elérhető órás rekord" }}\n\n" +
-                    "EDZÉSREKORDOK · tényleges SDK-értékek:\\n$exerciseDetails\\n\\n" +
-                    "A tempó csak akkor jelenik meg, ha a Samsung edzésrekordja alkalmas a számításra; az edzés-szintemelkedés nem azonos a napi összes szintemelkedéssel.\\n\\n" +
+                    "EDZÉSREKORDOK · tényleges SDK-értékek:\n$exerciseDetails\n\n" +
+                    "A tempó csak akkor jelenik meg, ha a Samsung edzésrekordja alkalmas a számításra; az edzés-szintemelkedés nem azonos a napi összes szintemelkedéssel.\n\n" +
                     "Forrás: ${payload.optString("source", "ismeretlen")}\n" +
                     "Napi rekordok: ${days.length()}\n" +
                     "Óránkénti lépésrekordok: ${hourly?.length() ?: 0}\n" +
