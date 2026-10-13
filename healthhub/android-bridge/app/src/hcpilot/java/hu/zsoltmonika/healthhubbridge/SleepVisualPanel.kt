@@ -28,7 +28,7 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
     private val header = TextView(context)
     private val dayStrip = LinearLayout(context)
     private val daysScroll = HorizontalScrollView(context)
-    private val sessionColumn = LinearLayout(context)
+    private val sessionColumn = LinearLayout(context).apply { orientation = VERTICAL }
     private var records: List<SleepSessionRecord> = emptyList()
     private var selected: LocalDate = LocalDate.now(zone)
     private var windowDays: Long = 30L
