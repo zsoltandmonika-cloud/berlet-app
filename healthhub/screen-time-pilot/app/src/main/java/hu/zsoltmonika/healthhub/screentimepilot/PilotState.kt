@@ -8,6 +8,10 @@ internal object PilotState {
     private const val NAME = "hh_screen_time_pilot_v1"
     const val OWNER = "bound_profile"
     const val ENABLED = "collection_enabled"
+    // More sensitive application-level usage is a SECOND, explicit opt-in.
+    const val APP_DETAIL_ENABLED = "app_detail_collection_enabled"
+    // Do not retrospectively collect app identities from before this consent.
+    const val APP_DETAIL_CONSENT_START_MS = "app_detail_consent_start_ms"
     const val LAST_RUN = "last_completed_run_ms"
     const val LAST_NOTE = "last_collection_note"
 

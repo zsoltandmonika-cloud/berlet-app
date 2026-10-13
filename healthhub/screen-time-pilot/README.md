@@ -1,6 +1,6 @@
-# HealthHub Screen Time Collector · isolated Android pilot v0.1.0
+# HealthHub Screen Time Collector · isolated Android pilot v0.2.0
 
-**State: TECHNICAL PILOT ONLY. NOT INSTALLED / NOT LIVE.** Built separately from the production HealthHub Connect v0.14.0; app ID: `hu.zsoltmonika.healthhub.screentimepilot`.
+**State: TECHNICAL PILOT ONLY. NOT INSTALLED / NOT LIVE. Stage 2 = opt-in detailed app-hour diagnostics.** Built separately from the production HealthHub Connect v0.14.0; app ID: `hu.zsoltmonika.healthhub.screentimepilot`.
 
 ## Objective
 Test the Android usage-events source on an S24 Ultra before touching production Connect or moving anything into a shared Sleep / Digital Wellbeing source store.
@@ -11,7 +11,9 @@ Test the Android usage-events source on an S24 Ultra before touching production 
 - Collection OFF by default. Only after user enables it, WorkManager polls on an inexact ~6h periodic schedule; first collection scheduled immediately; a manual diagnostic button is optional.
 - Each run reads the previous 48 **completed UTC hours**, with 12h extra query lookback for sessions overlapping the start. Only **closed** observed sessions count. Missing hours are **unknown**, never fabricated zero.
 - Persist per-hour counts in private application storage, replace-by-hour to avoid double-counting; 90-day rolling retention, explicit stop + delete.
-- Save just `hourStartMs`, `observedForegroundMs`, `chatGptForegroundMs`, `sessionFragments`, profile ID and last collection status. **No other app identities, message texts, raw usage-event logs or tokens are persisted.** No internet permission and no app-level export/upload are present.
+- Without the **second, separate app-detail opt-in**, save just `hourStartMs`, `observedForegroundMs`, `chatGptForegroundMs`, `sessionFragments`, profile ID and last collection status (90-day local retention).
+- With **an additional explicit confirmation**: retain **only observations after the consent timestamp**, plus package identifiers and observed per-app durations in a **separate on-device 30-day detail ledger**. Switching detailed logging OFF immediately erases this file. Raw events, messages, third-party conversation content, other tokens, and browser URLs are never stored. No internet permission or cloud upload are present.
+- Shared closed-event interval reducer produces coarse and detailed totals, and a reobserved hour replaces its previous app mix. This avoids double-counting during six-hour resampling.
 
 ## Not equivalent to Samsung Digital Wellbeing's authoritative screen-time total
 UsageEvents foreground intervals are **an approximation of observed app engagement**, not a pixel-on or screen-unlock tracker. Android multi-window, launcher, missing transition events, battery restrictions, app standby or device manufacturer behavior can yield differences from Samsung Digital Wellbeing. We will compare the prototype's numbers with Samsung's visible daily total before claiming parity.
@@ -27,7 +29,7 @@ Manual phone acceptance requires separate approval and user action:
 1. Build passes, test results checked, and a separate pilot APK is available.
 2. User explicitly chooses to install **HH Screen Time PILOT** (not HealthHub Connect). Do not uninstall/replace production APK.
 3. Bind the correct owner; the app opens Android's **Usage Access** Settings where the user can independently grant permission to the pilot.
-4. Explicitly enable collection. Inspect after a few hours / overnight; compare foreground observation with Samsung Digital Wellbeing and check ChatGPT app timing, absence of cross-profile data, zero/missing distinction, permission revocation behavior, and 90-day local retention.
+4. Explicitly enable coarse collection. For app-by-app ranking **separately** review and approve detailed collection; otherwise it remains OFF. Inspect after a few hours / overnight; compare foreground observation with Samsung Digital Wellbeing and check ChatGPT app timing, absence of cross-profile data, zero/missing distinction, permission revocation behavior, 90-day coarse and 30-day detailed retention.
 5. Only **after** acceptance: plan a separately consented, least-privilege integration into the HealthHub private events vault, and let Sleep Intelligence and HealthHub Digital Wellbeing read that single source; this release does none of that.
 
 ## Safety guarantees / limits
@@ -37,3 +39,13 @@ Manual phone acceptance requires separate approval and user action:
 - No request to enable Accessibility, notification access, VPN, overlay or microphone. No need for root or Samsung partnership.
 
 **Next phase after actual S24 pilot acceptance:** shared, profile-scoped event schema (including provenance and consent) and integrations; not approved for automatic rollout.
+
+## Stage 2 · source integration gate
+- `UsageIntervals.kt` contains the **one shared** closed-only event stream; `UsageSessionizer.kt` and `AppUsageAggregator.kt` derive coarse and detailed hours from that same input.
+- `AppUsageMerger.kt` performs idempotent **full resampled-hour replacement** to remove obsolete applications within that hour (rather than double-counting repeated scans).
+- `AppDetailLedger.kt` saves optional per-app data under `detailed-usage-{owner}.json`; Android application sandbox only, separate 30-day retention, explicit on/off and erase. No Samsung proprietary API claims.
+- The unrelated public preview remains demo-only. `healthhub/digital-wellbeing-preview/private-source-adapter.js` is **staging code, not included in the public HTML**, which rejects wrong profile/source, malformed duration, missing consent and impossible totals. It groups results by **Budapest local calendar** including DST.
+- This is **NOT private cloud sync**. Before uploading or exposing app-identifying data to web or Ask Léna, require a reviewed authenticated private vault endpoint, enforced profile authorization/RLS, new data-transfer consent, retention and an explicit device/OTA rollout.
+- Pilot acceptance must demonstrate **two distinct successful automatic collection cycles** without diagnostics button, reconcile per-app hour totals with aggregate on the phone, and cross-check against Samsung Digital Wellbeing. A compiled APK alone cannot establish that.
+
+**Stage 2 privacy check:** The app-level opt-in records its exact consent timestamp; every Android UsageEvents query is clipped at that time for detailed data. The detail ledger fails closed if no consent timestamp exists and erases identities immediately when consent is revoked. A separate Kotlin test verifies that pre-consent foreground use is not backfilled.

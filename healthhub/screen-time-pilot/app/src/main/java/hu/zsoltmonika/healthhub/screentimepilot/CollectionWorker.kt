@@ -25,7 +25,7 @@ class CollectionWorker(appContext: Context, params: WorkerParameters) :
                 .putLong(PilotState.LAST_RUN, System.currentTimeMillis())
                 .putString(
                     PilotState.LAST_NOTE,
-                    "Megfigyelt óra: ${outcome.hoursObserved}; privátan tárolt óra: ${outcome.storedHours}; Android esemény: ${outcome.signals}."
+                    "Megfigyelt óra: ${outcome.hoursObserved}; privátan tárolt óra: ${outcome.storedHours}; Android esemény: ${outcome.signals}; részletes app-óra: ${outcome.detailedAppHours}."
                 ).apply()
             Result.success()
         } catch (e: Exception) {

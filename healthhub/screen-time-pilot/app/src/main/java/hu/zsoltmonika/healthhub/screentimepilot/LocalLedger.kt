@@ -54,6 +54,7 @@ internal object LocalLedger {
         return result
     }
 
+    @Synchronized
     fun merge(
         context: Context,
         owner: String,
@@ -61,6 +62,10 @@ internal object LocalLedger {
         nowMs: Long
     ): Int {
         requireOwner(owner)
+        require(PilotState.owner(context) == owner) { "Device owner mismatch" }
+        require(PilotState.prefs(context).getBoolean(PilotState.ENABLED, false)) {
+            "Collection consent is no longer active"
+        }
         val byHour = sortedMapOf<Long, UsageHour>()
         val cutoff = nowMs - RETENTION_DAYS * DAY_MS
         read(context, owner).forEach { if (it.hourStartMs >= cutoff) byHour[it.hourStartMs] = it }
@@ -99,6 +104,7 @@ internal object LocalLedger {
         return byHour.size
     }
 
+    @Synchronized
     fun clear(context: Context, owner: String) {
         file(context, owner).delete()
     }
