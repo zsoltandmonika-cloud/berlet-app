@@ -21,3 +21,6 @@ jobs:
           node-version: "22"
       - name: Static data safety and two-profile dashboard controls
         run: node healthhub/digital-wellbeing-preview/verify-preview.cjs
+
+      - name: Validate staging-only private usage source, profiles and DST
+        run: node healthhub/digital-wellbeing-preview/verify-private-source-adapter.cjs
