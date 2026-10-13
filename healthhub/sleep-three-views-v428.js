@@ -156,11 +156,11 @@ function top(rows,profile){
  timebar(s.inWindow,s.from,s.to,'Az elmúlt 24 órában rögzített alvásfázisok idővonala')+legend()+note+'</div></section>';
 }
 function dateList(profile,now){
- var dates=[],latest=new Date(now);
+ var dates=[],today=dateKey(now).split('-').map(Number);
  for(var n=29;n>=0;n--){
-  // Budapest-local wake dates based on the local display day.
-  var base=new Date(Date.UTC(latest.getUTCFullYear(),latest.getUTCMonth(),latest.getUTCDate()-n,12));
-  dates.push(dateKey(base.getTime()));
+  // Use the current Budapest LOCAL date even when UTC is still yesterday.
+  var base=Date.UTC(today[0],today[1]-1,today[2]-n,12);
+  dates.push(dateKey(base));
  }
  return Array.from(new Set(dates));
 }
@@ -197,6 +197,8 @@ function calendarHtml(profile){
 function calendar(rows,profile){
  if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
  lastData[profile]=valid(rows,Date.now());
+ // The latest wake days must be visible first after opening the screen.
+ requestAnimationFrame(function(){var nav=document.querySelector('#hhSleepPage .hh428CalendarNav');if(nav&&!nav.dataset.hh428Initial){nav.scrollLeft=nav.scrollWidth;nav.dataset.hh428Initial='1';}});
  return '<section class="hh428Calendar hhSleepCard" data-hh428-profile="'+esc(profile)+'">'+
   '<div class="hh428CalendarTitle"><span>📆 30 NAPOS ALVÁSNAPTÁR</span><h3>Alvásaid napokra bontva</h3>'+
   '<p>Ébredési dátum szerint. Koppints egy napra a külön alvások részleteiért.</p></div>'+
