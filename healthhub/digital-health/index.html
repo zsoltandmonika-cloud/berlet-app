@@ -126,6 +126,24 @@ body{
   .hero{padding-inline:12px}
   .hero h1{font-size:12px;letter-spacing:-.055em}
 }
+
+/* Digital Health: responsive local neon clock, aligned next to profile controls. */
+.hero-stage{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:12px;align-items:center;margin-top:11px}
+.hero-copy{min-width:0}
+.hero-stage h1{font-size:clamp(19px,4.9vw,27px);letter-spacing:-.7px;line-height:1.2;margin:0 0 16px}
+.hero-stage .choices{flex-wrap:nowrap;gap:6px}
+.hero-stage .choices .switch{padding:8px 10px;font-size:11px;white-space:nowrap}
+.liveclock{min-width:0;border:1px solid #69d9ff9e;border-radius:16px;padding:13px 10px 11px;background:linear-gradient(140deg,#0e203deb,#143757e8 65%,#34234eeb);box-shadow:inset 0 0 20px #3679c528,0 0 22px #48aaff24,0 0 0 1px #c3aaff19}
+.liveclock-label{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:9px;letter-spacing:.1em;font-weight:850;color:#abe9ff}
+.liveclock-led{width:6px;height:6px;flex:none;border-radius:100%;background:#7df5db;box-shadow:0 0 8px #77ffe9}
+.liveclock-display{display:flex;align-items:baseline;gap:2px;white-space:nowrap;margin:7px 0 6px}
+.liveclock-time{font-family:ui-monospace,Consolas,"SFMono-Regular",monospace;font-variant-numeric:tabular-nums;font-size:31px;line-height:1.1;font-weight:800;letter-spacing:-2px;color:#e2faff;text-shadow:0 0 9px #3fdafa9c}
+.liveclock-seconds{font-family:ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;font-weight:800;font-size:14px;color:#edb5ff;text-shadow:0 0 7px #fa86ff7a}
+.liveclock-date{font-size:10px;font-weight:650;white-space:nowrap;color:#bdc9f7}
+.window-label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
+@media(max-width:420px){.hero{padding:17px 12px}.hero-stage{grid-template-columns:minmax(0,1fr) 135px;gap:8px}.hero-stage h1{font-size:18px;letter-spacing:-.5px}.hero-stage .choices .switch{padding:7px 7px;font-size:10px}.liveclock{padding:12px 9px}.liveclock-time{font-size:29px}}
+@media(max-width:350px){.hero-stage{grid-template-columns:minmax(0,1fr) 124px;gap:6px}.hero-stage h1{font-size:17px}.hero-stage .choices{flex-wrap:wrap}.liveclock-time{font-size:26px}.liveclock-seconds{font-size:12px}}
+@media(min-width:680px){.hero-stage{grid-template-columns:minmax(0,1fr) 198px}.hero-stage h1{font-size:32px}.liveclock{padding:17px}.liveclock-time{font-size:43px}.liveclock-seconds{font-size:17px}.liveclock-date{font-size:12px}}
 </style>
 </head>
 <body>
@@ -142,10 +160,22 @@ body{
   </header>
   <section class="hero" aria-labelledby="headline">
     <div class="eyebrow">💙🩷 LÉNA · DIGITAL HEALTH &amp; WELLBEING</div>
-    <h1 id="headline">Digitális stílusod. Saját ritmusod.</h1>
-    <div class="choices" aria-label="Profilválasztás">
-      <button class="switch active" data-profile="zsolt" aria-pressed="true">💙 Zsolt</button>
-      <button class="switch" data-profile="monika" aria-pressed="false">🩷 Mónika</button>
+    <div class="hero-stage">
+      <div class="hero-copy">
+        <h1 id="headline">Digitális stílusod.<br>Saját ritmusod.</h1>
+        <div class="choices" aria-label="Profilválasztás">
+          <button class="switch active" data-profile="zsolt" aria-pressed="true">💙 Zsolt</button>
+          <button class="switch" data-profile="monika" aria-pressed="false">🩷 Mónika</button>
+        </div>
+      </div>
+      <div class="liveclock" aria-label="Élő helyi idő">
+        <div class="liveclock-label"><span class="liveclock-led" aria-hidden="true"></span> HELYI IDŐ</div>
+        <div class="liveclock-display" aria-live="off">
+          <time class="liveclock-time" id="dwClockTime">--:--</time>
+          <span class="liveclock-seconds" id="dwClockSeconds">--</span>
+        </div>
+        <div class="liveclock-date" id="dwClockDate">Dátum betöltése…</div>
+      </div>
     </div>
   </section>
 
@@ -159,7 +189,7 @@ body{
   </div>
   <section class="cards" aria-label="Fő digitális mutatók">
     <article class="card"><small>📱 Dokumentált alkalmazásidő</small><div class="big" id="usage">—</div><div class="sub" id="usageSub">—</div></article>
-    <article class="card"><small>🌙 Esti használat · 20–24h</small><div class="big" id="evening">—</div><div class="sub" id="eveningSub">—</div></article>
+    <article class="card"><small>🌙 Esti használat</small><div class="window-label">20–24h</div><div class="big" id="evening">—</div><div class="sub" id="eveningSub">—</div></article>
     <article class="card"><small>💬 ChatGPT alkalmazás</small><div class="big" id="chatgpt">—</div><div class="sub">Alkalmazás-előtéridő; nem üzenetszám</div></article>
     <article class="card"><small>🕰️ Megfigyelt idősávok</small><div class="big" id="coverage">—</div><div class="sub">Adatlefedettség, nem becsült képernyőidő</div></article>
     <article class="card span2 timecard">
@@ -213,6 +243,18 @@ body{
 (function(){
   let profile='zsolt', period='day';
   const el=id=>document.getElementById(id);
+  const clockTimeFormat=new Intl.DateTimeFormat('hu-HU',{hour:'2-digit',minute:'2-digit',hour12:false});
+  const clockDateFormat=new Intl.DateTimeFormat('hu-HU',{weekday:'short',month:'short',day:'numeric'});
+  function updateLocalClock(){
+    const now=new Date();
+    el('dwClockTime').textContent=clockTimeFormat.format(now);
+    el('dwClockTime').dateTime=now.toISOString();
+    el('dwClockSeconds').textContent=String(now.getSeconds()).padStart(2,'0');
+    el('dwClockDate').textContent=clockDateFormat.format(now);
+  }
+  updateLocalClock();
+  setInterval(updateLocalClock,1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateLocalClock()});
   function render(){
     const name=profile==='zsolt'?'Zsolt':'Mónika';
     const accent=profile==='zsolt'?'#60a5fa':'#f8a9cf';
