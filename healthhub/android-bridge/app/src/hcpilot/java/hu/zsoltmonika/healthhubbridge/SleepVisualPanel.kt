@@ -27,6 +27,7 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
     private val sessionFormat = DateTimeFormatter.ofPattern("HH:mm")
     private val header = TextView(context)
     private val dayStrip = LinearLayout(context)
+    private val daysScroll = HorizontalScrollView(context)
     private val sessionColumn = LinearLayout(context)
     private var records: List<SleepSessionRecord> = emptyList()
     private var selected: LocalDate = LocalDate.now(zone)
@@ -48,12 +49,10 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
         header.text = "🌙 Alvás · 30 napos napválasztó"
         addView(header)
         addView(label("Ébredési nap szerint · színes idősávok a valódi Health Connect-fázisokból", 13f))
-        val horizontal = HorizontalScrollView(context).apply {
-            isHorizontalScrollBarEnabled = false
-            addView(dayStrip)
-        }
+        daysScroll.isHorizontalScrollBarEnabled = false
         dayStrip.orientation = HORIZONTAL
-        addView(horizontal)
+        daysScroll.addView(dayStrip)
+        addView(daysScroll)
         addView(sessionColumn)
         addView(label("A külön alvásrekordokat nem adjuk össze. Alváspontszámot nem becslünk.", 12f))
     }
@@ -65,6 +64,7 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
         selected = available.firstOrNull() ?: LocalDate.now(zone)
         renderDays()
         renderSelected()
+        daysScroll.post { daysScroll.fullScroll(View.FOCUS_RIGHT) }
     }
 
     private fun renderDays() {
@@ -85,6 +85,7 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
                     selected = day
                     renderDays()
                     renderSelected()
+                    daysScroll.post { daysScroll.scrollTo((dates.indexOf(day) * dp(88) - dp(24)).coerceAtLeast(0), 0) }
                 }
             }
             dayStrip.addView(button, LayoutParams(dp(85), dp(75)).apply {
