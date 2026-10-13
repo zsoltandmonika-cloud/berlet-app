@@ -225,7 +225,7 @@ function hhSleepSource381(last){
  var currentDay=now.toLocaleDateString('sv-SE'),lastDay=end.toLocaleDateString('sv-SE');
  var stale=lastDay!==currentDay;
  var imported=meta.exportedAt?'Utolsó adatimport: '+fmtDateFull(meta.exportedAt)+' '+fmtTime(meta.exportedAt):'Utolsó adatimport: időpont nem ismert';
- return '<div class="hhSleepSource381'+(stale?' stale':'')+'"><b>📅 Utolsó mért éjszaka: '+esc(fmtDateFull(last.endTime))+'</b>'+
+ return '<div class="hhSleepSource381'+(stale?' stale':'')+'"><b>📅 Utolsó mért alvás: '+esc(fmtDateFull(last.endTime))+'</b>'+
  '<span>'+esc(imported)+'</span>'+
  (stale?'<strong>⚠️ A mai alvás még nem szerepel az átvett adatokban. A webes frissítés csak a már szinkronizált adatokat olvassa újra.</strong>':'')+
  '</div>';
@@ -343,9 +343,9 @@ function sleepOverview(rows){
   '</div>';
 }
 // A friendly, evidence-labelled sleep nudge. No diagnosis from wearable observations.
-function sleepLenaComment(rows,profile){
+function sleepLenaComment(rows,profile,nightOverride){
  if(!rows.length)return'';
- var night=hhLatestNight(rows),measured=hhSleepMetrics382(night);
+ var night=arguments.length>=3?nightOverride:hhLatestNight(rows),measured=hhSleepMetrics382(night);
  var mins=measured&&measured.actual,healthy=mins!=null&&mins>=15;
  var name=profile==='monika'?'Mónika':'Zsolt';
  var icon='😶',title='Kevés adat',msg='Az utolsó éjszakáról még nincs elég fázisadat a tényleges alvás megállapításához.';
@@ -486,15 +486,29 @@ async function render(profileOverride){
  var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq)return;
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
+ // v428 is an explicit read-only preview. The existing Sleep view stays intact
+ // without ?hh_sleep_v428_preview=1, including its canonical profile-scoped source.
+ var v428Enabled=window.HH_SLEEP_V428_ENABLED===true&&!!window.HH_SLEEP_V428;
+ var shownNight=v428Enabled?window.HH_SLEEP_V428.night(rows):night;
+ var sleepContent=latest?hhSleepSource381(latest)+
+  (v428Enabled?window.HH_SLEEP_V428.top(rows,requestedProfile)+sleepFactorHeading383():sleepFactorHeading383()+sleepOverview(rows))+
+  sleepFactorCards381(shownNight,requestedProfile)+
+  (shownNight?sleepLenaComment(rows,requestedProfile,shownNight):'')+
+  (v428Enabled?window.HH_SLEEP_V428.calendar(rows,requestedProfile):stageBar(night)+
+   (window.HH_SLEEP_VISUAL_V427&&window.HH_SLEEP_VISUAL_V427_ENABLED===true?window.HH_SLEEP_VISUAL_V427.render(rows,requestedProfile):'')
+  ):'<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>';
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
- (latest?hhSleepSource381(latest)+sleepFactorHeading383()+sleepOverview(rows)+sleepFactorCards381(night,requestedProfile)+sleepLenaComment(rows,requestedProfile)+stageBar(night)+(window.HH_SLEEP_VISUAL_V427&&window.HH_SLEEP_VISUAL_V427_ENABLED===true?window.HH_SLEEP_VISUAL_V427.render(rows,requestedProfile):''):
- '<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>')+
+ sleepContent+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
  '<div class="hhHelperTimes"><button class="on" data-min="10" onclick="hhHelperMinutes(10,this)">10 perc</button><button data-min="15" onclick="hhHelperMinutes(15,this)">15 perc</button><button data-min="20" onclick="hhHelperMinutes(20,this)">20 perc</button></div>'+
  '<div class="hhHelperModes"><button class="on" data-mode="brown" onclick="hhHelperMode(\'brown\',this)">🟤 Brown noise</button><button data-mode="soft" onclick="hhHelperMode(\'soft\',this)">🌧 Lágy zaj</button><button data-mode="breath" onclick="hhHelperMode(\'breath\',this)">🌬 Légzés</button><button data-mode="light" onclick="hhHelperMode(\'light\',this)">🌙 Csak fény</button></div>'+
  '<button class="hhHelperStart" onclick="hhStartSleepHelper()">🌙 ELALVÁS INDÍTÁSA</button></div>'+
+ '<details class="hhSleepLabs428"><summary>🧪 Sleep · fejlesztői előnézet</summary>'+
+  '<a href="'+esc(window.location.pathname+'?hh_sleep_v428_preview='+(v428Enabled?'0':'1'))+'">'+
+  (v428Enabled?'Vissza a stabil Sleep nézethez':'Sleep v428 háromnézetes előnézet megnyitása')+'</a>'+
+  '<p>Az előnézet nem indít új szinkront, és csak a kiválasztott profil már szinkronizált adatait olvassa.</p></details>'+
  '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>'+bottomNav();
 }
 function ensurePage(){
