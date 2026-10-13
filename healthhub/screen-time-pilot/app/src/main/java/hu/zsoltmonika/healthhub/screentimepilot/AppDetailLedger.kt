@@ -63,6 +63,7 @@ internal object AppDetailLedger {
         }) { "App durations exceed clock-hour duration" }
     }
 
+    @Synchronized
     fun merge(context: Context, profile: String, incoming: List<AppUsageHour>, nowMs: Long): Int {
         require(PilotState.owner(context) == profile) { "Device owner mismatch" }
         require(PilotState.prefs(context).getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
@@ -105,6 +106,7 @@ internal object AppDetailLedger {
         return values.size
     }
 
+    @Synchronized
     fun clear(context: Context, profile: String) {
         file(context, profile).delete()
     }
