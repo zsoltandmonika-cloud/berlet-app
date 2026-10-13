@@ -1,11 +1,16 @@
 (function(){
 'use strict';
-/* HealthHub v428: read-only, opt-in three-view Sleep dashboard.
- * Inputs are the existing, profile-validated Sleep records from live-v170.
+/* HealthHub Sleep v433 Golden Standard: default production UI for BOTH profiles.
+ * Inputs remain the existing profile-validated Health Connect / Dropbox records.
  * No network requests, writes, profile switching, or invented sleep durations.
+ * Explicit manual display fallback: ?hh_sleep_v428_preview=0 (or hh_sleep_legacy=1).
+ * Never change sync state or erase data when switching between display versions.
  */
-var enabled=false;
-try{enabled=new URLSearchParams(window.location.search).get('hh_sleep_v428_preview')==='1'}catch(e){}
+var enabled=true;
+try{
+ var flags=new URLSearchParams(window.location.search);
+ enabled=flags.get('hh_sleep_v428_preview')!=='0'&&flags.get('hh_sleep_legacy')!=='1';
+}catch(e){enabled=true}
 window.HH_SLEEP_V428_ENABLED=enabled;
 var TIMEZONE='Europe/Budapest',DAY=86400000,MINUTE=60000;
 var colors={1:'#ec8293',4:'#8ec7ea',5:'#265c9b',6:'#b89be8'};
