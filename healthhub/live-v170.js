@@ -31,7 +31,7 @@ function stageClass(v){return ({1:'awake',2:'sleep',3:'awake',4:'light',5:'deep'
 /* v384: Health Connect records kept in memory per profile; no cross-person fallback. */
 var hhSleepVitals384={zsolt:null,monika:null};
 function hhSelectNightVitals384(profile,records,sessions){
- var night=hhLatestNight(sessions||[]),nullValue={nightKey:'',heartRate:[],oxygenSaturation:[]};
+ var night=(window.HH_SLEEP_V428_ENABLED===true&&window.HH_SLEEP_V428&&typeof window.HH_SLEEP_V428.night==='function'?window.HH_SLEEP_V428.night(sessions||[]):hhLatestNight(sessions||[])),nullValue={nightKey:'',heartRate:[],oxygenSaturation:[]};
  if(!night||!records||typeof records!=='object'){hhSleepVitals384[profile]=nullValue;return;}
  var start=Date.parse(night.startTime),end=Date.parse(night.endTime);
  if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){hhSleepVitals384[profile]=nullValue;return;}
@@ -310,7 +310,7 @@ function sleepFactorCards381(night,profile){
  var score='<div class="hhSleepScoreStrip381 hhSleepRag382 '+(idx?idx.tone:'muted')+'">'+
    '<div class="hhSleepScoreSymbol381" aria-hidden="true">☾</div>'+
    '<div class="hhSleepScoreText381"><b>HealthRadar alvásindex</b>'+
-   '<small>Saját, becsült pihenésindex · nem Samsung-pontszám</small>'+
+   (window.HH_SLEEP_V428_ENABLED===true?'':'<small>Saját, becsült pihenésindex · nem Samsung-pontszám</small>')+
    (idx?'<span class="hhSleepFactorStatus381 '+idx.tone+'">'+idx.label+'</span>':'<span class="hhSleepFactorStatus381 muted">Nincs elég adat</span>')+
    '</div><strong>'+(idx?idx.score:'—')+' <small>/ 100</small></strong></div>';
  var expl='<details class="hhSleepIndexMethod382"><summary>ℹ️ Hogyan számoljuk az alvásindexet?</summary>'+
@@ -323,9 +323,18 @@ function sleepFactorCards381(night,profile){
    card('🌑','Mély alvás',hasStages?stageVal(mins[5]):'—',hasStages?share(mins[5],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
    card('🌙','REM alvás',hasStages?stageVal(mins[6]):'—',hasStages?share(mins[6],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
    card('👁️','Ébrenlét',hasStages?stageVal(mins[1]):'—',efficiencyTone.label,efficiencyTone.tone,'Alváshatékonyság: '+(m&&m.efficiency!=null?Math.round(m.efficiency*100)+'%':'—'))+
-   card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
-   (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
-   (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')+
+   (window.HH_SLEEP_V428_ENABLED===true?
+     card('💓','Éjszakai pulzus',vitals.pulse?vitals.pulse.value+' /perc':'—',
+       vitals.pulse?(vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag'):'Nincs mérés',
+       vitals.pulse?'info':'muted',
+       vitals.pulse?vitals.pulse.minutes+' mért perc · Health Connect':'Nincs éjszakai pulzusadat')+
+     card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+     (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')
+     :
+     card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
+     (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
+     (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')
+   )+
   '</div><p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
 }
 function sleepOverview(rows){
