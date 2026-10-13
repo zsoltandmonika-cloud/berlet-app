@@ -51,3 +51,16 @@
 A `HH-HR-008` **kizárólag a történeti, különálló HealthRadar webhely** lehetséges egyszeri, read-only archiválására vonatkozik. Ez csak a teljes adatmigráció/feature parity és a felhasználó külön jóváhagyása után merülhet fel; **nem** jelenti a HealthHubon belüli HealthRadar élettartamának végét.
 
 Új állandó termékfeladat: `HH-HR-011` (Continuous HealthRadar Evolution). A közeljövő aktív fejlesztése változatlanul `HH-SLI-001` Sleep Evidence Vault / Sleep Intelligence 2.0. Az Emergency CPR/AED a Nutrition elé sorolt stratégiai modul marad.
+
+## Sleep Intelligence + Digital Wellbeing · közös automatikus használati kontextus (2026-10-13)
+**Felhasználói igény:** mindkét profil (Zsolt/Mónika) személyes, AUTOMATIKUS késő esti Samsung/Android képernyőidő- és ChatGPT-használati naplója jelenjen meg **a Sleep AI Advisoryban ÉS a HealthHub saját Digital Wellbeing moduljában**, új kézi adatbevitel nélkül.
+
+**Egyetlen adatgyűjtő → két olvasó**, nem két egymástól eltérő napló:
+1. Android HealthHub Connect jövőbeni, külön jóváhagyott natív komponense, megfelelő explicit Android **Usage Access** jogosultsággal, naplózhatja az egyes alkalmazások előtérben töltött idősávjait és az esti képernyőidőt. Ez nem Health Connect adat, és nem azonos a Samsung gyári Digital Wellbeing alkalmazásából történő közvetlen exporttal. Az Android jogosultság és gyártóspecifikus korlátozások készülékes validációt igényelnek.
+2. A HealthHub **Ask Léna** saját, első féltől származó eseményei (mikor indult egy felhasználó által kezdeményezett kérdés/szekció) időbélyegezhetők és csak explicit beállítás mellett kerülhetnek a privát naplóba. A hivatalos ChatGPT mobilalkalmazás előtérben töltött ideje nem azonos az egyes ChatGPT-üzenetek pontos időbélyegével; harmadik fél üzeneteinek időbélyegeit nem szabad hozzáférhetőnek feltételezni. Böngészőben megnyitott ChatGPT-használat külön eset, és nem feltétlenül azonosítható egyedi oldalként Android app UsageStats alapján.
+3. A közös privát, profilhoz és eszközhöz kötött **behavioral events** tároló minimális mezői: `profileKey`, `deviceKey`, `source`, `category`, `appId` (ha engedélyezett), `startedAt`, `endedAt`, `observationQuality`, `collectedAt`, `consentVersion`. Alkalmazáson belüli tartalom és privát üzenet NEM gyűjthető ilyen forrásból; opt-in, kikapcsolás, felülvizsgálható retention/törlés, adatvédelmi és cross-profile teszt kötelező.
+4. **Sleep Intelligence** a lefekvés előtti idősávot a mért alvással, nappali pihenéssel, aktivitással és opcionálisan bevitt panasszal veti össze; nem állíthatja, hogy az app-használat okozta a rossz alvást. Hiányzó engedélynél „nem mért”, nem „0 perc”.
+5. **HealthHub Digital Wellbeing** ugyanebből a tárolóból nap/7/30 nap és esti app-aktivitási, képernyőidő-összesítéseket mutat, személyre szabott tanáccsal. Jelenleg tervezett új modul, **nem élesített funkció**. Nem cél a **Samsung gyári Digital Wellbeing** rendszeralkalmazásába történő adatírás.
+6. Android alkalmazás (APK), jogosultságok, szinkron és adatbázis NEM változtak e tervfrissítésben. Natív gyűjtés előtt biztonsági/engedélyezési terv és külön Android teszt-jóváhagyás szükséges.
+
+**Kapcsolódó tracker:** `HH-SLI-006` = közös automatikus adatgyűjtés; `HH-DW-001` = a HealthHub Digital Wellbeing adatnézete. A következő aktív feladat továbbra is `HH-SLI-001` = Sleep Evidence Vault.
