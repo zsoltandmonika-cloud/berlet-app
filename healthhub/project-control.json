@@ -4,7 +4,7 @@
   "updatedAt": "2026-10-13",
   "liveBuild": "v380",
   "currentFocus": "NEXT ACTIVE: HealthHub Personal Intelligence → Sleep Advisory 2.0 (Zsolt/Mónika névre szóló, forrásellenőrzött elemzés). Moduláris platform. Sleep v433 Golden Standard UI freeze; automatikus Health Connect sync E2E külön teszt.",
-  "nextDevelopment": "1) Sleep AI adatgyűjtés/provenance, 7/30/90 napos trend és összefüggés-analitika, privát verziózott Sleep Advisory archívum és Ask Léna integráció; 2) Safety/Emergency CPR/AED szakmai terv és offline biztonsági teszt; 3) Family/Home Hub moduláris bővítés; Food & Nutrition ezután. HealthRadar legacy cutover nyitva a felhasználó új kiegészítéséig.",
+  "nextDevelopment": "1) Sleep AI adatgyűjtés/provenance, 7/30/90 napos trend és összefüggés-analitika, privát verziózott Sleep Advisory archívum és Ask Léna integráció; 2) Safety/Emergency CPR/AED szakmai terv és offline biztonsági teszt; 3) Family/Home Hub moduláris bővítés; Food & Nutrition ezután. HealthRadar a HealthHub folyamatosan fejlődő, állandó modulja. KIZÁRÓLAG a különálló régi HealthRadar weboldal egyszeri archíválása nyitott, nem a modul lezárása.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -335,8 +335,8 @@
       "id": "HH-HR-008",
       "epic": "HealthRadar Migration",
       "feature": "Legacy Cutover",
-      "title": "Archive old HealthRadar read-only",
-      "acceptanceCriteria": "Legacy site becomes fallback archive only after closure blockers are resolved",
+      "title": "Archive separate old HealthRadar website read-only (NOT the HealthHub module)",
+      "acceptanceCriteria": "Only the legacy standalone website may become a read-only archive, after full data and feature parity plus explicit user approval. The ongoing HealthHub HealthRadar module must never be closed or frozen as a consequence.",
       "priority": "High",
       "sprint": "S7",
       "milestone": "M7 Legacy Cutover",
@@ -347,7 +347,7 @@
       "dependency": "HH-HR-007;HH-AL-003;HH-SH-006;HH-EMERG-001 (scope review only)",
       "targetDate": "2026-12-21",
       "actualDone": null,
-      "notes": "Do not retire legacy before parity closure. 2026-10-13: felhasználói döntés, hogy a HealthRadar legacy archiválás NEM kezdődhet a még bejelentendő fontos kiegészítés és végső parity lezárása előtt."
+      "notes": "Do not retire legacy before parity closure. 2026-10-13: felhasználói döntés, hogy a HealthRadar legacy archiválás NEM kezdődhet a még bejelentendő fontos kiegészítés és végső parity lezárása előtt. 2026-10-13 pontosítás: archiválás kizárólag a KÜLÖNÁLLÓ régi weboldalra vonatkozhat. Az új HealthHub HealthRadar modult nem zárjuk le, hanem folyamatosan bővítjük."
     },
     {
       "id": "HH-DATA-001",
@@ -1963,6 +1963,24 @@
       "targetDate": null,
       "actualDone": null,
       "notes": "Csak validáció után kerülhet éles Safety modulba."
+    },
+    {
+      "id": "HH-HR-011",
+      "epic": "HealthHub · HealthRadar",
+      "feature": "Living Module / Continuous Evolution",
+      "title": "HealthRadar mint folyamatosan fejlődő HealthHub-modul és új funkciók backlogja",
+      "acceptanceCriteria": "HealthRadar állandó működő modul; minden új egészségügyi almodul (pl. Safety/CPR-AED, tünetnapló, betegségi dokumentumok, személyes AI) önálló, verziózott backlog/ticket alapján bővíthető; nincs automatikus modulbezárás, archíválás vagy UI megszüntetés.",
+      "priority": "High",
+      "sprint": "Continuous",
+      "milestone": "Ongoing HealthRadar Evolution",
+      "status": "In Progress",
+      "progress": 0.1,
+      "storyPoints": 3,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-CORE-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-13 felhasználói döntés: a HealthRadar nem lezárandó migrációs projekt, hanem a HealthHub folyamatosan növekvő, hosszú távú, moduláris egészségügyi területe. A régi önálló HealthRadar weboldal lehetséges archíválása teljesen más feladat. A következő aktív sprint továbbra is Sleep Intelligence 2.0."
     }
   ],
   "changeLog": [
@@ -2514,6 +2532,12 @@
       "version": "FamilyHub modular roadmap / Sleep Intelligence priority",
       "type": "Roadmap",
       "change": "User-approved modular HealthHub→FamilyHub architecture. NEXT ACTIVE = Sleep AI Intelligence 2.0, evidence collection, 7/30/90 analytical trends, advisory history+Ask Léna; Sleep v433 UI frozen. Safety/112/911 CPR-AED higher priority than Food/Nutrition, but follows Sleep Intelligence. Legacy HealthRadar remains open pending user-announced final extension. Planning only, no live feature."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "HealthRadar living module clarification",
+      "type": "Architecture / Product decision",
+      "change": "Felhasználói pontosítás: HealthRadar a HealthHubon belül folyamatosan fejlődő, nem lezárható termékmodul. A HH-HR-008 csak a különálló történeti weboldal jövőbeni esetleges read-only archiválása; az új modul megmarad és új Safety/AI/Health almodulokkal bővíthető. Következő aktív feladat: Sleep Intelligence 2.0. Csak tervfrissítés."
     }
   ]
 }
