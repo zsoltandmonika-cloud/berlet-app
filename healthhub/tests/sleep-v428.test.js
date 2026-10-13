@@ -61,9 +61,9 @@ assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
  '24h timeline must be a short, flat ribbon');
 assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
-assert.match(html,/sleep-three-views-v428\.css\?v=429-compact-three-cards/,
+assert.match(html,/sleep-three-views-v428\.css\?v=430-dynamic-ticks/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=429-flat-timeline/,
+assert.match(html,/sleep-three-views-v428\.js\?v=430-auto-zoom-ticks/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
@@ -92,4 +92,4 @@ assert.ok(alone.end-alone.start>=150*60000,'Short naps keep enough time context 
 assert.ok(alone.end-alone.start<24*3600000,'A single nap still zooms in');
 assert.match(sleep.top([night,nap],'zsolt'),/Automatikusan nagyított idővonal/,
  'The UI must explicitly explain that the visual time scale has changed');
-console.log('HealthHub Sleep v428 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
+console.log('HealthHub Sleep v430 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
