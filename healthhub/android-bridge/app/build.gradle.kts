@@ -45,6 +45,14 @@ android {
         }
     }
     buildTypes {
+        // Local-only separate pilot APK; cannot replace or update the production app.
+        create("pilot") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".thinpilot"
+            versionNameSuffix = "-v417-pilot"
+            isDebuggable = true
+            matchingFallbacks += listOf("debug")
+        }
         release {
             isMinifyEnabled = false
             if (signingConfigs.findByName("ota") != null) {
@@ -68,5 +76,12 @@ dependencies {
         implementation(files(samsungSdkAar))
         implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:2.0.21")
         implementation("com.google.code.gson:gson:2.11.0")
+    }
+}
+
+// Never generate a misleading "Samsung pilot" APK with only the HC stub.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.name.contains("Pilot", ignoreCase = true) } && !withSamsungSdk) {
+        throw GradleException("v417 pilot build BLOCKED: privately supplied Samsung SDK AAR is missing.")
     }
 }
