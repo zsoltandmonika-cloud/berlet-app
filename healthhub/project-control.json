@@ -2009,14 +2009,14 @@
       "priority": "High",
       "sprint": "DW-S1 / after SLI source audit",
       "milestone": "M6 Intelligence / Digital Wellbeing",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "In Progress",
+      "progress": 0.15,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SLI-006;HH-CORE-005",
       "targetDate": null,
       "actualDone": null,
-      "notes": "2026-10-13 user decision: a kétprofilos automatikus screen-time és alkalmazáshasználati log a HealthHub Digital Wellbeingben is látható legyen. Új consumer ugyanazon privát, közös forrástárra, NEM második külön tracker. Az Android gyári Samsung Digital Wellbeing adataira Usage Access által elérhető statisztikák a forrás, nem a gyári Digital Wellbeing API-ba írunk. Tervezzük előbb, APK-t most ne módosítsunk."
+      "notes": "2026-10-13 user decision: a kétprofilos automatikus screen-time és alkalmazáshasználati log a HealthHub Digital Wellbeingben is látható legyen. Új consumer ugyanazon privát, közös forrástárra, NEM második külön tracker. Az Android gyári Samsung Digital Wellbeing adataira Usage Access által elérhető statisztikák a forrás, nem a gyári Digital Wellbeing API-ba írunk. Tervezzük előbb, APK-t most ne módosítsunk. 2026-10-13 önálló Digital Wellbeing Golden Preview megépítve, Zsolt/Mónika profilváltás, NAP/7/30, app ranking, kategória, esti óragrafikon, heti mintázat, Léna mintatanács. Kizárólag szintetikus adatok, nincs élő UsageStats/Dropbox, nincs Home vagy Sleep módosítás. User-shared Samsung screenshot csak UI-referencia, per-app privát számok nem kerültek nyilvános forrásba. Első tényleges adatforrás a HH-SLI-006 készülékes pilot után."
     }
   ],
   "changeLog": [
@@ -2592,6 +2592,12 @@
       "version": "Screen Time PILOT v0.1.0 / PR #193",
       "type": "Prototype (non-production)",
       "change": "A külön Android package-es offline Screen Time Collector forrása és 12 Kotlin unit regression teszt elkészült; PR GitHub CI Android build és NO INTERNET APK ellenőrzés PASS. Csak zárt technikai prototípus; nem telepítve, HealthHub Connect/Dropbox/Sleep UI nem módosult. HH-SLI-006 In Progress 20% (telefonos engedély és igazolt mérés még nincs), HH-DW-001 backlog."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "Digital Wellbeing Golden Preview PR #194",
+      "type": "UI preview / non-production",
+      "change": "Önálló, mobilbarát HealthHub Digital Wellbeing előnézet 2 szintetikus profillal és 1/7/30 napos nézettel, alkalmazásonkénti és kategória bontással, esti idővonallal, demonstrációs Léna-összegzéssel. Az éles Samsung screen-time sync még nincs kész, semmilyen privát adat vagy Home Hero nem módosult. HH-DW-001 In Progress 15%."
     }
   ]
 }
