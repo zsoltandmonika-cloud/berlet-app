@@ -99,28 +99,52 @@ jobs:
           python3 -m py_compile healthhub/scripts/generate_daily_health_ai.py
           python3 -m py_compile healthhub/scripts/generate_daily_ai.py
 
-      - name: Automatic rollback on failed main validation
-        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      # The validation must pass before any new Golden Backup is created.
+      # A Git annotated tag is the immutable source-code snapshot and audit entry.
+      # Rollback is intentionally MANUAL; a failing check never changes main.
+      - name: Golden Backup after successful HealthCheck
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
+        env:
+          VERIFIED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          git config user.name "HealthHub Level 3 Guard"
-          git config user.email "healthhub-guard@users.noreply.github.com"
-          git fetch origin main
+          git config user.name "HealthHub Golden Backup"
+          git config user.email "healthhub-backup@users.noreply.github.com"
+          git fetch --prune origin main
           CURRENT="$(git rev-parse origin/main)"
-          if [ "$CURRENT" != "$GITHUB_SHA" ]; then
-            echo "Main moved to $CURRENT after this run started. Automatic rollback is blocked for safety."
-            exit 1
+          if [ "$CURRENT" != "$VERIFIED_SHA" ]; then
+            echo "::warning::Main moved since HealthCheck. No outdated backup created."
+            echo "Golden Backup SKIPPED: main moved to $CURRENT" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
-          MSG="$(git log -1 --pretty=%B "$GITHUB_SHA")"
-          if [[ "$MSG" == "[AUTO-ROLLBACK]"* ]]; then
-            echo "Rollback commit failed validation; refusing rollback loop."
-            exit 1
+
+          TAG="hh-golden-${VERIFIED_SHA:0:12}"
+          VERSION="$(node -e "let h=require('fs').readFileSync('healthhub/index.html','utf8');process.stdout.write((h.match(/healthhub-live-build\\\" content=\\\"([^\\\"]+)/)||[])[1]||'unknown')")"
+          CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          RUN_URL="$SERVER_URL/$REPOSITORY/actions/runs/$RUN_ID"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Golden Backup already exists: $TAG"
+            echo "Golden Backup EXISTS: $TAG (commit $VERIFIED_SHA)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
-          git checkout -B main origin/main
-          if ! git revert --no-edit "$GITHUB_SHA"; then
-            git revert --abort || true
-            git revert -m 1 --no-edit "$GITHUB_SHA"
-          fi
-          git commit --amend -m "[AUTO-ROLLBACK] HealthHub validation failed for $GITHUB_SHA"
-          git push origin main
+          git tag -a "$TAG" "$VERIFIED_SHA" -m "HealthHub Golden Backup
+          verified_at_utc: $CREATED
+          version: $VERSION
+          commit: $VERIFIED_SHA
+          healthcheck: HealthHub Level 3 Guard PASS
+          workflow_run: $RUN_URL
+          rollback_policy: MANUAL_APPROVAL_ONLY"
+          git push origin "refs/tags/$TAG"
+          {
+            echo "### HealthHub Golden Backup CREATED"
+            echo "- Tag: \`$TAG\`"
+            echo "- HealthHub version: $VERSION"
+            echo "- Verified commit: \`$VERIFIED_SHA\`"
+            echo "- Verified (UTC): $CREATED"
+            echo "- Check: HealthHub Level 3 Guard PASS"
+            echo "- Rollback: manual only"
+          } >> "$GITHUB_STEP_SUMMARY"
