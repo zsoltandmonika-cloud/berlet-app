@@ -64,9 +64,9 @@ assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
  '24h timeline must be a short, flat ribbon');
 assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
-assert.match(html,/sleep-three-views-v428\.css\?v=430-dynamic-ticks/,
+assert.match(html,/sleep-three-views-v428\.css\?v=431-lena-timeline-order/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=430-auto-zoom-ticks/,
+assert.match(html,/sleep-three-views-v428\.js\?v=431-two-sessions-before-lena/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
@@ -95,4 +95,37 @@ assert.ok(alone.end-alone.start>=150*60000,'Short naps keep enough time context 
 assert.ok(alone.end-alone.start<24*3600000,'A single nap still zooms in');
 assert.match(sleep.top([night,nap],'zsolt'),/Automatikusan nagyított idővonal/,
  'The UI must explicitly explain that the visual time scale has changed');
-console.log('HealthHub Sleep v430 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
+
+// v431: the two full-session phase charts must PRECEDE the combined assessment.
+const twoTimelines=sleep.recentTimelines([night,nap],'zsolt');
+assert.match(twoTimelines,/Fő \(éjjeli\) alvás/,'First graph explains overnight main sleep');
+assert.match(twoTimelines,/Utolsó alvás/,'Second graph is the latest (daytime) sleep');
+assert.equal((twoTimelines.match(/hh431RecentBar/g)||[]).length,2,'Exactly two labeled stage graphs');
+assert.ok(twoTimelines.indexOf('Fő (éjjeli) alvás')<twoTimelines.indexOf('Utolsó alvás'),
+ 'Timeline order is main overnight sleep, then last sleep');
+assert.match(twoTimelines,/04:00/,'Main night ends at its actual recorded end time');
+assert.match(twoTimelines,/12:45/,'Latest nap ends at its actual recorded end time');
+assert.doesNotMatch(sleep.recentTimelines([night,nap],'monika'),/Zsolt/,
+ 'Timeline markup must not mix Zsolt into the Monika view');
+assert.equal(load(false).recentTimelines([night,nap],'zsolt'),'','Default stable mode unchanged');
+const assessment=sleep.lenaComment([night,nap],'zsolt');
+assert.match(assessment,/4 ó 0 p/,'Léna considers the overnight rest');
+assert.match(assessment,/45 p/,'Léna considers the latest nap');
+assert.match(assessment,/4 ó 45 p/,'Léna considers the de-duplicated 24h total');
+assert.match(assessment,/nem diagnózis/,'Review never claims to diagnose');
+assert.doesNotMatch(sleep.lenaComment([night,nap],'monika'),/Zsolt/,
+ 'Léna narration must use the currently selected profile only');
+const sameSession=sleep.recentTimelines([night],'zsolt');
+assert.match(sameSession,/ugyanahhoz az alvásrekordhoz/,
+ 'When last sleep is also the main night, explain the duplicate view');
+assert.match(calendar,/hh431HistoryDetails/,
+ 'The calendar is still accessible but its details are collapsible');
+const mainRenderer=fs.readFileSync('healthhub/live-v170.js','utf8');
+const recentPos=mainRenderer.indexOf('HH_SLEEP_V428.recentTimelines(rows,requestedProfile)');
+const lenaPos=mainRenderer.indexOf('HH_SLEEP_V428.lenaComment(rows,requestedProfile)');
+const calendarPos=mainRenderer.indexOf('HH_SLEEP_V428.calendar(rows,requestedProfile)');
+const helperPos=mainRenderer.indexOf('hhSleepCard helperCard');
+assert.ok(recentPos>0&&lenaPos>recentPos,'Two graphs must render before Léna');
+assert.ok(calendarPos>lenaPos&&helperPos>calendarPos,
+ 'Historical calendar must move toward the Sleep Helper section');
+console.log('HealthHub Sleep v431 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');

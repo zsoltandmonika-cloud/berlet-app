@@ -10,7 +10,7 @@ window.HH_SLEEP_V428_ENABLED=enabled;
 var TIMEZONE='Europe/Budapest',DAY=86400000,MINUTE=60000;
 var colors={1:'#ec8293',4:'#8ec7ea',5:'#265c9b',6:'#b89be8'};
 var names={1:'Ébren',4:'Könnyű',5:'Mély',6:'REM'};
-var selected={zsolt:'',monika:''},lastData={zsolt:[],monika:[]};
+var selected={zsolt:'',monika:''},lastData={zsolt:[],monika:[]},expandedHistory={zsolt:'',monika:''};
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function t(v){var d=Date.parse(v);return Number.isFinite(d)?d:NaN}
 function dateKey(ms){
@@ -214,6 +214,79 @@ function top(rows,profile){
  '</div><div class="hh428ChartCard"><div class="hh428ChartHeader"><b>⏱️ Az elmúlt 24 óra alvásai</b><small>Éjjel + nappal</small></div>'+
  timebar(s.inWindow,s.from,s.to,'Az elmúlt 24 órában rögzített alvásfázisok idővonala')+legend()+note+'</div></section>';
 }
+/* v431: both real sleep timelines are part of the main review, before
+ * Léna's conclusion. Full session span != measured sleeping minutes. */
+function recentTimelines(rows,profile){
+ if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
+ var data=summary(rows,Date.now()),night=data.night,last=data.last;
+ if(!night&&!last)return '';
+ function bar(label,part,sessions,number){
+  if(!part)return '<article class="hh431RecentItem"><div class="hh431RecentHeading"><b><span class="hh431Index">'+number+'</span>'+esc(label)+'</b></div><p class="hh431Missing">Nincs azonosítható alvási időszak.</p></article>';
+  var start=t(part.startTime),end=t(part.endTime);
+  if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return '';
+  var measured=duration(sessions,start,end),blocks=stageBlocks(sessions,start,end);
+  return '<article class="hh431RecentItem">'+
+   '<div class="hh431RecentHeading"><b><span class="hh431Index">'+number+'</span>'+esc(label)+'</b>'+
+   '<strong>'+esc(minText(measured))+'</strong></div>'+
+   '<div class="hh431RecentMeta">'+esc(dateFull(end))+' · '+esc(clock(start))+'–'+esc(clock(end))+
+    ' · '+esc(minText(end-start))+' teljes időszak</div>'+
+   '<div class="hh431RecentBar" role="img" aria-label="'+esc(label+': '+clock(start)+'–'+clock(end))+'">'+
+    (blocks||'<span class="hh431Missing">Nincs alvásfázis-adat</span>')+'</div>'+
+   '<div class="hh431RecentAxis"><span>'+esc(clock(start))+'</span><span>'+esc(clock(end))+'</span></div>'+
+   '</article>';
+ }
+ var same=night&&last&&night.sessions.some(function(r){
+  return r===last||(r.startTime===last.startTime&&r.endTime===last.endTime);
+ });
+ return '<section class="hh431RecentPanel hhSleepCard" aria-label="Legutóbbi fő és utolsó alvás idővonalai">'+
+  '<header class="hh431RecentHeader"><small>🌙 ALVÁSI IDŐVONALAK</small><h3>Két fontos alvásod részletesen</h3>'+
+  '<p>A fő éjjeli és a legutóbbi alvás külön idővonala, egységes színekkel.</p></header>'+
+  bar('Fő (éjjeli) alvás',night,night?night.sessions:[],1)+
+  bar('Utolsó alvás',last,last?[last]:[],2)+
+  (same?'<p class="hh431SameNote">A két megjelenítés ugyanahhoz az alvásrekordhoz kapcsolódik. A 24 órás összesítésben csak egyszer szerepel.</p>':'')+
+  legend()+'</section>';
+}
+/* Text is derived solely from existing, selected-profile records; no separate
+ * diagnosis, made-up overnight score, or double-counting of naps. */
+function lenaComment(rows,profile){
+ if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
+ var data=summary(rows,Date.now()),name=profile==='monika'?'Mónika':'Zsolt';
+ var night=data.night,last=data.last,parts=[];
+ if(night){
+  parts.push('A legutóbbi fő éjjeli alvásod '+minText(data.nightActual)+
+   ' tényleges alvás volt ('+clock(t(night.startTime))+'–'+clock(t(night.endTime))+').');
+ }else{
+  parts.push('A rendelkezésre álló adatokból most nem azonosítható egyértelmű fő éjjeli alvás.');
+ }
+ if(last){
+  var same=night&&night.sessions.some(function(r){
+   return r===last||(r.startTime===last.startTime&&r.endTime===last.endTime);
+  });
+  if(same){
+   parts.push('Az utolsó alvás egyben az éjjeli fő alvásod is.');
+  }else{
+   parts.push('A legutóbbi, külön rögzített alvásod '+minText(data.lastActual)+
+    ' volt ('+clock(t(last.startTime))+'–'+clock(t(last.endTime))+').');
+  }
+ }
+ if(data.daily!=null){
+  parts.push('Az elmúlt gördülő 24 órában összesen '+minText(data.daily)+' mért alvás látható'+
+    (data.inWindow.length>1?' '+data.inWindow.length+' érintett rekordból.':'.'));
+ }else{
+  parts.push('Az elmúlt 24 óra összes alvásidejéhez nincs elegendő alvásfázis-adat.');
+ }
+ if(data.nightActual!=null&&data.nightActual<6*60*MINUTE){
+  parts.push('Az éjjeli alvás rövid volt; a nappali pihenés hozzáadódik a napi alváshoz, de nem feltétlenül helyettesíti az egybefüggő éjszakai pihenést.');
+ }
+ var combined=parts.join(' ');
+ var addressed=name+', '+combined.slice(0,1).toLocaleLowerCase('hu-HU')+combined.slice(1);
+ return '<aside class="hh431Lena" aria-label="Léna összegzése mindhárom alvásnézet alapján">'+
+  '<span class="hh431LenaMood" aria-hidden="true">😴</span><div class="hh431LenaText">'+
+  '<b>💬 Léna · A teljes pihenésedről</b>'+
+  '<p>'+esc(addressed)+'</p>'+
+  '<small>Health Connect mérési adatok alapján, nem diagnózis. Az alvásindex a fő éjjeli alvás külön becsült mutatója.</small>'+
+  '</div></aside>';
+}
 function dateList(profile,now){
  var dates=[],today=dateKey(now).split('-').map(Number);
  for(var n=29;n>=0;n--){
@@ -249,9 +322,10 @@ function calendarHtml(profile){
    '<small class="hh428Source">Forrás: '+esc(s.sourcePackage||'Health Connect')+'</small></article>';
  }).join(''):'<p class="hh428Empty">Erre a napra nincs mért alvás.</p>';
  return '<div class="hh428CalendarNav" aria-label="30 napos alvásnaptár">'+pills+'</div>'+
-  '<div class="hh428CalendarResult"><h4>'+esc(chosen)+' · '+sessions.length+' alvásrekord</h4>'+
+  '<div class="hh428CalendarResult"><details class="hh431HistoryDetails"'+(expandedHistory[profile]===chosen?' open':'')+'>'+
+  '<summary>'+esc(chosen)+' · '+sessions.length+' alvásrekord · részletek</summary>'+
   (sessions.length>1?'<p class="hh428Split">A külön alvásokat nem vonjuk össze automatikusan.</p>':'')+
-  details+legend()+'</div>';
+  details+legend()+'</details></div>';
 }
 function calendar(rows,profile){
  if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
@@ -270,6 +344,7 @@ document.addEventListener('click',function(e){
  var profile=parent.getAttribute('data-hh428-profile');
  if(profile!==activeProfile())return; // No cross-profile changes from a stale card.
  selected[profile]=button.getAttribute('data-hh428-day');
+ expandedHistory[profile]=selected[profile];
  var body=parent.querySelector('.hh428CalendarBody');
  if(!body)return;
  // Replace the result and pill state without re-fetching Dropbox or resetting scroll.
@@ -278,7 +353,7 @@ document.addEventListener('click',function(e){
  var next=body.querySelector('.hh428CalendarNav');
  if(next)next.scrollLeft=left;
 });
-window.HH_SLEEP_V428={top:top,calendar:calendar,night:function(rows){return latestNight(valid(rows,Date.now()))},
+window.HH_SLEEP_V428={top:top,calendar:calendar,recentTimelines:recentTimelines,lenaComment:lenaComment,night:function(rows){return latestNight(valid(rows,Date.now()))},
  // Pure calculation exposed for regression tests; never stores measurements remotely.
  summarize:function(rows,now){return summary(rows,now==null?Date.now():now)},
  timelineViewport:timelineViewport,timelineTicks:timelineTicks};

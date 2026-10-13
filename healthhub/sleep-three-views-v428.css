@@ -88,3 +88,31 @@
  .hh428Axis{font-size:9px}
  .hh428Day{min-width:58px}
 }
+
+
+/* v431: two compact full-session stage timelines, then evidence-based Léna. */
+.hh431RecentPanel{box-sizing:border-box;margin:13px 0;padding:14px 12px;border:1px solid #c9dceb;border-radius:15px;background:#fff;color:#173c5b}
+.hh431RecentHeader{margin-bottom:10px}
+.hh431RecentHeader small{font-size:10px;letter-spacing:.075em;font-weight:850;color:#197ab8}
+.hh431RecentHeader h3{font-size:18px;line-height:1.22;margin:5px 0 4px;color:#173f63}
+.hh431RecentHeader p{font-size:11.5px;line-height:1.35;color:#6d859b;margin:0}
+.hh431RecentItem{padding:12px 0 11px;border-top:1px solid #e0eaf2}
+.hh431RecentHeading{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.hh431RecentHeading b{display:flex;align-items:center;gap:6px;font-size:13px;color:#18446b;line-height:1.35}
+.hh431RecentHeading strong{font-size:14px;font-variant-numeric:tabular-nums;color:#194a78;white-space:nowrap}
+.hh431Index{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:6px;background:#e1f0fa;color:#2c6795;font-size:10px;flex:none}
+.hh431RecentMeta{font-size:11px;color:#657e91;line-height:1.4;margin:5px 0 8px;font-variant-numeric:tabular-nums}
+.hh431RecentBar{box-sizing:border-box;position:relative;overflow:hidden;border-radius:6px;background:#e1f0fa;border:1px solid #c9e0f0;height:27px;width:100%}
+.hh431RecentAxis{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:#526d84;margin:5px 0 0;font-variant-numeric:tabular-nums}
+.hh431Missing{font-size:11px;color:#70899d;line-height:26px;padding:0 8px}
+.hh431RecentPanel>.hh428Legend{margin:10px 0 0}
+.hh431SameNote{font-size:11px;color:#637f97;line-height:1.4;margin:0 0 6px}
+.hh431Lena{box-sizing:border-box;display:flex;gap:10px;align-items:flex-start;margin:13px 0;padding:14px 12px;border:1px solid #c5dcf0;border-radius:15px;background:linear-gradient(125deg,#f4faff,#edf6ff)}
+.hh431LenaMood{font-size:25px;flex:none;line-height:1}
+.hh431LenaText{min-width:0}
+.hh431LenaText>b{display:block;color:#145c92;font-size:14px;line-height:1.35;margin:0 0 7px}
+.hh431LenaText p{font-size:12px;line-height:1.52;color:#345673;margin:0 0 8px;overflow-wrap:anywhere}
+.hh431LenaText small{font-size:10px;line-height:1.4;color:#6f8ba4}
+.hh431HistoryDetails{border-top:1px solid #d8e6f0;padding:9px 0 0;margin:4px 0 0}
+.hh431HistoryDetails>summary{font-size:12px;color:#2e678e;cursor:pointer;line-height:1.45;font-weight:750;padding:3px 2px}
+.hh431HistoryDetails[open]>summary{margin-bottom:10px}
