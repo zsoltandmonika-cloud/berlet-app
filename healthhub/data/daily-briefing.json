@@ -1,210 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-12",
-  "generatedAt": "2026-10-12T14:05:51+02:00",
-  "headline": "A reggel fő témái: Documents falsified to evade tax on Abramovich's wealth, BBC finds; Trump faces growing backlash over plans to import diesel from Russia",
+  "date": "2026-10-13",
+  "generatedAt": "2026-10-13T13:52:35+02:00",
+  "headline": "A reggel fő témái: Russia's offensive ability is broken, Kyiv's former top general tells BBC; Breaking Bad actor RJ Mitte dies aged 34",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Documents falsified to evade tax on Abramovich's wealth, BBC finds",
-        "BBC World: Trump faces growing backlash over plans to import diesel from Russia",
-        "BBC World: Saudi minister vows 'serious response' to Houthi attacks on airports",
-        "BBC World: Indian opposition leaders march to top court to demand election chief resign"
+        "BBC World: Russia's offensive ability is broken, Kyiv's former top general tells BBC",
+        "BBC World: Breaking Bad actor RJ Mitte dies aged 34",
+        "BBC World: One dead and several hurt after rollercoaster incident at Six Flags",
+        "BBC World: US emergency call records reveal confusion after failed execution of Christa Pike"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Documents falsified to evade tax on Abramovich's wealth, BBC finds",
-        "BBC World: Saudi minister vows 'serious response' to Houthi attacks on airports",
-        "BBC World: Indian opposition leaders march to top court to demand election chief resign"
+        "BBC World: Russia's offensive ability is broken, Kyiv's former top general tells BBC",
+        "BBC World: Breaking Bad actor RJ Mitte dies aged 34",
+        "BBC World: One dead and several hurt after rollercoaster incident at Six Flags"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Documents falsified to evade tax on Abramovich's wealth, BBC finds",
-        "BBC World: Trump faces growing backlash over plans to import diesel from Russia",
-        "BBC World: Saudi minister vows 'serious response' to Houthi attacks on airports"
+        "BBC World: Russia's offensive ability is broken, Kyiv's former top general tells BBC",
+        "BBC World: Breaking Bad actor RJ Mitte dies aged 34",
+        "BBC World: One dead and several hurt after rollercoaster incident at Six Flags"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Magyarország Kormánya: Átmeneti adókedvezményt kapnak a fuvarozók - Magyarország Kormánya",
-        "Portfolio.hu: Keressük Magyarország legjobb alapkezelőit és privátbankárait - Már csak pár napig lehet pályázni a Portfolio befektetési és vagyonkezelési díjaira! - Portfolio.hu",
-        "Qubit: Interaktív térképen az összes eddigi Nobel-díjas születési helye, Magyarország két listán is a top 10-ben - Qubit"
+        "Euronews.com: Az EU megszünteti a magyar antikorrupciós támogatási korlátokat, felszabadul 4,2 milliárd euró - Euronews.com",
+        "Privátbankár.hu: Lezárult az uniós eljárás: Magyarország nem akármihez fér hozzá ismét - Privátbankár.hu",
+        "444: Visszavonták a magyar feltételességi eljárást, 1500 milliárd forintnyi uniós pénzhez fér hozzá Magyarország - 444"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Healey faces £35bn Budget challenge to meet spending pledges, says think tank",
-        "BBC Business: How to avoid getting stung if you miss credit card payments",
-        "BBC Business: Trump faces growing backlash over plans to import diesel from Russia"
+        "BBC Business: UK growth forecast upgraded but higher energy prices to hit economy next year",
+        "BBC Business: Poundland in rescue talks as owners seek buyer",
+        "BBC Business: Phase Eight and Hobbs owner hit by cyber-attack, as H&M probes separate hack claim"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: AI is less regulated than milk, says Microsoft president"
+        "BBC Technology: Phase Eight and Hobbs owner hit by cyber-attack, as H&M probes separate hack claim",
+        "BBC Technology: Dating app Bumble in $1bn takeover talks, say reports",
+        "BBC Technology: AI minister warns 'likely' UK's cyber defences will be breached"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Saudi minister vows 'serious response' to Houthi attacks on airports (BBC World).",
-        "Figyelmi pont: Why some have no choice but to pay costly oil prices (BBC Business)."
+        "Figyelmi pont: Bulgaria summons Russian ambassador after ship sinks in Black Sea drone attack (BBC World).",
+        "Figyelmi pont: Phase Eight and Hobbs owner hit by cyber-attack, as H&M probes separate hack claim (BBC Business).",
+        "Figyelmi pont: Heating oil customers face tough winter despite shake-up promise (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Documents falsified to evade tax on Abramovich's wealth, BBC finds",
-        "BBC World: Trump faces growing backlash over plans to import diesel from Russia"
+        "BBC World: Russia's offensive ability is broken, Kyiv's former top general tells BBC",
+        "BBC World: Breaking Bad actor RJ Mitte dies aged 34"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Documents falsified to evade tax on Abramovich's wealth, BBC finds",
+      "title": "Russia's offensive ability is broken, Kyiv's former top general tells BBC",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c64g1l5389kvo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/c9y7lgg2vdggo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Trump faces growing backlash over plans to import diesel from Russia",
+      "title": "Breaking Bad actor RJ Mitte dies aged 34",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cjn5v21py07vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/cmn045en7d88o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Saudi minister vows 'serious response' to Houthi attacks on airports",
+      "title": "One dead and several hurt after rollercoaster incident at Six Flags",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cjly0zqq27e4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/c6n4ejx8x1z7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Indian opposition leaders march to top court to demand election chief resign",
+      "title": "US emergency call records reveal confusion after failed execution of Christa Pike",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwr5y2lgr4gdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/ck1exg6qjdz3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Pupil arrested after two teachers shot at French school",
+      "title": "Bulgaria summons Russian ambassador after ship sinks in Black Sea drone attack",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm2keg7910gvo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/cmn06w5x9g25o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Tom Cruise film Digger could lose $245m at box office",
+      "title": "Super El Niño sets another record as it strengthens to 'unprecedented levels'",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cke8re5v1pgmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/weather/articles/cmlye0d7q7zno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Mourners killed by Kenya police at ex-PM's national farewell not part of violence, BBC finds",
+      "title": "Ex-president named leader of new DR Congo rebel coalition",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c962y4ld1d7do?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/c8y56re7ldqyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Watch: Endangered orangutans released back into the wild after Borneo fires",
+      "title": "Six Ukrainian energy sites hit by Russia since Trump announced ceasefire, Zelensky says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/videos/c6073z5rvrk3o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cvlyd4pdlwkxo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-12"
     },
     {
-      "title": "Átmeneti adókedvezményt kapnak a fuvarozók - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5xMUM1V3lRbG1ZcC1rYVBUeFVHX0NHSEJzRzFsNlNoUjl6MUZEUFBlWFlWZzV5UDZpbjF2Q1AyeHZRdGxUblA1XzVuZlVWX2ctb0J1QlpyaXI4SmJoWXk3VlBLMnVCX1h1aDlleHRhcXhxSHhsR2c?oc=5",
-      "publishedAt": "2026-10-12"
+      "title": "Az EU megszünteti a magyar antikorrupciós támogatási korlátokat, felszabadul 4,2 milliárd euró - Euronews.com",
+      "publisher": "Euronews.com",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNT25xcVNYY3F4WUlCbmZzY1AyTGFYeWlwQ3NZcDdkSWtRd25LdVZNYm5HQkY4MjNodEVpa3ZzWS1jVk9YNGJGZXpBcHRQbkdIcmpwTVhhUHhoeHdHY2oxZXVWdkx2UG9SSklLdTZuNUg0OWVyYjVCWUhlYlFYa3dzZEU1ZmZZdk5sY2VjUGdjTl95SG9PdUxkYmxtZHlYWVpCTzFaVUJ2LXMwRXYtWWZ0MHR5QURoLXVNYjFGcEVjU2VodnM?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Keressük Magyarország legjobb alapkezelőit és privátbankárait - Már csak pár napig lehet pályázni a Portfolio befektetési és vagyonkezelési díjaira! - Portfolio.hu",
+      "title": "Lezárult az uniós eljárás: Magyarország nem akármihez fér hozzá ismét - Privátbankár.hu",
+      "publisher": "Privátbankár.hu",
+      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQc1VTTWpoRmtCMW8zSE1DaExtczhKOXpWSmhrekhDYWh6M3BVdTFCUjlTT0Rta0hoNXdYWXRfZWlBWTVYZS14Z2lQTHlsNG1zT01UNVNPNUxEWDZaQ19pMW5qejhFUncwcjhrZ3cwMGFkX2R1cGJENXQySVlvMXpxNFpubGxHWGVWV2lXakpPZEVucGJqV2EyWG9FdThQbGJ6OEl1MUR4aVpteTBsdU5wZHpDMUw?oc=5",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Visszavonták a magyar feltételességi eljárást, 1500 milliárd forintnyi uniós pénzhez fér hozzá Magyarország - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQY0MzTl9sUkVOQlN4bzZnX01pdEZzNGktbUk1OVZ6WlFTbXVCU2U1eGpuaXZGNV9Hb1MxWlF4UVhValZxXzBfQ0tSQVcwOXpfYzF6NU5faUJ4Ty02VVdlWUVhRUNYZUVrbW5GVVhDT2lrN3RlOGVfM2xrSWZRNmdZVE1YSVlHbE4wZ0p4SzVvM2d5ZDFYOUpsRTRHbzBkMW5LeEVDQnNLbVRadFQyaUxtZ3R2aFVIejJnYjZKcWZjb2VEUTZmUlk4dVhabTI?oc=5",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Megszületett a várva várt döntés: megnyílnak az újabb pénzcsapok Magyarország számára és a kapuk a diákok előtt - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMiowJBVV95cUxQRXI3cGFPYl9MeDZtczkzNVZkT2x0NURxa3dHbUZhOXVwcUtCN0ZPTmdfZFdBN1VrdTR1OWdSVnNfVE1nVHFCUjhTSWZWWUtfOVYxN0RyRUQwaHBIci1WWnNBYkpIWHJ2cWxFRWFjVHF2UktPblExWEpmSFlvYUdhMG92aW00WlllZ21ra1ZXZzJDcXFZeWVsMDRhNVhMa2x5WTlMb2Zza1RlZzlab2ZfeFFINmMtTFJmcXA5ZnAySXBxMHFMWElOWEJiaE9OZXFJanNZNjdFd3R4M0xoT1pZUFh6VS0zT1QzMTFIem5Wck45SnNDWHlQWlVsaXRfTkFvWndqcFN1bHd5ZlV3TXdpbVlpWW9MNnhKQll5bGdsN3pfc03SAagCQVVfeXFMTVR5ZG1Ua3BqTWduYmZ6NWxmTzdKSk91S2Qtc0hXdUZNQ1RqeW5WVENsQkgyYkEwc3JwS3BSSEhiSGdiT2Z0cTJMWkVTWkttb3VrajNrX1lIX2QtM2xPNGdPMmljNXBEY3lTS2FTWUE5Ni1GalppQzg1dDlzdWRxSDBLam9FZlJpcFlHYWwxRkJ1MWl0aWZHTWtuSk5iZzBpYm5MQU1YQjVCRU1GbzVpMDZwcG9jVF9iUlVuMDJIbjZUUGk5a2w5a2VuaVB2MW5RZDMwbzY3SldDY3hIX2xsYjBaUlZEQmdlcDdnN19HaENUZ2dzdk9NVWcyZ0xrRkkybWc4SDJaQVVPOTMxLTNqcHo2RExDTzI5R3YxRkVkbzVEWkVNQXM4YVk?oc=5",
-      "publishedAt": "2026-10-12"
+      "url": "https://news.google.com/rss/articles/CBMi-gFBVV95cUxQLXQ0clZKZ29EczlrSXd1XzdTV3EycU84NjVHZS03b0hZakZkQ2JfYlh2ZWpkdGR3Q0xKOTlrTGo0SThSc1pPdHg2VFBXVGtnRTFMTXB6OWY0UEx0RVAtcURtdWlENWxzYXl1bEMxSU5sOThWTUQ4bEUtRWNkU2lSdDd4WFhVMUpJMDhTeTg0MWJobHZBX0dhWWNqNTNxZ1lldzVRRkVaZmZwd240NDNDMHFJUmlUWFhsUFNoRzJYa0xMTVlTMWc3RGhFRW9EMGxPRE5OVWhQYVY5RFNDWDloQnJTb1BpZHFTbXl4V2JFenhubGl0ZzVtRGtB0gH_AUFVX3lxTE5QODE5V1A1X19OWFBrak9vR3N2UFZCMlE3ODNYeC1pY1liVzB5Yi1vTDNkQTNKOWdsX3dlT0FiYlQ4Wjg4UDF4dVRvSUFIb1VJeDFNZjE5VDM4eUdYek9WYVc4UXh0Tm5PSUFhWXRITzdYRXc2SlNBMVJDN0QwaExQdzZyNHJHXzZpVktwMW1ZdDIyem1xVHVMT2dEQVo5ak9iWGlnS1VsY3NXZTZENTc2WGRUM00zZWFvLTZSdHVSVzhGb1JEVVZWblFXVW1wdkd6SGxTd2JHNG9xZWJXQjhFaFBqZkotMnJJV0dRSDBaUGk1MmM3TW1OZTV4MEpzWQ?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Interaktív térképen az összes eddigi Nobel-díjas születési helye, Magyarország két listán is a top 10-ben - Qubit",
-      "publisher": "Qubit",
-      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNaXJnTnhfQlB5bzRfMi1LMXI4SmtZczhUTEdyZDZuaVQ1THV1LXRMbDNoUUNJU2xSRmxxT3ktMWxWT3ZEN2cxVWhuSW90NHlrTGtuQTRJbjVNVmlNUnhVSkhrQkprOWtWM2hmMVRkTUk0WkJod2xXZlUzak5UWnJ3ZGpORjlwMVpYTnpRSkJzYmMtbGt3MVFIVC0xOGliTk4tc19kY0ZJa1RCQWFVRS1KaVBqdVZaX3ZuX3haMU9jcklUc3F6bThMT1ppWDQ?oc=5",
-      "publishedAt": "2026-10-12"
+      "title": "Megerősítve kapja vissza a szakmai önrendelkezés jogait az egészségügy - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPbTdVODNhTkhTdS1aVUgtOWtYcFJ5ZGVfOGcwOTBhbmp6aFBsSVh5Z0U4dFRwS2MycUJlY296QXR4Mk9UVmZTR01RMlZOai1EaHlSQmxzamVDX2lldlFaTjhPSlNseW1mTnZQS1p0Q2ktVGZscEhBejFLQ0ZTeS1tRmtoMmVNa01DZUtkNGk2MUJDSmhoZnY1ZHVpSQ?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Magyarország Kormánya. . Parlament fél évvel a választások után - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNdF9JT3ZzRjBGSmpOS29heFhzS3drRzNJS09EUEJaVG1YbGx4Tk54ODdWVy0zU3hBaWJqTFM0b09aaWR1Tmt1c3RRQmhDQkNuNk5ySjVCcklKSkozNjcwbHcyVklkMkR6ODBDZkd3X1B2R0pWWnlXd0p5ZEFoazJVdWMydW9xTlVFTVdZMVE5cEVGWmpCZnAwOThCeEhnVnJaa0tUcHZiRlA0cGRRSkdYcUx2Z0RiY0tGQXVUY2IxV2huZw?oc=5",
-      "publishedAt": "2026-10-12"
+      "title": "Újabb uniós pénzcsapok nyíltak meg Magyarország számára - Magyar Hang",
+      "publisher": "Magyar Hang",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQd2ZnV3B6Z2dvaWlxdVU1ajhxcDllSDM4S1VpR1YzS2F6cEFsOHJjVEl4RTRzZWJ2OXRzUEdCbDIyY01wbU1uVlRJc01kM2t6cUo4LVUxTW9rZzVCTF9PQTJNTDdRb0F4SElORFFsZG9jamFOZ3cyNlJxQTZPVWJaVUNxUW5RcTdf?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Fidesz: Hol tart Magyarország fél évvel a választások után? - Vasárnap.hu",
-      "publisher": "Vasárnap.hu",
-      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxON2llQXpXVmJaMmhFcVlxQ2FNMDVnNmVQYXJuaW5TZmtjZVFwU2ZJRWlSZ1BudExWUnkzSENTZHFRY29OazhEZ09pYUczRFJWLXZnNzZmV0RQal9xSEVNT2ZHTWFjdVpNZm1jRTVxSW9YMmZsWHBrZE0zZlJLNGt1QzFWbUhVeXdJOGc?oc=5",
-      "publishedAt": "2026-10-12"
+      "title": "Georgia-Magyarország: futballlegendáról elnevezett stadionba került át a mérkőzés - nb1.hu",
+      "publisher": "nb1.hu",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5LX1VPTEQ5Vjh1SHRTZm1XbW9uNWhjR0U5ejhlcHEwS1V0Vm1Hd1plcFcxMWNnNmlZbkkzNlVSLW5Gc0djNTVGMmxJeV9NOXFUUEVwQkFsNlkyM0RuY2puUDczenVJMmg5UjQxa0VNRnJFbFE?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Magyarország perel, szomszédja addig a túlélésre megy: látják, hogy jön a baj, azonnali mennek Brüsszelbe az orosz energiahordozókért – „minden eszközt igénybe veszünk! - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPTXhSUUh6OU1WM3EybHhYdk8yTzF1MV9xRXRaWHk5Z2l0bUh5MjBJbWkwVENaZFdfbE1ITDlVN0VnaTZmSVF0blNCNzB5T0NaXzlFYTdmWEZiZXYzZ1Eyb0dKS0UxZFpiZld0V0lTZFFUdUhUTEVCSVhLUzl5ZlBZRXdEYmtycEFfZ3YxY1F4dm1LTFlJM0E?oc=5",
-      "publishedAt": "2026-10-12"
+      "title": "Lezárult a Magyarország elleni uniós kondícionalitási eljárás - ORIGO",
+      "publisher": "ORIGO",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE92TUdRQV9jR1BjNWZ5Q3g1OW84dWk2Mkl3UmVwN2JfYU0wWDVvOVBiY0pTeUxKanhjOW1XWHFRcXFsX1VrcmJPMTdkeUNjUEhxWVIzRHlRTjVUUWNHT3pZeVhOaVVEb3I2blVrRnktbw?oc=5",
+      "publishedAt": "2026-10-13"
     },
     {
-      "title": "Európa nem készült fel a télre, de Magyarország még mindig jó helyzetben van a szakértő szerint - Infostart",
-      "publisher": "Infostart",
-      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOMkxYWi0tVjBCUTVucVRCODljN1YwVDEwdy02V2Z6SXFZQzh0UTlCUC1kMWdIbm9mRDN3R1RVMlJ4am9HUHRBMDJ4UkRWT1lWWGV6SjZHSUQ5T0h0R2FfamMzUW5ZZTAxbzJVZnh3OHFoSTB2Z2FWblp2M0NWdVFLcVdNSU5zY3JnVWRRV0RaRXV2VEx4UHdYd3VQWGRoR05YLWtrMjF3TEJjOThJamJ1QmMzYVo3X085U1RTRGhndFhSTUxpZkg3V1poeUZpOW8?oc=5",
-      "publishedAt": "2026-10-12"
-    },
-    {
-      "title": "Valmar: Úristen | Magyarország, szeretlek! zenekara - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNa1QybmtNT19oV3FQSWRhU3NtMldoMmRhcXpQcGZZRllHWUlJRWgxR25aQkFwb3ZfWGRkblhFd0FZV3JIdW9ITWZvNThtblM3X0t3TFBSamZFX0Z6YUtFOEZleDhVbTk1TVhaMFJzN0p3dzhPaGNBVm1jV1d0di1jaXJRdU16aXFtSTBDdEJB?oc=5",
-      "publishedAt": "2026-10-12"
-    },
-    {
-      "title": "Healey faces £35bn Budget challenge to meet spending pledges, says think tank",
+      "title": "UK growth forecast upgraded but higher energy prices to hit economy next year",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm78pwdp3n5qo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
+      "url": "https://www.bbc.co.uk/news/articles/cmglw0r21zexo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Poundland in rescue talks as owners seek buyer",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckr5ydvvln0mo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Phase Eight and Hobbs owner hit by cyber-attack, as H&M probes separate hack claim",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cwly38gjkejko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "I earn £120,000 a year making social media videos go viral",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c84g12v3lk20o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Heating oil customers face tough winter despite shake-up promise",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cxnv0z09r882o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Dating app Bumble in $1bn takeover talks, say reports",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm9qzwjgnjxlo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
+    },
+    {
+      "title": "Publicly owned rail is popular. But is it making the trains run on time?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck5yn0n14r8do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-13"
     },
     {
       "title": "How to avoid getting stung if you miss credit card payments",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/c84g1xz1l9ddo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
-    },
-    {
-      "title": "Roofing scammers con homeowners out of thousands of pounds",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6x29kydnzv0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
-    },
-    {
-      "title": "AI is less regulated than milk, says Microsoft president",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6rmy7zmvx3lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-12"
-    },
-    {
-      "title": "Citroen revives the 2CV for an electric age",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c620r33plgppo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-11"
-    },
-    {
-      "title": "Why some have no choice but to pay costly oil prices",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqgm09xvlvjeo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-12"
     }
   ]
