@@ -52,3 +52,14 @@ Kiválasztott mobil megjelenési sorrend:
 A normál Sleep nézet változatlan. Az átrendezés és Léna átfogóbb szövege kizárólag az explicit opt-in `?hh_sleep_v428_preview=1` előnézetben aktív.
 
 **Kritikus határ:** az 54/100 körüli HealthRadar alvásindex továbbra is saját, tájékoztató, éjjeli alvásra vonatkozó mutató. A 24 órás délutáni szieszta hozzáadása nem módosítja automatikusan az éjjeli pontszámot, és a vélemény sem talál ki új összetett klinikai pontszámot.
+
+
+## v432 · Golden Standard alvástényező-csempék finomhangolása
+
+- Az alvásindex fő kártyájából eltűnik a feleslegesen hosszú „Saját, becsült pihenésindex · nem Samsung-pontszám” felirat. A számítás módszertana és a nem orvosilag validált jelleg **megmarad** a lenyitható „Hogyan számoljuk az alvásindexet?” magyarázatban.
+- A részletes alvási tényezők sorrendje a preview módban: Tényleges alvás, Mély alvás, REM, Ébrenlét, **Éjszakai pulzus**, **Könnyű alvás**, majd opcionálisan Éjszakai véroxigén.
+- A pulzus és a könnyű alvás így egymás melletti, azonos méretű csempék, a könnyű alvás nem foglal el teljes sort. Ha nincs ténylegesen éjszakai pulzusmérés, a pulzus helyén **„— · Nincs mérés”** jelenik meg, kitalált szám soha.
+- Az éjszakai pulzus és SpO₂ adatok gyűjtésének időablakát az előnézetben azzal a **legutóbbi fő éjjeli alvással** hangoltuk össze, amelyet a v431 kijelző az éjjeli alvásként elemez. Így egy délutáni szieszta nem tolhatja át az éjszakai biometria ablakát délutánra.
+- A véroxigénmérés továbbra is csak akkor jelenik meg, ha van valóban releváns mérés; ha egyetlen mérési perc áll rendelkezésre, **„Egyetlen időpont”** jelzést kap, nem egész éjszakás átlagot állítunk.
+- A módosítás **csak az explicit v428/v432 preview bekapcsolása mellett** él. A normál Sleep oldal elrendezése és szövege változatlan. Android APK, felhős adatstruktúra, Dropbox szinkron és Health Connect engedélyek nem változnak.
+- Regresszió: `node healthhub/tests/sleep-v432-factors.test.js`.
