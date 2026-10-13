@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
 /**
- * v425 read-only, no-network Health Connect pilot.
+ * v426 read-only, no-network Health Connect pilot.
  * Never writes data, exports files, binds a user profile or schedules background work.
  */
 class HcPilotActivity : ComponentActivity() {
@@ -78,7 +78,7 @@ class HcPilotActivity : ComponentActivity() {
             setPadding(dp(20), dp(18), dp(20), dp(24))
         }
         root.addView(TextView(this).apply {
-            text = "HealthHub · Health TEST v425"
+            text = "HealthHub · Health TEST v426"
             textSize = 21f
             setTextColor(Color.rgb(26, 49, 73))
             setTypeface(null, Typeface.BOLD)

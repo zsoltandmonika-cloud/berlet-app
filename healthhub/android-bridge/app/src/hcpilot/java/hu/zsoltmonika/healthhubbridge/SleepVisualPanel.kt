@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.Button
 import android.widget.HorizontalScrollView
@@ -17,7 +18,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
- * v425 isolated visual pilot: per-record, source-grounded sleep stages only.
+ * v426 isolated visual pilot: per-record, source-grounded sleep stages only.
  * The day strip follows the Activity day-navigation concept but does not
  * claim to reuse the production web widget or to switch user profiles.
  */
@@ -29,6 +30,7 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
     private val dayStrip = LinearLayout(context)
     private val daysScroll = HorizontalScrollView(context)
     private val sessionColumn = LinearLayout(context).apply { orientation = VERTICAL }
+    private val legendRow = LinearLayout(context).apply { orientation = HORIZONTAL }
     private var records: List<SleepSessionRecord> = emptyList()
     private var selected: LocalDate = LocalDate.now(zone)
     private var windowDays: Long = 30L
@@ -54,7 +56,26 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
         daysScroll.addView(dayStrip)
         addView(daysScroll)
         addView(sessionColumn)
+        addView(label("Fázisok színmagyarázata", 13f))
+        addView(legendRow)
         addView(label("A külön alvásrekordokat nem adjuk össze. Alváspontszámot nem becslünk.", 12f))
+        val colors = listOf(
+            "Ébren" to Color.rgb(241, 94, 145),
+            "Könnyű" to Color.rgb(135, 105, 235),
+            "Mély" to Color.rgb(69, 49, 180),
+            "REM" to Color.rgb(192, 172, 255)
+        )
+        for ((name, color) in colors) {
+            val legend = LinearLayout(context).apply { orientation = HORIZONTAL }
+            legend.addView(View(context).apply {
+                background = GradientDrawable().apply {
+                    setColor(color)
+                    cornerRadius = dp(3).toFloat()
+                }
+            }, LayoutParams(dp(11), dp(11)).apply { marginEnd = dp(4); topMargin = dp(7) })
+            legend.addView(label(name, 11f))
+            legendRow.addView(legend, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+        }
     }
 
     fun show(sessions: List<SleepSessionRecord>, days: Long) {
@@ -78,7 +99,11 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
             val button = Button(context).apply {
                 isAllCaps = false
                 textSize = 12f
-                text = "${day.format(dateFormat)}\n${if (count > 0) "● $count" else "–"}"
+                val marker = if (count == 0) "–" else if (count == 1) "●" else "● $count"
+                text = "${day.format(dateFormat)}\n$marker"
+                contentDescription = "${day}: ${count} alvásrekord"
+                minHeight = dp(65)
+                minWidth = dp(75)
                 isEnabled = count > 0
                 alpha = if (count == 0) 0.50f else 1f
                 setOnClickListener {
@@ -91,7 +116,13 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
             dayStrip.addView(button, LayoutParams(dp(85), dp(75)).apply {
                 marginEnd = dp(3)
             })
-            if (day == selected) button.setTextColor(Color.rgb(15, 92, 170))
+            if (day == selected) {
+                button.setTextColor(Color.WHITE)
+                button.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.rgb(23, 86, 146))
+            } else {
+                button.setTextColor(Color.rgb(34, 53, 74))
+                button.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.rgb(225, 232, 241))
+            }
         }
     }
 
@@ -99,6 +130,9 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
         sessionColumn.removeAllViews()
         val matching = records.filter { it.endTime.atZone(zone).toLocalDate() == selected }
         sessionColumn.addView(label("${selected} · ${matching.size} alvásrekord", 18f))
+        if (matching.size > 1) {
+            sessionColumn.addView(label("Több különálló alvási időszak ezen a napon. Az időket nem vonjuk össze.", 13f))
+        }
         if (matching.isEmpty()) {
             sessionColumn.addView(label("Ehhez az ébredési naphoz nincs rögzített alvás.", 14f))
             return
@@ -118,7 +152,11 @@ internal class SleepVisualPanel(context: Context) : LinearLayout(context) {
             sessionColumn.addView(SleepStageTimeline(context, session).apply {
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dp(120))
             })
-            sessionColumn.addView(label("Ébren · Könnyű · Mély · REM   |   Forrás: ${session.metadata.dataOrigin.packageName}", 12f))
+            sessionColumn.addView(label("Forrás: ${session.metadata.dataOrigin.packageName}", 12f))
+            if (index < matching.lastIndex) {
+                sessionColumn.addView(View(context).apply { setBackgroundColor(Color.rgb(219, 226, 235)) },
+                    LayoutParams(LayoutParams.MATCH_PARENT, dp(1)).apply { topMargin = dp(14); bottomMargin = dp(14) })
+            }
         }
     }
 }
