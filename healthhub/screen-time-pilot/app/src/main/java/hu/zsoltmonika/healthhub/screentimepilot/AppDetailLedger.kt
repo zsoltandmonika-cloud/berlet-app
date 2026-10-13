@@ -68,6 +68,12 @@ internal object AppDetailLedger {
         require(PilotState.prefs(context).getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
             "Detailed app collection not explicitly enabled"
         }
+        val consentStart = PilotState.prefs(context)
+            .getLong(PilotState.APP_DETAIL_CONSENT_START_MS, 0L)
+        require(consentStart > 0L) { "Missing detailed-app consent timestamp" }
+        require(incoming.all { it.hourStartMs + UsageSessionizer.HOUR_MS > consentStart }) {
+            "Pre-consent application usage cannot be stored"
+        }
         val cutoff = nowMs - RETENTION_DAYS * DAY_MS
         incoming.forEach(::validate)
         val values = AppUsageMerger.merge(read(context, profile), incoming, cutoff, nowMs)
