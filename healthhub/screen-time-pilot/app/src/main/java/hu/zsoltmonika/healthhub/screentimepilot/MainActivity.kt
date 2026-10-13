@@ -85,6 +85,39 @@ class MainActivity : Activity() {
             }
             refresh()
         }
+        button("4. Részletes alkalmazáslista BE/KI (külön engedély)") {
+            val prefs = PilotState.prefs(this)
+            val owner = PilotState.owner(this)
+            if (prefs.getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
+                AlertDialog.Builder(this)
+                    .setTitle("Részletes napló kikapcsolása")
+                    .setMessage("A részletes alkalmazásneveket és időpontokat azonnal törlöm. " +
+                        "Az összesített óraszámok ettől még megmaradnak.")
+                    .setPositiveButton("Kikapcsolás és törlés") { _, _ ->
+                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, false).apply()
+                        owner?.let { AppDetailLedger.clear(this, it) }
+                        refresh()
+                    }
+                    .setNegativeButton("Mégsem", null).show()
+            } else if (owner == null || !UsageAccess.isGranted(this)) {
+                message("Előbb rögzítsd az eszköztulajdonost és engedélyezd az Android használati hozzáférést.")
+            } else {
+                AlertDialog.Builder(this)
+                    .setTitle("Részletes alkalmazáslista?")
+                    .setMessage("A saját telefonod alkalmazásainak azonosítóit és óránkénti " +
+                        "előtéridejét is gyűjti a PILOT. Ez érzékenyebb adat, ezért külön jóváhagyás kell. " +
+                        "Csak a telefonon marad, 30 napig, internet és felhőfeltöltés nélkül. " +
+                        "A ChatGPT-beszélgetések tartalmát nem olvassa.")
+                    .setPositiveButton("Engedélyezem") { _, _ ->
+                        prefs.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, true).apply()
+                        if (prefs.getBoolean(PilotState.ENABLED, false)) {
+                            CollectionScheduler.collectNow(this)
+                        }
+                        refresh()
+                    }
+                    .setNegativeButton("Mégsem", null).show()
+            }
+        }
         button("Állapot megjelenítése / frissítése") { refresh() }
         button("Egyszeri mintavétel (csak diagnosztika)") {
             if (!PilotState.prefs(this).getBoolean(PilotState.ENABLED, false)) {
@@ -101,9 +134,13 @@ class MainActivity : Activity() {
                 .setPositiveButton("Törlés") { _, _ ->
                     val prefs = PilotState.prefs(this)
                     prefs.edit().putBoolean(PilotState.ENABLED, false)
+                        .putBoolean(PilotState.APP_DETAIL_ENABLED, false)
                         .remove(PilotState.LAST_NOTE).remove(PilotState.LAST_RUN).apply()
                     CollectionScheduler.stop(this)
-                    PilotState.owner(this)?.let { LocalLedger.clear(this, it) }
+                    PilotState.owner(this)?.let {
+                        LocalLedger.clear(this, it)
+                        AppDetailLedger.clear(this, it)
+                    }
                     refresh()
                 }
                 .setNegativeButton("Mégsem", null).show()
@@ -128,6 +165,7 @@ class MainActivity : Activity() {
         val owner = PilotState.owner(this)
         val permission = UsageAccess.isGranted(this)
         val enabled = prefs.getBoolean(PilotState.ENABLED, false)
+        val detailed = prefs.getBoolean(PilotState.APP_DETAIL_ENABLED, false)
         val last = prefs.getLong(PilotState.LAST_RUN, 0L)
         val lines = mutableListOf(
             "Eszközhöz kötött profil: " + when (owner) {
@@ -135,6 +173,7 @@ class MainActivity : Activity() {
             },
             "Android Usage Access: " + if (permission) "engedélyezve ✓" else "NINCS engedély",
             "Automatikus gyűjtés: " + if (enabled) "BE" else "KI",
+            "Részletes alkalmazáslista: " + if (detailed) "BE · külön jóváhagyva" else "KI",
             "Ütemezés: WorkManager, kb. 6 óránként (Android nem garantálja a pontos időt)",
             "Utolsó befejezett futás: " + if (last > 0) date(last) else "még nincs",
             "Utolsó visszajelzés: " +
@@ -153,6 +192,17 @@ class MainActivity : Activity() {
                 lines.add("Legutóbbi 24h dokumentált órái: ${day.size} / 24")
                 lines.add("Megfigyelt alkalmazás-előtéridő: ${minutes(total)}")
                 lines.add("Ebből ChatGPT app-előtéridő: ${minutes(chat)}")
+                if (detailed) {
+                    val details = AppDetailLedger.read(this, owner)
+                    val recent = details.filter { it.hourStartMs >= latest }
+                    val top = recent.groupBy { it.packageName }
+                        .mapValues { (_, values) -> values.sumOf { it.observedForegroundMs } }
+                        .entries.sortedByDescending { it.value }.take(7)
+                    lines.add("Részletes helyi napló (30 nap): ${details.size} alkalmazás-óra.")
+                    lines.add("Legutóbbi 24h TOP alkalmazások (csak mért percek):")
+                    top.forEach { (pkg, ms) -> lines.add("• ${pkg.take(70)}: ${minutes(ms)}") }
+                    if (top.isEmpty()) lines.add("Nincs még megfigyelt, lezárt alkalmazás-idősáv.")
+                }
                 lines.add("Az adat NEM a Samsung Digital Wellbeing hivatalos képernyőideje.")
                 lines.add("Hiányzó óra ≠ nulla használat. Nem látja a PC-s ChatGPT-t vagy az üzenetek tartalmát.")
             } catch (e: Exception) {
@@ -161,7 +211,7 @@ class MainActivity : Activity() {
         }
         lines.add("")
         lines.add("ADATVÉDELEM: első induláskor KI; explicit Android engedély; " +
-            "csak összesített óránkénti használat helyben; nincs INTERNET jogosultság; " +
+            "óránkénti összegzés, és csak külön engedéllyel 30 napos app-lista; nincs INTERNET jogosultság; " +
             "megosztás és AI-elemzés még NINCS.")
         output.text = lines.joinToString("\n")
     }
