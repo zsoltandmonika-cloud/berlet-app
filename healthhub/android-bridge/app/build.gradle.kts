@@ -53,6 +53,14 @@ android {
             isDebuggable = true
             matchingFallbacks += listOf("debug")
         }
+        // Separate read-only Health Connect diagnostics. Can coexist with Connect + Samsung pilot.
+        create("hcpilot") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".hcpilot"
+            versionNameSuffix = "-v422-hc-test"
+            isDebuggable = true
+            matchingFallbacks += listOf("debug")
+        }
         release {
             isMinifyEnabled = false
             if (signingConfigs.findByName("ota") != null) {
