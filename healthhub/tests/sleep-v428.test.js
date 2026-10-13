@@ -69,4 +69,27 @@ assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
 assert.doesNotMatch(sleep.top([night,nap],'zsolt'),/style="top:/,
  'Sleep-phase spans may not be four-level vertical stacks');
+
+// v430: Zoom only the visual domain; never alter actual 24h measured totals.
+const visual=sleep.timelineViewport([night,nap],NOW-24*3600000,NOW);
+assert.equal(visual.zoom,true,'The domain should dynamically zoom to the measured sessions');
+assert.ok(visual.start < Date.parse(night.startTime),'Viewport adds context before the first sleep');
+assert.ok(visual.end > Date.parse(nap.endTime),'Viewport adds context after the last sleep');
+assert.ok(visual.end-visual.start < 17*3600000,'Zoom should remove irrelevant outer empty hours');
+assert.equal(sleep.summarize([night,nap],NOW).daily,285*60000,
+ 'Visual zoom must not change the measured 24-hour sum');
+const actualTicks=sleep.timelineTicks([night,nap],visual.start,visual.end);
+assert.match(actualTicks,/00:00/,'First night start must be shown as a real clock time');
+assert.match(actualTicks,/04:00/,'End of nighttime sleep must be shown as a real clock time');
+assert.match(actualTicks,/12:00/,'Afternoon nap start must be shown as a real clock time');
+assert.match(actualTicks,/12:45/,'Nap end must follow its actual time-axis position');
+assert.match(actualTicks,/left:\\d+\\.\\d+%/,'Tick positions must be proportional, not evenly invented');
+const emptyView=sleep.timelineViewport([],NOW-24*3600000,NOW);
+assert.equal(emptyView.zoom,false,'No-record case keeps the complete 24h scale');
+assert.equal(emptyView.end-emptyView.start,24*3600000);
+const alone=sleep.timelineViewport([nap],NOW-24*3600000,NOW);
+assert.ok(alone.end-alone.start>=150*60000,'Short naps keep enough time context to read');
+assert.ok(alone.end-alone.start<24*3600000,'A single nap still zooms in');
+assert.match(sleep.top([night,nap],'zsolt'),/Automatikusan nagyított idővonal/,
+ 'The UI must explicitly explain that the visual time scale has changed');
 console.log('HealthHub Sleep v428 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
