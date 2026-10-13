@@ -41,11 +41,15 @@ internal object UsageCollector {
         val observed = UsageSessionizer.aggregate(signals, start, end)
         // Intentionally don't write fabricated zero-hour entries.
         val stored = LocalLedger.merge(context, owner, observed, now)
-        val detailed = if (PilotState.prefs(context).getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
-            val apps = AppUsageAggregator.aggregate(signals, start, end)
+        val prefs = PilotState.prefs(context)
+        val consentStart = prefs.getLong(PilotState.APP_DETAIL_CONSENT_START_MS, 0L)
+        val detailed = if (prefs.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+            consentStart > 0 && consentStart < end) {
+            // Android may return older events. NEVER persist app identities that
+            // precede the owner's explicit, second-level detailed consent.
+            val apps = AppUsageAggregator.aggregate(signals, maxOf(start, consentStart), end)
             AppDetailLedger.merge(context, owner, apps, now)
         } else {
-            // No new per-app identity is stored without a second opt-in.
             0
         }
         return CollectOutcome(observed.size, stored, signals.size, detailed)
