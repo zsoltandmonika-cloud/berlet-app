@@ -4,9 +4,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync('healthhub/sleep-three-views-v428.js','utf8');
+// Freeze the test clock so tomorrow's midnight HealthCheck is deterministic too.
+const FIXED_NOW=Date.parse('2026-10-13T12:00:00Z');
+class FixedDate extends Date { static now(){return FIXED_NOW;} }
 function load(enabled=true){
  const window={location:{search:enabled?'?hh_sleep_v428_preview=1':''}};
- const ctx={window,URLSearchParams,Intl,Date,Number,Array,Math,String,Set,
+ const ctx={window,URLSearchParams,Intl,Date:FixedDate,Number,Array,Math,String,Set,
   document:{addEventListener:function(){}},localStorage:{getItem:()=> 'z'},
   requestAnimationFrame:function(){}};
  vm.runInNewContext(source,ctx,{filename:'sleep-three-views-v428.js'});
@@ -17,7 +20,7 @@ function rec(a,b,stages,id){
  return {id:id||a,startTime:a,endTime:b,stages:(stages||[]).map(x=>({
   stage:x[0],startTime:x[1],endTime:x[2]})),sourcePackage:'com.sec.android.app.shealth'};
 }
-const NOW=Date.parse('2026-10-13T12:00:00Z'); // Budapest 14:00
+const NOW=FIXED_NOW; // Budapest 14:00, stable regardless of CI run date
 const night=rec('2026-10-12T22:00:00Z','2026-10-13T02:00:00Z',
  [[4,'2026-10-12T22:00:00Z','2026-10-13T02:00:00Z']],'night');
 const nap=rec('2026-10-13T10:00:00Z','2026-10-13T10:45:00Z',
