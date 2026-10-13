@@ -35,3 +35,20 @@ A különálló előnézeti naptár kártyái letisztultak, a legfrissebb napok 
 - Az alvások közötti hézagokat nem tömörítjük külön: **az időbeli távolságok tényleges aránya megmarad**, hogy a grafikon ne legyen megtévesztő.
 - A széles nézet reszponzív százalékos pozicionálást használ; a Sleep oldal normál verziója változatlan, a v430 ugyanazon `?hh_sleep_v428_preview=1` előnézetkapcsolóval érhető el.
 - Offline regressziós tesztek: két alvás (éjjeli+nappali), 24 órás összeg megőrzése, valódi időcímkék, egyetlen rövid szieszta, üres adatok.
+
+
+## v431 · két teljes grafikon Léna véleménye előtt
+
+Kiválasztott mobil megjelenési sorrend:
+
+1. Utolsó alvás, fő éjjeli alvás, elmúlt 24 óra összesített kártyák és az automatikusan nagyított 24 órás áttekintő sáv.
+2. A fő éjjeli alvás részletes kártyái (alvásindex, tényleges alvás, REM, mély, könnyű, ébrenlét, biometria).
+3. **Két egyedi, feliratozott, lapos alvásfázis-idővonal:** először **Fő (éjjeli) alvás**, aztán **Utolsó alvás**. Pontos kezdő/végpont és különválasztott teljes időszak versus tényleges alvás.
+4. **Léna · A teljes pihenésedről:** az előző kettőn kívül a **gördülő 24 órás összesítést is** számításba vevő, az aktuális profilra korlátozott rövid szöveg. Nem orvosi diagnózis, és nem számol kétszer, amikor ugyanaz az alvás a fő és az utolsó.
+5. Alvásidő trendek.
+6. **30 napos alvásnaptár**, közvetlenül az **Alvássegítő** elé áthelyezve. A kiválasztott nap rekordjai lenyithatók, hogy az aktuális napi grafikonokat ne duplázzuk feleslegesen; más nap választásakor a részletek megnyílnak.
+7. Elalvássegítő, beállítások.
+
+A normál Sleep nézet változatlan. Az átrendezés és Léna átfogóbb szövege kizárólag az explicit opt-in `?hh_sleep_v428_preview=1` előnézetben aktív.
+
+**Kritikus határ:** az 54/100 körüli HealthRadar alvásindex továbbra is saját, tájékoztató, éjjeli alvásra vonatkozó mutató. A 24 órás délutáni szieszta hozzáadása nem módosítja automatikusan az éjjeli pontszámot, és a vélemény sem talál ki új összetett klinikai pontszámot.
