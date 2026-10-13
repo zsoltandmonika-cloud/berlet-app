@@ -127,13 +127,69 @@ function legend(){
   return '<span><i style="background:'+colors[k]+'"></i>'+names[k]+'</span>';
  }).join('')+'</div>';
 }
+/* Visual viewport only: the 24h sleep total is ALWAYS computed over
+ * [now-24h, now]. Zooming must never change the rolling summary. */
+function timelineViewport(rows,from,to){
+ var ranges=(Array.isArray(rows)?rows:[]).map(function(r){
+  return [Math.max(from,t(r.startTime)),Math.min(to,t(r.endTime))];
+ }).filter(function(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&p[1]>p[0]});
+ if(!ranges.length)return {start:from,end:to,zoom:false};
+ var first=Math.min.apply(null,ranges.map(function(p){return p[0]}));
+ var last=Math.max.apply(null,ranges.map(function(p){return p[1]}));
+ var span=last-first,day=to-from;
+ if(span>=day*.90)return {start:from,end:to,zoom:false};
+ // 5% padding, minimum 15 and maximum 45 minutes each side.
+ // If a nap is very short, show at least a 2.5-hour interval.
+ var pad=Math.max(15*MINUTE,Math.min(45*MINUTE,span*.05));
+ var start=Math.max(from,first-pad),end=Math.min(to,last+pad);
+ var minimum=150*MINUTE;
+ if(end-start<minimum){
+  var middle=(first+last)/2;
+  start=Math.max(from,middle-minimum/2);
+  end=Math.min(to,start+minimum);
+  start=Math.max(from,end-minimum);
+ }
+ // Align outer boundaries with quarter hours for legible scales.
+ var quarter=15*MINUTE;
+ start=Math.max(from,Math.floor(start/quarter)*quarter);
+ end=Math.min(to,Math.ceil(end/quarter)*quarter);
+ return {start:start,end:end,zoom:end-start<day*.97};
+}
+function timelineTicks(rows,start,end){
+ var points=[];
+ (rows||[]).forEach(function(r){
+  var a=Math.max(start,t(r.startTime)),b=Math.min(end,t(r.endTime));
+  if(Number.isFinite(a)&&Number.isFinite(b)&&b>a)points.push(a,b);
+ });
+ points.sort(function(a,b){return a-b});
+ var kept=[];
+ points.forEach(function(ms){
+  var x=(ms-start)/(end-start);
+  if(kept.some(function(prev){return Math.abs(x-prev.x)<.13}))return;
+  kept.push({ms:ms,x:x});
+ });
+ // On days with many fragments, retain the earliest and latest meaningful time.
+ if(kept.length>6){
+  kept=[kept[0]].concat(kept.slice(1,-1).filter(function(_,i){return i%Math.ceil((kept.length-2)/4)===0}).slice(0,4),[kept[kept.length-1]]);
+ }
+ if(!kept.length)kept=[{ms:start,x:0},{ms:end,x:1}];
+ return kept.map(function(p){
+  var pct=p.x*100;
+  return '<span class="hh430Tick" style="left:'+pct.toFixed(3)+'%" aria-label="'+esc(clock(p.ms))+'">'+esc(clock(p.ms))+'</span>';
+ }).join('');
+}
 function timebar(rows,start,end,label){
- var blocks=stageBlocks(rows,start,end);
- return '<div class="hh428Timebar" role="img" aria-label="'+esc(label)+'">'+
+ // The caller gives the full rolling-24h window; only this visualization zooms.
+ var view=timelineViewport(rows,start,end),a=view.start,b=view.end;
+ var blocks=stageBlocks(rows,a,b);
+ var rangeLabel=(dateKey(a)===dateKey(b)?clock(a)+'–'+clock(b):dateKey(a)+' '+clock(a)+' – '+dateKey(b)+' '+clock(b));
+ return '<div class="hh430ViewportLabel">'+
+  '<span>'+(view.zoom?'🔎 Automatikusan nagyított idővonal':'Teljes 24 órás idővonal')+'</span>'+
+  '<small>'+esc(rangeLabel)+'</small></div>'+
+  '<div class="hh428Timebar" role="img" aria-label="'+esc(label+'. '+(view.zoom?'Nagyított':'24 órás')+' idősáv: '+rangeLabel)+'">'+
   (blocks||'<span class="hh428NoStage">Nincs részletes fázisadat.</span>')+'</div>'+
-  '<div class="hh428Axis"><span>'+esc(clock(start))+'</span><span>'+esc(clock(start+6*3600000))+
-  '</span><span>'+esc(clock(start+12*3600000))+'</span><span>'+esc(clock(start+18*3600000))+
-  '</span><span>'+esc(clock(end))+'</span></div>';
+  '<div class="hh430Axis" aria-label="Alvásrekordok kezdetének és végének időpontja">'+
+  timelineTicks(rows,a,b)+'</div>';
 }
 function activeProfile(){
  try{if(typeof window.cur==='string'&&(window.cur==='m'||window.cur==='z'))return window.cur==='m'?'monika':'zsolt'}catch(e){}
@@ -145,7 +201,7 @@ function top(rows,profile){
  var lastDetail=last?dateFull(t(last.endTime))+' · '+clock(t(last.startTime))+'–'+clock(t(last.endTime)):'Nincs szinkronizált alvásadat.';
  var nightDetail=night?dateFull(t(night.endTime))+' · '+clock(t(night.startTime))+'–'+clock(t(night.endTime)):'Nincs azonosítható éjjeli alvás.';
  var dailyDetail=s.inWindow.length?s.inWindow.length+' alvásrekord · gördülő 24 óra':'Nincs 24 órán belüli mért alvás.';
- var note='<span class="hh428Note">A színes szakaszok mért alvásfázisok; az üres részek nem jelentenek rögzített alvást. Az átfedéseket csak egyszer számoljuk.</span>';
+ var note='<span class="hh428Note">A 24 órás összesítés változatlan. A grafikon a mért időszakokra közelít, az időpontokat arányosan helyezi el. Az üres részek nem jelentenek mért alvást.</span>';
  return '<section class="hh428Panel" data-hh428-profile="'+esc(profile)+'">'+
  '<div class="hh428Head"><span class="hh428Eyebrow">🌙 SLEEP · GYORS ÁTTEKINTÉS</span><h3>A pihenésed három nézetben</h3>'+
  '<p>Éjszakai alvás és nappali szunyókálás külön, valódi Health Connect-adatokból.</p></div>'+
@@ -153,7 +209,7 @@ function top(rows,profile){
  card(1,'Utolsó alvás',minText(s.lastActual),lastDetail,'last','legfrissebb')+
  card(2,'Éjjeli alvás',minText(s.nightActual),nightDetail,'night','fő pihenés')+
  card(3,'Elmúlt 24 óra',minText(s.daily),dailyDetail,'day','összesen')+
- '</div><div class="hh428ChartCard"><div class="hh428ChartHeader"><b>⏱️ Az elmúlt 24 óra alvásidővonala</b><small>Éjjel + nappal</small></div>'+
+ '</div><div class="hh428ChartCard"><div class="hh428ChartHeader"><b>⏱️ Az elmúlt 24 óra alvásai</b><small>Éjjel + nappal</small></div>'+
  timebar(s.inWindow,s.from,s.to,'Az elmúlt 24 órában rögzített alvásfázisok idővonala')+legend()+note+'</div></section>';
 }
 function dateList(profile,now){
@@ -222,5 +278,6 @@ document.addEventListener('click',function(e){
 });
 window.HH_SLEEP_V428={top:top,calendar:calendar,night:function(rows){return latestNight(valid(rows,Date.now()))},
  // Pure calculation exposed for regression tests; never stores measurements remotely.
- summarize:function(rows,now){return summary(rows,now==null?Date.now():now)}};
+ summarize:function(rows,now){return summary(rows,now==null?Date.now():now)},
+ timelineViewport:timelineViewport,timelineTicks:timelineTicks};
 })();
