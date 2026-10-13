@@ -328,14 +328,20 @@ function sleepFactorCards381(night,profile){
        vitals.pulse?(vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag'):'Nincs mérés',
        vitals.pulse?'info':'muted',
        vitals.pulse?vitals.pulse.minutes+' mért perc · Health Connect':'Nincs éjszakai pulzusadat')+
-     card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
-     (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')
+     card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')
      :
      card('☁️','Könnyű alvás',hasStages?stageVal(mins[4]):'—',hasStages?share(mins[4],m&&m.actual):'Nincs adat',hasStages?'info':'muted','Mért alvásfázis · tájékoztató')+
      (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
      (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')
    )+
-  '</div><p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
+  '</div>'+
+  (window.HH_SLEEP_V428_ENABLED===true?
+    '<div class="hhSleepOxygenV432" aria-label="Kiegészítő éjszakai véroxigénmérés">'+
+     '<span>🫁 Véroxigén (SpO₂)</span>'+
+     '<strong>'+(vitals.oxygen?esc(vitals.oxygen.value+'%'):'—')+'</strong>'+
+     '<small>'+(vitals.oxygen?esc(vitals.oxygen.minutes===1?'Egyetlen mért perc':vitals.oxygen.minutes+' mért perc · Health Connect'):'Nincs éjjeli mérés')+'</small>'+
+    '</div>':'')+
+  '<p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
 }
 function sleepOverview(rows){
  if(!rows.length)return '<div class="hhSleepEmpty big">Nincs szinkronizált alvásadat.</div>';
