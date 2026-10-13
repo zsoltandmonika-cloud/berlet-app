@@ -113,6 +113,7 @@ jobs:
           node --check healthhub/sleep-three-views-v428.js
           node --check healthhub/live-v170.js
           node healthhub/tests/sleep-v428.test.js
+          node healthhub/tests/sleep-v432-factors.test.js
 
       - name: Golden Backup after successful HealthCheck
         if: success() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')

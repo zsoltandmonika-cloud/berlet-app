@@ -64,7 +64,7 @@ assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
  '24h timeline must be a short, flat ribbon');
 assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
-assert.match(html,/sleep-three-views-v428\.css\?v=431-lena-timeline-order/,
+assert.match(html,/sleep-three-views-v428\.css\?v=432-pulse-light-compact/,
  'Release needs a fresh cache key for the new card styles');
 assert.match(html,/sleep-three-views-v428\.js\?v=431-two-sessions-before-lena/,
  'Release needs a fresh cache key for the new timeline code');
