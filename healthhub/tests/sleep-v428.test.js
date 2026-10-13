@@ -7,8 +7,10 @@ const source=fs.readFileSync('healthhub/sleep-three-views-v428.js','utf8');
 // Freeze the test clock so tomorrow's midnight HealthCheck is deterministic too.
 const FIXED_NOW=Date.parse('2026-10-13T12:00:00Z');
 class FixedDate extends Date { static now(){return FIXED_NOW;} }
-function load(enabled=true){
- const window={location:{search:enabled?'?hh_sleep_v428_preview=1':''}};
+function load(enabled=true,searchOverride){
+ // Default production is Golden Standard; the old UI is an explicit opt-out.
+ const search=searchOverride!=null?searchOverride:(enabled?'':'?hh_sleep_v428_preview=0');
+ const window={location:{search:search}};
  const ctx={window,URLSearchParams,Intl,Date:FixedDate,Number,Array,Math,String,Set,
   document:{addEventListener:function(){}},localStorage:{getItem:()=> 'z'},
   requestAnimationFrame:function(){}};
@@ -49,7 +51,10 @@ const unrelated=rec('2026-10-13T09:00:00Z','2026-10-13T10:00:00Z',
  [[1,'2026-10-13T09:00:00Z','2026-10-13T10:00:00Z']],'awake');
 assert.equal(sleep.summarize([unrelated],NOW).daily,null,
  'Only awake stage must not become sleep');
-assert.equal(load(false).top([night,nap],'zsolt'),'','Default feature flag must be off');
+assert.equal(load(false).top([night,nap],'zsolt'),'','Explicit classic flag must turn new UI off');
+assert.ok(load(true,'').top([night,nap],'zsolt').includes('Utolsó alvás'),'No-query, normal production URL must enable Golden Standard Sleep');
+assert.ok(load(true,'?hh_sleep_v428_preview=1').top([night,nap],'zsolt').includes('Utolsó alvás'),'Existing preview bookmarks remain valid');
+assert.equal(load(true,'?hh_sleep_legacy=1').top([night,nap],'zsolt'),'','Alternative legacy flag opens the old display only');
 
 const calendar=sleep.calendar([night,nap],'zsolt');
 assert.ok(calendar.includes('hh428CalendarNav'));
@@ -64,9 +69,9 @@ assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
  '24h timeline must be a short, flat ribbon');
 assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
-assert.match(html,/sleep-three-views-v428\.css\?v=432-pulse-light-compact/,
+assert.match(html,/sleep-three-views-v428\.css\?v=433-golden-standard/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=431-two-sessions-before-lena/,
+assert.match(html,/sleep-three-views-v428\.js\?v=433-default-sleep/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
@@ -107,7 +112,7 @@ assert.match(twoTimelines,/04:00/,'Main night ends at its actual recorded end ti
 assert.match(twoTimelines,/12:45/,'Latest nap ends at its actual recorded end time');
 assert.doesNotMatch(sleep.recentTimelines([night,nap],'monika'),/Zsolt/,
  'Timeline markup must not mix Zsolt into the Monika view');
-assert.equal(load(false).recentTimelines([night,nap],'zsolt'),'','Default stable mode unchanged');
+assert.equal(load(false).recentTimelines([night,nap],'zsolt'),'','Manual old Sleep display remains available unchanged');
 const assessment=sleep.lenaComment([night,nap],'zsolt');
 assert.match(assessment,/4 ó 0 p/,'Léna considers the overnight rest');
 assert.match(assessment,/45 p/,'Léna considers the latest nap');
@@ -128,4 +133,4 @@ const helperPos=mainRenderer.indexOf('hhSleepCard helperCard');
 assert.ok(recentPos>0&&lenaPos>recentPos,'Two graphs must render before Léna');
 assert.ok(calendarPos>lenaPos&&helperPos>calendarPos,
  'Historical calendar must move toward the Sleep Helper section');
-console.log('HealthHub Sleep v431 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
+console.log('HealthHub Sleep v433 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');

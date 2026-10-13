@@ -63,3 +63,20 @@ A normál Sleep nézet változatlan. Az átrendezés és Léna átfogóbb szöve
 - Azonos **hat alapcsempe** mindkét profilnál: Tényleges alvás, Mély alvás, REM, Ébrenlét, Éjszakai pulzus, Könnyű alvás. A pulzus értékét csak ténylegesen mért éjszakai adatokból vesszük. Az SpO₂ **külön, diszkrét információs sávban mindig megjelenik** mindkét profilnál: mérés esetén valódi értékkel és a mért percek számával, hiányában „— · Nincs éjjeli mérés” jelzéssel. Egyetlen mért percet nem mutatunk egész éjjeli átlagként.
 - A módosítás **csak az explicit v428/v432 preview bekapcsolása mellett** él. A normál Sleep oldal elrendezése és szövege változatlan. Android APK, felhős adatstruktúra, Dropbox szinkron és Health Connect engedélyek nem változnak.
 - Regresszió: `node healthhub/tests/sleep-v432-factors.test.js`.
+
+
+## v433 · Golden Standard átvitele az éles, alapértelmezett Sleep oldalra
+
+**A v432-ig elfogadott, telefonon jóváhagyott teljes Sleep-vizuál és a hat egységes mérési csempe mostantól mindkét profilnál automatikusan a normál Sleep menüpontban jelenik meg.** Nem szükséges előnézeti URL, új Health Connect engedély, Android APK vagy kézi profilválasztó.
+
+- Normál HealthHub URL: `https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/`
+- A régi előnézeti URL (`?hh_sleep_v428_preview=1`) továbbra is működik, de ugyanazt a normál Golden Standard Sleep felületet jeleníti meg.
+- **Kézi, azonnali kijelző-visszaváltás** a régi Sleep megjelenéshez: `?hh_sleep_v428_preview=0` vagy `?hh_sleep_legacy=1`. A Sleep oldal alján, összecsukott `⚙ Sleep · korábbi megjelenés` blokkban szintén elérhető. Ez csak a látványt cseréli, nem forráskód-rollback, nem adatmanipuláció.
+- A kiválasztott személy profilja és a `/HealthHub/profiles/<profil>-health-connect.json` kanonikus Dropbox adatforrás marad. Zsolt és Mónika adatai nem keverednek.
+- Mért éjjeli pulzus és SpO₂: a fő éjjeli alváshoz illesztve; két mérés hiányában a két profil továbbra is azonos kategóriájú és méretű kártyákat kap, a hiányzó mérés nem válik becsléssé.
+- A fő éjjeli, legutolsó és 24 órás alvásösszegek logikája változatlan. A 24 órás grafikon arányos, csak a látható skálája nagyított.
+- **Önálló, forgatásból kizárt manuális biztonsági ág:** `backup/healthhub-sleep-v432-before-default-migration` (commit `e1898f94a4d9db6ab1cdbe6faca45cc3cb9c25c6`). Az eddigi Golden Backup tag ugyanerre: `hh-golden-e1898f94a4d9`.
+- Élesítés csak HealthHub Level 3 Guard + v428/v432 regressziós PASS és Pages SUCCESS után tekinthető publikáltnak. Az S24 Ultra élő telefonos ellenőrzése **külön kapu**: mindkét profilra, éjszakai/nappali rekordokra, pulzus/SpO₂ adathiányra.
+- Teljes forrás-visszaállítás csak kézi jóváhagyással, PR-alapú módosítással; `main` force-push és automatikus rollback tiltva.
+
+**Megjegyzés:** a régi szövegben szereplő v428 „preview-only” és `default-off` szabályok kizárólag a v428–v432 történeti kiadásokra vonatkoznak. A v433 ezt felülírja: **default-on, explicit opt-out**.
