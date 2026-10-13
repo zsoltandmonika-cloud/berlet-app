@@ -7,6 +7,10 @@ on:
       - ".github/workflows/healthhub-level3-guard.yml"
       - ".github/workflows/healthhub-daily-free.yml"
       - ".github/workflows/healthhub-daily-health.yml"
+  schedule:
+    # 00:15 Budapest local time: summer 22:15 UTC, winter 23:15 UTC.
+    - cron: '15 22,23 * * *'
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -103,7 +107,7 @@ jobs:
       # A Git annotated tag is the immutable source-code snapshot and audit entry.
       # Rollback is intentionally MANUAL; a failing check never changes main.
       - name: Golden Backup after successful HealthCheck
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: success() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
         env:
           VERIFIED_SHA: ${{ github.sha }}
@@ -112,39 +116,12 @@ jobs:
           REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          git config user.name "HealthHub Golden Backup"
-          git config user.email "healthhub-backup@users.noreply.github.com"
-          git fetch --prune origin main
-          CURRENT="$(git rev-parse origin/main)"
-          if [ "$CURRENT" != "$VERIFIED_SHA" ]; then
-            echo "::warning::Main moved since HealthCheck. No outdated backup created."
-            echo "Golden Backup SKIPPED: main moved to $CURRENT" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+          # Cron runs twice to cover DST; only local midnight is accepted.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            HOUR="$(TZ=Europe/Budapest date +%H)"
+            if [ "$HOUR" != "00" ]; then
+              echo "Scheduled run outside Budapest midnight ($HOUR): skip backup."
+              exit 0
+            fi
           fi
-
-          TAG="hh-golden-${VERIFIED_SHA:0:12}"
-          VERSION="$(node -p '((require("fs").readFileSync("healthhub/index.html","utf8").match(/healthhub-live-build" content="([^"]+)"/)||[])[1]||"unknown")')"
-          CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          RUN_URL="$SERVER_URL/$REPOSITORY/actions/runs/$RUN_ID"
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "Golden Backup already exists: $TAG"
-            echo "Golden Backup EXISTS: $TAG (commit $VERIFIED_SHA)" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          git tag -a "$TAG" "$VERIFIED_SHA" -m "HealthHub Golden Backup
-          verified_at_utc: $CREATED
-          version: $VERSION
-          commit: $VERIFIED_SHA
-          healthcheck: HealthHub Level 3 Guard PASS
-          workflow_run: $RUN_URL
-          rollback_policy: MANUAL_APPROVAL_ONLY"
-          git push origin "refs/tags/$TAG"
-          {
-            echo "### HealthHub Golden Backup CREATED"
-            echo "- Tag: \`$TAG\`"
-            echo "- HealthHub version: $VERSION"
-            echo "- Verified commit: \`$VERIFIED_SHA\`"
-            echo "- Verified (UTC): $CREATED"
-            echo "- Check: HealthHub Level 3 Guard PASS"
-            echo "- Rollback: manual only"
-          } >> "$GITHUB_STEP_SUMMARY"
+          bash healthhub/scripts/golden-backup.sh
