@@ -1991,14 +1991,14 @@
       "priority": "High",
       "sprint": "SLI-S2",
       "milestone": "M6 Intelligence",
-      "status": "Backlog",
-      "progress": 0,
+      "status": "In Progress",
+      "progress": 0.2,
       "storyPoints": 5,
       "owner": "Léna + Zsolt",
       "dependency": "HH-SLI-001;HH-CORE-005",
       "targetDate": null,
       "actualDone": null,
-      "notes": "2026-10-13 felhasználói igény: NO MANUAL INPUT a telefonos esti screen time és app használat naplóhoz. Más alkalmazások (ChatGPT) belső üzenet-metaadatait Android UsageStats nem látja. Automatikus rögzítéshez külön explicit Usage Access engedély, és az Android Connect alkalmazás tervezett natív bővítése kell, külön APK jóváhagyással. Samsung Health/Health Connect nem szolgáltat Screen Time adatsort. A HealthHub Ask Léna első féltől származó eseményei saját backenddel gyűjthetők, külön adatvédelmi beállítás szükséges. Figyelj a webes ChatGPT aktivitásra: app-előtéridő nem teljes használati kép. A Digital Wellbeing a HealthHubon belül új, tervezett modul; a Samsung gyári Digital Wellbeing rendszeralkalmazásába való külső adatírás NEM része a tervnek."
+      "notes": "2026-10-13 felhasználói igény: NO MANUAL INPUT a telefonos esti screen time és app használat naplóhoz. Más alkalmazások (ChatGPT) belső üzenet-metaadatait Android UsageStats nem látja. Automatikus rögzítéshez külön explicit Usage Access engedély, és az Android Connect alkalmazás tervezett natív bővítése kell, külön APK jóváhagyással. Samsung Health/Health Connect nem szolgáltat Screen Time adatsort. A HealthHub Ask Léna első féltől származó eseményei saját backenddel gyűjthetők, külön adatvédelmi beállítás szükséges. Figyelj a webes ChatGPT aktivitásra: app-előtéridő nem teljes használati kép. A Digital Wellbeing a HealthHubon belül új, tervezett modul; a Samsung gyári Digital Wellbeing rendszeralkalmazásába való külső adatírás NEM része a tervnek. 2026-10-13 első ELSZIGETELT android-screentime-pilot v0.1.0 forráskód+12 Kotlin regression teszt + saját PR build sikeresen létrejött (PR #193). Külön applicationId, kizárólag lokális aggregátumok, nincs INTERNET, nincs gyári HealthHub Connect módosítás, nincs APK telefonon telepítve. E2E S24 mérési teszt, adatminőség összevetés és integráció még HÁTRA VAN."
     },
     {
       "id": "HH-DW-001",
@@ -2586,6 +2586,12 @@
       "version": "Digital Wellbeing shared logger roadmap",
       "type": "Roadmap",
       "change": "User approved sharing opt-in automatic Android Samsung S24 screen time, ChatGPT app foreground use and HealthHub first-party Ask Léna timestamps into BOTH Sleep AI Intelligence 2.0 and HealthHub Digital Wellbeing; one profile-scoped event store, two read-only views, no manual entry and no unsupported Samsung system-app write. Planned only; no APK/UI changes."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "Screen Time PILOT v0.1.0 / PR #193",
+      "type": "Prototype (non-production)",
+      "change": "A külön Android package-es offline Screen Time Collector forrása és 12 Kotlin unit regression teszt elkészült; PR GitHub CI Android build és NO INTERNET APK ellenőrzés PASS. Csak zárt technikai prototípus; nem telepítve, HealthHub Connect/Dropbox/Sleep UI nem módosult. HH-SLI-006 In Progress 20% (telefonos engedély és igazolt mérés még nincs), HH-DW-001 backlog."
     }
   ]
 }
