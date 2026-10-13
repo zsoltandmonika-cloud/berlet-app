@@ -2,6 +2,11 @@
 
 Állapot: termékigény / terv; **nem implementált** a v420 pilotban. A Samsung SDK v1.1.0 olvasónk jelenleg aktivitást, lépéseket, emeleteket és edzésrekordokat olvas, alvást még nem.
 
+## UI Golden Standard: meglévő HealthHub Activity modul
+- Az alvás dátumválasztója, 30 napos visszatekintése, előző/következő nap vezérlése, mobilos elrendezése és profilváltása **ugyanazt a működési és vizuális mintát** kövesse, mint a már kész HealthHub Activity nézet. Ne hozzunk létre második, eltérő naptármegoldást.
+- Lehetőség szerint az Activity meglévő, tesztelt naptár-/dátumszűrő komponensét használjuk újra, ne csak lemásoljuk a kinézetét.
+- Az „Utolsó 24 óra” legyen gyorsnézet, a kiválasztott naptári nap pedig az adott reggelen véget ért alvásé, az éjfélen átnyúló mérési időszak pontos kezelésével.
+
 ## Funkcionális terv
 - Alvás nézeten „Utolsó 24 óra” és „Nap kiválasztása” mód.
 - Visszamenőleg legalább 30 napig naptárból kiválasztható nap, csak ha a forrásnál ténylegesen rendelkezésre áll.
