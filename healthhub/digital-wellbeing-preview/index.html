@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10192b">
+<meta name="robots" content="noindex,nofollow">
+<title>HealthHub · Digital Wellbeing Golden Preview</title>
+<style>
+:root{--ink:#f5f7ff;--muted:#a8bbd6;--bg:#0b1425;--surface:#15223a;--border:#30425d;--blue:#60a5fa;--aqua:#45d5cc;--purple:#b8a5fa;--pink:#f8a9cf;--accent:#60a5fa;--accent-soft:rgba(96,165,250,.13);--positive:#65d9a5;--warning:#fbc477;font-family:Inter,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse 90% 600px at 50% -110px,#183960 0,transparent 70%),var(--bg);color:var(--ink)}
+button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--aqua);outline-offset:3px}button:disabled{cursor:default;opacity:.6}
+.shell{max-width:840px;margin:auto;padding:18px max(15px,env(safe-area-inset-right)) 54px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.1px}.brandicon{width:41px;height:41px;display:grid;place-items:center;border:1px solid #537097;border-radius:14px;background:#263956;font-size:23px}
+.brand small{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--muted);margin-bottom:2px}
+.demo{font-size:10px;color:#fee8c2;border:1px solid #b78c57;border-radius:999px;padding:7px 8px;background:#4b39255e;white-space:nowrap;font-weight:800}
+.hero{position:relative;overflow:hidden;border-radius:25px;border:1px solid #355477;background:linear-gradient(120deg,#233e67,#15283d 65%,#153d56);padding:21px 19px 20px;box-shadow:0 18px 42px #00000034}
+.hero:after{content:"";position:absolute;right:-37px;bottom:-83px;width:250px;height:230px;background:radial-gradient(circle,#62b4ff40,transparent 70%);pointer-events:none}
+.eyebrow{font-size:11px;color:#91dfeb;font-weight:900;letter-spacing:.15em}
+h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:10px 0 7px}h2{font-size:18px;margin:0;letter-spacing:-.25px}p{line-height:1.48}
+.hero p{font-size:13px;line-height:1.55;max-width:490px;color:#cfdef0;margin:6px 0 17px}
+.choices{display:flex;gap:8px;flex-wrap:wrap}.switch,.segment{background:#ffffff0f;border:1px solid #7795ba7e;color:#dce9fc;padding:9px 12px;border-radius:12px;font-weight:750;font-size:12px}
+.switch.active,.segment.active{background:var(--accent);border-color:var(--accent);color:#0b1527}
+.hero-note{margin-top:13px;color:#b6ceeb;font-size:10px;display:flex;align-items:center;gap:6px}
+.hint{margin:12px 0 18px;border:1px solid #6e5d39;border-radius:12px;background:#332d20a8;padding:10px 12px;color:#f1d6a0;font-size:12px}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 12px}.micro{font-size:11px;color:var(--muted)}
+.periods{display:flex;gap:5px}
+.segment{padding:7px 10px;border-color:#344861;font-size:11px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{border:1px solid var(--border);background:linear-gradient(145deg,#1b2b43,#131e32);border-radius:18px;padding:16px;min-width:0;box-shadow:0 5px 18px #0001}
+.card small{font-size:11px;color:var(--muted);font-weight:650}
+.big{font-size:clamp(24px,6.5vw,35px);line-height:1.2;font-weight:850;letter-spacing:-1px;margin:13px 0 7px;font-variant-numeric:tabular-nums}
+.sub{color:#b7c8db;font-size:11px;line-height:1.4}.pill{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:750;border-radius:999px;padding:5px 8px;background:#203950;color:#b7e8dc}
+.span2{grid-column:span 2}.vis{display:flex;gap:17px;align-items:center;margin-top:17px}
+.ring{flex:none;width:120px;aspect-ratio:1;border-radius:100%;background:conic-gradient(var(--accent) 0 51%,#4bd0c8 51% 68%,#a9a2f5 68% 81%,#304663 81% 100%);display:grid;place-items:center}.ring .inside{width:78%;height:78%;border-radius:100%;background:#17263f;display:grid;place-items:center;text-align:center}.ring b{font-size:19px;letter-spacing:-1px}.ring small{font-size:9px;color:var(--muted)}
+.legend{flex:1;min-width:0}.legend .item{display:flex;align-items:center;gap:7px;font-size:12px;margin:9px 0;color:#d3e0f1}.dot{width:9px;height:9px;border-radius:100%;flex:none}.value{margin-left:auto;font-variant-numeric:tabular-nums;font-size:11px;font-weight:800}
+.timeline{display:flex;align-items:end;gap:3px;height:108px;padding-top:6px}
+.hour{flex:1;min-width:0;border-radius:5px 5px 2px 2px;background:#20334e;position:relative;height:100%;display:flex;align-items:end;overflow:hidden}
+.hour .fill{display:block;background:linear-gradient(180deg,var(--accent),#387bd1);width:100%;height:var(--height);border-radius:4px 4px 0 0}
+.hour.evening{background:#293147}.hour.evening .fill{background:linear-gradient(180deg,#d4a5f9,#8559d3)}
+.ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.timelegend{font-size:10px;color:#c5bdf2;margin-top:11px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:end;height:146px;padding-top:11px}
+.day{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:5px}
+.daybar{width:min(30px,85%);min-height:3px;background:linear-gradient(180deg,var(--accent),#3978ba);border-radius:8px 8px 3px 3px;height:var(--height)}
+.day b{font-size:10px;font-weight:650;color:#bdd0e6}
+.apps{display:grid;gap:12px;margin-top:14px}.app{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;column-gap:10px;font-size:12px}
+.appicon{width:36px;height:36px;display:grid;place-items:center;background:#263e57;border-radius:12px;font-size:17px}
+.appname{font-weight:750}.appdetail{font-size:10px;color:var(--muted);margin-top:3px}
+.appval{font-variant-numeric:tabular-nums;font-weight:850;font-size:12px}
+.bar{margin-top:6px;height:5px;border-radius:100px;background:#293a52;overflow:hidden}.bar span{height:100%;display:block;width:var(--percent);border-radius:100px;background:var(--barcolor)}
+.analysis{background:linear-gradient(140deg,#20354d,#242a47 95%);border:1px solid #49658c;border-radius:19px;padding:16px}
+.analysis-head{display:flex;align-items:center;gap:10px}.avatar{width:43px;height:43px;display:grid;place-items:center;border-radius:14px;background:#e0b7db34;font-size:24px}
+.analysis p{font-size:13px;color:#d9e5f3;margin:13px 0 10px;line-height:1.57}
+.note{font-size:10px;color:#b3c5d9;line-height:1.5}
+.source{display:grid;grid-template-columns:1fr auto;gap:7px 14px;font-size:12px;padding:2px 0}
+.source span:nth-child(odd){color:var(--muted)}.source b{text-align:right;color:#d6e6f8}
+.footer{margin:27px auto 8px;text-align:center;color:#829db7;font-size:11px;line-height:1.55}
+@media(min-width:680px){.shell{padding:26px 30px 62px}.hero{padding:26px 28px}.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.span2{grid-column:span 2}.card.appcard{grid-column:span 2}.card.timecard{grid-column:span 2}.analysis{padding:20px}.ring{width:136px}}
+@media(prefers-reduced-motion:no-preference){.card,.hero{animation:fadeIn .35s ease-out both}@keyframes fadeIn{from{opacity:.8;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="header">
+    <div class="brand"><div class="brandicon" aria-hidden="true">🧠</div><div><small>HEALTHHUB · PERSONAL INTELLIGENCE</small>Digital Wellbeing</div></div>
+    <span class="demo">● DEMO / NEM ÉLES</span>
+  </header>
+  <section class="hero" aria-labelledby="headline">
+    <div class="eyebrow">💙 LÉNA · DIGITAL BALANCE</div>
+    <h1 id="headline">A digitális szokásaid.<br>A te ritmusod.</h1>
+    <p>Automatikus alkalmazáshasználati adatokból tervezett, személyre szóló áttekintés. Később összekapcsolható a Sleep Intelligence rendszerrel.</p>
+    <div class="choices" aria-label="Profilválasztás">
+      <button class="switch active" data-profile="zsolt" aria-pressed="true">💙 Zsolt</button>
+      <button class="switch" data-profile="monika" aria-pressed="false">🩷 Mónika</button>
+    </div>
+    <div class="hero-note">🔒 Elkülönített profilok · opcionális adathozzáférés · csak mintaadatok</div>
+  </section>
+  <div class="hint" role="status">🧪 <strong>Előnézet szintetikus adatokkal.</strong> A Samsung telefonoddal és a Dropboxszal még nincs összekötve. A számok nem a valós használatot mutatják.</div>
+
+  <div class="title-row">
+    <div><h2>Digitális áttekintés</h2><div class="micro" id="periodLabel">Minta · mai nap</div></div>
+    <nav class="periods" aria-label="Időszak">
+      <button class="segment active" data-period="day" aria-pressed="true">Nap</button>
+      <button class="segment" data-period="week" aria-pressed="false">7 nap</button>
+      <button class="segment" data-period="month" aria-pressed="false">30 nap</button>
+    </nav>
+  </div>
+  <section class="cards" aria-label="Fő digitális mutatók">
+    <article class="card"><small>📱 Dokumentált alkalmazásidő</small><div class="big" id="usage">—</div><div class="sub" id="usageSub">—</div></article>
+    <article class="card"><small>🌙 Esti használat · 20–24h</small><div class="big" id="evening">—</div><div class="sub" id="eveningSub">—</div></article>
+    <article class="card"><small>💬 ChatGPT alkalmazás</small><div class="big" id="chatgpt">—</div><div class="sub">Alkalmazás-előtéridő; nem üzenetszám</div></article>
+    <article class="card"><small>🕰️ Megfigyelt idősávok</small><div class="big" id="coverage">—</div><div class="sub">Adatlefedettség, nem becsült képernyőidő</div></article>
+    <article class="card span2 timecard">
+      <div class="title-row" style="margin:0 0 6px"><h2>🕑 Napi használati ritmus</h2><span class="micro">0–24h</span></div>
+      <div id="timeline" class="timeline" role="img" aria-label="Óránkénti alkalmazáshasználati idő"></div>
+      <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+      <div class="timelegend">■ Lila: esti 20–24 óra · oszlop: megfigyelt használat óránként</div>
+    </article>
+    <article class="card span2 appcard">
+      <h2>📊 Leggyakrabban használt alkalmazások</h2>
+      <div class="vis">
+        <div class="ring" aria-hidden="true"><div class="inside"><div><small>MINTA ÖSSZESEN</small><br><b id="ringTotal">—</b></div></div></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div id="apps" class="apps" aria-label="Alkalmazáslista"></div>
+    </article>
+    <article class="card span2 timecard">
+      <div class="title-row" style="margin:0"><h2>📅 Heti mintázat</h2><span class="micro">Minta · hétfő–vasárnap</span></div>
+      <div class="week" id="weekly" aria-label="Heti képernyőhasználati trend"></div>
+    </article>
+    <article class="card span2 appcard">
+      <h2>🧩 Alkalmazáskategóriák</h2>
+      <div class="apps" id="categories"></div>
+      <div class="note" style="margin-top:12px">A kategóriákhoz saját, ellenőrizhető besorolási adatbázis kell. A Samsung gyári besorolásai nem feltétlenül hozzáférhetők.</div>
+    </article>
+  </section>
+
+  <div class="title-row"><h2>🧠 Léna személyes értelmezése</h2><span class="micro">Későbbi AI kapcsolat</span></div>
+  <section class="analysis" aria-label="Tervezett Léna elemzés">
+    <div class="analysis-head"><div class="avatar" aria-hidden="true">👩🏻‍⚕️</div><div><strong id="lenaHeading">Léna · Zsolt</strong><div class="micro">Sleep Intelligence × Digital Wellbeing</div></div></div>
+    <p id="analysisText"></p>
+    <div class="note">Példaszöveg, nem személyes egészségügyi értékelés. A későbbi AI csak igazolt, engedélyezett, időbélyeges mérésekből dolgozhat. A telefonhasználat és az alvás közötti kapcsolat nem bizonyított ok-okozat.</div>
+  </section>
+
+  <div class="title-row"><h2>🔐 Adatforrás és szinkron</h2></div>
+  <section class="card" aria-label="Forrás státusz">
+    <div class="source">
+      <span>Android Usage Access</span><b>⏳ Engedélyezésre vár</b>
+      <span>Samsung képernyőidő</span><b>Nem csatlakoztatott</b>
+      <span>ChatGPT app</span><b>Tervezett előtéridő</b>
+      <span>Ask Léna napló</span><b>Tervezett saját esemény</b>
+      <span>Dropbox Vault</span><b>Nincs szinkron</b>
+      <span>Sleep Intelligence</span><b>Nincs aktív kapcsolat</b>
+    </div>
+    <div class="note" style="margin-top:11px">A pilot készülékes validálása után épülhet ki a profilonkénti privát eseménytár. A gyári Samsung Digital Wellbeing adatait nem állítjuk pontosan vissza Android UsageEvents alapján.</div>
+  </section>
+  <p class="footer">HealthHub Golden Preview · különálló, olvasásra szánt bemutató · nem módosítja a v433 Sleep felületet, az éles HealthHub Connectet vagy a privát adataitokat.</p>
+</main>
+<script>
+'use strict';
+(function(){
+  const demo = {
+    zsolt:{
+      day:{total:208,evening:72,chatgpt:91,coverage:'21/24',hours:[0,0,0,0,0,0,4,11,14,7,9,16,4,4,11,18,9,8,14,7,15,26,20,12], apps:[['Edge','🌐',104,'#60a5fa','Böngészés'],['ChatGPT','🧠',91,'#45d5cc','AI / tervezés'],['Messenger','💬',13,'#b8a5fa','Üzenetek']]},
+      week:{total:1410,evening:505,chatgpt:640,coverage:'150/168',apps:[['Edge','🌐',742,'#60a5fa','Böngészés'],['ChatGPT','🧠',640,'#45d5cc','AI / tervezés'],['Messenger','💬',28,'#b8a5fa','Üzenetek']]},
+      month:{total:5882,evening:2064,chatgpt:2753,coverage:'638/720',apps:[['Edge','🌐',2931,'#60a5fa','Böngészés'],['ChatGPT','🧠',2753,'#45d5cc','AI / tervezés'],['Messenger','💬',198,'#b8a5fa','Üzenetek']]},
+      weekly:[168,192,236,207,199,244,164],
+      categories:[['AI és produktivitás','✨',111,'#45d5cc','Összesített minta'],['Böngészés','🌐',78,'#60a5fa','Összesített minta'],['Kommunikáció','💬',19,'#b8a5fa','Összesített minta']]
+    },
+    monika:{
+      day:{total:163,evening:49,chatgpt:18,coverage:'20/24',hours:[0,0,0,0,0,0,5,10,13,8,17,5,6,12,7,15,5,4,9,11,10,13,18,6],apps:[['Facebook','👥',82,'#60a5fa','Közösségi'],['Messenger','💬',63,'#45d5cc','Üzenetek'],['ChatGPT','🧠',18,'#b8a5fa','AI']]},
+      week:{total:1100,evening:354,chatgpt:130,coverage:'146/168',apps:[['Facebook','👥',545,'#60a5fa','Közösségi'],['Messenger','💬',425,'#45d5cc','Üzenetek'],['ChatGPT','🧠',130,'#b8a5fa','AI']]},
+      month:{total:4510,evening:1310,chatgpt:505,coverage:'602/720',apps:[['Facebook','👥',2250,'#60a5fa','Közösségi'],['Messenger','💬',1755,'#45d5cc','Üzenetek'],['ChatGPT','🧠',505,'#b8a5fa','AI']]},
+      weekly:[156,141,152,174,185,149,143],
+      categories:[['Közösségi','👥',82,'#60a5fa','Összesített minta'],['Üzenetek','💬',63,'#45d5cc','Összesített minta'],['AI','🧠',18,'#b8a5fa','Összesített minta']]
+    }
+  };
+  let profile='zsolt', period='day';
+  const el=id=>document.getElementById(id);
+  const mins=n=>n>=60?Math.floor(n/60)+' ó '+String(n%60).padStart(2,'0')+' p':n+' p';
+  const get=()=>demo[profile][period];
+  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function draw(){
+    const model=demo[profile],d=get(),name=profile==='zsolt'?'Zsolt':'Mónika';
+    document.documentElement.style.setProperty('--accent',profile==='zsolt'?'#60a5fa':'#f8a9cf');
+    document.documentElement.style.setProperty('--accent-soft',profile==='zsolt'?'#60a5fa25':'#f8a9cf25');
+    el('periodLabel').textContent={day:'Minta · mai nap',week:'Minta · elmúlt 7 nap',month:'Minta · elmúlt 30 nap'}[period];
+    el('usage').textContent=mins(d.total);
+    el('usageSub').textContent='Megfigyelt alkalmazás-előtéridő; nem Samsung total';
+    el('evening').textContent=mins(d.evening);
+    el('eveningSub').textContent='20:00–24:00 · mintaintervallum';
+    el('chatgpt').textContent=mins(d.chatgpt);
+    el('coverage').textContent=d.coverage;
+    el('ringTotal').textContent=mins(d.total);
+    const appTotal=d.apps.reduce((n,a)=>n+a[2],0);
+    el('legend').innerHTML=d.apps.map(a=>'<div class="item"><span class="dot" style="background:'+esc(a[3])+'"></span>'+esc(a[0])+'<span class="value">'+esc(mins(a[2]))+'</span></div>').join('');
+    const degrees=[];let a=0;d.apps.forEach(row=>{const next=a+row[2]/appTotal*100;degrees.push(esc(row[3])+' '+a+'% '+next+'%');a=next;});el('legend').previousElementSibling.style.background='conic-gradient('+degrees.join(',')+')';
+    el('apps').innerHTML=d.apps.map(a=>'<div class="app"><div class="appicon">'+esc(a[1])+'</div><div><div class="appname">'+esc(a[0])+'</div><div class="appdetail">'+esc(a[4])+'</div><div class="bar"><span style="--percent:'+Math.min(100,Math.round(100*a[2]/d.apps[0][2]))+'%;--barcolor:'+esc(a[3])+'"></span></div></div><div class="appval">'+esc(mins(a[2]))+'</div></div>').join('');
+    const maxHour=Math.max(22,...model.day.hours);
+    el('timeline').innerHTML=model.day.hours.map((h,i)=>'<div class="hour'+(i>=20?' evening':'')+'" title="'+i+':00 · '+h+' mintaperc" aria-hidden="true"><span class="fill" style="--height:'+Math.round(h/maxHour*100)+'%"></span></div>').join('');
+    const maxDay=Math.max(...model.weekly);
+    const labels=['H','K','Sze','Cs','P','Szo','V'];
+    el('weekly').innerHTML=model.weekly.map((d,i)=>'<div class="day" title="'+labels[i]+' · '+mins(d)+'"><div class="daybar" style="--height:'+Math.max(3,Math.round(d/maxDay*100))+'%"></div><b>'+labels[i]+'</b></div>').join('');
+    el('categories').innerHTML=model.categories.map(a=>'<div class="app"><div class="appicon">'+esc(a[1])+'</div><div><div class="appname">'+esc(a[0])+'</div><div class="appdetail">'+esc(a[4])+'</div></div><div class="appval">'+esc(mins(a[2]))+'</div></div>').join('');
+    el('lenaHeading').textContent='Léna · '+name+' digitális ritmusa';
+    el('analysisText').textContent=profile==='zsolt'?
+      'Zsolt, a bemutató mintában több késő esti alkalmazáshasználat látszik. A hosszú ChatGPT-használat lehet egy érdekes életmódbeli tényező az alvásaid értelmezéséhez. A valós Sleep Advisory csak azonosított, időbélyeges mérésekből kereshet összefüggéseket.' :
+      'Mónika, a bemutató mintában a közösségi és üzenetküldő alkalmazások dominálnak. Ha a késő esti használat együtt változik az elalvás időpontjával, Léna ezt óvatos megfigyelésként jelezheti, nem bizonyított okként.';
+    document.querySelectorAll('[data-profile]').forEach(b=>{const on=b.dataset.profile===profile;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+    document.querySelectorAll('[data-period]').forEach(b=>{const on=b.dataset.period===period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  }
+  document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',()=>{profile=b.dataset.profile;draw();}));
+  document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.period;draw();}));
+  draw();
+})();
+</script>
+</body>
+</html>
