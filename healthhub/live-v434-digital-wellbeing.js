@@ -134,7 +134,8 @@
           return '<li><span>' + escape(a.name) + '</span><strong>' + escape(niceTime(a.ms)) + '</strong></li>';
         }).join("")
       : '<li><span>Mai alkalmazásadat még nem érkezett.</span></li>';
-    state("Profilhelyes forrás · " + snapshot.profile + " · " + days.length + " nap");
+    var exportAgeHours = (Date.now() - Date.parse(snapshot.exportedAt)) / 3600000;
+    state((exportAgeHours > 24 ? "Régi export (24 órán túli) · " : "Profilhelyes forrás · ") + snapshot.profile + " · " + days.length + " nap");
   }
   async function reload() {
     var request = ++busy, p = profile();
