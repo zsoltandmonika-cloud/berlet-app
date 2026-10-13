@@ -278,10 +278,12 @@ function lenaComment(rows,profile){
  if(data.nightActual!=null&&data.nightActual<6*60*MINUTE){
   parts.push('Az éjjeli alvás rövid volt; a nappali pihenés hozzáadódik a napi alváshoz, de nem feltétlenül helyettesíti az egybefüggő éjszakai pihenést.');
  }
+ var combined=parts.join(' ');
+ var addressed=name+', '+combined.slice(0,1).toLocaleLowerCase('hu-HU')+combined.slice(1);
  return '<aside class="hh431Lena" aria-label="Léna összegzése mindhárom alvásnézet alapján">'+
   '<span class="hh431LenaMood" aria-hidden="true">😴</span><div class="hh431LenaText">'+
   '<b>💬 Léna · A teljes pihenésedről</b>'+
-  '<p>'+esc(name+', '+parts.join(' '))+'</p>'+
+  '<p>'+esc(addressed)+'</p>'+
   '<small>Health Connect mérési adatok alapján, nem diagnózis. Az alvásindex a fő éjjeli alvás külön becsült mutatója.</small>'+
   '</div></aside>';
 }
