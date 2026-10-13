@@ -8,7 +8,7 @@ var enabled=false;
 try{enabled=new URLSearchParams(window.location.search).get('hh_sleep_v428_preview')==='1'}catch(e){}
 window.HH_SLEEP_V428_ENABLED=enabled;
 var TIMEZONE='Europe/Budapest',DAY=86400000,MINUTE=60000;
-var colors={1:'#ea5a89',4:'#9174e9',5:'#4731b9',6:'#bca9fb'};
+var colors={1:'#ec8293',4:'#8ec7ea',5:'#265c9b',6:'#b89be8'};
 var names={1:'Ébren',4:'Könnyű',5:'Mély',6:'REM'};
 var selected={zsolt:'',monika:''},lastData={zsolt:[],monika:[]};
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -113,8 +113,9 @@ function stageBlocks(rows,start,end){
    if(!colors[k]||!Number.isFinite(a)||!Number.isFinite(b))return;
    a=Math.max(a,start,t(r.startTime));b=Math.min(b,end,t(r.endTime));
    if(b<=a)return;
-   var y={1:0,6:25,4:50,5:75}[k];
-   all.push('<i class="hh428Stage" style="top:'+y+'%;left:'+((a-start)/(end-start)*100).toFixed(3)+
+   // A single, flat ribbon matching the existing HealthHub sleep-stage timeline.
+   // Empty 24-hour intervals remain neutral, never misrepresented as sleep.
+   all.push('<i class="hh428Stage" style="left:'+((a-start)/(end-start)*100).toFixed(3)+
     '%;width:'+((b-a)/(end-start)*100).toFixed(3)+'%;background:'+colors[k]+
     '" title="'+esc(names[k]+' · '+clock(a)+'–'+clock(b))+'"></i>');
   });
@@ -141,10 +142,10 @@ function activeProfile(){
 function top(rows,profile){
  if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
  var now=Date.now(),s=summary(rows,now),last=s.last,night=s.night;
- var lastDetail=last?dateFull(t(last.endTime))+' · '+clock(t(last.startTime))+'–'+clock(t(last.endTime))+' · '+minText(t(last.endTime)-t(last.startTime))+' időszak':'Még nincs szinkronizált alvásadat.';
- var nightDetail=night?dateFull(t(night.endTime))+' · '+clock(t(night.startTime))+'–'+clock(t(night.endTime))+' · '+night.sessions.length+' rekord':'Nem azonosítható egyértelmű éjjeli alvás.';
- var dailyDetail=s.inWindow.length?'Gördülő 24 óra · '+s.inWindow.length+' érintett alvásrekord · átfedések nélkül':'Az elmúlt 24 órából nincs mért alvásadat.';
- var note='<span class="hh428Note">A mért alvásfázisokat számoljuk, az átfedéseket egyszer. Hiányos mérés esetén az összeg is hiányos lehet.</span>';
+ var lastDetail=last?dateFull(t(last.endTime))+' · '+clock(t(last.startTime))+'–'+clock(t(last.endTime)):'Nincs szinkronizált alvásadat.';
+ var nightDetail=night?dateFull(t(night.endTime))+' · '+clock(t(night.startTime))+'–'+clock(t(night.endTime)):'Nincs azonosítható éjjeli alvás.';
+ var dailyDetail=s.inWindow.length?s.inWindow.length+' alvásrekord · gördülő 24 óra':'Nincs 24 órán belüli mért alvás.';
+ var note='<span class="hh428Note">A színes szakaszok mért alvásfázisok; az üres részek nem jelentenek rögzített alvást. Az átfedéseket csak egyszer számoljuk.</span>';
  return '<section class="hh428Panel" data-hh428-profile="'+esc(profile)+'">'+
  '<div class="hh428Head"><span class="hh428Eyebrow">🌙 SLEEP · GYORS ÁTTEKINTÉS</span><h3>A pihenésed három nézetben</h3>'+
  '<p>Éjszakai alvás és nappali szunyókálás külön, valódi Health Connect-adatokból.</p></div>'+

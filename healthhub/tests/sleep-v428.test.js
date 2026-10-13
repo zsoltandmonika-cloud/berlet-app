@@ -52,4 +52,21 @@ const calendar=sleep.calendar([night,nap],'zsolt');
 assert.ok(calendar.includes('hh428CalendarNav'));
 assert.ok(calendar.includes('30 NAPOS ALVÁSNAPTÁR'));
 assert.ok(!calendar.includes('on-demand szinkron'),'Calendar must be read-only');
+const css=fs.readFileSync('healthhub/sleep-three-views-v428.css','utf8');
+const html=fs.readFileSync('healthhub/index.html','utf8');
+assert.match(css,/\.hh428Value\{[^}]*white-space:nowrap/,'Card durations must fit on one line');
+assert.match(css,/\.hh428Cards\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,
+ 'Three compact overview cards must stay side by side');
+assert.match(css,/\.hh428Timebar,\.hh428RecordBar\{[^}]*height:27px/,
+ '24h timeline must be a short, flat ribbon');
+assert.match(css,/\.hh428RecordBar\{height:24px\}/,
+ 'Calendar timeline must also be compact');
+assert.match(html,/sleep-three-views-v428\.css\?v=429-compact-three-cards/,
+ 'Release needs a fresh cache key for the new card styles');
+assert.match(html,/sleep-three-views-v428\.js\?v=429-flat-timeline/,
+ 'Release needs a fresh cache key for the new timeline code');
+assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
+ 'Flat stage bar must remain present under the three cards');
+assert.doesNotMatch(sleep.top([night,nap],'zsolt'),/style="top:/,
+ 'Sleep-phase spans may not be four-level vertical stacks');
 console.log('HealthHub Sleep v428 regression PASS: 3 metrics, naps, night selection, 24h union, boundary, missing data, flag, calendar.');
