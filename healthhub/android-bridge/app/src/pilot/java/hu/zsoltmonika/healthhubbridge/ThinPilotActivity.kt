@@ -34,6 +34,7 @@ class ThinPilotActivity : Activity() {
     private lateinit var diagnostic: TextView
     private lateinit var read: Button
     private lateinit var profile: Spinner
+    private lateinit var period: Spinner
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
@@ -57,7 +58,7 @@ class ThinPilotActivity : Activity() {
         }
         root.addView(title)
         root.addView(TextView(this).apply {
-            text = "Samsung Health · helyi teszt v418"
+            text = "Samsung Health · helyi teszt v419"
             textSize = 16f
             setTextColor(Color.rgb(55, 97, 127))
             setPadding(0, dp(4), 0, dp(12))
@@ -71,8 +72,12 @@ class ThinPilotActivity : Activity() {
             adapter = ArrayAdapter(this@ThinPilotActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Zsolt", "Mónika"))
         }
         root.addView(profile)
+        period = Spinner(this).apply {
+            adapter = ArrayAdapter(this@ThinPilotActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Mai nap", "Utolsó 7 nap"))
+        }
+        root.addView(period)
         read = Button(this).apply {
-            text = "Samsung Health · mai adatok olvasása"
+            text = "Samsung Health · helyi adatdiagnosztika"
             isEnabled = SamsungSdkDailyReader.available
             setOnClickListener { readOneDay() }
         }
@@ -128,12 +133,13 @@ class ThinPilotActivity : Activity() {
 
     private fun readOneDay() {
         val owner = if (profile.selectedItemPosition == 1) "monika" else "zsolt"
+        val requestedDays = if (period.selectedItemPosition == 1) 7 else 1
         read.isEnabled = false
         result.text = "Samsung SDK olvasás folyamatban…"
         diagnostic.text = "Diagnosztika: feldolgozás alatt."
         scope.launch {
             try {
-                val payload = SamsungSdkDailyReader.collect(this@ThinPilotActivity, owner, 1)
+                val payload = SamsungSdkDailyReader.collect(this@ThinPilotActivity, owner, requestedDays)
                 check(payload.optString("profile") == owner &&
                     payload.optString("schemaVersion") == "healthhub.samsung.daily/1") {
                     "Eltérő profil vagy Samsung adatformátum."
@@ -163,7 +169,41 @@ class ThinPilotActivity : Activity() {
 
                 val hourly = records?.optJSONArray("hourlySteps")
                 val exercises = records?.optJSONArray("exerciseSessions")
+                val debug = payload.optJSONObject("diagnostics")
+                fun granted(name: String): String = when {
+                    debug == null || !debug.has(name) -> "nem ellenőrizhető"
+                    debug.optBoolean(name) -> "engedélyezve"
+                    else -> "nincs engedély"
+                }
+                val floorStatuses = debug?.optJSONObject("floorsByDate")
+                fun floorStatus(date: String): String = when (floorStatuses?.optString(date)) {
+                    "value_received" -> "adat érkezett"
+                    "no_records" -> "lekérdezés sikeres, nincs rekord"
+                    "permission_missing" -> "nincs olvasási engedély"
+                    "invalid_value" -> "érvénytelen érték"
+                    "query_failed" -> "lekérdezési hiba"
+                    else -> "nem ellenőrizhető"
+                }
+                val dates = (0 until days.length()).mapNotNull { i ->
+                    days.optJSONObject(i)?.let { entry ->
+                        val date = entry.optString("date")
+                        "$date: ${floorStatus(date)}; aktív perc: ${number(entry, "activeMinutes", 1)}"
+                    }
+                }
+                val hourRows = (0 until (hourly?.length() ?: 0)).mapNotNull { i ->
+                    hourly?.optJSONObject(i)?.let { entry ->
+                        val hour = entry.optInt("hour", -1)
+                        val steps = entry.optLong("steps", -1)
+                        if (hour in 0..23 && steps >= 0)
+                            "${hour.toString().padStart(2, '0')}:00 · $steps lépés"
+                        else null
+                    }
+                }
                 diagnostic.text = "ADATDIAGNOSZTIKA · Samsung SDK\n" +
+                    "Kért időszak: $requestedDays nap\n" +
+                    "Jogosultságok: aktivitás ${granted("activitySummaryPermission")}, emelet ${granted("floorsPermission")}, lépések ${granted("stepsPermission")}, edzés ${granted("exercisePermission")}\n" +
+                    "Emeletlekérdezés (naponként):\n${dates.joinToString("\n").ifBlank { "nincs napi rekord" }}\n" +
+                    "Mai óránkénti lépések:\n${hourRows.joinToString("\n").ifBlank { "nincs elérhető órás rekord" }}\n\n" +
                     "Forrás: ${payload.optString("source", "ismeretlen")}\n" +
                     "Napi rekordok: ${days.length()}\n" +
                     "Óránkénti lépésrekordok: ${hourly?.length() ?: 0}\n" +
