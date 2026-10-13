@@ -8,12 +8,12 @@ Keep the user-approved Golden dashboard under `healthhub/digital-health/` with t
 - Copies the existing responsive Golden preview layout into an independent route; daily/7-day/30-day/profile navigation works.
 - Removes **all generated demo numbers** from the activation route. Missing authenticated data shows `—` / `Nincs ellenőrzött adat`, never simulated measurements or zero.
 - Preserves blue Zsolt and pink Mónika themes.
-- Includes an explicit unresolved Hero asset slot at `healthhub/assets/hero-digital-health-approved.webp`.
+- Includes an explicit unresolved Hero asset slot at `healthhub/assets/hero-digital-health-approved.png`.
 - Does **not** connect Android private usage data, Dropbox, Sleep Intelligence, Ask Léna, or production HealthHub Connect. No user information or usage measurements are uploaded to the public repository.
 - Does **not** yet add the Digital Health tile to production Home, because the photo asset, source authentication, and device QA have not passed.
 
 ## Release gates (do not declare fully live until satisfied)
-1. Upload the actual user-approved uploaded image (`Digital Health assistant Léna .png`) as an optimized **local** `healthhub/assets/hero-digital-health-approved.webp` (1600×900 or larger, proper 16:9; keep faces and holographic panels intact). This requires binary asset publishing not available via the current text-only repository file API. Do not use external image hosts or a newly generated image.
+1. Upload the actual user-approved uploaded image (`Digital Health assistant Léna .png`) as the original **local PNG** `healthhub/assets/hero-digital-health-approved.png` (keep the user-approved pixels and the 16:9 composition; optimize only in a later, separately verified pass). This requires binary asset publishing not available via the current text-only repository file API. Do not use external image hosts or a newly generated image.
 2. Confirm the Hero loads on GitHub Pages (mobile Edge / Chrome), no lost faces, and dashboard remains visible under it.
 3. Verify profile switching and 1/7/30-day view without synthetic values. Capture screenshot from S24 Ultra.
 4. Only after separate opt-in design, authenticated profile-scoped sync and provenance validation: wire the existing private-source adapter, **not** raw GitHub/Pub Pages JSON.
