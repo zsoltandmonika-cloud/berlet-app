@@ -39,7 +39,8 @@ foreach ($p in $required) {
 }
 $manifest = (& $aapt dump xmltree $apk AndroidManifest.xml | Out-String)
 if ($LASTEXITCODE -ne 0) { throw "Cannot extract pilot manifest." }
-if ($manifest -match 'healthhubconnect|MainActivity|FileProvider|android.intent.action.VIEW') {
+# Match the actual VIEW action exactly; VIEW_PERMISSION_USAGE is required by Health Connect.
+if ($manifest -match 'healthhubconnect|MainActivity|FileProvider|android\.intent\.action\.VIEW"') {
     throw "Production deep link or entry point found in isolated pilot."
 }
 Write-Host "PASS: isolated Health Connect diagnostics package $pkg"
