@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
 /**
- * v424 read-only, no-network Health Connect pilot.
+ * v425 read-only, no-network Health Connect pilot.
  * Never writes data, exports files, binds a user profile or schedules background work.
  */
 class HcPilotActivity : ComponentActivity() {
@@ -48,6 +48,7 @@ class HcPilotActivity : ComponentActivity() {
     private lateinit var details: TextView
     private lateinit var period: Spinner
     private lateinit var readButton: Button
+    private lateinit var sleepPanel: SleepVisualPanel
     private val types = linkedMapOf(
         "Alvás" to SleepSessionRecord::class,
         "Pulzus" to HeartRateRecord::class,
@@ -77,7 +78,7 @@ class HcPilotActivity : ComponentActivity() {
             setPadding(dp(20), dp(18), dp(20), dp(24))
         }
         root.addView(TextView(this).apply {
-            text = "HealthHub · Health TEST v424"
+            text = "HealthHub · Health TEST v425"
             textSize = 21f
             setTextColor(Color.rgb(26, 49, 73))
             setTypeface(null, Typeface.BOLD)
@@ -107,6 +108,8 @@ class HcPilotActivity : ComponentActivity() {
             setPadding(0, dp(18), 0, dp(8))
         }
         root.addView(status)
+        sleepPanel = SleepVisualPanel(this)
+        root.addView(sleepPanel)
         details = TextView(this).apply {
             text = "Alvás · pulzus · nyugalmi pulzus · vérnyomás · SpO₂"
             textSize = 16f
@@ -281,7 +284,9 @@ class HcPilotActivity : ComponentActivity() {
                         output.add("  Források: ${origin.ifEmpty { listOf("nincs rekord") }.joinToString(", ")}")
                         if (label == "Alvás") {
                             output.add("")
-                            output.addAll(sleepDetail(records.filterIsInstance<SleepSessionRecord>(), days))
+                            val sleepRecords = records.filterIsInstance<SleepSessionRecord>()
+                            sleepPanel.show(sleepRecords, days)
+                            output.addAll(sleepDetail(sleepRecords, days))
                         }
                     } catch (e: Exception) {
                         output.add("$label: lekérdezési hiba (${e.javaClass.simpleName})")
