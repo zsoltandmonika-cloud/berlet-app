@@ -2016,7 +2016,7 @@
       "dependency": "HH-SLI-006;HH-CORE-005",
       "targetDate": null,
       "actualDone": null,
-      "notes": "2026-10-13 user decision: a kétprofilos automatikus screen-time és alkalmazáshasználati log a HealthHub Digital Wellbeingben is látható legyen. Új consumer ugyanazon privát, közös forrástárra, NEM második külön tracker. Az Android gyári Samsung Digital Wellbeing adataira Usage Access által elérhető statisztikák a forrás, nem a gyári Digital Wellbeing API-ba írunk. Tervezzük előbb, APK-t most ne módosítsunk. 2026-10-13 önálló Digital Wellbeing Golden Preview megépítve, Zsolt/Mónika profilváltás, NAP/7/30, app ranking, kategória, esti óragrafikon, heti mintázat, Léna mintatanács. Kizárólag szintetikus adatok, nincs élő UsageStats/Dropbox, nincs Home vagy Sleep módosítás. User-shared Samsung screenshot csak UI-referencia, per-app privát számok nem kerültek nyilvános forrásba. Első tényleges adatforrás a HH-SLI-006 készülékes pilot után."
+      "notes": "2026-10-13 user decision: a kétprofilos automatikus screen-time és alkalmazáshasználati log a HealthHub Digital Wellbeingben is látható legyen. Új consumer ugyanazon privát, közös forrástárra, NEM második külön tracker. Az Android gyári Samsung Digital Wellbeing adataira Usage Access által elérhető statisztikák a forrás, nem a gyári Digital Wellbeing API-ba írunk. Tervezzük előbb, APK-t most ne módosítsunk. 2026-10-13 önálló Digital Wellbeing Golden Preview megépítve, Zsolt/Mónika profilváltás, NAP/7/30, app ranking, kategória, esti óragrafikon, heti mintázat, Léna mintatanács. Kizárólag szintetikus adatok, nincs élő UsageStats/Dropbox, nincs Home vagy Sleep módosítás. User-shared Samsung screenshot csak UI-referencia, per-app privát számok nem kerültek nyilvános forrásba. Első tényleges adatforrás a HH-SLI-006 készülékes pilot után. 2026-10-13: felhasználó a https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/digital-wellbeing-preview/ dashboard előnézetének jelenlegi megjelenését kifejezetten jóváhagyta (Golden Standard UI alap). A jóváhagyás a DEMO megjelenésre szól; NEM állít valódi telefonos adatgyűjtést/szinkront, nem igazol Samsung-készülékes E2E működést. A későbbi dashboard-integration során a design megtartandó, Mónikánál rózsaszín, Zsoltnál kék, külön profil; a Hero-jelölt éles cseréje külön jóváhagyás kérdése."
     }
   ],
   "changeLog": [
@@ -2598,6 +2598,12 @@
       "version": "Digital Wellbeing Golden Preview PR #194",
       "type": "UI preview / non-production",
       "change": "Önálló, mobilbarát HealthHub Digital Wellbeing előnézet 2 szintetikus profillal és 1/7/30 napos nézettel, alkalmazásonkénti és kategória bontással, esti idővonallal, demonstrációs Léna-összegzéssel. Az éles Samsung screen-time sync még nincs kész, semmilyen privát adat vagy Home Hero nem módosult. HH-DW-001 In Progress 15%."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "Digital Wellbeing Golden UI accepted",
+      "type": "User acceptance / UI baseline",
+      "change": "Felhasználó elfogadta a publikált, különálló Digital Wellbeing dashboard előnézetet. A vizuális alap jóváhagyott; továbbfejlesztés fókusza valós, opt-in S24 Android screen-time adatforrás, profilhoz kötött privát szinkron, ellenőrzött adatösszesítés és Sleep Intelligence kapcsolat. A preview szintetikus adatokat tartalmaz. Nem történt éles Connect APK-módosítás vagy Home Hero-csere."
     }
   ]
 }
