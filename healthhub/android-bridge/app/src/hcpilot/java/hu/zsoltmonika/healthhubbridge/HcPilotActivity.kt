@@ -31,6 +31,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.Duration
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
 /**
@@ -72,7 +75,7 @@ class HcPilotActivity : ComponentActivity() {
             setPadding(dp(20), dp(18), dp(20), dp(24))
         }
         root.addView(TextView(this).apply {
-            text = "HealthHub · Health TEST v422"
+            text = "HealthHub · Health TEST v423"
             textSize = 21f
             setTextColor(Color.rgb(26, 49, 73))
             setTypeface(null, Typeface.BOLD)
@@ -165,6 +168,53 @@ class HcPilotActivity : ComponentActivity() {
         return result
     }
 
+    /**
+     * Local chronological sleep diagnostics. Never infer sleep scores or missing stages.
+     * Attribute overnight sessions to local wake date; do not sum overlapping sessions
+     * into a single duration without a deduplication policy.
+     */
+    private fun sleepDetail(records: List<SleepSessionRecord>, days: Long): List<String> {
+        if (records.isEmpty()) return listOf("ALVÁSIDŐVONAL · nincs alvásrekord", "")
+        val zone = ZoneId.systemDefault()
+        val clock = DateTimeFormatter.ofPattern("MM.dd. HH:mm")
+        val ordered = records.sortedWith(compareByDescending<SleepSessionRecord> { it.endTime }
+            .thenBy { it.metadata.id })
+        val grouped = ordered.groupBy { it.endTime.atZone(zone).toLocalDate() }.toSortedMap(reverseOrder())
+        val summary = mutableListOf(
+            "ALVÁSIDŐVONAL · helyi idő: $zone",
+            "Az alvások az ébredés helyi napjához tartoznak.",
+            "Ébredési napok: ${grouped.size} · munkamenetek: ${ordered.size}",
+            "Az átfedő rekordokat nem adjuk össze és nem tekintjük külön éjszakának.",
+            ""
+        )
+        // Show up to 30 wake days, but cap per-session details to keep the test screen responsive.
+        for ((date, sessions) in grouped.entries.take(30)) {
+            summary.add("$date · ${sessions.size} alvásrekord")
+        }
+        summary.add("")
+        summary.add("RÉSZLETES ALVÁSREKORDOK · legutóbbi ${minOf(14, ordered.size)}")
+        ordered.take(14).forEachIndexed { index, session ->
+            val wake = session.endTime.atZone(zone)
+            val start = session.startTime.atZone(zone)
+            val elapsed = Duration.between(session.startTime, session.endTime).toMinutes().coerceAtLeast(0)
+            val stageMinutes = session.stages.filter { it.endTime.isAfter(it.startTime) }
+                .groupBy { it.stage }
+                .toSortedMap()
+                .mapValues { (_, values) -> values.sumOf {
+                    Duration.between(it.startTime, it.endTime).toMinutes().coerceAtLeast(0)
+                } }
+            summary.add("${index + 1}. Ébredés napja: ${wake.toLocalDate()} · forrás: ${session.metadata.dataOrigin.packageName}")
+            summary.add("  ${start.format(clock)} → ${wake.format(clock)} · ${elapsed} perc időintervallum")
+            summary.add("  Alvásfázis-szakaszok: ${session.stages.size}; nyers fáziskódok / rögzített percek: " +
+                if (stageMinutes.isEmpty()) "nincs fázisadat" else stageMinutes.entries.joinToString { "${it.key}: ${it.value} perc" })
+        }
+        if (ordered.size > 14) summary.add("További ${ordered.size - 14} rekord nincs részletezve a tesztképernyőn.")
+        if (days == 1L) summary.add("24 órás lekérdezés: a kezdés előtti alvásrészekhez külön átfedésvizsgálat szükséges.")
+        summary.add("A fáziskódok nem alváspontszámok; a hiányzó fázis nem nulla perc.")
+        summary.add("")
+        return summary
+    }
+
     private fun readRecords() {
         val client = clientOrNull() ?: return
         val days = if (period.selectedItemPosition == 1) 30L else 1L
@@ -201,6 +251,10 @@ class HcPilotActivity : ComponentActivity() {
                         }
                         output.add("$label: ${records.size} rekord$extra")
                         output.add("  Források: ${origin.ifEmpty { listOf("nincs rekord") }.joinToString(", ")}")
+                        if (label == "Alvás") {
+                            output.add("")
+                            output.addAll(sleepDetail(records.filterIsInstance<SleepSessionRecord>(), days))
+                        }
                     } catch (e: Exception) {
                         output.add("$label: lekérdezési hiba (${e.javaClass.simpleName})")
                     }
