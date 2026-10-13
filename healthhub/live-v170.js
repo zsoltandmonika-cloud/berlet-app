@@ -501,8 +501,9 @@ async function render(profileOverride){
  var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq)return;
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
- // v428 is an explicit read-only preview. The existing Sleep view stays intact
- // without ?hh_sleep_v428_preview=1, including its canonical profile-scoped source.
+ // Sleep v433 Golden Standard is the default for both profiles.
+ // Display-only fallback remains available at ?hh_sleep_v428_preview=0;
+ // the same profile-scoped source and sync protocol are preserved.
  var v428Enabled=window.HH_SLEEP_V428_ENABLED===true&&!!window.HH_SLEEP_V428;
  var shownNight=v428Enabled?window.HH_SLEEP_V428.night(rows):night;
  var sleepContent=latest?hhSleepSource381(latest)+
@@ -524,10 +525,10 @@ async function render(profileOverride){
  '<div class="hhHelperTimes"><button class="on" data-min="10" onclick="hhHelperMinutes(10,this)">10 perc</button><button data-min="15" onclick="hhHelperMinutes(15,this)">15 perc</button><button data-min="20" onclick="hhHelperMinutes(20,this)">20 perc</button></div>'+
  '<div class="hhHelperModes"><button class="on" data-mode="brown" onclick="hhHelperMode(\'brown\',this)">🟤 Brown noise</button><button data-mode="soft" onclick="hhHelperMode(\'soft\',this)">🌧 Lágy zaj</button><button data-mode="breath" onclick="hhHelperMode(\'breath\',this)">🌬 Légzés</button><button data-mode="light" onclick="hhHelperMode(\'light\',this)">🌙 Csak fény</button></div>'+
  '<button class="hhHelperStart" onclick="hhStartSleepHelper()">🌙 ELALVÁS INDÍTÁSA</button></div>'+
- '<details class="hhSleepLabs428"><summary>🧪 Sleep · fejlesztői előnézet</summary>'+
+ '<details class="hhSleepLabs428"><summary>⚙ Sleep · korábbi megjelenés</summary>'+
   '<a href="'+esc(window.location.pathname+'?hh_sleep_v428_preview='+(v428Enabled?'0':'1'))+'">'+
-  (v428Enabled?'Vissza a stabil Sleep nézethez':'Sleep v428 háromnézetes előnézet megnyitása')+'</a>'+
-  '<p>Az előnézet nem indít új szinkront, és csak a kiválasztott profil már szinkronizált adatait olvassa.</p></details>'+
+  (v428Enabled?'Korábbi Sleep nézet megnyitása':'Vissza a Golden Standard Sleep oldalra')+'</a>'+
+  '<p>Csak a képernyő megjelenését váltja. Nem indít adatfeltöltést, és nem módosítja a szinkronizált méréseket.</p></details>'+
  '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>'+bottomNav();
 }
 function ensurePage(){
