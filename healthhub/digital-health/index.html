@@ -144,6 +144,7 @@ body{
 @media(max-width:420px){.hero{padding:17px 12px}.hero-stage{grid-template-columns:minmax(0,1fr) 135px;gap:8px}.hero-stage h1{font-size:18px;letter-spacing:-.5px}.hero-stage .choices .switch{padding:7px 7px;font-size:10px}.liveclock{padding:12px 9px}.liveclock-time{font-size:29px}}
 @media(max-width:350px){.hero-stage{grid-template-columns:minmax(0,1fr) 124px;gap:6px}.hero-stage h1{font-size:17px}.hero-stage .choices{flex-wrap:wrap}.liveclock-time{font-size:26px}.liveclock-seconds{font-size:12px}}
 @media(min-width:680px){.hero-stage{grid-template-columns:minmax(0,1fr) 198px}.hero-stage h1{font-size:32px}.liveclock{padding:17px}.liveclock-time{font-size:43px}.liveclock-seconds{font-size:17px}.liveclock-date{font-size:12px}}
+.footer .back-home{display:inline-block;padding:10px 16px;margin-bottom:14px;border:1px solid #517aa8;border-radius:12px;background:#182c49;color:#d7f3ff;font-size:12px;font-weight:800;text-decoration:none}.footer .back-home:focus-visible{outline:3px solid #45d5cc;outline-offset:3px}.footnote{display:block}
 </style>
 </head>
 <body>
@@ -227,7 +228,7 @@ body{
   <div class="title-row"><h2>🔐 Adatforrás és szinkron</h2></div>
   <section class="card" aria-label="Forrás státusz">
     <div class="source">
-      <span>Android Usage Access</span><b>Zsolt S24 Pilot: készüléken ellenőrizve</b>
+      <span>Android Usage Access</span><b id="digitalUsageAccessState">Készülék állapotának ellenőrzése</b>
       <span>Samsung gyári képernyőidő</span><b>Nem csatlakoztatott, nem azonos a Pilot mérésével</b>
       <span>ChatGPT app</span><b>Pilot mérés: csak telefonon</b>
       <span>Ask Léna napló</span><b>Még nincs összekötve</b>
@@ -236,12 +237,14 @@ body{
     </div>
     <div class="note" style="margin-top:11px">A Pilot méréseit nem továbbítjuk titokban. A profilhoz kötött privát adatút külön engedély és ellenőrzés után aktiválható.</div>
   </section>
-  <p class="footer">HealthHub Digital Health · éles adatkapcsolat nélküli dashboard v1 · nem módosítja a meglévő HealthHub Connectet, Sleep modult vagy egészségügyi iratokat.</p>
+  <p class="footer"><a class="back-home" href="../index.html">← Vissza a HealthHub kezdőlapra</a><span class="footnote">HealthHub Digital Health · az adatkapcsolat még nem aktív. A meglévő HealthHub Connect és Sleep modul változatlan.</span></p>
 </main>
 <script>
 'use strict';
 (function(){
+  // Match the parent HealthHub's currently active profile on every fresh visit.
   let profile='zsolt', period='day';
+  try{profile=localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){/* Private mode: safe default */}
   const el=id=>document.getElementById(id);
   const clockTimeFormat=new Intl.DateTimeFormat('hu-HU',{hour:'2-digit',minute:'2-digit',hour12:false});
   const clockDateFormat=new Intl.DateTimeFormat('hu-HU',{weekday:'short',month:'short',day:'numeric'});
@@ -267,6 +270,7 @@ body{
     el('timeline').replaceChildren();
     el('weekly').replaceChildren();
     for(const id of ['legend','apps','categories']) el(id).textContent='Nincs ellenőrzött adat';
+    el('digitalUsageAccessState').textContent=profile==='zsolt'?'Zsolt S24 Pilot: készüléken ellenőrizve':'Mónika készülék: nem ellenőrzött';
     el('lenaHeading').textContent='Léna · '+name+' digitális ritmusa';
     el('analysisText').textContent='Az első személyre szabott elemzés akkor készülhet el, ha a '+name+' profilhoz tartozó mérések ellenőrzött, hozzájárulással engedélyezett adatforrásból megérkeznek.';
     document.querySelectorAll('[data-profile]').forEach(b=>{const on=b.dataset.profile===profile;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
