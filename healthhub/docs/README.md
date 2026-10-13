@@ -15,3 +15,9 @@
 - Különválasztandó: CI pass, telepítés, telefonos elfogadás, klinikai adatminőség.
 
 **Megjegyzés:** a docs-only módosítás új git commitot és Pages buildet indíthat, de nem jelent új alkalmazás-verziót; az éles app marad v380.
+
+## Aktuális fejlesztési sorrend · 2026-10-13
+
+A fenti v380-as napzáró történeti pillanatkép. A legújabb **jóváhagyott, moduláris FamilyHub-stratégia** és a konkrét következő feladat a [FamilyHub / Sleep Intelligence / Safety terv](./2026-10-13-modular-familyhub-safety-vision.md) dokumentumban, illetve a [Project Control](../project-control.json) HH-SLI és HH-EMERG feladataiban található.
+
+**Aktív fejlesztési fókusz:** Sleep AI Intelligence 2.0 → adatgyűjtés és bizonyítéknyilvántartás → 7/30/90 trendek és személyes Sleep Advisory archívum → Ask Léna integráció. Ezután Safety/CPR-AED tervezési és validációs kör, amely **megelőzi** az új Food/Nutrition funkciókat. HealthRadar legacy cutover nyitott, mert további fontos kiegészítés várható. A v433 Golden Standard Sleep dizájn változatlan; ez csak tervezési frissítés, nem új éles funkció.
