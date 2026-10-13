@@ -153,6 +153,7 @@ object SamsungSdkDailyReader {
             } catch (_: Exception) { /* Optional exercise metadata unavailable. */ }
         }
         val records = JSONArray()
+        val floorQueryStatus = JSONObject()
 
         // Read day-by-day because Samsung's daily Activity Tracker and the
         // Health Connect exercise records do not represent the same aggregates.
@@ -205,18 +206,27 @@ object SamsungSdkDailyReader {
                 }
             } catch (_: Exception) { /* Unavailable field is omitted. */ }
 
-            if (hasFloorsPermission) try {
+            if (!hasFloorsPermission) {
+                floorQueryStatus.put(date.toString(), "permission_missing")
+            } else try {
                 val req = DataType.FloorsClimbedType.TOTAL
                     .requestBuilder.setLocalTimeFilter(filter).build()
                 val values = store.aggregateData(req).dataList.mapNotNull { it.value }
-                if (values.isNotEmpty()) {
+                if (values.isEmpty()) {
+                    floorQueryStatus.put(date.toString(), "no_records")
+                } else {
                     val total = values.sumOf { it.toDouble() }
                     if (total.isFinite() && total in 0.0..1000.0) {
                         row.put("floorsClimbed", total)
                         hasAnySourceField = true
+                        floorQueryStatus.put(date.toString(), "value_received")
+                    } else {
+                        floorQueryStatus.put(date.toString(), "invalid_value")
                     }
                 }
-            } catch (_: Exception) { /* Unavailable field is omitted. */ }
+            } catch (_: Exception) {
+                floorQueryStatus.put(date.toString(), "query_failed")
+            }
 
             exerciseElevationByDate[date.toString()]?.let {
                 if (it.isFinite() && it in 0.0..12000.0) {
@@ -236,6 +246,12 @@ object SamsungSdkDailyReader {
             .put("profile", profile)
             .put("exportedAt", Instant.now().toString())
             .put("source", "samsung-health-data-sdk-1.1.0")
+            .put("diagnostics", JSONObject()
+                .put("activitySummaryPermission", hasActivitySummary)
+                .put("floorsPermission", hasFloorsPermission)
+                .put("stepsPermission", hasStepsPermission)
+                .put("exercisePermission", hasExercisePermission)
+                .put("floorsByDate", floorQueryStatus))
             .put("records", JSONObject()
                 .put("dailySummary", records)
                 .put("hourlySteps", hourlySteps)
