@@ -1836,7 +1836,7 @@
       "dependency": "HH-IQ-002;HH-IQ-004",
       "targetDate": null,
       "actualDone": null,
-      "notes": "KÖVETKEZŐ aktív feladat. Sleep v433 Golden Standard dizájn megőrzendő. Az automatikus HC sync E2E külön elfogadási kapu."
+      "notes": "KÖVETKEZŐ aktív feladat. Sleep v433 Golden Standard dizájn megőrzendő. Az automatikus HC sync E2E külön elfogadási kapu. 2026-10-13: automatikus Sleep Behavioral Context almodul tervezett külön androidos Usage Access engedéllyel; ChatGPT app előtéridő ≠ pontos ChatGPT üzenetidő; Ask Léna saját használati események külön first-party timestamps. Nem kell manual input a képernyőidőhöz."
     },
     {
       "id": "HH-SLI-002",
@@ -1981,6 +1981,42 @@
       "targetDate": null,
       "actualDone": null,
       "notes": "2026-10-13 felhasználói döntés: a HealthRadar nem lezárandó migrációs projekt, hanem a HealthHub folyamatosan növekvő, hosszú távú, moduláris egészségügyi területe. A régi önálló HealthRadar weboldal lehetséges archíválása teljesen más feladat. A következő aktív sprint továbbra is Sleep Intelligence 2.0."
+    },
+    {
+      "id": "HH-SLI-006",
+      "epic": "HealthHub Personal Intelligence",
+      "feature": "Lifestyle & Behavioral Context",
+      "title": "Közös automatikus ChatGPT/Ask Léna és S24 screen-time napló a Sleep + Digital Wellbeing modulokhoz",
+      "acceptanceCriteria": "Mindkét személyhez kizárólag saját eszközön hozzájárulással Android UsageStatsManager / Usage Access segítségével app foreground start/end és esti képernyőidő; külön Ask Léna (HealthHub first-party) session/question time event; ChatGPT app UsageStats NEM üzenetidőbélyeg és NEM ChatGPT-beszélgetés/tartalom. Eltárolt profilonkénti idősor 7/30/90 nap; aggregált és minimális adatgyűjtés; automatikus ütemezett import; adatgyűjtés kikapcsolása, megőrzés/törlés; prompt nélküli privát adatátvitel tiltása; Sleep Advisor nem állít oksági bizonyosságot; missing permission/data kezelése és kéttelefonos, profilizolációs QA. Egyetlen shared, profilonként elkülönített event store több consumerrel (Sleep Intelligence és HealthHub Digital Wellbeing); csak egyszer gyűjtjük ugyanazt az eseményt.",
+      "priority": "High",
+      "sprint": "SLI-S2",
+      "milestone": "M6 Intelligence",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SLI-001;HH-CORE-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-13 felhasználói igény: NO MANUAL INPUT a telefonos esti screen time és app használat naplóhoz. Más alkalmazások (ChatGPT) belső üzenet-metaadatait Android UsageStats nem látja. Automatikus rögzítéshez külön explicit Usage Access engedély, és az Android Connect alkalmazás tervezett natív bővítése kell, külön APK jóváhagyással. Samsung Health/Health Connect nem szolgáltat Screen Time adatsort. A HealthHub Ask Léna első féltől származó eseményei saját backenddel gyűjthetők, külön adatvédelmi beállítás szükséges. Figyelj a webes ChatGPT aktivitásra: app-előtéridő nem teljes használati kép. A Digital Wellbeing a HealthHubon belül új, tervezett modul; a Samsung gyári Digital Wellbeing rendszeralkalmazásába való külső adatírás NEM része a tervnek."
+    },
+    {
+      "id": "HH-DW-001",
+      "epic": "HealthHub Digital Wellbeing",
+      "feature": "Shared Behavioral Activity Insights",
+      "title": "Digital Wellbeing: automatikus képernyőidő és ChatGPT/Ask Léna aktivitásnapló",
+      "acceptanceCriteria": "A HealthHub önálló, opcionális Digital Wellbeing modulja a HH-SLI-006 közös event-tárból olvassa a személyenként elkülönített, engedélyezett, automatikusan gyűjtött Android app-előtéridő / képernyőidő méréseket és a HealthHub saját Ask Léna eseményeit; napi/heti és esti időszak nézetek, alkalmazásnév/összesített használati idő és esti használat, nem chat-tartalom, nem pontos külső ChatGPT message timestamp. Cross-app adatírás Samsung Digital Wellbeingbe nincs. Visszavonható Usage Access, kikapcsolás, törlés, retention és profilizoláció; Screen-Time napló készülékenként helyes és nem gyárt fiktív adatot. Bevezetés külön jóváhagyott Android APK-val, E2E készülékteszt után.",
+      "priority": "High",
+      "sprint": "DW-S1 / after SLI source audit",
+      "milestone": "M6 Intelligence / Digital Wellbeing",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-SLI-006;HH-CORE-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-13 user decision: a kétprofilos automatikus screen-time és alkalmazáshasználati log a HealthHub Digital Wellbeingben is látható legyen. Új consumer ugyanazon privát, közös forrástárra, NEM második külön tracker. Az Android gyári Samsung Digital Wellbeing adataira Usage Access által elérhető statisztikák a forrás, nem a gyári Digital Wellbeing API-ba írunk. Tervezzük előbb, APK-t most ne módosítsunk."
     }
   ],
   "changeLog": [
@@ -2538,6 +2574,18 @@
       "version": "HealthRadar living module clarification",
       "type": "Architecture / Product decision",
       "change": "Felhasználói pontosítás: HealthRadar a HealthHubon belül folyamatosan fejlődő, nem lezárható termékmodul. A HH-HR-008 csak a különálló történeti weboldal jövőbeni esetleges read-only archiválása; az új modul megmarad és új Safety/AI/Health almodulokkal bővíthető. Következő aktív feladat: Sleep Intelligence 2.0. Csak tervfrissítés."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "Sleep Lifestyle & Behavioral Context planning",
+      "type": "Roadmap",
+      "change": "Sleep Intelligence kiegészítés: két külön profilon, engedélyezett automatikus Samsung/Android esti screen-time és app foreground logging, ChatGPT app előtéridő, Ask Léna first-party time events; no manual input. Nem tévesztendő össze a harmadik féltől származó ChatGPT egyedi üzenetidőbélyeggel, amelyhez UsageStats nem elég. Privát, minimális, kontrollálható gyűjtés; csak tervezés, nem APK/OTA."
+    },
+    {
+      "date": "2026-10-13",
+      "version": "Digital Wellbeing shared logger roadmap",
+      "type": "Roadmap",
+      "change": "User approved sharing opt-in automatic Android Samsung S24 screen time, ChatGPT app foreground use and HealthHub first-party Ask Léna timestamps into BOTH Sleep AI Intelligence 2.0 and HealthHub Digital Wellbeing; one profile-scoped event store, two read-only views, no manual entry and no unsupported Samsung system-app write. Planned only; no APK/UI changes."
     }
   ]
 }
