@@ -12,18 +12,18 @@
 button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--aqua);outline-offset:3px}button:disabled{cursor:default;opacity:.6}
 .shell{max-width:840px;margin:auto;padding:18px max(15px,env(safe-area-inset-right)) 54px}
 .header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.1px}.brandicon{width:41px;height:41px;display:grid;place-items:center;border:1px solid #537097;border-radius:14px;background:#263956;font-size:23px}
+.brand{display:flex;align-items:center;font-weight:800;letter-spacing:.1px;min-width:0}
 .brand small{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--muted);margin-bottom:2px}
 .demo{font-size:10px;color:#fee8c2;border:1px solid #b78c57;border-radius:999px;padding:7px 8px;background:#4b39255e;white-space:nowrap;font-weight:800}
 .hero{position:relative;overflow:hidden;border-radius:25px;border:1px solid #355477;background:linear-gradient(120deg,#233e67,#15283d 65%,#153d56);padding:21px 19px 20px;box-shadow:0 18px 42px #00000034}
 .hero:after{content:"";position:absolute;right:-37px;bottom:-83px;width:250px;height:230px;background:radial-gradient(circle,#62b4ff40,transparent 70%);pointer-events:none}
 .eyebrow{font-size:11px;color:#91dfeb;font-weight:900;letter-spacing:.15em}
-h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:10px 0 7px}h2{font-size:18px;margin:0;letter-spacing:-.25px}p{line-height:1.48}
-.hero p{font-size:13px;line-height:1.55;max-width:490px;color:#cfdef0;margin:6px 0 17px}
+h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12px 0 20px}h2{font-size:18px;margin:0;letter-spacing:-.25px}p{line-height:1.48}
+
 .choices{display:flex;gap:8px;flex-wrap:wrap}.switch,.segment{background:#ffffff0f;border:1px solid #7795ba7e;color:#dce9fc;padding:9px 12px;border-radius:12px;font-weight:750;font-size:12px}
 .switch.active,.segment.active{background:var(--accent);border-color:var(--accent);color:#0b1527}
-.hero-note{margin-top:13px;color:#b6ceeb;font-size:10px;display:flex;align-items:center;gap:6px}
-.hint{margin:12px 0 18px;border:1px solid #6e5d39;border-radius:12px;background:#332d20a8;padding:10px 12px;color:#f1d6a0;font-size:12px}
+
+
 .title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 12px}.micro{font-size:11px;color:var(--muted)}
 .periods{display:flex;gap:5px}
 .segment{padding:7px 10px;border-color:#344861;font-size:11px}
@@ -78,20 +78,17 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:10
     <div class="hero-placeholder">Digital Health · Léna<br><small>Jóváhagyott Hero kép bekötése folyamatban</small></div>
   </section>
   <header class="header">
-    <div class="brand"><div class="brandicon" aria-hidden="true">🧠</div><div><small>HEALTHHUB · PERSONAL INTELLIGENCE</small>Digital Wellbeing</div></div>
+    <div class="brand"><div><small>HEALTHHUB · PERSONAL INTELLIGENCE</small>Digital Wellbeing</div></div>
     <span class="demo" role="status">● ADATSZINKRONRA VÁR</span>
   </header>
   <section class="hero" aria-labelledby="headline">
     <div class="eyebrow">💙🩷 LÉNA · DIGITAL HEALTH &amp; WELLBEING</div>
-    <h1 id="headline">A digitális szokásaid.<br>A te ritmusod.</h1>
-    <p>Személyre szabott digitális egészség- és életmódáttekintés. Kizárólag jóváhagyott, hitelesített mérések jelenhetnek meg.</p>
+    <h1 id="headline">Digitális stílusod.<br>Saját ritmusod.</h1>
     <div class="choices" aria-label="Profilválasztás">
       <button class="switch active" data-profile="zsolt" aria-pressed="true">💙 Zsolt</button>
       <button class="switch" data-profile="monika" aria-pressed="false">🩷 Mónika</button>
     </div>
-    <div class="hero-note">🔒 Külön profilok · hitelesített mérés szükséges · nincs automatikus adatmegosztás</div>
   </section>
-  <div class="hint" role="status">🔒 <strong>Az adatkapcsolat még nincs élesítve.</strong> A Samsung Pilot már helyben gyűjt, de nem küld adatot a HealthHubnak. Minden hiányzó értéket „Nincs mérés” jelöl, nem tesztadatot.</div>
 
   <div class="title-row">
     <div><h2>Digitális áttekintés</h2><div class="micro" id="periodLabel">Ma · mérésre vár</div></div>
