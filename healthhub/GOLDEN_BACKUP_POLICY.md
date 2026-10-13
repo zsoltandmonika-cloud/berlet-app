@@ -32,3 +32,19 @@ Ugyanezekből egy összefoglaló naplóbejegyzés készül a workflow GitHub Act
 
 ## Élesítés feltétele
 Jelen PR csak a backup mechanizmus **tervezett változtatása**, nem élesített funkció. A PR ellenőrzése, áttekintése és a `main` merge-je szükséges. Az első automatikus mentés csak egy ezt követő, HealthHub fájlokat érintő `main` push és sikeres HealthCheck után jön létre. Ha azonnali jelenlegi Golden Backup kell, azt külön, kézzel jóváhagyott művelettel lehet elkészíteni.
+
+
+## Éjféli automatizmus és 5 mentés megtartása
+
+- GitHub Actions: `HealthHub Level 3 Guard` / `healthhub-level3-guard.yml` futtatása naponta **budapesti éjfél után körülbelül 00:15-kor**, a téli/nyári időszámításnak megfelelően két UTC cron időpontból; a rossz helyi órában indított futás csak ellenőriz, nem ment. GitHub Actions időzített futása késhet, ezért ez nem garantált másodpercre pontos időpont.
+- Ugyanaz az ellenőrző workflow fut, mint módosításkor, így a mentés csak tényleges **PASS** után történik. Sikeres manuális indítás is engedélyezett.
+- A Golden Backup mindig a **main aktuális SHA-ját** rögzíti, nem egy fejlesztői vagy félkész PR-ágat.
+- Változatlan kód esetén nincs duplikált tag; az éjféli sikeres ellenőrzést külön naplózzuk.
+- A rotáció az utolsó **öt** `hh-golden-<12 hex>` típusú tagre vonatkozik. A régebbi forgó tagek csak az **új tag és tartós napló sikeres írása után** törlődnek.
+- Egy külön `hh-golden-pinned-...` taggal kézzel rögzített kiemelt stabil verziót a rotáció **soha nem töröl**.
+- Tartós version history: **`healthhub-backup-history` branch**, `version-history.ndjson` fájl. Ezt a rendszer az éles main módosítása nélkül frissíti.
+- A mentés közvetlen elérési útja minden naplóbejegyzésben: `https://github.com/zsoltandmonika-cloud/berlet-app/tree/<tag>`.
+- Az aktuális mentés ZIP letöltése: `https://github.com/zsoltandmonika-cloud/berlet-app/archive/refs/tags/<tag>.zip`.
+- A HealthCheck PASS **nem** jelenti azt, hogy az adott verzió funkcionálisan tesztelt vagy bizonyítottan stabil; a pinelt Golden verziót csak telefonos validáció után célszerű kijelölni.
+
+**Első élesítés előtt kötelező ellenőrizni a workflow tényleges futását és az archív napló létrejöttét. A PR állapota önmagában nem telepítés.**
