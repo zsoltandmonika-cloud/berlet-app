@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
@@ -37,7 +39,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 
 /**
- * v422 read-only, no-network Health Connect pilot.
+ * v424 read-only, no-network Health Connect pilot.
  * Never writes data, exports files, binds a user profile or schedules background work.
  */
 class HcPilotActivity : ComponentActivity() {
@@ -75,7 +77,7 @@ class HcPilotActivity : ComponentActivity() {
             setPadding(dp(20), dp(18), dp(20), dp(24))
         }
         root.addView(TextView(this).apply {
-            text = "HealthHub · Health TEST v423"
+            text = "HealthHub · Health TEST v424"
             textSize = 21f
             setTextColor(Color.rgb(26, 49, 73))
             setTypeface(null, Typeface.BOLD)
@@ -116,14 +118,16 @@ class HcPilotActivity : ComponentActivity() {
             addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             clipToPadding = false
         }
-        if (Build.VERSION.SDK_INT >= 30) {
-            scroll.setOnApplyWindowInsetsListener { v, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-                insets
-            }
-        } else scroll.fitsSystemWindows = true
+        // Android 15+ edge-to-edge: explicitly apply status and navigation bar insets.
+        // Avoid both title-overlap and double-padding across Android versions.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
         setContentView(scroll)
+        ViewCompat.requestApplyInsets(scroll)
     }
 
     private fun clientOrNull(): HealthConnectClient? {
@@ -197,16 +201,40 @@ class HcPilotActivity : ComponentActivity() {
             val wake = session.endTime.atZone(zone)
             val start = session.startTime.atZone(zone)
             val elapsed = Duration.between(session.startTime, session.endTime).toMinutes().coerceAtLeast(0)
-            val stageMinutes = session.stages.filter { it.endTime.isAfter(it.startTime) }
+            // Sum durations at second precision first. Per-stage truncation was losing
+            // up to almost one minute for EACH of Samsung's 40+ short stage records.
+            val stageSeconds = session.stages.filter { it.endTime.isAfter(it.startTime) }
                 .groupBy { it.stage }
                 .toSortedMap()
                 .mapValues { (_, values) -> values.sumOf {
-                    Duration.between(it.startTime, it.endTime).toMinutes().coerceAtLeast(0)
+                    Duration.between(it.startTime, it.endTime).seconds.coerceAtLeast(0L)
                 } }
+            fun roundedMinutes(seconds: Long): Long = (seconds + 30L) / 60L
+            val sleepSeconds = stageSeconds.filterKeys { it == 4 || it == 5 || it == 6 }.values.sum()
+            val awakeSeconds = stageSeconds[1] ?: 0L
+            val knownSeconds = stageSeconds.values.sum()
             summary.add("${index + 1}. Ébredés napja: ${wake.toLocalDate()} · forrás: ${session.metadata.dataOrigin.packageName}")
-            summary.add("  ${start.format(clock)} → ${wake.format(clock)} · ${elapsed} perc időintervallum")
-            summary.add("  Alvásfázis-szakaszok: ${session.stages.size}; nyers fáziskódok / rögzített percek: " +
-                if (stageMinutes.isEmpty()) "nincs fázisadat" else stageMinutes.entries.joinToString { "${it.key}: ${it.value} perc" })
+            summary.add("  ${start.format(clock)} → ${wake.format(clock)} · ${elapsed} perc teljes időintervallum")
+            summary.add("  Tényleges alvás (rögzített könnyű + mély + REM): " +
+                if (stageSeconds.keys.any { it == 4 || it == 5 || it == 6 })
+                    "${roundedMinutes(sleepSeconds)} perc" else "nincs adat")
+            summary.add("  Ébrenlét (rögzített): " +
+                if (stageSeconds.containsKey(1)) "${roundedMinutes(awakeSeconds)} perc" else "nincs adat")
+            summary.add("  Fázisok (másodperc összegzése, majd kerekítés): " +
+                if (stageSeconds.isEmpty()) "nincs fázisadat" else stageSeconds.entries.joinToString {
+                    val name = when (it.key) {
+                        1 -> "Ébren"
+                        4 -> "Könnyű"
+                        5 -> "Mély"
+                        6 -> "REM"
+                        else -> "Egyéb (${it.key})"
+                    }
+                    "$name: ${roundedMinutes(it.value)} perc"
+                })
+            summary.add("  Rögzített fázisszakaszok: ${session.stages.size} · összes ismert fázis: ${roundedMinutes(knownSeconds)} perc")
+            if (knownSeconds != Duration.between(session.startTime, session.endTime).seconds) {
+                summary.add("  Megjegyzés: a fázisok és a teljes időintervallum eltérhetnek (hézag/átfedés/kerekítés).")
+            }
         }
         if (ordered.size > 14) summary.add("További ${ordered.size - 14} rekord nincs részletezve a tesztképernyőn.")
         if (days == 1L) summary.add("24 órás lekérdezés: a kezdés előtti alvásrészekhez külön átfedésvizsgálat szükséges.")
