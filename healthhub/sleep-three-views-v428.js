@@ -183,15 +183,15 @@ function timelineTicks(rows,start,end){
 function timebar(rows,start,end,label){
  // The caller gives the full rolling-24h window; only this visualization zooms.
  var view=timelineViewport(rows,start,end),a=view.start,b=view.end;
- var blocks=stageBlocks(rows,a,b);
+ var blocks=stageBlocks(rows,a,b),ticks=timelineTicks(rows,a,b);
  var rangeLabel=(dateKey(a)===dateKey(b)?clock(a)+'–'+clock(b):dateKey(a)+' '+clock(a)+' – '+dateKey(b)+' '+clock(b));
  return '<div class="hh430ViewportLabel">'+
   '<span>'+(view.zoom?'🔎 Automatikusan nagyított idővonal':'Teljes 24 órás idővonal')+'</span>'+
   '<small>'+esc(rangeLabel)+'</small></div>'+
   '<div class="hh428Timebar" role="img" aria-label="'+esc(label+'. '+(view.zoom?'Nagyított':'24 órás')+' idősáv: '+rangeLabel)+'">'+
   (blocks||'<span class="hh428NoStage">Nincs részletes fázisadat.</span>')+'</div>'+
-  '<div class="hh430Axis'+(timelineTicks(rows,a,b).includes('hh430Tick--second')?' hh430Axis--two':'')+'" aria-label="Alvásrekordok kezdetének és végének időpontja">'+
-  timelineTicks(rows,a,b)+'</div>';
+  '<div class="hh430Axis'+(ticks.includes('hh430Tick--second')?' hh430Axis--two':'')+'" aria-label="Alvásrekordok kezdetének és végének időpontja">'+
+  ticks+'</div>';
 }
 function activeProfile(){
  try{if(typeof window.cur==='string'&&(window.cur==='m'||window.cur==='z'))return window.cur==='m'?'monika':'zsolt'}catch(e){}
