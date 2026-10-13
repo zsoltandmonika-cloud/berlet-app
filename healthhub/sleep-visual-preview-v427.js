@@ -1,5 +1,7 @@
 (function(){
 'use strict';
+// Explicit preview opt-in; disabled by default even when the script is present.
+try{if(new URLSearchParams(window.location.search).get('hh_sleep_v427_preview')==='1')window.HH_SLEEP_VISUAL_V427_ENABLED=true;}catch(e){}
 /* v427: opt-in, read-only visual adapter for the existing canonical Sleep data.
    Never fetches, stores, uploads or merges profiles. Disabled unless enabled explicitly. */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
