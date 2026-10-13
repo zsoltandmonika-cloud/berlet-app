@@ -493,14 +493,18 @@ async function render(profileOverride){
  var sleepContent=latest?hhSleepSource381(latest)+
   (v428Enabled?window.HH_SLEEP_V428.top(rows,requestedProfile)+sleepFactorHeading383():sleepFactorHeading383()+sleepOverview(rows))+
   sleepFactorCards381(shownNight,requestedProfile)+
-  (shownNight?sleepLenaComment(rows,requestedProfile,shownNight):'')+
-  (v428Enabled?window.HH_SLEEP_V428.calendar(rows,requestedProfile):stageBar(night)+
+  // v431: label and show both recent sleep phase timelines before Léna's review.
+  (v428Enabled?window.HH_SLEEP_V428.recentTimelines(rows,requestedProfile)+
+   window.HH_SLEEP_V428.lenaComment(rows,requestedProfile):
+   (shownNight?sleepLenaComment(rows,requestedProfile,shownNight):'')+
+   stageBar(night)+
    (window.HH_SLEEP_VISUAL_V427&&window.HH_SLEEP_VISUAL_V427_ENABLED===true?window.HH_SLEEP_VISUAL_V427.render(rows,requestedProfile):'')
   ):'<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>';
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
  sleepContent+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
+ (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
  '<div class="hhHelperTimes"><button class="on" data-min="10" onclick="hhHelperMinutes(10,this)">10 perc</button><button data-min="15" onclick="hhHelperMinutes(15,this)">15 perc</button><button data-min="20" onclick="hhHelperMinutes(20,this)">20 perc</button></div>'+
  '<div class="hhHelperModes"><button class="on" data-mode="brown" onclick="hhHelperMode(\'brown\',this)">🟤 Brown noise</button><button data-mode="soft" onclick="hhHelperMode(\'soft\',this)">🌧 Lágy zaj</button><button data-mode="breath" onclick="hhHelperMode(\'breath\',this)">🌬 Légzés</button><button data-mode="light" onclick="hhHelperMode(\'light\',this)">🌙 Csak fény</button></div>'+
