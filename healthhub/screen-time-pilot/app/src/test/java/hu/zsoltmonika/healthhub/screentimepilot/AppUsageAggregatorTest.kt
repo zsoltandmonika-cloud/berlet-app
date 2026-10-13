@@ -101,6 +101,18 @@ class AppUsageAggregatorTest {
         assertFalse(rows.any { it.packageName == "com.example.mail" })
     }
 
+    @Test fun detailedCollectionCanClipPreConsentHistory() {
+        val consentAt = hour + 5_000
+        val events = listOf(
+            open(hour - 60_000, "com.openai.chatgpt"),
+            close(hour + 20_000, "com.openai.chatgpt")
+        )
+        val rows = AppUsageAggregator.aggregate(events, consentAt, 2 * hour)
+        assertEquals(1, rows.size)
+        assertEquals(hour, rows.single().hourStartMs)
+        assertEquals(15_000L, rows.single().observedForegroundMs)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun rejectsZeroLengthWindow() {
         AppUsageAggregator.aggregate(emptyList(), 1000, 1000)
