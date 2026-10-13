@@ -1,0 +1,23 @@
+name: HealthHub Digital Wellbeing PREVIEW · No Real Data QA
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/digital-wellbeing-preview/**"
+      - ".github/workflows/healthhub-digital-wellbeing-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Static data safety and two-profile dashboard controls
+        run: node healthhub/digital-wellbeing-preview/verify-preview.cjs
