@@ -33,7 +33,9 @@ function classify(reg,devices,cloud){
  var fresh=matches.filter(function(d){return d&&isoAge(d.lastSeenAt)<=ttl}).length;
  var failures=matches.some(function(d){return d&&d.status&&['failed','partial','rejected'].includes(d.status.state)&&
    isoAge(d.status.updatedAt)<=24*60*60*1000});
- if(count===2&&fresh===2&&!failures)return {color:'green',message:'Mindkét telefon jelentkezett',primary:matches};
+ var inProgress=matches.some(function(d){return d&&d.status&&['pending','running','queued'].includes(d.status.state)&&
+   isoAge(d.status.updatedAt)<=24*60*60*1000});
+ if(count===2&&fresh===2&&!failures&&!inProgress)return {color:'green',message:'Mindkét telefon jelentkezett',primary:matches};
  if(count===0)return {color:'red',message:'Nincs ellenőrzött telefon',primary:matches};
  return {color:'amber',message:count===2?'Részleges vagy régi kapcsolat':'Egy telefon hiányzik',primary:matches};
 }
