@@ -46,18 +46,17 @@ function apply(data,question,coverage,chosenPlan){
  if(!data||!['monika','zsolt'].includes(data.profile)||data.consent!==true)
   throw Error('Mélyelemzés: profil vagy hozzájárulás hiányzik.');
  var plan=chosenPlan||decide(question),q=trimmed(question,1600);
- // Preserve original question in UI and history; a compact research
- // instruction is deliberately part of the model-facing question.
- var guide=instruction(plan,coverage);
- var effective=q.slice(0,Math.max(150,1900-guide.length))+guide;
+ // The authorized AI service rejects question strings longer than 1200 chars.
+ // Research policy is already provided by the server; NEVER append it to the user's question.
+ if(q.length>1200)throw Error('A kérdés 1200 karakternél hosszabb. Kérlek rövidítsd a kérdést, a részletes adatokat a HealthHub külön kezeli.');
  var extra=Array.isArray(data.extra)?data.extra:[];
  var next=Object.assign({},data,{
-  question:effective,depth:plan.mode==='deep'?'detailed':'standard',
+  question:q,depth:plan.mode==='deep'?'detailed':'standard',
   extra:extra.concat([{domain:'documents',label:'I-04 · kutatási fókusz',
    value:plan.mode==='deep'?'Mély, időrendi és forrásalapú elemzés; bizonyítékok és hiányok külön.':
     'Személyre szabott, releváns forrású válasz, konkrét tényekkel.'}])
  });
- return {payload:next,plan:plan,modelPromptAdded:guide.length,questionOriginal:q};
+ return {payload:next,plan:plan,modelPromptAdded:0,questionOriginal:q};
 }
 window.HH_DEEP_RESEARCH_V393={decide:decide,apply:apply,instruction:instruction,version:'393'};
 })();
