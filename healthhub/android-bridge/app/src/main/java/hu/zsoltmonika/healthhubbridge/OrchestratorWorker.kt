@@ -74,7 +74,9 @@ class OrchestratorWorker(
             .put("otaLastError", OtaUpdateManager.lastError(applicationContext) ?: JSONObject.NULL)
             .put("profileCapability", profiles)
             .put("activeProfile", owner ?: JSONObject.NULL)
-            .put("capabilities", JSONArray().put("health").put("daily"))
+            .put("capabilities", JSONArray().put("health").put("daily").put("ota").also {
+                if (owner != null && OneTechnicalDiagnostics.consent(prefs)) it.put("diagnostics")
+            })
             .put("lastSeenAt", java.time.Instant.now().toString())
             .put("lastHealthSyncAt",
                 prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L).takeIf { it > 0L }?.let {
@@ -94,7 +96,8 @@ class OrchestratorWorker(
         state: String,
         steps: JSONArray,
         message: String,
-        startedAt: String?
+        startedAt: String?,
+        technicalSnapshot: JSONObject? = null
     ) {
         val scopes = cmd.optJSONArray("scopes") ?: JSONArray()
         val obj = JSONObject()
@@ -110,6 +113,7 @@ class OrchestratorWorker(
             .put("scopes", scopes)
             .put("steps", steps)
             .put("message", message)
+        if (technicalSnapshot != null) obj.put("diagnostics", technicalSnapshot)
         DropboxVaultClient.uploadText(prefs, STATUS + "/" + id + ".json", obj.toString(2) + "\n")
     }
 
@@ -191,6 +195,26 @@ class OrchestratorWorker(
                 return Result.success()
             }
 
+            // Reject cross-profile, expired and unknown remote actions before execution.
+            val requestedOwner = cmd.optString("profileScope")
+            val actionScopes = scopes(cmd)
+            val allowed = setOf("health", "daily", "ota", "diagnostics",
+                "structured", "profile", "devices", "lena")
+            val issued = runCatching { java.time.Instant.parse(cmd.getString("issuedAt")) }.getOrNull()
+            val deadline = runCatching { java.time.Instant.parse(cmd.getString("expiresAt")) }.getOrNull()
+            val now = java.time.Instant.now()
+            if (owner == null || requestedOwner != owner || actionScopes.isEmpty() ||
+                actionScopes.any { it !in allowed } ||
+                issued == null || deadline == null ||
+                issued.isAfter(now.plusSeconds(300)) ||
+                issued.isBefore(now.minusSeconds(24 * 3600)) ||
+                !deadline.isAfter(now) || deadline.isAfter(issued.plusSeconds(24 * 3600 + 5))) {
+                prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
+                writeStatus(prefs, id, cmd, "rejected", JSONArray(),
+                    "Parancs elutasítva: tulajdonos, művelet vagy érvényesség hibás.", null)
+                return Result.success()
+            }
+
             val expiresAt = cmd.optString("expiresAt")
             if (expiresAt.isNotBlank()) {
                 val expired = try { java.time.Instant.parse(expiresAt).isBefore(java.time.Instant.now()) } catch (_: Exception) { false }
@@ -207,11 +231,14 @@ class OrchestratorWorker(
             writeStatus(prefs, id, cmd, "running", steps, "Parancs végrehajtása", startedAt)
 
             var failed = 0
+            var skipped = 0
+            var technicalSnapshot: JSONObject? = null
             val requestedProfile = cmd.optString("profileScope", "all")
-            val requestedScopes = scopes(cmd)
+            val requestedScopes = actionScopes
 
             if ("health" in requestedScopes) {
                 if (owner == null || (requestedProfile != "all" && requestedProfile != owner)) {
+                    skipped++
                     steps.put(step("health", "Health + Activity", "skipped"))
                 } else {
                     try {
@@ -220,6 +247,23 @@ class OrchestratorWorker(
                     } catch (e: Exception) {
                         failed++
                         steps.put(step("health", "Health + Activity", "failed", e.message ?: e.javaClass.simpleName))
+                    }
+                }
+            }
+
+            if ("diagnostics" in requestedScopes) {
+                if (!OneTechnicalDiagnostics.consent(prefs)) {
+                    failed++
+                    steps.put(step("diagnostics", "Műszaki diagnosztika", "failed",
+                        "A telefon tulajdonosa nem engedélyezte a távoli műszaki diagnosztikát."))
+                } else {
+                    try {
+                        technicalSnapshot = OneTechnicalDiagnostics.snapshot(applicationContext, prefs)
+                        steps.put(step("diagnostics", "Műszaki diagnosztika", "done"))
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step("diagnostics", "Műszaki diagnosztika", "failed",
+                            e.javaClass.simpleName))
                     }
                 }
             }
@@ -253,15 +297,19 @@ class OrchestratorWorker(
                 "devices" to "Devices Cloud",
                 "lena" to "Léna Context"
             ).forEach { pair ->
-                if (pair.first in requestedScopes) steps.put(step(pair.first, pair.second, "skipped"))
+                if (pair.first in requestedScopes) {
+                    skipped++
+                    steps.put(step(pair.first, pair.second, "skipped"))
+                }
             }
 
             prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
-            val finalState = if (failed == 0) "done" else "partial"
+            val finalState = if (failed == 0 && skipped == 0) "done" else "partial"
             writeStatus(
                 prefs, id, cmd, finalState, steps,
-                if (failed == 0) "Android orchestrátor parancs kész." else "Android orchestrátor részben hibás.",
-                startedAt
+                if (finalState == "done") "A kért műveletek ténylegesen befejeződtek."
+                else "Egy vagy több művelet sikertelen vagy nem támogatott.",
+                startedAt, technicalSnapshot
             )
             uploadHeartbeat(prefs, id, owner)
             Result.success()
