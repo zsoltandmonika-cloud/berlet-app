@@ -4,6 +4,8 @@ on:
     paths:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/premium-zsolt-hero-v527.css'
+      - 'healthhub/assets/zsolt-hh-hero-approved-v527.png'
       - 'healthhub/index.html'
       - 'healthhub/premium-home-compact-v525.js'
       - 'healthhub/premium-home-compact-v525.css'
@@ -18,6 +20,8 @@ on:
     paths:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/premium-zsolt-hero-v527.css'
+      - 'healthhub/assets/zsolt-hh-hero-approved-v527.png'
       - 'healthhub/index.html'
       - 'healthhub/premium-home-compact-v525.js'
       - 'healthhub/premium-home-compact-v525.css'

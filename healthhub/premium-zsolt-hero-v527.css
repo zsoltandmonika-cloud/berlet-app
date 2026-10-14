@@ -1,0 +1,72 @@
+/* HealthHub v527: Zsolt-only light-blue Premium Glass Home.
+   Uses the exact user-approved image, without edits or generated substitutes.
+   Existing Home, Mónika's pink profile, permissions and live data stay unchanged. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home{
+ background:
+  radial-gradient(ellipse 80% 330px at 94% 8%,rgba(68,182,250,.11),transparent 76%),
+  radial-gradient(ellipse 72% 490px at 37% -25px,rgba(50,112,187,.35),transparent 79%),
+  #0b1425;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome{
+ background-image:url('./assets/zsolt-hh-hero-approved-v527.png')!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+ border-bottom-color:rgba(126,212,252,.43)!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome::after{
+ content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+ background:radial-gradient(ellipse 45% 86% at 103% 40%,rgba(91,200,255,.085),transparent 80%);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .profileHit{
+ border-color:rgba(151,226,255,.88)!important;
+ box-shadow:0 4px 18px rgba(0,0,0,.45),0 0 15px rgba(77,188,251,.25)!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .heroBtns .round{
+ border-color:rgba(160,222,255,.40)!important;
+ background:rgba(18,39,70,.61)!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .homeSurface{
+ background:linear-gradient(148deg,rgba(34,71,121,.82),rgba(17,33,58,.94) 49%,rgba(27,60,100,.80));
+ border-color:rgba(151,221,255,.31);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .hhpg-tile{
+ border-color:rgba(141,215,255,.35);
+ background:linear-gradient(144deg,rgba(79,160,231,.22),rgba(28,57,99,.44) 56%,rgba(29,91,133,.27));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 20px rgba(0,9,25,.26),0 0 12px rgba(111,214,255,.05);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .hhpg-tile[data-group="daily"]{
+ border-color:rgba(157,225,255,.44);
+ background:linear-gradient(137deg,rgba(70,127,196,.26),rgba(34,61,105,.47) 57%,rgba(54,129,166,.23));
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .hhpg-icon{
+ color:#c0efff;
+ background:linear-gradient(135deg,rgba(124,218,251,.20),rgba(62,116,182,.25));
+ border-color:rgba(163,222,255,.42);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .hhpg-tile[data-key="ask"]{
+ border-color:rgba(106,235,239,.64);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home .hhpg-tile:focus-visible{
+ outline-color:#b6efff;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .hhpg-info-panel{
+ border-color:rgba(166,223,255,.43);
+ background:linear-gradient(115deg,rgba(10,26,47,.75),rgba(22,49,84,.66));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 8px 24px rgba(3,10,26,.22),0 0 13px rgba(112,212,255,.095);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .hhpg-info-heading{
+ color:#c5ecff;
+}
+/* The HH ONE service-state dot is NOT changed; only its navy glass capsule edge.
+   Selector specificity outranks the neutral glass v525 rule on the active Home. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"]:has(#home.on) #hhOneFallback501,
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"]:has(#home.on) #hhOneRag500{
+ background:linear-gradient(125deg,rgba(10,26,48,.68),rgba(19,54,89,.50))!important;
+ color:#f1fbff!important;
+ border:1px solid rgba(164,227,255,.80)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 6px 19px rgba(0,5,19,.22),0 0 13px rgba(89,202,255,.21)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .hhpg-info-panel{background:#132b48}
+}
