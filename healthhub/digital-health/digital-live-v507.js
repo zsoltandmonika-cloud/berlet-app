@@ -77,7 +77,8 @@ function apps(s){
    row(desc,'appdetail',info[2]);
    const value=row(el,'appval',duration(ms));
    value.title=info[0]+' · megfigyelt alkalmazás-előtéridő';
-   const width=row(desc,'bar');row(width,'').style.cssText='--percent:'+Math.min(100,100*ms/all).toFixed(1)+'%;--barcolor:'+colors[i%colors.length]+';height:100%';
+   const track=row(desc,'bar');const fill=document.createElement('span');track.appendChild(fill);
+   fill.style.width=Math.min(100,100*ms/all).toFixed(1)+'%';fill.style.backgroundColor=colors[i%colors.length];
    grouped.set(info[2],(grouped.get(info[2])||0)+ms);
  });
  for(const [name,ms] of [...grouped].sort((a,b)=>b[1]-a[1]))
