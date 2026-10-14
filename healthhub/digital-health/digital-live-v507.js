@@ -74,18 +74,42 @@ function showWeek(doc){
  const range=$('weekRange');
  if(range)range.textContent=points[0].date.slice(5).replace('-','.')+'–'+points[6].date.slice(5).replace('-','.')+' · H–V';
 }
+const APP_LABELS=Object.freeze({
+ 'com.openai.chatgpt':['ChatGPT','💬','AI-eszközök'],
+ 'com.google.android.youtube':['YouTube','▶️','Videó'],
+ 'com.android.chrome':['Google Chrome','🌐','Böngészés'],
+ 'com.sec.android.app.sbrowser':['Samsung Internet','🌐','Böngészés'],
+ 'com.microsoft.emmx':['Microsoft Edge','🌐','Böngészés'],
+ 'com.whatsapp':['WhatsApp','💬','Kommunikáció'],
+ 'com.facebook.orca':['Messenger','💬','Kommunikáció'],
+ 'com.instagram.android':['Instagram','📷','Közösségi'],
+ 'com.facebook.katana':['Facebook','👥','Közösségi'],
+ 'com.google.android.gm':['Gmail','✉️','Kommunikáció'],
+ 'com.google.android.apps.maps':['Google Térkép','🗺️','Navigáció'],
+ 'com.google.android.googlequicksearchbox':['Google','🔎','Keresés'],
+ 'com.google.android.apps.photos':['Google Fotók','🖼️','Fotózás'],
+ 'com.google.android.apps.messaging':['Google Üzenetek','💬','Kommunikáció'],
+ 'com.google.android.apps.wellbeing':['Google Digital Wellbeing','📊','Digitális jóllét'],
+ 'com.spotify.music':['Spotify','🎵','Zene'],
+ 'com.netflix.mediaclient':['Netflix','🎬','Videó'],
+ 'com.microsoft.teams':['Microsoft Teams','💬','Kommunikáció'],
+ 'com.samsung.android.forest':['Samsung Digital Wellbeing','📊','Digitális jóllét'],
+ 'com.sec.android.app.launcher':['One UI kezdőképernyő','🏠','Rendszerfelület'],
+ 'com.samsung.android.incallui':['Samsung hívásképernyő','📞','Telefonálás'],
+ 'com.samsung.android.rubin.app':['Samsung testreszabási szolgáltatás','⚙️','Rendszerszolgáltatás'],
+ 'com.android.settings':['Android Beállítások','⚙️','Rendszerfelület'],
+ 'com.samsung.android.dialer':['Samsung Telefon','📞','Telefonálás'],
+ 'com.samsung.android.contacts':['Samsung Névjegyek','👥','Kommunikáció'],
+ 'hu.zsoltmonika.healthhubbridge':['HH One Connect','💙','Egészség / HealthHub']
+});
+// Pure presentation mapping: raw Android package identifiers remain in signed
+// source data and consented private Dropbox records. Never guess unknown names.
+function resolveApp(id){return APP_LABELS[id]||[id,'📱','Besorolatlan'];}
+
 function apps(s){
  const legend=$('legend'),list=$('apps'),categories=$('categories'),ring=document.querySelector('.ring');
  for(const element of [legend,list,categories])element.replaceChildren();
- const names={
- 'com.openai.chatgpt':['ChatGPT','💬','AI-eszközök'],
- 'com.google.android.youtube':['YouTube','▶️','Videó'],
- 'com.android.chrome':['Chrome','🌐','Böngészés'],
- 'com.sec.android.app.sbrowser':['Samsung Internet','🌐','Böngészés'],
- 'com.whatsapp':['WhatsApp','💬','Kommunikáció'],
- 'com.instagram.android':['Instagram','📷','Közösségi'],
- 'com.facebook.katana':['Facebook','👥','Közösségi']
- };
+
  if(!s.appDetailShared||!s.topApps.length){
    ring.style.background='conic-gradient(#304663 0% 100%)';
    text('ringTotal','—');
@@ -115,11 +139,12 @@ function apps(s){
  ring.style.background='conic-gradient('+slices.join(',')+')';
  const grouped=new Map();
  s.topApps.slice(0,8).forEach(([id,ms],i)=>{
-   const info=names[id]||[id,'📱','Besorolatlan'];
+   const info=resolveApp(id);
    const el=row(list,'app');
    row(el,'appicon',info[1]);
    const desc=row(el,'');
-   row(desc,'appname',info[0]);
+   const label=row(desc,'appname',info[0]);
+   label.title='Eredeti Android-csomagnév: '+id;
    row(desc,'appdetail',info[2]);
    const value=row(el,'appval',duration(ms));
    value.title=info[0]+' · megfigyelt alkalmazás-előtéridő';
@@ -127,13 +152,13 @@ function apps(s){
    fill.style.width=Math.min(100,100*ms/all).toFixed(1)+'%';fill.style.backgroundColor=colors[i%colors.length];
  });
  for(const [id,ms] of s.topApps){
-   const info=names[id]||[id,'📱','Besorolatlan'];
+   const info=resolveApp(id);
    grouped.set(info[2],(grouped.get(info[2])||0)+ms);
  }
  for(const [name,ms] of [...grouped].sort((a,b)=>b[1]-a[1]))
    row(categories,'app',name+' · '+duration(ms));
  for(const [id,ms] of s.topApps.slice(0,4)){
-   const info=names[id]||[id,'📱','Besorolatlan'];
+   const info=resolveApp(id);
    row(legend,'item',info[0]+' · '+duration(ms));
  }
 }
@@ -220,5 +245,5 @@ async function refresh(profile,period){
    text('analysisText','A Digital Wellbeing központi adatai jelenleg nem érhetők el. A HealthHub főoldalán ellenőrizd a Dropbox-kapcsolatot. '+(err&&err.message||''));
  }
 }
-root.HH_DW_LIVE_V507=Object.freeze({refresh,duration});
+root.HH_DW_LIVE_V507=Object.freeze({refresh,duration,resolveApp});
 })(window);
