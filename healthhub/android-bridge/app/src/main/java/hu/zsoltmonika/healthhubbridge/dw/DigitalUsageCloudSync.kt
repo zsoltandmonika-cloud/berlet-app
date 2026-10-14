@@ -10,6 +10,8 @@ import hu.zsoltmonika.healthhubbridge.DropboxVaultClient
 import hu.zsoltmonika.healthhubbridge.SyncScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -19,6 +21,7 @@ internal object DigitalUsageCloudSync {
     private const val SCHEMA = "healthhub.digital-wellbeing/1"
     private const val SOURCE = "android.usage-events.observed-app-foreground"
     private const val WORK = "hh-one-digital-family-cloud-sync"
+    private val mutex = Mutex()
 
     fun enqueue(context: Context) {
         WorkManager.getInstance(context).enqueueUniqueWork(
@@ -27,7 +30,17 @@ internal object DigitalUsageCloudSync {
         )
     }
 
-    suspend fun sync(context: Context): Boolean {
+    suspend fun sync(context: Context): Boolean = mutex.withLock {
+        try {
+            uploadCurrent(context)
+        } catch (error: Exception) {
+            PilotState.prefs(context).edit()
+                .putString(PilotState.LAST_CLOUD_ERROR, error.javaClass.simpleName).apply()
+            false
+        }
+    }
+
+    private suspend fun uploadCurrent(context: Context): Boolean {
         val p = PilotState.prefs(context)
         val erase = p.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)
         val approved = p.getBoolean(PilotState.ENABLED, false) &&
@@ -36,7 +49,10 @@ internal object DigitalUsageCloudSync {
         val owner = PilotState.owner(context) ?: return false
         val main = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
         if (main.getString("device_owner_profile", null) != owner) return false
-        if (!DropboxVaultClient.hasRefreshToken(main)) return false
+        if (!DropboxVaultClient.hasRefreshToken(main)) {
+            p.edit().putString(PilotState.LAST_CLOUD_ERROR, "Dropbox nincs csatlakoztatva").apply()
+            return false
+        }
         val now = System.currentTimeMillis()
         val rows = if (erase || !approved) emptyList() else LocalLedger.read(context, owner)
             .filter { it.hourStartMs >= now - 30L * DAY && it.hourStartMs < now }
