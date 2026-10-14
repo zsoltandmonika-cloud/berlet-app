@@ -53,10 +53,10 @@ assert.doesNotMatch(native,/AppDetailLedger\.read/,'never upload per-app names w
 const askBridge=fs.readFileSync(path.join(base,'live-v328.js'),'utf8');
 const askAnswer=fs.readFileSync(path.join(base,'live-v330.js'),'utf8');
 const main=fs.readFileSync(path.join(base,'index.html'),'utf8');
-assert.match(main,/digital-health\\/digital-usage-vault-v507\\.js\\?v=507-private-source/,'Ask Léna loads validated reader');
-assert.match(askBridge,/source\\('digital'/,'Intelligence context labels verified digital source');
-assert.match(askBridge,/lastDigital&&lastDigital\\.profileKey===p/,'no cross-profile usage source');
-assert.match(askBridge,/await window\\.HH_DW_VAULT_V507\\.read\\(p\\)/,'real Dropbox data, not demo');
-assert.match(askAnswer,/case'digital':\\{var digitalRows=bulk\\('digital',8\\)/,'Ask Léna uses measured digital source');
+assert.match(main,/digital-health\/digital-usage-vault-v507\.js\?v=507-private-source/,'Ask Léna loads validated reader');
+assert.match(askBridge,/source\('digital'/,'Intelligence context labels verified digital source');
+assert.match(askBridge,/lastDigital&&lastDigital\.profileKey===p/,'no cross-profile usage source');
+assert.match(askBridge,/await window\.HH_DW_VAULT_V507\.read\(p\)/,'real Dropbox data, not demo');
+assert.match(askAnswer,/case'digital':\{var digitalRows=bulk\('digital',8\)/,'Ask Léna uses measured digital source');
 assert.match(askAnswer,/nem bizonyít ok-okozati/,'no causal inference from coincidence');
 console.log('HH One Digital Wellbeing private source, 30-day retention, profile isolation, DST, missing=unknown PASS');
