@@ -106,6 +106,21 @@ const APP_LABELS=Object.freeze({
 // source data and consented private Dropbox records. Never guess unknown names.
 function resolveApp(id){return APP_LABELS[id]||[id,'📱','Besorolatlan'];}
 
+// Categories are derived only from real, consented app-hour measurements.
+// Exact verified IDs win; everything else remains explicitly unclassified.
+// The sum of category totals must match the measured per-app total.
+function summarizeCategories(topApps){
+ const totals=new Map(),icons=new Map();
+ for(const entry of topApps){
+  const id=entry[0],ms=entry[1];
+  if(!Number.isFinite(ms)||ms<0)continue;
+  const info=resolveApp(id),category=info[2];
+  totals.set(category,(totals.get(category)||0)+ms);
+  if(!icons.has(category))icons.set(category,info[1]);
+ }
+ return [...totals.entries()].sort((a,b)=>b[1]-a[1])
+  .map(([name,ms])=>({name,ms,icon:icons.get(name)||'📱'}));
+}
 function apps(s){
  const legend=$('legend'),list=$('apps'),categories=$('categories'),ring=document.querySelector('.ring');
  for(const element of [legend,list,categories])element.replaceChildren();
@@ -137,7 +152,6 @@ function apps(s){
  });
  if(cumulative<100)slices.push('#304663 '+cumulative.toFixed(2)+'% 100%');
  ring.style.background='conic-gradient('+slices.join(',')+')';
- const grouped=new Map();
  s.topApps.slice(0,8).forEach(([id,ms],i)=>{
    const info=resolveApp(id);
    const el=row(list,'app');
@@ -151,12 +165,21 @@ function apps(s){
    const track=row(desc,'bar');const fill=document.createElement('span');track.appendChild(fill);
    fill.style.width=Math.min(100,100*ms/all).toFixed(1)+'%';fill.style.backgroundColor=colors[i%colors.length];
  });
- for(const [id,ms] of s.topApps){
-   const info=resolveApp(id);
-   grouped.set(info[2],(grouped.get(info[2])||0)+ms);
+ const grouped=summarizeCategories(s.topApps);
+ for(const category of grouped){
+   const item=row(categories,'catrow');
+   const heading=row(item,'catheading');
+   row(heading,'caticon',category.icon);
+   row(heading,'catname',category.name);
+   row(heading,'catvalue',duration(category.ms));
+   const percent=all?Math.max(0,Math.min(100,100*category.ms/all)):0;
+   const track=row(item,'catbar');
+   const fill=document.createElement('span');
+   track.appendChild(fill);
+   fill.style.width=percent.toFixed(1)+'%';
+   const share=row(item,'catshare',percent.toFixed(1).replace('.',',')+'% a mért alkalmazásidőből');
+   item.title=category.name+' · '+duration(category.ms)+' · '+share.textContent;
  }
- for(const [name,ms] of [...grouped].sort((a,b)=>b[1]-a[1]))
-   row(categories,'app',name+' · '+duration(ms));
  for(const [id,ms] of s.topApps.slice(0,4)){
    const info=resolveApp(id);
    row(legend,'item',info[0]+' · '+duration(ms));
@@ -245,5 +268,5 @@ async function refresh(profile,period){
    text('analysisText','A Digital Wellbeing központi adatai jelenleg nem érhetők el. A HealthHub főoldalán ellenőrizd a Dropbox-kapcsolatot. '+(err&&err.message||''));
  }
 }
-root.HH_DW_LIVE_V507=Object.freeze({refresh,duration,resolveApp});
+root.HH_DW_LIVE_V507=Object.freeze({refresh,duration,resolveApp,summarizeCategories});
 })(window);
