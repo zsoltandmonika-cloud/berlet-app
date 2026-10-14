@@ -1,0 +1,80 @@
+name: HealthHub Connect v0.15 · PR compile (no release)
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/android-bridge/**"
+      - "healthhub/live-v305.js"
+      - "healthhub/tests/collector-remote-rag-v015.test.js"
+      - ".github/workflows/healthhub-connect-unified-pr-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-health-connect-fallback:
+    name: Compile Connect without proprietary SDK
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK 36
+        shell: bash
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Verify safe collector build configuration
+        working-directory: healthhub/android-bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts
+          grep -Fq 'versionCode = 21' app/build.gradle.kts
+          grep -Fq 'versionName = "0.15.0"' app/build.gradle.kts
+          test ! -e app/libs/samsung-health-data-api.aar
+          grep -Fq 'SamsungSdkDailyReader.available' app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt
+          grep -Fq 'SamsungCollectorScheduler.schedule(this)' app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt
+      - name: Assemble HC-only fallback with Samsung stub
+        working-directory: healthhub/android-bridge
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+      - name: Verify fallback APK package
+        working-directory: healthhub/android-bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep "package: name='hu.zsoltmonika.healthhubbridge'"
+          echo "Fallback APK compiled; no OTA release and no Samsung SDK functionality claimed."
+
+  admin-rag-remote-checks:
+    name: Admin RAG + Remote Control regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify Admin script syntax
+        run: node --check healthhub/live-v305.js
+      - name: Verify RAG status and stale-data guards
+        run: node --test healthhub/tests/collector-remote-rag-v015.test.js
+      - name: Check remote scope allowlist stays in Android client
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OrchestratorWorker.kt
+          grep -Fq 'val allowedRemote = setOf(' "$FILE"
+          grep -Fq 'if ("diagnostics" in requestedScopes)' "$FILE"
+          grep -Fq 'if ("samsung" in requestedScopes)' "$FILE"
+          grep -Fq 'if ("retry" in requestedScopes)' "$FILE"
+          grep -Fq 'SamsungCollectorScheduler.isEnabled(applicationContext)' "$FILE"

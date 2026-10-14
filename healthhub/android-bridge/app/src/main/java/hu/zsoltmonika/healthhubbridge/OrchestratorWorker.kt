@@ -74,7 +74,9 @@ class OrchestratorWorker(
             .put("otaLastError", OtaUpdateManager.lastError(applicationContext) ?: JSONObject.NULL)
             .put("profileCapability", profiles)
             .put("activeProfile", owner ?: JSONObject.NULL)
-            .put("capabilities", JSONArray().put("health").put("daily"))
+            .put("capabilities", JSONArray().put("health").put("daily").put("ota")
+                .put("diagnostics").put("retry")
+                .also { if (SamsungSdkDailyReader.available && SamsungCollectorScheduler.isEnabled(applicationContext)) it.put("samsung") })
             .put("lastSeenAt", java.time.Instant.now().toString())
             .put("lastHealthSyncAt",
                 prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L).takeIf { it > 0L }?.let {
@@ -82,6 +84,8 @@ class OrchestratorWorker(
                 } ?: JSONObject.NULL)
             .put("lastHealthSummary", prefs.getString(ResilientHealthSync.KEY_COUNTS, null) ?: JSONObject.NULL)
             .put("lastHealthError", prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null) ?: JSONObject.NULL)
+            // No clinical values: source dates/counts, sync statuses and error categories only.
+            .put("collectorTelemetry", CollectorTelemetry.snapshot(applicationContext))
             .put("lastCommandId", prefs.getString(LAST_COMMAND_KEY, null) ?: JSONObject.NULL)
             .put("visible", false)
         DropboxVaultClient.uploadText(prefs, DEVICES + "/" + id + ".json", obj.toString(2) + "\n")
@@ -150,6 +154,7 @@ class OrchestratorWorker(
         }
         val exporter = HealthConnectExporter(client)
         val json = exporter.export(owner)
+        CollectorTelemetry.noteHealthRead(applicationContext, json)
         if (!exporter.hasUsefulData(json)) {
             error("Nincs tényleges Health Connect-adat; az előző Dropbox-fájl érintetlen. " + exporter.countSummary(json))
         }
@@ -166,6 +171,7 @@ class OrchestratorWorker(
             .remove(ResilientHealthSync.KEY_LAST_ERROR)
             .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
             .apply()
+        CollectorTelemetry.noteHealthUpload(applicationContext)
     }
 
     override suspend fun doWork(): Result {
@@ -178,6 +184,14 @@ class OrchestratorWorker(
 
         return try {
             ensureFolders(prefs)
+            // Device-initiated, non-privileged remote policy check. Failures here
+            // must never prevent existing HC commands and heartbeat monitoring.
+            try {
+                CollectorRemoteConfig.poll(applicationContext, prefs, id, owner)
+            } catch (e: Exception) {
+                CollectorRemoteConfig.notePollFailure(applicationContext,
+                    e.message ?: e.javaClass.simpleName)
+            }
             uploadHeartbeat(prefs, id, owner)
 
             val text = DropboxVaultClient.downloadTextOrNull(prefs, COMMANDS + "/" + id + ".json")
@@ -224,6 +238,62 @@ class OrchestratorWorker(
                 }
             }
 
+            // No permission prompts, shell commands or code injection.
+            // Samsung access must already be approved locally on the device.
+            val allowedRemote = setOf("health", "samsung", "diagnostics", "retry", "ota",
+                "daily", "structured", "profile", "devices", "lena")
+            if (requestedScopes.any { it !in allowedRemote }) {
+                prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
+                writeStatus(prefs, id, cmd, "failed", JSONArray(),
+                    "Ismeretlen vagy tiltott távoli művelet.", startedAt)
+                uploadHeartbeat(prefs, id, owner)
+                return Result.success()
+            }
+
+            if ("diagnostics" in requestedScopes) {
+                // The final heartbeat contains metadata, never measured values.
+                steps.put(step("diagnostics", "Collector diagnosztika", "done"))
+            }
+
+            if ("retry" in requestedScopes) {
+                if (owner == null || requestedProfile != owner) {
+                    failed++
+                    steps.put(step("retry", "Health Connect újrapróbálás", "failed", "Profil eltér."))
+                } else {
+                    try {
+                        ResilientHealthSync.kick(applicationContext)
+                        steps.put(step("retry", "Health Connect újrapróbálás", "queued"))
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step("retry", "Health Connect újrapróbálás", "failed",
+                            e.message ?: e.javaClass.simpleName))
+                    }
+                }
+            }
+
+            if ("samsung" in requestedScopes) {
+                if (owner == null || requestedProfile != owner) {
+                    failed++
+                    steps.put(step("samsung", "Samsung Health SDK", "failed", "Profil eltér."))
+                } else if (!SamsungSdkDailyReader.available) {
+                    failed++
+                    steps.put(step("samsung", "Samsung Health SDK", "failed", "SDK nincs ebben az APK-ban."))
+                } else if (!SamsungCollectorScheduler.isEnabled(applicationContext)) {
+                    failed++
+                    steps.put(step("samsung", "Samsung Health SDK", "failed",
+                        "Samsung nincs a telefonon engedélyezve."))
+                } else {
+                    try {
+                        SamsungCollectorScheduler.runTestNow(applicationContext)
+                        steps.put(step("samsung", "Samsung Health SDK", "queued"))
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step("samsung", "Samsung Health SDK", "failed",
+                            e.message ?: e.javaClass.simpleName))
+                    }
+                }
+            }
+
             if ("ota" in requestedScopes) {
                 try {
                     val candidate = OtaUpdateManager.check(applicationContext)
@@ -257,10 +327,21 @@ class OrchestratorWorker(
             }
 
             prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
-            val finalState = if (failed == 0) "done" else "partial"
+            val queued = (0 until steps.length()).any {
+                steps.optJSONObject(it)?.optString("status") == "queued"
+            }
+            val finalState = when {
+                failed > 0 -> "partial"
+                queued -> "queued"
+                else -> "done"
+            }
             writeStatus(
                 prefs, id, cmd, finalState, steps,
-                if (failed == 0) "Android orchestrátor parancs kész." else "Android orchestrátor részben hibás.",
+                when {
+                    failed > 0 -> "Android orchestrátor részben hibás."
+                    queued -> "Háttérfeladat sorba állítva. Az eredményt a következő telemetria igazolja."
+                    else -> "Android orchestrátor parancs kész."
+                },
                 startedAt
             )
             uploadHeartbeat(prefs, id, owner)

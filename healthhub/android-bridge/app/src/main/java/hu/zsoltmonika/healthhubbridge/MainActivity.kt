@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
+    private var samsungCollectorSummary: TextView? = null
+    private var samsungCollectorToggle: Button? = null
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -139,10 +141,12 @@ class MainActivity : ComponentActivity() {
         OrchestratorScheduler.schedule(this)
         OrchestratorScheduler.runNow(this)
         OtaUpdateManager.schedule(this)
+        SamsungCollectorScheduler.schedule(this)
         updateScheduleUi()
         handleIntent(intent)
         updateResilientStatus()
         updateOtaStatus()
+        updateSamsungCollectorUi()
         checkOta(false)
     }
 
@@ -296,6 +300,96 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun updateSamsungCollectorUi() {
+        val available = SamsungSdkDailyReader.available
+        val enabled = SamsungCollectorScheduler.isEnabled(this)
+        val lastSuccess = prefs.getLong("samsung_collector_last_success_ms", 0L)
+        val lastError = prefs.getString("samsung_collector_last_error", null)
+        samsungCollectorToggle?.text =
+            if (enabled) "⏸ Samsung automatikus szinkron: BE · kikapcsolás"
+            else "Samsung automatikus szinkron: KI"
+        val stamp = if (lastSuccess > 0L)
+            java.text.DateFormat.getDateTimeInstance().format(java.util.Date(lastSuccess))
+        else "még nincs igazolt feltöltés"
+        samsungCollectorSummary?.text =
+            (if (available) "SDK: beépítve" else "SDK: hiányzik ebből az APK-ból") +
+            " · Automata: " + (if (enabled) "BE" else "KI") +
+            "\nUtolsó Samsung-feltöltés: " + stamp +
+            (if (lastError.isNullOrBlank()) "" else "\nHiba: " + lastError)
+    }
+
+    private fun activateSamsungCollector() {
+        if (!SamsungSdkDailyReader.available) {
+            status.text = "Ebben az APK-ban nincs Samsung gyártói SDK. A Health Connect továbbra is működik."
+            return
+        }
+        val owner = deviceOwnerProfile() ?: run {
+            status.text = "Előbb rögzítsd a telefon tulajdonosát a Connect szinkronjával."
+            return
+        }
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            status.text = "A jelenlegi Connect Dropbox kapcsolatának előbb működnie kell."
+            return
+        }
+        scope.launch {
+            try {
+                status.text = "Samsung Health: egyszeri hozzájárulás és valódi adatok olvasása…"
+                val payload = SamsungSdkDailyReader.collect(this@MainActivity, owner)
+                CollectorTelemetry.noteSamsungRead(this@MainActivity, payload)
+                val rows = payload.optJSONObject("records")?.optJSONArray("dailySummary")
+                val validDayCount = rows?.length() ?: 0
+                check(deviceOwnerProfile() == owner &&
+                    payload.optString("profile") == owner &&
+                    payload.optString("source") == "samsung-health-data-sdk-1.1.0" &&
+                    payload.optString("schemaVersion") == "healthhub.samsung.daily/1" &&
+                    validDayCount > 0) {
+                    "Samsung adatok hiányoznak, vagy másik profilhoz tartoznak."
+                }
+                prefs.edit().putLong("samsung_collector_last_read_ms", System.currentTimeMillis()).apply()
+                val cloudPath = DropboxVaultClient.PROFILES_DIR + "/" + owner + "-samsung-health.json"
+                DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
+                DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
+                val previous = DropboxVaultClient.downloadTextOrNull(prefs, cloudPath)
+                val currentStamp = java.time.Instant.parse(payload.getString("exportedAt"))
+                var uploadRequired = true
+                if (!previous.isNullOrBlank()) {
+                    val old = JSONObject(previous)
+                    check(old.optString("profile") == owner &&
+                        old.optString("schemaVersion") == "healthhub.samsung.daily/1") {
+                        "A Dropboxban lévő Samsung-fájl profilja vagy formátuma eltér."
+                    }
+                    uploadRequired = currentStamp.isAfter(java.time.Instant.parse(old.getString("exportedAt")))
+                }
+                check(deviceOwnerProfile() == owner) { "A profil időközben megváltozott." }
+                if (uploadRequired) {
+                    DropboxVaultClient.uploadText(prefs, cloudPath, payload.toString(2) + "\n")
+                    val verified = DropboxVaultClient.downloadTextOrNull(prefs, cloudPath)
+                    check(!verified.isNullOrBlank()) { "A Samsung feltöltés nem olvasható vissza." }
+                    val readback = JSONObject(verified)
+                    check(readback.optString("profile") == owner &&
+                        readback.optString("exportedAt") == payload.getString("exportedAt")) {
+                        "Samsung Dropbox feltöltés visszaellenőrzése sikertelen."
+                    }
+                    prefs.edit().putLong("samsung_collector_last_success_ms", System.currentTimeMillis()).apply()
+                    CollectorTelemetry.noteSamsungUpload(this@MainActivity)
+                }
+                SamsungCollectorScheduler.setEnabled(this@MainActivity, true)
+                prefs.edit().remove("samsung_collector_last_error").apply()
+                status.text = "✅ Samsung engedélyezve, " + validDayCount +
+                    " valódi napi rekord; háttérszinkron BE (kb. 4 óránként). " +
+                    (if (uploadRequired) "Dropbox feltöltve." else "A Dropboxban frissebb export van.")
+            } catch (e: Exception) {
+                status.text = "Samsung beállítás nem sikerült: " +
+                    (e.message ?: e.javaClass.simpleName) +
+                    "\nA Health Connect változatlanul működik."
+                prefs.edit().putString("samsung_collector_last_error",
+                    (e.message ?: e.javaClass.simpleName).take(180)).apply()
+            } finally {
+                updateSamsungCollectorUi()
+            }
+        }
+    }
+
     private fun buildUi(): View {
         val pad = 30
         val scroll = ScrollView(this).apply {
@@ -350,6 +444,51 @@ class MainActivity : ComponentActivity() {
         root.addView(Button(this).apply {
             text = "🔄 SYNC NOW"
             setOnClickListener { syncNow() }
+        })
+
+        // Unified Android application: direct Samsung SDK is opt-in and does
+        // not replace the current Health Connect reader or its cloud file.
+        root.addView(TextView(this).apply {
+            text = "⌚ Samsung Health · közvetlen adatgyűjtő"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        samsungCollectorSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 2, 0, 8)
+        }
+        root.addView(samsungCollectorSummary)
+        root.addView(Button(this).apply {
+            text = "✅ Samsung engedélyezés + próba + automata bekapcsolása"
+            setOnClickListener { activateSamsungCollector() }
+        })
+        samsungCollectorToggle = Button(this).apply {
+            setOnClickListener {
+                val wasEnabled = SamsungCollectorScheduler.isEnabled(this@MainActivity)
+                if (wasEnabled) {
+                    SamsungCollectorScheduler.setEnabled(this@MainActivity, false)
+                    status.text = "Samsung automatikus adatgyűjtés kikapcsolva. Health Connect változatlan."
+                } else {
+                    status.text = "Az engedélyezéshez indíts sikeres Samsung próbaolvasást a fenti gombbal."
+                }
+                updateSamsungCollectorUi()
+            }
+        }
+        root.addView(samsungCollectorToggle)
+        root.addView(Button(this).apply {
+            text = "🔎 Samsung háttérszinkron ellenőrzése"
+            setOnClickListener {
+                if (SamsungCollectorScheduler.isEnabled(this@MainActivity)) {
+                    SamsungCollectorScheduler.runTestNow(this@MainActivity)
+                    status.text = "Samsung háttérfeladat sorba állítva; eredmény később, a státusznál."
+                } else {
+                    status.text = "Samsung háttérszinkron nincs engedélyezve."
+                }
+                updateSamsungCollectorUi()
+            }
         })
 
         root.addView(TextView(this).apply {
@@ -764,6 +903,7 @@ class MainActivity : ComponentActivity() {
         val hc = client ?: error("Health Connect nem elérhető")
         status.text = "Health Connect friss adatok beolvasása…"
         val json: JSONObject = HealthConnectExporter(hc).export(profile)
+        CollectorTelemetry.noteHealthRead(this, json)
         pendingJson = json.toString(2)
         saveButton.isEnabled = true
         val exporter = HealthConnectExporter(hc)
@@ -796,6 +936,7 @@ class MainActivity : ComponentActivity() {
             .remove(ResilientHealthSync.KEY_LAST_ERROR)
             .remove(ResilientHealthSync.KEY_NEEDS_ACTION)
             .apply()
+        CollectorTelemetry.noteHealthUpload(this)
         ResilientHealthSync.schedule(this)
         status.text = "✓ Dropbox feltöltés kész · ${profileName(profile)} · " + summary +
             "\nForrásértékek ellenőrizve; ez a feltöltést igazolja, nem a webes megjelenítést."

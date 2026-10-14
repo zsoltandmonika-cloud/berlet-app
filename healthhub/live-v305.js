@@ -6,7 +6,7 @@
    Native Android HealthHub Connect uses the same protocol with WorkManager. */
 
 var BUILD='1.305', ROOT='/HealthHub/orchestrator';
-var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status', DEVICE_REGISTRY=ROOT+'/device-registry-v401.json';
+var DEVICES=ROOT+'/devices', COMMANDS=ROOT+'/commands', STATUS=ROOT+'/status', CONFIGS=ROOT+'/config', DEVICE_REGISTRY=ROOT+'/device-registry-v401.json';
 var DEVICE_KEY='hh-orchestrator-device-id-v1', LAST_CMD='hh-orchestrator-last-command-v1';
 var CHECK_MS=60000, CHECK_THROTTLE=12000, ADMIN_ID='hhSyncOrchestrator305', STYLE_ID='hhSyncOrchestrator305Style';
 var busy=false,lastCheck=0,adminObserver=null,adminTimer=null,visibleTimer=null,deviceCache=[],foldersReady=false;
@@ -219,6 +219,67 @@ async function checkCommand(force){
  }
 }
 
+var telemetryMirror305={},telemetryMirrorBusy305={},lastCloudFetch305=0;
+async function mirrorOneTelemetry305(d){
+ var t=d&&d.collectorTelemetry,service=window.HH_DAILY_HEALTH_SYNC_V319;
+ if(!d||d.deviceType!=='android'||!/^android-[0-9a-f-]{36}$/i.test(d.deviceId||'')||!['zsolt','monika'].includes(d.activeProfile)||
+    !t||t.schema!=='healthhub.collector.telemetry/1'||!t.healthConnect||!t.samsung)return false;
+ if(!service||typeof service.getStatus!=='function'||typeof service.request!=='function')return false;
+ var st=service.getStatus();
+ if(!st||!st.authenticated||(Array.isArray(st.authorizedProfiles)&&!st.authorizedProfiles.includes(d.activeProfile)))return false;
+ var date=Date.parse(t.reportedAt||'');
+ if(!Number.isFinite(date)||date<Date.UTC(2025,0,1)||date>Date.now()+5*60000)return false;
+ var allow=['schema','reportedAt','connectedToDropbox','healthConnect','samsung','remotePolicy'];
+ if(Object.keys(t).some(function(key){return !allow.includes(key)})||JSON.stringify(t).length>10500)return false;
+ var key=d.activeProfile+':'+d.deviceId,stamp=t.reportedAt;
+ if(telemetryMirror305[key]===stamp||telemetryMirrorBusy305[key])return false;
+ telemetryMirrorBusy305[key]=true;
+ try{
+  await service.request('/rest/v1/hh_collector_telemetry?on_conflict=profile_key,device_id',{
+   method:'POST',prefer:'resolution=merge-duplicates,return=minimal',
+   data:{profile_key:d.activeProfile,device_id:d.deviceId,reported_at:stamp,snapshot:t,mirrored_at:new Date().toISOString()}
+  });
+  telemetryMirror305[key]=stamp;return true;
+ }catch(e){
+  console.warn('Collector telemetry private Supabase mirror unavailable');
+  return false;
+ }finally{delete telemetryMirrorBusy305[key]}
+}
+async function mirrorTelemetry305(devices){
+ for(var d of (devices||[]).filter(function(x){return x&&x.collectorTelemetry}).slice(0,8)){
+  await mirrorOneTelemetry305(d);
+ }
+}
+var cloudDiagnostic305={lastChecked:0,dropbox:'unknown',supabase:'unknown'};
+async function testCloudConnectors305(){
+ cloudDiagnostic305={lastChecked:Date.now(),dropbox:'unknown',supabase:'unknown'};
+ var problems=[];
+ try{
+  await ensureFolders();
+  await listFolder(DEVICES);
+  cloudDiagnostic305.dropbox='ok';
+  lastCloudFetch305=Date.now();
+ }catch(e){cloudDiagnostic305.dropbox='error';problems.push('Dropbox kapcsolat');}
+ var s=window.HH_DAILY_HEALTH_SYNC_V319,st=null;
+ try{st=s&&s.getStatus&&s.getStatus()}catch(e){}
+ if(!st||!st.authenticated||typeof s.request!=='function'){
+  cloudDiagnostic305.supabase='not-authenticated';
+ }else{
+  try{
+   var rows=await s.request('/rest/v1/hh_collector_telemetry?select=profile_key&limit=1',{method:'GET'});
+   if(!Array.isArray(rows))throw Error('invalid health profile response');
+   cloudDiagnostic305.supabase='ok';
+  }catch(e){cloudDiagnostic305.supabase='error';problems.push('Supabase API');}
+ }
+ renderAdmin();
+ if(problems.length)throw Error('Connector diagnosztika: '+problems.join(', ')+' · a zöld státusz letiltva.');
+ try{
+  window.toast&&window.toast(cloudDiagnostic305.supabase==='not-authenticated'?
+   'Dropbox ellenőrizve · Supabase Admin-belépés szükséges':
+   '✓ Dropbox és Supabase API ellenőrizve.');
+ }catch(e){}
+ return cloudDiagnostic305;
+}
 async function loadDevices(){
  if(!connected())return[];
  await ensureFolders();
@@ -229,7 +290,10 @@ async function loadDevices(){
  var statuses=await Promise.all(ds.map(async function(d){try{return await download(statusPath(d.deviceId))}catch(e){return null}}));
  ds.forEach(function(d,i){d.status=statuses[i]||null});
  ds.sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
- deviceCache=ds;return ds;
+ deviceCache=ds;lastCloudFetch305=Date.now();
+ // Private metadata mirror; never block Dropbox sync when Supabase is absent.
+ mirrorTelemetry305(ds).catch(function(){});
+ return ds;
 }
 function online(d){
  var age=Date.now()-Date.parse(d.lastSeenAt||0),limit=d.deviceType==='android'?20*60*1000:2.5*60*1000;
@@ -256,11 +320,20 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota'].includes(scope))throw new Error('Android távoli sync: FULL, Health + Activity, Daily vagy OTA választható.');
+ if(!['full','health','daily','ota','diagnostics','retry','samsung'].includes(scope))
+  throw new Error('Távoli parancs nincs az engedélyezett műveletek között.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
  });
  if(!selected.length)throw new Error('Nincs kijelölt, ehhez a profilhoz tartozó telefon. Az Eszközregiszterben állítsd be.');
+ if(['diagnostics','retry','samsung'].includes(scope)){
+  if(selected.some(function(d){return !(Array.isArray(d.capabilities)&&d.capabilities.includes(scope));}))
+    throw new Error('A kiválasztott telefon még nem támogatja ezt a távoli műveletet. A v0.15-ös Connect szükséges.');
+ }
+ if(selected.some(function(d){
+  var state=d.status||{},age=Date.now()-Date.parse(state.updatedAt||'');
+  return ['pending','running'].includes(state.state)&&Number.isFinite(age)&&age<10*60*1000;
+ }))throw new Error('Az egyik készüléken már folyamatban van egy parancs. Előbb frissítsd az állapotot.');
  if(new Set(selected.map(function(d){return d.activeProfile})).size!==selected.length)throw new Error('Duplikált fizikai telefon-hozzárendelés.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
@@ -293,21 +366,154 @@ function ensureStyle(){
  '.hhOrchHead305{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.hhOrchHead305 h3{margin:0;color:#173f62}.hhOrchHead305 small{display:block;color:#758a98;margin-top:2px;line-height:1.4}.hhOrchBadge305{font-size:7px;font-weight:900;padding:5px 7px;border-radius:999px;background:#e7f7ef;color:#18714c;white-space:nowrap}.hhOrchBadge305.off{background:#f0f3f6;color:#758392}'+
  '.hhOrchControls305{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhOrchControls305 button,.hhOrchControls305 select{border:1px solid #d8e4eb;border-radius:10px;padding:8px 9px;font-size:7.4px;font-weight:850;background:#f7fafc;color:#31536f}.hhOrchControls305 button.primary{background:#173f62;color:white;border-color:#173f62}.hhOrchControls305 button:disabled{opacity:.5}'+
  '.hhOrchControls305,.hhOrchDevices305{position:relative;z-index:2;pointer-events:auto!important}.hhOrchControls305 button,.hhOrchControls305 select,.hhOrchDevice305 button{position:relative;z-index:3;pointer-events:auto!important;touch-action:manipulation;cursor:pointer;min-height:34px}'+
- '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}';
+ '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}'+
+ '.hhOrchTelemetry305{grid-column:1/-1;min-width:0;padding:7px;background:#f7fbff;border-radius:10px}.hhOrchTelemetry305 summary{font-size:9px;font-weight:900;cursor:pointer;color:#244e6c;min-height:28px}.hhOrchTelemetry305 p{font-size:8px;line-height:1.55;color:#60798d}.hhOrchSrc305{margin:6px 0;padding:7px;border:1px solid #deebf3;border-radius:9px;background:white}.hhOrchSrc305 h5{font-size:9px;margin:0 0 7px;color:#173f62}.hhOrchGrid305{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.hhOrchGrid305 span{font-size:8.5px;overflow-wrap:anywhere;color:#31536f;line-height:1.4}.hhOrchGrid305 strong{font-size:7.5px;color:#698296}'+
+ '.hhOrchRags305{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.hhOrchRags305.cloud{margin:12px 0 8px}.hhRag305{display:inline-flex;align-items:center;gap:4px;border:1px solid #dce6ec;background:#f1f4f6;color:#526578;border-radius:9px;padding:6px 8px;font-size:8.5px;line-height:1.35;min-height:28px}.hhRag305 b{font-weight:850}.hhRag305 i{width:8px;height:8px;border-radius:50%;background:#95a5b1;flex:0 0 8px}.hhRag305.green{background:#ecf9f1;color:#15643f;border-color:#bce8ce}.hhRag305.green i{background:#24a05c}.hhRag305.amber{background:#fff9e9;color:#926117;border-color:#f2ddad}.hhRag305.amber i{background:#e8a232}.hhRag305.red{background:#fff0ee;color:#a7372a;border-color:#f2c4be}.hhRag305.red i{background:#d84b3b}.hhOrchRemote305{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px}.hhOrchRemote305 button{font-size:8px;font-weight:850;background:#eaf4fc;color:#164e77;border:1px solid #c9e1f0;border-radius:9px;padding:8px 7px;min-height:34px;cursor:pointer}.hhOrchRemote305 button:disabled{opacity:.43;cursor:not-allowed}'+
+ '.hhOrchPolicy305{grid-column:1/-1;border:1px solid #dbe7ef;background:#fafcfd;border-radius:9px;padding:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.hhOrchPolicy305 label{font-size:8.5px;font-weight:850;color:#375b74}.hhOrchPolicy305 select{margin-left:5px;min-height:32px;border:1px solid #c9dde9;border-radius:8px;background:#fff;padding:6px;font-size:10px}.hhOrchPolicy305 button{min-height:32px;border:1px solid #b5d5e9;background:#e7f6ff;border-radius:8px;font-weight:850;color:#155878;padding:6px 10px;font-size:9px}.hhOrchPolicy305 button:disabled,.hhOrchPolicy305 select:disabled{opacity:.5}.hhOrchPolicy305 small{font-size:8px;color:#728b9c;flex-basis:100%}';
  document.head.appendChild(s);
+}
+var telemetryOpen305=new Set();
+// Red / Amber / Green status derived from READ and VERIFIED UPLOAD times,
+// not from the mere freshness of a heartbeat or a file export timestamp.
+function rag305(type,d){
+ var t=d&&d.collectorTelemetry||{},src=type==='samsung'?t.samsung:t.healthConnect;
+ if(type==='phone'){
+  if(!d||!d.lastSeenAt)return {level:'unknown',label:'Nincs jelentkezés'};
+  var seen=Date.now()-Date.parse(d.lastSeenAt);
+  if(!Number.isFinite(seen)||seen<0)return {level:'unknown',label:'Időbélyeg hibás'};
+  if(seen<=45*60000)return {level:'green',label:'Kapcsolódott'};
+  if(seen<=8*3600000)return {level:'amber',label:'Késik a jelzés'};
+  return {level:'red',label:'Régóta nem jelentkezett'};
+ }
+ if(type==='dropbox'){
+  if(!t||t.schema!=='healthhub.collector.telemetry/1')return {level:'unknown',label:'Nincs telemetria'};
+  if(t.connectedToDropbox===false)return {level:'red',label:'Újraengedélyezés kell'};
+  if(t.connectedToDropbox!==true)return {level:'unknown',label:'Ismeretlen kapcsolat'};
+  return rag305('phone',d).level==='green'?{level:'green',label:'Kapcsolat jelentve'}:
+   {level:'amber',label:'Kapcsolat állapota régi'};
+ }
+ if(!src||typeof src!=='object')return {level:'unknown',label:'Nincs diagnosztika'};
+ if(type==='samsung'&&src.sdkIncluded===false)return {level:'unknown',label:'SDK még nincs'};
+ if(src.autoEnabled===false)return {level:'unknown',label:'Automatika kikapcsolva'};
+ if(src.needsUserAction===true)return {level:'red',label:'Telefonos jóváhagyás kell'};
+ if(src.errorKind&&src.errorKind!=='none')return {level:'red',label:'Hiba: '+src.errorKind};
+ var stamp=src.lastVerifiedUploadAt||src.lastUploadAt||null;
+ if(!stamp)return {level:'amber',label:'Még nincs feltöltés'};
+ var age=Date.now()-Date.parse(stamp);
+ if(!Number.isFinite(age)||age<0)return {level:'unknown',label:'Időbélyeg hibás'};
+ if(age>24*3600000)return {level:'red',label:'24 óránál régebbi'};
+ if(age>8*3600000)return {level:'amber',label:'Késő feltöltés'};
+ var readAge=Date.now()-Date.parse(src.lastReadAt||'');
+ if(!Number.isFinite(readAge)||readAge<0||readAge>8*3600000)return {level:'amber',label:'Olvasás ellenőrzendő'};
+ var day=Date.parse((src.latestDataDay||'')+'T23:59:59Z');
+ if(!Number.isFinite(day)||Date.now()-day>48*3600000)return {level:'amber',label:'Mérés dátuma régi'};
+ return {level:'green',label:'Friss olvasás és feltöltés'};
+}
+function ragBadge305(name,state){
+ var level=state&&state.level||'unknown',label=state&&state.label||'Nem ismert';
+ return '<span class="hhRag305 '+level+'" title="'+esc(label)+'"><i aria-hidden="true"></i>'+
+  '<b>'+esc(name)+'</b> '+esc(label)+'</span>';
+}
+function remotePolicy305(d,selected){
+ var t=d&&d.collectorTelemetry,policy=t&&t.remotePolicy;
+ var allowed=!!(selected&&d.deviceType==='android'&&
+  Array.isArray(d.capabilities)&&d.capabilities.includes('samsung')&&
+  t&&t.samsung&&t.samsung.autoEnabled===true&&policy&&!policy.trial);
+ if(!policy||!Array.isArray(d.capabilities)||!d.capabilities.includes('samsung'))
+  return '';
+ var current=Number(policy.syncIntervalHours)||4;
+ return '<div class="hhOrchPolicy305">'+
+  '<label>Samsung időzítés <select data-hh-policy-hours="'+esc(d.deviceId)+'" '+(allowed?'':'disabled')+'>'+
+  [4,6,8,12,24].map(function(h){return '<option value="'+h+'"'+(h===current?' selected':'')+'>'+h+' óra</option>'}).join('')+
+  '</select></label><button type="button" data-hh-policy-send="'+esc(d.deviceId)+'" '+(allowed?'':'disabled')+'>☁️ Beállítás küldése</button>'+
+  '<small>'+esc(policy.trial?'A/B próba folyamatban.':(policy.lastReason||'Engedélyezett, korlátozott távoli ütemezés.'))+'</small></div>';
+}
+async function pushPolicy305(deviceId,hours){
+ if(!connected())throw Error('Dropbox Vault nincs csatlakoztatva.');
+ hours=Number(hours);if(![4,6,8,12,24].includes(hours))throw Error('Érvénytelen időzítés.');
+ var r=await verifiedPhoneRegistry(),devices=await loadDevices(),d=devices.find(function(x){return x.deviceId===deviceId});
+ if(!d||!eligiblePhone(d,r,d.activeProfile))throw Error('Nem kijelölt telefon.');
+ var t=d.collectorTelemetry,policy=t&&t.remotePolicy;
+ if(!policy||policy.trial||!t.samsung||t.samsung.autoEnabled!==true||!Array.isArray(d.capabilities)||!d.capabilities.includes('samsung'))
+  throw Error('A Samsung ütemezés nem módosítható: telepítés, telefonos engedély vagy korábbi próba hiányzik.');
+ var service=window.HH_DAILY_HEALTH_SYNC_V319,auth=service&&service.getStatus&&service.getStatus();
+ if(!auth||!auth.authenticated||!Array.isArray(auth.authorizedProfiles)||!auth.authorizedProfiles.includes(d.activeProfile))
+  throw Error('Hitelesített, jogosult HealthHub Admin-belépés szükséges.');
+ if(hours===Number(policy.syncIntervalHours))throw Error('Ez az időzítés már aktív.');
+ if(!window.confirm('Samsung adatgyűjtés: '+esc(d.name||d.activeProfile)+' · '+hours+' óránként? A telefon a következő jelentkezéskor veszi át.'))return false;
+ var revision=Math.max(Number(policy.lastSeenRevision)||0,Number(policy.activeRevision)||0,Number(policy.verifiedRevision)||0)+1;
+ if(!Number.isSafeInteger(revision)||revision<1||revision>1000000000)throw Error('Konfigurációs revízió érvénytelen.');
+ await ensureFolder(CONFIGS);
+ var issued=now(),payload={schema:'healthhub.collector.config/1',deviceId:d.deviceId,
+  profile:d.activeProfile,revision:revision,issuedAt:issued,
+  expiresAt:new Date(Date.now()+7*86400000).toISOString(),samsungSyncHours:hours};
+ await upload(CONFIGS+'/'+d.deviceId+'.json',payload);
+ try{window.toast&&window.toast('✓ Ütemezés elküldve · átvétel a telefon következő jelentkezésekor')}catch(e){}
+ await refreshAdmin(true);
+ return true;
+}
+function remoteActions305(d,selected){
+ if(d.deviceType!=='android')return '';
+ var caps=Array.isArray(d.capabilities)?d.capabilities:[],disabled=selected?'':' disabled title="Előbb jelöld ki a fizikai telefont az Eszközregiszterben"';
+ var buttons=[
+  ['health','❤️ HC SYNC'],['samsung','⌚ SAMSUNG'],['diagnostics','🔎 DIAG'],
+  ['retry','↻ RETRY'],['ota','📦 OTA CHECK']
+ ];
+ return '<div class="hhOrchRemote305">'+buttons.map(function(x){
+  var supported=caps.includes(x[0])||(x[0]==='health'&&d.deviceType==='android')||(x[0]==='ota'&&d.deviceType==='android');
+  return '<button type="button" data-hh-remote-action="'+esc(x[0])+'" data-hh-remote-device="'+esc(d.deviceId)+'" '+
+   (supported?disabled:'disabled title="Ez a Connect verzió még nem támogatja"')+'>'+esc(x[1])+'</button>'
+ }).join('')+'</div>';
+}
+function telemetryPanel305(d){
+ var marker=' data-telemetry-id="'+esc(d.deviceId)+'"'+(telemetryOpen305.has(d.deviceId)?' open':'');
+ var t=d&&d.collectorTelemetry;
+ if(!t||t.schema!=='healthhub.collector.telemetry/1')return '<details class="hhOrchTelemetry305"'+marker+'><summary>🔎 Adatmonitoring</summary><p>Telemetria a v0.15 Thin Collector telepítése után érkezik.</p></details>';
+ function fmt(x){var v=Date.parse(x||'');return Number.isFinite(v)?new Date(v).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}
+ function cell(a,b){return '<span><strong>'+esc(a)+'</strong><br>'+esc(b==null?'—':String(b))+'</span>'}
+ function source(title,v,samsung){v=v||{};return '<section class="hhOrchSrc305"><h5>'+esc(title)+(v.alert?' ⚠':'')+'</h5><div class="hhOrchGrid305">'+
+ cell('Automatika',v.autoEnabled===true?'BE':v.autoEnabled===false?'KI':'—')+
+ (samsung?cell('SDK',v.sdkIncluded===true?'elérhető':'hiányzik'):'')+
+ cell('Adatnap',v.latestDataDay||'—')+cell('Olvasás',fmt(v.lastReadAt))+
+ cell('Feltöltés',fmt(v.lastVerifiedUploadAt||v.lastUploadAt))+
+ cell('Napi rekordok',v.dailyRecordCount)+
+ cell('Hibakategória',v.errorKind==='none'?'nincs':v.errorKind||'—')+
+ (samsung?cell('Kalóriaadat · napok',v.daysWithActiveCalories):cell('Edzések',v.exerciseRecordCount))+
+ '</div></section>'}
+ var cfg=t.remotePolicy||{};
+ return '<details class="hhOrchTelemetry305"'+marker+'><summary>🔎 Adatmonitoring · HC + Samsung'+((t.samsung&&t.samsung.alert)||(t.healthConnect&&t.healthConnect.alert)?' ⚠':'')+'</summary>'+
+ '<p>Források, dátumok, rekordszámok, hibák. Nincsenek benne egészségügyi mért értékek.</p>'+
+ source('❤️ Health Connect',t.healthConnect,false)+source('⌚ Samsung Health',t.samsung,true)+
+ '<p>Ütemezés: '+esc(String(cfg.syncIntervalHours||4))+' óra · A/B verzió: '+esc(String(cfg.activeRevision||0))+(cfg.trial?' · próba':'')+
+ ' · Jelentés: '+esc(fmt(t.reportedAt))+'</p></details>'
 }
 function renderAdmin(){
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
- ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
+ ensureStyle();var old=document.getElementById(ADMIN_ID);
+ if(old){telemetryOpen305=new Set(Array.from(old.querySelectorAll('details.hhOrchTelemetry305')).filter(function(n){return n.open}).map(function(n){return n.getAttribute('data-telemetry-id')}).filter(Boolean));old.remove()}
  var rows=deviceCache.map(function(d){
   var isPrimary=phoneRegistryCache&&eligiblePhone(d,phoneRegistryCache,'all');
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
-  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button></div>';
+  return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button>'+
+  '<div class="hhOrchRags305">'+ragBadge305('Telefon',rag305('phone',d))+ragBadge305('Health Connect',rag305('health',d))+ragBadge305('Samsung',rag305('samsung',d))+ragBadge305('Dropbox',rag305('dropbox',d))+'</div>'+
+  remoteActions305(d,isPrimary)+remotePolicy305(d,isPrimary)+telemetryPanel305(d)+'</div>';
  }).join('');
- var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ var cloudSvc=window.HH_DAILY_HEALTH_SYNC_V319,cloudStatus=null;
+  try{cloudStatus=cloudSvc&&cloudSvc.getStatus&&cloudSvc.getStatus()}catch(e){}
+  var cloudCheckRecent=Date.now()-cloudDiagnostic305.lastChecked<15*60000;
+  var dbStatus=!cloudStatus||!cloudStatus.authenticated?{level:'unknown',label:'Admin-belépés szükséges'}:
+    cloudCheckRecent&&cloudDiagnostic305.supabase==='error'?{level:'red',label:'Supabase API hiba'}:
+    ((cloudCheckRecent&&cloudDiagnostic305.supabase==='ok')||Object.keys(telemetryMirror305).length?
+      {level:'green',label:'API / mentés ellenőrizve'}:{level:'amber',label:'Hitelesítve, adatkapcsolat ellenőrzendő'});
+  var dropStatus=!connected()?{level:'red',label:'Vault nincs csatlakoztatva'}:
+    cloudCheckRecent&&cloudDiagnostic305.dropbox==='error'?{level:'red',label:'Dropbox API hiba'}:
+    (lastCloudFetch305&&Date.now()-lastCloudFetch305<15*60000?
+      {level:'green',label:'Visszaigazolt felhőkapcsolat'}:{level:'amber',label:'Felhőkapcsolat ellenőrzésre vár'});
+  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🛡️ HealthHub · Remote Control Center</h3><small>Eszközönkénti RAG monitoring · Dropbox vezérlőcsatorna · v0.15 kísérleti funkciók</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
+  '<div class="hhOrchRags305 cloud">'+ragBadge305('Dropbox Admin',dropStatus)+ragBadge305('Supabase Admin',dbStatus)+'</div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button><button id="hhOrchCloudTest305">🔌 CONNECTOR TEST</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
- '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
+ '<div class="hhOrchNote305"><b>v0.15 biztonság:</b> Csak a v401-ben kijelölt telefonok fogadnak távoli parancsot. A Samsung-szinkronhoz előzetes helyi Samsung-engedélyezés kell. A RAG a dátumozott beolvasásból és feltöltésből számolódik. PENDING / QUEUED nem egyenlő a sikerrel; Android háttérfeladatok késhetnek.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
  var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
@@ -328,7 +534,22 @@ function ensureOrchestratorHandlers(){
   var btn=e.target.closest&&e.target.closest('button');
   if(!btn||!btn.closest('#'+ADMIN_ID))return;
   var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
+  var policyId=btn.getAttribute('data-hh-policy-send');
+  if(policyId){
+   if(btn.disabled)return;
+   var field=Array.from(btn.closest('.hhOrchPolicy305').querySelectorAll('select')).find(function(x){return x.getAttribute('data-hh-policy-hours')===policyId});
+   if(!field)return;
+   orchInteractingUntil=Date.now()+5000;
+   pushPolicy305(policyId,field.value).catch(toastErr);return;
+  }
+  var action=btn.getAttribute('data-hh-remote-action'),remoteDevice=btn.getAttribute('data-hh-remote-device');
+  if(action&&remoteDevice){
+   if(btn.disabled||!['health','samsung','diagnostics','retry','ota'].includes(action))return;
+   orchInteractingUntil=Date.now()+5000;
+   dispatch('all',remoteDevice,action).catch(toastErr);return;
+  }
   if(id==='hhOrchRefresh305'){refreshAdmin(true);return}
+  if(id==='hhOrchCloudTest305'){testCloudConnectors305().catch(toastErr);return}
   var job=id==='hhOrchAll305'?dispatch('all'):
    id==='hhOrchZ305'?dispatch('zsolt'):
    id==='hhOrchM305'?dispatch('monika'):
