@@ -7,6 +7,7 @@ const native=path.join(base,'android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const read=(p)=>fs.readFileSync(p,'utf8');
 const worker=read(path.join(native,'OrchestratorWorker.kt'));
 const diag=read(path.join(native,'OneTechnicalDiagnostics.kt'));
+const ops=read(path.join(native,'OneOpsLog.kt'));
 const activity=read(path.join(native,'MainActivity.kt'));
 const adm=read(path.join(base,'live-v305.js'));
 const service=read(path.join(base,'hh-one-rag-v500.js'));
@@ -19,6 +20,11 @@ assert.match(build,/versionName = "0.14.1"/);
 assert.match(diag,/KEY_CONSENT/);
 assert.match(diag,/getBoolean\(KEY_CONSENT, false\)/);
 assert.match(diag,/getGrantedPermissions\(\)/);
+assert.match(diag,/OneOpsLog\.recent\(prefs\)/);
+assert.match(ops,/private const val MAX = 24/);
+assert.match(ops,/operation !in OPERATIONS \|\| state !in STATES/);
+assert.match(ops,/code\.take\(50\)/);
+assert.match(worker,/OneOpsLog\.record\(prefs, "orchestrator", state\)/);
 for(const key of ['healthConnectAvailable','healthReadPermissionCount','lastHealthSyncAt',
  'lastHealthAttemptAt','lastOtaCheckAt','hasDropboxRefreshToken'])
  assert.ok(diag.includes(key),'missing technical metric '+key);
