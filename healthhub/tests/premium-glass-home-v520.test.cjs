@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=523-monika-approved-hero/);
+assert.match(html,/premium-glass-home-v520\.js\?v=524-hero-profile-sync/);
 assert.match(source,/params\.get\('hhpremium'\)!=='1'/,'preview must be opt-in');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -20,7 +20,7 @@ assert.match(monikaHeroSection,/data-hhpg-profile="m"/,'Mónika only');
 assert.doesNotMatch(monikaHeroSection,/data-hhpg-profile="z"/,'no Zsolt image changes');
 assert.match(monikaHeroSection,/background-size:cover!important/,'photo fills the Hero without stretching');
 assert.doesNotMatch(source,/fetch\(|XMLHttpRequest|localStorage\.setItem/,'preview never writes profile or health data');
-assert.match(source,/premium-glass-home-v520\.css\?v=523-approved-budapest-hero/,'rose preview CSS cache busted');
+assert.match(source,/premium-glass-home-v520\.css\?v=524-inline-hero-fixed/,'rose preview CSS cache busted');
 const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1];
 assert.ok(pink,'Mónika-only glass enhancements exist');
 assert.match(pink,/data-hhpg-profile="m"/,'pink is exclusively under Mónika data attribute');
@@ -48,7 +48,14 @@ function load(query){
  let selected='z';const pageCalls=[],opened=[];
  const host=new Fake('main'),old=new Fake('div');
  old.parentNode=host;host.children=[old];
- const profile=new Fake('button');
+ const profile=new Fake('button'),hero=new Fake('div');
+ const styles={};
+ hero.style={
+  getPropertyValue(k){return styles[k]||''},
+  setProperty(k,v,priority){assert.equal(priority,'important');styles[k]=v},
+  _values:styles
+ };
+ hero.style.setProperty('background-image','url("./assets/hero-home-z-approved-v215.webp?v=215")','important');
  const avatars=[{src:'data:image/png;base64,profilez'},{src:'data:image/png;base64,profilem'}];
  const oldTiles=['Sleep','Activity','Nutrition','Ask Léna','Receptár'];
  const legacy=oldTiles.map(name=>{const e=new Fake('button');e.titleNode={textContent:name};return e});
@@ -64,6 +71,7 @@ function load(query){
   querySelector(q){
    if(q==='#home .homeModules')return old;
    if(q==='#home #heroHome .profileHit')return profile;
+   if(q==='#home #heroHome')return hero;
    return null;
   },
   querySelectorAll(q){
@@ -75,20 +83,40 @@ function load(query){
  };
  const location={search:query,href:'https://example.test/healthhub/index.html'+query,assign(url){opened.push(url)}};
  const window={
+  listeners:{},
+  MutationObserver:class{constructor(cb){hero.mutationCallback=cb}observe(target){assert.equal(target,hero)}},
   location,localStorage:{getItem(k){assert.equal(k,'hh-profile');return selected}},
   show(id){pageCalls.push(id)},hhOpenActivity(){pageCalls.push('activity')},
   hhOpenLenaSmart299(){pageCalls.push('ask')},
   HH_DAILY_HEALTH_V312:{open(){pageCalls.push('dailyhealth')}},
-  addEventListener(){},toast(s){opened.push('toast:'+s)}
+  addEventListener(key,fn){this.listeners[key]=fn},toast(s){opened.push('toast:'+s)}
  };
  vm.runInNewContext(source,{window,document,URLSearchParams,URL});
- return {document,host,profile,legacy,healthStrip,window,pageCalls,opened,setProfile(p){selected=p}};
+ return {document,host,hero,profile,legacy,healthStrip,window,pageCalls,opened,setProfile(p){selected=p}};
 }
 const off=load('?hhv=407');
 assert.equal(off.host.children.length,1,'default Home remains byte-for-byte unmigrated in DOM');
 assert.equal(off.window.HH_PREMIUM_HOME_V520,undefined,'no preview API outside explicit opt-in');
 const on=load('?hhv=407&hhpremium=1');
 const grid=on.host.children.find(n=>n.id==='hhPremiumGrid520');
+
+// The legacy v216 Home sets the image using INLINE !important, which previously
+// defeated the v523 stylesheet override. Assert the real canonical switch event
+// changes both the theme and the inline image without leaking profiles.
+assert.equal(typeof on.window.listeners['healthhub:profile-changed'],'function');
+assert.equal(on.hero.style.getPropertyValue('height'),'228px');
+on.setProfile('m');
+on.window.listeners['healthhub:profile-changed']();
+assert.equal(on.document.documentElement.dataset.hhpgProfile,'m');
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('hero-digital-health-approved%20.png'));
+on.hero.style.setProperty('background-image','url("./assets/hero-home-m-approved-v215.webp?v=215")','important');
+on.hero.mutationCallback();
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('hero-digital-health-approved%20.png'),'legacy delayed repaint repaired');
+on.setProfile('z');
+on.window.listeners['healthhub:profile-changed']();
+assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
+assert.ok(!on.hero.style.getPropertyValue('background-image').includes('hero-digital-health-approved%20.png'),'Zsolt image restored');
+
 assert.ok(grid,'the preview Home inserts a distinct 12-tile grid');
 assert.equal(grid.children.length,12);
 assert.equal(grid.children.map(n=>n.dataset.key).join('|'),

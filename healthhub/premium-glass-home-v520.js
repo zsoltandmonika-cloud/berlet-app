@@ -27,7 +27,7 @@
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
- style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=523-approved-budapest-hero';
+ style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=524-inline-hero-fixed';
  document.head.appendChild(style);
  function legacyButton(name){
   var buttons=document.querySelectorAll('#home .homeModules .homeModule');
@@ -87,9 +87,33 @@
   try{p=root.localStorage.getItem('hh-profile')}catch(_){}
   return p==='m'||p==='monika'?'m':'z';
  }
+ 
+ // v524: legacy Home v216 writes the image as an inline !important declaration.
+ // Stylesheet !important cannot override that. Enforce the approved asset at the
+ // same inline priority, and reapply after legacy delayed paints / profile changes.
+ function syncApprovedHero(){
+  var hero=document.querySelector('#home #heroHome');
+  if(!hero||document.documentElement.dataset.hhPremiumPreview!=='on')return;
+  var current=hero.style.getPropertyValue('background-image')||'';
+  if(profile()==='m'){
+   if(current.indexOf('hero-digital-health-approved%20.png')<0){
+    hero.style.setProperty('background-image','url("./assets/hero-digital-health-approved%20.png")','important');
+   }
+  }else if(current.indexOf('hero-digital-health-approved%20.png')!==-1){
+   // Restore the original Zsolt v216 photo, not the Mónika image.
+   var original=root.HH_HOME_HERO_Z_V216?
+     'url("data:image/webp;base64,'+root.HH_HOME_HERO_Z_V216+'")':
+     'url("./assets/hero-home-z-approved-v215.webp?v=215")';
+   hero.style.setProperty('background-image',original,'important');
+  }
+  if(hero.style.getPropertyValue('height')!=='228px'){
+   hero.style.setProperty('height','228px','important');
+  }
+ }
  function updateProfile(){
   var p=profile();
   document.documentElement.dataset.hhpgProfile=p;
+  syncApprovedHero();
   var hit=document.querySelector('#home #heroHome .profileHit');
   if(hit){
    hit.setAttribute('aria-label','Profilváltás · '+(p==='m'?'Mónika':'Zsolt'));
@@ -126,7 +150,14 @@
   old.parentNode.insertBefore(grid,old);
   document.documentElement.dataset.hhPremiumPreview='on';
   updateProfile();
-  document.addEventListener('hh:profile-changed',updateProfile);
+  // The real canonical controller dispatches this on WINDOW, not "hh:..." on document.
+  root.addEventListener('healthhub:profile-changed',updateProfile);
+  document.addEventListener('hh:profile-changed',updateProfile); // older modules
+  var hero=document.querySelector('#home #heroHome');
+  if(hero&&typeof root.MutationObserver==='function'){
+   var observer=new root.MutationObserver(function(){syncApprovedHero()});
+   observer.observe(hero,{attributes:true,attributeFilter:['style']});
+  }
   root.addEventListener('storage',function(e){if(e.key==='hh-profile')updateProfile()});
   document.documentElement.dataset.hhPremiumTiles='12';
  }
