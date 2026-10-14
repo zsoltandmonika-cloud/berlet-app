@@ -340,7 +340,8 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
-                prefs.edit().remove("device_owner_profile").apply()
+                prefs.edit().remove("device_owner_profile")
+                    .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
                 updateOwnerUi()
                 status.text = "A telefon tulajdonosa feloldva. A következő SYNC NOW rögzíti az aktuális profilt."
             }
@@ -351,6 +352,43 @@ class MainActivity : ComponentActivity() {
             text = "🔄 SYNC NOW"
             setOnClickListener { syncNow() }
         })
+
+        root.addView(TextView(this).apply {
+            text = "🩺 HH One · Távoli műszaki diagnosztika"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        val diagnosisToggle = Button(this)
+        fun updateDiagnosticToggle() {
+            diagnosisToggle.text = if (OneTechnicalDiagnostics.consent(prefs))
+                "🟢 Műszaki diagnosztika ENGEDÉLYEZVE · visszavonás"
+            else "⚪ Műszaki diagnosztika KI · engedélyezés"
+        }
+        diagnosisToggle.setOnClickListener {
+            if (OneTechnicalDiagnostics.consent(prefs)) {
+                prefs.edit().putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
+                status.text = "Távoli műszaki diagnosztika letiltva."
+                OrchestratorScheduler.runNow(this@MainActivity)
+                updateDiagnosticToggle()
+            } else {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("HH One · Műszaki diagnosztika engedélyezése")
+                    .setMessage("A Service Center lekérdezheti az Agent verzióját, a jogosultságok állapotát, " +
+                        "a szinkronidőpontokat és hibastátuszokat. Nem továbbít vérnyomást, leletet, gyógyszert, " +
+                        "apphasználati előzményeket vagy belépési titkokat. Bármikor kikapcsolható.")
+                    .setPositiveButton("Engedélyezem") { _, _ ->
+                        prefs.edit().putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, true).apply()
+                        OrchestratorScheduler.runNow(this@MainActivity)
+                        updateDiagnosticToggle()
+                    }
+                    .setNegativeButton("Mégsem", null)
+                    .show()
+            }
+        }
+        updateDiagnosticToggle()
+        root.addView(diagnosisToggle)
 
         root.addView(TextView(this).apply {
             text = "📦 HealthHub Connect · OTA Updates"
