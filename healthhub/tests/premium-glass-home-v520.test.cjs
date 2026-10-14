@@ -7,8 +7,8 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=527-zsolt-exact-upload/);
-assert.match(source,/params\.get\('hhpremium'\)!=='1'/,'preview must be opt-in');
+assert.match(html,/premium-glass-home-v520\.js\?v=528-default-home/);
+assert.ok(source.includes("params.get('hhpremium')==='0'"),'approved Home is default; classic is opt-out');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 assert.ok(css.includes('timeline-hero-v222.webp'),'Zsolt base preview hero remains unchanged');
@@ -113,10 +113,12 @@ function load(query){
  vm.runInNewContext(source,{window,document,URLSearchParams,URL});
  return {document,host,hero,profile,legacy,healthStrip,window,pageCalls,opened,setProfile(p){selected=p}};
 }
-const off=load('?hhv=407');
-assert.equal(off.host.children.length,1,'default Home remains byte-for-byte unmigrated in DOM');
-assert.equal(off.window.HH_PREMIUM_HOME_V520,undefined,'no preview API outside explicit opt-in');
-const on=load('?hhv=407&hhpremium=1');
+const off=load('?hhpremium=0');
+assert.equal(off.host.children.length,1,'explicit classic fallback never mounts Premium tiles');
+assert.equal(off.window.HH_PREMIUM_HOME_V520,undefined,'classic fallback has no Premium API');
+const on=load('?hhv=528');
+const explicitPremium=load('?hhpremium=1');
+assert.equal(explicitPremium.host.children.find(n=>n.id==='hhPremiumGrid520').children.length,12,'older preview bookmarks remain valid');
 const grid=on.host.children.find(n=>n.id==='hhPremiumGrid520');
 
 // The legacy v216 Home sets the image using INLINE !important, which previously
@@ -174,4 +176,4 @@ on.window.HH_PREMIUM_HOME_V520.go('dailyhealth');
 assert.equal(on.healthStrip.clicked,1,'Daily Health opens the existing consented report');
 on.window.HH_PREMIUM_HOME_V520.go('digital');
 assert.equal(on.opened[0],'https://example.test/healthhub/digital-health/');
-console.log('Premium Glass Home v520: opt-in, 12 tiles, actual routes, avatar profiles, unchanged default PASS');
+console.log('Premium Glass Home v528: default on, opt-out classic, 12 routes, two profiles, approved images PASS');

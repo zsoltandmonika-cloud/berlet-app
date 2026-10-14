@@ -7,6 +7,7 @@ on:
       - 'healthhub/premium-zsolt-hero-v527.css'
       - 'healthhub/assets/zsolt-hh-hero-approved-v527.png'
       - 'healthhub/index.html'
+      - 'healthhub/manifest.webmanifest'
       - 'healthhub/premium-home-compact-v525.js'
       - 'healthhub/premium-home-compact-v525.css'
       - 'healthhub/tests/premium-home-compact-v525.test.cjs'
@@ -14,6 +15,7 @@ on:
       - 'healthhub/home-hero-info-glass-v522.css'
       - 'healthhub/tests/home-hero-info-glass-v522.test.cjs'
       - 'healthhub/tests/premium-glass-home-v520.test.cjs'
+      - 'healthhub/tests/premium-home-compact-v525.test.cjs'
       - '.github/workflows/premium-glass-home-v520-qa.yml'
   push:
     branches: [main]

@@ -1,11 +1,11 @@
-/* HealthHub v525 · Premium Home only.
+/* HealthHub v528 · Premium Home by default; ?hhpremium=0 preserves original Home.
    Shorten the live date / nameday presentation without changing source elements,
    refreshers, profile data, weather requests, or the approved Léna Hero asset. */
 (function(root){
  'use strict';
  var query;
  try{query=new URLSearchParams(root.location.search)}catch(_){return}
- if(query.get('hhpremium')!=='1')return;
+ if(query.get('hhpremium')==='0')return;
 
  function compactDate(input){
   var raw=String(input||'').trim();
