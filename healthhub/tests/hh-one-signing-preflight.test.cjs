@@ -10,13 +10,21 @@ const gradle=fs.readFileSync(path.join(base,'healthhub/android-bridge/app/build.
 assert.match(manifest.version,/^0\.14\.[0-9]+$/,'signed OTA baseline must have a valid version');
 assert.ok(Number.isSafeInteger(manifest.versionCode)&&manifest.versionCode>=21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
-assert.deepEqual(manifest.rolloutProfiles,['zsolt']);
+assert.deepEqual(manifest.rolloutProfiles,['zsolt','monika'],'both owner profiles explicitly enabled for the existing signed OTA');
+assert.equal(manifest.version,'0.14.3','rollout changes the eligible owners, never the APK version');
+assert.equal(manifest.versionCode,23,'signed APK baseline code stays immutable');
+assert.equal(manifest.sha256,'e4016892c43280bbf108ee19ee726bc5dd9ff1dd88f47c58735919f747ad859a','published signed APK SHA unchanged');
 assert.match(manifest.sha256,/^[a-f0-9]{64}$/);
 const targetVersion=manifest.version.split('.').map(Number);
 targetVersion[2]++;
 const expectedVersion=targetVersion.join('.');
-assert.ok(gradle.includes('versionName = "'+expectedVersion+'"'),'candidate version must be exactly one signed patch newer');
-assert.ok(gradle.includes('versionCode = '+(manifest.versionCode+1)),'candidate versionCode must increment exactly once');
+const isExistingRelease=gradle.includes('versionName = "'+manifest.version+'"')&&
+ gradle.includes('versionCode = '+manifest.versionCode);
+const isNextPatch=gradle.includes('versionName = "'+expectedVersion+'"')&&
+ gradle.includes('versionCode = '+(manifest.versionCode+1));
+assert.ok(isExistingRelease||isNextPatch,
+ 'preflight accepts existing signed release for profile-only rollout OR the next signed patch');
+assert.ok(yml.includes('stage_candidate'),'preflight must explicitly skip candidate creation for profile-only rollout');
 for(const needle of [
  'healthhub/data/bridge-ota.json','BASE_VERSION','BASE_CODE','NEW_CODE',
  'gh release download "$RELEASE"',
