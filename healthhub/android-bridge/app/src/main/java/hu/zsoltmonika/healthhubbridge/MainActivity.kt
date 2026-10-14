@@ -149,6 +149,7 @@ class MainActivity : ComponentActivity() {
         DailyContentScheduler.schedule(this)
         OrchestratorScheduler.schedule(this)
         CollectionScheduler.reconcile(this)
+        scheduleDigitalAppDetailCatchUp()
         OrchestratorScheduler.runNow(this)
         OtaUpdateManager.schedule(this)
         updateScheduleUi()
@@ -805,6 +806,21 @@ class MainActivity : ComponentActivity() {
         updateOwnerUi()
         updateScheduleUi()
         return scroll
+    }
+
+    private fun scheduleDigitalAppDetailCatchUp() {
+        val p = PilotState.prefs(this)
+        val agreed = p.getBoolean(PilotState.ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_ENABLED, false) &&
+            p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+        if (!agreed || deviceOwnerProfile() == null || !UsageAccess.isGranted(this)) return
+        val lastRun = p.getLong(PilotState.LAST_RUN, 0L)
+        // Upgrade catch-up without waiting another six hours; never an alarm,
+        // never send observations from before the two recorded consent times.
+        if (System.currentTimeMillis() - lastRun > 60L * 60L * 1000L) {
+            CollectionScheduler.collectNow(this)
+        }
     }
 
     private fun updateDigitalStatus() {
