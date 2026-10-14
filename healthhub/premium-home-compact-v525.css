@@ -88,23 +88,51 @@ html[data-hh-premium-preview="on"]:has(#home.on) #hhOneFallback501:focus-visible
  outline:3px solid #bdeaff!important;outline-offset:2px!important;
 }
 
-/* v528.1 · Approved Premium Home corner micro-tuning (both profiles).
-   Keep the HH ONE live service badge functional, outside Home unchanged.
-   Use safe-area offsets for notched phones; portrait images stay original.
-   'darken' caps only near-white background pixels to the pastel profile tint
-   without globally colorizing darker skin, hair, clothes or photo details. */
-html[data-hh-premium-preview="on"]:has(#home.on) #hhOneFallback501,
-html[data-hh-premium-preview="on"]:has(#home.on) #hhOneRag500{
- left:calc(3px + env(safe-area-inset-left))!important;
- top:calc(3px + env(safe-area-inset-top))!important;
+/* v528.1 · Shared corner geometry across HealthHub Home, Timeline and Health.
+   The top and left/right gutters are precisely equal; badges stay interactive.
+   On wide screens, HH ONE aligns with the centered 420px HealthHub app,
+   not with the unrelated browser viewport edge. No data or photo edits. */
+html[data-hh-premium-preview="on"]{--hhpg-corner-inset:6px;}
+html[data-hh-premium-preview="on"] #hhOneFallback501,
+html[data-hh-premium-preview="on"] #hhOneRag500{
+ left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))!important;
+ top:calc(var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
 }
-html[data-hh-premium-preview="on"] #home #heroHome .profileHit{
- right:8px!important;top:8px!important;
- background-blend-mode:darken!important;
+@media(min-width:600px){
+ html[data-hh-premium-preview="on"] #hhOneFallback501,
+ html[data-hh-premium-preview="on"] #hhOneRag500{
+  top:calc(14px + var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
+ }
 }
-html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit{
- background-color:#ffe5f1!important; /* soft matching Mónika rose */
+/* Only the existing switch buttons receive portraits: no extra buttons or
+   click interception; the native on-page profile switch continues to work. */
+html[data-hh-premium-preview="on"] #home #heroHome .profileHit,
+html[data-hh-premium-preview="on"] #timeline #heroT .profileHit,
+html[data-hh-premium-preview="on"] #health #heroH .profileHit{
+ position:absolute!important;left:auto!important;
+ right:calc(var(--hhpg-corner-inset) + env(safe-area-inset-right))!important;
+ top:calc(var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
+ width:45px!important;height:45px!important;
+ border:2px solid var(--hhpg-accent)!important;border-radius:15px!important;
+ background-color:#1a3151!important;
+ background-size:cover!important;background-position:center!important;
+ background-repeat:no-repeat!important;background-blend-mode:darken!important;
+ box-shadow:0 4px 18px rgba(0,0,0,.46),0 0 14px var(--hhpg-soft)!important;
+ z-index:12!important;cursor:pointer;touch-action:manipulation;
 }
-html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .profileHit{
- background-color:#e6f7ff!important; /* soft matching Zsolt ice-blue */
+/* Make room for the top-right portrait beside the existing two Hero controls. */
+html[data-hh-premium-preview="on"] #timeline #heroT .heroBtns,
+html[data-hh-premium-preview="on"] #health #heroH .heroBtns{
+ right:68px!important;
+}
+/* Lightly tone the near-white image background without replacing the photo. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit,
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #timeline #heroT .profileHit,
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #health #heroH .profileHit{
+ background-color:#ffe5f1!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .profileHit,
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #timeline #heroT .profileHit,
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #health #heroH .profileHit{
+ background-color:#e6f7ff!important;
 }
