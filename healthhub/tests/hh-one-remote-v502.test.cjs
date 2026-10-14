@@ -33,6 +33,11 @@ for(const forbidden of ['healthRecords','medicalDocuments','rawAppUsage','userMe
 assert.match(activity,/Műszaki diagnosztika KI/);
 assert.match(activity,/putBoolean\(OneTechnicalDiagnostics.KEY_CONSENT, false\)/);
 assert.match(activity,/setPositiveButton\("Engedélyezem"/);
+assert.match(activity,/otaCheckFeedback = TextView\(this\)/,'visible OTA status next to button');
+assert.match(activity,/otaCheckFeedback\.text = "⏳ Frissítési kiszolgáló/,'immediate progress');
+assert.match(activity,/otaCheckButton\.isEnabled = false/,'guard repeated taps');
+assert.match(activity,/otaCheckButton\.isEnabled = true/,'restore after completion');
+assert.match(activity,/⚠️ OTA ellenőrzés sikertelen/,'network errors not reported as no-update');
 assert.match(worker,/if \(owner != null && OneTechnicalDiagnostics\.consent\(prefs\)\) it\.put\("diagnostics"\)/);
 assert.match(worker,/owner == null \|\| requestedOwner != owner/);
 assert.match(worker,/issued\.isBefore\(now\.minusSeconds/);
