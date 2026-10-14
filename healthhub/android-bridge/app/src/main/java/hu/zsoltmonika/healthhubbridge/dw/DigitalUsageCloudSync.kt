@@ -51,6 +51,33 @@ internal object DigitalUsageCloudSync {
                 .put("chatGptForegroundMs", r.chatGptForegroundMs)
                 .put("sessionFragments", r.sessionFragments))
         }
+        // Per-app package identities require a SECOND, separately approved
+        // family-cloud consent AND the earlier local detail consent.
+        val appArr = JSONArray()
+        val appShare = approved && !erase &&
+            p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+        val localConsent = p.getLong(PilotState.APP_DETAIL_CONSENT_START_MS, 0L)
+        val cloudConsent = p.getLong(PilotState.CLOUD_DETAIL_START_MS, 0L)
+        if (appShare && localConsent > 0L && cloudConsent > 0L) {
+            val since = maxOf(now - 30L * DAY,
+                ((maxOf(localConsent, cloudConsent) + UsageSessionizer.HOUR_MS - 1L) /
+                  UsageSessionizer.HOUR_MS) * UsageSessionizer.HOUR_MS)
+            val observedHourKeys = rows.map { it.hourStartMs }.toSet()
+            val appRows = AppDetailLedger.read(context, owner)
+                .filter { it.hourStartMs >= since && it.hourStartMs in observedHourKeys }
+            val byHour = appRows.groupBy { it.hourStartMs }
+            if (byHour.values.any { group ->
+                group.sumOf { it.observedForegroundMs } > UsageSessionizer.HOUR_MS
+            }) return false
+            appRows.forEach { r ->
+                appArr.put(JSONObject()
+                    .put("hourStartMs", r.hourStartMs)
+                    .put("packageName", r.packageName)
+                    .put("observedForegroundMs", r.observedForegroundMs)
+                    .put("sessionFragments", r.sessionFragments))
+            }
+        }
         // Empty record is valid: no completed observation OR sharing revoked.
         val data = JSONObject()
             .put("schema", SCHEMA)
@@ -61,6 +88,8 @@ internal object DigitalUsageCloudSync {
             .put("shared", approved && !erase)
             .put("missingIsUnknown", true)
             .put("hours", arr)
+            .put("appDetailShared", appShare && localConsent > 0L && cloudConsent > 0L)
+            .put("appHours", appArr)
         return try {
             if (PilotState.owner(context) != owner) return false
             if (!erase && !p.getBoolean(PilotState.CLOUD_ENABLED, false)) return false
