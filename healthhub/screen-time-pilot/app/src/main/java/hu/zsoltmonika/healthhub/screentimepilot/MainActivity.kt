@@ -2,6 +2,7 @@ package hu.zsoltmonika.healthhub.screentimepilot
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -13,6 +14,9 @@ import android.widget.Toast
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Calendar
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Standalone diagnostic app, not the production HealthHub Connect.
@@ -21,6 +25,8 @@ import java.util.Locale
 class MainActivity : Activity() {
     private lateinit var root: LinearLayout
     private lateinit var output: TextView
+    private val foregroundExecutor = Executors.newSingleThreadExecutor()
+    private val manualRunning = AtomicBoolean(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +72,7 @@ class MainActivity : Activity() {
                 message("A telefon Beállítások menüjében keresd: Használati adatokhoz való hozzáférés.")
             }
         }
-        button("3. Automatikus gyűjtés BE/KI (6 óránként)") {
+        button("3. Automatikus gyűjtés BE/KI") {
             val prefs = PilotState.prefs(this)
             val old = prefs.getBoolean(PilotState.ENABLED, false)
             if (old) {
@@ -81,7 +87,7 @@ class MainActivity : Activity() {
                 prefs.edit().putBoolean(PilotState.ENABLED, true).apply()
                 CollectionScheduler.reconcile(this)
                 CollectionScheduler.collectNow(this) // first observation, no manual entry
-                message("Automatikus helyi naplózás bekapcsolva. Android WorkManager: ~6 óránként, nem pontos órára.")
+                message("Automatikus helyi gyűjtés BE: WorkManager, saját időpontokkal kiegészítve. Az Android késleltetheti a futást.")
             }
             refresh()
         }
@@ -121,13 +127,84 @@ class MainActivity : Activity() {
                     .setNegativeButton("Mégsem", null).show()
             }
         }
-        button("Állapot megjelenítése / frissítése") { refresh() }
-        button("Egyszeri mintavétel (csak diagnosztika)") {
-            if (!PilotState.prefs(this).getBoolean(PilotState.ENABLED, false)) {
-                message("Előbb kapcsold be az engedélyezett automatikus gyűjtést.")
+        button("5. Automatikus gyakoriság (6 / 12 / 24 óra)") {
+            val options = arrayOf("6 óránként", "12 óránként", "24 óránként")
+            val values = CollectionSchedule.INTERVALS
+            val selected = values.indexOf(CollectionSchedule.intervalHours(this)).coerceAtLeast(0)
+            AlertDialog.Builder(this)
+                .setTitle("Automatikus alapgyűjtés")
+                .setMessage("Az egyedi napi időpontok az alapgyűjtés mellett működnek. Az Android a futást késleltetheti.")
+                .setSingleChoiceItems(options, selected) { dialog, which ->
+                    CollectionSchedule.setIntervalHours(this, values[which])
+                    CollectionScheduler.reconcile(this)
+                    dialog.dismiss()
+                    refresh()
+                }
+                .setNegativeButton("Mégsem", null).show()
+        }
+        button("6. Saját napi időpont hozzáadása") {
+            val now = Calendar.getInstance()
+            TimePickerDialog(this, { _, hour, minute ->
+                val value = String.format(Locale.ROOT, "%02d:%02d", hour, minute)
+                if (CollectionSchedule.addSlot(this, value)) {
+                    CollectionScheduler.reconcile(this)
+                    message("Napi célidőpont elmentve: $value (nem percre pontos Android-ébresztés).")
+                } else {
+                    message("Nem sikerült hozzáadni: már létezik vagy elérted a 8 időpontos korlátot.")
+                }
+                refresh()
+            }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true).show()
+        }
+        button("7. Saját napi időpont törlése") {
+            val slots = CollectionSchedule.slotStrings(this)
+            if (slots.isEmpty()) {
+                message("Még nincs egyéni napi időpont.")
             } else {
-                CollectionScheduler.collectNow(this)
-                message("Mintavétel elindítva. Az állapot frissítése után látod az eredményt.")
+                AlertDialog.Builder(this)
+                    .setTitle("Melyik napi célidőpontot töröljük?")
+                    .setItems(slots.toTypedArray()) { _, which ->
+                        if (CollectionSchedule.removeSlot(this, slots[which])) {
+                            CollectionScheduler.reconcile(this)
+                            message("Törölve: ${slots[which]}")
+                            refresh()
+                        }
+                    }
+                    .setNegativeButton("Mégsem", null).show()
+            }
+        }
+        button("Állapot megjelenítése / frissítése") { refresh() }
+        button("Egyszeri mintavétel MOST (valós visszajelzés)") {
+            when {
+                !PilotState.prefs(this).getBoolean(PilotState.ENABLED, false) ->
+                    message("Előbb engedélyezd az automatikus gyűjtést.")
+                PilotState.owner(this) == null ->
+                    message("Előbb rögzítsd a telefon tulajdonosát.")
+                !UsageAccess.isGranted(this) ->
+                    message("A használati adatokhoz való Android-hozzáférés hiányzik.")
+                !manualRunning.compareAndSet(false, true) ->
+                    message("Az egyszeri gyűjtés már folyamatban van.")
+                else -> {
+                    refresh()
+                    foregroundExecutor.execute {
+                        val result = runCatching {
+                            CollectionEngine.collect(applicationContext, "manual")
+                        }
+                        runOnUiThread {
+                            manualRunning.set(false)
+                            if (!isDestroyed) {
+                                refresh()
+                                result.fold(
+                                    onSuccess = { out ->
+                                        message("Egyszeri gyűjtés sikeres: ${out.storedHours} helyi óra, ${out.detailedAppHours} részletes app-óra.")
+                                    },
+                                    onFailure = { error ->
+                                        message("Gyűjtési hiba: ${error.javaClass.simpleName}. Nézd meg az állapotot.")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
         button("Gyűjtés leállítása és helyi napló törlése") {
@@ -135,16 +212,7 @@ class MainActivity : Activity() {
                 .setTitle("Helyi napló törlése?")
                 .setMessage("Az összes pilot mérést törlöm erről a telefonról és leállítom a gyűjtést.")
                 .setPositiveButton("Törlés") { _, _ ->
-                    val prefs = PilotState.prefs(this)
-                    prefs.edit().putBoolean(PilotState.ENABLED, false)
-                        .putBoolean(PilotState.APP_DETAIL_ENABLED, false)
-                        .remove(PilotState.APP_DETAIL_CONSENT_START_MS)
-                        .remove(PilotState.LAST_NOTE).remove(PilotState.LAST_RUN).apply()
-                    CollectionScheduler.stop(this)
-                    PilotState.owner(this)?.let {
-                        LocalLedger.clear(this, it)
-                        AppDetailLedger.clear(this, it)
-                    }
+                    CollectionEngine.clearAndStop(this)
                     refresh()
                 }
                 .setNegativeButton("Mégsem", null).show()
@@ -164,6 +232,11 @@ class MainActivity : Activity() {
         if (::output.isInitialized) refresh()
     }
 
+    override fun onDestroy() {
+        foregroundExecutor.shutdown()
+        super.onDestroy()
+    }
+
     private fun refresh() {
         val prefs = PilotState.prefs(this)
         val owner = PilotState.owner(this)
@@ -178,8 +251,17 @@ class MainActivity : Activity() {
             "Android Usage Access: " + if (permission) "engedélyezve ✓" else "NINCS engedély",
             "Automatikus gyűjtés: " + if (enabled) "BE" else "KI",
             "Részletes alkalmazáslista: " + if (detailed) "BE · külön jóváhagyva" else "KI",
-            "Ütemezés: WorkManager, kb. 6 óránként (Android nem garantálja a pontos időt)",
+            "Automatikus ütemezés: WorkManager, kb. ${CollectionSchedule.intervalHours(this)} óránként",
+            "Saját napi célidőpontok: " +
+                (CollectionSchedule.slotStrings(this).joinToString(", ").ifEmpty { "nincsenek" }),
+            "Következő saját célidőpont: " +
+                (CollectionSchedule.nextSlotFromDevice(this)?.let { date(it.toInstant().toEpochMilli()) }
+                    ?: "nincs beállítva") + " (az Android késhet)",
+            "Egyszeri helyi gyűjtés: " +
+                if (manualRunning.get()) "FOLYAMATBAN" else "készen áll",
             "Utolsó befejezett futás: " + if (last > 0) date(last) else "még nincs",
+            "Utolsó indítás forrása: " +
+                (prefs.getString(PilotState.LAST_COLLECTION_SOURCE, null) ?: "még nincs"),
             "Utolsó visszajelzés: " +
                 (prefs.getString(PilotState.LAST_NOTE, null) ?: "még nincs")
         )
@@ -216,7 +298,7 @@ class MainActivity : Activity() {
         lines.add("")
         lines.add("ADATVÉDELEM: első induláskor KI; explicit Android engedély; " +
             "óránkénti összegzés, és csak külön engedéllyel 30 napos app-lista; nincs INTERNET jogosultság; " +
-            "megosztás és AI-elemzés még NINCS.")
+            "megosztás, központi távoli indítás és AI-elemzés még NINCS.")
         output.text = lines.joinToString("\n")
     }
 
