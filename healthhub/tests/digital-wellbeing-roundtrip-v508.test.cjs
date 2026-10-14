@@ -45,7 +45,7 @@ const window={HH_DW_VAULT_V507:{
   const date=new Date(doc.collectedAtMs).toISOString().slice(0,10);
   return {observed:900000,chatgpt:180000,evening:120000,covered:4,
    dayHours:Array(24).fill(null),dayTotals:Array.from({length:days},()=>({date,foregroundMs:900000})),
-   topApps:[],appDetailShared:false};
+   topApps:doc.detail?[['com.openai.chatgpt',180000]]:[],appDetailShared:!!doc.detail};
  }
 }};
 vm.runInNewContext(fs.readFileSync(path.join(root,'digital-health/digital-live-v507.js'),'utf8'),
@@ -89,6 +89,14 @@ async function run(){
  assert.equal(el('timeline').children.length,30,'thirty calendar days');
  const d=api.refresh('zsolt','day');pending.shift().resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}]});await d;
  assert.equal(el('timeline').children.length,24,'twenty-four hourly slots');
+ const detailed=api.refresh('zsolt','day');
+ pending.shift().resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}],detail:true});
+ await detailed;
+ assert.equal(el('apps').children.length,1,'consented application should populate its list');
+ assert.equal(el('categories').children.length,1,'consented app should populate its category');
+ assert.equal(el('ringTotal').textContent,'3 perc','consented app should populate the ring');
+ assert.match(el('digitalAppDetails').textContent,/1 megjeleníthető alkalmazás/);
+
  console.log('HH One v508: simulated Dropbox readback source check, revision fencing and two-profile DOM isolation PASS');
 }
 run().catch(error=>{console.error(error);process.exitCode=1;});
