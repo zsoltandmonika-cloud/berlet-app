@@ -46,6 +46,9 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12
 .day{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:5px}
 .daybar{width:min(30px,85%);min-height:3px;background:linear-gradient(180deg,var(--accent),#3978ba);border-radius:8px 8px 3px 3px;height:var(--height)}
 .day b{font-size:10px;font-weight:650;color:#bdd0e6}
+.daybar.unknown{background:repeating-linear-gradient(90deg,#7895b6 0 2px,transparent 2px 5px);opacity:.58;min-height:4px}
+.daybar.future{background:repeating-linear-gradient(90deg,#465878 0 2px,transparent 2px 7px);opacity:.36;min-height:4px}
+.daybar.unknown,.daybar.future{border-radius:2px}
 .apps{display:grid;gap:12px;margin-top:14px}.app{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;column-gap:10px;font-size:12px}
 .appicon{width:36px;height:36px;display:grid;place-items:center;background:#263e57;border-radius:12px;font-size:17px}
 .appname{font-weight:750}.appdetail{font-size:10px;color:var(--muted);margin-top:3px}
@@ -224,7 +227,7 @@ body{
       <div id="apps" class="apps" aria-label="Alkalmazáslista"></div>
     </article>
     <article class="card span2 timecard">
-      <div class="title-row" style="margin:0"><h2>📅 Heti mintázat</h2><span class="micro">Hétfő–vasárnap · mérésre vár</span></div>
+      <div class="title-row" style="margin:0"><h2>📅 Heti mintázat</h2><span class="micro" id="weekRange">Aktuális hét · H–V</span></div>
       <div class="week" id="weekly" aria-label="Heti képernyőhasználati trend"></div>
     </article>
     <article class="card span2 appcard">
@@ -234,9 +237,9 @@ body{
     </article>
   </section>
 
-  <div class="title-row"><h2>🧠 Léna személyes értelmezése</h2><span class="micro">AI csak igazolt adatokból</span></div>
+  <div class="title-row"><h2>Léna elemzés</h2><span class="micro">AI csak igazolt adatokból</span></div>
   <section class="analysis" aria-label="Tervezett Léna elemzés">
-    <div class="analysis-head"><div class="avatar" aria-hidden="true">👩🏻‍⚕️</div><div><strong id="lenaHeading">Léna · Zsolt</strong><div class="micro">Sleep Intelligence × Digital Wellbeing</div></div></div>
+    <div class="analysis-head"><strong id="lenaHeading">Zsolt digitális ritmusa</strong></div>
     <p id="analysisText"></p>
     <div class="note">Még nincs személyre szóló AI-elemzés. Az alvás és a telefonhasználat közötti statisztikai összefüggés önmagában nem bizonyít okságot.</div>
   </section>
@@ -264,8 +267,8 @@ body{
   <button type="button" data-nav-info="További modulok következnek"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
 <div class="hhNavToast" id="hhDigitalNavToast" role="status" aria-live="polite" hidden></div>
-<script src="./digital-usage-vault-v507.js?v=507-private-source"></script>
-<script src="./digital-live-v507.js?v=509-period-rhythm"></script>
+<script src="./digital-usage-vault-v507.js?v=510-monday-week"></script>
+<script src="./digital-live-v507.js?v=510-monday-week"></script>
 <script>
 'use strict';
 (function(){
@@ -298,7 +301,7 @@ body{
     el('weekly').replaceChildren();
     for(const id of ['legend','apps','categories']) el(id).textContent='Nincs ellenőrzött adat';
     el('digitalUsageAccessState').textContent='Központi mérés ellenőrzése…';
-    el('lenaHeading').textContent='Léna · '+name+' digitális ritmusa';
+    el('lenaHeading').textContent=name+' digitális ritmusa';
     el('analysisText').textContent='Az első személyre szabott elemzés akkor készülhet el, ha a '+name+' profilhoz tartozó mérések ellenőrzött, hozzájárulással engedélyezett adatforrásból megérkeznek.';
     document.querySelectorAll('[data-profile]').forEach(b=>{const on=b.dataset.profile===profile;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
     document.querySelectorAll('[data-period]').forEach(b=>{const on=b.dataset.period===period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});

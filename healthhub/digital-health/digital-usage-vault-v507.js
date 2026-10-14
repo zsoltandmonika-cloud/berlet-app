@@ -80,6 +80,31 @@ function summary(doc,days,now=Date.now()){
  return {observed,chatgpt,evening,covered,days,dayHours,dayTotals,
   lastCollectedAtMs:doc.collectedAtMs,topApps:[...topApps].sort((a,b)=>b[1]-a[1]),appDetailShared:!!doc.appDetailShared,missingIsUnknown:true};
 }
+// The 'Heti mintázat' is the CURRENT Budapest calendar week, Monday–Sunday.
+// This is intentionally distinct from the rolling 7-day totals elsewhere.
+function calendarWeek(doc,now=Date.now()){
+ const today=local(now).date;
+ const ymd=today.split('-').map(Number);
+ const dow=(new Date(Date.UTC(ymd[0],ymd[1]-1,ymd[2],12)).getUTCDay()+6)%7;
+ const mondayUtcNoon=Date.UTC(ymd[0],ymd[1]-1,ymd[2]-dow,12);
+ const days=Array.from({length:7},(_,i)=>({
+  date:new Date(mondayUtcNoon+i*DAY).toISOString().slice(0,10),
+  foregroundMs:null,
+  future:false
+ }));
+ const byDate=new Map();
+ for(const hour of doc.hours){
+  if(hour.hourStartMs>now)continue;
+  const key=local(hour.hourStartMs).date;
+  if(key<days[0].date||key>today)continue;
+  byDate.set(key,(byDate.get(key)||0)+hour.observedForegroundMs);
+ }
+ for(const d of days){
+  d.future=d.date>today;
+  d.foregroundMs=byDate.get(d.date)??null;
+ }
+ return days;
+}
 async function cloudToken(){
  const live=root.HH_DROPBOX_VAULT;
  if(live&&live.connected&&live.connected()&&live.accessToken)return live.accessToken();
@@ -110,6 +135,6 @@ async function read(profile){
  if(!r.ok)throw Error('Dropbox adatolvasási hiba ('+r.status+')');
  const data=await r.json();return data&&data.shared===false?null:validate(data,profile);
 }
-root.HH_DW_VAULT_V507=Object.freeze({validate,summary,read,local,SCHEMA,SOURCE});
+root.HH_DW_VAULT_V507=Object.freeze({validate,summary,calendarWeek,read,local,SCHEMA,SOURCE});
 if(typeof module!=='undefined'&&module.exports)module.exports=root.HH_DW_VAULT_V507;
 })(typeof window==='undefined'?{}:window);

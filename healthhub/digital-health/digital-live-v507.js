@@ -52,18 +52,27 @@ function showBars(s,period){
  time.setAttribute('aria-label',name+' előtéridő naponként, a hiányzó adatok nem nullák');
 }
 function showWeek(doc){
- const s=vault.summary(doc,7);
+ // Current Budapest calendar week, not the rolling 7-day summary.
+ const points=vault.calendarWeek(doc);
  const days=$('weekly');days.replaceChildren();
- const max=Math.max(HOUR,...s.dayTotals.map(r=>r.foregroundMs||0));
+ const max=Math.max(1,...points.map(r=>r.foregroundMs||0));
  const dates=new Intl.DateTimeFormat('hu-HU',{weekday:'short',timeZone:'UTC'});
- for(const point of s.dayTotals){
+ for(const point of points){
    const d=row(days,'day');
    const bar=row(d,'daybar');
    const ms=point.foregroundMs;
-   bar.style.setProperty('--height',ms==null?'3px':Math.max(3,Math.round(ms/max*103))+'px');
-   bar.title=point.date+' · '+(ms==null?'nincs megfigyelés':duration(ms));
+   if(ms==null) {
+     bar.classList.add(point.future?'future':'unknown');
+     bar.style.setProperty('--height','4px');
+   } else {
+     bar.style.setProperty('--height',Math.max(4,Math.round(ms/max*103))+'px');
+   }
+   bar.title=point.date+' · '+(point.future?'még nem következett el':ms==null?'nincs megfigyelés':duration(ms));
+   d.setAttribute('aria-label',bar.title);
    row(d,'daylabel',dates.format(new Date(point.date+'T12:00:00Z')));
  }
+ const range=$('weekRange');
+ if(range)range.textContent=points[0].date.slice(5).replace('-','.')+'–'+points[6].date.slice(5).replace('-','.')+' · H–V';
 }
 function apps(s){
  const legend=$('legend'),list=$('apps'),categories=$('categories'),ring=document.querySelector('.ring');
