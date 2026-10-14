@@ -46,6 +46,8 @@ assert.match(html,/digital-live-v507\.js\?v=509-period-rhythm/);
 assert.match(html,/id="rhythmTitle"/);
 assert.match(html,/id="rhythmTicks"/);
 assert.match(html,/id="rhythmLegend"/);
+assert.doesNotMatch(html,/\.ring\{background:#26374e!important\}/,'measured ring cannot be masked by !important CSS');
+assert.match(html,/id="digitalAppDetails"/);
 assert.match(html,/HH_DW_LIVE_V507\.refresh\(profile,period\)/);
 const native=fs.readFileSync(path.join(base,'android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/dw/DigitalUsageCloudSync.kt'),'utf8');
 assert.match(native,/DropboxVaultClient\.PROFILES_DIR/);
