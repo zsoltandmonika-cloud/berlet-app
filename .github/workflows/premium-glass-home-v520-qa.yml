@@ -1,0 +1,34 @@
+name: HealthHub Premium Glass Home Preview QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/premium-glass-home-v520.js'
+      - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/premium-glass-home-v520.test.cjs'
+      - '.github/workflows/premium-glass-home-v520-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/premium-glass-home-v520.js'
+      - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/premium-glass-home-v520.test.cjs'
+      - '.github/workflows/premium-glass-home-v520-qa.yml'
+permissions:
+  contents: read
+jobs:
+  source-and-routes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript parser and source safety
+        run: |
+          node --check healthhub/premium-glass-home-v520.js
+          node --check healthhub/tests/premium-glass-home-v520.test.cjs
+      - name: Validate opt-in, 12 real module routes and privacy isolation
+        run: node healthhub/tests/premium-glass-home-v520.test.cjs
