@@ -95,7 +95,7 @@ function load(query){
   },
   querySelectorAll(q){
    if(q==='#overlay .choice img')return avatars;
-   if(q==='#home #heroHome .profileHit, #timeline #heroT .profileHit, #health #heroH .profileHit')return [profile,timelineProfile,healthProfile];
+   if(q==='.page .hero .profileHit')return [profile,timelineProfile,healthProfile];
    if(q==='#home .homeModules .homeModule')return legacy;
    return [];
   },
