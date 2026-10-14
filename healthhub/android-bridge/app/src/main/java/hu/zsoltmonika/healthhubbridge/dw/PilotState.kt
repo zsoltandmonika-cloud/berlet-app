@@ -10,6 +10,8 @@ internal object PilotState {
     const val ENABLED = "collection_enabled"
     const val CLOUD_ENABLED = "shared_vault_upload_opt_in"
     const val CLOUD_ERASE_PENDING = "shared_vault_tombstone_pending"
+    // Every consent mutation changes this monotonic generation so in-flight uploads cannot acknowledge stale consent.
+    const val CLOUD_REVISION = "shared_vault_consent_revision"
     const val CLOUD_DETAIL_ENABLED = "shared_vault_app_detail_opt_in"
     const val CLOUD_DETAIL_START_MS = "shared_vault_detail_consent_ms"
     const val LAST_CLOUD_SUCCESS = "last_cloud_upload_verified_ms"
