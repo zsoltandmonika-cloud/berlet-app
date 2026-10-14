@@ -24,6 +24,16 @@ for(const needle of [
  assert.ok(yml.includes(needle),'Missing signing gate: '+needle);
 }
 assert.ok(!yml.includes('RELEASE="healthhub-connect-ota-v0.14.0"'),'do not hardcode old baseline');
-assert.ok(!/gh release create|git push|gradle :app:assembleRelease|gh api -X POST/.test(yml),'read-only gate');
+const portions=yml.split('  signed-pilot-candidate:');
+assert.equal(portions.length,2,'staging job must be isolated');
+assert.ok(!/gh release create|git push|gradle :app:assembleRelease|gh api -X POST/.test(portions[0]),'preflight remains read-only');
+const candidate=portions[1];
+for(const needle of ['needs: [compare-signed-release-to-existing-keystore]',
+ 'github.event.pull_request.head.repo.full_name == github.repository',
+ 'gradle :app:testDebugUnitTest :app:assembleRelease',
+ 'apksigner','APK_CERT','KEY_CERT',
+ 'actions/upload-artifact@v4','NOT-LIVE',
+ 'retention-days: 3']) assert.ok(candidate.includes(needle),'signed staged APK safety: '+needle);
+assert.ok(!/gh release create|git push|bridge-ota\.json.*write/.test(candidate),'candidate must not publish OTA');
 assert.ok(release.includes("if: steps.signing.outputs.ready == 'true'"));
 console.log('HH One signing preflight: dynamic signed baseline, SHA and certificate check, read-only PASS');
