@@ -1,0 +1,86 @@
+name: HH One · Signing Compatibility Preflight
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/hh-one-signing-preflight.yml"
+      - "healthhub/tests/hh-one-signing-preflight.test.cjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare-signed-release-to-existing-keystore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert preflight invariants
+        run: node healthhub/tests/hh-one-signing-preflight.test.cjs
+      - name: Install JDK for public certificate extraction
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify configured OTA key against public v0.14.0 release
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "This is READ-ONLY: no APK signing, no release publication, no manifest changes."
+          if [[ -z "${HH_OTA_KEYSTORE_B64:-}" || -z "${HH_OTA_KEYSTORE_PASSWORD:-}" ||
+                -z "${HH_OTA_KEY_ALIAS:-}" || -z "${HH_OTA_KEY_PASSWORD:-}" ]]; then
+            echo "::warning::OTA signing secrets are missing or unavailable to this workflow."
+            echo "BLOCKED: signing credentials unavailable" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          TEMP="$(mktemp -d)"
+          trap 'rm -rf "$TEMP"' EXIT
+          KEYSTORE="$TEMP/private-signing-key.jks"
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 --decode > "$KEYSTORE"
+          chmod 600 "$KEYSTORE"
+          RELEASE="healthhub-connect-ota-v0.14.0"
+          APK_NAME="HealthHub-Connect-v0.14.0-ota.apk"
+          gh release download "$RELEASE" --pattern "$APK_NAME" --dir "$TEMP"
+          APK="$TEMP/$APK_NAME"
+          test -s "$APK"
+          EXPECTED_SHA="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["sha256"])')"
+          ACTUAL_SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
+          if [[ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]]; then
+            echo "::error::v0.14.0 release asset is not the one advertised to the phone."
+            exit 1
+          fi
+          # The signing certificate itself is PUBLIC, but no key/password is exported.
+          keytool -exportcert -alias "$HH_OTA_KEY_ALIAS" -keystore "$KEYSTORE" \
+            -storepass "$HH_OTA_KEYSTORE_PASSWORD" -keypass "$HH_OTA_KEY_PASSWORD" > "$TEMP/signing-cert.der"
+          KEY_CERT_SHA="$(sha256sum "$TEMP/signing-cert.der" | cut -d' ' -f1)"
+          # apksigner is Android SDK-provided and verifies the existing APK.
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0" >/dev/null
+          APK_CERTS="$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK")"
+          APK_CERT_SHA="$(printf '%s\n' "$APK_CERTS" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          if [[ ! "$APK_CERT_SHA" =~ ^[a-f0-9]{64}$ ]]; then
+            echo "::error::Cannot read v0.14.0 release certificate identity."
+            exit 1
+          fi
+          if [[ "$KEY_CERT_SHA" != "$APK_CERT_SHA" ]]; then
+            echo "::error::Configured OTA signing key does NOT match published v0.14.0 APK signing certificate. STOP rollout."
+            echo "BLOCKED: signing certificate mismatch" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "PASS: configured signing certificate matches public v0.14.0 OTA release."
+          echo "Existing release SHA256 verified against current OTA manifest."
+          {
+            echo "PASS: OTA keystore and published v0.14.0 release use the same signing certificate."
+            echo "APK certificate SHA-256 fingerprint: \`$APK_CERT_SHA\`"
+            echo ""
+            echo "**Device verification still needed:** the actual installed phone app may use a different signing key."
+            echo "This preflight does not install an APK or authorize unattended updates."
+          } >> "$GITHUB_STEP_SUMMARY"
