@@ -340,7 +340,8 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
-                prefs.edit().remove("device_owner_profile").apply()
+                prefs.edit().remove("device_owner_profile")
+                    .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
                 updateOwnerUi()
                 status.text = "A telefon tulajdonosa feloldva. A következő SYNC NOW rögzíti az aktuális profilt."
             }
