@@ -12,9 +12,10 @@ html[data-hh-digital-dock-profile="m"]{
  --hhpg-dock-portrait-bg:#ffe5f1;
  --hhpg-dock-portrait-border:#f8a9cf;
 }
-/* This is precisely the Home HH ONE fixed 420px app alignment. The
-   stronger selector beats the late-injected HH ONE service stylesheet. */
-html body #hhOneRag500,
+/* The HH ONE engine's stronger [data-surface="digital"] rule explicitly
+   relocates the badge bottom-right. Match the attribute AND add html/body
+   specificity, so Golden Standard wins even when service CSS loads last. */
+html body #hhOneRag500[data-surface="digital"],
 html body #hhOneFallback501{
  position:fixed!important;
  left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))!important;
@@ -30,7 +31,7 @@ html body #hhOneFallback501{
  box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 6px 19px rgba(0,5,19,.22),0 0 13px rgba(89,202,255,.21)!important;
  transition:none!important;animation:none!important;
 }
-html[data-hh-digital-dock-profile="m"] body #hhOneRag500,
+html[data-hh-digital-dock-profile="m"] body #hhOneRag500[data-surface="digital"],
 html[data-hh-digital-dock-profile="m"] body #hhOneFallback501{
  background:linear-gradient(125deg,rgba(15,23,47,.63),rgba(61,34,72,.47))!important;
  border-color:rgba(250,178,223,.53)!important;
@@ -60,18 +61,29 @@ html[data-hh-digital-dock-profile="m"] #hhDigitalProfileDock{
  box-shadow:0 4px 18px rgba(0,0,0,.46),0 0 17px rgba(244,124,194,.28)!important;
 }
 #hhDigitalProfileDock:focus-visible,
-html body #hhOneRag500:focus-visible{
+html body #hhOneRag500[data-surface="digital"]:focus-visible{
  outline:3px solid var(--hhpg-dock-accent)!important;outline-offset:3px!important;
 }
 @media(min-width:600px){
- html body #hhOneRag500,
+ html body #hhOneRag500[data-surface="digital"],
  html body #hhOneFallback501,
  #hhDigitalProfileDock{
   top:calc(14px + var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
  }
 }
-/* The existing Back control remains reachable below the fixed HH ONE pill. */
-.digital-back{top:44px}
+/* One profile photo at the fixed upper-right corner; no secondary buttons.
+   The existing bottom taskbar already provides Back/Home navigation.
+   Center the two-line tagline within the left side of the live-clock card. */
+.hero-stage .hero-copy{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ text-align:center;min-height:110px;padding-top:12px;
+}
+.hero-stage .hero-copy h1{
+ margin:0!important;max-width:100%;font-weight:850;text-wrap:balance;
+}
+@media(max-width:420px){
+ .hero-stage .hero-copy{min-height:106px;padding-top:12px}
+}
 /* The Digital Health bar now has the EXACT approved Home dark glass frame.
    Labels and navigation routes remain as they already worked. */
 .hhBottomNav{
