@@ -43,13 +43,15 @@ internal object DigitalUsageCloudSync {
     }
 
     private suspend fun uploadCurrent(context: Context): Boolean {
+        // Resolve and reconcile the canonical device owner BEFORE reading
+        // consent. An owner change may invalidate local consent state.
+        val owner = PilotState.owner(context) ?: return false
         val p = PilotState.prefs(context)
         val revision = p.getLong(PilotState.CLOUD_REVISION, 0L)
         val erase = p.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)
         val approved = p.getBoolean(PilotState.ENABLED, false) &&
             p.getBoolean(PilotState.CLOUD_ENABLED, false)
         if (!approved && !erase) return true
-        val owner = PilotState.owner(context) ?: return false
         val main = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
         if (main.getString("device_owner_profile", null) != owner) return false
         if (!DropboxVaultClient.hasRefreshToken(main)) {
