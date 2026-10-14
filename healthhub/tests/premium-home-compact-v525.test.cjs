@@ -17,12 +17,16 @@ assert.ok(source.includes("query.get('hhpremium')==='0'"),'classic opt-out guard
 assert.ok(source.includes("dataset.hhPremiumPreview!=='on'"),'mounted premium guard');
 assert.ok(css.includes('#hhOneRag500')&&css.includes('#hhOneFallback501'),'style both service controls');
 assert.ok(source.includes("premium-home-compact-v525.css?v=5281-hero-corners"),'new CSS query avoids stale cache');
-assert.match(css,/left:calc\(3px \+ env\(safe-area-inset-left\)\)!important/,'HH ONE moves slightly left without crossing safe area');
-assert.match(css,/top:calc\(3px \+ env\(safe-area-inset-top\)\)!important/,'HH ONE moves slightly up with safe area');
-assert.match(css,/right:8px!important;top:8px!important/,'profile avatar moves modestly up and right');
-assert.match(css,/background-blend-mode:darken!important/,'portrait white pixels get pastel tint without wholesale recoloring');
-assert.match(css,/data-hhpg-profile="m"\] #home #heroHome \.profileHit\{\s*background-color:#ffe5f1!important/,'Mónika portrait background is subtle rose');
-assert.match(css,/data-hhpg-profile="z"\] #home #heroHome \.profileHit\{\s*background-color:#e6f7ff!important/,'Zsolt portrait background is subtle ice-blue');
+assert.match(css,/--hhpg-corner-inset:6px/,'identical top and side gutter from a single CSS variable');
+assert.ok(css.includes('max(0px, 50vw - 210px)'),'HH ONE sticks to the centered HealthHub app on desktops');
+assert.ok(css.includes('left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))'),'HH ONE left gutter consistent');
+assert.ok(css.includes('top:calc(var(--hhpg-corner-inset) + env(safe-area-inset-top))'),'HH ONE mobile top gutter consistent');
+assert.ok(css.includes('right:calc(var(--hhpg-corner-inset) + env(safe-area-inset-right))'),'profile avatar right gutter matches pill left');
+assert.ok(css.includes('#timeline #heroT .profileHit')&&css.includes('#health #heroH .profileHit'),'existing Timeline and Health profile portraits kept');
+assert.ok(css.includes('right:68px!important'),'non-Home Hero tool buttons stay tappable beside avatar');
+assert.ok(css.includes('background-blend-mode:darken'),'subtle pastel tone without modifying source portraits');
+assert.match(css,/background-color:#ffe5f1!important/,'Mónika soft pink portrait background');
+assert.match(css,/background-color:#e6f7ff!important/,'Zsolt soft blue portrait background');
 assert.ok(!css.includes('background-image:url('),'portrait sources remain dynamic and untouched');
 
 assert.ok(css.includes(':has(#home.on)'),'glass only on active Home');
