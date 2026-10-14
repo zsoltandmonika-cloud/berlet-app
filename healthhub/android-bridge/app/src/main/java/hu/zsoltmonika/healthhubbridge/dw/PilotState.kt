@@ -8,6 +8,11 @@ internal object PilotState {
     private const val NAME = "hh_one_digital_usage_v1"
     const val OWNER = "bound_profile"
     const val ENABLED = "collection_enabled"
+    const val CLOUD_ENABLED = "shared_vault_upload_opt_in"
+    const val CLOUD_DETAIL_ENABLED = "shared_vault_app_detail_opt_in"
+    const val CLOUD_DETAIL_START_MS = "shared_vault_detail_consent_ms"
+    const val LAST_CLOUD_SUCCESS = "last_cloud_upload_verified_ms"
+    const val LAST_CLOUD_ERROR = "last_cloud_upload_error"
     // More sensitive application-level usage is a SECOND, explicit opt-in.
     const val APP_DETAIL_ENABLED = "app_detail_collection_enabled"
     // Do not retrospectively collect app identities from before this consent.
@@ -37,6 +42,9 @@ internal object PilotState {
         if (previouslyBound != primary) {
             p.edit()
                 .putBoolean(ENABLED, false)
+                .putBoolean(CLOUD_ENABLED, false)
+                .putBoolean(CLOUD_DETAIL_ENABLED, false)
+                .remove(CLOUD_DETAIL_START_MS)
                 .putBoolean(APP_DETAIL_ENABLED, false)
                 .remove(APP_DETAIL_CONSENT_START_MS)
                 .putString(OWNER, primary)
