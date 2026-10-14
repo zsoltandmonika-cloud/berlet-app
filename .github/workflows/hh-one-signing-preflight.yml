@@ -14,6 +14,8 @@ permissions:
 
 jobs:
   compare-signed-release-to-existing-keystore:
+    outputs:
+      stage_candidate: ${{ steps.verify.outputs.stage_candidate }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -32,6 +34,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Verify configured OTA key against current signed OTA baseline
+        id: verify
         shell: bash
         run: |
           set -euo pipefail
@@ -67,8 +70,15 @@ jobs:
           NEW_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           NEW_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           NEXT_VERSION="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "$BASE_VERSION")"
-          if [[ "$NEW_CODE" != "$((BASE_CODE+1))" || "$NEW_VERSION" != "$NEXT_VERSION" ]]; then
-            echo "::error::Signed candidate must be the next patch and next versionCode after live OTA manifest."
+          if [[ "$NEW_CODE" == "$BASE_CODE" && "$NEW_VERSION" == "$BASE_VERSION" ]]; then
+            # Only the profile allow-list changed. Verify the already-published signed APK;
+            # do not build or publish a redundant candidate, or force a new package.
+            echo "stage_candidate=false" >> "$GITHUB_OUTPUT"
+            echo "Read-only rollout extension: existing signed release v$BASE_VERSION."
+          elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && "$NEW_VERSION" == "$NEXT_VERSION" ]]; then
+            echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch."
             exit 1
           fi
           RELEASE="healthhub-connect-ota-v$BASE_VERSION"
@@ -114,7 +124,7 @@ jobs:
     name: Sign next patch candidate (artifact only; no OTA publish)
     needs: [compare-signed-release-to-existing-keystore]
     # Only a trusted same-repository PR may access the signing credential.
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.compare-signed-release-to-existing-keystore.outputs.stage_candidate == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
