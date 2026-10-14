@@ -89,10 +89,17 @@ function apps(s){
  if(!s.appDetailShared||!s.topApps.length){
    ring.style.background='conic-gradient(#304663 0% 100%)';
    text('ringTotal','—');
-   const message=!s.appDetailShared
-     ?'A családi alkalmazáslista külön megosztása még nincs engedélyezve ezen a telefonon.'
-     :'A részletes megosztás engedélyezett, de erre az időszakra még nincs engedélyezés utáni, lezárt alkalmazásóra. Új használat után az óraváltást követő mérés és Dropbox-szinkron szükséges.';
-   for(const el of [legend,list,categories])row(el,'note',message);
+   const last=Number.isSafeInteger(s.lastCollectedAtMs)
+    ?new Date(s.lastCollectedAtMs).toLocaleString('hu-HU',{dateStyle:'short',timeStyle:'short'})
+    :'nem ismert';
+   if(!s.appDetailShared){
+    row(list,'note','A családi alkalmazáslista külön megosztása még nincs engedélyezve ezen a telefonon.');
+    row(categories,'note','Alkalmazáskategóriákat csak külön engedélyezett alkalmazásadatból készítünk.');
+   }else{
+    row(list,'note','A részletes megosztás engedélyezett, de erre az időszakra még nincs engedélyezés utáni, lezárt alkalmazásóra.');
+    row(legend,'note','Az utolsó hiteles Dropbox-adatcsomag időpontja: '+last+'. A Digital Wellbeing külön ütemezéssel szinkronizál, nem a Health Connect időpontjaiban.');
+    row(categories,'note','Részletes alkalmazássor még nincs az utolsó adatcsomagban. Hiányzó adatot nem mutatunk nullaként.');
+   }
    return;
  }
  const all=s.topApps.reduce((sum,item)=>sum+item[1],0);
