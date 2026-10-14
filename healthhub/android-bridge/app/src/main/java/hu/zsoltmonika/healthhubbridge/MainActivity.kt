@@ -26,6 +26,7 @@ import hu.zsoltmonika.healthhubbridge.dw.AppDetailLedger
 import hu.zsoltmonika.healthhubbridge.dw.PilotState
 import hu.zsoltmonika.healthhubbridge.dw.UsageAccess
 import hu.zsoltmonika.healthhubbridge.dw.CollectionScheduler
+import hu.zsoltmonika.healthhubbridge.dw.CollectionSchedule
 import hu.zsoltmonika.healthhubbridge.dw.CollectionEngine
 import hu.zsoltmonika.healthhubbridge.dw.DigitalUsageCloudSync
 import kotlinx.coroutines.CoroutineScope
