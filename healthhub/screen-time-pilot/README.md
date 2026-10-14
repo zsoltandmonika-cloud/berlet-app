@@ -1,6 +1,6 @@
-# HealthHub Screen Time Collector · isolated Android pilot v0.2.0
+# HealthHub Screen Time Collector · isolated Android pilot v0.3.0 (source)
 
-**State: TECHNICAL PILOT ONLY. NOT INSTALLED / NOT LIVE. Stage 2 = opt-in detailed app-hour diagnostics.** Built separately from the production HealthHub Connect v0.14.0; app ID: `hu.zsoltmonika.healthhub.screentimepilot`.
+**State: TECHNICAL PILOT ONLY.** The prior v0.2.0 was manually tested on physical Samsung phones; v0.3.0 here is source/CI until a signed user-installed update and phone acceptance. Stage 2 remains opt-in detailed app-hour diagnostics. Built separately from the production HealthHub Connect v0.14.0; app ID: `hu.zsoltmonika.healthhub.screentimepilot`.
 
 ## Objective
 Test the Android usage-events source on an S24 Ultra before touching production Connect or moving anything into a shared Sleep / Digital Wellbeing source store.
@@ -8,7 +8,8 @@ Test the Android usage-events source on an S24 Ultra before touching production 
 - Automatic, local-only observation of Android app **foreground intervals**, including the ChatGPT Android app (`com.openai.chatgpt`), with real event timestamps.
 - On-device **explicit owner binding**, Zsolt OR Mónika. There is no silently selected profile and no cross-profile uploads.
 - Android **Usage Access** special permission, which each phone owner explicitly enables under Android Settings. Permission can be revoked.
-- Collection OFF by default. Only after user enables it, WorkManager polls on an inexact ~6h periodic schedule; first collection scheduled immediately; a manual diagnostic button is optional.
+- Collection OFF by default. After explicit local opt-in, WorkManager runs a baseline ~6/12/24h schedule (default six hours) and up to eight user-chosen daily local-time targets. All are approximate, not exact alarms; WorkManager can defer them under battery saver/Doze. First collection is enqueued by WorkManager.
+- The foreground Egyszeri mintavétel MOST button launches real local observation off the UI thread and reports actual result/failure; scheduled and foreground collectors serialize writes through one engine. Repeated foreground taps do not start overlapping jobs.
 - Each run reads the previous 48 **completed UTC hours**, with 12h extra query lookback for sessions overlapping the start. Only **closed** observed sessions count. Missing hours are **unknown**, never fabricated zero.
 - Persist per-hour counts in private application storage, replace-by-hour to avoid double-counting; 90-day rolling retention, explicit stop + delete.
 - Without the **second, separate app-detail opt-in**, save just `hourStartMs`, `observedForegroundMs`, `chatGptForegroundMs`, `sessionFragments`, profile ID and last collection status (90-day local retention).
@@ -49,3 +50,19 @@ Manual phone acceptance requires separate approval and user action:
 - Pilot acceptance must demonstrate **two distinct successful automatic collection cycles** without diagnostics button, reconcile per-app hour totals with aggregate on the phone, and cross-check against Samsung Digital Wellbeing. A compiled APK alone cannot establish that.
 
 **Stage 2 privacy check:** The app-level opt-in records its exact consent timestamp; every Android UsageEvents query is clipped at that time for detailed data. The detail ledger fails closed if no consent timestamp exists and erases identities immediately when consent is revoked. A separate Kotlin test verifies that pre-consent foreground use is not backfilled.
+
+## Stage 3 local schedule / immediate collection (v0.3.0)
+
+- The old six-hour recurring WorkManager job remains the default and is preserved when upgrading from v0.2.0.
+- UI actions **5/6/7** let the device owner select baseline 6/12/24h, add up to eight daily HH:mm targets using Android TimePicker, and remove individual targets.
+- Custom HH:mm targets **supplement** the periodic baseline. A scheduled one-shot chains its next target after completion. DST is resolved in the device-local zone and only one earlier-offset trigger is planned in the autumn repeated hour. They are targets, **not exact executions**.
+- All schedule preferences reside in the same app-private owner-bound settings. Deleting app data clears the identity and schedules; turning collection OFF cancels periodic and custom jobs but retains settings for future re-enabling.
+- Manual foreground collection does not wait for WorkManager: tapping the button runs immediately on a private executor, displays **FOLYAMATBAN**, then reports completed source-backed counts or a real failure. It never shows a success message just because a job was queued.
+- Every successful run stores the collection origin (manual/startup/periodic/custom) with its last completed timestamp, and automatic runs continue to work with app closed.
+- STOP + DELETE uses the same collection lock to prevent an in-flight automatic/foreground run from restoring deleted local rows.
+- Critical: Android builds published by GitHub Actions are **debug-signed with ephemeral signing keys**. A new CI APK generally cannot update a differently signed installed app without uninstall (which erases local private ledger and device owner binding). Do not promise a drop-in upgrade or instruct users to uninstall before providing a signed migration plan.
+- v0.3.0 remains an offline technical pilot with **NO INTERNET permission**, no background server polling, no Dropbox upload and no central remote collection mechanism.
+
+## Separate Stage 4 (not implemented in this APK): central remote collection
+
+The REMOTE-COLLECTION-DESIGN.md document specifies required opt-in, authenticated device/profile authorization, command leasing and acknowledgements. Existing HealthHub Admin/Dropbox orchestration is not a substitute for on-device authenticated delivery to this standalone pilot. Do not expose a pretend remote sync control or accept unauthenticated broadcasts.
