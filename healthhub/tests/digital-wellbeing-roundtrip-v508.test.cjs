@@ -8,6 +8,11 @@ const vm=require('node:vm');
 const root=path.join(__dirname,'..');
 const native=fs.readFileSync(path.join(root,'android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/dw/DigitalUsageCloudSync.kt'),'utf8');
 const activity=fs.readFileSync(path.join(root,'android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt'),'utf8');
+const liveScript=fs.readFileSync(path.join(root,'digital-health/digital-live-v507.js'),'utf8');
+assert.match(liveScript,/családi alkalmazáslista külön megosztása még nincs engedélyezve/);
+assert.match(liveScript,/részletes megosztás engedélyezett, de erre az időszakra/);
+assert.match(liveScript,/showBars\(s,period\)/);
+
 const prefs=fs.readFileSync(path.join(root,'android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/dw/PilotState.kt'),'utf8');
 assert.match(native,/DropboxVaultClient\.uploadText\(main, path, payload\)/);
 assert.match(native,/DropboxVaultClient\.downloadTextOrNull\(main, path\)/);
