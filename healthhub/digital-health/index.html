@@ -172,7 +172,7 @@ body{
   </section>
   <header class="header">
     <div class="brand"><div><small>HEALTHHUB · PERSONAL INTELLIGENCE</small>Digital Wellbeing</div></div>
-    <span class="demo" role="status">● ADATSZINKRONRA VÁR</span>
+    <span class="demo" role="status">● KÖZPONTI ADATOKRA VÁR</span>
   </header>
   <section class="hero" aria-labelledby="headline">
     <div class="eyebrow">💙🩷 LÉNA · DIGITAL HEALTH &amp; WELLBEING</div>
@@ -245,14 +245,14 @@ body{
     <div class="source">
       <span>Android Usage Access</span><b id="digitalUsageAccessState">Készülék állapotának ellenőrzése</b>
       <span>Samsung gyári képernyőidő</span><b>Nem csatlakoztatott, nem azonos a Pilot mérésével</b>
-      <span>ChatGPT app</span><b>Pilot mérés: csak telefonon</b>
+      <span>ChatGPT app</span><b>Hiteles telefonadatokra vár</b>
       <span>Ask Léna napló</span><b>Még nincs összekötve</b>
-      <span>Dropbox Vault</span><b>Nem aktív e modulhoz</b>
+      <span>Dropbox Vault</span><b>Profilhoz kötött központi adatbetöltés</b>
       <span>Sleep Intelligence</span><b>Még nincs aktív kapcsolat</b>
     </div>
-    <div class="note" style="margin-top:11px">A Pilot méréseit nem továbbítjuk titokban. A profilhoz kötött privát adatút külön engedély és ellenőrzés után aktiválható.</div>
+    <div class="note" style="margin-top:11px">Csak az adott személy által engedélyezett, a meglévő családi Dropbox Vaultba feltöltött mérések jelennek meg. A hiányzó adat nem nulla; az alkalmazásnevek külön engedélyt igényelnek.</div>
   </section>
-  <p class="footer"><span class="footnote">HealthHub Digital Health · az adatkapcsolat még nem aktív. A meglévő HealthHub Connect és Sleep modul változatlan.</span></p>
+  <p class="footer"><span class="footnote">HealthHub Digital Wellbeing · ellenőrzött, 30 napos központi profiladatok. A Samsung gyári képernyőidő eltérhet az Android előtéridő mérésétől.</span></p>
 </main>
 <nav class="hhBottomNav" aria-label="HealthHub alsó navigáció">
   <a href="../index.html" aria-label="HealthHub kezdőlap"><span class="hhNavIcon" aria-hidden="true">⌂</span><span>Kezdőlap</span></a>
@@ -262,6 +262,8 @@ body{
   <button type="button" data-nav-info="További modulok következnek"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
 <div class="hhNavToast" id="hhDigitalNavToast" role="status" aria-live="polite" hidden></div>
+<script src="./digital-usage-vault-v507.js?v=507-private-source"></script>
+<script src="./digital-live-v507.js?v=507-real-stats"></script>
 <script>
 'use strict';
 (function(){
@@ -298,6 +300,7 @@ body{
     el('analysisText').textContent='Az első személyre szabott elemzés akkor készülhet el, ha a '+name+' profilhoz tartozó mérések ellenőrzött, hozzájárulással engedélyezett adatforrásból megérkeznek.';
     document.querySelectorAll('[data-profile]').forEach(b=>{const on=b.dataset.profile===profile;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
     document.querySelectorAll('[data-period]').forEach(b=>{const on=b.dataset.period===period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
+    if(window.HH_DW_LIVE_V507)window.HH_DW_LIVE_V507.refresh(profile,period);
   }
   document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',()=>{profile=b.dataset.profile;render()}));
   document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.period;render()}));
