@@ -54,6 +54,8 @@ function styles(){
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Foot{border-top-color:var(--lena-border);color:#667d8b}'+
  '@media(max-width:440px){#hhLenaSmart299 #hhAi331Answer{padding:15px 12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{padding:12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394{padding:15px 14px}}'+
  '#hhAi331Answer .hhAi331Foot{font-size:11px;line-height:1.6;color:#678392;margin-top:14px;border-top:1px solid #d2e9e4;padding-top:9px}'+
+ '#hhAi331AddedValue{font-size:12px;line-height:1.55;font-weight:600;color:var(--lena-accent-deep,#226079);margin:15px 0 7px;padding:11px 0;border-top:1px solid var(--lena-border,#cbdbe8)}'+
+ '#hhAi331AddedValue[hidden]{display:none!important}'+
  '#hhAi331Error{display:none;background:#fff2f0;border:1px solid #e9bcb3;padding:12px;border-radius:13px;color:#833d38;font-size:12px;line-height:1.6;margin-top:9px}'+
  '#hhAi331Error.on{display:block}'+
  '#hhAi331Local{border:0;background:transparent;color:#5e8392;font-size:12px;text-decoration:underline;padding:10px 0 0;cursor:pointer}';
@@ -200,6 +202,25 @@ function showError(message){
  var err=el('hhAi331Error');if(err){err.textContent='⚠ '+message;err.classList.add('on')}
  print('A kutatás megszakadt.');
 }
+function showLocalAnswer(question,p,report){
+ if(profile()!==p)return false;
+ var safeFallback=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
+ if(!safeFallback||typeof safeFallback.localAnswer!=='function')return false;
+ var local=safeFallback.localAnswer(report,question,p,window.HH_LENA_UNIVERSAL_V330);
+ if(!local||local.profile!==p)return false;
+ setAnswerProfile(p);renderAnswerText(local.text);
+ var answer=el('hhAi331Answer'),foot=el('hhAi331Foot');
+ if(foot)foot.textContent=local.disclaimer+
+  (local.measuredFacts?' · 📊 '+local.measuredFacts+' helyi, aktív profilból kiolvasott mérési tétel.':' · Személyes mérést nem olvastam ki.');
+ if(answer)answer.classList.add('on');
+ var value=el('hhAi331AddedValue');
+ if(value){value.textContent='🛟 Safe Fallback: helyi alapválasz. '+(local.measuredFacts?
+  local.measuredFacts+' valódi, profilhoz kötött mérési megfigyelést is felhasznál.':'Személyes mérés nem áll rendelkezésre.');
+  value.hidden=false;}
+ print('🛟 Safe Fallback: azonnali helyi, nem generatív válasz. Nem állítom, hogy AI-kutatás történt.');
+ setTimeout(alignAnswerTop,80);
+ return true;
+}
 function ui(){
  var btn=el('hhRun299'),q=el('hhSQ299');
  if(!btn||!q||btn.dataset.ai331)return;
@@ -235,7 +256,7 @@ function ui(){
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
  actions.parentNode.insertBefore(term,privacy.nextSibling);
  var answer=document.createElement('section');answer.id='hhAi331Answer';answer.setAttribute('aria-label','Léna valódi AI-válasza');
- answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
+ answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div id="hhAi331AddedValue" hidden></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
  setAnswerProfile(profile());
  var err=document.createElement('div');err.id='hhAi331Error';term.parentNode.insertBefore(err,answer.nextSibling);
@@ -337,6 +358,7 @@ function logSource(data){
 function errorText(code,status){
  if(status===404)return 'Az AI-kiszolgáló még nincs telepítve. Nem állítom, hogy kutatás történt.';
  if(code==='invalid_photo_or_consent')return 'A fotóhoz hiányzik a jóváhagyás, vagy a kép nem megfelelő formátumú. Csatold újra a fényképet.';
+ if(code==='invalid_or_no_consent')return 'Az AI-kiszolgáló a kérés szerkezetét vagy hozzájárulását elutasította. Biztonságos válasz-üzemmódra váltok.';
  if(code==='request_too_large')return 'A kép túl nagy az AI-kiszolgáló számára. Próbálj kisebb fotót csatolni.';
  if(status===401||code==='login_required')return 'Jelentkezz be a Központi Health Vaultba, hogy a személyes AI-kutatás biztonságosan elindulhasson.';
  if(status===403||code==='forbidden_profile')return 'Ehhez a profilhoz nincs igazolt hozzáférés. Nincs adatküldés.';
@@ -353,15 +375,16 @@ async function run(opts){
  setAnswerProfile(p);
  term.classList.add('on');el('hhAi331Lines').innerHTML='';err.classList.remove('on');result.classList.remove('on');
  el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
+ var value=el('hhAi331AddedValue');if(value){value.hidden=true;value.textContent='';}
  var old=el('hhLenaAnswer329');if(old)old.remove();
  var legacy=el('hhProg299');if(legacy)legacy.classList.remove('on');
  if(el('askWork330'))el('askWork330').classList.remove('on');
  if(!question||question.length<3){showError('Írj be egy érdemi kérdést.');return}
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
- if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');return}
- if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');if(svc.openLogin)svc.openLogin();return}
+ if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');showLocalAnswer(question,p,null);return}
+ if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');showLocalAnswer(question,p,null);if(svc.openLogin)svc.openLogin();return}
  var allowed=svc.getStatus().authorizedProfiles;
- if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');return}
+ if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');showLocalAnswer(question,p,null);return}
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
  try{q.blur()}catch(e){}
@@ -541,10 +564,21 @@ async function run(opts){
    narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
   if(narrativeQAMode)print('🧪 '+narrativeQAVersion+' kísérleti ellenőrzés: az éles v403 válaszmotor változatlan.');
-  var response=await svc.stream(aiRoute,data,ctrl.signal);
+  var replyData=data,simplified=false;
+  var response=await svc.stream(aiRoute,replyData,ctrl.signal);
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
-   throw Error(errorText(body.error,response.status));
+   var safeFallback=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
+   if(safeFallback&&safeFallback.eligibleRetry(body.error,response.status,replyData,question,p)){
+    print('🛟 A részletes kérés elutasítva. Egyszerűsített AI-kérés, az eredeti kérdéssel és meglévő jogosultsággal…');
+    replyData=safeFallback.compact(replyData,question,p);
+    response=await svc.stream('/functions/v1/smooth-endpoint',replyData,ctrl.signal);
+    simplified=response.ok;
+    if(!response.ok){
+     var retryBody={};try{retryBody=await response.json()}catch{}
+     throw Error(errorText(retryBody.error,response.status));
+    }
+   }else throw Error(errorText(body.error,response.status));
   }
   if(!(response.headers.get('Content-Type')||'').includes('text/event-stream')||!response.body)
    throw Error('Az AI-kiszolgáló nem küldött élő, ellenőrizhető válaszfolyamot.');
@@ -565,7 +599,7 @@ async function run(opts){
    if(kind==='done'){
     var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
     // A completed AI stream is not automatically a clinically verified answer.
-    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot);
+    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified);
     renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
@@ -577,7 +611,7 @@ async function run(opts){
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
-    if(narrativeQAMode){
+    if(narrativeQAMode&&!simplified){
      el('hhAi331Foot').textContent='🧪 KÍSÉRLETI '+narrativeQAVersion+' · '+el('hhAi331Foot').textContent+
        ' · narratív-fókusz: '+safe(audit&&audit.qaFocusMode||'nincs válasz',40)+
        ' · védelem: '+safe(audit&&audit.qaFocusReason||'ismeretlen',55)+
@@ -587,8 +621,17 @@ async function run(opts){
         ' · hiányzó, forrással rendelkezésre álló szakaszok: '+Number((audit&&audit.qaStoryMissingStages||[]).length)+
         ' · forrásalapú pótlás: '+(audit&&audit.qaSourceFallbackUsed?'igen':'nem'):'');
     }
-    var proof=clinicalEngine.createPanel(clinical,p);
-    if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
+    var provenance=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
+    if(provenance&&provenance.provenance){
+     var added=provenance.provenance(replyData,true,simplified?'simplified':'standard');
+     el('hhAi331Foot').textContent+=' · '+added;
+     var addedBox=el('hhAi331AddedValue');
+     if(addedBox){addedBox.textContent=added;addedBox.hidden=false;}
+    }
+    if(!simplified){
+     var proof=clinicalEngine.createPanel(clinical,p);
+     if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
+    }
     print('AI-kutatás befejeződött.');return}
    if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
   }
@@ -601,7 +644,7 @@ async function run(opts){
   }
   if(!complete)throw Error('Nem érkezett teljes AI-válasz. A részleges szöveget töröltem.');
   if(turn===epoch&&profile()===p){
-   try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString()}}))}catch(e){}
+   try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString(),answerMode:simplified?'simplified-ai':'research-ai'}}))}catch(e){}
    // Re-align once after completion callbacks and final DOM updates.
    // No competing smooth animation: keep the last streaming position at the top.
    setTimeout(function(){if(turn===epoch&&profile()===p)alignAnswerTop()},90);
@@ -609,9 +652,11 @@ async function run(opts){
  }catch(e){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
+   var add=el('hhAi331AddedValue');if(add){add.hidden=true;add.textContent='';}
    var msg=e&&e.message||'Ismeretlen AI-hiba.';
    if(/failed to fetch|networkerror|load failed/i.test(msg))msg='A kutatómotor nem érhető el. Nincs kész válasz. Ellenőrizni kell a szerverkapcsolatot.';
    showError(msg);
+   showLocalAnswer(question,p,typeof report!=='undefined'&&report&&report.profile===p?report:null);
   }
  }finally{
   if(turn===epoch){active=null;el('hhRun299').disabled=false;q.disabled=false}
@@ -621,6 +666,7 @@ window.addEventListener('healthhub:ask-lena-open',function(){ui()});
 window.addEventListener('healthhub:central-auth-changed',refreshAuth);
 window.addEventListener('healthhub:profile-changed',function(){cancel();
  var a=el('hhAi331Answer');if(a)a.classList.remove('on');var t=el('hhAi331Text');if(t)t.textContent='';
+ var v=el('hhAi331AddedValue');if(v){v.hidden=true;v.textContent='';}
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
@@ -629,6 +675,7 @@ window.HH_ASK_LENA_AI_V331={initialize:ui,version:'344',isBusy:function(){return
  var result=el('hhAi331Answer'),q=el('hhSQ299'),foot=el('hhAi331Foot');
  if(!result||!q||typeof entry.answer!=='string'||typeof entry.question!=='string')return false;
  setAnswerProfile(entry.profile);q.value=entry.question;renderAnswerText(entry.answer);
+ var v=el('hhAi331AddedValue');if(v){v.hidden=true;v.textContent='';}
  if(foot){
   foot.textContent='🕘 Korábbi, mentett válasz · '+new Date(entry.generatedAt).toLocaleString('hu-HU')+' · Helyi előzmény, nem új kutatás.';
   if(/(?:-39[.,][0-9]+|-3[5-9][.,][0-9]+)\s*kg/i.test(entry.answer)){

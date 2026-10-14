@@ -19,15 +19,13 @@ function apply(request,question,plan,clinical){
  if(!request||request.consent!==true||!['zsolt','monika'].includes(request.profile))
   throw Error('I-06: nincs profilhoz kötött hozzájárulás.');
  if(typeof question!=='string'||question.trim().length<3)throw Error('I-06: hiányzó kérdés.');
- var prefix=String(request.question||question).slice(0,2060);
- var ins='\n\n[I-06 · Válaszstílus] '+guide(plan,clinical);
- var remaining=2400-prefix.length;
- if(remaining<110){
-  // Never truncate the user's own question to make room for styling.
-  return {payload:request,applied:false,reason:'question_length'};
- }
- var full=prefix+ins.slice(0,remaining);
- return {payload:Object.assign({},request,{question:full}),applied:true,characters:full.length};
+ // The server already has narrative instructions. Appending another style prompt
+ // to the question breaks its strict 1200-character validation, causing a
+ // misleading "invalid_or_no_consent" rejection. Leave the user's text intact.
+ var q=String(request.question||question).trim();
+ if(q.length>1200)throw Error('A kutatási kérdés meghaladja az 1200 karaktert.');
+ return {payload:Object.assign({},request,{question:q}),applied:false,
+  reason:'server_narrative_policy',characters:q.length};
 }
 window.HH_NARRATIVE_INTELLIGENCE_I06_V402={guide:guide,apply:apply,version:'402'};
 })();
