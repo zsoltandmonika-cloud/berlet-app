@@ -117,6 +117,18 @@ function renderPanel(){
         if(Object.prototype.hasOwnProperty.call(diag,entry[0]))
           txt('small',entry[1]+': '+safeText(diag[entry[0]]).slice(0,95),detail);
       });
+    if(Array.isArray(diag.recentAgentEvents)&&diag.recentAgentEvents.length){
+      var log=elt('details','',detail);
+      txt('summary','📋 Agent műveleti napló · utolsó 24 esemény',log);
+      diag.recentAgentEvents.slice(0,24).forEach(function(event){
+        if(!event||typeof event!=='object')return;
+        var phase=safeText(event.operation||'ismeretlen').slice(0,22);
+        var stateLabel=safeText(event.state||'?').slice(0,14);
+        var issue=safeText(event.errorClass||'').slice(0,50);
+        txt('small',dt(event.at)+' · '+phase+' · '+stateLabel+(issue?' · '+issue:''),log);
+      });
+      txt('small','A napló műszaki eseménytípusokat tartalmaz, személyes méréseket és alkalmazáselőzményeket nem.',log);
+    }
    }
    var buttons=elt('div','hhActions',line);
    var authorized=state.connected&&state.registry&&Array.isArray(state.registry.archived)&&
