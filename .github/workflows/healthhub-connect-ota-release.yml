@@ -103,7 +103,7 @@ jobs:
           set -euo pipefail
           CURRENT="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["version"])')"
           OLD_CODE="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["versionCode"])')"
-          NEW_CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
+          NEW_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           if [[ -z "$CURRENT" || -z "$NEW_CODE" || "$NEW_CODE" -le "$OLD_CODE" ]]; then
             echo "::error::OTA version code must increase over the manifest baseline."
             exit 1
