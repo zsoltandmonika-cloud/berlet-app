@@ -53,6 +53,14 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12
 .appicon{width:36px;height:36px;display:grid;place-items:center;background:#263e57;border-radius:12px;font-size:17px}
 .appname{font-weight:750}.appdetail{font-size:10px;color:var(--muted);margin-top:3px}
 .appval{font-variant-numeric:tabular-nums;font-weight:850;font-size:12px}
+#categories{gap:11px}
+.catrow{min-width:0;display:grid;gap:6px;padding:11px 12px;border-radius:12px;background:rgba(130,177,227,.08);border:1px solid rgba(152,195,237,.15)}
+.catheading{min-width:0;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:9px;align-items:center}
+.caticon{font-size:18px}.catname{font-size:13px;font-weight:750;min-width:0;overflow-wrap:anywhere}
+.catvalue{font-size:12px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.catbar{height:6px;overflow:hidden;border-radius:999px;background:rgba(121,148,182,.3)}
+.catbar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--aqua))}
+.catshare{font-size:10px;color:var(--muted);text-align:right}
 .bar{margin-top:6px;height:5px;border-radius:100px;background:#293a52;overflow:hidden}.bar span{height:100%;display:block;width:var(--percent);border-radius:100px;background:var(--barcolor)}
 .analysis{background:linear-gradient(140deg,#20354d,#242a47 95%);border:1px solid #49658c;border-radius:19px;padding:16px}
 .analysis-head{display:flex;align-items:center;gap:10px}.avatar{width:43px;height:43px;display:grid;place-items:center;border-radius:14px;background:#e0b7db34;font-size:24px}
@@ -233,7 +241,7 @@ body{
     <article class="card span2 appcard">
       <h2>🧩 Alkalmazáskategóriák</h2>
       <div class="apps" id="categories"></div>
-      <div class="note" style="margin-top:12px">A kategóriákhoz saját, ellenőrizhető besorolási adatbázis kell. A Samsung gyári besorolásai nem feltétlenül hozzáférhetők.</div>
+      <div class="note" style="margin-top:12px">HealthHub saját, ellenőrizhető alkalmazásbesorolás a tényleges mért használat alapján. Nem a Samsung gyári kategóriái. Az ismeretlen alkalmazások Besorolatlan csoportba kerülnek.</div>
     </article>
   </section>
 
@@ -268,7 +276,7 @@ body{
 </nav>
 <div class="hhNavToast" id="hhDigitalNavToast" role="status" aria-live="polite" hidden></div>
 <script src="./digital-usage-vault-v507.js?v=510-monday-week"></script>
-<script src="./digital-live-v507.js?v=513-friendly-app-labels"></script>
+<script src="./digital-live-v507.js?v=514-app-category-breakdown"></script>
 <script>
 'use strict';
 (function(){
