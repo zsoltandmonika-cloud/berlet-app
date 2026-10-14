@@ -142,3 +142,66 @@ html[data-hh-premium-preview="on"] #home .hhpg-tile[aria-disabled="true"]{opacit
 @media(prefers-reduced-motion:no-preference){
  html[data-hh-premium-preview="on"] #home .hhpg-tile{transition:transform .15s ease,border-color .17s ease,background .17s ease}
 }
+
+
+/* v521 · Mónika's Budapest-night rose light: the cyan/navy glass remains the base.
+   Every selector is BOTH opt-in and Mónika-only; Zsolt's preview stays intact. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home{
+ background:
+  radial-gradient(ellipse 78% 350px at 89% 10%,rgba(232,84,179,.13),transparent 74%),
+  radial-gradient(ellipse 76% 460px at 42% -40px,rgba(47,98,174,.38),transparent 78%),
+  radial-gradient(ellipse 62% 290px at 92% 75%,rgba(180,83,168,.07),transparent 82%),#0b1425;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome{
+ border-bottom-color:rgba(245,156,210,.35);
+}
+/* Light skims the right edge, echoing the approved pink neon in Léna's night scene.
+   Pseudo-element never blocks profile switching or other hero controls. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome::after{
+ content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+ background:
+  radial-gradient(ellipse 52% 80% at 106% 35%,rgba(250,97,192,.18),transparent 78%),
+  linear-gradient(90deg,transparent 90%,rgba(255,101,192,.11));
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .screenTitle{
+ text-shadow:0 2px 11px rgba(0,0,0,.75),0 0 18px rgba(234,124,193,.19);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit{
+ border-color:#f8a9cf!important;
+ box-shadow:0 4px 18px rgba(0,0,0,.46),0 0 17px rgba(244,124,194,.28)!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .heroBtns .round{
+ border-color:rgba(246,174,221,.37);
+ background:rgba(28,32,64,.63);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .homeSurface{
+ background:linear-gradient(148deg,rgba(38,57,100,.79),rgba(18,31,56,.93) 48%,rgba(66,35,83,.78));
+ border-color:rgba(213,161,222,.24);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile{
+ background:linear-gradient(144deg,rgba(92,139,209,.19),rgba(37,53,95,.43) 55%,rgba(123,57,124,.25));
+ border-color:rgba(226,169,224,.29);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 21px rgba(4,8,29,.26),0 0 13px rgba(241,123,184,.045);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile[data-group="daily"]{
+ background:linear-gradient(135deg,rgba(122,99,207,.24),rgba(39,50,91,.45) 53%,rgba(180,69,145,.23));
+ border-color:rgba(242,174,221,.37);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-icon{
+ color:#f5cae8;
+ background:linear-gradient(135deg,rgba(244,170,215,.19),rgba(83,91,186,.2));
+ border-color:rgba(243,188,223,.35);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-icon svg{
+ filter:drop-shadow(0 1px 4px rgba(234,144,210,.23));
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile[data-key="ask"]{
+ border-color:rgba(148,234,233,.58);
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile[data-key="ask"] .hhpg-icon{
+ color:#a7f1ee;
+}
+/* Keep keyboard focus visible for both profiles and do not trade usability for glow. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile:focus-visible{
+ outline-color:#ffd6f3;
+}
