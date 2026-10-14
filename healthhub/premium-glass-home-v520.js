@@ -1,11 +1,11 @@
-/* HealthHub v520 Premium Glass Home opt-in.
-   Activated only by ?hhpremium=1. The underlying application remains authoritative:
+/* HealthHub v528 Premium Glass Home production default.
+   Active unless explicitly disabled with ?hhpremium=0. The underlying application remains authoritative:
    profile state, real module routes, health data, archives and permissions never cloned. */
 (function(root){
  'use strict';
  var params;
  try{params=new URLSearchParams(root.location.search)}catch(_){return}
- if(params.get('hhpremium')!=='1')return;
+ if(params.get('hhpremium')==='0')return;
  var ICONS={
   health:'<path d="M20 7.5a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M6 12h4l2-3 2 6 2-3h2"/>',
   records:'<path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 12h8M9 16h8"/>',
