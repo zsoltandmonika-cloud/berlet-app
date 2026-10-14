@@ -24,8 +24,10 @@ assert.match(manifest,/android:label="HH One"/);
 assert.match(manifest,/android:icon="@mipmap\/ic_hh_one"/);
 assert.match(manifest,/android:roundIcon="@mipmap\/ic_hh_one_round"/);
 assert.match(foreground,/HH monogram/);
-assert.match(releaseCi,/Hard stop unless new APK and v0\.14\.0 baseline have same signing certificate/);
+assert.match(releaseCi,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
 assert.match(releaseCi,/if \[\[ .*old_cert.*new_cert/);
+assert.match(releaseCi,/OLD_CODE/);
+assert.match(releaseCi,/NEW_CODE/);
 
 assert.match(diag,/KEY_CONSENT/);
 assert.match(diag,/getBoolean\(KEY_CONSENT, false\)/);
