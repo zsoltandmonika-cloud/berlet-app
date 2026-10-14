@@ -171,8 +171,8 @@ jobs:
             echo "::error::New signed candidate signer differs from verified production signing key."
             exit 1
           fi
-          VERSION="$(sed -n 's/.*versionName = "\\([^"]*\\)".*/\\1/p' app/build.gradle.kts | head -1)"
-          CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' app/build.gradle.kts | head -1)"
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
+          CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -1)"
           readarray -t BASE < <(python3 - <<'PY'
           import json
           m=json.load(open("../data/bridge-ota.json"))
