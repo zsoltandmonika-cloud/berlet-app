@@ -119,7 +119,7 @@
   syncApprovedHero();
   // Use the SAME approved selector photo on every existing HealthHub Hero
   // switch button; never replace its click handler, portrait or owner identity.
-  var hits=document.querySelectorAll('#home #heroHome .profileHit, #timeline #heroT .profileHit, #health #heroH .profileHit');
+  var hits=document.querySelectorAll('.page .hero .profileHit');
   var avatar=document.querySelectorAll('#overlay .choice img')[p==='m'?1:0];
   for(var i=0;i<hits.length;i++){
    var hit=hits[i];
