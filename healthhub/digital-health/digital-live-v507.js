@@ -79,8 +79,11 @@ function apps(s){
    value.title=info[0]+' · megfigyelt alkalmazás-előtéridő';
    const track=row(desc,'bar');const fill=document.createElement('span');track.appendChild(fill);
    fill.style.width=Math.min(100,100*ms/all).toFixed(1)+'%';fill.style.backgroundColor=colors[i%colors.length];
-   grouped.set(info[2],(grouped.get(info[2])||0)+ms);
  });
+ for(const [id,ms] of s.topApps){
+   const info=names[id]||[id,'📱','Besorolatlan'];
+   grouped.set(info[2],(grouped.get(info[2])||0)+ms);
+ }
  for(const [name,ms] of [...grouped].sort((a,b)=>b[1]-a[1]))
    row(categories,'app',name+' · '+duration(ms));
  for(const [id,ms] of s.topApps.slice(0,4)){
