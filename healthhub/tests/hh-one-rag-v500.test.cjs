@@ -5,7 +5,7 @@ const vm=require('node:vm');
 const path=require('node:path');
 const base=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(base,'hh-one-rag-v500.js'),'utf8');
-const w={location:{href:'https://example.org/berlet-app/healthhub/'},addEventListener(){}};
+const w={location:{href:'https://example.org/berlet-app/healthhub/'},addEventListener(){},setTimeout(){}};
 const d={readyState:'loading',addEventListener(){}};
 vm.runInNewContext(source,{window:w,document:d,Date,console});
 const api=w.HH_ONE_RAG_V500;
