@@ -68,6 +68,8 @@ jobs:
           VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
           CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -1)"
           BASE="$(python3 -c 'import json; print(json.load(open("../data/bridge-ota.json"))["versionCode"])')"
-          test -n "$VERSION" && test "$CODE" -gt "$BASE"
+          # A web-only dashboard release keeps the already published Android build.
+          # New Android candidates must instead increment it; JS contract checks both forms.
+          test -n "$VERSION" && test "$CODE" -ge "$BASE"
           echo "Android package: $VERSION / build $CODE (signed production baseline build $BASE)"
           test -s app/build/outputs/apk/debug/app-debug.apk
