@@ -27,11 +27,14 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
 <script src="./samsung-beta-auth-relay-v374.js?v=374-pkce"></script>
 <script>
 (function(){
+  // Keep the historical canonical version for normal Home, but use an independently
+  // cache-busted entry for Premium Glass opt-in previews.
   var v='407-digital-wellbeing-family-507';
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
   try{
     var u=new URL(location.href);
+    if(u.searchParams.get('hhpremium')==='1')v='526-premium-glass-refresh';
     var needPath=!/\/index\.html$/i.test(u.pathname);
     if(needPath){
       u.pathname=u.pathname.replace(/\/$/,'')+'/index.html';
