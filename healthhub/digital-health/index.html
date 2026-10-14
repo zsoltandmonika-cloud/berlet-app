@@ -55,9 +55,9 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12
 .appval{font-variant-numeric:tabular-nums;font-weight:850;font-size:12px}
 #categories{gap:11px}
 .catrow{min-width:0;display:grid;gap:6px;padding:11px 12px;border-radius:12px;background:rgba(130,177,227,.08);border:1px solid rgba(152,195,237,.15)}
-.catheading{min-width:0;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:9px;align-items:center}
-.caticon{font-size:18px}.catname{font-size:13px;font-weight:750;min-width:0;overflow-wrap:anywhere}
-.catvalue{font-size:12px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.catheading{min-width:0;display:flex;gap:9px;align-items:center;flex-wrap:nowrap}
+.caticon{font-size:18px;flex:0 0 22px}.catname{font-size:13px;font-weight:750;min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.catvalue{font-size:12px;font-weight:800;white-space:nowrap;flex:none;font-variant-numeric:tabular-nums}
 .catbar{height:6px;overflow:hidden;border-radius:999px;background:rgba(121,148,182,.3)}
 .catbar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--aqua))}
 .catshare{font-size:10px;color:var(--muted);text-align:right}
@@ -234,14 +234,14 @@ body{
       </div>
       <div id="apps" class="apps" aria-label="Alkalmazáslista"></div>
     </article>
-    <article class="card span2 timecard">
-      <div class="title-row" style="margin:0"><h2>📅 Heti mintázat</h2><span class="micro" id="weekRange">Aktuális hét · H–V</span></div>
-      <div class="week" id="weekly" aria-label="Heti képernyőhasználati trend"></div>
-    </article>
     <article class="card span2 appcard">
       <h2>🧩 Alkalmazáskategóriák</h2>
       <div class="apps" id="categories"></div>
       <div class="note" style="margin-top:12px">HealthHub saját, ellenőrizhető alkalmazásbesorolás a tényleges mért használat alapján. Nem a Samsung gyári kategóriái. Az ismeretlen alkalmazások Besorolatlan csoportba kerülnek.</div>
+    </article>
+    <article class="card span2 timecard">
+      <div class="title-row" style="margin:0"><h2>📅 Heti mintázat</h2><span class="micro" id="weekRange">Aktuális hét · H–V</span></div>
+      <div class="week" id="weekly" aria-label="Heti képernyőhasználati trend"></div>
     </article>
   </section>
 
