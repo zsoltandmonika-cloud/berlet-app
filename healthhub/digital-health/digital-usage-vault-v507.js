@@ -11,7 +11,7 @@ function local(ms){const x={};for(const p of DATE.formatToParts(new Date(ms)))if
 function validate(raw,profile,now=Date.now()){
  if(profile!=='zsolt'&&profile!=='monika')throw Error('Ismeretlen profil');
  if(!raw||raw.schema!==SCHEMA||raw.source!==SOURCE||raw.profileKey!==profile||
-    raw.retentionDays!==30||raw.missingIsUnknown!==true)throw Error('Nem hitelesített forrás vagy hibás profil');
+    raw.retentionDays!==30||raw.missingIsUnknown!==true||raw.shared!==true)throw Error('Nem hitelesített forrás vagy hibás profil');
  if(!Number.isSafeInteger(raw.collectedAtMs)||raw.collectedAtMs>now+300000||
     raw.collectedAtMs<now-31*DAY)throw Error('Érvénytelen mérési idő');
  if(!Array.isArray(raw.hours)||raw.hours.length>744)throw Error('Érvénytelen mérési sorok');
@@ -72,7 +72,7 @@ async function read(profile){
  const path='/HealthHub/profiles/'+profile+'-digital-wellbeing.json';
  const live=root.HH_DROPBOX_VAULT;
  if(live&&live.connected&&live.connected()&&live.downloadJson){
-   try{return validate(await live.downloadJson(path),profile);}
+   try{const data=await live.downloadJson(path);return data&&data.shared===false?null:validate(data,profile);}
    catch(e){if(e.status===409&&/not_found/i.test(e.message||''))return null;throw e;}
  }
  const token=await cloudToken();
@@ -80,7 +80,7 @@ async function read(profile){
  headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path})}});
  if(r.status===409)return null;
  if(!r.ok)throw Error('Dropbox adatolvasási hiba ('+r.status+')');
- return validate(await r.json(),profile);
+ const data=await r.json();return data&&data.shared===false?null:validate(data,profile);
 }
 root.HH_DW_VAULT_V507=Object.freeze({validate,summary,read,local,SCHEMA,SOURCE});
 if(typeof module!=='undefined'&&module.exports)module.exports=root.HH_DW_VAULT_V507;
