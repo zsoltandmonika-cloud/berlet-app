@@ -175,7 +175,7 @@ body{
 <!-- Golden Standard: original profile photos and fixed frame; no legacy fallback. -->
 <script src="../golden-standard-avatars-v529.js?v=531-approved-source"></script>
 <script>try{document.documentElement.dataset.hhDigitalDockProfile=localStorage.getItem("hh-profile")==="m"?"m":"z"}catch(_){document.documentElement.dataset.hhDigitalDockProfile="z"}</script>
-<link rel="stylesheet" href="./golden-shell-v531.css?v=531-fixed-golden-standard">
+<link rel="stylesheet" href="./golden-shell-v531.css?v=532-digital-hero-polish">
 </head>
 <body>
 <button id="hhDigitalProfileDock" type="button" aria-label="Profilváltás" title="Profilváltás"></button>
@@ -186,7 +186,6 @@ body{
          onload="document.querySelector('.hero-art').classList.add('loaded')"
          onerror="document.querySelector('.hero-art').classList.add('missing')">
     <div class="hero-placeholder">Digital Health · Léna<br><small>Hero kép betöltése…</small></div>
-    <a class="digital-back" id="digitalBack" href="../index.html" aria-label="Vissza a HealthHub előző oldalára"><span aria-hidden="true">←</span> Vissza</a>
   </section>
   <header class="header">
     <div class="brand"><div><small>HEALTHHUB · PERSONAL INTELLIGENCE</small>Digital Wellbeing</div></div>
@@ -197,10 +196,6 @@ body{
     <div class="hero-stage">
       <div class="hero-copy">
         <h1 id="headline">Digitális stílusod.<br>Saját ritmusod.</h1>
-        <div class="choices" aria-label="Profilválasztás">
-          <button class="switch active" data-profile="zsolt" aria-pressed="true">💙 Zsolt</button>
-          <button class="switch" data-profile="monika" aria-pressed="false">🩷 Mónika</button>
-        </div>
       </div>
       <div class="liveclock" aria-label="Élő helyi idő">
         <div class="liveclock-label"><span class="liveclock-led" aria-hidden="true"></span> HELYI IDŐ</div>
@@ -328,7 +323,7 @@ body{
     el('digitalUsageAccessState').textContent='Központi mérés ellenőrzése…';
     el('lenaHeading').textContent=name+' digitális ritmusa';
     el('analysisText').textContent='Az első személyre szabott elemzés akkor készülhet el, ha a '+name+' profilhoz tartozó mérések ellenőrzött, hozzájárulással engedélyezett adatforrásból megérkeznek.';
-    document.querySelectorAll('[data-profile]').forEach(b=>{const on=b.dataset.profile===profile;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
+    // The existing upper-right Golden Standard portrait is the sole profile selector.
     document.querySelectorAll('[data-period]').forEach(b=>{const on=b.dataset.period===period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
     if(window.HH_DW_LIVE_V507)window.HH_DW_LIVE_V507.refresh(profile,period);
   }
@@ -338,7 +333,6 @@ body{
     try{localStorage.setItem('hh-profile',profile==='monika'?'m':'z')}catch(_){/* Viewing still works in private mode. */}
     render();
   }
-  document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',()=>chooseProfile(b.dataset.profile)));
   el('hhDigitalProfileDock').addEventListener('click',()=>chooseProfile(profile==='monika'?'zsolt':'monika'));
   window.addEventListener('storage',event=>{
     if(event.key==='hh-profile'){
@@ -355,16 +349,6 @@ body{
     clearTimeout(navToastTimer);
     navToastTimer=setTimeout(()=>{navToast.hidden=true},2000);
   }));
-  el('digitalBack').addEventListener('click',event=>{
-    try{
-      const ref=new URL(document.referrer);
-      const base=new URL('../',location.href);
-      if(ref.origin===location.origin&&ref.pathname.startsWith(base.pathname)&&!ref.pathname.includes('/digital-health/')){
-        event.preventDefault();
-        history.back();
-      }
-    }catch(_){/* Direct visits fall back to HealthHub Home. */}
-  });
   render();
 })();
 </script>
