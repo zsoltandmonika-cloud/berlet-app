@@ -10,7 +10,7 @@ html[data-hh-premium-preview="on"][data-hhpg-profile="m"]{
  --hhpg-accent:#f8a9cf;--hhpg-border:rgba(248,169,207,.38);
  --hhpg-soft:rgba(249,157,208,.17);
 }
-html[data-hh-premium-preview="on"] .app{background:#0b1425}
+html[data-hh-premium-preview="on"]:has(#home.on) .app{background:#0b1425}
 html[data-hh-premium-preview="on"] #home{background:
  radial-gradient(ellipse 80% 450px at 50% -35px,rgba(47,98,174,.4),transparent 75%),
  radial-gradient(ellipse 70% 350px at 100% 60%,rgba(203,97,192,.13),transparent 80%),#0b1425;color:var(--hhpg-ink)}
@@ -113,6 +113,8 @@ html[data-hh-premium-preview="on"] #home .hhpg-label{
  position:relative;font-size:11.2px;font-weight:790;line-height:1.16;
  text-align:center;overflow-wrap:anywhere;letter-spacing:-.02em;
 }
+/* Old static Today card may contain legacy placeholder metrics; do not present them as verified in the new Home. */
+html[data-hh-premium-preview="on"] #home .todayCard{display:none!important}
 html[data-hh-premium-preview="on"] #home .todayCard{
  background:linear-gradient(140deg,rgba(76,141,213,.16),rgba(28,46,78,.58));
  border:1px solid rgba(142,197,240,.25)!important;color:var(--hhpg-ink)!important;
@@ -121,12 +123,12 @@ html[data-hh-premium-preview="on"] #home .todayCard{
 html[data-hh-premium-preview="on"] #home .todayCard *,
 html[data-hh-premium-preview="on"] #home .todayCard h3{color:inherit}
 html[data-hh-premium-preview="on"] #home .todayCard small{color:#bbd5ee}
-html[data-hh-premium-preview="on"] .nav{
+html[data-hh-premium-preview="on"]:has(#home.on) .nav{
  background:rgba(15,30,54,.97);border-top:1px solid rgba(140,198,243,.25);
  box-shadow:0 -7px 22px rgba(0,0,0,.25);
 }
-html[data-hh-premium-preview="on"] .nav button{color:#b9d0e8}
-html[data-hh-premium-preview="on"] .nav button.on{color:var(--hhpg-accent)}
+html[data-hh-premium-preview="on"]:has(#home.on) .nav button{color:#b9d0e8}
+html[data-hh-premium-preview="on"]:has(#home.on) .nav button.on{color:var(--hhpg-accent)}
 html[data-hh-premium-preview="on"] #home .hhpg-tile[aria-disabled="true"]{opacity:.66}
 @media(min-width:760px){
  html[data-hh-premium-preview="on"] #home .hhpg-grid{gap:10px}
