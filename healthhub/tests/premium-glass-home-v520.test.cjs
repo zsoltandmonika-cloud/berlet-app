@@ -67,7 +67,7 @@ function load(query){
  let selected='z';const pageCalls=[],opened=[];
  const host=new Fake('main'),old=new Fake('div');
  old.parentNode=host;host.children=[old];
- const profile=new Fake('button'),hero=new Fake('div');
+ const profile=new Fake('button'),timelineProfile=new Fake('button'),healthProfile=new Fake('button'),hero=new Fake('div');
  const styles={};
  hero.style={
   getPropertyValue(k){return styles[k]||''},
@@ -95,6 +95,7 @@ function load(query){
   },
   querySelectorAll(q){
    if(q==='#overlay .choice img')return avatars;
+   if(q==='#home #heroHome .profileHit, #timeline #heroT .profileHit, #health #heroH .profileHit')return [profile,timelineProfile,healthProfile];
    if(q==='#home .homeModules .homeModule')return legacy;
    return [];
   },
@@ -111,7 +112,7 @@ function load(query){
   addEventListener(key,fn){this.listeners[key]=fn},toast(s){opened.push('toast:'+s)}
  };
  vm.runInNewContext(source,{window,document,URLSearchParams,URL});
- return {document,host,hero,profile,legacy,healthStrip,window,pageCalls,opened,setProfile(p){selected=p}};
+ return {document,host,hero,profile,timelineProfile,healthProfile,legacy,healthStrip,window,pageCalls,opened,setProfile(p){selected=p}};
 }
 const off=load('?hhpremium=0');
 assert.equal(off.host.children.length,1,'explicit classic fallback never mounts Premium tiles');
@@ -157,9 +158,13 @@ assert.equal(grid.children[9].dataset.group,'daily');
 assert.equal(grid.children[11].dataset.group,'daily');
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
 assert.match(on.profile.style.backgroundImage,/profilez/);
+assert.match(on.timelineProfile.style.backgroundImage,/profilez/,'Timeline switch uses the same Zsolt avatar');
+assert.match(on.healthProfile.style.backgroundImage,/profilez/,'Health switch uses the same Zsolt avatar');
 on.setProfile('m');on.window.HH_PREMIUM_HOME_V520.updateProfile();
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'m');
 assert.match(on.profile.style.backgroundImage,/profilem/);
+assert.match(on.timelineProfile.style.backgroundImage,/profilem/,'Timeline updates to Mónika with the same source');
+assert.match(on.healthProfile.style.backgroundImage,/profilem/,'Health updates to Mónika with the same source');
 on.window.HH_PREMIUM_HOME_V520.go('records');
 on.window.HH_PREMIUM_HOME_V520.go('meds');
 on.window.HH_PREMIUM_HOME_V520.go('timeline');
