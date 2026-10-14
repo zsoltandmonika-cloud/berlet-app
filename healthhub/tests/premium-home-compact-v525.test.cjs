@@ -7,15 +7,23 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-home-compact-v525.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.ok(html.includes('premium-home-compact-v525.js?v=5281-hero-corners'),'production compact Home cache bust');
+assert.ok(html.includes('premium-home-compact-v525.js?v=530-no-flash'),'production compact Home cache bust');
 assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='0')v='407-digital-wellbeing-family-507'"),'legacy Home remains an explicit URL fallback');
-assert.ok(html.includes("var v='5281-premium-hero-corners'"),'normal Home now points to approved v528 Premium');
+assert.ok(html.includes("var v='530-premium-zero-legacy-flash'"),'normal Home now points to approved v528 Premium');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
-assert.equal(manifest.start_url,'./index.html?hhv=5281-premium-hero-corners','installed app starts at approved Premium Home');
+assert.equal(manifest.start_url,'./index.html?hhv=530-premium-zero-legacy-flash','installed app starts at approved Premium Home');
 assert.ok(html.indexOf('premium-home-compact-v525.js')>html.indexOf('home-hero-info-glass-v522.js'),'v525 must load after v522');
 assert.ok(source.includes("query.get('hhpremium')==='0'"),'classic opt-out guard');
 assert.ok(source.includes("dataset.hhPremiumPreview!=='on'"),'mounted premium guard');
 assert.ok(css.includes('#hhOneRag500')&&css.includes('#hhOneFallback501'),'style both service controls');
+// v530: prove classic data module never flashes during Premium boot.
+assert.match(html,/const noFlashHead=premiumEntry\?/,'scoped boot gate only for Premium');
+assert.match(html,/data-hh-premium-critical="1"/,'approved styles are parser-blocking in the assembled head');
+assert.match(html,/html:not\(\[data-hh-premium-ready="on"\]\) \.app\{visibility:hidden!important\}/,'legacy Home hidden before Premium mounts');
+assert.match(html,/hhHomeBoot\+noFlashHead\+'<\/head>'/,'FOUC gate injected in the streamed inner document head');
+assert.match(source,/dataset\.hhPremiumReady='on'/,'compact controller releases boot gate after mounting');
+assert.match(html,/if\(premiumEntry\)setTimeout\(function\(\)/,'timeout avoids permanently stuck loading screen');
+assert.ok(!html.includes('indexedDB.deleteDatabase'),'data and caches remain untouched');
 assert.ok(source.includes("premium-home-compact-v525.css?v=5281-hero-corners"),'new CSS query avoids stale cache');
 assert.match(css,/--hhpg-corner-inset:6px/,'identical top and side gutter from a single CSS variable');
 assert.ok(css.includes('max(0px, 50vw - 210px)'),'HH ONE sticks to the centered HealthHub app on desktops');
@@ -61,7 +69,7 @@ function load(search,ready){
   observe(el,settings){observers.push({el,settings,cb:this.cb})}
  }};
  vm.runInNewContext(source,{window:win,document,URLSearchParams});
- return {head,win,dict,observers,dateCell,nameCell,sourceDate,sourceName};
+ return {head,win,dict,observers,dateCell,nameCell,sourceDate,sourceName,readyFlag:document.documentElement.dataset.hhPremiumReady};
 }
 const off=load('?hhpremium=0',true),notReady=load('',false),on=load('',true);
 const explicitPremium=load('?hhpremium=1',true);
@@ -69,6 +77,7 @@ assert.equal(explicitPremium.head.children.length,1,'old Premium URL still works
 assert.equal(off.head.children.length,0,'explicit classic fallback unchanged');
 assert.equal(notReady.head.children.length,0,'guard still prevents unmounted Premium compact UI');
 assert.equal(on.head.children.length,1,'one style sheet injected');
+assert.equal(on.readyFlag,'on','Premium mount lifts the FOUC gate');
 assert.equal(on.dateCell.children.length,2,'date source plus compact view');
 assert.equal(on.nameCell.children.length,2,'nameday source plus compact view');
 assert.equal(on.dateCell.children[1].textContent,'Október 14 · Budapest');
