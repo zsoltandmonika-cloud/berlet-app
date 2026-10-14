@@ -29,6 +29,9 @@
  var style=document.createElement('link');
  style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=5261-exact-monika-hero';
  document.head.appendChild(style);
+ var zsoltStyle=document.createElement('link');
+ zsoltStyle.rel='stylesheet';zsoltStyle.href='./premium-zsolt-hero-v527.css?v=527-exact-zsolt-blue';
+ document.head.appendChild(zsoltStyle);
  function legacyButton(name){
   var buttons=document.querySelectorAll('#home .homeModules .homeModule');
   for(var i=0;i<buttons.length;i++){
@@ -99,12 +102,12 @@
    if(current.indexOf('monika-hh-hero-approved-v5261.png')<0){
     hero.style.setProperty('background-image','url("./assets/monika-hh-hero-approved-v5261.png")','important');
    }
-  }else if(current.indexOf('monika-hh-hero-approved-v5261.png')!==-1){
-   // Restore the original Zsolt v216 photo, not the Mónika image.
-   var original=root.HH_HOME_HERO_Z_V216?
-     'url("data:image/webp;base64,'+root.HH_HOME_HERO_Z_V216+'")':
-     'url("./assets/hero-home-z-approved-v215.webp?v=215")';
-   hero.style.setProperty('background-image',original,'important');
+  }else{
+   // v527: exact user-approved Zsolt image, same priority as Mónika.
+   // Reapply after any delayed legacy repaint, including returning from Mónika.
+   if(current.indexOf('zsolt-hh-hero-approved-v527.png')<0){
+    hero.style.setProperty('background-image','url("./assets/zsolt-hh-hero-approved-v527.png")','important');
+   }
   }
   if(hero.style.getPropertyValue('height')!=='228px'){
    hero.style.setProperty('height','228px','important');
