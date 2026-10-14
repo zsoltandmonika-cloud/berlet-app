@@ -23,7 +23,8 @@ function answerText(record){
  if(!record||!['monika','zsolt'].includes(record.profile)||!clean(record.question)||!clean(record.answer))return '';
  return 'HEALTHHUB · ASK LÉNA\nProfil: '+profileName(record.profile)+
   (record.generatedAt?'\nIdőpont: '+record.generatedAt:'')+
-  '\n\nKÉRDÉS\n'+clean(record.question)+'\n\nLÉNA VÁLASZA\n'+clean(record.answer);
+  '\n\nKÉRDÉS\n'+clean(record.question)+'\n\nLÉNA VÁLASZA\n'+clean(record.answer)+
+  (clean(record.sources)?'\n\nFORRÁSOK ÉS ELLENŐRZÉS\n'+clean(record.sources):'');
 }
 function printAnswerSections(record){
  // Render existing on-screen topic sections first: the current mobile UI
@@ -79,6 +80,8 @@ function printMarkup(record){
   '.chapter p+ p{margin-top:5px}',
   'ul{padding-left:20px;margin:7px 0 11px}',
   '.source-note{border-top:1px solid #d9e4e9;margin-top:22px;padding-top:9px;font-size:8.5pt;color:#5a7281}',
+  '.evidence-appendix{break-before:page;page-break-before:always;padding-top:15mm}',
+  '.evidence-appendix p{font-size:10.5pt;white-space:pre-wrap;overflow-wrap:anywhere}',
   '.toolbar{margin-bottom:24px}.toolbar button{padding:10px 14px;border:1px solid #accbd2;',
   'background:#eaf6f7;border-radius:10px;color:#174961;font-weight:700}',
   '@media print{body{margin:0;padding:0;max-width:none;color:#173246}',
@@ -94,6 +97,8 @@ function printMarkup(record){
   '<div class="question"><div class="question-label">Kutatási kérdés</div>',
   '<p>'+html(record.question)+'</p></div>',
   '<main>'+printAnswerSections(record)+'</main>',
+  ...(clean(record.sources)?['<section class="evidence-appendix"><h2>Források és technikai ellenőrzések</h2>',
+   '<p>'+html(clean(record.sources))+'</p></section>']:[]),
   '<footer class="source-note">Az eredeti leletoldalak és a korábbi leletmagyarázatok a szövegben külön forrásként szerepelnek, amennyiben felhasználásra kerültek. Az AI-összefoglaló nem helyettesíti az orvosi dokumentációt.</footer>'
  ];
  parts.push('</body></html>');
