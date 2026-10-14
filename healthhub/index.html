@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v405-home-hero-title-only-505" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v406-home-hero-airy-spacing-506" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -27,7 +27,7 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
 <script src="./samsung-beta-auth-relay-v374.js?v=374-pkce"></script>
 <script>
 (function(){
-  var v='405-home-hero-title-only-505';
+  var v='406-home-hero-airy-spacing-506';
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
   try{
@@ -69,7 +69,7 @@ html,body{margin:0;height:100%;background:#eef7fb;font-family:system-ui,-apple-s
 (function(){
   const shortcutHead=Array.from(document.head.querySelectorAll('[data-hh-shortcut]')).map(el=>el.outerHTML).join('\n');
   const hp=localStorage.getItem('hh-profile')==='m'?'m':'z';
-  const hhHomeBoot='<style id="hh-home-static-bootstrap">#heroHome{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important}#heroHome #personHome{display:none!important}#home #heroHome #nameHome{display:none!important}#home #heroHome .heroCopy .screenTitle{font-size:clamp(25px,7vw,30px)!important;font-weight:900!important;line-height:1.08!important;letter-spacing:-.55px!important;margin-top:0!important}#heroHome.night,#heroHome.evening{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important}</style>';
+  const hhHomeBoot='<style id="hh-home-static-bootstrap">#heroHome{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important}#heroHome #personHome{display:none!important}#home #heroHome #nameHome{display:none!important}#home #heroHome .heroCopy{top:55px!important}#home #heroHome .heroCopy .screenTitle{font-size:clamp(25px,7vw,30px)!important;font-weight:900!important;line-height:1.12!important;letter-spacing:-.55px!important;margin-top:0!important}#home #heroHome .heroCopy #dateHome{margin-top:11px!important;line-height:1.4!important}#home #heroHome .heroCopy #weatherHome{margin-top:10px!important;line-height:1.4!important}#home #heroHome .heroCopy #namedayHome{margin-top:9px!important;line-height:1.4!important}#heroHome.night,#heroHome.evening{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important}</style>';
   // The initial HH ONE badge is HTML, not a late network-dependent script.
   // Amber means "not yet verified", never a false healthy signal.
   const oneFallback='<button id="hhOneFallback501" type="button" aria-label="HH One: állapot ellenőrzésre vár. Szervizközpont megnyitása" '+
