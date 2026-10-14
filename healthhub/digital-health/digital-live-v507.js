@@ -13,16 +13,43 @@ function duration(ms){
 }
 function text(id,value){const n=$(id);if(n)n.textContent=value;}
 function row(parent,cls,content){const n=document.createElement('div');n.className=cls;if(content!=null)n.textContent=content;parent.appendChild(n);return n;}
-function showBars(s){
- const time=$('timeline');time.replaceChildren();
- for(let hour=0;hour<24;hour++){
+function showBars(s,period){
+ const time=$('timeline'),ticks=$('rhythmTicks');
+ time.replaceChildren();ticks.replaceChildren();
+ time.dataset.period=period;
+ if(period==='day'){
+  text('rhythmTitle','🕑 Napi használati ritmus');
+  text('rhythmRange','0–24h');
+  text('rhythmLegend','■ Lila: esti 20–24 óra · oszlop: megfigyelt előtéridő óránként');
+  for(let hour=0;hour<24;hour++){
    const ms=s.dayHours[hour],box=row(time,'hour');
    const fill=row(box,'fill');
    fill.style.setProperty('--height',ms==null?'0%':Math.min(100,100*ms/HOUR).toFixed(1)+'%');
    box.title=String(hour).padStart(2,'0')+':00 · '+(ms==null?'nincs megfigyelés':duration(ms));
    box.setAttribute('aria-label',box.title);
+   if(ms==null)box.classList.add('no-data');
    if(hour>=20)box.classList.add('evening');
+  }
+  for(const h of ['00','06','12','18','24'])row(ticks,'',h);
+  time.setAttribute('aria-label','Mai alkalmazás-előtéridő óránként');
+  return;
  }
+ const points=s.dayTotals;
+ const name=period==='week'?'7 napos':'30 napos';
+ text('rhythmTitle','🕑 '+name+' használati ritmus');
+ text('rhythmRange','Napi összesítés');
+ text('rhythmLegend','■ Oszlop: megfigyelt előtéridő naponként · üres: nincs adat, nem nulla');
+ const max=Math.max(1,...points.map(p=>p.foregroundMs||0));
+ for(const point of points){
+  const ms=point.foregroundMs,box=row(time,'hour'),fill=row(box,'fill');
+  fill.style.setProperty('--height',ms==null?'0%':Math.min(100,100*ms/max).toFixed(1)+'%');
+  box.title=point.date+' · '+(ms==null?'nincs megfigyelés':duration(ms));
+  box.setAttribute('aria-label',box.title);
+  if(ms==null)box.classList.add('no-data');
+ }
+ const labels=period==='week'?points:points.filter((_,i)=>i%7===0||i===points.length-1);
+ for(const point of labels)row(ticks,'',point.date.slice(5).replace('-','.'));
+ time.setAttribute('aria-label',name+' előtéridő naponként, a hiányzó adatok nem nullák');
 }
 function showWeek(doc){
  const s=vault.summary(doc,7);
@@ -110,7 +137,7 @@ function apply(doc,profile,period){
  if(source[4])source[4].textContent='Dropbox Vault · '+who+' · '+new Date(doc.collectedAtMs).toLocaleString('hu-HU');
  if(source[2])source[2].textContent='Mért előtéridő: '+duration(s.chatgpt);
  if(source[5])source[5].textContent='Önálló Sleep összevetés még nem igazolt';
- showBars(s);showWeek(doc);
+ showBars(s,period);showWeek(doc);
  apps(s);
  if(!s.covered){
    text('analysisText',who+' profiljában nincs igazolt, lezárt használati idősáv erre az időszakra. A hiányzó adatot nem kezeljük nullának.');
@@ -136,6 +163,10 @@ function clearPreviousProfile() {
  for (const id of ['timeline','weekly','legend','apps','categories']) {
    const el=$(id);if(el)el.replaceChildren();
  }
+ text('rhythmTitle','🕑 Használati ritmus');
+ text('rhythmRange','Adatellenőrzés');
+ text('rhythmLegend','Hiteles időszak betöltése…');
+ const rhythmTicks=$('rhythmTicks');if(rhythmTicks)rhythmTicks.replaceChildren();
  const ring=document.querySelector('.ring');
  if(ring)ring.style.background='conic-gradient(#304663 0% 100%)';
  const badge=document.querySelector('.header .demo');
