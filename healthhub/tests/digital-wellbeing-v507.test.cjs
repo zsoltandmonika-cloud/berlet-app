@@ -13,7 +13,7 @@ const HOUR=3600000;
 const now=Date.parse('2026-10-14T12:00:00Z');
 const hour=now-2*HOUR;
 const good={schema:api.SCHEMA,source:api.SOURCE,profileKey:'zsolt',retentionDays:30,
- missingIsUnknown:true,shared:true,collectedAtMs:now,
+ missingIsUnknown:true,shared:true,appDetailShared:false,appHours:[],collectedAtMs:now,
  hours:[{hourStartMs:hour,observedForegroundMs:900000,chatGptForegroundMs:180000,sessionFragments:2}]};
 const clone=x=>JSON.parse(JSON.stringify(x));
 assert.equal(api.validate(good,'zsolt',now).hours.length,1);
