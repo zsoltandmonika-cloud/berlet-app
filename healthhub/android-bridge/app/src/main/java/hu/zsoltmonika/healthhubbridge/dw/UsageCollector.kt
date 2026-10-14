@@ -6,7 +6,7 @@ import android.content.Context
 
 /**
  * Reads last 48 COMPLETED UTC hours plus 12h lookback to catch active-session
- * starts. Only foreground transition timings reach the in-memory reducer.
+ * starts. Query through actual sampling time so a real CLOSE/next app OPEN\n * after the most recent whole hour can confirm a prior session. Reducers\n * still CLIP to the last completed hour: never publish the partial current\n * hour and never synthesize an unobserved close.\n * Only foreground transition timings reach the in-memory reducer.
  * NO upload, background exfiltration, chat content or raw app-name history.
  */
 internal object UsageCollector {
@@ -22,7 +22,7 @@ internal object UsageCollector {
         val start = end - WINDOW_HOURS * UsageSessionizer.HOUR_MS
         val lookback = start - START_LOOKBACK_HOURS * UsageSessionizer.HOUR_MS
         val usage = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val cursor = usage.queryEvents(lookback, end)
+        val cursor = usage.queryEvents(lookback, now)
             ?: error("Android UsageEvents unavailable: do not treat this as zero usage")
         val event = UsageEvents.Event()
         val signals = ArrayList<UsageSignal>()
