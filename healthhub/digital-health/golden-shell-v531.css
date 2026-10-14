@@ -1,0 +1,101 @@
+/* HealthHub Golden Standard Rule v531 · Digital Health shell only.
+   Match the approved Premium Glass v528.1 frame, never restyle its Home.
+   Fixed geometry stays motionless across page and profile changes. */
+:root{
+ --hhpg-corner-inset:6px;
+ --hhpg-dock-accent:#60a5fa;
+ --hhpg-dock-portrait-bg:#e6f7ff;
+ --hhpg-dock-portrait-border:rgba(151,226,255,.88);
+}
+html[data-hh-digital-dock-profile="m"]{
+ --hhpg-dock-accent:#f8a9cf;
+ --hhpg-dock-portrait-bg:#ffe5f1;
+ --hhpg-dock-portrait-border:#f8a9cf;
+}
+/* This is precisely the Home HH ONE fixed 420px app alignment. The
+   stronger selector beats the late-injected HH ONE service stylesheet. */
+html body #hhOneRag500,
+html body #hhOneFallback501{
+ position:fixed!important;
+ left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))!important;
+ right:auto!important;
+ top:calc(var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
+ bottom:auto!important;
+ z-index:1200!important;
+ background:linear-gradient(125deg,rgba(10,26,48,.68),rgba(19,54,89,.50))!important;
+ color:#f1fbff!important;
+ border:1px solid rgba(164,227,255,.80)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(145%)!important;
+ backdrop-filter:blur(14px) saturate(145%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 6px 19px rgba(0,5,19,.22),0 0 13px rgba(89,202,255,.21)!important;
+ transition:none!important;animation:none!important;
+}
+html[data-hh-digital-dock-profile="m"] body #hhOneRag500,
+html[data-hh-digital-dock-profile="m"] body #hhOneFallback501{
+ background:linear-gradient(125deg,rgba(15,23,47,.63),rgba(61,34,72,.47))!important;
+ border-color:rgba(250,178,223,.53)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 6px 19px rgba(0,5,19,.2),0 0 12px rgba(244,127,201,.11)!important;
+}
+/* Exact Home profile button footprint and mirrored corner geometry. */
+#hhDigitalProfileDock{
+ position:fixed!important;
+ right:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-right))!important;
+ top:calc(var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
+ left:auto!important;bottom:auto!important;
+ width:45px!important;height:45px!important;
+ min-width:45px!important;padding:0!important;
+ border:2px solid var(--hhpg-dock-portrait-border)!important;
+ border-radius:15px!important;
+ background-color:var(--hhpg-dock-portrait-bg)!important;
+ background-size:cover!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ background-blend-mode:darken!important;
+ box-shadow:0 4px 18px rgba(0,0,0,.46),0 0 14px rgba(96,165,250,.16)!important;
+ z-index:1200!important;cursor:pointer;touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+ transition:none!important;animation:none!important;
+}
+html[data-hh-digital-dock-profile="m"] #hhDigitalProfileDock{
+ box-shadow:0 4px 18px rgba(0,0,0,.46),0 0 17px rgba(244,124,194,.28)!important;
+}
+#hhDigitalProfileDock:focus-visible,
+html body #hhOneRag500:focus-visible{
+ outline:3px solid var(--hhpg-dock-accent)!important;outline-offset:3px!important;
+}
+@media(min-width:600px){
+ html body #hhOneRag500,
+ html body #hhOneFallback501,
+ #hhDigitalProfileDock{
+  top:calc(14px + var(--hhpg-corner-inset) + env(safe-area-inset-top))!important;
+ }
+}
+/* The existing Back control remains reachable below the fixed HH ONE pill. */
+.digital-back{top:44px}
+/* The Digital Health bar now has the EXACT approved Home dark glass frame.
+   Labels and navigation routes remain as they already worked. */
+.hhBottomNav{
+ position:fixed!important;left:50%!important;bottom:0!important;
+ transform:translateX(-50%)!important;
+ width:min(100vw,420px)!important;
+ height:58px!important;min-height:58px!important;
+ padding-bottom:env(safe-area-inset-bottom)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ background:rgba(15,30,54,.97)!important;
+ border-top:1px solid rgba(140,198,243,.25)!important;
+ box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+ z-index:80!important;
+ transition:none!important;animation:none!important;
+}
+.hhBottomNav a,.hhBottomNav button{
+ color:#b9d0e8!important;font-size:8px!important;
+ font-weight:600!important;transition:none!important;animation:none!important;
+}
+.hhBottomNav .hhNavIcon{
+ width:19px!important;height:19px!important;
+ font-size:19px!important;line-height:1!important;
+ margin:0 auto 2px!important;color:inherit!important;
+}
+.hhBottomNav a:focus-visible,.hhBottomNav button:focus-visible{
+ outline:3px solid var(--hhpg-dock-accent)!important;outline-offset:-3px!important;
+}

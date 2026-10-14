@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10192b">
+<meta name="theme-color" content="#0b1425">
 <meta name="robots" content="noindex,nofollow">
 <title>HealthHub · Digital Health / Wellbeing</title>
 <style>
@@ -158,7 +158,7 @@ body{
 @media(min-width:680px){.hero-stage{grid-template-columns:minmax(0,1fr) 198px}.hero-stage h1{font-size:32px}.liveclock{padding:17px}.liveclock-time{font-size:43px}.liveclock-seconds{font-size:17px}.liveclock-date{font-size:12px}}
 .footer .back-home{display:inline-block;padding:10px 16px;margin-bottom:14px;border:1px solid #517aa8;border-radius:12px;background:#182c49;color:#d7f3ff;font-size:12px;font-weight:800;text-decoration:none}.footer .back-home:focus-visible{outline:3px solid #45d5cc;outline-offset:3px}.footnote{display:block}
 
-/* Match HealthHub's white fixed five-tab bar while preserving the Digital Health theme. */
+/* Golden Standard frame is provided by golden-shell-v531.css (last stylesheet). */
 .shell{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .digital-back{position:absolute;z-index:4;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #cfeeff8c;border-radius:18px;background:#112944ca;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 3px 14px #0005;color:#fff;font-weight:800;font-size:12px;text-decoration:none;line-height:1.3}
 .digital-back:hover{background:#233c60df}
@@ -172,8 +172,14 @@ body{
 .hhNavToast[hidden]{display:none}
 @media(min-width:680px){.shell{padding-bottom:calc(125px + env(safe-area-inset-bottom))}}
 </style>
+<!-- Golden Standard: original profile photos and fixed frame; no legacy fallback. -->
+<script src="../golden-standard-avatars-v529.js?v=531-approved-source"></script>
+<script>try{document.documentElement.dataset.hhDigitalDockProfile=localStorage.getItem("hh-profile")==="m"?"m":"z"}catch(_){document.documentElement.dataset.hhDigitalDockProfile="z"}</script>
+<link rel="stylesheet" href="./golden-shell-v531.css?v=531-fixed-golden-standard">
 </head>
 <body>
+<button id="hhDigitalProfileDock" type="button" aria-label="Profilváltás" title="Profilváltás"></button>
+<script>(function(){var b=document.getElementById("hhDigitalProfileDock");var a=window.HH_GOLDEN_AVATARS_V529;var p=document.documentElement.dataset.hhDigitalDockProfile;if(b&&a&&a[p])b.style.backgroundImage="url("+JSON.stringify(a[p])+")"})()</script>
 <main class="shell">
   <section class="hero-art" aria-label="Digital Health jóváhagyott Léna Hero kép">
     <img id="heroPicture" src="../assets/hero-digital-health-approved%20.png" alt="Léna háttérvilágításos billentyűzettel, holografikus HealthHub panel előtt, Zsolt és Mónika képeivel, éjszakai Budapesttel"
@@ -301,6 +307,17 @@ body{
     const accent=profile==='zsolt'?'#60a5fa':'#f8a9cf';
     document.documentElement.style.setProperty('--accent',accent);
     document.documentElement.style.setProperty('--accent-soft',profile==='zsolt'?'#60a5fa25':'#f8a9cf25');
+    // The Golden Standard profile dock is a view selector only.
+    // Reuse the byte-identical avatar photographs from the existing Home picker.
+    const code=profile==='monika'?'m':'z';
+    document.documentElement.dataset.hhDigitalDockProfile=code;
+    const dock=el('hhDigitalProfileDock');
+    const photos=window.HH_GOLDEN_AVATARS_V529;
+    if(dock){
+      dock.setAttribute('aria-label','Profilváltás · '+name);
+      dock.title='Profilváltás';
+      if(photos&&photos[code])dock.style.backgroundImage='url("'+photos[code]+'")';
+    }
     el('periodLabel').textContent=({day:'Mai nap',week:'Elmúlt 7 nap',month:'Elmúlt 30 nap'})[period]+' · nincs igazolt mérés';
     for(const id of ['usage','evening','chatgpt','coverage','ringTotal']) el(id).textContent='—';
     el('usageSub').textContent='Nincs hitelesített, szinkronizált mérés';
@@ -315,7 +332,20 @@ body{
     document.querySelectorAll('[data-period]').forEach(b=>{const on=b.dataset.period===period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
     if(window.HH_DW_LIVE_V507)window.HH_DW_LIVE_V507.refresh(profile,period);
   }
-  document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',()=>{profile=b.dataset.profile;render()}));
+  function chooseProfile(next){
+    if(next!=='zsolt'&&next!=='monika')return;
+    profile=next;
+    try{localStorage.setItem('hh-profile',profile==='monika'?'m':'z')}catch(_){/* Viewing still works in private mode. */}
+    render();
+  }
+  document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',()=>chooseProfile(b.dataset.profile)));
+  el('hhDigitalProfileDock').addEventListener('click',()=>chooseProfile(profile==='monika'?'zsolt':'monika'));
+  window.addEventListener('storage',event=>{
+    if(event.key==='hh-profile'){
+      const next=event.newValue==='m'?'monika':'zsolt';
+      if(profile!==next){profile=next;render()}
+    }
+  });
   document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.period;render()}));
   const navToast=el('hhDigitalNavToast');
   let navToastTimer;

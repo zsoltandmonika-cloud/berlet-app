@@ -1,0 +1,40 @@
+name: HealthHub Digital Golden Standard Shell QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/digital-health/index.html'
+      - 'healthhub/digital-health/golden-shell-v531.css'
+      - 'healthhub/golden-standard-avatars-v529.js'
+      - 'healthhub/docs/GOLDEN-STANDARD-RULE.md'
+      - 'healthhub/tests/digital-golden-shell-v531.test.cjs'
+      - 'healthhub/tests/digital-wellbeing-v507.test.cjs'
+      - '.github/workflows/healthhub-digital-golden-shell-v531-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/digital-health/index.html'
+      - 'healthhub/digital-health/golden-shell-v531.css'
+      - 'healthhub/golden-standard-avatars-v529.js'
+      - 'healthhub/docs/GOLDEN-STANDARD-RULE.md'
+      - 'healthhub/tests/digital-golden-shell-v531.test.cjs'
+      - '.github/workflows/healthhub-digital-golden-shell-v531-qa.yml'
+permissions:
+  contents: read
+jobs:
+  golden-shell-and-profile-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS parse and Golden Standard / profile/photo / navigation guard
+        run: |
+          node --check healthhub/golden-standard-avatars-v529.js
+          node --check healthhub/tests/digital-golden-shell-v531.test.cjs
+          node healthhub/tests/digital-golden-shell-v531.test.cjs
+      - name: Digital Wellbeing verified private vault and profile separation
+        run: |
+          node healthhub/tests/digital-wellbeing-v507.test.cjs
+          node healthhub/tests/digital-wellbeing-roundtrip-v508.test.cjs
