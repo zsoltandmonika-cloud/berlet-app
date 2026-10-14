@@ -1,6 +1,11 @@
 # HealthHub | fejlesztői dokumentumtár
 **Aktuális állapot:** 2026-10-11, éles build: **v380**. A korábbi mérföldkő-dokumentumok történeti pillanatképek; nem helyettesítik az aktuális állapotot.
 
+## Premium Glass Golden Design · 2026-10-14
+
+- [HealthHub Premium Glass Design & Léna Hero Character Playbook v1](./HEALTHHUB_PREMIUM_GLASS_DESIGN_PLAYBOOK_V1.md): az egységes, prémium, mobilbarát Hero / csempe / font / téma szabályai, ugyanaz a Léna minden fő modulban, Home 3×3 + Receptár → Nutrition mint megvalósítás előtt ellenőrizendő javaslat.
+- Ez a design-contract csak dokumentáció. **Nem élesíti** a vizuális átalakítást, receptköltöztetést vagy képcserét; a korábbi jóváhagyott képek és működő adatút változatlanok.
+
 ## Következő alkalommal innen indulj
 1. [2026-10-11 napzáró átadás](./2026-10-11-end-of-day-handoff-v380.md): tények, v378–v380 hibajavítások, nyitott kockázatok és folytatás.
 2. [Intelligence Roadmap & Quality Scorecard](./2026-10-11-intelligence-roadmap-and-quality-scorecard.md): IQ-S1 → IQ-S5, 20 kérdéses tesztcsomag, elfogadási feltételek.
