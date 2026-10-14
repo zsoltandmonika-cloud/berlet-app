@@ -205,3 +205,29 @@ html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile[data-
 html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home .hhpg-tile:focus-visible{
  outline-color:#ffd6f3;
 }
+
+/* v523 · Reconnect Mónika's actual approved Digital Health evening-Budapest Hero.
+   Reuse the source image already owned by Digital Health, not the Timeline placeholder.
+   Only the Premium Home with Mónika's active profile receives this background.
+   Live information glass, profile avatar and the existing 12 tiles remain untouched. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome{
+ background-image:
+   linear-gradient(90deg,rgba(7,17,36,.25),rgba(10,18,36,.035) 55%,rgba(9,14,33,.035)),
+   linear-gradient(0deg,rgba(6,15,34,.62),transparent 37%),
+   url('./assets/hero-digital-health-approved%20.png')!important;
+ background-position:center,center,center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+}
+/* Keep the heading visible above the glass info strip without masking the Hero photo. */
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .heroCopy{
+ top:64px!important;bottom:auto!important;left:15px;right:52%;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .heroCopy .screenTitle{
+ font-size:clamp(23px,6.7vw,29px)!important;
+}
+@media(max-width:360px){
+ html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .heroCopy{
+  top:69px!important;right:45%;
+ }
+}
