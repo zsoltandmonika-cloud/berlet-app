@@ -37,6 +37,34 @@ Avoid requiring the family to keep installing Screen Time PILOT, Health Connect 
 - The Léna Service Center should expose technical-only logs, version, battery/permission and adapter freshness, failure reason and OTA state. Medical results and app identity histories must not appear in generic technical telemetry.
 - **Assistant access is not automatic**: the Service Center data are accessible to Léna only through an explicitly connected, appropriately authorized tool/connector; a webpage or unrestricted diagnostic URL does not confer persistent assistant access.
 
+## HH Service Intelligence (Level 3, user-approved extension)
+
+The Léna Service Center is **not only a log viewer**. It must continue the
+already-established HealthHub **AI Improvement Center v300 / Level 3** pipeline:
+Observe → Diagnose → Recommend → Approve → Backup → Remediate → Test → Deploy →
+Measure → Learn. Existing v300 local-only System Health Check, Wishlist and
+Improvement recommendations remain the source for browser-side operational
+issues. Do not create a competing advice store.
+
+- v501 introduces a transparent **read-only recommendation layer** in the same
+  HH One Service Center: uses source-dated, authenticated per-phone heartbeat
+  and command metadata, plus the most recent (≤24h) v300 local operational
+  error/performance result when available. Each recommendation shows its
+  observed evidence, proposed action and priority.
+- When evidence is missing or stale, say so. Do not invent errors or imply that
+  the assistant was continuously observing the phones.
+- Operations: failed sync/permissions, stale heartbeats, duplicate commands,
+  reconnect diagnostics, degraded response times. Development: collector
+  convergence, bottleneck and scheduled-collection efficiency opportunities,
+  release-readiness improvements.
+- Service recommendations **never auto-edit app code, delete private records,
+  change phone permissions, run Health Connect reads, or deploy releases**.
+  Owner-approved Remediation must pass the existing versioned
+  backup → test → deploy → rollback-ready release gate.
+- Keep health readings, app usage identities and clinical details out of shared
+  technical telemetry. Real native on-device log export and persistent
+  connector-based assistant access require separately consented implementation.
+
 ## RAG ecosystem status on every page
 
 - Global fixed badge available in the main SPA and standalone Digital Health; other independent standalone modules follow via shared include when audited.
