@@ -7,8 +7,9 @@ on:
       - "healthhub/live-v305.js"
       - "healthhub/hh-one-rag-v500.js"
       - "healthhub/index.html"
-      - "healthhub/digital-health/index.html"
+      - "healthhub/digital-health/**"
       - "healthhub/tests/hh-one-remote-v502.test.cjs"
+      - "healthhub/tests/digital-wellbeing-v507.test.cjs"
       - ".github/workflows/hh-one-remote-v502-qa.yml"
   workflow_dispatch:
 
@@ -28,6 +29,9 @@ jobs:
           node --check healthhub/live-v305.js
           node --check healthhub/hh-one-rag-v500.js
           node healthhub/tests/hh-one-remote-v502.test.cjs
+          node --check healthhub/digital-health/digital-usage-vault-v507.js
+          node --check healthhub/digital-health/digital-live-v507.js
+          node healthhub/tests/digital-wellbeing-v507.test.cjs
           node healthhub/tests/hh-one-rag-v500.test.cjs
           node healthhub/tests/hh-one-service-intelligence-v501.test.cjs
   android-compile:
@@ -55,5 +59,5 @@ jobs:
       - name: Verify package / version from source
         run: |
           grep -F 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts
-          grep -F 'versionName = "0.14.1"' app/build.gradle.kts
+          grep -F 'versionName = "0.14.2"' app/build.gradle.kts
           test -s app/build/outputs/apk/debug/app-debug.apk
