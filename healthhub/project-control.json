@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-13",
+  "updatedAt": "2026-10-14",
   "liveBuild": "v380",
-  "currentFocus": "NEXT ACTIVE: HealthHub Personal Intelligence → Sleep Advisory 2.0 (Zsolt/Mónika névre szóló, forrásellenőrzött elemzés). Moduláris platform. Sleep v433 Golden Standard UI freeze; automatikus Health Connect sync E2E külön teszt.",
-  "nextDevelopment": "1) Sleep AI adatgyűjtés/provenance, 7/30/90 napos trend és összefüggés-analitika, privát verziózott Sleep Advisory archívum és Ask Léna integráció; 2) Safety/Emergency CPR/AED szakmai terv és offline biztonsági teszt; 3) Family/Home Hub moduláris bővítés; Food & Nutrition ezután. HealthRadar a HealthHub folyamatosan fejlődő, állandó modulja. KIZÁRÓLAG a különálló régi HealthRadar weboldal egyszeri archíválása nyitott, nem a modul lezárása.",
+  "currentFocus": "TOP PRIORITY: HH One (egyetlen, aláírt Android Agent telefononként) → egyesített Health/Activity/Sleep/Digital Health collector, központi szinkron + OTA + Léna Service Center, RAG kapcsolati állapot; a Sleep és egyéb modulok fejlesztése ennek stabil adatútjára épüljön. v500 RAG foundation (web) forrás tesztelés alatt, natív migráció és valódi kéttelefonos E2E még nem készült el.",
+  "nextDevelopment": "1) HH One: Connect 0.14 signing/package audit és a három külön pilot funkcióinak adatvesztés nélküli migrációterve; 2) HH One Android Health Connect/Usage Access/Samsung SDK opt-in adapterek + közös scheduler, diagnosztika, signed OTA; 3) HH One per-device authenticated ALL-MODULE sync és Service Center, kéttelefonos QA, ezután legacy pilotok kivezetése; 4) Sleep/AI mélyelemzés az ellenőrzött forrásokra építve; 5) Family/HomeHub bővítés. A HealthRadar állandó, működő modul marad.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
