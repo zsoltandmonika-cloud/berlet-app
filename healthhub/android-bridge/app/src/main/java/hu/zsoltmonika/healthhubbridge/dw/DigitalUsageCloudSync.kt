@@ -24,8 +24,10 @@ internal object DigitalUsageCloudSync {
     private val mutex = Mutex()
 
     fun enqueue(context: Context) {
+        // Do not cancel a potentially in-flight Dropbox HTTP write when the
+        // owner revokes consent. Queue the tombstone behind that write instead.
         WorkManager.getInstance(context).enqueueUniqueWork(
-            WORK, ExistingWorkPolicy.REPLACE,
+            WORK, ExistingWorkPolicy.APPEND_OR_REPLACE,
             OneTimeWorkRequestBuilder<DigitalUsageCloudWorker>().build()
         )
     }
