@@ -50,6 +50,10 @@
   document.head.appendChild(link);
   makeCompact(document.getElementById('dateHome'),'date');
   makeCompact(document.getElementById('namedayHome'),'nameday');
+  // All four approved Premium stylesheets are parse-blocking in the bundled
+  // document's <head>. Release the static FOUC gate only after Home, live info
+  // glass and compact UI have mounted in this DOMContentLoaded turn.
+  document.documentElement.dataset.hhPremiumReady='on';
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
  else mount();
