@@ -144,7 +144,12 @@ async function sendSync(){
  finally{sending=false;renderPanel();root.setTimeout(function(){refresh(true)},3000)}
 }
 function mount(){
- if(initialized)return;initialized=true;styles();
+ if(initialized)return;
+ // The HealthHub bootstrap can retry the source after document.open/write.
+ // Never create duplicate floating buttons or panel IDs.
+ if(document.getElementById(ID)){initialized=true;return}
+ if(!document.body){root.setTimeout(mount,100);return}
+ initialized=true;styles();
  var b=elt('button');b.id=ID;b.type='button';b.dataset.rag='amber';
  var dot=elt('span','hhDot',b);dot.setAttribute('aria-hidden','true');
  txt('span','HH ONE',b);document.body.appendChild(b);
