@@ -129,7 +129,7 @@ async function run(){
  assert.equal(labels.join('|'),'Microsoft Edge|Messenger|Samsung Digital Wellbeing','actual app list uses friendly names');
  assert.match(el('apps').children[0].children[1].children[0].title,/com\.microsoft\.emmx/,'original package available in title');
  assert.equal(el('legend').children[0].textContent,'Microsoft Edge · 1 perc','chart legend uses friendly label');
- assert.match(el('categories').children.map(item=>item.textContent).join('|'),/Böngészés/,'categories derive from resolved apps');
+ assert.match(el('categories').children.map(item=>item.children[0].children[1].textContent).join('|'),/Böngészés/,'categories derive from resolved apps');
  const categories=el('categories').children;
  assert.equal(categories.length,3,'three separately measured categories are rendered');
  for(const category of categories){
