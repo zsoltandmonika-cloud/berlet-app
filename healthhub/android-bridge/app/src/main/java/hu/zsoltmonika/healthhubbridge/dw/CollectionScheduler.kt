@@ -37,7 +37,7 @@ internal object CollectionScheduler {
             return
         }
 
-        val interval = CollectionSchedule.intervalHours(context)
+        val interval = CollectionSchedule.effectiveIntervalHours(context)
         val periodic = PeriodicWorkRequestBuilder<CollectionWorker>(
             interval.toLong(), TimeUnit.HOURS
         ).setInputData(Data.Builder().putString("origin", "periodic").build()).build()

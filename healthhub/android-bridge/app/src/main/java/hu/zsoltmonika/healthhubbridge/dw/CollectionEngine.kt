@@ -19,7 +19,10 @@ internal object CollectionEngine {
         require(UsageAccess.isGranted(context)) { "Usage Access not granted" }
         return try {
             val outcome = UsageCollector.collect(context, owner)
+            val localDetailRows = if (prefs.getBoolean(PilotState.APP_DETAIL_ENABLED, false))
+                AppDetailLedger.read(context, owner).size else 0
             prefs.edit()
+                .putInt(PilotState.LAST_LOCAL_DETAIL_ROWS, localDetailRows)
                 .putLong(PilotState.LAST_RUN, System.currentTimeMillis())
                 .putString(PilotState.LAST_COLLECTION_SOURCE, source)
                 .putString(PilotState.LAST_NOTE,

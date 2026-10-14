@@ -26,6 +26,7 @@ import hu.zsoltmonika.healthhubbridge.dw.AppDetailLedger
 import hu.zsoltmonika.healthhubbridge.dw.PilotState
 import hu.zsoltmonika.healthhubbridge.dw.UsageAccess
 import hu.zsoltmonika.healthhubbridge.dw.CollectionScheduler
+import hu.zsoltmonika.healthhubbridge.dw.CollectionSchedule
 import hu.zsoltmonika.healthhubbridge.dw.CollectionEngine
 import hu.zsoltmonika.healthhubbridge.dw.DigitalUsageCloudSync
 import kotlinx.coroutines.CoroutineScope
@@ -148,6 +149,7 @@ class MainActivity : ComponentActivity() {
         DailyContentScheduler.schedule(this)
         OrchestratorScheduler.schedule(this)
         CollectionScheduler.reconcile(this)
+        scheduleDigitalAppDetailCatchUp()
         OrchestratorScheduler.runNow(this)
         OtaUpdateManager.schedule(this)
         updateScheduleUi()
@@ -436,6 +438,7 @@ class MainActivity : ComponentActivity() {
                                 .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
                                 .remove(PilotState.CLOUD_DETAIL_START_MS)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                            CollectionScheduler.reconcile(this@MainActivity)
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
                         }.setNegativeButton("Mégsem", null).show()
@@ -516,6 +519,8 @@ class MainActivity : ComponentActivity() {
                                 .remove(PilotState.APP_DETAIL_CONSENT_START_MS)
                                 .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
                             if (owner != null) AppDetailLedger.clear(this@MainActivity, owner)
+                            p.edit().putInt(PilotState.LAST_LOCAL_DETAIL_ROWS, 0).apply()
+                            CollectionScheduler.reconcile(this@MainActivity)
                             if (p.getBoolean(PilotState.CLOUD_ENABLED, false))
                                 DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
@@ -530,6 +535,7 @@ class MainActivity : ComponentActivity() {
                         .setPositiveButton("Helyi részleteket engedélyezem") { _, _ ->
                             p.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, true)
                                 .putLong(PilotState.APP_DETAIL_CONSENT_START_MS, System.currentTimeMillis()).apply()
+                            CollectionScheduler.reconcile(this@MainActivity)
                             updateDigitalStatus()
                         }.setNegativeButton("Mégsem", null).show()
                 }
@@ -543,6 +549,7 @@ class MainActivity : ComponentActivity() {
                     p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
                         .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
                     DigitalUsageCloudSync.enqueue(this@MainActivity)
+                    CollectionScheduler.reconcile(this@MainActivity)
                     updateDigitalStatus()
                 } else if (!p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) ||
                     !p.getBoolean(PilotState.CLOUD_ENABLED, false)) {
@@ -554,6 +561,8 @@ class MainActivity : ComponentActivity() {
                         .setPositiveButton("Részletes családi megosztást engedélyezem") { _, _ ->
                             p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, true)
                                 .putLong(PilotState.CLOUD_DETAIL_START_MS, System.currentTimeMillis()).apply()
+                            CollectionScheduler.reconcile(this@MainActivity)
+                            CollectionScheduler.collectNow(this@MainActivity)
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
                         }.setNegativeButton("Mégsem", null).show()
@@ -799,6 +808,21 @@ class MainActivity : ComponentActivity() {
         return scroll
     }
 
+    private fun scheduleDigitalAppDetailCatchUp() {
+        val p = PilotState.prefs(this)
+        val agreed = p.getBoolean(PilotState.ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_ENABLED, false) &&
+            p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+        if (!agreed || deviceOwnerProfile() == null || !UsageAccess.isGranted(this)) return
+        val lastRun = p.getLong(PilotState.LAST_RUN, 0L)
+        // Upgrade catch-up without waiting another six hours; never an alarm,
+        // never send observations from before the two recorded consent times.
+        if (System.currentTimeMillis() - lastRun > 60L * 60L * 1000L) {
+            CollectionScheduler.collectNow(this)
+        }
+    }
+
     private fun updateDigitalStatus() {
         if (!::digitalSummary.isInitialized) return
         val p = PilotState.prefs(this)
@@ -809,14 +833,30 @@ class MainActivity : ComponentActivity() {
         val updated = p.getLong(PilotState.LAST_CLOUD_SUCCESS, 0L)
         val last = if (updated > 0) java.text.DateFormat.getDateTimeInstance().format(Date(updated))
             else "még nincs igazolt feltöltés"
+        val detailedSharing = on && cloud &&
+            p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+            p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+        val localDetail = p.getInt(PilotState.LAST_LOCAL_DETAIL_ROWS, 0)
+        val uploadedDetail = p.getInt(PilotState.LAST_CLOUD_DETAIL_ROWS, 0)
+        val uploadedHours = p.getInt(PilotState.LAST_CLOUD_HOUR_ROWS, 0)
+        val lastRun = p.getLong(PilotState.LAST_RUN, 0L)
+        val lastCollection = if (lastRun > 0L) java.text.DateFormat.getDateTimeInstance().format(Date(lastRun))
+            else "még nem volt"
         digitalSummary.text = "Telefon: " + (owner ?: "nincs rögzítve") +
             " · Android Usage Access: " + (if (UsageAccess.isGranted(this)) "OK" else "NINCS") +
-            "\\nHelyi gyűjtés: " + (if (on) "BE" else "KI") +
+            "\nHelyi gyűjtés: " + (if (on) "BE" else "KI") +
             " · családi Dropbox: " + (if (cloud) "BE" else "KI") +
             " · app-részletek a felhőben: " + (if (p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)) "BE" else "KI") +
             (if (pending) " · központi törlésre vár" else "") +
-            "\\nUtolsó feltöltés: " + last +
-            (p.getString(PilotState.LAST_CLOUD_ERROR, null)?.let { "\\nFelhőhiba: " + it } ?: "")
+            "\nAutomatikus Digital Wellbeing mintavétel: " +
+            (if (on) "kb. ${CollectionSchedule.effectiveIntervalHours(this)} óránként" else "KI") +
+            "\nUtolsó mérés: " + lastCollection +
+            " · helyi app-órák: " + localDetail +
+            "\nUtolsó igazolt Dropbox: " + last +
+            " · összesített órák: " + uploadedHours +
+            " · részletes app-órák: " + uploadedDetail +
+            (if (detailedSharing && uploadedDetail == 0) "\nRészletes mérés: még nincs a felhőben; a lezárt órát követő mintavétel szükséges." else "") +
+            (p.getString(PilotState.LAST_CLOUD_ERROR, null)?.let { "\nFelhőhiba: " + it } ?: "")
     }
 
     private fun deviceOwnerProfile(): String? {
