@@ -42,6 +42,7 @@ internal object DigitalUsageCloudSync {
 
     private suspend fun uploadCurrent(context: Context): Boolean {
         val p = PilotState.prefs(context)
+        val revision = p.getLong(PilotState.CLOUD_REVISION, 0L)
         val erase = p.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)
         val approved = p.getBoolean(PilotState.ENABLED, false) &&
             p.getBoolean(PilotState.CLOUD_ENABLED, false)
@@ -109,14 +110,32 @@ internal object DigitalUsageCloudSync {
         return try {
             if (PilotState.owner(context) != owner) return false
             if (!erase && !p.getBoolean(PilotState.CLOUD_ENABLED, false)) return false
+            // Check the consent generation immediately before sending any data.
+            if (p.getLong(PilotState.CLOUD_REVISION, 0L) != revision) return false
+            val path = DropboxVaultClient.PROFILES_DIR + "/" + owner + "-digital-wellbeing.json"
+            val payload = data.toString(2) + "\n"
             withContext(Dispatchers.IO) {
                 DropboxVaultClient.ensureFolder(main, DropboxVaultClient.ROOT)
                 DropboxVaultClient.ensureFolder(main, DropboxVaultClient.PROFILES_DIR)
-                DropboxVaultClient.uploadText(main,
-                    DropboxVaultClient.PROFILES_DIR + "/" + owner + "-digital-wellbeing.json",
-                    data.toString(2) + "\n")
+                if (p.getLong(PilotState.CLOUD_REVISION, 0L) != revision) {
+                    error("Consent changed before upload")
+                }
+                DropboxVaultClient.uploadText(main, path, payload)
+                // A completed HTTP upload is not end-to-end proof: verify the
+                // exact bytes through the existing authenticated read endpoint.
+                val readback = DropboxVaultClient.downloadTextOrNull(main, path)
+                require(readback == payload) { "Dropbox readback differs from uploaded snapshot" }
             }
-            p.edit().putLong(PilotState.LAST_CLOUD_SUCCESS, now)
+            // Revocation may have happened while Dropbox was responding.
+            // Never clear a newly pending erasure or mark a stale upload successful.
+            if (p.getLong(PilotState.CLOUD_REVISION, 0L) != revision ||
+                PilotState.owner(context) != owner ||
+                p.getBoolean(PilotState.CLOUD_ERASE_PENDING, false) != erase) {
+                p.edit().putString(PilotState.LAST_CLOUD_ERROR,
+                    "Közben módosult a megosztás; új felhőszinkron szükséges").apply()
+                return false
+            }
+            p.edit().putLong(PilotState.LAST_CLOUD_SUCCESS, System.currentTimeMillis())
                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, false)
                 .remove(PilotState.LAST_CLOUD_ERROR).apply()
             true
