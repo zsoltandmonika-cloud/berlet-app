@@ -38,6 +38,7 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12
 .timeline{display:flex;align-items:end;gap:3px;height:108px;padding-top:6px}
 .hour{flex:1;min-width:0;border-radius:5px 5px 2px 2px;background:#20334e;position:relative;height:100%;display:flex;align-items:end;overflow:hidden}
 .hour .fill{display:block;background:linear-gradient(180deg,var(--accent),#387bd1);width:100%;height:var(--height);border-radius:4px 4px 0 0}
+.hour.no-data{background:repeating-linear-gradient(135deg,#24344f,#24344f 5px,#1b2a40 5px,#1b2a40 10px);opacity:.75}
 .hour.evening{background:#293147}.hour.evening .fill{background:linear-gradient(180deg,#d4a5f9,#8559d3)}
 .ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
 .timelegend{font-size:10px;color:#c5bdf2;margin-top:11px}
@@ -209,10 +210,10 @@ body{
     <article class="card"><small>💬 ChatGPT alkalmazás</small><div class="big" id="chatgpt">—</div><div class="sub">Alkalmazás-előtéridő; nem üzenetszám</div></article>
     <article class="card"><small>🕰️ Megfigyelt idősávok</small><div class="big" id="coverage">—</div><div class="sub">Adatlefedettség, nem becsült képernyőidő</div></article>
     <article class="card span2 timecard">
-      <div class="title-row" style="margin:0 0 6px"><h2>🕑 Napi használati ritmus</h2><span class="micro">0–24h</span></div>
+      <div class="title-row" style="margin:0 0 6px"><h2 id="rhythmTitle">🕑 Napi használati ritmus</h2><span class="micro" id="rhythmRange">0–24h</span></div>
       <div id="timeline" class="timeline" role="img" aria-label="Óránkénti alkalmazáshasználati idő"></div>
-      <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
-      <div class="timelegend">■ Lila: esti 20–24 óra · oszlop: megfigyelt használat óránként</div>
+      <div class="ticks" id="rhythmTicks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+      <div class="timelegend" id="rhythmLegend">■ Lila: esti 20–24 óra · oszlop: megfigyelt használat óránként</div>
     </article>
     <article class="card span2 appcard">
       <h2>📊 Leggyakrabban használt alkalmazások</h2>
@@ -263,7 +264,7 @@ body{
 </nav>
 <div class="hhNavToast" id="hhDigitalNavToast" role="status" aria-live="polite" hidden></div>
 <script src="./digital-usage-vault-v507.js?v=507-private-source"></script>
-<script src="./digital-live-v507.js?v=507-real-stats"></script>
+<script src="./digital-live-v507.js?v=509-period-rhythm"></script>
 <script>
 'use strict';
 (function(){
