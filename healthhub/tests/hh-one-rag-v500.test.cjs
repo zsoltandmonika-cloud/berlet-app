@@ -43,6 +43,11 @@ assert.match(main,/hh-one-service-intelligence-v501\.js\?v=501-level3-advice/);
 assert.match(main,/id="hhOneFallback501"/);
 assert.match(main,/#home #heroHome #nameHome\{display:none!important\}/,'Home profile-name label is hidden for both profiles');
 assert.match(main,/#home #heroHome \.heroCopy \.screenTitle\{font-size:clamp\(25px,7vw,30px\)!important/,'HealthHub Home title is slightly larger');
+assert.match(main,/#home #heroHome \.heroCopy\{top:55px!important\}/,'Home title gets breathing room below HH One glass button');
+assert.match(main,/#home #heroHome \.heroCopy #dateHome\{margin-top:11px!important;line-height:1\.4!important\}/,'date must have relaxed spacing');
+assert.match(main,/#home #heroHome \.heroCopy #weatherHome\{margin-top:10px!important;line-height:1\.4!important\}/,'weather must have relaxed spacing');
+assert.match(main,/#home #heroHome \.heroCopy #namedayHome\{margin-top:9px!important;line-height:1\.4!important\}/,'name day must have relaxed spacing');
+
 assert.doesNotMatch(main,/#home #heroHome \.profileHit\{display:none/,'preserve profile switch tap target');
 
 assert.match(source,/left:calc\(9px \+ env\(safe-area-inset-left\)\)/,'HH One capsule on left safe-area edge');
