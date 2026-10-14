@@ -41,6 +41,10 @@ const digital=fs.readFileSync(path.join(base,'digital-health','index.html'),'utf
 assert.match(main,/hh-one-rag-v500\.js\?v=504-glass-top-left/);
 assert.match(main,/hh-one-service-intelligence-v501\.js\?v=501-level3-advice/);
 assert.match(main,/id="hhOneFallback501"/);
+assert.match(main,/#home #heroHome #nameHome\{display:none!important\}/,'Home profile-name label is hidden for both profiles');
+assert.match(main,/#home #heroHome \.heroCopy \.screenTitle\{font-size:clamp\(25px,7vw,30px\)!important/,'HealthHub Home title is slightly larger');
+assert.doesNotMatch(main,/#home #heroHome \.profileHit\{display:none/,'preserve profile switch tap target');
+
 assert.match(source,/left:calc\(9px \+ env\(safe-area-inset-left\)\)/,'HH One capsule on left safe-area edge');
 assert.match(source,/top:calc\(7px \+ env\(safe-area-inset-top\)\)/,'HH One capsule at top safe-area edge');
 assert.match(source,/backdrop-filter:blur\(16px\) saturate\(160%\)/,'glass capsule');
