@@ -175,7 +175,7 @@ jobs:
           CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' app/build.gradle.kts | head -1)"
           readarray -t BASE < <(python3 - <<'PY'
           import json
-          m=json.load(open("app/../../../data/bridge-ota.json"))
+          m=json.load(open("../data/bridge-ota.json"))
           print(m["version"])
           print(m["versionCode"])
           PY
