@@ -43,5 +43,6 @@ internal object OneTechnicalDiagnostics {
             .put("lastHealthAttemptAt", time(ResilientHealthSync.KEY_LAST_ATTEMPT))
             .put("lastOtaCheckAt", time("ota_checked_at_v1"))
             .put("hasDropboxRefreshToken", DropboxVaultClient.hasRefreshToken(prefs))
+            .put("recentAgentEvents", OneOpsLog.recent(prefs))
     }
 }
