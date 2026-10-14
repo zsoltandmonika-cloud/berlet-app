@@ -838,6 +838,8 @@ class MainActivity : ComponentActivity() {
             p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
         val localDetail = p.getInt(PilotState.LAST_LOCAL_DETAIL_ROWS, 0)
         val uploadedDetail = p.getInt(PilotState.LAST_CLOUD_DETAIL_ROWS, 0)
+        val afterConsent = p.getInt(PilotState.LAST_CLOUD_DETAIL_AFTER_CONSENT, -1)
+        val allowedFrom = p.getLong(PilotState.LAST_CLOUD_DETAIL_FIRST_ALLOWED_HOUR, 0L)
         val uploadedHours = p.getInt(PilotState.LAST_CLOUD_HOUR_ROWS, 0)
         val lastRun = p.getLong(PilotState.LAST_RUN, 0L)
         val lastCollection = if (lastRun > 0L) java.text.DateFormat.getDateTimeInstance().format(Date(lastRun))
@@ -855,7 +857,13 @@ class MainActivity : ComponentActivity() {
             "\nUtolsó igazolt Dropbox: " + last +
             " · összesített órák: " + uploadedHours +
             " · részletes app-órák: " + uploadedDetail +
-            (if (detailedSharing && uploadedDetail == 0) "\nRészletes mérés: még nincs a felhőben; a lezárt órát követő mintavétel szükséges." else "") +
+            (if (detailedSharing && afterConsent >= 0 && allowedFrom > 0)
+                "\nRészletes feltöltési szűrő: " + afterConsent +
+                " app-sor a hozzájárulás utáni teljes órákban; első engedélyezett órakezdet: " +
+                java.text.DateFormat.getDateTimeInstance().format(Date(allowedFrom)) else "") +
+            (if (detailedSharing && uploadedDetail == 0)
+                "\nRészletes mérés: a helyi app-sorok és a teljes, engedélyezett órák feltöltési szűrője ellenőrzendő."
+             else "") +
             (p.getString(PilotState.LAST_CLOUD_ERROR, null)?.let { "\nFelhőhiba: " + it } ?: "")
     }
 

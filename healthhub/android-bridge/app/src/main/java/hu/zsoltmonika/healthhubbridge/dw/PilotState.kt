@@ -19,6 +19,10 @@ internal object PilotState {
     // Counts only, never package identities or per-app names, for on-device diagnostics.
     const val LAST_LOCAL_DETAIL_ROWS = "last_local_app_detail_rows"
     const val LAST_CLOUD_DETAIL_ROWS = "last_cloud_app_detail_rows"
+    // Numeric-only diagnostic: number passing the full-hour consent threshold.
+    // Never persist package names or detailed app histories in preferences.
+    const val LAST_CLOUD_DETAIL_AFTER_CONSENT = "last_cloud_app_rows_after_full_hour_consent"
+    const val LAST_CLOUD_DETAIL_FIRST_ALLOWED_HOUR = "last_cloud_app_first_allowed_hour_ms"
     const val LAST_CLOUD_HOUR_ROWS = "last_cloud_hour_rows"
     // More sensitive application-level usage is a SECOND, explicit opt-in.
     const val APP_DETAIL_ENABLED = "app_detail_collection_enabled"

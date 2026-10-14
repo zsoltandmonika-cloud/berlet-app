@@ -32,8 +32,32 @@ internal object UsageIntervals {
         }
 
         // Kotlin sort is stable for events with identical timestamps.
+        // The sampler may query just past rangeEndMs. A REAL observed
+        // app transition or screen-off just after the completed hour may
+        // confirm a session already running before that hour ended.
+        // Clip the confirmed interval to rangeEndMs rather than silently
+        // dropping the whole preceding hour. Unclosed sessions stay UNKNOWN.
         for (event in events.sortedBy { it.atMs }) {
-            if (event.atMs > rangeEndMs) break
+            if (event.atMs > rangeEndMs) {
+                if (foreground == null || started == null) break
+                when (event.kind) {
+                    UsageKind.OPEN -> if (!event.packageName.isNullOrBlank() &&
+                        event.packageName != foreground) {
+                        close(event.atMs)
+                        break
+                    }
+                    UsageKind.CLOSE -> if (foreground == event.packageName) {
+                        close(event.atMs)
+                        break
+                    }
+                    UsageKind.SCREEN_OFF -> {
+                        close(event.atMs)
+                        break
+                    }
+                }
+                // An irrelevant CLOSE or same-app RESUME cannot prove a stop.
+                continue
+            }
             when (event.kind) {
                 UsageKind.OPEN -> {
                     val pkg = event.packageName

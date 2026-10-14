@@ -75,6 +75,8 @@ internal object DigitalUsageCloudSync {
         // Per-app package identities require a SECOND, separately approved
         // family-cloud consent AND the earlier local detail consent.
         val appArr = JSONArray()
+        var eligibleAfterConsent = 0
+        var firstAllowedHour = 0L
         val appShare = approved && !erase &&
             p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
             p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
@@ -84,8 +86,11 @@ internal object DigitalUsageCloudSync {
             val since = maxOf(now - 30L * DAY,
                 ((maxOf(localConsent, cloudConsent) + UsageSessionizer.HOUR_MS - 1L) /
                   UsageSessionizer.HOUR_MS) * UsageSessionizer.HOUR_MS)
+            firstAllowedHour = since
             val observedHourKeys = rows.map { it.hourStartMs }.toSet()
-            val appRows = AppDetailLedger.read(context, owner)
+            val localDetailRows = AppDetailLedger.read(context, owner)
+            eligibleAfterConsent = localDetailRows.count { it.hourStartMs >= since }
+            val appRows = localDetailRows
                 .filter { it.hourStartMs >= since && it.hourStartMs in observedHourKeys }
             val byHour = appRows.groupBy { it.hourStartMs }
             if (byHour.values.any { group ->
@@ -141,6 +146,8 @@ internal object DigitalUsageCloudSync {
             }
             p.edit().putLong(PilotState.LAST_CLOUD_SUCCESS, System.currentTimeMillis())
                 .putInt(PilotState.LAST_CLOUD_DETAIL_ROWS, appArr.length())
+                .putInt(PilotState.LAST_CLOUD_DETAIL_AFTER_CONSENT, eligibleAfterConsent)
+                .putLong(PilotState.LAST_CLOUD_DETAIL_FIRST_ALLOWED_HOUR, firstAllowedHour)
                 .putInt(PilotState.LAST_CLOUD_HOUR_ROWS, arr.length())
                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, false)
                 .remove(PilotState.LAST_CLOUD_ERROR).apply()
