@@ -67,7 +67,7 @@ async function run(){
  latest.resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}]});await third;
  assert.notEqual(el('usage').textContent,'—','valid current owner values displayed');
  const fourth=api.refresh('monika','month');
- assert.equal(el('usage').textContent,'—','never retain prior owner's metrics during network wait');
+ assert.equal(el('usage').textContent,'—','never retain previous profile metrics during network wait');
  assert.equal(el('timeline').children.length,0);
  assert.equal(el('weekly').children.length,0);
  const missing=pending.shift();missing.resolve(null);await fourth;
