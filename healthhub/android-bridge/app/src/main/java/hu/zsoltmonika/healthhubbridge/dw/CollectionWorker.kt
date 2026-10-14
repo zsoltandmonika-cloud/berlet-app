@@ -1,14 +1,14 @@
 package hu.zsoltmonika.healthhubbridge.dw
 
 import android.content.Context
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 
 /** Consent-gated, local-only scheduled WorkManager observation. */
 class CollectionWorker(appContext: Context, params: WorkerParameters) :
-    Worker(appContext, params) {
+    CoroutineWorker(appContext, params) {
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val prefs = PilotState.prefs(applicationContext)
         if (!prefs.getBoolean(PilotState.ENABLED, false)) return Result.success()
         if (PilotState.owner(applicationContext) == null) {
@@ -24,6 +24,10 @@ class CollectionWorker(appContext: Context, params: WorkerParameters) :
         if (origin !in setOf("periodic", "custom", "startup")) return Result.failure()
         return try {
             CollectionEngine.collect(applicationContext, origin)
+            if (PilotState.prefs(applicationContext).getBoolean(PilotState.CLOUD_ENABLED, false)) {
+                // Upload failure does not invalidate a successfully saved local observation.
+                DigitalUsageCloudSync.sync(applicationContext)
+            }
             if (origin == "custom") CollectionScheduler.scheduleFollowingCustomRun(applicationContext)
             Result.success()
         } catch (_: Exception) {
