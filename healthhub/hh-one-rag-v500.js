@@ -86,7 +86,8 @@ function renderPanel(){
   return;
  }
  ['zsolt','monika'].forEach(function(p,i){
-  var d=state.registry&&state.registry.activePhones&&state.devices.find(function(x){
+  var d=state.registry&&state.registry.activePhones&&Array.isArray(state.registry.archived)&&
+   state.devices.find(function(x){
    return x.deviceType==='android'&&x.deviceId===state.registry.activePhones[p]&&x.activeProfile===p&&
     !state.registry.archived.includes(x.deviceId)});
   var line=elt('div','hhLine',area);
