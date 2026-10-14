@@ -41,6 +41,10 @@ const document={
 const pending=[];
 const window={HH_DW_VAULT_V507:{
  read(profile){return new Promise(resolve=>pending.push({profile,resolve}));},
+ calendarWeek(){
+  const dates=['2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-17','2026-10-18'];
+  return dates.map((date,i)=>({date,foregroundMs:i===2?900000:null,future:i>2}));
+ },
  summary(doc,days){
   const date=new Date(doc.collectedAtMs).toISOString().slice(0,10);
   return {observed:900000,chatgpt:180000,evening:120000,covered:4,
@@ -72,6 +76,12 @@ async function run(){
  latest.resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}]});await third;
  assert.notEqual(el('usage').textContent,'—','valid current owner values displayed');
  assert.equal(el('timeline').children.length,7,'seven calendar days in seven-day rhythm');
+ assert.equal(el('weekly').children.length,7,'current calendar week always has seven days');
+ assert.match(el('weekly').children[0].children[0].title,/^2026-10-12/,'Monday is the first weekly bar');
+ assert.match(el('weekly').children[6].children[0].title,/^2026-10-18/,'Sunday is the final weekly bar');
+ assert.match(el('weekly').children[3].children[0].title,/még nem következett el/,'future days are unknown, not zero');
+ assert.match(el('weekRange').textContent,/10\.12–10\.18/,'weekly subtitle follows the calendar');
+
  const fourth=api.refresh('monika','month');
  assert.equal(el('usage').textContent,'—','never retain previous profile metrics during network wait');
  assert.equal(el('timeline').children.length,0);
