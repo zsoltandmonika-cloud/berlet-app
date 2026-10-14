@@ -108,3 +108,88 @@ jobs:
             echo "**Device verification still needed:** the actual installed phone app may use a different signing key."
             echo "This preflight does not install an APK or authorize unattended updates."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  signed-pilot-candidate:
+    name: Sign v0.14.2 candidate (artifact only; no OTA publish)
+    needs: [compare-signed-release-to-existing-keystore]
+    # Only a trusted same-repository PR may access the signing credential.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    env:
+      HH_OTA_KEYSTORE_B64: \${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: \${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: \${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: \${{ secrets.HH_OTA_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK for Android 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build signed pilot candidate and prove expected package identity
+        shell: bash
+        working-directory: healthhub/android-bridge
+        run: |
+          set -euo pipefail
+          for name in HH_OTA_KEYSTORE_B64 HH_OTA_KEYSTORE_PASSWORD HH_OTA_KEY_ALIAS HH_OTA_KEY_PASSWORD; do
+            if [[ -z "\${!name:-}" ]]; then
+              echo "::error::OTA signing secret unavailable. No test package created."
+              exit 1
+            fi
+          done
+          export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-one-candidate-signing.jks"
+          trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 --decode > "$HH_OTA_KEYSTORE_PATH"
+          chmod 600 "$HH_OTA_KEYSTORE_PATH"
+          gradle :app:testDebugUnitTest :app:assembleRelease --no-daemon --stacktrace
+          SRC="app/build/outputs/apk/release/app-release.apk"
+          test -s "$SRC"
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$SIGNER" verify --verbose "$SRC"
+          APK_CERT="$("$SIGNER" verify --print-certs "$SRC" |
+            awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          keytool -exportcert -alias "$HH_OTA_KEY_ALIAS" -keystore "$HH_OTA_KEYSTORE_PATH" \
+            -storepass "$HH_OTA_KEYSTORE_PASSWORD" -keypass "$HH_OTA_KEY_PASSWORD" > "$RUNNER_TEMP/current-ota-cert.der"
+          KEY_CERT="$(sha256sum "$RUNNER_TEMP/current-ota-cert.der" | cut -d' ' -f1)"
+          if [[ ! "$APK_CERT" =~ ^[a-f0-9]{64}$ || "$APK_CERT" != "$KEY_CERT" ]]; then
+            echo "::error::New signed candidate signer differs from verified production signing key."
+            exit 1
+          fi
+          if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
+             ! grep -Fq 'versionName = "0.14.2"' app/build.gradle.kts ||
+             ! grep -Fq 'versionCode = 22' app/build.gradle.kts; then
+            echo "::error::Incorrect Android package/version; candidate rejected."
+            exit 1
+          fi
+          DEST="$GITHUB_WORKSPACE/HealthHub-Connect-v0.14.2-signed-PILOT.apk"
+          cp "$SRC" "$DEST"
+          SHA="$(sha256sum "$DEST" | cut -d' ' -f1)"
+          {
+            echo "Signed candidate v0.14.2 / versionCode 22 / same Android package: PASS"
+            echo "Signature compatible with verified production OTA keystore: PASS"
+            echo "APK SHA-256: \`$SHA\`"
+            echo "**STAGING ONLY:** NOT a GitHub Release, NOT in OTA manifest, NOT installed on either phone."
+            echo "For user-approved, data-preserving manual install: first verify the CURRENTLY INSTALLED phone APK certificate."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HH-One-v0.14.2-SIGNED-PILOT-NOT-LIVE
+          path: HealthHub-Connect-v0.14.2-signed-PILOT.apk
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
