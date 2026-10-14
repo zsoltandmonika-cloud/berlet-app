@@ -71,11 +71,11 @@ function prepareFixtures(){
  assert.ok(mode.pagesPerDocument>12,'deep mode must inspect more than the first 12 pages');
  const a=plan.apply({schema:'healthhub.ask-lena/1',profile:'monika',consent:true,extra:[]},question,
   {quality:{originals:0,summaries:3}},mode);
- assert.ok(a.payload.question.includes('eredeti kivonatok hiánya nem azonos az esemény dokumentálatlanságával'),'missing source text must not be conflated with missing clinical documentation');
- assert.ok(a.payload.question.includes('NE')||a.payload.question.includes('ne '),'prompt contains safety limits');
- assert.ok(a.payload.question.includes('Mikor érkeztek'));
+ assert.equal(a.payload.question,question,'the user's question must not be polluted by long internal prompts');
+ assert.equal(a.modelPromptAdded,0,'only server-side narrative policy may add instructions');
  assert.equal(a.payload.depth,'detailed');
- assert.ok(a.payload.question.length<=1900);
+ assert.ok(a.payload.question.length<=1200);
+ assert.match(plan.instruction(mode,{originals:0}),/eredeti kivonatok hiánya/,'narrative guide remains defined but not appended to the server question');
  assert.equal(plan.decide('Mennyi lépésem volt ma?').mode,'standard');
  assert.equal(plan.decide('Mennyi lépésem volt ma?').documents,false);
  assert.throws(()=>plan.apply({profile:'zsolt',consent:false},question,null),/hozzájárulás/);
