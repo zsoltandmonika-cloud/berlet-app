@@ -140,6 +140,8 @@ internal object DigitalUsageCloudSync {
                 return false
             }
             p.edit().putLong(PilotState.LAST_CLOUD_SUCCESS, System.currentTimeMillis())
+                .putInt(PilotState.LAST_CLOUD_DETAIL_ROWS, appArr.length())
+                .putInt(PilotState.LAST_CLOUD_HOUR_ROWS, arr.length())
                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, false)
                 .remove(PilotState.LAST_CLOUD_ERROR).apply()
             true
