@@ -5,6 +5,8 @@ on:
     paths:
       - "healthhub/android-bridge/**"
       - "healthhub/live-v305.js"
+      - "healthhub/live-v328.js"
+      - "healthhub/live-v330.js"
       - "healthhub/hh-one-rag-v500.js"
       - "healthhub/index.html"
       - "healthhub/digital-health/**"
@@ -27,6 +29,8 @@ jobs:
       - name: Verify scoped remote controls, source and JS parse
         run: |
           node --check healthhub/live-v305.js
+          node --check healthhub/live-v328.js
+          node --check healthhub/live-v330.js
           node --check healthhub/hh-one-rag-v500.js
           node healthhub/tests/hh-one-remote-v502.test.cjs
           node --check healthhub/digital-health/digital-usage-vault-v507.js
