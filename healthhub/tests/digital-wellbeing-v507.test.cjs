@@ -61,7 +61,7 @@ assert.equal(api.local(fallA).date,api.local(fallB).date);
 assert.equal(api.local(fallA).hour,api.local(fallB).hour,'DST repeated hour groups in Budapest-local day');
 const html=fs.readFileSync(path.join(base,'digital-health/index.html'),'utf8');
 assert.match(html,/digital-usage-vault-v507\.js\?v=510-monday-week/);
-assert.match(html,/digital-live-v507\.js\?v=512-app-hours-sync-status/);
+assert.match(html,/digital-live-v507\.js\?v=513-friendly-app-labels/);
 assert.match(html,/id="rhythmTitle"/);
 assert.match(html,/id="rhythmTicks"/);
 assert.match(html,/id="rhythmLegend"/);
