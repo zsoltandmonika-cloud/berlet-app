@@ -256,12 +256,19 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota'].includes(scope))throw new Error('Android távoli sync: FULL, Health + Activity, Daily vagy OTA választható.');
+ if(!['full','health','daily','ota','diagnostics'].includes(scope))throw new Error('Android távoli vezérlés: Health + Activity, Daily, OTA vagy támogatott diagnosztika választható.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
  });
  if(!selected.length)throw new Error('Nincs kijelölt, ehhez a profilhoz tartozó telefon. Az Eszközregiszterben állítsd be.');
  if(new Set(selected.map(function(d){return d.activeProfile})).size!==selected.length)throw new Error('Duplikált fizikai telefon-hozzárendelés.');
+ // The existing Android v0.14.0 supports remote signed OTA *checks*, not
+ // background APK installs. v0.14.1+ advertises diagnostic snapshot support.
+ if(scope==='diagnostics'&&selected.some(function(d){
+  return !Array.isArray(d.capabilities)||!d.capabilities.includes('diagnostics')||Number(d.buildCode)<21;
+ }))throw new Error('A távoli műszaki diagnosztikához HH One Agent v0.14.1+ szükséges. Régi telefonra nem küldünk nem támogatott parancsot.');
+ if(scope==='ota'&&selected.some(function(d){return Number(d.buildCode)<20;}))
+  throw new Error('Az eszköz még nem igazolta vissza az OTA-t támogató Connect v0.14+ verzióját.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
   var cmd={
@@ -305,7 +312,7 @@ function renderAdmin(){
   return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button></div>';
  }).join('');
  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL SYNC</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
