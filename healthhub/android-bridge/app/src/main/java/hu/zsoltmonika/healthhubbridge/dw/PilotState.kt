@@ -16,6 +16,10 @@ internal object PilotState {
     const val CLOUD_DETAIL_START_MS = "shared_vault_detail_consent_ms"
     const val LAST_CLOUD_SUCCESS = "last_cloud_upload_verified_ms"
     const val LAST_CLOUD_ERROR = "last_cloud_upload_error"
+    // Counts only, never package identities or per-app names, for on-device diagnostics.
+    const val LAST_LOCAL_DETAIL_ROWS = "last_local_app_detail_rows"
+    const val LAST_CLOUD_DETAIL_ROWS = "last_cloud_app_detail_rows"
+    const val LAST_CLOUD_HOUR_ROWS = "last_cloud_hour_rows"
     // More sensitive application-level usage is a SECOND, explicit opt-in.
     const val APP_DETAIL_ENABLED = "app_detail_collection_enabled"
     // Do not retrospectively collect app identities from before this consent.
