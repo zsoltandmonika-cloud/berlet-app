@@ -100,6 +100,27 @@ function renderPanel(){
    if(d.lastHealthError)txt('small','Health hiba: '+safeText(d.lastHealthError).slice(0,180),line);
   }else txt('small','A v401 eszközregiszterben kell kijelölni az eredeti fizikai telefont.',line);
  });
+ var intelligence=root.HH_ONE_SERVICE_INTELLIGENCE_V501;
+ if(intelligence&&typeof intelligence.recommend==='function'){
+  var ops=null;
+  try{ops=typeof root.hhAiImprovementRead300==='function'?
+    root.hhAiImprovementRead300().health:null}catch(_){}
+  var advice=intelligence.recommend({cloud:state.connected,registry:state.registry,
+    devices:state.devices,opsHealth:ops,nowMs:Date.now()});
+  var heading=elt('div','hhLine',area);
+  txt('strong','🧠 HH Service Intelligence · működési és fejlesztési javaslatok',heading);
+  txt('small','Valós technikai jelek + Level 3 helyi telemetria, forrás és javasolt intézkedés. Nem automatikus javítás.',heading);
+  advice.forEach(function(a){
+   var box=elt('div','hhLine',area);
+   txt('strong',a.kind+' · '+a.title+' · '+a.priority,box);
+   txt('small','Megfigyelés: '+a.evidence,box);
+   txt('small','Javaslat: '+a.proposal,box);
+   txt('small',a.status,box);
+  });
+  txt('p','Részletes trendek és wishlist: Admin → AI Improvement Center (v300). A javítás menete: jóváhagyás → biztonsági mentés → teszt → élesítés → visszamérés.',area);
+ }else{
+  txt('p','Service Intelligence javaslatmotor még nem töltődött be; nincs kitalált diagnózis.',area);
+ }
  var actions=elt('div','hhActions',area);
  var refreshButton=elt('button','',actions);refreshButton.type='button';refreshButton.textContent=reading?'Ellenőrzés…':'↻ Friss állapot';refreshButton.disabled=reading;
  refreshButton.addEventListener('click',function(){refresh(true)});
@@ -150,6 +171,7 @@ function mount(){
  if(document.getElementById(ID)){initialized=true;return}
  if(!document.body){root.setTimeout(mount,100);return}
  initialized=true;styles();
+ var fallback=$id('hhOneFallback501');if(fallback)fallback.remove();
  var b=elt('button');b.id=ID;b.type='button';b.dataset.rag='amber';
  var dot=elt('span','hhDot',b);dot.setAttribute('aria-hidden','true');
  txt('span','HH ONE',b);document.body.appendChild(b);
@@ -169,6 +191,12 @@ function mount(){
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refresh(true)});
  root.addEventListener('healthhub:device-registry-updated',function(){refresh(true)});
 }
-root.HH_ONE_RAG_V500=Object.freeze({classify:classify,refresh:refresh});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+root.HH_ONE_RAG_V500=Object.freeze({classify:classify,refresh:refresh,open:openPanel});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
+else mount();
+// document.open()/write() can replace the original document while external
+// scripts are in flight. This explicit fallback fires even if DOMContentLoaded
+// occurred in an earlier document generation; mount remains idempotent.
+root.setTimeout(mount,80);
+root.addEventListener('pageshow',mount);
 })(window);
