@@ -5,6 +5,9 @@ on:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
       - 'healthhub/index.html'
+      - 'healthhub/home-hero-info-glass-v522.js'
+      - 'healthhub/home-hero-info-glass-v522.css'
+      - 'healthhub/tests/home-hero-info-glass-v522.test.cjs'
       - 'healthhub/tests/premium-glass-home-v520.test.cjs'
       - '.github/workflows/premium-glass-home-v520-qa.yml'
   push:
@@ -13,6 +16,9 @@ on:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
       - 'healthhub/index.html'
+      - 'healthhub/home-hero-info-glass-v522.js'
+      - 'healthhub/home-hero-info-glass-v522.css'
+      - 'healthhub/tests/home-hero-info-glass-v522.test.cjs'
       - 'healthhub/tests/premium-glass-home-v520.test.cjs'
       - '.github/workflows/premium-glass-home-v520-qa.yml'
 permissions:
@@ -29,6 +35,10 @@ jobs:
       - name: Check JavaScript parser and source safety
         run: |
           node --check healthhub/premium-glass-home-v520.js
+          node --check healthhub/home-hero-info-glass-v522.js
+          node --check healthhub/tests/home-hero-info-glass-v522.test.cjs
           node --check healthhub/tests/premium-glass-home-v520.test.cjs
       - name: Validate opt-in, 12 real module routes and privacy isolation
-        run: node healthhub/tests/premium-glass-home-v520.test.cjs
+        run: |
+          node healthhub/tests/premium-glass-home-v520.test.cjs
+          node healthhub/tests/home-hero-info-glass-v522.test.cjs
