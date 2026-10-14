@@ -6,6 +6,7 @@ on:
       - 'healthhub/digital-health/time-machine-v534.js'
       - 'healthhub/tests/digital-time-machine-v534.test.cjs'
       - '.github/workflows/healthhub-digital-time-machine-v534-qa.yml'
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
