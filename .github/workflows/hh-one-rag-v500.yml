@@ -9,6 +9,7 @@ on:
       - "healthhub/digital-health/index.html"
       - "healthhub/tests/hh-one-rag-v500.test.cjs"
       - "healthhub/tests/hh-one-service-intelligence-v501.test.cjs"
+      - "healthhub/tests/hh-one-service-center-502.test.cjs"
       - ".github/workflows/hh-one-rag-v500.yml"
   workflow_dispatch:
 
@@ -30,6 +31,7 @@ jobs:
           node --check healthhub/hh-one-service-intelligence-v501.js
           node healthhub/tests/hh-one-rag-v500.test.cjs
           node healthhub/tests/hh-one-service-intelligence-v501.test.cjs
+          node healthhub/tests/hh-one-service-center-502.test.cjs
       - name: Confirm no embedded cloud credentials
         run: |
           if grep -E 'ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}' healthhub/hh-one-rag-v500.js healthhub/hh-one-service-intelligence-v501.js; then
