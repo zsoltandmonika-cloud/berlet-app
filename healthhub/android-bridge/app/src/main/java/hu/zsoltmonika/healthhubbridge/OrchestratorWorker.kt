@@ -108,7 +108,7 @@ class OrchestratorWorker(
             .put("state", state)
             .put("updatedAt", java.time.Instant.now().toString())
             .put("startedAt", startedAt ?: JSONObject.NULL)
-            .put("completedAt", if (state in setOf("done", "partial", "failed", "expired")) java.time.Instant.now().toString() else JSONObject.NULL)
+            .put("completedAt", if (state in setOf("done", "partial", "failed", "expired", "rejected")) java.time.Instant.now().toString() else JSONObject.NULL)
             .put("profileScope", cmd.optString("profileScope", "all"))
             .put("scopes", scopes)
             .put("steps", steps)
