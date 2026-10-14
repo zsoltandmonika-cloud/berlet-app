@@ -27,8 +27,30 @@ function validate(raw,profile,now=Date.now()){
    return {hourStartMs:h.hourStartMs,observedForegroundMs:h.observedForegroundMs,
      chatGptForegroundMs:h.chatGptForegroundMs,sessionFragments:h.sessionFragments};
  });
+ const detail=raw.appDetailShared===true;
+ if(raw.appDetailShared!==true&&raw.appDetailShared!==false)throw Error('Hiányzó alkalmazás-megosztási státusz');
+ if(!Array.isArray(raw.appHours)||raw.appHours.length>31*24*250)throw Error('Hibás részletes alkalmazásadatok');
+ if(!detail&&raw.appHours.length)throw Error('Részletes adat megosztási engedély nélkül');
+ const safe=/^[a-zA-Z0-9_.:-]{1,180}$/,pairs=new Set(),totals=new Map();
+ const appHours=raw.appHours.map(a=>{
+   if(!a||!Number.isSafeInteger(a.hourStartMs)||!seen.has(a.hourStartMs)||
+      typeof a.packageName!=='string'||!safe.test(a.packageName)||
+      !Number.isSafeInteger(a.observedForegroundMs)||a.observedForegroundMs<1||a.observedForegroundMs>HOUR||
+      !Number.isInteger(a.sessionFragments)||a.sessionFragments<1||a.sessionFragments>100000)
+      throw Error('Hibás alkalmazássoros mérés');
+   const id=a.hourStartMs+'|'+a.packageName;
+   if(pairs.has(id))throw Error('Duplikált alkalmazássoros mérés');
+   pairs.add(id);
+   const total=(totals.get(a.hourStartMs)||0)+a.observedForegroundMs;
+   const parent=hours.find(x=>x.hourStartMs===a.hourStartMs);
+   if(total>HOUR||!parent||total>parent.observedForegroundMs)
+      throw Error('Az alkalmazásrészletek meghaladják az összesített mérést');
+   totals.set(a.hourStartMs,total);
+   return {hourStartMs:a.hourStartMs,packageName:a.packageName,
+     observedForegroundMs:a.observedForegroundMs,sessionFragments:a.sessionFragments};
+ });
  return {schema:SCHEMA,source:SOURCE,profileKey:profile,collectedAtMs:raw.collectedAtMs,
-   hours,missingIsUnknown:true};
+   hours,appHours,appDetailShared:detail,missingIsUnknown:true};
 }
 function dateKeys(now,days){
  const d=local(now).date.split('-').map(Number);
@@ -37,7 +59,7 @@ function dateKeys(now,days){
 function summary(doc,days,now=Date.now()){
  if(![1,7,30].includes(days))throw Error('Érvénytelen intervallum');
  const keys=dateKeys(now,days),today=local(now).date;
- const byDate=new Map(),dayHours=Array(24).fill(null);
+ const byDate=new Map(),dayHours=Array(24).fill(null),topApps=new Map();
  let observed=0,chatgpt=0,evening=0,covered=0;
  for(const r of doc.hours){
    const loc=local(r.hourStartMs);
@@ -48,9 +70,15 @@ function summary(doc,days,now=Date.now()){
    byDate.set(loc.date,(byDate.get(loc.date)||0)+r.observedForegroundMs);
    if(loc.date===today)dayHours[loc.hour]=(dayHours[loc.hour]||0)+r.observedForegroundMs;
  }
+ if(doc.appDetailShared){
+   for(const a of doc.appHours){
+     if(a.hourStartMs<=now&&keys.has(local(a.hourStartMs).date))
+       topApps.set(a.packageName,(topApps.get(a.packageName)||0)+a.observedForegroundMs);
+   }
+ }
  const dayTotals=[...keys].sort().map(date=>({date,foregroundMs:byDate.get(date)??null}));
  return {observed,chatgpt,evening,covered,days,dayHours,dayTotals,
-  lastCollectedAtMs:doc.collectedAtMs,missingIsUnknown:true};
+  lastCollectedAtMs:doc.collectedAtMs,topApps:[...topApps].sort((a,b)=>b[1]-a[1]),appDetailShared:!!doc.appDetailShared,missingIsUnknown:true};
 }
 async function cloudToken(){
  const live=root.HH_DROPBOX_VAULT;
