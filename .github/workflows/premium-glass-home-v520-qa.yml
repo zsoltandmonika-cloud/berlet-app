@@ -5,6 +5,9 @@ on:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
       - 'healthhub/index.html'
+      - 'healthhub/premium-home-compact-v525.js'
+      - 'healthhub/premium-home-compact-v525.css'
+      - 'healthhub/tests/premium-home-compact-v525.test.cjs'
       - 'healthhub/home-hero-info-glass-v522.js'
       - 'healthhub/home-hero-info-glass-v522.css'
       - 'healthhub/tests/home-hero-info-glass-v522.test.cjs'
@@ -16,6 +19,9 @@ on:
       - 'healthhub/premium-glass-home-v520.js'
       - 'healthhub/premium-glass-home-v520.css'
       - 'healthhub/index.html'
+      - 'healthhub/premium-home-compact-v525.js'
+      - 'healthhub/premium-home-compact-v525.css'
+      - 'healthhub/tests/premium-home-compact-v525.test.cjs'
       - 'healthhub/home-hero-info-glass-v522.js'
       - 'healthhub/home-hero-info-glass-v522.css'
       - 'healthhub/tests/home-hero-info-glass-v522.test.cjs'
@@ -37,8 +43,11 @@ jobs:
           node --check healthhub/premium-glass-home-v520.js
           node --check healthhub/home-hero-info-glass-v522.js
           node --check healthhub/tests/home-hero-info-glass-v522.test.cjs
+          node --check healthhub/premium-home-compact-v525.js
+          node --check healthhub/tests/premium-home-compact-v525.test.cjs
           node --check healthhub/tests/premium-glass-home-v520.test.cjs
       - name: Validate opt-in, 12 real module routes and privacy isolation
         run: |
           node healthhub/tests/premium-glass-home-v520.test.cjs
           node healthhub/tests/home-hero-info-glass-v522.test.cjs
+          node healthhub/tests/premium-home-compact-v525.test.cjs
