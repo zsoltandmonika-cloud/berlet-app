@@ -94,22 +94,29 @@ jobs:
           echo "version_code=$CODE" >> "$GITHUB_OUTPUT"
           echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Hard stop unless new APK and v0.14.0 baseline have same signing certificate
+      - name: Hard stop unless new APK and current OTA baseline have same signing certificate
         if: steps.signing.outputs.ready == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          RELEASE="healthhub-connect-ota-v0.14.0"
-          APK="HealthHub-Connect-v0.14.0-ota.apk"
+          CURRENT="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["version"])')"
+          OLD_CODE="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["versionCode"])')"
+          NEW_CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
+          if [[ -z "$CURRENT" || -z "$NEW_CODE" || "$NEW_CODE" -le "$OLD_CODE" ]]; then
+            echo "::error::OTA version code must increase over the manifest baseline."
+            exit 1
+          fi
+          RELEASE="healthhub-connect-ota-v$CURRENT"
+          APK="HealthHub-Connect-v$CURRENT-ota.apk"
           TARGET="$RUNNER_TEMP/hh-ota-baseline"
           mkdir -p "$TARGET"
           gh release download "$RELEASE" --pattern "$APK" --dir "$TARGET"
           EXPECTED="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["sha256"])')"
           ACTUAL="$(sha256sum "$TARGET/$APK" | cut -d' ' -f1)"
           if [[ "$ACTUAL" != "$EXPECTED" ]]; then
-            echo "::error::The old v0.14.0 APK changed; signed OTA halted."
+            echo "::error::The currently published baseline APK changed; signed OTA halted."
             exit 1
           fi
           SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
@@ -120,10 +127,10 @@ jobs:
           new_cert="$("$SIGNER" verify --print-certs "$GITHUB_WORKSPACE/healthhub/android-bridge/app/build/outputs/apk/release/app-release.apk" |
             awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f')"
           if [[ ! "$old_cert" =~ ^[a-f0-9]{64}$ || ! "$new_cert" =~ ^[a-f0-9]{64}$ || "$old_cert" != "$new_cert" ]]; then
-            echo "::error::APK signer does not match existing signed v0.14.0 release. No update will be published."
+            echo "::error::APK signer does not match existing published signed baseline. No update will be published."
             exit 1
           fi
-          echo "PASS: new signed release matches immutable v0.14.0 certificate and manifest checksum."
+          echo "PASS: new signed release matches current verified OTA baseline certificate and manifest checksum."
           echo "OTA pre-publication signer gate: PASS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish immutable signed release
