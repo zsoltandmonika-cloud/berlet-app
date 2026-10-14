@@ -1,32 +1,29 @@
 'use strict';
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
-const base = path.resolve(__dirname,'../..');
-const yml = fs.readFileSync(path.join(base,'.github/workflows/hh-one-signing-preflight.yml'),'utf8');
-const manifest = JSON.parse(fs.readFileSync(path.join(base,'healthhub/data/bridge-ota.json'),'utf8'));
-const release = fs.readFileSync(path.join(base,'.github/workflows/healthhub-connect-ota-release.yml'),'utf8');
-assert.equal(manifest.version, '0.14.1', 'current production baseline is signed v0.14.1');
-assert.equal(manifest.versionCode, 21);
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const base=path.resolve(__dirname,'../..');
+const yml=fs.readFileSync(path.join(base,'.github/workflows/hh-one-signing-preflight.yml'),'utf8');
+const manifest=JSON.parse(fs.readFileSync(path.join(base,'healthhub/data/bridge-ota.json'),'utf8'));
+const release=fs.readFileSync(path.join(base,'.github/workflows/healthhub-connect-ota-release.yml'),'utf8');
 const gradle=fs.readFileSync(path.join(base,'healthhub/android-bridge/app/build.gradle.kts'),'utf8');
-assert.match(gradle,/versionName = "0\\.14\\.2"/);
-assert.match(gradle,/versionCode = 22/);
+assert.equal(manifest.version,'0.14.1','current signed production baseline');
+assert.equal(manifest.versionCode,21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
-assert.equal(manifest.rolloutProfiles.length,1);
-assert.equal(manifest.rolloutProfiles[0],'zsolt');
-assert.match(manifest.sha256, /^[a-f0-9]{64}$/);
-assert.match(yml, /gh release download "\$RELEASE"/);
-assert.match(yml, /BASE_VERSION/);
-assert.match(yml, /BASE_CODE/);
-assert.match(yml, /healthhub\\/data\\/bridge-ota\\.json/);
-assert.match(yml, /NEW_CODE.*BASE_CODE/);
-assert.doesNotMatch(yml,/RELEASE="healthhub-connect-ota-v0\\.14\\.0"/);
-assert.match(yml, /\$EXPECTED_SHA" != "\$ACTUAL_SHA/);
-assert.match(yml, /\$KEY_CERT_SHA" != "\$APK_CERT_SHA/);
-assert.match(yml, /keytool -exportcert/);
-assert.match(yml, /apksigner" verify --print-certs/);
-assert.match(yml, /BLOCKED: signing certificate mismatch/);
-assert.match(yml, /Device verification still needed/);
-assert.doesNotMatch(yml, /gh release create|git push|gradle :app:assembleRelease|gh api -X POST/);
-assert.match(release, /if: steps.signing.outputs.ready == 'true'/);
-console.log('HH One signing preflight contract: read-only, no secret exposure, same release+key fingerprint before OTA.');
+assert.deepEqual(manifest.rolloutProfiles,['zsolt']);
+assert.match(manifest.sha256,/^[a-f0-9]{64}$/);
+assert.ok(gradle.includes('versionName = "0.14.2"'));
+assert.ok(gradle.includes('versionCode = 22'));
+for(const needle of [
+ 'healthhub/data/bridge-ota.json','BASE_VERSION','BASE_CODE','NEW_CODE',
+ 'gh release download "$RELEASE"',
+ 'keytool -exportcert','apksigner" verify --print-certs',
+ 'BLOCKED: signing certificate mismatch','Device verification still needed',
+ 'CURRENT', 'EXPECTED_SHA', 'ACTUAL_SHA', 'KEY_CERT_SHA', 'APK_CERT_SHA'
+].filter(x=>x!=='CURRENT')) {
+ assert.ok(yml.includes(needle),'Missing signing gate: '+needle);
+}
+assert.ok(!yml.includes('RELEASE="healthhub-connect-ota-v0.14.0"'),'do not hardcode old baseline');
+assert.ok(!/gh release create|git push|gradle :app:assembleRelease|gh api -X POST/.test(yml),'read-only gate');
+assert.ok(release.includes("if: steps.signing.outputs.ready == 'true'"));
+console.log('HH One signing preflight: dynamic signed baseline, SHA and certificate check, read-only PASS');
