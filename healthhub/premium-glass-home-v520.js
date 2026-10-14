@@ -27,7 +27,7 @@
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
- style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=520-preview-1';
+ style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=521-subtle-rose-night';
  document.head.appendChild(style);
  function legacyButton(name){
   var buttons=document.querySelectorAll('#home .homeModules .homeModule');

@@ -56,6 +56,7 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 - Betű: Inter, ha elérhető; `Segoe UI` / Roboto / rendszerfallback. Kis címkéknek is jó kontraszt és olvashatóság.
 - Grafikonok: állandó jelmagyarázat, egységek, mért vs hiányzó különbsége, semleges „nincs adat”; színen kívüli jelentésjelölés.
 - Zsolt: mélykék/cyan; Mónika: pink/rose, a közös prémium sötét alap és a szövegkontraszt megtartásával.
+- **Mónika pink golden rule (2026-10-14):** a Digital Health jóváhagyott Budapest-est / pink LED Hero színvilágához finoman simuljon. Sötét grafit-mélykék alap, nagyon kevés, az oldal élén megjelenő meleg pink fény. Finom rose peremek a csempéken, rose kiemelés a profilfotón, aktív és fókuszjelzéseken, a Daily Intelligence csempéken. **Nem pink háttér, nem telített pink kártyák.** Zsolt kék-cyan témája változatlan marad. A nézőpont és jóváhagyott Hero karakter megőrzése elsődleges; a színezés CSS-szintű, nem képszerkesztés. Implementációs referencia: [Premium Glass Home CSS](../premium-glass-home-v520.css), kizárólag `?hhpremium=1` opt-in módban, `data-hhpg-profile="m"` feltétellel.
 - Ne legyenek egymásnak ellentmondó modulonkénti profilváltók, fontok, kártyaradiusok vagy navigációs jelölések.
 
 ## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép
