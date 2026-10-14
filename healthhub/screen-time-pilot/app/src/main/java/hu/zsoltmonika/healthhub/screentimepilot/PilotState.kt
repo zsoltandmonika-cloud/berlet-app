@@ -14,6 +14,12 @@ internal object PilotState {
     const val APP_DETAIL_CONSENT_START_MS = "app_detail_consent_start_ms"
     const val LAST_RUN = "last_completed_run_ms"
     const val LAST_NOTE = "last_collection_note"
+    // Independent per-phone schedule, never synced or sent to public Pages.
+    const val SCHEDULE_INTERVAL_HOURS = "schedule_interval_hours_v030"
+    const val SCHEDULE_CUSTOM_TIMES = "schedule_custom_times_v030"
+    const val APPLIED_INTERVAL_HOURS = "applied_interval_hours_v030"
+    const val APPLIED_CUSTOM_SLOTS = "applied_custom_slots_v030"
+    const val LAST_COLLECTION_SOURCE = "last_collection_source_v030"
 
     fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
