@@ -44,7 +44,9 @@ assert.ok(css.includes('border-radius:15px!important'),'Approved portrait radius
 assert.ok(css.includes('background-color:var(--hhpg-dock-portrait-bg)!important'),'Profile photo tint uses original image');
 assert.ok(css.includes('--hhpg-dock-portrait-bg:#e6f7ff'),'Zsolt ice blue');
 assert.ok(css.includes('--hhpg-dock-portrait-bg:#ffe5f1'),'Mónika soft pink');
-assert.ok(css.includes('html body #hhOneRag500'),'Live HH ONE gets same fixed glass as Home');
+assert.ok(css.includes('html body #hhOneRag500[data-surface="digital"]'),'HH ONE specificity beats digital bottom-right rule from late-injected engine');
+assert.ok(!css.includes('html body #hhOneRag500,'),'Generic selector would lose to the engine data-surface rule');
+assert.ok(css.includes('bottom:auto!important'),'HH ONE must not stay bottom-right');
 assert.ok(css.includes('html body #hhOneFallback501'),'Initial HH ONE fallback also aligned');
 assert.ok(css.includes('rgba(15,30,54,.97)'),'Same Home dark glass taskbar');
 assert.ok(css.includes('rgba(140,198,243,.25)'),'Same top border');
@@ -53,7 +55,14 @@ assert.ok(css.includes('height:58px!important'),'Same navigation height');
 assert.ok(css.includes('transition:none!important;animation:none!important'),'No moving corner controls');
 
 // Original data and controls remain in the Digital Health dashboard unchanged.
-assert.ok(html.includes('<link rel="stylesheet" href="./golden-shell-v531.css?v=531-fixed-golden-standard">'),'One blocking shared shell CSS');
+assert.ok(html.includes('<link rel="stylesheet" href="./golden-shell-v531.css?v=532-digital-hero-polish">'),'New CSS cache key releases phone fix');
+assert.ok(css.includes('.hero-stage .hero-copy{'),'Hero tagline has targeted centered layout');
+assert.ok(css.includes('text-align:center;min-height:110px;padding-top:12px'),'Tagline centered and slightly lower');
+assert.ok(!html.includes('id="digitalBack"'),'Old back overlay removed');
+assert.ok(!html.includes("el('digitalBack')"),'No stale Back event handler');
+assert.ok(!html.includes('data-profile="zsolt"')&&!html.includes('data-profile="monika"'),'No redundant profile buttons under tagline');
+assert.ok(!html.includes("querySelectorAll('[data-profile]')"),'No obsolete two-button handlers');
+assert.ok(html.includes('hhDigitalProfileDock'),'The portrait remains the single profile selector');
 assert.ok(html.includes('<script src="../golden-standard-avatars-v529.js?v=531-approved-source"></script>'),'Original photos are loaded before first paint');
 assert.ok(html.includes('id="hhDigitalProfileDock"'),'One tappable header portrait');
 assert.equal((html.match(/id="hhDigitalProfileDock"/g)||[]).length,1,'No duplicate portrait controls');
