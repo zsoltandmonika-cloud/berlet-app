@@ -5,7 +5,7 @@ const vault=root.HH_DW_VAULT_V507;
 const $=id=>document.getElementById(id);
 const DAY=86400000,HOUR=3600000;
 let generation=0;
-const cache=new Map();
+// Always read the private vault on a profile/period refresh. Never cache revoked data.
 function duration(ms){
  if(ms==null||!Number.isFinite(ms))return '—';
  const minutes=Math.round(ms/60000);
@@ -126,14 +126,31 @@ function apply(doc,profile,period){
    ' idősávban. Ebből az esti 20–24 órás időablak aránya '+part+
    '%. Ez csak ténylegesen megfigyelt alkalmazáshasználat; alvással való kapcsolatot összehasonlított mérések nélkül nem állítok.');
 }
+function clearPreviousProfile() {
+ // Immediately clear every previously visible metric before any remote request.
+ for (const id of ['usage','chatgpt','evening','coverage','ringTotal']) text(id,'—');
+ text('usageSub','Hiteles Dropbox-mérés betöltése…');
+ text('eveningSub','20:00–24:00 · még nem ellenőrzött');
+ text('digitalUsageAccessState','Felhőadat ellenőrzése');
+ text('analysisText','Hiteles mérések betöltése folyamatban…');
+ for (const id of ['timeline','weekly','legend','apps','categories']) {
+   const el=$(id);if(el)el.replaceChildren();
+ }
+ const ring=document.querySelector('.ring');
+ if(ring)ring.style.background='conic-gradient(#304663 0% 100%)';
+ const badge=document.querySelector('.header .demo');
+ if(badge)badge.textContent='● ADATELLENŐRZÉS';
+ const source=document.querySelectorAll('.source b');
+ for(const index of [2,4,5])if(source[index])source[index].textContent='—';
+}
 async function refresh(profile,period){
  if(!['zsolt','monika'].includes(profile)||!['day','week','month'].includes(period))return;
  const id=++generation;
+ clearPreviousProfile();
+ text('periodLabel',({day:'Ma',week:'7 nap',month:'30 nap'}[period])+' · adatellenőrzés…');
  try{
-   const stored=cache.get(profile);
-   const doc=stored&&Date.now()-stored.at<120000?stored.doc:await vault.read(profile);
+   const doc=await vault.read(profile);
    if(id!==generation)return;
-   if(!stored||Date.now()-stored.at>=120000)cache.set(profile,{doc,at:Date.now()});
    if(!doc||doc.hours.length===0){
      const msg=doc?'Nincs igazolt használati mérés':'A telefon még nem töltött fel Digital Wellbeing adatot';
      text('usageSub',msg);
