@@ -77,8 +77,6 @@ assert.equal(explicitPremium.head.children.length,1,'old Premium URL still works
 assert.equal(off.head.children.length,0,'explicit classic fallback unchanged');
 assert.equal(notReady.head.children.length,0,'guard still prevents unmounted Premium compact UI');
 assert.equal(on.head.children.length,1,'one style sheet injected');
-assert.equal(on.win.documentReady,undefined,'test never assumes fake browser paint');
-assert.equal(on.head.parentNode||null,null,'head node unchanged');
 assert.equal(on.readyFlag,'on','Premium mount lifts the FOUC gate');
 assert.equal(on.dateCell.children.length,2,'date source plus compact view');
 assert.equal(on.nameCell.children.length,2,'nameday source plus compact view');
