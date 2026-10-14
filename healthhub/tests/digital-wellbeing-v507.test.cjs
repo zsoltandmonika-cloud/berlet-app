@@ -36,18 +36,42 @@ const missing={...good,hours:[]};
 const s=api.summary(api.validate(missing,'zsolt',now),7,now);
 assert.equal(s.covered,0);
 assert.equal(s.dayTotals.filter(x=>x.foregroundMs===null).length,7,'Missing days are unknown, never false zero');
+const currentWeek=api.calendarWeek(good,now);
+assert.equal(currentWeek.length,7);
+assert.deepEqual(Array.from(currentWeek,p=>p.date),[
+ '2026-10-12','2026-10-13','2026-10-14','2026-10-15',
+ '2026-10-16','2026-10-17','2026-10-18'
+], 'Calendar week must start Monday in Europe/Budapest');
+assert.equal(currentWeek[0].foregroundMs,null,'unknown past date is not zero');
+assert.equal(currentWeek[2].foregroundMs,900000,'Wednesday observed duration');
+assert.equal(currentWeek[2].future,false);
+assert.equal(currentWeek[3].foregroundMs,null,'tomorrow is unknown');
+assert.equal(currentWeek[3].future,true,'future day is not an observed zero');
+assert.equal(api.summary(good,7,now).dayTotals[0].date,'2026-10-08','7-day aggregate stays rolling');
+const newYearWeek=api.calendarWeek({hours:[]},Date.parse('2027-01-01T12:00:00Z'));
+assert.equal(newYearWeek[0].date,'2026-12-28','Monday across year boundary');
+assert.equal(newYearWeek[6].date,'2027-01-03','Sunday across year boundary');
+const autumnWeek=api.calendarWeek({hours:[]},Date.parse('2026-10-25T12:00:00Z'));
+assert.equal(autumnWeek[0].date,'2026-10-19','DST week still starts Monday');
+assert.equal(autumnWeek[6].date,'2026-10-25','DST week still ends Sunday');
+
 const fallA=Date.parse('2026-10-25T00:00:00Z');
 const fallB=Date.parse('2026-10-25T01:00:00Z');
 assert.equal(api.local(fallA).date,api.local(fallB).date);
 assert.equal(api.local(fallA).hour,api.local(fallB).hour,'DST repeated hour groups in Budapest-local day');
 const html=fs.readFileSync(path.join(base,'digital-health/index.html'),'utf8');
-assert.match(html,/digital-usage-vault-v507\.js\?v=507-private-source/);
-assert.match(html,/digital-live-v507\.js\?v=509-period-rhythm/);
+assert.match(html,/digital-usage-vault-v507\.js\?v=510-monday-week/);
+assert.match(html,/digital-live-v507\.js\?v=510-monday-week/);
 assert.match(html,/id="rhythmTitle"/);
 assert.match(html,/id="rhythmTicks"/);
 assert.match(html,/id="rhythmLegend"/);
 assert.doesNotMatch(html,/\.ring\{background:#26374e!important\}/,'measured ring cannot be masked by !important CSS');
 assert.match(html,/id="digitalAppDetails"/);
+assert.match(html,/<h2>Léna elemzés<\/h2>/);
+assert.match(html,/<strong id="lenaHeading">Zsolt digitális ritmusa<\/strong>/);
+assert.doesNotMatch(html,/<div class="avatar"/);
+assert.match(html,/id="weekRange"/);
+assert.match(html,/name\+' digitális ritmusa'/);
 assert.match(html,/HH_DW_LIVE_V507\.refresh\(profile,period\)/);
 const native=fs.readFileSync(path.join(base,'android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/dw/DigitalUsageCloudSync.kt'),'utf8');
 assert.match(native,/DropboxVaultClient\.PROFILES_DIR/);
