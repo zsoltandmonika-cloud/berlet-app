@@ -9,6 +9,7 @@ internal object PilotState {
     const val OWNER = "bound_profile"
     const val ENABLED = "collection_enabled"
     const val CLOUD_ENABLED = "shared_vault_upload_opt_in"
+    const val CLOUD_ERASE_PENDING = "shared_vault_tombstone_pending"
     const val CLOUD_DETAIL_ENABLED = "shared_vault_app_detail_opt_in"
     const val CLOUD_DETAIL_START_MS = "shared_vault_detail_consent_ms"
     const val LAST_CLOUD_SUCCESS = "last_cloud_upload_verified_ms"
@@ -45,6 +46,7 @@ internal object PilotState {
                 .putBoolean(CLOUD_ENABLED, false)
                 .putBoolean(CLOUD_DETAIL_ENABLED, false)
                 .remove(CLOUD_DETAIL_START_MS)
+                .putBoolean(CLOUD_ERASE_PENDING, false)
                 .putBoolean(APP_DETAIL_ENABLED, false)
                 .remove(APP_DETAIL_CONSENT_START_MS)
                 .putString(OWNER, primary)
