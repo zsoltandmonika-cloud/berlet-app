@@ -1,10 +1,10 @@
 /* HealthHub v522: live Home Hero Info Glass. Uses the existing source DOM nodes only.
-   Premium preview only, preserving approved hero photo, profile state and data sources. */
+   Premium Home by default; classic Home only via ?hhpremium=0. Approved photos, profiles and data remain authoritative. */
 (function(root){
  'use strict';
  var params;
  try{params=new URLSearchParams(root.location.search)}catch(_){return}
- if(params.get('hhpremium')!=='1')return;
+ if(params.get('hhpremium')==='0')return;
  function mount(){
   if(document.documentElement.dataset.hhPremiumPreview!=='on')return;
   var hero=document.querySelector('#home #heroHome');
