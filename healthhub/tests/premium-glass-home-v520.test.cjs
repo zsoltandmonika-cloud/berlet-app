@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=5261-exact-monika-photo/);
+assert.match(html,/premium-glass-home-v520\.js\?v=527-zsolt-exact-upload/);
 assert.match(source,/params\.get\('hhpremium'\)!=='1'/,'preview must be opt-in');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -17,6 +17,22 @@ assert.ok(fs.existsSync(uploadedAsset),'exact uploaded Mónika Hero PNG must exi
 const png=fs.readFileSync(uploadedAsset);
 assert.equal(require('node:crypto').createHash('sha256').update(png).digest('hex'),'bb61deaf03db5121c76570bee2449d67060e6c407d0c1a1b7537150bbf46aa5e','asset bytes must exactly match Mónika approved uploaded PNG');
 assert.ok(css.includes('monika-hh-hero-approved-v5261.png'),'Mónika Premium Home uses the user-selected exact Mónika Hero PNG');
+
+// v527: reject a generated lookalike, tint, or modified rendition.
+const zAsset=path.join(root,'assets','zsolt-hh-hero-approved-v527.png');
+assert.ok(fs.existsSync(zAsset),'exact Zsolt PNG must be present before merge');
+const zBytes=fs.readFileSync(zAsset);
+assert.equal(zBytes.length,3036484,'Zsolt image byte count must match user-uploaded source');
+assert.equal(require('node:crypto').createHash('sha256').update(zBytes).digest('hex'),
+ 'ec4144d464340ae9b95f52dfdaba775d88d0499c436ad3eac3c6132e335f930a',
+ 'Zsolt Hero image must be exactly the chosen original PNG');
+const zCss=fs.readFileSync(path.join(root,'premium-zsolt-hero-v527.css'),'utf8');
+assert.ok(source.includes('premium-zsolt-hero-v527.css?v=527-exact-zsolt-blue'));
+assert.ok(zCss.includes('zsolt-hh-hero-approved-v527.png'),'Zsolt-only light-blue hero CSS');
+assert.ok(zCss.includes('[data-hhpg-profile="z"]'),'Zsolt-only theme');
+assert.ok(zCss.includes('#hhOneRag500')&&zCss.includes('#hhOneFallback501'),'light-blue HH ONE');
+assert.doesNotMatch(zCss,/data-hhpg-profile="m"/,'never restyle Mónika');
+
 const monikaHeroSection=css.split('/* v523 · Reconnect Mónika')[1];
 assert.ok(monikaHeroSection,'approved Budapest hero override present');
 assert.match(monikaHeroSection,/data-hhpg-profile="m"/,'Mónika only');
@@ -119,6 +135,14 @@ on.setProfile('z');
 on.window.listeners['healthhub:profile-changed']();
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
 assert.ok(!on.hero.style.getPropertyValue('background-image').includes('monika-hh-hero-approved-v5261.png'),'Zsolt image restored');
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('zsolt-hh-hero-approved-v527.png'),'exact Zsolt image selected');
+on.hero.style.setProperty('background-image','url("./assets/hero-home-z-approved-v215.webp?v=215")','important');
+on.hero.mutationCallback();
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('zsolt-hh-hero-approved-v527.png'),'Zsolt legacy repaint corrected');
+on.setProfile('m');on.window.listeners['healthhub:profile-changed']();
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('monika-hh-hero-approved-v5261.png'),'Mónika exact asset still used');
+on.setProfile('z');on.window.listeners['healthhub:profile-changed']();
+assert.ok(on.hero.style.getPropertyValue('background-image').includes('zsolt-hh-hero-approved-v527.png'),'repeated switches return Zsolt image');
 
 assert.ok(grid,'the preview Home inserts a distinct 12-tile grid');
 assert.equal(grid.children.length,12);
