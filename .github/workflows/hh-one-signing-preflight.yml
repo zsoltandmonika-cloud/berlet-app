@@ -119,14 +119,14 @@ jobs:
     permissions:
       contents: read
     env:
-      HH_OTA_KEYSTORE_B64: \${{ secrets.HH_OTA_KEYSTORE_B64 }}
-      HH_OTA_KEYSTORE_PASSWORD: \${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
-      HH_OTA_KEY_ALIAS: \${{ secrets.HH_OTA_KEY_ALIAS }}
-      HH_OTA_KEY_PASSWORD: \${{ secrets.HH_OTA_KEY_PASSWORD }}
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: \${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -147,7 +147,7 @@ jobs:
         run: |
           set -euo pipefail
           for name in HH_OTA_KEYSTORE_B64 HH_OTA_KEYSTORE_PASSWORD HH_OTA_KEY_ALIAS HH_OTA_KEY_PASSWORD; do
-            if [[ -z "\${!name:-}" ]]; then
+            if [[ -z "${!name:-}" ]]; then
               echo "::error::OTA signing secret unavailable. No test package created."
               exit 1
             fi
