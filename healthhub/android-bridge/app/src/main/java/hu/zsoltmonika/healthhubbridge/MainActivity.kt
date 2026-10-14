@@ -400,6 +400,8 @@ class MainActivity : ComponentActivity() {
                         .setPositiveButton("Leállítás és megosztás visszavonása") { _, _ ->
                             p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.ENABLED, false)
                                 .putBoolean(PilotState.CLOUD_ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                                .remove(PilotState.CLOUD_DETAIL_START_MS)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                             CollectionScheduler.stop(this@MainActivity)
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
@@ -431,6 +433,8 @@ class MainActivity : ComponentActivity() {
                         .setMessage("A telefon leállítja a számok megosztását, és amint van Dropbox-kapcsolat, felülírja a központi állományt egy üres, visszavont rekorddal.")
                         .setPositiveButton("Visszavonom") { _, _ ->
                             p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                                .remove(PilotState.CLOUD_DETAIL_START_MS)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
@@ -443,7 +447,7 @@ class MainActivity : ComponentActivity() {
                 } else {
                     android.app.AlertDialog.Builder(this@MainActivity)
                         .setTitle("30 napos családi Dropbox-megosztás")
-                        .setMessage("A telefonod saját profiljának óránkénti számszerű adatait a meglévő /HealthHub/profiles/ mappába tölti fel, akár a már mért legutóbbi 30 napból is. Zsolt és Mónika a közös fiókból megtekintheti. Alkalmazásneveket, üzeneteket és nyers eseményeket NEM tölt fel.")
+                        .setMessage("A telefonod saját profiljának óránkénti összesített és ChatGPT-használati perceit a meglévő /HealthHub/profiles/ mappába tölti fel, akár a már mért legutóbbi 30 napból is. Zsolt és Mónika a közös fiókból megtekintheti. Más alkalmazások nevét csak további külön engedéllyel osztja meg; üzeneteket és nyers eseményeket NEM tölt fel.")
                         .setPositiveButton("Családi megosztást engedélyezem") { _, _ ->
                             p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, true)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, false).apply()
@@ -486,7 +490,11 @@ class MainActivity : ComponentActivity() {
                     .setPositiveButton("Leállítás és törlés") { _, _ ->
                         val p = PilotState.prefs(this@MainActivity)
                         CollectionEngine.clearAndStop(this@MainActivity)
-                        p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                        p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L)
+                            .putBoolean(PilotState.CLOUD_ENABLED, false)
+                            .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                            .remove(PilotState.CLOUD_DETAIL_START_MS)
+                            .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                         DigitalUsageCloudSync.enqueue(this@MainActivity)
                         updateDigitalStatus()
                     }.setNegativeButton("Mégsem", null).show()
