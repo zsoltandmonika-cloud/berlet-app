@@ -80,7 +80,10 @@ function apps(s){
  if(!s.appDetailShared||!s.topApps.length){
    ring.style.background='conic-gradient(#304663 0% 100%)';
    text('ringTotal','—');
-   for(const el of [legend,list,categories])row(el,'note','Alkalmazásonkénti adat még nem érkezett külön családi megosztási engedéllyel.');
+   const message=!s.appDetailShared
+     ?'A családi alkalmazáslista külön megosztása még nincs engedélyezve ezen a telefonon.'
+     :'A részletes megosztás engedélyezett, de erre az időszakra még nincs engedélyezés utáni, lezárt alkalmazásóra. Új használat után az óraváltást követő mérés és Dropbox-szinkron szükséges.';
+   for(const el of [legend,list,categories])row(el,'note',message);
    return;
  }
  const all=s.topApps.reduce((sum,item)=>sum+item[1],0);
@@ -128,6 +131,9 @@ function apply(doc,profile,period){
  text('evening',s.covered?duration(s.evening):'—');
  text('coverage',s.covered?String(s.covered):'—');
  text('ringTotal','—');
+ text('digitalAppDetails',!s.appDetailShared
+  ?'Nincs külön családi alkalmazásmegosztási engedély'
+  :s.topApps.length+' megjeleníthető alkalmazás a kiválasztott időszakban');
  text('usageSub','Előtérhasználat becslése; nem a Samsung gyári képernyőideje');
  text('eveningSub','20:00–24:00 · megfigyelt idősávok');
  text('digitalUsageAccessState','Hiteles HH One Android adat · hozzáférés állapota csak telefonon');
@@ -159,6 +165,7 @@ function clearPreviousProfile() {
  text('usageSub','Hiteles Dropbox-mérés betöltése…');
  text('eveningSub','20:00–24:00 · még nem ellenőrzött');
  text('digitalUsageAccessState','Felhőadat ellenőrzése');
+ text('digitalAppDetails','Ellenőrzés folyamatban…');
  text('analysisText','Hiteles mérések betöltése folyamatban…');
  for (const id of ['timeline','weekly','legend','apps','categories']) {
    const el=$(id);if(el)el.replaceChildren();
