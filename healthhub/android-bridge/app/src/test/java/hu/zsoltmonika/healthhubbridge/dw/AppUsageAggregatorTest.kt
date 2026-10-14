@@ -42,6 +42,28 @@ class AppUsageAggregatorTest {
         assertEquals(3_000L, rows.last().observedForegroundMs)
     }
 
+    @Test fun confirmedCloseAfterHourCarriesEarlierAppIntoDetailedBreakdown() {
+        val events = listOf(
+            open(hour - 15L * 60_000L, "com.microsoft.emmx"),
+            close(hour + 2L * 60_000L, "com.microsoft.emmx")
+        )
+        val apps = AppUsageAggregator.aggregate(events, 0L, hour)
+        val coarse = UsageSessionizer.aggregate(events, 0L, hour)
+        assertEquals(1, apps.size)
+        assertEquals(0L, apps.single().hourStartMs)
+        assertEquals(15L * 60_000L, apps.single().observedForegroundMs)
+        assertEquals(15L * 60_000L, coarse.single().observedForegroundMs)
+        assertEquals("com.microsoft.emmx", apps.single().packageName)
+    }
+
+    @Test fun unfinishedSessionEvenAfterBoundaryIsStillUnknown() {
+        val apps = AppUsageAggregator.aggregate(
+            listOf(open(hour - 600_000L, "com.microsoft.emmx")),
+            0L, hour
+        )
+        assertTrue(apps.isEmpty())
+    }
+
     @Test fun incompleteForegroundSessionRemainsUnknown() {
         assertTrue(AppUsageAggregator.aggregate(
             listOf(open(0, "com.openai.chatgpt")), 0, hour
