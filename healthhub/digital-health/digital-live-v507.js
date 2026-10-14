@@ -38,6 +38,55 @@ function showWeek(doc){
    row(d,'daylabel',dates.format(new Date(point.date+'T12:00:00Z')));
  }
 }
+function apps(s){
+ const legend=$('legend'),list=$('apps'),categories=$('categories'),ring=document.querySelector('.ring');
+ for(const element of [legend,list,categories])element.replaceChildren();
+ const names={
+ 'com.openai.chatgpt':['ChatGPT','💬','AI-eszközök'],
+ 'com.google.android.youtube':['YouTube','▶️','Videó'],
+ 'com.android.chrome':['Chrome','🌐','Böngészés'],
+ 'com.sec.android.app.sbrowser':['Samsung Internet','🌐','Böngészés'],
+ 'com.whatsapp':['WhatsApp','💬','Kommunikáció'],
+ 'com.instagram.android':['Instagram','📷','Közösségi'],
+ 'com.facebook.katana':['Facebook','👥','Közösségi']
+ };
+ if(!s.appDetailShared||!s.topApps.length){
+   ring.style.background='conic-gradient(#304663 0% 100%)';
+   text('ringTotal','—');
+   for(const el of [legend,list,categories])row(el,'note','Alkalmazásonkénti adat még nem érkezett külön családi megosztási engedéllyel.');
+   return;
+ }
+ const all=s.topApps.reduce((sum,item)=>sum+item[1],0);
+ text('ringTotal',duration(all));
+ const colors=['#60a5fa','#45d5cc','#b8a5fa','#f8a9cf','#a8bbd6'];
+ let cumulative=0;const slices=[];
+ s.topApps.slice(0,4).forEach(([id,ms],i)=>{
+   const next=cumulative+100*ms/all;
+   slices.push(colors[i]+' '+cumulative.toFixed(2)+'% '+next.toFixed(2)+'%');
+   cumulative=next;
+ });
+ if(cumulative<100)slices.push('#304663 '+cumulative.toFixed(2)+'% 100%');
+ ring.style.background='conic-gradient('+slices.join(',')+')';
+ const grouped=new Map();
+ s.topApps.slice(0,8).forEach(([id,ms],i)=>{
+   const info=names[id]||[id,'📱','Besorolatlan'];
+   const el=row(list,'app');
+   row(el,'appicon',info[1]);
+   const desc=row(el,'');
+   row(desc,'appname',info[0]);
+   row(desc,'appdetail',info[2]);
+   const value=row(el,'appval',duration(ms));
+   value.title=info[0]+' · megfigyelt alkalmazás-előtéridő';
+   const width=row(desc,'bar');row(width,'').style.cssText='--percent:'+Math.min(100,100*ms/all).toFixed(1)+'%;--barcolor:'+colors[i%colors.length]+';height:100%';
+   grouped.set(info[2],(grouped.get(info[2])||0)+ms);
+ });
+ for(const [name,ms] of [...grouped].sort((a,b)=>b[1]-a[1]))
+   row(categories,'app',name+' · '+duration(ms));
+ for(const [id,ms] of s.topApps.slice(0,4)){
+   const info=names[id]||[id,'📱','Besorolatlan'];
+   row(legend,'item',info[0]+' · '+duration(ms));
+ }
+}
 function apply(doc,profile,period){
  const days={day:1,week:7,month:30}[period],s=vault.summary(doc,days);
  const who=profile==='zsolt'?'Zsolt':'Mónika';
@@ -47,7 +96,7 @@ function apply(doc,profile,period){
  text('chatgpt',s.covered?duration(s.chatgpt):'—');
  text('evening',s.covered?duration(s.evening):'—');
  text('coverage',s.covered?String(s.covered):'—');
- text('ringTotal',s.covered?duration(s.observed):'—');
+ text('ringTotal','—');
  text('usageSub','Előtérhasználat becslése; nem a Samsung gyári képernyőideje');
  text('eveningSub','20:00–24:00 · megfigyelt idősávok');
  text('digitalUsageAccessState','Hiteles HH One Android adat · hozzáférés állapota csak telefonon');
@@ -58,8 +107,7 @@ function apply(doc,profile,period){
  if(source[2])source[2].textContent='Mért előtéridő: '+duration(s.chatgpt);
  if(source[5])source[5].textContent='Önálló Sleep összevetés még nem igazolt';
  showBars(s);showWeek(doc);
- const appSummary='Részletes alkalmazáslista nem szerepel a jóváhagyott numerikus adatforrásban';
- for(const id of ['legend','apps','categories'])text(id,appSummary);
+ apps(s);
  if(!s.covered){
    text('analysisText',who+' profiljában nincs igazolt, lezárt használati idősáv erre az időszakra. A hiányzó adatot nem kezeljük nullának.');
    return;
