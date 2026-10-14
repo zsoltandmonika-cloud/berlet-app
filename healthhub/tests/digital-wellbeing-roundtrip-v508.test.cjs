@@ -130,6 +130,21 @@ async function run(){
  assert.match(el('apps').children[0].children[1].children[0].title,/com\.microsoft\.emmx/,'original package available in title');
  assert.equal(el('legend').children[0].textContent,'Microsoft Edge · 1 perc','chart legend uses friendly label');
  assert.match(el('categories').children.map(item=>item.textContent).join('|'),/Böngészés/,'categories derive from resolved apps');
+ const categories=el('categories').children;
+ assert.equal(categories.length,3,'three separately measured categories are rendered');
+ for(const category of categories){
+  assert.equal(category.className,'catrow','category must not inherit three-column app CSS');
+  assert.equal(category.children[0].className,'catheading','name and time share one horizontal heading');
+  assert.deepEqual(category.children[0].children.map(v=>v.className),['caticon','catname','catvalue'],
+   'icon, category label and unbroken duration occupy one row');
+  assert.match(category.children[0].children[2].textContent,/ perc$/,'time includes units');
+  assert.equal(category.children[1].className,'catbar','breakdown bar follows the heading');
+ }
+ const unknownAggregates=api.summarizeCategories([['example.unknown.app',600000],['example.other.unknown',1020000]]);
+ assert.equal(unknownAggregates.length,1,'unknown package names aggregate into one category');
+ assert.equal(unknownAggregates[0].name,'Besorolatlan');
+ assert.equal(unknownAggregates[0].ms,1620000,'27-minute uncategorized time is preserved');
+
 
 
  console.log('HH One v508: simulated Dropbox readback source check, revision fencing and two-profile DOM isolation PASS');
