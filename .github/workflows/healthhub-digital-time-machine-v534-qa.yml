@@ -1,0 +1,35 @@
+name: HealthHub Digital Time Machine v534 · Deterministic QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/digital-health/time-machine-v534.html'
+      - 'healthhub/digital-health/time-machine-v534.js'
+      - 'healthhub/tests/digital-time-machine-v534.test.cjs'
+      - '.github/workflows/healthhub-digital-time-machine-v534-qa.yml'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/digital-health/time-machine-v534.html'
+      - 'healthhub/digital-health/time-machine-v534.js'
+      - 'healthhub/tests/digital-time-machine-v534.test.cjs'
+      - '.github/workflows/healthhub-digital-time-machine-v534-qa.yml'
+permissions:
+  contents: read
+jobs:
+  on-demand-frozen-clock-and-production-validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse frozen clock controller
+        run: node --check healthhub/digital-health/time-machine-v534.js
+      - name: Exercise virtual clock and two-consent hourly gate instantly
+        run: node healthhub/tests/digital-time-machine-v534.test.cjs
+      - name: Recheck real Digital Wellbeing web data privacy
+        run: |
+          node healthhub/tests/digital-wellbeing-v507.test.cjs
+          node healthhub/tests/digital-wellbeing-roundtrip-v508.test.cjs

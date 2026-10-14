@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b1425">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'">
+<title>HH Digital Wellbeing · Time Machine v534 · szintetikus teszt</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1425;color:#e4f4ff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 40% -20%,#28528a70,transparent 65%),linear-gradient(150deg,#0b1425,#151d35 72%,#21162e);padding:23px 12px 32px}
+main{max-width:670px;margin:0 auto}
+h1{font-size:clamp(23px,5vw,32px);letter-spacing:-.03em;line-height:1.17;margin:10px 0 13px}
+h2{font-size:16px;margin:0 0 16px}
+p{line-height:1.58;color:#b9d0e8;font-size:13px}
+small{color:#abc2d8;font-size:11px}
+.eyebrow{font-size:10px;color:#92dffc;letter-spacing:.18em;font-weight:800}
+.warn{display:inline-flex;background:#4f3054;color:#ffe0f0;border:1px solid #d398bb;padding:7px 11px;border-radius:99px;font-size:11px;font-weight:800}
+.panel{margin:16px 0;padding:17px;border:1px solid #7caed050;border-radius:20px;background:linear-gradient(130deg,#26416177,#17263dcb 70%,#3c264855);box-shadow:0 9px 28px #0005}
+.presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:13px 0 17px}
+button{cursor:pointer;border:1px solid #769ac9;background:#22436c70;color:#eff8ff;border-radius:11px;padding:11px 4px;font-weight:780;font-size:12px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #dca6e0;outline-offset:3px}
+input[type=range]{width:100%;accent-color:#f8a9cf}
+select{border:1px solid #7394c3;border-radius:12px;background:#15283f;color:#eff8ff;padding:12px;width:100%;font-size:13px}
+label{display:block;margin:10px 0;font-size:13px;color:#d8eafc;font-weight:700}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{padding:13px;border-radius:14px;background:#0d1c30b2;border:1px solid #79a9ce3b}
+.metric .value{display:block;font-size:clamp(19px,5vw,27px);font-weight:850;letter-spacing:-.04em;color:#f2fbff;margin-top:3px;word-break:break-word}
+.metric .value.small{font-size:14px;letter-spacing:0}
+.note{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;margin-top:12px}
+.ok{background:#132d33;border:1px solid #6abcb790;color:#d9fff1}
+.blocked{background:#402637;border:1px solid #ea9fc180;color:#ffe2ee}
+footer{padding:10px 4px;font-size:11px;color:#aabbd2;line-height:1.7}
+code{font-size:11px;color:#ffd7ec}
+@media(max-width:360px){.presets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main>
+ <span class="eyebrow">HEALTHHUB · INTERNAL QUALITY LAB</span>
+ <h1>Digital Wellbeing<br>Time Machine <span style="color:#f8a9cf">v534</span></h1>
+ <span class="warn">SZINTETIKUS TESZT · NEM VALÓDI MÉRÉS</span>
+ <p>A tesztelő diktálja a tempót. Az órát tetszés szerint előre-hátra állíthatod, és azonnal megfigyelheted a hozzájárulási szűrőt. Az eredményt az éles webes adatellenőrzővel is validáljuk.</p>
+ <section class="panel" aria-labelledby="clockHead">
+  <h2 id="clockHead">1. Állítsd át az időt</h2>
+  <label for="hhTestMinute">Virtuális budapesti idő: <strong id="hhTestClock">...</strong></label>
+  <input id="hhTestMinute" type="range" min="-120" max="180" step="1" value="-32" aria-label="Virtuális óra perceltolása éjféltől">
+  <div class="presets">
+   <button data-clock-offset="-32" type="button">14. · 23:28</button>
+   <button data-clock-offset="20" type="button">15. · 00:20</button>
+   <button data-clock-offset="65" type="button">15. · 01:05</button>
+   <button data-clock-offset="125" type="button">15. · 02:05</button>
+  </div>
+  <label for="hhFixture">Forgatókönyv</label>
+  <select id="hhFixture">
+   <option value="normal">Normál gyűjtés és két hozzájárulás</option>
+   <option value="missing-coarse">Hiányzó összesített órasáv</option>
+   <option value="unshared">Nincs részletes felhőhozzájárulás</option>
+   <option value="invalid-hour">Hibás, túl hosszú alkalmazássor</option>
+  </select>
+  <p>A labor két mesterséges hozzájárulást használ: <strong>21:19</strong> (helyi app-gyűjtés) és <strong>23:05</strong> (családi app-megosztás). Mindkettő 2026. október 14-i budapesti idő.</p>
+ </section>
+ <section class="panel" aria-labelledby="resultHead">
+  <h2 id="resultHead">2. Azonnali eredmény</h2>
+  <div class="results">
+   <div class="metric"><small>Helyi alkalmazássor</small><span id="hhTestLocal" class="value">...</span></div>
+   <div class="metric"><small>Jogosult app-sor</small><span id="hhTestEligible" class="value">...</span></div>
+   <div class="metric"><small>Dropboxba kerülne (szimuláció)</small><span id="hhTestCloud" class="value">...</span></div>
+   <div class="metric"><small>Összesített órasáv</small><span id="hhTestCoarse" class="value">...</span></div>
+   <div class="metric"><small>Első teljes, engedélyezett óra</small><span id="hhTestFirst" class="value small">...</span></div>
+   <div class="metric"><small>Valódi webes validátor</small><span id="hhTestValid" class="value small">...</span></div>
+  </div>
+  <div id="hhTestNote" class="note ok" role="status" aria-live="polite">Teszteredmény…</div>
+  <p><strong>Webes napi összesítés (csak tesztadat):</strong> <span id="hhTestApps">...</span></p>
+ </section>
+ <footer>
+  <strong>Biztonsági határ:</strong> ez a lap nem kapcsolódik telefonhoz vagy Dropboxhoz, nem kér engedélyt, nem tárol és nem továbbít semmilyen adatot. A hálózati kapcsolatok tiltottak. A webes validátor valódi, a bemenet kizárólag mesterséges.<br>
+  Az Android UsageStatsManager tényleges eseménygyűjtésének helyes működését továbbra is az önálló Kotlin-unit tesztek és az éles, hozzájáruláson alapuló mérések ellenőrzik.
+ </footer>
+</main>
+<script src="./digital-usage-vault-v507.js?v=534-test-only"></script>
+<script src="./time-machine-v534.js?v=534"></script>
+</body>
+</html>
