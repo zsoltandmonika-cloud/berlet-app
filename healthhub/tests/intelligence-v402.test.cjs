@@ -69,12 +69,13 @@ test('I-06 natural narrative asks for source-backed chronology',()=>{
  assert.match(x,/időrendben/);assert.match(x,/orvosnevet/);assert.match(x,/PDF-oldal/);
  assert.ok(x.length<=790);
 });
-test('I-06 preserves original question and backend 2400-char limit',()=>{
- const b=base();b.question='Mónika kérdése?'+'x'.repeat(1500);
- const a=n.apply(b,'Mónika kérdése?',{mode:'deep',chronology:true},{quality:{originals:1}});
- assert.ok(a.payload.question.startsWith('Mónika kérdése?'));
- assert.ok(a.payload.question.length<=2400);
- assert.equal(b.question.length,('Mónika kérdése?'+'x'.repeat(1500)).length);
+test('I-06 preserves question verbatim within actual server 1200-char limit',()=>{
+ const b=base();b.question='Mónika kérdése?';
+ const a=n.apply(b,b.question,{mode:'deep',chronology:true},{quality:{originals:1}});
+ assert.equal(a.payload.question,b.question);
+ assert.equal(a.applied,false);
+ assert.equal(a.reason,'server_narrative_policy');
+ assert.throws(()=>n.apply({...b,question:'Kérdésem?'+('x'.repeat(1200))},'Kérdésem?',{mode:'deep'},{quality:{originals:1}}),/1200/);
 });
 test('I-06 rejects cross-identity consent',()=>{
  assert.throws(()=>n.apply({...base(),consent:false},'A kérdésem?',{},{}),/I-06/);
