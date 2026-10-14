@@ -21,7 +21,7 @@ assert.match(one,/root\.confirm\(/,'operator confirmation required');
 assert.match(one,/NEM automatikus telepítés/);
 assert.match(one,/if\(diag&&st\.state==='done'/,'show actual result only on completed phone reply');
 assert.match(home,/live-v305\.js\?v=502-remote-diag-ota/);
-assert.match(home,/hh-one-rag-v500\.js\?v=502-central-controls/);
+assert.match(home,/hh-one-rag-v500\.js\?v=503-ops-log/);
 assert.equal(home.match(/healthhub-live-build" content="([^"]+)"/)?.[1],
  'v'+home.match(/var v='([^']+)'/)?.[1]);
 console.log('HH One v502 web-only remote OTA/diagnostics status UI PASS.');
