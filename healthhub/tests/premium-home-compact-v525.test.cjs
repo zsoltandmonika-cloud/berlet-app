@@ -8,7 +8,7 @@ const source=fs.readFileSync(path.join(root,'premium-home-compact-v525.js'),'utf
 const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(html.includes('premium-home-compact-v525.js?v=525-compact-hero'),'v525 script cache bust');
-assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='1')v='526-premium-glass-refresh'"),'Premium URL receives independent new cache key');
+assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='1')v='527-premium-glass-exact-zsolt'"),'Premium URL receives independent new cache key');
 assert.ok(html.includes("var v='407-digital-wellbeing-family-507'"),'normal Home version unchanged');
 assert.ok(html.indexOf('premium-home-compact-v525.js')>html.indexOf('home-hero-info-glass-v522.js'),'v525 must load after v522');
 assert.ok(source.includes("query.get('hhpremium')!=='1'"),'explicit opt-in guard');
