@@ -311,7 +311,7 @@ class MainActivity : ComponentActivity() {
         scroll.addView(root)
 
         root.addView(TextView(this).apply {
-            text = "HealthHub Connect"
+            text = "HH One"
             textSize = 28f
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(0xFF0B2D50.toInt())
@@ -394,7 +394,7 @@ class MainActivity : ComponentActivity() {
         root.addView(diagnosisToggle)
 
         root.addView(TextView(this).apply {
-            text = "📦 HealthHub Connect · OTA Updates"
+            text = "📦 HH One · OTA Updates"
             textSize = 18f
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(0xFF0B2D50.toInt())
