@@ -49,7 +49,7 @@ const window={HH_DW_VAULT_V507:{
   const date=new Date(doc.collectedAtMs).toISOString().slice(0,10);
   return {observed:900000,chatgpt:180000,evening:120000,covered:4,
    dayHours:Array(24).fill(null),dayTotals:Array.from({length:days},()=>({date,foregroundMs:900000})),
-   topApps:doc.detail?[['com.openai.chatgpt',180000]]:[],appDetailShared:!!doc.detail};
+   topApps:doc.appIds?doc.appIds.map(id=>[id,60000]):(doc.detail?[['com.openai.chatgpt',180000]]:[]),appDetailShared:!!doc.detail};
  }
 }};
 vm.runInNewContext(fs.readFileSync(path.join(root,'digital-health/digital-live-v507.js'),'utf8'),
@@ -106,6 +106,46 @@ async function run(){
  assert.equal(el('categories').children.length,1,'consented app should populate its category');
  assert.equal(el('ringTotal').textContent,'3 perc','consented app should populate the ring');
  assert.match(el('digitalAppDetails').textContent,/1 megjeleníthető alkalmazás/);
+ const named=[
+  ['com.samsung.android.forest','Samsung Digital Wellbeing','Digitális jóllét'],
+  ['com.microsoft.emmx','Microsoft Edge','Böngészés'],
+  ['com.sec.android.app.launcher','One UI kezdőképernyő','Rendszerfelület'],
+  ['com.samsung.android.incallui','Samsung hívásképernyő','Telefonálás'],
+  ['com.samsung.android.rubin.app','Samsung testreszabási szolgáltatás','Rendszerszolgáltatás'],
+  ['hu.zsoltmonika.healthhubbridge','HH One Connect','Egészség / HealthHub'],
+  ['com.facebook.orca','Messenger','Kommunikáció'],
+  ['com.android.settings','Android Beállítások','Rendszerfelület']
+ ];
+ for(const [pkg,display,category] of named){
+  assert.equal(api.resolveApp(pkg)[0],display,'correct human label: '+pkg);
+  assert.equal(api.resolveApp(pkg)[2],category,'correct category: '+pkg);
+ }
+ assert.equal(api.resolveApp('example.unknown.application')[0],'example.unknown.application','unknown app retains original id');
+ const friendly=api.refresh('zsolt','day');
+ pending.shift().resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}],detail:true,
+  appIds:['com.microsoft.emmx','com.facebook.orca','com.samsung.android.forest']});
+ await friendly;
+ const labels=el('apps').children.map(app=>app.children[1].children[0].textContent);
+ assert.equal(labels.join('|'),'Microsoft Edge|Messenger|Samsung Digital Wellbeing','actual app list uses friendly names');
+ assert.match(el('apps').children[0].children[1].children[0].title,/com\.microsoft\.emmx/,'original package available in title');
+ assert.equal(el('legend').children[0].textContent,'Microsoft Edge · 1 perc','chart legend uses friendly label');
+ assert.match(el('categories').children.map(item=>item.children[0].children[1].textContent).join('|'),/Böngészés/,'categories derive from resolved apps');
+ const categories=el('categories').children;
+ assert.equal(categories.length,3,'three separately measured categories are rendered');
+ for(const category of categories){
+  assert.equal(category.className,'catrow','category must not inherit three-column app CSS');
+  assert.equal(category.children[0].className,'catheading','name and time share one horizontal heading');
+  assert.deepEqual(category.children[0].children.map(v=>v.className),['caticon','catname','catvalue'],
+   'icon, category label and unbroken duration occupy one row');
+  assert.match(category.children[0].children[2].textContent,/ perc$/,'time includes units');
+  assert.equal(category.children[1].className,'catbar','breakdown bar follows the heading');
+ }
+ const unknownAggregates=api.summarizeCategories([['example.unknown.app',600000],['example.other.unknown',1020000]]);
+ assert.equal(unknownAggregates.length,1,'unknown package names aggregate into one category');
+ assert.equal(unknownAggregates[0].name,'Besorolatlan');
+ assert.equal(unknownAggregates[0].ms,1620000,'27-minute uncategorized time is preserved');
+
+
 
  console.log('HH One v508: simulated Dropbox readback source check, revision fencing and two-profile DOM isolation PASS');
 }
