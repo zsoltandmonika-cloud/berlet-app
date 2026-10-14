@@ -87,3 +87,24 @@ html[data-hh-premium-preview="on"]:has(#home.on) #hhOneRag500:focus-visible,
 html[data-hh-premium-preview="on"]:has(#home.on) #hhOneFallback501:focus-visible{
  outline:3px solid #bdeaff!important;outline-offset:2px!important;
 }
+
+/* v528.1 · Approved Premium Home corner micro-tuning (both profiles).
+   Keep the HH ONE live service badge functional, outside Home unchanged.
+   Use safe-area offsets for notched phones; portrait images stay original.
+   'darken' caps only near-white background pixels to the pastel profile tint
+   without globally colorizing darker skin, hair, clothes or photo details. */
+html[data-hh-premium-preview="on"]:has(#home.on) #hhOneFallback501,
+html[data-hh-premium-preview="on"]:has(#home.on) #hhOneRag500{
+ left:calc(3px + env(safe-area-inset-left))!important;
+ top:calc(3px + env(safe-area-inset-top))!important;
+}
+html[data-hh-premium-preview="on"] #home #heroHome .profileHit{
+ right:8px!important;top:8px!important;
+ background-blend-mode:darken!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit{
+ background-color:#ffe5f1!important; /* soft matching Mónika rose */
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #home #heroHome .profileHit{
+ background-color:#e6f7ff!important; /* soft matching Zsolt ice-blue */
+}
