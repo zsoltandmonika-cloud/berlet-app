@@ -49,7 +49,7 @@ const window={HH_DW_VAULT_V507:{
   const date=new Date(doc.collectedAtMs).toISOString().slice(0,10);
   return {observed:900000,chatgpt:180000,evening:120000,covered:4,
    dayHours:Array(24).fill(null),dayTotals:Array.from({length:days},()=>({date,foregroundMs:900000})),
-   topApps:doc.detail?[['com.openai.chatgpt',180000]]:[],appDetailShared:!!doc.detail};
+   topApps:doc.appIds?doc.appIds.map(id=>[id,60000]):(doc.detail?[['com.openai.chatgpt',180000]]:[]),appDetailShared:!!doc.detail};
  }
 }};
 vm.runInNewContext(fs.readFileSync(path.join(root,'digital-health/digital-live-v507.js'),'utf8'),
@@ -106,6 +106,31 @@ async function run(){
  assert.equal(el('categories').children.length,1,'consented app should populate its category');
  assert.equal(el('ringTotal').textContent,'3 perc','consented app should populate the ring');
  assert.match(el('digitalAppDetails').textContent,/1 megjeleníthető alkalmazás/);
+ const named=[
+  ['com.samsung.android.forest','Samsung Digital Wellbeing','Digitális jóllét'],
+  ['com.microsoft.emmx','Microsoft Edge','Böngészés'],
+  ['com.sec.android.app.launcher','One UI kezdőképernyő','Rendszerfelület'],
+  ['com.samsung.android.incallui','Samsung hívásképernyő','Telefonálás'],
+  ['com.samsung.android.rubin.app','Samsung testreszabási szolgáltatás','Rendszerszolgáltatás'],
+  ['hu.zsoltmonika.healthhubbridge','HH One Connect','Egészség / HealthHub'],
+  ['com.facebook.orca','Messenger','Kommunikáció'],
+  ['com.android.settings','Android Beállítások','Rendszerfelület']
+ ];
+ for(const [pkg,display,category] of named){
+  assert.equal(api.resolveApp(pkg)[0],display,'correct human label: '+pkg);
+  assert.equal(api.resolveApp(pkg)[2],category,'correct category: '+pkg);
+ }
+ assert.equal(api.resolveApp('example.unknown.application')[0],'example.unknown.application','unknown app retains original id');
+ const friendly=api.refresh('zsolt','day');
+ pending.shift().resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}],detail:true,
+  appIds:['com.microsoft.emmx','com.facebook.orca','com.samsung.android.forest']});
+ await friendly;
+ const labels=el('apps').children.map(app=>app.children[1].children[0].textContent);
+ assert.equal(labels.join('|'),'Microsoft Edge|Messenger|Samsung Digital Wellbeing','actual app list uses friendly names');
+ assert.match(el('apps').children[0].children[1].children[0].title,/com\.microsoft\.emmx/,'original package available in title');
+ assert.equal(el('legend').children[0].textContent,'Microsoft Edge · 1 perc','chart legend uses friendly label');
+ assert.match(el('categories').children.map(item=>item.textContent).join('|'),/Böngészés/,'categories derive from resolved apps');
+
 
  console.log('HH One v508: simulated Dropbox readback source check, revision fencing and two-profile DOM isolation PASS');
 }
