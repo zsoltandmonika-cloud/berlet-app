@@ -22,6 +22,25 @@ internal object CollectionSchedule {
         PilotState.prefs(context).getInt(PilotState.SCHEDULE_INTERVAL_HOURS, 6)
             .takeIf { it in INTERVALS } ?: 6
 
+    // Real private app-level charts require a closed hour AFTER consent.
+    // Keep user-configured 6/12/24h cadence for coarse-only data; elevate
+    // to approximate hourly WorkManager while sensitive app sharing is enabled.
+    // Android may delay this under Doze. Never treat unknown as zero.
+    fun effectiveIntervalHours(context: Context): Int {
+        val p = PilotState.prefs(context)
+        return chooseEffectiveHours(
+            intervalHours(context),
+            p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) &&
+                p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false) &&
+                p.getBoolean(PilotState.CLOUD_ENABLED, false)
+        )
+    }
+
+    fun chooseEffectiveHours(configured: Int, sharedAppDetails: Boolean): Int {
+        require(configured in INTERVALS) { "Unsupported collection interval" }
+        return if (sharedAppDetails) 1 else configured
+    }
+
     fun setIntervalHours(context: Context, hours: Int) {
         require(hours in INTERVALS) { "Unsupported collection interval" }
         PilotState.prefs(context).edit()
