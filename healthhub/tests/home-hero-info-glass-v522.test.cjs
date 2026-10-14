@@ -7,8 +7,8 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'home-hero-info-glass-v522.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'home-hero-info-glass-v522.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.ok(html.includes('home-hero-info-glass-v522.js?v=522-live-data'));
-assert.ok(source.includes("params.get('hhpremium')!=='1'"));
+assert.ok(html.includes('home-hero-info-glass-v522.js?v=528-default-home'));
+assert.ok(source.includes("params.get('hhpremium')==='0'"));
 assert.ok(source.includes("dataset.hhPremiumPreview!=='on'"));
 assert.ok(source.includes("['dateHome','weatherHome','namedayHome']"));
 assert.ok(css.includes('[data-hhpg-profile="m"]'));
@@ -38,8 +38,10 @@ function load(query,ready){
  vm.runInNewContext(source,{window,document,URLSearchParams});
  return {hero,copy,nodes,head};
 }
-const off=load('',true),noPremium=load('?hhpremium=1',false),on=load('?hhpremium=1',true);
-assert.equal(off.hero.children.length,1,'default home untouched');
+const off=load('?hhpremium=0',true),noPremium=load('',false),on=load('',true);
+const explicitPremium=load('?hhpremium=1',true);
+assert.ok(explicitPremium.hero.children.find(x=>x.id==='hhpgInfoDashboard522'),'old Premium bookmark remains valid');
+assert.equal(off.hero.children.length,1,'explicit classic fallback untouched');
 assert.equal(noPremium.hero.children.length,1,'guard when premium not mounted');
 const panel=on.hero.children.find(x=>x.id==='hhpgInfoDashboard522');
 assert.ok(panel,'premium panel present');
