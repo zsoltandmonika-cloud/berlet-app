@@ -7,7 +7,7 @@
    (which updates its own established local cache, not medical source records). */
 var PANEL='hhIntelligence328',STYLE='hhIntelligenceStyle328',CACHE='hh-lena-context-v289-';
 var SYM='hh-symptom-journal-v1',MAP='hh-lena-doc-drive-v294-map';
-var last=null,busy=false,revision=0;
+var last=null,busy=false,revision=0,lastDigital=null;
 function el(id){return document.getElementById(id)}
 function read(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
 function arr(x){return Array.isArray(x)?x:[]}
@@ -44,6 +44,7 @@ function domains(q){
   vitals:/vernyomas|pulzus|sziv|faj|szedul|farad|fej|suly|cukor|test/,
   sleep:/alv|alsz|alud|ebred|ejjel|farad|fej|reggel|kimerult/,
   activity:/mozgas|seta|lepes|aktiv|farad|terhel|faj|sport/,
+  digital:/kepernyoido|telefonhasznalat|digital|digitalis|chatgpt|internet|online|esti telefon/,
   environment:/idojaras|legnyomas|front|pollen|homerseklet|fej|orr|allerg|legszomj|farad/,
   infection:/fertoz|virus|influenz|kovid|laz|kohog|jarvany/,
   medication:/gyogyszer|tabletta|adag|faj|szedul|farad|fej|sziv|vernyomas/,
@@ -99,6 +100,22 @@ function collect(question,forcedProfile){
  metric(ac,'7 napos napi lépésátlag',a7.avgSteps,'lépés',null);
  metric(ac,'30 napos napi lépésátlag',a30.avgSteps,'lépés',null);
  sources.push(source('activity','🏃','Activity · mozgás',ac,aLatest&&aLatest.date,'health-context','A napló és a Health Connect szinkronizált adatai alapján.'));
+ var dr=[],digitalAt=null;
+ if(lastDigital&&lastDigital.profileKey===p&&window.HH_DW_VAULT_V507){
+  var api=window.HH_DW_VAULT_V507;
+  var observed=lastDigital.hours.slice().sort(function(a,b){return b.hourStartMs-a.hourStartMs})[0];
+  digitalAt=observed?new Date(observed.hourStartMs+3600000).toISOString():null;
+  [7,30].forEach(function(days){
+    var summary=api.summary(lastDigital,days);
+    if(summary.covered===0)return;
+    metric(dr,days+' napos megfigyelt alkalmazásidő',Math.round(summary.observed/60000),'perc',digitalAt,'Csak lezárt Android-előtéridő');
+    metric(dr,days+' napos esti használat 20–24h',Math.round(summary.evening/60000),'perc',digitalAt,'Nem azonos a gyári képernyőidővel');
+    metric(dr,days+' napos ChatGPT alkalmazásidő',Math.round(summary.chatgpt/60000),'perc',digitalAt,'Alkalmazásidő, nem beszélgetésszám');
+    metric(dr,days+' napos megfigyelt idősávok',summary.covered,'óra',digitalAt,'Hiányzó idősáv nem nulla');
+  });
+ }
+ sources.push(source('digital','📱','Digital Wellbeing · mért telefonhasználat',dr,digitalAt,'digital',
+ 'Családi Dropbox Vault, személyhez kötött tényleges Usage Access-adatok. Az alvással való egybeesés nem bizonyít ok-okozati kapcsolatot.'));
  var env=null,daily=null;try{if(window.HH_ENVIRONMENT_V1)env=window.HH_ENVIRONMENT_V1.getCurrent()}catch(e){}
  try{if(window.HH_DAILY_HEALTH_V312)daily=window.HH_DAILY_HEALTH_V312.getContext()}catch(e){}
  var ev=[],envAt=null,kind='environment';
@@ -200,7 +217,7 @@ function mount(){
  if(!box){
   css();var parent=page.querySelector('.askWidth');if(!parent)return;
   box=document.createElement('section');box.id=PANEL;box.setAttribute('aria-label','Léna Intelligence adatforrás ellenőrzés');
-  box.innerHTML='<h2>🧠 Intelligence · Valódi HealthHub adatok</h2><p class="hh328sub">Első mérföldkő: a meglévő nyolc adatforrásból tényleges értékeket, időpontokat és hiányokat mutatok. Nem végzek diagnózist, nem töltök fel egészségügyi adatot, és nem indítok AI-hívást.</p>'+
+  box.innerHTML='<h2>🧠 Intelligence · Valódi HealthHub adatok</h2><p class="hh328sub">Első mérföldkő: a meglévő hitelesített adatforrásokból tényleges értékeket, időpontokat és hiányokat mutatok. Nem végzek diagnózist, nem töltök fel egészségügyi adatot, és nem indítok AI-hívást.</p>'+
    '<div class="hh328top"><button type="button" class="hh328go" id="hh328Run">🔎 Intelligence adatellenőrzés</button><span class="hh328meta" id="hh328Meta">Még nincs ellenőrzés</span></div>'+
    '<div class="hh328summary" role="status" aria-live="polite" id="hh328Summary"></div><div class="hh328grid" id="hh328Body"></div>';
   var anchor=el('askOverall323');anchor=anchor&&anchor.closest('.askCard');
@@ -212,7 +229,7 @@ function mount(){
 async function run(){
  mount();var btn=el('hh328Run');if(!btn||busy)return;busy=true;var token=++revision;
  btn.disabled=true;btn.textContent='⏳ Adatok ellenőrzése…';
- var meta=el('hh328Meta');if(meta)meta.textContent='Nyolc HealthHub-adatforrás ellenőrzése…';
+ var meta=el('hh328Meta');if(meta)meta.textContent='HealthHub-adatforrások és Digital Wellbeing ellenőrzése…';
  try{
   var p=profile(),q=el('hhSQ299')&&el('hhSQ299').value||'';
   if(typeof window.hhRefreshLenaHealthContext289==='function'){
@@ -220,12 +237,18 @@ async function run(){
    if(!refreshed)throw Error('Nem sikerült frissíteni a helyi Health Contextot. Ellenőrizd az importált méréseket.');
   }
   if(token!==revision||profile()!==p)throw Error('Profilváltás történt az ellenőrzés alatt. Futtasd újra az aktív profilnál.');
+  lastDigital=null;
+  try {
+    if(window.HH_DW_VAULT_V507&&window.HH_DW_VAULT_V507.read)
+      lastDigital=await window.HH_DW_VAULT_V507.read(p);
+  }catch(_){lastDigital=null;}
+  if(token!==revision||profile()!==p)throw Error('Profilváltás történt a Digital Wellbeing adatok betöltése közben.');
   var report=collect(q,p);last=report;render(report);return report;
  }catch(e){last=null;var m=el('hh328Summary');if(m){m.classList.add('on');m.textContent='⚠ '+String(e&&e.message||e)}return null}
  finally{busy=false;if(btn){btn.disabled=false;btn.textContent='🔎 Intelligence adatellenőrzés'}}
 }
 window.HH_LENA_CONTEXT_BRIDGE_V328={collect:collect,show:mount,run:run,getLast:function(){return last}};
 window.addEventListener('healthhub:ask-lena-open',mount);
-window.addEventListener('healthhub:profile-changed',function(){revision++;last=null;var box=el(PANEL);if(box){el('hh328Body').innerHTML='';el('hh328Summary').classList.remove('on');el('hh328Meta').textContent='Profilváltás történt · új ellenőrzés szükséges'}});
+window.addEventListener('healthhub:profile-changed',function(){revision++;last=null;lastDigital=null;var box=el(PANEL);if(box){el('hh328Body').innerHTML='';el('hh328Summary').classList.remove('on');el('hh328Meta').textContent='Profilváltás történt · új ellenőrzés szükséges'}});
 document.documentElement.dataset.healthhubIntelligenceBridge='1.328';
 })();

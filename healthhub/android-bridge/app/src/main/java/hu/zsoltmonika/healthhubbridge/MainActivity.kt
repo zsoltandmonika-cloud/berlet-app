@@ -22,6 +22,12 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import hu.zsoltmonika.healthhubbridge.dw.AppDetailLedger
+import hu.zsoltmonika.healthhubbridge.dw.PilotState
+import hu.zsoltmonika.healthhubbridge.dw.UsageAccess
+import hu.zsoltmonika.healthhubbridge.dw.CollectionScheduler
+import hu.zsoltmonika.healthhubbridge.dw.CollectionEngine
+import hu.zsoltmonika.healthhubbridge.dw.DigitalUsageCloudSync
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -61,6 +67,7 @@ class MainActivity : ComponentActivity() {
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
     private lateinit var otaCheckFeedback: TextView
+    private lateinit var digitalSummary: TextView
     private lateinit var otaCheckButton: Button
     private var otaChecking = false
 
@@ -140,9 +147,11 @@ class MainActivity : ComponentActivity() {
         ResilientHealthSync.schedule(this)
         DailyContentScheduler.schedule(this)
         OrchestratorScheduler.schedule(this)
+        CollectionScheduler.reconcile(this)
         OrchestratorScheduler.runNow(this)
         OtaUpdateManager.schedule(this)
         updateScheduleUi()
+        updateDigitalStatus()
         handleIntent(intent)
         updateResilientStatus()
         updateOtaStatus()
@@ -343,6 +352,13 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
+                val digitalPrefs = PilotState.prefs(this@MainActivity)
+                if (digitalPrefs.getBoolean(PilotState.CLOUD_ENABLED, false) ||
+                    digitalPrefs.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)) {
+                    status.text = "Előbb vond vissza a Digital Wellbeing központi megosztását, és várd meg a központi törlés visszaigazolását."
+                    return@setOnClickListener
+                }
+                CollectionEngine.clearAndStop(this@MainActivity)
                 prefs.edit().remove("device_owner_profile")
                     .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
                 updateOwnerUi()
@@ -354,6 +370,195 @@ class MainActivity : ComponentActivity() {
         root.addView(Button(this).apply {
             text = "🔄 SYNC NOW"
             setOnClickListener { syncNow() }
+        })
+
+        root.addView(TextView(this).apply {
+            text = "📱 Digital Wellbeing · központi családi mérések"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        digitalSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 3, 0, 8)
+        }
+        root.addView(digitalSummary)
+        root.addView(Button(this).apply {
+            text = "🔐 Android használati hozzáférés engedélyezése"
+            setOnClickListener { startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }
+        })
+        root.addView(Button(this).apply {
+            text = "⏯ 30 napos helyi mérés BE/KI"
+            setOnClickListener {
+                val p = PilotState.prefs(this@MainActivity)
+                if (p.getBoolean(PilotState.ENABLED, false)) {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Digital Wellbeing mérések leállítása")
+                        .setMessage("Leáll a mérés és a Dropbox-megosztás. A központi fájlban a mérések törlését külön elküldjük; az eddigi helyi 30 napos előzmény megmarad, amíg külön nem törlöd.")
+                        .setPositiveButton("Leállítás és megosztás visszavonása") { _, _ ->
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                                .remove(PilotState.CLOUD_DETAIL_START_MS)
+                                .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                            CollectionScheduler.stop(this@MainActivity)
+                            DigitalUsageCloudSync.enqueue(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                } else if (deviceOwnerProfile() == null || !UsageAccess.isGranted(this@MainActivity)) {
+                    status.text = "Rögzítsd a telefon tulajdonosát és engedélyezd a Használati hozzáférést."
+                } else {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Saját digitális mérések engedélyezése")
+                        .setMessage("A HH One a telefonod alkalmazásainak lezárt előtéridőit méri és 30 napig tartja meg. Üzeneteket és böngészési tartalmat nem olvas. Ez csak helyi gyűjtés; a családi Dropbox-megosztáshoz külön hozzájárulás kell.")
+                        .setPositiveButton("Helyi gyűjtés engedélyezése") { _, _ ->
+                            PilotState.owner(this@MainActivity)
+                            p.edit().putBoolean(PilotState.ENABLED, true).apply()
+                            CollectionScheduler.reconcile(this@MainActivity)
+                            CollectionScheduler.collectNow(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "☁️ Digital Wellbeing közös Dropbox BE/KI"
+            setOnClickListener {
+                val p = PilotState.prefs(this@MainActivity)
+                if (p.getBoolean(PilotState.CLOUD_ENABLED, false)) {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Megosztás visszavonása")
+                        .setMessage("A telefon leállítja a számok megosztását, és amint van Dropbox-kapcsolat, felülírja a központi állományt egy üres, visszavont rekorddal.")
+                        .setPositiveButton("Visszavonom") { _, _ ->
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                                .remove(PilotState.CLOUD_DETAIL_START_MS)
+                                .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                            DigitalUsageCloudSync.enqueue(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                } else if (!p.getBoolean(PilotState.ENABLED, false) ||
+                    !UsageAccess.isGranted(this@MainActivity) ||
+                    deviceOwnerProfile() == null ||
+                    !DropboxVaultClient.hasRefreshToken(prefs)) {
+                    status.text = "Előbb engedélyezd a mérést, az Android hozzáférést és a Dropbox kapcsolatot."
+                } else {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("30 napos családi Dropbox-megosztás")
+                        .setMessage("A telefonod saját profiljának óránkénti összesített és ChatGPT-használati perceit a meglévő /HealthHub/profiles/ mappába tölti fel, akár a már mért legutóbbi 30 napból is. Zsolt és Mónika a közös fiókból megtekintheti. Más alkalmazások nevét csak további külön engedéllyel osztja meg; üzeneteket és nyers eseményeket NEM tölt fel.")
+                        .setPositiveButton("Családi megosztást engedélyezem") { _, _ ->
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, true)
+                                .putBoolean(PilotState.CLOUD_ERASE_PENDING, false).apply()
+                            DigitalUsageCloudSync.enqueue(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "🔄 Digital Wellbeing mérés + Dropbox MOST"
+            setOnClickListener {
+                val p = PilotState.prefs(this@MainActivity)
+                if (!p.getBoolean(PilotState.ENABLED, false) ||
+                    !UsageAccess.isGranted(this@MainActivity)) {
+                    status.text = "A digitális mérés vagy az Android engedély nincs bekapcsolva."
+                } else scope.launch {
+                    status.text = "Digital Wellbeing mintavétel folyamatban…"
+                    val attempt = runCatching { withContext(Dispatchers.IO) {
+                        CollectionEngine.collect(this@MainActivity, "manual")
+                    } }
+                    attempt.onSuccess { out ->
+                        val shared = if (p.getBoolean(PilotState.CLOUD_ENABLED, false))
+                            DigitalUsageCloudSync.sync(this@MainActivity) else false
+                        status.text = "✓ Mérési mintavétel: ${out.storedHours} órasáv. " +
+                            (if (shared) "Dropbox feltöltés sikeres." else "Felhőmegosztás nincs jóváhagyva vagy még nem sikerült.")
+                    }.onFailure { error ->
+                        status.text = "Digitális mérési hiba: ${error.javaClass.simpleName}"
+                    }
+                    updateDigitalStatus()
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "🗑 Digital Wellbeing mérések és felhőmegosztás törlése"
+            setOnClickListener {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("30 napos Digital Wellbeing előzmények törlése")
+                    .setMessage("Leáll a gyűjtés, és törlődnek a telefon saját Digital Wellbeing mérései. Az internet elérésekor a központi megosztott adatok is visszavonásra kerülnek. Ez nem érinti az alvás- és egészségügyi adatokat.")
+                    .setPositiveButton("Leállítás és törlés") { _, _ ->
+                        val p = PilotState.prefs(this@MainActivity)
+                        CollectionEngine.clearAndStop(this@MainActivity)
+                        p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L)
+                            .putBoolean(PilotState.CLOUD_ENABLED, false)
+                            .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                            .remove(PilotState.CLOUD_DETAIL_START_MS)
+                            .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                        DigitalUsageCloudSync.enqueue(this@MainActivity)
+                        updateDigitalStatus()
+                    }.setNegativeButton("Mégsem", null).show()
+            }
+        })
+
+        root.addView(Button(this).apply {
+            text = "📊 Részletes alkalmazáslista · helyi BE/KI"
+            setOnClickListener {
+                val p = PilotState.prefs(this@MainActivity)
+                val owner = deviceOwnerProfile()
+                if (p.getBoolean(PilotState.APP_DETAIL_ENABLED, false)) {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Részletes alkalmazásnapló kikapcsolása")
+                        .setMessage("Az alkalmazásazonosítók helyi naplója azonnal törlődik. A közös Dropbox-fájl a következő sikeres feltöltéskor már nem tartalmazza őket.")
+                        .setPositiveButton("Kikapcsolás és törlés") { _, _ ->
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.APP_DETAIL_ENABLED, false)
+                                .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                                .remove(PilotState.APP_DETAIL_CONSENT_START_MS)
+                                .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
+                            if (owner != null) AppDetailLedger.clear(this@MainActivity, owner)
+                            if (p.getBoolean(PilotState.CLOUD_ENABLED, false))
+                                DigitalUsageCloudSync.enqueue(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                } else if (!p.getBoolean(PilotState.ENABLED, false) ||
+                    !UsageAccess.isGranted(this@MainActivity) || owner == null) {
+                    status.text = "Előbb engedélyezd a Digital Wellbeing alapmérést és a telefon tulajdonosát."
+                } else {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Részletes alkalmazások helyi mérése")
+                        .setMessage("Mostantól, külön jóváhagyásod után tároljuk az alkalmazásazonosítókat és az óránkénti előtéridőt. 30 napig csak a saját telefonodon. A felhőbe NEM kerülnek külön megosztási engedély nélkül. Üzeneteket és weboldalakat nem olvas.")
+                        .setPositiveButton("Helyi részleteket engedélyezem") { _, _ ->
+                            p.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, true)
+                                .putLong(PilotState.APP_DETAIL_CONSENT_START_MS, System.currentTimeMillis()).apply()
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "☁️ Alkalmazásnevek családi megosztása · külön BE/KI"
+            setOnClickListener {
+                val p = PilotState.prefs(this@MainActivity)
+                if (p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)) {
+                    p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                        .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
+                    DigitalUsageCloudSync.enqueue(this@MainActivity)
+                    updateDigitalStatus()
+                } else if (!p.getBoolean(PilotState.APP_DETAIL_ENABLED, false) ||
+                    !p.getBoolean(PilotState.CLOUD_ENABLED, false)) {
+                    status.text = "Előbb kapcsold be a helyi alkalmazásrészleteket és az összesített családi Dropboxot."
+                } else {
+                    android.app.AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Alkalmazásnevek közös családi Dropboxba?")
+                        .setMessage("Ez érzékenyebb adat: a használt alkalmazások neve és óránkénti időtartama is megjelenhet Zsolt és Mónika közös statisztikájában. Csak a mostani jóváhagyás UTÁNI, lezárt órák kerülnek fel 30 napra. Bármikor visszavonhatod.")
+                        .setPositiveButton("Részletes családi megosztást engedélyezem") { _, _ ->
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, true)
+                                .putLong(PilotState.CLOUD_DETAIL_START_MS, System.currentTimeMillis()).apply()
+                            DigitalUsageCloudSync.enqueue(this@MainActivity)
+                            updateDigitalStatus()
+                        }.setNegativeButton("Mégsem", null).show()
+                }
+            }
         })
 
         root.addView(TextView(this).apply {
@@ -592,6 +797,26 @@ class MainActivity : ComponentActivity() {
         updateOwnerUi()
         updateScheduleUi()
         return scroll
+    }
+
+    private fun updateDigitalStatus() {
+        if (!::digitalSummary.isInitialized) return
+        val p = PilotState.prefs(this)
+        val owner = PilotState.owner(this)
+        val on = p.getBoolean(PilotState.ENABLED, false)
+        val cloud = p.getBoolean(PilotState.CLOUD_ENABLED, false)
+        val pending = p.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)
+        val updated = p.getLong(PilotState.LAST_CLOUD_SUCCESS, 0L)
+        val last = if (updated > 0) java.text.DateFormat.getDateTimeInstance().format(Date(updated))
+            else "még nincs igazolt feltöltés"
+        digitalSummary.text = "Telefon: " + (owner ?: "nincs rögzítve") +
+            " · Android Usage Access: " + (if (UsageAccess.isGranted(this)) "OK" else "NINCS") +
+            "\\nHelyi gyűjtés: " + (if (on) "BE" else "KI") +
+            " · családi Dropbox: " + (if (cloud) "BE" else "KI") +
+            " · app-részletek a felhőben: " + (if (p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)) "BE" else "KI") +
+            (if (pending) " · központi törlésre vár" else "") +
+            "\\nUtolsó feltöltés: " + last +
+            (p.getString(PilotState.LAST_CLOUD_ERROR, null)?.let { "\\nFelhőhiba: " + it } ?: "")
     }
 
     private fun deviceOwnerProfile(): String? {
@@ -1052,6 +1277,8 @@ class MainActivity : ComponentActivity() {
             ResilientHealthSync.schedule(this)
             updateResilientStatus()
         }
+        CollectionScheduler.reconcile(this)
+        updateDigitalStatus()
         if (::otaSummary.isInitialized) updateOtaStatus()
     }
 

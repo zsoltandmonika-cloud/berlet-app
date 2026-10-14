@@ -11,8 +11,8 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 21
-        versionName = "0.14.1"
+        versionCode = 22
+        versionName = "0.14.2"
     }
 
     buildFeatures {
@@ -56,4 +56,5 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
     implementation("androidx.work:work-runtime-ktx:2.11.2")
+    testImplementation("junit:junit:4.13.2")
 }
