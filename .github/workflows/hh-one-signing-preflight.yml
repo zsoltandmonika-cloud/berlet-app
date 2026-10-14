@@ -53,7 +53,7 @@ jobs:
           m=json.load(open("healthhub/data/bridge-ota.json",encoding="utf-8"))
           assert m["applicationId"] == "hu.zsoltmonika.healthhubbridge"
           assert m["channel"] == "signed-release"
-          assert re.fullmatch(r"0\\.14\\.[0-9]+",m["version"])
+          assert re.fullmatch(r"0\.14\.[0-9]+",m["version"])
           assert isinstance(m["versionCode"],int) and m["versionCode"]>=20
           assert re.fullmatch(r"[a-f0-9]{64}",m["sha256"])
           print(m["version"])
@@ -64,8 +64,8 @@ jobs:
           BASE_VERSION="${INFO[0]}"
           BASE_CODE="${INFO[1]}"
           EXPECTED_SHA="${INFO[2]}"
-          NEW_CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
-          NEW_VERSION="$(sed -n 's/.*versionName = "\\([^"]*\\)".*/\\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
+          NEW_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
+          NEW_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           if [[ -z "$NEW_CODE" || "$NEW_CODE" -le "$BASE_CODE" || "$NEW_VERSION" != "0.14.2" ]]; then
             echo "::error::Signed candidate must be v0.14.2 with versionCode above current baseline."
             exit 1
