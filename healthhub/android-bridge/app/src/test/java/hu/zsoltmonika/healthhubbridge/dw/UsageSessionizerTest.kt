@@ -42,6 +42,45 @@ class UsageSessionizerTest {
         assertEquals(3000L, rows.single().observedForegroundMs)
     }
 
+    @Test fun verifiedCloseJustAfterCompletedHourPreservesEarlierForeground() {
+        val rows = UsageSessionizer.aggregate(
+            listOf(open(hour - 900_000L, "com.openai.chatgpt"),
+                close(hour + 120_000L, "com.openai.chatgpt")),
+            0L, hour
+        )
+        assertEquals(1, rows.size)
+        assertEquals(900_000L, rows.single().observedForegroundMs)
+        assertEquals(900_000L, rows.single().chatGptForegroundMs)
+    }
+
+    @Test fun observedAppSwitchAfterCompletedHourAlsoClosesEarlierSession() {
+        val rows = UsageSessionizer.aggregate(
+            listOf(open(hour - 420_000L, "com.example.browser"),
+                open(hour + 60_000L, "com.example.healthhub")),
+            0L, hour
+        )
+        assertEquals(420_000L, rows.single().observedForegroundMs)
+        assertEquals(0L, rows.single().chatGptForegroundMs)
+    }
+
+    @Test fun nextHourUsageNeverLeaksIntoCompletedHourOrCreatesFutureBucket() {
+        val rows = UsageSessionizer.aggregate(
+            listOf(open(hour + 10_000L, "com.example.app"),
+                close(hour + 60_000L, "com.example.app")),
+            0L, hour
+        )
+        assertTrue(rows.isEmpty())
+    }
+
+    @Test fun irrelevantCloseAfterBoundaryMustNotEndActiveAppSession() {
+        val rows = UsageSessionizer.aggregate(
+            listOf(open(hour - 300_000L, "com.openai.chatgpt"),
+                close(hour + 1_000L, "com.example.unrelated")),
+            0L, hour
+        )
+        assertTrue(rows.isEmpty())
+    }
+
     @Test fun unclosedEventMustNeverBecomeFabricatedScreenTime() {
         val rows = UsageSessionizer.aggregate(
             listOf(open(1000, "com.openai.chatgpt")),
