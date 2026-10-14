@@ -100,6 +100,10 @@ class OrchestratorWorker(
         technicalSnapshot: JSONObject? = null
     ) {
         val scopes = cmd.optJSONArray("scopes") ?: JSONArray()
+        OneOpsLog.record(prefs, "orchestrator", state)
+        if (technicalSnapshot != null) {
+            technicalSnapshot.put("recentAgentEvents", OneOpsLog.recent(prefs))
+        }
         val obj = JSONObject()
             .put("schema", "healthhub.orchestrator.status/1")
             .put("deviceId", id)
@@ -315,9 +319,10 @@ class OrchestratorWorker(
             uploadHeartbeat(prefs, id, owner)
             Result.success()
         } catch (e: Exception) {
+            OneOpsLog.record(prefs, "orchestrator", "retry", e.javaClass.simpleName)
             prefs.edit()
                 .putLong("last_orchestrator_error_ms", System.currentTimeMillis())
-                .putString("last_orchestrator_error", e.message ?: e.javaClass.simpleName)
+                .putString("last_orchestrator_error", e.javaClass.simpleName)
                 .apply()
             Result.retry()
         }
