@@ -284,6 +284,7 @@ class OrchestratorWorker(
             if ("daily" in requestedScopes) {
                 try {
                     DailyContentScheduler.runNow(applicationContext)
+                    skipped++ // Enqueued is not proof that the upload finished.
                     steps.put(step("daily", "Daily Cloud", "queued"))
                 } catch (e: Exception) {
                     failed++
