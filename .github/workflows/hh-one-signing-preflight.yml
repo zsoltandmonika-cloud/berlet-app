@@ -66,8 +66,9 @@ jobs:
           EXPECTED_SHA="${INFO[2]}"
           NEW_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           NEW_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
-          if [[ -z "$NEW_CODE" || "$NEW_CODE" -le "$BASE_CODE" || "$NEW_VERSION" != "0.14.2" ]]; then
-            echo "::error::Signed candidate must be v0.14.2 with versionCode above current baseline."
+          NEXT_VERSION="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "$BASE_VERSION")"
+          if [[ "$NEW_CODE" != "$((BASE_CODE+1))" || "$NEW_VERSION" != "$NEXT_VERSION" ]]; then
+            echo "::error::Signed candidate must be the next patch and next versionCode after live OTA manifest."
             exit 1
           fi
           RELEASE="healthhub-connect-ota-v$BASE_VERSION"
@@ -110,7 +111,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   signed-pilot-candidate:
-    name: Sign v0.14.2 candidate (artifact only; no OTA publish)
+    name: Sign next patch candidate (artifact only; no OTA publish)
     needs: [compare-signed-release-to-existing-keystore]
     # Only a trusted same-repository PR may access the signing credential.
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -170,17 +171,26 @@ jobs:
             echo "::error::New signed candidate signer differs from verified production signing key."
             exit 1
           fi
+          VERSION="$(sed -n 's/.*versionName = "\\([^"]*\\)".*/\\1/p' app/build.gradle.kts | head -1)"
+          CODE="$(sed -n 's/.*versionCode = \\([0-9][0-9]*\\).*/\\1/p' app/build.gradle.kts | head -1)"
+          readarray -t BASE < <(python3 - <<'PY'
+          import json
+          m=json.load(open("app/../../../data/bridge-ota.json"))
+          print(m["version"])
+          print(m["versionCode"])
+          PY
+          )
+          NEXT="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "${BASE[0]}")"
           if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
-             ! grep -Fq 'versionName = "0.14.2"' app/build.gradle.kts ||
-             ! grep -Fq 'versionCode = 22' app/build.gradle.kts; then
-            echo "::error::Incorrect Android package/version; candidate rejected."
+             [[ "$VERSION" != "$NEXT" || "$CODE" != "$((BASE[1]+1))" ]]; then
+            echo "::error::Incorrect Android package/version; signed candidate rejected."
             exit 1
           fi
-          DEST="$GITHUB_WORKSPACE/HealthHub-Connect-v0.14.2-signed-PILOT.apk"
+          DEST="$GITHUB_WORKSPACE/HealthHub-Connect-v${VERSION}-signed-PILOT.apk"
           cp "$SRC" "$DEST"
           SHA="$(sha256sum "$DEST" | cut -d' ' -f1)"
           {
-            echo "Signed candidate v0.14.2 / versionCode 22 / same Android package: PASS"
+            echo "Signed candidate v$VERSION / versionCode $CODE / same Android package: PASS"
             echo "Signature compatible with verified production OTA keystore: PASS"
             echo "APK SHA-256: \`$SHA\`"
             echo "**STAGING ONLY:** NOT a GitHub Release, NOT in OTA manifest, NOT installed on either phone."
@@ -188,8 +198,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: HH-One-v0.14.2-SIGNED-PILOT-NOT-LIVE
-          path: HealthHub-Connect-v0.14.2-signed-PILOT.apk
+          name: HH-One-SIGNED-PILOT-NOT-LIVE
+          path: HealthHub-Connect-v*-signed-PILOT.apk
           if-no-files-found: error
           retention-days: 3
           compression-level: 0
