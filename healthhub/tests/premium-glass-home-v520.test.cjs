@@ -7,12 +7,26 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=520-optin-preview/);
+assert.match(html,/premium-glass-home-v520\.js\?v=521-monika-rose-night/);
 assert.match(source,/params\.get\('hhpremium'\)!=='1'/,'preview must be opt-in');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 assert.match(css,/timeline-hero-v222\.webp/,'existing approved Lena hero reused until character master is approved');
 assert.doesNotMatch(source,/fetch\(|XMLHttpRequest|localStorage\.setItem/,'preview never writes profile or health data');
+assert.match(source,/premium-glass-home-v520\.css\?v=521-subtle-rose-night/,'rose preview CSS cache busted');
+const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1];
+assert.ok(pink,'Mónika-only glass enhancements exist');
+assert.match(pink,/data-hhpg-profile="m"/,'pink is exclusively under Mónika data attribute');
+assert.doesNotMatch(pink,/data-hhpg-profile="z"/,'no Zsolt palette overrides in the new section');
+assert.match(pink,/#heroHome::after/,'soft matching rose glow around original hero without replacing Léna');
+assert.match(pink,/pointer-events:none/,'hero glow never blocks the profile switch');
+assert.match(pink,/\.hhpg-tile\[data-group="daily"\]/,'Daily cards get delicate matching rose treatment');
+assert.match(pink,/\.hhpg-tile:focus-visible/,'keyboard focus stays visible for Mónika');
+const lines=pink.split('\n').filter(line=>/^html\[data-hh-premium-preview="on"\]/.test(line));
+assert.ok(lines.length>=10,'profile-specific selectors cover whole experience');
+assert.ok(lines.every(line=>line.includes('[data-hhpg-profile="m"]')),
+ 'all new overrides require opt-in and Mónika profile');
+
 
 class Fake {
  constructor(tag){this.tagName=tag;this.children=[];this.className='';this.dataset={};this.style={};this.listeners={};this.attributes={};this.textContent='';}
