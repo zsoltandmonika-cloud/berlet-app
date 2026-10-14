@@ -7,13 +7,16 @@ const yml=fs.readFileSync(path.join(base,'.github/workflows/hh-one-signing-prefl
 const manifest=JSON.parse(fs.readFileSync(path.join(base,'healthhub/data/bridge-ota.json'),'utf8'));
 const release=fs.readFileSync(path.join(base,'.github/workflows/healthhub-connect-ota-release.yml'),'utf8');
 const gradle=fs.readFileSync(path.join(base,'healthhub/android-bridge/app/build.gradle.kts'),'utf8');
-assert.equal(manifest.version,'0.14.1','current signed production baseline');
-assert.equal(manifest.versionCode,21);
+assert.match(manifest.version,/^0\\.14\\.[0-9]+$/,'signed OTA baseline must have a valid version');
+assert.ok(Number.isSafeInteger(manifest.versionCode)&&manifest.versionCode>=21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
 assert.deepEqual(manifest.rolloutProfiles,['zsolt']);
 assert.match(manifest.sha256,/^[a-f0-9]{64}$/);
-assert.ok(gradle.includes('versionName = "0.14.2"'));
-assert.ok(gradle.includes('versionCode = 22'));
+const targetVersion=manifest.version.split('.').map(Number);
+targetVersion[2]++;
+const expectedVersion=targetVersion.join('.');
+assert.ok(gradle.includes('versionName = "'+expectedVersion+'"'),'candidate version must be exactly one signed patch newer');
+assert.ok(gradle.includes('versionCode = '+(manifest.versionCode+1)),'candidate versionCode must increment exactly once');
 for(const needle of [
  'healthhub/data/bridge-ota.json','BASE_VERSION','BASE_CODE','NEW_CODE',
  'gh release download "$RELEASE"',
