@@ -54,6 +54,8 @@ function styles(){
  '#hhLenaSmart299 #hhAi331Answer .hhAi331Foot{border-top-color:var(--lena-border);color:#667d8b}'+
  '@media(max-width:440px){#hhLenaSmart299 #hhAi331Answer{padding:15px 12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaBlock{padding:12px}#hhLenaSmart299 #hhAi331Answer .hhAi331Text .hhLenaNarrative394{padding:15px 14px}}'+
  '#hhAi331Answer .hhAi331Foot{font-size:11px;line-height:1.6;color:#678392;margin-top:14px;border-top:1px solid #d2e9e4;padding-top:9px}'+
+ '#hhAi331AddedValue{font-size:12px;line-height:1.55;font-weight:600;color:var(--lena-accent-deep,#226079);margin:15px 0 7px;padding:11px 0;border-top:1px solid var(--lena-border,#cbdbe8)}'+
+ '#hhAi331AddedValue[hidden]{display:none!important}'+
  '#hhAi331Error{display:none;background:#fff2f0;border:1px solid #e9bcb3;padding:12px;border-radius:13px;color:#833d38;font-size:12px;line-height:1.6;margin-top:9px}'+
  '#hhAi331Error.on{display:block}'+
  '#hhAi331Local{border:0;background:transparent;color:#5e8392;font-size:12px;text-decoration:underline;padding:10px 0 0;cursor:pointer}';
@@ -211,6 +213,10 @@ function showLocalAnswer(question,p,report){
  if(foot)foot.textContent=local.disclaimer+
   (local.measuredFacts?' · 📊 '+local.measuredFacts+' helyi, aktív profilból kiolvasott mérési tétel.':' · Személyes mérést nem olvastam ki.');
  if(answer)answer.classList.add('on');
+ var value=el('hhAi331AddedValue');
+ if(value){value.textContent='🛟 Safe Fallback: helyi alapválasz. '+(local.measuredFacts?
+  local.measuredFacts+' valódi, profilhoz kötött mérési megfigyelést is felhasznál.':'Személyes mérés nem áll rendelkezésre.');
+  value.hidden=false;}
  print('🛟 Safe Fallback: azonnali helyi, nem generatív válasz. Nem állítom, hogy AI-kutatás történt.');
  setTimeout(alignAnswerTop,80);
  return true;
@@ -250,7 +256,7 @@ function ui(){
  term.innerHTML='<p class="hhAi331Title">🟢 HEALTHHUB · LÉNA RESEARCH MONITOR <span class="hhAi331Cursor"></span></p><div id="hhAi331Lines"></div>';
  actions.parentNode.insertBefore(term,privacy.nextSibling);
  var answer=document.createElement('section');answer.id='hhAi331Answer';answer.setAttribute('aria-label','Léna valódi AI-válasza');
- answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
+ answer.innerHTML='<h2 id="hhAi331Heading">💙 Léna válasza</h2><div class="hhAi331Text" id="hhAi331Text"></div><div id="hhAi331AddedValue" hidden></div><div class="hhAi331Foot" id="hhAi331Foot"></div>';
  term.parentNode.insertBefore(answer,term.nextSibling);
  setAnswerProfile(profile());
  var err=document.createElement('div');err.id='hhAi331Error';term.parentNode.insertBefore(err,answer.nextSibling);
@@ -369,6 +375,7 @@ async function run(opts){
  setAnswerProfile(p);
  term.classList.add('on');el('hhAi331Lines').innerHTML='';err.classList.remove('on');result.classList.remove('on');
  el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
+ var value=el('hhAi331AddedValue');if(value){value.hidden=true;value.textContent='';}
  var old=el('hhLenaAnswer329');if(old)old.remove();
  var legacy=el('hhProg299');if(legacy)legacy.classList.remove('on');
  if(el('askWork330'))el('askWork330').classList.remove('on');
@@ -615,8 +622,12 @@ async function run(opts){
         ' · forrásalapú pótlás: '+(audit&&audit.qaSourceFallbackUsed?'igen':'nem'):'');
     }
     var provenance=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
-    if(provenance&&provenance.provenance)
-     el('hhAi331Foot').textContent+=' · '+provenance.provenance(replyData,true,simplified?'simplified':'standard');
+    if(provenance&&provenance.provenance){
+     var added=provenance.provenance(replyData,true,simplified?'simplified':'standard');
+     el('hhAi331Foot').textContent+=' · '+added;
+     var addedBox=el('hhAi331AddedValue');
+     if(addedBox){addedBox.textContent=added;addedBox.hidden=false;}
+    }
     if(!simplified){
      var proof=clinicalEngine.createPanel(clinical,p);
      if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
@@ -641,6 +652,7 @@ async function run(opts){
  }catch(e){
   result.classList.remove('on');el('hhAi331Text').textContent='';el('hhAi331Foot').textContent='';
   if(turn===epoch){
+   var add=el('hhAi331AddedValue');if(add){add.hidden=true;add.textContent='';}
    var msg=e&&e.message||'Ismeretlen AI-hiba.';
    if(/failed to fetch|networkerror|load failed/i.test(msg))msg='A kutatómotor nem érhető el. Nincs kész válasz. Ellenőrizni kell a szerverkapcsolatot.';
    showError(msg);
@@ -654,6 +666,7 @@ window.addEventListener('healthhub:ask-lena-open',function(){ui()});
 window.addEventListener('healthhub:central-auth-changed',refreshAuth);
 window.addEventListener('healthhub:profile-changed',function(){cancel();
  var a=el('hhAi331Answer');if(a)a.classList.remove('on');var t=el('hhAi331Text');if(t)t.textContent='';
+ var v=el('hhAi331AddedValue');if(v){v.hidden=true;v.textContent='';}
  var b=el('hhRun299');if(b)b.disabled=false;var q=el('hhSQ299');if(q)q.disabled=false;
  var term=el('hhAi331Terminal');if(term)term.classList.remove('on');
 });
@@ -662,6 +675,7 @@ window.HH_ASK_LENA_AI_V331={initialize:ui,version:'344',isBusy:function(){return
  var result=el('hhAi331Answer'),q=el('hhSQ299'),foot=el('hhAi331Foot');
  if(!result||!q||typeof entry.answer!=='string'||typeof entry.question!=='string')return false;
  setAnswerProfile(entry.profile);q.value=entry.question;renderAnswerText(entry.answer);
+ var v=el('hhAi331AddedValue');if(v){v.hidden=true;v.textContent='';}
  if(foot){
   foot.textContent='🕘 Korábbi, mentett válasz · '+new Date(entry.generatedAt).toLocaleString('hu-HU')+' · Helyi előzmény, nem új kutatás.';
   if(/(?:-39[.,][0-9]+|-3[5-9][.,][0-9]+)\s*kg/i.test(entry.answer)){
