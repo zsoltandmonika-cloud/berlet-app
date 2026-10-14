@@ -60,6 +60,9 @@ class MainActivity : ComponentActivity() {
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
+    private lateinit var otaCheckFeedback: TextView
+    private lateinit var otaCheckButton: Button
+    private var otaChecking = false
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -308,7 +311,7 @@ class MainActivity : ComponentActivity() {
         scroll.addView(root)
 
         root.addView(TextView(this).apply {
-            text = "HealthHub Connect"
+            text = "HH One"
             textSize = 28f
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(0xFF0B2D50.toInt())
@@ -340,7 +343,8 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
-                prefs.edit().remove("device_owner_profile").apply()
+                prefs.edit().remove("device_owner_profile")
+                    .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
                 updateOwnerUi()
                 status.text = "A telefon tulajdonosa feloldva. A következő SYNC NOW rögzíti az aktuális profilt."
             }
@@ -353,7 +357,44 @@ class MainActivity : ComponentActivity() {
         })
 
         root.addView(TextView(this).apply {
-            text = "📦 HealthHub Connect · OTA Updates"
+            text = "🩺 HH One · Távoli műszaki diagnosztika"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        val diagnosisToggle = Button(this)
+        fun updateDiagnosticToggle() {
+            diagnosisToggle.text = if (OneTechnicalDiagnostics.consent(prefs))
+                "🟢 Műszaki diagnosztika ENGEDÉLYEZVE · visszavonás"
+            else "⚪ Műszaki diagnosztika KI · engedélyezés"
+        }
+        diagnosisToggle.setOnClickListener {
+            if (OneTechnicalDiagnostics.consent(prefs)) {
+                prefs.edit().putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
+                status.text = "Távoli műszaki diagnosztika letiltva."
+                OrchestratorScheduler.runNow(this@MainActivity)
+                updateDiagnosticToggle()
+            } else {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("HH One · Műszaki diagnosztika engedélyezése")
+                    .setMessage("A Service Center lekérdezheti az Agent verzióját, a jogosultságok állapotát, " +
+                        "a szinkronidőpontokat és hibastátuszokat. Nem továbbít vérnyomást, leletet, gyógyszert, " +
+                        "apphasználati előzményeket vagy belépési titkokat. Bármikor kikapcsolható.")
+                    .setPositiveButton("Engedélyezem") { _, _ ->
+                        prefs.edit().putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, true).apply()
+                        OrchestratorScheduler.runNow(this@MainActivity)
+                        updateDiagnosticToggle()
+                    }
+                    .setNegativeButton("Mégsem", null)
+                    .show()
+            }
+        }
+        updateDiagnosticToggle()
+        root.addView(diagnosisToggle)
+
+        root.addView(TextView(this).apply {
+            text = "📦 HH One · OTA Updates"
             textSize = 18f
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(0xFF0B2D50.toInt())
@@ -365,10 +406,19 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 3, 0, 8)
         }
         root.addView(otaSummary)
-        root.addView(Button(this).apply {
+        otaCheckButton = Button(this).apply {
             text = "🔎 Új Connect-verzió ellenőrzése"
             setOnClickListener { checkOta(true) }
-        })
+        }
+        root.addView(otaCheckButton)
+        otaCheckFeedback = TextView(this).apply {
+            text = "Az ellenőrzés eredménye itt jelenik meg, közvetlenül a gomb alatt."
+            textSize = 15f
+            setTextColor(0xFF173F62.toInt())
+            setPadding(4, 8, 4, 16)
+            setTextIsSelectable(true)
+        }
+        root.addView(otaCheckFeedback)
         root.addView(Button(this).apply {
             text = "📥 Ellenőrzött frissítés telepítése"
             setOnClickListener { installOta() }
@@ -632,17 +682,38 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkOta(showResult: Boolean) {
+        if (showResult && otaChecking) return
+        if (showResult) {
+            otaChecking = true
+            otaCheckButton.isEnabled = false
+            otaCheckFeedback.text = "⏳ Frissítési kiszolgáló ellenőrzése… Ez akár 12 másodpercig is eltarthat."
+            status.text = "Connect OTA frissítések ellenőrzése…"
+        }
         scope.launch {
-            if (showResult) status.text = "Connect OTA frissítések ellenőrzése…"
             try {
                 val found = OtaUpdateManager.check(this@MainActivity)
                 updateOtaStatus()
-                if (showResult) status.text = if (found == null)
-                    "✓ Nincs telepíthető, ehhez a készülékhez engedélyezett új verzió."
-                else "✓ v${found.version} elérhető. A telepítéshez külön jóváhagyás szükséges."
+                if (showResult) {
+                    val result = if (found == null)
+                        "✓ Nincs ehhez a készülékhez engedélyezett új OTA-kiadás."
+                    else "✓ v${found.version} elérhető. A telepítéshez külön telefonos jóváhagyás szükséges."
+                    otaCheckFeedback.text = result
+                    status.text = result
+                }
             } catch (e: Exception) {
                 updateOtaStatus()
-                if (showResult) status.text = "OTA ellenőrzés: ${e.message ?: "kapcsolati hiba"}"
+                if (showResult) {
+                    // Do not claim "no new update" on network/manifest failure.
+                    val result = "⚠️ OTA ellenőrzés sikertelen: ${e.javaClass.simpleName}. " +
+                        "Hiba részletei az OTA Updates blokkban."
+                    otaCheckFeedback.text = result
+                    status.text = result
+                }
+            } finally {
+                if (showResult) {
+                    otaChecking = false
+                    otaCheckButton.isEnabled = true
+                }
             }
         }
     }
