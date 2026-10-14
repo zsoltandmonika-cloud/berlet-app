@@ -9,11 +9,11 @@ import java.io.FileNotFoundException
 
 /**
  * Local-only, replace-by-hour ledger. No raw usage-event content, other app names,
- * or message text is retained. No private usage upload is allowed; HH One INTERNET is for other modules.
+ * or message text is retained. Uploads to the existing family vault require explicit separate consent.
  */
 internal object LocalLedger {
     private const val SCHEMA = "healthhub.screentime.pilot/1"
-    private const val RETENTION_DAYS = 90
+    private const val RETENTION_DAYS = 30
     private const val DAY_MS = 86_400_000L
 
     private fun requireOwner(owner: String) {
