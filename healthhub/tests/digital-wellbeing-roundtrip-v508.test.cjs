@@ -19,7 +19,7 @@ assert.match(prefs,/const val CLOUD_REVISION/);
 assert.ok((activity.match(/putLong\(PilotState\.CLOUD_REVISION/g)||[]).length>=7,'all cloud consent transitions revision-stamped');
 
 class Element {
- constructor(){this.children=[];this.textContent='';this.className='';this.title='';this.style={setProperty(){}};this.classList={add(){}};}
+ constructor(){this.children=[];this.textContent='';this.dataset={};this.className='';this.title='';this.style={setProperty(){}};this.classList={add(){}};}
  appendChild(child){this.children.push(child);return child;}
  replaceChildren(){this.children=[];}
  setAttribute(){}
