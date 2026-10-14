@@ -27,7 +27,7 @@
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
- style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=524-inline-hero-fixed';
+ style.rel='stylesheet';style.href='./premium-glass-home-v520.css?v=5261-exact-monika-hero';
  document.head.appendChild(style);
  function legacyButton(name){
   var buttons=document.querySelectorAll('#home .homeModules .homeModule');
@@ -96,10 +96,10 @@
   if(!hero||document.documentElement.dataset.hhPremiumPreview!=='on')return;
   var current=hero.style.getPropertyValue('background-image')||'';
   if(profile()==='m'){
-   if(current.indexOf('hero-digital-health-approved%20.png')<0){
-    hero.style.setProperty('background-image','url("./assets/hero-digital-health-approved%20.png")','important');
+   if(current.indexOf('monika-hh-hero-approved-v5261.png')<0){
+    hero.style.setProperty('background-image','url("./assets/monika-hh-hero-approved-v5261.png")','important');
    }
-  }else if(current.indexOf('hero-digital-health-approved%20.png')!==-1){
+  }else if(current.indexOf('monika-hh-hero-approved-v5261.png')!==-1){
    // Restore the original Zsolt v216 photo, not the Mónika image.
    var original=root.HH_HOME_HERO_Z_V216?
      'url("data:image/webp;base64,'+root.HH_HOME_HERO_Z_V216+'")':
