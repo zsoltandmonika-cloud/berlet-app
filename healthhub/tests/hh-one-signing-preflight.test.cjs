@@ -7,7 +7,7 @@ const yml=fs.readFileSync(path.join(base,'.github/workflows/hh-one-signing-prefl
 const manifest=JSON.parse(fs.readFileSync(path.join(base,'healthhub/data/bridge-ota.json'),'utf8'));
 const release=fs.readFileSync(path.join(base,'.github/workflows/healthhub-connect-ota-release.yml'),'utf8');
 const gradle=fs.readFileSync(path.join(base,'healthhub/android-bridge/app/build.gradle.kts'),'utf8');
-assert.match(manifest.version,/^0\\.14\\.[0-9]+$/,'signed OTA baseline must have a valid version');
+assert.match(manifest.version,/^0\.14\.[0-9]+$/,'signed OTA baseline must have a valid version');
 assert.ok(Number.isSafeInteger(manifest.versionCode)&&manifest.versionCode>=21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
 assert.deepEqual(manifest.rolloutProfiles,['zsolt']);
