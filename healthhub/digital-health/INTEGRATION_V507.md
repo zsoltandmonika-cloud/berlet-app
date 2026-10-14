@@ -35,3 +35,11 @@ Automated tests must pass for source validation, profile isolation, extra detail
 Do not count a green CI run as a real on-phone Dropbox sync. Release only a signed owner-approved OTA after code validation. Verify **Zsolt's** 0.14.1 → 0.14.2 in-place update, explicit Usage Access and family sharing consent, two successful measured uploads, dashboard real values and revocation before expanding rollout to **Mónika**. Each person must consent separately. Old isolated pilot data cannot be silently read across Android app sandboxes: keep that pilot intact until its history is explicitly handled; new HH One measures its own events.
 
 **Release state:** DRAFT branch only, not yet main or installed. No production claim until phone + Dropbox + two-profile acceptance.
+
+## v508 read-after-write / privacy regression hardening (2026-10-14)
+
+- A successful Dropbox HTTP upload **is not** reported as an end-to-end success until the authenticated Dropbox download returns exactly the uploaded JSON bytes. Network/revision mismatches remain visible failures and are retried.
+- Each explicit local/cloud/detail consent transition increments a persistent version. A background upload that overlaps a revocation cannot clear the newer deletion request or announce a stale success.
+- Cloud requests use an append-or-replace work chain rather than cancelling an in-flight HTTP request. A pending tombstone is retried when connectivity returns. This does not remove the Dropbox provider's own historical revisions.
+- The Digital Health dashboard immediately clears all previous-profile metrics, app names, graphs and data-source labels **before** fetching a new profile or period. It never caches previously shared profile data across refreshes.
+- Automated v508 regression covers simulated concurrent profile switching, missing/error states, out-of-order responses, cloud revision fencing and upload/readback contract. The Android debug build and JVM tests are CI gates. **No real phone, production token, live Dropbox write, release APK, OTA manifest or deployment was used for these simulations.**
