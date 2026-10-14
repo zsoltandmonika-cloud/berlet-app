@@ -98,6 +98,42 @@ function renderPanel(){
    txt('small','Parancs: '+safeText(d.status&&d.status.state||'Nincs visszaigazolás')+
     ' · '+dt(d.status&&d.status.updatedAt),line);
    if(d.lastHealthError)txt('small','Health hiba: '+safeText(d.lastHealthError).slice(0,180),line);
+   txt('small','Agent verzió: '+safeText(d.build||'ismeretlen')+' · OTA ellenőrzés: '+dt(d.otaLastCheckedAt),line);
+   if(d.otaCandidateVersion)txt('small','Elérhető OTA jelölt: '+safeText(d.otaCandidateVersion),line);
+   if(d.otaLastError)txt('small','OTA hiba: '+safeText(d.otaLastError).slice(0,150),line);
+   var st=d.status||{},diag=st.diagnostics;
+   if(diag&&st.state==='done'&&Array.isArray(st.scopes)&&st.scopes.includes('diagnostics')){
+    var detail=elt('details','',line);
+    txt('summary','🩺 Utolsó valódi, telefonról kapott műszaki diagnosztika',detail);
+    [['capturedAt','Mintavétel'],['agentVersion','Agent verzió'],
+      ['androidSdk','Android API'],['healthConnectAvailable','Health Connect'],
+      ['healthReadPermissionCount','HC engedélyek száma'],
+      ['backgroundHealthReadGranted','HC háttérengedély'],
+      ['scheduledSyncEnabled','Ütemezés BE'],['resilientSyncEnabled','Önjavító sync'],
+      ['lastHealthSyncAt','Utolsó sikeres HC sync'],
+      ['lastHealthAttemptAt','Utolsó HC kísérlet'],
+      ['lastOtaCheckAt','Utolsó OTA ellenőrzés'],
+      ['hasDropboxRefreshToken','Dropbox hitelesítés van']].forEach(function(entry){
+        if(Object.prototype.hasOwnProperty.call(diag,entry[0]))
+          txt('small',entry[1]+': '+safeText(diag[entry[0]]).slice(0,95),detail);
+      });
+   }
+   var buttons=elt('div','hhActions',line);
+   var authorized=state.connected&&state.registry&&Array.isArray(state.registry.archived)&&
+      state.registry.activePhones&&state.registry.activePhones[p]===d.deviceId&&
+      !state.registry.archived.includes(d.deviceId);
+   var canDiagnose=Number(d.buildCode)>=21&&Array.isArray(d.capabilities)&&
+      d.capabilities.includes('diagnostics');
+   var canOta=Number(d.buildCode)>=20&&Array.isArray(d.capabilities)&&d.capabilities.includes('ota');
+   var diagBtn=elt('button','',buttons);diagBtn.type='button';
+   diagBtn.textContent='🩺 Távoli DIAG';diagBtn.disabled=!authorized||!canDiagnose||sending||reading;
+   diagBtn.title=canDiagnose?'Műszaki állapot lekérése, egészségügyi értékek nélkül':
+      'A HH One Connect v0.14.1+ és a telefonos engedélyezés szükséges';
+   diagBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'diagnostics')});
+   var otaBtn=elt('button','',buttons);otaBtn.type='button';
+   otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
+   otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
+   otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
   }else txt('small','A v401 eszközregiszterben kell kijelölni az eredeti fizikai telefont.',line);
  });
  var intelligence=root.HH_ONE_SERVICE_INTELLIGENCE_V501;
@@ -148,6 +184,32 @@ async function refresh(force){
  }catch(e){
   state={color:'amber',message:'Kapcsolat nem ellenőrizhető',devices:[],registry:null,connected:connected(),error:safeText(e&&e.message||e).slice(0,170)};
  }finally{reading=false;updateBadge();if($id(PANEL)?.dataset.open==='1')renderPanel()}
+}
+async function sendRemote(owner,id,kind){
+ if(sending||!isMain()||!['diagnostics','ota'].includes(kind)||!['zsolt','monika'].includes(owner))return;
+ try{
+  await refresh(true);
+  if(!state.connected||!state.registry||!Array.isArray(state.registry.archived))
+    throw Error('Előbb csatlakoztasd a Dropboxot, és ellenőrizd az eszközregisztert.');
+  var device=state.devices.find(function(d){return d&&d.deviceId===id&&d.deviceType==='android'&&
+     d.activeProfile===owner&&state.registry.activePhones[owner]===id&&
+     !state.registry.archived.includes(id)});
+  if(!device)throw Error('A telefon nincs a kijelölt fizikai eszközök között.');
+  if(kind==='diagnostics'&&(!Array.isArray(device.capabilities)||
+     !device.capabilities.includes('diagnostics')||Number(device.buildCode)<21))
+    throw Error('Ehhez a telefonon engedélyezett HH One Connect v0.14.1+ szükséges.');
+  if(kind==='ota'&&(!Array.isArray(device.capabilities)||
+     !device.capabilities.includes('ota')||Number(device.buildCode)<20))
+    throw Error('A készülék nem jelezte az OTA ellenőrzés támogatását.');
+  var label=kind==='ota'?'frissítés ellenőrzését (telepítés NÉLKÜL)':'műszaki diagnosztikáját';
+  if(!root.confirm('Elindítsuk '+(owner==='monika'?'Mónika':'Zsolt')+
+     ' kijelölt telefonján a '+label+'? A telefon késve válaszolhat.'))return;
+  sending=true;renderPanel();
+  var response=await root.hhOrchestratorDispatchScope355(owner,id,kind);
+  state.feedback='Kérés sorban · '+response.commandId+
+    '. A telefon visszaigazolásáig NINCS végrehajtási bizonyíték.';
+ }catch(e){state.feedback='Nem sikerült: '+safeText(e&&e.message||e)}
+ finally{sending=false;renderPanel();root.setTimeout(function(){refresh(true)},3000)}
 }
 async function sendSync(){
  if(sending||!isMain())return;
