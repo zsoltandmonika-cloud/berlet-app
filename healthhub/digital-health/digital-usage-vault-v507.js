@@ -106,7 +106,7 @@ async function read(profile){
  const token=await cloudToken();
  const r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',
  headers:{Authorization:'Bearer '+token,'Dropbox-API-Arg':JSON.stringify({path})}});
- if(r.status===409)return null;
+ if(r.status===409){const errorBody=await r.text();if(/not_found/i.test(errorBody))return null;throw Error('Dropbox adatútvonal nem hozzáférhető');}
  if(!r.ok)throw Error('Dropbox adatolvasási hiba ('+r.status+')');
  const data=await r.json();return data&&data.shared===false?null:validate(data,profile);
 }
