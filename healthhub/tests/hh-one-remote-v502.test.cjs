@@ -17,6 +17,16 @@ const digital=read(path.join(base,'digital-health/index.html'));
 assert.match(build,/applicationId = "hu.zsoltmonika.healthhubbridge"/);
 assert.match(build,/versionCode = 21/);
 assert.match(build,/versionName = "0.14.1"/);
+const manifest=read(path.join(base,'android-bridge/app/src/main/AndroidManifest.xml'));
+const foreground=read(path.join(base,'android-bridge/app/src/main/res/drawable/ic_hh_one_foreground.xml'));
+const releaseCi=read(path.join(base,'../.github/workflows/healthhub-connect-ota-release.yml'));
+assert.match(manifest,/android:label="HH One"/);
+assert.match(manifest,/android:icon="@mipmap\/ic_hh_one"/);
+assert.match(manifest,/android:roundIcon="@mipmap\/ic_hh_one_round"/);
+assert.match(foreground,/HH monogram/);
+assert.match(releaseCi,/Hard stop unless new APK and v0\.14\.0 baseline have same signing certificate/);
+assert.match(releaseCi,/if \[\[ .*old_cert.*new_cert/);
+
 assert.match(diag,/KEY_CONSENT/);
 assert.match(diag,/getBoolean\(KEY_CONSENT, false\)/);
 assert.match(diag,/getGrantedPermissions\(\)/);
