@@ -58,17 +58,37 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 - Zsolt: mélykék/cyan; Mónika: pink/rose, a közös prémium sötét alap és a szövegkontraszt megtartásával.
 - Ne legyenek egymásnak ellentmondó modulonkénti profilváltók, fontok, kártyaradiusok vagy navigációs jelölések.
 
-## 4. Home információs architektúra — javaslat jóváhagyásra
+## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép
 
-**Felhasználói ötlet:** Léna Receptár kerüljön a Nutrition modulba; a Home a jelenlegi menüből **kilenc csempés, 3 × 3 kompakt rács** legyen.
+**Felhasználó által jóváhagyott navigációs sorrend (2026-10-14):** a Home ne széttöredezett linkgyűjtemény, hanem egységes, 3 oszlopos × 4 soros, **12 Premium Glass navigációs csempéből** álló, kompakt belépőoldal legyen.
 
-- **Irány támogatott, konkrét megvalósítás még nem jóváhagyott.** A Home jelenlegi valós modul- és csempelistáját, releváns belépési pontjait és mobilos navigációját implementáció előtt fel kell mérni.
-- A Receptár teljes tartalma, mentései, keresője, kapcsolódó jogosultságai sértetlenül költözzenek a Nutrition alá; direkt régi hivatkozásokat átirányítani.
-- Az összes többi funkcionalitás elérhető maradjon; a 3 × 3 nem jelenthet elrejtett vagy elveszett modult.
-- Csempék: egységes, optikailag azonos kártyaméret, HD/3D ikon, rövid címke, adaptív font és korrekt aktív fókuszállapot.
-- A „kevesebb görgetés” mérhető cél, de a 9 csempe nem lehet annyira kicsi, hogy tapintásra és olvasásra rossz legyen. Ajánlott minimum **44 × 44 CSS px** aktív érintési cél, Androidon 48 × 48 dp lehetőleg; a tényleges csempék legyenek nagyobbak.
-- Keskenyebb képernyőn és emelt betűméretnél ellenőrzött adaptív elrendezés, nem levágott szöveg.
-- Ideális sorrend: profilváltás + Léna Home Hero, gyors egészségügyi áttekintés, 3×3 navigációs rács; nincs szükségtelen duplikált menü.
+| Sor | 1. oszlop | 2. oszlop | 3. oszlop |
+|---|---|---|---|
+| 1. Egészség és dokumentumok | 🩺 **Egészség** | 📋 **Leletek** | 💊 **Gyógyszerek** |
+| 2. Aktivitás és digitális jóllét | 🌙 **Alvás** | 🏃 **Aktivitás** | 📱 **Digital Health** |
+| 3. Intelligencia és életmód | 🥗 **Nutrition** | 🧠 **Ask Léna** | 🗓️ **Idővonal** |
+| 4. Daily Intelligence | ✨ **Daily Spark** | 📰 **Daily Headline** | ❤️ **Daily Health** |
+
+**Elhelyezési szabály:** az Egészség, Leletek, Gyógyszerek szándékosan **egyetlen sorban**, az Ask Léna a 3. sor **középső csempéjén**. A három eltérő Daily Briefing **három önálló, jól elkülöníthető Fancy / Premium Glass csempét** kap az utolsó sorban. A címek az adott rendszerben ténylegesen használt briefingnevekhez igazítandók, ha a megnevezés eltér. A „Daily Health” alatt a családi napi személyes egészségügyi jelentés értendő; nem helyettesítendő statikus, publikus híradattal.
+
+**Léna Receptár → Nutrition:**
+- Léna Receptárnak ne legyen külön Home-navigációs csempéje. A funkció a Nutrition modulban kapjon dedikált, egyértelmű belépési pontot.
+- Teljes receptek, mentések, keresés, meglevő jogosultságok és korábbi hivatkozások elérhetőségét meg kell őrizni, szükség esetén régi deeplinkeket átirányítani.
+
+**Daily briefing csempék megjelenése és adatforrása:**
+- Finoman megkülönböztetett grafikai identitás, HD/3D ikonok, prémium színárnyalatok a közös rendszerbe illesztve; profilfüggő téma.
+- Opcionális, **valós** utolsó briefing dátum / friss jelzés; csak adott profilra jogosult, már létrejött jelentést szabad jelezni. Nincs demonstrációs briefingcím vagy kitalált időbélyeg.
+- A csempék az eredeti, valóban működő briefingeket/archívumokat nyissák, ne duplikált új megvalósítást; ne induljon AI-generálás automatikusan pusztán oldallátogatás miatt.
+- A 3 Daily funkció meglévő generálási ütemezésének, mentésének, archívumának, privát láthatóságának változatlannak kell maradnia.
+
+**Reszponzív cél és megfelelőség:**
+- 3 oszlop, 4 sor az S24 Ultra elsődleges célképe. Kisebb kijelzőn / nagyított fontnál adaptív rács, olvasható címkék.
+- Az elegáns kompakt csempék érintési célja legalább 44 × 44 CSS px, lehetőleg 48 × 48 dp Android méret; jól elkülönülő aktív/fókuszállapot, nem szoruló feliratok.
+- Kevesebb görgetés igen, elveszett modul vagy használhatatlanul apró csempe nem. Az előző 3×4 javaslatot **felülírja** a jóváhagyott 3×4.
+- Modul- és Home menüleltár, régi deeplinkek, jogosultságok és három Daily briefing forrásának ellenőrzése kötelező az implementáció előtt. Így nem marad rejtett funkció vagy felhasználói adatvesztés.
+- Ideális szerkezet: egyetlen Léna Home Hero, profilváltásnál Zsolt/Mónika személyes portréja, fontos hiteles gyorsadatok, 12 esztétikus üvegcsempe.
+
+**Státusz:** a felhasználó jóváhagyta a 12-es csempeszámot és a 4×3 tartalmi sorrendet. Ez **tervezési elfogadás**, nem éles migráció; implementáció és valós telefonos QA külön feladat.
 
 ## 5. Hozzáférhetőség és S24 Ultra minőségi kapuk
 
@@ -84,7 +104,7 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 ## 6. Prioritások és megvalósítási elv
 
 1. **Design tokenek + közös komponensek + Léna karakter-referencia**: izolált, opt-in CSS, nincs globális áttörés.
-2. **Home + Ask Léna + közös navigáció**: az első valódi WOW-kapu. Home 3×3 és Receptár áthelyezése csak jóváhagyott navigációs inventár után.
+2. **Home + Ask Léna + közös navigáció**: az első valódi WOW-kapu. Home 3×4 és Receptár áthelyezése csak jóváhagyott navigációs inventár után.
 3. **Sleep + Activity + Digital Health**: közös grafikai nyelv, a meglévő jóváhagyott Hero anyagok adaptálása, nem lecserélése reflexből.
 4. **Timeline + leletek + gyógyszerek + Nutrition + további modulok**.
 5. **Admin és edge-case QA**: üres adat, hosszú magyar szavak, profilváltás, időzónák, alacsony memória, lassú hálózat.
@@ -93,4 +113,4 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 
 ## 7. Változáskövetés
 
-Ez a dokumentum csak **a tervezési szerződés**. Sem Home 3×3 rács, sem receptmigráció, sem Hero képcsere, sem közös skin nem lett automatikusan élesítve ezzel a dokumentummal. Ezek külön implementációs és tesztelési feladatok.
+Ez a dokumentum csak **a tervezési szerződés**. Sem Home 3×4 rács, sem receptmigráció, sem Hero képcsere, sem közös skin nem lett automatikusan élesítve ezzel a dokumentummal. Ezek külön implementációs és tesztelési feladatok.
