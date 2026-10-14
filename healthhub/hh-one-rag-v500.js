@@ -44,11 +44,15 @@ function txt(t,value,parent,cls){var e=elt(t,cls,parent);e.textContent=safeText(
 function styles(){
  if($id(STYLE))return;
  var s=elt('style');s.id=STYLE;s.textContent=
- '#'+ID+'{position:fixed!important;right:10px!important;bottom:calc(71px + env(safe-area-inset-bottom))!important;z-index:1200!important;min-height:34px;display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #74829a;border-radius:19px;background:#172c46f0;color:#f8ffff;font:800 10px/1.1 system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 4px 16px #06182e5c;touch-action:manipulation;cursor:pointer}'+
- '#'+ID+' .hhDot{width:10px;height:10px;display:inline-block;border-radius:50%;background:#b6b6bf;box-shadow:0 0 9px #b6b6bf77}'+
- '#'+ID+'[data-rag="green"] .hhDot{background:#47df9a;box-shadow:0 0 10px #47df9a}'+
- '#'+ID+'[data-rag="amber"] .hhDot{background:#ffd074;box-shadow:0 0 10px #ffd074}'+
- '#'+ID+'[data-rag="red"] .hhDot{background:#ff8087;box-shadow:0 0 10px #ff8087}'+
+ // On Home the capsule sits in the clear top-left sliver of the hero,
+ // above the profile name. Keep Digital Health's busy header unobstructed.
+ '#'+ID+'{position:fixed!important;left:calc(9px + env(safe-area-inset-left))!important;right:auto!important;top:calc(7px + env(safe-area-inset-top))!important;bottom:auto!important;z-index:1200!important;min-height:34px;display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid rgba(255,255,255,.88);border-radius:999px;background:linear-gradient(125deg,rgba(247,253,255,.89),rgba(255,228,246,.79));-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);color:#173e61;font:850 11px/1.1 system-ui,sans-serif;letter-spacing:.055em;box-shadow:0 5px 17px rgba(16,37,70,.20),inset 0 1px 0 rgba(255,255,255,.82);touch-action:manipulation;cursor:pointer;white-space:nowrap}'+
+ '#'+ID+'[data-surface="digital"]{top:auto!important;left:auto!important;right:calc(10px + env(safe-area-inset-right))!important;bottom:calc(71px + env(safe-area-inset-bottom))!important}'+
+ '#'+ID+':focus-visible{outline:3px solid #4a9fc7;outline-offset:3px}'+
+ '#'+ID+' .hhDot{width:10px;height:10px;flex:none;display:inline-block;border-radius:50%;background:#8b929f;box-shadow:0 0 0 2px rgba(255,255,255,.78),0 0 7px rgba(77,92,121,.42)}'+
+ '#'+ID+'[data-rag="green"] .hhDot{background:#21ae7a;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 9px #19b989}'+
+ '#'+ID+'[data-rag="amber"] .hhDot{background:#e3a129;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 9px #e3ad41}'+
+ '#'+ID+'[data-rag="red"] .hhDot{background:#e25470;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 9px #f06885}'+
  '#'+PANEL+'{position:fixed!important;inset:0!important;z-index:2200!important;display:none;align-items:flex-end;justify-content:center;background:#0a192daa;font-family:system-ui,sans-serif;color:#17364c}'+
  '#'+PANEL+'[data-open="1"]{display:flex}'+
  '#'+PANEL+' .hhSheet{width:min(100%,500px);max-height:80dvh;overflow:auto;background:#f8fcff;border:1px solid #b6cbdc;border-radius:20px 20px 0 0;box-shadow:0 0 35px #0006;padding:17px 14px calc(20px + env(safe-area-inset-bottom))}'+
@@ -247,6 +251,7 @@ function mount(){
  initialized=true;styles();
  var fallback=$id('hhOneFallback501');if(fallback)fallback.remove();
  var b=elt('button');b.id=ID;b.type='button';b.dataset.rag='amber';
+ b.dataset.surface=/\/digital-health\//i.test(root.location.pathname||'')?'digital':'main';
  var dot=elt('span','hhDot',b);dot.setAttribute('aria-hidden','true');
  txt('span','HH ONE',b);document.body.appendChild(b);
  var overlay=elt('div');overlay.id=PANEL;overlay.dataset.open='0';
