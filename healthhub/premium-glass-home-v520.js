@@ -117,11 +117,14 @@
   var p=profile();
   document.documentElement.dataset.hhpgProfile=p;
   syncApprovedHero();
-  var hit=document.querySelector('#home #heroHome .profileHit');
-  if(hit){
+  // Use the SAME approved selector photo on every existing HealthHub Hero
+  // switch button; never replace its click handler, portrait or owner identity.
+  var hits=document.querySelectorAll('#home #heroHome .profileHit, #timeline #heroT .profileHit, #health #heroH .profileHit');
+  var avatar=document.querySelectorAll('#overlay .choice img')[p==='m'?1:0];
+  for(var i=0;i<hits.length;i++){
+   var hit=hits[i];
    hit.setAttribute('aria-label','Profilváltás · '+(p==='m'?'Mónika':'Zsolt'));
    hit.title='Profilváltás';
-   var avatar=document.querySelectorAll('#overlay .choice img')[p==='m'?1:0];
    if(avatar&&avatar.src)hit.style.backgroundImage='url("'+avatar.src+'")';
   }
  }
