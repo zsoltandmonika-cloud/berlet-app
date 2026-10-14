@@ -50,7 +50,7 @@ async function run(){
  el('usage').textContent='A KORÁBBI PROFIL ADATA';
  const first=api.refresh('zsolt','day');
  assert.equal(el('usage').textContent,'—','old value is immediately cleared on refresh');
- assert.equal(pending.shift().profile,'zsolt');
+ const older=pending.shift();assert.equal(older.profile,'zsolt');
  // Newer profile must win, even if the previous request returns late.
  const second=api.refresh('monika','day');
  assert.equal(el('usage').textContent,'—','old value not visible under next owner');
@@ -59,8 +59,9 @@ async function run(){
  next.resolve(null);await second;
  assert.equal(el('usage').textContent,'—');
  assert.match(el('analysisText').textContent,/nem becsül/i);
- // The first request has not resolved, and must not paint zsolt onto monika.
- // It is deliberately left pending here; test following with a fresh request.
+ // Late response from an older profile must not paint its values on Mónika's page.
+ older.resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}]});await first;
+ assert.equal(el('usage').textContent,'—','out-of-order owner response ignored');
  const third=api.refresh('zsolt','week');
  const latest=pending.shift();assert.equal(latest.profile,'zsolt');
  latest.resolve({collectedAtMs:Date.now(),hours:[{hourStartMs:0}]});await third;
