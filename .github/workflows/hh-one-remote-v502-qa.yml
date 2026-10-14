@@ -12,6 +12,7 @@ on:
       - "healthhub/digital-health/**"
       - "healthhub/tests/hh-one-remote-v502.test.cjs"
       - "healthhub/tests/digital-wellbeing-v507.test.cjs"
+      - "healthhub/tests/digital-wellbeing-roundtrip-v508.test.cjs"
       - ".github/workflows/hh-one-remote-v502-qa.yml"
   workflow_dispatch:
 
@@ -36,6 +37,7 @@ jobs:
           node --check healthhub/digital-health/digital-usage-vault-v507.js
           node --check healthhub/digital-health/digital-live-v507.js
           node healthhub/tests/digital-wellbeing-v507.test.cjs
+          node healthhub/tests/digital-wellbeing-roundtrip-v508.test.cjs
           node healthhub/tests/hh-one-rag-v500.test.cjs
           node healthhub/tests/hh-one-service-intelligence-v501.test.cjs
   android-compile:
