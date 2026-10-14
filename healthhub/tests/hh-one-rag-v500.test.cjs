@@ -38,11 +38,11 @@ assert.doesNotMatch(source,/hhOrchestratorDispatchScope355\('all',null,'full'\)/
 assert.match(source,/root\.confirm\(/,'owner confirmation');
 const main=fs.readFileSync(path.join(base,'index.html'),'utf8');
 const digital=fs.readFileSync(path.join(base,'digital-health','index.html'),'utf8');
-assert.match(main,/hh-one-rag-v500\.js\?v=502-central-controls/);
+assert.match(main,/hh-one-rag-v500\.js\?v=503-ops-log/);
 assert.match(main,/hh-one-service-intelligence-v501\.js\?v=501-level3-advice/);
 assert.match(main,/id="hhOneFallback501"/);
 assert.match(main,/\.replace\(\/<body/);
-assert.match(digital,/\.\.\/hh-one-rag-v500\.js\?v=502-central-controls/);
+assert.match(digital,/\.\.\/hh-one-rag-v500\.js\?v=503-ops-log/);
 assert.match(digital,/\.\.\/hh-one-service-intelligence-v501\.js\?v=501-level3-advice/);
 const meta=main.match(/healthhub-live-build" content="([^"]+)"/)?.[1];
 const bootstrap=main.match(/var v='([^']+)'/)?.[1];
