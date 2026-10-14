@@ -398,7 +398,7 @@ class MainActivity : ComponentActivity() {
                         .setTitle("Digital Wellbeing mérések leállítása")
                         .setMessage("Leáll a mérés és a Dropbox-megosztás. A központi fájlban a mérések törlését külön elküldjük; az eddigi helyi 30 napos előzmény megmarad, amíg külön nem törlöd.")
                         .setPositiveButton("Leállítás és megosztás visszavonása") { _, _ ->
-                            p.edit().putBoolean(PilotState.ENABLED, false)
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.ENABLED, false)
                                 .putBoolean(PilotState.CLOUD_ENABLED, false)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                             CollectionScheduler.stop(this@MainActivity)
@@ -430,7 +430,7 @@ class MainActivity : ComponentActivity() {
                         .setTitle("Megosztás visszavonása")
                         .setMessage("A telefon leállítja a számok megosztását, és amint van Dropbox-kapcsolat, felülírja a központi állományt egy üres, visszavont rekorddal.")
                         .setPositiveButton("Visszavonom") { _, _ ->
-                            p.edit().putBoolean(PilotState.CLOUD_ENABLED, false)
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, false)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
@@ -445,7 +445,7 @@ class MainActivity : ComponentActivity() {
                         .setTitle("30 napos családi Dropbox-megosztás")
                         .setMessage("A telefonod saját profiljának óránkénti számszerű adatait a meglévő /HealthHub/profiles/ mappába tölti fel, akár a már mért legutóbbi 30 napból is. Zsolt és Mónika a közös fiókból megtekintheti. Alkalmazásneveket, üzeneteket és nyers eseményeket NEM tölt fel.")
                         .setPositiveButton("Családi megosztást engedélyezem") { _, _ ->
-                            p.edit().putBoolean(PilotState.CLOUD_ENABLED, true)
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ENABLED, true)
                                 .putBoolean(PilotState.CLOUD_ERASE_PENDING, false).apply()
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
@@ -486,7 +486,7 @@ class MainActivity : ComponentActivity() {
                     .setPositiveButton("Leállítás és törlés") { _, _ ->
                         val p = PilotState.prefs(this@MainActivity)
                         CollectionEngine.clearAndStop(this@MainActivity)
-                        p.edit().putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
+                        p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_ERASE_PENDING, true).apply()
                         DigitalUsageCloudSync.enqueue(this@MainActivity)
                         updateDigitalStatus()
                     }.setNegativeButton("Mégsem", null).show()
@@ -503,7 +503,7 @@ class MainActivity : ComponentActivity() {
                         .setTitle("Részletes alkalmazásnapló kikapcsolása")
                         .setMessage("Az alkalmazásazonosítók helyi naplója azonnal törlődik. A közös Dropbox-fájl a következő sikeres feltöltéskor már nem tartalmazza őket.")
                         .setPositiveButton("Kikapcsolás és törlés") { _, _ ->
-                            p.edit().putBoolean(PilotState.APP_DETAIL_ENABLED, false)
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.APP_DETAIL_ENABLED, false)
                                 .putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
                                 .remove(PilotState.APP_DETAIL_CONSENT_START_MS)
                                 .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
@@ -532,7 +532,7 @@ class MainActivity : ComponentActivity() {
             setOnClickListener {
                 val p = PilotState.prefs(this@MainActivity)
                 if (p.getBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)) {
-                    p.edit().putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
+                    p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, false)
                         .remove(PilotState.CLOUD_DETAIL_START_MS).apply()
                     DigitalUsageCloudSync.enqueue(this@MainActivity)
                     updateDigitalStatus()
@@ -544,7 +544,7 @@ class MainActivity : ComponentActivity() {
                         .setTitle("Alkalmazásnevek közös családi Dropboxba?")
                         .setMessage("Ez érzékenyebb adat: a használt alkalmazások neve és óránkénti időtartama is megjelenhet Zsolt és Mónika közös statisztikájában. Csak a mostani jóváhagyás UTÁNI, lezárt órák kerülnek fel 30 napra. Bármikor visszavonhatod.")
                         .setPositiveButton("Részletes családi megosztást engedélyezem") { _, _ ->
-                            p.edit().putBoolean(PilotState.CLOUD_DETAIL_ENABLED, true)
+                            p.edit().putLong(PilotState.CLOUD_REVISION, p.getLong(PilotState.CLOUD_REVISION, 0L) + 1L).putBoolean(PilotState.CLOUD_DETAIL_ENABLED, true)
                                 .putLong(PilotState.CLOUD_DETAIL_START_MS, System.currentTimeMillis()).apply()
                             DigitalUsageCloudSync.enqueue(this@MainActivity)
                             updateDigitalStatus()
