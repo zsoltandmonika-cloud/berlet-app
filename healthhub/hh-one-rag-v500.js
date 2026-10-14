@@ -124,7 +124,7 @@ function renderPanel(){
       !state.registry.archived.includes(d.deviceId);
    var canDiagnose=Number(d.buildCode)>=21&&Array.isArray(d.capabilities)&&
       d.capabilities.includes('diagnostics');
-   var canOta=Number(d.buildCode)>=20&&Array.isArray(d.capabilities)&&d.capabilities.includes('ota');
+   var canOta=Number(d.buildCode)>=20; // Existing signed 0.14.0 already supports remote OTA check.
    var diagBtn=elt('button','',buttons);diagBtn.type='button';
    diagBtn.textContent='🩺 Távoli DIAG';diagBtn.disabled=!authorized||!canDiagnose||sending||reading;
    diagBtn.title=canDiagnose?'Műszaki állapot lekérése, egészségügyi értékek nélkül':
