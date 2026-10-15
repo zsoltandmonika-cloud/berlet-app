@@ -86,7 +86,8 @@ function recoveryCard(){
 }
 function decorate(){
  ensureInput();
- if(window.healthSectionKind!=='records'&&window.healthSectionKind!=='more')return;
+ // Recovery is an Admin / More action, never a leading card on the normal records list.
+ if(window.healthSectionKind!=='more')return;
  var c=document.getElementById('healthSubContent');if(!c||document.getElementById('hhDocsRecoveryCard'))return;
  c.insertAdjacentHTML('afterbegin',recoveryCard());
 }
