@@ -1,0 +1,128 @@
+/* HealthHub v555 | minimal Health-only restore, original approved Hero untouched. */
+#health #heroH > #hhHeroProfileLabel555{
+ display:inline-flex!important;position:absolute!important;left:12px!important;bottom:12px!important;
+ z-index:96!important;pointer-events:none!important;
+ max-width:calc(100% - 24px)!important;
+ align-items:center!important;gap:5px!important;
+ box-sizing:border-box!important;padding:6px 11px!important;
+ border-radius:999px!important;
+ background:rgba(10,24,44,.68)!important;color:#dcefff!important;
+ border:1px solid rgba(158,214,255,.36)!important;
+ box-shadow:0 2px 12px rgba(3,10,25,.24)!important;
+ -webkit-backdrop-filter:blur(11px)!important;backdrop-filter:blur(11px)!important;
+ font:800 10px/1.2 system-ui,-apple-system,Segoe UI,sans-serif!important;
+ letter-spacing:.055em!important;white-space:nowrap!important;
+ text-shadow:0 1px 4px rgba(0,0,0,.5)!important;
+}
+#health #heroH > #hhHeroProfileLabel555[data-profile="m"]{
+ color:#ffe2f3!important;background:rgba(53,27,55,.7)!important;
+ border-color:rgba(255,177,221,.43)!important;
+}
+/* Environmental RAG: subtle source-driven three-level status, neutral for stale/missing. */
+html[data-hh-health-glass="on"] #health #hhEnvCard308[data-hh-env-rag555]{
+ position:relative!important;overflow:hidden!important;
+ --hh555-risk:rgba(150,170,187,.8);
+}
+#health #hhEnvCard308[data-hh-env-rag555="normal"]{--hh555-risk:#51cc91!important}
+#health #hhEnvCard308[data-hh-env-rag555="watch"]{--hh555-risk:#f1ca60!important}
+#health #hhEnvCard308[data-hh-env-rag555="high"]{--hh555-risk:#f17b89!important}
+#health #hhEnvCard308[data-hh-env-rag555="unknown"]{--hh555-risk:#9baebe!important}
+#health #hhEnvCard308[data-hh-env-rag555]::before{
+ content:"";position:absolute;inset:12px auto 12px 0;width:3px;
+ background:var(--hh555-risk);border-radius:4px;
+ opacity:.88;pointer-events:none;
+}
+#health #hhEnvCard308[data-hh-env-rag555] .envStatus{
+ border-left:2px solid var(--hh555-risk)!important;
+}
+#health #hhEnvCard308[data-hh-env-rag555] .envStatus .envDot{
+ background:var(--hh555-risk)!important;
+ box-shadow:0 0 0 3px color-mix(in srgb,var(--hh555-risk) 16%,transparent);
+}
+#health #hhEnvCard308[data-hh-env-rag555] .envHead h3::after{
+ content:"●";display:inline-block;margin-left:7px;
+ color:var(--hh555-risk);font-size:9px;vertical-align:2px;
+}
+#health #hhEnvCard308[data-hh-env-rag555="unknown"] .envHead small::after{
+ content:" · friss adat szükséges";color:#b5c7d3;
+}
+/* Official weekly NNGYK infection-watch compact card, independent of personal profiles. */
+html[data-hh-health-glass="on"] #health #hhInfectionCompact555{
+ box-sizing:border-box!important;
+ display:block!important;position:relative!important;
+ margin:0 0 12px!important;padding:12px!important;
+ color:#edf7ff!important;border-radius:16px!important;
+ border:1px solid rgba(133,193,235,.3)!important;
+ background:linear-gradient(150deg,rgba(38,66,97,.95),rgba(15,34,57,.98))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 6px 17px rgba(2,10,27,.2)!important;
+}
+html[data-hh-health-profile="m"] #health #hhInfectionCompact555{
+ border-color:rgba(239,156,210,.29)!important;
+ background:linear-gradient(148deg,rgba(57,45,78,.96),rgba(25,30,53,.98))!important;
+}
+#health #hhInfectionCompact555 .hh555Top{
+ display:flex;align-items:center;justify-content:space-between;gap:7px;
+ flex-wrap:wrap;margin-bottom:9px;
+}
+#health #hhInfectionCompact555 h3{margin:0;color:#f5faff;font-size:13px;font-weight:850;line-height:1.3}
+#health #hhInfectionCompact555 .hh555Week{
+ color:#d1e6f5;background:rgba(91,151,191,.15);
+ border:1px solid rgba(153,205,237,.2);padding:5px 7px;
+ border-radius:30px;font-size:9px;font-weight:750;line-height:1.25;
+}
+#health #hhInfectionCompact555 .hh555Summary{
+ border-radius:9px;padding:8px 9px;margin-bottom:8px;
+ font-size:10px;font-weight:850;line-height:1.4;
+ color:#c8eddf;background:rgba(51,154,104,.1);border:1px solid rgba(80,194,133,.18);
+}
+#health #hhInfectionCompact555 .hh555Summary.watch{
+ color:#ffe5ae;background:rgba(205,155,45,.11);border-color:rgba(236,194,91,.26);
+}
+#health #hhInfectionCompact555 .hh555Summary.stale{
+ color:#dae2eb;background:rgba(125,145,162,.11);border-color:rgba(154,170,185,.25);
+}
+#health #hhInfectionCompact555 .hh555Rows{display:grid;gap:5px}
+#health #hhInfectionCompact555 .hh555Row{
+ --hh555-dot:#94a6b7;
+ display:grid;grid-template-columns:9px minmax(0,1fr) minmax(0,.82fr);
+ align-items:center;gap:7px;min-height:32px;box-sizing:border-box;
+ padding:6px 8px;border:1px solid rgba(146,184,217,.15);
+ border-radius:10px;background:rgba(123,157,193,.085);
+}
+#health #hhInfectionCompact555 .hh555Row.low{--hh555-dot:#5cc894}
+#health #hhInfectionCompact555 .hh555Row.watch{--hh555-dot:#edc45d}
+#health #hhInfectionCompact555 .hh555Row.elevated{--hh555-dot:#f5a558}
+#health #hhInfectionCompact555 .hh555Row.high{--hh555-dot:#f0788a}
+#health #hhInfectionCompact555 .hh555Row.stale{--hh555-dot:#94a6b7}
+#health #hhInfectionCompact555 .hh555Dot{
+ display:block;width:7px;height:7px;border-radius:50%;
+ background:var(--hh555-dot);box-shadow:0 0 0 2px rgba(255,255,255,.045);
+}
+#health #hhInfectionCompact555 .hh555Disease{
+ color:#f0f7ff;font-size:10px;font-weight:750;line-height:1.25;min-width:0;
+}
+#health #hhInfectionCompact555 .hh555State{
+ color:var(--hh555-dot);font-size:9px;font-weight:800;line-height:1.25;
+ text-align:right;overflow-wrap:anywhere;min-width:0;
+}
+#health #hhInfectionCompact555 .hh555Foot{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:6px;flex-wrap:wrap;margin-top:9px;color:#b8cde0;font-size:9px;line-height:1.4;
+}
+#health #hhInfectionCompact555 .hh555Details{
+ min-height:36px!important;padding:7px 10px!important;border-radius:10px!important;
+ border:1px solid rgba(143,203,247,.3)!important;
+ background:rgba(48,102,149,.23)!important;color:#d3edff!important;
+ font:800 10px/1.2 system-ui,sans-serif!important;
+ cursor:pointer!important;touch-action:manipulation!important;
+}
+#health #hhInfectionCompact555 .hh555Details:active{filter:brightness(1.17)}
+#health #hhInfectionCompact555 .hh555Note{
+ color:#a2bad0;font-size:8px;line-height:1.35;margin-top:7px;
+}
+#health #hhInfectionCompact555 .hh555Unknown{
+ color:#c2d1e0;font-size:11px;line-height:1.5;margin:4px 0 0;
+}
+@media(min-width:680px){
+ #health #hhInfectionCompact555 .hh555Rows{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
