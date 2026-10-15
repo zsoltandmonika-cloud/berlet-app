@@ -1,0 +1,491 @@
+/* HealthHub v562 | ONE premium dark glass design language across HH.
+   Profile authority: canonical hh-profile, mirrored by hh-global-glass-v562.js.
+   Scope: existing detail pages, dialogs, sheets, toolbars and their cards.
+   Do NOT touch locked Home v544 / Sleep v531 / Activity v533 / Health v548 Hero art.
+   Do NOT change health values, charts, PDF page/canvas pixels, risk semantics or clicks. */
+
+/* 0. Shared system-level theme, exact visual rhythm of the approved Health page. */
+html[data-hh-system-glass="on"]{
+ --hhg-bg:#0a172b;
+ --hhg-panel:#152c49;
+ --hhg-glass:linear-gradient(145deg,rgba(39,75,113,.93),rgba(17,37,65,.97));
+ --hhg-deep:linear-gradient(157deg,#203d60 0%,#152e4e 60%,#101f38 100%);
+ --hhg-line:rgba(138,200,243,.33);
+ --hhg-text:#f1f8ff;
+ --hhg-muted:#b8cce0;
+ --hhg-soft:#8bd6fa;
+ --hhg-top:rgba(20,42,70,.91);
+ --hhg-highlight:rgba(86,170,229,.22);
+ --hhg-shadow:0 10px 28px rgba(0,8,24,.30),inset 0 1px 0 rgba(255,255,255,.09);
+ --hhg-hero:linear-gradient(105deg,rgba(7,19,39,.98) 2%,rgba(9,30,55,.89) 45%,rgba(12,40,70,.51) 100%);
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"]{
+ --hhg-panel:#302b4b;
+ --hhg-glass:linear-gradient(145deg,rgba(65,50,89,.93),rgba(28,28,55,.97));
+ --hhg-deep:linear-gradient(157deg,#45365f 0%,#302d51 60%,#1b233f 100%);
+ --hhg-line:rgba(242,168,218,.34);
+ --hhg-soft:#ffc0e2;
+ --hhg-top:rgba(43,33,64,.93);
+ --hhg-highlight:rgba(224,116,190,.20);
+ --hhg-hero:linear-gradient(105deg,rgba(22,16,43,.98) 2%,rgba(39,25,64,.89) 45%,rgba(68,35,76,.53) 100%);
+}
+
+/* 1. HealthRadar subpages: the same approved medical Léna photo, dark-glass
+   typography and cards; never substitute the Hero of another module. */
+html[data-hh-system-glass="on"] #healthSection{
+ background:var(--hhg-bg)!important;color:var(--hhg-text)!important;
+ min-height:100dvh!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubHero{
+ box-sizing:border-box!important;min-height:146px!important;height:auto!important;
+ padding:calc(16px + env(safe-area-inset-top)) 13px 15px!important;
+ align-items:center!important;gap:12px!important;
+ background-image:var(--hhg-hero),url("./assets/health-medical-lena-approved-v548.webp?v=548")!important;
+ background-size:cover,cover!important;
+ background-repeat:no-repeat,no-repeat!important;
+ background-position:center,68% 42%!important;
+ border-bottom:1px solid var(--hhg-line)!important;
+ box-shadow:inset 0 -18px 30px rgba(4,12,29,.27)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubHero h1{
+ color:var(--hhg-text)!important;font-size:clamp(20px,5vw,27px)!important;
+ font-weight:850!important;line-height:1.12!important;
+ text-shadow:0 2px 9px rgba(0,6,20,.43)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubKicker{
+ color:var(--hhg-soft)!important;opacity:1!important;letter-spacing:.05em!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubHero :is(.backBtn,.healthSubAction){
+ background:rgba(27,54,85,.65)!important;border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-text)!important;border-radius:13px!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+ min-width:38px!important;min-height:38px!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubBody{
+ background:radial-gradient(ellipse at 60% 0%,var(--hhg-highlight),transparent 350px),var(--hhg-bg)!important;
+ color:var(--hhg-text)!important;padding:13px 10px calc(94px + env(safe-area-inset-bottom))!important;
+ min-height:calc(100dvh - 146px)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSearchWrap{
+ background:var(--hhg-glass)!important;border:1px solid var(--hhg-line)!important;
+ box-shadow:var(--hhg-shadow)!important;color:var(--hhg-soft)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSearchWrap input{
+ color:var(--hhg-text)!important;background:transparent!important;
+ caret-color:var(--hhg-soft)!important;
+}
+html[data-hh-system-glass="on"] #healthSection input::placeholder{color:var(--hhg-muted)!important;opacity:.8!important}
+html[data-hh-system-glass="on"] #healthSection :is(.migrationBanner,.hrSectionCard,.hrEvent){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;border-radius:16px!important;
+ box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .migrationBanner.ok{border-left:4px solid #5bc2a3!important}
+html[data-hh-system-glass="on"] #healthSection .migrationBanner.warn{border-left:4px solid #efc46c!important}
+html[data-hh-system-glass="on"] #healthSection :is(.hrSectionCard h3,.hrRow b,.hrEvent b){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #healthSection :is(.hrRow small,.hrEvent p,.hrEvent time,.hrEmpty,.privacyNote){
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .hrRow{
+ color:var(--hhg-text)!important;border-top-color:var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .hrRow.clickable:active{
+ background:var(--hhg-highlight)!important;
+}
+html[data-hh-system-glass="on"] #healthSection :is(.hrIco,.hrTag){
+ background:var(--hhg-highlight)!important;color:var(--hhg-soft)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .vaultBtn{
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .vaultBtn.primary{
+ background:linear-gradient(140deg,#286fa2,#234c83)!important;color:#fff!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #healthSection .vaultBtn.primary{
+ background:linear-gradient(140deg,#8a477e,#563760)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .hrTimeline:before{
+ background:var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .hrEvent:before{
+ background:var(--hhg-soft)!important;box-shadow:0 0 0 4px var(--hhg-highlight)!important;
+}
+
+/* 2. Medical record detail bottom sheet. Readable dark cards and metadata. */
+html[data-hh-system-glass="on"] .hrDetailOverlay{
+ background:rgba(3,8,24,.78)!important;
+ backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important;
+}
+html[data-hh-system-glass="on"] .hrDetailSheet{
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;border-bottom:0!important;
+ box-shadow:0 -20px 56px rgba(0,5,18,.65)!important;
+}
+html[data-hh-system-glass="on"] .hrSheetHandle{background:var(--hhg-soft)!important;opacity:.65!important}
+html[data-hh-system-glass="on"] .hrDetailSheet :is(h2,h3,b,.hrStat b){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] .hrDetailSheet :is(p,.hrDetailMeta,.hrStat small){
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] .hrDetailSheet h4{color:var(--hhg-soft)!important}
+html[data-hh-system-glass="on"] .hrDetailSheet .hrStat{
+ background:var(--hhg-glass)!important;border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hrDetailSheet .hrClose{
+ background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+
+/* 3. Measurements, medication, profile, devices: reused central components. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhChartBox,.hhTrendGrid,.hhTrendCard,.hhMedAlarmCard,.hhMedAlarmEdit,
+ .hhMedPermission,.hhDeviceRow,.hhDeviceHead,.hhDeviceForm,
+ .hhRegRow401,.hhRegHead401,.hhRegGroup401,.hhRegBottom401,.hhRegNote401,
+ .hhMeasurementCard,.hhHealthSource,.hhProfileContent,
+ .hhDeviceDetailPhoto,.hhDevicePreview,.hhDevicePhotoPicker
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;border-radius:14px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhDeviceRow,.hhDeviceMain,.hhDevicePurpose,.hhDeviceStatus,
+ .hhRegRow401,.hhRegMinor401,.hhRegId401,.hhMedAlarmCard,.hhMedPermission
+) :is(b,strong,small,p,span){
+ color:inherit!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ input,select,textarea
+){
+ background:#1b3654!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:11px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(input,textarea)::placeholder{
+ color:var(--hhg-muted)!important;opacity:.85!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhDeviceEdit,.hhDeviceAddBtn,.hhDeviceSave,.hhDeviceCancel,.hhDeviceDelete,
+ .hhMedAdd,.hhMedAlarmSetup button,.hhRegBtns401 button
+){
+ background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:11px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhDeviceDelete{
+ color:#ffb9bd!important;border-color:rgba(255,153,161,.38)!important;
+}
+
+/* 4. Full-screen Beurer weight page and add/edit bottom sheet.
+   The photograph of the real scale and the LCD numerals stay untouched. */
+html[data-hh-system-glass="on"] #hhWeightPage270{
+ background:radial-gradient(ellipse 80% 300px at 50% 0%,var(--hhg-highlight),transparent),var(--hhg-bg)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 .hhWTop{
+ background:var(--hhg-top)!important;
+ color:var(--hhg-text)!important;border-bottom:1px solid var(--hhg-line)!important;
+ backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 :is(.hhWTitle b,.hhWRow b,.hhWVal strong,.hhWHistHead h3){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 :is(.hhWDate,.hhWRow small,.hhWVal em,.hhWEmpty){
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 :is(.hhWProfile,.hhWTitle small,.hhWHistHead small){
+ color:var(--hhg-soft)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 :is(.hhWHist,.hhWActions button){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 .hhWRow{
+ border-top:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 .hhWBack{
+ background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 .hhWActions button.primary{
+ background:linear-gradient(135deg,#236eac,#34588e)!important;color:#fff!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #hhWeightPage270 .hhWActions button.primary{
+ background:linear-gradient(135deg,#90558d,#69416f)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightPage270 .hhWDel{
+ background:rgba(175,64,81,.16)!important;color:#ffc1c9!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270{
+ background:rgba(2,8,24,.77)!important;
+ backdrop-filter:blur(8px)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWSheet{
+ background:var(--hhg-deep)!important;border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 :is(.hhWSheetHead h3,.hhWForm label){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWSheetHead small{color:var(--hhg-soft)!important}
+html[data-hh-system-glass="on"] #hhWeightSheet270 :is(.hhWForm input,.hhWClose){
+ background:#1a3553!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWCameraSoon{
+ background:var(--hhg-glass)!important;color:var(--hhg-muted)!important;border-color:var(--hhg-line)!important;
+}
+
+/* 5. Approved Activity and Sleep dashboards are already premium and LOCKED.
+   Style only their legacy modal/sheet overlays, never their photos or plots. */
+html[data-hh-system-glass="on"] #hh191Modal,
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay{
+ background:rgba(2,7,22,.76)!important;backdrop-filter:blur(7px)!important;
+}
+html[data-hh-system-glass="on"] #hh191Modal .a191Sheet,
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay .hhMedSheet{
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ box-shadow:0 -18px 55px rgba(0,5,19,.5)!important;
+}
+html[data-hh-system-glass="on"] #hh191Modal :is(.a191SheetHead h3,.a191Weather b,.a191CalStats b,.a191More b){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hh191Modal :is(.a191SheetHead small,.a191CalStats small,.a191Weather span,.a191Form label){
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hh191Modal :is(
+ .a191Weather,.a191CalStats div,.a191More button,.a191Date,
+ .a191Form input,.a191Form select,.a191SheetHead button
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;border-radius:12px!important;
+}
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay :is(
+ .hhMedAlarmTimes,.hhMedAlarmEdit,.hhMedPermission,.hhMedChecks label,
+ .hhMedSound,.hhMedAlarmClock
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay :is(
+ input,select,textarea
+){
+ background:#1c3654!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay :is(
+ .hhMedSheetTop h3,.hhMedAlarmEditTop,.hhMedVolumeRow span,.hhMedChecks label
+){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] .hhMedAlarmOverlay :is(
+ .hhMedAdd,.hhMedSave,.hhMedSound button,.hhMedPermission button
+){
+ background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hhMedReminder .hhMedReminderCard{
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hhMedReminder :is(.hhMedReminderCard h2,.hhMedReminderList b){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] .hhMedReminder .hhMedReminderList div{
+ background:var(--hhg-glass)!important;border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] .hhMedReminder :is(.hhMedReminderEmpty,.hhMedReminderCard>small){
+ color:var(--hhg-muted)!important;
+}
+
+/* 6. PDF controls: the viewer chrome is dark, but every page/canvas stays
+   white to preserve document scans, graphs, annotations and print fidelity. */
+html[data-hh-system-glass="on"] #hhOriginalDocViewer{
+ background:#071324!important;color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer .hhPdfShell{
+ background:var(--hhg-bg)!important;
+ box-shadow:0 0 34px rgba(0,0,0,.55)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer .hhPdfHero{
+ border-bottom:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer .hhPdfHero:after{
+ background:linear-gradient(90deg,rgba(6,18,36,.05),rgba(7,21,42,.18) 42%,rgba(7,21,42,.82) 100%)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer :is(.hhPdfHeroTitle b,.hhPdfHeroTitle small){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer :is(.hhPdfTools,.hhPdfStatus){
+ background:var(--hhg-deep)!important;border-color:var(--hhg-line)!important;color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer :is(.hhPdfHeroBtn,.hhPdfToolBtn){
+ background:var(--hhg-top)!important;border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer :is(
+ .hhPdfPageNo,.hhPdfZoomNo,.hhPdfStatus b
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer .hhPdfStatus p{color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer .hhPdfStage{background:#0a182c!important}
+html[data-hh-system-glass="on"] #hhOriginalDocViewer :is(.hhPdfCanvas,.hhPdfCanvasWrap,.hhPdfImage){
+ background:#fff!important;
+}
+/* PDF canvas pixels and the page geometry must never be filtered or tinted. */
+
+/* 7. Insights: keep the original role-based Hero art but unify its body. */
+html[data-hh-system-glass="on"] #hhInsightPage{
+ background:var(--hhg-bg)!important;color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightHero:after{
+ background:linear-gradient(95deg,rgba(5,16,34,.04),rgba(8,25,47,.30) 42%,rgba(7,20,41,.78) 100%)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightHeroTitle{
+ z-index:3!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage :is(
+ .hhInsightHeroTitle h1,.hhInsightHeroTitle small,.hhInsightHeroTitle span
+){color:#fff!important;text-shadow:0 1px 8px rgba(0,0,0,.48)!important}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightSurface{
+ background:radial-gradient(ellipse at 50% 0%,var(--hhg-highlight),transparent 300px),var(--hhg-bg)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage :is(
+ .hhInsightCard,.hhInsightVisualCard,.hhInsightNote,.hhMiniGrid>div,.hhMiniTrend,
+ .hhInsightItem,.hhInsightCoverage,.hhScatter,.hhPulseRing
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage :is(
+ .hhInsightHead h2,.hhInsightCardHead h3,.hhMiniHead,.hhInsightItem b,
+ .hhInsightCoverage b,.hhInsightNote b,.hhInsightVisualCard h3
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhInsightPage :is(
+ .hhInsightHead small,.hhInsightCardHead small,.hhInsightList p,.hhInsightNote p,
+ .hhPulseRow p,.hhVizNote,.hhInsightCoverage small,.hhMiniNoData,.hhScatterMeta
+){color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightHead span{color:var(--hhg-soft)!important}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightPeriods button{
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightPeriods button.on{
+ background:var(--hhg-highlight)!important;color:var(--hhg-soft)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightNav{
+ background:var(--hhg-top)!important;border-top:1px solid var(--hhg-line)!important;
+ backdrop-filter:blur(16px)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightNav button{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhInsightPage .hhInsightNav button.on{
+ color:var(--hhg-soft)!important;
+}
+
+/* 8. Environmental health: existing, already-approved full-width photo remains.
+   Risk badges retain meaning; the formerly white body becomes glass. */
+html[data-hh-system-glass="on"] #hhEnvironmental309{
+ background:var(--hhg-bg)!important;color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Body{
+ background:radial-gradient(ellipse at 50% 0%,var(--hhg-highlight),transparent 300px),var(--hhg-bg)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 :is(.env309Status,.env309Card){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 :is(
+ .env309Status b,.env309Card h3,.env309Big
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhEnvironmental309 :is(
+ .env309Status small,.env309Sub,.env309Trend,.env309Source
+){color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk1{
+ background:linear-gradient(145deg,rgba(132,103,43,.34),rgba(26,39,64,.96))!important;
+ border-color:rgba(241,199,103,.58)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk2{
+ background:linear-gradient(145deg,rgba(145,77,34,.36),rgba(30,36,58,.96))!important;
+ border-color:rgba(250,159,90,.59)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk3{
+ background:linear-gradient(145deg,rgba(151,52,68,.38),rgba(30,35,57,.96))!important;
+ border-color:rgba(253,133,151,.61)!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk1 .env309Big{color:#ffe09b!important}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk2 .env309Big{color:#ffba84!important}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Card.envRisk3 .env309Big{color:#ffa6b0!important}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Source a{color:var(--hhg-soft)!important}
+
+/* 9. Symptom diary and its standalone editor: preserve charts and controls. */
+html[data-hh-system-glass="on"] #hhSymptomJournal307{
+ background:var(--hhg-bg)!important;color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 .hhSJBody{
+ background:radial-gradient(ellipse at 50% 0%,var(--hhg-highlight),transparent 320px),var(--hhg-bg)!important;
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 :is(
+ .hhSJCard,.hhSJChoice,.hhSJMeasurement,.hhSJItem,.hhSJTimelineEvent,
+ .hhSJGrid,.hhSJTime,.hhSJDateGrid,.hhSJClockGrid,.hhSJPicker,
+ .hhSJCatRow,.hhSJTrendHead,.hhSJMetrics,.hhSJLog
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 :is(
+ .hhSJCardTitle,.hhSJRow b,.hhSJWTitle,.hhSJTimeLabel,.hhSJTrendHead h3
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 :is(
+ .hhSJPrivacy,.hhSJEmpty,.hhSJRow small
+){color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 :is(input,textarea,select){
+ background:#1c3656!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhSymptomJournal307 :is(
+ .hhSJSave,.hhSJCancelEdit,.hhSJCatTab,.hhSJRowEdit
+){
+ color:var(--hhg-text)!important;border-color:var(--hhg-line)!important;
+}
+
+/* 10. Shared compact dialog affordances. Explicitly scoped: no accidental
+   changes to native PDFs, canvas, trusted logos, locked Hero or app artwork. */
+html[data-hh-system-glass="on"] :is(
+ #healthSection,#hhWeightPage270,#hhInsightPage,#hhEnvironmental309,
+ #hhSymptomJournal307,#hh191Modal,.hhMedAlarmOverlay,.hrDetailOverlay
+) :is(button,[role="button"]):focus-visible{
+ outline:2px solid var(--hhg-soft)!important;outline-offset:2px!important;
+}
+html[data-hh-system-glass="on"] :is(
+ #healthSection,#hhWeightSheet270,#hh191Modal,.hhMedAlarmOverlay,#hhSymptomJournal307
+) :is(input,select,textarea):focus-visible{
+ outline:2px solid var(--hhg-soft)!important;outline-offset:1px!important;
+}
+@media(max-width:370px){
+ html[data-hh-system-glass="on"] #healthSection .healthSubHero{
+  min-height:130px!important;padding-left:10px!important;padding-right:10px!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection .healthSubHero h1{font-size:20px!important}
+ html[data-hh-system-glass="on"] :is(.hrDetailSheet,.hhWSheet,.a191Sheet,.hhMedSheet){
+  padding-left:11px!important;padding-right:11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-hh-system-glass="on"] :is(.hrDetailSheet,.hhWSheet,.a191Sheet,.hhMedSheet){
+  scroll-behavior:auto!important;transition:none!important;
+ }
+}
