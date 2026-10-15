@@ -1,0 +1,17 @@
+/* HealthHub v586 | Idővonal: approved deep navy profile-switch capsule.
+   Keep Zsolt blue / Mónika pink only as text/avatar accents.
+   Solid background is intentional: no hero/pink image bleeding through. */
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit,
+html[data-hh-timeline-glass="on"] #timeline #heroT[data-hh-timeline-profile="monika"] .profileHit,
+html[data-hh-timeline-glass="on"] #timeline #heroT[data-hh-timeline-profile="zsolt"] .profileHit {
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  background:#081d36!important;
+  background-color:#081d36!important;
+  background-image:none!important;
+  border:1px solid rgba(123,176,219,.60)!important;
+  box-shadow:0 5px 15px rgba(0,7,24,.35),inset 0 1px 0 rgba(210,236,255,.06)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit::after {
+  background:none!important;
+}
