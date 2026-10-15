@@ -203,14 +203,16 @@ html[data-hh-premium-preview="on"] #home.on{
  min-height:calc(100svh - 58px - env(safe-area-inset-bottom))!important;
  height:auto!important;
 }
+/* v543: Match the Hero BOX to the wide original photo.
+   A 360px tall box around a ~16:9 image caused 150px of blank space:
+   background-size alone can never remove that letterbox. */
 html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
- flex:0 0 360px!important;
+ flex:0 0 auto!important;
  width:100%!important;
- height:360px!important;
- min-height:360px!important;
- max-height:360px!important;
- /* v542: Show the ORIGINAL full image without clipping or enlargement.
-    The 360px Hero frame and v541-approved tile dimensions remain untouched. */
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:16 / 9!important;
  background-size:contain!important;
  background-position:center bottom!important;
  background-repeat:no-repeat!important;
@@ -241,9 +243,11 @@ html[data-hh-premium-preview="on"] #home.on .hhpg-icon{
 html[data-hh-premium-preview="on"] #home.on .hhpg-icon svg{
  width:19px!important;height:19px!important;
 }
+/* Small screens keep the SAME image aspect ratio, without late CSS height overrides. */
 @media(max-width:360px){
  html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
-  flex-basis:330px!important;
-  height:330px!important;min-height:330px!important;max-height:330px!important;
+  flex-basis:auto!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  aspect-ratio:16 / 9!important;
  }
 }
