@@ -1,0 +1,50 @@
+/* HealthHub v560 · Golden Standard KPI icons.
+   Only the nine live KPI pictograms: data values, navigation and layouts stay intact. */
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi{
+ --hh-ico560:#c6dcef;
+}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.bp{--hh-ico560:#f5a5ac}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.pulse{--hh-ico560:#f3c1ce}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.spo2{--hh-ico560:#88dfee}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.glucose{--hh-ico560:#a5d5ff}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.weight{--hh-ico560:#d7e3ed}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.sleep{--hh-ico560:#f3d78e}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.exercise{--hh-ico560:#f3ba96}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.steps{--hh-ico560:#a0d9c7}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi.calories{--hh-ico560:#f6ad8b}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhLiveIcon[data-hh-icon-version="560"]{
+ display:grid!important;
+ place-items:center!important;
+ box-sizing:border-box!important;
+ width:36px!important;height:36px!important;
+ min-width:36px!important;min-height:36px!important;
+ padding:5px!important;margin:0 0 2px!important;
+ border-radius:11px!important;
+ color:var(--hh-ico560)!important;
+ background:linear-gradient(150deg,color-mix(in srgb,var(--hh-ico560) 17%,#21476c),rgba(20,48,79,.75))!important;
+ border:1px solid color-mix(in srgb,var(--hh-ico560) 30%,transparent)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 2px 7px rgba(0,11,31,.14)!important;
+}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhKpiSvg560{
+ display:block!important;
+ width:25px!important;height:25px!important;
+ max-width:100%!important;
+ fill:none;
+ color:inherit!important;
+ filter:drop-shadow(0 0 3px color-mix(in srgb,var(--hh-ico560) 21%,transparent));
+}
+html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhKpiSvg560 text{
+ font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media(max-width:360px){
+ html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhLiveIcon[data-hh-icon-version="560"]{
+  width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+  padding:4px!important;
+ }
+ html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhKpiSvg560{
+  width:23px!important;height:23px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-hh-health-glass="on"] #health .kpiCard .hhLiveKpi .hhKpiSvg560{filter:none!important}
+}
