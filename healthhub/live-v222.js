@@ -6,6 +6,8 @@
    with direct one-click profile switching. */
 
 var HERO='./assets/timeline-hero-v222.webp?v=222';
+var JOURNEY='./assets/timeline-journey-hud-v584.svg?v=584';
+function premium(){try{return new URLSearchParams(location.search).get('hhtimelineglass')!=='0'}catch(e){return true}}
 
 function profile(){return localStorage.getItem('hh-profile')==='m'?'m':'z'}
 function profileName(){return profile()==='m'?'Mónika':'Zsolt'}
@@ -29,25 +31,32 @@ function paintTimelineHero(){
   if(!hero)return;
   ensureStyle();
 
+  var glass=premium();
+  document.documentElement.dataset.hhTimelineGlass=glass?'on':'off';
+  hero.dataset.hhTimelineProfile=profile()==='m'?'monika':'zsolt';
   hero.style.setProperty(
     'background-image',
-    'linear-gradient(180deg,rgba(7,38,61,.10),rgba(6,34,58,.38)),url("'+HERO+'")',
+    glass?'linear-gradient(0deg,rgba(5,15,36,.93),rgba(5,23,52,.32) 60%,rgba(3,15,33,.10)),url("'+JOURNEY+'"),url("'+HERO+'")':
+      'linear-gradient(180deg,rgba(7,38,61,.10),rgba(6,34,58,.38)),url("'+HERO+'")',
     'important'
   );
-  hero.style.setProperty('background-size','cover','important');
-  hero.style.setProperty('background-position','center center','important');
+  hero.style.setProperty('background-size',glass?'cover,cover,cover':'cover','important');
+  hero.style.setProperty('background-position',glass?'center,center,center center':'center center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
   hero.classList.remove('night','evening');
 
   var name=document.getElementById('nameT');
   if(name){
-    var title=profileName()+' Timeline';
+    var title=profileName()+(glass?' · Idővonal':' Timeline');
     name.textContent=title;
     name.setAttribute('data-hh-title',title);
     name.setAttribute('aria-label',title);
   }
 
-  document.documentElement.dataset.healthhubTimelineHero='v224-lena-clean';
+  var chip=hero.querySelector('.profileHit');
+  if(chip&&glass){chip.textContent=profileName()+' ⇄';chip.setAttribute('aria-label','Profilváltás '+(profile()==='m'?'Zsoltra':'Mónikára'))}
+  else if(chip)chip.textContent='';
+  document.documentElement.dataset.healthhubTimelineHero=glass?'v584-premium-journey':'v224-lena-clean';
 }
 
 function bindDirectTimelineToggle(){
