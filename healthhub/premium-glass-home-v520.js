@@ -109,8 +109,10 @@
     hero.style.setProperty('background-image','url("./assets/zsolt-hh-hero-approved-v527.png")','important');
    }
   }
-  if(hero.style.getPropertyValue('height')!=='228px'){
-   hero.style.setProperty('height','228px','important');
+  // v539: Height is owned by the preloaded fixed-size Home CSS.
+  // The old JS forced 228px inline with !important, racing the v534 flex Hero.
+  if(hero.style.getPropertyValue('height')){
+   hero.style.removeProperty('height');
   }
  }
  function bindHomeMonitorProfileSwitch(){
