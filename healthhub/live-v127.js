@@ -53,7 +53,7 @@ async function syncFullMigrationDashboard(){
   ]);
 
   const today=document.getElementById('todayInsight');
-  if(today)today.textContent=`A HealthRadar karton elérhető: ${docs.length} lelet és ${meas.length} mérés.`;
+  if(today)today.textContent=`Az Egészség modulban elérhető: ${docs.length} lelet és ${meas.length} mérés.`;
 
   const insight=document.getElementById('insightH');
   if(insight)insight.textContent=`${docs.length} lelet, ${medCount()} aktuális gyógyszer és ${meas.length} mérés érhető el a privát kartonban.`;
