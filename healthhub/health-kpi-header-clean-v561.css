@@ -1,0 +1,17 @@
+/* HealthHub v561 | Retire the redundant KPI-header profile switch.
+   The v553 native Léna Hero one-tap switch is the sole Health profile picker.
+   Scope strictly to the live KPI card header, not other Health headings, nav,
+   profile data or approved images. */
+html #health .kpiCard .hhLiveHead > small{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+html #health .kpiCard .hhLiveHead > small::after{
+ content:none!important;
+ display:none!important;
+}
+html #health .kpiCard .hhLiveHead > h3{
+ flex:1 1 auto!important;
+ min-width:0!important;
+}
