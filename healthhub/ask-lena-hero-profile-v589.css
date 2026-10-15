@@ -29,6 +29,8 @@ html #hhLenaSmart299 .askHero .askHeroInner > #hhSP299.askProfile{
   backdrop-filter:blur(12px)!important;
   -webkit-backdrop-filter:blur(12px)!important;
   text-shadow:none!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
   z-index:11!important;
 }
 html #hhLenaSmart299[data-profile="monika"] .askHero .askHeroInner > #hhSP299.askProfile{
@@ -50,4 +52,9 @@ html:has(#hhLenaSmart299.page.on) :is(#hhOneRag500,#hhOneFallback501){
     padding:7px 10px!important;
     font-size:11px!important;
   }
+}
+
+html #hhLenaSmart299 .askHero .askHeroInner > #hhSP299.askProfile:focus-visible{
+ outline:3px solid var(--ask-glass-accent,#9bd9ff)!important;
+ outline-offset:2px!important;
 }
