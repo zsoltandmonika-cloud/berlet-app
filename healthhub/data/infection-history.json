@@ -1,4 +1,32 @@
 {
   "schema": "healthhub.infection-history/1",
-  "weeks": []
+  "weeks": [
+    {
+      "sourceWeek": "2026. 40. hét",
+      "periodEnd": "2026-10-04",
+      "raw": {
+        "budapest": {
+          "campylobacteriosis": 22,
+          "salmonellosis": 8,
+          "rotavirus": 8,
+          "hepatitisA": 0
+        },
+        "national": {
+          "hepatitisA": 28,
+          "hepatitisMedian": 3
+        },
+        "week": [
+          2026,
+          40
+        ]
+      },
+      "signals": {
+        "influenza": "low",
+        "covid": "watch",
+        "rsv": "low",
+        "gastro": "unknown",
+        "hepatitis": "high"
+      }
+    }
+  ]
 }
