@@ -1,0 +1,17 @@
+/* HealthHub v569: understated, measurement-based RAG for existing three-view Sleep summary. */
+.hh428Panel[data-sleep-rag]{--sleep-rag-border:rgba(151,188,221,.28);border:1px solid var(--sleep-rag-border)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.018)!important}
+.hh428Panel[data-sleep-rag="green"]{--sleep-rag-border:rgba(83,194,148,.55)}
+.hh428Panel[data-sleep-rag="amber"]{--sleep-rag-border:rgba(235,179,78,.60)}
+.hh428Panel[data-sleep-rag="red"]{--sleep-rag-border:rgba(239,111,123,.63)}
+.hh428Panel .hhSleepRag569{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;
+ padding:5px 9px;border:1px solid var(--sleep-rag-border);border-radius:999px;
+ background:rgba(11,29,49,.60);font:750 10px/1.25 system-ui,sans-serif;letter-spacing:.025em;
+ color:#d8e7f4;white-space:nowrap}
+.hh428Panel .hhSleepRag569Dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px;background:#9ab0c4}
+.hh428Panel[data-sleep-rag="green"] .hhSleepRag569Dot{background:#63d5a6}
+.hh428Panel[data-sleep-rag="amber"] .hhSleepRag569Dot{background:#efbd63}
+.hh428Panel[data-sleep-rag="red"] .hhSleepRag569Dot{background:#f18b94}
+.hh428Panel .hh428Head{position:relative}
+.hh428Panel .hhSleepRag569{position:absolute;right:0;top:0}
+.hh428Panel .hh428Eyebrow{display:block;padding-right:110px}
+@media(max-width:360px){.hh428Panel .hhSleepRag569{font-size:9px;padding:4px 7px}.hh428Panel .hh428Eyebrow{padding-right:101px}}
