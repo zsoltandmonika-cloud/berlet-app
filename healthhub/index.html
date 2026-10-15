@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v581-daily-premium-nav" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v581-daily-premium-complete" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -30,7 +30,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='581-daily-premium-nav';
+  var v='581-daily-premium-complete';
   try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
@@ -111,6 +111,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
      '<link rel="stylesheet" href="./health-medication-contrast-v578.css?v=578" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./daily-premium-ecosystem-v580.css?v=580" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./daily-nav-premium-v581.css?v=581" data-hh-premium-critical="1">'+
+     '<link rel="stylesheet" href="./daily-nested-glass-v581.css?v=581" data-hh-premium-critical="1">'+
     '<style id="hh-premium-zero-legacy-flash-v530">'+
       'html:not([data-hh-premium-ready="on"]) body{background:#0b1425!important}'+
       'html:not([data-hh-premium-ready="on"]) .app{visibility:hidden!important}'+
@@ -153,6 +154,9 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
   const liveWithWellbeingClick=live.replace('</body>','<script src="./digital-wellbeing-home-link-v435.js?v=435-s24-tile-click"><\/script><script src="./digital-health-nav-bridge-v436.js?v=436-allowlisted-route"><\/script><script src="./hh-one-service-intelligence-v501.js?v=501-level3-advice"><\/script><script src="./hh-one-rag-v500.js?v=504-glass-top-left"><\/script><script src="./premium-glass-home-v520.js?v=542-original-image-contain"><\/script><script src="./home-hero-info-glass-v522.js?v=528-default-home"><\/script><script src="./premium-home-compact-v525.js?v=544-glass-stack-below-hero"><\/script><script src="./activity-premium-glass-v533.js?v=533.4"><\/script><script src="./health-module-routing-v545.js?v=545-egeszseg-naming-route"><\/script><script src="./health-premium-glass-v546.js?v=546"><\/script><script src="./health-hero-guard-v549.js?v=549"><\/script><script src="./health-interactions-v552.js?v=552"><\/script><script src="./health-hero-native-v553.js?v=553"><\/script><script src="./health-restore-v555.js?v=555"><\/script><script src="./health-quick-grid-v558.js?v=558"><\/script><script src="./health-kpi-icons-v560.js?v=560"><\/script><script src="./hh-global-glass-v562.js?v=562"><\/script><script src="./ask-lena-chat-enhance-v566.js?v=566"><\/script><script src="./health-records-diag-v570.js?v=571-stack-trace"><\/script><script src="./health-records-landing-v573.js?v=573"><\/script></body>');
   document.write(liveWithWellbeingClick);
   document.close();
+  // Reassert the Daily theme on the reconstructed document as well.
+  // The app uses document.open/write, so this guard also prevents white-theme fallback.
+  try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // Fail open only if a dependency never loads: avoid trapping users behind
   // the loading screen on a slow/offline Samsung connection.
   if(premiumEntry)setTimeout(function(){
