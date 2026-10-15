@@ -40,13 +40,16 @@ html[data-hh-system-glass="on"] #healthSection .healthSubHero{
  box-sizing:border-box!important;min-height:146px!important;height:auto!important;
  padding:calc(16px + env(safe-area-inset-top)) 13px 15px!important;
  align-items:center!important;gap:12px!important;
- background-image:var(--hhg-hero),url("./assets/health-medical-lena-approved-v548.webp?v=548")!important;
- background-size:cover,cover!important;
- background-repeat:no-repeat,no-repeat!important;
- background-position:center,68% 42%!important;
+ /* The legacy v150 synchronizer keeps the approved Health Hero with inline
+    !important; never replace its exact image, crop or dimensions. */
  border-bottom:1px solid var(--hhg-line)!important;
  box-shadow:inset 0 -18px 30px rgba(4,12,29,.27)!important;
  color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #healthSection .healthSubHero:not([data-hh-hero-source="heroH"]){
+ background-image:var(--hhg-hero),url("./assets/health-medical-lena-approved-v548.webp?v=548")!important;
+ background-size:cover,cover!important;background-position:center,68% 42%!important;
+ background-repeat:no-repeat!important;
 }
 html[data-hh-system-glass="on"] #healthSection .healthSubHero h1{
  color:var(--hhg-text)!important;font-size:clamp(20px,5vw,27px)!important;
