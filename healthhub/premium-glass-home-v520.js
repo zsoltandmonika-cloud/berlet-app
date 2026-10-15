@@ -109,6 +109,17 @@
     hero.style.setProperty('background-image','url("./assets/zsolt-hh-hero-approved-v527.png")','important');
    }
   }
+  // v542: Original full composition, no crop. Canonical legacy Hero
+  // scripts and old CSS previously won the background-size cascade.
+  // Inline !important is idempotent to avoid a MutationObserver feedback loop.
+  if(hero.style.getPropertyValue('background-size')!=='contain'||
+     hero.style.getPropertyPriority('background-size')!=='important'){
+   hero.style.setProperty('background-size','contain','important');
+  }
+  if(hero.style.getPropertyValue('background-position')!=='center bottom'||
+     hero.style.getPropertyPriority('background-position')!=='important'){
+   hero.style.setProperty('background-position','center bottom','important');
+  }
   // v539: Height is owned by the preloaded fixed-size Home CSS.
   // The old JS forced 228px inline with !important, racing the v534 flex Hero.
   if(hero.style.getPropertyValue('height')){

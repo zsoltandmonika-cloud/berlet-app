@@ -209,9 +209,9 @@ html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
  height:360px!important;
  min-height:360px!important;
  max-height:360px!important;
- /* v541: actual picture ZOOM OUT, fixed 360px Hero untouched.
-    Shrink the photo by 10% in width and pin its bottom to the date glass. */
- background-size:90% auto!important;
+ /* v542: Show the ORIGINAL full image without clipping or enlargement.
+    The 360px Hero frame and v541-approved tile dimensions remain untouched. */
+ background-size:contain!important;
  background-position:center bottom!important;
  background-repeat:no-repeat!important;
  background-color:#08172f!important;
