@@ -186,6 +186,27 @@
    observer.observe(hero,{attributes:true,attributeFilter:['style']});
   }
   root.addEventListener('storage',function(e){if(e.key==='hh-profile')updateProfile()});
+ // v536: Native Home .profileHit can miss the portrait on tall screen sizes.
+ // Capture at window before the legacy picker and any overlaid hero elements.
+ // Switch only inside the left monitor portrait zone (not HH ONE or the info bar).
+ function monitorOneClick(e){
+  if(document.documentElement.dataset.hhPremiumPreview!=='on')return;
+  var hero=document.querySelector('#home.on #heroHome');
+  if(!hero||!e.target||!hero.contains(e.target))return;
+  var r=hero.getBoundingClientRect();
+  if(!r.width||!r.height)return;
+  var x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  var isButton=!!(e.target.closest&&e.target.closest('.profileHit'));
+  // Pointer zone is intentionally a generous monitor-only rectangle.
+  // For keyboard activation of the same button, coordinates are not required.
+  if(!isButton&&!(x>=0&&x<=.30&&y>=.25&&y<=.82))return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+  if(typeof root.hhToggleProfileOneClick==='function')root.hhToggleProfileOneClick();
+  else if(typeof root.setProfile==='function')root.setProfile(profile()==='m'?'z':'m');
+ }
+ root.addEventListener('click',monitorOneClick,true);
   document.documentElement.dataset.hhPremiumTiles='12';
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
