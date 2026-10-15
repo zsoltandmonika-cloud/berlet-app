@@ -1,0 +1,175 @@
+/* HealthHub Activity v533 | Premium Glass visual-only skin.
+   Full native v414 Activity calculation, Health Connect, Samsung, Dropbox,
+   chart markup, historical records, input forms, and profile event logic remain.
+   ?hhactivityglass=0 disables this skin without changing stored user data. */
+html[data-hh-activity-glass="on"] #hhActivityPage191{
+ --hha-ink:#edf7ff;--hha-muted:#b9cde2;--hha-accent:#72c2ff;
+ --hha-line:rgba(164,207,255,.28);--hha-soft:rgba(76,142,213,.15);
+ color:var(--hha-ink);color-scheme:dark;
+ background:radial-gradient(ellipse 90% 300px at 50% 0,rgba(65,111,176,.37),transparent 90%),#0a1528!important;
+}
+html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage191{
+ --hha-line:rgba(249,161,218,.35);--hha-accent:#ffc0e5;
+ --hha-soft:rgba(203,112,195,.15);
+ background:radial-gradient(ellipse 100% 380px at 65% 0,rgba(121,60,133,.25),transparent 90%),#101527!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Hero{
+ background:#101f3e;
+ border-radius:0 0 22px 22px;
+ border-bottom:1px solid var(--hha-line);
+ box-shadow:0 12px 27px rgba(0,4,20,.30);
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Hero:after{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+ background:linear-gradient(0deg,rgba(5,17,35,.56),transparent 28%);
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a244HeroCanvasPatch{
+ display:none!important; /* v245 old-face cover must not obscure approved Golden Léna face */
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Periods{
+ background:rgba(13,32,60,.78)!important;border:1px solid var(--hha-line);
+ box-shadow:0 3px 15px rgba(2,12,27,.25);
+ -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Periods button{
+ color:#d4eaff!important;font-size:11px;min-height:34px;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Periods button.on{
+ color:#071931!important;background:linear-gradient(120deg,#a3dafa,#76b4ff)!important;
+}
+html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage191 .a191Periods button.on{
+ background:linear-gradient(120deg,#ffd3ec,#d5b6ff)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Body{
+ background:linear-gradient(145deg,rgba(28,52,85,.83),rgba(12,28,52,.96) 32%,rgba(32,32,67,.89))!important;
+ padding:13px 9px calc(82px + env(safe-area-inset-bottom))!important;
+ border-radius:22px 22px 0 0;margin-top:0;
+}
+html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage191 .a191Body{
+ background:linear-gradient(150deg,rgba(45,44,86,.86),rgba(16,29,54,.96) 32%,rgba(66,35,83,.72))!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191ProfileDiag{
+ color:var(--hha-accent)!important;font-size:10px;letter-spacing:.10em;margin:1px 4px 10px;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191SourceButton,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191CalendarOpen{
+ color:#e7f7ff!important;background:rgba(67,114,174,.22)!important;
+ border:1px solid var(--hha-line)!important;border-radius:14px!important;min-height:38px;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Top,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Small{gap:8px;margin-bottom:9px}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Card{
+ background:linear-gradient(147deg,rgba(87,132,187,.24),rgba(26,48,80,.74) 52%,rgba(75,55,108,.15))!important;
+ border:1px solid var(--hha-line)!important;border-radius:17px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 20px rgba(0,5,25,.18)!important;
+ -webkit-backdrop-filter:blur(13px) saturate(140%);
+ backdrop-filter:blur(13px) saturate(140%);
+ color:var(--hha-ink)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi{
+ padding:11px 10px;min-width:0;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi small,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Goal span{
+ color:var(--hha-muted)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi .a191Value,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi .a191Value b{
+ color:#fff!important;white-space:normal;overflow-wrap:anywhere;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi .a191Value em{
+ color:#d7edff!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Progress{
+ background:rgba(152,189,225,.18)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Head b,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191ManualTitle b,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191RecentName b{
+ color:#f2f9ff!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Head strong,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191RecentName small,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191RecentMeta,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Empty,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Load,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Card .legend{
+ color:var(--hha-muted)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Chart{
+ background:rgba(14,32,59,.22);border-radius:13px;
+ padding:3px 2px;height:auto;min-height:134px;overflow:visible;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Chart svg text{
+ fill:#c9def0!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Type{
+ background:linear-gradient(150deg,rgba(105,155,218,.19),rgba(25,43,71,.69))!important;
+ border:1px solid var(--hha-line)!important;border-radius:14px!important;
+ color:#eaf6ff!important;min-width:0;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Type b,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Type em,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Type small{
+ color:#d9e8fb!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Type.on{
+ border-color:var(--hha-accent)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191RecentRow{
+ border-color:var(--hha-line)!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191ManualBtns button{
+ background:rgba(94,145,202,.15)!important;border:1px solid var(--hha-line)!important;
+ color:#eaf6ff!important;border-radius:12px!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191ManualBtns button b{
+ color:#eaf6ff!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191MetricsHint{
+ background:rgba(103,147,194,.16)!important;border-color:var(--hha-line)!important;
+ color:#deeeff!important;font-size:11px;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Nav{
+ background:rgba(11,25,48,.97)!important;border-top:1px solid var(--hha-line);
+ box-shadow:0 -5px 18px rgba(0,0,0,.27);backdrop-filter:blur(15px);
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Nav button,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Nav button b{
+ color:#bfd5ec!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Nav button.on,
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Nav button.on b{
+ color:var(--hha-accent)!important;
+}
+html[data-hh-activity-glass="on"] #hh191Modal .a191Sheet{
+ background:linear-gradient(155deg,#1c3353,#101f38)!important;
+ color:#edf7ff!important;border:1px solid var(--hha-line)!important;
+}
+html[data-hh-activity-glass="on"] #hh191Modal .a191SheetHead h3,
+html[data-hh-activity-glass="on"] #hh191Modal .a191Weather,
+html[data-hh-activity-glass="on"] #hh191Modal .a191SourceRow{
+ color:#edf7ff!important;
+}
+html[data-hh-activity-glass="on"] #hh191Modal .a191Weather,
+html[data-hh-activity-glass="on"] #hh191Modal .a191CalStats div{
+ background:rgba(60,107,162,.16)!important;border:1px solid var(--hha-line)!important;
+}
+html[data-hh-activity-glass="on"] #hh191Modal .a191Form label{
+ color:#d6e8fa!important;
+}
+html[data-hh-activity-glass="on"] #hh191Modal .a191Form input,
+html[data-hh-activity-glass="on"] #hh191Modal .a191Form select,
+html[data-hh-activity-glass="on"] #hh191Modal .a191Date{
+ color:#143a61!important;background:#f7fbff!important;border-radius:10px;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 button:focus-visible,
+html[data-hh-activity-glass="on"] #hh191Modal button:focus-visible{
+ outline:3px solid #aaf2ff;outline-offset:2px;
+}
+@media(max-width:360px){
+ html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Body{padding-left:7px!important;padding-right:7px!important}
+ html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi{padding:8px 6px!important}
+ html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Periods button{font-size:10px}
+}
