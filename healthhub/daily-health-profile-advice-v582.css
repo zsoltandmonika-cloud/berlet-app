@@ -1,0 +1,89 @@
+/* HealthHub v582 | Person-owned Daily Health advice.
+   Mónika = discreet pink; Zsolt = restrained blue, irrespective of which
+   HealthHub profile is currently active. CSS only, no medical logic changed.
+   Existing joint/neutral advice and safety notices stay neutral. */
+html[data-hh-daily-glass="on"] #hhDailyHealth312 {
+ --hh582-z-color:#95d8ff;
+ --hh582-z-line:rgba(118,201,255,.60);
+ --hh582-z-bg:linear-gradient(145deg,rgba(36,81,129,.64),rgba(20,46,81,.86));
+ --hh582-m-color:#ffb6df;
+ --hh582-m-line:rgba(251,160,210,.62);
+ --hh582-m-bg:linear-gradient(145deg,rgba(100,51,98,.72),rgba(56,35,77,.87));
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card p.hhDailyAdvice582 {
+ position:relative!important;
+ display:block!important;
+ margin:10px 0!important;
+ padding:13px 14px 13px 16px!important;
+ border-radius:15px!important;
+ border:1px solid var(--hh582-owner-line)!important;
+ border-left:4px solid var(--hh582-owner-color)!important;
+ background:var(--hh582-owner-bg)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 5px 16px rgba(0,10,31,.12)!important;
+ color:#eaf5ff!important;
+ font-size:13px!important;
+ line-height:1.65!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhDailyAdvice582--zsolt,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile="zsolt"] {
+ --hh582-owner-color:var(--hh582-z-color);
+ --hh582-owner-line:var(--hh582-z-line);
+ --hh582-owner-bg:var(--hh582-z-bg);
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhDailyAdvice582--monika,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile="monika"] {
+ --hh582-owner-color:var(--hh582-m-color);
+ --hh582-owner-line:var(--hh582-m-line);
+ --hh582-owner-bg:var(--hh582-m-bg);
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card p.hhDailyAdvice582 b {
+ color:var(--hh582-owner-color)!important;
+ font-weight:850!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-panel .hhpai-profile[data-hhpai-profile] {
+ background:var(--hh582-owner-bg)!important;
+ border:1px solid var(--hh582-owner-line)!important;
+ border-left:4px solid var(--hh582-owner-color)!important;
+ border-radius:17px!important;
+ margin:14px 0!important;
+ padding:15px 13px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 5px 18px rgba(2,9,29,.17)!important;
+}
+/* The private report is visually nested inside its person's card. */
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] .hhpai-report {
+ background:rgba(8,24,47,.48)!important;
+ border:1px solid color-mix(in srgb,var(--hh582-owner-color) 39%,transparent)!important;
+ border-radius:12px!important;
+ padding:13px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] > h3 {
+ display:block!important;
+ color:var(--hh582-owner-color)!important;
+ font-weight:850!important;
+ font-size:17px!important;
+ line-height:1.4!important;
+ letter-spacing:-.02em!important;
+ margin:0 0 8px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] .hhpai-report :is(.hhpai-date, p > b, p > strong) {
+ color:var(--hh582-owner-color)!important;
+ font-weight:800!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] .hhpai-report :is(p,li,small) {
+ color:#e3f0fb!important;
+ font-size:13px!important;
+ line-height:1.6!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] .hhpai-history-label {
+ color:#d7e9f8!important;
+ font-size:12px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 #hhPrivateDailyAi321 .hhpai-profile[data-hhpai-profile] .hhpai-history-label select {
+ background:#102a48!important;
+ color:#f3faff!important;
+ border:1px solid var(--hh582-owner-line)!important;
+ color-scheme:dark!important;
+}
+/* Keep the 'report ready', caution, and consent messages semantically intact.
+   Person tint conveys ownership, never a clinical severity/status rating. */
