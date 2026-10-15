@@ -242,9 +242,14 @@ function top(rows,profile){
  var lastDetail=last?dateFull(t(last.endTime))+' · '+clock(t(last.startTime))+'–'+clock(t(last.endTime)):'Nincs szinkronizált alvásadat.';
  var nightDetail=night?dateFull(t(night.endTime))+' · '+clock(t(night.startTime))+'–'+clock(t(night.endTime)):'Nincs azonosítható éjjeli alvás.';
  var dailyDetail=s.inWindow.length?s.inWindow.length+' alvásrekord · gördülő 24 óra':'Nincs 24 órán belüli mért alvás.';
+ /* Nonclinical visual cue: actual measured nightly sleep, never time-in-bed. */
+ var measured=s.nightActual,rag=measured==null||!Number.isFinite(measured)?'unknown':
+  measured<5*60*MINUTE?'red':measured<7*60*MINUTE?'amber':'green';
+ var ragLabel={unknown:'Nincs mérés',red:'Rövid alvás',amber:'Figyelendő',green:'Megfelelő idő'}[rag];
+ var ragHint='Tájékoztató alvásidő-jelzés a legutóbbi mért éjszakai alvás alapján; nem orvosi minősítés.';
  var note='<span class="hh428Note">A 24 órás összesítés változatlan. A grafikon a mért időszakokra közelít, az időpontokat arányosan helyezi el. Az üres részek nem jelentenek mért alvást.</span>';
- return '<section class="hh428Panel" data-hh428-profile="'+esc(profile)+'">'+
- '<div class="hh428Head"><span class="hh428Eyebrow">🌙 SLEEP · GYORS ÁTTEKINTÉS</span><h3>A pihenésed három nézetben</h3>'+
+ return '<section class="hh428Panel" data-hh428-profile="'+esc(profile)+'" data-sleep-rag="'+rag+'">'+
+ '<div class="hh428Head"><span class="hh428Eyebrow">🌙 SLEEP · GYORS ÁTTEKINTÉS</span><span class="hhSleepRag569" title="'+esc(ragHint)+'" aria-label="Alvásidő jelzés: '+esc(ragLabel)+'"><i class="hhSleepRag569Dot" aria-hidden="true"></i>'+esc(ragLabel)+'</span><h3>A pihenésed három nézetben</h3>'+
  '<p>Éjszakai alvás és nappali szunyókálás külön, valódi Health Connect-adatokból.</p></div>'+
  '<div class="hh428Cards">'+
  card(1,'Utolsó alvás',minText(s.lastActual),lastDetail,'last','legfrissebb')+
