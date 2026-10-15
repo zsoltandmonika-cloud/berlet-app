@@ -85,3 +85,19 @@ html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWOcrAgain{
  background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
  border:1px solid var(--hhg-line)!important;
 }
+
+/* Health detail-page navigation is the same dark floating dock as the
+   approved Home / Health docks. This does not touch those already locked. */
+html[data-hh-system-glass="on"]:has(#healthSection.page.on) #navDetailBar{
+ background:rgba(12,27,48,.96)!important;color:var(--hhg-muted)!important;
+ border-top:1px solid var(--hhg-line)!important;
+ box-shadow:0 -7px 26px rgba(1,8,25,.35)!important;
+ backdrop-filter:blur(17px)!important;-webkit-backdrop-filter:blur(17px)!important;
+}
+html[data-hh-system-glass="on"]:has(#healthSection.page.on) #navDetailBar button{
+ background:transparent!important;color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"]:has(#healthSection.page.on) #navDetailBar button.on,
+html[data-hh-system-glass="on"]:has(#healthSection.page.on) #navDetailBar button:focus-visible{
+ color:var(--hhg-soft)!important;
+}
