@@ -1,0 +1,107 @@
+/* HealthHub v565 | Ask Léna Smart Health Research: Premium Dark Glass.
+   Scoped exclusively to the real #hhLenaSmart299 page. No data, audio,
+   document research, event handlers, nav or medical status semantics changed.
+   Load after live-v299.js; use system profile tokens when available. */
+html #hhLenaSmart299{
+ --ask-glass-bg:#0b1425;--ask-glass-panel:rgba(19,42,73,.88);
+ --ask-glass-inner:rgba(11,31,56,.83);--ask-glass-line:rgba(157,205,246,.29);
+ --ask-glass-text:#edf7ff;--ask-glass-muted:#b5cfe5;
+ --ask-glass-accent:#86cbff;--ask-glass-bright:#e1f4ff;
+ --ask-accent:#489ddd;--ask-accent-soft:rgba(42,119,189,.19);
+ background:radial-gradient(ellipse 100% 440px at 30% 0%,rgba(45,106,171,.35),transparent 80%),#0b1425!important;
+ color:var(--ask-glass-text)!important;
+}
+html #hhLenaSmart299[data-profile="monika"],
+html[data-hh-system-profile="m"] #hhLenaSmart299{
+ --ask-glass-panel:rgba(43,34,77,.87);--ask-glass-inner:rgba(29,25,61,.85);
+ --ask-glass-line:rgba(238,168,217,.32);--ask-glass-muted:#e0c7e4;
+ --ask-glass-accent:#ffbce2;--ask-glass-bright:#fff1fb;
+ --ask-accent:#c775bc;--ask-accent-soft:rgba(183,92,158,.18);
+ background:radial-gradient(ellipse 100% 430px at 75% 0%,rgba(132,62,132,.26),transparent 80%),#0d1428!important;
+}
+/* Keep the original role-portrait atlas visible: tint only the edges. */
+html #hhLenaSmart299 .askHero{
+ background-color:#0c2948!important;
+ border-bottom:1px solid var(--ask-glass-line)!important;
+ box-shadow:0 12px 32px rgba(0,7,24,.36)!important;
+}
+html #hhLenaSmart299 .askHero:after{
+ background:linear-gradient(90deg,rgba(4,17,36,.04) 8%,rgba(6,21,43,.23) 42%,rgba(4,15,34,.84) 100%)!important;
+}
+html #hhLenaSmart299[data-profile="monika"] .askHero:after{
+ background:linear-gradient(90deg,rgba(14,10,33,.04) 8%,rgba(21,12,44,.22) 42%,rgba(19,13,40,.85) 100%)!important;
+}
+html #hhLenaSmart299 :is(h1,.askSub,.askProfile){position:relative;z-index:3}
+html #hhLenaSmart299 h1{color:#fff!important;text-shadow:0 2px 10px rgba(0,6,23,.85)!important}
+html #hhLenaSmart299 .askSub{color:#e4eefc!important;text-shadow:0 2px 8px #061020!important}
+html #hhLenaSmart299 .askBack{
+ background:rgba(12,36,65,.84)!important;color:#f4faff!important;
+ border:1px solid var(--ask-glass-line)!important;
+ box-shadow:0 4px 14px rgba(0,9,30,.36)!important;
+}
+html #hhLenaSmart299 .askProfile{
+ background:rgba(16,43,73,.82)!important;color:var(--ask-glass-accent)!important;
+ border:1px solid var(--ask-glass-line)!important;
+}
+html #hhLenaSmart299 .askCard{
+ background:linear-gradient(145deg,var(--ask-glass-panel),var(--ask-glass-inner))!important;
+ border:1px solid var(--ask-glass-line)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 13px 30px rgba(0,8,27,.36)!important;
+ backdrop-filter:blur(17px) saturate(120%)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(120%)!important;
+ color:var(--ask-glass-text)!important;
+}
+html #hhLenaSmart299 .askCard h2,
+html #hhLenaSmart299 .askProgress h3,
+html #hhLenaSmart299 .askCheck strong,
+html #hhLenaSmart299 .askWork330 b{color:var(--ask-glass-bright)!important}
+html #hhLenaSmart299 :is(.askHint,.askConsent,.askFooter,.askCheck span,.askWork330 p,.work330time){
+ color:var(--ask-glass-muted)!important;
+}
+html #hhLenaSmart299 .askQuestion{
+ background:rgba(5,22,44,.87)!important;color:#f1f8ff!important;
+ border:1px solid var(--ask-glass-line)!important;
+ box-shadow:inset 0 1px 5px rgba(0,5,25,.24)!important;
+ caret-color:var(--ask-glass-accent)!important;
+}
+html #hhLenaSmart299 .askQuestion::placeholder{color:#a8bfd5!important;opacity:1!important}
+html #hhLenaSmart299 .askQuestion:focus{
+ border-color:var(--ask-glass-accent)!important;
+ box-shadow:0 0 0 3px var(--ask-accent-soft)!important;
+}
+html #hhLenaSmart299 :is(.askCheck,.askConsent,.askWork330,.askInlineFeedback,#askSpeech323,.askProgress){
+ background:var(--ask-glass-inner)!important;
+ border:1px solid var(--ask-glass-line)!important;
+ color:var(--ask-glass-text)!important;
+}
+html #hhLenaSmart299 .askBtn{
+ background:linear-gradient(145deg,rgba(33,75,118,.84),rgba(18,47,85,.91))!important;
+ color:var(--ask-glass-text)!important;
+ border:1px solid var(--ask-glass-line)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+html #hhLenaSmart299 .askBtnMain{
+ background:linear-gradient(135deg,#2478b8,#174d8b)!important;
+ border-color:rgba(155,211,250,.52)!important;color:#fff!important;
+}
+html #hhLenaSmart299[data-profile="monika"] .askBtnMain{
+ background:linear-gradient(135deg,#a65b99,#6c417e)!important;
+ border-color:rgba(255,185,226,.54)!important;
+}
+html #hhLenaSmart299 .askKeyboard{color:var(--ask-glass-accent)!important}
+html #hhLenaSmart299 .askConsent input{accent-color:var(--ask-accent)!important}
+html #hhLenaSmart299 .askBar,
+html #hhLenaSmart299 .work330bar{background:rgba(130,177,209,.20)!important}
+html #hhLenaSmart299 .askBar i,
+html #hhLenaSmart299 .work330bar i{background:var(--ask-accent)!important}
+html #hhLenaSmart299 .askBadge.good{background:#174d3c!important;color:#b9ffe2!important}
+html #hhLenaSmart299 .askBadge.warn{background:#60451d!important;color:#ffe2a6!important}
+html #hhLenaSmart299 .askBadge.error{background:#662e42!important;color:#ffd7dc!important}
+html #hhLenaSmart299 :is(.askInlineFeedback.fail,.askProgress.fail){border-color:rgba(236,137,121,.65)!important}
+html #hhLenaSmart299 :is(.askInlineFeedback.done,.askProgress.done){border-color:rgba(103,210,164,.58)!important}
+html #hhLenaSmart299 :is(button,textarea,input):focus-visible{
+ outline:2px solid var(--ask-glass-accent)!important;outline-offset:3px!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html #hhLenaSmart299 .askCard{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
