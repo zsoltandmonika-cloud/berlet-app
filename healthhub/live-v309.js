@@ -264,12 +264,13 @@ function render(){
 function hookShow(){
  if(window.show&&window.show.__hhEnv309)return;
  if(typeof window.show==='function'){
-  baseShow=window.show;
+  var previousShow=window.show;
+  baseShow=previousShow;
   var wrapped=function(id){
    if(id==='environmental'||id===PAGE){openPage();return}
    var p=document.getElementById(PAGE);if(p)p.classList.remove('on');
    setEnvPageState(false);
-   return baseShow.apply(this,arguments);
+   return previousShow.apply(this,arguments);
   };
   wrapped.__hhEnv309=true;window.show=wrapped;
  }
