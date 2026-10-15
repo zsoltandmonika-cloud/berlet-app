@@ -159,3 +159,39 @@ html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Del {
  color:#ffccd6!important;
  border:1px solid rgba(232,143,170,.52)!important;
 }
+
+/* Daily Headline: category and article titles receive the profile theme accent,
+   while the news text remains neutral for high contrast. */
+html[data-hh-daily-glass="on"] #briefing .detailCard h3 {
+  position:relative!important;
+  display:block!important;
+  padding-left:13px!important;
+  margin:0 0 11px!important;
+  color:var(--d580-accent,#78c4ff)!important;
+  font-weight:850!important;
+  font-size:clamp(16px,4.3vw,19px)!important;
+  line-height:1.32!important;
+  letter-spacing:-.015em!important;
+  text-shadow:0 0 18px color-mix(in srgb,var(--d580-accent,#78c4ff) 18%,transparent)!important;
+}
+html[data-hh-daily-glass="on"] #briefing .detailCard h3::before {
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  top:.16em!important;
+  bottom:.12em!important;
+  width:3px!important;
+  border-radius:999px!important;
+  background:var(--d580-accent,#78c4ff)!important;
+  box-shadow:0 0 12px color-mix(in srgb,var(--d580-accent,#78c4ff) 38%,transparent)!important;
+}
+html[data-hh-daily-glass="on"] #briefing #briefSections .detailCard li :is(b,strong) {
+  color:var(--d580-accent,#78c4ff)!important;
+  font-weight:800!important;
+}
+html[data-hh-daily-glass="on"] #briefing #briefSections .detailCard li::marker {
+  color:var(--d580-accent,#78c4ff)!important;
+}
+html[data-hh-daily-glass="on"] #briefing .briefChip {
+  border-color:color-mix(in srgb,var(--d580-accent,#78c4ff) 42%,transparent)!important;
+}
