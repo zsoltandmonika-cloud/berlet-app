@@ -17,6 +17,12 @@ function selectedExplanation(d){
  if(d&&d.lenaExplanationImported)return {explanation:d.lenaExplanationImported,source:d.lenaExplanationImportedSource||'built_in'};
  return null;
 }
+/* Visual scope only: preserve original explanation nodes and their event handlers. */
+function markExplanationContent577(c){
+ var wrap=document.createElement('div');wrap.className='hhLenaExplanationV577';
+ while(c.firstChild)wrap.appendChild(c.firstChild);
+ c.appendChild(wrap);
+}
 function listSection(title,items,tone){
  items=arr(items);if(!items.length)return '';
  var bg=tone==='amber'?'#fff8e8':tone==='violet'?'#f7f5ff':tone==='teal'?'#f3faf8':'#f7f9fb';
@@ -44,7 +50,7 @@ function explanationHtml(d){
 window.hhOpenLenaExplanation=async function(id){
  var d=await one('documents',id);if(!d)return;
  var o=document.getElementById('hrDetailOverlay'),c=document.getElementById('hrDetailContent');if(!o||!c)return;
- c.innerHTML=explanationHtml(d);o.classList.add('on');
+ c.innerHTML=explanationHtml(d);markExplanationContent577(c);o.classList.add('on');
 };
 
 function lines(x){return arr(x).join('\n')}
@@ -62,6 +68,7 @@ window.hhEditLenaExplanation=async function(id){
   '<label><h4>Ellenőrzés dátuma</h4><input id="hhLeReviewed" type="date" value="'+esc(e.reviewedAt||new Date().toISOString().slice(0,10))+'" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 9px"></label>'+
   '<p class="privacyNote">Csak az eredeti PDF alapján ellenőrzött tartalmat ments el. Minden új sor külön felsorolási pont lesz.</p>'+
   '<div class="vaultTools"><button class="vaultBtn primary" onclick="hhSaveLenaExplanation(\''+d.id+'\')">Magyarázat mentése</button><button class="vaultBtn" onclick="hhOpenLenaExplanation(\''+d.id+'\')">Mégse</button></div>';
+ markExplanationContent577(c);
  o.classList.add('on');
 };
 window.hhSaveLenaExplanation=async function(id){
