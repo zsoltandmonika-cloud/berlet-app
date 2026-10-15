@@ -1,0 +1,197 @@
+/* HealthHub v581 | Finish dark Premium Glass on nested Daily surfaces.
+ * Existing Daily Spark/Headline cards and Daily Health outer cards remain
+ * controlled by v580. This sheet only eliminates the legacy inner white tiles,
+ * private report panels and the Daily Health settings page.
+ * No API/DB/AI/reminder changes. All privacy or RAG statuses remain textual.
+ */
+html[data-hh-daily-glass="on"] #hhDailyHealth312 :is(
+ .hhpai-panel,.hhpai-profile,.hhpai-report,.hhpai-locked
+){
+ background:linear-gradient(145deg,rgba(25,54,86,.94),rgba(13,31,57,.97))!important;
+ color:#eef8ff!important;
+ border:1px solid var(--d580-line,rgba(140,191,233,.35))!important;
+ border-radius:14px!important;
+ padding:12px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-profile{
+ margin:10px 0!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 :is(
+ .hhpai-panel,.hhpai-profile,.hhpai-report,.hhpai-locked
+) :is(h3,h4,b,strong,span,li,p){
+ color:#e9f4ff!important;
+ font-size:max(12px,1em)!important;
+ line-height:1.58!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 :is(
+ .hhpai-muted,.hhpai-date,.hhpai-history-label
+){
+ color:#c2d8eb!important;
+ font-size:12px!important;
+ line-height:1.55!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-ready{
+ color:#a3f0c9!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-wait{
+ color:#ffe4b6!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-error{
+ background:rgba(100,35,53,.53)!important;
+ border:1px solid rgba(248,150,167,.58)!important;
+ color:#ffe2e8!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-panel :is(button,select){
+ min-height:42px!important;
+ padding:9px 12px!important;
+ border-radius:11px!important;
+ border:1px solid rgba(155,199,230,.48)!important;
+ background:#1b4165!important;
+ color:#f0faff!important;
+ font-size:13px!important;
+ line-height:1.4!important;
+ color-scheme:dark;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-panel :is(button,select):focus-visible{
+ outline:2px solid var(--d580-accent,#78c4ff)!important;
+ outline-offset:2px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-panel button[data-hhpai-login] {
+ background:linear-gradient(135deg,#165f97,#2785b2)!important;
+ color:#fff!important;
+ border-color:#74b6dd!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .hhpai-report ul{
+ padding-left:19px!important;
+}
+/* Private Health preferences are opened FROM Daily Health and have their
+   own historical page with light cards. Bring these into the same ecosystem. */
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317,
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317[data-profile="z"]{
+ min-height:100dvh!important;
+ background:radial-gradient(ellipse at 55% 0%,var(--d580-soft-accent,rgba(53,148,230,.20)),transparent 430px),#0a1931!important;
+ color:#edf6ff!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Hero{
+ background-image:
+  linear-gradient(180deg,rgba(7,29,51,.22),rgba(9,22,47,.89)),
+  url("./assets/daily-health-overlay-v580.svg"),
+  url("./assets/health-medical-lena-approved-v548.webp")!important;
+ background-size:cover,cover,cover!important;
+ background-position:center,center,center 40%!important;
+ background-repeat:no-repeat!important;
+ border-bottom:1px solid var(--d580-line,rgba(140,191,233,.38))!important;
+ border-radius:0 0 20px 20px!important;
+ box-shadow:0 10px 28px rgba(0,5,22,.28)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Hero h1{
+ top:auto!important;bottom:17px!important;
+ left:17px!important;right:14px!important;
+ transform:none!important;
+ font-size:clamp(22px,5.5vw,28px)!important;
+ line-height:1.12!important;
+ color:#f4fbff!important;
+ text-shadow:0 2px 11px rgba(0,8,23,.82)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Hero button{
+ background:rgba(18,45,73,.84)!important;
+ color:#f0faff!important;
+ border:1px solid var(--d580-line,rgba(140,191,233,.38))!important;
+ border-radius:13px!important;
+ backdrop-filter:blur(11px)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Card{
+ background:var(--d580-glass,linear-gradient(145deg,#24446c,#182e4f))!important;
+ border:1px solid var(--d580-line,rgba(140,191,233,.38))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px rgba(0,6,22,.18)!important;
+ color:#edf7ff!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Card :is(
+ h2,h3,p,b,strong,label,small,span,.dh317BulkHelp,.dh317Foot
+){
+ color:#ddecfa!important;
+ line-height:1.55!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Card h2 {
+ color:#fff!important;
+ font-size:16px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 :is(
+ .dh317Switch button,.dh317Cats button,.dh317Bulk button
+){
+ background:#1b385b!important;
+ color:#dfeefa!important;
+ border:1px solid rgba(154,194,229,.40)!important;
+ border-radius:12px!important;
+ font-size:12px!important;
+ line-height:1.4!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 :is(
+ .dh317Switch button.on,.dh317Cats button.on,.dh317Bulk button:first-child,.dh317Add
+){
+ background:linear-gradient(135deg,#23659c,#328db2)!important;
+ color:white!important;
+ border-color:rgba(123,207,242,.61)!important;
+}
+html[data-hh-daily-glass="on"][data-hhpg-profile="m"] #hhDailyHealthSettings317 :is(
+ .dh317Switch button.on,.dh317Cats button.on,.dh317Bulk button:first-child,.dh317Add
+){
+ background:linear-gradient(135deg,#a54787,#db69a8)!important;
+ border-color:rgba(255,177,221,.58)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 :is(
+ .dh317Row input,.dh317Row select,.dh317Risk textarea,.dh317Risk input[type="text"]
+){
+ background:#0e2847!important;
+ color:#f0faff!important;
+ border:1px solid rgba(149,192,226,.54)!important;
+ color-scheme:dark!important;
+ font-size:13px!important;
+ line-height:1.5!important;
+ padding:10px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Risk{
+ border-color:rgba(146,190,232,.22)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealthSettings317 .dh317Del {
+ background:rgba(112,44,69,.5)!important;
+ color:#ffccd6!important;
+ border:1px solid rgba(232,143,170,.52)!important;
+}
+
+/* Daily Headline: category and article titles receive the profile theme accent,
+   while the news text remains neutral for high contrast. */
+html[data-hh-daily-glass="on"] #briefing .detailCard h3 {
+  position:relative!important;
+  display:block!important;
+  padding-left:13px!important;
+  margin:0 0 11px!important;
+  color:var(--d580-accent,#78c4ff)!important;
+  font-weight:850!important;
+  font-size:clamp(16px,4.3vw,19px)!important;
+  line-height:1.32!important;
+  letter-spacing:-.015em!important;
+  text-shadow:0 0 18px color-mix(in srgb,var(--d580-accent,#78c4ff) 18%,transparent)!important;
+}
+html[data-hh-daily-glass="on"] #briefing .detailCard h3::before {
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  top:.16em!important;
+  bottom:.12em!important;
+  width:3px!important;
+  border-radius:999px!important;
+  background:var(--d580-accent,#78c4ff)!important;
+  box-shadow:0 0 12px color-mix(in srgb,var(--d580-accent,#78c4ff) 38%,transparent)!important;
+}
+html[data-hh-daily-glass="on"] #briefing #briefSections .detailCard li :is(b,strong) {
+  color:var(--d580-accent,#78c4ff)!important;
+  font-weight:800!important;
+}
+html[data-hh-daily-glass="on"] #briefing #briefSections .detailCard li::marker {
+  color:var(--d580-accent,#78c4ff)!important;
+}
+html[data-hh-daily-glass="on"] #briefing .briefChip {
+  border-color:color-mix(in srgb,var(--d580-accent,#78c4ff) 42%,transparent)!important;
+}
