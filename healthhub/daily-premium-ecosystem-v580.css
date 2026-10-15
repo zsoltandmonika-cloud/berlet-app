@@ -1,0 +1,328 @@
+/* HealthHub v580 | Daily Premium Glass Ecosystem
+ * Visual-only skin for existing Spark, Headline and Daily Health controllers.
+ * Retains live content, source citations, profile data, reminders, route and sync.
+ * Opt out for QA: ?hhdailyglass=0
+ */
+html[data-hh-daily-glass="on"] {
+ --d580-ink:#f3f9ff;
+ --d580-muted:#b9d1e6;
+ --d580-line:rgba(134,180,227,.34);
+ --d580-glass:linear-gradient(145deg,rgba(41,69,110,.82),rgba(22,40,74,.94));
+ --d580-accent:#78c4ff;
+ --d580-soft-accent:rgba(53,148,230,.20);
+}
+html[data-hh-daily-glass="on"][data-hhpg-profile="m"] {
+ --d580-line:rgba(236,169,213,.37);
+ --d580-glass:linear-gradient(145deg,rgba(75,57,103,.85),rgba(31,38,76,.94));
+ --d580-accent:#ffc0e4;
+ --d580-soft-accent:rgba(230,118,194,.22);
+}
+html[data-hh-daily-glass="on"] #spark,
+html[data-hh-daily-glass="on"] #briefing,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 {
+ min-height:100dvh!important;
+ background:radial-gradient(ellipse at 54% 0%,var(--d580-soft-accent),transparent 390px),#091a33!important;
+ color:var(--d580-ink)!important;
+ overflow-x:clip;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailHero {
+ position:relative!important;
+ height:clamp(230px,59vw,292px)!important;
+ border-radius:0 0 21px 21px!important;
+ overflow:hidden!important;
+ border-bottom:1px solid var(--d580-line)!important;
+ box-shadow:0 13px 30px rgba(2,10,29,.26)!important;
+ background-repeat:no-repeat!important;
+ background-size:cover,cover,cover!important;
+ background-position:center,center,center 32%!important;
+}
+html[data-hh-daily-glass="on"] #spark .sparkHero {
+ background-image:
+  linear-gradient(0deg,rgba(8,16,37,.93) 0%,rgba(8,16,37,.27) 52%,rgba(9,15,39,.14) 100%),
+  url("./assets/daily-spark-overlay-v580.svg"),
+  url("./assets/daily-spark-approved.webp")!important;
+}
+html[data-hh-daily-glass="on"] #briefing .briefHero {
+ background-image:
+  linear-gradient(0deg,rgba(5,20,42,.94) 0%,rgba(7,29,59,.38) 58%,rgba(4,17,36,.16) 100%),
+  url("./assets/daily-headline-overlay-v580.svg"),
+  url("./assets/daily-news-approved.webp")!important;
+}
+/* Preserve the established buttons rather than drawing non-functional replacements. */
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailHero::after {
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:1!important;
+ pointer-events:none!important;
+ background:linear-gradient(90deg,rgba(4,13,30,.18),transparent 75%)!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTop {
+ top:calc(12px + env(safe-area-inset-top))!important;
+ left:14px!important;
+ right:14px!important;
+ z-index:6!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTop b {
+ color:#f8fbff!important;
+ font-size:13px!important;
+ font-weight:800!important;
+ text-shadow:0 2px 7px rgba(1,8,24,.86);
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ text-align:center;
+ max-width:calc(100% - 104px);
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTop button,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Back {
+ width:40px!important;height:40px!important;
+ border-radius:13px!important;
+ background:rgba(7,31,58,.74)!important;
+ border:1px solid rgba(201,228,250,.45)!important;
+ color:white!important;
+ backdrop-filter:blur(14px)!important;
+ box-shadow:0 4px 13px rgba(0,5,24,.20)!important;
+ cursor:pointer!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTitle {
+ left:19px!important;right:18px!important;bottom:16px!important;
+ z-index:5!important;
+ text-shadow:0 2px 12px rgba(0,5,25,.8)!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTitle h1 {
+ color:#fff!important;
+ font:850 clamp(25px,7.1vw,36px)/1.05 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:-.04em!important;
+ margin:0 0 7px!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTitle p {
+ font-size:12px!important;
+ line-height:1.4!important;
+ color:#e8f4ff!important;
+ font-weight:650!important;
+}
+html[data-hh-daily-glass="on"] #spark .statusPill {
+ background:rgba(17,36,66,.78)!important;
+ border:1px solid rgba(247,163,214,.53)!important;
+ color:#ffe0f2!important;
+ padding:6px 10px!important;
+ border-radius:999px!important;
+ font-size:10px!important;
+ font-weight:800!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailBody {
+ position:relative!important;
+ z-index:4!important;
+ margin-top:-9px!important;
+ padding:18px 13px calc(101px + env(safe-area-inset-bottom))!important;
+ min-height:55dvh!important;
+ border-radius:22px 22px 0 0!important;
+ background:linear-gradient(180deg,rgba(14,30,57,.97),#08182f 77%)!important;
+ box-shadow:inset 0 1px 0 rgba(203,230,255,.11)!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailCard,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card {
+ color:var(--d580-ink)!important;
+ background:var(--d580-glass)!important;
+ border:1px solid var(--d580-line)!important;
+ border-radius:18px!important;
+ padding:16px 15px!important;
+ margin-bottom:11px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 7px 22px rgba(1,8,24,.17)!important;
+ backdrop-filter:blur(12px)!important;
+ -webkit-backdrop-filter:blur(12px)!important;
+}
+html[data-hh-daily-glass="on"] #spark .detailCard.sparkLead {
+ border-color:var(--d580-accent)!important;
+ background:linear-gradient(145deg,var(--d580-soft-accent),rgba(30,48,85,.94))!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailCard h3,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card h2 {
+ color:#f7fbff!important;
+ font-size:clamp(15px,4vw,18px)!important;
+ line-height:1.3!important;
+ font-weight:820!important;
+ margin:0 0 9px!important;
+}
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailCard :is(p,li,small,span),
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card :is(p,li,small) {
+ color:#d9eafa!important;
+ font-size:13.5px!important;
+ line-height:1.65!important;
+ overflow-wrap:anywhere;
+}
+html[data-hh-daily-glass="on"] #briefing .briefNav {
+ display:flex!important;gap:8px!important;
+ padding:2px 0 12px!important;
+ margin:0 0 7px!important;
+ scrollbar-width:thin;
+}
+html[data-hh-daily-glass="on"] #briefing .briefChip {
+ flex:none!important;
+ border-radius:999px!important;
+ border:1px solid var(--d580-line)!important;
+ background:rgba(24,52,87,.92)!important;
+ color:#e7f6ff!important;
+ font-size:12px!important;
+ font-weight:700!important;
+ padding:10px 13px!important;
+ min-height:40px!important;
+ cursor:pointer!important;
+}
+html[data-hh-daily-glass="on"] #briefing .briefChip:focus-visible,
+html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTop button:focus-visible {
+ outline:3px solid var(--d580-accent)!important;
+ outline-offset:2px!important;
+}
+html[data-hh-daily-glass="on"] #briefing .sourceLink {
+ display:block!important;
+ color:#a7ddff!important;
+ font-size:13px!important;
+ line-height:1.5!important;
+ padding:10px 0!important;
+ border-top:1px solid var(--d580-line)!important;
+ text-decoration:underline!important;
+ text-underline-offset:3px;
+ overflow-wrap:anywhere;
+}
+/* Daily Health currently uses its own v312 screen and re-renders content.
+   Its existing buttons, private-vault AI slot, sources and medical safeguards remain. */
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Top {
+ position:relative!important;
+ height:clamp(230px,59vw,292px)!important;
+ padding:14px!important;
+ background-image:
+  linear-gradient(0deg,rgba(5,23,39,.90),rgba(8,28,50,.26) 59%,rgba(7,24,47,.10)),
+  url("./assets/daily-health-overlay-v580.svg"),
+  url("./assets/health-medical-lena-approved-v548.webp")!important;
+ background-repeat:no-repeat!important;
+ background-size:cover,cover,cover!important;
+ background-position:center,center,center 44%!important;
+ border-radius:0 0 22px 22px!important;
+ border-bottom:1px solid rgba(100,220,205,.39)!important;
+ box-shadow:0 12px 30px rgba(0,8,23,.25)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Back {
+ top:calc(12px + env(safe-area-inset-top))!important;
+ left:14px!important;
+ z-index:7!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Top h1 {
+ position:absolute!important;
+ left:20px!important;
+ right:15px!important;
+ top:auto!important;
+ bottom:19px!important;
+ transform:none!important;
+ z-index:5!important;
+ margin:0!important;
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:baseline!important;
+ gap:5px 9px!important;
+ color:white!important;
+ text-shadow:0 2px 11px rgba(0,8,25,.78)!important;
+ font:850 clamp(25px,6.6vw,34px)/1.1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Top h1 span {
+ display:inline!important;
+ white-space:nowrap!important;
+ color:white!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Top h1 span:first-child {
+ color:#91eedb!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Subline {
+ background:transparent!important;
+ color:#badbdc!important;
+ padding:15px 16px 2px!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Body {
+ max-width:780px!important;
+ margin:0 auto!important;
+ padding:13px 12px calc(104px + env(safe-area-inset-bottom))!important;
+ gap:10px!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Card {
+ margin:0!important;
+}
+/* Keep source metadata readable; no false red/green indicators. */
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Meta,
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Foot {
+ color:#b7d1e3!important;
+ font-size:12px!important;
+ line-height:1.6!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312List > div {
+ padding:9px 0!important;
+ color:#dcecf8!important;
+ font-size:13px!important;
+ line-height:1.55!important;
+ border-color:rgba(154,198,232,.22)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Warn {
+ background:linear-gradient(145deg,rgba(91,66,31,.58),rgba(51,47,53,.78))!important;
+ border:1px solid rgba(242,189,100,.44)!important;
+ border-left:4px solid #eac077!important;
+ color:#ffedcc!important;
+ padding:12px!important;
+ font-size:13px!important;
+ line-height:1.55!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Warn.high {
+ background:linear-gradient(145deg,rgba(99,42,62,.57),rgba(46,34,54,.8))!important;
+ border-left-color:#f08a9e!important;
+ border-color:rgba(242,139,161,.51)!important;
+ color:#ffe4eb!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Warn :is(p,b,small,span) {
+ color:inherit!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Btn {
+ background:linear-gradient(135deg,#226a9c,#2a8eab)!important;
+ color:white!important;
+ border:1px solid rgba(146,203,236,.42)!important;
+ border-radius:12px!important;
+ min-height:43px!important;
+ font-size:12px!important;
+ line-height:1.35!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Btn.secondary {
+ background:rgba(28,65,88,.8)!important;
+}
+html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Form :is(input,textarea,select) {
+ background:#102b47!important;
+ border:1px solid rgba(150,197,230,.49)!important;
+ color:#edf7ff!important;
+ color-scheme:dark!important;
+ font-size:14px!important;
+}
+/* The floating HH ONE status remains active elsewhere, but doesn't cover
+   the three Daily hero images. The service view remains accessible normally. */
+html:has(#spark.page.on):is([data-hh-daily-glass="on"]) :is(#hhOneRag500,#hhOneFallback501),
+html:has(#briefing.page.on):is([data-hh-daily-glass="on"]) :is(#hhOneRag500,#hhOneFallback501),
+html:has(#hhDailyHealth312.page.on):is([data-hh-daily-glass="on"]) :is(#hhOneRag500,#hhOneFallback501) {
+ display:none!important;
+}
+@media(min-width:630px){
+ html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailBody {
+  padding-left:21px!important;
+  padding-right:21px!important;
+ }
+}
+@media(max-width:365px){
+ html[data-hh-daily-glass="on"] :is(#spark,#briefing) .detailTitle h1 {
+  font-size:26px!important;
+ }
+ html[data-hh-daily-glass="on"] #hhDailyHealth312 .dh312Top h1 {
+  font-size:25px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-hh-daily-glass="on"] :is(#spark,#briefing,#hhDailyHealth312) * {
+  scroll-behavior:auto!important;
+ }
+}
