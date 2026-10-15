@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v546-health-premium-glass" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v547-health-navigation-repair" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -29,7 +29,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='546-health-premium-glass';
+  var v='547-health-navigation-repair';
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
   try{
@@ -112,7 +112,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
     .replace('<b>HealthRadar</b><small>Orvosi adatok és elemzések</small>',
              '<b>Egészség</b><small>Orvosi adatok és elemzések</small>')
     .replace('</head>',shortcutHead+'\n'+hhHomeBoot+noFlashHead+'</head>')
-    .replace(/<body([^>]*)>/i,function(opening){return opening+oneFallback});
+    .replace(/<body([^>]*)>/i,function(opening){return opening+oneFallback+'<script src="./health-route-tap-v547.js?v=547"><\/script>'});
   // Keep bundled Home untouched: activate only its existing Digital Wellbeing tile.
   const digitalHealthTileLive=html.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"");
   if(!html.startsWith('<!doctype html>')){
