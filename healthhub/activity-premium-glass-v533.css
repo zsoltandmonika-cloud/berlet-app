@@ -177,14 +177,14 @@ html[data-hh-activity-glass="on"] #hh191Modal button:focus-visible{
 /* v533.1 | Fix: interval selection is a full-width sibling BELOW hero, outside hitboxes. */
 html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods{
  position:relative!important;inset:auto!important;z-index:2!important;
- width:calc(100% - 20px)!important;height:42px!important;margin:8px 10px 10px!important;
+ width:calc(100% - 20px)!important;height:38px!important;margin:6px 10px 8px!important;
  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
  border:1px solid var(--hha-line)!important;border-radius:15px!important;overflow:hidden!important;
  background:linear-gradient(145deg,rgba(44,74,116,.89),rgba(17,39,71,.97))!important;
 }
 html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods button{
  position:relative!important;display:flex;align-items:center;justify-content:center;
- min-height:42px!important;padding:0 2px!important;line-height:1.1!important;
+ min-height:38px!important;padding:0 2px!important;line-height:1.1!important;
  font-size:clamp(11px,3.3vw,13px)!important;font-weight:850!important;
 }
 html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods button.on{border-radius:12px!important}
