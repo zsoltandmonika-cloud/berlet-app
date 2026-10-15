@@ -60,11 +60,11 @@ function personal(warnings){
  names.forEach(function(n){
   var items=getEnabled(n[0]),hits=items.filter(function(a){return a.triggers.some(function(k){return w.some(function(b){return b.key===k})})});
   if(hits.length){
-   res.push('<p><b>💚 '+n[1]+' · bekapcsolt környezeti figyelő:</b> '+esc(hits.slice(0,5).map(function(x){return x.title}).join('; '))+'. A mai jelzések mellett érdemes az ismert tüneteket, az előírt tervet és a méréseket figyelni. Ez nem egyéni kockázatbecslés.</p>');
+   res.push('<p class="hhDailyAdvice582 hhDailyAdvice582--'+(n[0]==='m'?'monika':'zsolt')+'"><b>💚 '+n[1]+' · bekapcsolt környezeti figyelő:</b> '+esc(hits.slice(0,5).map(function(x){return x.title}).join('; '))+'. A mai jelzések mellett érdemes az ismert tüneteket, az előírt tervet és a méréseket figyelni. Ez nem egyéni kockázatbecslés.</p>');
   }
  });
- if(old.allergy&&w.some(function(x){return x.key==='pollen'}))res.push('<p>🌿 <b>Mónika:</b> magas pollennél ellenőrizd a korábban előírt allergiás rutinodat'+(old.allergyName?', illetve a '+esc(String(old.allergyName).slice(0,60))+' elérhetőségét':'')+'.</p>');
- if(old.headache&&w.some(function(x){return x.key==='pressure'}))res.push('<p>🌀 <b>Zsolt:</b> légnyomásváltozáskor szükség esetén rögzítsd a fejfájást a Tünetnaplóban; az időjárás nem bizonyított kizárólagos ok.</p>');
+ if(old.allergy&&w.some(function(x){return x.key==='pollen'}))res.push('<p class="hhDailyAdvice582 hhDailyAdvice582--monika">🌿 <b>Mónika:</b> magas pollennél ellenőrizd a korábban előírt allergiás rutinodat'+(old.allergyName?', illetve a '+esc(String(old.allergyName).slice(0,60))+' elérhetőségét':'')+'.</p>');
+ if(old.headache&&w.some(function(x){return x.key==='pressure'}))res.push('<p class="hhDailyAdvice582 hhDailyAdvice582--zsolt">🌀 <b>Zsolt:</b> légnyomásváltozáskor szükség esetén rögzítsd a fejfájást a Tünetnaplóban; az időjárás nem bizonyított kizárólagos ok.</p>');
  if(w.some(function(x){return x.key==='heat'}))res.push('<p>🌡️ Hőségben az előírt gyógyszer- és folyadékrendet ne módosítsátok önállóan. Szívbetegséggel egyéni tanács szükséges.</p>');
  if(!res.length)return '<p>Jelenleg nincs a választott tényezőkhöz kapcsolódó személyes jelzés. Ez nem zár ki egészségügyi kockázatot. A ⚙️ gombbal külön választhatjátok ki a figyelendő problémákat.</p>';
  return res.join('');
