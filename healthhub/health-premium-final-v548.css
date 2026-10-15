@@ -1,0 +1,141 @@
+
+/* HealthHub v548 | Egészség Golden Standard - final layout layer.
+   ONLY #health. Home v544 and every health-data module remain unchanged.
+   Real photo (not a substitute): /assets/health-medical-lena-approved-v548.webp */
+html[data-hh-health-glass="on"] #health{
+ --hg:#8bd6fa!important;--hg-line:rgba(117,181,234,.36)!important;--hg-muted:#bad1e7;
+ background:#0b172c!important;color:#edf7ff!important;color-scheme:dark;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile] #health,
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health{
+ --hg:#8bd6fa!important;--hg-line:rgba(117,181,234,.36)!important;
+ background:radial-gradient(ellipse 90% 450px at 50% 0%,#23466e 0%,#101e37 58%,#0a172b 100%)!important;
+}
+html[data-hh-health-glass="on"] #health #heroH{
+ position:relative!important;width:100%!important;aspect-ratio:1672/941!important;
+ flex:0 0 auto!important;height:auto!important;min-height:0!important;max-height:none!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;border-radius:0 0 18px 18px!important;
+ background:#0a172b!important;border:0!important;box-shadow:none!important;
+}
+html[data-hh-health-glass="on"] #health #heroH::before,
+html[data-hh-health-glass="on"] #health #heroH::after{content:none!important;display:none!important}
+html[data-hh-health-glass="on"] #health #heroH .hh-health-approved-image{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;max-width:none!important;
+ object-fit:contain!important;object-position:center!important;
+ border:0!important;border-radius:0!important;z-index:5!important;pointer-events:none!important;
+}
+html[data-hh-health-glass="on"] #health #heroH :is(#personH,.person,.profileHit,.heroBtns,.heroCopy){
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+/* Independent shared hub presentation. Personal records still follow authorized account/profile. */
+html[data-hh-health-glass="on"] #health>.surface{
+ position:relative!important;z-index:1!important;margin-top:0!important;padding:11px 10px 22px!important;
+ border-radius:17px 17px 0 0!important;
+ background:linear-gradient(150deg,#1a3354,#0e1d33 77%)!important;color:#edf7ff!important;
+}
+html[data-hh-health-glass="on"] #health .quick{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;gap:7px!important;margin:0 0 12px!important;align-items:stretch!important;
+}
+html[data-hh-health-glass="on"] #health .quick>.q{
+ min-width:0!important;min-height:78px!important;height:auto!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:6px!important;padding:9px 4px!important;
+ border:1px solid rgba(131,197,248,.33)!important;border-radius:15px!important;
+ background:linear-gradient(145deg,#234b76 0%,#1a3357 70%,#192d4d 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 5px 15px rgba(3,11,27,.16)!important;
+ color:#f4f9ff!important;cursor:pointer!important;touch-action:manipulation!important;
+}
+html[data-hh-health-glass="on"] #health .quick>.q:active{filter:brightness(1.17)}
+html[data-hh-health-glass="on"] #health .quick>.q .qbox{
+ width:37px!important;height:37px!important;min-height:37px!important;flex:0 0 37px!important;
+ display:grid!important;place-items:center!important;padding:8px!important;margin:0!important;
+ border:1px solid rgba(150,217,251,.33)!important;border-radius:12px!important;
+ background:linear-gradient(145deg,#285d83,#23476d)!important;color:#a1e2ff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+html[data-hh-health-glass="on"] #health .quick>.q .qbox svg{
+ display:block!important;width:100%!important;height:100%!important;color:#a1e2ff!important;
+}
+html[data-hh-health-glass="on"] #health .quick>.q>span:last-child{
+ color:#f1f8ff!important;font-size:10px!important;line-height:1.25!important;
+ font-weight:750!important;text-align:center!important;
+}
+html[data-hh-health-glass="on"] #health .quick:has(>.q:nth-child(7))>.q:last-child{
+ grid-column:1 / -1!important;min-height:44px!important;flex-direction:row!important;
+ padding:5px 10px!important;gap:9px!important;
+}
+html[data-hh-health-glass="on"] #health .quick:has(>.q:nth-child(7))>.q:last-child .qbox{
+ width:30px!important;height:30px!important;min-height:30px!important;flex-basis:30px!important;padding:6px!important;
+}
+/* Dashboard/records/meds/nutrition components retain all DOM IDs and click handlers */
+html[data-hh-health-glass="on"] #health :is(.card.kpiCard,.two>.card.listCard,.bottomCards>.mini){
+ border:1px solid var(--hg-line)!important;border-radius:16px!important;
+ background:linear-gradient(145deg,rgba(39,74,111,.9),rgba(17,38,68,.96))!important;
+ color:#f0f8ff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 7px 19px rgba(0,7,25,.24)!important;
+}
+html[data-hh-health-glass="on"] #health .two{
+ display:grid!important;grid-template-columns:1fr!important;gap:9px!important;
+}
+html[data-hh-health-glass="on"] #health .kpis{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+html[data-hh-health-glass="on"] #health .kpi{
+ min-width:0!important;padding:9px 6px!important;border:1px solid var(--hg-line)!important;
+ border-radius:13px!important;background:rgba(57,105,153,.18)!important;color:#f7fbff!important;
+}
+html[data-hh-health-glass="on"] #health .kpi :is(.lab,.unit){color:#bad1e7!important;font-size:9px!important}
+html[data-hh-health-glass="on"] #health .kpi .val{color:#fff!important;font-variant-numeric:tabular-nums!important}
+html[data-hh-health-glass="on"] #health :is(.cardHead h3,.listHead h3,.listCard .row b,.bottomCards .mini h4){color:#f3f8ff!important}
+html[data-hh-health-glass="on"] #health :is(.listHead span,.cardHead small){color:#9bdbf9!important}
+html[data-hh-health-glass="on"] #health :is(.listCard .row small,.bottomCards .mini p){color:#c0d1e2!important}
+html[data-hh-health-glass="on"] #health .listCard .row{border-color:rgba(152,193,226,.19)!important;color:#ecf7ff!important}
+html[data-hh-health-glass="on"] #health .listCard .rt{min-width:0!important;overflow-wrap:anywhere!important}
+html[data-hh-health-glass="on"] #health .ask{background:#102746!important;border:1px solid var(--hg-line)!important;color:#f0f8ff!important}
+/* Environmental Health V1 is rendered AFTER the base page.
+   It ships its own WHITE !important-unaware stylesheet; scope a strong dark override. */
+html[data-hh-health-glass="on"] #health #hhEnvCard308{
+ margin-top:0!important;margin-bottom:11px!important;padding:12px!important;
+ background:linear-gradient(145deg,#264565,#142940)!important;
+ border:1px solid var(--hg-line)!important;border-radius:16px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 16px rgba(0,9,24,.21)!important;
+ color:#edf7ff!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envHead h3{color:#f4f9ff!important;font-size:13px!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envHead small{color:#b8cfe4!important;font-size:9px!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envRefresh{
+ border:1px solid var(--hg-line)!important;background:#224360!important;color:#9edfff!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envStatus{
+ border:1px solid rgba(141,193,236,.31)!important;
+ background:linear-gradient(120deg,#1a3552,#1c3b58)!important;color:#e9f7ff!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envStatus b{color:#f3fafc!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envStatus small{color:#b7cadc!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envGrid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envCell{
+ background:linear-gradient(145deg,#25476a,#172f4c)!important;
+ border:1px solid rgba(143,199,236,.27)!important;color:#edf7ff!important;
+ border-radius:12px!important;padding:10px 8px!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envCell small{color:#adc6da!important;font-size:8px!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envCell b{color:#fff!important;font-size:14px!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envCell em{color:#bbcee0!important;font-size:9px!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envPressure{
+ background:#193653!important;color:#c5d8e7!important;border:1px solid rgba(143,199,236,.24)!important;
+}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envPressure b{color:#f5f9ff!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envFoot,
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envError{color:#bed0df!important}
+html[data-hh-health-glass="on"] #health #hhEnvCard308 .envFoot a{color:#9edfff!important}
+@media(min-width:740px){
+ html[data-hh-health-glass="on"] #health .two{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html[data-hh-health-glass="on"] #health #hhEnvCard308 .envGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(max-width:360px){
+ html[data-hh-health-glass="on"] #health .quick{gap:5px!important}
+ html[data-hh-health-glass="on"] #health .quick>.q{min-height:74px!important;padding:7px 2px!important}
+ html[data-hh-health-glass="on"] #health .kpi{padding:8px 3px!important}
+}
