@@ -28,6 +28,8 @@ jobs:
           fetch-depth: 0
       - name: Install official-report parser
         run: python3 -m pip install --disable-pip-version-check "requests>=2.32,<3" "beautifulsoup4>=4.12,<5" "pdfplumber>=0.11,<1"
+      - name: NNGYK PDF table-order regression tests
+        run: python3 -m unittest discover -s healthhub/tests -p 'nngyk_table_order_v556_test.py'
       - name: Read and validate newest NNGYK reports
         run: python3 healthhub/scripts/update_infection_watch.py
       - name: Validate outputs
