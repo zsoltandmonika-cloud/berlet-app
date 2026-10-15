@@ -1,0 +1,52 @@
+/* HealthHub v550 — Egészség finishing touches, no Home v544 mutation.
+   Scope: only active Health page floating badge, legacy link, footer and profile-name tap. */
+html:has(#health.page.on) :is(#hhOneFallback501,#hhOneRag500){
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#health .legacyAccess{display:none!important;visibility:hidden!important;pointer-events:none!important}
+/* The old invisible left-half Hero profile hotspot caused confusing interactions.
+   One-click profile change is now on the visible profile name in KPI header only. */
+#health #heroH :is(.hhHealthPortraitHit,.hhHealthProfileSwitch,.profileHit){
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#health .kpiCard .hhLiveHead{display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:5px!important}
+#health .kpiCard .hhLiveHead small{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-end!important;
+ gap:5px!important;min-height:35px!important;max-width:100%!important;box-sizing:border-box!important;
+ padding:5px 9px!important;border-radius:10px!important;
+ border:1px solid rgba(145,207,253,.24)!important;
+ background:rgba(36,81,120,.28)!important;
+ color:#a9e0ff!important;font-size:9px!important;line-height:1.25!important;
+ text-align:right!important;cursor:pointer!important;touch-action:manipulation!important;
+ user-select:none!important;-webkit-tap-highlight-color:transparent;
+}
+#health .kpiCard .hhLiveHead small::after{
+ content:"⇄";font-size:16px;font-weight:850;line-height:1;flex:0 0 auto;color:#b6e8ff;
+}
+#health .kpiCard .hhLiveHead small:focus-visible{outline:2px solid #92dfff!important;outline-offset:2px!important}
+#health .kpiCard .hhLiveHead small:active{background:rgba(66,134,187,.43)!important}
+/* Reuse the Home/Activity family dark navbar; override legacy global white .nav. */
+html:has(#health.page.on) #navHealthBar{
+ background:rgba(15,30,54,.97)!important;
+ border-top:1px solid rgba(140,198,243,.25)!important;
+ box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+ color:#c6daee!important;
+}
+html:has(#health.page.on) #navHealthBar button{
+ background:transparent!important;color:#b9d0e8!important;
+}
+html:has(#health.page.on) #navHealthBar button .navIcon{
+ color:inherit!important;
+}
+html:has(#health.page.on) #navHealthBar button.on{
+ color:#95d8ff!important;font-weight:850!important;
+}
+html:has(#health.page.on) #navHealthBar button.on .navIcon{
+ background:rgba(88,169,230,.19)!important;border-radius:14px!important;
+}
+html[data-hhpg-profile="m"]:has(#health.page.on) #navHealthBar button.on{
+ color:#f7a9d6!important;
+}
+html[data-hhpg-profile="m"]:has(#health.page.on) #navHealthBar button.on .navIcon{
+ background:rgba(233,122,193,.19)!important;
+}
