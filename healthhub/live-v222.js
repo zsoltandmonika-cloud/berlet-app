@@ -6,6 +6,7 @@
    with direct one-click profile switching. */
 
 var HERO='./assets/timeline-hero-v222.webp?v=222';
+var PREMIUM_HERO='./assets/health-medical-lena-approved-v548.webp?v=548';
 var JOURNEY='./assets/timeline-journey-hud-v584.svg?v=584';
 function premium(){try{return new URLSearchParams(location.search).get('hhtimelineglass')!=='0'}catch(e){return true}}
 
@@ -36,12 +37,12 @@ function paintTimelineHero(){
   hero.dataset.hhTimelineProfile=profile()==='m'?'monika':'zsolt';
   hero.style.setProperty(
     'background-image',
-    glass?'linear-gradient(0deg,rgba(5,15,36,.93),rgba(5,23,52,.32) 60%,rgba(3,15,33,.10)),url("'+JOURNEY+'"),url("'+HERO+'")':
+    glass?'linear-gradient(0deg,rgba(5,15,36,.93),rgba(5,23,52,.32) 60%,rgba(3,15,33,.10)),url("'+JOURNEY+'"),url("'+PREMIUM_HERO+'")':
       'linear-gradient(180deg,rgba(7,38,61,.10),rgba(6,34,58,.38)),url("'+HERO+'")',
     'important'
   );
   hero.style.setProperty('background-size',glass?'cover,cover,cover':'cover','important');
-  hero.style.setProperty('background-position',glass?'center,center,center center':'center center','important');
+  hero.style.setProperty('background-position',glass?'center,center,center 42%':'center center','important');
   hero.style.setProperty('background-repeat','no-repeat','important');
   hero.classList.remove('night','evening');
 
