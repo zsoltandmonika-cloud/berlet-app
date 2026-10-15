@@ -209,12 +209,13 @@ html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
  height:360px!important;
  min-height:360px!important;
  max-height:360px!important;
- background-size:cover!important;
- background-position:center center!important;
+ /* v540: Keep 360px FRAME, fit full image WIDTH, align bottom above info glass. */
+ background-size:100% auto!important;
+ background-position:center bottom!important;
  background-repeat:no-repeat!important;
 }
 html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome{
- background-position:52% center!important;
+ background-position:left bottom!important;
 }
 html[data-hh-premium-preview="on"] #home.on .homeSurface{
  display:flex!important;flex-direction:column!important;
