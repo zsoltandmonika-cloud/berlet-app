@@ -1,0 +1,265 @@
+/* HealthHub v531 · Sleep Premium Glass
+ * Presentation-only migration. All legacy Sleep v433 markup, calculations,
+ * trends, timelines, Health Connect / Dropbox reads, controls and helper
+ * remain canonical and untouched. No DOM elements or data are removed.
+ * ?hhsleepglass=0 restores the original visual treatment.
+ */
+html[data-hh-sleep-glass="on"] #hhSleepPage{
+ --hhsg-bg:#091527;--hhsg-ink:#f2f8ff;--hhsg-muted:#b9cce0;
+ --hhsg-line:rgba(166,209,255,.26);--hhsg-glass:rgba(31,53,85,.76);
+ --hhsg-glow:rgba(96,165,250,.16);--hhsg-accent:#79bbff;
+ background:radial-gradient(ellipse 100% 490px at 50% 0%,rgba(38,91,154,.42),transparent 75%),
+ radial-gradient(ellipse 90% 420px at 96% 64%,rgba(110,65,149,.13),transparent 80%),var(--hhsg-bg)!important;
+ color:var(--hhsg-ink);color-scheme:dark;box-shadow:0 0 0 1px rgba(142,198,242,.13);
+ scrollbar-color:#426183 #101f35;
+}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage{
+ --hhsg-line:rgba(239,167,219,.32);--hhsg-glow:rgba(245,126,202,.14);
+ --hhsg-accent:#f4afd9;
+ background:radial-gradient(ellipse 95% 470px at 88% -30px,rgba(112,70,140,.33),transparent 74%),
+ radial-gradient(ellipse 110% 510px at 0% 28%,rgba(37,86,148,.35),transparent 78%),#0a1427!important;
+}
+/* Keep the approved doctor/Léna image and both existing hero hit targets. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorHero{
+ border-radius:0 0 23px 23px;border-bottom:1px solid var(--hhsg-line);
+ box-shadow:0 16px 30px rgba(0,4,19,.26);color:#fff;
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorHero:after{
+ background:linear-gradient(90deg,rgba(7,19,36,.05) 0%,rgba(8,22,43,.05) 40%,rgba(8,20,44,.26) 78%,rgba(9,17,39,.43) 100%);
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorTitle{z-index:5;text-shadow:0 2px 10px rgba(0,0,0,.65)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorTitle h1{color:#fff;font-size:30px;font-weight:850}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorTitle span{color:#e5f2ff!important;font-size:9px;line-height:1.4}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepProfileName{color:#d6eeff;font-size:11px;text-shadow:0 1px 6px #06132f}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage .hhSleepProfileName{color:#ffd7ed}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepHeroActions button{
+ background:rgba(16,35,64,.65);color:#f0f9ff;border:1px solid rgba(184,224,255,.46);
+ border-radius:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 12px rgba(0,0,0,.25)
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSurface{
+ margin-top:-8px!important;padding:15px 12px 88px!important;
+ background:linear-gradient(155deg,rgba(29,53,86,.9),rgba(12,26,47,.96) 37%,rgba(30,26,58,.89))!important;
+ border-radius:21px 21px 0 0!important;min-height:calc(100dvh - 215px);
+}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage .hhSleepSurface{
+ background:linear-gradient(155deg,rgba(46,44,89,.89),rgba(15,28,50,.96) 39%,rgba(55,28,65,.83))!important;
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTop{align-items:center;margin:0 0 15px;gap:8px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTop small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCardHead small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Eyebrow,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428CalendarTitle>span,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentHeader small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorHeading381 small{color:var(--hhsg-accent)!important;font-size:10px;letter-spacing:.09em}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTop h2{color:#f7fbff;font-size:19px;margin-top:5px;letter-spacing:-.35px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepProfile{
+ color:#e7f5ff!important;background:rgba(92,152,218,.16)!important;
+ border:1px solid var(--hhsg-line);font-size:11px;min-height:36px;padding:8px 12px;
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)
+}
+/* The original data source timestamp and its stale warning are always visible. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSource381{
+ background:rgba(53,91,132,.20);border:1px solid var(--hhsg-line);
+ border-radius:14px;padding:11px 12px;color:#e6f2ff;font-size:11px
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSource381 span{color:var(--hhsg-muted);font-size:10px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSource381.stale{
+ background:rgba(139,88,31,.20);border-color:rgba(251,196,104,.52)
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSource381.stale strong{color:#ffd69b}
+/* Common glass material, applied only to existing content components. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCard,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428ChartCard,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentPanel,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Calendar,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTimeline386{
+ color:var(--hhsg-ink)!important;
+ background:linear-gradient(146deg,rgba(70,112,165,.20),rgba(28,45,77,.64) 55%,rgba(64,45,96,.18))!important;
+ border:1px solid var(--hhsg-line)!important;border-radius:18px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 19px rgba(0,7,24,.18)!important;
+ backdrop-filter:blur(13px) saturate(140%);-webkit-backdrop-filter:blur(13px) saturate(140%);
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Panel{color:var(--hhsg-ink);margin:13px 0 16px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Head h3,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428CalendarTitle h3,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentHeader h3,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCardHead h3,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorHeading381 h3{color:#f3faff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Head p,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428CalendarTitle p,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentHeader p,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Note,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428ChartHeader small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCardHead>span{color:var(--hhsg-muted)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card{
+ background:linear-gradient(135deg,rgba(106,167,235,.17),rgba(19,44,75,.62))!important;
+ border:1px solid rgba(163,208,249,.32)!important;border-radius:15px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 11px rgba(0,6,25,.16);
+ padding:11px 8px;min-width:0;color:var(--hhsg-ink)!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card--night{border-color:rgba(186,158,246,.43)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card--day{border-color:rgba(100,211,193,.38)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428CardTop h4{color:#dcecff!important;font-size:clamp(11px,3.7cqi,13px)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Num{background:rgba(123,187,251,.19);color:#c2e6ff}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Value{color:#fff!important;font-size:clamp(18px,21cqi,29px);letter-spacing:-.055em;overflow-wrap:anywhere;white-space:normal}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card p{color:#c4d7eb!important;font-size:clamp(10px,10.5cqi,11px)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428ChartHeader b{color:#f1f8ff;font-size:13px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Timebar,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentBar,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428RecordBar,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhStageBar{
+ background:#182c47!important;border-color:rgba(164,208,246,.31)!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Legend,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428NoStage,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Axis,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh430Tick,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh430ViewportLabel,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh430ViewportLabel small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentMeta,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentAxis,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431SameNote,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431Missing{color:#bbd1e7!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh430ViewportLabel span,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentHeading b,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentHeading strong{color:#f1f9ff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431RecentItem{border-top-color:var(--hhsg-line)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431Index{background:rgba(115,177,246,.20);color:#cce8ff}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431Lena{
+ border:1px solid rgba(133,225,217,.46)!important;border-radius:18px;
+ background:linear-gradient(132deg,rgba(37,105,116,.33),rgba(42,54,90,.68),rgba(80,57,114,.29))!important;
+ padding:15px 13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431LenaText>b{color:#a8f4ea!important;font-size:14px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431LenaText p{color:#e3f3fb!important;font-size:12px;line-height:1.58}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431LenaText small{color:var(--hhsg-muted)!important}
+/* Preserve all six Sleep factor tiles, oxygen note and the underlying RAG semantics. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorsSection381{padding:9px 0 4px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorSource381{
+ background:rgba(76,132,198,.16)!important;border-color:var(--hhsg-line)!important;color:#d8efff!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactor381,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreStrip381{
+ background:linear-gradient(145deg,rgba(74,112,163,.24),rgba(22,42,74,.72))!important;
+ border:1px solid var(--hhsg-line)!important;border-radius:15px!important;
+ color:var(--hhsg-ink)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepRag382.good{border-color:rgba(101,219,162,.58)!important;background:linear-gradient(135deg,rgba(29,111,91,.25),rgba(25,48,73,.73))!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepRag382.warn{border-color:rgba(253,193,98,.60)!important;background:linear-gradient(135deg,rgba(121,83,36,.25),rgba(25,44,71,.73))!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepRag382.bad{border-color:rgba(240,113,133,.60)!important;background:linear-gradient(135deg,rgba(125,52,82,.27),rgba(25,42,70,.75))!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepRag382.info{border-color:rgba(139,189,240,.45)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepRag382.muted{border-color:rgba(175,193,215,.28)!important;background:rgba(39,57,82,.54)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorLabel381,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorValue381,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreText381 b{color:#f2f8ff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorDetail381,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreText381 small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepFactorFoot381,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepIndexMethod382,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepIndexMethod382 p{color:var(--hhsg-muted)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.good>strong{color:#9cf5cb!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.warn>strong{color:#ffe1a0!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.bad>strong{color:#ffb3be!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreStrip381.hhSleepRag382.muted>strong{color:#d6e6f3!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepScoreSymbol381{background:rgba(129,181,235,.18)!important;color:#d5ecff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepOxygenV432{
+ background:rgba(68,111,158,.15)!important;border:1px solid var(--hhsg-line)!important;
+ color:#d2eafa!important;border-radius:13px
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepOxygenV432>strong{color:#fff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepOxygenV432>small{color:var(--hhsg-muted)!important}
+/* 7/30/90-day measured trend: preserve the existing SVG paths and interactions. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTrendIntro386,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTimelineTitle386{color:#f2f9ff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTrendIntro386 small,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTrendFoot386,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepClockTicks,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhStageLegend386{color:var(--hhsg-muted)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTrendSvg386 text{fill:#cadcec!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTrendPickInfo386{
+ color:#e6f8ff!important;background:rgba(81,134,197,.20)!important;border-color:var(--hhsg-line)!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSummary div{
+ background:rgba(102,152,207,.13);border:1px solid var(--hhsg-line);border-radius:12px
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSummary small{color:var(--hhsg-muted)!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSummary b{color:#f3fbff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTimeline386 .hhStageBar386{background:#172b46!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepTimeline386 .hhSleepClockTicks{color:#d1e5f6!important}
+/* Full existing 30-day calendar, day picker, raw session details and sources. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Day{
+ background:rgba(76,128,184,.20)!important;border:1px solid var(--hhsg-line)!important;
+ color:#d9edff!important;min-height:56px;border-radius:12px!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Day.active{
+ background:linear-gradient(135deg,rgba(88,153,227,.66),rgba(70,91,181,.56))!important;
+ border-color:var(--hhsg-accent)!important;color:#fff!important
+}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage .hh428Day.active{
+ background:linear-gradient(135deg,rgba(179,85,170,.56),rgba(82,111,196,.53))!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Day:disabled{opacity:.48}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Record{border-top-color:var(--hhsg-line)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Record h5,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428RecordMeta b{color:#f0f9ff!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428RecordMeta,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428RecordAxis,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Source,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Split,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Empty,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431HistoryDetails>summary{color:#bcd5ed!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hh431HistoryDetails{border-top-color:var(--hhsg-line)}
+/* Keep Sleep Helper, its modes and its real audio/timer controls. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .helperCard p,
+html[data-hh-sleep-glass="on"] #hhSleepPage .privacyNote,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepLabs428 p{color:var(--hhsg-muted)!important;font-size:11px;line-height:1.5}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepPeriods button,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhHelperTimes button,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhHelperModes button{
+ background:rgba(83,132,189,.12)!important;color:#d7ebfb!important;
+ border:1px solid var(--hhsg-line)!important;border-radius:12px;
+ min-height:35px;font-size:11px;padding:8px 10px
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepPeriods button.on,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhHelperTimes button.on,
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhHelperModes button.on{
+ background:rgba(105,167,232,.32)!important;border-color:var(--hhsg-accent)!important;color:#fff!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhHelperStart{
+ color:#081b31;background:linear-gradient(110deg,#8bc8ff,#91e7e2)!important;
+ font-size:12px;min-height:46px;box-shadow:0 7px 20px rgba(42,148,217,.19)
+}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage .hhHelperStart{
+ background:linear-gradient(110deg,#f5b5dc,#a8c6ff)!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepLabs428{
+ border:1px solid var(--hhsg-line)!important;background:rgba(28,48,76,.65)!important;color:#cbdff3!important
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepLabs428 a{color:#a9e8fd!important}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepLoading b{font-size:12px;color:#eff9ff}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepLoading small{font-size:10px;color:var(--hhsg-muted)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSpinner{border-color:rgba(124,181,230,.28);border-top-color:var(--hhsg-accent)}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepNav{
+ background:rgba(12,26,48,.97);border-top:1px solid var(--hhsg-line);
+ box-shadow:0 -6px 22px rgba(0,0,0,.26);backdrop-filter:blur(16px);
+ -webkit-backdrop-filter:blur(16px)
+}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepNav button{color:#bad0e8;font-size:9px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepNav button b{font-size:9px}
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepNav button.on{color:var(--hhsg-accent)}
+html[data-hh-sleep-glass="on"] #hhSleepPage button:focus-visible,
+html[data-hh-sleep-glass="on"] #hhSleepPage summary:focus-visible,
+html[data-hh-sleep-glass="on"] #hhSleepPage a:focus-visible{outline:3px solid #a6f2fa;outline-offset:2px}
+@media(max-width:365px){
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepSurface{padding-left:9px!important;padding-right:9px!important}
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Cards{gap:6px}
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card{padding:9px 6px}
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepPeriods button{padding:6px;font-size:10px}
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorTitle span{font-size:8px}
+}
+@media(prefers-reduced-motion:no-preference){
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCard,
+ html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card{transition:border-color .2s ease,box-shadow .2s ease}
+}
