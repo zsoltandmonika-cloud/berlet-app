@@ -1,0 +1,35 @@
+/* HealthHub v568 | User-approved exact Ask Léna hero image.
+   Scoped to actual Ask Léna page only. Preserve navigation, profile switch,
+   chat composer, dictated speech and existing icon/header semantics. */
+html #hhLenaSmart299 .askHero{
+ background-color:#081b36!important;
+ background-image:url("./assets/ask-lena-approved-hero.webp?v=568")!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ border-bottom:1px solid rgba(132,195,249,.38)!important;
+}
+html #hhLenaSmart299 .askHero:after,
+html #hhLenaSmart299[data-profile="monika"] .askHero:after{
+ background:linear-gradient(90deg,transparent 0%,rgba(3,12,32,.015) 37%,rgba(5,13,37,.22) 58%,rgba(8,14,36,.72) 100%)!important;
+ pointer-events:none!important;
+}
+html #hhLenaSmart299 .askHeroCopy h1{
+ color:#fff!important;text-shadow:0 2px 11px rgba(1,8,25,.92)!important;
+}
+html #hhLenaSmart299 .askHeroCopy .askSub{
+ color:#eaf3ff!important;text-shadow:0 2px 8px rgba(1,8,23,.95)!important;
+}
+html #hhLenaSmart299 .askHeroCopy .askProfile{
+ background:rgba(12,28,58,.78)!important;
+ color:var(--ask-glass-accent,#97d9ff)!important;
+ border:1px solid rgba(183,216,249,.44)!important;
+ backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;
+}
+html #hhLenaSmart299[data-profile="monika"] .askHeroCopy .askProfile{
+ background:rgba(35,22,60,.78)!important;
+ border-color:rgba(249,179,226,.48)!important;
+}
+@media(max-width:440px){
+ html #hhLenaSmart299 .askHero{background-position:48% center!important}
+}
