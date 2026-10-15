@@ -46,7 +46,7 @@
   if(!panel||document.getElementById('hhpgV525Styles'))return;
   var link=document.createElement('link');
   link.id='hhpgV525Styles';
-  link.rel='stylesheet';link.href='./premium-home-compact-v525.css?v=541-corrected-photo-grid';
+  link.rel='stylesheet';link.href='./premium-home-compact-v525.css?v=542-original-image-contain';
   document.head.appendChild(link);
   makeCompact(document.getElementById('dateHome'),'date');
   makeCompact(document.getElementById('namedayHome'),'nameday');
