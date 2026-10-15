@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v579-night-sleep-rag-only" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v580-daily-premium-ecosystem" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -30,7 +30,8 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='579-night-sleep-rag-only';
+  var v='580-daily-premium-ecosystem';
+  try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
   try{
@@ -108,6 +109,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
      '<link rel="stylesheet" href="./health-subhero-layout-v576.css?v=576" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./health-lena-explanation-glass-v577.css?v=577" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./health-medication-contrast-v578.css?v=578" data-hh-premium-critical="1">'+
+     '<link rel="stylesheet" href="./daily-premium-ecosystem-v580.css?v=580" data-hh-premium-critical="1">'+
     '<style id="hh-premium-zero-legacy-flash-v530">'+
       'html:not([data-hh-premium-ready="on"]) body{background:#0b1425!important}'+
       'html:not([data-hh-premium-ready="on"]) .app{visibility:hidden!important}'+
@@ -131,6 +133,8 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
   const html=(window.HH_CHUNKS||[]).join('')
     .replaceAll('>HealthRadar</button>','>Egészség</button>')
     .replace('<div class="screenTitle">HealthRadar</div>','<div class="screenTitle">Egészség</div>')
+    .replace('<h1>Daily Presidential Briefing</h1>','<h1>Daily Headline</h1>')
+    .replace('<b>Daily Presidential Briefing</b>','<b>Daily Headline</b>')
     .replace('<b>HealthRadar</b><small>Orvosi adatok és elemzések</small>',
              '<b>Egészség</b><small>Orvosi adatok és elemzések</small>')
     .replace('<div id="heroH" class="hero">',"<div id=\"heroH\" class=\"hero\"><img class=\"hh-health-approved-image\" src=\"./assets/health-medical-lena-approved-v548.webp?v=548\" alt=\"Léna orvosnő a sötétkék digitális egészségügyi vezérlőteremben, esti Budapest háttérrel\" width=\"1672\" height=\"941\" decoding=\"async\" fetchpriority=\"high\"><button type=\"button\" class=\"hhHealthHeroNativeTap553\" aria-label=\"Profilváltás: koppints a Hero-képre\" onclick=\"if(typeof window.hhHealthHeroNative553Tap==='function')return window.hhHealthHeroNative553Tap(event);if(typeof window.hhToggleProfileOneClick==='function'){window.hhToggleProfileOneClick();return false;}return false;\"></button>")
