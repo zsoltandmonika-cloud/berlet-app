@@ -1,0 +1,14 @@
+/* HealthHub v588 | Egészségügyi összkép Hero title final micro-adjustment.
+ * Only position and font size. Keep the approved photo, profile switch,
+ * responsive hero dimensions and medical data untouched. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero > div {
+ top:calc(9px + env(safe-area-inset-top))!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero #healthSubTitle {
+ font-size:clamp(17px,4.6vw,22px)!important;
+}
+@media(max-width:370px){
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero #healthSubTitle {
+  font-size:17px!important;
+ }
+}
