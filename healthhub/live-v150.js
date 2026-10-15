@@ -46,6 +46,12 @@ function decorate(){
  ensureStyle();
  var hero=document.querySelector('#healthSection .healthSubHero');
  if(hero)hero.setAttribute('data-hh-unified-hero','1.53');
+ // v576: only Leletek and Gyógyszerek share the approved simple hero header.
+ // Keep existing render, nav, medical data and canonical profile-switch handler.
+ var page=document.getElementById('healthSection');
+ var title=hero&&hero.querySelector('h1');
+ var caption=title?String(title.textContent||'').trim().toLocaleLowerCase('hu-HU'):'';
+ if(page)page.setAttribute('data-hh-subhero-v576',caption==='leletek'||caption==='gyógyszerek'?'on':'off');
  syncHeroExact();
  var root=document.getElementById('healthSubContent');
  if(root&&window.healthSectionKind==='measurements'){

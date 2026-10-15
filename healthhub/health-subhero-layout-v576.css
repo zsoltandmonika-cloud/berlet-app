@@ -1,0 +1,91 @@
+/* HealthHub v576 – the same approved Hero layout for Leletek and Gyógyszerek.
+   Visual-only. Reuse original bitmap, real data, and bound v127 profile control. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubHero {
+  isolation:isolate;
+}
+/* Keep native back and action controls intact, with breathing room for the centered title. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubHero > div {
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:calc(16px + env(safe-area-inset-top))!important;
+  bottom:auto!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;
+  max-width:calc(100% - 126px)!important;
+  min-width:0!important;
+  text-align:center!important;
+  z-index:5!important;
+  pointer-events:none!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubHero h1 {
+  display:block!important;
+  margin:0!important;
+  font:850 clamp(24px,6vw,32px)/1.12 system-ui,-apple-system,Segoe UI,sans-serif!important;
+  white-space:nowrap!important;
+  letter-spacing:-.035em!important;
+  color:#fff!important;
+  text-shadow:0 2px 12px rgba(1,10,28,.82),0 0 8px rgba(4,23,51,.6)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubKicker {
+  display:none!important;
+}
+/* Reposition the EXISTING one-tap profile button. Do not create a second switch. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .hhHealthSubPortraitHit {
+  position:absolute!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:12px!important;
+  left:12px!important;
+  width:auto!important;
+  min-width:122px!important;
+  height:43px!important;
+  padding:0 14px 0 9px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  border:1px solid rgba(164,199,233,.50)!important;
+  border-radius:999px!important;
+  background:rgba(9,29,54,.83)!important;
+  color:#fff!important;
+  box-shadow:0 4px 15px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.11)!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  z-index:15!important;
+  cursor:pointer!important;
+  touch-action:manipulation;
+  font:750 13px/1 system-ui,-apple-system,Segoe UI,sans-serif!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .hhHealthSubPortraitHit::before {
+  content:""!important;
+  display:block!important;
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  border:4px solid rgba(255,255,255,.93)!important;
+  border-radius:50%!important;
+  background:#efa52b!important;
+  box-shadow:0 0 0 1px rgba(90,147,197,.25)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .hhHealthSubPortraitHit::after {
+  content:"Zsolt ⇄"!important;
+  color:#fff!important;
+  white-space:nowrap!important;
+}
+html[data-hh-health-profile="m"][data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .hhHealthSubPortraitHit::after {
+  content:"Mónika ⇄"!important;
+}
+/* HH ONE remains operational elsewhere; only hide its floating pill on these two subpages. */
+html:has(#healthSection.page.on[data-hh-subhero-v576="on"]) #hhOneRag500,
+html:has(#healthSection.page.on[data-hh-subhero-v576="on"]) #hhOneFallback501 {
+  display:none!important;
+}
+@media(max-width:370px){
+ html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubHero > div {
+  max-width:calc(100% - 112px)!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection[data-hh-subhero-v576="on"] .healthSubHero h1 {
+  font-size:clamp(21px,6vw,27px)!important;
+ }
+}
