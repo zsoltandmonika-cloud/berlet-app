@@ -32,7 +32,7 @@ function panel(k){
  var chosen=archiveSelection[k],picked=(chosen&&data.find(function(r){return r.report_date===chosen}))||
    data.find(function(r){return r.report_date===today})||data[0];
  var todayReady=data.some(function(r){return r.report_date===today});
- var heading='<section class="hhpai-profile"><h3>'+(k==='monika'?'🩷 ':'💙 ')+name+'</h3>';
+ var heading='<section class="hhpai-profile" data-hhpai-profile="'+(k==='monika'?'monika':'zsolt')+'"><h3>'+(k==='monika'?'🩷 ':'💙 ')+name+'</h3>';
  if(!consent(k))heading+='<p class="hhpai-muted">A további automatikus privát AI-elemzés nincs engedélyezve. A Daily Health beállításainál külön bekapcsolható. A korábbi jelentések megmaradnak.</p>';
  else if(!todayReady)heading+='<p class="hhpai-wait">⏳ A mai privát briefing automatikusan elkészül, amint a mai környezeti adatok rendelkezésre állnak. Addig az utolsó kész jelentés látható.</p>';
  else heading+='<p class="hhpai-ready">✅ A mai privát jelentés elkészült és az archívumba került.</p>';
