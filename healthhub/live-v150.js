@@ -29,8 +29,12 @@ function syncHeroExact(){
  var source=document.getElementById('heroH'), hero=document.querySelector('#healthSection .healthSubHero');
  if(!source||!hero)return;
  var cs=getComputedStyle(source);
- hero.style.setProperty('height',cs.height,'important');
- hero.style.setProperty('min-height',cs.height,'important');
+ // The source Home hero may be hidden and report 'auto' or 0px.
+ // Never copy an unresolved height onto the visible HealthRadar subpage.
+ var measured=source.getBoundingClientRect().height;
+ var resolved=Number.isFinite(measured)&&measured>=146?Math.round(measured)+'px':'205px';
+ hero.style.setProperty('height',resolved,'important');
+ hero.style.setProperty('min-height',resolved,'important');
  hero.style.setProperty('background-image',cs.backgroundImage,'important');
  hero.style.setProperty('background-size',cs.backgroundSize,'important');
  hero.style.setProperty('background-position',cs.backgroundPosition,'important');
