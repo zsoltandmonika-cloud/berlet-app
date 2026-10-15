@@ -209,21 +209,37 @@ html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
  height:360px!important;
  min-height:360px!important;
  max-height:360px!important;
- /* v540: Keep 360px FRAME, fit full image WIDTH, align bottom above info glass. */
- background-size:100% auto!important;
+ /* v541: actual picture ZOOM OUT, fixed 360px Hero untouched.
+    Shrink the photo by 10% in width and pin its bottom to the date glass. */
+ background-size:90% auto!important;
  background-position:center bottom!important;
  background-repeat:no-repeat!important;
+ background-color:#08172f!important;
 }
 html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome{
- background-position:left bottom!important;
+ background-position:center bottom!important;
 }
+/* v541: allow dashboard to SHRINK inside the usable height.
+   The v539 76px min rows + nonshrinking parent clipped the Daily cards. */
 html[data-hh-premium-preview="on"] #home.on .homeSurface{
  display:flex!important;flex-direction:column!important;
- flex:1 0 auto!important;
+ flex:1 1 auto!important;min-height:0;
+ padding:8px 9px 9px!important;
 }
 html[data-hh-premium-preview="on"] #home.on .hhpg-grid{
- flex:1 1 auto!important;
- grid-template-rows:repeat(4,minmax(76px,1fr));
+ flex:1 1 auto!important;min-height:0;
+ grid-template-rows:repeat(4,minmax(66px,1fr))!important;
+ gap:5px!important;
+}
+html[data-hh-premium-preview="on"] #home.on .hhpg-tile{
+ min-height:66px!important;
+ padding:5px 3px!important;gap:4px!important;
+}
+html[data-hh-premium-preview="on"] #home.on .hhpg-icon{
+ width:31px!important;height:31px!important;
+}
+html[data-hh-premium-preview="on"] #home.on .hhpg-icon svg{
+ width:19px!important;height:19px!important;
 }
 @media(max-width:360px){
  html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
