@@ -195,3 +195,38 @@ html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome .profil
 html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome .profileHit:focus-visible{
  outline-color:#ffc7eb!important;
 }
+
+/* v539: FIXED-SIZE HOME HERO, no fluctuating browser viewport sizing.
+   The 12 tiles use the spare screen space; image size stays the same.
+   Exactly the existing approved photos, with unchanged profile hot spot. */
+html[data-hh-premium-preview="on"] #home.on{
+ min-height:calc(100svh - 58px - env(safe-area-inset-bottom))!important;
+ height:auto!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
+ flex:0 0 360px!important;
+ width:100%!important;
+ height:360px!important;
+ min-height:360px!important;
+ max-height:360px!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome{
+ background-position:52% center!important;
+}
+html[data-hh-premium-preview="on"] #home.on .homeSurface{
+ display:flex!important;flex-direction:column!important;
+ flex:1 0 auto!important;
+}
+html[data-hh-premium-preview="on"] #home.on .hhpg-grid{
+ flex:1 1 auto!important;
+ grid-template-rows:repeat(4,minmax(76px,1fr));
+}
+@media(max-width:360px){
+ html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
+  flex-basis:330px!important;
+  height:330px!important;min-height:330px!important;max-height:330px!important;
+ }
+}
