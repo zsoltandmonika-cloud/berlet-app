@@ -80,13 +80,24 @@ def extract_pdf(blob,key):
         if week_id(canonical(pdf.pages[0].extract_text() or ""))!=key:
             raise ValueError("Official report year/week do not match NNGYK index")
         opts={"vertical_strategy":"lines","horizontal_strategy":"lines","intersection_tolerance":5,"snap_tolerance":3}
-        spatial=pdf.pages[1].extract_tables(table_settings=opts)
-        annual=pdf.pages[2].extract_tables(table_settings=opts)
-        b=find_row(spatial,"Budapest")
-        n=find_row(spatial,"Összesen (Total)") or find_row(spatial,"Összesen")
-        hep=find_row(annual,"Hepatitis A")
-        if not b or not n or not hep or len(b)<6 or len(n)<6 or len(hep)<4:
-            raise ValueError("NNGYK report required Budapest/total/Hepatitis A cells missing")
+        # NNGYK swapped national and territorial table pages in week 40/2026.
+        # Identify tables by verified row labels, never by fixed PDF page number.
+        tables=[page.extract_tables(table_settings=opts) for page in pdf.pages[1:]]
+        territorial=[]
+        hepatitis=[]
+        for candidate in tables:
+            b=find_row(candidate,"Budapest")
+            n=find_row(candidate,"Összesen (Total)") or find_row(candidate,"Összesen")
+            if b and n:territorial.append((b,n))
+            h=find_row(candidate,"Hepatitis A")
+            if h:hepatitis.append(h)
+        if len(territorial)!=1 or len(hepatitis)!=1:
+            raise ValueError("NNGYK official table ambiguous or missing: territorial="+str(len(territorial))+
+                             ", national="+str(len(hepatitis)))
+        b,n=territorial[0]
+        hep=hepatitis[0]
+        if len(b)<6 or len(n)<6 or len(hep)<4:
+            raise ValueError("NNGYK report required Budapest/total/Hepatitis A cells incomplete")
         bc=[number(x) for x in b[1:6]]
         nc=[number(x) for x in n[1:6]]
         total,median=number(hep[1]),number(hep[3])
