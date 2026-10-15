@@ -1,0 +1,375 @@
+/* HealthHub v587 | Approved HealthRadar 'Egészségügyi összkép' finish.
+   Only the existing OVERVIEW view (set by health-overview-glass-v587.js).
+   Original personal records, GP contact, appointments, PDF handlers, navigation,
+   clinical warning data and all other Health modules are untouched. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"]{
+ --hh587-accent:#9bd6ff;
+ --hh587-edge:rgba(135,193,236,.38);
+ --hh587-glass:linear-gradient(148deg,rgba(37,63,103,.91),rgba(18,33,68,.97));
+ --hh587-nested:linear-gradient(145deg,rgba(34,56,94,.90),rgba(18,34,65,.96));
+ --hh587-muted:#bed6ed;
+ --hh587-text:#f1f8ff;
+ color:var(--hh587-text)!important;
+ background:#0b1931!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #healthSection[data-hh-overview-v587="on"],
+html[data-hh-system-glass="on"][data-hh-health-profile="m"] #healthSection[data-hh-overview-v587="on"] {
+ --hh587-accent:#ffc5e9;
+ --hh587-edge:rgba(231,157,214,.44);
+ --hh587-glass:linear-gradient(148deg,rgba(66,53,102,.91),rgba(28,32,67,.97));
+ --hh587-nested:linear-gradient(145deg,rgba(65,52,97,.91),rgba(28,34,66,.96));
+}
+/* Keep v548 Léna hero photograph and v575 height guard. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero {
+ position:relative!important;
+ isolation:isolate!important;
+ border-bottom:1px solid var(--hh587-edge)!important;
+ box-shadow:inset 0 -14px 32px rgba(4,11,29,.24)!important;
+}
+/* Only the overview's title, not all Leletek/Gyógyszerek subpages. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero > div {
+ position:absolute!important;
+ left:50%!important;right:auto!important;
+ top:calc(16px + env(safe-area-inset-top))!important;bottom:auto!important;
+ transform:translateX(-50%)!important;
+ display:block!important;
+ width:max-content!important;max-width:calc(100% - 120px)!important;
+ min-width:0!important;
+ text-align:center!important;
+ pointer-events:none!important;
+ z-index:11!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero .healthSubKicker{
+ display:none!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero #healthSubTitle{
+ display:block!important;
+ width:auto!important;max-width:100%!important;
+ margin:0!important;
+ padding:0!important;
+ color:#fff!important;
+ font:850 clamp(19px,5.1vw,24px)/1.12 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:-.035em!important;
+ white-space:normal!important;
+ overflow-wrap:normal!important;
+ text-align:center!important;
+ text-shadow:0 2px 14px rgba(0,8,25,.92),0 0 12px rgba(0,16,38,.5)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero .hhHealthSubPortraitHit{
+ position:absolute!important;
+ top:auto!important;right:auto!important;bottom:12px!important;left:12px!important;
+ width:auto!important;height:37px!important;min-width:0!important;
+ padding:0 11px 0 8px!important;
+ display:inline-flex!important;align-items:center!important;gap:7px!important;
+ background:#081d36!important;
+ background-image:none!important;
+ border:1px solid var(--hh587-edge)!important;
+ border-radius:999px!important;
+ color:var(--hh587-accent)!important;
+ font:800 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ box-shadow:0 5px 15px rgba(0,7,25,.37),inset 0 1px 0 rgba(255,255,255,.07)!important;
+ z-index:15!important;
+ cursor:pointer!important;
+ touch-action:manipulation!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero .hhHealthSubPortraitHit::before{
+ content:""!important;display:block!important;
+ width:21px!important;height:21px!important;flex:0 0 21px!important;
+ border:3px solid rgba(255,255,255,.89)!important;border-radius:50%!important;
+ background:linear-gradient(135deg,#74c7f6,#24599e)!important;
+ box-sizing:border-box!important;
+}
+html[data-hh-system-glass="on"][data-hh-health-profile="m"] #healthSection[data-hh-overview-v587="on"] .hhHealthSubPortraitHit::before{
+ background:linear-gradient(135deg,#f5bbdf,#bc599f)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hhHealthSubPortraitHit::after{
+ content:"Zsolt ⇄"!important;color:var(--hh587-accent)!important;white-space:nowrap!important;
+}
+html[data-hh-system-glass="on"][data-hh-health-profile="m"] #healthSection[data-hh-overview-v587="on"] .hhHealthSubPortraitHit::after{
+ content:"Mónika ⇄"!important;
+}
+/* HH ONE service itself stays operational; suppress the floating pill only on
+   the overview screen as specifically approved. */
+html:has(#healthSection.page.on[data-hh-overview-v587="on"]) :is(#hhOneRag500,#hhOneFallback501) {
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+/* Body, overview panels and search. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubBody {
+ background:radial-gradient(ellipse at 52% 0%,rgba(62,97,164,.20),transparent 440px),#0a1931!important;
+ color:var(--hh587-text)!important;
+ padding:13px 11px calc(100px + env(safe-area-inset-bottom))!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] :is(
+ .healthSearchWrap,.migrationBanner,.hrSectionCard
+){
+ background:var(--hh587-glass)!important;
+ color:var(--hh587-text)!important;
+ border:1px solid var(--hh587-edge)!important;
+ border-radius:18px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 7px 20px rgba(0,7,26,.19)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSearchWrap{
+ min-height:48px!important;
+ padding:0 13px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSearchWrap input{
+ min-height:45px!important;
+ color:#eef7ff!important;caret-color:var(--hh587-accent)!important;
+ font-size:14px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSearchWrap input::placeholder{
+ color:#b9cfe5!important;opacity:1!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .migrationBanner{
+ font-size:12px!important;line-height:1.55!important;padding:11px 12px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .migrationBanner.ok{
+ border-left:4px solid #5cccad!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrSectionCard{
+ padding:14px 13px!important;
+ margin-bottom:11px!important;
+ overflow:hidden!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrSectionCard h3 {
+ color:#f4f9ff!important;
+ font-size:clamp(14px,3.8vw,17px)!important;
+ font-weight:850!important;
+ line-height:1.3!important;
+ margin:0 0 9px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] :is(
+ .hrSectionCard>small,.hrSectionCard div>small,.hrEmpty,.privacyNote
+){
+ color:var(--hh587-muted)!important;
+ font-size:11px!important;
+ line-height:1.55!important;
+}
+/* Personal data/health stats: v111's pastel .hrStat tiles were still white. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrStat{
+ background:var(--hh587-nested)!important;
+ border:1px solid var(--hh587-edge)!important;
+ border-radius:14px!important;
+ padding:11px!important;
+ min-width:0!important;
+ color:var(--hh587-text)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrStat small{
+ display:block!important;
+ color:#bfd6e9!important;
+ font-size:11px!important;
+ font-weight:650!important;
+ line-height:1.4!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrStat b{
+ display:block!important;
+ color:#f8fbff!important;
+ font-size:clamp(15px,4.3vw,20px)!important;
+ line-height:1.35!important;
+ overflow-wrap:anywhere!important;
+}
+/* GP schedules and allergy/clinical notes retain their underlying private values
+   and exact contact links, only the legacy white/off-white surface changes. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#f3fbf8"],
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background: #f3fbf8"]{
+ background:var(--hh587-nested)!important;
+ border:1px solid var(--hh587-edge)!important;
+ border-radius:16px!important;
+ color:var(--hh587-text)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#fffaf0"],
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #healthSubContent div[style*="background:#fff8f6"]{
+ background:linear-gradient(145deg,rgba(91,66,55,.72),rgba(49,46,65,.87))!important;
+ border:1px solid rgba(230,174,137,.45)!important;
+ color:#ffe9d7!important;
+ border-radius:13px!important;
+ font-size:12px!important;
+ line-height:1.6!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#fffaf0"] :is(b,strong,span),
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #healthSubContent div[style*="background:#fff8f6"] :is(b,strong,span){
+ color:#ffe9d7!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#fff"]{
+ background:linear-gradient(145deg,rgba(39,63,102,.88),rgba(20,37,69,.97))!important;
+ border:1px solid rgba(157,198,233,.34)!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+ color:#f0f8ff!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#fff"] b{
+ display:block!important;
+ color:#f3faff!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ font-weight:800!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard div[style*="background:#fff"] span{
+ display:block!important;
+ font-size:12px!important;
+ line-height:1.55!important;
+ color:#cfe5f5!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard .vaultTools{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhPersonalSafetyCard :is(.vaultTools .vaultBtn,.vaultTools a.vaultBtn){
+ display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ min-height:45px!important;
+ padding:9px 10px!important;
+ font-size:11px!important;
+ line-height:1.45!important;
+ text-align:center!important;
+ text-decoration:none!important;
+ border-radius:13px!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+}
+/* Category distribution & latest documents: nested cards now readable.
+   Their buttons and onclick methods are 100% original v135. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs{
+ display:grid!important;
+ grid-template-columns:1fr!important;
+ gap:11px!important;
+ margin:0 0 11px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs > .hrSectionCard{
+ margin:0!important;min-width:0!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatRow{
+ display:block!important;width:100%!important;
+ border:0!important;border-bottom:1px solid rgba(156,192,227,.18)!important;
+ background:transparent!important;
+ color:#dceeff!important;
+ padding:11px 3px!important;
+ text-align:left!important;
+ cursor:pointer!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatTop{
+ display:flex!important;
+ justify-content:space-between!important;align-items:center!important;gap:9px!important;
+ color:#e8f4ff!important;
+ font-size:12px!important;line-height:1.4!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatTop b{
+ color:#dcefff!important;font-size:12px!important;font-weight:740!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatTop span{
+ color:var(--hh587-accent)!important;font-size:12px!important;font-weight:850!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatBar{
+ height:4px!important;
+ background:rgba(143,177,212,.22)!important;
+ border-radius:999px!important;margin-top:7px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhCatBar i{
+ background:linear-gradient(90deg,var(--hh587-accent),#66ccbd)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestRow{
+ display:grid!important;
+ grid-template-columns:34px minmax(0,1fr) auto!important;
+ gap:8px!important;
+ align-items:center!important;
+ padding:10px 0!important;
+ border-top:1px solid rgba(158,191,229,.2)!important;
+ min-width:0!important;
+ color:#f0f8ff!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestIcon{
+ background:rgba(126,54,81,.40)!important;
+ color:#ffb4bc!important;
+ border:1px solid rgba(236,144,166,.45)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestText{
+ min-width:0!important;overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestText b{
+ color:#f3f9ff!important;
+ font-size:12px!important;
+ line-height:1.45!important;
+ font-weight:760!important;
+ white-space:normal!important;
+ overflow:visible!important;
+ text-overflow:clip!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestText small{
+ display:block!important;
+ color:#bdd5eb!important;
+ font-size:11px!important;line-height:1.45!important;
+ margin-top:3px!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhOpenDocBtn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:5px!important;
+ min-height:39px!important;min-width:0!important;
+ padding:8px 10px!important;
+ background:rgba(31,63,100,.91)!important;
+ border:1px solid var(--hh587-edge)!important;
+ border-radius:12px!important;
+ color:#f0f8ff!important;
+ font-size:11px!important;line-height:1.35!important;
+ cursor:pointer!important;
+ white-space:nowrap!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .vaultBtn{
+ min-height:39px!important;
+ font-size:11px!important;
+ border-radius:12px!important;
+ color:#eef7ff!important;
+}
+/* The v133/v135 explanatory subtitles are inline-styled pale blue in the
+   old data renderer. High-contrast overrides must win over that inline style. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] :is(
+ #hhPersonalSafetyCard,#hhOverviewDocs
+) small[style*="color:#70869a"] {
+ color:var(--hh587-muted)!important;
+ font-size:11px!important;
+ line-height:1.5!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] :is(
+ #hhPersonalSafetyCard,#hhOverviewDocs
+) div[style*="font-size:7px"] {
+ font-size:11px!important;
+ color:var(--hh587-accent)!important;
+ line-height:1.45!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .hrRow{
+ border-color:rgba(159,193,224,.20)!important;
+ color:#eef7ff!important;
+}
+/* Good contrast in the existing low-risk data warning copy; color is only
+   an owner/theme accent, never a fabricated clinical RAG status. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] :is(
+ .vaultBtn,.hhCatRow,.hhOpenDocBtn,.hhHealthSubPortraitHit
+):focus-visible{
+ outline:2px solid var(--hh587-accent)!important;
+ outline-offset:2px!important;
+}
+@media(min-width:700px){
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:370px){
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero > div{
+  max-width:calc(100% - 105px)!important;
+  top:calc(17px + env(safe-area-inset-top))!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] .healthSubHero #healthSubTitle{
+  font-size:19px!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestRow{
+  grid-template-columns:31px minmax(0,1fr)!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection[data-hh-overview-v587="on"] #hhOverviewDocs .hhLatestRow .hhOpenDocBtn{
+  grid-column:2!important;
+  justify-self:start!important;
+ }
+}
