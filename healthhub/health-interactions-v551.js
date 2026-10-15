@@ -116,13 +116,17 @@ function pointerUp(e){
  if(Math.abs(e.clientX-s.x)>13||Math.abs(e.clientY-s.y)>13)return;
  if(actionOf(e)!==s.action)return;
  suppress(e);
- lastHandled={action:s.action,at:Date.now()};
+ lastHandled={action:s.action,at:Date.now(),x:e.clientX,y:e.clientY};
  run(s.action);
 }
 function click(e){
  if(e.button!=null&&e.button!==0)return;
+ /* A touch route may hide Health before Android sends its synthetic click. */
+ if(lastHandled&&Date.now()-lastHandled.at<750&&
+    Math.abs(e.clientX-lastHandled.x)<22&&Math.abs(e.clientY-lastHandled.y)<22){
+  lastHandled=null;suppress(e);return;
+ }
  var a=actionOf(e);if(!a)return;
- if(lastHandled&&lastHandled.action===a&&Date.now()-lastHandled.at<750){suppress(e);return;}
  suppress(e);run(a);
 }
 function key(e){
