@@ -1,0 +1,24 @@
+/* v567 | Ask Léna bottom navigation: navy premium dock. Only when chat page is active. */
+html:has(#hhLenaSmart299.page.on) .nav,
+html:has(#hhLenaSmart299.page.on) #navHealthBar{
+ background:#0b213c!important;
+ background-image:linear-gradient(180deg,#123354 0%,#09192f 100%)!important;
+ border-top:1px solid rgba(143,198,245,.34)!important;
+ box-shadow:0 -8px 24px rgba(0,9,27,.44)!important;
+ backdrop-filter:blur(15px)!important;-webkit-backdrop-filter:blur(15px)!important;
+}
+html:has(#hhLenaSmart299.page.on) .nav button,
+html:has(#hhLenaSmart299.page.on) #navHealthBar button{
+ color:#b9d6ee!important;background:transparent!important;
+}
+html:has(#hhLenaSmart299.page.on) .nav button.on,
+html:has(#hhLenaSmart299.page.on) #navHealthBar button.on{color:#8dd5ff!important}
+html:has(#hhLenaSmart299.page.on) .nav button.on .navIcon,
+html:has(#hhLenaSmart299.page.on) #navHealthBar button.on .navIcon{
+ background:rgba(52,139,220,.21)!important;border-radius:15px!important;
+}
+html[data-hh-system-profile="m"]:has(#hhLenaSmart299.page.on) .nav button.on,
+html[data-hh-system-profile="m"]:has(#hhLenaSmart299.page.on) #navHealthBar button.on{color:#ffc0e5!important}
+html:has(#hhLenaSmart299.page.on) :is(.nav,#navHealthBar) button:focus-visible{
+ outline:2px solid #a7dfff!important;outline-offset:-2px!important;
+}
