@@ -1,0 +1,291 @@
+/* HealthHub v563 · Premium Glass completion / 15 October 2026
+   The three verified legacy white panels: official Infection Watch report,
+   Ask Léna · Health bottom sheet, and Health Connect Lifestyle metrics.
+   Plus the connected JSON-import preview modal.
+   Deliberately use the v562 profile-aware --hhg-* design tokens and its
+   opt-out. No health data, risk categories, inputs or navigation are changed.
+   This file is loaded from the premium critical CSS bundle. */
+
+/* 1. Official weekly NNGYK infection report embedded in Environmental Health.
+   Only background/color chrome: preserve original risk-colored traffic lights
+   and the exact NNGYK text, date, methods and links. */
+html[data-hh-system-glass="on"] #hhEnvironmental309 #hhInfectionWatch310{
+ box-sizing:border-box!important;
+ background:var(--hhg-glass)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:19px!important;
+ box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 :is(h2,.iw310RowText b){
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 :is(
+ .iw310Sub,.iw310RowText em,.iw310Row p,.iw310Foot,.iw310Error
+){
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Update{
+ color:var(--hhg-soft)!important;
+ background:var(--hhg-highlight)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:999px!important;
+ min-height:34px!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Notice{
+ background:linear-gradient(145deg,rgba(128,93,26,.36),rgba(57,51,44,.68))!important;
+ border:1px solid rgba(245,203,107,.60)!important;
+ color:#ffe5aa!important;
+ border-radius:14px!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Notice small{
+ color:#f1d9a5!important;opacity:1!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Rows{
+ gap:9px!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Row{
+ background:var(--hhg-deep)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:14px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Scope{
+ background:var(--hhg-highlight)!important;
+ border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 details{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 summary{
+ color:var(--hhg-soft)!important;
+ outline-offset:3px;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Foot a{
+ color:var(--hhg-soft)!important;text-underline-offset:3px!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Stale{
+ background:rgba(105,92,66,.35)!important;
+ color:#f6dfb0!important;
+ border:1px solid rgba(225,192,123,.50)!important;
+}
+html[data-hh-system-glass="on"] #hhInfectionWatch310 :is(.iw310Update,summary,a):focus-visible{
+ outline:2px solid var(--hhg-soft)!important;outline-offset:2px!important;
+}
+
+/* 2. Ask Léna · Health: this v113 modal is independent of #healthSection.
+   Style the actual #hhAskOverlay so it follows both profiles, with all
+   copy/paste/ChatGPT actions and local context visibility retained. */
+html[data-hh-system-glass="on"] #hhAskOverlay{
+ background:rgba(2,8,24,.79)!important;
+ backdrop-filter:blur(9px)!important;
+ -webkit-backdrop-filter:blur(9px)!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet{
+ background:var(--hhg-deep)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-bottom:0!important;
+ border-radius:24px 24px 0 0!important;
+ box-shadow:0 -22px 60px rgba(0,5,20,.66)!important;
+ max-height:min(87dvh,calc(100dvh - 18px))!important;
+ box-sizing:border-box!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskHandle{
+ background:var(--hhg-soft)!important;opacity:.73!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskClose{
+ background:var(--hhg-highlight)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:13px!important;
+ min-width:35px!important;min-height:35px!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet h2{
+ color:var(--hhg-text)!important;
+ font-weight:850!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet p{
+ color:var(--hhg-muted)!important;
+ line-height:1.52!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet textarea{
+ background:#122b49!important;
+ color:var(--hhg-text)!important;
+ caret-color:var(--hhg-soft)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:14px!important;
+ font-size:13px!important;
+ line-height:1.48!important;
+ min-height:115px!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet textarea::placeholder{
+ color:var(--hhg-muted)!important;opacity:.74!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskContext{
+ background:var(--hhg-glass)!important;
+ border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-muted)!important;
+ border-radius:13px!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskBtn{
+ background:var(--hhg-highlight)!important;
+ border:1px solid var(--hhg-line)!important;
+ color:var(--hhg-text)!important;
+ border-radius:13px!important;
+ min-height:44px!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay .hhAskBtn.primary{
+ background:linear-gradient(140deg,#246eac,#28568f)!important;
+ color:#fff!important;
+ border-color:rgba(151,212,250,.42)!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #hhAskOverlay .hhAskBtn.primary{
+ background:linear-gradient(140deg,#955387,#633e76)!important;
+ border-color:rgba(255,191,228,.45)!important;
+}
+html[data-hh-system-glass="on"] #hhAskOverlay :is(
+ .hhAskClose,.hhAskBtn,textarea
+):focus-visible{
+ outline:2px solid var(--hhg-soft)!important;outline-offset:2px!important;
+}
+
+/* 3. Health Connect/Életmód v151: the previously isolated six light cards
+   are now part of the common dark 2-column glass grid. Original values,
+   timestamps, units, categories and data sync code remain untouched. */
+html[data-hh-system-glass="on"] #healthSection #hhLifePanel{
+ color:var(--hhg-text)!important;
+ background:var(--hhg-glass)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:19px!important;
+ box-shadow:var(--hhg-shadow)!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeHead{
+ display:flex!important;
+ align-items:flex-start!important;
+ justify-content:space-between!important;
+ gap:10px!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeHead small{
+ color:var(--hhg-soft)!important;
+ letter-spacing:.08em!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeHead h4{
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeHead > span{
+ color:var(--hhg-muted)!important;
+ font-size:8px!important;
+ white-space:nowrap!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeGrid{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard{
+ background:var(--hhg-deep)!important;
+ color:var(--hhg-text)!important;
+ border-top:1px solid var(--hhg-line)!important;
+ border-right:1px solid var(--hhg-line)!important;
+ border-bottom:1px solid var(--hhg-line)!important;
+ border-radius:15px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+ min-width:0!important;
+ overflow:hidden!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeText{
+ min-width:0!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeText small{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeText b{
+ color:var(--hhg-text)!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeText span{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeIcon{
+ background:var(--hhg-highlight)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:11px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+/* Retain functional pastel category side-stripes rather than monochroming. */
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.steps{border-left:4px solid #83d6b2!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.distance{border-left:4px solid #84c9e9!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.calories{border-left:4px solid #f8b88b!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.exercise{border-left:4px solid #aab5f4!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.sleep{border-left:4px solid #b6a1ec!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.nutrition{border-left:4px solid #afd98f!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.resting{border-left:4px solid #eab0be!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.vo2{border-left:4px solid #9ddfed!important}
+html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard.fat{border-left:4px solid #d1c2eb!important}
+
+/* 4. Related legacy Health Connect JSON import sheet: matching glass. */
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay{
+ background:rgba(2,8,24,.79)!important;
+ backdrop-filter:blur(8px)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhHcSheet{
+ background:var(--hhg-deep)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-bottom:0!important;
+ box-shadow:0 -17px 55px rgba(0,6,22,.62)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhHcSheet h2{
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay :is(.hhHcStats div,.hhCrudClose){
+ background:var(--hhg-glass)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhHcStats small{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhHcStats b{
+ color:var(--hhg-text)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .privacyNote{
+ color:var(--hhg-muted)!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhCrudActions .hhCrudBtn{
+ background:var(--hhg-highlight)!important;
+ color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ border-radius:12px!important;
+}
+html[data-hh-system-glass="on"] #hhHealthConnectOverlay .hhCrudActions .hhCrudBtn:not(.alt){
+ background:linear-gradient(140deg,#246eac,#28568f)!important;color:#fff!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #hhHealthConnectOverlay .hhCrudActions .hhCrudBtn:not(.alt){
+ background:linear-gradient(140deg,#955387,#633e76)!important;
+}
+
+/* Samsung S24 Ultra: keep small-screen columns; avoid clipped infection scope
+   and provide readable text without altering established layout geometry. */
+@media(max-width:390px){
+ html[data-hh-system-glass="on"] #hhInfectionWatch310{
+  padding:11px!important;
+ }
+ html[data-hh-system-glass="on"] #hhInfectionWatch310 .iw310Scope{
+  max-width:84px!important;
+ }
+ html[data-hh-system-glass="on"] #hhLifePanel .hhLifeCard{
+  padding:9px 7px!important;
+ }
+ html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet{
+  padding-left:12px!important;padding-right:12px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-hh-system-glass="on"] #hhAskOverlay .hhAskSheet{
+  scroll-behavior:auto!important;
+ }
+}
