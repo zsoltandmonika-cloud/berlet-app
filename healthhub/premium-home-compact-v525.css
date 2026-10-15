@@ -136,3 +136,25 @@ html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #timeline #heroT .prof
 html[data-hh-premium-preview="on"][data-hhpg-profile="z"] #health #heroH .profileHit{
  background-color:#e6f7ff!important;
 }
+
+/* HealthHub v534 | Home bottom-aligned Premium dashboard.
+   The existing photo, daily-information source nodes, profile-switch and
+   12 module routes are not modified. The hero gets unused viewport height
+   before the fixed footer instead of covering Léna with the info/grid area.
+   On shorter screens content keeps natural document height and may scroll. */
+html[data-hh-premium-preview="on"] #home.on{
+ display:flex!important;
+ flex-direction:column!important;
+ min-height:calc(100dvh - 58px - env(safe-area-inset-bottom));
+}
+html[data-hh-premium-preview="on"] #home #heroHome{
+ flex:1 0 228px!important;
+ min-height:228px!important;
+}
+html[data-hh-premium-preview="on"] #home .homeSurface{
+ flex:0 0 auto!important;
+ margin-top:-8px!important;
+}
+html[data-hh-premium-preview="on"] #home .hhpg-eyebrow{
+ display:none!important; /* remove PREMIUM GLASS and DESIGN PREVIEW captions */
+}
