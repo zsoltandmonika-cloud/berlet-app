@@ -3,7 +3,7 @@
 (function(root){
 'use strict';
 var PROFILE_SELECTOR='#health .kpiCard .hhLiveHead small';
-var BAR_ID='navHealthBar', lastHandled=null, touchStart=null, observer=null;
+var BAR_ID='navHealthBar', lastHandled=null, ignoreClick=null, touchStart=null, observer=null;
 function code(){try{return root.localStorage.getItem('hh-profile')==='m'?'m':'z';}catch(_){return 'z';}}
 function person(){return code()==='m'?'Mónika':'Zsolt';}
 function other(){return code()==='m'?'Zsolt':'Mónika';}
@@ -136,7 +136,10 @@ function pointerDown(e){
 function pointerUp(e){
  if(!touchStart||touchStart.id!==e.pointerId)return;
  var s=touchStart;touchStart=null;
- if(Math.abs(e.clientX-s.x)>13||Math.abs(e.clientY-s.y)>13)return;
+ if(Math.abs(e.clientX-s.x)>13||Math.abs(e.clientY-s.y)>13){
+  /* A long swipe must never turn into a profile click on a synthetic tap. */
+  ignoreClick={at:Date.now(),x:e.clientX,y:e.clientY};return;
+ }
  if(actionOf(e)!==s.action)return;
  suppress(e);
  lastHandled={action:s.action,at:Date.now(),x:e.clientX,y:e.clientY};
@@ -144,6 +147,10 @@ function pointerUp(e){
 }
 function click(e){
  if(e.button!=null&&e.button!==0)return;
+ if(ignoreClick&&Date.now()-ignoreClick.at<750&&
+    Math.abs(e.clientX-ignoreClick.x)<22&&Math.abs(e.clientY-ignoreClick.y)<22){
+  ignoreClick=null;suppress(e);return;
+ }
  /* A touch route may hide Health before Android sends its synthetic click. */
  if(lastHandled&&Date.now()-lastHandled.at<750&&
     Math.abs(e.clientX-lastHandled.x)<22&&Math.abs(e.clientY-lastHandled.y)<22){
