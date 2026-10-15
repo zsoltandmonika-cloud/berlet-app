@@ -1,0 +1,116 @@
+/* HealthHub v564 | Environmental Health hero night mood + standard premium dock.
+ * Approved portrait/background source and all live metrics stay intact.
+ * The hero receives a NON-INTERACTIVE night tint, not a replacement screenshot.
+ * Only active Environmental Health nav is targeted, never global Home/Health. */
+
+/* 1. Mood: a deep navy backdrop around the existing Léna portrait.
+   The two gradients shade the sky/periphery and leave the face/white coat
+   almost entirely untouched. The original background-image (loaded from
+   environmental-hero-v309-650-*.b64) and the metrics glass are preserved. */
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Hero{
+ background-color:#081a32!important;
+ isolation:isolate!important;
+}
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Hero::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:4!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 38% 48% at 31% 53%,
+   rgba(3,17,36,0) 0%,
+   rgba(3,17,36,0) 58%,
+   rgba(2,14,32,.12) 71%,
+   rgba(3,15,35,.64) 100%),
+  linear-gradient(180deg,
+   rgba(3,15,33,.68) 0%,
+   rgba(5,20,44,.44) 17%,
+   rgba(8,31,59,.05) 50%,
+   rgba(2,12,30,.18) 100%)!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #hhEnvironmental309 .env309Hero::after{
+ background:
+  radial-gradient(ellipse 39% 48% at 31% 53%,
+   rgba(16,10,37,0) 0%,
+   rgba(16,10,37,0) 58%,
+   rgba(15,13,37,.11) 71%,
+   rgba(17,15,40,.60) 100%),
+  linear-gradient(180deg,
+   rgba(21,16,43,.65) 0%,
+   rgba(32,19,54,.34) 17%,
+   rgba(35,23,60,.04) 50%,
+   rgba(20,13,40,.17) 100%)!important;
+}
+/* The translucent right-side data HUD retains priority over the tint. */
+html[data-hh-system-glass="on"] #hhEnvironmental309 .env309Glass{
+ background:linear-gradient(145deg,rgba(14,72,125,.69),rgba(12,45,90,.73))!important;
+ border:1px solid rgba(160,212,252,.57)!important;
+ box-shadow:0 12px 30px rgba(0,11,30,.31),inset 0 1px 0 rgba(255,255,255,.19)!important;
+ backdrop-filter:blur(17px) saturate(1.08)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(1.08)!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #hhEnvironmental309 .env309Glass{
+ background:linear-gradient(145deg,rgba(62,43,94,.69),rgba(27,31,75,.75))!important;
+ border-color:rgba(255,189,234,.54)!important;
+}
+
+/* 2. The Environmental page uses #navHealthBar via live-v309.js even though
+   its route is standalone. Restrict navbar override to that page being open.
+   Preserve nav buttons, labels, icons and onclick/onfocus behavior. */
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar{
+ background:rgba(9,27,51,.975)!important;
+ background-image:linear-gradient(180deg,#102d4d 0%,#091e38 100%)!important;
+ border-top:1px solid rgba(135,194,240,.32)!important;
+ box-shadow:0 -9px 26px rgba(0,8,26,.46)!important;
+ color:#b7d8f1!important;
+ backdrop-filter:blur(18px) saturate(1.12)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(1.12)!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"].hh-env309-open #navHealthBar{
+ background:rgba(35,28,61,.975)!important;
+ background-image:linear-gradient(180deg,#322a55 0%,#1b1b39 100%)!important;
+ border-top-color:rgba(239,162,221,.36)!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button{
+ background:transparent!important;
+ color:#b6d4ec!important;
+ border-color:transparent!important;
+ text-shadow:none!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button .navIcon{
+ color:inherit!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button .navIcon svg{
+ color:inherit!important;
+ stroke:currentColor!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button.on{
+ color:#83d2ff!important;
+ font-weight:850!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button.on .navIcon{
+ background:rgba(29,124,211,.32)!important;
+ border-radius:15px!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"].hh-env309-open #navHealthBar button{
+ color:#dccce8!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"].hh-env309-open #navHealthBar button.on{
+ color:#ffbee3!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"].hh-env309-open #navHealthBar button.on .navIcon{
+ background:rgba(209,104,177,.26)!important;
+}
+html[data-hh-system-glass="on"].hh-env309-open #navHealthBar button:focus-visible{
+ outline:2px solid var(--hhg-soft)!important;
+ outline-offset:-2px!important;
+}
+/* Do not touch normal nav, environmental metric values or medical warnings. */
+@media(prefers-reduced-transparency:reduce){
+ html[data-hh-system-glass="on"].hh-env309-open #navHealthBar{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+ }
+}
