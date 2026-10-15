@@ -1,0 +1,86 @@
+/* HealthHub v551: only Egészség, its KPI profile switch and its bottom nav.
+   Mónika = subtle pink/lilac accents; Zsolt = the approved existing blue. */
+/* Keep the native bar above decorative Health surfaces, below real picker (z=100). */
+html:has(#health.page.on) #navHealthBar{
+ position:fixed!important;z-index:90!important;
+ pointer-events:auto!important;touch-action:manipulation!important;
+}
+html:has(#health.page.on) #navHealthBar button{
+ position:relative!important;pointer-events:auto!important;
+ touch-action:manipulation!important;cursor:pointer!important;
+ min-height:44px!important;-webkit-tap-highlight-color:transparent!important;
+}
+html:has(#health.page.on) #navHealthBar button:active{background:rgba(135,200,246,.14)!important}
+#health .kpiCard .hhLiveHead small[data-hh-health-switch="v551"]{
+ min-height:42px!important;min-width:82px!important;
+ padding:8px 12px!important;font-size:11px!important;font-weight:850!important;
+ touch-action:manipulation!important;pointer-events:auto!important;
+ white-space:nowrap!important;
+}
+#health .kpiCard .hhLiveHead small[data-hh-health-switch="v551"]::after{
+ content:"⇄";font-size:16px!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health{
+ --hg:#f7b0d8!important;--hg-line:rgba(244,151,208,.34)!important;
+ --hg-muted:#e1c6dc!important;
+ background:radial-gradient(ellipse 90% 450px at 50% 0%,#44335f 0%,#211d3c 58%,#11172c 100%)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health>.surface{
+ background:linear-gradient(150deg,#302c50,#171d37 77%)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .quick>.q{
+ background:linear-gradient(145deg,#473d67,#2b3157 72%,#252c4f)!important;
+ border-color:rgba(242,162,214,.35)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .quick>.q .qbox{
+ color:#ffd0ea!important;
+ background:linear-gradient(145deg,#60436e,#343b66)!important;
+ border-color:rgba(255,180,224,.36)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .quick>.q .qbox svg{color:#ffd0ea!important}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health :is(.card.kpiCard,.two>.card.listCard,.bottomCards>.mini){
+ background:linear-gradient(145deg,rgba(65,51,90,.92),rgba(33,33,65,.96))!important;
+ border-color:rgba(241,164,215,.3)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveGrid .hhLiveKpi,
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveGrid .hhLiveKpi.sleep,
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveGrid .hhLiveKpi.exercise,
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveGrid .hhLiveKpi.steps,
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveGrid .hhLiveKpi.calories{
+ background:linear-gradient(152deg,#4c3c67 0%,#303250 60%,#232a45 100%)!important;
+ border-color:rgba(245,167,219,.38)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveKpi:after{
+ background:#f5a1d1!important;opacity:.62!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveMeta{
+ color:#ffc0e0!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health :is(.listHead span,.cardHead small){
+ color:#ffc3e4!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveHead small{
+ color:#ffe0f0!important;background:rgba(131,69,120,.34)!important;
+ border-color:rgba(255,181,224,.4)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health .kpiCard .hhLiveHead small::after{color:#ffbce0!important}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health #hhEnvCard308{
+ background:linear-gradient(145deg,#403657,#222b46)!important;
+ border-color:rgba(244,160,210,.33)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health #hhEnvCard308 .envCell{
+ background:linear-gradient(145deg,#453b63,#27314f)!important;
+ border-color:rgba(233,156,211,.27)!important;
+}
+html[data-hh-health-glass="on"][data-hh-health-profile="m"] #health #hhEnvCard308 .envRefresh{color:#ffd4eb!important}
+html[data-hh-health-profile="m"]:has(#health.page.on) #navHealthBar{
+ border-top-color:rgba(245,161,215,.29)!important;
+ background:rgba(29,25,49,.97)!important;
+}
+html[data-hh-health-profile="m"]:has(#health.page.on) #navHealthBar button.on{color:#f7b1dd!important}
+html[data-hh-health-profile="m"]:has(#health.page.on) #navHealthBar button.on .navIcon{
+ background:rgba(240,137,206,.21)!important;
+}
+html[data-hh-health-profile="m"]:has(#health.page.on) #navHealthBar button:active{
+ background:rgba(240,137,206,.15)!important;
+}
