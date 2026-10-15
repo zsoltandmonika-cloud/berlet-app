@@ -1,0 +1,124 @@
+/* HealthHub v577: Léna explanation readability – Leletek and Gyógyszerek.
+   Only real explanation DOM trees are styled; no data, editor logic or PDFs touched.
+   Rules must override old inline pastel backgrounds AND v562's light text !important. */
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 {
+ color:#ecf6ff!important;
+ font:400 14px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;
+ overflow-wrap:anywhere;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(h2,h3,h4) {
+ color:#f5faff!important;
+ line-height:1.3!important;
+ letter-spacing:-.01em;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 h2 {
+ font-size:clamp(21px,5vw,25px)!important;
+ margin:0 0 7px!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 h3 {
+ font-size:16px!important;
+ margin-top:7px!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 h4 {
+ font-size:14px!important;
+ margin:14px 0 5px!important;
+ color:#a8dcff!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(p,li,label) {
+ color:#e0effd!important;
+ font-size:14px!important;
+ line-height:1.6!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(b,strong,small,span) {
+ color:#f5faff!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 .hrDetailMeta {
+ color:#b4cbe1!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ overflow-wrap:anywhere!important;
+ margin-bottom:15px!important;
+}
+/* The old explanations used very light inline backgrounds. Replace them with
+   real dark glass, so the globally enforced light text is always readable. */
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(div,p,li)[style*="background"] {
+ background:linear-gradient(140deg,rgba(33,65,98,.98),rgba(18,43,74,.98))!important;
+ border:1px solid rgba(141,189,228,.35)!important;
+ border-radius:13px!important;
+ color:#eaf5ff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 li[style*="background"] {
+ padding:12px 13px!important;
+ margin-top:8px!important;
+ font-size:14px!important;
+}
+/* Warnings keep their identity using an amber border, never dark text on cream. */
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(div,p)[style*="#fff8e8"] {
+ background:linear-gradient(140deg,#3a3028,#292b37)!important;
+ border:1px solid rgba(240,186,96,.62)!important;
+ color:#ffedc9!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(div,p)[style*="#fff8e8"] :is(b,strong,p,small,span) {
+ color:#ffedc9!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 li[style*="background"] {
+ color:#edf6ff!important;
+}
+/* The editor must remain fully usable, not just its read-only explanation. */
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(input,textarea,select) {
+ background:#102c4b!important;
+ border:1px solid rgba(155,193,227,.52)!important;
+ border-radius:11px!important;
+ color:#f5faff!important;
+ font:500 14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;
+ padding:10px 12px!important;
+ box-sizing:border-box!important;
+ max-width:100%!important;
+ color-scheme:dark;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(input,textarea,select):focus-visible {
+ outline:2px solid #80c9ff!important;
+ outline-offset:1px!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 :is(.privacyNote) {
+ color:#c8dced!important;
+ font-size:13px!important;
+ line-height:1.6!important;
+}
+/* Equal-height, readable actions, without introducing a new click handler. */
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 .vaultTools {
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;
+ margin-top:16px!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 .vaultTools .vaultBtn,
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 > .vaultBtn {
+ display:flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ min-width:0!important;
+ min-height:48px!important;
+ width:100%!important;
+ padding:11px 12px!important;
+ border-radius:13px!important;
+ font:750 13px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;
+ text-align:center!important;
+ overflow-wrap:anywhere!important;
+ white-space:normal!important;
+ color:#edf7ff!important;
+ background:#23476d!important;
+ border:1px solid rgba(139,195,242,.45)!important;
+}
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 .vaultTools .vaultBtn.primary,
+html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 > .vaultBtn.primary {
+ background:linear-gradient(135deg,#1466b6,#2088cf)!important;
+ border-color:rgba(120,202,255,.65)!important;
+ color:#fff!important;
+}
+@media(max-width:420px){
+ html[data-hh-system-glass="on"] #hrDetailOverlay #hrDetailContent .hhLenaExplanationV577 .vaultTools {
+  grid-template-columns:1fr!important;
+ }
+}
