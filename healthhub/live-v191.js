@@ -86,7 +86,7 @@ function kpiIcon(k){
  if(k==='floors')return '<svg viewBox="0 0 64 64" fill="none" stroke="'+c+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 51h15V39h13V27h13V14h6"/><path d="M43 18l8-8 8 8"/></svg>';
  return '<svg viewBox="0 0 64 64"><path d="M32 55S8 42 8 24c0-9 6-15 14-15 5 0 9 3 10 7 2-4 6-7 11-7 8 0 14 6 14 15 0 18-25 31-25 31z" fill="'+c+'"/></svg>';
 }
-function heroSrc(){return './assets/activity-hero-approved-v258.webp?v=258'}
+function heroSrc(profile){return './assets/activity-hero-golden-v533-'+(profile==='monika'?'m':'z')+'.webp?v=533'}
 
 function manualLoad(profile){profile=profile||pkey();try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+profile)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
 async function cloudBundle(profile){
@@ -229,9 +229,9 @@ function categoryCards(c,m){
 function recent(c){
  return c.sessions.slice(0,5).map(function(s){var ct=cat(infer(s)),d=distanceOf(s),mi=mins(s.startTime,s.endTime),ca=caloriesOf(s),hr=sessionHr(s,c.heart);return '<div class="a191RecentRow"><span class="a191RecentIcon">'+icon(ct.k)+'</span><div class="a191RecentName"><b>'+esc(ct.label)+(s._manual?' · manuális':'')+'</b><small>'+esc(fmtDate(s.startTime))+'</small></div><div class="a191RecentMeta">'+(d?'<span>📍 '+n(d,1)+' km</span>':'')+'<span>◷ '+Math.round(mi)+' perc</span>'+(ca?'<span>🔥 '+n(ca,0)+' kcal</span>':'')+(hr?'<span>♥ '+n(hr,0)+' bpm</span>':'')+'</div><strong>›</strong></div>'}).join('')||'<div class="a191Empty">Nincs rögzített edzés.</div>';
 }
-function hero(){
+function hero(profile){
  var p=state.period;
- return '<div class="a191Hero"><img src="'+heroSrc()+'" alt="Activity"><div class="a191HeroHits"><button class="runnerProfile" onclick="return hh191ToggleProfile()" aria-label="Futó Léna · profilváltás"></button><button class="cal" onclick="hh191Calendar()" aria-label="Naptár"></button><button class="weather" onclick="hh191Weather()" aria-label="Időjárás"></button><button class="gear" onclick="hh191Settings()" aria-label="Beállítások"></button></div><div class="a191Periods"><button class="'+(p==='1d'?'on':'')+'" onclick="hh191Period(\'1d\')">Ma</button><button class="'+(p==='7d'?'on':'')+'" onclick="hh191Period(\'7d\')">Hét</button><button class="'+(p==='30d'?'on':'')+'" onclick="hh191Period(\'30d\')">Hónap</button><button class="'+(p==='365d'?'on':'')+'" onclick="hh191Period(\'365d\')">Év</button></div></div>';
+ return '<div class="a191Hero"><img src="'+heroSrc(profile)+'" alt="Activity"><div class="a191HeroHits"><button class="runnerProfile" onclick="return hh191ToggleProfile()" aria-label="Futó Léna · profilváltás"></button><button class="cal" onclick="hh191Calendar()" aria-label="Naptár"></button><button class="weather" onclick="hh191Weather()" aria-label="Időjárás"></button><button class="gear" onclick="hh191Settings()" aria-label="Beállítások"></button></div><div class="a191Periods"><button class="'+(p==='1d'?'on':'')+'" onclick="hh191Period(\'1d\')">Ma</button><button class="'+(p==='7d'?'on':'')+'" onclick="hh191Period(\'7d\')">Hét</button><button class="'+(p==='30d'?'on':'')+'" onclick="hh191Period(\'30d\')">Hónap</button><button class="'+(p==='365d'?'on':'')+'" onclick="hh191Period(\'365d\')">Év</button></div></div>';
 }
 function nav(){
  function svgHome(){return '<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>'}
@@ -244,7 +244,7 @@ async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
   syncProfileTheme(requestedProfile);
- page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load">Activity adatok betöltése…</div></div>'+nav();
+ page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load">Activity adatok betöltése…</div></div>'+nav();
  var raw=await load(requestedProfile);
  if(renderId!==activityRenderSeq)return;
  var profileHeight=null,distEngine=window.HH_DISTANCE_ENGINE_V369;
@@ -262,7 +262,7 @@ async function render(profileOverride){
  window.hhActivity191CurrentProfile=requestedProfile;
  window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState};
  var f=periodDays(),g=m.goals;
- page.innerHTML=hero()+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
+ page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (samsungState.data&&samsungState.data.staleToday?'<div class="a191MetricsHint"><b>📡 A mai Samsung-export nem naprakész.</b> A frissebb Health Connect adatait mutatjuk, a hiányzó kalóriát nem tüntetjük fel mért értékként. Részletek: ⓘ Adatforrások.</div>':'')+
