@@ -1,0 +1,46 @@
+/* HealthHub v554: compact profile dock just above existing 5-button taskbar.
+   Body-level placement avoids clipping inside Health's scrolling container. */
+#hhProfileDock554{display:none!important}
+html:has(#health.page.on) #hhProfileDock554{
+ position:fixed!important;
+ bottom:calc(65px + env(safe-area-inset-bottom))!important;
+ left:50%!important;transform:translateX(-50%)!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+ width:min(222px,calc(100vw - 40px))!important;min-height:42px!important;
+ box-sizing:border-box!important;padding:4px 7px!important;
+ background:rgba(13,31,55,.94)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(145%)!important;
+ backdrop-filter:blur(17px) saturate(145%)!important;
+ border:1px solid rgba(148,205,250,.36)!important;border-radius:999px!important;
+ box-shadow:0 7px 22px rgba(0,8,24,.32),inset 0 1px 0 rgba(255,255,255,.14)!important;
+ color:#d4e7f8!important;z-index:94!important;cursor:pointer!important;
+ touch-action:manipulation!important;pointer-events:auto!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+#hhProfileDock554 .hh554Name{
+ flex:1 1 0;min-width:0;min-height:31px;
+ display:flex;align-items:center;justify-content:center;
+ border-radius:999px;white-space:nowrap;
+ padding:0 10px;font:800 12px/1.2 system-ui,-apple-system,Segoe UI,sans-serif;
+ color:rgba(225,237,249,.7);
+}
+#hhProfileDock554 .hh554Arrow{
+ flex:0 0 auto;font:900 17px/1 system-ui,sans-serif;color:#d2e4f4;
+}
+#hhProfileDock554[data-active="z"] .hh554Z{
+ color:#f2fbff;background:rgba(68,149,227,.35);
+ box-shadow:inset 0 0 0 1px rgba(160,218,255,.34);
+}
+#hhProfileDock554[data-active="m"]{
+ background:rgba(33,26,52,.95)!important;
+ border-color:rgba(244,163,211,.38)!important;
+}
+#hhProfileDock554[data-active="m"] .hh554M{
+ color:#fff2fa;background:rgba(204,90,159,.34);
+ box-shadow:inset 0 0 0 1px rgba(255,181,224,.39);
+}
+#hhProfileDock554:active{filter:brightness(1.18)!important}
+#hhProfileDock554:focus-visible{outline:2px solid #9bdafa!important;outline-offset:2px!important}
+html:has(#health.page.on) #health.page.on > .surface{
+ padding-bottom:76px!important;
+}
