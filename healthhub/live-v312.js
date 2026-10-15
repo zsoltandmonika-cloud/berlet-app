@@ -181,11 +181,11 @@ function personalHtml(keys,x){
  if(window.HH_DAILY_HEALTH_SETTINGS_V317&&typeof window.HH_DAILY_HEALTH_SETTINGS_V317.renderPersonal==='function')return window.HH_DAILY_HEALTH_SETTINGS_V317.renderPersonal(keys,x);
  var p=prefs(),out=[];
  if(keys.some(function(k){return k.key==='pollen'})){
-  out.push('<p>🌿 <b>Mónika:</b> magas pollenterhelés látszik. Allergiás érzékenység esetén érdemes ellenőrizni az előírt napi rutinodat.'+
+  out.push('<p class="hhDailyAdvice582 hhDailyAdvice582--monika">🌿 <b>Mónika:</b> magas pollenterhelés látszik. Allergiás érzékenység esetén érdemes ellenőrizni az előírt napi rutinodat.'+
    (p.allergy?' <b>Indulás előtt ellenőrizd, hogy nálad van-e '+esc(p.allergyName||'az allergiagyógyszered')+'.</b>':'')+'</p>');
  }
  if(keys.some(function(k){return k.key==='pressure'})){
-  out.push('<p>🌀 <b>Zsolt:</b> ha a légnyomásváltozással egy időben fejfájást tapasztalsz, érdemes rögzíteni a Tünetnaplóban.'+
+  out.push('<p class="hhDailyAdvice582 hhDailyAdvice582--zsolt">🌀 <b>Zsolt:</b> ha a légnyomásváltozással egy időben fejfájást tapasztalsz, érdemes rögzíteni a Tünetnaplóban.'+
    (p.headache?' Ellenőrizd a korábban megbeszélt, számodra biztonságos teendőket.':'')+'</p>');
  }
  if(keys.some(function(k){return k.key==='heat'})){
