@@ -358,8 +358,8 @@ html[data-hh-system-glass="on"] #hhInsightPage .hhInsightSurface{
  color:var(--hhg-text)!important;
 }
 html[data-hh-system-glass="on"] #hhInsightPage :is(
- .hhInsightCard,.hhInsightVisualCard,.hhInsightNote,.hhMiniGrid>div,.hhMiniTrend,
- .hhInsightItem,.hhInsightCoverage,.hhScatter,.hhPulseRing
+ .hhInsightCard,.hhInsightVisualCard,.hhInsightNote,.hhMiniGrid>div,
+ .hhInsightItem,.hhInsightCoverage
 ){
  background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
  border:1px solid var(--hhg-line)!important;
