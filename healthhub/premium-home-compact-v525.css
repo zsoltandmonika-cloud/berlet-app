@@ -251,3 +251,20 @@ html[data-hh-premium-preview="on"] #home.on .hhpg-icon svg{
   aspect-ratio:16 / 9!important;
  }
 }
+
+/* v544 · Step 1, PHOTO FIRST: move the entire glass content stack DOWN.
+   Keep the approved v543 full 16:9 photo and v541 tile dimensions as-is.
+   Float the existing date/weather/name-day glass strip just BELOW the photo
+   (rather than covering its lower 52px), then let the existing 12 tiles follow.
+   Bottom navigation stays fixed; scroll naturally if screen is too short. */
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
+ overflow:visible!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome #hhpgInfoDashboard522{
+ bottom:-58px!important;
+ top:auto!important;
+ z-index:8!important;
+}
+html[data-hh-premium-preview="on"] #home.on .homeSurface{
+ margin-top:58px!important;
+}
