@@ -1,0 +1,35 @@
+/* v566 Real Ask Léna chat (#hhLenaComposer340), not legacy research card. */
+html #hhLenaSmart299{--hhchat-bg:#0a182b;--hhchat-panel:#122b47;--hhchat-line:rgba(150,203,247,.30);--hhchat-text:#eff8ff;--hhchat-muted:#b5cfe4;--hhchat-accent:#78c4ff}
+html #hhLenaSmart299[data-profile="monika"]{--hhchat-bg:#15152c;--hhchat-panel:#2d264c;--hhchat-line:rgba(250,173,223,.32);--hhchat-text:#fff5ff;--hhchat-muted:#dbc8e5;--hhchat-accent:#ffc0e4}
+html #hhLenaSmart299 .askCard:has(#hhLenaComposer340),html #hhLenaSmart299 .hhHistory364{
+ background:linear-gradient(145deg,rgba(26,53,87,.91),var(--hhchat-panel))!important;
+ border:1px solid var(--hhchat-line)!important;color:var(--hhchat-text)!important;
+ border-radius:24px!important;box-shadow:0 12px 28px rgba(0,5,23,.37),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+html #hhLenaSmart299[data-profile="monika"] .askCard:has(#hhLenaComposer340),html #hhLenaSmart299[data-profile="monika"] .hhHistory364{background:linear-gradient(145deg,rgba(57,40,83,.92),var(--hhchat-panel))!important}
+html #hhLenaSmart299 .askCard:has(#hhLenaComposer340)>h2,html #hhLenaSmart299 .hhHistory364 h3{color:var(--hhchat-accent)!important}
+html #hhLenaSmart299 #hhLenaComposer340{
+ background:rgba(7,24,46,.85)!important;border-color:var(--hhchat-line)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+html #hhLenaSmart299 #hhLenaComposer340 #hhSQ299{color:var(--hhchat-text)!important;caret-color:var(--hhchat-accent)!important}
+html #hhLenaSmart299 #hhLenaComposer340 #hhSQ299::placeholder{color:var(--hhchat-muted)!important}
+html #hhLenaSmart299 #hhLenaComposer340 #hhMic299{color:var(--hhchat-accent)!important}
+html #hhLenaSmart299 #hhLenaComposer340 #hhRun299{background:linear-gradient(135deg,#348fc7,#2868ad)!important}
+html #hhLenaSmart299[data-profile="monika"] #hhLenaComposer340 #hhRun299{background:linear-gradient(135deg,#e471ac,#a557a6)!important}
+html #hhLenaSmart299 .hhHistory364 .hhHistRow364{background:rgba(10,32,56,.82)!important;color:var(--hhchat-text)!important;border:1px solid var(--hhchat-line)!important}
+html #hhLenaSmart299 .hhHistory364 .hhHistRow364 small,html #hhLenaSmart299 .hhHistory364 .hhHistStatus364{color:var(--hhchat-muted)!important}
+html #hhLenaSmart299 .hhHistory364 .hhHistRefresh364{background:#286aa3!important;color:#fff!important}
+html #hhLenaSmart299[data-profile="monika"] .hhHistory364 .hhHistRefresh364{background:#a55794!important}
+html #hhLenaSmart299 #hhAi331Terminal{background:#10253e!important;color:var(--hhchat-text)!important;border-color:var(--hhchat-line)!important}
+html #hhLenaSmart299 #hhAi331Lines,html #hhLenaSmart299 #hhAi331Terminal .hhAi331Title{color:var(--hhchat-text)!important}
+html #hhLenaSmart299 .hhChat566Suggestions{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 12px}
+html #hhLenaSmart299 .hhChat566Suggestions button,html #hhLenaSmart299 .hhChat566Search{
+ border:1px solid var(--hhchat-line)!important;border-radius:13px!important;background:rgba(70,120,170,.15)!important;
+ color:var(--hhchat-text)!important;font-size:12px!important;padding:9px 11px!important;
+}
+html #hhLenaSmart299 .hhChat566Label{color:var(--hhchat-muted);font-size:11px;font-weight:700;letter-spacing:.035em}
+html #hhLenaSmart299 .hhChat566Search{width:100%;box-sizing:border-box;margin-top:10px;outline-offset:2px}
+html #hhLenaSmart299 .hhChat566Search::placeholder{color:var(--hhchat-muted)}
+html #hhLenaSmart299 .hhChat566Empty{color:var(--hhchat-muted);font-size:12px;padding:10px}
+html #hhLenaSmart299 :is(.hhChat566Suggestions button,.hhHistRow364,.hhChat566Search):focus-visible{outline:2px solid var(--hhchat-accent)!important;outline-offset:2px}
