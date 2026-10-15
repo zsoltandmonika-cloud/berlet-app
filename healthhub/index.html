@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v580-daily-premium-ecosystem" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v581-daily-premium-nav" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -30,7 +30,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='580-daily-premium-ecosystem';
+  var v='581-daily-premium-nav';
   try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
@@ -110,6 +110,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
      '<link rel="stylesheet" href="./health-lena-explanation-glass-v577.css?v=577" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./health-medication-contrast-v578.css?v=578" data-hh-premium-critical="1">'+
      '<link rel="stylesheet" href="./daily-premium-ecosystem-v580.css?v=580" data-hh-premium-critical="1">'+
+     '<link rel="stylesheet" href="./daily-nav-premium-v581.css?v=581" data-hh-premium-critical="1">'+
     '<style id="hh-premium-zero-legacy-flash-v530">'+
       'html:not([data-hh-premium-ready="on"]) body{background:#0b1425!important}'+
       'html:not([data-hh-premium-ready="on"]) .app{visibility:hidden!important}'+
