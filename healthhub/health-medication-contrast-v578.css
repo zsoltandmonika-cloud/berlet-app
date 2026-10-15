@@ -1,0 +1,131 @@
+/* HealthHub v578 – Medication pages: readable reminder and pharmacy cards.
+   CSS only. No changes to alarms, drug alternatives, medication data or click handlers. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmTimes > div {
+  background:linear-gradient(140deg,rgba(31,66,101,.98),rgba(18,44,77,.98))!important;
+  border:1px solid rgba(145,194,231,.43)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+  color:#f3faff!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmTimes > div.on {
+  background:linear-gradient(140deg,rgba(61,60,112,.98),rgba(30,58,92,.98))!important;
+  border-color:rgba(238,163,205,.65)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmTimes > div :is(b,small,span) {
+  display:block!important;
+  color:#eef7ff!important;
+  line-height:1.45!important;
+  overflow-wrap:anywhere;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmTimes > div b {
+  font-size:16px!important;
+  font-weight:850!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmTimes > div :is(small,span) {
+  font-size:12px!important;
+  color:#cadff1!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmClock :is(b,small,span) {
+  color:#eef7ff!important;
+  line-height:1.45!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmClock b {
+  font-size:15px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmClock small {
+  color:#f3b9d8!important;
+  font-size:11px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmClock span {
+  color:#bad4ee!important;
+  font-size:12px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhMedAlarmCard .hhMedAlarmSetup {
+  color:white!important;
+  font-size:12px!important;
+  min-height:43px!important;
+  line-height:1.35!important;
+}
+/* Reminder settings: old light input/edit surfaces inside a dark sheet. */
+html[data-hh-system-glass="on"] #hhMedAlarmOverlay .hhMedSheet :is(.hhMedSound,.hhMedAlarmEdit,.hhMedPermission) {
+  background:linear-gradient(140deg,#1c3857,#142b49)!important;
+  border:1px solid rgba(152,194,232,.35)!important;
+  border-radius:14px!important;
+  color:#f0f7ff!important;
+}
+html[data-hh-system-glass="on"] #hhMedAlarmOverlay .hhMedSheet :is(
+ .hhMedSheetTop h2,.hhMedSound > b,.hhMedVolumeRow span,.hhMedVolumeRow b,
+ .hhMedAlarmEdit > small,.hhMedPermission small,.hhMedChecks span
+) {
+  color:#e6f2ff!important;
+  font-size:max(12px,1em)!important;
+  line-height:1.5!important;
+}
+html[data-hh-system-glass="on"] #hhMedAlarmOverlay .hhMedSheet :is(
+ input[type="time"],input[type="text"],select
+) {
+  background:#0e2743!important;
+  border:1px solid rgba(159,200,234,.55)!important;
+  color:#f5fbff!important;
+  color-scheme:dark!important;
+  font-size:14px!important;
+  min-height:40px!important;
+}
+/* Pharmacy alternatives: legacy inline pastel backgrounds would otherwise
+   show the white Premium Glass text against white or pale gray. */
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide article {
+  background:linear-gradient(145deg,#213c5d,#172f4c)!important;
+  border:1px solid rgba(144,193,234,.38)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+  color:#e6f3ff!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide article :is(b,div,span) {
+  color:#eaf5ff!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide article > b {
+  font-size:14px!important;
+  color:#fff!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide article div span {
+  color:#9fdbef!important;
+  font-weight:800!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide section > button {
+  color:#f0f8ff!important;
+  font-size:13px!important;
+  min-height:42px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide section > button span {
+  color:#edf7ff!important;
+  font-size:13px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide section > button span span {
+  background:#274466!important;
+  color:#eaf6ff!important;
+  font-size:11px!important;
+}
+/* Safety notes in the pharmacy helper are genuinely readable and remain distinct. */
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide > div[style*="background"] {
+  background:linear-gradient(145deg,#283f59,#1a304a)!important;
+  border:1px solid rgba(128,191,226,.5)!important;
+  color:#eff7ff!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide > div[style*="#fff8e8"] {
+  background:linear-gradient(145deg,#403729,#2b313a)!important;
+  border:1px solid rgba(239,183,90,.66)!important;
+  color:#ffedc7!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide > div[style*="background"] :is(b,strong,span) {
+  color:inherit!important;
+}
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide > p,
+html[data-hh-system-glass="on"] #healthSection #hhPharmacyGuide > div:first-child :is(small,span) {
+  color:#c9dfef!important;
+  font-size:12px!important;
+  line-height:1.6!important;
+}
