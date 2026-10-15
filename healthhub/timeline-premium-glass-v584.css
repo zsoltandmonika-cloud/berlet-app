@@ -1,0 +1,329 @@
+/* HealthHub v584 · Idővonal Premium Glass.
+   Presentation only. Reuse existing event DOM, associated handlers and live
+   profile / health-source logic. No replacement timeline or seeded records. */
+html[data-hh-timeline-glass="on"] #timeline {
+ --tl584-accent:#83c9ff;
+ --tl584-border:rgba(130,193,235,.39);
+ --tl584-glass:linear-gradient(145deg,rgba(38,69,107,.88),rgba(19,37,68,.95));
+ --tl584-ink:#f0f8ff; --tl584-muted:#bfd4e7;
+ --tl584-soft:rgba(55,142,214,.19);
+ min-height:100dvh!important;
+ background:radial-gradient(ellipse at 65% 0%,rgba(40,99,179,.29),transparent 350px),#091a32!important;
+ color:var(--tl584-ink)!important;
+ padding-bottom:calc(90px + env(safe-area-inset-bottom))!important;
+ overflow-x:clip!important;
+}
+html[data-hh-timeline-glass="on"][data-hhpg-profile="m"] #timeline,
+html[data-hh-timeline-glass="on"] #timeline:has(#heroT[data-hh-timeline-profile="monika"]) {
+ --tl584-accent:#ffbfe4;
+ --tl584-border:rgba(242,166,215,.44);
+ --tl584-glass:linear-gradient(145deg,rgba(72,54,104,.91),rgba(29,34,72,.95));
+ --tl584-soft:rgba(208,100,178,.19);
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT.hero{
+ height:clamp(232px,58vw,285px)!important;
+ position:relative!important;overflow:hidden!important;
+ isolation:isolate!important;
+ border:0!important;
+ border-bottom:1px solid var(--tl584-border)!important;
+ border-radius:0 0 22px 22px!important;
+ box-shadow:0 13px 28px rgba(0,6,26,.29)!important;
+}
+/* v222 deliberately uses inline-important background-image; its image stack
+   now includes approved Lena + our new purpose-built health journey artwork. */
+html[data-hh-timeline-glass="on"] #timeline #heroT::after {
+ content:""!important;
+ position:absolute!important;inset:0!important;
+ background:linear-gradient(90deg,rgba(4,14,35,.15),transparent 82%)!important;
+ pointer-events:none!important;z-index:2!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy{
+ position:absolute!important;
+ left:42%!important;right:12px!important;
+ top:54px!important;bottom:auto!important;
+ transform:none!important;
+ z-index:9!important;
+ text-align:left!important;
+ color:#fff!important;
+ text-shadow:0 2px 13px rgba(1,8,29,.95)!important;
+ pointer-events:none!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT {
+ display:block!important;margin:0!important;
+ line-height:1.09!important;
+ font-size:0!important;
+ letter-spacing:-.04em!important;
+ color:#fff!important;
+ white-space:nowrap!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT::after{
+ color:#fff!important;
+ font:850 clamp(22px,5.75vw,29px)/1.12 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:-.035em!important;
+ text-shadow:0 2px 13px rgba(2,9,29,.9)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy .screenTitle,
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy :is(.date,.weather,.nameday),
+html[data-hh-timeline-glass="on"] #timeline #heroT :is(.heroBtns,#personT) {
+ display:none!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit{
+ position:absolute!important;
+ top:auto!important;left:13px!important;right:auto!important;
+ bottom:13px!important;
+ width:auto!important;height:43px!important;
+ max-width:calc(100% - 35px)!important;
+ padding:5px 13px 5px 8px!important;
+ display:inline-flex!important;gap:9px!important;
+ align-items:center!important;justify-content:center!important;
+ background:rgba(9,28,55,.82)!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:999px!important;
+ box-shadow:0 5px 17px rgba(0,8,23,.37),inset 0 1px 0 rgba(255,255,255,.08)!important;
+ color:var(--tl584-accent)!important;
+ font:800 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:.01em!important;
+ white-space:nowrap!important;
+ cursor:pointer!important;
+ touch-action:manipulation!important;
+ z-index:18!important;
+ backdrop-filter:blur(12px)!important;
+ -webkit-backdrop-filter:blur(12px)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit::before{
+ content:""!important;display:block!important;
+ flex:0 0 25px!important;width:25px!important;height:25px!important;
+ border-radius:50%!important;
+ border:3px solid rgba(249,253,255,.91)!important;
+ background:linear-gradient(140deg,#3b9def,#12528e)!important;
+ box-sizing:border-box!important;
+ box-shadow:0 0 0 1px var(--tl584-border)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT[data-hh-timeline-profile="monika"] .profileHit::before {
+ background:linear-gradient(140deg,#f4a9da,#ad5497)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit:focus-visible {
+ outline:3px solid var(--tl584-accent)!important;outline-offset:2px!important;
+}
+/* Glass container is shared with all approved HealthHub screens. */
+html[data-hh-timeline-glass="on"] #timeline .surface{
+ position:relative!important;z-index:6!important;
+ margin-top:-8px!important;
+ padding:16px 12px calc(20px + env(safe-area-inset-bottom))!important;
+ background:linear-gradient(180deg,#132947,#091b34)!important;
+ color:#eef7ff!important;
+ border-radius:20px 20px 0 0!important;
+ box-shadow:inset 0 1px 0 rgba(244,251,255,.1)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline :is(.tabs,.summary,.chips,.daytitle,.insight){
+ max-width:100%!important;box-sizing:border-box!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .tabs{
+ height:auto!important;min-height:48px!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:5px!important;padding:5px!important;
+ background:rgba(11,31,59,.92)!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:15px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+ margin-bottom:11px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .tabs span{
+ min-width:0!important;min-height:37px!important;
+ display:grid!important;place-items:center!important;
+ text-align:center!important;
+ color:#c0d5e9!important;
+ font-size:11px!important;font-weight:750!important;
+ border-radius:11px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .tabs span.active{
+ background:var(--tl584-soft)!important;
+ color:var(--tl584-accent)!important;
+ box-shadow:inset 0 0 0 1px var(--tl584-border)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .summary{
+ height:auto!important;
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:0!important;
+ padding:10px 5px!important;
+ margin:0 0 11px!important;
+ background:var(--tl584-glass)!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:17px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 5px 17px rgba(0,6,25,.17)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .summary .sum{
+ min-width:0!important;padding:3px 4px!important;
+ border-right:1px solid rgba(154,191,225,.22)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .summary .sum:last-child{border-right:0!important}
+html[data-hh-timeline-glass="on"] #timeline .summary .sum b{
+ display:block!important;font-size:20px!important;
+ color:var(--tl584-accent)!important;line-height:1.3!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .summary .sum small{
+ font-size:10px!important;line-height:1.4!important;
+ color:#c4d9eb!important;margin:3px 0 0!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .chips{
+ height:auto!important;min-height:42px!important;
+ display:flex!important;gap:7px!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ scrollbar-width:thin!important;
+ padding:2px 0 9px!important;
+ margin-bottom:8px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .chips .chip{
+ display:inline-flex!important;align-items:center!important;
+ flex:none!important;gap:6px!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:999px!important;
+ background:rgba(21,48,79,.9)!important;
+ color:#d9eaf8!important;
+ min-height:34px!important;
+ padding:8px 11px!important;font-size:11px!important;font-weight:750!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .chips .chip.on{
+ color:var(--tl584-accent)!important;
+ background:var(--tl584-soft)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .daytitle {
+ min-height:39px!important;height:auto!important;
+ font-size:14px!important;line-height:1.45!important;
+ color:#f4faff!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .daytitle small{
+ color:var(--tl584-accent)!important;
+ font-size:11px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline{
+ position:relative!important;
+ padding:3px 0 2px 49px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline::before{
+ content:""!important;
+ position:absolute!important;
+ left:27px!important;top:15px!important;bottom:15px!important;
+ width:2px!important;
+ background:linear-gradient(var(--tl584-accent),rgba(132,184,235,.13))!important;
+ border-radius:5px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event{
+ min-height:75px!important;
+ position:relative!important;
+ margin:0 0 12px!important;
+ padding:13px 12px 14px 43px!important;
+ background:var(--tl584-glass)!important;
+ color:#f0f8ff!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:17px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 6px 18px rgba(0,7,24,.21)!important;
+ overflow:visible!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .eventIcon{
+ z-index:3!important;
+ left:-3px!important;top:16px!important;
+ width:33px!important;height:33px!important;
+ border-radius:12px!important;
+ padding:7px!important;
+ display:grid!important;place-items:center!important;
+ border:1px solid rgba(255,255,255,.17)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .eventIcon svg{
+ width:100%!important;height:100%!important;display:block!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .time{
+ position:absolute!important;
+ left:-59px!important;top:22px!important;
+ width:39px!important;
+ font-size:11px!important;
+ font-weight:750!important;
+ color:#ccdfef!important;
+ font-variant-numeric:tabular-nums!important;
+ text-align:right!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .node{
+ background:var(--tl584-accent)!important;
+ width:9px!important;height:9px!important;
+ left:-26px!important;top:28px!important;
+ border:2px solid #142c4a!important;
+ box-shadow:0 0 0 3px var(--tl584-soft)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event h3{
+ font-size:15px!important;font-weight:840!important;
+ margin:0 0 5px!important;line-height:1.4!important;
+ color:#f6faff!important;
+ padding-right:0!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .source{
+ position:static!important;display:block!important;
+ margin:3px 0 6px!important;
+ color:#b1d9f7!important;
+ font-size:11px!important;line-height:1.45!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event :is(.metricLine b,.vitals b){
+ color:#f4fbff!important;
+ font-size:17px!important;
+ line-height:1.4!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event :is(.subtext,.tiny){
+ color:#bed3e6!important;
+ font-size:11px!important;
+ line-height:1.5!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .timeline .event .up{
+ color:#8ee1bb!important;
+ font-size:12px!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .insight{
+ height:auto!important;
+ min-height:66px!important;align-items:flex-start!important;
+ margin:12px 0 0!important;
+ padding:15px!important;
+ background:linear-gradient(145deg,rgba(35,69,105,.88),rgba(23,46,78,.96))!important;
+ color:#e7f4ff!important;
+ border:1px solid var(--tl584-border)!important;
+ border-radius:18px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+ overflow:visible!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .insight b{
+ font-size:14px!important;font-weight:850!important;
+ color:var(--tl584-accent)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline .insight p{
+ color:#d3e6f6!important;font-size:12px!important;
+ line-height:1.6!important;margin:6px 0 0!important;
+}
+html[data-hh-timeline-glass="on"]:has(#timeline.page.on) #navTimelineBar{
+ background:linear-gradient(180deg,rgba(18,39,69,.99),rgba(7,23,45,.99))!important;
+ border-top:1px solid rgba(145,196,236,.32)!important;
+ box-shadow:0 -8px 25px rgba(0,5,27,.33)!important;
+ border-radius:17px 17px 0 0!important;
+}
+html[data-hh-timeline-glass="on"]:has(#timeline.page.on) #navTimelineBar button{
+ color:#bfd5e8!important;background:transparent!important;
+ font-size:9px!important;
+}
+html[data-hh-timeline-glass="on"]:has(#timeline.page.on) #navTimelineBar button.on{
+ color:var(--hhpg-accent,#7bc4fc)!important;
+}
+html[data-hh-timeline-glass="on"]:has(#timeline.page.on) #navTimelineBar button.on .navIcon{
+ background:rgba(86,153,222,.18)!important;
+ border-radius:13px!important;
+}
+html[data-hh-timeline-glass="on"]:has(#timeline.page.on) :is(#hhOneRag500,#hhOneFallback501){
+ display:none!important;
+}
+@media(max-width:360px){
+ html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy{
+  left:43%!important;right:7px!important;top:48px!important;
+ }
+ html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT::after{
+  font-size:20px!important;
+ }
+ html[data-hh-timeline-glass="on"] #timeline .surface{padding-left:9px!important;padding-right:9px!important}
+ html[data-hh-timeline-glass="on"] #timeline .timeline{padding-left:47px!important}
+}
