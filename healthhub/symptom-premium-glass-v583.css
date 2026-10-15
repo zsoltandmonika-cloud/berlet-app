@@ -1,0 +1,342 @@
+/* HealthHub v583 · Tünetnapló Premium Glass · S24 Ultra
+   Visual refresh of the existing v307 diary, not a replacement.
+   The original measurements, charts, entries, profile switching, dropdown
+   pickers, Dropbox sync and their handlers remain the authorities.
+   ?hhsymptomglass=0 disables ONLY this stylesheet/visual dashboard. */
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 {
+ --sj583-accent:#87cbff; --sj583-border:rgba(138,200,243,.39);
+ --sj583-soft:rgba(38,113,176,.19);
+ --sj583-card:linear-gradient(145deg,rgba(37,69,108,.91),rgba(17,36,69,.97));
+ --sj583-text:#edf7ff; --sj583-muted:#bbd3e7;
+ min-height:100dvh!important;
+ background:radial-gradient(ellipse at 40% 0%,rgba(37,100,173,.25),transparent 410px),#091a33!important;
+ color:var(--sj583-text)!important;
+ padding-bottom:calc(96px + env(safe-area-inset-bottom))!important;
+ overflow-x:clip;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307[data-profile="monika"] {
+ --sj583-accent:#ffc0e5; --sj583-border:rgba(244,173,219,.45);
+ --sj583-soft:rgba(210,92,169,.22);
+ --sj583-card:linear-gradient(145deg,rgba(72,55,102,.91),rgba(27,36,72,.97));
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero.hero {
+ position:relative!important;isolation:isolate!important;
+ height:clamp(237px,59vw,285px)!important;
+ background-color:#112341!important;
+ background-image:
+ linear-gradient(0deg,rgba(4,14,33,.94) 0%,rgba(5,18,40,.45) 46%,rgba(5,16,34,.08) 100%),
+ url("./assets/symptom-hero-hud-v583.svg"),
+ url("./assets/health-medical-lena-approved-v548.webp")!important;
+ background-size:cover,cover,cover!important;
+ background-position:center,center,center 40%!important;
+ background-repeat:no-repeat!important;
+ border:0!important;border-bottom:1px solid var(--sj583-border)!important;
+ border-radius:0 0 20px 20px!important;
+ box-shadow:0 13px 27px rgba(0,8,26,.24)!important;
+ overflow:hidden!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero.hero::after {
+ content:""!important;
+ position:absolute!important;inset:0!important;z-index:1!important;
+ background:linear-gradient(90deg,rgba(4,17,36,.38),transparent 72%)!important;
+ pointer-events:none!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .heroBtns {
+ position:absolute!important;top:calc(13px + env(safe-area-inset-top))!important;left:14px!important;
+ z-index:7!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .round.hhSJBack {
+ width:43px!important;height:43px!important;
+ display:grid!important;place-items:center!important;
+ border-radius:14px!important;
+ border:1px solid rgba(199,231,254,.48)!important;
+ background:rgba(6,31,58,.8)!important;
+ color:#fff!important;font-size:27px!important;
+ box-shadow:0 5px 14px rgba(0,7,25,.27)!important;
+ backdrop-filter:blur(13px)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .heroCopy {
+ position:absolute!important;
+ top:auto!important;bottom:58px!important;
+ left:17px!important;right:16px!important;z-index:6!important;
+ transform:none!important;
+ text-align:left!important;
+ color:var(--sj583-text)!important;
+ text-shadow:0 2px 11px rgba(1,10,28,.8)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .heroCopy #hhSJName {
+ margin:0 0 4px!important;
+ font:800 12px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:.07em!important;text-transform:uppercase!important;
+ color:var(--sj583-accent)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .screenTitle {
+ font:880 clamp(26px,7.2vw,36px)/1.06 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:-.035em!important;
+ color:#fff!important;
+ margin:0 0 7px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero #hhSJHeroDate {
+ color:#e3f1ff!important;
+ font-size:12px!important;font-weight:700!important;
+ line-height:1.4!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero :is(#hhSJWeather,#hhSJNameday) {
+ display:none!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .hhSJProfileSwitch307 {
+ position:absolute!important;z-index:10!important;
+ left:14px!important;bottom:12px!important;
+ display:inline-flex!important;
+ min-height:34px!important;align-items:center!important;
+ padding:7px 13px!important;gap:8px!important;
+ border:1px solid var(--sj583-border)!important;
+ border-radius:999px!important;
+ background:rgba(9,28,55,.88)!important;
+ color:var(--sj583-accent)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 14px rgba(1,7,22,.22)!important;
+ font-size:12px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJHero .hhSJBuild{
+ display:none!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJBody {
+ position:relative!important;z-index:4!important;
+ margin:-9px auto 0!important;
+ padding:15px 12px calc(16px + env(safe-area-inset-bottom))!important;
+ max-width:760px!important;
+ background:linear-gradient(180deg,#10243f,#091a32)!important;
+ border-radius:21px 21px 0 0!important;
+ box-shadow:inset 0 1px 0 rgba(235,246,255,.10)!important;
+ color:var(--sj583-text)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJCard,
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJPremiumIntro583 {
+ background:var(--sj583-card)!important;
+ border:1px solid var(--sj583-border)!important;
+ color:var(--sj583-text)!important;
+ border-radius:18px!important;
+ padding:15px!important;
+ margin:0 0 11px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 7px 20px rgba(0,6,26,.20)!important;
+ backdrop-filter:blur(12px)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJCard h3,.hhSJTrendHead h3,.hhSJCardTitle h3,.hhSJIntroTitle583) {
+ color:#f7fbff!important;
+ font-size:16px!important;
+ line-height:1.34!important;
+ font-weight:850!important;
+ margin:0 0 6px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJCard>small,.hhSJTimeLabel,.hhSJPrivacy,.hhSJTrendHead small,.hhSJEmpty,.hhSJTimeSep,.hhSJRow small) {
+ color:var(--sj583-muted)!important;
+ font-size:12px!important;
+ line-height:1.55!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJTimePart,.hhSJChoice,.hhSJMeasurement,.hhSJM,.hhSJChart) {
+ background:linear-gradient(140deg,rgba(17,41,75,.94),rgba(14,31,56,.98))!important;
+ border:1px solid rgba(155,195,227,.34)!important;
+ color:#e8f4ff!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJTimePart,.hhSJChoice) {
+ min-height:52px!important;
+ cursor:pointer!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJTimePart small,.hhSJChoice small,.hhSJM small) {
+ color:#b9d5e9!important;font-size:11px!important;line-height:1.4!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJTimePart b,.hhSJChoice b,.hhSJM b,.hhSJMeasurement b,.hhSJRow b) {
+ color:#f3faff!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJChoice b{font-size:13px!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJMeasurement{
+ padding:12px!important;font-size:12px!important;line-height:1.55!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 :is(.hhSJNotes,.hhSJTrendHead select) {
+ background:#102d50!important;
+ border:1px solid rgba(158,206,236,.45)!important;
+ color:#f3faff!important;
+ font-size:13px!important;
+ line-height:1.6!important;
+ border-radius:12px!important;
+ color-scheme:dark!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJNotes::placeholder{color:#a2bbd0!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJTrendHead select{min-height:43px!important;max-width:47%!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRange {
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRange button,
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJEditCatalog,
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJCancelEdit{
+ border:1px solid var(--sj583-border)!important;
+ background:rgba(23,51,82,.88)!important;
+ color:#e4f2fd!important;
+ font-size:11px!important;
+ line-height:1.35!important;
+ border-radius:13px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRange button.on{
+ background:var(--sj583-soft)!important;
+ color:var(--sj583-accent)!important;
+ border-color:var(--sj583-accent)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJSave{
+ background:linear-gradient(135deg,#1767a5,#248bc0)!important;
+ color:#fff!important;
+ border:1px solid rgba(133,204,254,.48)!important;
+ min-height:51px!important;
+ box-shadow:0 6px 19px rgba(0,8,31,.28)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307[data-profile="monika"] .hhSJSave{
+ background:linear-gradient(135deg,#a7468a,#d96ba8)!important;
+ border-color:rgba(255,180,222,.53)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJMetrics{gap:7px!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJM{padding:11px 6px!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJM b{font-size:21px!important;color:var(--sj583-accent)!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJChart{background:rgba(9,26,53,.8)!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJChart svg text{fill:#d2e6f9!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJChart svg line{stroke:rgba(164,205,236,.36)!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRow {
+ border-color:rgba(165,208,240,.17)!important;
+ padding:13px 2px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRowIcon {
+ background:var(--sj583-soft)!important;
+ border:1px solid var(--sj583-border)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJRowEdit{color:var(--sj583-accent)!important;font-size:11px!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 #hhSJAskPrefill351{
+ background:rgba(23,62,97,.95)!important;
+ border-color:var(--sj583-border)!important;
+ color:#e5f3ff!important;
+ font-size:12px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJIntroTitle583 {
+ margin-bottom:4px!important;
+ font-size:15px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJIntroSubtitle583 {
+ color:#c7dcec!important;font-size:12px!important;line-height:1.55!important;margin:4px 0 12px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickActions583 {
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:7px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickAction583 {
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ min-height:69px!important;gap:6px!important;
+ padding:9px 5px!important;
+ border-radius:14px!important;
+ border:1px solid var(--sj583-border)!important;
+ background:rgba(21,45,79,.86)!important;
+ color:#eaf5ff!important;
+ font:750 11px/1.35 system-ui,-apple-system,Segoe UI,sans-serif!important;
+ text-align:center!important;
+ cursor:pointer!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickAction583 .hhSJQuickIcon583 {
+ font-size:24px!important;line-height:1!important;color:var(--sj583-accent)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickAction583:focus-visible,
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJTimePart:focus-visible,
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJChoice:focus-visible{
+ outline:3px solid var(--sj583-accent)!important;outline-offset:1px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJInsights583 {
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:7px!important;margin-top:12px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJInsight583 {
+ border-radius:12px!important;
+ background:rgba(9,31,61,.72)!important;
+ border:1px solid rgba(157,194,226,.29)!important;
+ padding:10px 7px!important;
+ min-width:0!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJInsight583 b{
+ display:block!important;color:var(--sj583-accent)!important;
+ font-size:18px!important;font-weight:850!important;line-height:1.25!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJInsight583 span {
+ display:block!important;color:#c5daea!important;
+ font-size:11px!important;line-height:1.4!important;
+ margin-top:5px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJPattern583 {
+ display:block!important;padding:11px 12px!important;margin-top:10px!important;
+ background:rgba(10,29,56,.65)!important;
+ border:1px solid rgba(167,203,231,.24)!important;
+ border-radius:12px!important;
+ color:#d8ebfb!important;font-size:12px!important;line-height:1.6!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJPattern583 strong{color:#f5fbff!important}
+html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJMicro583 {
+ color:#b3cce0!important;font-size:11px!important;line-height:1.55!important;margin:9px 0 0!important;
+}
+/* Picker sheet and catalogue editor are outside the page DOM. Reuse the
+   same dark material; do not modify scroll-snap/selection or save handlers. */
+html[data-hh-symptom-glass="on"] :is(#hhSymptomWheel307 .hhSJWCard,#hhSymptomCatalogEditor307 .hhSJEditSheet){
+ background:linear-gradient(160deg,#263e67,#132b4b 75%)!important;
+ border:1px solid rgba(153,204,238,.41)!important;
+ border-bottom:0!important;
+ color:#edf7ff!important;
+ box-shadow:0 -14px 40px rgba(1,8,28,.45)!important;
+}
+html[data-hh-symptom-glass="on"] :is(#hhSymptomWheel307,#hhSymptomCatalogEditor307) :is(.hhSJWTitle,.hhSJWTitle b,.hhSJEditHead h2,.hhSJCatRow span){
+ color:#f2faff!important;
+}
+html[data-hh-symptom-glass="on"] :is(#hhSymptomWheel307,#hhSymptomCatalogEditor307) :is(.hhSJWTitle small,.hhSJEditHead small,.hhSJCatHint,.hhSJCatRow small){
+ color:#bcd4e9!important;font-size:11px!important;line-height:1.5!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJPickerWrap,
+html[data-hh-symptom-glass="on"] #hhSymptomCatalogEditor307 .hhSJCatList{
+ background:#112a49!important;border:1px solid rgba(158,202,233,.38)!important;color:#eef7ff!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJItem{color:#a9c4d9!important}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJItem.near{color:#d3e6f7!important}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJItem.sel{color:#fff!important}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 :is(.hhSJFadeT,.hhSJFadeB){pointer-events:none!important}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJFadeT{
+ background:linear-gradient(#112a49,transparent)!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomWheel307 .hhSJFadeB{
+ background:linear-gradient(transparent,#112a49)!important;
+}
+html[data-hh-symptom-glass="on"] :is(#hhSymptomWheel307,#hhSymptomCatalogEditor307) :is(.hhSJWClose,.hhSJEditClose,.hhSJCatTab,.hhSJCatRow button){
+ background:#24456b!important;color:#eaf5ff!important;
+ border:1px solid rgba(152,199,230,.46)!important;border-radius:11px!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomCatalogEditor307 .hhSJCatTab.on{
+ background:#236eaa!important;color:white!important;
+}
+html[data-hh-symptom-glass="on"] #hhSymptomCatalogEditor307 #hhSJCatInput{
+ background:#112b4b!important;color:#f3faff!important;
+ border:1px solid rgba(157,203,231,.49)!important;color-scheme:dark!important;
+}
+html[data-hh-symptom-glass="on"] :is(#hhSymptomWheel307 .hhSJWOk,#hhSymptomCatalogEditor307 #hhSJCatAddBtn){
+ background:linear-gradient(135deg,#206aa8,#2887bd)!important;
+ color:white!important;
+}
+html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) #navHealthBar {
+ background:linear-gradient(180deg,rgba(18,39,69,.98),rgba(8,24,47,.99))!important;
+ border-top:1px solid rgba(143,197,239,.28)!important;
+ box-shadow:0 -7px 25px rgba(0,4,22,.31)!important;
+}
+html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) #navHealthBar button{
+ color:#bdd3ea!important;background:transparent!important;
+}
+html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) #navHealthBar button.on{
+ color:var(--hhpg-accent,#80c8ff)!important;
+}
+html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) :is(#hhOneRag500,#hhOneFallback501){
+ display:none!important;
+}
+@media(max-width:360px){
+ html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJBody{padding-left:9px!important;padding-right:9px!important}
+ html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickAction583{font-size:10px!important}
+}
