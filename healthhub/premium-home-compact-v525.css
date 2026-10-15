@@ -179,8 +179,8 @@ html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome{
 html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome .profileHit{
  position:absolute!important;
  left:2%!important;right:auto!important;
- top:auto!important;bottom:28%!important;
- width:22%!important;height:29%!important;
+ top:25%!important;bottom:auto!important;
+ width:30%!important;height:57%!important;
  padding:0!important;min-height:44px!important;
  border:0!important;border-radius:10px!important;
  background:none!important;background-image:none!important;
