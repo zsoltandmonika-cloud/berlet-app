@@ -1,0 +1,87 @@
+/* HH v562 · supplemental drilldown, measurement editor, OCR glass surfaces.
+   Only existing pages; preserving graph series and OCR risk semantics. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhMetricCard,.hhNow,.hhNowItem,.hhInsightStat,.hhOverviewRow,.hhSummary,
+ .hhMeasList,.hhMeasToolbar,.hhMeasChip,.hhSearchHint,.hhHealthInsight,
+ .hhHealthArchive,.hhMeasCrudBar
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;border-radius:14px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhMetricCard b,.hhNowTxt b,.hhChartTitle h3,.hhSummary h4,
+ .hhSumRow b,.hhMeasList h3,.hhInsightStat b
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhMetricCard small,.hhMetricCard em,.hhNowTxt small,.hhNowTxt span,
+ .hhSumRow small,.hhNowTxt b em
+){color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhMeasChip,.hhCrudBtn,.hhMetricCard .mi,.hhNowIcon
+){
+ background:var(--hhg-highlight)!important;color:var(--hhg-soft)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent :is(
+ .hhMeasChip.on,.hhMeasChip.active
+){
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border-color:var(--hhg-soft)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhSumRow{
+ border-top:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent .hhChartBox svg text{
+ fill:var(--hhg-muted)!important;
+}
+/* Never override chart paths, signal colors or measured values. */
+
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay{
+ background:rgba(2,8,25,.78)!important;backdrop-filter:blur(8px)!important;
+}
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay .hhCrudSheet{
+ background:var(--hhg-deep)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+ box-shadow:0 -17px 55px rgba(0,4,17,.55)!important;
+}
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay :is(
+ .hhCrudHead h2,.hhCrudGrid label,.hhCrudFull label
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay .hhCrudHead small{color:var(--hhg-soft)!important}
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay :is(
+ input,select,textarea,.hhCrudClose
+){
+ background:#1b3655!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhMeasCrudOverlay .hhCrudActions button{
+ border:1px solid var(--hhg-line)!important;
+}
+
+/* Image recognition review: source thumbnail untouched, colored status retained. */
+html[data-hh-system-glass="on"] #hhWeightSheet270 :is(
+ .hhWOcrReview,.hhWOcrLoadCard,.hhWOcrConfirm
+){
+ background:var(--hhg-glass)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 :is(
+ .hhWOcrMeta b,.hhWOcrCheck strong
+){color:var(--hhg-text)!important}
+html[data-hh-system-glass="on"] #hhWeightSheet270 :is(
+ .hhWOcrMeta small,.hhWOcrCheck
+){color:var(--hhg-muted)!important}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWOcrBadge{
+ background:rgba(76,164,127,.18)!important;color:#a3eaca!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWOcrBadge.warn{
+ background:rgba(187,143,56,.20)!important;color:#ffe09a!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWOcrBadge.bad{
+ background:rgba(182,70,84,.20)!important;color:#ffc2ca!important;
+}
+html[data-hh-system-glass="on"] #hhWeightSheet270 .hhWOcrAgain{
+ background:var(--hhg-highlight)!important;color:var(--hhg-text)!important;
+ border:1px solid var(--hhg-line)!important;
+}
