@@ -158,3 +158,40 @@ html[data-hh-premium-preview="on"] #home .homeSurface{
 html[data-hh-premium-preview="on"] #home .hhpg-eyebrow{
  display:none!important; /* remove PREMIUM GLASS and DESIGN PREVIEW captions */
 }
+
+/* v535: Keep the entire approved Léna Hero image in its natural aspect
+   ratio. v534 expanded the Hero to fill the screen; background-size:cover
+   consequently cropped the left-side monitor and enlarged the portrait.
+   Width-fitted (not stretched) image retains both monitor and Léna.
+   Unused space above the image inherits the navy studio backdrop. */
+html[data-hh-premium-preview="on"] #home #heroHome{
+ background-size:100% auto!important;
+ background-position:center bottom!important;
+ background-repeat:no-repeat!important;
+ background-color:#08172f!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome{
+ background-position:left bottom!important;
+}
+/* The canonical button is an invisible hotspot ON the portrait in
+   Léna's left monitor, not a second photo in the top-right corner.
+   Keep its accessible name and the keyboard focus ring. */
+html[data-hh-premium-preview="on"] #home #heroHome .profileHit{
+ position:absolute!important;
+ left:2%!important;right:auto!important;
+ top:auto!important;bottom:28%!important;
+ width:22%!important;height:29%!important;
+ padding:0!important;min-height:44px!important;
+ border:0!important;border-radius:10px!important;
+ background:none!important;background-image:none!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ z-index:12!important;
+ cursor:pointer;touch-action:manipulation;
+}
+html[data-hh-premium-preview="on"] #home #heroHome .profileHit:focus-visible{
+ outline:3px solid #aff0ff!important;outline-offset:2px!important;
+}
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit:focus-visible{
+ outline-color:#ffc7eb!important;
+}
