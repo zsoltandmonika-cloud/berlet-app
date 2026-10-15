@@ -263,3 +263,17 @@ html[data-hh-sleep-glass="on"] #hhSleepPage a:focus-visible{outline:3px solid #a
  html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepCard,
  html[data-hh-sleep-glass="on"] #hhSleepPage .hh428Card{transition:border-color .2s ease,box-shadow .2s ease}
 }
+
+/* v532 Golden Standard Sleep Hero | approved family portraits:
+   warm Lena + resting Yorkie + blue (Zsolt) / rose (Monika) HUD.
+   Presentation only, never used for measuring or computing sleep. */
+html[data-hh-sleep-glass="on"] #hhSleepPage .hhSleepDoctorHero{
+ background-image:url("./assets/sleep-hero-golden-v532-z.webp")!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+ background-color:#102443;
+}
+html[data-hh-sleep-glass="on"][data-hh-sleep-profile="m"] #hhSleepPage .hhSleepDoctorHero{
+ background-image:url("./assets/sleep-hero-golden-v532-m.webp")!important;
+}

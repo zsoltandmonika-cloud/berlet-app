@@ -17,7 +17,7 @@
   root.setAttribute('data-hh-sleep-profile',p);
  }
  var link=document.createElement('link');
- link.rel='stylesheet';link.href='./sleep-premium-glass-v531.css?v=531';
+ link.rel='stylesheet';link.href='./sleep-premium-glass-v531.css?v=532-golden-sleep-hero';
  link.dataset.hhSleepPremium='531';
  link.addEventListener('load',function(){
   updateProfile();
