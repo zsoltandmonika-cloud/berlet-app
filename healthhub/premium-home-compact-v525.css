@@ -164,19 +164,19 @@ html[data-hh-premium-preview="on"] #home .hhpg-eyebrow{
    consequently cropped the left-side monitor and enlarged the portrait.
    Width-fitted (not stretched) image retains both monitor and Léna.
    Unused space above the image inherits the navy studio backdrop. */
-html[data-hh-premium-preview="on"] #home #heroHome{
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome{
  background-size:100% auto!important;
  background-position:center bottom!important;
  background-repeat:no-repeat!important;
  background-color:#08172f!important;
 }
-html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome{
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome{
  background-position:left bottom!important;
 }
 /* The canonical button is an invisible hotspot ON the portrait in
    Léna's left monitor, not a second photo in the top-right corner.
    Keep its accessible name and the keyboard focus ring. */
-html[data-hh-premium-preview="on"] #home #heroHome .profileHit{
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome .profileHit{
  position:absolute!important;
  left:2%!important;right:auto!important;
  top:auto!important;bottom:28%!important;
@@ -189,9 +189,9 @@ html[data-hh-premium-preview="on"] #home #heroHome .profileHit{
  z-index:12!important;
  cursor:pointer;touch-action:manipulation;
 }
-html[data-hh-premium-preview="on"] #home #heroHome .profileHit:focus-visible{
+html[data-hh-premium-preview="on"][data-hhpg-profile] #home.on #heroHome .profileHit:focus-visible{
  outline:3px solid #aff0ff!important;outline-offset:2px!important;
 }
-html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home #heroHome .profileHit:focus-visible{
+html[data-hh-premium-preview="on"][data-hhpg-profile="m"] #home.on #heroHome .profileHit:focus-visible{
  outline-color:#ffc7eb!important;
 }
