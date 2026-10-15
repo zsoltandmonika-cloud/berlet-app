@@ -1,0 +1,22 @@
+/* HealthHub v559 | User-approved dark Léna portrait on the existing Ask Léna card.
+   The legacy card is a SINGLE image that already contains its text and arrow.
+   Cover only its portrait rectangle so neither text nor click routing changes. */
+html[data-hh-health-glass="on"] #health .ask{
+ position:relative!important;
+ overflow:hidden!important;
+}
+html[data-hh-health-glass="on"] #health .ask::after{
+ content:"";
+ display:block;
+ position:absolute;
+ z-index:2;
+ left:53.2%;
+ right:10.9%;
+ top:0;
+ bottom:0;
+ pointer-events:none!important;
+ background-image:url("./assets/ask-lena-dark-v559.webp?v=559");
+ background-repeat:no-repeat;
+ background-size:cover;
+ background-position:center 49%;
+}
