@@ -113,17 +113,38 @@
    hero.style.setProperty('height','228px','important');
   }
  }
+ function bindHomeMonitorProfileSwitch(){
+  // Reuse the native Home switch surface, but place it on the monitor portrait.
+  // The canonical controller owns profile change and data refresh.
+  var hit=document.querySelector('#home #heroHome .profileHit');
+  if(!hit)return;
+  var other=profile()==='m'?'Zsolt':'Mónika';
+  hit.setAttribute('aria-label','Egy érintés: váltás '+other+' profiljára a monitoron');
+  hit.title='Váltás '+other+' profiljára';
+  if(hit.dataset.hhHomeMonitorSwitch==='1')return;
+  hit.dataset.hhHomeMonitorSwitch='1';
+  hit.addEventListener('click',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+    if(typeof root.hhToggleProfileOneClick==='function')root.hhToggleProfileOneClick();
+    else if(typeof root.setProfile==='function')root.setProfile(profile()==='m'?'z':'m');
+  },true);
+ }
  function updateProfile(){
   var p=profile();
   document.documentElement.dataset.hhpgProfile=p;
   syncApprovedHero();
-  // Use the SAME approved selector photo on every existing HealthHub Hero
-  // switch button; never replace its click handler, portrait or owner identity.
+  // Home: the real portrait is already inside the approved Léna monitor image.
+  // No duplicate floating avatar; keep one-click switching on that monitor.
+  bindHomeMonitorProfileSwitch();
+  // Other legacy Health and Timeline portraits keep their own behavior.
   var hits=document.querySelectorAll('.page .hero .profileHit');
   var avatar=document.querySelectorAll('#overlay .choice img')[p==='m'?1:0];
   for(var i=0;i<hits.length;i++){
    var hit=hits[i];
    hit.setAttribute('aria-label','Profilváltás · '+(p==='m'?'Mónika':'Zsolt'));
+   if(hit.closest('#home #heroHome'))continue;
    hit.title='Profilváltás';
    if(avatar&&avatar.src)hit.style.backgroundImage='url("'+avatar.src+'")';
   }
