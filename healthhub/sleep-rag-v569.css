@@ -1,8 +1,8 @@
 /* HealthHub v569: understated, measurement-based RAG for existing three-view Sleep summary. */
-.hh428Panel[data-sleep-rag]{--sleep-rag-border:rgba(151,188,221,.28);border:1px solid var(--sleep-rag-border)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.018)!important}
-.hh428Panel[data-sleep-rag="green"]{--sleep-rag-border:rgba(83,194,148,.55)}
-.hh428Panel[data-sleep-rag="amber"]{--sleep-rag-border:rgba(235,179,78,.60)}
-.hh428Panel[data-sleep-rag="red"]{--sleep-rag-border:rgba(239,111,123,.63)}
+.hh428Panel[data-sleep-rag]{--sleep-rag-border:rgba(151,188,221,.28);--sleep-rag-tone:#a8bfd5}
+.hh428Panel[data-sleep-rag="green"]{--sleep-rag-border:rgba(83,194,148,.55);--sleep-rag-tone:#63d5a6}
+.hh428Panel[data-sleep-rag="amber"]{--sleep-rag-border:rgba(235,179,78,.60);--sleep-rag-tone:#efbd63}
+.hh428Panel[data-sleep-rag="red"]{--sleep-rag-border:rgba(239,111,123,.63);--sleep-rag-tone:#f18b94}
 .hh428Panel .hhSleepRag569{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;
  padding:5px 9px;border:1px solid var(--sleep-rag-border);border-radius:999px;
  background:rgba(11,29,49,.60);font:750 10px/1.25 system-ui,sans-serif;letter-spacing:.025em;
@@ -15,3 +15,15 @@
 .hh428Panel .hhSleepRag569{position:absolute;right:0;top:0}
 .hh428Panel .hh428Eyebrow{display:block;padding-right:110px}
 @media(max-width:360px){.hh428Panel .hhSleepRag569{font-size:9px;padding:4px 7px}.hh428Panel .hh428Eyebrow{padding-right:101px}}
+
+/* v579: only the middle night-sleep tile owns the RAG outline.
+   The exact same variable paints the timestamp; other cards and 24h chart stay neutral. */
+#hhSleepPage .hh428Panel[data-sleep-rag] .hh428Card--night{
+ border:1px solid var(--sleep-rag-tone)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 0 1px color-mix(in srgb,var(--sleep-rag-tone) 15%,transparent),0 0 12px color-mix(in srgb,var(--sleep-rag-tone) 12%,transparent)!important;
+}
+#hhSleepPage .hh428Panel[data-sleep-rag] .hh428Card--night > p{
+ color:var(--sleep-rag-tone)!important;
+ font-weight:700!important;
+ opacity:1!important;
+}
