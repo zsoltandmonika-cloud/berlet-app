@@ -1,0 +1,68 @@
+/* HealthHub v585 | Final approved Timeline Hero polish.
+ * Position and scale only. Existing v222 live profile text/click handlers,
+ * v584 artwork, and every Timeline item/metric remain untouched. */
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy {
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:calc(18px + env(safe-area-inset-top))!important;
+  bottom:auto!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;
+  max-width:calc(100% - 24px)!important;
+  min-width:0!important;
+  text-align:center!important;
+  pointer-events:none!important;
+  z-index:9!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT {
+  text-align:center!important;
+  margin:0!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT::after {
+  font-size:clamp(20px,5.25vw,25px)!important;
+  line-height:1.15!important;
+  font-weight:850!important;
+  letter-spacing:-.035em!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit {
+  box-sizing:border-box!important;
+  left:12px!important;
+  bottom:13px!important;
+  top:auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:38px!important;
+  min-height:38px!important;
+  padding:5px 11px 5px 8px!important;
+  gap:7px!important;
+  border:1px solid rgba(146,192,229,.47)!important;
+  border-radius:999px!important;
+  background:rgba(7,27,53,.95)!important;
+  color:var(--tl584-accent,#83c9ff)!important;
+  box-shadow:0 5px 15px rgba(0,7,24,.30),inset 0 1px 0 rgba(255,255,255,.06)!important;
+  font-size:12px!important;
+  line-height:1!important;
+  font-weight:800!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+html[data-hh-timeline-glass="on"] #timeline #heroT .profileHit::before {
+  flex:0 0 20px!important;
+  width:20px!important;
+  height:20px!important;
+  border-width:3px!important;
+}
+@media(max-width:360px){
+  html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy {
+    left:50%!important;
+    right:auto!important;
+    top:calc(17px + env(safe-area-inset-top))!important;
+    transform:translateX(-50%)!important;
+  }
+  html[data-hh-timeline-glass="on"] #timeline #heroT .heroCopy #nameT::after {
+    font-size:19px!important;
+  }
+}
