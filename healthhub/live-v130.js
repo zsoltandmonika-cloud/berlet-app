@@ -20,6 +20,12 @@ async function findMedication(name){
   return list.find(function(x){return x.name===name})||null;
 }
 
+/* Visual scope only: keep medication text and buttons unchanged. */
+function markExplanationContent577(c){
+ var wrap=document.createElement('div');wrap.className='hhLenaExplanationV577';
+ while(c.firstChild)wrap.appendChild(c.firstChild);
+ c.appendChild(wrap);
+}
 window.hhMedicationPurpose=async function(name){
   var m=await findMedication(name);
   var c=document.getElementById('hrDetailContent'),o=document.getElementById('hrDetailOverlay');if(!c||!o)return;
@@ -27,7 +33,7 @@ window.hhMedicationPurpose=async function(name){
     c.innerHTML='<h2>Mire való?</h2><div class="hrDetailMeta">'+esc(name)+'</div>'+
       '<p class="privacyNote">A privát gyógyszermagyarázat még nincs betöltve ezen a készüléken.</p>'+
       '<button class="vaultBtn primary" style="width:100%" onclick="hhImportPrivateReference()">Privát gyógyszermagyarázat importálása</button>';
-    o.classList.add('on');return;
+    markExplanationContent577(c);o.classList.add('on');return;
   }
   c.innerHTML='<h2>'+esc(m.name)+'</h2><div class="hrDetailMeta">'+esc(m.strength||'')+' · '+esc(m.schedule||'')+'</div>'+
     (m.note?'<p class="privacyNote" style="margin-top:0">'+esc(m.note)+'</p>':'')+
@@ -35,6 +41,7 @@ window.hhMedicationPurpose=async function(name){
     '<h4>Hogyan segít?</h4><p>'+esc(m.benefit||'')+'</p>'+
     '<p style="background:#fff8e8;border-radius:12px;padding:10px;margin-top:12px;font-size:10px;line-height:1.5;color:#725414"><b>Fontos:</b> '+esc(m.caution||'')+'</p>'+
     '<p class="privacyNote">Ez közérthető gyógyszermagyarázat. A gyógyszer nevét vagy adagját csak orvosi utasítás alapján módosítsátok.</p>';
+  markExplanationContent577(c);
   o.classList.add('on');
 };
 
