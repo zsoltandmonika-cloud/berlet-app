@@ -185,9 +185,13 @@ window.hhPrintDocument=function(id){
 var prevRender=window.renderHealthSection;
 if(typeof prevRender==='function'){
  window.renderHealthSection=async function(){
-  var r=await prevRender.apply(this,arguments),m=await meta();if(!m||window.healthSectionKind!=='records')return r;
+  var r=await prevRender.apply(this,arguments);if(window.healthSectionKind!=='records')return r;
   var c=document.getElementById('healthSubContent');if(!c)return r;if(!st.profile)st.profile=pkey();
-  var docs=await all('documents'),q=((document.getElementById('healthSearch')||{}).value||'').trim().toLocaleLowerCase('hu');
+  // Document records are authoritative for display; migration meta is only a summary marker.
+  // Never replace the legacy journal unless usable document rows actually exist.
+  var docs;try{docs=await all('documents')}catch(e){console.warn('HealthHub PDF list read failed',e);return r}
+  if(!Array.isArray(docs)||!docs.length)return r;
+  var q=((document.getElementById('healthSearch')||{}).value||'').trim().toLocaleLowerCase('hu');
   docs=docs.filter(function(d){
    if(st.profile!=='all'&&d.profile!==st.profile)return false;if(st.category!=='all'&&d.category!==st.category)return false;
    if(st.from&&(!d.documentDate||d.documentDate<st.from))return false;if(st.to&&(!d.documentDate||d.documentDate>st.to))return false;
