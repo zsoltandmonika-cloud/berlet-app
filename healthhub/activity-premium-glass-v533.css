@@ -173,3 +173,46 @@ html[data-hh-activity-glass="on"] #hh191Modal button:focus-visible{
  html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Kpi{padding:8px 6px!important}
  html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Periods button{font-size:10px}
 }
+
+/* v533.1 | Fix: interval selection is a full-width sibling BELOW hero, outside hitboxes. */
+html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods{
+ position:relative!important;inset:auto!important;z-index:2!important;
+ width:calc(100% - 20px)!important;height:46px!important;margin:10px 10px 12px!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ border:1px solid var(--hha-line)!important;border-radius:15px!important;overflow:hidden!important;
+ background:linear-gradient(145deg,rgba(44,74,116,.89),rgba(17,39,71,.97))!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods button{
+ position:relative!important;display:flex;align-items:center;justify-content:center;
+ min-height:44px!important;padding:0 2px!important;line-height:1.1!important;
+ font-size:clamp(11px,3.3vw,13px)!important;font-weight:850!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191>.a191Periods button.on{border-radius:12px!important}
+/* v363 Calorie Engine actual ID and actual grid, same read-only estimates. */
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363{
+ background:linear-gradient(147deg,rgba(87,132,187,.24),rgba(26,48,80,.76) 52%,rgba(75,55,108,.17))!important;
+ color:var(--hha-ink)!important;border:1px solid var(--hha-line)!important;
+ border-radius:18px!important;padding:13px!important;margin:10px 0!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 20px rgba(0,5,25,.18)!important;
+ -webkit-backdrop-filter:blur(13px) saturate(140%);backdrop-filter:blur(13px) saturate(140%);
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 h3{color:#f2faff!important;font-size:14px!important}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 .hhCal363Grid{gap:7px!important}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 .hhCal363Grid>div{
+ background:linear-gradient(140deg,rgba(112,165,219,.16),rgba(28,48,83,.74))!important;
+ border:1px solid var(--hha-line)!important;border-radius:13px!important;
+ padding:11px 4px!important;min-width:0;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 .hhCal363Grid small{
+ color:#cfdfef!important;font-size:10px!important;line-height:1.35;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 .hhCal363Grid b{
+ color:var(--hha-accent)!important;font-size:19px!important;font-weight:900;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 p{
+ color:#c8dcee!important;font-size:10.5px!important;line-height:1.55!important;overflow-wrap:anywhere;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 #hhCal363 p b{color:#e8f6ff!important}
+html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage191 #hhCal363 .hhCal363Grid>div{
+ background:linear-gradient(140deg,rgba(172,90,158,.20),rgba(37,40,84,.73))!important;
+}
