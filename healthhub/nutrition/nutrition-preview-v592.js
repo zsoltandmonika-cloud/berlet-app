@@ -149,6 +149,15 @@ function render(){
  let fluid=0, fluidFound=false;
  for(const e of entries)if(Number.isFinite(e.volumeMl)){fluid+=e.volumeMl;fluidFound=true}
  $('fluids').textContent=fluidFound?fmt(fluid,0):'—';
+ const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
+ const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
+ $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
+ $('hhWaterAmount').textContent=fluidFound?fmt(fluid,0)+' ml rögzített folyadék':'Még nincs rögzített ital';
+ $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
+ const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
+ $('hhWaterLevel').style.height=waterPct==null?'0%':Math.min(100,waterPct)+'%';
+ $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
+
  const log=$('log');log.replaceChildren();
  if(!entries.length){log.innerHTML='<p class="empty">Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕</p>';}
  entries.sort((a,b)=>b.time.localeCompare(a.time)).forEach(e=>{
@@ -470,6 +479,14 @@ function events(){
  click('editMorning',()=>openPreset('morning'));click('editAfternoon',()=>openPreset('afternoon'));
  click('addFood',()=>openEntry('food'));click('addDrink',()=>openEntry('drink'));
  click('waterQuick',logWater250);
+ click('waterQuickAdd',logWater250);
+ click('hhWaterSave',()=>{
+  const raw=$('hhWaterGoal').value.trim(),v=Number(raw);
+  if(!raw||!Number.isFinite(v)||v<250||v>6000){alert('Adj meg 250 és 6000 ml közötti folyadékcélt.');return;}
+  localStorage.setItem('hh-nutrition-hydration-goal-'+active,String(Math.round(v)));
+  render();tone('tap');
+ });
+
  click('photoCoffee',()=>openPreset('morning'));
  click('photoBanana',()=>openNamedFood('banana'));
  click('photoSalad',()=>openNamedFood('chicken'));
