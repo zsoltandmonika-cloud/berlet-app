@@ -112,19 +112,36 @@ function render(){
  const entries=d.entries.filter(e=>!e.deleted&&e.date===date);
  const vals=sum(entries.map(x=>x.nutrients||{})),kcal=vals.kcal??0,goal=d.goal.kcal;
  $('ringKcal').textContent=fmt(kcal,0);
+ // Burned energy must be a real complete-day or day-to-date record from the correct profile.
+ // Never infer it from steps, activity calories alone, or fake a zero.
+ const burnt=window.hhNutritionDailyEnergy&&window.hhNutritionDailyEnergy.profile===active&&window.hhNutritionDailyEnergy.date===date&&window.hhNutritionDailyEnergy.kind==='total_burned_kcal'&&Number.isFinite(window.hhNutritionDailyEnergy.kcal)?window.hhNutritionDailyEnergy.kcal:null;
+ $('hhBurntKcal').textContent=burnt==null?'—':fmt(burnt,0);
+ $('hhNetKcal').textContent=burnt==null?'—':(kcal-burnt>0?'+':'')+fmt(kcal-burnt,0);
+ $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(window.hhNutritionDailyEnergy.source||'szinkronizált adat');
+ const netEl=$('hhNetRing');netEl.style.removeProperty('--energy-color');netEl.classList.toggle('pending',burnt==null||goal==null);
+ if(burnt!=null&&goal!=null){
+  const desired=burnt-goal; // intake target converted to balance target for this day
+  const distance=Math.abs((kcal-burnt)-desired),tol=Math.max(100,d.goal.tolerance||150);
+  // continuous gradient from green at goal to yellow / amber and red as deviation grows
+  const hue=Math.max(0,120-120*Math.min(1,distance/(tol*3)));
+  netEl.style.setProperty('--energy-color','hsl('+hue+' 98% 53%)');
+ }
+ $('hhMacroProtein').textContent=vals.protein==null?'—':fmt(vals.protein,0)+' g';
+ $('hhMacroCarbs').textContent=vals.carbs==null?'—':fmt(vals.carbs,0)+' g';
+ $('hhMacroFat').textContent=vals.fat==null?'—':fmt(vals.fat,0)+' g';
  $('ringCaption').textContent=goal?' / '+fmt(goal,0)+' kcal':'mai bevitel';
  $('balanceRing').style.setProperty('--pct',(goal?Math.max(0,Math.min(100,kcal/goal*100)):0)+'%');
- $('balanceLabel').textContent=goal?'NAPI KALÓRIA · KERETBŐL HÁTRA':'NAPI KALÓRIA · ELFOGYASZTVA';
+ $('balanceLabel').textContent='NAPI KALÓRIA ÖSSZEFOGLALÓ';
  const b=$('balanceCard'),t=$('balanceValue');b.classList.remove('good','warn','bad');t.classList.remove('good','warn','bad');
  if(goal!=null){
   const remain=goal-kcal,lo=goal-d.goal.tolerance,hi=goal+d.goal.tolerance;
   const isToday=date===localDate();const ongoingDay=isToday&&new Date().getHours()<20;
   const color=kcal>hi?'bad':ongoingDay?'good':kcal>=lo?'good':'warn';
   b.classList.add(color);t.classList.add(color);t.textContent=(remain>=0?'':'−')+fmt(Math.abs(remain),0)+' kcal';
-  $('balanceText').textContent='Elfogyasztva: '+fmt(kcal,0)+' kcal · Cél: '+fmt(goal,0)+' kcal · '+(ongoingDay?'A zöld azt jelzi, hogy eddig a kereten belül vagy. A nap végén a céltartomány is számít.':'A zöld a beállított napi céltartományt jelöli.');
+  $('balanceText').textContent=burnt==null?'Az egyenleghez szinkronizált teljes energiafelhasználás szükséges.':'Bevitel − teljes elégetett kalória. A szín a személyes célhoz viszonyít.';
   $('progress').style.width=Math.min(100,100*kcal/goal)+'%';
  }else{
-  t.textContent=fmt(kcal,0)+' kcal';$('balanceText').textContent='A személyes kalóriakeret még nincs beállítva. A bevitel ettől függetlenül naplózható.';$('progress').style.width='0%';
+  t.textContent=fmt(kcal,0)+' kcal';$('balanceText').textContent='Állítsd be a napi kalóriacélt; a bevitel addig is naplózható.';$('progress').style.width='0%';
  }
  for(const k of ['protein','carbs','fat','fiber','vitc','b6','calcium','magnesium','potassium','omega3']){
    $(k).textContent=vals[k]==null?'—':fmt(vals[k],k==='b6'?2:1);
