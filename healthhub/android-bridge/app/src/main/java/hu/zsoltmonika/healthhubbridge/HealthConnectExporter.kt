@@ -68,6 +68,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
 
     fun countSummary(json: JSONObject): String {
         val c = json.optJSONObject("counts") ?: return "Hiányzik az adatösszesítő"
+        val bad = json.optJSONObject("syncDiagnostics")?.optJSONArray("failedRecordTypes")
+        val badNames = if (bad == null) "" else (0 until bad.length())
+            .map { bad.optString(it) }.filter { it.isNotBlank() }.joinToString(", ")
         return "pulzus: ${c.optInt("heartRateRecords")} · lépéses napok: ${c.optInt("activeDaysWithData")}" +
             " · súly: ${c.optInt("weight")} · vérnyomás: ${c.optInt("bloodPressure")}" +
             " · alvás: ${c.optInt("sleepSessions")} · edzés: ${c.optInt("exerciseSessions")}" +
@@ -80,7 +83,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     "${c.optInt("exerciseAggregationUnavailable")} hibás edzésaggregátum, " +
                     "${c.optInt("dailyExerciseAggregationFallbacks")} napi edzés-fallback, " +
                     "${c.optInt("nutritionDaysAggregationUnavailable")} táplálkozási nap nem elérhető"
-             else "")
+             else "") +
+            (if (badNames.isNotBlank()) " · ⚠ Hibás HC forrás: $badNames" else "")
     }
 
     private fun mergedActiveMinutes(
