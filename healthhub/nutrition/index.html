@@ -57,12 +57,27 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 @media(max-width:480px){.previewNotice{padding:10px 11px}.previewNotice span{font-size:10px}}
 </style><link rel="stylesheet" href="./nutrition-golden-v594.css?v=594-glass-hd2">
 <link rel="stylesheet" href="./healthhub-nutrition-hero-approved.css?v=596">
+<link rel="stylesheet" href="./hh-body-golden-v598.css?v=598">
 </head>
 <body>
 <main class="shell">
 <header class="top"><div class="controls"><button type="button" class="mini profile" id="profileBtn" title="Egyérintéses profilváltás">Zsolt ⇄</button></div></header>
 <section class="hero" id="nutritionApprovedHero"><div class="hero-copy"><span class="eyebrow">HEALTHHUB · YOUR DAILY FUEL</span><h1>Táplálkozz<br>jókedvvel!</h1><p>A megszokott Léna és a 3D chipmunk kísér végig a nap minden falatján és kortyán. ☕ 🍓</p></div><div class="hero-art"><img class="original-lena" src="./nutri-lena-photo-v594.webp" alt="A jóváhagyott Nutrition-látványtervből kivágott, cappuccinós, lifestyle Léna-portré" decoding="async"><img class="hh-hero-chip" src="./nutri-chipmunk-3d-v594.webp" alt="3D hatású mosolygós chipmunk" decoding="async"></div></section>
-<section class="glass balance" id="balanceCard"><div><div class="label" id="balanceLabel">NAPI KALÓRIA · NAPLÓ</div><div class="ring" id="balanceRing"><span><b id="ringKcal">0</b><small id="ringCaption">mai bevitel</small></span></div><div class="total" id="balanceValue">—</div><div class="sub" id="balanceText">A keret megadásával aktiválódik a személyes egyenleg.</div><div class="bar"><i id="progress"></i></div><div style="margin-top:9px;display:flex;gap:9px;align-items:center;flex-wrap:wrap"><button type="button" class="mini" id="goalBtn">⚙ Kalóriakeret</button><span class="status" id="syncStatus">Helyi előnézet</span></div></div><div><button type="button" class="buddy" id="buddy" aria-label="Nutri Buddy, a chipmunk: érintsd meg egy kedves üzenetért"><img src="./nutri-chipmunk-3d-v594.webp" alt="" decoding="async"></button><div class="buddy-caption" id="buddyNote">NUTRI BUDDY 🐿️</div></div></section>
+<section class="glass balance hh-body" id="balanceCard" aria-label="Napi kalória összefoglaló">
+ <div class="hh-body-heading"><span class="label" id="balanceLabel">NAPI KALÓRIA ÖSSZEFOGLALÓ</span><span class="hh-body-name">HH Body</span></div>
+ <div class="hh-body-main">
+  <div class="hh-body-dials">
+   <div class="hh-body-dial"><div class="hh-body-circle intake"><span class="hh-dial-icon">🍴</span><strong id="ringKcal">0</strong><small>kcal</small></div><span>Napi bevitel</span></div>
+   <div class="hh-body-dial"><div class="hh-body-circle burnt"><span class="hh-dial-icon">🔥</span><strong id="hhBurntKcal">—</strong><small>kcal</small></div><span>Napi elégetett</span></div>
+   <div class="hh-body-dial"><div class="hh-body-circle net" id="hhNetRing"><span class="hh-dial-icon">⚖️</span><strong id="hhNetKcal">—</strong><small>kcal</small></div><span>Napi egyenleg</span></div>
+  </div>
+  <div class="hh-body-side"><button type="button" class="buddy" id="buddy" aria-label="HealthHub Buddy: érintsd meg"><img src="./nutri-chipmunk-3d-v594.webp" alt="Buddy mókus" decoding="async"></button><div class="buddy-caption" id="buddyNote">HH BUDDY 🐿️</div><div class="hh-body-message" id="balanceText">Az egyenleghez a napi teljes elégetett kalória szükséges.</div></div>
+ </div>
+ <div class="hh-body-goal"><span id="ringCaption">Napi cél</span><div class="hh-body-target"><div class="bar"><i id="progress"></i></div><strong id="balanceValue">—</strong></div><button type="button" class="mini" id="goalBtn">◎ Cél beállítása</button></div>
+ <div class="hh-body-macros"><span>💪 Fehérje <b id="hhMacroProtein">—</b></span><span>🌾 Szénhidrát <b id="hhMacroCarbs">—</b></span><span>💧 Zsír <b id="hhMacroFat">—</b></span></div>
+ <div class="hh-body-meta"><span class="status" id="syncStatus">Helyi előnézet</span><span id="hhEnergyStatus">Teljes napi energia: még nem kapcsolódott</span></div>
+ <div id="balanceRing" hidden></div>
+</section>
 <div class="row"><h2>☕ Gyorsreceptek</h2><span class="muted">1–2 érintés · reggel a kávé az első ☕</span></div>
 <div class="quick"><button type="button" class="glass" id="morning"><img class="hh-quick-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"><strong>☕ Reggeli cappuccino</strong><small id="morningLabel">Profilhoz igazított kockacukor</small></button><button type="button" class="glass" id="afternoon"><img class="hh-quick-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"><strong>☕ Délutáni cappuccino + nasi</strong><small>3 kockacukor · fahéjas cukor · 4 babapiskóta</small></button></div>
 <div class="row"><h2>🍽️ Bevitel <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><span class="muted">Gördíthető ételek és mértékegységek</span></div>
