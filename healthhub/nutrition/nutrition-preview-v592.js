@@ -446,7 +446,7 @@ function events(){
  const click=(id,fn)=>$(id).addEventListener('click',fn);
  click('profileBtn',()=>{tone('tap');setProfile(active==='zsolt'?'monika':'zsolt',true)});
  click('buddy',greetBuddy);
- click('soundBtn',()=>{const next=sounds()?'off':'on';localStorage.setItem('hh-nutrition-PREVIEW-sound',next);$('soundBtn').textContent=next==='off'?'♪ némítva':'♫ hang';if(next==='on')tone('tap')});
+
  click('insight7',()=>{insightDays=7;renderInsights();tone('tap')});
  click('insight30',()=>{insightDays=30;renderInsights();tone('tap')});
  click('goalBtn',openGoal);click('morning',()=>openPreset('morning'));click('afternoon',()=>openPreset('afternoon'));
@@ -481,7 +481,7 @@ function events(){
  window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active)render();});
 }
 function start(){
- $('logDate').value=localDate();$('soundBtn').textContent=sounds()?'♫ hang':'♪ némítva';
+ $('logDate').value=localDate();
  events();setProfile(pkey(),false);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
