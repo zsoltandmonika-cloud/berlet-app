@@ -251,19 +251,41 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             }
         })
 
+        // Guard each imported exercise separately. Health Connect rejects identical
+        // or reversed start/end timestamps; one malformed session must not block
+        // blood pressure, pulse, sleep or all 30 days of Dropbox updates.
+        var skippedInvalidExerciseWindows = 0
+        var failedExerciseAggregates = 0
         records.put("exerciseSessions", JSONArray().also { arr ->
             exercise.forEach { r ->
-                val sessionAgg = client.aggregate(
-                    AggregateRequest(
-                        metrics = setOf(
-                            DistanceRecord.DISTANCE_TOTAL,
-                            ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL
-                        ),
-                        timeRangeFilter = TimeRangeFilter.between(r.startTime, r.endTime)
-                    )
-                )
-                val sessionDistance = sessionAgg[DistanceRecord.DISTANCE_TOTAL]
-                val sessionActiveCalories = sessionAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
+                val safe = HealthTimeWindows.boundedSession(r.startTime, r.endTime, start, end)
+                var distanceKm: Double? = null
+                var caloriesKcal: Double? = null
+                var aggregateStatus = "ok"
+                if (safe == null) {
+                    skippedInvalidExerciseWindows++
+                    aggregateStatus = "invalid_or_out_of_range_interval"
+                } else {
+                    try {
+                        val sessionAgg = client.aggregate(
+                            AggregateRequest(
+                                metrics = setOf(
+                                    DistanceRecord.DISTANCE_TOTAL,
+                                    ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL
+                                ),
+                                timeRangeFilter = TimeRangeFilter.between(safe.first, safe.second)
+                            )
+                        )
+                        distanceKm = sessionAgg[DistanceRecord.DISTANCE_TOTAL]?.inMeters?.div(1000.0)
+                        caloriesKcal = sessionAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]?.inKilocalories
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        failedExerciseAggregates++
+                        aggregateStatus = "aggregation_unavailable"
+                    }
+                }
+                // Keep the original exercise event and its source timestamps for
+                // debugging; unavailable aggregates are null, never fabricated zero.
                 arr.put(JSONObject()
                     .put("id", r.metadata.id)
                     .put("startTime", r.startTime.toString())
@@ -271,8 +293,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     .put("exerciseType", r.exerciseType)
                     .put("title", r.title ?: JSONObject.NULL)
                     .put("notes", r.notes ?: JSONObject.NULL)
-                    .put("distanceKm", (sessionDistance?.inMeters ?: 0.0) / 1000.0)
-                    .put("caloriesKcal", sessionActiveCalories?.inKilocalories ?: 0.0)
+                    .put("distanceKm", distanceKm ?: JSONObject.NULL)
+                    .put("caloriesKcal", caloriesKcal ?: JSONObject.NULL)
+                    .put("aggregateStatus", aggregateStatus)
                     .put("sourcePackage", r.metadata.dataOrigin.packageName))
             }
         })
@@ -421,6 +444,8 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("restingHeartRate", restingHeart.size)
             .put("vo2Max", vo2.size)
             .put("exerciseSessions", exercise.size)
+            .put("exerciseInvalidTimeWindows", skippedInvalidExerciseWindows)
+            .put("exerciseAggregationUnavailable", failedExerciseAggregates)
             .put("sleepSessions", sleep.size)
             .put("stepDays", steps.length())
             .put("activityDays", dailyActivity.length())
