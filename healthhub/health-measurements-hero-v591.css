@@ -1,0 +1,54 @@
+/* HealthHub v591 | Mérések Hero quick fix (S24 Ultra).
+   Visual-only and scoped to the active Measurements health subpage.
+   Keep the approved Léna photo, profile-switch hit target, back navigation,
+   real measurements and all backend/service functions unchanged. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero > div{
+ position:absolute!important;
+ top:calc(9px + env(safe-area-inset-top))!important;
+ bottom:auto!important;
+ left:50%!important;
+ right:auto!important;
+ transform:translateX(-50%)!important;
+ width:max-content!important;
+ max-width:calc(100% - 112px)!important;
+ min-width:0!important;
+ text-align:center!important;
+ z-index:11!important;
+ pointer-events:none!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero .healthSubKicker{
+ display:none!important;
+}
+html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero #healthSubTitle{
+ display:block!important;
+ margin:0!important;
+ padding:0!important;
+ color:#fff!important;
+ font:850 clamp(20px,5.3vw,24px)/1.12 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:-.035em!important;
+ white-space:nowrap!important;
+ text-align:center!important;
+ text-shadow:0 2px 13px rgba(0,8,25,.94),0 0 10px rgba(0,17,40,.62)!important;
+}
+/* Remove the redundant top-right ellipsis ONLY for Measurements.
+   Other modules retain their original action/menu controls. */
+html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero .healthSubAction{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+/* Hide the floating HH ONE status capsule ONLY while Measurements is open.
+   HH ONE and its Service Center remain available from other screens. */
+html:has(#healthSection.page.on[data-hh-measurements-hero-v591="on"]) :is(#hhOneRag500,#hhOneFallback501){
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+@media(max-width:370px){
+ html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero > div{
+  max-width:calc(100% - 96px)!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection[data-hh-measurements-hero-v591="on"] .healthSubHero #healthSubTitle{
+  font-size:20px!important;
+ }
+}
