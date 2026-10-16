@@ -80,3 +80,33 @@ dialog .primary{color:#041c31;background:linear-gradient(100deg,#69d4fc,#ffabcc)
 }
 @media(max-width:390px){.shell{padding-left:9px;padding-right:9px}.hero{min-height:182px}.hero h1{font-size:24px}.balance{grid-template-columns:1fr 57px}.balance>div:first-child{grid-template-columns:101px 1fr}.ring{width:101px;height:101px}.buddy{width:63px}.quick button{padding-left:67px}.quick button:before{width:61px}.quick .hh-quick-chip{left:6px;width:47px}}
 @media(prefers-reduced-motion:reduce){.buddy,.ring,.mini,.btn,.food-strip button{transition:none!important}}
+
+/* v594 art bindings: actual baked-in photographic assets, not a static demo screenshot */
+.hero-art img.original-lena{object-fit:cover;object-position:center 18%;image-rendering:auto}
+.hero-art img.hh-hero-chip{width:48%;max-width:194px;right:-5%;bottom:-7%;object-fit:contain;filter:drop-shadow(0 10px 13px rgba(0,0,0,.85))}
+.buddy{width:clamp(100px,15vw,155px);aspect-ratio:320/284}
+.buddy img{filter:drop-shadow(0 9px 12px #0009)}
+.quick button:before{background-image:linear-gradient(90deg,transparent,rgba(9,21,41,.18)),url('./nutri-food-sprite-v594.webp');background-size:100% 100%,400% 100%;background-position:center,0% center;border-radius:15px 0 0 15px}
+.quick button#afternoon:before{background-position:center,100% center}
+.quick .hh-quick-chip{left:55px;top:auto;bottom:7px;width:34px;height:35px;filter:drop-shadow(0 3px 4px #020916)}
+.food-strip .photo{background-image:url('./nutri-food-sprite-v594.webp');background-size:400% 100%;background-repeat:no-repeat;text-indent:-9999px}
+.food-strip [data-food-art="coffee"]{background-position:0% 50%}
+.food-strip [data-food-art="banana"]{background-position:33.333% 50%}
+.food-strip [data-food-art="salad"]{background-position:66.667% 50%}
+.food-strip [data-food-art="afternoon"]{background-position:100% 50%}
+.food-strip button{box-shadow:inset 0 1px #ffffff1b,0 8px 19px #0004}
+.food-strip .photo{height:clamp(75px,11vw,110px)}
+.food-strip .photo-label{color:#edf8ff}
+@media(max-width:650px){
+ .hero-art img.hh-hero-chip{width:53%;max-width:115px;right:-12%;bottom:-6%}
+ .hero-art img.original-lena{object-position:50% 16%}
+ .buddy{width:78px}
+ .quick .hh-quick-chip{left:44px;width:28px;height:29px}
+ .food-strip .photo{height:73px}
+}
+@media(max-width:390px){
+ .hero-art img.hh-hero-chip{right:-15%;bottom:-6%}
+ .buddy{width:64px}
+ .quick .hh-quick-chip{left:38px;width:26px;height:27px}
+ .food-strip .photo{height:63px}
+}
