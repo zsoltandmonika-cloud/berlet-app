@@ -645,5 +645,30 @@ document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')
 ensurePage();wireButton();document.addEventListener('click',delegatedSleepClick,true);
 var prevSet=window.setProfile;if(typeof prevSet==='function')window.setProfile=function(){var r=prevSet.apply(this,arguments);var requested=arguments[0]==='m'?'monika':arguments[0]==='z'?'zsolt':pkey();setTimeout(function(){if(document.getElementById('hhSleepPage')?.classList.contains('on'))render(requested)},30);return r};
 setTimeout(wireButton,300);setInterval(function(){var p=document.getElementById('hhSleepPage');if(p&&p.classList.contains('on'))wireButton()},5000);
+/* Refresh a visible Sleep page when an updated family cloud snapshot arrives,
+   or when the user returns from another app. Never overwrite any sleep record.
+   Avoid interrupting an active Sleep Helper audio/light session. */
+var hhSleepCloudRefreshLast=0;
+function hhSleepRefreshVisible(reason,force){
+ var page=document.getElementById('hhSleepPage');
+ if(!page||!page.classList.contains('on'))return;
+ if(document.getElementById('hhSleepHelperOverlay')?.classList.contains('on'))return;
+ var now=Date.now();
+ if(!force&&now-hhSleepCloudRefreshLast<45000)return;
+ hhSleepCloudRefreshLast=now;
+ if(typeof window.hhRenderSleep==='function'){
+  Promise.resolve(window.hhRenderSleep(pkey())).catch(function(err){console.warn('Sleep cloud refresh',reason,err)});
+ }
+}
+window.addEventListener('healthhub:health-cloud-synced',function(e){
+ var profile=e&&e.detail&&e.detail.profile;
+ if(profile&&profile!==pkey())return;
+ hhSleepRefreshVisible('cloud-sync',true);
+});
+window.addEventListener('focus',function(){hhSleepRefreshVisible('focus',false)});
+document.addEventListener('visibilitychange',function(){
+ if(document.visibilityState==='visible')hhSleepRefreshVisible('visible',false);
+});
+
 document.documentElement.dataset.healthhubSleep='1.386';window.HH_LIVE_BUILD='v386-sleep-readable-trends';
 })();
