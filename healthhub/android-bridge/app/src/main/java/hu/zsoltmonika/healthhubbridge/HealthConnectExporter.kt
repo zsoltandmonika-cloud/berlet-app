@@ -73,6 +73,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             (if (c.optInt("exerciseInvalidTimeWindows") + c.optInt("exerciseAggregationUnavailable") +
                     c.optInt("dailyExerciseAggregationFallbacks") + c.optInt("nutritionDaysAggregationUnavailable") > 0)
                 " · ⚠ részleges adatok: ${c.optInt("exerciseInvalidTimeWindows")} hibás edzésidő, " +
+                    "${c.optInt("exerciseAggregationUnavailable")} hibás edzésaggregátum, " +
                     "${c.optInt("dailyExerciseAggregationFallbacks")} napi edzés-fallback, " +
                     "${c.optInt("nutritionDaysAggregationUnavailable")} táplálkozási nap nem elérhető"
              else "")
@@ -386,7 +387,11 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 val intervalMinutes = mergedActiveMinutes(activeCaloriesRecords, dayStart, dayEnd)
                 val useIntervalMinutes =
                     intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
-                val effectiveActiveMinutes = if (useIntervalMinutes) intervalMinutes else exerciseMinutes
+                // If the Health Connect duration metric failed, unknown is not zero.
+            val effectiveActiveMinutes: Double? =
+                if (useIntervalMinutes) intervalMinutes
+                else if (durationAggregateUnavailable) null
+                else exerciseMinutes
 
                 val terrainMetrics = mutableSetOf<AggregateMetric<*>>()
                 if (elevationAllowed) terrainMetrics.add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
@@ -412,7 +417,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     .put("activeCaloriesKcal", activeCalories?.inKilocalories ?: 0.0)
                     .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
                     .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
-                    .put("activeMinutes", effectiveActiveMinutes)
+                    .put("activeMinutes", effectiveActiveMinutes ?: JSONObject.NULL)
                     .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions")
                 if (elevation != null) dayActivity.put("elevationGainMeters", elevation.coerceAtLeast(0.0))
                 if (floors != null) dayActivity.put("floorsClimbed", floors.coerceAtLeast(0.0))
