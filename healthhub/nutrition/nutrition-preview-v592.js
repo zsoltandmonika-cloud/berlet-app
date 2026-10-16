@@ -129,6 +129,14 @@ function render(){
  $('hhMacroProtein').textContent=vals.protein==null?'—':fmt(vals.protein,0)+' g';
  $('hhMacroCarbs').textContent=vals.carbs==null?'—':fmt(vals.carbs,0)+' g';
  $('hhMacroFat').textContent=vals.fat==null?'—':fmt(vals.fat,0)+' g';
+ // Macro bars express each known macro's proportion of caloric macronutrients;
+ // never interpret missing nutrition as zero.
+ const macroEnergy=[vals.protein,vals.carbs,vals.fat],energySum=macroEnergy.every(v=>Number.isFinite(v))?macroEnergy[0]*4+macroEnergy[1]*4+macroEnergy[2]*9:null;
+ document.querySelectorAll('.hh-body-macros span').forEach((el,i)=>{
+  const kcalEnergy=energySum>0?macroEnergy[i]*(i===2?9:4):0;
+  el.style.setProperty('--macro-pct',energySum>0?Math.max(0,Math.min(100,100*kcalEnergy/energySum)).toFixed(1)+'%':'0%');
+ });
+
  $('ringCaption').textContent=goal?' / '+fmt(goal,0)+' kcal':'mai bevitel';
  $('balanceRing').style.setProperty('--pct',(goal?Math.max(0,Math.min(100,kcal/goal*100)):0)+'%');
  $('balanceLabel').textContent='NAPI KALÓRIA ÖSSZEFOGLALÓ';
@@ -152,7 +160,7 @@ function render(){
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
  $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
- $('hhWaterAmount').textContent=fluidFound?fmt(fluid,0)+' ml rögzített folyadék':'Még nincs rögzített ital';
+ $('hhWaterAmount').textContent=fluidFound?fmt(fluid,0)+' ml':'';
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
  $('hhWaterLevel').style.height=waterPct==null?'0%':Math.min(100,waterPct)+'%';

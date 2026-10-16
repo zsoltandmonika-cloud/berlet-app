@@ -1,0 +1,32 @@
+/* v601 | S24 Ultra-first refinements approved against HH Body demo */
+.hh-body.balance{overflow:visible!important}
+.hh-body-heading{display:grid!important;grid-template-columns:minmax(0,1fr) clamp(66px,20%,115px) minmax(98px,25%);gap:7px;align-items:start;min-height:clamp(76px,13vw,125px);margin-bottom:0!important}
+.hh-body-title{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+.hh-body-title .label{line-height:1.3}
+.hh-body-name{display:block!important;color:var(--accent);font-size:clamp(13px,2.8vw,22px)!important}
+.hh-body-heading .hh-body-side{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;position:relative;min-width:0;transform:translateY(-8px)}
+.hh-body-heading .hh-body-side .buddy{display:block!important;position:relative;width:100%;max-width:115px;height:auto;aspect-ratio:1;background:none;border:0;box-shadow:none;transform:none!important;padding:0}
+.hh-body-heading .hh-body-side .buddy:before,.hh-body-heading .hh-body-side .buddy:after{display:none}
+.hh-body-heading .hh-body-side .buddy img{display:block;width:100%;height:100%;object-fit:contain}
+.hh-body-heading .hh-body-side .buddy-caption{display:none}
+.hh-body-heading .hh-body-message{display:block!important;margin:0;padding:9px 7px;border:1px solid #20c88b9e;background:linear-gradient(130deg,#063b2bd9,#07182ed9);box-shadow:0 0 12px #08bd6045;border-radius:12px;color:#b5f4d1;font-size:clamp(9px,1.6vw,12px);line-height:1.35;min-height:62px;overflow-wrap:break-word}
+.hh-body-dials{margin-top:clamp(8px,1.6vw,16px)!important}
+.hh-body-dial{gap:12px!important}
+.hh-body-macros{padding:clamp(11px,2vw,17px)!important;gap:clamp(6px,1vw,14px)!important}
+.hh-body-macros span{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;font-size:clamp(10px,2vw,14px)}
+.hh-body-macros span b{align-self:flex-end}
+.hh-body-macros span:after{content:"";height:10px;border-radius:9px;display:block;background:linear-gradient(90deg,var(--macro-color,var(--accent)) 0 var(--macro-pct,0%),#29466c var(--macro-pct,0%) 100%);box-shadow:inset 0 1px 2px #0008}
+.hh-body-macros span:nth-child(1){--macro-color:#ee70c4}
+.hh-body-macros span:nth-child(2){--macro-color:#21cdf9}
+.hh-body-macros span:nth-child(3){--macro-color:#ffa943}
+.hh-water{padding:12px 15px!important;min-height:0;align-items:end!important;grid-template-columns:minmax(0,1fr) clamp(105px,27%,150px)!important;gap:9px!important}
+.hh-water-copy{align-self:center}
+.hh-water-copy #hhWaterAmount:empty{display:none}
+.hh-water-copy #hhWaterAmount{font-size:15px}
+.hh-water-copy strong{font-size:clamp(15px,3.7vw,19px)}
+.hh-pitcher-wrap{align-self:end;padding-top:18px!important;min-height:178px;align-items:flex-end;overflow:visible}
+.hh-pitcher{transform:none!important;width:clamp(90px,23vw,125px)!important;height:clamp(140px,37vw,185px)!important;background:linear-gradient(110deg,#ffffff0f,#ffffff2f 22%,transparent 43%,#ecffff1a 85%),#10294438!important}
+.hh-pitcher::after{right:-19px;width:19px;height:61px;border-width:6px}
+.hh-water-preset{gap:6px}
+.hh-body-meta{margin-top:10px}
+@media(max-width:430px){.hh-body-heading{grid-template-columns:minmax(0,1fr) 70px minmax(97px,29%);gap:4px;min-height:85px}.hh-body-title .label{font-size:10px}.hh-body-heading .hh-body-side{transform:translateY(-5px)}.hh-body-heading .hh-body-message{font-size:9px;padding:7px 6px;min-height:65px}.hh-body-dials{margin-top:13px!important}.hh-body-macros span{font-size:10px!important}.hh-body-macros span:after{height:9px}.hh-pitcher-wrap{min-height:170px}.hh-water{padding:10px 12px!important}}
