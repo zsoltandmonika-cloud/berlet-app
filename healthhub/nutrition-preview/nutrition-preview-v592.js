@@ -110,6 +110,9 @@ function render(){
  $('todayLabel').textContent=date===localDate()?'Mai nap':date;
  const entries=d.entries.filter(e=>!e.deleted&&e.date===date);
  const vals=sum(entries.map(x=>x.nutrients||{})),kcal=vals.kcal??0,goal=d.goal.kcal;
+ $('ringKcal').textContent=fmt(kcal,0);
+ $('ringCaption').textContent=goal?' / '+fmt(goal,0)+' kcal':'mai bevitel';
+ $('balanceRing').style.setProperty('--pct',(goal?Math.max(0,Math.min(100,kcal/goal*100)):0)+'%');
  $('balanceLabel').textContent=goal?'NAPI KALÓRIA · KERETBŐL HÁTRA':'NAPI KALÓRIA · ELFOGYASZTVA';
  const b=$('balanceCard'),t=$('balanceValue');b.classList.remove('good','warn','bad');t.classList.remove('good','warn','bad');
  if(goal!=null){
@@ -414,6 +417,30 @@ async function refreshActivity(profile){
  $('activity').textContent='—';
  $('activitySource').textContent='Éles integrációnál';
 }
+function logWater250(){
+ const water=foodBy('water');
+ if(!water){buddySay('A víz adatai nem találhatók a katalógusban.');return;}
+ const now=stamp(),row={id:uid(),createdAt:now,updatedAt:now,date:currentDay(),
+  time:localTime(),meal:mealForTime(localTime()),kind:'drink',
+  foodId:'water',name:'Víz',icon:'💧',quantity:250,unit:'ml',
+  quantityText:'250 ml',volumeMl:250,nutrients:calc(water.per,250),source:'estimated'};
+ update(d=>d.entries.push(row));
+ success();
+}
+function jumpTo(id){
+ const node=$(id);if(!node)return;
+ node.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+}
+function openNamedFood(id,kind='food'){
+ openEntry(kind);
+ const food=foodBy(id);
+ if(!food)return;
+ currentFood=id;
+ $('foodSearch').value='';
+ redrawSelect();
+ $('foodSelect').value=id;
+ redrawUnits();
+}
 function events(){
  const click=(id,fn)=>$(id).addEventListener('click',fn);
  click('profileBtn',()=>{tone('tap');setProfile(active==='zsolt'?'monika':'zsolt',true)});
@@ -424,6 +451,16 @@ function events(){
  click('goalBtn',openGoal);click('morning',()=>openPreset('morning'));click('afternoon',()=>openPreset('afternoon'));
  click('editMorning',()=>openPreset('morning'));click('editAfternoon',()=>openPreset('afternoon'));
  click('addFood',()=>openEntry('food'));click('addDrink',()=>openEntry('drink'));
+ click('waterQuick',logWater250);
+ click('photoCoffee',()=>openPreset('morning'));
+ click('photoBanana',()=>openNamedFood('banana'));
+ click('photoSalad',()=>openNamedFood('chicken'));
+ click('photoAfternoon',()=>openPreset('afternoon'));
+ click('dockDiary',()=>jumpTo('log'));
+ click('dockFoods',()=>openEntry('food'));
+ click('dockRecipes',()=>jumpTo('morning'));
+ click('dockInsights',()=>jumpTo('insightText'));
+ click('dockBalance',()=>jumpTo('bodyDetails'));
  click('newFood',()=>{$('customError').textContent='';$('customDialog').showModal()});
  click('customUnit',openUnit);
  click('resetPreview',clearPreview);
