@@ -58,11 +58,7 @@ class ScheduledSyncWorker(
             }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-            DropboxVaultClient.uploadText(
-                prefs,
-                DropboxVaultClient.healthConnectPath(profile),
-                json.toString(2) + "\n"
-            )
+            DropboxVaultClient.uploadHealthConnectSnapshot(prefs, profile, json)
 
             prefs.edit()
                 .putLong("last_auto_sync_ms", System.currentTimeMillis())
