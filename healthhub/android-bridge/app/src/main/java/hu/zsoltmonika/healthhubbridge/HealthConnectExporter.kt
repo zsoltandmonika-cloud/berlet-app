@@ -14,6 +14,7 @@ import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -29,6 +30,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlin.reflect.KClass
 
 class HealthConnectExporter(private val client: HealthConnectClient) {
     companion object {
@@ -71,8 +73,10 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             " · alvás: ${c.optInt("sleepSessions")} · edzés: ${c.optInt("exerciseSessions")}" +
             " · emelkedős napok: ${c.optInt("elevationDaysWithData")} · emeletes napok: ${c.optInt("floorsDaysWithData")}" +
             (if (c.optInt("exerciseInvalidTimeWindows") + c.optInt("exerciseAggregationUnavailable") +
-                    c.optInt("dailyExerciseAggregationFallbacks") + c.optInt("nutritionDaysAggregationUnavailable") > 0)
-                " · ⚠ részleges adatok: ${c.optInt("exerciseInvalidTimeWindows")} hibás edzésidő, " +
+                    c.optInt("dailyExerciseAggregationFallbacks") + c.optInt("nutritionDaysAggregationUnavailable") +
+                    c.optInt("failedRecordSources") > 0)
+                " · ⚠ részleges adatok: ${c.optInt("failedRecordSources")} hibás adatkategória, " +
+                    "${c.optInt("exerciseInvalidTimeWindows")} hibás edzésidő, " +
                     "${c.optInt("exerciseAggregationUnavailable")} hibás edzésaggregátum, " +
                     "${c.optInt("dailyExerciseAggregationFallbacks")} napi edzés-fallback, " +
                     "${c.optInt("nutritionDaysAggregationUnavailable")} táplálkozási nap nem elérhető"
@@ -114,6 +118,39 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         return totalMillis / 60000.0
     }
 
+    /**
+     * Defective data from one HC record provider must never block unrelated metrics.
+     * A failed source is explicitly marked as missing, and the previous valid cloud
+     * copy of that category is restored by DropboxVaultClient. No fabricated zero.
+     * Permission problems and unexpected faults still fail loudly with stage name.
+     */
+    private suspend fun <T : Record> readSource(
+        recordType: KClass<T>, range: TimeRangeFilter,
+        sourceKey: String, failedSources: MutableSet<String>,
+        paginated: Boolean = false
+    ): List<T> {
+        val items = mutableListOf<T>()
+        var token: String? = null
+        do {
+            val page = try {
+                client.readRecords(ReadRecordsRequest(
+                    recordType = recordType, timeRangeFilter = range,
+                    pageToken = token
+                ))
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                if (!HealthTimeWindows.isInvalidIntervalError(e)) {
+                    throw IllegalStateException("Health Connect olvasás [$sourceKey]: ${e.message}", e)
+                }
+                failedSources.add(sourceKey)
+                return emptyList()
+            }
+            items.addAll(page.records)
+            token = if (paginated) page.pageToken else null
+        } while (!token.isNullOrEmpty())
+        return items
+    }
+
     suspend fun export(profile: String, days: Long = 30): JSONObject {
         val end = Instant.now()
         val start = end.minusSeconds(days * 86400)
@@ -122,45 +159,27 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val elevationAllowed = granted.contains(HealthPermission.getReadPermission(ElevationGainedRecord::class))
         val floorsAllowed = granted.contains(HealthPermission.getReadPermission(FloorsClimbedRecord::class))
 
-        val bp = client.readRecords(ReadRecordsRequest(BloodPressureRecord::class, range)).records
-        val weight = client.readRecords(ReadRecordsRequest(WeightRecord::class, range)).records
-        val bodyFat = client.readRecords(ReadRecordsRequest(BodyFatRecord::class, range)).records
-        val glucose = client.readRecords(ReadRecordsRequest(BloodGlucoseRecord::class, range)).records
-        val oxygen = client.readRecords(ReadRecordsRequest(OxygenSaturationRecord::class, range)).records
-
-        val activeCaloriesRecords = mutableListOf<ActiveCaloriesBurnedRecord>()
-        var activeCaloriesPageToken: String? = null
-        do {
-            val page = client.readRecords(
-                ReadRecordsRequest(
-                    recordType = ActiveCaloriesBurnedRecord::class,
-                    timeRangeFilter = range,
-                    pageToken = activeCaloriesPageToken
-                )
-            )
-            activeCaloriesRecords.addAll(page.records)
-            activeCaloriesPageToken = page.pageToken
-        } while (!activeCaloriesPageToken.isNullOrEmpty())
-
-        // Heart rate is high-volume data. Follow every Health Connect page token.
-        val heart = mutableListOf<HeartRateRecord>()
-        var heartPageToken: String? = null
-        do {
-            val heartPage = client.readRecords(
-                ReadRecordsRequest(
-                    recordType = HeartRateRecord::class,
-                    timeRangeFilter = range,
-                    pageToken = heartPageToken
-                )
-            )
-            heart.addAll(heartPage.records)
-            heartPageToken = heartPage.pageToken
-        } while (!heartPageToken.isNullOrEmpty())
-
-        val restingHeart = client.readRecords(ReadRecordsRequest(RestingHeartRateRecord::class, range)).records
-        val exercise = client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, range)).records
-        val sleep = client.readRecords(ReadRecordsRequest(SleepSessionRecord::class, range)).records
-        val vo2 = client.readRecords(ReadRecordsRequest(Vo2MaxRecord::class, range)).records
+        // Failed record categories are never represented as an empty measurement:
+        // the cloud merge will preserve their last valid snapshots.
+        val failedSources = linkedSetOf<String>()
+        val bp = readSource(BloodPressureRecord::class, range, "bloodPressure", failedSources)
+        val weight = readSource(WeightRecord::class, range, "weight", failedSources)
+        val bodyFat = readSource(BodyFatRecord::class, range, "bodyFat", failedSources)
+        val glucose = readSource(BloodGlucoseRecord::class, range, "bloodGlucose", failedSources)
+        val oxygen = readSource(OxygenSaturationRecord::class, range, "oxygenSaturation", failedSources)
+        val activeCaloriesRecords = readSource(
+            ActiveCaloriesBurnedRecord::class, range, "activeCaloriesRecords",
+            failedSources, paginated = true
+        )
+        val heart = readSource(
+            HeartRateRecord::class, range, "heartRate", failedSources, paginated = true
+        )
+        val restingHeart = readSource(
+            RestingHeartRateRecord::class, range, "restingHeartRate", failedSources
+        )
+        val exercise = readSource(ExerciseSessionRecord::class, range, "exerciseSessions", failedSources)
+        val sleep = readSource(SleepSessionRecord::class, range, "sleepSessions", failedSources)
+        val vo2 = readSource(Vo2MaxRecord::class, range, "vo2Max", failedSources)
 
         val root = JSONObject()
             .put("schemaVersion", "healthhub.healthconnect.bridge/1.3")
@@ -473,6 +492,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         root.put("syncDiagnostics", JSONObject()
             .put("failedDailyActivityDates", failedActivityDates)
             .put("failedDailyNutritionDates", failedNutritionDates)
+            .put("failedRecordTypes", JSONArray().also { arr -> failedSources.forEach { arr.put(it) } })
             .put("invalidExerciseWindows", skippedInvalidExerciseWindows)
             .put("failedExerciseAggregates", failedExerciseAggregates))
 
@@ -517,6 +537,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("exerciseSessions", exercise.size)
             .put("exerciseInvalidTimeWindows", skippedInvalidExerciseWindows)
             .put("exerciseAggregationUnavailable", failedExerciseAggregates)
+            .put("failedRecordSources", failedSources.size)
             .put("dailyExerciseAggregationFallbacks", dailyExerciseAggregationFallbacks)
             .put("nutritionDaysAggregationUnavailable", nutritionDaysAggregationUnavailable)
             .put("sleepSessions", sleep.size)
