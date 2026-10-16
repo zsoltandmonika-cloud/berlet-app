@@ -2251,6 +2251,24 @@
       "targetDate": null,
       "actualDone": null,
       "notes": "A természetes eredet nem bizonyítja a biztonságosságot; különös óvatosság szívgyógyszerek mellett. Még nincs elkötelezett külső szakértő."
+    },
+    {
+      "id": "HH-DW-002",
+      "epic": "HealthHub Digital Wellbeing",
+      "feature": "Manual Data Entry / Supplement",
+      "title": "Digital Wellbeing manuális adatbevitel az automatikus szinkron mellett",
+      "acceptanceCriteria": "Mobilbarát + Új manuális bejegyzés gomb a Digital Wellbeing modulban; megfelelő Zsolt/Mónika profilválasztás, dátum, opcionális kezdés/vég vagy időtartam (percek), alkalmazás/kategória, eszköz, opcionális megjegyzés; kézi rekord módosítása/törlése megerősítéssel; explicit source=manual, mérési idő és beviteli idő; külön szűrhető manuális / automatikus adat, összevont grafikonban deduplikáció, ütközéskezelés (nem duplázunk automatikus screen-time értékeket), hiányzó adat != 0; a HealthHub központi, profilizolált és jogosultságellenőrzött tárhelyére sync, kéttelefonos E2E, offline queue és újrapróbálás, audit/visszaállítás. Manuális adat soha nem írhatja felül a hiteles automatikus mérés eredetijét. Léna Intelligence jelezze az adat forrását és bizonyosságát.",
+      "priority": "Medium",
+      "sprint": "Future / Digital Wellbeing Enhancement",
+      "milestone": "Digital Wellbeing Continuous Improvements",
+      "status": "Backlog",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-DW-001;HH-CORE-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-10-16 felhasználói pontosítás: kézi rögzítés legyen EXTRA opció a már célzott automatikus Samsung/Android screen-time szinkron mellett, ne annak pótlására kötelező manual input. Nincs most felületkód, APK vagy adatbázis-migráció; future backlog."
     }
   ],
   "changeLog": [
@@ -2850,6 +2868,12 @@
       "version": "Future Innovation Epics / Voice-first vision",
       "type": "Strategy / Idea Backlog only",
       "change": "Felhasználói döntés: HealthHub Guardian (geo SOS/ICE/animált AED/AI–AI research), Psychology @ Home + Mood Booster, evidence-based complementary/fitoterápia, guided relaxation/self-hypnosis, valamint ELSŐ SZÁMÚ stratégiai álomként természetes, anyanyelvi magyar Ask Léna realtime voice + globális bővíthető HH Language Switch Epic/ticket felvéve a Project Control jövőbeli pipeline-jába. Minden új elem Idea/0%, Future/Discovery, nincs implementáció, APK, API, adatkezelés vagy aktív sprintváltás. Részletes koncepció: healthhub/docs/2026-10-16-future-epics-voice-guardian-wellness.md."
+    },
+    {
+      "date": "2026-10-16",
+      "version": "Digital Wellbeing manual supplementary entry backlog",
+      "type": "Feature request / Backlog only",
+      "change": "HH-DW-002: opcionális manuális adatbevitel hozzáadva a HealthHub Digital Wellbeing Epic jövőbeli kiegészítéseihez. Profilszétválasztás, forrásmegjelölés, dátum/app/kategória/percek és megjegyzés, edit/delete, deduplikáció, központi vault-szinkron és S24 teszt elvárás. A HH-DW-001 automatikus szinkron elsődleges marad; jelenleg csak tervezési feladat."
     }
   ]
 }
