@@ -114,9 +114,10 @@ function render(){
  const b=$('balanceCard'),t=$('balanceValue');b.classList.remove('good','warn','bad');t.classList.remove('good','warn','bad');
  if(goal!=null){
   const remain=goal-kcal,lo=goal-d.goal.tolerance,hi=goal+d.goal.tolerance;
-  const color=kcal>hi?'bad':kcal>=lo?'good':'warn';
+  const isToday=date===localDate();const ongoingDay=isToday&&new Date().getHours()<20;
+  const color=kcal>hi?'bad':ongoingDay?'good':kcal>=lo?'good':'warn';
   b.classList.add(color);t.classList.add(color);t.textContent=(remain>=0?'':'−')+fmt(Math.abs(remain),0)+' kcal';
-  $('balanceText').textContent='Elfogyasztva: '+fmt(kcal,0)+' kcal · Cél: '+fmt(goal,0)+' kcal · A zöld a beállított céltartományt jelöli.';
+  $('balanceText').textContent='Elfogyasztva: '+fmt(kcal,0)+' kcal · Cél: '+fmt(goal,0)+' kcal · '+(ongoingDay?'A zöld azt jelzi, hogy eddig a kereten belül vagy. A nap végén a céltartomány is számít.':'A zöld a beállított napi céltartományt jelöli.');
   $('progress').style.width=Math.min(100,100*kcal/goal)+'%';
  }else{
   t.textContent=fmt(kcal,0)+' kcal';$('balanceText').textContent='A személyes kalóriakeret még nincs beállítva. A bevitel ettől függetlenül naplózható.';$('progress').style.width='0%';
@@ -140,7 +141,7 @@ function render(){
   const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{if(confirm('Törlöd a bejegyzést?'))update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
   const actions=document.createElement('div');actions.className='controls';actions.style.justifyContent='flex-end';actions.append(edit,del);right.append(c,actions);line.append(left,right);log.append(line);
  });
- renderBody();
+ renderBody();renderInsights();
 }
 function renderBody(){
  const date=currentDay(),rows=read(active).body.filter(e=>e.date===date&&!e.deleted).sort((a,b)=>b.time.localeCompare(a.time));
@@ -151,6 +152,30 @@ function renderBody(){
   const remove=document.createElement('button');remove.className='mini';remove.type='button';remove.textContent='×';remove.title='Törlés';
   remove.addEventListener('click',()=>update(d=>{const b=d.body.find(x=>x.id===row.id);if(b){b.deleted=true;b.updatedAt=stamp();}}));p.append(remove);view.append(p);
  }
+}
+
+let insightDays=7;
+function renderInsights(){
+ const end=currentDay(),d=read(active);
+ const endTs=Date.parse(end+'T12:00:00Z');
+ const start=new Date(endTs-(insightDays-1)*86400000).toISOString().slice(0,10);
+ const rows=d.entries.filter(e=>!e.deleted&&e.date>=start&&e.date<=end);
+ const byDate=new Map();
+ for(const e of rows){let list=byDate.get(e.date)||[];list.push(e);byDate.set(e.date,list);}
+ const completed=[...byDate.keys()].filter(date=>byDate.get(date).length>0),n=completed.length;
+ $('insightPeriod').textContent=insightDays+' nap · '+start+' – '+end+' · naplózott napok: '+n+'/'+insightDays;
+ if(!n){$('insightText').textContent='Erre az időszakra még nincs rögzített étkezés. Amint kerülnek be adatok, itt megjelenik az összesítés.';return;}
+ let total=0,prot=0,protDays=0;
+ for(const day of completed){const nutrients=sum(byDate.get(day).map(e=>e.nutrients||{}));total+=nutrients.kcal??0;if(nutrients.protein!=null){prot+=nutrients.protein;protDays++;}}
+ let message='A '+n+' naplózott napon az átlagos rögzített energiabevitel '+fmt(total/n,0)+' kcal/nap.';
+ if(protDays)message+=' A fehérjebevitel átlaga '+fmt(prot/protDays,1)+' g/nap a rendelkezésre álló adatok alapján.';
+ if(n<insightDays)message+=' '+(insightDays-n)+' napra nincs bevitel rögzítve, ezért a teljes időszak átlagát ebből nem lehet megbízhatóan megállapítani.';
+ if(n>=5&&d.goal.kcal!=null){
+  const dayTotals=completed.map(day=>sum(byDate.get(day).map(e=>e.nutrients||{})).kcal??0);
+  const within=dayTotals.filter(x=>x>=d.goal.kcal-d.goal.tolerance&&x<=d.goal.kcal+d.goal.tolerance).length;
+  message+=' A személyes céltartomány '+within+' naplózott napon teljesült.';
+ }
+ $('insightText').textContent=message;
 }
 function displayStatus(text,bad=false){$('syncStatus').textContent=text;$('syncStatus').style.color=bad?'#ffb0bf':'';}
 function connected(){try{return Boolean(JSON.parse(localStorage.getItem(TOKEN)||'null')?.refresh_token)}catch(_){return false;}}
@@ -412,6 +437,8 @@ function events(){
  const click=(id,fn)=>$(id).addEventListener('click',fn);
  click('profileBtn',()=>{tone('tap');setProfile(active==='zsolt'?'monika':'zsolt',true)});
  click('soundBtn',()=>{const next=sounds()?'off':'on';localStorage.setItem('hh-nutrition-sound',next);$('soundBtn').textContent=next==='off'?'♪ némítva':'♫ hang';if(next==='on')tone('tap')});
+ click('insight7',()=>{insightDays=7;renderInsights();tone('tap')});
+ click('insight30',()=>{insightDays=30;renderInsights();tone('tap')});
  click('goalBtn',openGoal);click('morning',()=>openPreset('morning'));click('afternoon',()=>openPreset('afternoon'));
  click('editMorning',()=>openPreset('morning'));click('editAfternoon',()=>openPreset('afternoon'));
  click('addFood',()=>openEntry('food'));click('addDrink',()=>openEntry('drink'));
