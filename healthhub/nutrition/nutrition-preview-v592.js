@@ -46,7 +46,7 @@ const pad=n=>String(n).padStart(2,'0');
 const localDate=(d=new Date())=>[d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
 const localTime=(d=new Date())=>pad(d.getHours())+':'+pad(d.getMinutes());
 const uid=()=>root.crypto&&root.crypto.randomUUID?root.crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
-const pkey=()=>{const local=root.localStorage.getItem('hh-nutrition-PREVIEW-profile');return(local==='m'||(!local&&root.localStorage.getItem('hh-profile')==='m'))?'monika':'zsolt';};
+const pkey=()=>{const main=root.localStorage.getItem('hh-profile');const saved=root.localStorage.getItem('hh-nutrition-PREVIEW-profile');return(main==='m'||(main!=='z'&&saved==='m'))?'monika':'zsolt';};
 const profileName=k=>k==='monika'?'Mónika':'Zsolt';
 const clone=x=>JSON.parse(JSON.stringify(x));
 function stamp(){return new Date().toISOString();}
