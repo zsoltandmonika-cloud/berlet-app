@@ -247,7 +247,11 @@ async function run(){
  }catch(e){last=null;var m=el('hh328Summary');if(m){m.classList.add('on');m.textContent='⚠ '+String(e&&e.message||e)}return null}
  finally{busy=false;if(btn){btn.disabled=false;btn.textContent='🔎 Intelligence adatellenőrzés'}}
 }
-window.HH_LENA_CONTEXT_BRIDGE_V328={collect:collect,show:mount,run:run,getLast:function(){return last}};
+window.HH_LENA_CONTEXT_BRIDGE_V328={collect:collect,show:mount,run:run,getLast:function(){return last},
+ // Return ONLY the already-validated in-memory owner snapshot to consented I-08.
+ // No additional Dropbox read, no persistence and no cross-profile fallback.
+ getDigital:function(p){return p===profile()&&last&&last.profile===p&&lastDigital&&lastDigital.profileKey===p?lastDigital:null}
+};
 window.addEventListener('healthhub:ask-lena-open',mount);
 window.addEventListener('healthhub:profile-changed',function(){revision++;last=null;lastDigital=null;var box=el(PANEL);if(box){el('hh328Body').innerHTML='';el('hh328Summary').classList.remove('on');el('hh328Meta').textContent='Profilváltás történt · új ellenőrzés szükséges'}});
 document.documentElement.dataset.healthhubIntelligenceBridge='1.328';
