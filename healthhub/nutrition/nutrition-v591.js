@@ -51,7 +51,7 @@ const profileName=k=>k==='monika'?'Mónika':'Zsolt';
 const clone=x=>JSON.parse(JSON.stringify(x));
 function stamp(){return new Date().toISOString();}
 function makeDefaultPreset(profile,afternoon){
- return {milkMl:150,milkType:afternoon?'milk01':'milk15',sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
+ return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
  return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
@@ -110,7 +110,7 @@ function render(){
  $('todayLabel').textContent=date===localDate()?'Mai nap':date;
  const entries=d.entries.filter(e=>!e.deleted&&e.date===date);
  const vals=sum(entries.map(x=>x.nutrients||{})),kcal=vals.kcal??0,goal=d.goal.kcal;
- $('balanceLabel').textContent=goal?'NAPI KALÓRIA · KERETBŐL HÁTRA':'NAPI KALÓRIA · ELFogyasztva';
+ $('balanceLabel').textContent=goal?'NAPI KALÓRIA · KERETBŐL HÁTRA':'NAPI KALÓRIA · ELFOGYASZTVA';
  const b=$('balanceCard'),t=$('balanceValue');b.classList.remove('good','warn','bad');t.classList.remove('good','warn','bad');
  if(goal!=null){
   const remain=goal-kcal,lo=goal-d.goal.tolerance,hi=goal+d.goal.tolerance;
@@ -229,7 +229,7 @@ async function syncProfile(p){
     localStorage.setItem(LS+p,JSON.stringify(latest));
     lastCloud[p]=Date.now();
     if(p===active){displayStatus('☁ Dropbox szinkronizálva');render();}
-    if(JSON.stringify(merged.entries)!==JSON.stringify(latest.entries)||JSON.stringify(merged.body)!==JSON.stringify(latest.body))queueSync(p);
+    if(['entries','body','catalog','units'].some(key=>JSON.stringify(merged[key])!==JSON.stringify(latest[key]))||JSON.stringify(merged.goal)!==JSON.stringify(latest.goal)||JSON.stringify(merged.presets)!==JSON.stringify(latest.presets))queueSync(p);
     return true;
    }
    throw Error('Konkurens felhőmódosítás, szinkron ismétlése szükséges');
