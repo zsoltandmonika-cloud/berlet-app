@@ -1,0 +1,38 @@
+name: HealthHub Connect · Time Window Hotfix QA
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/android-bridge/**"
+      - ".github/workflows/healthhub-connect-time-window-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: healthhub/android-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK 36
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Exercise malformed-time-window regression tests
+        run: gradle :app:testDebugUnitTest --no-daemon --stacktrace
+      - name: Compile debug Android app without publishing OTA
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
