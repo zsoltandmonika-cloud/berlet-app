@@ -190,8 +190,7 @@ class MainActivity : ComponentActivity() {
             status.text = "Health Connect nem elérhető."
             return
         }
-        manualSyncInProgress = true
-        status.text = "🔄 SYNC NOW · egészségügyi adatok ellenőrzése…"
+        status.text = "🔎 Health Connect adatellenőrzés…"
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
@@ -375,7 +374,7 @@ class MainActivity : ComponentActivity() {
         root.addView(ownerButton)
 
         root.addView(Button(this).apply {
-            text = "🔄 SYNC NOW"
+            text = "🔄 SYNC MOST · kézi adatlekérés"
             setOnClickListener { syncNow() }
         })
 
@@ -1091,6 +1090,8 @@ class MainActivity : ComponentActivity() {
             status.text = "⛔ Ez ${profileName(owner)} telefonja. A ${profileName(requestedProfile)} profil szinkronja ezen az eszközön letiltva."
             return
         }
+        manualSyncInProgress = true
+        status.text = "🔄 SYNC MOST · Health Connect adatok ellenőrzése és biztonságos Dropbox mentés…"
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
