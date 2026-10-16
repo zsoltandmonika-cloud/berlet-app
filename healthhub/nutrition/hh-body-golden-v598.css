@@ -45,3 +45,8 @@
 /* Visual garnish only. The water level still represents the volume of all logged drinks. */
 .hh-pitcher::before{content:"🍋  🌿";position:absolute;z-index:3;top:9px;left:7px;font-size:13px;letter-spacing:3px;filter:drop-shadow(0 2px 2px #001a28);pointer-events:none}
 .hh-water-level::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 25% 77%,#f9ffffb0 0 2px,transparent 3px),radial-gradient(circle at 65% 44%,#f9ffff7a 0 3px,transparent 4px),radial-gradient(circle at 42% 18%,#f9ffff8b 0 2px,transparent 3px);pointer-events:none}
+
+/* Profile-coloured lemonade visual: liquid quantity remains sourced solely from the drink log. */
+:root[data-profile="monika"] .hh-water-level{background:linear-gradient(180deg,rgba(255,184,219,.88),rgba(248,76,157,.86));box-shadow:inset 0 8px 15px #ffe0f06b,0 -3px 13px #ff9edca8}
+:root[data-profile="zsolt"] .hh-water-level{background:linear-gradient(180deg,rgba(154,241,255,.92),rgba(20,135,245,.9));box-shadow:inset 0 8px 15px #ecffff73,0 -3px 13px #5ecaff91}
+.hh-water-level::before{content:"";position:absolute;top:-3px;left:0;right:0;height:7px;border-radius:50%;background:rgba(243,252,255,.55)}
