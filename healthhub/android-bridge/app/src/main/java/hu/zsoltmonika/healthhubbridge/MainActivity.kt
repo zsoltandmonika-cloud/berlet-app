@@ -64,6 +64,9 @@ class MainActivity : ComponentActivity() {
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
+    // One manual export at a time. Repeated SYNC NOW taps must not overlap
+    // Dropbox writes or create competing 30-day Health Connect reads.
+    private var manualSyncInProgress = false
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -187,6 +190,8 @@ class MainActivity : ComponentActivity() {
             status.text = "Health Connect nem elérhető."
             return
         }
+        manualSyncInProgress = true
+        status.text = "🔄 SYNC NOW · egészségügyi adatok ellenőrzése…"
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
@@ -1073,6 +1078,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun syncNow(requestedProfile: String? = null) {
+        if (manualSyncInProgress) {
+            status.text = "🔄 A Health Connect SYNC NOW már folyamatban van. Kérlek várd meg az eredményét."
+            return
+        }
         val hc = client ?: run {
             status.text = "Health Connect nem elérhető."
             return
@@ -1099,7 +1108,11 @@ class MainActivity : ComponentActivity() {
                 exportAndUpload(owner)
                 DailyContentScheduler.runNow(this@MainActivity)
             } catch (e: Exception) {
-                status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}"
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}" +
+                    "\nA már mentett Dropbox-adatok megmaradnak. Indítható új SYNC NOW."
+            } finally {
+                manualSyncInProgress = false
             }
         }
     }
