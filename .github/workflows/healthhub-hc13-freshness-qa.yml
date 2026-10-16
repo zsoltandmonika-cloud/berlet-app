@@ -1,0 +1,58 @@
+name: HealthHub · HC 1.3 + Sleep freshness QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v147.js'
+      - 'healthhub/live-v148.js'
+      - 'healthhub/live-v170.js'
+      - 'healthhub/live-v165.js'
+      - 'healthhub/scripts/bridge.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-hc13-freshness-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/live-v147.js'
+      - 'healthhub/live-v148.js'
+      - 'healthhub/live-v170.js'
+      - 'healthhub/scripts/bridge.test.cjs'
+      - 'healthhub/index.html'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript parse checks
+        run: |
+          node --check healthhub/live-v147.js
+          node --check healthhub/live-v148.js
+          node --check healthhub/live-v170.js
+          node --check healthhub/live-v165.js
+          node --check healthhub/scripts/bridge.test.cjs
+      - name: Install isolated IndexedDB test dependency
+        run: npm install --prefix .tooling --no-save --no-audit --no-fund fake-indexeddb@6.2.5
+      - name: Validate 1.3 BP + sleep, original legacy imports and profile isolation
+        run: node --test healthhub/scripts/bridge.test.cjs
+      - name: Ensure browser loads new versions with no profile leakage
+        run: |
+          node <<'JS'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const index=fs.readFileSync('healthhub/index.html','utf8');
+          assert.match(index,/live-v147\.js\?v=20261016-hc-v13-import/);
+          assert.match(index,/live-v148\.js\?v=20261016-measurement-freshness/);
+          assert.match(index,/live-v170\.js\?v=20261016-sleep-cloud-refresh/);
+          const imp=fs.readFileSync('healthhub/live-v147.js','utf8');
+          assert.match(imp,/raw\.schemaVersion!==SCHEMA13/);
+          const sleep=fs.readFileSync('healthhub/live-v170.js','utf8');
+          assert.match(sleep,/healthhub:health-cloud-synced/);
+          assert.match(sleep,/hhSleepHelperOverlay/);
+          const snapshot=fs.readFileSync('healthhub/live-v148.js','utf8');
+          assert.match(snapshot,/RÉGEBBI MÉRÉS/);
+          assert.match(snapshot,/Utolsó ismert/);
+          JS
