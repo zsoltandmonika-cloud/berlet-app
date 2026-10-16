@@ -13,6 +13,10 @@
 4. [Ask Léna v331 történeti mérföldkő](./2026-10-09-ask-lena-v331-real-ai-milestone.md): a valós AI-stream kialakításának korabeli műszaki összefoglalója.
 5. [Intelligence Context v328](./2026-10-09-intelligence-context-v328.md): forrásadapterek korábbi architektúrája.
 
+## Future Innovation Portfolio · 2026-10-16
+
+- [Ask Léna Voice + HH Language Switch / Guardian / Mental Wellness / Mood Booster / Guided Relaxation / Integrative Care Epic-vízió](./2026-10-16-future-epics-voice-guardian-wellness.md): 13 új stratégiai, **Idea / 0% / Future** tracker-feladat; magyar anyanyelvi, természetes Léna-hang az első nagy hosszú távú álom. **Nem implementáció, nem aktív sprint, nem éles health funkció.**
+
 ## Alapszabályok
 - Működő v380 megtartása, csak mért minőségjavítás; új UI-funkció jelenleg nem prioritás.
 - A régebbi v331/v328 dokumentumok verzióspecifikus deploy/QA állításai nem érvényesek változtatás nélkül a mostani kiadásra.
