@@ -118,6 +118,13 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <dialog id="bodyDialog"><form id="bodyForm" class="modal"><div class="modalhead"><h2 id="bodyTitle">Napi ritmus</h2><button type="button" class="mini" data-close="bodyDialog">✕</button></div><div class="fields"><div class="field"><label for="bodyTime">Időpont</label><input type="time" id="bodyTime" required></div><div class="field" id="bristolWrap"><label for="bristol">Bristol-skála (opcionális)</label><select id="bristol"><option value="">Nem jelölöm</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div><div class="field wide"><label for="bodyNote">Megjegyzés (opcionális)</label><input id="bodyNote" maxlength="180"></div></div><p id="bodyError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="bodyDialog">Mégse</button><button type="submit" class="btn primary">✓ Mentés</button></div></form></dialog>
 <script defer src="./nutrition-preview-v592.js?v=594.1-canonical-profile"></script>
 <script>
+/* Only activate pitcher artwork when its file exists. */
+(function(){
+ var img=new Image();
+ img.onload=function(){document.documentElement.classList.add('hh-lemonade-photo-ready')};
+ img.src='./healthhub-lemonade-approved-v602.webp?v=602';
+})();
+
 /* Only display approved artwork after its file loads; preserve original hero as fallback. */
 (function(){
   var asset='./healthhub-nutrition-lena-buddy-approved.webp',image=new Image();
