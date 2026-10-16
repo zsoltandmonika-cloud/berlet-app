@@ -4,11 +4,19 @@ import android.content.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.json.JSONArray
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.time.Instant
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
 object DropboxVaultClient {
+    // Multiple WorkManager workers and manual sync all write the same owner file.
+    // Serializing read/compare/merge/upload in-process prevents routine last-write-wins loss.
+    private val healthSnapshotLock = Mutex()
     const val APP_KEY = "t68rmhh5f1l8d85"
     const val WEB_REDIRECT = "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/"
     const val ROOT = "/HealthHub"
@@ -147,6 +155,92 @@ object DropboxVaultClient {
                 error("Dropbox upload HTTP " + conn.responseCode + ": " + response)
             }
         }
+    }
+
+    /**
+     * All manual, scheduled, self-healing and remote health sync paths use this
+     * routine. Never erase a previously valid daily measurement just because
+     * one Health Connect provider has a malformed interval today.
+     */
+    suspend fun uploadHealthConnectSnapshot(
+        prefs: SharedPreferences,
+        profile: String,
+        snapshot: JSONObject
+    ) {
+        require(profile == "zsolt" || profile == "monika") { "Érvénytelen telefonprofil" }
+        require(snapshot.optString("profile") == profile) { "Eltérő exportprofil" }
+        val exportedAt = Instant.parse(snapshot.getString("exportedAt"))
+        val path = healthConnectPath(profile)
+        healthSnapshotLock.withLock {
+            val previousText = downloadTextOrNull(prefs, path)
+            if (!previousText.isNullOrBlank()) {
+                val previous = JSONObject(previousText)
+                // If cloud content belongs to the other person or is malformed,
+                // refuse the overwrite instead of guessing / silently erasing.
+                check(previous.optString("profile") == profile) {
+                    "A felhőfájl profilja eltér: feltöltés megállítva"
+                }
+                val priorAt = Instant.parse(previous.getString("exportedAt"))
+                if (priorAt.isAfter(exportedAt)) {
+                    // Another worker already delivered fresher data. No overwrite.
+                    return@withLock
+                }
+                val diagnostics = snapshot.optJSONObject("syncDiagnostics")
+                val incoming = snapshot.getJSONObject("records")
+                val existing = previous.optJSONObject("records")
+                if (diagnostics != null && existing != null) {
+                    recoverFailedDays(
+                        incoming, existing, "dailyActivity",
+                        diagnostics.optJSONArray("failedDailyActivityDates")
+                    )
+                    recoverFailedDays(
+                        incoming, existing, "dailySteps",
+                        diagnostics.optJSONArray("failedDailyActivityDates")
+                    )
+                    recoverFailedDays(
+                        incoming, existing, "dailyNutrition",
+                        diagnostics.optJSONArray("failedDailyNutritionDates")
+                    )
+                    // These lengths now describe the published snapshot, not just
+                    // freshly aggregated dates. The original failure counts remain.
+                    val counts = snapshot.optJSONObject("counts")
+                    counts?.put("activityDays", incoming.optJSONArray("dailyActivity")?.length() ?: 0)
+                    counts?.put("stepDays", incoming.optJSONArray("dailySteps")?.length() ?: 0)
+                    counts?.put("nutritionDays", incoming.optJSONArray("dailyNutrition")?.length() ?: 0)
+                }
+            }
+            uploadText(prefs, path, snapshot.toString(2) + "\n")
+        }
+    }
+
+    private fun recoverFailedDays(
+        incoming: JSONObject,
+        prior: JSONObject,
+        key: String,
+        failed: JSONArray?
+    ) {
+        if (failed == null || failed.length() == 0) return
+        val failedDates = (0 until failed.length())
+            .mapNotNull { failed.optString(it).takeIf { date ->
+                date.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))
+            } }.toSet()
+        if (failedDates.isEmpty()) return
+        val dest = incoming.optJSONArray(key) ?: JSONArray()
+        val stored = prior.optJSONArray(key) ?: return
+        val byDate = linkedMapOf<String, JSONObject>()
+        for (i in 0 until dest.length()) {
+            val row = dest.optJSONObject(i) ?: continue
+            val date = row.optString("date")
+            if (date.isNotBlank()) byDate[date] = row
+        }
+        for (i in 0 until stored.length()) {
+            val row = stored.optJSONObject(i) ?: continue
+            val date = row.optString("date")
+            if (date in failedDates && date !in byDate) byDate[date] = row
+        }
+        val merged = JSONArray()
+        byDate.toSortedMap().values.forEach { merged.put(it) }
+        incoming.put(key, merged)
     }
 
     suspend fun downloadTextOrNull(prefs: SharedPreferences, path: String): String? {

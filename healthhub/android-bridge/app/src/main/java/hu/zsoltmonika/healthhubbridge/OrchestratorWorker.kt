@@ -163,11 +163,7 @@ class OrchestratorWorker(
         }
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-        DropboxVaultClient.uploadText(
-            prefs,
-            DropboxVaultClient.healthConnectPath(owner),
-            json.toString(2) + "\n"
-        )
+        DropboxVaultClient.uploadHealthConnectSnapshot(prefs, owner, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
             .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(json))

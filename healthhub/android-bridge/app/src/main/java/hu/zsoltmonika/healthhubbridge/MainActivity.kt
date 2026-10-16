@@ -64,6 +64,9 @@ class MainActivity : ComponentActivity() {
     private var pendingJson: String? = null
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
+    // One manual export at a time. Repeated SYNC NOW taps must not overlap
+    // Dropbox writes or create competing 30-day Health Connect reads.
+    private var manualSyncInProgress = false
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -187,6 +190,7 @@ class MainActivity : ComponentActivity() {
             status.text = "Health Connect nem elérhető."
             return
         }
+        status.text = "🔎 Health Connect adatellenőrzés…"
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
@@ -370,7 +374,7 @@ class MainActivity : ComponentActivity() {
         root.addView(ownerButton)
 
         root.addView(Button(this).apply {
-            text = "🔄 SYNC NOW"
+            text = "🔄 SYNC MOST · kézi adatlekérés"
             setOnClickListener { syncNow() }
         })
 
@@ -1073,6 +1077,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun syncNow(requestedProfile: String? = null) {
+        if (manualSyncInProgress) {
+            status.text = "🔄 A Health Connect SYNC NOW már folyamatban van. Kérlek várd meg az eredményét."
+            return
+        }
         val hc = client ?: run {
             status.text = "Health Connect nem elérhető."
             return
@@ -1082,6 +1090,8 @@ class MainActivity : ComponentActivity() {
             status.text = "⛔ Ez ${profileName(owner)} telefonja. A ${profileName(requestedProfile)} profil szinkronja ezen az eszközön letiltva."
             return
         }
+        manualSyncInProgress = true
+        status.text = "🔄 SYNC MOST · Health Connect adatok ellenőrzése és biztonságos Dropbox mentés…"
         scope.launch {
             try {
                 val granted = hc.permissionController.getGrantedPermissions()
@@ -1099,7 +1109,11 @@ class MainActivity : ComponentActivity() {
                 exportAndUpload(owner)
                 DailyContentScheduler.runNow(this@MainActivity)
             } catch (e: Exception) {
-                status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}"
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}" +
+                    "\nA már mentett Dropbox-adatok megmaradnak. Indítható új SYNC NOW."
+            } finally {
+                manualSyncInProgress = false
             }
         }
     }
@@ -1129,11 +1143,7 @@ class MainActivity : ComponentActivity() {
             " · Dropbox feltöltés…"
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-        DropboxVaultClient.uploadText(
-            prefs,
-            DropboxVaultClient.healthConnectPath(profile),
-            json.toString(2) + "\n"
-        )
+        DropboxVaultClient.uploadHealthConnectSnapshot(prefs, profile, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
             .putString(ResilientHealthSync.KEY_COUNTS, summary)

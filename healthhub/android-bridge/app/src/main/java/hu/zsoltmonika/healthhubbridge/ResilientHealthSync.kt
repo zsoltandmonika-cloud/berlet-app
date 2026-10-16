@@ -133,9 +133,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-            DropboxVaultClient.uploadText(
-                prefs, DropboxVaultClient.healthConnectPath(owner), payload.toString(2) + "\n"
-            )
+            DropboxVaultClient.uploadHealthConnectSnapshot(prefs, owner, payload)
             prefs.edit()
                 .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
                 .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(payload))
