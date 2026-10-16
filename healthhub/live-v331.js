@@ -412,6 +412,20 @@ async function run(opts){
    throw Error('Intelligence adatellenőrzés nem érhető el. Nem indítok ellenőrizetlen AI-kutatást.');
   var intelligence=intelligenceGate.prepare(data,ctx);
   data=intelligence.payload;
+  // I-08: reuse the same v328 validated private Dropbox snapshot. No new
+  // fetch, periodic AI call, source mutation or permission escalation.
+  var lifestyleEngine=window.HH_SLEEP_DIGITAL_INTELLIGENCE_V590;
+  if(lifestyleEngine&&typeof lifestyleEngine.enrich==='function'){
+   var digitalSnapshot=typeof bridge.getDigital==='function'?bridge.getDigital(p):null;
+   var linked=lifestyleEngine.enrich(data,ctx,digitalSnapshot,{now:Date.now()});
+   if(linked.profile!==p||turn!==epoch||profile()!==p)
+    throw Error('I-08: profilváltás miatt a közös alvás és digitális elemzés megszakadt.');
+   data=linked.payload;
+   print(linked.digitalAvailable?
+    '🌙📱 I-08: Alvás + Digitális Wellness · '+linked.linkedNights+
+    ' időrendileg párosítható éjszaka · csak ellenőrzött, hiányos megfigyelésekből.':
+    '🌙📱 I-08: Alvásadatok elérhetők, de a Digitális Wellness nem ellenőrizhető ehhez a profilhoz.');
+  }
   if(intelligence.ledgerQuality){
    print('🧠 Intelligence Ledger I-02: '+intelligence.ledgerQuality.count+
     ' egyedi mérési bejegyzés · '+intelligence.ledgerQuality.uniqueSources+' adatforrás'+
