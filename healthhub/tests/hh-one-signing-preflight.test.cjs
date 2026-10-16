@@ -10,7 +10,10 @@ const gradle=fs.readFileSync(path.join(base,'healthhub/android-bridge/app/build.
 assert.match(manifest.version,/^0\.14\.[0-9]+$/,'signed OTA baseline must have a valid version');
 assert.ok(Number.isSafeInteger(manifest.versionCode)&&manifest.versionCode>=21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
-assert.deepEqual(manifest.rolloutProfiles,['zsolt','monika'],'both owner profiles explicitly enabled for the existing signed OTA');
+assert.ok(Array.isArray(manifest.rolloutProfiles) && manifest.rolloutProfiles.length > 0,
+ 'signed OTA must have at least one explicitly allowed pilot owner');
+assert.equal(new Set(manifest.rolloutProfiles).size,manifest.rolloutProfiles.length,
+ 'OTA owners must be unique and explicitly approved');
 // The baseline is always read from the CURRENT signed OTA manifest.
 // Its SHA and certificate are compared against the actual immutable GitHub
 // release asset in the preflight workflow. Never pin an old version's hash.

@@ -189,6 +189,39 @@ object DropboxVaultClient {
                 val incoming = snapshot.getJSONObject("records")
                 val existing = previous.optJSONObject("records")
                 if (diagnostics != null && existing != null) {
+                    // A malformed source read is NOT an empty measurement. The
+                    // previous cloud array stays available until a valid new read.
+                    val failedSources = diagnostics.optJSONArray("failedRecordTypes")
+                    if (failedSources != null) {
+                        val allowedKeys = setOf(
+                            "bloodPressure", "weight", "bodyFat", "bloodGlucose",
+                            "oxygenSaturation", "activeCaloriesRecords", "heartRate",
+                            "restingHeartRate", "exerciseSessions", "sleepSessions", "vo2Max"
+                        )
+                        val counts = snapshot.optJSONObject("counts")
+                        val countNames = mapOf(
+                            "bloodPressure" to "bloodPressure",
+                            "weight" to "weight",
+                            "bodyFat" to "bodyFat",
+                            "bloodGlucose" to "bloodGlucose",
+                            "oxygenSaturation" to "oxygenSaturation",
+                            "activeCaloriesRecords" to "activeCaloriesRecords",
+                            "heartRate" to "heartRateRecords",
+                            "restingHeartRate" to "restingHeartRate",
+                            "exerciseSessions" to "exerciseSessions",
+                            "sleepSessions" to "sleepSessions",
+                            "vo2Max" to "vo2Max"
+                        )
+                        for (i in 0 until failedSources.length()) {
+                            val key = failedSources.optString(i)
+                            if (key !in allowedKeys) continue
+                            val previousRecords = existing.optJSONArray(key) ?: continue
+                            incoming.put(key, JSONArray(previousRecords.toString()))
+                            countNames[key]?.let { count ->
+                                if (counts != null) counts.put(count, previousRecords.length())
+                            }
+                        }
+                    }
                     recoverFailedDays(
                         incoming, existing, "dailyActivity",
                         diagnostics.optJSONArray("failedDailyActivityDates")
