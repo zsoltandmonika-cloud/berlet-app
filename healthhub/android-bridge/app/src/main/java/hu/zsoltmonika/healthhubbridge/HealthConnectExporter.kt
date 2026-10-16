@@ -339,17 +339,23 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         var dailyExerciseAggregationFallbacks = 0
         var nutritionDaysAggregationUnavailable = 0
 
+        // Track incomplete days explicitly. Never pretend a failed read equals zero.
+        // Previous valid daily data is restored in DropboxVaultClient, when present.
+        val failedActivityDates = JSONArray()
+        val failedNutritionDates = JSONArray()
         for (i in (days.toInt() - 1) downTo 0) {
             val date = today.minusDays(i.toLong())
             val dayStart = date.atStartOfDay(zone).toInstant()
             val dayEnd = date.plusDays(1).atStartOfDay(zone).toInstant()
+            if (!dayStart.isBefore(dayEnd)) {
+                failedActivityDates.put(date.toString())
+                failedNutritionDates.put(date.toString())
+                continue
+            }
             val dayRange = TimeRangeFilter.between(dayStart, dayEnd)
 
-            // Some imported exercise records carry malformed timestamps and can
-            // break the exercise-duration aggregate for an otherwise valid day.
-            // Retry this specific error without the exercise-duration metric, so
-            // steps, distance and energy still reach Dropbox.
-            var durationAggregateUnavailable = false
+            // Malformed provider data in a single day's aggregate must not
+            // abort the complete export of other dates and other health metrics.
             val activityAgg = try {
                 client.aggregate(
                     AggregateRequest(
@@ -365,63 +371,53 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 )
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (!HealthTimeWindows.isInvalidIntervalError(e)) throw e
-                durationAggregateUnavailable = true
-                dailyExerciseAggregationFallbacks++
-                client.aggregate(
-                    AggregateRequest(
-                        metrics = setOf(
-                            StepsRecord.COUNT_TOTAL,
-                            DistanceRecord.DISTANCE_TOTAL,
-                            ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL,
-                            TotalCaloriesBurnedRecord.ENERGY_TOTAL
-                        ),
-                        timeRangeFilter = dayRange
-                    )
-                )
+                failedActivityDates.put(date.toString())
+                null
             }
-            val stepTotal = activityAgg[StepsRecord.COUNT_TOTAL] ?: 0L
-            val distance = activityAgg[DistanceRecord.DISTANCE_TOTAL]
-            val activeCalories = activityAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
-            val totalCalories = activityAgg[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
-            val exerciseMinutes =
-                if (durationAggregateUnavailable) 0.0
-                else activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]?.toMinutes()?.toDouble() ?: 0.0
 
-            val intervalMinutes = mergedActiveMinutes(activeCaloriesRecords, dayStart, dayEnd)
-            val useIntervalMinutes =
-                intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
-            val effectiveActiveMinutes = if (useIntervalMinutes) intervalMinutes else exerciseMinutes
+            if (activityAgg != null) {
+                val stepTotal = activityAgg[StepsRecord.COUNT_TOTAL] ?: 0L
+                val distance = activityAgg[DistanceRecord.DISTANCE_TOTAL]
+                val activeCalories = activityAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
+                val totalCalories = activityAgg[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
+                val exerciseMinutes =
+                    activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]?.toMinutes()?.toDouble() ?: 0.0
 
-            // Terrain aggregations are optional, and cannot hold the entire sync hostage.
-            val terrainMetrics = mutableSetOf<AggregateMetric<*>>()
-            if (elevationAllowed) terrainMetrics.add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
-            if (floorsAllowed) terrainMetrics.add(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL)
-            val terrainAgg = if (terrainMetrics.isNotEmpty()) {
-                try {
-                    client.aggregate(AggregateRequest(metrics = terrainMetrics, timeRangeFilter = dayRange))
-                } catch (_: Exception) { null }
-            } else null
-            val elevation = if (elevationAllowed) terrainAgg?.get(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)?.inMeters else null
-            val floors = if (floorsAllowed) terrainAgg?.get(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL) else null
-            if (elevation != null) elevationDaysWithData++
-            if (floors != null) floorsDaysWithData++
+                val intervalMinutes = mergedActiveMinutes(activeCaloriesRecords, dayStart, dayEnd)
+                val useIntervalMinutes =
+                    intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
+                val effectiveActiveMinutes = if (useIntervalMinutes) intervalMinutes else exerciseMinutes
 
-            steps.put(JSONObject().put("date", date.toString()).put("count", stepTotal))
-            val dayActivity = JSONObject()
-                .put("date", date.toString())
-                .put("steps", stepTotal)
-                .put("distanceMeters", distance?.inMeters ?: 0.0)
-                .put("activeCaloriesKcal", activeCalories?.inKilocalories ?: 0.0)
-                .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
-                .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
-                .put("activeMinutes", effectiveActiveMinutes)
-                .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else
-                    if (durationAggregateUnavailable) "exerciseDurationUnavailable" else "exerciseSessions")
-                .put("exerciseDurationAggregateAvailable", !durationAggregateUnavailable)
-            if (elevation != null) dayActivity.put("elevationGainMeters", elevation.coerceAtLeast(0.0))
-            if (floors != null) dayActivity.put("floorsClimbed", floors.coerceAtLeast(0.0))
-            dailyActivity.put(dayActivity)
+                val terrainMetrics = mutableSetOf<AggregateMetric<*>>()
+                if (elevationAllowed) terrainMetrics.add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
+                if (floorsAllowed) terrainMetrics.add(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL)
+                val terrainAgg = if (terrainMetrics.isNotEmpty()) {
+                    try {
+                        client.aggregate(AggregateRequest(metrics = terrainMetrics, timeRangeFilter = dayRange))
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        null
+                    }
+                } else null
+                val elevation = if (elevationAllowed) terrainAgg?.get(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)?.inMeters else null
+                val floors = if (floorsAllowed) terrainAgg?.get(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL) else null
+                if (elevation != null) elevationDaysWithData++
+                if (floors != null) floorsDaysWithData++
+
+                steps.put(JSONObject().put("date", date.toString()).put("count", stepTotal))
+                val dayActivity = JSONObject()
+                    .put("date", date.toString())
+                    .put("steps", stepTotal)
+                    .put("distanceMeters", distance?.inMeters ?: 0.0)
+                    .put("activeCaloriesKcal", activeCalories?.inKilocalories ?: 0.0)
+                    .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
+                    .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
+                    .put("activeMinutes", effectiveActiveMinutes)
+                    .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions")
+                if (elevation != null) dayActivity.put("elevationGainMeters", elevation.coerceAtLeast(0.0))
+                if (floors != null) dayActivity.put("floorsClimbed", floors.coerceAtLeast(0.0))
+                dailyActivity.put(dayActivity)
+            }
 
             val nutritionAgg = try {
                 client.aggregate(
@@ -437,20 +433,24 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 )
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                if (!HealthTimeWindows.isInvalidIntervalError(e)) throw e
-                // Isolate the broken nutrition day. Never falsely report unknown
-                // nutrient values as measured zeros.
-                nutritionDaysAggregationUnavailable++
+                failedNutritionDates.put(date.toString())
                 null
             }
-            dailyNutrition.put(JSONObject()
-                .put("date", date.toString())
-                .put("aggregationAvailable", nutritionAgg != null)
-                .put("energyKcal", nutritionAgg?.get(NutritionRecord.ENERGY_TOTAL)?.inKilocalories ?: JSONObject.NULL)
-                .put("proteinGrams", nutritionAgg?.get(NutritionRecord.PROTEIN_TOTAL)?.inGrams ?: JSONObject.NULL)
-                .put("carbsGrams", nutritionAgg?.get(NutritionRecord.TOTAL_CARBOHYDRATE_TOTAL)?.inGrams ?: JSONObject.NULL)
-                .put("fatGrams", nutritionAgg?.get(NutritionRecord.TOTAL_FAT_TOTAL)?.inGrams ?: JSONObject.NULL))
+            if (nutritionAgg != null) {
+                dailyNutrition.put(JSONObject()
+                    .put("date", date.toString())
+                    .put("energyKcal", nutritionAgg[NutritionRecord.ENERGY_TOTAL]?.inKilocalories ?: 0.0)
+                    .put("proteinGrams", nutritionAgg[NutritionRecord.PROTEIN_TOTAL]?.inGrams ?: 0.0)
+                    .put("carbsGrams", nutritionAgg[NutritionRecord.TOTAL_CARBOHYDRATE_TOTAL]?.inGrams ?: 0.0)
+                    .put("fatGrams", nutritionAgg[NutritionRecord.TOTAL_FAT_TOTAL]?.inGrams ?: 0.0))
+            }
         }
+
+        root.put("syncDiagnostics", JSONObject()
+            .put("failedDailyActivityDates", failedActivityDates)
+            .put("failedDailyNutritionDates", failedNutritionDates)
+            .put("invalidExerciseWindows", skippedInvalidExerciseWindows)
+            .put("failedExerciseAggregates", failedExerciseAggregates))
 
         records.put("dailySteps", steps)
         records.put("dailyActivity", dailyActivity)
@@ -498,7 +498,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("sleepSessions", sleep.size)
             .put("stepDays", steps.length())
             .put("activityDays", dailyActivity.length())
+            .put("activityFailedDays", failedActivityDates.length())
             .put("nutritionDays", dailyNutrition.length())
+            .put("nutritionFailedDays", failedNutritionDates.length())
             .put("activeDaysWithData", activeDaysWithData)
             .put("nutritionDaysWithData", nutritionDaysWithData)
             .put("elevationPermissionGranted", elevationAllowed)
