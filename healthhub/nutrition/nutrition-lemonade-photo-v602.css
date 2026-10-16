@@ -50,3 +50,21 @@ html.hh-lemonade-photo-ready .hh-water-level{
 }
 html.hh-lemonade-photo-ready .hh-water-level[style*="height: 0%"]::after{display:none}
 @media(prefers-reduced-motion:reduce){html.hh-lemonade-photo-ready .hh-pitcher::before{transition:none!important}}
+
+/* v607: undo the intrusive v606 rectangle; softly tint only the glass interior. */
+html.hh-lemonade-photo-ready .hh-pitcher::before{display:none!important}
+html.hh-lemonade-photo-ready .hh-water-level{
+ left:8%!important;right:24%!important;bottom:9%!important;
+ max-height:75%!important;z-index:1!important;
+ border:0!important;border-radius:0!important;
+ background:linear-gradient(180deg,rgba(63,218,255,.39),rgba(12,115,242,.33) 40%,rgba(5,68,201,.32))!important;
+ clip-path:polygon(6% 0,92% 0,100% 100%,0 100%)!important;
+ mix-blend-mode:color!important;
+ box-shadow:none!important;
+ transition:height 950ms cubic-bezier(.22,.9,.35,1)!important;
+}
+html.hh-lemonade-photo-ready .hh-water-level::after{
+ left:6%;width:86%;height:2px;top:0;border-radius:50%;
+ background:rgba(152,243,255,.92);
+ box-shadow:0 0 5px 2px rgba(69,189,255,.58);
+}
