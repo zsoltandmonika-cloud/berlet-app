@@ -1,0 +1,7 @@
+/* Approved Nutrition Léna + Buddy 2026-10-16; activates only once art loads. */
+.hero.hh-nutrition-approved{position:relative;display:block;min-height:0;aspect-ratio:1671/941;overflow:hidden;border-radius:23px;border:1px solid var(--accent);background:#08182b url("./healthhub-nutrition-lena-buddy-approved.webp") center/cover no-repeat;box-shadow:0 15px 35px #0007,inset 0 1px #ffffff29}
+.hero.hh-nutrition-approved::before{display:none}
+.hero.hh-nutrition-approved .hero-copy,.hero.hh-nutrition-approved .hero-art{display:none}
+:root[data-profile="monika"] .hero.hh-nutrition-approved{border-color:rgba(249,166,211,.65);box-shadow:0 0 20px #f9a6d32b,0 15px 35px #0007}
+:root[data-profile="zsolt"] .hero.hh-nutrition-approved{border-color:rgba(89,178,255,.7);box-shadow:0 0 20px #59b2ff32,0 15px 35px #0007}
+@media(max-width:600px){.hero.hh-nutrition-approved{aspect-ratio:1671/941;min-height:0;border-radius:18px}}
