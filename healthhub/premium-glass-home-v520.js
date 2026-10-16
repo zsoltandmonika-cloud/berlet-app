@@ -67,7 +67,9 @@
   }
   if(key==='digital'){root.location.assign(new URL('./digital-health/',root.location.href).href);return true}
   if(key==='nutrition'){
-   return fallbackClick('Nutrition')||message('A Nutrition és a Receptár összekapcsolása előkészítés alatt.');
+   // Controlled LIVE BETA: an isolated local-only diary, no family-vault mutations.
+   root.location.assign(new URL('./nutrition-preview/',root.location.href).href);
+   return true;
   }
   if(key==='ask'){
    if(typeof root.hhOpenLenaSmart299==='function'){root.hhOpenLenaSmart299();return true}
