@@ -29,3 +29,24 @@ html.hh-lemonade-photo-ready .hh-water-level::after{
 }
 html.hh-lemonade-photo-ready .hh-pitcher>strong{display:none!important}
 @media(prefers-reduced-motion:reduce){html.hh-lemonade-photo-ready .hh-water-level{transition:none!important}}
+
+/* v606: Unfilled portion is dimmed while the vivid blue region rises from 0 to 100.
+   Printed labels stay at their original coordinates; no extra fake numbers. */
+html.hh-lemonade-photo-ready .hh-pitcher::before{
+ display:block!important;content:"";position:absolute;z-index:1;
+ left:8%;right:27%;top:11%;height:calc(64% - var(--hh-fluid-fill, 0%));
+ border-radius:5px 5px 0 0;
+ background:rgba(0,13,41,.69)!important;
+ box-shadow:inset 0 0 20px rgba(0,10,30,.55);
+ pointer-events:none;
+ transition:height 950ms cubic-bezier(.22,.9,.35,1)!important;
+}
+html.hh-lemonade-photo-ready .hh-water-level{
+ left:8%!important;right:27%!important;bottom:25%!important;
+ z-index:2!important;
+ background:linear-gradient(180deg,rgba(61,224,255,.83),rgba(5,133,255,.81) 32%,rgba(0,62,217,.79))!important;
+ mix-blend-mode:normal!important;
+ box-shadow:inset 0 0 15px rgba(210,255,255,.35),0 0 19px rgba(30,180,255,.44)!important;
+}
+html.hh-lemonade-photo-ready .hh-water-level[style*="height: 0%"]::after{display:none}
+@media(prefers-reduced-motion:reduce){html.hh-lemonade-photo-ready .hh-pitcher::before{transition:none!important}}
