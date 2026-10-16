@@ -110,3 +110,12 @@ dialog .primary{color:#041c31;background:linear-gradient(100deg,#69d4fc,#ffabcc)
  .quick .hh-quick-chip{left:38px;width:26px;height:27px}
  .food-strip .photo{height:63px}
 }
+
+/* Hero composition: keep BOTH the familiar face and the cappuccino visible.
+   Blurred photo backdrop fills wide displays without stretching or cutting the portrait. */
+.hero-art{isolation:isolate}
+.hero-art::before{content:"";position:absolute;inset:-20px;z-index:0;background-image:url('./nutri-lena-photo-v594.webp');background-repeat:no-repeat;background-size:cover;background-position:center;filter:blur(22px) brightness(.53) saturate(1.2);transform:scale(1.05)}
+.hero-art img.original-lena{z-index:1;object-fit:contain;object-position:center center;filter:drop-shadow(0 8px 13px rgba(0,0,0,.44))}
+.hero-art::after{z-index:2;background:linear-gradient(90deg,rgba(8,20,39,.56),transparent 20%,transparent 80%,rgba(13,27,44,.25))}
+.hero-art img.hh-hero-chip{z-index:3}
+@media(max-width:650px){.hero-art img.original-lena{object-position:center center}}
