@@ -265,7 +265,43 @@ function tone(type){
  }catch(_){}
  try{if(navigator.vibrate)navigator.vibrate(type==='success'?[18,40,24]:9)}catch(_){}
 }
-function success(){tone('success');$('buddy').classList.add('cheer');setTimeout(()=>$('buddy').classList.remove('cheer'),450);}
+let buddyMessageTimer=null,buddyAnimTimer=null;
+function buddySay(message,positive=false){
+ const toast=$('buddyToast'),caption=$('buddyNote'),label=$('buddyToastText'),buddy=$('buddy');
+ if(!toast||!buddy||!caption||!label)return;
+ label.textContent=message;
+ caption.textContent=positive?'NUTRI BUDDY · TADAAA!':'NUTRI BUDDY 🐿️';
+ toast.hidden=false;
+ buddy.classList.remove('cheer');
+ if(buddyAnimTimer)clearTimeout(buddyAnimTimer);
+ if(positive){
+  // CSS-only character movement on click, no permanent background animation.
+  void buddy.offsetWidth;
+  buddy.classList.add('cheer');
+  buddyAnimTimer=setTimeout(()=>buddy.classList.remove('cheer'),650);
+ }
+ if(buddyMessageTimer)clearTimeout(buddyMessageTimer);
+ buddyMessageTimer=setTimeout(()=>{
+  toast.hidden=true;caption.textContent='NUTRI BUDDY 🐿️';
+ },positive?2800:2400);
+}
+function success(){
+ tone('success');
+ buddySay('TADAAA! A naplód frissült. ☕🥗',true);
+}
+function greetBuddy(){
+ const doc=read(active),day=currentDay(),rows=doc.entries.filter(e=>!e.deleted&&e.date===day);
+ const kcal=rows.reduce((n,e)=>n+(Number(e.nutrients&&e.nutrients.kcal)||0),0);
+ let m='Helló '+profileName(active)+'! ☕ A chipmunk készen áll a napi kalandokra.';
+ if(!rows.length)m='Reggeli cappuccino? A mókus már felébredt! ☕🐿️';
+ else if(doc.goal.kcal!=null){
+  const remaining=Math.round(doc.goal.kcal-kcal);
+  m=remaining>=0
+   ?'Ma '+fmt(kcal,0)+' kcal került a naplóba. Még '+fmt(remaining,0)+' kcal van a beállított keretig.'
+   :'Ma '+fmt(kcal,0)+' kcal szerepel a naplóban. Nézzük az egyensúlyt együtt, ítélkezés nélkül.';
+ }else m='Már '+rows.length+' finomságot rögzítettél ma. A mókus mindet számon tartja! 🐿️';
+ buddySay(m,false);tone('tap');
+}
 function mealForTime(time){
  const hour=Number(String(time).split(':')[0]);
  return hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb / Brunch';
@@ -463,6 +499,7 @@ async function refreshActivity(profile){
 function events(){
  const click=(id,fn)=>$(id).addEventListener('click',fn);
  click('profileBtn',()=>{tone('tap');setProfile(active==='zsolt'?'monika':'zsolt',true)});
+ click('buddy',greetBuddy);
  click('soundBtn',()=>{const next=sounds()?'off':'on';localStorage.setItem('hh-nutrition-sound',next);$('soundBtn').textContent=next==='off'?'♪ némítva':'♫ hang';if(next==='on')tone('tap')});
  click('insight7',()=>{insightDays=7;renderInsights();tone('tap')});
  click('insight30',()=>{insightDays=30;renderInsights();tone('tap')});
