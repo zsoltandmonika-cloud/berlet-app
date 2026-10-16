@@ -357,6 +357,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
 
             // Malformed provider data in a single day's aggregate must not
             // abort the complete export of other dates and other health metrics.
+            // Duration aggregations may encounter malformed imported sessions.
+            // Retry the same day without this ONE metric, retaining steps and calories.
+            var durationAggregateUnavailable = false
             val activityAgg = try {
                 client.aggregate(
                     AggregateRequest(
@@ -372,8 +375,26 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 )
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                failedActivityDates.put(date.toString())
-                null
+                if (!HealthTimeWindows.isInvalidIntervalError(e)) throw e
+                durationAggregateUnavailable = true
+                try {
+                    client.aggregate(
+                        AggregateRequest(
+                            metrics = setOf(
+                                StepsRecord.COUNT_TOTAL,
+                                DistanceRecord.DISTANCE_TOTAL,
+                                ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL,
+                                TotalCaloriesBurnedRecord.ENERGY_TOTAL
+                            ),
+                            timeRangeFilter = dayRange
+                        )
+                    )
+                } catch (fallbackError: Exception) {
+                    if (fallbackError is kotlinx.coroutines.CancellationException) throw fallbackError
+                    if (!HealthTimeWindows.isInvalidIntervalError(fallbackError)) throw fallbackError
+                    failedActivityDates.put(date.toString())
+                    null
+                }
             }
 
             if (activityAgg != null) {
@@ -381,17 +402,14 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 val distance = activityAgg[DistanceRecord.DISTANCE_TOTAL]
                 val activeCalories = activityAgg[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
                 val totalCalories = activityAgg[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
-                val exerciseMinutes =
-                    activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]?.toMinutes()?.toDouble() ?: 0.0
-
+                val duration = if (durationAggregateUnavailable) null
+                    else activityAgg[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL]
+                val exerciseMinutes = duration?.toMinutes()?.toDouble()
                 val intervalMinutes = mergedActiveMinutes(activeCaloriesRecords, dayStart, dayEnd)
-                val useIntervalMinutes =
-                    intervalMinutes >= exerciseMinutes && intervalMinutes in 1.0..360.0
-                // If the Health Connect duration metric failed, unknown is not zero.
-            val effectiveActiveMinutes: Double? =
-                if (useIntervalMinutes) intervalMinutes
-                else if (durationAggregateUnavailable) null
-                else exerciseMinutes
+                val useIntervalMinutes = intervalMinutes in 1.0..360.0 &&
+                    (exerciseMinutes == null || intervalMinutes >= exerciseMinutes)
+                val effectiveActiveMinutes: Double? =
+                    if (useIntervalMinutes) intervalMinutes else exerciseMinutes
 
                 val terrainMetrics = mutableSetOf<AggregateMetric<*>>()
                 if (elevationAllowed) terrainMetrics.add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
@@ -418,7 +436,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     .put("totalCaloriesKcal", totalCalories?.inKilocalories ?: 0.0)
                     .put("caloriesKcal", activeCalories?.inKilocalories ?: 0.0)
                     .put("activeMinutes", effectiveActiveMinutes ?: JSONObject.NULL)
-                    .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else "exerciseSessions")
+                    .put("activeMinutesSource", if (useIntervalMinutes) "activeCaloriesIntervals" else if (exerciseMinutes != null) "exerciseSessions" else "unavailable")
                 if (elevation != null) dayActivity.put("elevationGainMeters", elevation.coerceAtLeast(0.0))
                 if (floors != null) dayActivity.put("floorsClimbed", floors.coerceAtLeast(0.0))
                 dailyActivity.put(dayActivity)
@@ -438,6 +456,7 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                 )
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                if (!HealthTimeWindows.isInvalidIntervalError(e)) throw e
                 failedNutritionDates.put(date.toString())
                 null
             }
