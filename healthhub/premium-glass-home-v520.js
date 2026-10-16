@@ -68,7 +68,7 @@
   if(key==='digital'){root.location.assign(new URL('./digital-health/',root.location.href).href);return true}
   if(key==='nutrition'){
    // Controlled LIVE BETA: an isolated local-only diary, no family-vault mutations.
-   root.location.assign(new URL('./nutrition-preview/',root.location.href).href);
+   root.location.assign(new URL('./nutrition/',root.location.href).href);
    return true;
   }
   if(key==='ask'){
