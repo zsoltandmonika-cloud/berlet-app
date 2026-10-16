@@ -55,9 +55,24 @@ test('canonical import replaces only target HC cache, is idempotent and does not
   assert.equal(rows.length,3); assert.equal(pushes,0); assert.equal(backups,1); assert.ok(rows.find(x=>x.id==='manual'));assert.ok(rows.find(x=>x.id==='monika'));assert.ok(!rows.find(x=>x.id==='old'));
   const bridge=await req(indexedDB.open('healthhub-connect-v1',3));
   assert.equal((await req(bridge.transaction('imports').objectStore('imports').getAll())).length,1);bridge.close();
-  await context.hhImportHealthConnectRaw({...raw,profile:'monika'},'cloud');
+  // A current signed Connect (v0.14.6) exports schema 1.3.
+  // Confirm a fresh BP and night's sleep remain attached ONLY to Mónika.
+  const monika13={...raw,schemaVersion:'healthhub.healthconnect.bridge/1.3',profile:'monika',
+    records:{
+      weight:[{id:'new',time:'2026-10-08T07:00:00Z',kg:80}],
+      bloodPressure:[{id:'monika-bp-oct16',time:'2026-10-16T08:00:00Z',systolic:104,diastolic:72}],
+      sleepSessions:[{id:'monika-sleep-oct16',startTime:'2026-10-15T22:00:00Z',endTime:'2026-10-16T05:00:00Z',stages:[]}]
+    }
+  };
+  await context.hhImportHealthConnectRaw(monika13,'cloud');
   const both=await req(indexedDB.open('healthhub-healthradar-v2',1));
   const merged=await req(both.transaction('measurements').objectStore('measurements').getAll());both.close();
   assert.ok(merged.some(x=>x.id==='hc-zsolt-weight-new'));
   assert.ok(merged.some(x=>x.id==='hc-monika-weight-new'));
+  assert.ok(merged.some(x=>x.profile==='monika'&&x.sourceRecordId==='monika-bp-oct16'&&x.systolic===104));
+  assert.ok(!merged.some(x=>x.profile==='zsolt'&&x.sourceRecordId==='monika-bp-oct16'));
+  const latest=await req(indexedDB.open('healthhub-connect-v1',3));
+  const bundles=await req(latest.transaction('imports').objectStore('imports').getAll());latest.close();
+  assert.ok(bundles.some(x=>x.profile==='monika'&&x.bundle?.records?.sleepSessions?.some(y=>y.id==='monika-sleep-oct16')));
+  await assert.rejects(context.hhImportHealthConnectRaw({...monika13,schemaVersion:'healthhub.healthconnect.bridge/9.9'},'cloud'),/nem támogatott/i);
 });
