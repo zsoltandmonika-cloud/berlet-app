@@ -222,6 +222,15 @@ async function syncProfile(p){
    for(let tries=0;tries<4;tries++){
     const current=await download(p);
     let merged=merge(read(p),current.doc,p);
+    // Re-entering this frequently used module must not rewrite an unchanged cloud file.
+    const relevant=x=>JSON.stringify({entries:x.entries,body:x.body,catalog:x.catalog,units:x.units,goal:x.goal,presets:x.presets});
+    if(current.doc&&relevant(merged)===relevant(normalize(current.doc,p))){
+     const latest=merge(merged,read(p),p);
+     localStorage.setItem(LS+p,JSON.stringify(latest));
+     if(p===active){displayStatus('☁ Dropbox szinkronizálva');render();}
+     if(relevant(latest)!==relevant(merged))queueSync(p);
+     return true;
+    }
     const save=await upload(p,merged,current.rev);
     if(save.conflict)continue;
     // Local changes made while uploading are folded back in; never revert them.
