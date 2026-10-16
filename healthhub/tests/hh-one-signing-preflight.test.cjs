@@ -11,9 +11,14 @@ assert.match(manifest.version,/^0\.14\.[0-9]+$/,'signed OTA baseline must have a
 assert.ok(Number.isSafeInteger(manifest.versionCode)&&manifest.versionCode>=21);
 assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
 assert.deepEqual(manifest.rolloutProfiles,['zsolt','monika'],'both owner profiles explicitly enabled for the existing signed OTA');
-assert.equal(manifest.version,'0.14.3','rollout changes the eligible owners, never the APK version');
-assert.equal(manifest.versionCode,23,'signed APK baseline code stays immutable');
-assert.equal(manifest.sha256,'e4016892c43280bbf108ee19ee726bc5dd9ff1dd88f47c58735919f747ad859a','published signed APK SHA unchanged');
+// The baseline is always read from the CURRENT signed OTA manifest.
+// Its SHA and certificate are compared against the actual immutable GitHub
+// release asset in the preflight workflow. Never pin an old version's hash.
+const currentPatch=Number(manifest.version.split('.')[2]);
+assert.equal(manifest.versionCode,20+currentPatch,
+ 'signed OTA patch and versionCode must advance together');
+assert.ok(manifest.rolloutProfiles.every(profile=>['zsolt','monika'].includes(profile)),
+ 'only known owner profiles may be enabled');
 assert.match(manifest.sha256,/^[a-f0-9]{64}$/);
 const targetVersion=manifest.version.split('.').map(Number);
 targetVersion[2]++;
