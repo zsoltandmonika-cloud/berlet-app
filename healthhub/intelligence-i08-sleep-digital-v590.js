@@ -64,6 +64,22 @@ function enrich(input,ctx,digital,opts){
   !Number.isSafeInteger(digital.collectedAtMs)||digital.collectedAtMs>now+300000||
   digital.collectedAtMs<now-31*DAY||!Array.isArray(digital.hours)||digital.hours.length>744)
   throw Error('I-08: nem ellenőrzött Digital Wellbeing forrás.');
+ // Recheck the fields on the already-v507-validated in-memory snapshot.
+ // For empty hourly coverage there is no digital observation to compare.
+ var seen=Object.create(null);
+ digital.hours.forEach(function(h){
+  if(!h||!Number.isSafeInteger(h.hourStartMs)||h.hourStartMs%HOUR!==0||
+   h.hourStartMs>=digital.collectedAtMs||h.hourStartMs<digital.collectedAtMs-31*DAY||
+   !Number.isSafeInteger(h.observedForegroundMs)||h.observedForegroundMs<1||h.observedForegroundMs>HOUR||
+   !Number.isSafeInteger(h.chatGptForegroundMs)||h.chatGptForegroundMs<0||
+   h.chatGptForegroundMs>h.observedForegroundMs||
+   !Number.isInteger(h.sessionFragments)||h.sessionFragments<1||
+   h.sessionFragments>100000||seen[h.hourStartMs])
+    throw Error('I-08: nem hitelesített vagy ismétlődő mérési órasáv.');
+  seen[h.hourStartMs]=true;
+ });
+ if(!digital.hours.length)return {payload:input,profile:profile,linkedNights:0,
+  digitalAvailable:false,reason:'Nincsenek megfigyelt órasávok.'};
  var api=root.HH_DW_VAULT_V507;
  if(!api||typeof api.summary!=='function')throw Error('I-08: a hitelesített Digitális Wellness összesítő nem érhető el.');
  var latest=digital.hours.reduce(function(n,h){return h&&Number.isSafeInteger(h.hourStartMs)?Math.max(n,h.hourStartMs+HOUR):n},0);
@@ -90,11 +106,13 @@ function enrich(input,ctx,digital,opts){
      ' perces RÖGZÍTETT alvásszakasz. Ez nem az egész éjszaka időtartama.'});
   });
  }
- var lag=now-digital.collectedAtMs;
+ // Fresh upload timestamps do not prove fresh measurements.
+ var observedLast=latest?Math.min(latest,digital.collectedAtMs):0;
+ var lag=observedLast?now-observedLast:Infinity;
  if(lag>48*HOUR){
   facts.push({domain:'device',label:'I-08 · Digital Wellbeing frissesség',
-   value:'Az utolsó felhőbeli adatgyűjtés több mint 48 órája történt. A telefon aktuális használatára ebből nem következtetünk.',
-   at:new Date(digital.collectedAtMs).toISOString()});
+   value:'A legutolsó megfigyelt alkalmazásidő több mint 48 órával korábbi. A felhőbe küldés dátuma nem igazol frissebb képernyőhasználati mérést.',
+   at:observedLast?new Date(observedLast).toISOString():''});
  }
  var out=Object.assign({},input,{extra:input.extra.concat(facts)});
  // Never overflow the research payload; drop low-priority new facts first.
