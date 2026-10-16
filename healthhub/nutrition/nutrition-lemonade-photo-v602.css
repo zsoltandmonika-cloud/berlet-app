@@ -1,0 +1,10 @@
+/* v602: Approved image-led lemonade pitcher; falls back to the original illustrated CSS jug until artwork loads. */
+html.hh-lemonade-photo-ready .hh-pitcher{width:clamp(116px,29vw,170px)!important;height:clamp(165px,43vw,230px)!important;border:0!important;border-radius:16px!important;background:#0d1d34 url("./healthhub-lemonade-approved-v602.webp") center / cover no-repeat!important;box-shadow:none!important;overflow:hidden}
+html.hh-lemonade-photo-ready .hh-pitcher::after,html.hh-lemonade-photo-ready .hh-pitcher::before{display:none!important}
+html.hh-lemonade-photo-ready .hh-pitcher-wrap::before,html.hh-lemonade-photo-ready .hh-pitcher-wrap::after{display:none!important}
+html.hh-lemonade-photo-ready .hh-water-level{z-index:1;left:11%!important;right:11%!important;bottom:0!important;border-radius:8px!important;background:linear-gradient(0deg,rgba(255,31,135,.32),rgba(255,166,207,.1))!important;box-shadow:inset 0 0 22px #ff9acb44!important;mix-blend-mode:screen;pointer-events:none}
+:root[data-profile="zsolt"].hh-lemonade-photo-ready .hh-water-level{background:linear-gradient(0deg,rgba(15,113,248,.38),rgba(140,230,255,.17))!important;box-shadow:inset 0 0 20px #5acbff60!important}
+html.hh-lemonade-photo-ready .hh-pitcher-scale{z-index:3;right:2px!important;top:21%!important;bottom:17%!important;font-size:10px;color:#fff;text-shadow:0 1px 4px #001526,0 0 7px #001526;font-weight:800}
+html.hh-lemonade-photo-ready .hh-pitcher>strong{z-index:4;top:auto!important;bottom:4px!important;left:12px!important;font-size:20px;text-shadow:0 2px 4px #050b1b,0 0 10px #050b1b}
+html.hh-lemonade-photo-ready .hh-pitcher-wrap{padding-top:0!important;align-items:end}
+@media(max-width:430px){html.hh-lemonade-photo-ready .hh-pitcher{width:clamp(111px,30vw,140px)!important;height:clamp(150px,42vw,185px)!important}html.hh-lemonade-photo-ready .hh-pitcher-scale{font-size:9px}}
