@@ -1,188 +1,200 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-15",
-  "generatedAt": "2026-10-15T11:12:15+02:00",
-  "headline": "A reggel fő témái: Musk says US government may be behind slowdown of Ukraine drone speeds; Student protesters attack government buildings in Albania",
+  "date": "2026-10-16",
+  "generatedAt": "2026-10-16T11:04:40+02:00",
+  "headline": "A reggel fő témái: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander; 'It's really hard to believe' - How Oregon primary school shooting unfolded",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Musk says US government may be behind slowdown of Ukraine drone speeds",
-        "BBC World: Student protesters attack government buildings in Albania",
-        "BBC World: Retired US generals call on Pentagon to cancel 'barbaric' execution livestream",
-        "BBC World: White House defends new press secretary amid questions about her legal credentials"
+        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
+        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow",
+        "BBC World: Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Musk says US government may be behind slowdown of Ukraine drone speeds",
-        "BBC World: Retired US generals call on Pentagon to cancel 'barbaric' execution livestream",
-        "BBC World: White House defends new press secretary amid questions about her legal credentials"
+        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
+        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Musk says US government may be behind slowdown of Ukraine drone speeds",
-        "BBC World: Student protesters attack government buildings in Albania",
-        "BBC World: Retired US generals call on Pentagon to cancel 'barbaric' execution livestream"
+        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
+        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Anticiklon peremére kerül Magyarország: jégdarazápor is eshet - Portfolio.hu",
-        "Forbes.hu: Az előző kormány elbukta, a mostani megállapodott róla: ezért kap több mint 92 milliárd forintot Magyarország - Forbes.hu",
-        "| hvg.hu: Keno Verseck: Magyarország lezárja az állami homofóbia fejezetét - | hvg.hu"
+        "Euronews.com: Volodimir Zelenszkij a jövő héten Budapestre látogathat: új fejezet nyílhat az ukrán–magyar kapcsolatokban - Euronews.com",
+        "Világgazdaság: Veszélyes gyerekjelmezt hívtak vissza a Temuról: Magyarország is érintett, erre figyeljenek a szülők - Világgazdaság",
+        "Index.hu: Bemondták az évszámot Londonban, ekkorra jósolják Magyarország euróövezeti csatlakozását - Index.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: UK economy sees surprise growth in August ahead of Healey's first Budget",
-        "BBC Business: Anthropic flags revenue surge to investors ahead of stock market debut",
-        "BBC Business: How backlash against data centres could shape the US midterm elections"
+        "BBC Business: Banks expect to be hit with higher taxes in Budget",
+        "BBC Business: I find it quite demoralising in store - why I do all my shopping online",
+        "BBC Business: Nandy 'minded to intervene' in Sky's £1.6bn takeover of ITV entertainment arm"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Anthropic flags revenue surge to investors ahead of stock market debut",
-        "BBC Technology: Toilet paper and secret recorders: What we know about the arrest of the Saudi OpenAI engineer",
-        "BBC Technology: 'I applied for 200 jobs' - How 'spray and pray' AI job applications can backfire"
+        "BBC Technology: Snapchat and Instagram grooming becoming 'easier'",
+        "BBC Technology: Porn showing choking or incest to be banned from early November, government says",
+        "BBC Technology: Living with a stink? Technology might help"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Student protesters attack government buildings in Albania (BBC World).",
-        "Figyelmi pont: Toilet paper and secret recorders: What we know about the arrest of the Saudi OpenAI engineer (BBC Technology)."
+        "Figyelmi pont: Ship attack reports near Hormuz reach record high as oil exports slow (BBC World).",
+        "Figyelmi pont: Trump calls off livestream of Fort Hood attacker's execution by firing squad (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Musk says US government may be behind slowdown of Ukraine drone speeds",
-        "BBC World: Student protesters attack government buildings in Albania"
+        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Musk says US government may be behind slowdown of Ukraine drone speeds",
+      "title": "Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c8wy9veedgygo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "url": "https://www.bbc.co.uk/news/articles/cm89zp48k4kzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "Student protesters attack government buildings in Albania",
+      "title": "'It's really hard to believe' - How Oregon primary school shooting unfolded",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq80zk5k2ep4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-14"
+      "url": "https://www.bbc.co.uk/news/videos/cwe8r29mjd05o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "Retired US generals call on Pentagon to cancel 'barbaric' execution livestream",
+      "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmp3gnngv3e9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "url": "https://www.bbc.co.uk/news/articles/cmde8dpg8g0no?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "White House defends new press secretary amid questions about her legal credentials",
+      "title": "Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckqxne2evqreo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "url": "https://www.bbc.co.uk/news/articles/c58jz174w89ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "'Nowhere to escape' - Indonesians share footage of orange haze blanketing towns",
+      "title": "Trump calls off livestream of Fort Hood attacker's execution by firing squad",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/videos/c63dj4p4k5dlo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/crx23qlnj27qo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "At the Brooklyn novelty shop in 'surreal' row with Kelly Clarkson over mechanical bird",
+      "title": "China tells Israel to stop 'forced establishment' of West Bank settlements",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxvgdneplgzeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "url": "https://www.bbc.co.uk/news/articles/cq1j3wdxy48ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "Sally Rooney books withdrawn in UK over Palestine Action support",
+      "title": "Bus hits train stopped on French side of Channel Tunnel, with 19 injured",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmx23q4g307vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-14"
+      "url": "https://www.bbc.co.uk/news/articles/c6wyrnmgzn01o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "Anthropic flags revenue surge to investors ahead of stock market debut",
+      "title": "At least 33 pupils and teacher killed after school roof collapses in Pakistan",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqzjx448vxkgo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cked326llddgo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "Anticiklon peremére kerül Magyarország: jégdarazápor is eshet - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOTk5DYzhpLWJVVjdKelRIT21JNUM1Wl80aEI4MUpndzhfN0NuN1RsZk5LVTZmTnl3djA4aFZMY2RoNHpGckpRY0JfSXBvZ1ZGNDJBOHQ4bTY4TDE3WGdWRVlLTC1iOVVqeGFoaEdkeFJfY3RRbEZOY2swSDhNYVNTSFppaXJtS2JvVWdzN0pub0xPV1czRThla1ZrMlRrTVAtc3ZQT1l3UndCenJEdTRJ0gG0AUFVX3lxTFBnYTQ3VzFEemlidjBIUmRCRjBwOVJjR0x4WEhyMXloMUpGYmVGVnF1Vi1sMGNITlVzekxZZmdMakpLYzJlQUQ1bmFHQ3lzZE5mV1JLU0V0c2VkTUZmZHNwekswa2FpblhHWFFYNTN3dTMtNjFaTE15WERXM3BzdVA4b0xiYTlyeEd4bHYtejBGd254X1g0aEtKUk55MjVWWGJxT2xOUWZTNkoydXVtMksxTmswcg?oc=5",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Az előző kormány elbukta, a mostani megállapodott róla: ezért kap több mint 92 milliárd forintot Magyarország - Forbes.hu",
-      "publisher": "Forbes.hu",
-      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQU3FoNVFsRjVXZlRHX3VWMldBRXBXLUtkbWpJUWhYTnZOTXhLYjRuaXVwbDlhcmhzcXVYMDB6clNjVjBncDlSOG1ZU29oWWZWLUpLd0NQOVcxRFJuaDZEM0pla2czQ1BlTnA1ei15VGVVNzVmYzlMMXBoZW5JeDF3LXN0N1V0ZUdRVkNSMGN3RC1xekFMSmxxRjk1MExZSERGd3dEcjBTR3VuNE8tN3dwVnBnWUs1MTZ1UTZmZHQyZDFZazIxR1V3VHVFX0VleGRi?oc=5",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Keno Verseck: Magyarország lezárja az állami homofóbia fejezetét - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNbEVVaDJTZ1l4Zk1YbHQ1VzVua2JWaG1YUlN2TFBDQ1VNMEdTYzN6YWQzbnhzV0pOVW4wVy1sMi05T1BSUHI0VFJsM0VtbE5SbDlRWkxkM0Z6SHBDdFQtYXhDVjUweTBXcDFCeXMyMC05emsyM0NITjVFLVdGbS1MSk41NXd1amVWS3BVVFE3ekRNbGNRbFE?oc=5",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "A régió szellemi vezetője lehet Magyarország, ha meglépjük az euróbevezetést: elképesztő előnybe kerülhetünk - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxOVklDVVpoeEhqUkRSZXJOaHpLTWRVQ1pmTnEwalhaU3lod253NFczT3BXVlBTaVNaWktzXzJ3ZXVrdFpXRFFBZmVEekNwa1BlLWxaMlZRNUNnT2dIS2N0WjFlMGEwc2U4MTg1SEc3c0JnYW1nd2d0d3N1X0IwWnl0d2NaSjFkOTZkUVRJLWduZXVlaFYySFFfWlZPdzlSemRUS1RCamlkNU9rZzZ0bks3TXdCbnFNRm5NcGFoaW5rNDlsUTduRjNBUEZqX3Ntcm9sRkVMckFVZkNkUHdJM2NQRHl5dDJaeUJfYkozTEU5SDbSAfYBQVVfeXFMT3Y1bjdNdlM1a05xai1fZnRYczRQWHllTzdMRi1sRzdPTlFQenNFQUZicnNoRkFiR00xRFJBZDNOX3M4TmpuMG1ZTWhDU054NWMweTlfX3ZLd20tSkxSU3pOd1d3RUg5THlfSTZzd0hOcGJfN1dJVldHbGpUNmVuUHhYaWtlS2VOVHRzSGJfSGhIV0tVOXpPUTFJZ2t5XzA1X1BMaU02SWxMZ01MOGlmR1VLa1ZZVmdBTEh3bEozVFpvVFNuc0FiR0tEcmRlMzN3Tkx0US0zcG1ETFRQTjhPeVpER29Cc2VWZGxfVHFpbGR3OXR1NGp3?oc=5",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Gazdaság - Új szintre léphet a haderőfejlesztés: Románia már döntött, Magyarország még hallgat - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPZ0dpYVNSMVppeVpLdnFrWGh3c1hrMEFkblNLNk1zelRMX2VXY2VsNDFEMEdDTzdhTGVTUTBFR2dJR210RlhLYjQyUDktdmRSN25KNXJnRmpTLURCV3lWWkhRcFRUSDVfVUNRN1AtQ2txcjQtel9fOFdBUEYzNDVVOG9LLU81aWNDZVhOY0otY2R6d0Iz?oc=5",
-      "publishedAt": "2026-10-14"
-    },
-    {
-      "title": "Orbán Anita: Magyarország több mint 92 milliárd forint pénzügyi támogatást kap - Euronews.com",
+      "title": "Volodimir Zelenszkij a jövő héten Budapestre látogathat: új fejezet nyílhat az ukrán–magyar kapcsolatokban - Euronews.com",
       "publisher": "Euronews.com",
-      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOYlB4OC1PNkRhRWFoTC01cTI5WGNnakVVU2tCdWJaNmlMaFE1VWhTc0ZLd3lNLURudV9YWHNZbHh5bmJXeEszUW1oUnJ0SUZSa3YteW9oNEpRbGFiOWc4dTI4MXFqeGlLNDgzbjg1RlJMcmUzY2lza3RkYlpPY2VZVVI4Z21idmc5RUVKcF9waU9uamZJQk9rYnotclhuR2VlMVQ1VU5GbEJ3NURYVEJYVHFn?oc=5",
-      "publishedAt": "2026-10-14"
-    },
-    {
-      "title": "EU-csúcs - Magyar Péter: fontos európai csúcs kezdődik Magyarország szempontjából - Nemzeti Hírügynökség",
-      "publisher": "Nemzeti Hírügynökség",
-      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPanR5d2dvQlFtNHc0Zks0M1E5Y1NaamFUZXVybFRPajg4elB2SXhIZG1PTXR1UHZhZVNQYmtCU3Bvbk91MzhOc3N4VThILV82a1VBQTdqUHZpME9HY1U5STllLVhRSEw4ZGdYYjN1RU1FeGtBUGc4bm14akVaQ19NczFPOXFPbkpTWEItMzQ2YWJhVlR3MHZUaW9uS0k0RW1nZDVWa1FiYjNWZk4xdHhF?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNNEFXeDJTQ2hBZDBuTVZlRUFNYW1GdEpHMVdQVjllckhTSk9uWW9faWM3UHRidnJ6STV1dThwd0ljS2Y1RmhycnhUc3lOYS05T3VmSG5VMkRYNEF1dU9PRUxyaGxzeTBZeFNDZzJIa3pSRnJDQV9PdlNVWGs1a3IxUkQzSWJXcVhSWDBob3VMTHZBenJVZGV3c0Y0UU9CcmoxSEFZSXdJOFJJclJ2QUxMcDZ2RjVHYlNIdVZlcVM2a2psZGM?oc=5",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "Kétmilliárd eurót bukott Magyarország, Magyar Péter visszaszerezné - Economx.hu",
-      "publisher": "Economx.hu",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQTjh5Qm5qSk9HVEpNZUk5RjJBSTd0d19CTnJVc2hQdHNCa04wM1Q5cHRLTlFzVW96S3Nrb3ZETWtVWFpLaEt0MmlNamhYRkNwQ0lRZkttTWVrZ0VWTDlaZVc5UFFrRnA1a0wtdHhMVVltQVVnbm9UcnZ5d09hVFB1bXZiaGhwSkJHTmtzYmxxOG9nWU5LYnY4SHRnbUQ2ZnJ1QTd4clp2VXlpRUJGRmc?oc=5",
+      "title": "Veszélyes gyerekjelmezt hívtak vissza a Temuról: Magyarország is érintett, erre figyeljenek a szülők - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNeDc2MFFTOXBQUUp4aUVzVzZJSnI1aDE1YXNEWUIyZkt5R09NM1dkR2FQQ0FxM3oxQXpfY0puOENrbHdYLVpEWFdMRzh2cDZLSkpPSElPdGxCazk0NHQzVndSSjNIOHlGQVktcFBHaGpWalZLVC1lOVowYjMwNHp5MU04eWxBaWhpU2VJa0RvTXowYlhVX1l2SXBVS0hONmtOSG80?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Bemondták az évszámot Londonban, ekkorra jósolják Magyarország euróövezeti csatlakozását - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQMTdfTVlMNEk3S3BudWZVLWlxRDhNLVl3dTgxcUJ4eHZ5Y01rRWtrOTY2eElPX2J3cmJlTVNrMWV4SU03THRWb1B5MEQzWDBIVzk4aFlmU1h1ek1BSm5SSUktaHFYMzU2QlBqMVNtOHhDcUhPOEJpVHUtOFZCTlBITXNyWmVvVE1CLVlZTTNubw?oc=5",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "UK economy sees surprise growth in August ahead of Healey's first Budget",
+      "title": "Magyarország három fontos mutatót tekintve is az EU legszegényebbjei között van - Qubit",
+      "publisher": "Qubit",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNVDlfTUJUbDRRRWk3Uno5T3pwLURxU1IzUW9jSzQwM3hRenFYTTlQVWNLYTBfdUt5XzNGbTB4Si1Pb2tzRjlFTS1hODBvdVN2OUxVcWhOakRVZWtNdy1vX1lNSUpkRjcwQ0FOc0JYcEZTd0pkR0pUXzBGREdLN21pbkhHZUJXZm9mZ1kxcy02NDFWc1dCNmVSckhwWG00Y01vRTJfVnVUMF90d2c?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Magyarország is csatlakozott a hat blokkoló tagállam közé, éles vita bontakozott ki az EU-csúcson - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOblZYeENfeGZMWk9sRUpEQk1wX01GQ2JuaWdQVFgyQklhdm14bVVPc2RXVFNIX3FrVEsxeGlweERZNEtjQW5ybmlsektRd0RYN1R5YUgwY19kRzJEdnZnTmNYSFpXSTgxZ09tX0VGWU5HMV8wZTV5Y0w2UjBoMlVwR200RWVpLWd6MkpIMmhPd3pLV1o0WUJvRGd1aGhrZ294X3ZXRG13YUk1MEhQYXBKT3JPbXp5OU1VTlNzSl9SbjRYczM5WlRiUnJJempjQjRjdFdBUk4zb09qa3dwTV9PSW0tWmdWMjjSAewBQVVfeXFMT0VmREllSTBYQVVJc2NnTE9LQjFsYlkxQ2hjUGhYWXZfMjZJS1NhOHViVkYxdG1jbFFGbHg5U3JheGFuXzJoekJCOWU5NkV1VUE1YnVlX2JZbWp2UHRCWXY2eDZtbk1DaWZwcUNiVmhCME1zR1FqNnFiX1l6dEtzVGdKQ3RrQkV2TlloLXpXcnAzQTd2WjFwNzFfN2hMVFZiV2RfOU1qN29POElFMENsZXhPODQ2V0tKMURhWGtKMlZ2MGJVUDBmVmpJTzFNeHVaOFh5YWhjM2hJS2FfOEtnenlxa0h6YmNPZTVRQ2Y?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Éles vita az EU-csúcson: Magyarország is csatlakozott a Meloni vezette blokkolókhoz - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNa0tkaDBZcDZUMXJ2MHNFSUpxRkFiaklIYk9IczdGMGZGYTN6dGFHOF8yZUdTeE15bXVKUmhqSlIzejhPeXRGalQxNW1HN0tlTFRLMVZXaEZrY2pnR1pGZkVMc01GUUJmbm9YU2c1S1NGZjZFcWJTNUlKY0NzeGJ3RGtHbGJXc1NJZkFIM01yRXR0Ul9yemJNd3gwcnhZM3dTMjQxbkVuUF9ma1JiTENWNmQzMGkxV2wzUUxtd2dQSmFMNzM0VkpDMVc2cXhnTFk30gHWAUFVX3lxTE4zVE9wQmJGY1N4bkdSUi0yU0pQbVlyRFlfQlFIVDZQZmN2bGRYV09VMXZGM2pxaFpOVXVaR0dOUkw0YTA1UGhITWxxcmRkZV9IckhRYW5XSG91S3NTUmRuU2ExdXBYdXc1aDBIX2NoN1NVRDNUNk1SaC1WRFNTbUhaZk5CRzFSUkYzbXpOYTJSTUVXSnB0SnZ6cjAzcjdZa2YxMFlDN2txQUdtdHBrWXFNV3BZSXJPcVdIdk5hSkI4Zk9Lc2ZvTS1rdklTRnFackE1OWJ6dVE?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Már látszik, mikor vezetheti be Magyarország az eurót - Privátbankár.hu",
+      "publisher": "Privátbankár.hu",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOSWJxd3pKbHVqUHRTbURLbDFoMXIwRHVfankxbnRKNGc2TVZBUmRPbXBBNFNld2M0Sk9QdTZGVW5QcEl4XzExNFdkaTY2bEhhM1ZLbTd1djRmdHNaZTdUbGFYMUVmWm5lbENRTllneWF3UXRZa2dqOUg3YjFHeVBZMnVyTk5kbEtYQVR2LTJqVWtsbmVoVVpadUlB?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Először volt házelnöki találkozó Magyarország és Ukrajna között, mióta az oroszok lerohanták Ukrajnát - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNTDdOVzhleWhXbWJ3SkdlY09JMlptU185Y3F4eWY2WlFCZzN3alFobnBuZUhDR0xiWXY3ei1kM1hJaG9UQ0hLdE5oWHVQdDFUT1ZpZGh5MWhheTVlTEtROUh2S3EyYzdjUGVwOEpkX0pOUTlRQTFVeWxfVXdqU2JjS2QzOThublowWXBQZnUyY3NEbVJvZlFxUGM5aGlKdw?oc=5",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Banks expect to be hit with higher taxes in Budget",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck8dz1me439no?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c32l4k2xdvrzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "I find it quite demoralising in store - why I do all my shopping online",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c36lk280kd1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Nandy 'minded to intervene' in Sky's £1.6bn takeover of ITV entertainment arm",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm79pe5yej7no?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "How backlash against data centres could shape the US midterm elections",
+      "title": "AI giant Anthropic woos potential investors ahead of stock market debut",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c0rezqpnekro?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cqzjx448vxkgo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-15"
     },
     {
@@ -192,34 +204,22 @@
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "Drop-off charges at UK airports to be reviewed after sharp increase",
+      "title": "Living with a stink? Technology might help",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwp8gynk13rro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-14"
+      "url": "https://www.bbc.co.uk/news/articles/cr6240q1w136o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
-      "title": "How a Chinese-made toy gets to a US retailer",
+      "title": "Healey says surprise UK growth is 'sign of resilience' ahead of Budget",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c5djvyde0y1jo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ck8dz1me439no?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-15"
     },
     {
-      "title": "How much is the minimum wage?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cy7e8mpdxpro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Netflix to shed 1,000 jobs in steepest cuts since 2022",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6zxj0gzk4x4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-14"
-    },
-    {
-      "title": "Toilet paper and secret recorders: What we know about the arrest of the Saudi OpenAI engineer",
+      "title": "Snapchat and Instagram grooming becoming 'easier'",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cm04054ykqqqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-14"
+      "url": "https://www.bbc.co.uk/news/articles/cq33xd6j1dv5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     }
   ]
 }
