@@ -7,6 +7,17 @@ import java.time.Instant
  * Invalid imported exercise intervals must not stop a complete health export.
  */
 internal object HealthTimeWindows {
+
+    // The exact Health Connect error seen on the device. Only this malformed
+    // source-data error is safe to recover from; network/permissions must retry.
+    fun isInvalidIntervalError(error: Throwable): Boolean =
+        generateSequence(error) { it.cause }
+            .take(6)
+            .any {
+                val msg = it.message.orEmpty()
+                msg.contains("startTime must be before endTime", ignoreCase = true) ||
+                    msg.contains("start time must be before end time", ignoreCase = true)
+            }
     /**
      * Returns the valid intersection of an exercise interval and an export interval,
      * or null if either is empty/reversed or they do not overlap.
