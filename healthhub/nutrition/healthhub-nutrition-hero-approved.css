@@ -5,3 +5,11 @@
 :root[data-profile="monika"] .hero.hh-nutrition-approved{border-color:rgba(249,166,211,.65);box-shadow:0 0 20px #f9a6d32b,0 15px 35px #0007}
 :root[data-profile="zsolt"] .hero.hh-nutrition-approved{border-color:rgba(89,178,255,.7);box-shadow:0 0 20px #59b2ff32,0 15px 35px #0007}
 @media(max-width:600px){.hero.hh-nutrition-approved{aspect-ratio:1671/941;min-height:0;border-radius:18px}}
+
+/* v596: Golden Hero begins at top; only profile switch floats above its upper right corner. */
+.shell{position:relative;padding-top:0}
+.top{position:absolute;z-index:20;top:12px;right:max(25px,env(safe-area-inset-right));margin:0;padding:0;background:none;pointer-events:none}
+.top .controls{display:flex;gap:0;pointer-events:auto}
+.top #profileBtn{min-height:34px;padding:6px 12px;color:#f7f9ff;border:1px solid var(--accent);border-radius:999px;background:rgba(6,20,44,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 12px #0008}
+.hero.hh-nutrition-approved{margin-top:0}
+@media(max-width:480px){.top{top:8px;right:max(18px,env(safe-area-inset-right))}.top #profileBtn{min-height:30px;font-size:11px;padding:5px 9px}}
