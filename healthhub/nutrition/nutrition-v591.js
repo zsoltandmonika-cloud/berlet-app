@@ -427,20 +427,38 @@ function saveBody(e){
  update(d=>d.body.push(rec));$('bodyDialog').close();success();
 }
 async function refreshActivity(profile){
- // Read-only, source-aware indicator. Never infer total energy from active calories.
- $('activity').textContent='—';$('activitySource').textContent='Csak hiteles forrás';
- if(!connected())return;
+ // Same verified source shape as the canonical Activity v191 cloudBundle parser:
+ // health-connect.json -> {profile,exportedAt,records:{dailyActivity:[...]}}.
+ // Do NOT treat caloriesKcal as active energy: it may represent TOTAL energy.
  const serial=++onload;
+ $('activity').textContent='—';$('activitySource').textContent='Nincs ellenőrzött aktívkalória';
+ if(!connected())return;
  try{
-  const t=await token(),p='/HealthHub/profiles/'+profile+'-health-connect.json';
+  const t=await token();
+  const p='/HealthHub/profiles/'+profile+'-health-connect.json';
   const r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',
    headers:{Authorization:'Bearer '+t,'Dropbox-API-Arg':JSON.stringify({path:p})}});
-  if(!r.ok||serial!==onload)return;
-  const raw=await r.json();if(serial!==onload||profile!==active)return;
-  const rows=Array.isArray(raw?.records?.dailySummary)?raw.records.dailySummary:(Array.isArray(raw?.daily)?raw.daily:[]);
-  const today=rows.find(x=>x?.date===currentDay()),k=num(today?.activeCaloriesKcal,0,25000);
-  if(k!=null){$('activity').textContent=fmt(k,0);$('activitySource').textContent='kcal · Health Connect · külön';}
- }catch(_){}
+  if(serial!==onload||profile!==active)return;
+  if(!r.ok){$('activitySource').textContent='HC adat nem érhető el';return;}
+  const raw=await r.json();
+  if(serial!==onload||profile!==active)return;
+  if(!raw||raw.profile!==profile||!raw.records||!Array.isArray(raw.records.dailyActivity)){
+   $('activitySource').textContent='Profil vagy adatforrás eltérés';return;
+  }
+  const date=currentDay(), row=raw.records.dailyActivity.find(x=>x&&x.date===date);
+  if(!row||!Object.prototype.hasOwnProperty.call(row,'activeCaloriesKcal')){
+   $('activitySource').textContent='Aktív kcal nincs a HC exportban';return;
+  }
+  const kcal=num(row.activeCaloriesKcal,0,25000),exportMs=Date.parse(raw.exportedAt||'');
+  if(kcal==null||!Number.isFinite(exportMs)||exportMs>Date.now()+300000){
+   $('activitySource').textContent='Nem hitelesíthető HC energiaadat';return;
+  }
+  if(date===localDate()&&Date.now()-exportMs>6*3600000){
+   $('activitySource').textContent='HC export régi · szinkron szükséges';return;
+  }
+  $('activity').textContent=fmt(kcal,0);
+  $('activitySource').textContent='aktív kcal · HC · '+new Date(exportMs).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
+ }catch(_){if(serial===onload&&profile===active)$('activitySource').textContent='Aktivitási forrás jelenleg nem hozzáférhető';}
 }
 function events(){
  const click=(id,fn)=>$(id).addEventListener('click',fn);
