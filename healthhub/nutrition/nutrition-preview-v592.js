@@ -163,7 +163,7 @@ function render(){
  $('hhWaterAmount').textContent=fluidFound?fmt(fluid,0)+' ml':'';
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
- const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.64;
+ const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.75;
  $('hhWaterLevel').style.height=fillHeight+'%';
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
