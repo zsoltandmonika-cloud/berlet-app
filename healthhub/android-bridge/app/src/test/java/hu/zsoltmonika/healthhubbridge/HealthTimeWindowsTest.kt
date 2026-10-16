@@ -38,6 +38,27 @@ class HealthTimeWindowsTest {
         assertNull(HealthTimeWindows.boundedSession(s, e, from, until))
     }
 
+    @Test fun malformedTimeWindowErrorIsRecoverable() {
+        val error = IllegalArgumentException("startTime must be before endTime")
+        assertEquals(true, HealthTimeWindows.isInvalidIntervalError(error))
+    }
+
+    @Test fun wrappedTimeWindowErrorIsRecognized() {
+        val error = IllegalStateException("Health Connect failed",
+            IllegalArgumentException("start time must be before end time"))
+        assertEquals(true, HealthTimeWindows.isInvalidIntervalError(error))
+    }
+
+    @Test fun permissionErrorsMustNotBeHidden() {
+        val error = SecurityException("PERMISSION_DENIED")
+        assertEquals(false, HealthTimeWindows.isInvalidIntervalError(error))
+    }
+
+    @Test fun genericNetworkErrorsMustRetryNormally() {
+        val error = IllegalStateException("Network timeout")
+        assertEquals(false, HealthTimeWindows.isInvalidIntervalError(error))
+    }
+
     @Test fun zeroLengthExportIsRejected() {
         val s = Instant.parse("2026-10-15T08:00:00Z")
         val e = Instant.parse("2026-10-15T09:00:00Z")
