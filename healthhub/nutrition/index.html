@@ -57,7 +57,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 @media(max-width:480px){.previewNotice{padding:10px 11px}.previewNotice span{font-size:10px}}
 </style><link rel="stylesheet" href="./nutrition-golden-v594.css?v=594-glass-hd2">
 <link rel="stylesheet" href="./healthhub-nutrition-hero-approved.css?v=596">
-<link rel="stylesheet" href="./hh-body-golden-v598.css?v=598">
+<link rel="stylesheet" href="./hh-body-golden-v598.css?v=599">
 </head>
 <body>
 <main class="shell">
@@ -75,6 +75,10 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
  </div>
  <div class="hh-body-goal"><span id="ringCaption">Napi cél</span><div class="hh-body-target"><div class="bar"><i id="progress"></i></div><strong id="balanceValue">—</strong></div><button type="button" class="mini" id="goalBtn">◎ Cél beállítása</button></div>
  <div class="hh-body-macros"><span>💪 Fehérje <b id="hhMacroProtein">—</b></span><span>🌾 Szénhidrát <b id="hhMacroCarbs">—</b></span><span>💧 Zsír <b id="hhMacroFat">—</b></span></div>
+ <div class="hh-water glass" aria-label="Napi folyadékbevitel">
+ <div class="hh-water-copy"><strong>💧 Napi folyadék</strong><span id="hhWaterAmount">Még nincs rögzített ital</span><small id="hhWaterTarget">Személyes napi cél: még nincs beállítva</small><div class="hh-water-preset"><button type="button" class="mini" id="waterQuickAdd">+ 250 ml víz</button><label for="hhWaterGoal">Napi cél (ml)</label><input type="number" min="250" max="6000" step="50" id="hhWaterGoal" placeholder="pl. 1800" inputmode="numeric"><button type="button" class="mini" id="hhWaterSave">Mentés</button></div></div>
+ <div class="hh-pitcher-wrap"><div class="hh-pitcher" role="img" aria-label="Napi folyadék cél teljesítése"><div class="hh-water-level" id="hhWaterLevel"></div><div class="hh-pitcher-scale"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><strong id="hhWaterPct">—</strong></div></div>
+ </div>
  <div class="hh-body-meta"><span class="status" id="syncStatus">Helyi előnézet</span><span id="hhEnergyStatus">Teljes napi energia: még nem kapcsolódott</span></div>
  <div id="balanceRing" hidden></div>
 </section>
