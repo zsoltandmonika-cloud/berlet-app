@@ -85,7 +85,15 @@ async function readBridge(profile){
  }catch(e){}
  return out
 }
-function item(icon,label,value,meta,extra,cls){return '<div class="hhNowItem '+(cls||'')+'"><div class="hhNowIcon">'+icon+'</div><div class="hhNowTxt"><small>'+label+'</small><b>'+value+'</b><span>'+meta+'</span></div>'+(extra||'')+'</div>'}
+function item(icon,label,value,meta,extra,cls,measuredAt){
+ // The cloud sync time is not the measurement time. Preserve both facts.
+ var age=Date.parse(measuredAt||'');
+ var isOld=Number.isFinite(age)&&Date.now()-age>7*86400000;
+ var isFuture=Number.isFinite(age)&&age>Date.now()+5*60000;
+ var legacy=isOld&&!isFuture;
+ var state=legacy?' <small class="hhNowOldBadge">RÉGEBBI MÉRÉS</small>':'';
+ return '<div class="hhNowItem '+(cls||'')+(legacy?' hhNowItemOld':'')+'"><div class="hhNowIcon">'+icon+'</div><div class="hhNowTxt"><small>'+label+state+'</small><b>'+value+'</b><span>'+(legacy?'Utolsó ismert: ':'')+meta+'</span></div>'+(extra||'')+'</div>'
+}
 async function render(){
  if(window.healthSectionKind!=='measurements')return;
  var root=document.getElementById('healthSubContent');if(!root)return;
@@ -96,11 +104,11 @@ async function render(){
  if(bridge.pulse&&(!pulse||Date.parse(bridge.pulse.measuredAt)>Date.parse(pulse.measuredAt)))pulse=bridge.pulse;
  var today=new Date().toISOString().slice(0,10), step=bridge.steps;
  var html='<section class="hhNow" id="hhNowPanel"><div class="hhNowHead"><div><small>MAI ÁLLAPOT</small><h3>'+new Date().toLocaleDateString('hu-HU',{weekday:'long',month:'long',day:'numeric'})+'</h3></div><div class="hhSyncPill">♥ '+(bridge.lastSync?'Szinkron: '+fmtDate(bridge.lastSync.importedAt):'Health Connect')+'</div></div><div class="hhNowGrid">';
- if(bp)html+=item('🫀','Vérnyomás',Math.round(bp.systolic)+'/'+Math.round(bp.diastolic)+' <em>Hgmm</em>',fmtDate(bp.measuredAt),delta(bp,previous(rows,function(x){return x.systolic!=null&&x.diastolic!=null},bp),'systolic','Hgmm'),'bp');
- if(pulse){var pulsePrev=(bridge.pulse&&pulse===bridge.pulse)?bridge.previousPulse:previous(rows,function(x){return x.pulse!=null},pulse);html+=item('♥','Pulzus',Math.round(pulse.pulse)+' <em>/perc</em>',fmtDate(pulse.measuredAt),delta(pulse,pulsePrev,'pulse','/perc'),'pulse');}
- if(spo2)html+=item('🫁','SpO₂',Math.round(spo2.oxygenSaturation*10)/10+' <em>%</em>',fmtDate(spo2.measuredAt),delta(spo2,previous(rows,function(x){return x.oxygenSaturation!=null},spo2),'oxygenSaturation','%'),'spo2');
- if(wt)html+=item('⚖','Testsúly',Math.round(wt.weightKg*10)/10+' <em>kg</em>',fmtDate(wt.measuredAt),delta(wt,previous(rows,function(x){return x.weightKg!=null},wt),'weightKg','kg'),'weight');
- if(glu)html+=item('●','Vércukor',Math.round(glu.bloodGlucose*10)/10+' <em>mmol/L</em>',fmtDate(glu.measuredAt),'','glucose');
+ if(bp)html+=item('🫀','Vérnyomás',Math.round(bp.systolic)+'/'+Math.round(bp.diastolic)+' <em>Hgmm</em>',fmtDate(bp.measuredAt),delta(bp,previous(rows,function(x){return x.systolic!=null&&x.diastolic!=null},bp),'systolic','Hgmm'),'bp',bp.measuredAt);
+ if(pulse){var pulsePrev=(bridge.pulse&&pulse===bridge.pulse)?bridge.previousPulse:previous(rows,function(x){return x.pulse!=null},pulse);html+=item('♥','Pulzus',Math.round(pulse.pulse)+' <em>/perc</em>',fmtDate(pulse.measuredAt),delta(pulse,pulsePrev,'pulse','/perc'),'pulse',pulse.measuredAt);}
+ if(spo2)html+=item('🫁','SpO₂',Math.round(spo2.oxygenSaturation*10)/10+' <em>%</em>',fmtDate(spo2.measuredAt),delta(spo2,previous(rows,function(x){return x.oxygenSaturation!=null},spo2),'oxygenSaturation','%'),'spo2',spo2.measuredAt);
+ if(wt)html+=item('⚖','Testsúly',Math.round(wt.weightKg*10)/10+' <em>kg</em>',fmtDate(wt.measuredAt),delta(wt,previous(rows,function(x){return x.weightKg!=null},wt),'weightKg','kg'),'weight',wt.measuredAt);
+ if(glu)html+=item('●','Vércukor',Math.round(glu.bloodGlucose*10)/10+' <em>mmol/L</em>',fmtDate(glu.measuredAt),'','glucose',glu.measuredAt);
  if(step)html+=item('🚶','Lépések',Number(step.steps||0).toLocaleString('hu-HU'),sameDay(step.date,today)?'ma':step.date,'','steps');
  html+='</div></section>';
  var old=document.getElementById('hhNowPanel');if(old)old.remove();
@@ -122,6 +130,7 @@ function ensureStyle(){
  '.hhNowHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}.hhNowHead small{font-size:8px;font-weight:900;letter-spacing:.12em;color:#168c7d}.hhNowHead h3{margin:2px 0 0;font-size:14px;color:#123f60;text-transform:capitalize}.hhSyncPill{font-size:7.5px;font-weight:800;color:#157665;background:#e7f8f3;border:1px solid #c7eee3;padding:6px 8px;border-radius:999px;white-space:nowrap}'+
  '.hhNowGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.hhNowItem{position:relative;display:flex;align-items:center;gap:9px;min-height:70px;padding:10px;border:1px solid #e6eef3;border-radius:15px;background:#fff}.hhNowIcon{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:#f0f7fb;font-size:16px;flex:0 0 auto}.hhNowTxt{min-width:0;display:flex;flex-direction:column}.hhNowTxt small{font-size:8px;color:#6f8392;font-weight:800}.hhNowTxt b{font-size:19px;line-height:1.1;color:#123f60;margin-top:2px;letter-spacing:-.02em}.hhNowTxt b em{font-size:9px;font-style:normal;color:#6f8392;font-weight:750}.hhNowTxt span{font-size:7.5px;color:#8394a1;margin-top:4px}.hhDelta{position:absolute;right:8px;top:8px!important;padding:3px 5px;border-radius:999px;background:#f4f8fa;font-weight:800}.hhDelta.up{color:#b05c21}.hhDelta.down{color:#23765e}'+
  '.hhNowItem.bp{border-left:4px solid #d76d6d}.hhNowItem.pulse{border-left:4px solid #e38a96}.hhNowItem.spo2{border-left:4px solid #6eaed1}.hhNowItem.weight{border-left:4px solid #879db2}.hhNowItem.glucose{border-left:4px solid #a48bc4}.hhNowItem.steps{border-left:4px solid #73b99b}.hhHcProminent{box-shadow:0 5px 14px rgba(20,123,160,.14)!important;font-weight:900!important}.hhMetricsSection{overflow:visible}'+
+ '.hhNowItemOld{border-style:dashed!important;border-color:rgba(215,165,76,.85)!important}.hhNowOldBadge{display:inline-block;color:#ad7133!important;font-weight:900;font-size:8px;letter-spacing:.01em}.hhNowItemOld .hhNowTxt>span{color:#bd813b;font-weight:800}'+
  '@media(max-width:390px){.hhNowGrid{grid-template-columns:1fr 1fr}.hhNowTxt b{font-size:17px}.hhSyncPill{white-space:normal;text-align:right;max-width:120px}}';
  document.head.appendChild(s)
 }
