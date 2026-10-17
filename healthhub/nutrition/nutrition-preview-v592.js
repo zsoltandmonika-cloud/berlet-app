@@ -812,8 +812,20 @@ function start(){
  $('logDate').value=localDate();
  events();setProfile(pkey(),false);
  checkJarMidnight();scheduleMidnightRollover();setInterval(checkJarMidnight,30000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkJarMidnight()});
- root.addEventListener('focus',checkJarMidnight);
+ // Reconcile this profile's Dropbox data while foregrounded. Other devices
+ // see saved image references and recipe changes after reopening or within 2 min.
+ let lastRemoteRefresh=Date.now();
+ function refreshFromCloud(){
+  if(document.hidden||!window.HH_NUTRITION_CLOUD_V626?.connected())return;
+  if(Date.now()-lastRemoteRefresh<45000)return;
+  lastRemoteRefresh=Date.now();
+  syncProfile(active).catch(()=>{});
+ }
+ document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){checkJarMidnight();refreshFromCloud();}
+ });
+ root.addEventListener('focus',()=>{checkJarMidnight();refreshFromCloud();});
+ root.setInterval(refreshFromCloud,120000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })(window);
