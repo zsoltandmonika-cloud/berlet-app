@@ -135,11 +135,12 @@ function selectUI(){
  cards.forEach((c,i)=>{c.dataset.active=String(i===selection);c.setAttribute('aria-current',String(i===selection))});
  const q=recipes[selection];
  $('hhQuickSelected').textContent=q?q.name:'Nincs aktív recept';
- $('hhQuickSelectedNote').textContent=q?'1 beállított adag · '+fmt(q.nutrients.kcal)+' kcal':'A Stúdióban új receptet hozhatsz létre.';
+ $('hhQuickSelectedNote').textContent=q?((q.kind==='drink'&&Number(q.volumeMl)>0?fmt(q.volumeMl)+' ml':'1 beállított adag')+' · '+fmt(q.nutrients.kcal)+' kcal'):'A Stúdióban új receptet hozhatsz létre.';
  $('hhQuickRecord').disabled=!q||busy;
  $('hhQuickEdit').disabled=!q;
  const dots=$('hhQuickDots');dots.replaceChildren();
  if(recipes.length>0&&recipes.length<=15)recipes.forEach((_,i)=>{let el=document.createElement('span');el.className='hh-quick-dot';el.dataset.active=String(i===selection);dots.append(el)});
+ if(recipes.length>15){const counter=document.createElement('span');counter.className='hh-quick-index';counter.textContent=(selection+1)+' / '+recipes.length;dots.append(counter)}
 }
 function nearestIndex(){
  const cards=Array.from(rail.querySelectorAll('.hh-quick-card'));
@@ -164,7 +165,7 @@ function showWheel(wantedId=''){
   const info=document.createElement('div');info.className='hh-quick-card-info';
   const h=document.createElement('strong');h.textContent=q.name;
   const small=document.createElement('small');small.textContent=q.description||q.category||'Saját recept';
-  const kcal=document.createElement('b');kcal.textContent=fmt(q.nutrients.kcal)+' kcal · 1 adag';
+  const kcal=document.createElement('b');kcal.textContent=fmt(q.nutrients.kcal)+' kcal · '+(q.kind==='drink'&&Number(q.volumeMl)>0?fmt(q.volumeMl)+' ml':'1 adag');
   info.append(h,small,kcal);card.append(info);
   card.addEventListener('click',()=>{if(busy)return;if(i===selection)recordSelected();else{selection=i;tick();selectUI();centerCard(i,true)}});
   cards.append(card);
@@ -241,6 +242,7 @@ function showEditor(recipeId,create=false){
      api.reorderRecipes(ids);
      $('hhQuickEditStatus').textContent='✓ Sorrend mentve. A körhinta is ezt használja.';
      showEditor(item.id);
+     $('hhQuickEditStatus').textContent='✓ Sorrend mentve! A körhinta már az új sorrendet használja.';
     }catch(e){$('hhQuickEditStatus').textContent='Sorrend mentési hiba: '+e.message}
    });
    arrows.append(btn);
