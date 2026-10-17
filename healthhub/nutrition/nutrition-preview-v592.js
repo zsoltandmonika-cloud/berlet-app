@@ -138,10 +138,18 @@ function render(){
  $('ringKcal').textContent=fmt(kcal,0);
  // Burned energy must be a real complete-day or day-to-date record from the correct profile.
  // Never infer it from steps, activity calories alone, or fake a zero.
- const burnt=window.hhNutritionDailyEnergy&&window.hhNutritionDailyEnergy.profile===active&&window.hhNutritionDailyEnergy.date===date&&window.hhNutritionDailyEnergy.kind==='total_burned_kcal'&&Number.isFinite(window.hhNutritionDailyEnergy.kcal)?window.hhNutritionDailyEnergy.kcal:null;
+ const energyRecord=(()=>{try{
+  const live=window.hhNutritionDailyEnergy;
+  const saved=JSON.parse(localStorage.getItem('hh-nutrition-total-energy-'+active)||'null');
+  const valid=e=>e&&e.profile===active&&e.date===date&&e.kind==='total_burned_kcal'&&Number.isFinite(Number(e.kcal))&&Number(e.kcal)>0&&
+    typeof e.updatedAt==='string'&&Number.isFinite(Date.parse(e.updatedAt))&&
+    Date.now()-Date.parse(e.updatedAt)>=0&&Date.now()-Date.parse(e.updatedAt)<6*3600000;
+  return valid(live)?live:(valid(saved)?saved:null);
+ }catch(_){return null}})();
+ const burnt=energyRecord?Number(energyRecord.kcal):null;
  $('hhBurntKcal').textContent=burnt==null?'—':fmt(burnt,0);
  $('hhNetKcal').textContent=burnt==null?'—':(kcal-burnt>0?'+':'')+fmt(kcal-burnt,0);
- $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(window.hhNutritionDailyEnergy.source||'szinkronizált adat');
+ $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(energyRecord.source||'szinkronizált adat');
  const netEl=$('hhNetRing');netEl.style.removeProperty('--energy-color');netEl.classList.toggle('pending',burnt==null||goal==null);
  if(burnt!=null&&goal!=null){
   const desired=burnt-goal; // intake target converted to balance target for this day
