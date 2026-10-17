@@ -42,7 +42,7 @@ function activeUI(){
 }
 function render(){
  rail.replaceChildren();selection=0;
- items=step==='categories'?categories.map(c=>({name:c.name,icon:c.icon,category:c.name,id:c.name})):
+ items=step==='categories'?categories.map(c=>({...c,id:c.category})):
   sourceItems().filter(x=>x.category===category);
  for(let i=0;i<items.length;i++){
   const r=items[i];
@@ -51,6 +51,7 @@ function render(){
   card.dataset.theme=kind;
   const art=document.createElement('div');art.className='hh-bevitel-picker-art';
   const icon=document.createElement('span');icon.textContent=r.icon;art.append(icon);
+  if(step==='categories')window.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.(kind,r.category,art);
   const copy=document.createElement('div');copy.className='hh-bevitel-picker-card-copy';
   const n=document.createElement('strong');n.textContent=r.name;
   const subtitle=document.createElement('small');subtitle.textContent=step==='categories'?'Görgethető '+(kind==='drink'?'italok':'ételek'):category;
@@ -90,7 +91,7 @@ function open(kindNext,button){
  kind=kindNext;step='categories';category='';
  const map=new Map();
  for(const f of items)if(!map.has(f.category))map.set(f.category,{name:f.category,icon:f.icon,category:f.category});
- categories=[...map.values()];
+ categories=window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()];
  if(!categories.length){$('hhBevitelInfo').textContent='Ehhez a típushoz jelenleg nincs étel vagy ital. Saját ételt a napi napló + Saját étel gombjával hozhatsz létre.';$('hhBevitelInfo').hidden=false;return}
  render();dialog.showModal();
 }
@@ -100,6 +101,20 @@ for(const [node,type] of [[food,'food'],[drink,'drink']]){
   e.preventDefault();e.stopImmediatePropagation();open(type,node);
  },true);
 }
+window.HH_BEVITEL_PICKER_V643={
+ getCurrent:()=>({kind,step,category:step==='categories'?(items[selection]?.category||''):category}),
+ getBaseCategories:()=>{const map=new Map();for(const x of sourceItems())if(!map.has(x.category))map.set(x.category,{name:x.category,category:x.category,icon:x.icon});return [...map.values()]},
+ refreshCategories:()=>{
+  if(!dialog.open||step!=='categories')return;
+  const current=items[selection]?.category;
+  const map=new Map();for(const x of sourceItems())if(!map.has(x.category))map.set(x.category,{name:x.category,category:x.category,icon:x.icon});
+  categories=window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()];
+  render();
+  const at=items.findIndex(x=>x.category===current);
+  if(at>=0){selection=at;activeUI();center(at,false)}
+ }
+};
+window.addEventListener('healthhub:bevitel-categories-updated',()=>window.HH_BEVITEL_PICKER_V643.refreshCategories());
 rail.addEventListener('scroll',()=>{
  clearTimeout(scrollTimer);
  scrollTimer=setTimeout(()=>{
