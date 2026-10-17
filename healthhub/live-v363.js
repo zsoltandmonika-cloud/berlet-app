@@ -280,7 +280,13 @@ async function estimateForNutrition(profile,requestedDate){
   }
  }catch(_){status='A Dropbox nem érhető el; helyi Activity-adatok használata'}
  var weight=bestWeight([...(local&&local.measurements||[]),...remoteMeasures],cachedContext);
- var core=Object.assign({},remoteProfile,cachedContext&&cachedContext.profileCore||{},local&&local.profile||{});
+ var core={};
+ [remoteProfile,cachedContext&&cachedContext.profileCore,local&&local.profile].forEach(function(p){
+  if(!p)return;
+  Object.keys(p).forEach(function(key){
+   if(p[key]!=null&&p[key]!=='')core[key]=p[key];
+  });
+ });
  if(!rows.length)return {error:status||'A kiválasztott naphoz nem érhető el Health Connect aktivitásadat'};
  // An imported historical row must not override a more recently exported, profile-scoped daily record.
  rows.sort(function(a,b){return (Date.parse(b._nutritionSourceAt||b.updatedAt||0)||0)-
