@@ -129,3 +129,18 @@
 @media(max-width:420px){.hh-quick-portal{gap:10px}.hh-quick-portal-preview{min-height:170px}.hh-quick-portal-grid .hh-quick-field{padding:11px}.hh-quick-portal-hero{padding:11px}}
 
 .hh-quick-index{font-size:12px;font-weight:850;letter-spacing:.08em;color:#bedfff;line-height:1.7}
+
+/* Nutrition v642: premium nonintrusive cross-device sync feedback. */
+.hh-quick-sync-bar{display:flex;align-items:center;gap:8px;margin:8px 1px 13px;min-width:0;padding:8px 10px;background:linear-gradient(120deg,#132945c9,#13253cbb);border:1px solid #76a4cf40;border-radius:14px;box-shadow:inset 0 1px #ffffff19}
+.hh-quick-sync-icon{flex:0 0 auto;font-size:14px;opacity:.9}
+.hh-quick-sync-text{flex:1;min-width:0;color:#cbdff1;line-height:1.25;font-size:11px;font-weight:650}
+.hh-quick-sync-button{flex:0 0 auto;white-space:nowrap;border:1px solid #6e9bc281;border-radius:11px;background:#204061d6;color:#e2f4ff;font-weight:800;font-size:11px;padding:8px 10px;min-height:35px;box-shadow:inset 0 1px #ffffff1c}
+.hh-quick-sync-button:active{transform:scale(.98)}
+.hh-quick-sync-button:disabled{opacity:.5;cursor:wait}
+.hh-quick-sync-text[data-state="synced"],.hh-quick-edit-sync [data-state="synced"]{color:#a4efd2}
+.hh-quick-sync-text[data-state="error"],.hh-quick-edit-sync [data-state="error"]{color:#ffb2bf}
+.hh-quick-sync-text[data-state="local"],.hh-quick-edit-sync [data-state="local"]{color:#f3ce91}
+.hh-quick-sync-text[data-state="syncing"],.hh-quick-edit-sync [data-state="syncing"]{color:#a9dcff}
+.hh-quick-edit-sync{display:flex;align-items:center;gap:9px;border:1px solid #5f92bc65;background:#122c4bc9;border-radius:13px;padding:10px 11px;font-size:11px;line-height:1.4;color:#cbe0f1;margin:10px 0 2px}
+.hh-quick-edit-sync [data-state]{font-weight:750;min-width:0}
+@media(max-width:400px){.hh-quick-sync-bar{gap:6px;padding:7px 9px}.hh-quick-sync-text{font-size:10px}.hh-quick-sync-button{font-size:10px;padding:7px 8px}.hh-quick-edit-sync{font-size:10px}}
