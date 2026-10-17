@@ -1,4 +1,4 @@
-/* Nutrition v630 · compact HH Buddy face anchored to calorie summary card.
+/* Nutrition v630.1 · slightly smaller compact HH Buddy face anchored to calorie summary card.
    Keep v627 three-face HD sprite and accessible live mood; no text/glass frame.
    Only Buddy CSS/layout; the standard v629 taskbar and data logic are unchanged. */
 #balanceCard{
@@ -47,8 +47,8 @@
 #balanceCard #hhBuddyMood .hh-buddy-face{
  display:block!important;
  flex:none!important;
- width:clamp(64px,18vw,76px)!important;
- height:clamp(64px,18vw,76px)!important;
+ width:clamp(60px,17vw,72px)!important;
+ height:clamp(60px,17vw,72px)!important;
  max-width:none!important;
  aspect-ratio:1!important;
  border:0!important;
@@ -69,14 +69,14 @@
   right:6px!important;
  }
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:clamp(60px,17vw,70px)!important;
-  height:clamp(60px,17vw,70px)!important;
+  width:clamp(56px,16vw,66px)!important;
+  height:clamp(56px,16vw,66px)!important;
  }
 }
 @media(max-width:350px){
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:56px!important;
-  height:56px!important;
+  width:52px!important;
+  height:52px!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
