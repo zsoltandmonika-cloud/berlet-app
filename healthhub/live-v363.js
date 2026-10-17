@@ -144,6 +144,7 @@ async function render(profile,cache){
  var core=Object.assign({},ctx&&ctx.profileCore||{},db&&db.profile||{});
  var w=bestWeight(db&&db.measurements,ctx);
  var val=calculate(profile,cache,core,w);
+ try{if(!val.error&&val.date===day(new Date())&&Number.isFinite(val.total)){localStorage.setItem('hh-activity-energy-v1-'+profile+'-'+val.date,JSON.stringify({profile:profile,date:val.date,kind:'total_burned_kcal',kcal:Math.round(val.total),source:'HealthHub Calorie Engine',estimate:true,calculatedAt:new Date().toISOString()}));}}catch(_){ }
  if(val.error){box.innerHTML='<h3>🔥 HealthHub Calorie Engine</h3><p>'+esc(val.error)+'</p>';return}
  // Only when measured active calories are missing, display the separately
  // labelled HealthHub estimate in the top KPI for the current day. Original HC
