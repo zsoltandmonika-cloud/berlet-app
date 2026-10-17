@@ -105,6 +105,30 @@ function setProfile(next,fromUi){
  render();
  refreshActivity(next);syncProfile(next).catch(()=>{});
 }
+
+const JAR_KEY='hh-nutrition-jar-reset-v1-';
+const JAR_LOG='hh-nutrition-jar-events-v1-';
+function jarEvents(profile){try{return JSON.parse(localStorage.getItem(JAR_LOG+profile)||'[]')}catch(_){return []}}
+function logJar(profile,date,kind,ml){
+ const all=jarEvents(profile);all.push({date,time:new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}),kind,ml});
+ localStorage.setItem(JAR_LOG+profile,JSON.stringify(all.slice(-500)));
+}
+function dailyJarOffset(profile,date){try{const x=JSON.parse(localStorage.getItem(JAR_KEY+profile+'-'+date)||'null');return Math.max(0,Number(x&&x.offset)||0)}catch(_){return 0}}
+function resetJar(){
+ const date=currentDay(),raw=read(active).entries.filter(e=>!e.deleted&&e.date===date&&Number.isFinite(e.volumeMl)).reduce((sum,e)=>sum+e.volumeMl,0);
+ if(!confirm('Kiüríted a kancsót 0%-ra? Az ital- és étkezési naplóbejegyzések megmaradnak.'))return;
+ localStorage.setItem(JAR_KEY+active+'-'+date,JSON.stringify({offset:raw,updatedAt:stamp()}));
+ logJar(active,date,'Kézi Empty Jar',raw);render();
+}
+let jarCalendarDay=null;
+function checkJarMidnight(){
+ const today=localDate();
+ if(jarCalendarDay&&jarCalendarDay!==today){
+  for(const profile of ['zsolt','monika'])logJar(profile,today,'Automatikus napi nullázás',0);
+  jarCalendarDay=today;$('logDate').value=today;render();
+ }else if(!jarCalendarDay){jarCalendarDay=today}
+}
+
 function render(){
  const d=read(active),date=currentDay();
  $('todayLabel').textContent=date===localDate()?'Mai nap':date;
@@ -156,6 +180,7 @@ function render(){
  }
  let fluid=0, fluidFound=false;
  for(const e of entries)if(Number.isFinite(e.volumeMl)){fluid+=e.volumeMl;fluidFound=true}
+ fluid=Math.max(0,fluid-dailyJarOffset(active,date));
  $('fluids').textContent=fluidFound?fmt(fluid,0):'—';
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
@@ -176,6 +201,7 @@ function render(){
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
 
  const log=$('log');log.replaceChildren();
+ for(const e of jarEvents(active).filter(e=>e.date===date)){const el=document.createElement('div');el.className='entry';el.textContent='↺ '+e.time+' · '+e.kind+' · napló megőrizve';log.append(el)}
  if(!entries.length){log.innerHTML='<p class="empty">Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕</p>';}
  entries.sort((a,b)=>b.time.localeCompare(a.time)).forEach(e=>{
   const line=document.createElement('div');line.className='entry';
@@ -497,6 +523,7 @@ function events(){
  click('addFood',()=>openEntry('food'));click('addDrink',()=>openEntry('drink'));
  click('waterQuick',logWater250);
  click('waterQuickAdd',logWater250);
+ click('hhJarReset',resetJar);
  click('hhWaterSave',()=>{
   const raw=$('hhWaterGoal').value.trim(),v=Number(raw);
   if(!raw||!Number.isFinite(v)||v<250||v>6000){alert('Adj meg 250 és 6000 ml közötti folyadékcélt.');return;}
@@ -534,6 +561,8 @@ function events(){
 function start(){
  $('logDate').value=localDate();
  events();setProfile(pkey(),false);
+ checkJarMidnight();setInterval(checkJarMidnight,30000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkJarMidnight()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })(window);
