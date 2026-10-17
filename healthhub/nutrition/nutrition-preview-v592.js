@@ -489,7 +489,7 @@ function saveBody(e){
  update(d=>d.body.push(rec));$('bodyDialog').close();success();
 }
 
-async async function refreshActivity(profile){
+async function refreshActivity(profile){
  const date=currentDay(),api=window.HH_CALORIE_ENGINE_V363;
  const indicator=$('activitySource');
  if(indicator)indicator.textContent='Activity-adatok frissítése…';
