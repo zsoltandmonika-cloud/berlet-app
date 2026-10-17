@@ -7,7 +7,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const SCHEMA='healthhub.nutrition/1', APP_KEY='t68rmhh5f1l8d85';
-const LS='hh-nutrition-PREVIEW-v592-';
+const LS='hh-nutrition-PREVIEW-v592-'; // Retained for lossless migration of existing on-device Nutrition entries.
 const metrics=['kcal','protein','carbs','fat','fiber','vitc','b6','calcium','magnesium','potassium','omega3'];
 const foods=[
  {id:'banana',name:'Banán',kind:'food',category:'Gyümölcs',icon:'🍌',piece:120,per:{kcal:89,protein:1.1,carbs:22.8,fat:.3,fiber:2.6,vitc:8.7,b6:.367,magnesium:27,potassium:358,calcium:5}},
@@ -59,6 +59,7 @@ function fresh(profile){
 function normalize(x,profile){
  let d=fresh(profile);
  if(!x||x.schemaVersion!==SCHEMA||x.profileKey!==profile)return d;
+ d.updatedAt=x.updatedAt||d.updatedAt;
  ['entries','body','catalog','units'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
@@ -69,7 +70,6 @@ function normalize(x,profile){
 function read(profile){try{return normalize(JSON.parse(localStorage.getItem(LS+profile)||'null'),profile)}catch(_){return fresh(profile)}}
 function write(profile,doc){
  doc.updatedAt=stamp();localStorage.setItem(LS+profile,JSON.stringify(doc));
- /* Isolated preview: no production HealthHub change events. */
  if(profile===active)render();
  queueSync(profile);
 }
@@ -86,6 +86,7 @@ function merge(local,remote,profile){
  for(const key of ['entries','body','catalog','units'])o[key]=mergeRows(l[key],r[key]);
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
+ o.updatedAt=String(r.updatedAt||'')>String(l.updatedAt||'')?r.updatedAt:l.updatedAt;
  return o;
 }
 function catalog(){const d=read(active);return [...foods,...d.catalog.filter(x=>x&&!x.deleted)].sort((a,b)=>(a.category||'').localeCompare(b.category||'','hu')||a.name.localeCompare(b.name,'hu'));}
@@ -262,21 +263,64 @@ function renderInsights(){
 }
 function displayStatus(text,bad=false){$('syncStatus').textContent=text;$('syncStatus').style.color=bad?'#ffb0bf':'';}
 
-/* Preview safety: intentionally NO Dropbox, no API requests, and no family data writes.
- * Only the isolated local browser storage is used in this draft phone preview.
- * Production's revision-protected vault implementation remains on feature branch. */
+/* Dropbox is the canonical Nutrition journal. Browser cache survives offline operation.
+ * Never overwrite remote blindly: download + merge + conditional revision upload.
+ */
+const syncPending={};
 function queueSync(profile){
- if(profile===active)displayStatus('✓ Helyi előnézet · ezen a készüléken mentve');
+ syncPending[profile]=true;
+ if(profile===active)displayStatus('⟳ Nutrition mentve helyben · felhőszinkron folyamatban');
+ if(syncTimers[profile])clearTimeout(syncTimers[profile]);
+ syncTimers[profile]=setTimeout(()=>{
+  delete syncTimers[profile];
+  syncProfile(profile).catch(()=>{});
+ },900);
 }
 async function syncProfile(profile){
- queueSync(profile);
- return true;
-}
-function clearPreview(){
- if(!confirm('Törlöd a telefonon mentett Nutrition ELŐNÉZETI adatokat mindkét profilnál? Az éles HealthHub adatait ez nem érinti.'))return;
- for(const profile of ['zsolt','monika'])localStorage.removeItem(LS+profile);
- render();
- displayStatus('Előnézeti adatok törölve');
+ if(!['zsolt','monika'].includes(profile))return false;
+ const api=window.HH_NUTRITION_CLOUD_V626;
+ if(!api||!api.connected()){
+  if(profile===active)displayStatus('○ Csak helyi mentés · Dropbox csatlakoztatása a HealthHubban');
+  return false;
+ }
+ if(syncRunning[profile]){syncPending[profile]=true;return false;}
+ if(syncTimers[profile]){clearTimeout(syncTimers[profile]);delete syncTimers[profile]}
+ syncRunning[profile]=true;syncPending[profile]=false;
+ if(profile===active)displayStatus('⟳ Nutrition Dropbox-szinkron…');
+ try{
+  let saved=null,cloudData=null,attempt=0;
+  for(;attempt<4;attempt++){
+   const remote=await api.download(profile);
+   cloudData=remote.data;
+   const latest=read(profile);
+   const combined=cloudData?merge(latest,cloudData,profile):latest;
+   try{
+    saved=await api.upload(profile,combined,remote.rev);
+    // A felhőbe küldés közben létrejött új helyi bejegyzéseket is megőrizzük.
+    const finalDoc=merge(read(profile),combined,profile);
+    localStorage.setItem(LS+profile,JSON.stringify(finalDoc));
+    if(JSON.stringify(finalDoc)!==JSON.stringify(combined))syncPending[profile]=true;
+    if(profile===active){
+     render();
+     displayStatus(syncPending[profile]?'⟳ Új bejegyzések mentése folyamatban':'✓ Dropbox Nutrition · szinkronizálva');
+    }
+    try{window.dispatchEvent(new CustomEvent('healthhub:nutrition-updated',{
+     detail:{profile:profile,updatedAt:stamp(),source:'nutrition-cloud',synced:!syncPending[profile]}
+    }))}catch(_){}
+    return true;
+   }catch(e){
+    if(e&&e.status===409&&attempt<3)continue;
+    throw e;
+   }
+  }
+  throw new Error('Több eszköz egyidejű mentése miatt a szinkron nem fejeződött be');
+ }catch(error){
+  if(profile===active)displayStatus('⚠ Helyi mentés megmaradt · Dropbox: '+String(error&&error.message||'nem elérhető').slice(0,105),true);
+  return false;
+ }finally{
+  syncRunning[profile]=false;
+  if(syncPending[profile])queueSync(profile);
+ }
 }
 function sounds(){return localStorage.getItem('hh-nutrition-PREVIEW-sound')!=='off'}
 function tone(type){
@@ -576,7 +620,7 @@ function events(){
  click('dockBalance',()=>jumpTo('bodyDetails'));
  click('newFood',()=>{$('customError').textContent='';$('customDialog').showModal()});
  click('customUnit',openUnit);
- click('resetPreview',clearPreview);
+ click('syncNutritionNow',()=>{syncProfile(active).catch(()=>{})});
  click('urineBtn',()=>openBody('urine'));click('stoolBtn',()=>openBody('stool'));click('bodyHistoryBtn',()=>renderBody());
  click('savePreset',savePresetOnly);
  $('foodSearch').addEventListener('input',redrawSelect);
