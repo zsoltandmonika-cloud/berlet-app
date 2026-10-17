@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v642 · GyorsNasi</title>
+<title>HealthHub · Nutrition v643 · GyorsNasi</title>
 <link rel="preload" as="image" href="./healthhub-nutrition-lena-buddy-approved.webp" type="image/webp" fetchpriority="high">
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
@@ -107,6 +107,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=642-sync-status">
+<link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=643-four-cards">
 </head>
 <body>
 <main class="shell">
@@ -134,9 +135,30 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <div class="row"><h2>☕ Gyors bevitel</h2><span class="muted">Görgess · koppints · kész! 🐿️</span></div>
 <button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon" aria-hidden="true">☕</span><span class="hh-quick-launch-copy"><strong>GyorsNasi</strong><small>Kedvenceid villámgyors bevitele · 1 érintés · saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
 <div class="hh-quick-sync-bar" aria-label="GyorsNasi központi mentés"><span class="hh-quick-sync-icon" aria-hidden="true">☁️</span><span id="hhQuickCloudState" class="hh-quick-sync-text" data-state="pending" role="status" aria-live="polite">Dropbox állapotának ellenőrzése…</span><button type="button" id="hhQuickCloudManual" class="hh-quick-sync-button" title="A receptek, képek és naplóadatok frissítése a Dropboxból" aria-label="GyorsNasi szinkronizálása most">↻ Szinkron most</button></div>
-<div class="row"><h2>🍽️ Bevitel <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><span class="muted">Gördíthető ételek és mértékegységek</span></div>
-<div class="actions"><button type="button" class="action glass" id="addFood"><span class="foodicon">🍌</span>+ Étel<small>Választás · mérték</small></button><button type="button" class="action glass" id="addDrink"><span class="foodicon">🥤</span>+ Ital<small>Folyadék · kalória</small></button><button type="button" class="action glass" id="waterQuick"><span class="foodicon">💧</span>1 pohár (250 ml)<small>1 érintéses mentés</small></button><button type="button" class="action glass" disabled title="A kamera alapú felismerés előkészítve, még nem aktív"><span class="foodicon">📸</span>AI Food Scanner<small>Hamarosan</small></button></div>
-<div class="row"><h2>🍓 Kedvencek · gyors felvitel</h2><span class="muted">Valóban rögzíthető ételek</span></div><div class="food-strip"><button type="button" id="photoCoffee"><span class="photo" data-food-art="coffee">☕</span><span class="photo-label">Cappuccino</span></button><button type="button" id="photoBanana"><span class="photo" data-food-art="banana">🍌</span><span class="photo-label">Banán</span></button><button type="button" id="photoSalad"><span class="photo" data-food-art="salad">🥗</span><span class="photo-label">Csirkemell</span></button><button type="button" id="photoAfternoon"><span class="photo" data-food-art="afternoon">🍪</span><span class="photo-label">Délutáni kávé</span></button></div><div class="row"><h2>📊 Mai tápanyagok</h2><span class="muted" id="todayLabel">Mai nap</span></div>
+<section class="hh-bevitel-section" aria-labelledby="hhBevitelHeading">
+ <div class="row hh-bevitel-header"><h2 id="hhBevitelHeading">🍽️ Bevitel <img class="hh-bevitel-buddy" src="./nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub mókusa" loading="lazy"></h2><span class="muted">Gördíthető étel- és italkategóriák</span></div>
+ <div class="hh-bevitel-grid" aria-label="Étel- és italbevitel módjai">
+  <button type="button" id="addFood" class="hh-bevitel-tile" data-kind="food" aria-label="Étel hozzáadása: ételek és adagok">
+   <img class="hh-bevitel-photo" src="https://images.unsplash.com/photo-1571162188392-3b41283bcde6?auto=format&amp;fit=crop&amp;w=800&amp;q=78" alt="" loading="lazy" referrerpolicy="no-referrer">
+   <span class="hh-bevitel-sheen"></span><span class="hh-bevitel-copy"><span class="hh-bevitel-icon" aria-hidden="true">🍴</span><span class="hh-bevitel-title">Étel</span><small>Ételek, adagok, tápértékek</small></span><span class="hh-bevitel-next" aria-hidden="true">›</span>
+  </button>
+  <button type="button" id="addDrink" class="hh-bevitel-tile" data-kind="drink" aria-label="Ital hozzáadása: italok és mennyiségek">
+   <img class="hh-bevitel-photo" src="https://images.unsplash.com/photo-1518563419477-33f2294a73c1?auto=format&amp;fit=crop&amp;w=800&amp;q=78" alt="" loading="lazy" referrerpolicy="no-referrer">
+   <span class="hh-bevitel-sheen"></span><span class="hh-bevitel-copy"><span class="hh-bevitel-icon" aria-hidden="true">🥤</span><span class="hh-bevitel-title">Ital</span><small>Italok, mennyiségek, kalóriák</small></span><span class="hh-bevitel-next" aria-hidden="true">›</span>
+  </button>
+  <button type="button" id="hhBevitelAI" class="hh-bevitel-tile" data-kind="ai" aria-label="AI Bevitel, fotós felismerés: hamarosan">
+   <img class="hh-bevitel-photo" src="https://images.unsplash.com/photo-1551218372-063893c540ce?auto=format&amp;fit=crop&amp;w=800&amp;q=78" alt="" loading="lazy" referrerpolicy="no-referrer">
+   <span class="hh-bevitel-sheen"></span><span class="hh-bevitel-copy"><span class="hh-bevitel-icon" aria-hidden="true">📷</span><span class="hh-bevitel-title">AI Bevitel</span><small>Fotós ételfelismerés · hamarosan</small></span><span class="hh-bevitel-next" aria-hidden="true">›</span>
+  </button>
+  <a href="../recepttar/" id="hhBevitelCookbook" class="hh-bevitel-tile" data-kind="cookbook" aria-label="Léna Cookbook megnyitása, recepttár">
+   <img class="hh-bevitel-photo hh-bevitel-lena" src="../recepttar/assets/lena-kitchen-banner-crisp.png?v=5" alt="" loading="lazy">
+   <span class="hh-bevitel-sheen"></span><span class="hh-bevitel-copy"><span class="hh-bevitel-icon" aria-hidden="true">👩‍🍳</span><span class="hh-bevitel-title">Léna Cookbook</span><small>Recepttár · import előkészítve</small></span><span class="hh-bevitel-next" aria-hidden="true">›</span>
+  </a>
+ </div>
+ <p id="hhBevitelInfo" class="hh-bevitel-info" aria-live="polite" hidden></p>
+</section>
+<div hidden aria-hidden="true" style="display:none!important"><button type="button" id="waterQuick">1 pohár (250 ml)</button><div class="food-strip" style="display:none!important"><button type="button" id="photoCoffee"><span class="photo" data-food-art="coffee">☕</span><span class="photo-label">Cappuccino</span></button><button type="button" id="photoBanana"><span class="photo" data-food-art="banana">🍌</span><span class="photo-label">Banán</span></button><button type="button" id="photoSalad"><span class="photo" data-food-art="salad">🥗</span><span class="photo-label">Csirkemell</span></button><button type="button" id="photoAfternoon"><span class="photo" data-food-art="afternoon">🍪</span><span class="photo-label">Délutáni kávé</span></button></div></div>
+<div class="row"><h2>📊 Mai tápanyagok</h2><span class="muted" id="todayLabel">Mai nap</span></div>
 <div class="grid"><div class="glass kpi"><small>🥩 Fehérje</small><b id="protein">—</b><span>gramm</span></div><div class="glass kpi"><small>🍞 Szénhidrát</small><b id="carbs">—</b><span>gramm</span></div><div class="glass kpi"><small>🧈 Zsír</small><b id="fat">—</b><span>gramm</span></div><div class="glass kpi"><small>🌾 Rost</small><b id="fiber">—</b><span>gramm</span></div><div class="glass kpi"><small>💧 Italok</small><b id="fluids">—</b><span>ml</span></div><div class="glass kpi"><small>🏃 Aktív energia</small><b id="activity">—</b><span id="activitySource">Forrásellenőrzésre vár</span></div></div>
 <details class="glass section"><summary>🌿 Vitaminok és ásványi anyagok <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></summary><div class="grid" style="margin-top:9px"><div class="kpi"><small>C-vitamin</small><b id="vitc">—</b><span>mg · ismert adagok</span></div><div class="kpi"><small>B6-vitamin</small><b id="b6">—</b><span>mg · ismert adagok</span></div><div class="kpi"><small>Kalcium</small><b id="calcium">—</b><span>mg · ismert adagok</span></div><div class="kpi"><small>Magnézium</small><b id="magnesium">—</b><span>mg · ismert adagok</span></div><div class="kpi"><small>Kálium</small><b id="potassium">—</b><span>mg · ismert adagok</span></div><div class="kpi"><small>Omega–3</small><b id="omega3">—</b><span>mg · ismert adagok</span></div></div><p>Hiányzó mikrotápanyagadat nem nulla: az összeg csak az ismert értékekre vonatkozik.</p></details>
 <div class="row"><h2>🧠 Léna Nutrition Insights <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><div class="controls"><button type="button" class="mini" id="insight7">7 nap</button><button type="button" class="mini" id="insight30">30 nap</button></div></div><section class="glass" style="padding:14px 16px"><div class="status" id="insightPeriod">7 napos naplóelemzés</div><p id="insightText" style="font-size:13px;line-height:1.55;color:#d6e8f7;margin:10px 0">A napló alapján jelennek meg a személyes mintázatok.</p><small class="muted">Csak ténylegesen rögzített napokból számol. A hiányzó nap nem nulla kalóriát jelent, és nem feltételez ok-okozati kapcsolatot.</small></section>
@@ -152,7 +174,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
   <button type="button" data-nav-info="Az Elemzések modul még nem érhető el." aria-label="Elemzések állapota"><span class="hhNavIcon" aria-hidden="true">▥</span><span>Elemzések</span></button>
   <button type="button" data-nav-info="A Továbbiak modul még nem érhető el." aria-label="Továbbiak állapota"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
-<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v642</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">Sikeres mentés.</span></div>
+<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v643</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">Sikeres mentés.</span></div>
 </main>
 <dialog id="hhQuickDialog" aria-label="HealthHub GyorsNasi">
  <div class="hh-quick-shell" id="hhQuickShell" data-mode="wheel">
@@ -242,6 +264,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <script defer src="./nutrition-image-v641.js?v=641-cached-photos"></script>
 <script defer src="./nutrition-preview-v592.js?v=642-sync-status"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=642-sync-status"></script>
+<script defer src="./hh-bevitel-premium-v643.js?v=643-four-cards"></script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
