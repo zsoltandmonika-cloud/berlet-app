@@ -84,3 +84,46 @@
 .hh-quick-shell[data-mode="wheel"] #hhQuickBack{display:none}
 .hh-quick-shell[data-mode="edit"] #hhQuickAdd,.hh-quick-shell[data-mode="edit"] #hhQuickSound,.hh-quick-shell[data-mode="edit"] #hhQuickEdit{display:none}
 .hh-quick-shell[data-mode="edit"] #hhQuickBack{display:grid}
+
+/* v639: touch-first ordering and Léna Image Studio */
+.hh-quick-edit-list{display:flex;flex-direction:column;gap:7px;max-height:230px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding:8px 2px 13px}
+.hh-quick-edit-list>button{flex:0 0 auto;align-self:flex-start;position:sticky;top:0;z-index:2;box-shadow:0 3px 12px #0009}
+.hh-quick-edit-row{display:flex;align-items:stretch;gap:7px;min-height:48px;background:#102945b8;border:1px solid #617c9f5c;border-radius:13px;padding:4px;box-shadow:inset 0 1px #ffffff1a}
+.hh-quick-edit-list .hh-quick-edit-name{flex:1;min-width:0;min-height:40px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;border:0!important;background:transparent!important;padding:8px 10px!important;color:#e7f5ff!important}
+.hh-quick-edit-list .hh-quick-edit-name[aria-pressed="true"]{outline:1px solid var(--accent);outline-offset:-1px;background:var(--accentWash)!important;border-radius:9px;color:#fff!important}
+.hh-quick-arrows{display:flex;gap:5px;flex:0 0 auto}
+.hh-quick-edit-list .hh-quick-move{margin:0;padding:0!important;min-width:38px;min-height:40px;border-radius:10px!important;background:#244363!important;color:#cbe8ff!important;font-size:19px!important;border:1px solid #85b7df70!important}
+.hh-quick-edit-list .hh-quick-move:disabled{opacity:.28}
+.hh-quick-image-portal-open{background:linear-gradient(125deg,#383572,#275887)!important;border:1px solid #a3a6ffab!important;box-shadow:0 4px 14px #0005,inset 0 1px #ffffff3b}
+.hh-quick-shell[data-mode="portal"] .hh-quick-wheel-view,.hh-quick-shell[data-mode="portal"] .hh-quick-bottom,.hh-quick-shell[data-mode="portal"] .hh-quick-edit-view{display:none}
+.hh-quick-shell[data-mode="portal"] #hhQuickAdd,.hh-quick-shell[data-mode="portal"] #hhQuickSound,.hh-quick-shell[data-mode="portal"] #hhQuickEdit{display:none}
+.hh-quick-shell[data-mode="portal"] #hhQuickBack{display:grid}
+.hh-quick-portal{display:none;position:relative;z-index:3;flex:1;min-height:0;overflow-y:auto;padding:5px 16px calc(28px + env(safe-area-inset-bottom));gap:14px;flex-direction:column}
+.hh-quick-shell[data-mode="portal"] .hh-quick-portal{display:flex}
+.hh-quick-portal-hero{padding:10px 13px 15px;background:radial-gradient(ellipse at 85% 0%,#7d69e12f,transparent 70%),linear-gradient(115deg,#172d4dcc,#132d4b8c);border:1px solid #b9d9ff43;border-radius:20px;box-shadow:inset 0 1px #ffffff23}
+.hh-quick-portal-hero h3{margin:7px 0;font-size:clamp(23px,6vw,31px);letter-spacing:-.04em;line-height:1.16;color:#f0f7ff}
+.hh-quick-portal-hero p{margin:0;color:#bcd4ed;font-size:12px;line-height:1.45}
+.hh-quick-portal-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.hh-quick-portal-grid .hh-quick-field{border:1px solid #8dace350;background:#112845bc;border-radius:17px;padding:12px 13px;gap:8px}
+.hh-quick-portal-grid .hh-quick-field>label{color:#d9efff;font-size:13px}
+.hh-quick-portal-grid .hh-quick-field small{font-size:11px;color:#a7c9e8;line-height:1.45}
+.hh-quick-style-preset{background:radial-gradient(circle at 92% 10%,#b397ec50,transparent 55%),linear-gradient(130deg,#244063,#182e5d);color:#e8f9ff;border:1px solid #82c7ed8a;box-shadow:0 5px 13px #0005,inset 0 1px #ffffff36;display:block;padding:13px;border-radius:14px;font-weight:850;letter-spacing:.015em;font-size:12px}
+.hh-quick-image-generate{min-height:49px;border-radius:16px;border:1px solid #ffffff80;background:linear-gradient(117deg,#5cbef4,#a187ed);color:#061929;font-size:15px;font-weight:900;box-shadow:0 9px 22px #123b79a8}
+.hh-quick-image-generate:disabled{opacity:.55}
+.hh-quick-portal .hh-quick-status{margin:0;min-height:30px}
+.hh-quick-portal-preview{position:relative;min-height:190px;max-height:320px;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;border-radius:23px;border:1px solid #a5d5fc67;background:radial-gradient(circle at 50% 53%,#89d4ff52,transparent 65%),linear-gradient(135deg,#152f54,#1c254c 62%,#101b35);box-shadow:0 14px 25px #0007,inset 0 1px #ffffff4a}
+.hh-quick-portal-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hh-quick-portal-preview img[hidden]{display:none}
+#hhQuickPortalEmpty{text-align:center;color:#d6eaff;font-size:55px;line-height:1;display:flex;flex-direction:column;gap:9px;align-items:center}
+#hhQuickPortalEmpty[hidden]{display:none}
+#hhQuickPortalEmpty small{max-width:200px;font-size:12px;color:#b0cee9;line-height:1.4}
+.hh-quick-portal>.hh-quick-form-actions{margin-top:0;justify-content:flex-end}
+.hh-quick-portal>.hh-quick-form-actions button{min-height:45px;border:1px solid #94b7d680;border-radius:14px;background:#264362;color:white;padding:12px 14px;font-weight:800}
+.hh-quick-portal>.hh-quick-form-actions button.primary{background:var(--accent);border:0;color:#081522}
+.hh-quick-portal>.hh-quick-form-actions button:disabled{opacity:.5}
+.hh-quick-portal-footnote{font-size:10px;color:#9bb4d4;line-height:1.48;margin:0 0 12px}
+.hh-quick-art[data-theme="smoothie"]{background:radial-gradient(ellipse at 64% 24%,#f2b8ed5e,transparent 44%),radial-gradient(ellipse at 22% 88%,#e648c87a,transparent 52%),linear-gradient(135deg,#273e65,#43265a,#132544)}
+.hh-quick-art[data-theme="cola"]{background:radial-gradient(ellipse at 28% 70%,#bd6b2c90,transparent 45%),radial-gradient(ellipse at 80% 10%,#fbdfb73b,transparent 42%),linear-gradient(150deg,#362a3d,#4c281b,#0a1a32)}
+.hh-quick-art[data-theme="hugo"]{background:radial-gradient(ellipse at 35% 75%,#cae9a98a,transparent 50%),radial-gradient(ellipse at 80% 20%,#96e4d554,transparent 40%),linear-gradient(140deg,#183b44,#345045,#15283d)}
+.hh-quick-art[data-theme="belvita"]{background:radial-gradient(ellipse at 69% 75%,#b58c5188,transparent 52%),radial-gradient(ellipse at 23% 20%,#be77b454,transparent 45%),linear-gradient(145deg,#302c46,#4b323f,#17273b)}
+@media(max-width:420px){.hh-quick-portal{gap:10px}.hh-quick-portal-preview{min-height:170px}.hh-quick-portal-grid .hh-quick-field{padding:11px}.hh-quick-portal-hero{padding:11px}}
