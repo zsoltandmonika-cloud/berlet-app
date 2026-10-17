@@ -263,6 +263,9 @@ async function save(e){
 }
 editBtn.addEventListener('click',()=>open());
 mainEdit.addEventListener('click',()=>open('tile'));
+const headerTap=$('hhBevitelHeaderTap');
+if(headerTap)headerTap.addEventListener('click',()=>open('tile'));
+
 $('hhCategorySelect').addEventListener('change',showOne);
 $('hhCategoryFile').addEventListener('change',fileChanged);
 $('hhCategoryAI').addEventListener('click',generate);
