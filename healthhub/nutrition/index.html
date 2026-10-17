@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v632 · Cloud Vault</title>
+<title>HealthHub · Nutrition v633 · Cloud Vault</title>
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
 :root[data-profile="monika"]{--accent:#f9a6d3;--accentWash:rgba(249,122,189,.18)}
@@ -104,7 +104,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 @media(prefers-reduced-motion:reduce){#hhNetRing{transition:none}}
 </style><link rel="stylesheet" href="./hh-buddy-mood-v627.css?v=627-hd-faces">
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
-<link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=632-diary-summary">
+<link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=633-tap-reset">
 </head>
 <body>
 <main class="shell">
@@ -124,7 +124,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
  <div class="hh-body-macros"><span>💪 Fehérje <b id="hhMacroProtein">—</b></span><span>🌾 Szénhidrát <b id="hhMacroCarbs">—</b></span><span>💧 Zsír <b id="hhMacroFat">—</b></span></div>
  <div class="hh-water glass" aria-label="Napi folyadékbevitel">
  <div class="hh-water-copy"><strong>💧 Napi folyadék</strong><small id="hhWaterTarget">Személyes napi cél: még nincs beállítva</small><div class="hh-water-preset"><button type="button" class="mini primary-water" id="waterQuickAdd">1 pohár (250 ml)</button><label for="hhWaterGoal">Napi cél (ml)</label><div class="hh-water-goal-edit"><input type="number" min="250" max="6000" step="50" id="hhWaterGoal" placeholder="pl. 1800" inputmode="numeric"><button type="button" class="mini" id="hhWaterSave">Mentés</button></div><button type="button" class="mini secondary-water" id="hhJarReset" aria-label="Ürítés: csak a kancsó kiürítése, a napló megmarad">Ürítés</button></div></div>
- <div class="hh-hydration-side"><div class="hh-hydration-status" id="hhHydrationStatus" data-rag="unknown" role="status" aria-live="polite"><span class="hh-hydration-eyebrow">AKTUÁLIS · MA</span><span id="hhWaterAmount">— ml</span><small class="hh-hydration-plan"><span data-hh-hydration-plan-label>Napi terv:</span> <b id="hhHydrationPlan">—</b></small><span class="hh-hydration-pill" id="hhHydrationPill">Adatokra vár</span><small class="hh-hydration-note" id="hhHydrationNote">A szín a napi célhoz viszonyít.</small></div><div class="hh-pitcher-wrap"><div class="hh-pitcher" role="img" aria-label="Napi folyadék cél teljesítése"><div class="hh-water-level" id="hhWaterLevel"></div><div class="hh-water-gauge" aria-hidden="true"><div class="hh-water-gauge-fill" id="hhWaterGaugeFill"></div></div><div class="hh-pitcher-scale"><span>100%</span><span>75%</span><span>50%</span><span>20%</span><span>0%</span></div><strong id="hhWaterPct">—</strong></div></div></div>
+ <div class="hh-hydration-side"><div class="hh-hydration-status" id="hhHydrationStatus" data-rag="unknown" role="status" aria-live="polite"><span class="hh-hydration-eyebrow">AKTUÁLIS · MA</span><button type="button" id="hhWaterAmount" aria-label="Aktuális folyadékszámláló nullázása. A naplóbejegyzések megmaradnak." title="Koppints a számláló nullázásához">0 ml</button><small class="hh-hydration-plan"><span data-hh-hydration-plan-label>Napi terv:</span> <b id="hhHydrationPlan">—</b></small><span class="hh-hydration-pill" id="hhHydrationPill">Adatokra vár</span><small class="hh-hydration-note" id="hhHydrationNote">A szín a napi célhoz viszonyít.</small></div><div class="hh-pitcher-wrap"><div class="hh-pitcher" role="img" aria-label="Napi folyadék cél teljesítése"><div class="hh-water-level" id="hhWaterLevel"></div><div class="hh-water-gauge" aria-hidden="true"><div class="hh-water-gauge-fill" id="hhWaterGaugeFill"></div></div><div class="hh-pitcher-scale"><span>100%</span><span>75%</span><span>50%</span><span>20%</span><span>0%</span></div><strong id="hhWaterPct">—</strong></div></div></div>
  </div>
  <div class="hh-body-meta"><span class="status" id="syncStatus">Nutrition napló betöltése…</span><span id="hhEnergyStatus">Teljes napi energia: még nem kapcsolódott</span></div>
  <div id="balanceRing" hidden></div>
@@ -149,7 +149,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
   <button type="button" data-nav-info="Az Elemzések modul még nem érhető el." aria-label="Elemzések állapota"><span class="hhNavIcon" aria-hidden="true">▥</span><span>Elemzések</span></button>
   <button type="button" data-nav-info="A Továbbiak modul még nem érhető el." aria-label="Továbbiak állapota"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
-<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v632</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">TADAAA! Sikeres mentés.</span></div>
+<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v633</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">TADAAA! Sikeres mentés.</span></div>
 </main>
 <dialog id="entryDialog"><form id="entryForm" class="modal"><div class="modalhead"><h2 id="entryTitle">Új bevitel</h2><button type="button" class="mini" data-close="entryDialog">✕</button></div>
 <div class="fields"><div class="field wide"><label for="foodSearch">Keresés</label><input id="foodSearch" autocomplete="off" placeholder="Pl. banán, tojás, tej..."></div><div class="field wide"><label for="foodSelect">Étel / ital · kategóriák és ABC</label><select id="foodSelect" size="6" style="height:160px"></select></div><div class="field"><label for="quantity">Mennyiség</label><input id="quantity" type="number" min=".01" max="10000" step=".5" value="1" required></div><div class="field"><label for="unit">Mértékegység</label><select id="unit"></select></div><div class="field"><label for="meal">Étkezés</label><select id="meal"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb / Brunch</option></select></div><div class="field"><label for="entryTime">Időpont</label><input id="entryTime" type="time" required></div></div><div class="preview" id="entryPreview">Válassz élelmiszert.</div><p id="entryError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="entryDialog">Mégse</button><button type="submit" class="btn primary">✓ Mentés · TADAA</button></div></form></dialog>
@@ -170,7 +170,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <script defer src="../live-v369-distance.js?v=369-calibrated"></script>
 <script defer src="../live-v363.js?v=624-1-direct-fix"></script>
 <script defer src="./nutrition-cloud-v626.js?v=626-profile-revision"></script>
-<script defer src="./nutrition-preview-v592.js?v=632-midnight-diary-summary"></script>
+<script defer src="./nutrition-preview-v592.js?v=633-tap-reset-cloud"></script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
