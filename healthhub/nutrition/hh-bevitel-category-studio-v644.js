@@ -43,7 +43,7 @@ function comparable(a,b){return JSON.stringify(scrub(a).categories)===JSON.strin
 let running=null,rerun=false,lastRemoteCheck=0;
 async function synchronize(push=false){
  if(!cloud?.connected())return false;
- if(running){if(push)rerun=true;return running}
+ if(running){await running;return push?synchronize(true):true}
  running=(async()=>{
   let remote,combined;
   for(let attempts=0;attempts<4;attempts++){
@@ -51,7 +51,7 @@ async function synchronize(push=false){
    const latest=read();
    combined=remote.data?merge(latest,remote.data):latest;
    if(!comparable(latest,combined))write(combined);
-   if(!push&&(!remote.data||comparable(combined,remote.data))){
+   if(!push&&remote.data&&comparable(combined,remote.data)){
     lastRemoteCheck=Date.now();return true;
    }
    if(!remote.data&&!Object.keys(combined.categories).length){lastRemoteCheck=Date.now();return true}
@@ -120,6 +120,7 @@ async function showOne(){
  current=$('hhCategorySelect').value;
  const base=currentBase();if(!base)return;
  draft='';removed=false;$('hhCategoryFile').value='';
+ const loadingCategory=current;
  const data=read().categories[key(kind,current)]||{};
  $('hhCategoryName').value=data.displayName||base.name;
  $('hhCategoryOrder').value=Number.isFinite(data.order)?data.order:(rows.findIndex(r=>r.category===current)+1)*10;
@@ -128,7 +129,7 @@ async function showOne(){
  setPreview('',base.icon);
  const ref=data.imageRef;
  if(ref&&vault.refValid('shared',ref)){
-  try{const url=await vault.load('shared',ref);if($('hhCategorySelect').value===current&&!draft&&!removed)setPreview(url,base.icon)}catch(e){status('⚠ A meglévő kép ezen az eszközön még nem érhető el.')}
+  try{const url=await vault.load('shared',ref);if($('hhCategorySelect').value===loadingCategory&&!draft&&!removed)setPreview(url,base.icon)}catch(e){status('⚠ A meglévő kép ezen az eszközön még nem érhető el.')}
  }
  status('A módosítás a közös családi képtárba kerül. Az ételadatok és a napló nem változnak.');
 }
