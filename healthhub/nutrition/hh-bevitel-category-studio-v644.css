@@ -1,0 +1,47 @@
+/* HealthHub Nutrition v644 · Shared category image studio. */
+.hh-bevitel-category-edit{appearance:none;flex:0 0 auto;min-height:43px;border-radius:13px;border:1px solid #8db4dc9c;background:linear-gradient(140deg,#24466be0,#102a48ec);color:#e4f5ff;font-size:12px;font-weight:800;padding:9px 12px;white-space:nowrap;box-shadow:inset 0 1px #ffffff20}
+.hh-bevitel-category-edit:active{transform:scale(.98)}
+.hh-category-photo{position:absolute!important;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;border:0;filter:saturate(1.13) contrast(1.05)}
+.hh-bevitel-picker-art:has(.hh-category-photo)>span{display:none}
+#hhCategoryStudio{position:fixed;inset:0;margin:auto;width:min(580px,calc(100vw - 18px));max-width:580px;max-height:min(93dvh,930px);border:1px solid #79b4e196;border-radius:25px;padding:0;background:linear-gradient(145deg,#132b4d,#0b172c 78%);color:#eef6ff;overflow:hidden;box-shadow:0 30px 90px #000d,0 0 45px #4889d943}
+#hhCategoryStudio::backdrop{background:#000b1be3;backdrop-filter:blur(10px)}
+.hh-category-form{display:flex;flex-direction:column;max-height:min(93dvh,930px);height:auto;min-height:0}
+.hh-category-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 17px 13px;border-bottom:1px solid #ffffff22;flex:0 0 auto}
+.hh-category-head small{font-size:10px;letter-spacing:.14em;color:#85c8ff;font-weight:800}
+.hh-category-head h3{margin:6px 0;font-size:21px;line-height:1.2;color:#f5fbff}
+.hh-category-head p{font-size:11px;color:#bcd6ef;margin:4px 0 0}
+#hhCategoryExit{border:1px solid #ffffff4a;border-radius:12px;background:#234062;color:white;font-size:23px;min-height:39px;min-width:39px}
+.hh-category-body{overflow-y:auto;min-height:0;padding:15px 17px 17px;display:flex;flex-direction:column;gap:13px}
+.hh-category-body label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#cae4f7;font-weight:750}
+.hh-category-body input:not([type="checkbox"]):not([type="file"]),.hh-category-body select,.hh-category-body textarea{background:#0e2948;color:#f1f9ff;border:1px solid #71a3d17b;border-radius:12px;font:inherit;font-weight:550;padding:10px 11px;min-height:42px;width:100%;max-width:100%;outline-color:#93d8ff}
+.hh-category-body textarea{resize:vertical;min-height:56px;line-height:1.4}
+.hh-category-preview{display:grid;place-items:center;position:relative;overflow:hidden;align-self:center;width:min(100%,320px);height:clamp(140px,28vh,210px);border:1.5px solid #a3d6fc8c;border-radius:21px;background:radial-gradient(circle at 40% 38%,#61c7d44a,transparent 55%),linear-gradient(132deg,#244b6b,#50344c);box-shadow:0 9px 27px #0008,0 0 17px #5ba7df3a}
+.hh-category-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.hh-category-preview img[hidden],.hh-category-preview span[hidden]{display:none}
+#hhCategoryPreviewFallback{font-size:96px;filter:drop-shadow(0 12px 8px #0007)}
+.hh-category-row{display:grid;grid-template-columns:2fr 1fr;gap:11px}
+.hh-category-image-actions{grid-template-columns:1fr 1fr;gap:9px}
+.hh-category-image-actions button,.hh-category-upload{min-height:42px;display:grid!important;place-items:center;cursor:pointer;border:1px solid #7daad2a1;border-radius:12px;background:#1b3d60;color:#eaf8ff;font-size:11px;font-weight:800;text-align:center;padding:8px}
+.hh-category-image-actions button:disabled{opacity:.5;cursor:wait}
+.hh-category-upload{position:relative;overflow:hidden}
+.hh-category-upload input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+#hhCategoryRemove{grid-column:1/-1;min-height:36px;background:#142a44}
+.hh-category-archive{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;font-weight:600!important}
+.hh-category-archive input{width:19px;height:19px;accent-color:var(--accent)}
+#hhCategoryEditStatus{margin:0;min-height:35px;line-height:1.5;color:#bce8f9;font-size:11px}
+.hh-category-footer{display:flex;justify-content:space-between;gap:11px;padding:13px 17px max(14px,env(safe-area-inset-bottom));border-top:1px solid #ffffff29;background:#091c32ee;flex:0 0 auto}
+.hh-category-footer button{min-height:44px;padding:9px 17px;border-radius:13px;border:1px solid #709bc6;color:white;background:#234160;font-weight:800;font-size:12px}
+#hhCategorySave{background:linear-gradient(130deg,#1879af,#6a5ca9);border-color:#9fcaff;box-shadow:inset 0 1px #fff4}
+#hhCategorySave:disabled{opacity:.6}
+:root[data-profile="monika"] #hhCategoryStudio{border-color:#eea0d099;box-shadow:0 30px 90px #000d,0 0 39px #e378b74a}
+@media(max-width:390px){
+ .hh-bevitel-category-edit{min-height:40px;padding:7px;font-size:10px}
+ #hhCategoryStudio{width:calc(100vw - 12px);max-height:95dvh;border-radius:20px}
+ .hh-category-form{max-height:95dvh}
+ .hh-category-head{padding:12px}
+ .hh-category-head h3{font-size:18px}
+ .hh-category-body{padding:12px;gap:10px}
+ .hh-category-image-actions button,.hh-category-upload{font-size:10px}
+ .hh-category-footer{padding:10px}
+ .hh-category-footer button{padding:7px 10px;font-size:11px}
+}
