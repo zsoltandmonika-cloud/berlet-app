@@ -1,44 +1,44 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-16",
-  "generatedAt": "2026-10-16T11:04:40+02:00",
-  "headline": "A reggel fő témái: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander; 'It's really hard to believe' - How Oregon primary school shooting unfolded",
+  "date": "2026-10-17",
+  "generatedAt": "2026-10-17T10:37:27+02:00",
+  "headline": "A reggel fő témái: Trump waives several Russia sanctions as row with Zelensky intensifies; Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
-        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
-        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow",
-        "BBC World: Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'"
+        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
+        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico",
+        "BBC World: Inside Ukrainian offensive pushing Russia back - with Starlink playing a key role"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
-        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
-        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow"
+        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
+        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
-        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded",
-        "BBC World: Ship attack reports near Hormuz reach record high as oil exports slow"
+        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
+        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Euronews.com: Volodimir Zelenszkij a jövő héten Budapestre látogathat: új fejezet nyílhat az ukrán–magyar kapcsolatokban - Euronews.com",
-        "Világgazdaság: Veszélyes gyerekjelmezt hívtak vissza a Temuról: Magyarország is érintett, erre figyeljenek a szülők - Világgazdaság",
-        "Index.hu: Bemondták az évszámot Londonban, ekkorra jósolják Magyarország euróövezeti csatlakozását - Index.hu"
+        "444: Magyar Péter a dízelmegállapodásról a 444-nek: Az amerikai elnök olyan megállapodást köt, amilyet akar, de ennek Magyarország szempontjából is van jelentősége - 444",
+        "24.hu: Virágzik Magyarország egyik legmérgezőbb növénye - 24.hu",
+        "Index.hu: Kátai-Németh Vilmos feljelentést tett a Családbarát Magyarország programsorozat szerencsi rendezvényei miatt - Index.hu"
       ]
     },
     {
@@ -46,132 +46,133 @@
       "title": "Gazdaság / Piacok",
       "items": [
         "BBC Business: Banks expect to be hit with higher taxes in Budget",
-        "BBC Business: I find it quite demoralising in store - why I do all my shopping online",
-        "BBC Business: Nandy 'minded to intervene' in Sky's £1.6bn takeover of ITV entertainment arm"
+        "BBC Business: Watch: Did Tesla really just unveil a flying car?",
+        "BBC Business: Ship attack reports near Hormuz reach record high as oil exports slow"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Snapchat and Instagram grooming becoming 'easier'",
-        "BBC Technology: Porn showing choking or incest to be banned from early November, government says",
-        "BBC Technology: Living with a stink? Technology might help"
+        "BBC Technology: Toxic algorithms wouldn't let them go - now Australia wants an off switch",
+        "BBC Technology: Russian man linked to deadly London hospitals hack arrested",
+        "BBC Technology: Snapchat and Instagram grooming becoming 'easier'"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Ship attack reports near Hormuz reach record high as oil exports slow (BBC World).",
-        "Figyelmi pont: Trump calls off livestream of Fort Hood attacker's execution by firing squad (BBC World)."
+        "Figyelmi pont: Trump waives several Russia sanctions as row with Zelensky intensifies (BBC World).",
+        "Figyelmi pont: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times' (BBC World).",
+        "Figyelmi pont: Palestinians and US journalist injured by Israeli settlers in West Bank harvest attack (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
-        "BBC World: 'It's really hard to believe' - How Oregon primary school shooting unfolded"
+        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
+        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Children aged 5, 8 and 11 killed in US school shooting before suspect shot by bystander",
+      "title": "Trump waives several Russia sanctions as row with Zelensky intensifies",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm89zp48k4kzo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cxr5yvzv7rp0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cv98zw1k8kp3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Three men jailed for 158 years each for murdering Australian and US surfers in Mexico",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c3kgqjkzw29wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Inside Ukrainian offensive pushing Russia back - with Starlink playing a key role",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cvx284w16z1po?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "'It's really hard to believe' - How Oregon primary school shooting unfolded",
+      "title": "Brazil sees record fall in Amazon deforestation as key election looms",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/videos/cwe8r29mjd05o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cqe8rzg6zl00o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Palestinians and US journalist injured by Israeli settlers in West Bank harvest attack",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c65ynk7212vqo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
+      "title": "Katie Zacharia leaving White House role less than five days into job",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmde8dpg8g0no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "url": "https://www.bbc.co.uk/news/articles/c32l4ekpvzl8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "Zelensky rallies EU support as Trump says Ukraine leader 'more difficult to deal with than Putin'",
+      "title": "Pope's health should not be taken 'for granted', says top Vatican diplomat",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c58jz174w89ro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "url": "https://www.bbc.co.uk/news/articles/c6kg53zrexdeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "Trump calls off livestream of Fort Hood attacker's execution by firing squad",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crx23qlnj27qo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "title": "Magyar Péter a dízelmegállapodásról a 444-nek: Az amerikai elnök olyan megállapodást köt, amilyet akar, de ennek Magyarország szempontjából is van jelentősége - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMijgJBVV95cUxOVHpRTTVNYVJ1ZTVEWEFKVk95dW5YMThQbTBVQXJUamhwQ0F2MWd5Vm83cWpIaXV3aUl1bDh6SGRHZXJFQlBUN25jdXBVUXEta0d5R2NCZ3dIN2ZqMl9nNk0wZ0RnRFlXZ0RHRVpzQnFxc0ZIcUJaQTd4eTE3Qlg5M203NTZrZHR1eW5QV2M4ejFKeWxDZlQwdjE2eTlEbFNKdVp6TkVzZ3pHeUtEbUNGVnJva2xZalRjd25vUk1vcHdVSTJlZXdCRzNsdXI3ZG5GenRxMUQ2Mi1XX3ZLWVIyeEN4SDVzR25tZFQ5OFR3VzlxMnA2eWNJTFQ1aHk5ZVlCSnhHQlF6YVJDWm02Vmc?oc=5",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "China tells Israel to stop 'forced establishment' of West Bank settlements",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq1j3wdxy48ro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "title": "Virágzik Magyarország egyik legmérgezőbb növénye - 24.hu",
+      "publisher": "24.hu",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOUURNdXV1TEtsQlJTR2ViM2JzMjF1dlNrUDNpd2hkRmxScnRWMVlVLVg3bnFqa0xMaHNMNkRxdWFhTjA4cXFYRWxtSHB4SjlOODY3ZlU0NXplQi1wWnhWR0ZzTFMwcDN5MjZPckMxbVM3SWFKMUZzdWhyWnlQQmFyZy1HcmRqMDNrR1AwT0NyS240T3hWMzNKVjdTX2tzUkJRaUdNWW14anM?oc=5",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "Bus hits train stopped on French side of Channel Tunnel, with 19 injured",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6wyrnmgzn01o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "At least 33 pupils and teacher killed after school roof collapses in Pakistan",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cked326llddgo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Volodimir Zelenszkij a jövő héten Budapestre látogathat: új fejezet nyílhat az ukrán–magyar kapcsolatokban - Euronews.com",
-      "publisher": "Euronews.com",
-      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNNEFXeDJTQ2hBZDBuTVZlRUFNYW1GdEpHMVdQVjllckhTSk9uWW9faWM3UHRidnJ6STV1dThwd0ljS2Y1RmhycnhUc3lOYS05T3VmSG5VMkRYNEF1dU9PRUxyaGxzeTBZeFNDZzJIa3pSRnJDQV9PdlNVWGs1a3IxUkQzSWJXcVhSWDBob3VMTHZBenJVZGV3c0Y0UU9CcmoxSEFZSXdJOFJJclJ2QUxMcDZ2RjVHYlNIdVZlcVM2a2psZGM?oc=5",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Veszélyes gyerekjelmezt hívtak vissza a Temuról: Magyarország is érintett, erre figyeljenek a szülők - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNeDc2MFFTOXBQUUp4aUVzVzZJSnI1aDE1YXNEWUIyZkt5R09NM1dkR2FQQ0FxM3oxQXpfY0puOENrbHdYLVpEWFdMRzh2cDZLSkpPSElPdGxCazk0NHQzVndSSjNIOHlGQVktcFBHaGpWalZLVC1lOVowYjMwNHp5MU04eWxBaWhpU2VJa0RvTXowYlhVX1l2SXBVS0hONmtOSG80?oc=5",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Bemondták az évszámot Londonban, ekkorra jósolják Magyarország euróövezeti csatlakozását - Index.hu",
+      "title": "Kátai-Németh Vilmos feljelentést tett a Családbarát Magyarország programsorozat szerencsi rendezvényei miatt - Index.hu",
       "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQMTdfTVlMNEk3S3BudWZVLWlxRDhNLVl3dTgxcUJ4eHZ5Y01rRWtrOTY2eElPX2J3cmJlTVNrMWV4SU03THRWb1B5MEQzWDBIVzk4aFlmU1h1ek1BSm5SSUktaHFYMzU2QlBqMVNtOHhDcUhPOEJpVHUtOFZCTlBITXNyWmVvVE1CLVlZTTNubw?oc=5",
-      "publishedAt": "2026-10-15"
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPalR5bUI5ZE5uMG1iRDVjcHM4RVlOdzZjR3duX3JCOXpjZ3ptaWJSVWFWV2RCOXdJRmRGRWZYU1h2UUFSQTREUVZNVzJDQ2hWUVh4blVZSExZQTh5dkxON2tIQ2h2R3pmYWd2bEVvSXNRZmRfOTNrdVNuNURkNE81WG9IdDNCenF5MzZjRFVqQmZEM3R6VDF6dy16MlcxNVVBNjVV?oc=5",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "Magyarország három fontos mutatót tekintve is az EU legszegényebbjei között van - Qubit",
-      "publisher": "Qubit",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNVDlfTUJUbDRRRWk3Uno5T3pwLURxU1IzUW9jSzQwM3hRenFYTTlQVWNLYTBfdUt5XzNGbTB4Si1Pb2tzRjlFTS1hODBvdVN2OUxVcWhOakRVZWtNdy1vX1lNSUpkRjcwQ0FOc0JYcEZTd0pkR0pUXzBGREdLN21pbkhHZUJXZm9mZ1kxcy02NDFWc1dCNmVSckhwWG00Y01vRTJfVnVUMF90d2c?oc=5",
+      "title": "Rendkívüli: Donald Trump az utolsó pillanatban inaktiválta az amerikai halálos fegyvert az orosz olaj ellen– Brüsszelben már vörös ködöt látnak, Magyarország megmenekült - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQeHY1dTZfR0FDRjRJbVpFNTZ1UTV6NUtKemNZclQwLWlGdWU4Um1wOEJXRTdNZHViUE9HUDZvSG5PRk5vLUNKbnVnUTlNeFJJZjdZazBka29ScC15VFVyMGRObTRzS2ZDcUJjNkVrejN0NU5EM0VhTXNCTHh2cGZYZWVsSmZjdHFvZk1MVF9wYw?oc=5",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Jócskán Magyarország költötte a legtöbb pénzt orosz gázra az év első nyolc hónapjában az EU-s országok közül - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPWGp4MTc1RWJnZ3drMVVrOGI1TlRobjAzZG1fSTZBemhxZWk2NlNaODQ4UlpNR29CVlk5NXNXYTJadzBpdTgzUThyRUZzZWdRUDZURDRsb1g0SHg2TzF3ejVkMWMyMUV3VWNQNWtzTGxRYmRMWE5uNWtrMkxIbFlsdUJWZTVvVDNSUUE?oc=5",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "Magyarország is csatlakozott a hat blokkoló tagállam közé, éles vita bontakozott ki az EU-csúcson - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOblZYeENfeGZMWk9sRUpEQk1wX01GQ2JuaWdQVFgyQklhdm14bVVPc2RXVFNIX3FrVEsxeGlweERZNEtjQW5ybmlsektRd0RYN1R5YUgwY19kRzJEdnZnTmNYSFpXSTgxZ09tX0VGWU5HMV8wZTV5Y0w2UjBoMlVwR200RWVpLWd6MkpIMmhPd3pLV1o0WUJvRGd1aGhrZ294X3ZXRG13YUk1MEhQYXBKT3JPbXp5OU1VTlNzSl9SbjRYczM5WlRiUnJJempjQjRjdFdBUk4zb09qa3dwTV9PSW0tWmdWMjjSAewBQVVfeXFMT0VmREllSTBYQVVJc2NnTE9LQjFsYlkxQ2hjUGhYWXZfMjZJS1NhOHViVkYxdG1jbFFGbHg5U3JheGFuXzJoekJCOWU5NkV1VUE1YnVlX2JZbWp2UHRCWXY2eDZtbk1DaWZwcUNiVmhCME1zR1FqNnFiX1l6dEtzVGdKQ3RrQkV2TlloLXpXcnAzQTd2WjFwNzFfN2hMVFZiV2RfOU1qN29POElFMENsZXhPODQ2V0tKMURhWGtKMlZ2MGJVUDBmVmpJTzFNeHVaOFh5YWhjM2hJS2FfOEtnenlxa0h6YmNPZTVRQ2Y?oc=5",
+      "title": "Hiába fogtuk vissza a vásárlást, még mindig Magyarország veszi a legtöbb orosz gázt az EU-ban - ATV",
+      "publisher": "ATV",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE14d2lTdHZsdXowQ0hkVXkyRnJxczk5QmRmWF81VlJJN2hHVHluOTl5WHB1MDdCaWZBTmt0Uk8tZFpES0JVRkZ2Y3VyUnc2TU1FbnNGajJBblRuQTd2VVN6U0FkbW1sMm8ydnNyOE1UV3diRWpNRDk0?oc=5",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Vígh Zoltán: Magyarország visszatért a Nyugathoz, de még nincs Európa-politikája – Kompország - Magyar Hang",
+      "publisher": "Magyar Hang",
+      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQWl9IMzFTdU1lc3V0bW5nQTJBU25ScmVZVDRDQ2E4UzlLWHR2MUhBUVFicTVudXFzVHNuMUpFRWlGb2gtWV9rYjNOOUtBaVppeFoyWnVVbWQ3WExhNVh6OTFBb3JmQjJFZmwtcXJWT1NYd1htT1ZGR01tUmJDZ3E4aXVON3ZVOWlTSXJldzlrMkgzRGg5em0yeDZpdE5Rakd4c2ZaUmpTQjRjSi1lR21aQ281WGtsVGpaVVlBUDRJaEo?oc=5",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "Éles vita az EU-csúcson: Magyarország is csatlakozott a Meloni vezette blokkolókhoz - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNa0tkaDBZcDZUMXJ2MHNFSUpxRkFiaklIYk9IczdGMGZGYTN6dGFHOF8yZUdTeE15bXVKUmhqSlIzejhPeXRGalQxNW1HN0tlTFRLMVZXaEZrY2pnR1pGZkVMc01GUUJmbm9YU2c1S1NGZjZFcWJTNUlKY0NzeGJ3RGtHbGJXc1NJZkFIM01yRXR0Ul9yemJNd3gwcnhZM3dTMjQxbkVuUF9ma1JiTENWNmQzMGkxV2wzUUxtd2dQSmFMNzM0VkpDMVc2cXhnTFk30gHWAUFVX3lxTE4zVE9wQmJGY1N4bkdSUi0yU0pQbVlyRFlfQlFIVDZQZmN2bGRYV09VMXZGM2pxaFpOVXVaR0dOUkw0YTA1UGhITWxxcmRkZV9IckhRYW5XSG91S3NTUmRuU2ExdXBYdXc1aDBIX2NoN1NVRDNUNk1SaC1WRFNTbUhaZk5CRzFSUkYzbXpOYTJSTUVXSnB0SnZ6cjAzcjdZa2YxMFlDN2txQUdtdHBrWXFNV3BZSXJPcVdIdk5hSkI4Zk9Lc2ZvTS1rdklTRnFackE1OWJ6dVE?oc=5",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Már látszik, mikor vezetheti be Magyarország az eurót - Privátbankár.hu",
-      "publisher": "Privátbankár.hu",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOSWJxd3pKbHVqUHRTbURLbDFoMXIwRHVfankxbnRKNGc2TVZBUmRPbXBBNFNld2M0Sk9QdTZGVW5QcEl4XzExNFdkaTY2bEhhM1ZLbTd1djRmdHNaZTdUbGFYMUVmWm5lbENRTllneWF3UXRZa2dqOUg3YjFHeVBZMnVyTk5kbEtYQVR2LTJqVWtsbmVoVVpadUlB?oc=5",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Először volt házelnöki találkozó Magyarország és Ukrajna között, mióta az oroszok lerohanták Ukrajnát - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNTDdOVzhleWhXbWJ3SkdlY09JMlptU185Y3F4eWY2WlFCZzN3alFobnBuZUhDR0xiWXY3ei1kM1hJaG9UQ0hLdE5oWHVQdDFUT1ZpZGh5MWhheTVlTEtROUh2S3EyYzdjUGVwOEpkX0pOUTlRQTFVeWxfVXdqU2JjS2QzOThublowWXBQZnUyY3NEbVJvZlFxUGM5aGlKdw?oc=5",
-      "publishedAt": "2026-10-16"
+      "title": "A Csata TKK vendége lesz a Sopron - WBASKET",
+      "publisher": "WBASKET",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9hSE1BaWxVSjJjd0FncURaazdFUzdicVZRaXVaaXJvczVhU2d1V1k0a3kxemtUZEVuNG84ZGV2anRsX0xFeVdBWUVFZEJqWDRFamtNYm9NSm9MSFFwOXprN2FSSQ?oc=5",
+      "publishedAt": "2026-10-17"
     },
     {
       "title": "Banks expect to be hit with higher taxes in Budget",
@@ -180,40 +181,28 @@
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "I find it quite demoralising in store - why I do all my shopping online",
+      "title": "Watch: Did Tesla really just unveil a flying car?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c36lk280kd1o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/videos/ckly4mj1g3n9o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "Nandy 'minded to intervene' in Sky's £1.6bn takeover of ITV entertainment arm",
+      "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm79pe5yej7no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "AI giant Anthropic woos potential investors ahead of stock market debut",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqzjx448vxkgo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "'I paid thousands to a company for jobs that never came'",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c9j3dvezpdz0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
-    },
-    {
-      "title": "Living with a stink? Technology might help",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cr6240q1w136o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmde8dpg8g0no?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-16"
     },
     {
-      "title": "Healey says surprise UK growth is 'sign of resilience' ahead of Budget",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck8dz1me439no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-15"
+      "title": "Toxic algorithms wouldn't let them go - now Australia wants an off switch",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/cwr7y8er1n8vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
+    },
+    {
+      "title": "Russian man linked to deadly London hospitals hack arrested",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/c9vgr61kml3mo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-16"
     },
     {
       "title": "Snapchat and Instagram grooming becoming 'easier'",
