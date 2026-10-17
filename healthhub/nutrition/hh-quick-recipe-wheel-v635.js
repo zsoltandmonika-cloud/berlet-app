@@ -36,27 +36,28 @@ function defaults(){
   return item;
  };
  return [
-  custom('monika-smoothie','Mónika reggeli smoothie','🫐','smoothie','Italok','Reggeli','Bogyós gyümölcsös kedvenc · becsült érték','KIINDULÓ MINTA: erdei gyümölcsök és tej/joghurt, kb. 300 ml. Mónika tényleges receptjére és mennyiségeire a Stúdióban pontosítandó.',macro(185,6,31,4),1,'drink',300),
-  custom('espresso-macchiato','Espresso Macchiato','☕','coffee','Italok','Reggeli','Espresso egy kevés tejhabbal · becslés','1 espresso kb. 30 ml és kb. 20 ml tejhab; cukor nélkül. Ha cukrozott, szerkeszd a receptet.',macro(15,1,1.2,.6),2,'drink',50),
-  custom('cortado','Cortado','☕','coffee','Italok','Tízórai','Espresso selymes tejjel · becslés','Kb. 40 ml espresso és 60 ml tej; hozzáadott cukor nélkül.',macro(34,2.1,3,.9),3,'drink',100),
-  custom('monika-cappuccino','Mónika Cappuccino','☕','coffee','Italok','Reggeli','Laktózmentes tej és 1 kockacukor · induló minta','150 ml 1,5%-os laktózmentes tej, 1 kockacukor (4 g), espresso. Az adag az egyedi szokáshoz szerkeszthető.',macro(86,5.2,11.2,2.3),4,'drink',185),
-  custom('zsolt-cappuccino-plus','Zsolt Cappuccino+','☕','coffee','Italok','Reggeli','Zsolt kedvence · + változat, pontosítandó','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 3 db 4 g-os kockacukor. A + pontos összetételét a Stúdióban kell beállítani.',macro(118,5.2,19.2,2.3),5,'drink',185),
-  custom('cappuccino-plus','Cappuccino+','☕','coffee','Italok','Uzsonna','Személyre szabható pluszos cappuccino','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 2 kockacukor. A + tényleges összetevői szerkeszthetők.',macro(102,5.2,15.2,2.3),6,'drink',185),
-  custom('belvita-forest','belVita Forest Fruits · 1 db','🍪','belvita','Édesség','Reggeli','1 db · 4 darabos csomagból · becsült kcal','1 darab belVita Breakfast Forest Fruits keksz, a 4 darabos adagcsomagból. Becsült tápérték, a csomagolás értéke alapján pontosítandó.',macro(55,1.1,8.3,1.9),7),
-  custom('cola-glass','Coca-Cola · 1 pohár','🥤','cola','Italok','Uzsonna','1 pohár · 250 ml · normál cukros','250 ml hagyományos (nem zero) Coca-Cola. ~42 kcal és ~10,6 g szénhidrát / 100 ml; szerkeszthető.',macro(105,0,26.5,0),8,'drink',250),
-  custom('hugo-sparkling','Hugo Sparkling Wine · 1 pohár','🥂','hugo','Italok','Vacsora','1 pohár · 200 ml · becsült érték','200 ml Hugo / Hugo Spritz jellegű pezsgős ital. Az alkohol- és cukortartalom márkánként, receptenként eltér; a tápérték becslés.',macro(150,0,16,0),9,'drink',200),
-  seed('morning','Reggeli cappuccino','☕','coffee','Italok','Reggeli','A nap első kedvence',caps(morning,false),mNut,10,'drink'),
-  seed('afternoon','Délutáni cappuccino + nasi','☕','sweet','Édesség','Uzsonna','Kávé, fahéj és ropogtatnivaló',caps(afternoon,true),aNut,20,'drink'),
-  seed('evening','Esti cappuccino','☕','coffee','Italok','Vacsora','Nyugodt esti kávészünet','Induló minta: a reggeli cappuccino adagja, szabadon átírható',mNut,30,'drink'),
-  seed('banana','Banán','🍌','fruit','Gyümölcs','Tízórai','Gyors, édes falat','1 közepes banán, kb. 120 g',food('banana',120),40),
-  seed('egg','Főtt tojás','🥚','meal','Reggeli','Reggeli','Egyszerű, fehérjedús','1 tojás, kb. 50 g',food('egg',50),50),
-  seed('apple','Alma','🍎','fruit','Gyümölcs','Tízórai','Ropogós klasszikus','1 közepes alma, kb. 160 g',food('apple',160),60),
-  seed('yogurt','Natúr joghurt','🥛','meal','Reggeli','Reggeli','Krémes, könnyű reggeli','150 g natúr joghurt',food('yoghurt',150),70),
-  seed('oats','Zabpehely','🥣','meal','Reggeli','Reggeli','Sokoldalú reggeli alap','50 g száraz zabpehely, feltét nélkül',food('oats',50),80),
-  seed('chicken','Sült csirkemell','🍗','meal','Főételek','Ebéd','Egyszerű, saját adag','150 g sült csirkemell',food('chicken',150),90),
-  seed('cookies','Babapiskóta','🍪','sweet','Édesség','Uzsonna','Négy darab egy gyors nasihoz','4 darab, összesen kb. 28 g',food('ladyfinger',28),100),
-  seed('orange','Narancslé','🍊','fruit','Italok','Tízórai','100%-os narancslé','200 ml 100%-os narancslé',food('juice',200),110,'drink'),
-  seed('tea','Tea','🍵','coffee','Italok','Uzsonna','Cukor nélkül','200 ml tea, cukor nélkül',food('tea',200),120,'drink')
+  custom('monika-smoothie','Mónika reggeli smoothie','🫐','smoothie','Italok','Reggeli','Bogyós gyümölcsös kedvenc · becsült érték','KIINDULÓ MINTA: erdei gyümölcsök és tej/joghurt, kb. 300 ml. Mónika tényleges receptjére és mennyiségeire a Stúdióban pontosítandó.',macro(185,6,31,4),3,'drink',300),
+  custom('espresso-macchiato','Espresso Macchiato','☕','coffee','Italok','Reggeli','Espresso egy kevés tejhabbal · becslés','1 espresso kb. 30 ml és kb. 20 ml tejhab; cukor nélkül. Ha cukrozott, szerkeszd a receptet.',macro(15,1,1.2,.6),5,'drink',50),
+  custom('cortado','Cortado','☕','coffee','Italok','Tízórai','Espresso selymes tejjel · becslés','Kb. 40 ml espresso és 60 ml tej; hozzáadott cukor nélkül.',macro(34,2.1,3,.9),6,'drink',100),
+  custom('monika-cappuccino','Mónika Cappuccino','☕','coffee','Italok','Reggeli','Laktózmentes tej és 1 kockacukor · induló minta','150 ml 1,5%-os laktózmentes tej, 1 kockacukor (4 g), espresso. Az adag az egyedi szokáshoz szerkeszthető.',macro(86,5.2,11.2,2.3),1,'drink',185),
+  custom('zsolt-cappuccino','Zsolt Cappuccino','☕','coffee','Italok','Reggeli','Zsolt reggeli cappuccinója · 2 kockacukor','150 ml 1,5%-os tej, 2 db 4 g-os kockacukor, espresso. Az egyedi adagot a Stúdióban lehet pontosítani.',macro(102,5.2,15.2,2.3),2,'drink',185),
+  custom('zsolt-cappuccino-plus','Zsolt Cappuccino+','☕','coffee','Italok','Reggeli','Zsolt kedvence · + változat, pontosítandó','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 3 db 4 g-os kockacukor. A + pontos összetételét a Stúdióban kell beállítani.',macro(118,5.2,19.2,2.3),7,'drink',185),
+  custom('cappuccino-plus','Cappuccino+','☕','coffee','Italok','Uzsonna','Személyre szabható pluszos cappuccino','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 2 kockacukor. A + tényleges összetevői szerkeszthetők.',macro(102,5.2,15.2,2.3),8,'drink',185),
+  custom('belvita-forest','belVita Forest Fruits · 1 db','🍪','belvita','Édesség','Reggeli','1 db · 4 darabos csomagból · becsült kcal','1 darab belVita Breakfast Forest Fruits keksz, a 4 darabos adagcsomagból. Becsült tápérték, a csomagolás értéke alapján pontosítandó.',macro(55,1.1,8.3,1.9),4),
+  custom('cola-glass','Coca-Cola · 1 pohár','🥤','cola','Italok','Uzsonna','1 pohár · 250 ml · normál cukros','250 ml hagyományos (nem zero) Coca-Cola. ~42 kcal és ~10,6 g szénhidrát / 100 ml; szerkeszthető.',macro(105,0,26.5,0),9,'drink',250),
+  custom('hugo-sparkling','Hugo Sparkling Wine · 1 pohár','🥂','hugo','Italok','Vacsora','1 pohár · 200 ml · becsült érték','200 ml Hugo / Hugo Spritz jellegű pezsgős ital. Az alkohol- és cukortartalom márkánként, receptenként eltér; a tápérték becslés.',macro(150,0,16,0),10,'drink',200),
+  seed('morning','Reggeli cappuccino','☕','coffee','Italok','Reggeli','A nap első kedvence',caps(morning,false),mNut,11,'drink'),
+  seed('afternoon','Délutáni cappuccino + nasi','☕','sweet','Édesség','Uzsonna','Kávé, fahéj és ropogtatnivaló',caps(afternoon,true),aNut,12,'drink'),
+  seed('evening','Esti cappuccino','☕','coffee','Italok','Vacsora','Nyugodt esti kávészünet','Induló minta: a reggeli cappuccino adagja, szabadon átírható',mNut,13,'drink'),
+  seed('banana','Banán','🍌','fruit','Gyümölcs','Tízórai','Gyors, édes falat','1 közepes banán, kb. 120 g',food('banana',120),14),
+  seed('egg','Főtt tojás','🥚','meal','Reggeli','Reggeli','Egyszerű, fehérjedús','1 tojás, kb. 50 g',food('egg',50),15),
+  seed('apple','Alma','🍎','fruit','Gyümölcs','Tízórai','Ropogós klasszikus','1 közepes alma, kb. 160 g',food('apple',160),16),
+  seed('yogurt','Natúr joghurt','🥛','meal','Reggeli','Reggeli','Krémes, könnyű reggeli','150 g natúr joghurt',food('yoghurt',150),17),
+  seed('oats','Zabpehely','🥣','meal','Reggeli','Reggeli','Sokoldalú reggeli alap','50 g száraz zabpehely, feltét nélkül',food('oats',50),18),
+  seed('chicken','Sült csirkemell','🍗','meal','Főételek','Ebéd','Egyszerű, saját adag','150 g sült csirkemell',food('chicken',150),19),
+  seed('cookies','Babapiskóta','🍪','sweet','Édesség','Uzsonna','Négy darab egy gyors nasihoz','4 darab, összesen kb. 28 g',food('ladyfinger',28),20),
+  seed('orange','Narancslé','🍊','fruit','Italok','Tízórai','100%-os narancslé','200 ml 100%-os narancslé',food('juice',200),21,'drink'),
+  seed('tea','Tea','🍵','coffee','Italok','Uzsonna','Cukor nélkül','200 ml tea, cukor nélkül',food('tea',200),22,'drink')
  ];
 }
 function allRecipes(){
@@ -64,7 +65,14 @@ function allRecipes(){
  const base=defaults().map(q=>overrides.get(q.id)?{...q,...overrides.get(q.id),nutrients:{...q.nutrients,...overrides.get(q.id).nutrients}}:q);
  const existing=new Set(base.map(q=>q.id));
  (data.quickRecipes||[]).forEach(q=>{if(!existing.has(q.id))base.push(q)});
- return base.sort((a,b)=>(Number(a.order)||500)-(Number(b.order)||500)||a.name.localeCompare(b.name,'hu'));
+ const stored=Array.isArray(data.quickRecipeOrder?.ids)?data.quickRecipeOrder.ids:[];
+ const at=new Map(stored.map((id,i)=>[id,i]));
+ return base.sort((a,b)=>{
+  if(stored.length){const ai=at.has(a.id)?at.get(a.id):10000+(Number(a.order)||500);
+   const bi=at.has(b.id)?at.get(b.id):10000+(Number(b.order)||500);
+   return ai-bi||a.name.localeCompare(b.name,'hu');}
+  return (Number(a.order)||500)-(Number(b.order)||500)||a.name.localeCompare(b.name,'hu');
+ });
 }
 function activeRecipes(){return allRecipes().filter(q=>!q.archived)}
 function activateAudio(){
@@ -214,10 +222,30 @@ function showEditor(recipeId,create=false){
  $('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
  const list=document.createDocumentFragment();
  const createBtn=document.createElement('button');createBtn.type='button';createBtn.textContent='＋ Új recept';createBtn.addEventListener('click',()=>showEditor(null,true));list.append(createBtn);
- items.forEach(item=>{
-  const b=document.createElement('button');b.type='button';b.textContent=(item.archived?'◌ ':'')+(item.icon||'🍽️')+' '+item.name;
-  b.setAttribute('aria-pressed',String(editing.id===item.id));
-  b.addEventListener('click',()=>showEditor(item.id));list.append(b);
+ items.forEach((item,index)=>{
+  const line=document.createElement('div');line.className='hh-quick-edit-row';
+  const name=document.createElement('button');name.className='hh-quick-edit-name';name.type='button';
+  name.textContent=(item.archived?'◌ ':'')+(item.icon||'🍽️')+' '+item.name;
+  name.setAttribute('aria-pressed',String(editing.id===item.id));
+  name.addEventListener('click',()=>showEditor(item.id));
+  const arrows=document.createElement('div');arrows.className='hh-quick-arrows';
+  for(const [dir,label] of [[-1,'Feljebb'],[1,'Lejjebb']]){
+   const btn=document.createElement('button');btn.type='button';btn.className='hh-quick-move';
+   btn.textContent=dir<0?'↑':'↓';btn.title=label+': '+item.name;btn.setAttribute('aria-label',label+': '+item.name);
+   btn.disabled=index+dir<0||index+dir>=items.length;
+   btn.addEventListener('click',()=>{
+    try{
+     const ids=allRecipes().map(q=>q.id),from=ids.indexOf(item.id),to=from+dir;
+     if(from<0||to<0||to>=ids.length)return;
+     [ids[from],ids[to]]=[ids[to],ids[from]];
+     api.reorderRecipes(ids);
+     $('hhQuickEditStatus').textContent='✓ Sorrend mentve. A körhinta is ezt használja.';
+     showEditor(item.id);
+    }catch(e){$('hhQuickEditStatus').textContent='Sorrend mentési hiba: '+e.message}
+   });
+   arrows.append(btn);
+  }
+  line.append(name,arrows);list.append(line);
  });
  library.replaceChildren(list);
  $('hhQuickEditName').focus({preventScroll:true});
