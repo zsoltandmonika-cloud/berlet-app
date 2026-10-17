@@ -80,3 +80,7 @@
 @media(min-width:740px){#hhQuickDialog{width:min(670px,calc(100vw - 40px));height:min(840px,calc(100dvh - 40px));inset:auto;margin:auto;border:1px solid #ffffff3d;border-radius:28px;box-shadow:0 28px 100px #000d}.hh-quick-rail{padding-left:calc((min(670px,100vw - 40px) - 340px)/2);padding-right:calc((min(670px,100vw - 40px) - 340px)/2)}}
 @media(max-height:710px){.hh-quick-card{height:clamp(238px,49dvh,370px)}.hh-quick-rail{padding-top:9px;padding-bottom:13px}.hh-quick-head{padding-bottom:3px}.hh-quick-spot{margin-bottom:1px}}
 @media(prefers-reduced-motion:reduce){#hhQuickDialog *,#hhQuickLaunch{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.hh-quick-shell[data-mode="wheel"] #hhQuickBack{display:none}
+.hh-quick-shell[data-mode="edit"] #hhQuickAdd,.hh-quick-shell[data-mode="edit"] #hhQuickSound,.hh-quick-shell[data-mode="edit"] #hhQuickEdit{display:none}
+.hh-quick-shell[data-mode="edit"] #hhQuickBack{display:grid}
