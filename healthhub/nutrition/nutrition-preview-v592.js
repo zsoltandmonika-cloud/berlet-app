@@ -136,6 +136,16 @@ function checkJarMidnight(){
  }else if(!jarCalendarDay){jarCalendarDay=today}
 }
 
+// Prefer an exact local-midnight rollover. The existing 30s and visibility
+// checks remain fallbacks for backgrounded/throttled Android browsers.
+function scheduleMidnightRollover(){
+ const now=new Date(),next=new Date(now);
+ next.setHours(24,0,0,0);
+ root.setTimeout(()=>{
+  checkJarMidnight();
+  scheduleMidnightRollover();
+ },Math.max(1000,next.getTime()-now.getTime()+120));
+}
 function render(){
  const d=read(active),date=currentDay();
  $('todayLabel').textContent=date===localDate()?'Mai nap':date;
@@ -205,7 +215,7 @@ function render(){
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
  $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
- $('hhWaterAmount').textContent=fluidFound?fmt(fluidTotal,0)+' ml':'— ml';
+ $('hhWaterAmount').textContent=fmt(fluidTotal,0)+' ml';
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
  renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,date});
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
@@ -222,8 +232,19 @@ function render(){
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
 
  const log=$('log');log.replaceChildren();
+ // Diary hydration summary is derived from dated entries, never a second or
+ // duplicated stored intake record. Thus edits, deletes, Dropbox merge and
+ // historical date selection all update the correct profile/day total.
+ const dayWater=document.createElement('div');
+ dayWater.className='entry hh-day-water-summary';
+ dayWater.setAttribute('role','note');
+ const dayWaterCopy=document.createElement('span');
+ dayWaterCopy.textContent='💧 '+(date===localDate()?'Mai':'Napi')+' naplózott folyadék · '+date;
+ const dayWaterTotal=document.createElement('b');
+ dayWaterTotal.textContent=fmt(fluidTotal,0)+' ml';
+ dayWater.append(dayWaterCopy,dayWaterTotal);log.append(dayWater);
  for(const e of jarEvents(active).filter(e=>e.date===date)){const el=document.createElement('div');el.className='entry';el.textContent='↺ '+e.time+' · '+e.kind+' · napló megőrizve';log.append(el)}
- if(!entries.length){log.innerHTML='<p class="empty">Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕</p>';}
+ if(!entries.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕';log.append(empty);}
  entries.sort((a,b)=>b.time.localeCompare(a.time)).forEach(e=>{
   const line=document.createElement('div');line.className='entry';
   const left=document.createElement('div'),right=document.createElement('aside');
@@ -650,6 +671,7 @@ async function refreshActivity(profile){
  }
 }
 function logWater250(){
+ checkJarMidnight(); // Never attach a one-tap water glass to yesterday after midnight.
  const water=foodBy('water');
  if(!water){buddySay('A víz adatai nem találhatók a katalógusban.');return;}
  const now=stamp(),row={id:uid(),createdAt:now,updatedAt:now,date:currentDay(),
@@ -718,8 +740,9 @@ function events(){
 function start(){
  $('logDate').value=localDate();
  events();setProfile(pkey(),false);
- checkJarMidnight();setInterval(checkJarMidnight,30000);
+ checkJarMidnight();scheduleMidnightRollover();setInterval(checkJarMidnight,30000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkJarMidnight()});
+ root.addEventListener('focus',checkJarMidnight);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })(window);
