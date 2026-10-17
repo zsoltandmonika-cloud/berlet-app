@@ -54,7 +54,7 @@ function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
- return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
+ return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],quickRecipeOrder:{ids:[],updatedAt:'1970-01-01T00:00:00Z'},hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
 }
 function normalize(x,profile){
  let d=fresh(profile);
@@ -66,6 +66,7 @@ function normalize(x,profile){
   d.hydrationCounterReset={date:hydrationReset.date,offsetMl:Number(hydrationReset.offsetMl),updatedAt:hydrationReset.updatedAt};
  }
  ['entries','body','catalog','units','quickRecipes'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
+ if(x.quickRecipeOrder&&Array.isArray(x.quickRecipeOrder.ids)){d.quickRecipeOrder={ids:[...new Set(x.quickRecipeOrder.ids.filter(v=>typeof v==='string'&&/^quick:[a-z0-9_-]{1,80}$/i.test(v)))].slice(0,250),updatedAt:typeof x.quickRecipeOrder.updatedAt==='string'?x.quickRecipeOrder.updatedAt:'1970-01-01T00:00:00Z'};}
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
    const q=x.presets[key];const base=d.presets[key];d.presets[key]={...base,...q,updatedAt:q.updatedAt||base.updatedAt};
@@ -89,6 +90,7 @@ function mergeRows(a,b){
 function merge(local,remote,profile){
  let l=normalize(local,profile),r=normalize(remote,profile),o=normalize(l,profile);
  for(const key of ['entries','body','catalog','units','quickRecipes'])o[key]=mergeRows(l[key],r[key]);
+ o.quickRecipeOrder=String(r.quickRecipeOrder.updatedAt||'')>String(l.quickRecipeOrder.updatedAt||'')?r.quickRecipeOrder:l.quickRecipeOrder;
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
  // The most recently committed profile-scoped visual reset wins, without touching entries.
@@ -778,7 +780,11 @@ root.HH_NUTRITION_QUICK_API={
  getData:()=>clone(read(active)),
  getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
  getFoodNutrients:(id,grams)=>{const f=foodBy(id);return f?clone(calc(f.per,grams)):null},
- saveRecipe:recipe=>{
+ reorderRecipes:ids=>{
+  if(!Array.isArray(ids)||ids.length>250||ids.some(id=>typeof id!=='string'||!/^quick:[a-z0-9_-]{1,80}$/i.test(id))||new Set(ids).size!==ids.length)throw Error('Érvénytelen körhinta-sorrend');
+  update(d=>{d.quickRecipeOrder={ids:ids.slice(),updatedAt:stamp()};});
+ },
+  saveRecipe:recipe=>{
   if(!recipe||typeof recipe.id!=='string'||!/^quick:[a-z0-9_-]{1,80}$/i.test(recipe.id))throw Error('Érvénytelen receptazonosító');
   const name=String(recipe.name||'').trim(),kcal=Number(recipe.nutrients&&recipe.nutrients.kcal);
   if(name.length<2||name.length>80||!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen név vagy kalória');
@@ -795,7 +801,7 @@ root.HH_NUTRITION_QUICK_API={
    meal:ENTRIES.includes(recipe.meal)?recipe.meal:mealForTime(time),
    kind:recipe.kind==='drink'?'drink':'food',foodId:recipe.id,
    name:String(recipe.name).slice(0,80),icon:String(recipe.icon||'🍽️').slice(0,8),
-   quantityText:'1 előre beállított adag',volumeMl:null,nutrients:nut,
+   quantityText:'1 előre beállított adag',volumeMl:recipe.kind==='drink'&&Number.isFinite(Number(recipe.volumeMl))&&Number(recipe.volumeMl)>0?Number(recipe.volumeMl):null,nutrients:nut,
    source:'estimated',quickRecipeId:recipe.id,quickRecipeSnapshot:{name:recipe.name,ingredients:String(recipe.ingredients||'').slice(0,2000)}};
   update(d=>d.entries.push(rec));
   return {name:rec.name,kcal,profile:active,date:rec.date};
