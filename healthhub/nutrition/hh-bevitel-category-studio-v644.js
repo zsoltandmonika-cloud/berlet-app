@@ -277,5 +277,5 @@ root.addEventListener('focus',()=>{if(Date.now()-lastRemoteCheck>35000)refresh()
 root.addEventListener('online',refresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>35000)refresh()});
 setInterval(()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>90000)refresh()},120000);
-root.HH_BEVITEL_CATEGORY_V644={decorate,attachPhoto,refresh,openEditor:open,version:'644'};
-})();
+root.HH_BEVITEL_CATEGORY_V644={decorate,attachPhoto,refresh,openEditor:open,version:'648'};
+})(window);
