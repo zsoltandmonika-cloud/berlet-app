@@ -1,17 +1,33 @@
-/* Nutrition v628.4 · slightly smaller top-right aligned compact floating premium HH Buddy status face.
-   Preserve v627 sprite, mood logic and accessible aria-labels.
-   Remove only the oversized status glass card and its visible text. */
+/* Nutrition v630 · compact HH Buddy face anchored to calorie summary card.
+   Keep v627 three-face HD sprite and accessible live mood; no text/glass frame.
+   Only Buddy CSS/layout; the standard v629 taskbar and data logic are unchanged. */
+#balanceCard{
+ position:relative!important;
+}
+/* Reserve enough vertical clearance for the corner portrait above calorie rings. */
+#balanceCard.hh-body.balance .hh-body-heading{
+ min-height:clamp(74px,18vw,84px)!important;
+}
 #balanceCard #hhBuddyMood.hh-buddy-mood{
  display:flex!important;
  flex-direction:column!important;
  align-items:center!important;
- justify-content:flex-start!important;
- justify-self:center!important;
- align-self:start!important;
- width:100%!important;
+ justify-content:center!important;
+ position:absolute!important;
+ top:8px!important;
+ right:8px!important;
+ left:auto!important;
+ bottom:auto!important;
+ grid-area:auto!important;
+ grid-column:auto!important;
+ grid-row:auto!important;
+ justify-self:auto!important;
+ align-self:auto!important;
+ width:auto!important;
+ max-width:none!important;
  height:auto!important;
  min-height:0!important;
- max-width:100%!important;
+ max-height:none!important;
  margin:0!important;
  padding:0!important;
  gap:0!important;
@@ -23,6 +39,7 @@
  overflow:visible!important;
  backdrop-filter:none!important;
  -webkit-backdrop-filter:none!important;
+ transition:none!important;
 }
 #balanceCard #hhBuddyMood .hh-buddy-copy{
  display:none!important;
@@ -30,35 +47,36 @@
 #balanceCard #hhBuddyMood .hh-buddy-face{
  display:block!important;
  flex:none!important;
- width:clamp(78px,21vw,90px)!important;
- height:clamp(78px,21vw,90px)!important;
- max-width:calc(100% - 2px)!important;
+ width:clamp(64px,18vw,76px)!important;
+ height:clamp(64px,18vw,76px)!important;
+ max-width:none!important;
  aspect-ratio:1!important;
  border:0!important;
  border-radius:50%!important;
  background-color:transparent!important;
  background-repeat:no-repeat!important;
  background-size:100% 300%!important;
- box-shadow:0 0 19px color-mix(in srgb,var(--hh-face-tone) 30%,transparent),0 8px 18px #0005!important;
- filter:drop-shadow(0 2px 5px #0004);
- /* Visual-only nudge toward the top-right, without shifting the calorie layout. */
- transform:translate(12px,-8px)!important;
+ box-shadow:0 0 16px color-mix(in srgb,var(--hh-face-tone) 26%,transparent),0 6px 14px #0005!important;
+ filter:drop-shadow(0 2px 4px #0004);
+ transform:none!important;
 }
 @media(max-width:430px){
+ #balanceCard.hh-body.balance .hh-body-heading{
+  min-height:74px!important;
+ }
  #balanceCard #hhBuddyMood.hh-buddy-mood{
-  min-height:0!important;
-  padding:0!important;
-  gap:0!important;
+  top:6px!important;
+  right:6px!important;
  }
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:clamp(70px,20vw,82px)!important;
-  height:clamp(70px,20vw,82px)!important;
+  width:clamp(60px,17vw,70px)!important;
+  height:clamp(60px,17vw,70px)!important;
  }
 }
 @media(max-width:350px){
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:68px!important;
-  height:68px!important;
+  width:56px!important;
+  height:56px!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
