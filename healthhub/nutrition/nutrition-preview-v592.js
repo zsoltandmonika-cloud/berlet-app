@@ -54,12 +54,17 @@ function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
- return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
+ return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
 }
 function normalize(x,profile){
  let d=fresh(profile);
  if(!x||x.schemaVersion!==SCHEMA||x.profileKey!==profile)return d;
  d.updatedAt=x.updatedAt||d.updatedAt;
+ // Persist the latest visual hydration reset with the profile's Dropbox document.
+ const hydrationReset=x.hydrationCounterReset;
+ if(hydrationReset&&isDay(hydrationReset.date)&&Number.isFinite(Number(hydrationReset.offsetMl))&&Number(hydrationReset.offsetMl)>=0&&Number(hydrationReset.offsetMl)<=1e9&&typeof hydrationReset.updatedAt==='string'&&Number.isFinite(Date.parse(hydrationReset.updatedAt))){
+  d.hydrationCounterReset={date:hydrationReset.date,offsetMl:Number(hydrationReset.offsetMl),updatedAt:hydrationReset.updatedAt};
+ }
  ['entries','body','catalog','units'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
@@ -86,6 +91,10 @@ function merge(local,remote,profile){
  for(const key of ['entries','body','catalog','units'])o[key]=mergeRows(l[key],r[key]);
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
+ // The most recently committed profile-scoped visual reset wins, without touching entries.
+ const leftReset=l.hydrationCounterReset,rightReset=r.hydrationCounterReset;
+ o.hydrationCounterReset=!leftReset?rightReset:!rightReset?leftReset:
+   (String(rightReset.updatedAt)>String(leftReset.updatedAt)?rightReset:leftReset);
  o.updatedAt=String(r.updatedAt||'')>String(l.updatedAt||'')?r.updatedAt:l.updatedAt;
  return o;
 }
@@ -119,6 +128,18 @@ function logJar(profile,date,kind,ml){
  localStorage.setItem(JAR_LOG+profile,JSON.stringify(all.slice(-500)));
 }
 function dailyJarOffset(profile,date){try{const x=JSON.parse(localStorage.getItem(JAR_KEY+profile+'-'+date)||'null');return Math.max(0,Number(x&&x.offset)||0)}catch(_){return 0}}
+function resetHydrationCounter(){
+ checkJarMidnight();
+ const date=localDate();
+ if(currentDay()!==date)return; // Historical diary totals cannot be reset by tapping.
+ const profile=active;
+ update(d=>{
+  const total=d.entries.filter(e=>!e.deleted&&e.date===date&&Number.isFinite(e.volumeMl))
+    .reduce((sum,e)=>sum+e.volumeMl,0);
+  d.hydrationCounterReset={date,offsetMl:Math.max(0,total),updatedAt:stamp()};
+ });
+ tone('water');
+}
 function resetJar(){
  // The button intentionally empties the pitcher without deleting food/drink records.
  // Play an unobtrusive water-pour cue on the actual user click (respecting sound settings).
@@ -215,9 +236,17 @@ function render(){
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
  $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
- $('hhWaterAmount').textContent=fmt(fluidTotal,0)+' ml';
+ // The displayed counter may be restarted; the diary/Dropbox keeps the full daily total.
+ const reset=d.hydrationCounterReset;
+ const displayTotal=date===localDate()&&reset&&reset.date===date
+  ?Math.max(0,fluidTotal-reset.offsetMl):fluidTotal;
+ const amountButton=$('hhWaterAmount');
+ amountButton.textContent=fmt(displayTotal,0)+' ml';
+ amountButton.disabled=date!==localDate();
+ amountButton.title=date===localDate()?'Koppints a számláló nullázásához. A napló megmarad.':'Korábbi nap: csak olvasható';
+ amountButton.setAttribute('aria-label',date===localDate()?'Aktuális '+fmt(displayTotal,0)+' milliliter. Koppints a számláló visszaállításához. A naplózott italok megmaradnak.':'Korábbi napi folyadék összesen '+fmt(fluidTotal,0)+' milliliter.');
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
- renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,date});
+ renderHydrationStatus({fluidTotal:displayTotal,fluidFound,waterGoal,validWaterGoal,date});
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
  const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.70;
  $('hhWaterLevel').style.height=fillHeight+'%';
@@ -708,6 +737,7 @@ function events(){
  click('waterQuick',logWater250);
  click('waterQuickAdd',logWater250);
  click('hhJarReset',resetJar);
+ click('hhWaterAmount',resetHydrationCounter);
  click('hhWaterSave',()=>{
   const raw=$('hhWaterGoal').value.trim(),v=Number(raw);
   if(!raw||!Number.isFinite(v)||v<250||v>6000){alert('Adj meg 250 és 6000 ml közötti folyadékcélt.');return;}
