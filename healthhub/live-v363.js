@@ -164,6 +164,14 @@ async function render(profile,cache){
    card.title='HealthHub saját számítása. Nem Samsung Health által mért aktív kalória.';
   }
  }
+ // Publish the estimated TOTAL (resting + active), scoped to profile/day and timestamp.
+ // Nutrition only accepts a recent matching-day record, never active-only kcal.
+ if(val.date===day(new Date())&&val.hasActivity&&Number.isFinite(val.total)&&val.total>0){
+  try{localStorage.setItem('hh-nutrition-total-energy-'+profile,JSON.stringify({
+   profile:profile,date:val.date,kind:'total_burned_kcal',kcal:Math.round(val.total),
+   estimated:true,source:'HealthHub Activity Calorie Engine',updatedAt:new Date().toISOString()
+  }))}catch(_){}
+ }
  var todayRow=Array.isArray(cache&&cache.daily)?cache.daily.find(function(d){return d&&d.date===val.date}):null;
  var sdkMeasured=!!(todayRow&&todayRow._hhFieldSources&&todayRow._hhFieldSources.activeCaloriesKcal==='samsung-direct');
  var comparisonSource=sdkMeasured?'Samsung Health Data SDK':'Health Connect';
