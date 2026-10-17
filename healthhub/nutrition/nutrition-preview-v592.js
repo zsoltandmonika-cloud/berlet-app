@@ -489,11 +489,28 @@ function saveBody(e){
  update(d=>d.body.push(rec));$('bodyDialog').close();success();
 }
 
-async function refreshActivity(profile){
- // Live measurements are unavailable to this standalone and unconnected preview.
- // Real activity remains behind the authenticated production integration gate.
- $('activity').textContent='—';
- $('activitySource').textContent='Éles integrációnál';
+async async function refreshActivity(profile){
+ const date=currentDay(),api=window.HH_CALORIE_ENGINE_V363;
+ const indicator=$('activitySource');
+ if(indicator)indicator.textContent='Activity-adatok frissítése…';
+ try{
+  const e=api&&api.estimateForNutrition?await api.estimateForNutrition(profile,date):null;
+  if(profile!==active||date!==currentDay())return;
+  if(e){
+   localStorage.setItem('hh-nutrition-total-energy-'+profile,JSON.stringify(e));
+   $('activity').textContent=fmt(e.kcal,0)+' kcal';
+   if(indicator)indicator.textContent='Activity · teljes energia, becslés';
+   render();
+  }else{
+   // Do not display a stale energy record for an unverified current-day calculation.
+   localStorage.removeItem('hh-nutrition-total-energy-'+profile);
+   $('activity').textContent='—';
+   if(indicator)indicator.textContent='Nincs friss, számítható napi Activity-adat';
+   render();
+  }
+ }catch(_){
+  if(profile===active&&indicator)indicator.textContent='Activity-adat nem elérhető';
+ }
 }
 function logWater250(){
  const water=foodBy('water');
