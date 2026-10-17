@@ -147,17 +147,19 @@ function render(){
   return valid(live)?live:(valid(saved)?saved:null);
  }catch(_){return null}})();
  const burnt=energyRecord?Number(energyRecord.kcal):null;
+ // The visible integer and its colour must use the same rounded value.
+ // A zero balance is amber; an unavailable Activity record stays neutral grey.
+ const netKcal=burnt==null?null:Math.round(kcal-burnt);
+ const netStatus=netKcal==null?'unknown':netKcal<0?'negative':netKcal>0?'positive':'zero';
  $('hhBurntKcal').textContent=burnt==null?'—':fmt(burnt,0);
- $('hhNetKcal').textContent=burnt==null?'—':(kcal-burnt>0?'+':'')+fmt(kcal-burnt,0);
+ $('hhNetKcal').textContent=netKcal==null?'—':(netKcal<0?'−':netKcal>0?'+':'')+fmt(Math.abs(netKcal),0);
  $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(energyRecord.source||'szinkronizált adat');
- const netEl=$('hhNetRing');netEl.style.removeProperty('--energy-color');netEl.classList.toggle('pending',burnt==null||goal==null);
- if(burnt!=null&&goal!=null){
-  const desired=burnt-goal; // intake target converted to balance target for this day
-  const distance=Math.abs((kcal-burnt)-desired),tol=Math.max(100,d.goal.tolerance||150);
-  // continuous gradient from green at goal to yellow / amber and red as deviation grows
-  const hue=Math.max(0,120-120*Math.min(1,distance/(tol*3)));
-  netEl.style.setProperty('--energy-color','hsl('+hue+' 98% 53%)');
- }
+ const netEl=$('hhNetRing');
+ netEl.dataset.netStatus=netStatus;
+ $('balanceCard').dataset.netStatus=netStatus;
+ netEl.classList.toggle('pending',netKcal==null);
+ netEl.setAttribute('aria-label',netKcal==null?'Napi egyenleg: nincs energiafelhasználási adat':'Napi egyenleg: '+(netKcal<0?'mínusz ':netKcal>0?'plusz ':'')+fmt(Math.abs(netKcal),0)+' kilokalória');
+
  $('hhMacroProtein').textContent=vals.protein==null?'—':fmt(vals.protein,0)+' g';
  $('hhMacroCarbs').textContent=vals.carbs==null?'—':fmt(vals.carbs,0)+' g';
  $('hhMacroFat').textContent=vals.fat==null?'—':fmt(vals.fat,0)+' g';
@@ -178,10 +180,10 @@ function render(){
   const isToday=date===localDate();const ongoingDay=isToday&&new Date().getHours()<20;
   const color=kcal>hi?'bad':ongoingDay?'good':kcal>=lo?'good':'warn';
   b.classList.add(color);t.classList.add(color);t.textContent=(remain>=0?'':'−')+fmt(Math.abs(remain),0)+' kcal';
-  $('balanceText').textContent=burnt==null?'Az egyenleghez szinkronizált teljes energiafelhasználás szükséges.':'Bevitel − teljes elégetett kalória. A szín a személyes célhoz viszonyít.';
+  $('balanceText').textContent=burnt==null?'Az egyenleghez szinkronizált teljes energiafelhasználás szükséges.':'Bevitel − teljes elégetett kalória. Mínusz: zöld · plusz: piros · nulla: amber.';
   $('progress').style.width=Math.min(100,100*kcal/goal)+'%';
  }else{
-  t.textContent=fmt(kcal,0)+' kcal';$('balanceText').textContent='Állítsd be a napi kalóriacélt; a bevitel addig is naplózható.';$('progress').style.width='0%';
+  t.textContent=fmt(kcal,0)+' kcal';$('balanceText').textContent=(burnt==null?'Állítsd be a napi kalóriacélt; a bevitel addig is naplózható.':'Napi egyenleg: bevitel − elégetett energia. A napi cél külön beállítható.');$('progress').style.width='0%';
  }
  for(const k of ['protein','carbs','fat','fiber','vitc','b6','calcium','magnesium','potassium','omega3']){
    $(k).textContent=vals[k]==null?'—':fmt(vals[k],k==='b6'?2:1);
