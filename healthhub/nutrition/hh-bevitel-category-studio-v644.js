@@ -5,8 +5,8 @@
 (function(root){
 'use strict';
 const $=id=>document.getElementById(id);
-if(!$('hhBevitelPicker')||!root.HH_BEVITEL_PICKER_V643||!root.HH_NUTRITION_IMAGE_V641)return;
-const picker=root.HH_BEVITEL_PICKER_V643,vault=root.HH_NUTRITION_IMAGE_V641,cloud=root.HH_NUTRITION_CLOUD_V626;
+if(!root.HH_NUTRITION_IMAGE_V641||!root.HH_NUTRITION_CLOUD_V626)return;
+const picker=root.HH_BEVITEL_PICKER_V643||{getCurrent:()=>({kind:'food',category:''}),getBaseCategories:()=>[]},vault=root.HH_NUTRITION_IMAGE_V641,cloud=root.HH_NUTRITION_CLOUD_V626;
 const KEY='hh-bevitel-category-studio-v644',SCHEMA='healthhub.nutrition.categories/1';
 const EMPTY=()=>({schemaVersion:SCHEMA,updatedAt:'1970-01-01T00:00:00Z',categories:{}});
 const now=()=>new Date().toISOString();
@@ -102,21 +102,18 @@ dialog.innerHTML=`<form id="hhCategoryStudioForm" class="hh-category-form">
 </div><footer class="hh-category-footer"><button type="button" id="hhCategoryCancel">Mégse</button><button type="submit" id="hhCategorySave">☁️ Mentés és szinkron</button></footer>
 </form>`;
 document.body.append(dialog);
-const header=$('hhBevitelPicker').querySelector('.hh-bevitel-picker-head');
+const header=$('hhBevitelPicker')?.querySelector('.hh-bevitel-picker-head');
 const editBtn=document.createElement('button');editBtn.type='button';editBtn.id='hhBevitelCategoryEdit';editBtn.className='hh-bevitel-category-edit';
 editBtn.textContent='✎ Képek';editBtn.title='Alkategóriák képeinek, nevének és sorrendjének szerkesztése';
-header.insertBefore(editBtn,$('hhBevitelPickerClose'));
+if(header)header.insertBefore(editBtn,$('hhBevitelPickerClose'));
 const tileDefs=[
  {category:'food',name:'Étel',icon:'🍽️',id:'addFood'},
  {category:'drink',name:'Ital',icon:'🥤',id:'addDrink'},
  {category:'ai',name:'AI Bevitel',icon:'📷',id:'hhBevitelAI'},
  {category:'cookbook',name:'Léna Cookbook',icon:'👩‍🍳',id:'hhBevitelCookbook'}
 ];
-const mainHeading=document.querySelector('.hh-bevitel-header');
-const mainEdit=document.createElement('button');
-mainEdit.type='button';mainEdit.className='hh-bevitel-category-edit hh-bevitel-main-edit';
-mainEdit.textContent='✎ Képek';mainEdit.title='A négy Bevitel főcsempe képének cseréje';
-mainHeading?.append(mainEdit);
+/* Main title and ✎ Képek are part of the HTML itself since v646.
+ * Keep the studio independent of the optional food category picker. */
 for(const t of tileDefs){const img=$(t.id)?.querySelector('.hh-bevitel-photo');if(img)img.dataset.defaultSrc=img.getAttribute('src')}
 function applyTiles(){
  const saved=read().categories;
@@ -261,10 +258,7 @@ async function save(e){
  }catch(err){status('⚠ A szerkesztés helyben megmaradt, de a szinkron nem sikerült: '+String(err?.message||'hiba').slice(0,150))}
  finally{saving=false;$('hhCategorySave').disabled=false}
 }
-editBtn.addEventListener('click',()=>open());
-mainEdit.addEventListener('click',()=>open('tile'));
-const headerTap=$('hhBevitelHeaderTap');
-if(headerTap)headerTap.addEventListener('click',()=>open('tile'));
+if(header)editBtn.addEventListener('click',()=>open());
 
 $('hhCategorySelect').addEventListener('change',showOne);
 $('hhCategoryFile').addEventListener('change',fileChanged);
