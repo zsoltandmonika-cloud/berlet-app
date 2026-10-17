@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v645 · GyorsNasi</title>
+<title>HealthHub · Nutrition v646 · GyorsNasi</title>
 <link rel="preload" as="image" href="./healthhub-nutrition-lena-buddy-approved.webp" type="image/webp" fetchpriority="high">
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
@@ -108,7 +108,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=642-sync-status">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=644-shared-category-photos">
-<link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=645-tappable-heading">
+<link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=646-static-edit-button">
 </head>
 <body>
 <main class="shell">
@@ -137,7 +137,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon" aria-hidden="true">☕</span><span class="hh-quick-launch-copy"><strong>GyorsNasi</strong><small>Kedvenceid villámgyors bevitele · 1 érintés · saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
 <div class="hh-quick-sync-bar" aria-label="GyorsNasi központi mentés"><span class="hh-quick-sync-icon" aria-hidden="true">☁️</span><span id="hhQuickCloudState" class="hh-quick-sync-text" data-state="pending" role="status" aria-live="polite">Dropbox állapotának ellenőrzése…</span><button type="button" id="hhQuickCloudManual" class="hh-quick-sync-button" title="A receptek, képek és naplóadatok frissítése a Dropboxból" aria-label="GyorsNasi szinkronizálása most">↻ Szinkron most</button></div>
 <section class="hh-bevitel-section" aria-labelledby="hhBevitelHeading">
- <div class="row hh-bevitel-header"><h2 id="hhBevitelHeading"><button type="button" id="hhBevitelHeaderTap" title="Bevitel képek és kategóriák szerkesztése" aria-label="Bevitel képek szerkesztése">🍽️ Bevitel <img class="hh-bevitel-buddy" src="./nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub mókusa" loading="lazy"><span class="hh-bevitel-header-pen" aria-hidden="true">✎</span></button></h2><span class="muted">Gördíthető étel- és italkategóriák</span></div>
+ <div class="row hh-bevitel-header"><h2 id="hhBevitelHeading"><button type="button" id="hhBevitelHeaderTap" onclick="return window.hhOpenBevitelEditor('tile')" title="Bevitel képek és kategóriák szerkesztése" aria-label="Bevitel képek szerkesztése">🍽️ Bevitel <img class="hh-bevitel-buddy" src="./nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub mókusa" loading="lazy"><span class="hh-bevitel-header-pen" aria-hidden="true">✎</span></button></h2><span class="muted">Gördíthető étel- és italkategóriák</span><button type="button" id="hhBevitelMainEditorButton" class="hh-bevitel-category-edit hh-bevitel-main-edit" onclick="return window.hhOpenBevitelEditor('tile')" aria-label="Bevitel főcsempék képeinek szerkesztése">✎ Képek</button></div>
  <div class="hh-bevitel-grid" aria-label="Étel- és italbevitel módjai">
   <button type="button" id="addFood" class="hh-bevitel-tile" data-kind="food" aria-label="Étel hozzáadása: ételek és adagok">
    <img class="hh-bevitel-photo" src="https://images.unsplash.com/photo-1571162188392-3b41283bcde6?auto=format&amp;fit=crop&amp;w=800&amp;q=78" alt="" loading="lazy" referrerpolicy="no-referrer">
@@ -259,6 +259,26 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <dialog id="customDialog"><form id="customForm" class="modal"><div class="modalhead"><h2>Saját élelmiszer hozzáadása</h2><button type="button" class="mini" data-close="customDialog">✕</button></div><p>A tápanyagadatokat 100 grammra add meg. Ha nem ismered a vitamintartalmat, maradjon üres.</p><div class="fields"><div class="field wide"><label for="customName">Név</label><input id="customName" maxlength="100" required></div><div class="field"><label for="customKind">Típus</label><select id="customKind"><option value="food">Étel</option><option value="drink">Ital</option></select></div><div class="field"><label for="customCategory">Kategória</label><select id="customCategory"><option>Gyümölcs</option><option>Zöldség</option><option>Hús és tojás</option><option>Tejtermék</option><option>Gabonafélék</option><option>Édesség</option><option>Italok</option><option>Egyéb</option></select></div><div class="field"><label for="customKcal">Kcal / 100 g</label><input id="customKcal" type="number" min="0" max="900" step=".1" required></div><div class="field"><label for="customProtein">Fehérje (g)</label><input id="customProtein" type="number" min="0" max="100" step=".1" value="0" required></div><div class="field"><label for="customCarbs">Szénhidrát (g)</label><input id="customCarbs" type="number" min="0" max="100" step=".1" value="0" required></div><div class="field"><label for="customFat">Zsír (g)</label><input id="customFat" type="number" min="0" max="100" step=".1" value="0" required></div></div><p id="customError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="customDialog">Mégse</button><button type="submit" class="btn primary">+ Saját étel mentése</button></div></form></dialog>
 <dialog id="unitDialog"><form id="unitForm" class="modal"><div class="modalhead"><h2>Saját mértékegység</h2><button type="button" class="mini" data-close="unitDialog">✕</button></div><p>Az adag pontos grammtömegét rendeld a kiválasztott élelmiszerhez, így lesz értelmes az átváltás.</p><div class="fields"><div class="field wide"><label for="unitFood">Élelmiszer</label><select id="unitFood"></select></div><div class="field"><label for="unitName">Egység neve</label><input id="unitName" placeholder="Pl. kis csésze" maxlength="40" required></div><div class="field"><label for="unitGrams">1 egység = gramm</label><input id="unitGrams" type="number" min=".1" max="3000" step=".1" required></div></div><p id="unitError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="unitDialog">Mégse</button><button type="submit" class="btn primary">+ Egység mentése</button></div></form></dialog>
 <dialog id="bodyDialog"><form id="bodyForm" class="modal"><div class="modalhead"><h2 id="bodyTitle">Napi ritmus</h2><button type="button" class="mini" data-close="bodyDialog">✕</button></div><div class="fields"><div class="field"><label for="bodyTime">Időpont</label><input type="time" id="bodyTime" required></div><div class="field" id="bristolWrap"><label for="bristol">Bristol-skála (opcionális)</label><select id="bristol"><option value="">Nem jelölöm</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div><div class="field wide"><label for="bodyNote">Megjegyzés (opcionális)</label><input id="bodyNote" maxlength="180"></div></div><p id="bodyError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="bodyDialog">Mégse</button><button type="submit" class="btn primary">✓ Mentés</button></div></form></dialog>
+<script>
+/* v646 · Direct static Bevitel editor trigger. Even a failed module shows visible feedback. */
+window.hhOpenBevitelEditor=function(scope){
+ var info=document.getElementById('hhBevitelInfo');
+ try{
+  var editor=window.HH_BEVITEL_CATEGORY_V644;
+  if(!editor||typeof editor.openEditor!=='function')throw new Error('A kategóriaszerkesztő nem töltődött be.');
+  editor.openEditor(scope==='tile'?'tile':undefined);
+  if(info)info.hidden=true;
+ }catch(error){
+  if(info){
+   info.textContent='⚠ A Bevitel szerkesztője nem tudott megnyílni: '+String(error&&error.message||'ismeretlen hiba')+'. Próbáld újratölteni a Nutrition v646-ot.';
+   info.hidden=false;
+   info.scrollIntoView({block:'nearest',behavior:'auto'});
+  }
+  console.warn('HealthHub Bevitel editor',error);
+ }
+ return false;
+};
+</script>
 <script defer src="../live-v369-distance.js?v=369-calibrated"></script>
 <script defer src="../live-v363.js?v=624-1-direct-fix"></script>
 <script defer src="./nutrition-cloud-v626.js?v=644-shared-metadata"></script>
@@ -266,7 +286,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <script defer src="./nutrition-preview-v592.js?v=642-sync-status"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=642-sync-status"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=644-photo-category-hook"></script>
-<script defer src="./hh-bevitel-category-studio-v644.js?v=645-tappable-heading"></script>
+<script defer src="./hh-bevitel-category-studio-v644.js?v=646-visible-editor-failsafe"></script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
