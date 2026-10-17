@@ -71,6 +71,31 @@ function tick(success=false){
   osc.start(t);osc.stop(t+(success?.26:.1));
  }catch(_){}
 }
+function tada(){
+ // Audible successful diary-entry jingle. TADAA belongs to the SOUND, not labels.
+ if(localStorage.getItem(keySound)==='off'||reduced.matches)return;
+ try{
+  activateAudio();if(!audioCtx)return;
+  const t=audioCtx.currentTime+.012;
+  const notes=[
+   [523.25,0,.145,.033],
+   [659.25,.135,.15,.035],
+   [783.99,.27,.16,.039],
+   [1046.5,.415,.43,.054],
+   [783.99,.415,.43,.020]
+  ];
+  for(const [pitch,delay,duration,volume] of notes){
+   const osc=audioCtx.createOscillator(),gain=audioCtx.createGain(),start=t+delay;
+   osc.type=delay>.4?'sine':'triangle';
+   osc.frequency.setValueAtTime(pitch,start);
+   gain.gain.setValueAtTime(.0001,start);
+   gain.gain.linearRampToValueAtTime(volume,start+.018);
+   gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+   osc.connect(gain);gain.connect(audioCtx.destination);
+   osc.start(start);osc.stop(start+duration+.02);
+  }
+ }catch(_){}
+}
 function paintArtwork(target,q){
  target.className='hh-quick-art';target.dataset.theme=q.theme||'meal';
  if(q.image&&/^data:image\/(jpeg|png|webp);base64,/.test(q.image)){
@@ -139,9 +164,9 @@ function recordSelected(){
  busy=true;selectUI();
  try{
   const result=api.recordRecipe(q);
-  lastRecord=now;activeId=q.id;tick(true);
+  lastRecord=now;activeId=q.id;tada();
   const kcal=Number(result.kcal)||0,marathons=(kcal/(70*42.195));
-  $('hhQuickSuccessTitle').textContent='TADAAA! '+q.name+' rögzítve!';
+  $('hhQuickSuccessTitle').textContent=q.name+' rögzítve!';
   $('hhQuickSuccessMessage').textContent='☕ A mókus jelenti: '+fmt(kcal)+' kcal naplózva. Ez kb. '+marathons.toFixed(2).replace('.',',')+' maratonnyi energia egy 70 kg-os példában. De nem kell ledolgozni, ez csak mókusmatek! 🐿️ Enjoy it!';
   $('hhQuickSuccess').dataset.open='true';$('hhQuickSuccessDone').focus();
   if(navigator.vibrate)navigator.vibrate([22,35,45]);
@@ -245,7 +270,7 @@ $('hhQuickAdd').addEventListener('click',()=>showEditor(null,true));
 $('hhQuickRecord').addEventListener('click',recordSelected);
 $('hhQuickSuccessDone').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';hideDialog()});
 $('hhQuickAgain').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';showWheel(activeId)});
-$('hhQuickSound').addEventListener('click',()=>{const disabled=localStorage.getItem(keySound)==='off';localStorage.setItem(keySound,disabled?'on':'off');$('hhQuickSound').textContent=disabled?'♫':'🔇';if(disabled)tick()});
+$('hhQuickSound').addEventListener('click',()=>{const disabled=localStorage.getItem(keySound)==='off';localStorage.setItem(keySound,disabled?'on':'off');$('hhQuickSound').textContent=disabled?'♫':'🔇';if(disabled)tada()});
 $('hhQuickEditPhoto').addEventListener('change',onPhoto);
 $('hhQuickRemovePhoto').addEventListener('click',()=>{photoData='';$('hhQuickEditStatus').textContent='A saját kép levéve, a glassy alapillusztráció jelenik meg.'});
 $('hhQuickEditorForm').addEventListener('submit',saveEdit);
