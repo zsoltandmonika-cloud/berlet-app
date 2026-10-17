@@ -1,13 +1,13 @@
-/* v618: same Monika-style generous status tile dimensions for both profiles.
+/* v619: same Monika-style generous status tile dimensions for both profiles.
    Content can wrap without changing tile dimensions or moving rings. */
 .hh-body.balance .hh-body-heading>.hh-body-message{
  box-sizing:border-box!important;
- height:78px!important;min-height:78px!important;max-height:78px!important;
+ height:62px!important;min-height:62px!important;max-height:62px!important;
  display:flex!important;align-items:center!important;
  overflow:auto!important;
 }
 @media(max-width:430px){
  .hh-body.balance .hh-body-heading>.hh-body-message{
-  height:78px!important;min-height:78px!important;max-height:78px!important;
+  height:62px!important;min-height:62px!important;max-height:62px!important;
  }
 }
