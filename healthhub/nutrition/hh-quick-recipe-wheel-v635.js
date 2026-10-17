@@ -100,7 +100,7 @@ function nearestIndex(){
 }
 function centerCard(i,smooth){
  const card=rail.querySelectorAll('.hh-quick-card')[i];if(!card)return;
- const x=card.offsetLeft-rail.offsetLeft-(rail.clientWidth-card.offsetWidth)/2;
+ const x=card.getBoundingClientRect().left-rail.getBoundingClientRect().left+rail.scrollLeft-(rail.clientWidth-card.offsetWidth)/2;
  rail.scrollTo({left:x,behavior:smooth&&!reduced.matches?'smooth':'instant'});
 }
 function showWheel(wantedId=''){
