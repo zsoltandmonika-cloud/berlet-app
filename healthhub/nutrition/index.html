@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v634 · Cloud Vault</title>
+<title>HealthHub · Nutrition v635 · Quick Recipe Wheel</title>
 <link rel="preload" as="image" href="./healthhub-nutrition-lena-buddy-approved.webp" type="image/webp" fetchpriority="high">
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
@@ -106,6 +106,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 </style><link rel="stylesheet" href="./hh-buddy-mood-v627.css?v=627-hd-faces">
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
+<link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=635-beta-1">
 </head>
 <body>
 <main class="shell">
@@ -130,8 +131,8 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
  <div class="hh-body-meta"><span class="status" id="syncStatus">Nutrition napló betöltése…</span><span id="hhEnergyStatus">Teljes napi energia: még nem kapcsolódott</span></div>
  <div id="balanceRing" hidden></div>
 </section>
-<div class="row"><h2>☕ Gyorsreceptek</h2><span class="muted">1–2 érintés · reggel a kávé az első ☕</span></div>
-<div class="quick"><button type="button" class="glass" id="morning"><img class="hh-quick-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"><strong>☕ Reggeli cappuccino</strong><small id="morningLabel">Profilhoz igazított kockacukor</small></button><button type="button" class="glass" id="afternoon"><img class="hh-quick-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"><strong>☕ Délutáni cappuccino + nasi</strong><small>3 kockacukor · fahéjas cukor · 4 babapiskóta</small></button></div>
+<div class="row"><h2>☕ Gyorsreceptek · Quick Wheel</h2><span class="muted">Görgess · koppints · TADAAA! 🐿️</span></div>
+<button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon" aria-hidden="true">☕</span><span class="hh-quick-launch-copy"><strong>Quick Recipe Wheel</strong><small>Nagy, fotós kedvencek · 1 érintéses bevitel · szerkeszthető saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
 <div class="row"><h2>🍽️ Bevitel <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><span class="muted">Gördíthető ételek és mértékegységek</span></div>
 <div class="actions"><button type="button" class="action glass" id="addFood"><span class="foodicon">🍌</span>+ Étel<small>Választás · mérték</small></button><button type="button" class="action glass" id="addDrink"><span class="foodicon">🥤</span>+ Ital<small>Folyadék · kalória</small></button><button type="button" class="action glass" id="waterQuick"><span class="foodicon">💧</span>1 pohár (250 ml)<small>1 érintéses mentés</small></button><button type="button" class="action glass" disabled title="A kamera alapú felismerés előkészítve, még nem aktív"><span class="foodicon">📸</span>AI Food Scanner<small>Hamarosan</small></button></div>
 <div class="row"><h2>🍓 Kedvencek · gyors felvitel</h2><span class="muted">Valóban rögzíthető ételek</span></div><div class="food-strip"><button type="button" id="photoCoffee"><span class="photo" data-food-art="coffee">☕</span><span class="photo-label">Cappuccino</span></button><button type="button" id="photoBanana"><span class="photo" data-food-art="banana">🍌</span><span class="photo-label">Banán</span></button><button type="button" id="photoSalad"><span class="photo" data-food-art="salad">🥗</span><span class="photo-label">Csirkemell</span></button><button type="button" id="photoAfternoon"><span class="photo" data-food-art="afternoon">🍪</span><span class="photo-label">Délutáni kávé</span></button></div><div class="row"><h2>📊 Mai tápanyagok</h2><span class="muted" id="todayLabel">Mai nap</span></div>
@@ -150,8 +151,60 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
   <button type="button" data-nav-info="Az Elemzések modul még nem érhető el." aria-label="Elemzések állapota"><span class="hhNavIcon" aria-hidden="true">▥</span><span>Elemzések</span></button>
   <button type="button" data-nav-info="A Továbbiak modul még nem érhető el." aria-label="Továbbiak állapota"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
-<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v634</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">TADAAA! Sikeres mentés.</span></div>
+<div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v635</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">TADAAA! Sikeres mentés.</span></div>
 </main>
+<dialog id="hhQuickDialog" aria-label="HealthHub Quick Recipe Wheel">
+ <div class="hh-quick-shell" id="hhQuickShell" data-mode="wheel">
+  <header class="hh-quick-head">
+   <div class="hh-quick-brand"><span class="hh-quick-eyebrow">HEALTHHUB · LÉNA NUTRITION</span><strong>Quick Recipe Wheel</strong><small id="hhQuickProfile">Személyes kedvencek</small></div>
+   <div class="hh-quick-controls">
+    <button class="hh-quick-icon-btn" id="hhQuickBack" type="button" aria-label="Vissza a receptválasztóhoz">←</button>
+    <button class="hh-quick-icon-btn" id="hhQuickSound" type="button" title="Kattintáshang be- vagy kikapcsolása" aria-label="Hang be- vagy kikapcsolása">♫</button>
+    <button class="hh-quick-icon-btn" id="hhQuickAdd" type="button" aria-label="Új recept hozzáadása" title="Új recept">＋</button>
+    <button class="hh-quick-icon-btn" id="hhQuickEdit" type="button" aria-label="Aktuális recept szerkesztése" title="Recept szerkesztése">✎</button>
+    <button class="hh-quick-icon-btn" id="hhQuickClose" type="button" aria-label="Receptválasztó bezárása">×</button>
+   </div>
+  </header>
+  <section class="hh-quick-wheel-view" aria-label="Görgethető gyorsreceptek">
+   <p class="hh-quick-spot">← Lapozd a kedvenceket, koppints a középsőre →</p>
+   <div class="hh-quick-rail" id="hhQuickRail" tabindex="0" aria-label="Vízszintes receptválasztó"></div>
+   <div class="hh-quick-dots" id="hhQuickDots" aria-hidden="true"></div>
+  </section>
+  <footer class="hh-quick-bottom">
+   <div class="hh-quick-picked"><strong id="hhQuickSelected">Recept kiválasztása</strong><small id="hhQuickSelectedNote">Egy előre beállított adag</small></div>
+   <button type="button" class="hh-quick-tada" id="hhQuickRecord">✓ TADAAA!</button>
+  </footer>
+  <section class="hh-quick-edit-view" aria-label="Saját receptek szerkesztése">
+   <h3 id="hhQuickStudioHeading">Recept szerkesztése</h3>
+   <div class="hh-quick-edit-list" id="hhQuickEditList" aria-label="Receptkönyvtár"></div>
+   <form class="hh-quick-form" id="hhQuickEditorForm">
+    <div class="hh-quick-field wide"><label for="hhQuickEditName">Recept neve</label><input id="hhQuickEditName" maxlength="80" autocomplete="off" required placeholder="Pl. Mónika reggeli cappuccino"></div>
+    <div class="hh-quick-field wide"><label for="hhQuickEditDescription">Rövid leírás a kártyán</label><input id="hhQuickEditDescription" maxlength="160" placeholder="Pl. Krémes, finom, a reggel fénypontja"></div>
+    <div class="hh-quick-field"><label for="hhQuickEditCategory">Kategória</label><select id="hhQuickEditCategory"><option>Italok</option><option>Édesség</option><option>Reggeli</option><option>Főételek</option><option>Gyümölcs</option></select></div>
+    <div class="hh-quick-field"><label for="hhQuickEditMeal">Étkezés</label><select id="hhQuickEditMeal"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb / Brunch</option></select></div>
+    <div class="hh-quick-field"><label for="hhQuickEditKcal">Kalória / fix adag (kcal)</label><input id="hhQuickEditKcal" type="number" inputmode="decimal" min="0" max="5000" step=".1" required></div>
+    <div class="hh-quick-field"><label for="hhQuickEditProtein">Fehérje / adag (g)</label><input id="hhQuickEditProtein" type="number" inputmode="decimal" min="0" max="500" step=".1" required></div>
+    <div class="hh-quick-field"><label for="hhQuickEditCarbs">Szénhidrát / adag (g)</label><input id="hhQuickEditCarbs" type="number" inputmode="decimal" min="0" max="1000" step=".1" required></div>
+    <div class="hh-quick-field"><label for="hhQuickEditFat">Zsír / adag (g)</label><input id="hhQuickEditFat" type="number" inputmode="decimal" min="0" max="500" step=".1" required></div>
+    <div class="hh-quick-field wide"><label for="hhQuickEditIngredients">Hozzávalók és alapadag részletesen</label><textarea id="hhQuickEditIngredients" maxlength="2000" rows="4" placeholder="Hozzávalók, mennyiségek és elkészítés"></textarea></div>
+    <div class="hh-quick-field wide"><label for="hhQuickEditPhoto">Saját receptfotó (telefonról is)</label><input id="hhQuickEditPhoto" type="file" accept="image/*"></div>
+    <div class="hh-quick-field"><label for="hhQuickEditIcon">Emoji ikon</label><input id="hhQuickEditIcon" maxlength="8" placeholder="☕"></div>
+    <div class="hh-quick-field"><label for="hhQuickEditTheme">Kártya fénye</label><select id="hhQuickEditTheme"><option value="coffee">Kávé · arany</option><option value="fruit">Gyümölcs · türkiz</option><option value="meal">Étel · kék</option><option value="sweet">Desszert · rózsaszín</option></select></div>
+    <div class="hh-quick-field"><label for="hhQuickEditOrder">Wheel sorrend</label><input id="hhQuickEditOrder" type="number" min="0" max="9999" step="1" value="10" required></div>
+    <div class="hh-quick-field" style="justify-content:end"><label for="hhQuickEditArchived"><input id="hhQuickEditArchived" type="checkbox" style="width:auto;min-height:0;margin-right:6px">Archiválva (nem látszik a wheelben)</label></div>
+    <div class="hh-quick-form-actions"><button type="button" id="hhQuickRemovePhoto">Kép eltávolítása</button><button type="submit" class="primary">✓ Recept mentése</button></div>
+   </form>
+   <p class="hh-quick-status" id="hhQuickEditStatus" aria-live="polite"></p>
+   <p class="hh-quick-status">A tápérték 1 előre beállított adagra értendő. A már naplózott bejegyzések változatlanok. A receptfotó a privát Nutrition-dokumentummal szinkronizálódik, nem kerül a GitHubra.</p>
+  </section>
+  <section class="hh-quick-success" id="hhQuickSuccess" data-open="false" role="status" aria-live="polite">
+   <img src="./nutri-chipmunk-3d-v594.webp" alt="Örömteli Buddy mókus">
+   <h3>✨ TADAAA!</h3><strong id="hhQuickSuccessTitle">Recept rögzítve!</strong>
+   <p id="hhQuickSuccessMessage">Buddy hozza a jó hírt. 🐿️</p>
+   <div class="hh-quick-form-actions"><button type="button" id="hhQuickSuccessDone">Kész · vissza a Nutritionba</button><button type="button" id="hhQuickAgain">Még egy recept</button></div>
+  </section>
+ </div>
+</dialog>
 <dialog id="entryDialog"><form id="entryForm" class="modal"><div class="modalhead"><h2 id="entryTitle">Új bevitel</h2><button type="button" class="mini" data-close="entryDialog">✕</button></div>
 <div class="fields"><div class="field wide"><label for="foodSearch">Keresés</label><input id="foodSearch" autocomplete="off" placeholder="Pl. banán, tojás, tej..."></div><div class="field wide"><label for="foodSelect">Étel / ital · kategóriák és ABC</label><select id="foodSelect" size="6" style="height:160px"></select></div><div class="field"><label for="quantity">Mennyiség</label><input id="quantity" type="number" min=".01" max="10000" step=".5" value="1" required></div><div class="field"><label for="unit">Mértékegység</label><select id="unit"></select></div><div class="field"><label for="meal">Étkezés</label><select id="meal"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb / Brunch</option></select></div><div class="field"><label for="entryTime">Időpont</label><input id="entryTime" type="time" required></div></div><div class="preview" id="entryPreview">Válassz élelmiszert.</div><p id="entryError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="entryDialog">Mégse</button><button type="submit" class="btn primary">✓ Mentés · TADAA</button></div></form></dialog>
 <dialog id="presetDialog"><form id="presetForm" class="modal"><div class="modalhead"><h2 id="presetTitle">Cappuccino gyorsrecept</h2><button type="button" class="mini" data-close="presetDialog">✕</button></div><p>Minden mező szerkeszthető és külön tárolódik Zsolt/Mónika profilján.</p><div class="fields">
@@ -171,7 +224,8 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <script defer src="../live-v369-distance.js?v=369-calibrated"></script>
 <script defer src="../live-v363.js?v=624-1-direct-fix"></script>
 <script defer src="./nutrition-cloud-v626.js?v=626-profile-revision"></script>
-<script defer src="./nutrition-preview-v592.js?v=634-fixed-water-level"></script>
+<script defer src="./nutrition-preview-v592.js?v=635-quickcore"></script>
+<script defer src="./hh-quick-recipe-wheel-v635.js?v=635-beta-1"></script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
