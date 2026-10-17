@@ -1,0 +1,43 @@
+/* Nutrition v612: approved compact HH Body header, status at upper right.
+   Pure layout: preserve Buddy, calorie calculations, water gauge, and diary. */
+.hh-body.balance .hh-body-heading{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) clamp(60px,14vw,108px) clamp(118px,26%,190px)!important;
+ align-items:start!important;
+ column-gap:clamp(6px,1.4vw,14px)!important;
+ min-height:0!important;
+ padding:0!important;
+ margin:0 0 8px!important;
+}
+.hh-body.balance .hh-body-heading .hh-body-title{align-self:center;gap:5px}
+.hh-body.balance .hh-body-heading .hh-body-side{
+ align-self:center!important;justify-self:center!important;
+ transform:none!important;min-height:0!important;
+}
+.hh-body.balance .hh-body-heading .hh-body-side .buddy{
+ width:clamp(60px,13vw,106px)!important;max-width:100%!important;
+}
+.hh-body.balance .hh-body-heading .hh-body-message{
+ display:block!important;
+ align-self:start!important;justify-self:end!important;
+ width:100%!important;min-height:0!important;height:auto!important;
+ margin:0!important;padding:9px 10px!important;
+ border:1px solid rgba(21,198,129,.65)!important;
+ border-radius:14px!important;
+ background:linear-gradient(130deg,rgba(5,57,47,.83),rgba(6,28,48,.77))!important;
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ box-shadow:inset 0 1px rgba(216,255,245,.12),0 3px 14px rgba(0,173,120,.14)!important;
+ color:#c0f7dc!important;font-size:clamp(10px,1.5vw,12px)!important;
+ line-height:1.38!important;overflow-wrap:anywhere;
+}
+.hh-body.balance .hh-body-dials{margin-top:4px!important}
+@media(max-width:430px){
+ .hh-body.balance .hh-body-heading{
+  grid-template-columns:minmax(0,1fr) 64px minmax(110px,34%)!important;
+  gap:5px!important;margin-bottom:5px!important;
+ }
+ .hh-body.balance .hh-body-heading .hh-body-side .buddy{width:64px!important}
+ .hh-body.balance .hh-body-heading .hh-body-message{
+  padding:7px 7px!important;font-size:10px!important;
+ }
+}
