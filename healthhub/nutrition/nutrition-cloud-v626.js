@@ -75,14 +75,41 @@ async function upload(profile,data,rev){
 /* Image vault v641: immutable private JPEG assets, referenced by sha256.
  * The API uses the existing Dropbox token; no new OAuth scope or public URLs.
  */
-const imageFolder=profile=>'/HealthHub/profiles/'+profile+'-nutrition-images';
+const imageFolder=profile=>profile==='shared'?'/HealthHub/shared/nutrition-images':'/HealthHub/profiles/'+profile+'-nutrition-images';
+const validImageScope=p=>valid(p)||p==='shared';
+const catPath='/HealthHub/shared/nutrition-categories.json',catSchema='healthhub.nutrition.categories/1';
+async function ensureSharedFolder(){
+ const path='/HealthHub/shared';
+ try{await request('files/create_folder_v2',{path,autorename:false})}
+ catch(e){if(e.status!==409)throw e;const m=await(await request('files/get_metadata',{path})).json();if(m['.tag']!=='folder')throw Error('A közös tárhely nem mappa')}
+}
+async function downloadCategories(){
+ let meta;
+ try{meta=await(await request('files/get_metadata',{path:catPath})).json()}
+ catch(e){if(missing(e))return {data:null,rev:null};throw e}
+ const res=await request('files/download',{path:catPath});
+ const data=await res.json();
+ if(!data||data.schemaVersion!==catSchema||typeof data.categories!=='object'||Array.isArray(data.categories))throw Error('Nem megfelelő kategóriatár-séma: a felhőfájl változatlan maradt');
+ let rev=meta.rev;
+ try{rev=JSON.parse(res.headers.get('Dropbox-API-Result')||'{}').rev||rev}catch(_){}
+ if(!rev)throw Error('A kategóriatár verziója nem ellenőrizhető');
+ return {data,rev};
+}
+async function uploadCategories(data,rev){
+ if(!data||data.schemaVersion!==catSchema||!data.categories||Array.isArray(data.categories))throw Error('Hibás közös kategóriatár');
+ await ensureSharedFolder();
+ const mode=rev?{'.tag':'update',update:rev}:'add';
+ const res=await request('files/upload',{path:catPath,mode,autorename:false,mute:true,strict_conflict:true},JSON.stringify(data));
+ return await res.json();
+}
 const hex64=s=>typeof s==='string'&&/^[a-f0-9]{64}$/.test(s);
 function checkImageRef(profile,ref){
- if(!valid(profile)||!ref||!hex64(ref.sha256)||ref.path!==imageFolder(profile)+'/'+ref.sha256+'.jpg')throw new Error('Érvénytelen vagy idegen profilhoz tartozó képhivatkozás');
+ if(!validImageScope(profile)||!ref||!hex64(ref.sha256)||ref.path!==imageFolder(profile)+'/'+ref.sha256+'.jpg')throw new Error('Érvénytelen vagy idegen profilhoz tartozó képhivatkozás');
  return ref.path;
 }
 async function ensureImageFolder(profile){
  const path=imageFolder(profile);
+ if(profile==='shared')await ensureSharedFolder();
  try{await request('files/create_folder_v2',{path,autorename:false})}
  catch(e){
   if(e.status!==409)throw e;
@@ -91,7 +118,7 @@ async function ensureImageFolder(profile){
  }
 }
 async function putImage(profile,bytes,sha256){
- if(!valid(profile)||!hex64(sha256)||!(bytes instanceof Uint8Array)||bytes.length<64||bytes.length>700000)
+ if(!validImageScope(profile)||!hex64(sha256)||!(bytes instanceof Uint8Array)||bytes.length<64||bytes.length>700000)
   throw new Error('Érvénytelen Nutrition JPEG-kép');
  const path=imageFolder(profile)+'/'+sha256+'.jpg';
  await ensureImageFolder(profile);
@@ -112,5 +139,5 @@ async function getImage(profile,ref){
  return blob;
 }
 
-root.HH_NUTRITION_CLOUD_V626={connected,download,upload,putImage,getImage,checkImageRef,path:filePath,version:'641'};
+root.HH_NUTRITION_CLOUD_V626={connected,download,upload,downloadCategories,uploadCategories,putImage,getImage,checkImageRef,path:filePath,version:'644'};
 })(window);
