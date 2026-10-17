@@ -193,15 +193,19 @@ function render(){
  for(const k of ['protein','carbs','fat','fiber','vitc','b6','calcium','magnesium','potassium','omega3']){
    $(k).textContent=vals[k]==null?'—':fmt(vals[k],k==='b6'?2:1);
  }
+ // Keep the true day total separate from the current pitcher fill.
+ // Empty Jar is a visual pitcher reset; drink entries remain in the journal.
  let fluid=0, fluidFound=false;
  for(const e of entries)if(Number.isFinite(e.volumeMl)){fluid+=e.volumeMl;fluidFound=true}
- fluid=Math.max(0,fluid-dailyJarOffset(active,date));
- $('fluids').textContent=fluidFound?fmt(fluid,0):'—';
+ const fluidTotal=Math.max(0,fluid);
+ fluid=Math.max(0,fluidTotal-dailyJarOffset(active,date));
+ $('fluids').textContent=fluidFound?fmt(fluidTotal,0):'—';
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
  $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
- $('hhWaterAmount').textContent=fluidFound?fmt(fluid,0)+' ml':'';
+ $('hhWaterAmount').textContent=fluidFound?fmt(fluidTotal,0)+' ml':'— ml';
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
+ renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,date});
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
  const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.70;
  $('hhWaterLevel').style.height=fillHeight+'%';
@@ -247,6 +251,42 @@ function render(){
  }
  renderBody();renderInsights();
 }
+/* Time-proportional hydration display: informational only, not medical guidance.
+   Goal and visible totals remain specific to the active profile and diary date.
+   Never celebrate implausible stress-test totals as a healthy hydration pattern. */
+function renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,date}){
+ const panel=$('hhHydrationStatus'),planEl=$('hhHydrationPlan'),pill=$('hhHydrationPill'),note=$('hhHydrationNote');
+ if(!panel||!planEl||!pill||!note)return;
+ const currentDate=localDate(),isToday=date===currentDate,hasHistory=date<currentDate;
+ const now=new Date();
+ const minutes=now.getHours()*60+now.getMinutes();
+ const fraction=isToday?Math.max(0,Math.min(1,(minutes-420)/900)):(hasHistory?1:0);
+ const planned=validWaterGoal?Math.round(waterGoal*fraction):null;
+ const planLabel=panel.querySelector('[data-hh-hydration-plan-label]');
+ if(planLabel)planLabel.textContent=hasHistory?'Aznapra tervezett:':isToday?'Terv mostanra:':'Jövőbeli terv:';
+ planEl.textContent=planned===null?'—':fmt(planned,0)+' ml';
+ let rag='unknown',state='Célbeállítás szükséges',details='Az összehasonlításhoz állíts be személyes napi célt.';
+ if(validWaterGoal&&!fluidFound){state='Még nincs naplózott ital';details='Az aktuális bevitel még nem ismert.'}
+ else if(validWaterGoal&&date>currentDate){state='Jövőbeli nap';details='A terv–tény összevetés a választott napon indul.'}
+ else if(validWaterGoal&&fluidTotal>Math.max(5000,waterGoal*1.75)){
+   rag='warn';state='Kiugró adat · ellenőrizd';details='Az érték tesztbevitel vagy naplózási eltérés is lehet.';
+ }
+ else if(validWaterGoal&&planned===0){
+   state='A napi terv még nem indult';details='Időarányos kiindulás: 07:00.';
+ }
+ else if(validWaterGoal){
+   const ratio=fluidTotal/planned;
+   if(ratio>=1){rag='good';state='Tervhez képest elérve'}
+   else if(ratio>=0.75){rag='warn';state='Közel a tervhez'}
+   else{rag='bad';state='Terv alatt'}
+   details=hasHistory?'Napi cél szerinti összevetés.':'07:00–22:00 közötti, időarányos összevetés.';
+ }
+ panel.dataset.rag=rag;
+ pill.textContent=state;
+ note.textContent=details;
+ panel.setAttribute('aria-label','Napi folyadék: '+(fluidFound?fmt(fluidTotal,0)+' ml':'nincs adat')+'. '+(planned===null?'Nincs beállított terv.':'Tervezett '+fmt(planned,0)+' ml.')+' '+state+'. Nem orvosi folyadékajánlás.');
+}
+
 function renderBody(){
  const date=currentDay(),rows=read(active).body.filter(e=>e.date===date&&!e.deleted).sort((a,b)=>b.time.localeCompare(a.time));
  const view=$('bodyLog');view.replaceChildren();
