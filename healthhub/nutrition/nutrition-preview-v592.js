@@ -115,7 +115,7 @@ function setProfile(next,fromUi){
   try{root.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:next,source:'nutrition'}}))}catch(_){}
  }
  $('profileBtn').textContent=profileName(next)+' ⇄';
- $('morningLabel').textContent=fmt(read(next).presets.morning.sugarCubes,0)+' kockacukor · egyedi recept';
+ if($('morningLabel'))$('morningLabel').textContent=fmt(read(next).presets.morning.sugarCubes,0)+' kockacukor · egyedi recept';
  render();
  refreshActivity(next);syncProfile(next).catch(()=>{});
 }
@@ -170,7 +170,7 @@ function scheduleMidnightRollover(){
 function render(){
  const d=read(active),date=currentDay();
  $('todayLabel').textContent=date===localDate()?'Mai nap':date;
- $('morningLabel').textContent=fmt(d.presets.morning.sugarCubes,0)+' kockacukor · egyedi recept';
+ if($('morningLabel'))$('morningLabel').textContent=fmt(d.presets.morning.sugarCubes,0)+' kockacukor · egyedi recept';
  const entries=d.entries.filter(e=>!e.deleted&&e.date===date);
  const vals=sum(entries.map(x=>x.nutrients||{})),kcal=vals.kcal??0,goal=d.goal.kcal;
  $('ringKcal').textContent=fmt(kcal,0);
@@ -735,7 +735,7 @@ function events(){
 
  click('insight7',()=>{insightDays=7;renderInsights();tone('tap')});
  click('insight30',()=>{insightDays=30;renderInsights();tone('tap')});
- click('goalBtn',openGoal);click('morning',()=>openPreset('morning'));click('afternoon',()=>openPreset('afternoon'));
+ click('goalBtn',openGoal);if($('morning'))click('morning',()=>openPreset('morning'));if($('afternoon'))click('afternoon',()=>openPreset('afternoon'));
  click('editMorning',()=>openPreset('morning'));click('editAfternoon',()=>openPreset('afternoon'));
  click('addFood',()=>openEntry('food'));click('addDrink',()=>openEntry('drink'));
  click('waterQuick',logWater250);
