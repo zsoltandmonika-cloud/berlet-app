@@ -66,13 +66,14 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-body-left-buddy-v614.css?v=614">
 <link rel="stylesheet" href="./nutrition-mobile-compact-v615.css?v=615">
 <link rel="stylesheet" href="./nutrition-status-spacing-v616.css?v=616">
+<link rel="stylesheet" href="./nutrition-daily-date-v617.css?v=617">
 </head>
 <body>
 <main class="shell">
 <header class="top"><div class="controls"><button type="button" class="mini profile" id="profileBtn" title="Egyérintéses profilváltás">Zsolt ⇄</button></div></header>
 <section class="hero" id="nutritionApprovedHero"><div class="hero-copy"><span class="eyebrow">HEALTHHUB · YOUR DAILY FUEL</span><h1>Táplálkozz<br>jókedvvel!</h1><p>A megszokott Léna és a 3D chipmunk kísér végig a nap minden falatján és kortyán. ☕ 🍓</p></div><div class="hero-art"><img class="original-lena" src="./nutri-lena-photo-v594.webp" alt="A jóváhagyott Nutrition-látványtervből kivágott, cappuccinós, lifestyle Léna-portré" decoding="async"><img class="hh-hero-chip" src="./nutri-chipmunk-3d-v594.webp" alt="3D hatású mosolygós chipmunk" decoding="async"></div></section>
 <section class="glass balance hh-body" id="balanceCard" aria-label="Napi kalória összefoglaló">
- <div class="hh-body-heading"><div class="hh-body-title"><span class="label" id="balanceLabel">NAPI KALÓRIA ÖSSZEFOGLALÓ</span><span class="hh-body-name">HH Body</span></div><div class="hh-body-side"><button type="button" class="buddy" id="buddy" aria-label="HealthHub Buddy: érintsd meg"><img src="./nutri-chipmunk-3d-v594.webp" alt="Buddy mókus" decoding="async"></button><div class="buddy-caption" id="buddyNote">HH BUDDY 🐿️</div></div><div class="hh-body-message" id="balanceText">Az egyenleghez a napi teljes elégetett kalória szükséges.</div></div>
+ <div class="hh-body-heading"><div class="hh-body-title"><span class="label" id="balanceLabel">NAPI KALÓRIA ÖSSZEFOGLALÓ</span><span class="hh-body-name">HH Body</span><time class="hh-body-today" id="hhBodyTodayDate"></time></div><div class="hh-body-side"><button type="button" class="buddy" id="buddy" aria-label="HealthHub Buddy: érintsd meg"><img src="./nutri-chipmunk-3d-v594.webp" alt="Buddy mókus" decoding="async"></button><div class="buddy-caption" id="buddyNote">HH BUDDY 🐿️</div></div><div class="hh-body-message" id="balanceText">Az egyenleghez a napi teljes elégetett kalória szükséges.</div></div>
  <div class="hh-body-main">
   <div class="hh-body-dials">
    <div class="hh-body-dial"><div class="hh-body-circle intake"><span class="hh-dial-icon">🍴</span><strong id="ringKcal">0</strong><small>kcal</small></div><span>Napi bevitel</span></div>
@@ -135,6 +136,21 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
   var asset='./healthhub-nutrition-lena-buddy-approved.webp',image=new Image();
   image.onload=function(){var hero=document.getElementById('nutritionApprovedHero');if(hero)hero.classList.add('hh-nutrition-approved')};
   image.src=asset+'?v=595';
+})();
+</script>
+<script>
+(function(){
+ const node=document.getElementById('hhBodyTodayDate');
+ if(!node)return;
+ const show=()=>{
+  const now=new Date();
+  node.textContent=new Intl.DateTimeFormat('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(now);
+  node.dateTime=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+ };
+ show();
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)show()});
+ window.addEventListener('focus',show);
+ setInterval(show,60000);
 })();
 </script>
 </body></html>
