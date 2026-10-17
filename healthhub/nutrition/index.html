@@ -81,6 +81,27 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 .hh-food-choices button[aria-pressed="true"]{outline:2px solid var(--accent,#69b9ff);background:#294d77}
 .hh-food-choices .hh-empty{grid-column:1/-1;color:#bed5ed;padding:12px}
 @media(max-width:360px){.hh-food-choices{grid-template-columns:1fr}}
+</style>
+<style id="hh-net-balance-v625">
+/* Net kcal = intake minus total daily expenditure. Palette is sign-based, not goal-based. */
+#hhNetRing[data-net-status="negative"],#balanceCard[data-net-status="negative"]{--net-tone:#78ecb0}
+#hhNetRing[data-net-status="positive"],#balanceCard[data-net-status="positive"]{--net-tone:#ff7487}
+#hhNetRing[data-net-status="zero"],#balanceCard[data-net-status="zero"]{--net-tone:#ffc66e}
+#hhNetRing[data-net-status]:not(.pending){
+ --ring-b:var(--net-tone);--ring-glow:color-mix(in srgb,var(--net-tone) 40%,transparent);
+ border-color:var(--net-tone);
+ background:conic-gradient(from -60deg,color-mix(in srgb,var(--net-tone) 65%,#132640),var(--net-tone),color-mix(in srgb,var(--net-tone) 65%,#132640));
+ box-shadow:0 0 19px var(--ring-glow),inset 0 0 16px #0005;
+}
+#hhNetRing[data-net-status]:not(.pending) strong{color:var(--net-tone);text-shadow:0 1px 5px #0008}
+#hhNetRing[data-net-status]:not(.pending)+span{color:var(--net-tone)}
+#balanceCard[data-net-status]:not([data-net-status="unknown"]){
+ border-color:color-mix(in srgb,var(--net-tone) 52%,transparent);
+}
+#balanceCard[data-net-status]:not([data-net-status="unknown"]) .hh-body-target .bar>i{
+ background:linear-gradient(90deg,color-mix(in srgb,var(--net-tone) 72%,#174a6c),var(--net-tone));
+}
+@media(prefers-reduced-motion:reduce){#hhNetRing{transition:none}}
 </style></head>
 <body>
 <main class="shell">
@@ -138,7 +159,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <dialog id="bodyDialog"><form id="bodyForm" class="modal"><div class="modalhead"><h2 id="bodyTitle">Napi ritmus</h2><button type="button" class="mini" data-close="bodyDialog">✕</button></div><div class="fields"><div class="field"><label for="bodyTime">Időpont</label><input type="time" id="bodyTime" required></div><div class="field" id="bristolWrap"><label for="bristol">Bristol-skála (opcionális)</label><select id="bristol"><option value="">Nem jelölöm</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div><div class="field wide"><label for="bodyNote">Megjegyzés (opcionális)</label><input id="bodyNote" maxlength="180"></div></div><p id="bodyError" class="error" role="alert"></p><div class="modalactions"><button type="button" class="btn" data-close="bodyDialog">Mégse</button><button type="submit" class="btn primary">✓ Mentés</button></div></form></dialog>
 <script defer src="../live-v369-distance.js?v=369-calibrated"></script>
 <script defer src="../live-v363.js?v=624-1-direct-fix"></script>
-<script defer src="./nutrition-preview-v592.js?v=624-1-direct-fix"></script>
+<script defer src="./nutrition-preview-v592.js?v=625-balance-sign-colors"></script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
