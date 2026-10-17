@@ -1,0 +1,51 @@
+/* v614: approved mobile-first HH Body arrangement.
+   Larger Buddy on left; title atop mascot; goal/status top-right. */
+.hh-body.balance .hh-body-heading{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(118px,37%)!important;
+ grid-template-rows:auto auto!important;
+ column-gap:8px!important;row-gap:1px!important;
+ align-items:start!important;
+ min-height:0!important;margin-bottom:2px!important;
+}
+.hh-body.balance .hh-body-heading>.hh-body-title{
+ grid-column:1!important;grid-row:1!important;
+ align-self:start!important;justify-self:start!important;
+ margin:0!important;gap:3px!important;
+}
+.hh-body.balance .hh-body-heading>.hh-body-side{
+ grid-column:1!important;grid-row:2!important;
+ display:flex!important;align-items:flex-start!important;
+ justify-self:start!important;align-self:start!important;
+ transform:none!important;margin:-6px 0 -4px 0!important;
+}
+.hh-body.balance .hh-body-heading>.hh-body-side .buddy{
+ display:block!important;width:clamp(104px,27vw,158px)!important;
+ height:clamp(104px,27vw,158px)!important;max-width:none!important;
+ border:0!important;background:transparent!important;
+ box-shadow:none!important;padding:0!important;
+}
+.hh-body.balance .hh-body-heading>.hh-body-side .buddy img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ filter:drop-shadow(0 5px 8px rgba(0,0,0,.25));
+}
+.hh-body.balance .hh-body-heading>.hh-body-message{
+ grid-column:2!important;grid-row:1 / span 2!important;
+ align-self:start!important;justify-self:stretch!important;
+ display:block!important;position:relative!important;
+ width:100%!important;height:auto!important;min-height:0!important;
+ padding:8px 9px!important;margin:0!important;
+ line-height:1.32!important;font-size:clamp(10px,2.3vw,12px)!important;
+}
+.hh-body.balance .hh-body-main{margin-top:0!important}
+.hh-body.balance .hh-body-dials{margin-top:0!important}
+@media(max-width:430px){
+ .hh-body.balance .hh-body-heading{
+ grid-template-columns:minmax(0,1fr) minmax(118px,39%)!important;
+ gap:2px 5px!important;
+ }
+ .hh-body.balance .hh-body-heading>.hh-body-side .buddy{
+ width:clamp(110px,30vw,146px)!important;height:clamp(110px,30vw,146px)!important;
+ }
+ .hh-body.balance .hh-body-heading>.hh-body-message{padding:7px!important;font-size:10px!important}
+}
