@@ -6,7 +6,7 @@
 'use strict';
 const cloud=()=>root.HH_NUTRITION_CLOUD_V626;
 const hex64=s=>typeof s==='string'&&/^[0-9a-f]{64}$/.test(s);
-const valid=p=>p==='zsolt'||p==='monika';
+const valid=p=>p==='zsolt'||p==='monika'||p==='shared';
 const id=(p,h)=>p+'/'+h;
 let databasePromise=null;
 const live=new Map(),pending=new Map();
