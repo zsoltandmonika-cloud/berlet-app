@@ -27,7 +27,24 @@ function defaults(){
  const milk=p=>String(p.milkType||'').includes('lactose')?'laktózmentes tej':'tej';
  const caps=(p,af)=>str((p.milkMl||150)+' ml '+milk(p)+', '+(p.sugarCubes||0)+' kockacukor'+(af?', fahéjas cukor és babapiskóta':''),160);
  const food=(id,g)=>api.getFoodNutrients(id,g)||{kcal:0,protein:0,carbs:0,fat:0};
+ // Nine requested favorites (Nutrition v638). One tap is always one PRESET serving.
+ // Household and packaged-item nutrition values are provisional until personalized.
+ const macro=(kcal,protein,carbs,fat)=>({kcal,protein,carbs,fat});
+ const custom=(id,name,icon,theme,category,meal,description,ingredients,nutrients,sort,kind='food',volumeMl=null)=>{
+  const item=seed(id,name,icon,theme,category,meal,description,ingredients,nutrients,sort,kind);
+  item.volumeMl=volumeMl;item.estimateNotice=true;
+  return item;
+ };
  return [
+  custom('monika-smoothie','Mónika reggeli smoothie','🫐','smoothie','Italok','Reggeli','Bogyós gyümölcsös kedvenc · becsült érték','KIINDULÓ MINTA: erdei gyümölcsök és tej/joghurt, kb. 300 ml. Mónika tényleges receptjére és mennyiségeire a Stúdióban pontosítandó.',macro(185,6,31,4),1,'drink',300),
+  custom('espresso-macchiato','Espresso Macchiato','☕','coffee','Italok','Reggeli','Espresso egy kevés tejhabbal · becslés','1 espresso kb. 30 ml és kb. 20 ml tejhab; cukor nélkül. Ha cukrozott, szerkeszd a receptet.',macro(15,1,1.2,.6),2,'drink',50),
+  custom('cortado','Cortado','☕','coffee','Italok','Tízórai','Espresso selymes tejjel · becslés','Kb. 40 ml espresso és 60 ml tej; hozzáadott cukor nélkül.',macro(34,2.1,3,.9),3,'drink',100),
+  custom('monika-cappuccino','Mónika Cappuccino','☕','coffee','Italok','Reggeli','Laktózmentes tej és 1 kockacukor · induló minta','150 ml 1,5%-os laktózmentes tej, 1 kockacukor (4 g), espresso. Az adag az egyedi szokáshoz szerkeszthető.',macro(86,5.2,11.2,2.3),4,'drink',185),
+  custom('zsolt-cappuccino-plus','Zsolt Cappuccino+','☕','coffee','Italok','Reggeli','Zsolt kedvence · + változat, pontosítandó','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 3 db 4 g-os kockacukor. A + pontos összetételét a Stúdióban kell beállítani.',macro(118,5.2,19.2,2.3),5,'drink',185),
+  custom('cappuccino-plus','Cappuccino+','☕','coffee','Italok','Uzsonna','Személyre szabható pluszos cappuccino','INDULÓ MINTA: 150 ml 1,5%-os tej, espresso, 2 kockacukor. A + tényleges összetevői szerkeszthetők.',macro(102,5.2,15.2,2.3),6,'drink',185),
+  custom('belvita-forest','belVita Forest Fruits · 1 db','🍪','belvita','Édesség','Reggeli','1 db · 4 darabos csomagból · becsült kcal','1 darab belVita Breakfast Forest Fruits keksz, a 4 darabos adagcsomagból. Becsült tápérték, a csomagolás értéke alapján pontosítandó.',macro(55,1.1,8.3,1.9),7),
+  custom('cola-glass','Coca-Cola · 1 pohár','🥤','cola','Italok','Uzsonna','1 pohár · 250 ml · normál cukros','250 ml hagyományos (nem zero) Coca-Cola. ~42 kcal és ~10,6 g szénhidrát / 100 ml; szerkeszthető.',macro(105,0,26.5,0),8,'drink',250),
+  custom('hugo-sparkling','Hugo Sparkling Wine · 1 pohár','🥂','hugo','Italok','Vacsora','1 pohár · 200 ml · becsült érték','200 ml Hugo / Hugo Spritz jellegű pezsgős ital. Az alkohol- és cukortartalom márkánként, receptenként eltér; a tápérték becslés.',macro(150,0,16,0),9,'drink',200),
   seed('morning','Reggeli cappuccino','☕','coffee','Italok','Reggeli','A nap első kedvence',caps(morning,false),mNut,10,'drink'),
   seed('afternoon','Délutáni cappuccino + nasi','☕','sweet','Édesség','Uzsonna','Kávé, fahéj és ropogtatnivaló',caps(afternoon,true),aNut,20,'drink'),
   seed('evening','Esti cappuccino','☕','coffee','Italok','Vacsora','Nyugodt esti kávészünet','Induló minta: a reggeli cappuccino adagja, szabadon átírható',mNut,30,'drink'),
