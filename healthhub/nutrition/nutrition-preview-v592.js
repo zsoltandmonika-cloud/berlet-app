@@ -372,6 +372,12 @@ function renderInsights(){
  $('insightText').textContent=message;
 }
 function displayStatus(text,bad=false){$('syncStatus').textContent=text;$('syncStatus').style.color=bad?'#ffb0bf':'';}
+function reportNutritionSync(profile,state,message){
+ if(profile!==active)return;
+ try{root.dispatchEvent(new CustomEvent('healthhub:nutrition-sync-state',{
+  detail:{profile,state,message,at:stamp()}
+ }))}catch(_){}
+}
 
 /* Dropbox is the canonical Nutrition journal. Browser cache survives offline operation.
  * Never overwrite remote blindly: download + merge + conditional revision upload.
@@ -379,7 +385,10 @@ function displayStatus(text,bad=false){$('syncStatus').textContent=text;$('syncS
 const syncPending={};
 function queueSync(profile){
  syncPending[profile]=true;
- if(profile===active)displayStatus('⟳ Nutrition mentve helyben · felhőszinkron folyamatban');
+ if(profile===active){
+  displayStatus('◌ Nutrition mentve helyben · automatikus Dropbox-szinkron…');
+  reportNutritionSync(profile,'pending','Mentve helyben · szinkronra vár');
+ }
  if(syncTimers[profile])clearTimeout(syncTimers[profile]);
  syncTimers[profile]=setTimeout(()=>{
   delete syncTimers[profile];
@@ -390,13 +399,19 @@ async function syncProfile(profile){
  if(!['zsolt','monika'].includes(profile))return false;
  const api=window.HH_NUTRITION_CLOUD_V626;
  if(!api||!api.connected()){
-  if(profile===active)displayStatus('○ Csak helyi mentés · Dropbox csatlakoztatása a HealthHubban');
+  if(profile===active){
+   displayStatus('○ Csak helyi mentés · Dropbox csatlakoztatása a HealthHubban');
+   reportNutritionSync(profile,'local','Csak helyben · Dropbox nincs csatlakoztatva');
+  }
   return false;
  }
  if(syncRunning[profile]){syncPending[profile]=true;return false;}
  if(syncTimers[profile]){clearTimeout(syncTimers[profile]);delete syncTimers[profile]}
  syncRunning[profile]=true;syncPending[profile]=false;
- if(profile===active)displayStatus('⟳ Nutrition Dropbox-szinkron…');
+ if(profile===active){
+  displayStatus('⟳ Nutrition Dropbox-szinkron…');
+  reportNutritionSync(profile,'syncing','Feltöltés a központi Dropboxba…');
+ }
  try{
   let saved=null,cloudData=null,attempt=0;
   for(;attempt<4;attempt++){
@@ -413,6 +428,7 @@ async function syncProfile(profile){
     if(profile===active){
      render();
      displayStatus(syncPending[profile]?'⟳ Új bejegyzések mentése folyamatban':'✓ Dropbox Nutrition · szinkronizálva');
+     reportNutritionSync(profile,syncPending[profile]?'pending':'synced',syncPending[profile]?'Új mentés feltöltése folyamatban':'✓ Szinkron kész · minden eszközön elérhető');
     }
     try{window.dispatchEvent(new CustomEvent('healthhub:nutrition-updated',{
      detail:{profile:profile,updatedAt:stamp(),source:'nutrition-cloud',synced:!syncPending[profile]}
@@ -425,7 +441,11 @@ async function syncProfile(profile){
   }
   throw new Error('Több eszköz egyidejű mentése miatt a szinkron nem fejeződött be');
  }catch(error){
-  if(profile===active)displayStatus('⚠ Helyi mentés megmaradt · Dropbox: '+String(error&&error.message||'nem elérhető').slice(0,105),true);
+  if(profile===active){
+   const reason=String(error&&error.message||'nem elérhető').slice(0,105);
+   displayStatus('⚠ Helyi mentés megmaradt · Dropbox: '+reason,true);
+   reportNutritionSync(profile,'error','⚠ Nem szinkronizált · '+reason);
+  }
   return false;
  }finally{
   syncRunning[profile]=false;
@@ -778,6 +798,7 @@ function events(){
 root.HH_NUTRITION_QUICK_API={
  getProfile:()=>active,
  getData:()=>clone(read(active)),
+ syncNow:()=>syncProfile(active),
  getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
  getFoodNutrients:(id,grams)=>{const f=foodBy(id);return f?clone(calc(f.per,grams)):null},
  reorderRecipes:ids=>{
