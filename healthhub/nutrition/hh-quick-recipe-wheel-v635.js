@@ -229,7 +229,7 @@ function showEditor(recipeId,create=false){
  $('hhQuickEditOrder').value=Number(q.order)||10;
  $('hhQuickEditArchived').checked=!!q.archived;
  $('hhQuickEditPhoto').value='';
- $('hhQuickEditStatus').textContent=photoData?'Saját kép csatolva. Képcseréhez válassz másikat.':'Az új kép opcionális; minden recepthez jár egységes glassy illusztráció.';
+ $('hhQuickEditStatus').textContent=photoData?'Saját kép csatolva. Képcseréhez válassz másikat.':(editing.imageRef?'☁️ Receptkép a privát központi Dropbox képtárban. Más eszközökön is megjelenhet.':'Az új kép opcionális; minden recepthez jár egységes glassy illusztráció.');
  $('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
  const list=document.createDocumentFragment();
  const createBtn=document.createElement('button');createBtn.type='button';createBtn.textContent='＋ Új recept';createBtn.addEventListener('click',()=>showEditor(null,true));list.append(createBtn);
@@ -281,7 +281,7 @@ async function compressImage(file){
 async function onPhoto(e){
  const file=e.target.files?.[0];if(!file)return;
  $('hhQuickEditStatus').textContent='Kép optimalizálása…';
- try{photoData=await compressImage(file);photoRemoved=false;$('hhQuickEditStatus').textContent='✓ Fotó csatolva ('+Math.round(photoData.length*0.75/1024)+' KB). A recept mentésekor kerül a privát tárhelyre.'}
+ try{photoData=await compressImage(file);photoRemoved=false;$('hhQuickEditStatus').textContent='✓ Fotó csatolva ('+Math.round(photoData.length*0.75/1024)+' KB). Mentéskor a központi Dropbox képtárba kerül (ha csatlakozik a Dropbox).'}
  catch(err){$('hhQuickEditStatus').textContent='Képhiba: '+err.message}
 }
 async function saveEdit(e){
@@ -327,9 +327,9 @@ async function saveEdit(e){
   activeId=q.id;editing=q;photoData=q.image||'';photoRemoved=false;
   $('hhQuickEditStatus').textContent='✓ Recept mentve és felhőszinkronra jelölve.'+imageWarning;
   tick(true);
-  if(!q.archived){shell.dataset.mode='wheel';showWheel(q.id)}
+  if(imageWarning){shell.dataset.mode='edit';setTimeout(migrateLegacyPhotos,4000);}
+  else if(!q.archived){shell.dataset.mode='wheel';showWheel(q.id)}
   else showEditor(q.id);
-  if(imageWarning)setTimeout(migrateLegacyPhotos,4000);
  }catch(err){$('hhQuickEditStatus').textContent='Mentési hiba: '+(err?.message||'ismeretlen hiba')}
  finally{editSaving=false;submit.disabled=false}
 }
