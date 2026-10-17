@@ -127,3 +127,5 @@
 .hh-quick-art[data-theme="hugo"]{background:radial-gradient(ellipse at 35% 75%,#cae9a98a,transparent 50%),radial-gradient(ellipse at 80% 20%,#96e4d554,transparent 40%),linear-gradient(140deg,#183b44,#345045,#15283d)}
 .hh-quick-art[data-theme="belvita"]{background:radial-gradient(ellipse at 69% 75%,#b58c5188,transparent 52%),radial-gradient(ellipse at 23% 20%,#be77b454,transparent 45%),linear-gradient(145deg,#302c46,#4b323f,#17273b)}
 @media(max-width:420px){.hh-quick-portal{gap:10px}.hh-quick-portal-preview{min-height:170px}.hh-quick-portal-grid .hh-quick-field{padding:11px}.hh-quick-portal-hero{padding:11px}}
+
+.hh-quick-index{font-size:12px;font-weight:850;letter-spacing:.08em;color:#bedfff;line-height:1.7}
