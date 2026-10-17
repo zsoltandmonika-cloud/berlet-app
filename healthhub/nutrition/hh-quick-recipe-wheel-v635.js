@@ -297,6 +297,100 @@ function saveEdit(e){
   else showEditor(q.id);
  }catch(err){$('hhQuickEditStatus').textContent='Mentési hiba: '+err.message}
 }
+/* Léna Image Studio: existing Puter AI provider, loaded on demand. */
+let portalPhotoData='',portalBusy=false,puterLoad=null;
+function imagePromptFor(q,customText,visionText){
+ const title=str($('hhQuickEditName').value||q.name,80),ingredients=str($('hhQuickEditIngredients').value||q.ingredients,1200);
+ const id=q.id||'',lower=title.toLowerCase();
+ let focus='';
+ if(id.includes('smoothie')||lower.includes('smoothie'))focus='Tall premium transparent smoothie glass filled with vivid berry smoothie, piled with fresh blueberries, raspberries, blackberries and strawberries on the table and gently floating around, beautiful pink-lilac reflections, photorealistic fresh fruit and berry textures.';
+ else if(id.includes('cola')||lower.includes('cola'))focus='A single tall crystal-clear glass of chilled classic cola with dark caramel-brown bubbly drink, ice cubes, realistic condensation droplets, dramatic side lighting and rich cola bubbles. No product branding.';
+ else if(id.includes('hugo')||lower.includes('hugo'))focus='One elegant Hugo Spritz sparkling-wine cocktail glass with pale golden sparkling liquid, ice, fresh mint leaves, lime slices, delicate elderflower flowers, beautiful realistic bubbles, elegant European aperitivo.';
+ else if(id.includes('belvita')||lower.includes('belvita'))focus='Close-up premium photo of several golden oat breakfast biscuits with a delicious rustic grain texture, blueberries, blackberries and raspberries scattered elegantly, without package or invented logos.';
+ else if(lower.includes('cortado'))focus='A small transparent espresso glass with a short rich cortado, perfectly visible coffee-and-milk layers and delicate crema, elegant dark wood and warm light.';
+ else if(lower.includes('macchiato'))focus='A tiny porcelain espresso cup filled with an espresso macchiato, strong caramel crema crowned by a little white milk foam, editorial coffee photograph.';
+ else if(lower.includes('cappuccino'))focus='One exquisite real cappuccino in a premium glass mug with rich coffee, ivory milk foam, fine latte-art rosette, optional light cinnamon dust, warm inviting coffee styling.';
+ else focus='A delicious authentic depiction of '+title+', correctly sized single portion, appetizing realistic textures and appropriate elegant table props.';
+ return [
+  'Generate a SINGLE finished photorealistic food/drink hero photograph for a premium European mobile nutrition app card. Absolutely not a UI screenshot or mock-up.',
+  'Subject: '+title+'. Ingredients: '+ingredients+'.',
+  focus,
+  visionText?'Visual reference inspected by image analysis: '+visionText.slice(0,750):'',
+  customText?'Additional art direction: '+str(customText,350):'',
+  'UNIFIED GYORSNASI ART STYLE: sophisticated dark midnight navy and polished black-glass background, cinematic glossy food editorial photography, delicately luminous blue edge reflections with subtle warm bronze highlights, gentle rim lighting, photorealistic food texture, luxurious restaurant studio quality, shallow depth of field, expertly composed hero still life. For pink berry smoothie, add refined magenta/berry hues within the same midnight navy palette.',
+  'Vertical 4:5 image, one centered large featured drink/food with breathing room around edges for crop, crisp high quality realistic photographic lighting. NO TEXT, NO LABELS, NO BRANDS, NO LOGOS, NO WORDMARKS, NO WATERMARK, NO FRAME, NO PHONE, NO BUTTONS, NO ILLUSTRATION, NO PEOPLE, NO HANDS.'
+ ].filter(Boolean).join(' ');
+}
+async function loadPuter(){
+ if(window.puter?.ai?.txt2img)return window.puter;
+ if(puterLoad)return puterLoad;
+ puterLoad=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');script.src='https://js.puter.com/v2/';script.async=true;
+  script.onload=()=>window.puter?.ai?.txt2img?resolve(window.puter):reject(Error('Az AI-képgenerátor nem töltődött be.'));
+  script.onerror=()=>reject(Error('A Puter AI nem érhető el. Ellenőrizd az internetkapcsolatot.'));
+  document.head.append(script);
+ }).catch(e=>{puterLoad=null;throw e});
+ return puterLoad;
+}
+function showPortal(){
+ if(!editing)return;
+ portalPhotoData='';$('hhQuickPortalReference').value='';$('hhQuickPortalPrompt').value='';
+ $('hhQuickPortalPreview').removeAttribute('src');$('hhQuickPortalPreview').hidden=true;
+ $('hhQuickPortalEmpty').hidden=false;$('hhQuickUseImage').disabled=true;
+ $('hhQuickPortalStatus').textContent='Képgenerálás: '+str($('hhQuickEditName').value||editing.name,80)+'. A forrásfotó opcionális.';
+ shell.dataset.mode='portal';
+}
+async function describeReference(ai,file){
+ if(!file)return '';
+ if(file.size>8*1024*1024)throw Error('A forráskép legfeljebb 8 MB lehet.');
+ const instruction='Describe ONLY visible food, drinks, composition, product form, color, packaging design and likely visual ingredients in this image in short, accurate English. Do not make up hidden facts, nutritional values, proprietary logos or product identity. Max 120 words. This description will be used to generate a photorealistic food product scene.';
+ if(!ai.ai.chat)throw Error('A forrásfotó elemzése ehhez a Puter-fiókhoz nem elérhető. Próbáld fotó nélkül.');
+ let response;
+ try{response=await ai.ai.chat(instruction,file,false,{model:'gpt-5.6-luna',normalize:true,verbosity:'low'})}
+ catch(_){response=await ai.ai.chat(instruction,file,false,{normalize:true})}
+ let message=response?.message?.content||response;
+ if(Array.isArray(message))message=message.map(x=>x?.text||String(x||'')).join(' ');
+ if(message&&typeof message==='object')message=message.text||JSON.stringify(message);
+ return str(message,800);
+}
+async function generatePortalImage(){
+ if(portalBusy||!editing)return;
+ portalBusy=true;$('hhQuickGenerateImage').disabled=true;$('hhQuickUseImage').disabled=true;
+ $('hhQuickPortalStatus').textContent='Kapcsolódás a képgenerátorhoz…';
+ try{
+  const ai=await loadPuter(),file=$('hhQuickPortalReference').files?.[0]||null;
+  let vision='';
+  if(file){$('hhQuickPortalStatus').textContent='Forráskép elemzése…';vision=await describeReference(ai,file)}
+  $('hhQuickPortalStatus').textContent='Léna komponálja a prémium GyorsNasi képet…';
+  const prompt=imagePromptFor(editing,$('hhQuickPortalPrompt').value,vision);
+  let image;
+  try{image=await ai.ai.txt2img(prompt,{model:'gpt-image-2',ratio:{w:4,h:5},quality:'high'})}
+  catch(first){
+   const info=String(first?.message||first?.code||'').toLowerCase();
+   if(/popup_blocked|auth_window_closed|unauthorized|auth_required|insufficient_funds|moderation/.test(info))throw first;
+   image=await ai.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:4,h:5},quality:'1K'});
+  }
+  const src=image?.src||image?.url||(typeof image==='string'?image:'');
+  if(!src||!/^data:image\/|^https?:\/\/|^blob:/.test(src))throw Error('A generátor nem adott használható képet.');
+  const response=await fetch(src);
+  if(!response.ok)throw Error('A generált kép nem tölthető le.');
+  const blob=await response.blob();
+  if(!blob.type.startsWith('image/'))throw Error('Nem megfelelő képformátumot kaptunk.');
+  portalPhotoData=await compressImage(blob);
+  $('hhQuickPortalPreview').src=portalPhotoData;
+  $('hhQuickPortalPreview').hidden=false;$('hhQuickPortalEmpty').hidden=true;
+  $('hhQuickUseImage').disabled=false;
+  $('hhQuickPortalStatus').textContent='✓ Elkészült a GyorsNasi kép! A „Kép használata” gombbal teheted a recepthez.';
+ }catch(e){
+  $('hhQuickPortalStatus').textContent='Képgenerálási hiba: '+(e?.message||'ismeretlen hiba')+'. A saját fotó feltöltése továbbra is működik.';
+ }finally{portalBusy=false;$('hhQuickGenerateImage').disabled=false}
+}
+function usePortalImage(){
+ if(!portalPhotoData)return;
+ photoData=portalPhotoData;
+ shell.dataset.mode='edit';
+ $('hhQuickEditStatus').textContent='✓ AI-kép hozzáadva. Nyomd meg a „Recept mentése” gombot a véglegesítéshez.';
+}
 rail.addEventListener('pointerdown',()=>{scrollUser=true;activateAudio()},{passive:true});
 rail.addEventListener('scroll',()=>{
  if(scrollTimer)clearTimeout(scrollTimer);
@@ -309,13 +403,17 @@ rail.addEventListener('scroll',()=>{
 },{passive:true});
 $('hhQuickLaunch').addEventListener('click',showDialog);
 $('hhQuickClose').addEventListener('click',hideDialog);
-$('hhQuickBack').addEventListener('click',()=>{shell.dataset.mode='wheel';showWheel(activeId)});
+$('hhQuickBack').addEventListener('click',()=>{if(shell.dataset.mode==='portal'){shell.dataset.mode='edit';return}shell.dataset.mode='wheel';showWheel(activeId)});
 $('hhQuickEdit').addEventListener('click',()=>showEditor(recipes[selection]?.id));
 $('hhQuickAdd').addEventListener('click',()=>showEditor(null,true));
 $('hhQuickRecord').addEventListener('click',recordSelected);
 $('hhQuickSuccessDone').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';hideDialog()});
 $('hhQuickAgain').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';showWheel(activeId)});
 $('hhQuickSound').addEventListener('click',()=>{const disabled=localStorage.getItem(keySound)==='off';localStorage.setItem(keySound,disabled?'on':'off');$('hhQuickSound').textContent=disabled?'♫':'🔇';if(disabled)tada()});
+$('hhQuickImagePortalOpen').addEventListener('click',showPortal);
+$('hhQuickPortalBack').addEventListener('click',()=>{shell.dataset.mode='edit'});
+$('hhQuickGenerateImage').addEventListener('click',generatePortalImage);
+$('hhQuickUseImage').addEventListener('click',usePortalImage);
 $('hhQuickEditPhoto').addEventListener('change',onPhoto);
 $('hhQuickRemovePhoto').addEventListener('click',()=>{photoData='';$('hhQuickEditStatus').textContent='A saját kép levéve, a glassy alapillusztráció jelenik meg.'});
 $('hhQuickEditorForm').addEventListener('submit',saveEdit);
