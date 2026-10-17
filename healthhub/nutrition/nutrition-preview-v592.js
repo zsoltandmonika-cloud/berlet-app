@@ -229,6 +229,22 @@ function render(){
   const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{if(confirm('Törlöd a bejegyzést?'))update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
   const actions=document.createElement('div');actions.className='controls';actions.style.justifyContent='flex-end';actions.append(edit,del);right.append(c,actions);line.append(left,right);log.append(line);
  });
+ // HH Buddy shows the net energy sign, not a medical verdict.
+ // Calorie deficit/surplus alone cannot determine whether a day is healthy.
+ const moodBox=$('hhBuddyMood');
+ if(moodBox){
+  const meta={
+   negative:{face:'happy',label:'Mínuszban vagyunk',desc:'A becsült energiafelhasználás meghaladja a rögzített bevitelt.'},
+   zero:{face:'regular',label:'Egyensúlyban',desc:'A megjelenített napi energiaegyenleg nulla.'},
+   positive:{face:'sad',label:'Napi többlet',desc:'A rögzített bevitel meghaladja a becsült energiafelhasználást.'},
+   unknown:{face:'unknown',label:'Adatokat várok',desc:'A napi teljes energiafelhasználás még nem áll rendelkezésre.'}
+  }[netStatus];
+  const contextText=$('balanceText').textContent;
+  moodBox.dataset.face=meta.face;
+  $('balanceText').textContent=meta.label;
+  moodBox.title=meta.desc+' '+contextText+' A hangulatjel a kalóriaegyenleget szemlélteti, nem egészségügyi minősítés.';
+  moodBox.setAttribute('aria-label','HH Buddy: '+meta.label+'. '+meta.desc);
+ }
  renderBody();renderInsights();
 }
 function renderBody(){
