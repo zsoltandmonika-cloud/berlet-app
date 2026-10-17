@@ -120,10 +120,12 @@ function logJar(profile,date,kind,ml){
 }
 function dailyJarOffset(profile,date){try{const x=JSON.parse(localStorage.getItem(JAR_KEY+profile+'-'+date)||'null');return Math.max(0,Number(x&&x.offset)||0)}catch(_){return 0}}
 function resetJar(){
+ // The button intentionally empties the pitcher without deleting food/drink records.
+ // Play an unobtrusive water-pour cue on the actual user click (respecting sound settings).
+ tone('water');
  const date=currentDay(),raw=read(active).entries.filter(e=>!e.deleted&&e.date===date&&Number.isFinite(e.volumeMl)).reduce((sum,e)=>sum+e.volumeMl,0);
- if(!confirm('Kiüríted a kancsót 0%-ra? Az ital- és étkezési naplóbejegyzések megmaradnak.'))return;
  localStorage.setItem(JAR_KEY+active+'-'+date,JSON.stringify({offset:raw,updatedAt:stamp()}));
- logJar(active,date,'Kézi Empty Jar',raw);render();
+ logJar(active,date,'Kézi Ürítés',raw);render();
 }
 let jarCalendarDay=null;
 function checkJarMidnight(){
@@ -391,6 +393,36 @@ function tone(type){
   if(!audio){const C=root.AudioContext||root.webkitAudioContext;if(!C)return;audio=new C();}
   if(audio.state==='suspended')audio.resume();
   const now=audio.currentTime;
+  if(type==='water'){
+   // Procedural soft water pour: brief filtered splash + three small bubble notes.
+   // Generated locally, with no media download or user audio data.
+   const duration=.48,frameCount=Math.ceil(audio.sampleRate*duration);
+   const buf=audio.createBuffer(1,frameCount,audio.sampleRate);
+   const samples=buf.getChannelData(0);
+   for(let i=0;i<frameCount;i++)samples[i]=Math.random()*2-1;
+   const stream=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+   stream.buffer=buf;filter.type='lowpass';
+   filter.frequency.setValueAtTime(2600,now);
+   filter.frequency.exponentialRampToValueAtTime(600,now+.44);
+   gain.gain.setValueAtTime(.0001,now);
+   gain.gain.exponentialRampToValueAtTime(.022,now+.055);
+   gain.gain.exponentialRampToValueAtTime(.010,now+.20);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+.47);
+   stream.connect(filter);filter.connect(gain);gain.connect(audio.destination);
+   stream.start(now);stream.stop(now+duration);
+   [[.075,540],[.16,430],[.255,355]].forEach(([offset,frequency])=>{
+    const bubble=audio.createOscillator(),level=audio.createGain(),at=now+offset;
+    bubble.type='sine';
+    bubble.frequency.setValueAtTime(frequency,at);
+    bubble.frequency.exponentialRampToValueAtTime(frequency*.57,at+.085);
+    level.gain.setValueAtTime(.0001,at);
+    level.gain.exponentialRampToValueAtTime(.012,at+.012);
+    level.gain.exponentialRampToValueAtTime(.0001,at+.1);
+    bubble.connect(level);level.connect(audio.destination);
+    bubble.start(at);bubble.stop(at+.105);
+   });
+   return;
+  }
   const notes=type==='success'?[[523,.11],[659,.18],[784,.24],[1047,.29]]:[[900,.04]];
   notes.forEach(([hz,dur],i)=>{const osc=audio.createOscillator(),g=audio.createGain();osc.type='sine';osc.frequency.value=hz;
    const at=now+i*(type==='success'?.075:0);g.gain.setValueAtTime(.0001,at);
