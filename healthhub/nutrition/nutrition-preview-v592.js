@@ -138,10 +138,18 @@ function render(){
  $('ringKcal').textContent=fmt(kcal,0);
  // Burned energy must be a real complete-day or day-to-date record from the correct profile.
  // Never infer it from steps, activity calories alone, or fake a zero.
- const burnt=window.hhNutritionDailyEnergy&&window.hhNutritionDailyEnergy.profile===active&&window.hhNutritionDailyEnergy.date===date&&window.hhNutritionDailyEnergy.kind==='total_burned_kcal'&&Number.isFinite(window.hhNutritionDailyEnergy.kcal)?window.hhNutritionDailyEnergy.kcal:null;
+ let energy=window.hhNutritionDailyEnergy;
+ if(!(energy&&energy.profile===active&&energy.date===date&&energy.kind==='total_burned_kcal'&&Number.isFinite(energy.kcal))){
+  try{
+   const cached=JSON.parse(localStorage.getItem('hh-activity-energy-v1-'+active+'-'+date)||'null');
+   const age=cached&&Date.now()-Date.parse(cached.calculatedAt);
+   energy=cached&&cached.estimate===true&&cached.profile===active&&cached.date===date&&cached.kind==='total_burned_kcal'&&Number.isFinite(cached.kcal)&&cached.kcal>=0&&Number.isFinite(age)&&age>=0&&age<21600000?cached:null;
+  }catch(_){energy=null}
+ }
+ const burnt=energy?energy.kcal:null;
  $('hhBurntKcal').textContent=burnt==null?'—':fmt(burnt,0);
  $('hhNetKcal').textContent=burnt==null?'—':(kcal-burnt>0?'+':'')+fmt(kcal-burnt,0);
- $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(window.hhNutritionDailyEnergy.source||'szinkronizált adat');
+ $('hhEnergyStatus').textContent=burnt==null?'Teljes napi energia: még nem kapcsolódott':'Napi teljes energiafelhasználás · '+(energy.estimate?'≈ becslés · ':'')+(energy.source||'szinkronizált adat');
  const netEl=$('hhNetRing');netEl.style.removeProperty('--energy-color');netEl.classList.toggle('pending',burnt==null||goal==null);
  if(burnt!=null&&goal!=null){
   const desired=burnt-goal; // intake target converted to balance target for this day
@@ -556,7 +564,7 @@ function events(){
  $('unitForm').addEventListener('submit',saveUnit);$('bodyForm').addEventListener('submit',saveBody);
  document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>$(btn.dataset.close).close()));
  $('logDate').addEventListener('change',()=>{if(!isDay($('logDate').value))$('logDate').value=localDate();render();refreshActivity(active)});
- window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active)render();});
+ window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active||(e.key&&e.key.startsWith('hh-activity-energy-v1-'+active+'-')))render();});
 }
 function start(){
  $('logDate').value=localDate();
