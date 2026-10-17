@@ -166,7 +166,11 @@ function render(){
  const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.70;
  $('hhWaterLevel').style.height=fillHeight+'%';
  const waterGauge=$('hhWaterGaugeFill');
- if(waterGauge)waterGauge.style.height=(waterPct==null?0:Math.min(100,waterPct))+'%';
+ if(waterGauge){
+  const fraction=waterPct==null?0:Math.min(100,waterPct)/100;
+  waterGauge.style.transform='scaleY('+fraction+')';
+  waterGauge.parentElement.setAttribute('aria-label',waterPct==null?'Napi folyadékcél még nincs beállítva':'Napi folyadékcél: '+waterPct+'%');
+ }
  $('hhWaterLevel').dataset.empty=fillHeight===0?'true':'false';
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
