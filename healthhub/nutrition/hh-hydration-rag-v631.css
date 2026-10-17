@@ -265,3 +265,57 @@
  cursor:default!important;
  opacity:1!important;
 }
+
+/* Nutrition v634: compact status tile, right/top edge anchored in the same grid slot.
+   Width follows the measured number, not an oversized fixed-width glass panel. */
+#balanceCard .hh-hydration-side{
+ align-items:flex-end!important;
+}
+#balanceCard #hhHydrationStatus.hh-hydration-status{
+ width:fit-content!important;
+ max-width:100%!important;
+ min-width:0!important;
+ align-self:flex-end!important;
+ padding:6px 8px!important;
+ gap:2px!important;
+ border-radius:12px!important;
+ margin:0!important;
+}
+#balanceCard #hhHydrationStatus .hh-hydration-eyebrow{
+ font-size:9px!important;
+ line-height:1.12!important;
+ white-space:nowrap!important;
+}
+#balanceCard #hhHydrationStatus .hh-hydration-plan{
+ font-size:9px!important;
+ line-height:1.15!important;
+ white-space:nowrap!important;
+}
+#balanceCard #hhHydrationStatus button#hhWaterAmount{
+ width:100%!important;
+ min-height:31px!important;
+ padding:1px 0!important;
+ font-size:clamp(18px,5.4vw,24px)!important;
+ line-height:1.1!important;
+ white-space:nowrap!important;
+}
+@media(max-width:430px){
+ #balanceCard #hhHydrationStatus.hh-hydration-status{padding:5px 6px!important}
+ #balanceCard #hhHydrationStatus button#hhWaterAmount{
+  min-height:29px!important;
+  font-size:clamp(17px,5.3vw,22px)!important;
+ }
+}
+/* Expose the existing photographic water-level tube; JS changes scaleY. */
+#balanceCard .hh-hydration-side .hh-pitcher .hh-water-gauge{
+ display:block!important;
+ opacity:1!important;
+ visibility:visible!important;
+}
+#balanceCard .hh-hydration-side .hh-pitcher .hh-water-gauge-fill{
+ display:block!important;
+ opacity:1!important;
+ visibility:visible!important;
+ transform-origin:bottom center!important;
+ background:linear-gradient(to top,#0374e9,#36dafe,#8dfcff)!important;
+}
