@@ -71,5 +71,46 @@ async function upload(profile,data,rev){
  const response=await request('files/upload',arg,JSON.stringify(data));
  return await response.json();
 }
-root.HH_NUTRITION_CLOUD_V626={connected,download,upload,path:filePath,version:'626'};
+
+/* Image vault v641: immutable private JPEG assets, referenced by sha256.
+ * The API uses the existing Dropbox token; no new OAuth scope or public URLs.
+ */
+const imageFolder=profile=>'/HealthHub/profiles/'+profile+'-nutrition-images';
+const hex64=s=>typeof s==='string'&&/^[a-f0-9]{64}$/.test(s);
+function checkImageRef(profile,ref){
+ if(!valid(profile)||!ref||!hex64(ref.sha256)||ref.path!==imageFolder(profile)+'/'+ref.sha256+'.jpg')throw new Error('Érvénytelen vagy idegen profilhoz tartozó képhivatkozás');
+ return ref.path;
+}
+async function ensureImageFolder(profile){
+ const path=imageFolder(profile);
+ try{await request('files/create_folder_v2',{path,autorename:false})}
+ catch(e){
+  if(e.status!==409)throw e;
+  const meta=await(await request('files/get_metadata',{path,include_deleted:false})).json();
+  if(meta['.tag']!=='folder')throw new Error('A Nutrition képtár útvonala nem mappa');
+ }
+}
+async function putImage(profile,bytes,sha256){
+ if(!valid(profile)||!hex64(sha256)||!(bytes instanceof Uint8Array)||bytes.length<64||bytes.length>700000)
+  throw new Error('Érvénytelen Nutrition JPEG-kép');
+ const path=imageFolder(profile)+'/'+sha256+'.jpg';
+ await ensureImageFolder(profile);
+ try{
+  await request('files/upload',{path,mode:'add',autorename:false,mute:true,strict_conflict:true},bytes);
+ }catch(e){
+  if(e.status!==409)throw e;
+  const meta=await(await request('files/get_metadata',{path,include_deleted:false})).json();
+  if(meta['.tag']!=='file'||Number(meta.size)!==bytes.length)throw e;
+ }
+ return {v:1,path,sha256,mime:'image/jpeg'};
+}
+async function getImage(profile,ref){
+ const path=checkImageRef(profile,ref);
+ const response=await request('files/download',{path});
+ const blob=await response.blob();
+ if(blob.size<=0||blob.size>4000000)throw new Error('A Nutrition-kép túl nagy vagy üres');
+ return blob;
+}
+
+root.HH_NUTRITION_CLOUD_V626={connected,download,upload,putImage,getImage,checkImageRef,path:filePath,version:'641'};
 })(window);
