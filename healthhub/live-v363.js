@@ -189,42 +189,109 @@ async function render(profile,cache){
 
 // Nutrition may be opened directly, without ever visiting the Activity page.
 // Read the same locally imported Health Connect records, without writing to source stores.
+// Direct Nutrition bridge: same canonical Dropbox HC export as Activity, plus local offline cache.
+async function nutritionDownload(path){
+ var vault=window.HH_DROPBOX_VAULT;
+ if(vault&&vault.connected&&vault.connected()&&typeof vault.downloadJson==='function'){
+  try{return await vault.downloadJson(path)}catch(e){if(e&&e.status===409)return null;throw e}
+ }
+ var token;
+ try{token=JSON.parse(localStorage.getItem('hh-dropbox-token-v2')||'null')}catch(_){token=null}
+ if(!token||!token.refresh_token)return null;
+ if(!token.access_token||Number(token.expires_at)<=Date.now()+60000){
+  var refresh=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',
+   headers:{'Content-Type':'application/x-www-form-urlencoded'},
+   body:new URLSearchParams({refresh_token:token.refresh_token,grant_type:'refresh_token',client_id:'t68rmhh5f1l8d85'})});
+  if(!refresh.ok)throw Error('Dropbox-hitelesítés frissítése szükséges');
+  var t=await refresh.json();if(!t.access_token)throw Error('Dropbox-hitelesítés hiányzik');
+  token.access_token=t.access_token;token.expires_at=Date.now()+((Number(t.expires_in)||14400)-60)*1000;
+  localStorage.setItem('hh-dropbox-token-v2',JSON.stringify(token));
+ }
+ var r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',
+  headers:{Authorization:'Bearer '+token.access_token,'Dropbox-API-Arg':JSON.stringify({path:path})}});
+ if(r.status===409)return null;
+ if(!r.ok)throw Error('Dropbox HC letöltési hiba ('+r.status+')');
+ return await r.json();
+}
+function nutritionSnapshotRows(doc,profile,requestedDate){
+ var out={daily:[],sessions:[],measurements:[],profile:{}};
+ if(!doc||String(doc.profile||'').toLowerCase()!==profile)return out;
+ function fromBundle(bundle,at){
+  var records=bundle&&bundle.records||{};
+  (Array.isArray(records.dailyActivity)?records.dailyActivity:[]).forEach(function(x){
+   if(x&&x.date===requestedDate)out.daily.push(Object.assign({},x,{_nutritionSourceAt:at||bundle.exportedAt||''}));
+  });
+  if(Array.isArray(records.exerciseSessions))out.sessions.push.apply(out.sessions,records.exerciseSessions);
+ }
+ if(doc.records)fromBundle(doc,doc.exportedAt);
+ if(Array.isArray(doc.bridgeImports))doc.bridgeImports.forEach(function(imp){
+  if(imp&&imp.profile===profile&&imp.bundle)fromBundle(imp.bundle,imp.importedAt);
+ });
+ if(Array.isArray(doc.bridgeActivity))doc.bridgeActivity.forEach(function(x){
+  if(x&&x.profile===profile&&x.date===requestedDate)out.daily.push(Object.assign({},x,{_nutritionSourceAt:x.updatedAt||x.measuredAt||''}));
+ });
+ if(Array.isArray(doc.measurements))out.measurements=doc.measurements.filter(function(x){return x&&x.profile===profile});
+ if(doc.legacyProfile&&typeof doc.legacyProfile==='object')out.profile=doc.legacyProfile;
+ return out;
+}
 async function estimateForNutrition(profile,requestedDate){
- if(!['zsolt','monika'].includes(profile))return null;
- var db=await readDb(profile);
- var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(profile);
- var core=Object.assign({},ctx&&ctx.profileCore||{},db&&db.profile||{});
- var weight=bestWeight(db&&db.measurements,ctx);
- var rows=[],sessions=[];
+ if(!['zsolt','monika'].includes(profile)||!/^\d{4}-\d{2}-\d{2}$/.test(requestedDate))return {error:'Hibás profil vagy dátum'};
+ var local=await readDb(profile),cachedContext=null;
+ try{cachedContext=window.hhGetLenaHealthContext289?window.hhGetLenaHealthContext289(profile):
+  JSON.parse(localStorage.getItem('hh-lena-context-v289-'+profile)||'null')}catch(_){}
+ var rows=[],sessions=[],remoteProfile={},remoteMeasures=[],status='';
+ // Start from the same daily Activity cache that the main module uses.
  try{
   var conn=await new Promise(function(resolve){
    var q=indexedDB.open('healthhub-connect-v1',3);
-   q.onerror=function(){resolve(null)};
-   q.onupgradeneeded=function(){};
-   q.onsuccess=function(){var idb=q.result;
-    if(!idb.objectStoreNames.contains('imports')||!idb.objectStoreNames.contains('activity')){idb.close();resolve(null);return}
-    var tx=idb.transaction(['imports','activity'],'readonly'),a=tx.objectStore('activity').getAll(),i=tx.objectStore('imports').getAll();
-    tx.oncomplete=function(){idb.close();resolve({activities:a.result||[],imports:i.result||[]})};
-    tx.onerror=function(){idb.close();resolve(null)};
+   q.onerror=function(){resolve(null)};q.onupgradeneeded=function(){};
+   q.onsuccess=function(){var db=q.result;
+    if(!db.objectStoreNames.contains('imports')||!db.objectStoreNames.contains('activity')){db.close();resolve(null);return}
+    var tx=db.transaction(['imports','activity'],'readonly');
+    var a=tx.objectStore('activity').getAll(),i=tx.objectStore('imports').getAll();
+    tx.oncomplete=function(){db.close();resolve({activities:a.result||[],imports:i.result||[]})};
+    tx.onerror=function(){db.close();resolve(null)};
    };
   });
   if(conn){
-   conn.activities.filter(function(x){return x&&x.profile===profile&&x.date===requestedDate}).forEach(function(x){rows.push(x)});
-   conn.imports.filter(function(x){return x&&x.profile===profile&&x.bundle}).forEach(function(imp){
-    var records=imp.bundle.records||{};
-    (records.dailyActivity||[]).filter(function(x){return x&&x.date===requestedDate}).forEach(function(x){rows.push(x)});
-    (records.exerciseSessions||[]).forEach(function(x){sessions.push(x)});
+   conn.activities.forEach(function(x){if(x&&x.profile===profile&&x.date===requestedDate)
+    rows.push(Object.assign({},x,{_nutritionSourceAt:x.updatedAt||x.measuredAt||''}))});
+   conn.imports.forEach(function(x){
+    if(x&&x.profile===profile&&x.bundle){
+     var part=nutritionSnapshotRows(Object.assign({profile:profile},x.bundle),profile,requestedDate);
+     rows.push.apply(rows,part.daily);sessions.push.apply(sessions,part.sessions);
+    }
    });
   }
  }catch(_){}
- // Prefer the latest timestamped source; never combine daily totals across imports.
- rows.sort(function(a,b){return (Date.parse(b.updatedAt||b._hhBundleAt||b.importedAt||0)||0)-(Date.parse(a.updatedAt||a._hhBundleAt||a.importedAt||0)||0)});
- if(!rows.length)return null;
- var computed=calculate(profile,{daily:[rows[0]],sessions:sessions},core,weight);
- if(computed.error||computed.date!==requestedDate||!computed.hasActivity||!Number.isFinite(computed.total)||computed.total<=0)return null;
- return {profile:profile,date:requestedDate,kind:'total_burned_kcal',kcal:Math.round(computed.total),
-  source:'HealthHub Activity Calorie Engine · becslés',estimated:true,updatedAt:new Date().toISOString(),
-  confidence:computed.confidence};
+ // Refresh from Dropbox even if the Activity page has never been opened.
+ try{
+  var cloud=await nutritionDownload('/HealthHub/profiles/'+profile+'-health-connect.json');
+  if(!cloud)cloud=await nutritionDownload('/incoming-'+profile+'.json');
+  if(cloud){
+   var canonical=nutritionSnapshotRows(cloud,profile,requestedDate);
+   rows.push.apply(rows,canonical.daily);sessions.push.apply(sessions,canonical.sessions);
+  }
+  var vault=await nutritionDownload('/HealthHub/profiles/'+profile+'-vault.json');
+  if(vault){
+   var privateData=nutritionSnapshotRows(vault,profile,requestedDate);
+   rows.push.apply(rows,privateData.daily);sessions.push.apply(sessions,privateData.sessions);
+   remoteMeasures=privateData.measurements;remoteProfile=privateData.profile;
+  }
+ }catch(_){status='A Dropbox nem érhető el; helyi Activity-adatok használata'}
+ var weight=bestWeight([...(local&&local.measurements||[]),...remoteMeasures],cachedContext);
+ var core=Object.assign({},remoteProfile,cachedContext&&cachedContext.profileCore||{},local&&local.profile||{});
+ if(!rows.length)return {error:status||'A kiválasztott naphoz nem érhető el Health Connect aktivitásadat'};
+ // An imported historical row must not override a more recently exported, profile-scoped daily record.
+ rows.sort(function(a,b){return (Date.parse(b._nutritionSourceAt||b.updatedAt||0)||0)-
+  (Date.parse(a._nutritionSourceAt||a.updatedAt||0)||0)});
+ var c=calculate(profile,{daily:[rows[0]],sessions:sessions},core,weight);
+ if(c.error)return {error:c.error};
+ if(c.date!==requestedDate||!c.hasActivity||!Number.isFinite(c.total)||c.total<=0)
+  return {error:'A nap teljes energiafelhasználása nem számítható megbízhatóan'};
+ return {profile:profile,date:requestedDate,kind:'total_burned_kcal',
+  kcal:Math.round(c.total),source:'HealthHub Activity Calorie Engine · becslés',
+  updatedAt:new Date().toISOString(),estimated:true,confidence:c.confidence,warnings:c.warnings};
 }
-window.HH_CALORIE_ENGINE_V363={render:render,estimate:calculate,estimateForNutrition:estimateForNutrition,version:'623'};
+window.HH_CALORIE_ENGINE_V363={render:render,estimate:calculate,estimateForNutrition:estimateForNutrition,version:'624'};
 })();
