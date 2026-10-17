@@ -1,0 +1,4 @@
+/* v616: small visual separation between green status card and calorie rings. */
+.hh-body.balance .hh-body-heading{margin-bottom:11px!important}
+.hh-body.balance .hh-body-dials{margin-top:5px!important}
+@media(max-width:430px){.hh-body.balance .hh-body-heading{margin-bottom:9px!important}.hh-body.balance .hh-body-dials{margin-top:4px!important}}
