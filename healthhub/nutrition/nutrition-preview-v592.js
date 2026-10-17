@@ -54,7 +54,7 @@ function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
- return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
+ return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
 }
 function normalize(x,profile){
  let d=fresh(profile);
@@ -65,7 +65,7 @@ function normalize(x,profile){
  if(hydrationReset&&isDay(hydrationReset.date)&&Number.isFinite(Number(hydrationReset.offsetMl))&&Number(hydrationReset.offsetMl)>=0&&Number(hydrationReset.offsetMl)<=1e9&&typeof hydrationReset.updatedAt==='string'&&Number.isFinite(Date.parse(hydrationReset.updatedAt))){
   d.hydrationCounterReset={date:hydrationReset.date,offsetMl:Number(hydrationReset.offsetMl),updatedAt:hydrationReset.updatedAt};
  }
- ['entries','body','catalog','units'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
+ ['entries','body','catalog','units','quickRecipes'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
    const q=x.presets[key];const base=d.presets[key];d.presets[key]={...base,...q,updatedAt:q.updatedAt||base.updatedAt};
@@ -88,7 +88,7 @@ function mergeRows(a,b){
 }
 function merge(local,remote,profile){
  let l=normalize(local,profile),r=normalize(remote,profile),o=normalize(l,profile);
- for(const key of ['entries','body','catalog','units'])o[key]=mergeRows(l[key],r[key]);
+ for(const key of ['entries','body','catalog','units','quickRecipes'])o[key]=mergeRows(l[key],r[key]);
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
  // The most recently committed profile-scoped visual reset wins, without touching entries.
@@ -771,6 +771,35 @@ function events(){
  $('logDate').addEventListener('change',()=>{if(!isDay($('logDate').value))$('logDate').value=localDate();render();refreshActivity(active)});
  window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'||e.key==='hh-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active)render();});
 }
+/* Quick Recipe Wheel beta: canonical profile-scoped recipe storage and diary writes. */
+root.HH_NUTRITION_QUICK_API={
+ getProfile:()=>active,
+ getData:()=>clone(read(active)),
+ getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
+ getFoodNutrients:(id,grams)=>{const f=foodBy(id);return f?clone(calc(f.per,grams)):null},
+ saveRecipe:recipe=>{
+  if(!recipe||typeof recipe.id!=='string'||!/^quick:[a-z0-9_-]{1,80}$/i.test(recipe.id))throw Error('Érvénytelen receptazonosító');
+  const name=String(recipe.name||'').trim(),kcal=Number(recipe.nutrients&&recipe.nutrients.kcal);
+  if(name.length<2||name.length>80||!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen név vagy kalória');
+  const now=stamp(),row={...clone(recipe),name,updatedAt:now};
+  update(d=>{const idx=d.quickRecipes.findIndex(q=>q.id===row.id);if(idx>=0)d.quickRecipes[idx]=row;else d.quickRecipes.push(row)});
+ },
+ recordRecipe:recipe=>{
+  if(!recipe||typeof recipe.name!=='string'||!recipe.nutrients)throw Error('Hiányzó receptadat');
+  const kcal=Number(recipe.nutrients.kcal);if(!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen recept kalória');
+  const now=stamp(),time=localTime(),nut={};
+  for(const key of metrics){const x=recipe.nutrients[key];nut[key]=x==null?null:Number(x);if(nut[key]!=null&&(!Number.isFinite(nut[key])||nut[key]<0))throw Error('Érvénytelen tápérték');}
+  const rec={id:uid(),createdAt:now,updatedAt:now,date:localDate(),time,
+   meal:ENTRIES.includes(recipe.meal)?recipe.meal:mealForTime(time),
+   kind:recipe.kind==='drink'?'drink':'food',foodId:'quick:'+recipe.id,
+   name:String(recipe.name).slice(0,80),icon:String(recipe.icon||'🍽️').slice(0,8),
+   quantityText:'1 előre beállított adag',volumeMl:null,nutrients:nut,
+   source:'estimated',quickRecipeId:recipe.id,quickRecipeSnapshot:{name:recipe.name,ingredients:String(recipe.ingredients||'').slice(0,2000)}};
+  update(d=>d.entries.push(rec));
+  return {name:rec.name,kcal,profile:active,date:rec.date};
+ },
+ refresh:()=>render()
+};
 function start(){
  $('logDate').value=localDate();
  events();setProfile(pkey(),false);
