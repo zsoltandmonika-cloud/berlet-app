@@ -16,6 +16,23 @@ const safeNum=(v,maximum)=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&n
 const str=(v,max=100)=>String(v==null?'':v).trim().slice(0,max);
 const iconFallback=k=>({'Italok':'☕','Gyümölcs':'🍎','Reggeli':'🥣','Édesség':'🍪','Főételek':'🥗'}[k]||'🍽️');
 const dateNow=()=>new Date().toISOString();
+const cloudState=$('hhQuickCloudState'),cloudEditorState=$('hhQuickCloudEditStatus'),cloudManual=$('hhQuickCloudManual');
+let lastCloudState='pending';
+function showCloudState(state,message){
+ lastCloudState=state;
+ for(const el of [cloudState,cloudEditorState]){
+  if(!el)continue;
+  el.dataset.state=state;
+  el.textContent=message;
+ }
+ if(cloudManual)cloudManual.disabled=state==='syncing';
+}
+function cloudReady(){return !!window.HH_NUTRITION_CLOUD_V626?.connected()}
+function resetCloudState(){
+ if(cloudReady())showCloudState('pending','☁️ Dropbox csatlakoztatva · szinkron ellenőrzése…');
+ else showCloudState('local','◌ Mentve helyben · Dropbox nincs csatlakoztatva');
+}
+
 const seed=(id,name,icon,theme,category,meal,description,ingredients,nutrients,sort,kind='food')=>({
  id:'quick:'+id,name,icon,theme,category,meal,description,ingredients,
  nutrients:{...nutrients},order:sort,kind,archived:false,image:'',updatedAt:'1970-01-01T00:00:00Z'
@@ -462,6 +479,22 @@ window.addEventListener('healthhub:nutrition-updated',event=>{
  if(dlg.open&&shell.dataset.mode==='wheel'&&!busy)showWheel(activeId);
  setTimeout(migrateLegacyPhotos,800);
 });
+window.addEventListener('healthhub:nutrition-sync-state',event=>{
+ const detail=event.detail||{};
+ if(detail.profile!==api.getProfile())return;
+ showCloudState(detail.state||'pending',String(detail.message||'Szinkron állapotának ellenőrzése…').slice(0,150));
+});
+cloudManual?.addEventListener('click',async()=>{
+ if(lastCloudState==='syncing')return;
+ showCloudState('syncing','⟳ Szinkronizálás és frissítések ellenőrzése…');
+ try{
+  const complete=await api.syncNow();
+  if(complete)showCloudState('synced','✓ Szinkron kész · központi Dropbox-mentés ellenőrizve');
+  else if(!cloudReady())showCloudState('local','◌ Mentve helyben · Dropbox nincs csatlakoztatva');
+  // Any server-side error is reported by the core's sync state event.
+ }catch(error){showCloudState('error','⚠ Szinkronhiba: '+String(error?.message||'ismeretlen hiba').slice(0,110))}
+});
+resetCloudState();
 window.addEventListener('online',()=>setTimeout(migrateLegacyPhotos,2500));
 setTimeout(migrateLegacyPhotos,4500);
 
@@ -492,6 +525,6 @@ $('hhQuickEditPhoto').addEventListener('change',onPhoto);
 $('hhQuickRemovePhoto').addEventListener('click',()=>{photoData='';photoRemoved=true;$('hhQuickEditStatus').textContent='A saját kép levéve, a glassy alapillusztráció jelenik meg.'});
 $('hhQuickEditorForm').addEventListener('submit',saveEdit);
 dlg.addEventListener('cancel',e=>{if($('hhQuickSuccess').dataset.open==='true'){e.preventDefault();$('hhQuickSuccess').dataset.open='false'}});
-window.addEventListener('healthhub:profile-changed',()=>{if(dlg.open){$('hhQuickProfile').textContent=api.getProfile()==='monika'?'Mónika receptjei':'Zsolt receptjei';shell.dataset.mode='wheel';showWheel() }});
-const profileBtn=$('profileBtn');if(profileBtn)profileBtn.addEventListener('click',()=>{if(dlg.open)setTimeout(()=>{shell.dataset.mode='wheel';showWheel()},0)});
+window.addEventListener('healthhub:profile-changed',()=>{resetCloudState();if(dlg.open){$('hhQuickProfile').textContent=api.getProfile()==='monika'?'Mónika receptjei':'Zsolt receptjei';shell.dataset.mode='wheel';showWheel() }});
+const profileBtn=$('profileBtn');if(profileBtn)profileBtn.addEventListener('click',()=>{resetCloudState();if(dlg.open)setTimeout(()=>{shell.dataset.mode='wheel';showWheel()},0)});
 })();
