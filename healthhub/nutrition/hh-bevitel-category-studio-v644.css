@@ -52,3 +52,13 @@
 #hhCategoryStudio[data-kind="tile"] .hh-category-preview{height:clamp(155px,31vh,235px)}
 #hhCategoryStudio[data-kind="tile"] .hh-category-body>label:first-child{margin-bottom:2px}
 @media(max-width:400px){.hh-bevitel-main-edit{margin-left:0}}
+
+/* v645 · Bevitel title is a real touch target, with pencil always pinned right. */
+.hh-bevitel-header{position:relative;padding-right:99px;min-height:48px}
+.hh-bevitel-header h2{margin:0}
+#hhBevitelHeaderTap{appearance:none;border:0;display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:3px 2px;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:left;cursor:pointer;border-radius:12px;-webkit-tap-highlight-color:transparent}
+#hhBevitelHeaderTap:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#hhBevitelHeaderTap:active{transform:scale(.985)}
+.hh-bevitel-header-pen{font-size:15px;line-height:1;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 64%,transparent);background:var(--accentWash);border-radius:8px;padding:5px;box-shadow:0 0 8px var(--accentWash)}
+.hh-bevitel-header .hh-bevitel-main-edit{position:absolute;top:4px;right:0;z-index:4;margin:0;min-height:40px}
+@media(max-width:540px){.hh-bevitel-header .muted{display:none}.hh-bevitel-header{padding-right:93px}.hh-bevitel-header #hhBevitelHeading{max-width:calc(100% - 2px)}}
