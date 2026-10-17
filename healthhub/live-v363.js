@@ -186,5 +186,45 @@ async function render(profile,cache){
   '<p>Alap: '+fmt(val.kg)+' kg, '+fmt(val.steps)+' lépés, '+val.km.toFixed(1)+' km. Modell: '+esc(val.model)+'. Adatminőség: '+esc(val.confidence)+(val.warnings.length?' ('+esc(val.warnings.join(', '))+')':'')+'.</p>';
 
 }
-window.HH_CALORIE_ENGINE_V363={render:render,estimate:calculate,version:'363'};
+
+// Nutrition may be opened directly, without ever visiting the Activity page.
+// Read the same locally imported Health Connect records, without writing to source stores.
+async function estimateForNutrition(profile,requestedDate){
+ if(!['zsolt','monika'].includes(profile))return null;
+ var db=await readDb(profile);
+ var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(profile);
+ var core=Object.assign({},ctx&&ctx.profileCore||{},db&&db.profile||{});
+ var weight=bestWeight(db&&db.measurements,ctx);
+ var rows=[],sessions=[];
+ try{
+  var conn=await new Promise(function(resolve){
+   var q=indexedDB.open('healthhub-connect-v1',3);
+   q.onerror=function(){resolve(null)};
+   q.onupgradeneeded=function(){};
+   q.onsuccess=function(){var idb=q.result;
+    if(!idb.objectStoreNames.contains('imports')||!idb.objectStoreNames.contains('activity')){idb.close();resolve(null);return}
+    var tx=idb.transaction(['imports','activity'],'readonly'),a=tx.objectStore('activity').getAll(),i=tx.objectStore('imports').getAll();
+    tx.oncomplete=function(){idb.close();resolve({activities:a.result||[],imports:i.result||[]})};
+    tx.onerror=function(){idb.close();resolve(null)};
+   };
+  });
+  if(conn){
+   conn.activities.filter(function(x){return x&&x.profile===profile&&x.date===requestedDate}).forEach(function(x){rows.push(x)});
+   conn.imports.filter(function(x){return x&&x.profile===profile&&x.bundle}).forEach(function(imp){
+    var records=imp.bundle.records||{};
+    (records.dailyActivity||[]).filter(function(x){return x&&x.date===requestedDate}).forEach(function(x){rows.push(x)});
+    (records.exerciseSessions||[]).forEach(function(x){sessions.push(x)});
+   });
+  }
+ }catch(_){}
+ // Prefer the latest timestamped source; never combine daily totals across imports.
+ rows.sort(function(a,b){return (Date.parse(b.updatedAt||b._hhBundleAt||b.importedAt||0)||0)-(Date.parse(a.updatedAt||a._hhBundleAt||a.importedAt||0)||0)});
+ if(!rows.length)return null;
+ var computed=calculate(profile,{daily:[rows[0]],sessions:sessions},core,weight);
+ if(computed.error||computed.date!==requestedDate||!computed.hasActivity||!Number.isFinite(computed.total)||computed.total<=0)return null;
+ return {profile:profile,date:requestedDate,kind:'total_burned_kcal',kcal:Math.round(computed.total),
+  source:'HealthHub Activity Calorie Engine · becslés',estimated:true,updatedAt:new Date().toISOString(),
+  confidence:computed.confidence};
+}
+window.HH_CALORIE_ENGINE_V363={render:render,estimate:calculate,estimateForNutrition:estimateForNutrition,version:'623'};
 })();
