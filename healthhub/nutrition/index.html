@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v646 · GyorsNasi</title>
+<title>HealthHub · Nutrition v647 · GyorsNasi</title>
 <link rel="preload" as="image" href="./healthhub-nutrition-lena-buddy-approved.webp" type="image/webp" fetchpriority="high">
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
@@ -108,7 +108,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=642-sync-status">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=644-shared-category-photos">
-<link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=646-static-edit-button">
+<link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=647-inline-editor">
 </head>
 <body>
 <main class="shell">
@@ -265,12 +265,12 @@ window.hhOpenBevitelEditor=function(scope){
  var info=document.getElementById('hhBevitelInfo');
  try{
   var editor=window.HH_BEVITEL_CATEGORY_V644;
-  if(!editor||typeof editor.openEditor!=='function')throw new Error('A kategóriaszerkesztő nem töltődött be.');
+  if(!editor||typeof editor.openEditor!=='function')throw new Error('A képstúdió indítási hibája: '+String(window.hhBevitelEditorStatus647||'a betöltés még folyamatban van'));
   editor.openEditor(scope==='tile'?'tile':undefined);
   if(info)info.hidden=true;
  }catch(error){
   if(info){
-   info.textContent='⚠ A Bevitel szerkesztője nem tudott megnyílni: '+String(error&&error.message||'ismeretlen hiba')+'. Próbáld újratölteni a Nutrition v646-ot.';
+   info.textContent='⚠ A Bevitel szerkesztője nem tudott megnyílni: '+String(error&&error.message||'ismeretlen hiba')+'. Kérlek, küldd el ezt a pontos hibaszöveget.';
    info.hidden=false;
    info.scrollIntoView({block:'nearest',behavior:'auto'});
   }
@@ -286,7 +286,549 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./nutrition-preview-v592.js?v=642-sync-status"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=642-sync-status"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=644-photo-category-hook"></script>
-<script defer src="./hh-bevitel-category-studio-v644.js?v=646-visible-editor-failsafe"></script>
+<script>
+/* HH Nutrition v647 · editor boot guaranteed by inline self-contained source.
+ * Local Dropbox cloud/image implementations are used only when their normal
+ * defer-loaded scripts fail; same APIs and paths, no change to diary.
+ */
+document.addEventListener('DOMContentLoaded',function(){
+ try{
+  if(!window.HH_NUTRITION_CLOUD_V626){
+/* HealthHub Nutrition Cloud v626: profile-scoped Dropbox App Folder sync.
+ * Existing HealthHub Dropbox OAuth token is reused, never sent to GitHub or logged.
+ * Conditional Dropbox revisions prevent blind overwrites when two devices sync.
+ */
+(function(root){
+'use strict';
+const TOKEN_KEY='hh-dropbox-token-v2', APP_KEY='t68rmhh5f1l8d85';
+const SCHEMA='healthhub.nutrition/1', API='https://api.dropboxapi.com/2/', CONTENT='https://content.dropboxapi.com/2/';
+const valid=p=>p==='zsolt'||p==='monika';
+const filePath=p=>'/HealthHub/profiles/'+p+'-nutrition.json';
+function parseToken(){try{return JSON.parse(localStorage.getItem(TOKEN_KEY)||'null')}catch(_){return null}}
+function connected(){const t=parseToken();return !!(t&&t.refresh_token)}
+async function token(){
+ const t=parseToken();
+ if(!t||!t.refresh_token)throw new Error('Dropbox nincs csatlakoztatva ebben a böngészőben');
+ if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
+ const r=await fetch('https://api.dropboxapi.com/oauth2/token',{
+  method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+  body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP_KEY})
+ });
+ if(!r.ok)throw new Error('Dropbox hitelesítés frissítése szükséges');
+ const json=await r.json();
+ if(!json.access_token)throw new Error('Hiányzó Dropbox hozzáférés');
+ t.access_token=json.access_token;t.expires_at=Date.now()+((Number(json.expires_in)||14400)-60)*1000;
+ localStorage.setItem(TOKEN_KEY,JSON.stringify(t));
+ return t.access_token;
+}
+async function request(endpoint,arg,expectedContent){
+ const access=await token();
+ const isDownload=endpoint==='files/download',isUpload=endpoint==='files/upload';
+ const headers={Authorization:'Bearer '+access};
+ if(isDownload||isUpload){
+  headers['Dropbox-API-Arg']=JSON.stringify(arg);
+  if(isUpload)headers['Content-Type']='application/octet-stream';
+ }else headers['Content-Type']='application/json';
+ const url=(isDownload||isUpload?CONTENT:API)+endpoint;
+ const options={method:'POST',headers:headers};
+ if(!isDownload)options.body=isUpload?expectedContent:JSON.stringify(arg);
+ const res=await fetch(url,options);
+ if(!res.ok){
+  let message='Dropbox '+endpoint+' HTTP '+res.status;
+  try{const j=await res.json();message=j.error_summary||message}catch(_){}
+  const e=new Error(message);e.status=res.status;throw e;
+ }
+ return res;
+}
+function missing(error){return error&&error.status===409&&String(error.message||'').includes('path/not_found')}
+async function download(profile){
+ if(!valid(profile))throw new Error('Érvénytelen Nutrition-profil');
+ const path=filePath(profile);
+ let meta;
+ try{meta=await(await request('files/get_metadata',{path:path,include_deleted:false})).json()}
+ catch(e){if(missing(e))return {data:null,rev:null};throw e}
+ const response=await request('files/download',{path:path});
+ const data=await response.json();
+ if(!data||data.schemaVersion!==SCHEMA||data.profileKey!==profile)
+  throw new Error('A Dropbox Nutrition-fájl profilja vagy verziója eltér; felülírás leállítva');
+ let rev=meta.rev;
+ try{
+  const header=response.headers.get('Dropbox-API-Result');
+  if(header)rev=JSON.parse(header).rev||rev;
+ }catch(_){}
+ if(!rev)throw new Error('Dropbox fájlverzió nem ellenőrizhető');
+ return {data:data,rev:rev};
+}
+async function upload(profile,data,rev){
+ if(!valid(profile)||!data||data.profileKey!==profile||data.schemaVersion!==SCHEMA)
+  throw new Error('Nutrition mentés elutasítva: profil / séma nem egyezik');
+ const arg={path:filePath(profile),mode:rev?{'.tag':'update',update:rev}:'add',
+  autorename:false,mute:true,strict_conflict:true};
+ const response=await request('files/upload',arg,JSON.stringify(data));
+ return await response.json();
+}
+
+/* Image vault v641: immutable private JPEG assets, referenced by sha256.
+ * The API uses the existing Dropbox token; no new OAuth scope or public URLs.
+ */
+const imageFolder=profile=>profile==='shared'?'/HealthHub/shared/nutrition-images':'/HealthHub/profiles/'+profile+'-nutrition-images';
+const validImageScope=p=>valid(p)||p==='shared';
+const catPath='/HealthHub/shared/nutrition-categories.json',catSchema='healthhub.nutrition.categories/1';
+async function ensureSharedFolder(){
+ const path='/HealthHub/shared';
+ try{await request('files/create_folder_v2',{path,autorename:false})}
+ catch(e){if(e.status!==409)throw e;const m=await(await request('files/get_metadata',{path})).json();if(m['.tag']!=='folder')throw Error('A közös tárhely nem mappa')}
+}
+async function downloadCategories(){
+ let meta;
+ try{meta=await(await request('files/get_metadata',{path:catPath})).json()}
+ catch(e){if(missing(e))return {data:null,rev:null};throw e}
+ const res=await request('files/download',{path:catPath});
+ const data=await res.json();
+ if(!data||data.schemaVersion!==catSchema||typeof data.categories!=='object'||Array.isArray(data.categories))throw Error('Nem megfelelő kategóriatár-séma: a felhőfájl változatlan maradt');
+ let rev=meta.rev;
+ try{rev=JSON.parse(res.headers.get('Dropbox-API-Result')||'{}').rev||rev}catch(_){}
+ if(!rev)throw Error('A kategóriatár verziója nem ellenőrizhető');
+ return {data,rev};
+}
+async function uploadCategories(data,rev){
+ if(!data||data.schemaVersion!==catSchema||!data.categories||Array.isArray(data.categories))throw Error('Hibás közös kategóriatár');
+ await ensureSharedFolder();
+ const mode=rev?{'.tag':'update',update:rev}:'add';
+ const res=await request('files/upload',{path:catPath,mode,autorename:false,mute:true,strict_conflict:true},JSON.stringify(data));
+ return await res.json();
+}
+const hex64=s=>typeof s==='string'&&/^[a-f0-9]{64}$/.test(s);
+function checkImageRef(profile,ref){
+ if(!validImageScope(profile)||!ref||!hex64(ref.sha256)||ref.path!==imageFolder(profile)+'/'+ref.sha256+'.jpg')throw new Error('Érvénytelen vagy idegen profilhoz tartozó képhivatkozás');
+ return ref.path;
+}
+async function ensureImageFolder(profile){
+ const path=imageFolder(profile);
+ if(profile==='shared')await ensureSharedFolder();
+ try{await request('files/create_folder_v2',{path,autorename:false})}
+ catch(e){
+  if(e.status!==409)throw e;
+  const meta=await(await request('files/get_metadata',{path,include_deleted:false})).json();
+  if(meta['.tag']!=='folder')throw new Error('A Nutrition képtár útvonala nem mappa');
+ }
+}
+async function putImage(profile,bytes,sha256){
+ if(!validImageScope(profile)||!hex64(sha256)||!(bytes instanceof Uint8Array)||bytes.length<64||bytes.length>700000)
+  throw new Error('Érvénytelen Nutrition JPEG-kép');
+ const path=imageFolder(profile)+'/'+sha256+'.jpg';
+ await ensureImageFolder(profile);
+ try{
+  await request('files/upload',{path,mode:'add',autorename:false,mute:true,strict_conflict:true},bytes);
+ }catch(e){
+  if(e.status!==409)throw e;
+  const meta=await(await request('files/get_metadata',{path,include_deleted:false})).json();
+  if(meta['.tag']!=='file'||Number(meta.size)!==bytes.length)throw e;
+ }
+ return {v:1,path,sha256,mime:'image/jpeg'};
+}
+async function getImage(profile,ref){
+ const path=checkImageRef(profile,ref);
+ const response=await request('files/download',{path});
+ const blob=await response.blob();
+ if(blob.size<=0||blob.size>4000000)throw new Error('A Nutrition-kép túl nagy vagy üres');
+ return blob;
+}
+
+root.HH_NUTRITION_CLOUD_V626={connected,download,upload,downloadCategories,uploadCategories,putImage,getImage,checkImageRef,path:filePath,version:'644'};
+})(window);
+
+  }
+  if(!window.HH_NUTRITION_IMAGE_V641){
+/* HealthHub Nutrition central image vault v641.
+ * Private content-addressed Dropbox JPEGs, separate from the diary JSON.
+ * Device cache is IndexedDB (not the source of truth); no public image URLs.
+ */
+(function(root){
+'use strict';
+const cloud=()=>root.HH_NUTRITION_CLOUD_V626;
+const hex64=s=>typeof s==='string'&&/^[0-9a-f]{64}$/.test(s);
+const valid=p=>p==='zsolt'||p==='monika'||p==='shared';
+const id=(p,h)=>p+'/'+h;
+let databasePromise=null;
+const live=new Map(),pending=new Map();
+function database(){
+ if(!root.indexedDB)return Promise.resolve(null);
+ if(databasePromise)return databasePromise;
+ databasePromise=new Promise((resolve)=>{
+  try{
+   const req=indexedDB.open('hh-nutrition-image-vault-v1',1);
+   req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains('photos'))db.createObjectStore('photos')};
+   req.onsuccess=()=>resolve(req.result);
+   req.onerror=()=>resolve(null);
+   req.onblocked=()=>resolve(null);
+  }catch(_){resolve(null)}
+ });
+ return databasePromise;
+}
+async function cacheGet(key){
+ const db=await database();if(!db)return null;
+ return new Promise(resolve=>{
+  try{const tx=db.transaction('photos','readonly'),q=tx.objectStore('photos').get(key);
+   q.onsuccess=()=>resolve(q.result instanceof Blob?q.result:null);
+   q.onerror=()=>resolve(null);
+  }catch(_){resolve(null)}
+ });
+}
+async function cachePut(key,blob){
+ const db=await database();if(!db)return false;
+ return new Promise(resolve=>{
+  try{const tx=db.transaction('photos','readwrite');
+   tx.objectStore('photos').put(blob,key);
+   tx.oncomplete=()=>resolve(true);tx.onerror=()=>resolve(false);tx.onabort=()=>resolve(false);
+  }catch(_){resolve(false)}
+ });
+}
+async function sha(bytes){
+ if(!root.crypto?.subtle?.digest)throw new Error('A böngésző nem támogatja a biztonságos képtárolást (HTTPS szükséges)');
+ const hash=await crypto.subtle.digest('SHA-256',bytes);
+ return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function fromDataURL(data){
+ if(typeof data!=='string'||!/^data:image\/jpeg;base64,[a-z0-9+/=]+$/i.test(data))throw new Error('A kép előbb JPEG formátumra optimalizálandó');
+ const bin=atob(data.slice('data:image/jpeg;base64,'.length));
+ if(bin.length<64||bin.length>700000)throw new Error('A kép túl nagy');
+ const bytes=new Uint8Array(bin.length);
+ for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ if(bytes[0]!==255||bytes[1]!==216||bytes[2]!==255)throw new Error('Érvénytelen JPEG-adatok');
+ return bytes;
+}
+function refValid(profile,ref){
+ try{cloud()?.checkImageRef(profile,ref);return true}catch(_){return false}
+}
+async function save(profile,dataURL){
+ if(!valid(profile)||!cloud()?.connected())throw new Error('A központi képtárhoz Dropbox-kapcsolat szükséges');
+ const bytes=fromDataURL(dataURL),hash=await sha(bytes);
+ const ref=await cloud().putImage(profile,bytes,hash);
+ const blob=new Blob([bytes],{type:'image/jpeg'});
+ await cachePut(id(profile,hash),blob);
+ if(!live.has(id(profile,hash)))live.set(id(profile,hash),URL.createObjectURL(blob));
+ return ref;
+}
+async function load(profile,ref){
+ if(!refValid(profile,ref))throw new Error('Érvénytelen profilhoz tartozó képhivatkozás');
+ const key=id(profile,ref.sha256);
+ if(live.has(key))return live.get(key);
+ if(pending.has(key))return pending.get(key);
+ const job=(async()=>{
+  let blob=await cacheGet(key);
+  if(!blob){
+   if(!cloud()?.connected())throw new Error('A képfájl offline nem található és a Dropbox nincs csatlakoztatva');
+   blob=await cloud().getImage(profile,ref);
+   const bytes=await blob.arrayBuffer();
+   if(await sha(bytes)!==ref.sha256)throw new Error('A képfájl ellenőrzőösszege nem egyezik; nem jeleníthető meg');
+   blob=new Blob([bytes],{type:'image/jpeg'});
+   await cachePut(key,blob);
+  }
+  const url=URL.createObjectURL(blob);
+  live.set(key,url);
+  return url;
+ })();
+ pending.set(key,job);
+ try{return await job}finally{pending.delete(key)}
+}
+root.HH_NUTRITION_IMAGE_V641={save,load,refValid,connected:()=>!!cloud()?.connected(),version:'641'};
+})(window);
+
+  }
+  if(!window.HH_BEVITEL_CATEGORY_V644){
+/* HealthHub Bevitel Category Studio v644.
+ * Shared (family) photo taxonomy; protected Dropbox metadata and immutable JPEG vault.
+ * Existing QuickNasi recipes remain separately profile-scoped.
+ */
+(function(root){
+'use strict';
+const $=id=>document.getElementById(id);
+if(!root.HH_NUTRITION_IMAGE_V641||!root.HH_NUTRITION_CLOUD_V626)return;
+const picker=root.HH_BEVITEL_PICKER_V643||{getCurrent:()=>({kind:'food',category:''}),getBaseCategories:()=>[]},vault=root.HH_NUTRITION_IMAGE_V641,cloud=root.HH_NUTRITION_CLOUD_V626;
+const KEY='hh-bevitel-category-studio-v644',SCHEMA='healthhub.nutrition.categories/1';
+const EMPTY=()=>({schemaVersion:SCHEMA,updatedAt:'1970-01-01T00:00:00Z',categories:{}});
+const now=()=>new Date().toISOString();
+const validKey=k=>typeof k==='string'&&/^(food|drink|tile)\|[^|]{1,90}$/.test(k);
+const key=(kind,category)=>kind+'|'+category;
+const validRef=r=>r===null||!r||vault.refValid('shared',r);
+const scrub=(input)=>{
+ const doc=EMPTY();
+ if(!input||input.schemaVersion!==SCHEMA||!input.categories||typeof input.categories!=='object')return doc;
+ for(const [k,x] of Object.entries(input.categories).slice(0,500)){
+  if(!validKey(k)||!x||typeof x!=='object'||!validRef(x.imageRef))continue;
+  doc.categories[k]={
+   displayName:typeof x.displayName==='string'?x.displayName.slice(0,60):'',
+   order:Number.isFinite(x.order)?Math.max(0,Math.min(9999,x.order)):1000,
+   archived:!!x.archived,imageRef:x.imageRef||null,
+   updatedAt:typeof x.updatedAt==='string'?x.updatedAt:'1970-01-01T00:00:00Z'
+  };
+ }
+ doc.updatedAt=typeof input.updatedAt==='string'?input.updatedAt:doc.updatedAt;
+ return doc;
+};
+function read(){try{return scrub(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(_){return EMPTY()}}
+function write(doc){const clean=scrub(doc);localStorage.setItem(KEY,JSON.stringify(clean));root.dispatchEvent(new CustomEvent('healthhub:bevitel-categories-updated',{detail:{source:'category-studio'}}))}
+function merge(a,b){
+ const out=EMPTY();a=scrub(a);b=scrub(b);
+ for(const k of new Set([...Object.keys(a.categories),...Object.keys(b.categories)])){
+  const x=a.categories[k],y=b.categories[k];
+  out.categories[k]=!x?y:!y?x:(String(y.updatedAt)>String(x.updatedAt)?y:x);
+ }
+ out.updatedAt=String(b.updatedAt)>String(a.updatedAt)?b.updatedAt:a.updatedAt;
+ return out;
+}
+function comparable(a,b){return JSON.stringify(scrub(a).categories)===JSON.stringify(scrub(b).categories)}
+let running=null,rerun=false,lastRemoteCheck=0;
+async function synchronize(push=false){
+ if(!cloud?.connected())return false;
+ if(running){await running;return push?synchronize(true):true}
+ running=(async()=>{
+  let remote,combined;
+  for(let attempts=0;attempts<4;attempts++){
+   remote=await cloud.downloadCategories();
+   const latest=read();
+   combined=remote.data?merge(latest,remote.data):latest;
+   if(!comparable(latest,combined))write(combined);
+   if(!push&&remote.data&&comparable(combined,remote.data)){
+    lastRemoteCheck=Date.now();return true;
+   }
+   if(!remote.data&&!Object.keys(combined.categories).length){lastRemoteCheck=Date.now();return true}
+   try{
+    await cloud.uploadCategories(combined,remote.rev);
+    const after=merge(read(),combined);
+    write(after);
+    if(!comparable(after,combined))rerun=true;
+    lastRemoteCheck=Date.now();return true;
+   }catch(err){if(err?.status===409&&attempts<3)continue;throw err}
+  }
+  return false;
+ })();
+ try{return await running}finally{
+  running=null;
+  if(rerun){rerun=false;setTimeout(()=>synchronize(true).catch(()=>{}),500)}
+ }
+}
+const status=(s)=>{if($('hhCategoryEditStatus'))$('hhCategoryEditStatus').textContent=s};
+function decorate(kind,list){
+ const data=read().categories;
+ return list.map((c,i)=>{
+  const row=data[key(kind,c.category||c.name)]||{};
+  return {...c,name:row.displayName||c.name,category:c.category||c.name,order:row.order===1000||row.order==null?1000+i:row.order,imageRef:row.imageRef||null,archived:row.archived||false,_baseline:i};
+ }).filter(c=>!c.archived).sort((a,b)=>(a.order-b.order)||(a._baseline-b._baseline));
+}
+function attachPhoto(kind,category,art){
+ const ref=read().categories[key(kind,category)]?.imageRef;
+ if(!ref||!vault.refValid('shared',ref))return;
+ vault.load('shared',ref).then(url=>{
+  if(!art.isConnected)return;
+  const img=document.createElement('img');img.className='hh-category-photo';img.alt='';img.loading='lazy';img.src=url;
+  img.onerror=()=>img.remove();art.append(img);
+ }).catch(()=>{});
+}
+const dialog=document.createElement('dialog');dialog.id='hhCategoryStudio';
+dialog.setAttribute('aria-label','Léna · Bevitel kategóriaszerkesztő');
+dialog.innerHTML=`<form id="hhCategoryStudioForm" class="hh-category-form">
+<header class="hh-category-head"><div><small>HEALTHHUB · LÉNA IMAGE STUDIO</small><h3>✏️ Kategóriák szerkesztése</h3><p>Közös Food Library · privát Dropbox képtár</p></div><button type="button" id="hhCategoryExit" aria-label="Bezárás">×</button></header>
+<div class="hh-category-body">
+<label>Kategória <select id="hhCategorySelect"></select></label>
+<div class="hh-category-preview"><img id="hhCategoryPreviewImg" alt="Kategória borítóképe" hidden><span id="hhCategoryPreviewFallback">🍽️</span></div>
+<div class="hh-category-row"><label>Megjelenített név<input id="hhCategoryName" maxlength="60" required></label><label>Sorrend<input id="hhCategoryOrder" type="number" min="0" max="9999" step="1" required></label></div>
+<div class="hh-category-row hh-category-image-actions"><label class="hh-category-upload">📸 Saját kép kiválasztása<input id="hhCategoryFile" type="file" accept="image/*"></label><button type="button" id="hhCategoryAI">✨ Léna AI-kép</button><button type="button" id="hhCategoryRemove">Kép törlése</button></div>
+<label class="hh-category-prompt-label">AI-kép ötlet (opcionális)<textarea id="hhCategoryPrompt" rows="2" maxlength="380" placeholder="Pl. friss zöldségek, mélykék fények"></textarea></label>
+<label class="hh-category-archive"><input type="checkbox" id="hhCategoryArchived"> Kategória elrejtése a választóból</label>
+<p id="hhCategoryEditStatus" role="status" aria-live="polite"></p>
+</div><footer class="hh-category-footer"><button type="button" id="hhCategoryCancel">Mégse</button><button type="submit" id="hhCategorySave">☁️ Mentés és szinkron</button></footer>
+</form>`;
+document.body.append(dialog);
+const header=$('hhBevitelPicker')?.querySelector('.hh-bevitel-picker-head');
+const editBtn=document.createElement('button');editBtn.type='button';editBtn.id='hhBevitelCategoryEdit';editBtn.className='hh-bevitel-category-edit';
+editBtn.textContent='✎ Képek';editBtn.title='Alkategóriák képeinek, nevének és sorrendjének szerkesztése';
+if(header)header.insertBefore(editBtn,$('hhBevitelPickerClose'));
+const tileDefs=[
+ {category:'food',name:'Étel',icon:'🍽️',id:'addFood'},
+ {category:'drink',name:'Ital',icon:'🥤',id:'addDrink'},
+ {category:'ai',name:'AI Bevitel',icon:'📷',id:'hhBevitelAI'},
+ {category:'cookbook',name:'Léna Cookbook',icon:'👩‍🍳',id:'hhBevitelCookbook'}
+];
+/* Main title and ✎ Képek are part of the HTML itself since v646.
+ * Keep the studio independent of the optional food category picker. */
+for(const t of tileDefs){const img=$(t.id)?.querySelector('.hh-bevitel-photo');if(img)img.dataset.defaultSrc=img.getAttribute('src')}
+function applyTiles(){
+ const saved=read().categories;
+ for(const t of tileDefs){
+  const img=$(t.id)?.querySelector('.hh-bevitel-photo');
+  if(!img)continue;
+  const ref=saved[key('tile',t.category)]?.imageRef;
+  if(!ref||!vault.refValid('shared',ref)){
+   const original=img.dataset.defaultSrc;
+   if(original&&img.getAttribute('src')!==original)img.src=original;
+   continue;
+  }
+  const hash=ref.sha256;
+  vault.load('shared',ref).then(url=>{
+   if(!img.isConnected||read().categories[key('tile',t.category)]?.imageRef?.sha256!==hash)return;
+   img.src=url;
+  }).catch(()=>{});
+ }
+}
+root.addEventListener('healthhub:bevitel-categories-updated',applyTiles);
+setTimeout(applyTiles,800);
+
+let kind='food',rows=[],current='',draft='',removed=false,saving=false,puterPromise=null;
+function currentBase(){
+ return rows.find(r=>r.category===current)||null;
+}
+function setPreview(src,icon){
+ const img=$('hhCategoryPreviewImg'),fallback=$('hhCategoryPreviewFallback');
+ fallback.textContent=icon||'🍽️';
+ if(src){img.src=src;img.hidden=false;fallback.hidden=true}
+ else{img.hidden=true;img.removeAttribute('src');fallback.hidden=false}
+}
+async function showOne(){
+ current=$('hhCategorySelect').value;
+ const base=currentBase();if(!base)return;
+ const isTile=kind==='tile';dialog.dataset.kind=kind;
+ draft='';removed=false;$('hhCategoryFile').value='';
+ const loadingCategory=current;
+ const data=read().categories[key(kind,current)]||{};
+ $('hhCategoryName').value=data.displayName||base.name;
+ $('hhCategoryOrder').value=Number.isFinite(data.order)?data.order:(rows.findIndex(r=>r.category===current)+1)*10;
+ $('hhCategoryArchived').checked=!!data.archived;
+ $('hhCategoryPrompt').value='';
+ const original=isTile?$(base.id)?.querySelector('.hh-bevitel-photo')?.dataset.defaultSrc:'';
+ setPreview(original||'',base.icon);
+ const ref=data.imageRef;
+ if(ref&&vault.refValid('shared',ref)){
+  try{const url=await vault.load('shared',ref);if($('hhCategorySelect').value===loadingCategory&&!draft&&!removed)setPreview(url,base.icon)}catch(e){status('⚠ A meglévő kép ezen az eszközön még nem érhető el.')}
+ }
+ status('A módosítás a közös családi képtárba kerül. Az ételadatok és a napló nem változnak.');
+}
+function open(override){
+ const state=picker.getCurrent();kind=override==='tile'?'tile':state.kind;
+ rows=kind==='tile'?tileDefs.map(t=>({...t})):picker.getBaseCategories();
+ const all=decorate(kind,rows);
+ rows=rows.sort((a,b)=>all.findIndex(x=>x.category===a.category)-all.findIndex(x=>x.category===b.category));
+ const sel=$('hhCategorySelect');sel.replaceChildren();
+ for(const r of rows){const o=new Option(r.name,r.category);sel.add(o)}
+ const chosen=kind!=='tile'&&state.category&&rows.some(r=>r.category===state.category)?state.category:rows[0]?.category;
+ if(!chosen){status('Nincs szerkeszthető kategória.');return}
+ sel.value=chosen;
+ dialog.showModal();showOne();
+}
+async function compress(file){
+ if(!file||!file.type.startsWith('image/'))throw Error('Csak fotó tölthető fel.');
+ if(file.size>9*1024*1024)throw Error('Legfeljebb 9 MB-os képet válassz.');
+ const url=URL.createObjectURL(file);
+ try{
+  const image=new Image();
+  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('A fotó nem nyitható meg'));image.src=url});
+  for(const max of [720,600,480,390]){
+   const f=Math.min(1,max/Math.max(image.naturalWidth,image.naturalHeight));
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*f));canvas.height=Math.max(1,Math.round(image.naturalHeight*f));
+   const ctx=canvas.getContext('2d');ctx.fillStyle='#10253b';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL('image/jpeg',max===720?.72:.60);
+   if(data.length<140000)return data;
+  }
+  throw Error('A kép nem optimalizálható; próbálj kisebbet.');
+ }finally{URL.revokeObjectURL(url)}
+}
+async function fileChanged(){
+ const file=$('hhCategoryFile').files?.[0];if(!file)return;
+ status('🖼️ Fotó optimalizálása…');
+ try{draft=await compress(file);removed=false;setPreview(draft,currentBase()?.icon);status('✓ Fotó kiválasztva. A „Mentés és szinkron” gombbal kerül Dropboxba.')}
+ catch(err){status('⚠ Képhiba: '+err.message)}
+}
+function loadPuter(){
+ if(root.puter?.ai?.txt2img)return Promise.resolve(root.puter);
+ if(puterPromise)return puterPromise;
+ puterPromise=new Promise((resolve,reject)=>{
+  const existing=[...document.scripts].find(x=>x.src?.includes('js.puter.com/v2/'));
+  if(existing){let n=0;const test=()=>{if(root.puter?.ai?.txt2img)resolve(root.puter);else if(++n>60)reject(Error('Az AI szolgáltatás nem töltődött be.'));else setTimeout(test,200)};test();return}
+  const script=document.createElement('script');script.src='https://js.puter.com/v2/';script.async=true;
+  script.onload=()=>root.puter?.ai?.txt2img?resolve(root.puter):reject(Error('A képgenerátor nem válaszol.'));
+  script.onerror=()=>reject(Error('Nem érhető el a Puter AI.'));document.head.append(script);
+ }).catch(e=>{puterPromise=null;throw e});
+ return puterPromise;
+}
+async function generate(){
+ if(saving)return;
+ const btn=$('hhCategoryAI');btn.disabled=true;status('✨ Léna készíti a kategóriaképet…');
+ try{
+  const puter=await loadPuter();
+  const name=$('hhCategoryName').value.trim().slice(0,60);
+  const extra=$('hhCategoryPrompt').value.trim().slice(0,380);
+  const prompt='Create one high-quality photorealistic editorial food/beverage category cover photograph, square 1:1, for the category "'+name+'". Beautiful appetizing relevant arrangement, dark rich navy midnight-blue background, refined dramatic soft studio food lighting, fine blue and subtle pink highlights, crisp premium restaurant photography, elegant and friendly. No text, typography, watermark, brand logos or UI. '+extra;
+  let result;
+  try{result=await puter.ai.txt2img(prompt,{model:'gpt-image-2',ratio:{w:1,h:1},quality:'high'})}
+  catch(err){
+   const msg=String(err?.message||err?.code||'').toLowerCase();
+   if(/auth|funds|popup|moderation|balance|credit/.test(msg))throw err;
+   result=await puter.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'});
+  }
+  const src=result?.src||result?.url||(typeof result==='string'?result:'');
+  if(!/^(data:image\/|https?:\/\/|blob:)/.test(src))throw Error('Nem jött vissza kép a szolgáltatótól.');
+  const res=await fetch(src);if(!res.ok)throw Error('A generált kép nem olvasható.');
+  draft=await compress(await res.blob());removed=false;setPreview(draft,currentBase()?.icon);
+  status('✓ Elkészült! A kép a „Mentés és szinkron” gombbal kerül a központi tárhelyre.');
+ }catch(err){status('⚠ Léna képgeneráló: '+String(err?.message||'hiba').slice(0,180)+'. Saját fotó továbbra is feltölthető.')}
+ finally{btn.disabled=false}
+}
+async function save(e){
+ e.preventDefault();
+ if(saving||!current)return;
+ if(!cloud.connected()){status('⚠ Dropbox nincs csatlakoztatva ebben a böngészőben. Az adatok biztonsága miatt a közös kategória mentése nem indult el.');return}
+ const name=$('hhCategoryName').value.trim(),num=Number($('hhCategoryOrder').value);
+ if(name.length<2||name.length>60||!Number.isInteger(num)||num<0||num>9999){status('Adj meg 2–60 karakteres nevet és 0–9999 közötti sorrendet.');return}
+ saving=true;$('hhCategorySave').disabled=true;
+ const cat=current,type=kind,prev=read().categories[key(type,cat)]||{};
+ let imageRef=prev.imageRef||null;
+ try{
+  if(removed)imageRef=null;
+  if(draft){status('☁️ Kép mentése a központi Dropbox-képtárba…');imageRef=await vault.save('shared',draft)}
+  const doc=read();
+  doc.categories[key(type,cat)]={displayName:type==='tile'?'':name,order:type==='tile'?1000:num,archived:type==='tile'?false:$('hhCategoryArchived').checked,imageRef,updatedAt:now()};
+  doc.updatedAt=now();write(doc);
+  status('☁️ Kategória mentése és felhőszinkron…');
+  await synchronize(true);
+  status('✓ Kategória és kép szinkronizálva a közös Dropboxba.');
+  draft='';removed=false;
+  setTimeout(()=>{if(dialog.open)dialog.close()},650);
+ }catch(err){status('⚠ A szerkesztés helyben megmaradt, de a szinkron nem sikerült: '+String(err?.message||'hiba').slice(0,150))}
+ finally{saving=false;$('hhCategorySave').disabled=false}
+}
+if(header)editBtn.addEventListener('click',()=>open());
+
+$('hhCategorySelect').addEventListener('change',showOne);
+$('hhCategoryFile').addEventListener('change',fileChanged);
+$('hhCategoryAI').addEventListener('click',generate);
+$('hhCategoryRemove').addEventListener('click',()=>{draft='';removed=true;setPreview('',currentBase()?.icon);status('A kép eltávolítását a Mentés és szinkron gomb véglegesíti.')});
+$('hhCategoryExit').addEventListener('click',()=>{if(!saving)dialog.close()});
+$('hhCategoryCancel').addEventListener('click',()=>{if(!saving)dialog.close()});
+$('hhCategoryStudioForm').addEventListener('submit',save);
+dialog.addEventListener('cancel',e=>{if(saving)e.preventDefault()});
+async function refresh(){
+ if(!cloud.connected())return;
+ try{await synchronize(false)}catch(err){console.warn('Bevitel kategóriafrissítés később:',String(err?.message||'hiba').slice(0,80))}
+}
+setTimeout(refresh,2200);
+root.addEventListener('focus',()=>{if(Date.now()-lastRemoteCheck>35000)refresh()});
+root.addEventListener('online',refresh);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>35000)refresh()});
+setInterval(()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>90000)refresh()},120000);
+root.HH_BEVITEL_CATEGORY_V644={decorate,attachPhoto,refresh,openEditor:open,version:'644'};
+})();
+
+  }
+  if(!window.HH_BEVITEL_CATEGORY_V644||typeof window.HH_BEVITEL_CATEGORY_V644.openEditor!=='function')
+   throw new Error('A képstúdió inicializálása nem sikerült.');
+  window.hhBevitelEditorStatus647='ready';
+ }catch(error){
+  window.hhBevitelEditorStatus647=String(error&&error.message||error);
+  console.error('HH Bevitel editor v647 boot failure:',error);
+ }
+});
+</script>
 <script>
 /* Only activate pitcher artwork when its file exists. */
 (function(){
