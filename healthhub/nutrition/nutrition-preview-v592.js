@@ -632,6 +632,7 @@ function savePresetEntry(e){
  }catch(e){$('presetError').textContent=e.message;}
 }
 function editEntry(row){
+ if(row.quickRecipeId){alert('Ez egy mentéskori recept-pillanatkép. A Quick Recipe Studio a jövőbeni bevitelt módosítja; a naplózott példány a napi naplóban megőrzött. Hibás bevitelt törölhetsz, majd újra rögzíthetsz.');return;}
  if(row.components){openPreset(row.foodId.endsWith('afternoon')?'afternoon':'morning',row);return;}
  openEntry(row.kind,row);
 }
@@ -788,10 +789,11 @@ root.HH_NUTRITION_QUICK_API={
   if(!recipe||typeof recipe.name!=='string'||!recipe.nutrients)throw Error('Hiányzó receptadat');
   const kcal=Number(recipe.nutrients.kcal);if(!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen recept kalória');
   const now=stamp(),time=localTime(),nut={};
+  if($('logDate'))$('logDate').value=localDate(); // Quick log always records and displays today's diary.
   for(const key of metrics){const x=recipe.nutrients[key];nut[key]=x==null?null:Number(x);if(nut[key]!=null&&(!Number.isFinite(nut[key])||nut[key]<0))throw Error('Érvénytelen tápérték');}
   const rec={id:uid(),createdAt:now,updatedAt:now,date:localDate(),time,
    meal:ENTRIES.includes(recipe.meal)?recipe.meal:mealForTime(time),
-   kind:recipe.kind==='drink'?'drink':'food',foodId:'quick:'+recipe.id,
+   kind:recipe.kind==='drink'?'drink':'food',foodId:recipe.id,
    name:String(recipe.name).slice(0,80),icon:String(recipe.icon||'🍽️').slice(0,8),
    quantityText:'1 előre beállított adag',volumeMl:null,nutrients:nut,
    source:'estimated',quickRecipeId:recipe.id,quickRecipeSnapshot:{name:recipe.name,ingredients:String(recipe.ingredients||'').slice(0,2000)}};
