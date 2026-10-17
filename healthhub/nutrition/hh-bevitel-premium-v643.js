@@ -72,6 +72,8 @@ function advance(){
  dialog.close();
  bypass=true;
  try{(kind==='drink'?drink:food).click();}finally{bypass=false}
+ entry.dataset.hhPickerMode='portion';
+ $('entryTitle').textContent=(kind==='drink'?'🥤 ':'🍽️ ')+picked.name+' · Adag';
  const target=Array.from(select.options).some(x=>x.value===picked.id);
  if(target){
   select.value=picked.id;
@@ -80,6 +82,7 @@ function advance(){
 }
 function open(kindNext,button){
  // Prime the existing canonical select, but avoid showing its modal.
+ delete entry.dataset.hhPickerMode;
  bypass=true;
  try{button.click();}finally{bypass=false}
  items=sourceItems();
@@ -110,6 +113,7 @@ rail.addEventListener('scroll',()=>{
  },55);
 },{passive:true});
 $('hhBevitelPickerClose').addEventListener('click',()=>dialog.close());
+entry.addEventListener('close',()=>{delete entry.dataset.hhPickerMode;});
 back.addEventListener('click',()=>{if(step==='categories')dialog.close();else{step='categories';render()}});
 next.addEventListener('click',advance);
 dialog.addEventListener('cancel',e=>{if(step==='foods'){e.preventDefault();step='categories';render()}});
