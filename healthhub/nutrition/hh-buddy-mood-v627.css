@@ -1,0 +1,40 @@
+/* HH Buddy premium HD status faces v627. One lightweight 160px 3-frame WebP sprite.
+   Top: happy/green; middle: regular/amber; bottom: concerned/red.
+   Neutral state has no clinical or behavioural judgement. */
+#balanceCard #hhBuddyMood.hh-buddy-mood{
+ --hh-face-tone:#8da1b5;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:5px!important;text-align:center!important;
+ min-height:112px!important;box-sizing:border-box;
+ border:1px solid color-mix(in srgb,var(--hh-face-tone) 65%,transparent)!important;
+ background:linear-gradient(145deg,color-mix(in srgb,var(--hh-face-tone) 15%,#081a31),rgba(7,22,42,.86))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.11),0 0 17px color-mix(in srgb,var(--hh-face-tone) 21%,transparent)!important;
+ color:#eaf3fe!important;overflow:hidden;transition:border-color .25s,box-shadow .25s!important;
+}
+#hhBuddyMood[data-face="happy"]{--hh-face-tone:#6fe9a7}
+#hhBuddyMood[data-face="regular"]{--hh-face-tone:#ffc477}
+#hhBuddyMood[data-face="sad"]{--hh-face-tone:#ff8292}
+#hhBuddyMood .hh-buddy-face{
+ flex:none;display:block;width:clamp(52px,7vw,70px);height:clamp(52px,7vw,70px);
+ border-radius:50%;border:1px solid color-mix(in srgb,var(--hh-face-tone) 60%,transparent);
+ background-image:url('./hh-buddy-mood-v627.webp');background-repeat:no-repeat;
+ background-size:100% 300%;background-position:center 50%;background-color:#142438;
+ box-shadow:0 2px 12px #0006,0 0 12px color-mix(in srgb,var(--hh-face-tone) 20%,transparent);
+ transition:background-position .14s,box-shadow .25s;
+}
+#hhBuddyMood[data-face="happy"] .hh-buddy-face{background-position:center 0%}
+#hhBuddyMood[data-face="regular"] .hh-buddy-face,
+#hhBuddyMood[data-face="unknown"] .hh-buddy-face{background-position:center 50%}
+#hhBuddyMood[data-face="sad"] .hh-buddy-face{background-position:center 100%}
+#hhBuddyMood .hh-buddy-copy{display:flex;flex-direction:column;gap:2px;align-items:center;min-width:0;width:100%}
+#hhBuddyMood .hh-buddy-copy strong{font-size:clamp(10px,1.8vw,12px);line-height:1.15;color:var(--hh-face-tone);font-weight:900}
+#hhBuddyMood #balanceText{font-size:clamp(9px,1.6vw,11px);line-height:1.2;color:#e6f0fc;overflow-wrap:anywhere;font-weight:750}
+@media(max-width:430px){
+ #balanceCard #hhBuddyMood.hh-buddy-mood{padding:7px 5px!important;min-height:116px!important;gap:4px!important}
+ #hhBuddyMood .hh-buddy-face{width:clamp(48px,14vw,62px);height:clamp(48px,14vw,62px)}
+ #hhBuddyMood .hh-buddy-copy strong{font-size:10px}
+ #hhBuddyMood #balanceText{font-size:9px;line-height:1.16}
+}
+@media(prefers-reduced-motion:reduce){
+ #balanceCard #hhBuddyMood.hh-buddy-mood,#hhBuddyMood .hh-buddy-face{transition:none!important}
+}
