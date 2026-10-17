@@ -256,39 +256,29 @@ function render(){
 /* Time-proportional hydration display: informational only, not medical guidance.
    Goal and visible totals remain specific to the active profile and diary date.
    Never celebrate implausible stress-test totals as a healthy hydration pattern. */
+/* Full daily hydration goal comparison.
+   Colours describe target arithmetic only, not whether the quantity is medically safe. */
 function renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,date}){
  const panel=$('hhHydrationStatus'),planEl=$('hhHydrationPlan'),pill=$('hhHydrationPill'),note=$('hhHydrationNote');
  if(!panel||!planEl||!pill||!note)return;
  const currentDate=localDate(),isToday=date===currentDate,hasHistory=date<currentDate;
  const eyebrow=panel.querySelector('.hh-hydration-eyebrow');
  if(eyebrow)eyebrow.textContent=hasHistory?'NAPLÓZOTT · AZNAP':isToday?'AKTUÁLIS · MA':'JÖVŐBELI NAP';
- const now=new Date();
- const minutes=now.getHours()*60+now.getMinutes();
- const fraction=isToday?Math.max(0,Math.min(1,(minutes-420)/900)):(hasHistory?1:0);
- const planned=validWaterGoal?Math.round(waterGoal*fraction):null;
  const planLabel=panel.querySelector('[data-hh-hydration-plan-label]');
- if(planLabel)planLabel.textContent=hasHistory?'Aznapra tervezett:':isToday?'Terv mostanra:':'Jövőbeli terv:';
- planEl.textContent=planned===null?'—':fmt(planned,0)+' ml';
- let rag='unknown',state='Célbeállítás szükséges',details='Az összehasonlításhoz állíts be személyes napi célt.';
- if(validWaterGoal&&!fluidFound){state='Még nincs naplózott ital';details='Az aktuális bevitel még nem ismert.'}
- else if(validWaterGoal&&date>currentDate){state='Jövőbeli nap';details='A terv–tény összevetés a választott napon indul.'}
- else if(validWaterGoal&&fluidTotal>Math.max(5000,waterGoal*1.75)){
-   rag='warn';state='Kiugró adat · ellenőrizd';details='Az érték tesztbevitel vagy naplózási eltérés is lehet.';
- }
- else if(validWaterGoal&&planned===0){
-   state='A napi terv még nem indult';details='Időarányos kiindulás: 07:00.';
- }
+ if(planLabel)planLabel.textContent='Napi terv:';
+ const planned=validWaterGoal?waterGoal:null;
+ planEl.textContent=planned==null?'—':fmt(planned,0)+' ml';
+ let rag='unknown',state='Napi cél nincs beállítva';
+ if(validWaterGoal&&date>currentDate)state='Jövőbeli nap';
  else if(validWaterGoal){
-   const ratio=fluidTotal/planned;
-   if(ratio>=1){rag='good';state='Tervhez képest elérve'}
-   else if(ratio>=0.75){rag='warn';state='Közel a tervhez'}
-   else{rag='bad';state='Terv alatt'}
-   details=hasHistory?'Napi cél szerinti összevetés.':'07:00–22:00 közötti, időarányos összevetés.';
+  if(fluidTotal<waterGoal){rag='bad';state='Napi cél alatt'}
+  else if(fluidTotal===waterGoal){rag='warn';state='Napi cél pontosan teljesítve'}
+  else{rag='good';state='Napi cél fölött'}
  }
  panel.dataset.rag=rag;
  pill.textContent=state;
- note.textContent=details;
- panel.setAttribute('aria-label','Napi folyadék: '+(fluidFound?fmt(fluidTotal,0)+' ml':'nincs adat')+'. '+(planned===null?'Nincs beállított terv.':'Tervezett '+fmt(planned,0)+' ml.')+' '+state+'. Nem orvosi folyadékajánlás.');
+ note.textContent='A szín csak a beállított napi célhoz viszonyít, nem egészségügyi minősítés.';
+ panel.setAttribute('aria-label','Napi folyadék: '+(fluidFound?fmt(fluidTotal,0)+' ml':'nincs naplózott ital')+'. '+(planned==null?'Nincs beállított napi cél.':'Napi terv '+fmt(planned,0)+' ml.')+' '+state+'. A cél túllépése nem jelent egészségügyi ajánlást.');
 }
 
 function renderBody(){
