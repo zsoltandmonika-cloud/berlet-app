@@ -1,4 +1,4 @@
-/* HealthHub Nutrition Intelligence v592 · standalone private mobile preview
+/* HealthHub Nutrition Intelligence v626 · live private family diary
  * Private family food log. Dropbox/App Folder is the canonical sync target;
  * localStorage is only the offline browser cache. No personal data in GitHub.
  * Uses conditional Dropbox revisions and record IDs to avoid blind overwrites.
@@ -101,6 +101,10 @@ function currentDay(){return $('logDate').value||localDate();}
 function setProfile(next,fromUi){
  active=next;document.documentElement.dataset.profile=next;
  root.localStorage.setItem('hh-nutrition-PREVIEW-profile',next==='monika'?'m':'z');
+ if(fromUi){
+  root.localStorage.setItem('hh-profile',next==='monika'?'m':'z');
+  try{root.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:next,source:'nutrition'}}))}catch(_){}
+ }
  $('profileBtn').textContent=profileName(next)+' ⇄';
  $('morningLabel').textContent=fmt(read(next).presets.morning.sugarCubes,0)+' kockacukor · egyedi recept';
  render();
@@ -634,7 +638,7 @@ function events(){
  $('unitForm').addEventListener('submit',saveUnit);$('bodyForm').addEventListener('submit',saveBody);
  document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>$(btn.dataset.close).close()));
  $('logDate').addEventListener('change',()=>{if(!isDay($('logDate').value))$('logDate').value=localDate();render();refreshActivity(active)});
- window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active)render();});
+ window.addEventListener('storage',e=>{if(e.key==='hh-nutrition-PREVIEW-profile'||e.key==='hh-profile'){const desired=pkey();if(desired!==active)setProfile(desired,false)}else if(e.key===LS+active)render();});
 }
 function start(){
  $('logDate').value=localDate();
