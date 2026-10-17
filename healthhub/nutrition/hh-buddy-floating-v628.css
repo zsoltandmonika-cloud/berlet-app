@@ -1,4 +1,4 @@
-/* Nutrition v628.3 · top-right aligned compact floating premium HH Buddy status face.
+/* Nutrition v628.4 · slightly smaller top-right aligned compact floating premium HH Buddy status face.
    Preserve v627 sprite, mood logic and accessible aria-labels.
    Remove only the oversized status glass card and its visible text. */
 #balanceCard #hhBuddyMood.hh-buddy-mood{
@@ -30,8 +30,8 @@
 #balanceCard #hhBuddyMood .hh-buddy-face{
  display:block!important;
  flex:none!important;
- width:clamp(82px,22vw,94px)!important;
- height:clamp(82px,22vw,94px)!important;
+ width:clamp(78px,21vw,90px)!important;
+ height:clamp(78px,21vw,90px)!important;
  max-width:calc(100% - 2px)!important;
  aspect-ratio:1!important;
  border:0!important;
@@ -51,14 +51,14 @@
   gap:0!important;
  }
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:clamp(74px,21vw,86px)!important;
-  height:clamp(74px,21vw,86px)!important;
+  width:clamp(70px,20vw,82px)!important;
+  height:clamp(70px,20vw,82px)!important;
  }
 }
 @media(max-width:350px){
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:72px!important;
-  height:72px!important;
+  width:68px!important;
+  height:68px!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
