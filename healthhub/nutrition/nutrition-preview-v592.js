@@ -231,15 +231,19 @@ function render(){
  let fluid=0, fluidFound=false;
  for(const e of entries)if(Number.isFinite(e.volumeMl)){fluid+=e.volumeMl;fluidFound=true}
  const fluidTotal=Math.max(0,fluid);
- fluid=Math.max(0,fluidTotal-dailyJarOffset(active,date));
+ // The pitcher represents consumption since the most recent visual reset.
+ // Tapping the big number and "Ürítés" reset independent displays, but
+ // either action must bring the water-level bar back to zero.
+ const jarOffset=dailyJarOffset(active,date);
  $('fluids').textContent=fluidFound?fmt(fluidTotal,0):'—';
  const waterGoal=Number(localStorage.getItem('hh-nutrition-hydration-goal-'+active));
  const validWaterGoal=Number.isFinite(waterGoal)&&waterGoal>=250&&waterGoal<=6000;
  $('hhWaterGoal').value=validWaterGoal?String(waterGoal):'';
  // The displayed counter may be restarted; the diary/Dropbox keeps the full daily total.
  const reset=d.hydrationCounterReset;
- const displayTotal=date===localDate()&&reset&&reset.date===date
-  ?Math.max(0,fluidTotal-reset.offsetMl):fluidTotal;
+ const counterOffset=date===localDate()&&reset&&reset.date===date?Math.max(0,Number(reset.offsetMl)||0):0;
+ const displayTotal=Math.max(0,fluidTotal-counterOffset);
+ const pitcherCurrent=Math.max(0,fluidTotal-Math.max(jarOffset,counterOffset));
  const amountButton=$('hhWaterAmount');
  amountButton.textContent=fmt(displayTotal,0)+' ml';
  amountButton.disabled=date!==localDate();
@@ -247,14 +251,14 @@ function render(){
  amountButton.setAttribute('aria-label',date===localDate()?'Aktuális '+fmt(displayTotal,0)+' milliliter. Koppints a számláló visszaállításához. A naplózott italok megmaradnak.':'Korábbi napi folyadék összesen '+fmt(fluidTotal,0)+' milliliter.');
  $('hhWaterTarget').textContent=validWaterGoal?'Személyes napi cél: '+fmt(waterGoal,0)+' ml':'Személyes napi cél: még nincs beállítva';
  renderHydrationStatus({fluidTotal:displayTotal,fluidFound,waterGoal,validWaterGoal,date});
- const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
+ const waterPct=validWaterGoal?Math.max(0,Math.round(pitcherCurrent/waterGoal*100)):null;
  const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.70;
  $('hhWaterLevel').style.height=fillHeight+'%';
  const waterGauge=$('hhWaterGaugeFill');
  if(waterGauge){
   const fraction=waterPct==null?0:Math.min(100,waterPct)/100;
   waterGauge.style.transform='scaleY('+fraction+')';
-  waterGauge.parentElement.setAttribute('aria-label',waterPct==null?'Napi folyadékcél még nincs beállítva':'Napi folyadékcél: '+waterPct+'%');
+  waterGauge.parentElement.setAttribute('aria-label',waterPct==null?'Kancsó vízszintje: nincs beállított cél':'Kancsó vízszintje: '+waterPct+'%, az utolsó ürítés óta '+fmt(pitcherCurrent,0)+' ml');
  }
  $('hhWaterLevel').dataset.empty=fillHeight===0?'true':'false';
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
