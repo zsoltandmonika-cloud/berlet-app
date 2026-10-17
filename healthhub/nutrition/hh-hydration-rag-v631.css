@@ -224,3 +224,12 @@
 @media(prefers-reduced-motion:reduce){
  #balanceCard .hh-hydration-status,#balanceCard .hh-hydration-pill{animation:none!important;transition:none!important}
 }
+
+/* v631.2: compact number + plan only. Keep RAG logic for border and numeral. */
+#balanceCard #hhHydrationStatus .hh-hydration-pill,
+#balanceCard #hhHydrationStatus .hh-hydration-note{
+ display:none!important;
+}
+#balanceCard #hhHydrationStatus.hh-hydration-status{
+ gap:3px!important;
+}
