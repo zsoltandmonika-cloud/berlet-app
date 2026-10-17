@@ -68,7 +68,20 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./nutrition-status-spacing-v616.css?v=616">
 <link rel="stylesheet" href="./nutrition-daily-date-v617.css?v=617">
 <link rel="stylesheet" href="./nutrition-status-equal-v618.css?v=619">
-</head>
+<style>
+/* v621: touch-first food chooser; legacy select remains the source of truth */
+#entryDialog .hh-touch-picker{display:none}
+#entryDialog.hh-touch-ready #foodSelect{display:none}
+#entryDialog.hh-touch-ready .hh-touch-picker{display:block;grid-column:1/-1}
+.hh-food-categories{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:3px 1px 11px;scrollbar-width:thin}
+.hh-food-categories button{flex:0 0 auto;scroll-snap-align:start;border:1px solid #5a779b;background:#172b48;color:#e4f4ff;border-radius:999px;padding:11px 14px;font-weight:700;min-height:43px}
+.hh-food-categories button[aria-pressed="true"]{background:var(--accent,#57b7ff);color:#091323;border-color:transparent}
+.hh-food-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:245px;overflow-y:auto}
+.hh-food-choices button{border:1px solid #42668e;border-radius:13px;background:rgba(34,61,96,.7);color:white;text-align:left;padding:12px 9px;min-height:58px;font-size:13px;line-height:1.3}
+.hh-food-choices button[aria-pressed="true"]{outline:2px solid var(--accent,#69b9ff);background:#294d77}
+.hh-food-choices .hh-empty{grid-column:1/-1;color:#bed5ed;padding:12px}
+@media(max-width:360px){.hh-food-choices{grid-template-columns:1fr}}
+</style></head>
 <body>
 <main class="shell">
 <header class="top"><div class="controls"><button type="button" class="mini profile" id="profileBtn" title="Egyérintéses profilváltás">Zsolt ⇄</button></div></header>
@@ -154,4 +167,44 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
  setInterval(show,60000);
 })();
 </script>
-</body></html>
+<script>
+/* Nutrition v621 · category → item tap picker, no changes to diary/calculation. */
+document.addEventListener('DOMContentLoaded',function(){
+ const dialog=document.getElementById('entryDialog'),select=document.getElementById('foodSelect');
+ if(!dialog||!select||!select.parentElement)return;
+ const host=document.createElement('div');host.className='hh-touch-picker';
+ host.setAttribute('aria-label','Ételválasztás érintéssel');
+ const categories=document.createElement('div');categories.className='hh-food-categories';
+ categories.setAttribute('aria-label','Ételkategóriák');
+ const choices=document.createElement('div');choices.className='hh-food-choices';
+ host.append(categories,choices);
+ select.parentElement.after(host);
+ let activeCategory='';
+ const parse=option=>{const text=option.textContent||'',parts=text.split(' · ');return {category:parts.length>1?parts[0].replace(/^[^\\p{L}]+/u,'').trim():'Egyéb',name:parts.length>1?parts.slice(1).join(' · '):text}};
+ function render(){
+  const options=Array.from(select.options).filter(o=>o.value),allCats=[...new Set(options.map(o=>parse(o).category))];
+  if(!allCats.includes(activeCategory)){
+   const selected=options.find(o=>o.value===select.value);
+   activeCategory=selected?parse(selected).category:(allCats[0]||'');
+  }
+  categories.replaceChildren();choices.replaceChildren();
+  allCats.forEach(cat=>{
+   const b=document.createElement('button');b.type='button';b.textContent=cat;b.setAttribute('aria-pressed',String(cat===activeCategory));
+   b.addEventListener('click',()=>{activeCategory=cat;render()});categories.append(b);
+  });
+  const visible=options.filter(o=>parse(o).category===activeCategory);
+  if(!visible.length){const p=document.createElement('div');p.className='hh-empty';p.textContent='Nincs találat ebben a kategóriában.';choices.append(p)}
+  visible.forEach(o=>{
+   const b=document.createElement('button');b.type='button';b.textContent=o.textContent.split(' · ').slice(-1)[0];
+   b.setAttribute('aria-pressed',String(o.value===select.value));
+   b.addEventListener('click',()=>{select.value=o.value;select.dispatchEvent(new Event('change',{bubbles:true}));render()});
+   choices.append(b);
+  });
+ }
+ new MutationObserver(()=>render()).observe(select,{childList:true});
+ select.addEventListener('change',render);
+ dialog.addEventListener('close',()=>{activeCategory=''});
+ dialog.classList.add('hh-touch-ready');
+ render();
+});
+</script></body></html>
