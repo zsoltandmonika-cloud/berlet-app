@@ -1,4 +1,4 @@
-/* Nutrition v630.1 · slightly smaller compact HH Buddy face anchored to calorie summary card.
+/* Nutrition v630.2 · tighter header and smaller compact HH Buddy face anchored to calorie summary card.
    Keep v627 three-face HD sprite and accessible live mood; no text/glass frame.
    Only Buddy CSS/layout; the standard v629 taskbar and data logic are unchanged. */
 #balanceCard{
@@ -6,7 +6,8 @@
 }
 /* Reserve enough vertical clearance for the corner portrait above calorie rings. */
 #balanceCard.hh-body.balance .hh-body-heading{
- min-height:clamp(74px,18vw,84px)!important;
+ min-height:clamp(58px,14vw,68px)!important;
+ margin-bottom:4px!important;
 }
 #balanceCard #hhBuddyMood.hh-buddy-mood{
  display:flex!important;
@@ -47,8 +48,8 @@
 #balanceCard #hhBuddyMood .hh-buddy-face{
  display:block!important;
  flex:none!important;
- width:clamp(60px,17vw,72px)!important;
- height:clamp(60px,17vw,72px)!important;
+ width:clamp(56px,16vw,66px)!important;
+ height:clamp(56px,16vw,66px)!important;
  max-width:none!important;
  aspect-ratio:1!important;
  border:0!important;
@@ -62,21 +63,22 @@
 }
 @media(max-width:430px){
  #balanceCard.hh-body.balance .hh-body-heading{
-  min-height:74px!important;
+  min-height:56px!important;
+  margin-bottom:2px!important;
  }
  #balanceCard #hhBuddyMood.hh-buddy-mood{
   top:6px!important;
   right:6px!important;
  }
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:clamp(56px,16vw,66px)!important;
-  height:clamp(56px,16vw,66px)!important;
+  width:clamp(52px,15vw,60px)!important;
+  height:clamp(52px,15vw,60px)!important;
  }
 }
 @media(max-width:350px){
  #balanceCard #hhBuddyMood .hh-buddy-face{
-  width:52px!important;
-  height:52px!important;
+  width:48px!important;
+  height:48px!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
