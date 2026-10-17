@@ -45,3 +45,10 @@
  .hh-category-footer{padding:10px}
  .hh-category-footer button{padding:7px 10px;font-size:11px}
 }
+
+.hh-bevitel-main-edit{margin-left:auto;min-height:34px;font-size:10px;padding:6px 10px;border-radius:10px}
+#hhCategoryStudio[data-kind="tile"] .hh-category-row:not(.hh-category-image-actions),
+#hhCategoryStudio[data-kind="tile"] .hh-category-archive{display:none!important}
+#hhCategoryStudio[data-kind="tile"] .hh-category-preview{height:clamp(155px,31vh,235px)}
+#hhCategoryStudio[data-kind="tile"] .hh-category-body>label:first-child{margin-bottom:2px}
+@media(max-width:400px){.hh-bevitel-main-edit{margin-left:0}}
