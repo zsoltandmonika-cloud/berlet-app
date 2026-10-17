@@ -258,6 +258,8 @@ function renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,d
  const panel=$('hhHydrationStatus'),planEl=$('hhHydrationPlan'),pill=$('hhHydrationPill'),note=$('hhHydrationNote');
  if(!panel||!planEl||!pill||!note)return;
  const currentDate=localDate(),isToday=date===currentDate,hasHistory=date<currentDate;
+ const eyebrow=panel.querySelector('.hh-hydration-eyebrow');
+ if(eyebrow)eyebrow.textContent=hasHistory?'NAPLÓZOTT · AZNAP':isToday?'AKTUÁLIS · MA':'JÖVŐBELI NAP';
  const now=new Date();
  const minutes=now.getHours()*60+now.getMinutes();
  const fraction=isToday?Math.max(0,Math.min(1,(minutes-420)/900)):(hasHistory?1:0);
