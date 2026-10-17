@@ -79,3 +79,9 @@
 #hhBevitelPickerNext:disabled{opacity:.4}
 @media(max-width:390px){.hh-bevitel-picker-card{height:clamp(250px,50dvh,450px)}.hh-bevitel-picker-footer{gap:7px;padding-left:8px;padding-right:8px}.hh-bevitel-picker-footer button{font-size:11px;padding:7px 9px}}
 @media(prefers-reduced-motion:reduce){.hh-bevitel-picker-card{transition:none}}
+
+/* Once chosen via snap carousel, show only portion controls, not duplicate lists. */
+#entryDialog[data-hh-picker-mode="portion"] .field:has(#foodSearch),
+#entryDialog[data-hh-picker-mode="portion"] .field:has(#foodSelect),
+#entryDialog[data-hh-picker-mode="portion"] .hh-touch-picker{display:none!important}
+#entryDialog[data-hh-picker-mode="portion"] #entryTitle{font-size:18px}
