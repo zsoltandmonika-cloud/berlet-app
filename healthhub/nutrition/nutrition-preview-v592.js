@@ -494,22 +494,29 @@ async async function refreshActivity(profile){
  const indicator=$('activitySource');
  if(indicator)indicator.textContent='Activity-adatok frissítése…';
  try{
-  const e=api&&api.estimateForNutrition?await api.estimateForNutrition(profile,date):null;
+  const record=api&&api.estimateForNutrition?await api.estimateForNutrition(profile,date):{error:'Activity Calorie Engine nem töltődött be'};
   if(profile!==active||date!==currentDay())return;
-  if(e){
-   localStorage.setItem('hh-nutrition-total-energy-'+profile,JSON.stringify(e));
-   $('activity').textContent=fmt(e.kcal,0)+' kcal';
-   if(indicator)indicator.textContent='Activity · teljes energia, becslés';
+  const valid=record&&record.kind==='total_burned_kcal'&&record.profile===profile&&record.date===date&&Number.isFinite(record.kcal)&&record.kcal>0;
+  if(valid){
+   localStorage.setItem('hh-nutrition-total-energy-'+profile,JSON.stringify(record));
+   $('activity').textContent=fmt(record.kcal,0)+' kcal';
    render();
+   if(indicator)indicator.textContent='Activity · teljes energia, becslés';
   }else{
-   // Do not display a stale energy record for an unverified current-day calculation.
    localStorage.removeItem('hh-nutrition-total-energy-'+profile);
    $('activity').textContent='—';
-   if(indicator)indicator.textContent='Nincs friss, számítható napi Activity-adat';
    render();
+   const reason=record&&record.error||'Nincs számítható Activity-energiaadat';
+   if(indicator)indicator.textContent=reason;
+   $('hhEnergyStatus').textContent=reason;
   }
  }catch(_){
-  if(profile===active&&indicator)indicator.textContent='Activity-adat nem elérhető';
+  if(profile!==active||date!==currentDay())return;
+  localStorage.removeItem('hh-nutrition-total-energy-'+profile);
+  $('activity').textContent='—';
+  render();
+  if(indicator)indicator.textContent='Az Activity-adatkapcsolat jelenleg nem elérhető';
+  $('hhEnergyStatus').textContent='Activity-adatkapcsolat jelenleg nem elérhető';
  }
 }
 function logWater250(){
