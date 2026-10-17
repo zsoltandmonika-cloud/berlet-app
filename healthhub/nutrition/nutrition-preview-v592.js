@@ -165,6 +165,8 @@ function render(){
  const waterPct=validWaterGoal?Math.max(0,Math.round(fluid/waterGoal*100)):null;
  const fillHeight=waterPct==null?0:Math.min(100,waterPct)*0.70;
  $('hhWaterLevel').style.height=fillHeight+'%';
+ const waterGauge=$('hhWaterGaugeFill');
+ if(waterGauge)waterGauge.style.height=(waterPct==null?0:Math.min(100,waterPct))+'%';
  $('hhWaterLevel').dataset.empty=fillHeight===0?'true':'false';
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
