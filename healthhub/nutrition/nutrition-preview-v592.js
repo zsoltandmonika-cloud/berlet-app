@@ -633,11 +633,6 @@ function events(){
  click('photoBanana',()=>openNamedFood('banana'));
  click('photoSalad',()=>openNamedFood('chicken'));
  click('photoAfternoon',()=>openPreset('afternoon'));
- click('dockDiary',()=>jumpTo('log'));
- click('dockFoods',()=>openEntry('food'));
- click('dockRecipes',()=>jumpTo('morning'));
- click('dockInsights',()=>jumpTo('insightText'));
- click('dockBalance',()=>jumpTo('bodyDetails'));
  click('newFood',()=>{$('customError').textContent='';$('customDialog').showModal()});
  click('customUnit',openUnit);
  click('syncNutritionNow',()=>{syncProfile(active).catch(()=>{})});
