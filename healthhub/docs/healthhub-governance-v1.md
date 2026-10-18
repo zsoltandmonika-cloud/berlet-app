@@ -113,6 +113,19 @@ Valós S24 Ultra teszt (2026-10-18): a Vault-ablak aktív sessiont mutatott, de 
 - Sikernél `healthhub:central-auth-changed` esemény frissíti a kapcsolati állapotot a PDF-panelen.
 - Reprodukált 503 válasz → magyar hibaüzenet → kézi retry → két profil hiteles megjelenítése: **szimulációban sikeres**. Mobilos valós elfogadás még hátra van.
 
+## MKB v666 · Watch EKG PDF célzott javítás (2026-10-18)
+
+**Valódi állapot az első Mónika-feldolgozás után:** 175/175 eredeti SHA-256 ellenőrzött; 164/175 PDF teljesként jelölt és SHA-256 / oldal / Unicode visszaellenőrzéssel igazolt; 11/175 PDF egyoldalas, sikertelen grafikus oldalfeldolgozás; 269/280 oldal ellenőrzött, 486047/486047 karakter a **sikeres** forrásokon, eltérés 0. A 11 hiányzó oldal miatt a teljes archívumra nincs integritási igazolás. Zsolt 43 PDF-je még feldolgozásra vár.
+
+**Root cause triage:** a 11 sikertelen forrás mind Samsung Watch EKG PDF. Egy eredeti fájl önálló PDF-vizsgálatánál 1 oldal, olvasható beágyazott szöveg, beágyazott kép és nagyszámú vektoros grafikus elem volt található. A távoli böngészőben fellépő konkrét kivételt még nem állítottuk elő, ezért a grafikus renderelési teljesítményhiba erős hipotézis, nem bizonyított diagnózis.
+
+**A v666 kódjavítás:**
+- Képi PDF-oldal renderelése fokozatos canvas-felbontással: legfeljebb 2.4×, majd 1.65× és 1.15×. Sikertelen próbánál a canvas felszabadul.
+- A már kiolvasható PDF-oldalszöveg nem veszik el, ha a képrenderelés nem sikerül; az oldal tárolása és karakter-/SHA-visszaellenőrzése független a grafikától.
+- Elveszett grafika, grafikus operátorhiba vagy 1.6× alatti vészmegőrzés esetén a minőségi státusz **nem lehet COMPLETE**: manuális képi review szükséges. Az eredeti Drive PDF változatlan marad.
+- A korábban teljesen ellenőrzött 164 PDF ismételt feldolgozása nélkül a hibás elemek célzottan újraindíthatók az Adminból, a profilon belüli SHA-alapú ellenőrzéssel.
+- **Release gate:** kód GitHubban és lokális funkcionális render-fallback szimulációban tesztelve, újabb S24 Ultra valós feldolgozási próba még nem igazolt. Nem jelölhető 175/175-ként, amíg a 11 grafikus elem feldolgozása és mentési ellenőrzése meg nem történt.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
