@@ -11,14 +11,17 @@ const legacyImport=window.importHealthVault;
 const legacyDetail=window.openHrDetail;
 const legacyExport=window.exportHealthVault;
 
-/* v655: no hardcoded medication rows. Private reference is authoritative. */
-const MEDICATIONS={};
+/* v655: Mónika has no hardcoded source. Keep Zsolt's original record
+   until his profile receives an independently approved private migration. */
+const MEDICATIONS={zsolt:[
+  {id:'med-zsolt-tolura',name:'Tolura',dose:'40 mg · naponta 1×',status:'aktuális'}
+]};
 async function privateMedicationCount(profile){
  try{
   const ref=await getOne('meta','private-reference');
   const list=ref&&ref.payload&&ref.payload.profiles&&
    ref.payload.profiles[profile]&&ref.payload.profiles[profile].medications;
-  return Array.isArray(list)?list.filter(x=>x&&x.name).length:0;
+  return Array.isArray(list)&&list.some(x=>x&&x.name)?list.filter(x=>x&&x.name).length:(MEDICATIONS[profile]||[]).length;
  }catch(_){return 0}
 }
 const DEVICES={
@@ -192,7 +195,15 @@ window.renderHealthSection=async function(){
     return;
   }
   if(k==='medications'){
-    c.innerHTML='<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3></div>';
+    if(p==='monika'){
+      // The private module adds the only source of Mónika's medicines.
+      c.innerHTML='<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3></div>';
+      return;
+    }
+    let arr=MEDICATIONS[p]||[];
+    if(q)arr=arr.filter(x=>JSON.stringify(x).toLocaleLowerCase('hu').includes(q));
+    const medRow=x=>`<div class="hrRow clickable" onclick="openHrDetail('medication','${x.id}')"><div class="hrIco">💊</div><div><b>${esc(x.name)}</b><small>${esc(x.dose||'')}</small></div><span class="hrTag">${esc(x.status||'')}</span></div>`;
+    c.innerHTML=`<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3>${arr.map(medRow).join('')}</div>`;
     return;
   }
   if(k==='measurements'){
@@ -219,9 +230,11 @@ window.openHrDetail=async function(kind,id){
   const meta=await migrationMeta();if(!meta)return legacyDetail?.(kind,id);
   let x=null,body='';
   if(kind==='record'){return window.openHrDocument(id)}
-  // Medication details belong to the private reference / v593 editor.
-   if(kind==='medication'&&window.HH_PRIVATE_MEDICATIONS_V593)
-      return window.HH_PRIVATE_MEDICATIONS_V593.edit(id);
+  // Keep Zsolt's original legacy Tolura detail; private medicines are edited in v593.
+   if(kind==='medication'){
+     x=(MEDICATIONS[profileKey()]||[]).find(a=>a.id===id);
+     if(!x&&window.HH_PRIVATE_MEDICATIONS_V593)return window.HH_PRIVATE_MEDICATIONS_V593.edit(id);
+   }
   if(kind==='device')x=(DEVICES[profileKey()]||[]).find(a=>a.id===id);
   if(kind==='measurement')x=await getOne('measurements',id);
   if(kind==='appointment')x=await getOne('appointments',id);
