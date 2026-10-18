@@ -1,0 +1,78 @@
+/* HHSP1 v593 · profile-scoped private drug entry, style only.
+ * No medical facts in CSS, and no legacy Health section changes.
+ */
+html[data-hh-system-glass="on"] #healthSubContent .hhMed593Add{
+ display:block;width:100%;min-height:43px;margin:10px 0 14px!important;
+ border:1px solid rgba(159,210,255,.43)!important;border-radius:14px!important;
+ background:linear-gradient(145deg,rgba(84,150,215,.24),rgba(17,45,79,.79))!important;
+ color:#eff9ff!important;font:800 12px/1.4 system-ui,sans-serif!important;
+ letter-spacing:.01em;cursor:pointer;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="m"] #healthSubContent .hhMed593Add{
+ border-color:rgba(254,187,229,.41)!important;
+ background:linear-gradient(145deg,rgba(169,87,155,.28),rgba(47,30,74,.83))!important;
+}
+#healthSubContent .hhMed593RecordText{min-width:0;flex:1}
+.hhMed593Overlay[hidden]{display:none!important}
+.hhMed593Overlay{
+ position:fixed;inset:0;z-index:13000;
+ background:rgba(2,9,23,.83);backdrop-filter:blur(12px);
+ display:flex;justify-content:center;align-items:center;
+ padding:16px;box-sizing:border-box;color:#eef7ff;
+}
+.hhMed593Panel{
+ box-sizing:border-box;width:min(100%,410px);max-height:min(88vh,860px);
+ overflow-y:auto;overscroll-behavior:contain;
+ border:1px solid rgba(144,201,248,.34);border-radius:24px;
+ background:linear-gradient(155deg,#183656,#0d1c32 70%,#19223d);
+ box-shadow:0 18px 70px #000a;padding:15px 15px 19px;
+ color:#f2f9ff;font:500 13px/1.45 system-ui,sans-serif;
+}
+html[data-hh-system-profile="m"] .hhMed593Panel{
+ border-color:rgba(255,175,221,.40);
+ background:linear-gradient(155deg,#342c56,#141d38 70%,#31223e);
+}
+.hhMed593Head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hhMed593Head h2{color:#f7fbff!important;font:900 17px/1.35 system-ui,sans-serif!important;margin:0}
+.hhMed593Close{
+ min-width:42px;min-height:42px;border:1px solid #ffffff30;
+ border-radius:13px;background:#ffffff18;color:#fff!important;
+ font:900 24px system-ui,sans-serif;cursor:pointer;
+}
+.hhMed593Body{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.hhMed593Kicker{color:#a9d9fb;font:850 12px system-ui,sans-serif}
+html[data-hh-system-profile="m"] .hhMed593Kicker{color:#f7b7da}
+.hhMed593Note{margin:0!important;font-size:12px;line-height:1.6;color:#d0e1f2}
+.hhMed593Field{display:flex;flex-direction:column;gap:5px;color:#cce1f5;font:750 12px/1.4 system-ui,sans-serif}
+.hhMed593Field input{
+ display:block;box-sizing:border-box;width:100%;min-height:43px;border-radius:12px;
+ border:1px solid rgba(154,202,237,.38)!important;
+ color:#f4fbff!important;background:#0d2948!important;
+ padding:9px 12px!important;font:650 13px/1.4 system-ui,sans-serif!important;
+}
+.hhMed593Actions{display:flex;gap:10px;margin-top:6px}
+.hhMed593Actions button,.hhMed593Preset{
+ border:1px solid rgba(154,202,237,.36);border-radius:13px;
+ min-height:44px;padding:9px 13px;
+ font:800 12px/1.4 system-ui,sans-serif;cursor:pointer;
+}
+.hhMed593Actions button{flex:1}
+.hhMed593Secondary{background:#ffffff12;color:#e4f4ff}
+.hhMed593Primary{
+ background:linear-gradient(135deg,#75baf7,#a6defe);color:#06182b!important;
+}
+html[data-hh-system-profile="m"] .hhMed593Primary{
+ background:linear-gradient(135deg,#ffcae9,#d8b5f8);
+}
+.hhMed593Preset{
+ background:rgba(84,150,215,.16);color:#dff4ff;text-align:left;
+}
+.hhMed593Status{
+ font:650 11px/1.5 system-ui,sans-serif!important;color:#c0dbec;
+ padding:8px 10px;margin:0!important;border-radius:10px;
+ background:#ffffff0b;
+}
+.hhMed593Status[data-error="1"]{color:#ffb7b9;background:#4a202744}
+.hhMed593Overlay :is(button,input):focus-visible,
+#healthSubContent .hhMed593Add:focus-visible{outline:3px solid #9ce6ff;outline-offset:2px}
+@media(max-width:380px){.hhMed593Panel{padding:12px}.hhMed593Actions{gap:7px}}
