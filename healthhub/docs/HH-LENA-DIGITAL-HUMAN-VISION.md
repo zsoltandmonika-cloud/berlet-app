@@ -26,6 +26,25 @@ A jövőbeli **Léna Digital Human** nem külön videólejátszó és nem egy at
 - AI-avatar státusz egyértelmű jelzése; kifejezett hozzájárulás az egészségügyi adatok élő beszélgetésbeli felhasználásához; privát felvételek automatikus és indokolatlan tárolása tilos.
 - Ha a videó/animáció nem megbízható, visszaesés a **kanonikus statikus Léna-képre + működő hang/szöveg** nézetre. Nincs véletlenszerű csere másik arcra.
 
+## 2/A. Filmminőségű fotórealizmus: nem „videojáték-avatar”
+
+**Kötelező Golden Standard cél:** a felhasználó által elvárt megjelenés **100%-ban élethű hatású**, filmszerű, stabil, természetes emberi megjelenés. **A „100%” a termék elfogadási ambíciója, nem bizonyítható technológiai garancia:** jelenleg nem ígérhető, hogy egy generált karakter minden körülmények között megkülönböztethetetlen az élő embertől.
+
+**Kizárt megoldások:** retro CGI/3D-játékfigura, viaszfigura vagy műanyag bőr, maszkszerű mosoly, merev szem és fejmozgás, ismétlődő előre gyártott gesztus, hibás szájmozgás, torzuló fogak/ujjak, elmosódó haj, beszéd közbeni életkor- vagy arcidentitás-váltás. A fotórealisztikusnak hirdetett, de nyilvánvalóan mesterséges vagy zavaró megoldás **nem mehet élesbe**.
+
+**Elvárt vizuális részletek:**
+- Bőr: természetes pórusok, textúra, mikromimika, árnyalatok, árnyékok; nincs túlsimított filter.
+- Szem: természetes fókusz/szemkontaktus, pislogás, apró tekintetmozgás, következetes fények.
+- Haj: valódi hajszál- és mozgáshatás, nem tömör sisakszerű geometria.
+- Arc/száj: élettani mimika, nyelv és fogak stabil és természetes megjelenése, beszédhez kapcsolódó ajakmozgás.
+- Mozgás: finom fej-, váll- és testmozgás, természetes reakciók, nem mechanikus ismétlés.
+- Képminőség: nagy felbontás, stabil képkockaidő, egységes filmszerű világítás és kameramozgás, látható renderhibák nélkül.
+- **Azonos Léna** beszédindításkor, kérdés közben, megszakításkor, profilváltáskor, reconnect után és statikus fallback nézetben is.
+
+**Megvalósítási elv:** a karakter **vizuális minősége nem áldozható fel** pusztán azért, hogy egy olcsóbb, gyorsabb vagy „már integrálható” szolgáltatás működjön. A kiválasztást egymás mellé tett, valós idejű, többperces mobilos videoteszt és felhasználói jóváhagyás dönti el, nem szolgáltatói promóvideó.
+
+**Ha a jóváhagyott realisztikus szint nem teljesül:** nincs félkész CGI-avatar. A rendszer maradjon az **elfogadott fotorealisztikus statikus Léna-képnél**, természetes hanggal és felirattal, amíg jobb megoldás nem áll rendelkezésre.
+
 ## 3. Elfogadási tesztek / release gate
 
 | ID | Követelmény | Átmenő kritérium |
