@@ -28,9 +28,15 @@ function candidates(page){
   // Require both the result heading and colony-count notation. We don't
   // attach an ambiguous column's numeric count to a particular species.
   if(!/eredmeny/.test(norm(nearby))||!/csiraszam/.test(norm(nearby)))continue;
-  var last=rows[Math.min(rows.length-1,k+2)];
-  var excerpt=text.slice(sample.start,last.start+last.text.length);
-  if(excerpt.length>1200||!text.includes(excerpt))continue;
+  // Quote only the organism and growth-result rows. The sample date was
+  // independently checked on this same SHA-verified source page and is kept
+  // in observed_date; surrounding patient/admin fields are not needed here.
+  var evidenceRows=rows.slice(k,Math.min(rows.length,k+3));
+  var growthRow=evidenceRows.find(x=>
+   /eredmeny/.test(norm(x.text))&&/csiraszam/.test(norm(x.text)));
+  if(!growthRow)continue;
+  var excerpt=text.slice(rows[k].start,growthRow.start+growthRow.text.length);
+  if(!excerpt||excerpt.length>650||!text.includes(excerpt))continue;
   for(var [name,expression] of names){
    if(seen.has(name)||!expression.test(nearby))continue;
    seen.add(name);
