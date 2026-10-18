@@ -1,52 +1,114 @@
-/* HHSP1 v593 · Buddy companion: visual mascot + user-gesture WebAudio clicks/tada.
- * Reuses the APPROVED Nutrition Buddy illustration. Does not read clinical data.
- * No OMSZ-specific animations, no data writes except sound preference.
+/* HHSP1 v595 · Buddy in Records + Medications.
+ * Reuses the approved Nutrition mascot. Audible, restrained mechanical
+ * ticks occur only when a real user scrolls to a different card/chip.
+ * Selection keeps the gentle click + tada. No visible sound toggle.
+ * Never touches health records, medications or their cloud storage.
  */
 (function(root){
 'use strict';
 var params;try{params=new URLSearchParams(root.location.search)}catch(_){return}
 if(params.get('hhscrollselect')==='0'||params.get('hhpremium')==='0')return;
-var prefs='hh-premium-select-sound-v593',ctx=null,busyUntil=0;
+var ctx=null,gestureUntil=0,lastTickAt=0;
 var reduce=false;
 try{reduce=!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches)}catch(_){}
-function enabled(){try{return root.localStorage.getItem(prefs)!=='off'}catch(_){return true}}
 function make(tag,cl,txt){var x=document.createElement(tag);if(cl)x.className=cl;if(txt!=null)x.textContent=txt;return x}
-function play(){
- if(!enabled())return;
- var now=Date.now();if(now-busyUntil<180)return;busyUntil=now;
+function unlockAudio(){
  try{
-  var AC=root.AudioContext||root.webkitAudioContext;if(!AC)return;
-  ctx=ctx||new AC();if(ctx.state==='suspended')ctx.resume().catch(function(){});
-  var t=ctx.currentTime;
-  function note(freq,offset,duration,volume,type){
-   var o=ctx.createOscillator(),g=ctx.createGain();
-   o.type=type||'sine';o.frequency.setValueAtTime(freq,t+offset);
-   g.gain.setValueAtTime(.0001,t+offset);
-   g.gain.exponentialRampToValueAtTime(volume,t+offset+.009);
-   g.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
-   o.connect(g);g.connect(ctx.destination);o.start(t+offset);o.stop(t+offset+duration+.015);
-  }
-  // Distinct delicate wheel click, followed by the short TADA chord.
-  note(740,0,.055,.026,'triangle');
-  note(523.25,.087,.15,.022,'sine');
-  note(659.25,.19,.155,.025,'sine');
-  note(783.99,.28,.21,.027,'sine');
+  var AC=root.AudioContext||root.webkitAudioContext;
+  if(!AC)return null;
+  ctx=ctx||new AC();
+  if(ctx.state==='suspended')ctx.resume().catch(function(){});
+  return ctx;
+ }catch(_){return null}
+}
+function note(freq,offset,duration,volume,type){
+ if(!ctx)return;
+ var t=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type=type||'sine';osc.frequency.setValueAtTime(freq,t+offset);
+ gain.gain.setValueAtTime(.0001,t+offset);
+ gain.gain.exponentialRampToValueAtTime(volume,t+offset+.006);
+ gain.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
+ osc.connect(gain);gain.connect(ctx.destination);
+ osc.start(t+offset);osc.stop(t+offset+duration+.014);
+}
+function tick(){
+ // A single brief, audible mechanical detent, NOT the tada melody.
+ if(!ctx)return;
+ try{
+  note(950,0,.046,.075,'triangle');
+  note(1430,.012,.034,.024,'sine');
+ }catch(_){}
+}
+function tada(){
+ if(!unlockAudio())return;
+ try{
+  tick();
+  note(523.25,.08,.15,.027,'sine');
+  note(659.25,.185,.16,.031,'sine');
+  note(783.99,.29,.22,.034,'sine');
  }catch(_){}
 }
 function animate(kind,source){
- if(reduce||kind==='records'&&source&&source.dataset&&source.dataset.hhKey==='omsz')return;
+ if(reduce||(kind==='records'&&source&&source.dataset&&source.dataset.hhKey==='omsz'))return;
  var section=document.getElementById('healthSubContent');
  var buddy=section&&section.querySelector('.hhRsmToolbar .hhBuddy593');
  if(!buddy)return;
  buddy.classList.remove('hhBuddy593Celebrate');
- // Restart only upon explicit item selection, not continuous wheel scrolling.
+ // Restart only on deliberate selection, never on a continuous swipe.
  void buddy.offsetWidth;buddy.classList.add('hhBuddy593Celebrate');
+}
+function railIndex(rail,selector){
+ var items=Array.from(rail.querySelectorAll(selector)).filter(function(el){return !el.hidden&&!el.disabled});
+ if(!items.length)return -1;
+ var left=rail.getBoundingClientRect().left,closest=-1,distance=Infinity;
+ items.forEach(function(el,i){
+  var delta=Math.abs(el.getBoundingClientRect().left-left);
+  if(delta<distance){distance=delta;closest=i}
+ });
+ return closest;
+}
+function attachRail(rail,selector){
+ if(!rail||rail.dataset.hhBuddyTickV595==='on')return;
+ rail.dataset.hhBuddyTickV595='on';
+ var last=railIndex(rail,selector);
+ function begin(){
+  // Unlock WebAudio under an actual touch/pointer/keyboard gesture on mobile.
+  gestureUntil=Date.now()+4000;
+  unlockAudio();
+ }
+ function finish(){gestureUntil=Date.now()+1000}
+ rail.addEventListener('pointerdown',begin,{passive:true});
+ rail.addEventListener('touchstart',begin,{passive:true});
+ rail.addEventListener('pointerup',finish,{passive:true});
+ rail.addEventListener('pointercancel',finish,{passive:true});
+ rail.addEventListener('touchend',finish,{passive:true});
+ rail.addEventListener('touchcancel',finish,{passive:true});
+ rail.addEventListener('wheel',begin,{passive:true});
+ rail.addEventListener('keydown',function(e){
+  if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(e.key))begin();
+ });
+ rail.addEventListener('scroll',function(){
+  var current=railIndex(rail,selector);
+  if(current<0)return;
+  if(current===last)return;
+  // Filtering, re-render and Dropbox updates are silent without a gesture.
+  if(Date.now()>gestureUntil){last=current;return}
+  last=current;
+  var now=Date.now();
+  if(now-lastTickAt<90)return;
+  lastTickAt=now;
+  tick();
+ },{passive:true});
 }
 function decorate(){
  var content=document.getElementById('healthSubContent'),kind=root.healthSectionKind;
  if(!content||(kind!=='records'&&kind!=='medications'))return;
  var bar=content.querySelector('.hhRsmToolbar'),heading=bar&&bar.querySelector('.hhRsmHeading');
- if(!heading||heading.querySelector('.hhBuddy593'))return;
+ if(!heading)return;
+ // New carousel rails are recreated on render, so rebind only to each new rail.
+ attachRail(content.querySelector('.hhRsmTrack'),'.hhRsmCard');
+ attachRail(content.querySelector('.hhRsmChips'),'.hhRsmChip');
+ if(heading.querySelector('.hhBuddy593'))return;
  var buddy=make('div','hhBuddy593');
  buddy.setAttribute('aria-label','Buddy, a HealthHub mókusa');
  var art=make('span','hhBuddy593Art');
@@ -56,15 +118,6 @@ function decorate(){
  var symbol=make('span','hhBuddy593Mark',kind==='records'?'🔎':'💊');
  symbol.setAttribute('aria-hidden','true');art.appendChild(symbol);buddy.appendChild(art);
  buddy.appendChild(make('small','hhBuddy593Label','BUDDY'));
- var sound=make('button','hhBuddy593Sound');
- sound.type='button';sound.title='Hanghatás be- és kikapcsolása';
- function update(){sound.textContent=enabled()?'♫':'🔇';sound.setAttribute('aria-pressed',String(enabled()));sound.setAttribute('aria-label',enabled()?'Választóhang némítása':'Választóhang bekapcsolása')}
- sound.addEventListener('click',function(e){
-  e.preventDefault();e.stopPropagation();
-  try{root.localStorage.setItem(prefs,enabled()?'off':'on')}catch(_){}
-  update();if(enabled())play();
- });
- update();buddy.appendChild(sound);
  var count=heading.querySelector('.hhRsmCount');
  if(count)heading.insertBefore(buddy,count);else heading.appendChild(buddy);
 }
@@ -74,20 +127,20 @@ function selected(e){
  var chip=p.closest('.hhRsmChip');
  if(chip){
   if(chip.disabled||chip.getAttribute('aria-pressed')==='true')return;
-  play();animate(root.healthSectionKind,chip);return;
+  tada();animate(root.healthSectionKind,chip);return;
  }
- var action=p.closest('.hhRsmActions, .hhBuddy593Sound, .hhMed593Add');
- if(action)return;
+ if(p.closest('.hhRsmActions, .hhMed593Add'))return;
  var card=p.closest('.hhRsmCard');
- if(card){play();animate(root.healthSectionKind,null)}
+ if(card){tada();animate(root.healthSectionKind,null)}
 }
-// Capture the original gesture. Audio is scheduled synchronously before
-// the native carousel re-render; it must never play on non-user sync events.
+// Selection audio runs on the original user click, before card actions re-render.
 document.addEventListener('click',selected,true);
-var visual=document.createElement('link');visual.rel='stylesheet';visual.href='./hh-buddy-scroll-companion-v593.css?v=593-buddy-audio';document.head.appendChild(visual);
+var visual=document.createElement('link');visual.rel='stylesheet';
+visual.href='./hh-buddy-scroll-companion-v593.css?v=595-clean-buddy-rail';
+document.head.appendChild(visual);
 var prev=root.renderHealthSection;
 if(typeof prev==='function')root.renderHealthSection=async function(){
  var r=await prev.apply(this,arguments);decorate();return r;
 };
-root.HH_BUDDY_SCROLL_V593=Object.freeze({enabled:enabled,decorate:decorate,version:'593'});
+root.HH_BUDDY_SCROLL_V593=Object.freeze({decorate:decorate,version:'595',railIndex:railIndex});
 })(window);

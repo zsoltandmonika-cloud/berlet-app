@@ -1,4 +1,4 @@
-/* HHSP1 v593 · Buddy image is reused unchanged from Nutrition Golden Standard. */
+/* HHSP1 v595 · Approved Nutrition Buddy, clean illustration without sound button. */
 html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmHeading{
  display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;
  column-gap:7px;min-height:73px;
@@ -32,13 +32,6 @@ html[data-hh-scroll-select="preview"][data-hh-system-profile="m"] #healthSection
 html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Label{
  color:#d2e8fb!important;letter-spacing:.11em;font:850 9px/1.2 system-ui,sans-serif!important;
 }
-html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Sound{
- position:absolute;bottom:2px;right:-14px;width:25px;height:25px;
- display:grid;place-items:center;
- border:1px solid var(--hhRsm-line)!important;border-radius:50%!important;
- background:#0e2845!important;color:#eaf7ff!important;font-size:12px!important;
- pointer-events:auto;cursor:pointer;z-index:3;padding:0!important;
-}
 html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Celebrate img{
  animation:hhBuddy593Tada .48s cubic-bezier(.25,.66,.25,1);
 }
@@ -56,7 +49,6 @@ html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy5
   width:55px;height:55px;
  }
  html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmHeading .hhBuddy593{min-width:55px;min-height:68px}
- html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Sound{right:-5px}
  html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Mark{width:23px;height:23px;font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){
