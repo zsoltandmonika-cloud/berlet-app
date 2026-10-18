@@ -145,7 +145,7 @@ async function count(){
    var unverified=docs.filter(x=>x.status!=='complete').length;
    var good=sourceCount>0&&sourceCount===docs.length&&verified===canonical.length&&
        unverified===0&&pageOK===pages&&stored===expected;
-   sections.push((key==='monika'?'MÓНИKA':'ZSOLT')+
+   sections.push((key==='monika'?'MÓNIKA':'ZSOLT')+
     ' · PDF: '+docs.length+'/'+sourceCount+
     ' · canonical: '+canonical.length+' · QA: '+verified+
     '\nEredeti: '+expected.toLocaleString('hu-HU')+
