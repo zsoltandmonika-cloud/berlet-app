@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v665-vault-profile-grant-refresh/);
+  assert.match(index, /v666-ekg-pdf-recovery/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -85,4 +85,14 @@ test('Admin Vault auth with active session refreshes RLS-authorized profiles and
   assert.match(vault, /profilejogosultságok nem tölthetők be/);
   assert.match(vault, /healthhub:central-auth-changed/);
   assert.doesNotMatch(vault.split('function refreshProfileAccess(){')[1].split('function renderLoginOverlay(){')[0], /sSave\(|upload\(|download\(/);
+});
+
+test('Vector-rich EKG fallback preserves embedded text on canvas failure and keeps visual review mandatory',()=>{
+ assert.match(ingest,/for\(const scale of \[\.\.\.new Set\(\[first,Math\.min\(first,1\.65\),Math\.min\(first,1\.15\)\]\)\]\)/);
+ assert.match(ingest,/try\{can=await canvasPage\(page\)\}/);
+ assert.match(ingest,/result\.visualFailed\+\+/);
+ assert.match(ingest,/if\(visual&&can\)/);
+ assert.match(ingest,/if\(can\.hhRenderedScale<1\.6\)/);
+ assert.match(ingest,/result\.pagesIndexed\+\+/);
+ assert.match(ingest,/page_text:text/);
 });
