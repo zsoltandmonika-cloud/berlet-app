@@ -90,18 +90,23 @@
  }
  function apply(kind,bar,rows){
   var selected=F[kind],fn=kind==='records'?matchDoc:matchMed,visible=0;
+  // The canonical documents renderer initially limits to the newest ten.
+  // A zero count within that subset must NOT disable an OMSZ chip that could
+  // match an older document. Clicking expands the original results first.
+  var truncated=kind==='records'&&root.hhDocState&&!root.hhDocState.showAll&&
+    !!bar.parentNode.querySelector('button[onclick*="hhShowAllDocs"]');
   rows.forEach(function(row){
    var show=fn(itemData(row,kind),selected);row.hidden=!show;if(show)visible++;
   });
   bar.querySelectorAll('.hhRsmChip').forEach(function(b){
    var key=b.dataset.hhKey,count=rows.filter(function(row){return fn(itemData(row,kind),key)}).length;
    b.setAttribute('aria-pressed',String(key===selected));
-   b.disabled=key!=='all'&&count===0;
+   b.disabled=key!=='all'&&count===0&&!truncated;
    var name=(FILTERS[kind].find(function(x){return x[0]===key})||[])[1]||key;
-   b.textContent=name+' · '+count;
+   b.textContent=name+(truncated&&key!=='all'?' · keresés':' · '+count);
   });
   var status=bar.querySelector('.hhRsmCount');
-  if(status)status.textContent=visible+' találat'+(kind==='medications'?' · rögzített státusz':'');
+  if(status)status.textContent=visible+' találat'+(truncated?' · első 10 megjelenítve':kind==='medications'?' · rögzített státusz':'');
   var empty=bar.parentNode.querySelector('.hhRsmEmpty');
   if(empty)empty.hidden=visible!==0;
  }
