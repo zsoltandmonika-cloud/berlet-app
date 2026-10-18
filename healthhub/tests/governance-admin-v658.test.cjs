@@ -15,7 +15,7 @@ test('Admin charter source parses and is loaded once, after the standard profile
   assert.doesNotThrow(() => new vm.Script(moduleSrc));
   assert.equal(liveIndex.split('hh-development-charter-admin-v658.js').length - 1, 1);
   assert.ok(liveIndex.indexOf('hh-development-charter-admin-v658.js') > liveIndex.indexOf('hh-profile-standard-v652.js'));
-  assert.match(liveIndex, /v659-agile-live-acceptance/);
+  assert.match(liveIndex, /v660-verified-kb-audit/);
 });
 
 test('Governance charter names three pillars in admin and Github documentation', () => {
@@ -53,5 +53,7 @@ test('Agile policy preserves honest five-stage release status', () => {
     assert.ok(charter.includes(stage), 'GitHub charter lacks ' + stage);
   }
   assert.match(moduleSrc, /Trial &amp; error/);
+  assert.match(moduleSrc, /confirmedDuplicates/);
+  assert.match(moduleSrc, /SHA-256 ellenőrizve/);
   assert.match(charter, /no micromanagement/);
 });
