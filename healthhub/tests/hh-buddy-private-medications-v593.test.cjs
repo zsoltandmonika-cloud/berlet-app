@@ -8,8 +8,8 @@ const medCss=fs.readFileSync(path.join(dir,'hh-private-medications-v593.css'),'u
 const buddyCss=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.css'),'utf8');
 const index=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 assert.ok(index.includes('hh-private-medications-v593.js?v=593-vault-editor'));
-assert.ok(index.includes('health-scroll-select-v592.js?v=593-private-med-carousel'));
-assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=593-buddy-tada'));
+assert.ok(index.includes('health-scroll-select-v592.js?v=594-default-buddy-live'));
+assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=594-default-buddy-live'));
 assert.ok(index.indexOf('hh-private-medications-v593.js')<index.indexOf('health-scroll-select-v592.js'));
 assert.ok(index.indexOf('health-scroll-select-v592.js')<index.indexOf('hh-buddy-scroll-companion-v593.js'));
 assert.ok(meds.includes("KEY='private-reference'"),'uses established private reference, never public personal data');
