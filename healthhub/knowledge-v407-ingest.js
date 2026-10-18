@@ -130,14 +130,26 @@ async function loadOcr(){
 }
 async function canvasPage(page){
  var start=page.getViewport({scale:1}),factor=Math.min(2.4,3000/start.width,4000/start.height);
- var viewport=page.getViewport({scale:Math.max(1,factor)});
- var canvas=document.createElement('canvas');canvas.width=Math.round(viewport.width);
- canvas.height=Math.round(viewport.height);
- if(canvas.width*canvas.height>12000000)throw Error('Az orvosi oldal képének mérete túl nagy.');
- var ctx=canvas.getContext('2d',{alpha:false});
- if(!ctx)throw Error('A dokumentum-képrenderelő nem elérhető.');
- await page.render({canvasContext:ctx,viewport:viewport}).promise;
- return canvas;
+ var first=Math.max(1,factor),lastError;
+ // Samsung Watch ECG PDFs often have thousands of vector drawing operations.
+ // Retry on smaller canvases on memory-constrained Android, without truncating graphics.
+ for(const scale of [...new Set([first,Math.min(first,1.65),Math.min(first,1.15)])]){
+  var canvas=null;
+  try{
+   var viewport=page.getViewport({scale:scale});
+   canvas=document.createElement('canvas');canvas.width=Math.round(viewport.width);
+   canvas.height=Math.round(viewport.height);
+   if(canvas.width*canvas.height>12000000)throw Error('Túl nagy képfelület.');
+   var ctx=canvas.getContext('2d',{alpha:false});
+   if(!ctx)throw Error('A dokumentum-képrenderelő nem elérhető.');
+   await page.render({canvasContext:ctx,viewport:viewport}).promise;
+   canvas.hhRenderedScale=scale;
+   return canvas;
+  }catch(e){lastError=e;clearCanvas(canvas)}
+ }
+ var error=new Error('Az oldal képi renderelése mindhárom minőségi szinten sikertelen.');
+ error.cause=lastError;
+ throw error;
 }
 function png(canvas){
  return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Képkivonat nem hozható létre.')),'image/png'));
@@ -296,13 +308,21 @@ async function extractDocument(p,file,bytes,docId){
     var raw=await page.getTextContent();
     text=rawText(raw.items);
     method=text.length>=80?'embedded':'none';
-    var ops=flags(await page.getOperatorList(),lib);
+    var ops={images:0,paths:0};
+    try{ops=flags(await page.getOperatorList(),lib)}
+    catch(_){reasons.push('PDF grafikus operátorok kiolvasása sikertelen: '+pageNo+'. oldal')}
     signal=CORE.visualSignals(file.name,text,ops);
     visual=signal.capture;
     needOcr=text.length<80;
     if(needOcr||visual){
-     can=await canvasPage(page);
-     if(needOcr){
+     try{can=await canvasPage(page)}
+     catch(_){
+      // Never lose valid embedded clinical text just because a vector-heavy
+      // ECG page cannot be rasterized. Keep the source flagged for visual review.
+      result.visualFailed++;
+      reasons.push('Az oldal képi renderelése nem sikerült: '+pageNo+'. oldal');
+     }
+     if(needOcr&&can){
       try{
        var worker=await loadOcr(),recognized=await worker.recognize(can);
        var candidate=String(recognized.data?.text||'').trim();
@@ -327,7 +347,7 @@ async function extractDocument(p,file,bytes,docId){
      reasons.push('OCR ellenőrzendő: '+pageNo+'. oldal');
     }
     if(needOcr){result.pagesNeedingOcr++;reasons.push('Nem kiolvasható oldal: '+pageNo)}
-    if(visual){
+    if(visual&&can){
      try{
       var picture=await png(can);await saveVisual(p,docId,pageNo,picture,can);
       result.visualPages++;
