@@ -11,19 +11,19 @@ const legacyImport=window.importHealthVault;
 const legacyDetail=window.openHrDetail;
 const legacyExport=window.exportHealthVault;
 
-const MEDICATIONS={
-  monika:[
-    {id:'med-monika-inspra',name:'Inspra',dose:'12,5 mg · naponta 1×',status:'aktuális'},
-    {id:'med-monika-entresto',name:'Entresto',dose:'24/26 mg · ½ tabletta reggel és este',status:'aktuális'},
-    {id:'med-monika-concor',name:'Concor',dose:'2,5 mg · naponta 2×',status:'aktuális'},
-    {id:'med-monika-noacid',name:'Noacid',dose:'40 mg · este 1×',status:'aktuális'},
-    {id:'med-monika-forxiga',name:'Forxiga',dose:'10 mg · naponta 1×',status:'aktuális'},
-    {id:'med-monika-aerius',name:'Aerius',dose:'szezonálisan · allergiaszezonban',status:'aktuális'}
-  ],
-  zsolt:[
-    {id:'med-zsolt-tolura',name:'Tolura',dose:'40 mg · naponta 1×',status:'aktuális'}
-  ]
-};
+/* v655: Mónika has no hardcoded source. Keep Zsolt's original record
+   until his profile receives an independently approved private migration. */
+const MEDICATIONS={zsolt:[
+  {id:'med-zsolt-tolura',name:'Tolura',dose:'40 mg · naponta 1×',status:'aktuális'}
+]};
+async function privateMedicationCount(profile){
+ try{
+  const ref=await getOne('meta','private-reference');
+  const list=ref&&ref.payload&&ref.payload.profiles&&
+   ref.payload.profiles[profile]&&ref.payload.profiles[profile].medications;
+  return Array.isArray(list)&&list.some(x=>x&&x.name)?list.filter(x=>x&&x.name).length:(MEDICATIONS[profile]||[]).length;
+ }catch(_){return 0}
+}
 const DEVICES={
   monika:[{id:'device-monika-crtd',name:'Medtronic Amplia MRI Quad CRT-D',type:'DTMB2QQ · MR-kondicionális',implantedAt:'2024-07-15',status:'beültetett'}],
   zsolt:[]
@@ -185,7 +185,7 @@ window.renderHealthSection=async function(){
   }
   if(k==='overview'){
     const [docs,meas,apps]=await Promise.all([getByProfile('documents',p),getByProfile('measurements',p),getByProfile('appointments',p)]);
-    c.innerHTML=`<div class="hrSectionCard"><h3>📊 Migrált karton</h3>${hrow('📄','Leletek és naplóbejegyzések',docs.length+' tétel','Leletek')}${hrow('💊','Gyógyszerek',(MEDICATIONS[p]||[]).length+' tétel','Gyógyszer')}${hrow('📈','Mérések',meas.length+' tétel','Mérés')}${hrow('⌚','Eszközök',(DEVICES[p]||[]).length+' tétel','Eszköz')}${apps.length?hrow('📅','Közelgő időpontok',apps.length+' tétel','Időpont'):''}</div><div class="hrSectionCard"><h3>🕑 HealthRadar előzmények</h3>${await renderHistory(p)}</div>`;
+    c.innerHTML=`<div class="hrSectionCard"><h3>📊 Migrált karton</h3>${hrow('📄','Leletek és naplóbejegyzések',docs.length+' tétel','Leletek')}${hrow('💊','Gyógyszerek',(await privateMedicationCount(p))+' tétel','Gyógyszer')}${hrow('📈','Mérések',meas.length+' tétel','Mérés')}${hrow('⌚','Eszközök',(DEVICES[p]||[]).length+' tétel','Eszköz')}${apps.length?hrow('📅','Közelgő időpontok',apps.length+' tétel','Időpont'):''}</div><div class="hrSectionCard"><h3>🕑 HealthRadar előzmények</h3>${await renderHistory(p)}</div>`;
     return;
   }
   if(k==='records'){
@@ -195,9 +195,15 @@ window.renderHealthSection=async function(){
     return;
   }
   if(k==='medications'){
-    let arr=MEDICATIONS[p]||[];if(q)arr=arr.filter(x=>JSON.stringify(x).toLocaleLowerCase('hu').includes(q));
-    const medRow=x=>`<div class="hrRow clickable" onclick="openHrDetail('medication','${x.id}')"><div class="hrIco">💊</div><div><b>${esc(x.name)}</b><small>${esc(x.dose||'')}</small></div><span style="display:flex;align-items:center;gap:4px;justify-content:flex-end;flex-wrap:wrap"><span class="hrTag">${esc(x.status||'')}</span><button type="button" class="hhMedPurposeBtn" onclick="event.stopPropagation();hhMedicationPurpose('${esc(x.name)}')" style="border:0;border-radius:11px;padding:5px 8px;background:#eaf8f4;color:#317f77;font-size:7.5px;font-weight:850;white-space:nowrap;cursor:pointer">Mire való?</button></span></div>`;
-    c.innerHTML=`<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3>${arr.length?arr.map(medRow).join(''):'<div class="hrEmpty">Nincs találat.</div>'}</div>`;
+    if(p==='monika'){
+      // The private module adds the only source of Mónika's medicines.
+      c.innerHTML='<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3></div>';
+      return;
+    }
+    let arr=MEDICATIONS[p]||[];
+    if(q)arr=arr.filter(x=>JSON.stringify(x).toLocaleLowerCase('hu').includes(q));
+    const medRow=x=>`<div class="hrRow clickable" onclick="openHrDetail('medication','${x.id}')"><div class="hrIco">💊</div><div><b>${esc(x.name)}</b><small>${esc(x.dose||'')}</small></div><span class="hrTag">${esc(x.status||'')}</span></div>`;
+    c.innerHTML=`<div class="hrSectionCard"><h3>💊 Gyógyszerek</h3>${arr.map(medRow).join('')}</div>`;
     return;
   }
   if(k==='measurements'){
@@ -224,7 +230,11 @@ window.openHrDetail=async function(kind,id){
   const meta=await migrationMeta();if(!meta)return legacyDetail?.(kind,id);
   let x=null,body='';
   if(kind==='record'){return window.openHrDocument(id)}
-  if(kind==='medication')x=(MEDICATIONS[profileKey()]||[]).find(a=>a.id===id);
+  // Keep Zsolt's original legacy Tolura detail; private medicines are edited in v593.
+   if(kind==='medication'){
+     x=(MEDICATIONS[profileKey()]||[]).find(a=>a.id===id);
+     if(!x&&window.HH_PRIVATE_MEDICATIONS_V593)return window.HH_PRIVATE_MEDICATIONS_V593.edit(id);
+   }
   if(kind==='device')x=(DEVICES[profileKey()]||[]).find(a=>a.id===id);
   if(kind==='measurement')x=await getOne('measurements',id);
   if(kind==='appointment')x=await getOne('appointments',id);

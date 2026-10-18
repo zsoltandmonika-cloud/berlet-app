@@ -154,6 +154,88 @@ async function edit(id){
  });
  overlay.hidden=false;name.focus();
 }
+/* v655: manual, private seven-item list reconciliation. No personal medicines
+ * are shipped in public JavaScript; the user selects a local JSON file.
+ * All prior entries are archived inside the same private profile before replacement. */
+function validateBatch(j){
+ if(!j||j.schema!=='healthhub.private.medications-batch/1'||
+  !['monika','zsolt'].includes(j.targetProfile)||
+  !Array.isArray(j.medications)||j.medications.length!==7)
+  throw new Error('A lista nem megfelelő hétgyógyszeres HealthHub csomag.');
+ var names=new Set();
+ j.medications.forEach(function(x){
+  if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>180||
+    names.has(norm(x.name))||typeof x.purpose!=='string'||!x.purpose.trim()||
+    x.purpose.length>1000||typeof x.strength!=='string'||x.strength.length>80||
+    typeof x.schedule!=='string'||x.schedule.length>180)
+   throw new Error('Hibás vagy duplikált gyógyszertétel.');
+  names.add(norm(x.name));
+ });
+ return j;
+}
+async function importBatchFile(file){
+ if(!file||file.size>64*1024)throw new Error('A gyógyszerlista fájlja túl nagy.');
+ var json=validateBatch(JSON.parse(await file.text())),profile=current();
+ if(profile!==json.targetProfile)throw new Error('Nem a megfelelő profil van kiválasztva.');
+ var summary=json.medications.map(function(x,i){return (i+1)+'. '+x.name}).join('\n');
+ if(!root.confirm('A kiválasztott profil aktív gyógyszerlistája 7 tételre cserélődik.\n'+
+   'A régieket PRIVÁT archívumban megőrizzük; Zsolt adatai érintetlenek.\n\n'+summary+
+   '\n\nBiztosan cseréljük a nyilvántartást?'))return false;
+ // Read the remote backup before replacement where available, to avoid
+ // losing an entry that exists only in the Dropbox master.
+ var remoteList=null,cloud=root.HH_DROPBOX_VAULT;
+ if(cloud&&typeof cloud.connected==='function'&&cloud.connected()&&typeof cloud.downloadJson==='function'){
+  try{
+   var remote=await cloud.downloadJson('/HealthHub/master/medications.json');
+   var remoteRef=remote&&remote.privateReference;
+   remoteList=remoteRef&&remoteRef.profiles&&remoteRef.profiles[profile]&&remoteRef.profiles[profile].medications;
+   }catch(e){
+   if(!(e&&(e.status===409||e.status===404)))throw new Error('A Dropbox gyógyszeradatok biztonsági olvasása sikertelen: '+String(e.message||e));
+  }
+ }
+ var ref=await read()||{schema:'healthhub-private-reference-v1',profiles:{}};
+ if(!ref.profiles||typeof ref.profiles!=='object')throw new Error('A privát gyógyszerkarton szerkezete hibás.');
+ var pp=ref.profiles[profile]||{},archive=Array.isArray(pp.medicationListArchives)?pp.medicationListArchives:[];
+ var stamp=new Date().toISOString(),previous=Array.isArray(pp.medications)?pp.medications:[];
+ archive.push({createdAt:stamp,reason:'user-confirmed-list-rebuild',medications:JSON.parse(JSON.stringify(previous))});
+ if(Array.isArray(remoteList)&&JSON.stringify(remoteList)!==JSON.stringify(previous))
+  archive.push({createdAt:stamp,reason:'remote-list-before-rebuild',medications:JSON.parse(JSON.stringify(remoteList))});
+ pp.medicationListArchives=archive;
+ pp.medications=json.medications.map(function(x){
+  return {id:'private-med-'+(root.crypto&&root.crypto.randomUUID?root.crypto.randomUUID():String(Date.now())+'-'+Math.random()),
+   name:x.name.trim(),strength:x.strength.trim(),schedule:x.schedule.trim(),dose:x.schedule.trim(),
+   activeIngredient:String(x.activeIngredient||'').trim(),purpose:x.purpose.trim(),benefit:String(x.benefit||'').trim(),
+   caution:String(x.caution||'').trim(),status:'aktuális',updatedAt:stamp,
+   recordSource:'felhasználó által jóváhagyott lista',verifiedPrescription:false};
+ });
+ ref.profiles[profile]=pp;
+ await savePayload(ref);
+ try{root.dispatchEvent(new CustomEvent('healthhub:private-medications-saved',{detail:{profile:profile}}))}catch(_){}
+ if(typeof root.hhRefreshLenaHealthContext289==='function')
+  try{await root.hhRefreshLenaHealthContext289(profile,'medications-list-rebuilt')}catch(_){}
+ var cloudOk=false,cloudReason='';
+ if(cloud&&typeof cloud.connected==='function'&&cloud.connected()&&typeof root.hhMasterStructuredSync304==='function'){
+  try{cloudOk=await root.hhMasterStructuredSync304(true)===true}catch(e){cloudReason=String(e.message||e)}
+ }
+ var after=await read(),saved=((((after||{}).profiles||{})[profile]||{}).medications)||[];
+ if(saved.length!==7||saved.some(function(x,i){return norm(x.name)!==norm(json.medications[i].name)}))
+  throw new Error('A szinkronizálás után a gyógyszerlista eltér. Visszaállítás/ellenőrzés szükséges.');
+ if(typeof root.renderHealthSection==='function')await root.renderHealthSection();
+ var message=cloudOk?'7 gyógyszer mentve, a Dropbox szinkronizálva.':
+  '7 gyógyszer helyben mentve, de a Dropbox nem igazolt! '+cloudReason;
+ toast(message);return {saved:7,cloudOk:cloudOk,archived:archive.length};
+}
+function openBatchImport(){
+ var input=document.createElement('input');input.type='file';input.accept='.json,application/json';
+ input.style.display='none';document.body.appendChild(input);
+ input.addEventListener('change',async function(){
+  var file=input.files&&input.files[0];if(input.remove)input.remove();
+  if(!file)return;
+  try{await importBatchFile(file)}catch(e){console.error('Gyógyszerlista import',e);toast('Gyógyszerlista import hiba: '+String(e.message||e))}
+ });
+ input.click();
+}
+
 function appendCard(parent,m){
  var row=make('div','hrRow clickable hhMed593Record');row.dataset.hhPrivateMed='1';row.dataset.hhMedId=String(m.id);
  row.setAttribute('role','button');row.tabIndex=0;
@@ -179,14 +261,28 @@ async function augment(){
    /gyógyszer/i.test((e.querySelector('h2,h3,h4')||{}).textContent||'');
  });
  if(!card){card=make('section','hrSectionCard');card.appendChild(make('h3','','💊 Gyógyszerek'));container.appendChild(card)}
+ // Suppress every obsolete migration/demo medication row before constructing
+ // the one true list from the current profile's private reference.
+ if(current()==='monika')Array.from(card.querySelectorAll('.hrRow[onclick*="medication"]')).forEach(function(x){
+  if(x.dataset&&x.dataset.hhPrivateMed==='1')return;
+  if(typeof x.remove==='function')x.remove();
+ });
  if(card.querySelector('.hhMed593Add'))return;
  var button=make('button','hhMed593Add',current()==='monika'
   ?'＋ Rozuva-Teva 10 mg rögzítése · Mónika':'＋ Gyógyszer hozzáadása');
  button.type='button';button.addEventListener('click',function(){edit()});
  card.insertBefore(button,card.querySelector('.hrRow,.hhRsmToolbar,.hhRsmTrack'));
+ if(current()==='monika'){
+  var bulk=make('button','hhMed593Add hhMed655Import','↻ Mónika 7 gyógyszerének egységes betöltése');
+  bulk.type='button';bulk.addEventListener('click',openBatchImport);
+  card.insertBefore(bulk,button.nextSibling);
+ }
  try{
   var payload=await read(),profile=current(),a=((((payload||{}).profiles||{})[profile]||{}).medications)||[];
   if(!Array.isArray(a))return;
+  if(a.some(function(x){return x&&x.name})){
+   Array.from(card.querySelectorAll('.hrEmpty')).forEach(function(x){if(x.remove)x.remove()});
+  }
   var rendered=Array.from(card.querySelectorAll('.hrRow b')).map(function(x){return norm(x.textContent)});
   a.forEach(function(m){
    if(!m||!m.name||!m.id||rendered.includes(norm(m.name)))return;
@@ -199,5 +295,5 @@ var previous=root.renderHealthSection;
 if(typeof previous==='function')root.renderHealthSection=async function(){
  var res=await previous.apply(this,arguments);await augment();return res;
 };
-root.HH_PRIVATE_MEDICATIONS_V593=Object.freeze({edit:edit,open:edit,version:PREVIEW,augment:augment});
+root.HH_PRIVATE_MEDICATIONS_V593=Object.freeze({edit:edit,open:edit,version:PREVIEW,augment:augment,importBatchFile:importBatchFile,openBatchImport:openBatchImport});
 })(window);
