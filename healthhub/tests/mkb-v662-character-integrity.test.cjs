@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v666-ekg-pdf-recovery/);
+  assert.match(index, /v667-mkb-descope-11-watch-ecg/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -95,4 +95,27 @@ test('Vector-rich EKG fallback preserves embedded text on canvas failure and kee
  assert.match(ingest,/if\(can\.hhRenderedScale<1\.6\)/);
  assert.match(ingest,/result\.pagesIndexed\+\+/);
  assert.match(ingest,/page_text:text/);
+});
+
+test('User-descoped wearable EKG source IDs are removed before repeat ingestion',()=>{
+ const source=ingest.slice(ingest.indexOf('async function excludedDriveIds(p){'),
+   ingest.indexOf('async function readDocuments(p){'));
+ assert.match(source,/source_metadata\.ingest_scope==='excluded'/);
+ assert.match(source,/return new Set/);
+ assert.match(ingest,/var remaining=files\.filter\(f=>!excluded\.has\(f\.id\)/);
+ assert.match(ingest,/if\(excluded\.has\(f\.id\)\)\{skipped\+\+;return\}/);
+ assert.match(admin,/source_metadata\.ingest_scope==='excluded'/);
+ assert.match(admin,/grand\.excluded/);
+ assert.match(admin,/sourceCount===docs\.length/);
+ const sourceFn=new Function('active',source+';return excludedDriveIds;');
+ const get=sourceFn(()=>({request:async()=>[
+  {origin_ref:'keep-a',source_metadata:{archive:'HealthHub Lena Archive'}},
+  {origin_ref:'skip-e',source_metadata:{ingest_scope:'excluded'}},
+  {origin_ref:'keep-b',source_metadata:{}}
+ ]}));
+ return get('monika').then(excluded=>{
+  assert.equal(excluded.size,1);
+  assert.equal(excluded.has('skip-e'),true);
+  assert.equal(excluded.has('keep-a'),false);
+ });
 });
