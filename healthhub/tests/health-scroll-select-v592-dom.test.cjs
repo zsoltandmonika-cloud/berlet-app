@@ -19,7 +19,7 @@ class Fake {
  matches(s){
   if(s==='b'||s==='small')return this.tagName===s;
   if(s==='.hrSectionCard')return this.className.includes('hrSectionCard');
-  if(s==='.hrTag'||s==='.hhLenaExplainBtn'||s==='.hhMedPurposeBtn'||s==='.hhRsmChip'||s==='.hhRsmCount'||s==='.hhRsmEmpty')return this.className.includes(s.slice(1));
+  if(s==='.hrTag'||s==='.hhLenaExplainBtn'||s==='.hhMedPurposeBtn'||s==='.hhRsmChip'||s==='.hhRsmCount'||s==='.hhRsmEmpty'||s==='.hhRsmToolbar'||s==='.hhRsmTrack'||s==='.hhRsmActions')return this.className.includes(s.slice(1));
   if(s==='button[onclick*="hhShowAllDocs"]')return this.tagName==='button'&&(this.attrs.onclick||'').includes('hhShowAllDocs');
   if(s.includes('.hrRow[onclick'))return this.className.includes('hrRow')&&s.split(',').some(q=>{
    const m=q.match(/onclick\*="([^"]+)"/);return m&&(this.attrs.onclick||'').includes(m[1]);
