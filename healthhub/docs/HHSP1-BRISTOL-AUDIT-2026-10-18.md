@@ -30,3 +30,12 @@ Bármely sikertelen acceptance esetén a Nutrition `index.html` egyetlen, audit�
 6. Kétprofilos, mobilos és desktop responsive ellenőrzés.
 
 **Kiadási kapu:** kódalapú importjavítás kész az auditágon; éles main deploy és készülékes E2E acceptance még hiányzik. Ne jelöljük Done-nak addig.
+
+## 2026-10-18 · Kioldott HHSP1 hotfix státusz
+- **PR:** [#343](https://github.com/zsoltandmonika-cloud/berlet-app/pull/343), összevonva a `main` ágba.
+- **Main merge SHA:** `fc970ee13826c9a2776509a845391202d230b2b1`.
+- **Tartalom:** a Nutrition `index.html` két elavult Bristol carousel importja eltávolítva. A Sleep működése változatlan; két elavult CI-teszt böngészőstubja/cache-kulcs ellenőrzése kijavítva.
+- **GitHub Actions:** HealthHub Level 3 Guard PASS, Pages build PASS, Pages deploy PASS, report-build-status PASS.
+- **Éles webes/készülékes end-to-end QA:** továbbra is nyitott. Az automatikus Pages deploy sikeres státusza nem bizonyítja a mobil UI és a Dropboxból való képfeltöltés működését.
+- **Visszaállítás:** `backup/hh-pre-hhsp1-20261018-v650` ág megőrizve.
+- **Release besorolás:** Bristol hotfix kiadva; a teljes HHSP1 audit/service pack **nem** tekinthető lezártnak.
