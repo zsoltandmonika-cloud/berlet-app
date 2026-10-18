@@ -110,7 +110,7 @@ async function test(){
  await window.renderHealthSection();
  assert.equal(container.querySelectorAll('.hhMed593Record').length,1,'private medication displayed once');
  profile='zsolt';await window.renderHealthSection();
- assert.equal(container.querySelectorAll('.hhMed593Record').length,0,'cross-profile privacy');
+ assert.equal(container.querySelectorAll('.hhMed593Record').length,1,'Zsolt retains exactly his own private record');
  // v655: synthetic records replace old private rows; old records preserved.
  profile='monika';
  const seven=Array.from({length:7},(_,i)=>({
@@ -129,7 +129,7 @@ async function test(){
  assert.equal(container.querySelectorAll('.hhMed593Record').length,7,'only seven private rows rendered');
  assert.ok(container.querySelector('.hhMed655Import'),'bulk import available in Mónika profile');
  profile='zsolt';await window.renderHealthSection();
- assert.equal(container.querySelectorAll('.hhMed593Record').length,0,'cross-profile isolation preserved');
+ assert.equal(container.querySelectorAll('.hhMed593Record').length,1,'other profile still displays its one private record');
  profile='monika';
  await assert.rejects(()=>api.importBatchFile({size:2000,text:async()=>JSON.stringify({...pack,targetProfile:'zsolt'})}),/profil/i);
  assert.equal(payload.profiles.monika.medications.length,7,'wrong target cannot change stored list');
