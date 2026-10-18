@@ -233,7 +233,7 @@ async function save(){
  if(busy||!preview||preview.profile!==profile())return;
  var p=profile();if(!allowed(p)){msg('🔒 Health Vault-jogosultság szükséges.');return}
  if(Date.now()-preview.time>20*60*1000){msg('⚠ Az előnézet 20 percnél régebbi. Frissítsd.');reset();return}
- if(typeof confirm==='function'&&
+ if(typeof confirm!=='function'||
   !confirm(preview.candidates.length+' forrásolt orvosi TÉNYJELÖLTET rögzítünk „ellenőrzésre vár” státusszal a privát '+pname(p)+' profilba. Folytatod?'))return;
  busy=true;buttons();var saved=0,already=0,linked=0,skippedRejected=0,errors=0,checkedCandidates=[];
  try{
