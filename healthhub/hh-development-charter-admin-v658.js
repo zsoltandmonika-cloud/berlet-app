@@ -86,10 +86,22 @@ async function audit(){
  button.disabled=true;box.textContent='Ellenőrzés folyamatban…';
  try{
   var prefix='/rest/v1/', filter='&profile_key=eq.'+encodeURIComponent(p);
+  async function paged(table,columns){
+   var out=[],offset=0;
+   for(var page=0;page<40;page++){
+    if(p!==profile()||!status())throw Error('A profil vagy jogosultság időközben megváltozott.');
+    var part=await api.request(prefix+table+'?select='+columns+filter+'&limit=500&offset='+offset,{method:'GET'});
+    if(!Array.isArray(part))throw Error('Érvénytelen lapozott válasz.');
+    out.push.apply(out,part);
+    if(part.length<500)return out;
+    offset+=500;
+   }
+   throw Error('Túl sok rekord; nagy volumenű szerveroldali riport szükséges.');
+  }
   var result=await Promise.all([
-   api.request(prefix+'hh_mkb_sources?select=original_name,parse_status,sha256'+filter+'&limit=1000',{method:'GET'}),
-   api.request(prefix+'hh_kb_documents?select=id,status,profile_key'+filter+'&limit=1000',{method:'GET'}),
-   api.request(prefix+'hh_mkb_facts?select=id'+filter+'&limit=1000',{method:'GET'})
+   paged('hh_mkb_sources','original_name,parse_status,sha256'),
+   paged('hh_kb_documents','id,status,profile_key'),
+   paged('hh_mkb_facts','id')
   ]);
   if(p!==profile()||!status())throw Error('Profil- vagy hozzáférésváltozás, az ellenőrzés megszakadt.');
   var sources=result[0],docs=result[1],facts=result[2];
