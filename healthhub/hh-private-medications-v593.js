@@ -5,7 +5,7 @@
  */
 (function(root){
 'use strict';
-var DB='healthhub-healthradar-v2',KEY='private-reference',PREVIEW='653';
+var DB='healthhub-healthradar-v2',KEY='private-reference',PREVIEW='593';
 var ROZUVA_INFO={
  purpose:'Koleszterincsökkentő gyógyszer. A rozuvasztatin elsősorban az LDL („rossz”) koleszterin szintjét csökkenti.',
  benefit:'Csökkentheti az érelmeszesedéshez kapcsolódó szív- és érrendszeri események kockázatát. A konkrét felírás okát csak a kezelőorvos tudja megerősíteni.',
