@@ -1,0 +1,30 @@
+/* HealthHub BODY BALANCE · Eight discreet apple-juice glass colour cards. */
+#urineColorWrap{grid-column:1/-1;min-width:0}
+#urineColorWrap[hidden]{display:none!important}
+#bodyDialog:has(.hh-urine-wheel){width:min(590px,calc(100% - 18px))}
+.hh-urine-wheel{min-width:0;overflow:hidden;border:1px solid color-mix(in srgb,var(--accent) 44%,#7c9bb9);border-radius:21px;padding:12px 0 11px;background:radial-gradient(ellipse 110% 90% at 48% 0%,var(--accentWash),transparent 80%),linear-gradient(145deg,#132e50,#09192e);box-shadow:inset 0 1px #fff4}
+.hh-urine-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 13px}
+.hh-urine-heading strong{font-size:14px;letter-spacing:-.02em;color:#f5faff}
+.hh-urine-heading small{font-size:10px;font-weight:800;color:#afd2eb;white-space:nowrap}
+.hh-urine-help{color:#b5cee7;font-size:11px;line-height:1.4;padding:0 13px;margin:6px 0 0!important}
+.hh-urine-rail{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;scroll-snap-type:x mandatory;padding:14px max(calc((100% - min(68vw,260px))/2),12px) 11px}
+.hh-urine-rail::-webkit-scrollbar{display:none}
+.hh-urine-card{flex:0 0 min(68vw,260px);scroll-snap-align:center;scroll-snap-stop:always;min-height:238px;position:relative;display:flex;align-items:center;flex-direction:column;gap:5px;padding:12px 10px 15px;border-radius:21px;border:1.5px solid #b3d5ed76;background:linear-gradient(150deg,#264867,#112940);box-shadow:inset 0 1px #fff4,0 10px 23px #0007;color:#f3fbff;opacity:.78;transform:scale(.96);transition:transform .2s ease,opacity .2s ease,border-color .2s ease,box-shadow .2s ease;cursor:pointer;text-align:center}
+.hh-urine-card[data-centered="true"]{opacity:1;transform:scale(1);border-color:#d0ecf7a9}
+.hh-urine-card[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 1px #fff4,0 10px 22px #000b,0 0 19px var(--accentWash)}
+.hh-urine-number{position:absolute;top:11px;left:11px;z-index:2;display:grid;place-items:center;min-width:30px;height:30px;border:1px solid #ffffff5c;border-radius:10px;background:#0b2139df;color:#eef8ff;font-size:14px;font-weight:900}
+.hh-urine-art{height:143px;width:100%;display:grid;place-items:center;background:radial-gradient(ellipse at 52% 84%,#ffffff16,transparent 60%)}
+.hh-urine-art svg{height:135px;width:100%;max-width:195px;filter:drop-shadow(0 10px 10px #0008)}
+.hh-urine-card b{font-size:14px;letter-spacing:-.02em;line-height:1.2}
+.hh-urine-card small{font-size:11px;color:#c7dded;line-height:1.4}
+.hh-urine-control{display:flex;align-items:center;gap:9px;padding:3px 13px 0}
+.hh-urine-control>button{min-height:35px;min-width:36px;padding:4px 9px;background:#1b4264;border:1px solid #7dacd8a6;color:#f7fdff;border-radius:11px;font-size:19px;cursor:pointer}
+.hh-urine-control>button:disabled{opacity:.4}
+.hh-urine-status{flex:1;text-align:center;min-width:0;font-size:12px;font-weight:850;color:#b9d4ed}
+.hh-urine-status[data-chosen="true"]{color:#f1fbff}
+.hh-urine-foot{padding:9px 13px 0;display:flex;justify-content:space-between;gap:13px;align-items:center}
+.hh-urine-clear{min-height:34px;border-radius:11px;border:1px solid #779cc0ae;background:#173954;color:#d6ebfc;font-size:11px;font-weight:750;padding:7px 10px;cursor:pointer}
+.hh-urine-foot small{max-width:245px;color:#acc8db;line-height:1.35;text-align:right;font-size:10px}
+#urineColorWrap.hh-urine-enhanced>label[for="urineColor"],#urineColorWrap.hh-urine-enhanced>select#urineColor{display:none!important}
+@media(max-width:400px){.hh-urine-card{min-height:222px}.hh-urine-art{height:130px}.hh-urine-art svg{height:125px}.hh-urine-rail{gap:10px}.hh-urine-foot small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.hh-urine-card{transition:none}}
