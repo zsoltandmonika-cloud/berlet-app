@@ -43,6 +43,7 @@ function mount(){
   '<div class="kbActions"><input id="hhKb407Query" type="search" placeholder="Keresés a teljes szövegben…">'+
   '<label><input id="hhKb407Exact" type="checkbox"> Pontos karakter</label>'+
   '<button type="button" data-kb="search">🔎 Keresés</button>'+
+   '<button type="button" data-kb="facts">🧠 Forrásolt orvosi tények</button>'+
   '<button type="button" data-kb="visuals">🫀 Képi mellékletek</button></div>'+
   '<div id="hhKb407Results"></div>';
  anchor.parentElement.insertBefore(panel,anchor.nextSibling);
@@ -85,6 +86,7 @@ function handleClick(e){
  if(op==='pilot-omsz')runPilot('omsz');
  if(op==='stop')engine()?.stop();
  if(op==='search')search();
+ if(op==='facts')listFacts();
  if(op==='visuals')listGallery();
  if(op==='open-image')openVisual(b.dataset.doc,b.dataset.page);
  if(op==='list-images')listForDoc(b.dataset.doc);
@@ -174,6 +176,71 @@ async function search(){
   });
  }catch(e){root.textContent='Keresési hiba: '+String(e.message||e).slice(0,130)}
 }
+async function listFacts(){
+ var p=profile(),root=resultRoot(),svc=service();
+ if(!root)return;
+ clearImages();root.textContent='🧠 A privát, forrásolt tények betöltése…';
+ var a=svc&&svc.getStatus&&svc.getStatus();
+ if(!a||!a.authenticated||!Array.isArray(a.authorizedProfiles)||
+  !a.authorizedProfiles.includes(p)){
+  root.textContent='🔒 A megtekintéshez az adott profil hitelesített Health Vault-jogosultsága szükséges.';return;
+ }
+ try{
+  var rows=await svc.request('/rest/v1/hh_mkb_facts?select=id,source_id,fact_type,label,value_text,'+
+   'observed_date,review_status,assertion_type,polarity'+
+   '&profile_key=eq.'+encodeURIComponent(p)+'&order=entered_at.desc&limit=25',{method:'GET'});
+  if(profile()!==p||!auth())throw Error('A jogosultság vagy profil megváltozott.');
+  if(!Array.isArray(rows))throw Error('A ténylista nem érhető el.');
+  if(!rows.length){
+   root.textContent='Még nincs forrással összekapcsolt, strukturált tény. A PDF-ek szöveges beolvasása ettől külön művelet.';return;
+  }
+  var ids=rows.map(x=>x.id).filter(x=>/^[a-f0-9-]{36}$/i.test(String(x)));
+  if(!ids.length)throw Error('Nincs ellenőrizhető tényazonosító.');
+  var sources=[...new Set(rows.map(x=>x.source_id).filter(x=>/^[a-f0-9-]{36}$/i.test(String(x))))];
+  var responses=await Promise.all([
+   svc.request('/rest/v1/hh_mkb_evidence?select=fact_id,source_id,page_no,excerpt,'+
+    'extraction_method,review_status,evidence_role&profile_key=eq.'+encodeURIComponent(p)+
+    '&fact_id=in.('+ids.join(',')+')&limit=200',{method:'GET'}),
+   sources.length?svc.request('/rest/v1/hh_mkb_sources?select=id,original_name'+
+    '&profile_key=eq.'+encodeURIComponent(p)+'&id=in.('+sources.join(',')+')&limit=100',
+    {method:'GET'}):Promise.resolve([])
+  ]);
+  if(profile()!==p||!auth())throw Error('A profil vagy jogosultság megváltozott.');
+  var evidence=responses[0],src=responses[1];
+  if(!Array.isArray(evidence)||!Array.isArray(src))throw Error('A forrásbizonyítékok nem ellenőrizhetők.');
+  var names=new Map(src.map(x=>[x.id,x.original_name]));
+  root.textContent='';
+  var caption=document.createElement('small');
+  caption.textContent='Első '+rows.length+' strukturált tény · eredeti dokumentumhoz és oldalhoz kötve. '+
+    'A „függőben” státusz nem orvosi jóváhagyás.';
+  root.appendChild(caption);
+  for(const fact of rows){
+   var box=document.createElement('div');box.className='kbResult';
+   var h=document.createElement('strong');h.textContent=fact.label||'Névtelen tény';
+   var badge=document.createElement('small');
+   badge.textContent='📅 '+(fact.observed_date||'időpont nem ismert')+
+    ' · '+(fact.review_status==='verified'?'✅ Ellenőrzött':
+      fact.review_status==='rejected'?'⛔ Elvetett':'⏳ Ellenőrzésre vár')+
+    ' · '+(fact.fact_type||'egyéb');
+   var value=document.createElement('p');value.textContent=String(fact.value_text||'').slice(0,700);
+   box.append(h,badge,value);
+   for(const e of evidence.filter(x=>x.fact_id===fact.id)){
+    var srcLabel=document.createElement('small');
+    srcLabel.textContent='📄 '+(names.get(e.source_id)||'Ismeretlen forrás')+
+     ' · '+(e.page_no||'?')+'. oldal · '+(e.evidence_role||'bizonyíték')+
+     ' · '+(e.review_status==='verified'?'ellenőrzött':'felülvizsgálandó');
+    var quote=document.createElement('p');
+    quote.textContent=String(e.excerpt||'').slice(0,550);
+    box.append(srcLabel,quote);
+   }
+   if(!evidence.some(x=>x.fact_id===fact.id)){
+    var warn=document.createElement('small');warn.textContent='⚠ Hiányzó forrásbizonyíték; nem használható igazolt tényként.';
+    box.appendChild(warn);
+   }
+   root.appendChild(box);
+  }
+ }catch(e){root.textContent='⚠ A forrásolt tények betöltése sikertelen: '+String(e.message||e).slice(0,140)}
+}
 async function listGallery(){
  var p=profile(),root=resultRoot();if(!root)return;
  root.textContent='🫀 Képi mellékletek ellenőrzése…';clearImages();
@@ -244,5 +311,5 @@ function hookHealthRenderer(){
  wrap.__hhKb407=true;window.renderHealthSection=wrap;
 }
 [1100,3200,6200].forEach(t=>setTimeout(hookHealthRenderer,t));
-window.HH_KB_UI_V407={mount:mount,audit:runAudit,openGallery:listGallery,showDocuments:listDocuments};
+window.HH_KB_UI_V407={mount:mount,audit:runAudit,openGallery:listGallery,showDocuments:listDocuments,listFacts:listFacts};
 })();
