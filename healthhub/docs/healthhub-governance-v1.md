@@ -73,6 +73,23 @@ Nem tárolunk titkos pszichológiai profilokat, rejtett klinikai következtetés
 
 **A pilot státusza:** valódi forrásbyte és éles adatbázis-metaadat ellenőrzés sikeres, de teljes PDF → oldal → klinikai tény → Ask Léna lánc még nem LIVE VERIFIED, felhasználói elfogadás még nem történt.
 
+## MKB 2.0 · PDF batch és Character Count QA (v663)
+
+**Kivitelezve, de a teljes archívum még nem futott végig:**
+
+- Az eredeti archívummappát aktív Health Vault- és Google Drive-hitelesítéssel, az engedélyezett profilhoz kötve olvassa a v407/v662 feldolgozó.
+- Az ismert forrásrekordot `hh_mkb_sources` alapján azonosítja, validálja a változatot, méretet, módosítási időt és SHA-256-ot; a `hh_kb_documents.mkb_source_id` kapcsolatot menti. Különféle forrásverziókat nem mos össze.
+- A PDF szövegét teljes oldalakra bontva tárolja. OCR/feldolgozási hiány, képfeltöltési hiba vagy részleges mentés esetén nem lehet teljes állapot.
+- **Adat-integritási audit:** minden feldolgozott PDF után az oldalszövegek visszaolvasása privát Supabase-ből; minden oldalon tényleges mentett UTF-8 tartalomból új SHA-256 és Unicode kódpontszám képződik. A forrásoldali számokkal és oldalszámokkal tételesen egyeztetjük.
+- `hh_kb_documents` négy új mezője: `extracted_characters`, `stored_characters`, `pages_verified`, `text_integrity_status`, valamint `text_verified_at`; az adatbázismigráció élesben alkalmazva és verziókezelve.
+- HH Admin új **Medical Knowledge Base 2.0 · Feldolgozás és adatminőség** kártyája indítja az éppen aktív profil hitelesített archívumának teljes, szekvenciális beolvasását. A böngészőlapot nyitva kell tartani; a következő indítás a már teljes, hitelesített tételeket kihagyja. Zsolt és Mónika külön profilban indítható, így a profilszeparáció nem sérül.
+- **Character Count QA:** egyszerre összesíti az engedélyezett profilok ténylegesen indexelt és visszaellenőrzött dokumentumait, az eredeti (PDF-ből kinyert) és a Supabase-ben tárolt Unicode karaktereket; külön mutatja Mónika, Zsolt és az összesített adatok különbségét.
+- Azonos bináris tartalmú duplikátumoknál az első kanonikus forrás oldalszövegét számolja, de a többi eredeti archív fájl továbbra is létezik. A kimutatás elkülöníti a fájlszámot és az egyedi szövegtartalmat.
+- Az elfogadási feltétel nemcsak közel nulla karakterkülönbség: egyező dokumentum- és oldallefedettség, tételes SHA-256-visszaellenőrzés, nulla kezeletlen adatvesztés és OCR/képek külön vizsgálata is kell.
+- **Release gate:** Githubban CODED és forráskódos szimulációban TESTED; a publikus Pages tényleges betöltése, a két profil 218 eredetijének teljes futása és a valós felhasználói teszt még nincs igazolva. Nem DONE és nem USER ACCEPTED.
+
+**2026-10-18 aktuális tényszámok:** 218 PDF regisztrálva (Mónika 175, Zsolt 43), 3 fájl SHA-256-ellenőrzött, 1 igazolt duplikátumpár; oldalszintű MKB-index a teljes futás előtt üres. Nincs 218/218 feldolgozási sikerjelzés.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
