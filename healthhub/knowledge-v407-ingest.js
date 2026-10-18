@@ -94,6 +94,16 @@ async function pdfjs(){
  .catch(e=>{pdfLibPromise=null;throw e});
  return pdfLibPromise;
 }
+async function excludedDriveIds(p){
+ // Authorized scope decision by original Drive ID, never filename guesses.
+ var rows=await active(p).request('/rest/v1/hh_mkb_sources?select=origin_ref,source_metadata'+
+  '&profile_key=eq.'+encodeURIComponent(p)+'&origin=eq.google_drive&source_kind=eq.pdf&limit=1000',
+  {method:'GET'});
+ if(!Array.isArray(rows))throw Error('A feldolgozási kizárások nem ellenőrizhetők.');
+ return new Set(rows.filter(x=>x&&x.source_metadata&&
+  x.source_metadata.ingest_scope==='excluded'&&typeof x.origin_ref==='string')
+  .map(x=>x.origin_ref));
+}
 async function readDocuments(p){
  return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status,mkb_source_id,extracted_characters,stored_characters,pages_verified,text_integrity_status&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
 }
@@ -394,17 +404,19 @@ function compareMeta(file,existing){
 function isPdfDocument(file){return !!file&&file.id&&/\.pdf$/i.test(file.name||'')}
 async function audit(p){
  active(p);
- var files=await listFiles(p),indexed=await readDocuments(p);
+ var [files,indexed,excluded]=await Promise.all([listFiles(p),readDocuments(p),excludedDriveIds(p)]);
  var known=new Map(indexed.map(r=>[r.source_file_id,r]));
- var newCount=0,complete=0,partial=0,duplicates=0;
+ var newCount=0,complete=0,partial=0,duplicates=0,skipped=0;
  files.forEach(f=>{
+  if(excluded.has(f.id)){skipped++;return}
   var record=known.get('drive_'+f.id);
   if(!record)newCount++;
   else if(record.status==='complete'&&compareMeta(f,record))complete++;
   else partial++;
   if(record&&record.duplicate_of)duplicates++;
  });
- var stat={profile:p,drive:files.length,knowledgeBase:indexed.length,new:newCount,
+ var stat={profile:p,drive:files.length,eligible:files.length-skipped,excluded:skipped,
+  knowledgeBase:indexed.length,new:newCount,
   complete:complete,partial:partial,duplicates:duplicates,
   visualPages:indexed.reduce((n,x)=>n+Number(x.visual_pages||0),0),
   pagesIndexed:indexed.filter(x=>!x.duplicate_of).reduce((n,x)=>n+Number(x.pages_indexed||0),0),
@@ -417,10 +429,11 @@ async function run(p,opts){
  p=p||profile();active(p);if(!CORE.allowedProfile(p))throw Error('Érvénytelen profil.');
  st.running=true;st.stop=false;st.error='';st.done=0;st.current='Archívum egyeztetése…';emit();
  try{
-  var files=(await listFiles(p)).filter(isPdfDocument),existing=await readDocuments(p);
+  var [files,existing,excluded]=await Promise.all([listFiles(p),readDocuments(p),excludedDriveIds(p)]);
+  files=files.filter(isPdfDocument);
   var mapped=new Map(existing.map(x=>[x.source_file_id,x]));
   // Process originals with known nonduplicate records first; deduplicate by SHA-256 later.
-  var remaining=files.filter(f=>!compareMeta(f,mapped.get('drive_'+f.id)));
+  var remaining=files.filter(f=>!excluded.has(f.id)&&!compareMeta(f,mapped.get('drive_'+f.id)));
   if(opts.pilotType){
    if(!['watch-ekg','omsz'].includes(opts.pilotType))
     throw Error('Ismeretlen próbafeldolgozási dokumentumtípus.');
