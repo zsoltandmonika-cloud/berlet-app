@@ -78,7 +78,7 @@ test('content is private and only exact reviewable evidence gets written',()=>{
  }
  assert.match(index,/mkb-fact-rules-v670\.js/);
  assert.match(index,/hh-mkb-facts-admin-v670\.js/);
- assert.match(index,/v672-lab-culture-evidence/);
+ assert.match(index,/v673-lab-evidence-minimized/);
  assert.match(adminSource,/confirm\(preview\.candidates\.length/);
  assert.match(adminSource,/crypto\.subtle\.digest\('SHA-256'/);
  assert.doesNotMatch(adminSource,/(?:localStorage\.setItem|sessionStorage\.setItem)/);
