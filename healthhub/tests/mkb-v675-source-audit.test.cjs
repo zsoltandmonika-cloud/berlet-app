@@ -70,7 +70,7 @@ test('deployment order, profile-scoped read-only QA and explicit medical limitat
  assert.match(timeline,/allowed\(p\)/);
  assert.match(timeline,/guard\(p\)/);
  assert.match(timeline,/auditor\.audit\(facts,evidence,sources,docs,pages,digest\)/);
- assert.match(timeline,/klinika(i|i).*jóváhagy/i);
+ assert.match(timeline,/orvosi tartalom szakmai jóváhagyását/i);
  assert.match(timeline,/document\.createElement\('details'\)/);
  assert.match(timeline,/textContent/);
  assert.doesNotMatch(timeline,/(?:method:\s*'(POST|PATCH|DELETE)'|localStorage\.setItem)/);
