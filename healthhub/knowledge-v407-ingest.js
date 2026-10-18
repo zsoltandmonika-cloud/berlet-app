@@ -303,6 +303,19 @@ async function verifySavedPages(p,docId,expected,totalPages){
   all.length===totalPages&&pagesVerified===totalPages&&charsOriginal===charsStored,
   issues};
 }
+async function certifiedEmptyPdfPage(page,text,operatorList,lib){
+ // A blank PDF leaf is valid clinical source structure, not failed OCR.
+ // Fail closed: ONLY PDF.js graphics-state save/restore operations are allowed.
+ // Text, images, paths, forms, annotations, and unknown operations are never blank.
+ if(text.length!==0||!operatorList||!Array.isArray(operatorList.fnArray)||
+   !lib||!lib.OPS)return false;
+ var allowed=new Set([lib.OPS.save,lib.OPS.restore]);
+ if(operatorList.fnArray.some(op=>!allowed.has(op)))return false;
+ try{
+  var annotations=await page.getAnnotations({intent:'display'});
+  return Array.isArray(annotations)&&annotations.length===0;
+ }catch(_){return false}
+}
 async function extractDocument(p,file,bytes,docId){
  var lib=await pdfjs(),pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;
  var result={totalPages:pdf.numPages,pagesIndexed:0,pagesNeedingOcr:0,ocrPagesPendingReview:0,visualPages:0,
@@ -318,12 +331,22 @@ async function extractDocument(p,file,bytes,docId){
     var raw=await page.getTextContent();
     text=rawText(raw.items);
     method=text.length>=80?'embedded':'none';
-    var ops={images:0,paths:0};
-    try{ops=flags(await page.getOperatorList(),lib)}
-    catch(_){result.visualFailed++;reasons.push('PDF grafikus operátorok kiolvasása sikertelen: '+pageNo+'. oldal')}
+    var ops={images:0,paths:0},operatorList=null,blank=false;
+    try{
+     operatorList=await page.getOperatorList();
+     ops=flags(operatorList,lib);
+     blank=await certifiedEmptyPdfPage(page,text,operatorList,lib);
+    }catch(_){
+     result.visualFailed++;
+     reasons.push('PDF grafikus operátorok kiolvasása sikertelen: '+pageNo+'. oldal');
+    }
     signal=CORE.visualSignals(file.name,text,ops);
-    visual=signal.capture;
-    needOcr=text.length<80;
+    visual=!blank&&signal.capture;
+    needOcr=text.length<80&&!blank;
+    if(blank){
+     method='none';
+     reasons.push('Igazoltan üres PDF-oldal: '+pageNo+'. oldal (nincs szöveg, rajz, kép vagy annotáció)');
+    }
     if(needOcr||visual){
      try{can=await canvasPage(page)}
      catch(_){
