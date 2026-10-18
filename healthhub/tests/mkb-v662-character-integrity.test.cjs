@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v667-mkb-descope-11-watch-ecg/);
+  assert.match(index, /v669-mkb-certified-blank-pages/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -118,4 +118,22 @@ test('User-descoped wearable EKG source IDs are removed before repeat ingestion'
   assert.equal(excluded.has('skip-e'),true);
   assert.equal(excluded.has('keep-a'),false);
  });
+});
+
+test('Verified empty PDF leaves are preserved, not mistaken for failed OCR', async () => {
+ const a=ingest.indexOf('async function certifiedEmptyPdfPage(');
+ const b=ingest.indexOf('async function extractDocument(',a);
+ assert.ok(a>0&&b>a);
+ const blank=new Function(ingest.slice(a,b)+'return certifiedEmptyPdfPage;')();
+ const OPS={save:1,restore:2,beginText:3,showText:4,paintImageXObject:5,constructPath:6};
+ const page={getAnnotations:async()=>[]};
+ assert.equal(await blank(page,'',{fnArray:[1,1,1,2,2,1,2,2]},{OPS}),true);
+ assert.equal(await blank(page,'Hb 16',{fnArray:[1,2]},{OPS}),false);
+ assert.equal(await blank(page,'',{fnArray:[1,3,4,2]},{OPS}),false);
+ assert.equal(await blank(page,'',{fnArray:[1,5,2]},{OPS}),false);
+ assert.equal(await blank(page,'',{fnArray:[1,6,2]},{OPS}),false);
+ assert.equal(await blank({getAnnotations:async()=>[{}]},'',{fnArray:[1,2]},{OPS}),false);
+ assert.equal(await blank(page,'',null,{OPS}),false);
+ assert.match(ingest,/needOcr=text.length<80&&!blank/);
+ assert.match(ingest,/pagesNeedingOcr/);
 });
