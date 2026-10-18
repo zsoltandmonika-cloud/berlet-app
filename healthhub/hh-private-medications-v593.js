@@ -73,28 +73,14 @@ async function edit(id){
  body.appendChild(title);
  var notice=make('p','hhMed593Note','Csak a kiválasztott profil helyi, privát kartonjába mentünk. A kezdési dátum és a napszak nem feltételezett.');
  body.appendChild(notice);
- if(!med){
-  var preset=make('button','hhMed593Preset','Rozuva-Teva 10 mg · Mónika · gyorskitöltés');
-  preset.type='button';
-  body.appendChild(preset);
- }
- var name=useInput(body,'Gyógyszer neve',med&&med.name||'',true);
+var name=useInput(body,'Gyógyszer neve',med&&med.name||'',true);
  var strength=useInput(body,'Hatáserősség',med&&med.strength||'',true);
  var schedule=useInput(body,'Adagolás',med&&(med.schedule||med.dose)||'',true);
  var ingredient=useInput(body,'Hatóanyag (ha ismert)',med&&med.activeIngredient||'',false);
  var purpose=useInput(body,'Mire való?',med&&med.purpose||'',false);
  var benefit=useInput(body,'Hogyan segít?',med&&med.benefit||'',false);
  var caution=useInput(body,'Fontos tudnivalók',med&&med.caution||'',false);
- if(!med){
-  preset.addEventListener('click',function(){
-   name.value='Rozuva-Teva 10 mg filmtabletta';strength.value='10 mg';
-   schedule.value='napi 1 tabletta';ingredient.value='rozuvasztatin';
-   purpose.value=ROZUVA_INFO.purpose;benefit.value=ROZUVA_INFO.benefit;caution.value=ROZUVA_INFO.caution;
-   name.focus();
-  });
-  if(profile==='monika')preset.click(); // Prefill only, private save remains explicit.
- }
- var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
+var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
  cancel.type='button';cancel.addEventListener('click',function(){overlay.hidden=true});
  var save=make('button','hhMed593Primary','Mentés · '+profileTitle(profile));
  save.type='button';
@@ -268,15 +254,9 @@ async function augment(){
   if(typeof x.remove==='function')x.remove();
  });
  if(card.querySelector('.hhMed593Add'))return;
- var button=make('button','hhMed593Add',current()==='monika'
-  ?'＋ Rozuva-Teva 10 mg rögzítése · Mónika':'＋ Gyógyszer hozzáadása');
+ var button=make('button','hhMed593Add hhMed657Add','＋ Gyógyszer hozzáadása');
  button.type='button';button.addEventListener('click',function(){edit()});
  card.insertBefore(button,card.querySelector('.hrRow,.hhRsmToolbar,.hhRsmTrack'));
- if(current()==='monika'){
-  var bulk=make('button','hhMed593Add hhMed655Import','↻ Mónika 7 gyógyszerének egységes betöltése');
-  bulk.type='button';bulk.addEventListener('click',openBatchImport);
-  card.insertBefore(bulk,button.nextSibling);
- }
  try{
   var payload=await read(),profile=current(),a=((((payload||{}).profiles||{})[profile]||{}).medications)||[];
   if(!Array.isArray(a))return;
@@ -290,7 +270,7 @@ async function augment(){
   });
  }catch(e){console.warn('Privát gyógyszerkártyák most nem olvashatók.',e)}
 }
-var visual=document.createElement('link');visual.rel='stylesheet';visual.href='./hh-private-medications-v593.css?v=593-private-vault';document.head.appendChild(visual);
+var visual=document.createElement('link');visual.rel='stylesheet';visual.href='./hh-private-medications-v593.css?v=657-single-add-compact';document.head.appendChild(visual);
 var previous=root.renderHealthSection;
 if(typeof previous==='function')root.renderHealthSection=async function(){
  var res=await previous.apply(this,arguments);await augment();return res;
