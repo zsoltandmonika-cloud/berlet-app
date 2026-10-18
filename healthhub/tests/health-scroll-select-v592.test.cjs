@@ -68,4 +68,75 @@ assert.ok(source.includes("root.hhShowAllDocs()"),'non-initial OMSZ hits are not
 assert.ok(source.includes("root.hhOpenLenaExplanation(id)"),'original Léna explanation action preserved');
 assert.ok(source.includes("root.openHrDocument(id)"),'existing original document PDF viewer preserved');
 assert.ok(!/indexedDB|deleteDatabase|fetch\(|XMLHttpRequest|localStorage\.setItem/.test(source),'preview must not mutate or read stored medical records directly');
+
+// v654 portable ZIP: synthetic manifest never contains personal medical details.
+const docImporter=fs.readFileSync(path.join(root,'live-v128.js'),'utf8');
+const markerStart=docImporter.indexOf('function validatedManifest(obj){');
+const markerEnd=docImporter.indexOf('var st=window.hhDocState',markerStart);
+assert.ok(markerStart>=0&&markerEnd>markerStart,'manifest verification function is present');
+const validateContext={};
+vm.runInNewContext(
+ "var CATS={cardiology:'Cardiology'};\n"+docImporter.slice(markerStart,markerEnd)+"\nthis.validate=validatedManifest",
+ validateContext
+);
+const syntheticDoc={
+ fileName:'2026-10-16_Kardiologia_Synthetic.pdf',
+ sha256:'a'.repeat(64),profile:'monika',category:'cardiology',documentDate:'2026-10-16',
+ explanation:{title:'Synthetic record',summary:'Synthetic factual note',
+ keyFindings:['synthetic finding'],meaning:[],attention:[],questions:[],reviewedAt:'2026-10-18'}
+};
+const syntheticManifest={schema:'healthhub.medical.document-import/1',targetProfile:'monika',documents:[syntheticDoc]};
+assert.equal(validateContext.validate(syntheticManifest).documents.length,1,'valid manifest accepted');
+assert.throws(()=>validateContext.validate({...syntheticManifest,targetProfile:'zsolt'}),'wrong profile blocked');
+assert.throws(()=>validateContext.validate({...syntheticManifest,documents:[syntheticDoc,syntheticDoc]}),'duplicated SHA blocked');
+assert.throws(()=>validateContext.validate({...syntheticManifest,documents:[{...syntheticDoc,sha256:'xxx'}]}),'invalid SHA blocked');
+assert.ok(docImporter.includes('var e=ext(name),isManifest=name.split')&&
+ docImporter.includes('out.hhManifest=validatedManifest'),'ZIP manifest read and validated');
+assert.ok(docImporter.includes("notes.get(hash)")&&docImporter.includes("old.profile===profile")&&
+ docImporter.includes("doc.lenaExplanationImported=item.explanation"),'SHA and profile scoped explanation attachment');
+assert.ok(docImporter.includes("doc.category=note.category;doc.documentDate=note.documentDate"),'explicit dates and tags survive filename differences');
+assert.ok(html.includes('live-v128.js?v=654-sha256-explanation-bundle'),'new importer served without stale cache');
+
 console.log('Health scroll-select v592 opt-in + OMSZ + medicines + privacy source contract PASS');
+
+
+// Real stored-ZIP parser exercise with entirely SYNTHETIC fake medical data.
+(async function zipImportSmoke(){
+ const defStart=docImporter.indexOf('function validatedManifest(obj){');
+ const defEnd=docImporter.indexOf('var st=window.hhDocState',defStart);
+ const zipStart=docImporter.indexOf('function u16(b,o){');
+ const zipEnd=docImporter.indexOf('function ensureTool(){',zipStart);
+ const context={File:require('node:buffer').File,Blob:require('node:buffer').Blob,
+   TextDecoder,Uint8Array,Response,DecompressionStream,console};
+ const header="var CATS={cardiology:'Cardiology'};var ALLOWED=['pdf'];var MIME={pdf:'application/pdf'};"+
+   "var MAX_FILE=50*1024*1024,MAX_ZIP=200*1024*1024,MAX_MANIFEST=512*1024,MANIFEST_NAME='healthhub-explanations.json';"+
+   "function ext(n){return String(n).split('.').pop().toLowerCase()};";
+ vm.runInNewContext(header+docImporter.slice(defStart,defEnd)+docImporter.slice(zipStart,zipEnd)+
+   "\nthis.parseZIP=normalizeFiles;",context,{timeout:3000});
+ function zipStored(entries){
+  const locals=[],central=[];let offset=0;
+  for(const [name,payload] of entries){
+   const n=Buffer.from(name,'utf8'),p=Buffer.from(payload);
+   const local=Buffer.alloc(30);local.writeUInt32LE(0x04034b50,0);local.writeUInt16LE(20,4);
+   local.writeUInt32LE(p.length,18);local.writeUInt32LE(p.length,22);local.writeUInt16LE(n.length,26);
+   locals.push(local,n,p);
+   const cent=Buffer.alloc(46);cent.writeUInt32LE(0x02014b50,0);cent.writeUInt16LE(20,4);
+   cent.writeUInt16LE(20,6);cent.writeUInt32LE(p.length,20);cent.writeUInt32LE(p.length,24);
+   cent.writeUInt16LE(n.length,28);cent.writeUInt32LE(offset,42);central.push(cent,n);
+   offset+=local.length+n.length+p.length;
+  }
+  const csize=central.reduce((n,b)=>n+b.length,0),end=Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50,0);end.writeUInt16LE(entries.length,8);
+  end.writeUInt16LE(entries.length,10);end.writeUInt32LE(csize,12);end.writeUInt32LE(offset,16);
+  return Buffer.concat([...locals,...central,end]);
+ }
+ const syntheticPDF=Buffer.from('%PDF-1.4\nsynthetic no patient content\n');
+ const bundle=zipStored([['2026-10-16_Kardiologia_Synthetic.pdf',syntheticPDF],
+   ['healthhub-explanations.json',JSON.stringify(syntheticManifest)],['README.txt','ignored']]);
+ const unpacked=await context.parseZIP([new context.File([bundle],'synthetic.zip')]);
+ assert.equal(unpacked.files.length,1,'ZIP contains one valid PDF');
+ assert.equal(unpacked.files[0].name,'2026-10-16_Kardiologia_Synthetic.pdf');
+ assert.equal(unpacked.manifest.documents.length,1,'verified explanation present');
+ assert.equal(unpacked.skipped,0,'ignored README not counted as medical document');
+ console.log('v654 ZIP stored-PDF + verified explanation manifest smoke test PASS');
+})().catch(e=>{console.error(e);process.exitCode=1});

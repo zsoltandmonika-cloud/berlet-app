@@ -12,6 +12,29 @@ var CATS={
 var ALLOWED=['pdf','jpg','jpeg','png','heic','heif'];
 var MIME={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',heic:'image/heic',heif:'image/heif'};
 var MAX_FILE=50*1024*1024,MAX_ZIP=200*1024*1024;
+var MANIFEST_NAME='healthhub-explanations.json',MAX_MANIFEST=512*1024;
+function validatedManifest(obj){
+ if(!obj||obj.schema!=='healthhub.medical.document-import/1'||
+  !Array.isArray(obj.documents)||obj.documents.length<1||obj.documents.length>100||
+  !['monika','zsolt'].includes(obj.targetProfile))throw new Error('Nem megfelelő HealthHub magyarázatcsomag.');
+ var seen=new Set();
+ obj.documents.forEach(function(d){
+  if(!d||typeof d.fileName!=='string'||d.fileName.length>220||
+   !/^[a-f0-9]{64}$/.test(d.sha256||'')||seen.has(d.sha256)||
+   d.profile!==obj.targetProfile||!CATS[d.category]||
+   !/^20\d\d-\d\d-\d\d$/.test(d.documentDate||'')||
+   !d.explanation||typeof d.explanation.title!=='string'||typeof d.explanation.summary!=='string'||
+   d.explanation.title.length>160||d.explanation.summary.length>2000)
+    throw new Error('A ZIP magyarázatai nem ellenőrizhetők.');
+  seen.add(d.sha256);
+  ['keyFindings','meaning','attention','questions'].forEach(function(k){
+   var a=d.explanation[k];
+   if(!Array.isArray(a)||a.length>30||a.some(function(x){return typeof x!=='string'||x.length>1000}))
+     throw new Error('Nem megfelelő magyarázati mező: '+k);
+  });
+ });
+ return obj;
+}
 var st=window.hhDocState||{profile:null,category:'all',from:'',to:'',sort:'newest',showAll:false};
 window.hhDocState=st;
 
@@ -73,18 +96,33 @@ async function unzip(file){
   var method=u16(b,off+10),csize=u32(b,off+20),usize=u32(b,off+24),nlen=u16(b,off+28),xlen=u16(b,off+30),clen=u16(b,off+32),lho=u32(b,off+42);
   var name=new TextDecoder().decode(b.slice(off+46,off+46+nlen));off+=46+nlen+xlen+clen;
   if(name.slice(-1)==='/'||name.indexOf('__MACOSX')>=0)continue;
-  var e=ext(name);if(ALLOWED.indexOf(e)<0||usize>MAX_FILE)continue;
+  var e=ext(name),isManifest=name.split('/').pop()===MANIFEST_NAME;
+  if((!isManifest&&ALLOWED.indexOf(e)<0)||usize>(isManifest?MAX_MANIFEST:MAX_FILE))continue;
   total+=usize;if(total>MAX_ZIP)throw new Error('A ZIP kibontott mérete meghaladja a 200 MB-os biztonsági határt.');
   var ln=u16(b,lho+26),lx=u16(b,lho+28),start=lho+30+ln+lx,comp=b.slice(start,start+csize),raw;
   if(method===0)raw=comp;else if(method===8)raw=await inflateRaw(comp);else continue;
+  if(raw.length!==usize)throw new Error('Hibás ZIP-bejegyzés méret: '+name);
+  if(isManifest){
+   if(out.hhManifest)throw new Error('Két HealthHub magyarázatjegyzék van a ZIP-ben.');
+   out.hhManifest=validatedManifest(JSON.parse(new TextDecoder().decode(raw)));
+   continue;
+  }
   out.push(new File([raw],name.split('/').pop(),{type:MIME[e]||'application/octet-stream',lastModified:file.lastModified}));
  }
  return out;
 }
 async function normalizeFiles(list){
- var out=[],skipped=0;
- for(var i=0;i<list.length;i++){var f=list[i],e=ext(f.name);if(e==='zip'){out=out.concat(await unzip(f));continue}if(ALLOWED.indexOf(e)<0||f.size>MAX_FILE){skipped++;continue}out.push(f)}
- return {files:out,skipped:skipped};
+ var out=[],skipped=0,manifest=null;
+ for(var i=0;i<list.length;i++){
+  var f=list[i],e=ext(f.name);
+  if(e==='zip'){
+   var zf=await unzip(f);
+   if(zf.hhManifest){if(manifest)throw new Error('Csak egy HealthHub magyarázatjegyzék tölthető fel egyszerre.');manifest=zf.hhManifest}
+   out=out.concat(zf);continue;
+  }
+  if(ALLOWED.indexOf(e)<0||f.size>MAX_FILE){skipped++;continue}out.push(f);
+ }
+ return {files:out,skipped:skipped,manifest:manifest};
 }
 
 function ensureTool(){
@@ -125,14 +163,16 @@ window.hhOpenDocumentUpload=function(){ensureUpload();document.getElementById('h
 window.hhPrepareDocumentUpload=async function(input){
  try{
   toastMsg('Fájlok előkészítése…');var r=await normalizeFiles(input);if(!r.files.length){toastMsg('Nincs támogatott feltölthető fájl.');return}
-  window.hhPendingDocFiles=r.files;var first=r.files[0],ad=inferDate(first.name),ac=inferCat(first.name);
+  window.hhPendingDocFiles=r.files;window.hhPendingDocManifest=r.manifest||null;
+   var first=r.files[0],ad=inferDate(first.name),ac=inferCat(first.name);
   var opts=Object.keys(CATS).map(function(k){return '<option value="'+k+'"'+(ac===k?' selected':'')+'>'+esc(CATS[k])+'</option>'}).join('');
   showTool('<h2>Új lelet feltöltése</h2><div class="hrDetailMeta">'+r.files.length+' fájl előkészítve'+(r.skipped?' · '+r.skipped+' kihagyva':'')+'</div>'+
    '<label><h4>Profil</h4><select id="hhDuProfile" style="width:100%;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 10px"><option value="zsolt"'+(pkey()==='zsolt'?' selected':'')+'>Zsolt</option><option value="monika"'+(pkey()==='monika'?' selected':'')+'>Mónika</option></select></label>'+
    '<label><h4>Kategória</h4><select id="hhDuCategory" style="width:100%;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 10px">'+opts+'</select></label>'+
    '<label><h4>Dokumentum dátuma</h4><input id="hhDuDate" type="date" value="'+ad+'" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 8px"></label>'+
    '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:10px;color:#526d82"><input id="hhDuAuto" type="checkbox"'+(r.files.length>1?' checked':'')+'> Több fájlnál automatikus dátum- és kategóriafelismerés</label>'+
-   '<p class="privacyNote">PDF, JPG, PNG, HEIC és ZIP támogatott. Valódi másolatot SHA-256 alapján kihagyunk.</p>'+
+   '<p class="privacyNote">PDF, JPG, PNG, HEIC és ZIP támogatott. Valódi másolatot SHA-256 alapján kihagyunk.'+
+   (r.manifest?' · '+r.manifest.documents.length+' Léna-magyarázat ellenőrzött SHA-256 társítással.':'')+'</p>'+
    '<div class="vaultTools"><button class="vaultBtn primary" onclick="hhCommitDocumentUpload()">'+r.files.length+' fájl mentése</button><button class="vaultBtn" onclick="document.getElementById(\'hhDocToolOverlay\').classList.remove(\'on\')">Mégse</button></div>');
  }catch(e){console.error(e);toastMsg(e.message||'A fájlok nem készíthetők elő.')}
 };
@@ -142,18 +182,42 @@ window.hhCommitDocumentUpload=async function(){
  var profile=document.getElementById('hhDuProfile').value,fcat=document.getElementById('hhDuCategory').value,fdate=document.getElementById('hhDuDate').value,auto=document.getElementById('hhDuAuto').checked;
  try{
   document.getElementById('hhDocToolOverlay').classList.remove('on');toastMsg('Duplikátumellenőrzés és mentés…');
-  var hashes=await hashSet(),added=0,dup=0,failed=0;
+  var hashes=await hashSet(),added=0,dup=0,failed=0,annotated=0;
+  var manifest=window.hhPendingDocManifest,notes=new Map();
+  if(manifest){
+   if(manifest.targetProfile!==profile)throw new Error('A csomag Mónika/Zsolt profilja eltér a kiválasztott profiltól.');
+   manifest.documents.forEach(function(x){notes.set(x.sha256,x)});
+  }
+  var oldByHash=new Map((await all('documents')).filter(function(x){return !!x.sha256}).map(function(x){return [x.sha256,x]}));
+  function attachExplanation(doc,item){
+   if(!item||item.profile!==profile||doc.lenaExplanationManual||doc.lenaExplanationImported)return false;
+   doc.lenaExplanationImported=item.explanation;
+   doc.lenaExplanationImportedSource='verified_sha256_pdf_import';
+   return true;
+  }
   for(var i=0;i<files.length;i++){
    try{
-    var f=files[i],buf=await f.arrayBuffer(),hash=await sha256(buf);if(hashes.has(hash)){dup++;continue}
+    var f=files[i],buf=await f.arrayBuffer(),hash=await sha256(buf),note=notes.get(hash);
+    if(hashes.has(hash)){
+     dup++;
+     var old=oldByHash.get(hash);
+     if(old&&old.profile===profile&&attachExplanation(old,note)){await put('documents',old);annotated++}
+     continue;
+    }
     var id=crypto.randomUUID(),cat=auto?inferCat(f.name):fcat,date=auto?(inferDate(f.name)||fdate):fdate;
     var doc={id:id,profile:profile,category:cat,sourceType:'original',documentDate:date||null,originalName:f.name,contentType:f.type||MIME[ext(f.name)]||'application/octet-stream',sizeBytes:f.size,uploadedAt:new Date().toISOString(),sha256:hash};
+    if(note&&note.fileName===f.name&&note.profile===profile){
+     doc.category=note.category;doc.documentDate=note.documentDate;
+     if(attachExplanation(doc,note))annotated++;
+    }
     var db=await openDb();
     await new Promise(function(ok,no){var tx=db.transaction(['documents','documentBlobs'],'readwrite');tx.objectStore('documents').put(doc);tx.objectStore('documentBlobs').put({id:id,blob:new Blob([buf],{type:doc.contentType})});tx.oncomplete=ok;tx.onerror=function(){no(tx.error)};tx.onabort=function(){no(tx.error)}});
     db.close();hashes.add(hash);added++;
    }catch(ex){console.error(ex);failed++}
   }
-  window.hhPendingDocFiles=[];toastMsg(added+' új lelet elmentve'+(dup?', '+dup+' másolat kihagyva':'')+(failed?', '+failed+' hiba':'')+'.');
+  window.hhPendingDocFiles=[];window.hhPendingDocManifest=null;
+   toastMsg(added+' új lelet elmentve'+(dup?', '+dup+' másolat kihagyva':'')+
+     (annotated?', '+annotated+' Léna-magyarázat társítva':'')+(failed?', '+failed+' hiba':'')+'.');
   st.profile=profile;st.showAll=false;await window.renderHealthSection();if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
  }catch(e){console.error(e);toastMsg('Feltöltési hiba: '+(e.message||e))}
 };
