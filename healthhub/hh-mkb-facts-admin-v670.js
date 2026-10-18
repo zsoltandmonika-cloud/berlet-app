@@ -180,7 +180,7 @@ function factKey(source,label,day){
 async function existing(p){
  var rows=await all(p,'hh_mkb_facts','id,source_id,label,observed_date,review_status',
   '&profile_key=eq.'+encodeURIComponent(p),'entered_at.desc');
- return new Map(rows.map(r=>[factKey(r.source_id,r.label,r.observed_date),r.id]));
+ return new Map(rows.map(r=>[factKey(r.source_id,r.label,r.observed_date),{id:r.id,status:r.review_status}]));
 }
 async function ensureSourceValid(p,ids){
  // The original source/document trust gate must still hold after preview.
@@ -198,13 +198,44 @@ async function ensureSourceValid(p,ids){
    throw Error('A forrás időközben megváltozott: készíts friss előnézetet.');
  }
 }
+async function independentReadback(p,candidates){
+ // Fresh independent RLS reads. Check fact foreign-key, evidence quote, PDF page text and page SHA.
+ guard(p);
+ var facts=await all(p,'hh_mkb_facts','id,source_id,label,observed_date,review_status',
+  '&profile_key=eq.'+encodeURIComponent(p),'entered_at.desc');
+ var ev=await all(p,'hh_mkb_evidence','fact_id,source_id,page_no,excerpt,evidence_role',
+  '&profile_key=eq.'+encodeURIComponent(p),'id.asc');
+ var keys=new Map(facts.map(f=>[factKey(f.source_id,f.label,f.observed_date),f]));
+ var documentIds=[...new Set(candidates.map(c=>c.document_id))];
+ var pages=new Map();
+ for(var i=0;i<documentIds.length;i+=20){
+  var part=await all(p,'hh_kb_pages',
+   'document_id,page_no,page_text,text_sha256',
+   '&document_id=in.('+documentIds.slice(i,i+20).join(',')+')','document_id.asc,page_no.asc');
+  for(var row of part)pages.set(row.document_id+'|'+row.page_no,row);
+ }
+ var checked=0;
+ for(var c of candidates){
+  guard(p);
+  var f=keys.get(factKey(c.source_id,c.label,c.observed_date));
+  var page=pages.get(c.document_id+'|'+c.page_no);
+  if(!f||f.source_id!==c.source_id||f.review_status==='rejected'||
+     !page||page.text_sha256!==c.page_sha256||
+     !page.page_text.includes(c.excerpt)||await digest(page.page_text)!==c.page_sha256||
+     !ev.some(e=>e.fact_id===f.id&&e.source_id===c.source_id&&
+       Number(e.page_no)===Number(c.page_no)&&e.evidence_role==='supports'&&e.excerpt===c.excerpt))
+   throw Error('A független tény–forrás visszaellenőrzés sikertelen.');
+  checked++;
+ }
+ return checked;
+}
 async function save(){
  if(busy||!preview||preview.profile!==profile())return;
  var p=profile();if(!allowed(p)){msg('🔒 Health Vault-jogosultság szükséges.');return}
  if(Date.now()-preview.time>20*60*1000){msg('⚠ Az előnézet 20 percnél régebbi. Frissítsd.');reset();return}
  if(typeof confirm==='function'&&
   !confirm(preview.candidates.length+' forrásolt orvosi TÉNYJELÖLTET rögzítünk „ellenőrzésre vár” státusszal a privát '+pname(p)+' profilba. Folytatod?'))return;
- busy=true;buttons();var saved=0,already=0,linked=0,errors=0;
+ busy=true;buttons();var saved=0,already=0,linked=0,skippedRejected=0,errors=0,checkedCandidates=[];
  try{
   guard(p);
   var sRows=await all(p,'hh_mkb_sources','id,source_metadata,parse_status,sha256',
@@ -217,7 +248,9 @@ async function save(){
   for(const c of preview.candidates){
    guard(p);
    var key=factKey(c.source_id,c.label,c.observed_date);
-   var factId=prior.get(key)||await uuid('hh-mkb-fact-v670|'+p+'|'+key);
+   var previous=prior.get(key);
+    if(previous&&previous.status==='rejected'){skippedRejected++;continue}
+    var factId=previous?.id||await uuid('hh-mkb-fact-v670|'+p+'|'+key);
    try{
     if(!prior.has(key)){
      var data={id:factId,profile_key:p,source_id:c.source_id,
@@ -229,7 +262,7 @@ async function save(){
        source_text_sha256:c.page_sha256,requires_clinical_review:true}};
      await svc().request('/rest/v1/hh_mkb_facts?on_conflict=id',
       {method:'POST',prefer:'resolution=ignore-duplicates,return=minimal',data});
-     saved++;prior.set(key,factId);
+     saved++;prior.set(key,{id:factId,status:'pending'});
     }else already++;
     guard(p);
     var evId=await uuid('hh-mkb-evidence-v670|'+factId+'|'+c.page_no+'|'+await digest(c.excerpt));
@@ -238,16 +271,19 @@ async function save(){
       data:{id:evId,profile_key:p,fact_id:factId,source_id:c.source_id,
        page_no:c.page_no,excerpt:c.excerpt,extraction_method:'embedded_text',
        evidence_role:'supports',review_status:'pending'}});
-    linked++;
+    linked++;checkedCandidates.push(c);
    }catch(_){errors++;throw Error('A privát írás megszakadt. A már rögzített sorok újrafuttatáskor nem duplikálódnak.')}
-   if((saved+already)%10===0)msg('⏳ Tényjelöltek rögzítése · '+(saved+already)+'/'+preview.candidates.length);
+   if((saved+already+skippedRejected)%10===0)msg('⏳ Tényjelöltek rögzítése · '+(saved+already+skippedRejected)+'/'+preview.candidates.length);
   }
-  msg('✅ '+pname(p)+' · Rögzítés véget ért. Új tényjelöltek: '+saved+
-   ', már meglevő tények: '+already+', forrásbizonyíték-párok: '+linked+
-   '. Minden új állítás orvosi ellenőrzésre vár. Nincs automatikus diagnózis.');
+  msg('🔎 A tények és forrásidézetek független visszaellenőrzése…');
+  var readback=await independentReadback(p,checkedCandidates);
+  msg('✅ '+pname(p)+' · Tény–forrás QA: '+readback+'/'+checkedCandidates.length+
+   ' egyező pár. Új tényjelöltek: '+saved+', már meglevő tények: '+already+
+   ', korábban elvetett (érintetlen): '+skippedRejected+
+   '. Az új állítások orvosi ellenőrzésre várnak, nem diagnózisok.');
  }catch(_){
-  msg('⚠ Feldolgozás megszakadt. '+saved+' új tényjelölt és '+linked+
-   ' bizonyíték-rögzítési művelet sikeres lehet. A klinikai ellenőrzési státusz nem változott.'+
+  msg('⚠ A rögzítés vagy a független visszaellenőrzés nem fejeződött be. '+saved+' új tényjelölt és '+linked+
+   ' bizonyíték-írás megtörténhetett; ezek nem minősülnek QA-jóváhagyottnak.'+
    ' Friss előnézettel idempotensen újraindítható.');
  }finally{busy=false;buttons()}
 }
