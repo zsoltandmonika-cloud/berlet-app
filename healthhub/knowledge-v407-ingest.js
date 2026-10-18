@@ -77,6 +77,9 @@ async function blobFor(file,p){
  if(Number(m.size)>25000000)throw Error('25 MB feletti PDF: külön feldolgozás szükséges.');
  var response=await drive(API+'/'+id+'?alt=media',{},p);
  var bytes=await response.arrayBuffer();
+ if(Number(m.size)!==bytes.byteLength||file.size!=null&&Number(file.size)!==bytes.byteLength||
+    (file.modified&&Date.parse(file.modified)!==Date.parse(m.modifiedTime||'')))
+  throw Error('Az eredeti PDF a leltár óta módosult, vagy a letöltés hiányos. Új audit szükséges.');
  if(!CORE.isPdfSignature(new Uint8Array(bytes)))
   throw Error('A fájl nem érvényes PDF.');
  return bytes;
@@ -145,15 +148,59 @@ function clearCanvas(canvas){
 function srcClass(name){
  return CORE.classify(name).sourceClass;
 }
-async function upsertDocument(p,file,sha,existing,duplicate){
+async function sourceFor(p,file,sha){
+ var svc=active(p);
+ var query='/rest/v1/hh_mkb_sources?select=id,profile_key,source_version,origin_ref,original_bytes,original_observed_at,sha256,parse_status,duplicate_of'+
+  '&profile_key=eq.'+encodeURIComponent(p)+'&origin=eq.google_drive&origin_ref=eq.'+
+  encodeURIComponent(file.id)+'&order=source_version.desc&limit=1';
+ var rows=await svc.request(query,{method:'GET'}),s=rows&&rows[0];
+ if(s){
+  if(s.profile_key!==p||s.origin_ref!==file.id||
+     (s.original_bytes!==null&&Number(s.original_bytes)!==Number(file.size))||
+     (s.sha256&&s.sha256!==sha)||
+     (s.original_observed_at&&file.modified&&Date.parse(s.original_observed_at)!==Date.parse(file.modified)))
+   throw Error('MKB 2.0 forrásadat-eltérés: emberi vagy verzióellenőrzés szükséges.');
+ }else{
+  // Unlisted but authorized PDF: keep a versioned source record with original Drive identity.
+  var out=await svc.request('/rest/v1/hh_mkb_sources?on_conflict=profile_key,origin,origin_ref,source_version',{
+   method:'POST',prefer:'resolution=ignore-duplicates,return=representation',data:{
+    profile_key:p,origin:'google_drive',origin_ref:file.id,source_version:1,
+    source_kind:'pdf',mime_type:'application/pdf',original_name:file.name,
+    original_bytes:file.size,original_observed_at:file.modified,sha256:sha,
+    parse_status:'discovered',source_metadata:{importedBy:'healthhub-v407-mkb2'}
+   }
+  });
+  s=out&&out[0];
+  if(!s||!s.id){
+   rows=await svc.request(query,{method:'GET'});s=rows&&rows[0];
+  }
+  if(!s||!s.id)throw Error('A dokumentum privát forrásnyilvántartása nem hozható létre.');
+ }
+ if(!s.sha256)await svc.request('/rest/v1/hh_mkb_sources?id=eq.'+encodeURIComponent(s.id)+
+  '&profile_key=eq.'+encodeURIComponent(p)+'&sha256=is.null',{
+  method:'PATCH',prefer:'return=minimal',data:{sha256:sha,updated_at:new Date().toISOString()}
+ });
+ return s;
+}
+async function sourceStatus(p,source,quality,canonicalSourceId){
+ if(!source||!source.id)return;
+ var patch={parse_status:quality==='complete'?'complete':quality==='failed'?'failed':'partial',
+  indexed_at:quality==='complete'?new Date().toISOString():null,updated_at:new Date().toISOString()};
+ if(canonicalSourceId&&canonicalSourceId!==source.id)patch.duplicate_of=canonicalSourceId;
+ await active(p).request('/rest/v1/hh_mkb_sources?id=eq.'+encodeURIComponent(source.id)+
+  '&profile_key=eq.'+encodeURIComponent(p),{method:'PATCH',prefer:'return=minimal',data:patch});
+}
+async function upsertDocument(p,file,sha,existing,duplicate,source){
  var svc=active(p);
  if(existing&&existing.sha256===sha&&existing.status==='complete'&&!duplicate){
   if(!compareMeta(file,existing)){
-   await docStatus(p,existing.id,{source_modified_at:file.modified,size_bytes:file.size});
+   await docStatus(p,existing.id,{source_modified_at:file.modified,size_bytes:file.size,mkb_source_id:source.id});
   }
+  if(existing.mkb_source_id!==source.id)
+   await docStatus(p,existing.id,{mkb_source_id:source.id});
   return existing;
  }
- var obj={profile_key:p,source_file_id:'drive_'+file.id,source_document_id:file.documentId||null,
+ var obj={profile_key:p,mkb_source_id:source.id,source_file_id:'drive_'+file.id,source_document_id:file.documentId||null,
   original_name:file.name,source_modified_at:file.modified,
   size_bytes:file.size,sha256:sha,status:duplicate?'complete':'processing',
   source_class:existing&&existing.classification_status==='reviewed'?
@@ -309,7 +356,7 @@ async function run(p,opts){
    st.current=file.name;emit();
    var record=mapped.get('drive_'+file.id),id=record&&record.id;
    try{
-    var bytes=await blobFor(file,p),sha=await hash(bytes);
+    var bytes=await blobFor(file,p),sha=await hash(bytes),source=await sourceFor(p,file,sha);
     if(record&&record.sha256&&record.sha256!==sha&&record.pages_indexed>0){
      // Do not contaminate the knowledge base with stale pages after a Drive overwrite.
      await docStatus(p,record.id,{status:'changed_needs_review',
@@ -319,15 +366,16 @@ async function run(p,opts){
     var canonical=existing.find(x=>x.profile_key===p&&x.source_file_id!=='drive_'+file.id&&
      x.sha256===sha&&x.status==='complete'&&!x.duplicate_of);
     // A repeated binary has one canonical, searchable page set.
-    var saved=await upsertDocument(p,file,sha,record,canonical||null);
+    var saved=await upsertDocument(p,file,sha,record,canonical||null,source);
     id=saved.id;
-    if(canonical){mapped.set('drive_'+file.id,saved);existing.push(saved);st.done++;emit();continue}
-    if(record&&record.sha256===sha&&record.status==='complete'){st.done++;continue}
+    if(canonical){await sourceStatus(p,source,'complete',canonical.mkb_source_id||null);mapped.set('drive_'+file.id,saved);existing.push(saved);st.done++;emit();continue}
+    if(record&&record.sha256===sha&&record.status==='complete'){await sourceStatus(p,source,'complete');st.done++;continue}
     var result=await extractDocument(p,file,bytes,id),quality=CORE.readiness(result);
     if(st.stop)quality='partial';
     await docStatus(p,id,{status:quality,total_pages:result.totalPages,
      pages_indexed:result.pagesIndexed,pages_needing_ocr:result.pagesNeedingOcr,
      visual_pages:result.visualPages,notes:(result.reasons||[]).join('; ').slice(0,1100)});
+    await sourceStatus(p,source,quality);
     var row=Object.assign({},saved,{status:quality,total_pages:result.totalPages,
      pages_indexed:result.pagesIndexed,visual_pages:result.visualPages});
     mapped.set('drive_'+file.id,row);existing.push(row);
