@@ -62,6 +62,7 @@ function mount(){
  '<li>Profilhoz kötött jogosultság, privát tárhely, pontos dokumentum- és oldalszintű forrásazonosítás.</li>'+
  '<li>Vizsgálati időpont ≠ fájlmódosítási időpont. Eredeti mértékegység és szöveg mindig megmarad.</li>'+
  '<li>OCR és AI-kinyerés ellenőrizendő; bizonytalan, történeti és ellentmondó állítások külön jelölést kapnak.</li>'+
+ '<li>Samsung Watch EKG PDF: a beágyazott szöveg megőrzése független a grafikus rendereléstől; sikertelen vagy túl alacsony felbontású képkivonatnál nincs COMPLETE állapot.</li>'+
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
  '</ul></details>'+
  '<details><summary>⚙️ Folyamatfejlesztés és mérőszámok</summary><ul>'+
