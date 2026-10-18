@@ -68,4 +68,33 @@ assert.ok(source.includes("root.hhShowAllDocs()"),'non-initial OMSZ hits are not
 assert.ok(source.includes("root.hhOpenLenaExplanation(id)"),'original Léna explanation action preserved');
 assert.ok(source.includes("root.openHrDocument(id)"),'existing original document PDF viewer preserved');
 assert.ok(!/indexedDB|deleteDatabase|fetch\(|XMLHttpRequest|localStorage\.setItem/.test(source),'preview must not mutate or read stored medical records directly');
+
+// v654 portable ZIP: synthetic manifest never contains personal medical details.
+const docImporter=fs.readFileSync(path.join(root,'live-v128.js'),'utf8');
+const markerStart=docImporter.indexOf('function validatedManifest(obj){');
+const markerEnd=docImporter.indexOf('var st=window.hhDocState',markerStart);
+assert.ok(markerStart>=0&&markerEnd>markerStart,'manifest verification function is present');
+const validateContext={};
+vm.runInNewContext(
+ "var CATS={cardiology:'Cardiology'};\n"+docImporter.slice(markerStart,markerEnd)+"\nthis.validate=validatedManifest",
+ validateContext
+);
+const syntheticDoc={
+ fileName:'2026-10-16_Kardiologia_Synthetic.pdf',
+ sha256:'a'.repeat(64),profile:'monika',category:'cardiology',documentDate:'2026-10-16',
+ explanation:{title:'Synthetic record',summary:'Synthetic factual note',
+ keyFindings:['synthetic finding'],meaning:[],attention:[],questions:[],reviewedAt:'2026-10-18'}
+};
+const syntheticManifest={schema:'healthhub.medical.document-import/1',targetProfile:'monika',documents:[syntheticDoc]};
+assert.equal(validateContext.validate(syntheticManifest).documents.length,1,'valid manifest accepted');
+assert.throws(()=>validateContext.validate({...syntheticManifest,targetProfile:'zsolt'}),'wrong profile blocked');
+assert.throws(()=>validateContext.validate({...syntheticManifest,documents:[syntheticDoc,syntheticDoc]}),'duplicated SHA blocked');
+assert.throws(()=>validateContext.validate({...syntheticManifest,documents:[{...syntheticDoc,sha256:'xxx'}]}),'invalid SHA blocked');
+assert.ok(docImporter.includes('var e=ext(name),isManifest=name.split')&&
+ docImporter.includes('out.hhManifest=validatedManifest'),'ZIP manifest read and validated');
+assert.ok(docImporter.includes("notes.get(hash)")&&docImporter.includes("old.profile===profile")&&
+ docImporter.includes("doc.lenaExplanationImported=item.explanation"),'SHA and profile scoped explanation attachment');
+assert.ok(docImporter.includes("doc.category=note.category;doc.documentDate=note.documentDate"),'explicit dates and tags survive filename differences');
+assert.ok(html.includes('live-v128.js?v=654-sha256-explanation-bundle'),'new importer served without stale cache');
+
 console.log('Health scroll-select v592 opt-in + OMSZ + medicines + privacy source contract PASS');
