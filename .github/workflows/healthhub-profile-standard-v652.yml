@@ -1,0 +1,44 @@
+name: HealthHub v652 · Unified Profile and Admin HH One
+on:
+  pull_request:
+    paths:
+      - "healthhub/hh-profile-standard-v652.js"
+      - "healthhub/hh-private-medications-v593.js"
+      - "healthhub/live-v289.js"
+      - "healthhub/premium-glass-home-v520.js"
+      - "healthhub/digital-health/index.html"
+      - "healthhub/index.html"
+      - "healthhub/tests/profile-standard-v652.test.cjs"
+      - ".github/workflows/healthhub-profile-standard-v652.yml"
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/hh-profile-standard-v652.js"
+      - "healthhub/hh-private-medications-v593.js"
+      - "healthhub/live-v289.js"
+      - "healthhub/premium-glass-home-v520.js"
+      - "healthhub/digital-health/index.html"
+      - "healthhub/index.html"
+      - "healthhub/tests/profile-standard-v652.test.cjs"
+      - ".github/workflows/healthhub-profile-standard-v652.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  profile-privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate shared profile controller and private medication propagation
+        run: |
+          node --check healthhub/hh-profile-standard-v652.js
+          node --check healthhub/hh-private-medications-v593.js
+          node --check healthhub/live-v289.js
+          node --check healthhub/premium-glass-home-v520.js
+          node healthhub/tests/profile-standard-v652.test.cjs
+          node healthhub/tests/hh-buddy-private-medications-v593.test.cjs
+          node healthhub/tests/hhsp1-default-link-v594.test.cjs
