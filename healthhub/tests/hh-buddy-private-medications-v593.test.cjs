@@ -72,7 +72,7 @@ const indexedDB={open(){
  r.onsuccess()});return r;
 }};
 const window={
- location:{search:''},localStorage:{getItem(){return profile}},
+ location:{search:''},localStorage:{getItem(){return profile==='monika'?'m':'z'}},
  crypto:{randomUUID(){return 'synthetic-uuid-100'}},
  confirm(){return true},toast(){},
  HH_DROPBOX_VAULT:{connected(){return true}},
