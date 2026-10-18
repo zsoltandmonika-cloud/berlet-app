@@ -5,6 +5,9 @@ on:
       - "healthhub/live-v390-trends.js"
       - "healthhub/live-v388-intelligence.js"
       - "healthhub/live-v331.js"
+      - "healthhub/live-v328.js"
+      - "healthhub/intelligence-sleep-evidence-v651.js"
+      - "healthhub/tests/intelligence-sleep-evidence-v651.test.cjs"
       - "healthhub/tests/intelligence-trends-v390.test.cjs"
       - "healthhub/tests/intelligence-v388.test.cjs"
       - "healthhub/tests/intelligence-ledger-v389.test.cjs"
@@ -15,6 +18,9 @@ on:
       - "healthhub/live-v390-trends.js"
       - "healthhub/live-v388-intelligence.js"
       - "healthhub/live-v331.js"
+      - "healthhub/live-v328.js"
+      - "healthhub/intelligence-sleep-evidence-v651.js"
+      - "healthhub/tests/intelligence-sleep-evidence-v651.test.cjs"
       - "healthhub/tests/intelligence-trends-v390.test.cjs"
       - ".github/workflows/healthhub-intelligence-trends.yml"
   workflow_dispatch:
@@ -32,6 +38,9 @@ jobs:
           node --check healthhub/live-v389-ledger.js
           node --check healthhub/live-v388-intelligence.js
           node --check healthhub/live-v331.js
+          node --check healthhub/live-v328.js
+          node --check healthhub/intelligence-sleep-evidence-v651.js
+          node healthhub/tests/intelligence-sleep-evidence-v651.test.cjs
           node healthhub/tests/intelligence-trends-v390.test.cjs
           node healthhub/tests/intelligence-ledger-v389.test.cjs
           node healthhub/tests/intelligence-v388.test.cjs

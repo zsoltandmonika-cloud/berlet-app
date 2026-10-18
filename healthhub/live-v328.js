@@ -243,7 +243,14 @@ async function run(){
       lastDigital=await window.HH_DW_VAULT_V507.read(p);
   }catch(_){lastDigital=null;}
   if(token!==revision||profile()!==p)throw Error('Profilváltás történt a Digital Wellbeing adatok betöltése közben.');
-  var report=collect(q,p);last=report;render(report);return report;
+  var report=collect(q,p);
+  var sleepEvidence=window.HH_SLEEP_EVIDENCE_V651;
+  if(sleepEvidence&&typeof sleepEvidence.reconcile==='function'){
+   var context=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
+   if(context)report=await sleepEvidence.reconcile(report,context,p);
+  }
+  if(token!==revision||profile()!==p)throw Error('Profilváltás történt az alvásforrás ellenőrzése közben.');
+  last=report;render(report);return report;
  }catch(e){last=null;var m=el('hh328Summary');if(m){m.classList.add('on');m.textContent='⚠ '+String(e&&e.message||e)}return null}
  finally{busy=false;if(btn){btn.disabled=false;btn.textContent='🔎 Intelligence adatellenőrzés'}}
 }
