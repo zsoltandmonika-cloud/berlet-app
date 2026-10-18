@@ -57,3 +57,14 @@ test('Agile policy preserves honest five-stage release status', () => {
   assert.match(moduleSrc, /SHA-256 ellenőrizve/);
   assert.match(charter, /no micromanagement/);
 });
+
+test('v675 admin policy and reporting explicitly separate optional source exclusions and clinical review',()=>{
+ assert.match(moduleSrc,/GOVERNANCE · v1\.2/);
+ assert.match(moduleSrc,/Medical Intelligence · v675 forrásbizonyíték/);
+ assert.match(moduleSrc,/SHA-256 szövegegyezés NEM orvosi szakvélemény/);
+ assert.match(moduleSrc,/source_metadata\.ingest_scope==='excluded'/);
+ assert.match(moduleSrc,/szövegellenőrzött: /);
+ assert.match(moduleSrc,/szakmai ellenőrzésre vár: /);
+ assert.match(moduleSrc,/hh_mkb_evidence/);
+ assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=675-evidence-governance/);
+});
