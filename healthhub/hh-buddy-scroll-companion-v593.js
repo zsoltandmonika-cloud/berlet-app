@@ -4,6 +4,8 @@
  */
 (function(root){
 'use strict';
+var params;try{params=new URLSearchParams(root.location.search)}catch(_){return}
+if(params.get('hhscrollselect')!=='1'||params.get('hhpremium')==='0')return;
 var prefs='hh-premium-select-sound-v593',ctx=null,busyUntil=0;
 var reduce=false;
 try{reduce=!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches)}catch(_){}
@@ -82,6 +84,7 @@ function selected(e){
 // Capture the original gesture. Audio is scheduled synchronously before
 // the native carousel re-render; it must never play on non-user sync events.
 document.addEventListener('click',selected,true);
+var visual=document.createElement('link');visual.rel='stylesheet';visual.href='./hh-buddy-scroll-companion-v593.css?v=593-buddy-audio';document.head.appendChild(visual);
 var prev=root.renderHealthSection;
 if(typeof prev==='function')root.renderHealthSection=async function(){
  var r=await prev.apply(this,arguments);decorate();return r;
