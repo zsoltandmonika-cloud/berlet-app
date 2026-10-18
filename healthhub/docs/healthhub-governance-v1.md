@@ -199,6 +199,18 @@ Rules:
 
 Regression: `healthhub/tests/mkb-v674-timeline.test.cjs` covers same-day grouped clinical reports, same-source culture organisms, cross-profile separation, distinct specimen sources and EF values, and evidence source consistency. **Real live database data checked** by running the pure grouping function over the 7 persisted facts and 12 evidence links: Mónika's VF/resuscitation and coronarography each group 2 records/3 supporting evidence; Zsolt's urine culture groups 3 records/6 supporting evidence. No record or evidence lost in grouped output. Mobile Admin visual verification remains to be completed by a user device refresh.
 
+## MKB v675 · Drill-down evidence timeline with fresh SHA attestation (2026-10-19)
+
+The read-only Admin timeline now has a compact **expandable per-event source view**. The `🕒 Forrásolt orvosi idővonal` action reads original per-profile MKB facts/evidence plus corresponding non-duplicate documents, original PDF source metadata and page text via the authenticated Health Vault and Supabase row-level security.
+
+A new pure validator, `healthhub/mkb-evidence-audit-v675.js`, checks each evidence against: same patient profile, fact/source identity, `supports` evidence role, source not excluded, `parse_status=complete`, original PDF SHA equality to its canonical verified document, all document pages verified, source page present, **verbatim quote substring in the source page**, and **fresh SHA-256 computed from the independently re-read original page text**. Unknown, mismatched, excluded or duplicated source records fail closed. Every result is labelled **text integrity**, never medical truth.
+
+Each event group shows the ratio of technically verified supporting excerpts. The user can expand an event to inspect the original file name, PDF page number, original excerpt, and evidence warning or verification message. Unverified groups automatically open their detailed failure list. The user-selected profile is checked before and after each asynchronous Vault query. No status is altered and no PDF, fact or evidence is updated or deleted. No raw clinical record is committed to public source code.
+
+**Live data validation:** A separate independent SQL SHA-256 calculation against the stored page-text copies verified **6/6 Mónika and 6/6 Zsolt evidence links**, matching both original-file SHA-256 metadata and exact original page excerpt substrings. Additional adversarial synthetic scenarios covering other patient profiles, wrong sources, excluded originals, mismatched page SHA, missing pages and ambiguous canonical copies were rejected.
+
+Release `v675-independent-evidence-audit`, tests `healthhub/tests/mkb-v675-source-audit.test.cjs`. Mobile visual acceptance remains a device-side test; do not label the interface end-to-end verified solely from source/schema inspection.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
