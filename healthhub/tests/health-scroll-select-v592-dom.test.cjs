@@ -56,7 +56,7 @@ const win={
  hhOpenLenaExplanation(id){calls.push('LENA:'+id)},
  openHrDetail(kind,id){calls.push('MED:'+kind+':'+id)},
  async renderHealthSection(){
-  const card=new Fake('section','hrSectionCard');card.appendChild(new Fake('h3','',view));
+  const card=new Fake('section','hrSectionCard');card.appendChild(new Fake('h3','',view==='medications'?'💊 Gyógyszerek':view));
   const data=view==='records'?(this.hhDocState.showAll?fullDocs:fullDocs.slice(0,10))
     :(emptyMedicines?[]:[makeMed('Gyógyszer A','aktuális','med1'),makeMed('Gyógyszer B','korábbi','med2'),makeMed('Gyógyszer C','aktuális','med3')]);
   data.forEach(row=>card.appendChild(row));
