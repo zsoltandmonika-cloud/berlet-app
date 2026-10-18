@@ -715,6 +715,19 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 2, 0, 8)
         }
         root.addView(resilientSummary)
+        root.addView(TextView(this).apply {
+            text = "🔎 Thin Collector · források állapota"
+            textSize = 17f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 6)
+        })
+        root.addView(TextView(this).apply {
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+            text = CollectorAvailability.userStatus(this@MainActivity)
+            setPadding(0, 2, 0, 8)
+        })
         root.addView(Button(this).apply {
             text = "🔄 Kapcsolat ellenőrzése / Újrapróbálás"
             setOnClickListener {
