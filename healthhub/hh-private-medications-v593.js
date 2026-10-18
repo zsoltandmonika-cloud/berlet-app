@@ -167,6 +167,7 @@ async function augment(){
   });
  }catch(e){console.warn('Privát gyógyszerkártyák most nem olvashatók.',e)}
 }
+var visual=document.createElement('link');visual.rel='stylesheet';visual.href='./hh-private-medications-v593.css?v=593-private-vault';document.head.appendChild(visual);
 var previous=root.renderHealthSection;
 if(typeof previous==='function')root.renderHealthSection=async function(){
  var res=await previous.apply(this,arguments);await augment();return res;
