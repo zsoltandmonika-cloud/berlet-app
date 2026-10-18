@@ -10,7 +10,7 @@ const nutrition=fs.readFileSync(root+'nutrition/nutrition-preview-v592.js','utf8
 const meds=fs.readFileSync(root+'hh-private-medications-v593.js','utf8');
 const medCtx=fs.readFileSync(root+'live-v289.js','utf8');
 assert.ok(index.includes('hh-profile-standard-v652.js?v=653-fullscreen-regression-fix'),'main HealthHub loads pill');
-assert.ok(digitalIndex.includes('hh-profile-standard-v652.js?v=652-unified-canonical'),'separate Digital page loads pill');
+assert.ok(digitalIndex.includes('hh-profile-standard-v652.js?v=653-fullscreen-regression-fix'),'separate Digital page loads pill');
 assert.ok(index.includes("var v='653-overlay-profile-regression-fix'"),'bookmarked shortcut uses current build');
 assert.ok(src.includes('#hhOneRag500')&&src.includes('#hhOneFallback501')&&src.includes('#haOv.on'),'HH One admin-only gate');
 assert.ok(src.includes('#hhSP299')&&src.includes('#hhProfileDock554')&&src.includes('hhHealthSubPortraitHit')&&src.includes('runnerProfile'),'old separate profile controls hidden');
