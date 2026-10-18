@@ -18,6 +18,14 @@ test('pure, local medical rule candidates require explicitly dated, direct state
   .map(x=>x.rule),['cath']);
  assert.deepEqual(rules.candidates('33110 Coronarographia 2024.06.17. 19:13 1')
   .map(x=>x.rule),['cath']);
+ // A VF date on a narrative line is NOT a verified coronarography date.
+ assert.deepEqual(rules.candidates(
+  '2024.06.17-én kamrafibrilláció miatt történt reanimáció. Coronarographia: negatív.'
+ ).map(x=>x.rule),['vf']);
+ assert.deepEqual(rules.candidates('2024.06.17: Coronarographia: negatív.')
+  .map(x=>x.rule),[]);
+ assert.deepEqual(rules.candidates('2024.06.17 coronarographia céljából átadás')
+  .map(x=>x.rule),[]);
  assert.deepEqual(rules.candidates('2024.07.13 CRT-D beültetés megtörtént')
   .map(x=>x.rule),['device']);
  assert.equal(rules.candidates('2025.10.02 EF: 57 %')[0].value_number,57);
