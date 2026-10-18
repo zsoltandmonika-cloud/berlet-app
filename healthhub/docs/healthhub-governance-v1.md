@@ -146,6 +146,22 @@ v669 permits zero-character pages only if PDF.js confirms an operator list conta
 
 Browser import remains profile scoped and idempotent: completed documents are skipped by matching metadata, and the partial document is retried on the user's explicit action. Browser execution and final 43/43 integrity results require re-verification on the actual device. Do not interpret successful text-level QA as clinical content review.
 
+## MKB v670 · Evidence-linked Medical Intelligence pilot (2026-10-18)
+
+Following the user-confirmed **207/207** mandatory PDF/Character Count QA pass, independent Supabase readback showed Mónika 164 verified documents, 269 verified pages, 486,047 original/stored characters; Zsolt 43 verified documents, 68 verified pages, 101,168 original/stored characters. Mónika's eleven intentionally excluded Watch ECG files retain their original and historical failed record status; they are not part of this clinical extraction scope.
+
+**Release**: `healthhub/mkb-fact-rules-v670.js` (pure rule candidates), `healthhub/hh-mkb-facts-admin-v670.js` (authenticated Admin preview + deliberate save + independent readback). Live build `v670-medical-fact-evidence-pipeline`.
+
+**Medical safeguards**:
+- Authenticated, selected patient profile is mandatory throughout enumeration and before every write; Supabase RLS still independently guards all rows. No health content leaves the private Vault for GitHub, telemetry, external LLM or local persistent browser storage.
+- Only completed, original-SHA-matching, text-integrity-verified, nonduplicate, nondevice/nonsecondary reports from nonexcluded source IDs are candidates. Each eligible source page must contain **embedded** text, have no outstanding image/OCR review, and pass a fresh SHA-256 text checksum.
+- Initial deterministic rules are deliberately limited to explicitly date-anchored VF/reanimation history, dated coronarography procedure, dated CRT-D implantation, and single-value dated EF. They do not infer undocumented dates, assume EF ranges, invent diagnoses, or interpret lab results.
+- Each source-specific statement has an exact excerpt, page number, source ID, event date and original page SHA. All new facts and evidence remain `review_status=pending`; the pipeline cannot manufacture clinical verification. Existing `verified` or `rejected` facts are never modified; rejected records are preserved.
+- First action is **read-only preview**; a separate action and confirmation performs idempotent private insertion using deterministic UUIDs. Partial writes can be safely retried. An independent fresh fact/evidence/page text readback must pass before a completed QA message is shown.
+- No general AI answer or clinical inference is automatically enabled by the import. Answer generation needs its own source-grounded retrieval, conflict handling and medical-review protocol; existing Ask Léna behavior remains unchanged.
+
+**Release testing**: JavaScript syntax checks, nine deterministic rules/security smoke scenarios, and static presence of profile/eligibility/privacy/QA gates passed. A new node regression suite is under `healthhub/tests/mkb-v670-fact-pipeline.test.cjs`. S24 Ultra true end-to-end browser/Vault operation requires user test before declaring production fact extraction complete.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
