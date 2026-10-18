@@ -95,7 +95,7 @@ async function pdfjs(){
  return pdfLibPromise;
 }
 async function readDocuments(p){
- return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status,mkb_source_id&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
+ return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status,mkb_source_id,extracted_characters,stored_characters,pages_verified,text_integrity_status&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
 }
 
 function rawText(items){
@@ -243,10 +243,42 @@ async function docStatus(p,docId,patch){
   data:Object.assign({updated_at:new Date().toISOString()},patch)
  });
 }
+function codepoints(s){return Array.from(String(s||'')).length}
+async function verifySavedPages(p,docId,expected,totalPages){
+ var all=[],offset=0;
+ while(offset<Math.max(1,totalPages)){
+  active(p);
+  var part=await active(p).request('/rest/v1/hh_kb_pages?select=page_no,page_text,text_sha256'+
+   '&document_id=eq.'+encodeURIComponent(docId)+'&order=page_no.asc&limit=100&offset='+offset,{method:'GET'});
+  if(!Array.isArray(part))throw Error('Nem ellenőrizhető a privát szövegtár visszaolvasása.');
+  all.push(...part);
+  if(part.length<100)break;
+  offset+=100;
+ }
+ var byNo=new Map(all.map(x=>[x.page_no,x])),wanted=new Map(expected.map(x=>[x.pageNo,x]));
+ var charsOriginal=0,charsStored=0,pagesVerified=0,issues=0;
+ expected.forEach(x=>{charsOriginal+=x.characters});
+ for(const row of all){
+  if(!wanted.has(row.page_no)){issues++;continue}
+  charsStored+=codepoints(row.page_text);
+ }
+ for(const item of expected){
+  var stored=byNo.get(item.pageNo);
+  if(!stored){issues++;continue}
+  var newHash=stored.page_text?await hash(new TextEncoder().encode(stored.page_text)):null;
+  if(newHash!==item.sha||stored.text_sha256!==item.sha||
+     codepoints(stored.page_text)!==item.characters){issues++;continue}
+  pagesVerified++;
+ }
+ return {extractedCharacters:charsOriginal,storedCharacters:charsStored,
+  pagesVerified,matched:issues===0&&expected.length===totalPages&&
+  all.length===totalPages&&pagesVerified===totalPages&&charsOriginal===charsStored,
+  issues};
+}
 async function extractDocument(p,file,bytes,docId){
  var lib=await pdfjs(),pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;
  var result={totalPages:pdf.numPages,pagesIndexed:0,pagesNeedingOcr:0,ocrPagesPendingReview:0,visualPages:0,
-  failedPages:0,visualFailed:0},reasons=[];
+  failedPages:0,visualFailed:0,expected:[],extractedCharacters:0,storedCharacters:0,pagesVerified:0,textIntegrityStatus:'pending'},reasons=[];
  if(pdf.numPages>3000)throw Error('A PDF 3000 oldalnál hosszabb; kézi audit kell.');
  try{
   for(var pageNo=1;pageNo<=pdf.numPages;pageNo++){
@@ -283,6 +315,7 @@ async function extractDocument(p,file,bytes,docId){
       needs_review:needOcr||visual||method==='ocr',
       text_sha256:digest});
     result.pagesIndexed++;
+    result.expected.push({pageNo:pageNo,sha:digest,characters:codepoints(text)});
     if(method==='ocr'){
      result.ocrPagesPendingReview++;
      reasons.push('OCR ellenőrzendő: '+pageNo+'. oldal');
@@ -298,6 +331,22 @@ async function extractDocument(p,file,bytes,docId){
    finally{clearCanvas(can);try{page.cleanup()}catch(e){}}
   }
  }finally{try{await pdf.destroy()}catch(e){}}
+ try{
+  var check=await verifySavedPages(p,docId,result.expected,result.totalPages);
+  result.extractedCharacters=check.extractedCharacters;
+  result.storedCharacters=check.storedCharacters;
+  result.pagesVerified=check.pagesVerified;
+  result.textIntegrityStatus=check.matched?'verified':'mismatch';
+  if(!check.matched){result.failedPages++;reasons.push('Szövegellenőrzés: oldal-, karakter- vagy SHA-256 eltérés.')}
+ }catch(e){
+  result.failedPages++;
+  result.textIntegrityStatus='partial';
+  reasons.push('A szövegek privát adatbázisból való visszaellenőrzése sikertelen.');
+ }
+ if(result.textIntegrityStatus==='verified'&&
+    (result.pagesNeedingOcr>0||result.pagesIndexed!==result.totalPages))
+  result.textIntegrityStatus='partial';
+ delete result.expected;
  result.reasons=reasons.slice(0,8);
  return result;
 }
@@ -374,7 +423,11 @@ async function run(p,opts){
     if(st.stop)quality='partial';
     await docStatus(p,id,{status:quality,total_pages:result.totalPages,
      pages_indexed:result.pagesIndexed,pages_needing_ocr:result.pagesNeedingOcr,
-     visual_pages:result.visualPages,notes:(result.reasons||[]).join('; ').slice(0,1100)});
+     visual_pages:result.visualPages,
+      extracted_characters:result.extractedCharacters,stored_characters:result.storedCharacters,
+      pages_verified:result.pagesVerified,text_integrity_status:result.textIntegrityStatus,
+      text_verified_at:result.textIntegrityStatus==='verified'?new Date().toISOString():null,
+      notes:(result.reasons||[]).join('; ').slice(0,1100)});
     await sourceStatus(p,source,quality);
     var row=Object.assign({},saved,{status:quality,total_pages:result.totalPages,
      pages_indexed:result.pagesIndexed,visual_pages:result.visualPages});
