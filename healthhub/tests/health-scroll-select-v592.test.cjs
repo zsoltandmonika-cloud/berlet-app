@@ -56,7 +56,7 @@ assert.ok(api.matchMed(med('aktuális',''), 'all'));
 assert.ok(css.includes('scroll-snap-type:x mandatory'),'the horizontal document card selector is native scroll snap');
 assert.ok(css.includes('data-hh-system-profile="m"'),'Mónika gets a distinct profile accent');
 assert.ok(css.includes('hhRsmCard[hidden]'),'filtered cards are truly hidden');
-assert.ok(html.includes('health-scroll-select-v592.js?v=592-omsz-meds-preview'),'preview module loaded from HH boot');
+assert.ok(html.includes('health-scroll-select-v592.js?v=593-private-med-carousel'),'preview module loaded from HH boot');
 assert.ok(source.includes("root.hhShowAllDocs()"),'non-initial OMSZ hits are not limited by legacy latest-ten page');
 assert.ok(source.includes("root.hhOpenLenaExplanation(id)"),'original Léna explanation action preserved');
 assert.ok(source.includes("root.openHrDocument(id)"),'existing original document PDF viewer preserved');

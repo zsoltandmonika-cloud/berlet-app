@@ -1,0 +1,41 @@
+name: HealthHub HHSP1 Buddy and Private Medicines QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-buddy-scroll-companion-v593.js'
+      - 'healthhub/hh-buddy-scroll-companion-v593.css'
+      - 'healthhub/hh-private-medications-v593.js'
+      - 'healthhub/hh-private-medications-v593.css'
+      - 'healthhub/health-scroll-select-v592.js'
+      - 'healthhub/tests/hh-buddy-private-medications-v593.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/hhsp1-buddy-private-meds-v593-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-buddy-scroll-companion-v593.js'
+      - 'healthhub/hh-private-medications-v593.js'
+      - 'healthhub/health-scroll-select-v592.js'
+      - 'healthhub/index.html'
+permissions:
+  contents: read
+jobs:
+  companion-private-med:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser and synthetic test scripts
+        run: |
+          node --check healthhub/hh-private-medications-v593.js
+          node --check healthhub/hh-buddy-scroll-companion-v593.js
+          node --check healthhub/health-scroll-select-v592.js
+          node --check healthhub/tests/hh-buddy-private-medications-v593.test.cjs
+      - name: Test medication persistence and Buddy gestures without user data
+        run: |
+          node healthhub/tests/hh-buddy-private-medications-v593.test.cjs
+          node healthhub/tests/health-scroll-select-v592.test.cjs
+          node healthhub/tests/health-scroll-select-v592-dom.test.cjs

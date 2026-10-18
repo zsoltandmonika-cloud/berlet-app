@@ -55,6 +55,7 @@
   return m?m[1]:null;
  }
  function hasMedicationId(row){
+  if(row.dataset&&row.dataset.hhPrivateMed==='1')return row.dataset.hhMedId||null;
   var on=row.getAttribute('onclick')||'';
   var m=on.match(/openHrDetail\('medication','([^']+)'\)/);
   return m?m[1]:null;
@@ -82,9 +83,17 @@
    }
   }else{
    var mid=hasMedicationId(row);
-   if(mid)foot.appendChild(button('Részletek',function(){if(typeof root.openHrDetail==='function')root.openHrDetail('medication',mid)}));
+   if(mid)foot.appendChild(button('Részletek',function(){
+    if(row.dataset&&row.dataset.hhPrivateMed==='1'&&root.HH_PRIVATE_MEDICATIONS_V593)
+      root.HH_PRIVATE_MEDICATIONS_V593.open(mid);
+    else if(typeof root.openHrDetail==='function')root.openHrDetail('medication',mid);
+   }));
    var purpose=row.querySelector('.hhMedPurposeBtn');
    if(purpose)foot.appendChild(purpose);
+   else if(row.dataset&&row.dataset.hhPrivateMed==='1'&&typeof root.hhMedicationPurpose==='function'){
+    var title=row.querySelector('b');
+    if(title)foot.appendChild(button('Mire való?',function(){root.hhMedicationPurpose(title.textContent||'')}));
+   }
   }
   if(foot.children.length)row.appendChild(foot);
  }
@@ -112,10 +121,10 @@
  }
  function decorate(kind,container){
   var card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(x){
-   return !!x.querySelector(kind==='records'?'.hrRow[onclick*="Document"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="medication"]');
+   return !!x.querySelector(kind==='records'?'.hrRow[onclick*="Document"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="medication"],.hrRow[data-hh-private-med]');
   });
   if(!card)return;
-  var selector=kind==='records'?'.hrRow[onclick*="hhOpenDocumentDetail"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="openHrDetail"]';
+  var selector=kind==='records'?'.hrRow[onclick*="hhOpenDocumentDetail"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="openHrDetail"],.hrRow[data-hh-private-med]';
   var rows=Array.from(card.querySelectorAll(selector)).filter(function(row){
    return row.parentNode===card&&(kind!=='medications'||hasMedicationId(row));
   });
