@@ -30,7 +30,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='595-scroll-tick-clean-buddy';
+  var v='651-sleep-context-source';
   try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
