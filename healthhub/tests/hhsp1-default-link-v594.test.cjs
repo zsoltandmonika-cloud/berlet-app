@@ -12,8 +12,8 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const scroll=fs.readFileSync(path.join(root,'health-scroll-select-v592.js'),'utf8');
 const buddy=fs.readFileSync(path.join(root,'hh-buddy-scroll-companion-v593.js'),'utf8');
 
-assert.ok(html.includes('content="v652-global-profile-pill"'),'HTML build identifies the current version');
-assert.ok(html.includes("var v='652-global-profile-pill'"),'bootstrap rewrites legacy hhv URL to current build');
+assert.ok(html.includes('content="v653-overlay-profile-regression-fix"'),'HTML build identifies the current version');
+assert.ok(html.includes("var v='653-overlay-profile-regression-fix'"),'bootstrap rewrites legacy hhv URL to current build');
 assert.ok(html.includes("u.searchParams.set('hhv',v)"),'existing shortcut URL is normalized without changing app path');
 assert.ok(html.includes("history.replaceState(history.state,'',u.toString())"),'canonical build URL is updated without new navigation');
 assert.ok(html.includes('health-scroll-select-v592.js?v=594-default-buddy-live'),'scroll selector fetches new source instead of stale cached v593');
