@@ -116,12 +116,12 @@ async function count(){
   assertActive(who);
   var api=window.HH_DAILY_HEALTH_SYNC_V319,st=api.getStatus();
   var accessible=['monika','zsolt'].filter(x=>st.authorizedProfiles.includes(x));
-  async function all(table,cols,key){
+  async function all(table,cols,key,extra){
    var rows=[],offset=0;
    while(offset<20000){
     if(!permitted(who)||p()!==who)throw Error('A hozzáférés időközben megváltozott.');
     var url='/rest/v1/'+table+'?select='+cols+'&profile_key=eq.'+encodeURIComponent(key)+
-      '&limit=500&offset='+offset;
+      (extra||'')+'&limit=500&offset='+offset;
     var part=await api.request(url,{method:'GET'});
     if(!Array.isArray(part))throw Error('Nem ellenőrizhető a lekérdezés.');
     rows.push(...part);offset+=500;
@@ -132,7 +132,7 @@ async function count(){
   var sections=[],grand={files:0,indexed:0,canonical:0,verified:0,expected:0,stored:0,pages:0,pagesVerified:0,unverified:0};
   for(const key of accessible){
    var pair=await Promise.all([
-     all('hh_mkb_sources','id',''+key),
+     all('hh_mkb_sources','id',key,'&source_kind=eq.pdf&origin=eq.google_drive'),
      all('hh_kb_documents','id,duplicate_of,status,total_pages,pages_verified,extracted_characters,stored_characters,text_integrity_status',key)
    ]);
    var sourceCount=pair[0].length,docs=pair[1],canonical=docs.filter(x=>!x.duplicate_of);
