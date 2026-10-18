@@ -79,7 +79,7 @@ assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
 assert.match(html,/sleep-three-views-v428\.css\?v=433-golden-standard/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=433-default-sleep/,
+assert.match(html,/sleep-three-views-v428\.js\?v=532-golden-sleep-hero/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');
