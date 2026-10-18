@@ -15,7 +15,7 @@ test('Admin charter source parses and is loaded once, after the standard profile
   assert.doesNotThrow(() => new vm.Script(moduleSrc));
   assert.equal(liveIndex.split('hh-development-charter-admin-v658.js').length - 1, 1);
   assert.ok(liveIndex.indexOf('hh-development-charter-admin-v658.js') > liveIndex.indexOf('hh-profile-standard-v652.js'));
-  assert.match(liveIndex, /v658-admin-governance-charter/);
+  assert.match(liveIndex, /v659-agile-live-acceptance/);
 });
 
 test('Governance charter names three pillars in admin and Github documentation', () => {
@@ -45,4 +45,13 @@ test('Explicit opt-in and no silent medical photo archiving remain documented', 
   assert.match(moduleSrc, /külön hozzájárulással/);
   assert.match(charter, /tartalomspecifikus hozzájárulás/);
   assert.match(charter, /nem tekinthető késznek/);
+});
+
+test('Agile policy preserves honest five-stage release status', () => {
+  for (const stage of ['CODED', 'TESTED', 'DEPLOYED', 'LIVE VERIFIED', 'USER ACCEPTED']) {
+    assert.ok(moduleSrc.includes(stage), 'HH Admin lacks ' + stage);
+    assert.ok(charter.includes(stage), 'GitHub charter lacks ' + stage);
+  }
+  assert.match(moduleSrc, /Trial &amp; error/);
+  assert.match(charter, /no micromanagement/);
 });
