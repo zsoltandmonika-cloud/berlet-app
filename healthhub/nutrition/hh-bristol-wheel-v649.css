@@ -1,0 +1,43 @@
+/* HH Nutrition v649 · BODY BALANCE Bristol scroll picker.
+   The canonical #bristol select and saved diary schema remain untouched. */
+#bodyDialog:has(.hh-bristol-wheel) {width:min(580px,calc(100% - 18px))}
+#bodyDialog .hh-bristol-enhanced {grid-column:1 / -1}
+#bodyDialog #bristolWrap.hh-bristol-enhanced > label[for="bristol"],
+#bodyDialog #bristolWrap.hh-bristol-enhanced > select#bristol {display:none!important}
+.hh-bristol-wheel{--bh:#8cb9e9;position:relative;min-width:0;max-width:100%;padding:11px 0 12px;border:1px solid rgba(135,186,233,.36);border-radius:21px;overflow:hidden;background:radial-gradient(ellipse 110% 60% at 50% 0%,var(--accentWash),transparent 80%),linear-gradient(145deg,rgba(17,44,77,.97),rgba(10,26,48,.97));box-shadow:inset 0 1px #ffffff28}
+.hh-bristol-top{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:0 14px}
+.hh-bristol-top strong{font-size:14px;font-weight:850;letter-spacing:-.025em;color:#eff7ff}
+.hh-bristol-top small{font-size:10px;font-weight:700;color:#b2cbe7;white-space:nowrap}
+.hh-bristol-hint{font-size:11px;color:#bad9f1;margin:8px 0 0!important;padding:0 14px;line-height:1.45}
+.hh-bristol-rail{display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:calc((100% - min(66vw,265px))/2);gap:12px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;padding:15px max(calc((100% - min(66vw,265px))/2),12px) 12px}
+.hh-bristol-rail::-webkit-scrollbar{display:none}
+.hh-bristol-card{position:relative;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;flex:0 0 min(66vw,265px);min-width:0;scroll-snap-align:center;scroll-snap-stop:always;min-height:216px;margin:0;border:1.5px solid rgba(132,173,219,.47);border-radius:20px;background:linear-gradient(160deg,#254769,#0f2a49 65%,#102038);color:#f7fbff;box-shadow:0 10px 23px #0006,inset 0 1px #ffffff20;text-align:center;padding:10px 9px 13px;opacity:.77;transform:scale(.96);transition:transform .18s ease,border-color .18s ease,opacity .18s ease,box-shadow .18s ease;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.hh-bristol-card[data-centered="true"]{transform:scale(1);opacity:1;border-color:rgba(198,224,252,.9);box-shadow:0 11px 25px #0009,0 0 14px var(--accentWash),inset 0 1px #ffffff30}
+.hh-bristol-card[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 12px 27px #000b,0 0 20px var(--accentWash),inset 0 1px #ffffff3b}
+.hh-bristol-number{position:absolute;top:10px;left:11px;min-width:34px;height:30px;display:grid;place-items:center;border-radius:10px;border:1px solid #ffffff39;background:#07182bd6;font-size:14px;font-weight:900;color:#e8f6ff}
+.hh-bristol-check{position:absolute;top:11px;right:11px;font-size:11px;font-weight:850;letter-spacing:.01em;color:#c9ddec}
+.hh-bristol-card[aria-pressed="true"] .hh-bristol-check{color:#8af8cc}
+.hh-bristol-art{display:grid;place-items:center;width:100%;height:121px;margin:4px 0 3px;background:radial-gradient(circle at 50% 63%,#e9bb7e24,transparent 69%)}
+.hh-bristol-art svg{display:block;width:100%;max-width:235px;height:114px;overflow:visible;filter:drop-shadow(0 8px 8px #030c19a6)}
+.hh-bristol-card b{font-size:14px;line-height:1.25;letter-spacing:-.03em;font-weight:850}
+.hh-bristol-card small{margin-top:5px;font-size:11px;line-height:1.35;color:#cadbeb;font-weight:500}
+.hh-bristol-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 13px}
+.hh-bristol-nav button{border:1px solid #87c2ea7b;border-radius:12px;background:#183c60;color:#d8f1ff;min-height:35px;min-width:37px;padding:5px 10px;font-size:17px;line-height:1;cursor:pointer}
+.hh-bristol-nav button:disabled{opacity:.4;cursor:default}
+.hh-bristol-now{flex:1;min-width:0;text-align:center;font-size:12px;font-weight:800;color:#ecf9ff;line-height:1.3}
+.hh-bristol-now[data-picked="false"]{color:#bbd0e3}
+.hh-bristol-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px 0}
+.hh-bristol-clear{appearance:none;border:1px solid #7298ba9c;border-radius:11px;background:#143451;color:#d0eaff;min-height:34px;font-size:11px;font-weight:750;padding:7px 11px;cursor:pointer}
+.hh-bristol-note{max-width:230px;color:#adcadf;font-size:10px;line-height:1.4;text-align:right}
+:root[data-profile="monika"] .hh-bristol-card[aria-pressed="true"]{box-shadow:0 12px 27px #000b,0 0 19px #f9a6d348,inset 0 1px #ffffff3b}
+@media(max-width:410px){
+ #bodyDialog .modal{padding:13px}
+ .hh-bristol-top{padding:0 11px}
+ .hh-bristol-rail{gap:10px;padding-top:12px}
+ .hh-bristol-card{min-height:201px;padding:8px 6px 10px}
+ .hh-bristol-art{height:112px}
+ .hh-bristol-art svg{height:104px}
+ .hh-bristol-bottom{padding:7px 11px 0}
+ .hh-bristol-note{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.hh-bristol-card{transition:none}}
