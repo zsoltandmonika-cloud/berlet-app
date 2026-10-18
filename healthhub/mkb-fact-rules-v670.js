@@ -40,16 +40,18 @@ function candidates(pageText){
       !/nem tortent|tervezett|kizarhato|gyanu|kerdeses/.test(n)){
    add('vf',dt,raw.slice(0,850),'Leletben dokumentált reanimáció kamrafibrilláció miatt.',null,null);
   }
-  var coronary=/(?:^|\s)(?:33110\s+)?coronarographia\b/.test(n);
-  if(coronary&&!/tervezett|javasolt|celjabol|elojegyz/.test(n)){
-   // Explicit procedure date on this row, OR in the paired "operation time" row.
-   var next=lines[i+1]?.[0]||'',nextN=norm(next);
-   var date=dt||(/mutet ideje|beavatkozas ideje/.test(nextN)?parseDate(next):null);
-   if(date&&(dt||/mutet neme|beavatkozas|33110/.test(n))){
-    var excerpt=dt?raw.slice(0,850):(raw+'\n'+next).slice(0,850);
-    if(text.includes(excerpt))
-     add('cath',date,excerpt,'A leletben coronarographia dokumentált beavatkozásként szerepel.',null,null);
-   }
+  // Do NOT borrow the date of a nearby different event. In narrative reports
+  // "2024.06.17: VF resuscitation. Coronarographia: negative" proves
+  // no unambiguous procedure date. A false event date is a clinical error.
+  var next=lines[i+1]?.[0]||'';
+  var coded=/(?:^|\s)33110\s+coronarographia\b/.test(n)&&!!dt;
+  var heading=/(?:mutet|beavatkozas)\s+(?:neme|megnevezese)\s*:\s*coronarographia\b/.test(n)&&
+    /(?:mutet|beavatkozas)\s+ideje\s*:/.test(norm(next))&&!!parseDate(next);
+  if((coded||heading)&&!/tervezett|javasolt|celjabol|elojegyz/.test(n)){
+   var date=coded?dt:parseDate(next);
+   var excerpt=coded?raw.slice(0,850):(raw+'\n'+next).slice(0,850);
+   if(text.includes(excerpt))
+    add('cath',date,excerpt,'A leletben coronarographia dokumentált beavatkozásként szerepel.',null,null);
   }
   if(dt&&/(crt[\s-]?d|cardioverter.defibrillator)/.test(n)&&
      /(beultet|implant)/.test(n)&&!/tervezett|javasolt|elokeszit|indikacio/.test(n)){
