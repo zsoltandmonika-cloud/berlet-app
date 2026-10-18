@@ -90,6 +90,10 @@
    }));
    var purpose=row.querySelector('.hhMedPurposeBtn');
    if(purpose)foot.appendChild(purpose);
+   else if(row.dataset&&row.dataset.hhPrivateMed==='1'&&typeof root.hhMedicationPurpose==='function'){
+    var title=row.querySelector('b');
+    if(title)foot.appendChild(button('Mire való?',function(){root.hhMedicationPurpose(title.textContent||'')}));
+   }
   }
   if(foot.children.length)row.appendChild(foot);
  }
