@@ -34,7 +34,7 @@ function boot(){
  }
  const wheel=document.createElement('div');wheel.className='hh-bristol-wheel';
  wheel.setAttribute('aria-label','Bristol-típus kiválasztása ételhasonlatos kártyákkal');
- wheel.innerHTML='<div class="hh-bristol-top"><strong>🍇 Bristol · diszkrét választó</strong><small>1–7 típus</small></div><p class="hh-bristol-hint">Görgess jobbra vagy balra, majd érintsd meg a kártyát.</p><div class="hh-bristol-rail" role="group" tabindex="0" aria-label="Hét Bristol-típus, vízszintesen görgethető"></div><div class="hh-bristol-nav"><button type="button" class="hh-bristol-prev" aria-label="Előző típus">‹</button><span class="hh-bristol-now" role="status" aria-live="polite" data-picked="false">Még nincs kiválasztva</span><button type="button" class="hh-bristol-next" aria-label="Következő típus">›</button></div><div class="hh-bristol-bottom"><button type="button" class="hh-bristol-clear">Nincs megadva</button><span class="hh-bristol-note">Az ételképek csak állaghasonlatok, nem egészségügyi diagnózisok.</span></div>';
+ wheel.innerHTML='<div class="hh-bristol-top"><strong>🍇 Bristol · diszkrét választó</strong><button type="button" class="hh-bristol-edit" aria-label="Bristol-kártyaképek szerkesztése">✎ Képek</button><small>1–7 típus</small></div><p class="hh-bristol-hint">Görgess jobbra vagy balra, majd érintsd meg a kártyát.</p><div class="hh-bristol-rail" role="group" tabindex="0" aria-label="Hét Bristol-típus, vízszintesen görgethető"></div><div class="hh-bristol-nav"><button type="button" class="hh-bristol-prev" aria-label="Előző típus">‹</button><span class="hh-bristol-now" role="status" aria-live="polite" data-picked="false">Még nincs kiválasztva</span><button type="button" class="hh-bristol-next" aria-label="Következő típus">›</button></div><div class="hh-bristol-bottom"><button type="button" class="hh-bristol-clear">Nincs megadva</button><span class="hh-bristol-note">Az ételképek csak állaghasonlatok, nem egészségügyi diagnózisok.</span></div>';
  wrap.append(wheel);wrap.classList.add('hh-bristol-enhanced');
  const rail=wheel.querySelector('.hh-bristol-rail'),now=wheel.querySelector('.hh-bristol-now');
  const previous=wheel.querySelector('.hh-bristol-prev'),next=wheel.querySelector('.hh-bristol-next');
@@ -49,6 +49,21 @@ function boot(){
   b.addEventListener('click',()=>choose(t.n,true));
   rail.append(b);cards.push(b);
  }
+ function refreshImages(){
+  for(let i=0;i<cards.length;i++){
+   const art=cards[i].querySelector('.hh-bristol-art');
+   if(!art)continue;
+   art.querySelector('.hh-category-photo')?.remove();
+   root.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.('bristol',String(i+1),art);
+  }
+ }
+ root.addEventListener('healthhub:bevitel-categories-updated',refreshImages);
+ root.setTimeout(refreshImages,800);
+ wheel.querySelector('.hh-bristol-edit').addEventListener('click',()=>{
+  const studio=root.HH_BEVITEL_CATEGORY_V644;
+  if(studio?.openEditor)studio.openEditor('bristol');
+  else alert('A közös képstúdió még nem töltődött be. Kérlek, frissítsd az oldalt.');
+ });
  const visible=()=>!wrap.hidden&&dialog.open;
  function center(n,smooth){
   const card=cards[n-1];if(!card)return;
