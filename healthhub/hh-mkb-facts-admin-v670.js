@@ -86,6 +86,8 @@ async function uuid(v){
 async function enumerate(p){
  guard(p);
  var rules=window.HH_MKB_FACT_RULES_V670;
+ var labs=window.HH_MKB_LAB_RULES_V672;
+ if(!labs||typeof labs.candidates!=='function')throw Error('A laborfeldolgozó nem töltődött be. Frissítsd a HealthHubot.');
  if(!rules||typeof rules.candidates!=='function')throw Error('A ténykinyerési szabályok még nem töltődtek be.');
  if(!crypto||!crypto.subtle)throw Error('A SHA-256 integritásellenőrzéshez HTTPS szükséges.');
  var base='&profile_key=eq.'+encodeURIComponent(p);
@@ -118,7 +120,7 @@ async function enumerate(p){
    if(!/^[a-f0-9]{64}$/i.test(page.text_sha256||'')||
       await digest(page.page_text)!==page.text_sha256)
     throw Error('Oldalszintű SHA-256 eltérés: a tényfeldolgozás leállt.');
-   var candidates=rules.candidates(page.page_text);
+   var candidates=rules.candidates(page.page_text).concat(labs.candidates(page.page_text));
    for(var candidate of candidates){
     if(!page.page_text.includes(candidate.excerpt))throw Error('A jelölt nem vezethető vissza az eredeti oldalszövegre.');
     out.push({...candidate,profile_key:p,source_id:d.mkb_source_id,
