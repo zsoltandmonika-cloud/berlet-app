@@ -9,7 +9,7 @@ const buddyCss=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.css
 const index=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 assert.ok(index.includes('hh-private-medications-v593.js?v=593-vault-editor'));
 assert.ok(index.includes('health-scroll-select-v592.js?v=594-default-buddy-live'));
-assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=594-default-buddy-live'));
+assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
 assert.ok(index.indexOf('hh-private-medications-v593.js')<index.indexOf('health-scroll-select-v592.js'));
 assert.ok(index.indexOf('health-scroll-select-v592.js')<index.indexOf('hh-buddy-scroll-companion-v593.js'));
 assert.ok(meds.includes("KEY='private-reference'"),'uses established private reference, never public personal data');
@@ -21,10 +21,10 @@ assert.ok(!/profiles\.monika\.medications|MEDICATIONS\.monika|med-monika-rozuva/
 assert.ok(buddy.includes('./nutrition/nutri-chipmunk-3d-v594.webp'),'reuse approved existing Buddy');
 assert.ok(buddy.includes("source.dataset.hhKey==='omsz'"),'no special Buddy reaction for OMSZ');
 assert.ok(buddy.includes("note(523.25")&&buddy.includes("note(783.99"),'click with audible ascending tada');
-assert.ok(buddy.includes('document.addEventListener(\'click\',selected,true)'),'audio only in user click handler');
+assert.ok(buddy.includes('document.addEventListener(\'click\',selected,true)'),'tada remains on user click');
 assert.ok(buddy.includes('prefers-reduced-motion'),'reduced-motion support');
 assert.ok(buddyCss.includes('pointer-events:none'),'Buddy does not obscure filters');
-assert.ok(buddyCss.includes('hhBuddy593Sound'),'sound toggle available');
+assert.ok(!buddyCss.includes('hhBuddy593Sound'),'Buddy is clean, no mute button');
 assert.ok(medCss.includes('hhMed593Overlay'),'accessibly styled private editor');
 
 class El{
