@@ -25,7 +25,9 @@ test('three species in a specimen-dated culture become exact pending source quot
  assert.deepEqual(result.map(x=>x.observed_date),['2026-03-27','2026-03-27','2026-03-27']);
  assert.deepEqual(result.map(x=>x.fact_type),['laboratory','laboratory','laboratory']);
  assert.equal(result.every(x=>x.review_status==='pending'&&x.assertion_type==='reported'),true);
- assert.equal(result.every(x=>sample.includes(x.excerpt)&&x.excerpt.includes('Mintavétel')),true);
+ assert.equal(result.every(x=>sample.includes(x.excerpt)&&x.excerpt.startsWith('Baktérium')),true);
+ assert.equal(result.every(x=>x.excerpt.includes('Csíraszám')&&x.excerpt.length<650),true);
+ assert.equal(result.every(x=>!x.excerpt.includes('Mintavétel')&&!x.excerpt.includes('Orvos')),true);
  assert.equal(result.every(x=>x.value_number===null&&x.original_unit===null),true);
  assert.equal(result.every(x=>!(/fertőzés|antibiotikum/i.test(x.value_text))),true);
 });
@@ -47,8 +49,8 @@ test('missing sample evidence, non-urine specimen, absent culture or absent grow
 test('viewer keeps existing rules and activates strict lab rules in the right script order',()=>{
  assert.doesNotThrow(()=>new Function(script));
  assert.doesNotThrow(()=>new Function(admin));
- assert.match(index,/mkb-lab-rules-v672\.js\?v=672-reviewed-specimen/);
- assert.match(index,/v672-lab-culture-evidence/);
+ assert.match(index,/mkb-lab-rules-v672\.js\?v=673-minimal-evidence/);
+ assert.match(index,/v673-lab-evidence-minimized/);
  assert.ok(index.indexOf('mkb-fact-rules-v670.js')<index.indexOf('mkb-lab-rules-v672.js'));
  assert.ok(index.indexOf('mkb-lab-rules-v672.js')<index.indexOf('hh-mkb-facts-admin-v670.js'));
  assert.match(admin,/rules\.candidates\(page\.page_text\)\.concat\(labs\.candidates\(page\.page_text\)\)/);
