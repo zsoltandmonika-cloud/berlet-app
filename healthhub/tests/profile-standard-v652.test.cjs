@@ -9,13 +9,13 @@ const digitalIndex=fs.readFileSync(root+'digital-health/index.html','utf8');
 const nutrition=fs.readFileSync(root+'nutrition/nutrition-preview-v592.js','utf8');
 const meds=fs.readFileSync(root+'hh-private-medications-v593.js','utf8');
 const medCtx=fs.readFileSync(root+'live-v289.js','utf8');
-assert.ok(index.includes('hh-profile-standard-v652.js?v=652-unified-canonical'),'main HealthHub loads pill');
+assert.ok(index.includes('hh-profile-standard-v652.js?v=653-fullscreen-regression-fix'),'main HealthHub loads pill');
 assert.ok(digitalIndex.includes('hh-profile-standard-v652.js?v=652-unified-canonical'),'separate Digital page loads pill');
-assert.ok(index.includes("var v='652-global-profile-pill'"),'bookmarked shortcut uses current build');
+assert.ok(index.includes("var v='653-overlay-profile-regression-fix'"),'bookmarked shortcut uses current build');
 assert.ok(src.includes('#hhOneRag500')&&src.includes('#hhOneFallback501')&&src.includes('#haOv.on'),'HH One admin-only gate');
-assert.ok(src.includes('#hhSP299')&&src.includes('#hhProfileDock554'),'old separate profile controls hidden');
+assert.ok(src.includes('#hhSP299')&&src.includes('#hhProfileDock554')&&src.includes('hhHealthSubPortraitHit')&&src.includes('runnerProfile'),'old separate profile controls hidden');
 assert.ok(nutrition.includes("click('profileBtn',()=>{tone('tap');setProfile("),'approved Nutrition control remains working');
-assert.ok(meds.includes('healthhub:private-medications-saved')&&medCtx.includes('healthhub:private-medications-saved'),'private save propagates to Ask Léna context');
+assert.ok(meds.includes('healthhub:private-medications-saved')&&medCtx.includes('healthhub:private-medications-saved')&&meds.includes('purpose:purpose.value.trim()'),'private save propagates to Ask Léna context and explanation');
 assert.ok(meds.includes("name.value='Rozuva-Teva 10 mg filmtabletta'"),'existing explicit prescription preset available');
 assert.ok(!src.includes('localStorage.setItem('),'new global button never writes profile/medical store itself');
 
