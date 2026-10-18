@@ -1,214 +1,193 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-17",
-  "generatedAt": "2026-10-17T10:37:27+02:00",
-  "headline": "A reggel fő témái: Trump waives several Russia sanctions as row with Zelensky intensifies; Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+  "date": "2026-10-18",
+  "generatedAt": "2026-10-18T10:53:31+02:00",
+  "headline": "A reggel fő témái: Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests; Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
-        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
-        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico",
-        "BBC World: Inside Ukrainian offensive pushing Russia back - with Starlink playing a key role"
+        "BBC World: Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests",
+        "BBC World: Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat",
+        "BBC World: A wave of homemade, synthetic drugs sweeps US and deepens crisis",
+        "BBC World: European diplomats attacked by Israeli settlers in West Bank"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
-        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
-        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico"
+        "BBC World: Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests",
+        "BBC World: Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat",
+        "BBC World: A wave of homemade, synthetic drugs sweeps US and deepens crisis"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
-        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
-        "BBC World: Three men jailed for 158 years each for murdering Australian and US surfers in Mexico"
+        "BBC World: Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests",
+        "BBC World: Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat",
+        "BBC World: A wave of homemade, synthetic drugs sweeps US and deepens crisis"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "444: Magyar Péter a dízelmegállapodásról a 444-nek: Az amerikai elnök olyan megállapodást köt, amilyet akar, de ennek Magyarország szempontjából is van jelentősége - 444",
-        "24.hu: Virágzik Magyarország egyik legmérgezőbb növénye - 24.hu",
-        "Index.hu: Kátai-Németh Vilmos feljelentést tett a Családbarát Magyarország programsorozat szerencsi rendezvényei miatt - Index.hu"
+        "Magyarország Kormánya: A többség támogatja a közlekedési szabályok szigorítását - Magyarország Kormánya",
+        "Világgazdaság: Különös fejlesztést jelentett be Vitézy Dávid Magyarország egyik legfontosabb sztrádáján: új híd épül, de azonnal beleszálltak a miniszterbe – „csoda, hogy még nem omlott össze a kamionok, tankok alatt! - Világgazdaság",
+        "WBASKET: Nyilatkozatcsokor a szombati bajnoki mérkőzések előtt - WBASKET"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Banks expect to be hit with higher taxes in Budget",
-        "BBC Business: Watch: Did Tesla really just unveil a flying car?",
-        "BBC Business: Ship attack reports near Hormuz reach record high as oil exports slow"
+        "BBC Business: There's a crackdown on sports piracy - but is it already out of control?",
+        "BBC Business: Third runway at Heathrow Airport would drive growth, Healey says"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Toxic algorithms wouldn't let them go - now Australia wants an off switch",
-        "BBC Technology: Russian man linked to deadly London hospitals hack arrested",
-        "BBC Technology: Snapchat and Instagram grooming becoming 'easier'"
+        "BBC Technology: No further action against government adviser's wife over Palestine Action post, police say"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Trump waives several Russia sanctions as row with Zelensky intensifies (BBC World).",
-        "Figyelmi pont: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times' (BBC World).",
-        "Figyelmi pont: Palestinians and US journalist injured by Israeli settlers in West Bank harvest attack (BBC World)."
+        "Figyelmi pont: A wave of homemade, synthetic drugs sweeps US and deepens crisis (BBC World).",
+        "Figyelmi pont: European diplomats attacked by Israeli settlers in West Bank (BBC World).",
+        "Figyelmi pont: Trump waives several Russia sanctions as row with Zelensky intensifies (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Trump waives several Russia sanctions as row with Zelensky intensifies",
-        "BBC World: Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'"
+        "BBC World: Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests",
+        "BBC World: Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat"
       ]
     }
   ],
   "sources": [
     {
+      "title": "Violent clashes, looting and buildings ablaze in France as more than 1,200 arrested after protests",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6d937wedj7jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "Photos show luxury boat with 50m pool and water slides near Kim Jong Un's summer retreat",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmy4xnyyg1lyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "A wave of homemade, synthetic drugs sweeps US and deepens crisis",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmx2wvyv5j17o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "European diplomats attacked by Israeli settlers in West Bank",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c962ydpmjm3zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "Several dead or injured in major fire at Canada military base",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cr86z0w4lxdxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
       "title": "Trump waives several Russia sanctions as row with Zelensky intensifies",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/cxr5yvzv7rp0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-17"
+      "publishedAt": "2026-10-18"
     },
     {
-      "title": "Oregon teacher fought school attacker before armed dad shot suspect 'multiple times'",
+      "title": "Anti-government protesters battle with police in Albania",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cv98zw1k8kp3o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/crwydey50xeno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-17"
     },
     {
-      "title": "Three men jailed for 158 years each for murdering Australian and US surfers in Mexico",
+      "title": "Church makes sainthood case for 'WW1 hero' priest",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3kgqjkzw29wo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmg47rwddpxko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "A többség támogatja a közlekedési szabályok szigorítását - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOTm5lV0pCeHBXdERCVmZCdXBsaWNlU2RRQkk3WnNuc3k2azhZWi1QdW5tTzdMaTU2TkdtdVF2ejc2Y1dBMUlrQ0FYMjczaDF0eVFnMHRoVzFHaHh5cnJNT2w4dDk4VWpLRnhfZ3pLYk5MeXpwUkRnQ3NmSVZHaG9WWHRPS1F5bUJj?oc=5",
       "publishedAt": "2026-10-17"
     },
     {
-      "title": "Inside Ukrainian offensive pushing Russia back - with Starlink playing a key role",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cvx284w16z1po?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Brazil sees record fall in Amazon deforestation as key election looms",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqe8rzg6zl00o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Palestinians and US journalist injured by Israeli settlers in West Bank harvest attack",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c65ynk7212vqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Katie Zacharia leaving White House role less than five days into job",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c32l4ekpvzl8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Pope's health should not be taken 'for granted', says top Vatican diplomat",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6kg53zrexdeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Magyar Péter a dízelmegállapodásról a 444-nek: Az amerikai elnök olyan megállapodást köt, amilyet akar, de ennek Magyarország szempontjából is van jelentősége - 444",
-      "publisher": "444",
-      "url": "https://news.google.com/rss/articles/CBMijgJBVV95cUxOVHpRTTVNYVJ1ZTVEWEFKVk95dW5YMThQbTBVQXJUamhwQ0F2MWd5Vm83cWpIaXV3aUl1bDh6SGRHZXJFQlBUN25jdXBVUXEta0d5R2NCZ3dIN2ZqMl9nNk0wZ0RnRFlXZ0RHRVpzQnFxc0ZIcUJaQTd4eTE3Qlg5M203NTZrZHR1eW5QV2M4ejFKeWxDZlQwdjE2eTlEbFNKdVp6TkVzZ3pHeUtEbUNGVnJva2xZalRjd25vUk1vcHdVSTJlZXdCRzNsdXI3ZG5GenRxMUQ2Mi1XX3ZLWVIyeEN4SDVzR25tZFQ5OFR3VzlxMnA2eWNJTFQ1aHk5ZVlCSnhHQlF6YVJDWm02Vmc?oc=5",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Virágzik Magyarország egyik legmérgezőbb növénye - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOUURNdXV1TEtsQlJTR2ViM2JzMjF1dlNrUDNpd2hkRmxScnRWMVlVLVg3bnFqa0xMaHNMNkRxdWFhTjA4cXFYRWxtSHB4SjlOODY3ZlU0NXplQi1wWnhWR0ZzTFMwcDN5MjZPckMxbVM3SWFKMUZzdWhyWnlQQmFyZy1HcmRqMDNrR1AwT0NyS240T3hWMzNKVjdTX2tzUkJRaUdNWW14anM?oc=5",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Kátai-Németh Vilmos feljelentést tett a Családbarát Magyarország programsorozat szerencsi rendezvényei miatt - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPalR5bUI5ZE5uMG1iRDVjcHM4RVlOdzZjR3duX3JCOXpjZ3ptaWJSVWFWV2RCOXdJRmRGRWZYU1h2UUFSQTREUVZNVzJDQ2hWUVh4blVZSExZQTh5dkxON2tIQ2h2R3pmYWd2bEVvSXNRZmRfOTNrdVNuNURkNE81WG9IdDNCenF5MzZjRFVqQmZEM3R6VDF6dy16MlcxNVVBNjVV?oc=5",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Rendkívüli: Donald Trump az utolsó pillanatban inaktiválta az amerikai halálos fegyvert az orosz olaj ellen– Brüsszelben már vörös ködöt látnak, Magyarország megmenekült - Világgazdaság",
+      "title": "Különös fejlesztést jelentett be Vitézy Dávid Magyarország egyik legfontosabb sztrádáján: új híd épül, de azonnal beleszálltak a miniszterbe – „csoda, hogy még nem omlott össze a kamionok, tankok alatt! - Világgazdaság",
       "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQeHY1dTZfR0FDRjRJbVpFNTZ1UTV6NUtKemNZclQwLWlGdWU4Um1wOEJXRTdNZHViUE9HUDZvSG5PRk5vLUNKbnVnUTlNeFJJZjdZazBka29ScC15VFVyMGRObTRzS2ZDcUJjNkVrejN0NU5EM0VhTXNCTHh2cGZYZWVsSmZjdHFvZk1MVF9wYw?oc=5",
-      "publishedAt": "2026-10-17"
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPcTQ2b2E4ejVvVVE3LWlwM05HV1lIZGdBT3dxWWxJdGhpb1hmYlcwMFdpUWVPaE50bmVrZDh5N3FSOGRreFE2a0xhNUFzeENyclhNUUZWS0ZHQUtDU0hwTmUyRWRhS2dCOHJmVzgxWDJXaUpHTEE4dTBGMFpTemR4SFA0eGFwaDNtMHpwTk1yckJfZ0pGRWpF?oc=5",
+      "publishedAt": "2026-10-18"
     },
     {
-      "title": "Jócskán Magyarország költötte a legtöbb pénzt orosz gázra az év első nyolc hónapjában az EU-s országok közül - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPWGp4MTc1RWJnZ3drMVVrOGI1TlRobjAzZG1fSTZBemhxZWk2NlNaODQ4UlpNR29CVlk5NXNXYTJadzBpdTgzUThyRUZzZWdRUDZURDRsb1g0SHg2TzF3ejVkMWMyMUV3VWNQNWtzTGxRYmRMWE5uNWtrMkxIbFlsdUJWZTVvVDNSUUE?oc=5",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Hiába fogtuk vissza a vásárlást, még mindig Magyarország veszi a legtöbb orosz gázt az EU-ban - ATV",
-      "publisher": "ATV",
-      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE14d2lTdHZsdXowQ0hkVXkyRnJxczk5QmRmWF81VlJJN2hHVHluOTl5WHB1MDdCaWZBTmt0Uk8tZFpES0JVRkZ2Y3VyUnc2TU1FbnNGajJBblRuQTd2VVN6U0FkbW1sMm8ydnNyOE1UV3diRWpNRDk0?oc=5",
-      "publishedAt": "2026-10-17"
-    },
-    {
-      "title": "Vígh Zoltán: Magyarország visszatért a Nyugathoz, de még nincs Európa-politikája – Kompország - Magyar Hang",
-      "publisher": "Magyar Hang",
-      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQWl9IMzFTdU1lc3V0bW5nQTJBU25ScmVZVDRDQ2E4UzlLWHR2MUhBUVFicTVudXFzVHNuMUpFRWlGb2gtWV9rYjNOOUtBaVppeFoyWnVVbWQ3WExhNVh6OTFBb3JmQjJFZmwtcXJWT1NYd1htT1ZGR01tUmJDZ3E4aXVON3ZVOWlTSXJldzlrMkgzRGg5em0yeDZpdE5Rakd4c2ZaUmpTQjRjSi1lR21aQ281WGtsVGpaVVlBUDRJaEo?oc=5",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "A Csata TKK vendége lesz a Sopron - WBASKET",
+      "title": "Nyilatkozatcsokor a szombati bajnoki mérkőzések előtt - WBASKET",
       "publisher": "WBASKET",
-      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9hSE1BaWxVSjJjd0FncURaazdFUzdicVZRaXVaaXJvczVhU2d1V1k0a3kxemtUZEVuNG84ZGV2anRsX0xFeVdBWUVFZEJqWDRFamtNYm9NSm9MSFFwOXprN2FSSQ?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOUFdLVzRXRC1vdE1adHA3QUhBQ05Nc0I3TnFlS3VlaEhGdk9jVGg2ckFkRkRkMUZIUmh4cjFqcUlxbVVERllMUFBHOGN2bVNjYk1mMWxLOHFXbHdma01Yb1ZtNzJIVkI1ekZRLUtTM2ozWU5yQm5XNENkbjc5MUVVOWZR?oc=5",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "A nagy fogyás – így tűnik el Magyarország lakossága 2050-ig - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBxNDRjbW9aUjZZZ3ZTRkQwUS1sRDFSYWp4dEYtc1JWdkZSdk9DejM2US00dWhlbUs5Q0Q2Y29DcDViRWtyYm1OVXUxNkJSSFVpT3BRQ3NxTXZ4RFpOLVBVSF9NRFlZNTFYSzdmbU9FVXVyd2c?oc=5",
       "publishedAt": "2026-10-17"
     },
     {
-      "title": "Banks expect to be hit with higher taxes in Budget",
+      "title": "Drámaian csökkenhet Magyarország népessége 2050-re – az egyik megye minden negyedik lakosát elveszítheti - Dívány",
+      "publisher": "Dívány",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQQmNNeTdhbjA1VVdhOG92cVhMc1NRUlFNa282VkFHaG4xQl85eGJROWR1Qjdsd1FmcmsyRGRPZGVLZXlpOWpMV0pIOWFjNnZMRllWbHpJam4xbS1NNFcwaUEyQUhRenlrMXpEUVl2bHRMTk9CR1UtTEk5YmxwNm5wQkZzcTF6Snc?oc=5",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "Fico: Szlovákia és Magyarország nem vesz részt az Ukrajna megsegítésére szánt uniós hitelprogramban - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPWEFiRUs4cldObWxlN0FSb25yTUFaM0dlVjJYeWhWYUhoSmJXclk3YWRCZUFQQV9zdlRXUW5xRG80WnF1aWxrcEM0X1FkdmhoU0ozSGJRdDBpMV9FZ1JjTVRXV3YweTI1VmFvak40MEJOVGF4MG1fRXBqclVBT0M1RDJndnJESWlLaHhkSk04U2pKYllaWGZyZnM1MlRGZ2x1Q1hRLVBWNnBENFJmOXNIbXFHVmhidjZwMzEzYlVzendndw?oc=5",
+      "publishedAt": "2026-10-17"
+    },
+    {
+      "title": "A külpolitikai szakértő szerint Magyar Péter többet ért el Brüsszelben, mint Orbán Viktor éveken át - ATV",
+      "publisher": "ATV",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5PbjhZQmlseXdTT2VJVG9JelEtZzRBTV9PakJJVXpWYTgxOVp3aXp6Znh3QS02dVNwMHp1WVF2SzllVzU2S1NrRGZ5SmZoZm5CTXE3Q3ZTd3JpLWE5ZF9TV0sxcnprMUF6R3VpMVRIbHJOV1Y4WDU5eUlBOA?oc=5",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "Az elmúlt időszak közlekedési balesetei és az új járműtípusok elterjedése is indokolja a közlekedésbiztonsági szabályok áttekintését. Első lépésként a Közlekedési és Beruházási Minisztérium egy online kérdőívet tett közzé, amelyet több mint 300 ezer ember t - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxPU083MkdPOWNVQjJqYnRFUk9idk9wdlBuNy1fMVliajlzdVZIaUlGV00zejJJYVNJTDA3anFMWHVHYkQtQmh3VDlfNFpEMXVIaEpWM1lwODA1cUl3czJYZjluVG1lS3pXckstWnhtblprYkktMC1kZFd3ejYtRmxRdTJFTmZ4ZWRCeU4zbXNkOVpjOXAzdzhQcDAteUdMQV9KR0NlUWVyWVFTX3VmaV9RQlYwelN2WGI0blZ4UEpSQ254T3Bjc0huNVZfVGN6bnI3cHQ4M3JBWVExN2xCY2sxZUxWTmpqOS1VcXhCRW5OY3RIUHlOa2lSZmV0YmtJa1JXWFpTb0R6a3RhajVCOUg2azVjMzNSaTB6ZFE?oc=5",
+      "publishedAt": "2026-10-18"
+    },
+    {
+      "title": "There's a crackdown on sports piracy - but is it already out of control?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c32l4k2xdvrzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "url": "https://www.bbc.co.uk/news/articles/cmx2375zqwwwo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-18"
     },
     {
-      "title": "Watch: Did Tesla really just unveil a flying car?",
+      "title": "Third runway at Heathrow Airport would drive growth, Healey says",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/videos/ckly4mj1g3n9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "url": "https://www.bbc.co.uk/news/articles/cw0k07d2nj43o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
     },
     {
-      "title": "Ship attack reports near Hormuz reach record high as oil exports slow",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmde8dpg8g0no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Toxic algorithms wouldn't let them go - now Australia wants an off switch",
+      "title": "No further action against government adviser's wife over Palestine Action post, police say",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cwr7y8er1n8vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Russian man linked to deadly London hospitals hack arrested",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/c9vgr61kml3mo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
-    },
-    {
-      "title": "Snapchat and Instagram grooming becoming 'easier'",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cq33xd6j1dv5o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-16"
+      "url": "https://www.bbc.co.uk/news/articles/cv8ez40yz950o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-17"
     }
   ]
 }
