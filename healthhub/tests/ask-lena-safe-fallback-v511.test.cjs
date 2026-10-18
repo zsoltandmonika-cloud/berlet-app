@@ -76,6 +76,6 @@ assert.match(sources['live-v331.js'],/provenance\.provenance\(replyData/);
 assert.match(sources['live-v331.js'],/event:.*nothing_this_is_impossible|healthhub:ask-lena-complete/);
 const boot=sources['index.html'];
 const safeSrc=boot.indexOf('ask-lena-safe-fallback-v511.js?v=511-safety-qa');
-const aiSrc=boot.indexOf('live-v331.js?v=511-safe-fallback-answer-first');
+const aiSrc=boot.indexOf('live-v331.js?v=651-sleep-evidence-provenance');
 assert.ok(safeSrc>0&&aiSrc>safeSrc,'fallback bootstrap before AI composer');
 console.log('PASS v511: original question first; consent-checked one-time simplified AI retry; no photo/PDF leakage; profile isolation; labelled local fallback and provenance');
