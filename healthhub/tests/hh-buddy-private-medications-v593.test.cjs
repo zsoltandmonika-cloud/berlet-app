@@ -107,7 +107,7 @@ async function test(){
  await modal.querySelector('.hhMed593Primary').click();
  const mine=payload.profiles.monika.medications;
  assert.equal(mine.length,1,'Save status: '+(modal.querySelector('.hhMed593Status')||{}).textContent);assert.equal(mine[0].status,'aktuális');
- assert.equal(mine[0].strength,'10 mg');assert.equal(mine[0].schedule,'napi 1 tabletta');
+ assert.equal(mine[0].strength,'10 mg');assert.equal(mine[0].schedule,'once daily');
   assert.equal(mine[0].purpose,'Synthetic purpose','purpose persisted only after consented save');
   assert.equal(mine[0].caution,'Synthetic caution','warning persisted with private record');
  assert.equal(payload.profiles.zsolt.medications.length,1,'other profile untouched');
