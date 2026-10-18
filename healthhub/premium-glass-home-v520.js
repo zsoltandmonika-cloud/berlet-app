@@ -205,6 +205,7 @@
  // Capture at window before the legacy picker and any overlaid hero elements.
  // Switch only inside the left monitor portrait zone (not HH ONE or the info bar).
  function monitorOneClick(e){
+  if(document.documentElement.dataset.hhUnifiedProfile==='on')return;
   if(document.documentElement.dataset.hhPremiumPreview!=='on')return;
   var hero=document.querySelector('#home.on #heroHome');
   if(!hero||!e.target||!hero.contains(e.target))return;
