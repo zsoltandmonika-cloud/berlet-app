@@ -1,0 +1,22 @@
+name: HealthHub Medical Knowledge v2 schema QA
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/*healthhub_mkb_v2*'
+      - 'healthhub/tests/mkb-v2-schema.test.cjs'
+      - '.github/workflows/healthhub-mkb-v2-schema.yml'
+  push:
+    paths:
+      - 'supabase/migrations/*healthhub_mkb_v2*'
+      - 'healthhub/tests/mkb-v2-schema.test.cjs'
+      - '.github/workflows/healthhub-mkb-v2-schema.yml'
+jobs:
+  schema-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Synthetic schema, privacy and provenance checks
+        run: node healthhub/tests/mkb-v2-schema.test.cjs
