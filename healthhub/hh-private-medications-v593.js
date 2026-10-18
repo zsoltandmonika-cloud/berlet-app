@@ -118,6 +118,13 @@ async function edit(id){
    if(old){list=list.map(function(x){return x===old?entry:x})}else list=list.concat([entry]);
    ref.profiles[profile].medications=list;
    await savePayload(ref);
+   try{
+    root.dispatchEvent(new CustomEvent('healthhub:private-medications-saved',{detail:{profile:profile}}));
+   }catch(_){}
+   if(typeof root.hhRefreshLenaHealthContext289==='function'){
+    try{await root.hhRefreshLenaHealthContext289(profile,'private-medications-saved')}
+    catch(e){console.warn('Medication intelligence context refresh pending',e)}
+   }
    status(body,'Helyi privát mentés kész. A felhőszinkron ellenőrzése folyamatban…',false);
    var cloudOk=false,cloudError='';
    try{
