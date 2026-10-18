@@ -15,7 +15,54 @@ function permitted(who){
 function assertActive(who){
  if(p()!==who)throw Error('Profilváltás: a feldolgozás megszakadt.');
  if(!permitted(who))throw Error('A Központi Health Vault hitelesített kapcsolata szükséges.');
- if(typeof window.hhGetGoogleDriveToken292!=='function')throw Error('Google Drive archívum csatlakozás szükséges.');
+}
+function vaultLogin(){
+ var service=window.HH_DAILY_HEALTH_SYNC_V319;
+ if(service&&typeof service.openLogin==='function')service.openLogin();
+ else show('⚠ A Health Vault bejelentkezés jelenleg nem érhető el. Frissítsd a HealthHubot.');
+}
+function beforeAction(who){
+ if(who!==p()){show('⚠ A profil megváltozott.');return false}
+ if(permitted(who))return true;
+ show('🔐 Előbb jelentkezz be a Központi Health Vaultba. Sikeres belépés után nyomd meg ismét az eredeti művelet gombját.');
+ vaultLogin();
+ return false;
+}
+async function requireDrive(who){
+ assertActive(who);
+ var get=window.hhGetGoogleDriveToken292;
+ if(typeof get!=='function')throw Error('A Google Drive modul hiányzik. Frissítsd a HealthHubot.');
+ try{if(!await get(false))throw Error('missing')}
+ catch(_){throw Error('Drive-engedélyezés szükséges. Használd a „Drive csatlakozás” gombot, majd indítsd újra az importot.')}
+ assertActive(who);
+}
+async function reconnectDrive(){
+ var button=el('hhMkbDrive662');
+ if(button)button.disabled=true;
+ try{
+  var get=window.hhGetGoogleDriveToken292;
+  if(typeof get!=='function')throw Error('A Google Drive modul hiányzik. Frissítsd a HealthHubot.');
+  if(!await get(true))throw Error('Nem sikerült hozzáférést kérni.');
+  show('✅ Google Drive kapcsolat aktív. Indítsd el újra a kívánt PDF-műveletet.');
+ }catch(e){show('⚠ Drive-csatlakozás: '+String(e.message||e).slice(0,180))}
+ finally{if(button)button.disabled=false;refreshConnections()}
+}
+async function refreshConnections(){
+ var service=window.HH_DAILY_HEALTH_SYNC_V319,s=service&&service.getStatus&&service.getStatus();
+ var va=el('hhMkbVaultState662'),dr=el('hhMkbDriveState662');
+ if(va)va.textContent=!s||!s.configured?'⚠ Health Vault nincs konfigurálva':
+  !s.authenticated?'🔒 Health Vault: bejelentkezés szükséges':
+  permitted(p())?'✅ Health Vault: '+pname()+' jogosult':
+  '⏳ Health Vault: profiljogosultság ellenőrzése szükséges';
+ if(!dr)return;
+ dr.textContent='⏳ Drive hozzáférés ellenőrzése…';
+ try{
+  var fn=window.hhGetGoogleDriveToken292;
+  if(typeof fn!=='function')throw Error('not available');
+  var token=await fn(false);
+  if(el('hhMkbDriveState662')===dr)
+   dr.textContent=token?'✅ Google Drive: kapcsolat aktív':'🔒 Google Drive: csatlakozás szükséges';
+ }catch(_){if(el('hhMkbDriveState662')===dr)dr.textContent='🔒 Google Drive: csatlakozás szükséges'}
 }
 function styles(){
  if(el(STYLE))return;
@@ -51,6 +98,9 @@ function mount(){
  panel.innerHTML='<h3>📚 Medical Knowledge Base 2.0 · Feldolgozás és adatminőség</h3>'+
   '<p id="hhMkbBadge662">Aktív profil: '+pname()+'</p>'+
   '<p>Google Drive eredeti → SHA-256 → teljes PDF oldalszöveg és képek → privát Supabase → oldalszintű karakter- és SHA-256-visszaellenőrzés.</p>'+
+  '<div class="connections" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:12px 0;padding:10px;border-radius:12px;background:rgba(7,22,38,.26)">'+
+  '<span id="hhMkbVaultState662">🔒 Health Vault ellenőrzése…</span><button class="secondary" id="hhMkbVault662" type="button">🔐 Vault belépés</button>'+
+  '<span id="hhMkbDriveState662">🔒 Google Drive ellenőrzése…</span><button class="secondary" id="hhMkbDrive662" type="button">🔗 Drive csatlakozás</button></div>'+
   '<div class="actions"><button id="hhMkbStart662" type="button">▶ Összes PDF feldolgozása</button>'+
   '<button id="hhMkbAudit662" class="secondary" type="button">🔍 Forrásaudit</button>'+
   '<button id="hhMkbChars662" class="secondary" type="button">🔢 Character Count QA</button>'+
@@ -58,11 +108,13 @@ function mount(){
   '<progress id="hhMkbProgress662" value="0" max="1"></progress>'+
   '<div class="report" id="hhMkbReport662" role="status" aria-live="polite">Feldolgozás még nem indult. A Vault- és Drive-bejelentkezés szükséges. A folyamat kizárólag az aktív profil engedélyezett archívumából olvas.</div>';
  body.insertBefore(panel,body.firstChild);
+ el('hhMkbVault662').addEventListener('click',vaultLogin);
+ el('hhMkbDrive662').addEventListener('click',reconnectDrive);
  el('hhMkbStart662').addEventListener('click',start);
  el('hhMkbAudit662').addEventListener('click',audit);
  el('hhMkbChars662').addEventListener('click',count);
  el('hhMkbStop662').addEventListener('click',()=>{if(engine())engine().stop();show('⏸ Megállítás kérve. Az aktuális fájl biztonságos lezárása folyamatban.');});
- draw();
+ draw();refreshConnections();
 }
 function script(src){
  return new Promise((resolve,reject)=>{
@@ -82,9 +134,10 @@ function load(){
 }
 async function audit(){
  if(busy)return;
- var who=p();busy=true;draw();
+ var who=p();if(!beforeAction(who))return;
+ busy=true;draw();
  try{
-  assertActive(who);await load();assertActive(who);
+  await requireDrive(who);await load();assertActive(who);
   show('A privát archívum egyeztetése…');
   var x=await engine().audit(who);
   if(p()!==who)throw Error('Profilváltozás.');
@@ -96,9 +149,10 @@ async function audit(){
 }
 async function start(){
  if(busy||engine()&&engine().getState().running)return;
- var who=p();busy=true;draw();
+ var who=p();if(!beforeAction(who))return;
+ busy=true;draw();
  try{
-  assertActive(who);await load();assertActive(who);
+  await requireDrive(who);await load();assertActive(who);
   show('A feldolgozandó PDF-ek listájának ellenőrzése…');
   var x=await engine().run(who,{maxDocs:1000});
   if(p()!==who)throw Error('Profilváltozás.');
@@ -111,7 +165,8 @@ async function start(){
 }
 async function count(){
  if(busy)return;
- var who=p();busy=true;draw();
+ var who=p();if(!beforeAction(who))return;
+ busy=true;draw();
  try{
   assertActive(who);
   var api=window.HH_DAILY_HEALTH_SYNC_V319,st=api.getStatus();
@@ -179,7 +234,9 @@ async function count(){
  finally{busy=false;draw()}
 }
 window.addEventListener('healthhub:kb-progress',draw);
-window.addEventListener('healthhub:profile-changed',draw);
+window.addEventListener('healthhub:profile-changed',()=>{draw();refreshConnections()});
+window.addEventListener('healthhub:central-auth-changed',refreshConnections);
+window.addEventListener('focus',refreshConnections);
 var started=false;
 function init(){
  if(started)return;started=true;
