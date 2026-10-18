@@ -95,7 +95,7 @@ async function pdfjs(){
  return pdfLibPromise;
 }
 async function readDocuments(p){
- return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
+ return await active(p).request('/rest/v1/hh_kb_documents?select=id,profile_key,source_file_id,source_modified_at,size_bytes,sha256,status,total_pages,pages_indexed,duplicate_of,visual_pages,source_class,classification_status,mkb_source_id&profile_key=eq.'+p+'&limit=1000',{method:'GET'});
 }
 
 function rawText(items){
