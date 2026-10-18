@@ -7,7 +7,7 @@ const buddy=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.js'),'
 const medCss=fs.readFileSync(path.join(dir,'hh-private-medications-v593.css'),'utf8');
 const buddyCss=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.css'),'utf8');
 const index=fs.readFileSync(path.join(dir,'index.html'),'utf8');
-assert.ok(index.includes('hh-private-medications-v593.js?v=593-vault-editor'));
+assert.ok(index.includes('hh-private-medications-v593.js?v=652-medication-context'));
 assert.ok(index.includes('health-scroll-select-v592.js?v=594-default-buddy-live'));
 assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
 assert.ok(index.indexOf('hh-private-medications-v593.js')<index.indexOf('health-scroll-select-v592.js'));
