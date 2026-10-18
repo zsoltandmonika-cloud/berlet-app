@@ -10,9 +10,17 @@ class FixedDate extends Date { static now(){return FIXED_NOW;} }
 function load(enabled=true,searchOverride){
  // Default production is Golden Standard; the old UI is an explicit opt-out.
  const search=searchOverride!=null?searchOverride:(enabled?'':'?hh_sleep_v428_preview=0');
- const window={location:{search:search}};
- const ctx={window,URLSearchParams,Intl,Date:FixedDate,Number,Array,Math,String,Set,
-  document:{addEventListener:function(){}},localStorage:{getItem:()=> 'z'},
+ const window={location:{search:search},addEventListener:function(){}};
+ // Model the minimal browser surface used by the CSS-only Premium Glass adapter.
+ // No stylesheet loads in this offline computation test; production code is unchanged.
+ const document={
+  addEventListener:function(){},
+  documentElement:{setAttribute:function(){},dataset:{}},
+  createElement:function(){return {dataset:{},addEventListener:function(){}}},
+  head:{appendChild:function(){}}
+ };
+ const ctx={window,location:window.location,URLSearchParams,Intl,Date:FixedDate,Number,Array,Math,String,Set,
+  document,localStorage:{getItem:()=> 'z'},
   requestAnimationFrame:function(){}};
  vm.runInNewContext(source,ctx,{filename:'sleep-three-views-v428.js'});
  return window.HH_SLEEP_V428;
@@ -71,7 +79,7 @@ assert.match(css,/\.hh428RecordBar\{height:24px\}/,
  'Calendar timeline must also be compact');
 assert.match(html,/sleep-three-views-v428\.css\?v=433-golden-standard/,
  'Release needs a fresh cache key for the new card styles');
-assert.match(html,/sleep-three-views-v428\.js\?v=433-default-sleep/,
+assert.match(html,/sleep-three-views-v428\.js\?v=532-golden-sleep-hero/,
  'Release needs a fresh cache key for the new timeline code');
 assert.match(sleep.top([night,nap],'zsolt'),/hh428Timebar/,
  'Flat stage bar must remain present under the three cards');

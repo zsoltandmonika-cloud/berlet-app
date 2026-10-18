@@ -88,6 +88,6 @@ assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepOxygenV432\{/,
  'Supplemental SpO2 must have a consistent separate layout on both profiles');
 assert.match(html,/sleep-three-views-v428\.css\?v=433-golden-standard/,
  'New preview CSS must not be served from old cache');
-assert.match(html,/live-v170\.js\?v=433-production-sleep/,
+assert.match(html,/live-v170\.js\?v=20261016-sleep-cloud-refresh/,
  'New Sleep renderer must not be served from old cache');
 console.log('Sleep v433 migration PASS: paired pulse/light, clear missing measurements, source-aligned night, no redundant subtitle, stable view untouched');
