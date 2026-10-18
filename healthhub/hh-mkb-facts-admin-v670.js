@@ -29,7 +29,9 @@ function css(){
   '#'+ID+' .facts{max-height:340px;overflow:auto}'+
   '#'+ID+' .timeline{max-height:460px;overflow:auto;margin-top:12px}'+
   '#'+ID+' .timeline small{color:#b9d7e5;font-size:11px;display:block;margin:4px 0 7px}'+
-  '#'+ID+' .timeline .fact{border-left:3px solid #60bdcc}';
+  '#'+ID+' .timeline .fact{border-left:3px solid #60bdcc}'+
+  '#'+ID+' .timeline details{margin-top:8px;border-top:1px solid rgba(188,222,242,.18);padding-top:7px}'+
+  '#'+ID+' .timeline summary{cursor:pointer;color:#bee8f5;font-weight:700;min-height:32px;list-style:auto}';
  document.head.appendChild(n);
 }
 function mount(){
@@ -171,10 +173,11 @@ async function showTimeline(){
  host.textContent='';
  if(!allowed(p)){host.textContent='🔒 Az idővonalhoz a kiválasztott profil Health Vault-jogosultsága szükséges.';return}
  var timeline=window.HH_MKB_TIMELINE_V674;
- if(!timeline||typeof timeline.groups!=='function'){
-  host.textContent='⚠ Az idővonal még nem töltődött be. Frissítsd a HealthHubot.';return
+ var auditor=window.HH_MKB_EVIDENCE_AUDIT_V675;
+ if(!timeline||typeof timeline.groups!=='function'||!auditor||typeof auditor.audit!=='function'){
+  host.textContent='⚠ Az idővonal vagy a bizonyíték-ellenőrzés még nem töltődött be. Frissítsd a HealthHubot.';return
  }
- busy=true;buttons();host.textContent='⏳ Privát események és források betöltése…';
+ busy=true;buttons();host.textContent='⏳ A privát események és eredeti forrásoldalak ellenőrzése…';
  try{
   var filter='&profile_key=eq.'+encodeURIComponent(p);
   var pair=await Promise.all([
@@ -183,54 +186,87 @@ async function showTimeline(){
   ]);
   guard(p);
   var facts=pair[0],evidence=pair[1],sourceIds=[...new Set(facts.map(x=>x.source_id).filter(uuidOK))];
-  var sources=sourceIds.length?await all(p,'hh_mkb_sources','id,original_name',filter+
-   '&id=in.('+sourceIds.join(',')+')','id.asc'):[];
+  var sourceQuery=filter+'&id=in.('+sourceIds.join(',')+')';
+  var sources=sourceIds.length?await all(p,'hh_mkb_sources',
+   'id,profile_key,original_name,sha256,parse_status,source_metadata,origin,source_kind',
+   sourceQuery,'id.asc'):[];
   guard(p);
-  var names=new Map(sources.map(s=>[s.id,s.original_name||'Forrásazonosítóval tárolt PDF']));
+  var docs=sourceIds.length?await all(p,'hh_kb_documents',
+   'id,profile_key,mkb_source_id,status,text_integrity_status,total_pages,pages_verified,duplicate_of,sha256',
+   filter+'&mkb_source_id=in.('+sourceIds.join(',')+')','id.asc'):[];
+  guard(p);
+  var pages=[];
+  var docIds=[...new Set(docs.map(x=>x.id).filter(uuidOK))];
+  for(var i=0;i<docIds.length;i+=20){
+   var chunk=docIds.slice(i,i+20);
+   var found=await all(p,'hh_kb_pages','document_id,page_no,page_text,text_sha256',
+    '&document_id=in.('+chunk.join(',')+')','document_id.asc,page_no.asc');
+   guard(p);pages.push(...found);
+  }
+  var qa=await auditor.audit(facts,evidence,sources,docs,pages,digest);
+  guard(p);
+  var names=new Map(sources.map(x=>[x.id,x.original_name||'Ismeretlen forrás']));
   var groups=timeline.groups(facts,evidence);
   host.textContent='';
+  var verified=evidence.filter(x=>qa.get(x.id)?.verified).length;
   var info=document.createElement('p');
   info.textContent='🕒 '+pname(p)+' · '+groups.length+' idővonalcsoport · '+facts.length+
-   ' tárolt tényjelölt · '+evidence.length+' bizonyítékrekord. Az azonos napú és nevű feljegyzések '+
-   'csak megjelenítés szerint vannak csoportosítva. Orvosi jóváhagyást nem jelent.';
+   ' tárolt tényjelölt · '+verified+'/'+evidence.length+
+   ' SHA-256-tal visszaellenőrzött forrásbizonyíték. A csoportosítás nem vonja össze a rekordokat. '+
+   'A szöveges integritás ellenőrzése nem jelenti az orvosi tartalom szakmai jóváhagyását.';
   host.appendChild(info);
   if(!groups.length){
    var empty=document.createElement('p');
-   empty.textContent='Még nincs idővonalba rendezhető, dátummal ellátott forrásolt tény.';host.appendChild(empty);
+   empty.textContent='Még nincs idővonalba rendezhető, dátummal ellátott forrásolt tény.';
+   host.appendChild(empty);
   }
   for(var g of groups){
    guard(p);
    var box=document.createElement('section');box.className='fact';
    var heading=document.createElement('strong');
    heading.textContent='📅 '+g.date+' · '+g.title;
+   var valid=g.evidences.filter(x=>qa.get(x.id)?.verified).length;
    var meta=document.createElement('small');
-   meta.textContent=g.records.length+' kapcsolódó tényjelölt · '+g.evidences.length+
-    ' forrásbizonyíték · '+(g.statuses.length===1&&g.statuses[0]==='verified'?
+   meta.textContent=g.records.length+' tényjelölt · '+valid+'/'+g.evidences.length+
+    ' hitelesített forrásidézet · '+(g.statuses.length===1&&g.statuses[0]==='verified'?
      'Szakmailag ellenőrzött':'⏳ Szakmai felülvizsgálat szükséges');
    box.append(heading,meta);
-   var summaries=[...new Set(g.records.map(x=>String(x.label||'').replace(/\s*\(20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\.?\)\s*$/,'').trim()))];
+   var summaries=[...new Set(g.records.map(x=>
+    String(x.label||'').replace(/\s*\(20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\.?\)\s*$/,'').trim()))];
    if(summaries.length>1){
-    var d=document.createElement('small');d.textContent='Leletben rögzítve: '+summaries.join(' · ').slice(0,480);
+    var d=document.createElement('small');
+    d.textContent='A leletekben szereplő megfigyelések: '+summaries.join(' · ').slice(0,480);
     box.appendChild(d);
    }
+   var detail=document.createElement('details');
+   var summary=document.createElement('summary');
+   summary.textContent='📚 Források és oldalszintű bizonyítékok ('+g.evidences.length+')';
+   detail.appendChild(summary);
    var refs=new Set();
    for(var ev of g.evidences){
     var unique=ev.source_id+'|'+ev.page_no+'|'+ev.excerpt;
     if(refs.has(unique))continue;refs.add(unique);
+    var audit=qa.get(ev.id);
     var ref=document.createElement('small');
-    ref.textContent='📄 '+String(names.get(ev.source_id)||'Ismeretlen dokumentum')+
-     ' · '+ev.page_no+'. oldal · idézet: '+String(ev.excerpt||'').slice(0,240);
-    box.appendChild(ref);
+    ref.textContent=(audit?.verified?'✅':'⚠️')+' 📄 '+
+     String(names.get(ev.source_id)||'Ismeretlen dokumentum')+
+     ' · '+ev.page_no+'. oldal · '+(audit?.verified?
+      'SHA-256 + idézet egyezik; klinikailag még nem jóváhagyott':
+      'Forrásaudit nem igazolt: '+String(audit?.reason||'ismeretlen hiba'))+
+     ' · '+String(ev.excerpt||'').slice(0,500);
+    detail.appendChild(ref);
    }
    if(!g.evidences.length){
     var warn=document.createElement('small');
-    warn.textContent='⚠ Ehhez a csoporthoz nincs megfelelő forrásbizonyíték; ellenőrzés szükséges.';
-    box.appendChild(warn);
+    warn.textContent='⚠ Nincs támogató forrásbizonyíték; a csoport nem tekinthető ellenőrzöttnek.';
+    detail.appendChild(warn);
    }
+   if(valid!==g.evidences.length)detail.open=true;
+   box.appendChild(detail);
    host.appendChild(box);
   }
  }catch(_){
-  if(profile()===p)host.textContent='⚠ Az idővonal biztonságos lekérdezése sikertelen. Ellenőrizd a Vault kapcsolatát.';
+  if(profile()===p)host.textContent='⚠ Az idővonal vagy az eredeti oldalak független ellenőrzése sikertelen. Ellenőrizd a Health Vault kapcsolatát.';
   else host.textContent='';
  }finally{busy=false;buttons()}
 }
