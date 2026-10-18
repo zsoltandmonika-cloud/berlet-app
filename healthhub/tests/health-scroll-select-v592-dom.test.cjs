@@ -114,7 +114,7 @@ vm.runInNewContext(code,{window:win,document,URLSearchParams,console:{warn(m){wa
  const emptyMessage=content.querySelector('.hhRsmEmpty');
  assert.ok(emptyMessage&&!emptyMessage.hidden,'clear empty-state call-to-action');
  assert.ok(emptyMessage.textContent.includes('Még nincs mentett gyógyszer'),'no incorrect status shown');
- assert.equal(content.querySelector('.hhRsmToolbar').querySelectorAll('.hhRsmChip').length,4,'all four medicine filters remain visible');
+ assert.equal(content.querySelector('.hhRsmToolbar').querySelectorAll('.hhRsmChip').filter(x=>x.tagName==='button').length,4,'all four medicine filter buttons remain visible');
  assert.deepEqual(warnings,[],'no silent preview crashes');
  console.log('Health scroll-select v592 synthetic DOM E2E: OMSZ beyond 10, PDF/Léna, medicines, filter reset PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});
