@@ -126,6 +126,18 @@ Valós S24 Ultra teszt (2026-10-18): a Vault-ablak aktív sessiont mutatott, de 
 - A korábban teljesen ellenőrzött 164 PDF ismételt feldolgozása nélkül a hibás elemek célzottan újraindíthatók az Adminból, a profilon belüli SHA-alapú ellenőrzéssel.
 - **Release gate:** kód GitHubban és lokális funkcionális render-fallback szimulációban tesztelve, újabb S24 Ultra valós feldolgozási próba még nem igazolt. Nem jelölhető 175/175-ként, amíg a 11 grafikus elem feldolgozása és mentési ellenőrzése meg nem történt.
 
+## MKB v667 · explicit patient-approved descope (2026-10-18)
+
+The user intentionally excluded exactly 11 non-diagnostic Samsung Watch ECG PDFs from the **mandatory** medical PDF ingestion, while preserving all original Google Drive files and historical processing results. Exclusion is a *scope decision*, not a successful clinical extraction, and not deletion.
+
+- All 11 sources were positively matched to Mónika's previous failed Samsung Watch EKG PDF rows, then updated in private `hh_mkb_sources.source_metadata` to `{"ingest_scope":"excluded","scope_reason":"user_deprioritized_watch_ecg"}`. The other 164 Mónika sources were not changed. The SHA-256 checksums are retained.
+- The authenticated browser ingester now reads the authorized source inventory and filters by **original Google Drive ID** before downloading or retrying. A mismatch, empty source response or missing Vault authorization fails closed.
+- The Admin Forrásaudit and Character Count QA report total originals, intentional exclusions and mandatory in-scope documents separately. Exclusions are not counted as completed, nor as ingestion defects in the mandatory scope.
+- Current accepted scope: Mónika **164/164 mandatory** sources text-verified, with **269/269 stored pages, 486047/486047 Unicode characters**, zero storage text mismatch. Eleven optional sources remain in the original archive with historically failed processing state.
+- Zsolt's 43 mandatory PDF sources remain **0/43** at this milestone; combined mandatory goal **207** sources. Full project status remains incomplete until these run and are independently verified.
+- No additional clinical validation is inferred from character integrity alone. Images, OCR and medically meaningful fact extraction require distinct quality gates.
+- Build `v667-mkb-descope-11-watch-ecg` published to GitHub, runtime syntax/regression simulation checked. Actual S24 Ultra refresh and Zsolt profile execution still require real-world user test.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
