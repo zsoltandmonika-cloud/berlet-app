@@ -12,6 +12,14 @@ html[data-hh-system-glass="on"][data-hh-system-profile="m"] #healthSubContent .h
  border-color:rgba(254,187,229,.41)!important;
  background:linear-gradient(145deg,rgba(169,87,155,.28),rgba(47,30,74,.83))!important;
 }
+/* v657: one quiet action instead of two full-width migration controls.
+   Mobile tap target stays at least 44px. */
+html[data-hh-system-glass="on"] #healthSubContent .hhMed593Add.hhMed657Add{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ width:auto!important;max-width:100%;min-height:44px;
+ padding:9px 17px!important;margin:8px 0 12px!important;
+ border-radius:999px!important;font-size:11px!important;
+}
 #healthSubContent .hhMed593RecordText{min-width:0;flex:1}
 .hhMed593Overlay[hidden]{display:none!important}
 .hhMed593Overlay{
