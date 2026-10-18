@@ -26,20 +26,27 @@ function markExplanationContent577(c){
  while(c.firstChild)wrap.appendChild(c.firstChild);
  c.appendChild(wrap);
 }
+var isRozuva=function(name){return /^rozuva[- ]teva\b/i.test(String(name||'').trim())};
+var GENERAL_ROZUVA={
+ purpose:'A rozuvasztatin koleszterincsökkentő. Elsősorban az LDL (rossz) koleszterin szintjét csökkenti.',
+ benefit:'A koleszterinszint rendezésével mérsékelheti a szív- és érrendszeri események kockázatát. A konkrét felírás okát a kezelőorvos ismeri.',
+ caution:'Új vagy szokatlan izomfájdalom, izomgyengeség vagy sötét vizelet esetén mielőbb orvosi tanács szükséges. Önállóan ne módosítsátok a gyógyszert.'
+};
 window.hhMedicationPurpose=async function(name){
   var m=await findMedication(name);
   var c=document.getElementById('hrDetailContent'),o=document.getElementById('hrDetailOverlay');if(!c||!o)return;
   if(!m){
+    var rozuva=isRozuva(name);
     c.innerHTML='<h2>Mire való?</h2><div class="hrDetailMeta">'+esc(name)+'</div>'+
-      '<p class="privacyNote">A privát gyógyszermagyarázat még nincs betöltve ezen a készüléken.</p>'+
+      (rozuva?'<h4>Mire való?</h4><p>'+esc(GENERAL_ROZUVA.purpose)+'</p><h4>Hogyan segít?</h4><p>'+esc(GENERAL_ROZUVA.benefit)+'</p><p class="privacyNote">'+esc(GENERAL_ROZUVA.caution)+'</p><p class="privacyNote">Általános tájékoztató, nem igazolja, hogy szerepel a privát gyógyszerlistán.</p>':'<p class="privacyNote">A privát gyógyszermagyarázat még nincs betöltve ezen a készüléken.</p>')+
       '<button class="vaultBtn primary" style="width:100%" onclick="hhImportPrivateReference()">Privát gyógyszermagyarázat importálása</button>';
     markExplanationContent577(c);o.classList.add('on');return;
   }
   c.innerHTML='<h2>'+esc(m.name)+'</h2><div class="hrDetailMeta">'+esc(m.strength||'')+' · '+esc(m.schedule||'')+'</div>'+
     (m.note?'<p class="privacyNote" style="margin-top:0">'+esc(m.note)+'</p>':'')+
-    '<h4>Mire való?</h4><p>'+esc(m.purpose||'')+'</p>'+
-    '<h4>Hogyan segít?</h4><p>'+esc(m.benefit||'')+'</p>'+
-    '<p style="background:#fff8e8;border-radius:12px;padding:10px;margin-top:12px;font-size:10px;line-height:1.5;color:#725414"><b>Fontos:</b> '+esc(m.caution||'')+'</p>'+
+    '<h4>Mire való?</h4><p>'+esc(m.purpose||(isRozuva(m.name)?GENERAL_ROZUVA.purpose:'Nem szerepel magyarázat a privát kartonban.'))+'</p>'+
+    '<h4>Hogyan segít?</h4><p>'+esc(m.benefit||(isRozuva(m.name)?GENERAL_ROZUVA.benefit:'Nincs rögzített információ.'))+'</p>'+
+    '<p style="background:#fff8e8;border-radius:12px;padding:10px;margin-top:12px;font-size:10px;line-height:1.5;color:#725414"><b>Fontos:</b> '+esc(m.caution||(isRozuva(m.name)?GENERAL_ROZUVA.caution:'A gyógyszer adagolását csak kezelőorvosi utasítás alapján módosítsátok.'))+'</p>'+
     '<p class="privacyNote">Ez közérthető gyógyszermagyarázat. A gyógyszer nevét vagy adagját csak orvosi utasítás alapján módosítsátok.</p>';
   markExplanationContent577(c);
   o.classList.add('on');

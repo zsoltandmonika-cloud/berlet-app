@@ -1,4 +1,4 @@
-/* HealthHub v652 | One Nutrition-standard profile pill across the family app.
+/* HealthHub v653 | One Nutrition-standard profile pill across the family app.
  * UI only. Canonical profile handlers remain authoritative; no patient data writes.
  * Sound matches the Nutrition tone('tap'): 900Hz sine, 40ms, 0.012 gain, 9ms vibration.
  */
@@ -14,14 +14,30 @@ function digital(){return !!document.getElementById('hhDigitalProfileDock')}
 function style(){
  if(document.getElementById(STYLE))return;
  var s=document.createElement('style');s.id=STYLE;
- s.textContent=
- 'html[data-hh-unified-profile="on"] :is(#hhProfileDock554,#hhSP299,#hhDigitalProfileDock,'+
- '#healthSubProfile.hhRecordsQuickProfile,.hhSleepProfileHit,.hhSleepProfileName,'+
- '#home .profileHit,#health .profileHit,#timeline .profileHit,'+
- '#hhLenaSmart299 .askProfile,#health .kpiCard .hhLiveHead small[role="button"]){display:none!important;pointer-events:none!important}'+
- 'html body #hhOneRag500,html body #hhOneFallback501{display:none!important;visibility:hidden!important;pointer-events:none!important}'+
- 'html:has(#haOv.on) body #hhOneRag500,html:has(#haOv.on) body #hhOneFallback501{display:flex!important;visibility:visible!important;pointer-events:auto!important}'+
+ // v653: explicit, high-specificity ownership over the older module pills.
+ // These styles hide only former profile *controls*, never Hero navigation/actions.
+ var legacy=[
+  '#hhProfileDock554','#hhSP299','#hhDigitalProfileDock',
+  '#home #heroHome .profileHit','#health #heroH .profileHit',
+  '#timeline#timeline #heroT .profileHit',
+  '#healthSection#healthSection .hhHealthSubPortraitHit',
+  '#healthSection#healthSection #healthSubProfile.hhRecordsQuickProfile',
+  '#hhSleepPage#hhSleepPage .hhSleepProfileHit',
+  '#hhSleepPage#hhSleepPage .hhSleepProfileName',
+  '#hhSleepPage#hhSleepPage .hhSleepProfile',
+  '#hhActivityPage191#hhActivityPage191 .a191HeroHits .runnerProfile',
+  '#hhLenaSmart299 .askProfile',
+  '#health .kpiCard .hhLiveHead small[role="button"]'
+ ];
+ s.textContent=legacy.map(function(selector){
+  return 'html[data-hh-unified-profile="on"] '+selector;
+ }).join(',')+'{display:none!important;visibility:hidden!important;pointer-events:none!important}'+
+ 'html[data-hh-unified-profile="on"] body #hhOneRag500,'+
+ 'html[data-hh-unified-profile="on"] body #hhOneFallback501{display:none!important;visibility:hidden!important;pointer-events:none!important}'+
+ 'html[data-hh-unified-profile="on"]:has(#haOv.on) body #hhOneRag500,'+
+ 'html[data-hh-unified-profile="on"]:has(#haOv.on) body #hhOneFallback501{display:flex!important;visibility:visible!important;pointer-events:auto!important}'+
  '.hhProfileStandardHost652{position:relative!important}'+
+ '#'+ID+'[hidden]{display:none!important}'+
  '#'+ID+'{position:absolute!important;left:13px!important;bottom:12px!important;right:auto!important;top:auto!important;'+
  'min-height:34px!important;padding:6px 12px!important;color:#f7f9ff!important;'+
  'border:1px solid var(--hh-profile-pill-accent,#79bfff)!important;border-radius:999px!important;'+
@@ -52,9 +68,18 @@ function tapSound(){
  }catch(_){}
  try{if(root.navigator&&typeof root.navigator.vibrate==='function')root.navigator.vibrate(9)}catch(_){}
 }
+function openOverlay(id){
+ var node=document.getElementById(id);
+ return node&&node.classList.contains('on')?node:null;
+}
 function switchProfile(){
  var before=current(),next=before==='m'?'z':'m',handled=false;
- if(digital()){
+ // Sleep and Activity have their own canonical refresh/render controllers.
+ if(openOverlay('hhSleepPage')&&typeof root.hhSleepToggleProfile==='function'){
+  root.hhSleepToggleProfile();handled=true;
+ }else if(openOverlay('hhActivityPage191')&&typeof root.hh191ToggleProfile==='function'){
+  root.hh191ToggleProfile();handled=true;
+ }else if(digital()){
   var legacy=document.getElementById('hhDigitalProfileDock');
   if(legacy&&typeof legacy.click==='function'){legacy.click();handled=true}
  }else if(typeof root.hhToggleProfileOneClick==='function'){
@@ -73,11 +98,27 @@ function findHost(){
   var digitalHero=document.querySelector('.hero-art')||document.querySelector('.hero-stage');
   return digitalHero?{node:digitalHero,hero:true}:null;
  }
+ // These two fullscreen modules are NOT .page.on. They overlay the main shell.
+ var activity=openOverlay('hhActivityPage191');
+ if(activity){
+  var activityHero=activity.querySelector('.a191Hero');
+  return activityHero?{node:activityHero,hero:true}:null;
+ }
+ var sleep=openOverlay('hhSleepPage');
+ if(sleep){
+  var sleepHero=sleep.querySelector('.hhSleepDoctorHero');
+  return sleepHero?{node:sleepHero,hero:true}:null;
+ }
+ // Health sub-pages use their own Hero. Resolve before the underlying Home page.
+ var healthSub=openOverlay('healthSection');
+ if(healthSub){
+  var subHero=healthSub.querySelector('.healthSubHero');
+  return subHero?{node:subHero,hero:true}:null;
+ }
  var page=activePage();
  if(!page)return null;
- var selectors=['.hhSleepDoctorHero','.healthSubHero','.askHero .askHeroInner',
-  '#heroHome','#heroH','#heroT','.hhActivityDoctorHero','.hhActivityHero',
-  '.hhSleepHero','.hhLiveHero','.hero'];
+ var selectors=['.askHero .askHeroInner','#heroHome','#heroH','#heroT',
+  '.hhLiveHero','.hero'];
  var hero=null;
  for(var i=0;i<selectors.length;i++){
   hero=page.querySelector(selectors[i]);
@@ -129,5 +170,5 @@ function mount(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
 else mount();
-root.HH_PROFILE_STANDARD_V652={refresh:schedule,version:'652'};
+root.HH_PROFILE_STANDARD_V652={refresh:schedule,version:'653'};
 })(window);

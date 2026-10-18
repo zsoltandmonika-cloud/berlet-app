@@ -11,7 +11,7 @@ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(!source.includes('hhBuddy593Sound'),'no Buddy mute button or handler');
 assert.ok(!source.includes('hh-premium-select-sound-v593'),'old persisted sound-off setting cannot strand the sound');
 assert.ok(!css.includes('hhBuddy593Sound'),'no orphan mute positioning');
-assert.ok(index.includes("var v='652-global-profile-pill'"));
+assert.ok(index.includes("var v='653-overlay-profile-regression-fix'"));
 assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
 
 function el(tag='div',cl=''){
