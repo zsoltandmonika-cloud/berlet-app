@@ -1,0 +1,24 @@
+/* HealthHub Nutrition v649: discreet, accessible Bristol carousel. */
+#bristolWrap.hh-bristol-enhanced{min-width:0;grid-column:1/-1}
+#bristolWrap.hh-bristol-enhanced>select{display:none!important}
+.hh-bristol-picker{min-width:0;margin-top:5px}
+.hh-bristol-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.hh-bristol-hint{font-size:12px;line-height:1.4;color:#afc4d9}
+.hh-bristol-nav{display:flex;gap:6px;flex-shrink:0}
+.hh-bristol-arrow{display:grid;place-items:center;width:32px;height:32px;padding:0;border-radius:50%;border:1px solid #c2dfff48;background:#142d49d9;color:#e8f3ff;font-size:20px;cursor:pointer}
+.hh-bristol-arrow:focus-visible,.hh-bristol-card:focus-visible,.hh-bristol-clear:focus-visible{outline:2px solid var(--accent,#7abaff);outline-offset:3px}
+.hh-bristol-track{display:flex;gap:10px;width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:4px;scrollbar-width:thin;scrollbar-color:#91b8d566 transparent;padding:4px 2px 12px;-webkit-overflow-scrolling:touch}
+.hh-bristol-card{flex:0 0 138px;min-height:143px;padding:13px 10px 11px;scroll-snap-align:start;border:1px solid #b3d8fa38;border-radius:18px;background:linear-gradient(155deg,#1c3856e8,#0a1a30f5);box-shadow:inset 0 1px #ffffff12;color:#eaf4ff;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:background .16s,border-color .16s,transform .16s}
+.hh-bristol-card[aria-pressed="true"]{background:linear-gradient(145deg,color-mix(in srgb,var(--accent,#72afff) 27%,#0a1c33),#0d223c);border-color:var(--accent,#72afff);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent,#72afff) 50%,transparent),inset 0 1px #ffffff26}
+.hh-bristol-card:active{transform:scale(.98)}
+.hh-bristol-number{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c1d7ec;font-weight:700}
+.hh-bristol-art{width:94px;height:53px;display:grid;place-items:center}
+.hh-bristol-art svg{width:94px;height:53px;overflow:visible;fill:#c8c9bb;stroke:#eff0e5;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;opacity:.91}
+.hh-bristol-card[aria-pressed="true"] .hh-bristol-art svg{opacity:1;filter:drop-shadow(0 0 4px #f4ebd73b)}
+.hh-bristol-name{font-weight:700;font-size:12px;line-height:1.28}
+.hh-bristol-status{min-height:37px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 3px 0;font-size:12px;line-height:1.45;color:#bfd7e9}
+.hh-bristol-status strong{color:#ecf6ff;font-weight:600}
+.hh-bristol-clear{border:1px solid #a8c7e554;border-radius:999px;background:transparent;color:#d0e2f1;padding:7px 11px;font:inherit;font-size:12px;white-space:nowrap;cursor:pointer}
+.hh-bristol-explain{margin:5px 2px 0;color:#94acc1;font-size:11px;line-height:1.45}
+@media(max-width:460px){.hh-bristol-card{flex-basis:128px;min-height:142px}.hh-bristol-track{gap:8px}.hh-bristol-status{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.hh-bristol-card{transition:none}.hh-bristol-track{scroll-behavior:auto}}
