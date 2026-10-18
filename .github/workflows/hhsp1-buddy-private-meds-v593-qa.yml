@@ -8,6 +8,7 @@ on:
       - 'healthhub/hh-private-medications-v593.css'
       - 'healthhub/health-scroll-select-v592.js'
       - 'healthhub/tests/hh-buddy-private-medications-v593.test.cjs'
+      - 'healthhub/tests/hhsp1-default-link-v594.test.cjs'
       - 'healthhub/index.html'
       - '.github/workflows/hhsp1-buddy-private-meds-v593-qa.yml'
   push:
@@ -34,8 +35,10 @@ jobs:
           node --check healthhub/hh-buddy-scroll-companion-v593.js
           node --check healthhub/health-scroll-select-v592.js
           node --check healthhub/tests/hh-buddy-private-medications-v593.test.cjs
+          node --check healthhub/tests/hhsp1-default-link-v594.test.cjs
       - name: Test medication persistence and Buddy gestures without user data
         run: |
           node healthhub/tests/hh-buddy-private-medications-v593.test.cjs
+          node healthhub/tests/hhsp1-default-link-v594.test.cjs
           node healthhub/tests/health-scroll-select-v592.test.cjs
           node healthhub/tests/health-scroll-select-v592-dom.test.cjs
