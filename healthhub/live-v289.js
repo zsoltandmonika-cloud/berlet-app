@@ -301,6 +301,7 @@ window.hhGetLenaHealthContextText289=function(p){var x=window.hhGetLenaHealthCon
 
 window.addEventListener('healthhub:health-cloud-synced',function(e){schedule(e&&e.detail&&e.detail.profile,'health-connect-sync',650)});
 window.addEventListener('healthhub:measurement-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'measurement-saved',650)});
+window.addEventListener('healthhub:private-medications-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'private-medications-saved',80)});
 window.addEventListener('healthhub:profile-changed',function(){renderStatus()});
 window.addEventListener('focus',function(){renderStatus()});
 
