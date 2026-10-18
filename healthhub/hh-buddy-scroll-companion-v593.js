@@ -5,7 +5,7 @@
 (function(root){
 'use strict';
 var params;try{params=new URLSearchParams(root.location.search)}catch(_){return}
-if(params.get('hhscrollselect')!=='1'||params.get('hhpremium')==='0')return;
+if(params.get('hhscrollselect')==='0'||params.get('hhpremium')==='0')return;
 var prefs='hh-premium-select-sound-v593',ctx=null,busyUntil=0;
 var reduce=false;
 try{reduce=!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches)}catch(_){}
