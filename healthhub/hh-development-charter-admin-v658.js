@@ -47,17 +47,17 @@ function mount(){
  var box=document.createElement('section');box.id=ID;
  box.setAttribute('aria-label','HealthHub fejlesztési iránytű és adatminőség');
  box.innerHTML=
- '<div class="hhGovHeading"><h3>🧭 HealthHub · Fejlesztési Iránytű</h3><span style="font-size:10px;color:#a5d8eb">GOVERNANCE · v1.0</span></div>'+
- '<p class="hhGovLead">Élő admin irányelvek · három pillér · biztonságos fejlődés · visszakövethető döntések</p>'+
+ '<div class="hhGovHeading"><h3>🧭 HealthHub · Fejlesztési Iránytű</h3><span style="font-size:10px;color:#a5d8eb">GOVERNANCE · v1.1</span></div>'+
+ '<p class="hhGovLead">Célorientált, agilis fejlesztés · nem mikromenedzsment · valós használatban ellenőrzött eredmény</p>'+
  '<div class="hhGovPillars"><div class="hhGovPillar"><span>❤️</span>Gondoskodás</div>'+
  '<div class="hhGovPillar"><span>📚</span>Adatismeret</div><div class="hhGovPillar"><span>🧠</span>Intelligencia</div></div>'+
  '<details><summary>🎯 Döntési mandátum és Golden Standard</summary><ul>'+
  '<li>Léna önállóan rangsorolhat és végrehajthat visszafordítható technikai, UX és adatminőségi változtatásokat, ha azok mérhetően jobbak.</li>'+
  '<li>Elsőre végleges architektúra: minimális kattintás, egységes sötét üvegfelület, profilhoz illő szín, gyors mobil UX.</li>'+
- '<li>Minden változtatásnál diagnózis → döntés → mentési/rollback terv → teszt → élesítés → utóellenőrzés.</li>'+
+ '<li>Minden változtatásnál cél → fejlesztés → teszt → deploy → éles próba → hibajavítás → újratesztelés; visszaállítási tervvel.</li>'+
  '<li>Felhasználói egyeztetés kell visszafordíthatatlan törléshez, adatmegosztáshoz, költséges szolgáltatáshoz és egészségügyi terápiás döntéshez.</li>'+
  '</ul></details>'+
- '<details><summary>🩺 Medical Knowledge Base 2.0 · adatvédelmi és minőségi szabályok</summary><ul>'+
+ '<details><summary>🚀 Agile Delivery · Definition of Done</summary><ul>'+'<li>A technikai részletdöntések delegáltak. Nincs mikromenedzsment: a prioritás a működő felhasználói eredmény.</li>'+'<li>CODED = kód készen; TESTED = tesztelt; DEPLOYED = élesítve; LIVE VERIFIED = valós készüléken/kapcsolattal ellenőrzött; USER ACCEPTED = tényleges felhasználói elfogadás.</li>'+'<li>GitHub-commit, mock teszt vagy preview nem bizonyítja a LIVE VERIFIED és USER ACCEPTED állapotot.</li>'+'<li>Trial &amp; error = rövid, visszaállítható fejlesztési ciklus. Reprodukált hiba → célzott javítás → újratesztelés; klinikai adatvesztést nem kockáztatunk.</li>'+'<li>Éles klinikai adatot csak jogosult, elkülönített, biztonságos adatfolyamon használunk; irreverzibilis és magas kockázatú változást külön engedélyhez kötünk.</li>'+'</ul></details>'+'<details><summary>🩺 Medical Knowledge Base 2.0 · adatvédelmi és minőségi szabályok</summary><ul>'+
  '<li>Orvosi eredeti változatlan; SHA-256-alapú egyezőség, soha nem csak fájlnév szerinti törlés vagy összevonás.</li>'+
  '<li>Profilhoz kötött jogosultság, privát tárhely, pontos dokumentum- és oldalszintű forrásazonosítás.</li>'+
  '<li>Vizsgálati időpont ≠ fájlmódosítási időpont. Eredeti mértékegység és szöveg mindig megmarad.</li>'+
@@ -74,7 +74,7 @@ function mount(){
  '<p class="hhGovFoot">A lekérdezés csak a kiválasztott, hitelesítetten engedélyezett profil összesített metaadatait kéri le. Nincs automatikus adatfeltöltés vagy tartalomnaplózás.</p>'+
  '<div class="hhGovActions"><button type="button" id="hhGovAuditBtn658">↻ Élő adatminőség-ellenőrzés</button></div>'+
  '<div id="hhGovAudit658" class="hhGovAudit" role="status" aria-live="polite">Még nincs ellenőrzés. A privát Health Vault-kapcsolat szükséges.</div></details>'+
- '<p class="hhGovFoot">Forrás: HealthHub Governance v1.0 · 2026.10.18. · A feldolgozottságot csak tényleges, ellenőrzött adat alapján jelezzük.</p>';
+ '<p class="hhGovFoot">Forrás: HealthHub Governance v1.1 · 2026.10.18. · A feldolgozottságot csak tényleges, ellenőrzött adat alapján jelezzük.</p>';
  body.insertBefore(box,body.firstChild);
  var button=box.querySelector('#hhGovAuditBtn658');
  if(button)button.addEventListener('click',audit);
