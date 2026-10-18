@@ -15,7 +15,7 @@ test('Admin charter source parses and is loaded once, after the standard profile
   assert.doesNotThrow(() => new vm.Script(moduleSrc));
   assert.equal(liveIndex.split('hh-development-charter-admin-v658.js').length - 1, 1);
   assert.ok(liveIndex.indexOf('hh-development-charter-admin-v658.js') > liveIndex.indexOf('hh-profile-standard-v652.js'));
-  assert.match(liveIndex, /v667-mkb-descope-11-watch-ecg/);
+  assert.match(liveIndex, /v669-mkb-certified-blank-pages/);
 });
 
 test('Governance charter names three pillars in admin and Github documentation', () => {
