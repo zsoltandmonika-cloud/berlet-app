@@ -90,6 +90,18 @@ Nem tárolunk titkos pszichológiai profilokat, rejtett klinikai következtetés
 
 **2026-10-18 aktuális tényszámok:** 218 PDF regisztrálva (Mónika 175, Zsolt 43), 3 fájl SHA-256-ellenőrzött, 1 igazolt duplikátumpár; oldalszintű MKB-index a teljes futás előtt üres. Nincs 218/218 feldolgozási sikerjelzés.
 
+## HH Admin · v664 bejelentkezési helyreállítás
+
+Valós Galaxy S24 Ultra / Chrome felhasználói próba során a `Health Vault hitelesített kapcsolata szükséges` jelzés megjelent. Ez a PDF-feldolgozás elindítását blokkolta, de a PDF-ek nem sérültek és nem indult el rejtett import.
+
+- Közvetlen **Vault belépés** gomb: a már létező `HH_DAILY_HEALTH_SYNC_V319.openLogin()` hitelesítési képernyőt nyitja. Soha nem tárol jelszót az új admin komponens.
+- Közvetlen **Drive csatlakozás** gomb: a meglévő `hhGetGoogleDriveToken292(true)` Google OAuth-folyamatot használja, nem hoz létre új fiókot vagy tokentárolót.
+- A panel aktív profilra külön ellenőrzi a Health Vault-jogosultságot; jelszó nélküli feladatindításkor először a bejelentkezés nyílik meg.
+- A PDF-import továbbra is kézi, külön kattintással indul, kizárólag két hitelesített adatforrással. A **Character Count QA**-nak csak a Health Vault szükséges, a Drive-token nem.
+- Az Admin csak a hozzáférés engedélyezett/hiányzó állapotát mutatja, titkot vagy lelettartalmat nem naplóz.
+
+**Állapot:** GitHubba mentve, izolált hitelesítési/UI-szimulációban ellenőrizve. A tényleges mobilos bejelentkezés és a teljes PDF-feldolgozás még valódi felhasználói elfogadásra vár. A bejelentkezés után a felhasználó külön indítja a feldolgozást.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
