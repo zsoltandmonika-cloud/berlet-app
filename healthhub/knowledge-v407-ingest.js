@@ -176,10 +176,16 @@ async function sourceFor(p,file,sha){
   }
   if(!s||!s.id)throw Error('A dokumentum privát forrásnyilvántartása nem hozható létre.');
  }
- if(!s.sha256)await svc.request('/rest/v1/hh_mkb_sources?id=eq.'+encodeURIComponent(s.id)+
-  '&profile_key=eq.'+encodeURIComponent(p)+'&sha256=is.null',{
-  method:'PATCH',prefer:'return=minimal',data:{sha256:sha,updated_at:new Date().toISOString()}
- });
+ if(!s.sha256){
+  await svc.request('/rest/v1/hh_mkb_sources?id=eq.'+encodeURIComponent(s.id)+
+   '&profile_key=eq.'+encodeURIComponent(p)+'&sha256=is.null',{
+   method:'PATCH',prefer:'return=minimal',data:{sha256:sha,updated_at:new Date().toISOString()}
+  });
+  var confirmed=await svc.request(query,{method:'GET'});
+  if(!Array.isArray(confirmed)||!confirmed[0]||confirmed[0].sha256!==sha)
+   throw Error('A PDF SHA-256 módosítása nem ellenőrizhető; feldolgozás megszakítva.');
+  s=confirmed[0];
+ }
  return s;
 }
 async function sourceStatus(p,source,quality,canonicalSourceId){
