@@ -41,8 +41,8 @@ class El{
  click(){return this.handlers.click&&this.handlers.click({target:this,preventDefault(){},stopPropagation(){}})}
  focus(){}
  matches(q){
-  if(q.startsWith('.'))return this.className.split(' ').includes(q.slice(1));
   if(q==='.hrRow[onclick*="medication"]')return this.className.includes('hrRow')&&String(this.attrs.onclick).includes('medication');
+  if(q.startsWith('.'))return this.className.split(' ').includes(q.slice(1));
   if(q==='.hrRow b')return this.tagName==='b';
   return this.tagName===q;
  }
