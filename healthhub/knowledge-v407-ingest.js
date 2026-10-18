@@ -192,7 +192,7 @@ async function sourceStatus(p,source,quality,canonicalSourceId){
 }
 async function upsertDocument(p,file,sha,existing,duplicate,source){
  var svc=active(p);
- if(existing&&existing.sha256===sha&&existing.status==='complete'&&!duplicate){
+ if(existing&&existing.sha256===sha&&existing.status==='complete'&&existing.text_integrity_status==='verified'&&!duplicate){
   if(!compareMeta(file,existing)){
    await docStatus(p,existing.id,{source_modified_at:file.modified,size_bytes:file.size,mkb_source_id:source.id});
   }
@@ -359,6 +359,7 @@ function enable(p,value){
 }
 function compareMeta(file,existing){
  return !!(existing&&existing.status==='complete'&&
+  (existing.duplicate_of||existing.text_integrity_status==='verified')&&
   Number(existing.size_bytes)===Number(file.size)&&
   Number.isFinite(Date.parse(existing.source_modified_at||''))&&
   Date.parse(existing.source_modified_at)===Date.parse(file.modified||''));
@@ -413,12 +414,13 @@ async function run(p,opts){
      st.done++;emit();continue;
     }
     var canonical=existing.find(x=>x.profile_key===p&&x.source_file_id!=='drive_'+file.id&&
-     x.sha256===sha&&x.status==='complete'&&!x.duplicate_of);
+     x.sha256===sha&&x.status==='complete'&&x.text_integrity_status==='verified'&&!x.duplicate_of);
     // A repeated binary has one canonical, searchable page set.
     var saved=await upsertDocument(p,file,sha,record,canonical||null,source);
     id=saved.id;
     if(canonical){await sourceStatus(p,source,'complete',canonical.mkb_source_id||null);mapped.set('drive_'+file.id,saved);existing.push(saved);st.done++;emit();continue}
-    if(record&&record.sha256===sha&&record.status==='complete'){await sourceStatus(p,source,'complete');st.done++;continue}
+    if(record&&record.sha256===sha&&record.status==='complete'&&
+      (record.duplicate_of||record.text_integrity_status==='verified')){await sourceStatus(p,source,'complete');st.done++;continue}
     var result=await extractDocument(p,file,bytes,id),quality=CORE.readiness(result);
     if(st.stop)quality='partial';
     await docStatus(p,id,{status:quality,total_pages:result.totalPages,
