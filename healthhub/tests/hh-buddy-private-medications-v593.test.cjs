@@ -7,7 +7,7 @@ const buddy=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.js'),'
 const medCss=fs.readFileSync(path.join(dir,'hh-private-medications-v593.css'),'utf8');
 const buddyCss=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.css'),'utf8');
 const index=fs.readFileSync(path.join(dir,'index.html'),'utf8');
-assert.ok(index.includes('hh-private-medications-v593.js?v=653-purpose-private'));
+assert.ok(index.includes('hh-private-medications-v593.js?v=655-seven-medication-rebuild'));
 assert.ok(index.includes('health-scroll-select-v592.js?v=594-default-buddy-live'));
 assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
 assert.ok(index.indexOf('hh-private-medications-v593.js')<index.indexOf('health-scroll-select-v592.js'));
@@ -35,6 +35,7 @@ class El{
  appendChild(x){this.children.push(x);x.parentNode=this;return x}
  insertBefore(x,b){let i=this.children.indexOf(b);if(i<0)i=this.children.length;this.children.splice(i,0,x);x.parentNode=this;return x}
  replaceChildren(){this.children=[]}
+ remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(x=>x!==this)}
  setAttribute(k,v){this.attrs[k]=String(v)}
  getAttribute(k){return this.attrs[k]||null}
  addEventListener(k,fn){this.handlers[k]=fn}
@@ -110,6 +111,28 @@ async function test(){
  assert.equal(container.querySelectorAll('.hhMed593Record').length,1,'private medication displayed once');
  profile='zsolt';await window.renderHealthSection();
  assert.equal(container.querySelectorAll('.hhMed593Record').length,0,'cross-profile privacy');
+ // v655: synthetic records replace old private rows; old records preserved.
+ profile='monika';
+ const seven=Array.from({length:7},(_,i)=>({
+   name:'Synthetic medication '+(i+1),strength:'10 mg',schedule:'',
+   activeIngredient:'synthetic',purpose:'Synthetic explanation',benefit:'Synthetic benefit',caution:'Synthetic caution'
+ }));
+ const pack={schema:'healthhub.private.medications-batch/1',targetProfile:'monika',medications:seven};
+ await api.importBatchFile({size:2000,text:async()=>JSON.stringify(pack)});
+ assert.equal(payload.profiles.monika.medications.length,7,'exactly seven current meds');
+ assert.equal(JSON.stringify(payload.profiles.monika.medications.map(x=>x.name)),JSON.stringify(seven.map(x=>x.name)));
+ assert.equal(payload.profiles.zsolt.medications.length,1,'Zsolt list preserved');
+ assert.equal(payload.profiles.monika.medicationListArchives.length,1,'previous list archived');
+ assert.equal(payload.profiles.monika.medicationListArchives[0].medications.length,1);
+ assert.equal(pushes,2,'Dropbox sync called after replacing seven');
+ await window.renderHealthSection();
+ assert.equal(container.querySelectorAll('.hhMed593Record').length,7,'only seven private rows rendered');
+ assert.ok(container.querySelector('.hhMed655Import'),'bulk import available in Mónika profile');
+ profile='zsolt';await window.renderHealthSection();
+ assert.equal(container.querySelectorAll('.hhMed593Record').length,0,'cross-profile isolation preserved');
+ profile='monika';
+ await assert.rejects(()=>api.importBatchFile({size:2000,text:async()=>JSON.stringify({...pack,targetProfile:'zsolt'})}),/profil/i);
+ assert.equal(payload.profiles.monika.medications.length,7,'wrong target cannot change stored list');
  console.log('HHSP1 Buddy + Medication v593: synthetic save, Dropbox, no duplicate, profile privacy PASS');
 }
 test().catch(e=>{console.error(e);process.exitCode=1});
