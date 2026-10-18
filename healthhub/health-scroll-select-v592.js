@@ -1,12 +1,13 @@
-/* HHSP1 · v592 | Records + Medications Premium scroll-select PREVIEW.
- * Opt in: ?hhscrollselect=1. UI-only. Existing records, PDF, Léna and medicine
- * actions, source filtering, permissions, cloud and health data remain authoritative.
+/* HHSP1 · v594 | Records + Medications Premium scroll-select DEFAULT.
+ * The normal HealthHub link now shows the approved UI. Explicit
+ * ?hhscrollselect=0 or ?hhpremium=0 keeps the previous safe fallback.
+ * Existing records, PDF, Léna, privacy, cloud and medicine actions remain authoritative.
  */
 (function(root){
  'use strict';
  var params;
  try{params=new URLSearchParams(root.location.search)}catch(_){return}
- if(params.get('hhscrollselect')!=='1'||params.get('hhpremium')==='0')return;
+ if(params.get('hhscrollselect')==='0'||params.get('hhpremium')==='0')return;
  var F={records:'all',medications:'all'},refreshing=false;
  var FILTERS={
   records:[['all','✦ Összes'],['omsz','🚑 OMSZ'],['cardio','🫀 Kardiológia'],['labor','🧪 Labor'],['urgent','🏥 Sürgősségi'],['hospital','📄 Kórházi'],['other','📁 Egyéb']],

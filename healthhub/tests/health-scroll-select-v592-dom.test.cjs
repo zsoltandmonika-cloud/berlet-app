@@ -48,7 +48,7 @@ fullDocs.push(makeDoc('OMSZ Mentőszolgálat Esetlap.pdf','Sürgősségi ellát�
 let content=new Fake('div',''),calls=[],view='records',profile='z';
 const listeners={},warnings=[];
 const win={
- location:{search:'?hhscrollselect=1'},localStorage:{getItem:()=>profile},hhDocState:{showAll:false},
+ location:{search:'?hhv=591-health-measurements-hero'},localStorage:{getItem:()=>profile},hhDocState:{showAll:false},
  get healthSectionKind(){return view;},set healthSectionKind(v){view=v;},
  addEventListener(k,fn){listeners[k]=fn},
  openHrDocument(id){calls.push('PDF:'+id)},hhOpenDocumentDetail(id){calls.push('DETAIL:'+id)},
