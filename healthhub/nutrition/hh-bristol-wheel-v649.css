@@ -41,3 +41,11 @@
  .hh-bristol-note{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.hh-bristol-card{transition:none}}
+
+/* v650: edit imagery while clinical Bristol 1–7 classification stays locked. */
+.hh-bristol-top .hh-bristol-edit{appearance:none;min-height:32px;border:1px solid #8db8df9e;border-radius:10px;padding:6px 8px;color:#ecf9ff;background:#1e4263;font-size:11px;font-weight:850;cursor:pointer;white-space:nowrap}
+.hh-bristol-top>small{font-size:10px;white-space:nowrap}
+.hh-bristol-art{position:relative;overflow:hidden;border-radius:17px}
+.hh-bristol-art .hh-category-photo{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;z-index:2}
+.hh-bristol-art:has(.hh-category-photo)>svg{visibility:hidden}
+@media(max-width:390px){.hh-bristol-top{gap:5px;padding:0 10px}.hh-bristol-top strong{font-size:12px}.hh-bristol-top .hh-bristol-edit{font-size:10px;padding:5px 6px}.hh-bristol-top>small{font-size:9px}}
