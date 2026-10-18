@@ -174,6 +174,16 @@ Both distinct, archived April 2026 urine culture documents were tested as source
 
 No raw patient health text, patient identifiers or generated candidate rows were copied into GitHub; all private patient context stays subject to Supabase Health Vault authorization and row-level security.
 
+## MKB v673 · Minimized laboratory evidence excerpt (2026-10-19)
+
+The v672 browser pilot successfully returned **3 pending laboratory observation candidates** from Zsolt's verified 43-PDF archive, drawn from the 2026-03-27 urine-culture specimen (report dated 2026-04-01). All source-document hashes remain independently checked.
+
+The first v672 excerpt was an overly broad continuous quotation from the sample-date row through the microbiology result and unnecessarily included intermediate administrative/personally identifying document fields. **v673 reduces the excerpt to the exact bacteria-identification and growth-evidence row(s)**. The sample collection date is validated independently from the same SHA-verified page and stored in `observed_date`; the original source page, document, patient and SHA remain linked for audit. Text is not normalized, rewritten or sent outside the authorized Health Vault; excerpts must remain verbatim substrings of the page.
+
+Regression checks used **both real source text variants** (separate-line and merged-line results): each produced 3 organism names with exact short quotes (165–168 characters), the collection date 2026-03-27, and no unrelated patient demographics or administrative field text. Original lab values, bacterial counts by column and antibiotic sensitivities are deliberately not interpreted. These are source-reported laboratory observations pending review, **not confirmed infection diagnoses**.
+
+User-visible preview does not write records. Persisting new facts requires an explicit confirmation; final independent fact-to-evidence QA and mobile trial remain separately required before declaring the clinical intelligence layer complete.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
