@@ -99,26 +99,29 @@ async function audit(){
    throw Error('Túl sok rekord; nagy volumenű szerveroldali riport szükséges.');
   }
   var result=await Promise.all([
-   paged('hh_mkb_sources','original_name,parse_status,sha256'),
+   paged('hh_mkb_sources','original_name,parse_status,sha256,duplicate_of'),
    paged('hh_kb_documents','id,status,profile_key'),
    paged('hh_mkb_facts','id')
   ]);
   if(p!==profile()||!status())throw Error('Profil- vagy hozzáférésváltozás, az ellenőrzés megszakadt.');
   var sources=result[0],docs=result[1],facts=result[2];
   if(!Array.isArray(sources)||!Array.isArray(docs)||!Array.isArray(facts))throw Error('A válasz nem ellenőrizhető.');
-  var names=new Set(),duplicateNames=0,withoutHash=0,rawDiscovered=0;
+  var names=new Set(),duplicateNames=0,withoutHash=0,rawDiscovered=0,confirmedDuplicates=0;
   sources.forEach(function(row){
    var n=String(row.original_name||'').trim().toLocaleLowerCase('hu-HU').replace(/\s+/g,' ');
    if(names.has(n))duplicateNames++;else names.add(n);
    if(!row.sha256)withoutHash++;
+   if(row.duplicate_of)confirmedDuplicates++;
    if(row.parse_status==='discovered')rawDiscovered++;
   });
   var completed=docs.filter(function(d){return d.status==='complete'}).length;
   box.textContent='Profil: '+(p==='monika'?'Mónika':'Zsolt')+
     '\nRegisztrált forrás: '+sources.length+
     '\nForrásfeldolgozásra vár: '+rawDiscovered+
+    '\nSHA-256 ellenőrizve: '+(sources.length-withoutHash)+'/'+sources.length+
     '\nSHA-256 hiányzik: '+withoutHash+
-    '\nAzonos nevű további fájlok: '+duplicateNames+' (nem bizonyított bináris duplikátum)'+
+    '\nIgazolt tartalmi duplikátum hivatkozások: '+confirmedDuplicates+
+    '\nAzonos nevű további fájlok: '+duplicateNames+' (önmagában nem bizonyít azonosságot)'+
     '\nPDF-index: '+docs.length+' · teljesként jelölt: '+completed+
     '\nKinyert, forrásolt orvosi tények: '+facts.length+
     '\nEllenőrizve: '+new Date().toLocaleString('hu-HU');
