@@ -9,7 +9,7 @@ const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8'
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(html.includes('premium-home-compact-v525.js?v=544-glass-stack-below-hero'),'production compact Home cache bust');
 assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='0')v='407-digital-wellbeing-family-507'"),'legacy Home remains an explicit URL fallback');
-assert.ok(html.includes("var v='651-sleep-context-source'"),'normal Home now points to approved v594 Premium and scroll-select');
+assert.ok(html.includes("var v='652-global-profile-pill'"),'normal Home now points to approved v594 Premium and scroll-select');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
 assert.equal(manifest.start_url,'./index.html?hhv=530-premium-zero-legacy-flash','installed app starts at approved Premium Home');
 assert.ok(html.indexOf('premium-home-compact-v525.js')>html.indexOf('home-hero-info-glass-v522.js'),'v525 must load after v522');
