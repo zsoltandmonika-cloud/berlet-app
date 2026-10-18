@@ -94,7 +94,7 @@ async function test(){
  assert.ok(container.querySelector('.hhMed593Add'));
  await api.edit();
  let modal=findId(body,'hhMed593Overlay'),fields=modal.querySelectorAll('input');
- assert.equal(fields.length,4);
+ assert.equal(fields.length,7,'four medication fields plus three explanation fields');
  const preset=modal.querySelector('.hhMed593Preset');preset.click();
  assert.ok(fields[0].value.includes('Rozuva-Teva'));
  assert.equal(fields[2].value,'napi 1 tabletta');
@@ -102,6 +102,8 @@ async function test(){
  const mine=payload.profiles.monika.medications;
  assert.equal(mine.length,1,'Save status: '+(modal.querySelector('.hhMed593Status')||{}).textContent);assert.equal(mine[0].status,'aktuális');
  assert.equal(mine[0].strength,'10 mg');assert.equal(mine[0].schedule,'napi 1 tabletta');
+  assert.ok(mine[0].purpose.includes('LDL'),'purpose persisted only after consented save');
+  assert.ok(mine[0].caution.includes('izom'),'warning persisted with private record');
  assert.equal(payload.profiles.zsolt.medications.length,1,'other profile untouched');
  assert.equal(pushes,1,'synchronized to existing Dropbox master');
  await window.renderHealthSection();
