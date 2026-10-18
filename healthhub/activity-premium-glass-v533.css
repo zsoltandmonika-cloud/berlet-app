@@ -288,3 +288,29 @@ html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage1
  html[data-hh-activity-glass="on"] #hhActivityPage191 .a191TimelineSummary>div{padding:9px 7px!important}
  html[data-hh-activity-glass="on"] #hhActivityPage191 .a191TimelineSummary>div b{font-size:12px!important}
 }
+
+/* HHSP1 Activity loading state | matching dark Premium Glass, both profiles. */
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Load {
+ box-sizing:border-box;
+ display:flex!important;align-items:center;justify-content:center;gap:12px;
+ min-height:72px;margin:5px 0 12px;padding:18px 16px!important;
+ border:1px solid var(--hha-line)!important;border-radius:18px!important;
+ background:linear-gradient(145deg,rgba(54,88,134,.38),rgba(14,33,60,.96))!important;
+ box-shadow:0 12px 28px rgba(1,10,27,.30),inset 0 1px 0 rgba(255,255,255,.12)!important;
+ -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+ color:#edf7ff!important;font:750 clamp(13px,3.4vw,15px)/1.5 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ text-align:center;letter-spacing:.005em;overflow-wrap:anywhere;
+}
+html[data-hh-activity-glass="on"][data-hh-activity-profile="m"] #hhActivityPage191 .a191Load {
+ background:linear-gradient(145deg,rgba(126,72,124,.30),rgba(20,29,58,.96))!important;
+}
+html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Load::before {
+ content:"";display:block;flex:0 0 18px;width:18px;height:18px;
+ border-radius:50%;border:2px solid rgba(217,236,255,.20);
+ border-top-color:var(--hha-accent);border-right-color:var(--hha-accent);
+ animation:hhActivityLoadingGlassSpin 1s linear infinite;
+}
+@keyframes hhActivityLoadingGlassSpin {to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){
+ html[data-hh-activity-glass="on"] #hhActivityPage191 .a191Load::before{animation:none}
+}
