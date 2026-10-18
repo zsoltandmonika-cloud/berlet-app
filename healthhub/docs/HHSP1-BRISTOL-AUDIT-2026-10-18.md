@@ -39,3 +39,10 @@ Bármely sikertelen acceptance esetén a Nutrition `index.html` egyetlen, audit�
 - **Éles webes/készülékes end-to-end QA:** továbbra is nyitott. Az automatikus Pages deploy sikeres státusza nem bizonyítja a mobil UI és a Dropboxból való képfeltöltés működését.
 - **Visszaállítás:** `backup/hh-pre-hhsp1-20261018-v650` ág megőrizve.
 - **Release besorolás:** Bristol hotfix kiadva; a teljes HHSP1 audit/service pack **nem** tekinthető lezártnak.
+
+## 2026-10-18 · Felhasználói acceptance: Bristol képszerkesztés
+
+- **Felhasználói visszajelzés:** a v650 HHSP1 éles Nutrition Bristol képszerkesztője működik; a felhasználó saját, cukrászdai termékeket ábrázoló képeket töltött fel a Bristol-kártyákhoz.
+- **Felhasználó által megerősítve:** a képszerkesztés és képfeltöltés sikeres a saját használati környezetében. Külön szerkesztői regressziós hiba nem jelentkezett a visszajelzésben.
+- **Még nyitott E2E ellenőrzés:** képek visszatöltése újratöltés után, profilváltás és másik készülék/böngésző, a Dropbox tartós felhőszinkronja, 1–7 típusok mentése. A felhasználói sikeres feltöltés önmagában nem bizonyítja mindegyiket.
+- **Adatvédelem:** az egyéni képeket nem másoljuk be a publikus GitHub-repozitóriumba, csak a teszt tényét dokumentáljuk.
