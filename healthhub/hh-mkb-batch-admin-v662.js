@@ -114,34 +114,68 @@ async function count(){
  var who=p();busy=true;draw();
  try{
   assertActive(who);
-  var api=window.HH_DAILY_HEALTH_SYNC_V319;
-  var rows=[],offset=0;
-  while(offset<20000){
-   assertActive(who);
-   var part=await api.request('/rest/v1/hh_kb_documents?select=id,duplicate_of,status,total_pages,pages_verified,extracted_characters,stored_characters,text_integrity_status'+
-    '&profile_key=eq.'+encodeURIComponent(who)+'&order=id.asc&limit=500&offset='+offset,{method:'GET'});
-   if(!Array.isArray(part))throw Error('Nem ellenőrizhető a dokumentumlista.');
-   rows.push(...part);offset+=500;
-   if(part.length<500)break;
+  var api=window.HH_DAILY_HEALTH_SYNC_V319,st=api.getStatus();
+  var accessible=['monika','zsolt'].filter(x=>st.authorizedProfiles.includes(x));
+  async function all(table,cols,key){
+   var rows=[],offset=0;
+   while(offset<20000){
+    if(!permitted(who)||p()!==who)throw Error('A hozzáférés időközben megváltozott.');
+    var url='/rest/v1/'+table+'?select='+cols+'&profile_key=eq.'+encodeURIComponent(key)+
+      '&limit=500&offset='+offset;
+    var part=await api.request(url,{method:'GET'});
+    if(!Array.isArray(part))throw Error('Nem ellenőrizhető a lekérdezés.');
+    rows.push(...part);offset+=500;
+    if(part.length<500)break;
+   }
+   return rows;
   }
-  var originals=rows.filter(x=>!x.duplicate_of),verified=originals.filter(x=>x.text_integrity_status==='verified'&&x.pages_verified===x.total_pages&&x.total_pages>0);
-  var a=originals.reduce((n,x)=>n+Number(x.extracted_characters||0),0),
-      b=originals.reduce((n,x)=>n+Number(x.stored_characters||0),0),
-      pages=originals.reduce((n,x)=>n+Number(x.total_pages||0),0),
-      pagesVerified=originals.reduce((n,x)=>n+Number(x.pages_verified||0),0);
-  if(who!==p()||!permitted(who))throw Error('Hozzáférés megváltozott.');
-  var d=b-a,pct=a>0?(100*Math.abs(d)/a).toFixed(5)+'%':'nem értelmezhető';
-  show('🔢 Character Count & Data Integrity · '+pname()+
-   '\nIndexelt dokumentum: '+rows.length+' (ebből '+(rows.length-originals.length)+' hivatkozott duplikátum)'+
-   '\nCanonical PDF-ek: '+originals.length+' · SHA/karakter szerint ellenőrzött: '+verified.length+
-   '\nOldalak: '+pages+' · ellenőrzött: '+pagesVerified+
-   '\nEredeti szöveg (Unicode karakter): '+a.toLocaleString('hu-HU')+
-   '\nSupabase visszaolvasás (karakter): '+b.toLocaleString('hu-HU')+
-   '\nEltérés: '+d.toLocaleString('hu-HU')+' ('+pct+')'+
-   '\n'+(originals.length>0&&verified.length===originals.length&&a===b?'✓ Szöveg-integ­ritás: ellenőrzött. OCR és képi leletek külön ellenőrzést igényelhetnek.':
-      '⚠ Még NEM teljes a feldolgozás / oldalellenőrzés. A kis karaktereltérés önmagában nem siker.')+
-   '\nA globális összehasonlításhoz mindkét profilt külön kell lefuttatni.');
- }catch(e){show('⚠ Karakterszám-ellenőrzés: '+String(e.message||e).slice(0,200))}
+  var sections=[],grand={files:0,indexed:0,canonical:0,verified:0,expected:0,stored:0,pages:0,pagesVerified:0,unverified:0};
+  for(const key of accessible){
+   var pair=await Promise.all([
+     all('hh_mkb_sources','id',''+key),
+     all('hh_kb_documents','id,duplicate_of,status,total_pages,pages_verified,extracted_characters,stored_characters,text_integrity_status',key)
+   ]);
+   var sourceCount=pair[0].length,docs=pair[1],canonical=docs.filter(x=>!x.duplicate_of);
+   var verified=canonical.filter(x=>x.status==='complete'&&
+      x.text_integrity_status==='verified'&&x.total_pages>0&&x.pages_verified===x.total_pages).length;
+   var expected=canonical.reduce((n,x)=>n+Number(x.extracted_characters||0),0);
+   var stored=canonical.reduce((n,x)=>n+Number(x.stored_characters||0),0);
+   var pages=canonical.reduce((n,x)=>n+Number(x.total_pages||0),0);
+   var pageOK=canonical.reduce((n,x)=>n+Number(x.pages_verified||0),0);
+   var unverified=docs.filter(x=>x.status!=='complete').length;
+   var good=sourceCount>0&&sourceCount===docs.length&&verified===canonical.length&&
+       unverified===0&&pageOK===pages&&stored===expected;
+   sections.push((key==='monika'?'MÓНИKA':'ZSOLT')+
+    ' · PDF: '+docs.length+'/'+sourceCount+
+    ' · canonical: '+canonical.length+' · QA: '+verified+
+    '\nEredeti: '+expected.toLocaleString('hu-HU')+
+    ' · Supabase: '+stored.toLocaleString('hu-HU')+
+    ' · Δ '+(stored-expected).toLocaleString('hu-HU')+
+    ' · oldalak: '+pageOK+'/'+pages+
+    '\n'+(good?'✓ Teljes szöveg-ellenőrzés':'⚠ Feldolgozás vagy review hiányos'));
+   grand.files+=sourceCount;grand.indexed+=docs.length;grand.canonical+=canonical.length;
+   grand.verified+=verified;grand.expected+=expected;grand.stored+=stored;
+   grand.pages+=pages;grand.pagesVerified+=pageOK;grand.unverified+=unverified;
+  }
+  if(p()!==who||!permitted(who))throw Error('A hozzáférés időközben megváltozott.');
+  var delta=grand.stored-grand.expected;
+  var percent=grand.expected?100*Math.abs(delta)/grand.expected:NaN;
+  var allDone=grand.files>0&&accessible.length===2&&grand.files===grand.indexed&&
+    grand.verified===grand.canonical&&grand.unverified===0&&
+    grand.pagesVerified===grand.pages&&delta===0;
+  show('🔢 CHARACTER COUNT · Teljes HealthHub'+
+   '\nForrás PDF: '+grand.files+' · indexelt: '+grand.indexed+
+   '\nEllenőrzött egyedi dokumentum: '+grand.verified+'/'+grand.canonical+
+   '\nEllenőrzött oldalak: '+grand.pagesVerified+'/'+grand.pages+
+   '\nEREDETI Unicode karakter: '+grand.expected.toLocaleString('hu-HU')+
+   '\nSUPABASE Unicode karakter: '+grand.stored.toLocaleString('hu-HU')+
+   '\nKÜLÖNBSÉG: '+delta.toLocaleString('hu-HU')+
+   ' ('+(Number.isFinite(percent)?percent.toFixed(5)+'%':'nincs összehasonlítható szöveg')+')'+
+   '\n'+(allDone?'✓ Szöveges adat-integritás: igazolt (OCR/képek klinikai review-ja külön követelmény).':
+   '⚠ Nem teljes körű adat-integritási igazolás. A karakteregyezés önmagában nem elegendő.')+
+   '\n\n'+sections.join('\n\n')+
+   (accessible.length!==2?'\n\nA másik profilhoz nem volt hitelesített jogosultság.':''));
+ }catch(e){show('⚠ Karakteraudit sikertelen: '+String(e.message||e).slice(0,220))}
  finally{busy=false;draw()}
 }
 window.addEventListener('healthhub:kb-progress',draw);
