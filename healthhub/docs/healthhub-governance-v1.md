@@ -1,4 +1,4 @@
-# HealthHub Governance v1.0 · Három pillér / Engineering Charter
+# HealthHub Governance v1.1 · Három pillér / Engineering Charter
 
 **Érvényes:** 2026-10-18 · **Felületek:** GitHub dokumentáció + élő HH Admin → Fejlesztési Iránytű.
 
@@ -23,12 +23,29 @@ Nem tárolunk titkos pszichológiai profilokat, rejtett klinikai következtetés
 
 ## Fejlesztési protokoll
 
-**Diagnózis → Bizonyíték → Döntés → Visszaállítási terv → Implementáció → Teszt → Deploy → Utóellenőrzés.**
+**Diagnózis → Bizonyíték → Döntés → Visszaállítási terv → Implementáció → Automatizált teszt → Deploy → Éles smoke test → Valós felhasználói teszt → Elfogadás / javítás / rollback.**
 
 - Stabil, gyors, egykattintásos mobil UX; prémium sötét glassy téma, egységes profilváltó.
 - Nem készül párhuzamos, félkész adattároló vagy duplikált feldolgozó, ha a meglévő réteg továbbfejleszthető.
 - Minden jelentős döntést két helyen kell követhetővé tenni: GitHub technikai dokumentációban és HH Admin felületen.
 - A zöld állapothoz mért, igazolt eredmény kell; hiányzó adatból nem keletkezik sikerjelzés.
+
+## Agile Delivery · no micromanagement / goal-oriented deployment
+
+**Végrehajtási irányelv:** a célzott, önálló műszaki döntéseket nem akasztjuk meg folyamatos jóváhagyáskéréssel. A fejlesztés gyors, kockázatarányos, visszaállítható iterációkban halad: **build → test → deploy → valódi felhasználói próba → hiba javítása → újratesztelés**. A trial-and-error a technikai megoldások tesztelésére vonatkozik, nem a privát klinikai adatokon történő ellenőrizetlen kísérletezésre.
+
+**Definition of Done (kötelező állapotkülönbség):**
+- **CODED:** a javítás kódban és dokumentációban megtalálható.
+- **TESTED:** célzott automatizált/szimulációs ellenőrzések sikeresek.
+- **DEPLOYED:** a megfelelő commit éles szolgáltatásban ellenőrzötten betöltődik.
+- **LIVE VERIFIED:** működik valódi böngészőn/telefonon, tényleges jogosultságokkal és megengedett valós adatokkal; nem szimuláció.
+- **USER ACCEPTED:** Zsolt/Mónika a valós felhasználói próbát visszaigazolta, vagy egy előre rögzített objektív használati elfogadási kritérium teljesült és annak bizonyítéka elérhető.
+
+**Nem kész:** kizárólag GitHub-commit, zöld unit test, előnézet, vagy a teszt nélküli deployment. A fejlesztő nem minősíthet USER ACCEPTED-nek olyan eredményt, amit a felhasználó nem tesztelt és nem igazolt. A *DONE* státuszt csak a ténylegesen igazolt legmagasabb kapu szerint adjuk meg.
+
+**Hibakezelés:** a hibát reprodukáljuk, feljegyezzük az okát és a teszt eredményét, javítjuk, újra deployoljuk; súlyos regressziónál visszaállítunk. Nem takarjuk el a hibát vagy találunk ki teljesítési százalékot.
+
+**Ütem:** önálló kóddöntések és tesztek, kevés kérdés; a felhasználói teszt egyetlen konkrét, rövid forgatókönyvvel történjen, ne mikromenedzsmenttel. A működés és az adatbiztonság igazolásához szükséges visszajelzést továbbra is kérni kell.
 
 ## Medical Knowledge Base 2.0 · adatminőség
 
