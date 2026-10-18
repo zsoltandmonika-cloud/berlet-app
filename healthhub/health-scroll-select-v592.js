@@ -124,12 +124,21 @@
   var card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(x){
    return !!x.querySelector(kind==='records'?'.hrRow[onclick*="Document"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="medication"],.hrRow[data-hh-private-med]');
   });
+  // The premium medicine picker must survive even when its authoritative
+  // private list has not been imported yet. Never show stale demo records.
+  if(!card&&kind==='medications'){
+    card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(x){
+      return !!x.querySelector('.hhMed593Add')||!!x.querySelector('.hhMed655Import')||
+        /gyógyszer/i.test((x.querySelector('h3')||{}).textContent||'');
+    });
+  }
   if(!card)return;
   var selector=kind==='records'?'.hrRow[onclick*="hhOpenDocumentDetail"],.hrRow[onclick*="openHrDocument"]':'.hrRow[onclick*="openHrDetail"],.hrRow[data-hh-private-med]';
   var rows=Array.from(card.querySelectorAll(selector)).filter(function(row){
    return row.parentNode===card&&(kind!=='medications'||hasMedicationId(row));
   });
-  if(!rows.length)return;
+  if(!rows.length&&kind!=='medications')return;
+  if(card.querySelector('.hhRsmToolbar'))return;
   var tool=make('section','hhRsmToolbar');
   tool.setAttribute('aria-label',kind==='records'?'Leletek gyorsszűrők':'Gyógyszerek gyorsszűrők');
   var heading=make('div','hhRsmHeading');
@@ -158,9 +167,15 @@
   tool.appendChild(note);
   var track=make('div','hhRsmTrack');track.setAttribute('aria-label',kind==='records'?'Leletek':'Gyógyszerek');
   track.setAttribute('role','region');track.tabIndex=0;
-  card.insertBefore(tool,rows[0]);card.insertBefore(track,rows[0]);
-  rows.forEach(function(row){decorateRow(row,kind);track.appendChild(row)});
-  var empty=make('p','hhRsmEmpty','Ehhez a szűrőhöz nincs találat.');
+  if(rows.length){
+    card.insertBefore(tool,rows[0]);card.insertBefore(track,rows[0]);
+    rows.forEach(function(row){decorateRow(row,kind);track.appendChild(row)});
+  }else{
+    card.appendChild(tool);card.appendChild(track);
+  }
+  var empty=make('p','hhRsmEmpty',!rows.length&&kind==='medications'
+    ?'Még nincs mentett gyógyszer ebben a profilban. A fenti egységes betöltéssel rögzíthető a jóváhagyott lista.'
+    :'Ehhez a szűrőhöz nincs találat.');
   empty.hidden=true;card.insertBefore(empty,track.nextSibling);
   card.classList.add('hhRsmSection');
   apply(kind,tool,rows);

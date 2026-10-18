@@ -19,6 +19,7 @@ class Fake {
  matches(s){
   if(s==='b'||s==='small')return this.tagName===s;
   if(s==='.hrSectionCard')return this.className.includes('hrSectionCard');
+  if(s==='h3')return this.tagName==='h3';
   if(s==='.hrTag'||s==='.hhLenaExplainBtn'||s==='.hhMedPurposeBtn'||s==='.hhRsmChip'||s==='.hhRsmCount'||s==='.hhRsmEmpty'||s==='.hhRsmToolbar'||s==='.hhRsmTrack'||s==='.hhRsmActions')return this.className.includes(s.slice(1));
   if(s==='button[onclick*="hhShowAllDocs"]')return this.tagName==='button'&&(this.attrs.onclick||'').includes('hhShowAllDocs');
   if(s.includes('.hrRow[onclick'))return this.className.includes('hrRow')&&s.split(',').some(q=>{
@@ -45,7 +46,7 @@ function makeMed(name,status,id){const row=new Fake('div','hrRow clickable');
 }
 const fullDocs=Array.from({length:10},(_,i)=>makeDoc('Labor teszt '+i+'.pdf','Labor','doc-'+i));
 fullDocs.push(makeDoc('OMSZ Mentőszolgálat Esetlap.pdf','Sürgősségi ellátás / mentés','doc-omsz'));
-let content=new Fake('div',''),calls=[],view='records',profile='z';
+let content=new Fake('div',''),calls=[],view='records',profile='z',emptyMedicines=false;
 const listeners={},warnings=[];
 const win={
  location:{search:'?hhv=591-health-measurements-hero'},localStorage:{getItem:()=>profile},hhDocState:{showAll:false},
@@ -55,9 +56,9 @@ const win={
  hhOpenLenaExplanation(id){calls.push('LENA:'+id)},
  openHrDetail(kind,id){calls.push('MED:'+kind+':'+id)},
  async renderHealthSection(){
-  const card=new Fake('section','hrSectionCard');card.appendChild(new Fake('h3','',view));
+  const card=new Fake('section','hrSectionCard');card.appendChild(new Fake('h3','',view==='medications'?'💊 Gyógyszerek':view));
   const data=view==='records'?(this.hhDocState.showAll?fullDocs:fullDocs.slice(0,10))
-    :[makeMed('Gyógyszer A','aktuális','med1'),makeMed('Gyógyszer B','korábbi','med2'),makeMed('Gyógyszer C','aktuális','med3')];
+    :(emptyMedicines?[]:[makeMed('Gyógyszer A','aktuális','med1'),makeMed('Gyógyszer B','korábbi','med2'),makeMed('Gyógyszer C','aktuális','med3')]);
   data.forEach(row=>card.appendChild(row));
   if(view==='records'&&!this.hhDocState.showAll){
    const show=new Fake('button','');show.attrs.onclick='hhShowAllDocs()';card.appendChild(show);
@@ -106,6 +107,14 @@ vm.runInNewContext(code,{window:win,document,URLSearchParams,console:{warn(m){wa
  assert.equal(content.querySelector('.hhRsmTrack').children.find(x=>!x.hidden).querySelector('b').textContent,'Gyógyszer B');
  listeners['healthhub:profile-changed']();await win.renderHealthSection();
  assert.equal(content.querySelector('.hhRsmTrack').children.filter(x=>!x.hidden).length,3,'profile switches reset quick filters');
+ emptyMedicines=true;await win.renderHealthSection();
+ assert.ok(content.querySelector('.hhRsmToolbar'),'empty private medicine list still keeps premium scrolling filters');
+ assert.ok(content.querySelector('.hhRsmTrack'),'empty private medicine list keeps premium track');
+ assert.equal(content.querySelector('.hhRsmTrack').children.length,0,'no fake patient medicines');
+ const emptyMessage=content.querySelector('.hhRsmEmpty');
+ assert.ok(emptyMessage&&!emptyMessage.hidden,'clear empty-state call-to-action');
+ assert.ok(emptyMessage.textContent.includes('Még nincs mentett gyógyszer'),'no incorrect status shown');
+ assert.equal(content.querySelector('.hhRsmToolbar').querySelectorAll('.hhRsmChip').filter(x=>x.tagName==='button').length,4,'all four medicine filter buttons remain visible');
  assert.deepEqual(warnings,[],'no silent preview crashes');
  console.log('Health scroll-select v592 synthetic DOM E2E: OMSZ beyond 10, PDF/Léna, medicines, filter reset PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});
