@@ -34,7 +34,7 @@ function localImports(profile){
    request=window.indexedDB.open('healthhub-connect-v1',2);
    request.onerror=function(){finish(null)};
    request.onsuccess=function(){
-    var db=request.result,rows=[],latest=null,tx;
+    var db=request.result,rows=[],latest=null,matched=false,tx;
     try{
      if(!db.objectStoreNames.contains('imports')){db.close();finish(null);return}
      tx=db.transaction('imports','readonly');
@@ -42,10 +42,10 @@ function localImports(profile){
      cursor.onerror=function(){db.close();finish(null)};
      cursor.onsuccess=function(){
       var c=cursor.result;
-      if(!c){db.close();finish({rows:rows,exportedAt:latest});return}
+      if(!c){db.close();finish(matched?{rows:rows,exportedAt:latest}:null);return}
       var x=c.value;
       if(x&&x.profile===profile&&x.bundle&&x.bundle.records&&Array.isArray(x.bundle.records.sleepSessions)){
-       rows.push.apply(rows,x.bundle.records.sleepSessions.slice(0,300));
+       matched=true;rows.push.apply(rows,x.bundle.records.sleepSessions.slice(0,300));
        var t=x.bundle.exportedAt||x.importedAt;
        if(parsed(t)!=null&&(!latest||parsed(t)>parsed(latest)))latest=t;
       }
@@ -121,7 +121,7 @@ async function reconcile(report,context,profile,opts){
  }
  out.sleep=sleep;
  out.sleepSourceCheckedAt=new Date(now).toISOString();
- last={profile:profile,context:out,createdAt:now};
+ last={profile:profile,context:out,createdAt:Date.now()};
  if(Array.isArray(report.sources)){
   report.available=report.sources.filter(function(s){return s.status==='available'}).length;
   report.stale=report.sources.filter(function(s){return s.status==='stale'}).length;
