@@ -6,7 +6,7 @@
 var CFG=window.HH_CENTRAL_VAULT||{},STORE='hh-daily-health-factors-317',
  SKEY='hh-supabase-health-session-v1',REM='hh-health-vault-trusted-device-v332',SLUG=CFG.householdSlug||'zsolt-monika';
 var states={m:{mode:'local',revision:0,snapshot:null,remote:null},z:{mode:'local',revision:0,snapshot:null,remote:null}};
-var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null,autoAttempted=false;
+var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null,autoAttempted=false,accessRefresh=null;
 function el(id){return document.getElementById(id)}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[c]})}
 function active(){return CFG.enabled===true&&/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(CFG.supabaseUrl||''))&&typeof CFG.publishableKey==='string'&&CFG.publishableKey.length>12}
@@ -211,15 +211,34 @@ function mount(host){
  }
 }
 
+function refreshProfileAccess(){
+ if(!active()||!session)return Promise.resolve(false);
+ if(accessRefresh)return accessRefresh;
+ lastError='';
+ accessRefresh=fetchCloud().then(function(){lastError='';return true}).catch(function(err){
+  profiles=null;
+  lastError='A profiljogosultságok nem tölthetők be. Ellenőrizd a kapcsolatot, majd próbáld újra. ('+
+   (err&&err.httpStatus?'HTTP '+err.httpStatus:'kapcsolati hiba')+')';
+  return false;
+ }).finally(function(){
+  accessRefresh=null;
+  draw();
+  renderLoginOverlay();
+  window.dispatchEvent(new Event('healthhub:central-auth-changed'));
+ });
+ renderLoginOverlay();
+ return accessRefresh;
+}
 function renderLoginOverlay(){
  var overlay=el('hhCentralAuthOverlayV332');if(!overlay)return;
  var content=el('hhCentralAuthContentV332');if(!content)return;
  var permitted=profiles?['m','z'].filter(function(k){return!!profiles[k]}).map(function(k){return k==='m'?'Mónika':'Zsolt'}):[];
  if(session){
   content.innerHTML='<p>✅ A központi Health Vault munkamenete aktív.</p>'+
-   '<p>Hozzáférhető profilok: '+escapeHtml(permitted.join(', ')||'jogosultság-ellenőrzés alatt')+'</p>'+
+   '<p>Hozzáférhető profilok: '+escapeHtml(permitted.join(', ')||(accessRefresh?'ellenőrzés folyamatban…':'még nincs ellenőrizve'))+'</p>'+
    '<p>Az Ask Léna és a Daily Health ugyanazt a munkamenetet használja. A Dropbox külön szolgáltatás.</p>'+
-   '<div class="hhca-actions"><button data-auth-v332="close" type="button">Vissza az Ask Lénához</button><button data-auth-v332="logout" type="button">Kijelentkezés</button></div>';
+   '<div class="hhca-actions"><button data-auth-v332="refresh" type="button" '+(accessRefresh?'disabled':'')+'>↻ Jogosultságok frissítése</button><button data-auth-v332="close" type="button">Bezárás</button><button data-auth-v332="logout" type="button">Kijelentkezés</button></div>'+
+    (lastError?'<p class="hhca-error" role="alert">'+escapeHtml(lastError)+'</p>':'');
  }else{
   content.innerHTML='<p>Egyszeri központi belépés ezen a készüléken, az Ask Léna és a Daily Health számára.</p>'+
    '<form id="hhcaLoginV332"><label>E-mail<input type="email" name="email" autocomplete="username" required></label>'+
@@ -260,11 +279,13 @@ function openLogin(){
   overlay.addEventListener('click',function(e){
    var b=e.target.closest('[data-auth-v332]');
    if(b&&b.dataset.authV332==='close')overlay.remove();
+    if(b&&b.dataset.authV332==='refresh')refreshProfileAccess();
    if(b&&b.dataset.authV332==='logout')logout();
   });
   document.body.appendChild(overlay);
  }
  renderLoginOverlay();
+ if(session&&!profiles)refreshProfileAccess();
  var input=overlay.querySelector('input[name=email]');
  if(input)input.focus();
 }
