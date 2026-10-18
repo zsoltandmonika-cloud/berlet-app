@@ -92,7 +92,7 @@ async function edit(id){
    purpose.value=ROZUVA_INFO.purpose;benefit.value=ROZUVA_INFO.benefit;caution.value=ROZUVA_INFO.caution;
    name.focus();
   });
-  if(profile==='monika')preset.click(); // Prefill only, private save remains explicit.
+  // No automatic filling of an existing drug when adding a new one.
  }
  var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
  cancel.type='button';cancel.addEventListener('click',function(){overlay.hidden=true});
@@ -268,15 +268,9 @@ async function augment(){
   if(typeof x.remove==='function')x.remove();
  });
  if(card.querySelector('.hhMed593Add'))return;
- var button=make('button','hhMed593Add',current()==='monika'
-  ?'＋ Rozuva-Teva 10 mg rögzítése · Mónika':'＋ Gyógyszer hozzáadása');
+ var button=make('button','hhMed593Add hhMed657Add','＋ Gyógyszer hozzáadása');
  button.type='button';button.addEventListener('click',function(){edit()});
  card.insertBefore(button,card.querySelector('.hrRow,.hhRsmToolbar,.hhRsmTrack'));
- if(current()==='monika'){
-  var bulk=make('button','hhMed593Add hhMed655Import','↻ Mónika 7 gyógyszerének egységes betöltése');
-  bulk.type='button';bulk.addEventListener('click',openBatchImport);
-  card.insertBefore(bulk,button.nextSibling);
- }
  try{
   var payload=await read(),profile=current(),a=((((payload||{}).profiles||{})[profile]||{}).medications)||[];
   if(!Array.isArray(a))return;
