@@ -310,7 +310,7 @@ async function extractDocument(p,file,bytes,docId){
     method=text.length>=80?'embedded':'none';
     var ops={images:0,paths:0};
     try{ops=flags(await page.getOperatorList(),lib)}
-    catch(_){reasons.push('PDF grafikus operátorok kiolvasása sikertelen: '+pageNo+'. oldal')}
+    catch(_){result.visualFailed++;reasons.push('PDF grafikus operátorok kiolvasása sikertelen: '+pageNo+'. oldal')}
     signal=CORE.visualSignals(file.name,text,ops);
     visual=signal.capture;
     needOcr=text.length<80;
@@ -351,6 +351,7 @@ async function extractDocument(p,file,bytes,docId){
      try{
       var picture=await png(can);await saveVisual(p,docId,pageNo,picture,can);
       result.visualPages++;
+      if(can.hhRenderedScale<1.6){result.visualFailed++;reasons.push('Képi megőrzés csökkentett felbontású, review szükséges: '+pageNo+'. oldal')}
      }catch(e){result.visualFailed++;reasons.push('Képi melléklet mentési hiba: '+pageNo)}
     }
    }catch(e){result.failedPages++;reasons.push('Oldal feldolgozási hiba: '+pageNo)}
