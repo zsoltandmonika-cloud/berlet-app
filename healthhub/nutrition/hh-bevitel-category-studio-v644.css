@@ -62,3 +62,8 @@
 .hh-bevitel-header-pen{font-size:15px;line-height:1;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 64%,transparent);background:var(--accentWash);border-radius:8px;padding:5px;box-shadow:0 0 8px var(--accentWash)}
 .hh-bevitel-header .hh-bevitel-main-edit{position:absolute;top:4px;right:0;z-index:4;margin:0;min-height:40px}
 @media(max-width:540px){.hh-bevitel-header .muted{display:none}.hh-bevitel-header{padding-right:93px}.hh-bevitel-header #hhBevitelHeading{max-width:calc(100% - 2px)}}
+
+/* v650 BODY BALANCE Bristol illustrations: only photo changes are editable. */
+#hhCategoryStudio[data-kind="bristol"] .hh-category-row:not(.hh-category-image-actions),
+#hhCategoryStudio[data-kind="bristol"] .hh-category-archive{display:none!important}
+#hhCategoryStudio[data-kind="bristol"] .hh-category-preview{height:clamp(160px,32vh,240px)}
