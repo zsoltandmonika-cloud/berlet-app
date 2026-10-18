@@ -47,7 +47,7 @@ function mount(){
  var box=document.createElement('section');box.id=ID;
  box.setAttribute('aria-label','HealthHub fejlesztési iránytű és adatminőség');
  box.innerHTML=
- '<div class="hhGovHeading"><h3>🧭 HealthHub · Fejlesztési Iránytű</h3><span style="font-size:10px;color:#a5d8eb">GOVERNANCE · v1.1</span></div>'+
+ '<div class="hhGovHeading"><h3>🧭 HealthHub · Fejlesztési Iránytű</h3><span style="font-size:10px;color:#a5d8eb">GOVERNANCE · v1.2</span></div>'+
  '<p class="hhGovLead">Célorientált, agilis fejlesztés · nem mikromenedzsment · valós használatban ellenőrzött eredmény</p>'+
  '<div class="hhGovPillars"><div class="hhGovPillar"><span>❤️</span>Gondoskodás</div>'+
  '<div class="hhGovPillar"><span>📚</span>Adatismeret</div><div class="hhGovPillar"><span>🧠</span>Intelligencia</div></div>'+
@@ -64,8 +64,15 @@ function mount(){
  '<li>OCR és AI-kinyerés ellenőrizendő; bizonytalan, történeti és ellentmondó állítások külön jelölést kapnak.</li>'+
  '<li>Samsung Watch EKG PDF: a beágyazott szöveg megőrzése független a grafikus rendereléstől; sikertelen vagy túl alacsony felbontású képkivonatnál nincs COMPLETE állapot.</li>'+
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
+  '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
- '<details><summary>⚙️ Folyamatfejlesztés és mérőszámok</summary><ul>'+
+ '<details><summary>🧠 Medical Intelligence · v675 forrásbizonyíték</summary><ul>'+
+  '<li>Az idővonal csoportosítása csak megjelenítés: az eredeti tények és bizonyítékok változatlanul, külön-külön megmaradnak.</li>'+
+  '<li>A forrásidézet igazolásához egyeznie kell a profilnak, az eredeti PDF SHA-256-nak, a forrásoldalnak és az oldalszövegből újraszámolt SHA-256-nak.</li>'+
+  '<li>Hibás, kihagyott vagy bizonytalan forrásból nincs automatikusan igazolt tény. A felülvizsgálat státusza minden kártyán külön látható.</li>'+
+  '<li>Ask Léna klinikai következtetéseihez további konfliktuskezelés és szakmai ellenőrzési kapu szükséges; a pontos tárolás nem jelent diagnózist.</li>'+
+  '</ul></details>'+
+  '<details><summary>⚙️ Folyamatfejlesztés és mérőszámok</summary><ul>'+
  '<li>Feldolgozási lefedettség (dokumentum/oldal), forrás nélküli tények száma, OCR-review, sikertelen feladatok és visszaállíthatóság.</li>'+
  '<li>Válaszminőség: ellenőrizhető források, tévedések javítása, megfelelő klinikai bizonytalanság, látható magyarázat.</li>'+
  '<li>Rendszer: stabilitás, sebesség, mobil használhatóság, adatfrissesség és profilszeparáció. Zöld státusz csak sikeres ellenőrzés után.</li>'+
@@ -75,7 +82,7 @@ function mount(){
  '<p class="hhGovFoot">A lekérdezés csak a kiválasztott, hitelesítetten engedélyezett profil összesített metaadatait kéri le. Nincs automatikus adatfeltöltés vagy tartalomnaplózás.</p>'+
  '<div class="hhGovActions"><button type="button" id="hhGovAuditBtn658">↻ Élő adatminőség-ellenőrzés</button></div>'+
  '<div id="hhGovAudit658" class="hhGovAudit" role="status" aria-live="polite">Még nincs ellenőrzés. A privát Health Vault-kapcsolat szükséges.</div></details>'+
- '<p class="hhGovFoot">Forrás: HealthHub Governance v1.1 · 2026.10.18. · A feldolgozottságot csak tényleges, ellenőrzött adat alapján jelezzük.</p>';
+ '<p class="hhGovFoot">Forrás: HealthHub Governance v1.2 · 2026.10.19. · A feldolgozottságot csak tényleges, ellenőrzött adat alapján jelezzük.</p>';
  body.insertBefore(box,body.firstChild);
  var button=box.querySelector('#hhGovAuditBtn658');
  if(button)button.addEventListener('click',audit);
@@ -100,13 +107,14 @@ async function audit(){
    throw Error('Túl sok rekord; nagy volumenű szerveroldali riport szükséges.');
   }
   var result=await Promise.all([
-   paged('hh_mkb_sources','original_name,parse_status,sha256,duplicate_of'),
-   paged('hh_kb_documents','id,status,profile_key'),
-   paged('hh_mkb_facts','id')
+   paged('hh_mkb_sources','original_name,parse_status,sha256,duplicate_of,source_metadata'),
+   paged('hh_kb_documents','id,status,profile_key,text_integrity_status'),
+   paged('hh_mkb_facts','id,review_status'),
+   paged('hh_mkb_evidence','id')
   ]);
   if(p!==profile()||!status())throw Error('Profil- vagy hozzáférésváltozás, az ellenőrzés megszakadt.');
-  var sources=result[0],docs=result[1],facts=result[2];
-  if(!Array.isArray(sources)||!Array.isArray(docs)||!Array.isArray(facts))throw Error('A válasz nem ellenőrizhető.');
+  var sources=result[0],docs=result[1],facts=result[2],evidences=result[3];
+  if(!Array.isArray(sources)||!Array.isArray(docs)||!Array.isArray(facts)||!Array.isArray(evidences))throw Error('A válasz nem ellenőrizhető.');
   var names=new Set(),duplicateNames=0,withoutHash=0,rawDiscovered=0,confirmedDuplicates=0;
   sources.forEach(function(row){
    var n=String(row.original_name||'').trim().toLocaleLowerCase('hu-HU').replace(/\s+/g,' ');
@@ -116,15 +124,22 @@ async function audit(){
    if(row.parse_status==='discovered')rawDiscovered++;
   });
   var completed=docs.filter(function(d){return d.status==='complete'}).length;
+   var qaDocs=docs.filter(function(d){return d.status==='complete'&&d.text_integrity_status==='verified'}).length;
+   var excluded=sources.filter(function(s){return s.source_metadata&&s.source_metadata.ingest_scope==='excluded'}).length;
+   var pendingFacts=facts.filter(function(f){return f.review_status==='pending'}).length;
   box.textContent='Profil: '+(p==='monika'?'Mónika':'Zsolt')+
     '\nRegisztrált forrás: '+sources.length+
+     '\nOpcionálisan kihagyva: '+excluded+' · kötelező körben: '+(sources.length-excluded)+
     '\nForrásfeldolgozásra vár: '+rawDiscovered+
     '\nSHA-256 ellenőrizve: '+(sources.length-withoutHash)+'/'+sources.length+
     '\nSHA-256 hiányzik: '+withoutHash+
     '\nIgazolt tartalmi duplikátum hivatkozások: '+confirmedDuplicates+
     '\nAzonos nevű további fájlok: '+duplicateNames+' (önmagában nem bizonyít azonosságot)'+
     '\nPDF-index: '+docs.length+' · teljesként jelölt: '+completed+
+     ' · szövegellenőrzött: '+qaDocs+
     '\nKinyert, forrásolt orvosi tények: '+facts.length+
+     ' · szakmai ellenőrzésre vár: '+pendingFacts+
+     '\nTárolt forrásbizonyíték: '+evidences.length+' (pontos idézet és SHA-256 QA: Medical Intelligence → Idővonal)'+
     '\nEllenőrizve: '+new Date().toLocaleString('hu-HU');
  }catch(e){
   box.textContent='⚠ Nem sikerült hitelesen ellenőrizni az adatbázist. Nincs automatikus újrapróbálkozás vagy módosítás.';
