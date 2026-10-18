@@ -42,8 +42,8 @@ class El{
  focus(){}
  matches(q){
   if(q==='.hrRow[onclick*="medication"]')return this.className.includes('hrRow')&&String(this.attrs.onclick).includes('medication');
-  if(q.startsWith('.'))return this.className.split(' ').includes(q.slice(1));
   if(q==='.hrRow b')return this.tagName==='b';
+  if(q.startsWith('.'))return this.className.split(' ').includes(q.slice(1));
   return this.tagName===q;
  }
  querySelectorAll(q){let a=[];function walk(n){n.children.forEach(c=>{if(c.matches(q))a.push(c);walk(c)})}walk(this);return a}
