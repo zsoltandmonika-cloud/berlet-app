@@ -64,6 +64,15 @@ Nem tárolunk titkos pszichológiai profilokat, rejtett klinikai következtetés
 3. 4–5 különböző típust lefedő dokumentum tesztje, forráshelyesség, két profil RLS, megőrzött eredetik és kereshetőség.
 4. Csak ezután teljes backfill; végül Ask Léna tény- és oldalhivatkozásos, jogosultságszűrt kérdésválasz.
 
+## Első valódi adatminőségi pilot (2026-10-18)
+
+- Egy Mónika-profilhoz tartozó eredeti Drive PDF byte-szintű ellenőrzése megtörtént: érvényes PDF, fájlméret és beágyazott szöveg ellenőrizve, SHA-256 mentve a `hh_mkb_sources` táblába.
+- Két különálló Google Drive PDF azonos fájlnévvel és mérettel rendelkezett. Mindkét eredeti teljes fájl SHA-256 ellenőrzése megtörtént: bizonyítottan azonos tartalom. A profilhoz kötött `duplicate_of` hivatkozás rögzítve, az eredetik érintetlenek.
+- Mindhárom `parse_status` megmaradt `discovered` értéken. A hash-ellenőrzés nem egyenlő az oldalszintű orvosi tudás feldolgozásával.
+- A HH Admin élő, hitelesített profilaggregációban külön megkülönbözteti a fájlnév-egyezést és a bizonyított tartalmi duplikációt. Nem kerül személyes azonosító, leletérték, diagnózis vagy magán PDF-tartalom a GitHubra.
+
+**A pilot státusza:** valódi forrásbyte és éles adatbázis-metaadat ellenőrzés sikeres, de teljes PDF → oldal → klinikai tény → Ask Léna lánc még nem LIVE VERIFIED, felhasználói elfogadás még nem történt.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
