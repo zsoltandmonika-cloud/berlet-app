@@ -5,7 +5,12 @@
  */
 (function(root){
 'use strict';
-var DB='healthhub-healthradar-v2',KEY='private-reference',PREVIEW='593';
+var DB='healthhub-healthradar-v2',KEY='private-reference',PREVIEW='653';
+var ROZUVA_INFO={
+ purpose:'Koleszterincsökkentő gyógyszer. A rozuvasztatin elsősorban az LDL („rossz”) koleszterin szintjét csökkenti.',
+ benefit:'Csökkentheti az érelmeszesedéshez kapcsolódó szív- és érrendszeri események kockázatát. A konkrét felírás okát csak a kezelőorvos tudja megerősíteni.',
+ caution:'Szokatlan izomfájdalom, izomgyengeség vagy sötét vizelet esetén mielőbb kérjetek orvosi tanácsot. Az adagolást ne változtassátok meg önállóan.'
+};
 function current(){try{return root.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function profileTitle(p){return p==='monika'?'Mónika':'Zsolt'}
 function norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
@@ -69,7 +74,7 @@ async function edit(id){
  var notice=make('p','hhMed593Note','Csak a kiválasztott profil helyi, privát kartonjába mentünk. A kezdési dátum és a napszak nem feltételezett.');
  body.appendChild(notice);
  if(!med){
-  var preset=make('button','hhMed593Preset','Gyorskitöltés: Rozuva-Teva · 10 mg · napi 1 tabletta');
+  var preset=make('button','hhMed593Preset','Rozuva-Teva 10 mg · Mónika · gyorskitöltés');
   preset.type='button';
   body.appendChild(preset);
  }
@@ -77,12 +82,17 @@ async function edit(id){
  var strength=useInput(body,'Hatáserősség',med&&med.strength||'',true);
  var schedule=useInput(body,'Adagolás',med&&(med.schedule||med.dose)||'',true);
  var ingredient=useInput(body,'Hatóanyag (ha ismert)',med&&med.activeIngredient||'',false);
+ var purpose=useInput(body,'Mire való?',med&&med.purpose||'',false);
+ var benefit=useInput(body,'Hogyan segít?',med&&med.benefit||'',false);
+ var caution=useInput(body,'Fontos tudnivalók',med&&med.caution||'',false);
  if(!med){
   preset.addEventListener('click',function(){
    name.value='Rozuva-Teva 10 mg filmtabletta';strength.value='10 mg';
    schedule.value='napi 1 tabletta';ingredient.value='rozuvasztatin';
+   purpose.value=ROZUVA_INFO.purpose;benefit.value=ROZUVA_INFO.benefit;caution.value=ROZUVA_INFO.caution;
    name.focus();
   });
+  if(profile==='monika')preset.click(); // Prefill only, private save remains explicit.
  }
  var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
  cancel.type='button';cancel.addEventListener('click',function(){overlay.hidden=true});
@@ -112,6 +122,7 @@ async function edit(id){
    var at=new Date().toISOString(),entry=Object.assign({},old||{},{
     id:(old&&old.id)||('private-med-'+(root.crypto&&root.crypto.randomUUID?root.crypto.randomUUID():String(Date.now()))),
     name:n,strength:s,schedule:d,dose:d,activeIngredient:ingredient.value.trim(),
+     purpose:purpose.value.trim(),benefit:benefit.value.trim(),caution:caution.value.trim(),
     status:(old&&old.status)||'aktuális',updatedAt:at,
     recordSource:'felhasználói rögzítés'
    });
@@ -152,6 +163,9 @@ function appendCard(parent,m){
  main.appendChild(make('small','', [m.strength||'',m.schedule||m.dose||'','felhasználói rögzítés'].filter(Boolean).join(' · ')));
  row.appendChild(main);
  var tag=make('span','hrTag',m.status||'nem ellenőrzött');row.appendChild(tag);
+  var why=make('button','hhMedPurposeBtn','Mire való?');why.type='button';
+  why.addEventListener('click',function(e){e.stopPropagation();if(typeof root.hhMedicationPurpose==='function')root.hhMedicationPurpose(m.name)});
+  row.appendChild(why);
  row.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('button'))return;edit(m.id)});
  row.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();edit(m.id)}});
  parent.appendChild(row);return row;
@@ -159,11 +173,16 @@ function appendCard(parent,m){
 async function augment(){
  if(root.healthSectionKind!=='medications')return;
  var container=document.getElementById('healthSubContent');if(!container)return;
- var card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(e){return !!e.querySelector('.hrRow[onclick*="medication"]')});
- if(!card)return;
- var button=make('button','hhMed593Add','＋ Gyógyszer hozzáadása');
+ var card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(e){
+  return !!e.querySelector('.hrRow[onclick*="medication"],.hrRow[data-hh-private-med]')||
+   /gyógyszer/i.test((e.querySelector('h2,h3,h4')||{}).textContent||'');
+ });
+ if(!card){card=make('section','hrSectionCard');card.appendChild(make('h3','','💊 Gyógyszerek'));container.appendChild(card)}
+ if(card.querySelector('.hhMed593Add'))return;
+ var button=make('button','hhMed593Add',current()==='monika'
+  ?'＋ Rozuva-Teva 10 mg rögzítése · Mónika':'＋ Gyógyszer hozzáadása');
  button.type='button';button.addEventListener('click',function(){edit()});
- card.insertBefore(button,card.querySelector('.hrRow'));
+ card.insertBefore(button,card.querySelector('.hrRow,.hhRsmToolbar,.hhRsmTrack'));
  try{
   var payload=await read(),profile=current(),a=((((payload||{}).profiles||{})[profile]||{}).medications)||[];
   if(!Array.isArray(a))return;
