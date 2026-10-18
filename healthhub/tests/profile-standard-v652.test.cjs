@@ -21,7 +21,8 @@ assert.ok(!src.includes('localStorage.setItem('),'new global button never writes
 
 function fakeEnv(mode='main'){
  const els={},listeners={},scheduled=[],sounds=[],vibrates=[];
- const classes=()=>({add(){},toggle(){}});
+ const classes=()=>{const active=new Set();return {add(...a){a.forEach(x=>active.add(x))},remove(...a){a.forEach(x=>active.delete(x))},
+ contains(x){return active.has(x)},toggle(x,v){if(v===undefined?!active.has(x):v)active.add(x);else active.delete(x)}}};
  function el(tag,id){
   return {
    tagName:tag,id:id||'',type:'',hidden:false,textContent:'',attributes:{},parentNode:null,classList:classes(),listeners:{},
@@ -35,6 +36,16 @@ function fakeEnv(mode='main'){
  const hero=el('section','heroHome'),page=el('section','home');page.querySelector=q=>q==='#heroHome'?hero:null;
  const secondHero=el('section','heroT'),second=el('section','timeline');second.querySelector=q=>q==='#heroT'?secondHero:null;
  let active=[page];
+ const sleepHero=el('div','sleepHero'),sleepPage=el('section','hhSleepPage');
+ sleepPage.querySelector=q=>q==='.hhSleepDoctorHero'?sleepHero:null;
+ els.hhSleepPage=sleepPage;
+ const activityHero=el('div','activityHero'),activityPage=el('section','hhActivityPage191');
+ activityPage.querySelector=q=>q==='.a191Hero'?activityHero:null;
+ els.hhActivityPage191=activityPage;
+ const healthSubHero=el('div','healthSubHero'),healthSub=el('section','healthSection');
+ healthSub.querySelector=q=>q==='.healthSubHero'?healthSubHero:null;
+ els.healthSection=healthSub;
+ const overlays={sleep:sleepPage,activity:activityPage,medications:healthSub};
  let dock=null;
  if(mode==='digital'){dock=el('button','hhDigitalProfileDock');dock.click=()=>{clicks++;current=current==='m'?'z':'m'};els.hhDigitalProfileDock=dock;}
  if(mode==='nutrition')els.profileBtn=el('button','profileBtn');
@@ -53,14 +64,18 @@ function fakeEnv(mode='main'){
  const window={
   localStorage,AudioContext,navigator:{vibrate:x=>vibrates.push(x)},setTimeout:fn=>scheduled.push(fn),
   requestAnimationFrame:fn=>scheduled.push(fn),addEventListener(k,fn){listeners[k]=fn},
-  hhToggleProfileOneClick(){clicks++;current=current==='m'?'z':'m'}
+  hhToggleProfileOneClick(){clicks++;current=current==='m'?'z':'m'},
+  hhSleepToggleProfile(){clicks++;current=current==='m'?'z':'m'},
+  hh191ToggleProfile(){clicks++;current=current==='m'?'z':'m'}
  };
  const MutationObserver=class{constructor(cb){this.cb=cb}observe(){}};
  vm.runInNewContext(src,{window,document,MutationObserver,console,Map,Date},{timeout:2000});
  function flush(){while(scheduled.length)scheduled.shift()()}
  return {els,document,window,hero,page,second,secondHero,flush,listeners,
   gotoSecond(){active=[second];window.HH_PROFILE_STANDARD_V652.refresh();flush()},
-  current:()=>current,clicks:()=>clicks,sounds,vibrates};
+  openOverlay(key){Object.values(overlays).forEach(x=>x.classList.remove('on'));
+   overlays[key].classList.add('on');window.HH_PROFILE_STANDARD_V652.refresh();flush()},
+  current:()=>current,clicks:()=>clicks,sounds,vibrates,sleepHero,activityHero,healthSubHero};
 }
 {
  const e=fakeEnv(),pill=e.els.hhProfileStandard652;
@@ -88,4 +103,23 @@ function fakeEnv(mode='main'){
  const e=fakeEnv('nutrition');
  assert.equal(e.els.hhProfileStandard652,undefined,'Nutrition retains screenshot pill without duplicate');
 }
-console.log('PASS: HealthHub v652 single profile pill, same touch sound, routes, admin-only HH One, saved-medication evidence.');
+{
+ const e=fakeEnv(),pill=e.els.hhProfileStandard652;
+ e.openOverlay('sleep');
+ assert.equal(pill.parentNode,e.sleepHero,'Sleep fullscreen page gets same pill');
+ pill.click();e.flush();
+ assert.equal(e.clicks(),1,'Sleep canonical profile controller used exactly once');
+ assert.equal(pill.textContent,'Zsolt ⇄');
+ e.openOverlay('activity');
+ assert.equal(pill.parentNode,e.activityHero,'Activity fullscreen page gets same pill');
+ pill.click();e.flush();
+ assert.equal(e.clicks(),2,'Activity canonical renderer used once');
+ e.openOverlay('medications');
+ assert.equal(pill.parentNode,e.healthSubHero,'medication/records subpage uses own Hero');
+ assert.equal(e.document.head.children.length,1,'No duplicate styles or pills');
+}
+assert.ok(src.includes('#healthSection#healthSection .hhHealthSubPortraitHit'),'strong CSS beats old medicine pill');
+assert.ok(src.includes('#timeline#timeline #heroT .profileHit'),'strong CSS beats legacy Timeline');
+assert.ok(src.includes('#hhSleepPage#hhSleepPage .hhSleepProfile'),'Sleep second pill hidden');
+assert.ok(src.includes('#hhActivityPage191#hhActivityPage191 .a191HeroHits .runnerProfile'),'Activity invisible previous hit disabled');
+console.log('PASS: HealthHub v653 single profile pill, same touch sound, routes, admin-only HH One, saved-medication evidence.');
