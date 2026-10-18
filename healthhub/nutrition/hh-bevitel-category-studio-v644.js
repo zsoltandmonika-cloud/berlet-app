@@ -10,7 +10,7 @@ const picker=root.HH_BEVITEL_PICKER_V643||{getCurrent:()=>({kind:'food',category
 const KEY='hh-bevitel-category-studio-v644',SCHEMA='healthhub.nutrition.categories/1';
 const EMPTY=()=>({schemaVersion:SCHEMA,updatedAt:'1970-01-01T00:00:00Z',categories:{}});
 const now=()=>new Date().toISOString();
-const validKey=k=>typeof k==='string'&&/^(food|drink|tile)\|[^|]{1,90}$/.test(k);
+const validKey=k=>typeof k==='string'&&/^(food|drink|tile|bristol)\|[^|]{1,90}$/.test(k);
 const key=(kind,category)=>kind+'|'+category;
 const validRef=r=>r===null||!r||vault.refValid('shared',r);
 const scrub=(input)=>{
@@ -112,6 +112,15 @@ const tileDefs=[
  {category:'ai',name:'AI Bevitel',icon:'📷',id:'hhBevitelAI'},
  {category:'cookbook',name:'Léna Cookbook',icon:'👩‍🍳',id:'hhBevitelCookbook'}
 ];
+const bristolDefs=[
+ {category:'1',name:'1 · Csokigolyók',icon:'🍫'},
+ {category:'2',name:'2 · Szőlőfürt',icon:'🍇'},
+ {category:'3',name:'3 · Müzliszelet',icon:'🍫'},
+ {category:'4',name:'4 · Puha péksütemény',icon:'🥖'},
+ {category:'5',name:'5 · Krémes falatkák',icon:'🍮'},
+ {category:'6',name:'6 · Sűrű zabkása',icon:'🥣'},
+ {category:'7',name:'7 · Kakaóital',icon:'🥛'}
+];
 /* Main title and ✎ Képek are part of the HTML itself since v646.
  * Keep the studio independent of the optional food category picker. */
 for(const t of tileDefs){const img=$(t.id)?.querySelector('.hh-bevitel-photo');if(img)img.dataset.defaultSrc=img.getAttribute('src')}
@@ -166,13 +175,13 @@ async function showOne(){
  status('A módosítás a közös családi képtárba kerül. Az ételadatok és a napló nem változnak.');
 }
 function open(override){
- const state=picker.getCurrent();kind=override==='tile'?'tile':state.kind;
- rows=kind==='tile'?tileDefs.map(t=>({...t})):picker.getBaseCategories();
+ const state=picker.getCurrent();kind=override==='bristol'?'bristol':override==='tile'?'tile':state.kind;
+ rows=kind==='bristol'?bristolDefs.map(t=>({...t})):kind==='tile'?tileDefs.map(t=>({...t})):picker.getBaseCategories();
  const all=decorate(kind,rows);
  rows=rows.sort((a,b)=>all.findIndex(x=>x.category===a.category)-all.findIndex(x=>x.category===b.category));
  const sel=$('hhCategorySelect');sel.replaceChildren();
  for(const r of rows){const o=new Option(r.name,r.category);sel.add(o)}
- const chosen=kind!=='tile'&&state.category&&rows.some(r=>r.category===state.category)?state.category:rows[0]?.category;
+ const chosen=kind!=='tile'&&kind!=='bristol'&&state.category&&rows.some(r=>r.category===state.category)?state.category:rows[0]?.category;
  if(!chosen){status('Nincs szerkeszthető kategória.');return}
  sel.value=chosen;
  dialog.showModal();showOne();
@@ -248,7 +257,7 @@ async function save(e){
   if(removed)imageRef=null;
   if(draft){status('☁️ Kép mentése a központi Dropbox-képtárba…');imageRef=await vault.save('shared',draft)}
   const doc=read();
-  doc.categories[key(type,cat)]={displayName:type==='tile'?'':name,order:type==='tile'?1000:num,archived:type==='tile'?false:$('hhCategoryArchived').checked,imageRef,updatedAt:now()};
+  doc.categories[key(type,cat)]={displayName:(type==='tile'||type==='bristol')?'':name,order:(type==='tile'||type==='bristol')?1000:num,archived:(type==='tile'||type==='bristol')?false:$('hhCategoryArchived').checked,imageRef,updatedAt:now()};
   doc.updatedAt=now();write(doc);
   status('☁️ Kategória mentése és felhőszinkron…');
   await synchronize(true);
@@ -277,5 +286,5 @@ root.addEventListener('focus',()=>{if(Date.now()-lastRemoteCheck>35000)refresh()
 root.addEventListener('online',refresh);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>35000)refresh()});
 setInterval(()=>{if(!document.hidden&&Date.now()-lastRemoteCheck>90000)refresh()},120000);
-root.HH_BEVITEL_CATEGORY_V644={decorate,attachPhoto,refresh,openEditor:open,version:'648'};
+root.HH_BEVITEL_CATEGORY_V644={decorate,attachPhoto,refresh,openEditor:open,version:'650'};
 })(window);
