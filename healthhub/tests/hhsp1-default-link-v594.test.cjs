@@ -13,7 +13,7 @@ const scroll=fs.readFileSync(path.join(root,'health-scroll-select-v592.js'),'utf
 const buddy=fs.readFileSync(path.join(root,'hh-buddy-scroll-companion-v593.js'),'utf8');
 
 assert.ok(html.includes('content="v651-sleep-context-source"'),'HTML build identifies the current version');
-assert.ok(html.includes("var v='595-scroll-tick-clean-buddy'"),'bootstrap rewrites legacy hhv URL to current build');
+assert.ok(html.includes("var v='651-sleep-context-source'"),'bootstrap rewrites legacy hhv URL to current build');
 assert.ok(html.includes("u.searchParams.set('hhv',v)"),'existing shortcut URL is normalized without changing app path');
 assert.ok(html.includes("history.replaceState(history.state,'',u.toString())"),'canonical build URL is updated without new navigation');
 assert.ok(html.includes('health-scroll-select-v592.js?v=594-default-buddy-live'),'scroll selector fetches new source instead of stale cached v593');
