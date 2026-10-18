@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v663-mkb-batch-character-audit/);
+  assert.match(index, /v664-mkb-connection-recovery/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -61,4 +61,17 @@ test('UI does not incorrectly claim full integrity with incomplete document cove
   assert.match(admin,/delta===0/);
   assert.match(admin,/authorizedProfiles/);
   assert.match(admin,/profile_key=eq\./);
+});
+
+test('Connection recovery calls the existing Health Vault login without automatic import',()=>{
+  assert.match(admin,/function vaultLogin\(\)/);
+  assert.match(admin,/service\.openLogin\(\)/);
+  assert.match(admin,/if\(!beforeAction\(who\)\)return/);
+  assert.match(admin,/requireDrive\(who\)/);
+  assert.match(admin,/hhGetGoogleDriveToken292\(true\)|get\(true\)/);
+  assert.match(admin,/healthhub:central-auth-changed/);
+  const assertActive=admin.split('function assertActive(who){')[1].split('function vaultLogin(){')[0];
+  assert.doesNotMatch(assertActive,/GoogleDriveToken/);
+  assert.match(admin,/id="hhMkbVault662"/);
+  assert.match(admin,/id="hhMkbDrive662"/);
 });
