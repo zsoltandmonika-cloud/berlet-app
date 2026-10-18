@@ -5,6 +5,7 @@ on:
       - 'healthhub/health-scroll-select-v592.js'
       - 'healthhub/health-scroll-select-v592.css'
       - 'healthhub/tests/health-scroll-select-v592.test.cjs'
+      - 'healthhub/tests/health-scroll-select-v592-dom.test.cjs'
       - 'healthhub/index.html'
       - '.github/workflows/health-scroll-select-v592-preview-qa.yml'
   push:
@@ -29,5 +30,8 @@ jobs:
         run: |
           node --check healthhub/health-scroll-select-v592.js
           node --check healthhub/tests/health-scroll-select-v592.test.cjs
+          node --check healthhub/tests/health-scroll-select-v592-dom.test.cjs
       - name: Assert OMSZ specificity, medicinal status and fallback privacy
-        run: node healthhub/tests/health-scroll-select-v592.test.cjs
+        run: |
+          node healthhub/tests/health-scroll-select-v592.test.cjs
+          node healthhub/tests/health-scroll-select-v592-dom.test.cjs
