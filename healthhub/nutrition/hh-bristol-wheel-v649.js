@@ -60,7 +60,7 @@ function boot(){
   paint();
  }
  function paint(){
-  cards.forEach((b,i)=>{b.setAttribute('aria-pressed',String(String(i+1)===selected));b.dataset.centered=String(i+1===centered);b.querySelector('.hh-bristol-check').textContent=String(i+1)===selected?'✓ Rögzítve':'Választás'});
+  cards.forEach((b,i)=>{b.setAttribute('aria-pressed',String(String(i+1)===selected));b.dataset.centered=String(i+1===centered);b.querySelector('.hh-bristol-check').textContent=String(i+1)===selected?'✓ Kiválasztva':'Választás'});
   const entry=types.find(t=>String(t.n)===selected);
   now.textContent=entry?'Bristol '+entry.n+' · '+entry.tone:'Még nincs kiválasztva';
   now.dataset.picked=String(!!entry);
