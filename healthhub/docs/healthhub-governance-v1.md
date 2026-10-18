@@ -102,6 +102,17 @@ Valós Galaxy S24 Ultra / Chrome felhasználói próba során a `Health Vault hi
 
 **Állapot:** GitHubba mentve, izolált hitelesítési/UI-szimulációban ellenőrizve. A tényleges mobilos bejelentkezés és a teljes PDF-feldolgozás még valódi felhasználói elfogadásra vár. A bejelentkezés után a felhasználó külön indítja a feldolgozást.
 
+## HH Admin · v665 profiljogosultság-helyreállítás
+
+Valós S24 Ultra teszt (2026-10-18): a Vault-ablak aktív sessiont mutatott, de „Hozzáférhető profilok: jogosultság-ellenőrzés alatt” állapotban maradt, mert az eredeti jogosultság-lekérés csak a Daily Health `mount(host)` hívásakor futott.
+
+- A meglévő `openLogin()` most aktív session + hiányzó profiladat esetén **automatikusan, csak olvasással** meghívja a `fetchCloud()` profiljogosultság-ellenőrzést.
+- Az overlay megkülönbözteti a folyamatban lévő lekérést és a sikertelen ellenőrzést, az eredeti fiókot használja.
+- „**Jogosultságok frissítése**” gomb újrapróbálható, és egyetlen futó hozzáférés-ellenőrzésre korlátozódik.
+- Sikertelen lekérésnél a kliens a profillistát nullára állítja (fail closed), nem engedi elindítani a privát PDF-beolvasást; nincs jogosultság-felülírás, automatikus feltöltés vagy jelszótárolás.
+- Sikernél `healthhub:central-auth-changed` esemény frissíti a kapcsolati állapotot a PDF-panelen.
+- Reprodukált 503 válasz → magyar hibaüzenet → kézi retry → két profil hiteles megjelenítése: **szimulációban sikeres**. Mobilos valós elfogadás még hátra van.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
