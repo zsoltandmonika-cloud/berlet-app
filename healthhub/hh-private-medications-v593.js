@@ -174,7 +174,8 @@ async function augment(){
  if(root.healthSectionKind!=='medications')return;
  var container=document.getElementById('healthSubContent');if(!container)return;
  var card=Array.from(container.querySelectorAll('.hrSectionCard')).find(function(e){
-  return !!e.querySelector('.hrRow[onclick*="medication"],.hrRow[data-hh-private-med]')||
+  return !!e.querySelector('.hrRow[onclick*="medication"]')||
+   !!e.querySelector('.hrRow[data-hh-private-med]')||
    /gyógyszer/i.test((e.querySelector('h2,h3,h4')||{}).textContent||'');
  });
  if(!card){card=make('section','hrSectionCard');card.appendChild(make('h3','','💊 Gyógyszerek'));container.appendChild(card)}
