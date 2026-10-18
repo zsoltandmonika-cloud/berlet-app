@@ -184,6 +184,21 @@ Regression checks used **both real source text variants** (separate-line and mer
 
 User-visible preview does not write records. Persisting new facts requires an explicit confirmation; final independent fact-to-evidence QA and mobile trial remain separately required before declaring the clinical intelligence layer complete.
 
+## MKB v674 · Source-grounded medical timeline (2026-10-19)
+
+After real device confirmation of Mónika's pending cardiology event import, independent live Supabase verification found exactly **Mónika 4 facts, 6 evidence records; Zsolt 3 facts, 6 evidence records; 12/12 evidence excerpts present on verified original document pages and 12/12 fact-to-source references consistent**. All stored clinical facts remain `pending`; none are represented as clinician-approved.
+
+Live build `v674-source-grounded-timeline` adds the pure view-layer grouping `healthhub/mkb-timeline-v674.js` and a **read-only "🕒 Forrásolt orvosi idővonal" button** under the existing Admin Medical Intelligence panel. Queries use the authenticated Health Vault service and profile-scoped Supabase RLS. Grouped summaries present original fact labels and source evidence, and never update, delete or recreate any fact, page or source.
+
+Rules:
+- Same-patient, same-date, same-normalized clinical event label and same `fact_type` group for display, regardless of date notation in the title, with **every individual evidence reference retained**.
+- A urine-culture group may combine different identified organisms only if the **original source ID and collection date are also identical**; same-day but independent specimens are not silently merged.
+- Distinct EF numeric values or units remain separate. Cross-profile events never merge. Rejected clinical facts do not appear as active events. Refuting or mismatched-source evidence is never counted as supporting evidence.
+- All groups carry pending/verified statuses explicitly, state that display grouping is not proof of clinical identity, and show the original file name, page and exact source quote. Identical quotes may be visually collapsed only after retaining the original evidence count.
+- A read-only timeline is *not* yet the production Ask Léna Medical RAG reasoning pipeline or clinical diagnosis. Additional time series, conflict resolution, medications and laboratory numeric extraction will require separate safety gates.
+
+Regression: `healthhub/tests/mkb-v674-timeline.test.cjs` covers same-day grouped clinical reports, same-source culture organisms, cross-profile separation, distinct specimen sources and EF values, and evidence source consistency. **Real live database data checked** by running the pure grouping function over the 7 persisted facts and 12 evidence links: Mónika's VF/resuscitation and coronarography each group 2 records/3 supporting evidence; Zsolt's urine culture groups 3 records/6 supporting evidence. No record or evidence lost in grouped output. Mobile Admin visual verification remains to be completed by a user device refresh.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
