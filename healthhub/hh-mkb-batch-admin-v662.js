@@ -141,7 +141,7 @@ async function audit(){
   show('A privát archívum egyeztetése…');
   var x=await engine().audit(who);
   if(p()!==who)throw Error('Profilváltozás.');
-  show('Profil: '+pname()+'\nDrive PDF: '+x.drive+'\nTeljesnek jelölt: '+x.complete+
+  show('Profil: '+pname()+'\nDrive PDF: '+x.drive+'\nOpcionálisan kihagyva: '+x.excluded+'\nKötelező PDF: '+x.eligible+'\nTeljesnek jelölt: '+x.complete+
    '\nÚj: '+x.new+'\nRészleges / ellenőrizendő: '+x.partial+
    '\nDuplikátum-hivatkozások: '+x.duplicates);
  }catch(e){show('⚠ '+String(e.message||e).slice(0,200))}
@@ -156,7 +156,7 @@ async function start(){
   show('A feldolgozandó PDF-ek listájának ellenőrzése…');
   var x=await engine().run(who,{maxDocs:1000});
   if(p()!==who)throw Error('Profilváltozás.');
-  show('Feldolgozási kör lezárult · '+pname()+'\nForrások: '+x.drive+
+  show('Feldolgozási kör lezárult · '+pname()+'\nForrások: '+x.drive+'\nKihagyva: '+x.excluded+'\nKötelező: '+x.eligible+
    '\nTeljesnek jelölt: '+x.complete+'\nÚj: '+x.new+
    '\nRészleges / hibás: '+x.partial+
    '\nA tényleges szöveg-integ­ritást a Character Count QA mutatja. A másik profilt külön, profilváltás után lehet ellenőrizni.');
@@ -184,13 +184,18 @@ async function count(){
    }
    return rows;
   }
-  var sections=[],grand={files:0,indexed:0,canonical:0,verified:0,expected:0,stored:0,pages:0,pagesVerified:0,unverified:0};
+  var sections=[],grand={files:0,originals:0,excluded:0,indexed:0,canonical:0,verified:0,expected:0,stored:0,pages:0,pagesVerified:0,unverified:0};
   for(const key of accessible){
    var pair=await Promise.all([
-     all('hh_mkb_sources','id',key,'&source_kind=eq.pdf&origin=eq.google_drive'),
-     all('hh_kb_documents','id,duplicate_of,status,total_pages,pages_verified,extracted_characters,stored_characters,text_integrity_status',key)
+     all('hh_mkb_sources','id,source_metadata',key,'&source_kind=eq.pdf&origin=eq.google_drive'),
+     all('hh_kb_documents','id,mkb_source_id,duplicate_of,status,total_pages,pages_verified,extracted_characters,stored_characters,text_integrity_status',key)
    ]);
-   var sourceCount=pair[0].length,docs=pair[1],canonical=docs.filter(x=>!x.duplicate_of);
+   var sources=pair[0],skipped=new Set(sources.filter(x=>x.source_metadata&&
+     x.source_metadata.ingest_scope==='excluded').map(x=>x.id));
+    var covered=new Set(sources.map(x=>x.id));
+    var sourceCount=sources.length-skipped.size;
+    var docs=pair[1].filter(x=>covered.has(x.mkb_source_id)&&!skipped.has(x.mkb_source_id));
+    var canonical=docs.filter(x=>!x.duplicate_of);
    var verified=canonical.filter(x=>x.status==='complete'&&
       x.text_integrity_status==='verified'&&x.total_pages>0&&x.pages_verified===x.total_pages).length;
    var expected=canonical.reduce((n,x)=>n+Number(x.extracted_characters||0),0);
@@ -201,14 +206,14 @@ async function count(){
    var good=sourceCount>0&&sourceCount===docs.length&&verified===canonical.length&&
        unverified===0&&pageOK===pages&&stored===expected;
    sections.push((key==='monika'?'MÓNIKA':'ZSOLT')+
-    ' · PDF: '+docs.length+'/'+sourceCount+
+    ' · kötelező PDF: '+docs.length+'/'+sourceCount+' · kihagyva: '+skipped.size+
     ' · canonical: '+canonical.length+' · QA: '+verified+
     '\nEredeti: '+expected.toLocaleString('hu-HU')+
     ' · Supabase: '+stored.toLocaleString('hu-HU')+
     ' · Δ '+(stored-expected).toLocaleString('hu-HU')+
     ' · oldalak: '+pageOK+'/'+pages+
     '\n'+(good?'✓ Teljes szöveg-ellenőrzés':'⚠ Feldolgozás vagy review hiányos'));
-   grand.files+=sourceCount;grand.indexed+=docs.length;grand.canonical+=canonical.length;
+   grand.files+=sourceCount;grand.originals+=sources.length;grand.excluded+=skipped.size;grand.indexed+=docs.length;grand.canonical+=canonical.length;
    grand.verified+=verified;grand.expected+=expected;grand.stored+=stored;
    grand.pages+=pages;grand.pagesVerified+=pageOK;grand.unverified+=unverified;
   }
@@ -219,7 +224,7 @@ async function count(){
     grand.verified===grand.canonical&&grand.unverified===0&&
     grand.pagesVerified===grand.pages&&delta===0;
   show('🔢 CHARACTER COUNT · Teljes HealthHub'+
-   '\nForrás PDF: '+grand.files+' · indexelt: '+grand.indexed+
+   '\nÖsszes eredeti PDF: '+grand.originals+' · opcionálisan kihagyva: '+grand.excluded+'\nKötelező PDF: '+grand.files+' · indexelt: '+grand.indexed+
    '\nEllenőrzött egyedi dokumentum: '+grand.verified+'/'+grand.canonical+
    '\nEllenőrzött oldalak: '+grand.pagesVerified+'/'+grand.pages+
    '\nEREDETI Unicode karakter: '+grand.expected.toLocaleString('hu-HU')+
