@@ -138,6 +138,14 @@ The user intentionally excluded exactly 11 non-diagnostic Samsung Watch ECG PDFs
 - No additional clinical validation is inferred from character integrity alone. Images, OCR and medically meaningful fact extraction require distinct quality gates.
 - Build `v667-mkb-descope-11-watch-ecg` published to GitHub, runtime syntax/regression simulation checked. Actual S24 Ultra refresh and Zsolt profile execution still require real-world user test.
 
+## MKB v669 · Verified empty source pages (2026-10-18)
+
+After Zsolt's first browser import completed 42/43, the remaining PDF was an April 2026 laboratory document with three source pages. Two related archived laboratory PDFs were independently downloaded and inspected, without moving patient data into source code. The blocked three-page PDF has genuine embedded text on pages 1 and 3; page 2 has no text, raster images, drawings, annotations, or widget objects. Its PDF content stream consists only of graphics-state save/restore operators. The older pipeline incorrectly flagged page 2 as illegible / needing OCR and therefore marked the source partial.
+
+v669 permits zero-character pages only if PDF.js confirms an operator list containing **exclusively** graphics-state save/restore operations and the page has zero display annotations. Failure of any condition retains previous strict OCR/review behavior. The original PDF byte sequence and SHA-256 remain unchanged; a blank page is separately recorded in document notes as an authenticated structural fact, and a zero-character page is still stored and covered by the page-count integrity audit. No information-bearing page is silently skipped.
+
+Browser import remains profile scoped and idempotent: completed documents are skipped by matching metadata, and the partial document is retried on the user's explicit action. Browser execution and final 43/43 integrity results require re-verification on the actual device. Do not interpret successful text-level QA as clinical content review.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
