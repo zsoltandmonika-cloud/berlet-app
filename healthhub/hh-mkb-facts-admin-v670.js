@@ -90,15 +90,17 @@ async function enumerate(p){
  if(!crypto||!crypto.subtle)throw Error('A SHA-256 integritásellenőrzéshez HTTPS szükséges.');
  var base='&profile_key=eq.'+encodeURIComponent(p);
  var [sources,docs]=await Promise.all([
-  all(p,'hh_mkb_sources','id,source_metadata,origin,source_kind',
+  all(p,'hh_mkb_sources','id,source_metadata,origin,source_kind,sha256,parse_status',
    base+'&origin=eq.google_drive&source_kind=eq.pdf','id.asc'),
   all(p,'hh_kb_documents',
-   'id,mkb_source_id,original_name,status,text_integrity_status,total_pages,pages_verified,duplicate_of,source_class',
+   'id,mkb_source_id,original_name,status,text_integrity_status,total_pages,pages_verified,duplicate_of,source_class,sha256',
    base,'id.asc')
  ]);
- var available=new Set(sources.filter(s=>s&&uuidOK(s.id)&&
-   !(s.source_metadata&&s.source_metadata.ingest_scope==='excluded')).map(s=>s.id));
+ var available=new Map(sources.filter(s=>s&&uuidOK(s.id)&&
+   s.parse_status==='complete'&&/^[a-f0-9]{64}$/i.test(s.sha256||'')&&
+   !(s.source_metadata&&s.source_metadata.ingest_scope==='excluded')).map(s=>[s.id,s]));
  var eligible=docs.filter(d=>uuidOK(d.id)&&available.has(d.mkb_source_id)&&
+   d.sha256===available.get(d.mkb_source_id).sha256&&
    d.status==='complete'&&d.text_integrity_status==='verified'&&
    !d.duplicate_of&&d.source_class!=='device'&&d.source_class!=='secondary_summary'&&
    Number(d.total_pages)>0&&Number(d.pages_verified)===Number(d.total_pages));
@@ -134,7 +136,7 @@ async function enumerate(p){
   if(!uniq.has(key))uniq.set(key,c);
  }
  return {profile:p,candidates:[...uniq.values()],documents:eligible.length,pages:examined,
-  sourceIds:[...available],time:Date.now()};
+  sourceIds:[...available.keys()],time:Date.now()};
 }
 function display(result){
  var host=el('hhMkbFactsRows670');if(!host)return;
@@ -170,20 +172,26 @@ async function scan(){
  }catch(_){preview=null;msg('⚠ A biztonságos előnézet megszakadt. Ellenőrizd a Health Vault-engedélyt és próbáld újra.')}
  finally{busy=false;buttons()}
 }
+function factKey(source,label,day){
+ var compact=String(label||'').replace(/\s*\(20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\.?\)\s*$/,'')
+  .trim().toLocaleLowerCase('hu-HU');
+ return source+'|'+compact+'|'+day;
+}
 async function existing(p){
  var rows=await all(p,'hh_mkb_facts','id,source_id,label,observed_date,review_status',
   '&profile_key=eq.'+encodeURIComponent(p),'entered_at.desc');
- return new Map(rows.map(r=>[r.source_id+'|'+r.label+'|'+r.observed_date,r.id]));
+ return new Map(rows.map(r=>[factKey(r.source_id,r.label,r.observed_date),r.id]));
 }
 async function ensureSourceValid(p,ids){
  // The original source/document trust gate must still hold after preview.
  var docs=await all(p,'hh_kb_documents',
- 'id,mkb_source_id,status,text_integrity_status,total_pages,pages_verified,duplicate_of,source_class',
+ 'id,mkb_source_id,status,text_integrity_status,total_pages,pages_verified,duplicate_of,source_class,sha256',
  '&profile_key=eq.'+encodeURIComponent(p),'id.asc');
  var by=new Map(docs.map(d=>[d.id,d]));
  for(const item of preview.candidates){
   var d=by.get(item.document_id);
-  if(!d||d.mkb_source_id!==item.source_id||!ids.has(item.source_id)||
+  if(!d||d.mkb_source_id!==item.source_id||
+     d.sha256!==ids.get(item.source_id)||
      d.status!=='complete'||d.text_integrity_status!=='verified'||
      d.duplicate_of||d.source_class==='device'||d.source_class==='secondary_summary'||
      Number(d.total_pages)!==Number(d.pages_verified))
@@ -199,14 +207,16 @@ async function save(){
  busy=true;buttons();var saved=0,already=0,linked=0,errors=0;
  try{
   guard(p);
-  var sRows=await all(p,'hh_mkb_sources','id,source_metadata',
+  var sRows=await all(p,'hh_mkb_sources','id,source_metadata,parse_status,sha256',
    '&profile_key=eq.'+encodeURIComponent(p)+'&origin=eq.google_drive&source_kind=eq.pdf','id.asc');
-  var permittedIds=new Set(sRows.filter(s=>!(s.source_metadata&&s.source_metadata.ingest_scope==='excluded')).map(s=>s.id));
+  var permittedIds=new Map(sRows.filter(s=>s.parse_status==='complete'&&
+   /^[a-f0-9]{64}$/i.test(s.sha256||'')&&
+   !(s.source_metadata&&s.source_metadata.ingest_scope==='excluded')).map(s=>[s.id,s.sha256]));
   await ensureSourceValid(p,permittedIds);
   var prior=await existing(p);
   for(const c of preview.candidates){
    guard(p);
-   var key=c.source_id+'|'+c.label+'|'+c.observed_date;
+   var key=factKey(c.source_id,c.label,c.observed_date);
    var factId=prior.get(key)||await uuid('hh-mkb-fact-v670|'+p+'|'+key);
    try{
     if(!prior.has(key)){
