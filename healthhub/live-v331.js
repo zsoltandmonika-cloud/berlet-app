@@ -403,8 +403,17 @@ async function run(opts){
   if(!report||report.profile!==p)throw Error('Nem készíthető hiteles profiladat-összesítés.');
   print('Időpontok, mérések és összefüggések ellenőrzése…');
   var ctx=window.hhGetLenaHealthContext289&&window.hhGetLenaHealthContext289(p);
+  var verifiedSleep=window.HH_SLEEP_EVIDENCE_V651;
+  if(verifiedSleep&&typeof verifiedSleep.getContext==='function')ctx=verifiedSleep.getContext(p,ctx);
   if(ctx&&ctx.profile!==p)throw Error('Profilazonosítási eltérés, feldolgozás leállítva.');
-  var extra=addExtra(ctx,question),data=simplify(report,extra);
+  var extra=addExtra(ctx,question);
+  if(ctx&&ctx.sleep&&ctx.sleep.evidence){
+   var ev=ctx.sleep.evidence;
+   extra.unshift({domain:'sleep',label:'Sleep I-03 · ellenőrzött forrás',
+    value:safe(ev.source+' · '+ev.status+' · '+(ev.sessions==null?'nincs ellenőrizhető adat':ev.sessions+' alvásszakasz')+(ev.warning?' · '+ev.warning:''),240),
+    at:safe(ev.exportedAt||'',35)});
+  }
+  var data=simplify(report,extra);
   // Intelligence Foundation: require source/provenance validation locally.
   // No extra network or local health-data writes are performed.
   var intelligenceGate=window.HH_INTELLIGENCE_GATE_V388;
