@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v664-mkb-connection-recovery/);
+  assert.match(index, /v665-vault-profile-grant-refresh/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -74,4 +74,15 @@ test('Connection recovery calls the existing Health Vault login without automati
   assert.doesNotMatch(assertActive,/GoogleDriveToken/);
   assert.match(admin,/id="hhMkbVault662"/);
   assert.match(admin,/id="hhMkbDrive662"/);
+});
+
+test('Admin Vault auth with active session refreshes RLS-authorized profiles and supports manual retry', () => {
+  const vault = fs.readFileSync(path.join(root, 'central-vault/daily-health-sync.js'), 'utf8');
+  assert.doesNotThrow(() => new Function(vault));
+  assert.match(vault, /function refreshProfileAccess\(\)/);
+  assert.match(vault, /if\(session&&!profiles\)refreshProfileAccess\(\)/);
+  assert.match(vault, /data-auth-v332="refresh"/);
+  assert.match(vault, /profilejogosultságok nem tölthetők be/);
+  assert.match(vault, /healthhub:central-auth-changed/);
+  assert.doesNotMatch(vault.split('function refreshProfileAccess(){')[1].split('function renderLoginOverlay(){')[0], /sSave\(|upload\(|download\(/);
 });
