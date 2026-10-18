@@ -342,7 +342,7 @@ function renderBody(){
  const view=$('bodyLog');view.replaceChildren();
  if(!rows.length){view.textContent='Még nincs esemény a kiválasztott napon.';return;}
  for(const row of rows){const p=document.createElement('div');p.style.padding='6px 0';
-  p.textContent=row.time+' · '+(row.kind==='urine'?'Vizelet':'Széklet')+(row.bristol?' · Bristol '+row.bristol:'')+(row.note?' · '+row.note:'')+' ';
+  p.textContent=row.time+' · '+(row.kind==='urine'?'Vizelet':'Széklet')+(row.bristol?' · Bristol '+row.bristol:'')+(row.kind==='urine'&&/^[1-8]$/.test(String(row.urineColor||''))?' · Szín '+row.urineColor+'/8':'')+(row.note?' · '+row.note:'')+' ';
   const remove=document.createElement('button');remove.className='mini';remove.type='button';remove.textContent='×';remove.title='Törlés';
   remove.addEventListener('click',()=>update(d=>{const b=d.body.find(x=>x.id===row.id);if(b){b.deleted=true;b.updatedAt=stamp();}}));p.append(remove);view.append(p);
  }
@@ -687,12 +687,14 @@ function saveUnit(e){
 function openBody(kind){
  bodyKind=kind;$('bodyTitle').textContent=kind==='urine'?'Vizelet · Napi ritmus':'Széklet · Napi ritmus';
  $('bodyTime').value=localTime();$('bristol').value='';$('bodyNote').value='';$('bodyError').textContent='';
- $('bristolWrap').hidden=kind==='urine';$('bodyDialog').showModal();
+ $('bristolWrap').hidden=kind==='urine';if($('urineColorWrap')){$('urineColorWrap').hidden=kind!=='urine';$('urineColor').value='';}$('bodyDialog').showModal();
 }
 function saveBody(e){
  e.preventDefault();const time=$('bodyTime').value;
  if(!/^\d\d:\d\d$/.test(time)){$('bodyError').textContent='Érvénytelen időpont';return;}
- const rec={id:uid(),kind:bodyKind,date:currentDay(),time,bristol:bodyKind==='stool'?$('bristol').value:'',note:$('bodyNote').value.trim(),createdAt:stamp(),updatedAt:stamp()};
+ const urineColor=bodyKind==='urine'&&$('urineColor')?$('urineColor').value:'';
+ if(urineColor&&!/^[1-8]$/.test(urineColor)){$('bodyError').textContent='Válassz érvényes színfokozatot (1–8).';return;}
+ const rec={id:uid(),kind:bodyKind,date:currentDay(),time,bristol:bodyKind==='stool'?$('bristol').value:'',urineColor:urineColor||'',note:$('bodyNote').value.trim(),createdAt:stamp(),updatedAt:stamp()};
  update(d=>d.body.push(rec));$('bodyDialog').close();success();
 }
 
