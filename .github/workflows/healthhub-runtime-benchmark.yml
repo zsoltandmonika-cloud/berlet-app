@@ -1,0 +1,66 @@
+name: HealthHub Runtime Benchmark
+
+on:
+  pull_request:
+    paths:
+      - "healthhub/**"
+      - ".github/workflows/healthhub-runtime-benchmark.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [livewarm]
+    steps:
+      - name: Checkout benchmark branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+
+      - name: Start local HealthHub server
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 > /tmp/healthhub-http.log 2>&1 &
+          echo $! > /tmp/healthhub-http.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/healthhub/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/healthhub-http.log
+          exit 1
+
+      - name: Run Chromium benchmark
+        env:
+          HEALTHHUB_URL: https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/
+          BENCH_MODE: ${{ matrix.mode }}
+        run: node healthhub/benchmarks/runtime-benchmark.mjs
+
+      - name: Publish benchmark summary
+        if: always()
+        run: |
+          if [ -f benchmark-results/healthhub-runtime-benchmark.md ]; then
+            cat benchmark-results/healthhub-runtime-benchmark.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload benchmark artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: healthhub-runtime-benchmark-${{ matrix.mode }}
+          path: benchmark-results/
+          if-no-files-found: warn
