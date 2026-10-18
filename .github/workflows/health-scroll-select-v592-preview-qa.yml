@@ -1,0 +1,37 @@
+name: HealthHub Records and Medicines Scroll Select Preview QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/health-scroll-select-v592.js'
+      - 'healthhub/health-scroll-select-v592.css'
+      - 'healthhub/tests/health-scroll-select-v592.test.cjs'
+      - 'healthhub/tests/health-scroll-select-v592-dom.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/health-scroll-select-v592-preview-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/health-scroll-select-v592.js'
+      - 'healthhub/health-scroll-select-v592.css'
+      - 'healthhub/tests/health-scroll-select-v592.test.cjs'
+      - 'healthhub/index.html'
+permissions:
+  contents: read
+jobs:
+  scroll-select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse opt-in module and synthetic UI tests
+        run: |
+          node --check healthhub/health-scroll-select-v592.js
+          node --check healthhub/tests/health-scroll-select-v592.test.cjs
+          node --check healthhub/tests/health-scroll-select-v592-dom.test.cjs
+      - name: Assert OMSZ specificity, medicinal status and fallback privacy
+        run: |
+          node healthhub/tests/health-scroll-select-v592.test.cjs
+          node healthhub/tests/health-scroll-select-v592-dom.test.cjs
