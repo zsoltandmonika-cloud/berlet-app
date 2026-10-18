@@ -14,7 +14,7 @@
    root.setAttribute('data-hh-activity-profile',isM?'m':'z');
  }
  var link=document.createElement('link');
- link.rel='stylesheet';link.href='./activity-premium-glass-v533.css?v=533.4';
+ link.rel='stylesheet';link.href='./activity-premium-glass-v533.css?v=533.5-hhsp1-activity-loading';
  link.addEventListener('load',function(){
   updateProfile();
   root.setAttribute('data-hh-activity-glass','on');

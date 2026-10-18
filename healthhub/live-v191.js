@@ -244,7 +244,7 @@ async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
   syncProfileTheme(requestedProfile);
- page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load">Activity adatok betöltése…</div></div>'+nav();
+ page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése, egy pillanat...</div></div>'+nav();
  var raw=await load(requestedProfile);
  if(renderId!==activityRenderSeq)return;
  var profileHeight=null,distEngine=window.HH_DISTANCE_ENGINE_V369;

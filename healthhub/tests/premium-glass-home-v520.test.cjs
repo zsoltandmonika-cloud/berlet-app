@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=528-default-home/);
+assert.match(html,/premium-glass-home-v520\.js\?v=594-nutrition-golden-live-beta/);
 assert.ok(source.includes("params.get('hhpremium')==='0'"),'approved Home is default; classic is opt-out');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -62,16 +62,20 @@ class Fake {
  addEventListener(k,cb){this.listeners[k]=cb}
  click(){this.clicked=(this.clicked||0)+1;if(this.listeners.click)this.listeners.click()}
  querySelector(k){return k==='b'?this.titleNode:null}
+ closest(k){return this.isHomePortrait&&k==='#home #heroHome'?this:null}
 }
 function load(query){
  let selected='z';const pageCalls=[],opened=[];
  const host=new Fake('main'),old=new Fake('div');
  old.parentNode=host;host.children=[old];
  const profile=new Fake('button'),timelineProfile=new Fake('button'),healthProfile=new Fake('button'),hero=new Fake('div');
+ profile.isHomePortrait=true;
  const styles={};
  hero.style={
   getPropertyValue(k){return styles[k]||''},
+  getPropertyPriority(k){return styles[k]?'important':''},
   setProperty(k,v,priority){assert.equal(priority,'important');styles[k]=v},
+  removeProperty(k){delete styles[k]},
   _values:styles
  };
  hero.style.setProperty('background-image','url("./assets/hero-home-z-approved-v215.webp?v=215")','important');
@@ -91,6 +95,7 @@ function load(query){
    if(q==='#home .homeModules')return old;
    if(q==='#home #heroHome .profileHit')return profile;
    if(q==='#home #heroHome')return hero;
+   if(q==='#home #heroHome .profileHit')return profile;
    return null;
   },
   querySelectorAll(q){
@@ -126,7 +131,8 @@ const grid=on.host.children.find(n=>n.id==='hhPremiumGrid520');
 // defeated the v523 stylesheet override. Assert the real canonical switch event
 // changes both the theme and the inline image without leaking profiles.
 assert.equal(typeof on.window.listeners['healthhub:profile-changed'],'function');
-assert.equal(on.hero.style.getPropertyValue('height'),'228px');
+assert.equal(on.hero.style.getPropertyValue('height'),'','Premium controller does not force legacy 228px height');
+assert.equal(on.hero.style.getPropertyValue('background-size'),'contain','Approved full composition is not cropped');
 on.setProfile('m');
 on.window.listeners['healthhub:profile-changed']();
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'m');
@@ -157,12 +163,13 @@ assert.equal(grid.children[7].children[1].textContent,'Ask Léna','Ask Lena is c
 assert.equal(grid.children[9].dataset.group,'daily');
 assert.equal(grid.children[11].dataset.group,'daily');
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
-assert.match(on.profile.style.backgroundImage,/profilez/);
+assert.equal(on.profile.dataset.hhHomeMonitorSwitch,'1','Home uses single approved monitor portrait switch');
+assert.ok(on.profile.listeners.click,'Home portrait retains a one-click profile switch');
 assert.match(on.timelineProfile.style.backgroundImage,/profilez/,'Timeline switch uses the same Zsolt avatar');
 assert.match(on.healthProfile.style.backgroundImage,/profilez/,'Health switch uses the same Zsolt avatar');
 on.setProfile('m');on.window.HH_PREMIUM_HOME_V520.updateProfile();
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'m');
-assert.match(on.profile.style.backgroundImage,/profilem/);
+assert.match(on.profile.attributes['aria-label'],/Profilváltás · Mónika/,'Home keeps active profile accessible');
 assert.match(on.timelineProfile.style.backgroundImage,/profilem/,'Timeline updates to Mónika with the same source');
 assert.match(on.healthProfile.style.backgroundImage,/profilem/,'Health updates to Mónika with the same source');
 on.window.HH_PREMIUM_HOME_V520.go('records');
@@ -176,9 +183,9 @@ assert.equal(on.pageCalls.join('|'),'health|health|timeline|spark|briefing|activ
 on.window.HH_PREMIUM_HOME_V520.go('sleep');
 assert.equal(on.legacy[0].clicked,1,'existing Sleep route is reused');
 on.window.HH_PREMIUM_HOME_V520.go('nutrition');
-assert.equal(on.legacy[2].clicked,1,'existing Nutrition route is reused, not fabricated');
+assert.ok(on.opened.includes('https://example.test/healthhub/nutrition/'),'Nutrition opens the current dedicated app');
 on.window.HH_PREMIUM_HOME_V520.go('dailyhealth');
 assert.equal(on.healthStrip.clicked,1,'Daily Health opens the existing consented report');
 on.window.HH_PREMIUM_HOME_V520.go('digital');
-assert.equal(on.opened[0],'https://example.test/healthhub/digital-health/');
+assert.ok(on.opened.includes('https://example.test/healthhub/digital-health/'),'Digital Health route remains live');
 console.log('Premium Glass Home v528: default on, opt-out classic, 12 routes, two profiles, approved images PASS');
