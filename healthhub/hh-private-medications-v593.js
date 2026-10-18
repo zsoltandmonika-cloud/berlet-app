@@ -189,7 +189,9 @@ async function importBatchFile(file){
    var remote=await cloud.downloadJson('/HealthHub/master/medications.json');
    var remoteRef=remote&&remote.privateReference;
    remoteList=remoteRef&&remoteRef.profiles&&remoteRef.profiles[profile]&&remoteRef.profiles[profile].medications;
-  }catch(e){throw new Error('A Dropbox gyógyszeradatok biztonsági olvasása sikertelen: '+String(e.message||e))}
+   }catch(e){
+   if(!(e&&(e.status===409||e.status===404)))throw new Error('A Dropbox gyógyszeradatok biztonsági olvasása sikertelen: '+String(e.message||e));
+  }
  }
  var ref=await read()||{schema:'healthhub-private-reference-v1',profiles:{}};
  if(!ref.profiles||typeof ref.profiles!=='object')throw new Error('A privát gyógyszerkarton szerkezete hibás.');
@@ -261,7 +263,7 @@ async function augment(){
  if(!card){card=make('section','hrSectionCard');card.appendChild(make('h3','','💊 Gyógyszerek'));container.appendChild(card)}
  // Suppress every obsolete migration/demo medication row before constructing
  // the one true list from the current profile's private reference.
- Array.from(card.querySelectorAll('.hrRow[onclick*="medication"]')).forEach(function(x){
+ if(current()==='monika')Array.from(card.querySelectorAll('.hrRow[onclick*="medication"]')).forEach(function(x){
   if(x.dataset&&x.dataset.hhPrivateMed==='1')return;
   if(typeof x.remove==='function')x.remove();
  });
