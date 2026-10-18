@@ -73,28 +73,14 @@ async function edit(id){
  body.appendChild(title);
  var notice=make('p','hhMed593Note','Csak a kiválasztott profil helyi, privát kartonjába mentünk. A kezdési dátum és a napszak nem feltételezett.');
  body.appendChild(notice);
- if(!med){
-  var preset=make('button','hhMed593Preset','Rozuva-Teva 10 mg · Mónika · gyorskitöltés');
-  preset.type='button';
-  body.appendChild(preset);
- }
- var name=useInput(body,'Gyógyszer neve',med&&med.name||'',true);
+var name=useInput(body,'Gyógyszer neve',med&&med.name||'',true);
  var strength=useInput(body,'Hatáserősség',med&&med.strength||'',true);
  var schedule=useInput(body,'Adagolás',med&&(med.schedule||med.dose)||'',true);
  var ingredient=useInput(body,'Hatóanyag (ha ismert)',med&&med.activeIngredient||'',false);
  var purpose=useInput(body,'Mire való?',med&&med.purpose||'',false);
  var benefit=useInput(body,'Hogyan segít?',med&&med.benefit||'',false);
  var caution=useInput(body,'Fontos tudnivalók',med&&med.caution||'',false);
- if(!med){
-  preset.addEventListener('click',function(){
-   name.value='Rozuva-Teva 10 mg filmtabletta';strength.value='10 mg';
-   schedule.value='napi 1 tabletta';ingredient.value='rozuvasztatin';
-   purpose.value=ROZUVA_INFO.purpose;benefit.value=ROZUVA_INFO.benefit;caution.value=ROZUVA_INFO.caution;
-   name.focus();
-  });
-  // No automatic filling of an existing drug when adding a new one.
- }
- var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
+var row=make('div','hhMed593Actions'),cancel=make('button','hhMed593Secondary','Mégse');
  cancel.type='button';cancel.addEventListener('click',function(){overlay.hidden=true});
  var save=make('button','hhMed593Primary','Mentés · '+profileTitle(profile));
  save.type='button';
