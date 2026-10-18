@@ -162,6 +162,18 @@ Following the user-confirmed **207/207** mandatory PDF/Character Count QA pass, 
 
 **Release testing**: JavaScript syntax checks, nine deterministic rules/security smoke scenarios, and static presence of profile/eligibility/privacy/QA gates passed. A new node regression suite is under `healthhub/tests/mkb-v670-fact-pipeline.test.cjs`. S24 Ultra true end-to-end browser/Vault operation requires user test before declaring production fact extraction complete.
 
+## MKB v672 · Narrow laboratory observation coverage (2026-10-19)
+
+The user-visible Medical Intelligence preview successfully enumerated Zsolt's 43 verified PDFs and 38 initially eligible, embedded-text pages, but reported no candidates because the first-pass cardiology rules did not cover laboratory observations. This was a deliberately narrow extraction taxonomy, **not** missing or corrupted PDF data.
+
+Release `v672-lab-culture-evidence` adds `healthhub/mkb-lab-rules-v672.js` as a pure deterministic, local laboratory parser, loaded between the existing v671 cardiology rules and the authenticated v670 admin UI. The admin QA pipeline concatenates both rule sets without modifying the source PDF ingestion or any existing clinical facts.
+
+Initial laboratory scope is intentionally restricted to separately named organisms in a **urine aerobic culture** report with explicit, valid sample-collection date, urine specimen, culture label, result field and colony-count notation on the same verified embedded-text page. The exact text excerpt is stored with original source ID, page number and verified SHA-256. The reported organisms are **not** asserted to prove urinary-tract infection; numerical organism-specific colony counts and antibiotic susceptibilities are **not** inferred when column alignment cannot be independently verified.
+
+Both distinct, archived April 2026 urine culture documents were tested as source text; the candidate parser found three explicitly named organisms per document, each dated to the **specimen collection day**, not the later report validation day. Negative tests for missing culture, wrong specimen, impossible dates and missing growth notation all fail closed. Synthetic regression suite lives in `healthhub/tests/mkb-v672-lab-candidates.test.cjs`; JS syntax, loader ordering, security and provenance gates checked. **This does not imply all 43 PDFs were semantically understood**. Actual mobile preview and deliberate pending-evidence commit still require user testing before claiming clinical intelligence completion.
+
+No raw patient health text, patient identifiers or generated candidate rows were copied into GitHub; all private patient context stays subject to Supabase Health Vault authorization and row-level security.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
