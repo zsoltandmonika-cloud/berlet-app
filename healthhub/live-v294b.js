@@ -19,7 +19,7 @@ function loadKnowledgeUi(){
   });
  }
  kbLoadPromise=load('./knowledge-v407-core.js?v=662-integrity')
-  .then(function(){return load('./knowledge-v407-ingest.js?v=666-watch-ekg-recovery')})
+  .then(function(){return load('./knowledge-v407-ingest.js?v=667-descope')})
   .then(function(){return load('./knowledge-v407-ui.js?v=662-integrity')})
   .then(function(){
    if(!window.HH_KB_UI_V407)throw Error('A tudástár felülete nem indult el.');
