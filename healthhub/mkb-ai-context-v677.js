@@ -24,16 +24,17 @@ function pack(input,profile,granted,question){
   if(!row||!validDay(row.date)||!row.title||!row.quote||
    !Number.isInteger(Number(row.page))||Number(row.page)<1||
    !['pending','verified'].includes(row.review))continue;
-  var title=clean(row.title,65),source=clean(row.source||'Eredeti PDF',65),
+  var title=clean(row.title,55),source=clean(row.source||'Eredeti PDF',45),
    quote=clean(row.quote,105);
   if(title.length<3||quote.length<12)continue;
   var key=row.date+'|'+title+'|'+source+'|'+row.page;
   if(seen.has(key))continue;seen.add(key);
-  var status=row.review==='verified'?
-    'felülvizsgálat szerint igazolt':'szakmai ellenőrzésre váró';
-  var value=clean(
-   row.date+' · '+title+' · '+status+' leletmegfigyelés · '+source+
-   ' · '+row.page+'. oldal · pontos forrásidézet: «'+quote+'»',235);
+  var status=row.review==='verified'?'ellenőrzött státusz':'szakmai ellenőrzésre vár';
+  var header=row.date+' · '+title+' · '+status+' · PDF '+source+
+   ' · '+row.page+'. oldal · rövid forrásrészlet: «';
+  var remaining=235-header.length-1;
+  if(remaining<16)continue;
+  var value=header+quote.slice(0,remaining)+'»';
   var item={
    domain:'documents',
    label:'I-09 · Orvosi forrástény (PDF-eredet, nem önálló diagnózis)',
@@ -47,9 +48,10 @@ function pack(input,profile,granted,question){
  // and the server's 72-extra-item budget. No hidden downsampling or partial
  // disclosure: either all validated granted entries fit or none are added.
  var original=input.extra.slice();
- var next=Object.assign({},input,{extra:items.concat(original).slice(0,72)});
- if(next.extra.length<items.length||
-    JSON.stringify({sources:next.sources,extra:next.extra}).length>17500)
+ if(original.length+items.length>72)
+  return {payload:input,added:0,limited:true};
+ var next=Object.assign({},input,{extra:items.concat(original)});
+ if(JSON.stringify({sources:next.sources,extra:next.extra}).length>17500)
   return {payload:input,added:0,limited:true};
  return {payload:next,added:items.length,limited:false};
 }
