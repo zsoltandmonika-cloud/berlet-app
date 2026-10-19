@@ -33,7 +33,7 @@ function env(token=null){
 }
 test('v691 is installed after original viewer and connection dashboard, has unique build',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
- assert.match(index,/v693-verified-cross-id-pdf/);
+ assert.match(index,/v695-mobile-original-reattach/);
  assert.match(index,/hh-pdf-device-audit-v691\.js\?v=693-sha-audit-counts/);
  assert.ok(index.indexOf('hh-pdf-device-audit-v691.js')>index.indexOf('live-v201.js'));
  assert.ok(index.indexOf('hh-pdf-device-audit-v691.js')>index.indexOf('live-v355.js'));
