@@ -235,36 +235,84 @@ export function auditClinicalDraft(response,evidence,validated,secondary=[],seco
   paragraphs:[{kind:'unknown',text:'A kérdéshez nem sikerült elegendő, ellenőrzött klinikai tényt összegyűjteni. A feldolgozott dokumentumrészletek hiánya nem bizonyítja, hogy az esemény nem történt meg.',sourceIds:[]}]});
  return {sections,stats};
 }
-export function formatClinicalAnswer(report,index,secondary=[]){
- const lines=[];
- for(const section of report.sections){
-  // Keep topic cards from v394 while making the core read like a coherent
-  // personal narrative. Labels like "Documentált tény" are NOT chapter titles.
-  const paragraphs=[],summarySources=new Set();
-  for(const p of section.paragraphs){
-   if(p.kind==='unknown')continue; // uncertainties stay in the quiet audit
-   let text=compact(p.text);
-   if(!text)continue;
-   const refs=Array.from(new Set((p.sourceIds||[]))).map(id=>{
-    if(secondaryId(id)){
-     const d=secondary.find(x=>x.id===id);
-     if(d)summarySources.add(d.title+' (korábbi JSON-értelmezés, nem eredeti lelet)');
-     return '';
-    }
-    const d=index.find(x=>x.id===id);
-    return d?d.title+' ('+(d.documentDate||'keltezés nélkül')+', '+d.page+'. oldal)':'';
-   }).filter(Boolean);
-   if(refs.length)text+='\n**Forrás:** '+refs.join('; ');
-   paragraphs.push(text);
-  }
-  if(paragraphs.length){
-   lines.push('## '+section.heading);
-   if(summarySources.size)paragraphs.push('**Másodlagos forrás:** '+Array.from(summarySources).slice(0,3).join('; '));
-   lines.push(paragraphs.join('\n\n'));
+/* v679 Golden Standard: audited story FIRST, then verifiable fact inventory,
+ * then distinct medical interpretation. Narrative is restricted to already
+ * audited documentary/reported paragraphs; no generic model guess can turn
+ * into a patient's personal history. Original quote/text are never fabricated.
+ */
+export function formatClinicalAnswer(report,index,secondary=[],validated={facts:[]},summaryValidation={facts:[]}){
+ const sections=Array.isArray(report?.sections)?report.sections:[];
+ const originals=Array.isArray(index)?index:[];
+ const summaries=Array.isArray(secondary)?secondary:[];
+ const primaryFacts=Array.isArray(validated?.facts)?validated.facts:[];
+ const secondaryFacts=Array.isArray(summaryValidation?.facts)?summaryValidation.facts:[];
+ const story=[],seen=new Set(),interpretation=[],seenInterpretation=new Set();
+ const trusted=new Map(originals.map(x=>[x.id,x]));
+ const summaryIndex=new Map(summaries.map(x=>[x.id,x]));
+ const sourceId=e=>String(e||'');
+ // Audited 'documented' and 'reported' paragraphs must have a validated
+ // original or secondary reference. This is a further failsafe after
+ // auditClinicalDraft, not a replacement for its numeric/date/name checks.
+ const allowedPrimary=new Set(primaryFacts.map(x=>sourceId(x.sourceId)));
+ const allowedSecondary=new Set(secondaryFacts.map(x=>sourceId(x.sourceId)));
+ for(const section of sections){
+  for(const p of section.paragraphs||[]){
+   const raw=compact(p?.text);
+   if(raw.length<12)continue;
+   const refs=(Array.isArray(p?.sourceIds)?p.sourceIds:[]).map(sourceId);
+   if(p.kind==='documented'||p.kind==='reported'){
+    const allowed=p.kind==='documented'?allowedPrimary:allowedSecondary;
+    const known=p.kind==='documented'?trusted:summaryIndex;
+    if(!refs.length||refs.some(r=>!allowed.has(r)||!known.has(r)))continue;
+    const text=p.kind==='reported'?'Egy korábbi leletmagyarázat beszámolója szerint '+raw.charAt(0).toLowerCase()+raw.slice(1):raw;
+    const key=norm(text);
+    if(!seen.has(key)){seen.add(key);story.push(text)}
+   }else if(p.kind==='general'||p.kind==='possible'){
+    const explanation=(p.kind==='possible'&&!/(lehetséges|elképzelhető|felmerülhet|nem bizonyít|összefügghet|lehetőség)/i.test(raw))?
+     'Lehetséges, hogy '+raw.charAt(0).toLowerCase()+raw.slice(1):raw;
+    const key=norm(explanation);
+    if(!seenInterpretation.has(key)){seenInterpretation.add(key);interpretation.push(explanation)}
+   }
   }
  }
- // Never turn every unsupported claim into its own warning. If absolutely
- // no source-backed statement is retained, state the limitation once.
- if(!lines.length)return 'A rendelkezésre álló kivonatokból ehhez a konkrét kérdéshez most nem sikerült ellenőrzött személyes eseményleírást összeállítani.';
+ const lines=['## A leletek története'];
+ if(story.length)lines.push(story.slice(0,16).join('\n\n'));
+ else lines.push('A rendelkezésre álló, ellenőrzött leletrészletekből ehhez a kérdéshez nem állítható össze megbízható, személyes eseménytörténet. A hiányzó adatokat nem helyettesítem feltételezésekkel.');
+ lines.push('## Dokumentált tények');
+ if(primaryFacts.length){
+  const facts=[],unique=new Set();
+  for(const fact of primaryFacts){
+   const d=trusted.get(fact.sourceId);
+   if(!d||!fact.quote||!norm(d.text).includes(norm(fact.quote)))continue;
+   const key=fact.sourceId+'|'+norm(fact.quote);
+   if(unique.has(key))continue;unique.add(key);
+   // The exact patient-facing quotation is the final checkable fact.
+   facts.push('**Eredeti PDF:** '+compact(fact.quote).slice(0,450)+
+    '\n**Forrás:** '+compact(d.title)+' · '+d.page+'. oldal'+
+    (d.documentDate?' · dokumentum keltezése: '+d.documentDate:'')+
+    '. A dokumentum keltezése nem feltétlenül az esemény vagy mintavétel napja.');
+  }
+  if(facts.length)lines.push(facts.slice(0,28).map((f,i)=>(i+1)+'. '+f).join('\n\n'));
+  else lines.push('Az elérhető dokumentumrészletek között ehhez a kérdéshez nem volt újra ellenőrizhető eredeti PDF-idézet.');
+  if(facts.length>28)lines.push('További '+(facts.length-28)+' ellenőrzött részletet a rövid, mobilos nézet nem sorol fel; a forrásindex továbbra is változatlan.');
+ }else{
+  lines.push('Ehhez a kérdéshez most nincs szó szerint visszaellenőrzött, eredeti PDF-részlet.');
+ }
+ if(secondaryFacts.length){
+  const items=[],seenSecondary=new Set();
+  for(const fact of secondaryFacts){
+   const d=summaryIndex.get(fact.sourceId);
+   if(!d||!fact.quote||!norm(d.text).includes(norm(fact.quote)))continue;
+   const key=fact.sourceId+'|'+norm(fact.quote);
+   if(seenSecondary.has(key))continue;seenSecondary.add(key);
+   items.push('**Másodlagos beszámoló (nem eredeti PDF):** '+compact(fact.quote).slice(0,250)+
+    '\n**Forrás:** '+compact(d.title));
+  }
+  if(items.length)lines.push('**Korábbi értelmezésekben szereplő, még nem elsődlegesen igazolt adatok:**\n\n'+items.slice(0,10).join('\n\n'));
+ }
+ lines.push('## Orvosi értelmezés');
+ if(interpretation.length)lines.push(interpretation.slice(0,9).join('\n\n'));
+ else lines.push('Az elérhető idézetek alapján nem adható megalapozott, személyre szabott további orvosi következtetés. Az eredményeket tünetekkel és vizsgálati körülményekkel együtt lehet értelmezni.');
+ lines.push('*A pontos PDF-szövegegyezés nem egyenlő szakmai diagnózissal. Kérdéses adatot csak ellenőrzésre váróként kezelünk.*');
  return lines.join('\n\n').slice(0,26000);
 }
