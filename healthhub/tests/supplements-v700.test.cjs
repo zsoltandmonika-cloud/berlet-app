@@ -19,7 +19,7 @@ test('all 8 user-specified supplements are present as templates, not consumed re
  const names=['JutaVit Ashwagandha KSM-66','Multi4u C + D3','ZeinPharma Wild Yams Plus','JutaVit Mg-biszglicinát','Dr. Chen Omega-3 Forte Plus','WOW TEA SlimFit Berry','PureGold CreaWomen','PureGold Lady Shape'];
  names.forEach(n=>assert.ok(s.includes("name:'"+n+"'"),n));
  assert.equal((s.match(/\{name:'[^']+',strength:/g)||[]).length,8);
- assert.match(s,/status:'felhasználói/);
+ assert.match(s,/Katalógustétel, nem rögzített szedés/);
 });
 test('canonical medications route, Home label, scroll and AI context stay connected',()=>{
  assert.match(read('index.html'),/hh-supplements-v700\.js\?v=700/);
