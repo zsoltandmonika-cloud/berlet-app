@@ -78,7 +78,13 @@ function mount(){
  '<li>Rendszer: stabilitás, sebesség, mobil használhatóság, adatfrissesség és profilszeparáció. Zöld státusz csak sikeres ellenőrzés után.</li>'+
  '<li>Admin dokumentáció és GitHub technikai dokumentáció egyaránt frissítendő minden jelentős irányváltáskor.</li>'+
  '</ul></details>'+
- '<details><summary>🔎 Eredeti PDF · v693 ellenőrzött forrás-helyreállítás</summary><ul>'+
+ '<details><summary>📎 Eredeti PDF · v695 helyi visszacsatolás és magyarázat</summary><ul>'+
+ '<li>A 2026.10.16-i négy Mónika-lelet PDF + Léna-magyarázat ZIP-csomagja SHA-256-tal kapcsolható a meglévő leletrekordokhoz.</li>'+
+ '<li>A restore-existing-originals mód kizárólag pontosan négy, az aktív Mónika-profilba illő eredetit enged. Nincs új lelet, meglévő fájlbájt felülírása vagy automatikus felhőszinkron.</li>'+
+ '<li>Ha a mobilos index SHA-256 értéke eltér, a rossz fájl hozzárendelése helyett elutasítás történik. A tényleges mobilos megnyitást külön kell tesztelni.</li>'+
+ '<li>A v694 szerveroldali feltöltési funkció biztonsági ellenőrzés miatt nincs telepítve; a v695 helyi visszacsatolás nem állítja, hogy az eredeti PDF-ek a Drive-ban helyreálltak.</li>'+
+ '</ul></details>'+
+'<details><summary>🔎 Eredeti PDF · v693 ellenőrzött forrás-helyreállítás</summary><ul>'+
  '<li>Ha az index és a Drive régi dokumentumazonosítója eltér, csak azonos profilhoz tartozó és SHA-256 alapján bizonyíthatóan azonos eredeti olvasható.</li>'+
  '<li>A Drive szerveroldali profil- és mappaellenőrzése után a PDF teljes letöltött bájtfolyamára új SHA-256 ellenőrzés kötelező.</li>'+
  '<li>Ha a helyi index nem tartalmaz érvényes SHA-256-ot, vagy nem található vele megegyező eredeti, tilos név vagy dátum alapján találgatni.</li>'+
