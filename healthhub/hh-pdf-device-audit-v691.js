@@ -44,7 +44,10 @@ function localState(p){
      var have=new Set(keys.map(String)),missing=rows.filter(function(d){return !have.has(d.id)});
      resolve({count:rows.length,blobs:rows.length-missing.length,
       missing:missing.length,ids:rows.map(function(d){return d.id}),
-      missingIds:missing.map(function(d){return d.id})});
+      missingIds:missing.map(function(d){return d.id}),
+      missingHashes:missing.map(function(d){
+       return {id:d.id,sha256:String(d.sha256||'').trim().toLowerCase()};
+      })});
     };
     tx.onerror=function(){db.close();reject(Error('Helyi dokumentumtár olvasási hiba.'))};
     tx.onabort=function(){db.close();reject(Error('Helyi dokumentumtár ellenőrzés megszakadt.'))};
@@ -97,12 +100,29 @@ async function driveMatch(p,local){
    if(id)tags.set(id,(tags.get(id)||0)+1);
   }
  });
- var localIds=new Set(local.ids),missing=local.missingIds||[];
+ var missing=local.missingIds||[];
  var matched=missing.filter(function(id){return tags.get(id)===1}).length;
  var ambiguous=missing.filter(function(id){return (tags.get(id)||0)>1}).length;
+ // Only aggregated SHA evidence is displayed; never print IDs or hashes.
+ var hashRows=local.missingHashes||[],byHash=new Map(),withoutHash=0,cross=0;
+ data.files.forEach(function(f){
+  var a=f&&f.appProperties||{};
+  if(f&&f.mimeType==='application/pdf'&&a.profile===p&&
+     /^[a-f0-9]{64}$/.test(String(a.sha256||'').toLowerCase())){
+   var hash=String(a.sha256).toLowerCase();
+   if(!byHash.has(hash))byHash.set(hash,[]);
+   byHash.get(hash).push(String(a.documentId||''));
+  }
+ });
+ hashRows.forEach(function(d){
+  if(!/^[a-f0-9]{64}$/.test(d.sha256)){withoutHash++;return}
+  var ids=byHash.get(d.sha256)||[];
+  if(ids.length&&ids.every(function(id){return id!==d.id}))cross++;
+ });
  return pdf+' eredeti PDF; '+tags.size+' dokumentumazonosító-címke; '+
   matched+'/'+missing.length+' helyben hiányzó PDF-hez pontos Drive-találat'+
   (ambiguous?' · '+ambiguous+' kétértelmű azonosító':'')+
+  (hashRows.length?' · SHA nélkül: '+withoutHash+' · SHA-egyezés eltérő Drive-ID-vel: '+cross:'')+
   (missing.length&&matched===0?' · ID-KAPCSOLAT NEM IGAZOLT':'');
 }
 async function run(){
