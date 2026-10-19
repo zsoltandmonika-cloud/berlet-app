@@ -10,8 +10,8 @@ const ask=fs.readFileSync(path.join(base,'live-v331.js'),'utf8');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
 const moduleStub={exports:{}};new Function('module',source)(moduleStub);
 const {pack,validDay}=moduleStub.exports;
-const basePayload={schema:'healthhub.ask-lena/1',consent:true,profile:'monika',sources:[{id:'vitals',entries:[{name:'pulse',value:'63'}]}],extra:[{domain:'profile',label:'prior',value:'safe'}]};
-const pending=[{date:'2024-06-17',title:'Kamrafibrilláció miatti reanimáció',source:'hospital.pdf',page:2,quote:'kamrafibrilláció miatt dokumentált újraélesztés',review:'pending'}];
+const basePayload={schema:'healthhub.ask-lena/1',consent:true,profile:'monika',sources:[{id:'vitals',entries:[{name:'pulse',value:'63'}]}],extra:[{domain:'profile',label:'prior',value:'safe'}],documentEvidence:[],originalDocumentsConsent:false};
+const pending=[{sourceId:'11111111-1111-4111-8111-111111111111',date:'2024-06-17',title:'Kamrafibrilláció miatti reanimáció',source:'hospital.pdf',page:2,quote:'kamrafibrilláció miatt dokumentált újraélesztés',review:'pending'}];
 
 test('context pack never changes a source request when approval is absent',()=>{
  const out=pack(basePayload,'monika',null,'Milyen orvosi előzményeim vannak?');
@@ -23,6 +23,9 @@ test('one approved, source-quoted observation retains date, page, pending status
  const out=pack(basePayload,'monika',pending,'Milyen orvosi előzményeim vannak?');
  assert.equal(out.added,1);
  assert.equal(out.payload.extra.length,2);
+ assert.equal(out.payload.documentEvidence.length,1);
+ assert.equal(out.payload.documentEvidence[0].page,2);
+ assert.equal(out.payload.originalDocumentsConsent,true);
  assert.equal(out.payload.extra[0].domain,'documents');
  assert.match(out.payload.extra[0].value,/2024-06-17/);
  assert.match(out.payload.extra[0].value,/hospital\.pdf/);
@@ -86,12 +89,13 @@ test('no local persistence and no uncapped PDF transmission',()=>{
  }
  assert.doesNotMatch(source,/fetch\(/);
  assert.match(source,/original\.length\+items\.length>72/);
+ assert.match(source,/oldDocuments\.length\+docs\.length>12/);
  assert.match(source,/\.length>17500/);
 });
 test('v677 script build, module syntax and ordered bootstrapping',()=>{
  for(const s of [source,ui,ask])assert.doesNotThrow(()=>new Function(s));
- assert.match(index,/v677-one-shot-mkb-ai-consent/);
- assert.match(index,/live-v331\.js\?v=677-one-use-mkb-consent/);
- assert.match(index,/ask-lena-mkb-v676\.js\?v=677-one-use-approval/);
- assert.match(index,/mkb-ai-context-v677\.js\?v=677-fact-provenance/);
+ assert.match(index,/v679-source-grounded-story-facts-interpretation/);
+ assert.match(index,/live-v331\.js\?v=679-default-audited-clinical/);
+ assert.match(index,/ask-lena-mkb-v676\.js\?v=679-full-source-uuid/);
+ assert.match(index,/mkb-ai-context-v677\.js\?v=679-prioritized-original-excerpt/);
 });
