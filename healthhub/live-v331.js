@@ -622,9 +622,17 @@ async function run(opts){
   var narrativeQAVersion=clinicalPilot&&typeof URLSearchParams==='function'?
    new URLSearchParams(window.location.search).get('hhNarrativeQA'):'';
   var narrativeQAMode=narrativeQAVersion==='v405'||narrativeQAVersion==='v406';
-  var aiRoute=narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
+  // Explicit user-selected MKB QA URL only. Does not switch standard production traffic.
+  // No automatically expanded PDF retrieval when original-document consent is absent.
+  var mkbQARequested=clinicalPilot&&typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhMkbQA')==='v1';
+  var mkbQAMode=mkbQARequested&&data.originalDocumentsConsent===true;
+  var aiRoute=mkbQAMode?'/functions/v1/hh-mkb-search-preview':
+   narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
    narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
+  if(mkbQAMode)print('🧪 MKB QA v1: külön, dokumentumhozzájárulással indított keresési teszt; az éles AI-végpont változatlan.');
+  else if(mkbQARequested)print('🛡️ MKB QA csak kifejezett eredeti PDF-hozzájárulással fut; az éles végpont marad.');
   if(narrativeQAMode)print('🧪 '+narrativeQAVersion+' kísérleti ellenőrzés: az éles v403 válaszmotor változatlan.');
   var replyData=data,simplified=false;
   var response=await svc.stream(aiRoute,replyData,ctrl.signal);
