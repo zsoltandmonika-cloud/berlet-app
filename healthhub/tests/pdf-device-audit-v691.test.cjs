@@ -25,8 +25,11 @@ function env(token=null){
  const context=vm.createContext({window:win,document:doc,localStorage:ls,crypto:webcrypto,TextEncoder,Uint8Array,
   navigator:{userAgent:'Android',clipboard:{writeText:async()=>{}}},fetch:fetcher,console,Array,Set,Map,Promise,
   MutationObserver:class{},indexedDB:{open(){throw Error('Should not open until explicit audit')}},setTimeout:()=>{}});
- vm.runInContext(src+'\nthis.audit={accountFingerprint,cloudProfileExists,driveMatch,viewerRuntime,loadedViewer,build};',context);
- return{audit:context.audit,calls,setProfile(x){active=x}};
+ const trailer=src.lastIndexOf('})();');
+ assert.ok(trailer>0,'runtime wrapper ends with an IIFE');
+ const instrumented=src.slice(0,trailer)+'window.__hhPdfDeviceTest691={accountFingerprint,cloudProfileExists,driveMatch,viewerRuntime,loadedViewer,build};\n'+src.slice(trailer);
+ vm.runInContext(instrumented,context);
+ return{audit:context.window.__hhPdfDeviceTest691,calls,setProfile(x){active=x}};
 }
 test('v691 is installed after original viewer and connection dashboard, has unique build',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
