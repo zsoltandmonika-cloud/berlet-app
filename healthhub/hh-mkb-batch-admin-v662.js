@@ -103,7 +103,7 @@ function styles(){
 function show(s){var target=el('hhMkbReport662');if(target)target.textContent=s}
 function draw(){
  var s=engine()&&engine().getState(),running=busy||!!(s&&s.running);
- for(const id of ['hhMkbStart662','hhMkbAudit662','hhMkbChars662']){
+ for(const id of ['hhMkbStart662','hhMkbAudit662','hhMkbChars662','hhMkbForensic696']){
   var b=el(id);if(b)b.disabled=running;
  }
  var stop=el('hhMkbStop662');if(stop)stop.disabled=!(s&&s.running);
@@ -126,6 +126,7 @@ function mount(){
   '<span id="hhMkbDriveState662">🔒 Google Drive ellenőrzése…</span><button class="secondary" id="hhMkbDrive662" type="button">🔗 Drive csatlakozás</button></div>'+
   '<div class="actions"><button id="hhMkbStart662" type="button">▶ Összes PDF feldolgozása</button>'+
   '<button id="hhMkbAudit662" class="secondary" type="button">🔍 Forrásaudit</button>'+
+   '<button id="hhMkbForensic696" class="secondary" type="button">🩺 Sikertelen PDF-ek · diagnózis</button>'+
   '<button id="hhMkbChars662" class="secondary" type="button">🔢 Character Count QA</button>'+
   '<button id="hhMkbStop662" class="secondary" type="button" disabled>⏸ Megállítás</button></div>'+
   '<progress id="hhMkbProgress662" value="0" max="1"></progress>'+
@@ -135,6 +136,7 @@ function mount(){
  el('hhMkbDrive662').addEventListener('click',reconnectDrive);
  el('hhMkbStart662').addEventListener('click',start);
  el('hhMkbAudit662').addEventListener('click',audit);
+ el('hhMkbForensic696').addEventListener('click',diagnoseFailed);
  el('hhMkbChars662').addEventListener('click',count);
  el('hhMkbStop662').addEventListener('click',()=>{if(engine())engine().stop();show('⏸ Megállítás kérve. Az aktuális fájl biztonságos lezárása folyamatban.');});
  draw();refreshConnections();
@@ -150,7 +152,7 @@ function load(){
  if(engine())return Promise.resolve(engine());
  if(loading)return loading;
  loading=Promise.resolve().then(()=>window.HH_KB_CORE_V407?null:script('./knowledge-v407-core.js?v=662'))
- .then(()=>engine()?null:script('./knowledge-v407-ingest.js?v=689-server-drive-pdf'))
+ .then(()=>engine()?null:script('./knowledge-v407-ingest.js?v=696-readonly-failed-page-diagnostic'))
  .then(()=>{if(!engine())throw Error('A feldolgozómotor nem indult.');return engine()})
  .catch(e=>{loading=null;throw e});
  return loading;
@@ -184,6 +186,54 @@ async function start(){
    '\nRészleges / hibás: '+x.partial+
    '\nA tényleges szöveg-integ­ritást a Character Count QA mutatja. A másik profilt külön, profilváltás után lehet ellenőrizni.');
  }catch(e){show('⚠ Feldolgozás nem fejeződött be: '+String(e.message||e).slice(0,200))}
+ finally{busy=false;draw()}
+}
+/* v696: explicit read-only check of existing failed index rows.
+   No PDF bytes, page content, raw error messages, document ID or file name are displayed. */
+async function diagnoseFailed(){
+ if(busy||engine()&&engine().getState().running)return;
+ var who=p();if(!beforeAction(who))return;
+ busy=true;draw();
+ try{
+  await requireDrive(who);await load();assertActive(who);
+  show('🩺 Sikertelen leletek vizsgálata. Csak olvasás, nincs újrafeltöltés vagy adatváltoztatás…');
+  if(!engine()||typeof engine().diagnoseFailed!=='function')
+   throw Error('A v696 diagnosztikai modul nem töltődött be.');
+  var result=await engine().diagnoseFailed(who,{maxDocs:11});
+  assertActive(who);
+  if(!result||result.profile!==who)throw Error('Eltérő vagy hiányos eredmény.');
+  var labels={
+   source_not_in_authorized_drive:'Hiányzik a jogosult Drive-leltárból',
+   original_download_failed:'Az eredeti letöltése sikertelen',
+   source_sha_check_failed:'SHA-256 számítása sikertelen',
+   source_sha_mismatch:'Eredeti és index SHA-256 eltér',
+   pdf_library_unavailable:'PDF.js modul nem tölthető',
+   pdf_parser_rejected:'PDF szerkezeti betöltése sikertelen',
+   pdf_page_missing:'Hiányzó PDF-oldal',
+   page_load_failed:'Első oldal betöltési hiba',
+   text_extraction_failed:'Szövegréteg feldolgozási hiba',
+   embedded_text_unicode_invalid:'Adatbázissal nem kompatibilis Unicode a szövegrétegben',
+   very_long_page_requires_review:'60 000 karakter feletti oldal · review szükséges',
+   extraction_readable_storage_not_proven:'Szövegréteg olvasható · tárolási útvonal még ellenőrizendő',
+   graphics_inspection_failed:'Grafikus tartalom ellenőrzése sikertelen',
+   ocr_or_visual_fallback_needed:'OCR vagy képi feldolgozás szükséges',
+   certified_blank_page_requires_review:'Igazolt üres oldal · külön forrásellenőrzés',
+   unknown_read_failure:'Be nem sorolt olvasási hiba'
+  };
+  var rows=Object.keys(result.categories||{}).sort().map(function(k){
+   return '• '+(labels[k]||'Más technikai hiba')+': '+Number(result.categories[k]||0);
+  });
+  show('🩺 MKB · CÉLZOTT HIBADIAGNÓZIS (v696)'+
+   '\nProfil: '+pname()+
+   '\nVizsgálandó, kötelező PDF-ek: '+result.totalFailed+
+   '\nKorábban jóváhagyott kizárások: '+Number(result.excludedByScope||0)+
+   ' · biztonságosan átvizsgálva: '+result.tested+
+   ' · nem vizsgált: '+result.notTested+
+   '\n'+(rows.length?rows.join('\n'):'Nincs feldolgozatlan hiba ebben a körben.')+
+   '\n\nCsak technikai kategóriák; PDF, név, idézet és gyógyszeradat nem került a jelentésbe.'+
+   '\nA tudatosan kizárt EKG-k nem lesznek automatikusan újrafeldolgozva.'+
+   '\nA felhőbeli leletek és az MKB-tények változatlanok.');
+ }catch(e){show('⚠ A csak olvasásos vizsgálat leállt: '+String(e&&e.message||e).slice(0,120))}
  finally{busy=false;draw()}
 }
 async function count(){

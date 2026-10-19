@@ -63,7 +63,7 @@ test('patient, source, document, status, or page number mismatch fails closed',a
 test('deployment order, profile-scoped read-only QA and explicit medical limitation',()=>{
  assert.doesNotThrow(()=>new Function(code));
  assert.doesNotThrow(()=>new Function(admin));
- assert.match(html,/v680-vault-trusted-auto-reconnect/);
+ assert.match(html,/daily-health-sync\.js\?v=680-trusted-refresh/);
  assert.ok(html.indexOf('mkb-evidence-audit-v675.js')>html.indexOf('mkb-timeline-v674.js'));
  assert.ok(html.indexOf('mkb-evidence-audit-v675.js')<html.indexOf('hh-mkb-facts-admin-v670.js'));
  const timeline=admin.split('async function showTimeline(){')[1].split('async function scan(){')[0];

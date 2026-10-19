@@ -1,0 +1,31 @@
+name: HealthHub v696 MKB excluded-original read-only QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/knowledge-v407-ingest.js'
+      - 'healthhub/hh-mkb-batch-admin-v662.js'
+      - 'healthhub/hh-development-charter-admin-v658.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/mkb-failed-first-page-v696.test.cjs'
+      - '.github/workflows/healthhub-mkb-scope-v696-qa.yml'
+  push:
+    paths:
+      - 'healthhub/knowledge-v407-ingest.js'
+      - 'healthhub/hh-mkb-batch-admin-v662.js'
+      - 'healthhub/hh-development-charter-admin-v658.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/mkb-failed-first-page-v696.test.cjs'
+      - '.github/workflows/healthhub-mkb-scope-v696-qa.yml'
+jobs:
+  guard-mkb-evidence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read-only excluded scope and clinical evidence regressions
+        run: |
+          node --test healthhub/tests/mkb-failed-first-page-v696.test.cjs healthhub/tests/mkb-v662-character-integrity.test.cjs healthhub/tests/mkb-v675-source-audit.test.cjs healthhub/tests/governance-admin-v658.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs

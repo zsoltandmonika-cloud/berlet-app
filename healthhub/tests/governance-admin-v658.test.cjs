@@ -15,7 +15,7 @@ test('Admin charter source parses and is loaded once, after the standard profile
   assert.doesNotThrow(() => new vm.Script(moduleSrc));
   assert.equal(liveIndex.split('hh-development-charter-admin-v658.js').length - 1, 1);
   assert.ok(liveIndex.indexOf('hh-development-charter-admin-v658.js') > liveIndex.indexOf('hh-profile-standard-v652.js'));
-  assert.match(liveIndex, /v680-vault-trusted-auto-reconnect/);
+  assert.match(liveIndex, /daily-health-sync\.js\?v=680-trusted-refresh/);
 });
 
 test('Governance charter names three pillars in admin and Github documentation', () => {
@@ -66,9 +66,10 @@ test('v675 admin policy and reporting explicitly separate optional source exclus
  assert.match(moduleSrc,/szövegellenőrzött: /);
  assert.match(moduleSrc,/szakmai ellenőrzésre vár: /);
  assert.match(moduleSrc,/hh_mkb_evidence/);
- assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=695-four-original-import/);
+ assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=696-intelligence-scope-policy/);
  assert.match(moduleSrc,/Eredeti PDF hozzáférés · v690 QA/);
  assert.match(moduleSrc,/Eredeti PDF · v692 SHA-256 ütközésfeloldás/);
  assert.match(moduleSrc,/Eredeti PDF · v693 ellenőrzött forrás-helyreállítás/);
  assert.match(moduleSrc,/Eredeti PDF · v695 helyi visszacsatolás és magyarázat/);
+ assert.match(moduleSrc,/Ask Léna Intelligence · v696 valódi feldolgozási státusz/);
 });

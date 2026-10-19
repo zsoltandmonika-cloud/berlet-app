@@ -47,7 +47,7 @@ test('UI retains controlled OAuth consent, verifies private PDF source read, and
  assert.match(gui,/régebbi Drive JSON-szinkron külön ellenőrzendő/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v695-mobile-original-reattach/);
+ assert.match(index,/v696-mkb-scope-audit/);
  assert.match(index,/hh-drive-server-oauth-v683\.js\?v=689-server-pdf-cleanup/);
  assert.doesNotThrow(()=>new Function(gui));
 });
@@ -87,7 +87,7 @@ test('v689 MKB ingester uses server Drive for original-only, no browser Google t
  assert.match(ing,/driveVault\('archive_inventory',p\)/);
  assert.match(ing,/driveVault\('archive_pdf',p,file\.id\)/);
  assert.match(ing,/CORE\.isPdfSignature\(new Uint8Array\(bytes\)\)/);
- assert.match(admin,/knowledge-v407-ingest\.js\?v=689-server-drive-pdf/);
+ assert.match(admin,/knowledge-v407-ingest\.js\?v=696-readonly-failed-page-diagnostic/);
  assert.match(admin,/async function requireDrive\(who\)/);
  assert.doesNotMatch(ing,/hhGetGoogleDriveToken292|https:\/\/www\.googleapis\.com\/drive/);
  assert.doesNotMatch(admin,/hhGetGoogleDriveToken292/);
