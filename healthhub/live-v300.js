@@ -61,6 +61,38 @@ function safeForAutoReload(){
  if(smart&&smart.classList.contains('on'))return false;
  return true;
 }
+// Verify loaded versioned assets against the current public entry point.
+// This detects changed module cache keys even when someone forgets the build label.
+function changedPublishedModules(html){
+ var start=html.indexOf('const live=digitalHealthTileLive.replace');
+ var end=start>=0?html.indexOf('document.write(liveWithWellbeingClick)',start):-1;
+ if(start<0||end<=start)return [];
+ var section=html.slice(start,end),re=/<script\s+src=["']\.\/([^"'<>]+)["']/g;
+ var latest=new Map(),found;
+ while((found=re.exec(section))!==null){
+  var path=found[1],name=path.split('?')[0];
+  if(path.includes('?v='))latest.set(name,path);
+ }
+ var different=[],common=0;
+ document.querySelectorAll('script[src]').forEach(function(el){
+  var path=el.getAttribute('src')||'';
+  if(!path.startsWith('./')||!path.includes('?v='))return;
+  var relative=path.slice(2),name=relative.split('?')[0],published=latest.get(name);
+  if(!published)return;
+  common++;
+  if(published!==relative)different.push(name);
+ });
+ // Guard odd entry routes rather than triggering an endless refresh.
+ return common>=15?Array.from(new Set(different)).slice(0,8):[];
+}
+function recentlyAttemptedUpdate(key,time){
+ try{
+  var last=JSON.parse(sessionStorage.getItem('hh-live-update-attempt-v687')||'null');
+  if(last&&last.key===key&&time-Number(last.at)<90000)return true;
+  sessionStorage.setItem('hh-live-update-attempt-v687',JSON.stringify({key:key,at:time}));
+ }catch(_){}
+ return false;
+}
 async function checkForLiveUpdate(){
  if(updateChecking||!navigator.onLine)return;
  var n=Date.now();if(n-lastUpdateCheck<8000)return;lastUpdateCheck=n;updateChecking=true;
@@ -69,11 +101,21 @@ async function checkForLiveUpdate(){
   if(!r.ok)return;
   var txt=await r.text(),m=txt.match(/healthhub-live-build"\s+content="([^"]+)"/i);
   var live=m&&m[1]||'';
-  if(live&&live!==LIVE_BUILD){
-   try{window.toast&&window.toast('Új HealthHub verzió: '+live+' · frissítés…')}catch(e){}
+  var changed=changedPublishedModules(txt);
+  if((live&&live!==LIVE_BUILD)||changed.length){
+   var target=(live||LIVE_BUILD)+'|'+changed.join(',');
+   if(recentlyAttemptedUpdate(target,n))return;
+   try{window.toast&&window.toast('Új HealthHub-kiadás: '+(live||LIVE_BUILD)+' · frissítés…')}catch(e){}
    if(safeForAutoReload()){
-    setTimeout(function(){try{var u=new URL(location.href);u.searchParams.set('hhv',live.replace(/^v/i,''));location.replace(u.toString())}catch(e){location.reload()}},450);
-   }else{
+    setTimeout(function(){
+     try{
+      var u=new URL(location.href);
+      u.searchParams.set('hhv',(live||LIVE_BUILD).replace(/^v/i,''));
+      u.searchParams.set('hh_asset_refresh',String(n));
+      location.replace(u.toString());
+     }catch(e){location.reload()}
+    },450);
+   }else if(live&&live!==LIVE_BUILD){
     try{sessionStorage.setItem('hh-pending-live-build',live)}catch(e){}
    }
   }
