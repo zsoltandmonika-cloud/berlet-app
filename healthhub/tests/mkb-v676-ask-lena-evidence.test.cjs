@@ -29,7 +29,7 @@ test('every Vault request remains bound to active user-visible profile and sourc
  assert.match(source,/authorizedProfiles\.includes\(p\)/);
  assert.match(source,/profile_key=eq\./);
  assert.match(source,/check\(p,v\)/);
- assert.match(source,/sourceIds|var sid=/);
+ assert.match(source,/fullIndex\.catalog\(docs,sources,p\)/);
  assert.match(source,/auditor\.audit\(facts,ev,sources,docs,pages,digest\)/);
  assert.match(source,/crypto\.subtle\.digest\('SHA-256'/);
  assert.match(source,/window\.addEventListener\('healthhub:profile-changed',reset\)/);
