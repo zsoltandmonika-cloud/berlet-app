@@ -80,7 +80,52 @@ function pack(input,profile,granted,question){
   return {payload:input,added:0,limited:true};
  return {payload:next,added:items.length,originalExcerpts:docs.length,limited:false};
 }
-var api=Object.freeze({pack,validDay});
+
+/* Plan B: preserve legacy short-citation pack for old entries, but use the
+ * patient's full-text, original-page search output for new research.
+ * All source characters remain in hh_kb_pages/fulltext VIEW. An AI request
+ * contains the selected, verbatim 2300-character page windows, not a global
+ * replacement summary or the old 4/6 curated fact table.
+ */
+function packFull(input,profile,granted,question){
+ if(!input||input.schema!=='healthhub.ask-lena/1'||input.consent!==true||
+    input.profile!==profile||!['monika','zsolt'].includes(profile)||
+    typeof question!=='string'||question.trim().length<3||
+    !Array.isArray(granted)||!Array.isArray(input.documentEvidence)||
+    !Array.isArray(input.sources)||!Array.isArray(input.extra))
+  throw Error('full_corpus_profile_or_consent_mismatch');
+ var docs=[],seen=new Set();
+ for(const r of granted){
+  if(!r||r.fullCorpus!==true||r.profile!==profile||
+     !/^[a-f0-9-]{36}$/i.test(r.sourceId||'')||
+     !Number.isInteger(Number(r.page))||Number(r.page)<1||
+     !validDay(r.date)||typeof r.quote!=='string'||r.quote.length<30)
+   continue;
+  var sourceId=String(r.sourceId),page=Number(r.page),key=sourceId+'|'+page;
+  if(seen.has(key))continue;seen.add(key);
+  var label=r.dateKind==='filename'?' [dátum a fájlnévben; nem hitelesített vizsgálati dátum]':
+   ' [forrásdátum; nem bizonyított eseménydátum]';
+  docs.push({type:'original_pdf_extract',documentId:sourceId,
+   title:clean(r.title,145)+label,date:r.date,datePrecision:'unknown',
+   page,text:r.quote.slice(0,2300)});
+  if(docs.length===12)break;
+ }
+ if(!docs.length)return {payload:input,added:0,limited:true};
+ // The server currently allows 16 document passages with max 2450 chars each.
+ // Preserve as many earlier already-approved documents as fit this request;
+ // none of the database's complete originals/pages are removed.
+ var previous=input.documentEvidence.filter(d=>d&&d.type!=='original_pdf_extract');
+ var combined=docs.concat(previous).slice(0,16);
+ var next=Object.assign({},input,{
+  documentEvidence:combined,originalDocumentsConsent:true,
+ });
+ if(JSON.stringify({sources:next.sources,extra:next.extra}).length>18500||
+    JSON.stringify(next).length>110000)
+  return {payload:input,added:0,limited:true};
+ return {payload:next,added:docs.length,originalExcerpts:docs.length,
+  limited:false,mode:'full_page_text_search'};
+}
+var api=Object.freeze({pack,packFull,validDay});
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.HH_MKB_AI_CONTEXT_V677=api;
 })(typeof window!=='undefined'?window:globalThis);
