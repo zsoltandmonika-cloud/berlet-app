@@ -27,5 +27,5 @@ assert.equal(route('?hhNarrativeQA=v406').route,'/functions/v1/smooth-endpoint-v
 assert.equal(route('?hhNarrativeQA=v405').route,'/functions/v1/smooth-endpoint-v405-preview');
 assert.equal(route('?hhMkbQA=v1&hhNarrativeQA=v406').route,'/functions/v1/hh-mkb-search-preview');
 assert.equal(route('?hhMkbQA=%2Ffunctions%2Fv1%2Fmalicious').route,'/functions/v1/smooth-endpoint-v395');
-assert.ok(html.includes('live-v331.js?v=703-mkb-optin-qa'),'new script cache buster');
+assert.ok(html.includes('live-v331.js?v=699-oneclick-evidence&mkbQA=703'),'new script cache buster');
 console.log('PASS: MKB QA explicit-opt-in routing and legacy route regression');
