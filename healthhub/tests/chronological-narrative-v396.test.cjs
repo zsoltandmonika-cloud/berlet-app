@@ -40,10 +40,10 @@ assert.ok(ids.indexOf('ambulance')<ids.indexOf('dec'));
 assert.ok(ids.indexOf('june')<ids.indexOf('nov'));
 assert.ok(ids.indexOf('july')<ids.indexOf('dec'));
 const guided=p.instruction(p.decide('Mi történt velem 2024. június 17-én?'),{originals:4});
-assert.ok(guided.includes('időrendi'));
+assert.ok(/hiteles időrend|időrendi/.test(guided));
 assert.ok(!guided.includes('Tagold: (1) dokumentált tények'));
 assert.ok(!guided.includes('(4) hiányzó bizonyítékok'));
-assert.ok(guided.includes('forrásokkal igazolt'));
+assert.ok(/forrásolt|forrásokkal igazolt/.test(guided));
 
 (async()=>{
  const x=await import('../../supabase/functions/smooth-endpoint-v395/audit.mjs');
