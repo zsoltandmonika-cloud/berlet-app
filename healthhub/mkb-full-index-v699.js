@@ -127,7 +127,88 @@ async function rankPages(rows,pages,question,digest,ranker){
   selectionMode:recent?'recent_original_reports':'question_lexical_relevance',
   kind:'quoted_pages_pending_clinical_review'};
 }
-var api=Object.freeze({catalog,filterCatalog,rankPages,norm});
+
+/* Plan B: full original corpus is stored in one authorized, read-only VIEW.
+ * Rank the complete page_text of EVERY eligible page (not a 400-character
+ * extract and not the six curated fact-evidence rows). Only the chosen
+ * source windows, verbatim, enter one explicitly requested AI call.
+ */
+async function rankCorpus(all,question,digest){
+ if(typeof digest!=='function')throw Error('page_digest_required');
+ var active=Array.isArray(all)?all:[];
+ var userQuestion=norm(question),tokens=userQuestion.split(' ').filter(t=>t.length>=3);
+ var latest=/(legutobb|legfriss|legujabb|utolso|legutolso|legutobbi|legfrissebb)/.test(userQuestion);
+ var related=new Set(tokens);
+ if(/sziv|kardio|cardio|keringes|pulzus|ritmus/.test(userQuestion))
+  ['sziv','kardio','ekg','echo','szivultrahang','ritmus','concor','entresto','ef'].forEach(x=>related.add(x));
+ if(/ver|labor|cukor|koleszterin|vese/.test(userQuestion))
+  ['labor','hemoglobin','ver','cukor','koleszterin','kreatinin','egfr'].forEach(x=>related.add(x));
+ var entries=[],ids=new Set(),catalog=new Map(),bytes=0;
+ for(const raw of active){
+  if(!raw||!['monika','zsolt'].includes(raw.profile_key)||
+    typeof raw.full_text!=='string'||!raw.document_id||!raw.source_id||
+    !Number.isInteger(Number(raw.page_no))||Number(raw.page_no)<1)continue;
+  var p=String(raw.profile_key),documentId=String(raw.document_id),key=p+'|'+documentId+'|'+raw.page_no;
+  if(ids.has(key))continue;ids.add(key);
+  var title=String(raw.document_name||'').slice(0,180),date=
+    day(raw.filename_date)||day(raw.source_observed_date);
+  var record={profile:p,documentId,sourceId:String(raw.source_id),title,
+    date,dateKind:day(raw.filename_date)?'filename':'source_metadata',
+    category:String(raw.category||'Egyéb').slice(0,70),
+    page:Number(raw.page_no),text:raw.full_text,hash:String(raw.text_sha256||''),
+    duplicate:raw.duplicate_source===true};
+  var current=catalog.get(p+'|'+documentId);
+  if(!current)catalog.set(p+'|'+documentId,{id:documentId,sourceId:record.sourceId,
+    title,profile:p,date,dateKind:record.dateKind,category:record.category,
+    pageCount:0,duplicate:record.duplicate});
+  catalog.get(p+'|'+documentId).pageCount++;
+  bytes+=raw.full_text.length;
+  if(!/^[a-f0-9]{64}$/i.test(record.hash)||record.text.length<30)continue;
+  var hay=norm(title+' '+record.category),body=norm(record.text);
+  var score=0;
+  for(const t of related){
+   if(hay.includes(t))score+=10;
+   if(body.includes(t))score+=3;
+  }
+  entries.push(Object.assign(record,{score}));
+ }
+ var allDocs=Array.from(catalog.values()).sort((a,b)=>
+  b.date.localeCompare(a.date)||a.title.localeCompare(b.title,'hu')||a.id.localeCompare(b.id));
+ entries.sort((a,b)=>
+  (latest?b.date.localeCompare(a.date)||b.score-a.score:
+    b.score-a.score||b.date.localeCompare(a.date))||
+   a.page-b.page||a.documentId.localeCompare(b.documentId));
+ var selected=[],failed=0,used=new Set(),considered=0;
+ for(const r of entries){
+  if(selected.length===12||considered>=100)break;
+  if(used.has(r.documentId))continue;
+  if(!latest&&r.score===0)continue;
+  considered++;
+  var verified=false;
+  try{verified=(await digest(r.text)).toLowerCase()===r.hash.toLowerCase()}catch(_){}
+  if(!verified){failed++;continue}
+  used.add(r.documentId);
+  // The index never loses characters. This AI request carries an unmodified
+  // contiguous window of the selected page to fit the active backend (2450).
+  var location=0;
+  if(r.text.length>2300&&!latest){
+   for(const t of related){
+    var at=norm(r.text).indexOf(t);
+    if(at>=0){location=Math.max(0,at-300);break}
+   }
+  }
+  var excerpt=r.text.slice(location,location+2300);
+  selected.push({sourceId:r.sourceId,date:r.date,dateKind:r.dateKind,
+   title:r.title,source:r.title,page:r.page,quote:excerpt,review:'pending',
+   category:r.category,fullCorpus:true,profile:r.profile,
+   completePageLength:r.text.length,selectedStart:location});
+ }
+ return {selected,catalog:allDocs,documents:allDocs.length,
+  eligiblePages:entries.length,allPages:ids.size,
+  totalCharacters:bytes,integrityRejected:failed,
+  selectionMode:latest?'latest_original_docs':'whole_page_question_search'};
+}
+var api=Object.freeze({catalog,filterCatalog,rankPages,rankCorpus,norm});
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.HH_MKB_FULL_INDEX_V699=api;
 })(typeof window!=='undefined'?window:globalThis);
