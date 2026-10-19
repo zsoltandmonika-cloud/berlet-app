@@ -149,15 +149,21 @@ async function read(){
   }
   // Explicit, ephemeral approval for ONE future query. No PDF body is cached
   // and no unverified evidence is eligible for forwarding.
+  // For older imports several exact quotes may cover the same event,
+  // including much longer administrative text. Prefer the SHORTEST
+  // independently verified excerpt with meaningful actual result content.
   var selected=groups.filter(g=>g.records.length>0&&g.evidences.length>0&&
-    g.evidences.every(e=>qa.get(e.id)?.verified)).slice(0,5).map(g=>({
-     date:g.date,title:g.title,
-     source:String(names.get(g.evidences[0].source_id)||'Eredeti PDF').slice(0,90),
-     sourceId:g.evidences[0].source_id,
-     page:g.evidences[0].page_no,
-     quote:String(g.evidences[0].excerpt||'').slice(0,400),
-     review:g.statuses.length===1&&g.statuses[0]==='verified'?'verified':'pending'
-  }));
+    g.evidences.every(e=>qa.get(e.id)?.verified)).slice(0,5).map(g=>{
+     var e=g.evidences.filter(x=>qa.get(x.id)?.verified)
+      .sort((a,b)=>String(a.excerpt||'').length-String(b.excerpt||'').length)[0];
+     return {
+      date:g.date,title:g.title,
+      source:String(names.get(e.source_id)||'Eredeti PDF').slice(0,90),
+      sourceId:e.source_id,page:e.page_no,
+      quote:String(e.excerpt||'').slice(0,400),
+      review:g.statuses.length===1&&g.statuses[0]==='verified'?'verified':'pending'
+     };
+  });
   if(selected.length&&opt&&pick){
    prepared={profile:p,items:selected,at:Date.now(),generation:v};
    opt.disabled=false;pick.hidden=false;
