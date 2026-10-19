@@ -6,16 +6,20 @@
 var CFG=window.HH_CENTRAL_VAULT||{},STORE='hh-daily-health-factors-317',
  SKEY='hh-supabase-health-session-v1',REM='hh-health-vault-trusted-device-v332',SLUG=CFG.householdSlug||'zsolt-monika';
 var states={m:{mode:'local',revision:0,snapshot:null,remote:null},z:{mode:'local',revision:0,snapshot:null,remote:null}};
-var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null,autoAttempted=false,accessRefresh=null;
+var session=null,busy=false,lastError='',saving=null,profiles=null,household=null,container=null,autoAttempted=false,accessRefresh=null,refreshInFlight=null;
 function el(id){return document.getElementById(id)}
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[c]})}
 function active(){return CFG.enabled===true&&/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(CFG.supabaseUrl||''))&&typeof CFG.publishableKey==='string'&&CFG.publishableKey.length>12}
 function url(path){return CFG.supabaseUrl.replace(/\/$/,'')+path}
 function persistentOptIn(){try{return localStorage.getItem(REM)==='yes'}catch(e){return false}}
 function sRead(){
- try{var a=sessionStorage.getItem(SKEY);if(a)return JSON.parse(a)}catch(e){}
- try{if(persistentOptIn())return JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){}
- return null;
+ var temporary=null,remembered=null;
+ try{temporary=JSON.parse(sessionStorage.getItem(SKEY)||'null')}catch(e){}
+ try{if(persistentOptIn())remembered=JSON.parse(localStorage.getItem(SKEY)||'null')}catch(e){}
+ if(!persistentOptIn())return temporary;
+ if(remembered&&remembered.access_token&&remembered.refresh_token&&
+  (!temporary||Number(remembered.expires_at)>=Number(temporary.expires_at)))return remembered;
+ return temporary||remembered;
 }
 function sSave(v,remember){
  session=v;
@@ -48,13 +52,62 @@ function call(path,opts){
    return d;
   });
 }
-async function ensureToken(){
- if(!session)throw new Error('Bejelentkezés szükséges.');
- if(Date.now() < (session.expires_at||0)*1000-75000)return;
- if(!session.refresh_token){sSave(null);throw new Error('A munkamenet lejárt. Jelentkezz be újra.')}
- var v=await call('/auth/v1/token?grant_type=refresh_token',{method:'POST',data:{refresh_token:session.refresh_token}});
- if(!v||!v.access_token)throw new Error('Nem sikerült frissíteni a munkamenetet.');
- sSave({access_token:v.access_token,refresh_token:v.refresh_token,expires_at:Math.floor(Date.now()/1000)+Number(v.expires_in||3600)});
+function adoptRotatedToken(){
+ if(!persistentOptIn()||!session)return false;
+ try{
+  var newer=JSON.parse(localStorage.getItem(SKEY)||'null');
+  if(newer&&newer.refresh_token&&newer.access_token&&
+   newer.refresh_token!==session.refresh_token&&
+   Number(newer.expires_at)>Date.now()/1000+30){
+   session=newer;try{sessionStorage.setItem(SKEY,JSON.stringify(newer))}catch(e){}
+   return true;
+  }
+ }catch(e){}
+ return false;
+}
+async function renewToken(force,oldToken){
+ if(!session)throw new Error('Health Vault: jelentkezz be.');
+ adoptRotatedToken();
+ if(force&&oldToken&&session.access_token!==oldToken)return;
+ if(!force&&Date.now()<(session.expires_at||0)*1000-75000)return;
+ if(!session.refresh_token)throw new Error('A Vault munkamenetének megújításához új belépés szükséges.');
+ var usedRefresh=session.refresh_token;
+ try{
+  var v=await call('/auth/v1/token?grant_type=refresh_token',{method:'POST',data:{refresh_token:usedRefresh}});
+  if(!v||!v.access_token||!v.refresh_token)throw new Error('Nem érkezett érvényes megújított Vault-munkamenet.');
+  if(!session||session.refresh_token!==usedRefresh)return;
+  sSave({access_token:v.access_token,refresh_token:v.refresh_token,
+   expires_at:Math.floor(Date.now()/1000)+Number(v.expires_in||3600)});
+ }catch(e){
+  // Offline/temporary errors retain the local login. A second tab may have rotated the token.
+  if(adoptRotatedToken())return;
+  if(e&&[400,401].includes(e.httpStatus)&&session&&session.refresh_token===usedRefresh){
+   sSave(null);profiles=null;window.dispatchEvent(new Event('healthhub:central-auth-changed'));
+   throw new Error('A Vault hozzáférése érvénytelen. Egyszeri új belépés szükséges.');
+  }
+  throw e;
+ }
+}
+async function ensureToken(force,oldToken){
+ if(!session)throw new Error('Health Vault: jelentkezz be.');
+ if(!force&&Date.now()<(session.expires_at||0)*1000-75000)return;
+ if(refreshInFlight)return refreshInFlight;
+ var fn=function(){
+  if(typeof navigator!=='undefined'&&navigator.locks&&navigator.locks.request)
+   return navigator.locks.request('hh-private-vault-token-refresh',function(){return renewToken(force,oldToken)});
+  return renewToken(force,oldToken);
+ };
+ refreshInFlight=Promise.resolve().then(fn).finally(function(){refreshInFlight=null});
+ return refreshInFlight;
+}
+async function authorizedCall(path,opts){
+ await ensureToken();
+ var prev=session.access_token;
+ try{return await call(path,opts)}catch(e){
+  if(e.httpStatus!==401)throw e;
+  await ensureToken(true,prev);
+  return call(path,opts);
+ }
 }
 async function login(email,password,remember){
  if(!active())return;
@@ -76,13 +129,13 @@ function logout(){
 async function fetchCloud(){
  await ensureToken();
  // Use the existing, RLS-protected HealthHub-Core schema.
- var pp=await call('/rest/v1/hh_profiles?select=profile_key');
+ var pp=await authorizedCall('/rest/v1/hh_profiles?select=profile_key');
  if(!Array.isArray(pp))throw new Error('Nem érhetők el a családi profilok.');
  profiles={};
  pp.forEach(function(p){if(p.profile_key==='monika')profiles.m='monika';if(p.profile_key==='zsolt')profiles.z='zsolt'});
  if(!profiles.m&&!profiles.z)throw new Error('Ehhez a fiókhoz nincs engedélyezett HealthHub-profil.');
  household=SLUG;
- var items=await call('/rest/v1/hh_daily_health_settings?select=profile_key,settings,revision,updated_at&profile_key=in.(monika,zsolt)');
+ var items=await authorizedCall('/rest/v1/hh_daily_health_settings?select=profile_key,settings,revision,updated_at&profile_key=in.(monika,zsolt)');
  if(!Array.isArray(items))throw new Error('A napi egészségbeállítási tábla nem érhető el.');
  var loc=local();
  ['m','z'].forEach(function(k){
@@ -102,7 +155,7 @@ async function upload(k){
  busy=true;lastError='';draw();
  try{
   await ensureToken();
-  var r=await call('/rest/v1/rpc/healthhub_daily_health_save',{method:'POST',data:{
+  var r=await authorizedCall('/rest/v1/rpc/healthhub_daily_health_save',{method:'POST',data:{
    p_household_slug:SLUG,
    p_profile_key:k==='m'?'monika':'zsolt',
    p_settings:payload,
@@ -207,7 +260,7 @@ function mount(host){
  }
  draw();
  if(session&&!profiles&&!busy&&!autoAttempted){
-  autoAttempted=true;busy=true;fetchCloud().catch(function(err){lastError=err.message||'Nem érhető el a központi tárhely.'}).finally(function(){busy=false;draw()});
+  autoAttempted=true;void refreshProfileAccess();
  }
 }
 
@@ -216,7 +269,7 @@ function refreshProfileAccess(){
  if(accessRefresh)return accessRefresh;
  lastError='';
  accessRefresh=fetchCloud().then(function(){lastError='';return true}).catch(function(err){
-  profiles=null;
+  if(!session)profiles=null;
   lastError='A profiljogosultságok nem tölthetők be. Ellenőrizd a kapcsolatot, majd próbáld újra. ('+
    (err&&err.httpStatus?'HTTP '+err.httpStatus:'kapcsolati hiba')+')';
   return false;
