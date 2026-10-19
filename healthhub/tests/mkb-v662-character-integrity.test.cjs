@@ -16,7 +16,7 @@ test('new ingestion, admin, and migration have valid syntax and deployment linka
   assert.doesNotThrow(() => new Function(ingest));
   assert.doesNotThrow(() => new Function(admin));
   assert.equal(index.split('hh-mkb-batch-admin-v662.js').length - 1, 1);
-  assert.match(index, /v680-vault-trusted-auto-reconnect/);
+  assert.match(index, /v680-trusted-refresh/);
   for (const col of ['extracted_characters','stored_characters','pages_verified','text_integrity_status']) {
     assert.match(schema, new RegExp(col));
   }
@@ -68,7 +68,9 @@ test('Connection recovery calls the existing Health Vault login without automati
   assert.match(admin,/service\.openLogin\(\)/);
   assert.match(admin,/if\(!beforeAction\(who\)\)return/);
   assert.match(admin,/requireDrive\(who\)/);
-  assert.match(admin,/hhGetGoogleDriveToken292\(true\)|get\(true\)/);
+  assert.match(admin,/hh-drive-oauth-v682/);
+  assert.match(admin,/action:'check'/);
+  assert.doesNotMatch(admin,/hhGetGoogleDriveToken292/);
   assert.match(admin,/healthhub:central-auth-changed/);
   const assertActive=admin.split('function assertActive(who){')[1].split('function vaultLogin(){')[0];
   assert.doesNotMatch(assertActive,/GoogleDriveToken/);
@@ -82,7 +84,7 @@ test('Admin Vault auth with active session refreshes RLS-authorized profiles and
   assert.match(vault, /function refreshProfileAccess\(\)/);
   assert.match(vault, /if\(session&&!profiles\)refreshProfileAccess\(\)/);
   assert.match(vault, /data-auth-v332="refresh"/);
-  assert.match(vault, /profilejogosultságok nem tölthetők be/);
+  assert.match(vault, /profiljogosultságok nem tölthetők be/);
   assert.match(vault, /healthhub:central-auth-changed/);
   assert.doesNotMatch(vault.split('function refreshProfileAccess(){')[1].split('function renderLoginOverlay(){')[0], /sSave\(|upload\(|download\(/);
 });
