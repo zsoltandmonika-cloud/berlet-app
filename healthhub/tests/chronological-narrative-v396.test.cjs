@@ -83,10 +83,13 @@ assert.ok(/forrásolt|forrásokkal igazolt/.test(guided));
  assert.equal(audited.stats.demoted,2,'fabricated duration and doctor are both silently removed');
  assert.ok(audited.stats.unsupportedDoctors>=1);
  assert.equal(audited.stats.documented,2);
- const answer=x.formatClinicalAnswer(audited,idx);
- assert.ok(answer.includes('🚑 2024. június 17. – A rosszullét'));
- assert.ok(answer.indexOf('🚑')<answer.indexOf('🏥'));
- assert.ok(answer.includes('**Forrás:** Szintetikus sürgősségi lap (2024-06-19, 2. oldal)'));
+ // Current formatter requires the already-vetted excerpt set, not
+ // just drafted source identifiers, before showing patient facts.
+ const answer=x.formatClinicalAnswer(audited,idx,[],extract);
+ assert.ok(answer.includes('## A leletek története'));
+ assert.ok(answer.includes('2024.06.17-én 17:30'));
+ assert.ok(answer.indexOf('17:30')<answer.indexOf('19:13'));
+ assert.ok(answer.includes('**Forrás:** Szintetikus sürgősségi lap · 2. oldal'));
  assert.ok(answer.includes('Dr. Próba Anna'));
  assert.ok(!answer.includes('Dr. Kitalált Béla'));
  assert.ok(!answer.includes('legalább 20 percig'));
