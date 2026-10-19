@@ -154,8 +154,8 @@ function collect(question,forcedProfile){
  var docs=arr(c&&c.documents&&c.documents.index),mp=read(MAP)||{},dr=[];
  var docsAvail=docs.filter(function(d){return d&& (d.driveArchive&&d.driveArchive.fileId||(mp[String(d.id)]&&mp[String(d.id)].fileId))}).length;
  var hitDocs=docs.filter(function(d){return relevant(q,[d.title,d.category,d.explanation&&d.explanation.summary].join(' '))});
- dr.push(entry('Indexelt leletek',String(docs.length),'db',null,'Csak indexadatok, a PDF-eket a Bridge nem nyitja meg'));
- dr.push(entry('Drive-hivatkozásos leletek',String(docsAvail),'db',null,'Nem bizonyítja, hogy a fájl itt olvasható'));
+ dr.push(entry('Helyi Health Context-indexben nyilvántartott leletek',String(docs.length),'db',null,'Ez nem a központi, ellenőrzött MKB lelettár összes dokumentumának száma.'));
+ dr.push(entry('Régi helyi Drive-linkek (nem központi archívum)',String(docsAvail),'db',null,'A nulla itt NEM azt jelenti, hogy hiányoznak a Google Drive eredetik vagy a központi MKB-források.'));
  if(hitDocs.length)hitDocs.slice(0,3).forEach(function(d){dr.push(entry('Kapcsolódó lelet',short(d.title,88),'',d.date,'Indexben talált egyezés, nem PDF-bizonyíték'))});
  sources.push(source('records','📁','Kórlapok · leletek',c&&docs.length?dr:[],null,'archive',
   hitDocs.length+' index szerinti keresési találat. Az eredeti dokumentumhoz külön Drive-jóváhagyás szükséges.'));
