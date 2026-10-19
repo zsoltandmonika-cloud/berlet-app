@@ -60,17 +60,18 @@ test('existing data over server count or request size limits is not silently tru
  assert.equal(out.added,0);
  assert.strictEqual(out.payload,large);
 });
-test('one-use checkbox is off by default, scoped to profile and invalidated by auth/profile change',()=>{
- assert.match(ui,/opt\.type='checkbox';opt\.disabled=true/);
- assert.match(ui,/var opt=el\('hhAskMkbUse677'\),cache=prepared,granted=!!\(opt&&opt.checked\)/);
- assert.match(ui,/if\(opt\)opt\.checked=false/);
+test('one-use explicit source button is bounded by question, patient and auth',()=>{
+ assert.doesNotMatch(ui,/type='checkbox'/);
+ assert.match(ui,/approved=prepared;run\.click\(\)/);
+ assert.match(ui,/cache=prepared,granted=!!\(cache&&approved===cache\)/);
+ assert.match(ui,/approved=null;prepared=null/);
  assert.match(ui,/prepared=null;/);
  assert.match(ui,/cache\.generation!==version/);
  assert.match(ui,/Date\.now\(\)-cache\.at>5\*60\*1000/);
  assert.match(ui,/!allowed\(p\)/);
  assert.match(ui,/healthhub:profile-changed',reset/);
  assert.match(ui,/healthhub:central-auth-changed',reset/);
- assert.match(ui,/g\.evidences\.every\(e=>qa\.get\(e\.id\)\?\.verified\)/);
+ assert.match(ui,/fullIndex\.rankPages\(catalog,pages,question,digest,ranker\)/);
 });
 test('consented document notes enter ASK only after I-04/I-07, and before I-05 final preflight',()=>{
  assert.match(ask,/mkbConsent\.consume\(p,question\)/);
@@ -95,7 +96,7 @@ test('no local persistence and no uncapped PDF transmission',()=>{
 test('v677 script build, module syntax and ordered bootstrapping',()=>{
  for(const s of [source,ui,ask])assert.doesNotThrow(()=>new Function(s));
  assert.match(index,/daily-health-sync\.js\?v=680-trusted-refresh/);
- assert.match(index,/live-v331\.js\?v=698-question-bound-sources/);
- assert.match(index,/ask-lena-mkb-v676\.js\?v=698-question-bound-one-shot/);
- assert.match(index,/mkb-ai-context-v677\.js\?v=698-discrepancy-guard/);
+ assert.match(index,/live-v331\.js\?v=699-oneclick-evidence/);
+ assert.match(index,/ask-lena-mkb-v676\.js\?v=699-all-indexed-documents/);
+ assert.match(index,/mkb-ai-context-v677\.js\?v=699-source-date-clarity/);
 });
