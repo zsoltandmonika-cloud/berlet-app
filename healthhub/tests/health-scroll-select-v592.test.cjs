@@ -95,7 +95,7 @@ assert.ok(docImporter.includes('var e=ext(name),isManifest=name.split')&&
 assert.ok(docImporter.includes("notes.get(hash)")&&docImporter.includes("old.profile===profile")&&
  docImporter.includes("doc.lenaExplanationImported=item.explanation"),'SHA and profile scoped explanation attachment');
 assert.ok(docImporter.includes("doc.category=note.category;doc.documentDate=note.documentDate"),'explicit dates and tags survive filename differences');
-assert.ok(html.includes('live-v128.js?v=654-sha256-explanation-bundle'),'new importer served without stale cache');
+assert.ok(html.includes('live-v128.js?v=695-safe-4pdf-reattach'),'new importer served without stale cache');
 
 console.log('Health scroll-select v592 opt-in + OMSZ + medicines + privacy source contract PASS');
 

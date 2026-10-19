@@ -1,0 +1,28 @@
+name: HealthHub v695 four-PDF mobile reattach QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v128.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-reattach-import-v695.test.cjs'
+      - 'healthhub/tests/pdf-viewer-v690.test.cjs'
+      - 'healthhub/tests/pdf-cross-id-v693.test.cjs'
+      - '.github/workflows/healthhub-pdf-reattach-v695-qa.yml'
+  push:
+    paths:
+      - 'healthhub/live-v128.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-reattach-import-v695.test.cjs'
+      - '.github/workflows/healthhub-pdf-reattach-v695-qa.yml'
+jobs:
+  sha-original-and-explanation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact four-PDF attachment and standard PDF regression
+        run: node --test healthhub/tests/pdf-reattach-import-v695.test.cjs healthhub/tests/pdf-cross-id-v693.test.cjs healthhub/tests/pdf-original-sha-v692.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/pdf-device-audit-v691.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs
