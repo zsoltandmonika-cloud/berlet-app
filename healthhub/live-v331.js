@@ -733,7 +733,9 @@ async function run(opts){
    var msg=e&&e.message||'Ismeretlen AI-hiba.';
    if(/failed to fetch|networkerror|load failed/i.test(msg))msg='A kutatómotor nem érhető el. Nincs kész válasz. Ellenőrizni kell a szerverkapcsolatot.';
    showError(msg);
-   showLocalAnswer(question,p,typeof report!=='undefined'&&report&&report.profile===p?report:null);
+   // Never synthesize a fallback history when source evidence is required.
+   if(!msg.includes('ellenőrzött eredeti PDF-részlet'))
+    showLocalAnswer(question,p,typeof report!=='undefined'&&report&&report.profile===p?report:null);
   }
  }finally{
   if(turn===epoch){active=null;el('hhRun299').disabled=false;q.disabled=false}
