@@ -65,7 +65,7 @@ function create(){
  var btn=document.createElement('button');btn.id='hhGoogleDriveOfflineButton683';
  btn.type='button';btn.hidden=true;btn.style.cssText='margin-top:8px;min-height:44px;border:1px solid #77bdd5;background:#236986;color:white;border-radius:10px;padding:8px 13px;font-weight:750;cursor:pointer';
  var hint=document.createElement('small');
- hint.textContent='A meglévő Drive-kapcsolat változatlan. Google-engedélyt kizárólag a gomb megnyomásakor kérünk; megújító token nem kerül a böngészőbe.';
+ hint.textContent='Az eredeti PDF-ek olvasásához az új szerveroldali Drive-kapcsolatot használjuk. A régebbi Drive JSON-szinkron külön ellenőrzendő. Google-token nem kerül a böngészőbe.';
  hint.style.cssText='display:block;color:#b4d4e3;margin-top:6px';
  var inventory=document.createElement('button');inventory.id='hhDriveInventoryV685';
  inventory.type='button';inventory.hidden=true;
@@ -140,12 +140,12 @@ function create(){
    validateCurrentProfile(who);
    showPdfProof(who,'✅ Hiteles eredeti PDF próbaolvasás: '+(who==='monika'?'Mónika':'Zsolt')+
     ' · 1 PDF · '+bytes.byteLength.toLocaleString('hu-HU')+
-    ' bájt.\\nSHA-256: pontos egyezés a privát MKB eredeti lenyomatával. Nincs módosítás vagy újraimportálás.');
+    ' bájt.\nSHA-256: pontos egyezés a privát MKB eredeti lenyomatával. Nincs módosítás vagy újraimportálás.');
   }catch(e){
    if(selectedProfile()===who)
     showPdfProof(who,'⚠ PDF próbaolvasás nem igazolt: '+
      String(e&&e.message||e||'ismeretlen hiba').slice(0,190)+
-     '.\\nEredeti dokumentum és MKB változatlan.');
+     '.\nEredeti dokumentum és MKB változatlan.');
   }finally{loading=false;proofButton.disabled=false;inventory.disabled=false;btn.disabled=false}
  });
 
@@ -175,11 +175,11 @@ function create(){
    var pdfs=result.files.filter(function(f){return f&&f.mimeType==='application/pdf'});
    if(pdfs.length!==result.files.length)throw Error('Eltérő fájltípus a leltárban.');
    showInventory(who,'✅ Szerveroldali Drive-leltár: '+(who==='monika'?'Mónika':'Zsolt')+
-    ' · '+pdfs.length+' PDF.\\nA Google-token a szerveren maradt, az eredeti dokumentumok változatlanok.',true);
+    ' · '+pdfs.length+' PDF.\nA Google-token a szerveren maradt, az eredeti dokumentumok változatlanok.',true);
   }catch(e){
    if(selectedProfile()===who)
     showInventory(who,'⚠ A privát Drive-leltár nem igazolható: '+
-     String(e&&e.message||'kapcsolati hiba').slice(0,135)+'.\\nDokumentum nem módosult.');
+     String(e&&e.message||'kapcsolati hiba').slice(0,135)+'.\nDokumentum nem módosult.');
   }finally{loading=false;inventory.disabled=false;btn.disabled=false}
  });
 
@@ -229,7 +229,7 @@ async function refresh(){
    if(version!==request||!el(ID))return;
    var valid=!!(verified&&verified.connected===true&&!verified.reauthorizationNeeded);
    status.textContent=valid
-    ? '✅ Tartós Google-engedély aktív. A szerver önállóan megújította a hozzáférést és ellenőrizte a Google-fiókot. A Drive-adatútvonal átállítása még külön feladat.'
+    ? '✅ Tartós Google-engedély aktív. A szerver önállóan megújította a hozzáférést és ellenőrizte a Google-fiókot. Az eredeti PDF-olvasók átállítása folyamatban: az új útvonal tesztelését még el kell végezni.'
     : '⚠ A titkosított engedély megvan, de a szerveroldali Google-hozzáférés nem igazolható. Használd a Google-engedély újrakiadása gombot.';
    if(inventory)inventory.hidden=!valid;
   }else{
