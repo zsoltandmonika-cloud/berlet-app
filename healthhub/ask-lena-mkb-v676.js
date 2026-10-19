@@ -117,7 +117,7 @@ async function read(){
  host.hidden=false;host.textContent='';
  if(!allowed(p)){host.textContent='🔒 Az adott profilhoz érvényes Health Vault-belépés kell.';return}
  var timeline=window.HH_MKB_TIMELINE_V674,auditor=window.HH_MKB_EVIDENCE_AUDIT_V675,ranker=window.HH_MKB_EVIDENCE_I10_V698,fullIndex=window.HH_MKB_FULL_INDEX_V699;
- if(!timeline||!auditor||!ranker||!fullIndex||typeof timeline.groups!=='function'||typeof auditor.audit!=='function'||typeof ranker.rank!=='function'||typeof fullIndex.catalog!=='function'||typeof fullIndex.rankPages!=='function'){
+ if(!timeline||!auditor||!ranker||!fullIndex||typeof timeline.groups!=='function'||typeof auditor.audit!=='function'||typeof ranker.rank!=='function'||typeof fullIndex.catalog!=='function'||typeof fullIndex.rankCorpus!=='function'){
   host.textContent='⚠ Forrásellenőrző modul hiányzik. Frissítsd a HealthHubot.';return;
  }
  prepared=null;approved=null;
@@ -128,48 +128,68 @@ async function read(){
   var filter='&profile_key=eq.'+encodeURIComponent(p);
   // Independent full, authorized PDF catalog, NOT limited to seven curated
   // MKB facts. Metadata only until the user clicks the source lens.
-  var [facts,ev,sources,docs]=await Promise.all([
+  var [facts,ev,sources,docs,corpus]=await Promise.all([
    fetchPages(p,v,'hh_mkb_facts','id,profile_key,source_id,observed_date,label,fact_type,review_status,value_number,original_unit',filter),
    fetchPages(p,v,'hh_mkb_evidence','id,profile_key,fact_id,source_id,page_no,excerpt,evidence_role,review_status',filter),
    fetchPages(p,v,'hh_mkb_sources','id,profile_key,original_name,sha256,parse_status,source_metadata,origin,source_kind,original_observed_at,duplicate_of',filter),
    fetchPages(p,v,'hh_kb_documents','id,profile_key,mkb_source_id,original_name,status,text_integrity_status,total_pages,pages_verified,duplicate_of,sha256',filter),
+   fetchPages(p,v,'hh_mkb_fulltext_search','profile_key,document_id,source_id,page_no,document_name,filename_date,source_observed_date,category,full_text,character_count,text_sha256,duplicate_source',filter),
   ]);
   check(p,v);
-  var catalog=fullIndex.catalog(docs,sources,p);
-  // Page text is queried solely inside this user-invoked lens, using patient
-  // RLS. Each excerpt is independently SHA checked before eligible for AI.
-  var pages=[],docIds=catalog.map(d=>d.id);
-  for(var j=0;j<docIds.length;j+=15){
-   var part=await fetchPages(p,v,'hh_kb_pages','document_id,page_no,page_text,text_sha256',
-    '&document_id=in.('+docIds.slice(j,j+15).join(',')+')');
-   pages.push(...part);
-  }
+  // Existing original pages are indexed, not re-imported or truncated.
+  var oldCatalog=fullIndex.catalog(docs,sources,p);
+  var pages=corpus.map(x=>({document_id:x.document_id,page_no:x.page_no,
+   page_text:x.full_text,text_sha256:x.text_sha256}));
   var qa=await auditor.audit(facts,ev,sources,docs,pages,digest);
   check(p,v);
+  var docMap=new Map();
+  corpus.forEach(function(x){
+   if(!x||x.profile_key!==p||!x.document_id)return;
+   var d=docMap.get(x.document_id);
+   if(d){d.pageCount++;return}
+   docMap.set(x.document_id,{
+    id:x.document_id,sourceId:x.source_id,title:x.document_name,
+    date:x.filename_date||x.source_observed_date||'',category:x.category||'Egyéb',
+    profile:p,pageCount:1,duplicate:x.duplicate_source===true
+   });
+  });
+  var catalog=Array.from(docMap.values()).sort(function(a,b){
+   return String(b.date).localeCompare(String(a.date))||
+    String(a.title).localeCompare(String(b.title),'hu');
+  });
   var groups=timeline.groups(facts,ev),names=new Map(sources.map(x=>[x.id,x.original_name]));
   host.textContent='';
   var h=document.createElement('div');h.className='note';
   var verified=ev.filter(x=>qa.get(x.id)?.verified).length;
-  h.textContent=name(p)+' · '+catalog.length+' ellenőrzött PDF · '+verified+'/'+ev.length+
-   ' külön strukturált forrásidézet. A teljes katalógus megtekinthető, de a technikai integritás nem jelent orvosi jóváhagyást.';
+  h.textContent=name(p)+' · '+catalog.length+' feldolgozott PDF · '+corpus.length+
+   ' teljes szövegű oldal · '+corpus.reduce((n,x)=>n+Number(x.character_count||0),0).toLocaleString('hu-HU')+
+   ' karakter · minden kiolvasható adat kereshető. A technikai integritás nem klinikai minősítés.';
   host.appendChild(h);
   var browser=document.createElement('details');browser.open=true;
   var heading=document.createElement('summary');heading.textContent='📚 Teljes ellenőrzött dokumentumtár · '+catalog.length+' PDF';
   browser.appendChild(heading);
   var search=document.createElement('input');search.type='search';search.id='hhMkbCatalogSearch699';
-  search.placeholder='Keresés a '+catalog.length+' lelet címében vagy forrásdátumában…';
+  search.placeholder='Keresés címre, dátumra, kategóriára vagy a PDF teljes szövegére…';
   search.setAttribute('aria-label','Egészségügyi dokumentum keresése');
   browser.appendChild(search);
   var listing=document.createElement('div');listing.className='catalog';
   listing.setAttribute('role','list');browser.appendChild(listing);
   function showCatalog(){
    listing.textContent='';
-   var found=fullIndex.filterCatalog(catalog,search.value);
+   var query=fullIndex.norm(search.value),terms=query.split(' ').filter(Boolean);
+   var matches=new Set();
+   if(terms.length)corpus.forEach(function(pg){
+    if(pg.profile_key!==p)return;
+    var normalized=fullIndex.norm((pg.document_name||'')+' '+(pg.filename_date||'')+
+     ' '+(pg.category||'')+' '+(pg.full_text||''));
+    if(terms.every(t=>normalized.includes(t)))matches.add(pg.document_id);
+   });
+   var found=terms.length?catalog.filter(d=>matches.has(d.id)):catalog;
    if(!found.length){var empty=document.createElement('small');empty.textContent='Nincs ilyen című indexelt PDF.';listing.appendChild(empty)}
    for(const d of found){
     var line=document.createElement('small');line.setAttribute('role','listitem');
     line.textContent='📄 '+d.title+' · '+d.pageCount+' oldal'+
-     (d.date?' · forrásdátum: '+d.date:'')+
+     (d.date?' · dátumjelzés: '+d.date:'')+' · '+d.category+
      ' · szövegintegritás igazolt (nem klinikai minősítés)';
     listing.appendChild(line);
    }
@@ -210,24 +230,22 @@ async function read(){
    var more=document.createElement('small');more.textContent='További események az Admin orvosi idővonalon találhatók.';
    host.appendChild(more);
   }
-  // I-10: rank only SOURCE-ATTESTED excerpts against the question before
-  // previewing the exact set approved for this ONE future AI request.
-  // No new source access, no medical judgment based on lexical similarity.
+  // Plan B: search every available page, not only structured fact excerpts.
   var qe=el('hhSQ299'),question=String(qe&&qe.value||'').trim();
-  var retrieved=await fullIndex.rankPages(catalog,pages,question,digest,ranker);
+  var retrieved=await fullIndex.rankCorpus(corpus,question,digest);
   check(p,v);
   var selected=retrieved.selected;
   var analysis=document.createElement('section');analysis.id='hhAskMkbAnalysis699';
   host.appendChild(analysis);
   var preview=document.createElement('div');preview.className='note';
-  preview.textContent='🧠 I-11 · '+catalog.length+' PDF / '+retrieved.eligiblePages+
-    ' feldolgozott oldal · '+selected.length+
-    ' releváns, bájtszinten ellenőrzött rövid idézet. '+retrieved.integrityRejected+
-    ' sikertelen oldalellenőrzés. A forrásdátum nem feltétlenül az orvosi esemény időpontja.';
+  preview.textContent='🧠 Teljes PDF-szöveges kutatás · '+retrieved.documents+
+    ' lelet / '+retrieved.allPages+' oldal átnézve · '+selected.length+
+    ' eredeti, ellenőrzött PDF-oldalrészlet kiválasztva. '+retrieved.integrityRejected+
+    ' sikertelen oldalellenőrzés. A teljes szöveg változatlanul az adattárban marad.';
   analysis.appendChild(preview);
   if(selected.length){
    var consentPreview=document.createElement('div');consentPreview.className='note';
-   consentPreview.textContent='A következő kutatáshoz előkészített idézetek (jóváhagyás nélkül semmi nem kerül az AI-hoz): '+
+   consentPreview.textContent='A kérdéshez kiválasztott eredeti PDF-oldalak (a teljes szöveg az adattárban marad): '+
     selected.map(x=>x.date+' · '+x.title+' · '+x.source+' ('+x.page+'. oldal) · „'+x.quote.slice(0,160)+'”'+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
    analysis.appendChild(consentPreview);
   }
