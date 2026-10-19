@@ -66,7 +66,14 @@ function mount(){
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
   '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
- '<details><summary>🧠 Medical Intelligence · v675 forrásbizonyíték</summary><ul>'+
+ '<details><summary>🩺 Ask Léna Intelligence · v696 valódi feldolgozási státusz</summary><ul>'+
+ '<li>2026-10-19: a kötelező Drive-PDF-ek 207/207 oldalszintű tárolása technikailag ellenőrzött; 11 Samsung Watch EKG eredeti külön, korábbi tulajdonosi döntéssel KIZÁRT státuszú.</li>'+
+ '<li>A tizenegy kivett fájl hibaállapota nem jelent újra feldolgozandó aktív hátralékot. A kizárást nem oldjuk fel és nem kerül rejtett újraimport sorba.</li>'+
+ '<li>A 12/12 forrásidézet a nyilvántartott beteghez, dokumentumhoz, oldalhoz és oldalszöveghez kapcsolható; mind a 12 szakmai felülvizsgálatra vár.</li>'+
+ '<li>Az Ask Léna csak pontos forrás, profil és hozzájárulás mellett kap orvosi kivonatot. Forrásintegritás NEM azonos klinikai tényjóváhagyással.</li>'+
+ '<li>Az új Admin-diagnózis kizárólag a kötelező kör valós hibáit elemzi, adatot nem ír; a korábban blokkolt v694 írási funkció változatlanul nincs telepítve.</li>'+
+ '</ul></details>'+
+'<details><summary>🧠 Medical Intelligence · v675 forrásbizonyíték</summary><ul>'+
   '<li>Az idővonal csoportosítása csak megjelenítés: az eredeti tények és bizonyítékok változatlanul, külön-külön megmaradnak.</li>'+
   '<li>A forrásidézet igazolásához egyeznie kell a profilnak, az eredeti PDF SHA-256-nak, a forrásoldalnak és az oldalszövegből újraszámolt SHA-256-nak.</li>'+
   '<li>Hibás, kihagyott vagy bizonytalan forrásból nincs automatikusan igazolt tény. A felülvizsgálat státusza minden kártyán külön látható.</li>'+
