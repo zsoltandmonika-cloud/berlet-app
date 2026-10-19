@@ -1,0 +1,28 @@
+name: HealthHub v697 Ask Lena actual model provenance QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v331.js'
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/ask-lena-model-provenance-v697.test.cjs'
+      - '.github/workflows/healthhub-ask-lena-model-v697-qa.yml'
+  push:
+    paths:
+      - 'healthhub/live-v331.js'
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/ask-lena-model-provenance-v697.test.cjs'
+      - '.github/workflows/healthhub-ask-lena-model-v697-qa.yml'
+jobs:
+  ai-completion-provenance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validated model on completed AI answer and historic patient privacy
+        run: node --test healthhub/tests/ask-lena-model-provenance-v697.test.cjs healthhub/tests/mkb-failed-first-page-v696.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs

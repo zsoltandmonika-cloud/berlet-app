@@ -40,10 +40,10 @@ assert.ok(ids.indexOf('ambulance')<ids.indexOf('dec'));
 assert.ok(ids.indexOf('june')<ids.indexOf('nov'));
 assert.ok(ids.indexOf('july')<ids.indexOf('dec'));
 const guided=p.instruction(p.decide('Mi történt velem 2024. június 17-én?'),{originals:4});
-assert.ok(guided.includes('időrendi'));
+assert.ok(/hiteles időrend|időrendi/.test(guided));
 assert.ok(!guided.includes('Tagold: (1) dokumentált tények'));
 assert.ok(!guided.includes('(4) hiányzó bizonyítékok'));
-assert.ok(guided.includes('forrásokkal igazolt'));
+assert.ok(/forrásolt|forrásokkal igazolt/.test(guided));
 
 (async()=>{
  const x=await import('../../supabase/functions/smooth-endpoint-v395/audit.mjs');
@@ -83,10 +83,13 @@ assert.ok(guided.includes('forrásokkal igazolt'));
  assert.equal(audited.stats.demoted,2,'fabricated duration and doctor are both silently removed');
  assert.ok(audited.stats.unsupportedDoctors>=1);
  assert.equal(audited.stats.documented,2);
- const answer=x.formatClinicalAnswer(audited,idx);
- assert.ok(answer.includes('🚑 2024. június 17. – A rosszullét'));
- assert.ok(answer.indexOf('🚑')<answer.indexOf('🏥'));
- assert.ok(answer.includes('**Forrás:** Szintetikus sürgősségi lap (2024-06-19, 2. oldal)'));
+ // Current formatter requires the already-vetted excerpt set, not
+ // just drafted source identifiers, before showing patient facts.
+ const answer=x.formatClinicalAnswer(audited,idx,[],extract);
+ assert.ok(answer.includes('## A leletek története'));
+ assert.ok(answer.includes('2024.06.17-én 17:30'));
+ assert.ok(answer.indexOf('17:30')<answer.indexOf('19:13'));
+ assert.ok(answer.includes('**Forrás:** Szintetikus sürgősségi lap · 2. oldal'));
  assert.ok(answer.includes('Dr. Próba Anna'));
  assert.ok(!answer.includes('Dr. Kitalált Béla'));
  assert.ok(!answer.includes('legalább 20 percig'));

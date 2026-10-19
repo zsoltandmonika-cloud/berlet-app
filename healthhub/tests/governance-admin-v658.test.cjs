@@ -66,10 +66,11 @@ test('v675 admin policy and reporting explicitly separate optional source exclus
  assert.match(moduleSrc,/szövegellenőrzött: /);
  assert.match(moduleSrc,/szakmai ellenőrzésre vár: /);
  assert.match(moduleSrc,/hh_mkb_evidence/);
- assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=696-intelligence-scope-policy/);
+ assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=697-ai-model-audit-charter/);
  assert.match(moduleSrc,/Eredeti PDF hozzáférés · v690 QA/);
  assert.match(moduleSrc,/Eredeti PDF · v692 SHA-256 ütközésfeloldás/);
  assert.match(moduleSrc,/Eredeti PDF · v693 ellenőrzött forrás-helyreállítás/);
  assert.match(moduleSrc,/Eredeti PDF · v695 helyi visszacsatolás és magyarázat/);
  assert.match(moduleSrc,/Ask Léna Intelligence · v696 valódi feldolgozási státusz/);
+ assert.match(moduleSrc,/Ask Léna v697 · hiteles válaszeredet és modellnapló/);
 });

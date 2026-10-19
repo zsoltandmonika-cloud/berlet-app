@@ -644,7 +644,7 @@ async function run(opts){
   if(!(response.headers.get('Content-Type')||'').includes('text/event-stream')||!response.body)
    throw Error('Az AI-kiszolgáló nem küldött élő, ellenőrizhető válaszfolyamot.');
   print('Kapcsolat létrejött. A válasz ténylegesen érkező szövegrészleteit megjelenítem.');
-  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false,answerText='',renderPending=false;
+  var reader=response.body.getReader(),decoder=new TextDecoder(),buffer='',complete=false,received=false,answerText='',renderPending=false,completedModel='';
   function eventHandler(chunk){
    var raw=chunk.split('\n'),kind='',val='';
    raw.forEach(function(line){if(line.startsWith('event:'))kind=line.slice(6).trim();if(line.startsWith('data:'))val+=line.slice(5).trim()});
@@ -658,6 +658,9 @@ async function run(opts){
     return;
    }
    if(kind==='done'){
+    // Record only the actual model from the completed backend AI stream.
+    var serverModel=typeof item.model==='string'?item.model.trim():'';
+    completedModel=/^[A-Za-z0-9._:-]{3,60}$/.test(serverModel)?serverModel:'';
     var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
     // A completed AI stream is not automatically a clinically verified answer.
     var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified);
@@ -706,7 +709,7 @@ async function run(opts){
   }
   if(!complete)throw Error('Nem érkezett teljes AI-válasz. A részleges szöveget töröltem.');
   if(turn===epoch&&profile()===p){
-   try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString(),answerMode:simplified?'simplified-ai':'research-ai'}}))}catch(e){}
+   try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{detail:{profile:p,successful:true,question:question,answer:answerText,generatedAt:new Date().toISOString(),model:completedModel,answerMode:simplified?'simplified-ai':'research-ai'}}))}catch(e){}
    // Re-align once after completion callbacks and final DOM updates.
    // No competing smooth animation: keep the last streaming position at the top.
    setTimeout(function(){if(turn===epoch&&profile()===p)alignAnswerTop()},90);
