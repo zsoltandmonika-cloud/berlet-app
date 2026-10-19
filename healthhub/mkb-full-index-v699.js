@@ -133,6 +133,7 @@ async function rankPages(rows,pages,question,digest,ranker){
  * extract and not the six curated fact-evidence rows). Only the chosen
  * source windows, verbatim, enter one explicitly requested AI call.
  */
+function variants(w){var a=[w];for(const x of ['ban','ben','bol','rol','hoz','hez','on','en','an','ba','be','ra','re','n'])if(w.endsWith(x)&&w.length>x.length+4)a.push(w.slice(0,-x.length));return a;}
 async function rankCorpus(all,question,digest){
  if(typeof digest!=='function')throw Error('page_digest_required');
  var active=Array.isArray(all)?all:[];
@@ -167,8 +168,8 @@ async function rankCorpus(all,question,digest){
   var hay=norm(title+' '+record.category),body=norm(record.text);
   var score=0;
   for(const t of related){
-   if(hay.includes(t))score+=10;
-   if(body.includes(t))score+=3;
+   if(variants(t).some(v=>hay.includes(v)))score+=10;
+   if(variants(t).some(v=>body.includes(v)))score+=3;
   }
   entries.push(Object.assign(record,{score}));
  }
