@@ -1,0 +1,37 @@
+name: HealthHub v699 full clinical catalog and UX QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/mkb-full-index-v699.js'
+      - 'healthhub/mkb-evidence-i10-v698.js'
+      - 'healthhub/ask-lena-mkb-v676.js'
+      - 'healthhub/ask-lena-chat-enhance-v566.js'
+      - 'healthhub/ask-lena-chat-glass-v566.css'
+      - 'healthhub/live-v340.js'
+      - 'healthhub/live-v342.js'
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/tests/mkb-full-catalog-quick-ui-v699.test.cjs'
+      - '.github/workflows/healthhub-v699-full-catalog-qa.yml'
+  push:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/mkb-full-index-v699.js'
+      - 'healthhub/ask-lena-mkb-v676.js'
+      - 'healthhub/ask-lena-chat-enhance-v566.js'
+      - 'healthhub/live-v342.js'
+      - 'healthhub/live-v364-history.js'
+      - '.github/workflows/healthhub-v699-full-catalog-qa.yml'
+jobs:
+  source-integrity-and-mobile-ux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full 164/43 PDF catalog, consent, quick editing and flicker guards
+        run: |
+          node --test healthhub/tests/mkb-full-catalog-quick-ui-v699.test.cjs healthhub/tests/mkb-evidence-i10-v698.test.cjs healthhub/tests/mkb-v677-one-shot-consent.test.cjs healthhub/tests/mkb-v676-ask-lena-evidence.test.cjs healthhub/tests/governance-admin-v658.test.cjs healthhub/tests/ask-lena-model-provenance-v697.test.cjs

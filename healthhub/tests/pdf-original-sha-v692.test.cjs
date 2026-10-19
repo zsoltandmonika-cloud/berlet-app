@@ -40,7 +40,7 @@ function make(files,opts={}){
 }
 test('v692 code is parsed and cache-busted, original server identity checks retained',()=>{
  assert.doesNotThrow(()=>new Function(source));
- assert.match(index,/v698-evidence-relevance-intelligence/);
+ assert.match(index,/v699-full-medical-source-catalog/);
  assert.match(index,/live-v201\.js\?v=693-verified-cross-id-pdf/);
  assert.match(source,/action:'archive_pdf',profile:p,fileId:located\.fileId/);
  assert.match(source,/if\(actual!==expected\)throw Error\('drive_pdf_hash_mismatch'\)/);

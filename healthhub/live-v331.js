@@ -600,7 +600,7 @@ async function run(opts){
   var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
    .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
   if(asksOwnDocument&&researchPlan.clinical&&!verifiedOriginals.length)
-   throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, pipáld be az egyszeri AI-hozzájárulást, majd indítsd újra a Kutatást.');
+   throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
   logSource(data);

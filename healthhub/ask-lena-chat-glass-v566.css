@@ -33,3 +33,61 @@ html #hhLenaSmart299 .hhChat566Search{width:100%;box-sizing:border-box;margin-to
 html #hhLenaSmart299 .hhChat566Search::placeholder{color:var(--hhchat-muted)}
 html #hhLenaSmart299 .hhChat566Empty{color:var(--hhchat-muted);font-size:12px;padding:10px}
 html #hhLenaSmart299 :is(.hhChat566Suggestions button,.hhHistRow364,.hhChat566Search):focus-visible{outline:2px solid var(--hhchat-accent)!important;outline-offset:2px}
+
+/* v699 · compact Ask Léna composer + premium scroll-picker quick questions */
+html #hhLenaSmart299 .hhChat566QuickHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px}
+html #hhLenaSmart299 .hhChat566QuickHeader .hhChat566Edit{
+ border:1px solid var(--hhchat-line);border-radius:12px;padding:7px 11px;
+ background:rgba(104,169,213,.16);color:var(--hhchat-text);font-size:12px;font-weight:700;
+}
+html #hhLenaSmart299 .hhChat566Suggestions{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ flex-wrap:initial!important;gap:3px!important;max-height:152px!important;
+ overflow-y:auto!important;overscroll-behavior:contain!important;
+ scrollbar-width:thin;scrollbar-color:var(--hhchat-accent) transparent;
+ padding:5px!important;margin:0 0 9px!important;
+ border:1px solid var(--hhchat-line);border-radius:16px;
+ background:rgba(7,24,46,.20)
+}
+html #hhLenaSmart299 .hhChat566QuickItem{display:flex;align-items:center;gap:5px;min-width:0;min-height:44px}
+html #hhLenaSmart299 .hhChat566QuickChoice{
+ flex:1!important;min-width:0;text-align:left!important;width:100%;
+ border:0!important;border-radius:10px!important;min-height:42px;
+ background:rgba(102,158,206,.1)!important;padding:9px 11px!important;
+ color:var(--hhchat-text)!important;font-size:12px!important;
+ line-height:1.35!important;white-space:normal!important;
+}
+html #hhLenaSmart299 .hhChat566QuickChoice:active{background:rgba(120,196,255,.24)!important}
+html #hhLenaSmart299 .hhChat566Mini{
+ flex:0 0 38px!important;width:38px!important;height:40px;
+ border:1px solid var(--hhchat-line)!important;border-radius:9px!important;
+ color:var(--hhchat-text)!important;background:rgba(90,140,190,.14)!important;
+ font-size:17px!important;padding:5px!important
+}
+html #hhLenaSmart299 .hhChat566Editor{
+ padding:10px;border:1px solid var(--hhchat-line);border-radius:14px;
+ margin:5px 0 10px;background:rgba(8,32,56,.28)
+}
+html #hhLenaSmart299 .hhChat566Editor[hidden]{display:none!important}
+html #hhLenaSmart299 .hhChat566Editor textarea{
+ width:100%;box-sizing:border-box;min-height:62px;max-height:110px;
+ resize:vertical;border:1px solid var(--hhchat-line);border-radius:11px;
+ background:rgba(8,28,52,.45);color:var(--hhchat-text);
+ padding:9px;font-size:13px
+}
+html #hhLenaSmart299 .hhChat566EditActions{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0}
+html #hhLenaSmart299 .hhChat566EditActions button{
+ border:1px solid var(--hhchat-line);border-radius:9px;
+ background:rgba(65,119,170,.22);color:var(--hhchat-text);
+ padding:8px 10px;font-size:12px;min-height:40px
+}
+html #hhLenaSmart299 .hhChat566Info{display:block;color:var(--hhchat-muted);font-size:11px}
+html #hhLenaSmart299 #hhLenaComposer340{height:190px!important;min-height:190px!important}
+html #hhLenaSmart299 #hhLenaComposer340 #hhSQ299{height:82px!important;min-height:78px!important;max-height:110px!important;overflow-y:auto!important}
+@media(max-width:440px){
+ html #hhLenaSmart299 #hhLenaComposer340{height:186px!important;min-height:186px!important}
+ html #hhLenaSmart299 .hhChat566Suggestions{max-height:138px!important}
+}
+html #hhLenaSmart299 :is(.hhChat566QuickChoice,.hhChat566Edit,.hhChat566Mini,.hhChat566EditActions button):focus-visible{
+ outline:2px solid var(--hhchat-accent)!important;outline-offset:2px
+}

@@ -1,0 +1,30 @@
+name: HealthHub v699 keyed history flicker and full catalog QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/ask-lena-chat-enhance-v566.js'
+      - 'healthhub/mkb-full-index-v699.js'
+      - 'healthhub/ask-lena-mkb-v676.js'
+      - 'healthhub/tests/ask-lena-history-stable-v699.test.cjs'
+      - 'healthhub/tests/mkb-full-index-v699.test.cjs'
+      - '.github/workflows/healthhub-v699-history-flicker-qa.yml'
+  push:
+    paths:
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/tests/ask-lena-history-stable-v699.test.cjs'
+      - 'healthhub/tests/mkb-full-index-v699.test.cjs'
+      - '.github/workflows/healthhub-v699-history-flicker-qa.yml'
+jobs:
+  stable-history-and-sources:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Independent keyed-DOM history and 164/43 PDF QA
+        run: |
+          node --test healthhub/tests/ask-lena-history-stable-v699.test.cjs healthhub/tests/mkb-full-index-v699.test.cjs

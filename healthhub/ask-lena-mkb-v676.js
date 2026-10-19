@@ -4,7 +4,7 @@
  * Does NOT append pending facts or quotes to AI requests. No network except
  * patient-authorized Vault reads; no background scan, telemetry or persistence.
  */
-var ID='hhAskMkb676',busy=false,version=0,prepared=null;
+var ID='hhAskMkb676',busy=false,version=0,prepared=null,approved=null;
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -35,13 +35,40 @@ async function digest(text){
  return [...hash].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 function reset(){
- version++;prepared=null;
+ version++;prepared=null;approved=null;
  var host=el('hhAskMkbBody676'),btn=el('hhAskMkbBtn676');
  if(host){host.textContent='';host.hidden=true}
  if(btn){btn.disabled=false;btn.textContent='📚 Forrásolt orvosi tudás'}
- var opt=el('hhAskMkbUse677');if(opt){opt.checked=false;opt.disabled=true}
- var pick=el('hhAskMkbConsent677');if(pick)pick.hidden=true;
+ var approve=el('hhAskMkbConsentButton699');if(approve)approve.hidden=true;
  busy=false;
+}
+/* v699: fresh question without deleting the 164/43 private PDF catalog,
+   clearing chat history, refreshing authentication or submitting AI data. */
+function clearForNewResearch(){
+ // A running AI request owns its question; never disturb a live generation.
+ var run=el('hhRun299');
+ if(run&&run.disabled)return;
+ // Invalidate any pending read and the previously selected one-use excerpts.
+ version++;prepared=null;approved=null;busy=false;
+ var original=el('hhAskMkbBtn676');if(original)original.disabled=false;
+ var approve=el('hhAskMkbConsentButton699');if(approve)approve.hidden=true;
+ var question=el('hhSQ299');
+ if(question){question.value='';question.dispatchEvent(new Event('input',{bubbles:true}))}
+ var search=el('hhMkbCatalogSearch699');
+ if(search){search.value='';search.dispatchEvent(new Event('input',{bubbles:true}))}
+ var section=el('hhAskMkbAnalysis699');
+ if(section){
+  section.textContent='';
+  var instruction=document.createElement('div');instruction.className='note';
+  instruction.textContent='✅ Új kutatásra kész. A teljes ellenőrzött PDF-katalógus megmaradt. Írj új kérdést, majd frissítsd a forrásválasztást.';
+  section.appendChild(instruction);
+ }else{
+  var host=el('hhAskMkbBody676');
+  if(host&&host.hidden===false){
+   host.textContent='✅ Új kutatásra kész. Írj új kérdést, majd koppints a Forrásolt orvosi tudás gombra.';
+  }
+ }
+ if(question&&typeof question.focus==='function')question.focus();
 }
 function mount(){
  var ask=el('hhLenaSmart299'),actions=ask&&ask.querySelector('.askActions');
@@ -54,21 +81,34 @@ function mount(){
  '#'+ID+' details{margin-top:9px;padding:9px;border:1px solid rgba(127,173,199,.4);border-radius:10px;background:rgba(157,188,212,.08)}'+
  '#'+ID+' summary{cursor:pointer;font-weight:750;min-height:28px}'+
  '#'+ID+' small{display:block;font-size:11px;line-height:1.65;margin:6px 0;overflow-wrap:anywhere}'+
- '#'+ID+' label{display:flex;align-items:flex-start;gap:9px;line-height:1.5;cursor:pointer;margin:10px 0 3px}'+
- '#'+ID+' label input{min-width:19px;min-height:19px;accent-color:#2d8dbe;flex:0 0 19px}';
+ '#'+ID+' .catalog{max-height:310px;overflow:auto;margin-top:6px;border:1px solid rgba(143,185,209,.3);border-radius:11px;padding:5px}'+
+ '#'+ID+' .catalog small{padding:6px 7px;border-bottom:1px solid rgba(143,185,209,.18)}'+
+ '#'+ID+' input[type=search]{box-sizing:border-box;width:100%;min-height:44px;border:1px solid rgba(143,185,209,.45);border-radius:9px;padding:10px;background:rgba(16,43,66,.12);color:inherit}';
  document.head.appendChild(css);
  var box=document.createElement('section');box.id=ID;
  var button=document.createElement('button');button.type='button';button.id='hhAskMkbBtn676';
  button.textContent='📚 Forrásolt orvosi tudás';
+ var clear=document.createElement('button');clear.type='button';clear.id='hhAskMkbClear699';
+ clear.textContent='🔄 Új kutatás';
+ clear.title='Az előző kérdés, kiválasztás és egyszeri AI-jóváhagyás törlése, az orvosi leletek megőrzésével.';
+ clear.setAttribute('aria-label','Új kutatás: kérdés és ideiglenes forráskijelölés törlése');
  var note=document.createElement('div');note.className='note';
  note.textContent='Privát Health Vault · csak megtekintés · az ellenőrzésre váró tényeket nem küldöm automatikusan az AI-nak.';
  var host=document.createElement('div');host.id='hhAskMkbBody676';host.hidden=true;host.setAttribute('role','status');
- var optLabel=document.createElement('label');optLabel.id='hhAskMkbConsent677';optLabel.hidden=true;
- var opt=document.createElement('input');opt.id='hhAskMkbUse677';opt.type='checkbox';opt.disabled=true;
- var optText=document.createElement('span');optText.textContent='🔐 Engedélyezem, hogy a KÖVETKEZŐ Ask Léna-kutatás során a most látható, kérdésemhez rangsorolt legfeljebb 5 eredeti PDF-idézetet továbbítsa a már engedélyezett AI-kiszolgálónak. A teljes PDF-eket nem küldi el. Az engedély csak egyszer használható.';
- optLabel.append(opt,optText);
- box.append(button,note,host,optLabel);actions.insertAdjacentElement('afterend',box);
+ var approve=document.createElement('button');approve.id='hhAskMkbConsentButton699';
+ approve.type='button';approve.hidden=true;
+ approve.textContent='🔐 Kutatás indítása a kiválasztott forrásokkal';
+ approve.title='Egyszeri jóváhagyás a megjelenített idézetek továbbítására az AI-nak, és a kutatás indítása.';
+ box.append(button,clear,note,host,approve);actions.insertAdjacentElement('afterend',box);
  button.addEventListener('click',read);
+ clear.addEventListener('click',clearForNewResearch);
+ approve.addEventListener('click',function(){
+  var run=el('hhRun299'),question=String(el('hhSQ299')?.value||'').trim();
+  if(busy||!prepared||!allowed(profile())||prepared.profile!==profile()||
+     prepared.question!==question||Date.now()-prepared.at>5*60*1000||
+     !run||run.disabled)return;
+  approved=prepared;run.click();
+ });
 }
 async function read(){
  if(busy)return;
@@ -76,29 +116,29 @@ async function read(){
  if(!host||!btn)return;
  host.hidden=false;host.textContent='';
  if(!allowed(p)){host.textContent='🔒 Az adott profilhoz érvényes Health Vault-belépés kell.';return}
- var timeline=window.HH_MKB_TIMELINE_V674,auditor=window.HH_MKB_EVIDENCE_AUDIT_V675,ranker=window.HH_MKB_EVIDENCE_I10_V698;
- if(!timeline||!auditor||!ranker||typeof timeline.groups!=='function'||typeof auditor.audit!=='function'||typeof ranker.rank!=='function'){
+ var timeline=window.HH_MKB_TIMELINE_V674,auditor=window.HH_MKB_EVIDENCE_AUDIT_V675,ranker=window.HH_MKB_EVIDENCE_I10_V698,fullIndex=window.HH_MKB_FULL_INDEX_V699;
+ if(!timeline||!auditor||!ranker||!fullIndex||typeof timeline.groups!=='function'||typeof auditor.audit!=='function'||typeof ranker.rank!=='function'||typeof fullIndex.catalog!=='function'||typeof fullIndex.rankPages!=='function'){
   host.textContent='⚠ Forrásellenőrző modul hiányzik. Frissítsd a HealthHubot.';return;
  }
- prepared=null;
- var opt=el('hhAskMkbUse677'),pick=el('hhAskMkbConsent677');
- if(opt){opt.checked=false;opt.disabled=true}
- if(pick)pick.hidden=true;
+ prepared=null;approved=null;
+ var approve=el('hhAskMkbConsentButton699');
+ if(approve)approve.hidden=true;
  busy=true;btn.disabled=true;host.textContent='⏳ '+name(p)+' · bizonyítékok független ellenőrzése…';
  try{
   var filter='&profile_key=eq.'+encodeURIComponent(p);
-  var [facts,ev]=await Promise.all([
+  // Independent full, authorized PDF catalog, NOT limited to seven curated
+  // MKB facts. Metadata only until the user clicks the source lens.
+  var [facts,ev,sources,docs]=await Promise.all([
    fetchPages(p,v,'hh_mkb_facts','id,profile_key,source_id,observed_date,label,fact_type,review_status,value_number,original_unit',filter),
-   fetchPages(p,v,'hh_mkb_evidence','id,profile_key,fact_id,source_id,page_no,excerpt,evidence_role,review_status',filter)
+   fetchPages(p,v,'hh_mkb_evidence','id,profile_key,fact_id,source_id,page_no,excerpt,evidence_role,review_status',filter),
+   fetchPages(p,v,'hh_mkb_sources','id,profile_key,original_name,sha256,parse_status,source_metadata,origin,source_kind,original_observed_at,duplicate_of',filter),
+   fetchPages(p,v,'hh_kb_documents','id,profile_key,mkb_source_id,original_name,status,text_integrity_status,total_pages,pages_verified,duplicate_of,sha256',filter),
   ]);
-  var sid=[...new Set(facts.map(x=>x.source_id).filter(goodUUID))];
-  var sources=sid.length?await fetchPages(p,v,'hh_mkb_sources',
-   'id,profile_key,original_name,sha256,parse_status,source_metadata,origin,source_kind',
-   filter+'&id=in.('+sid.join(',')+')'):[];
-  var docs=sid.length?await fetchPages(p,v,'hh_kb_documents',
-   'id,profile_key,mkb_source_id,status,text_integrity_status,total_pages,pages_verified,duplicate_of,sha256',
-   filter+'&mkb_source_id=in.('+sid.join(',')+')'):[];
-  var pages=[],docIds=[...new Set(docs.map(d=>d.id).filter(goodUUID))];
+  check(p,v);
+  var catalog=fullIndex.catalog(docs,sources,p);
+  // Page text is queried solely inside this user-invoked lens, using patient
+  // RLS. Each excerpt is independently SHA checked before eligible for AI.
+  var pages=[],docIds=catalog.map(d=>d.id);
   for(var j=0;j<docIds.length;j+=15){
    var part=await fetchPages(p,v,'hh_kb_pages','document_id,page_no,page_text,text_sha256',
     '&document_id=in.('+docIds.slice(j,j+15).join(',')+')');
@@ -110,9 +150,32 @@ async function read(){
   host.textContent='';
   var h=document.createElement('div');h.className='note';
   var verified=ev.filter(x=>qa.get(x.id)?.verified).length;
-  h.textContent=name(p)+' · '+groups.length+' idővonalcsoport · '+verified+'/'+ev.length+
-   ' technikailag visszaellenőrzött bizonyíték. Ez nem klinikai jóváhagyás, és nem automatikusan elküldött AI-kontextus.';
+  h.textContent=name(p)+' · '+catalog.length+' ellenőrzött PDF · '+verified+'/'+ev.length+
+   ' külön strukturált forrásidézet. A teljes katalógus megtekinthető, de a technikai integritás nem jelent orvosi jóváhagyást.';
   host.appendChild(h);
+  var browser=document.createElement('details');browser.open=true;
+  var heading=document.createElement('summary');heading.textContent='📚 Teljes ellenőrzött dokumentumtár · '+catalog.length+' PDF';
+  browser.appendChild(heading);
+  var search=document.createElement('input');search.type='search';search.id='hhMkbCatalogSearch699';
+  search.placeholder='Keresés a '+catalog.length+' lelet címében vagy forrásdátumában…';
+  search.setAttribute('aria-label','Egészségügyi dokumentum keresése');
+  browser.appendChild(search);
+  var listing=document.createElement('div');listing.className='catalog';
+  listing.setAttribute('role','list');browser.appendChild(listing);
+  function showCatalog(){
+   listing.textContent='';
+   var found=fullIndex.filterCatalog(catalog,search.value);
+   if(!found.length){var empty=document.createElement('small');empty.textContent='Nincs ilyen című indexelt PDF.';listing.appendChild(empty)}
+   for(const d of found){
+    var line=document.createElement('small');line.setAttribute('role','listitem');
+    line.textContent='📄 '+d.title+' · '+d.pageCount+' oldal'+
+     (d.date?' · forrásdátum: '+d.date:'')+
+     ' · szövegintegritás igazolt (nem klinikai minősítés)';
+    listing.appendChild(line);
+   }
+  }
+  search.addEventListener('input',showCatalog);
+  showCatalog();host.appendChild(browser);
   if(!groups.length){
    var empty=document.createElement('small');
    empty.textContent='Még nincs rögzített, forrásolt idővonalesemény.';
@@ -151,42 +214,31 @@ async function read(){
   // previewing the exact set approved for this ONE future AI request.
   // No new source access, no medical judgment based on lexical similarity.
   var qe=el('hhSQ299'),question=String(qe&&qe.value||'').trim();
-  var candidateRows=groups.filter(g=>g.records.length>0&&g.evidences.length>0&&
-    g.evidences.every(e=>qa.get(e.id)?.verified)).map(g=>{
-     var e=g.evidences.filter(x=>qa.get(x.id)?.verified)
-      .sort((a,b)=>String(a.excerpt||'').length-String(b.excerpt||'').length)[0];
-     var fact=g.records.find(f=>f.id===e.fact_id)||g.records[0];
-     return {
-      date:g.date,title:g.title,
-      source:String(names.get(e.source_id)||'Eredeti PDF').slice(0,90),
-      sourceId:e.source_id,page:e.page_no,
-      quote:String(e.excerpt||'').slice(0,400),
-      review:g.statuses.length===1&&g.statuses[0]==='verified'?'verified':'pending',
-      factType:String(fact.fact_type||''),valueNumber:fact.value_number,
-      originalUnit:String(fact.original_unit||'')
-     };
-  });
-  var ranked=ranker.rank(candidateRows,question,{max:5}),selected=ranked.selected;
+  var retrieved=await fullIndex.rankPages(catalog,pages,question,digest,ranker);
+  check(p,v);
+  var selected=retrieved.selected;
+  var analysis=document.createElement('section');analysis.id='hhAskMkbAnalysis699';
+  host.appendChild(analysis);
   var preview=document.createElement('div');preview.className='note';
-  preview.textContent='🧠 I-10 · '+selected.length+'/'+ranked.count+
-    ' forrásrészlet kiválasztva a kérdés alapján. '+ranked.relevant+
-    ' szöveges relevanciajelzés · '+ranked.conflictSignals+
-    ' eltérő, azonos napi mért érték. Kulcsszóegyezés nem diagnózis.';
-  host.appendChild(preview);
+  preview.textContent='🧠 I-11 · '+catalog.length+' PDF / '+retrieved.eligiblePages+
+    ' feldolgozott oldal · '+selected.length+
+    ' releváns, bájtszinten ellenőrzött rövid idézet. '+retrieved.integrityRejected+
+    ' sikertelen oldalellenőrzés. A forrásdátum nem feltétlenül az orvosi esemény időpontja.';
+  analysis.appendChild(preview);
   if(selected.length){
    var consentPreview=document.createElement('div');consentPreview.className='note';
    consentPreview.textContent='A következő kutatáshoz előkészített idézetek (jóváhagyás nélkül semmi nem kerül az AI-hoz): '+
     selected.map(x=>x.date+' · '+x.title+' · '+x.source+' ('+x.page+'. oldal) · „'+x.quote.slice(0,160)+'”'+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
-   host.appendChild(consentPreview);
+   analysis.appendChild(consentPreview);
   }
-  if(!ranked.questionReady){
+  if(question.length<3){
    var help=document.createElement('small');
    help.textContent='Az AI-átadáshoz előbb írj konkrét kérdést, majd kattints ismét a Forrásolt orvosi tudásra. A megtekintés önmagában nem engedély.';
-   host.appendChild(help);
+   analysis.appendChild(help);
   }
-  if(selected.length&&ranked.questionReady&&opt&&pick){
+  if(selected.length&&question.length>=3&&approve){
    prepared={profile:p,items:selected,question:question,at:Date.now(),generation:v};
-   opt.disabled=false;pick.hidden=false;
+   approve.hidden=false;
   }
  }catch(_){
   if(version===v&&profile()===p)host.textContent='⚠ Az eredeti források nem ellenőrizhetők. Kérlek, ellenőrizd a Health Vault kapcsolatát.';
@@ -194,10 +246,9 @@ async function read(){
 }
 window.HH_MKB_CONSENT_V677=Object.freeze({
  consume:function(p,question){
-  var opt=el('hhAskMkbUse677'),cache=prepared,granted=!!(opt&&opt.checked);
-  if(opt)opt.checked=false;
-  prepared=null;
-  if(!granted||!cache||!opt||!cache.items.length||!allowed(p)||busy||
+  var cache=prepared,granted=!!(cache&&approved===cache);
+  approved=null;prepared=null;
+  if(!granted||!cache||!cache.items.length||!allowed(p)||busy||
     cache.profile!==p||cache.generation!==version||
    cache.question!==String(question||'').trim()||
     Date.now()-cache.at>5*60*1000||!cache.items.every(x=>x.date&&x.title&&x.quote&&/^[a-f0-9-]{36}$/i.test(x.sourceId)))

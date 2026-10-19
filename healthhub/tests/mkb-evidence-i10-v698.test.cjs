@@ -21,12 +21,12 @@ const request={schema:'healthhub.ask-lena/1',consent:true,profile:'monika',
  sources:[{id:'vitals',entries:[{key:'pulse',value:'63'}]}],extra:[],documentEvidence:[],originalDocumentsConsent:false};
 test('v698 modules parse and load before consent, question and live build keys agree',()=>{
  for(const s of [engineText,lens,packer,assistant])assert.doesNotThrow(()=>new Function(s));
- assert.match(index,/v698-evidence-relevance-intelligence/);
- assert.match(index,/var v='698-evidence-relevance-intelligence'/);
- assert.match(index,/mkb-evidence-i10-v698\.js\?v=698-question-relevance/);
- assert.match(index,/ask-lena-mkb-v676\.js\?v=698-question-bound-one-shot/);
- assert.match(index,/mkb-ai-context-v677\.js\?v=698-discrepancy-guard/);
- assert.match(index,/live-v331\.js\?v=698-question-bound-sources/);
+ assert.match(index,/v699-full-medical-source-catalog/);
+ assert.match(index,/var v='699-full-medical-source-catalog'/);
+ assert.match(index,/mkb-evidence-i10-v698\.js\?v=699-candidate-integrity/);
+ assert.match(index,/ask-lena-mkb-v676\.js\?v=699-all-indexed-documents/);
+ assert.match(index,/mkb-ai-context-v677\.js\?v=699-source-date-clarity/);
+ assert.match(index,/live-v331\.js\?v=699-oneclick-evidence/);
  assert.ok(index.indexOf('mkb-evidence-audit-v675.js')<index.indexOf('mkb-evidence-i10-v698.js'));
  assert.ok(index.indexOf('mkb-evidence-i10-v698.js')<index.indexOf('ask-lena-mkb-v676.js'));
 });
@@ -84,12 +84,13 @@ test('SSE Ask query and single-use MKB consent must be the identical question',(
  assert.match(assistant,/mkbConsent\.consume\(p,question\)/);
  assert.match(lens,/consume:function\(p,question\)/);
  assert.match(lens,/cache\.question!==String\(question\|\|''\)\.trim\(\)/);
- assert.match(lens,/if\(opt\)opt\.checked=false/);
+ assert.match(lens,/approved=null;prepared=null/);
+ assert.doesNotMatch(lens,/type='checkbox'/);
  assert.match(lens,/prepared=null/);
  assert.match(lens,/!allowed\(p\)/);
  assert.match(lens,/Date\.now\(\)-cache\.at>5\*60\*1000/);
- assert.match(lens,/g\.evidences\.every\(e=>qa\.get\(e\.id\)\?\.verified\)/);
- assert.match(lens,/ranker\.rank\(candidateRows,question,\{max:5\}\)/);
+ assert.match(lens,/fullIndex\.catalog\(docs,sources,p\)/);
+ assert.match(lens,/fullIndex\.rankPages\(catalog,pages,question,digest,ranker\)/);
  assert.match(lens,/consentPreview\.textContent/);
  assert.match(lens,/\.quote\.slice\(0,160\)/);
  assert.match(lens,/healthhub:profile-changed',reset/);
