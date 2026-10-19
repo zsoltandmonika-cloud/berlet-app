@@ -192,10 +192,10 @@ window.hhCommitDocumentUpload=async function(){
    if(manifest.targetProfile!==profile)throw new Error('A csomag Mónika/Zsolt profilja eltér a kiválasztott profiltól.');
    if(restoreExisting&&profile!==pkey())throw new Error('A helyreállítás csak az aktív saját profilban engedélyezett.');
    manifest.documents.forEach(function(x){notes.set(x.sha256,x)});
-   if(restoreExisting&&files.length!==manifest.documents.length)
-    throw new Error('A helyreállító ZIP nem pontosan a négy eredeti PDF-et tartalmazza.');
+   if(restoreExisting&&(files.length!==4||manifest.documents.length!==4))
+    throw new Error('A helyreállító ZIP-nek pontosan négy eredeti PDF-et és négy magyarázatot kell tartalmaznia.');
   }
-  var oldByHash=new Map((await all('documents')).filter(function(x){return !!x.sha256}).map(function(x){return [x.sha256,x]}));
+  var oldByHash=new Map((await all('documents')).filter(function(x){return !!x.sha256&&(!restoreExisting||x.profile===profile)}).map(function(x){return [x.sha256,x]}));
   function attachExplanation(doc,item){
    if(!item||item.profile!==profile||doc.lenaExplanationManual||doc.lenaExplanationImported)return false;
    doc.lenaExplanationImported=item.explanation;
@@ -260,7 +260,9 @@ window.hhCommitDocumentUpload=async function(){
       (failed?' · hiba: '+failed:'')+'.'):
     (added+' új lelet elmentve'+(dup?', '+dup+' másolat kihagyva':'')+
       (annotated?', '+annotated+' Léna-magyarázat társítva':'')+(failed?', '+failed+' hiba':'')+'.'));
-  st.profile=profile;st.showAll=false;await window.renderHealthSection();if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
+  st.profile=profile;st.showAll=false;await window.renderHealthSection();
+  // Local original restoration must not trigger an unrelated bulk cloud migration.
+  if(!restoreExisting&&window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
  }catch(e){console.error(e);toastMsg('Feltöltési hiba: '+(e.message||e))}
 };
 
