@@ -213,7 +213,7 @@ function draw(){
   h.innerHTML=header+'<p>Az első szinkron előtt jelentkezz be az előzetesen létrehozott családi fiókkal.</p>'+
    '<form id="hhcs-login-form"><input type="email" name="email" required autocomplete="username" placeholder="E-mail cím" aria-label="E-mail cím">'+
    '<input type="password" name="password" required autocomplete="current-password" placeholder="Jelszó" aria-label="Jelszó">'+
-   '<label class="hhcs-trusted"><input type="checkbox" name="remember"> Emlékezzen rám ezen a saját, megbízható eszközön</label>'+
+   '<label class="hhcs-trusted"><input type="checkbox" name="remember" checked> Emlékezzen rám ezen a saját, megbízható eszközön</label>'+
    '<button type="submit" '+(busy?'disabled':'')+'>🔐 Bejelentkezés</button></form>'+
    (lastError?'<p class="hhcs-error" role="alert">'+escapeHtml(lastError)+'</p>':'')+'</div>';
   var form=el('hhcs-login-form');
@@ -226,7 +226,9 @@ function draw(){
  }
  h.innerHTML=header+'<p>A két profil külön mentődik. Az első feltöltést vagy a különböző verziók összehangolását te hagyod jóvá.</p>'+
   profilePanel('m')+profilePanel('z')+
-  '<div class="hhcs-actions"><button type="button" data-hh-sync-action="refresh">🔄 Állapot ellenőrzése</button><button type="button" data-hh-sync-action="logout">Kilépés</button></div>'+
+  '<div class="hhcs-actions"><button type="button" data-hh-sync-action="refresh">🔄 Állapot ellenőrzése</button>'+
+   (!persistentOptIn()?'<button type="button" data-hh-sync-action="remember">🔐 Eszköz megjegyzése</button>':'<span>✅ Eszköz megjegyezve</span>')+
+   '<button type="button" data-hh-sync-action="logout">Kilépés</button></div>'+
   (busy?'<p>Kapcsolódás és mentés…</p>':'')+
   (lastError?'<p class="hhcs-error" role="alert">'+escapeHtml(lastError)+'</p>':'')+'</div>';
  h.querySelectorAll('button[data-hh-sync-action]').forEach(function(b){b.disabled=busy});
@@ -255,6 +257,7 @@ function mount(host){
    if(a==='upload')upload(k);
    if(a==='download')download(k);
    if(a==='logout')logout();
+   if(a==='remember'&&session){sSave(session,true);lastError='';draw();renderLoginOverlay();}
    if(a==='refresh'){busy=true;lastError='';fetchCloud().catch(function(err){lastError=err.message||'Nincs kapcsolat'}).finally(function(){busy=false;draw()})}
   });
  }
@@ -290,13 +293,15 @@ function renderLoginOverlay(){
   content.innerHTML='<p>✅ A központi Health Vault munkamenete aktív.</p>'+
    '<p>Hozzáférhető profilok: '+escapeHtml(permitted.join(', ')||(accessRefresh?'ellenőrzés folyamatban…':'még nincs ellenőrizve'))+'</p>'+
    '<p>Az Ask Léna és a Daily Health ugyanazt a munkamenetet használja. A Dropbox külön szolgáltatás.</p>'+
-   '<div class="hhca-actions"><button data-auth-v332="refresh" type="button" '+(accessRefresh?'disabled':'')+'>↻ Jogosultságok frissítése</button><button data-auth-v332="close" type="button">Bezárás</button><button data-auth-v332="logout" type="button">Kijelentkezés</button></div>'+
+   '<div class="hhca-actions"><button data-auth-v332="refresh" type="button" '+(accessRefresh?'disabled':'')+'>↻ Jogosultságok frissítése</button>'+
+    (!persistentOptIn()?'<button data-auth-v332="remember" type="button">🔐 Eszköz megjegyzése</button>':'<span>✅ Eszköz megjegyezve</span>')+
+    '<button data-auth-v332="close" type="button">Bezárás</button><button data-auth-v332="logout" type="button">Kijelentkezés</button></div>'+
     (lastError?'<p class="hhca-error" role="alert">'+escapeHtml(lastError)+'</p>':'');
  }else{
   content.innerHTML='<p>Egyszeri központi belépés ezen a készüléken, az Ask Léna és a Daily Health számára.</p>'+
    '<form id="hhcaLoginV332"><label>E-mail<input type="email" name="email" autocomplete="username" required></label>'+
    '<label>Jelszó<input type="password" name="password" autocomplete="current-password" required></label>'+
-   '<label class="hhca-check"><input type="checkbox" name="remember"> Maradjak bejelentkezve ezen a saját, megbízható készüléken</label>'+
+   '<label class="hhca-check"><input type="checkbox" name="remember" checked> Maradjak bejelentkezve ezen a saját, megbízható készüléken</label>'+
    '<small>A tartós belépés a készülék böngészőjében tárolja a munkamenethez szükséges hitelesítő tokent. Közös vagy nyilvános eszközön ne jelöld be.</small>'+
    '<div class="hhca-actions"><button type="submit" '+(busy?'disabled':'')+'>🔐 Belépés</button><button data-auth-v332="close" type="button">Mégse</button></div></form>'+
    (lastError?'<p class="hhca-error">'+escapeHtml(lastError)+'</p>':'');
@@ -333,6 +338,7 @@ function openLogin(){
    var b=e.target.closest('[data-auth-v332]');
    if(b&&b.dataset.authV332==='close')overlay.remove();
     if(b&&b.dataset.authV332==='refresh')refreshProfileAccess();
+    if(b&&b.dataset.authV332==='remember'&&session){sSave(session,true);renderLoginOverlay();draw();}
    if(b&&b.dataset.authV332==='logout')logout();
   });
   document.body.appendChild(overlay);
@@ -343,19 +349,62 @@ function openLogin(){
  if(input)input.focus();
 }
 
+// Restore the trusted session and per-profile permissions on every load.
 sSave(active()?sRead():null);
-window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,openLogin:openLogin,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode,authorizedProfiles:profiles?Object.keys(profiles).filter(function(k){return!!profiles[k]}).map(function(k){return k==='m'?'monika':'zsolt'}):null}},probe:async function(){return fetch(url('/functions/v1/smooth-endpoint'),{method:'OPTIONS',cache:'no-store',mode:'cors'})},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return call(path,opts||{})},
+function resumeVault(){
+ if(!active()||!session)return;
+ if(!profiles){autoAttempted=true;void refreshProfileAccess();return}
+ void ensureToken().catch(function(){
+  lastError='A Vault megújítása átmenetileg sikertelen; a munkamenet megmaradt.';
+  draw();
+ });
+}
+document.addEventListener('visibilitychange',function(){
+ if(document.visibilityState==='visible')resumeVault();
+});
+window.addEventListener('online',resumeVault);
+window.addEventListener('storage',function(e){
+ if(e.key!==SKEY&&e.key!==REM)return;
+ if(!persistentOptIn())return;
+ var copy=sRead();
+ if(!copy){
+  sSave(null);profiles=null;draw();
+  window.dispatchEvent(new Event('healthhub:central-auth-changed'));
+  return;
+ }
+ if(!session||copy.refresh_token!==session.refresh_token){
+  session=copy;
+  try{sessionStorage.setItem(SKEY,JSON.stringify(copy))}catch(err){}
+  if(!profiles)resumeVault();
+ }
+});
+setTimeout(resumeVault,0);
+window.HH_DAILY_HEALTH_SYNC_V319={mount:mount,openLogin:openLogin,onLocalChange:localChanged,getStatus:function(){return {configured:active(),authenticated:!!session,m:states.m.mode,z:states.z.mode,authorizedProfiles:profiles?Object.keys(profiles).filter(function(k){return!!profiles[k]}).map(function(k){return k==='m'?'monika':'zsolt'}):null}},probe:async function(){return fetch(url('/functions/v1/smooth-endpoint'),{method:'OPTIONS',cache:'no-store',mode:'cors'})},request:async function(path,opts){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');return authorizedCall(path,opts||{})},
 binary:async function(path,method,blob,mime){
  if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');
  if(!/^\/storage\/v1\/object\/hh-kb-visuals\/(?:monika|zsolt)\/[a-f0-9-]{36}\/[A-Za-z0-9._-]+$/.test(path))
   throw new Error('Nem engedélyezett tudástár-képútvonal.');
- await ensureToken();
  var verb=method==='GET'?'GET':method==='POST'?'POST':null;
  if(!verb)throw new Error('Nem engedélyezett fájlművelet.');
- var headers={apikey:CFG.publishableKey,Authorization:'Bearer '+session.access_token};
- if(verb==='POST')headers['Content-Type']=mime||'image/png';
- var resp=await fetch(url(path),{method:verb,headers:headers,body:verb==='POST'?blob:undefined,cache:'no-store'});
+ await ensureToken();
+ async function send(){
+  var headers={apikey:CFG.publishableKey,Authorization:'Bearer '+session.access_token};
+  if(verb==='POST')headers['Content-Type']=mime||'image/png';
+  return fetch(url(path),{method:verb,headers:headers,body:verb==='POST'?blob:undefined,cache:'no-store'});
+ }
+ var oldToken=session.access_token,resp=await send();
+ if(resp.status===401){await ensureToken(true,oldToken);resp=await send()}
  if(!resp.ok){var e=new Error('Privát képátvitel HTTP '+resp.status);e.httpStatus=resp.status;throw e}
  return verb==='GET'?resp.blob():resp.json();
-},stream:async function(path,data,signal){if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');await ensureToken();return fetch(url(path),{method:'POST',headers:{apikey:CFG.publishableKey,'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify(data),cache:'no-store',signal:signal})}};
+},stream:async function(path,data,signal){
+ if(!active()||!session)throw new Error('Előbb jelentkezz be a Központi Health Vaultba.');
+ await ensureToken();
+ async function send(){return fetch(url(path),{method:'POST',headers:{
+  apikey:CFG.publishableKey,'Content-Type':'application/json',
+  Authorization:'Bearer '+session.access_token
+ },body:JSON.stringify(data),cache:'no-store',signal:signal})}
+ var oldToken=session.access_token,resp=await send();
+ if(resp.status===401){await ensureToken(true,oldToken);resp=await send()}
+ return resp;
+}};
 })();
