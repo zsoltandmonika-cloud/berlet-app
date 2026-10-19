@@ -30,7 +30,7 @@ function create(){
  hint.style.cssText='display:block;color:#b4d4e3;margin-top:6px';
  var inventory=document.createElement('button');inventory.id='hhDriveInventoryV685';
  inventory.type='button';inventory.hidden=true;
- inventory.style.cssText='display:block;margin-top:8px;min-height:44px;border:1px solid #77bdd5;background:#285168;color:white;border-radius:10px;padding:8px 13px;font-weight:750;cursor:pointer';
+ inventory.style.cssText='margin-top:8px;min-height:44px;border:1px solid #77bdd5;background:#285168;color:white;border-radius:10px;padding:8px 13px;font-weight:750;cursor:pointer';
  inventory.textContent='🔎 Privát Drive-leltár ellenőrzése (csak olvasás)';
  host.append(title,status,btn,inventory,hint);
  parent.insertAdjacentElement('afterend',host);
