@@ -225,11 +225,13 @@ async function diagnoseFailed(){
   });
   show('🩺 MKB · CÉLZOTT HIBADIAGNÓZIS (v696)'+
    '\nProfil: '+pname()+
-   '\nHibás eredetik: '+result.totalFailed+
+   '\nVizsgálandó, kötelező PDF-ek: '+result.totalFailed+
+   '\nKorábban jóváhagyott kizárások: '+Number(result.excludedByScope||0)+
    ' · biztonságosan átvizsgálva: '+result.tested+
    ' · nem vizsgált: '+result.notTested+
    '\n'+(rows.length?rows.join('\n'):'Nincs feldolgozatlan hiba ebben a körben.')+
    '\n\nCsak technikai kategóriák; PDF, név, idézet és gyógyszeradat nem került a jelentésbe.'+
+   '\nA tudatosan kizárt EKG-k nem lesznek automatikusan újrafeldolgozva.'+
    '\nA felhőbeli leletek és az MKB-tények változatlanok.');
  }catch(e){show('⚠ A csak olvasásos vizsgálat leállt: '+String(e&&e.message||e).slice(0,120))}
  finally{busy=false;draw()}
