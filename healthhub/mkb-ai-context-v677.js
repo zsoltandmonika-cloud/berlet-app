@@ -34,8 +34,9 @@ function pack(input,profile,granted,question){
   var key=row.date+'|'+title+'|'+source+'|'+row.page;
   if(seen.has(key))continue;seen.add(key);
   var status=row.review==='verified'?'ellenőrzött státusz':'szakmai ellenőrzésre vár';
-  var indexedDate=row.dateKind==='source_metadata';
-  var labelDate=indexedDate?'PDF-forrásdátum (nem eseménydátum): '+row.date:row.date;
+  var indexedDate=row.dateKind==='source_metadata'||row.dateKind==='source_filename';
+  var labelDate=row.dateKind==='source_filename'?'PDF-fájlnév dátuma (nem eseménydátum): '+row.date:
+   indexedDate?'PDF-forrásdátum (nem eseménydátum): '+row.date:row.date;
   var caution=row.caution?' · ⚠️ azonos napi eltérő mérés, külön ellenőrizendő':'';
    var header=labelDate+' · '+title+' · '+status+caution+' · PDF '+source+
    ' · '+row.page+'. oldal · rövid forrásrészlet: «';
@@ -52,7 +53,7 @@ function pack(input,profile,granted,question){
   docs.push({
    type:'original_pdf_extract',
    documentId:String(row.sourceId),
-   title:clean(row.source||'Eredeti PDF',130)+(indexedDate?' [PDF-forrásdátum, nem eseménydátum]':'')+' [előzetes tényjelölt, klinikai ellenőrzésre vár]',
+   title:clean(row.source||'Eredeti PDF',130)+(indexedDate?' [PDF-dátum nem feltétlen eseménydátum]':'')+' [előzetes tényjelölt, klinikai ellenőrzésre vár]',
    date:row.date,datePrecision:'day',page:Number(row.page),
    text:sourceQuote
   });

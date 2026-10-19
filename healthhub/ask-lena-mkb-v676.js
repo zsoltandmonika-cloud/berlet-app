@@ -220,7 +220,7 @@ async function read(){
   var analysis=document.createElement('section');analysis.id='hhAskMkbAnalysis699';
   host.appendChild(analysis);
   var preview=document.createElement('div');preview.className='note';
-  preview.textContent='🧠 I-11 · '+catalog.length+' PDF / '+retrieved.eligiblePages+
+  preview.textContent='🧠 I-12 · '+catalog.length+' PDF / '+retrieved.eligiblePages+
     ' feldolgozott oldal · '+selected.length+
     ' releváns, bájtszinten ellenőrzött rövid idézet. '+retrieved.integrityRejected+
     ' sikertelen oldalellenőrzés. A forrásdátum nem feltétlenül az orvosi esemény időpontja.';
@@ -228,13 +228,18 @@ async function read(){
   if(selected.length){
    var consentPreview=document.createElement('div');consentPreview.className='note';
    consentPreview.textContent='A következő kutatáshoz előkészített idézetek (jóváhagyás nélkül semmi nem kerül az AI-hoz): '+
-    selected.map(x=>x.date+' · '+x.title+' · '+x.source+' ('+x.page+'. oldal) · „'+x.quote.slice(0,160)+'”'+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
+    selected.map(x=>(x.dateKind==='source_filename'?'PDF-fájlnév dátuma (nem igazolt eseménydátum): ':'PDF-forrásdátum: ')+x.date+' · '+x.title+' ('+x.page+'. oldal) · „'+x.quote.slice(0,160)+'”'+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
    analysis.appendChild(consentPreview);
   }
   if(question.length<3){
    var help=document.createElement('small');
    help.textContent='Az AI-átadáshoz előbb írj konkrét kérdést, majd kattints ismét a Forrásolt orvosi tudásra. A megtekintés önmagában nem engedély.';
    analysis.appendChild(help);
+  }
+  if(!selected.length&&question.length>=3){
+   var missing=document.createElement('small');
+   missing.textContent='⚠ Nem találtam ehhez a kérdéshez ellenőrzött PDF-idézetet. Eredeti forrás nélküli személyes történetet nem indítok.';
+   analysis.appendChild(missing);
   }
   if(selected.length&&question.length>=3&&approve){
    prepared={profile:p,items:selected,question:question,at:Date.now(),generation:v};

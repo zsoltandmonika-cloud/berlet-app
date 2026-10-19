@@ -29,6 +29,21 @@ var vocabulary=[
  ['inspra','eplerenon'],
  ['concor','bisoprolol']
 ];
+// Interpret a clearly named historical date for ranking; never infer an event from it.
+function questionDay(input){
+ var t=norm(input),m=t.match(/\b((?:19|20)\d{2})\s+(\d{1,2})\s+(\d{1,2})\b/),month=0,day=0,year=0;
+ if(m){year=Number(m[1]);month=Number(m[2]);day=Number(m[3])}
+ else {
+  m=t.match(/\b((?:19|20)\d{2})\s+(januar|februar|marcius|aprilis|majus|junius|julius|augusztus|szeptember|oktober|november|december)\s+(\d{1,2})\b/);
+  if(!m)return '';
+  year=Number(m[1]);month=['januar','februar','marcius','aprilis','majus','junius','julius','augusztus','szeptember','oktober','november','december'].indexOf(m[2])+1;
+  day=Number(m[3]);
+ }
+ if(month<1||month>12||day<1||day>31)return '';
+ var dt=new Date(Date.UTC(year,month-1,day));
+ if(dt.getUTCFullYear()!==year||dt.getUTCMonth()+1!==month||dt.getUTCDate()!==day)return '';
+ return year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+}
 function familyFor(queryWords){
  var related=new Set();
  for(const t of queryWords){
@@ -60,8 +75,10 @@ function warnings(rows){
  }
  return flags;
 }
-function score(row,q,related){
+function score(row,q,related,targetDay){
  var title=norm(row.title),source=norm(row.source),quote=norm(row.quote),result=0;
+ // Filename date is document metadata, not proof of the clinical event date.
+ if(targetDay && row.fileDate===targetDay)result+=120;
  for(const t of q){
   if(title.includes(t))result+=8;
   else if(quote.includes(t))result+=4;
@@ -79,7 +96,7 @@ function score(row,q,related){
 }
 function rankCandidates(rows,question,maxRequested){
  var max=Math.min(40,Math.max(1,Number(maxRequested)||5));
- var q=tokens(question),related=familyFor(q);
+ var q=tokens(question),related=familyFor(q),targetDay=questionDay(question);
  var valid=(Array.isArray(rows)?rows:[]).filter(x=>x&&
    typeof x.date==='string'&&typeof x.title==='string'&&
    typeof x.quote==='string'&&typeof x.sourceId==='string'&&
@@ -87,7 +104,7 @@ function rankCandidates(rows,question,maxRequested){
  var flagged=warnings(valid);
  var scored=valid.map((r,i)=>({
   item:Object.assign({},r,{
-   relevanceScore:score(r,q,related),
+   relevanceScore:score(r,q,related,targetDay),
    caution:flagged.has(r.sourceId+'|'+r.date+'|'+r.title)?
     'Azonos napon eltérő dokumentált számszerű értékek vannak; ismételt mérés is lehet. Nem dönthető el automatikusan.':''
   }),i
@@ -104,7 +121,7 @@ function rank(rows,question,opts){
  var max=Math.min(5,Math.max(1,Number(opts&&opts.max)||5));
  return rankCandidates(rows,question,max);
 }
-var api=Object.freeze({rank,rankCandidates,norm,tokens});
+var api=Object.freeze({rank,rankCandidates,norm,tokens,questionDay});
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.HH_MKB_EVIDENCE_I10_V698=api;
 })(typeof window!=='undefined'?window:globalThis);

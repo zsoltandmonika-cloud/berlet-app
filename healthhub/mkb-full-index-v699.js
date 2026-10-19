@@ -51,7 +51,14 @@ function filterCatalog(rows,search){
  var pieces=query.split(' ').filter(x=>x.length>=2);
  return rows.filter(d=>pieces.every(t=>norm(d.title).includes(t)||d.date.includes(t)));
 }
-function excerpt(text,terms){
+// A date in the original PDF filename is only document metadata, not a verified event time.
+function filenameDay(title){
+ var m=String(title||'').match(/^((?:19|20)\d{2}-\d{2}-\d{2})(?:\s|$)/);
+ if(!m)return '';
+ var d=new Date(m[1]+'T12:00:00Z');
+ return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===m[1]?m[1]:'';
+}
+function excerpt(text,terms,dateFocused){
  var source=String(text||'');
  if(source.length<32)return '';
  // The unmodified contiguous excerpt remains a literal substring of the
@@ -63,12 +70,20 @@ function excerpt(text,terms){
   var at=norm(source).indexOf(t);if(at>=0)positions.push(at);
  }
  var start=positions.length?Math.max(0,Math.min(...positions)-85):0;
+ // Historical date questions benefit from the clinical content, not only the
+ // provider letterhead or patient identifier at the start of a PDF page.
+ // The excerpt stays a literal substring of the independently hashed page.
+ if(dateFocused){
+  var hit=/(?:újraéleszt|kamrafibrill|defibrill|szívmegáll|anamnézis|anamnezis|kórlefolyás|kórelőzmény|felvétel|mentőszolgálat|intub|diagnózis|ellátás|beavatkozás)/i.exec(source);
+  if(hit)start=Math.max(0,hit.index-85);
+ }
  return source.slice(start,start+400);
 }
 async function rankPages(rows,pages,question,digest,ranker){
  if(!ranker||typeof ranker.rank!=='function'||typeof digest!=='function')
   throw Error('missing_verified_page_ranker');
  var terms=typeof ranker.tokens==='function'?ranker.tokens(question):[];
+ var targetDay=typeof ranker.questionDay==='function'?ranker.questionDay(question):'';
  var byDoc=new Map((rows||[]).map(x=>[x.id,x]));
  var candidates=[];
  for(const page of Array.isArray(pages)?pages:[]){
@@ -76,12 +91,12 @@ async function rankPages(rows,pages,question,digest,ranker){
   if(!doc||!Number.isInteger(Number(page.page_no))||
      Number(page.page_no)<1||Number(page.page_no)>doc.pageCount||
      typeof page.page_text!=='string'||!sha.test(page.text_sha256||''))continue;
-  var quote=excerpt(page.page_text,terms);
+  var quote=excerpt(page.page_text,terms,!!targetDay);
   if(quote.length<32)continue;
   candidates.push({
-   sourceId:doc.sourceId,date:doc.date,title:doc.title,
-   source:doc.title,page:Number(page.page_no),quote,
-   review:'pending',dateKind:'source_metadata',_documentId:doc.id,
+   sourceId:doc.sourceId,date:filenameDay(doc.title)||doc.date,title:doc.title,
+   fileDate:filenameDay(doc.title),source:doc.title,page:Number(page.page_no),quote,
+   review:'pending',dateKind:filenameDay(doc.title)?'source_filename':'source_metadata',_documentId:doc.id,
    _fullText:page.page_text,_expected:page.text_sha256,
   });
  }

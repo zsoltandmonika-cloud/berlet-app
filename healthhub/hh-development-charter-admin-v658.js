@@ -75,6 +75,12 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>📅 MKB v704 · konkrét eseménynapra visszakeresés</summary><ul>'+
+ '<li>A dátumot kimondó kérdések (például 2024. június 17.) az adott napú PDF-fájlneveket előnyben részesítik; a fájlnév dátuma nem automatikusan klinikai eseménydátum.</li>'+
+ '<li>Az eredeti leletekből csak SHA-256-tal ellenőrzött, a kérdéshez láthatóan kiválasztott és külön engedélyezett idézet használható a klinikai AI-kutatásban.</li>'+
+ '<li>Ha személyes, dátumos eseménykérdésnél nem érkezik PDF-idézet, az Ask Léna nem állít össze általános személyes történetet, hanem az eredeti források jóváhagyására irányít.</li>'+
+ '<li>Állapot: v704 kód és szintetikus teszt; LIVE VERIFIED és USER ACCEPTED csak sikeres teljes alkalmazásteszt után.</li>'+
+ '</ul></details>'+
 '<details><summary>🧪 MKB QA v703 · adatbázis alapú, forráskorlátozott kutatás</summary><ul>'+
  '<li>Az egységes, ellenőrzött dokumentumkereső és az eredeti PDF-oldalra hivatkozás működik a HealthHub-Core adatbázisban.</li>'+
  '<li>A tesztvégpont külön működik, a mindennapi Ask Léna nem változik. Csak kifejezetten jóváhagyott forrásrészlet ellenőrizhető; további PDF-oldal nem kerül automatikusan az AI-nak.</li>'+
