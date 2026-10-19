@@ -41,11 +41,14 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/var state=await send\('status'\)/);
  assert.match(gui,/var verified=await send\('check'\)/);
  assert.match(gui,/action:'archive_inventory',profile:who/);
+ assert.match(gui,/hhDriveInventoryResultV686/);
+ assert.match(gui,/function showInventory\(profile,message\)/);
+ assert.match(gui,/function renderInventory\(\)/);
  assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
  assert.match(index,/v683-server-google-oauth-staged/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=685-private-drive-inventory/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=686-persistent-inventory-result/);
  assert.doesNotThrow(()=>new Function(gui));
 });
 test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF parent',()=>{
