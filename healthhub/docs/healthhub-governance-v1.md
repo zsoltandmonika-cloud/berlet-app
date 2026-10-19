@@ -221,6 +221,20 @@ The panel requires explicit user click and a live **Vault-authorized active prof
 
 Verification: source-JS syntax checks, v676 plugin structure/authorization/write-prohibition tests, and a synthetic in-memory DOM/Vault mock where **zero requests** occur until explicit click; click makes 5 profile-authorized GET requests; one valid synthetic event attests **1/1** exact source SHA and renders its expandable evidence; a profile-change event clears the full preview. **Real mobile Ask Léna visual verification remains a separate user acceptance step**.
 
+## MKB v677 · One-use, explicitly approved Ask Léna knowledge context (2026-10-19)
+
+Release `v677-one-shot-mkb-ai-consent` integrates the user-accepted v676 evidence lens with a tightly controlled **one-time** knowledge-context transfer into Ask Léna's already authorized AI request. The source-lens loader **does not** send medical records to AI by opening a panel, and the user may continue Ask Léna research with the new approval checkbox unchecked.
+
+Flow:
+1. The user clicks the existing `📚 Forrásolt orvosi tudás` panel. All facts/evidence are read from the profile-authorized Vault and checked with `HH_MKB_EVIDENCE_AUDIT_V675`: original source SHA, document/page hash, page quote, active patient, non-excluded source, no rejected fact.
+2. Only evidence with a valid **100% group-level source attestation** qualifies for a short candidate summary (max five groups); `pending` clinical review labels remain explicit. Nothing is persisted to browser storage.
+3. A visible, initially disabled and unchecked consent checkbox permits **one next research action only** to send short profile/source/date/page-qualified notes to the already-consented AI provider. Approval expires after five minutes, after an authorization or profile change, after re-reading the sources, or immediately after one consumption, even if the AI request later fails.
+4. The Ask Léna v331 controller consumes the approval only in its user-initiated research action, and `HH_MKB_AI_CONTEXT_V677.pack` validates the existing `healthhub.ask-lena/1` schema, profile match, consent, calendar dates, review statuses and fixed budgets. The cap is five small source notes, each max 235 characters, and 72 total context entries plus the established request-size ceiling. Without full fit, MKB adds **zero**, not a partially cropped hidden set.
+5. The short `documents`-domain *reported observation* notes carry `I-09 · Orvosi forrástény (PDF-eredet, nem önálló diagnózis)` and source page/date. Original PDF bodies are **not** sent by this new pathway; the existing separately consented original-document retrieval remains unchanged.
+6. The existing I-04 source gate, I-07 reasoning and I-05 final clinical preflight stay in force. The source facts are **not clinician-verified** merely because the SHA and exact quote match. No database inserts, hidden logs, embeddings, daily monitoring or automated background AI calls were added.
+
+Testing: static syntax and pipeline-order checks, 18 pure/adversarial context packing checks, synthetic DOM/Vault exercises of the user approval showing **zero** MKB data without a checked box, **single use** after checking, and immediate invalidation after profile switch. New test suite: `healthhub/tests/mkb-v677-one-shot-consent.test.cjs`. **Real-user phone research and remote AI response remain unverified until separately tested.** This is deliberately not a statement that the general Medical Intelligence reasoning layer is clinically validated.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
