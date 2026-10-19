@@ -566,6 +566,7 @@ async function run(opts){
   }
   // I-09: signed-off-for-this-run MKB notes enter this research after
   // existing I-04/I-07 checks and BEFORE final I-05 quality preflight.
+  var mkbSourceUsed=0;
   if(mkbGrant&&mkbGrant.length){
    if(turn!==epoch||profile()!==p)
     throw Error('I-09: profilváltás miatt nem továbbítható az orvosi forráskontextus.');
@@ -576,6 +577,7 @@ async function run(opts){
     var packed=mkbPacker.pack(data,p,mkbGrant,question);
     if(packed.added){
      data=packed.payload;
+     mkbSourceUsed=packed.originalExcerpts||0;
      print('🔐 I-09: '+packed.added+
       ' külön engedélyezett, forrásolt orvosi megfigyelés szerepel majd a kutatás kérésében, ellenőrzésre váró jelöléssel.');
     }else print('📚 I-09: Az orvosi tényjelöltek nem kerültek továbbításra; a kérés méretkorlátját megőriztük.');
@@ -595,8 +597,10 @@ async function run(opts){
   // v395 pilot: Only explicitly initiated, detailed clinical questions go
   // through the separate two-stage verified-excerpt endpoint. Routine AI,
   // photo mode and prior quick answers keep the stable existing function.
-  var clinicalPilot=customized.plan.mode==='deep'&&!!customized.plan.clinical&&!shot;
+  // v679: evidence-audited three-layer medical answers are the default.
+  var clinicalPilot=!!customized.plan.clinical&&!shot;
   if(clinicalPilot){
+   data.depth='detailed';
    data.researchMode='clinical-v395';
    print('🧪 Clinical Evidence v395: külön kétmenetes ellenőrzött kutatás indul.');
    print('📑 Első menet: szó szerinti PDF-bizonyítékok. Második: értelmezés, majd állításellenőrzés.');
@@ -615,7 +619,7 @@ async function run(opts){
   if(!response.ok){
    var body={};try{body=await response.json()}catch{}
    var safeFallback=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
-   if(safeFallback&&safeFallback.eligibleRetry(body.error,response.status,replyData,question,p)){
+   if(!clinicalPilot&&safeFallback&&safeFallback.eligibleRetry(body.error,response.status,replyData,question,p)){
     print('🛟 A részletes kérés elutasítva. Egyszerűsített AI-kérés, az eredeti kérdéssel és meglévő jogosultsággal…');
     replyData=safeFallback.compact(replyData,question,p);
     response=await svc.stream('/functions/v1/smooth-endpoint',replyData,ctrl.signal);
@@ -656,6 +660,7 @@ async function run(opts){
       (!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
+      (mkbSourceUsed?' · 📚 I-09: '+mkbSourceUsed+' külön engedélyezett MKB-leletidézet továbbítva (szakmai ellenőrzésre vár)':' · 📚 I-09: nem történt új MKB-forrásátadás')+
       (contextual.links.length?' · 🔗 I-07: '+contextual.links.length+' ellenőrzött forráskapcsolat, nem ok-okozati bizonyíték.':'');
     if(narrativeQAMode&&!simplified){
      el('hhAi331Foot').textContent='🧪 KÍSÉRLETI '+narrativeQAVersion+' · '+el('hhAi331Foot').textContent+
