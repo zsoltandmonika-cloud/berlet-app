@@ -316,6 +316,7 @@ function addExtra(context,q){
  (sl.recent||[]).slice(0,12).forEach(function(x){put('sleep','Alvásszakasz',x.durationMin+' perc, '+safe(x.startTime,30)+' → '+safe(x.endTime,30),x.endTime)});
  (ac.recent||[]).slice(0,12).forEach(function(x){put('activity','Napi aktivitás',x.steps+' lépés, '+x.activeMinutes+' aktív perc, '+x.distanceKm+' km',x.date)});
  (context.medications||[]).slice(0,12).forEach(function(x){put('medication','Rögzített gyógyszer',x.name+' '+safe(x.strength,45)+' '+safe(x.schedule,80)+' · '+safe(x.status,35))});
+ (context.supplements||[]).slice(0,8).forEach(function(x){put('supplement','Felhasználói étrend-kiegészítő · szedése nem igazolt',x.name+' '+safe(x.strength,60)+' · státusz: '+safe(x.status,30)+' · '+safe(x.activeIngredient,60))});
  var normalizedQ=safe(q,300).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
  var cardiac=/sziv|kardio|crt|ritmus|defibr|pacemaker|ejekcio|infarkt|szivelegtelenseg|pitvar/i.test(normalizedQ);
  var words=normalizedQ.split(/[^a-z0-9]+/).filter(function(v){return v.length>=3});
