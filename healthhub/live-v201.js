@@ -150,6 +150,7 @@ async function renderImage(blob,name){
  wrap.dataset.imageUrl=url;hideStatus();updateTools();
 }
 function cleanDocument(){
+ pdfOpenSerialV690++;
  state.loadingToken++;
  if(state.renderTask){try{state.renderTask.cancel()}catch(e){}state.renderTask=null}
  if(state.pdf){try{state.pdf.destroy()}catch(e){}state.pdf=null}
@@ -159,20 +160,94 @@ function cleanDocument(){
  state.id=null;state.blob=null;state.page=1;state.pages=0;state.zoom=1;state.mode='pdf';
 }
 
+
+/* v690: read-only server Drive fallback for patient-tagged originals.
+   Never guess by filename or use browser Google tokens. */
+var pdfOpenSerialV690=0;
+function pdfProfileV690(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
+function pdfStillCurrentV690(p,serial){return pdfOpenSerialV690===serial&&pdfProfileV690()===p}
+async function pdfFromPrivateDriveV690(d,p,serial){
+ if(!/\.pdf$/i.test(String(d.originalName||''))&&
+    String(d.contentType||'').toLowerCase()!=='application/pdf')
+  throw Error('remote_pdf_only');
+ var documentId=String(d.id||'');
+ if(!/^[A-Za-z0-9-]{6,140}$/.test(documentId))throw Error('drive_document_invalid_id');
+ var vault=window.HH_DAILY_HEALTH_SYNC_V319;
+ var auth=vault&&vault.getStatus&&vault.getStatus();
+ if(!vault||typeof vault.stream!=='function'||!auth||!auth.authenticated||
+    !Array.isArray(auth.authorizedProfiles)||!auth.authorizedProfiles.includes(p))
+  throw Error('health_vault_required');
+ if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
+ // This action resolves the exact documentId inside the profile's verified Drive folder.
+ // No browser-provided Drive file ID, filename or archive map is used for identity.
+ var response=await vault.stream('/functions/v1/hh-drive-oauth-v682',
+  {action:'archive_document',profile:p,documentId:documentId});
+ if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
+ if(!response.ok){
+  var failure=await response.json().catch(function(){return null});
+  var code=failure&&String(failure.error||'');
+  if(response.status===401||response.status===403)throw Error('drive_profile_forbidden');
+  if(code==='drive_document_locator_ambiguous')throw Error('drive_document_not_indexed');
+  throw Error('drive_read_unavailable');
+ }
+ if(!/^application\/pdf\b/i.test(response.headers.get('content-type')||''))
+  throw Error('drive_pdf_invalid_type');
+ var buffer=await response.arrayBuffer();
+ if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
+ var b=new Uint8Array(buffer);
+ if(b.length<5||b.length>15000000||b[0]!==37||b[1]!==80||
+    b[2]!==68||b[3]!==70||b[4]!==45)throw Error('drive_pdf_invalid_bytes');
+ var expected=String(d.sha256||'').trim().toLowerCase();
+ if(/^[0-9a-f]{64}$/.test(expected)){
+  var sha=new Uint8Array(await crypto.subtle.digest('SHA-256',buffer));
+  if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
+  var actual=Array.from(sha,function(n){return n.toString(16).padStart(2,'0')}).join('');
+  if(actual!==expected)throw Error('drive_pdf_hash_mismatch');
+ }
+ return new Blob([buffer],{type:'application/pdf'});
+}
+function pdfGatewayMessageV690(error){
+ switch(String(error&&error.message||'')){
+  case 'health_vault_required':return 'A PDF csak érvényes Health Vault-bejelentkezéssel és profiljogosultsággal érhető el.';
+  case 'drive_profile_forbidden':return 'A kiválasztott profilhoz nincs igazolt PDF-hozzáférés.';
+  case 'drive_document_not_indexed':return 'A lelet indexe megvan, de ehhez az azonosítóhoz nem található egyértelműen hozzárendelt eredeti Drive-PDF.';
+  case 'drive_pdf_hash_mismatch':return 'Az eredeti PDF ellenőrzőösszege eltér a lelet indexétől. A fájlt biztonsági okból nem jelenítjük meg.';
+  case 'drive_pdf_invalid_bytes':case 'drive_pdf_invalid_type':return 'A Drive-ból érkezett fájl nem ellenőrzött PDF.';
+  case 'remote_pdf_only':return 'Ehhez a dokumentumtípushoz nem áll rendelkezésre eredeti helyi fájl.';
+  default:return 'A PDF nem tölthető le a privát Drive-archívumból. Az eredeti dokumentumot nem módosítottuk.';
+ }
+}
+
 window.openHrDocument=async function(id){
- ensure();cleanDocument();setOpen(true);
+ ensure();cleanDocument();
+ var profile=pdfProfileV690(),serial=pdfOpenSerialV690;
+ setOpen(true);
  setStatus('Dokumentum betöltése…','Az eredeti lelet a HealthHubon belül nyílik meg.',true);
  try{
-  var pair=await Promise.all([one('documents',id),one('documentBlobs',id)]),d=pair[0],x=pair[1];
-  if(!x||!x.blob){setStatus('A dokumentumfájl nem található','A lelet indexe megvan, de az eredeti fájl nincs ezen a készüléken.',false);return}
-  var name=(d&&d.originalName)||'dokumentum.pdf',blob=pdfBlob(x.blob,name),type=String(blob.type||'').toLowerCase();
+  var d=await one('documents',id);
+  if(!pdfStillCurrentV690(profile,serial))return;
+  if(!d||d.profile!==profile){
+   setStatus('A lelet nem érhető el','A dokumentum nem tartozik a kiválasztott profilhoz.',false);return;
+  }
+  var x=await one('documentBlobs',id).catch(function(){return null});
+  if(!pdfStillCurrentV690(profile,serial))return;
+  var original=x&&x.blob;
+  if(!original){
+   setStatus('Eredeti PDF biztonságos betöltése…','Szerveroldali Google Drive-ellenőrzés folyamatban.',true);
+   original=await pdfFromPrivateDriveV690(d,profile,serial);
+  }
+  if(!pdfStillCurrentV690(profile,serial))return;
+  var name=d.originalName||'dokumentum.pdf',blob=pdfBlob(original,name),type=String(blob.type||'').toLowerCase();
   state.id=id;state.name=name;state.blob=blob;
   var n=document.getElementById('hhPdfName');if(n)n.textContent=name;
   if(type==='application/pdf'||ext(name)==='pdf'){
    state.mode='pdf';
    var lib=await loadPdfJs(),bytes=new Uint8Array(await blob.arrayBuffer());
+   if(!pdfStillCurrentV690(profile,serial))return;
    var task=lib.getDocument({data:bytes});
-   state.pdf=await task.promise;state.pages=state.pdf.numPages||1;state.page=1;state.zoom=1;
+   var openedPdf=await task.promise;
+   if(!pdfStillCurrentV690(profile,serial)){try{openedPdf.destroy()}catch(_){}return;}
+   state.pdf=openedPdf;state.pages=state.pdf.numPages||1;state.page=1;state.zoom=1;
    updateTools();await renderPage();
   }else if(type.indexOf('image/')===0||['jpg','jpeg','png','webp'].indexOf(ext(name))>=0){
    await renderImage(blob,name);
@@ -180,8 +255,9 @@ window.openHrDocument=async function(id){
    setStatus('Ez a fájlformátum nem jeleníthető meg','A HealthHub nézegető jelenleg PDF, JPG, PNG és WebP dokumentumokat kezel.',false);
   }
  }catch(e){
-  console.error(e);
-  setStatus('A dokumentum nem nyitható meg','A PDF-megjelenítő betöltése vagy a fájl olvasása sikertelen.',false);
+  if(!pdfStillCurrentV690(profile,serial)||String(e&&e.message)==='pdf_open_cancelled')return;
+  console.warn('HealthHub PDF open blocked:',String(e&&e.message||'unknown').slice(0,70));
+  setStatus('A dokumentum nem nyitható meg',pdfGatewayMessageV690(e),false);
   toastMsg('A dokumentum nem nyitható meg.');
  }
 };
@@ -241,5 +317,8 @@ window.addEventListener('resize',function(){if(document.getElementById('hhOrigin
 
 ensure();
 document.documentElement.dataset.healthhubDocumentViewer='1.101';
-window.HH_LIVE_BUILD='v1.101-pdfjs-document-viewer';
+window.HH_LIVE_BUILD='v1.102-secure-drive-pdf-viewer';
+window.addEventListener('healthhub:profile-changed',function(){
+ if(document.getElementById('hhOriginalDocViewer')?.classList.contains('on'))window.hhCloseOriginalDoc();
+});
 })();
