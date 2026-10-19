@@ -5,6 +5,19 @@
 // OAuth server secrets and verified end-to-end gateway are available.
 // Neither authorization codes nor access/refresh tokens enter storage.
 var ID='hhGoogleDriveOffline683',loading=false,seen=false,version=0;
+var lastInventory=null;
+function selectedProfile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
+function showInventory(profile,message){
+ lastInventory={profile:profile,message:message};
+ var line=el('hhDriveInventoryResultV686');
+ if(line&&selectedProfile()===profile){line.hidden=false;line.textContent=message;}
+}
+function renderInventory(){
+ var line=el('hhDriveInventoryResultV686');if(!line)return;
+ var match=lastInventory&&lastInventory.profile===selectedProfile();
+ line.hidden=!match;
+ if(match)line.textContent=lastInventory.message;
+}
 function el(id){return document.getElementById(id)}
 function vault(){return window.HH_DAILY_HEALTH_SYNC_V319}
 function ready(){
@@ -32,21 +45,31 @@ function create(){
  inventory.type='button';inventory.hidden=true;
  inventory.style.cssText='margin-top:8px;min-height:44px;border:1px solid #77bdd5;background:#285168;color:white;border-radius:10px;padding:8px 13px;font-weight:750;cursor:pointer';
  inventory.textContent='🔎 Privát Drive-leltár ellenőrzése (csak olvasás)';
- host.append(title,status,btn,inventory,hint);
+ var resultLine=document.createElement('div');
+ resultLine.id='hhDriveInventoryResultV686';resultLine.hidden=true;
+ resultLine.setAttribute('role','status');
+ resultLine.setAttribute('aria-live','polite');
+ resultLine.style.cssText='margin:10px 0 4px;padding:10px;border:1px solid rgba(133,202,227,.48);border-radius:10px;background:rgba(5,29,46,.7);font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere';
+ host.append(title,status,btn,inventory,resultLine,hint);
  parent.insertAdjacentElement('afterend',host);
+ renderInventory();
  inventory.addEventListener('click',async function(){
   if(loading||!ready())return;
-  var who=localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
+  var who=selectedProfile();
   var auth=vault().getStatus();
   if(!auth.authorizedProfiles.includes(who)){
-   status.textContent='🔒 A kiválasztott profilhoz nincs Vault-jogosultság.';return;
+   showInventory(who,'🔒 A kiválasztott profilhoz nincs Vault-jogosultság.');return;
   }
   loading=true;inventory.disabled=true;btn.disabled=true;
   try{
-   status.textContent='⏳ A '+(who==='monika'?'Mónika':'Zsolt')+' profil eredeti Google Drive PDF-leltárának ellenőrzése…';
+   showInventory(who,'⏳ A '+(who==='monika'?'Mónika':'Zsolt')+' profil PDF-leltárának ellenőrzése… Várd meg a végleges eredményt.');
    var response=await vault().stream('/functions/v1/hh-drive-oauth-v682',
     {action:'archive_inventory',profile:who});
-   if(!response.ok)throw Error('Szerveroldali leltár HTTP '+response.status);
+   if(!response.ok){
+    var problem=await response.json().catch(function(){return null});
+    var code=problem&&typeof problem.error==='string'&&/^[a-z_]{3,70}$/.test(problem.error)?' · '+problem.error:'';
+    throw Error('Szerveroldali leltár HTTP '+response.status+code);
+   }
    var result=await response.json();
    if(localStorage.getItem('hh-profile')!==(who==='monika'?'m':'z'))
     throw Error('Profilváltás történt.');
@@ -54,11 +77,12 @@ function create(){
     throw Error('Érvénytelen leltárválasz.');
    var pdfs=result.files.filter(function(f){return f&&f.mimeType==='application/pdf'});
    if(pdfs.length!==result.files.length)throw Error('Eltérő fájltípus a leltárban.');
-   status.textContent='✅ Szerveroldali Drive-leltár: '+(who==='monika'?'Mónika':'Zsolt')+
-    ' · '+pdfs.length+' PDF. A token a szerveren maradt, az eredeti dokumentumok változatlanok.';
+   showInventory(who,'✅ Szerveroldali Drive-leltár: '+(who==='monika'?'Mónika':'Zsolt')+
+    ' · '+pdfs.length+' PDF.\\nA Google-token a szerveren maradt, az eredeti dokumentumok változatlanok.');
   }catch(e){
-   status.textContent='⚠ A privát Drive-leltár nem igazolható: '+
-    String(e&&e.message||'kapcsolati hiba').slice(0,95)+'. Dokumentum nem módosult.';
+   if(selectedProfile()===who)
+    showInventory(who,'⚠ A privát Drive-leltár nem igazolható: '+
+     String(e&&e.message||'kapcsolati hiba').slice(0,135)+'.\\nDokumentum nem módosult.');
   }finally{loading=false;inventory.disabled=false;btn.disabled=false}
  });
 
@@ -91,7 +115,8 @@ async function refresh(){
  var host=el(ID),status=el('hhGoogleDriveOfflineStatus683'),
   btn=el('hhGoogleDriveOfflineButton683'),inventory=el('hhDriveInventoryV685');
  if(!host||!status||!btn||!ready())return;
- if(inventory)inventory.hidden=true;
+ // Keep the previous read-only inventory result visible during token status refresh.
+ renderInventory();
  var request=++version;
  try{
   var state=await send('status');
@@ -128,7 +153,9 @@ function mount(){
 window.addEventListener('healthhub:central-auth-changed',function(){
  version++;if(el(ID))refresh();else mount();
 });
-window.addEventListener('healthhub:profile-changed',function(){version++;if(el(ID))refresh()});
+window.addEventListener('healthhub:profile-changed',function(){
+ version++;lastInventory=null;renderInventory();if(el(ID))refresh();
+});
 window.addEventListener('healthhub:google-drive-token-changed',function(){if(el(ID))refresh()});
 function watch(){
  var admin=el('haOv');if(!admin)return;
