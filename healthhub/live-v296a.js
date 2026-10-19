@@ -104,7 +104,7 @@ async function prepare(packet,interactive){
   var bundle={
    schema:'healthhub.lena.research-bundle/1.0',createdAt:new Date().toISOString(),
    profile:packet.profile,profileName:packet.profileName,question:packet.question,route:packet.route,
-   healthContext:{generatedAt:c&&c.generatedAt||null,summary:c&&c.summary||null,signals:c&&c.signals||[],metrics:c&&c.metrics||null,sleep:c&&c.sleep||null,activity:c&&c.activity||null,heartRate:c&&c.heartRate||null,medications:c&&c.medications||[]},
+   healthContext:{generatedAt:c&&c.generatedAt||null,summary:c&&c.summary||null,signals:c&&c.signals||[],metrics:c&&c.metrics||null,sleep:c&&c.sleep||null,activity:c&&c.activity||null,heartRate:c&&c.heartRate||null,medications:c&&c.medications||[],supplements:c&&c.supplements||[]},
    retrieval:{requested:cand.length,retrieved:out.length,failed:failed,totalExtractedChars:chars,maxDocuments:MAX_DOCS,maxDocumentChars:MAX_DOC_CHARS,maxTotalChars:MAX_TOTAL_CHARS,documents:out},
    answerRules:[
     'Elsődleges forrásként az extracted original document text mezőket használd.',
