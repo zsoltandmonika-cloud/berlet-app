@@ -590,6 +590,17 @@ async function run(opts){
    throw Error('I-05 Clinical Quality Gate nem érhető el.');
   var quality=qualityEngine.preflight(data,p);
   data=quality.payload;
+  // v680 fail-closed: if the question names the user's own report but
+  // there is no original excerpt, NEVER emit a plausible generic story.
+  // Medical education questions without a personal record are unaffected.
+  var lookupText=String(question||'').toLocaleLowerCase('hu-HU')
+   .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  var asksOwnDocument=/(lelet|labor|tenyeszt|pdf|dokumentum)/.test(lookupText)&&
+   /(lelet(e|em|eim)|mutat|tartalmaz|meselj|20\d{2})/.test(lookupText);
+  var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
+   .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
+  if(asksOwnDocument&&researchPlan.clinical&&!verifiedOriginals.length)
+   throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, pipáld be az egyszeri AI-hozzájárulást, majd indítsd újra a Kutatást.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
   logSource(data);
