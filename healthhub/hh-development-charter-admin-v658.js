@@ -78,7 +78,13 @@ function mount(){
  '<li>Rendszer: stabilitás, sebesség, mobil használhatóság, adatfrissesség és profilszeparáció. Zöld státusz csak sikeres ellenőrzés után.</li>'+
  '<li>Admin dokumentáció és GitHub technikai dokumentáció egyaránt frissítendő minden jelentős irányváltáskor.</li>'+
  '</ul></details>'+
- '<details><summary>🔎 Eredeti PDF · v693 ellenőrzött forrás-helyreállítás</summary><ul>'+
+ '<details><summary>🛠️ Eredeti PDF · v694 célzott 4 fájlos archiválás</summary><ul>'+
+ '<li>Valós teszt: Mónika PC-n 4 eredeti PDF van helyben, telefonon nulla; csak a négy legutóbbi nem nyílik meg.</li>'+
+ '<li>Csak pontosan 4 helyi PDF és a leletindex SHA-256 egyezése után, külön gombbal és megerősítéssel engedélyezett feltöltés.</li>'+
+ '<li>Privát Drive-mappa, érvényes profiljogosultság, fájlformátum és bájt-SHA kötelező. Meglévő eredetit nem írunk felül és semmit nem törlünk.</li>'+
+ '<li>Felhasználói jóváhagyás előtt nincs író művelet. LIVE VERIFIED csak a PC-s feltöltés és mobilos visszaolvasás után.</li>'+
+ '</ul></details>'+
+'<details><summary>🔎 Eredeti PDF · v693 ellenőrzött forrás-helyreállítás</summary><ul>'+
  '<li>Ha az index és a Drive régi dokumentumazonosítója eltér, csak azonos profilhoz tartozó és SHA-256 alapján bizonyíthatóan azonos eredeti olvasható.</li>'+
  '<li>A Drive szerveroldali profil- és mappaellenőrzése után a PDF teljes letöltött bájtfolyamára új SHA-256 ellenőrzés kötelező.</li>'+
  '<li>Ha a helyi index nem tartalmaz érvényes SHA-256-ot, vagy nem található vele megegyező eredeti, tilos név vagy dátum alapján találgatni.</li>'+
