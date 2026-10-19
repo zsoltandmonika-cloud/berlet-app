@@ -104,6 +104,103 @@ async function refreshedAccess(owner){
  }
  return res.access_token;
 }
+
+/* v685: READ-ONLY patient-scoped original Drive PDF gateway.
+   An authenticated member of one HealthHub profile cannot borrow the
+   other profile, even when Google's household Drive account is shared.
+   Files are trusted ONLY after verifying live folder ancestry in Drive.
+   No opaque Google access token is returned to the browser. */
+async function profileAllowed(owner,profile){
+ if(profile!=="monika"&&profile!=="zsolt")return false;
+ const result=await admin().from("hh_profile_access").select("profile_key")
+  .eq("user_id",owner).eq("profile_key",profile).limit(1);
+ return !result.error&&!!result.data?.length;
+}
+const driveId=x=>typeof x==="string"&&/^[a-zA-Z0-9_-]{8,200}$/.test(x);
+async function googleList(access,q,fields,pageSize=1000,pageToken=""){
+ const url=new URL("https://www.googleapis.com/drive/v3/files");
+ for(const [k,v] of Object.entries({q,spaces:"drive",fields,pageSize:String(pageSize)}))
+  url.searchParams.set(k,v);
+ if(pageToken)url.searchParams.set("pageToken",pageToken);
+ const r=await fetch(url,{headers:{Authorization:"Bearer "+access},
+  signal:AbortSignal.timeout(20000)});
+ if(!r.ok)throw Error("drive_list_unavailable");
+ const result=await r.json();
+ if(!Array.isArray(result?.files))throw Error("drive_list_invalid");
+ return result;
+}
+async function exactArchiveFolder(access,profile){
+ const rootQuery="name = 'HealthHub Lena Archive' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+ const roots=await googleList(access,rootQuery,"nextPageToken,files(id,name,mimeType)",2);
+ if(roots.files.length!==1||roots.nextPageToken||!driveId(roots.files[0].id))
+  throw Error("drive_archive_root_ambiguous");
+ const folderName=profile==="monika"?"Monika":"Zsolt",root=roots.files[0].id;
+ const folderQuery="name = '"+folderName+"' and '"+root+"' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+ const folders=await googleList(access,folderQuery,"nextPageToken,files(id,name,mimeType,parents)",2);
+ if(folders.files.length!==1||folders.nextPageToken||!driveId(folders.files[0].id)||
+    !folders.files[0].parents?.includes(root))
+  throw Error("drive_profile_folder_ambiguous");
+ return folders.files[0].id;
+}
+async function originalInventory(access,profile,folder){
+ const query="'"+folder+"' in parents and mimeType = 'application/pdf' and trashed = false";
+ const fields="nextPageToken,files(id,name,mimeType,size,modifiedTime,md5Checksum,appProperties,parents)";
+ let pages=0,token="",rows=[];
+ do{
+  const result=await googleList(access,query,fields,1000,token);
+  rows.push(...result.files);token=result.nextPageToken||"";
+  if(++pages>4||rows.length>2000)throw Error("drive_inventory_too_large");
+ }while(token);
+ for(const f of rows)
+  if(!driveId(f.id)||f.mimeType!=="application/pdf"||!f.parents?.includes(folder)||
+    (f.appProperties?.profile&&f.appProperties.profile!==profile))
+    throw Error("drive_inventory_profile_mismatch");
+ return rows.map(f=>({id:f.id,name:String(f.name||"").slice(0,340),
+  mimeType:f.mimeType,size:f.size||null,modifiedTime:f.modifiedTime||null,
+  md5Checksum:f.md5Checksum||null,appProperties:f.appProperties||{},
+  parents:[folder]}));
+}
+async function originalPdf(access,profile,folder,id){
+ if(!driveId(id))throw Error("drive_pdf_invalid_id");
+ const url=new URL("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(id));
+ url.searchParams.set("fields","id,name,mimeType,size,modifiedTime,appProperties,parents,trashed");
+ const headers={Authorization:"Bearer "+access};
+ const metadata=await fetch(url,{headers,signal:AbortSignal.timeout(20000)});
+ if(!metadata.ok)throw Error("drive_pdf_metadata_unavailable");
+ const m=await metadata.json();
+ if(m.id!==id||m.trashed||m.mimeType!=="application/pdf"||
+  !Array.isArray(m.parents)||!m.parents.includes(folder)||
+  (m.appProperties?.profile&&m.appProperties.profile!==profile))
+  throw Error("drive_pdf_profile_mismatch");
+ const expected=Number(m.size);
+ if(!Number.isSafeInteger(expected)||expected<5||expected>25000000)
+  throw Error("drive_pdf_size_not_allowed");
+ const download=await fetch("https://www.googleapis.com/drive/v3/files/"+
+  encodeURIComponent(id)+"?alt=media",{headers,signal:AbortSignal.timeout(45000)});
+ if(!download.ok)throw Error("drive_pdf_download_unavailable");
+ // Limit network bytes even if the Google response omits Content-Length.
+ const body=download.body;
+ if(!body)throw Error("drive_pdf_empty");
+ const reader=body.getReader();let chunks=[],length=0;
+ try{
+  for(;;){
+   const {done,value}=await reader.read();
+   if(done)break;
+   length+=value.byteLength;
+   if(length>25000000||length>expected)throw Error("drive_pdf_oversize");
+   chunks.push(value);
+  }
+ }catch(e){await reader.cancel().catch(()=>{});throw e}
+ if(length!==expected)throw Error("drive_pdf_size_mismatch");
+ const data=new Uint8Array(length);let offset=0;
+ for(const chunk of chunks){data.set(chunk,offset);offset+=chunk.byteLength}
+ if(data[0]!==37||data[1]!==80||data[2]!==68||data[3]!==70||data[4]!==45)
+  throw Error("drive_pdf_invalid_signature");
+ return new Response(data,{status:200,headers:{...cors,
+  "Content-Type":"application/pdf","X-Content-Type-Options":"nosniff",
+  "Content-Length":String(length)}});
+}
+
 async function route(req){
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
  const u=new URL(req.url),task=u.searchParams.get("action")||"";
@@ -177,6 +274,32 @@ async function route(req){
    return reply({configured:true,connected:email===
     ENV("HH_GOOGLE_DRIVE_EXPECTED_EMAIL").toLowerCase()});
   }catch(_){return reply({configured:true,connected:false,reauthorizationNeeded:true})}
+ }
+ if(op==="archive_inventory"||op==="archive_pdf"){
+  const profile=String(payload?.profile||"");
+  if(!await profileAllowed(owner,profile))
+   return reply({error:"archive_profile_forbidden"},403);
+  try{
+   const token=await refreshedAccess(owner);
+   if(!token)return reply({error:"drive_connection_missing"},409);
+   const email=await whoGoogle(token);
+   if(email!==ENV("HH_GOOGLE_DRIVE_EXPECTED_EMAIL").toLowerCase())
+    return reply({error:"drive_account_mismatch"},403);
+   const folder=await exactArchiveFolder(token,profile);
+   if(op==="archive_inventory"){
+    const files=await originalInventory(token,profile,folder);
+    return reply({profile,folder,files});
+   }
+   return await originalPdf(token,profile,folder,String(payload?.fileId||""));
+  }catch(e){
+   // No PDF bytes, Drive IDs, Google tokens or clinical metadata in errors.
+   const code=String(e?.message||"drive_gateway_unavailable");
+   const safe=new Set(["drive_archive_root_ambiguous","drive_profile_folder_ambiguous",
+    "drive_inventory_too_large","drive_inventory_profile_mismatch",
+    "drive_pdf_invalid_id","drive_pdf_profile_mismatch","drive_pdf_size_not_allowed",
+    "drive_pdf_oversize","drive_pdf_size_mismatch","drive_pdf_invalid_signature"]);
+   return reply({error:safe.has(code)?code:"drive_gateway_unavailable"},503);
+  }
  }
  if(op==="disconnect"){
   const result=await admin().from("hh_google_drive_oauth_connections")
