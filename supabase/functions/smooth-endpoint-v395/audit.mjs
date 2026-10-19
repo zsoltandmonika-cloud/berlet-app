@@ -276,7 +276,14 @@ export function formatClinicalAnswer(report,index,secondary=[],validated={facts:
   }
  }
  const lines=['## A leletek története'];
- if(story.length)lines.push(story.slice(0,16).join('\n\n'));
+ if(story.length){
+  // A gentle explanation can make the narrative readable, but stays
+  // explicitly qualified and is also repeated in the separate audit layer.
+  // No extra personal facts are introduced by these connective sentences.
+  const body=story.slice(0,16);
+  if(interpretation.length)body.push('Az ismertetett leletrészletek lehetséges orvosi jelentése: '+interpretation.slice(0,2).join(' '));
+  lines.push(body.join('\n\n'));
+ }
  else lines.push('A rendelkezésre álló, ellenőrzött leletrészletekből ehhez a kérdéshez nem állítható össze megbízható, személyes eseménytörténet. A hiányzó adatokat nem helyettesítem feltételezésekkel.');
  lines.push('## Dokumentált tények');
  if(primaryFacts.length){
