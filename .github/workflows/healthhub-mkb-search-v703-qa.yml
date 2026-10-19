@@ -1,0 +1,38 @@
+name: HealthHub MKB v703 · consent-scoped search QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v331.js"
+      - "healthhub/index.html"
+      - "healthhub/tests/mkb-preview-*.test.cjs"
+      - "supabase/functions/hh-mkb-search-preview/**"
+      - ".github/workflows/healthhub-mkb-search-v703-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify opt-in routing and source-scope invariants
+        run: |
+          node --check healthhub/live-v331.js
+          node --check healthhub/hh-development-charter-admin-v658.js
+          node healthhub/tests/mkb-preview-route-v703.test.cjs
+          node healthhub/tests/mkb-preview-scope-v703.test.cjs
+      - name: Verify preview rejects requests without a session
+        shell: bash
+        run: |
+          set -euo pipefail
+          endpoint="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-mkb-search-preview"
+          status=$(curl -sS --max-time 18 -o /tmp/hh-mkb-unauthorized.json -w "%{http_code}" \
+             -X POST "$endpoint" -H "Content-Type: application/json" -H "Origin: https://zsoltandmonika-cloud.github.io" --data '{}')
+          echo "Unauthenticated preview returned HTTP $status"
+          test "$status" = "401"
+          status=$(curl -sS --max-time 18 -o /dev/null -w "%{http_code}" \
+             -X OPTIONS "$endpoint" -H "Origin: https://zsoltandmonika-cloud.github.io" \
+             -H "Access-Control-Request-Method: POST")
+          echo "CORS preflight returned HTTP $status"
+          test "$status" = "204"
