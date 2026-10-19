@@ -66,7 +66,13 @@ function mount(){
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
   '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
- '<details><summary>🩺 Ask Léna Intelligence · v696 valódi feldolgozási státusz</summary><ul>'+
+ '<details><summary>🧠 Ask Léna v697 · hiteles válaszeredet és modellnapló</summary><ul>'+
+ '<li>A privát Ask Léna-történetben a 46 korábbi rekord modellazonosítója üres; utólag tilos ismeretlen szervermodellt kitalálni.</li>'+
+ '<li>A sikeresen lezárt válaszok jövőben a valódi SSE done eseményben kapott, forma szerint ellenőrzött AI-modellt kapják.</li>'+
+ '<li>Csak érvényes, azonos betegprofilú, teljes AI-válasz rögzíthető. A tényleges kérdés, válasz, időpont és RLS-jogosultság változatlan.</li>'+
+ '<li>A modellnapló a válaszok összehasonlíthatóságát segíti, nem bizonyít orvosi helyességet, és nem kapcsol be új felhőfeltöltést.</li>'+
+ '</ul></details>'+
+'<details><summary>🩺 Ask Léna Intelligence · v696 valódi feldolgozási státusz</summary><ul>'+
  '<li>2026-10-19: a kötelező Drive-PDF-ek 207/207 oldalszintű tárolása technikailag ellenőrzött; 11 Samsung Watch EKG eredeti külön, korábbi tulajdonosi döntéssel KIZÁRT státuszú.</li>'+
  '<li>A tizenegy kivett fájl hibaállapota nem jelent újra feldolgozandó aktív hátralékot. A kizárást nem oldjuk fel és nem kerül rejtett újraimport sorba.</li>'+
  '<li>A 12/12 forrásidézet a nyilvántartott beteghez, dokumentumhoz, oldalhoz és oldalszöveghez kapcsolható; mind a 12 szakmai felülvizsgálatra vár.</li>'+
