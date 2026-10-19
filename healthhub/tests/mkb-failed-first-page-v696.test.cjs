@@ -39,7 +39,7 @@ function fixture(mode='readable',excludedIds=[],many=1){
 test('v696 read-only Admin diagnostic is manually invoked and cache-busted',()=>{
  assert.doesNotThrow(()=>new Function(code));
  assert.doesNotThrow(()=>new Function(admin));
- assert.match(index,/v697-ask-lena-model-provenance/);
+ assert.match(index,/v698-evidence-relevance-intelligence/);
  assert.match(index,/hh-mkb-batch-admin-v662\.js\?v=696-mkb-scope-audit/);
  assert.match(admin,/knowledge-v407-ingest\.js\?v=696-readonly-failed-page-diagnostic/);
  assert.match(admin,/id="hhMkbForensic696"/);
