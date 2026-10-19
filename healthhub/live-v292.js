@@ -41,7 +41,23 @@ function currentToken(){
   if(t&&t.access_token&&t.verifiedAccount===GOOGLE_ACCOUNT&&Number(t.expiresAt)>Date.now()+60000)return t;
   return null;
 }
-function clearToken(){try{sessionStorage.removeItem(TOKEN_KEY)}catch(e){}}
+function connectionStatus(){
+  var t=currentToken();
+  // A previously granted Drive scope is not equivalent to a live token.
+  // Never display green merely because AUTH_KEY is present.
+  return {connected:!!t,previouslyAuthorized:authorized(),
+    expiresAt:t?Number(t.expiresAt)||null:null,
+    account:GOOGLE_ACCOUNT};
+}
+function notifyConnection(){
+  try{window.dispatchEvent(new CustomEvent('healthhub:google-drive-token-changed',{
+    detail:{connected:!!currentToken(),previouslyAuthorized:authorized()}
+  }))}catch(_){}
+}
+function clearToken(){
+  try{sessionStorage.removeItem(TOKEN_KEY)}catch(e){}
+  notifyConnection();
+}
 function setStateError(p,msg,needsAuth){
   saveState(p,{ok:false,uploading:false,updatedAt:new Date().toISOString(),error:String(msg||'Ismeretlen hiba'),needsAuth:!!needsAuth});
   renderStatus();
@@ -107,6 +123,7 @@ async function ensureToken(interactive){
             var expires=Number(resp.expires_in)||3600;
             writeSession(TOKEN_KEY,{access_token:resp.access_token,expiresAt:Date.now()+expires*1000,verifiedAccount:GOOGLE_ACCOUNT});
             markAuthorized();
+            notifyConnection();
             resolve(resp.access_token);
           }catch(e){
             clearToken();
@@ -262,18 +279,23 @@ function renderStatus(){
 
   var drive;
   if(st.uploading)drive='⏳ szinkronizálás…';
-  else if(st.ok)drive='✅ '+fmt(st.updatedAt);
+  else if(st.ok)drive='✅ utolsó sikeres szinkron: '+fmt(st.updatedAt);
   else if(st.error)drive='⚠ '+String(st.error).slice(0,88);
   else if(authorized())drive='🔐 engedélyezve, sync szükséges';
   else drive='⏸ nincs csatlakoztatva';
+  // Authorization and upload status are separate. Never claim the Google
+  // Drive connection is active after its one-hour access token expires.
+  var connection=tok?'✅ aktív kapcsolat':authorized()?
+    '🟠 korábban engedélyezve · megújítás szükséges':
+    '🔒 engedélyezés szükséges';
 
   var btnLabel=authorized()
-    ?(tok?'Drive sync most':'Google Drive újracsatlakoztatása')
+    ?(tok?'Drive sync most':'🔄 Drive-hozzáférés megújítása')
     :'Google Drive csatlakoztatása';
 
   d.innerHTML=
     '<b style="color:#2b7a46">🔗 Google Drive mirror · '+pname(p)+'</b><br>'+
-    'Drive: '+drive+
+    'Kapcsolat: '+connection+'<br>Drive: '+drive+
     '<br><span style="color:#8b98a5">Fájl: '+fileName(p)+'</span><br>'+
     '<button type="button" id="hhDriveBtn292" style="margin-top:6px;border:0;border-radius:9px;padding:7px 9px;background:#2b7a46;color:#fff;font-size:7.5px;font-weight:900;cursor:pointer">'+btnLabel+'</button>'+
     '<br><span style="color:#8b98a5">🤖 ChatGPT/Léna olvasás: Drive mirror után ellenőrizhető</span>';
@@ -287,6 +309,7 @@ function renderStatus(){
 }
 
 window.hhGetGoogleDriveToken292=function(interactive){return ensureToken(!!interactive)};
+window.hhGoogleDriveConnectionStatus292=connectionStatus;
 window.hhGoogleDriveAuthorized292=authorized;
 window.hhConnectGoogleDrive292=connectAll;
 window.hhMirrorLenaContextDrive292=function(p){return mirror(p||pkey(),true,'manual')};
@@ -304,6 +327,16 @@ window.addEventListener('healthhub:lena-context-cloud-synced',function(e){
 });
 window.addEventListener('healthhub:profile-changed',function(){setTimeout(renderStatus,180)});
 window.addEventListener('focus',function(){setTimeout(renderStatus,220)});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible')setTimeout(renderStatus,120);
+});
+// Purely local UI refresh: no automatic OAuth popups or repeated API calls.
+setInterval(function(){
+  if(document.visibilityState==='visible')renderStatus();
+},60000);
+// Preload only the Google library for a faster manual renewal click. A token
+// grant must remain an explicit user action under Google's browser OAuth.
+if(authorized())loadGIS().catch(function(){});
 setTimeout(function(){
   renderStatus();
   var p=pkey(),c=ctx(p),st=state(p);
@@ -312,5 +345,5 @@ setTimeout(function(){
   }
 },1600);
 
-document.documentElement.dataset.healthhubLenaDriveMirror='1.292.1';
+document.documentElement.dataset.healthhubLenaDriveMirror='1.292.2-v681';
 })();
