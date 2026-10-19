@@ -87,7 +87,7 @@ async function rankPages(rows,pages,question,digest,ranker){
  }
  // Rank all authorized and eligible source pages, then independently verify
  // the strongest candidates. No failed-hash excerpt enters the AI request.
- var ranked=ranker.rank(candidates,question,{max:Math.min(3000,candidates.length||1)});
+ var ranked=typeof ranker.rankCandidates==='function'?ranker.rankCandidates(candidates,question,40):ranker.rank(candidates,question,{max:5});
  var selected=[],considered=0,failures=0;
  for(const row of ranked.selected){
   if(selected.length===5||considered>=40)break;
