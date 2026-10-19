@@ -1,15 +1,15 @@
 {
   "schema": "healthhub.infection-watch/1",
-  "edition": "2026-10-15-w40-source-verified",
-  "sourceWeek": "2026. 40. hét",
-  "periodStart": "2026-09-28",
-  "periodEnd": "2026-10-04",
-  "reviewedOn": "2026-10-15",
+  "edition": "2026-W41-auto",
+  "sourceWeek": "2026. 41. hét",
+  "periodStart": "2026-10-05",
+  "periodEnd": "2026-10-11",
+  "reviewedOn": "2026-10-19",
   "geography": "Budapest · országos kitekintés",
   "overall": {
     "level": "watch",
     "label": "FIGYELMET ÉRDEMEL",
-    "description": "Az NNGYK 40. heti adataiban országosan emelkedő SARS-CoV-2 szennyvízjelzés és a heti mediánt jelentősen meghaladó hepatitis A esetszám látható. A HealthHub jelzései nem hatósági riasztások és nem egyéni kockázatbecslések."
+    "description": "2 kiemelt jelzés. Ez nem egyéni fertőzéskockázat és nem hatósági riasztás."
   },
   "items": [
     {
@@ -17,68 +17,68 @@
       "name": "Influenza A",
       "level": "low",
       "label": "Alacsony szennyvízjelzés",
-      "scope": "Országos megfigyelés",
-      "summary": "A 40. héten országosan stagnáló influenza A szennyvízjelzés; a vizsgált településeken a vírus nem haladta meg a kimutatási határt.",
-      "detail": "Az NNGYK légúti jelentésében 73 sentinel háziorvosi mintában 0 igazolt influenzafertőzés szerepel. A szennyvízjelzés nem fertőzésszám."
+      "scope": "Országos megfigyelés · Budapest ahol közölt",
+      "summary": "A vizsgált mintákban nem találtak kimutatási határ feletti influenza A-koncentrációt.",
+      "detail": "A szennyvízjelzés nem fertőzésszám. Városi mintaterületi részletek a hivatkozott NNGYK jelentésben."
     },
     {
       "key": "covid",
       "name": "COVID-19 / SARS-CoV-2",
       "level": "watch",
       "label": "Emelkedő szennyvízjelzés",
-      "scope": "Budapest + országos",
-      "summary": "A SARS-CoV-2 szennyvízkoncentráció országosan emelkedik; Budapesten több ellátási területen, köztük a központi és dél-pesti térségben növekvő trend.",
-      "detail": "A 40. heti NNGYK légúti jelentésben a 73 sentinel mintából 3 SARS-CoV-2-pozitív. A szennyvíztrend előrejelző jelzés, nem az új fertőzések száma."
+      "scope": "Országos megfigyelés · Budapest ahol közölt",
+      "summary": "Az NNGYK szennyvíz-megfigyelése a víruskoncentráció növekedésére utal.",
+      "detail": "A szennyvízjelzés nem fertőzésszám. Városi mintaterületi részletek a hivatkozott NNGYK jelentésben."
     },
     {
       "key": "rsv",
       "name": "RSV",
       "level": "low",
       "label": "Alacsony szennyvízjelzés",
-      "scope": "Országos megfigyelés",
-      "summary": "Az RSV-koncentráció országosan stagnál, alacsony szinten cirkulál; a 40. héten Kecskeméten volt kimutatási határ feletti jelzés.",
-      "detail": "Az NNGYK légúti jelentésében a 73 sentinel háziorvosi mintából 0 RSV-pozitív. A 0 pozitív minta nem bizonyítja a fertőzés teljes hiányát."
+      "scope": "Országos megfigyelés · Budapest ahol közölt",
+      "summary": "A szennyvízjelentés alacsony RSV-aktivitásra utal.",
+      "detail": "A szennyvízjelzés nem fertőzésszám. Városi mintaterületi részletek a hivatkozott NNGYK jelentésben."
     },
     {
       "key": "gastro",
       "name": "Gyomor-bélrendszeri fertőzések",
       "level": "unknown",
-      "label": "Helyi trend nem besorolható",
+      "label": "Budapesti bejelentések, trend nélkül",
       "scope": "Budapest",
-      "summary": "Budapesten a 40. héten 22 campylobacteriosis, 8 salmonellosis és 8 rotavírus-gastroenteritis bejelentés szerepelt.",
-      "detail": "Ezek különálló kórképek, előzetes bejelentések. A trend megbízható megítéléséhez összehasonlítható helyi heti adatok szükségesek."
+      "summary": "Campylobacteriosis: 9; salmonellosis: 6; rotavírus-gastroenteritis: 2 heti jelentés.",
+      "detail": "A három külön kórkép előzetes bejelentései. Nem adhatók össze egyetlen általános fertőzési indexként."
     },
     {
       "key": "hepatitis",
       "name": "Hepatitis A",
       "level": "high",
-      "label": "Országosan ≥5× heti medián",
-      "scope": "Országos · Budapest külön",
-      "summary": "A 40. héten országosan 28 hepatitis A esetet regisztráltak, az ötéves heti medián 3. Budapest heti táblázatában nincs jelentett eset.",
-      "detail": "A 28/3 országos összevetés alapján a HealthHub saját leíró jelzése piros. Nem NNGYK riasztási fokozat, és nem Budapest-specifikus egyéni kockázati mutató."
+      "label": "Legalább ötszörös országos heti medián",
+      "scope": "Országos összesítés · Budapest külön",
+      "summary": "Országosan 33 heti eset; ötéves heti medián 6. Budapest: 1 bejelentés.",
+      "detail": "Országos heti összehasonlítás az NNGYK jelentésében közölt ötéves mediánnal. Előzetes, részben tisztított adatok."
     }
   ],
   "sources": {
-    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-40-het.html",
+    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-41-het.html",
     "weekly": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai",
-    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_40_het_0fd1da9ae3.pdf"
+    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_41_het_30ed3ef349.pdf"
   },
-  "methodology": "A színek a HealthHub saját, forrásalapú leíró szintjei, NEM az NNGYK hivatalos riasztási fokozatai. Hepatitis A országos heti esetek / ötéves heti medián: figyelmeztető ≥1,5× és legalább 10 eset; narancs ≥3× és legalább 10 eset; piros ≥5× és legalább 20 eset. A megfigyelési mutatók nem adhatók össze, és az előzetes heti bejelentések nem feltétlenül a tárgyhéten kezdődött fertőzések.",
+  "methodology": "A HealthHub saját színei NEM NNGYK riasztási fokozatok. Hepatitis A esetek / ötéves heti medián: sárga ≥1,5×, narancs ≥3×, piros ≥5× (utóbbinál legalább 20 eset). A surveillance mutatókat nem adjuk össze. Hiányzó adat nem bizonyít alacsony kockázatot.",
   "raw": {
     "budapest": {
-      "campylobacteriosis": 22,
-      "salmonellosis": 8,
-      "rotavirus": 8,
-      "hepatitisA": 0
+      "campylobacteriosis": 9,
+      "salmonellosis": 6,
+      "rotavirus": 2,
+      "hepatitisA": 1
     },
     "national": {
-      "hepatitisA": 28,
-      "hepatitisMedian": 3
+      "hepatitisA": 33,
+      "hepatitisMedian": 6
     },
     "week": [
       2026,
-      40
+      41
     ]
   },
-  "respiratoryWeek": "2026. 40. hét"
+  "respiratoryWeek": "2026. 41. hét"
 }
