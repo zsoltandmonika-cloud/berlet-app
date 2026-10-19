@@ -14,6 +14,7 @@ var MIME={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/pn
 var MAX_FILE=50*1024*1024,MAX_ZIP=200*1024*1024;
 var MANIFEST_NAME='healthhub-explanations.json',MAX_MANIFEST=512*1024;
 function validatedManifest(obj){
+ if(obj&&obj.importMode!==undefined&&obj.importMode!=='restore-existing-originals')throw new Error('Ismeretlen importálási mód.');
  if(!obj||obj.schema!=='healthhub.medical.document-import/1'||
   !Array.isArray(obj.documents)||obj.documents.length<1||obj.documents.length>100||
   !['monika','zsolt'].includes(obj.targetProfile))throw new Error('Nem megfelelő HealthHub magyarázatcsomag.');
@@ -171,9 +172,11 @@ window.hhPrepareDocumentUpload=async function(input){
    '<label><h4>Kategória</h4><select id="hhDuCategory" style="width:100%;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 10px">'+opts+'</select></label>'+
    '<label><h4>Dokumentum dátuma</h4><input id="hhDuDate" type="date" value="'+ad+'" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #dfe7ed;border-radius:12px;padding:0 8px"></label>'+
    '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:10px;color:#526d82"><input id="hhDuAuto" type="checkbox"'+(r.files.length>1?' checked':'')+'> Több fájlnál automatikus dátum- és kategóriafelismerés</label>'+
-   '<p class="privacyNote">PDF, JPG, PNG, HEIC és ZIP támogatott. Valódi másolatot SHA-256 alapján kihagyunk.'+
+   '<p class="privacyNote">'+(r.manifest&&r.manifest.importMode==='restore-existing-originals'?
+      'Helyreállítás: meglévő leletek eredeti PDF-jét állítjuk vissza SHA-256 alapján, nem hozunk létre új leletet.':
+      'PDF, JPG, PNG, HEIC és ZIP támogatott. Valódi másolatot SHA-256 alapján kihagyunk.')+
    (r.manifest?' · '+r.manifest.documents.length+' Léna-magyarázat ellenőrzött SHA-256 társítással.':'')+'</p>'+
-   '<div class="vaultTools"><button class="vaultBtn primary" onclick="hhCommitDocumentUpload()">'+r.files.length+' fájl mentése</button><button class="vaultBtn" onclick="document.getElementById(\'hhDocToolOverlay\').classList.remove(\'on\')">Mégse</button></div>');
+   '<div class="vaultTools"><button class="vaultBtn primary" onclick="hhCommitDocumentUpload()">'+(r.manifest&&r.manifest.importMode==='restore-existing-originals'?'Eredetik biztonságos visszacsatolása':r.files.length+' fájl mentése')+'</button><button class="vaultBtn" onclick="document.getElementById(\'hhDocToolOverlay\').classList.remove(\'on\')">Mégse</button></div>');
  }catch(e){console.error(e);toastMsg(e.message||'A fájlok nem készíthetők elő.')}
 };
 
@@ -184,9 +187,13 @@ window.hhCommitDocumentUpload=async function(){
   document.getElementById('hhDocToolOverlay').classList.remove('on');toastMsg('Duplikátumellenőrzés és mentés…');
   var hashes=await hashSet(),added=0,dup=0,failed=0,annotated=0;
   var manifest=window.hhPendingDocManifest,notes=new Map();
+  var restoreExisting=!!(manifest&&manifest.importMode==='restore-existing-originals');
   if(manifest){
    if(manifest.targetProfile!==profile)throw new Error('A csomag Mónika/Zsolt profilja eltér a kiválasztott profiltól.');
+   if(restoreExisting&&profile!==pkey())throw new Error('A helyreállítás csak az aktív saját profilban engedélyezett.');
    manifest.documents.forEach(function(x){notes.set(x.sha256,x)});
+   if(restoreExisting&&files.length!==manifest.documents.length)
+    throw new Error('A helyreállító ZIP nem pontosan a négy eredeti PDF-et tartalmazza.');
   }
   var oldByHash=new Map((await all('documents')).filter(function(x){return !!x.sha256}).map(function(x){return [x.sha256,x]}));
   function attachExplanation(doc,item){
@@ -195,9 +202,40 @@ window.hhCommitDocumentUpload=async function(){
    doc.lenaExplanationImportedSource='verified_sha256_pdf_import';
    return true;
   }
+  var restored=0,unchanged=0,unmatched=0;
   for(var i=0;i<files.length;i++){
    try{
     var f=files[i],buf=await f.arrayBuffer(),hash=await sha256(buf),note=notes.get(hash);
+    if(restoreExisting){
+     var existing=oldByHash.get(hash);
+     var bytes=new Uint8Array(buf);
+     if(!existing||existing.profile!==profile||!note||
+        note.fileName!==f.name||note.profile!==profile||
+        !/\.pdf$/i.test(f.name)||bytes.length<5||
+        [37,80,68,70,45].some(function(v,j){return bytes[j]!==v;})){
+      unmatched++;continue;
+     }
+     var stored=await one('documentBlobs',existing.id).catch(function(){return null});
+     if(stored&&stored.blob){unchanged++}
+     else{
+      if(profile!==pkey())throw Error('A profil megváltozott; helyreállítás megszakítva.');
+      var db2=await openDb();
+      try{
+       await new Promise(function(ok,no){
+        var tx=db2.transaction('documentBlobs','readwrite');
+        // add() never overwrites an original if another operation added it.
+        tx.objectStore('documentBlobs').add({id:existing.id,blob:new Blob([buf],{type:'application/pdf'})});
+        tx.oncomplete=ok;tx.onerror=function(){no(tx.error)};
+        tx.onabort=function(){no(tx.error)};
+       });
+       restored++;
+      }finally{db2.close()}
+     }
+     if(attachExplanation(existing,note)){
+      await put('documents',existing);annotated++;
+     }
+     continue;
+    }
     if(hashes.has(hash)){
      dup++;
      var old=oldByHash.get(hash);
@@ -216,8 +254,12 @@ window.hhCommitDocumentUpload=async function(){
    }catch(ex){console.error(ex);failed++}
   }
   window.hhPendingDocFiles=[];window.hhPendingDocManifest=null;
-   toastMsg(added+' új lelet elmentve'+(dup?', '+dup+' másolat kihagyva':'')+
-     (annotated?', '+annotated+' Léna-magyarázat társítva':'')+(failed?', '+failed+' hiba':'')+'.');
+   toastMsg(restoreExisting?
+    ('Eredeti PDF visszacsatolva: '+restored+' · már helyben: '+unchanged+
+      ' · nem párosítható: '+unmatched+' · Léna-magyarázat: '+annotated+
+      (failed?' · hiba: '+failed:'')+'.'):
+    (added+' új lelet elmentve'+(dup?', '+dup+' másolat kihagyva':'')+
+      (annotated?', '+annotated+' Léna-magyarázat társítva':'')+(failed?', '+failed+' hiba':'')+'.'));
   st.profile=profile;st.showAll=false;await window.renderHealthSection();if(window.hhSyncFullMigrationDashboard)window.hhSyncFullMigrationDashboard();
  }catch(e){console.error(e);toastMsg('Feltöltési hiba: '+(e.message||e))}
 };
