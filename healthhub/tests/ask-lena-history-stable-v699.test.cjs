@@ -105,6 +105,6 @@ test('repeated cloud merge with identical answer data does not rewrite local cac
  assert.equal(writes,1);
 });
 test('new Ask Léna quick question / catalog workflows never clear a stored history',()=>{
- assert.match(idx,/live-v364-history\.js\?v=697-completed-model-provenance/);
+ assert.match(idx,/live-v364-history\.js\?v=699-no-flicker/);
  assert.doesNotMatch(enhancer,/removeItem\(.*hh-ask-lena-history|clearProfile\(|deleteDatabase/);
 });
