@@ -45,14 +45,14 @@ function reset(){
 /* v699: fresh question without deleting the 164/43 private PDF catalog,
    clearing chat history, refreshing authentication or submitting AI data. */
 function clearForNewResearch(){
+ // A running AI request owns its question; never disturb a live generation.
+ var run=el('hhRun299');
+ if(run&&run.disabled)return;
  // Invalidate any pending read and the previously selected one-use excerpts.
  version++;prepared=null;approved=null;busy=false;
  var original=el('hhAskMkbBtn676');if(original)original.disabled=false;
  var approve=el('hhAskMkbConsentButton699');if(approve)approve.hidden=true;
  var question=el('hhSQ299');
- // A running AI request owns its question; never disturb a live generation.
- var run=el('hhRun299');
- if(run&&run.disabled)return;
  if(question){question.value='';question.dispatchEvent(new Event('input',{bubbles:true}))}
  var search=el('hhMkbCatalogSearch699');
  if(search){search.value='';search.dispatchEvent(new Event('input',{bubbles:true}))}
