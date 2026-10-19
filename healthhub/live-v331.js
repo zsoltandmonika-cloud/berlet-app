@@ -385,6 +385,11 @@ async function run(opts){
  if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');showLocalAnswer(question,p,null);if(svc.openLogin)svc.openLogin();return}
  var allowed=svc.getStatus().authorizedProfiles;
  if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');showLocalAnswer(question,p,null);return}
+ // I-09 MKB: consume explicit one-use approval only when starting research.
+ // No approved MKB data is retrieved or transmitted automatically.
+ var mkbGrant=null,mkbConsent=window.HH_MKB_CONSENT_V677;
+ if(mkbConsent&&typeof mkbConsent.consume==='function')
+  mkbGrant=mkbConsent.consume(p);
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
  try{q.blur()}catch(e){}
@@ -559,7 +564,25 @@ async function run(opts){
    data.photoConsent=true;
    print('📷 Engedélyezett fotó előkészítése az AI-feldolgozáshoz…');
   }
-  // I-05: final source hygiene after I-02/03/04 + I-06/07 and any approved photo.
+  // I-09: signed-off-for-this-run MKB notes enter this research after
+  // existing I-04/I-07 checks and BEFORE final I-05 quality preflight.
+  if(mkbGrant&&mkbGrant.length){
+   if(turn!==epoch||profile()!==p)
+    throw Error('I-09: profilváltás miatt nem továbbítható az orvosi forráskontextus.');
+   var mkbPacker=window.HH_MKB_AI_CONTEXT_V677;
+   if(!mkbPacker||typeof mkbPacker.pack!=='function'){
+    print('📚 I-09: A forráskontextus előkészítője nem érhető el; MKB-adat nem kerül továbbításra.');
+   }else{
+    var packed=mkbPacker.pack(data,p,mkbGrant,question);
+    if(packed.added){
+     data=packed.payload;
+     print('🔐 I-09: '+packed.added+
+      ' külön engedélyezett, forrásolt orvosi megfigyelés szerepel majd a kutatás kérésében, ellenőrzésre váró jelöléssel.');
+    }else print('📚 I-09: Az orvosi tényjelöltek nem kerültek továbbításra; a kérés méretkorlátját megőriztük.');
+   }
+  }
+  mkbGrant=null;
+  // I-05: final source hygiene after I-02/03/04 + I-06/07/I-09 and any approved photo.
   var qualityEngine=window.HH_CLINICAL_QUALITY_GATE_I05_V402;
   if(!qualityEngine||typeof qualityEngine.preflight!=='function'||typeof qualityEngine.finalAudit!=='function')
    throw Error('I-05 Clinical Quality Gate nem érhető el.');
