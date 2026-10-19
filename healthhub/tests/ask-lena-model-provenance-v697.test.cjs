@@ -22,8 +22,8 @@ const event=(more={})=>({successful:true,profile:'monika',question:'Miért vagyo
 test('v697 app and both chat/history scripts have matching independent cache keys',()=>{
  assert.doesNotThrow(()=>new Function(assistant));
  assert.doesNotThrow(()=>new Function(history));
- assert.match(index,/v697-ask-lena-model-provenance/);
- assert.match(index,/live-v331\.js\?v=697-completed-model-provenance/);
+ assert.match(index,/v698-evidence-relevance-intelligence/);
+ assert.match(index,/live-v331\.js\?v=698-question-bound-sources/);
  assert.match(index,/live-v364-history\.js\?v=697-completed-model-provenance/);
  assert.match(index,/var v='697-ask-lena-model-provenance'/);
 });
