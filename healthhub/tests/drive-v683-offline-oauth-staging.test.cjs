@@ -87,7 +87,7 @@ test('v689 MKB ingester uses server Drive for original-only, no browser Google t
  assert.match(ing,/driveVault\('archive_inventory',p\)/);
  assert.match(ing,/driveVault\('archive_pdf',p,file\.id\)/);
  assert.match(ing,/CORE\.isPdfSignature\(new Uint8Array\(bytes\)\)/);
- assert.match(admin,/knowledge-v407-ingest\.js\?v=689-server-drive-pdf/);
+ assert.match(admin,/knowledge-v407-ingest\.js\?v=696-readonly-failed-page-diagnostic/);
  assert.match(admin,/async function requireDrive\(who\)/);
  assert.doesNotMatch(ing,/hhGetGoogleDriveToken292|https:\/\/www\.googleapis\.com\/drive/);
  assert.doesNotMatch(admin,/hhGetGoogleDriveToken292/);
