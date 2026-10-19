@@ -66,6 +66,7 @@ test('Ask Léna source-free dated history is stopped before an ungrounded answer
  const src=load('live-v331.js');
  assert.match(src,/var asksHistoricalEvent=/);
  assert.match(src,/if\(\(asksOwnDocument\|\|asksHistoricalEvent\)\&\&researchPlan\.clinical\&\&!verifiedOriginals\.length\)/);
+ assert.match(src,/if\(!msg\.includes\('ellenőrzött eredeti PDF-részlet'\)\)/);
  assert.match(src,/mkbQAMode=mkbQARequested\&\&mkbSourceUsed>0\&\&data\.originalDocumentsConsent===true/);
  assert.match(load('ask-lena-mkb-v676.js'),/approved=prepared;run\.click\(\)/);
 });
