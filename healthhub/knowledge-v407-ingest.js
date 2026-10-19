@@ -524,28 +524,28 @@ async function diagnoseFailedV696(p,opts){
    stage='sha256';
    var sourceHash=await hash(bytes);active(p);
    if(!/^[a-f0-9]{64}$/.test(String(d.sha256||''))||sourceHash!==d.sha256){
-    outcome='source_sha_mismatch';continue;
+    outcome='source_sha_mismatch';throw Error('mkb_v696_classified');
    }
    stage='pdf_library';
    var lib=await pdfjs();active(p);
    stage='pdf_parse';
    pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;active(p);
-   if(!pdf||pdf.numPages<1){outcome='pdf_page_missing';continue}
+   if(!pdf||pdf.numPages<1){outcome='pdf_page_missing';throw Error('mkb_v696_classified')}
    stage='page_read';
    page=await pdf.getPage(1);active(p);
    stage='text_extract';
    var content=await page.getTextContent();active(p);
    var text=rawText(content&&content.items||[]);
-   if(mkbInvalidUnicodeV696(text)){outcome='embedded_text_unicode_invalid';continue}
-   if(text.length>60000){outcome='very_long_page_requires_review';continue}
-   if(text.length>=80){outcome='extraction_readable_storage_not_proven';continue}
+   if(mkbInvalidUnicodeV696(text)){outcome='embedded_text_unicode_invalid';throw Error('mkb_v696_classified')}
+   if(text.length>60000){outcome='very_long_page_requires_review';throw Error('mkb_v696_classified')}
+   if(text.length>=80){outcome='extraction_readable_storage_not_proven';throw Error('mkb_v696_classified')}
    stage='graphics_check';
    var ops=await page.getOperatorList();active(p);
    var blank=await certifiedEmptyPdfPage(page,text,ops,lib);
    outcome=blank?'certified_blank_page_requires_review':'ocr_or_visual_fallback_needed';
   }catch(_){
    active(p); // Permission/profile loss must never be hidden as file failure.
-   outcome=stage==='download'?'original_download_failed':
+   if(!outcome)outcome=stage==='download'?'original_download_failed':
     stage==='sha256'?'source_sha_check_failed':
     stage==='pdf_library'?'pdf_library_unavailable':
     stage==='pdf_parse'?'pdf_parser_rejected':
