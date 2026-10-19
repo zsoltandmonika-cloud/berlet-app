@@ -22,7 +22,7 @@ const request={schema:'healthhub.ask-lena/1',consent:true,profile:'monika',
 test('v698 modules parse and load before consent, question and live build keys agree',()=>{
  for(const s of [engineText,lens,packer,assistant])assert.doesNotThrow(()=>new Function(s));
  assert.match(index,/v699-full-medical-source-catalog/);
- assert.match(index,/var v='698-evidence-relevance-intelligence'/);
+ assert.match(index,/var v='699-full-medical-source-catalog'/);
  assert.match(index,/mkb-evidence-i10-v698\.js\?v=699-candidate-integrity/);
  assert.match(index,/ask-lena-mkb-v676\.js\?v=699-all-indexed-documents/);
  assert.match(index,/mkb-ai-context-v677\.js\?v=699-source-date-clarity/);
