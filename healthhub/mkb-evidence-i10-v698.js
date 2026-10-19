@@ -17,7 +17,7 @@ var stop=new Set(['hogy','milyen','miert','ezek','esetben','mikor','lehet','szer
 function tokens(s){return [...new Set(norm(s).split(' ').filter(x=>x.length>=3&&!stop.has(x)))].slice(0,25)}
 // Linguistic expansion only. Topic association is NOT evidence of causation.
 var vocabulary=[
- ['faradt','faradek','kimerult','gyenges','energia','alvas','pihenes'],
+ ['farad','faradt','faradtsag','faradek','kimerult','gyenges','energia','alvas','pihenes'],
  ['sziv','kardiolog','kamra','ejekcio','szivelegtelen','cardiomyopath','dilatat'],
  ['vernyomas','szisztol','diasztol','hgmm','pulzus','szivfrekv'],
  ['gyogyszer','kezeles','terapia','tabletta','adag','szed'],
