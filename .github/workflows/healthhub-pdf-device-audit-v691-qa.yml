@@ -1,0 +1,28 @@
+name: HealthHub v691 device PDF provenance QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-pdf-device-audit-v691.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-device-audit-v691.test.cjs'
+      - 'healthhub/tests/pdf-viewer-v690.test.cjs'
+      - 'healthhub/tests/drive-v683-offline-oauth-staging.test.cjs'
+      - '.github/workflows/healthhub-pdf-device-audit-v691-qa.yml'
+  push:
+    paths:
+      - 'healthhub/hh-pdf-device-audit-v691.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-device-audit-v691.test.cjs'
+      - '.github/workflows/healthhub-pdf-device-audit-v691-qa.yml'
+jobs:
+  identity-and-privacy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Device profile read-only identity and regression tests
+        run: node --test healthhub/tests/pdf-device-audit-v691.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs
