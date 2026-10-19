@@ -42,7 +42,7 @@ test('UI retains controlled OAuth consent, verifies private PDF source read, and
  assert.match(gui,/var verified=await send\('check'\)/);
  assert.match(gui,/action:'archive_inventory',profile:who/);
  assert.match(gui,/hhDriveInventoryResultV686/);
- assert.match(gui,/function showInventory\(profile,message\)/);
+ assert.match(gui,/function showInventory\(profile,message,canProbe\)/);
  assert.match(gui,/function renderInventory\(\)/);
  assert.match(gui,/régebbi Drive JSON-szinkron külön ellenőrzendő/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
