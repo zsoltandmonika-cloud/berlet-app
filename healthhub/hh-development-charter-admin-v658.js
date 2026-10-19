@@ -66,6 +66,14 @@ function mount(){
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
   '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
+ '<details><summary>🧠 Medical Intelligence · teljes adatvagyon, nem kivonat-alapú tudás (v700 irányelv)</summary><ul>'+
+ '<li>Az eredeti PDF, a teljes feldolgozott oldalszöveg, a strukturált tények, idézetek, történeti események és korábbi értelmezések külön-külön kereshetők és változatlanul megmaradnak.</li>'+
+ '<li>A 4/6 vagy 12/12 strukturált idézetszám csak kiegészítő forrásbizonyítási réteg. NEM méri a teljes orvosi tudást, és NEM korlátozhatja Ask Léna kutatási keresési terét.</li>'+
+ '<li>Az Ask Léna keresési tere a jogosult profil teljes, ellenőrzött PDF-oldalszövege. A leletcím, pár idézet és a helyi Health Context-index önmagában soha nem lehet teljes leletösszefoglaló.</li>'+
+ '<li>A teljes keresési hozzáférést külön kell kezelni az egyetlen AI-hívásba biztonságosan és pontosan átvihető forrásrészletek mennyiségétől. A keresés nem csak 5 idézetre terjedhet ki.</li>'+
+ '<li>Az AI csak ténylegesen elolvasott, időben és forrásban beazonosított adatokból vonjon le következtetéseket; bizonytalanságot és hiányzó forrást külön jelöljön, klinikai bizonyosságot ne találjon ki.</li>'+
+ '<li>Az eredetik megőrzése, profilok elkülönítése és jogosultságellenőrzése marad. Nincs automatikus adatvesztés, kutatási tartalomcsonkítás vagy kitalált AI-válasz.</li>'+
+ '</ul></details>'+
  '<details><summary>🧠 Ask Léna · v699 teljes leletkatalógus és prémium használhatóság</summary><ul>'+
  '<li>Mónika: 164 feldolgozott PDF / 269 oldal, Zsolt: 43 PDF / 68 oldal. A teljes, jogosult és SHA-alapú forrásindex böngészhető; a korábban kizárt 11 Watch EKG-t nem kapcsoljuk vissza.</li>'+
  '<li>A felhasználó a profiljához tartozó összes igazolt eredeti PDF címét keresheti; maximum 5 kérdésre kiválasztott, SHA-256-tal újraellenőrzött rövid idézet kerülhet az AI kérésébe.</li>'+
