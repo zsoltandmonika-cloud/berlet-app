@@ -8,7 +8,7 @@ const source=fs.readFileSync(path.join(base,'ask-lena-mkb-v676.js'),'utf8');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
 test('Ask Léna evidence lens deploys after timeline and integrity auditor',()=>{
  assert.doesNotThrow(()=>new Function(source));
- assert.match(index,/v679-source-grounded-story-facts-interpretation/);
+ assert.match(index,/v680-vault-trusted-auto-reconnect/);
  assert.ok(index.indexOf('mkb-timeline-v674.js')<index.indexOf('ask-lena-mkb-v676.js'));
  assert.ok(index.indexOf('mkb-evidence-audit-v675.js')<index.indexOf('ask-lena-mkb-v676.js'));
  assert.match(source,/healthhub:ask-lena-open/);
