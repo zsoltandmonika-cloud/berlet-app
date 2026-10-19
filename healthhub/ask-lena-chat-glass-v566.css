@@ -82,10 +82,10 @@ html #hhLenaSmart299 .hhChat566EditActions button{
  padding:8px 10px;font-size:12px;min-height:40px
 }
 html #hhLenaSmart299 .hhChat566Info{display:block;color:var(--hhchat-muted);font-size:11px}
-html #hhLenaSmart299 #hhLenaComposer340{height:190px!important;min-height:190px!important}
-html #hhLenaSmart299 #hhLenaComposer340 #hhSQ299{height:82px!important;min-height:78px!important;max-height:110px!important;overflow-y:auto!important}
+html #hhLenaSmart299 #hhLenaComposer340{height:auto!important;min-height:100px!important}
+html #hhLenaSmart299 #hhLenaComposer340 #hhSQ299{height:34px!important;min-height:34px!important;max-height:220px!important;overflow-y:auto!important}
 @media(max-width:440px){
- html #hhLenaSmart299 #hhLenaComposer340{height:186px!important;min-height:186px!important}
+ html #hhLenaSmart299 #hhLenaComposer340{height:auto!important;min-height:100px!important}
  html #hhLenaSmart299 .hhChat566Suggestions{max-height:138px!important}
 }
 html #hhLenaSmart299 :is(.hhChat566QuickChoice,.hhChat566Edit,.hhChat566Mini,.hhChat566EditActions button):focus-visible{

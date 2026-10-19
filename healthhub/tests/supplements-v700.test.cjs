@@ -23,7 +23,7 @@ test('all 8 user-specified supplements are present as templates, not consumed re
 });
 test('canonical medications route, Home label, scroll and AI context stay connected',()=>{
  assert.match(read('index.html'),/hh-supplements-v700\.js\?v=700/);
- assert.match(read('premium-glass-home-v520.js'),/HealthHub Gyógyszerek \+ Supplements/);
+ assert.match(read('premium-glass-home-v520.js'),/Gyógyszerek & Supplement/);
  assert.match(read('live-v126.js'),/medications:'HealthHub Gyógyszerek \+ Supplements'/);
  assert.match(read('live-v289.js'),/supplements:supplementList\(rs\[4\],p\)/);
  assert.match(read('live-v331.js'),/domain:'supplement'|put\('supplement'/);
@@ -35,4 +35,25 @@ test('Ask Lena research monitor is half height initially and grows until capped'
  assert.match(s,/height:auto!important/);
  assert.match(s,/max-height:min\(48vh,420px\)/);
  assert.doesNotMatch(s,/height:284px/);
+});
+
+test('Supplements appear before the pharmacy alternatives in every Medications rerender',()=>{
+ const src=read('hh-supplements-v700.js');
+ assert.match(src,/parent\.querySelector\('#hhPharmacyGuide'\)/);
+ assert.match(src,/parent\.insertBefore\(sec,guide\)/);
+ assert.match(src,/parent\.insertBefore\(sec,medicationCard\.nextSibling\)/);
+ assert.doesNotMatch(src,/refresh\(\);parent\.appendChild\(sec\)/);
+});
+test('the visible Ask Léna input composer is compact and grows with typed text',()=>{
+ const js=read('live-v340.js'),css=read('ask-lena-chat-glass-v566.css');
+ assert.match(js,/min-height:100px/);
+ assert.match(js,/q\.scrollHeight,limit/);
+ assert.match(js,/height','34px','important'/);
+ assert.doesNotMatch(js,/height:190px/);
+ assert.match(css,/#hhLenaComposer340\{height:auto!important;min-height:100px!important\}/);
+ assert.doesNotMatch(css,/#hhLenaComposer340\{height:190px/);
+ const entry=read('index.html');
+ assert.match(entry,/hh-supplements-v700\.js\?v=701/);
+ assert.match(entry,/live-v340\.js\?v=701/);
+ assert.match(entry,/ask-lena-chat-glass-v566\.css\?v=701/);
 });
