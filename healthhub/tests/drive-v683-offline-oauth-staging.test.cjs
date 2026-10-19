@@ -40,10 +40,22 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/window\.location\.assign\(address\)/);
  assert.match(gui,/var state=await send\('status'\)/);
  assert.match(gui,/var verified=await send\('check'\)/);
+ assert.match(gui,/action:'archive_inventory',profile:who/);
  assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
  assert.match(index,/v683-server-google-oauth-staged/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=684-refresh-verified/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=685-private-drive-inventory/);
  assert.doesNotThrow(()=>new Function(gui));
+});
+test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF parent',()=>{
+ assert.match(api,/async function profileAllowed\(owner,profile\)/);
+ assert.match(api,/\.eq\("user_id",owner\)\.eq\("profile_key",profile\)/);
+ assert.match(api,/async function exactArchiveFolder\(access,profile\)/);
+ assert.match(api,/f\.parents\?\.includes\(folder\)/);
+ assert.match(api,/m\.parents\.includes\(folder\)/);
+ assert.match(api,/if\(op==="archive_inventory"\|\|op==="archive_pdf"\)/);
+ assert.match(api,/refreshedAccess\(owner\)/);
+ assert.match(api,/drive_pdf_invalid_signature/);
+ assert.doesNotMatch(api,/grant_type:"password"/);
 });
