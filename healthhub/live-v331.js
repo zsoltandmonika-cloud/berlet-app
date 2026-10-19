@@ -634,7 +634,9 @@ async function run(opts){
   // The standing PDF grant does not replace this question's one-shot MKB approval.
   var mkbQAMode=mkbQARequested&&mkbSourceUsed>0&&data.originalDocumentsConsent===true;
   // One-shot approval. Existing original-PDF grants never imply a full-corpus grant.
-  var solPreviewMode=solPreviewRequested&&clinicalPilot&&!shot;
+  var solPreviewMode=clinicalPilot&&typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhSolQA')==='v1'&&
+   (typeof shot==='undefined'||!shot);
   if(solPreviewMode){
    if(!window.confirm('HH Sol AI-first TESZT: engedélyezed, hogy a kiválasztott profil ÖSSZES ellenőrzött leletszövegét erre az egy kérdésre a GPT-6.1 Sol OpenAI API feldolgozza? A kísérlet API-költséggel járhat. Mégsem = nincs továbbítás.'))
     throw Error('A teljes leletállomány továbbításához nem adtál hozzájárulást. Semmit nem küldtünk el.');
