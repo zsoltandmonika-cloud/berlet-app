@@ -235,6 +235,23 @@ Flow:
 
 Testing: static syntax and pipeline-order checks, 18 pure/adversarial context packing checks, synthetic DOM/Vault exercises of the user approval showing **zero** MKB data without a checked box, **single use** after checking, and immediate invalidation after profile switch. New test suite: `healthhub/tests/mkb-v677-one-shot-consent.test.cjs`. **Real-user phone research and remote AI response remain unverified until separately tested.** This is deliberately not a statement that the general Medical Intelligence reasoning layer is clinically validated.
 
+## MKB v679 · Golden Standard storyteller derived only from audited evidence (2026-10-19)
+
+The user requested that **every personal medical/lelet response**, without repeated prompting, first present a warm, attractive, chronological **storytelling narrative**, and only then show **(1) Dokumentált tények** and **(2) Orvosi értelmezés**. These latter two source/interpretation layers must underlie the initial story rather than add claims outside the evidence.
+
+The default Ask Léna client now chooses the clinical two-pass verifier for health/lelet questions, even when the user did not manually select Detailed Research (nonmedical and photo questions keep the prior route). `live-v393-research.js` recognizes lab/urine/culture questions, `live-v331.js` reports the separately approved I-09 MKB evidence transfer and does **not** silently downgrade an unsupported clinical response into a generic AI reply.
+
+Clinical endpoint `smooth-endpoint-v395` **deployed ACTIVE version 8** with unchanged internal JWT/profile authorization and consent checks. Its clinical and non-clinical system prompts default to this three-layer format, and `audit.mjs` now deterministically renders:
+- **A leletek története:** source-audited `documented`/explicitly attributed `reported` paragraphs, enriched only with qualified and already-audited `general`/`possible` clinical interpretation. Unsupported patient claims/citations are not added. No source-backed personal history results in an honest limitation, not fabricated storytelling.
+- **Dokumentált tények:** exact original PDF quote text rechecked against the matching submitted original excerpt, the document name and page, with document date explicitly distinguished from sampling/event date; earlier JSON/AI summaries appear with lower evidence status, never as original PDF facts.
+- **Orvosi értelmezés:** only clinically qualified, separately audited explanations; no diagnosis or treatment is inferred from a list of urine-culture organism names.
+
+The v677/678 temporary source transfer must have a fresh patient-scoped Vault SHA audit and explicit one-use consent. It now conveys only approved short original excerpt(s) with their original MKB source UUID and page, prioritizes them ahead of any previously selected original excerpts, and caps evidence to 12 verified excerpts to match the deployed server's original-page capacity. Full PDF bodies are never transmitted via I-09. No health data is persisted in the browser by this addition, and no MKB facts/PDFs were rewritten during deployment.
+
+**Accuracy clarification:** SHA-256 and word-for-word citation matching give exact *text/provenance* integrity, not a mathematical guarantee of 100% medical accuracy. The app abstains where support is inadequate and keeps any pending clinical-review status; it never markets an AI-only diagnosis as clinically verified.
+
+Regression: `healthhub/tests/mkb-v679-story-facts-interpretation.test.cjs` tests the three mandatory sections in order, literal original evidence and source page, both layers contributing only with appropriate qualifications, refusal of unsupported personal claims, and secondary source distinctions. Synthetic runtime smoke checks passed. Real mobile AI answer acceptance is still pending; testers should explicitly verify all three sections, I-09 provenance, and no unsupported UTI diagnosis. The 207 original source documents, 7 facts and 12 evidence rows were not modified by this release.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
