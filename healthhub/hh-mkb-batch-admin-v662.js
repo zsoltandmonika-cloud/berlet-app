@@ -150,7 +150,7 @@ function load(){
  if(engine())return Promise.resolve(engine());
  if(loading)return loading;
  loading=Promise.resolve().then(()=>window.HH_KB_CORE_V407?null:script('./knowledge-v407-core.js?v=662'))
- .then(()=>engine()?null:script('./knowledge-v407-ingest.js?v=669-blank-page'))
+ .then(()=>engine()?null:script('./knowledge-v407-ingest.js?v=689-server-drive-pdf'))
  .then(()=>{if(!engine())throw Error('A feldolgozómotor nem indult.');return engine()})
  .catch(e=>{loading=null;throw e});
  return loading;
