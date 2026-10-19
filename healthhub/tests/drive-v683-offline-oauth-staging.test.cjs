@@ -47,8 +47,8 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v687-reliable-device-refresh/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=687-confirm-fresh-build/);
+ assert.match(index,/v688-pdf-sha256-readcheck/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=688-pdf-sha256-readcheck/);
  assert.doesNotThrow(()=>new Function(gui));
 });
 test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF parent',()=>{
@@ -70,6 +70,11 @@ test('v687 build metadata matches the live runtime, auto-update checker and asse
  const bootstrap=index.match(/var v='([^']+)'/)[1];
  assert.equal(declared,runtime);
  assert.equal(declared,'v'+bootstrap);
+ assert.match(gui,/hhDrivePdfProofV688/);
+ assert.match(gui,/crypto\.subtle\.digest\('SHA-256',bytes\)/);
+ assert.match(gui,/await pdfResponse\('archive_pdf',who,target\.id\)/);
+ assert.match(gui,/function validateCurrentProfile\(profile\)/);
+ assert.doesNotThrow(()=>new Function(gui));
  assert.match(index,/live-v300\.js\?v=687-asset-aware-auto-update/);
  assert.match(updater,/function changedPublishedModules\(html\)/);
  assert.match(updater,/recentlyAttemptedUpdate\(target,n\)/);
