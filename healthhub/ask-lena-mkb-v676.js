@@ -93,7 +93,7 @@ function mount(){
  clear.title='Az előző kérdés, kiválasztás és egyszeri AI-jóváhagyás törlése, az orvosi leletek megőrzésével.';
  clear.setAttribute('aria-label','Új kutatás: kérdés és ideiglenes forráskijelölés törlése');
  var note=document.createElement('div');note.className='note';
- note.textContent='Privát Health Vault · csak megtekintés · az ellenőrzésre váró tényeket nem küldöm automatikusan az AI-nak.';
+ note.textContent='Privát Health Vault · a Kutatás indítása a kérdéshez legfeljebb 5 ellenőrzött PDF-idézet egyszeri AI-felhasználását is engedélyezi. Teljes PDF nem kerül továbbításra.';
  var host=document.createElement('div');host.id='hhAskMkbBody676';host.hidden=true;host.setAttribute('role','status');
  var approve=document.createElement('button');approve.id='hhAskMkbConsentButton699';
  approve.type='button';approve.hidden=true;
@@ -260,6 +260,21 @@ window.HH_MKB_CONSENT_V677=Object.freeze({
      prepared.profile!==p||prepared.question!==text||!prepared.items.length)
    return {ready:false,reason:'no_verified_excerpts'};
   return {ready:true,count:prepared.items.length,source:'verified_preview'};
+ },
+ /* One Ask click is the owner's explicit instruction to use the
+    relevant, already-authorized short excerpts for this one question.
+    No standing/background permission, no whole PDFs and no data mutation. */
+ takeForAsk:async function(p,question){
+  var text=String(question||'').trim();
+  var ready=await this.prepare(p,text);
+  if(!ready.ready||!prepared||busy||!allowed(p)||
+     prepared.profile!==p||prepared.question!==text||
+     Date.now()-prepared.at>5*60*1000)return null;
+  approved=prepared;
+  var result=this.consume(p,text);
+  var button=el('hhAskMkbConsentButton699');
+  if(button)button.hidden=true; // No redundant second approval click.
+  return result;
  },
  consume:function(p,question){
   var cache=prepared,granted=!!(cache&&approved===cache);
