@@ -97,8 +97,9 @@ test('both Ask histories skip redundant render and never flash loading on every 
  assert.match(historyLocal,/if\(!list\.dataset\.hhHistoryRenderedProfile&&!list\.children\.length\)/);
  assert.match(historyCloud,/hhHistoryRenderSignature===signature/);
  assert.match(historyCloud,/if\(current&&current\.textContent!==statusText\)/);
- assert.match(historyCloud,/updatedList\.scrollTop=scroll/);
- assert.match(historyCloud,/insertAdjacentElement\('beforebegin',search\)/);
+ assert.match(historyCloud,/if\(prevProfile===p\)list\.scrollTop=scroll/);
+ assert.match(historyCloud,/if\(list\.children\[i\]!==row\)list\.insertBefore/);
+ assert.doesNotMatch(historyCloud,/box\.innerHTML=/);
 });
 test('new-research reset preserves actual patient archives and honors live generation guard',()=>{
  assert.match(panel,/clear\.id='hhAskMkbClear699'/);
