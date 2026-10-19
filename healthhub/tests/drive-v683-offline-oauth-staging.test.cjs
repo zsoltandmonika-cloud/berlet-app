@@ -47,7 +47,7 @@ test('UI retains controlled OAuth consent, verifies private PDF source read, and
  assert.match(gui,/régebbi Drive JSON-szinkron külön ellenőrzendő/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v698-evidence-relevance-intelligence/);
+ assert.match(index,/v699-full-medical-source-catalog/);
  assert.match(index,/hh-drive-server-oauth-v683\.js\?v=689-server-pdf-cleanup/);
  assert.doesNotThrow(()=>new Function(gui));
 });
