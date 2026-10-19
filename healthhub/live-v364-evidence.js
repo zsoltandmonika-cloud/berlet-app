@@ -184,57 +184,36 @@ async function originalBlob(d,p){
  if(local.reason==='profile_mismatch')return {blob:null,reason:'profile_mismatch'};
  if(local.blob&&local.blob.size<=15000000)return {blob:local.blob,reason:'local_original'};
  if(local.blob&&local.blob.size>15000000)return {blob:null,reason:'local_pdf_too_large'};
- // External originals are only ever fetched by the already explicitly
- // authorized same-profile Google Drive token. Dropbox structured vault
- // holds JSON records, NOT a verified mirror of original PDF files.
+ // v689: use only explicitly tagged, profile-bound files in the private
+ // Google Drive archive; the server refreshes the token and verifies ancestry.
+ // No Google access token enters the browser and no PDF is written back.
  var map=window.hhGetLenaArchiveMap294&&window.hhGetLenaArchiveMap294()||{};
  var archive=d.driveArchive||map[String(d.id)]||null;
  if(archive&&archive.profile&&archive.profile!==p)return {blob:null,reason:'profile_mismatch'};
- if(typeof window.hhGetGoogleDriveToken292!=='function')
-  return {blob:null,reason:'google_drive_not_authorized'};
- var tok=null;
- try{tok=await window.hhGetGoogleDriveToken292(false)}catch(e){}
- if(!tok)return {blob:null,reason:'google_drive_reconnect_required'};
- if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+ var documentId=String(d.id||'');
+ if(!/^[A-Za-z0-9-]{6,140}$/.test(documentId))
+  return {blob:null,reason:'drive_archive_locator_missing'};
+ var vault=window.HH_DAILY_HEALTH_SYNC_V319,
+     state=vault&&vault.getStatus&&vault.getStatus();
+ if(!vault||!vault.stream||!state?.authenticated||
+    !Array.isArray(state.authorizedProfiles)||!state.authorizedProfiles.includes(p))
+  return {blob:null,reason:'health_vault_required'};
  try{
-  var fileId=archive&&archive.fileId||'';
-  if(!fileId){
-   // The cross-device local archive map is not guaranteed to exist on
-   // another browser. Search ONLY files explicitly created by the HealthHub
-   // document archive and tagged for THIS document and THIS patient.
-   var key=String(d.id||'');
-   if(!/^[A-Za-z0-9-]{6,140}$/.test(key))
-    return {blob:null,reason:local.reason||'drive_archive_locator_missing'};
-   var q="trashed = false and appProperties has { key = 'documentId' and value = '"+key+
-    "' } and appProperties has { key = 'profile' and value = '"+p+"' }";
-   var list=await fetch('https://www.googleapis.com/drive/v3/files?spaces=drive&pageSize=10&fields=files(id,name,appProperties),nextPageToken&q='+encodeURIComponent(q),
-    {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
-   if(!list.ok)return {blob:null,reason:list.status===401?'google_drive_reconnect_required':'drive_archive_search_failed'};
-   var found=(await list.json()).files||[];
-   var matched=found.find(function(x){
-    return x&&x.id&&x.appProperties&&x.appProperties.profile===p&&x.appProperties.documentId===key;
-   });
-   if(!matched)return {blob:null,reason:'drive_archive_file_missing'};
-   fileId=matched.id;
-  }
+  var response=await vault.stream('/functions/v1/hh-drive-oauth-v682',
+   {action:'archive_document',profile:p,documentId:documentId});
   if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
-  // Never trust only a locally cached Drive map ID. The remote metadata
-  // must bind the file to the exact patient and clinical document.
-  var metadataResult=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(fileId)+
-   '?fields=id,appProperties,mimeType,trashed',{headers:{Authorization:'Bearer '+tok},cache:'no-store'});
-  if(!metadataResult.ok)return {blob:null,reason:'drive_archive_metadata_failed'};
-  var metadata=await metadataResult.json();
-  if(metadata.trashed||!metadata.appProperties||
-    metadata.appProperties.profile!==p||metadata.appProperties.documentId!==String(d.id))
-   return {blob:null,reason:'drive_archive_identity_mismatch'};
+  if(!response.ok)return {blob:null,reason:response.status===403?
+   'drive_archive_profile_forbidden':response.status===400?
+   'drive_archive_locator_missing':'drive_archive_unavailable'};
+  var raw=await response.blob();
   if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
-  var resp=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(fileId)+'?alt=media',
-   {headers:{Authorization:'Bearer '+tok},cache:'no-store'});
-  if(!resp.ok)return {blob:null,reason:resp.status===403||resp.status===401?'google_drive_no_permission':'google_drive_unavailable'};
-  var b=await resp.blob();
-  if(b.size>15000000)return {blob:null,reason:'remote_pdf_too_large'};
-  return {blob:b,reason:'authorized_google_drive'};
- }catch(e){return {blob:null,reason:'google_drive_download_failed'}}
+  if(raw.size>15000000)return {blob:null,reason:'remote_pdf_too_large'};
+  if(!/^application\/pdf\b/i.test(raw.type))return {blob:null,reason:'drive_archive_invalid_mime'};
+  return {blob:raw,reason:'authorized_server_google_drive'};
+ }catch(e){
+  if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
+  return {blob:null,reason:'drive_archive_unavailable'};
+ }
 }
 async function extractText(d,question,p,plan){
  var checked=await originalBlob(d,p),blob=checked.blob;
