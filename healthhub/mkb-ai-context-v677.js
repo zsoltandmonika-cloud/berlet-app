@@ -34,7 +34,8 @@ function pack(input,profile,granted,question){
   var key=row.date+'|'+title+'|'+source+'|'+row.page;
   if(seen.has(key))continue;seen.add(key);
   var status=row.review==='verified'?'ellenőrzött státusz':'szakmai ellenőrzésre vár';
-  var header=row.date+' · '+title+' · '+status+' · PDF '+source+
+  var caution=row.caution?' · ⚠️ azonos napi eltérő mérés, külön ellenőrizendő':'';
+   var header=row.date+' · '+title+' · '+status+caution+' · PDF '+source+
    ' · '+row.page+'. oldal · rövid forrásrészlet: «';
   var remaining=235-header.length-1;
   if(remaining<16)continue;
