@@ -65,7 +65,7 @@ test('source evidence references never cross fact source IDs or profiles',()=>{
 test('private read-only UI is deployed and never mutates fact records',()=>{
  assert.doesNotThrow(()=>new Function(src));
  assert.doesNotThrow(()=>new Function(admin));
- assert.match(index,/v677-one-shot-mkb-ai-consent/);
+ assert.match(index,/v679-source-grounded-story-facts-interpretation/);
  assert.match(index,/mkb-timeline-v674\.js\?v=674-event-grouping/);
  assert.match(index,/hh-mkb-facts-admin-v670\.js\?v=674-timeline-ui/);
  assert.match(admin,/hhMkbTimelineShow674/);
