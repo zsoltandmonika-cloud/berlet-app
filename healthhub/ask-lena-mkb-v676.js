@@ -245,6 +245,22 @@ async function read(){
  }finally{if(version===v){busy=false;btn.disabled=false}}
 }
 window.HH_MKB_CONSENT_V677=Object.freeze({
+ /* v700: Ordinary Ask may PREPARE the patient-owned original excerpts.
+    This does not grant consent, transmit source text to AI or alter records. */
+ prepare:async function(p,question){
+  var q=el('hhSQ299'),text=String(question||'').trim();
+  if(!text||!q||q.value.trim()!==text||!allowed(p))return {ready:false,reason:'profile_or_question'};
+  mount();
+  if(busy)return {ready:false,reason:'source_review_busy'};
+  if(prepared&&prepared.profile===p&&prepared.question===text&&
+    Date.now()-prepared.at<5*60*1000&&prepared.items.length)
+   return {ready:true,count:prepared.items.length,source:'already_prepared'};
+  await read();
+  if(!allowed(p)||q.value.trim()!==text||!prepared||
+     prepared.profile!==p||prepared.question!==text||!prepared.items.length)
+   return {ready:false,reason:'no_verified_excerpts'};
+  return {ready:true,count:prepared.items.length,source:'verified_preview'};
+ },
  consume:function(p,question){
   var cache=prepared,granted=!!(cache&&approved===cache);
   approved=null;prepared=null;
