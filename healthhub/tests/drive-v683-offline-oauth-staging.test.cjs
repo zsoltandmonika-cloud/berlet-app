@@ -47,7 +47,7 @@ test('UI retains controlled OAuth consent, verifies private PDF source read, and
  assert.match(gui,/régebbi Drive JSON-szinkron külön ellenőrzendő/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v689-secure-original-pdf-read/);
+ assert.match(index,/v690-secure-profile-pdf-viewer/);
  assert.match(index,/hh-drive-server-oauth-v683\.js\?v=689-server-pdf-cleanup/);
  assert.doesNotThrow(()=>new Function(gui));
 });
@@ -63,7 +63,7 @@ test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF
  assert.doesNotMatch(api,/grant_type:"password"/);
 });
 
-test('v689 build metadata matches the live runtime, auto-update checker and asset cache keys',()=>{
+test('v690 build metadata matches the live runtime, auto-update checker and asset cache keys',()=>{
  const updater=fs.readFileSync(path.join(ROOT,'live-v300.js'),'utf8');
  const declared=index.match(/name="healthhub-live-build" content="([^"]+)"/)[1];
  const runtime=index.match(/window\.HH_LIVE_BUILD='([^']+)'/)[1];

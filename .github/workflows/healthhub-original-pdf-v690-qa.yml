@@ -1,0 +1,30 @@
+name: HealthHub v690 secure original PDF QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v201.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-viewer-v690.test.cjs'
+      - 'healthhub/tests/drive-v683-offline-oauth-staging.test.cjs'
+      - 'supabase/functions/hh-drive-oauth-v682/index.ts'
+      - '.github/workflows/healthhub-original-pdf-v690-qa.yml'
+  push:
+    paths:
+      - 'healthhub/live-v201.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/pdf-viewer-v690.test.cjs'
+      - 'healthhub/tests/drive-v683-offline-oauth-staging.test.cjs'
+      - 'supabase/functions/hh-drive-oauth-v682/index.ts'
+      - '.github/workflows/healthhub-original-pdf-v690-qa.yml'
+jobs:
+  privacy-and-reader:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source security and synthetic PDF regression
+        run: node --test healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs
