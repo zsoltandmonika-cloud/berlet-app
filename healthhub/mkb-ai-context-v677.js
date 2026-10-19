@@ -62,11 +62,11 @@ function pack(input,profile,granted,question){
  // formerly denied original extract. Existing documents were checked by I-04.
  if(!input.originalDocumentsConsent&&oldDocuments.some(d=>d&&d.type==='original_pdf_extract'))
   return {payload:input,added:0,limited:true};
- if(original.length+items.length>72||oldDocuments.length+docs.length>16)
+ if(original.length+items.length>72||oldDocuments.length+docs.length>12)
   return {payload:input,added:0,limited:true};
  var next=Object.assign({},input,{
   extra:items.concat(original),
-  documentEvidence:oldDocuments.concat(docs),
+  documentEvidence:docs.concat(oldDocuments),
   originalDocumentsConsent:true
  });
  if(JSON.stringify({sources:next.sources,extra:next.extra}).length>17500||
