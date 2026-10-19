@@ -41,11 +41,32 @@ function render(){
  var statusText=!connected()?'📱 Helyi előzmények · Központi Health Vault belépéssel tudod eszközök között szinkronizálni':
   st.error?'⚠️ Felhőszinkron: '+String(st.error).slice(0,110):
   st.updatedAt?'✅ Felhőszinkron: '+dateKey(st.updatedAt):'☁️ Szinkronizálás indul…';
+ // Preserve unchanged rows, search focus and scrollbar on redundant syncs.
+ var signature=JSON.stringify([p,arr.map(function(x){return [x.id,x.question,x.generatedAt]})]);
+ var existingList=box.querySelector('.hhHistList364');
+ if(box.dataset.hhHistoryRenderSignature===signature&&existingList){
+  var current=box.querySelector('.hhHistStatus364');
+  if(current&&current.textContent!==statusText)current.textContent=statusText;
+  return;
+ }
+ var scroll=existingList?existingList.scrollTop:0,search=box.querySelector('#hhChat566Search');
+ var searchTerm=search?search.value:'';
  box.innerHTML='<button type="button" class="hhHistRefresh364" id="hhHistRefresh364">↻ Sync</button>'+
  '<h3>🗂️ Ask Léna · Előzmények</h3><div class="hhHistStatus364">'+esc(statusText)+'</div>'+
  '<div class="hhHistList364">'+(arr.length?arr.map(function(x){
   return '<button type="button" class="hhHistRow364" data-history-id="'+esc(x.id)+'"><b>'+esc(x.question.slice(0,170))+'</b><small>'+esc(dateKey(x.generatedAt))+' · '+esc(x.profile==='monika'?'Mónika':'Zsolt')+'</small></button>';
  }).join(''):'<p class="hhHistStatus364">Még nincs mentett válasz ezen a profilon.</p>')+'</div>';
+ box.dataset.hhHistoryRenderSignature=signature;
+ var updatedList=box.querySelector('.hhHistList364');
+ if(search&&updatedList){
+  updatedList.insertAdjacentElement('beforebegin',search);
+  var term=searchTerm.trim().toLocaleLowerCase('hu');
+  updatedList.querySelectorAll('.hhHistRow364').forEach(function(row){
+   var hidden=!!term&&!row.textContent.toLocaleLowerCase('hu').includes(term);
+   row.hidden=hidden;row.style.display=hidden?'none':'';
+  });
+ }
+ if(updatedList)updatedList.scrollTop=scroll;
  box.querySelector('#hhHistRefresh364').onclick=function(){sync(p,true)};
  box.querySelectorAll('[data-history-id]').forEach(function(b){b.onclick=function(){
   var x=entries(profile()).find(function(v){return v.id===b.dataset.historyId});if(!x)return;
