@@ -211,6 +211,16 @@ Each event group shows the ratio of technically verified supporting excerpts. Th
 
 Release `v675-independent-evidence-audit`, tests `healthhub/tests/mkb-v675-source-audit.test.cjs`. Mobile visual acceptance remains a device-side test; do not label the interface end-to-end verified solely from source/schema inspection.
 
+## MKB v676 · Ask Léna private provenance lens (2026-10-19)
+
+The user completed the v675 source-grounded timeline mobile verification and reported that it worked well. A new **read-only, click-to-load** `📚 Forrásolt orvosi tudás` panel has been added directly below the Ask Léna composer in `healthhub/ask-lena-mkb-v676.js` (build `v676-ask-lena-evidence-lens`).
+
+The panel requires explicit user click and a live **Vault-authorized active profile**. It retrieves only matching-profile facts, evidence, source metadata, canonical verified PDF documents, and original page text through existing Supabase RLS. The same v674 timeline grouping and v675 SHA-256/quote/source attestation functions are reused. The rendered cards explicitly retain `pending` status and disclose that technical source integrity **is not** clinical truth. On profile/auth change the preview clears, the generation number invalidates all in-flight async requests, and no information is persisted in browser storage.
+
+**Safety boundary:** this release makes the verified medical history **visible next to Ask Léna**, but does **not** append pending fact payloads to the existing AI request, alter prompts, grant original-document consent, request AI model calls, create embeddings or transfer extracted evidence to a third-party service. The existing v331 → I-04/v391 → I-05/v402 consent and clinical quality chain stays intact. A future controlled inclusion of structured events in AI research must include explicit per-session consent, case-aware conflict and historical context handling, and additional clinical quality gates. The 207 original PDF archive and all 7 current facts/12 evidence references remain unchanged.
+
+Verification: source-JS syntax checks, v676 plugin structure/authorization/write-prohibition tests, and a synthetic in-memory DOM/Vault mock where **zero requests** occur until explicit click; click makes 5 profile-authorized GET requests; one valid synthetic event attests **1/1** exact source SHA and renders its expandable evidence; a profile-change event clears the full preview. **Real mobile Ask Léna visual verification remains a separate user acceptance step**.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
