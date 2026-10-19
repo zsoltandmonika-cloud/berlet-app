@@ -24,7 +24,7 @@ test('v698 app preserves v697 historical model provenance while updating AI asse
  assert.doesNotThrow(()=>new Function(history));
  assert.match(index,/v699-full-medical-source-catalog/);
  assert.match(index,/live-v331\.js\?v=699-oneclick-evidence/);
- assert.match(index,/live-v364-history\.js\?v=697-completed-model-provenance/);
+ assert.match(index,/live-v364-history\.js\?v=699-no-flicker/);
  assert.match(index,/var v='698-evidence-relevance-intelligence'/);
 });
 test('SSE done extracts only provider-specified model, dispatches it after full completion',()=>{
