@@ -296,7 +296,7 @@ export function formatClinicalAnswer(report,index,secondary=[],validated={facts:
    // The exact patient-facing quotation is the final checkable fact.
    facts.push('**Eredeti PDF:** '+compact(fact.quote).slice(0,450)+
     '\n**Forrás:** '+compact(d.title)+' · '+d.page+'. oldal'+
-    (d.documentDate?' · dokumentum keltezése: '+d.documentDate:'')+
+    (d.documentDate?' · dokumentum keltezése: '+compact(d.documentDate).replace(/[.\s]+$/,''):'')+
     '. A dokumentum keltezése nem feltétlenül az esemény vagy mintavétel napja.');
   }
   if(facts.length)lines.push(facts.slice(0,28).map((f,i)=>(i+1)+'. '+f).join('\n\n'));
