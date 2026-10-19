@@ -160,8 +160,9 @@ async function originalInventory(access,profile,folder){
   md5Checksum:f.md5Checksum||null,appProperties:f.appProperties||{},
   parents:[folder]}));
 }
-async function originalPdf(access,profile,folder,id){
+async function originalPdf(access,profile,folder,id,documentId=""){
  if(!driveId(id))throw Error("drive_pdf_invalid_id");
+ if(documentId&&!/^[A-Za-z0-9-]{6,140}$/.test(documentId))throw Error("drive_document_invalid_id");
  const url=new URL("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(id));
  url.searchParams.set("fields","id,name,mimeType,size,modifiedTime,appProperties,parents,trashed");
  const headers={Authorization:"Bearer "+access};
@@ -170,10 +171,12 @@ async function originalPdf(access,profile,folder,id){
  const m=await metadata.json();
  if(m.id!==id||m.trashed||m.mimeType!=="application/pdf"||
   !Array.isArray(m.parents)||!m.parents.includes(folder)||
-  (m.appProperties?.profile&&m.appProperties.profile!==profile))
+  (m.appProperties?.profile&&m.appProperties.profile!==profile)||
+  (documentId&&(m.appProperties?.profile!==profile||
+   m.appProperties?.documentId!==documentId)))
   throw Error("drive_pdf_profile_mismatch");
  const expected=Number(m.size);
- if(!Number.isSafeInteger(expected)||expected<5||expected>25000000)
+ if(!Number.isSafeInteger(expected)||expected<5||expected>(documentId?15000000:25000000))
   throw Error("drive_pdf_size_not_allowed");
  const download=await fetch("https://www.googleapis.com/drive/v3/files/"+
   encodeURIComponent(id)+"?alt=media",{headers,signal:AbortSignal.timeout(45000)});
@@ -187,7 +190,7 @@ async function originalPdf(access,profile,folder,id){
    const {done,value}=await reader.read();
    if(done)break;
    length+=value.byteLength;
-   if(length>25000000||length>expected)throw Error("drive_pdf_oversize");
+   if(length>(documentId?15000000:25000000)||length>expected)throw Error("drive_pdf_oversize");
    chunks.push(value);
   }
  }catch(e){await reader.cancel().catch(()=>{});throw e}
@@ -275,7 +278,7 @@ async function route(req){
     ENV("HH_GOOGLE_DRIVE_EXPECTED_EMAIL").toLowerCase()});
   }catch(_){return reply({configured:true,connected:false,reauthorizationNeeded:true})}
  }
- if(op==="archive_inventory"||op==="archive_pdf"){
+ if(op==="archive_inventory"||op==="archive_pdf"||op==="archive_document"){
   const profile=String(payload?.profile||"");
   if(!await profileAllowed(owner,profile))
    return reply({error:"archive_profile_forbidden"},403);
@@ -290,6 +293,18 @@ async function route(req){
     const files=await originalInventory(token,profile,folder);
     return reply({profile,folder,files});
    }
+   if(op==="archive_document"){
+    // Resolve only a uniquely tagged Léna archive document within this
+    // patient's verified folder. Never trust browser-local opaque Drive IDs.
+    const documentId=String(payload?.documentId||"");
+    if(!/^[A-Za-z0-9-]{6,140}$/.test(documentId))
+     return reply({error:"drive_document_invalid_id"},400);
+    const files=await originalInventory(token,profile,folder);
+    const matches=files.filter(f=>f.appProperties?.profile===profile&&
+     f.appProperties?.documentId===documentId);
+    if(matches.length!==1)throw Error("drive_document_locator_ambiguous");
+    return await originalPdf(token,profile,folder,matches[0].id,documentId);
+   }
    return await originalPdf(token,profile,folder,String(payload?.fileId||""));
   }catch(e){
    // No PDF bytes, Drive IDs, Google tokens or clinical metadata in errors.
@@ -297,7 +312,8 @@ async function route(req){
    const safe=new Set(["drive_archive_root_ambiguous","drive_profile_folder_ambiguous",
     "drive_inventory_too_large","drive_inventory_profile_mismatch",
     "drive_pdf_invalid_id","drive_pdf_profile_mismatch","drive_pdf_size_not_allowed",
-    "drive_pdf_oversize","drive_pdf_size_mismatch","drive_pdf_invalid_signature"]);
+    "drive_pdf_oversize","drive_pdf_size_mismatch","drive_pdf_invalid_signature",
+    "drive_document_invalid_id","drive_document_locator_ambiguous"]);
    return reply({error:safe.has(code)?code:"drive_gateway_unavailable"},503);
   }
  }
