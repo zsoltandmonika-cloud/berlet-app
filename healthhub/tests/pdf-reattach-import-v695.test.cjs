@@ -56,7 +56,7 @@ function harness(opts={}){
 }
 test('v695 build and cached import script updated, no new archive gateway deployed',()=>{
  assert.doesNotThrow(()=>new Function(src));
- assert.match(index,/v698-evidence-relevance-intelligence/);
+ assert.match(index,/v699-full-medical-source-catalog/);
  assert.match(index,/live-v128\.js\?v=695-safe-4pdf-reattach/);
  assert.match(src,/importMode==='restore-existing-originals'/);
  assert.match(src,/files\.length!==4\|\|manifest\.documents\.length!==4/);
