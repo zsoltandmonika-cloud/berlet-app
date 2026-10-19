@@ -21,7 +21,7 @@
   dailyhealth:'<path d="M20 7a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M5 13h4l2-3 2 6 2-3h5"/>'
  };
  var TILES=[
-  ['health','Egészség'],['records','Leletek'],['meds','HealthHub Gyógyszerek + Supplements'],
+  ['health','Egészség'],['records','Leletek'],['meds','Gyógyszerek & Supplement'],
   ['sleep','Alvás'],['activity','Aktivitás'],['digital','Digital Health'],
   ['nutrition','Nutrition'],['ask','Ask Léna'],['timeline','Idővonal'],
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
