@@ -367,10 +367,20 @@ function errorText(code,status){
  if(code==='ai_upstream_401'||code==='ai_upstream_402'||code==='ai_upstream_429')return 'Az AI-szolgáltatás kulcsa, kerete vagy limitje ellenőrzést igényel ('+code+').';
  return 'AI-kutatás sikertelen: '+safe(code||'kapcsolati vagy szerverhiba',140)+'.';
 }
+/* v700: A question about the user's OWN reports needs source-backed
+   evidence, not a title-only local answer masquerading as report review. */
+function asksOwnMedicalReports(question){
+ var q=String(question||'').toLocaleLowerCase('hu-HU')
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ var medical=/(lelet|labor|pdf|dokumentum|zarojelentes|szivultrahang|vizsgalati eredmeny)/.test(q);
+ var personal=/(leleteim|leleteimet|leletem|laborom|eredmenyeim|dokumentumaim|sajat|legutobbi|legfriss|legujabb|elozo lelet|korabbi lelet|mit mutat a|mit mutatott a)/.test(q);
+ return medical&&personal;
+}
 async function run(opts){
  var deep=!!(opts&&opts.depth==='detailed');
  ui();if(active){print('Már fut egy kutatás.');return}
  var q=el('hhSQ299'),p=profile(),question=q&&q.value.trim();
+ var ownReport=asksOwnMedicalReports(question);
  var term=el('hhAi331Terminal'),result=el('hhAi331Answer'),err=el('hhAi331Error');
  setAnswerProfile(p);
  term.classList.add('on');el('hhAi331Lines').innerHTML='';err.classList.remove('on');result.classList.remove('on');
@@ -381,15 +391,35 @@ async function run(opts){
  if(el('askWork330'))el('askWork330').classList.remove('on');
  if(!question||question.length<3){showError('Írj be egy érdemi kérdést.');return}
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
- if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');showLocalAnswer(question,p,null);return}
- if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');showLocalAnswer(question,p,null);if(svc.openLogin)svc.openLogin();return}
+ if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');if(!ownReport)showLocalAnswer(question,p,null);return}
+ if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');if(!ownReport)showLocalAnswer(question,p,null);if(svc.openLogin)svc.openLogin();return}
  var allowed=svc.getStatus().authorizedProfiles;
- if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');showLocalAnswer(question,p,null);return}
+ if(Array.isArray(allowed)&&!allowed.includes(p)){showError('A bejelentkezett fióknak nincs jogosultsága '+(p==='monika'?'Mónika':'Zsolt')+' profiljához.');if(!ownReport)showLocalAnswer(question,p,null);return}
  // I-09 MKB: consume explicit one-use approval only when starting research.
  // No approved MKB data is retrieved or transmitted automatically.
  var mkbGrant=null,mkbConsent=window.HH_MKB_CONSENT_V677;
  if(mkbConsent&&typeof mkbConsent.consume==='function')
   mkbGrant=mkbConsent.consume(p,question);
+ // For a report summary, ordinary Ask preloads source-backed excerpts.
+ // A separate, visible CTA approves precisely those excerpts and starts AI.
+ if(ownReport&&!mkbGrant){
+  print('📚 Személyes leletkérdés: az ellenőrzött források előkészítése…');
+  if(!mkbConsent||typeof mkbConsent.prepare!=='function'){
+   showError('A forrásválasztó nem érhető el. Nem készült leletösszefoglalás.');
+   return;
+  }
+  try{
+   var ready=await mkbConsent.prepare(p,question);
+   if(ready&&ready.ready&&profile()===p&&q.value.trim()===question){
+    print('📚 '+ready.count+' ellenőrzött PDF-idézet előkészítve. A források jóváhagyásához és a valódi AI-kutatáshoz koppints a „Kutatás indítása a kiválasztott forrásokkal” gombra.');
+    var sourcePreview=el('hhAskMkbConsentButton699');
+    if(sourcePreview&&sourcePreview.scrollIntoView)sourcePreview.scrollIntoView({block:'nearest',behavior:'smooth'});
+   }else showError('A leletek ellenőrzött forrásait nem sikerült előkészíteni. Nem készült AI-válasz. Ellenőrizd a Forrásolt orvosi tudás panelt.');
+  }catch(_){
+   showError('A leletforrások ellenőrzése megszakadt. Nem készült AI-válasz; az eredeti dokumentumok változatlanok.');
+  }
+  return;
+ }
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
  try{q.blur()}catch(e){}
@@ -593,13 +623,10 @@ async function run(opts){
   // v680 fail-closed: if the question names the user's own report but
   // there is no original excerpt, NEVER emit a plausible generic story.
   // Medical education questions without a personal record are unaffected.
-  var lookupText=String(question||'').toLocaleLowerCase('hu-HU')
-   .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  var asksOwnDocument=/(lelet|labor|tenyeszt|pdf|dokumentum)/.test(lookupText)&&
-   /(lelet(e|em|eim)|mutat|tartalmaz|meselj|20\d{2})/.test(lookupText);
+  var asksOwnDocument=ownReport;
   var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
    .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
-  if(asksOwnDocument&&researchPlan.clinical&&!verifiedOriginals.length)
+  if(asksOwnDocument&&!verifiedOriginals.length)
    throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
@@ -721,7 +748,8 @@ async function run(opts){
    var msg=e&&e.message||'Ismeretlen AI-hiba.';
    if(/failed to fetch|networkerror|load failed/i.test(msg))msg='A kutatómotor nem érhető el. Nincs kész válasz. Ellenőrizni kell a szerverkapcsolatot.';
    showError(msg);
-   showLocalAnswer(question,p,typeof report!=='undefined'&&report&&report.profile===p?report:null);
+   // Do not imply a source-free local observation is a medical report summary.
+   if(!ownReport)showLocalAnswer(question,p,typeof report!=='undefined'&&report&&report.profile===p?report:null);
   }
  }finally{
   if(turn===epoch){active=null;el('hhRun299').disabled=false;q.disabled=false}
