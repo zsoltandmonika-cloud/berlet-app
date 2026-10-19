@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - "healthhub/live-v331.js"
+      - "healthhub/mkb-evidence-i10-v698.js"
+      - "healthhub/mkb-full-index-v699.js"
+      - "healthhub/mkb-ai-context-v677.js"
+      - "healthhub/ask-lena-mkb-v676.js"
       - "healthhub/index.html"
       - "healthhub/tests/mkb-preview-*.test.cjs"
       - "supabase/functions/hh-mkb-search-preview/**"
@@ -22,6 +26,7 @@ jobs:
           node --check healthhub/hh-development-charter-admin-v658.js
           node healthhub/tests/mkb-preview-route-v703.test.cjs
           node healthhub/tests/mkb-preview-scope-v703.test.cjs
+          node --test healthhub/tests/mkb-date-research-v704.test.cjs
       - name: Verify preview rejects requests without a session
         shell: bash
         run: |
