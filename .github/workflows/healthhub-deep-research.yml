@@ -10,6 +10,8 @@ on:
       - "healthhub/tests/ask-lena-safe-fallback-v511.test.cjs"
       - "healthhub/tests/mkb-preview-route-v703.test.cjs"
       - "healthhub/tests/mkb-preview-scope-v703.test.cjs"
+      - "healthhub/tests/sol-ai-first-v705.test.cjs"
+      - "supabase/functions/hh-sol-full-corpus-preview/**"
       - "supabase/functions/hh-mkb-search-preview/**"
       - "healthhub/tests/intelligence-v402.test.cjs"
       - "healthhub/tests/intelligence-deep-research-v393.test.cjs"
@@ -41,6 +43,7 @@ jobs:
           node healthhub/tests/ask-lena-safe-fallback-v511.test.cjs
           node healthhub/tests/mkb-preview-route-v703.test.cjs
           node healthhub/tests/mkb-preview-scope-v703.test.cjs
+          node healthhub/tests/sol-ai-first-v705.test.cjs
           node healthhub/tests/intelligence-v402.test.cjs
           node healthhub/tests/intelligence-deep-research-v393.test.cjs
           node healthhub/tests/intelligence-clinical-v391.test.cjs
