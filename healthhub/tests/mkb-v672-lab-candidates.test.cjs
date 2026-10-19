@@ -50,7 +50,7 @@ test('viewer keeps existing rules and activates strict lab rules in the right sc
  assert.doesNotThrow(()=>new Function(script));
  assert.doesNotThrow(()=>new Function(admin));
  assert.match(index,/mkb-lab-rules-v672\.js\?v=673-minimal-evidence/);
- assert.match(index,/v679-source-grounded-story-facts-interpretation/);
+ assert.match(index,/v680-vault-trusted-auto-reconnect/);
  assert.ok(index.indexOf('mkb-fact-rules-v670.js')<index.indexOf('mkb-lab-rules-v672.js'));
  assert.ok(index.indexOf('mkb-lab-rules-v672.js')<index.indexOf('hh-mkb-facts-admin-v670.js'));
  assert.match(admin,/rules\.candidates\(page\.page_text\)\.concat\(labs\.candidates\(page\.page_text\)\)/);
