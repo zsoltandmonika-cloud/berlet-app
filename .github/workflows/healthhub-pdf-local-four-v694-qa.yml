@@ -1,0 +1,28 @@
+name: HealthHub v694 four-original archive repair QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/hh-pdf-local-archive-repair-v694.js'
+      - 'supabase/functions/hh-drive-repair-v694/index.ts'
+      - 'healthhub/tests/pdf-four-local-repair-v694.test.cjs'
+      - '.github/workflows/healthhub-pdf-local-four-v694-qa.yml'
+  push:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/hh-pdf-local-archive-repair-v694.js'
+      - 'supabase/functions/hh-drive-repair-v694/index.ts'
+      - 'healthhub/tests/pdf-four-local-repair-v694.test.cjs'
+      - '.github/workflows/healthhub-pdf-local-four-v694-qa.yml'
+jobs:
+  guard-originals:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Archive repair and all PDF regressions
+        run: node --test healthhub/tests/pdf-four-local-repair-v694.test.cjs healthhub/tests/pdf-cross-id-v693.test.cjs healthhub/tests/pdf-original-sha-v692.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/pdf-device-audit-v691.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs

@@ -43,8 +43,8 @@ function setup(files,settings={}){
 }
 test('v693 build includes verified cross-ID recovery and no direct Google token access',()=>{
  assert.doesNotThrow(()=>new Function(source));
- assert.match(index,/v693-verified-cross-id-pdf/);
- assert.match(index,/live-v201\.js\?v=693-verified-cross-id-pdf/);
+ assert.match(index,/v694-four-local-pdf-repair/);
+ assert.match(index,/live-v201\.js\?v=694-reused-verified-viewer/);
  assert.match(source,/located\.sameDocumentId[\s\S]*?action:'archive_pdf'/);
  assert.match(source,/if\(actual!==expected\)throw Error\('drive_pdf_hash_mismatch'\)/);
  assert.doesNotMatch(source,/hhGetGoogleDriveToken292|googleapis\.com\/drive/);

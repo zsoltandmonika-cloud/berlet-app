@@ -38,8 +38,8 @@ function doc(pdf,changes={}){
 }
 test('v690 syntax and published build cache key',()=>{
  assert.doesNotThrow(()=>new Function(source));
- assert.match(page,/v693-verified-cross-id-pdf/);
- assert.match(page,/live-v201\.js\?v=693-verified-cross-id-pdf/);
+ assert.match(page,/v694-four-local-pdf-repair/);
+ assert.match(page,/live-v201\.js\?v=694-reused-verified-viewer/);
 });
 test('only local missing-blob path invokes server original, with patient metadata and cancellation',()=>{
  assert.match(source,/if\(!d\|\|d\.profile!==profile\)/);
