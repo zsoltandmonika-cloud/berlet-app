@@ -28,8 +28,40 @@ function create(){
  var hint=document.createElement('small');
  hint.textContent='A meglévő Drive-kapcsolat változatlan. Google-engedélyt kizárólag a gomb megnyomásakor kérünk; megújító token nem kerül a böngészőbe.';
  hint.style.cssText='display:block;color:#b4d4e3;margin-top:6px';
- host.append(title,status,btn,hint);
+ var inventory=document.createElement('button');inventory.id='hhDriveInventoryV685';
+ inventory.type='button';inventory.hidden=true;
+ inventory.style.cssText='display:block;margin-top:8px;min-height:44px;border:1px solid #77bdd5;background:#285168;color:white;border-radius:10px;padding:8px 13px;font-weight:750;cursor:pointer';
+ inventory.textContent='🔎 Privát Drive-leltár ellenőrzése (csak olvasás)';
+ host.append(title,status,btn,inventory,hint);
  parent.insertAdjacentElement('afterend',host);
+ inventory.addEventListener('click',async function(){
+  if(loading||!ready())return;
+  var who=localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
+  var auth=vault().getStatus();
+  if(!auth.authorizedProfiles.includes(who)){
+   status.textContent='🔒 A kiválasztott profilhoz nincs Vault-jogosultság.';return;
+  }
+  loading=true;inventory.disabled=true;btn.disabled=true;
+  try{
+   status.textContent='⏳ A '+(who==='monika'?'Mónika':'Zsolt')+' profil eredeti Google Drive PDF-leltárának ellenőrzése…';
+   var response=await vault().stream('/functions/v1/hh-drive-oauth-v682',
+    {action:'archive_inventory',profile:who});
+   if(!response.ok)throw Error('Szerveroldali leltár HTTP '+response.status);
+   var result=await response.json();
+   if(localStorage.getItem('hh-profile')!==(who==='monika'?'m':'z'))
+    throw Error('Profilváltás történt.');
+   if(result.profile!==who||!Array.isArray(result.files))
+    throw Error('Érvénytelen leltárválasz.');
+   var pdfs=result.files.filter(function(f){return f&&f.mimeType==='application/pdf'});
+   if(pdfs.length!==result.files.length)throw Error('Eltérő fájltípus a leltárban.');
+   status.textContent='✅ Szerveroldali Drive-leltár: '+(who==='monika'?'Mónika':'Zsolt')+
+    ' · '+pdfs.length+' PDF. A token a szerveren maradt, az eredeti dokumentumok változatlanok.';
+  }catch(e){
+   status.textContent='⚠ A privát Drive-leltár nem igazolható: '+
+    String(e&&e.message||'kapcsolati hiba').slice(0,95)+'. Dokumentum nem módosult.';
+  }finally{loading=false;inventory.disabled=false;btn.disabled=false}
+ });
+
  btn.addEventListener('click',async function(){
   if(loading||!ready())return;
   loading=true;btn.disabled=true;
@@ -56,8 +88,10 @@ async function send(action){
  return value;
 }
 async function refresh(){
- var host=el(ID),status=el('hhGoogleDriveOfflineStatus683'),btn=el('hhGoogleDriveOfflineButton683');
+ var host=el(ID),status=el('hhGoogleDriveOfflineStatus683'),
+  btn=el('hhGoogleDriveOfflineButton683'),inventory=el('hhDriveInventoryV685');
  if(!host||!status||!btn||!ready())return;
+ if(inventory)inventory.hidden=true;
  var request=++version;
  try{
   var state=await send('status');
@@ -71,9 +105,11 @@ async function refresh(){
    btn.textContent='🔄 Google-engedély újrakiadása';btn.hidden=false;
    var verified=await send('check');
    if(version!==request||!el(ID))return;
-   status.textContent=verified&&verified.connected===true&&!verified.reauthorizationNeeded
+   var valid=!!(verified&&verified.connected===true&&!verified.reauthorizationNeeded);
+   status.textContent=valid
     ? '✅ Tartós Google-engedély aktív. A szerver önállóan megújította a hozzáférést és ellenőrizte a Google-fiókot. A Drive-adatútvonal átállítása még külön feladat.'
     : '⚠ A titkosított engedély megvan, de a szerveroldali Google-hozzáférés nem igazolható. Használd a Google-engedély újrakiadása gombot.';
+   if(inventory)inventory.hidden=!valid;
   }else{
    status.textContent='🔒 A szerver készen áll. Egyszeri Google-jóváhagyás szükséges.';
    btn.textContent='🔐 Egyszeri Google-engedélyezés';btn.hidden=false;
