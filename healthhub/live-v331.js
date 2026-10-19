@@ -635,7 +635,7 @@ async function run(opts){
   // through the separate two-stage verified-excerpt endpoint. Routine AI,
   // photo mode and prior quick answers keep the stable existing function.
   // v679: evidence-audited three-layer medical answers are the default.
-  var clinicalPilot=!!customized.plan.clinical&&!shot;
+  var clinicalPilot=(!!customized.plan.clinical||mkbSourceUsed>0)&&!shot;
   if(clinicalPilot){
    data.depth='detailed';
    data.researchMode='clinical-v395';
