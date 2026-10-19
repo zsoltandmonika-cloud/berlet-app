@@ -12,7 +12,11 @@ function saveState(p,x){try{localStorage.setItem(STATE+p,JSON.stringify(x||{}))}
 function dateKey(x){var d=new Date(x);return Number.isFinite(d.getTime())?d.toLocaleString('hu-HU',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Dátum nélkül'}
 function write(p,arr){var m=new Map();arr.forEach(function(x){if(x&&x.id&&x.profile===p&&x.question&&x.answer)m.set(x.id,x)});
  var rows=Array.from(m.values()).sort(function(a,b){return Date.parse(b.generatedAt)-Date.parse(a.generatedAt)}).slice(0,MAX);
- try{localStorage.setItem(STORE+p,JSON.stringify(rows))}catch(e){console.warn('Ask Léna history cache full',e)}
+ try{
+  var encoded=JSON.stringify(rows);
+  // Do not write unchanged data on every cloud polling result.
+  if(localStorage.getItem(STORE+p)!==encoded)localStorage.setItem(STORE+p,encoded);
+ }catch(e){console.warn('Ask Léna history cache full',e)}
  return rows;
 }
 function style(){
@@ -35,48 +39,98 @@ function mount(){
  var width=page.querySelector('.askWidth')||page;
  width.appendChild(e);return e;
 }
+/* v699: stable keyed history rows. Even when sync touches cloud metadata,
+   never dismantle the history card, search input, or scroll container. */
+function historyRow(x,p){
+ var node=document.createElement('button');node.type='button';
+ node.className='hhHistRow364';node.dataset.historyId=String(x.id);
+ var title=document.createElement('b');title.textContent=String(x.question||'').slice(0,170);
+ var date=document.createElement('small');
+ date.textContent=dateKey(x.generatedAt)+' · '+(p==='monika'?'Mónika':'Zsolt');
+ node.append(title,date);
+ node.onclick=function(){
+  if(profile()!==p)return;
+  var found=entries(p).find(function(v){return v.id===node.dataset.historyId});
+  if(!found)return;
+  var view=window.HH_ASK_LENA_AI_V331;
+  if(view&&view.showStoredAnswer){
+   view.showStoredAnswer(found);
+   if(window.HH_LENA_FOLLOWUP_V364&&window.HH_LENA_FOLLOWUP_V364.fromHistory)
+    window.HH_LENA_FOLLOWUP_V364.fromHistory(found);
+   var ans=document.getElementById('hhAi331Answer');
+   if(ans)ans.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+ };
+ return node;
+}
 function render(){
  var box=mount();if(!box)return;
  var p=profile(),arr=entries(p),st=state(p);
  var statusText=!connected()?'📱 Helyi előzmények · Központi Health Vault belépéssel tudod eszközök között szinkronizálni':
   st.error?'⚠️ Felhőszinkron: '+String(st.error).slice(0,110):
   st.updatedAt?'✅ Felhőszinkron: '+dateKey(st.updatedAt):'☁️ Szinkronizálás indul…';
- // Preserve unchanged rows, search focus and scrollbar on redundant syncs.
- var signature=JSON.stringify([p,arr.map(function(x){return [x.id,x.question,x.generatedAt]})]);
- var existingList=box.querySelector('.hhHistList364');
- if(box.dataset.hhHistoryRenderSignature===signature&&existingList){
-  var current=box.querySelector('.hhHistStatus364');
-  if(current&&current.textContent!==statusText)current.textContent=statusText;
-  return;
+ // Create outer elements ONCE. Existing search focus, scroll, row nodes
+ // are maintained for both patient profiles and every redundant sync.
+ var list=box.querySelector('.hhHistList364');
+ if(!list){
+  var refresh=document.createElement('button');refresh.type='button';
+  refresh.className='hhHistRefresh364';refresh.id='hhHistRefresh364';
+  refresh.textContent='↻ Sync';refresh.onclick=function(){sync(profile(),true)};
+  var heading=document.createElement('h3');heading.textContent='🗂️ Ask Léna · Előzmények';
+  var status=document.createElement('div');status.className='hhHistStatus364';
+  list=document.createElement('div');list.className='hhHistList364';
+  box.append(refresh,heading,status,list);
  }
- var scroll=existingList?existingList.scrollTop:0,search=box.querySelector('#hhChat566Search');
- var searchTerm=search?search.value:'';
- box.innerHTML='<button type="button" class="hhHistRefresh364" id="hhHistRefresh364">↻ Sync</button>'+
- '<h3>🗂️ Ask Léna · Előzmények</h3><div class="hhHistStatus364">'+esc(statusText)+'</div>'+
- '<div class="hhHistList364">'+(arr.length?arr.map(function(x){
-  return '<button type="button" class="hhHistRow364" data-history-id="'+esc(x.id)+'"><b>'+esc(x.question.slice(0,170))+'</b><small>'+esc(dateKey(x.generatedAt))+' · '+esc(x.profile==='monika'?'Mónika':'Zsolt')+'</small></button>';
- }).join(''):'<p class="hhHistStatus364">Még nincs mentett válasz ezen a profilon.</p>')+'</div>';
- box.dataset.hhHistoryRenderSignature=signature;
- var updatedList=box.querySelector('.hhHistList364');
- if(search&&updatedList){
-  updatedList.insertAdjacentElement('beforebegin',search);
-  var term=searchTerm.trim().toLocaleLowerCase('hu');
-  updatedList.querySelectorAll('.hhHistRow364').forEach(function(row){
-   var hidden=!!term&&!row.textContent.toLocaleLowerCase('hu').includes(term);
-   row.hidden=hidden;row.style.display=hidden?'none':'';
+ var current=box.querySelector('.hhHistStatus364');
+ if(current&&current.textContent!==statusText)current.textContent=statusText;
+ var signature=JSON.stringify([p,arr.map(function(x){return [x.id,x.question,x.generatedAt]})]);
+ if(box.dataset.hhHistoryRenderSignature===signature)return;
+ var scroll=list.scrollTop;
+ var prevProfile=box.dataset.hhHistoryProfile;
+ // Only move, add or remove rows whose actual identifiers changed.
+ var existing=new Map();
+ list.querySelectorAll('.hhHistRow364[data-history-id]').forEach(function(row){
+  existing.set(row.dataset.historyId,row);
+ });
+ var desired=[];
+ arr.forEach(function(x){
+  var row=existing.get(String(x.id));
+  if(row){
+   existing.delete(String(x.id));
+   var title=row.querySelector('b'),date=row.querySelector('small');
+   var t=String(x.question||'').slice(0,170);
+   var d=dateKey(x.generatedAt)+' · '+(p==='monika'?'Mónika':'Zsolt');
+   if(title&&title.textContent!==t)title.textContent=t;
+   if(date&&date.textContent!==d)date.textContent=d;
+  }else row=historyRow(x,p);
+  desired.push(row);
+ });
+ if(!arr.length){
+  var empty=list.querySelector('.hhHistEmpty364');
+  if(!empty){empty=document.createElement('p');empty.className='hhHistStatus364 hhHistEmpty364'}
+  empty.textContent='Még nincs mentett válasz ezen a profilon.';
+  desired.push(empty);
+ }
+ desired.forEach(function(row,i){
+  if(list.children[i]!==row)list.insertBefore(row,list.children[i]||null);
+ });
+ // Remove stale rows only after desired rows are placed.
+ var allow=new Set(desired);
+ Array.from(list.children).forEach(function(row){if(!allow.has(row))row.remove()});
+ // Respect the user's current search, without resetting the input itself.
+ var input=box.querySelector('#hhChat566Search');
+ if(input){
+  var term=input.value.trim().toLocaleLowerCase('hu-HU');
+  list.querySelectorAll('.hhHistRow364').forEach(function(row){
+   var hidden=!!term&&!row.textContent.toLocaleLowerCase('hu-HU').includes(term);
+   if(row.hidden!==hidden)row.hidden=hidden;
+   var display=hidden?'none':'';
+   if(row.style.display!==display)row.style.display=display;
   });
  }
- if(updatedList)updatedList.scrollTop=scroll;
- box.querySelector('#hhHistRefresh364').onclick=function(){sync(p,true)};
- box.querySelectorAll('[data-history-id]').forEach(function(b){b.onclick=function(){
-  var x=entries(profile()).find(function(v){return v.id===b.dataset.historyId});if(!x)return;
-  var view=window.HH_ASK_LENA_AI_V331;
-  if(view&&view.showStoredAnswer){
-   view.showStoredAnswer(x);
-   if(window.HH_LENA_FOLLOWUP_V364&&window.HH_LENA_FOLLOWUP_V364.fromHistory)window.HH_LENA_FOLLOWUP_V364.fromHistory(x);
-   var ans=document.getElementById('hhAi331Answer');if(ans)ans.scrollIntoView({behavior:'smooth',block:'start'});
-  }
- }});
+ if(prevProfile===p)list.scrollTop=scroll;
+ box.dataset.hhHistoryProfile=p;
+ box.dataset.hhHistoryRenderSignature=signature;
 }
 async function sync(p,manual){
  if(!['zsolt','monika'].includes(p)||inFlight[p])return;
