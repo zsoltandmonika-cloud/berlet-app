@@ -78,7 +78,13 @@ function mount(){
  '<li>Rendszer: stabilitás, sebesség, mobil használhatóság, adatfrissesség és profilszeparáció. Zöld státusz csak sikeres ellenőrzés után.</li>'+
  '<li>Admin dokumentáció és GitHub technikai dokumentáció egyaránt frissítendő minden jelentős irányváltáskor.</li>'+
  '</ul></details>'+
- '<details><summary>🔐 Eredeti PDF · v692 SHA-256 ütközésfeloldás</summary><ul>'+
+ '<details><summary>🔎 Eredeti PDF · v693 ellenőrzött forrás-helyreállítás</summary><ul>'+
+ '<li>Ha az index és a Drive régi dokumentumazonosítója eltér, csak azonos profilhoz tartozó és SHA-256 alapján bizonyíthatóan azonos eredeti olvasható.</li>'+
+ '<li>A Drive szerveroldali profil- és mappaellenőrzése után a PDF teljes letöltött bájtfolyamára új SHA-256 ellenőrzés kötelező.</li>'+
+ '<li>Ha a helyi index nem tartalmaz érvényes SHA-256-ot, vagy nem található vele megegyező eredeti, tilos név vagy dátum alapján találgatni.</li>'+
+ '<li>Valós PC és mobil próba nélkül ez CODED/TESTED, nem LIVE VERIFIED. Az eredeti iratok módosítása és újraimportálása tilos.</li>'+
+ '</ul></details>'+
+'<details><summary>🔐 Eredeti PDF · v692 SHA-256 ütközésfeloldás</summary><ul>'+
  '<li>Eltérő eszközön külön helyi PDF-cache lehet; Mónika és Zsolt bejelentkezéseit dokumentumhibára hivatkozva nem változtatjuk meg.</li>'+
  '<li>Duplikált Drive dokumentumazonosító esetén csak ellenőrzött profil + pontos dokumentumazonosító + SHA-256 egyezés alapján választható eredeti.</li>'+
  '<li>Az eredeti PDF tényleges letöltött bájtjain SHA-256, PDF-aláírás és fájlméret-ellenőrzés kötelező. SHA vagy pontos találat nélkül nem találgatunk.</li>'+
