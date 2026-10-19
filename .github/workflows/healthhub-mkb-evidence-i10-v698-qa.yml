@@ -1,0 +1,35 @@
+name: HealthHub v698 question-specific Evidence Intelligence QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/mkb-evidence-i10-v698.js'
+      - 'healthhub/ask-lena-mkb-v676.js'
+      - 'healthhub/mkb-ai-context-v677.js'
+      - 'healthhub/live-v331.js'
+      - 'healthhub/tests/mkb-evidence-i10-v698.test.cjs'
+      - 'healthhub/tests/mkb-v676-ask-lena-evidence.test.cjs'
+      - 'healthhub/tests/mkb-v677-one-shot-consent.test.cjs'
+      - '.github/workflows/healthhub-mkb-evidence-i10-v698-qa.yml'
+  push:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/mkb-evidence-i10-v698.js'
+      - 'healthhub/ask-lena-mkb-v676.js'
+      - 'healthhub/mkb-ai-context-v677.js'
+      - 'healthhub/live-v331.js'
+      - 'healthhub/tests/mkb-evidence-i10-v698.test.cjs'
+      - '.github/workflows/healthhub-mkb-evidence-i10-v698-qa.yml'
+jobs:
+  evidence-provenance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Question-bound consent, ranking and original source regressions
+        run: |
+          node --test healthhub/tests/mkb-evidence-i10-v698.test.cjs healthhub/tests/mkb-v676-ask-lena-evidence.test.cjs healthhub/tests/mkb-v677-one-shot-consent.test.cjs healthhub/tests/mkb-v675-source-audit.test.cjs healthhub/tests/governance-admin-v658.test.cjs healthhub/tests/ask-lena-model-provenance-v697.test.cjs

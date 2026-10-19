@@ -389,7 +389,7 @@ async function run(opts){
  // No approved MKB data is retrieved or transmitted automatically.
  var mkbGrant=null,mkbConsent=window.HH_MKB_CONSENT_V677;
  if(mkbConsent&&typeof mkbConsent.consume==='function')
-  mkbGrant=mkbConsent.consume(p);
+  mkbGrant=mkbConsent.consume(p,question);
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
  try{q.blur()}catch(e){}

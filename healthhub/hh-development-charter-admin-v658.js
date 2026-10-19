@@ -66,7 +66,14 @@ function mount(){
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
   '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
- '<details><summary>🧠 Ask Léna v697 · hiteles válaszeredet és modellnapló</summary><ul>'+
+ '<details><summary>🧠 Ask Léna Intelligence · v698 releváns és jóváhagyott bizonyíték</summary><ul>'+
+ '<li>Az Ask Léna forrásnézete legfeljebb 5, az adott kérdéshez rangsorolt és SHA-256-tal technikailag ellenőrzött idézetet ajánl.</li>'+
+ '<li>A kulcsszó- vagy témarokonítás nem orvosi diagnózis, és nem bizonyít ok-okozatot. A különböző napi mérések nem értékhibák; eltérő azonos napi eredmény is csak felülvizsgálati jelzés.</li>'+
+ '<li>A kiválasztott PDF-idézet, oldal, dokumentum, vizsgálati nap és felülvizsgálati státusz látható az egyszeri hozzájárulás előtt.</li>'+
+ '<li>A jóváhagyás kizárólag az előzetesen rögzített pontos kérdésre, egyszer és ugyanazon profilban érvényes; másik kérdéshez új forráselőnézet és jóváhagyás kell.</li>'+
+ '<li>A `pending` tény nem válik ettől `verified`-dé, az eredeti leletek és a gyógyszerek nem módosulnak. Nincs háttérletöltés vagy rejtett AI-adatátadás.</li>'+
+ '</ul></details>'+
+'<details><summary>🧠 Ask Léna v697 · hiteles válaszeredet és modellnapló</summary><ul>'+
  '<li>A privát Ask Léna-történetben a 46 korábbi rekord modellazonosítója üres; utólag tilos ismeretlen szervermodellt kitalálni.</li>'+
  '<li>A sikeresen lezárt válaszok jövőben a valódi SSE done eseményben kapott, forma szerint ellenőrzött AI-modellt kapják.</li>'+
  '<li>Csak érvényes, azonos betegprofilú, teljes AI-válasz rögzíthető. A tényleges kérdés, válasz, időpont és RLS-jogosultság változatlan.</li>'+

@@ -73,7 +73,7 @@ test('one-use checkbox is off by default, scoped to profile and invalidated by a
  assert.match(ui,/g\.evidences\.every\(e=>qa\.get\(e\.id\)\?\.verified\)/);
 });
 test('consented document notes enter ASK only after I-04/I-07, and before I-05 final preflight',()=>{
- assert.match(ask,/mkbConsent\.consume\(p\)/);
+ assert.match(ask,/mkbConsent\.consume\(p,question\)/);
  assert.match(ask,/mkbPacker\.pack\(data,p,mkbGrant,question\)/);
  assert.ok(ask.indexOf('var clinical=clinicalEngine.assemble(data,clinicalCtx')<
   ask.indexOf('mkbPacker.pack(data,p,mkbGrant,question)'));
@@ -94,8 +94,8 @@ test('no local persistence and no uncapped PDF transmission',()=>{
 });
 test('v677 script build, module syntax and ordered bootstrapping',()=>{
  for(const s of [source,ui,ask])assert.doesNotThrow(()=>new Function(s));
- assert.match(index,/v680-vault-trusted-auto-reconnect/);
- assert.match(index,/live-v331\.js\?v=679-default-audited-clinical/);
- assert.match(index,/ask-lena-mkb-v676\.js\?v=679-full-source-uuid/);
- assert.match(index,/mkb-ai-context-v677\.js\?v=679-prioritized-original-excerpt/);
+ assert.match(index,/daily-health-sync\.js\?v=680-trusted-refresh/);
+ assert.match(index,/live-v331\.js\?v=698-question-bound-sources/);
+ assert.match(index,/ask-lena-mkb-v676\.js\?v=698-question-bound-one-shot/);
+ assert.match(index,/mkb-ai-context-v677\.js\?v=698-discrepancy-guard/);
 });
