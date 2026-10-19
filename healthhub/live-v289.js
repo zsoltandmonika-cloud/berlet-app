@@ -106,6 +106,20 @@ function medicationList(meta,p,legacy){
     name:x.name||x.title||'',strength:x.strength||x.dose||'',schedule:x.schedule||'',status:x.status||'',note:trim(x.note,350)
   }}).filter(function(x){return x.name});
 }
+/* Supplements are separately identified self-reported products, not medications. */
+function supplementList(meta,p){
+ var out=[];
+ arr(meta).forEach(function(x){
+  var v=x&&x.key==='private-reference'&&x.payload&&x.payload.profiles&&x.payload.profiles[p];
+  if(v&&Array.isArray(v.supplements))out=out.concat(v.supplements);
+ });
+ return out.map(function(x){return{
+  name:trim(x.name,180),strength:trim(x.strength,160),schedule:trim(x.schedule,180),
+  status:trim(x.status,35),activeIngredient:trim(x.activeIngredient,250),
+  purpose:trim(x.purpose,500),caution:trim(x.caution,500),
+  source:'felhasználói nyilvántartás · nem klinikailag ellenőrzött'
+ }}).filter(function(x){return x.name});
+}
 function explanation(d){
   if(!d)return null;
   var e=d.lenaExplanationManual||d.lenaExplanation||d.explanation||null;
@@ -199,6 +213,7 @@ function summary(c){
   if(c.sleep.h72.avgDurationMin!=null)a.push('Alvás 72h átlag: '+Math.round(c.sleep.h72.avgDurationMin)+' perc');
   if(c.activity.h72.avgSteps!=null)a.push('Aktivitás 72h átlag: '+Math.round(c.activity.h72.avgSteps)+' lépés/nap');
   if(c.heartRate.h72Avg!=null)a.push('Pulzus 72h átlag: '+c.heartRate.h72Avg+'/perc');
+  if(c.supplements&&c.supplements.length)a.push('Külön nyilvántartott étrend-kiegészítők (felhasználói, nem igazolt szedés): '+c.supplements.map(function(x){return x.name+' ['+x.status+']'}).join('; '));
   a.push('Leletek/archív dokumentumok: '+c.documents.count+' · Léna-magyarázat: '+c.documents.withExplanation);
   if(c.signals.length)a.push('Figyelemre méltó változások: '+c.signals.map(function(x){return x.text}).join(' | '));
   return a.join('\n');
@@ -239,6 +254,7 @@ async function build(profile,reason){
         knownConditions:prof.knownConditions||prof.conditions||null
       },
       medications:medicationList(rs[4],p,legacy),
+      supplements:supplementList(rs[4],p),
       metrics:{
         weight:{
           latest:wl?{measuredAt:wl.measuredAt,weightKg:r1(wl.weightKg),bodyFatPercent:r1(wl.bodyFatPercent),source:wl.source||null}:null,
@@ -301,6 +317,7 @@ window.hhGetLenaHealthContextText289=function(p){var x=window.hhGetLenaHealthCon
 
 window.addEventListener('healthhub:health-cloud-synced',function(e){schedule(e&&e.detail&&e.detail.profile,'health-connect-sync',650)});
 window.addEventListener('healthhub:measurement-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'measurement-saved',650)});
+window.addEventListener('healthhub:private-supplements-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'private-supplements-saved',80)});
 window.addEventListener('healthhub:private-medications-saved',function(e){schedule(e&&e.detail&&e.detail.profile,'private-medications-saved',80)});
 window.addEventListener('healthhub:profile-changed',function(){renderStatus()});
 window.addEventListener('focus',function(){renderStatus()});
