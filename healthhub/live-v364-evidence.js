@@ -199,8 +199,11 @@ async function originalBlob(d,p){
     !Array.isArray(state.authorizedProfiles)||!state.authorizedProfiles.includes(p))
   return {blob:null,reason:'health_vault_required'};
  try{
+  var id=archive&&typeof archive.fileId==='string'?archive.fileId:'';
+  if(id&&!/^[A-Za-z0-9_-]{8,200}$/.test(id))
+   return {blob:null,reason:'drive_archive_locator_invalid'};
   var response=await vault.stream('/functions/v1/hh-drive-oauth-v682',
-   {action:'archive_document',profile:p,documentId:documentId});
+   {action:'archive_document',profile:p,documentId:documentId,fileId:id});
   if(p!==profile())throw Error('Profilváltás: PDF-kutatás leállítva.');
   if(!response.ok)return {blob:null,reason:response.status===403?
    'drive_archive_profile_forbidden':response.status===400?
