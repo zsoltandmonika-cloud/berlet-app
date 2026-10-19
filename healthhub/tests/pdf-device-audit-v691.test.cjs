@@ -18,7 +18,7 @@ function env(token=null){
      {mimeType:'application/pdf',appProperties:{profile:'zsolt',documentId:'Z-123456'}}]})}}}
  };
  const doc={readyState:'loading',addEventListener(){},querySelector:(s)=>s.includes('healthhub-live-build')?{content:'v691-cross-device-pdf-diagnostics'}:null,
-  querySelectorAll:()=>[{getAttribute:()=> './live-v201.js?v=690-secure-profile-pdf-viewer'}]};
+  querySelectorAll:()=>[{getAttribute:()=> './live-v201.js?v=692-sha-tagged-pdf-locator'}]};
  const ls={getItem:(k)=>k==='hh-profile'?active:k==='hh-dropbox-token-v2'?(token&&JSON.stringify(token)):null};
  const fetcher=async(url,opts)=>{calls.push({url,method:opts.method,body:opts.body});
   return{ok:true,status:200,json:async()=>({'.tag':'file'})}};
@@ -33,7 +33,7 @@ function env(token=null){
 }
 test('v691 is installed after original viewer and connection dashboard, has unique build',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
- assert.match(index,/v691-cross-device-pdf-diagnostics/);
+ assert.match(index,/v692-sha-tagged-pdf-locator/);
  assert.match(index,/hh-pdf-device-audit-v691\.js\?v=691-cross-device-provenance/);
  assert.ok(index.indexOf('hh-pdf-device-audit-v691.js')>index.indexOf('live-v201.js'));
  assert.ok(index.indexOf('hh-pdf-device-audit-v691.js')>index.indexOf('live-v355.js'));
@@ -55,7 +55,7 @@ test('Dropbox account ID is reduced to stable pseudonymous fingerprint, not retu
  assert.doesNotMatch(fingerprint,/ABCDEFGH|PRIVATE/);
  assert.equal(fingerprint,await x.audit.accountFingerprint());
  assert.equal(env().audit.viewerRuntime(),true);
- assert.equal(env().audit.loadedViewer(),'690-secure-profile-pdf-viewer');
+ assert.equal(env().audit.loadedViewer(),'692-sha-tagged-pdf-locator');
 });
 test('Dropbox profile path check uses only read metadata, no upload',async()=>{
  const x=env({refresh_token:'x',account_id:'dbid:ABCDEFGH0123456789'});
