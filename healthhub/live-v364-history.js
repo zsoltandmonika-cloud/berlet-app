@@ -84,7 +84,7 @@ function save(ev){
  var x=ev&&ev.detail||{};
  if(!x.successful||!['zsolt','monika'].includes(x.profile)||typeof x.question!=='string'||typeof x.answer!=='string')return;
  var now=new Date().toISOString(),record={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2)),
-  profile:x.profile,question:x.question.slice(0,1200),answer:x.answer.slice(0,15000),generatedAt:x.generatedAt||now,model:'',synced:false};
+  profile:x.profile,question:x.question.slice(0,1200),answer:x.answer.slice(0,15000),generatedAt:x.generatedAt||now,model:(typeof x.model==='string'&&/^[A-Za-z0-9._:-]{3,60}$/.test(x.model)?x.model:''),synced:false};
  write(x.profile,[record].concat(entries(x.profile)));versions[x.profile]=(versions[x.profile]||0)+1;
  if(x.profile===profile())render();sync(x.profile,false);
 }
