@@ -400,25 +400,24 @@ async function run(opts){
  var mkbGrant=null,mkbConsent=window.HH_MKB_CONSENT_V677;
  if(mkbConsent&&typeof mkbConsent.consume==='function')
   mkbGrant=mkbConsent.consume(p,question);
- // For a report summary, ordinary Ask preloads source-backed excerpts.
- // A separate, visible CTA approves precisely those excerpts and starts AI.
+ // A deliberate Ask click is the one-time consent to include
+ // read-only, authorized and SHA-checked excerpts. Do not require another
+ // checkbox or second research click; preserve patient/profile isolation.
  if(ownReport&&!mkbGrant){
-  print('📚 Személyes leletkérdés: az ellenőrzött források előkészítése…');
-  if(!mkbConsent||typeof mkbConsent.prepare!=='function'){
-   showError('A forrásválasztó nem érhető el. Nem készült leletösszefoglalás.');
+  print('📚 Eredeti leletek ellenőrzése: releváns, legfrissebb források…');
+  if(!mkbConsent||typeof mkbConsent.takeForAsk!=='function'){
+   showError('A forráskapcsolat nem érhető el. Nem indult leletösszefoglalás.');
    return;
   }
   try{
-   var ready=await mkbConsent.prepare(p,question);
-   if(ready&&ready.ready&&profile()===p&&q.value.trim()===question){
-    print('📚 '+ready.count+' ellenőrzött PDF-idézet előkészítve. A források jóváhagyásához és a valódi AI-kutatáshoz koppints a „Kutatás indítása a kiválasztott forrásokkal” gombra.');
-    var sourcePreview=el('hhAskMkbConsentButton699');
-    if(sourcePreview&&sourcePreview.scrollIntoView)sourcePreview.scrollIntoView({block:'nearest',behavior:'smooth'});
-   }else showError('A leletek ellenőrzött forrásait nem sikerült előkészíteni. Nem készült AI-válasz. Ellenőrizd a Forrásolt orvosi tudás panelt.');
-  }catch(_){
-   showError('A leletforrások ellenőrzése megszakadt. Nem készült AI-válasz; az eredeti dokumentumok változatlanok.');
+   mkbGrant=await mkbConsent.takeForAsk(p,question);
+  }catch(_){mkbGrant=null}
+  if(profile()!==p||q.value.trim()!==question)return;
+  if(!Array.isArray(mkbGrant)||!mkbGrant.length){
+   showError('Nem sikerült ellenőrzött PDF-idézetet találni ehhez a kérdéshez. A központi leletek változatlanok; AI-összefoglalás nem készült.');
+   return;
   }
-  return;
+  print('📚 '+mkbGrant.length+' eredeti forrásidézet ellenőrizve. A kutatás az egyszeri Ask-jóváhagyással folytatódik.');
  }
  var turn=++epoch,ctrl=new AbortController();active=ctrl;
  el('hhRun299').disabled=true;q.disabled=true;
