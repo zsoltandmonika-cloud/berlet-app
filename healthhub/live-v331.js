@@ -602,7 +602,10 @@ async function run(opts){
    /(?:mi\s+tortent|mi\s+volt|esemeny|ujraeleszt|szivmegallas|koma)/.test(lookupText);
   var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
    .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
-  if((asksOwnDocument||asksHistoricalEvent)&&researchPlan.clinical&&!verifiedOriginals.length)
+  // v705: explicit URL-triggered Sol preview securely retrieves verified pages server-side.
+  var solPreviewRequested=typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhSolQA')==='v1';
+  if((asksOwnDocument||asksHistoricalEvent)&&researchPlan.clinical&&!verifiedOriginals.length&&!solPreviewRequested)
    throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
@@ -630,7 +633,20 @@ async function run(opts){
    new URLSearchParams(window.location.search).get('hhMkbQA')==='v1';
   // The standing PDF grant does not replace this question's one-shot MKB approval.
   var mkbQAMode=mkbQARequested&&mkbSourceUsed>0&&data.originalDocumentsConsent===true;
-  var aiRoute=mkbQAMode?'/functions/v1/hh-mkb-search-preview':
+  // One-shot approval. Existing original-PDF grants never imply a full-corpus grant.
+  var solPreviewMode=solPreviewRequested&&clinicalPilot&&!shot;
+  if(solPreviewMode){
+   if(!window.confirm('HH Sol AI-first TESZT: engedélyezed, hogy a kiválasztott profil ÖSSZES ellenőrzött leletszövegét erre az egy kérdésre a GPT-6.1 Sol OpenAI API feldolgozza? A kísérlet API-költséggel járhat. Mégsem = nincs továbbítás.'))
+    throw Error('A teljes leletállomány továbbításához nem adtál hozzájárulást. Semmit nem küldtünk el.');
+   if(turn!==epoch||profile()!==p)throw Error('Időközben profilváltás történt, nem továbbíthatók az orvosi adatok.');
+   data.fullCorpusConsent=true;
+   // Server reads authorized originals; browser excerpts are deliberately not forwarded.
+   data.documentEvidence=[];
+   data.originalDocumentsConsent=false;
+   print('🧪 HH Sol v705: külön teszt, teljes ellenőrzött leletállomány, egyszeri hozzájárulással. Éles Ask Léna változatlan.');
+  }
+  var aiRoute=solPreviewMode?'/functions/v1/hh-sol-full-corpus-preview':
+   mkbQAMode?'/functions/v1/hh-mkb-search-preview':
    narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
    narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
