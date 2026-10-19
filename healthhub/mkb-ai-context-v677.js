@@ -26,7 +26,10 @@ function pack(input,profile,granted,question){
    !Number.isInteger(Number(row.page))||Number(row.page)<1||
    !['pending','verified'].includes(row.review))continue;
   var title=clean(row.title,55),source=clean(row.source||'Eredeti PDF',45),
-   quote=clean(row.quote,105);
+   // Preserve enough *verbatim* result text for clinical validation. The
+   // compact extra summary stays short; only an explicitly approved and
+   // SHA-checked original quote is used in documentEvidence.
+   quote=clean(row.quote,105),sourceQuote=clean(row.quote,400);
   if(title.length<3||quote.length<12)continue;
   var key=row.date+'|'+title+'|'+source+'|'+row.page;
   if(seen.has(key))continue;seen.add(key);
@@ -41,14 +44,14 @@ function pack(input,profile,granted,question){
    label:'I-09 · Orvosi forrástény (PDF-eredet, nem önálló diagnózis)',
    value:value,at:row.date
   };
-  if(item.value.length<35||quote.length<30)continue;
+  if(item.value.length<35||sourceQuote.length<30)continue;
   items.push(item);
   docs.push({
    type:'original_pdf_extract',
    documentId:String(row.sourceId),
    title:clean(row.source||'Eredeti PDF',150)+' [I-09 · előzetes tényjelölt, klinikai ellenőrzésre vár]',
    date:row.date,datePrecision:'day',page:Number(row.page),
-   text:quote
+   text:sourceQuote
   });
  }
  if(!items.length||items.length!==Math.min(granted.length,5))
