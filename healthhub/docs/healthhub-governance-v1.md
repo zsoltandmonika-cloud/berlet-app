@@ -267,6 +267,27 @@ The same distinction appears in the legacy Drive mirror status. The app receives
 
 Release `v681-google-drive-authorization-status`, test `healthhub/tests/drive-v681-connection-status.test.cjs`. Synthetic OAuth mocks verified no OAuth popup without click, previously authorized amber badge, account-checked manual renewal → green, expiry and wrong account never green. Real S24 Ultra visual acceptance remains pending.
 
+## v682–v683 · Tartós Google Drive OAuth, szerveroldali alap (2026-10-19)
+
+**Goal:** one explicit Google account authorization on the trusted HealthHub device, automatic subsequent access through the existing authenticated Supabase Vault. No long-lived Google refresh token may be readable from mobile browser storage, public GitHub, logs, AI prompts, or RLS tables exposed to users.
+
+**Status:** the standalone, **inactive until configured** Edge Function `hh-drive-oauth-v682` is deployed (verify_jwt=false with explicit JWT + `hh_profile_access` authorization checks). Two service-role-only RLS-protected DB tables are created: `hh_google_drive_oauth_pending` for **SHA-256-hashed, 8-minute, one-time** OAuth CSRF state, and `hh_google_drive_oauth_connections` for **AES-GCM-256-encrypted**, user-bound offline Google refresh grants. The encrypted token is authenticated to the Vault user's UUID as associated data. The function supports authenticated `status`, explicit `start`, status `check` with server-side token refresh, `disconnect`, and Google's redirect `callback`. Returned authorization URL and home-page redirects never contain refresh/access tokens. The returned Google account must match `HH_GOOGLE_DRIVE_EXPECTED_EMAIL`, and the requested scope is **unchanged** `https://www.googleapis.com/auth/drive.file`.
+
+The Admin component `hh-drive-server-oauth-v683.js` is deployed, but only presents staged status/configuration. Clicking its OAuth button is the **sole trigger** for navigation to Google. The already functioning browser GIS token and Medical Knowledge Base PDF importer remain untouched until a separately verified **server-side Drive archive proxy** is implemented and end-to-end accepted on a real device.
+
+### One-time Google Cloud owner setup (never paste secrets into chat or GitHub)
+
+1. Open Google Cloud Console → Google Auth Platform → Clients. Select the **same web OAuth client** used by the current HealthHub Drive integration (`live-v292.js`), so `drive.file`-authorized files remain accessible.
+2. Add the HTTPS authorized redirect URI, **exactly** `https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-drive-oauth-v682`. Do not delete the existing GitHub Pages JavaScript origin.
+3. In the **Supabase project → Edge Functions → Secrets**, create `HH_GOOGLE_DRIVE_CLIENT_ID` and `HH_GOOGLE_DRIVE_CLIENT_SECRET` (same OAuth web client), `HH_GOOGLE_DRIVE_EXPECTED_EMAIL` (the already approved family/shared Google account), and `HH_GOOGLE_DRIVE_ENCRYPTION_KEY` (cryptographically random **32-byte key encoded as base64**; stable across deployments). Supabase automatically supplies the service URL and built-in server keys. The client secret and encryption key must stay server-side. On Windows PowerShell, a 32-byte base64 key can be generated locally using `$b=New-Object byte[] 32; [System.Security.Cryptography.RandomNumberGenerator]::Fill($b); [Convert]::ToBase64String($b)`, and entered directly into the Supabase Secrets UI, never a chat.
+4. Check Google OAuth consent screen publishing status. For **External / Testing** users with Drive scopes, Google normally expires refresh grants after **7 days**; production-readiness and Google OAuth review may be required to meet the actual long-lived objective. Google can still revoke/expire grants at its discretion.
+5. Refresh the HealthHub Admin screen; server status should transition from `configuration required` to `ready for one-time consent`. Confirm the intended Google account on the official Google consent screen.
+6. **Do not switch PDF import/RAG production paths yet.** First finish and verify the server's restricted read-only Drive archive gateway with original file parent/profile checks and 207-PDF non-destructive regression gate.
+
+Until secrets are configured, `status` returns `configured:false`, and all other server OAuth operations safely fail closed. No credentials were inserted by the model. No existing Google Drive connection is modified or revoked, and no PDFs or medical facts are rewritten.
+
+**Documentation:** Google official [OAuth web server](https://developers.google.com/identity/protocols/oauth2/web-server), [GIS code model](https://developers.google.com/identity/oauth2/web/guides/use-code-model), and [refresh token expiration rules](https://developers.google.com/identity/protocols/oauth2/).
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
