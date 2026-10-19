@@ -94,7 +94,7 @@ test('no local persistence and no uncapped PDF transmission',()=>{
 });
 test('v677 script build, module syntax and ordered bootstrapping',()=>{
  for(const s of [source,ui,ask])assert.doesNotThrow(()=>new Function(s));
- assert.match(index,/v679-source-grounded-story-facts-interpretation/);
+ assert.match(index,/v680-vault-trusted-auto-reconnect/);
  assert.match(index,/live-v331\.js\?v=679-default-audited-clinical/);
  assert.match(index,/ask-lena-mkb-v676\.js\?v=679-full-source-uuid/);
  assert.match(index,/mkb-ai-context-v677\.js\?v=679-prioritized-original-excerpt/);
