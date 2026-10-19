@@ -91,7 +91,11 @@ async function renewToken(force,oldToken){
 async function ensureToken(force,oldToken){
  if(!session)throw new Error('Health Vault: jelentkezz be.');
  if(!force&&Date.now()<(session.expires_at||0)*1000-75000)return;
- if(refreshInFlight)return refreshInFlight;
+ if(refreshInFlight){
+  await refreshInFlight;
+  if(!force||!oldToken||!session||session.access_token!==oldToken)return;
+  // A concurrent non-forced check did not refresh a server-rejected token.
+ }
  var fn=function(){
   if(typeof navigator!=='undefined'&&navigator.locks&&navigator.locks.request)
    return navigator.locks.request('hh-private-vault-token-refresh',function(){return renewToken(force,oldToken)});
@@ -363,8 +367,16 @@ document.addEventListener('visibilitychange',function(){
  if(document.visibilityState==='visible')resumeVault();
 });
 window.addEventListener('online',resumeVault);
+window.addEventListener('pageshow',resumeVault);
 window.addEventListener('storage',function(e){
  if(e.key!==SKEY&&e.key!==REM)return;
+ // A trusted-device logout in another browser tab revokes this tab as well.
+ if((e.key===REM&&e.oldValue==='yes'&&e.newValue!== 'yes')||
+    (e.key===SKEY&&e.oldValue&&e.newValue===null)){
+  sSave(null);profiles=null;draw();
+  window.dispatchEvent(new Event('healthhub:central-auth-changed'));
+  return;
+ }
  if(!persistentOptIn())return;
  var copy=sRead();
  if(!copy){
