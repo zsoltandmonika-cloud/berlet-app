@@ -299,6 +299,13 @@ async function route(req){
     const documentId=String(payload?.documentId||"");
     if(!/^[A-Za-z0-9-]{6,140}$/.test(documentId))
      return reply({error:"drive_document_invalid_id"},400);
+    // Optional exact original locator: still verify live patient folder,
+    // profile AND document ID from Google metadata before downloading bytes.
+    const hintedId=String(payload?.fileId||"");
+    if(hintedId){
+     if(!driveId(hintedId))return reply({error:"drive_pdf_invalid_id"},400);
+     return await originalPdf(token,profile,folder,hintedId,documentId);
+    }
     const files=await originalInventory(token,profile,folder);
     const matches=files.filter(f=>f.appProperties?.profile===profile&&
      f.appProperties?.documentId===documentId);
