@@ -506,9 +506,17 @@ async function diagnoseFailedV696(p,opts){
  var limit=Math.min(11,Math.max(1,Number(opts&&opts.maxDocs)||11));
  var docs=await readDocuments(p);
  active(p);
- var failed=docs.filter(x=>x&&x.profile_key===p&&
+ // Respect existing owner-approved scope decisions (e.g. 11 Watch EKG
+ // originals explicitly excluded from mandatory medical text indexing).
+ var excluded=await excludedDriveIds(p);active(p);
+ var failedAll=docs.filter(x=>x&&x.profile_key===p&&
   x.status==='failed'&&x.text_integrity_status==='mismatch'&&
   /^drive_[A-Za-z0-9_-]{8,200}$/.test(String(x.source_file_id||'')));
+ var failed=failedAll.filter(x=>!excluded.has(x.source_file_id.slice(6)));
+ var ignored=failedAll.length-failed.length;
+ if(!failed.length)return {profile:p,totalFailed:0,excludedByScope:ignored,
+  tested:0,notTested:0,categories:Object.create(null),
+  mode:'read_only_no_pdf_or_text_persisted'};
  var files=await listFiles(p);
  active(p);
  var byFile=new Map(files.map(x=>['drive_'+x.id,x]));
@@ -560,7 +568,7 @@ async function diagnoseFailedV696(p,opts){
   add(outcome||'unknown_read_failure');tested++;
  }
  active(p);
- return {profile:p,totalFailed:failed.length,tested:tested,
+ return {profile:p,totalFailed:failed.length,excludedByScope:ignored,tested:tested,
   notTested:Math.max(0,failed.length-tested),categories:counts,
   mode:'read_only_no_pdf_or_text_persisted'};
 }
