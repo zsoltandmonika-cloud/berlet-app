@@ -66,7 +66,16 @@ function mount(){
  '<li>Ask Léna képeinek tartós archiválása csak az adott tartalomra adott külön hozzájárulással; nincsenek titkos pszichológiai profilok vagy rejtett klinikai naplók.</li>'+
   '<li>Orvosi tény csak eredeti PDF-hez, oldalszámhoz és ellenőrzött idézethez kötve; a SHA-256 szövegegyezés NEM orvosi szakvélemény.</li>'+
  '</ul></details>'+
- '<details><summary>🧠 Ask Léna Intelligence · v698 releváns és jóváhagyott bizonyíték</summary><ul>'+
+ '<details><summary>🧠 Ask Léna · v699 teljes leletkatalógus és prémium használhatóság</summary><ul>'+
+ '<li>Mónika: 164 feldolgozott PDF / 269 oldal, Zsolt: 43 PDF / 68 oldal. A teljes, jogosult és SHA-alapú forrásindex böngészhető; a korábban kizárt 11 Watch EKG-t nem kapcsoljuk vissza.</li>'+
+ '<li>A felhasználó a profiljához tartozó összes igazolt eredeti PDF címét keresheti; maximum 5 kérdésre kiválasztott, SHA-256-tal újraellenőrzött rövid idézet kerülhet az AI kérésébe.</li>'+
+ '<li>A korábbi checkbox helyett látható egyszeri Kutatás indítása gomb jóváhagyja a megmutatott részleteket, az éppen beírt kérdéshez kötve.</li>'+
+ '<li>Új kutatás gomb a kérdést és az ideiglenes forrásjóváhagyást törli, de leletet, gyógyszert, választörténetet nem módosít.</li>'+
+ '<li>A Gyorskérdések függőlegesen görgethető és profilonként szerkeszthető, helyi készülékbeállítás; nem küld adatot az AI-nak és nem kerül az orvosi felhőarchívumba.</li>'+
+ '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
+ '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
+ '</ul></details>'+
+'<details><summary>🧠 Ask Léna Intelligence · v698 releváns és jóváhagyott bizonyíték</summary><ul>'+
  '<li>Az Ask Léna forrásnézete legfeljebb 5, az adott kérdéshez rangsorolt és SHA-256-tal technikailag ellenőrzött idézetet ajánl.</li>'+
  '<li>A kulcsszó- vagy témarokonítás nem orvosi diagnózis, és nem bizonyít ok-okozatot. A különböző napi mérések nem értékhibák; eltérő azonos napi eredmény is csak felülvizsgálati jelzés.</li>'+
  '<li>A kiválasztott PDF-idézet, oldal, dokumentum, vizsgálati nap és felülvizsgálati státusz látható az egyszeri hozzájárulás előtt.</li>'+
