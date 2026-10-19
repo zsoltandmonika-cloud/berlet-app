@@ -11,15 +11,16 @@ const start=src.indexOf('  var narrativeQAVersion=');
 const end=src.indexOf('  var replyData=data,simplified=false;',start);
 assert.ok(start>0&&end>start,'route block must be identifiable');
 const block=src.slice(start,end);
-function route(qs,consent=true,clinicalPilot=true){
+function route(qs,consent=true,clinicalPilot=true,mkbSourceUsed=1){
   const output=[];
-  const values={clinicalPilot, data:{originalDocumentsConsent:consent},
+  const values={clinicalPilot,mkbSourceUsed, data:{originalDocumentsConsent:consent},
     window:{location:{search:qs}}, URLSearchParams,print:s=>output.push(s)};
   return vm.runInNewContext('(function(){'+block+
     '\nreturn {route:aiRoute,mkbQAMode,mkbQARequested,narrativeQAMode};})()',values);
 }
 assert.equal(route('?hhMkbQA=v1').route,'/functions/v1/hh-mkb-search-preview');
 assert.equal(route('?hhMkbQA=v1',false).route,'/functions/v1/smooth-endpoint-v395');
+assert.equal(route('?hhMkbQA=v1',true,true,0).route,'/functions/v1/smooth-endpoint-v395');
 assert.equal(route('?hhMkbQA=v1',true,false).route,'/functions/v1/smooth-endpoint');
 assert.equal(route('').route,'/functions/v1/smooth-endpoint-v395');
 assert.equal(route('?hhMkbQA=anything-else').route,'/functions/v1/smooth-endpoint-v395');
