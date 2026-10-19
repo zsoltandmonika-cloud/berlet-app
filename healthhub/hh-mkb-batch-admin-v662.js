@@ -47,6 +47,14 @@ async function reconnectDrive(){
  }catch(e){show('⚠ Drive-csatlakozás: '+String(e.message||e).slice(0,180))}
  finally{if(button)button.disabled=false;refreshConnections()}
 }
+function driveStateLabel(){
+ var probe=window.hhGoogleDriveConnectionStatus292;
+ if(typeof probe!=='function')return '⏳ Google Drive: kapcsolatmodul még töltődik';
+ var x=probe();
+ return x.connected?'✅ Google Drive: kapcsolat aktív':
+  x.previouslyAuthorized?'🟠 Google Drive: engedély megvan, hozzáférés megújítandó':
+  '🔒 Google Drive: első csatlakozás szükséges';
+}
 async function refreshConnections(){
  var service=window.HH_DAILY_HEALTH_SYNC_V319,s=service&&service.getStatus&&service.getStatus();
  var va=el('hhMkbVaultState662'),dr=el('hhMkbDriveState662');
@@ -55,14 +63,14 @@ async function refreshConnections(){
   permitted(p())?'✅ Health Vault: '+pname()+' jogosult':
   '⏳ Health Vault: profiljogosultság ellenőrzése szükséges';
  if(!dr)return;
- dr.textContent='⏳ Drive hozzáférés ellenőrzése…';
- try{
-  var fn=window.hhGetGoogleDriveToken292;
-  if(typeof fn!=='function')throw Error('not available');
-  var token=await fn(false);
-  if(el('hhMkbDriveState662')===dr)
-   dr.textContent=token?'✅ Google Drive: kapcsolat aktív':'🔒 Google Drive: csatlakozás szükséges';
- }catch(_){if(el('hhMkbDriveState662')===dr)dr.textContent='🔒 Google Drive: csatlakozás szükséges'}
+ // Pure local status. Never invoke Google OAuth from focus or page reload.
+ dr.textContent=driveStateLabel();
+ var btn=el('hhMkbDrive662'),probe=window.hhGoogleDriveConnectionStatus292;
+ if(btn&&typeof probe==='function'){
+  var x=probe();
+  btn.textContent=x.connected?'✅ Drive csatlakoztatva':
+   x.previouslyAuthorized?'🔄 Drive megújítás':'🔗 Drive csatlakozás';
+ }
 }
 function styles(){
  if(el(STYLE))return;
@@ -242,6 +250,13 @@ window.addEventListener('healthhub:kb-progress',draw);
 window.addEventListener('healthhub:profile-changed',()=>{draw();refreshConnections()});
 window.addEventListener('healthhub:central-auth-changed',refreshConnections);
 window.addEventListener('focus',refreshConnections);
+window.addEventListener('healthhub:google-drive-token-changed',refreshConnections);
+document.addEventListener('visibilitychange',function(){
+ if(document.visibilityState==='visible')refreshConnections();
+});
+setInterval(function(){
+ if(document.visibilityState==='visible'&&el(ID))refreshConnections();
+},60000);
 var started=false;
 function init(){
  if(started)return;started=true;
