@@ -8,6 +8,9 @@ on:
       - "healthhub/ask-lena-safe-fallback-v511.js"
       - "healthhub/intelligence-i06-narrative-v402.js"
       - "healthhub/tests/ask-lena-safe-fallback-v511.test.cjs"
+      - "healthhub/tests/mkb-preview-route-v703.test.cjs"
+      - "healthhub/tests/mkb-preview-scope-v703.test.cjs"
+      - "supabase/functions/hh-mkb-search-preview/**"
       - "healthhub/tests/intelligence-v402.test.cjs"
       - "healthhub/tests/intelligence-deep-research-v393.test.cjs"
       - ".github/workflows/healthhub-deep-research.yml"
@@ -36,6 +39,8 @@ jobs:
           node --check healthhub/live-v393-research.js
           node --check healthhub/intelligence-i06-narrative-v402.js
           node healthhub/tests/ask-lena-safe-fallback-v511.test.cjs
+          node healthhub/tests/mkb-preview-route-v703.test.cjs
+          node healthhub/tests/mkb-preview-scope-v703.test.cjs
           node healthhub/tests/intelligence-v402.test.cjs
           node healthhub/tests/intelligence-deep-research-v393.test.cjs
           node healthhub/tests/intelligence-clinical-v391.test.cjs
