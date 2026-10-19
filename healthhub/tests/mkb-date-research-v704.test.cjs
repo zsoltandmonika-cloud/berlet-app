@@ -60,8 +60,7 @@ test('PDF filename date remains metadata, never an asserted event time',async()=
  assert.equal(result.payload.originalDocumentsConsent,true);
  assert.match(result.payload.extra[0].value,/PDF-fájlnév dátuma \(nem eseménydátum\)/);
  assert.match(result.payload.documentEvidence[0].title,/PDF-dátum nem feltétlen eseménydátum/);
- const rejected=packer.pack(request,'zsolt',[ranked.selected[0]],request.question);
- assert.equal(rejected.added,undefined); // mismatched profile is rejected before forwarding
+ assert.throws(()=>packer.pack(request,'zsolt',[ranked.selected[0]],request.question),/profil/i);
 });
 test('Ask Léna source-free dated history is stopped before an ungrounded answer',()=>{
  const src=load('live-v331.js');
