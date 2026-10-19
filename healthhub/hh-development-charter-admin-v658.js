@@ -75,6 +75,12 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>🧪 MKB QA v703 · adatbázis alapú, forráskorlátozott kutatás</summary><ul>'+
+ '<li>Az egységes, ellenőrzött dokumentumkereső és az eredeti PDF-oldalra hivatkozás működik a HealthHub-Core adatbázisban.</li>'+
+ '<li>A tesztvégpont külön működik, a mindennapi Ask Léna nem változik. Csak kifejezetten jóváhagyott forrásrészlet ellenőrizhető; további PDF-oldal nem kerül automatikusan az AI-nak.</li>'+
+ '<li>A település említése nem azonos az ellátás helyszínével. 11 korábban kizárt EKG nem kerül vissza.</li>'+
+ '<li>Státusz: backend telepítve, SQL és szintetikus tesztek folyamatban; mobil LIVE VERIFIED csak felhasználói próba után. Visszaállítás: hhMkbQA URL-paraméter elhagyása.</li>'+
+ '</ul></details>'+
 '<details><summary>🧠 Ask Léna Intelligence · v698 releváns és jóváhagyott bizonyíték</summary><ul>'+
  '<li>Az Ask Léna forrásnézete legfeljebb 5, az adott kérdéshez rangsorolt és SHA-256-tal technikailag ellenőrzött idézetet ajánl.</li>'+
  '<li>A kulcsszó- vagy témarokonítás nem orvosi diagnózis, és nem bizonyít ok-okozatot. A különböző napi mérések nem értékhibák; eltérő azonos napi eredmény is csak felülvizsgálati jelzés.</li>'+
