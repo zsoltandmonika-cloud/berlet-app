@@ -77,8 +77,8 @@ function score(row,q,related){
  }
  return result;
 }
-function rank(rows,question,opts){
- var max=Math.min(5,Math.max(1,Number(opts&&opts.max)||5));
+function rankCandidates(rows,question,maxRequested){
+ var max=Math.min(40,Math.max(1,Number(maxRequested)||5));
  var q=tokens(question),related=familyFor(q);
  var valid=(Array.isArray(rows)?rows:[]).filter(x=>x&&
    typeof x.date==='string'&&typeof x.title==='string'&&
@@ -100,7 +100,11 @@ function rank(rows,question,opts){
   questionReady:q.length>0,conflictSignals:top.filter(x=>x.caution).length,
   mode:'read_only_relevance_not_diagnosis'});
 }
-var api=Object.freeze({rank,norm,tokens});
+function rank(rows,question,opts){
+ var max=Math.min(5,Math.max(1,Number(opts&&opts.max)||5));
+ return rankCandidates(rows,question,max);
+}
+var api=Object.freeze({rank,rankCandidates,norm,tokens});
 if(typeof module==='object'&&module.exports)module.exports=api;
 else root.HH_MKB_EVIDENCE_I10_V698=api;
 })(typeof window!=='undefined'?window:globalThis);
