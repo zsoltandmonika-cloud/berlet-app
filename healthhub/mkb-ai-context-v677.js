@@ -15,13 +15,14 @@ function pack(input,profile,granted,question){
  if(!input||input.schema!=='healthhub.ask-lena/1'||input.consent!==true||
   !['monika','zsolt'].includes(profile)||input.profile!==profile||
   typeof question!=='string'||question.trim().length<3||
-  !Array.isArray(input.extra)||!Array.isArray(input.sources))
+  !Array.isArray(input.extra)||!Array.isArray(input.sources)||!Array.isArray(input.documentEvidence))
   throw Error('I-09: hiányzik az engedélyezett és egyező profilú AI-kérés.');
  if(!Array.isArray(granted)||!granted.length)
   return {payload:input,added:0,limited:false};
- var items=[],seen=new Set();
+ var items=[],docs=[],seen=new Set();
  for(const row of granted.slice(0,5)){
   if(!row||!validDay(row.date)||!row.title||!row.quote||
+   !/^[a-f0-9-]{36}$/i.test(row.sourceId||'')||
    !Number.isInteger(Number(row.page))||Number(row.page)<1||
    !['pending','verified'].includes(row.review))continue;
   var title=clean(row.title,55),source=clean(row.source||'Eredeti PDF',45),
@@ -40,20 +41,38 @@ function pack(input,profile,granted,question){
    label:'I-09 · Orvosi forrástény (PDF-eredet, nem önálló diagnózis)',
    value:value,at:row.date
   };
-  if(item.value.length<35)continue;
+  if(item.value.length<35||quote.length<30)continue;
   items.push(item);
+  docs.push({
+   type:'original_pdf_extract',
+   documentId:String(row.sourceId),
+   title:clean(row.source||'Eredeti PDF',150)+' [I-09 · előzetes tényjelölt, klinikai ellenőrzésre vár]',
+   date:row.date,datePrecision:'day',page:Number(row.page),
+   text:quote
+  });
  }
- if(!items.length)return {payload:input,added:0,limited:true};
+ if(!items.length||items.length!==Math.min(granted.length,5))
+  return {payload:input,added:0,limited:true};
  // Preserve the client's existing clinical sources but cap total request
  // and the server's 72-extra-item budget. No hidden downsampling or partial
  // disclosure: either all validated granted entries fit or none are added.
- var original=input.extra.slice();
- if(original.length+items.length>72)
+ var original=input.extra.slice(),oldDocuments=input.documentEvidence.slice();
+ // A dedicated signed-in, patient-bound click has approved precisely these
+ // original-source EXCERPTS. Never turn on document permission to revive a
+ // formerly denied original extract. Existing documents were checked by I-04.
+ if(!input.originalDocumentsConsent&&oldDocuments.some(d=>d&&d.type==='original_pdf_extract'))
   return {payload:input,added:0,limited:true};
- var next=Object.assign({},input,{extra:items.concat(original)});
- if(JSON.stringify({sources:next.sources,extra:next.extra}).length>17500)
+ if(original.length+items.length>72||oldDocuments.length+docs.length>16)
   return {payload:input,added:0,limited:true};
- return {payload:next,added:items.length,limited:false};
+ var next=Object.assign({},input,{
+  extra:items.concat(original),
+  documentEvidence:oldDocuments.concat(docs),
+  originalDocumentsConsent:true
+ });
+ if(JSON.stringify({sources:next.sources,extra:next.extra}).length>17500||
+    JSON.stringify(next).length>60000)
+  return {payload:input,added:0,limited:true};
+ return {payload:next,added:items.length,originalExcerpts:docs.length,limited:false};
 }
 var api=Object.freeze({pack,validDay});
 if(typeof module==='object'&&module.exports)module.exports=api;
