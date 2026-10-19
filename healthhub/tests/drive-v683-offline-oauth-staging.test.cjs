@@ -25,6 +25,7 @@ test('callback is single-use state with short TTL and checks exact shared Google
  assert.match(api,/finish\("wrong_account"\)/);
  assert.match(api,/SCOPE="https:\/\/www\.googleapis\.com\/auth\/drive\.file"/);
  assert.match(api,/grant_type:"authorization_code"/);
+ assert.match(api,/req\.method==="GET"&&\(task==="callback"\|\|u\.searchParams\.has\("state"\)\)/);
  assert.match(api,/grant_type:"refresh_token"/);
 });
 test('only authorized Health Vault identities can request start/status/check/disconnect',()=>{
@@ -38,10 +39,11 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/btn\.addEventListener\('click',async function\(\)/);
  assert.match(gui,/window\.location\.assign\(address\)/);
  assert.match(gui,/var state=await send\('status'\)/);
+ assert.match(gui,/var verified=await send\('check'\)/);
  assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
  assert.match(index,/v683-server-google-oauth-staged/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=683-staged-private-grant/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=684-refresh-verified/);
  assert.doesNotThrow(()=>new Function(gui));
 });
