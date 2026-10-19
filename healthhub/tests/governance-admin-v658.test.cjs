@@ -66,7 +66,7 @@ test('v675 admin policy and reporting explicitly separate optional source exclus
  assert.match(moduleSrc,/szövegellenőrzött: /);
  assert.match(moduleSrc,/szakmai ellenőrzésre vár: /);
  assert.match(moduleSrc,/hh_mkb_evidence/);
- assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=698-evidence-intelligence-governance/);
+ assert.match(liveIndex,/hh-development-charter-admin-v658\.js\?v=699-all-sources-quick-ui-governance/);
  assert.match(moduleSrc,/Eredeti PDF hozzáférés · v690 QA/);
  assert.match(moduleSrc,/Eredeti PDF · v692 SHA-256 ütközésfeloldás/);
  assert.match(moduleSrc,/Eredeti PDF · v693 ellenőrzött forrás-helyreállítás/);
@@ -74,4 +74,5 @@ test('v675 admin policy and reporting explicitly separate optional source exclus
  assert.match(moduleSrc,/Ask Léna Intelligence · v696 valódi feldolgozási státusz/);
  assert.match(moduleSrc,/Ask Léna v697 · hiteles válaszeredet és modellnapló/);
  assert.match(moduleSrc,/Ask Léna Intelligence · v698 releváns és jóváhagyott bizonyíték/);
+ assert.match(moduleSrc,/Ask Léna · v699 teljes leletkatalógus és prémium használhatóság/);
 });
