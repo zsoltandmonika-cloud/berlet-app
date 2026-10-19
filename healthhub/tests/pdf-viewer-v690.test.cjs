@@ -38,8 +38,8 @@ function doc(pdf,changes={}){
 }
 test('v690 syntax and published build cache key',()=>{
  assert.doesNotThrow(()=>new Function(source));
- assert.match(page,/v691-cross-device-pdf-diagnostics/);
- assert.match(page,/live-v201\.js\?v=690-secure-profile-pdf-viewer/);
+ assert.match(page,/v692-sha-tagged-pdf-locator/);
+ assert.match(page,/live-v201\.js\?v=692-sha-tagged-pdf-locator/);
 });
 test('only local missing-blob path invokes server original, with patient metadata and cancellation',()=>{
  assert.match(source,/if\(!d\|\|d\.profile!==profile\)/);
@@ -78,7 +78,7 @@ test('wrong bytes or hash, missing marker and unavailable archive are rejected',
  const html=setup({mime:'text/html'});
  await assert.rejects(()=>html.context.remote(doc(html.pdf),'monika',0),/drive_pdf_invalid_type/);
  const missing=setup({ok:false,statusCode:503,error:'drive_document_locator_ambiguous'});
- await assert.rejects(()=>missing.context.remote(doc(missing.pdf),'monika',0),/drive_document_not_indexed/);
+ await assert.rejects(()=>missing.context.remote(doc(missing.pdf,{sha256:null}),'monika',0),/drive_document_hash_required/);
  const img=setup();
  await assert.rejects(()=>img.context.remote(doc(img.pdf,{originalName:'x.png'}),'monika',0),/remote_pdf_only/);
  assert.equal(img.calls.length,0);
