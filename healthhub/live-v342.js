@@ -168,11 +168,19 @@ function showHistoryError(){
 async function refreshHistory(){
  var list=el('hhLenaHistory342Body'),summary=el('hhLenaHistory342Summary');if(!list||!summary)return;
  var p=profile(),turn=++historyEpoch;
- list.textContent='Betöltés…';
+ // Avoid resetting the list whenever unchanged data is checked again.
+ if(!list.dataset.hhHistoryRenderedProfile&&!list.children.length)
+  list.textContent='Betöltés…';
  try{
   var entries=await listFor(p);
   if(turn!==historyEpoch||profile()!==p)return;
+  var fingerprint=JSON.stringify(entries.map(function(x){return [x.id,x.question,x.generatedAt]}));
+  if(list.dataset.hhHistoryRenderedProfile===p&&
+     list.dataset.hhHistoryRenderedFingerprint===fingerprint)return;
+  var preservedScroll=list.dataset.hhHistoryRenderedProfile===p?list.scrollTop:0;
   list.replaceChildren();
+  list.dataset.hhHistoryRenderedProfile=p;
+  list.dataset.hhHistoryRenderedFingerprint=fingerprint;
   summary.textContent='🕘 Előzmények'+(entries.length?' ('+entries.length+')':'');
   if(!entries.length){
    var empty=document.createElement('div');empty.className='hhLenaHistoryNote342';
@@ -191,6 +199,7 @@ async function refreshHistory(){
   var note=document.createElement('div');note.className='hhLenaHistoryNote342';
   note.textContent='🔒 Csak ebben a böngészőben tárolódik, profil szerint elkülönítve. Nem felhőszinkron és nem titkosított orvosi archívum.';
   list.appendChild(note);
+  list.scrollTop=preservedScroll;
  }catch(e){
   if(turn===historyEpoch)showHistoryError();
  }
