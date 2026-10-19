@@ -603,7 +603,7 @@ async function run(opts){
    if(!mkbPacker||typeof mkbPacker.pack!=='function'){
     print('📚 I-09: A forráskontextus előkészítője nem érhető el; MKB-adat nem kerül továbbításra.');
    }else{
-    var packed=mkbPacker.pack(data,p,mkbGrant,question);
+    var packed=(mkbGrant.some(x=>x&&x.fullCorpus)&&typeof mkbPacker.packFull==='function')?mkbPacker.packFull(data,p,mkbGrant,question):mkbPacker.pack(data,p,mkbGrant,question);
     if(packed.added){
      data=packed.payload;
      mkbSourceUsed=packed.originalExcerpts||0;
