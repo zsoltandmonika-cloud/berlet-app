@@ -4,7 +4,7 @@
  * Does NOT append pending facts or quotes to AI requests. No network except
  * patient-authorized Vault reads; no background scan, telemetry or persistence.
  */
-var ID='hhAskMkb676',busy=false,version=0;
+var ID='hhAskMkb676',busy=false,version=0,prepared=null;
 function el(id){return document.getElementById(id)}
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function name(p){return p==='monika'?'Mónika':'Zsolt'}
@@ -35,10 +35,12 @@ async function digest(text){
  return [...hash].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 function reset(){
- version++;
+ version++;prepared=null;
  var host=el('hhAskMkbBody676'),btn=el('hhAskMkbBtn676');
  if(host){host.textContent='';host.hidden=true}
  if(btn){btn.disabled=false;btn.textContent='📚 Forrásolt orvosi tudás'}
+ var opt=el('hhAskMkbUse677');if(opt){opt.checked=false;opt.disabled=true}
+ var pick=el('hhAskMkbConsent677');if(pick)pick.hidden=true;
  busy=false;
 }
 function mount(){
@@ -51,7 +53,9 @@ function mount(){
  '#'+ID+' .note{font-size:11px;line-height:1.6;opacity:.85;margin-top:5px}'+
  '#'+ID+' details{margin-top:9px;padding:9px;border:1px solid rgba(127,173,199,.4);border-radius:10px;background:rgba(157,188,212,.08)}'+
  '#'+ID+' summary{cursor:pointer;font-weight:750;min-height:28px}'+
- '#'+ID+' small{display:block;font-size:11px;line-height:1.65;margin:6px 0;overflow-wrap:anywhere}';
+ '#'+ID+' small{display:block;font-size:11px;line-height:1.65;margin:6px 0;overflow-wrap:anywhere}'+
+ '#'+ID+' label{display:flex;align-items:flex-start;gap:9px;line-height:1.5;cursor:pointer;margin:10px 0 3px}'+
+ '#'+ID+' label input{min-width:19px;min-height:19px;accent-color:#2d8dbe;flex:0 0 19px}';
  document.head.appendChild(css);
  var box=document.createElement('section');box.id=ID;
  var button=document.createElement('button');button.type='button';button.id='hhAskMkbBtn676';
@@ -59,7 +63,11 @@ function mount(){
  var note=document.createElement('div');note.className='note';
  note.textContent='Privát Health Vault · csak megtekintés · az ellenőrzésre váró tényeket nem küldöm automatikusan az AI-nak.';
  var host=document.createElement('div');host.id='hhAskMkbBody676';host.hidden=true;host.setAttribute('role','status');
- box.append(button,note,host);actions.insertAdjacentElement('afterend',box);
+ var optLabel=document.createElement('label');optLabel.id='hhAskMkbConsent677';optLabel.hidden=true;
+ var opt=document.createElement('input');opt.id='hhAskMkbUse677';opt.type='checkbox';opt.disabled=true;
+ var optText=document.createElement('span');optText.textContent='🔐 Engedélyezem, hogy a KÖVETKEZŐ Ask Léna-kutatás során rövid, ellenőrzésre váró forrásolt tényeket továbbítson a már engedélyezett AI-kiszolgálónak. A teljes PDF-eket nem küldi el. Az engedély csak egyszer használható.';
+ optLabel.append(opt,optText);
+ box.append(button,note,host,optLabel);actions.insertAdjacentElement('afterend',box);
  button.addEventListener('click',read);
 }
 async function read(){
@@ -72,6 +80,10 @@ async function read(){
  if(!timeline||!auditor||typeof timeline.groups!=='function'||typeof auditor.audit!=='function'){
   host.textContent='⚠ Forrásellenőrző modul hiányzik. Frissítsd a HealthHubot.';return;
  }
+ prepared=null;
+ var opt=el('hhAskMkbUse677'),pick=el('hhAskMkbConsent677');
+ if(opt){opt.checked=false;opt.disabled=true}
+ if(pick)pick.hidden=true;
  busy=true;btn.disabled=true;host.textContent='⏳ '+name(p)+' · bizonyítékok független ellenőrzése…';
  try{
   var filter='&profile_key=eq.'+encodeURIComponent(p);
@@ -135,10 +147,37 @@ async function read(){
    var more=document.createElement('small');more.textContent='További események az Admin orvosi idővonalon találhatók.';
    host.appendChild(more);
   }
+  // Explicit, ephemeral approval for ONE future query. No PDF body is cached
+  // and no unverified evidence is eligible for forwarding.
+  var selected=groups.filter(g=>g.records.length>0&&g.evidences.length>0&&
+    g.evidences.every(e=>qa.get(e.id)?.verified)).slice(0,5).map(g=>({
+     date:g.date,title:g.title,
+     source:String(names.get(g.evidences[0].source_id)||'Eredeti PDF').slice(0,90),
+     page:g.evidences[0].page_no,
+     quote:String(g.evidences[0].excerpt||'').slice(0,120),
+     review:g.statuses.length===1&&g.statuses[0]==='verified'?'verified':'pending'
+  }));
+  if(selected.length&&opt&&pick){
+   prepared={profile:p,items:selected,at:Date.now(),generation:v};
+   opt.disabled=false;pick.hidden=false;
+  }
  }catch(_){
   if(version===v&&profile()===p)host.textContent='⚠ Az eredeti források nem ellenőrizhetők. Kérlek, ellenőrizd a Health Vault kapcsolatát.';
  }finally{if(version===v){busy=false;btn.disabled=false}}
 }
+window.HH_MKB_CONSENT_V677=Object.freeze({
+ consume:function(p){
+  var opt=el('hhAskMkbUse677'),cache=prepared,granted=!!(opt&&opt.checked);
+  if(opt)opt.checked=false;
+  prepared=null;
+  if(!granted||!cache||!opt||!cache.items.length||!allowed(p)||busy||
+    cache.profile!==p||cache.generation!==version||
+    Date.now()-cache.at>5*60*1000||!cache.items.every(x=>x.date&&x.title&&x.quote))
+   return null;
+  if(cache.items.some(x=>!/^20\d{2}-\d{2}-\d{2}$/.test(x.date)))return null;
+  return cache.items.map(x=>Object.assign({},x));
+ }
+});
 window.addEventListener('healthhub:ask-lena-open',mount);
 window.addEventListener('healthhub:profile-changed',reset);
 window.addEventListener('healthhub:central-auth-changed',reset);
