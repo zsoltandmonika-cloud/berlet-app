@@ -35,7 +35,7 @@ test('only authorized Health Vault identities can request start/status/check/dis
  assert.match(api,/if\(!owner\)return reply\(\{error:"health_vault_required"\},401\)/);
  assert.doesNotMatch(api,/(?:console\.log|console\.info)\(/);
 });
-test('UI does not replace the existing Drive importer or open Google without click',()=>{
+test('UI retains controlled OAuth consent, verifies private PDF source read, and never exposes Google tokens',()=>{
  assert.match(gui,/btn\.addEventListener\('click',async function\(\)/);
  assert.match(gui,/window\.location\.assign\(address\)/);
  assert.match(gui,/var state=await send\('status'\)/);
@@ -44,11 +44,11 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/hhDriveInventoryResultV686/);
  assert.match(gui,/function showInventory\(profile,message\)/);
  assert.match(gui,/function renderInventory\(\)/);
- assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
+ assert.match(gui,/régebbi Drive JSON-szinkron külön ellenőrzendő/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v688-pdf-sha256-readcheck/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=688-pdf-sha256-readcheck/);
+ assert.match(index,/v689-secure-original-pdf-read/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=689-server-pdf-cleanup/);
  assert.doesNotThrow(()=>new Function(gui));
 });
 test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF parent',()=>{
@@ -57,13 +57,13 @@ test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF
  assert.match(api,/async function exactArchiveFolder\(access,profile\)/);
  assert.match(api,/f\.parents\?\.includes\(folder\)/);
  assert.match(api,/m\.parents\.includes\(folder\)/);
- assert.match(api,/if\(op==="archive_inventory"\|\|op==="archive_pdf"\)/);
+ assert.match(api,/if\(op==="archive_inventory"\|\|op==="archive_pdf"\|\|op==="archive_document"\)/);
  assert.match(api,/refreshedAccess\(owner\)/);
  assert.match(api,/drive_pdf_invalid_signature/);
  assert.doesNotMatch(api,/grant_type:"password"/);
 });
 
-test('v687 build metadata matches the live runtime, auto-update checker and asset cache keys',()=>{
+test('v689 build metadata matches the live runtime, auto-update checker and asset cache keys',()=>{
  const updater=fs.readFileSync(path.join(ROOT,'live-v300.js'),'utf8');
  const declared=index.match(/name="healthhub-live-build" content="([^"]+)"/)[1];
  const runtime=index.match(/window\.HH_LIVE_BUILD='([^']+)'/)[1];
@@ -79,4 +79,29 @@ test('v687 build metadata matches the live runtime, auto-update checker and asse
  assert.match(updater,/function changedPublishedModules\(html\)/);
  assert.match(updater,/recentlyAttemptedUpdate\(target,n\)/);
  assert.doesNotThrow(()=>new Function(updater));
+});
+
+test('v689 MKB ingester uses server Drive for original-only, no browser Google tokens',()=>{
+ const ing=fs.readFileSync(path.join(ROOT,'knowledge-v407-ingest.js'),'utf8');
+ const admin=fs.readFileSync(path.join(ROOT,'hh-mkb-batch-admin-v662.js'),'utf8');
+ assert.match(ing,/driveVault\('archive_inventory',p\)/);
+ assert.match(ing,/driveVault\('archive_pdf',p,file\.id\)/);
+ assert.match(ing,/CORE\.isPdfSignature\(new Uint8Array\(bytes\)\)/);
+ assert.match(admin,/knowledge-v407-ingest\.js\?v=689-server-drive-pdf/);
+ assert.match(admin,/async function requireDrive\(who\)/);
+ assert.doesNotMatch(ing,/hhGetGoogleDriveToken292|https:\/\/www\.googleapis\.com\/drive/);
+ assert.doesNotMatch(admin,/hhGetGoogleDriveToken292/);
+ assert.doesNotThrow(()=>new Function(ing));
+ assert.doesNotThrow(()=>new Function(admin));
+});
+test('v689 Ask Léna original archive uses patient-tagged server PDF only with Vault access',()=>{
+ const ev=fs.readFileSync(path.join(ROOT,'live-v364-evidence.js'),'utf8');
+ assert.match(ev,/action:'archive_document',profile:p,documentId:documentId/);
+ assert.match(ev,/state\.authorizedProfiles\.includes\(p\)/);
+ assert.match(ev,/archive&&archive\.profile&&archive\.profile!==p/);
+ assert.match(ev,/idbOriginal\(d\.id,p\)/);
+ assert.doesNotMatch(ev,/hhGetGoogleDriveToken292|https:\/\/www\.googleapis\.com\/drive/);
+ assert.match(api,/m\.appProperties\?\.documentId!==documentId/);
+ assert.match(api,/matches\.length!==1/);
+ assert.doesNotThrow(()=>new Function(ev));
 });
