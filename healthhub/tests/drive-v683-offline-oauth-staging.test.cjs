@@ -47,8 +47,8 @@ test('UI does not replace the existing Drive importer or open Google without cli
  assert.match(gui,/A meglévő Drive-kapcsolat változatlan/);
  assert.doesNotMatch(gui,/google\.accounts\.oauth2/);
  assert.doesNotMatch(gui,/localStorage\.setItem|sessionStorage\.setItem/);
- assert.match(index,/v683-server-google-oauth-staged/);
- assert.match(index,/hh-drive-server-oauth-v683\.js\?v=686-persistent-inventory-result/);
+ assert.match(index,/v687-reliable-device-refresh/);
+ assert.match(index,/hh-drive-server-oauth-v683\.js\?v=687-confirm-fresh-build/);
  assert.doesNotThrow(()=>new Function(gui));
 });
 test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF parent',()=>{
@@ -61,4 +61,17 @@ test('v685 Google Drive gateway is read-only, patient-scoped and checks each PDF
  assert.match(api,/refreshedAccess\(owner\)/);
  assert.match(api,/drive_pdf_invalid_signature/);
  assert.doesNotMatch(api,/grant_type:"password"/);
+});
+
+test('v687 build metadata matches the live runtime, auto-update checker and asset cache keys',()=>{
+ const updater=fs.readFileSync(path.join(ROOT,'live-v300.js'),'utf8');
+ const declared=index.match(/name="healthhub-live-build" content="([^"]+)"/)[1];
+ const runtime=index.match(/window\.HH_LIVE_BUILD='([^']+)'/)[1];
+ const bootstrap=index.match(/var v='([^']+)'/)[1];
+ assert.equal(declared,runtime);
+ assert.equal(declared,'v'+bootstrap);
+ assert.match(index,/live-v300\.js\?v=687-asset-aware-auto-update/);
+ assert.match(updater,/function changedPublishedModules\(html\)/);
+ assert.match(updater,/recentlyAttemptedUpdate\(target,n\)/);
+ assert.doesNotThrow(()=>new Function(updater));
 });
