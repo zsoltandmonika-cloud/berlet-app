@@ -78,6 +78,12 @@ function mount(){
  '<li>Rendszer: stabilitás, sebesség, mobil használhatóság, adatfrissesség és profilszeparáció. Zöld státusz csak sikeres ellenőrzés után.</li>'+
  '<li>Admin dokumentáció és GitHub technikai dokumentáció egyaránt frissítendő minden jelentős irányváltáskor.</li>'+
  '</ul></details>'+
+ '<details><summary>📄 Eredeti PDF hozzáférés · v690 QA</summary><ul>'+
+ '<li>Helyi eredeti hiányakor csak pontos dokumentumazonosító és profiljogosultság mellett próbálható a privát, szerveroldali Google Drive-olvasás.</li>'+
+ '<li>Nincs fájlnév-alapú találgatás, nyilvános PDF-link, Google-token a böngészőben vagy automatikus újraimportálás.</li>'+
+ '<li>PDF-aláírás, méretkorlát, rendelkezésre álló SHA-256 és profilváltás közbeni megszakítás a kötelező biztonsági ellenőrzés.</li>'+
+ '<li>CODED és szintetikus TESTED nem LIVE VERIFIED. A két profil éles PDF-megnyitása és felhasználói elfogadása még külön igazolandó.</li>'+
+ '</ul></details>'+
  '<details><summary>📊 Knowledge Base · ellenőrzött élő állapot</summary>'+
  '<p class="hhGovFoot">A lekérdezés csak a kiválasztott, hitelesítetten engedélyezett profil összesített metaadatait kéri le. Nincs automatikus adatfeltöltés vagy tartalomnaplózás.</p>'+
  '<div class="hhGovActions"><button type="button" id="hhGovAuditBtn658">↻ Élő adatminőség-ellenőrzés</button></div>'+
