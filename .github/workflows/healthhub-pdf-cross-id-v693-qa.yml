@@ -1,0 +1,31 @@
+name: HealthHub v693 verified cross-ID PDF QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/live-v201.js'
+      - 'healthhub/hh-pdf-device-audit-v691.js'
+      - 'healthhub/tests/pdf-cross-id-v693.test.cjs'
+      - 'healthhub/tests/pdf-original-sha-v692.test.cjs'
+      - 'healthhub/tests/pdf-viewer-v690.test.cjs'
+      - 'healthhub/tests/pdf-device-audit-v691.test.cjs'
+      - 'healthhub/tests/drive-v683-offline-oauth-staging.test.cjs'
+      - '.github/workflows/healthhub-pdf-cross-id-v693-qa.yml'
+  push:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/live-v201.js'
+      - 'healthhub/tests/pdf-cross-id-v693.test.cjs'
+      - '.github/workflows/healthhub-pdf-cross-id-v693-qa.yml'
+jobs:
+  original-byte-verification:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Patient access and PDF-original identity safety
+        run: node --test healthhub/tests/pdf-cross-id-v693.test.cjs healthhub/tests/pdf-original-sha-v692.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs healthhub/tests/pdf-device-audit-v691.test.cjs healthhub/tests/drive-v683-offline-oauth-staging.test.cjs

@@ -166,8 +166,9 @@ function cleanDocument(){
 var pdfOpenSerialV690=0;
 function pdfProfileV690(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pdfStillCurrentV690(p,serial){return pdfOpenSerialV690===serial&&pdfProfileV690()===p}
-/* v692: Ambiguous tagged copies may be resolved by an indexed SHA-256 only.
-   No name, date, size, modification-time heuristic, or unverified file IDs. */
+/* v693: resolve legacy Drive-ID mismatches by independently verified SHA-256.
+   archive_pdf additionally verifies authenticated profile and live Drive folder.
+   No filename, date, size or unverified file-ID guessing. */
 async function pdfResolveHashTaggedDriveV692(vault,p,documentId,expected,serial){
  if(!/^[a-f0-9]{64}$/.test(expected))throw Error('drive_document_hash_required');
  var response=await vault.stream('/functions/v1/hh-drive-oauth-v682',
@@ -178,22 +179,21 @@ async function pdfResolveHashTaggedDriveV692(vault,p,documentId,expected,serial)
  if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
  if(!inventory||inventory.profile!==p||!Array.isArray(inventory.files)||inventory.files.length>2000)
   throw Error('drive_inventory_invalid');
- var sameId=0,candidates=[];
+ var sameId=0,exact=[],crossId=[];
  inventory.files.forEach(function(f){
   var props=f&&f.appProperties;
-  if(!f||f.mimeType!=='application/pdf'||!props||props.profile!==p||
-     props.documentId!==documentId)return;
-  sameId++;
-  var hash=String(props.sha256||'').toLowerCase();
-  if(hash===expected&&/^[A-Za-z0-9_-]{8,200}$/.test(String(f.id||'')))
-   candidates.push(f.id);
+  if(!f||f.mimeType!=='application/pdf'||!props||props.profile!==p)return;
+  var same=props.documentId===documentId;
+  if(same)sameId++;
+  var hash=String(props.sha256||'').trim().toLowerCase();
+  if(hash!==expected||!/^[A-Za-z0-9_-]{8,200}$/.test(String(f.id||'')))return;
+  (same?exact:crossId).push(f.id);
  });
- if(!sameId)throw Error('drive_document_not_indexed');
- if(!candidates.length)throw Error('drive_document_hash_unmatched');
- // Even for identical SHA labels, the chosen original is fully verified against
- // the indexed SHA after authenticated profile/folder/documentId server checks.
+ // Only exact byte identity may override inconsistent historical IDs.
+ var candidates=exact.length?exact:crossId;
+ if(!candidates.length)throw Error(sameId?'drive_document_hash_unmatched':'drive_document_not_indexed');
  candidates.sort();
- return candidates[0];
+ return {fileId:candidates[0],sameDocumentId:exact.length>0};
 }
 async function pdfFromPrivateDriveV690(d,p,serial){
  if(!/\.pdf$/i.test(String(d.originalName||''))&&
@@ -219,10 +219,13 @@ async function pdfFromPrivateDriveV690(d,p,serial){
   if(response.status===401||response.status===403)throw Error('drive_profile_forbidden');
   if(code==='drive_document_locator_ambiguous'){
    var expectedHash=String(d.sha256||'').trim().toLowerCase();
-   var fileId=await pdfResolveHashTaggedDriveV692(vault,p,documentId,expectedHash,serial);
+   var located=await pdfResolveHashTaggedDriveV692(vault,p,documentId,expectedHash,serial);
    if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
+   // Never trust the inventory SHA without verifying the downloaded bytes.
    response=await vault.stream('/functions/v1/hh-drive-oauth-v682',
-    {action:'archive_document',profile:p,documentId:documentId,fileId:fileId});
+    located.sameDocumentId
+     ?{action:'archive_document',profile:p,documentId:documentId,fileId:located.fileId}
+     :{action:'archive_pdf',profile:p,fileId:located.fileId});
    if(!pdfStillCurrentV690(p,serial))throw Error('pdf_open_cancelled');
    if(!response.ok){
     if(response.status===401||response.status===403)throw Error('drive_profile_forbidden');
@@ -250,7 +253,7 @@ function pdfGatewayMessageV690(error){
  switch(String(error&&error.message||'')){
   case 'health_vault_required':return 'A PDF csak érvényes Health Vault-bejelentkezéssel és profiljogosultsággal érhető el.';
   case 'drive_profile_forbidden':return 'A kiválasztott profilhoz nincs igazolt PDF-hozzáférés.';
-  case 'drive_document_not_indexed':return 'A lelet indexe megvan, de ehhez az azonosítóhoz nem található egyértelműen hozzárendelt eredeti Drive-PDF.';
+  case 'drive_document_not_indexed':return 'Ehhez a lelethez nincs pontos Drive-azonosító, és az eredeti bájtok SHA-256 egyezése sem igazolható. Nem nyitunk meg másik leletet.';
   case 'drive_document_hash_required':return 'Több eredeti Drive-fájl tartozik ehhez a lelethez, de a leletindexben nincs ellenőrzött SHA-256. Kézi forrásazonosítás szükséges.';
   case 'drive_document_hash_unmatched':return 'Több Drive-fájl van ehhez a lelethez, de egyik hitelesített SHA-256 címke sem egyezik. Nem találgatunk.';
   case 'drive_pdf_hash_mismatch':return 'Az eredeti PDF ellenőrzőösszege eltér a lelet indexétől. A fájlt biztonsági okból nem jelenítjük meg.';
@@ -359,7 +362,7 @@ window.addEventListener('resize',function(){if(document.getElementById('hhOrigin
 
 ensure();
 document.documentElement.dataset.healthhubDocumentViewer='1.101';
-window.HH_LIVE_BUILD='v1.103-sha-tagged-original-drive-fallback';
+window.HH_LIVE_BUILD='v1.104-verified-cross-id-sha-pdf';
 window.addEventListener('healthhub:profile-changed',function(){
  if(document.getElementById('hhOriginalDocViewer')?.classList.contains('on'))window.hhCloseOriginalDoc();
 });
