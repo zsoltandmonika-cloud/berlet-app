@@ -107,7 +107,8 @@ async function refreshedAccess(owner){
 async function route(req){
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors});
  const u=new URL(req.url),task=u.searchParams.get("action")||"";
- if(req.method==="GET"&&task==="callback"){
+ // Google appends state/code to the registered bare redirect URI; it does NOT add action=callback.
+ if(req.method==="GET"&&(task==="callback"||u.searchParams.has("state"))){
   const state=u.searchParams.get("state")||"";
   const code=u.searchParams.get("code")||"";
   if(!canRun())return finish("setup_required");
