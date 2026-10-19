@@ -44,7 +44,7 @@ where d.status='complete'
   and s.origin='google_drive'
   and s.source_kind='pdf'
   and coalesce(s.source_metadata->>'ingest_scope','included') <> 'excluded';
-revoke all on public.hh_mkb_fulltext_search from public, anon;
+revoke all on public.hh_mkb_fulltext_search from public, anon, authenticated;
 grant select on public.hh_mkb_fulltext_search to authenticated;
 comment on view public.hh_mkb_fulltext_search is
  'Plan B full corpus: one row per original indexed PDF page; complete verbatim UTF-8 text, not the curated 4/6 evidence extracts. security_invoker underlying patient RLS.';
