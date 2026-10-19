@@ -252,6 +252,21 @@ The v677/678 temporary source transfer must have a fresh patient-scoped Vault SH
 
 Regression: `healthhub/tests/mkb-v679-story-facts-interpretation.test.cjs` tests the three mandatory sections in order, literal original evidence and source page, both layers contributing only with appropriate qualifications, refusal of unsupported personal claims, and secondary source distinctions. Synthetic runtime smoke checks passed. Real mobile AI answer acceptance is still pending; testers should explicitly verify all three sections, I-09 provenance, and no unsupported UTI diagnosis. The 207 original source documents, 7 facts and 12 evidence rows were not modified by this release.
 
+## v681 · Google Drive csatlakozási állapot (2026-10-19)
+
+The existing Google Identity Services browser **token model** issues a short-lived access token using a user-triggered popup, verified as the dedicated shared Google account. The Google authorization grant is remembered in `AUTH_KEY`, but the sensitive **Drive access token remains strictly in sessionStorage**; neither the cached grant flag nor a previously successful Drive mirror is evidence of a presently valid access token.
+
+Therefore, the v681 Admin MKB connector now displays distinct states:
+- **Green** only if a currently unexpired, matching-account Google Drive token exists.
+- **Amber** if previous OAuth permission exists but the browser access token is expired or unavailable; the existing button switches to `🔄 Drive megújítás`. Its user click requests Google's `prompt:''` token UI for the shared account and verifies the returned account identity before green.
+- **Locked** if the user has never authorized this browser.
+
+The same distinction appears in the legacy Drive mirror status. The app receives a private status-change event after successfully verified OAuth or token revocation and refreshes only the visible UI on focus/visibility/one-minute local check. No timer, page refresh, or background upload invokes a Google OAuth popup, and no Drive tokens or medical records are placed in localStorage or GitHub. There was **no extra Google scope** or database modification.
+
+**Important limitation:** Google specifically does **not support automatic access-token refresh for the browser GIS token flow**; it requires user interaction for a new token. A genuinely persistent Drive connection across expired browser tokens and browser restarts requires a dedicated Google **authorization-code flow** and securely stored server-side refresh token. That migration needs configuration of a confidential Google OAuth client, approved redirect/consent flow, and server-held credentials in Supabase secrets, with patient-specific auth/RLS. Do not promise perpetual green or implement insecure token persistence on the client. Google may still require reauthorization if the user revokes access or the refresh token is invalidated. Reference: Google Identity Services `use-token-model` and `choose-authorization-model` official docs.
+
+Release `v681-google-drive-authorization-status`, test `healthhub/tests/drive-v681-connection-status.test.cjs`. Synthetic OAuth mocks verified no OAuth popup without click, previously authorized amber badge, account-checked manual renewal → green, expiry and wrong account never green. Real S24 Ultra visual acceptance remains pending.
+
 ## HH Admin implementáció
 
 `healthhub/hh-development-charter-admin-v658.js` csak az `#haOv` adminpanel megnyitásakor helyez el kártyát az `#haBody` elején. Az összesítés a kiválasztott profilra korlátozott, csak felhasználói kattintásra, `HH_DAILY_HEALTH_SYNC_V319` hitelesített REST kapcsolatán keresztül történik. Az Admin-kártya nem ír adatot, nem archivál képeket, nem indít tömeges feldolgozást, és nem küld egészségügyi tartalmat nyilvános végpontra.
