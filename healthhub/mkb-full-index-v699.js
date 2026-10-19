@@ -14,6 +14,15 @@ function day(v){
 }
 function norm(s){return String(s||'').toLocaleLowerCase('hu-HU')
  .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
+function dateFromTitle(title){
+ var m=String(title||'').match(/(?:^|[^0-9])(20\d{2})[-._ ](0[1-9]|1[0-2])[-._ ](0[1-9]|[12]\d|3[01])(?=$|[^0-9])/);
+ return m?day(m[1]+'-'+m[2]+'-'+m[3]):'';
+}
+function recentReportsIntent(question){
+ var q=norm(question);
+ return /(lelet|labor|dokumentum|pdf|vizsgalat|eredmeny)/.test(q)&&
+  /(legutobb|legfriss|legujabb|utolso|legutolso|friss lelet|osszefoglal.*lelet|leleteim.*osszefoglal)/.test(q);
+}
 function catalog(docs,sources,p){
  if(!['monika','zsolt'].includes(p))throw Error('invalid_patient_profile');
  var sourcesById=new Map();
@@ -34,11 +43,14 @@ function catalog(docs,sources,p){
   var s=sourcesById.get(d.mkb_source_id);
   if(!s||s.sha256!==d.sha256)continue;
   seen.add(d.id);
+  var title=String(s.original_name||d.original_name||'Névtelen PDF').slice(0,170);
+  var titleDate=dateFromTitle(title);
   rows.push({
    id:d.id,sourceId:s.id,
-   title:String(s.original_name||d.original_name||'Névtelen PDF').slice(0,170),
+   title,
    profile:p,pageCount:Number(d.total_pages),
-   date:day(s.original_observed_at),
+   date:titleDate||day(s.original_observed_at),
+   dateKind:titleDate?'filename':'source_metadata',
    originalHash:d.sha256,
    state:'forrásintegritás_igazolt_szakmai_review_nem',
   });
@@ -81,18 +93,25 @@ async function rankPages(rows,pages,question,digest,ranker){
   candidates.push({
    sourceId:doc.sourceId,date:doc.date,title:doc.title,
    source:doc.title,page:Number(page.page_no),quote,
-   review:'pending',dateKind:'source_metadata',_documentId:doc.id,
+   review:'pending',dateKind:doc.dateKind||'source_metadata',_documentId:doc.id,
    _fullText:page.page_text,_expected:page.text_sha256,
   });
  }
  // Rank all authorized and eligible source pages, then independently verify
  // the strongest candidates. No failed-hash excerpt enters the AI request.
- var ranked=typeof ranker.rankCandidates==='function'?ranker.rankCandidates(candidates,question,40):ranker.rank(candidates,question,{max:5});
- var selected=[],considered=0,failures=0;
+ // Historical PDF reports were indexed later; do not confuse ingestion
+ // time with dates indicated in original filenames. This is ordering, not
+ // verification of a clinical examination date.
+ var recent=recentReportsIntent(question);
+ var ranked=recent?{selected:candidates.slice().sort((a,b)=>
+  b.date.localeCompare(a.date)||a.page-b.page).slice(0,40)}:
+  (typeof ranker.rankCandidates==='function'?ranker.rankCandidates(candidates,question,40):ranker.rank(candidates,question,{max:5}));
+ var selected=[],considered=0,failures=0,seenDocs=new Set();
  for(const row of ranked.selected){
   if(selected.length===5||considered>=40)break;
+  if(seenDocs.has(row._documentId))continue;
   considered++;
-  if(!row.relevanceScore)continue;
+  if(!recent&&!row.relevanceScore)continue;
   try{
    if(await digest(row._fullText)!==row._expected){failures++;continue}
   }catch(_){failures++;continue}
@@ -101,10 +120,12 @@ async function rankPages(rows,pages,question,digest,ranker){
   var safe={};
   for(const key of ['date','title','source','sourceId','page','quote','review','dateKind','caution'])
    if(row[key]!==undefined)safe[key]=row[key];
-  selected.push(safe);
+  selected.push(safe);seenDocs.add(row._documentId);
  }
  return {selected,documents:rows.length,eligiblePages:candidates.length,
-  reviewed:considered,integrityRejected:failures,kind:'quoted_pages_pending_clinical_review'};
+  reviewed:considered,integrityRejected:failures,
+  selectionMode:recent?'recent_original_reports':'question_lexical_relevance',
+  kind:'quoted_pages_pending_clinical_review'};
 }
 var api=Object.freeze({catalog,filterCatalog,rankPages,norm});
 if(typeof module==='object'&&module.exports)module.exports=api;
