@@ -153,8 +153,9 @@ async function read(){
     g.evidences.every(e=>qa.get(e.id)?.verified)).slice(0,5).map(g=>({
      date:g.date,title:g.title,
      source:String(names.get(g.evidences[0].source_id)||'Eredeti PDF').slice(0,90),
+     sourceId:g.evidences[0].source_id,
      page:g.evidences[0].page_no,
-     quote:String(g.evidences[0].excerpt||'').slice(0,120),
+     quote:String(g.evidences[0].excerpt||'').slice(0,400),
      review:g.statuses.length===1&&g.statuses[0]==='verified'?'verified':'pending'
   }));
   if(selected.length&&opt&&pick){
@@ -172,7 +173,7 @@ window.HH_MKB_CONSENT_V677=Object.freeze({
   prepared=null;
   if(!granted||!cache||!opt||!cache.items.length||!allowed(p)||busy||
     cache.profile!==p||cache.generation!==version||
-    Date.now()-cache.at>5*60*1000||!cache.items.every(x=>x.date&&x.title&&x.quote))
+    Date.now()-cache.at>5*60*1000||!cache.items.every(x=>x.date&&x.title&&x.quote&&/^[a-f0-9-]{36}$/i.test(x.sourceId)))
    return null;
   if(cache.items.some(x=>!/^20\d{2}-\d{2}-\d{2}$/.test(x.date)))return null;
   return cache.items.map(x=>Object.assign({},x));
