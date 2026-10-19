@@ -28,48 +28,63 @@ function beforeAction(who){
  vaultLogin();
  return false;
 }
+// v689: Only the Vault-authenticated server-side Google grant is used for
+// MKB original source reads. No browser GIS token renewal is needed.
+var connectionEpoch=0;
 async function requireDrive(who){
  assertActive(who);
- var get=window.hhGetGoogleDriveToken292;
- if(typeof get!=='function')throw Error('A Google Drive modul hiányzik. Frissítsd a HealthHubot.');
- try{if(!await get(false))throw Error('missing')}
- catch(_){throw Error('Drive-engedélyezés szükséges. Használd a „Drive csatlakozás” gombot, majd indítsd újra az importot.')}
+ var svc=window.HH_DAILY_HEALTH_SYNC_V319,
+  response=await svc.stream('/functions/v1/hh-drive-oauth-v682',{action:'check'});
+ if(!response.ok)throw Error('A privát Drive-kapcsolat nem ellenőrizhető.');
+ var state=await response.json();
  assertActive(who);
+ if(!state?.configured||state.connected!==true)
+  throw Error('A tartós Drive-engedély nem aktív. Ellenőrizd a szerveroldali panelt.');
+ return true;
 }
 async function reconnectDrive(){
- var button=el('hhMkbDrive662');
+ var who=p(),button=el('hhMkbDrive662');
  if(button)button.disabled=true;
  try{
-  var get=window.hhGetGoogleDriveToken292;
-  if(typeof get!=='function')throw Error('A Google Drive modul hiányzik. Frissítsd a HealthHubot.');
-  if(!await get(true))throw Error('Nem sikerült hozzáférést kérni.');
-  show('✅ Google Drive kapcsolat aktív. Indítsd el újra a kívánt PDF-műveletet.');
- }catch(e){show('⚠ Drive-csatlakozás: '+String(e.message||e).slice(0,180))}
+  await requireDrive(who);
+  show('✅ Tartós, szerveroldali Google Drive-hozzáférés hitelesítve.');
+ }catch(e){show('⚠ '+String(e.message||e).slice(0,160))}
  finally{if(button)button.disabled=false;refreshConnections()}
 }
-function driveStateLabel(){
- var probe=window.hhGoogleDriveConnectionStatus292;
- if(typeof probe!=='function')return '⏳ Google Drive: kapcsolatmodul még töltődik';
- var x=probe();
- return x.connected?'✅ Google Drive: kapcsolat aktív':
-  x.previouslyAuthorized?'🟠 Google Drive: engedély megvan, hozzáférés megújítandó':
-  '🔒 Google Drive: első csatlakozás szükséges';
-}
 async function refreshConnections(){
- var service=window.HH_DAILY_HEALTH_SYNC_V319,s=service&&service.getStatus&&service.getStatus();
- var va=el('hhMkbVaultState662'),dr=el('hhMkbDriveState662');
- if(va)va.textContent=!s||!s.configured?'⚠ Health Vault nincs konfigurálva':
-  !s.authenticated?'🔒 Health Vault: bejelentkezés szükséges':
-  permitted(p())?'✅ Health Vault: '+pname()+' jogosult':
+ var svc=window.HH_DAILY_HEALTH_SYNC_V319,
+  status=svc&&svc.getStatus&&svc.getStatus(),
+  va=el('hhMkbVaultState662'),dr=el('hhMkbDriveState662'),
+  btn=el('hhMkbDrive662'),who=p(),run=++connectionEpoch;
+ if(va)va.textContent=!status||!status.configured?'⚠ Health Vault nincs konfigurálva':
+  !status.authenticated?'🔒 Health Vault: bejelentkezés szükséges':
+  permitted(who)?'✅ Health Vault: '+pname()+' jogosult':
   '⏳ Health Vault: profiljogosultság ellenőrzése szükséges';
  if(!dr)return;
- // Pure local status. Never invoke Google OAuth from focus or page reload.
- dr.textContent=driveStateLabel();
- var btn=el('hhMkbDrive662'),probe=window.hhGoogleDriveConnectionStatus292;
- if(btn&&typeof probe==='function'){
-  var x=probe();
-  btn.textContent=x.connected?'✅ Drive csatlakoztatva':
-   x.previouslyAuthorized?'🔄 Drive megújítás':'🔗 Drive csatlakozás';
+ if(!permitted(who)){
+  dr.textContent='🔒 Google Drive: előbb a Health Vaultba lépj be';
+  if(btn){btn.textContent='🔐 Drive ellenőrzése';btn.disabled=true}
+  return;
+ }
+ dr.textContent='⏳ Szerveroldali Drive-engedély ellenőrzése…';
+ if(btn){btn.textContent='🔄 Drive ellenőrzése';btn.disabled=false}
+ try{
+  var response=await svc.stream('/functions/v1/hh-drive-oauth-v682',{action:'check'});
+  if(!response.ok)throw Error('Nincs szerveroldali válasz');
+  var live=await response.json();
+  if(run!==connectionEpoch||p()!==who||!el('hhMkbDriveState662'))return;
+  if(live&&live.connected===true){
+   dr.textContent='✅ Google Drive: tartós szerveroldali hozzáférés aktív';
+   if(btn)btn.textContent='✅ Drive ellenőrzése';
+  }else{
+   dr.textContent='⚠ Google Drive: a szerveroldali hozzáférés újraengedélyezést igényel';
+   if(btn)btn.textContent='🔐 Drive ellenőrzése';
+  }
+ }catch(_){
+  if(run===connectionEpoch&&p()===who){
+   dr.textContent='⚠ Google Drive: a szerveroldali ellenőrzés nem sikerült';
+   if(btn)btn.textContent='🔄 Drive ellenőrzése';
+  }
  }
 }
 function styles(){
