@@ -15,7 +15,7 @@ function decide(question){
  var firstPerson=/(?:\bvelem\b|\bnekem\b|\bvelem\s+tortent\b|\baznap\b|\bmi\s+tortent\b|\bmi\s+volt\b|\bemlekszem\b)/.test(q);
  var personalHistoricEvent=yearOrDate&&firstPerson;
 
- var medical=/(korhaz|intenziv|mento|mentes|betegseg|diagn|sziv|kardio|fibrill|ujraeleszt|eszmelet|koma|szedal|neurolog|emlekezet|amnezi|lelet|mutet|beavatkozas|gyogyszer|kognitiv|orvos)/.test(q);
+ var medical=/(korhaz|intenziv|mento|mentes|betegseg|diagn|sziv|kardio|fibrill|ujraeleszt|eszmelet|koma|szedal|neurolog|emlekezet|amnezi|lelet|mutet|beavatkozas|gyogyszer|kognitiv|orvos|vizelet|labor|tenyeszt|bakterium|vervizsgalat|hormon)/.test(q);
  var sequence=/(mikor|hany perc|hany ora|idosor|idovonal|kronolog|torten|esemeny|elso nap|kezdete|vege|elozmeny)/.test(q);
  var detailed=/(reszlet|mely|alapos|osszes|teljes|osszevet|magyara|kovetkeztet|miert|hogyan|rekonstru|elemzes|egesz nap|allapotban)/.test(q);
  var asksMechanism=/(miert|hogyan|mechanizm|okozhat|kovetkezmen|folyamat|tortenik|hatasa|kepesseg)/.test(q);
@@ -31,16 +31,16 @@ function instruction(plan,coverage){
  var full=plan.mode==='deep';
  var c=coverage||{},originals=Number(c.originals)||0;
  var out='\n\n[KUTATÁSI ELV: HealthHub · személyre szabott történet] ';
- out+='A válaszod emberi, világos, összefüggő szöveg legyen. Először mondd el a rendelkezésre álló, konkrét és forrásokkal igazolt eseményeket, szigorú időrendi sorrendben. ';
+ out+='A személyes leletválasz alapértelmezett, külön nem kérendő sorrendje: először természetes, forrásolt storytelling A leletek története címmel; alatta Dokumentált tények, végül Orvosi értelmezés, külön jelölt bizonytalanságokkal. A történet csak az alatta ellenőrizhető forrásadatokból épülhet. ';
  out+='Utána részletesen magyarázd el az élettani mechanizmusokat és az igazolt személyes összefüggéseket. ';
- out+='Adj beszédes időrendi címsorokat, de ne ismételj minden bekezdés előtt "Dokumentált tény", "Fontos teendő" vagy "Nem tudható" feliratokat. ';
+ out+='A storytelling fejezetben kerüld a felesleges címkézést, de az alatta következő Dokumentált tények és Orvosi értelmezés szakaszok KÖTELEZŐK a személyes orvosi leletválasznál. ';
  out+='A releváns eredeti leletek címét, dátumát és PDF-oldalát a történet megfelelő pontjához kösd. ';
  if(full)out+='A részletesség minimum egy gondosan megírt, kronológiai ChatGPT-válaszé, érdemi orvosi magyarázattal és következtetésekkel. ';
  if(plan.chronology)out+='Múltbeli személyes eseménynél a hiteles időrend a fő törzs: előzmény, rosszullét, mentés, ellátás, felépülés csak a ténylegesen alátámasztott részletekkel. ';
  if(plan.physiology)out+='Az okok, következmények és kognitív hatások mechanizmusát érthetően indokold. ';
  if(originals===0&&plan.documents)out+='Az eredeti kivonatok hiánya nem azonos az esemény dokumentálatlanságával; a nem bizonyítható részleteket egyszerűen ne állítsd tényként. ';
  out+='Ne találj ki percszámot, orvosnevet, diagnózist vagy gyógyszermódosítást. Nem kell külön hiánylistát írnod, kivéve ha a felhasználó egyenesen erre kérdez.';
- return out.slice(0,1450);
+ return out.slice(0,1650);
 }
 function apply(data,question,coverage,chosenPlan){
  if(!data||!['monika','zsolt'].includes(data.profile)||data.consent!==true)
