@@ -3,7 +3,6 @@
 /* v407 background-on-open ingestion. Patient data only sent via existing
  * authenticated HealthHub profile vault, NEVER to public GitHub or analytics.
  */
-var API='https://www.googleapis.com/drive/v3/files';
 var PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
 var PDFWORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 var TESS='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
@@ -20,66 +19,42 @@ function emit(){var detail={running:st.running,stop:st.stop,done:st.done,total:s
  window.dispatchEvent(new CustomEvent('healthhub:kb-progress',{detail:detail}));
 }
 function title(s){return String(s||'').slice(0,340)}
-function escapeQuery(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
-async function drive(url,options,p){
- active(p);var get=window.hhGetGoogleDriveToken292;
- if(typeof get!=='function')throw Error('Google Drive csatlakozás szükséges.');
- var token=await get(false);if(!token)throw Error('A Google Drive csatlakozás lejárt.');
- active(p);var r=await fetch(url,Object.assign({cache:'no-store'},options||{},{
- headers:Object.assign({},options&&options.headers||{},{Authorization:'Bearer '+token})
- }));
- if(!r.ok)throw Error('Google Drive HTTP '+r.status);
- return r;
-}
-async function filesByQuery(q,p,fields,one){
- var out=[],page='';
- do{
-  var params=new URLSearchParams({q:q,spaces:'drive',fields:fields||'nextPageToken,files(id,name,mimeType,size,modifiedTime,md5Checksum,appProperties,parents)',pageSize:'1000'});
-  if(page)params.set('pageToken',page);
-  var response=await drive(API+'?'+params.toString(),{},p),data=await response.json();
-  out.push(...(data.files||[]));page=data.nextPageToken||'';
-  if(one)break;
- }while(page&&out.length<5000);
- return out;
-}
-async function archiveFolder(p){
- if(folderCache[p])return folderCache[p];
- var key='hh-lena-doc-drive-v294-'+p+'-folder';
- var id='';
- // Cached folder IDs alone cannot establish profile identity; verify by parent lookup.
- // Read existing archive only. Never create a new folder during ingestion.
- var roots=await filesByQuery("name='HealthHub Lena Archive' and mimeType='application/vnd.google-apps.folder' and trashed=false",p,null,true);
- if(roots.length!==1)throw Error('A Drive HealthHub-archívummappája nem egyértelmű. Előbb ellenőrizd az archívumot.');
- var name=p==='monika'?'Monika':'Zsolt';
- var folders=await filesByQuery("name='"+name+"' and '"+escapeQuery(roots[0].id)+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false",p,null,true);
- if(folders.length!==1)throw Error('A profilhoz tartozó Drive-mappa nem egyértelmű.');
- id=folders[0].id;folderCache[p]=id;
- try{localStorage.setItem(key,id)}catch(_){}
- return id;
+// Server-side, profile-bound, read-only original archive access. No browser Google token.
+async function driveVault(action,p,fileId){
+ var service=active(p),response=await service.stream('/functions/v1/hh-drive-oauth-v682',
+  {action:action,profile:p,fileId:fileId||''});
+ active(p);
+ if(!response.ok){
+  var problem=await response.json().catch(function(){return null});
+  var code=problem&&typeof problem.error==='string'&&/^[a-z_]{3,70}$/.test(problem.error)?
+    ' · '+problem.error:'';
+  throw Error('Szerveroldali Google Drive HTTP '+response.status+code);
+ }
+ return response;
 }
 async function listFiles(p){
- var folder=await archiveFolder(p);
- var q="'"+escapeQuery(folder)+"' in parents and mimeType='application/pdf' and trashed=false";
- var rows=await filesByQuery(q,p);
- return rows.filter(x=>x&&x.id&&x.mimeType==='application/pdf'&&(!x.appProperties?.profile||x.appProperties.profile===p))
- .map(x=>({id:x.id,name:title(x.name),size:Number(x.size)||null,modified:x.modifiedTime||null,
-  documentId:x.appProperties&&x.appProperties.documentId||null,parent:folder,sha256:x.appProperties&&x.appProperties.sha256||null}));
+ var response=await driveVault('archive_inventory',p);
+ var result=await response.json();
+ active(p);
+ if(result?.profile!==p||!Array.isArray(result.files)||!result.folder)
+  throw Error('A privát Google Drive-leltár azonosítása sikertelen.');
+ return result.files.filter(x=>x&&x.id&&x.mimeType==='application/pdf'&&
+   (!x.appProperties?.profile||x.appProperties.profile===p))
+  .map(x=>({id:x.id,name:title(x.name),size:Number(x.size)||null,
+   modified:x.modifiedTime||null,documentId:x.appProperties?.documentId||null,
+   parent:result.folder,sha256:x.appProperties?.sha256||null}));
 }
 async function blobFor(file,p){
  active(p);
- const id=encodeURIComponent(file.id);
- // Verify the file still resides under the authorized patient archive folder.
- var metaResp=await drive(API+'/'+id+'?fields=id,name,mimeType,size,parents,appProperties,modifiedTime',{},p);
- var m=await metaResp.json(),folder=await archiveFolder(p);
- if(m.mimeType!=='application/pdf'||!Array.isArray(m.parents)||!m.parents.includes(folder)||
-    m.appProperties&&m.appProperties.profile&&m.appProperties.profile!==p)
-  throw Error('A dokumentum archív/profil-azonossága nem ellenőrizhető.');
- if(Number(m.size)>25000000)throw Error('25 MB feletti PDF: külön feldolgozás szükséges.');
- var response=await drive(API+'/'+id+'?alt=media',{},p);
+ if(!file||!/^[A-Za-z0-9_-]{8,200}$/.test(String(file.id||'')))
+  throw Error('Hibás eredeti PDF azonosító.');
+ if(!Number.isSafeInteger(Number(file.size))||Number(file.size)>25000000||Number(file.size)<5)
+  throw Error('A PDF fájlmérete nem engedélyezett.');
+ var response=await driveVault('archive_pdf',p,file.id);
  var bytes=await response.arrayBuffer();
- if(Number(m.size)!==bytes.byteLength||file.size!=null&&Number(file.size)!==bytes.byteLength||
-    (file.modified&&Date.parse(file.modified)!==Date.parse(m.modifiedTime||'')))
-  throw Error('Az eredeti PDF a leltár óta módosult, vagy a letöltés hiányos. Új audit szükséges.');
+ active(p);
+ if(bytes.byteLength!==Number(file.size))
+  throw Error('Az eredeti PDF mérete eltér a leltártól. Új audit szükséges.');
  if(!CORE.isPdfSignature(new Uint8Array(bytes)))
   throw Error('A fájl nem érvényes PDF.');
  return bytes;
