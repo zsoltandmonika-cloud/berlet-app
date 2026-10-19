@@ -125,7 +125,7 @@ function create(){
    validateCurrentProfile(who);
    showPdfProof(who,'⏳ Egy ellenőrzött PDF letöltése kizárólag olvasásra…');
    var pdf=await pdfResponse('archive_pdf',who,target.id);
-   if(!/application\\/pdf/i.test(pdf.headers.get('content-type')||''))
+   if(!/application\/pdf/i.test(pdf.headers.get('content-type')||''))
     throw Error('Az átjáró nem PDF-et szolgáltatott.');
    var bytes=await pdf.arrayBuffer();
    validateCurrentProfile(who);
