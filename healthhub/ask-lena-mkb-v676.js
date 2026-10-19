@@ -176,7 +176,7 @@ async function read(){
   if(selected.length){
    var consentPreview=document.createElement('div');consentPreview.className='note';
    consentPreview.textContent='A következő kutatáshoz előkészített idézetek (jóváhagyás nélkül semmi nem kerül az AI-hoz): '+
-    selected.map(x=>x.date+' · '+x.title+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
+    selected.map(x=>x.date+' · '+x.title+' · '+x.source+' ('+x.page+'. oldal) · „'+x.quote.slice(0,160)+'”'+(x.caution?' [⚠️ méréseltérés]':'')).join(' | ');
    host.appendChild(consentPreview);
   }
   if(!ranked.questionReady){
