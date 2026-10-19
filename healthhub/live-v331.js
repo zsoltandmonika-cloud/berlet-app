@@ -598,9 +598,11 @@ async function run(opts){
    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   var asksOwnDocument=/(lelet|labor|tenyeszt|pdf|dokumentum)/.test(lookupText)&&
    /(lelet(e|em|eim)|mutat|tartalmaz|meselj|20\d{2})/.test(lookupText);
+  var asksHistoricalEvent=/(?:19|20)\d{2}/.test(lookupText)&&
+   /(?:mi\s+tortent|mi\s+volt|esemeny|ujraeleszt|szivmegallas|koma)/.test(lookupText);
   var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
    .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
-  if(asksOwnDocument&&researchPlan.clinical&&!verifiedOriginals.length)
+  if((asksOwnDocument||asksHistoricalEvent)&&researchPlan.clinical&&!verifiedOriginals.length)
    throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
@@ -626,13 +628,14 @@ async function run(opts){
   // No automatically expanded PDF retrieval when original-document consent is absent.
   var mkbQARequested=clinicalPilot&&typeof URLSearchParams==='function'&&
    new URLSearchParams(window.location.search).get('hhMkbQA')==='v1';
-  var mkbQAMode=mkbQARequested&&data.originalDocumentsConsent===true;
+  // The standing PDF grant does not replace this question's one-shot MKB approval.
+  var mkbQAMode=mkbQARequested&&mkbSourceUsed>0&&data.originalDocumentsConsent===true;
   var aiRoute=mkbQAMode?'/functions/v1/hh-mkb-search-preview':
    narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
    narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
   if(mkbQAMode)print('🧪 MKB QA v1: külön, dokumentumhozzájárulással indított keresési teszt; az éles AI-végpont változatlan.');
-  else if(mkbQARequested)print('🛡️ MKB QA csak kifejezett eredeti PDF-hozzájárulással fut; az éles végpont marad.');
+  else if(mkbQARequested)print('🛡️ MKB QA csak az ehhez a kérdéshez külön jóváhagyott PDF-idézetekkel indul; az éles végpont marad.');
   if(narrativeQAMode)print('🧪 '+narrativeQAVersion+' kísérleti ellenőrzés: az éles v403 válaszmotor változatlan.');
   var replyData=data,simplified=false;
   var response=await svc.stream(aiRoute,replyData,ctrl.signal);
