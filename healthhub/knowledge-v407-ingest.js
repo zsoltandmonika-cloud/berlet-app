@@ -485,6 +485,85 @@ async function run(p,opts){
   return await audit(p);
  }finally{st.running=false;st.current='';emit()}
 }
+/* v696 · Read-only first-page forensic check for failed originals.
+   This cannot certify a document, insert extracted text, fix a diagnosis,
+   or access other profiles. Reports ONLY categorical, aggregate outcomes. */
+function mkbInvalidUnicodeV696(text){
+ if(/\u0000/.test(text))return true; // PostgreSQL text rejects embedded NUL.
+ for(var i=0;i<text.length;i++){
+  var c=text.charCodeAt(i);
+  if(c>=0xD800&&c<=0xDBFF){
+   var next=text.charCodeAt(i+1);
+   if(!(next>=0xDC00&&next<=0xDFFF))return true;
+   i++;
+  }else if(c>=0xDC00&&c<=0xDFFF)return true;
+ }
+ return false;
+}
+async function diagnoseFailedV696(p,opts){
+ active(p);
+ if(st.running)throw Error('Már folyik dokumentumfeldolgozás.');
+ var limit=Math.min(11,Math.max(1,Number(opts&&opts.maxDocs)||11));
+ var docs=await readDocuments(p);
+ active(p);
+ var failed=docs.filter(x=>x&&x.profile_key===p&&
+  x.status==='failed'&&x.text_integrity_status==='mismatch'&&
+  /^drive_[A-Za-z0-9_-]{8,200}$/.test(String(x.source_file_id||'')));
+ var files=await listFiles(p);
+ active(p);
+ var byFile=new Map(files.map(x=>['drive_'+x.id,x]));
+ var counts=Object.create(null),tested=0;
+ function add(key){counts[key]=(counts[key]||0)+1}
+ for(const d of failed.slice(0,limit)){
+  active(p);
+  var file=byFile.get(d.source_file_id);
+  if(!file){add('source_not_in_authorized_drive');tested++;continue}
+  var pdf=null,page=null,stage='download',outcome='';
+  try{
+   var bytes=await blobFor(file,p);active(p);
+   stage='sha256';
+   var sourceHash=await hash(bytes);active(p);
+   if(!/^[a-f0-9]{64}$/.test(String(d.sha256||''))||sourceHash!==d.sha256){
+    outcome='source_sha_mismatch';continue;
+   }
+   stage='pdf_library';
+   var lib=await pdfjs();active(p);
+   stage='pdf_parse';
+   pdf=await lib.getDocument({data:new Uint8Array(bytes)}).promise;active(p);
+   if(!pdf||pdf.numPages<1){outcome='pdf_page_missing';continue}
+   stage='page_read';
+   page=await pdf.getPage(1);active(p);
+   stage='text_extract';
+   var content=await page.getTextContent();active(p);
+   var text=rawText(content&&content.items||[]);
+   if(mkbInvalidUnicodeV696(text)){outcome='embedded_text_unicode_invalid';continue}
+   if(text.length>60000){outcome='very_long_page_requires_review';continue}
+   if(text.length>=80){outcome='extraction_readable_storage_not_proven';continue}
+   stage='graphics_check';
+   var ops=await page.getOperatorList();active(p);
+   var blank=await certifiedEmptyPdfPage(page,text,ops,lib);
+   outcome=blank?'certified_blank_page_requires_review':'ocr_or_visual_fallback_needed';
+  }catch(_){
+   active(p); // Permission/profile loss must never be hidden as file failure.
+   outcome=stage==='download'?'original_download_failed':
+    stage==='sha256'?'source_sha_check_failed':
+    stage==='pdf_library'?'pdf_library_unavailable':
+    stage==='pdf_parse'?'pdf_parser_rejected':
+    stage==='page_read'?'page_load_failed':
+    stage==='text_extract'?'text_extraction_failed':
+    stage==='graphics_check'?'graphics_inspection_failed':'unknown_read_failure';
+  }finally{
+   if(page)try{page.cleanup()}catch(_){}
+   if(pdf)try{await pdf.destroy()}catch(_){}
+  }
+  active(p);
+  add(outcome||'unknown_read_failure');tested++;
+ }
+ active(p);
+ return {profile:p,totalFailed:failed.length,tested:tested,
+  notTested:Math.max(0,failed.length-tested),categories:counts,
+  mode:'read_only_no_pdf_or_text_persisted'};
+}
 async function listVisuals(p,docId){
  if(!/^[a-f0-9-]{36}$/i.test(String(docId||'')))throw Error('Hibás dokumentumazonosító.');
  active(p);
@@ -506,7 +585,7 @@ function scheduleAuto(){
 window.addEventListener('healthhub:lena-archive-complete',scheduleAuto);
 window.addEventListener('healthhub:lena-context-updated',scheduleAuto);
 window.addEventListener('healthhub:central-auth-changed',scheduleAuto);
-window.HH_KB_INGEST_V407={run:run,stop:function(){st.stop=true;emit()},audit:audit,
+window.HH_KB_INGEST_V407={run:run,diagnoseFailed:diagnoseFailedV696,stop:function(){st.stop=true;emit()},audit:audit,
  listFiles:listFiles,listVisuals:listVisuals,imageBlob:imageBlob,
  enable:enable,enabled:enabled,getState:function(){return Object.assign({},st)}};
 })();
