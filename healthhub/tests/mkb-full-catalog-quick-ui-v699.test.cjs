@@ -68,7 +68,8 @@ test('tampered high-scoring PDF page is never forwarded',async()=>{
  const f=fixture(164);f.pages.find(x=>x.document_id===uuid(4042)).text_sha256='f'.repeat(64);
  const r=await full.rankPages(full.catalog(f.documents,f.sources,'monika'),f.pages,'Entresto adagolás',sha,ranker);
  assert.ok(r.integrityRejected>0);
- assert.ok(r.selected.every(x=>x.title!=='Entresto adagolás.pdf'));
+ assert.ok(r.selected.every(x=>!(x.title==='Entresto adagolás.pdf'&&x.page===1)));
+ assert.ok(r.selected.some(x=>x.title==='Entresto adagolás.pdf'&&x.page===2));
 });
 test('quick questions are per-profile, editable, scrollable and never auto-submit',()=>{
  assert.match(quick,/hh-ask-quick-v699-/);
@@ -93,7 +94,7 @@ test('both Ask histories skip redundant render and never flash loading on every 
  assert.match(historyLocal,/hhHistoryRenderedFingerprint/);
  assert.match(historyLocal,/hhHistoryRenderedProfile===p/);
  assert.match(historyLocal,/list\.scrollTop=preservedScroll/);
- assert.doesNotMatch(historyLocal,/list\.textContent='Betöltés…';\s*try\{/);
+ assert.match(historyLocal,/if\(!list\.dataset\.hhHistoryRenderedProfile&&!list\.children\.length\)/);
  assert.match(historyCloud,/hhHistoryRenderSignature===signature/);
  assert.match(historyCloud,/if\(current&&current\.textContent!==statusText\)/);
  assert.match(historyCloud,/updatedList\.scrollTop=scroll/);
