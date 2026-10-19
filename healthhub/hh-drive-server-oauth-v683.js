@@ -66,8 +66,14 @@ async function refresh(){
    status.textContent='🛠 A szerveroldali OAuth előkészítve. A Google Cloud kliens és a Supabase-titkok konfigurálása szükséges.';
    btn.hidden=true;
   }else if(state.connected){
-   status.textContent='🔐 Titkosított, tartós Google-engedély tárolva a szerveren. Az automatikus Drive-adatútvonal aktiválása külön ellenőrzés után történik.';
+   // Validate a real server-side refresh and Drive identity, not just existence of a saved row.
+   status.textContent='⏳ Titkosított engedély mentve. Google-hozzáférés szerveroldali ellenőrzése…';
    btn.textContent='🔄 Google-engedély újrakiadása';btn.hidden=false;
+   var verified=await send('check');
+   if(version!==request||!el(ID))return;
+   status.textContent=verified&&verified.connected===true&&!verified.reauthorizationNeeded
+    ? '✅ Tartós Google-engedély aktív. A szerver önállóan megújította a hozzáférést és ellenőrizte a Google-fiókot. A Drive-adatútvonal átállítása még külön feladat.'
+    : '⚠ A titkosított engedély megvan, de a szerveroldali Google-hozzáférés nem igazolható. Használd a Google-engedély újrakiadása gombot.';
   }else{
    status.textContent='🔒 A szerver készen áll. Egyszeri Google-jóváhagyás szükséges.';
    btn.textContent='🔐 Egyszeri Google-engedélyezés';btn.hidden=false;
