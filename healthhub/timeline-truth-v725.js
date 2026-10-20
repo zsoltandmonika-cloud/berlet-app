@@ -275,11 +275,11 @@
   const original=w.show;
   if(typeof original==='function'&&!original.__hhTruth725){
    const wrapper=function(page){const result=original.apply(this,arguments);
-    if(page==='timeline')setTimeout(()=>refresh(false),0);return result;};
+    if(page==='timeline')setTimeout(()=>{if(profile!==pkey()||Date.now()-lastFetch>1200)refresh(false)},0);return result;};
    wrapper.__hhTruth725=true;w.show=wrapper;
   }
   const obs=new MutationObserver(mutations=>{
-   if(mutations.some(m=>m.attributeName==='class')&&active()&&(profile!==pkey()||!loaded||Date.now()-lastFetch>45000))refresh(false);
+   if(mutations.some(m=>m.attributeName==='class')&&active()&&(profile!==pkey()||Date.now()-lastFetch>45000))refresh(false);
   });
   obs.observe(el('timeline'),{attributes:true,attributeFilter:['class']});
   w.addEventListener('healthhub:profile-changed',onProfile);
