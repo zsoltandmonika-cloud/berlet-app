@@ -12,6 +12,9 @@ Mérce: a Golden Standard Mónika-történet, az eredeti orvosi tényekkel össz
 - Eredeti PDF-bájtok, képek, kizárt EKG-k nincsenek továbbítva.
 - Modell: gpt-6.1-sol, OpenAI Responses API, high reasoning, store:false, 25k összesített (gondolkodási + látható) kimeneti token plafon.
 - A modell egyetlen nagy kontextusú feldolgozásban készíti el a választ. A D1:p1 formájú idézett oldalkódok létezését a backend ellenőrzi, de ez NEM klinikai szaklektorálás.
+- A szerver minden nem üres oldalon újraszámolja a SHA-256-ot, és eltérésnél nem küld anyagot a modellnek. Az olvashatatlan (üres) oldalt jelzi, az ott nem lévő tényt nem találhatja ki.
+- A visual_candidate / needs_review oldalak kizárólag **szövegesen** használhatók. EKG, ábra és más képi információ sem a modellben, sem a SHA-256 ellenőrzésben nincs klinikailag validálva.
+- 2026-10-20-i, kizárólag számlálókból végzett ellenőrzés: Mónika 269/269 oldalának szövege hash-egyező, 135 oldal képi tartalom miatt külön szemrevételezendő; Zsoltnál 67/68 olvasható és hash-egyező szöveges oldal, 1 üres, szöveg nélkül.
 - A meglévő hh_ask_lena_usage óránkénti limitet alkalmazza; új klinikai naplót nem készít.
 
 ## Első Golden Standard összehasonlítás
