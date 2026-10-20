@@ -113,7 +113,7 @@
     if(event==='error')throw Error('Kutatási hiba: '+String(row.reason||'ismeretlen').slice(0,100));
     if(event==='delta'){
      body+=String(row.text||'');
-     if(body.length>90000)throw Error('A válasz meghaladta a méretkorlátot.');
+     if(body.length>85000)throw Error('A válasz meghaladta a méretkorlátot.');
      return;
     }
     if(event==='done'){
@@ -139,7 +139,7 @@
    if(buffer.trim())parseSse(buffer,consume);
    if(!verified)throw Error('A szerver nem erősítette meg a teljes választ.');
    if(activeProfile()!==p)throw Error('Profilváltás: a válasz nem jeleníthető meg.');
-   renderAnswerText(body,90000);result.classList.add('on');
+   renderAnswerText(body,85000);result.classList.add('on');
    const foot=el('hhAi331Foot');
    if(foot)foot.textContent='🧠 Medical Master v710 · '+model+' · '+audit.sourceDocuments+
     ' dokumentum · '+audit.sourceExplanations+' korábbi Léna-magyarázat · '+
