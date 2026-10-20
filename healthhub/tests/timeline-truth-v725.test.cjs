@@ -91,6 +91,12 @@ for(let i=1;i<=8;i++){
  const tone=window.HH_OBSERVATION_RAG_V728.classify('urine',i).tone;
  assert.equal(tone,i<=3?'green':i<=5?'amber':'red');
 }
+const nutritionIndex=fs.readFileSync(path.resolve(__dirname,'../nutrition/index.html'),'utf8');
+const nutritionSource=fs.readFileSync(path.resolve(__dirname,'../nutrition/nutrition-preview-v592.js'),'utf8');
+assert(nutritionIndex.includes('id="hhRhythmSummary728"'),'Napi ritmus must expose BS/AJ without expansion');
+assert(nutritionSource.includes('renderBodySummary(rows);'),'Napi ritmus should refresh summary whenever records change');
+assert(nutritionIndex.includes('nutrition-preview-v592.js?v=729-summary-visible'),'Napi ritmus must not reuse stale browser JS');
+assert(nutritionIndex.includes('hh-observation-rag-v728.css?v=729-summary-visible'),'Napi ritmus must not reuse stale CSS');
 assert(index.includes('hh-observation-rag-v728.js'),'Shared RAG must load in Timeline');
 assert(index.includes('hh-observation-rag-v728.css'),'Shared style must load in Timeline');
 console.log('PASS v728: verified diary and unchanged kcal, inline BS/AJ, 15 RAG grades, no expansion, profile isolation');
