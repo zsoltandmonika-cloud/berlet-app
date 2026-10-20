@@ -85,3 +85,36 @@
 #entryDialog[data-hh-picker-mode="portion"] .field:has(#foodSelect),
 #entryDialog[data-hh-picker-mode="portion"] .hh-touch-picker{display:none!important}
 #entryDialog[data-hh-picker-mode="portion"] #entryTitle{font-size:18px}
+
+
+/* v716 · Compact three-up entry tiles + editor underneath, all screen sizes. */
+.hh-bevitel-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.hh-bevitel-grid .hh-bevitel-tile{height:clamp(130px,19vw,195px);border-radius:17px}
+.hh-bevitel-grid .hh-bevitel-copy{left:10px;right:12px;bottom:12px;gap:3px}
+.hh-bevitel-grid .hh-bevitel-icon{height:33px;width:33px;font-size:18px;margin:0 0 1px}
+.hh-bevitel-grid .hh-bevitel-title{font-size:clamp(13px,1.65vw,20px)}
+.hh-bevitel-grid .hh-bevitel-copy small{font-size:clamp(9px,1.12vw,11px);line-height:1.3}
+.hh-bevitel-grid .hh-bevitel-next{width:25px;height:25px;bottom:13px;right:7px;font-size:21px;opacity:.84}
+.hh-bevitel-admin-row{display:flex;align-items:center;justify-content:space-between;gap:9px;
+ margin:11px 1px 0;padding:9px 11px;border-radius:13px;border:1px solid rgba(143,191,236,.27);
+ background:rgba(12,33,62,.75);color:#accbe6;font-size:11px}
+.hh-bevitel-admin-row span{min-width:0}
+.hh-bevitel-admin-row .hh-bevitel-main-edit{flex:none}
+.hh-bevitel-picker-card[data-theme="cookbook"] .hh-bevitel-picker-art{background:#241a3d}
+.hh-bevitel-picker-card .hh-cookbook-hero{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:24% center}
+.hh-bevitel-picker-card[data-theme="cookbook"] .hh-bevitel-picker-art:before{z-index:1;inset:0;border:0;border-radius:0;transform:none;background:linear-gradient(0deg,#160d2fa9,transparent 50%)}
+@media(max-width:540px){
+ .hh-bevitel-grid{gap:7px}
+ .hh-bevitel-grid .hh-bevitel-tile{height:clamp(125px,35vw,155px);border-radius:15px}
+ .hh-bevitel-grid .hh-bevitel-copy{left:7px;right:6px;bottom:9px;gap:3px}
+ .hh-bevitel-grid .hh-bevitel-title{font-size:clamp(13px,3.65vw,17px)}
+ .hh-bevitel-grid .hh-bevitel-copy small{display:none}
+ .hh-bevitel-grid .hh-bevitel-icon{width:32px;height:32px;font-size:17px}
+ .hh-bevitel-grid .hh-bevitel-next{right:6px;bottom:8px;width:19px;height:19px;font-size:17px}
+ .hh-bevitel-admin-row{font-size:10px}
+}
+@media(max-width:360px){
+ .hh-bevitel-grid .hh-bevitel-tile{height:122px}
+ .hh-bevitel-grid .hh-bevitel-title{font-size:12.5px}
+ .hh-bevitel-grid .hh-bevitel-icon{width:29px;height:29px}
+}
