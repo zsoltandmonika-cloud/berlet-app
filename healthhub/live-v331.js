@@ -701,15 +701,27 @@ async function run(opts){
         !solAudit.citationIdsValidated||solAudit.sourcePages<1||solAudit.sourceDocuments<1))
      throw Error('A Sol-kutatás teljes forrásellenőrző jelentése hiányzik. A válasz nem tekinthető késznek.');
     var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified&&!solPreviewMode);
-    renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(solPreviewMode?'. Sol v705: '+solAudit.sourceDocuments+' eredeti dokumentum '+solAudit.sourcePages+' ellenőrzött szöveges oldalát a szerver a teljes kutatásban átadta a modellnek; a hivatkozásazonosítók létezését ellenőrizte, az orvosi állításokat NEM hitelesítette.':
-       (data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.'))+
+    if(solPreviewMode){
+     // Dedicated, factual Sol status: do not append any of the legacy v395
+     // excerpt counts, old source panels or provenance labels.
+     renderAnswerText(answerText);complete=true;
+     var solFooter=el('hhAi331Foot');
+     if(solFooter)solFooter.textContent='🧪 Golden Standard Sol v705 · GPT-6.1 Sol · '+
+      solAudit.sourceDocuments+' eredeti dokumentum, '+solAudit.sourcePages+
+      ' teljes szöveges oldal · '+Number(solAudit.citedPages||0)+
+      ' hivatkozott oldal · forrásazonosítók ellenőrizve, orvosi tények NEM hitelesítve · '+
+      new Date(item.generatedAt).toLocaleString('hu-HU');
+     print('HH Sol v705 kutatás befejeződött. A forrásazonosítók létezését ellenőriztem; orvosi szakellenőrzés még nem történt.');
+     return;
+    }
+    renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
      (intelligence.trendsQuality?' · 📈 I-03: 7 napos lefedettség (lépések/alvás/pulzus): '+intelligence.trendsQuality.stepCoverage7+'% / '+intelligence.trendsQuality.sleepCoverage7+'% / '+intelligence.trendsQuality.pulseCoverage7+'%; csak lezárt napok.':'')+
      ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.'+
       ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
       (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
-      (!solPreviewMode&&!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
+      (!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (mkbSourceUsed?' · 📚 I-09: '+mkbSourceUsed+' külön engedélyezett MKB-leletidézet továbbítva (szakmai ellenőrzésre vár)':' · 📚 I-09: nem történt új MKB-forrásátadás')+
@@ -725,13 +737,13 @@ async function run(opts){
         ' · forrásalapú pótlás: '+(audit&&audit.qaSourceFallbackUsed?'igen':'nem'):'');
     }
     var provenance=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
-    if(!solPreviewMode&&provenance&&provenance.provenance){
+    if(provenance&&provenance.provenance){
      var added=provenance.provenance(replyData,true,simplified?'simplified':'standard');
      el('hhAi331Foot').textContent+=' · '+added;
      var addedBox=el('hhAi331AddedValue');
      if(addedBox){addedBox.textContent=added;addedBox.hidden=false;}
     }
-    if(!simplified&&!solPreviewMode){
+    if(!simplified){
      var proof=clinicalEngine.createPanel(clinical,p);
      if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     }
