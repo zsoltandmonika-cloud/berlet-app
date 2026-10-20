@@ -111,7 +111,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=650-bristol-photo-edit">
 <link rel="stylesheet" href="./hh-bristol-wheel-v649.css?v=650-editable-photos">
 <link rel="stylesheet" href="./hh-urine-color-wheel-v650.css?v=650-apple-juice">
-<link rel="stylesheet" href="./hh-observation-rag-v728.css?v=728-inline-bs-aj">
+<link rel="stylesheet" href="./hh-observation-rag-v728.css?v=729-summary-visible">
 
 </head>
 <body>
@@ -169,7 +169,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <div class="row"><h2>🧠 Léna Nutrition Insights <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><div class="controls"><button type="button" class="mini" id="insight7">7 nap</button><button type="button" class="mini" id="insight30">30 nap</button></div></div><section class="glass" style="padding:14px 16px"><div class="status" id="insightPeriod">7 napos naplóelemzés</div><p id="insightText" style="font-size:13px;line-height:1.55;color:#d6e8f7;margin:10px 0">A napló alapján jelennek meg a személyes mintázatok.</p><small class="muted">Csak ténylegesen rögzített napokból számol. A hiányzó nap nem nulla kalóriát jelent, és nem feltételez ok-okozati kapcsolatot.</small></section>
 <div class="row"><h2>📒 Napi napló</h2><div class="controls"><input type="date" id="logDate" aria-label="Napló dátuma" class="mini" style="background:#18314b;color:white;max-width:150px"><button type="button" class="mini" id="newFood">+ Saját étel</button></div></div>
 <div class="glass log" id="log"><p class="empty">Még nincs rögzített bevitel.</p></div>
-<details class="glass section" id="bodyDetails"><summary>BODY BALANCE · Napi ritmus</summary><p>Diszkrét emésztési és kiválasztási napló. Egy érintéses időbélyeggel, részletek opcionálisak. Ezeket a bejegyzéseket nem számoljuk a kalóriaegyenlegbe.</p><div class="details-actions"><button type="button" class="mini" id="urineBtn">Vizelet rögzítése</button><button type="button" class="mini" id="stoolBtn">Széklet rögzítése</button><button type="button" class="mini" id="bodyHistoryBtn">Mai események</button></div><div class="muted" id="bodyLog" style="margin:10px 0"></div></details>
+<details class="glass section" id="bodyDetails"><summary>BODY BALANCE · Napi ritmus <span id="hhRhythmSummary728" class="hhRhythmSummaryInline" aria-label="Mai BS és AJ megfigyelések"><span class="hhRhythmSummaryBadge">BS —</span><span class="hhRhythmSummaryBadge">AJ —</span></span></summary><p>Diszkrét emésztési és kiválasztási napló. Egy érintéses időbélyeggel, részletek opcionálisak. Ezeket a bejegyzéseket nem számoljuk a kalóriaegyenlegbe.</p><div class="details-actions"><button type="button" class="mini" id="urineBtn">Vizelet rögzítése</button><button type="button" class="mini" id="stoolBtn">Széklet rögzítése</button><button type="button" class="mini" id="bodyHistoryBtn">Mai események</button></div><div class="muted" id="bodyLog" style="margin:10px 0"></div></details>
 <details class="glass section"><summary>⚙ Saját beállítások és szinkron</summary><p>A reggeli és délutáni cappuccino pontos receptje profilonként szerkeszthető. Egy kockacukor tömege, a tej típusa, a fahéjas cukor és a babapiskóta is módosítható.</p><div class="details-actions"><button type="button" class="mini" id="editMorning">☕ Reggeli recept</button><button type="button" class="mini" id="editAfternoon">☕ Délutáni recept</button><button type="button" class="mini" id="customUnit">+ Saját mértékegység</button><button type="button" class="mini" id="syncNutritionNow">↻ Dropbox-szinkron</button></div><p id="dataPolicy">A Nutrition napló profilhoz kötötten, a HealthHub meglévő Dropbox Cloud Vault kapcsolatával szinkronizál: /HealthHub/profiles/[profil]-nutrition.json. A böngésző az offline adatokat is megőrzi. Dropbox-kapcsolat nélkül csak helyi mentés történik; a szinkronizálás állapota a főoldalon látható.</p></details>
 <div class="notice">Az alap élelmiszerértékek tájékoztató becslések, a recept adagjai módosíthatók. A kalóriacél személyre szabott, az aktivitás külön jelenik meg és nincs automatikusan levonva. Nem orvosi táplálkozási javaslat.</div>
 <nav class="hhBottomNav" id="nutritionHHNav" aria-label="HealthHub alsó navigáció">
@@ -288,7 +288,7 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./nutrition-cloud-v626.js?v=644-shared-metadata"></script>
 <script defer src="./nutrition-image-v641.js?v=644-shared-image-cache"></script>
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
-<script defer src="./nutrition-preview-v592.js?v=728-inline-bs-aj"></script>
+<script defer src="./nutrition-preview-v592.js?v=729-summary-visible"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=722-quick-original"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=723-food-meals-top"></script>
 <script defer src="./hh-bristol-wheel-v649.js?v=650-bristol-photo-edit"></script>
