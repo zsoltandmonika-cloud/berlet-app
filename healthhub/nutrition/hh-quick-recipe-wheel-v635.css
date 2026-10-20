@@ -145,15 +145,7 @@
 .hh-quick-edit-sync [data-state]{font-weight:750;min-width:0}
 @media(max-width:400px){.hh-quick-sync-bar{gap:6px;padding:7px 9px}.hh-quick-sync-text{font-size:10px}.hh-quick-sync-button{font-size:10px;padding:7px 8px}.hh-quick-edit-sync{font-size:10px}}
 
-/* v718 · Buddy is the right-hand GyorsNasi CTA instead of the old arrow. */
-#hhQuickLaunch .hh-quick-buddy-button{width:48px;height:48px;flex:0 0 48px;padding:1px;
- overflow:visible;background:radial-gradient(circle,#3b7faa66,#173453cc);
- border-color:color-mix(in srgb,var(--accent) 73%,#c7f4ff)}
-#hhQuickLaunch .hh-quick-buddy-button img{display:block;width:100%;height:100%;
- object-fit:contain;filter:drop-shadow(0 2px 3px #0009);pointer-events:none}
-@media(max-width:400px){#hhQuickLaunch .hh-quick-buddy-button{width:45px;height:45px;flex-basis:45px}}
-
-/* v720 · Buddy replaces the left coffee icon too, with unchanged CTA geometry. */
+/* v721 · Buddy replaces the left coffee icon; the right CTA is the original simple arrow. */
 #hhQuickLaunch .hh-quick-buddy-left{
  display:grid;place-items:center;width:53px;height:54px;flex:0 0 53px;
  font-size:0;filter:none;overflow:visible
