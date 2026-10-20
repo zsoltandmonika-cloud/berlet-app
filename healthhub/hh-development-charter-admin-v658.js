@@ -80,6 +80,8 @@ function mount(){
  '<li>A profil összes ellenőrzött, nem duplikált orvosi oldalszövege kizárólag kérdésenként adott KÜLÖN hozzájárulás után dolgozható fel.</li>'+
  '<li>A szerver ellenőrzi a bejelentkezést és betegprofil-jogosultságot, nincs rejtett forráskibővítés vagy publikus klinikai adat.</li>'+
  '<li>OpenAI GPT-6.1 Sol / high reasoning. Eredeti PDF-fájlok, kizárt EKG-k és képek továbbítása nincs. Túlméretnél csonkítás helyett elutasítás.</li>'+
+ '<li>Minden olvasható oldal SHA-256 lenyomatát az új kérésben újraszámoljuk; eltérésnél nincs AI-adatátadás. A képi tartalom külön felülvizsgálatot igényel, az üres oldalakat nyíltan jelezzük.</li>'+
+ '<li>2026.10.20-i ellenőrzés: Mónika 269/269 szöveges oldala sértetlen, 135 oldal képi tartalma külön ellenőrzendő. Ez nem klinikai validálás.</li>'+
  '<li>Az idézett oldalkód ellenőrzése nem helyettesíti a klinikai tényellenőrzést. Költség és késleltetés csak valós próbával igazolható.</li>'+
  '<li>Rollback: URL-paraméter elhagyása. Dokumentáció: ASK_LENA_SOL_AI_FIRST_V705.md. Státusz: CODED / TESTED / DEPLOYED / LIVE VERIFIED.</li>'+
  '</ul></details>'+
