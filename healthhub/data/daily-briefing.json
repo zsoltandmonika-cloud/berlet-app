@@ -1,225 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-19",
-  "generatedAt": "2026-10-19T11:59:10+02:00",
-  "headline": "A reggel fő témái: Katya Adler: France's government under pressure after weekend of widespread violence; Inside the shadowy world of anti-Putin sabotage from within Russia",
+  "date": "2026-10-20",
+  "generatedAt": "2026-10-20T11:28:43+02:00",
+  "headline": "A reggel fő témái: Suspect arrested after historic town hall set alight during disorder - French media; Ukrainians dying because US restricting intelligence sharing, Zelensky adviser tells BBC",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Katya Adler: France's government under pressure after weekend of widespread violence",
-        "BBC World: Inside the shadowy world of anti-Putin sabotage from within Russia",
-        "BBC World: Alberta heads to polls to decide whether to hold vote on separation from Canada",
-        "BBC World: Kenya pastor accused of ordering parents to starve their children to death faces verdict"
+        "BBC World: Suspect arrested after historic town hall set alight during disorder - French media",
+        "BBC World: Ukrainians dying because US restricting intelligence sharing, Zelensky adviser tells BBC",
+        "BBC World: Seventh day of violent clashes between Albanian protesters and police",
+        "BBC World: Canadian tourist found guilty of animal cruelty after stealing Las Vegas flamingo from enclosure"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Katya Adler: France's government under pressure after weekend of widespread violence",
-        "BBC World: Inside the shadowy world of anti-Putin sabotage from within Russia",
-        "BBC World: Alberta heads to polls to decide whether to hold vote on separation from Canada"
+        "BBC World: Suspect arrested after historic town hall set alight during disorder - French media",
+        "BBC World: Seventh day of violent clashes between Albanian protesters and police",
+        "BBC World: Canadian tourist found guilty of animal cruelty after stealing Las Vegas flamingo from enclosure"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Katya Adler: France's government under pressure after weekend of widespread violence",
-        "BBC World: Inside the shadowy world of anti-Putin sabotage from within Russia",
-        "BBC World: Alberta heads to polls to decide whether to hold vote on separation from Canada"
+        "BBC World: Suspect arrested after historic town hall set alight during disorder - French media",
+        "BBC World: Ukrainians dying because US restricting intelligence sharing, Zelensky adviser tells BBC",
+        "BBC World: Seventh day of violent clashes between Albanian protesters and police"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Eurómilliárdokat költene Magyarország szomszédja, csak maradjanak az amerikai katonák - Portfolio.hu",
-        "MédiaKlikk: Gáspár Laci: Sosem vagy egyedül | Magyarország, szeretlek! zenekara - MédiaKlikk",
-        "Infostart: Eltűnhet az aszály miatt ez a fontos termény Magyarország egyik térségéből - Infostart"
+        "Index.hu: Gazdaság - Magyarország közelebb kerülhet az euróhoz, kulcsfontosságú számot árult el Magyar Péter - Index.hu",
+        "Világgazdaság: Európa legnagyobb vesztese lett Magyarország: súlyos csapás érte a magyar napraforgó-ültetvényeket - Világgazdaság",
+        "Portfolio.hu: Megdőltek a hazai klímamodellek előrejelzései – Hogy fog kinézni 10 év múlva Magyarország? - Portfolio.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Home sellers cut asking prices on 3,000 properties a day",
-        "BBC Business: Musk and Anthropic pledge public share giveaways",
-        "BBC Business: Don't fall for this - how to protect yourself from AI scams"
+        "BBC Business: Job vacancies fall as small firms cut back on recruitment",
+        "BBC Business: Chancellor rejects calls to raise Capital Gains Tax in Budget",
+        "BBC Business: Burnham vows end to 'rip-off parking charges' under new rules"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Musk and Anthropic pledge public share giveaways",
-        "BBC Technology: China's growth accelerates as AI boom helps boost exports",
-        "BBC Technology: Don't fall for this - how to protect yourself from AI scams"
+        "BBC Technology: Revolut outage hits 'multiple services' as thousands of users report app issues",
+        "BBC Technology: Ex-OpenAI worker accused of planting bug had Saudi support, claims prosecutors",
+        "BBC Technology: US bans China's DeepSeek from government in race for AI dominance"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Trump says suspension of Russia sanctions is to keep peace negotiations going (BBC World).",
-        "Figyelmi pont: China's growth accelerates as AI boom helps boost exports (BBC Business)."
+        "Figyelmi pont: Tennis star Svitolina says emotional toll of Ukraine war led to Monfils separation (BBC World).",
+        "Figyelmi pont: China's growth accelerates as AI boom helps boost exports (BBC Technology)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Katya Adler: France's government under pressure after weekend of widespread violence",
-        "BBC World: Inside the shadowy world of anti-Putin sabotage from within Russia"
+        "BBC World: Suspect arrested after historic town hall set alight during disorder - French media",
+        "BBC World: Ukrainians dying because US restricting intelligence sharing, Zelensky adviser tells BBC"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Katya Adler: France's government under pressure after weekend of widespread violence",
+      "title": "Suspect arrested after historic town hall set alight during disorder - French media",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crwyd02yz22vo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cw5yn5e8mezvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Ukrainians dying because US restricting intelligence sharing, Zelensky adviser tells BBC",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmj47yx572z5o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Inside the shadowy world of anti-Putin sabotage from within Russia",
+      "title": "Seventh day of violent clashes between Albanian protesters and police",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6pwgzkj8zzgo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmy4xjlpqgd3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Canadian tourist found guilty of animal cruelty after stealing Las Vegas flamingo from enclosure",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq398rjewd1jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Mission blasts off for Mars to grab a piece of its moon",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmvgxvkv54w1o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Alberta heads to polls to decide whether to hold vote on separation from Canada",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxvgd0ymgzgyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
-    },
-    {
-      "title": "Kenya pastor accused of ordering parents to starve their children to death faces verdict",
+      "title": "Kenya cult leader who told parents to starve children guilty of 191 murders",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/ckd6d2l3dz4xo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Funding shortages force World Food Programme to cut aid to Gaza",
+      "title": "Tennis star Svitolina says emotional toll of Ukraine war led to Monfils separation",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm79plrvpl4vo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ckd7qy12j148o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Trump says suspension of Russia sanctions is to keep peace negotiations going",
+      "title": "Vinted blocks French looters listing stolen goods for sale",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c9p8gz7zx4peo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm8xzrljv72ro?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Major fire at Canada military base leaves four dead, dozens injured",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxj0ly1m3q81o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
+      "title": "Gazdaság - Magyarország közelebb kerülhet az euróhoz, kulcsfontosságú számot árult el Magyar Péter - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQbUVTMHdLODNiejVOd0k5U191dkVWMG1OVTU5dUxVRTRyZTZvazBMX2pTa3lPMUg2N3FCN3NGZW5ONmd5dV9rcHl3cF9GclR5Z3R3VWlmUklreXlmRkZYTjVaNUM3Tm53OEpKNmZDZGJ0aGZmeWpZdFlUZkpYQnh2Q2U4SU5jbERiNklVVFlEdXUzNEw4Sl9wYkJSQXJEVDJlYnNwN0E1WmQ?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Bollywood actor Tiger Shroff survives shooting attempt in Mumbai",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6jdmy872r7vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
+      "title": "Európa legnagyobb vesztese lett Magyarország: súlyos csapás érte a magyar napraforgó-ültetvényeket - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOY0tjd1R0VWtWZDVSQjA5SkdFTi1lVjRNcUZCelpBeTJ3MjZZSGhqTmZLUWEtLU1TVjl1eUJ5RE5fOVVoYjhITEZ5U0p3OUJQbUVqcnJMZngxd0d0TXdTY0lMNUYzRFo0UFA2ZWVKNGF5cUV6SEtFdF9PZkQxOWc5cmxkZVVKTHpxelpQN3lGTzM?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Eurómilliárdokat költene Magyarország szomszédja, csak maradjanak az amerikai katonák - Portfolio.hu",
+      "title": "Megdőltek a hazai klímamodellek előrejelzései – Hogy fog kinézni 10 év múlva Magyarország? - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNNkFDejFZcERQZm5JRDlFT1UxMWxvMDNvRVN1U1hPSkRXSFA2S3M1S2h4bmNDdzN4WmJ4VlNDWW9kbUtuQTBBTGlHSHdtcEg1Ny0wbWk2RFgtUFNsV2l1YmxlMXA2dHVIclVBUTc3UVJGczE0bDFjemF5QmluaTFsMGNvRHpJSDhyb0hIMFZiTGNZcHVyMFl3QTB1eXc5ZmNYOGYydHV6dWpNN3NneUNTWlUxSzgza2ZKU0t3Vm5uaG9td1dkLWtLTHNzcTnSAdIBQVVfeXFMT3JBNWZ3Sml1TjZLYjB6aFRweVBKT0paY3VXcklqaHhjcU93NWFfTkxqUWhDTmhFN09fRjl5TEdwRDd3a0V3WGZHdFo1bGhGd3BzS0h3TFFmWWRpWXZSR2Y4QkhNWktJOFJBV3JNdHdUYzQ1WlZYRHVQZ2pPbWhpcFlUU3BZVWxTaVpmRkNTTzRrRGEySnhZNjBsU0lWOEMxZHRYcnRxeXFOb3Z0RjZidUJLQnIxZE01UlJDR0tmRTFObHVSUG04OFdtZ2lnbktIUnhB?oc=5",
-      "publishedAt": "2026-10-19"
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxPdjhhMHhPTEFGT1NjUWs2SkRYWUdjWGcwTGZubmM0NHkxa3hRVDN5aGJVcWwxbUJodUNwSmlaeFVrZjdTQmFicHVyTzFLWGI1SDVGZzVtQlY1Rnd1bVc4Um5FWU9SR0c4UnNGdUxKNlJrbHAzOW5YM1A4VHNqNU5rWU1BM1ZfY0tSNC1pdWY1VVh1cTZQNFd3bHp2U1VfOS1pWlVPVUM1bTRSVkUzdUtaU3NOMHJGZnphZ2NxZ2c1QXo3M1d6SFQyUUFTRHh6Y2JaMU5n0gHYAUFVX3lxTE9wUUNXeGtIcENCdHVfN3ZTV1o0cUJZWkNDUjZLV1BQVWZoVHZHblNILWl5YXY4VGtzNHp1cEhyNmJBTktsTmRzWkJQTHJjM0tQRUxYVmJkN1JabXNZa3JLaTM1NDZ2U0dBMjgtcUJaZEhtaVI3OTFOOEE3UFkwREFwS3FpdE9oRURMRDVnNWZlRHFpRnQxM3ctRE1XXzY0RzlzQUQ5WTQyOU12Wlp1Z1RyY0hNQk1ydmNDR3k3aUw2Z2wtR3h5MVk4MFFFdlNpeFdMV3JwRnFQNA?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Gáspár Laci: Sosem vagy egyedül | Magyarország, szeretlek! zenekara - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQQWU5YUhReFJxcXVMejYzbjk2aHFld3psLTR6TU5oNWJ5S2VFZU9paFp3SUZMMWQtY3F3SHBHemlsWW1zcV8wZGxSMmFiWDBaOHJ3RXNYVllmSUpRLXg5SDhKV0xYVTlJbDdhWW1UYUpUbU9JSzJDSDVJN2Ztc2dQVFBDSDRFZXJBMFVrUjRvNFd5bmFRV2VfQ2c4aDMyNG9uZDdN?oc=5",
-      "publishedAt": "2026-10-19"
+      "title": "Megvan Magyarország legszegényebb települése - Startlap",
+      "publisher": "Startlap",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPb2tCaWo1R1lnT2RmUnZIZUhTQXNDZHY3UTBCOUNSeTloaEQ0X0JjdEhuem1QNnVEeGlnNGFGT2NqNVF3Y3V0RnhmZEMwRXppYS1kNEtOZjFSVHg2eGNfZFpndnowNDVtT0prQ2hVVXBKT2N6ajJsb3RQOWw4ekE3QXU1WG8?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Eltűnhet az aszály miatt ez a fontos termény Magyarország egyik térségéből - Infostart",
-      "publisher": "Infostart",
-      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQYlpwMkhLWXo0TVR3OXpJMFB5Zi1ZNHhRcVlEcG81OEFqZlRCMnBqWkFoam5za0phUmNfSlpnQm1OdDUxOG11TUFlVGtDakY1S25RQzRLd1ItMERUYW9SdzFJNERILWJGcE11cFZwQmNRN0l3bWpPOW9vY1k4MEVZZGszUkJDZGdkNzJzbHN2ZEV2enVKcDJOX016YzVNWERDUHVjZ3RTYnNkdG9DTUNIZTNtakE?oc=5",
-      "publishedAt": "2026-10-19"
+      "title": "Magyarország – időjárás most, települések, statisztika - MetNet",
+      "publisher": "MetNet",
+      "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9JOWx3YlA0MlhPM0xCTVdzMnBqR1UyT3F1OWdKZ3FGN2FIczlQcE4wUzNHZFBUTXdud2hrcEhCWlYtc2hFSzRVSldhd3ZvREpmR0JN?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Magyarország szerte is bombariadók vannak az iskolákban - Szabad Magyar Szó",
-      "publisher": "Szabad Magyar Szó",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNbFd2eDZTTml3T0ZyaEFzSzVGVzcxYVVPd3RYUDJ4YW9BMUo2eEFjY2FBV2JqbWhWc3FvbE9QeDYwNm9jb1VNT2htcXJJZk5xR1FRNUw0djRVUHluRGJYbzhFaEh5V0dLWktpeE9NcHNpaDFKLUhkQ2RtWkNPXy0wVkl5UmUtY1l2UGRwOVE1V2Q?oc=5",
-      "publishedAt": "2026-10-19"
+      "title": "Magyar Péter: Magyarország újjáépítésének lehetőségét teremti meg a jövő évi költségvetés - Vajdaság MA",
+      "publisher": "Vajdaság MA",
+      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQb1R6eEQwQWFxWWw5RWtuMENWaDY1bEZZZV9PVVBJWGttemk3UnVmSG15RWJnNmt0VE5WNXBveTJKdU5pR01PdmYyNDlkYWpIdERsd1hNc2xzNjVFSXoxeXZLWUlfNjkzUFV2cEpsc1JYN1E1UmtLdmtReVpJejlzRjFtQ0IwN3JxcWQzZnMzTlRlYUZudDAxcFpuSUQzdVYyTFVyTTYwQ0VBRXZEZi1BMWJQRG9mMGJKM2JQci1kVGpLMWI5bHpLeVhERjNZUDdfazYwZExBYw?oc=5",
+      "publishedAt": "2026-10-20"
     },
     {
-      "title": "Átláthatóbb, ki és mire nyert EU-s forrást a lakóhelyén - Magyarország Kormánya",
+      "title": "Magyar Péter: Magyarország újjáépítésének lehetőségét teremti meg a jövő évi költségvetés - Nemzeti Hírügynökség",
+      "publisher": "Nemzeti Hírügynökség",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNa1RBMGlxM29rc1gtTGFIU09RRHdzSEktb01NNW5DSHVYMWgxcTAwWUJjT3E4RlVxQTZwR2xBVXV1cmxqSVFjMXlDbWpYa25aRmJuVEllMWNROXVDSG5kbGs4V0hjXzQ0YkliV085NnM4aGxPd2RYU1V2STB4N0dUTWxwckpjd2dXcjlwOXZweklVaHplcTY0Q1YyTERzVlhaeFhJTjhtTTU?oc=5",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Igazságosság és fejlődés: a rendszerváltás első költségvetése - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNeTdoeUdkS3RnNGRJMEJLTUlXNEZ3N1hzeEhTQ0tpaGNUYjdQeUgyT3AzbUNWMV9rR2FoUWZPWXVGT3FnY1ljMnlacjhxZlVkSndXd3VqXzRqVUJubEJrODg1UEtxNW1kSkgzU19fRVZLMWtvbmhIUklMS2x6T3ZFcWZab1JEdw?oc=5",
-      "publishedAt": "2026-10-18"
-    },
-    {
-      "title": "Siralmas állapotban vannak a vonatok Magyarország szomszédjában, óránként 45 kilométert sem tesznek meg - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxPc1VZWG9Bd2JTTUdxOFA0cjUyaTc5YWJLLWJINmlfYWxjVklJRTB2OFFzdHJfT1lzSjV3MjlXTDJjOFNWa29UTXB1VWRxbjc4QzVfTVJJYlhGVzk3YXVoN2Z4NXRPMDhCRWJyMnJYOHptN25Xa1ZzamJpdzBVdzBDbHhxZDNZWXJKOGJiT1hUbnRRbF9iZzJzclQtcFhfWWZXM3BfTWZzME1IeGE2aThQNFJIYm1ISGd2cGc1dXJKMWMweGhnLWlLNXJ6cnc5dW14eUI2cC1NTUt6cGZhMlNDdDRxR2XSAeoBQVVfeXFMT2JjNkZCNVlQVFFXNDhBVkxUQW9xZXFtUDFrSnZHWXpEaTFsNXFwcU10NU1ELTJtZjlILW9nYnRNSURXelRhSFctdWtDMEI4WVl0bXZlenZObzhmMnNoUEtzOVh2RENhOTZjSlZlZ21nLV9GajB1SHcwTVctb1JVRDd2RW1zWXJKTXBrajF3YnlPZm1DcnN1dHdqcFhBOHhjSGJTSnhnYnZabWJaaDlmNWswY2NLeW1qVE51aHhhU2YzX0t2bGEtX3NJNFpCNFNMZERIcnc3cG42T2FJdFJLZFp2b1ZJT0h3dFV3?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOQ29XNGppM0t4dHBDVk4tLWdiWjZJSERQejhUdUZfcHBYZFFGU1Vjblo4WDJ4RHZULXpNd1RkcktvLUszN1E0UjhHck5tc1dSakk4dmc4SXc4ekw5M0VHWHdyckVJeDc1WlFtTGx2Mkp0ZGxETmxJb2cwc1RnYjFlV3I5SGNNUlRZQ19JVzRB?oc=5",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Pálinkafőzés: mit enged Románia, és mit Magyarország? - Magyar Mezőgazdaság",
-      "publisher": "Magyar Mezőgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOREZxVm9PamFJMHR1U1VrdXp2bVZrakFRc05JYmxiU01PV1RIcXpQbzR0bzVkSnhJVEwwNGxmNE1GcnNyU0QzUTV6Rjh6VmxRU0JOZjM1b0l5c0ZoNk8yYWhxLUdGT2djellLS3JPcTJXZDd0a01ZWkNkM2xKVm93eDdIUEVRVGpZTDJsaHZyeGNuY0hQa21B?oc=5",
-      "publishedAt": "2026-10-18"
-    },
-    {
-      "title": "Magyarország 2030: „Elmaradt a rendszerváltás a Balatonnál” - Magyar Hang",
-      "publisher": "Magyar Hang",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPSmV4NVVsQmVDNklWdXlUWXFkTGlkUF9nS1JFblZZb19QTnJFLVdnZ2Z4NlhKUVBlQTIxSWpFMEJqTDNodzdUeWp1QWJ1M2hBaEV6XzFQb0pKTmRYQkQtb3NZTS1fUHFhc2h2MWd4NTVoWmlpSkhBZHVpRHVPUnBiTHdzc3pYaHJB?oc=5",
-      "publishedAt": "2026-10-18"
-    },
-    {
-      "title": "Home sellers cut asking prices on 3,000 properties a day",
+      "title": "Job vacancies fall as small firms cut back on recruitment",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c84g13z6xx4eo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6eq327pzr53o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Chancellor rejects calls to raise Capital Gains Tax in Budget",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c50me4w4x1vyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "Burnham vows end to 'rip-off parking charges' under new rules",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck87ze7wl4qno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "'I'm fed up of swiping': Why singles now want to meet IRL",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cj62y9dnd6pwo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "How is the US economy really doing under President Trump?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cv98ze40jz18o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
+    },
+    {
+      "title": "US bans China's DeepSeek from government in race for AI dominance",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cjkgeq0k1wevo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Musk and Anthropic pledge public share giveaways",
+      "title": "Ex-OpenAI worker accused of planting bug had Saudi support, claims prosecutors",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm2kez327gdko?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6gel2dlyxvyo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-19"
     },
     {
-      "title": "Don't fall for this - how to protect yourself from AI scams",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c60rl1xvjv89o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
-    },
-    {
-      "title": "People playing loud music on buses could face £100 fine",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm89z008x7xdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
-    },
-    {
-      "title": "Microsoft pulls out of UK's largest AI data centre",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c9m26kl5y7epo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-18"
-    },
-    {
-      "title": "China's growth accelerates as AI boom helps boost exports",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm5yn098xz8lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
-    },
-    {
-      "title": "EU tariffs aimed at China hitting Ukraine, steel boss says",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwdd8z6gyy96o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
-    },
-    {
-      "title": "What is the Budget and what could be in it?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6x2zrjl7kjno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-19"
+      "title": "Revolut outage hits 'multiple services' as thousands of users report app issues",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/cxdd8mm6qy4mo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-20"
     }
   ]
 }
