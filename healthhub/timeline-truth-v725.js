@@ -120,9 +120,9 @@
    '.hhTruthStat b{font-size:18px;color:#f6f9ff}.hhTruthStat small{font-size:10px;color:#a4c0dc;line-height:1.4}'+
    '.hhTruthSources{font-size:10px;line-height:1.6;color:#a8c4df;margin:8px 2px 12px;overflow-wrap:anywhere}'+
    '.hhTruthGroupTitle{margin:17px 0 9px;font-weight:900;font-size:13px;color:#daedff}'+
-   '.hhTruthEvent{display:grid;grid-template-columns:56px 28px minmax(0,1fr);gap:6px;align-items:start;margin:0 0 9px}'+
-   '.hhTruthTime{text-align:right;padding:13px 3px 0 0;font-size:11px;color:#bad5eb;font-variant-numeric:tabular-nums}'+
-   '.hhTruthIcon{height:28px;width:28px;display:grid;place-items:center;margin-top:8px;font-size:15px;border-radius:50%;'+
+   '.hhTruthEvent{display:grid;grid-template-columns:68px 34px minmax(0,1fr);gap:6px;align-items:start;margin:0 0 9px}'+
+   '.hhTruthTime{text-align:right;padding:14px 4px 0 0;font-size:14px;font-weight:750;color:#d3eaff;font-variant-numeric:tabular-nums;white-space:nowrap}'+
+   '.hhTruthIcon{height:34px;width:34px;display:grid;place-items:center;margin-top:6px;font-size:18px;border-radius:50%;'+
      'background:#24456b;border:1px solid #8ac9f8a1}'+
    '.hhTruthCard{min-width:0;padding:12px;border-radius:16px;background:linear-gradient(120deg,#183958c9,#272b50b4);border:1px solid #658fbe66}'+
    '.hhTruthCard strong{display:block;font-size:13px;color:#f4f9ff;line-height:1.4;overflow-wrap:anywhere}'+
@@ -131,8 +131,8 @@
    '.hhTruthCard .hhTruthSource{font-size:9px;color:#a5bad4;margin-top:7px}'+
    '.hhTruthEmpty{border:1px dashed #7194b77a;border-radius:15px;padding:18px;text-align:center;color:#b6cce1;font-size:12px;line-height:1.65}'+
    '.hhTruthWarning{margin:10px 0;padding:11px;border:1px solid #edbb7066;border-radius:13px;font-size:10px;line-height:1.6;color:#efc99d}'+
-   '@media(max-width:380px){.hhTruthEvent{grid-template-columns:45px 24px minmax(0,1fr);gap:5px}'+
-   '.hhTruthIcon{width:24px;height:24px}.hhTruthCard{padding:10px}.hhTruthModes button,.hhTruthFilters button{padding:8px 9px}'+
+   '@media(max-width:380px){.hhTruthEvent{grid-template-columns:58px 30px minmax(0,1fr);gap:5px}'+
+   '.hhTruthTime{font-size:13px;padding-right:3px}.hhTruthIcon{width:30px;height:30px;font-size:16px}.hhTruthCard{padding:10px}.hhTruthModes button,.hhTruthFilters button{padding:8px 9px}'+
    '.hhTruthStats{gap:5px}.hhTruthStat{padding:9px 7px}.hhTruthStat b{font-size:16px}}';
   d.head.appendChild(s);
  }
