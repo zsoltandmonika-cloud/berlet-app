@@ -369,14 +369,38 @@ function renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,d
 }
 
 function renderBody(){
- const date=currentDay(),rows=read(active).body.filter(e=>e.date===date&&!e.deleted).sort((a,b)=>b.time.localeCompare(a.time));
- const view=$('bodyLog');view.replaceChildren();
+ const date=currentDay(),rows=read(active).body.filter(e=>e.date===date&&!e.deleted)
+  .sort((a,b)=>b.time.localeCompare(a.time));
+ const view=$('bodyLog');view.replaceChildren();view.classList.add('hhRhythmDiary');
  if(!rows.length){view.textContent='Még nincs esemény a kiválasztott napon.';return;}
- for(const row of rows){const p=document.createElement('div');p.style.padding='6px 0';
-  p.textContent=row.time+' · '+(row.kind==='urine'?'Vizelet':'Széklet')+(row.bristol?' · Bristol '+row.bristol:'')+(row.kind==='urine'&&/^[1-8]$/.test(String(row.urineColor||''))?' · Szín '+row.urineColor+'/8':'')+(row.note?' · '+row.note:'')+' ';
-  const remove=document.createElement('button');remove.className='mini';remove.type='button';remove.textContent='×';remove.title='Törlés';
-  remove.addEventListener('click',()=>update(d=>{const b=d.body.find(x=>x.id===row.id);if(b){b.deleted=true;b.updatedAt=stamp();}}));p.append(remove);view.append(p);
+ const ragApi=root.HH_OBSERVATION_RAG_V728;
+ for(const row of rows){
+  const stool=row.kind==='stool',kind=stool?'stool':'urine';
+  const rawGrade=stool?row.bristol:row.urineColor;
+  const rag=ragApi?.classify?.(kind,rawGrade)||{tone:'unknown',label:'Besorolás nem elérhető',grade:null};
+  const line=document.createElement('div');line.className='hhRhythmRow';
+  const check=document.createElement('span');check.className='hhRhythmCheck';check.textContent='✓';
+  check.title='Rögzített naplóbejegyzés';check.setAttribute('aria-label','Sikeresen rögzítve');
+  const main=document.createElement('span');main.className='hhRhythmMain';
+  const title=document.createElement('span');title.className='hhRhythmTitle';
+  title.textContent=(stool?'BS · Bristol-skála':'AJ · Apple Juice')+
+    (rag.grade!=null?' · '+rag.grade+'/'+(stool?'7':'8'):' · Fokozat nélkül');
+  main.append(title);
+  if(row.note){const note=document.createElement('span');note.className='hhRhythmNote';note.textContent=row.note;main.append(note);}
+  const clock=document.createElement('time');clock.className='hhRhythmTime';clock.textContent=row.time;
+  const dot=document.createElement('span');dot.className='hhRhythmDot';dot.dataset.rag=rag.tone;
+  dot.title=rag.label+' · tájékoztató, nem diagnózis';
+  dot.setAttribute('role','img');dot.setAttribute('aria-label',dot.title);
+  const remove=document.createElement('button');remove.className='mini hhRhythmRemove';remove.type='button';
+  remove.textContent='×';remove.title='Bejegyzés törlése';
+  remove.addEventListener('click',()=>update(d=>{const b=d.body.find(x=>x.id===row.id);
+   if(b){b.deleted=true;b.updatedAt=stamp();}
+  }));
+  line.append(check,main,clock,dot,remove);view.append(line);
  }
+ const legend=document.createElement('div');legend.className='hhRhythmLegend';
+ legend.textContent='A zöld ✓ a mentést igazolja. A RAG-szín a választott fokozat tájékoztató mintázata, nem diagnózis.';
+ view.append(legend);
 }
 
 let insightDays=7;
