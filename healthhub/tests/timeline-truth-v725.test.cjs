@@ -56,7 +56,7 @@ const reports={documents:[
 ]};
 assert.equal(api.reportRows(reports,profile).length,1,'Only medically dated, profile-safe reports');
 assert(!index.includes('v725-no-placeholder'),'Unexpected test placeholder');
-const bodyData={schemaVersion:'healthhub.nutrition/1',profileKey:profile,body:[
+const bodyData={schemaVersion:'healthhub.nutrition/1',profileKey:profile,entries:[],body:[
  {id:'bb-example',kind:'stool',date:'2026-10-20',time:'11:10',bristol:'4',note:'SYNTETIKUS'},
  {id:'aj-example',kind:'urine',date:'2026-10-20',time:'13:25',urineColor:'3',note:''},
  {id:'deleted-body',kind:'stool',date:'2026-10-20',time:'13:30',bristol:'1',deleted:true},
