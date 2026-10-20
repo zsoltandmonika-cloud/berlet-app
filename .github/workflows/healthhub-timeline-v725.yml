@@ -1,0 +1,30 @@
+name: HealthHub v725 · Truthful Timeline QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/timeline-truth-v725.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/timeline-truth-v725.test.cjs'
+      - '.github/workflows/healthhub-timeline-v725.yml'
+  pull_request:
+    paths:
+      - 'healthhub/timeline-truth-v725.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/timeline-truth-v725.test.cjs'
+      - '.github/workflows/healthhub-timeline-v725.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  timeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Source syntax
+        run: |
+          node --check healthhub/timeline-truth-v725.js
+          node --check healthhub/tests/timeline-truth-v725.test.cjs
+      - name: Synthetic verified-data regression test
+        run: node healthhub/tests/timeline-truth-v725.test.cjs
