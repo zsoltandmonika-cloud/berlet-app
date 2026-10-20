@@ -18,7 +18,7 @@ const allowed=p=>{
  if(typeof p!=='string'||!/^\/HealthHub\//i.test(p))return false;
  const path=rel(p);
  if(/(^|[\/._-])(password|secret|token|credentials|oauth|session|apikey|access-key|private-key)([\/._-]|$)/i.test(path))return false;
- return /^(master\/|profiles\/|documents\/|explanations\/|measurements\/|appointments\/|daily\/|shared\/nutrition-|sync\/(?:zsolt|monika)-lena-health-context\.json$)/i.test(path);
+ return /^(master\/|profiles\/|documents\/|explanations\/|measurements\/|appointments\/|daily\/|shared\/nutrition-|sync\/(?:zsolt|monika)-lena-health-context\.json$|analytics\/healthhub-daily-health-(?:zsolt|monika)\.json$)/i.test(path);
 };
 const expected=[
  ['Master · orvosi dokumentumindex','master/documents.json','shared','clinical-index'],
@@ -39,7 +39,7 @@ const expected=[
  ])
 ];
 const notInDropbox=[
- {key:'supabase-private-daily-health',name:'Privát Daily Health és Supabase AI-jelentések',reason:'Az eredeti forrás a privát Supabase. Külön hitelesített export és visszaolvasás kell.'},
+ {key:'supabase-private-daily-health',name:'Privát Daily Health és Supabase AI-jelentések',reason:'A privát Supabase nem a Dropbox. A kézi, bejelentkezéshez kötött Daily Health export külön gombbal indítható, és forrásonként visszaellenőrzött.'},
  {key:'device-unsynced',name:'Csak telefonon lévő vagy még nem feltöltött adatok',reason:'A Dropbox-leltár nem igazolja, hogy minden eszköz minden eseménye már felment.'},
  {key:'chatgpt-connector',name:'ChatGPT Dropbox alkalmazásmappa elérése',reason:'Külön ChatGPT Plugin csatlakoztatás és valós fájlolvasási próba szükséges.'}
 ];
