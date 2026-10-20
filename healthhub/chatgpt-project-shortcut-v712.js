@@ -36,10 +36,12 @@
   const url=normalizeProjectUrl(raw);
   root.localStorage.setItem(STORAGE,url);
   refresh();
+  // v713 listens only to explicit edits, never to a remote cache refresh.
+  try{root.dispatchEvent(new CustomEvent('healthhub:chatgpt-project-saved',{detail:{url:url}}))}catch(_){}
   return url;
  }
  function configure(){
-  const text='LÉNA · HEALTHHUB CHATGPT-PROJEKT\n\nNyisd meg a saját ChatGPT-projektedet, majd másold ide a böngésző címsorából a https://chatgpt.com/g/g-p-… projektcímet.\n\nEgyetlen egyszer kell megadnod ebben a böngészőben. A cím nem kerül GitHubba vagy HealthHub-szerverre.';
+  const text='ASK LÉNA · CHATGPT-PROJEKT\n\nNyisd meg a saját ChatGPT-projektedet, majd másold ide a böngésző címsorából a https://chatgpt.com/g/g-p-… projektcímet.\n\nEgyetlen egyszer kell megadnod ebben a böngészőben. A cím nem kerül GitHubba vagy HealthHub-szerverre.';
   const answer=root.prompt(text,saved()||'');
   if(answer===null)return false;
   try{
@@ -101,8 +103,8 @@
    const dock=make('section');dock.id=PANEL;
    dock.setAttribute('aria-label','Léna ChatGPT-projekt megnyitása');
    dock.appendChild(make('div','hhProjectOrb712','✦'));
-   dock.appendChild(make('h2','hhProjectTitle712','Léna · ChatGPT'));
-   dock.appendChild(make('p','hhProjectHint712','Az eredeti ChatGPT, a személyes HealthHub-projekteddel. Egy kattintás, külön böngészőlapon.'));
+   dock.appendChild(make('h2','hhProjectTitle712','Ask Léna · ChatGPT'));
+   dock.appendChild(make('p','hhProjectHint712','Az eredeti ChatGPT, a külön Ask Léna egészségügyi projekteddel. Egy kattintás, külön böngészőlapon.'));
    const launch=make('button',null,'↗ ChatGPT-projekt megnyitása');
    launch.type='button';launch.id='hhChatGptProjectLaunch712';
    launch.addEventListener('click',openProject);dock.appendChild(launch);
