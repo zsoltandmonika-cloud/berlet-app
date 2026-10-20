@@ -1,0 +1,25 @@
+name: HealthHub v713 · Ask Lena Project Dropbox URL Sync
+on:
+  pull_request:
+    paths:
+      - 'healthhub/chatgpt-project-shortcut-v712.js'
+      - 'healthhub/chatgpt-project-sync-v713.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/chatgpt-project-shortcut-v712.test.cjs'
+      - 'healthhub/tests/chatgpt-project-sync-v713.test.cjs'
+      - '.github/workflows/healthhub-chatgpt-project-v713.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  project-url-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check healthhub/chatgpt-project-shortcut-v712.js
+          node --check healthhub/chatgpt-project-sync-v713.js
+          node healthhub/tests/chatgpt-project-shortcut-v712.test.cjs
+          node healthhub/tests/chatgpt-project-sync-v713.test.cjs
+          node healthhub/tests/hh-one-rag-v500.test.cjs
