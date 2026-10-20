@@ -53,3 +53,39 @@ assert(checkReadback(record,JSON.parse(JSON.stringify(record))));
 assert.throws(()=>checkReadback(record,{...record,fileCount:7}));
 assert.throws(()=>checkReadback(record,{...record,generatedAt:'bad'}));
 console.log('PASS Dropbox-first Analytics v732: privacy allowlist, both profiles, private Daily Health coverage, missing-source flags, truthful connector status and readback validation');
+
+
+(async()=>{
+ const drop=new Map(),writes=[];
+ const w2={
+  healthSectionKind:'home',addEventListener(){},setInterval(){},setTimeout(){},
+  localStorage:{getItem(){return null},setItem(){}},
+  HH_DROPBOX_VAULT:{
+   connected(){return true},async accessToken(){return 'synthetic'},
+   async uploadJson(p,data){drop.set(p,JSON.parse(JSON.stringify(data)));writes.push(p);return {}},
+   async downloadJson(p){return drop.get(p)}
+  },
+  HH_DAILY_HEALTH_SYNC_V319:{
+   getStatus(){return {authenticated:true,authorizedProfiles:['zsolt','monika']}},
+   async request(p){
+    const profile=p.includes('profile_key=eq.zsolt')?'zsolt':'monika';
+    const offset=Number((/offset=(\d+)/.exec(p)||[])[1]||0);
+    if(offset>0)return [];
+    return [{profile_key:profile,report_date:'2026-10-20',generated_at:'2026-10-20T05:00:00Z',status:'ready',report:{headline:'Synthetic test'}}];
+   }
+  }
+ };
+ const doc2={readyState:'complete',getElementById(){return null},hidden:false,addEventListener(){}};
+ vm.runInNewContext(source,{window:w2,document:doc2,Date,Map,Set,Number,Intl,Error,Promise,JSON,
+  async fetch(url){assert(url.includes('files/create_folder_v2'));return {ok:true,status:200};}},{timeout:3000});
+ const output=await w2.HH_DROPBOX_CHATGPT_ANALYTICS_V732.exportPrivateDailyHealth();
+ assert.equal(output.exported.length,2);
+ assert.equal(output.failed.length,0);
+ assert.equal(writes.length,2);
+ for(const profile of ['zsolt','monika']){
+  const file=drop.get('/HealthHub/analytics/healthhub-daily-health-'+profile+'.json');
+  assert(file&&file.profile===profile&&file.count===1);
+  assert(file.reports.every(r=>r.profile_key===profile));
+ }
+ console.log('PASS v732: authenticated two-profile private Daily Health export with Dropbox readback');
+})().catch(e=>{console.error(e);process.exitCode=1;});
