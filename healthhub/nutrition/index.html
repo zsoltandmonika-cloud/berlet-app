@@ -930,4 +930,29 @@ document.addEventListener('DOMContentLoaded',function(){
  });
 })();
 </script>
+<script>
+/* v717 · Three Bevitel photo cards use the precise measured height of the
+   Fehérje/Szénhidrát/Zsír KPI cards directly underneath. */
+(function(){
+ 'use strict';
+ var anchor=null,tiles=null,observer=null;
+ function resize(){
+  anchor=anchor||document.querySelector('.grid .kpi');
+  tiles=tiles||document.querySelector('.hh-bevitel-grid');
+  if(!anchor||!tiles)return;
+  var height=Math.round(anchor.getBoundingClientRect().height);
+  if(height>50&&height<350)tiles.style.setProperty('--hh-kpi-card-height',height+'px');
+ }
+ function start(){
+  resize();
+  if(window.ResizeObserver&&anchor){
+   observer=new ResizeObserver(resize);
+   observer.observe(anchor);
+  }
+  window.addEventListener('resize',resize,{passive:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+})();
+</script>
 </body></html>
