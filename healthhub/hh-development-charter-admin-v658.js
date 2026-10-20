@@ -75,6 +75,15 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>🧭 Idővonal v725 · Tényalapú, profilbiztos eseményforrások</summary><ul>'+
+ '<li>Az eredeti Idővonal HTML fix demo eseményei (például 540 kcal ebéd, statikus alvás/pulzus/lépés) nem jelenhetnek meg hiteles adatként. A v725 csak ellenőrzött, valós naplóbejegyzéseket renderel.</li>'+
+ '<li>Táplálkozás: /HealthHub/profiles/{profil}-nutrition.json; healthhub.nutrition/1 séma és profilkötelező. Helyi Nutrition-cache mentésből és azonos ID-jú Dropbox-bejegyzésekből legújabb módosítás alapján egyesítünk; a törlések rejtve maradnak.</li>'+
+ '<li>Tünetnapló: /HealthHub/master/symptoms.json; profil + eseményidőpont + törlésjelző alapján. A helyi és felhős bejegyzések azonosító szerint deduplikáltak.</li>'+
+ '<li>Leletek: /HealthHub/master/documents.json; csak az eredeti documentDate klinikai dátummal rendelkező, saját profilhoz tartozó dokumentum szerepel; a feltöltés időpontja nem helyettesíti a klinikai dátumot.</li>'+
+ '<li>Activity: csak a megfelelő profilhoz rendelt, már betöltött valós napi lépések, időpont nélkül. Alvás, pulzus, vérnyomás: hiányzó időbélyeges forrásnál semmilyen kitalált mérés nem mutatható.</li>'+
+ '<li>Ma / 7 nap / 30 nap / dátum, forrás szerinti szűrés, külön Nutrition-kcal összeg; sem két profil közti átszivárgás, sem napi kcal duplázás nem elfogadható. A v307 Tünetnapló adatainak forrása érintetlen.</li>'+
+ '<li>QA: healthhub/tests/timeline-truth-v725.test.cjs + GitHub Actions. ÉLES Dropbox- és S24 Ultra-teszt még szükséges az elfogadáshoz.</li>'+
+ '</ul></details>'+
 '<details><summary>⬇ Medical Master v715 · Leletek: naprakész JSON-export</summary><ul>'+
  '<li>Leletek nézetben új privát Medical Master panel: Legfrissebb Medical Master letöltése + ellenőrzés.</li>'+
  '<li>Új lelet vagy Léna-magyarázat után a meglévő v304 sikeres Dropbox 6-fájlos sync eseményére a 7. medical-master.json is újraépül. Sem a hat forrás, sem az Ask Léna-éles útvonal nem változik.</li>'+
