@@ -495,6 +495,17 @@ async function run(opts){
  var legacy=el('hhProg299');if(legacy)legacy.classList.remove('on');
  if(el('askWork330'))el('askWork330').classList.remove('on');
  if(!question||question.length<3){showError('Írj be egy érdemi kérdést.');return}
+ // v710: explicit Medical Master Golden Standard QA only; normal Ask Lena untouched.
+ if(typeof URLSearchParams==='function'&&
+    new URLSearchParams(window.location.search).get('hhMasterQA')==='v1'){
+  var goldenMaster=window.HH_MEDICAL_MASTER_GOLDEN_V710;
+  if(!goldenMaster||typeof goldenMaster.run!=='function'){
+   showError('Medical Master v710 tesztmodul még nem töltődött be. Frissítsd az oldalt.');return;
+  }
+  return goldenMaster.run({question:question,p:p,q:q,result:result,err:err,
+   print:print,showError:showError,renderAnswerText:renderAnswerText,
+   alignAnswerTop:alignAnswerTop});
+ }
  // v706: intercept before legacy clinical/document preprocessing or Safe Fallback.
  if(typeof URLSearchParams==='function'&&
     new URLSearchParams(window.location.search).get('hhSolQA')==='v1')
