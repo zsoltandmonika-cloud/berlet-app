@@ -147,10 +147,13 @@
 
 /* v721 · Buddy replaces the left coffee icon; the right CTA is the original simple arrow. */
 #hhQuickLaunch .hh-quick-buddy-left{
- display:grid;place-items:center;width:53px;height:54px;flex:0 0 53px;
+ display:grid;place-items:center;width:64px;height:64px;flex:0 0 64px;
  font-size:0;filter:none;overflow:visible
 }
 #hhQuickLaunch .hh-quick-buddy-left img{
  display:block;width:100%;height:100%;object-fit:contain;
  filter:drop-shadow(0 4px 5px #0008);pointer-events:none
 }
+
+/* v722 · Slightly larger Buddy, responsive without changing GyorsNasi card size. */
+@media(max-width:400px){#hhQuickLaunch .hh-quick-buddy-left{width:60px;height:60px;flex-basis:60px}}
