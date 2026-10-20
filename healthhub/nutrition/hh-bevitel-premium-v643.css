@@ -184,3 +184,44 @@
 .hh-bevitel-header.row{margin:10px 0 11px;min-height:0}
 .hh-bevitel-header h2{line-height:1.25}
 @media(max-width:540px){.hh-bevitel-header.row{margin:10px 0 11px;min-height:0}}
+
+
+/* v723 · Food carousel meal categories belong ABOVE the pictured food
+   categories (Cookbook remains the first card). Drinks keep their prior UI. */
+#hhBevitelPicker .hh-bevitel-meal-row[hidden]{display:none!important}
+#hhBevitelPicker .hh-bevitel-meal-row{flex:0 0 auto;box-sizing:border-box;
+ padding:10px 14px 9px;margin:0 auto;width:min(100%,1030px);
+ border-bottom:1px solid rgba(130,186,242,.15)}
+#hhBevitelPicker .hh-bevitel-meal-label{display:block;text-align:center;
+ font-size:12px;font-weight:800;letter-spacing:.025em;color:#d4eafb;
+ margin:0 0 9px}
+#hhBevitelPicker .hh-bevitel-meal-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#hhBevitelPicker .hh-bevitel-meal-grid button{appearance:none;min-width:0;min-height:39px;
+ padding:7px 5px;border-radius:12px;border:1px solid rgba(137,183,230,.45);
+ background:linear-gradient(125deg,#183454,#222e52);color:#e1eefd;
+ font:750 clamp(10px,1.25vw,13px)/1.3 system-ui,sans-serif;
+ white-space:nowrap;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+#hhBevitelPicker .hh-bevitel-meal-grid button.selected,
+#hhBevitelPicker .hh-bevitel-meal-grid button[aria-pressed="true"]{
+ border-color:#b8eaff;background:linear-gradient(125deg,#216d9c,#514a89);
+ box-shadow:0 0 0 1px rgba(126,208,255,.58),inset 0 1px #fff5;color:#fff}
+#hhBevitelPicker .hh-bevitel-meal-grid button:focus-visible{outline:2px solid #bce9ff;outline-offset:3px}
+#hhBevitelPicker[data-hh-kind="food"] .hh-bevitel-picker-card{
+ height:clamp(220px,calc(100dvh - 325px),420px)}
+#entryDialog[data-hh-picker-mode="portion"][data-hh-meal-chosen="true"] #hhMealChoices{display:none!important}
+@media(max-width:740px){
+ #hhBevitelPicker .hh-bevitel-meal-row{padding:9px 12px}
+ #hhBevitelPicker .hh-bevitel-meal-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #hhBevitelPicker .hh-bevitel-meal-grid button{min-height:39px;font-size:11px}
+ #hhBevitelPicker[data-hh-kind="food"] .hh-bevitel-picker-card{
+  height:clamp(200px,calc(100dvh - 350px),375px)}
+}
+@media(max-height:590px){
+ #hhBevitelPicker .hh-bevitel-meal-row{padding-top:5px;padding-bottom:5px}
+ #hhBevitelPicker .hh-bevitel-meal-label{margin-bottom:5px;font-size:11px}
+ #hhBevitelPicker .hh-bevitel-meal-grid button{min-height:32px;padding:4px 3px}
+ #hhBevitelPicker[data-hh-kind="food"] .hh-bevitel-picker-card{height:190px}
+}
+@media(prefers-reduced-motion:reduce){
+ #hhBevitelPicker .hh-bevitel-meal-grid button{transition:none}
+}
