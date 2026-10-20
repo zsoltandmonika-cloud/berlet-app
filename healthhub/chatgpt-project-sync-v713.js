@@ -29,13 +29,13 @@
   if(!v){if(pending())display('📱 Projektcím helyileg mentve; Dropbox-kapcsolatra vár.');return 'offline'}
   const local=pending(),remote=await read(v);
   if(local){
-   if(remote&&(!newer(local,remote))){
+   if(remote&&newer(remote,local)){
     apply(remote);root.localStorage.removeItem(PENDING);
     display('☁️ Frissebb projektcím betöltve a Dropboxból.');return 'remote';
    }
    // Recheck before overwriting remote, minimizing stale-device clobber.
    const check=await read(v);
-   if(check&&!newer(local,check)){
+   if(check&&newer(check,local)){
     apply(check);root.localStorage.removeItem(PENDING);
     display('☁️ Frissebb projektcím betöltve a Dropboxból.');return 'remote';
    }
