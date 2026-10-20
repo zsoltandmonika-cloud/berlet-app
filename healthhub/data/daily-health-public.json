@@ -1,36 +1,36 @@
 {
   "schema": "healthhub.daily-health-public/1",
-  "date": "2026-10-19",
-  "generatedAt": "2026-10-19T13:01:42+02:00",
+  "date": "2026-10-20",
+  "generatedAt": "2026-10-20T03:08:16+02:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-10-19T13:00",
-    "temperature": 15.6,
-    "apparentTemperature": 13.4,
-    "daytimeMaxFeelsLike": 14.9,
-    "uvMax": 2.6,
-    "pressureHpa": 1025.5,
-    "pressureChange6h": 0.5,
-    "windGust": 11.5
+    "observedAt": "2026-10-20T03:00",
+    "temperature": 11.3,
+    "apparentTemperature": 9.3,
+    "daytimeMaxFeelsLike": 14.3,
+    "uvMax": 3.0,
+    "pressureHpa": 1024.5,
+    "pressureChange6h": 0.4,
+    "windGust": 5.8
   },
   "air": {
     "available": true,
-    "observedAt": "2026-10-19T13:00",
-    "aqi": 41.0,
-    "pm25": 17.5,
+    "observedAt": "2026-10-20T03:00",
+    "aqi": 42.0,
+    "pm25": 19.0,
     "pollen": {
       "available": true,
       "name": "Üröm",
-      "value": 0.4,
+      "value": 0.2,
       "level": 0
     }
   },
   "infection": {
     "available": true,
     "stale": false,
-    "sourceWeek": "2026. 40. hét",
-    "periodEnd": "2026-10-04",
+    "sourceWeek": "2026. 41. hét",
+    "periodEnd": "2026-10-11",
     "signals": [
       {
         "name": "COVID-19 / SARS-CoV-2",
