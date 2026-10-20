@@ -5,12 +5,20 @@ on:
     paths:
       - 'healthhub/timeline-truth-v725.js'
       - 'healthhub/index.html'
+      - 'healthhub/hh-observation-rag-v728.js'
+      - 'healthhub/nutrition/hh-observation-rag-v728.css'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/index.html'
       - 'healthhub/tests/timeline-truth-v725.test.cjs'
       - '.github/workflows/healthhub-timeline-v725.yml'
   pull_request:
     paths:
       - 'healthhub/timeline-truth-v725.js'
       - 'healthhub/index.html'
+      - 'healthhub/hh-observation-rag-v728.js'
+      - 'healthhub/nutrition/hh-observation-rag-v728.css'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/index.html'
       - 'healthhub/tests/timeline-truth-v725.test.cjs'
       - '.github/workflows/healthhub-timeline-v725.yml'
   workflow_dispatch:
@@ -24,6 +32,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Source syntax
         run: |
+          node --check healthhub/hh-observation-rag-v728.js
+          node --check healthhub/nutrition/nutrition-preview-v592.js
           node --check healthhub/timeline-truth-v725.js
           node --check healthhub/tests/timeline-truth-v725.test.cjs
       - name: Synthetic verified-data regression test
