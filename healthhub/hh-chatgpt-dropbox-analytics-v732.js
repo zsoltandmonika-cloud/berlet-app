@@ -15,7 +15,7 @@ const rel=p=>p.toLowerCase().replace(/^\/healthhub\//,'');
 const allowed=p=>{
  if(typeof p!=='string'||!/^\/HealthHub\//i.test(p))return false;
  const path=rel(p);
- if(/(^|\/)(password|secret|token|credentials|oauth|session|apikey|access-key|private-key)([./_-]|$)/i.test(path))return false;
+ if(/(^|[\/._-])(password|secret|token|credentials|oauth|session|apikey|access-key|private-key)([\/._-]|$)/i.test(path))return false;
  return /^(master\/|profiles\/|documents\/|explanations\/|measurements\/|appointments\/|daily\/|shared\/nutrition-|sync\/(?:zsolt|monika)-lena-health-context\.json$)/i.test(path);
 };
 const expected=[
