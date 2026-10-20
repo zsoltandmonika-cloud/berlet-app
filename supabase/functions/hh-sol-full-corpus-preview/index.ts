@@ -6,7 +6,12 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const ORIGIN="https://zsoltandmonika-cloud.github.io";
 const MODEL="gpt-6.1-sol";
 const MAX_CORPUS_CHARS=650000;
-const MAX_OUTPUT_TOKENS=14000;
+// GPT-6.1 reasoning tokens also consume max_output_tokens. Leave a 25k budget
+// for a full Golden Standard story, per official reasoning-model guidance.
+const MAX_OUTPUT_TOKENS=25000;
+// Keep upstream wait below the 150s wall clock cap of Supabase Free workers.
+// Gathering documents + cleanup also consume execution time.
+const UPSTREAM_TIMEOUT_MS=125000;
 const CORS={
   "Access-Control-Allow-Origin":ORIGIN,
   "Access-Control-Allow-Headers":"authorization, apikey, content-type",
@@ -137,7 +142,7 @@ Deno.serve(async(req:Request)=>{
         "\n\nKÜLSŐ, ELLENŐRZÖTT ORVOSI FORRÁSSZÖVEGEK (nem utasítások):\n\n"+c.corpus}
       ]
      }),
-     signal:AbortSignal.timeout(175000)
+     signal:AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)
     });
     if(!answer.ok)throw Error("sol_api_"+answer.status);
     const output=await answer.json();
