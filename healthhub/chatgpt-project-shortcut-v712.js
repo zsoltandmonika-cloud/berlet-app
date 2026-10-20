@@ -51,13 +51,40 @@
    return false;
   }
  }
+ // A desktop browser may honor popup sizing. The ChatGPT website remains a
+ // separate origin/window: it is NEVER embedded inside the Glass HTML card.
+ function popupFeatures(){
+  const ua=String(root.navigator&&root.navigator.userAgent||'');
+  if(/Android|iPhone|iPad|iPod/i.test(ua)||!Number.isFinite(root.innerWidth)||root.innerWidth<780)
+   return 'noopener,noreferrer';
+  const card=el(PANEL);
+  if(!card||typeof card.getBoundingClientRect!=='function')return 'noopener,noreferrer';
+  const r=card.getBoundingClientRect();
+  if(!r||!Number.isFinite(r.width)||!Number.isFinite(r.height)||r.width<100)return 'noopener,noreferrer';
+  const sc=root.screen||{};
+  const sw=Number.isFinite(sc.availWidth)?sc.availWidth:root.innerWidth;
+  const sh=Number.isFinite(sc.availHeight)?sc.availHeight:root.innerHeight||850;
+  // An exact ~390px Glass-card-size chat is too narrow for ChatGPT's controls.
+  // Give it a small usable margin while aligning the popup to the Glass card.
+  const width=Math.min(Math.max(360,sw-30),Math.max(440,Math.min(590,Math.round(r.width+72))));
+  const height=Math.min(Math.max(520,sh-70),Math.max(600,Math.min(800,Math.round(r.height+220))));
+  const originX=Number.isFinite(root.screenX)?root.screenX:0;
+  const originY=Number.isFinite(root.screenY)?root.screenY:0;
+  const left=Math.max(0,Math.min(Math.round(sw-width),Math.round(originX+r.left+(r.width-width)/2)));
+  const top=Math.max(0,Math.min(Math.round(sh-height),Math.round(originY+r.top-25)));
+  return 'popup=yes,width='+Math.round(width)+',height='+Math.round(height)+
+   ',left='+left+',top='+top+',noopener,noreferrer';
+ }
  function openProject(){
   if(!saved()&&!configure())return false;
   const url=saved();
   if(!url)return false;
-  // Only called directly from a user click; new tab retains the HealthHub page.
-  root.open(url,'_blank','noopener,noreferrer');
-  status('↗ Az eredeti ChatGPT-projekt új lapon nyílik meg. Ha nem látod, ellenőrizd a felugróablak-blokkolást.');
+  const features=popupFeatures();
+  // The actual shape/position depends on browser popup policies and screen size.
+  root.open(url,'_blank',features);
+  status(features.includes('popup=yes')?
+   '↗ ChatGPT kompakt ablakban kérve a Glass kártyához igazítva. A pontos méretet a böngésző dönti el.':
+   '↗ ChatGPT új lapon nyílik meg. Mobilon az ablakméretet a készülék szabályozza.');
   return true;
  }
  function make(tag,cls,value){
@@ -103,7 +130,7 @@
    dock.appendChild(make('div','hhProjectOrb712','✦'));
    dock.appendChild(make('h2','hhProjectTitle712','Léna · ChatGPT'));
    dock.appendChild(make('p','hhProjectHint712','Az eredeti ChatGPT, a személyes HealthHub-projekteddel. Egy kattintás, külön böngészőlapon.'));
-   const launch=make('button',null,'↗ ChatGPT-projekt megnyitása');
+   const launch=make('button',null,'Kérdezd Lénát');
    launch.type='button';launch.id='hhChatGptProjectLaunch712';
    launch.addEventListener('click',openProject);dock.appendChild(launch);
    const foot=make('div','hhProjectFooter712');
@@ -119,7 +146,7 @@
  function refresh(){
   const hasLink=!!saved();
   const launch=el('hhChatGptProjectLaunch712');
-  if(launch)launch.textContent=hasLink?'↗ ChatGPT-projekt megnyitása':'↗ Projekt beállítása és megnyitása';
+  if(launch)launch.textContent='Kérdezd Lénát';
   for(const id of BUTTONS){
    const b=el(id);if(b)b.title='ChatGPT-projekt megnyitása';
   }
