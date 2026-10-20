@@ -38,9 +38,12 @@ assert.match(client,/solAudit=solPreviewMode&&item\.evidenceAudit/);
 assert.match(client,/mode==='sol-full-corpus-preview-v705'/);
 assert.match(client,/clinicalPilot&&!simplified&&!solPreviewMode/);
 assert.match(client,/if\(solPreviewMode&&\(!solAudit/);
-assert.match(client,/sourceDocuments\+' eredeti dokumentum '/);
-assert.match(client,/if\(!simplified&&!solPreviewMode\)/);
-assert.match(client,/az orvosi állításokat NEM hitelesítette/);
+assert.match(client,/solAudit\.sourceDocuments\+' eredeti dokumentum, '/);
+assert.match(client,/if\(!simplified\)/);
+assert.match(client,/orvosi tények NEM hitelesítve/);
+assert.match(client,/if\(solPreviewMode\)\{\n     \/\/ Dedicated, factual Sol status/);
+assert.match(client,/if\(!\(solPreviewRequested&&customized\.plan\.clinical&&!shot\)\)throw Error/);
+
 
 for(const fragment of [
  'body?.fullCorpusConsent!==true','client.auth.getUser',
