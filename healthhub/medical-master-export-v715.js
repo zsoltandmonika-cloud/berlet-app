@@ -116,10 +116,17 @@
  function mount(){
   if(w.healthSectionKind!=='records')return;
   const content=d.getElementById('healthSubContent');
-  if(!content||content.querySelector('#'+BOX_ID))return;
+  if(!content)return;
+  // Leletek content is dynamically rebuilt: keep the export panel at the very
+  // end of the page, after the records list, rather than above uploads/filters.
+  const present=content.querySelector('#'+BOX_ID);
+  if(present){
+   if(present.parentElement===content&&content.lastElementChild!==present)content.append(present);
+   return;
+  }
   const section=d.createElement('section');section.id=BOX_ID;
   section.className='hrSectionCard';
-  section.style.cssText='margin:10px 0 14px;background:linear-gradient(145deg,rgba(14,38,69,.93),rgba(15,55,84,.93));color:#e9f5ff;border:1px solid rgba(114,176,235,.45);border-radius:18px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.14)';
+  section.style.cssText='margin:16px 0 20px;background:linear-gradient(145deg,rgba(14,38,69,.93),rgba(15,55,84,.93));color:#e9f5ff;border:1px solid rgba(114,176,235,.45);border-radius:18px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.14)';
   const title=d.createElement('h3');title.textContent='🧠 Medical Master · teljes JSON';
   title.style.cssText='margin:0 0 7px;font-size:16px;color:#ecf6ff';section.appendChild(title);
   const note=d.createElement('p');
@@ -140,7 +147,7 @@
   status.textContent='Új lelet vagy Léna-magyarázat után automatikusan frissül. Letöltéskor ismét ellenőrizzük.';
   status.style.cssText='font-size:11px;color:#b8e8fa;margin:10px 0 0;line-height:1.5;overflow-wrap:anywhere';
   section.appendChild(status);
-  content.prepend(section);
+  content.append(section);
  }
  // Keep the card after asynchronous records re-renders, not in other pages.
  let scheduled=false;
