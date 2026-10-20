@@ -75,6 +75,16 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>🧠 Ask Léna Sol v705 · Golden Standard AI-first pilot</summary><ul>'+
+ '<li>Az eddig működő Ask Léna nem változik. Külön, csak ?hhSolQA=v1 URL-re és részletes kérdésre aktiválódó kísérlet.</li>'+
+ '<li>A profil összes ellenőrzött, nem duplikált orvosi oldalszövege kizárólag kérdésenként adott KÜLÖN hozzájárulás után dolgozható fel.</li>'+
+ '<li>A szerver ellenőrzi a bejelentkezést és betegprofil-jogosultságot, nincs rejtett forráskibővítés vagy publikus klinikai adat.</li>'+
+ '<li>OpenAI GPT-6.1 Sol / high reasoning. Eredeti PDF-fájlok, kizárt EKG-k és képek továbbítása nincs. Túlméretnél csonkítás helyett elutasítás.</li>'+
+ '<li>Minden olvasható oldal SHA-256 lenyomatát az új kérésben újraszámoljuk; eltérésnél nincs AI-adatátadás. A képi tartalom külön felülvizsgálatot igényel, az üres oldalakat nyíltan jelezzük.</li>'+
+ '<li>2026.10.20-i ellenőrzés: Mónika 269/269 szöveges oldala sértetlen, 135 oldal képi tartalma külön ellenőrzendő. Ez nem klinikai validálás.</li>'+
+ '<li>Az idézett oldalkód ellenőrzése nem helyettesíti a klinikai tényellenőrzést. Költség és késleltetés csak valós próbával igazolható.</li>'+
+ '<li>Rollback: URL-paraméter elhagyása. Dokumentáció: ASK_LENA_SOL_AI_FIRST_V705.md. Státusz: CODED / TESTED / DEPLOYED / LIVE VERIFIED.</li>'+
+ '</ul></details>'+
 '<details><summary>📅 MKB v704 · konkrét eseménynapra visszakeresés</summary><ul>'+
  '<li>A dátumot kimondó kérdések (például 2024. június 17.) az adott napú PDF-fájlneveket előnyben részesítik; a fájlnév dátuma nem automatikusan klinikai eseménydátum.</li>'+
  '<li>Az eredeti leletekből csak SHA-256-tal ellenőrzött, a kérdéshez láthatóan kiválasztott és külön engedélyezett idézet használható a klinikai AI-kutatásban.</li>'+

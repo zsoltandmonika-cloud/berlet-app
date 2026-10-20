@@ -602,8 +602,11 @@ async function run(opts){
    /(?:mi\s+tortent|mi\s+volt|esemeny|ujraeleszt|szivmegallas|koma)/.test(lookupText);
   var verifiedOriginals=(Array.isArray(data.documentEvidence)?data.documentEvidence:[])
    .filter(x=>x&&x.type==='original_pdf_extract'&&x.text&&x.page>=1);
+  // v705: explicit URL-triggered Sol preview securely retrieves verified pages server-side.
+  var solPreviewRequested=typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhSolQA')==='v1';
   if((asksOwnDocument||asksHistoricalEvent)&&researchPlan.clinical&&!verifiedOriginals.length)
-   throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
+   if(!(solPreviewRequested&&customized.plan.clinical&&!shot))throw Error('📚 Ehhez a saját leletkérdéshez nem érkezett ellenőrzött eredeti PDF-részlet. Nem adok helyette általános, személyesnek tűnő orvosi választ. Nyisd meg az Ask Léna → Forrásolt orvosi tudás részt, várd meg a forrásellenőrzést, ellenőrizd a releváns idézeteket, majd nyomd meg a Kutatás indítása a kiválasztott forrásokkal gombot.');
   if(quality.warnings.length)print('🛡️ I-05: '+quality.warnings.length+' adatminőségi korlátozás, forrásellenőrzés után.');
   else print('🛡️ I-05: profil, hozzájárulás és klinikai források előellenőrizve.');
   logSource(data);
@@ -630,7 +633,22 @@ async function run(opts){
    new URLSearchParams(window.location.search).get('hhMkbQA')==='v1';
   // The standing PDF grant does not replace this question's one-shot MKB approval.
   var mkbQAMode=mkbQARequested&&mkbSourceUsed>0&&data.originalDocumentsConsent===true;
-  var aiRoute=mkbQAMode?'/functions/v1/hh-mkb-search-preview':
+  // One-shot approval. Existing original-PDF grants never imply a full-corpus grant.
+  var solPreviewMode=clinicalPilot&&typeof URLSearchParams==='function'&&
+   new URLSearchParams(window.location.search).get('hhSolQA')==='v1'&&
+   (typeof shot==='undefined'||!shot);
+  if(solPreviewMode){
+   if(!window.confirm('HH Sol AI-first TESZT: engedélyezed, hogy a kiválasztott profil ÖSSZES ellenőrzött leletszövegét erre az egy kérdésre a GPT-6.1 Sol OpenAI API feldolgozza? A kísérlet API-költséggel járhat. Mégsem = nincs továbbítás.'))
+    throw Error('A teljes leletállomány továbbításához nem adtál hozzájárulást. Semmit nem küldtünk el.');
+   if(turn!==epoch||profile()!==p)throw Error('Időközben profilváltás történt, nem továbbíthatók az orvosi adatok.');
+   data.fullCorpusConsent=true;
+   // Server reads authorized originals; browser excerpts are deliberately not forwarded.
+   data.documentEvidence=[];
+   data.originalDocumentsConsent=false;
+   print('🧪 HH Sol v705: külön teszt, teljes ellenőrzött leletállomány, egyszeri hozzájárulással. Éles Ask Léna változatlan.');
+  }
+  var aiRoute=solPreviewMode?'/functions/v1/hh-sol-full-corpus-preview':
+   mkbQAMode?'/functions/v1/hh-mkb-search-preview':
    narrativeQAVersion==='v406'?'/functions/v1/smooth-endpoint-v406-preview':
    narrativeQAVersion==='v405'?'/functions/v1/smooth-endpoint-v405-preview':
    clinicalPilot?'/functions/v1/smooth-endpoint-v395':'/functions/v1/smooth-endpoint';
@@ -675,7 +693,33 @@ async function run(opts){
     completedModel=/^[A-Za-z0-9._:-]{3,60}$/.test(serverModel)?serverModel:'';
     var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
     // A completed AI stream is not automatically a clinically verified answer.
-    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified);
+    // Sol v705 uses a separate source-page inventory check, not the legacy v395
+    // paragraph verifier. Do not claim clinical validation just because the
+    // source IDs exist. Keep the old gate UNCHANGED for normal Ask Léna.
+    var solAudit=solPreviewMode&&item.evidenceAudit&&item.evidenceAudit.mode==='sol-full-corpus-preview-v705'?item.evidenceAudit:null;
+    if(solPreviewMode&&(!solAudit||item.model!=='gpt-6.1-sol'||
+        !solAudit.citationIdsValidated||solAudit.sourcePages<1||solAudit.sourceDocuments<1||
+        solAudit.hashVerifiedPages!==solAudit.sourcePages||
+        solAudit.totalSourcePages!==solAudit.sourcePages+solAudit.unreadablePages||
+        solAudit.visualReviewPages<0||solAudit.visualReviewPages>solAudit.sourcePages))
+     throw Error('A Sol-kutatás teljes forrásellenőrző jelentése hiányzik. A válasz nem tekinthető késznek.');
+    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified&&!solPreviewMode);
+    if(solPreviewMode){
+     // Dedicated, factual Sol status: do not append any of the legacy v395
+     // excerpt counts, old source panels or provenance labels.
+     renderAnswerText(answerText);complete=true;
+     var solFooter=el('hhAi331Foot');
+     if(solFooter)solFooter.textContent='🧪 Golden Standard Sol v705 · GPT-6.1 Sol · '+
+      solAudit.sourceDocuments+' eredeti dokumentum, '+solAudit.sourcePages+
+      '/'+solAudit.totalSourcePages+' SHA-256-tal ellenőrzött, olvasható szöveges oldal · '+
+      solAudit.visualReviewPages+' oldalon képi tartalom külön ellenőrizendő · '+
+      (solAudit.unreadablePages?solAudit.unreadablePages+' oldal szövege nem olvasható · ':'')+
+      Number(solAudit.citedPages||0)+
+      ' hivatkozott oldal · forrásazonosítók ellenőrizve, orvosi tények NEM hitelesítve · '+
+      new Date(item.generatedAt).toLocaleString('hu-HU');
+     print('HH Sol v705 kutatás befejeződött. A forrásazonosítók létezését ellenőriztem; orvosi szakellenőrzés még nem történt.');
+     return;
+    }
     renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
@@ -710,7 +754,10 @@ async function run(opts){
      if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     }
     print('AI-kutatás befejeződött.');return}
-   if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
+   if(kind==='error'){
+    if(solPreviewMode)throw Error('Sol v705 teszthiba: '+safe(item.reason||item.error||'ismeretlen',90)+' · Nincs kész válasz.');
+    throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
+   }
   }
   while(true){
    var step=await reader.read();if(step.done)break;
