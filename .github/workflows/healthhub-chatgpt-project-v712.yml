@@ -1,0 +1,23 @@
+name: HealthHub v712 · ChatGPT Project Glass Shortcut QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/chatgpt-project-shortcut-v712.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/chatgpt-project-shortcut-v712.test.cjs'
+      - '.github/workflows/healthhub-chatgpt-project-v712.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shortcut:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check healthhub/chatgpt-project-shortcut-v712.js
+          node --check healthhub/live-v299.js
+          node healthhub/tests/chatgpt-project-shortcut-v712.test.cjs
+          node healthhub/tests/hh-one-rag-v500.test.cjs
+          node healthhub/tests/hhsp1-default-link-v594.test.cjs
