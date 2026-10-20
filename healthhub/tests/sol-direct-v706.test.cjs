@@ -25,8 +25,13 @@ const done={model:'gpt-6.1-sol',generatedAt:'2026-10-20T10:00:00Z',evidenceAudit
 function stream(events){
  const content=events.map(([event,data])=>'event: '+event+'\ndata: '+JSON.stringify(data)+'\n\n').join('');
  const chunks=[content.slice(0,23),content.slice(23,61),content.slice(61)];
- let pos=0;return {ok:true,headers:{get:()=> 'text/event-stream; charset=utf-8'},
- body:{getReader:()=>({read:async()=> pos>=chunks.length?{done:true}:{done:false,value:new TextEncoder().encode(chunks[pos++])}})}}};
+ let pos=0;
+ const reader={read:async function(){
+  if(pos>=chunks.length)return {done:true};
+  return {done:false,value:new TextEncoder().encode(chunks[pos++])};
+ }};
+ return {ok:true,headers:{get:()=> 'text/event-stream; charset=utf-8'},
+  body:{getReader:()=>reader}};
 }
 function harness({consent=true,authenticated=true,allowed=true,response=stream([['delta',{text:sample}],['done',done]])}={}){
  const texts=[],errors=[],calls=[],events=[];
