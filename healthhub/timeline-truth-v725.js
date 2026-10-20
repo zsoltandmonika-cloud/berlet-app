@@ -68,7 +68,7 @@
    const urine=!stool&&/^[1-8]$/.test(String(x.urineColor||''))?Number(x.urineColor):null;
    return {
     id:'body:'+x.id,profile:p,date:x.date,time:x.time,kind:'observation',
-    observationType:stool?'stool':'urine',icon:stool?'🧻':'💧',
+    observationType:stool?'stool':'urine',grade:stool?bristol:urine,icon:stool?'🧻':'💧',
     title:stool?'Széklet · Bristol-skála':'Vizelet · Apple juice színskála',
     quantity:stool?(bristol?'Bristol '+bristol+'/7':'Bristol-fokozat nincs megadva'):
       urine?'Szín '+urine+'/8 · '+URINE_COLORS[urine-1]:'Színfokozat nincs megadva',
@@ -119,6 +119,51 @@
   const tally=foods.map(x=>x.kcal).filter(x=>x!==null).reduce((s,x)=>s+x,0);
   return {recorded:foods.length,withKcal:foods.filter(x=>x.kcal!==null).length,kcal:tally,
    meals:MEALS.map(m=>({name:m,rows:foods.filter(x=>x.meal===m)}))};
+ }
+ // Informational RAG pattern, never a diagnostic decision. Green check = saved
+ // diary entry, not a clinical assessment or a verified sensor measurement.
+ function observationRag(x){
+  const level=x&&x.grade;
+  if(!Number.isInteger(level))return {tone:'unknown',label:'Nincs kiválasztott fokozat'};
+  if(x.observationType==='stool'){
+   if(level<1||level>7)return {tone:'unknown',label:'Ismeretlen Bristol-fokozat'};
+   return level===3||level===4?{tone:'green',label:'Szokásos mintázat'}:
+    level===1||level===7?{tone:'red',label:'Szélső kategória'}:
+    {tone:'amber',label:'Eltérő mintázat'};
+  }
+  if(x.observationType==='urine'){
+   if(level<1||level>8)return {tone:'unknown',label:'Ismeretlen színfokozat'};
+   return level<=3?{tone:'green',label:'Világos árnyalat'}:
+    level<=5?{tone:'amber',label:'Közepes árnyalat'}:
+    {tone:'red',label:'Sötét árnyalat'};
+  }
+  return {tone:'unknown',label:'Nem besorolt megfigyelés'};
+ }
+ function observationGroup(rows){
+  const ordered=[...rows].sort((a,b)=>
+   (a.observationType==='stool'?0:1)-(b.observationType==='stool'?0:1)||
+   (a.time||'').localeCompare(b.time||''));
+  return '<div class="hhTruthObservationGroup" aria-label="Rögzített testi megfigyelések">'+
+   '<div class="hhTruthObservationHeading"><span class="hhTruthRecorded" aria-hidden="true">✓</span>'+
+   '<strong>BB / AJ · Megfigyelések</strong><small>'+ordered.length+' rögzítve</small></div>'+
+   ordered.map(x=>{
+    const rag=observationRag(x),isBB=x.observationType==='stool';
+    const code=isBB?'BB':'AJ',label=isBB?'Bristol Bar':'Apple Juice';
+    return '<details class="hhTruthObservationMini">'+
+     '<summary><span class="hhTruthObservationCheck" aria-hidden="true">✓</span>'+
+     '<b class="hhTruthObservationCode">'+code+'</b>'+
+     '<span class="hhTruthObservationName">'+label+'</span>'+
+     '<time class="hhTruthObservationTime">'+esc(x.time)+'</time>'+
+     '<span class="hhTruthRag hhTruthRag-'+rag.tone+'" role="img" aria-label="Tájékoztató: '+esc(rag.label)+'" title="'+esc(rag.label)+'"></span>'+
+     '<span class="hhTruthObservationExpand" aria-hidden="true">⌄</span></summary>'+
+     '<div class="hhTruthObservationDetail">'+esc(x.quantity)+
+     (x.note?'<span class="hhTruthObservationNote">'+esc(x.note)+'</span>':'')+
+     '<small>Nutrition · saját bejegyzés · nem diagnózis</small></div>'+
+     '</details>';
+   }).join('')+
+   '<small class="hhTruthRagLegend"><i class="hhTruthRag hhTruthRag-green"></i>'+
+   '<i class="hhTruthRag hhTruthRag-amber"></i><i class="hhTruthRag hhTruthRag-red"></i>'+
+   ' A színek tájékoztató mintázatot jelölnek, nem egészségügyi minősítést. A ✓ kizárólag a naplózást igazolja.</small></div>';
  }
  function statCards(rows,filter){
   const n=rows.length,food=rows.filter(x=>x.kind==='nutrition'),
@@ -182,6 +227,29 @@
    '.hhTruthCard small{display:block;font-size:10px;color:#acc8e1;margin-top:6px;line-height:1.5}'+
    '.hhTruthCard .hhTruthMetric{display:inline-block;font-weight:850;font-size:12px;color:#a8e2ff;margin-top:6px}'+
    '.hhTruthCard .hhTruthSource{font-size:9px;color:#a5bad4;margin-top:7px}'+
+   '.hhTruthObservationGroup{margin:8px 0 13px 35px;padding:8px 10px;border-radius:14px;border:1px solid #678bb363;background:rgba(15,36,64,.61)}'+
+   '.hhTruthObservationHeading{display:flex;align-items:center;gap:7px;margin-bottom:3px;color:#bfd4e8}'+
+   '.hhTruthObservationHeading strong{font:750 11px/1.4 system-ui;color:#dce9f7}'+
+   '.hhTruthObservationHeading small{margin-left:auto;font:10px system-ui;color:#8faecb}'+
+   '.hhTruthRecorded{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#163e33;border:1px solid #42bc89;color:#86eec0;font-size:12px}'+
+   '.hhTruthObservationMini{border-top:1px solid #7194bd35}'+
+   '.hhTruthObservationMini summary{display:flex;align-items:center;gap:8px;padding:8px 3px;cursor:pointer;list-style:none;min-height:38px}'+
+   '.hhTruthObservationMini summary::-webkit-details-marker{display:none}'+
+   '.hhTruthObservationMini summary:focus-visible{outline:2px solid #91d1fa;outline-offset:-1px;border-radius:6px}'+
+   '.hhTruthObservationCheck{font-size:14px;color:#65d99c;font-weight:900}'+
+   '.hhTruthObservationCode{font:850 12px system-ui;color:#eaf8ff}'+
+   '.hhTruthObservationName{font:650 11px system-ui;color:#c7dff0;min-width:0}'+
+   '.hhTruthObservationTime{margin-left:auto;white-space:nowrap;font:700 11px system-ui;color:#b8d5ef;font-variant-numeric:tabular-nums}'+
+   '.hhTruthRag{width:10px;height:10px;display:inline-block;flex:0 0 10px;border-radius:50%;background:#8391a5;box-shadow:0 0 0 2px #ccd5e125}'+
+   '.hhTruthRag-green{background:#36c981}.hhTruthRag-amber{background:#efb44c}.hhTruthRag-red{background:#ee777e}.hhTruthRag-unknown{background:#8696aa}'+
+   '.hhTruthObservationExpand{color:#9cb5cc;font-size:13px;transition:transform .15s}'+
+   '.hhTruthObservationMini[open] .hhTruthObservationExpand{transform:rotate(180deg)}'+
+   '.hhTruthObservationDetail{padding:2px 8px 11px 31px;color:#bed7e9;font:11px/1.5 system-ui}'+
+   '.hhTruthObservationNote{display:block;overflow-wrap:anywhere;margin:6px 0;color:#d2e3f5}'+
+   '.hhTruthObservationDetail small{display:block;margin-top:4px;font-size:9px;color:#93aac4}'+
+   '.hhTruthRagLegend{display:block;margin:7px 3px 3px;color:#9ab5cf;font:9px/1.5 system-ui}'+
+   '.hhTruthRagLegend .hhTruthRag{width:7px;height:7px;flex-basis:7px;margin-right:2px}'+
+   '@media(max-width:380px){.hhTruthObservationGroup{margin-left:22px;padding:7px 7px}.hhTruthObservationMini summary{gap:5px}.hhTruthObservationName{font-size:10px}}'+
    '.hhTruthEmpty{border:1px dashed #7194b77a;border-radius:15px;padding:18px;text-align:center;color:#b6cce1;font-size:12px;line-height:1.65}'+
    '.hhTruthWarning{margin:10px 0;padding:11px;border:1px solid #edbb7066;border-radius:13px;font-size:10px;line-height:1.6;color:#efc99d}'+
    '@media(max-width:380px){.hhTruthEvent{grid-template-columns:58px 30px minmax(0,1fr);gap:5px}'+
@@ -253,7 +321,12 @@
   const output=[];
   byDate.forEach((rows,day)=>{
    output.push('<div class="hhTruthGroupTitle">'+esc(day===''+today?'Ma · '+day:day)+'</div>');
+   let observationsRendered=false;
    for(const x of rows){
+    if(x.kind==='observation'){
+     if(!observationsRendered){output.push(observationGroup(rows.filter(row=>row.kind==='observation')));observationsRendered=true;}
+     continue;
+    }
     const metric=x.kind==='nutrition'
      ?(x.kcal===null?'Tápérték nincs rögzítve':fmt(x.kcal)+' kcal')
      :(x.kind==='symptom'&&x.severity!==null?'Erősség: '+fmt(x.severity)+'/10':x.kind==='activity'?x.quantity:'');
