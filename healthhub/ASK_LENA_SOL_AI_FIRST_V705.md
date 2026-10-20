@@ -10,7 +10,7 @@ Mérce: a Golden Standard Mónika-történet, az eredeti orvosi tényekkel össz
 - A Supabase Edge Function csak az azonosított felhasználó és a hh_profile_access jogosultsága után olvas leleteket.
 - Forrás: hh_kb_documents és hh_kb_pages, kizárólag complete + verified + nem duplikált sorok. Mindegyik oldal teljes szövege; 650 000 karakter fölött fail closed, nincs rejtett csonkítás.
 - Eredeti PDF-bájtok, képek, kizárt EKG-k nincsenek továbbítva.
-- Modell: gpt-6.1-sol, OpenAI Responses API, high reasoning, store:false, 14k kimeneti token plafon.
+- Modell: gpt-6.1-sol, OpenAI Responses API, high reasoning, store:false, 25k összesített (gondolkodási + látható) kimeneti token plafon.
 - A modell egyetlen nagy kontextusú feldolgozásban készíti el a választ. A D1:p1 formájú idézett oldalkódok létezését a backend ellenőrzi, de ez NEM klinikai szaklektorálás.
 - A meglévő hh_ask_lena_usage óránkénti limitet alkalmazza; új klinikai naplót nem készít.
 
@@ -26,3 +26,6 @@ Mérce: a Golden Standard Mónika-történet, az eredeti orvosi tényekkel össz
 CODED nem jelent TESTED, DEPLOYED nem jelent LIVE VERIFIED, és ez sem jelent USER ACCEPTED státuszt.
 Rollback: URL-paraméter elhagyása; minden korábbi forrás- és modellútvonal változatlan.
 Nincs automatikus orvosi szakvélemény, és a modell valós API-elérhetőségét csak hitelesített élő próba bizonyítja.
+
+## Futásidő
+A 125 másodperces modellhívási felső korlát figyelembe veszi a Supabase Free 150 másodperces worker-időkorlátját; dokumentumlekérés és hálózati késés is számít. A felhasználónak a külön Sol-útvonal a valós szerverhibakódot mutatja. Ez nem garantálja, hogy egy teljes nagy kontextusú válasz ennyi idő alatt elkészül.
