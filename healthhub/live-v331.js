@@ -91,6 +91,7 @@ function setAnswerProfile(p){
  if(heading)heading.textContent=p==='monika'?'💗 Léna válasza Mónikának':'💙 Léna válasza Zsoltnak';
 }
 function renderAnswerText(raw){
+ var maxChars=arguments[1]===85000?85000:26000;
  var host=el('hhAi331Text');if(!host)return;
  var frag=document.createDocumentFragment(),para=null,list=null;
  function appendMeasured(node,chunk){
@@ -112,7 +113,7 @@ function renderAnswerText(raw){
   }
   appendMeasured(node,value.slice(start));
  }
- var normalized=String(raw||'').slice(0,26000).replace(/\r\n?/g,'\n');
+ var normalized=String(raw||'').slice(0,maxChars).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
  normalized=parts.map(function(chunk){
   if(chunk.length<380 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
@@ -368,6 +369,119 @@ function errorText(code,status){
  if(code==='ai_upstream_401'||code==='ai_upstream_402'||code==='ai_upstream_429')return 'Az AI-szolgáltatás kulcsa, kerete vagy limitje ellenőrzést igényel ('+code+').';
  return 'AI-kutatás sikertelen: '+safe(code||'kapcsolati vagy szerverhiba',140)+'.';
 }
+// v706 ON-DEMAND SOL: one direct clinical test route, independent of all legacy
+// local bridge, PDF reattach, clinical-pilot heuristics and offline fallback.
+// This branch has NO effect unless the user explicitly opens ?hhSolQA=v1.
+async function runSolDirect(question,p,q,result,err){
+ var svc=window.HH_DAILY_HEALTH_SYNC_V319;
+ if(!svc||typeof svc.stream!=='function'){
+  showError('Sol v706: a biztonságos Health Vault-kapcsolat hiányzik. Nem indult AI-kutatás.');return;
+ }
+ var status=svc.getStatus&&svc.getStatus();
+ if(!status||!status.authenticated){
+  showError('Sol v706: jelentkezz be a Központi Health Vaultba. Nem indult AI-kutatás.');
+  if(svc.openLogin)svc.openLogin();return;
+ }
+ if(!Array.isArray(status.authorizedProfiles)||!status.authorizedProfiles.includes(p)){
+  showError('Sol v706: nincs megerősített jogosultság az aktív profilhoz. Nem indult AI-kutatás.');return;
+ }
+ if(question.length>1200){
+  showError('Sol v706: a kérdés legfeljebb 1200 karakter lehet.');return;
+ }
+ // A user action initiates this consent for exactly ONE research request.
+ if(!window.confirm('HH SOL TESZT: engedélyezed, hogy '+(p==='monika'?'Mónika':'Zsolt')+
+  ' profiljának MINDEN ellenőrzött leletszövegét a GPT-6.1 Sol OpenAI API csak erre az egy kérdésre feldolgozza? Ez API-költséggel járhat.')){
+  print('Sol v706: nem adtál engedélyt. Nem történt adatátadás.');return;
+ }
+ if(profile()!==p){showError('Sol v706: profilváltás miatt a kutatás nem indult.');return;}
+ var turn=++epoch,ctrl=new AbortController();active=ctrl;
+ var b=el('hhRun299');if(b)b.disabled=true;
+ q.disabled=true;try{q.blur()}catch(e){}
+ window.dispatchEvent(new CustomEvent('healthhub:ask-lena-start',{detail:{profile:p,engine:'sol-v706'}}));
+ print('🧪 Sol v706: közvetlen kutatási útvonal; nem futnak a régi AI-feldolgozási kapuk.');
+ var text='',done=false,model='',audit=null,buffer='',renderPending=false;
+ try{
+  const payload={
+   schema:'healthhub.ask-lena/1',profile:p,question:question,consent:true,
+   fullCorpusConsent:true,researchMode:'clinical-v395',depth:'detailed'
+  };
+  var response=await svc.stream('/functions/v1/hh-sol-full-corpus-preview',payload,ctrl.signal);
+  if(!response.ok){
+   var body={};try{body=await response.json()}catch(e){}
+   throw Error('Sol szerver: '+errorText(body.error,response.status));
+  }
+  if(!(response.headers.get('Content-Type')||'').includes('text/event-stream')||!response.body)
+   throw Error('A Sol-szerver nem adott ellenőrizhető AI-válaszfolyamot.');
+  var reader=response.body.getReader(),decoder=new TextDecoder();
+  function packet(chunk){
+   var kind='',raw='';
+   chunk.split('\n').forEach(function(line){
+    if(line.startsWith('event:'))kind=line.slice(6).trim();
+    if(line.startsWith('data:'))raw+=line.slice(5).trim();
+   });
+   if(!raw)return;
+   var item;try{item=JSON.parse(raw)}catch(e){throw Error('Sol: sérült válaszcsomag.')}
+   if(kind==='stage'){print('Sol: '+safe(item.message,140));return;}
+   if(kind==='error')throw Error('Sol v706 szerverhiba: '+safe(item.reason||item.error||'ismeretlen',100));
+   if(kind==='delta'){
+    text+=String(item.text||'');
+    if(text.length>85000)throw Error('Sol: a válasz túllépte a méretkorlátot.');
+    if(!renderPending){
+     renderPending=true;
+     setTimeout(function(){renderPending=false;
+      if(turn===epoch&&profile()===p){renderAnswerText(text,85000);result.classList.add('on');}
+     },180);
+    }
+    return;
+   }
+   if(kind==='done'){
+    var info=item.evidenceAudit;
+    if(done||item.model!=='gpt-6.1-sol'||!info||
+       info.mode!=='sol-full-corpus-preview-v705'||info.citationIdsValidated!==true||
+       !Number.isInteger(info.sourceDocuments)||info.sourceDocuments<1||
+       !Number.isInteger(info.sourcePages)||info.sourcePages<1||
+       info.hashVerifiedPages!==info.sourcePages||
+       info.totalSourcePages!==info.sourcePages+info.unreadablePages||
+       info.visualReviewPages<0||info.visualReviewPages>info.sourcePages||
+       text.trim().length<150)
+     throw Error('Sol: hiányos forrás- vagy modelljelentés. A válasz nem elfogadható.');
+    done=true;model=item.model;audit=info;
+   }
+  }
+  while(true){
+   var step=await reader.read();if(step.done)break;
+   if(turn!==epoch||profile()!==p)throw Error('Sol: profilváltás, kutatás megszakítva.');
+   buffer+=decoder.decode(step.value,{stream:true}).replace(/\r\n/g,'\n');
+   var packets=buffer.split('\n\n');buffer=packets.pop()||'';
+   for(var chunk of packets)packet(chunk);
+  }
+  if(buffer.trim())packet(buffer);
+  if(!done)throw Error('Sol: nem érkezett teljes kutatási válasz. Nincs eredmény.');
+  if(turn!==epoch||profile()!==p)throw Error('Sol: profilváltás miatt a választ elvetettük.');
+  renderAnswerText(text,85000);result.classList.add('on');
+  var foot=el('hhAi331Foot');
+  if(foot)foot.textContent='🧪 Sol v706 · '+model+' · '+audit.sourceDocuments+
+   ' dokumentum · '+audit.sourcePages+'/'+audit.totalSourcePages+
+   ' olvasható, SHA-256 ellenőrzött oldal · '+audit.visualReviewPages+
+   ' képi ellenőrzendő oldal · '+Number(audit.citedPages||0)+
+   ' oldalszintű hivatkozás · orvosi tények nem hitelesítve.';
+  print('✅ Sol v706: AI-válasz megérkezett. Értékeld a Golden Standard mintához képest.');
+  try{window.dispatchEvent(new CustomEvent('healthhub:ask-lena-complete',{
+   detail:{profile:p,successful:true,question:question,answer:text,
+    generatedAt:new Date().toISOString(),model:model,answerMode:'sol-v706-preview'}}))}catch(e){}
+  setTimeout(alignAnswerTop,80);
+ }catch(e){
+  if(turn===epoch){
+   result.classList.remove('on');el('hhAi331Text').textContent='';
+   el('hhAi331Foot').textContent='';
+   // Never pretend an offline template answers an archived clinical question.
+   showError('Sol v706 · '+safe(e&&e.message||'ismeretlen hiba',190)+
+    ' · NEM készült AI-válasz. Helyi sablon nem jelenik meg.');
+  }
+ }finally{
+  if(turn===epoch){active=null;if(b)b.disabled=false;q.disabled=false;}
+ }
+}
 async function run(opts){
  var deep=!!(opts&&opts.depth==='detailed');
  ui();if(active){print('Már fut egy kutatás.');return}
@@ -381,6 +495,10 @@ async function run(opts){
  var legacy=el('hhProg299');if(legacy)legacy.classList.remove('on');
  if(el('askWork330'))el('askWork330').classList.remove('on');
  if(!question||question.length<3){showError('Írj be egy érdemi kérdést.');return}
+ // v706: intercept before legacy clinical/document preprocessing or Safe Fallback.
+ if(typeof URLSearchParams==='function'&&
+    new URLSearchParams(window.location.search).get('hhSolQA')==='v1')
+  return runSolDirect(question,p,q,result,err);
  var svc=window.HH_DAILY_HEALTH_SYNC_V319;
  if(!svc||!svc.stream){showError('A titkosított AI-kapcsolat még nem áll rendelkezésre.');showLocalAnswer(question,p,null);return}
  if(!svc.getStatus().authenticated){showError('Egyszeri, biztonságos bejelentkezés szükséges az első kutatáshoz.');showLocalAnswer(question,p,null);if(svc.openLogin)svc.openLogin();return}
