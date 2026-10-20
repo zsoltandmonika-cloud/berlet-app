@@ -110,7 +110,7 @@ const tileDefs=[
  {category:'food',name:'Étel',icon:'🍽️',id:'addFood'},
  {category:'drink',name:'Ital',icon:'🥤',id:'addDrink'},
  {category:'ai',name:'AI Bevitel',icon:'📷',id:'hhBevitelAI'},
- {category:'cookbook',name:'Léna Cookbook',icon:'👩‍🍳',id:'hhBevitelCookbook'}
+
 ];
 const bristolDefs=[
  {category:'1',name:'1 · Csokigolyók',icon:'🍫'},
