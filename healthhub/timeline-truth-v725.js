@@ -400,7 +400,7 @@
  function active(){return !!el('timeline')?.classList.contains('on');}
  function onProfile(){if(active())refresh(false);else{sequence++;profile=null;records=[];}}
   w.HH_TIMELINE_TRUTH_V725={version:'725',refresh,profile:pkey,model:{
-   nutritionRows,bodyRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,statCards,byId,dedupe,liveNutrition,liveSymptoms
+   nutritionRows,bodyRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,statCards,observationRag,observationGroup,byId,dedupe,liveNutrition,liveSymptoms
   }};
  function decorate(){
   shell();
