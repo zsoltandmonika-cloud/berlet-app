@@ -31,3 +31,32 @@
 .hhTruthObservationGroup.hhRhythmDiary .hhRhythmTitle{font-size:12px}
 .hhTruthObservationGroup.hhRhythmDiary .hhRhythmLegend{padding-top:8px}
 @media(max-width:380px){.hhTruthObservationGroup.hhRhythmDiary{margin-left:10px;padding:8px}}
+
+/* Visible compact summary v729: still readable when Napi ritmus is collapsed. */
+#bodyDetails > summary .hhRhythmSummaryInline{
+ display:inline-flex;vertical-align:middle;flex-wrap:wrap;align-items:center;
+ gap:7px;margin:2px 0 2px 9px
+}
+#bodyDetails > summary .hhRhythmSummaryBadge{
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;
+ min-width:64px;padding:5px 9px;min-height:27px;
+ border:1px solid rgba(151,195,236,.4);border-radius:999px;
+ background:rgba(22,48,83,.6);color:#e5f2ff;
+ font:750 11px/1.2 system-ui,sans-serif;white-space:nowrap
+}
+#bodyDetails > summary .hhRhythmSummarySaved{
+ display:inline-grid;place-items:center;color:#8fefc4;
+ font-size:13px;font-weight:900;line-height:1
+}
+#bodyDetails > summary .hhRhythmSummaryMissing{color:#839fb9;line-height:1}
+#bodyDetails > summary .hhRhythmSummaryRag{
+ width:9px;height:9px;display:inline-block;flex:0 0 9px;border-radius:50%;
+ border:1px solid rgba(255,255,255,.22);background:#8393a7
+}
+#bodyDetails > summary .hhRhythmSummaryRag[data-rag=green]{background:#36c981}
+#bodyDetails > summary .hhRhythmSummaryRag[data-rag=amber]{background:#efb44c}
+#bodyDetails > summary .hhRhythmSummaryRag[data-rag=red]{background:#ee777e}
+@media(max-width:460px){
+ #bodyDetails > summary .hhRhythmSummaryInline{margin:8px 0 0 0;display:flex;gap:6px}
+ #bodyDetails > summary .hhRhythmSummaryBadge{padding:6px 10px}
+}
