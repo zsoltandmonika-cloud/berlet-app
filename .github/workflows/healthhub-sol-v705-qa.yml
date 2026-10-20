@@ -1,0 +1,43 @@
+name: HealthHub v705 · Sol AI-first preview QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/live-v331.js"
+      - "healthhub/index.html"
+      - "healthhub/tests/sol-ai-first-v705.test.cjs"
+      - "supabase/functions/hh-sol-full-corpus-preview/**"
+      - ".github/workflows/healthhub-sol-v705-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sol-preview-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check opt-in, profile and corpus integrity invariants (synthetic only)
+        run: |
+          node --check healthhub/live-v331.js
+          node healthhub/tests/sol-ai-first-v705.test.cjs
+          node healthhub/tests/mkb-preview-route-v703.test.cjs
+          node --test healthhub/tests/mkb-date-research-v704.test.cjs
+      - name: Smoke test deployed Sol endpoint without any personal data or API key
+        shell: bash
+        run: |
+          set -euo pipefail
+          endpoint="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-sol-full-corpus-preview"
+          origin="https://zsoltandmonika-cloud.github.io"
+          status=$(curl -sS --max-time 18 -o /tmp/hh-sol-no-login.json -w "%{http_code}" \
+            -X POST "$endpoint" -H "Origin: $origin" -H "Content-Type: application/json" \
+            --data '{"schema":"healthhub.ask-lena/1","consent":true,"fullCorpusConsent":true,"profile":"monika","researchMode":"clinical-v395","depth":"detailed","question":"synthetic auth check"}')
+          echo "Unauthenticated Sol endpoint: HTTP $status"
+          test "$status" = "401"
+          grep -q 'login_required' /tmp/hh-sol-no-login.json
+          status=$(curl -sS --max-time 18 -o /dev/null -w "%{http_code}" \
+            -X OPTIONS "$endpoint" -H "Origin: $origin" -H "Access-Control-Request-Method: POST")
+          echo "CORS preflight: HTTP $status"
+          test "$status" = "204"
+          status=$(curl -sS --max-time 18 -o /dev/null -w "%{http_code}" -X GET "$endpoint")
+          echo "Unsupported method: HTTP $status"
+          test "$status" = "405"
