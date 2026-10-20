@@ -157,10 +157,26 @@ function paintArtwork(target,q){
  }
  const shine=document.createElement('span');shine.className='hh-quick-shine';target.append(shine);
 }
+const MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
+let selectedQuickMeal='',quickMealRecipeId='';
+function showQuickMealChoice(q){
+ if(!q)return;
+ if(q.id!==quickMealRecipeId){
+  quickMealRecipeId=q.id;
+  selectedQuickMeal=MEALS.includes(q.meal)?q.meal:(q.meal==='Egyéb / Brunch'?'Egyéb':'Egyéb');
+ }
+ const container=$('hhQuickMealChoices');if(!container)return;
+ container.querySelectorAll('button[data-meal]').forEach(button=>{
+  const current=button.dataset.meal===selectedQuickMeal;
+  button.setAttribute('aria-pressed',String(current));
+  button.classList.toggle('selected',current);
+ });
+}
 function selectUI(){
  const cards=rail.querySelectorAll('.hh-quick-card');
  cards.forEach((c,i)=>{c.dataset.active=String(i===selection);c.setAttribute('aria-current',String(i===selection))});
  const q=recipes[selection];
+ showQuickMealChoice(q);
  $('hhQuickSelected').textContent=q?q.name:'Nincs aktív recept';
  $('hhQuickSelectedNote').textContent=q?((q.kind==='drink'&&Number(q.volumeMl)>0?fmt(q.volumeMl)+' ml':'1 beállított adag')+' · '+fmt(q.nutrients.kcal)+' kcal'):'A Stúdióban új receptet hozhatsz létre.';
  $('hhQuickRecord').disabled=!q||busy;
@@ -203,6 +219,7 @@ function showWheel(wantedId=''){
  requestAnimationFrame(()=>centerCard(selection,false));
 }
 function showDialog(){
+ quickMealRecipeId=''; // New opening uses recipe's configured meal until user chooses another.
  shell.dataset.mode='wheel';$('hhQuickSuccess').dataset.open='false';
  $('hhQuickSound').textContent=localStorage.getItem(keySound)==='off'?'🔇':'♫';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Mónika receptjei':'Zsolt receptjei';
@@ -216,7 +233,7 @@ function recordSelected(){
  const q=recipes[selection];if(!q)return;
  busy=true;selectUI();
  try{
-  const result=api.recordRecipe(q);
+  const result=api.recordRecipe(q,selectedQuickMeal);
   lastRecord=now;activeId=q.id;tada();
   const kcal=Number(result.kcal)||0,marathons=(kcal/(70*42.195));
   $('hhQuickSuccessTitle').textContent=q.name+' rögzítve!';
@@ -514,6 +531,13 @@ $('hhQuickBack').addEventListener('click',()=>{if(shell.dataset.mode==='portal')
 $('hhQuickEdit').addEventListener('click',()=>showEditor(recipes[selection]?.id));
 $('hhQuickAdd').addEventListener('click',()=>showEditor(null,true));
 $('hhQuickRecord').addEventListener('click',recordSelected);
+ $('hhQuickMealChoices')?.querySelectorAll('button[data-meal]').forEach(button=>{
+  button.addEventListener('click',()=>{
+   if(!recipes[selection])return;
+   selectedQuickMeal=button.dataset.meal;
+   showQuickMealChoice(recipes[selection]);
+  });
+ });
 $('hhQuickSuccessDone').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';hideDialog()});
 $('hhQuickAgain').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';showWheel(activeId)});
 $('hhQuickSound').addEventListener('click',()=>{const disabled=localStorage.getItem(keySound)==='off';localStorage.setItem(keySound,disabled?'on':'off');$('hhQuickSound').textContent=disabled?'♫':'🔇';if(disabled)tada()});
