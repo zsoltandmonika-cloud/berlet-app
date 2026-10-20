@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
-<meta name="healthhub-live-build" content="v702-home-tile-singular" data-hh-shortcut>
+<meta name="healthhub-live-build" content="v710-medical-master-golden-qa" data-hh-shortcut>
 <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-v146.ico" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/healthhub-16-v146.png" data-hh-shortcut>
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/healthhub-32-v146.png" data-hh-shortcut>
@@ -30,7 +30,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
 (function(){
   // v528: approved Premium Glass is now the normal Home for both profiles.
   // Explicit ?hhpremium=0 keeps the original Home as a safe, read-only fallback.
-  var v='702-home-tile-singular';
+  var v='710-medical-master-golden-qa';
   try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
   // OAuth relay must not be pre-empted by the normal /index.html redirect.
   if(window.HH_SAMSUNG_BETA_OAUTH_PENDING)return;
@@ -183,7 +183,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
       if(el.parentNode!==document.head)document.head.appendChild(el);
     });
     document.documentElement.dataset.healthhubShortcut='380';
-    window.HH_LIVE_BUILD='v702-home-tile-singular';
+    window.HH_LIVE_BUILD='v710-medical-master-golden-qa';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',normalizeShortcutHead,{once:true});
   else normalizeShortcutHead();
