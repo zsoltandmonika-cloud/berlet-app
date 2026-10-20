@@ -48,7 +48,11 @@ Dropbox modules are primarily **event-driven, on opening HealthHub or saving dat
 - **DECIDED:** Dropbox-only ChatGPT data access, existing Dropbox remains canonical.
 - **IN CODE:** Some module-specific Dropbox writers/readers and Medical Master generator.
 - **NOT VERIFIED:** Actual ChatGPT Dropbox connection, folder visibility, cross-source data completeness.
-- **NOT DEPLOYED:** Continuous consolidated server-side 24/7 "all health data" synchronization.
+- **DEPLOYED v732:** Cloud Vault → Forrásleltár lists existing private Dropbox files and missing expected sources for both profiles. The optional "Privát ChatGPT-index frissítése" action regenerates a metadata-only JSON catalog at `/HealthHub/analytics/healthhub-chatgpt-source-index.json`, uploads it to Dropbox, and checks readback. After the first confirmed publication, a daily retry runs when HealthHub is open, visible, and connected.
+- **DEPLOYED v732:** The separate user-triggered "Privát Daily Health → Dropbox" action exports ready, RLS-authorized Supabase personal briefing reports per authorized profile into `/HealthHub/analytics/healthhub-daily-health-{profile}.json`, with strict profile checks and Dropbox readback. It does not silently export authentication credentials or alter the Supabase source.
+- **QA:** `.github/workflows/healthhub-chatgpt-dropbox-v732.yml` covers JSON index, allowlisted source inventory, no token filename exfiltration, profile isolation, and mocked private Daily Health export. No live patient export has been executed from ChatGPT.
+
+- **NOT DEPLOYED:** Continuous consolidated server-side 24/7 "all health data" synchronization. The browser-based daily source-index refresh is best-effort while HealthHub is open, not a server-side guarantee.
 - Google Drive v730 prototype exists in the repository but is **not loaded by HealthHub**; do not enable it under Dropbox-first decision.
 
 ## Operator next action
