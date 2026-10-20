@@ -33,7 +33,10 @@ const foods=[
  {id:'sugar',name:'Kockacukor',kind:'food',category:'Édesség',icon:'🧊',piece:4,per:{kcal:400,protein:0,carbs:100,fat:0}},
  {id:'cin',name:'Fahéjas cukor',kind:'food',category:'Édesség',icon:'✨',per:{kcal:395,protein:0,carbs:98,fat:0}}
 ];
-const ENTRIES=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb / Brunch'];
+const ENTRIES=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
+const MEAL_ICONS=['☕','🍎','🍽️','🍪','🌙','➕'];
+const normalizeMeal=meal=>ENTRIES.includes(meal)?meal:(meal==='Egyéb / Brunch'?'Egyéb':null);
+let entryMealManuallyChosen=false;
 const DOM=['milkMl','milkType','sugarCubes','cubeGrams','cinnamonGrams','ladyCount','ladyGrams','presetMeal','presetTime'];
 let active='', currentFood='', currentPreset='morning', currentEdit='', bodyKind='', activeType='food';
 let audio=null, syncTimers={}, syncRunning={}, lastCloud={}, onload=0, pendingSound=false;
@@ -266,7 +269,9 @@ function render(){
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
 
- const log=$('log');log.replaceChildren();
+ const log=$('log');
+ const openedMeals=new Set(Array.from(log.querySelectorAll('details.hh-meal-diary-group[open]')).map(el=>el.dataset.meal));
+ log.replaceChildren();
  // Diary hydration summary is derived from dated entries, never a second or
  // duplicated stored intake record. Thus edits, deletes, Dropbox merge and
  // historical date selection all update the correct profile/day total.
@@ -280,17 +285,43 @@ function render(){
  dayWater.append(dayWaterCopy,dayWaterTotal);log.append(dayWater);
  for(const e of jarEvents(active).filter(e=>e.date===date)){const el=document.createElement('div');el.className='entry';el.textContent='↺ '+e.time+' · '+e.kind+' · napló megőrizve';log.append(el)}
  if(!entries.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕';log.append(empty);}
- entries.sort((a,b)=>b.time.localeCompare(a.time)).forEach(e=>{
+ const mealGrid=document.createElement('div');mealGrid.className='hh-meal-diary-grid';
+ mealGrid.setAttribute('aria-label','Étkezésenkénti napi bontás');
+ const sortedEntries=[...entries].sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
+ const firstFilled=ENTRIES.find(m=>sortedEntries.some(e=>(normalizeMeal(e.meal)||'Egyéb')===m));
+ ENTRIES.forEach((meal,index)=>{
+  const matching=sortedEntries.filter(e=>(normalizeMeal(e.meal)||'Egyéb')===meal);
+  const section=document.createElement('details');
+  section.className='hh-meal-diary-group';section.dataset.meal=meal;
+  section.open=openedMeals.has(meal)||(!openedMeals.size&&meal===firstFilled);
+  const summary=document.createElement('summary');
+  const label=document.createElement('strong');label.textContent=MEAL_ICONS[index]+' '+meal;
+  const number=document.createElement('b');
+  const values=matching.map(e=>e.nutrients?.kcal).filter(v=>v!=null&&Number.isFinite(Number(v)));
+  number.textContent=values.length?fmt(values.reduce((a,b)=>a+Number(b),0),0)+' kcal':'— kcal';
+  const count=document.createElement('small');count.textContent=matching.length+' bevitel';
+  summary.append(label,number,count);section.append(summary);
+  const body=document.createElement('div');body.className='hh-meal-diary-content';
+  if(!matching.length){
+   const empty=document.createElement('p');empty.className='empty';
+   empty.textContent='Nincs rögzített '+meal.toLocaleLowerCase('hu-HU')+' erre a napra.';
+   body.append(empty);
+  }
+  matching.forEach(e=>{
+
   const line=document.createElement('div');line.className='entry';
   const left=document.createElement('div'),right=document.createElement('aside');
   const name=document.createElement('strong');name.textContent=(e.icon||'🍽️')+' '+e.name;
   const smaller=document.createElement('small');smaller.textContent=e.time+' · '+e.meal+(e.quantityText?' · '+e.quantityText:'')+(e.source==='estimated'?' · becsült':'');
   left.append(name,smaller);
-  const c=document.createElement('b');c.textContent=fmt(e.nutrients&&e.nutrients.kcal,0)+' kcal';
+  const c=document.createElement('b');c.textContent=e.nutrients?.kcal==null?'— kcal':fmt(e.nutrients.kcal,0)+' kcal';
   const edit=document.createElement('button');edit.type='button';edit.className='mini';edit.textContent='Szerk.';edit.addEventListener('click',()=>editEntry(e));
   const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{if(confirm('Törlöd a bejegyzést?'))update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
-  const actions=document.createElement('div');actions.className='controls';actions.style.justifyContent='flex-end';actions.append(edit,del);right.append(c,actions);line.append(left,right);log.append(line);
+  const actions=document.createElement('div');actions.className='controls';actions.style.justifyContent='flex-end';actions.append(edit,del);right.append(c,actions);line.append(left,right);body.append(line);
+  });
+  section.append(body);mealGrid.append(section);
  });
+ log.append(mealGrid);
  // HH Buddy shows the net energy sign, not a medical verdict.
  // Calorie deficit/surplus alone cannot determine whether a day is healthy.
  const moodBox=$('hhBuddyMood');
@@ -536,7 +567,7 @@ function greetBuddy(){
 }
 function mealForTime(time){
  const hour=Number(String(time).split(':')[0]);
- return hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb / Brunch';
+ return hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb';
 }
 function availableUnits(food){
  const units=[{name:'g',gram:1},{name:'dkg',gram:10},{name:'kg',gram:1000}];
@@ -576,7 +607,9 @@ function openEntry(kind,item=null){
  activeType=kind;currentEdit=item?.id||'';currentFood=item?.foodId||'';
  $('entryTitle').textContent=item?'Bevitel szerkesztése':(kind==='drink'?'🥤 Ital hozzáadása':'🍎 Étel hozzáadása');
  $('entryError').textContent='';$('foodSearch').value='';$('entryTime').value=item?.time||localTime();
- $('meal').value=item?.meal||mealForTime($('entryTime').value);
+ entryMealManuallyChosen=false;
+ $('meal').value=normalizeMeal(item?.meal)||mealForTime($('entryTime').value);
+ syncMealButtons('hhMealChoices','meal');
  redrawSelect();
  if(item&&foodBy(item.foodId)){
    currentFood=item.foodId;redrawSelect();
@@ -592,7 +625,9 @@ function saveFood(e){
  if(!f||q==null||!Number.isFinite(grams)||grams<=0||grams>15000){$('entryError').textContent='Válassz élelmiszert és érvényes adagot.';return;}
  const unit=$('unit').value,time=$('entryTime').value;
  if(!/^\d\d:\d\d$/.test(time)){$('entryError').textContent='Érvényes időpont szükséges.';return;}
- const meal=$('meal').value,oldId=currentEdit,rec={
+ const meal=normalizeMeal($('meal').value);
+ if(!meal){$('entryError').textContent='Válassz étkezési kategóriát.';return;}
+ const oldId=currentEdit,rec={
   id:oldId||uid(),createdAt:stamp(),updatedAt:stamp(),date:currentDay(),time,meal,kind:f.kind,
   foodId:f.id,name:f.name,icon:f.icon,quantity:q,unit,quantityText:fmt(q)+' '+unit,volumeMl:f.kind==='drink'?grams:null,
   nutrients:calc(f.per,grams),source:'estimated'
@@ -626,13 +661,14 @@ function openPreset(which,item=null){
  $('presetError').textContent='';
  const p=item?.components||read(active).presets[which];
  for(const key of ['milkMl','milkType','sugarCubes','cubeGrams','cinnamonGrams','ladyCount','ladyGrams'])$(key).value=p[key];
- $('presetMeal').value=item?.meal||p.meal;$('presetTime').value=item?.time||localTime();
+ $('presetMeal').value=normalizeMeal(item?.meal)||normalizeMeal(p.meal)||mealForTime(localTime());$('presetTime').value=item?.time||localTime();
+ syncMealButtons('hhPresetMealChoices','presetMeal');
  presetPreview();$('presetDialog').showModal();tone('tap');
 }
 function savePresetOnly(){
  try{
   const recipe=readPresetInputs(),which=currentPreset;
-  recipe.meal=$('presetMeal').value;recipe.updatedAt=stamp();
+  recipe.meal=normalizeMeal($('presetMeal').value)||'Egyéb';recipe.updatedAt=stamp();
   update(d=>{d.presets[which]=recipe});
   $('presetDialog').close();success();
  }catch(e){$('presetError').textContent=e.message;}
@@ -642,7 +678,9 @@ function savePresetEntry(e){
  try{
   const q=readPresetInputs(),time=$('presetTime').value;
   if(!/^\d\d:\d\d$/.test(time))throw Error('Érvényes időpont szükséges.');
-  const meal=$('presetMeal').value,id=currentEdit||uid(),which=currentPreset;
+  const meal=normalizeMeal($('presetMeal').value);
+  if(!meal)throw Error('Válassz étkezési kategóriát.');
+  const id=currentEdit||uid(),which=currentPreset;
   const rec={id,createdAt:stamp(),updatedAt:stamp(),date:currentDay(),time,meal,kind:'drink',foodId:'preset:'+which,
    icon:'☕',name:which==='morning'?'Reggeli cappuccino':'Light cappuccino, fahéjas cukor és babapiskóta',
    quantityText:q.sugarCubes+' kockacukor'+(q.ladyCount?' · '+q.ladyCount+' piskóta':''),
@@ -753,7 +791,33 @@ function openNamedFood(id,kind='food'){
  $('foodSelect').value=id;
  redrawUnits();
 }
+function syncMealButtons(containerId,selectId){
+ const wrapper=$(containerId),select=$(selectId);
+ if(!wrapper||!select)return;
+ wrapper.querySelectorAll('button[data-meal]').forEach(button=>{
+  const checked=button.dataset.meal===select.value;
+  button.setAttribute('aria-pressed',String(checked));
+  button.classList.toggle('selected',checked);
+ });
+}
+function bindMealButtons(containerId,selectId,trackManual){
+ const wrapper=$(containerId),select=$(selectId);
+ if(!wrapper||!select)return;
+ wrapper.hidden=false;
+ const native=select.closest('.field');if(native)native.classList.add('hh-meal-native-enhanced');
+ wrapper.querySelectorAll('button[data-meal]').forEach(button=>{
+  button.addEventListener('click',()=>{
+   select.value=button.dataset.meal;
+   if(trackManual)entryMealManuallyChosen=true;
+   syncMealButtons(containerId,selectId);
+  });
+ });
+ select.addEventListener('change',()=>syncMealButtons(containerId,selectId));
+ syncMealButtons(containerId,selectId);
+}
 function events(){
+ bindMealButtons('hhMealChoices','meal',true);
+ bindMealButtons('hhPresetMealChoices','presetMeal',false);
  const click=(id,fn)=>$(id).addEventListener('click',fn);
  click('profileBtn',()=>{tone('tap');setProfile(active==='zsolt'?'monika':'zsolt',true)});
  click('buddy',greetBuddy);
@@ -787,7 +851,12 @@ function events(){
  $('foodSelect').addEventListener('change',()=>{currentFood=$('foodSelect').value;redrawUnits();tone('tap')});
  for(const id of ['quantity','unit'])$(id).addEventListener('change',entryPreview);
  $('quantity').addEventListener('input',entryPreview);
- $('entryTime').addEventListener('change',()=>{$('meal').value=mealForTime($('entryTime').value)});
+ $('entryTime').addEventListener('change',()=>{
+  if(!entryMealManuallyChosen){
+   $('meal').value=mealForTime($('entryTime').value);
+   syncMealButtons('hhMealChoices','meal');
+  }
+ });
  DOM.forEach(id=>$(id).addEventListener('input',presetPreview));
  $('entryForm').addEventListener('submit',saveFood);$('presetForm').addEventListener('submit',savePresetEntry);
  $('goalForm').addEventListener('submit',saveGoal);$('customForm').addEventListener('submit',saveCustom);
@@ -814,14 +883,14 @@ root.HH_NUTRITION_QUICK_API={
   const now=stamp(),row={...clone(recipe),name,updatedAt:now};
   update(d=>{const idx=d.quickRecipes.findIndex(q=>q.id===row.id);if(idx>=0)d.quickRecipes[idx]=row;else d.quickRecipes.push(row)});
  },
- recordRecipe:recipe=>{
+ recordRecipe:(recipe,mealOverride=null)=>{
   if(!recipe||typeof recipe.name!=='string'||!recipe.nutrients)throw Error('Hiányzó receptadat');
   const kcal=Number(recipe.nutrients.kcal);if(!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen recept kalória');
   const now=stamp(),time=localTime(),nut={};
   if($('logDate'))$('logDate').value=localDate(); // Quick log always records and displays today's diary.
   for(const key of metrics){const x=recipe.nutrients[key];nut[key]=x==null?null:Number(x);if(nut[key]!=null&&(!Number.isFinite(nut[key])||nut[key]<0))throw Error('Érvénytelen tápérték');}
   const rec={id:uid(),createdAt:now,updatedAt:now,date:localDate(),time,
-   meal:ENTRIES.includes(recipe.meal)?recipe.meal:mealForTime(time),
+   meal:normalizeMeal(mealOverride)||normalizeMeal(recipe.meal)||mealForTime(time),
    kind:recipe.kind==='drink'?'drink':'food',foodId:recipe.id,
    name:String(recipe.name).slice(0,80),icon:String(recipe.icon||'🍽️').slice(0,8),
    quantityText:'1 előre beállított adag',volumeMl:recipe.kind==='drink'&&Number.isFinite(Number(recipe.volumeMl))&&Number(recipe.volumeMl)>0?Number(recipe.volumeMl):null,nutrients:nut,
