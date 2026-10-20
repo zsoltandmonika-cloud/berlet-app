@@ -13,6 +13,10 @@ const module=load('medical-master-export-v715.js');
 const index=load('index.html');
 assert(index.includes('medical-master-export-v715.js'),'The normal HealthHub page must load the module');
 assert(module.includes('healthhub:master-vault-synced'),'Auto-refresh event missing');
+assert(module.includes('content.append(section)')&&!module.includes('content.prepend(section)'),
+ 'Export panel must be after the records list, not above it');
+assert(module.includes('content.lastElementChild!==present'),
+ 'Panel must remain last after asynchronous records redraws');
 assert(module.includes("'document-upload'")&&module.includes("'explanation-save'"),'Required upload/explanation triggers missing');
 assert(!module.includes('api.openai.com')&&!module.includes('localStorage.setItem('),'No remote AI/persistent PHI in the export module');
 const base='/HealthHub/master/';
