@@ -23,7 +23,7 @@
  var TILES=[
   ['health','Egészség'],['records','Leletek'],['meds','Gyógyszer & Supplement'],
   ['sleep','Alvás'],['activity','Aktivitás'],['digital','Digital Health'],
-  ['nutrition','Nutrition'],['ask','Ask Léna'],['timeline','Idővonal'],
+  ['nutrition','Nutrition'],['ask','Kérdezd Lénát'],['timeline','Idővonal'],
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
