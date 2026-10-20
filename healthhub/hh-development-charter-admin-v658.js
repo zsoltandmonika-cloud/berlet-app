@@ -85,12 +85,19 @@ function mount(){
  '<li>Ma / 7 nap / 30 nap / dátum, forrás szerinti szűrés, külön Nutrition-kcal összeg; sem két profil közti átszivárgás, sem napi kcal duplázás nem elfogadható. A v307 Tünetnapló adatainak forrása érintetlen.</li>'+
  '<li>QA: healthhub/tests/timeline-truth-v725.test.cjs + GitHub Actions. ÉLES Dropbox- és S24 Ultra-teszt még szükséges az elfogadáshoz.</li>'+
  '</ul></details>'+
+'<details><summary>☁️ ChatGPT Analytics v731 · Dropbox az egyetlen központi egészségügyi adattár</summary><ul>'+
+ '<li>A ChatGPT-kapcsolat elsődleges forrása a már létező privát Dropbox /HealthHub. Google Drive-ra teljes egészségügyi másolatot nem telepítünk.</li>'+
+ '<li>A cél a két profil teljes egészségügyi lefedése: Master, leletek/PDF, gyógyszerek, Nutrition BS/AJ, mérések, alvás, aktivitás, tünetnapló, képek, Digital Wellbeing, Daily Health. Minden hiányzó adatforrást külön jelezni kell.</li>'+
+ '<li>A HealthHub saját Dropbox-bejelentkezése NEM jogosítja fel automatikusan a ChatGPT-t. A Dropbox ChatGPT plugin külön, felhasználói engedéllyel csatlakoztatható; az App Folder olvashatóságát éles fájlteszttel kell igazolni.</li>'+
+ '<li>A privát Supabase- és készülékadatok nem tekinthetők automatikusan Dropboxba szinkronizáltnak. Naprakész állapotot csak forrás- és céloldali visszaellenőrzés bizonyíthat.</li>'+
+ '<li>A v730 Google Drive prototípus nincs élesítve és a Dropbox-first döntés szerint nem kapcsolható be. Részletes terv: docs/chatgpt-dropbox-architecture-v731.md.</li>'+
+ '</ul></details>'+
 '<details><summary>⬇ Medical Master v715 · Leletek: naprakész JSON-export</summary><ul>'+
  '<li>Leletek nézetben új privát Medical Master panel: Legfrissebb Medical Master letöltése + ellenőrzés.</li>'+
  '<li>Új lelet vagy Léna-magyarázat után a meglévő v304 sikeres Dropbox 6-fájlos sync eseményére a 7. medical-master.json is újraépül. Sem a hat forrás, sem az Ask Léna-éles útvonal nem változik.</li>'+
  '<li>Letöltéskor a manifest verzióját újraellenőrizzük; hiányzó, hibás, időközben változó vagy korábbi Master esetén csak validált 6+1 összeállítás után engedünk letöltést.</li>'+
  '<li>A JSON a két betegprofil dokumentumait és korábbi Léna-magyarázatait tartalmazza. Csak a HealthHub privát Dropbox-kapcsolatával dolgozik; GitHubra és az OpenAI API-ra nem továbbít egészségügyi adatot.</li>'+
- '<li>A ChatGPT Kérdezd Léna projektbe való automatikus feltöltés NINCS bekötve. Google Drive projektforrás esetén sincs automatikus szinkron; külön, jogosultságkezelt integráció szükséges.</li>'+
+ '<li>A ChatGPT nem kap automatikus közvetlen hozzáférést a HealthHub privát Dropboxhoz. A külön engedélyezett Dropbox ChatGPT-kapcsolat és a tényleges App Folder fájlelérés még ellenőrzendő.</li>'+
  '<li>Állapot: GitHub v715 kód. S24 Ultra + desktop LIVE teszt és tényleges Dropbox-adatok ellenőrzése a végső elfogadás feltétele.</li>'+
  '</ul></details>'+
 '<details><summary>🧠 Medical Master v710 · Ask Léna Golden Standard próba</summary><ul>'+
