@@ -7,8 +7,12 @@ const js=fs.readFileSync(path.join(root,'chatgpt-project-shortcut-v712.js'),'utf
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const original=fs.readFileSync(path.join(root,'live-v299.js'),'utf8');
 const ai=fs.readFileSync(path.join(root,'live-v331.js'),'utf8');
-assert(html.includes('chatgpt-project-shortcut-v712.js?v=712-direct-private-project'));
+assert(html.includes('chatgpt-project-shortcut-v712.js?v=712-premium-glass-launcher'));
 assert(html.indexOf('live-v299.js')<html.indexOf('chatgpt-project-shortcut-v712.js'));
+const version='v712-chatgpt-project-glass';
+assert.equal(html.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1],version);
+assert.equal('v'+html.match(/var v='([^']+)'/)?.[1],version);
+assert.equal(html.match(/window\.HH_LIVE_BUILD='([^']+)'/)?.[1],version);
 assert(original.includes('hhPlain299')&&original.includes('hhSQ299'),'old original page remains in repo');
 assert(ai.includes('smooth-endpoint-v395'),'research code untouched');
 assert(!js.includes('https://api.openai.com'));
