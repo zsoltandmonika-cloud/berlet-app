@@ -177,3 +177,10 @@
  .hh-meal-diary-group summary{padding:10px 7px}
  .hh-quick-meal-picker{margin:3px 10px 6px;padding:6px}
 }
+
+/* v718 · Heading-to-card gap identical to Gyors bevitel's .row (11 px).
+   Removing the decorative header mascot means no artificial 40 px min-height. */
+.hh-bevitel-section{display:flow-root}
+.hh-bevitel-header.row{margin:10px 0 11px;min-height:0}
+.hh-bevitel-header h2{line-height:1.25}
+@media(max-width:540px){.hh-bevitel-header.row{margin:10px 0 11px;min-height:0}}
