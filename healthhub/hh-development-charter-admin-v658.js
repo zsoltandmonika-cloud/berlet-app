@@ -76,7 +76,7 @@ function mount(){
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
 '<details><summary>🧭 Idővonal v725 · Tényalapú, profilbiztos eseményforrások</summary><ul>' +
- '<li>v727 · BB (Bristol Bar) és AJ (Apple Juice): diszkrét, két soros megfigyelési blokk. A zöld pipa naplózást igazol; a RAG-szín kizárólag nem diagnosztikus megfigyelési jelzés. Részletek csak koppintásra.</li>'+
+ '<li>v728 · BS (Bristol-skála) és AJ (Apple Juice): a Nutrition Napi ritmusban és az Idővonalon ugyanaz a diszkrét, azonnal olvasható megfigyelési sor látható (zöld mentési pipa, fokozat, időpont, külön RAG-pont), lenyitás nélkül. Egyetlen hh-observation-rag-v728.js határozza meg az 1–7 és 1–8 besorolást. Zöld = tájékoztató szokásos/világos mintázat, sárga = figyelendő, piros = fokozott figyelem; egyik sem diagnózis vagy vészhelyzet-besorolás. A mentési rendszerhez nem nyúlunk.</li>'+
  '<li>Az eredeti Idővonal HTML fix demo eseményei (például 540 kcal ebéd, statikus alvás/pulzus/lépés) nem jelenhetnek meg hiteles adatként. A v725 csak ellenőrzött, valós naplóbejegyzéseket renderel.</li>'+
  '<li>Táplálkozás: /HealthHub/profiles/{profil}-nutrition.json; healthhub.nutrition/1 séma és profilkötelező. Helyi Nutrition-cache mentésből és azonos ID-jú Dropbox-bejegyzésekből legújabb módosítás alapján egyesítünk; a törlések rejtve maradnak.</li>'+
  '<li>Tünetnapló: /HealthHub/master/symptoms.json; profil + eseményidőpont + törlésjelző alapján. A helyi és felhős bejegyzések azonosító szerint deduplikáltak.</li>'+
