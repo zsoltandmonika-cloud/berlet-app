@@ -59,5 +59,23 @@ assert.ok(idx('body?.fullCorpusConsent!==true')<idx('client.auth.getUser'));
 assert.ok(idx('client.auth.getUser')<idx('from("hh_profile_access")'));
 assert.ok(idx('from("hh_profile_access")')<idx('gatherCorpus(admin,body.profile)'));
 assert.ok(idx('gatherCorpus(admin,body.profile)')<idx('api.openai.com'));
+// v705 source integrity: flags are not a substitute for recomputing SHA-256.
+for(const required of [
+ 'crypto.subtle.digest("SHA-256",bytes)',
+ '(await pageHash(p.page_text))!==p.text_sha256!.toLowerCase()',
+ 'page_sha256_mismatch',
+ 'new Set(parts.map(p=>p.page_no)).size!==d.total_pages',
+ 'visualReviewPages++',
+ 'unreadablePages++',
+ 'KÉPI TARTALOM ELLENŐRZENDŐ',
+ 'SZÖVEGESEN NEM OLVASHATÓ',
+ 'hashVerifiedPages:ids.size',
+ 'totalSourcePages:c.totalPages',
+ 'visualReviewPages:c.visualReviewPages',
+ 'unreadablePages:c.unreadablePages'
+]) assert.ok(backend.includes(required),'missing full-source integrity or visual-review control: '+required);
+assert.match(client,/solAudit\.hashVerifiedPages!==solAudit\.sourcePages/);
+assert.match(client,/solAudit\.totalSourcePages!==solAudit\.sourcePages\+solAudit\.unreadablePages/);
+assert.match(client,/oldal szövege nem olvasható/);
 assert.ok(!backend.includes('console.log(body.question)'),'no raw user question logged');
 console.log('PASS: Sol v705 separate opt-in, consent refusal, full corpus integrity, profile gates');
