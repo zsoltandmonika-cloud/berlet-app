@@ -6,11 +6,13 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.resolve(__dirname,'../timeline-truth-v725.js'),'utf8');
+const common=fs.readFileSync(path.resolve(__dirname,'../hh-observation-rag-v728.js'),'utf8');
 const index=fs.readFileSync(path.resolve(__dirname,'../index.html'),'utf8');
 assert(index.includes('timeline-truth-v725.js'),'The live HealthHub page must load the real-data timeline');
 assert(!src.includes('540 kcal')&&!src.includes('620 kcal')&&!src.includes('118/76'),'Legacy sample measurements must never appear in the new timeline');
 const window={localStorage:{getItem:k=>k==='hh-profile'?'z':null}};
 const document={getElementById:id=>id==='timeline'?{id}:null,readyState:'loading',addEventListener(){}};
+vm.runInNewContext(common,{window,document,Date,Intl,Number,Map,Array,Set,Promise},{timeout:4000});
 vm.runInNewContext(src,{window,document,Date,Intl,Number,Map,Array,Set,Promise}, {timeout:4000});
 const api=window.HH_TIMELINE_TRUTH_V725.model;
 const profile='zsolt';
@@ -72,11 +74,23 @@ assert.equal(api.observationRag(br[1]).tone,'green');
 assert.equal(api.observationRag({...br[1],grade:5}).tone,'amber');
 assert.equal(api.observationRag({...br[1],grade:8}).tone,'red');
 const compact=api.observationGroup([br[1],br[0]]);
-assert(compact.includes('✓')&&compact.includes('BB')&&compact.includes('Bristol Bar'));
+assert(compact.includes('✓')&&compact.includes('BS')&&compact.includes('Bristol-skála'));
 assert(compact.includes('AJ')&&compact.includes('Apple Juice'));
-assert(compact.indexOf('Bristol Bar')<compact.indexOf('Apple Juice'),'Always stack BB above AJ');
-assert(compact.includes('hhTruthRag-green'));
+assert(compact.indexOf('Bristol-skála')<compact.indexOf('Apple Juice'),'Always stack BS above AJ');
+assert(compact.includes('hhRhythmDot')&&compact.includes('data-rag="green"'));
+assert(!compact.includes('<details'),'BS/AJ records must be visible without expanding');
+assert(compact.includes('4/7')&&compact.includes('3/8'),'Saved grades must be visible');
 assert(compact.includes('nem diagnózis'));
 assert.equal(api.statCards([...today,...br],'all')[2].value,'560 kcal','BODY checks must not add calories');
 assert.equal(api.statCards(br,'observation')[0].value,'2','Body observations count independently');
-console.log('PASS v725: verified diary data, compact BB/AJ, RAG indicators, non-diagnostic semantics, filtered totals and profile isolation');
+for(let i=1;i<=7;i++){
+ const tone=window.HH_OBSERVATION_RAG_V728.classify('stool',i).tone;
+ assert.equal(tone,[1,7].includes(i)?'red':[3,4].includes(i)?'green':'amber');
+}
+for(let i=1;i<=8;i++){
+ const tone=window.HH_OBSERVATION_RAG_V728.classify('urine',i).tone;
+ assert.equal(tone,i<=3?'green':i<=5?'amber':'red');
+}
+assert(index.includes('hh-observation-rag-v728.js'),'Shared RAG must load in Timeline');
+assert(index.includes('hh-observation-rag-v728.css'),'Shared style must load in Timeline');
+console.log('PASS v728: verified diary and unchanged kcal, inline BS/AJ, 15 RAG grades, no expansion, profile isolation');
