@@ -5,6 +5,7 @@ on:
       - "healthhub/live-v331.js"
       - "healthhub/index.html"
       - "healthhub/tests/sol-ai-first-v705.test.cjs"
+      - "healthhub/tests/sol-direct-v706.test.cjs"
       - "supabase/functions/hh-sol-full-corpus-preview/**"
       - ".github/workflows/healthhub-sol-v705-qa.yml"
   workflow_dispatch:
@@ -20,6 +21,7 @@ jobs:
         run: |
           node --check healthhub/live-v331.js
           node healthhub/tests/sol-ai-first-v705.test.cjs
+          node healthhub/tests/sol-direct-v706.test.cjs
           node healthhub/tests/mkb-preview-route-v703.test.cjs
           node --test healthhub/tests/mkb-date-research-v704.test.cjs
       - name: Smoke test deployed Sol endpoint without any personal data or API key
