@@ -1,11 +1,12 @@
 /* HealthHub v710 · Ask Léna private Master Golden Standard QA.
- * Only active with ?hhMasterQA=v1. No fallback to older answers on failure.
+ * The default Ask Léna route. No fallback to older answers on failure.
  * The 7th JSON lives in the user's private Dropbox; only the chosen profile
  * is sent after fresh, one-time explicit OpenAI processing consent.
  */
 (function(root){
  'use strict';
- if(new URLSearchParams(root.location.search).get('hhMasterQA')!=='v1')return;
+ // v711: default Ask Léna is the user-owned Medical Master only.
+ // Request still requires a fresh, explicit consent and profile authorization.
  const PATH='/HealthHub/master/medical-master.json';
  const LIMIT=620000;
  let busy=false,ctrl=null;
@@ -90,7 +91,7 @@
    };
    const encoded=JSON.stringify(payload);
    if(encoded.length>LIMIT)throw Error('A Master túl nagy; teljes, csonkítás nélküli kutatás nem indítható.');
-   const privacy='HH MEDICAL MASTER TESZT\n\nA '+(p==='monika'?'MÓNIKA':'ZSOLT')+
+   const privacy='HH MEDICAL MASTER KUTATÁS\n\nA '+(p==='monika'?'MÓNIKA':'ZSOLT')+
     ' profil '+slice.auditForProfile.documents+' dokumentumindexét és '+
     slice.auditForProfile.lenaExplanations+' meglévő Léna-magyarázatát a biztonságos Health Vault szerver OpenAI API-feldolgozásra küldi, CSAK ERRE AZ EGY KÉRDÉSRE.\n\n'+
     'Az eredeti PDF nem kerül át. A másik profil Master adatait nem küldjük tovább. '+
