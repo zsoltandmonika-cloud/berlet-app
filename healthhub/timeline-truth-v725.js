@@ -49,8 +49,7 @@
  }
  function nutritionRows(data,p){
   if(!data||!Array.isArray(data.entries))return[];
-  return data.entries.filter(x=>x&&!x.deleted&&x.profile!==undefined&&x.profile!==p?false:true)
-   .filter(x=>x&&!x.deleted&&isDay(x.date)&&validTime(x.time)&&typeof x.id==='string'&&typeof x.name==='string')
+  return data.entries.filter(x=>x&&(!x.profile||x.profile===p)&&!x.deleted&&isDay(x.date)&&validTime(x.time)&&typeof x.id==='string'&&typeof x.name==='string')
    .map(x=>({
     id:'nutrition:'+x.id,profile:p,date:x.date,time:x.time,kind:'nutrition',icon:x.kind==='drink'?'🥤':'🍽️',
     title:x.name.slice(0,110),meal:MEALS.includes(x.meal)?x.meal:(x.meal==='Egyéb / Brunch'?'Egyéb':'Egyéb'),
@@ -267,6 +266,9 @@
  }
  function active(){return !!el('timeline')?.classList.contains('on');}
  function onProfile(){if(active())refresh(false);else{sequence++;profile=null;records=[];}}
+  w.HH_TIMELINE_TRUTH_V725={version:'725',refresh,profile:pkey,model:{
+   nutritionRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,byId,dedupe,liveNutrition,liveSymptoms
+  }};
  function decorate(){
   shell();
   if(active())refresh(false);
@@ -289,9 +291,7 @@
    else if(e.key===NUTRITION+pkey()||e.key===SYMPTOMS){if(active())refresh(false)}});
   d.addEventListener('visibilitychange',()=>{if(!d.hidden&&active()&&Date.now()-lastFetch>30000)refresh(false)});
   w.addEventListener('focus',()=>{if(active()&&Date.now()-lastFetch>45000)refresh(false)});
-  w.HH_TIMELINE_TRUTH_V725={version:'725',refresh,profile:pkey,model:{
-   nutritionRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,byId,dedupe,liveNutrition,liveSymptoms
-  }};
+
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',decorate,{once:true});else decorate();
 })(window,document);
