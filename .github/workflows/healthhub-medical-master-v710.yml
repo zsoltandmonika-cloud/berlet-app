@@ -1,0 +1,28 @@
+name: HealthHub v710 · Medical Master Golden QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/ask-lena-medical-master-v710.js'
+      - 'healthhub/live-v331.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/medical-master-golden-v710.test.cjs'
+      - 'supabase/functions/hh-medical-master-golden-v710/index.ts'
+      - '.github/workflows/healthhub-medical-master-v710.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  golden-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check healthhub/live-v331.js
+          node --check healthhub/ask-lena-medical-master-v710.js
+      - name: Synthetic safety QA
+        run: |
+          node healthhub/tests/medical-master-golden-v710.test.cjs
+          node healthhub/tests/medical-master-private-v709.test.cjs
+          node healthhub/tests/sol-direct-v706.test.cjs
