@@ -225,5 +225,14 @@ function startup(){
 }
 setTimeout(startup,1800);
 
+// v708: the 7th Master is a separate, read-only test. Do not execute on normal HealthHub.
+try{
+ if(typeof URLSearchParams==='function'&&
+    new URLSearchParams(window.location.search).get('hhMasterPreview')==='v1'){
+  var masterPreviewScript=document.createElement('script');
+  masterPreviewScript.src='./medical-master-preview-v708.js?v=708-readonly';
+  document.head.appendChild(masterPreviewScript);
+ }
+}catch(_){}
 document.documentElement.dataset.healthhubMasterVault='1.304';
 })();
