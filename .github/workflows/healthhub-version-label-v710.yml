@@ -1,0 +1,21 @@
+name: HealthHub v710 · System version label QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/tests/medical-master-version-label-v710.test.cjs'
+      - '.github/workflows/healthhub-version-label-v710.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node healthhub/tests/medical-master-version-label-v710.test.cjs
+          node healthhub/tests/medical-master-golden-v710.test.cjs
+          node healthhub/tests/hh-one-rag-v500.test.cjs
+          node healthhub/tests/hhsp1-default-link-v594.test.cjs
