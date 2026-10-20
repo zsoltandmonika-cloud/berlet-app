@@ -1,0 +1,29 @@
+name: HealthHub v732 · Dropbox ChatGPT Analytics QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-chatgpt-dropbox-analytics-v732.js'
+      - 'healthhub/tests/chatgpt-dropbox-analytics-v732.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-chatgpt-dropbox-v732.yml'
+  pull_request:
+    paths:
+      - 'healthhub/hh-chatgpt-dropbox-analytics-v732.js'
+      - 'healthhub/tests/chatgpt-dropbox-analytics-v732.test.cjs'
+      - 'healthhub/index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check healthhub/hh-chatgpt-dropbox-analytics-v732.js
+          node --check healthhub/tests/chatgpt-dropbox-analytics-v732.test.cjs
+      - name: Synthetic Dropbox Analytics regression
+        run: node healthhub/tests/chatgpt-dropbox-analytics-v732.test.cjs
