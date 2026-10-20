@@ -119,7 +119,7 @@ function extractAnswer(response:any):string{
   .flatMap((x:any)=>Array.isArray(x.content)?x.content:[])
   .filter((x:any)=>x.type==="output_text")
   .map((x:any)=>x.text||"").join("\n").trim();
- if(answer.length<90||answer.length>90000)throw Error("model_invalid_answer");
+ if(answer.length<90||answer.length>85000)throw Error("model_invalid_answer");
  return answer;
 }
 Deno.serve(async(req:Request)=>{
