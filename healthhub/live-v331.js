@@ -90,7 +90,8 @@ function setAnswerProfile(p){
  if(card)card.setAttribute('data-profile',p);
  if(heading)heading.textContent=p==='monika'?'💗 Léna válasza Mónikának':'💙 Léna válasza Zsoltnak';
 }
-function renderAnswerText(raw,maxChars){
+function renderAnswerText(raw){
+ var maxChars=arguments[1]===85000?85000:26000;
  var host=el('hhAi331Text');if(!host)return;
  var frag=document.createDocumentFragment(),para=null,list=null;
  function appendMeasured(node,chunk){
@@ -112,7 +113,7 @@ function renderAnswerText(raw,maxChars){
   }
   appendMeasured(node,value.slice(start));
  }
- var normalized=String(raw||'').slice(0,maxChars||26000).replace(/\r\n?/g,'\n');
+ var normalized=String(raw||'').slice(0,maxChars).replace(/\r\n?/g,'\n');
  var parts=normalized.split(/\n\s*\n/);
  normalized=parts.map(function(chunk){
   if(chunk.length<380 || /^\s*(?:#{1,3}\s|[-*]\s|[0-9]+[.)]\s)/.test(chunk))return chunk;
