@@ -1,0 +1,25 @@
+name: HealthHub v708 · Medical Master Preview QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/medical-master-preview-v708.js"
+      - "healthhub/live-v304.js"
+      - "healthhub/index.html"
+      - "healthhub/tests/medical-master-preview-v708.test.cjs"
+      - ".github/workflows/healthhub-medical-master-preview-v708.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  master-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check healthhub/live-v304.js
+          node --check healthhub/medical-master-preview-v708.js
+      - name: Synthetic Medical Master preview and privacy QA
+        run: |
+          node healthhub/tests/medical-master-preview-v708.test.cjs
