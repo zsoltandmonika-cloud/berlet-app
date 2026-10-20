@@ -748,7 +748,10 @@ async function run(opts){
      if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     }
     print('AI-kutatás befejeződött.');return}
-   if(kind==='error')throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
+   if(kind==='error'){
+    if(solPreviewMode)throw Error('Sol v705 teszthiba: '+safe(item.reason||item.error||'ismeretlen',90)+' · Nincs kész válasz.');
+    throw Error('Az AI-válaszfolyam megszakadt. A részleges szöveg nem tekinthető kész elemzésnek.');
+   }
   }
   while(true){
    var step=await reader.read();if(step.done)break;
