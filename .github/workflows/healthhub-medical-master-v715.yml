@@ -1,0 +1,35 @@
+name: HealthHub v715 · Medical Master Export QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/medical-master-export-v715.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/medical-master-export-v715.test.cjs'
+      - '.github/workflows/healthhub-medical-master-v715.yml'
+  pull_request:
+    paths:
+      - 'healthhub/medical-master-export-v715.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/medical-master-export-v715.test.cjs'
+      - '.github/workflows/healthhub-medical-master-v715.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax
+        run: |
+          node --check healthhub/medical-master-export-v715.js
+          node --check healthhub/medical-master-private-v709.js
+          node --check healthhub/medical-master-preview-v708.js
+          node --check healthhub/tests/medical-master-export-v715.test.cjs
+      - name: Synthetic Medical Master regression tests
+        run: |
+          node healthhub/tests/medical-master-preview-v708.test.cjs
+          node healthhub/tests/medical-master-private-v709.test.cjs
+          node healthhub/tests/medical-master-export-v715.test.cjs
