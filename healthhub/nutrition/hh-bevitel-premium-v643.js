@@ -8,14 +8,37 @@ const $=id=>document.getElementById(id);
 const food=$('addFood'),drink=$('addDrink'),entry=$('entryDialog'),select=$('foodSelect');
 if(!food||!drink||!entry||!select)return;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
-let bypass=false,kind='food',step='categories',items=[],selection=0,categories=[],category='',scrollTimer=null;
+let bypass=false,kind='food',step='categories',items=[],selection=0,categories=[],category='',scrollTimer=null,selectedMeal='';
 const dialog=document.createElement('dialog');
 dialog.id='hhBevitelPicker';dialog.className='hh-bevitel-picker';
 dialog.setAttribute('aria-label','HealthHub · gördíthető étel- és italválasztó');
-dialog.innerHTML='<div class="hh-bevitel-picker-shell"><header class="hh-bevitel-picker-head"><div><small>HEALTHHUB · NUTRITION</small><strong id="hhBevitelPickerTitle">🍽️ Étel</strong><span id="hhBevitelPickerNote">Válassz kategóriát</span></div><button type="button" id="hhBevitelPickerClose" aria-label="Bezárás">×</button></header><p class="hh-bevitel-picker-hint" id="hhBevitelPickerHint">← Görgess és válassz →</p><div class="hh-bevitel-picker-rail" id="hhBevitelPickerRail" tabindex="0" aria-label="Gördíthető kategóriák és ételek"></div><div class="hh-bevitel-picker-count" id="hhBevitelPickerCount"></div><footer class="hh-bevitel-picker-footer"><button type="button" id="hhBevitelPickerBack">← Vissza</button><div><strong id="hhBevitelPickerSelected">Kategória</strong><small id="hhBevitelPickerDetail">Érintsd meg a kiválasztott kártyát</small></div><button type="button" id="hhBevitelPickerNext">Tovább ›</button></footer></div>';
+dialog.innerHTML='<div class="hh-bevitel-picker-shell"><header class="hh-bevitel-picker-head"><div><small>HEALTHHUB · NUTRITION</small><strong id="hhBevitelPickerTitle">🍽️ Étel</strong><span id="hhBevitelPickerNote">Válassz kategóriát</span></div><button type="button" id="hhBevitelPickerClose" aria-label="Bezárás">×</button></header><div class="hh-bevitel-meal-row" id="hhBevitelMealRow" role="group" aria-label="Étkezés kiválasztása"><span class="hh-bevitel-meal-label">🍽️ Melyik étkezéshez rögzítsem?</span><div class="hh-bevitel-meal-grid" id="hhBevitelMealGrid"></div></div><p class="hh-bevitel-picker-hint" id="hhBevitelPickerHint">← Görgess és válassz →</p><div class="hh-bevitel-picker-rail" id="hhBevitelPickerRail" tabindex="0" aria-label="Gördíthető kategóriák és ételek"></div><div class="hh-bevitel-picker-count" id="hhBevitelPickerCount"></div><footer class="hh-bevitel-picker-footer"><button type="button" id="hhBevitelPickerBack">← Vissza</button><div><strong id="hhBevitelPickerSelected">Kategória</strong><small id="hhBevitelPickerDetail">Érintsd meg a kiválasztott kártyát</small></div><button type="button" id="hhBevitelPickerNext">Tovább ›</button></footer></div>';
 document.body.append(dialog);
 const rail=$('hhBevitelPickerRail'),title=$('hhBevitelPickerTitle'),note=$('hhBevitelPickerNote'),hint=$('hhBevitelPickerHint');
 const back=$('hhBevitelPickerBack'),next=$('hhBevitelPickerNext'),count=$('hhBevitelPickerCount'),selected=$('hhBevitelPickerSelected'),detail=$('hhBevitelPickerDetail');
+const MEALS=[
+ {id:'Reggeli',icon:'☕'},{id:'Tízórai',icon:'🍎'},
+ {id:'Ebéd',icon:'🍽️'},{id:'Uzsonna',icon:'🍪'},
+ {id:'Vacsora',icon:'🌙'},{id:'Egyéb',icon:'➕'}
+];
+const mealRow=$('hhBevitelMealRow'),mealGrid=$('hhBevitelMealGrid');
+function paintMeals(){
+ if(!mealGrid)return;
+ mealGrid.querySelectorAll('button[data-meal]').forEach(button=>{
+  const active=button.dataset.meal===selectedMeal;
+  button.classList.toggle('selected',active);
+  button.setAttribute('aria-pressed',String(active));
+ });
+}
+if(mealGrid)MEALS.forEach(meal=>{
+ const button=document.createElement('button');
+ button.type='button';
+ button.dataset.meal=meal.id;
+ button.textContent=meal.icon+' '+meal.id;
+ button.setAttribute('aria-pressed','false');
+ button.addEventListener('click',()=>{selectedMeal=meal.id;paintMeals()});
+ mealGrid.append(button);
+});
 const COOKBOOK_ID='__hh_lena_cookbook__';
 const cookbook={id:COOKBOOK_ID,category:COOKBOOK_ID,name:'Léna Cookbook',icon:'👩‍🍳'};
 function withCookbook(kind,list){
@@ -94,6 +117,16 @@ function advance(){
  try{(kind==='drink'?drink:food).click();}finally{bypass=false}
  entry.dataset.hhPickerMode='portion';
  $('entryTitle').textContent=(kind==='drink'?'🥤 ':'🍽️ ')+picked.name+' · Adag';
+ if(kind==='food'&&MEALS.some(m=>m.id===selectedMeal)){
+  // Use the canonical meal-choice handler so the explicit choice stays fixed
+  // even if the user adjusts the time in the portion form.
+  const button=Array.from($('hhMealChoices')?.querySelectorAll('button[data-meal]')||[])
+   .find(button=>button.dataset.meal===selectedMeal);
+  if(button){
+   button.click();
+   entry.dataset.hhMealChosen='true'; // Already selected above: no duplicate picker
+  }
+ }
  const target=Array.from(select.options).some(x=>x.value===picked.id);
  if(target){
   select.value=picked.id;
@@ -103,11 +136,18 @@ function advance(){
 function open(kindNext,button){
  // Prime the existing canonical select, but avoid showing its modal.
  delete entry.dataset.hhPickerMode;
+ delete entry.dataset.hhMealChosen;
  bypass=true;
  try{button.click();}finally{bypass=false}
  items=sourceItems();
  if(entry.open)entry.close();
  kind=kindNext;step='categories';category='';
+ // Native portion form was primed by button.click() above and supplied the
+ // current time-based default; the chosen meal is profile-independent UI state.
+ selectedMeal=kind==='food'&&MEALS.some(m=>m.id===$('meal')?.value)?$('meal').value:'';
+ if(mealRow)mealRow.hidden=kind!=='food';
+ dialog.dataset.hhKind=kind;
+ paintMeals();
  const map=new Map();
  for(const f of items)if(!map.has(f.category))map.set(f.category,{name:f.category,icon:f.icon,category:f.category});
  categories=withCookbook(kind,window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()]);
@@ -147,7 +187,7 @@ rail.addEventListener('scroll',()=>{
  },55);
 },{passive:true});
 $('hhBevitelPickerClose').addEventListener('click',()=>dialog.close());
-entry.addEventListener('close',()=>{delete entry.dataset.hhPickerMode;});
+entry.addEventListener('close',()=>{delete entry.dataset.hhPickerMode;delete entry.dataset.hhMealChosen;});
 back.addEventListener('click',()=>{if(step==='categories')dialog.close();else{step='categories';render()}});
 next.addEventListener('click',advance);
 dialog.addEventListener('cancel',e=>{if(step==='foods'){e.preventDefault();step='categories';render()}});
