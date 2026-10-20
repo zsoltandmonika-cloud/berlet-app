@@ -75,6 +75,13 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>📚 Medical Master v709 · 6+1 privát tudásfájl</summary><ul>'+
+ '<li>A hat eredeti JSON továbbra is a Dropboxban működik. A hetedik, medical-master.json külön, csak kifejezett tesztjóváhagyással menthető.</li>'+
+ '<li>Profil- és dokumentumazonosító-ellenőrzés, mindkét Léna-magyarázat megőrzése, forrásidőbélyegek, mentés utáni teljes visszaolvasás.</li>'+
+ '<li>Első teszt: ?hhMasterPilot=v1. Sem a szokásos Ask Léna, sem a gyógyszerek/leletek működését nem módosítja.</li>'+
+ '<li>A 7. Master még NEM kerül automatikusan a ChatGPT/OpenAI API-ba. Következő fázis: külön engedélyezett Ask Léna-próba.</li>'+
+ '<li>Golden Standard referencia: Mónika 2024-es története és a hormonvizsgálatos kutatás.</li>'+
+ '</ul></details>'+
 '<details><summary>🧠 Ask Léna Sol v705 · Golden Standard AI-first pilot</summary><ul>'+
  '<li>Az eddig működő Ask Léna nem változik. Külön, csak ?hhSolQA=v1 URL-re és részletes kérdésre aktiválódó kísérlet.</li>'+
  '<li>A profil összes ellenőrzött, nem duplikált orvosi oldalszövege kizárólag kérdésenként adott KÜLÖN hozzájárulás után dolgozható fel.</li>'+

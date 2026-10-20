@@ -1,0 +1,23 @@
+name: HealthHub v709 · Private Medical Master QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/medical-master-private-v709.js"
+      - "healthhub/live-v304.js"
+      - "healthhub/index.html"
+      - "healthhub/tests/medical-master-private-v709.test.cjs"
+      - ".github/workflows/healthhub-medical-master-v709.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          node --check healthhub/live-v304.js
+          node --check healthhub/medical-master-private-v709.js
+          node healthhub/tests/medical-master-private-v709.test.cjs
+          node healthhub/tests/medical-master-preview-v708.test.cjs

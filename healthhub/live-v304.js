@@ -225,13 +225,21 @@ function startup(){
 }
 setTimeout(startup,1800);
 
-// v708: the 7th Master is a separate, read-only test. Do not execute on normal HealthHub.
+// v709: private 7th Medical Master trial, strictly opt-in. Normal HH unchanged.
 try{
- if(typeof URLSearchParams==='function'&&
-    new URLSearchParams(window.location.search).get('hhMasterPreview')==='v1'){
-  var masterPreviewScript=document.createElement('script');
-  masterPreviewScript.src='./medical-master-preview-v708.js?v=708-readonly';
-  document.head.appendChild(masterPreviewScript);
+ if(typeof URLSearchParams==='function'){
+  var hhFlags=new URLSearchParams(window.location.search);
+  var pilot=hhFlags.get('hhMasterPilot')==='v1';
+  if(pilot||hhFlags.get('hhMasterPreview')==='v1'){
+   var masterPreviewScript=document.createElement('script');
+   masterPreviewScript.src='./medical-master-preview-v708.js?v=708-readonly';
+   if(pilot)masterPreviewScript.onload=function(){
+    var masterPrivateScript=document.createElement('script');
+    masterPrivateScript.src='./medical-master-private-v709.js?v=709-guarded';
+    document.head.appendChild(masterPrivateScript);
+   };
+   document.head.appendChild(masterPreviewScript);
+  }
  }
 }catch(_){}
 document.documentElement.dataset.healthhubMasterVault='1.304';
