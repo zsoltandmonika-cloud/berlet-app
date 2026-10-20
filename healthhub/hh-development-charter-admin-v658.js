@@ -75,6 +75,14 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>⬇ Medical Master v715 · Leletek: naprakész JSON-export</summary><ul>'+
+ '<li>Leletek nézetben új privát Medical Master panel: Legfrissebb Medical Master letöltése + ellenőrzés.</li>'+
+ '<li>Új lelet vagy Léna-magyarázat után a meglévő v304 sikeres Dropbox 6-fájlos sync eseményére a 7. medical-master.json is újraépül. Sem a hat forrás, sem az Ask Léna-éles útvonal nem változik.</li>'+
+ '<li>Letöltéskor a manifest verzióját újraellenőrizzük; hiányzó, hibás, időközben változó vagy korábbi Master esetén csak validált 6+1 összeállítás után engedünk letöltést.</li>'+
+ '<li>A JSON a két betegprofil dokumentumait és korábbi Léna-magyarázatait tartalmazza. Csak a HealthHub privát Dropbox-kapcsolatával dolgozik; GitHubra és az OpenAI API-ra nem továbbít egészségügyi adatot.</li>'+
+ '<li>A ChatGPT Kérdezd Léna projektbe való automatikus feltöltés NINCS bekötve. Google Drive projektforrás esetén sincs automatikus szinkron; külön, jogosultságkezelt integráció szükséges.</li>'+
+ '<li>Állapot: GitHub v715 kód. S24 Ultra + desktop LIVE teszt és tényleges Dropbox-adatok ellenőrzése a végső elfogadás feltétele.</li>'+
+ '</ul></details>'+
 '<details><summary>🧠 Medical Master v710 · Ask Léna Golden Standard próba</summary><ul>'+
  '<li>Csak ?hhMasterQA=v1 kapcsoló esetén használjuk a 7. medical-master.json fájlt a privát Dropboxból.</li>'+
  '<li>Kizárólag aktív, bejelentkezéssel engedélyezett profil magyarázatait küldjük a biztonságos Edge Functionnek, külön kérdésenkénti jóváhagyás után.</li>'+
