@@ -698,7 +698,10 @@ async function run(opts){
     // source IDs exist. Keep the old gate UNCHANGED for normal Ask Léna.
     var solAudit=solPreviewMode&&item.evidenceAudit&&item.evidenceAudit.mode==='sol-full-corpus-preview-v705'?item.evidenceAudit:null;
     if(solPreviewMode&&(!solAudit||item.model!=='gpt-6.1-sol'||
-        !solAudit.citationIdsValidated||solAudit.sourcePages<1||solAudit.sourceDocuments<1))
+        !solAudit.citationIdsValidated||solAudit.sourcePages<1||solAudit.sourceDocuments<1||
+        solAudit.hashVerifiedPages!==solAudit.sourcePages||
+        solAudit.totalSourcePages!==solAudit.sourcePages+solAudit.unreadablePages||
+        solAudit.visualReviewPages<0||solAudit.visualReviewPages>solAudit.sourcePages))
      throw Error('A Sol-kutatás teljes forrásellenőrző jelentése hiányzik. A válasz nem tekinthető késznek.');
     var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified&&!solPreviewMode);
     if(solPreviewMode){
@@ -708,7 +711,10 @@ async function run(opts){
      var solFooter=el('hhAi331Foot');
      if(solFooter)solFooter.textContent='🧪 Golden Standard Sol v705 · GPT-6.1 Sol · '+
       solAudit.sourceDocuments+' eredeti dokumentum, '+solAudit.sourcePages+
-      ' teljes szöveges oldal · '+Number(solAudit.citedPages||0)+
+      '/'+solAudit.totalSourcePages+' SHA-256-tal ellenőrzött, olvasható szöveges oldal · '+
+      solAudit.visualReviewPages+' oldalon képi tartalom külön ellenőrizendő · '+
+      (solAudit.unreadablePages?solAudit.unreadablePages+' oldal szövege nem olvasható · ':'')+
+      Number(solAudit.citedPages||0)+
       ' hivatkozott oldal · forrásazonosítók ellenőrizve, orvosi tények NEM hitelesítve · '+
       new Date(item.generatedAt).toLocaleString('hu-HU');
      print('HH Sol v705 kutatás befejeződött. A forrásazonosítók létezését ellenőriztem; orvosi szakellenőrzés még nem történt.');
