@@ -118,3 +118,12 @@
  .hh-bevitel-grid .hh-bevitel-title{font-size:12.5px}
  .hh-bevitel-grid .hh-bevitel-icon{width:29px;height:29px}
 }
+
+/* v716 · Match the three nutrient KPI tiles immediately below. */
+.hh-bevitel-grid{gap:10px}
+.hh-bevitel-grid .hh-bevitel-tile{height:103px;min-height:103px}
+.hh-bevitel-grid .hh-bevitel-icon{width:27px;height:27px;font-size:15px}
+.hh-bevitel-grid .hh-bevitel-title{font-size:clamp(13px,1.65vw,17px)}
+.hh-bevitel-grid .hh-bevitel-next{width:21px;height:21px;font-size:18px;right:7px;bottom:9px}
+@media(max-width:540px){.hh-bevitel-grid{gap:10px}.hh-bevitel-grid .hh-bevitel-tile{height:103px;min-height:103px}.hh-bevitel-grid .hh-bevitel-icon{width:26px;height:26px;font-size:15px}.hh-bevitel-grid .hh-bevitel-title{font-size:clamp(12px,3.3vw,16px)}}
+@media(max-width:360px){.hh-bevitel-grid .hh-bevitel-tile{height:103px;min-height:103px}}
