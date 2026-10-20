@@ -144,3 +144,11 @@
 .hh-quick-edit-sync{display:flex;align-items:center;gap:9px;border:1px solid #5f92bc65;background:#122c4bc9;border-radius:13px;padding:10px 11px;font-size:11px;line-height:1.4;color:#cbe0f1;margin:10px 0 2px}
 .hh-quick-edit-sync [data-state]{font-weight:750;min-width:0}
 @media(max-width:400px){.hh-quick-sync-bar{gap:6px;padding:7px 9px}.hh-quick-sync-text{font-size:10px}.hh-quick-sync-button{font-size:10px;padding:7px 8px}.hh-quick-edit-sync{font-size:10px}}
+
+/* v718 · Buddy is the right-hand GyorsNasi CTA instead of the old arrow. */
+#hhQuickLaunch .hh-quick-buddy-button{width:41px;height:41px;flex:0 0 41px;padding:1px;
+ overflow:visible;background:radial-gradient(circle,#3b7faa66,#173453cc);
+ border-color:color-mix(in srgb,var(--accent) 73%,#c7f4ff)}
+#hhQuickLaunch .hh-quick-buddy-button img{display:block;width:100%;height:100%;
+ object-fit:contain;filter:drop-shadow(0 2px 3px #0009);pointer-events:none}
+@media(max-width:400px){#hhQuickLaunch .hh-quick-buddy-button{width:38px;height:38px;flex-basis:38px}}
