@@ -31,7 +31,7 @@ const calls=[];
 const vault={connected:()=>true,
  downloadJson:async key=>cloned(store[key]||null),
  uploadJson:async(key,value)=>{calls.push(key);store[key]=cloned(value);return true;}};
-const context={window:{location:{search:''},HH_DROPBOX_VAULT:vault},URLSearchParams,Date};
+const context={window:{location:{search:''},HH_DROPBOX_VAULT:vault},document:{getElementById:()=>null},URLSearchParams,Date};
 vm.runInNewContext(preview,context,{timeout:2000});
 vm.runInNewContext(pilot,context,{timeout:2000});
 const api=context.window.HH_MEDICAL_MASTER_PRIVATE_V709;
