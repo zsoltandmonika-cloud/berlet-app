@@ -103,7 +103,7 @@
    dock.appendChild(make('div','hhProjectOrb712','✦'));
    dock.appendChild(make('h2','hhProjectTitle712','Léna · ChatGPT'));
    dock.appendChild(make('p','hhProjectHint712','Az eredeti ChatGPT, a személyes HealthHub-projekteddel. Egy kattintás, külön böngészőlapon.'));
-   const launch=make('button',null,'↗ ChatGPT-projekt megnyitása');
+   const launch=make('button',null,'Kérdezd Lénát');
    launch.type='button';launch.id='hhChatGptProjectLaunch712';
    launch.addEventListener('click',openProject);dock.appendChild(launch);
    const foot=make('div','hhProjectFooter712');
@@ -119,7 +119,7 @@
  function refresh(){
   const hasLink=!!saved();
   const launch=el('hhChatGptProjectLaunch712');
-  if(launch)launch.textContent=hasLink?'↗ ChatGPT-projekt megnyitása':'↗ Projekt beállítása és megnyitása';
+  if(launch)launch.textContent=hasLink?'Kérdezd Lénát':'Kérdezd Lénát';
   for(const id of BUTTONS){
    const b=el(id);if(b)b.title='ChatGPT-projekt megnyitása';
   }
