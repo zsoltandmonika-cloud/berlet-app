@@ -1,24 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-10-20",
-  "generatedAt": "2026-10-20T03:08:16+02:00",
+  "generatedAt": "2026-10-20T12:14:56+02:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-10-20T03:00",
-    "temperature": 11.3,
-    "apparentTemperature": 9.3,
-    "daytimeMaxFeelsLike": 14.3,
-    "uvMax": 3.0,
-    "pressureHpa": 1024.5,
-    "pressureChange6h": 0.4,
-    "windGust": 5.8
+    "observedAt": "2026-10-20T12:00",
+    "temperature": 13.4,
+    "apparentTemperature": 11.7,
+    "daytimeMaxFeelsLike": 14.0,
+    "uvMax": 2.2,
+    "pressureHpa": 1022.7,
+    "pressureChange6h": -0.4,
+    "windGust": 15.1
   },
   "air": {
     "available": true,
-    "observedAt": "2026-10-20T03:00",
-    "aqi": 42.0,
-    "pm25": 19.0,
+    "observedAt": "2026-10-20T12:00",
+    "aqi": 30.0,
+    "pm25": 10.0,
     "pollen": {
       "available": true,
       "name": "Üröm",
