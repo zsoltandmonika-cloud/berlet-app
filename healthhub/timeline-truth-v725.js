@@ -123,49 +123,34 @@
  // Informational RAG pattern, never a diagnostic decision. Green check = saved
  // diary entry, not a clinical assessment or a verified sensor measurement.
  function observationRag(x){
-  const level=x&&x.grade;
-  if(!Number.isInteger(level))return {tone:'unknown',label:'Nincs kiválasztott fokozat'};
-  if(x.observationType==='stool'){
-   if(level<1||level>7)return {tone:'unknown',label:'Ismeretlen Bristol-fokozat'};
-   return level===3||level===4?{tone:'green',label:'Szokásos mintázat'}:
-    level===1||level===7?{tone:'red',label:'Szélső kategória'}:
-    {tone:'amber',label:'Eltérő mintázat'};
-  }
-  if(x.observationType==='urine'){
-   if(level<1||level>8)return {tone:'unknown',label:'Ismeretlen színfokozat'};
-   return level<=3?{tone:'green',label:'Világos árnyalat'}:
-    level<=5?{tone:'amber',label:'Közepes árnyalat'}:
-    {tone:'red',label:'Sötét árnyalat'};
-  }
-  return {tone:'unknown',label:'Nem besorolt megfigyelés'};
+  return w.HH_OBSERVATION_RAG_V728?.classify?.(x?.observationType,x?.grade)||
+   {tone:'unknown',label:'Színjelzés nem elérhető',grade:null};
  }
  function observationGroup(rows){
   const ordered=[...rows].sort((a,b)=>
    (a.observationType==='stool'?0:1)-(b.observationType==='stool'?0:1)||
    (a.time||'').localeCompare(b.time||''));
-  return '<div class="hhTruthObservationGroup" aria-label="Rögzített testi megfigyelések">'+
-   '<div class="hhTruthObservationHeading"><span class="hhTruthRecorded" aria-hidden="true">✓</span>'+
-   '<strong>BB / AJ · Megfigyelések</strong><small>'+ordered.length+' rögzítve</small></div>'+
-   ordered.map(x=>{
-    const rag=observationRag(x),isBB=x.observationType==='stool';
-    const code=isBB?'BB':'AJ',label=isBB?'Bristol Bar':'Apple Juice';
-    return '<details class="hhTruthObservationMini">'+
-     '<summary><span class="hhTruthObservationCheck" aria-hidden="true">✓</span>'+
-     '<b class="hhTruthObservationCode">'+code+'</b>'+
-     '<span class="hhTruthObservationName">'+label+'</span>'+
-     '<time class="hhTruthObservationTime">'+esc(x.time)+'</time>'+
-     '<span class="hhTruthRag hhTruthRag-'+rag.tone+'" role="img" aria-label="Tájékoztató: '+esc(rag.label)+'" title="'+esc(rag.label)+'"></span>'+
-     '<span class="hhTruthObservationExpand" aria-hidden="true">⌄</span></summary>'+
-     '<div class="hhTruthObservationDetail">'+esc(x.quantity)+
-     (x.note?'<span class="hhTruthObservationNote">'+esc(x.note)+'</span>':'')+
-     '<small>Nutrition · saját bejegyzés · nem diagnózis</small></div>'+
-     '</details>';
-   }).join('')+
-   '<small class="hhTruthRagLegend"><i class="hhTruthRag hhTruthRag-green"></i>'+
-   '<i class="hhTruthRag hhTruthRag-amber"></i><i class="hhTruthRag hhTruthRag-red"></i>'+
-   ' A színek tájékoztató mintázatot jelölnek, nem egészségügyi minősítést. A ✓ kizárólag a naplózást igazolja.</small></div>';
+  const parts=['<div class="hhTruthObservationGroup hhRhythmDiary" aria-label="Rögzített testi megfigyelések">',
+   '<div class="hhTruthObservationHeading"><span class="hhTruthRecorded" aria-hidden="true">✓</span>',
+   '<strong>BS / AJ · Megfigyelések</strong><small>'+ordered.length+' rögzítve</small></div>'];
+  ordered.forEach(x=>{
+   const isBS=x.observationType==='stool',rag=observationRag(x);
+   const code=isBS?'BS':'AJ',title=isBS?'Bristol-skála':'Apple Juice';
+   const grade=rag.grade!==null&&rag.grade!==undefined?
+    String(rag.grade)+'/'+(isBS?'7':'8'):'Fokozat nélkül';
+   parts.push('<div class="hhRhythmRow">'+
+    '<span class="hhRhythmCheck" aria-label="Naplóba rögzítve">✓</span>'+
+    '<span class="hhRhythmMain"><span class="hhRhythmTitle">'+code+' · '+title+' · '+esc(grade)+'</span>'+
+    (x.note?'<span class="hhRhythmNote">'+esc(x.note)+'</span>':'')+'</span>'+
+    '<time class="hhRhythmTime">'+esc(x.time)+'</time>'+
+    '<span class="hhRhythmDot" data-rag="'+esc(rag.tone)+'" role="img"'+
+    ' aria-label="'+esc(rag.label)+' · tájékoztató, nem diagnózis"'+
+    ' title="'+esc(rag.label)+'"></span></div>');
+  });
+  parts.push('<div class="hhRhythmLegend">A zöld ✓ a mentést jelzi; a külön színpont tájékoztató, nem diagnózis.</div></div>');
+  return parts.join('');
  }
- function statCards(rows,filter){
+  function statCards(rows,filter){
   const n=rows.length,food=rows.filter(x=>x.kind==='nutrition'),
    body=rows.filter(x=>x.kind==='observation');
   const total=nutritionSummary(rows);
