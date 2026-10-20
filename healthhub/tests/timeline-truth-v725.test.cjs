@@ -54,4 +54,29 @@ const reports={documents:[
 ]};
 assert.equal(api.reportRows(reports,profile).length,1,'Only medically dated, profile-safe reports');
 assert(!index.includes('v725-no-placeholder'),'Unexpected test placeholder');
-console.log('PASS v725: no demo data, nutrition lunch and dinner, correct kcal, dates, profiles, deletions, cloud dedupe, symptoms and medically dated reports');
+const bodyData={schemaVersion:'healthhub.nutrition/1',profileKey:profile,body:[
+ {id:'bb-example',kind:'stool',date:'2026-10-20',time:'11:10',bristol:'4',note:'SYNTETIKUS'},
+ {id:'aj-example',kind:'urine',date:'2026-10-20',time:'13:25',urineColor:'3',note:''},
+ {id:'deleted-body',kind:'stool',date:'2026-10-20',time:'13:30',bristol:'1',deleted:true},
+ {id:'wrong-person-body',profile:'monika',kind:'urine',date:'2026-10-20',time:'13:45',urineColor:'8'}
+]};
+const br=api.bodyRows(bodyData,profile);
+assert.equal(br.length,2,'Separate BODY observations must not include deleted or wrong-profile rows');
+assert.equal(br[0].grade,4);
+assert.equal(br[1].grade,3);
+assert.equal(api.observationRag(br[0]).tone,'green');
+assert.equal(api.observationRag({...br[0],grade:1}).tone,'red');
+assert.equal(api.observationRag({...br[0],grade:5}).tone,'amber');
+assert.equal(api.observationRag({...br[0],grade:null}).tone,'unknown');
+assert.equal(api.observationRag(br[1]).tone,'green');
+assert.equal(api.observationRag({...br[1],grade:5}).tone,'amber');
+assert.equal(api.observationRag({...br[1],grade:8}).tone,'red');
+const compact=api.observationGroup([br[1],br[0]]);
+assert(compact.includes('✓')&&compact.includes('BB')&&compact.includes('Bristol Bar'));
+assert(compact.includes('AJ')&&compact.includes('Apple Juice'));
+assert(compact.indexOf('Bristol Bar')<compact.indexOf('Apple Juice'),'Always stack BB above AJ');
+assert(compact.includes('hhTruthRag-green'));
+assert(compact.includes('nem diagnózis'));
+assert.equal(api.statCards([...today,...br],'all')[2].value,'560 kcal','BODY checks must not add calories');
+assert.equal(api.statCards(br,'observation')[0].value,'2','Body observations count independently');
+console.log('PASS v725: verified diary data, compact BB/AJ, RAG indicators, non-diagnostic semantics, filtered totals and profile isolation');
