@@ -368,10 +368,36 @@ function renderHydrationStatus({fluidTotal,fluidFound,waterGoal,validWaterGoal,d
  panel.setAttribute('aria-label','Napi folyadék: '+(fluidFound?fmt(fluidTotal,0)+' ml':'nincs naplózott ital')+'. '+(planned==null?'Nincs beállított napi cél.':'Napi terv '+fmt(planned,0)+' ml.')+' '+state+'. A cél túllépése nem jelent egészségügyi ajánlást.');
 }
 
+function renderBodySummary(rows){
+ const wrap=$('hhRhythmSummary728');if(!wrap)return;
+ wrap.replaceChildren();
+ const ragApi=root.HH_OBSERVATION_RAG_V728;
+ for(const kind of ['stool','urine']){
+  const row=rows.find(x=>x.kind===kind);
+  const code=kind==='stool'?'BS':'AJ';
+  const raw=row?(kind==='stool'?row.bristol:row.urineColor):null;
+  const info=row?ragApi?.classify?.(kind,raw):null;
+  const level=info?.grade;
+  const item=document.createElement('span');item.className='hhRhythmSummaryBadge';
+  item.setAttribute('aria-label',code+' · '+(row?'rögzítve':'nincs mai bejegyzés')+
+   (level!=null?' · '+level:'')+(info?' · '+info.label:''));
+  const checked=document.createElement('span');
+  checked.className=row?'hhRhythmSummarySaved':'hhRhythmSummaryMissing';
+  checked.textContent=row?'✓':'·';
+  const title=document.createElement('b');
+  title.textContent=code+' '+(level!=null?level+'/'+(kind==='stool'?'7':'8'):'—');
+  const rag=document.createElement('span');rag.className='hhRhythmSummaryRag';
+  rag.dataset.rag=info?.tone||'unknown';
+  rag.title=row?(info?.label||'Nincs besorolás'):'Nincs mai bejegyzés';
+  rag.setAttribute('aria-hidden','true');
+  item.append(checked,title,rag);wrap.append(item);
+ }
+}
 function renderBody(){
  const date=currentDay(),rows=read(active).body.filter(e=>e.date===date&&!e.deleted)
   .sort((a,b)=>b.time.localeCompare(a.time));
  const view=$('bodyLog');view.replaceChildren();view.classList.add('hhRhythmDiary');
+ renderBodySummary(rows); // Always visible in BODY BALANCE summary, even when collapsed.
  if(!rows.length){view.textContent='Még nincs esemény a kiválasztott napon.';return;}
  const ragApi=root.HH_OBSERVATION_RAG_V728;
  for(const row of rows){
