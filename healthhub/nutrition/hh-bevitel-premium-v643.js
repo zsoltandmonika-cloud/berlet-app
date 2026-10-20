@@ -16,6 +16,11 @@ dialog.innerHTML='<div class="hh-bevitel-picker-shell"><header class="hh-bevitel
 document.body.append(dialog);
 const rail=$('hhBevitelPickerRail'),title=$('hhBevitelPickerTitle'),note=$('hhBevitelPickerNote'),hint=$('hhBevitelPickerHint');
 const back=$('hhBevitelPickerBack'),next=$('hhBevitelPickerNext'),count=$('hhBevitelPickerCount'),selected=$('hhBevitelPickerSelected'),detail=$('hhBevitelPickerDetail');
+const COOKBOOK_ID='__hh_lena_cookbook__';
+const cookbook={id:COOKBOOK_ID,category:COOKBOOK_ID,name:'Léna Cookbook',icon:'👩‍🍳'};
+function withCookbook(kind,list){
+ return kind==='food'?[cookbook,...list.filter(x=>x.category!==COOKBOOK_ID)]:list;
+}
 const cardIcon=t=>{const m=String(t||'').match(/^\s*(\p{Extended_Pictographic}(?:\ufe0f|\u200d\p{Extended_Pictographic})?)/u);return m?m[1]:'🍽️'};
 function parseOption(o){
  const text=(o.textContent||'').trim(),split=text.indexOf(' · ');
@@ -37,7 +42,8 @@ function activeUI(){
  selected.textContent=item?item.name:'Nincs találat';
  detail.textContent=step==='categories'?'Koppints a kategóriára':'Egy adag méretét a következő képernyőn állíthatod';
  count.textContent=items.length?(selection+1)+' / '+items.length:'';
- next.disabled=!item;next.textContent=step==='categories'?'Ételek ›':'Adag beállítása ›';
+ next.disabled=!item;next.textContent=step==='categories'
+  ?(item?.id===COOKBOOK_ID?'Recepttár ›':'Ételek ›'):'Adag beállítása ›';
  back.textContent=step==='categories'?'← Bezárás':'← Kategóriák';
 }
 function render(){
@@ -51,10 +57,18 @@ function render(){
   card.dataset.theme=kind;
   const art=document.createElement('div');art.className='hh-bevitel-picker-art';
   const icon=document.createElement('span');icon.textContent=r.icon;art.append(icon);
-  if(step==='categories')window.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.(kind,r.category,art);
+  if(step==='categories'&&r.category===COOKBOOK_ID){
+   card.dataset.theme='cookbook';
+   const photo=document.createElement('img');
+   photo.className='hh-cookbook-hero';
+   photo.alt='';
+   photo.loading='lazy';
+   photo.src='../../recepttar/assets/lena-kitchen-banner-crisp.png?v=5';
+   art.replaceChildren(photo);
+  }else if(step==='categories')window.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.(kind,r.category,art);
   const copy=document.createElement('div');copy.className='hh-bevitel-picker-card-copy';
   const n=document.createElement('strong');n.textContent=r.name;
-  const subtitle=document.createElement('small');subtitle.textContent=step==='categories'?'Görgethető '+(kind==='drink'?'italok':'ételek'):category;
+  const subtitle=document.createElement('small');subtitle.textContent=r.category===COOKBOOK_ID?'Saját receptek és recepttár':step==='categories'?'Görgethető '+(kind==='drink'?'italok':'ételek'):category;
   copy.append(n,subtitle);card.append(art,copy);
   card.addEventListener('click',()=>{if(i!==selection){selection=i;activeUI();center(i,true)}else advance()});
   rail.append(card);
@@ -67,6 +81,11 @@ function render(){
 function advance(){
  const picked=items[selection];if(!picked)return;
  if(step==='categories'){
+  if(picked.category===COOKBOOK_ID){
+   dialog.close();
+   window.location.assign(new URL('../../recepttar/',window.location.href).href);
+   return;
+  }
   category=picked.category;step='foods';render();return;
  }
  // Reopen the proven Nutrition portion form with the selected food.
@@ -91,7 +110,7 @@ function open(kindNext,button){
  kind=kindNext;step='categories';category='';
  const map=new Map();
  for(const f of items)if(!map.has(f.category))map.set(f.category,{name:f.category,icon:f.icon,category:f.category});
- categories=window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()];
+ categories=withCookbook(kind,window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()]);
  if(!categories.length){$('hhBevitelInfo').textContent='Ehhez a típushoz jelenleg nincs étel vagy ital. Saját ételt a napi napló + Saját étel gombjával hozhatsz létre.';$('hhBevitelInfo').hidden=false;return}
  render();dialog.showModal();
 }
@@ -108,7 +127,7 @@ window.HH_BEVITEL_PICKER_V643={
   if(!dialog.open||step!=='categories')return;
   const current=items[selection]?.category;
   const map=new Map();for(const x of sourceItems())if(!map.has(x.category))map.set(x.category,{name:x.category,category:x.category,icon:x.icon});
-  categories=window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()];
+  categories=withCookbook(kind,window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()]);
   render();
   const at=items.findIndex(x=>x.category===current);
   if(at>=0){selection=at;activeUI();center(at,false)}
