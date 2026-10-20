@@ -57,6 +57,26 @@
     kcal:num(x.nutrients&&x.nutrients.kcal),source:'Nutrition napló',proof:x.source==='estimated'?'Becsült tápérték · rögzített bevitel':'Rögzített bevitel'
    }));
  }
+ const URINE_COLORS=['Nagyon halvány','Halványsárga','Sárga','Aranysárga','Mézsárga','Borostyán','Sötét borostyán','Sötétbarna'];
+ function bodyRows(data,p){
+  if(!liveNutrition(data,p)||!Array.isArray(data.body))return[];
+  return data.body.filter(x=>x&&(!x.profile||x.profile===p)&&!x.deleted&&
+    typeof x.id==='string'&&x.id.length>0&&isDay(x.date)&&validTime(x.time)&&
+    (x.kind==='stool'||x.kind==='urine')).map(x=>{
+   const stool=x.kind==='stool';
+   const bristol=stool&&/^[1-7]$/.test(String(x.bristol||''))?Number(x.bristol):null;
+   const urine=!stool&&/^[1-8]$/.test(String(x.urineColor||''))?Number(x.urineColor):null;
+   return {
+    id:'body:'+x.id,profile:p,date:x.date,time:x.time,kind:'observation',
+    observationType:stool?'stool':'urine',icon:stool?'🧻':'💧',
+    title:stool?'Széklet · Bristol-skála':'Vizelet · Apple juice színskála',
+    quantity:stool?(bristol?'Bristol '+bristol+'/7':'Bristol-fokozat nincs megadva'):
+      urine?'Szín '+urine+'/8 · '+URINE_COLORS[urine-1]:'Színfokozat nincs megadva',
+    note:typeof x.note==='string'?x.note.slice(0,300):'',
+    source:'Nutrition · Testi megfigyelések',proof:'Saját naplóbejegyzés · nem diagnózis'
+   };
+  });
+ }
  function symptomRows(pkg,p){
   if(!pkg||!Array.isArray(pkg.events))return[];
   return pkg.events.filter(x=>x&&!x.deletedAt&&x.profile===p&&x.id&&x.eventAt&&Number.isFinite(Date.parse(x.eventAt)))
@@ -77,7 +97,7 @@
   const c=w.hhActivity191Cache;if(!c||!Array.isArray(c.daily))return[];
   return c.daily.filter(x=>x&&isDay(x.date)&&num(x.steps)!==null)
    .map(x=>({id:'activity-day:'+x.date,profile:p,date:x.date,time:'',
-    kind:'activity',icon:'👣',title:'Napi lépések · összesítés',
+    kind:'activity',icon:'👣',title:'Napi lépések · összesítés',steps:num(x.steps),
     quantity:fmt(num(x.steps))+' lépés',source:'Activity · Health Connect / Samsung',
     proof:'Napi összeg, nem időpont szerinti esemény'}));
  }
@@ -100,6 +120,38 @@
   return {recorded:foods.length,withKcal:foods.filter(x=>x.kcal!==null).length,kcal:tally,
    meals:MEALS.map(m=>({name:m,rows:foods.filter(x=>x.meal===m)}))};
  }
+ function statCards(rows,filter){
+  const n=rows.length,food=rows.filter(x=>x.kind==='nutrition'),
+   body=rows.filter(x=>x.kind==='observation');
+  const total=nutritionSummary(rows);
+  const card=(value,label)=>({value:String(value),label});
+  if(filter==='nutrition')return[
+   card(n,'Étel- és italbevitel'),card(food.filter(x=>x.icon==='🥤').length,'Italok'),
+   card(total.withKcal?fmt(total.kcal)+' kcal':'—','Rögzített tápérték · becslés')
+  ];
+  if(filter==='observation')return[
+   card(n,'Testi megfigyelés'),card(body.filter(x=>x.observationType==='stool').length,'Bristol · széklet'),
+   card(body.filter(x=>x.observationType==='urine').length,'Apple juice · vizeletszín')
+  ];
+  if(filter==='symptom'){
+   const rated=rows.map(x=>x.severity).filter(x=>x!==null&&x!==undefined);
+   return[card(n,'Tünetnapló-esemény'),card(rated.length,'Erősség rögzítve'),
+    card(rated.length?fmt(rated.reduce((a,b)=>a+b,0)/rated.length)+'/10':'—','Átlagos rögzített erősség')];
+  }
+  if(filter==='medical'){
+   const days=new Set(rows.map(x=>x.date));
+   return[card(n,'Keltezett dokumentum'),card(days.size,'Dokumentált nap'),
+    card(rows.length?rows[0].date:'—','Legutóbbi lelet dátuma')];
+  }
+  if(filter==='activity'){
+   const steps=rows.map(x=>x.steps).filter(x=>x!==null&&x!==undefined);
+   return[card(n,'Mért napi összesítés'),
+    card(steps.length?fmt(steps.reduce((a,b)=>a+b,0)):'—','Mért lépések az időszakban'),
+    card(steps.length,'Lépésadatos nap')];
+  }
+  return [card(n,'Összes rögzített esemény'),card(total.recorded,'Étel- és italbevitel'),
+    card(total.withKcal?fmt(total.kcal)+' kcal':'—','Rögzített tápérték · becslés')];
+ }
  function ensureStyle(){
   if(el('hhTimelineTruthStyle725'))return;
   const s=d.createElement('style');s.id='hhTimelineTruthStyle725';s.textContent=
@@ -115,6 +167,7 @@
      'border-color:#94d5ff;color:white}'+
    '.hhTruthCustom{display:flex;align-items:center;gap:7px;margin:8px 0;font-size:11px;color:#c9e2fb}'+
    '.hhTruthCustom input{color:#eff8ff;background:#142e50;border:1px solid #739bbc;border-radius:10px;padding:8px;min-height:38px;color-scheme:dark}'+
+   '.hhTruthStatsTitle{font-size:10px;color:#adcce8;margin:12px 0 4px;font-weight:750}'+
    '.hhTruthStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}'+
    '.hhTruthStat{min-width:0;display:flex;flex-direction:column;gap:4px;border:1px solid #77acde66;border-radius:15px;padding:11px 9px;background:#102744d9}'+
    '.hhTruthStat b{font-size:18px;color:#f6f9ff}.hhTruthStat small{font-size:10px;color:#a4c0dc;line-height:1.4}'+
@@ -151,7 +204,9 @@
    '<button data-kind="nutrition" aria-pressed="false">🍽️ Táplálkozás</button>'+
    '<button data-kind="symptom" aria-pressed="false">🩺 Tünetek</button>'+
    '<button data-kind="medical" aria-pressed="false">📄 Leletek</button>'+
-   '<button data-kind="activity" aria-pressed="false">👣 Aktivitás</button></div>'+
+   '<button data-kind="activity" aria-pressed="false">👣 Aktivitás</button>'+
+   '<button data-kind="observation" aria-pressed="false">🧪 Megfigyelések</button></div>'+
+   '<div class="hhTruthStatsTitle" id="hhTruthStatsTitle725"></div>'+
    '<div class="hhTruthStats" id="hhTruthStats725"></div>'+
    '<div class="hhTruthSources" id="hhTruthSources725" role="status" aria-live="polite"></div>'+
    '<div class="hhTruthFeed" id="hhTruthFeed725"></div>'+
@@ -178,12 +233,14 @@
   el('hhTruthDateWrap725').hidden=state.mode!=='custom';
   const date=el('hhTruthDate725');date.max=today;date.value=state.day;
   const selected=limitRange(records.filter(x=>x.profile===p),state.mode,state.day,nowDate());
-  const nutrition=nutritionSummary(selected);
-  const kcallabel=nutrition.withKcal?fmt(nutrition.kcal)+' kcal':'—';
-  el('hhTruthStats725').innerHTML=
-   '<div class="hhTruthStat"><b>'+selected.length+'</b><small>Rögzített esemény</small></div>'+
-   '<div class="hhTruthStat"><b>'+nutrition.recorded+'</b><small>Étel- és italbevitel</small></div>'+
-   '<div class="hhTruthStat"><b>'+kcallabel+'</b><small>Dokumentált bevitel · kcal</small></div>';
+  const filtered=selected.filter(x=>state.filter==='all'||x.kind===state.filter);
+  const cards=statCards(filtered,state.filter);
+  const activeFilter=[['all','Összes'],['nutrition','Táplálkozás'],['symptom','Tünetek'],
+    ['medical','Leletek'],['activity','Aktivitás'],['observation','Megfigyelések']]
+    .find(x=>x[0]===state.filter)?.[1]||'Összes';
+  el('hhTruthStatsTitle725').textContent='Összesítés · '+activeFilter+' · '+(state.mode==='1'?'Ma':state.mode==='7'?'7 nap':state.mode==='30'?'30 nap':state.day);
+  el('hhTruthStats725').innerHTML=cards.map(c=>
+   '<div class="hhTruthStat"><b>'+esc(c.value)+'</b><small>'+esc(c.label)+'</small></div>').join('');
   const s=sourceStatus,notes=[
    'Nutrition: '+(s.nutrition||'ellenőrzésre vár'),
    'Tünetnapló: '+(s.symptoms||'ellenőrzésre vár'),
@@ -191,7 +248,6 @@
    'Activity: '+(s.activity||'nem betöltött')
   ];
   el('hhTruthSources725').textContent=notes.join(' · ');
-  const filtered=selected.filter(x=>state.filter==='all'||x.kind===state.filter);
   const byDate=new Map();
   for(const x of filtered){if(!byDate.has(x.date))byDate.set(x.date,[]);byDate.get(x.date).push(x);}
   const output=[];
@@ -201,7 +257,9 @@
     const metric=x.kind==='nutrition'
      ?(x.kcal===null?'Tápérték nincs rögzítve':fmt(x.kcal)+' kcal')
      :(x.kind==='symptom'&&x.severity!==null?'Erősség: '+fmt(x.severity)+'/10':x.kind==='activity'?x.quantity:'');
-    const desc=x.kind==='nutrition'?[x.meal,x.quantity].filter(Boolean).join(' · '):x.kind==='activity'?'Napi összesítés · pontos óra nincs':x.quantity||'';
+    const desc=x.kind==='nutrition'?[x.meal,x.quantity].filter(Boolean).join(' · '):
+     x.kind==='activity'?'Napi összesítés · pontos óra nincs':
+     x.kind==='observation'?[x.quantity,x.note].filter(Boolean).join(' · '):x.quantity||'';
     output.push('<article class="hhTruthEvent'+(x.kind==='symptom'?' hhSJTimelineEvent':'')+'"'+(x.symptomId?' data-symptom-id="'+esc(x.symptomId)+'"':'')+'>'+
      '<span class="hhTruthTime">'+esc(x.time||'nap')+'</span><span class="hhTruthIcon">'+esc(x.icon)+'</span>'+
      '<div class="hhTruthCard"><strong>'+esc(x.title)+'</strong>'+
@@ -216,6 +274,7 @@
  function mergeViews(p,packages){
   return dedupe([
    ...nutritionRows(packages.nutrition,p),
+   ...bodyRows(packages.nutrition,p),
    ...symptomRows(packages.symptoms,p),
    ...reportRows(packages.medical,p),
    ...activityRows(p)
@@ -250,7 +309,8 @@
         med=remote[2].status==='fulfilled'?remote[2].value:null;
   // Strict schema and identity checks; incompatible packages never replace local truth.
   const remoteN=liveNutrition(nut,p)?nut:null;
-  const mergedN=localN||remoteN?{entries:byId(localN?.entries,remoteN?.entries)}:null;
+  const mergedN=localN||remoteN?{schemaVersion:'healthhub.nutrition/1',profileKey:p,
+   entries:byId(localN?.entries,remoteN?.entries),body:byId(localN?.body,remoteN?.body)}:null;
   const remoteS=liveSymptoms(sym)?sym:null;
   const mergedS=localS||remoteS?{events:byId(localS?.events,remoteS?.events)}:null;
   const remoteM=med&&med.schema==='healthhub.master.documents/1'&&Array.isArray(med.documents)?med:null;
@@ -267,7 +327,7 @@
  function active(){return !!el('timeline')?.classList.contains('on');}
  function onProfile(){if(active())refresh(false);else{sequence++;profile=null;records=[];}}
   w.HH_TIMELINE_TRUTH_V725={version:'725',refresh,profile:pkey,model:{
-   nutritionRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,byId,dedupe,liveNutrition,liveSymptoms
+   nutritionRows,bodyRows,symptomRows,reportRows,activityRows,limitRange,nutritionSummary,statCards,byId,dedupe,liveNutrition,liveSymptoms
   }};
  function decorate(){
   shell();
