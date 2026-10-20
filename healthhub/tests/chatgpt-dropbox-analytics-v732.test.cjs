@@ -6,7 +6,7 @@ const path=require('node:path');
 const source=fs.readFileSync(path.resolve(__dirname,'../hh-chatgpt-dropbox-analytics-v732.js'),'utf8');
 const handlers={};
 const window={
- healthSectionKind:'home',addEventListener(){},setInterval(){},
+ healthSectionKind:'home',addEventListener(){},setInterval(){},setTimeout(){},
  localStorage:{getItem(){return null},setItem(){}},
  HH_DROPBOX_VAULT:null
 };
