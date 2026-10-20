@@ -709,7 +709,7 @@ async function run(opts){
      ' · 📚 I-04: '+clinical.quality.originals+' eredeti PDF-kivonat és '+clinical.quality.summaries+' korábbi leletmagyarázat.'+
       ' · 🧠 v393 '+(customized.plan.mode==='deep'?'mélykutatás':'személyes kutatás')+
       (researchPlan.documents&&documents&&documents.diagnostics?' · PDF-keresés: '+documents.diagnostics.attempted+' fájl, '+documents.diagnostics.pagesScanned+' oldal.':'')+
-      (!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
+      (!solPreviewMode&&!clinical.quality.originals&&!clinical.quality.summaries&&researchPlan.clinical?' · ⚠️ A személyes eseménysorhoz nem került feldolgozható klinikai forrás.':'')+
       (audit?' · 🧪 I-04 v395: '+audit.verifiedFacts+' eredeti PDF-hez kötött tény és '+(audit.summaryFacts||0)+' korábbi JSON-magyarázathoz kötött tényjelölt, '+audit.checkedParagraphs+' vizsgált bekezdés, '+audit.unverifiedDowngraded+' kizárt állítás. A másodlagos összefoglaló nem eredeti kórházi irat.':'')+
       ' · '+qualityResult.message+
       (mkbSourceUsed?' · 📚 I-09: '+mkbSourceUsed+' külön engedélyezett MKB-leletidézet továbbítva (szakmai ellenőrzésre vár)':' · 📚 I-09: nem történt új MKB-forrásátadás')+
@@ -725,7 +725,7 @@ async function run(opts){
         ' · forrásalapú pótlás: '+(audit&&audit.qaSourceFallbackUsed?'igen':'nem'):'');
     }
     var provenance=window.HH_ASK_LENA_SAFE_FALLBACK_V511;
-    if(provenance&&provenance.provenance){
+    if(!solPreviewMode&&provenance&&provenance.provenance){
      var added=provenance.provenance(replyData,true,simplified?'simplified':'standard');
      el('hhAi331Foot').textContent+=' · '+added;
      var addedBox=el('hhAi331AddedValue');
