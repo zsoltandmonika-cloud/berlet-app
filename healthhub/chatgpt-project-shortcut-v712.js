@@ -119,7 +119,7 @@
  function refresh(){
   const hasLink=!!saved();
   const launch=el('hhChatGptProjectLaunch712');
-  if(launch)launch.textContent=hasLink?'Kérdezd Lénát':'Kérdezd Lénát';
+  if(launch)launch.textContent='Kérdezd Lénát';
   for(const id of BUTTONS){
    const b=el(id);if(b)b.title='ChatGPT-projekt megnyitása';
   }
