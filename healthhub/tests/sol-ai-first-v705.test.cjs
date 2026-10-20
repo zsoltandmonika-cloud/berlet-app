@@ -33,6 +33,15 @@ assert.match(route('?hhSolQA=v1',false).error,/hozzájárulást/);
 assert.equal(route('?hhSolQA=v1',false).data.fullCorpusConsent,undefined);
 assert.equal(route('?hhSolQA=v1',true,false).route,'/functions/v1/smooth-endpoint');
 assert.ok(html.includes('solQA=705'),'JS cache-buster');
+// A Sol completion has its own provenance evidence; legacy v395 audit must not be spoofed.
+assert.match(client,/solAudit=solPreviewMode&&item\.evidenceAudit/);
+assert.match(client,/mode==='sol-full-corpus-preview-v705'/);
+assert.match(client,/clinicalPilot&&!simplified&&!solPreviewMode/);
+assert.match(client,/if\(solPreviewMode&&\(!solAudit/);
+assert.match(client,/sourceDocuments\+' eredeti dokumentum '/);
+assert.match(client,/if\(!simplified&&!solPreviewMode\)/);
+assert.match(client,/az orvosi állításokat NEM hitelesítette/);
+
 for(const fragment of [
  'body?.fullCorpusConsent!==true','client.auth.getUser',
  'from("hh_profile_access")','from("hh_kb_documents")','from("hh_kb_pages")',
