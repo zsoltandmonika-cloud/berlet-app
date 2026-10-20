@@ -75,6 +75,14 @@ function mount(){
  '<li>Az Ask Léna kérdésmezője alacsonyabb, az Enter/Kutatás gomb elérhetőbb; a helyi és felhő-előzménylista csak tényleges változáskor épül újra, megőrizve a görgetést.</li>'+
  '<li>A PDF-forrásdátum nem feltétlenül a leleten szereplő klinikai esemény dátuma; a forrásegyezés nem orvosi validálás. Az elfogadáshoz S24 Ultra LIVE teszt szükséges.</li>'+
  '</ul></details>'+
+'<details><summary>🧠 Medical Master v710 · Ask Léna Golden Standard próba</summary><ul>'+
+ '<li>Csak ?hhMasterQA=v1 kapcsoló esetén használjuk a 7. medical-master.json fájlt a privát Dropboxból.</li>'+
+ '<li>Kizárólag aktív, bejelentkezéssel engedélyezett profil magyarázatait küldjük a biztonságos Edge Functionnek, külön kérdésenkénti jóváhagyás után.</li>'+
+ '<li>Az OpenAI API-kulcs csak a szerveren van, store:false; a hivatkozásazonosítókat és a teljes válaszfolyamot ellenőrizzük. Hiba esetén nincs sablonválasz.</li>'+
+ '<li>A források 2026-os korábbi Léna-magyarázatok, nem eredeti PDF teljes szövegek. Az AI csak a ténylegesen dokumentált tényeket állíthatja.</li>'+
+ '<li>Golden Standard referencia: Mónika teljes 2024-es kórházi története és az időrendi hormonvizsgálat-kutatás.</li>'+
+ '<li>Az eredeti hat Dropbox JSON, a mindennapi Ask Léna és a v706 Sol útvonal változatlan. A következő fázis csak az éles felhasználói teszt után jöhet.</li>'+
+ '</ul></details>'+
 '<details><summary>📚 Medical Master v709 · 6+1 privát tudásfájl</summary><ul>'+
  '<li>A hat eredeti JSON továbbra is a Dropboxban működik. A hetedik, medical-master.json külön, csak kifejezett tesztjóváhagyással menthető.</li>'+
  '<li>Profil- és dokumentumazonosító-ellenőrzés, mindkét Léna-magyarázat megőrzése, forrásidőbélyegek, mentés utáni teljes visszaolvasás.</li>'+
