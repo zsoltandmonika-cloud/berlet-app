@@ -7,6 +7,8 @@
 'use strict';
 const VERSION='732', ROOT='/HealthHub', OUT='/HealthHub/analytics/healthhub-chatgpt-source-index.json';
 const LOCAL='hh-chatgpt-dropbox-audit-v732'; // private health values never stored here
+const OPTIN='hh-chatgpt-dropbox-audit-daily-optin-v732'; // set only after verified first publish
+let lastAutoAttempt=0;
 const MAX=10000, DAY=86400000;
 let busy=null,last=null,lastIssue='',mountTimer=0;
 const now=()=>new Date().toISOString();
@@ -40,6 +42,29 @@ const notInDropbox=[
  {key:'device-unsynced',name:'Csak telefonon lévő vagy még nem feltöltött adatok',reason:'A Dropbox-leltár nem igazolja, hogy minden eszköz minden eseménye már felment.'},
  {key:'chatgpt-connector',name:'ChatGPT Dropbox alkalmazásmappa elérése',reason:'Külön ChatGPT Plugin csatlakoztatás és valós fájlolvasási próba szükséges.'}
 ];
+function localDay(){
+ return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Budapest',
+ year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+}
+function autoAllowed(){
+ try{return w.localStorage.getItem(OPTIN)==='1'}catch(_){return false;}
+}
+function recentSuccess(){
+ try{
+  const st=JSON.parse(w.localStorage.getItem(LOCAL)||'null');
+  return st&&st.published===true&&String(st.generatedAt||'').length>0?st:null;
+ }catch(_){return null;}
+}
+function auto(){
+ if(busy||!autoAllowed()||d.hidden)return;
+ const st=recentSuccess();
+ if(!st||new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Budapest',
+   year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(st.generatedAt))===localDay())return;
+ if(Date.now()-lastAutoAttempt<3600000)return;
+ try{api()}catch(_){return}
+ lastAutoAttempt=Date.now();
+ void run({publish:true,prepare:false}).catch(()=>{});
+}
 function api(){
  const v=w.HH_DROPBOX_VAULT;
  if(!v||!v.connected||!v.connected()||!v.accessToken||
@@ -154,6 +179,7 @@ async function run({publish=false,prepare=false}={}){
     await api().uploadJson(OUT,index);
     const returned=await api().downloadJson(OUT);
     stored=checkReadback(index,returned);
+    try{w.localStorage.setItem(OPTIN,'1')}catch(_){}
    }
    last={...report,generatedAt:index.generatedAt,published:stored,warnings,
     path:OUT,connectorReadVerified:false};
@@ -229,7 +255,7 @@ function mount(){
   '<p>A meglévő egészségügyi fájlok tényleges ellenőrzése. Nem készít publikus másolatot és nem állítja, hogy a ChatGPT már csatlakozott.</p>'+
   '<button data-act="audit" type="button">🔎 Forrásleltár (csak olvasás)</button>'+
   '<button data-act="publish" type="button">☁️ Privát ChatGPT-index frissítése</button>'+
-  '<div class="hhA732Status" role="status" aria-live="polite">Még nincs ellenőrzött Dropbox-leltár.</div>'+
+  '<div class="hhA732Status" role="status" aria-live="polite">Még nincs ellenőrzött Dropbox-leltár. Első sikeres indexmentés után megnyitáskor napi frissítési próbálkozás indul.</div>'+
   '<div class="hhA732Grid"></div>'+
   '<p>A tényleges Google helyett Dropbox lesz az adatforrás. A ChatGPT Dropbox plugin külön csatlakoztatást igényel. A privát Supabase és eszközön maradt adatok nem automatikusan részei a felhőnek.</p>';
  host.insertAdjacentElement('afterend',card);
@@ -246,7 +272,10 @@ function init(){
  mount();
  // The More/Admin page recreates this card; mount only when visible.
  w.setInterval(()=>{if(!d.hidden)mount()},4500);
- w.addEventListener('focus',mount);
+ w.addEventListener('focus',()=>{mount();auto();});
+ d.addEventListener('visibilitychange',()=>{if(!d.hidden){mount();auto();}});
+ w.setTimeout(auto,5000);
+ w.setInterval(auto,15*60000);
  w.addEventListener('healthhub:master-vault-synced',()=>{if(last)draw('A Master frissült. Indíts új forrásellenőrzést.',false);});
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
