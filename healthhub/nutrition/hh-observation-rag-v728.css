@@ -1,26 +1,33 @@
 /* v728 · Shared meaning, discrete Napi ritmus display.
  * ✓ indicates only successful storage. The separate dot is a non-diagnostic pattern indicator. */
-#bodyLog.hhRhythmDiary{font:600 12px/1.45 system-ui;color:#d7e8fa}
-#bodyLog .hhRhythmRow{display:flex;align-items:center;gap:9px;min-height:44px;
+.hhRhythmDiary{font:600 12px/1.45 system-ui;color:#d7e8fa}
+.hhRhythmDiary .hhRhythmRow{display:flex;align-items:center;gap:9px;min-height:44px;
  border-bottom:1px solid rgba(143,185,227,.19);padding:7px 2px}
-#bodyLog .hhRhythmRow:last-of-type{border-bottom:0}
-#bodyLog .hhRhythmCheck{display:inline-grid;place-items:center;flex:0 0 20px;
+.hhRhythmDiary .hhRhythmRow:last-of-type{border-bottom:0}
+.hhRhythmDiary .hhRhythmCheck{display:inline-grid;place-items:center;flex:0 0 20px;
  width:20px;height:20px;border-radius:50%;color:#8eefd0;background:rgba(33,143,95,.24);
  border:1px solid rgba(113,223,170,.55);font-size:12px;font-weight:900}
-#bodyLog .hhRhythmMain{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
-#bodyLog .hhRhythmTitle{color:#f0f7ff;font-weight:800;font-size:12px;overflow-wrap:anywhere}
-#bodyLog .hhRhythmTime{color:#adcde5;font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
-#bodyLog .hhRhythmNote{color:#a8c4db;font-size:10px;overflow-wrap:anywhere;white-space:pre-wrap}
-#bodyLog .hhRhythmDot{display:inline-block;flex:0 0 11px;width:11px;height:11px;
+.hhRhythmDiary .hhRhythmMain{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.hhRhythmDiary .hhRhythmTitle{color:#f0f7ff;font-weight:800;font-size:12px;overflow-wrap:anywhere}
+.hhRhythmDiary .hhRhythmTime{color:#adcde5;font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hhRhythmDiary .hhRhythmNote{color:#a8c4db;font-size:10px;overflow-wrap:anywhere;white-space:pre-wrap}
+.hhRhythmDiary .hhRhythmDot{display:inline-block;flex:0 0 11px;width:11px;height:11px;
  border-radius:50%;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 2px rgba(130,168,204,.15);
  background:#8293a7}
-#bodyLog .hhRhythmDot[data-rag=green]{background:#36c981}
-#bodyLog .hhRhythmDot[data-rag=amber]{background:#efb44c}
-#bodyLog .hhRhythmDot[data-rag=red]{background:#ee777e}
-#bodyLog .hhRhythmDot[data-rag=unknown]{background:#8393a7}
-#bodyLog .hhRhythmRemove{font-weight:800;flex:0 0 35px;min-width:35px;min-height:35px;
+.hhRhythmDiary .hhRhythmDot[data-rag=green]{background:#36c981}
+.hhRhythmDiary .hhRhythmDot[data-rag=amber]{background:#efb44c}
+.hhRhythmDiary .hhRhythmDot[data-rag=red]{background:#ee777e}
+.hhRhythmDiary .hhRhythmDot[data-rag=unknown]{background:#8393a7}
+.hhRhythmDiary .hhRhythmRemove{font-weight:800;flex:0 0 35px;min-width:35px;min-height:35px;
  display:grid;place-items:center}
-#bodyLog .hhRhythmLegend{font-size:10px;line-height:1.55;color:#adc5df;
+.hhRhythmDiary .hhRhythmLegend{font-size:10px;line-height:1.55;color:#adc5df;
  padding:9px 3px 3px;font-weight:500}
-#bodyLog .hhRhythmLegend b{color:#8eefd0}
-@media(max-width:380px){#bodyLog .hhRhythmRow{gap:6px}#bodyLog .hhRhythmTitle{font-size:11px}}
+.hhRhythmDiary .hhRhythmLegend b{color:#8eefd0}
+@media(max-width:380px){.hhRhythmDiary .hhRhythmRow{gap:6px}.hhRhythmDiary .hhRhythmTitle{font-size:11px}}
+
+/* Timeline mirrors Nutrition's compact BS/AJ rows without expandable panels. */
+.hhTruthObservationGroup.hhRhythmDiary{margin-left:25px;margin-right:0;padding:10px 12px}
+.hhTruthObservationGroup.hhRhythmDiary .hhRhythmRow{min-height:40px}
+.hhTruthObservationGroup.hhRhythmDiary .hhRhythmTitle{font-size:12px}
+.hhTruthObservationGroup.hhRhythmDiary .hhRhythmLegend{padding-top:8px}
+@media(max-width:380px){.hhTruthObservationGroup.hhRhythmDiary{margin-left:10px;padding:8px}}
