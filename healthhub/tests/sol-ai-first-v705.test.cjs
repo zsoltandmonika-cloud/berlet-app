@@ -51,6 +51,7 @@ for(const fragment of [
  '.eq("profile_key",profile)','text_integrity_status','is("duplicate_of",null)',
  'query.count!==docs.length','pages.length!==expected','corpus.length>MAX_CORPUS_CHARS',
  'store:false','gpt-6.1-sol','/v1/responses','MAX_OUTPUT_TOKENS',
+ 'MAX_OUTPUT_TOKENS=25000','UPSTREAM_TIMEOUT_MS=125000',
  'invalid_source_citations','citationIdsValidated:true'
 ]) assert.ok(backend.includes(fragment),'missing explicit control: '+fragment);
 const idx=(x)=>backend.indexOf(x);
