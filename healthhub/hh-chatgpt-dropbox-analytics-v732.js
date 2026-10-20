@@ -34,7 +34,8 @@ const expected=[
   ['Health Connect, aktivitás, alvás','profiles/'+p+'-health-connect.json',p,'clinical'],
   ['Nutrition + BS/AJ','profiles/'+p+'-nutrition.json',p,'clinical'],
   ['Digital Wellbeing · 30 nap','profiles/'+p+'-digital-wellbeing.json',p,'observational'],
-  ['Léna Health Context','sync/'+p+'-lena-health-context.json',p,'summary']
+  ['Léna Health Context','sync/'+p+'-lena-health-context.json',p,'summary'],
+  ['Privát Daily Health AI-jelentések','analytics/healthhub-daily-health-'+p+'.json',p,'clinical']
  ])
 ];
 const notInDropbox=[
@@ -145,6 +146,48 @@ async function folder(){
  if(res.status===409)return;
  throw Error('Analytics mappa létrehozása nem sikerült: HTTP '+res.status);
 }
+async function exportPrivateDailyHealth(){
+ api(); // First verify destination is private Dropbox.
+ const sup=w.HH_DAILY_HEALTH_SYNC_V319;
+ const ss=sup&&typeof sup.getStatus==='function'?sup.getStatus():null;
+ if(!ss||!ss.authenticated||typeof sup.request!=='function')
+  throw Error('A privát Daily Health átviteléhez jelentkezz be a Központi Health Vaultba.');
+ const allowedProfiles=Array.isArray(ss.authorizedProfiles)?ss.authorizedProfiles:[];
+ const report={exported:[],blocked:[],failed:[],counts:{}};
+ await folder();
+ for(const p of pnames){
+  if(!allowedProfiles.includes(p)){report.blocked.push(p);continue;}
+  try{
+   const rows=[];
+   for(let offset=0;offset<=1900;offset+=100){
+    const path='/rest/v1/hh_daily_health_ai_reports?select=profile_key,report_date,generated_at,report,status'+
+     '&profile_key=eq.'+p+'&status=eq.ready&order=report_date.desc&limit=100&offset='+offset;
+    const data=await sup.request(path);
+    if(!Array.isArray(data))throw Error('A privát Supabase nem adott érvényes jelentéslistát.');
+    if(data.some(x=>!x||x.profile_key!==p||x.status!=='ready'||
+      typeof x.report_date!=='string'||!x.report||typeof x.report!=='object'))
+      throw Error('Profilazonosító vagy jelentésforma eltér, az átvitel leállt.');
+    rows.push(...data);
+    if(data.length<100)break;
+    if(offset===1900)throw Error('A privát Daily Health archívum meghaladja a 2000-es átviteli limitet.');
+   }
+   if(!rows.length){report.blocked.push(p+' · nincs kész privát jelentés');continue;}
+   const dest=ROOT+'/analytics/healthhub-daily-health-'+p+'.json';
+   const payload={schema:'healthhub.analytics.private-daily-health/1',profile:p,
+    source:'Supabase private RLS reports',exportedAt:now(),count:rows.length,
+    dateRange:{newest:rows[0].report_date,oldest:rows[rows.length-1].report_date},
+    reports:rows};
+   await api().uploadJson(dest,payload);
+   const got=await api().downloadJson(dest);
+   if(!got||got.schema!==payload.schema||got.profile!==p||got.count!==rows.length||
+     got.exportedAt!==payload.exportedAt||!Array.isArray(got.reports)||
+     got.reports.length!==rows.length)
+     throw Error('A privát Daily Health fájl Dropbox-visszaolvasása nem egyezik.');
+   report.exported.push(p);report.counts[p]=rows.length;
+  }catch(e){report.failed.push({profile:p,reason:String(e.message||e).slice(0,150)});}
+ }
+ return report;
+}
 function checkReadback(sent,actual){
  if(!actual||actual.schema!==sent.schema||actual.generatedAt!==sent.generatedAt)throw Error('Analytics index visszaolvasása eltér.');
  if(actual.expectedCount!==sent.expectedCount||actual.fileCount!==sent.fileCount||
@@ -222,6 +265,7 @@ function draw(message,loading){
  if(!box)return;
  const button=box.querySelector('button[data-act=publish]');
  if(button)button.disabled=!!busy||!!loading;
+ const daily=box.querySelector('button[data-act=daily]');if(daily)daily.disabled=!!busy||!!loading;
  const dry=box.querySelector('button[data-act=audit]');
  if(dry)dry.disabled=!!busy||!!loading;
  const status=box.querySelector('.hhA732Status');
@@ -254,7 +298,8 @@ function mount(){
  card.innerHTML='<h4>📚 ChatGPT Analytics · Dropbox forrásellenőrzés</h4>'+
   '<p>A meglévő egészségügyi fájlok tényleges ellenőrzése. Nem készít publikus másolatot és nem állítja, hogy a ChatGPT már csatlakozott.</p>'+
   '<button data-act="audit" type="button">🔎 Forrásleltár (csak olvasás)</button>'+
-  '<button data-act="publish" type="button">☁️ Privát ChatGPT-index frissítése</button>'+
+  '<button data-act="publish" type="button">☁️ Privát ChatGPT-index frissítése</button>'+ 
+  '<button data-act="daily" type="button">🔒 Privát Daily Health → Dropbox</button>'+
   '<div class="hhA732Status" role="status" aria-live="polite">Még nincs ellenőrzött Dropbox-leltár. Első sikeres indexmentés után megnyitáskor napi frissítési próbálkozás indul.</div>'+
   '<div class="hhA732Grid"></div>'+
   '<p>A tényleges Google helyett Dropbox lesz az adatforrás. A ChatGPT Dropbox plugin külön csatlakoztatást igényel. A privát Supabase és eszközön maradt adatok nem automatikusan részei a felhőnek.</p>';
@@ -264,11 +309,23 @@ function mount(){
   if(!btn)return;
   if(btn.dataset.act==='audit')void run({publish:false}).catch(()=>{});
   if(btn.dataset.act==='publish')void run({publish:true,prepare:true}).catch(()=>{});
+  if(btn.dataset.act==='daily'){
+   btn.disabled=true;
+   const stat=card.querySelector('.hhA732Status');
+   if(stat)stat.textContent='Privát Supabase-jelentések átvitele és visszaellenőrzése…';
+   void exportPrivateDailyHealth().then(result=>{
+    const msg='Privát Daily Health: '+result.exported.length+' profil átvéve · '+
+     result.blocked.length+' hiányzó jogosultság / adat · '+result.failed.length+' hiba. '+
+     'A teljes Dropbox-index frissítését külön indítsd.';
+    if(stat)stat.textContent=msg;
+   }).catch(e=>{if(stat)stat.textContent='⚠ '+String(e.message||e)})
+    .finally(()=>{btn.disabled=false});
+  }
  });
  draw(null,false);
 }
 function init(){
- w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,model:{allowed,summarize,document,checkReadback}};
+ w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback}};
  mount();
  // The More/Admin page recreates this card; mount only when visible.
  w.setInterval(()=>{if(!d.hidden)mount()},4500);
