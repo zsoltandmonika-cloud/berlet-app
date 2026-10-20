@@ -693,8 +693,16 @@ async function run(opts){
     completedModel=/^[A-Za-z0-9._:-]{3,60}$/.test(serverModel)?serverModel:'';
     var audit=item.evidenceAudit&&item.evidenceAudit.mode==='clinical-v395'?item.evidenceAudit:null;
     // A completed AI stream is not automatically a clinically verified answer.
-    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified);
-    renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.')+
+    // Sol v705 uses a separate source-page inventory check, not the legacy v395
+    // paragraph verifier. Do not claim clinical validation just because the
+    // source IDs exist. Keep the old gate UNCHANGED for normal Ask Léna.
+    var solAudit=solPreviewMode&&item.evidenceAudit&&item.evidenceAudit.mode==='sol-full-corpus-preview-v705'?item.evidenceAudit:null;
+    if(solPreviewMode&&(!solAudit||item.model!=='gpt-6.1-sol'||
+        !solAudit.citationIdsValidated||solAudit.sourcePages<1||solAudit.sourceDocuments<1))
+     throw Error('A Sol-kutatás teljes forrásellenőrző jelentése hiányzik. A válasz nem tekinthető késznek.');
+    var qualityResult=qualityEngine.finalAudit(answerText,quality,audit,clinicalPilot&&!simplified&&!solPreviewMode);
+    renderAnswerText(answerText);complete=true;el('hhAi331Foot').textContent='✅ Valódi AI-válasz · modell: '+safe(item.model,40)+' · '+new Date(item.generatedAt).toLocaleString('hu-HU')+(item.photoAnalyzed?' · 📷 Fotót is elemzett':'')+' · Beolvasott kategóriák: '+data.sources.map(function(s){return s.title}).join(', ')+(solPreviewMode?'. Sol v705: '+solAudit.sourceDocuments+' eredeti dokumentum '+solAudit.sourcePages+' ellenőrzött szöveges oldalát a szerver a teljes kutatásban átadta a modellnek; a hivatkozásazonosítók létezését ellenőrizte, az orvosi állításokat NEM hitelesítette.':
+       (data.documentEvidence&&data.documentEvidence.some(function(x){return x.type==='original_pdf_extract'})?'. Eredeti leletek releváns kivonatait is összevetettem, nem a teljes PDF-et.':'. A korábbi leletekből JSON-magyarázatokat használtam, eredeti PDF-et nem.'))+
     (intelligence.flags.length?' · ⚠️ '+intelligence.flags.length+' régi vagy bizonytalan adatforrás, nem aktuális mérésként értelmezendő.':' · ✅ Adatforrások időpontjai ellenőrizve.')+
      (intelligence.ledgerQuality?' · 🧠 I-02 napló: '+intelligence.ledgerQuality.count+' vizsgált bejegyzés, '+intelligence.sourceDisagreements+' eltérő forrásösszesítő.':'')+
      (intelligence.trendsQuality?' · 📈 I-03: 7 napos lefedettség (lépések/alvás/pulzus): '+intelligence.trendsQuality.stepCoverage7+'% / '+intelligence.trendsQuality.sleepCoverage7+'% / '+intelligence.trendsQuality.pulseCoverage7+'%; csak lezárt napok.':'')+
@@ -723,7 +731,7 @@ async function run(opts){
      var addedBox=el('hhAi331AddedValue');
      if(addedBox){addedBox.textContent=added;addedBox.hidden=false;}
     }
-    if(!simplified){
+    if(!simplified&&!solPreviewMode){
      var proof=clinicalEngine.createPanel(clinical,p);
      if(proof&&turn===epoch&&profile()===p)el('hhAi331Foot').appendChild(proof);
     }
