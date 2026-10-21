@@ -120,8 +120,13 @@ function run(a){
  if(i===1)return healthOn()||show('health');
  if(i===2)return show('timeline');
  /* Original two slots have no corresponding live pages yet; keep truthful feedback. */
- if(i===3||i===4){
-  var msg=i===3?'Az Elemzések modul még nem érhető el.':'A Továbbiak modul még nem érhető el.';
+ if(i===4){
+  if(typeof root.hhAdminGoInlineV745==='function')return root.hhAdminGoInlineV745();
+  if(typeof root.openHealthSection==='function'){root.openHealthSection('more');return true}
+  return false;
+ }
+ if(i===3){
+  var msg='Az Elemzések modul még nem érhető el.';
   if(typeof root.toast==='function')root.toast(msg);
   else root.alert(msg);
   return true;
