@@ -15,6 +15,17 @@ vm.runInNewContext(source,{window,document,Date,Map,Set,Number,Intl,Error,Promis
 const api=window.HH_DROPBOX_CHATGPT_ANALYTICS_V732;
 assert(api&&api.version==='732');
 const {allowed,summarize,document:makeIndex,checkReadback}=api.model;
+const who=api.model.describeDropboxIdentity(
+ {account_id:'dbid:ALREADY_AUTHORIZED_TEST',email:'synthetic@example.test',root_info:{root_namespace_id:'123'}},
+ {entries:[{'.tag':'folder',name:'HealthHub'},{'.tag':'folder',name:'other'}]});
+assert.equal(who.hasHealthHub,true,'App folder virtual root should be recognized');
+assert.equal(who.email,'synthetic@example.test');
+assert.equal(who.accountSuffix,'ZED_TEST');
+assert.equal(who.visibleFolders.length,2);
+assert.equal(api.model.describeDropboxIdentity(
+ {account_id:'dbid:DIFFERENT'},{entries:[]}).hasHealthHub,false);
+assert.throws(()=>api.model.describeDropboxIdentity({},{}),'Invalid account not accepted');
+
 assert(allowed('/HealthHub/master/medical-master.json'));
 assert(allowed('/HealthHub/master/symptoms.json'));
 assert(allowed('/HealthHub/profiles/zsolt-nutrition.json'));
