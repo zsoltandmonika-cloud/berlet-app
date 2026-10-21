@@ -56,6 +56,9 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/setLayoutProperty/);
  assert.match(js,/const img=d.createElement/);
  assert.match(js,/HH_GOLDEN_AVATARS_V529/);
+ assert.match(js,/const existing=layers\.find/,'reuse existing dark-map vector source');
+ assert.match(js,/if\(!existing\)map\.addSource\(source/,'only load a fallback building source if needed');
+ assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
 });
 
 test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
