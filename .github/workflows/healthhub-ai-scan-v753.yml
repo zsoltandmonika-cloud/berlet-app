@@ -1,0 +1,33 @@
+name: Nutrition Léna AI Scan v753
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.css'
+      - 'healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs'
+      - '.github/workflows/healthhub-ai-scan-v753.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.css'
+      - 'healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs'
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax and scanner test
+        run: |
+          node --check healthhub/nutrition/hh-lena-ai-scan-page-v753.js
+          node --check healthhub/nutrition/nutrition-preview-v592.js
+          node --check healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs
+          node healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs
+          node healthhub/nutrition/tests/food-vision-v750.test.cjs

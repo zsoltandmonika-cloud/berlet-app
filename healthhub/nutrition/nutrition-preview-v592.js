@@ -957,11 +957,13 @@ root.HH_NUTRITION_QUICK_API={
   if(payload.id&&(!prev||!prev.aiVision))throw Error('AI naplóbejegyzés nem található.');
   const now=stamp(),id=prev?.id||uid(),time=prev?.time||localTime();
   const rec={id,createdAt:prev?.createdAt||now,updatedAt:now,date:prev?.date||currentDay(),
-   time,meal,kind:'food',foodId:'ai-vision:'+id,name,icon:'📸',
-   quantityText:'Fotóból becsült · '+Math.round(components.reduce((n,x)=>n+x.grams,0))+' g',
-   volumeMl:null,nutrients,source:'estimated',
+   time,meal,kind:payload.kind==='drink'?'drink':'food',foodId:'ai-vision:'+id,name,icon:payload.barcode?'▥':'📸',
+   quantityText:(payload.barcode?'Vonalkód alapján · ':'Fotóból becsült · ')+Math.round(components.reduce((n,x)=>n+x.grams,0))+' '+(payload.unit==='ml'?'ml':'g'),
+   volumeMl:payload.kind==='drink'&&payload.unit==='ml'?Math.round(components.reduce((n,x)=>n+x.grams,0)):null,
+   nutrients,source:'estimated',
    aiVision:{components,model:String(payload.model||'').slice(0,90),
-    notes:String(payload.notes||'').slice(0,450),confirmedByUser:true}};
+    notes:String(payload.notes||'').slice(0,450),barcode:/^\d{8,14}$/.test(String(payload.barcode||''))?String(payload.barcode):null,
+    unit:payload.unit==='ml'?'ml':'g',sourceType:payload.barcode?'barcode':'photo',confirmedByUser:true}};
   update(doc=>{const idx=doc.entries.findIndex(x=>x.id===id);
    if(idx>=0)doc.entries[idx]=rec;else doc.entries.push(rec)});
   success();return {id,name,kcal:nutrients.kcal,profile:active,date:rec.date};
