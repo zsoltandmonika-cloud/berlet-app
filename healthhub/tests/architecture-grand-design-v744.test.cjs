@@ -9,6 +9,16 @@ const index=read('index.html');
 const script=read('hh-architecture-admin-v744.js');
 const viewer=read('architecture-grand-design.html');
 const project=JSON.parse(read('project-control.json'));
+const pc=read('live-v142.js');
+new vm.Script(pc,{filename:'live-v142.js'});
+assert.match(index,/live-v142\.js\?v=747-project-hours/);
+assert.match(pc,/HH PROJECT HOURS/);
+assert.match(pc,/hhPcHoursSaveBase/);
+assert.match(pc,/hhPcHoursStart/);
+assert.match(pc,/hhPcHoursStop/);
+assert.match(pc,/projectHours:hourBook\(\)/);
+assert.doesNotMatch(pc,/Helyi változás<\/small>/);
+
 const blueprint=read('docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md');
 const runbook=read('docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md');
 const docs=read('docs/README.md');
