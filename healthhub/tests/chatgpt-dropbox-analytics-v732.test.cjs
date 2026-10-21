@@ -71,7 +71,7 @@ const modified=files.map((f,i)=>i===1?{...f,revision:'another-version',dropboxMo
 const moved=api.model.compareFiles(modified,oldIndex,summary.sources);
 assert.equal(moved.counts.changed,1,'Changed Dropbox revision is changed file');
 assert.equal(moved.counts.new,0);
-assert.equal(moved.rows.find(x=>x.relativePath==='master/medications.json')?.delta,undefined);
+assert(moved.rows.some(x=>x.path.endsWith('/master/medications.json')&&x.delta==='changed'));
 const additional=modified.concat([{
   path:'/HealthHub/documents/files/new-clinic.pdf',
   relativePath:'documents/files/new-clinic.pdf',profile:'shared',bytes:255,
