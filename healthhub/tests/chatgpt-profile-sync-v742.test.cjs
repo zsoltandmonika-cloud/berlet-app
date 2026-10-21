@@ -23,7 +23,7 @@ const fakeData=(p)=>({
  warnings:['nutrition missing'],
  data:{
   healthConnect:{profile:p,records:{dailySteps:[{date:'2026-10-20',count:5}]}},
-  digitalWellbeing:{profileKey:p,collectedAtMs:Date.parse('2026-10-21T04:50:00Z'),hours:[]}
+  digitalWellbeing:{profileKey:p,retentionDays:30,collectedAtMs:Date.parse('2026-10-21T04:50:00Z'),hours:[{hourStartMs:Date.parse('2026-10-20T16:00:00Z')},{hourStartMs:Date.parse('2026-10-21T04:00:00Z')}]}
  }
 });
 const W={
@@ -77,6 +77,8 @@ const api=W.HH_CHATGPT_PROFILE_SYNC_V742;
  assert.equal(api.last().monika.profile,'monika');
  assert.equal(api.last().zsolt.sources[0].status,'present');
  assert.equal(api.last().zsolt.sources[1].status,'present');
+ assert.equal(api.last().zsolt.sources[1].coverage.observedDays,2);
+ assert.equal(api.last().zsolt.sources[1].coverage.coverageVerified,false);
  assert.equal(api.last().zsolt.sources[2].status,'missing');
  assert.equal(vault.has('hh-chatgpt-snapshot-optin-v742'),false);
  await assert.rejects(api.run(['zsolt','zsolt'],true),/profilválasztás/);
