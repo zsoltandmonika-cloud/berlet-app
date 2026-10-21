@@ -3,8 +3,8 @@
   "project": "Léna Health Ecosystem / HealthHub",
   "updatedAt": "2026-10-21",
   "liveBuild": "v380",
-  "currentFocus": "Architecture Grand Design v1 és stabil Admin Project Control belépő (PR v744); a kétprofilos Dropbox→ChatGPT v742 LIVE VERIFIED; ismételt 6 órás QA, v743 provenance és HH One natív adatgyűjtés/egyalkalmazásos migráció párhuzamos következő fókusz.",
-  "nextDevelopment": "1) Architecture Blueprint+Runbook+Project Control Admin megjelenés végső S24 Ultra/Chrome elfogadás; 2) v742 6 órás valódi kétprofilos E2E ismétlés + forrásfrissesség; 3) v743 sync provenance PR #388 kiadáskezelés; 4) HH One Android collector, RLS, jogosultságok és OTA; 5) Health Context integritása; 6) 24/7 szerveroldali sync kizárólag külön privacy/security jóváhagyás után.",
+  "currentFocus": "Architecture Grand Design és egységes Admin oldal v745: taskbar Továbbiak→Admin, csoportosított közvetlen Admin Data Hub, Project Control, Recovery, Dropbox Analytics; működő eszközök megtartása, duplikált és információs legacy elemek eltüntetése; a v742 privát Dropbox-ChatGPT E2E működik.",
+  "nextDevelopment": "1) Egyetlen Admin navigáció éles Chrome/S24 Ultra ellenőrzése, Project Control és Grand Design elérése, import/export/snapshot/adatkapcsolat funkciók; 2) v743 provenance javítás CI alapján további ellenőrzés; 3) v742 automatikus 6 órás ismétlések tényleges igazolása; 4) HH One Android adatgyűjtés, RLS, biztonság, OTA; 5) 24/7 háttérfeladat külön jóváhagyással.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -2395,6 +2395,24 @@
       "targetDate": null,
       "actualDone": null,
       "notes": "2026-10-21 egy valós kézi E2E kör igazolt; automatikus ciklus még nem LIVE VERIFIED."
+    },
+    {
+      "id": "HH-ADMIN-745",
+      "epic": "HealthHub Platform Architecture",
+      "feature": "Unified Administration Information Architecture",
+      "title": "Taskbar Továbbiak → Admin; egységes admin oldal és elavult/duplikált UI takarítás",
+      "acceptanceCriteria": "Az egyetlen meglévő taskbar Továbbiak gomb címkéje Admin, ugyanarra a helyre kattintható; a teljes korábbi Továbbiak tartalom rendezett Admin nézet; az eredeti Admin Import/Export/Snapshot/Audit közvetlenül inline; Grand Design és Project Control elérhető; forrás Vault és Analytics funkciók megmaradnak; régi duplikált Admin Data Hub nyitó és történeti régi Dropbox kártyák láthatatlanok; inaktív adapter-placeholder nem jelenik meg; mobil és asztali teszt, visszagörgetés.",
+      "priority": "High",
+      "sprint": "S-Architecture-2026-10",
+      "milestone": "Golden Blueprint Admin v1",
+      "status": "Testing",
+      "progress": 0.93,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-ARCH-001;HH-ARCH-002",
+      "targetDate": "2026-10-21",
+      "actualDone": null,
+      "notes": "Implementáció v745; nem törli a működő funkciókat, helyi adatot, biztonsági mentést vagy Dropbox fájlt. Éles Chrome + S24 Ultra UI-ellenőrzés szükséges. A külön történeti Admin Data Hub overlay fallback megmarad, de normál úton nem szükséges."
     }
   ],
   "changeLog": [
@@ -3018,6 +3036,12 @@
       "version": "v743 source freshness/provenance / PR #388",
       "type": "CI TESTED · NOT DEPLOYED",
       "change": "Az utolsó sikeres profilonkénti feltöltési idő és legacy v738 isAutomaticSync státusz elkülönítése külön javításként CI-tesztelve; PR #388 nyitva maradt a dokumentáció készítésének idején; az éles v742 adatút ettől függetlenül működött."
+    },
+    {
+      "date": "2026-10-21",
+      "version": "HealthHub Admin v745 · Unified Administration",
+      "type": "UX / Navigation · CI TESTED, LIVE acceptance pending",
+      "change": "A meglévő taskbar Továbbiak gomb Admin nevet és működő útvonalat kap; az egész Továbbiak-oldal egységes Admin csoportosított kártyákkal. Az Admin Data Hub Import/Export/Snapshot/Audit közvetlenül az oldalon jelenik meg; Project Control és Architecture Grand Design külön Admin gomb nélkül található. Az elavult/duplikált Admin nyitó, régi külön Dropbox kártyák és inaktív adaptertájékoztató rejtve; működő gombok és minden egészségadat érintetlen marad."
     }
   ],
   "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke, nem tükrözi a 2026-10-21-es v742 ChatGPT Analytics modul jelenlegi életciklusát. Modulfájl-verzió a healthhub/index.html és GitHub commit alapján.",
