@@ -44,3 +44,14 @@
 - Samsung S24 Ultra valódi GPS / lock-screen / reboot / Doze mérés és megbízhatósági SLA.
 - Felhasználó által elfogadott egyedi Lénás Hero asset végső beépítése.
 - **Soha ne állítsuk, hogy "24/7 kész", "két telefon élőben látható", vagy "éles" ezen fázis alapján.**
+
+## v764 · Map és profilváltó stabilizálás (2026-10-21)
+
+- A Family Guard 3D épületforrása a MapLibre/OpenFreeMap meglévő `building` vektoradatforrását használja újra, ha a stílusban megtalálható, és csak hiányzó forrás esetén tölt plusz TileJSON-t.
+- Üres, illetve egyetlen pontot tartalmazó böngészős GPS nyomvonalból nem készül érvénytelen `LineString` GeoJSON; a térkép csak legalább 2 valós GPS-fix után rajzol útvonalat.
+- Az önálló Guardian oldal jobb felső sarkában lévő, már jóváhagyott fényképes profilgomb egykattintásos kapcsoló lett. A váltás leállítja az aktív böngészős GPS-t, törli az előző tulajdonos lokális nyomvonalát és a térképi jelölőt, és csak az `hh-profile` választást menti.
+- A gomb hangja/vibrációja a HH One egységes Golden Standard 900 Hz / 40 ms / 9 ms profil-tap beállításához igazodik és tiszteletben tartja a hangtiltást.
+- Elkészült egy különálló, nem éles, GPS-mentes HTML design preview (ChatGPT conversation artifact). Az eredeti jóváhagyott **Léna + Buddy kép byte-azonos** benne. A monitoron látható fiktív profilok képernyőjét kiegészítő UI-réteg takarja, rajta a HealthHub v529 eredeti Zsolt/Mónika portréival. A portrék a nyilvános HH Golden avatar JS-ről érkeznek; internet nélkül Z/M betűs fallback. Ezt még nem szabad a tényleges GitHub Pages Hero telepítésének nevezni.
+- A 3 célzott CI workflow újra zöld. Ezt a mobilos/saját telefonos vizuális átvétel még követi.
+
+**A PR továbbra sem merge-elt vagy telepített release, Android OTA nem publikálható pusztán a CI alapján.**
