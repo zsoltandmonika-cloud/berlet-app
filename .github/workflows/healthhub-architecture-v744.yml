@@ -1,0 +1,37 @@
+name: HealthHub v744 · Architecture Grand Design QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-architecture-admin-v744.js'
+      - 'healthhub/architecture-grand-design.html'
+      - 'healthhub/docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md'
+      - 'healthhub/docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md'
+      - 'healthhub/docs/README.md'
+      - 'healthhub/project-control.json'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/architecture-grand-design-v744.test.cjs'
+      - '.github/workflows/healthhub-architecture-v744.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-architecture-admin-v744.js'
+      - 'healthhub/architecture-grand-design.html'
+      - 'healthhub/docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md'
+      - 'healthhub/docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md'
+      - 'healthhub/docs/README.md'
+      - 'healthhub/project-control.json'
+      - 'healthhub/index.html'
+permissions:
+  contents: read
+jobs:
+  blueprint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax check
+        run: |
+          node --check healthhub/hh-architecture-admin-v744.js
+          node --check healthhub/tests/architecture-grand-design-v744.test.cjs
+      - name: Blueprint & Admin regression
+        run: node healthhub/tests/architecture-grand-design-v744.test.cjs
