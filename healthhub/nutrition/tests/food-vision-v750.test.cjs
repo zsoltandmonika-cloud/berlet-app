@@ -14,7 +14,7 @@ assert.match(html,/Fotós ételfelismerés · AI/);
 assert.doesNotMatch(html,/AI Bevitel, fotós felismerés: hamarosan/);
 assert.match(gateway,/HH_FOOD_VISION_V750/);
 assert.match(diary,/recordAiMeal:payload/);
-assert.match(diary,/payload\.expectedProfile!==active/);
+assert.match(diary,/payload\?\.expectedProfile!==active/);
 assert.match(diary,/if\(row\.aiVision&&window\.HH_FOOD_VISION_V750/);
 assert.match(diary,/confirmedByUser:true/);
 assert.match(diary,/source:'estimated'/);
