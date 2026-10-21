@@ -139,7 +139,7 @@ function selected(e){
 // Selection audio runs on the original user click, before card actions re-render.
 document.addEventListener('click',selected,true);
 var visual=document.createElement('link');visual.rel='stylesheet';
-visual.href='./hh-buddy-scroll-companion-v593.css?v=595-clean-buddy-rail';
+visual.href='./hh-buddy-scroll-companion-v593.css?v=757-medication-compact';
 document.head.appendChild(visual);
 var prev=root.renderHealthSection;
 if(typeof prev==='function')root.renderHealthSection=async function(){
