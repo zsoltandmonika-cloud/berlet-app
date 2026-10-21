@@ -11,7 +11,7 @@ const localStorage={
  setItem:(k,v)=>vault.set(k,v),
  removeItem:k=>vault.delete(k)
 };
-let uploaded=new Map(),wrongRead=false,otherFolder=false,buildCalls=[];
+let uploaded=new Map(),knownFolders=new Set(),wrongRead=false,otherFolder=false,buildCalls=[];
 const fakeData=(p)=>({
  schema:'healthhub.chatgpt.manual-24h-digital/1',profile:p,
  exportedAt:'2026-10-21T05:00:00Z',
@@ -40,9 +40,10 @@ const W={
   if(url.endsWith('/files/get_metadata')){
    const data=JSON.parse(args.body);
    assert.ok(data.path.startsWith('/HealthHub-ChatGPT-Analytics/'));
-   return {ok:false,status:409};
+   return knownFolders.has(data.path)?{ok:true,json:async()=>({'.tag':'folder',path_lower:data.path.toLowerCase()})}:{ok:false,status:409};
   }
   if(url.endsWith('/files/create_folder_v2')){
+   knownFolders.add(JSON.parse(args.body).path);
    return {ok:true,json:async()=>({metadata:{'.tag':'folder'}})};
   }
   if(url.endsWith('/files/upload')){
