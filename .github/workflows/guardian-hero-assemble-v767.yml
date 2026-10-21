@@ -1,0 +1,58 @@
+name: Guardian v767 · Assemble approved user Hero asset
+
+on:
+  push:
+    branches: ['feat/guardian-v767-golden-polish']
+    paths:
+      - 'healthhub/guardian/hero-chunks-v767/**'
+      - '.github/workflows/guardian-hero-assemble-v767.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: guardian-hero-assemble-v767
+  cancel-in-progress: false
+
+jobs:
+  assemble:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify and reconstruct exact approved PNG
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, hashlib
+          chunk_dir = Path('healthhub/guardian/hero-chunks-v767')
+          files = sorted(chunk_dir.glob('p*.b64'))
+          if len(files) != 20: raise SystemExit(f'Expected 20 chunks, got {len(files)}')
+          for index, file in enumerate(files):
+              if file.name != f'p{index:02d}.b64':
+                  raise SystemExit('Out-of-order file: '+file.name)
+          b64 = ''.join(file.read_text('ascii') for file in files)
+          raw = base64.b64decode(b64,validate=True)
+          digest=hashlib.sha256(raw).hexdigest()
+          expected='7be5f85999a26e676d89fd92ac2ae184b6f081aa5fb64fedbcee01178c262230'
+          if digest != expected or len(raw) != 3480511:
+              raise SystemExit(f'Approved Hero mismatch {digest} / {len(raw)}')
+          output=Path('healthhub/assets/guardian-family-hero-approved-v767.png')
+          output.parent.mkdir(parents=True,exist_ok=True)
+          output.write_bytes(raw)
+          print(f'Approved image verified: {len(raw)} bytes SHA256 {digest}')
+          PY
+      - name: Commit binary Hero and remove temporary base64 pieces
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm -r healthhub/guardian/hero-chunks-v767
+          git add healthhub/assets/guardian-family-hero-approved-v767.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "assets(guardian-v767): install exact user-approved Lena and Buddy Hero PNG"
+          git push origin HEAD:feat/guardian-v767-golden-polish
