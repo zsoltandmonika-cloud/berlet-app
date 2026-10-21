@@ -83,39 +83,42 @@ async function req(endpoint,arg){
  }
  return res.json();
 }
-function describeDropboxIdentity(account,rootList){
- if(!account||typeof account.account_id!=='string'||!account.account_id)
-  throw Error('A HealthHub Dropbox-fiók nem volt azonosítható.');
+function describeDropboxIdentity(accountSuffix,rootList){
+ // Dropbox HealthHub has files.* scopes but NOT account_info.read.
+ // Account ID suffix comes only from its previous OAuth token exchange.
  const entries=Array.isArray(rootList?.entries)?rootList.entries:[];
- const visible=entries.filter(e=>e&&e['.tag']==='folder').map(e=>String(e.name||''))
-  .filter(Boolean).slice(0,20);
- return {email:typeof account.email==='string'?account.email:'Nincs elérhető e-mail',
-  accountSuffix:account.account_id.slice(-8),
-  rootNamespaceSuffix:String(account.root_info?.root_namespace_id||'').slice(-8)||null,
-  visibleFolders:visible,hasHealthHub:visible.some(x=>x.toLowerCase()==='healthhub')};
+ const visible=entries.filter(e=>e&&e['.tag']==='folder')
+  .map(e=>String(e.name||'')).filter(Boolean).slice(0,30);
+ return {accountSuffix:typeof accountSuffix==='string'&&accountSuffix.length?
+   accountSuffix.slice(-8):null,
+   visibleFolders:visible,
+   hasHealthHub:visible.some(x=>x.toLowerCase()==='healthhub')};
 }
 async function diagnoseSourceDropbox(){
- api();
- const [account,rootList]=await Promise.all([
-  req('users/get_current_account',{}),
-  req('files/list_folder',{path:'',recursive:false,include_deleted:false,limit:100})
- ]);
- const result=describeDropboxIdentity(account,rootList);
+ const vault=api();
+ // No users/get_current_account: it requires account_info.read,
+ // which the existing HealthHub App Folder consent doesn't grant.
+ const rootList=await req('files/list_folder',
+  {path:'',recursive:false,include_deleted:false,limit:100});
+ const result=describeDropboxIdentity(vault.accountHint?.(),rootList);
  const output=d.getElementById('hhA732Identity');
  if(output){
   output.replaceChildren();
   const fields=[
-   'HealthHub Dropbox-fiók: '+result.email,
-   'Fiókazonosító utolsó 8 karaktere: '+result.accountSuffix,
+   'A HealthHub App Folder fájllistázása sikeres.',
+   'HealthHub Dropbox fiókazonosító vége: '+(result.accountSuffix||'nem érhető el'),
    'App Folder virtuális gyökér: '+(result.visibleFolders.join(', ')||'üres'),
-   result.hasHealthHub?'✓ A HealthHub mappa jelen van az app jogosultsági tartományában':
-   '⚠ A HealthHub mappa nem szerepel az app virtuális gyökerében'
+   result.hasHealthHub?
+    '✓ A HealthHub mappa jelen van az App Folder virtuális gyökerében':
+    '⚠ A HealthHub mappa nem látható a virtuális gyökérben'
   ];
   for(const line of fields){
-   const elem=d.createElement('div');elem.textContent=line;output.append(elem);
+   const item=d.createElement('div');item.textContent=line;output.append(item);
   }
-  const note=d.createElement('p');note.textContent=
-   'A HealthHub App Folder hozzáférése nem jogosít automatikusan a Dropbox-fiók teljes gyökerének olvasására vagy a ChatGPT Analytics célmappába írásra. A forrás- és célfiók egyezését, majd az átadási jogosultságot külön ellenőrizzük.';
+  const note=d.createElement('p');
+  note.textContent='Ezt az ellenőrzést a HealthHub meglévő files.metadata.read engedélyével végeztük. '+
+   'A ChatGPT-fiók és a célmappa azonos fiókhoz tartozását csak összehasonlítás igazolja. '+
+   'App Folder jogosultságból nem lehet a Dropbox normál gyökérmappájába másolni.';
   output.append(note);
  }
  return result;
