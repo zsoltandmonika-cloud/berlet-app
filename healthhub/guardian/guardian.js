@@ -46,7 +46,7 @@ function metres(a,b){
  const h=Math.sin(dLat/2)**2+Math.cos(radians(a[1]))*Math.cos(radians(b[1]))*Math.sin(dLon/2)**2;
  return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(Math.max(0,1-h)));
 }
-function pathJson(){return {type:'FeatureCollection',features:[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:path.slice()}}]}}
+function pathJson(){return {type:'FeatureCollection',features:path.length<2?[]:[{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:path.slice()}}]}}
 function draw(){
  if(!map||!ready)return;
  const src=map.getSource('guardian-route');
@@ -172,13 +172,17 @@ function initMap(){
   map.on('load',function(){
    ready=true;message('');
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#bcdcff',intensity:0.43,position:[1.25,207,32]})}catch(e){}
-   /* Real 3D building extrusion, with a separate public OSM vector source. */
+   /* Reuse the dark style's own OSM building vector source when possible.
+    * Loading a duplicate vector source wastes mobile bandwidth and memory.
+    * A fallback TileJSON source is used only if the basemap lacks buildings. */
    try{
-    map.addSource('guardian-building-tiles',{type:'vector',url:'https://tiles.openfreemap.org/planet'});
     const layers=map.getStyle().layers||[];
+    const existing=layers.find(l=>l['source-layer']==='building'&&l.source&&map.getSource(l.source));
+    const source=existing?existing.source:'guardian-building-tiles';
+    if(!existing)map.addSource(source,{type:'vector',url:'https://tiles.openfreemap.org/planet'});
     const firstLabel=layers.find(l=>l.type==='symbol'&&l.layout&&l.layout['text-field']);
     map.addLayer({
-     id:'guardian-buildings-3d',type:'fill-extrusion',source:'guardian-building-tiles',
+     id:'guardian-buildings-3d',type:'fill-extrusion',source,
      'source-layer':'building',minzoom:14,layout:{visibility:threeD?'visible':'none'},
      filter:['!=',['get','hide_3d'],true],
      paint:{
