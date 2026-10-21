@@ -7,6 +7,7 @@ on:
       - 'healthhub/chatgpt-dropbox-callback-v739.html'
       - 'healthhub/tests/chatgpt-target-oauth-v739.test.cjs'
       - 'healthhub/index.html'
+      - 'healthhub/tests/chatgpt-target-verify-v740.test.cjs'
       - '.github/workflows/healthhub-chatgpt-target-v739.yml'
   push:
     branches: [main]
@@ -29,5 +30,8 @@ jobs:
           node --check healthhub/hh-chatgpt-target-auth-v739.js
           node --check healthhub/hh-chatgpt-target-onboard-v739.js
           node --check healthhub/tests/chatgpt-target-oauth-v739.test.cjs
+          node --check healthhub/tests/chatgpt-target-verify-v740.test.cjs
       - name: Synthetic PKCE configuration and no-transfer test
-        run: node healthhub/tests/chatgpt-target-oauth-v739.test.cjs
+        run: |
+          node healthhub/tests/chatgpt-target-oauth-v739.test.cjs
+          node healthhub/tests/chatgpt-target-verify-v740.test.cjs
