@@ -1,4 +1,4 @@
-/* HealthHub v744 · Admin Architecture Grand Design and Project Control rescue.
+/* HealthHub v744/745 · Inline Architecture Grand Design and Project Control navigation.
  * Documentation is public, technical-only. No Dropbox, auth or clinical read/write.
  * Remounts after Admin DOM rerenders, without changing the existing tracker data.
  */
@@ -29,9 +29,8 @@
     '_blank','noopener');
  }
  function mount(){
-  const ov=d.getElementById('haOv'),body=d.getElementById('haBody');
-  if(!body||!ov)return false;
-  if(!body.isConnected||!ov.classList.contains('on'))return false;
+  const body=d.getElementById('healthSubContent');
+  if(w.healthSectionKind!=='more'||!body||!body.isConnected)return false;
   if(d.getElementById(ID))return true;
   css();
   const panel=d.createElement('section');panel.id=ID;
@@ -58,13 +57,11 @@
   Promise.resolve().then(()=>{queued=false;mount()});
  }
  function observe(){
-  const body=d.getElementById('haBody');
+  const body=d.getElementById('healthSubContent');
   if(!body||observing?.target===body)return;
   if(observing){observing.obs.disconnect();observing=null}
   const obs=new MutationObserver(schedule);
   obs.observe(body,{childList:true});
-  const ov=d.getElementById('haOv');
-  if(ov)obs.observe(ov,{attributes:true,attributeFilter:['class']});
   observing={target:body,obs};schedule();
  }
  function init(){observe();mount();
