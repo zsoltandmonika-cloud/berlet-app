@@ -119,3 +119,12 @@ body{background:
 :root[data-guardian-profile="m"] .native-setup{background:linear-gradient(140deg,rgba(140,78,129,.69),rgba(62,49,101,.84))}
 .native-setup[hidden]{display:none!important}
 .native-setup:focus-visible{outline:2px solid var(--guard-cyan);outline-offset:2px}
+
+/* Exactly one top-right family profile switch, using the existing true photo. */
+.guardian-avatar-switch{display:grid;place-items:center;flex:none;padding:0;
+ width:49px;height:49px;border:0;border-radius:16px;background:transparent;
+ cursor:pointer;touch-action:manipulation}
+.guardian-avatar-switch .avatar{display:block;width:45px;height:45px;pointer-events:none;
+ border-radius:15px;border:2px solid var(--accent)}
+.guardian-avatar-switch:focus-visible{outline:3px solid var(--guard-cyan);
+ outline-offset:3px}
