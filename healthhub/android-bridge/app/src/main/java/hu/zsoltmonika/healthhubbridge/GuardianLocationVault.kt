@@ -21,7 +21,8 @@ import javax.crypto.spec.GCMParameterSpec
  */
 internal object GuardianLocationVault {
     const val PREFS = "hh_guardian_location_v1"
-    const val KEY_ENABLED = "tracking_enabled"
+    const val KEY_ENABLED = "service_requested"
+    const val KEY_CONSENT = "owner_opted_in"
     const val KEY_OWNER = "tracking_owner"
     const val KEY_LAST_TIME = "last_fix_at_ms"
     const val KEY_LAST_ACCURACY = "last_accuracy_m"
@@ -36,14 +37,15 @@ internal object GuardianLocationVault {
     fun consented(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val profile = owner(context)
-        return profile != null && prefs.getBoolean(KEY_ENABLED, false) &&
+        return profile != null && prefs.getBoolean(KEY_CONSENT, false) &&
             prefs.getString(KEY_OWNER, null) == profile
     }
 
     fun markStarted(context: Context) {
         val profile = owner(context) ?: error("Family Guard requires a verified phone owner")
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-            .putBoolean(KEY_ENABLED, true).putString(KEY_OWNER, profile).apply()
+            .putBoolean(KEY_CONSENT, true).putBoolean(KEY_ENABLED, true)
+            .putString(KEY_OWNER, profile).apply()
     }
 
     private fun secret(): SecretKey {
@@ -110,6 +112,10 @@ internal object GuardianLocationVault {
     }
 
     /** A service can stop unexpectedly. An old consent flag must not claim LIVE without a running service. */
+    fun isServiceRequested(context: Context): Boolean =
+        consented(context) && context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_ENABLED, false)
+
     fun markStopped(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putBoolean(KEY_ENABLED, false).apply()
