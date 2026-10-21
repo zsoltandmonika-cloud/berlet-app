@@ -108,6 +108,9 @@ function decorate(){
  // New carousel rails are recreated on render, so rebind only to each new rail.
  attachRail(content.querySelector('.hhRsmTrack'),'.hhRsmCard');
  attachRail(content.querySelector('.hhRsmChips'),'.hhRsmChip');
+ // Medication filters stay compact: Buddy belongs to Records only.
+ // Both medication rails keep their existing gesture/tick handlers.
+ if(kind==='medications')return;
  if(heading.querySelector('.hhBuddy593'))return;
  var buddy=make('div','hhBuddy593');
  buddy.setAttribute('aria-label','Buddy, a HealthHub mókusa');
