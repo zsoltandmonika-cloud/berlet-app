@@ -10,6 +10,12 @@ function theme(){
  const monika=name()==='Mónika';
  d.documentElement.dataset.guardianProfile=monika?'m':'z';
  $('guardianProfile').textContent=name();
+ const switcher=$('guardianProfileSwitch');
+ if(switcher){
+  const next=monika?'Zsolt':'Mónika';
+  switcher.title='Profilváltás: '+next;
+  switcher.setAttribute('aria-label','Egyérintéses profilváltás '+next+' profiljára');
+ }
  const avatars=w.HH_GOLDEN_AVATARS_V529,avatar=$('guardianAvatar');
  if(avatars&&avatar)avatar.src=monika?avatars.m:avatars.z;
  const mine=$('guardianMePhoto'),other=$('guardianOtherPhoto');
@@ -125,6 +131,36 @@ function toggleFamily(){
  panel.hidden=!panel.hidden;
  button.setAttribute('aria-expanded',String(!panel.hidden));
 }
+function tapSound(){
+ // Match the HH One canonical 900 Hz / 40 ms profile tap, never auto-play.
+ try{
+  if(w.localStorage&&w.localStorage.getItem('hh-nutrition-PREVIEW-sound')==='off')return;
+  const Audio=w.AudioContext||w.webkitAudioContext;
+  if(Audio){
+   const audio=new Audio(),now=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+   osc.type='sine';osc.frequency.value=900;
+   gain.gain.setValueAtTime(.0001,now);
+   gain.gain.exponentialRampToValueAtTime(.012,now+.012);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+.075);
+   osc.connect(gain);gain.connect(audio.destination);
+   osc.start(now);osc.stop(now+.085);
+   osc.onended=()=>audio.close().catch(()=>{});
+  }
+ }catch(_){}
+ try{if(w.navigator&&typeof w.navigator.vibrate==='function')w.navigator.vibrate(9)}catch(_){}
+}
+function switchProfile(){
+ const current=name()==='Mónika'?'m':'z',next=current==='m'?'z':'m';
+ // A previous owner's route and GPS marker must never be relabelled.
+ stop();clear();
+ if(marker){marker.remove();marker=null}
+ follow=true;hasFix=false;
+ try{w.localStorage.setItem('hh-profile',next)}catch(e){report('A profilváltás most nem menthető el.');return}
+ tapSound();theme();renderButtons();applyGoldenMapStyle();
+ $('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
+ if(map)map.easeTo({center:neutral,zoom:15.3,duration:650});
+ report('GPS kikapcsolva · '+name()+' profil');
+}
 function mapColors(){
  const rose=name()==='Mónika';
  return {
@@ -212,6 +248,7 @@ $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
 $('guardian3D').addEventListener('click',toggle3D);
 $('guardianFamilyButton').addEventListener('click',toggleFamily);
+$('guardianProfileSwitch').addEventListener('click',switchProfile);
 const nativeButton=$('guardianNativeGps');
 if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
  nativeButton.hidden=false;
