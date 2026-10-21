@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Guardian background GPS: never active without explicit per-owner consent. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
     <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
@@ -41,6 +47,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/healthhub_ota_paths" />
         </provider>
+        <service
+            android:name=".GuardianLocationService"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
+        <activity android:name=".GuardianSettingsActivity" android:exported="false" />
         <activity android:name=".PermissionsRationaleActivity" android:exported="true">
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
