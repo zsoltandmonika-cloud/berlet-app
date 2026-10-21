@@ -5,11 +5,15 @@ on:
       - 'healthhub/hh-chatgpt-target-auth-v739.js'
       - 'healthhub/hh-chatgpt-target-onboard-v739.js'
       - 'healthhub/chatgpt-dropbox-callback-v739.html'
+      - 'healthhub/hh-chatgpt-profile-sync-v742.js'
+      - 'healthhub/tests/chatgpt-profile-sync-v742.test.cjs'
       - 'healthhub/tests/chatgpt-target-oauth-v739.test.cjs'
       - 'healthhub/index.html'
       - 'healthhub/tests/chatgpt-target-verify-v740.test.cjs'
       - 'healthhub/hh-chatgpt-target-probe-v741.js'
       - 'healthhub/tests/chatgpt-target-probe-v741.test.cjs'
+      - 'healthhub/hh-chatgpt-profile-sync-v742.js'
+      - 'healthhub/tests/chatgpt-profile-sync-v742.test.cjs'
       - '.github/workflows/healthhub-chatgpt-target-v739.yml'
   push:
     branches: [main]
@@ -35,8 +39,11 @@ jobs:
           node --check healthhub/tests/chatgpt-target-verify-v740.test.cjs
           node --check healthhub/hh-chatgpt-target-probe-v741.js
           node --check healthhub/tests/chatgpt-target-probe-v741.test.cjs
+          node --check healthhub/hh-chatgpt-profile-sync-v742.js
+          node --check healthhub/tests/chatgpt-profile-sync-v742.test.cjs
       - name: Synthetic PKCE configuration and no-transfer test
         run: |
           node healthhub/tests/chatgpt-target-oauth-v739.test.cjs
           node healthhub/tests/chatgpt-target-verify-v740.test.cjs
           node healthhub/tests/chatgpt-target-probe-v741.test.cjs
+          node healthhub/tests/chatgpt-profile-sync-v742.test.cjs
