@@ -35,6 +35,19 @@ const verifyProfile=(bundle,p)=>{
 function age(iso,at){
  const ms=Date.parse(iso||'');return Number.isFinite(ms)?Math.round((at-ms)/3600000*10)/10:null;
 }
+function digitalCoverage(bundle){
+ const dw=bundle.data?.digitalWellbeing||{};
+ const hours=Array.isArray(dw.hours)?dw.hours:[];
+ const unique=new Set();
+ for(const x of hours){
+  const t=Number(x?.hourStartMs);
+  if(Number.isFinite(t)&&t>0)unique.add(new Intl.DateTimeFormat('sv-SE',{
+   timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(t)));
+ }
+ return {expectedRetentionDays:Number(dw.retentionDays)||null,
+  observedDays:unique.size,hourRecords:hours.length,
+  coverageVerified:unique.size>=30};
+}
 function reportSources(bundle,at){
  const out=[];
  for(const s of bundle.sources||[]){
@@ -45,8 +58,12 @@ function reportSources(bundle,at){
    if(Number.isFinite(Number(n))&&Number(n)>0)sourceTime=new Date(Number(n)).toISOString();
   }
   const hours=age(sourceTime,at);
-  out.push({kind:s.kind,status:hours===null?'unknown_freshness':hours>24?'stale':'present',
-   sourceReportedAt:sourceTime||null,ageHours:hours});
+  const coverage=s.kind==='digitalWellbeing'?digitalCoverage(bundle):null;
+  const status=hours===null?'unknown_freshness':
+   hours< -0.25?'future_timestamp':hours>24?'stale':
+   (coverage&&coverage.observedDays===0)?'missing_observations':'present';
+  out.push({kind:s.kind,status,sourceReportedAt:sourceTime||null,ageHours:hours,
+   ...(coverage?{coverage}: {})});
  }
  return out;
 }
@@ -175,7 +192,15 @@ function mount(){
   void run(selected,true).then(out=>{
    if(!out.errors.length&&out.results.length===selected.length){
     w.localStorage.setItem(CONSENT,JSON.stringify(selected));
-    note('✓ Kiválasztott profilok feltöltve, SHA-256 visszaolvasással ellenőrizve. Nyitott HealthHub esetén 6 óránként újrapróbáljuk.');
+    const issues=out.results.flatMap(item=>item.sources.filter(x=>x.status!=='present')
+      .map(x=>item.profile+': '+x.kind+' ('+x.status+')'));
+    const days=out.results.map(item=>{
+     const dig=item.sources.find(x=>x.kind==='digitalWellbeing')?.coverage;
+     return item.profile+': '+(dig?.observedDays??'?')+' megfigyelt Digital Wellbeing-nap';
+    });
+    note('✓ A kiválasztott profilok feltöltése és SHA-256 visszaolvasása sikeres. '+
+      days.join('; ')+(issues.length?' · Forrásfigyelmeztetések: '+issues.join('; '):'')+
+      '. Nyitott HealthHub esetén 6 óránként újrapróbáljuk.');
    }else note('Részleges vagy hibás átvitel. Az automatikus ismétlés engedélyezése nem változott.');
   }).catch(e=>note('⚠ '+String(e.message||e))).finally(()=>{button.disabled=false});
  });
@@ -186,7 +211,7 @@ function mount(){
  if(times.length)status.textContent='Utolsó igazolt szinkron: '+times.join(' · ');
  root.append(h,info,choices,button,stop,explanation,status);panel.append(root);
 }
-w.HH_CHATGPT_PROFILE_SYNC_V742={version:'742',run,auto,mount,verifyProfile,reportSources,optin,last,requireTarget};
+w.HH_CHATGPT_PROFILE_SYNC_V742={version:'742',run,auto,mount,verifyProfile,reportSources,digitalCoverage,optin,last,requireTarget};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 w.setInterval(()=>{if(!d.hidden){mount();void auto()}},15*60000);
 w.addEventListener('focus',()=>{mount();void auto()});
