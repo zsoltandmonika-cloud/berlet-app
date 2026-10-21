@@ -86,7 +86,11 @@ async function loadPuter(){
 async function availableModels(puter){
  const models=await puter.ai.listModels();
  if(!Array.isArray(models)||!models.length)throw Error('Nem érhető el a Puter modellkatalógusa.');
- return PREFERRED.filter(name=>models.some(x=>String(x?.id||'').split('/').pop().split(':')[0]===name));
+ return PREFERRED.map(name=>models.find(x=>{
+  const id=String(x?.id||'');
+  return id.replace(/:(free|flex|priority)$/,'').split(/[/:]/).pop()===name &&
+   x.vision!==false&&x.supports_vision!==false&&x.image_input!==false;
+ })?.id).filter(Boolean);
 }
 function calc(){
  const e=$('hhVisionTotals750'),save=$('hhVisionSave750');if(!e||!save||!draft)return;
