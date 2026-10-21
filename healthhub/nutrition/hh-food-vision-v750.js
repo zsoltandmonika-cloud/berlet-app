@@ -233,10 +233,16 @@ function init(){
  }
  if($('hhVisionDialog750')||!api()?.recordAiMeal)return;
  const dialog=node('dialog','hhVisionDialog750');dialog.id='hhVisionDialog750';
- const shell=node('div','hhVisionShell750');dialog.append(shell);
+ const shell=node('div','hhVisionShell750');shell.id='hhVisionShell752';dialog.append(shell);
  const head=node('header','hhVisionHead750');head.append(node('strong','','📸 Léna AI · ételfelismerés'));
  const exit=node('button','','×');exit.type='button';exit.onclick=close;head.append(exit);shell.append(head);
+ const steps=node('nav','hhVisionSteps752');steps.id='hhVisionSteps752';steps.setAttribute('aria-label','Ételbevitel lépései');
+ for(const [i,icon,label] of [[0,'📸','Fotó'],[1,'✨','Ellenőrzés'],[2,'✓','Napló']]){
+  const item=node('span','hhVisionStep752',icon+' '+label);item.dataset.index=String(i);steps.append(item);
+ }
+ shell.append(steps);
  const pr=node('p');pr.id='hhVisionProfile750';shell.append(pr);
+ shell.append(node('p','hhVisionIntro752','Fotózz, ismerj fel, naplózz. Kevesebb érintés, több áttekinthetőség.'));
  const picker=node('div','hhVisionPicker750');picker.id='hhVisionPicker750';
  for(const [title,capture] of [['📷 Fotó készítése',true],['🖼️ Galériából',false]]){
   const button=node('button','hhVisionAction750',title),input=node('input');button.type='button';input.type='file';input.accept='image/jpeg,image/png,image/webp';input.hidden=true;
@@ -249,13 +255,18 @@ function init(){
  shell.append(node('p','hhVisionDisclosure750','A fényképet kizárólag a külön indított felismeréskor küldjük a Puter AI-nak. Az eredeti képet nem mentjük a Nutrition naplóba. A Puter használata díjköteles lehet.'));
  const scan=node('button','hhVisionAction750 hhVisionPrimary750','✨ AI felismerés');scan.id='hhVisionScan750';scan.type='button';scan.onclick=()=>{void recognize()};shell.append(scan);
  const status=node('p','hhVisionStatus750');status.id='hhVisionStatus750';status.setAttribute('role','status');status.setAttribute('aria-live','polite');shell.append(status);
- const nameLabel=node('label','hhVisionLabel750','Étel neve'),name=node('input');name.id='hhVisionName750';name.maxLength=85;nameLabel.append(name);shell.append(nameLabel);
+ const review=node('section','hhVisionReview752');review.id='hhVisionReview752';shell.append(review);
+ review.append(node('p','hhVisionReviewLead752','Léna ezt találta a tányérodon'));
+ const meta=node('div','hhVisionMeta752');
+ const nameLabel=node('label','hhVisionLabel750','Étel neve'),name=node('input');name.id='hhVisionName750';name.maxLength=85;nameLabel.append(name);meta.append(nameLabel);
  const mealLabel=node('label','hhVisionLabel750','Étkezés'),meal=node('select');meal.id='hhVisionMeal750';
- MEALS.forEach(x=>{const o=node('option','',x);o.value=x;meal.append(o)});mealLabel.append(meal);shell.append(mealLabel);
- const notes=node('p','hhVisionNotes750');notes.id='hhVisionNotes750';shell.append(notes);
- const list=node('div','hhVisionItems750');list.id='hhVisionItems750';list.addEventListener('input',editInput);shell.append(list);
- const total=node('strong','hhVisionTotals750','A tápérték még nincs kiszámolva.');total.id='hhVisionTotals750';shell.append(total);
- const saveButton=node('button','hhVisionAction750 hhVisionCommit750','✓ Jóváhagyás és naplózás');saveButton.id='hhVisionSave750';saveButton.type='button';saveButton.onclick=save;shell.append(saveButton);
+ MEALS.forEach(x=>{const o=node('option','',x);o.value=x;meal.append(o)});mealLabel.append(meal);meta.append(mealLabel);review.append(meta);
+ const total=node('section','hhVisionTotals750');total.id='hhVisionTotals750';total.setAttribute('aria-live','polite');review.append(total);
+ const notes=node('p','hhVisionNotes750');notes.id='hhVisionNotes750';review.append(notes);
+ const heading=node('strong','hhVisionIngredientsTitle752','Felismert összetevők');heading.id='hhVisionIngredientsTitle752';review.append(heading);
+ review.append(node('p','hhVisionIngredientHint752','Érintsd meg az összetevőt, ha javítani szeretnéd az adagot vagy a tápértéket.'));
+ const list=node('div','hhVisionItems750');list.id='hhVisionItems750';list.addEventListener('input',editInput);review.append(list);
+ const saveButton=node('button','hhVisionAction750 hhVisionCommit750','✓ Jóváhagyás és naplózás');saveButton.id='hhVisionSave750';saveButton.type='button';saveButton.onclick=save;review.append(saveButton);
  d.body.append(dialog);
  dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();else cleanPhoto()});
 }
