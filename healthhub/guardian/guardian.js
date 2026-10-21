@@ -208,6 +208,14 @@ $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
 $('guardian3D').addEventListener('click',toggle3D);
 $('guardianFamilyButton').addEventListener('click',toggleFamily);
+const nativeButton=$('guardianNativeGps');
+if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
+ nativeButton.hidden=false;
+ nativeButton.addEventListener('click',function(){
+  // Only opens native permission controls; never turns GPS on without consent.
+  w.location.href='healthhubconnect://guardian';
+ });
+}
 d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop();report('Háttérbe került a lap: GPS leállítva.')}});
 w.addEventListener('pagehide',stop);
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
