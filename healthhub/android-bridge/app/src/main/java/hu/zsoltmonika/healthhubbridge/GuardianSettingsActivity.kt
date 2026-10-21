@@ -68,6 +68,10 @@ class GuardianSettingsActivity : ComponentActivity() {
         root.addView(state)
         lastFix = text("Nincs helyadat", 13f, 0xFFC5D9EC.toInt())
         root.addView(lastFix)
+        root.addView(Button(this).apply {
+            text = "🔎 GPS állapot frissítése"
+            setOnClickListener { render() }
+        })
         root.addView(text(
             "ELSŐ KIADÁS · a legutóbbi GPS-pontot titkosítva, csak ezen a telefonon őrizzük. " +
                 "A családi felhőmegosztás és a teljes 24/7 helyreállítás még nincs bekötve. " +
@@ -197,9 +201,17 @@ class GuardianSettingsActivity : ComponentActivity() {
         val fix = GuardianLocationVault.readFix(this)
         val at = fix?.optLong("atMs", 0L) ?: 0L
         val accuracy = fix?.optDouble("accuracyM", -1.0) ?: -1.0
-        lastFix.text = if (at > 0 && accuracy >= 0.0) {
-            "Utolsó mért pont: " + DateFormat.getDateTimeInstance().format(Date(at)) +
-                " · pontosság: " + accuracy.toInt() + " m"
+        val ageMs = System.currentTimeMillis() - at
+        val freshness = when {
+            at <= 0L || ageMs < 0L -> "Nincs ellenőrizhető friss mérés"
+            ageMs <= 120_000L -> "Friss GPS-mérés"
+            ageMs <= 600_000L -> "Régebbi mérés · kapcsolat ellenőrzése"
+            else -> "Elavult helyadat · nem élő pozíció"
+        }
+        lastFix.text = if (at > 0L && accuracy >= 0.0) {
+            "$freshness\nUtolsó mérés: " + DateFormat.getDateTimeInstance().format(Date(at)) +
+                " · pontosság: " + accuracy.toInt() + " m\n" +
+                "Ez csak a saját telefon helyi mérési állapota, nem családi helymegosztás."
         } else "Nincs érvényes, ehhez a profilhoz kötött GPS-mérés."
         start.isEnabled = owner != null && !serviceRequested
         stop.isEnabled = consented || at > 0L
