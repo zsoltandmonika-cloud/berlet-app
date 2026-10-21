@@ -55,3 +55,13 @@
 - A 3 célzott CI workflow újra zöld. Ezt a mobilos/saját telefonos vizuális átvétel még követi.
 
 **A PR továbbra sem merge-elt vagy telepített release, Android OTA nem publikálható pusztán a CI alapján.**
+
+
+## 2026-10-21 · v765 GPS-biztonsági finomítások (PR #405)
+
+- Natív `GuardianLocationService` eldobja a `Location.isMock` (Android 12+) / `isFromMockProvider` (korábbi Android) alapján szimulált helyadatokat.
+- A rögzített GPS-fix megfelel a falióra ÉS az Android monoton `elapsedRealtimeNanos` frissességi korlátjának; nem numerikus/pontatlan koordináták vagy pontosság értékek tiltva.
+- A HH One saját Family Guard beállítóképernyője kézzel frissíthető, **csak mérési időbélyeget és pontosságot mutat, koordinátát nem**, 2/10 perces frissességi besorolással. Az elavult fix kifejezetten NEM élő jelölésű.
+- MapLibre: ha a dark vector style már tartalmaz `building` source-layert, nem tölt be feleslegesen új nyilvános vektorcsempe-forrást. Üres nyomvonal nem hoz létre érvénytelen GeoJSON LineStringet.
+- A kiválasztott Léna/Buddy kép továbbra is csak **különálló HTML-előnézetben** használható; a GitHub produktív Guardian Hero-asset beépítése még hátravan.
+- Kiadási státusz: staged feature branch; CI-fordítás ≠ valódi Samsung / boot / 24x7 GPS teszt. Nincs GPS cloud upload vagy távoli családi helyzet lekérés.
