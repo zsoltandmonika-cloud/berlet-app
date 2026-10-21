@@ -191,9 +191,7 @@ entry.addEventListener('close',()=>{delete entry.dataset.hhPickerMode;delete ent
 back.addEventListener('click',()=>{if(step==='categories')dialog.close();else{step='categories';render()}});
 next.addEventListener('click',advance);
 dialog.addEventListener('cancel',e=>{if(step==='foods'){e.preventDefault();step='categories';render()}});
-const ai=$('hhBevitelAI'),status=$('hhBevitelInfo');
-ai?.addEventListener('click',()=>{
- if(window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open();return}
- if(status){status.textContent='A fotós felismerő betöltésére várunk. Frissítsd az oldalt.';status.hidden=false}
-});
+// AI photo tile click is owned by hh-food-vision-v750.js, independently of this
+// scroll-picker. Binding it here too could open the modal twice.
+
 })();
