@@ -92,28 +92,53 @@ async function availableModels(puter){
    x.vision!==false&&x.supports_vision!==false&&x.image_input!==false;
  })?.id).filter(Boolean);
 }
+function stage(next){
+ const dialog=$('hhVisionDialog750');if(!dialog)return;
+ dialog.dataset.stage=next;
+ const steps=$('hhVisionSteps752');
+ if(steps){const index=next==='review'?1:0;
+  for(const item of steps.children){const at=Number(item.dataset.index);
+   item.dataset.status=at<index?'done':at===index?'active':'waiting';
+   if(at===index)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');
+  }
+ }
+ if(next==='review')$('hhVisionShell752')?.scrollTo?.({top:0,behavior:'smooth'});
+}
 function calc(){
  const e=$('hhVisionTotals750'),save=$('hhVisionSave750');if(!e||!save||!draft)return;
  const v=totals(draft.items);
  const fmt=n=>n===null?'—':n.toLocaleString('hu-HU',{maximumFractionDigits:1});
- e.textContent='Becsült teljes adag: '+fmt(v.kcal)+' kcal · Fehérje '+fmt(v.protein)+' g · Szénhidrát '+fmt(v.carbs)+' g · Zsír '+fmt(v.fat)+' g';
+ e.replaceChildren();
+ const label=node('small','hhVisionSummaryLabel752','BECSÜLT ENERGIA · TELJES ADAG');
+ const amount=node('div','hhVisionEnergy752',fmt(v.kcal));amount.append(node('span','',' kcal'));
+ const grid=node('div','hhVisionMacroGrid752');
+ for(const [key,title] of [['protein','Fehérje'],['carbs','Szénhidrát'],['fat','Zsír']]){
+  const card=node('div','hhVisionMacro752');card.append(node('small','',title),node('b','',fmt(v[key])+' g'));grid.append(card);
+ }
+ e.append(label,amount,grid);
  save.disabled=busy||Object.values(v).some(x=>x===null)||draft.items.some(x=>!x.name.trim());
 }
 function editor(){
  const box=$('hhVisionItems750');box.replaceChildren();
+ const title=$('hhVisionIngredientsTitle752');if(title)title.textContent='Felismert összetevők · '+draft.items.length;
  draft.items.forEach((item,i)=>{
-  const card=node('div','hhVisionFood750');box.append(card);
+  const card=node('details','hhVisionFood750'),head=node('summary','hhVisionItemHead752');
+  const main=node('span','hhVisionItemName752',item.name);main.dataset.role='item-summary';
+  const grams=node('span','hhVisionItemGrams752',item.grams+' g');grams.dataset.role='portion-summary';
+  head.append(main,grams,node('small','hhVisionEditHint752','✎'));card.append(head);
+  const fields=node('div','hhVisionFields752');
   for(const [key,label] of [['name','Összetevő'],['grams','Adag (g)'],['kcal','kcal / 100 g'],['protein','Fehérje / 100 g'],['carbs','Szénhidrát / 100 g'],['fat','Zsír / 100 g']]){
    const holder=node('label','',label),input=node('input');
    input.dataset.index=i;input.dataset.key=key;input.type=key==='name'?'text':'number';
-   input.inputMode=key==='name'?'text':'decimal';input.step=key==='grams'?'1':'0.1';input.min=key==='grams'?'1':'0';input.max=key==='name'?'':key==='grams'?'3000':key==='kcal'?'950':'100';
+   input.inputMode=key==='name'?'text':'decimal';input.step=key==='grams'?'1':'0.1';
+   input.min=key==='grams'?'1':'0';input.max=key==='name'?'':key==='grams'?'3000':key==='kcal'?'950':'100';
    input.value=key==='name'?item.name:key==='grams'?item.grams:item.per[key]??'';
-   holder.append(input);card.append(holder);
+   holder.append(input);fields.append(holder);
   }
-  if(item.uncertain)card.append(node('small','hhVisionWarn750','⚠ Bizonytalan adag vagy összetevő.'));
-  const remove=node('button','hhVisionRemove750','× Törlés');remove.type='button';
+  if(item.uncertain){card.dataset.uncertain='true';fields.append(node('small','hhVisionWarn750','⚠ Bizonytalan összetevő vagy adag. Ellenőrizd.'))}
+  const remove=node('button','hhVisionRemove750','× Összetevő törlése');remove.type='button';
   remove.onclick=()=>{if(draft.items.length===1)return info('Legalább egy összetevő szükséges.',true);draft.items.splice(i,1);editor()};
-  card.append(remove);
+  fields.append(remove);card.append(fields);box.append(card);
  });
  calc();
 }
@@ -123,6 +148,11 @@ function editInput(e){
  if(k==='name')x.name=input.value.slice(0,85);
  else if(k==='grams')x.grams=value===null?NaN:value;
  else x.per[k]=value===null?null:value;
+ const card=$('hhVisionItems750')?.children[i];
+ const name=card?.querySelector?.('[data-role="item-summary"]');
+ const grams=card?.querySelector?.('[data-role="portion-summary"]');
+ if(name)name.textContent=x.name||'Névtelen összetevő';
+ if(grams)grams.textContent=Number.isFinite(x.grams)?x.grams+' g':'Hiányzó adag';
  calc();
 }
 async function recognize(){
