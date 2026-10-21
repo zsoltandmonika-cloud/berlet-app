@@ -10,6 +10,7 @@ let response={ok:true,status:200,json:async()=>({
  path_display:'/HealthHub-ChatGPT-Analytics',id:'id:TEST_FOLDER_ID'
 })};
 const w={
+ setInterval:()=>0,
  HH_CHATGPT_TARGET_AUTH_V739:{
   read:async()=>({accountId:'dbid:TEST_ACCOUNT'}),
   accessToken:async()=> 'TEST_ACCESS_TOKEN'
