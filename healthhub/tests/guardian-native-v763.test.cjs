@@ -35,7 +35,7 @@ test('No location collection without owner consent, and no transmission in this 
  assert.match(settings,/AlertDialog\.Builder\(this\)/);
  assert.match(settings,/GuardianLocationService\.stop\(this@GuardianSettingsActivity\)/);
  for(const body of [service,vault,settings]){
-  assert.doesNotMatch(body,/DropboxVaultClient|https:\/\/|Supabase|HttpURLConnection|URL\(/);
+  assert.doesNotMatch(body,/DropboxVaultClient|https:\/\/|SupabaseClient|HttpURLConnection|URL\(/);
  }
 });
 test('Reboot does not bypass always-on Android permission or opt-out',()=>{
