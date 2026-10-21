@@ -123,6 +123,42 @@ function toggleFamily(){
  panel.hidden=!panel.hidden;
  button.setAttribute('aria-expanded',String(!panel.hidden));
 }
+function mapColors(){
+ const rose=name()==='Mónika';
+ return {
+  Background:rose?'#211e37':'#101f37',
+  Residential:rose?'#302640':'#1a2c44',
+  Water:rose?'#43335e':'#153d64',
+  River:rose?'#654576':'#23608d',
+  'Road network':rose?'#8a668f':'#527ba2',
+  Grass:rose?'#273343':'#153b40',
+  Wood:rose?'#233441':'#153939',
+  'Road labels':rose?'#ffe1ed':'#d7ecff'
+ };
+}
+function applyGoldenMapStyle(){
+ if(!map||!ready)return;
+ const colors=mapColors();
+ const types={'Background':['background-color','background'],'Residential':['fill-color','fill'],
+  'Water':['fill-color','fill'],'River':['line-color','line'],'Road network':['line-color','line'],
+  Grass:['fill-color','fill'],Wood:['fill-color','fill'],'Road labels':['text-color','symbol']};
+ Object.keys(types).forEach(function(id){
+  const layer=map.getLayer(id);
+  if(layer&&layer.type===types[id][1]){
+   try{map.setPaintProperty(id,types[id][0],colors[id])}catch(e){}
+  }
+ });
+ if(map.getLayer('guardian-buildings-3d')){
+  const rose=name()==='Mónika';
+  map.setPaintProperty('guardian-buildings-3d','fill-extrusion-color',
+   ['interpolate',['linear'],['coalesce',['get','render_height'],0],
+    0,rose?'#4b366c':'#234c77',55,rose?'#b56ab5':'#4d9cdb',180,rose?'#ffd0ee':'#bceeff']);
+ }
+ if(map.getLayer('guardian-route-glow'))map.setPaintProperty('guardian-route-glow','line-color',
+  name()==='Mónika'?'#fc76c3':'#5cc7ff');
+ if(map.getLayer('guardian-route-line'))map.setPaintProperty('guardian-route-line','line-color',
+  name()==='Mónika'?'#ffabd9':'#79c5ff');
+}
 function initMap(){
  if(!w.maplibregl){message('A térképmotor nem töltődött be. Ellenőrizd az internetkapcsolatot.');return}
  try{
@@ -158,6 +194,7 @@ function initMap(){
    map.addLayer({id:'guardian-route-line',type:'line',source:'guardian-route',paint:{
     'line-color':name()==='Mónika'?'#ffabd9':'#79c5ff','line-width':5,'line-opacity':0.95
    }});
+   applyGoldenMapStyle();
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
   map.on('dragstart',function(){follow=false;renderButtons()});
@@ -173,11 +210,7 @@ d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop();rep
 w.addEventListener('pagehide',stop);
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  stop();clear();if(marker){marker.remove();marker=null}hasFix=false;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
- if(map&&ready){
-  if(map.getLayer('guardian-route-line'))map.setPaintProperty('guardian-route-line','line-color',name()==='Mónika'?'#ffabd9':'#79c5ff');
-  if(map.getLayer('guardian-buildings-3d'))map.setPaintProperty('guardian-buildings-3d','fill-extrusion-color',name()==='Mónika'?'#bb76ad':'#4583c4');
-  if(map.getLayer('guardian-route-glow'))map.setPaintProperty('guardian-route-glow','line-color',name()==='Mónika'?'#fc76c3':'#5cc7ff');
- }
+ if(map&&ready)applyGoldenMapStyle();
 }});
 theme();renderButtons();initMap();
 w.HH_GUARDIAN_V761=Object.freeze({version:'761',get active(){return active},get pointCount(){return path.length}});
