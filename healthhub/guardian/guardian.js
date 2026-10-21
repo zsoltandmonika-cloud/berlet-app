@@ -60,6 +60,7 @@ function stop(){
  const old=watchId;watchId=null;active=false;hasFix=false;
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
  renderButtons();report('GPS kikapcsolva');
+ $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
 }
 function onPosition(pos){
  if(!active)return;
@@ -107,6 +108,7 @@ function start(){
 }
 function toggle3D(){
  threeD=!threeD;renderButtons();
+ if(!active&&!marker)$('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(map){
   map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:650});
   if(ready&&map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',threeD?'visible':'none');
