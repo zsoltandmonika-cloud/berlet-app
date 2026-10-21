@@ -28,3 +28,19 @@
 - `node --test healthhub/tests/guardian-v761.test.cjs`.
 - `node healthhub/tests/premium-glass-home-v520.test.cjs` plusz Home v522/v525 regression workflow.
 - A PR nem számít automatikusan telepített és felhasználó által elfogadott funkciónak: CODED → CI TESTED → MERGED → DEPLOYED → REAL DEVICE VERIFIED → USER ACCEPTED.
+
+## 2026-10-21 · v763 Native GPS kiegészítés (STAGED, NOT DEPLOYED)
+
+**Elkészült forráskód (CI nem készülékes validáció):**
+- A meglévő `healthhub/android-bridge` / `hu.zsoltmonika.healthhubbridge` Android-kódja kapott egy `GuardianSettingsActivity` beállítóképernyőt, önálló futtatható `GuardianLocationService` háttér-GPS-t és `GuardianLocationVault` Android Keystore AES/GCM kódolt utolsó mérést.
+- A gyűjtő csak külön gomb és tájékozott felhasználói engedély után indul, csak tulajdonoshoz kötött, az Android állandó értesítésében van STOP; tulajdonos feloldásakor is megszűnik és töröl.
+- `GuardianBootReceiver` próbálhat indítani **csak korábbi opt-in + külön ACCESS_BACKGROUND_LOCATION ("Mindig") engedély** mellett, soha nem magától engedélyez.
+- A precíz / hozzávetőleges engedélyek külön kérhetők; nincs titkos, silent location capture.
+- A HH One Android buildCode/version/signature `0.14.6 (#26)` érintetlen. Nem készült telepíthető, titkos kulccsal aláírt új release.
+- Célzott teszt: `healthhub/tests/guardian-native-v763.test.cjs`; natív `gradle :app:assembleDebug :app:testDebugUnitTest` CI.
+
+**Nincs még megvalósítva:**
+- Telefon és web Family Guard közötti autorizált, titkosított online szinkron, hiteles családi partnerpozíció, Live Zsolt/Mónika/Corky megosztás, kliensoldali helyadat retention / felhő törlés.
+- Samsung S24 Ultra valódi GPS / lock-screen / reboot / Doze mérés és megbízhatósági SLA.
+- Felhasználó által elfogadott egyedi Lénás Hero asset végső beépítése.
+- **Soha ne állítsuk, hogy "24/7 kész", "két telefon élőben látható", vagy "éles" ezen fázis alapján.**
