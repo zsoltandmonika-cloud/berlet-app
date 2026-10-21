@@ -1,0 +1,33 @@
+name: HealthHub v739 · Dropbox Destination OAuth QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-chatgpt-target-auth-v739.js'
+      - 'healthhub/hh-chatgpt-target-onboard-v739.js'
+      - 'healthhub/chatgpt-dropbox-callback-v739.html'
+      - 'healthhub/tests/chatgpt-target-oauth-v739.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-chatgpt-target-v739.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-chatgpt-target-auth-v739.js'
+      - 'healthhub/hh-chatgpt-target-onboard-v739.js'
+      - 'healthhub/chatgpt-dropbox-callback-v739.html'
+      - 'healthhub/tests/chatgpt-target-oauth-v739.test.cjs'
+      - 'healthhub/index.html'
+permissions:
+  contents: read
+jobs:
+  oauth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax validation
+        run: |
+          node --check healthhub/hh-chatgpt-target-auth-v739.js
+          node --check healthhub/hh-chatgpt-target-onboard-v739.js
+          node --check healthhub/tests/chatgpt-target-oauth-v739.test.cjs
+      - name: Synthetic PKCE configuration and no-transfer test
+        run: node healthhub/tests/chatgpt-target-oauth-v739.test.cjs
