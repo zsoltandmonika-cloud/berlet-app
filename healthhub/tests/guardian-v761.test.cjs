@@ -80,10 +80,11 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
   },
   addEventListener(name,cb){events[name]=cb}
  };
+ let profile='z';
  let nextWatch=0,stopped=[];
  const geo={watchPosition(){return ++nextWatch},clearWatch(id){stopped.push(id)}};
  const w={
-  navigator:{geolocation:geo},isSecureContext:true,localStorage:{getItem(){return 'z'}},
+  navigator:{geolocation:geo},isSecureContext:true,localStorage:{getItem(key){return key==='hh-profile'?profile:'z'},setItem(key,value){if(key==='hh-profile')profile=value}},
   HH_GOLDEN_AVATARS_V529:{z:'data:image/png;base64,z',m:'data:image/png;base64,m'},
   addEventListener(name,cb){winEvents[name]=cb},console:{warn(){}},
  };
@@ -98,7 +99,14 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  assert.deepEqual(stopped,[1]);
  d.hidden=false;controls.guardianStart.click();assert.equal(nextWatch,2);
  controls.guardianStop.click();assert.deepEqual(stopped,[1,2]);
- assert.doesNotMatch(script,/fetch\(|sendBeacon|WebSocket|localStorage\.setItem|indexedDB\.open/,'no tracking upload or persistence');
+ controls.guardianProfileSwitch.click();
+ assert.equal(profile,'m','top-right portrait switches to Mónika');
+ assert.equal(nextWatch,2,'changing profile never restarts GPS');
+ assert.equal(w.HH_GUARDIAN_V761.active,false);
+ controls.guardianProfileSwitch.click();
+ assert.equal(profile,'z','second portrait tap returns to Zsolt');
+ assert.doesNotMatch(script,/fetch\(|sendBeacon|WebSocket|indexedDB\.open|setItem\('(guardian|gps|location|route)/,'no tracking upload or persistence');
+ assert.match(script,/localStorage\.setItem\('hh-profile',next\)/,'only profile selection is stored');
  assert.match(script,/d\.addEventListener\('visibilitychange'/,'browser GPS stops when hidden');
  assert.match(script,/Budapest city-center discovery view, NOT a family or device coordinate/);
  assert.doesNotMatch(script,/Corky.*setLngLat|Anna.*setLngLat|Zsolt.*setLngLat/,'no fabricated family marker locations');
