@@ -2,6 +2,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const crypto=require('node:crypto');
 const path=require('node:path');
 const vm=require('node:vm');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
@@ -68,6 +69,16 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/function toggleSatellite\(\)/);
  assert.match(js,/tiles\.maps\.eox\.at/,'EOX satellite WMTS');
  assert.match(js,/EOxCloudless 2020/,'clear source licensing');
+ assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
+ assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
+ assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
+ assert.match(js,/hm\.src=avatars\.m/,'Hero must bind canonical Mónika photo');
+ assert.match(polish,/guardian-family-hero-approved-v767\.png/,'approved bright Family Guard Hero loaded');
+ const hero=fs.readFileSync(path.join(__dirname,'../assets/guardian-family-hero-approved-v767.png'));
+ assert.equal(hero.length,3480511,'approved original hero is complete');
+ assert.equal(crypto.createHash('sha256').update(hero).digest('hex'),
+ '7be5f85999a26e676d89fd92ac2ae184b6f081aa5fb64fedbcee01178c262230',
+ 'the Hero must remain the exact user-attached PNG, never regenerated');
  assert.match(js,/const existing=layers\.find/,'reuse existing dark-map vector source');
  assert.match(js,/if\(!existing\)map\.addSource\(source/,'only load a fallback building source if needed');
  assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
