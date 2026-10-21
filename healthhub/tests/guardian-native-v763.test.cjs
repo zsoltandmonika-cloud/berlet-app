@@ -28,6 +28,10 @@ test('No location collection without owner consent, and no transmission in this 
  const vault=read(dir+'GuardianLocationVault.kt');
  const settings=read(dir+'GuardianSettingsActivity.kt');
  assert.match(service,/GuardianLocationVault\.consented\(this\)/);
+ assert.match(service,/location\.isMock/,'API 31+ simulated location blocked');
+ assert.match(service,/location\.isFromMockProvider/,'older Android mock fix blocked');
+ assert.match(service,/SystemClock\.elapsedRealtimeNanos/,'rely on monotonic fix age');
+ assert.match(service,/location\.accuracy\.isFinite\(\)/,'reject invalid GPS accuracy');
  assert.match(vault,/getString\("device_owner_profile", null\)/);
  assert.match(vault,/KEY_CONSENT/);
  assert.match(vault,/Cipher\.getInstance\("AES\/GCM\/NoPadding"\)/);
