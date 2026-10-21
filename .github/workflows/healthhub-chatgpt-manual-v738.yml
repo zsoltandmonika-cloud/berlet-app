@@ -1,0 +1,29 @@
+name: HealthHub v738 · ChatGPT Digital Health Export QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-chatgpt-manual-export-v738.js'
+      - 'healthhub/tests/chatgpt-manual-export-v738.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-chatgpt-manual-v738.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-chatgpt-manual-export-v738.js'
+      - 'healthhub/tests/chatgpt-manual-export-v738.test.cjs'
+      - 'healthhub/index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check browser JavaScript and tests
+        run: |
+          node --check healthhub/hh-chatgpt-manual-export-v738.js
+          node --check healthhub/tests/chatgpt-manual-export-v738.test.cjs
+      - name: Run synthetic health export regression
+        run: node healthhub/tests/chatgpt-manual-export-v738.test.cjs
