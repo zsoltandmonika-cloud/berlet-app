@@ -39,11 +39,11 @@ class GuardianBootReceiver : BroadcastReceiver() {
                 .setAction(GuardianLocationService.ACTION_START)
             if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(start)
             else context.startService(start)
+        } catch (_: SecurityException) {
+            GuardianLocationVault.markStopped(context)
         } catch (_: RuntimeException) {
             GuardianLocationVault.markStopped(context)
             // Never bypass Android foreground service restrictions.
-        } catch (_: SecurityException) {
-            GuardianLocationVault.markStopped(context)
         }
     }
 }
