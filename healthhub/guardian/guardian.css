@@ -34,3 +34,41 @@ h1{font-size:21px;line-height:1.2;margin:9px 0 7px;letter-spacing:-.025em}p{marg
 .guardian-position{width:17px;height:17px;border:3px solid white;border-radius:50%;background:var(--accent);box-shadow:0 0 0 8px rgba(113,188,255,.18),0 0 20px var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:350px){.brand .eyebrow{font-size:8px}.back{min-width:77px;font-size:11px}.stats strong{font-size:11px}}
+
+/* Family Guard Hero: approved Léna photographs, no alteration to canonical Home. */
+.guardian-hero{
+ position:relative;isolation:isolate;min-height:192px;display:flex;align-items:flex-end;
+ overflow:hidden;border-color:var(--border);
+ background:#112744 url('../assets/zsolt-hh-hero-approved-v527.png') center 42%/cover no-repeat;
+ padding:0!important;
+}
+:root[data-guardian-profile="m"] .guardian-hero{
+ background-image:url('../assets/monika-hh-hero-approved-v5261.png');
+}
+.guardian-hero:before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background:linear-gradient(90deg,rgba(6,19,42,.93),rgba(8,20,47,.62) 55%,rgba(8,20,45,.17)),
+ linear-gradient(0deg,rgba(6,16,37,.9),transparent 75%);
+}
+:root[data-guardian-profile="m"] .guardian-hero:before{
+ background:linear-gradient(90deg,rgba(37,19,47,.95),rgba(48,24,60,.53) 57%,rgba(17,13,45,.15)),
+ linear-gradient(0deg,rgba(34,16,45,.86),transparent 75%);
+}
+.guardian-hero-overlay{width:100%;padding:17px 16px 15px;position:relative;z-index:1}
+.guardian-hero .eyebrow{color:var(--accent)!important;text-shadow:0 2px 5px #071626}
+.guardian-hero h1{font-size:23px;max-width:64%;text-shadow:0 2px 12px #061326}
+.guardian-hero p{max-width:66%;color:#f1f7ff;text-shadow:0 2px 9px #061326;font-size:11px}
+:root[data-guardian-profile="m"] .guardian-hero h1{color:#ffe6f6}
+.map-card{border-color:var(--border)!important}
+.map-3d{
+ position:absolute;top:52px;right:10px;z-index:2;padding:9px 12px;
+ border:1px solid var(--border);border-radius:12px;
+ background:rgba(7,26,48,.85);backdrop-filter:blur(12px);
+ color:#eff9ff;font:800 12px system-ui;cursor:pointer;
+}
+.map-3d[aria-pressed="true"]{box-shadow:0 0 18px rgba(113,198,242,.2);color:var(--accent)}
+@media(max-width:390px){
+ .guardian-hero{min-height:182px}
+ .guardian-hero h1{font-size:20px}
+ .guardian-hero p{font-size:10px}
+}
