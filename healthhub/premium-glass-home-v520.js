@@ -16,6 +16,7 @@
   nutrition:'<path d="M20 4C11 4 4 7 4 16a4 4 0 0 0 4 4c9 0 12-7 12-16Z"/><path d="M5 19c4-5 7-7 12-10"/>',
   ask:'<path d="M12 3a9 9 0 0 0-9 9 8 8 0 0 0 2 5l-1 4 5-2a9 9 0 1 0 3-16Z"/><path d="M8.5 12h7M12 8.5v7"/>',
   timeline:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M14 15h2"/>',
+  guardian:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="M9 11h6m-3-3v6"/>',
   spark:'<path d="m12 2 1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2Z"/><path d="M19 17v5m-2.5-2.5h5M4 18v4m-2-2h4"/>',
   headline:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h4M14 12h3v4h-3z"/>',
   dailyhealth:'<path d="M20 7a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M5 13h4l2-3 2 6 2-3h5"/>'
@@ -23,7 +24,7 @@
  var TILES=[
   ['health','Egészség'],['records','Leletek'],['meds','Gyógyszer & Supplement'],
   ['sleep','Alvás'],['activity','Aktivitás'],['digital','Digital Health'],
-  ['nutrition','Nutrition'],['ask','Kérdezd Lénát'],['timeline','Idővonal'],
+  ['nutrition','Nutrition'],['ask','Kérdezd Lénát'],['guardian','Family Guard'],
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
@@ -75,7 +76,11 @@
    if(typeof root.hhOpenLenaSmart299==='function'){root.hhOpenLenaSmart299();return true}
    return fallbackClick('Ask Léna')||message('Az Ask Léna modul még töltődik.');
   }
-  if(key==='timeline')return showPage('timeline');
+  if(key==='timeline')return showPage('timeline'); // Existing timeline retained for Egészség submenu.
+  if(key==='guardian'){
+   root.location.assign(new URL('./guardian/',root.location.href).href);
+   return true;
+  }
   if(key==='spark')return showPage('spark');
   if(key==='headline')return showPage('briefing');
   if(key==='dailyhealth'){

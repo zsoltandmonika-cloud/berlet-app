@@ -311,6 +311,7 @@ class MainActivity : ComponentActivity() {
                 syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
+            "guardian" -> startActivity(Intent(this, GuardianSettingsActivity::class.java))
         }
     }
 
@@ -365,6 +366,7 @@ class MainActivity : ComponentActivity() {
                     return@setOnClickListener
                 }
                 CollectionEngine.clearAndStop(this@MainActivity)
+                GuardianLocationService.stop(this@MainActivity)
                 prefs.edit().remove("device_owner_profile")
                     .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
                 updateOwnerUi()
@@ -792,6 +794,13 @@ class MainActivity : ComponentActivity() {
             }
         }
         root.addView(saveButton)
+
+        root.addView(Button(this).apply {
+            text = "🛡️ Family Guard · háttér GPS"
+            setOnClickListener {
+                startActivity(Intent(this@MainActivity, GuardianSettingsActivity::class.java))
+            }
+        })
 
         root.addView(Button(this).apply {
             text = "HealthHub megnyitása"

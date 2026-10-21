@@ -1,0 +1,52 @@
+name: Family Guard · Native GPS Compile v763
+
+on:
+  push:
+    branches:
+      - 'feat/guardian-gps-map-phase1-v761'
+    paths:
+      - 'healthhub/android-bridge/**'
+      - 'healthhub/tests/guardian-native-v763.test.cjs'
+      - '.github/workflows/guardian-native-v763.yml'
+  pull_request:
+    paths:
+      - 'healthhub/android-bridge/**'
+      - 'healthhub/tests/guardian-native-v763.test.cjs'
+      - '.github/workflows/guardian-native-v763.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guardian-android-compile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: healthhub/android-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install SDK 36
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Verify original package and location gate
+        run: |
+          grep -q 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts
+          grep -q 'foregroundServiceType="location"' app/src/main/AndroidManifest.xml
+          grep -q 'android:exported="false"' app/src/main/AndroidManifest.xml
+          grep -q 'GuardianLocationVault.consented(this)' app/src/main/java/hu/zsoltmonika/healthhubbridge/GuardianLocationService.kt
+          grep -q 'GuardianLocationService.stop(this@MainActivity)' app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt
+      - name: Verify owner and location security invariants
+        run: node ../tests/guardian-native-v763.test.cjs
+      - name: Compile existing HH One plus new Guardian GPS
+        run: gradle :app:assembleDebug :app:testDebugUnitTest --stacktrace
+      - name: Summary
+        run: echo 'Compiled only; no device installation, OTA update or live GPS access.'
