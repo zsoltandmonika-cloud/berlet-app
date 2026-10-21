@@ -3,7 +3,7 @@
 'use strict';
 const $=id=>d.getElementById(id);
 const neutral=[19.0402,47.4979]; // Generic Budapest map center, never a residence.
-let map=null,marker=null,watchId=null,active=false,follow=true,path=[],distance=0,ready=false,last=null;
+let map=null,marker=null,watchId=null,active=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -20,6 +20,7 @@ function renderButtons(){
  $('guardianStop').disabled=!active;
  dot.classList.toggle('live',active);
  $('guardianFollow').setAttribute('aria-pressed',String(follow));
+ $('guardian3D').setAttribute('aria-pressed',String(threeD));
 }
 function fmtLength(m){return m<1000?Math.round(m)+' m':(m/1000).toFixed(2).replace('.',',')+' km'}
 function radians(x){return x*Math.PI/180}
@@ -81,6 +82,10 @@ function start(){
   watchId=w.navigator.geolocation.watchPosition(onPosition,onGpsError,{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
  }catch(e){stop();report('A GPS nem indítható ezen a készüléken.')}
 }
+function toggle3D(){
+ threeD=!threeD;renderButtons();
+ if(map)map.easeTo({pitch:threeD?54:0,bearing:threeD?-17:0,duration:700});
+}
 function enableFollow(){
  follow=!follow;renderButtons();
  if(follow&&marker&&map)map.easeTo({center:marker.getLngLat(),duration:750});
@@ -90,11 +95,28 @@ function initMap(){
  try{
   map=new w.maplibregl.Map({
    container:'guardianMap',style:'https://tiles.openfreemap.org/styles/dark',
-   center:neutral,zoom:10.5,attributionControl:true
+   center:neutral,zoom:13.6,pitch:54,bearing:-17,antialias:true,attributionControl:true
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
   map.on('load',function(){
    ready=true;message('');
+   /* Real 3D building extrusion, with a separate public OSM vector source. */
+   try{
+    map.addSource('guardian-building-tiles',{type:'vector',url:'https://tiles.openfreemap.org/planet'});
+    const layers=map.getStyle().layers||[];
+    const firstLabel=layers.find(l=>l.type==='symbol'&&l.layout&&l.layout['text-field']);
+    map.addLayer({
+     id:'guardian-buildings-3d',type:'fill-extrusion',source:'guardian-building-tiles',
+     'source-layer':'building',minzoom:14,
+     filter:['!=',['get','hide_3d'],true],
+     paint:{
+      'fill-extrusion-color':name()==='Mónika'?'#bb76ad':'#4583c4',
+      'fill-extrusion-height':['interpolate',['linear'],['zoom'],14,0,16,['coalesce',['get','render_height'],0]],
+      'fill-extrusion-base':['coalesce',['get','render_min_height'],0],
+      'fill-extrusion-opacity':0.82
+     }
+    },firstLabel&&firstLabel.id);
+   }catch(e){w.console&&w.console.warn('Guardian 3D buildings fallback',e)}
    map.addSource('guardian-route',{type:'geojson',data:pathJson()});
    map.addLayer({id:'guardian-route-line',type:'line',source:'guardian-route',paint:{
     'line-color':name()==='Mónika'?'#ffabd9':'#79c5ff','line-width':5,'line-opacity':0.95
@@ -108,9 +130,16 @@ $('guardianStart').addEventListener('click',start);
 $('guardianStop').addEventListener('click',stop);
 $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
+$('guardian3D').addEventListener('click',toggle3D);
 d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop();report('Háttérbe került a lap: GPS leállítva.')}});
 w.addEventListener('pagehide',stop);
-w.addEventListener('storage',function(e){if(e.key==='hh-profile'){stop();clear();if(marker){marker.remove();marker=null}theme()}});
+w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
+ stop();clear();if(marker){marker.remove();marker=null}theme();
+ if(map&&ready){
+  if(map.getLayer('guardian-route-line'))map.setPaintProperty('guardian-route-line','line-color',name()==='Mónika'?'#ffabd9':'#79c5ff');
+  if(map.getLayer('guardian-buildings-3d'))map.setPaintProperty('guardian-buildings-3d','fill-extrusion-color',name()==='Mónika'?'#bb76ad':'#4583c4');
+ }
+}});
 theme();renderButtons();initMap();
 w.HH_GUARDIAN_V761=Object.freeze({version:'761',get active(){return active},get pointCount(){return path.length}});
 })(window,document);
