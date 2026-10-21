@@ -83,6 +83,43 @@ async function req(endpoint,arg){
  }
  return res.json();
 }
+function describeDropboxIdentity(account,rootList){
+ if(!account||typeof account.account_id!=='string'||!account.account_id)
+  throw Error('A HealthHub Dropbox-fiók nem volt azonosítható.');
+ const entries=Array.isArray(rootList?.entries)?rootList.entries:[];
+ const visible=entries.filter(e=>e&&e['.tag']==='folder').map(e=>String(e.name||''))
+  .filter(Boolean).slice(0,20);
+ return {email:typeof account.email==='string'?account.email:'Nincs elérhető e-mail',
+  accountSuffix:account.account_id.slice(-8),
+  rootNamespaceSuffix:String(account.root_info?.root_namespace_id||'').slice(-8)||null,
+  visibleFolders:visible,hasHealthHub:visible.some(x=>x.toLowerCase()==='healthhub')};
+}
+async function diagnoseSourceDropbox(){
+ api();
+ const [account,rootList]=await Promise.all([
+  req('users/get_current_account',{}),
+  req('files/list_folder',{path:'',recursive:false,include_deleted:false,limit:100})
+ ]);
+ const result=describeDropboxIdentity(account,rootList);
+ const output=d.getElementById('hhA732Identity');
+ if(output){
+  output.replaceChildren();
+  const fields=[
+   'HealthHub Dropbox-fiók: '+result.email,
+   'Fiókazonosító utolsó 8 karaktere: '+result.accountSuffix,
+   'App Folder virtuális gyökér: '+(result.visibleFolders.join(', ')||'üres'),
+   result.hasHealthHub?'✓ A HealthHub mappa jelen van az app jogosultsági tartományában':
+   '⚠ A HealthHub mappa nem szerepel az app virtuális gyökerében'
+  ];
+  for(const line of fields){
+   const elem=d.createElement('div');elem.textContent=line;output.append(elem);
+  }
+  const note=d.createElement('p');note.textContent=
+   'A HealthHub App Folder hozzáférése nem jogosít automatikusan a Dropbox-fiók teljes gyökerének olvasására vagy a ChatGPT Analytics célmappába írásra. A forrás- és célfiók egyezését, majd az átadási jogosultságot külön ellenőrizzük.';
+  output.append(note);
+ }
+ return result;
+}
 async function inventory(){
  let page;
  try{page=await req('files/list_folder',{path:ROOT,recursive:true,include_deleted:false,limit:250});}
@@ -266,6 +303,7 @@ function style(){
  'background:#0b21375e;padding:8px;font:11px/1.45 system-ui}'+
  '#hhAnalytics732 .hhA732Tile b{display:block;font-size:13px;margin-bottom:2px}'+
  '#hhAnalytics732 .hhA732Warn{color:#f0c995}'+
+ '#hhAnalytics732 .hhA732Identity{margin:8px 0;font-size:11px;line-height:1.7;color:#b6daef;overflow-wrap:anywhere}'+
  '#hhAnalytics732 .hhA732Details{border:1px solid #709bc65e;border-radius:12px;margin:12px 0 9px;padding:9px}'+
  '#hhAnalytics732 .hhA732Details summary{font-weight:750;cursor:pointer;font-size:11px;line-height:1.5}'+
  '#hhAnalytics732 .hhA732DetailsNote{color:#a6c2d7;font-size:10px;line-height:1.55;margin-top:8px}'+
@@ -447,10 +485,12 @@ function mount(){
  const card=d.createElement('section');card.id='hhAnalytics732';
  card.innerHTML='<h4>📚 ChatGPT Analytics · Dropbox forrásellenőrzés</h4>'+
   '<p>A meglévő egészségügyi fájlok tényleges ellenőrzése. Nem készít publikus másolatot és nem állítja, hogy a ChatGPT már csatlakozott.</p>'+
-  '<button data-act="audit" type="button">🔎 Forrásleltár (csak olvasás)</button>'+
+  '<button data-act="audit" type="button">🔎 Forrásleltár (csak olvasás)</button>'+ 
+  '<button data-act="identity" type="button">🔗 Dropbox-fiók és App Folder ellenőrzése</button>'+
   '<button data-act="publish" type="button">☁️ Privát ChatGPT-index frissítése</button>'+ 
   '<button data-act="daily" type="button">🔒 Privát Daily Health → Dropbox</button>'+
   '<div class="hhA732Status" role="status" aria-live="polite">A Dropbox-ellenőrzés állapota betöltés alatt…</div>'+
+  '<div class="hhA732Identity" id="hhA732Identity" aria-live="polite"></div>'+ 
   '<div class="hhA732Grid"></div>'+
   '<details class="hhA732Details"><summary>▸ Fájlonkénti frissítések · ellenőrzésre vár</summary>'+
   '<label style="display:block;font-size:10px;color:#adcae1;margin-top:8px">Mely fájlokat mutassam?'+
@@ -467,6 +507,14 @@ function mount(){
   const btn=e.target.closest('button[data-act]');
   if(!btn)return;
   if(btn.dataset.act==='audit')void run({publish:false}).catch(()=>{});
+  if(btn.dataset.act==='identity'){
+   btn.disabled=true;
+   const out=card.querySelector('#hhA732Identity');
+   if(out)out.textContent='Dropbox-fiók és App Folder ellenőrzése…';
+   void diagnoseSourceDropbox().catch(e=>{
+    if(out)out.textContent='⚠ '+String(e.message||e);
+   }).finally(()=>{btn.disabled=false});
+  }
   if(btn.dataset.act==='publish')void run({publish:true,prepare:true}).catch(()=>{});
   if(btn.dataset.act==='daily'){
    btn.disabled=true;
@@ -484,7 +532,7 @@ function mount(){
  draw(null,false);
 }
 function init(){
- w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback,auditStatus,compareFiles}};
+ w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,diagnoseSourceDropbox,model:{allowed,summarize,document,checkReadback,auditStatus,compareFiles,describeDropboxIdentity}};
  mount();
  // The More/Admin page recreates this card; mount only when visible.
  w.setInterval(()=>{if(!d.hidden)mount()},4500);
