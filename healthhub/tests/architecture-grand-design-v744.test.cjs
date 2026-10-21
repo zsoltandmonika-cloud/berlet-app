@@ -11,7 +11,7 @@ const viewer=read('architecture-grand-design.html');
 const project=JSON.parse(read('project-control.json'));
 const pc=read('live-v142.js');
 new vm.Script(pc,{filename:'live-v142.js'});
-assert.match(index,/live-v142\.js\?v=747-project-hours/);
+assert.match(index,/live-v142\.js\?v=748-cloud-project-hours/);
 assert.match(pc,/HH PROJECT HOURS/);
 assert.match(pc,/hhPcHoursSaveBase/);
 assert.match(pc,/hhPcHoursStart/);
