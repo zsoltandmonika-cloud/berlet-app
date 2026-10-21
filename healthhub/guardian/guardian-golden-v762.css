@@ -1,0 +1,130 @@
+/* Family Guard Golden Glass v762 · scoped exclusively to /guardian/.
+ * Uses canonical Zsolt blue / Mónika rose, real map data and no fabricated pins. */
+:root{--guard-cyan:#80d5fc;--guard-glow:rgba(95,191,255,.28);--guard-panel:rgba(10,29,55,.91);
+ --guard-text:#ecf7ff;--guard-dim:#b9cfe4;--guard-ring:rgba(144,213,255,.33);}
+:root[data-guardian-profile="m"]{--guard-cyan:#ffc0e5;--guard-glow:rgba(255,143,210,.3);
+ --guard-panel:rgba(38,25,57,.94);--guard-ring:rgba(255,189,227,.38);}
+body{background:
+ radial-gradient(ellipse 95% 400px at 50% -35px,rgba(52,116,185,.33),transparent 75%),
+ radial-gradient(ellipse 70% 500px at 98% 80%,rgba(83,53,135,.18),transparent 82%),#071427!important;}
+:root[data-guardian-profile="m"] body{background:
+ radial-gradient(ellipse 95% 400px at 50% -35px,rgba(140,61,136,.31),transparent 75%),
+ radial-gradient(ellipse 80% 420px at 0 80%,rgba(53,70,137,.19),transparent 85%),#111324!important;}
+.shell{max-width:550px;padding:env(safe-area-inset-top) 10px calc(25px + env(safe-area-inset-bottom))}
+.topbar{height:59px;padding:3px 5px 7px}
+.back{border:1px solid var(--guard-ring);border-radius:12px;background:rgba(18,43,73,.47);
+ padding:9px 10px;min-width:101px;box-shadow:inset 0 1px rgba(255,255,255,.12)}
+.brand{padding-left:3px}.brand .eyebrow{font-size:9px;letter-spacing:.13em}.brand strong{font-size:15px;color:#fff}
+.avatar{box-shadow:0 0 18px var(--guard-glow)}
+.guardian-hero{
+ min-height:230px!important;box-shadow:0 12px 36px rgba(0,9,24,.24),
+ inset 0 1px rgba(255,255,255,.16)!important;
+ border:1px solid var(--guard-ring)!important;
+ border-radius:20px!important;margin:4px 0 11px!important;
+ background-position:center 42%!important;
+}
+.guardian-hero:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+ border-radius:inherit;box-shadow:inset 0 0 65px rgba(4,16,39,.22)}
+.guardian-hero:before{z-index:0!important}
+.guardian-hero-overlay{z-index:1!important;padding:16px 17px 18px!important}
+.guardian-hero h1{font-size:23px!important;color:#f6fbff;text-wrap:balance;max-width:70%!important}
+.guardian-hero p{max-width:63%!important;font-weight:530!important;line-height:1.5!important}
+.guardian-hero .eyebrow{letter-spacing:.15em}
+.map-card{position:relative;isolation:isolate;border-radius:23px!important;
+ border:1px solid var(--guard-ring)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.22),0 17px 40px rgba(0,5,24,.42),0 0 32px var(--guard-glow)!important;
+ background:linear-gradient(135deg,#183358,#0c1c3c)!important}
+.map-card:before{content:"";pointer-events:none;position:absolute;inset:0;z-index:1;
+ background:linear-gradient(to bottom,rgba(32,62,105,.15),transparent 15%,transparent 70%,rgba(13,28,57,.34));
+ border-radius:inherit}
+#guardianMap{height:clamp(380px,58vh,690px)!important;min-height:380px}
+.map-label{z-index:2!important;left:12px;top:12px;font-size:9px;padding:10px 13px;
+ border:1px solid var(--guard-ring);border-radius:12px;
+ background:var(--guard-panel);backdrop-filter:blur(13px);color:var(--guard-cyan)}
+.map-follow,.map-3d,.map-family{z-index:3!important;right:11px!important;
+ border:1px solid var(--guard-ring)!important;border-radius:13px!important;
+ background:var(--guard-panel)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ min-width:84px!important;min-height:38px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.14),0 4px 13px rgba(0,9,27,.25);
+ color:#f1f8ff!important;padding:8px!important;font-size:11px!important;letter-spacing:.01em!important}
+.map-follow{top:12px!important}.map-3d{top:59px!important}
+.map-family{position:absolute;top:106px;right:11px;cursor:pointer;font-weight:800}
+.map-family[aria-expanded="true"],.map-3d[aria-pressed="true"]{
+ border-color:var(--guard-cyan)!important;color:var(--guard-cyan)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.15),0 0 13px var(--guard-glow)!important}
+.map-message{z-index:4!important;top:158px!important;backdrop-filter:blur(12px)}
+.maplibregl-ctrl-bottom-left{display:none}
+.maplibregl-ctrl-bottom-right{z-index:2}
+.maplibregl-ctrl-attrib{font-size:9px!important}
+.maplibregl-ctrl-attrib a{color:#d7e9ff!important}
+.maplibregl-ctrl-group{background:var(--guard-panel)!important;border:1px solid var(--guard-ring)!important;border-radius:13px!important;
+ box-shadow:0 4px 15px rgba(0,5,23,.45)}
+.maplibregl-ctrl-group button{filter:none!important}
+.maplibregl-ctrl-icon{filter:invert(1) hue-rotate(165deg)}
+.guardian-position{display:flex;align-items:center;justify-content:center;position:relative!important;
+ width:52px!important;height:52px!important;padding:4px;overflow:visible!important;border:2px solid white!important;
+ background:var(--accent)!important;border-radius:19px!important;
+ box-shadow:0 0 0 6px var(--guard-glow),0 6px 22px rgba(2,13,38,.76),0 0 24px var(--guard-glow)!important;
+}
+.guardian-position img{width:100%;height:100%;border-radius:14px;object-fit:cover;display:block}
+.guardian-position:after{content:"";position:absolute;width:11px;height:11px;bottom:-6px;left:calc(50% - 5px);
+ border-radius:50%;background:var(--accent);border:2px solid white}
+.gps-panel{border-color:var(--guard-ring)!important;border-radius:18px!important;
+ background:linear-gradient(145deg,rgba(30,61,101,.74),rgba(9,27,53,.95))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.12),0 10px 26px rgba(0,9,27,.26)}
+:root[data-guardian-profile="m"] .gps-panel{background:linear-gradient(145deg,rgba(78,49,92,.77),rgba(24,25,52,.95))!important}
+.state-row #guardianStatus{font-size:12px;line-height:1.5;max-width:75%}
+.mode-note{font-size:10px;color:#b7d3e9;line-height:1.45;
+ padding:0 1px 11px;margin:-2px 0 0}
+.family-panel{border:1px solid var(--guard-ring);padding:14px 12px;margin-top:11px;
+ border-radius:18px;background:linear-gradient(146deg,rgba(24,57,94,.82),rgba(11,27,52,.94));
+ box-shadow:inset 0 1px rgba(255,255,255,.15),0 10px 26px rgba(0,9,27,.2)}
+.family-panel[hidden]{display:none!important}
+:root[data-guardian-profile="m"] .family-panel{background:linear-gradient(146deg,rgba(79,46,90,.82),rgba(24,21,47,.94))}
+.family-panel-head{display:flex;flex-wrap:wrap;gap:3px 12px;justify-content:space-between;align-items:center;margin-bottom:11px}
+.family-panel-head strong{font-size:12px;color:#fff}.family-panel-head span{font-size:10px;color:var(--guard-cyan)}
+.family-grid{display:grid;grid-template-columns:1fr;gap:7px}
+.family-member{display:flex;align-items:center;gap:10px;border:1px solid var(--guard-ring);
+ background:rgba(12,32,59,.55);border-radius:13px;padding:8px}
+.family-member>div{min-width:0;flex:1}.family-member strong{display:block;font-size:12px;color:#fff}
+.family-member small{font-size:10px;color:#b9d4e9;display:block;line-height:1.5}
+.family-face{flex:none;width:39px;height:39px;border-radius:12px;object-fit:cover;background:#244463;
+ border:1px solid var(--guard-ring)}
+.family-corky{display:flex;align-items:center;justify-content:center;font-size:23px}
+.family-dot{width:8px;height:8px;border-radius:50%;background:#6b8196}
+.family-member.live .family-dot{background:#48dcaa;box-shadow:0 0 12px #48dcaa}
+.family-note{font-size:10px;line-height:1.5;color:#b3cce0;margin:10px 3px 1px}
+.actions button{min-height:43px!important;font-size:12px!important}
+.actions button:focus-visible,.map-follow:focus-visible,.map-3d:focus-visible,.map-family:focus-visible{outline:2px solid var(--guard-cyan)!important;outline-offset:2px}
+.stats>div{border-color:var(--guard-ring)!important;background:rgba(10,29,55,.5)!important}
+.stats small{color:#bdd4e7}
+@media(max-width:370px){
+ .guardian-hero{min-height:203px!important}
+ .guardian-hero h1{font-size:19px!important}
+ .guardian-hero p{font-size:10px!important}
+ .map-label{font-size:8px}
+ .map-follow,.map-3d,.map-family{min-width:75px!important;font-size:10px!important}
+ #guardianMap{height:clamp(350px,53vh,570px)!important;min-height:350px}
+}
+@media(prefers-reduced-motion:reduce){
+ .guardian-position{box-shadow:0 0 0 5px var(--guard-glow),0 5px 14px rgba(2,13,38,.45)!important}
+}
+
+/* Native HH One setup remains an explicit user interaction, not GPS auto start. */
+.native-setup{display:block;width:100%;margin:9px 0 0;min-height:42px;
+ border:1px solid var(--guard-ring);border-radius:13px;
+ background:linear-gradient(140deg,rgba(59,109,156,.66),rgba(27,47,98,.76));
+ color:#e8f8ff;font:800 12px system-ui;box-shadow:inset 0 1px rgba(255,255,255,.15),0 7px 15px rgba(2,8,30,.2);
+ cursor:pointer}
+:root[data-guardian-profile="m"] .native-setup{background:linear-gradient(140deg,rgba(140,78,129,.69),rgba(62,49,101,.84))}
+.native-setup[hidden]{display:none!important}
+.native-setup:focus-visible{outline:2px solid var(--guard-cyan);outline-offset:2px}
+
+/* Exactly one top-right family profile switch, using the existing true photo. */
+.guardian-avatar-switch{display:grid;place-items:center;flex:none;padding:0;
+ width:49px;height:49px;border:0;border-radius:16px;background:transparent;
+ cursor:pointer;touch-action:manipulation}
+.guardian-avatar-switch .avatar{display:block;width:45px;height:45px;pointer-events:none;
+ border-radius:15px;border:2px solid var(--accent)}
+.guardian-avatar-switch:focus-visible{outline:3px solid var(--guard-cyan);
+ outline-offset:3px}
