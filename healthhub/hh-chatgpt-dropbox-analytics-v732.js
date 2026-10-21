@@ -215,7 +215,11 @@ async function run({publish=false,prepare=false}={}){
    }
    const files=await inventory();
    const report=summarize(files);
+   const earlier=last?.snapshot||await previousIndex();
+   const comparison=compareFiles(files,earlier,report.sources);
    const index=document(files,report);
+   index.changeSummary=comparison.counts;
+   index.comparedTo=comparison.comparedTo;
    let stored=false;
    if(publish){
     await folder();
@@ -225,7 +229,7 @@ async function run({publish=false,prepare=false}={}){
     try{w.localStorage.setItem(OPTIN,'1')}catch(_){}
    }
    last={...report,generatedAt:index.generatedAt,published:stored,warnings,
-    path:OUT,connectorReadVerified:false};
+    path:OUT,connectorReadVerified:false,comparison,snapshot:index};
    // Only metadata of the audit status; never store raw clinical observations.
    try{w.localStorage.setItem(LOCAL,JSON.stringify({
       generatedAt:last.generatedAt,published:stored,expectedCount:report.expectedCount,
@@ -257,8 +261,123 @@ function style(){
  'background:#0b21375e;padding:8px;font:11px/1.45 system-ui}'+
  '#hhAnalytics732 .hhA732Tile b{display:block;font-size:13px;margin-bottom:2px}'+
  '#hhAnalytics732 .hhA732Warn{color:#f0c995}'+
+ '#hhAnalytics732 .hhA732Details{border:1px solid #709bc65e;border-radius:12px;margin:12px 0 9px;padding:9px}'+
+ '#hhAnalytics732 .hhA732Details summary{font-weight:750;cursor:pointer;font-size:11px;line-height:1.5}'+
+ '#hhAnalytics732 .hhA732DetailsNote{color:#a6c2d7;font-size:10px;line-height:1.55;margin-top:8px}'+
+ '#hhAnalytics732 .hhA732Details select{color:#eaf5ff;background:#17324e;border:1px solid #779ab9;border-radius:9px;padding:7px 9px;min-height:38px;max-width:100%;font:11px system-ui;margin-top:10px}'+
+ '#hhAnalytics732 .hhA732FileList{max-height:340px;overflow:auto;overscroll-behavior:contain;margin-top:8px}'+
+ '#hhAnalytics732 .hhA732FileRow{padding:9px 5px;border-top:1px solid #ffffff1b}'+
+ '#hhAnalytics732 .hhA732FileHead{display:flex;gap:8px;align-items:center;justify-content:space-between}'+
+ '#hhAnalytics732 .hhA732FileHead strong{font-size:11px;overflow-wrap:anywhere}'+
+ '#hhAnalytics732 .hhA732FileBadge{font-size:9px;white-space:nowrap;color:#bcd1e2}'+
+ '#hhAnalytics732 .hhA732File-new{color:#87ebc0}#hhAnalytics732 .hhA732File-changed{color:#ffda92}'+
+ '#hhAnalytics732 .hhA732File-missing{color:#ff999d}'+
+ '#hhAnalytics732 .hhA732FileSub{font-size:10px;color:#aac8df;margin-top:3px}'+
+ '#hhAnalytics732 .hhA732FilePath{font-size:9px;color:#8baeca;overflow-wrap:anywhere;margin-top:2px}'+
+ '#hhAnalytics732 .hhA732Empty{font-size:11px;color:#b3cee2;padding:9px}'+
  '@media(max-width:410px){#hhAnalytics732 .hhA732Grid{grid-template-columns:1fr}}';
  d.head.append(s);
+}
+function compareFiles(files,previous,sources){
+ const hasPrior=!!(previous&&previous.schema==='healthhub.chatgpt.dropbox-source-index/1'&&
+  Array.isArray(previous.inventory)&&previous.inventory.length<=MAX);
+ const prior=new Map((hasPrior?previous.inventory:[]).filter(x=>x&&typeof x.path==='string')
+  .map(x=>[x.path.toLowerCase(),x]));
+ const sourceMap=new Map(expected.map(([name,path,profile])=>[(ROOT+'/'+path).toLowerCase(),{name,profile}]));
+ const rows=files.map(f=>{
+  const old=prior.get(f.path.toLowerCase());
+  // Revision identifies a Dropbox file version; modifiedAt/hash/size are fallbacks.
+  const wasChanged=old&&(old.revision&&f.revision?
+   old.revision!==f.revision :
+   old.contentHash&&f.contentHash?old.contentHash!==f.contentHash:
+   String(old.lastModified||'')!==String(f.dropboxModifiedAt||'')||
+   Number(old.bytes)!==Number(f.bytes));
+  const source=sourceMap.get(f.path.toLowerCase());
+  return {path:f.path,name:source?.name||f.relativePath,profile:source?.profile||f.profile,
+   known:!!source,delta:!hasPrior?'baseline':!old?'new':wasChanged?'changed':'unchanged',
+   modifiedAt:f.dropboxModifiedAt||null,revision:f.revision||null,bytes:f.bytes};
+ });
+ for(const x of sources.filter(x=>x.status==='missing')){
+  rows.push({path:x.path,name:x.name,profile:x.profile,known:true,delta:'missing',
+   modifiedAt:null,revision:null,bytes:null});
+ }
+ const order={new:0,changed:1,missing:2,baseline:3,unchanged:4};
+ rows.sort((a,b)=>order[a.delta]-order[b.delta]||a.profile.localeCompare(b.profile)||
+  a.name.localeCompare(b.name,'hu'));
+ return {rows,comparedTo:hasPrior?previous.generatedAt||null:null,firstAudit:!hasPrior,
+  counts:{new:rows.filter(x=>x.delta==='new').length,changed:rows.filter(x=>x.delta==='changed').length,
+   missing:rows.filter(x=>x.delta==='missing').length,unchanged:rows.filter(x=>x.delta==='unchanged').length,
+   baseline:rows.filter(x=>x.delta==='baseline').length}};
+}
+async function previousIndex(){
+ try{
+  const data=await api().downloadJson(OUT);
+  return data&&data.schema==='healthhub.chatgpt.dropbox-source-index/1'&&
+   Array.isArray(data.inventory)&&data.inventory.length<=MAX?data:null;
+ }catch(e){
+  if(e&&(e.status===409||e.status===404))return null;
+  throw Error('A korábbi privát Analytics-index nem olvasható; nincs megbízható összehasonlítás.');
+ }
+}
+function syncTime(value){
+ const time=Date.parse(value||'');
+ return Number.isFinite(time)?new Date(time).toLocaleString('hu-HU'):'Időpont nélkül';
+}
+function renderDetails(){
+ const box=d.getElementById('hhAnalytics732');
+ if(!box)return;
+ const details=box.querySelector('.hhA732Details');
+ if(!details)return;
+ const title=details.querySelector('summary'),list=details.querySelector('.hhA732FileList'),
+  note=details.querySelector('.hhA732DetailsNote');
+ if(!last||!last.comparison){
+  if(title)title.textContent='▸ Fájlonkénti frissítések · ellenőrzésre vár';
+  if(note)note.textContent='Indítsd a Forrásleltárt; a részletek csak valódi Dropbox-adatok alapján jelennek meg.';
+  if(list)list.replaceChildren();
+  return;
+ }
+ const cmp=last.comparison,c=cmp.counts;
+ const heading=cmp.firstAudit?'Első állapotfelvétel · nincs korábbi összehasonlítás':
+  'Új: '+c.new+' · módosult: '+c.changed+' · változatlan: '+c.unchanged;
+ if(title)title.textContent='▸ Fájlonkénti frissítések · '+heading;
+ if(note)note.textContent=(cmp.firstAudit?
+  'Első leltár: ez a viszonyítási alap, nem bizonyított új feltöltések listája.':
+  'Összehasonlítás: '+syncTime(cmp.comparedTo)+' óta.')+
+  ' A fájlverzió-változás nem bizonyít új orvosi eseményt. Dropbox szerver-időpontok.';
+ if(!list)return;
+ const selected=details.querySelector('select[data-file-mode]');
+ const mode=selected?.value||'changes';
+ let rows=cmp.rows;
+ if(mode==='changes')rows=rows.filter(x=>['new','changed','missing'].includes(x.delta));
+ if(mode==='expected')rows=rows.filter(x=>x.known);
+ list.replaceChildren();
+ if(!rows.length){
+  const empty=d.createElement('div');empty.className='hhA732Empty';
+  empty.textContent=cmp.firstAudit?'Még nincs korábbi leltár, amellyel összehasonlíthatnánk. Válaszd az „Elvárt források” nézetet.':
+   'Nincs új, módosult vagy hiányzó fájl a legutóbbi összehasonlításhoz képest.';
+  list.append(empty);return;
+ }
+ const visible=rows.slice(0,300);
+ const labels={new:'Új fájl',changed:'Fájlverzió módosult',unchanged:'Változatlan',
+  missing:'Hiányzik',baseline:'Első leltár'};
+ for(const x of visible){
+  const row=d.createElement('div');row.className='hhA732FileRow';
+  const head=d.createElement('div');head.className='hhA732FileHead';
+  const name=d.createElement('strong');name.textContent=x.name;
+  const state=d.createElement('span');state.className='hhA732FileBadge hhA732File-'+x.delta;
+  state.textContent=labels[x.delta]||'Ismeretlen';
+  head.append(name,state);
+  const sub=d.createElement('div');sub.className='hhA732FileSub';
+  const who=x.profile==='zsolt'?'Zsolt':x.profile==='monika'?'Mónika':'Közös';
+  sub.textContent=who+' · '+(x.modifiedAt?'Dropbox: '+syncTime(x.modifiedAt):'Nincs fájl')+
+   (x.bytes==null?'':' · '+x.bytes.toLocaleString('hu-HU')+' bájt');
+  const path=d.createElement('div');path.className='hhA732FilePath';path.textContent=x.path;
+  row.append(head,sub,path);list.append(row);
+ }
+ if(rows.length>visible.length){
+  const more=d.createElement('p');more.textContent='Első '+visible.length+' fájl megjelenítve a(z) '+rows.length+' közül.';
+  list.append(more);
+ }
 }
 function auditStatus(result,issue,stored){
  if(issue)return '⚠ '+String(issue);
@@ -295,6 +414,7 @@ function draw(message,loading){
  if(dry)dry.disabled=!!busy||!!loading;
  const status=box.querySelector('.hhA732Status');
  if(status)status.textContent=message||auditStatus(last,lastIssue,(()=>{try{return JSON.parse(w.localStorage.getItem(LOCAL)||'null')}catch(_){return null}})());
+ renderDetails();
  if(!last)return;
  const matrix=box.querySelector('.hhA732Grid');if(!matrix)return;
  const sections=[
@@ -327,8 +447,17 @@ function mount(){
   '<button data-act="daily" type="button">🔒 Privát Daily Health → Dropbox</button>'+
   '<div class="hhA732Status" role="status" aria-live="polite">A Dropbox-ellenőrzés állapota betöltés alatt…</div>'+
   '<div class="hhA732Grid"></div>'+
+  '<details class="hhA732Details"><summary>▸ Fájlonkénti frissítések · ellenőrzésre vár</summary>'+
+  '<label style="display:block;font-size:10px;color:#adcae1;margin-top:8px">Mely fájlokat mutassam?'+
+  '<select data-file-mode><option value="changes">Új / módosult / hiányzó</option>'+
+  '<option value="expected">Elvárt 20 forrás</option>'+
+  '<option value="all">Összes Dropbox-fájl</option></select></label>'+
+  '<div class="hhA732DetailsNote"></div><div class="hhA732FileList"></div></details>'+
   '<p>A fájlszám nem jelenti a tartalom naprakészségét vagy a ChatGPT hozzáférését. A ChatGPT Dropbox-kapcsolata külön engedélyezendő; a helyben maradt adatok nem feltétlenül kerültek a felhőbe.</p>';
  host.insertAdjacentElement('afterend',card);
+ card.addEventListener('change',e=>{
+  if(e.target.closest('select[data-file-mode]'))renderDetails();
+ });
  card.addEventListener('click',e=>{
   const btn=e.target.closest('button[data-act]');
   if(!btn)return;
@@ -350,7 +479,7 @@ function mount(){
  draw(null,false);
 }
 function init(){
- w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback,auditStatus}};
+ w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback,auditStatus,compareFiles}};
  mount();
  // The More/Admin page recreates this card; mount only when visible.
  w.setInterval(()=>{if(!d.hidden)mount()},4500);
