@@ -92,3 +92,18 @@ Ask Léna saját Health Context/Supabase/Edge kontextusból dolgozhat; a ChatGPT
 Modul + aktív profil + eszköz/böngésző + Europe/Budapest és UTC idő + aktuális commit + forrás és cél időbélyegek + HTTP hibakód + kitakart képernyőkép. Ez elég a technikai reprodukáláshoz; kórtörténet és access token nem szükséges.
 
 **Változásnapló:** 2026-10-21 · Runbook v1.0 · Azonosítók, hibafák, recovery, no-secret/ no-clinical-log elvek, release acceptance.
+
+
+## 11. Admin oldal v745 · életciklus / eltűnő diagnosztikai kártya
+
+A fő taskbar „Továbbiak” helyett „Admin”-t mutat; a korábbi `healthSectionKind==='more'` belső állapot változatlan, ezért az összes régi modul kompatibilis marad.
+
+Ha egy Admin kártya hiányzik:
+1. Ellenőrizd, hogy betöltődött-e a `hh-unified-admin-v745.js`, és a fő `healthSubContent` gyökér megvan-e.
+2. Ellenőrizd, hogy az Admin belső `more` oldal aktív-e.
+3. A `haOv` DOM elemnek Admin alatt az `hhAdminLegacyPortalV745` konténerben kell lennie; a `haBody` kiegészítők eredeti funkcióját használják.
+4. Ha az Admin távozás után eltűnik: a panel normál esetben visszakerül `document.body` alá `haOv.on` nélkül. Ez nem adatvesztés.
+5. A régi duplikált Admin Data Hub „Megnyitás” és korábbi Dropbox kártyák csak a UI-ról rejtettek, nem adatbázis-módosítások.
+6. Visszaállítás: az éles `index.html` v745 scriptinclude revertje; az eredeti v137/v142/v205 panelkezelés megmarad. Dropbox forrás nem módosítandó.
+
+**Nem törölhető csak takarítás miatt:** működő import/export, auditnapló, snapshot, recovery, MKB és profiladatok.
