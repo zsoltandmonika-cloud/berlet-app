@@ -260,6 +260,31 @@ function style(){
  '@media(max-width:410px){#hhAnalytics732 .hhA732Grid{grid-template-columns:1fr}}';
  d.head.append(s);
 }
+function auditStatus(result,issue,stored){
+ if(issue)return '⚠ '+String(issue);
+ if(result){
+  const n=result.presentCount+'/'+result.expectedCount;
+  const date=String(result.generatedAt||'');
+  const time=date&&Number.isFinite(Date.parse(date))?
+    ' · Ellenőrizve: '+new Date(date).toLocaleString('hu-HU'):'';
+  const label=result.published?
+    '✓ Privát ChatGPT-index feltöltve és visszaolvasva':
+    '✓ Dropbox-forrásleltár ellenőrizve';
+  const missing=result.missingCount?
+    ' · Hiányzó fájlok: '+result.missingCount:
+    ' · Minden elvárt fájl létezik';
+  const warnings=Array.isArray(result.warnings)&&result.warnings.length?
+    ' · Figyelem: '+result.warnings.length+' előzetes sync-figyelmeztetés':'';
+  return label+' · '+n+' várt fájl'+missing+
+   ' · Ez nem tartalmi frissesség- vagy ChatGPT hozzáférésellenőrzés'+warnings+time;
+ }
+ if(stored&&stored.generatedAt){
+  return 'Korábbi helyi leltár: '+stored.presentCount+'/'+stored.expectedCount+
+    ' · '+new Date(stored.generatedAt).toLocaleString('hu-HU')+
+    ' · A jelenlegi Dropbox-állapotot még újra kell ellenőrizni.';
+ }
+ return 'Még nem futott le Dropbox-forrásellenőrzés. Először indítsd a Forrásleltárt.';
+}
 function draw(message,loading){
  const box=d.getElementById('hhAnalytics732');
  if(!box)return;
@@ -269,14 +294,14 @@ function draw(message,loading){
  const dry=box.querySelector('button[data-act=audit]');
  if(dry)dry.disabled=!!busy||!!loading;
  const status=box.querySelector('.hhA732Status');
- if(status&&message)status.textContent=message;
+ if(status)status.textContent=message||auditStatus(last,lastIssue,(()=>{try{return JSON.parse(w.localStorage.getItem(LOCAL)||'null')}catch(_){return null}})());
  if(!last)return;
  const matrix=box.querySelector('.hhA732Grid');if(!matrix)return;
  const sections=[
   ['Központi Master',last.sources.filter(x=>x.profile==='shared'&&x.path.includes('/master/'))],
   ['Zsolt',last.sources.filter(x=>x.profile==='zsolt')],
   ['Mónika',last.sources.filter(x=>x.profile==='monika')],
-  ['Tünetnapló',last.sources.filter(x=>x.path.endsWith('/symptoms.json'))]
+  ['Tünetnapló · a Master része',last.sources.filter(x=>x.path.endsWith('/symptoms.json'))]
  ];
  matrix.replaceChildren();
  for(const [label,rows] of sections){
@@ -300,9 +325,9 @@ function mount(){
   '<button data-act="audit" type="button">🔎 Forrásleltár (csak olvasás)</button>'+
   '<button data-act="publish" type="button">☁️ Privát ChatGPT-index frissítése</button>'+ 
   '<button data-act="daily" type="button">🔒 Privát Daily Health → Dropbox</button>'+
-  '<div class="hhA732Status" role="status" aria-live="polite">Még nincs ellenőrzött Dropbox-leltár. Első sikeres indexmentés után megnyitáskor napi frissítési próbálkozás indul.</div>'+
+  '<div class="hhA732Status" role="status" aria-live="polite">A Dropbox-ellenőrzés állapota betöltés alatt…</div>'+
   '<div class="hhA732Grid"></div>'+
-  '<p>A tényleges Google helyett Dropbox lesz az adatforrás. A ChatGPT Dropbox plugin külön csatlakoztatást igényel. A privát Supabase és eszközön maradt adatok nem automatikusan részei a felhőnek.</p>';
+  '<p>A fájlszám nem jelenti a tartalom naprakészségét vagy a ChatGPT hozzáférését. A ChatGPT Dropbox-kapcsolata külön engedélyezendő; a helyben maradt adatok nem feltétlenül kerültek a felhőbe.</p>';
  host.insertAdjacentElement('afterend',card);
  card.addEventListener('click',e=>{
   const btn=e.target.closest('button[data-act]');
@@ -325,7 +350,7 @@ function mount(){
  draw(null,false);
 }
 function init(){
- w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback}};
+ w.HH_DROPBOX_CHATGPT_ANALYTICS_V732={version:VERSION,run,inventory,expected,exportPrivateDailyHealth,model:{allowed,summarize,document,checkReadback,auditStatus}};
  mount();
  // The More/Admin page recreates this card; mount only when visible.
  w.setInterval(()=>{if(!d.hidden)mount()},4500);
