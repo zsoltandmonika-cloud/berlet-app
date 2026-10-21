@@ -266,7 +266,7 @@ function route(){
  if(!page)return;
  const active=w.location.hash===PAGE;
  page.hidden=!active;d.body.classList.toggle('hhScanOpen753',active);
- if(active){syncProfile();cameraOn()}else{requestId++;busy=false;cameraOff();clearPhoto()}
+ if(active){syncProfile();w.scrollTo?.(0,0);cameraOn()}else{requestId++;busy=false;cameraOff();clearPhoto()}
 }
 function open(row=null){
  if(!page)init();if(!page)return;
