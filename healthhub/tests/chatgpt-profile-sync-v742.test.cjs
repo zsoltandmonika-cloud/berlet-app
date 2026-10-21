@@ -49,7 +49,14 @@ const W={
   if(url.endsWith('/files/upload')){
    const path=JSON.parse(args.headers['Dropbox-API-Arg']).path;
    assert.match(path,/^\/HealthHub-ChatGPT-Analytics\/(?:zsolt|monika)\/latest\.json$/);
-   assert.equal(JSON.parse(new TextDecoder().decode(args.body)).profile,path.split('/')[2]);
+   const uploadedData=JSON.parse(new TextDecoder().decode(args.body));
+   assert.equal(uploadedData.profile,path.split('/')[2]);
+   assert.equal(uploadedData.delivery.schema,'healthhub.chatgpt.dropbox-delivery/1');
+   assert.equal(uploadedData.delivery.targetPath,path);
+   assert.equal(uploadedData.delivery.backgroundWhenClosed,false);
+   assert.equal(uploadedData.delivery.legacyV738ExportFlags.isAutomaticSync,undefined);
+   assert.equal(uploadedData.isAutomaticSync,undefined);
+   assert.equal(uploadedData.chatgptReadVerified,undefined);
    uploaded.set(path,args.body);
    return {ok:true,json:async()=>({path_lower:path.toLowerCase(),size:args.body.byteLength})};
   }
@@ -65,7 +72,7 @@ const D={readyState:'loading',hidden:false,addEventListener:()=>{},
 vm.runInNewContext(source,{window:W,document:D,Date,JSON,TextEncoder,TextDecoder,Uint8Array,Array,Set,Intl});
 const api=W.HH_CHATGPT_PROFILE_SYNC_V742;
 (async()=>{
- assert.equal(api.version,'742');
+ assert.equal(api.version,'743');
  assert.deepEqual([...api.optin()],[]);
  await api.auto();assert.equal(buildCalls.length,0);
  let result=await api.run(['zsolt','monika'],true);
@@ -74,6 +81,9 @@ const api=W.HH_CHATGPT_PROFILE_SYNC_V742;
  assert.ok(uploaded.has('/HealthHub-ChatGPT-Analytics/zsolt/latest.json'));
  assert.ok(uploaded.has('/HealthHub-ChatGPT-Analytics/monika/latest.json'));
  assert.equal(api.last().zsolt.profile,'zsolt');
+ assert.equal(api.last().zsolt.targetReadbackVerified,true);
+ assert.equal(api.last().zsolt.chatgptConnectorRead,'not checked by HealthHub');
+ assert.match(api.huTime(api.last().zsolt.verifiedAt),/2026/);
  assert.equal(api.last().monika.profile,'monika');
  assert.equal(api.last().zsolt.sources[0].status,'present');
  assert.equal(api.last().zsolt.sources[1].status,'present');
@@ -81,6 +91,9 @@ const api=W.HH_CHATGPT_PROFILE_SYNC_V742;
  assert.equal(api.last().zsolt.sources[1].coverage.coverageVerified,false);
  assert.equal(api.last().zsolt.sources[2].status,'missing');
  assert.equal(vault.has('hh-chatgpt-snapshot-optin-v742'),false);
+ assert.equal(api.optin().length,0);
+ assert.ok(api.last().monika.verifiedAt);
+ assert.equal(api.last().monika.initiatedBy,'manual_user_action');
  await assert.rejects(api.run(['zsolt','zsolt'],true),/profilválasztás/);
  assert.throws(()=>api.verifyProfile({profile:'zsolt',
   data:{healthConnect:{records:{}},digitalWellbeing:{profileKey:'monika'}}},'zsolt'),/Profilütközés/);
