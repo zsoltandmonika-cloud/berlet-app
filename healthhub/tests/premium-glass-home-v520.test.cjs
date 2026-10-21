@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=594-nutrition-golden-live-beta/);
+assert.match(html,/premium-glass-home-v520\.js\?v=761-guardian-home/);
 assert.ok(source.includes("params.get('hhpremium')==='0'"),'approved Home is default; classic is opt-out');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -40,7 +40,7 @@ assert.doesNotMatch(monikaHeroSection,/data-hhpg-profile="z"/,'no Zsolt image ch
 assert.match(monikaHeroSection,/background-size:cover!important/,'photo fills the Hero without stretching');
 assert.doesNotMatch(source,/fetch\(|XMLHttpRequest|localStorage\.setItem/,'preview never writes profile or health data');
 assert.match(source,/premium-glass-home-v520\.css\?v=5261-exact-monika-hero/,'rose preview CSS cache busted');
-const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1];
+const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1].split('/* Family Guard · v761')[0];
 assert.ok(pink,'Mónika-only glass enhancements exist');
 assert.match(pink,/data-hhpg-profile="m"/,'pink is exclusively under Mónika data attribute');
 assert.doesNotMatch(pink,/data-hhpg-profile="z"/,'no Zsolt palette overrides in the new section');
@@ -156,10 +156,10 @@ assert.ok(on.hero.style.getPropertyValue('background-image').includes('zsolt-hh-
 assert.ok(grid,'the preview Home inserts a distinct 12-tile grid');
 assert.equal(grid.children.length,12);
 assert.equal(grid.children.map(n=>n.dataset.key).join('|'),
- 'health|records|meds|sleep|activity|digital|nutrition|ask|timeline|spark|headline|dailyhealth');
+ 'health|records|meds|sleep|activity|digital|nutrition|ask|guardian|spark|headline|dailyhealth');
 assert.equal(on.document.documentElement.dataset.hhPremiumPreview,'on');
 assert.equal(on.document.documentElement.dataset.hhPremiumTiles,'12');
-assert.equal(grid.children[7].children[1].textContent,'Ask Léna','Ask Lena is centered on row 3');
+assert.equal(grid.children[7].children[1].textContent,'Kérdezd Lénát','Ask Lena is centered on row 3');
 assert.equal(grid.children[9].dataset.group,'daily');
 assert.equal(grid.children[11].dataset.group,'daily');
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
