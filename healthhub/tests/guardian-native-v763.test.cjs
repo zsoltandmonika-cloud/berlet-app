@@ -38,6 +38,9 @@ test('No location collection without owner consent, and no transmission in this 
  assert.match(vault,/fun purge\(context: Context\)/);
  assert.match(settings,/AlertDialog\.Builder\(this\)/);
  assert.match(settings,/GuardianLocationService\.stop\(this@GuardianSettingsActivity\)/);
+ assert.match(settings,/Elavult helyadat · nem élő pozíció/,'stale location is not presented as live');
+ assert.match(settings,/System\.currentTimeMillis\(\) - at/,'recency reflects actual fix age');
+ assert.match(settings,/GPS állapot frissítése/,'native GPS diagnostics can be refreshed without coordinates');
  for(const body of [service,vault,settings]){
   assert.doesNotMatch(body,/DropboxVaultClient|https:\/\/|SupabaseClient|HttpURLConnection|URL\(/);
  }
