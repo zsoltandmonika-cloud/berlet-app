@@ -27,3 +27,33 @@ html[data-hh-system-glass="on"] #healthSection:has(#hhSupp700) .healthSubHero #h
  text-wrap:balance;
  max-width:min(55vw,270px)!important;
 }
+
+/* v758 · compact, on-demand Supplements search: same quiet filter rhythm as Medications.
+   Hidden means truly absent from layout, including under earlier input display rules. */
+#healthSection #healthSubContent .hhSupp700Section .hhSupp700Search[hidden]{
+ display:none!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhSupp700Section > .hhRsmToolbar > .hhRsmHeading{
+ display:flex!important;grid-template-columns:none!important;min-height:0!important;
+ align-items:center;justify-content:space-between;gap:7px;
+ margin:0 0 5px!important;
+}
+#healthSection #healthSubContent .hhSupp700Section > .hhRsmToolbar > .hhRsmHeading > b{
+ flex:1;min-width:0;font-size:11px!important;line-height:1.28!important;
+}
+#healthSection #healthSubContent .hhSupp700Section .hhSupp700SearchToggle{
+ flex:none;display:grid;place-items:center;min-width:35px;min-height:35px;
+ padding:5px;border-radius:11px;cursor:pointer;
+ border:1px solid rgba(154,202,237,.45);
+ background:rgba(64,112,165,.23);color:#f4fbff;font:800 16px system-ui,sans-serif;
+}
+#healthSection #healthSubContent .hhSupp700Section .hhSupp700SearchToggle[aria-expanded="true"]{
+ border-color:var(--hhRsm-accent,#8ac9f9);
+ background:rgba(80,143,204,.30);
+}
+html[data-hh-system-profile="m"] #healthSection #healthSubContent .hhSupp700Section .hhSupp700SearchToggle{
+ border-color:rgba(255,177,226,.48);
+}
+#healthSection #healthSubContent .hhSupp700Section .hhSupp700SearchToggle:focus-visible{
+ outline:2px solid var(--hhRsm-accent,#8ac9f9);outline-offset:2px;
+}
