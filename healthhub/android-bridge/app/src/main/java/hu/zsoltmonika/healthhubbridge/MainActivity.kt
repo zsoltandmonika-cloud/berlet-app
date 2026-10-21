@@ -311,6 +311,7 @@ class MainActivity : ComponentActivity() {
                 syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
+            "guardian" -> startActivity(Intent(this, GuardianSettingsActivity::class.java))
         }
     }
 
