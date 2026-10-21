@@ -12,7 +12,8 @@ const project=JSON.parse(read('project-control.json'));
 const blueprint=read('docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md');
 const runbook=read('docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md');
 const docs=read('docs/README.md');
-assert.match(index,/hh-architecture-admin-v744\.js\?v=744-living-blueprint/);
+assert.match(index,/hh-architecture-admin-v744\.js\?v=745-inline-admin-grand-design/);
+assert.match(index,/hh-unified-admin-v745\.js\?v=745-one-admin-page/);
 assert.match(blueprint,/isAutomaticSync:false/);
 assert.match(blueprint,/30/);
 assert.match(blueprint,/Gondoskodás/);
@@ -49,7 +50,7 @@ class E{
  get firstChild(){return this.children[0]||null}
 }
 const overlay=new E('div');overlay.id='haOv';overlay.classList={contains:x=>x==='on'};
-const body=new E('div');body.id='haBody';
+const body=new E('div');body.id='healthSubContent';
 const head=new E('head');const elements=[overlay,body,head];
 const deep=(e,id)=>e.id===id?e:(e.children||[]).map(x=>deep(x,id)).find(Boolean)||null;
 const document={
@@ -58,7 +59,7 @@ const document={
  addEventListener:()=>{}
 };
 let opens=0;
-const window={hhPcOpen:()=>{opens++},open:()=>{opens+=10}};
+const window={healthSectionKind:'more',hhPcOpen:()=>{opens++},open:()=>{opens+=10}};
 vm.runInNewContext(script,{window,document,Promise,MutationObserver:class{
  observe(){}disconnect(){}
 }});
