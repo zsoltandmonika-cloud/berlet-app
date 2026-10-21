@@ -6,10 +6,12 @@ on:
       - 'feat/guardian-gps-map-phase1-v761'
     paths:
       - 'healthhub/android-bridge/**'
+      - 'healthhub/tests/guardian-native-v763.test.cjs'
       - '.github/workflows/guardian-native-v763.yml'
   pull_request:
     paths:
       - 'healthhub/android-bridge/**'
+      - 'healthhub/tests/guardian-native-v763.test.cjs'
       - '.github/workflows/guardian-native-v763.yml'
 
 permissions:
@@ -42,6 +44,8 @@ jobs:
           grep -q 'android:exported="false"' app/src/main/AndroidManifest.xml
           grep -q 'GuardianLocationVault.consented(this)' app/src/main/java/hu/zsoltmonika/healthhubbridge/GuardianLocationService.kt
           grep -q 'GuardianLocationService.stop(this@MainActivity)' app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt
+      - name: Verify owner and location security invariants
+        run: node ../tests/guardian-native-v763.test.cjs
       - name: Compile existing HH One plus new Guardian GPS
         run: gradle :app:assembleDebug :app:testDebugUnitTest --stacktrace
       - name: Summary
