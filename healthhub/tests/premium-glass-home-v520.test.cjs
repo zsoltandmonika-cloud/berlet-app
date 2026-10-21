@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=594-nutrition-golden-live-beta/);
+assert.match(html,/premium-glass-home-v520\.js\?v=761-guardian-home/);
 assert.ok(source.includes("params.get('hhpremium')==='0'"),'approved Home is default; classic is opt-out');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -156,7 +156,7 @@ assert.ok(on.hero.style.getPropertyValue('background-image').includes('zsolt-hh-
 assert.ok(grid,'the preview Home inserts a distinct 12-tile grid');
 assert.equal(grid.children.length,12);
 assert.equal(grid.children.map(n=>n.dataset.key).join('|'),
- 'health|records|meds|sleep|activity|digital|nutrition|ask|timeline|spark|headline|dailyhealth');
+ 'health|records|meds|sleep|activity|digital|nutrition|ask|guardian|spark|headline|dailyhealth');
 assert.equal(on.document.documentElement.dataset.hhPremiumPreview,'on');
 assert.equal(on.document.documentElement.dataset.hhPremiumTiles,'12');
 assert.equal(grid.children[7].children[1].textContent,'Ask Léna','Ask Lena is centered on row 3');
