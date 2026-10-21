@@ -19,10 +19,10 @@ test('all 8 user-specified supplements are present as templates, not consumed re
  const names=['JutaVit Ashwagandha KSM-66','Multi4u C + D3','ZeinPharma Wild Yams Plus','JutaVit Mg-biszglicinát','Dr. Chen Omega-3 Forte Plus','WOW TEA SlimFit Berry','PureGold CreaWomen','PureGold Lady Shape'];
  names.forEach(n=>assert.ok(s.includes("name:'"+n+"'"),n));
  assert.equal((s.match(/\{name:'[^']+',strength:/g)||[]).length,8);
- assert.match(s,/Katalógustétel, nem rögzített szedés/);
+ assert.doesNotMatch(s,/catalogTrack|catalogHead|Készítménykatalógus · egy kattintással felvehető|Katalógustétel, nem rögzített szedés/);
 });
 test('canonical medications route, Home label, scroll and AI context stay connected',()=>{
- assert.match(read('index.html'),/hh-supplements-v700\.js\?v=758-on-demand-search/);
+ assert.match(read('index.html'),/hh-supplements-v700\.js\?v=759-compact-own-list/);
  assert.match(read('premium-glass-home-v520.js'),/Gyógyszer & Supplement/);
  assert.match(read('live-v126.js'),/medications:'HealthHub Gyógyszerek \+ Supplements'/);
  assert.match(read('live-v289.js'),/supplements:supplementList\(rs\[4\],p\)/);
@@ -53,7 +53,7 @@ test('the visible Ask Léna input composer is compact and grows with typed text'
  assert.match(css,/#hhLenaComposer340\{height:auto!important;min-height:100px!important\}/);
  assert.doesNotMatch(css,/#hhLenaComposer340\{height:190px/);
  const entry=read('index.html');
- assert.match(entry,/hh-supplements-v700\.js\?v=758-on-demand-search/);
+ assert.match(entry,/hh-supplements-v700\.js\?v=759-compact-own-list/);
  assert.match(entry,/live-v340\.js\?v=701/);
  assert.match(entry,/ask-lena-chat-glass-v566\.css\?v=701/);
 });
@@ -96,4 +96,20 @@ test('Supplement search opens only when the search button is pressed and closes 
  assert.equal(state.query,'','closing clears invisible filters');
  assert.equal(ctx.search.value,'');
  assert.equal(refreshed,1,'results refresh with full list when closed');
+});
+
+test('v759 own-list-only Supplements card is compact without removing saved data or editor',()=>{
+ const src=read('hh-supplements-v700.js'),css=read('hh-supplements-v700.css');
+ assert.doesNotMatch(src,/var intro=make\('p','hhRsmNote'/);
+ assert.doesNotMatch(src,/sec\.appendChild\(intro\)/);
+ assert.doesNotMatch(src,/catalogTrack|catalogHead|sec\.appendChild\(catalogTrack\)/);
+ assert.doesNotMatch(src,/Készítménykatalógus · egy kattintással felvehető/);
+ assert.match(src,/var ref=await readRef\(\),profile=pkey\(\),all=rows\(ref,profile\)/);
+ assert.match(src,/shown\.forEach\(function\(m\)\{track\.appendChild\(card\(m\)\)\}/);
+ assert.match(src,/var add=make\('button','hhMed593Add hhMed657Add','＋ Supplement hozzáadása'\)/);
+ assert.match(src,/add\.onclick=function\(\)\{edit\(null,''\)/);
+ assert.match(src,/card\(m\)/);
+ assert.match(src,/state\.searchOpen=false/);
+ assert.match(src,/root\.HH_SUPPLEMENTS_V700=Object\.freeze\(\{version:'700',catalog:CATALOG\.map/);
+ assert.match(css,/\.hhSupp700Section\{margin-top:10px;padding-top:10px;/);
 });
