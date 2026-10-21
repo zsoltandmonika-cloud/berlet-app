@@ -5,6 +5,8 @@
 var DATA_URL='./project-control.json?v=142-20260930';
 var LS_OV='hh-project-control-overrides-v1';
 var LS_LOCAL='hh-project-control-local-actions-v1';
+var LS_HOURS='hh-project-control-hours-v1'; // Explicitly recorded, browser-local project time. No fabricated backfill.
+var hoursExpanded=false;
 var data=null, tab='dashboard', filterStatus='Open', filterEpic='All', searchText='', detailId=null;
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -34,6 +36,61 @@ function progressSummary(actions){
 }
 function activeCount(actions){return actions.filter(function(x){return ['In Progress','Testing','Ready'].includes(x.status)}).length}
 function localChangeCount(){return Object.keys(overrides()).length+locals().length}
+
+function hourBook(){
+ var raw=readJson(LS_HOURS,{});
+ var base=raw.baselineMinutes;
+ base=base===null||base===undefined?null:Number(base);
+ if(base!==null&&(!Number.isFinite(base)||base<0||base>6000000))base=null;
+ var entries=Array.isArray(raw.entries)?raw.entries.filter(function(x){
+  return x&&Number.isFinite(Number(x.minutes))&&Number(x.minutes)>0&&Number(x.minutes)<=100000&&typeof x.at==='string';
+ }).slice(-2000):[];
+ var runningSince=typeof raw.runningSince==='string'&&Number.isFinite(Date.parse(raw.runningSince))?
+  raw.runningSince:null;
+ return {baselineMinutes:base,entries:entries,runningSince:runningSince};
+}
+function timeMinutes(s){
+ var total=(s.baselineMinutes||0)+s.entries.reduce(function(v,x){return v+Number(x.minutes)},0);
+ if(s.runningSince)total+=Math.max(0,(Date.now()-Date.parse(s.runningSince))/60000);
+ return s.baselineMinutes===null&&!s.entries.length&&!s.runningSince?null:total;
+}
+function timeNumber(minutes){
+ return minutes===null?'—':(minutes/60).toLocaleString('hu-HU',{
+  minimumFractionDigits:1,maximumFractionDigits:1,maximumSignificantDigits:10});
+}
+function hourKpi(){
+ var s=hourBook(),value=timeMinutes(s);
+ return '<button id="hhPcHoursKpi" class="hhPcKpi hhPcHoursKpi" type="button" onclick="hhPcHoursToggle()" aria-expanded="'+
+  (hoursExpanded?'true':'false')+'"><small>⏱️ HH PROJECT HOURS</small><b id="hhPcHourValue">'+
+  esc(timeNumber(value))+'</b><span class="hhPcHoursUnit">óra</span><em>'+
+  (s.runningSince?'🔴 Munkamenet fut · részletek ›':value===null?'Eddigi órák megadása ›':'Összes rögzített projektidő ›')+
+  '</em></button>';
+}
+function hoursPanel(){
+ var s=hourBook(),total=timeMinutes(s),recent=s.entries.slice(-5).reverse();
+ return '<section class="hhPcSection hhPcHoursPanel"><h3>⏱️ HH Project Hours · időnapló</h3>'+
+  '<p class="hhPcFootNote">A korábbi projektidőt egyszer add meg, utána a munkamenetek hozzáadódnak. '+
+  'Valós munkaidőt mérünk, nem GitHub-commitszámot. Egyelőre ezen a készüléken tárolódik, az exportba bekerül.</p>'+
+  '<div class="hhPcHoursForms"><label>Korábbi összes befektetett idő (óra)'+
+  '<input id="hhPcBaseHours" type="number" inputmode="decimal" min="0" max="100000" step="0.25" placeholder="Pl. 120" value="'+
+  (s.baselineMinutes===null?'':String(s.baselineMinutes/60))+'"></label>'+
+  '<button class="hhPcBtn primary" type="button" onclick="hhPcHoursSaveBase()">Alapóra mentése</button>'+
+  '<label>Új idő hozzáadása (óra)<input id="hhPcAddHours" type="number" inputmode="decimal" min="0.0167" max="10000" step="0.25" placeholder="Pl. 1.5"></label>'+
+  '<button class="hhPcBtn" type="button" onclick="hhPcHoursAdd()">Idő hozzáadása</button></div>'+
+  '<div class="hhPcHoursActions"><button class="hhPcBtn '+(s.runningSince?'danger':'primary')+'" type="button" onclick="'+
+  (s.runningSince?'hhPcHoursStop()':'hhPcHoursStart()')+'">'+
+  (s.runningSince?'■ Időmérés leállítása':'▶ Vibe coding időmérés indítása')+'</button>'+
+  (recent.length?'<button class="hhPcBtn" type="button" onclick="hhPcHoursUndo()">Utolsó bejegyzés visszavonása</button>':'')+
+  '</div><p class="hhPcHoursState" id="hhPcHoursState">'+
+  (s.runningSince?'🔴 Aktív munkamenet, kezdés: '+esc(new Date(s.runningSince).toLocaleString('hu-HU')):
+   total===null?'Még nincs hiteles kezdőóraszám.':'Összes eddig rögzített idő: '+esc(timeNumber(total))+' óra')+'</p>'+
+  (recent.length?'<div class="hhPcHoursHistory"><b>Legutóbbi munkamenetek</b>'+recent.map(function(x){
+   var when=new Date(x.at);var date=Number.isFinite(when.getTime())?when.toLocaleDateString('hu-HU'):'—';
+   return '<small>'+esc(date)+' · '+esc(timeNumber(Number(x.minutes)))+' óra'+
+    (x.kind==='timer'?' · Időmérő':' · Kézi hozzáadás')+'</small>';
+  }).join('')+'</div>':'')+'</section>';
+}
+
 function epics(actions){
   var m={};actions.forEach(function(x){if(!m[x.epic])m[x.epic]=[];m[x.epic].push(x)});
   return Object.keys(m).map(function(k){return {name:k,actions:m[k],progress:progressSummary(m[k]),points:m[k].reduce(function(a,x){return a+Number(x.storyPoints||0)},0)}})
@@ -70,6 +127,11 @@ function ensureStyle(){
  '.hhPcHead{background:#173f62;color:#fff;padding:13px 14px 10px;display:flex;align-items:flex-start;gap:10px}.hhPcHead .grow{flex:1;min-width:0}.hhPcHead small{display:block;font-size:7px;letter-spacing:.13em;opacity:.72;text-transform:uppercase}.hhPcHead h2{margin:3px 0 0;font-size:16px}.hhPcHead p{margin:4px 0 0;font-size:8px;opacity:.78}.hhPcClose{border:0;background:#ffffff1c;color:#fff;border-radius:50%;width:34px;height:34px;font-size:19px}'+
  '.hhPcTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#dfe8ef}.hhPcTabs button{border:0;background:#fff;color:#698095;padding:9px 4px;font-size:8px;font-weight:850}.hhPcTabs button.on{color:#173f62;background:#eef6fb;box-shadow:inset 0 -3px #317f77}'+
  '.hhPcBody{flex:1;overflow:auto;padding:10px 10px calc(18px + env(safe-area-inset-bottom))}.hhPcGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.hhPcKpi{background:#fff;border:1px solid #e4edf3;border-radius:14px;padding:10px}.hhPcKpi small{display:block;color:#7b8d9d;font-size:7px;text-transform:uppercase;font-weight:850;letter-spacing:.07em}.hhPcKpi b{display:block;color:#173f62;font-size:18px;margin-top:3px}.hhPcKpi em{display:block;font-style:normal;color:#8394a4;font-size:7px;margin-top:3px}'+
+
+ '.hhPcHoursKpi{width:100%;display:block;text-align:left;cursor:pointer;background:linear-gradient(135deg,#0e3154,#1d5d84);border-color:#659fbe;color:#fff;box-shadow:0 5px 18px #0b35543b;font-family:inherit}'+
+ '.hhPcHoursKpi small{color:#d5ecff;font-size:8px;letter-spacing:.035em}.hhPcHoursKpi b{display:inline-block;color:#fff;font-size:clamp(30px,6vw,43px);line-height:1.1;letter-spacing:-1px;margin-top:7px;overflow-wrap:anywhere}.hhPcHoursKpi .hhPcHoursUnit{color:#d5ecff;font-size:10px;font-weight:850;margin-left:4px}.hhPcHoursKpi em{font-size:8px;color:#dcf3ff;margin-top:9px;line-height:1.4}.hhPcHoursKpi:focus-visible{outline:3px solid #8bd4ff;outline-offset:2px}'+
+ '.hhPcHoursPanel{border-color:#b1d6e7;background:linear-gradient(145deg,#eaf5ff,#f8fcff)}.hhPcHoursPanel h3{font-size:12px}.hhPcHoursForms{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}.hhPcHoursForms label{display:block;font-size:9px;color:#2d5672;font-weight:800;min-width:0}.hhPcHoursForms input{box-sizing:border-box;display:block;margin-top:5px;width:100%;min-height:36px;font:650 13px system-ui;color:#173f62;background:#fff;border:1px solid #94b7d0;border-radius:9px;padding:8px}.hhPcHoursForms .hhPcBtn{min-height:36px;font-size:9px}.hhPcHoursActions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.hhPcHoursActions .hhPcBtn{font-size:9px;min-height:40px}.hhPcHoursState{font-size:9px;color:#2c6588;font-weight:700;line-height:1.45}.hhPcHoursHistory{margin-top:9px;padding-top:9px;border-top:1px solid #bdd5e4}.hhPcHoursHistory b{display:block;font-size:9px;color:#173f62}.hhPcHoursHistory small{display:block;font-size:8px;color:#5a748b;margin-top:5px}'+
+ '@media(max-width:380px){.hhPcHoursKpi b{font-size:30px}.hhPcHoursForms{grid-template-columns:1fr}.hhPcHoursForms .hhPcBtn{width:100%}}'+
  '.hhPcSection{background:#fff;border:1px solid #e5edf3;border-radius:15px;padding:11px;margin-top:8px}.hhPcSection h3{margin:0 0 8px;font-size:10px;color:#173f62}.hhPcFocus{background:linear-gradient(145deg,#eaf8f4,#f8fcfb);border-color:#cbe9e1}.hhPcFocus b{font-size:11px;color:#1d5f58;line-height:1.4}.hhPcFocus small{display:block;color:#6f8986;font-size:7px;margin-top:5px}'+
  '.hhPcAction{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;border-top:1px solid #edf2f5;padding:9px 0;cursor:pointer}.hhPcAction:first-of-type{border-top:0}.hhPcAction .dot{font-size:12px}.hhPcAction b{display:block;color:#183c5d;font-size:9px;line-height:1.3}.hhPcAction small{display:block;color:#8294a3;font-size:7px;line-height:1.35;margin-top:2px}.hhPcTag{border-radius:9px;background:#edf4f8;color:#4c6a80;padding:4px 6px;font-size:6.8px;font-weight:850;white-space:nowrap}.hhPcTag.s-done{background:#e8f7f2;color:#237266}.hhPcTag.s-in-progress{background:#e8f1ff;color:#365f9c}.hhPcTag.s-testing{background:#fff6d9;color:#9a6a00}.hhPcTag.s-ready{background:#f0ecff;color:#6a54a4}'+
  '.hhPcBar{height:6px;background:#edf2f5;border-radius:999px;overflow:hidden;margin-top:6px}.hhPcBar i{display:block;height:100%;background:#317f77;border-radius:999px}.hhPcEpic{margin-top:9px}.hhPcEpicTop{display:flex;justify-content:space-between;gap:8px;align-items:center}.hhPcEpicTop b{font-size:8.5px;color:#294d68}.hhPcEpicTop span{font-size:7px;color:#7d8f9e}'+
@@ -94,18 +156,52 @@ function actionRow(x){
 }
 
 function renderDashboard(){
- var a=mergedActions(),prog=progressSummary(a),done=a.filter(function(x){return x.status==='Done'}).length,active=activeCount(a),chg=localChangeCount();
+ var a=mergedActions(),prog=progressSummary(a),done=a.filter(function(x){return x.status==='Done'}).length,active=activeCount(a);
  var nxt=nextActions(a),eps=epics(a),bl=blockers();
  return '<div class="hhPcGrid">'+
   '<div class="hhPcKpi"><small>Készültség</small><b>'+pct(prog)+'%</b><div class="hhPcBar"><i style="width:'+pct(prog)+'%"></i></div></div>'+
   '<div class="hhPcKpi"><small>Done</small><b>'+done+'</b><em>'+a.length+' actionből</em></div>'+
   '<div class="hhPcKpi"><small>Aktív</small><b>'+active+'</b><em>Ready / Testing / In Progress</em></div>'+
-  '<div class="hhPcKpi"><small>Helyi változás</small><b>'+chg+'</b><em>'+esc(data.liveBuild||'')+' master</em></div></div>'+
+  hourKpi()+'</div>'+(hoursExpanded?hoursPanel():'')+
   '<section class="hhPcSection hhPcFocus"><h3>🎯 Aktuális fókusz</h3><b>'+esc(data.currentFocus||'')+'</b><small>Következő fő fejlesztés: '+esc(data.nextDevelopment||'')+'</small></section>'+
   '<section class="hhPcSection"><h3>🚀 Következő actionök</h3>'+(nxt.length?nxt.map(actionRow).join(''):'<div class="hhPcEmpty">Nincs aktív action.</div>')+'</section>'+
   '<section class="hhPcSection"><h3>⚠️ Lezárási blockerek · '+bl.length+'</h3>'+bl.map(function(b){var x=b.action;return '<div class="hhPcAction" '+(x?'onclick="hhPcOpenAction(\''+esc(x.id)+'\')"':'')+'><div class="dot">⚠️</div><div><b>'+esc(b.label)+'</b><small>'+esc(b.detail)+'</small></div>'+(x?'<span class="hhPcTag '+statusClass(x.status)+'">'+esc(x.status)+'</span>':'')+'</div>'}).join('')+'</section>'+
   '<section class="hhPcSection"><h3>📊 Modul státusz</h3>'+eps.map(function(e){return '<div class="hhPcEpic"><div class="hhPcEpicTop"><b>'+esc(e.name)+'</b><span>'+pct(e.progress)+'% · '+e.points+' SP</span></div><div class="hhPcBar"><i style="width:'+pct(e.progress)+'%"></i></div></div>'}).join('')+'</section>'+
   '<p class="hhPcFootNote">Master: project-control.json · A telefonon végzett módosítások helyi override-ként tárolódnak ezen a készüléken. Exporttal bármikor kimenthetők.</p>';
+}
+
+
+function storeHours(s){writeJson(LS_HOURS,s);render()}
+window.hhPcHoursToggle=function(){hoursExpanded=!hoursExpanded;render()};
+window.hhPcHoursSaveBase=function(){
+ var input=document.getElementById('hhPcBaseHours'),n=input?Number(input.value):NaN;
+ if(!input||!input.value.trim()||!Number.isFinite(n)||n<0||n>100000)return toast('Adj meg érvényes, nem negatív projektórát.');
+ var s=hourBook();s.baselineMinutes=Math.round(n*60);storeHours(s);toast('Korábbi projektórák rögzítve');
+};
+window.hhPcHoursAdd=function(){
+ var input=document.getElementById('hhPcAddHours'),n=input?Number(input.value):NaN;
+ if(!input||!input.value.trim()||!Number.isFinite(n)||n<=0||n>10000)return toast('Adj meg pozitív óraszámot.');
+ var s=hourBook();s.entries.push({minutes:Math.max(.01,Math.round(n*6000)/100),at:new Date().toISOString(),kind:'manual'});
+ storeHours(s);toast('Projektidő hozzáadva');
+};
+window.hhPcHoursStart=function(){
+ var s=hourBook();if(s.runningSince)return;
+ s.runningSince=new Date().toISOString();storeHours(s);toast('Projektidőmérés elindult');
+};
+window.hhPcHoursStop=function(){
+ var s=hourBook();if(!s.runningSince)return;
+ var m=Math.max(0,(Date.now()-Date.parse(s.runningSince))/60000);
+ if(m>24*60&&!confirm('24 óránál hosszabb munkamenet. Biztosan mind munkaidő volt?'))return;
+ s.entries.push({minutes:Math.max(.01,Math.round(m*100)/100),at:new Date().toISOString(),kind:'timer'});
+ s.runningSince=null;storeHours(s);toast('Munkamenet rögzítve');
+};
+window.hhPcHoursUndo=function(){
+ var s=hourBook();if(!s.entries.length||!confirm('Visszavonod a legutóbb rögzített projektidőt?'))return;
+ s.entries.pop();storeHours(s);toast('Utolsó munkamenet visszavonva');
+};
+function refreshHourCounter(){
+ var value=document.getElementById('hhPcHourValue');
+ if(value)value.textContent=timeNumber(timeMinutes(hourBook()));
 }
 
 function filteredActions(){
@@ -214,7 +310,7 @@ window.hhPcCreateAction=function(){
  writeJson(LS_LOCAL,l);detailId=id;toast('Új action létrehozva');render();
 };
 window.hhPcExport=function(){
- var payload={exportedAt:new Date().toISOString(),masterUpdatedAt:data?.updatedAt||null,overrides:overrides(),localActions:locals(),mergedActions:mergedActions()};
+ var payload={exportedAt:new Date().toISOString(),masterUpdatedAt:data?.updatedAt||null,overrides:overrides(),localActions:locals(),projectHours:hourBook(),mergedActions:mergedActions()};
  dl(payload,'HealthHub_Project_Control_'+new Date().toISOString().slice(0,10)+'.json');
 };
 
@@ -223,7 +319,7 @@ if(typeof prevHaOpen==='function')window.haOpen=function(){var r=prevHaOpen.appl
 var prevRender=window.renderHealthSection;
 if(typeof prevRender==='function')window.renderHealthSection=async function(){var r=await prevRender.apply(this,arguments);decorateMore();return r};
 
-ensureUi();setTimeout(function(){decorateMore();if(document.getElementById('haOv')?.classList.contains('on'))scheduleInject()},180);
+ensureUi();setInterval(refreshHourCounter,30000);setTimeout(function(){decorateMore();if(document.getElementById('haOv')?.classList.contains('on'))scheduleInject()},180);
 document.documentElement.dataset.healthhubProjectControl='1.42';
 window.HH_LIVE_BUILD='v1.42-project-control';
 })();
