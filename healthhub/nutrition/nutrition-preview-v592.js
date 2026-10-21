@@ -742,6 +742,7 @@ function savePresetEntry(e){
  }catch(e){$('presetError').textContent=e.message;}
 }
 function editEntry(row){
+ if(row.aiVision&&window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open(row);return;}
  if(row.quickRecipeId){alert('Ez egy mentéskori recept-pillanatkép. A Quick Recipe Studio a jövőbeni bevitelt módosítja; a naplózott példány a napi naplóban megőrzött. Hibás bevitelt törölhetsz, majd újra rögzíthetsz.');return;}
  if(row.components){openPreset(row.foodId.endsWith('afternoon')?'afternoon':'morning',row);return;}
  openEntry(row.kind,row);
@@ -932,6 +933,38 @@ root.HH_NUTRITION_QUICK_API={
   if(name.length<2||name.length>80||!Number.isFinite(kcal)||kcal<0||kcal>5000)throw Error('Érvénytelen név vagy kalória');
   const now=stamp(),row={...clone(recipe),name,updatedAt:now};
   update(d=>{const idx=d.quickRecipes.findIndex(q=>q.id===row.id);if(idx>=0)d.quickRecipes[idx]=row;else d.quickRecipes.push(row)});
+ },
+ recordAiMeal:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('A Nutrition profil megváltozott.');
+  const name=String(payload.name||'').trim(),meal=normalizeMeal(payload.meal),items=payload.components;
+  if(name.length<2||name.length>85||!meal||!Array.isArray(items)||items.length<1||items.length>16)throw Error('Hiányos AI étkezés.');
+  const components=items.map(x=>{
+   const name=String(x?.name||'').trim(),grams=Number(x?.grams),per={};
+   if(!name||name.length>85||!Number.isFinite(grams)||grams<1||grams>3000)throw Error('Hibás összetevő vagy adag.');
+   for(const key of ['kcal','protein','carbs','fat']){
+    const value=x?.per100?.[key];
+    if(value===null||value===undefined||value==='')throw Error('Hiányzó tápérték: '+key);
+    per[key]=Number(value);
+    if(!Number.isFinite(per[key])||per[key]<0||per[key]>(key==='kcal'?950:100))throw Error('Hibás tápérték: '+key);
+   }
+   return {name,grams,per100:per,uncertain:!!x.uncertain};
+  });
+  const nutrients=Object.fromEntries(metrics.map(k=>[k,null]));
+  for(const key of ['kcal','protein','carbs','fat'])nutrients[key]=Math.round(
+   components.reduce((n,x)=>n+x.grams*x.per100[key]/100,0)*10)/10;
+  if(nutrients.kcal>15000)throw Error('A becsült energia irreális.');
+  const prev=payload.id?read(active).entries.find(x=>x.id===payload.id&&!x.deleted):null;
+  if(payload.id&&(!prev||!prev.aiVision))throw Error('AI naplóbejegyzés nem található.');
+  const now=stamp(),id=prev?.id||uid(),time=prev?.time||localTime();
+  const rec={id,createdAt:prev?.createdAt||now,updatedAt:now,date:prev?.date||currentDay(),
+   time,meal,kind:'food',foodId:'ai-vision:'+id,name,icon:'📸',
+   quantityText:'Fotóból becsült · '+Math.round(components.reduce((n,x)=>n+x.grams,0))+' g',
+   volumeMl:null,nutrients,source:'estimated',
+   aiVision:{components,model:String(payload.model||'').slice(0,90),
+    notes:String(payload.notes||'').slice(0,450),confirmedByUser:true}};
+  update(doc=>{const idx=doc.entries.findIndex(x=>x.id===id);
+   if(idx>=0)doc.entries[idx]=rec;else doc.entries.push(rec)});
+  success();return {id,name,kcal:nutrients.kcal,profile:active,date:rec.date};
  },
  recordRecipe:(recipe,mealOverride=null)=>{
   if(!recipe||typeof recipe.name!=='string'||!recipe.nutrients)throw Error('Hiányzó receptadat');
