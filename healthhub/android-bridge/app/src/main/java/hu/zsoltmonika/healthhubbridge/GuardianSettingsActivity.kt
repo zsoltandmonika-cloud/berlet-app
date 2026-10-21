@@ -87,6 +87,35 @@ class GuardianSettingsActivity : ComponentActivity() {
             }
         }
         root.addView(stop)
+        root.addView(text(
+            "24/7 újraindítás után: Android 11+ esetén a helyhozzáférésnél külön " +
+                "„Mindig engedélyezett” választás kell. Ez nem kapcsolódik be magától.",
+            12f, 0xFFD9BADD.toInt()
+        ))
+        root.addView(Button(this).apply {
+            text = "📍 Engedélyezés újraindítás után · Android beállítások"
+            setOnClickListener {
+                if (Build.VERSION.SDK_INT >= 29 && !hasLocation()) {
+                    state.text = "Előbb engedélyezd az alkalmazás használata közbeni helyhozzáférést."
+                } else {
+                    AlertDialog.Builder(this@GuardianSettingsActivity)
+                        .setTitle("Mindig engedélyezett helyhozzáférés")
+                        .setMessage(
+                            "Ha szeretnéd, hogy a HH One a telefon újraindítása után is " +
+                                "megpróbálja folytatni a korábban jóváhagyott GPS-követést, " +
+                                "az Android helyengedélyénél válaszd a „Mindig engedélyezett” lehetőséget. " +
+                                "Bármikor visszavonhatod. A Family Guard továbbra sem küld helyadatot a felhőbe."
+                        )
+                        .setNegativeButton("Mégsem", null)
+                        .setPositiveButton("Android beállítások") { _, _ ->
+                            startActivity(Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:$packageName")
+                            ))
+                        }.show()
+                }
+            }
+        })
         root.addView(Button(this).apply {
             text = "Android helyhozzáférési beállítások"
             setOnClickListener {
@@ -151,14 +180,20 @@ class GuardianSettingsActivity : ComponentActivity() {
     private fun render() {
         val owner = GuardianLocationVault.owner(this)
         val consented = GuardianLocationVault.consented(this)
+        val serviceRequested = GuardianLocationVault.isServiceRequested(this)
+        val allTime = Build.VERSION.SDK_INT < 29 ||
+            checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
         val display = when (owner) {
             "zsolt" -> "Zsolt"
             "monika" -> "Mónika"
             else -> "Nincs hozzárendelt tulajdonos"
         }
-        state.text = "Profil: $display · " +
-            if (consented) "GPS engedélyezve, Android-állapot ellenőrizendő"
-            else "GPS kikapcsolva"
+        state.text = "Profil: $display · " + when {
+            !consented -> "GPS kikapcsolva"
+            serviceRequested -> "Követés kérése aktív · Android-állapot ellenőrizendő"
+            else -> "Korábbi engedély megvan · szolgáltatás újraindítható"
+        } + if (consented && !allTime) " · boot utáni követéshez külön engedély kell" else ""
         val fix = GuardianLocationVault.readFix(this)
         val at = fix?.optLong("atMs", 0L) ?: 0L
         val accuracy = fix?.optDouble("accuracyM", -1.0) ?: -1.0
@@ -166,7 +201,7 @@ class GuardianSettingsActivity : ComponentActivity() {
             "Utolsó mért pont: " + DateFormat.getDateTimeInstance().format(Date(at)) +
                 " · pontosság: " + accuracy.toInt() + " m"
         } else "Nincs érvényes, ehhez a profilhoz kötött GPS-mérés."
-        start.isEnabled = owner != null && !consented
+        start.isEnabled = owner != null && !serviceRequested
         stop.isEnabled = consented || at > 0L
     }
 
