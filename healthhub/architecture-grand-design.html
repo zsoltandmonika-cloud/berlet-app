@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><meta name="referrer" content="strict-origin-when-cross-origin">
+<title>HealthHub · Architecture Grand Design</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#091729;color:#e9f4ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 2%,#15395d 0%,transparent 40%),#091729}
+header{padding:22px max(20px,calc((100% - 1350px)/2));border-bottom:1px solid #8bb5d033;background:#122940bb}
+h1{font-size:clamp(23px,3vw,33px);margin:8px 0 4px;letter-spacing:-.6px}header p{color:#a9c6e0;margin:0}
+.badge{display:inline-block;background:#154363;border:1px solid #4e9bc180;padding:5px 10px;border-radius:50px;color:#caedff;font-size:11px;font-weight:700}
+.shell{max-width:1390px;padding:22px;margin:auto;display:grid;grid-template-columns:285px minmax(0,1fr);gap:20px}
+nav{position:sticky;top:12px;align-self:start;border:1px solid #638daf55;border-radius:18px;background:#102842cf;padding:17px}
+nav a{display:block;color:#d7eaff;text-decoration:none;padding:10px 11px;border-radius:9px;margin:5px 0;background:#1b42605c}
+nav a:hover,nav a:focus-visible{background:#28658c}nav .sub{font-size:11px;color:#93bfd9}
+main{min-width:0;background:linear-gradient(165deg,#17334d,#12243b 65%);border:1px solid #8aaccd40;border-radius:20px;padding:clamp(16px,3vw,34px);box-shadow:0 20px 70px #06121c88}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;justify-content:space-between;margin-bottom:20px}
+button,a.pill{border:1px solid #5595b9;background:#1c5171;color:#e9f7ff;border-radius:11px;padding:10px 13px;font-weight:700;cursor:pointer;text-decoration:none}
+button:hover,a.pill:hover{background:#256f96}input{border:1px solid #5a829b;background:#0d2d43;border-radius:10px;padding:10px 12px;color:white;width:min(100%,400px);font:inherit}
+#article{line-height:1.68;font-size:14px}#article h1,#article h2,#article h3{line-height:1.35;color:#fff;scroll-margin-top:14px}#article h1{font-size:27px}#article h2{border-bottom:1px solid #6889a650;font-size:21px;padding-bottom:10px;margin-top:30px}#article h3{font-size:17px;margin-top:24px}
+#article p,#article li{color:#d5e7f5}#article pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1c2d;border:1px solid #486a86aa;border-radius:13px;padding:14px;color:#d5efff;font-size:12px}
+#article code{font-family:ui-monospace,Consolas,monospace;background:#1d4260;border-radius:4px;padding:2px 4px}
+#article a{color:#8edaff}#article blockquote{margin:12px 0;border-left:3px solid #86bad9;background:#0e2843;padding:12px 16px;border-radius:8px}
+#article table{width:100%;border-collapse:collapse;font-size:12px;overflow-wrap:anywhere}#article th,#article td{border-bottom:1px solid #5d83a452;text-align:left;padding:10px;vertical-align:top}#article th{color:#c3efff}
+#article .tableWrap{overflow-x:auto}#article ul,#article ol{padding-left:25px}
+.info{font-size:12px;color:#a6c8e1;margin:10px 0}#outline a{font-size:12px;line-height:1.4;padding:6px 9px;margin:1px 0;color:#a9d0e7;background:transparent}
+@media(max-width:790px){.shell{display:block;padding:12px}nav{position:static;margin-bottom:13px}main{padding:16px}#article table{font-size:11px}#outline{max-height:160px;overflow:auto}}
+@media print{header,nav,.toolbar{display:none!important}.shell{display:block;padding:0}main{box-shadow:none;border:0;background:white;color:black}body{background:white;color:black}#article *{color:black!important;background:white!important}}
+</style></head>
+<body>
+<header><span class="badge">HEALTHHUB · SYSTEM ARCHITECTURE</span><h1>Grand Design & Recovery Blueprint</h1><p>Gondoskodás + Adatismeret + Intelligencia · Living Documentation</p></header>
+<div class="shell">
+<nav aria-label="Dokumentumtár">
+  <strong>📚 Dokumentációk</strong>
+  <a href="?doc=architecture" id="archLink">🏛️ Architecture Grand Design</a>
+  <a href="?doc=runbook" id="runLink">🛠️ Operations & Recovery</a>
+  <a href="./project-control.json" target="_blank" rel="noopener">📋 Project Control · master JSON ↗</a>
+  <a href="./docs/README.md" target="_blank" rel="noopener">🗂️ Fejlesztési dokumentumtár ↗</a>
+  <a href="./index.html">← Vissza a HealthHubba</a>
+  <p class="sub">A dokumentum forrása ugyanabban a verziózott GitHub-repóban él, mint az alkalmazás.</p>
+  <div id="outline" aria-label="Fejezetek"></div>
+</nav>
+<main>
+  <div class="toolbar">
+    <div><strong id="which">Architecture Grand Design</strong><div class="info" id="status" role="status">Betöltés…</div></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap"><input id="filter" type="search" placeholder="Keresés a dokumentumban…" aria-label="Keresés"><button type="button" id="print">🖨️ Nyomtatás / PDF</button></div>
+  </div>
+  <article id="article" aria-label="HealthHub dokumentáció"></article>
+</main>
+</div>
+<script>
+(function(){
+'use strict';
+var files={architecture:'./docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md',runbook:'./docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md'};
+var params=new URL(location.href).searchParams;
+var key=params.get('doc')==='runbook'?'runbook':'architecture';
+var article=document.getElementById('article'),outline=document.getElementById('outline');
+var status=document.getElementById('status'),filter=document.getElementById('filter');
+document.getElementById('which').textContent=key==='runbook'?'Operations & Recovery Runbook':'Architecture Grand Design';
+document.getElementById('print').onclick=function(){window.print()};
+document.getElementById(key==='runbook'?'runLink':'archLink').style.background='#22628a';
+function inline(node,text){
+ var link=/\[([^\]]+)\]\(([^)]+)\)/g,m,cur=0;
+ while((m=link.exec(text))){
+  if(m.index>cur)node.append(document.createTextNode(text.slice(cur,m.index).replace(/\*\*/g,'')));
+  try{
+   var url=new URL(m[2],location.href);
+   if(url.protocol==='https:'||url.origin===location.origin&&url.protocol==='http:'){
+    var a=document.createElement('a');a.textContent=m[1];a.href=url.href;
+    if(url.origin!==location.origin){a.target='_blank';a.rel='noopener noreferrer'}
+    node.append(a);
+   }else node.append(document.createTextNode(m[1]));
+  }catch(e){node.append(document.createTextNode(m[1]))}
+  cur=link.lastIndex;
+ }
+ if(cur<text.length)node.append(document.createTextNode(text.slice(cur).replace(/\*\*/g,'')));
+}
+function render(md){
+ article.replaceChildren();outline.replaceChildren();
+ var lines=md.split(/\r?\n/),fence=String.fromCharCode(96).repeat(3),pre=null,table=null,tableWrap=null,id=0;
+ for(var i=0;i<lines.length;i++){
+  var line=lines[i],trim=line.trim(),next;
+  if(trim.startsWith(fence)){if(pre){article.append(pre);pre=null}else{pre=document.createElement('pre');pre.setAttribute('data-language',trim.slice(3))}table=null;continue}
+  if(pre){pre.textContent+=(pre.textContent?'\n':'')+line;continue}
+  if(!trim){table=null;continue}
+  if(/^\|.+\|$/.test(trim)){
+   if(/^\|[\s\-:|]+\|$/.test(trim))continue;
+   if(!table){tableWrap=document.createElement('div');tableWrap.className='tableWrap';table=document.createElement('table');tableWrap.append(table);article.append(tableWrap)}
+   var row=document.createElement('tr');trim.split('|').slice(1,-1).forEach(function(v){
+    var cell=document.createElement(table.rows.length?'td':'th');inline(cell,v.trim());row.append(cell)
+   });table.append(row);continue
+  }table=null;
+  var h=trim.match(/^(#{1,4})\s+(.*)/);
+  if(h){next=document.createElement('h'+Math.min(4,h[1].length));inline(next,h[2]);next.id='sec-'+(++id);article.append(next);
+   if(h[1].length<4){var a=document.createElement('a');a.href='#'+next.id;a.textContent=h[2].replace(/\*\*/g,'');outline.append(a)}continue}
+  if(/^>\s/.test(trim)){next=document.createElement('blockquote');inline(next,trim.slice(2));article.append(next);continue}
+  if(/^\s*[-*]\s+/.test(line)||/^\s*\d+\.\s+/.test(line)){
+   var ordered=/^\s*\d+\.\s+/.test(line),list=article.lastElementChild;
+   if(!list||list.tagName!==(ordered?'OL':'UL')){list=document.createElement(ordered?'ol':'ul');article.append(list)}
+   next=document.createElement('li');inline(next,trim.replace(/^([-*]|\d+\.)\s+/,''));list.append(next);continue
+  }
+  if(trim==='---'){article.append(document.createElement('hr'));continue}
+  next=document.createElement('p');inline(next,trim);article.append(next);
+ }
+ if(pre)article.append(pre);
+}
+fetch(files[key],{cache:'no-store'}).then(function(resp){
+ if(!resp.ok)throw Error('HTTP '+resp.status);
+ return resp.text()
+}).then(function(text){
+ render(text);status.textContent='✓ Verziózott műszaki dokumentáció betöltve · 2026-10-21';
+}).catch(function(e){status.textContent='⚠ Dokumentum nem elérhető: '+e.message;
+ article.textContent='A GitHubban a healthhub/docs mappában ellenőrizhető a dokumentum.'});
+filter.oninput=function(){var q=filter.value.trim().toLocaleLowerCase('hu-HU');
+ Array.from(article.children).forEach(function(el){
+  el.hidden=Boolean(q)&&!el.textContent.toLocaleLowerCase('hu-HU').includes(q);
+ });
+};
+})();
+</script>
+</body></html>
