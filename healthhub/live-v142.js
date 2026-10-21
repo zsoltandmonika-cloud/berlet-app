@@ -44,7 +44,7 @@ function hourBook(){
  if(base!==null&&(!Number.isFinite(base)||base<0||base>6000000))base=null;
  var entries=Array.isArray(raw.entries)?raw.entries.filter(function(x){
   return x&&Number.isFinite(Number(x.minutes))&&Number(x.minutes)>0&&Number(x.minutes)<=100000&&typeof x.at==='string';
- }).slice(-2000):[];
+ }):[];
  var runningSince=typeof raw.runningSince==='string'&&Number.isFinite(Date.parse(raw.runningSince))?
   raw.runningSince:null;
  return {baselineMinutes:base,entries:entries,runningSince:runningSince};
@@ -56,7 +56,7 @@ function timeMinutes(s){
 }
 function timeNumber(minutes){
  return minutes===null?'—':(minutes/60).toLocaleString('hu-HU',{
-  minimumFractionDigits:1,maximumFractionDigits:1,maximumSignificantDigits:10});
+  minimumFractionDigits:1,maximumFractionDigits:1});
 }
 function hourKpi(){
  var s=hourBook(),value=timeMinutes(s);
