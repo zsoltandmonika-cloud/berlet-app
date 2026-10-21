@@ -224,6 +224,7 @@ async function scan(){
   if(mode==='barcode'&&$('hhScanManual753').value.trim())data=await lookup($('hhScanManual753').value.trim());
   else {
    const f=photo||await squareFile($('hhScanVideo753'));
+   if(!photo){photo=f;photoUrl=URL.createObjectURL(f);$('hhScanPhoto753').src=photoUrl;preview();}
    if(mode==='barcode'){
     const found=await readBarcode(f);$('hhScanManual753').value=found;data=await lookup(found);
    }else data=await recognize(f);
