@@ -4,6 +4,9 @@ on:
     paths:
       - 'healthhub/hh-architecture-admin-v744.js'
       - 'healthhub/hh-unified-admin-v745.js'
+      - 'healthhub/hh-project-hours-dropbox-v748.js'
+      - 'healthhub/live-v142.js'
+      - 'healthhub/tests/project-hours-dropbox-v748.test.cjs'
       - 'healthhub/live-v137.js'
       - 'healthhub/live-v126.js'
       - 'healthhub/health-interactions-v552.js'
@@ -38,6 +41,9 @@ jobs:
         run: |
           node --check healthhub/hh-architecture-admin-v744.js
           node --check healthhub/hh-unified-admin-v745.js
+          node --check healthhub/live-v142.js
+          node --check healthhub/hh-project-hours-dropbox-v748.js
+          node --check healthhub/tests/project-hours-dropbox-v748.test.cjs
           node --check healthhub/live-v137.js
           node --check healthhub/live-v126.js
           node --check healthhub/health-interactions-v552.js
@@ -47,3 +53,4 @@ jobs:
         run: |
           node healthhub/tests/architecture-grand-design-v744.test.cjs
           node healthhub/tests/unified-admin-v745.test.cjs
+          node healthhub/tests/project-hours-dropbox-v748.test.cjs
