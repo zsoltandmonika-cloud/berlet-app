@@ -8,11 +8,11 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),vision=read('hh-food-vision-v750.js');
 const diary=read('nutrition-preview-v592.js'),gateway=read('hh-bevitel-premium-v643.js');
 const style=read('hh-food-vision-v750.css');
-assert.match(html,/hh-food-vision-v750\.js\?v=750-vision-confirmed/);
+assert.match(html,/hh-food-vision-v750\.js\?v=751-open-fix/);
 assert.match(html,/hh-food-vision-v750\.css\?v=750-premium-ai/);
 assert.match(html,/Fotós ételfelismerés · AI/);
 assert.doesNotMatch(html,/AI Bevitel, fotós felismerés: hamarosan/);
-assert.match(gateway,/HH_FOOD_VISION_V750/);
+assert.doesNotMatch(gateway,/ai\?\.addEventListener\('click'/); // tile is owned by the AI module
 assert.match(diary,/recordAiMeal:payload/);
 assert.match(diary,/payload\?\.expectedProfile!==active/);
 assert.match(diary,/if\(row\.aiVision&&window\.HH_FOOD_VISION_V750/);
@@ -56,3 +56,44 @@ assert.equal(A.totals(unknown.items).kcal,null); // unknown is not 0 kcal
  await assert.rejects(A.availableModels({ai:{listModels:async()=>{throw Error('offline')}}}),/offline/);
  console.log('PASS Nutrition v750: real photo UI hookup, strict JSON, transparent estimates, provider discovery, safe profile-specific confirmation, photo EXIF removal.');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+
+// Real modal-opening smoke test with a minimal DOM (no AI call and no user data).
+{
+ const registry=new Map(),events={};
+ class Element {
+  constructor(tag){this.tagName=tag;this.dataset={};this.children=[];this.handlers={};this.hidden=false;this.open=false;this.value='';}
+  set id(v){this._id=v;registry.set(v,this)}
+  get id(){return this._id}
+  append(...nodes){this.children.push(...nodes)}
+  appendChild(el){this.append(el);return el}
+  addEventListener(name,fn){(this.handlers[name]??=[]).push(fn)}
+  setAttribute(name,v){this[name]=v}
+  removeAttribute(name){delete this[name]}
+  replaceChildren(...next){this.children=next}
+  click(){for(const fn of this.handlers.click||[])fn()}
+  showModal(){this.open=true}
+  close(){this.open=false}
+ }
+ const document={
+  readyState:'complete',
+  body:new Element('body'),head:new Element('head'),
+  createElement:tag=>new Element(tag),
+  getElementById:id=>registry.get(id)||null,
+  addEventListener:(n,fn)=>{(events[n]??=[]).push(fn)},
+  scripts:[]
+ };
+ const tile=new Element('button');tile.id='hhBevitelAI';document.body.append(tile);
+ const win={addEventListener:()=>{},HH_NUTRITION_QUICK_API:{
+  getProfile:()=> 'zsolt',recordAiMeal:()=>{}
+ }};
+ vm.runInNewContext(vision,{window:win,document,Date,JSON,Array,Set,Math,Number,String,Intl});
+ assert.equal(tile.handlers.click.length,1,'AI click must have exactly one listener');
+ tile.click();
+ assert.equal(registry.get('hhVisionDialog750').open,true,'AI click must open the dialog');
+ registry.get('hhVisionDialog750').close();
+ win.HH_FOOD_VISION_V750.init();
+ assert.equal(tile.handlers.click.length,1,'reinit must not register a duplicate listener');
+ tile.click();
+ assert.equal(registry.get('hhVisionDialog750').open,true,'second click must reopen dialog');
+}
