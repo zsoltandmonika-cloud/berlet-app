@@ -41,6 +41,6 @@ assert.doesNotMatch(panel,/files\/upload|files\/download|dropboxapi\.com\/2\/fil
  assert.ok(pending.verifier.length>=43);
  assert.equal(pending.state,redirect.searchParams.get('state'));
  assert.equal(pending.appKey,a.defaultAppKey);
- assert.ok(!source.includes('refresh_token:'));
+ assert.doesNotMatch(source,/\bAPP_SECRET\s*=/);
  console.log('PASS: v739 public app key, PKCE authorization URL, full-scope disclosure, private callback, read-only onboarding.');
 })().catch(e=>{console.error(e);process.exitCode=1});
