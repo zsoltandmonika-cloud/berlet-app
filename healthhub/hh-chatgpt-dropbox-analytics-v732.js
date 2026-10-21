@@ -53,14 +53,14 @@ function autoAllowed(){
 function recentSuccess(){
  try{
   const st=JSON.parse(w.localStorage.getItem(LOCAL)||'null');
-  return st&&st.published===true&&String(st.generatedAt||'').length>0?st:null;
+  return st&&(st.lastPublishedAt||(st.published&&st.generatedAt))?{...st,lastPublishedAt:st.lastPublishedAt||st.generatedAt}:null;
  }catch(_){return null;}
 }
 function auto(){
  if(busy||!autoAllowed()||d.hidden)return;
  const st=recentSuccess();
  if(!st||new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Budapest',
-   year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(st.generatedAt))===localDay())return;
+   year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(st.lastPublishedAt))===localDay())return;
  if(Date.now()-lastAutoAttempt<3600000)return;
  try{api()}catch(_){return}
  lastAutoAttempt=Date.now();
@@ -231,10 +231,15 @@ async function run({publish=false,prepare=false}={}){
    last={...report,generatedAt:index.generatedAt,published:stored,warnings,
     path:OUT,connectorReadVerified:false,comparison,snapshot:index};
    // Only metadata of the audit status; never store raw clinical observations.
-   try{w.localStorage.setItem(LOCAL,JSON.stringify({
-      generatedAt:last.generatedAt,published:stored,expectedCount:report.expectedCount,
-      presentCount:report.presentCount,missingCount:report.missingCount,warnings
-   }))}catch(_){}
+   try{
+    const previous=JSON.parse(w.localStorage.getItem(LOCAL)||'null')||{};
+    w.localStorage.setItem(LOCAL,JSON.stringify({
+      generatedAt:last.generatedAt,published:stored,
+      lastPublishedAt:stored?last.generatedAt:previous.lastPublishedAt||(previous.published?previous.generatedAt:null),
+      expectedCount:report.expectedCount,presentCount:report.presentCount,
+      missingCount:report.missingCount,warnings
+    }));
+   }catch(_){}
    draw((stored?'✓ Privát Dropbox-index feltöltve és visszaellenőrizve.':
     '✓ Dropbox-források ellenőrizve (csak olvasás).')+
     ' · '+report.presentCount+'/'+report.expectedCount+' ismert fájl · '+report.fileCount+' állomány.',false);
