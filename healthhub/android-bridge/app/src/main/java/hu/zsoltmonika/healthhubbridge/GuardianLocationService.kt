@@ -132,11 +132,19 @@ class GuardianLocationService : Service(), LocationListener {
         if (!GuardianLocationVault.consented(this) || !hasLocationPermission()) {
             stop(this); stopSelf(); return
         }
-        // Reject mock, ancient or low-quality readings. This is never an emergency locator.
+        // Family safety: never represent simulated, stale, or coarse fixes as live.
+        // Location.elapsedRealtimeNanos uses the monotonic clock, unlike wall time.
+        val mock = if (Build.VERSION.SDK_INT >= 31) location.isMock
+            else @Suppress("DEPRECATION") location.isFromMockProvider
+        if (mock) return
+        val nowMs = System.currentTimeMillis()
         val atMs = location.time
-        if (atMs < System.currentTimeMillis() - 120_000L ||
-            atMs > System.currentTimeMillis() + 30_000L ||
-            !location.hasAccuracy() || location.accuracy > 200f) return
+        val monotonicAgeNs = android.os.SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos
+        if (atMs < nowMs - 120_000L || atMs > nowMs + 30_000L ||
+            monotonicAgeNs < -30_000_000_000L || monotonicAgeNs > 120_000_000_000L ||
+            !location.hasAccuracy() || !location.accuracy.isFinite() ||
+            location.accuracy > 200f || location.accuracy < 0f ||
+            !location.latitude.isFinite() || !location.longitude.isFinite()) return
         GuardianLocationVault.saveFix(
             this, location.latitude, location.longitude, location.accuracy, atMs
         )
