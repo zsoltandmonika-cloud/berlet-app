@@ -172,7 +172,7 @@ window.renderHealthSection=async function(){
   const meta=await migrationMeta();
   if(!meta){return legacyRender?.()}
   const p=profileKey(),k=window.healthSectionKind||'overview',q=(document.getElementById('healthSearch')?.value||'').toLocaleLowerCase('hu');
-  const titles={overview:'Egészség áttekintés',records:'Leletek',medications:'HealthHub Gyógyszerek + Supplements',measurements:'Mérések',devices:'Eszközök',more:'Továbbiak'};
+  const titles={overview:'Egészség áttekintés',records:'Leletek',medications:'HealthHub Gyógyszerek + Supplements',measurements:'Mérések',devices:'Eszközök',more:'Admin'};
   const pn=p==='monika'?'Mónika':'Zsolt';
   const sp=document.getElementById('healthSubProfile'),st=document.getElementById('healthSubTitle'),banner=document.getElementById('healthMigrationBanner'),c=document.getElementById('healthSubContent');
   if(!c)return;
