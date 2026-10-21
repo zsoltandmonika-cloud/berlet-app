@@ -1,5 +1,22 @@
-# HealthHub | fejlesztői dokumentumtár
-**Aktuális állapot:** 2026-10-11, éles build: **v380**. A korábbi mérföldkő-dokumentumok történeti pillanatképek; nem helyettesítik az aktuális állapotot.
+# HealthHub · Living Architecture & Development Documentation
+**Utolsó karbantartás: 2026-10-21** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
+
+## 🏛️ A rendszer jelenlegi műszaki kiindulópontja
+
+- **[Architecture Grand Design · Living Blueprint](./HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md)**: kétprofilos topológia, Android → HealthHub → Dropbox App Folder → ChatGPT Analytics adatáram, Supabase/Ask Léna, jogosultságok, fájlsémák, E2E bizonyítékok és verziók.
+- **[Operations & Recovery Runbook](./HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md)**: Project Control gomb eltűnés, Admin renderer, Dropbox 401/403/409, frissességi eltérések, profilizoláció, hibakeresési és rollback lépések.
+- **[Adminban megnyitható prémium dokumentumnéző](../architecture-grand-design.html)**: Architecture / Runbook nézet, keresés, nyomtatás.
+- **[Project Control · központi master](../project-control.json)**: naprakész epicek, mérföldkövek, státuszok és változásnapló; az Adminban végzett helyi override nem írja át automatikusan a GitHub mastert.
+- **[ChatGPT Dropbox-first architektúra v731](./chatgpt-dropbox-architecture-v731.md)**: történeti kiindulási terv; a v741/v742 megvalósulásról a Grand Design aktuálisabb.
+- **[v739 Dropbox külön engedélyezés előfeltételei](./chatgpt-dropbox-bridge-v739-preconditions.md)**: történeti hitelesítési/engedélyezési dokumentum.
+
+### Hiteles állapot · 2026-10-21
+
+A v742 egyszeri, **mindkét profilra LIVE VERIFIED** Dropbox ChatGPT Analytics fájlfeltöltést és connector-olvasást biztosított. A forrás JSON-ok ugyanabból a HealthHub Vaultból származnak, a célmappába külön engedéllyel kerülnek. Ez **nem** 24/7 szinkron. A régi v380-as buildszám a korábbi történeti snapshotokban szerepel; a ténylegesen betöltött modulokat az aktuális healthhub/index.html mutatja. A v743 provenance/státuszjavítás külön PR #388, az itt vizsgált állapotban még nincs élesítve.
+
+---
+
+## Történeti archívum
 
 ## Premium Glass Golden Design · 2026-10-14
 
