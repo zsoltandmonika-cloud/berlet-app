@@ -1,14 +1,13 @@
 /* Supplements shares existing Medications Premium Glass / scroll-select styles. */
-#healthSection #healthSubContent .hhSupp700Section{margin-top:20px;padding-top:15px;border-top:1px solid rgba(156,205,247,.22)}
+#healthSection #healthSubContent .hhSupp700Section{margin-top:10px;padding-top:10px;border-top:1px solid rgba(156,205,247,.22)}
 #healthSection #healthSubContent .hhSupp700Section h3{color:#f3faff!important}
-#healthSection #healthSubContent .hhSupp700Section .hhRsmTrack{margin-top:8px}
+#healthSection #healthSubContent .hhSupp700Section .hhRsmTrack{margin-top:5px}
 #healthSection #healthSubContent .hhSupp700Section .hhSupp700Search{
  display:block;width:100%;min-height:43px;box-sizing:border-box;margin:6px 0 11px;
  border:1px solid rgba(154,202,237,.40);border-radius:12px;
  background:rgba(11,32,57,.8);color:#f4fbff;padding:9px 12px;font:650 13px system-ui,sans-serif;
 }
 #healthSection #healthSubContent .hhSupp700Section .hhSupp700Search::placeholder{color:#c2d5e9}
-#healthSection #healthSubContent .hhSupp700Section .hhSupp700Catalog{padding-bottom:13px}
 #healthSection #healthSubContent .hhSupp700Section .hhRsmTrack .hhSupp700Card{cursor:default}
 #healthSection #healthSubContent .hhSupp700Section .hhRsmEmpty[hidden]{display:none!important}
 .hhSupp700Select{width:100%;min-height:43px;border-radius:12px;border:1px solid rgba(154,202,237,.38);background:#0d2948;color:#f4fbff;padding:8px 12px}
