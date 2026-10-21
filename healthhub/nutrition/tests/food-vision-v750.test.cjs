@@ -8,9 +8,9 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),vision=read('hh-food-vision-v750.js');
 const diary=read('nutrition-preview-v592.js'),gateway=read('hh-bevitel-premium-v643.js');
 const style=read('hh-food-vision-v750.css');
-assert.match(html,/hh-food-vision-v750\.js\?v=751-open-fix/);
-assert.match(html,/hh-food-vision-v750\.css\?v=750-premium-ai/);
-assert.match(html,/Fotós ételfelismerés · AI/);
+assert.match(html,/hh-food-vision-v750\.js\?v=752-golden-review/);
+assert.match(html,/hh-food-vision-v750\.css\?v=752-golden-stepper/);
+assert.match(html,/Fotó · Felismerés · Napló/);
 assert.doesNotMatch(html,/AI Bevitel, fotós felismerés: hamarosan/);
 assert.doesNotMatch(gateway,/ai\?\.addEventListener\('click'/); // tile is owned by the AI module
 assert.match(diary,/recordAiMeal:payload/);
@@ -19,6 +19,11 @@ assert.match(diary,/if\(row\.aiVision&&window\.HH_FOOD_VISION_V750/);
 assert.match(diary,/confirmedByUser:true/);
 assert.match(diary,/source:'estimated'/);
 assert.match(style,/hhVisionCommit750/);
+assert.match(style,/hhVisionStep752/);
+assert.match(style,/hhVisionMacroGrid752/);
+assert.match(vision,/function stage\(next\)/);
+assert.match(vision,/node\('details','hhVisionFood750'\)/);
+assert.match(vision,/stage\('review'\)/);
 assert.doesNotMatch(vision,/localStorage\.setItem|Dropbox-API-Arg|indexedDB\.open/);
 assert.match(vision,/new File\(\[blob\]/); // fresh JPEG strips original EXIF metadata
 assert.match(vision,/ai\.listModels\(\)/);
@@ -96,4 +101,19 @@ assert.equal(A.totals(unknown.items).kcal,null); // unknown is not 0 kcal
  assert.equal(tile.handlers.click.length,1,'reinit must not register a duplicate listener');
  tile.click();
  assert.equal(registry.get('hhVisionDialog750').open,true,'second click must reopen dialog');
+
+ const saved={id:'local-test-record',name:'Csirkemell rizzsel',meal:'Ebéd',aiVision:{
+  model:'test-model',notes:'becsült',components:[
+   {name:'csirkemell',grams:120,per100:{kcal:165,protein:31,carbs:0,fat:3.6},uncertain:false},
+   {name:'rizs',grams:150,per100:{kcal:130,protein:2.7,carbs:28,fat:0.3},uncertain:true}
+  ]}};
+ win.HH_FOOD_VISION_V750.open(saved);
+ assert.equal(registry.get('hhVisionDialog750').dataset.stage,'review','Saved AI meal opens directly into review step');
+ const rows=registry.get('hhVisionItems750').children;
+ assert.equal(rows.length,2);
+ assert.equal(rows[0].tagName,'details','Ingredient cards must be native detail accordions');
+ assert.equal(rows[0].open,false,'Ingredient details start collapsed');
+ assert.equal(registry.get('hhVisionTotals750').children.length,3,'Summary must show calories and macro cards');
+ assert.equal(registry.get('hhVisionDialog750').dataset.profile,'zsolt','Correct profile theme');
+
 }

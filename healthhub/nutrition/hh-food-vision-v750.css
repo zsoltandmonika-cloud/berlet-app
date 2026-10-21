@@ -30,3 +30,75 @@
 .hhVisionNotes750{border-left:3px solid #8cbfe2;padding:7px 11px}
 @media(max-width:410px){.hhVisionShell750{padding:12px;gap:10px}.hhVisionFood750{grid-template-columns:repeat(2,minmax(0,1fr))}.hhVisionHead750 strong{font-size:16px}.hhVisionAction750{font-size:12px;flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){.hhVisionDialog750::backdrop{backdrop-filter:none}}
+
+
+/* v752 GOLDEN UX · photographic capture > estimated review > journal */
+.hhVisionDialog750{--vision-accent:#59baff;--vision-glow:rgba(63,153,229,.20)}
+.hhVisionDialog750[data-profile="monika"]{--vision-accent:#ffa9d3;--vision-glow:rgba(242,115,181,.20)}
+.hhVisionDialog750{background:radial-gradient(ellipse 340px 180px at 85% -5%,var(--vision-glow),transparent),linear-gradient(150deg,#142d4c,#0b182c 82%);border-color:color-mix(in srgb,var(--vision-accent) 55%,transparent)}
+.hhVisionHead750{position:sticky;top:-16px;z-index:5;background:linear-gradient(95deg,#132b49f2,#0a1b35f2);padding:10px 4px;margin:-6px -2px 0;border-bottom:1px solid #ffffff19;backdrop-filter:blur(14px)}
+.hhVisionHead750 strong{font-weight:830;letter-spacing:-.02em}
+.hhVisionSteps752{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:4px 0 3px}
+.hhVisionStep752{border-radius:12px;padding:10px 5px;font-size:11px;font-weight:800;text-align:center;color:#8daec7;background:#142f4a;border:1px solid #ffffff12;white-space:nowrap}
+.hhVisionStep752[data-status="active"]{color:#fff;background:color-mix(in srgb,var(--vision-accent) 27%,#0c2a48);border-color:var(--vision-accent);box-shadow:0 0 18px var(--vision-glow)}
+.hhVisionStep752[data-status="done"]{color:#bfe8ff;border-color:#6bbbad80}
+.hhVisionProfile750{align-self:start!important;background:color-mix(in srgb,var(--vision-accent) 19%,#122743);border:1px solid color-mix(in srgb,var(--vision-accent) 45%,transparent);color:#e8f8ff!important;border-radius:999px;padding:6px 11px!important;font-weight:700}
+.hhVisionIntro752{font-size:14px!important;font-weight:720;color:#ecf6ff!important}
+.hhVisionPicker750{display:grid;grid-template-columns:1fr 1fr}
+.hhVisionPicker750 .hhVisionAction750{min-height:74px;border-radius:17px;flex-direction:column;padding:12px 6px;border-color:color-mix(in srgb,var(--vision-accent) 50%,transparent);background:linear-gradient(145deg,#214d75,#173651);box-shadow:inset 0 1px #ffffff20;font-size:13px}
+.hhVisionPreview750{height:clamp(170px,35vw,230px);min-height:170px;object-fit:cover;border-color:color-mix(in srgb,var(--vision-accent) 60%,transparent)}
+.hhVisionDisclosure750{font-size:11px!important;opacity:.88}
+.hhVisionPrimary750{border-color:var(--vision-accent);box-shadow:0 4px 22px var(--vision-glow);min-height:52px;font-size:14px}
+.hhVisionStatus750{font-size:12px!important;background:#0f304c;border-color:#376c91;color:#e5f6ff!important}
+.hhVisionDialog750[data-stage="photo"] .hhVisionReview752,
+.hhVisionDialog750[data-stage="scanning"] .hhVisionReview752{display:none}
+.hhVisionDialog750[data-stage="review"] .hhVisionPicker750,
+.hhVisionDialog750[data-stage="review"] .hhVisionDisclosure750,
+.hhVisionDialog750[data-stage="review"] .hhVisionIntro752,
+.hhVisionDialog750[data-stage="review"] .hhVisionPrimary750{display:none}
+.hhVisionDialog750[data-stage="scanning"] .hhVisionPicker750{display:none}
+.hhVisionDialog750[data-stage="scanning"] .hhVisionStatus750{border-color:var(--vision-accent);position:relative;padding-left:37px}
+.hhVisionDialog750[data-stage="scanning"] .hhVisionStatus750::before{content:"";position:absolute;top:50%;left:12px;width:13px;height:13px;border-radius:50%;border:2px solid #ffffff44;border-top-color:var(--vision-accent);animation:hhVisionSpin752 .85s linear infinite;transform-origin:center}
+@keyframes hhVisionSpin752{from{transform:translateY(-50%) rotate(0)}to{transform:translateY(-50%) rotate(360deg)}}
+.hhVisionReview752{display:flex;flex-direction:column;gap:11px}
+.hhVisionReviewLead752{font-size:15px!important;font-weight:790;color:#f5faff!important;letter-spacing:-.02em}
+.hhVisionMeta752{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:10px}
+.hhVisionMeta752 label{min-width:0}
+.hhVisionMeta752 input,.hhVisionMeta752 select{border-color:#528cbe;background:#0c2542}
+.hhVisionTotals750{display:block;background:linear-gradient(140deg,#173b61,#0c2948);border:1px solid color-mix(in srgb,var(--vision-accent) 50%,transparent);padding:18px;border-radius:18px;box-shadow:inset 0 1px #ffffff18,0 12px 26px #0003}
+.hhVisionSummaryLabel752{display:block;color:#b1d9f5;font-size:10px;font-weight:850;letter-spacing:.09em}
+.hhVisionEnergy752{font-weight:850;font-size:clamp(36px,9vw,52px);line-height:1.2;letter-spacing:-.04em;color:#fff;font-variant-numeric:tabular-nums;margin:4px 0 12px}
+.hhVisionEnergy752>span{font-size:15px;font-weight:650;letter-spacing:0;color:#c8e4fb}
+.hhVisionMacroGrid752{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hhVisionMacro752{display:flex;flex-direction:column;gap:4px;background:#091c35a8;border:1px solid #ffffff1c;border-radius:12px;padding:10px 7px}
+.hhVisionMacro752 small{font-size:10px;color:#aacde7}
+.hhVisionMacro752 b{font-size:14px;font-variant-numeric:tabular-nums;color:#f0fbff}
+.hhVisionIngredientsTitle752{font-size:14px;margin-top:2px;color:#e7f7ff}
+.hhVisionIngredientHint752{font-size:11px!important;color:#a8cce5!important}
+.hhVisionItems750{gap:8px}
+.hhVisionFood750{display:block;padding:0;overflow:hidden;background:linear-gradient(125deg,#153653,#112b45);border:1px solid #4a7296;border-radius:13px}
+.hhVisionFood750[data-uncertain="true"]{border-color:#b4945d}
+.hhVisionFood750[open]{border-color:var(--vision-accent);box-shadow:0 6px 20px #0004}
+.hhVisionItemHead752{display:flex;align-items:center;gap:9px;min-height:58px;padding:12px 12px;cursor:pointer;list-style:none;font-size:13px;color:#f6fbff}
+.hhVisionItemHead752::-webkit-details-marker{display:none}
+.hhVisionItemHead752::marker{content:""}
+.hhVisionItemName752{flex:1;font-weight:750;overflow-wrap:anywhere}
+.hhVisionItemGrams752{white-space:nowrap;background:#091f3a;border:1px solid #6694b04f;padding:7px 9px;border-radius:10px;color:#dcf2ff;font-weight:800;font-variant-numeric:tabular-nums}
+.hhVisionEditHint752{font-size:17px;color:var(--vision-accent)}
+.hhVisionFields752{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px 12px 12px;border-top:1px solid #789bb83b}
+.hhVisionFields752 label:first-child{grid-column:1/-1}
+.hhVisionFields752 label{min-width:0}
+.hhVisionFields752 .hhVisionRemove750,.hhVisionFields752 .hhVisionWarn750{grid-column:1/-1}
+.hhVisionNotes750{font-size:11px!important;color:#b8d7eb!important;background:#162e47;border-radius:10px;padding:9px 11px}
+.hhVisionCommit750{position:sticky;bottom:0;z-index:4;border:1px solid var(--vision-accent);border-radius:15px;min-height:54px;background:linear-gradient(135deg,#147e84,#1879a7);box-shadow:0 -11px 27px #08182cef,0 0 19px var(--vision-glow);font-size:14px;letter-spacing:.01em}
+.hhVisionDialog750[data-profile="monika"] .hhVisionCommit750{background:linear-gradient(125deg,#a84a91,#9359af)}
+.hhVisionDialog750 :focus-visible{outline:3px solid var(--vision-accent);outline-offset:3px}
+@media(max-width:410px){
+ .hhVisionShell750{gap:9px}
+ .hhVisionMeta752{grid-template-columns:1fr}
+ .hhVisionStep752{font-size:10px;padding:9px 2px}
+ .hhVisionMacro752 b{font-size:12px}
+ .hhVisionPicker750 .hhVisionAction750{font-size:12px;min-height:64px}
+ .hhVisionHead750{top:-12px}
+}
+@media(prefers-reduced-motion:reduce){.hhVisionDialog750[data-stage="scanning"] .hhVisionStatus750::before{animation:none}}

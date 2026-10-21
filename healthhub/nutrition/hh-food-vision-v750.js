@@ -92,28 +92,53 @@ async function availableModels(puter){
    x.vision!==false&&x.supports_vision!==false&&x.image_input!==false;
  })?.id).filter(Boolean);
 }
+function stage(next){
+ const dialog=$('hhVisionDialog750');if(!dialog)return;
+ dialog.dataset.stage=next;
+ const steps=$('hhVisionSteps752');
+ if(steps){const index=next==='review'?1:0;
+  for(const item of steps.children){const at=Number(item.dataset.index);
+   item.dataset.status=at<index?'done':at===index?'active':'waiting';
+   if(at===index)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');
+  }
+ }
+ if(next==='review')$('hhVisionShell752')?.scrollTo?.({top:0,behavior:'smooth'});
+}
 function calc(){
  const e=$('hhVisionTotals750'),save=$('hhVisionSave750');if(!e||!save||!draft)return;
  const v=totals(draft.items);
  const fmt=n=>n===null?'—':n.toLocaleString('hu-HU',{maximumFractionDigits:1});
- e.textContent='Becsült teljes adag: '+fmt(v.kcal)+' kcal · Fehérje '+fmt(v.protein)+' g · Szénhidrát '+fmt(v.carbs)+' g · Zsír '+fmt(v.fat)+' g';
+ e.replaceChildren();
+ const label=node('small','hhVisionSummaryLabel752','BECSÜLT ENERGIA · TELJES ADAG');
+ const amount=node('div','hhVisionEnergy752',fmt(v.kcal));amount.append(node('span','',' kcal'));
+ const grid=node('div','hhVisionMacroGrid752');
+ for(const [key,title] of [['protein','Fehérje'],['carbs','Szénhidrát'],['fat','Zsír']]){
+  const card=node('div','hhVisionMacro752');card.append(node('small','',title),node('b','',fmt(v[key])+' g'));grid.append(card);
+ }
+ e.append(label,amount,grid);
  save.disabled=busy||Object.values(v).some(x=>x===null)||draft.items.some(x=>!x.name.trim());
 }
 function editor(){
  const box=$('hhVisionItems750');box.replaceChildren();
+ const title=$('hhVisionIngredientsTitle752');if(title)title.textContent='Felismert összetevők · '+draft.items.length;
  draft.items.forEach((item,i)=>{
-  const card=node('div','hhVisionFood750');box.append(card);
+  const card=node('details','hhVisionFood750'),head=node('summary','hhVisionItemHead752');
+  const main=node('span','hhVisionItemName752',item.name);main.dataset.role='item-summary';
+  const grams=node('span','hhVisionItemGrams752',item.grams+' g');grams.dataset.role='portion-summary';
+  head.append(main,grams,node('small','hhVisionEditHint752','✎'));card.append(head);
+  const fields=node('div','hhVisionFields752');
   for(const [key,label] of [['name','Összetevő'],['grams','Adag (g)'],['kcal','kcal / 100 g'],['protein','Fehérje / 100 g'],['carbs','Szénhidrát / 100 g'],['fat','Zsír / 100 g']]){
    const holder=node('label','',label),input=node('input');
    input.dataset.index=i;input.dataset.key=key;input.type=key==='name'?'text':'number';
-   input.inputMode=key==='name'?'text':'decimal';input.step=key==='grams'?'1':'0.1';input.min=key==='grams'?'1':'0';input.max=key==='name'?'':key==='grams'?'3000':key==='kcal'?'950':'100';
+   input.inputMode=key==='name'?'text':'decimal';input.step=key==='grams'?'1':'0.1';
+   input.min=key==='grams'?'1':'0';input.max=key==='name'?'':key==='grams'?'3000':key==='kcal'?'950':'100';
    input.value=key==='name'?item.name:key==='grams'?item.grams:item.per[key]??'';
-   holder.append(input);card.append(holder);
+   holder.append(input);fields.append(holder);
   }
-  if(item.uncertain)card.append(node('small','hhVisionWarn750','⚠ Bizonytalan adag vagy összetevő.'));
-  const remove=node('button','hhVisionRemove750','× Törlés');remove.type='button';
+  if(item.uncertain){card.dataset.uncertain='true';fields.append(node('small','hhVisionWarn750','⚠ Bizonytalan összetevő vagy adag. Ellenőrizd.'))}
+  const remove=node('button','hhVisionRemove750','× Összetevő törlése');remove.type='button';
   remove.onclick=()=>{if(draft.items.length===1)return info('Legalább egy összetevő szükséges.',true);draft.items.splice(i,1);editor()};
-  card.append(remove);
+  fields.append(remove);card.append(fields);box.append(card);
  });
  calc();
 }
@@ -123,12 +148,17 @@ function editInput(e){
  if(k==='name')x.name=input.value.slice(0,85);
  else if(k==='grams')x.grams=value===null?NaN:value;
  else x.per[k]=value===null?null:value;
+ const card=$('hhVisionItems750')?.children[i];
+ const name=card?.querySelector?.('[data-role="item-summary"]');
+ const grams=card?.querySelector?.('[data-role="portion-summary"]');
+ if(name)name.textContent=x.name||'Névtelen összetevő';
+ if(grams)grams.textContent=Number.isFinite(x.grams)?x.grams+' g':'Hiányzó adag';
  calc();
 }
 async function recognize(){
  if(busy||!activeFile)return;
  busy=true;draft=null;$('hhVisionScan750').disabled=true;$('hhVisionSave750').disabled=true;
- info('A legfrissebb elérhető modellek ellenőrzése…');
+ stage('scanning');info('Léna elemzi a fotót…');
  try{
   if(profile!==api()?.getProfile())throw Error('A profil megváltozott.');
   const puter=await loadPuter(),choices=await availableModels(puter);
@@ -146,8 +176,8 @@ async function recognize(){
   draft=parse(response);
   $('hhVisionName750').value=draft.name;
   $('hhVisionNotes750').textContent=draft.notes||'A fotóból nem lehet pontos tömeget és elkészítési módot meghatározni.';
-  editor();info('✓ AI-felismerés: '+model+' · Ellenőrizd az adagokat és a tápértékeket mentés előtt.');
- }catch(e){info('⚠ '+String(e?.message||e).slice(0,260),true)}
+  editor();stage('review');info('✓ Felismerés kész. Az adagokat ellenőrizd mentés előtt.');
+ }catch(e){stage('photo');info('⚠ '+String(e?.message||e).slice(0,260),true)}
  finally{busy=false;$('hhVisionScan750').disabled=!activeFile;calc()}
 }
 function save(){
@@ -167,7 +197,7 @@ async function selected(f){
   cleanPhoto();activeFile=await encode(f);photoUrl=URL.createObjectURL(activeFile);
   const img=$('hhVisionPreview750');img.src=photoUrl;img.hidden=false;
   draft=null;$('hhVisionItems750').replaceChildren();$('hhVisionSave750').disabled=true;$('hhVisionScan750').disabled=false;
-  info('Fotó kész. Az AI-elemzés indításakor a képet a Puter dolgozza fel.');
+  stage('photo');info('Fotó kiválasztva. Indítsd az AI-felismerést.');
  }catch(e){info('⚠ '+String(e.message||e),true)}
 }
 function open(row){
@@ -175,7 +205,8 @@ function open(row){
  const dialog=$('hhVisionDialog750');
  if(!dialog){const status=$('hhBevitelInfo');if(status){status.textContent='A fotós AI ablaka nem tudott elindulni. Frissítsd az oldalt (Ctrl+F5).';status.hidden=false}return;}
  cleanPhoto();editing=row||null;draft=null;busy=false;profile=api()?.getProfile()||'';
- $('hhVisionProfile750').textContent='Profil: '+(profile==='monika'?'Mónika':'Zsolt');
+ dialog.dataset.profile=profile;
+ $('hhVisionProfile750').textContent='● '+(profile==='monika'?'Mónika':'Zsolt')+' profil';
  $('hhVisionName750').value=row?.name||'';
  $('hhVisionMeal750').value=row?.meal||defaultMeal();
  $('hhVisionPicker750').hidden=!!row;$('hhVisionPreview750').hidden=true;$('hhVisionScan750').disabled=true;
@@ -184,8 +215,8 @@ function open(row){
  if(row){
   model=row.aiVision?.model||'';
   draft={name:row.name,items:row.aiVision.components.map(x=>({name:x.name,grams:x.grams,per:{...x.per100},uncertain:x.uncertain})),notes:row.aiVision.notes};
-  editor();info('Korábban rögzített AI-becslés. Az eredeti fotót nem tároljuk.');
- }else info('Válassz fotót. Az AI kérés a Puter-fiók keretét használhatja.');
+  editor();stage('review');info('Korábban jóváhagyott becslés. Az összetevőket érintéssel szerkesztheted.');
+ }else{stage('photo');info('Válassz fotót. Az AI csak a külön indított elemzéskor dolgozza fel.')}
  dialog.showModal();
 }
 function init(){
@@ -202,10 +233,16 @@ function init(){
  }
  if($('hhVisionDialog750')||!api()?.recordAiMeal)return;
  const dialog=node('dialog','hhVisionDialog750');dialog.id='hhVisionDialog750';
- const shell=node('div','hhVisionShell750');dialog.append(shell);
+ const shell=node('div','hhVisionShell750');shell.id='hhVisionShell752';dialog.append(shell);
  const head=node('header','hhVisionHead750');head.append(node('strong','','📸 Léna AI · ételfelismerés'));
  const exit=node('button','','×');exit.type='button';exit.onclick=close;head.append(exit);shell.append(head);
+ const steps=node('nav','hhVisionSteps752');steps.id='hhVisionSteps752';steps.setAttribute('aria-label','Ételbevitel lépései');
+ for(const [i,icon,label] of [[0,'📸','Fotó'],[1,'✨','Ellenőrzés'],[2,'✓','Napló']]){
+  const item=node('span','hhVisionStep752',icon+' '+label);item.dataset.index=String(i);steps.append(item);
+ }
+ shell.append(steps);
  const pr=node('p');pr.id='hhVisionProfile750';shell.append(pr);
+ shell.append(node('p','hhVisionIntro752','Fotózz, ismerj fel, naplózz. Kevesebb érintés, több áttekinthetőség.'));
  const picker=node('div','hhVisionPicker750');picker.id='hhVisionPicker750';
  for(const [title,capture] of [['📷 Fotó készítése',true],['🖼️ Galériából',false]]){
   const button=node('button','hhVisionAction750',title),input=node('input');button.type='button';input.type='file';input.accept='image/jpeg,image/png,image/webp';input.hidden=true;
@@ -218,13 +255,18 @@ function init(){
  shell.append(node('p','hhVisionDisclosure750','A fényképet kizárólag a külön indított felismeréskor küldjük a Puter AI-nak. Az eredeti képet nem mentjük a Nutrition naplóba. A Puter használata díjköteles lehet.'));
  const scan=node('button','hhVisionAction750 hhVisionPrimary750','✨ AI felismerés');scan.id='hhVisionScan750';scan.type='button';scan.onclick=()=>{void recognize()};shell.append(scan);
  const status=node('p','hhVisionStatus750');status.id='hhVisionStatus750';status.setAttribute('role','status');status.setAttribute('aria-live','polite');shell.append(status);
- const nameLabel=node('label','hhVisionLabel750','Étel neve'),name=node('input');name.id='hhVisionName750';name.maxLength=85;nameLabel.append(name);shell.append(nameLabel);
+ const review=node('section','hhVisionReview752');review.id='hhVisionReview752';shell.append(review);
+ review.append(node('p','hhVisionReviewLead752','Léna ezt találta a tányérodon'));
+ const meta=node('div','hhVisionMeta752');
+ const nameLabel=node('label','hhVisionLabel750','Étel neve'),name=node('input');name.id='hhVisionName750';name.maxLength=85;nameLabel.append(name);meta.append(nameLabel);
  const mealLabel=node('label','hhVisionLabel750','Étkezés'),meal=node('select');meal.id='hhVisionMeal750';
- MEALS.forEach(x=>{const o=node('option','',x);o.value=x;meal.append(o)});mealLabel.append(meal);shell.append(mealLabel);
- const notes=node('p','hhVisionNotes750');notes.id='hhVisionNotes750';shell.append(notes);
- const list=node('div','hhVisionItems750');list.id='hhVisionItems750';list.addEventListener('input',editInput);shell.append(list);
- const total=node('strong','hhVisionTotals750','A tápérték még nincs kiszámolva.');total.id='hhVisionTotals750';shell.append(total);
- const saveButton=node('button','hhVisionAction750 hhVisionCommit750','✓ Jóváhagyás és naplózás');saveButton.id='hhVisionSave750';saveButton.type='button';saveButton.onclick=save;shell.append(saveButton);
+ MEALS.forEach(x=>{const o=node('option','',x);o.value=x;meal.append(o)});mealLabel.append(meal);meta.append(mealLabel);review.append(meta);
+ const total=node('section','hhVisionTotals750');total.id='hhVisionTotals750';total.setAttribute('aria-live','polite');review.append(total);
+ const notes=node('p','hhVisionNotes750');notes.id='hhVisionNotes750';review.append(notes);
+ const heading=node('strong','hhVisionIngredientsTitle752','Felismert összetevők');heading.id='hhVisionIngredientsTitle752';review.append(heading);
+ review.append(node('p','hhVisionIngredientHint752','Érintsd meg az összetevőt, ha javítani szeretnéd az adagot vagy a tápértéket.'));
+ const list=node('div','hhVisionItems750');list.id='hhVisionItems750';list.addEventListener('input',editInput);review.append(list);
+ const saveButton=node('button','hhVisionAction750 hhVisionCommit750','✓ Jóváhagyás és naplózás');saveButton.id='hhVisionSave750';saveButton.type='button';saveButton.onclick=save;review.append(saveButton);
  d.body.append(dialog);
  dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();else cleanPhoto()});
 }
