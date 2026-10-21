@@ -108,6 +108,9 @@ function decorate(){
  // New carousel rails are recreated on render, so rebind only to each new rail.
  attachRail(content.querySelector('.hhRsmTrack'),'.hhRsmCard');
  attachRail(content.querySelector('.hhRsmChips'),'.hhRsmChip');
+ // Medication filters stay compact: Buddy belongs to Records only.
+ // Both medication rails keep their existing gesture/tick handlers.
+ if(kind==='medications')return;
  if(heading.querySelector('.hhBuddy593'))return;
  var buddy=make('div','hhBuddy593');
  buddy.setAttribute('aria-label','Buddy, a HealthHub mókusa');
@@ -136,7 +139,7 @@ function selected(e){
 // Selection audio runs on the original user click, before card actions re-render.
 document.addEventListener('click',selected,true);
 var visual=document.createElement('link');visual.rel='stylesheet';
-visual.href='./hh-buddy-scroll-companion-v593.css?v=595-clean-buddy-rail';
+visual.href='./hh-buddy-scroll-companion-v593.css?v=757-medication-compact';
 document.head.appendChild(visual);
 var prev=root.renderHealthSection;
 if(typeof prev==='function')root.renderHealthSection=async function(){

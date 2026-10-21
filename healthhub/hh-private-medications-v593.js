@@ -254,8 +254,9 @@ async function augment(){
   if(typeof x.remove==='function')x.remove();
  });
  if(card.querySelector('.hhMed593Add'))return;
- var button=make('button','hhMed593Add hhMed657Add','＋ Gyógyszer hozzáadása');
- button.type='button';button.addEventListener('click',function(){edit()});
+ var button=make('button','hhMed593Add hhMed657Add','💊 Gyógyszerek · ＋ Hozzáadás');
+ button.type='button';button.setAttribute('aria-label','Új gyógyszer hozzáadása');
+ button.addEventListener('click',function(){edit()});
  card.insertBefore(button,card.querySelector('.hrRow,.hhRsmToolbar,.hhRsmTrack'));
  try{
   var payload=await read(),profile=current(),a=((((payload||{}).profiles||{})[profile]||{}).medications)||[];

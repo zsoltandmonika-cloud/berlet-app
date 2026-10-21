@@ -17,7 +17,7 @@ assert.ok(src.includes('#hhOneRag500')&&src.includes('#hhOneFallback501')&&src.i
 assert.ok(src.includes('#hhSP299')&&src.includes('#hhProfileDock554')&&src.includes('hhHealthSubPortraitHit')&&src.includes('runnerProfile'),'old separate profile controls hidden');
 assert.ok(nutrition.includes("click('profileBtn',()=>{tone('tap');setProfile("),'approved Nutrition control remains working');
 assert.ok(meds.includes('healthhub:private-medications-saved')&&medCtx.includes('healthhub:private-medications-saved')&&meds.includes('purpose:purpose.value.trim()'),'private save propagates to Ask Léna context and explanation');
-assert.ok(meds.includes("'hhMed593Add hhMed657Add','＋ Gyógyszer hozzáadása'")&&!meds.includes('preset.click()'),'new generic editor has no assumed prescription');
+assert.ok(meds.includes("'hhMed593Add hhMed657Add','💊 Gyógyszerek · ＋ Hozzáadás'")&&!meds.includes('preset.click()'),'new generic editor has no assumed prescription');
 assert.ok(!src.includes('localStorage.setItem('),'new global button never writes profile/medical store itself');
 
 function fakeEnv(mode='main'){

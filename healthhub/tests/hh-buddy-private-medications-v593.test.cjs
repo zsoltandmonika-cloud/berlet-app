@@ -7,16 +7,16 @@ const buddy=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.js'),'
 const medCss=fs.readFileSync(path.join(dir,'hh-private-medications-v593.css'),'utf8');
 const buddyCss=fs.readFileSync(path.join(dir,'hh-buddy-scroll-companion-v593.css'),'utf8');
 const index=fs.readFileSync(path.join(dir,'index.html'),'utf8');
-assert.ok(index.includes('hh-private-medications-v593.js?v=657-single-add-button'));
+assert.ok(index.includes('hh-private-medications-v593.js?v=757-compact-one-pill'));
 assert.ok(index.includes('health-scroll-select-v592.js?v=594-default-buddy-live'));
-assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
+assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=757-medication-compact'));
 assert.ok(index.indexOf('hh-private-medications-v593.js')<index.indexOf('health-scroll-select-v592.js'));
 assert.ok(index.indexOf('health-scroll-select-v592.js')<index.indexOf('hh-buddy-scroll-companion-v593.js'));
 assert.ok(meds.includes("KEY='private-reference'"),'uses established private reference, never public personal data');
 assert.ok(meds.includes("tx.objectStore('meta').put"),'profile data saved only to existing private reference');
 assert.ok(meds.includes('hhMasterStructuredSync304(true)'),'cloud sync uses canonical Dropbox master');
 assert.ok(meds.includes("if(current()!==profile)"),'rejects saving if selected profile changes mid-edit');
-assert.ok(meds.includes("'hhMed593Add hhMed657Add','＋ Gyógyszer hozzáadása'"),'one generic add button');
+assert.ok(meds.includes("'hhMed593Add hhMed657Add','💊 Gyógyszerek · ＋ Hozzáadás'"),'one generic add button');
 assert.ok(!meds.includes("'hhMed593Add hhMed655Import'"),'one-off bulk import no longer visible');
 assert.ok(!meds.includes("var preset=make('button'"),'new medication never assumes an existing prescription');
 assert.ok(medCss.includes('.hhMed593Add.hhMed657Add'),'new compact premium button style');
@@ -28,6 +28,8 @@ assert.ok(buddy.includes('document.addEventListener(\'click\',selected,true)'),'
 assert.ok(buddy.includes('prefers-reduced-motion'),'reduced-motion support');
 assert.ok(buddyCss.includes('pointer-events:none'),'Buddy does not obscure filters');
 assert.ok(!buddyCss.includes('hhBuddy593Sound'),'Buddy is clean, no mute button');
+assert.ok(buddy.includes("if(kind==='medications')return;"),'Medication card does not render Buddy');
+assert.ok(buddyCss.includes('.hhRsmSection:has(> .hhMed657Add)'),'Compact style is medication-only');
 assert.ok(medCss.includes('hhMed593Overlay'),'accessibly styled private editor');
 
 class El{
@@ -97,7 +99,7 @@ async function test(){
  await window.renderHealthSection();
  assert.equal(container.querySelectorAll('.hhMed593Add').length,1,'one medication action in Mónika profile');
  assert.equal(container.querySelector('.hhMed655Import'),null,'the completed migration button is hidden');
- assert.equal(container.querySelector('.hhMed657Add').textContent,'＋ Gyógyszer hozzáadása');
+ assert.equal(container.querySelector('.hhMed657Add').textContent,'💊 Gyógyszerek · ＋ Hozzáadás');
  await api.edit();
  let modal=findId(body,'hhMed593Overlay'),fields=modal.querySelectorAll('input');
  assert.equal(fields.length,7,'seven blank editor fields');
