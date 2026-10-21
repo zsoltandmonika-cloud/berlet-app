@@ -4,7 +4,7 @@ const dir=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(dir,p),
 const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=read('hh-lena-ai-scan-page-v753.css'),journal=read('nutrition-preview-v592.js');
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=753-camera-off-v3/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=753a-editor-camera-guard/);
 assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=753-hero-scan-barcode/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.match(html,/id="hhScanTabBarcode753"/);
@@ -14,6 +14,7 @@ assert.match(css,/healthhub-nutrition-lena-buddy-approved\.webp/);
 assert.match(css,/\[data-profile="monika"\]/);
 assert.match(css,/hhScanSweep753/);
 assert.match(script,/w\.history\.pushState/);
+assert.match(script,/if\(row\?\.aiVision\)editing=row/);
 assert.match(script,/stopImmediatePropagation/);
 assert.match(script,/getUserMedia/);
 assert.match(script,/new File\(\[blob\],'lena-scan-square\.jpg'/);
