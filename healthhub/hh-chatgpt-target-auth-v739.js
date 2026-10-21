@@ -8,6 +8,8 @@ const DB='hh-chatgpt-target-v739',STORE='session',KEY='target';
 const PKCE='hh-chatgpt-target-pkce-v739';
 const CALLBACK='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/chatgpt-dropbox-callback-v739.html';
 const SCOPES='files.metadata.read files.metadata.write files.content.read files.content.write';
+// Public Dropbox OAuth application ID; never an access token or App secret.
+const DEFAULT_APP_KEY='dv5a4o8h09wwgtn';
 const MAX_AUTH_AGE=10*60*1000;
 const utf8=s=>new TextEncoder().encode(s);
 function openDb(){
@@ -55,7 +57,7 @@ function checkKey(key){
   throw Error('Érvénytelen Dropbox App key. Az App Console nyilvános App key értékét add meg, nem App secretet.');
  return key.trim();
 }
-async function authorize(appKey){
+async function authorize(appKey=DEFAULT_APP_KEY){
  appKey=checkKey(appKey);
  const verifier=randomToken(),state=randomToken();
  w.sessionStorage.setItem(PKCE,JSON.stringify({verifier,state,appKey,createdAt:Date.now()}));
@@ -106,5 +108,5 @@ async function accessToken(){
  await save(next);return next.accessToken;
 }
 w.HH_CHATGPT_TARGET_AUTH_V739={version:'739',callback:CALLBACK,authorize,exchange,
- accessToken,read,remove,checkKey};
+ accessToken,read,remove,checkKey,defaultAppKey:DEFAULT_APP_KEY};
 })(window);
