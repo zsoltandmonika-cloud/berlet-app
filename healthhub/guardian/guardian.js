@@ -12,6 +12,12 @@ function theme(){
  $('guardianProfile').textContent=name();
  const avatars=w.HH_GOLDEN_AVATARS_V529,avatar=$('guardianAvatar');
  if(avatars&&avatar)avatar.src=monika?avatars.m:avatars.z;
+ // The decorative Hero monitor always uses the two verified original HH avatars.
+ if(avatars){
+  const hz=$('guardianHeroZsolt'),hm=$('guardianHeroMonika');
+  if(hz)hz.src=avatars.z;
+  if(hm)hm.src=avatars.m;
+ }
  const switcher=$('guardianProfileSwitch');
  if(switcher){
   switcher.textContent=name()+' ⇄';
