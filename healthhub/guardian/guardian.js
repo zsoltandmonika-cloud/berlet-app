@@ -10,12 +10,6 @@ function theme(){
  const monika=name()==='Mónika';
  d.documentElement.dataset.guardianProfile=monika?'m':'z';
  $('guardianProfile').textContent=name();
- const switcher=$('guardianProfileSwitch');
- if(switcher){
-  const next=monika?'Zsolt':'Mónika';
-  switcher.title='Profilváltás: '+next;
-  switcher.setAttribute('aria-label','Egyérintéses profilváltás '+next+' profiljára');
- }
  const avatars=w.HH_GOLDEN_AVATARS_V529,avatar=$('guardianAvatar');
  if(avatars&&avatar)avatar.src=monika?avatars.m:avatars.z;
  const switcher=$('guardianProfileSwitch');
