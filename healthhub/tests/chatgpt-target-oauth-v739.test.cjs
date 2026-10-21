@@ -24,7 +24,7 @@ assert.equal(a.defaultAppKey,'dv5a4o8h09wwgtn');
 assert.throws(()=>a.checkKey('not valid app secret'),/App key/);
 assert.match(callback,/hh-chatgpt-target-auth-v739.js/);
 assert.match(index,/hh-chatgpt-target-auth-v739.js\?v=739-pkce/);
-assert.match(index,/hh-chatgpt-target-onboard-v739.js\?v=739-consent/);
+assert.match(index,/hh-chatgpt-target-onboard-v739.js\?v=(?:739-consent|740-target-folder-read)/);
 assert.match(panel,/Ez a külön engedély/);
 assert.doesNotMatch(panel,/files\/upload|files\/download|dropboxapi\.com\/2\/files\/upload/);
 (async()=>{
