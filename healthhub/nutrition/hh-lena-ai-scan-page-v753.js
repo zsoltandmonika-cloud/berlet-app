@@ -270,6 +270,8 @@ function route(){
 }
 function open(row=null){
  if(!page)init();if(!page)return;
+ // Editing an already saved record must never prompt for camera permission.
+ if(row?.aiVision)editing=row;
  if(w.location.hash!==PAGE){fromTile=true;w.history.pushState({hhScan:true},'',PAGE)}
  route();
  if(row?.aiVision){
