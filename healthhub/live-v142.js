@@ -88,7 +88,7 @@ function hoursPanel(){
    var when=new Date(x.at);var date=Number.isFinite(when.getTime())?when.toLocaleDateString('hu-HU'):'—';
    return '<small>'+esc(date)+' · '+esc(timeNumber(Number(x.minutes)))+' óra'+
     (x.kind==='timer'?' · Időmérő':' · Kézi hozzáadás')+'</small>';
-  }).join('')+'</div>':'')+'</section>';
+  }).join('')+'</div>':'')+'<div class="hhPcHoursCloud" id="hhPcHoursDropbox748"></div></section>';
 }
 
 function epics(actions){
@@ -130,6 +130,8 @@ function ensureStyle(){
 
  '.hhPcHoursKpi{width:100%;display:block;text-align:left;cursor:pointer;background:linear-gradient(135deg,#0e3154,#1d5d84);border-color:#659fbe;color:#fff;box-shadow:0 5px 18px #0b35543b;font-family:inherit}'+
  '.hhPcHoursKpi small{color:#d5ecff;font-size:8px;letter-spacing:.035em}.hhPcHoursKpi b{display:inline-block;color:#fff;font-size:clamp(30px,6vw,43px);line-height:1.1;letter-spacing:-1px;margin-top:7px;overflow-wrap:anywhere}.hhPcHoursKpi .hhPcHoursUnit{color:#d5ecff;font-size:10px;font-weight:850;margin-left:4px}.hhPcHoursKpi em{font-size:8px;color:#dcf3ff;margin-top:9px;line-height:1.4}.hhPcHoursKpi:focus-visible{outline:3px solid #8bd4ff;outline-offset:2px}'+
+ '.hhPcHoursCloud{margin-top:13px;padding:12px;border:1px solid #8ab8d1;border-radius:12px;background:linear-gradient(135deg,#133a5b,#205575);color:#eaf6ff}'+
+ '.hhPcHoursCloud strong{display:block;font-size:11px;color:#f4fbff}.hhPcHoursCloud p{font-size:9px;color:#d2e9f8;line-height:1.5}.hhPcHoursCloud button{font-size:9px;line-height:1.45;min-height:42px;margin:4px 6px 5px 0;border-color:#8ebbd9}.hhPcHoursCloud .hhPcBtn.primary{background:#d9f2ff;color:#143f61}.hhPcHoursCloud [data-hh-project-hours-cloud-status]{color:#e5f7ff}'+
  '.hhPcHoursPanel{border-color:#b1d6e7;background:linear-gradient(145deg,#eaf5ff,#f8fcff)}.hhPcHoursPanel h3{font-size:12px}.hhPcHoursForms{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end}.hhPcHoursForms label{display:block;font-size:9px;color:#2d5672;font-weight:800;min-width:0}.hhPcHoursForms input{box-sizing:border-box;display:block;margin-top:5px;width:100%;min-height:36px;font:650 13px system-ui;color:#173f62;background:#fff;border:1px solid #94b7d0;border-radius:9px;padding:8px}.hhPcHoursForms .hhPcBtn{min-height:36px;font-size:9px}.hhPcHoursActions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.hhPcHoursActions .hhPcBtn{font-size:9px;min-height:40px}.hhPcHoursState{font-size:9px;color:#2c6588;font-weight:700;line-height:1.45}.hhPcHoursHistory{margin-top:9px;padding-top:9px;border-top:1px solid #bdd5e4}.hhPcHoursHistory b{display:block;font-size:9px;color:#173f62}.hhPcHoursHistory small{display:block;font-size:8px;color:#5a748b;margin-top:5px}'+
  '@media(max-width:380px){.hhPcHoursKpi b{font-size:30px}.hhPcHoursForms{grid-template-columns:1fr}.hhPcHoursForms .hhPcBtn{width:100%}}'+
  '.hhPcSection{background:#fff;border:1px solid #e5edf3;border-radius:15px;padding:11px;margin-top:8px}.hhPcSection h3{margin:0 0 8px;font-size:10px;color:#173f62}.hhPcFocus{background:linear-gradient(145deg,#eaf8f4,#f8fcfb);border-color:#cbe9e1}.hhPcFocus b{font-size:11px;color:#1d5f58;line-height:1.4}.hhPcFocus small{display:block;color:#6f8986;font-size:7px;margin-top:5px}'+
@@ -171,7 +173,7 @@ function renderDashboard(){
 }
 
 
-function storeHours(s){writeJson(LS_HOURS,s);render()}
+function storeHours(s){writeJson(LS_HOURS,s);render();try{window.HH_PROJECT_HOURS_DROPBOX_V748?.onLocalChange()}catch(_){}}
 window.hhPcHoursToggle=function(){hoursExpanded=!hoursExpanded;render()};
 window.hhPcHoursSaveBase=function(){
  var input=document.getElementById('hhPcBaseHours'),n=input?Number(input.value):NaN;
@@ -262,6 +264,7 @@ function render(){
  else if(tab==='actions')b.innerHTML=renderActions();
  else if(tab==='blockers')b.innerHTML=renderBlockers();
  else b.innerHTML=renderDashboard();
+ try{window.HH_PROJECT_HOURS_DROPBOX_V748?.mount()}catch(_){ }
 }
 
 function injectAdmin(){
@@ -313,6 +316,8 @@ window.hhPcExport=function(){
  var payload={exportedAt:new Date().toISOString(),masterUpdatedAt:data?.updatedAt||null,overrides:overrides(),localActions:locals(),projectHours:hourBook(),mergedActions:mergedActions()};
  dl(payload,'HealthHub_Project_Control_'+new Date().toISOString().slice(0,10)+'.json');
 };
+
+window.HH_PROJECT_HOURS_V747={get:hourBook,minutes:timeMinutes};
 
 var prevHaOpen=window.haOpen;
 if(typeof prevHaOpen==='function')window.haOpen=function(){var r=prevHaOpen.apply(this,arguments);scheduleInject();return r};
