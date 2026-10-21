@@ -171,7 +171,9 @@ async function selected(f){
  }catch(e){info('⚠ '+String(e.message||e),true)}
 }
 function open(row){
- const dialog=$('hhVisionDialog750');if(!dialog)return;
+ if(!$('hhVisionDialog750'))init();
+ const dialog=$('hhVisionDialog750');
+ if(!dialog){const status=$('hhBevitelInfo');if(status){status.textContent='A fotós AI ablaka nem tudott elindulni. Frissítsd az oldalt (Ctrl+F5).';status.hidden=false}return;}
  cleanPhoto();editing=row||null;draft=null;busy=false;profile=api()?.getProfile()||'';
  $('hhVisionProfile750').textContent='Profil: '+(profile==='monika'?'Mónika':'Zsolt');
  $('hhVisionName750').value=row?.name||'';
@@ -187,7 +189,18 @@ function open(row){
  dialog.showModal();
 }
 function init(){
- if($('hhVisionDialog750')||!$('hhBevitelAI')||!api()?.recordAiMeal)return;
+ const ai=$('hhBevitelAI');
+ if(!ai)return;
+ if(ai.dataset.hhVisionBound751!=='1'){
+  ai.dataset.hhVisionBound751='1';
+  ai.addEventListener('click',()=>{
+   try{open()}catch(e){
+    const status=$('hhBevitelInfo');
+    if(status){status.textContent='AI ablakhiba: '+String(e?.message||e).slice(0,180);status.hidden=false}
+   }
+  });
+ }
+ if($('hhVisionDialog750')||!api()?.recordAiMeal)return;
  const dialog=node('dialog','hhVisionDialog750');dialog.id='hhVisionDialog750';
  const shell=node('div','hhVisionShell750');dialog.append(shell);
  const head=node('header','hhVisionHead750');head.append(node('strong','','📸 Léna AI · ételfelismerés'));
@@ -217,4 +230,5 @@ function init(){
 }
 w.HH_FOOD_VISION_V750={version:'750',parse,totals,availableModels,open,init};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
+w.addEventListener('focus',init);
 })(window,document);
