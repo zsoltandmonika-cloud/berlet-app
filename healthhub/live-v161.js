@@ -254,5 +254,5 @@ handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},1400);
 window.addEventListener('focus',function(){setTimeout(decorate,150)});
 document.documentElement.dataset.healthhubDropboxVault='1.235.1';
-window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,appKey:APP_KEY,redirect:REDIRECT};
+window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
 })();
