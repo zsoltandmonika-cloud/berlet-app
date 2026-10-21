@@ -40,7 +40,7 @@ assert.doesNotMatch(monikaHeroSection,/data-hhpg-profile="z"/,'no Zsolt image ch
 assert.match(monikaHeroSection,/background-size:cover!important/,'photo fills the Hero without stretching');
 assert.doesNotMatch(source,/fetch\(|XMLHttpRequest|localStorage\.setItem/,'preview never writes profile or health data');
 assert.match(source,/premium-glass-home-v520\.css\?v=5261-exact-monika-hero/,'rose preview CSS cache busted');
-const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1];
+const pink=css.split('/* v521 · Mónika\'s Budapest-night rose light:')[1].split('/* Family Guard · v761')[0];
 assert.ok(pink,'Mónika-only glass enhancements exist');
 assert.match(pink,/data-hhpg-profile="m"/,'pink is exclusively under Mónika data attribute');
 assert.doesNotMatch(pink,/data-hhpg-profile="z"/,'no Zsolt palette overrides in the new section');
