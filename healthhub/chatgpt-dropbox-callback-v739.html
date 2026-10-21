@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>HealthHub · ChatGPT Dropbox hitelesítés</title>
+<style>body{background:#0b1729;color:#e8f4ff;font:16px system-ui;padding:24px;max-width:620px;margin:8vh auto}
+main{background:#102a42;border:1px solid #6582a4;border-radius:18px;padding:22px}
+a{color:#8cc9ff}h1{font-size:21px}</style></head>
+<body><main><h1>🔐 HealthHub · ChatGPT-cél Dropbox</h1>
+<p id="status" role="status">Dropbox hitelesítés ellenőrzése…</p>
+<p><a href="./index.html">Vissza a HealthHubba</a></p>
+</main><script src="./hh-chatgpt-target-auth-v739.js?v=739"></script>
+<script>
+(async function(){
+ const status=document.getElementById('status');
+ try{
+  const result=await window.HH_CHATGPT_TARGET_AUTH_V739.exchange(location.href);
+  status.textContent='✓ A cél Dropbox engedélyezve. Azonosító vége: '+result.accountSuffix+
+   '. Lépj vissza a HealthHub Admin → ChatGPT Analytics oldalára, és ellenőrizd a célmappát.';
+ }catch(e){status.textContent='⚠ '+String(e.message||e)+
+  ' Kérlek a HealthHub Admin felületen kezdd újra a csatlakoztatást.';}
+})();
+</script></body></html>
