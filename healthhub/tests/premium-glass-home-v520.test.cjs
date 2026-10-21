@@ -159,7 +159,7 @@ assert.equal(grid.children.map(n=>n.dataset.key).join('|'),
  'health|records|meds|sleep|activity|digital|nutrition|ask|guardian|spark|headline|dailyhealth');
 assert.equal(on.document.documentElement.dataset.hhPremiumPreview,'on');
 assert.equal(on.document.documentElement.dataset.hhPremiumTiles,'12');
-assert.equal(grid.children[7].children[1].textContent,'Ask Léna','Ask Lena is centered on row 3');
+assert.equal(grid.children[7].children[1].textContent,'Kérdezd Lénát','Ask Lena is centered on row 3');
 assert.equal(grid.children[9].dataset.group,'daily');
 assert.equal(grid.children[11].dataset.group,'daily');
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
