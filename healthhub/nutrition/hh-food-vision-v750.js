@@ -158,7 +158,7 @@ function editInput(e){
 async function recognize(){
  if(busy||!activeFile)return;
  busy=true;draft=null;$('hhVisionScan750').disabled=true;$('hhVisionSave750').disabled=true;
- info('A legfrissebb elérhető modellek ellenőrzése…');
+ stage('scanning');info('Léna elemzi a fotót…');
  try{
   if(profile!==api()?.getProfile())throw Error('A profil megváltozott.');
   const puter=await loadPuter(),choices=await availableModels(puter);
@@ -176,8 +176,8 @@ async function recognize(){
   draft=parse(response);
   $('hhVisionName750').value=draft.name;
   $('hhVisionNotes750').textContent=draft.notes||'A fotóból nem lehet pontos tömeget és elkészítési módot meghatározni.';
-  editor();info('✓ AI-felismerés: '+model+' · Ellenőrizd az adagokat és a tápértékeket mentés előtt.');
- }catch(e){info('⚠ '+String(e?.message||e).slice(0,260),true)}
+  editor();stage('review');info('✓ Felismerés kész. Az adagokat ellenőrizd mentés előtt.');
+ }catch(e){stage('photo');info('⚠ '+String(e?.message||e).slice(0,260),true)}
  finally{busy=false;$('hhVisionScan750').disabled=!activeFile;calc()}
 }
 function save(){
@@ -197,7 +197,7 @@ async function selected(f){
   cleanPhoto();activeFile=await encode(f);photoUrl=URL.createObjectURL(activeFile);
   const img=$('hhVisionPreview750');img.src=photoUrl;img.hidden=false;
   draft=null;$('hhVisionItems750').replaceChildren();$('hhVisionSave750').disabled=true;$('hhVisionScan750').disabled=false;
-  info('Fotó kész. Az AI-elemzés indításakor a képet a Puter dolgozza fel.');
+  stage('photo');info('Fotó kiválasztva. Indítsd az AI-felismerést.');
  }catch(e){info('⚠ '+String(e.message||e),true)}
 }
 function open(row){
@@ -205,7 +205,8 @@ function open(row){
  const dialog=$('hhVisionDialog750');
  if(!dialog){const status=$('hhBevitelInfo');if(status){status.textContent='A fotós AI ablaka nem tudott elindulni. Frissítsd az oldalt (Ctrl+F5).';status.hidden=false}return;}
  cleanPhoto();editing=row||null;draft=null;busy=false;profile=api()?.getProfile()||'';
- $('hhVisionProfile750').textContent='Profil: '+(profile==='monika'?'Mónika':'Zsolt');
+ dialog.dataset.profile=profile;
+ $('hhVisionProfile750').textContent='● '+(profile==='monika'?'Mónika':'Zsolt')+' profil';
  $('hhVisionName750').value=row?.name||'';
  $('hhVisionMeal750').value=row?.meal||defaultMeal();
  $('hhVisionPicker750').hidden=!!row;$('hhVisionPreview750').hidden=true;$('hhVisionScan750').disabled=true;
@@ -214,8 +215,8 @@ function open(row){
  if(row){
   model=row.aiVision?.model||'';
   draft={name:row.name,items:row.aiVision.components.map(x=>({name:x.name,grams:x.grams,per:{...x.per100},uncertain:x.uncertain})),notes:row.aiVision.notes};
-  editor();info('Korábban rögzített AI-becslés. Az eredeti fotót nem tároljuk.');
- }else info('Válassz fotót. Az AI kérés a Puter-fiók keretét használhatja.');
+  editor();stage('review');info('Korábban jóváhagyott becslés. Az összetevőket érintéssel szerkesztheted.');
+ }else{stage('photo');info('Válassz fotót. Az AI csak a külön indított elemzéskor dolgozza fel.')}
  dialog.showModal();
 }
 function init(){
