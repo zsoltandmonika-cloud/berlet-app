@@ -26,3 +26,13 @@ Csak az **App key** (nyilvános alkalmazásazonosító) szükséges a fejlesztő
 
 ## Biztonsági döntés
 A meglévő App Folder Vault újracsatlakoztatása helyett független, felhasználó által visszavonható céloldali kapcsolat. Nem létezhet nyilvános export és nem kerülhet betegadat GitHubba.
+
+## 2026-10-21 · App key átvéve, OAuth indítópanel elkészült
+
+- A felhasználó megadta a Dropbox alkalmazás **nyilvános App key** azonosítóját: `dv5a4o8h09wwgtn`.
+- A v739 fejlesztői ágon az OAuth modul alapértelmezésként ezt használja; a böngésző nem kér App secretet.
+- Az Admin → ChatGPT Analytics panel új, külön **Cél Dropbox engedélyezése** gombot kapott.
+- A callback oldal és a PKCE-flow szintetikus GitHub Actions tesztet kapott.
+- **NINCS felhasználói OAuth-hozzájárulás, éles fájl-hozzáférési ellenőrzés, illetve automatikus adatátvitel.**
+- Dropbox App Console-ban ellenőrizendő: hozzáférési típus (Full Dropbox), felsorolt fájl-jogosultságok és a pontos Redirect URI.
+- Az éles HealthHub forrás Vault hitelesítését semmi nem írhatja át.
