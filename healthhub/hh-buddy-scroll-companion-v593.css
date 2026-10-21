@@ -54,3 +54,45 @@ html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy5
 @media(prefers-reduced-motion:reduce){
  html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhBuddy593Celebrate img{animation:none!important}
 }
+
+/* v757 · ONLY the Gyógyszerek section.
+ * Its Buddy no longer consumes a filter-heading column; the old title
+ * and separate add button are replaced with a single pill action.
+ * All medicines, selection controls, rows and sound functionality survive. */
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add){
+ padding:10px 11px 11px!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add)>h3{
+ display:none!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection>.hhMed593Add.hhMed657Add{
+ display:inline-flex!important;
+ align-items:center;justify-content:center;
+ width:max-content!important;max-width:100%;
+ min-height:42px!important;
+ padding:8px 14px!important;
+ margin:0 0 7px!important;
+ font-size:11px!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add)>.hhRsmToolbar{
+ margin:0 0 7px!important;padding:8px 9px 7px!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add) .hhRsmHeading{
+ display:flex!important;grid-template-columns:none!important;
+ align-items:center;justify-content:space-between;
+ column-gap:7px!important;min-height:0!important;
+ margin:0 0 5px!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add) .hhRsmHeading>b{
+ max-width:64%;font-size:11px!important;line-height:1.25!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add) .hhRsmCount{
+ flex:none;max-width:52%;white-space:normal!important;text-align:right;
+ font-size:10px!important;line-height:1.3!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add) .hhRsmChips{
+ padding-bottom:6px!important;
+}
+html[data-hh-scroll-select="preview"] #healthSection #healthSubContent .hhRsmSection:has(> .hhMed657Add) .hhRsmNote{
+ margin:0!important;
+}
