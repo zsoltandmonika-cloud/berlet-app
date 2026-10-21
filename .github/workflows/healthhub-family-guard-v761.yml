@@ -1,0 +1,40 @@
+name: HealthHub Family Guard v761 QA
+
+on:
+  push:
+    branches:
+      - 'feat/guardian-gps-map-phase1-v761'
+    paths:
+      - 'healthhub/guardian/**'
+      - 'healthhub/health-timeline-entry-v761.js'
+      - 'healthhub/premium-glass-home-v520.js'
+      - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/tests/guardian-v761.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-family-guard-v761.yml'
+  pull_request:
+    paths:
+      - 'healthhub/guardian/**'
+      - 'healthhub/health-timeline-entry-v761.js'
+      - 'healthhub/premium-glass-home-v520.js'
+      - 'healthhub/premium-glass-home-v520.css'
+      - 'healthhub/tests/guardian-v761.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-family-guard-v761.yml'
+
+jobs:
+  guardian:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check healthhub/guardian/guardian.js
+          node --check healthhub/premium-glass-home-v520.js
+          node --check healthhub/health-timeline-entry-v761.js
+          node --check healthhub/tests/guardian-v761.test.cjs
+      - name: Run Guardian and Timeline migration checks
+        run: node --test healthhub/tests/guardian-v761.test.cjs
