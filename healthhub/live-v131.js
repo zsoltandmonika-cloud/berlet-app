@@ -68,10 +68,8 @@ async function renderGuide(){
  var root=document.getElementById('healthSubContent');if(!root)return;
  var old=document.getElementById('hhPharmacyGuide');if(old)old.remove();
  var s=document.createElement('div');s.id='hhPharmacyGuide';s.className='hrSectionCard';
- s.innerHTML='<div style="display:flex;gap:10px;align-items:flex-start"><div class="hrIco">↪</div><div><div style="font-size:7px;font-weight:900;letter-spacing:.13em;color:#b85e54;text-transform:uppercase">Patikai gyorssegédlet</div><h3 style="margin:4px 0 3px">Azonos hatóanyagú gyógyszeralternatívák</h3><small style="color:#70869a">14 gyakori készítménycsoport. Az ár, készlet, vénykötelesség és helyettesíthetőség változhat.</small></div></div>'+
-  '<div style="margin-top:10px;border:1px solid #bfead9;background:#eefbf5;border-radius:13px;padding:10px;font-size:8px;line-height:1.5;color:#254b3e"><b>Csak akkor valódi alternatíva, ha egyszerre egyezik:</b> a hatóanyag, az erősség és a gyógyszerforma. A Rapid, Forte, Duo, Cold, Extra és retard változatok nem feltétlenül cserélhetők fel.</div>'+
+ s.innerHTML='<div style="display:flex;gap:10px;align-items:flex-start"><div class="hrIco">↪</div><div><div style="font-size:7px;font-weight:900;letter-spacing:.13em;color:#b85e54;text-transform:uppercase">Patikai gyorssegédlet</div><h3 style="margin:4px 0 3px">Azonos hatóanyagú gyógyszeralternatívák</h3></div></div>'+
   GROUPS.map(group).join('')+
-  '<div style="margin-top:9px;border:1px solid #cfe1f5;background:#f3f8ff;border-radius:13px;padding:10px;font-size:8px;line-height:1.5;color:#244a74"><b>Patikában ezt mondjátok:</b> „Ebből a hatóanyagból és erősségből kérem a legolcsóbb, elérhető készítményt. Kérem, ellenőrizze a gyógyszerformát és a vénykötelességet is.”</div>'+
   await warning()+
   '<p style="font-size:7px;line-height:1.5;color:#74899a;margin:9px 0 0">Nyákoldót vagy köptetőt ne használjatok köhögéscsillapítóval együtt. Véres vagy magas lázzal járó hasmenésnél loperamid csak orvosi egyeztetés után használható.</p>';
  root.appendChild(s);
