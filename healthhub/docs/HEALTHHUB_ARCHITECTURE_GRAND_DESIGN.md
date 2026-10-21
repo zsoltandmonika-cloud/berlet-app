@@ -194,3 +194,20 @@ A részletes reprodukciós és recovery forgatókönyvek a [Runbookban](./HEALTH
 ### Változásnapló
 
 - 2026-10-21 · Blueprint 1.0 · Első egységes, verziózott topológia, adatfolyam, modulindex, evidenciatérkép, DevOps/QA és recovery hivatkozások. Minden új jelentős PR hozzáadja a saját változását.
+
+
+## 11. Egységes Admin információs architektúra · v745
+
+**Felhasználói döntés:** a fő taskbar korábbi egyetlen „Továbbiak” célpontja **Admin**. Az általa megnyitott teljes oldal az Admin; nincs többé külön, redundáns „Admin Data Hub → Megnyitás” gomb.
+
+- **Rendszerterv és projektirányítás:** Grand Design, Recovery Runbook, Project Control.
+- **Cloud Vault és ChatGPT Analytics:** eredeti forrás Dropbox, mappaellenőrzés, profilozott AI-kivonat, szinkron.
+- **Adatkezelés és diagnosztika:** a meglévő `haOv` / `haBody` Admin DOM-panel ugyanazon az oldalon látható, eredeti gombokkal és kiegészítőkkel. A `hh-unified-admin-v745.js` csak láthatóan beágyazza és életciklusosan visszahelyezi a panelt, nem másolja a betegek adatait és nem hajt végre importot automatikusan.
+- **Biztonság / helyreállítás:** régi privát karton és recovery eszközök.
+- **Egyéb eszközök:** ismeretlen/jövőbeli kártyák továbbra is láthatók külön csoportban.
+
+**Kizárólag felületi takarítás:** a régi `hhAdminMenuCard` „Megnyitás” belépő, a `hhDropboxVaultCard`/`hhCloudVaultCard` duplikált felületi kártyák és a művelet nélküli adapter-állapotinformációs kártya elrejtve. Az eredeti Admin-kód, funkciók, privát fájlok, localStorage, Dropbox Vault és snapshotok nem törlődnek.
+
+**Mechanizmus:** a régi overlay DOM a `healthSubContent` alatt jelenik meg, miközben Admin aktív, így a korábbi `haBody`-hoz kapcsolódó diagnosztikai és governance kiegészítők sem tűnnek el. Az Admin oldal elhagyásakor a meglévő overlay visszakerül a document body alá, és ismét rejtett fallback. A fő `renderHealthSection` hívás körül konzervatív leválasztás/újrabeágyazás van. A v745 CI-mock teszteli az idempotens újramountot; az éles mobil és desktop acceptance külön szükséges.
+
+**Release státusz:** PR #389 része, CODED és CI TESTED, a felhasználói élő elfogadás még hátravan.
