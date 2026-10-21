@@ -3,6 +3,11 @@ on:
   pull_request:
     paths:
       - 'healthhub/hh-architecture-admin-v744.js'
+      - 'healthhub/hh-unified-admin-v745.js'
+      - 'healthhub/live-v137.js'
+      - 'healthhub/live-v126.js'
+      - 'healthhub/health-interactions-v552.js'
+      - 'healthhub/tests/unified-admin-v745.test.cjs'
       - 'healthhub/architecture-grand-design.html'
       - 'healthhub/docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md'
       - 'healthhub/docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md'
@@ -32,6 +37,13 @@ jobs:
       - name: JavaScript syntax check
         run: |
           node --check healthhub/hh-architecture-admin-v744.js
+          node --check healthhub/hh-unified-admin-v745.js
+          node --check healthhub/live-v137.js
+          node --check healthhub/live-v126.js
+          node --check healthhub/health-interactions-v552.js
+          node --check healthhub/tests/unified-admin-v745.test.cjs
           node --check healthhub/tests/architecture-grand-design-v744.test.cjs
       - name: Blueprint & Admin regression
-        run: node healthhub/tests/architecture-grand-design-v744.test.cjs
+        run: |
+          node healthhub/tests/architecture-grand-design-v744.test.cjs
+          node healthhub/tests/unified-admin-v745.test.cjs
