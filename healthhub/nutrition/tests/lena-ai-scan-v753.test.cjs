@@ -5,12 +5,16 @@ const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=re
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
 assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=754-on-open-top/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=754-hero-top-profile/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=755-singleline-heading/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.doesNotMatch(html,/class="hhScanTop753"/);
 assert.doesNotMatch(html,/AI FOOD STUDIO/);
 assert.match(html,/<div class="hhScanBody753">\s*<section class="hhScanHero753"[^>]*><button type="button" id="hhScanProfile753"/);
 assert.match(html,/<div class="hhScanHeading753">[\s\S]*id="hhScanBack753"/);
+assert.match(html,/<div class="hhScanHeading753"><h1>Léna &amp; Buddy AI Scan<\/h1>/);
+assert.doesNotMatch(html,/Fotózz, ismerj fel, naplózz/);
+assert.doesNotMatch(html,/HEALTHHUB · GOLDEN STANDARD/);
+assert.match(css,/\.hhScanHeading753 h1\{[^}]*white-space:nowrap/);
 assert.match(html,/id="hhScanTabBarcode753"/);
 assert.match(html,/id="hhScanResultShell753"/);
 assert.match(css,/aspect-ratio:1\/1/);
