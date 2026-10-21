@@ -11,9 +11,11 @@ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(!source.includes('hhBuddy593Sound'),'no Buddy mute button or handler');
 assert.ok(!source.includes('hh-premium-select-sound-v593'),'old persisted sound-off setting cannot strand the sound');
 assert.ok(!css.includes('hhBuddy593Sound'),'no orphan mute positioning');
+assert.ok(source.includes("if(kind==='medications')return;"),'Buddy is absent only in medication filter');
+assert.ok(source.includes("attachRail(content.querySelector('.hhRsmChips')"),'Medication filter keeps scroll sound');
 const live=index.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1];
 assert.ok(live&&index.includes("var v='"+live.slice(1)+"'"),'shortcut build must match published metadata');
-assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=595-scroll-tick-clean-buddy'));
+assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=757-medication-compact'));
 
 function el(tag='div',cl=''){
  const e={tagName:tag,className:cl,children:[],attrs:{},listeners:{},dataset:{},disabled:false,hidden:false};
