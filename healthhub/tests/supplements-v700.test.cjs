@@ -113,3 +113,19 @@ test('v759 own-list-only Supplements card is compact without removing saved data
  assert.match(src,/root\.HH_SUPPLEMENTS_V700=Object\.freeze\(\{version:'700',catalog:CATALOG\.map/);
  assert.match(css,/\.hhSupp700Section\{margin-top:10px;padding-top:10px;/);
 });
+
+
+test('v760 pharmacy quick-help hides only three requested notices, preserving alternatives and safety text',()=>{
+ const src=read('live-v131.js'),html=read('index.html');
+ new Function(src);
+ assert.match(html,/live-v131\.js\?v=760-compact-pharmacy-notices/);
+ assert.match(src,/Azonos hatóanyagú gyógyszeralternatívák/);
+ assert.doesNotMatch(src,/14 gyakori készítménycsoport/);
+ assert.doesNotMatch(src,/Csak akkor valódi alternatíva, ha egyszerre egyezik/);
+ assert.doesNotMatch(src,/Patikában ezt mondjátok/);
+ assert.match(src,/GROUPS\.map\(group\)\.join\(''\)/);
+ assert.match(src,/await warning\(\)/);
+ assert.match(src,/Nyákoldót vagy köptetőt ne használjatok/);
+ assert.match(src,/window\.hhTogglePharmacyGroup=/);
+ assert.match(src,/root\.appendChild\(s\)/);
+});
