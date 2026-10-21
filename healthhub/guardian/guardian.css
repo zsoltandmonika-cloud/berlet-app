@@ -1,0 +1,36 @@
+:root{color-scheme:dark;--accent:#79c5ff;--border:rgba(160,211,249,.24)}
+:root[data-guardian-profile="m"]{--accent:#ffabd9;--border:rgba(255,180,220,.35)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#091423;color:#f3f9ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+body{background:radial-gradient(ellipse 95% 340px at 50% 0,rgba(65,126,215,.28),transparent 80%),#091423}
+.shell{max-width:590px;min-height:100vh;margin:auto;padding:env(safe-area-inset-top) 11px calc(22px + env(safe-area-inset-bottom))}
+.topbar{height:66px;display:flex;align-items:center;gap:10px;padding:6px 4px}
+.back{min-width:95px;display:flex;align-items:center;gap:5px;text-decoration:none;color:#d3e8ff;font-size:14px;font-weight:730}
+.brand{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}.brand strong{font-size:15px}
+.eyebrow{letter-spacing:.135em;color:#b7d4f3;font-size:9px;font-weight:800}
+.avatar{width:45px;height:45px;border:2px solid var(--accent);border-radius:15px;object-fit:cover;background:#193552}
+.intro,.gps-panel{border:1px solid var(--border);border-radius:20px;background:linear-gradient(145deg,rgba(29,57,95,.75),rgba(14,29,53,.96));box-shadow:inset 0 1px rgba(255,255,255,.11),0 14px 32px rgba(0,0,0,.16)}
+.intro{padding:15px 16px 13px;margin:5px 0 11px}.intro-head{display:flex;justify-content:space-between;align-items:center}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#677d94}.status-dot.live{background:#57d9ad;box-shadow:0 0 14px #57d9ad}
+h1{font-size:21px;line-height:1.2;margin:9px 0 7px;letter-spacing:-.025em}p{margin:0}.intro p{font-size:11px;line-height:1.55;color:#c5d7e9}
+.map-card{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:21px;background:#11243a;box-shadow:0 13px 32px rgba(0,0,0,.27)}
+#guardianMap{height:clamp(330px,52vh,590px);width:100%}
+.map-label{position:absolute;pointer-events:none;left:12px;top:12px;padding:9px 10px;background:rgba(8,22,42,.83);border:1px solid var(--border);border-radius:11px;backdrop-filter:blur(12px);font-size:9px;font-weight:900;letter-spacing:.09em;color:#ddedfa}
+.map-follow{position:absolute;top:10px;right:10px;z-index:2;border:1px solid var(--border);border-radius:12px;background:rgba(7,26,48,.85);backdrop-filter:blur(10px);color:#eff9ff;padding:10px;font:800 11px system-ui;cursor:pointer}
+.map-follow[aria-pressed="false"]{opacity:.7}
+.map-message{position:absolute;z-index:3;top:51px;left:12px;right:12px;padding:13px;border-radius:11px;border:1px solid rgba(255,200,166,.38);background:rgba(29,24,36,.95);font-size:12px;line-height:1.45}
+.map-message[hidden]{display:none}
+.gps-panel{padding:13px;margin-top:11px}.state-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:11px;font-weight:800}
+.state-row span:last-child{font-size:10px;color:var(--accent)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{min-height:43px;border-radius:12px;padding:8px;border:1px solid var(--border);font:780 12px system-ui;cursor:pointer;touch-action:manipulation}
+.actions button:disabled{opacity:.43;cursor:default}.primary{color:#0d2341;background:linear-gradient(140deg,#c9edff,var(--accent))}.secondary{color:#e7f4ff;background:rgba(44,84,131,.47)}
+#guardianClear{grid-column:1/-1;min-height:34px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.stats>div{background:rgba(9,31,57,.55);border:1px solid var(--border);padding:10px 6px;border-radius:12px;text-align:center;min-width:0}
+.stats small{display:block;font-size:9px;color:#c0d2e5;margin-bottom:5px}.stats strong{font-size:13px;overflow-wrap:anywhere}
+.privacy{font-size:10px;color:#b8cde0;line-height:1.6;padding:13px 5px 3px}
+.maplibregl-ctrl-attrib{font-size:10px!important;background:rgba(9,29,53,.85)!important;color:#cfe1ed!important}.maplibregl-ctrl-attrib a{color:#b8e8ff!important}
+.maplibregl-ctrl-group{background:rgba(10,34,59,.89)!important}.maplibregl-ctrl-group button{filter:invert(1)}
+.maplibregl-marker{pointer-events:none}
+.guardian-position{width:17px;height:17px;border:3px solid white;border-radius:50%;background:var(--accent);box-shadow:0 0 0 8px rgba(113,188,255,.18),0 0 20px var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:350px){.brand .eyebrow{font-size:8px}.back{min-width:77px;font-size:11px}.stats strong{font-size:11px}}
