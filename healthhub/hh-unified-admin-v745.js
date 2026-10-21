@@ -86,13 +86,24 @@ function inlineTools(root){
  }
  return box;
 }
+function hideObsoleteInfo(){
+ const body=d.getElementById('haInlineBody');
+ if(!body||typeof body.querySelectorAll!=='function')return;
+ // v137 has an informational-only, historical adapter placeholder panel.
+ // New supported import buttons remain in the live import centers.
+ for(const item of body.querySelectorAll('.haGrid > section')){
+  const heading=item.querySelector('h3');
+  if(heading&&/adapterek/i.test(heading.textContent||''))
+   item.hidden=!item.querySelector('button,input,select,a');
+ }
+}
 function layout(){
  nav();
  const root=d.getElementById(ROOT);
  const enabled=w.healthSectionKind==='more'&&!!root&&root.isConnected;
  d.documentElement.dataset.hhInlineAdmin=enabled?'yes':'no';
  if(!enabled)return;
- stylesheet();inlineTools(root);
+ stylesheet();inlineTools(root);hideObsoleteInfo();
  for(const group of GROUPS)label(root,group);
  const ids=new Set(GROUPS.map(g=>'hhAdminGroup'+g.id+'V745'));
  let unknownCount=0;
