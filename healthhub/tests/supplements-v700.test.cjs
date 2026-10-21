@@ -22,7 +22,7 @@ test('all 8 user-specified supplements are present as templates, not consumed re
  assert.match(s,/Katalógustétel, nem rögzített szedés/);
 });
 test('canonical medications route, Home label, scroll and AI context stay connected',()=>{
- assert.match(read('index.html'),/hh-supplements-v700\.js\?v=700/);
+ assert.match(read('index.html'),/hh-supplements-v700\.js\?v=758-on-demand-search/);
  assert.match(read('premium-glass-home-v520.js'),/Gyógyszerek & Supplement/);
  assert.match(read('live-v126.js'),/medications:'HealthHub Gyógyszerek \+ Supplements'/);
  assert.match(read('live-v289.js'),/supplements:supplementList\(rs\[4\],p\)/);
@@ -53,7 +53,47 @@ test('the visible Ask Léna input composer is compact and grows with typed text'
  assert.match(css,/#hhLenaComposer340\{height:auto!important;min-height:100px!important\}/);
  assert.doesNotMatch(css,/#hhLenaComposer340\{height:190px/);
  const entry=read('index.html');
- assert.match(entry,/hh-supplements-v700\.js\?v=701/);
+ assert.match(entry,/hh-supplements-v700\.js\?v=758-on-demand-search/);
  assert.match(entry,/live-v340\.js\?v=701/);
  assert.match(entry,/ask-lena-chat-glass-v566\.css\?v=701/);
+});
+
+
+test('Supplement search opens only when the search button is pressed and closes without hidden filtering',()=>{
+ const src=read('hh-supplements-v700.js'),css=read('hh-supplements-v700.css');
+ assert.match(src,/state=\{filter:'all',query:'',searchOpen:false\}/);
+ assert.match(src,/search\.hidden=!state\.searchOpen/);
+ assert.match(src,/openSearch\.setAttribute\('aria-expanded',String\(state\.searchOpen\)\)/);
+ assert.match(src,/openSearch\.setAttribute\('aria-controls','hhSupp700SearchField'\)/);
+ assert.match(src,/state\.searchOpen=false/);
+ assert.match(css,/\.hhSupp700Search\[hidden\]\{\s*display:none!important/);
+ assert.match(css,/\.hhSupp700SearchToggle:focus-visible/);
+ const begin=src.indexOf("var openSearch=make('button','hhSupp700SearchToggle'");
+ const end=src.indexOf('controls.appendChild(search);',begin);
+ assert.ok(begin>=0&&end>begin,'toggle implementation located');
+ const snippet=src.slice(begin,end+'controls.appendChild(search);'.length);
+ const vm=require('node:vm');
+ const make=(tag,cls,text)=>{
+  const el={tag,className:cls,textContent:text||'',hidden:false,value:'',attrs:{},children:[],focusCount:0};
+  el.setAttribute=(key,val)=>{el.attrs[key]=String(val)};
+  el.appendChild=(child)=>{el.children.push(child)};
+  el.focus=()=>{el.focusCount++};
+  return el;
+ };
+ const state={filter:'all',query:'',searchOpen:false},controls=make('div'),heading=make('div');
+ let refreshed=0;
+ const ctx={state,controls,heading,make,refresh(){refreshed++},String};
+ vm.runInNewContext(snippet,ctx,{timeout:2000});
+ assert.equal(ctx.search.hidden,true,'search field occupies no space by default');
+ assert.equal(ctx.openSearch.attrs['aria-expanded'],'false','button starts collapsed');
+ ctx.openSearch.onclick();
+ assert.equal(ctx.search.hidden,false,'tapping the button reveals search');
+ assert.equal(ctx.search.focusCount,1,'search receives focus');
+ assert.equal(ctx.openSearch.attrs['aria-expanded'],'true');
+ state.query='vitamin';ctx.search.value='vitamin';
+ ctx.openSearch.onclick();
+ assert.equal(ctx.search.hidden,true,'second tap collapses search');
+ assert.equal(state.query,'','closing clears invisible filters');
+ assert.equal(ctx.search.value,'');
+ assert.equal(refreshed,1,'results refresh with full list when closed');
 });
