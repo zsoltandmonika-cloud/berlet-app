@@ -4,16 +4,24 @@ const dir=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(dir,p),
 const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=read('hh-lena-ai-scan-page-v753.css'),journal=read('nutrition-preview-v592.js');
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=753a-editor-camera-guard/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=753-hero-scan-barcode/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=754-on-open-top/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=754-hero-top-profile/);
 assert.match(html,/id="hhScanVideo753"/);
+assert.doesNotMatch(html,/class="hhScanTop753"/);
+assert.doesNotMatch(html,/AI FOOD STUDIO/);
+assert.match(html,/<div class="hhScanBody753">\s*<section class="hhScanHero753"[^>]*><button type="button" id="hhScanProfile753"/);
+assert.match(html,/<div class="hhScanHeading753">[\s\S]*id="hhScanBack753"/);
 assert.match(html,/id="hhScanTabBarcode753"/);
 assert.match(html,/id="hhScanResultShell753"/);
 assert.match(css,/aspect-ratio:1\/1/);
+assert.match(css,/\.hhScanBody753\{[^}]*padding:0 0/);
+assert.match(css,/\.hhScanHero753 #hhScanProfile753\{[^}]*left:13px;bottom:11px/);
+assert.doesNotMatch(css,/\.hhScanTop753\{/);
 assert.match(css,/healthhub-nutrition-lena-buddy-approved\.webp/);
 assert.match(css,/\[data-profile="monika"\]/);
 assert.match(css,/hhScanSweep753/);
 assert.match(script,/w\.history\.pushState/);
+assert.match(script,/w\.scrollTo\?\.\(0,0\)/);
 assert.match(script,/if\(row\?\.aiVision\)editing=row/);
 assert.match(script,/stopImmediatePropagation/);
 assert.match(script,/getUserMedia/);
@@ -62,7 +70,7 @@ for(const id of ids)registry.set(id,new Element(id));
 const page=registry.get('hhLenaScanPage753'),tile=registry.get('hhBevitelAI'),events={};
 const w={location:{hash:'',pathname:'/berlet-app/healthhub/nutrition/',search:''},
  history:{pushState(s,n,url){w.location.hash=url},replaceState(){w.location.hash=''},back(){w.location.hash=''}},
- addEventListener(n,fn){events[n]=fn},navigator:{},HH_NUTRITION_QUICK_API:{getProfile:()=> 'zsolt',recordAiMeal:()=>({})},
+ addEventListener(n,fn){events[n]=fn},scrollTo(x,y){w.lastTop=[x,y]},navigator:{},HH_NUTRITION_QUICK_API:{getProfile:()=> 'zsolt',recordAiMeal:()=>({})},
  HH_FOOD_VISION_V750:{availableModels:async()=>[],parse:x=>x,totals:()=>({})}};
 const document={readyState:'complete',getElementById:id=>registry.get(id)||null,body:{classList:{toggle(){},add(){},remove(){}}}};
 vm.runInNewContext(script,{window:w,document,Date,Math,Number,JSON,String,Array,Set,Promise});
@@ -71,6 +79,8 @@ const e={prevented:false,stopped:false,preventDefault(){this.prevented=true},sto
 tile.handlers.click[0].fn(e);
 assert.equal(w.location.hash,'#lena-ai-scan');
 assert.equal(page.hidden,false);
+assert.equal(w.lastTop?.[0],0);
+assert.equal(w.lastTop?.[1],0);
 assert.equal(page.dataset.profile,'zsolt');
 assert.equal(e.prevented,true);
 assert.equal(e.stopped,true);
