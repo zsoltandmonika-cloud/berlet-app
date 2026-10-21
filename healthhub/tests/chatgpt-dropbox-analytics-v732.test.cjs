@@ -56,6 +56,33 @@ assert(api.model.auditStatus(null,'hiba',null).startsWith('⚠ hiba'));
 const record=makeIndex(files,summary);
 assert.equal(record.connectorReadVerified,false);
 assert.equal(record.inventory.length,8);
+
+const first=api.model.compareFiles(files,null,summary.sources);
+assert.equal(first.firstAudit,true);
+assert.equal(first.counts.baseline,8,'First inventory cannot be called eight new uploads');
+assert.equal(first.counts.new,0);
+const oldIndex=JSON.parse(JSON.stringify(record));
+const repeat=api.model.compareFiles(files,oldIndex,summary.sources);
+assert.equal(repeat.firstAudit,false);
+assert.equal(repeat.counts.unchanged,8);
+assert.equal(repeat.counts.changed,0);
+assert.equal(repeat.counts.new,0);
+const modified=files.map((f,i)=>i===1?{...f,revision:'another-version',dropboxModifiedAt:'2026-10-21T01:00:00Z'}:f);
+const moved=api.model.compareFiles(modified,oldIndex,summary.sources);
+assert.equal(moved.counts.changed,1,'Changed Dropbox revision is changed file');
+assert.equal(moved.counts.new,0);
+assert.equal(moved.rows.find(x=>x.relativePath==='master/medications.json')?.delta,undefined);
+const additional=modified.concat([{
+  path:'/HealthHub/documents/files/new-clinic.pdf',
+  relativePath:'documents/files/new-clinic.pdf',profile:'shared',bytes:255,
+  dropboxModifiedAt:'2026-10-21T02:00:00Z',revision:'newfile',contentHash:'new'
+}]);
+const more=api.model.compareFiles(additional,oldIndex,summary.sources);
+assert.equal(more.counts.new,1);
+assert.equal(more.counts.changed,1);
+assert(more.rows.some(x=>x.path.endsWith('new-clinic.pdf')&&x.delta==='new'));
+assert(more.rows.some(x=>x.delta==='missing'&&x.path.endsWith('monika-digital-wellbeing.json')));
+
 assert(record.unverifiedExternalSources.some(s=>s.key==='supabase-private-daily-health'));
 assert(api.expected.some(x=>x[1]==='analytics/healthhub-daily-health-zsolt.json'));
 assert.equal(typeof api.exportPrivateDailyHealth,'function');
