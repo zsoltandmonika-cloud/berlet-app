@@ -1,4 +1,4 @@
-/* HealthHub v742 · Consent-gated private analytics snapshots.
+/* HealthHub v743 · Consent-gated private analytics snapshots + provenance-aware status.
  * Source: existing HealthHub App Folder (read-only). Destination: separately
  * authorized Dropbox account, preverified exact folder ID.
  * Never publishes clinical data to GitHub, a public URL or browser logs.
@@ -121,8 +121,49 @@ async function transfer(path,bundle){
   throw Error('Visszaolvasott tartalom nem egyezik (SHA-256).');
  return {path,bytes:encoded.byteLength,sha256:expected};
 }
+function huTime(value){
+ const n=Date.parse(value||'');
+ if(!Number.isFinite(n))return 'nincs ellenőrzött időpont';
+ return new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',
+  year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',
+  second:'2-digit',hour12:false}).format(new Date(n));
+}
+function renderSyncDetails(){
+ const area=d.querySelector('[data-hh-sync-details]');
+ if(!area)return;
+ area.replaceChildren();
+ const state=last(),enabled=optin();
+ for(const [p,name] of [['zsolt','Zsolt'],['monika','Mónika']]){
+  const entry=state[p];
+  const line=d.createElement('p');
+  line.style.cssText='margin:6px 0;padding:6px 8px;border-radius:9px;background:#173b59;color:#ecf7ff;white-space:normal;';
+  const strong=d.createElement('strong');strong.textContent=name+': ';
+  line.append(strong);
+  const label=!entry?.verifiedAt?'még nincs helyben rögzített, visszaellenőrzött szinkron':
+    'Utolsó Dropbox-írás és SHA-256 visszaolvasás: '+huTime(entry.verifiedAt)+
+    ' · '+Math.round((Number(entry.bytes)||0)/1024)+' KB';
+  line.append(d.createTextNode(label));
+  if(entry?.verifiedAt){
+   const next=new Date(Date.parse(entry.verifiedAt)+EVERY).toISOString();
+   line.append(d.createTextNode(' · Következő 6 órás próbálkozás leghamarabb: '+huTime(next)));
+   const dw=entry.sources?.find(s=>s.kind==='digitalWellbeing');
+   if(dw?.coverage)line.append(d.createTextNode(
+    ' · Digital Wellbeing: '+dw.coverage.observedDays+' megfigyelt nap'+
+    (dw.coverage.expectedRetentionDays?' / '+dw.coverage.expectedRetentionDays+' napos megtartás':'')
+   ));
+   const issues=entry.sources?.filter(s=>s.status!=='present')||[];
+   if(issues.length)line.append(d.createTextNode(' · Forrásfigyelmeztetés: '+
+    issues.map(s=>s.kind+': '+s.status).join(', ')));
+  }
+  line.append(d.createTextNode(enabled.includes(p)?
+   ' · Automatikus ismétlés: engedélyezve (csak nyitott HealthHubban)':
+   ' · Automatikus ismétlés: nincs engedélyezve'));
+  area.append(line);
+ }
+}
 function note(message){
  for(const node of d.querySelectorAll('[data-hh-v742-status]'))node.textContent=message;
+ renderSyncDetails();
 }
 async function run(profiles,force=false){
  if(busy)throw Error('A szinkronizáció már folyamatban van.');
@@ -143,17 +184,36 @@ async function run(profiles,force=false){
     const freshness=reportSources(bundle,Date.now());
     const dir=ROOT+'/'+p;
     await ensureFolder(dir);
-    const latest=await transfer(dir+'/latest.json',bundle);
+    // v738 legacy flags describe its original local export, not this later
+    // Dropbox transfer. Do not expose those two flags as current sync status.
+    // ChatGPT connector verification can only be performed in ChatGPT.
+    const delivered={...bundle,delivery:{
+      schema:'healthhub.chatgpt.dropbox-delivery/1',
+      initiatedBy:force?'manual_user_action':'visible_healthhub_interval',
+      sourceSnapshotGeneratedAt:bundle.exportedAt,
+      targetPath:dir+'/latest.json',targetFolderId:ROOT_ID,
+      targetFolderCheckedBeforeUpload:true,
+      targetReadback:'see HealthHub local SHA-256 verified sync status',
+      chatgptConnectorRead:'not asserted by exporter; verify independently in ChatGPT',
+      backgroundWhenClosed:false,
+      legacyV738ExportFlags:{isAutomaticSync:bundle.isAutomaticSync,
+       chatgptReadVerified:bundle.chatgptReadVerified}
+    }};
+    delete delivered.isAutomaticSync;
+    delete delivered.chatgptReadVerified;
+    const latest=await transfer(dir+'/latest.json',delivered);
     // Save only metadata locally. Clinical values are never logged or stored here.
     const result={profile:p,verifiedAt:stamp(),destination:latest.path,
       bytes:latest.bytes,sha256:latest.sha256,sources:freshness,
-      warnings:bundle.warnings||[],isBackgroundSync:false};
+      warnings:bundle.warnings||[],isBackgroundSync:false,
+      initiatedBy:force?'manual_user_action':'visible_healthhub_interval',
+      chatgptConnectorRead:'not checked by HealthHub',targetReadbackVerified:true};
     state[p]=result;store(state);results.push(result);
    }catch(e){errors.push({profile:p,error:String(e.message||e)})}
   }
   const skipped=profiles.filter(p=>!results.some(x=>x.profile===p)&&!errors.some(x=>x.profile===p));
   note('Dropbox ellenőrzött szinkron: '+results.map(x=>x.profile).join(', ')+
-    (skipped.length?' · Változatlan: '+skipped.join(', '):'')+
+    (skipped.length?' · Még nem esedékes (6 órán belüli ellenőrzött feltöltés): '+skipped.join(', '):'')+
     (errors.length?' · Hiba: '+errors.map(x=>x.profile+': '+x.error).join('; '):'')+
     '. Fájlfrissesség és részletes források külön ellenőrizendők.');
   return {results,errors,skipped};
@@ -170,7 +230,7 @@ function mount(){
  if(!panel||d.getElementById('hhSyncV742'))return;
  const root=d.createElement('section');root.id='hhSyncV742';
  root.style.cssText='border:1px solid #709bc0;border-radius:13px;padding:12px;margin:12px 0;background:#102a44;color:#eaf6ff';
- const h=d.createElement('h4');h.textContent='☁️ ChatGPT Analytics · profil-szinkron v742';
+ const h=d.createElement('h4');h.textContent='☁️ ChatGPT Analytics · profil-szinkron v743';
  const info=d.createElement('p');info.textContent='A kiválasztott profil 24 órás Health Connect adatai, az eredeti Digital Wellbeing fájl, Nutrition, Samsung Health, Léna Context és Daily Health kerülhet át a privát ChatGPT Dropboxba. A fájlfrissesség nem azonos a feltöltés időpontjával. Az archív PDF-ek és a teljes Medical Master nincsenek benne.';
  const choices=d.createElement('div');
  for(const [p,name] of [['zsolt','Zsolt'],['monika','Mónika']]){
@@ -182,7 +242,7 @@ function mount(){
  button.textContent='🔐 Kiválasztott profilok szinkronizálása + automatikus ismétlés';
  const stop=d.createElement('button');stop.type='button';stop.textContent='⏹ Automatikus ismétlés kikapcsolása';
  for(const b of [button,stop])b.style.cssText='background:#225779;border:1px solid #9bc7e8;color:#fff;border-radius:9px;padding:9px;margin:5px';
- const explanation=d.createElement('p');explanation.textContent='Engedélyezés után 6 óránként próbálkozik, HA a HealthHub böngészőben meg van nyitva. Zárt alkalmazás esetén nincs önálló napi háttérszinkron. Mindkét profil külön engedélyezhető.';
+ const explanation=d.createElement('p');explanation.textContent='Engedélyezés után 6 óránként próbálkozik, HA a HealthHub böngészőben meg van nyitva. Zárt alkalmazás esetén nincs önálló napi háttérszinkron. Az eredeti v738-as isAutomaticSync és chatgptReadVerified jelzők kizárólag az eredeti kézi exportot írták le, nem a v743 Dropbox-átvitelt. A céloldali SHA-256 ellenőrzés itt történik; a ChatGPT tényleges olvasása külön ellenőrzendő.';
  const status=d.createElement('p');status.setAttribute('data-hh-v742-status','');status.setAttribute('role','status');
  status.textContent='Még nincs új v742 szinkronizáció.';
  button.addEventListener('click',()=>{
@@ -209,9 +269,13 @@ function mount(){
  const verified=last();
  const times=PROFILES.filter(p=>verified[p]?.verifiedAt).map(p=>p+': '+verified[p].verifiedAt);
  if(times.length)status.textContent='Utolsó igazolt szinkron: '+times.join(' · ');
- root.append(h,info,choices,button,stop,explanation,status);panel.append(root);
+ const details=d.createElement('div');
+ details.setAttribute('data-hh-sync-details','');
+ details.setAttribute('aria-label','Profilonkénti utolsó Dropbox-szinkron');
+ root.append(h,info,choices,button,stop,explanation,status,details);panel.append(root);
+ renderSyncDetails();
 }
-w.HH_CHATGPT_PROFILE_SYNC_V742={version:'742',run,auto,mount,verifyProfile,reportSources,digitalCoverage,optin,last,requireTarget};
+w.HH_CHATGPT_PROFILE_SYNC_V742={version:'743',run,auto,mount,verifyProfile,reportSources,digitalCoverage,optin,last,requireTarget,renderSyncDetails,huTime};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 w.setInterval(()=>{if(!d.hidden){mount();void auto()}},15*60000);
 w.addEventListener('focus',()=>{mount();void auto()});
