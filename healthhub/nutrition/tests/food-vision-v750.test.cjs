@@ -27,7 +27,7 @@ assert.match(vision,/puter\.ai\.chat\(prompt\(\),activeFile,false/);
 new vm.Script(vision);
 new vm.Script(diary);
 new vm.Script(gateway);
-const window={};
+const window={addEventListener:()=>{}};
 const doc={readyState:'loading',addEventListener:()=>{}};
 vm.runInNewContext(vision,{window,document:doc,Date,JSON,Array,Set,Math,Number,String,Intl});
 const A=window.HH_FOOD_VISION_V750;
