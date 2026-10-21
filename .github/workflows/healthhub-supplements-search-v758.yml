@@ -1,0 +1,28 @@
+name: HealthHub Supplements Search v758
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-supplements-v700.js'
+      - 'healthhub/hh-supplements-v700.css'
+      - 'healthhub/tests/supplements-v700.test.cjs'
+      - 'healthhub/index.html'
+      - '.github/workflows/healthhub-supplements-search-v758.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-supplements-v700.js'
+      - 'healthhub/hh-supplements-v700.css'
+      - 'healthhub/tests/supplements-v700.test.cjs'
+permissions:
+  contents: read
+jobs:
+  supplements-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate supplement syntax and search UX
+        run: |
+          node --check healthhub/hh-supplements-v700.js
+          node --check healthhub/tests/supplements-v700.test.cjs
+          node --test healthhub/tests/supplements-v700.test.cjs
