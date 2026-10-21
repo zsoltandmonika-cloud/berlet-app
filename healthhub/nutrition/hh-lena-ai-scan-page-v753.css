@@ -8,12 +8,9 @@ body.hhScanOpen753>.shell{display:none!important}
 .hhScanBody753{width:min(100% - 20px,780px);margin:0 auto;padding:0 0 calc(100px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:13px}
 .hhScanHero753{position:relative;margin:0;border-radius:19px;border:1px solid color-mix(in srgb,var(--sc) 63%,transparent);width:100%;aspect-ratio:1671/941;max-height:390px;background:#0b243c url("./healthhub-nutrition-lena-buddy-approved.webp") center/cover no-repeat;box-shadow:0 14px 32px #0008,0 0 24px var(--scWash);overflow:hidden}
 .hhScanHero753 #hhScanProfile753{position:absolute;z-index:2;left:13px;bottom:11px;display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:6px 13px;border:1px solid var(--sc);border-radius:999px;background:rgba(6,20,44,.80);color:#f7f9ff;font:800 13px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 2px 12px #0008;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer}
-.hhScanHeading753{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:0 3px}
-.hhScanHeadingCopy753{flex:1;min-width:0}
-.hhScanHeading753 small{color:var(--sc);font-size:9px;font-weight:800;letter-spacing:.12em}
-.hhScanHeading753 h1{font-size:clamp(21px,5.8vw,29px);letter-spacing:-.025em;margin:3px 0 2px}
-.hhScanHeading753 p{color:#bacfe2;font-size:12px;margin:0}
-.hhScanHeading753 #hhScanBack753{flex:none;align-self:flex-start;min-height:34px;padding:6px 11px;color:#eaf7ff;border:1px solid color-mix(in srgb,var(--sc) 45%,transparent);border-radius:999px;background:rgba(6,20,44,.75);font:750 12px system-ui,-apple-system,Segoe UI,sans-serif}
+.hhScanHeading753{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:0 3px;min-height:33px}
+.hhScanHeading753 h1{flex:1;min-width:0;font-size:clamp(15px,4.2vw,23px);line-height:1.12;letter-spacing:-.035em;font-weight:850;white-space:nowrap;margin:0;color:#f0f8ff}
+.hhScanHeading753 #hhScanBack753{flex:none;align-self:center;min-height:30px;padding:5px 10px;color:#eaf7ff;border:1px solid color-mix(in srgb,var(--sc) 45%,transparent);border-radius:999px;background:rgba(6,20,44,.75);font:750 11px system-ui,-apple-system,Segoe UI,sans-serif}
 .hhScanTabs753{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .hhScanTabs753 button{border:1px solid #426b93;background:#122c4a;color:#b4d0e8;min-height:45px;border-radius:13px;font-weight:780;font-size:13px}
 .hhScanTabs753 button[aria-selected="true"]{border-color:var(--sc);color:#fff;background:color-mix(in srgb,var(--sc) 20%,#122d4a);box-shadow:0 0 16px var(--scWash)}
