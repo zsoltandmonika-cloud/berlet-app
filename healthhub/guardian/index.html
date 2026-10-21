@@ -8,18 +8,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
+<link rel="stylesheet" href="./guardian-polish-v767.css?v=767-brighter-standard-nav">
 </head>
 <body>
 <div class="shell">
-<header class="topbar">
- <a href="../index.html?hhv=761-guardian" class="back" aria-label="Vissza a HealthHubba">‹ <span>HealthHub</span></a>
- <div class="brand"><span class="eyebrow">HEALTHHUB · GUARDIAN</span><strong>Family Guard</strong></div>
- <button id="guardianProfileSwitch" class="guardian-avatar-switch" type="button" aria-label="Profilváltás" title="Profilváltás">
-  <img id="guardianAvatar" class="avatar" alt="Aktív profil képe" width="45" height="45">
- </button>
-</header>
 <main>
- <section class="intro guardian-hero" aria-label="Léna Family Guard nyitókép">
+ <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
+  <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
+   <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
+   <div class="guardian-hero-monitor-members">
+    <span class="guardian-hero-monitor-member"><img id="guardianHeroZsolt" alt="Zsolt valódi profilfotója"><b>Zsolt</b></span>
+    <span class="guardian-hero-monitor-heart" aria-hidden="true">♥</span>
+    <span class="guardian-hero-monitor-member"><img id="guardianHeroMonika" alt="Mónika valódi profilfotója"><b>Mónika</b></span>
+   </div>
+   <span class="guardian-hero-monitor-note">ILLUSZTRÁCIÓ · NEM ÉLŐ GPS</span>
+  </div>
   <div class="guardian-hero-overlay">
    <div class="intro-head"><span class="eyebrow">LÉNA · FAMILY GUARD</span><span class="status-dot" id="guardianLiveDot" aria-hidden="true"></span></div>
    <h1>Akik fontosak, közelebb.</h1>
@@ -32,6 +35,8 @@
   <span class="map-label" id="guardianMapLabel">3D BUDAPEST · FELFEDEZŐ NÉZET</span>
   <button id="guardianFollow" class="map-follow" type="button" aria-pressed="true" aria-label="Saját pozíció követése">◎ Követés</button>
   <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete">▱ 3D</button>
+  <button id="guardianSatellite" class="map-satellite" type="button" aria-pressed="false" aria-label="Műholdnézet kapcsolása">◉ Műhold</button>
+  <span id="guardianSatelliteNotice" class="map-satellite-notice" hidden>EOxCloudless 2020 · Sentinel-2 · kb. 10 m felbontás · nem élő</span>
   <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="false" aria-controls="guardianFamilyPanel">♧ Család</button>
  </section>
  <section class="family-panel" id="guardianFamilyPanel" hidden aria-label="Családi helyzetek">
@@ -62,8 +67,17 @@
  <p class="privacy">🔒 Ez a böngészős GPS-követés a lap háttérbe kerülésekor leáll. Az Androidos HH One natív háttérkövetője külön telepítést és felhasználói engedélyt igényel, helyadatokat még nem oszt meg a családdal. A térképszolgáltató a csempék hálózati kéréseit láthatja. 112/911 és Activity-integráció későbbi fejlesztés.</p>
 </main>
 </div>
+<button id="guardianProfileSwitch" class="guardian-standard-profile" type="button" aria-label="Profilváltás" title="Profilváltás">Zsolt ⇄</button>
+<nav id="guardianHHNav" class="hhBottomNav" aria-label="HealthHub standard alsó navigáció">
+ <a href="../index.html" aria-label="HealthHub kezdőlap"><span class="hhNavIcon" aria-hidden="true">⌂</span><span>Kezdőlap</span></a>
+ <a href="../index.html?hhnav=health" aria-label="HealthRadar megnyitása"><span class="hhNavIcon" aria-hidden="true">♡</span><span>HealthRadar</span></a>
+ <a href="../index.html?hhnav=timeline" aria-label="Idővonal megnyitása"><span class="hhNavIcon" aria-hidden="true">▣</span><span>Idővonal</span></a>
+ <button type="button" data-guardian-nav-info="Az Elemzések oldal jelenleg a HealthHub főoldaláról érhető el." aria-label="Elemzések navigáció"><span class="hhNavIcon" aria-hidden="true">▥</span><span>Elemzések</span></button>
+ <button type="button" data-guardian-nav-info="A Továbbiak / Admin oldal a HealthHub főoldaláról érhető el." aria-label="Továbbiak navigáció"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
+</nav>
+<div id="guardianNavToast" class="hhNavToast" role="status" aria-live="polite" hidden></div>
 <script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script defer src="./guardian.js?v=762-golden-glass"></script>
+<script defer src="./guardian.js?v=767-golden-navigation-satellite"></script>
 </body>
 </html>

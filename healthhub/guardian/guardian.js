@@ -3,21 +3,28 @@
 'use strict';
 const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
-let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
+let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,satellite=false,path=[],distance=0,ready=false,last=null;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
  const monika=name()==='Mónika';
  d.documentElement.dataset.guardianProfile=monika?'m':'z';
  $('guardianProfile').textContent=name();
+ const avatars=w.HH_GOLDEN_AVATARS_V529,avatar=$('guardianAvatar');
+ if(avatars&&avatar)avatar.src=monika?avatars.m:avatars.z;
+ // The decorative Hero monitor always uses the two verified original HH avatars.
+ if(avatars){
+  const hz=$('guardianHeroZsolt'),hm=$('guardianHeroMonika');
+  if(hz)hz.src=avatars.z;
+  if(hm)hm.src=avatars.m;
+ }
  const switcher=$('guardianProfileSwitch');
  if(switcher){
+  switcher.textContent=name()+' ⇄';
   const next=monika?'Zsolt':'Mónika';
   switcher.title='Profilváltás: '+next;
   switcher.setAttribute('aria-label','Egyérintéses profilváltás '+next+' profiljára');
  }
- const avatars=w.HH_GOLDEN_AVATARS_V529,avatar=$('guardianAvatar');
- if(avatars&&avatar)avatar.src=monika?avatars.m:avatars.z;
  const mine=$('guardianMePhoto'),other=$('guardianOtherPhoto');
  if(avatars){
   if(mine)mine.src=monika?avatars.m:avatars.z;
@@ -43,7 +50,8 @@ function renderButtons(){
  $('guardianStop').disabled=!active;
  dot.classList.toggle('live',active&&hasFix);
  $('guardianFollow').setAttribute('aria-pressed',String(follow));
- $('guardian3D').setAttribute('aria-pressed',String(threeD));
+ $('guardian3D').setAttribute('aria-pressed',String(threeD&&!satellite));
+ $('guardianSatellite').setAttribute('aria-pressed',String(satellite));
 }
 function fmtLength(m){return m<1000?Math.round(m)+' m':(m/1000).toFixed(2).replace('.',',')+' km'}
 function radians(x){return x*Math.PI/180}
@@ -112,13 +120,23 @@ function start(){
   watchId=w.navigator.geolocation.watchPosition(onPosition,onGpsError,{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
  }catch(e){stop();report('A GPS nem indítható ezen a készüléken.')}
 }
+function applyView(){
+ renderButtons();
+ $('guardianSatelliteNotice').hidden=!satellite;
+ if(!active&&!marker)$('guardianMapLabel').textContent=satellite?'MŰHOLD · HISTORIKUS FELVÉTEL':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
+ if(!map||!ready)return;
+ if(map.getLayer('guardian-satellite-raster'))map.setLayoutProperty('guardian-satellite-raster','visibility',satellite?'visible':'none');
+ if(map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',!satellite&&threeD?'visible':'none');
+ map.easeTo({pitch:satellite?0:(threeD?58:0),bearing:satellite?0:(threeD?-21:0),duration:620});
+}
 function toggle3D(){
- threeD=!threeD;renderButtons();
- if(!active&&!marker)$('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
- if(map){
-  map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:650});
-  if(ready&&map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',threeD?'visible':'none');
- }
+ if(satellite){satellite=false;threeD=true}
+ else threeD=!threeD;
+ applyView();
+}
+function toggleSatellite(){
+ satellite=!satellite;
+ applyView();
 }
 function enableFollow(){
  if(!marker&&!active){report('A saját helyzet követéséhez először indítsd el a GPS-t.');return}
@@ -164,14 +182,14 @@ function switchProfile(){
 function mapColors(){
  const rose=name()==='Mónika';
  return {
-  Background:rose?'#211e37':'#101f37',
-  Residential:rose?'#302640':'#1a2c44',
-  Water:rose?'#43335e':'#153d64',
-  River:rose?'#654576':'#23608d',
-  'Road network':rose?'#8a668f':'#527ba2',
-  Grass:rose?'#273343':'#153b40',
-  Wood:rose?'#233441':'#153939',
-  'Road labels':rose?'#ffe1ed':'#d7ecff'
+  Background:rose?'#4d4163':'#324e70',
+  Residential:rose?'#655073':'#45637d',
+  Water:rose?'#466c91':'#337da6',
+  River:rose?'#72a3ca':'#4f9ac4',
+  'Road network':rose?'#ceabc5':'#a6cce4',
+  Grass:rose?'#4b7467':'#377966',
+  Wood:rose?'#3c715f':'#2c695d',
+  'Road labels':rose?'#fff0f8':'#ffffff'
  };
 }
 function applyGoldenMapStyle(){
@@ -229,6 +247,19 @@ function initMap(){
      }
     },firstLabel&&firstLabel.id);
    }catch(e){w.console&&w.console.warn('Guardian 3D buildings fallback',e)}
+   // Actual satellite photography via EOxCloudless, 2020 Copernicus/Sentinel-2.
+   // Noncommercial CC BY-NC-SA imagery, approx. 10m: not current or street-level.
+   // Source is requested ONLY after user activates the satellite layer.
+   try{
+    map.addSource('guardian-satellite-2020',{
+     type:'raster',
+     tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg'],
+     tileSize:256,maxzoom:14,
+     attribution:'EOxCloudless 2020 by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020) · CC BY-NC-SA 4.0'
+    });
+    map.addLayer({id:'guardian-satellite-raster',type:'raster',source:'guardian-satellite-2020',
+     layout:{visibility:'none'},paint:{'raster-opacity':1}});
+   }catch(e){w.console&&w.console.warn('Guardian satellite source unavailable',e)}
    map.addSource('guardian-route',{type:'geojson',data:pathJson()});
    map.addLayer({id:'guardian-route-glow',type:'line',source:'guardian-route',paint:{
     'line-color':name()==='Mónika'?'#fc76c3':'#5cc7ff','line-width':12,'line-opacity':0.22,'line-blur':5
@@ -237,6 +268,7 @@ function initMap(){
     'line-color':name()==='Mónika'?'#ffabd9':'#79c5ff','line-width':5,'line-opacity':0.95
    }});
    applyGoldenMapStyle();
+   applyView();
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
   map.on('dragstart',function(){follow=false;renderButtons()});
@@ -247,8 +279,21 @@ $('guardianStop').addEventListener('click',stop);
 $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
 $('guardian3D').addEventListener('click',toggle3D);
+$('guardianSatellite').addEventListener('click',toggleSatellite);
 $('guardianFamilyButton').addEventListener('click',toggleFamily);
 $('guardianProfileSwitch').addEventListener('click',switchProfile);
+if(typeof d.querySelectorAll==='function'){
+ const toast=$('guardianNavToast');
+ let toastTimeout=null;
+ d.querySelectorAll('[data-guardian-nav-info]').forEach(function(button){
+  button.addEventListener('click',function(){
+   toast.textContent=button.getAttribute('data-guardian-nav-info');
+   toast.hidden=false;
+   if(toastTimeout)w.clearTimeout(toastTimeout);
+   toastTimeout=w.setTimeout(function(){toast.hidden=true},2600);
+  });
+ });
+}
 const nativeButton=$('guardianNativeGps');
 if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
  nativeButton.hidden=false;

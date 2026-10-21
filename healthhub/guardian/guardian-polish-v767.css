@@ -1,0 +1,158 @@
+/* HealthHub Family Guard v767 · approved Golden Standard shell.
+   Inherits the visual dimensions of HealthHub Nutrition v629 (no redesign).
+   Brightens the existing dark MapLibre map without switching map engines. */
+:root{
+ --guardian-surface:rgba(22,48,80,.88);--guardian-outline:rgba(169,218,255,.46);
+}
+:root[data-guardian-profile="m"]{
+ --guardian-surface:rgba(65,44,83,.87);--guardian-outline:rgba(255,186,225,.48);
+}
+.shell{max-width:550px;padding-bottom:max(122px,calc(112px + env(safe-area-inset-bottom,0px)))!important}
+body{color:#f5fbff!important}
+.topbar{height:55px!important}
+.topbar .brand{font-size:15px!important}
+.guardian-hero{box-shadow:0 13px 32px rgba(10,22,49,.2),inset 0 1px rgba(255,255,255,.2)!important}
+.gps-panel,.family-panel{border-color:var(--guardian-outline)!important}
+.map-card{background:#193854!important;border-color:var(--guardian-outline)!important}
+#guardianMap{background:#244962!important}
+#guardianMap .maplibregl-canvas{filter:brightness(1.38) saturate(1.28) contrast(1.02)}
+.map-label{background:rgba(17,44,78,.87)!important;color:#e9f6ff!important;border-color:var(--guardian-outline)!important}
+.map-follow,.map-3d,.map-family,.map-satellite{
+  position:absolute!important;z-index:4!important;right:11px!important;
+  min-height:38px!important;min-width:84px!important;
+  border:1px solid var(--guardian-outline)!important;border-radius:13px!important;
+  background:var(--guardian-surface)!important;backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  color:#f3faff!important;box-shadow:inset 0 1px rgba(255,255,255,.16),0 4px 14px rgba(2,16,35,.3);
+  padding:8px!important;font:800 11px system-ui!important;cursor:pointer;
+}
+.map-follow{top:12px!important}
+.map-3d{top:59px!important}
+.map-satellite{top:106px!important}
+.map-family{top:153px!important}
+.map-satellite[aria-pressed="true"],.map-3d[aria-pressed="true"]{
+ border-color:var(--guard-cyan)!important;
+ color:var(--guard-cyan)!important;
+ box-shadow:0 0 14px var(--guard-glow)!important
+}
+.map-satellite-notice{
+ position:absolute;bottom:37px;left:9px;right:9px;z-index:4;pointer-events:none;
+ text-align:center;padding:8px 9px;border:1px solid rgba(181,215,242,.55);
+ border-radius:11px;background:rgba(5,28,50,.87);color:#e3effe;font-size:10px;font-weight:650;
+ backdrop-filter:blur(9px)
+}
+.map-satellite-notice[hidden]{display:none!important}
+.map-message{top:205px!important}
+.maplibregl-ctrl-bottom-right{bottom:23px!important}
+.maplibregl-ctrl-attrib{background:rgba(16,35,57,.92)!important;color:#e7f2ff!important}
+.maplibregl-ctrl-attrib a{color:#eefaff!important}
+#guardianHHNav.hhBottomNav{
+ position:fixed!important;left:50%!important;right:auto!important;bottom:0!important;
+ transform:translateX(-50%)!important;
+ width:min(100vw,420px)!important;
+ height:calc(58px + env(safe-area-inset-bottom,0px))!important;
+ min-height:58px!important;box-sizing:border-box!important;margin:0!important;
+ padding:0 0 env(safe-area-inset-bottom,0px)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:0!important;z-index:80!important;
+ border:0!important;border-top:1px solid rgba(140,198,243,.25)!important;
+ border-radius:0!important;background:rgba(15,30,54,.97)!important;
+ box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+ color:#b9d0e8!important;backdrop-filter:blur(12px)!important;
+ -webkit-backdrop-filter:blur(12px)!important;animation:none!important;transition:none!important;
+}
+#guardianHHNav.hhBottomNav a,#guardianHHNav.hhBottomNav button{
+ min-width:0!important;width:100%!important;height:100%!important;min-height:0!important;
+ margin:0!important;padding:5px 1px 2px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:1px!important;border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;color:#b9d0e8!important;text-decoration:none!important;
+ font:600 8px/1.2 system-ui!important;white-space:nowrap!important;
+ cursor:pointer;touch-action:manipulation;animation:none!important;transition:none!important;
+}
+#guardianHHNav.hhBottomNav .hhNavIcon{
+ width:19px!important;height:19px!important;display:flex!important;align-items:center!important;
+ justify-content:center!important;font-size:19px!important;font-weight:700!important;line-height:1!important;
+ margin:0 auto 2px!important;color:inherit!important;
+}
+#guardianHHNav.hhBottomNav a:focus-visible,#guardianHHNav.hhBottomNav button:focus-visible{
+ outline:3px solid var(--guard-cyan)!important;outline-offset:-3px!important;
+}
+#guardianHHNav.hhBottomNav a:hover,#guardianHHNav.hhBottomNav button:hover{color:var(--guard-cyan)!important}
+.guardian-standard-profile{
+ position:fixed;z-index:85;left:max(13px,calc(50% - 210px + 13px))!important;
+ bottom:calc(70px + env(safe-area-inset-bottom,0px))!important;
+ padding:6px 12px;min-height:34px;
+ display:inline-flex;align-items:center;justify-content:center;gap:4px;
+ border:1px solid var(--guard-cyan)!important;border-radius:999px;
+ background:rgba(6,20,44,.88)!important;color:#f7f9ff!important;
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+ box-shadow:0 2px 12px rgba(0,0,0,.45);
+ font:760 12px/1.2 Inter,'Segoe UI',Roboto,system-ui,sans-serif;
+ cursor:pointer;touch-action:manipulation;white-space:nowrap;animation:none;transition:none;
+}
+.guardian-standard-profile:focus-visible{outline:3px solid var(--guard-cyan);outline-offset:3px}
+#guardianNavToast{
+ position:fixed;bottom:calc(139px + env(safe-area-inset-bottom,0px));left:50%;
+ transform:translateX(-50%);max-width:min(90vw,360px);z-index:86;
+ border:1px solid var(--guardian-outline);border-radius:14px;
+ background:rgba(15,41,75,.96);color:white;padding:10px 14px;
+ font:750 12px/1.4 system-ui;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.3)
+}
+#guardianNavToast[hidden]{display:none!important}
+@media(max-width:420px){
+ .guardian-standard-profile{left:13px!important}
+ .map-label{max-width:calc(100% - 108px);line-height:1.3}
+}
+
+/* EXACT approved PNG, displayed uncropped without old medical Hero / dark gradient. */
+.guardian-hero{
+ aspect-ratio:1672/941!important;min-height:0!important;height:auto!important;
+ background:#132448 url('../assets/guardian-family-hero-approved-v767.png') center center / 100% 100% no-repeat!important;
+ border-radius:20px!important;margin:5px 0 11px!important;overflow:hidden!important;
+}
+:root[data-guardian-profile="m"] .guardian-hero{
+ background-image:url('../assets/guardian-family-hero-approved-v767.png')!important;
+}
+.guardian-hero:before,.guardian-hero:after{display:none!important}
+/* Old overlay's duplicate headline hid Léna and is superseded by exact image text. */
+.guardian-hero-overlay{display:none!important}
+.guardian-hero-monitor{
+ position:absolute;z-index:3;left:54%;right:1.2%;top:32%;bottom:11%;
+ clip-path:polygon(6% 16%,100% 0%,100% 100%,0 89%);
+ background:linear-gradient(145deg,rgba(23,45,105,.91),rgba(17,38,84,.89));
+ box-shadow:inset 0 0 30px rgba(114,173,250,.21);
+ padding:7% 4% 5% 8%;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6%;
+ color:#edf7ff;pointer-events:none;
+}
+:root[data-guardian-profile="m"] .guardian-hero-monitor{
+ background:linear-gradient(145deg,rgba(57,28,85,.9),rgba(21,37,91,.9));
+}
+.guardian-hero-monitor-title{
+ color:#c4e9ff;font-size:clamp(7px,1.7vw,11px);letter-spacing:.13em;
+ text-shadow:0 1px 5px #07162b;text-align:center
+}
+.guardian-hero-monitor-members{
+ display:flex;justify-content:space-around;align-items:center;gap:8px;width:100%;
+}
+.guardian-hero-monitor-member{display:flex;align-items:center;flex-direction:column;gap:5px}
+.guardian-hero-monitor-member img{
+ display:block;width:clamp(28px,9vw,50px);height:clamp(28px,9vw,50px);
+ object-fit:cover;border:2px solid #88d4ff;border-radius:50%;background:#284879;
+ box-shadow:0 0 12px rgba(78,179,255,.57)
+}
+.guardian-hero-monitor-member:last-child img{border-color:#ffb3df;box-shadow:0 0 12px rgba(255,148,222,.43)}
+.guardian-hero-monitor-member b{
+ display:inline-block;border-radius:10px;padding:2px 7px;background:rgba(4,20,49,.8);
+ font-size:clamp(8px,1.8vw,11px);line-height:1.2;color:#fff
+}
+.guardian-hero-monitor-heart{font-size:clamp(13px,4.3vw,25px);color:#ff9ee1;text-shadow:0 0 12px rgba(255,156,225,.6)}
+.guardian-hero-monitor-note{font-size:clamp(6px,1.2vw,8px);text-align:center;letter-spacing:.05em;color:#c9d7eb;font-weight:700}
+@media(max-width:370px){
+ .guardian-hero-monitor{padding:7% 3% 4% 7%;gap:3%}
+ .guardian-hero-monitor-members{gap:2px}
+ .guardian-hero-monitor-member{gap:2px}
+ .guardian-hero-monitor-member img{width:29px;height:29px}
+ .guardian-hero-monitor-title{font-size:7px}
+}

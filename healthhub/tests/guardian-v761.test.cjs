@@ -2,6 +2,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const crypto=require('node:crypto');
 const path=require('node:path');
 const vm=require('node:vm');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
@@ -36,7 +37,7 @@ test('the original Timeline opens unchanged via Health submenu',()=>{
 });
 
 test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
- const html=read('guardian/index.html'),css=read('guardian/guardian.css'),js=read('guardian/guardian.js');
+ const html=read('guardian/index.html'),css=read('guardian/guardian.css'),js=read('guardian/guardian.js'),polish=read('guardian/guardian-polish-v767.css');
  new Function(js);
  assert.match(html,/LÉNA · FAMILY GUARD/);
  assert.match(html,/id="guardianMap"/);
@@ -56,6 +57,28 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/setLayoutProperty/);
  assert.match(js,/const img=d.createElement/);
  assert.match(js,/HH_GOLDEN_AVATARS_V529/);
+ assert.match(html,/id="guardianSatellite"/);
+ assert.match(html,/id="guardianSatelliteNotice"/);
+ assert.match(html,/id="guardianHHNav"/);
+ assert.match(html,/id="guardianProfileSwitch" class="guardian-standard-profile"/);
+ assert.doesNotMatch(html,/id="guardianAvatar"/,'no second profile switch');
+ assert.match(polish,/width:min\(100vw,420px\)/,'canonical taskbar width');
+ assert.match(polish,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/,'five buttons');
+ assert.match(polish,/bottom:calc\(70px/,'left profile above taskbar');
+ assert.match(polish,/brightness\(1\.38\)/,'lightened map');
+ assert.match(js,/function toggleSatellite\(\)/);
+ assert.match(js,/tiles\.maps\.eox\.at/,'EOX satellite WMTS');
+ assert.match(js,/EOxCloudless 2020/,'clear source licensing');
+ assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
+ assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
+ assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
+ assert.match(js,/hm\.src=avatars\.m/,'Hero must bind canonical Mónika photo');
+ assert.match(polish,/guardian-family-hero-approved-v767\.png/,'approved bright Family Guard Hero loaded');
+ const hero=fs.readFileSync(path.join(__dirname,'../assets/guardian-family-hero-approved-v767.png'));
+ assert.equal(hero.length,3480511,'approved original hero is complete');
+ assert.equal(crypto.createHash('sha256').update(hero).digest('hex'),
+ '7be5f85999a26e676d89fd92ac2ae184b6f081aa5fb64fedbcee01178c262230',
+ 'the Hero must remain the exact user-attached PNG, never regenerated');
  assert.match(js,/const existing=layers\.find/,'reuse existing dark-map vector source');
  assert.match(js,/if\(!existing\)map\.addSource\(source/,'only load a fallback building source if needed');
  assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
@@ -94,13 +117,19 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  controls.guardianStart.click();
  assert.equal(nextWatch,1);
  assert.equal(w.HH_GUARDIAN_V761.active,true);
+ controls.guardianSatellite.click();
+ assert.equal(controls.guardianSatellite['aria-pressed'],'true','satellite can be activated');
+ assert.equal(controls.guardianSatelliteNotice.hidden,false);
+ controls.guardianSatellite.click();
+ assert.equal(controls.guardianSatellite['aria-pressed'],'false','satellite can be exited');
+ assert.equal(nextWatch,1,'changing map modes does not request new GPS');
  d.hidden=true;events.visibilitychange();
  assert.equal(w.HH_GUARDIAN_V761.active,false,'background never keeps browser GPS active');
  assert.deepEqual(stopped,[1]);
  d.hidden=false;controls.guardianStart.click();assert.equal(nextWatch,2);
  controls.guardianStop.click();assert.deepEqual(stopped,[1,2]);
  controls.guardianProfileSwitch.click();
- assert.equal(profile,'m','top-right portrait switches to Mónika');
+ assert.equal(profile,'m','bottom-left standard profile pill switches to Mónika');
  assert.equal(nextWatch,2,'changing profile never restarts GPS');
  assert.equal(w.HH_GUARDIAN_V761.active,false);
  controls.guardianProfileSwitch.click();
