@@ -152,7 +152,7 @@ function layout(){
 }
 function queue(){
  if(pending)return;pending=true;
- Promise.resolve().then(()=>{pending=false;if(!rendering)layout()});
+ Promise.resolve().then(()=>{pending=false;layout()});
 }
 function observe(){
  const root=d.getElementById(ROOT);
