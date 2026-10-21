@@ -1,0 +1,36 @@
+name: HealthHub Nutrition · AI Food Vision v750
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/hh-food-vision-v750.js'
+      - 'healthhub/nutrition/hh-food-vision-v750.css'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/tests/food-vision-v750.test.cjs'
+      - '.github/workflows/healthhub-nutrition-ai-v750.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/hh-food-vision-v750.js'
+      - 'healthhub/nutrition/hh-food-vision-v750.css'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/tests/food-vision-v750.test.cjs'
+permissions:
+  contents: read
+jobs:
+  vision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax checks
+        run: |
+          node --check healthhub/nutrition/nutrition-preview-v592.js
+          node --check healthhub/nutrition/hh-bevitel-premium-v643.js
+          node --check healthhub/nutrition/hh-food-vision-v750.js
+          node --check healthhub/nutrition/tests/food-vision-v750.test.cjs
+      - name: AI scanner and Nutrition diary regression
+        run: node healthhub/nutrition/tests/food-vision-v750.test.cjs

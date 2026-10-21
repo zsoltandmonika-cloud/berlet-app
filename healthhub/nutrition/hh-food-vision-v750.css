@@ -1,0 +1,32 @@
+/* v750 · HealthHub AI Food Vision · premium mobile first */
+.hhVisionDialog750{inset:0;margin:auto;width:min(94vw,640px);max-width:640px;max-height:min(94dvh,900px);padding:0;color:#eaf5ff;border-radius:22px;border:1px solid #6daadd8a;background:linear-gradient(160deg,#122f54,#0a1b36 80%);box-shadow:0 25px 90px #020b20d9;overflow:hidden}
+.hhVisionDialog750::backdrop{background:#030a18db;backdrop-filter:blur(6px)}
+.hhVisionShell750{max-height:min(94dvh,900px);overflow:auto;overscroll-behavior:contain;padding:16px;display:flex;flex-direction:column;gap:12px}
+.hhVisionHead750{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hhVisionHead750 strong{font-size:19px;color:#effbff}
+.hhVisionHead750 button{border:1px solid #9abdd699;border-radius:12px;background:#264969;color:white;min-width:43px;min-height:43px;font-size:21px;cursor:pointer}
+.hhVisionShell750 p{margin:0;font-size:12px;line-height:1.55;color:#d5e6f7}
+.hhVisionPicker750{display:flex;gap:9px;flex-wrap:wrap}
+.hhVisionAction750{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 14px;border-radius:13px;border:1px solid #71b5e0;background:linear-gradient(135deg,#1a507d,#176a8d);color:#fff;font-size:13px;font-weight:800;cursor:pointer;line-height:1.35}
+.hhVisionAction750:disabled{opacity:.52;cursor:default}
+.hhVisionPrimary750{width:100%;background:linear-gradient(135deg,#2469a2,#1d799b)}
+.hhVisionCommit750{width:100%;background:linear-gradient(135deg,#0c7c77,#21859f);border-color:#85eee4;position:sticky;bottom:0;z-index:2;box-shadow:0 -10px 22px #081a35d9}
+.hhVisionPreview750{width:100%;height:min(38vw,260px);min-height:130px;object-fit:contain;background:#041020;border:1px solid #3e719e;border-radius:14px}
+.hhVisionPreview750[hidden]{display:none}
+.hhVisionDisclosure750{background:#173857a8;border:1px solid #396b95;border-radius:12px;padding:10px}
+.hhVisionStatus750{padding:10px;background:#183b59;border:1px solid #547ca3;border-radius:12px;overflow-wrap:anywhere}
+.hhVisionStatus750[data-bad="true"]{border-color:#e5a27b;color:#ffe0d1}
+.hhVisionLabel750,.hhVisionFood750 label{display:block;color:#daebff;font-size:12px;font-weight:760}
+.hhVisionLabel750 input,.hhVisionLabel750 select,.hhVisionFood750 input{box-sizing:border-box;display:block;margin-top:5px;width:100%;min-height:42px;border-radius:10px;border:1px solid #689ac0;background:#09243f;color:#f8fcff;font:600 14px system-ui;padding:9px}
+.hhVisionLabel750 select{appearance:auto}
+.hhVisionItems750{display:flex;flex-direction:column;gap:10px}
+.hhVisionFood750{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:12px;background:linear-gradient(135deg,#194260,#12304d);border:1px solid #588eb1;border-radius:15px}
+.hhVisionFood750 label:first-child{grid-column:1/-1}
+.hhVisionFood750 label{font-size:10px}
+.hhVisionFood750 input{min-height:39px;font-size:13px}
+.hhVisionWarn750{grid-column:1/-1;color:#ffdf98;font-size:11px}
+.hhVisionRemove750{grid-column:1/-1;justify-self:start;min-height:37px;padding:5px 11px;background:#452942;color:#ffe4eb;border:1px solid #d9a2b6;border-radius:9px}
+.hhVisionTotals750{display:block;padding:12px;line-height:1.65;background:#0c3857;border-radius:13px;color:#fff;font-size:14px}
+.hhVisionNotes750{border-left:3px solid #8cbfe2;padding:7px 11px}
+@media(max-width:410px){.hhVisionShell750{padding:12px;gap:10px}.hhVisionFood750{grid-template-columns:repeat(2,minmax(0,1fr))}.hhVisionHead750 strong{font-size:16px}.hhVisionAction750{font-size:12px;flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){.hhVisionDialog750::backdrop{backdrop-filter:none}}

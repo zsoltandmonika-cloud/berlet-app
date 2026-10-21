@@ -193,8 +193,7 @@ next.addEventListener('click',advance);
 dialog.addEventListener('cancel',e=>{if(step==='foods'){e.preventDefault();step='categories';render()}});
 const ai=$('hhBevitelAI'),status=$('hhBevitelInfo');
 ai?.addEventListener('click',()=>{
- if(!status)return;
- status.textContent='📸 Az AI Bevitel fotós felismerése még fejlesztés alatt áll. Addig az Étel és Ital csempékkel tudsz ténylegesen naplózni, a Léna Cookbook pedig megnyitja a meglévő recepttárat.';
- status.hidden=false;status.scrollIntoView({behavior:reduced.matches?'instant':'smooth',block:'nearest'});
+ if(window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open();return}
+ if(status){status.textContent='A fotós felismerő betöltésére várunk. Frissítsd az oldalt.';status.hidden=false}
 });
 })();
