@@ -41,6 +41,10 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(html,/LÉNA · FAMILY GUARD/);
  assert.match(html,/id="guardianMap"/);
  assert.match(html,/id="guardian3D"/);
+ assert.match(html,/id="guardianFamilyPanel"/);
+ assert.match(html,/id="guardianMePhoto"/);
+ assert.match(html,/id="guardianOtherPhoto"/);
+ assert.match(html,/Corky/);
  assert.match(html,/maplibre-gl@4\.7\.1/);
  assert.match(css,/zsolt-hh-hero-approved-v527\.png/);
  assert.match(css,/monika-hh-hero-approved-v5261\.png/);
@@ -48,6 +52,10 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/https:\/\/tiles\.openfreemap\.org\/styles\/dark/);
  assert.match(js,/type:'fill-extrusion'/);
  assert.match(js,/function toggle3D\(\)/);
+ assert.match(js,/function applyGoldenMapStyle/);
+ assert.match(js,/setLayoutProperty/);
+ assert.match(js,/const img=d.createElement/);
+ assert.match(js,/HH_GOLDEN_AVATARS_V529/);
 });
 
 test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
@@ -88,4 +96,7 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  d.hidden=false;controls.guardianStart.click();assert.equal(nextWatch,2);
  controls.guardianStop.click();assert.deepEqual(stopped,[1,2]);
  assert.doesNotMatch(script,/fetch\(|sendBeacon|WebSocket|localStorage\.setItem|indexedDB\.open/,'no tracking upload or persistence');
+ assert.match(script,/d\.addEventListener\('visibilitychange'/,'browser GPS stops when hidden');
+ assert.match(script,/Budapest city-center discovery view, NOT a family or device coordinate/);
+ assert.doesNotMatch(script,/Corky.*setLngLat|Anna.*setLngLat|Zsolt.*setLngLat/,'no fabricated family marker locations');
 });
