@@ -23,7 +23,7 @@ test('all 8 user-specified supplements are present as templates, not consumed re
 });
 test('canonical medications route, Home label, scroll and AI context stay connected',()=>{
  assert.match(read('index.html'),/hh-supplements-v700\.js\?v=758-on-demand-search/);
- assert.match(read('premium-glass-home-v520.js'),/Gyógyszerek & Supplement/);
+ assert.match(read('premium-glass-home-v520.js'),/Gyógyszer & Supplement/);
  assert.match(read('live-v126.js'),/medications:'HealthHub Gyógyszerek \+ Supplements'/);
  assert.match(read('live-v289.js'),/supplements:supplementList\(rs\[4\],p\)/);
  assert.match(read('live-v331.js'),/domain:'supplement'|put\('supplement'/);
