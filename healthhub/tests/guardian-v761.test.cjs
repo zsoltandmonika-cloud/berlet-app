@@ -532,3 +532,92 @@ test('v784 nine distinct hand-drawn translucent SVG landmarks keep existing book
  assert.equal(updated[0].kind,'bus');
  assert.equal(updated[1].kind,'tram');
 });
+
+test('v785 Family Live exposes consented auth, six intervals, correct original photos, speed and fresh-only markers',()=>{
+ const html=read('guardian/family-guard-v785.html'),canonical=read('guardian/index.html');
+ const live=read('guardian/guardian-live-v785.js'),css=read('guardian/guardian-live-v785.css');
+ const guardian=read('guardian/guardian.js');
+ new Function(live);
+ assert.match(html,/data-family-guard-build="v785"/);
+ assert.match(html,/guardian-live-v785\.js\?v=785-optin-family-live/);
+ assert.match(html,/guardian-live-v785\.css\?v=785-private-live/);
+ assert.match(html,/supabase-js@2\.57\.2/,'pinned browser client');
+ assert.match(html,/central-vault\/config\.js/,'use existing publishable-only config');
+ assert.match(canonical,/guardian-live-v785\.js/,'canonical page enables same Live');
+ for(const id of ['guardianLiveLogin','guardianLiveLogout','guardianLiveStart','guardianLiveStop','guardianLiveInterval','guardianLiveOwnSpeed','guardianLiveResetDevice','guardianOtherState'])assert.ok(html.includes('id="'+id+'"'),'new live control '+id);
+ for(const ms of [1000,3000,5000,10000,30000,60000])assert.ok(html.includes('value="'+ms+'"'));
+ assert.match(live,/getUser\(\)/,'server-verified auth identity');
+ assert.match(live,/hh_profile_access/,'authorized family membership');
+ assert.match(live,/onGpsFix/,'only genuine foreground GPS callbacks allowed');
+ assert.match(live,/if\(!sharing\|\|sharingProfile!==k/,'no hidden upload while disabled');
+ assert.match(live,/AGE_MS=20000/,'remove stale people after 20 seconds');
+ assert.match(live,/\.upsert\(payload,\{onConflict:'profile_key'\}\)/,'one latest position per authorized profile');
+ assert.match(live,/\.delete\(\)\.eq\('profile_key',k\)\.eq\('owner_id',uid\)/,'stop clears the sender-owned position');
+ assert.match(live,/document|d\.hidden/,'foreground only');
+ assert.match(live,/HH_GOLDEN_AVATARS_V529/,'original profile photos reused');
+ assert.doesNotMatch(css,/guardian-hero|guardianProfileSwitch|hhBottomNav/,'no design regression');
+ assert.match(guardian,/HH_GUARDIAN_LIVE_V785\.onGpsFix\(pos\)/);
+ assert.match(guardian,/HH_GUARDIAN_LIVE_V785\.onProfileChanged\(\)/);
+ assert.match(guardian,/HH_GUARDIAN_LIVE_V785\.mountMap\(map\)/);
+ assert.match(html,/guardian-icons-v784\.css/,'approved nine glass icons retained');
+ assert.match(html,/guardian-avatars-v783\.css/,'neon identity markers retained');
+ assert.match(html,/guardian-map-palette-v781\.css/,'2D/3D daylight style retained');
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9,'all saved-place categories stay');
+});
+test('v785 never uploads on page load or sign-in; publishes real data only after own-phone consent',async()=>{
+ const code=read('guardian/guardian-live-v785.js');
+ const controls={};
+ function make(tag){
+  return {tagName:tag,children:[],className:'',textContent:'',value:'',hidden:false,disabled:false,
+   classList:{add(){},remove(){}},appendChild(child){this.children.push(child);return child},
+   setAttribute(){},addEventListener(ev,fn){this[ev]=fn}};
+ }
+ const doc={hidden:false,getElementById(id){return controls[id]||(controls[id]=make('button'))},
+  createElement:make,addEventListener(){}};
+ const store={'hh-profile':'z'},actions=[],row={};
+ const storage={getItem(k){return store[k]||null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}};
+ const makeQuery=()=>({
+  select(){return this},in(){return Promise.resolve({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null})},
+  eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
+  upsert(data){actions.push({method:'upsert',data});return Promise.resolve({data,error:null})},
+  delete(){actions.push({method:'delete'});return this},then(fn){return Promise.resolve({error:null}).then(fn)}
+ });
+ const api={auth:{getUser(){return Promise.resolve({data:{user:{id:'owner-1'}},error:null})},
+  onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}},signOut(){return Promise.resolve({error:null})}},
+  from(table){return makeQuery()}
+ };
+ const win={HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://fake.example',publishableKey:'public-key'},
+  supabase:{createClient(){return api}},localStorage:storage,
+  HH_GUARDIAN_V761:{active:true},location:{origin:'https://example.com',pathname:'/healthhub/guardian/family-guard-v785.html'},
+  HH_GOLDEN_AVATARS_V529:{z:'z-photo',m:'m-photo'},confirm(){return true},setInterval(){return 1},clearInterval(){},setTimeout(){return 2},
+  addEventListener(){}};
+ vm.runInNewContext(code,{window:win,document:doc,Date,Math,Number,String,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(actions.filter(x=>x.method==='upsert').length,0,'authentication never initiates sharing');
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
+ controls.guardianLiveStart.click();
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,true,'own-phone tap is necessary');
+ const fix={coords:{latitude:47.5,longitude:19.05,accuracy:9,speed:2},timestamp:Date.now()};
+ win.HH_GUARDIAN_LIVE_V785.onGpsFix(fix);
+ await new Promise(resolve=>setImmediate(resolve));
+ const writes=actions.filter(x=>x.method==='upsert');
+ assert.equal(writes.length,1);
+ assert.equal(writes[0].data.profile_key,'zsolt');
+ assert.equal(writes[0].data.owner_id,'owner-1');
+ assert.equal(writes[0].data.latitude,47.5);
+ assert.equal(writes[0].data.speed_kmh,7.2);
+ assert.equal(store['hh-guardian-own-phone-profile-v785'],'zsolt');
+ controls.guardianLiveStop.click();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
+ assert.ok(actions.some(x=>x.method==='delete'),'stop deletes own latest location');
+ const n=actions.filter(x=>x.method==='upsert').length;
+ win.HH_GUARDIAN_LIVE_V785.onGpsFix(fix);
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(actions.filter(x=>x.method==='upsert').length,n,'off means no more uploads');
+ store['hh-profile']='m';
+ win.HH_GUARDIAN_LIVE_V785.onProfileChanged();
+ controls.guardianLiveStart.click();
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false,'cannot silently pretend other person owns phone');
+ assert.match(controls.guardianLiveStatus.textContent,/telefon/);
+});
