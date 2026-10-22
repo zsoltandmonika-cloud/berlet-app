@@ -1,7 +1,8 @@
 /* Family Guard v785 · user-consented, authenticated, foreground-only Family Live.
  * Each real phone uploads only its own explicitly selected profile's current GPS fix.
  * RLS controls readers/writers in hh_guardian_live_locations; never write a history.
- * No auto-start GPS, no background tracking, no synthetic family markers.
+ * Revocable, one-time owner consent enables automatic FOREGROUND reactivation only.
+ * No background tracking, no synthetic family markers.
  */
 (function(w,d){
 'use strict';
@@ -13,6 +14,7 @@ const api=cfg&&cfg.enabled&&cfg.supabaseUrl&&cfg.publishableKey&&w.supabase&&w.s
  }):null;
 const TABLE='hh_guardian_live_locations',AGE_MS=20000,ACCURACY_LIMIT=100;
 const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-refresh-v785';
+const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
@@ -24,6 +26,8 @@ function time(iso){return new Date(iso).toLocaleTimeString('hu-HU',{hour:'2-digi
 function msg(s){const el=$('guardianLiveStatus');if(el)el.textContent=s}
 function set(elId,s){const el=$(elId);if(el)el.textContent=s}
 function bound(){try{return w.localStorage.getItem(DEVICE_KEY)}catch(_){return null}}
+function autoEnabled(){try{return bound()===self()&&w.localStorage.getItem(AUTO_KEY)===self()}catch(_){return false}}
+function removeAuto(){try{w.localStorage.removeItem(AUTO_KEY)}catch(_){}}
 function updateUi(){
  const me=self(),meReady=!!user&&access.includes(me);
  set('guardianLiveIdentity','Saját profil: '+label(me)+(bound()?' · telefonhoz rögzítve':' · még nincs hozzárendelve'));
@@ -34,6 +38,9 @@ function updateUi(){
  if(start){start.disabled=!meReady||sharing;start.hidden=sharing}
  if(stop){stop.disabled=!sharing;stop.hidden=!sharing}
  const reset=$('guardianLiveResetDevice');if(reset)reset.hidden=!bound();
+ const auto=autoEnabled();
+ set('guardianLiveAutoStatus',auto?'Automatikus előtéri indulás: BE · csak ezen a telefonon, amíg ki nem kapcsolod.':'Automatikus előtéri indulás: KI · egyszeri jóváhagyás szükséges.');
+ const disableAuto=$('guardianLiveDisableAuto');if(disableAuto)disableAuto.hidden=!auto;
  if(!user)set('guardianOtherState','Csak belépés után kérdezhető le');
  else if(!access.includes(other()))set('guardianOtherState','Nincs hozzáférés ehhez a profilhoz');
 }
@@ -109,7 +116,7 @@ function onGpsStopped(){if(sharing)stopSharing()}
 function onProfileChanged(){
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
- updateUi();resetPolling();
+ updateUi();resetPolling();maybeAutoStart();
 }
 function onGpsFix(pos){
  if(!api||!sharing||!user||d.hidden||sharingProfile!==self()||!access.includes(sharingProfile))return;
@@ -158,29 +165,48 @@ async function refreshAuth(){
   if(!access.includes(self()))msg('Ezzel a fiókkal nincs hozzáférés a kiválasztott profilhoz.');
   else msg('Bejelentkezve. Élő megosztás csak a saját indítógomb megnyomása után.');
   resetPolling();
+  maybeAutoStart();
  }catch(e){if(sharing)stopSharing();user=null;access=[];msg('Hitelesítés/hálózat hiba: '+(e&&e.message||'kapcsolat'))}
  finally{authInFlight=false;updateUi()}
 }
 function startSharing(){
  const p=self();
+ if(sharing||d.hidden)return;
  if(!user){msg('Előbb jelentkezz be a Google-fiókoddal.');return}
  if(!access.includes(p)){msg('Ez a Google-fiók nem jogosult a '+label(p)+' profilhoz.');return}
  const registered=bound();
  if(registered&&registered!==p){msg('Ez a telefon a '+label(registered)+' profilhoz van rögzítve. Előbb módosítsd a készülék-hozzárendelést.');return}
- if(!registered){
-  if(w.confirm&&!w.confirm('Ez valóban '+label(p)+' saját telefonja?\n\nA Live indításával engedélyezed, hogy a telefon VALÓDI helyzete megjelenjen a családi térképen, kizárólag amíg a lap nyitva van.'))return;
-  try{w.localStorage.setItem(DEVICE_KEY,p)}catch(e){msg('A telefonprofil rögzítése sikertelen.');return}
+ if(!autoEnabled()){
+  // The owner must explicitly grant the persistent preference on THIS device.
+  const consent='Ez valóban '+label(p)+' saját telefonja?\n\nEGYSZERI ENGEDÉLY: a Family Guard megnyitásakor vagy előtérbe visszatérve automatikusan indulhat a SAJÁT GPS, a térképes követés és a családi élő helymegosztás.\n\nA böngésző háttérben és lezárt képernyőn NEM követ. A megosztást bármikor visszavonhatod a Leállítás gombbal. Engedélyezed?';
+  if(!w.confirm||!w.confirm(consent)){msg('Az automatikus helymegosztás nincs engedélyezve ezen a telefonon.');return}
+  try{
+   w.localStorage.setItem(DEVICE_KEY,p);
+   w.localStorage.setItem(AUTO_KEY,p);
+  }catch(e){msg('A hozzájárulás tárolása sikertelen. A megosztás nem indult el.');return}
  }
  sharing=true;sharingProfile=p;lastUploaded=0;lastSeen=null;
- updateUi();msg('Megosztás engedélyezve. GPS-jelre várunk…');
- if(!w.HH_GUARDIAN_V761||!w.HH_GUARDIAN_V761.active){
-  const start=$('guardianStart');if(start)start.click();
- }
+ updateUi();msg('Automatikus előtéri megosztás bekapcsolva · GPS-jelre várunk…');
+ const guardian=w.HH_GUARDIAN_V761;
+ if(guardian&&typeof guardian.startFollowing==='function')guardian.startFollowing();
+ else if(!guardian||!guardian.active){const start=$('guardianStart');if(start)start.click()}
+}
+function maybeAutoStart(){
+ if(sharing||d.hidden||!user||!access.includes(self())||!autoEnabled())return;
+ startSharing();
+}
+function userStopSharing(){
+ removeAuto();
+ stopSharing();
+ const stop=$('guardianStop');if(stop&&!stop.disabled)stop.click();
+ updateUi();
+ msg('Megosztás és automatikus újraindítás kikapcsolva ezen a telefonon.');
 }
 function resetDevice(){
  if(sharing){msg('Előbb állítsd le az élő megosztást.');return}
  if(w.confirm&&!w.confirm('Megváltoztatod, hogy kihez tartozik ez a telefon? A korábbi személy GPS-adatait ez nem mozgatja át.'))return;
  try{w.localStorage.removeItem(DEVICE_KEY)}catch(_){}
+ removeAuto();
  updateUi();msg('Telefon-hozzárendelés törölve. A következő engedélyezéskor újra meg kell erősítened.');
 }
 function init(){
@@ -200,11 +226,17 @@ function init(){
  });
  const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];removePeer();resetPolling();updateUi();msg('Kijelentkezve.');});
  const start=$('guardianLiveStart');if(start)start.addEventListener('click',startSharing);
- const stop=$('guardianLiveStop');if(stop)stop.addEventListener('click',stopSharing);
+ const stop=$('guardianLiveStop');if(stop)stop.addEventListener('click',userStopSharing);
+ const disable=$('guardianLiveDisableAuto');if(disable)disable.addEventListener('click',userStopSharing);
+ const gpsStop=$('guardianStop');if(gpsStop)gpsStop.addEventListener('click',()=>{
+  // Deliberate GPS Stop revokes the persistent choice; browser pagehide does not.
+  if(autoEnabled()){removeAuto();updateUi();msg('A GPS és az automatikus helymegosztás leállítva.');}
+ });
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
- d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsStopped();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;removePeer();setPeerState('Háttérben nincs élő helyzetkövetés')}else resetPolling()});
+ d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsStopped();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;removePeer();setPeerState('Háttérben nincs élő helyzetkövetés')}else{resetPolling();maybeAutoStart()}});
  w.addEventListener('pagehide',()=>{onGpsStopped();if(pollTimer!==null)w.clearInterval(pollTimer)});
+ w.addEventListener('pageshow',()=>{if(!d.hidden)maybeAutoStart()});
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')onProfileChanged()});
  updateUi();
  if(!api){msg('A Family Live hitelesített adatkapcsolata nem elérhető. A helyadat nem kerül továbbításra.');return}
