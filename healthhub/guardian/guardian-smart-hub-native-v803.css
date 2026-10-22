@@ -1,0 +1,49 @@
+/* Smart Hub v803 native own-map place results. Scoped to the existing premium glass panel. */
+.hh-smart-hub-results-v803{display:grid;gap:7px}
+.hh-smart-hub-result-v803{
+ display:flex;align-items:center;gap:10px;min-height:53px;width:100%;text-align:left;
+ padding:7px 10px;border-radius:12px;cursor:pointer;
+ border:1px solid rgba(130,207,252,.41);
+ background:linear-gradient(125deg,rgba(34,94,147,.75),rgba(7,37,82,.85));
+ color:#f1fbff;box-shadow:inset 0 1px rgba(255,255,255,.14);
+}
+.hh-smart-hub-result-v803:focus-visible{outline:2px solid #8de5ff;outline-offset:2px}
+.hh-smart-hub-result-v803:active{background:rgba(54,120,190,.82)}
+.hh-smart-hub-result-icon-v803{
+ display:flex;align-items:center;justify-content:center;flex-shrink:0;
+ width:31px;height:31px;border:1px solid #72d8ff;border-radius:10px;
+ background:linear-gradient(140deg,rgba(56,167,230,.62),rgba(9,62,109,.88));
+ color:#aaf5ff;font:850 21px system-ui;
+}
+.hh-smart-hub-result-copy-v803{
+ flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;
+}
+.hh-smart-hub-result-copy-v803 strong{
+ overflow-wrap:anywhere;font:780 13px/1.25 system-ui;color:#faffff;
+}
+.hh-smart-hub-result-copy-v803 small{
+ overflow-wrap:anywhere;font:540 11px/1.35 system-ui;color:#bdddf4;
+}
+.hh-smart-hub-selected-v803{
+ padding:10px;margin:0;border-radius:10px;
+ border:1px solid rgba(75,245,207,.7);
+ background:rgba(8,98,87,.43);color:#edfff9;
+ font:720 12px/1.45 system-ui;
+}
+.hh-smart-hub-selected-v803[hidden]{display:none}
+.hh-smart-hub-map-pin-v803{
+ position:relative;max-width:170px;min-width:67px;
+ padding:8px 11px 11px;
+ border-radius:14px 14px 8px 8px;box-sizing:border-box;
+ border:1.5px solid #81eaff;
+ background:linear-gradient(138deg,rgba(44,132,189,.91),rgba(6,42,91,.94));
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 17px rgba(37,183,255,.38),0 5px 14px rgba(2,13,38,.48);
+ color:#fff;font:800 12px/1.3 system-ui;text-align:center;overflow-wrap:anywhere;
+}
+.hh-smart-hub-map-pin-v803:after{
+ content:'';position:absolute;left:calc(50% - 5px);bottom:-10px;
+ border-left:5px solid transparent;border-right:5px solid transparent;border-top:10px solid #81eaff;
+}
+@media(max-width:390px){.hh-smart-hub-result-v803{gap:7px;padding:7px}}
+@media(prefers-reduced-motion:reduce){.hh-smart-hub-result-v803{transition:none}}
