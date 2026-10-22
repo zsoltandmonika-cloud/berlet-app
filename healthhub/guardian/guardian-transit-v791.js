@@ -124,12 +124,6 @@ function attach(){
     paint:{'text-color':id==='260'?'#ffffff':'#172b42','text-halo-color':id==='260'?'#16416b':'#ffe798','text-halo-width':.5}
    });
    // Only one large route badge per official GTFS variant; individual stops stay compact.
-   if(false && !map.getLayer(stops+'-number'))map.addLayer({
-    id:stops+'-number',type:'symbol',source:stops,minzoom:14,
-    layout:{visibility:visible,'text-field':id,'text-size':14,'text-font':['Open Sans Bold','Arial Unicode MS Bold'],
-     'text-offset':[0,1.3],'text-allow-overlap':false,'text-ignore-placement':false},
-    paint:{'text-color':id==='260'?'#e8f6ff':'#ffeb8c','text-halo-color':'#092345','text-halo-width':2}
-   });
   }catch(e){status('BKK-térképréteg hiba: '+(e&&e.message||'ismeretlen hiba'))}
  }
 }
