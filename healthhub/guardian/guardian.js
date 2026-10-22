@@ -380,5 +380,5 @@ w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  if(map&&ready)applyGoldenMapStyle();
 }});
 theme();renderButtons();initMap();
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,getLocationSettings:locationSettings,applyLocationSettings,get active(){return active},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,getLocationSettings:locationSettings,applyLocationSettings,get map(){return map},get active(){return active},get pointCount(){return path.length}});
 })(window,document);
