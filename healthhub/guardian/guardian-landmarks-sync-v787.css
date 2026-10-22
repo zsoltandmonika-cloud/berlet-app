@@ -1,0 +1,18 @@
+/* v787 Landmark Sync · scoped glass controls; original map/hero/nav untouched. */
+.guardian-landmarks .guardian-landmark-scope-select{
+ display:block;width:100%;min-height:42px;margin:7px 0 9px;padding:9px 12px;
+ color:#edf7ff;background:rgba(19,45,76,.94);border:1px solid rgba(131,195,240,.34);
+ border-radius:12px;font:inherit;outline-offset:3px
+}
+.guardian-landmarks .guardian-landmark-sync-status{
+ margin:6px 0 12px;padding:9px 11px;min-height:24px;
+ border-radius:12px;background:rgba(60,133,184,.13);color:#cce9f7;
+ border:1px solid rgba(119,181,224,.22);font-size:.83rem;line-height:1.35
+}
+.guardian-landmarks .guardian-landmark-scope{
+ display:inline-flex;align-items:center;white-space:nowrap;border-radius:999px;
+ border:1px solid rgba(180,204,223,.32);padding:3px 7px;color:#dceffb;
+ font-size:.72rem;background:rgba(38,69,99,.5)
+}
+.guardian-landmarks .guardian-landmark-item{flex-wrap:wrap;row-gap:5px}
+.guardian-landmarks .guardian-landmark-action{white-space:nowrap}
