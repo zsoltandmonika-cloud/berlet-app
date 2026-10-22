@@ -10,33 +10,35 @@
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
 <link rel="stylesheet" href="./guardian-polish-v767.css?v=771">
-<link rel="stylesheet" href="./guardian-profile-taskbar-v769.css?v=771">
-<style id="guardian-taskbar-v771">
-/* v771 self-contained taskbar: no dependency on stale external CSS for positioning. */
+<style id="guardian-profile-hero-v772">
+/* v772: real profile switch lives at the red-arrow target: hero bottom-left.
+   Keep the regular FIVE-slot HealthHub bottom nav unchanged. */
 #guardianHHNav.hhBottomNav{
-  position:fixed!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
-  left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;
-  width:min(100vw,420px)!important;z-index:800!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
 }
-#guardianHHNav.hhBottomNav>#guardianProfileSwitch.guardian-standard-profile{
-  position:relative!important;inset:auto!important;left:auto!important;right:auto!important;
-  top:auto!important;bottom:auto!important;transform:none!important;float:none!important;
-  grid-column:1!important;grid-row:1!important;
-  display:flex!important;align-self:center!important;justify-self:center!important;
-  align-items:center!important;justify-content:center!important;flex-direction:row!important;
-  width:calc(100% - 4px)!important;min-width:0!important;height:35px!important;min-height:35px!important;
-  padding:0 2px!important;margin:auto!important;
+.guardian-hero{
+  position:relative!important;
+}
+.guardian-hero>#guardianProfileSwitch.guardian-standard-profile{
+  position:absolute!important;
+  top:auto!important;right:auto!important;bottom:10px!important;left:10px!important;
+  inset:auto auto 10px 10px!important;
+  transform:none!important;z-index:20!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;height:36px!important;min-height:36px!important;
+  margin:0!important;padding:0 12px!important;
   border:1px solid var(--guard-cyan,#79c5ff)!important;border-radius:999px!important;
-  background:rgba(18,48,90,.96)!important;color:#fff!important;
-  font:750 clamp(9px,2.5vw,11px)/1.1 system-ui,sans-serif!important;
-  white-space:nowrap!important;letter-spacing:-.025em!important;box-shadow:0 2px 10px rgba(0,0,0,.3)!important;
-  z-index:1!important;touch-action:manipulation!important;
+  background:rgba(8,30,63,.94)!important;backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  color:#fff!important;box-shadow:0 2px 12px rgba(0,0,0,.6)!important;
+  font:750 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  white-space:nowrap!important;cursor:pointer!important;touch-action:manipulation!important;
 }
-:root[data-guardian-profile="m"] #guardianHHNav.hhBottomNav>#guardianProfileSwitch.guardian-standard-profile{
-  background:rgba(70,39,87,.97)!important;
+:root[data-guardian-profile="m"] .guardian-hero>#guardianProfileSwitch.guardian-standard-profile{
+  background:rgba(64,27,69,.94)!important;
 }
-#guardianHHNav.hhBottomNav>#guardianProfileSwitch.guardian-standard-profile:focus-visible{
-  outline:2px solid var(--guard-cyan,#79c5ff)!important;outline-offset:2px!important;
+.guardian-hero>#guardianProfileSwitch:focus-visible{
+  outline:3px solid var(--guard-cyan,#79c5ff)!important;outline-offset:2px!important;
 }
 </style>
 </head>
@@ -58,6 +60,7 @@
    <h1>Akik fontosak, közelebb.</h1>
    <p>Léna és Buddy veletek az úton. A biztonságos családi helyzetmegosztást együtt építjük fel.</p>
   </div>
+  <button id="guardianProfileSwitch" class="guardian-standard-profile" type="button" aria-label="Profilváltás" title="Profilváltás">Zsolt ⇄</button>
  </section>
  <section class="map-card" aria-label="Guardian interaktív térkép">
   <div id="guardianMap" role="region" aria-label="Interaktív Budapest térkép, érintéssel nagyítható és mozgatható"></div>
@@ -98,7 +101,6 @@
 </main>
 </div>
 <nav id="guardianHHNav" class="hhBottomNav" aria-label="HealthHub standard alsó navigáció">
- <button id="guardianProfileSwitch" class="guardian-standard-profile" type="button" aria-label="Profilváltás" title="Profilváltás">Zsolt ⇄</button>
  <a href="../index.html" aria-label="HealthHub kezdőlap"><span class="hhNavIcon" aria-hidden="true">⌂</span><span>Kezdőlap</span></a>
  <a href="../index.html?hhnav=health" aria-label="HealthRadar megnyitása"><span class="hhNavIcon" aria-hidden="true">♡</span><span>HealthRadar</span></a>
  <a href="../index.html?hhnav=timeline" aria-label="Idővonal megnyitása"><span class="hhNavIcon" aria-hidden="true">▣</span><span>Idővonal</span></a>
