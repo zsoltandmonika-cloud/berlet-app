@@ -144,11 +144,23 @@ function connectMap(m){
 async function download(){
  if(!w.fetch){status('A BKK statikus adatbetöltés nem támogatott ezen a böngészőn.');return}
  try{
-  const url=new URL('./bkk-routes-v790.json',w.location.href);
-  const res=await w.fetch(url.href,{cache:'no-cache'});
-  if(!res.ok)throw Error('A GTFS-pillanatkép még nem készült el (HTTP '+res.status+').');
-  const doc=await res.json(),clean=validate(doc);
-  if(!clean)throw Error('A BKK-route adatfájl ellenőrzése sikertelen.');
+  // GitHub-token-driven data commits do not always trigger Pages rebuilds.
+  // Public GitHub RAW JSON is an authenticated-build-produced, no-key fallback.
+  const urls=[
+   new URL('./bkk-routes-v790.json',w.location.href).href,
+   'https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-routes-v790.json'
+  ];
+  let doc=null,clean=null,problem='';
+  for(const url of urls){
+   try{
+    const res=await w.fetch(url,{cache:'no-cache'});
+    if(!res.ok)throw Error('HTTP '+res.status);
+    const result=await res.json(),validated=validate(result);
+    if(!validated)throw Error('Érvénytelen GTFS-pillanatkép');
+    doc=result;clean=validated;break;
+   }catch(e){problem=(e&&e.message)||'adatkapcsolat'}
+  }
+  if(!clean)throw Error('A hivatalos BKK GTFS-pillanatkép még nem érhető el ('+problem+').');
   routes=clean;retry=0;updateControls();showSelected();
   const refreshed=Date.parse(doc.generatedAt||'');
   const age=Number.isFinite(refreshed)?Math.round((Date.now()-refreshed)/86400000):NaN;
