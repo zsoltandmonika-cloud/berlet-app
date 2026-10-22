@@ -1,0 +1,84 @@
+/* Smart Hub v801 · Galaxy S24 Ultra one-handed premium BKK catalog.
+ * Progressive enhancement: the original three route controls remain untouched. */
+.hh-bkk-catalog-v801{
+ margin:12px 0;
+ border:1px solid rgba(123,202,251,.43);
+ border-radius:17px;
+ color:#f0f8ff;
+ background:linear-gradient(145deg,rgba(18,69,114,.83),rgba(9,28,66,.94));
+ box-shadow:0 6px 22px rgba(0,14,37,.25);
+ backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);
+ overflow:hidden;
+}
+.hh-bkk-catalog-v801>summary{
+ display:flex;align-items:center;gap:8px;min-height:48px;padding:11px 14px;
+ cursor:pointer;list-style:none;font:800 14px/1.3 system-ui;
+}
+.hh-bkk-catalog-v801>summary::-webkit-details-marker{display:none}
+.hh-bkk-catalog-chevron{margin-left:auto;font-size:23px;font-weight:500;color:#b5e7ff;transition:transform .18s}
+.hh-bkk-catalog-v801[open] .hh-bkk-catalog-chevron{transform:rotate(180deg)}
+.hh-bkk-catalog-body-v801{padding:0 12px 13px}
+.hh-bkk-catalog-label-v801{display:block;color:#d2efff;font:650 12px/1.5 system-ui;margin:6px 0}
+#hhBkkCatalogSearchV801{
+ box-sizing:border-box;width:100%;min-height:44px;padding:9px 12px;
+ border:1px solid rgba(134,219,255,.62);border-radius:12px;
+ background:rgba(4,25,55,.75);color:white;
+ font:650 16px/1.2 system-ui;outline-offset:2px;
+}
+#hhBkkCatalogSearchV801:focus-visible{outline:2px solid #79dcff}
+#hhBkkCatalogSearchV801::placeholder{color:#a6c8db}
+.hh-bkk-catalog-filters-v801{
+ display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;
+ padding:10px 0 8px;overscroll-behavior-x:contain;
+}
+.hh-bkk-catalog-filters-v801 button{
+ flex:0 0 auto;min-height:40px;padding:0 11px;
+ border-radius:999px;border:1px solid rgba(137,206,248,.42);
+ background:rgba(8,39,80,.82);color:#deefff;
+ font:750 12px system-ui;cursor:pointer;
+}
+.hh-bkk-catalog-filters-v801 button[aria-pressed=true]{
+ color:#fff;border-color:#6cd7ff;
+ background:linear-gradient(135deg,rgba(38,151,218,.83),rgba(13,83,146,.93));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 10px rgba(44,173,241,.2);
+}
+.hh-bkk-catalog-meta-v801{color:#bdddff;font:550 12px/1.5 system-ui;margin:7px 2px}
+.hh-bkk-catalog-results-v801{display:grid;gap:7px}
+.hh-bkk-catalog-row-v801{
+ display:flex;gap:9px;align-items:center;min-width:0;
+ border-radius:13px;padding:8px;
+ border:1px solid rgba(142,212,247,.25);
+ background:linear-gradient(120deg,rgba(19,65,108,.68),rgba(8,31,71,.77));
+}
+.hh-bkk-catalog-number-v801{
+ display:flex;align-items:center;justify-content:center;flex-shrink:0;
+ min-width:49px;max-width:70px;height:36px;padding:0 6px;box-sizing:border-box;
+ border-radius:10px;color:white;
+ background:linear-gradient(140deg,#268cdb,#0c4d92);
+ border:1px solid rgba(210,240,255,.75);font:850 15px system-ui;
+ box-shadow:inset 0 1px 0 #ffffff5a;
+ overflow:hidden;text-overflow:ellipsis;
+}
+.hh-bkk-catalog-number-v801.hh-bkk-mode-tram{background:linear-gradient(140deg,#f4d963,#cf9808);color:#1a3045}
+.hh-bkk-catalog-number-v801.hh-bkk-mode-hev{background:linear-gradient(140deg,#36d6a1,#0b7661)}
+.hh-bkk-catalog-number-v801.hh-bkk-mode-trolley{background:linear-gradient(140deg,#d96076,#922e51)}
+.hh-bkk-catalog-number-v801.hh-bkk-mode-metro{background:linear-gradient(140deg,#667ae9,#334e9d)}
+.hh-bkk-catalog-copy-v801{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.hh-bkk-catalog-copy-v801 strong{font:750 13px/1.2 system-ui}
+.hh-bkk-catalog-copy-v801 small{font:500 11px/1.35 system-ui;color:#d0e8fb;overflow-wrap:anywhere}
+.hh-bkk-catalog-scope-v801{font:500 10px/1.3 system-ui;color:#99cce8}
+.hh-bkk-catalog-star-v801{
+ flex:0 0 44px;min-height:44px;border-radius:12px;
+ border:1px solid rgba(154,219,255,.6);background:rgba(13,54,99,.65);
+ color:#eaf5ff;font:850 25px system-ui;cursor:pointer;
+}
+.hh-bkk-catalog-star-v801[aria-pressed=true]{color:#ffdb68;border-color:#ffe092;background:rgba(131,97,23,.3)}
+.hh-bkk-catalog-more-v801{
+ display:block;width:100%;min-height:44px;margin:10px 0 2px;
+ border-radius:11px;border:1px solid #85caff;
+ background:rgba(28,104,159,.64);color:white;font:750 13px system-ui;
+}
+.hh-bkk-catalog-note-v801{margin:10px 2px 0;color:#a9cbe1;font:500 11px/1.45 system-ui}
+.hh-bkk-catalog-more-v801[hidden],#hhBkkCatalogEmptyV801[hidden]{display:none}
+@media(max-width:390px){.hh-bkk-catalog-row-v801{gap:7px;padding:7px}.hh-bkk-catalog-body-v801{padding-inline:9px}}
+@media(prefers-reduced-motion:reduce){.hh-bkk-catalog-v801 *{transition:none!important}}

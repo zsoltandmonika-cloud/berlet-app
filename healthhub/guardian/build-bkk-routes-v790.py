@@ -9,6 +9,7 @@ import collections
 import csv
 import datetime as dt
 import io
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -179,13 +180,21 @@ def make_document(raw: bytes):
 
 
 def main():
-    doc = make_document(fetch())
+    raw = fetch()
+    doc = make_document(raw)
     # The script is repeatable with BKK_GTFS_LOCAL_ZIP to support synthetic fixture tests.
     serialized = json.dumps(doc, ensure_ascii=False, separators=(",", ":")) + "\n"
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, dir=HERE) as tmp:
         tmp.write(serialized)
         temp_name = tmp.name
     os.replace(temp_name, OUTPUT)
+    # The same official GTFS ZIP generates both the v790 map baseline and the
+    # full v801 catalogue; never download separately or synthesize missing lines.
+    script = HERE / "build-bkk-catalog-v801.py"
+    spec = importlib.util.spec_from_file_location("hh_bkk_catalog_v801",script)
+    catalog = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(catalog)
+    catalog.save_catalog(raw)
     print(f"Validated official BKK GTFS: {', '.join(NAMES)}; {len(serialized):,} bytes")
     for key, route in doc["routes"].items():
         print(f"  {key}: {len(route['variants'])} directions, " +
