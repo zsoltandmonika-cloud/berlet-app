@@ -1,4 +1,4 @@
-/* HealthHub Family Guard v783: circular live-photo GPS marker; foreground-only, memory-only GPS. */
+/* Family Guard v785: previous GPS remains opt-in; optional authenticated Family Live hooks. */
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
@@ -80,6 +80,7 @@ function stop(){
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
  renderButtons();report('GPS kikapcsolva');
  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
+ if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsStopped();
 }
 function makeOwnPositionNode(){
  // This represents the location of THIS DEVICE only. The profile is a visual
@@ -119,6 +120,8 @@ function onPosition(pos){
   if(follow)map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(Number.isFinite(accuracy)&&accuracy>100){report('GPS aktív · pontatlan jel, nyomvonal szünetel');return}
+ // Only an independently enabled Family Live module can publish a real fix.
+ if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
  report('GPS aktív · élő pozíció');
  if(!last){path.push(coord);last=coord;draw();return}
  const delta=metres(last,coord);
@@ -192,6 +195,7 @@ function switchProfile(){
  follow=true;hasFix=false;
  try{w.localStorage.setItem('hh-profile',next)}catch(e){report('A profilváltás most nem menthető el.');return}
  tapSound();theme();renderButtons();applyGoldenMapStyle();
+ if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  $('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(map)map.easeTo({center:neutral,zoom:15.3,duration:650});
  report('GPS kikapcsolva · '+name()+' profil');
@@ -320,6 +324,7 @@ function initMap(){
    applyView();
    // v776 optional, privacy-local bookmarks: map engine remains the same.
    if(w.HH_GUARDIAN_LANDMARKS_V776)w.HH_GUARDIAN_LANDMARKS_V776.init(map);
+   if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.mountMap(map);
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
   map.on('dragstart',function(){follow=false;renderButtons()});
@@ -356,6 +361,7 @@ d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop();rep
 w.addEventListener('pagehide',stop);
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  stop();clear();if(marker){marker.remove();marker=null}hasFix=false;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
+ if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  if(map&&ready)applyGoldenMapStyle();
 }});
 theme();renderButtons();initMap();
