@@ -277,6 +277,14 @@
   if(note)note.textContent='A hivatalos BKK megállóadatok nem érhetők el. Útvonalat nem találunk ki.';
   return false;
  }
+ function setJourney(origin,destination){
+  // Apply both endpoints atomically, including null clears. Never reuse stale routes.
+  const valid=p=>p&&typeof p.name==='string'&&Number.isFinite(p.lat)&&Number.isFinite(p.lng);
+  start=valid(origin)?origin:null;
+  target=valid(destination)?destination:null;
+  plans=[];activeGuide=null;activeStep=0;clearMap();renderGuide();render();
+  return Boolean(start&&target);
+ }
  function setPlace(kind,place){
   if(!place||!Number.isFinite(place.lat)||!Number.isFinite(place.lng))return;
   if(kind==='origin')start=place;
@@ -299,5 +307,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,setPreference,setPlace,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'805'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'805'};
 });
