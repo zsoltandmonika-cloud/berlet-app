@@ -1,5 +1,12 @@
 name: HealthHub Smart Arrival v793 · BKK Live Mapping Pilot
 on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/bkk-live*.js'
+      - 'healthhub/guardian/build-bkk-routes-v790.py'
+      - 'healthhub/tests/bkk-live*.test.cjs'
+      - 'supabase/functions/hh-bkk-live-v793-preview/**'
+      - '.github/workflows/healthhub-bkk-live-v793-preview.yml'
   workflow_dispatch:
   push:
     branches:
@@ -46,6 +53,7 @@ jobs:
               print(line,ids)
           PY
       - name: Publish source-backed mapping only to development branch
+        if: github.event_name == 'push'
         run: |
           git config user.name "healthhub-bkk-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
