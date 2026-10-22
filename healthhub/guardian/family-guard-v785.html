@@ -119,7 +119,7 @@
   </div>
   <section class="guardian-live-v785" aria-label="Family Live vezérlés">
    <div class="guardian-live-head"><strong>🛡️ Family Live</strong><span class="guardian-live-pill">VALÓDI GPS</span></div>
-   <p class="guardian-live-help">Két telefon · hitelesített családi fiók · csak nyitott oldalon. Saját helyzeted megosztását minden telefonon külön kell elindítani.</p>
+   <p class="guardian-live-help">Két telefon · hitelesített családi fiók · csak előtérben. Egyszeri jóváhagyás után a Family Guard megnyitása automatikusan indítja a saját GPS-t, térképkövetést és megosztást.</p>
    <p class="guardian-live-auth" id="guardianLiveAuth">Belépés ellenőrzése…</p>
    <p class="guardian-live-note" id="guardianLiveIdentity">Saját telefon: még nincs hozzárendelve</p>
    <div class="guardian-live-buttons">
@@ -144,9 +144,11 @@
     </label>
    </div>
    <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A Family Live csak külön engedéllyel küld helyadatot.</p>
+   <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
+   <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
-   <p class="guardian-live-note">🔒 A profilváltás nem helyzetmegosztás. Csak a saját telefon engedélyezett profilja küldhet GPS-adatot. A távoli jel 20 másodperc frissítés nélkül eltűnik. A lezárt telefonos háttérkövetés későbbi HH One-fejlesztés.</p>
+   <p class="guardian-live-note">🔒 Az automatikus előtéri induláshoz egyszeri, visszavonható engedély kell minden saját telefonon. Másik profilra váltás nem indít idegen helymegosztást. Leállításkor az automatikus újraindítás is kikapcsol. A távoli jel 20 mp frissítés nélkül eltűnik; lezárt telefonon még nincs háttérkövetés.</p>
   </section>
   <p class="family-note">Corky helyzetét később a hozzá társított tablet adhatja. A GPS a készülék helyét méri, nem a kutyusét. Nem mutatunk kitalált pozíciót.</p>
  </section>
@@ -184,6 +186,6 @@
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./guardian.js?v=785-live-hooks"></script>
-<script defer src="./guardian-live-v785.js?v=785-optin-family-live"></script>
+<script defer src="./guardian-live-v785.js?v=786-foreground-four-in-one"></script>
 </body>
 </html>
