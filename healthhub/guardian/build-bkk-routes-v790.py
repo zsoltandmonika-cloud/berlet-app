@@ -195,6 +195,13 @@ def main():
     catalog = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(catalog)
     catalog.save_catalog(raw)
+    # v806: reuse the SAME downloaded official GTFS archive for nationwide-size
+    # BKK stop network. No second HTTP fetch and no invented coordinates.
+    network_script = HERE / "build-bkk-network-v806.py"
+    net_spec = importlib.util.spec_from_file_location("hh_bkk_network_v806", network_script)
+    network = importlib.util.module_from_spec(net_spec)
+    net_spec.loader.exec_module(network)
+    network.save_network(raw)
     print(f"Validated official BKK GTFS: {', '.join(NAMES)}; {len(serialized):,} bytes")
     for key, route in doc["routes"].items():
         print(f"  {key}: {len(route['variants'])} directions, " +
