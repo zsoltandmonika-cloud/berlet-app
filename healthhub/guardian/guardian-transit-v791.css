@@ -34,17 +34,9 @@
 .hh-transit-card button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:390px){.hh-transit-card{gap:7px;padding:9px}.hh-transit-card-number{min-width:44px;padding:10px 6px}.hh-transit-card button{min-width:58px}}
 
-/* Three-state Smart Arrival controls, mobile portrait first */
-.hh-transit-sheet-actions{display:flex;gap:7px;padding:11px 12px 0;justify-content:flex-end}
-.hh-transit-sheet-actions button{min-height:44px;min-width:58px;padding:0 10px;border:1px solid rgba(157,220,255,.48);border-radius:12px;background:rgba(14,51,96,.68);color:#f1f8ff;font:750 .79rem system-ui;cursor:pointer;touch-action:manipulation}
-.hh-transit-sheet-actions button[aria-pressed=true]{background:linear-gradient(120deg,#197cb7,#16518a);border-color:#a0e4ff;box-shadow:0 0 0 1px rgba(169,225,255,.20) inset}
-.hh-transit-sheet-actions button:focus-visible{outline:3px solid white;outline-offset:2px}
+/* v794: one natural-height Transit panel, no grip or size controls.
+   Scroll the page rather than a second scrollable box inside the phone screen. */
+.hh-transit-panel .hh-transit-body{max-height:none!important;overflow:visible!important}
 @media(max-width:640px) and (orientation:portrait){
- .hh-transit-panel[data-sheet-size=half] .hh-transit-body{max-height:min(38dvh,360px)}
- .hh-transit-panel[data-sheet-size=full] .hh-transit-body{max-height:min(69dvh,690px)}
- .hh-transit-panel[data-sheet-size=closed] .hh-transit-sheet-actions{padding-bottom:8px}
+ .hh-transit-panel .hh-transit-body{max-height:none!important;overflow:visible!important}
 }
-
-.hh-transit-sheet-grip{display:flex;justify-content:center;align-items:center;height:31px;cursor:ns-resize;touch-action:none;user-select:none}
-.hh-transit-sheet-grip span{display:block;width:48px;height:5px;border-radius:20px;background:rgba(187,224,248,.78);box-shadow:0 1px 5px #061f3e}
-.hh-transit-sheet-grip:focus-visible{outline:2px solid #fff;outline-offset:-3px;border-radius:10px}
