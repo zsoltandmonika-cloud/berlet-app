@@ -1,0 +1,53 @@
+/* Smart Hub v802.0 · destination-first premium compact planner entrypoint.
+ * Progressive only: v800 map and v801 favorites unaffected. */
+.hh-smart-hub-v802{
+ display:grid;gap:9px;
+ margin:13px 0 12px;padding:14px 12px 11px;
+ color:#f6fbff;
+ border:1px solid rgba(133,210,255,.55);border-radius:17px;
+ background:linear-gradient(152deg,rgba(23,94,150,.72),rgba(9,36,79,.95) 66%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 8px 19px rgba(1,13,38,.24);
+ backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);
+}
+.hh-smart-hub-top-v802{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hh-smart-hub-top-v802>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hh-smart-hub-top-v802 strong{font:850 16px/1.3 system-ui}
+.hh-smart-hub-eyebrow-v802{font:800 10px/1.2 system-ui;letter-spacing:1.1px;color:#91dbff}
+.hh-smart-hub-search-icon-v802{font:300 38px/1 system-ui;color:#95eaff}
+#hhSmartHubDestinationFormV802 label{display:block;margin:1px 0 6px;font:650 12px/1.4 system-ui;color:#ceeaff}
+.hh-smart-hub-search-v802{display:flex;gap:7px;width:100%}
+#hhSmartHubDestinationInputV802{
+ flex:1;min-width:0;box-sizing:border-box;
+ background:rgba(3,20,48,.84);color:white;border:1px solid rgba(137,213,249,.63);
+ border-radius:12px;min-height:46px;padding:9px 11px;
+ font:650 16px/1.35 system-ui;outline-offset:2px;
+}
+#hhSmartHubDestinationInputV802:focus-visible{outline:2px solid #6ee5ff}
+#hhSmartHubDestinationInputV802::placeholder{color:#9dc6e2}
+.hh-smart-hub-search-v802 button{
+ flex:0 0 auto;min-height:46px;padding:0 11px;
+ border:1px solid rgba(161,230,255,.84);border-radius:12px;
+ color:white;background:linear-gradient(135deg,#168ecf,#12518e);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.3);
+ font:780 13px system-ui;cursor:pointer;
+}
+.hh-smart-hub-actions-v802{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px}
+.hh-smart-hub-actions-v802>*{
+ flex:0 0 auto;box-sizing:border-box;
+ display:flex;align-items:center;justify-content:center;min-height:42px;
+ padding:0 9px;white-space:nowrap;text-decoration:none;
+ border-radius:11px;border:1px solid rgba(133,208,246,.45);
+ background:rgba(8,38,78,.78);color:#ecf9ff;font:700 12px/1 system-ui;cursor:pointer;
+}
+.hh-smart-hub-actions-v802>.hh-smart-hub-example-v802{
+ color:#d4f5ff;background:rgba(19,87,132,.65);
+}
+.hh-smart-hub-actions-v802>a[aria-disabled=true]{
+ pointer-events:none;opacity:.42;cursor:not-allowed;
+}
+.hh-smart-hub-status-v802{margin:0;color:#d6eafa;font:580 11px/1.45 system-ui}
+.hh-smart-hub-privacy-v802{margin:0;color:#aac8df;font:480 10px/1.5 system-ui}
+@media(max-width:380px){
+ .hh-smart-hub-v802{padding-inline:9px}
+ .hh-smart-hub-search-v802 button{padding:0 8px}
+}
