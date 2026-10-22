@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v782\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v783\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=782-compact-controls/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=783-neon-avatars/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -96,7 +96,7 @@ test('v781 clear shared 3D/flat map palette and visible map data credits',()=>{
  assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
  assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
  assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
- assert.match(html,/guardian\.js\?v=781/,'new shared style JS loaded');
+ assert.match(html,/guardian\.js\?v=783/,'latest style JS loaded');
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
@@ -250,7 +250,7 @@ test('v779 compact profile switch stays inside Hero without affecting map or tas
  assert.match(css,/font:750 10px\/1 system-ui/);
  assert.match(canonical,/inset:auto auto 4px 4px!important/);
  assert.match(html,/guardian-landmarks-v776\.js/);
- assert.match(html,/guardian\.js\?v=781-unified-palette/);
+ assert.match(html,/guardian\.js\?v=783-neon-avatars/);
  assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5);
@@ -332,4 +332,104 @@ test('v782 compact upper-right controls and premium glass MapLibre zoom stay in 
  assert.equal((page.match(/data-guardian-landmark-kind=/g)||[]).length,9);
  const nav=page.slice(page.indexOf('<nav id="guardianHHNav"'),page.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical five-slot dock unchanged');
+});
+
+test('v783 live person GPS marker uses circular authentic photo and profile-specific neon badge',()=>{
+ const js=read('guardian/guardian.js');
+ const html=read('guardian/family-guard-v783.html');
+ const css=read('guardian/guardian-avatars-v783.css');
+ new Function(js);
+ assert.match(html,/guardian-avatars-v783\.css\?v=783-neon-profile-ring/);
+ assert.match(html,/guardian\.js\?v=783-neon-avatars/);
+ assert.match(css,/\.guardian-position\[data-guardian-person="m"\]/,'Mónika has independent magenta style');
+ assert.match(css,/--guardian-pin:#ff28c7/,'vivid pink ring');
+ assert.match(css,/--guardian-pin:#13baff/,'cyan blue ring for Zsolt');
+ assert.match(css,/border-radius:50%!important/,'portrait is circular');
+ assert.match(css,/\.guardian-position-label/,'name badge with a color-matched glass treatment');
+ assert.match(css,/\.guardian-position-photo img/,'photo clip kept circular');
+ assert.match(css,/prefers-reduced-motion:reduce/,'no required motion animation');
+ assert.match(js,/makeOwnPositionNode\(\)/,'actual live GPS marker builder used');
+ assert.doesNotMatch(css,/\.guardian-landmark-pin/,'saved-place pins untouched');
+ const elements={},events={};
+ function node(tag){
+  return {
+   tagName:tag,children:[],className:'',attrs:{},classList:{toggle(){}},textContent:'',hidden:false,
+   setAttribute(k,v){this.attrs[k]=v},
+   appendChild(child){this.children.push(child);return child},
+   querySelector(sel){
+    if(sel==='img')return this.children.flatMap(x=>x.children||[]).find(x=>x.tagName==='img')||null;
+    if(sel==='.guardian-position-label')return this.children.find(x=>x.className==='guardian-position-label')||null;
+    return null;
+   },
+   addEventListener(ev,cb){this[ev]=cb},
+   remove(){this.removed=true},
+  };
+ }
+ const doc={
+  hidden:false,documentElement:{dataset:{}},
+  getElementById(id){return elements[id]||(elements[id]=node('div'))},
+  createElement:node,
+  addEventListener(name,cb){events[name]=cb},
+ };
+ let profile='z',onFix=null;
+ const created=[];
+ class FakeMap{
+  addControl(){}
+  on(name,cb){this[name]=cb}
+  getZoom(){return 15}
+  easeTo(){}
+ }
+ class FakeMarker{
+  constructor(opts){this.element=opts.element;created.push(this);}
+  setLngLat(coord){this.coord=coord;return this}
+  addTo(){return this}
+  getElement(){return this.element}
+  remove(){this.removed=true}
+ }
+ const win={
+  isSecureContext:true,
+  navigator:{userAgent:'Test',geolocation:{watchPosition(cb){onFix=cb;return 1},clearWatch(){}}},
+  maplibregl:{Map:FakeMap,Marker:FakeMarker,NavigationControl:class{}},
+  localStorage:{
+   getItem(key){return key==='hh-profile'?profile:null},
+   setItem(key,value){if(key==='hh-profile')profile=value},
+  },
+  HH_GOLDEN_AVATARS_V529:{z:'existing-zsolt-photo',m:'existing-monika-photo'},
+  addEventListener(){},console:{warn(){}},
+ };
+ vm.runInNewContext(js,{window:win,document:doc,Date,Math,Number,String,Set});
+ // Never creates a GPS position before the user taps Follow.
+ assert.equal(created.length,0);
+ elements.guardianFollow.click();
+ assert.equal(typeof onFix,'function');
+ onFix({coords:{latitude:47.5,longitude:19.04,accuracy:5},timestamp:Date.now()});
+ assert.equal(created.length,1);
+ const z=created[0].element;
+ assert.equal(z.className,'guardian-position');
+ assert.equal(z.attrs['data-guardian-person'],'z');
+ assert.equal(z.children[0].className,'guardian-position-photo');
+ assert.equal(z.children[0].children[0].src,'existing-zsolt-photo');
+ assert.equal(z.children[1].textContent,'Zsolt');
+ assert.equal(created[0].coord[0],19.04);
+ elements.guardianProfileSwitch.click();
+ assert.equal(profile,'m');
+ assert.equal(created[0].removed,true,'switch never repaints a previous phone fix as the other profile');
+ assert.equal(created.length,1,'switch does not request a new fix');
+ elements.guardianFollow.click();
+ onFix({coords:{latitude:47.51,longitude:19.05,accuracy:4},timestamp:Date.now()});
+ assert.equal(created.length,2);
+ const m=created[1].element;
+ assert.equal(m.attrs['data-guardian-person'],'m');
+ assert.equal(m.children[0].children[0].src,'existing-monika-photo');
+ assert.equal(m.children[1].textContent,'Mónika');
+ assert.equal(m.attrs.role,'img');
+ assert.match(m.attrs['aria-label'],/saját készülék GPS-pozíciója/,'marker identity does not imply another person's remotely shared location');
+ assert.equal(created[1].coord[0],19.05);
+ // No extra upload or background tracking introduced by a cosmetic feature.
+ assert.doesNotMatch(js,/sendBeacon|new WebSocket|fetch\(/);
+ assert.match(js,/if\(d.hidden&&active\)\{stop\(\)/);
+ assert.match(html,/guardian-map-palette-v781\.css/,'approved color map untouched');
+ assert.match(html,/guardian-controls-v782\.css/,'approved glass map controls untouched');
+ assert.match(html,/inset:auto auto 4px 4px!important/,'approved miniature hero switch untouched');
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
 });
