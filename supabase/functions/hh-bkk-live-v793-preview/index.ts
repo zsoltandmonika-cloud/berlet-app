@@ -8,7 +8,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 
 const ALLOWED_ORIGIN="https://zsoltandmonika-cloud.github.io";
 const SOURCE="BKK Zrt., CC BY 4.0";
-const GTFS_URL="https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-routes-v790.json";
+const GTFS_URL="https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/feature/smart-arrival-live-v793/healthhub/guardian/bkk-routes-v790.json";
 const BKK_VEHICLES="https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/VehiclePositions.pb";
 const MAX_AGE_S=90;
 const ROUTES=["260","17","19"];
