@@ -47,6 +47,7 @@
 <link rel="stylesheet" href="./guardian-controls-v782.css?v=782-compact-corners">
 <link rel="stylesheet" href="./guardian-avatars-v783.css?v=783-neon-profile-ring">
 <link rel="stylesheet" href="./guardian-icons-v784.css?v=784-glass-location-medallions">
+<link rel="stylesheet" href="./guardian-live-v785.css?v=785-private-live">
 </head>
 <body>
 <div class="shell">
@@ -112,9 +113,40 @@
   <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
   <div class="family-grid">
    <div class="family-member" id="guardianMeCard"><img id="guardianMePhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianMeName">Saját telefon</strong><small id="guardianMeState">GPS kikapcsolva</small></div><i class="family-dot" aria-hidden="true"></i></div>
-   <div class="family-member" id="guardianOtherCard"><img id="guardianOtherPhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianOtherName">Családtag</strong><small>Megosztás még nincs bekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
+   <div class="family-member" id="guardianOtherCard"><img id="guardianOtherPhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianOtherName">Családtag</strong><small id="guardianOtherState">Hitelesített élő jelre vár</small></div><i class="family-dot" aria-hidden="true"></i></div>
    <div class="family-member" id="guardianCorkyCard"><span class="family-face family-corky" aria-hidden="true">🐶</span><div><strong>Corky</strong><small>Tablet · még nincs összekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
   </div>
+  <section class="guardian-live-v785" aria-label="Family Live vezérlés">
+   <div class="guardian-live-head"><strong>🛡️ Family Live</strong><span class="guardian-live-pill">VALÓDI GPS</span></div>
+   <p class="guardian-live-help">Két telefon · hitelesített családi fiók · csak nyitott oldalon. Saját helyzeted megosztását minden telefonon külön kell elindítani.</p>
+   <p class="guardian-live-auth" id="guardianLiveAuth">Belépés ellenőrzése…</p>
+   <p class="guardian-live-note" id="guardianLiveIdentity">Saját telefon: még nincs hozzárendelve</p>
+   <div class="guardian-live-buttons">
+    <button id="guardianLiveLogin" type="button">Google-belépés</button>
+    <button id="guardianLiveLogout" type="button" hidden>Kijelentkezés</button>
+    <button id="guardianLiveStart" type="button" disabled>📍 Élő megosztás indítása</button>
+    <button id="guardianLiveStop" class="guardian-live-stop" type="button" hidden>■ Megosztás leállítása</button>
+   </div>
+   <div class="guardian-live-settings">
+    <label>GPS-frissítés (célidő)
+     <select id="guardianLiveInterval" aria-label="Élő pozíció frissítésének célideje">
+      <option value="1000">1 másodperc</option>
+      <option value="3000">3 másodperc</option>
+      <option value="5000" selected>5 másodperc</option>
+      <option value="10000">10 másodperc</option>
+      <option value="30000">30 másodperc</option>
+      <option value="60000">60 másodperc</option>
+     </select>
+    </label>
+    <label>Pillanatnyi sebesség
+     <span id="guardianLiveOwnSpeed" class="guardian-live-speed">—</span>
+    </label>
+   </div>
+   <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A Family Live csak külön engedéllyel küld helyadatot.</p>
+   <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
+   <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
+   <p class="guardian-live-note">🔒 A profilváltás nem helyzetmegosztás. Csak a saját telefon engedélyezett profilja küldhet GPS-adatot. A távoli jel 20 másodperc frissítés nélkül eltűnik. A lezárt telefonos háttérkövetés későbbi HH One-fejlesztés.</p>
+  </section>
   <p class="family-note">Corky helyzetét később a hozzá társított tablet adhatja. A GPS a készülék helyét méri, nem a kutyusét. Nem mutatunk kitalált pozíciót.</p>
  </section>
  <section class="gps-panel" aria-label="GPS és nyomvonal">
@@ -133,7 +165,7 @@
    <div><small>Utolsó GPS-jel</small><strong id="guardianUpdated">—</strong></div>
   </div>
  </section>
- <p class="privacy">🔒 Ez a böngészős GPS-követés a lap háttérbe kerülésekor leáll. Az Androidos HH One natív háttérkövetője külön telepítést és felhasználói engedélyt igényel, helyadatokat még nem oszt meg a családdal. A térképszolgáltató a csempék hálózati kéréseit láthatja. 112/911 és Activity-integráció későbbi fejlesztés.</p>
+ <p class="privacy">🔒 Ez a böngészős GPS-követés a lap háttérbe kerülésekor leáll. Az Androidos HH One natív háttérkövetője külön telepítést és felhasználói engedélyt igényel, a Family Live hitelesített, kifejezetten engedélyezett üzemmódjától elkülönül, és háttérben még nem oszt meg helyadatokat. A térképszolgáltató a csempék hálózati kéréseit láthatja. 112/911 és Activity-integráció későbbi fejlesztés.</p>
 </main>
 </div>
 <nav id="guardianHHNav" class="hhBottomNav" aria-label="HealthHub standard alsó navigáció">
@@ -148,6 +180,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="./guardian-icons-v784.js?v=784-translucent-svg-icons"></script>
 <script defer src="./guardian-landmarks-v776.js?v=784-svg-place-icons"></script>
-<script defer src="./guardian.js?v=783-neon-avatars"></script>
+<script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="./guardian.js?v=785-live-hooks"></script>
+<script defer src="./guardian-live-v785.js?v=785-optin-family-live"></script>
 </body>
 </html>
