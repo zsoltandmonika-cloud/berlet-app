@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="./guardian-transit-v790.css?v=790-bkk-route-choices">
 <link rel="stylesheet" href="./guardian-transit-v791.css?v=799-transport-color">
 <link rel="stylesheet" href="./guardian-bkk-catalog-v801.css?v=801-catalog-a">
+<link rel="stylesheet" href="./guardian-smart-hub-v802.css?v=802-destination-a">
 <link rel="stylesheet" href="./bkk-live-glass-v800.css?v=800-approved-set">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
@@ -102,6 +103,27 @@
      </div>
     </div>
     <div id="hhTransitCardsV791" class="hh-transit-premium-cards" aria-label="Kiválasztott járatok prémium kártyái"></div>
+    <section id="hhSmartHubDestinationV802" class="hh-smart-hub-v802" aria-label="Smart Hub úti cél kereső">
+      <div class="hh-smart-hub-top-v802">
+        <div><span class="hh-smart-hub-eyebrow-v802">SMART HUB · ÚTICÉL</span><strong>Hová szeretnél menni?</strong></div>
+        <span class="hh-smart-hub-search-icon-v802" aria-hidden="true">⌕</span>
+      </div>
+      <form id="hhSmartHubDestinationFormV802" autocomplete="off">
+        <label for="hhSmartHubDestinationInputV802">Helynév vagy cím, nem járatszám</label>
+        <div class="hh-smart-hub-search-v802">
+          <input id="hhSmartHubDestinationInputV802" name="destination" type="search" minlength="2" maxlength="140" placeholder="Pl. Bécsi Corner, kórház, üzlet…" aria-describedby="hhSmartHubDestinationStatusV802">
+          <button type="submit" aria-label="Tömegközlekedési útvonal tervezése Google Térképpel">Tervezés ↗</button>
+        </div>
+      </form>
+      <div class="hh-smart-hub-actions-v802" role="group" aria-label="Helymegtekintési lehetőségek">
+        <button type="button" id="hhSmartHubExampleV802" class="hh-smart-hub-example-v802">📍 Bécsi Corner</button>
+        <a id="hhSmartHubDirectionsV802" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">🚍 Útvonal</a>
+        <a id="hhSmartHubPlaceV802" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">🗺️ Térkép</a>
+        <a id="hhSmartHubStreetV802" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">👁 Utcakép</a>
+      </div>
+      <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Írj be egy helynevet vagy címet.</p>
+      <p class="hh-smart-hub-privacy-v802">A helyet és a tömegközlekedési útvonalat egyelőre a Google Térkép azonosítja, az Utcakép külön Instant Street View oldalon nyílik meg. Nem élő kamera. Csak gombnyomásra küldjük tovább a keresett helyet; a saját BKK-tervező később érkezik.</p>
+    </section>
     <details id="hhBkkCatalogV801" class="hh-bkk-catalog-v801">
       <summary><span aria-hidden="true">🔎</span> Smart Hub · További BKK-járatok <span class="hh-bkk-catalog-chevron" aria-hidden="true">⌄</span></summary>
       <div class="hh-bkk-catalog-body-v801">
@@ -300,6 +322,7 @@
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=801-search-b"></script>
+<script defer src="./guardian-smart-hub-v802.js?v=802-destination-a"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">
