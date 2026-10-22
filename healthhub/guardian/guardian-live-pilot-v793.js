@@ -1,10 +1,10 @@
-/* Smart Arrival v793: opt-in live BKK pilot. Enable only with ?hhLivePilot=v793.
- * Uses existing authenticated Family Live client and shared Guardian map.
- * The v794 route selectors and Buddy UI remain unchanged.
+/* Smart Arrival v799: original Family Guard URL includes live BKK by default.
+ * Uses the authenticated Family Live session and verified BKK server snapshots.
+ * The v794 route selectors, Buddy, and private GPS remain unchanged.
  */
 (function(w,d){
 'use strict';
-if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='v793')return;
+if(new URLSearchParams(w.location.search).get('hhLivePilot')==='off')return;
 const validator=w.HH_BKK_LIVE_V793;
 const renderer=w.HH_BKK_LIVE_MAP_V793;
 const mapApi=w.HH_GUARDIAN_V761;
@@ -17,7 +17,7 @@ p.id='hhBkkLiveStatusV793';
 p.setAttribute('role','status');
 p.setAttribute('aria-live','polite');
 p.style.cssText='font:700 14px/1.45 system-ui;color:#f1fbff;padding:12px 14px;margin:0 0 12px;border:1px solid #78c5f6;border-radius:12px;background:#114879;box-shadow:0 5px 18px #001b3655;';
-p.textContent='🚍 v793 ÉLŐ BKK TESZT · Kapcsolat ellenőrzése…';
+p.textContent='🚍 BKK élő helyzet · Kapcsolat ellenőrzése…';
 const bar=d.createElement('div');
 bar.id='hhBkkLiveBarV796';
 bar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;padding:9px 10px;border:1px solid #78c5f6;border-radius:12px;background:#114879;';
@@ -31,7 +31,7 @@ focusButton.style.cssText='min-height:44px;padding:8px 12px;border-radius:10px;b
 bar.append(p,focusButton);
 holder.prepend(bar);
 if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
- p.textContent='⚠️ v793 ÉLŐ BKK TESZT · A szükséges modul még nem töltődött be. Frissítsd a lapot.';
+ p.textContent='⚠️ BKK élő helyzet · A szükséges modul még nem töltődött be. Frissítsd a lapot.';
  return;
 }
 let polling=null;
@@ -45,7 +45,7 @@ function showLive(){
  if(mapElement&&mapElement.scrollIntoView)mapElement.scrollIntoView({behavior:'smooth',block:'center'});
 }
 focusButton.addEventListener('click',showLive);
-function status(message){p.textContent='🚍 v793 ÉLŐ BKK TESZT · '+message}
+function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
 function clear(){
  lastVehicles=[];
  focusButton.hidden=true;
