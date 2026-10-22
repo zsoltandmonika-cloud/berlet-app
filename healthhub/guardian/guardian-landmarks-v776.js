@@ -122,7 +122,7 @@ function renderList(){
    items=next;renderList();paintPins();status('Hely törölve.');
   });
   const tag=d.createElement('span');tag.className='guardian-landmark-scope';tag.textContent='🔒 Privát';
-  li.appendChild(icon);li.appendChild(label);li.appendChild(tag);li.appendChild(go);
+  li.appendChild(icon);li.appendChild(label);li.appendChild(go);li.appendChild(tag);
   if(bridge){
    const share=d.createElement('button');share.type='button';share.textContent='⇧ Közössé';
    share.className='guardian-landmark-action';share.setAttribute('aria-label',item.name+' megosztása a családdal');
@@ -163,7 +163,7 @@ function save(){
  const title=input&&input.value?input.value.trim().slice(0,40):'';
  if(!selected){status('Előbb jelölj ki egy helyet a térképen.');return}
  if(!title){status('Adj nevet a mentett helynek.');if(input)input.focus();return}
- if(items.length>=LIMIT){status('Legfeljebb 20 hely menthető ezen a készüléken.');return}
+ if(items.length>=LIMIT&&(!($('guardianLandmarkScope')&&$('guardianLandmarkScope').value==='shared'))){status('Legfeljebb 20 privát hely menthető ezen a készüléken.');return}
  const record=sanitize({id:Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),
   kind,name:title,lng:selected[0],lat:selected[1]});
  if(!record){status('A helyet nem sikerült ellenőrizni.');return}
