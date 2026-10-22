@@ -37,7 +37,7 @@ test('v801 is on canonical Guardian page, keeps visible map baseline and per-pro
  const ui=read('guardian-bkk-catalog-v801.js'),css=read('guardian-bkk-catalog-v801.css');
  assert.match(html,/hhBkkCatalogV801/);
  assert.match(html,/hhBkkCatalogSearchV801/);
- assert.match(html,/guardian-bkk-catalog-v801\.js\?v=801-search-a/);
+ assert.match(html,/guardian-bkk-catalog-v801\.js\?v=801-search-b/);
  assert.match(html,/guardian-bkk-catalog-v801\.css\?v=801-catalog-a/);
  assert.match(js,/hh-guardian-transit-selected-profiles-v801/);
  assert.match(js,/toggleLine\(id,enabled\)/);
