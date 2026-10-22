@@ -12,13 +12,13 @@ const api=cfg&&cfg.enabled&&cfg.supabaseUrl&&cfg.publishableKey&&w.supabase&&w.s
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{
   auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}
  }):null;
-const TABLE='hh_guardian_live_locations',AGE_MS=20000,ACCURACY_LIMIT=100;
+const TABLE='hh_guardian_live_locations',PREF_TABLE='hh_guardian_location_settings',AGE_MS=20000,ACCURACY_LIMIT=100;
 const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-refresh-v785';
 const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
-let uploads=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false;
+let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false;
 function self(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function other(){return self()==='monika'?'zsolt':'monika'}
 function label(k){return k==='monika'?'Mónika':'Zsolt'}
@@ -116,7 +116,7 @@ function onGpsStopped(){if(sharing)stopSharing()}
 function onProfileChanged(){
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
- updateUi();resetPolling();maybeAutoStart();
+ updateUi();resetPolling();loadSettings();maybeAutoStart();
 }
 function onGpsFix(pos){
  if(!api||!sharing||!user||d.hidden||sharingProfile!==self()||!access.includes(sharingProfile))return;
@@ -148,6 +148,35 @@ function onGpsFix(pos){
   else if(sharing&&sharingProfile===k)msg('ÉLŐ megosztás · '+label(k)+' · frissítve '+time(payload.updated_at));
  }).catch(e=>{lastUploaded=0;msg('Megosztási hiba: '+(e&&e.message||'hálózat'))});
 }
+function syncSettings(){
+ if(!api||!user||!access.includes(self()))return Promise.resolve();
+ const k=self(),g=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.getLocationSettings?w.HH_GUARDIAN_V761.getLocationSettings():{};
+ const payload={profile_key:k,refresh_interval_ms:interval,follow_map:g.follow_map!==false,map_3d:g.map_3d!==false,updated_at:new Date().toISOString()};
+ settingsWrites=settingsWrites.catch(()=>{}).then(async()=>{
+  if(!user||!access.includes(k))return;
+  const {error}=await api.from(PREF_TABLE).upsert(payload,{onConflict:'profile_key'});
+  if(error)set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+error.message);
+  else set('guardianLocationSyncStatus','Helybeállítások · szinkronizálva');
+ }).catch(e=>set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+(e&&e.message||'hálózat')));
+ return settingsWrites;
+}
+async function loadSettings(){
+ if(!api||!user||!access.includes(self()))return;
+ const k=self(),uid=user.id;
+ try{
+  const {data,error}=await api.from(PREF_TABLE).select('refresh_interval_ms,follow_map,map_3d').eq('profile_key',k).maybeSingle();
+  if(!user||user.id!==uid||self()!==k)return;
+  if(error)throw error;
+  if(!data){set('guardianLocationSyncStatus','Helybeállítások · alapértékek; módosításkor szinkronizálunk');return}
+  if(validIntervals.includes(Number(data.refresh_interval_ms))){
+   interval=Number(data.refresh_interval_ms);
+   const select=$('guardianLiveInterval');if(select)select.value=String(interval);
+   try{w.localStorage.setItem(INTERVAL_KEY,String(interval))}catch(_){}
+  }
+  if(w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.applyLocationSettings)w.HH_GUARDIAN_V761.applyLocationSettings(data);
+  resetPolling();set('guardianLocationSyncStatus','Helybeállítások · felhőből betöltve');
+ }catch(e){set('guardianLocationSyncStatus','Helybeállítások · felhőkapcsolat nem elérhető: '+(e&&e.message||'hálózat'))}
+}
 async function refreshAuth(){
  if(!api||authInFlight)return;
  authInFlight=true;
@@ -165,6 +194,7 @@ async function refreshAuth(){
   if(!access.includes(self()))msg('Ezzel a fiókkal nincs hozzáférés a kiválasztott profilhoz.');
   else msg('Bejelentkezve. Élő megosztás csak a saját indítógomb megnyomása után.');
   resetPolling();
+  await loadSettings();
   maybeAutoStart();
  }catch(e){if(sharing)stopSharing();user=null;access=[];msg('Hitelesítés/hálózat hiba: '+(e&&e.message||'kapcsolat'))}
  finally{authInFlight=false;updateUi()}
@@ -216,7 +246,7 @@ function init(){
   const n=Number(select.value);
   if(!validIntervals.includes(n))return;
   interval=n;try{w.localStorage.setItem(INTERVAL_KEY,String(n))}catch(_){}
-  lastUploaded=0;resetPolling();msg('Élő frissítési cél: '+(interval/1000)+' mp. A GPS valós sebessége eltérhet.');
+  lastUploaded=0;resetPolling();syncSettings();msg('Élő frissítési cél: '+(interval/1000)+' mp. A GPS valós sebessége eltérhet.');
  })}
  const login=$('guardianLiveLogin');if(login)login.addEventListener('click',async()=>{
   if(!api){msg('Supabase-kapcsolat nem elérhető.');return}
@@ -233,6 +263,7 @@ function init(){
   if(autoEnabled()){removeAuto();updateUi();msg('A GPS és az automatikus helymegosztás leállítva.');}
  });
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
+ d.addEventListener('hh-guardian-location-settings-changed',syncSettings);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
  d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsStopped();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;removePeer();setPeerState('Háttérben nincs élő helyzetkövetés')}else{resetPolling();maybeAutoStart()}});
  w.addEventListener('pagehide',()=>{onGpsStopped();if(pollTimer!==null)w.clearInterval(pollTimer)});
