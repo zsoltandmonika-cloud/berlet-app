@@ -1,0 +1,26 @@
+/* Family Guard v769: keep the canonical profile switch inside the bottom taskbar.
+   Visual-only layout fix; JS profile switching and GPS code are untouched. */
+#guardianHHNav.hhBottomNav {
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+#guardianHHNav.hhBottomNav > button.guardian-standard-profile {
+  position:static!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;z-index:auto!important;
+  width:calc(100% - 4px)!important;height:35px!important;min-height:35px!important;
+  margin:auto!important;padding:0 2px!important;
+  display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:center!important;gap:2px!important;
+  border:1px solid var(--guard-cyan)!important;border-radius:999px!important;
+  background:linear-gradient(150deg,rgba(28,64,107,.97),rgba(12,32,63,.97))!important;
+  color:#f5fbff!important;box-shadow:inset 0 1px rgba(255,255,255,.15),0 1px 9px rgba(0,0,0,.32)!important;
+  font:760 clamp(9px,2.6vw,11px)/1.1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  letter-spacing:-.025em!important;white-space:nowrap!important;
+  cursor:pointer!important;touch-action:manipulation!important;
+}
+:root[data-guardian-profile="m"] #guardianHHNav.hhBottomNav > button.guardian-standard-profile {
+  background:linear-gradient(150deg,rgba(91,46,94,.97),rgba(41,28,69,.97))!important;
+}
+#guardianHHNav.hhBottomNav > button.guardian-standard-profile:focus-visible {
+  outline:2px solid var(--guard-cyan)!important;outline-offset:-2px!important;
+}
