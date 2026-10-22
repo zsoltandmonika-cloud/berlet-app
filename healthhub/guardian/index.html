@@ -42,6 +42,7 @@
 }
 </style>
 <link rel="stylesheet" href="./guardian-landmarks-v776.css?v=776-destinations">
+<link rel="stylesheet" href="./guardian-premium-v780.css?v=780-golden-controls">
 </head>
 <body>
 <div class="shell">
@@ -66,12 +67,10 @@
  <section class="map-card" aria-label="Guardian interaktív térkép">
   <div id="guardianMap" role="region" aria-label="Interaktív Budapest térkép, érintéssel nagyítható és mozgatható"></div>
   <div id="guardianMapMessage" class="map-message" hidden role="status"></div>
-  <span class="map-label" id="guardianMapLabel">3D BUDAPEST · FELFEDEZŐ NÉZET</span>
-  <button id="guardianFollow" class="map-follow" type="button" aria-pressed="true" aria-label="Saját pozíció követése">◎ Követés</button>
-  <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete">▱ 3D</button>
-  <button id="guardianSatellite" class="map-satellite" type="button" aria-pressed="false" aria-label="Műholdnézet kapcsolása">◉ Műhold</button>
-  <span id="guardianSatelliteNotice" class="map-satellite-notice" hidden>EOxCloudless 2020 · Sentinel-2 · kb. 10 m felbontás · nem élő</span>
-  <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="false" aria-controls="guardianFamilyPanel">♧ Család</button>
+  <span class="map-label" id="guardianMapLabel" hidden aria-hidden="true"></span>
+  <button id="guardianFollow" class="map-follow" type="button" aria-pressed="true" aria-label="Saját pozíció követése"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span><span class="guardian-control-text">Követés</span></button>
+  <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></svg></span><span class="guardian-control-text">3D</span></button>
+  <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="false" aria-controls="guardianFamilyPanel"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19v-2.2A4.8 4.8 0 0 1 8.3 12h1.4a4.8 4.8 0 0 1 4.8 4.8V19"/><path d="M16.5 5.5a3 3 0 0 1 0 5.8M17.5 13.1a4.6 4.6 0 0 1 3 4.4V19"/></svg></span><span class="guardian-control-text">Család</span></button>
   <div id="guardianLandmarkHint" class="guardian-landmark-hint" hidden role="status">📍 Koppints a térképre a kívánt helyen</div>
  </section>
  <section class="guardian-landmarks" aria-label="Fontos helyek kezelése">
@@ -85,6 +84,9 @@
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="doctor" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🏥</span>Orvos</button>
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="family" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">❤️</span>Család</button>
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="favorite" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">⭐</span>Kedvenc</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="bus" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🚌</span>Buszmegálló</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="tram" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🚊</span>Villamosmegálló</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="shopping" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🛍️</span>Bevásárlás</button>
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="other" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">📍</span>Egyéb</button>
     </div>
     <label class="guardian-landmarks-name-label" for="guardianLandmarkName">Hely neve</label>
@@ -139,7 +141,7 @@
 <div id="guardianNavToast" class="hhNavToast" role="status" aria-live="polite" hidden></div>
 <script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script defer src="./guardian-landmarks-v776.js?v=776-destinations"></script>
-<script defer src="./guardian.js?v=778-follow-starts-gps"></script>
+<script defer src="./guardian-landmarks-v776.js?v=780-golden-landmarks"></script>
+<script defer src="./guardian.js?v=780-golden-controls"></script>
 </body>
 </html>
