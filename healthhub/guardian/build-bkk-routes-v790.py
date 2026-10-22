@@ -24,7 +24,7 @@ URLS = (
     "https://bkk.hu/gtfs/budapest_gtfs.zip",
 )
 NAMES = ("260", "17", "19")
-MAX_BYTES = 60 * 1024 * 1024
+MAX_BYTES = 512 * 1024 * 1024  # Actual full BKK GTFS ZIP exceeded v790 pilot's 60 MiB cap.
 
 
 def fetch() -> bytes:
@@ -43,6 +43,7 @@ def fetch() -> bytes:
                     raise ValueError("GTFS feed too large")
                 if len(raw) < 100 or not zipfile.is_zipfile(io.BytesIO(raw)):
                     raise ValueError("Invalid GTFS ZIP")
+                print(f'Official BKK ZIP downloaded: {len(raw):,} bytes from {url}')
                 return raw
         except Exception as e:
             errors.append(f"{url}: {type(e).__name__}: {e}")
