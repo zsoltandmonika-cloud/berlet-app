@@ -13,7 +13,7 @@ const api=cfg&&cfg.enabled&&cfg.supabaseUrl&&cfg.publishableKey&&w.supabase&&w.s
  }):null;
 const TABLE='hh_guardian_live_locations',PREF_TABLE='hh_guardian_location_settings',AGE_MS=20000,ACCURACY_LIMIT=100;
 const HOME_CONSENT_KEY='hh-guardian-home-4in1-consent-v786';
-const homeLaunch=/(?:\\?|&)hhlaunch=home(?:&|$)/.test((w.location&&w.location.search)||'');
+const homeLaunch=/(?:\?|&)hhlaunch=home(?:&|$)/.test((w.location&&w.location.search)||'');
 const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-refresh-v785';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
@@ -31,7 +31,7 @@ function approveHomeLaunch(){
  const p=self(),registered=bound();
  if(registered&&registered!==p){msg('Ez a telefon '+label(registered)+' profiljához tartozik. Nem indítunk más személy nevében megosztást.');return false}
  if(homeApproved())return true;
- const prompt='Engedélyezed a '+label(p)+' profilhoz tartozó SAJÁT telefonon a Home Family Guard 4 az 1-ben indítást?\\n\\nEgy későbbi Home-koppintás egyszerre elindítja a térképet, a saját GPS-t, a követést és a családi helymegosztást, amíg a lap előtérben van. A beállítás ezen a telefonon kikapcsolható.\\n\\nNem kapcsol be háttérkövetést vagy másik telefon GPS-ét.';
+ const prompt='Engedélyezed a '+label(p)+' profilhoz tartozó SAJÁT telefonon a Home Family Guard 4 az 1-ben indítást?\n\nEgy későbbi Home-koppintás egyszerre elindítja a térképet, a saját GPS-t, a követést és a családi helymegosztást, amíg a lap előtérben van. A beállítás ezen a telefonon kikapcsolható.\n\nNem kapcsol be háttérkövetést vagy másik telefon GPS-ét.';
  if(!w.confirm||!w.confirm(prompt)){msg('A Home 4 az 1-ben automatikus megosztás nincs engedélyezve.');return false}
  try{if(!registered)w.localStorage.setItem(DEVICE_KEY,p);w.localStorage.setItem(HOME_CONSENT_KEY,p)}
  catch(_){msg('Nem sikerült biztonságosan elmenteni a telefon engedélyét.');return false}
@@ -249,7 +249,7 @@ function init(){
  const login=$('guardianLiveLogin');if(login)login.addEventListener('click',async()=>{
   if(!api){msg('Supabase-kapcsolat nem elérhető.');return}
   msg('Google bejelentkezés megnyitása…');
-  const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
+  const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname+(homeLaunch?'?hhlaunch=home':'')}});
   if(error)msg('Google-belépés nem indítható: '+error.message);
  });
  const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();try{w.localStorage.removeItem(HOME_CONSENT_KEY)}catch(_){}user=null;access=[];removePeer();resetPolling();updateUi();msg('Kijelentkezve.');});
