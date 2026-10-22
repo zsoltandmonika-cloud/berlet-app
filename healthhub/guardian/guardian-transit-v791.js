@@ -109,6 +109,23 @@ function showSelected(){
   }
  }
 }
+function renderCards(){
+ const host=$('hhTransitCardsV791');if(!host)return;
+ host.replaceChildren();
+ for(const id of IDS){
+  if(!checked(id))continue;
+  const r=info(id),item=d.createElement('article');item.className='hh-transit-card '+(id==='260'?'bus':'tram');
+  const number=d.createElement('b');number.className='hh-transit-card-number';number.textContent=id;
+  const content=d.createElement('div');content.className='hh-transit-card-body';
+  const name=d.createElement('strong');name.textContent=id==='260'?'Busz':'Villamos';
+  const dest=d.createElement('span');dest.textContent=!r?'BKK adatok betöltése…':activeVariants(id).map(v=>v.headsign).filter(Boolean).join(' / ')||'Nincs kijelölt irány';
+  const note=d.createElement('small');note.textContent='Menetrendi útvonal, nem élő helyzet';
+  content.append(name,dest,note);
+  const btn=d.createElement('button');btn.type='button';btn.textContent='Mutasd';btn.disabled=!r||!activeVariants(id).length;
+  btn.addEventListener('click',()=>showRoute(id));
+  item.append(number,content,btn);host.append(item);
+ }
+}
 function updateControls(){
  for(const id of IDS){
   const cb=$('hhTransitRoute'+id),show=$('hhTransitShow'+id);
@@ -116,6 +133,7 @@ function updateControls(){
   if(show)show.disabled=!routes||!info(id);
  }
  const counter=$('hhTransitCount');if(counter)counter.textContent=String(selected.size);
+ renderCards();
 }
 function showRoute(id){
  const r=info(id);
@@ -172,7 +190,7 @@ async function download(){
    }catch(e){problem=(e&&e.message)||'adatkapcsolat'}
   }
   if(!clean)throw Error('A hivatalos BKK GTFS-pillanatkép még nem érhető el ('+problem+').');
-  routes=clean;retry=0;updateControls();showSelected();renderDirections();
+  routes=clean;retry=0;updateControls();showSelected();renderDirections();renderCards();
   const refreshed=Date.parse(doc.generatedAt||'');
   const age=Number.isFinite(refreshed)?Math.round((Date.now()-refreshed)/86400000):NaN;
   const stale=Number.isFinite(age)&&age>7;
@@ -184,8 +202,8 @@ async function download(){
 }
 function loadPrefs(){try{const x=JSON.parse(w.localStorage.getItem(PREF_KEY)||'{}');for(const p of ['zsolt','monika'])if(x[p]&&typeof x[p]==='object')prefs[p]=x[p]}catch(_){} }
 function savePrefs(){try{w.localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(_){}}
-function setProfile(p){if(!['zsolt','monika'].includes(p))return;profile=p;renderDirections();showSelected()}
-function toggleVariant(id,index,enabled){if(!info(id))return;const all=info(id).variants.map((_,i)=>i);const old=Array.isArray(prefs[profile][id])?prefs[profile][id]:all;const next=new Set(old);if(enabled)next.add(index);else next.delete(index);prefs[profile][id]=[...next].sort((a,b)=>a-b);savePrefs();showSelected();renderDirections()}
+function setProfile(p){if(!['zsolt','monika'].includes(p))return;profile=p;renderDirections();showSelected();renderCards()}
+function toggleVariant(id,index,enabled){if(!info(id))return;const all=info(id).variants.map((_,i)=>i);const old=Array.isArray(prefs[profile][id])?prefs[profile][id]:all;const next=new Set(old);if(enabled)next.add(index);else next.delete(index);prefs[profile][id]=[...next].sort((a,b)=>a-b);savePrefs();showSelected();renderDirections();renderCards()}
 function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();const title=d.createElement('p');title.textContent='Irányok külön, a BKK tényleges végállomásneveivel · menetrendi útvonal';host.append(title);for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
 function init(){
  if(!$('hhTransitPanel'))return;
