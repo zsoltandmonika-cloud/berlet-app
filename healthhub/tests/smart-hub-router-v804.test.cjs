@@ -61,7 +61,7 @@ test('v804 has own HealthHub UI, origin chooser and no fabricated ETA or GPS acc
  assert.ok(js.includes('HH_SMART_HUB_ROUTER_V804'));
  assert.ok(js.includes("router.setPlace(mode,item)"));
  assert.ok(code.includes("bkk-routes-v790.json"));
- assert.ok(code.includes("A megállók")===false);
+ assert.ok(code.includes("A megállók sorrendje hivatalos BKK GTFS-adat."));
  assert.ok(code.includes("légvonalban"));
  assert.ok(!code.includes("geolocation.getCurrentPosition"));
  assert.ok(!code.includes("localStorage.setItem"));
