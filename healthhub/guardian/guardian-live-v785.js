@@ -197,7 +197,7 @@ async function refreshAuth(){
   await loadSettings();
   maybeAutoStart();
  }catch(e){if(sharing)stopSharing();user=null;access=[];msg('Hitelesítés/hálózat hiba: '+(e&&e.message||'kapcsolat'))}
- finally{authInFlight=false;updateUi()}
+ finally{authInFlight=false;updateUi();if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'))}
 }
 function startSharing(){
  const p=self();
@@ -254,7 +254,7 @@ function init(){
   const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
   if(error)msg('Google-belépés nem indítható: '+error.message);
  });
- const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];removePeer();resetPolling();updateUi();msg('Kijelentkezve.');});
+ const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];removePeer();resetPolling();updateUi();msg('Kijelentkezve.');if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));});
  const start=$('guardianLiveStart');if(start)start.addEventListener('click',startSharing);
  const stop=$('guardianLiveStop');if(stop)stop.addEventListener('click',userStopSharing);
  const disable=$('guardianLiveDisableAuto');if(disable)disable.addEventListener('click',userStopSharing);
@@ -275,6 +275,8 @@ function init(){
  refreshAuth();
 }
 w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsStopped,onProfileChanged,mountMap(m){map=m;resetPolling();},
+ getClient(){return api},get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
+ get boundProfile(){return bound()},
  get sharing(){return sharing},get interval(){return interval},get authenticated(){return !!user}});
 init();
 })(window,document);
