@@ -16,6 +16,7 @@ test('v803 native destination search never needs route numbers or personal GPS',
  assert.equal(url.pathname,'/api/');
  assert.equal(url.searchParams.get('q'),'Bécsi Corner');
  assert.equal(url.searchParams.get('limit'),'6');
+ assert.equal(url.searchParams.has('lang'),false,'Photon public endpoint rejects lang=hu with HTTP 400');
  assert.equal(url.searchParams.get('lat'),'47.506');
  assert.equal(url.searchParams.get('lon'),'19.0467');
  assert.ok(!url.searchParams.has('key'));
@@ -43,7 +44,7 @@ test('v803 uses own MapLibre destination marker, preserves v800 live buses and m
  const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js'),css=read('guardian-smart-hub-native-v803.css');
  assert.ok(html.includes('hhSmartHubNativeResultsV803'));
  assert.ok(html.includes('hhSmartHubSelectedV803'));
- assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-b'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-c'));
  assert.ok(!html.includes('id="hhSmartHubDirectionsV802"'));
  assert.ok(html.includes('bkk-live-glass-v800.css'));
  assert.ok(js.includes('HH_GUARDIAN_V761.map'));
@@ -56,4 +57,10 @@ test('v803 uses own MapLibre destination marker, preserves v800 live buses and m
  assert.ok(!js.includes('geolocation'));
  assert.ok(!js.includes('localStorage'));
  assert.ok(css.includes('.hh-smart-hub-map-pin-v803'));
+});
+
+test('v803.1 no unsupported geocoder locale reaches live Photon endpoint',()=>{
+ const u=new URL(native.searchUrl('Bécsi Corner'));
+ assert.equal(u.searchParams.has('lang'),false);
+ assert.equal(u.searchParams.get('q'),'Bécsi Corner');
 });

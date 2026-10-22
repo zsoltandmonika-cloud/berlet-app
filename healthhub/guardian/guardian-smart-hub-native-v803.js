@@ -21,7 +21,8 @@
   const u=new URL(API);
   u.searchParams.set('q',s);
   u.searchParams.set('limit',String(MAX_RESULTS));
-  u.searchParams.set('lang','hu');
+  // Photon public endpoint returns HTTP 400 for lang=hu (only default,de,en,fr supported).
+  // Omit lang: default OSM names already preserve Budapest's Hungarian place names.
   // Budapest proximity bias, never a user's private GPS coordinate.
   u.searchParams.set('lat','47.506');
   u.searchParams.set('lon','19.0467');
@@ -137,7 +138,8 @@
      'Nem találtam egyezést. Írj pontosabb helynevet vagy címet.');
    }catch(err){
     if(seq!==current||err&&err.name==='AbortError')return;
-    setStatus('A helykereső most nem elérhető. Próbáld újra később. A térkép és a BKK-járatok ettől működnek.');
+    const reason=String(err&&err.message||'');
+    setStatus(reason.startsWith('HTTP ')?'A helykereső HTTP '+reason.slice(5)+' választ küldött. Próbáld újra később.':'A helykereső hálózati hibába ütközött. Próbáld újra később.');
    }finally{if(pending===controller)pending=null}
   }
   form.addEventListener('submit',e=>{e.preventDefault();search()});
