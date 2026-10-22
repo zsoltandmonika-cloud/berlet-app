@@ -154,5 +154,5 @@
    return true;
   }catch(_){return false}
  }
- return {render,clear,focus,toFeatureCollection,sourceId:ID};
+ return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement};
 });
