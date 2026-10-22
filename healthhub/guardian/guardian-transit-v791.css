@@ -44,3 +44,13 @@
 /* v794: no separate framed/fixed-size Transit shell. Cards remain visible in the page flow. */
 .hh-transit-panel{position:static!important;max-height:none!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
 .hh-transit-panel .hh-transit-body{max-height:none!important;overflow:visible!important;padding:0!important}
+
+/* v799 · Golden Standard: transport-colored direction checkmarks only.
+ * Bus = blue, tram = BKK yellow, HÉV = green (future-ready).
+ * The route selection stays profile-specific; no additional controls. */
+.hh-transit-v791-directions .hh-transit-dir--bus input[type=checkbox]{accent-color:#279ff0}
+.hh-transit-v791-directions .hh-transit-dir--tram input[type=checkbox]{accent-color:#ffcb2c}
+.hh-transit-v791-directions .hh-transit-dir--hev input[type=checkbox]{accent-color:#36bf80}
+.hh-transit-v791-directions .hh-transit-dir--bus:has(input:checked){border-color:rgba(39,159,240,.62);background:linear-gradient(110deg,rgba(27,116,192,.24),rgba(8,34,75,.83))}
+.hh-transit-v791-directions .hh-transit-dir--tram:has(input:checked){border-color:rgba(255,203,44,.64);background:linear-gradient(110deg,rgba(171,129,9,.20),rgba(8,34,75,.83))}
+.hh-transit-v791-directions .hh-transit-dir--hev:has(input:checked){border-color:rgba(54,191,128,.62);background:linear-gradient(110deg,rgba(18,137,86,.20),rgba(8,34,75,.83))}
