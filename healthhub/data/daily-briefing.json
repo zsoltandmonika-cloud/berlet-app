@@ -1,225 +1,226 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-21",
-  "generatedAt": "2026-10-21T11:24:31+02:00",
-  "headline": "A reggel fő témái: Trump and Zelensky appear at loggerheads despite new optimism; Katya Adler: France divided over who to blame for riots and what to learn from them",
+  "date": "2026-10-22",
+  "generatedAt": "2026-10-22T11:27:31+02:00",
+  "headline": "A reggel fő témái: What is PHP and why did it spark a global cyber-security scramble?; How Arab parties could hold critical balance of power in Israeli election",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Trump and Zelensky appear at loggerheads despite new optimism",
-        "BBC World: Katya Adler: France divided over who to blame for riots and what to learn from them",
-        "BBC World: Australian MP loses both legs after alleged car attack, husband says",
-        "BBC World: Elon Musk confirms he is considering merging Tesla and SpaceX"
+        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
+        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
+        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks",
+        "BBC World: Celebrity shark guided out of South Korea canal refuses to swim out to sea"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Katya Adler: France divided over who to blame for riots and what to learn from them",
-        "BBC World: Australian MP loses both legs after alleged car attack, husband says",
-        "BBC World: Elon Musk confirms he is considering merging Tesla and SpaceX"
+        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
+        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
+        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Trump and Zelensky appear at loggerheads despite new optimism",
-        "BBC World: Katya Adler: France divided over who to blame for riots and what to learn from them",
-        "BBC World: Australian MP loses both legs after alleged car attack, husband says"
+        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
+        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
+        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Melyik Magyarország legjobb befektetési alapja? És alapkezelője, privát- és prémium bankja? Szavazz! - Portfolio.hu",
-        "Agrárszektor: Kész, ennyi volt? Kiszáradhat Magyarország egyik legfontosabb tájegysége - Agrárszektor",
-        "MédiaKlikk: Örményország - Magyarország férfi futsal világbajnoki-selejtező mérkőzés - MédiaKlikk"
+        "Forbes Magyarország: Leállt a magyarorszag.hu és több kormányzati oldal, eddig szünetel az ügyintézés - Forbes Magyarország",
+        "Portfolio.hu: Tanács Zoltán globális méretű veszélyre figyelmeztet, leállították a Magyarország.hu-t is a súlyos hiba miatt - Portfolio.hu",
+        "Világgazdaság: Elszólta magát Magyar Péter: Amerikából vette át Magyarország 2027-es költségvetését a Tisza-kormány, de nagyon rossz modellt választhatott – száz éve vitáznak róla a közgazdászok - Világgazdaság"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: What is happening to UK prices?",
-        "BBC Business: Elon Musk confirms he is considering merging Tesla and SpaceX",
-        "BBC Business: Surging fuel prices push UK inflation rate to 3.5% ahead of Budget"
+        "BBC Business: Barclays cutting 5,000 jobs as it increases reliance on AI",
+        "BBC Business: The 'trillion pound' oil fund the government believes Britain could have built",
+        "BBC Business: Is an 'AI war' complicating your job search?"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Elon Musk confirms he is considering merging Tesla and SpaceX",
-        "BBC Technology: Why is Elon Musk plotting a mega-merger of SpaceX and Tesla?",
-        "BBC Technology: The tech helping crack decades-old cold cases"
+        "BBC Technology: UK working to identify exposure after global cyber-security warning",
+        "BBC Technology: What is PHP and why did it spark a global cyber-security scramble?",
+        "BBC Technology: Trump's green card curbs test Indian tech workers' American dream"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Australian MP loses both legs after alleged car attack, husband says (BBC World).",
-        "Figyelmi pont: Surging fuel prices push UK inflation rate to 3.5% ahead of Budget (BBC Business)."
+        "Figyelmi pont: What is PHP and why did it spark a global cyber-security scramble? (BBC World).",
+        "Figyelmi pont: US orders some diplomats to leave Saudi Arabia as Houthi attacks escalate (BBC World).",
+        "Figyelmi pont: The 'trillion pound' oil fund the government believes Britain could have built (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Trump and Zelensky appear at loggerheads despite new optimism",
-        "BBC World: Katya Adler: France divided over who to blame for riots and what to learn from them"
+        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
+        "BBC World: How Arab parties could hold critical balance of power in Israeli election"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Trump and Zelensky appear at loggerheads despite new optimism",
+      "title": "What is PHP and why did it spark a global cyber-security scramble?",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckrey51jrgnro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
+      "url": "https://www.bbc.co.uk/news/articles/c3qjnwye0ep5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Katya Adler: France divided over who to blame for riots and what to learn from them",
+      "title": "How Arab parties could hold critical balance of power in Israeli election",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq0me4g9p970o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cx8dzrp768j8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq3djn5nxx12o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-21"
     },
     {
-      "title": "Australian MP loses both legs after alleged car attack, husband says",
+      "title": "Celebrity shark guided out of South Korea canal refuses to swim out to sea",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckwyqdqxw6d0o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cr3wv99614deo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "US orders some diplomats to leave Saudi Arabia as Houthi attacks escalate",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6x2vpk93770o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Two European women held captive for more than a year in Niger freed in Libya",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq62y0v7434yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Macron accuses foreign leaders of exploiting French riots",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ckjrw044ggxgo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-21"
     },
     {
-      "title": "Elon Musk confirms he is considering merging Tesla and SpaceX",
+      "title": "Meta fined $25bn for 'lies' over user data privacy",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmlyl09xjke4o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cqdr8zxrr3dxo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-21"
     },
     {
-      "title": "Pakistan arrests man wanted by US over $126m postage fraud case",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckdd8m1z1z3yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
+      "title": "Leállt a magyarorszag.hu és több kormányzati oldal, eddig szünetel az ügyintézés - Forbes Magyarország",
+      "publisher": "Forbes Magyarország",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPeTN3VVRKeTByLWFEcmY2NnM1ZVFvNVpFRUc3M21tWk5NeVVSWl9ZQlROb1NHR0Rwb1NqUjhzSTZDYU16aGNLYlNES0FhUllLX2l0NnNLbmV6c251UVdJQWZfYTNWelVaLVJjcUFOX0dyUlY4aTRJR2JDWDliajVUSm0yQXd2SWpUY0FhNDRNbUpTNG92Ylg0WEdlSXlVYWlVZzFTVm9OdGlFZDRS?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Sudan army drones hit mourners and fuel market killing more than 300 people, sources say",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr3el70jz1nqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
-    },
-    {
-      "title": "Gambia to pay victims of Yahya Jammeh's rule from proceeds of his seized US mansion",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmn8wx75l2n8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "Alberta's decisive decision to stay in Canada gives Carney backing to take on Trump",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr62ylj832vxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "Melyik Magyarország legjobb befektetési alapja? És alapkezelője, privát- és prémium bankja? Szavazz! - Portfolio.hu",
+      "title": "Tanács Zoltán globális méretű veszélyre figyelmeztet, leállították a Magyarország.hu-t is a súlyos hiba miatt - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxNUm1GZUl5TXFDSnZWZFd6SDgwMTBfMTd6bGdEdmN4WGtHRnRNa01yM09JcmdUcEstWEpZeVlGQjFEWGU5YnJ2Wk1nMTBBOG5LWlhPVVQ2cUhQNzNqclhDbXpFRVpTaUFXSkJYaDJQX1ZGS2FTRWY0bnBDNmRUMXRrM1d3SWh5Z2pFZEFhdVVidGx4RUZVTzA2QUc2ZE1kRWxUcTcySms2WnlVa0Z0SHI3d24yaXppN2gxUDY4MGJ2cTJMczkyU3lNVFpQZ2x2aVRyS1BCMlhfQzJrVDNUUTdmdNIB5gFBVV95cUxOY1QtazZYZ2ZEM1g1c1F3UHRqY1pVS3hBZmxvWUQxcnJNV1BkNHRpTVN4VEVrZ2ZSLXpId240VzdXZ1BaQjRvR2RMOXZ5bW9UNW5yb2hqSmNQdHpfSjVUUndtWU9JUHhjNXFXTzEwdEVoV0F3TVRLRmNYMTNkODVJbjhBZUJwdWNjVUY1WG04V1FkdnVwUVF2V0c0QndyeGdTbk9sMjZlTGZJcXpIU2hmSDdjaEFhTjdtT1dSdjlBMEhITXFPV0tMajFMUl82QXpJTHM3TmhVMWhhekE4NFU0dElEeFhhdw?oc=5",
-      "publishedAt": "2026-10-21"
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxOOHpNaGFPZGxXUzRKX3JqMlQ0bG9wbWJqY2RWSTUtbHpGOXdnSG9GaTlfbTNjVFV2SUE1R0dXc19KQWlLeGF6amRqZ0w1ZS1QamxmMXJwS2Jtb1J6cGdfRk9hQ3NjQ3pKWXVGcUptSnBvbVFFMVdaMlNrM29EdXlySEkzb1l2T0htaTBZOUZnN3pEdjJLYURfQTJ2M1A3VUZwb3NpNkNPRlZaUmF2Tnh3SjdudXlxZU81QVpNWjNwaW5FSG1GQXI0ZUdOdmJoMl9fd2ppZ2VxRU9lZ3p2b0FxXzRXYlVWcWdiUFHSAe8BQVVfeXFMT3QwQXdLYWhjcFNwRnZLd2NNaXFOeks3NnE4a1pqOFlOcTZ3WU1iQlVYc1VjVVJqT3BUcXE0VGpXcFcxZWRqSndhSnJOZVk0T0tKNWR0eVVDSHZodVM5UmQ0bzZ4SVFyWEQtckI2dFEtVGlMLWFnaG9LOHVXVnRrckw4a1pQak1VSDlzN0trOVFLS0NObVZtMGxhMXYtY3Q4blNLbVY5Z2UxejFJLWVZWUNnVzUwZXc2bVNHWWdzYjI2STlfTWlKZHJSR21wMXpKcVY5VjBBcHc5SmF1RkMtZFBPVHY2YzNxOWoyLUdjMlk?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Kész, ennyi volt? Kiszáradhat Magyarország egyik legfontosabb tájegysége - Agrárszektor",
-      "publisher": "Agrárszektor",
-      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOeHBVY1RIdE9BQmRYVG9HQTJxSWM3MU9QSk9MT1lpME1IYlQzU2lqZWMtVnVqYzY0MHdsVWY4U1ZXeXYxQk8tb3M3c0J0NkJsYWsxRmktcTNCX1lVMlRYOGhfOHpRTlZGRTBQc1FxTDZzVDJnUnlLRFBOZDRWTTJiczNtZlJ4amxfM3N4WC1pZm56NWE2UVJWZ3U1aXhXVnV3SEtTVDZBRkNLTEFzQlYxckRoRlUwbFdfc3NyamdHQ1QtV1BJQ0JDeg?oc=5",
-      "publishedAt": "2026-10-21"
+      "title": "Elszólta magát Magyar Péter: Amerikából vette át Magyarország 2027-es költségvetését a Tisza-kormány, de nagyon rossz modellt választhatott – száz éve vitáznak róla a közgazdászok - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNQ3ZtSmxnZlZmam13UjNqcEotNXRBUEhNRTNHTGl2WFBNRVRLQ2R5a3Z3cVRwZjJKT3lacHN1ZVlfVjA4Y0Y3VGlLVW1xaFVhQXR4N3dtM3pNblB0cXhHWXdPVU9SODQzNzR5b3NiLXh6RG5iRjk5R0hlb1pIR0VFZXFiaWlmbFFqYTFjMDNqVExWaG1UeTdJeTQ2emE0VnR0UERnbGxyZXFHU09sbnc?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Örményország - Magyarország férfi futsal világbajnoki-selejtező mérkőzés - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNMWtfaG5VNFBma2ZVR19FNVU1N1doLWRuS0NFQXE1ekhfZXpVel8tS2pKVklLY19fMGFaT19Pa3JyMUVlQWM4NUFXVC1ZZ09FeDQ0WTZnRkZOeWlxbTVHQzNMdTVCMW5pb2F1WDZHSDBpM0dNMFB3Uy1aeXhwYkg4VFozQlBMVERsRjl2c3h5Rmp4MGtraFJOeEh6NlVHbVNGY05tbC05cnBZSlB6NkE?oc=5",
-      "publishedAt": "2026-10-20"
+      "title": "510 milliárd forinttal több jut a gyógyításra, a dolgozókra és a kórházak fejlesztésére. 95 milliárddal több jut a nagy költségű kórházi gyógyszerek finanszírozására, 38 milliárddal emelkedik a patikákban elérhető gyógyszerek támogatása. - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMilAJBVV95cUxNaWhBUXdEcHRTblFKUDc0TEF6SkdDaXFqbzc5WS1jMzZhZHdjdi1NTjFXRTVHSW1RckQ0MHpqNUplb0JqODg4S29sYlV2V19SWnpIVTUzcmR2Z3J3NXl6dnNQUGZndHlfZXFzY0RFSktKcGNhbVlERVBNaWE4LTZST2RHakl3cHByUEpVMWN5WHFkUGRyRWlua0dtb3FSWVY1TEFpT1ZGSHdaS0RTSVBtbHUxV2hjMjI2NXdYeFo1LVp0Q0F6RUZSdlhqcTYxTW9kenNTOGxndHZNcF8wSkc3eGdVOG5Ja0V1VmhuVURGbDVwWGt5MW5seDBBaE5RU05iX2QycU9WRV9ZbXdsa2k4TjYtNHI?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Sport - Magyarország az elszenvedője minden idők legnagyobb olimpiai csalásának - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOQVAxNTBOR0FhWXpZVkxYLVZTMEthcmNHbWdtV19CQXBpT0hwc0VHNEJoeGV0TnpPdG9VWExQNzNPblVTNjBqOEg2VWVhcGJMZlZSa0NOVUpxaVdPSFVFMm1oZUVQMndZb1QxS0xuekk2MVRlUGdaUzBxRnhaWUtJMUdQYXdRTnhtZzcweDA5TzRjRDVyVUZHdEFxODFsOFd2X2l2emJ2YnpSSmlBaGFjNkk2bEFEMzhraUZJN0Z6S2h6Z3BpR2FSbVFxSHFqM1hlWER4dzFTcnA3cmJUa0JaUjBEQQ?oc=5",
-      "publishedAt": "2026-10-21"
+      "title": "Újabb gyomrost kapott az uniós bíróságtól Magyarország - Mfor.hu",
+      "publisher": "Mfor.hu",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOMzZwS014UHNDZVdlUWdDTWZ6dzFocGlJUV9vV2twMTNvZ2h5eW1wcUMzZlpGX1lxYXllbnZLWWZUMHRnSjk0UE8yTUE0RjV1d0ZDT1pHX3ZNV0kzYkV1S0JobTItYUtmNnBjNFhGaUlnX1ZwU0phRGFBbTZuLVR6QXhtR09NMW44MnlPUlJmZV9uQQ?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Megvan Magyarország 10 legjobb pizzériája - Roadster.hu",
-      "publisher": "Roadster.hu",
-      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE5Hc1VaVV9ybkEwd2FEcjFyQjVzV1ExSG40STlBM2twR2ZBNUV4SGJ1cDQ3bVNET3dCcjRyQUZMTmhjZEtOSnpwZkNJOC15b05xSkkwag?oc=5",
-      "publishedAt": "2026-10-21"
+      "title": "Kvíz: Melyik Magyarország legmagasabb hegycsúcsa? – Jól ismered a hazai földrajzi legeket? - Gyerekszoba.hu",
+      "publisher": "Gyerekszoba.hu",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE5hZTViQlBDOWxfekI3R004T0hQYnBuLXYwYkJkYVE5V2FRYU9McGVqNUc5RFZFQXozNy11LVBxVzFBaWpBcFdTUFFTcGxadkl2ZUVpQndISWtST1RobFhaMmY5TEhfQ2I2VmJaTHZvREZmQQ?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Új logisztikai központtal erősödik a Magyarország és Görögország közötti áruszállítás - NEW technology",
-      "publisher": "NEW technology",
-      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPZGRkVWFjX2hzN24tdkZyNTlFM0ZvVWdDVllFWDdyWlg0ckotb3U3cmppdnowX1JSdzd3QlltRWpaQ3hpb0dXVFExWnhQOXZFVGtneDk1M3lHUk5wbEpOOEJ6S215WmdHMUE5RWdxdUtLdEJIZ2NzWnF5QnBIQ0ZxdnJfRndxUEh5bUpkSTZRT2RicFdBN2hHdHpZUFNnam9zcVNMRmR1dFl0VHRrUHZQSg?oc=5",
-      "publishedAt": "2026-10-21"
+      "title": "Lekapcsolták a Magyarország.hu-t: 10 éves hibát fedezett fel az AI a PHP-ben, és emiatt weboldalak ezrei álltak le - PCWPlus.hu",
+      "publisher": "PCWPlus.hu",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQU0lHb1ZMUTEyXzdqM2FfYmQ2aGtfRmljUms0SE1DRDREUDZ4dkl1Qjl1WVlpdmhJWGRHMzlGdEQ3eENHWEo3bVlZUENVdGY3X3hnd1A0SVl2VTVDT2ZodUhiYTFQX2dXY181QnQ2c2Y3WmduNlB3eEF0eG1rZWNJaXlVOFNLanBYZEJHT1JwOWNmREMwdWRxcDBjVnZQclFPTl9oUnBtM25LVWtpcmd1NndTbEtYZw?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Bemutatták a 2027-es magyar költségvetést - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE04ZFVsQ19wNHVuQnRZajE0dzQxSk0wTmp2NFBmTUh5N1ZSR2Z2R01ra3E2UDJINWh6bFE1T0lqSVJoQ256WXFhcWE5bjNVVXd2SkJfVnIxcE83anJaLWtFNk85Znl4YS13RjdXTDZBemRkSmtRb0sw?oc=5",
-      "publishedAt": "2026-10-20"
+      "title": "Leállították a magyarorszag.hu-t a világszintű biztonsági fenyegetettség miatt - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOWFVQY2tVajFkcUYxcjNYZEh0dkZXUUhjMmlsM09na2c4bDBldjFZVGtaTWc5QXU1WnptQmloMzBYdXhOT3ZkcllKLTVfSGUtenRFX3g3WVlqdDhSU0pTaUI3YUpaZm5KZS0wMUd6S3g0RmJGNk55ZW5vZlROZmJ5YjF5d2Z5NGNFTk1mSl9rY3B3RmR4WkpRUzVpaGZneENZbHBuQVNR?oc=5",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Új „NATO-bank” formálódik: évi tízmilliárdokat spórolhatna Magyarország az olcsóbb védelmi hiteleken - Economx.hu",
-      "publisher": "Economx.hu",
-      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQQ21LNTNDTXZCV1Q4YnhhcHg3dHEzcE9oOFFLcVpnZEl2MjR4WWV1QlNSb1hFeURBVVNvTFl2TEF3NHBONEFwT1Y4X1k5dG8yMGJ4Tkp1d2NNcjlRNDlMWmpYcTh2a2VjNUlpXzJ6VkFHdzgxUXBVTXEwMzRyR2x5aVZmZUw0dmJjTXFZUmF0RWtld08yOHFSZG9xbnpRaGdTVmRPd2UwSkh6My1HQmlVeWoyMlAwZEJfRDd2WHBEeTRMejlkNVdudEgtRmhUQ0t0OENITDg2NlA?oc=5",
-      "publishedAt": "2026-10-20"
-    },
-    {
-      "title": "What is happening to UK prices?",
+      "title": "Barclays cutting 5,000 jobs as it increases reliance on AI",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c17rgd8e9gjo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm4g1p347qgxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "The 'trillion pound' oil fund the government believes Britain could have built",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm4g1zrl2nrqo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Is an 'AI war' complicating your job search?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm9qzgg5z89no?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Websites taken down worldwide as critical cyber-security update issued",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmly0lg3w5x2o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-21"
     },
     {
-      "title": "Surging fuel prices push UK inflation rate to 3.5% ahead of Budget",
+      "title": "No order, no seat: Starbucks China rolls out new store policy",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6gel2xv4493o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
+      "url": "https://www.bbc.co.uk/news/articles/ckzd6rjmlzvmo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "The tech helping crack decades-old cold cases",
+      "title": "The grads ditching the UK for a fresh start abroad",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c370pzdkw77jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
+      "url": "https://www.bbc.co.uk/news/articles/cmzxj4e8w44vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
     },
     {
-      "title": "Why is Elon Musk plotting a mega-merger of SpaceX and Tesla?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cr93z1e87e0do?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "Google resolves cloud outage affecting UK banks and websites",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cxdd8mm6qy4mo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
-    },
-    {
-      "title": "Trump sued over Canadian tariffs in latest legal challenge",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqrkyj13m588o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
-    },
-    {
-      "title": "Audit regulator looking into Manchester City accounting",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm93z1xlgqxqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
-    },
-    {
-      "title": "OpenAI CEO Sam Altman wins dismissal of sister's lawsuit",
+      "title": "UK working to identify exposure after global cyber-security warning",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/c94g1502el58o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-20"
+      "url": "https://www.bbc.co.uk/news/articles/cmx23d0k57d3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
+    },
+    {
+      "title": "Trump's green card curbs test Indian tech workers' American dream",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/cqj34j7dk771o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-22"
     }
   ]
 }
