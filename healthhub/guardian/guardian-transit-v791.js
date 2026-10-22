@@ -266,7 +266,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v','793-pilot-status-v795');
+  const url=new URL(file,dir);url.searchParams.set('v','793-live-focus-v796');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');
