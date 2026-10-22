@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
 <link rel="stylesheet" href="./guardian-polish-v767.css?v=768-family-guard-hero">
 <link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
+<link rel="stylesheet" href="./guardian-landmarks-sync-v787.css?v=787-optin-private-common">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
    Keep the regular FIVE-slot HealthHub bottom nav unchanged. */
@@ -83,7 +84,7 @@
   <details id="guardianLandmarks" class="guardian-landmarks-details">
    <summary>📍 Fontos helyek <span class="guardian-landmarks-count" id="guardianLandmarksCount">0</span></summary>
    <div class="guardian-landmarks-body">
-    <p class="guardian-landmarks-help">Jelöld ki a hely típusát és nevét, majd koppints a térképre. A mentett pontokat bármikor megnyithatod. A helyek csak ezen a készüléken tárolódnak.</p>
+    <p class="guardian-landmarks-help">Jelöld ki a hely típusát és nevét, majd koppints a térképre. A mentett pontokat bármikor megnyithatod. A régi mentett helyek privátak maradnak. A közösnek jelölt helyek titkosított kapcsolaton keresztül a családi Supabase-fiókba kerülnek, és a másik telefonon is megjelennek.</p>
     <div class="guardian-landmarks-picker" role="group" aria-label="Hely ikonja">
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="home" aria-pressed="true"><span class="guardian-landmarks-emoji" aria-hidden="true">🏠</span>Otthon</button>
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="work" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">💼</span>Munkahely</button>
@@ -95,6 +96,12 @@
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="shopping" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🛍️</span>Bevásárlás</button>
      <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="other" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">📍</span>Egyéb</button>
     </div>
+    <label class="guardian-landmarks-name-label" for="guardianLandmarkScope">Láthatóság / mentés helye</label>
+    <select id="guardianLandmarkScope" class="guardian-landmark-scope-select" aria-label="Hely láthatósága">
+      <option value="private" selected>🔒 Privát · csak ezen a telefonon</option>
+      <option value="shared">☁ Közös · mindkét telefonon</option>
+    </select>
+    <p id="guardianLandmarkSyncStatus" class="guardian-landmark-sync-status" role="status" aria-live="polite">☁ Családi helyek szinkronjának ellenőrzése…</p>
     <label class="guardian-landmarks-name-label" for="guardianLandmarkName">Hely neve</label>
     <input id="guardianLandmarkName" type="text" maxlength="40" autocomplete="off" placeholder="Például: Otthon" value="Otthon">
     <div class="guardian-landmarks-actions">
@@ -182,10 +189,11 @@
 <script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="./guardian-icons-v784.js?v=784-translucent-svg-icons"></script>
-<script defer src="./guardian-landmarks-v776.js?v=784-svg-place-icons"></script>
+<script defer src="./guardian-landmarks-v776.js?v=787-private-and-common"></script>
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./guardian.js?v=786-location-cloud-sync"></script>
-<script defer src="./guardian-live-v785.js?v=786-location-cloud-sync"></script>
+<script defer src="./guardian-live-v785.js?v=787-landmarks-session"></script>
+<script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 </body>
 </html>
