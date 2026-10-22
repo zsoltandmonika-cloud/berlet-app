@@ -51,6 +51,9 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual(doc["source"],"BKK Zrt., CC BY 4.0")
         self.assertEqual(doc["routes"]["260"]["variants"][0]["shape"],[[19.02,47.51],[19.03,47.52]])
         self.assertEqual(doc["routes"]["17"]["variants"][0]["stops"][0]["name"],"17 Megálló")
+        self.assertEqual(doc["routes"]["260"]["gtfsRouteIds"],["R260"])
+        self.assertEqual(doc["routes"]["17"]["gtfsRouteIds"],["R17"])
+        self.assertEqual(doc["routes"]["19"]["gtfsRouteIds"],["R19"])
         self.assertIn("NOT real-time",doc["feedType"])
     def test_missing_requested_line_fails_closed(self):
         raw=fixture()
