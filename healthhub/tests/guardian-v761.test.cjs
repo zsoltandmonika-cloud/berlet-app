@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v781\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v782\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=781-unified-palette/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=782-compact-controls/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -298,4 +298,38 @@ test('v781 2D and 3D share one map color palette',()=>{
  assert.match(html,/guardian-premium-v780\.css/,'glass controls retained');
  assert.match(html,/inset:auto auto 4px 4px!important/,'approved small hero profile switch untouched');
  assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
+});
+
+test('v782 compact upper-right controls and premium glass MapLibre zoom stay in corners',()=>{
+ const page=read('guardian/family-guard-v782.html');
+ const css=read('guardian/guardian-controls-v782.css');
+ const earlier=read('guardian/guardian-premium-v780.css');
+ const js=read('guardian/guardian.js');
+ assert.match(page,/data-family-guard-build="v782"/);
+ assert.match(page,/guardian-controls-v782\.css\?v=782-compact-corners/);
+ assert.match(css,/width:89px!important/,'top-right button width shrinks from previous 99px');
+ assert.match(css,/height:39px!important/,'top-right button height shrinks from previous 43px');
+ assert.match(css,/right:4px!important/,'top buttons closer to outer right edge');
+ assert.match(css,/\.map-card \.map-follow \{top:5px!important\}/);
+ assert.match(css,/\.map-card \.map-3d \{top:47px!important\}/);
+ assert.match(css,/\.map-card \.map-family \{top:89px!important\}/);
+ assert.match(css,/flex-basis:27px!important/,'glass button icon badges reduced');
+ assert.match(css,/#guardianMap \.maplibregl-ctrl-bottom-right\{/);
+ assert.match(css,/bottom:2px!important/,'MapLibre group moved toward bottom edge');
+ assert.match(css,/right:2px!important/,'MapLibre group moved toward right edge');
+ assert.match(css,/#guardianMap \.maplibregl-ctrl-bottom-right \.maplibregl-ctrl-group button\{/);
+ assert.match(css,/height:38px!important/,'zoom touch-target kept usable');
+ assert.match(css,/filter:none!important/,'zoom control surface must not invert its glass colors');
+ assert.match(css,/\.maplibregl-ctrl-icon\{/,'only glyph inverted for contrast');
+ assert.match(css,/:root\[data-guardian-profile="m"\]/,'rose variant retained');
+ assert.match(css,/backdrop-filter:blur\(17px\) saturate\(1\.4\)/,'premium translucent glass for zoom group');
+ assert.match(earlier,/guardian-control-icon/,'existing outlined SVG button symbols preserved');
+ assert.match(js,/attributionControl:false/,'tiny info icon must remain removed');
+ assert.match(page,/guardian-map-credits/,'map credit row must remain outside map');
+ assert.match(page,/guardian-map-palette-v781\.css/,'v781 cartographic colors preserved');
+ assert.match(page,/inset:auto auto 4px 4px!important/,'approved hero corner switch unchanged');
+ assert.doesNotMatch(page,/id="guardianSatellite"/,'removed satellite mode must not return');
+ assert.equal((page.match(/data-guardian-landmark-kind=/g)||[]).length,9);
+ const nav=page.slice(page.indexOf('<nav id="guardianHHNav"'),page.indexOf('</nav>'));
+ assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical five-slot dock unchanged');
 });

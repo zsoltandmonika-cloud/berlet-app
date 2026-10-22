@@ -1,0 +1,94 @@
+/* Family Guard v782 · two requested purely visual refinements.
+ * (1) Three glass map actions smaller, tighter and aligned to the right/top edge.
+ * (2) Native MapLibre zoom/compass adopts the canonical blue/rose glass finish
+ *     and moves closer to the right/bottom corner.  All GPS and map logic unchanged.
+ * No changes to Hero, profile switch, map labels, landmark pins or fixed dock.
+ */
+.map-card .map-follow,
+.map-card .map-3d,
+.map-card .map-family {
+ right:4px!important;
+ width:89px!important;
+ min-width:89px!important;
+ height:39px!important;
+ min-height:39px!important;
+ padding:4px 6px!important;
+ gap:5px!important;
+ border-radius:14px!important;
+ font-size:10px!important;
+ line-height:1.1!important;
+ touch-action:manipulation;
+}
+.map-card .map-follow {top:5px!important}
+.map-card .map-3d {top:47px!important}
+.map-card .map-family {top:89px!important}
+.map-card .guardian-control-icon {
+ width:27px!important;
+ min-width:27px!important;
+ flex-basis:27px!important;
+ height:27px!important;
+ border-radius:10px!important;
+}
+.map-card .guardian-control-icon svg{
+ width:18px!important;
+ height:18px!important;
+}
+.map-card .guardian-control-text{
+ min-width:0!important;
+ font-size:10px!important;
+ letter-spacing:0!important;
+}
+#guardianMap .maplibregl-ctrl-bottom-right{
+ right:2px!important;
+ bottom:2px!important;
+}
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+ width:38px!important;
+ margin:0 2px 2px 0!important;
+ box-sizing:border-box!important;
+ border-radius:15px!important;
+ overflow:hidden!important;
+ border:1px solid rgba(195,232,255,.84)!important;
+ background:linear-gradient(146deg,rgba(70,133,193,.91) 0%,rgba(31,83,145,.94) 52%,rgba(12,48,102,.96) 100%)!important;
+ backdrop-filter:blur(17px) saturate(1.4)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(1.4)!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.43),
+  inset 0 -1px 0 rgba(2,21,51,.32),
+  0 6px 16px rgba(3,25,60,.31),
+  0 0 0 1px rgba(130,213,255,.2)!important;
+}
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button{
+ width:36px!important;
+ height:38px!important;
+ min-height:38px!important;
+ padding:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ filter:none!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.085)!important;
+ cursor:pointer;
+}
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button+button{
+ border-top:1px solid rgba(215,237,255,.32)!important
+}
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:hover{
+ background:rgba(245,253,255,.16)!important
+}
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:focus-visible{
+ outline:2px solid rgba(232,249,255,.96)!important;
+ outline-offset:-3px!important
+}
+/* Style only the glyph span, not the entire MapLibre button: preserve glass colors. */
+#guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button .maplibregl-ctrl-icon{
+ filter:invert(1) brightness(1.22) drop-shadow(0 1px 1px rgba(8,26,58,.32))!important;
+}
+:root[data-guardian-profile="m"] #guardianMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group{
+ border-color:rgba(255,218,247,.83)!important;
+ background:linear-gradient(148deg,rgba(181,108,175,.92),rgba(116,65,150,.95) 58%,rgba(67,39,110,.97))!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.44),
+  inset 0 -1px 0 rgba(43,22,72,.25),
+  0 6px 16px rgba(61,25,90,.32),
+  0 0 0 1px rgba(255,193,236,.24)!important
+}
