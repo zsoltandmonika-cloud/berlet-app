@@ -423,7 +423,7 @@ test('v783 live person GPS marker uses circular authentic photo and profile-spec
  assert.equal(m.children[0].children[0].src,'existing-monika-photo');
  assert.equal(m.children[1].textContent,'Mónika');
  assert.equal(m.attrs.role,'img');
- assert.match(m.attrs['aria-label'],/saját készülék GPS-pozíciója/,'marker identity does not imply another person's remotely shared location');
+ assert.match(m.attrs['aria-label'],/saját készülék GPS-pozíciója/,'marker shows only this device, never another person remotely');
  assert.equal(created[1].coord[0],19.05);
  // No extra upload or background tracking introduced by a cosmetic feature.
  assert.doesNotMatch(js,/sendBeacon|new WebSocket|fetch\(/);
