@@ -2,10 +2,10 @@
  * These symbols are actual fresh GTFS-RT observations, NEVER static mid-route badges.
  */
 (function(root,factory){
- const api=factory();
+ const api=factory(root);
  if(typeof module==='object'&&module.exports)module.exports=api;
  if(root)root.HH_BKK_LIVE_MAP_V793=Object.freeze(api);
-})(typeof window!=='undefined'?window:null,function(){
+})(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  const ID='hh-bkk-live-v793';
  const COLORS={260:'#148ee0',17:'#e4ab00',19:'#e4ab00'};
@@ -16,13 +16,73 @@
    geometry:{type:'Point',coordinates:[v.lng,v.lat]}
   }))};
  }
+ // Browser DOM markers live ABOVE the WebGL canvas, including the 3D building layer.
+ // Keep the source-backed positions, never fall back to a made-up vehicle location.
+ const domMarkers=new Map();let domMap=null;
+ function removeDom(){
+  for(const marker of domMarkers.values())try{marker.remove()}catch(_){}
+  domMarkers.clear();domMap=null;
+ }
+ function makeMarkerElement(doc,vehicle){
+  const bus=vehicle.routeId==='260',color=bus?'#168fdf':'#e7b50b';
+  const wrapper=doc.createElement('div');
+  wrapper.className='hh-bkk-live-vehicle-dom-v797';
+  // Do NOT override MapLibre's position/transform on this outer marker node.
+  wrapper.style.cssText='z-index:50;pointer-events:auto;filter:drop-shadow(0 5px 9px rgba(0,18,43,.65))';
+  wrapper.setAttribute('role','img');
+  wrapper.setAttribute('aria-label','Élő '+(bus?'260-as busz':vehicle.routeId+'-es villamos')+' · BKK-járműpozíció');
+  const stack=doc.createElement('div');
+  stack.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap';
+  const live=doc.createElement('span');
+  live.textContent='● ÉLŐ';
+  live.style.cssText='font:900 12px system-ui;color:#fff;background:#085378;border:2px solid #6ff5ff;border-radius:20px;padding:3px 9px;letter-spacing:.6px';
+  const badge=doc.createElement('span');
+  badge.textContent=(bus?'🚌 ':'🚋 ')+vehicle.routeId;
+  badge.style.cssText='display:flex;align-items:center;justify-content:center;min-width:64px;min-height:42px;padding:0 9px;border-radius:14px;border:3px solid #fff;background:'+color+';color:'+(bus?'#fff':'#162c46')+';font:900 17px system-ui;box-shadow:0 0 0 4px rgba(47,232,255,.35)';
+  const pin=doc.createElement('span');
+  pin.style.cssText='width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #07365a;box-shadow:0 0 0 3px #36f2ff';
+  stack.append(live,badge,pin);wrapper.appendChild(stack);
+  return wrapper;
+ }
+ // Optional DOM dependency injection supports deterministic tests without a browser.
+ function renderDom(map,vehicles,dom){
+  const Marker=(dom&&dom.Marker)||(root&&root.maplibregl&&root.maplibregl.Marker);
+  const doc=(dom&&dom.document)||(root&&root.document);
+  if(typeof Marker!=='function'||!doc||typeof doc.createElement!=='function')return null;
+  if(domMap&&domMap!==map)removeDom();
+  domMap=map;
+  try{
+   const present=new Set();
+   for(const v of vehicles){
+    if(!v||typeof v.id!=='string'||!v.id||!Number.isFinite(v.lat)||!Number.isFinite(v.lng)
+     ||Math.abs(v.lat)>90||Math.abs(v.lng)>180||!['260','17','19'].includes(v.routeId))continue;
+    present.add(v.id);
+    let marker=domMarkers.get(v.id);
+    if(!marker){
+     marker=new Marker({element:makeMarkerElement(doc,v),anchor:'bottom',offset:[0,-6],opacity:1,opacityWhenCovered:1});
+     marker.setLngLat([v.lng,v.lat]).addTo(map);
+     domMarkers.set(v.id,marker);
+    }else marker.setLngLat([v.lng,v.lat]);
+   }
+   for(const [id,marker] of domMarkers)if(!present.has(id)){marker.remove();domMarkers.delete(id)}
+   return true;
+  }catch(_){removeDom();return false}
+ }
  function clear(map){
+  removeDom();
   const source=map&&map.getSource&&map.getSource(ID);
   if(source&&source.setData)source.setData(EMPTY);
  }
- function render(map,verified){
+ function render(map,verified,dom){
   if(!map||!verified||verified.ok!==true||!Array.isArray(verified.vehicles)){
    clear(map);return false;
+  }
+  const domResult=renderDom(map,verified.vehicles,dom);
+  if(domResult!==null){
+   // A WebGL layer may remain from an older hot-loaded pilot. Clear it to avoid duplicates.
+   const existing=map.getSource&&map.getSource(ID);
+   if(existing&&existing.setData)existing.setData(EMPTY);
+   return domResult;
   }
   if(!map.isStyleLoaded||!map.isStyleLoaded())return false;
   try{
