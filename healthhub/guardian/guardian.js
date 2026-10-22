@@ -221,14 +221,18 @@ function applyGoldenMapStyle(){
    if(/waterway|river|stream|canal/.test(id))paint(layer.id,'line-color',colors.river);
    else if(/rail|tram|subway/.test(id))paint(layer.id,'line-color',colors.rail);
    else if(/road|street|highway|transportation/.test(id)){
-    // OpenFreeMap Bright layer names and underlying filter classifications vary.
-    // Distinguish arterial, secondary, local roads without replacing road geometry.
-    const classifier=id+' '+JSON.stringify(layer.filter||[]).toLowerCase();
+    // OpenMapTiles transportation.class allows per-street coloring even where
+    // Bright renders multiple classes in one layer; IDs provide a fallback.
     const casing=/casing|outline|border/.test(id);
-    const arterial=/motorway|trunk|primary|major|expressway|highway/.test(classifier);
-    const secondary=/secondary|tertiary|collector|medium/.test(classifier);
-    paint(layer.id,'line-color',casing?colors.roadCasing:
-      arterial?colors.roadPrimary:secondary?colors.roadSecondary:colors.roadLocal);
+    const arterial=/motorway|trunk|primary|major|expressway|highway/.test(id);
+    const secondary=/secondary|tertiary|collector|medium/.test(id);
+    const base=arterial?colors.roadPrimary:secondary?colors.roadSecondary:colors.roadLocal;
+    const byClass=['match',['coalesce',['get','class'],''],
+     ['motorway','trunk','primary'],colors.roadPrimary,
+     ['secondary','tertiary'],colors.roadSecondary,
+     ['minor','residential','service','living_street','unclassified'],colors.roadLocal,
+     base];
+    paint(layer.id,'line-color',casing?colors.roadCasing:byClass);
    }
   }
   if(layer.type==='symbol'&&layer.layout&&layer.layout['text-field']&&/road|street|highway|transportation/.test(id)){
@@ -273,7 +277,7 @@ function initMap(){
      'source-layer':'building',minzoom:14,layout:{visibility:threeD?'visible':'none'},
      filter:['!=',['get','hide_3d'],true],
      paint:{
-      'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],0],0,'#e4d4bd',55,'#d5ae8b',180,'#c39a79'],
+      'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],0],0,'#c9cbcd',55,'#b5b8bb',180,'#9fa4a9'],
       'fill-extrusion-height':['interpolate',['linear'],['zoom'],14,0,16,['coalesce',['get','render_height'],['get','height'],0]],
       'fill-extrusion-base':['coalesce',['get','render_min_height'],0],
       'fill-extrusion-opacity':0.88
