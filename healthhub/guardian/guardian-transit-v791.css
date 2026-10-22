@@ -40,3 +40,7 @@
 @media(max-width:640px) and (orientation:portrait){
  .hh-transit-panel .hh-transit-body{max-height:none!important;overflow:visible!important}
 }
+
+/* v794: no separate framed/fixed-size Transit shell. Cards remain visible in the page flow. */
+.hh-transit-panel{position:static!important;max-height:none!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+.hh-transit-panel .hh-transit-body{max-height:none!important;overflow:visible!important;padding:0!important}
