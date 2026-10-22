@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v783\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v784\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=783-neon-avatars/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=784-premium-landmarks/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -432,4 +432,103 @@ test('v783 live person GPS marker uses circular authentic photo and profile-spec
  assert.match(html,/guardian-controls-v782\.css/,'approved glass map controls untouched');
  assert.match(html,/inset:auto auto 4px 4px!important/,'approved miniature hero switch untouched');
  assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
+});
+
+test('v784 nine distinct hand-drawn translucent SVG landmarks keep existing bookmarks and user photos',()=>{
+ const src=read('guardian/guardian-icons-v784.js');
+ const landmarks=read('guardian/guardian-landmarks-v776.js');
+ const css=read('guardian/guardian-icons-v784.css');
+ const html=read('guardian/family-guard-v784.html');
+ const hero=read('guardian/guardian-avatars-v783.css');
+ new Function(src);new Function(landmarks);
+ assert.match(html,/data-family-guard-build="v784"/);
+ assert.match(html,/guardian-icons-v784\.css\?v=784-glass-location-medallions/);
+ assert.match(html,/guardian-icons-v784\.js\?v=784-translucent-svg-icons/);
+ assert.match(html,/guardian-landmarks-v776\.js\?v=784-svg-place-icons/);
+ assert.ok(html.indexOf('guardian-icons-v784.js')<html.indexOf('guardian-landmarks-v776.js'),'vector renderer must load before local bookmarks');
+ assert.match(html,/guardian-avatars-v783\.css/,'approved neon people avatars kept');
+ assert.match(html,/golden-standard-avatars-v529\.js/,'approved real family photos kept');
+ assert.match(hero,/guardian-position-photo/,'v783 people marker stays intact');
+ assert.match(html,/guardian-controls-v782\.css/,'existing premium map buttons kept');
+ assert.match(html,/guardian-map-palette-v781\.css/,'same 2D and 3D map colors kept');
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
+ assert.match(css,/backdrop-filter:blur\(13px\) saturate\(1\.5\)/,'translucent lens on actual map place pins');
+ assert.match(css,/rgba\(var\(--gic-rgb\),\.26\)/,'map remains visible beneath semi-transparent icons');
+ assert.doesNotMatch(css,/\.guardian-position|guardianProfileSwitch|guardian-hero|hhBottomNav/,'do not restyle people, hero or dock');
+ assert.match(landmarks,/const KEY='hh-guardian-landmarks-v776'/,'all old saved places remain usable');
+ assert.doesNotMatch(src,/navigator\.geolocation|localStorage|fetch\(|XMLHttpRequest|sendBeacon/);
+ const kinds=['home','work','doctor','family','favorite','bus','tram','shopping','other'];
+ function node(tag){
+  return {tagName:tag,innerHTML:'',textContent:'',className:'',dataset:{},attributes:{},
+   children:[],listeners:{},style:{},disabled:true,hidden:false,
+   setAttribute(k,v){this.attributes[k]=v},
+   addEventListener(k,fn){this.listeners[k]=fn},
+   click(){if(this.listeners.click)this.listeners.click()},
+   appendChild(child){this.children.push(child);this.firstChild=this.children[0];return child},
+   removeChild(child){this.children.splice(this.children.indexOf(child),1);this.firstChild=this.children[0]},
+   scrollIntoView(){},focus(){},
+  };
+ }
+ const choices=kinds.map(kind=>{
+  const el=node('button'),medal=node('span');
+  medal.className='guardian-landmarks-emoji';el.dataset.guardianLandmarkKind=kind;
+  el.querySelector=(sel)=>sel==='.guardian-landmarks-emoji'?medal:null;
+  el.medal=medal;return el;
+ });
+ const nodes={};const doc={
+  getElementById(id){return nodes[id]||(nodes[id]=node('div'))},
+  createElement:node,
+  querySelectorAll(sel){return sel==='[data-guardian-landmark-kind]'?choices:[]}
+ };
+ const initial=[{id:'saved_bus_01',kind:'bus',name:'Régi buszmegálló',lng:19.10,lat:47.50}];
+ const storage={'hh-guardian-landmarks-v776':JSON.stringify(initial)};
+ const markers=[];
+ const win={
+  localStorage:{getItem(k){return storage[k]||null},setItem(k,v){storage[k]=v}},
+  confirm(){return true},
+  maplibregl:{Marker:class {
+   constructor(opts){this.element=opts.element;markers.push(this)}
+   setLngLat(c){this.coords=c;return this}
+   addTo(){return this}
+   remove(){this.removed=true}
+  }}
+ };
+ const context={window:win,document:doc,Date,Math,Number,String,Array,JSON,Object};
+ vm.runInNewContext(src,context);
+ assert.equal(win.HH_GUARDIAN_ICONS_V784.kinds.length,9);
+ kinds.forEach((kind,i)=>{
+  assert.equal(choices[i].attributes['data-guardian-icon-kind'],kind);
+  assert.equal(choices[i].medal.attributes['data-guardian-icon-kind'],kind);
+  assert.ok(choices[i].medal.innerHTML.startsWith('<svg '),'vector icon markup generated');
+ });
+ const bus=choices[kinds.indexOf('bus')].medal.innerHTML;
+ const tram=choices[kinds.indexOf('tram')].medal.innerHTML;
+ assert.notEqual(bus,tram,'tramway has a distinct pictogram from bus');
+ assert.ok(bus.includes('M4 10.5h16'),'bus windows visible');
+ assert.ok(tram.includes('M8 5 12 2'),'tram overhead guide visible');
+ const malicious=node('span');assert.equal(win.HH_GUARDIAN_ICONS_V784.draw(malicious,'<img src=x>'),false,'only curated icon names accepted');
+ assert.equal(malicious.innerHTML,'');
+ vm.runInNewContext(landmarks,context);
+ const callbacks={};const map={
+  on(ev,cb){callbacks[ev]=cb},
+  getCenter(){return {lng:19.11,lat:47.51}},
+  getCanvas(){return {style:{}}},
+  getZoom(){return 15.3},
+  flyTo(){}
+ };
+ win.HH_GUARDIAN_LANDMARKS_V776.init(map);
+ assert.equal(markers.length,1,'previously saved location pin restored');
+ assert.equal(markers[0].element.attributes['data-guardian-icon-kind'],'bus');
+ assert.match(markers[0].element.innerHTML,/<svg/);
+ const saved=doc.getElementById('guardianLandmarksList').children[0];
+ assert.equal(saved.children[0].attributes['data-guardian-icon-kind'],'bus','saved place list uses same icon');
+ assert.equal(saved.children[1].textContent,'Régi buszmegálló');
+ assert.equal(JSON.parse(storage['hh-guardian-landmarks-v776'])[0].name,'Régi buszmegálló','no migration/rewrite of stored location');
+ choices[6].click();assert.equal(doc.getElementById('guardianLandmarkName').value,'Villamosmegálló');
+ doc.getElementById('guardianLandmarksCenter').click();
+ doc.getElementById('guardianLandmarksSave').click();
+ const updated=JSON.parse(storage['hh-guardian-landmarks-v776']);
+ assert.equal(updated.length,2);
+ assert.equal(updated[0].kind,'bus');
+ assert.equal(updated[1].kind,'tram');
 });

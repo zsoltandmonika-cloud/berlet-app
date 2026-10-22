@@ -1,0 +1,132 @@
+/* Family Guard v784 · nine premium TRANSLUCENT vector location medallions.
+ * Only selectable landmark icons, saved-place list symbols and map place pins.
+ * No style rules for people/profile images, neon GPS rings, taskbar or controls.
+ */
+.guardian-landmarks-choice,
+.guardian-landmarks-emoji,
+.guardian-landmark-pin,
+.guardian-landmark-item-icon{
+ --gic-rgb:184,116,249;
+ --gic-ink:#f5d9ff;
+}
+[data-guardian-icon-kind="home"]{--gic-rgb:255,68,210;--gic-ink:#ffe4fa}
+[data-guardian-icon-kind="work"]{--gic-rgb:52,138,255;--gic-ink:#dceeff}
+[data-guardian-icon-kind="doctor"]{--gic-rgb:19,218,228;--gic-ink:#e0fffc}
+[data-guardian-icon-kind="family"]{--gic-rgb:181,105,255;--gic-ink:#f3e3ff}
+[data-guardian-icon-kind="favorite"]{--gic-rgb:255,53,186;--gic-ink:#ffe0f2}
+[data-guardian-icon-kind="bus"]{--gic-rgb:40,143,255;--gic-ink:#e1f6ff}
+[data-guardian-icon-kind="tram"]{--gic-rgb:255,181,34;--gic-ink:#fff4c5}
+[data-guardian-icon-kind="shopping"]{--gic-rgb:255,192,51;--gic-ink:#fff3d5}
+[data-guardian-icon-kind="other"]{--gic-rgb:175,100,255;--gic-ink:#f8e7ff}
+
+/* The picker buttons stay spacious and accessible while their symbols become
+ * light-through-glass ornaments, never opaque emoji discs. */
+.guardian-landmarks-choice[data-guardian-icon-kind]{
+ background:linear-gradient(142deg,
+  rgba(var(--gic-rgb),.17),
+  rgba(24,44,83,.36) 65%,
+  rgba(12,24,57,.42))!important;
+ border:1px solid rgba(var(--gic-rgb),.48)!important;
+ backdrop-filter:blur(14px) saturate(1.4)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(1.4)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.23),
+            0 4px 12px rgba(5,18,53,.18)!important;
+ color:#f9fbff;
+}
+.guardian-landmarks-choice[data-guardian-icon-kind][aria-pressed="true"],
+:root[data-guardian-profile="m"] .guardian-landmarks-choice[data-guardian-icon-kind][aria-pressed="true"]{
+ border:2px solid rgba(var(--gic-rgb),.97)!important;
+ background:linear-gradient(140deg,
+  rgba(var(--gic-rgb),.34),rgba(28,51,100,.43))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.4),
+            0 0 16px rgba(var(--gic-rgb),.38),
+            0 5px 16px rgba(2,17,48,.24)!important;
+}
+.guardian-landmarks-choice .guardian-landmarks-emoji[data-guardian-icon-kind],
+:root[data-guardian-profile="m"] .guardian-landmarks-choice .guardian-landmarks-emoji[data-guardian-icon-kind]{
+ display:grid!important;place-items:center!important;
+ width:39px!important;height:39px!important;min-width:39px!important;
+ border-radius:50%!important;
+ border:1.5px solid rgba(255,255,255,.73)!important;
+ background:radial-gradient(circle at 30% 19%,
+  rgba(255,255,255,.38),rgba(var(--gic-rgb),.27) 35%,rgba(16,45,90,.33) 88%)!important;
+ color:var(--gic-ink)!important;
+ backdrop-filter:blur(14px) saturate(1.4)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(1.4)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.48),
+            0 0 0 2px rgba(var(--gic-rgb),.24),
+            0 0 13px rgba(var(--gic-rgb),.38),
+            0 5px 11px rgba(4,25,60,.17)!important;
+ font-size:initial!important;text-shadow:none!important;
+}
+.guardian-landmarks-emoji[data-guardian-icon-kind] svg,
+.guardian-landmark-pin[data-guardian-icon-kind] svg,
+.guardian-landmark-item-icon[data-guardian-icon-kind] svg{
+ width:24px;height:24px;display:block;
+ fill:none;stroke:currentColor;
+ filter:drop-shadow(0 0 3px rgba(var(--gic-rgb),.8))
+        drop-shadow(0 1px 1px rgba(1,22,61,.28));
+ pointer-events:none;
+}
+.guardian-landmarks-choice[data-guardian-icon-kind]:focus-visible{
+ outline:3px solid #f9f2ff!important;outline-offset:2px!important;
+}
+
+/* Actual saved-place map pins: transparent lens, luminous border and the
+ * selected vector pictogram. Keep map visible through the lens. */
+.guardian-landmark-pin[data-guardian-icon-kind],
+:root[data-guardian-profile="m"] .guardian-landmark-pin[data-guardian-icon-kind]{
+ display:grid!important;place-items:center!important;
+ width:46px!important;height:46px!important;
+ border-radius:50%!important;
+ padding:5px!important;
+ border:2px solid rgba(255,255,255,.94)!important;
+ background:radial-gradient(circle at 28% 15%,
+  rgba(255,255,255,.46),
+  rgba(var(--gic-rgb),.26) 42%,
+  rgba(15,37,73,.32) 100%)!important;
+ color:var(--gic-ink)!important;
+ backdrop-filter:blur(13px) saturate(1.5)!important;
+ -webkit-backdrop-filter:blur(13px) saturate(1.5)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.58),
+            0 0 0 2px rgba(var(--gic-rgb),.78),
+            0 0 18px 4px rgba(var(--gic-rgb),.43),
+            0 8px 16px rgba(5,22,58,.3)!important;
+ line-height:1!important;font-size:initial!important;
+ pointer-events:auto!important;cursor:pointer;
+}
+.guardian-landmark-pin[data-guardian-icon-kind] svg{
+ width:28px;height:28px;
+}
+.guardian-landmark-pin[data-guardian-icon-kind].is-preview{
+ border-style:dashed!important;
+ outline:2px solid rgba(255,229,166,.77)!important;
+ outline-offset:2px!important;
+ box-shadow:0 0 0 2px rgba(var(--gic-rgb),.72),
+            0 0 22px rgba(var(--gic-rgb),.46)!important;
+}
+.guardian-landmark-pin[data-guardian-icon-kind]:focus-visible{
+ outline:3px solid #fff!important;outline-offset:4px!important;
+}
+.guardian-landmark-item-icon[data-guardian-icon-kind],
+:root[data-guardian-profile="m"] .guardian-landmark-item-icon[data-guardian-icon-kind]{
+ display:grid!important;place-items:center!important;
+ width:36px!important;height:36px!important;min-width:36px!important;
+ border-radius:50%!important;
+ border:1px solid rgba(255,255,255,.62)!important;
+ background:linear-gradient(145deg,
+  rgba(var(--gic-rgb),.30),rgba(25,53,95,.35))!important;
+ color:var(--gic-ink)!important;
+ backdrop-filter:blur(11px)!important;
+ -webkit-backdrop-filter:blur(11px)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.3),
+            0 0 8px rgba(var(--gic-rgb),.36)!important;
+ font-size:initial!important;text-shadow:none!important;
+}
+.guardian-landmark-item-icon[data-guardian-icon-kind] svg{
+ width:21px;height:21px;
+}
+@media(prefers-reduced-motion:reduce){
+ .guardian-landmarks-choice[data-guardian-icon-kind],
+ .guardian-landmark-pin[data-guardian-icon-kind]{transition:none!important}
+}
