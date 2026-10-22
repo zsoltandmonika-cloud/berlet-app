@@ -10,14 +10,14 @@
  border-color:rgba(246,173,213,.44);
  background:linear-gradient(138deg,rgba(79,47,92,.96),rgba(36,35,68,.96))
 }
-.guardian-landmarks>summary{
+.guardian-landmarks-details>summary{
  list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;
  padding:15px 13px;min-height:54px;touch-action:manipulation;
  font:780 13px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif
 }
-.guardian-landmarks>summary::-webkit-details-marker{display:none}
-.guardian-landmarks>summary::after{content:'⌄';margin-left:auto;font-size:22px;color:#c2e4ff;transition:transform .2s ease}
-.guardian-landmarks[open]>summary::after{transform:rotate(180deg)}
+.guardian-landmarks-details>summary::-webkit-details-marker{display:none}
+.guardian-landmarks-details>summary::after{content:'⌄';margin-left:auto;font-size:22px;color:#c2e4ff;transition:transform .2s ease}
+.guardian-landmarks-details[open]>summary::after{transform:rotate(180deg)}
 .guardian-landmarks>summary .guardian-landmarks-count{
  border:1px solid rgba(156,211,250,.4);border-radius:99px;padding:3px 8px;
  color:#dff3ff;font-size:11px;font-weight:850
@@ -91,12 +91,12 @@
 .guardian-landmark-hint[hidden]{display:none!important}
 .guardian-landmark-pin{
  width:42px;height:42px;display:grid;place-items:center;
- border:2px solid #fff;border-radius:50% 50% 50% 3px;
- transform:rotate(-45deg);
+ border:2px solid #fff;border-radius:50%;
+ transform:none;
  background:rgba(20,62,111,.96);box-shadow:0 5px 15px rgba(0,0,0,.38);
  font-size:22px;cursor:pointer;line-height:1;padding:0;
 }
-.guardian-landmark-pin::first-letter{transform:rotate(45deg)}
+.guardian-landmark-pin:hover{filter:brightness(1.13)}
 .guardian-landmark-pin.is-preview{
  border-style:dashed;border-color:#ffd48a;background:rgba(123,74,36,.95);
  box-shadow:0 0 0 3px rgba(255,222,160,.38),0 7px 15px rgba(0,0,0,.3)
