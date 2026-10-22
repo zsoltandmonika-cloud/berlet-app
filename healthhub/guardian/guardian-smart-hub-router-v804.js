@@ -12,7 +12,7 @@
  const SOURCE='BKK Zrt., CC BY 4.0';
  const LINES=new Set(['260','17','19']);
  const WALK=1000,CHANGE=180,MAX_RESULTS=3;
- let start=null,target=null,feed=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
+ let start=null,target=null,feed=null,network=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
  const $=id=>w&&w.document&&w.document.getElementById(id);
  function distance(a,b){
   if(!a||!b||![a.lat,a.lng,b.lat,b.lng].every(Number.isFinite))return Infinity;
@@ -118,7 +118,7 @@
     note:'Menetrendi megálló; indulási idő és aktuális járműpozíció nem része ennek a tervnek.'});
    steps.push({kind:'ride',title:'Utazás · '+leg.stopCount+' megálló',
     detail:leg.enter.name+' → '+leg.exit.name,
-    note:'A megállók sorrendje hivatalos BKK GTFS-adat.'});
+    note:'A megállók sorrendje hivatalos BKK GTFS-adat. A csatlakozás menetrend szerint még nem ellenőrzött.'});
    steps.push({kind:'alight',title:'Leszállás · '+leg.exit.name,
     detail:'Szállj le itt a(z) '+leg.line.id+'-es járatról.',note:'Menetrendi megálló'});
   });
@@ -179,7 +179,7 @@
   const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   if(!map||!map.getLayer||!map.getSource)return;
   try{
-   for(const id of ['hh-smart-hub-itinerary-v804-line','hh-smart-hub-itinerary-v804-outline'])
+   for(const id of ['hh-smart-hub-itinerary-v804-points','hh-smart-hub-itinerary-v804-line','hh-smart-hub-itinerary-v804-outline'])
     if(map.getLayer(id))map.removeLayer(id);
    if(map.getSource('hh-smart-hub-itinerary-v804'))map.removeSource('hh-smart-hub-itinerary-v804');
   }catch(_){}
@@ -195,8 +195,13 @@
     properties:{route:leg.line.id},
     geometry:{type:'LineString',coordinates:shape}});
   }
-  if(!features.length)return;
-  const data={type:'FeatureCollection',features};
+  const pointFeatures=itinerary.legs.flatMap(leg=>[leg.enter,leg.exit].map(stop=>({
+   type:'Feature',properties:{name:stop.name},
+   geometry:{type:'Point',coordinates:[stop.lng,stop.lat]}
+  })));
+  // On the broader network we only have official stop points, NOT vehicle-road geometry.
+  // Do not connect them into invented map lines.
+  const data={type:'FeatureCollection',features:[...features,...pointFeatures]};
   try{
    if(map.getSource(id))map.getSource(id).setData(data);
    else{
@@ -205,6 +210,8 @@
      paint:{'line-width':9,'line-color':'#fff','line-opacity':.83}});
     map.addLayer({id:id+'-line',type:'line',source:id,
      paint:{'line-width':5,'line-color':'#00d4ff','line-opacity':.92}});
+    map.addLayer({id:id+'-points',type:'circle',source:id,filter:['==',['geometry-type'],'Point'],
+     paint:{'circle-radius':6,'circle-color':'#1b9def','circle-stroke-color':'#fff','circle-stroke-width':2}});
    }
    const points=[originPoint(),target,...itinerary.legs.flatMap(l=>[l.enter,l.exit])].filter(Boolean);
    const lngs=points.map(p=>p.lng),lats=points.map(p=>p.lat);
@@ -224,12 +231,19 @@
   if(!start||!target){
    note.textContent='Az útvonaljavaslathoz válassz ki egy indulási helyet és egy úti célt.';return
   }
-  if(!feed){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
-  plans=plan(feed,start,target,priority);
+  if(!feed&&!network){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
+  const networkModule=w.HH_SMART_HUB_NETWORK_V806;
+  const broad=network&&networkModule;
+  plans=broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]);
+  const coverage=$('hhSmartHubCoverageV806');
+  if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
+
   note.textContent=plans.length?
-   plans.length+' BKK-vonaljavaslat · '+(priority==='transfers'?'legkevesebb átszállás előre':'kevesebb légvonalbeli gyaloglás előre')+
-    ' · csak 260, 17, 19. Nem teljes BKK-tervező.':
-   'A 260-as, 17-es és 19-es járat alapján nincs igazolható összeköttetés. Más BKK-járattal lehet útvonal.';
+   plans.length+' statikus BKK-útvonaljavaslat · '+(priority==='transfers'?'legkevesebb átszállás előre':'kevesebb légvonalbeli gyaloglás előre')+
+    (broad?' · többjáratos hálózat (legfeljebb 3 átszállás).':' · csak 260, 17, 19.')+
+    ' Ez nem időpontfüggő menetrendi tervezés és nem igazolt csatlakozás.':
+   (broad?'Nem találtam ellenőrizhető statikus útvonalat a rendelkezésre álló BKK-mintákon. Lehet másik útvonal vagy több átszállás.':
+    'A 260-as, 17-es és 19-es járat között nincs statikus összeköttetés. A teljesebb BKK-adatok betöltéséig ez még korlátozott pilot.');
   plans.forEach((p,i)=>{
    const row=w.document.createElement('article');row.className='hh-smart-trip-card-v804';
    const heading=w.document.createElement('strong');
@@ -262,6 +276,17 @@
    row.append(details,actions);host.append(row);
   });
  }
+ async function downloadNetwork(){
+  const module=w.HH_SMART_HUB_NETWORK_V806;
+  if(!module||!module.validate)return false;
+  try{
+   const res=await w.fetch(new URL('./bkk-network-v806.json',w.location.href).href,{cache:'no-store'});
+   if(!res.ok)return false;
+   const checked=module.validate(await res.json());
+   if(!checked)return false;
+   network=checked;render();return true;
+  }catch(_){return false}
+ }
  async function download(){
   const urls=[new URL('./bkk-routes-v790.json',w.location.href).href,
    'https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-routes-v790.json'];
@@ -270,11 +295,12 @@
     const res=await w.fetch(url,{cache:'no-cache'});
     if(!res.ok)continue;
     const checked=validate(await res.json());
-    if(checked){feed=checked;render();return true}
+    if(checked){feed=checked;render();downloadNetwork();return true}
    }catch(_){}
   }
   const note=$('hhSmartHubTripStatusV804');
   if(note)note.textContent='A hivatalos BKK megállóadatok nem érhetők el. Útvonalat nem találunk ki.';
+  downloadNetwork();
   return false;
  }
  function setJourney(origin,destination){
