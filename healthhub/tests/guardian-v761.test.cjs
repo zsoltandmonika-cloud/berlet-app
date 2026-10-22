@@ -444,7 +444,7 @@ test('v784 nine distinct hand-drawn translucent SVG landmarks keep existing book
  assert.match(html,/data-family-guard-build="v784"/);
  assert.match(html,/guardian-icons-v784\.css\?v=784-glass-location-medallions/);
  assert.match(html,/guardian-icons-v784\.js\?v=784-translucent-svg-icons/);
- assert.match(html,/guardian-landmarks-v776\.js\?v=787-private-and-common/);
+ assert.match(html,/guardian-landmarks-v776\.js\?v=784-svg-place-icons/);
  assert.ok(html.indexOf('guardian-icons-v784.js')<html.indexOf('guardian-landmarks-v776.js'),'vector renderer must load before local bookmarks');
  assert.match(html,/guardian-avatars-v783\.css/,'approved neon people avatars kept');
  assert.match(html,/golden-standard-avatars-v529\.js/,'approved real family photos kept');
@@ -539,7 +539,7 @@ test('v785 Family Live exposes consented auth, six intervals, correct original p
  const guardian=read('guardian/guardian.js');
  new Function(live);
  assert.match(html,/data-family-guard-build="v785"/);
- assert.match(html,/guardian-live-v785\.js\?v=786-location-cloud-sync/);
+ assert.match(html,/guardian-live-v785\.js\?v=787-landmarks-session/);
  assert.match(html,/guardian-live-v785\.css\?v=785-private-live/);
  assert.match(html,/supabase-js@2\.57\.2/,'pinned browser client');
  assert.match(html,/central-vault\/config\.js/,'use existing publishable-only config');
@@ -686,7 +686,7 @@ test('v786 profile-scoped location preferences sync without touching device cons
  assert.match(js,/notifySettings/);
  assert.match(html,/id="guardianLocationSyncStatus"/);
  assert.match(canonical,/id="guardianLocationSyncStatus"/);
- assert.match(html,/guardian-live-v785\.js\?v=786-location-cloud-sync/);
+ assert.match(html,/guardian-live-v785\.js\?v=787-landmarks-session/);
  assert.match(live,/AUTO_KEY='hh-guardian-foreground-auto-v786'/,'remembered foreground consent untouched');
  assert.doesNotMatch(live,/service_role|sb_secret_/,'no secrets in browser code');
 });
