@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="./guardian-arrival-studio-v788.css?v=789-buddy-volume">
 <link rel="stylesheet" href="./guardian-transit-v790.css?v=790-bkk-route-choices">
 <link rel="stylesheet" href="./guardian-transit-v791.css?v=799-transport-color">
+<link rel="stylesheet" href="./guardian-bkk-catalog-v801.css?v=801-catalog-a">
 <link rel="stylesheet" href="./bkk-live-glass-v800.css?v=800-approved-set">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
@@ -101,6 +102,26 @@
      </div>
     </div>
     <div id="hhTransitCardsV791" class="hh-transit-premium-cards" aria-label="Kiválasztott járatok prémium kártyái"></div>
+    <details id="hhBkkCatalogV801" class="hh-bkk-catalog-v801">
+      <summary><span aria-hidden="true">🔎</span> Smart Hub · További BKK-járatok <span class="hh-bkk-catalog-chevron" aria-hidden="true">⌄</span></summary>
+      <div class="hh-bkk-catalog-body-v801">
+        <label class="hh-bkk-catalog-label-v801" for="hhBkkCatalogSearchV801">Járatszám vagy végállomás keresése</label>
+        <input id="hhBkkCatalogSearchV801" type="search" autocomplete="off" maxlength="80" placeholder="Pl. 9, H5, 1, Óbuda…" aria-controls="hhBkkCatalogResultsV801">
+        <div class="hh-bkk-catalog-filters-v801" role="group" aria-label="Közlekedési mód szűrése">
+          <button type="button" data-hh-bkk-catalog-mode="all" aria-pressed="true">Összes</button>
+          <button type="button" data-hh-bkk-catalog-mode="bus" aria-pressed="false">🚌 Busz</button>
+          <button type="button" data-hh-bkk-catalog-mode="tram" aria-pressed="false">🚋 Villamos</button>
+          <button type="button" data-hh-bkk-catalog-mode="trolley" aria-pressed="false">🚎 Troli</button>
+          <button type="button" data-hh-bkk-catalog-mode="metro" aria-pressed="false">🚇 Metró</button>
+          <button type="button" data-hh-bkk-catalog-mode="hev" aria-pressed="false">🚈 HÉV</button>
+        </div>
+        <p id="hhBkkCatalogMetaV801" class="hh-bkk-catalog-meta-v801" role="status" aria-live="polite">A BKK-járatlista betöltése…</p>
+        <div id="hhBkkCatalogResultsV801" class="hh-bkk-catalog-results-v801" role="list" aria-label="Hivatalos BKK-járatok"></div>
+        <p id="hhBkkCatalogEmptyV801" class="hh-bkk-catalog-meta-v801" hidden>Nincs találat ezzel a szűréssel.</p>
+        <button id="hhBkkCatalogMoreV801" class="hh-bkk-catalog-more-v801" type="button" hidden>További járatok betöltése</button>
+        <p class="hh-bkk-catalog-note-v801">A kedvencek profilonként, ezen az eszközön tárolódnak. Jelenleg a 260-as, 17-es és 19-es követhető élőben; a további járatok térképes megjelenítését külön bővítjük. Forrás: BKK Zrt., CC BY 4.0.</p>
+      </div>
+    </details>
     <div class="hh-transit-v791" aria-label="Profilonkénti járatirányok"><label for="hhTransitProfileV791">Profil</label><select id="hhTransitProfileV791"><option value="monika">Mónika</option><option value="zsolt">Zsolt</option></select><div id="hhTransitDirectionsV791" class="hh-transit-v791-directions" aria-live="polite"><p>A hivatalos BKK irányadatok betöltése…</p></div></div>
     <p id="hhTransitStatus" class="hh-transit-status" role="status" aria-live="polite">Hivatalos BKK GTFS-adatok betöltése…</p>
     <p class="hh-transit-credit">A vonal és a megállók menetrendi adatok; az ÉLŐ járműjelölők külön, friss BKK-pozícióadatok. Adatok forrása: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt., CC BY 4.0</a>. A kijelölt járatok ezen a böngészőn maradnak.</p>
@@ -278,6 +299,7 @@
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
+<script defer src="./guardian-bkk-catalog-v801.js?v=801-search-a"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">
