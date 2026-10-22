@@ -270,9 +270,29 @@
    const stages=w.document.createElement('ol');stages.className='hh-smart-trip-detail-list-v805';
    itinerarySteps(p,start,target).forEach((stage,index)=>makeStepContent(stages,stage,index));
    detailBox.append(summary,stages);
+   row.tabIndex=0;
+   row.setAttribute('aria-label','A(z) '+(i+1)+'. útvonal kiválasztása és részleteinek megnyitása');
+   function selectCard(){
+    for(const node of host.querySelectorAll('.hh-smart-trip-card-v804'))node.classList.remove('hh-smart-trip-selected-v806');
+    row.classList.add('hh-smart-trip-selected-v806');
+    detailBox.open=true;
+   }
+   row.addEventListener('click',event=>{
+    if(event.target&&event.target.closest&&event.target.closest('button,a,summary'))return;
+    selectCard();
+   });
+   row.addEventListener('keydown',event=>{
+    if((event.key==='Enter'||event.key===' ')&&event.target===row){
+     event.preventDefault();selectCard();
+    }
+   });
+   const ticket=w.document.createElement('a');ticket.className='hh-smart-trip-ticket-v806';
+   ticket.href='https://bkk.hu/mobiljegy';ticket.target='_blank';
+   ticket.rel='noopener noreferrer';ticket.textContent='🎫 BKK jegy / bérlet ↗';
+   ticket.title='Hivatalos BKK mobiljegy-tájékoztató, nem erre az útvonalra előre kitöltött jegyvásárlás';
    const map=w.document.createElement('button');map.type='button';map.textContent='Vonalak a térképen ↗';
    map.addEventListener('click',()=>focus(p));
-   actions.append(go,detailBox,map);
+   actions.append(go,detailBox,map,ticket);
    row.append(details,actions);host.append(row);
   });
  }
