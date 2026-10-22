@@ -64,9 +64,12 @@ test('v797 puts verified vehicles in DOM above WebGL extrusions, then removes st
  assert.equal(seen.length,1);
  assert.deepEqual(seen[0].point,[19.04,47.56]);
  assert.equal(seen[0].options.opacityWhenCovered,1);
- assert.equal(seen[0].options.element.className,'hh-bkk-live-vehicle-dom-v797');
- assert.equal(seen[0].options.element.children[0].children[0].textContent,'● ÉLŐ');
- assert.equal(seen[0].options.element.children[0].children[1].textContent,'🚌 260');
+ assert.match(seen[0].options.element.className,/hh-bkk-live-vehicle-dom-v797/);
+ assert.match(seen[0].options.element.className,/hh-bkk-glass--bus/);
+ const capsule=seen[0].options.element.children[0].children[0];
+ assert.equal(capsule.className,'hh-bkk-glass-capsule-v800');
+ assert.equal(capsule.children[1].className,'hh-bkk-glass-live-v800');
+ assert.equal(capsule.children[2].textContent,'260');
  assert.equal(overlay.render(map,{ok:true,vehicles:[{...vehicle,lng:19.05}]},deps),true);
  assert.equal(seen.length,1,'reuse existing marker on refresh');
  assert.deepEqual(seen[0].point,[19.05,47.56]);
@@ -79,26 +82,62 @@ test('v797 puts verified vehicles in DOM above WebGL extrusions, then removes st
 });
 
 
-test('v798 live marker is compact, premium and remains above the 3D map',()=>{
+test('v800 approved glass markers are compact, vector-based and mode-specific',()=>{
+ const nodes=[];
+ function node(tag){
+  const el={tag,style:{},children:[],attributes:{},append(...items){this.children.push(...items)},
+   appendChild(item){this.children.push(item)},setAttribute(k,v){this.attributes[k]=v}};
+  nodes.push(el);return el;
+ }
+ const doc={createElement:node};
+ for(const [routeId,mode] of [['260','bus'],['17','tram'],['19','tram'],['H5','hev']]){
+  const marker=overlay.makeMarkerElement(doc,{routeId});
+  assert.match(marker.className,/hh-bkk-glass-marker-v800/);
+  assert.match(marker.className,new RegExp('hh-bkk-glass--'+mode));
+  assert.equal(marker.attributes.role,'img');
+  assert.match(marker.attributes['aria-label'],/Élő/);
+  const [capsule,pin]=marker.children[0].children;
+  assert.equal(capsule.className,'hh-bkk-glass-capsule-v800');
+  assert.equal(pin.className,'hh-bkk-glass-pin-v800');
+  const [icon,live,number]=capsule.children;
+  assert.match(icon.innerHTML,/<svg /);
+  assert.equal(live.className,'hh-bkk-glass-live-v800');
+  assert.equal(number.textContent,routeId);
+  assert.ok(!marker.children[0].children.some(el=>el.textContent==='● ÉLŐ'),'no stacked live flag');
+ }
+ const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../guardian/bkk-live-glass-v800.css'),'utf8');
+ assert.match(css,/backdrop-filter:blur\(10px\)/);
+ assert.match(css,/hh-bkk-glass-marker-v800/); // blue bus is the default palette
+ assert.match(css,/hh-bkk-glass--tram/);
+ assert.match(css,/hh-bkk-glass--hev/);
+ assert.match(css,/height:30px;min-width:70px/);
+ assert.match(css,/pointer-events:none!important/);
+});
+
+test('v800 updates real DOM markers in place while preserving exact BKK coordinates',()=>{
  const created=[];
- function node(tag){return {tag,style:{},children:[],append(...items){this.children.push(...items)},appendChild(item){this.children.push(item)},setAttribute(){}}}
+ function node(tag){return {tag,style:{},children:[],attributes:{},append(...items){this.children.push(...items)},appendChild(item){this.children.push(item)},setAttribute(k,v){this.attributes[k]=v}}}
  class Marker{
   constructor(opts){this.opts=opts;created.push(this)}
   setLngLat(point){this.point=point;return this}
-  addTo(){return this}
-  remove(){}
+  addTo(map){this.map=map;return this}
+  remove(){this.removed=true}
  }
+ const deps={Marker,document:{createElement:node}};
  const map={getSource:()=>null,isStyleLoaded:()=>true};
- const vehicle={id:'v798-real-bus',routeId:'260',lat:47.56,lng:19.04};
- assert.equal(overlay.render(map,{ok:true,vehicles:[vehicle]},{Marker,document:{createElement:node}}),true);
- const [live,badge,pin]=created[0].opts.element.children[0].children;
- assert.match(live.style.cssText,/font:850 9px/);
- assert.match(live.style.cssText,/border-radius:9px 9px 0 0/);
- assert.match(badge.style.cssText,/min-width:53px;min-height:33px/);
- assert.match(badge.style.cssText,/linear-gradient/);
- assert.match(pin.style.cssText,/width:7px;height:7px/);
- assert.equal(live.textContent,'● ÉLŐ');
- assert.equal(badge.textContent,'🚌 260');
+ const vehicle={id:'real-260-800',routeId:'260',lat:47.56,lng:19.04};
+ assert.equal(overlay.render(map,{ok:true,vehicles:[vehicle]},deps),true);
+ assert.equal(created.length,1);
  assert.deepEqual(created[0].point,[19.04,47.56]);
+ assert.equal(created[0].opts.opacityWhenCovered,1);
+ assert.match(created[0].opts.element.className,/hh-bkk-glass-marker-v800/);
+ assert.equal(overlay.render(map,{ok:true,vehicles:[{...vehicle,lat:47.57}]},deps),true);
+ assert.equal(created.length,1);
+ assert.deepEqual(created[0].point,[19.04,47.57]);
+ assert.equal(overlay.render(map,{ok:true,vehicles:[]},deps),true);
+ assert.equal(created[0].removed,true);
+ // HÉV styling is ready, but no live HÉV may enter the feed until route verification is implemented.
+ assert.equal(overlay.render(map,{ok:true,vehicles:[{id:'h5',routeId:'H5',lat:47.58,lng:19.04}]},deps),true);
+ assert.equal(created.length,1);
  overlay.clear(map);
 });

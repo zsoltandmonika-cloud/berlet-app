@@ -1,0 +1,145 @@
+/* Smart Arrival v800 · approved small glassmorphism live marker set.
+ * A single streamlined pill with vector transport icon, glowing live dot, route no.
+ * DOM Marker remains above the MapLibre WebGL 3D buildings.
+ * Does not create vehicle positions or imply that HÉV telemetry is connected.
+ */
+.hh-bkk-glass-marker-v800{
+ --hh-live-edge:#66d4ff;
+ --hh-live-lamp:#3cf5d9;
+ --hh-live-icon:#a2e9ff;
+ --hh-live-from:rgba(11,112,199,.88);
+ --hh-live-to:rgba(4,32,79,.94);
+ --hh-live-aura:rgba(49,177,255,.38);
+ --hh-live-text:#f8fcff;
+ pointer-events:none!important;
+ user-select:none;
+ -webkit-user-select:none;
+}
+.hh-bkk-glass--tram{
+ --hh-live-edge:#ffe36b;
+ --hh-live-lamp:#fbef39;
+ --hh-live-icon:#ffe762;
+ --hh-live-from:rgba(139,104,8,.91);
+ --hh-live-to:rgba(56,41,3,.94);
+ --hh-live-aura:rgba(255,201,38,.28);
+}
+.hh-bkk-glass--hev{
+ --hh-live-edge:#68f4bc;
+ --hh-live-lamp:#49ffc4;
+ --hh-live-icon:#a2ffe0;
+ --hh-live-from:rgba(9,133,99,.89);
+ --hh-live-to:rgba(3,56,54,.94);
+ --hh-live-aura:rgba(37,235,162,.30);
+}
+.hh-bkk-glass-stack-v800{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:0;
+ padding-bottom:7px;
+ white-space:nowrap;
+ filter:drop-shadow(0 3px 6px rgba(2,18,39,.44));
+}
+.hh-bkk-glass-capsule-v800{
+ box-sizing:border-box;
+ position:relative;
+ isolation:isolate;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:6px;
+ min-width:79px;
+ height:34px;
+ padding:0 10px;
+ border:1.35px solid var(--hh-live-edge);
+ border-radius:999px;
+ background:
+  linear-gradient(157deg,rgba(255,255,255,.24) 0%,rgba(255,255,255,.075) 22%,transparent 51%),
+  linear-gradient(125deg,var(--hh-live-from) 0%,var(--hh-live-to) 93%);
+ -webkit-backdrop-filter:blur(10px) saturate(155%);
+ backdrop-filter:blur(10px) saturate(155%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.63),
+            inset 0 -1px 0 rgba(0,18,38,.38),
+            0 0 0 1px rgba(255,255,255,.11),
+            0 1px 12px var(--hh-live-aura);
+}
+.hh-bkk-glass-capsule-v800::before{
+ content:'';
+ position:absolute;
+ top:2px;left:12px;
+ width:47%;height:3px;
+ border-radius:50%;
+ background:linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,0));
+ opacity:.82;
+ pointer-events:none;
+}
+.hh-bkk-glass-icon-v800{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ width:18px;
+ height:19px;
+ flex:0 0 18px;
+ color:var(--hh-live-icon);
+ filter:drop-shadow(0 0 3px var(--hh-live-aura));
+}
+.hh-bkk-glass-icon-v800 svg{display:block;width:18px;height:18px}
+.hh-bkk-glass-live-v800{
+ display:block;
+ width:7px;
+ height:7px;
+ flex:0 0 7px;
+ border-radius:50%;
+ background:var(--hh-live-lamp);
+ box-shadow:0 0 0 2px rgba(255,255,255,.13),0 0 7px 2px var(--hh-live-lamp);
+}
+.hh-bkk-glass-number-v800{
+ display:block;
+ color:var(--hh-live-text);
+ font:850 18px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+ letter-spacing:.15px;
+ font-variant-numeric:tabular-nums;
+ text-shadow:0 1px 3px rgba(1,20,45,.65);
+}
+.hh-bkk-glass-pin-v800{
+ position:relative;
+ display:block;
+ box-sizing:border-box;
+ width:14px;height:14px;
+ margin-top:-1px;
+ border-radius:50%;
+ border:1.3px solid var(--hh-live-edge);
+ background:linear-gradient(150deg,var(--hh-live-from),var(--hh-live-to));
+ box-shadow:0 0 0 2px var(--hh-live-aura),0 1px 5px rgba(0,20,40,.3);
+}
+.hh-bkk-glass-pin-v800::before{
+ content:'';
+ position:absolute;
+ left:3px;top:3px;
+ width:6px;height:6px;
+ border-radius:50%;
+ background:var(--hh-live-lamp);
+ box-shadow:0 0 5px var(--hh-live-lamp);
+}
+.hh-bkk-glass-pin-v800::after{
+ content:'';
+ position:absolute;
+ bottom:-8px;left:2.5px;
+ width:8px;height:8px;
+ background:var(--hh-live-edge);
+ clip-path:polygon(0 0,100% 0,50% 100%);
+ filter:drop-shadow(0 1px 2px rgba(0,12,37,.6));
+}
+@media(max-width:640px){
+ .hh-bkk-glass-capsule-v800{
+  height:30px;min-width:70px;padding:0 8px;gap:5px;
+  border-width:1.2px;
+ }
+ .hh-bkk-glass-icon-v800{width:16px;height:17px;flex-basis:16px}
+ .hh-bkk-glass-icon-v800 svg{width:16px;height:16px}
+ .hh-bkk-glass-live-v800{width:6px;height:6px;flex-basis:6px}
+ .hh-bkk-glass-number-v800{font-size:16px}
+ .hh-bkk-glass-pin-v800{width:12px;height:12px}
+ .hh-bkk-glass-pin-v800::before{left:2.5px;top:2.5px;width:5px;height:5px}
+ .hh-bkk-glass-pin-v800::after{left:1.5px}
+}

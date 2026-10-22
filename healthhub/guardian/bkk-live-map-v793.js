@@ -23,25 +23,42 @@
   for(const marker of domMarkers.values())try{marker.remove()}catch(_){}
   domMarkers.clear();domMap=null;
  }
+ // Official v800 set: the same small premium glass capsule for bus, tram and future HÉV.
+ // Keep this DOM-only above MapLibre's 3D canvas. Labels are textContent, never feed HTML.
+ const ICONS=Object.freeze({
+  bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="16" rx="3"/><path d="M4.5 11h15M8 7.5h8M7.5 19.5v2m9-2v2"/><circle cx="8" cy="15.6" r=".9" fill="currentColor" stroke="none"/><circle cx="16" cy="15.6" r=".9" fill="currentColor" stroke="none"/></svg>',
+  tram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 2 3 3 3-3M12 5v2M7 20l-2 2m12-2 2 2"/><rect x="5.5" y="7" width="13" height="12" rx="2.5"/><path d="M12 7v7M5.5 14h13"/><circle cx="8.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="15.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>',
+  hev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v3M8 5h8M7 21l-2 2m12-2 2 2"/><rect x="4.5" y="6" width="15" height="14" rx="3"/><path d="M12 6v8M4.5 14h15"/><circle cx="8.5" cy="17" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>'
+ });
  function makeMarkerElement(doc,vehicle){
-  const bus=vehicle.routeId==='260',color=bus?'linear-gradient(145deg,#249ce4,#0963aa)':'linear-gradient(145deg,#ffe67a,#e8b522)';
+  const route=String(vehicle.routeId);
+  const mode=route==='260'?'bus':/^H[0-9]/.test(route)?'hev':'tram';
   const wrapper=doc.createElement('div');
-  wrapper.className='hh-bkk-live-vehicle-dom-v797';
-  // Do NOT override MapLibre's position/transform on this outer marker node.
-  wrapper.style.cssText='z-index:50;pointer-events:auto;filter:drop-shadow(0 3px 7px rgba(0,18,43,.5))';
+  wrapper.className='hh-bkk-live-vehicle-dom-v797 hh-bkk-glass-marker-v800 hh-bkk-glass--'+mode;
+  // MapLibre writes transforms on the outer element; never override them.
+  wrapper.style.cssText='z-index:50;pointer-events:none';
   wrapper.setAttribute('role','img');
-  wrapper.setAttribute('aria-label','Élő '+(bus?'260-as busz':vehicle.routeId+'-es villamos')+' · BKK-járműpozíció');
+  wrapper.setAttribute('aria-label','Élő '+(mode==='bus'?route+'-as busz':mode==='hev'?route+' HÉV':route+'-es villamos')+' · friss BKK-járműpozíció');
   const stack=doc.createElement('div');
-  stack.style.cssText='display:flex;flex-direction:column;align-items:center;gap:0;white-space:nowrap';
-  const live=doc.createElement('span');
-  live.textContent='● ÉLŐ';
-  live.style.cssText='font:850 9px/1.1 system-ui;color:#e8fbff;background:linear-gradient(135deg,#0a567b,#093757);border:1px solid #6de6ef;border-bottom:0;border-radius:9px 9px 0 0;padding:3px 8px 2px;letter-spacing:.6px;position:relative;top:1px';
-  const badge=doc.createElement('span');
-  badge.textContent=(bus?'🚌 ':'🚋 ')+vehicle.routeId;
-  badge.style.cssText='display:flex;align-items:center;justify-content:center;min-width:53px;min-height:33px;padding:0 8px;border-radius:11px;border:2px solid rgba(255,255,255,.95);background:'+color+';color:'+(bus?'#fff':'#172a41')+';font:850 14px/1.1 system-ui;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 0 0 2px rgba(47,232,255,.19)';
+  stack.className='hh-bkk-glass-stack-v800';
+  const badge=doc.createElement('div');
+  badge.className='hh-bkk-glass-capsule-v800';
+  const icon=doc.createElement('span');
+  icon.className='hh-bkk-glass-icon-v800';
+  // These icon strings are static application artwork, not external BKK content.
+  icon.innerHTML=ICONS[mode];
+  const lamp=doc.createElement('span');
+  lamp.className='hh-bkk-glass-live-v800';
+  lamp.setAttribute('aria-hidden','true');
+  const number=doc.createElement('span');
+  number.className='hh-bkk-glass-number-v800';
+  number.textContent=route;
+  badge.append(icon,lamp,number);
   const pin=doc.createElement('span');
-  pin.style.cssText='width:7px;height:7px;border-radius:50%;background:#e9feff;border:1px solid #07365a;box-shadow:0 0 0 2px rgba(54,242,255,.8)';
-  stack.append(live,badge,pin);wrapper.appendChild(stack);
+  pin.className='hh-bkk-glass-pin-v800';
+  pin.setAttribute('aria-hidden','true');
+  stack.append(badge,pin);
+  wrapper.appendChild(stack);
   return wrapper;
  }
  // Optional DOM dependency injection supports deterministic tests without a browser.
@@ -137,5 +154,5 @@
    return true;
   }catch(_){return false}
  }
- return {render,clear,focus,toFeatureCollection,sourceId:ID};
+ return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement};
 });
