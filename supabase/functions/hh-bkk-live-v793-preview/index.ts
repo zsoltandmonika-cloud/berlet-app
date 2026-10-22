@@ -1,0 +1,115 @@
+/* Smart Arrival v793 preview: BKK GTFS-RT VehiclePositions -> scoped JSON.
+ * Secret BKK_API_KEY stays in Supabase Edge Function environment.
+ * Public status checks never fetch the upstream feed. Live requests verify Supabase Auth JWT.
+ * No fallback/fake vehicle positions and no untrusted route short-name inference.
+ */
+import Gtfs from "npm:gtfs-realtime-bindings@2.2.0";
+import { createClient } from "npm:@supabase/supabase-js@2.95.0";
+
+const ALLOWED_ORIGIN="https://zsoltandmonika-cloud.github.io";
+const SOURCE="BKK Zrt., CC BY 4.0";
+const GTFS_URL="https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-routes-v790.json";
+const BKK_VEHICLES="https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/VehiclePositions.pb";
+const MAX_AGE_S=90;
+const ROUTES=["260","17","19"];
+type RouteMap=Map<string,string>;
+let routeCache:{at:number,map:RouteMap}|null=null;
+let feedCache:{at:number,payload:Record<string,unknown>}|null=null;
+
+function headers(request:Request){
+ const origin=request.headers.get("origin");
+ return {
+  "Content-Type":"application/json; charset=utf-8",
+  "Cache-Control":"no-store",
+  "Vary":"Origin",
+  "Access-Control-Allow-Origin":origin===ALLOWED_ORIGIN?ALLOWED_ORIGIN:"null",
+  "Access-Control-Allow-Methods":"GET, OPTIONS",
+  "Access-Control-Allow-Headers":"authorization, apikey, x-client-info, content-type"
+ };
+}
+function reply(req:Request,status:number,data:Record<string,unknown>){
+ return new Response(JSON.stringify(data),{status,headers:headers(req)});
+}
+async function routeMap():Promise<RouteMap>{
+ if(routeCache&&Date.now()-routeCache.at<300000)return routeCache.map;
+ const resp=await fetch(GTFS_URL,{signal:AbortSignal.timeout(9000),headers:{"Accept":"application/json"}});
+ if(!resp.ok)throw new Error("route-map-unavailable");
+ const doc=await resp.json();
+ if(doc?.schemaVersion!==1||doc?.source!==SOURCE||!doc.routes||typeof doc.generatedAt!=="string")throw new Error("route-map-invalid");
+ const date=Date.parse(doc.generatedAt);
+ if(!Number.isFinite(date)||Math.abs(Date.now()-date)>8*86400000)throw new Error("route-map-stale");
+ const ids=new Map<string,string>();
+ for(const short of ROUTES){
+  const row=doc.routes[short];
+  if(!row||!Array.isArray(row.gtfsRouteIds)||row.gtfsRouteIds.length<1)throw new Error("route-map-pending");
+  for(const routeId of row.gtfsRouteIds){
+   if(typeof routeId!=="string"||!routeId||ids.has(routeId))throw new Error("route-map-invalid");
+   ids.set(routeId,short);
+  }
+ }
+ routeCache={at:Date.now(),map:ids};
+ return ids;
+}
+function unixSeconds(value:unknown):number{
+ if(value==null)return NaN;
+ const n=Number(typeof value==="object"&&"toString" in value?value.toString():value);
+ return Number.isSafeInteger(n)?n:NaN;
+}
+async function fetchLive():Promise<Record<string,unknown>>{
+ if(feedCache&&Date.now()-feedCache.at<12500)return feedCache.payload;
+ const key=Deno.env.get("BKK_API_KEY");
+ if(!key)throw new Error("bkk-key-unconfigured");
+ const mapping=await routeMap();
+ const url=new URL(BKK_VEHICLES);
+ url.searchParams.set("key",key);
+ let res:Response;
+ try{res=await fetch(url.href,{signal:AbortSignal.timeout(10000),headers:{"Accept":"application/x-protobuf"}})}
+ catch(_){throw new Error("bkk-network-unavailable")}
+ if(!res.ok)throw new Error("bkk-http-"+String(res.status));
+ const bytes=new Uint8Array(await res.arrayBuffer());
+ if(!bytes.length||bytes.length>12000000)throw new Error("bkk-payload-invalid");
+ let feed:any;
+ try{feed=(Gtfs as any).transit_realtime.FeedMessage.decode(bytes)}
+ catch(_){throw new Error("bkk-protobuf-invalid")}
+ const timestamp=unixSeconds(feed?.header?.timestamp);
+ const now=Math.floor(Date.now()/1000);
+ if(!Number.isFinite(timestamp)||timestamp<now-MAX_AGE_S||timestamp>now+10)throw new Error("bkk-feed-stale");
+ const seen=new Set<string>();
+ const vehicles=[];
+ for(const entity of (Array.isArray(feed?.entity)?feed.entity:[])){
+  const v=entity?.vehicle;
+  const id=String(v?.vehicle?.id||entity?.id||"");
+  const routeId=v?.trip?.routeId;
+  const route=typeof routeId==="string"?mapping.get(routeId):null;
+  const lat=Number(v?.position?.latitude),lng=Number(v?.position?.longitude);
+  const observed=unixSeconds(v?.timestamp);
+  if(!route||!id||seen.has(id)||!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180
+   ||!Number.isFinite(observed)||observed<now-MAX_AGE_S||observed>now+10)continue;
+  seen.add(id);
+  vehicles.push({id,routeId:route,lat,lng,timestamp:new Date(observed*1000).toISOString()});
+ }
+ const payload={schemaVersion:1,source:SOURCE,feedType:"GTFS-RT VehiclePositions",
+  generatedAt:new Date(timestamp*1000).toISOString(),vehicles};
+ feedCache={at:Date.now(),payload};
+ return payload;
+}
+Deno.serve(async req=>{
+ if(req.method==="OPTIONS")return new Response("ok",{status:200,headers:headers(req)});
+ if(req.method!=="GET")return reply(req,405,{ok:false,reason:"method-not-allowed"});
+ if(new URL(req.url).searchParams.get("status")==="1"){
+  return reply(req,200,{ok:true,version:"793-preview",configured:!!Deno.env.get("BKK_API_KEY"),liveEndpoint:"auth-required"});
+ }
+ const token=req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+ if(!token)return reply(req,401,{ok:false,reason:"login-required"});
+ const projectUrl=Deno.env.get("SUPABASE_URL");
+ const anon=Deno.env.get("SUPABASE_ANON_KEY");
+ if(!projectUrl||!anon)return reply(req,503,{ok:false,reason:"auth-not-configured"});
+ try{
+  const client=createClient(projectUrl,anon,{auth:{persistSession:false,autoRefreshToken:false}});
+  const result=await client.auth.getUser(token);
+  if(result.error||!result.data.user)return reply(req,401,{ok:false,reason:"login-required"});
+ }catch(_){return reply(req,401,{ok:false,reason:"login-required"})}
+ try{return reply(req,200,await fetchLive())}
+ catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
+  return reply(req,503,{ok:false,reason,vehicles:[]})}
+});

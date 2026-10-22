@@ -167,6 +167,7 @@ def make_document(raw: bytes):
             if len(color) != 6 or any(c not in "0123456789ABCDEF" for c in color):
                 color = "2476C5" if short == "260" else "C99205"
             out[short] = {"name": short, "mode": modes[short],
+                          "gtfsRouteIds": sorted({r["route_id"] for r in records}),
                           "longName": records[0].get("route_long_name", ""),
                           "color": f"#{color}", "variants": lines}
         return {

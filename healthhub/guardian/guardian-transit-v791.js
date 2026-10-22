@@ -260,4 +260,11 @@ function init(){
 }
 w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,version:'791'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
+// v793 opt-in only: load the live BKK preview without touching v794 production UX.
+if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
+ const dir=new URL('./',d.currentScript?.src||w.location.href);
+ for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
+  const script=d.createElement('script');script.async=false;script.src=new URL(file,dir).href;d.head.appendChild(script);
+ }
+}
 })(window,document);

@@ -1,0 +1,64 @@
+name: HealthHub Smart Arrival v793 · BKK Live Mapping Pilot
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/bkk-live*.js'
+      - 'healthhub/guardian/build-bkk-routes-v790.py'
+      - 'healthhub/tests/bkk-live*.test.cjs'
+      - 'supabase/functions/hh-bkk-live-v793-preview/**'
+      - '.github/workflows/healthhub-bkk-live-v793-preview.yml'
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/smart-arrival-live-v793'
+    paths:
+      - 'healthhub/guardian/build-bkk-routes-v790.py'
+      - 'healthhub/guardian/test_build_bkk_routes_v790.py'
+      - '.github/workflows/healthhub-bkk-live-v793-preview.yml'
+permissions:
+  contents: write
+concurrency:
+  group: hh-bkk-live-v793-mapping
+  cancel-in-progress: false
+jobs:
+  validate-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/smart-arrival-live-v793
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test BKK route ID extraction from synthetic GTFS
+        run: python -m unittest discover -s healthhub/guardian -p 'test_build_bkk_routes_v790.py' -v
+      - name: Test GTFS-RT fail-closed validation and MapLibre rendering
+        run: node --test healthhub/tests/bkk-live-v793.test.cjs healthhub/tests/bkk-live-map-v793.test.cjs
+      - name: Build real BKK route IDs from official static GTFS
+        run: python healthhub/guardian/build-bkk-routes-v790.py
+      - name: Verify source-derived IDs for 260, 17, 19
+        run: |
+          python - <<'PY'
+          import json
+          doc=json.load(open('healthhub/guardian/bkk-routes-v790.json',encoding='utf-8'))
+          assert doc['source']=='BKK Zrt., CC BY 4.0'
+          for line in ('260','17','19'):
+              ids=doc['routes'][line]['gtfsRouteIds']
+              assert ids and all(isinstance(v,str) and v for v in ids),line
+              print(line,ids)
+          PY
+      - name: Publish source-backed mapping only to development branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "healthhub-bkk-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add healthhub/guardian/bkk-routes-v790.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(transit): attach official route IDs for v793 preview [skip ci]"
+          git pull --rebase origin feature/smart-arrival-live-v793
+          git push origin HEAD:feature/smart-arrival-live-v793
