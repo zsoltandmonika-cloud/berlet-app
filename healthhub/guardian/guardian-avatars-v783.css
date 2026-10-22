@@ -1,0 +1,86 @@
+/* Family Guard v783 · vibrant circular profile GPS markers.
+ * Visual-only: no new geolocation request, no device sharing or fake positions.
+ * Scoped to the live own-device marker; saved destination pins stay untouched.
+ * Marker element footprint remains compact; floating label doesn't offset GPS coordinates. */
+.guardian-position{
+ --guardian-pin:#13baff;
+ --guardian-pin-bright:#4fe6ff;
+ --guardian-pin-deep:#085db8;
+ --guardian-pin-glow:rgba(7,183,255,.48);
+ --guardian-pin-soft:rgba(62,207,255,.28);
+ position:relative!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:56px!important;height:56px!important;
+ min-width:56px!important;min-height:56px!important;
+ padding:3px!important;
+ box-sizing:border-box!important;
+ border-radius:50%!important;
+ border:2px solid #f8ffff!important;
+ overflow:visible!important;
+ background:linear-gradient(140deg,var(--guardian-pin-bright),var(--guardian-pin-deep))!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.72),
+  0 0 0 3px var(--guardian-pin),
+  0 0 0 5px rgba(253,255,255,.65),
+  0 0 17px 5px var(--guardian-pin-glow),
+  0 7px 15px rgba(5,25,62,.36)!important;
+ isolation:isolate;
+ pointer-events:none!important;
+}
+.guardian-position[data-guardian-person="m"]{
+ --guardian-pin:#ff28c7;
+ --guardian-pin-bright:#ff83e7;
+ --guardian-pin-deep:#a111ba;
+ --guardian-pin-glow:rgba(255,35,190,.53);
+ --guardian-pin-soft:rgba(255,122,219,.3);
+}
+.guardian-position::before{
+ content:"";position:absolute;inset:-8px;border-radius:50%;z-index:-1;
+ border:1px solid var(--guardian-pin-bright);
+ box-shadow:0 0 14px 2px var(--guardian-pin-soft);
+ pointer-events:none;
+}
+.guardian-position .guardian-position-photo{
+ display:block;position:relative;z-index:1;
+ width:100%;height:100%;overflow:hidden;border-radius:50%!important;
+ background:linear-gradient(145deg,var(--guardian-pin-bright),var(--guardian-pin-deep));
+ border:1px solid rgba(255,255,255,.95);
+ box-sizing:border-box;flex:1 1 auto;
+}
+.guardian-position .guardian-position-photo img{
+ display:block!important;width:100%!important;height:100%!important;
+ border-radius:50%!important;object-fit:cover!important;
+ object-position:center center!important;
+ filter:saturate(1.07) contrast(1.035);
+}
+.guardian-position .guardian-position-label{
+ position:absolute;right:auto;left:calc(100% - 2px);bottom:1px;z-index:4;
+ display:inline-flex;align-items:center;justify-content:center;
+ width:max-content;max-width:84px;min-height:23px;
+ padding:4px 9px;box-sizing:border-box;
+ border-radius:999px;border:1.5px solid #f8ffff;
+ background:linear-gradient(134deg,var(--guardian-pin),var(--guardian-pin-deep));
+ color:#fff;
+ text-shadow:0 1px 2px rgba(4,17,53,.42);
+ font:800 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+ letter-spacing:.01em;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.36),
+            0 0 0 2px var(--guardian-pin-soft),
+            0 3px 11px var(--guardian-pin-glow);
+ white-space:nowrap;pointer-events:none;
+}
+/* A tiny bright location point still anchors the photo to the actual GPS pin. */
+.guardian-position::after{
+ content:"";position:absolute;
+ left:50%;bottom:-7px;transform:translateX(-50%);
+ width:12px;height:12px;z-index:2;
+ border-radius:50%;
+ border:2px solid #fff;
+ background:var(--guardian-pin)!important;
+ box-shadow:0 0 0 2px var(--guardian-pin-soft),0 0 8px var(--guardian-pin-glow);
+ box-sizing:border-box;pointer-events:none;
+}
+@media (prefers-reduced-motion:reduce){
+ .guardian-position{animation:none!important}
+ .guardian-position::before,.guardian-position::after{animation:none!important}
+}

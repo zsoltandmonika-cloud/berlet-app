@@ -1,4 +1,4 @@
-/* HealthHub Family Guard v780: premium daylight controls; foreground-only, memory-only GPS. */
+/* HealthHub Family Guard v783: circular live-photo GPS marker; foreground-only, memory-only GPS. */
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
@@ -33,8 +33,13 @@ function theme(){
  $('guardianMeName').textContent=name()+' · saját telefon';
  $('guardianOtherName').textContent=monika?'Zsolt':'Mónika';
  if(marker&&marker.getElement){
-  const img=marker.getElement().querySelector('img');
+  const node=marker.getElement();
+  const img=node.querySelector('img');
+  const label=node.querySelector('.guardian-position-label');
   if(img&&avatars)img.src=monika?avatars.m:avatars.z;
+  if(label)label.textContent=name();
+  node.setAttribute('data-guardian-person',monika?'m':'z');
+  node.setAttribute('aria-label',name()+' · saját készülék GPS-pozíciója');
  }
 
 }
@@ -76,6 +81,27 @@ function stop(){
  renderButtons();report('GPS kikapcsolva');
  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
 }
+function makeOwnPositionNode(){
+ // This represents the location of THIS DEVICE only. The profile is a visual
+ // identity selection; it does not fetch or imply a second person's location.
+ const labelText=name(),isMonika=labelText==='Mónika';
+ const el=d.createElement('div');
+ el.className='guardian-position';
+ el.setAttribute('data-guardian-person',isMonika?'m':'z');
+ el.setAttribute('role','img');
+ el.setAttribute('aria-label',labelText+' · saját készülék GPS-pozíciója');
+ const photo=d.createElement('span');photo.className='guardian-position-photo';
+ const avatars=w.HH_GOLDEN_AVATARS_V529;
+ if(avatars){
+  const img=d.createElement('img');img.alt='';
+  img.src=isMonika?avatars.m:avatars.z;
+  photo.appendChild(img);
+ }
+ const badge=d.createElement('span');
+ badge.className='guardian-position-label';badge.textContent=labelText;
+ el.appendChild(photo);el.appendChild(badge);
+ return el;
+}
 function onPosition(pos){
  if(!active)return;
  const c=pos.coords||{},lat=Number(c.latitude),lng=Number(c.longitude),accuracy=Number(c.accuracy);
@@ -87,12 +113,8 @@ function onPosition(pos){
  $('guardianUpdated').textContent=new Date(pos.timestamp||Date.now()).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
  if(map){
   if(!marker){
-   const el=d.createElement('div');el.className='guardian-position';
-   const avatars=w.HH_GOLDEN_AVATARS_V529;
-   if(avatars){
-    const img=d.createElement('img');img.alt='';img.src=name()==='Mónika'?avatars.m:avatars.z;el.appendChild(img);
-   }
-   marker=new w.maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(coord).addTo(map);
+   marker=new w.maplibregl.Marker({element:makeOwnPositionNode(),anchor:'bottom'})
+    .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
   if(follow)map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
