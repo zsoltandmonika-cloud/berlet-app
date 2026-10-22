@@ -152,6 +152,11 @@ function applyView(){
  if(map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',threeD?'visible':'none');
  map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:620});
 }
+function startFollowing(){
+ follow=true;renderButtons();
+ if(!active){start();return}
+ if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
+}
 function toggle3D(){
  threeD=!threeD;
  applyView();
@@ -365,5 +370,5 @@ w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  if(map&&ready)applyGoldenMapStyle();
 }});
 theme();renderButtons();initMap();
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',get active(){return active},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,get active(){return active},get pointCount(){return path.length}});
 })(window,document);
