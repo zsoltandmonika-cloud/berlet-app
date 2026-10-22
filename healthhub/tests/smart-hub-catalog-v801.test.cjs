@@ -48,3 +48,15 @@ test('v801 is on canonical Guardian page, keeps visible map baseline and per-pro
  assert.match(html,/guardian-transit-v791\.js\?v=800-glassy-marker/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
 });
+
+test('v801.1 distinguishes bus 19 from tram 19 in favorites and map integration',()=>{
+ assert.equal(catalog.keyOf({mode:'bus',id:'19'}),'bus:19');
+ assert.equal(catalog.keyOf({mode:'tram',id:'19'}),'tram:19');
+ assert.notEqual(catalog.keyOf({mode:'bus',id:'19'}),catalog.keyOf({mode:'tram',id:'19'}));
+ const src=read('guardian-bkk-catalog-v801.js');
+ assert.match(src,/FEATURED=new Set\(\['bus:260','tram:17','tram:19'\]\)/);
+ assert.match(src,/updateCore\(key,enabled\)/);
+ assert.match(src,/toggleFavorite\(route.id,route.mode\)/);
+ const original=read('guardian-transit-v791.js');
+ assert.match(original,/toggleLine\(id,enabled\)/);
+});
