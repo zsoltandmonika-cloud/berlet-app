@@ -176,7 +176,7 @@
  function guideBack(){if(activeGuide&&activeStep>0){activeStep--;renderGuide()}}
  function closeGuide(){activeGuide=null;activeStep=0;renderGuide()}
  function clearMap(){
-  const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
+  const map=w&&w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   if(!map||!map.getLayer||!map.getSource)return;
   try{
    for(const id of ['hh-smart-hub-itinerary-v804-points','hh-smart-hub-itinerary-v804-line','hh-smart-hub-itinerary-v804-outline'])
@@ -185,7 +185,7 @@
   }catch(_){}
  }
  function focus(itinerary){
-  const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
+  const map=w&&w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   if(!map||!map.getSource||!map.addSource||!map.addLayer)return;
   const id='hh-smart-hub-itinerary-v804';
   const features=[];
