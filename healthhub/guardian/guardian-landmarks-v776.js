@@ -1,5 +1,4 @@
-/* Family Guard v776 - user-consented, browser-local significant place bookmarks.
-   No hard-coded private coordinates, network storage or background location tracking. */
+/* Family Guard v776/v787 - private bookmarks stay local; shared places use opt-in cloud. */
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
@@ -16,7 +15,7 @@ const TYPES=Object.freeze({
  shopping:{icon:'🛍️',label:'Bevásárlás'},
  other:{icon:'📍',label:'Egyéb'}
 });
-let map=null,items=[],savedMarkers=[],previewMarker=null,picking=false,selected=null,kind='home';
+let map=null,items=[],shared=[],bridge=null,savedMarkers=[],previewMarker=null,picking=false,selected=null,kind='home';
 function validPoint(p){
  return Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)
   &&Math.abs(p[0])<=180&&Math.abs(p[1])<=90;
@@ -93,7 +92,7 @@ function paintPins(){
  savedMarkers.forEach(m=>m.remove());
  savedMarkers=[];
  if(!map||!w.maplibregl||!w.maplibregl.Marker)return;
- items.forEach(function(item){
+ items.concat(shared).forEach(function(item){
   try{savedMarkers.push(new w.maplibregl.Marker({element:markerNode(item,false),anchor:'bottom'})
    .setLngLat([item.lng,item.lat]).addTo(map));}catch(_){}
  });
@@ -101,8 +100,8 @@ function paintPins(){
 function renderList(){
  const list=$('guardianLandmarksList');if(!list)return;
  while(list.firstChild)list.removeChild(list.firstChild);
- const empty=$('guardianLandmarksEmpty');if(empty)empty.hidden=items.length>0;
- const count=$('guardianLandmarksCount');if(count)count.textContent=String(items.length);
+ const empty=$('guardianLandmarksEmpty');if(empty)empty.hidden=items.length+shared.length>0;
+ const count=$('guardianLandmarksCount');if(count)count.textContent=String(items.length+shared.length);
  items.forEach(function(item){
   const li=d.createElement('li');li.className='guardian-landmark-item';
   const icon=d.createElement('span');icon.className='guardian-landmark-item-icon';paintIcon(icon,item.kind);
@@ -122,8 +121,41 @@ function renderList(){
    }
    items=next;renderList();paintPins();status('Hely törölve.');
   });
-  li.appendChild(icon);li.appendChild(label);li.appendChild(go);li.appendChild(del);
-  list.appendChild(li);
+  const tag=d.createElement('span');tag.className='guardian-landmark-scope';tag.textContent='🔒 Privát';
+  li.appendChild(icon);li.appendChild(label);li.appendChild(tag);li.appendChild(go);
+  if(bridge){
+   const share=d.createElement('button');share.type='button';share.textContent='⇧ Közössé';
+   share.className='guardian-landmark-action';share.setAttribute('aria-label',item.name+' megosztása a családdal');
+   share.addEventListener('click',function(){
+    if(typeof w.confirm==='function'&&!w.confirm('Megosztod ezt a helyet Mónikával és Zsolttal?\\n\\nA hely neve és pontos koordinátái a családi felhőbe kerülnek.'))return;
+    try{
+     bridge.create(item); // durable queue before changing the private record
+     const next=items.filter(i=>i.id!==item.id);
+     w.localStorage.setItem(KEY,JSON.stringify(next));
+     items=next;renderList();paintPins();
+     status(item.name+' · közös szinkron sorba állítva.');
+    }catch(e){status('Nem sikerült megosztani. A privát hely megmaradt: '+(e&&e.message||'hiba'))}
+   });
+   li.appendChild(share);
+  }
+  li.appendChild(del);list.appendChild(li);
+ });
+ shared.forEach(function(item){
+  const li=d.createElement('li');li.className='guardian-landmark-item';
+  const icon=d.createElement('span');icon.className='guardian-landmark-item-icon';paintIcon(icon,item.kind);
+  const label=d.createElement('span');label.className='guardian-landmark-item-name';label.textContent=item.name;
+  const tag=d.createElement('span');tag.className='guardian-landmark-scope';tag.textContent='☁ Közös';
+  const go=d.createElement('button');go.type='button';go.textContent='Mutasd';go.className='guardian-landmark-action';
+  go.addEventListener('click',()=>goTo(item));
+  const del=d.createElement('button');del.type='button';del.textContent='×';del.className='guardian-landmark-delete';
+  del.setAttribute('aria-label',item.name+' törlése a közös helyek közül');
+  del.addEventListener('click',function(){
+   if(typeof w.confirm==='function'&&!w.confirm('Töröljük ezt a közös helyet mindkét telefonról?\\n\\n'+item.name))return;
+   try{if(!bridge)throw Error('A szinkron nem elérhető');bridge.remove(item.id);
+    shared=shared.filter(i=>i.id!==item.id);renderList();paintPins();status('Közös hely törlése sorba állítva.');
+   }catch(e){status('A törlést nem sikerült eltárolni: '+(e&&e.message||'hiba'))}
+  });
+  li.appendChild(icon);li.appendChild(label);li.appendChild(tag);li.appendChild(go);li.appendChild(del);list.appendChild(li);
  });
 }
 function save(){
@@ -135,15 +167,20 @@ function save(){
  const record=sanitize({id:Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),
   kind,name:title,lng:selected[0],lat:selected[1]});
  if(!record){status('A helyet nem sikerült ellenőrizni.');return}
+ const scope=$('guardianLandmarkScope');const common=scope&&scope.value==='shared';
+ if(common){try{if(!bridge)throw Error('Jelentkezz be a családi fiókba');bridge.create(record)}catch(e){status('Közös mentés sikertelen: '+(e&&e.message||'hiba'));return}}
  const next=items.concat(record);
- try{w.localStorage.setItem(KEY,JSON.stringify(next))}catch(_){
-  status('Nem sikerült elmenteni. Ellenőrizd a böngésző tárhelybeállításait.');return;
+ if(!common){
+  try{w.localStorage.setItem(KEY,JSON.stringify(next))}catch(_){
+   status('Nem sikerült elmenteni. Ellenőrizd a böngésző tárhelybeállításait.');return;
+  }
+  items=next;
  }
- items=next;selected=null;
+ selected=null;
  if(previewMarker){previewMarker.remove();previewMarker=null}
  const btn=$('guardianLandmarksSave');if(btn)btn.disabled=true;
  stopPicking();renderList();paintPins();
- status(record.name+' elmentve ezen az eszközön.');
+ status(common?record.name+' · felhőszinkron sorba állítva.':record.name+' · privát hely ezen az eszközön.');
 }
 function selectKind(next){
  if(!TYPES[next])return;
@@ -188,5 +225,10 @@ function init(loadedMap){
  if(items.length)status(items.length+' mentett hely ezen az eszközön.');
  else status('Válassz ikont, majd jelöld ki az első helyet a térképen.');
 }
-w.HH_GUARDIAN_LANDMARKS_V776=Object.freeze({init});
+w.HH_GUARDIAN_LANDMARKS_V776=Object.freeze({
+ init,
+ setBridge(next){bridge=next;if(map)renderList()},
+ setSharedEntries(rows){shared=Array.isArray(rows)?rows.map(sanitize).filter(Boolean).slice(0,200):[];if(map){renderList();paintPins()}},
+ get privateCount(){return items.length},get sharedCount(){return shared.length}
+});
 })(window,document);
