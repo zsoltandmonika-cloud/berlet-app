@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v779\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v780\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=779-compact-corner/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=780-golden-controls/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -56,8 +56,7 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/setLayoutProperty/);
  assert.match(js,/const img=d.createElement/);
  assert.match(js,/HH_GOLDEN_AVATARS_V529/);
- assert.match(html,/id="guardianSatellite"/);
- assert.match(html,/id="guardianSatelliteNotice"/);
+ assert.doesNotMatch(html,/id="guardianSatellite"|id="guardianSatelliteNotice"/,'low-resolution satellite controls retired');
  assert.match(html,/id="guardianHHNav"/);
  assert.match(html,/id="guardianProfileSwitch" class="guardian-standard-profile"/);
  assert.doesNotMatch(html,/id="guardianAvatar"/,'no second profile switch');
@@ -65,9 +64,8 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(polish,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/,'five buttons');
  assert.ok(html.indexOf('id="guardianProfileSwitch"')>html.indexOf('<section class="intro guardian-hero"')&&html.indexOf('id="guardianProfileSwitch"')<html.indexOf('</section>'),'profile switch stays in hero bottom-left');
  assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
- assert.match(js,/function toggleSatellite\(\)/);
- assert.match(js,/tiles\.maps\.eox\.at/,'EOX satellite WMTS');
- assert.match(js,/EOxCloudless 2020/,'clear source licensing');
+ assert.doesNotMatch(js,/function toggleSatellite|tiles\.maps\.eox\.at/,'satellite mode not offered in v780');
+ assert.match(js,/attributionControl:\{compact:true\}/,'MapLibre attribution accessible via small info control');
  assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
  assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
@@ -79,9 +77,9 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
 });
 
-test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
+test('v780 daylight map keeps 3D and route, removes satellite and corner label',()=>{
  const js=read('guardian/guardian.js');
- const html=read('guardian/family-guard-v773.html');
+ const html=read('guardian/family-guard-v780.html');
  const daylight=read('guardian/guardian-daylight-v773.css');
  assert.match(js,/style:'https:\/\/tiles\.openfreemap\.org\/styles\/bright'/,'daylight open vector basemap');
  assert.doesNotMatch(js,/styles\/dark/,'dark default removed');
@@ -89,28 +87,32 @@ test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
  assert.match(js,/parks:'#a8d58e'/,'daylight park palette');
  assert.match(js,/guardian-buildings-3d/,'true 3D building extrusion preserved');
  assert.match(js,/guardian-route-casing/,'route contrast preserved on light streets');
- assert.match(js,/function toggleSatellite\(\)/,'satellite switch preserved');
+ assert.doesNotMatch(js,/function toggleSatellite\(\)/,'satellite switch removed');
  assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
  assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
  assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
- assert.match(html,/guardian\.js\?v=778/,'daylight JS linked with landmark integration');
+ assert.match(html,/guardian\.js\?v=780/,'new daylight map and controls loaded');
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
  assert.match(hero,/id="guardianProfileSwitch"/,'profile switch stays in hero');
- assert.match(html,/EOxCloudless 2020/,'historic satellite notice kept');
+ assert.match(html,/id="guardianMapLabel" hidden aria-hidden="true"/,'unwanted corner label hidden');
+ assert.doesNotMatch(html,/id="guardianSatellite"/,'satellite button removed');
+ assert.match(html,/guardian-premium-v780\.css/,'premium glass design loaded');
+ assert.match(html,/guardian-control-icon/,'vector icon controls present');
+ assert.match(read('guardian/guardian-premium-v780.css'),/maplibregl-ctrl-attrib-button/,'compact clickable attribution preserved');
 });
 
 test('v776 registers landmarks with icons, map tap, and on-device storage',()=>{
  const src=read('guardian/guardian-landmarks-v776.js');
  const html=read('guardian/family-guard-v776.html');
  new Function(src);
- assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,6);
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
  assert.match(html,/guardianLandmarksSave/);
  assert.match(html,/guardian-landmarks-v776\.css/);
  assert.match(read('guardian/guardian.js'),/HH_GUARDIAN_LANDMARKS_V776\.init\(map\)/);
  assert.doesNotMatch(src,/fetch\(|sendBeacon\(|XMLHttpRequest|navigator\.geolocation|https?:\/\//);
- const buttons=['home','work','doctor','family','favorite','other'].map(kind=>({
+ const buttons=['home','work','doctor','family','favorite','bus','tram','shopping','other'].map(kind=>({
    dataset:{guardianLandmarkKind:kind},listeners:{},setAttribute(){},
    addEventListener(e,fn){this.listeners[e]=fn},click(){this.listeners.click()}}));
  function node(tag){
@@ -198,12 +200,11 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  controls.guardianStart.click();
  assert.equal(nextWatch,1,'separate Start button stays safe when GPS is already running');
  assert.equal(w.HH_GUARDIAN_V761.active,true);
- controls.guardianSatellite.click();
- assert.equal(controls.guardianSatellite['aria-pressed'],'true','satellite can be activated');
- assert.equal(controls.guardianSatelliteNotice.hidden,false);
- controls.guardianSatellite.click();
- assert.equal(controls.guardianSatellite['aria-pressed'],'false','satellite can be exited');
- assert.equal(nextWatch,1,'changing map modes does not request new GPS');
+ controls.guardian3D.click();
+ assert.equal(controls.guardian3D['aria-pressed'],'false','3D can be disabled');
+ controls.guardian3D.click();
+ assert.equal(controls.guardian3D['aria-pressed'],'true','3D can be re-enabled');
+ assert.equal(nextWatch,1,'switching 3D never requests another GPS watcher');
  d.hidden=true;events.visibilitychange();
  assert.equal(w.HH_GUARDIAN_V761.active,false,'background never keeps browser GPS active');
  assert.deepEqual(stopped,[1]);
@@ -241,9 +242,28 @@ test('v779 compact profile switch stays inside Hero without affecting map or tas
  assert.match(css,/font:750 10px\/1 system-ui/);
  assert.match(canonical,/inset:auto auto 4px 4px!important/);
  assert.match(html,/guardian-landmarks-v776\.js/);
- assert.match(html,/guardian\.js\?v=778-follow-starts-gps/);
- assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,6);
+ assert.match(html,/guardian\.js\?v=780-golden-controls/);
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5);
 });
 
+
+test('v780 premium place categories retain browser bookmark storage and add bus tram shopping',()=>{
+ const src=read('guardian/guardian-landmarks-v776.js');
+ const html=read('guardian/family-guard-v780.html');
+ const css=read('guardian/guardian-premium-v780.css');
+ assert.match(src,/const KEY='hh-guardian-landmarks-v776'/,'never migrate or drop previously saved landmarks');
+ for(const kind of ['bus','tram','shopping']){
+  assert.ok(src.includes(kind+':{icon:'),'recognized persisted category');
+  assert.ok(html.includes('data-guardian-landmark-kind="'+kind+'"'),'category selectable');
+ }
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
+ assert.match(css,/guardian-landmarks-emoji/,'glass medallions for all categories');
+ assert.doesNotMatch(html,/id="guardianSatellite"/);
+ assert.doesNotMatch(html,/3D BUDAPEST · FELFEDEZŐ NÉZET/,'top corner prose removed');
+ const map=read('guardian/guardian.js');
+ assert.match(map,/attributionControl:\{compact:true\}/,'attribution accessible by compact info control');
+ assert.match(map,/maplibregl-compact-show/,'initial expanded attribution minimized');
+ assert.doesNotMatch(map,/attributionControl:false/,'provider credit must remain accessible');
+});

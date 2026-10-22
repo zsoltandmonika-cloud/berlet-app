@@ -11,6 +11,9 @@ const TYPES=Object.freeze({
  doctor:{icon:'🏥',label:'Orvos'},
  family:{icon:'❤️',label:'Család'},
  favorite:{icon:'⭐',label:'Kedvenc'},
+ bus:{icon:'🚌',label:'Buszmegálló'},
+ tram:{icon:'🚊',label:'Villamosmegálló'},
+ shopping:{icon:'🛍️',label:'Bevásárlás'},
  other:{icon:'📍',label:'Egyéb'}
 });
 let map=null,items=[],savedMarkers=[],previewMarker=null,picking=false,selected=null,kind='home';

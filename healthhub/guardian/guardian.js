@@ -1,9 +1,9 @@
-/* HealthHub Family Guard v773: daylight map skin; foreground-only, memory-only GPS. */
+/* HealthHub Family Guard v780: premium daylight controls; foreground-only, memory-only GPS. */
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
-let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,satellite=false,path=[],distance=0,ready=false,last=null;
+let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -51,8 +51,7 @@ function renderButtons(){
  dot.classList.toggle('live',active&&hasFix);
  $('guardianFollow').setAttribute('aria-pressed',String(follow));
  $('guardianFollow').setAttribute('aria-label',!active?'Saját GPS indítása és automatikus követése':follow?'Automatikus térképkövetés kikapcsolása':'Automatikus térképkövetés bekapcsolása');
- $('guardian3D').setAttribute('aria-pressed',String(threeD&&!satellite));
- $('guardianSatellite').setAttribute('aria-pressed',String(satellite));
+ $('guardian3D').setAttribute('aria-pressed',String(threeD));
 }
 function fmtLength(m){return m<1000?Math.round(m)+' m':(m/1000).toFixed(2).replace('.',',')+' km'}
 function radians(x){return x*Math.PI/180}
@@ -123,20 +122,13 @@ function start(){
 }
 function applyView(){
  renderButtons();
- $('guardianSatelliteNotice').hidden=!satellite;
- if(!active&&!marker)$('guardianMapLabel').textContent=satellite?'MŰHOLD · HISTORIKUS FELVÉTEL':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
+ if(!active&&!marker)$('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(!map||!ready)return;
- if(map.getLayer('guardian-satellite-raster'))map.setLayoutProperty('guardian-satellite-raster','visibility',satellite?'visible':'none');
- if(map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',!satellite&&threeD?'visible':'none');
- map.easeTo({pitch:satellite?0:(threeD?58:0),bearing:satellite?0:(threeD?-21:0),duration:620});
+ if(map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',threeD?'visible':'none');
+ map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:620});
 }
 function toggle3D(){
- if(satellite){satellite=false;threeD=true}
- else threeD=!threeD;
- applyView();
-}
-function toggleSatellite(){
- satellite=!satellite;
+ threeD=!threeD;
  applyView();
 }
 function enableFollow(){
@@ -243,11 +235,20 @@ function initMap(){
  try{
   map=new w.maplibregl.Map({
    container:'guardianMap',style:'https://tiles.openfreemap.org/styles/bright',
-   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:true
+   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:{compact:true}
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
   map.on('load',function(){
    ready=true;message('');
+   // Retain mandatory OpenMapTiles/OSM credits as a tappable compact ⓘ,
+   // instead of an always-visible bottom MapLibre/OpenFreeMap text strip.
+   if(typeof d.querySelector==='function'){
+    const attribution=d.querySelector('#guardianMap .maplibregl-ctrl-attrib');
+    if(attribution&&attribution.classList&&typeof attribution.classList.remove==='function'){
+     attribution.classList.remove('maplibregl-compact-show');
+     if(typeof attribution.removeAttribute==='function')attribution.removeAttribute('open');
+    }
+   }
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
    /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.
@@ -270,19 +271,6 @@ function initMap(){
      }
     },firstLabel&&firstLabel.id);
    }catch(e){w.console&&w.console.warn('Guardian 3D buildings fallback',e)}
-   // Actual satellite photography via EOxCloudless, 2020 Copernicus/Sentinel-2.
-   // Noncommercial CC BY-NC-SA imagery, approx. 10m: not current or street-level.
-   // Source is requested ONLY after user activates the satellite layer.
-   try{
-    map.addSource('guardian-satellite-2020',{
-     type:'raster',
-     tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg'],
-     tileSize:256,maxzoom:14,
-     attribution:'EOxCloudless 2020 by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020) · CC BY-NC-SA 4.0'
-    });
-    map.addLayer({id:'guardian-satellite-raster',type:'raster',source:'guardian-satellite-2020',
-     layout:{visibility:'none'},paint:{'raster-opacity':1}});
-   }catch(e){w.console&&w.console.warn('Guardian satellite source unavailable',e)}
    map.addSource('guardian-route',{type:'geojson',data:pathJson()});
    map.addLayer({id:'guardian-route-glow',type:'line',source:'guardian-route',paint:{
     'line-color':name()==='Mónika'?'#fc76c3':'#5cc7ff','line-width':13,'line-opacity':0.22,'line-blur':5
@@ -307,7 +295,6 @@ $('guardianStop').addEventListener('click',stop);
 $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
 $('guardian3D').addEventListener('click',toggle3D);
-$('guardianSatellite').addEventListener('click',toggleSatellite);
 $('guardianFamilyButton').addEventListener('click',toggleFamily);
 $('guardianProfileSwitch').addEventListener('click',switchProfile);
 if(typeof d.querySelectorAll==='function'){
