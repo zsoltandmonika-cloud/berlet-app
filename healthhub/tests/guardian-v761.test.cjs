@@ -1012,3 +1012,19 @@ test('v792 transit overlay survives late MapLibre style readiness and explains r
  assert.match(js,/showSelected\(\);\s*if\(!\(map\.getLayer/);
  assert.match(js,/térképrétege még töltődik/);
 });
+
+
+test('v795 live pilot has visible status before route selectors and detects loading failures',()=>{
+ const html=read('guardian/index.html');
+ const loader=read('guardian/guardian-transit-v791.js');
+ const pilot=read('guardian/guardian-live-pilot-v793.js');
+ new Function(loader);new Function(pilot);
+ assert.match(html,/guardian-transit-v791\\.js\\?v=793-pilot-status-v795/);
+ assert.match(loader,/hhLivePilot/);
+ assert.match(loader,/script\\.onerror/);
+ assert.match(loader,/793-pilot-status-v795/);
+ assert.match(pilot,/holder\\.prepend\\(p\\)/);
+ assert.match(pilot,/v793 ÉLŐ BKK TESZT/);
+ assert.match(pilot,/Family Live részben/);
+ assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|hhTransitDetails/);
+});
