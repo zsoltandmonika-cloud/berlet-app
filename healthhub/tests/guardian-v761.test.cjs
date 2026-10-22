@@ -905,7 +905,8 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/id="hhTransitShow260"/);
   assert.match(page,/id="hhTransitShow17"/);
   assert.match(page,/id="hhTransitShow19"/);
-  assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
+  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=791-portrait-direction/);
+  else assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
   assert.match(page,/nem élő busz-/);
@@ -980,4 +981,25 @@ test('v790 invalid BKK data never becomes a fictional line on the map',async()=>
  vm.runInNewContext(src,{window:win,document:doc,URL,Date,Math,Number,String,Array,Set,Map,Promise});
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(JSON.stringify(win.HH_GUARDIAN_TRANSIT_V790.selected),'["260"]');
+});
+
+
+test('v791 premium transit keeps portrait controls, route badges, and static-only semantics',()=>{
+ const html=read('guardian/index.html');
+ const js=read('guardian/guardian-transit-v791.js');
+ const sheet=read('guardian/guardian-transit-sheet-v791.js');
+ const css=read('guardian/guardian-transit-v791.css');
+ new Function(js);new Function(sheet);
+ for(const id of ['260','17','19'])assert.match(html,new RegExp('id="hhTransitRoute'+id+'"'));
+ assert.match(html,/hhTransitCardsV791/);
+ assert.match(html,/hh-transit-sheet-grip/);
+ assert.match(html,/guardian-transit-sheet-v791\.js/);
+ assert.match(js,/function badgeFeatures\(id\)/);
+ assert.match(js,/hh-bkk-badges-/);
+ assert.match(js,/hh-guardian-transit-direction-v791/);
+ assert.match(js,/nem élő helyzet/);
+ assert.match(sheet,/pointerup/);
+ assert.match(sheet,/ArrowUp/);
+ assert.match(css,/data-sheet-size=full/);
+ assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
 });

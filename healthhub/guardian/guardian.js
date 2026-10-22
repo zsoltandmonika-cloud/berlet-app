@@ -340,6 +340,7 @@ function initMap(){
    // v776 optional, privacy-local bookmarks: map engine remains the same.
    if(w.HH_GUARDIAN_LANDMARKS_V776)w.HH_GUARDIAN_LANDMARKS_V776.init(map);
    if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.mountMap(map);
+   if(w.HH_GUARDIAN_TRANSIT_V790)w.HH_GUARDIAN_TRANSIT_V790.mountMap(map);
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
   map.on('dragstart',function(){follow=false;renderButtons();notifySettings()});
