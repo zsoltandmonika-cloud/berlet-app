@@ -1,7 +1,7 @@
 # HealthHub · Smart Arrival / Mókuska Notification Studio
 ## Living feature specification · v1.0 · 2026-10-22
 
-**Állapot:** APPROVED PRODUCT SPEC / PLANNED ONLY. Ez nem futó geofencing-, push- vagy háttér-GPS-megoldás. Kizárólag technikai és általános termékdokumentáció: nincs benne privát koordináta, token vagy személyes napló.
+**Állapot:** APPROVED PRODUCT SPEC · v788 LOCAL-ONLY EDITOR CODED, DEVICE TEST PENDING. A valódi geofencing, push és háttér-GPS továbbra is PLANNED, nem éles. Kizárólag technikai és általános termékdokumentáció: nincs benne privát koordináta, token vagy személyes napló.
 
 ### Cél
 A Family Guard által már kezelt, kifejezetten megosztott Landmarkokhoz később megadhatók eseményszabályok: *megérkezett*, *elhagyta*. A HH One natív, önként engedélyezett Android helyszolgáltatása megerősített esemény esetén, címzett/érintett profil szerinti engedélyekkel küldhet értesítést. A felhasználók külön-külön és visszavonhatóan döntik el, hogy saját mozgásukból mely események oszthatók meg a családtaggal.
@@ -32,6 +32,9 @@ A Family Guard által már kezelt, kifejezetten megosztott Landmarkokhoz későb
 
 ### Függőségek és sorrend
 Family Guard közös Landmark Sync (meglévő), majd HH One natív, hozzájárulásos háttér-GPS + hitelesített geofence eseménymotor + push értesítések + Smart Arrival Studio. Az élesítés külön CI → készülékes LIVE VERIFIED → USER ACCEPTED kapukhoz kötött.
+
+### Első implementáció: v788 Studio
+A Family Guard alatt a **Smart Arrival Studio** kinyitható panelben helyben lehet szerkeszteni és elmenteni a személy/hely/esemény sablonokat, kiválasztani az öt hangot, majd a **TESZT** gombbal eredeti, Web Audio API-val szintetizált hangot és egyértelműen jelölt Mókuska-pop-upot kipróbálni. A már mentett helyek és a Family Live szolgáltatás változatlanok. A beállítások egyelőre **készülék-/böngészőhelyiek**, nem családilag szinkronizáltak. Az éjszakai némítás a későbbi automatikus értesítési motor konfigurációja; az explicit kézi hangpróbát nem akadályozza.
 
 ### Project Control
 `HH-GUARD-006` · Smart Arrival / Mókuska Notification Studio · PLANNED / 0%.
