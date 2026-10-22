@@ -44,3 +44,7 @@
  .hh-transit-panel[data-sheet-size=full] .hh-transit-body{max-height:min(69dvh,690px)}
  .hh-transit-panel[data-sheet-size=closed] .hh-transit-sheet-actions{padding-bottom:8px}
 }
+
+.hh-transit-sheet-grip{display:flex;justify-content:center;align-items:center;height:31px;cursor:ns-resize;touch-action:none;user-select:none}
+.hh-transit-sheet-grip span{display:block;width:48px;height:5px;border-radius:20px;background:rgba(187,224,248,.78);box-shadow:0 1px 5px #061f3e}
+.hh-transit-sheet-grip:focus-visible{outline:2px solid #fff;outline-offset:-3px;border-radius:10px}
