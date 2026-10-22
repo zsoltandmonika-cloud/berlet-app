@@ -59,11 +59,24 @@
   const status=d.getElementById('hhSmartHubDestinationStatusV802');
   const example=d.getElementById('hhSmartHubExampleV802');
   const chosen=d.getElementById('hhSmartHubSelectedV803');
+  const originChoice=d.getElementById('hhSmartHubOriginModeV804');
+  const targetChoice=d.getElementById('hhSmartHubTargetModeV804');
+  const chosenOrigin=d.getElementById('hhSmartHubOriginSelectedV804');
   if(!form||!input||!results||!status||!chosen)return;
-  let timer=null,seq=0,lastCall=0,pending=null,marker=null,selection=null;
+  let timer=null,seq=0,lastCall=0,pending=null,marker=null,selection=null,mode='destination';
+  let originMarker=null;
   const setStatus=t=>{status.textContent=t};
   function clearMarker(){
    if(marker){try{marker.remove()}catch(_){} marker=null}
+  }
+  function changeMode(next){
+   if(next!=='origin'&&next!=='destination')return;
+   cancel();mode=next;render([]);input.value='';
+   input.placeholder=next==='origin'?'Pl. Óbudai rendelőintézet…':'Pl. Bécsi Corner…';
+   if(originChoice)originChoice.setAttribute('aria-pressed',String(next==='origin'));
+   if(targetChoice)targetChoice.setAttribute('aria-pressed',String(next==='destination'));
+   setStatus(next==='origin'?'Keress egy indulási helyet.':'Keress egy úti célt.');
+   input.focus();
   }
   function render(list){
    results.replaceChildren();
@@ -89,21 +102,34 @@
     setStatus('A 3D térkép még nem áll készen. A kiválasztott helyhez töltsd újra az oldalt.');
     return false;
    }
-   clearMarker();
+   if(mode==='destination')clearMarker();
    try{
     const node=d.createElement('div');
     node.className='hh-smart-hub-map-pin-v803';
     node.textContent='📍 '+item.name;
     node.setAttribute('aria-label','Kiválasztott úti cél: '+item.name);
-    marker=new Marker({element:node,anchor:'bottom',offset:[0,-5]});
-    marker.setLngLat([item.lng,item.lat]).addTo(map);
+    if(mode==='origin'){
+     if(originMarker)try{originMarker.remove()}catch(_){}
+     node.className+=' hh-smart-hub-origin-pin-v804';
+     originMarker=new Marker({element:node,anchor:'bottom',offset:[0,-5]});
+     originMarker.setLngLat([item.lng,item.lat]).addTo(map);
+    }else{
+     marker=new Marker({element:node,anchor:'bottom',offset:[0,-5]});
+     marker.setLngLat([item.lng,item.lat]).addTo(map);
+    }
     map.flyTo({center:[item.lng,item.lat],zoom:16.5,duration:750});
-   }catch(_){clearMarker();setStatus('Nem sikerült megjeleníteni a helyet a térképen.');return false}
+   }catch(_){if(mode==='destination')clearMarker();setStatus('Nem sikerült megjeleníteni a helyet a térképen.');return false}
    selection=item;
-   chosen.hidden=false;
-   chosen.textContent='📍 Úti cél: '+item.name+' · '+item.subtitle;
+   if(mode==='origin'){
+    if(chosenOrigin){chosenOrigin.hidden=false;chosenOrigin.textContent='🚶 Indulás: '+item.name+' · '+item.subtitle}
+   }else{
+    chosen.hidden=false;
+    chosen.textContent='📍 Úti cél: '+item.name+' · '+item.subtitle;
+   }
+   const router=w.HH_SMART_HUB_ROUTER_V804;
+   if(router&&router.setPlace)router.setPlace(mode,item);
    render([]);
-   setStatus('A helyet megtaláltam a saját 3D térképünkön. BKK-útvonaltervezés ehhez a célhoz a következő fejlesztés.');
+   setStatus('Hely kiválasztva. Ha az indulás és az úti cél is megvan, megjelennek a BKK-javaslatok.');
    const mapNode=d.getElementById('guardianMap');
    if(mapNode&&mapNode.scrollIntoView)mapNode.scrollIntoView({behavior:'smooth',block:'center'});
    return true;
@@ -144,15 +170,18 @@
   }
   form.addEventListener('submit',e=>{e.preventDefault();search()});
   input.addEventListener('input',()=>{
-   cancel();render([]);chosen.hidden=true;selection=null;clearMarker();
+   cancel();render([]);selection=null;
+   // Preserve confirmed origin/destination and map pins while typing another query.
    if(!queryText(input.value)){setStatus('Írj legalább 3 karaktert egy helynévből vagy címből.');return}
    const own=seq;
    timer=w.setTimeout(()=>{if(own===seq)search()},DEBOUNCE_MS);
   });
+  if(originChoice)originChoice.addEventListener('click',()=>changeMode('origin'));
+  if(targetChoice)targetChoice.addEventListener('click',()=>changeMode('destination'));
   if(example)example.addEventListener('click',()=>{
    input.value='Bécsi Corner';search();input.focus();
   });
-  w.addEventListener&&w.addEventListener('pagehide',()=>{cancel();clearMarker()});
+  w.addEventListener&&w.addEventListener('pagehide',()=>{cancel();clearMarker();if(originMarker)originMarker.remove()});
   setStatus('Kezdd el írni az úti célt. A találatok a HealthHubon belül jelennek meg.');
  }
  if(w&&w.document){
