@@ -17,7 +17,7 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v785\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/index\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
@@ -1002,4 +1002,12 @@ test('v791 premium transit keeps portrait controls, route badges, and static-onl
  assert.match(sheet,/ArrowUp/);
  assert.match(css,/data-sheet-size=full/);
  assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
+});
+
+test('v792 transit overlay survives late MapLibre style readiness and explains route loading',()=>{
+ const js=read('guardian/guardian-transit-v791.js');
+ assert.match(js,/map\.on\('idle'/);
+ assert.match(js,/map\.on\('load',showSelected\)/);
+ assert.match(js,/showSelected\(\);\s*if\(!\(map\.getLayer/);
+ assert.match(js,/térképrétege még töltődik/);
 });

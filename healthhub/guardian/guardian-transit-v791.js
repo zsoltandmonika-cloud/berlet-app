@@ -165,7 +165,10 @@ function updateControls(){
 }
 function showRoute(id){
  const r=info(id);
- if(!map||!r)return;
+ if(!r){status('A '+id+'-es BKK-útvonal adatai még töltődnek.');return;}
+ if(!map){status('A térkép még nem áll készen. Frissítsd az oldalt, ha nem tölt be.');return;}
+ showSelected();
+ if(!(map.getLayer&&map.getLayer('hh-bkk-route-'+id+'-main'))){status('Az útvonal térképrétege még töltődik. Próbáld újra egy pillanat múlva.');return;}
  const lngs=[],lats=[];
  for(const v of activeVariants(id))for(const point of v.shape){lngs.push(point[0]);lats.push(point[1])}
  if(!lngs.length)return;
@@ -186,6 +189,12 @@ function connectMap(m){
  map=m;mounted=true;
  if(map.on){
   map.on('style.load',showSelected);
+  map.on('load',showSelected);
+  // MapLibre may complete style initialization after Guardian's load callback.
+  // Retry when rendering becomes idle, without creating a second map.
+  map.on('idle',function(){
+   if(routes&&map.getLayer&&!map.getLayer('hh-bkk-route-260-main'))showSelected();
+  });
   if(map.isStyleLoaded&&map.isStyleLoaded())showSelected();
   for(const id of IDS)map.on('click','hh-bkk-stops-'+id+'-circle',function(e){
    const feature=e&&e.features&&e.features[0];if(!feature)return;
