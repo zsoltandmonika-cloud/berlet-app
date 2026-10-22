@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v778\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v779\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=778-follow-gps/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=779-compact-corner/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -230,3 +230,20 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  assert.match(script,/Budapest city-center discovery view, NOT a family or device coordinate/);
  assert.doesNotMatch(script,/Corky.*setLngLat|Anna.*setLngLat|Zsolt.*setLngLat/,'no fabricated family marker locations');
 });
+
+test('v779 compact profile switch stays inside Hero without affecting map or taskbar',()=>{
+ const html=read('guardian/family-guard-v779.html'),canonical=read('guardian/index.html');
+ const css=html.slice(html.indexOf('<style id="guardian-profile-hero-v772">'),html.indexOf('</style>'));
+ assert.match(css,/bottom:4px!important;left:4px!important/);
+ assert.match(css,/inset:auto auto 4px 4px!important/);
+ assert.match(css,/height:28px!important;min-height:28px!important/);
+ assert.match(css,/padding:0 8px!important/);
+ assert.match(css,/font:750 10px\/1 system-ui/);
+ assert.match(canonical,/inset:auto auto 4px 4px!important/);
+ assert.match(html,/guardian-landmarks-v776\.js/);
+ assert.match(html,/guardian\.js\?v=778-follow-starts-gps/);
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,6);
+ const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
+ assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5);
+});
+
