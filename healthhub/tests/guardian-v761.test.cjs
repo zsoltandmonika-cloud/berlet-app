@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v780\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v781\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=780-golden-controls/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=781-unified-palette/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -65,7 +65,8 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.ok(html.indexOf('id="guardianProfileSwitch"')>html.indexOf('<section class="intro guardian-hero"')&&html.indexOf('id="guardianProfileSwitch"')<html.indexOf('</section>'),'profile switch stays in hero bottom-left');
  assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
  assert.doesNotMatch(js,/function toggleSatellite|tiles\.maps\.eox\.at/,'satellite mode not offered in v780');
- assert.match(js,/attributionControl:\{compact:true\}/,'MapLibre attribution accessible via small info control');
+ assert.match(js,/attributionControl:false/,'no info icon under zoom controls; credits shown adjacent');
+ assert.match(html,/guardian-map-credits/,'map data credits visible adjacent to map');
  assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
  assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
@@ -77,21 +78,25 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
 });
 
-test('v780 daylight map keeps 3D and route, removes satellite and corner label',()=>{
+test('v781 clear shared 3D/flat map palette and visible map data credits',()=>{
  const js=read('guardian/guardian.js');
- const html=read('guardian/family-guard-v780.html');
+ const html=read('guardian/family-guard-v781.html');
  const daylight=read('guardian/guardian-daylight-v773.css');
  assert.match(js,/style:'https:\/\/tiles\.openfreemap\.org\/styles\/bright'/,'daylight open vector basemap');
  assert.doesNotMatch(js,/styles\/dark/,'dark default removed');
- assert.match(js,/water:'#80cbea'/,'daylight river palette');
- assert.match(js,/parks:'#a8d58e'/,'daylight park palette');
+ assert.match(js,/water:'#9fc4f1'/,'clean daylight blue for lakes');
+ assert.match(js,/parks:'#cfe4b5'/,'soft park greens');
+ assert.match(js,/roadPrimary:'#f8d987'/,'arterial roads are warm and distinct');
+ assert.match(js,/roadSecondary:'#ffecc8'/,'secondary roads differentiated');
+ assert.match(js,/roadLocal:'#fffdf8'/,'local streets remain bright');
+ assert.match(js,/buildingFootprint:'#bfc1c3'/,'building footprints contrast against streets');
  assert.match(js,/guardian-buildings-3d/,'true 3D building extrusion preserved');
  assert.match(js,/guardian-route-casing/,'route contrast preserved on light streets');
  assert.doesNotMatch(js,/function toggleSatellite\(\)/,'satellite switch removed');
  assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
  assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
  assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
- assert.match(html,/guardian\.js\?v=780/,'new daylight map and controls loaded');
+ assert.match(html,/guardian\.js\?v=781/,'new shared style JS loaded');
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
@@ -100,7 +105,10 @@ test('v780 daylight map keeps 3D and route, removes satellite and corner label',
  assert.doesNotMatch(html,/id="guardianSatellite"/,'satellite button removed');
  assert.match(html,/guardian-premium-v780\.css/,'premium glass design loaded');
  assert.match(html,/guardian-control-icon/,'vector icon controls present');
- assert.match(read('guardian/guardian-premium-v780.css'),/maplibregl-ctrl-attrib-button/,'compact clickable attribution preserved');
+ assert.match(html,/guardian-map-palette-v781\.css/,'adjacent copyright line styled');
+ assert.match(html,/© OpenStreetMap-közreműködők/,'OSM attribution visible');
+ assert.match(html,/© OpenMapTiles/,'OpenMapTiles attribution visible');
+ assert.match(js,/attributionControl:false/,'native under-zoom icon removed');
 });
 
 test('v776 registers landmarks with icons, map tap, and on-device storage',()=>{
@@ -242,7 +250,7 @@ test('v779 compact profile switch stays inside Hero without affecting map or tas
  assert.match(css,/font:750 10px\/1 system-ui/);
  assert.match(canonical,/inset:auto auto 4px 4px!important/);
  assert.match(html,/guardian-landmarks-v776\.js/);
- assert.match(html,/guardian\.js\?v=780-golden-controls/);
+ assert.match(html,/guardian\.js\?v=781-unified-palette/);
  assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5);
@@ -263,7 +271,31 @@ test('v780 premium place categories retain browser bookmark storage and add bus 
  assert.doesNotMatch(html,/id="guardianSatellite"/);
  assert.doesNotMatch(html,/3D BUDAPEST · FELFEDEZŐ NÉZET/,'top corner prose removed');
  const map=read('guardian/guardian.js');
- assert.match(map,/attributionControl:\{compact:true\}/,'attribution accessible by compact info control');
- assert.match(map,/maplibregl-compact-show/,'initial expanded attribution minimized');
- assert.doesNotMatch(map,/attributionControl:false/,'provider credit must remain accessible');
+ assert.match(map,/attributionControl:false/,'MapLibre info icon removed in favor of adjacent source credit');
+ assert.match(html,/guardian-map-credits/,'provider credits remain legible under the map');
+});
+
+test('v781 2D and 3D share one map color palette',()=>{
+ const script=read('guardian/guardian.js');
+ const palette=script.slice(script.indexOf('function mapColors(){'),script.indexOf('function applyGoldenMapStyle(){'));
+ const toggle=script.slice(script.indexOf('function toggle3D(){'),script.indexOf('function enableFollow(){'));
+ assert.ok(palette.includes("roadPrimary:'#f8d987'"));
+ assert.ok(palette.includes("roadSecondary:'#ffecc8'"));
+ assert.ok(palette.includes("roadLocal:'#fffdf8'"));
+ assert.ok(palette.includes("roofLow:'#c9cbcd'"));
+ assert.doesNotMatch(palette,/threeD|satellite/,'no alternate palette for flat vs 3D');
+ assert.match(toggle,/threeD=!threeD/,'only switches view mode');
+ assert.doesNotMatch(toggle,/setStyle\(|mapColors\(/,'toggling 3D must not reload colors');
+ assert.match(script,/visibility',threeD\?'visible':'none'/,'building extrusion is visible in 3D only');
+ assert.match(script,/pitch:threeD\?58:0/,'flat camera pitch when 3D disabled');
+ assert.match(script,/\['get','class'\]/,'transportation class-based road coloring');
+ const html=read('guardian/family-guard-v781.html');
+ const mapEnd=html.indexOf('</section>',html.indexOf('<section class="map-card"'));
+ const credit=html.indexOf('class="guardian-map-credits"');
+ const places=html.indexOf('<section class="guardian-landmarks"');
+ assert.ok(credit>mapEnd&&credit<places,'source credits directly follow the map');
+ assert.doesNotMatch(html.slice(html.indexOf('<section class="map-card"'),mapEnd),/maplibregl-ctrl-attrib/);
+ assert.match(html,/guardian-premium-v780\.css/,'glass controls retained');
+ assert.match(html,/inset:auto auto 4px 4px!important/,'approved small hero profile switch untouched');
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,9);
 });
