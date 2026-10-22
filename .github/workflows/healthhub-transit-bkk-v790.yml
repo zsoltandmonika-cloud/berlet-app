@@ -1,0 +1,55 @@
+name: HealthHub Transit v790 · Official BKK GTFS Snapshot
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '25 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/build-bkk-routes-v790.py'
+      - '.github/workflows/healthhub-transit-bkk-v790.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hh-bkk-transit-main
+  cancel-in-progress: false
+
+jobs:
+  refresh-bkk:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and validate BKK official GTFS
+        run: python healthhub/guardian/build-bkk-routes-v790.py
+      - name: Validate produced route geometry and stop lists
+        run: |
+          python - <<'PY'
+          import json
+          f=json.load(open('healthhub/guardian/bkk-routes-v790.json',encoding='utf-8'))
+          assert set(f['routes']) == {'260','17','19'}
+          assert all(len(x['variants']) > 0 for x in f['routes'].values())
+          assert all(len(v['shape']) > 1 and len(v['stops']) > 0 for r in f['routes'].values() for v in r['variants'])
+          print(f['generatedAt'],[(k,len(v['variants'])) for k,v in f['routes'].items()])
+          PY
+      - name: Publish BKK snapshot to GitHub Pages source branch
+        run: |
+          git config user.name "healthhub-bkk-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add healthhub/guardian/bkk-routes-v790.json
+          if git diff --cached --quiet; then
+            echo "BKK snapshot is unchanged."
+            exit 0
+          fi
+          git commit -m "data(transit): refresh official BKK GTFS snapshot [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
