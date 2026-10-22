@@ -56,12 +56,12 @@ test('v804 has own HealthHub UI, origin chooser and no fabricated ETA or GPS acc
  const code=read('guardian-smart-hub-router-v804.js'),css=read('guardian-smart-hub-router-v804.css');
  for(const id of ['hhSmartHubOriginModeV804','hhSmartHubTargetModeV804','hhSmartHubTripPlansV804','hhSmartHubTripStatusV804'])
   assert.ok(html.includes(id),id);
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=804-router-a'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=805-fewest-go-a'));
  assert.ok(html.includes('guardian-smart-hub-router-v804.css?v=804-router-a'));
  assert.ok(js.includes('HH_SMART_HUB_ROUTER_V804'));
  assert.ok(js.includes("router.setPlace(mode,item)"));
  assert.ok(code.includes("bkk-routes-v790.json"));
- assert.ok(code.includes("A megállók")===false);
+ assert.ok(code.includes("A megállók sorrendje hivatalos BKK GTFS-adat."));
  assert.ok(code.includes("légvonalban"));
  assert.ok(!code.includes("geolocation.getCurrentPosition"));
  assert.ok(!code.includes("localStorage.setItem"));

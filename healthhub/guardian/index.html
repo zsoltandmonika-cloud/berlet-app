@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="./guardian-smart-hub-v802.css?v=802-destination-a">
 <link rel="stylesheet" href="./guardian-smart-hub-native-v803.css?v=803-native-b">
 <link rel="stylesheet" href="./guardian-smart-hub-router-v804.css?v=804-router-a">
+<link rel="stylesheet" href="./guardian-smart-hub-go-v805.css?v=805-fewest-go-a">
 <link rel="stylesheet" href="./bkk-live-glass-v800.css?v=800-approved-set">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
@@ -130,8 +131,25 @@
       <p id="hhSmartHubSelectedV803" class="hh-smart-hub-selected-v803" hidden></p>
       <section class="hh-smart-hub-routes-v804" aria-label="BKK menetrendi útvonaljavaslatok">
         <div class="hh-smart-trip-title-v804"><strong>🧭 BKK útvonaljavaslatok</strong><small>Első változat: 260 · 17 · 19</small></div>
+        <div class="hh-smart-hub-priority-v805" role="group" aria-label="Útvonalválasztás szempontja">
+          <button type="button" id="hhSmartHubPriorityTransfersV805" aria-pressed="true">🔁 Legkevesebb átszállás</button>
+          <button type="button" id="hhSmartHubPriorityWalkingV805" aria-pressed="false">🚶 Kevesebb gyaloglás</button>
+        </div>
         <p id="hhSmartHubTripStatusV804" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Válassz indulási helyet és úti célt.</p>
         <div id="hhSmartHubTripPlansV804" class="hh-smart-hub-plans-v804"></div>
+        <section id="hhSmartHubGuideV805" class="hh-smart-trip-guide-v805" aria-label="GO útvonalterv lépésenként" hidden>
+          <div class="hh-smart-trip-guide-top-v805">
+            <strong id="hhSmartHubGuideTitleV805">GO · Útvonalterv</strong>
+            <button id="hhSmartHubGuideCloseV805" type="button" aria-label="Útvonalterv bezárása">✕</button>
+          </div>
+          <p class="hh-smart-trip-guide-disclaimer-v805">Ez lépésenkénti útvonalterv, nem élő GPS-navigáció. A gyalogos távolságok légvonalbeliek; indulási időt nem számolunk.</p>
+          <div id="hhSmartHubGuideProgressV805" class="hh-smart-trip-guide-progress-v805" aria-live="polite"></div>
+          <div id="hhSmartHubGuideStepV805" class="hh-smart-trip-guide-step-v805"></div>
+          <div class="hh-smart-trip-guide-controls-v805">
+            <button type="button" id="hhSmartHubGuideBackV805" disabled>← Előző</button>
+            <button type="button" id="hhSmartHubGuideNextV805">Következő lépés →</button>
+          </div>
+        </section>
         <p class="hh-smart-hub-privacy-v802">A megállók és az útvonalak hivatalos BKK GTFS-adatok. Az itt jelzett gyaloglás légvonalbeli távolság, nem járdákra tervezett séta. Nem tartalmaz indulási időt, élő késést vagy a teljes BKK-hálózatot.</p>
       </section>
       <p class="hh-smart-hub-privacy-v802">A helytalálatok OpenStreetMap-alapú Photon adatokból származnak, és a saját HealthHub 3D térképen jelennek meg. A keresett szöveget a helykereső szolgáltatás kapja meg; GPS-t nem kérünk. Forrás: © OpenStreetMap-közreműködők · Photon (komoot). A három ellenőrzött vonalra korlátozott menetrendi útvonaljavaslat külön jelenik meg.</p>
@@ -335,7 +353,7 @@
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=801-search-b"></script>
 <script defer src="./guardian-smart-hub-native-v803.js?v=804-paired-origin"></script>
-<script defer src="./guardian-smart-hub-router-v804.js?v=804-router-a"></script>
+<script defer src="./guardian-smart-hub-router-v804.js?v=805-fewest-go-a"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">

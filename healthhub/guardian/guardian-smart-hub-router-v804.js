@@ -12,7 +12,7 @@
  const SOURCE='BKK Zrt., CC BY 4.0';
  const LINES=new Set(['260','17','19']);
  const WALK=1000,CHANGE=180,MAX_RESULTS=3;
- let start=null,target=null,feed=null,plans=[],loading=null;
+ let start=null,target=null,feed=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
  const $=id=>w&&w.document&&w.document.getElementById(id);
  function distance(a,b){
   if(!a||!b||![a.lat,a.lng,b.lat,b.lng].every(Number.isFinite))return Infinity;
@@ -45,7 +45,7 @@
   return line.stops.map((stop,i)=>({stop,i,walk:distance(stop,point)}))
    .filter(x=>x.walk<=max).sort((a,b)=>a.walk-b.walk).slice(0,14);
  }
- function plan(lines,origin,destination){
+ function plan(lines,origin,destination,preference='transfers'){
   if(!Array.isArray(lines)||!origin||!destination||distance(origin,destination)<100)return [];
   const begins=lines.map(line=>nearStops(line,origin));
   const ends=lines.map(line=>nearStops(line,destination));
@@ -89,8 +89,92 @@
    const k=candidate.legs.map(l=>l.line.id+':'+l.enter.id+':'+l.exit.id).join('|');
    if(!unique.has(k)||unique.get(k).score>candidate.score)unique.set(k,candidate);
   }
-  return [...unique.values()].sort((a,b)=>a.score-b.score).slice(0,MAX_RESULTS);
+  return rankCandidates([...unique.values()],preference).slice(0,MAX_RESULTS);
  }
+ // Transfers always outrank walking distance by default; both are approximate heuristics.
+ function rankCandidates(candidates,preference='transfers'){
+  const list=Array.isArray(candidates)?candidates.slice():[];
+  return list.sort((a,b)=>preference==='walking'
+   ? a.walk-b.walk||a.transfer-b.transfer||a.score-b.score
+   : a.transfer-b.transfer||a.walk-b.walk||a.score-b.score);
+ }
+ // This is an itinerary preview, NOT live navigation or a pedestrian route.
+ function itinerarySteps(itinerary,origin,destination){
+  if(!itinerary||!Array.isArray(itinerary.legs)||!itinerary.legs.length||!origin||!destination)return [];
+  const steps=[];
+  const first=itinerary.legs[0];
+  steps.push({kind:'walk',title:'Séta az induló megállóhoz',
+   detail:String(origin.name||'Indulási hely')+' → '+first.enter.name,
+   note:'Kb. '+itinerary.approach+' m légvonalban, nem ellenőrzött gyalogút.'});
+  itinerary.legs.forEach((leg,index)=>{
+   if(index>0){
+    const prev=itinerary.legs[index-1];
+    steps.push({kind:'transfer',title:'Átszállás · '+leg.line.id+'-es járat',
+     detail:prev.exit.name+' → '+leg.enter.name,
+     note:'Kb. '+itinerary.changeWalk+' m légvonalban a megállók között; a gyalogos út eltérhet.'});
+   }
+   steps.push({kind:'board',title:'Felszállás · '+leg.line.id+'-es járat',
+    detail:leg.enter.name+' · Irány: '+(leg.line.headsign||'végállomás ellenőrzendő'),
+    note:'Menetrendi megálló; indulási idő és aktuális járműpozíció nem része ennek a tervnek.'});
+   steps.push({kind:'ride',title:'Utazás · '+leg.stopCount+' megálló',
+    detail:leg.enter.name+' → '+leg.exit.name,
+    note:'A megállók sorrendje hivatalos BKK GTFS-adat.'});
+   steps.push({kind:'alight',title:'Leszállás · '+leg.exit.name,
+    detail:'Szállj le itt a(z) '+leg.line.id+'-es járatról.',note:'Menetrendi megálló'});
+  });
+  const last=itinerary.legs[itinerary.legs.length-1];
+  steps.push({kind:'walk',title:'Séta az úti célhoz',
+   detail:last.exit.name+' → '+String(destination.name||'Úti cél'),
+   note:'Kb. '+itinerary.finish+' m légvonalban, nem ellenőrzött gyalogút.'});
+  return steps;
+ }
+ function setPreference(value){
+  if(value!=='transfers'&&value!=='walking')return false;
+  priority=value;activeGuide=null;activeStep=0;renderGuide();render();
+  return true;
+ }
+ function makeStepContent(parent,step,index){
+  const d=w.document;
+  const item=d.createElement('li');item.className='hh-smart-trip-detail-step-v805 hh-smart-trip-step-'+step.kind;
+  const num=d.createElement('span');num.className='hh-smart-trip-detail-index-v805';num.textContent=String(index+1);
+  const copy=d.createElement('div');copy.className='hh-smart-trip-detail-copy-v805';
+  const title=d.createElement('strong');title.textContent=step.title;
+  const detail=d.createElement('span');detail.textContent=step.detail;
+  const note=d.createElement('small');note.textContent=step.note;
+  copy.append(title,detail,note);item.append(num,copy);parent.append(item);
+ }
+ function renderGuide(){
+  const host=$('hhSmartHubGuideV805');
+  if(!host||!w.document)return;
+  host.hidden=!activeGuide;
+  if(!activeGuide)return;
+  const all=activeGuide.steps,step=all[activeStep];
+  const heading=$('hhSmartHubGuideTitleV805'),number=$('hhSmartHubGuideProgressV805');
+  const detail=$('hhSmartHubGuideStepV805');
+  const back=$('hhSmartHubGuideBackV805'),next=$('hhSmartHubGuideNextV805');
+  if(heading)heading.textContent='GO · '+activeGuide.itinerary.legs.map(l=>l.line.id).join(' → ');
+  if(number)number.textContent='Lépés '+(activeStep+1)+' / '+all.length;
+  if(detail){detail.replaceChildren();const list=w.document.createElement('ol');list.className='hh-smart-trip-detail-list-v805';makeStepContent(list,step,activeStep);detail.append(list)}
+  if(back)back.disabled=activeStep===0;
+  if(next)next.textContent=activeStep===all.length-1?'Terv bezárása ✓':'Következő lépés →';
+ }
+ function startGuide(itinerary){
+  const steps=itinerarySteps(itinerary,start,target);
+  if(!steps.length)return false;
+  activeGuide={itinerary,steps};activeStep=0;
+  renderGuide();
+  focus(itinerary);
+  const guide=$('hhSmartHubGuideV805');
+  if(guide&&guide.scrollIntoView)guide.scrollIntoView({behavior:'smooth',block:'nearest'});
+  return true;
+ }
+ function guideNext(){
+  if(!activeGuide)return;
+  if(activeStep>=activeGuide.steps.length-1){activeGuide=null;activeStep=0;renderGuide();return}
+  activeStep++;renderGuide();
+ }
+ function guideBack(){if(activeGuide&&activeStep>0){activeStep--;renderGuide()}}
+ function closeGuide(){activeGuide=null;activeStep=0;renderGuide()}
  function clearMap(){
   const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   if(!map||!map.getLayer||!map.getSource)return;
@@ -134,11 +218,18 @@
   const host=$('hhSmartHubTripPlansV804'),note=$('hhSmartHubTripStatusV804');
   if(!host||!note||!w.document)return;
   host.replaceChildren();
-  if(!start||!target){note.textContent='Az útvonaljavaslathoz válassz ki egy indulási helyet és egy úti célt.';return}
+  const optTransfers=$('hhSmartHubPriorityTransfersV805'),optWalking=$('hhSmartHubPriorityWalkingV805');
+  if(optTransfers)optTransfers.setAttribute('aria-pressed',String(priority==='transfers'));
+  if(optWalking)optWalking.setAttribute('aria-pressed',String(priority==='walking'));
+  if(!start||!target){
+   note.textContent='Az útvonaljavaslathoz válassz ki egy indulási helyet és egy úti célt.';return
+  }
   if(!feed){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
-  plans=plan(feed,start,target);
-  note.textContent=plans.length?plans.length+' menetrendi vonaljavaslat · csak 260, 17, 19 · az itt jelzett gyaloglási távolság légvonalbeli becslés, nem gyalogos útvonal.':
-   'A 260-as, 17-es és 19-es járat alapján nincs igazolható összeköttetés ezen két hely között. Ez nem jelenti azt, hogy más BKK-járattal ne lenne útvonal.';
+  plans=plan(feed,start,target,priority);
+  note.textContent=plans.length?
+   plans.length+' BKK-vonaljavaslat · '+(priority==='transfers'?'legkevesebb átszállás előre':'kevesebb légvonalbeli gyaloglás előre')+
+    ' · csak 260, 17, 19. Nem teljes BKK-tervező.':
+   'A 260-as, 17-es és 19-es járat alapján nincs igazolható összeköttetés. Más BKK-járattal lehet útvonal.';
   plans.forEach((p,i)=>{
    const row=w.document.createElement('article');row.className='hh-smart-trip-card-v804';
    const heading=w.document.createElement('strong');
@@ -149,15 +240,26 @@
     line.textContent=leg.line.id+' · '+leg.enter.name+' → '+leg.exit.name+' · '+leg.stopCount+' megálló';
     row.append(line);
     if(idx===0&&p.transfer){
-     const t=w.document.createElement('small');
-     t.textContent='Átszállás: kb. '+p.changeWalk+' m légvonalban';row.append(t);
+     const t=w.document.createElement('small');t.textContent='Átszállás: kb. '+p.changeWalk+' m légvonalban';
+     row.append(t);
     }
    }
    const details=w.document.createElement('small');
-   details.textContent='Indulóhely → megálló: '+p.approach+' m · megálló → cél: '+p.finish+' m (légvonalban). Menetrendi idő és élő érkezés nincs számítva.';
-   const btn=w.document.createElement('button');btn.type='button';btn.textContent='Vonalak a térképen ↗';
-   btn.addEventListener('click',()=>focus(p));
-   row.append(details,btn);host.append(row);
+   details.textContent='Indulóhely → megálló: '+p.approach+' m · megálló → cél: '+p.finish+' m (légvonalban). Nem gyalogos útvonal, nem élő ETA.';
+   const actions=w.document.createElement('div');actions.className='hh-smart-trip-actions-v805';
+   const go=w.document.createElement('button');go.type='button';
+   go.className='hh-smart-trip-go-v805';go.textContent='GO · Út indítása ▶';
+   go.setAttribute('aria-label','A(z) '+(i+1)+'. útvonal lépésenkénti megnyitása, nem élő navigáció');
+   go.addEventListener('click',()=>startGuide(p));
+   const detailBox=w.document.createElement('details');detailBox.className='hh-smart-trip-details-v805';
+   const summary=w.document.createElement('summary');summary.textContent='Részletek ▾';
+   const stages=w.document.createElement('ol');stages.className='hh-smart-trip-detail-list-v805';
+   itinerarySteps(p,start,target).forEach((stage,index)=>makeStepContent(stages,stage,index));
+   detailBox.append(summary,stages);
+   const map=w.document.createElement('button');map.type='button';map.textContent='Vonalak a térképen ↗';
+   map.addEventListener('click',()=>focus(p));
+   actions.append(go,detailBox,map);
+   row.append(details,actions);host.append(row);
   });
  }
  async function download(){
@@ -180,15 +282,22 @@
   if(kind==='origin')start=place;
   else if(kind==='destination')target=place;
   else return;
-  clearMap();render();
+  activeGuide=null;activeStep=0;clearMap();renderGuide();render();
  }
  function init(){
   if(!$('hhSmartHubTripPlansV804')||!w.fetch)return;
-  render();loading=download();
+  const transfers=$('hhSmartHubPriorityTransfersV805'),walking=$('hhSmartHubPriorityWalkingV805');
+  if(transfers)transfers.addEventListener('click',()=>setPreference('transfers'));
+  if(walking)walking.addEventListener('click',()=>setPreference('walking'));
+  const next=$('hhSmartHubGuideNextV805'),back=$('hhSmartHubGuideBackV805'),close=$('hhSmartHubGuideCloseV805');
+  if(next)next.addEventListener('click',guideNext);
+  if(back)back.addEventListener('click',guideBack);
+  if(close)close.addEventListener('click',closeGuide);
+  renderGuide();render();loading=download();
  }
  if(w&&w.document){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,setPlace,get selection(){return {start,target}},version:'804'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,setPreference,setPlace,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'805'};
 });
