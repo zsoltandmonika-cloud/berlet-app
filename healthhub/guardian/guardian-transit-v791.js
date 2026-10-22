@@ -7,7 +7,9 @@
 const IDS=['260','17','19'];
 const STORAGE='hh-guardian-transit-selected-v790';
 const PREF_KEY='hh-guardian-transit-direction-v791';
-let prefs={zsolt:{},monika:{}};let profile='monika';
+const PROFILE_ROUTES='hh-guardian-transit-selected-profiles-v801';
+let selectionByProfile={zsolt:['260'],monika:['260']};
+let prefs={zsolt:{},monika:{}};let profile='zsolt';
 const SOURCE='BKK Zrt., CC BY 4.0';
 const $=id=>d.getElementById(id);
 let selected=new Set(['260']),routes=null,map=null,mounted=false,retry=0;
@@ -36,14 +38,27 @@ function validate(doc){
  return clean;
 }
 function restore(){
+ let legacy=['260'];
  try{
   const saved=JSON.parse(w.localStorage.getItem(STORAGE)||'null');
-  if(Array.isArray(saved))selected=new Set(saved.filter(x=>IDS.includes(x)));
- }catch(_){selected=new Set(['260'])}
+  if(Array.isArray(saved))legacy=saved.filter(x=>IDS.includes(x));
+ }catch(_){}
+ try{
+  const saved=JSON.parse(w.localStorage.getItem(PROFILE_ROUTES)||'null');
+  if(saved)for(const p of ['zsolt','monika'])
+   if(Array.isArray(saved[p]))selectionByProfile[p]=saved[p].filter(x=>IDS.includes(x));
+  else selectionByProfile[profile]=legacy;
+  if(!saved)selectionByProfile[profile]=legacy;
+ }catch(_){selectionByProfile[profile]=legacy}
+ selected=new Set(selectionByProfile[profile]);
 }
 function save(){
- try{w.localStorage.setItem(STORAGE,JSON.stringify([...selected]))}
- catch(_){status('A járatkijelölést ezen a böngészőn nem sikerült menteni.')}
+ selectionByProfile[profile]=[...selected];
+ try{
+  w.localStorage.setItem(PROFILE_ROUTES,JSON.stringify(selectionByProfile));
+  // Legacy key is maintained for older pages and stores only the active profile.
+  w.localStorage.setItem(STORAGE,JSON.stringify([...selected]));
+ }catch(_){status('A járatkijelölést ezen a böngészőn nem sikerült menteni.')}
 }
 function activeVariants(id){const r=info(id);if(!r)return [];const chosen=prefs[profile][id];return r.variants.filter((v,i)=>!Array.isArray(chosen)||chosen.includes(i));}
 function routeFeatures(id){
@@ -179,8 +194,11 @@ function showRoute(id){
  status(id+' · BKK menetrendi útvonal, '+r.variants.length+' változat'+(summary.length?' · '+summary.join(' / '):'')+'. Nem élő járműkövetés.');
 }
 function onToggle(id,value){
+ if(!IDS.includes(id))return;
  if(value)selected.add(id);else selected.delete(id);
  save();updateControls();showSelected();
+ const catalog=w.HH_BKK_CATALOG_V801;
+ if(catalog&&catalog.onTrackedChange)catalog.onTrackedChange(id,value);
  const count=selected.size;
  status(count?count+' kijelölt járat a térképen · statikus BKK GTFS':'Nincs kijelölt járat. Jelölj be egyet a térképes megjelenítéshez.');
 }
@@ -239,11 +257,22 @@ async function download(){
 }
 function loadPrefs(){try{const x=JSON.parse(w.localStorage.getItem(PREF_KEY)||'{}');for(const p of ['zsolt','monika'])if(x[p]&&typeof x[p]==='object')prefs[p]=x[p]}catch(_){} }
 function savePrefs(){try{w.localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(_){}}
-function setProfile(p){if(!['zsolt','monika'].includes(p))return;profile=p;renderDirections();showSelected();renderCards()}
+function setProfile(p){
+ if(!['zsolt','monika'].includes(p))return;
+ if(p!==profile){
+  selectionByProfile[profile]=[...selected];
+  profile=p;selected=new Set(selectionByProfile[profile]);
+ }
+ const field=$('hhTransitProfileV791');if(field)field.value=profile;
+ updateControls();renderDirections();showSelected();renderCards();
+ const catalog=w.HH_BKK_CATALOG_V801;
+ if(catalog&&catalog.setProfile)catalog.setProfile(profile);
+}
 function toggleVariant(id,index,enabled){if(!info(id))return;const all=info(id).variants.map((_,i)=>i);const old=Array.isArray(prefs[profile][id])?prefs[profile][id]:all;const next=new Set(old);if(enabled)next.add(index);else next.delete(index);prefs[profile][id]=[...next].sort((a,b)=>a-b);savePrefs();showSelected();renderDirections();renderCards()}
 function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();const title=d.createElement('p');title.textContent='Irányok külön, a BKK tényleges végállomásneveivel · menetrendi útvonal';host.append(title);for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');label.className='hh-transit-dir hh-transit-dir--'+(r.mode==='bus'?'bus':r.mode==='tram'?'tram':r.mode==='hev'?'hev':'other');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
 function init(){
  if(!$('hhTransitPanel'))return;
+ profile=w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
  restore();loadPrefs();updateControls();
  for(const id of IDS){
   const cb=$('hhTransitRoute'+id),show=$('hhTransitShow'+id);
@@ -255,10 +284,11 @@ function init(){
  }
  const guardian=w.HH_GUARDIAN_V761;
  if(guardian&&guardian.map)connectMap(guardian.map);
- const s=$('hhTransitProfileV791');if(s){profile=s.value==='zsolt'?'zsolt':'monika';s.addEventListener('change',()=>setProfile(s.value))}
+ const s=$('hhTransitProfileV791');if(s){s.value=profile;s.addEventListener('change',()=>setProfile(s.value))}
  download();
 }
-w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,version:'791'});
+w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,
+ toggleLine(id,enabled){if(!IDS.includes(id))return false;onToggle(id,!!enabled);return true;},version:'801'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
 // v799 default: live BKK on the original Family Guard URL, using authenticated snapshots.
 // A private diagnostic ?hhLivePilot=off remains available as a fail-closed fallback.
