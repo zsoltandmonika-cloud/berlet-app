@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="./guardian-polish-v767.css?v=768-family-guard-hero">
 <link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
 <link rel="stylesheet" href="./guardian-landmarks-sync-v787.css?v=787-optin-private-common">
+<link rel="stylesheet" href="./guardian-arrival-studio-v788.css?v=788-mokuska-studio">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
    Keep the regular FIVE-slot HealthHub bottom nav unchanged. */
@@ -116,6 +117,55 @@
    </div>
   </details>
  </section>
+ <details id="hhArrivalStudio" class="hh-arrival-studio" aria-label="Smart Arrival Mókuska értesítés szerkesztő">
+  <summary>🐿️ Smart Arrival Studio <small>Hangok · üzenetek · előnézet</small></summary>
+  <div class="hh-arrival-body">
+   <p class="hh-arrival-about">Saját Mókuska-értesítéseket tervezhettek és menthettek ezen a telefonon. A <strong>TESZT</strong> gomb csak előnézetet ad: valódi helyérkezés-érzékelés és automatikus értesítés még nincs bekapcsolva.</p>
+   <div class="hh-arrival-grid">
+    <label class="hh-arrival-field">Kiről szól?
+     <select id="hhArrivalPerson"><option value="monika" selected>Mónika</option><option value="zsolt">Zsolt</option></select>
+    </label>
+    <label class="hh-arrival-field">Fontos hely
+     <select id="hhArrivalPlace"><option value="home" selected>🏠 Otthon</option><option value="work">💼 Munkahely</option></select>
+    </label>
+    <label class="hh-arrival-field hh-arrival-field-wide">Esemény
+     <select id="hhArrivalEvent"><option value="arrive" selected>Megérkezett</option><option value="leave">Elindult / távozott</option></select>
+    </label>
+    <label class="hh-arrival-field hh-arrival-field-wide">Értesítés címe (szerkeszthető)
+     <input id="hhArrivalTitle" maxlength="90" autocomplete="off" aria-label="Értesítés egyedi címe">
+    </label>
+    <label class="hh-arrival-field hh-arrival-field-wide">Üzenet (szerkeszthető)
+     <textarea id="hhArrivalBody" maxlength="240" rows="2" aria-label="Értesítés egyedi szövege"></textarea>
+    </label>
+    <label class="hh-arrival-field hh-arrival-field-wide">Választható hang
+     <select id="hhArrivalSound">
+      <option value="mokuska" selected>🐿️ Játékos Mókuska · alapértelmezett</option>
+      <option value="tada">🎺 Vidám Ta-daaa!</option>
+      <option value="chime">🔔 Lágy csilingelés</option>
+      <option value="soft">✨ Diszkrét jelzés</option>
+      <option value="silent">🔕 Néma</option>
+     </select>
+    </label>
+   </div>
+   <div class="hh-arrival-flags">
+    <label><input id="hhArrivalAnimation" type="checkbox" checked> Animált Mókuska-pop-up</label>
+    <label><input id="hhArrivalQuiet" type="checkbox" checked> Éjszakai csendes mód (a későbbi automatikus értesítéshez)</label>
+    <label><input id="hhArrivalEnabled" type="checkbox" checked> Ennek az eseménysablonnak az engedélyezése</label>
+   </div>
+   <div class="hh-arrival-preview" aria-label="Szerkesztett értesítés előnézete">
+    <img id="hhArrivalPreviewMascot" src="../nutrition-preview/nutri-chipmunk-v592.svg" alt="Mókuska karakter" loading="lazy">
+    <div><strong id="hhArrivalPreviewTitle">Mónika hazaért! 🏡</strong>
+    <p id="hhArrivalPreviewText">Mókuska jelenti: Mónika megérkezett.</p>
+    <small><span id="hhArrivalPreviewSound">🐿️ Játékos Mókuska</span> · <span id="hhArrivalPreviewActive">Értesítés: BE</span></small></div>
+   </div>
+   <div class="hh-arrival-actions">
+    <button type="button" class="hh-arrival-primary" id="hhArrivalSave">💾 Sablon mentése</button>
+    <button type="button" id="hhArrivalTest">🐿️ TESZT · Hang + pop-up</button>
+    <button type="button" id="hhArrivalReset">↺ Alapértékek</button>
+   </div>
+   <p id="hhArrivalStatus" role="status" aria-live="polite" class="hh-arrival-status">Szerkeszthető értesítési sablon.</p>
+  </div>
+ </details>
  <section class="family-panel" id="guardianFamilyPanel" hidden aria-label="Családi helyzetek">
   <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
   <div class="family-grid">
@@ -195,5 +245,15 @@
 <script defer src="./guardian.js?v=786-location-cloud-sync"></script>
 <script defer src="./guardian-live-v785.js?v=787-landmarks-session"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
+<script defer src="./guardian-arrival-studio-v788.js?v=788-personal-mokuska-editor"></script>
+<div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
+ <div class="hh-arrival-test-card">
+  <img id="hhArrivalTestMascot" src="../nutrition-preview/nutri-chipmunk-v592.svg" alt="Mókuska integet" loading="lazy">
+  <div><span class="hh-arrival-test-flag">🐿️ SMART ARRIVAL · TESZT</span>
+   <strong id="hhArrivalTestTitle">Tesztértesítés</strong><p id="hhArrivalTestText">Nem valódi helyzetesemény.</p>
+  </div>
+  <button type="button" id="hhArrivalTestClose" class="hh-arrival-test-close" aria-label="Tesztértesítés bezárása">×</button>
+ </div>
+</div>
 </body>
 </html>

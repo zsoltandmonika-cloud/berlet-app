@@ -1,5 +1,5 @@
 # HealthHub · Living Architecture & Development Documentation
-**Utolsó karbantartás: 2026-10-21** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
+**Utolsó karbantartás: 2026-10-22** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
 
 ## 🏛️ A rendszer jelenlegi műszaki kiindulópontja
 
@@ -7,6 +7,7 @@
 - **[Operations & Recovery Runbook](./HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md)**: Project Control gomb eltűnés, Admin renderer, Dropbox 401/403/409, frissességi eltérések, profilizoláció, hibakeresési és rollback lépések.
 - **[Adminban megnyitható prémium dokumentumnéző](../architecture-grand-design.html)**: Architecture / Runbook nézet, keresés, nyomtatás.
 - **[Project Control · központi master](../project-control.json)**: naprakész epicek, mérföldkövek, státuszok és változásnapló; az Adminban végzett helyi override nem írja át automatikusan a GitHub mastert.
+- **[Smart Arrival / Mókuska Notification Studio v1](./SMART_ARRIVAL_MOKUSKA_NOTIFICATION_STUDIO_V1.md)**: jóváhagyott érkezési/távozási értesítés-szerkesztő, öt hang, kézi TESZT-előnézet. v788-ban első beállító UI kódolva; geofencing / valódi Android push és háttérkövetés még nem él.
 - **[ChatGPT Dropbox-first architektúra v731](./chatgpt-dropbox-architecture-v731.md)**: történeti kiindulási terv; a v741/v742 megvalósulásról a Grand Design aktuálisabb.
 - **[v739 Dropbox külön engedélyezés előfeltételei](./chatgpt-dropbox-bridge-v739-preconditions.md)**: történeti hitelesítési/engedélyezési dokumentum.
 

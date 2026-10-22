@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-21",
+  "updatedAt": "2026-10-22",
   "liveBuild": "v380",
   "currentFocus": "Architecture Grand Design és egységes Admin oldal v745: taskbar Továbbiak→Admin, csoportosított közvetlen Admin Data Hub, Project Control, Recovery, Dropbox Analytics; működő eszközök megtartása, duplikált és információs legacy elemek eltüntetése; a v742 privát Dropbox-ChatGPT E2E működik.",
   "nextDevelopment": "1) Egyetlen Admin navigáció éles Chrome/S24 Ultra ellenőrzése, Project Control és Grand Design elérése, import/export/snapshot/adatkapcsolat funkciók; 2) v743 provenance javítás CI alapján további ellenőrzés; 3) v742 automatikus 6 órás ismétlések tényleges igazolása; 4) HH One Android adatgyűjtés, RLS, biztonság, OTA; 5) 24/7 háttérfeladat külön jóváhagyással.",
@@ -2413,6 +2413,24 @@
       "targetDate": "2026-10-21",
       "actualDone": null,
       "notes": "Implementáció v745; nem törli a működő funkciókat, helyi adatot, biztonsági mentést vagy Dropbox fájlt. Éles Chrome + S24 Ultra UI-ellenőrzés szükséges. A külön történeti Admin Data Hub overlay fallback megmarad, de normál úton nem szükséges."
+    },
+    {
+      "id": "HH-GUARD-006",
+      "epic": "Family Guard · Smart Arrival",
+      "feature": "Mókuska Notification Studio",
+      "title": "Szerkeszthető családi helyérkezési értesítések és öt választható hang",
+      "acceptanceCriteria": "Külön személy/esemény/hely sablonok, módosítható cím és szöveg, Játékos Mókuska alapértelmezett hang, 4 alternatíva, teszt pop-up TESZT jelzéssel, helyi mentés/visszaolvasás és reset; éles push/geofencing kizárólag natív GPS opt-in + Android háttérengedélyek + kéttelefonos elfogadási teszt után.",
+      "priority": "High",
+      "sprint": "Family Guard / Arrival Studio",
+      "milestone": "Smart Arrival Preview",
+      "status": "In Progress",
+      "progress": 0.3,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-GUARD-001;HH-CORE-005",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "v788 szerkeszthető, csak helyi beállításokat tároló stúdió + manuális TESZT előnézet kódban. Önálló geofencing, natív háttér GPS és valódi érkezési push még NINCS. Leírás: healthhub/docs/SMART_ARRIVAL_MOKUSKA_NOTIFICATION_STUDIO_V1.md"
     }
   ],
   "changeLog": [
@@ -3042,6 +3060,12 @@
       "version": "HealthHub Admin v745 · Unified Administration",
       "type": "UX / Navigation · CI TESTED, LIVE acceptance pending",
       "change": "A meglévő taskbar Továbbiak gomb Admin nevet és működő útvonalat kap; az egész Továbbiak-oldal egységes Admin csoportosított kártyákkal. Az Admin Data Hub Import/Export/Snapshot/Audit közvetlenül az oldalon jelenik meg; Project Control és Architecture Grand Design külön Admin gomb nélkül található. Az elavult/duplikált Admin nyitó, régi külön Dropbox kártyák és inaktív adaptertájékoztató rejtve; működő gombok és minden egészségadat érintetlen marad."
+    },
+    {
+      "date": "2026-10-22",
+      "version": "Family Guard · Smart Arrival Studio v788",
+      "type": "Configuration UX + manual sound preview; no background GPS",
+      "change": "A Mókuska Studio tervének első UI implementációja: személy/hely/esemény sablonok, módosítható szöveg, öt hang (Mókuska default), hangteszt és TESZT felugró ablak; profiltól és böngészőtől függő helyi mentés. Nem éles érkezésérzékelés, nem natív push és nem background sharing. Következő Transit cél: 260-as busz, majd 17-es és 19-es villamos."
     }
   ],
   "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke, nem tükrözi a 2026-10-21-es v742 ChatGPT Analytics modul jelenlegi életciklusát. Modulfájl-verzió a healthhub/index.html és GitHub commit alapján.",
