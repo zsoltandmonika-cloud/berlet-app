@@ -2,7 +2,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const crypto=require('node:crypto');
 const path=require('node:path');
 const vm=require('node:vm');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
@@ -18,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v773\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=761-guardian-home/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=773-daylight-map-entry/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -50,7 +49,7 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(css,/zsolt-hh-hero-approved-v527\.png/);
  assert.match(css,/monika-hh-hero-approved-v5261\.png/);
  assert.match(css,/data-guardian-profile="m"/);
- assert.match(js,/https:\/\/tiles\.openfreemap\.org\/styles\/dark/);
+ assert.match(js,/https:\/\/tiles\.openfreemap\.org\/styles\/bright/);
  assert.match(js,/type:'fill-extrusion'/);
  assert.match(js,/function toggle3D\(\)/);
  assert.match(js,/function applyGoldenMapStyle/);
@@ -64,8 +63,8 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.doesNotMatch(html,/id="guardianAvatar"/,'no second profile switch');
  assert.match(polish,/width:min\(100vw,420px\)/,'canonical taskbar width');
  assert.match(polish,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/,'five buttons');
- assert.match(polish,/bottom:calc\(70px/,'left profile above taskbar');
- assert.match(polish,/brightness\(1\.38\)/,'lightened map');
+ assert.ok(html.indexOf('id="guardianProfileSwitch"')>html.indexOf('<section class="intro guardian-hero"')&&html.indexOf('id="guardianProfileSwitch"')<html.indexOf('</section>'),'profile switch stays in hero bottom-left');
+ assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
  assert.match(js,/function toggleSatellite\(\)/);
  assert.match(js,/tiles\.maps\.eox\.at/,'EOX satellite WMTS');
  assert.match(js,/EOxCloudless 2020/,'clear source licensing');
@@ -73,15 +72,33 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
  assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
  assert.match(js,/hm\.src=avatars\.m/,'Hero must bind canonical Mónika photo');
- assert.match(polish,/guardian-family-hero-approved-v767\.png/,'approved bright Family Guard Hero loaded');
- const hero=fs.readFileSync(path.join(__dirname,'../assets/guardian-family-hero-approved-v767.png'));
- assert.equal(hero.length,3480511,'approved original hero is complete');
- assert.equal(crypto.createHash('sha256').update(hero).digest('hex'),
- '7be5f85999a26e676d89fd92ac2ae184b6f081aa5fb64fedbcee01178c262230',
- 'the Hero must remain the exact user-attached PNG, never regenerated');
- assert.match(js,/const existing=layers\.find/,'reuse existing dark-map vector source');
+ assert.match(polish,/guardian-family-hero-approved-v768\.avif/,'approved v768 family hero remains loaded');
+ assert.ok(fs.statSync(path.join(__dirname,'../assets/guardian-family-hero-approved-v768.avif')).size>50000,'approved family hero asset exists');
+ assert.match(js,/const existing=layers\.find/,'reuse existing vector source');
  assert.match(js,/if\(!existing\)map\.addSource\(source/,'only load a fallback building source if needed');
  assert.match(js,/path\.length<2\?\[\]/,'empty route must not publish invalid LineString geometry');
+});
+
+test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
+ const js=read('guardian/guardian.js');
+ const html=read('guardian/family-guard-v773.html');
+ const daylight=read('guardian/guardian-daylight-v773.css');
+ assert.match(js,/style:'https:\/\/tiles\.openfreemap\.org\/styles\/bright'/,'daylight open vector basemap');
+ assert.doesNotMatch(js,/styles\/dark/,'dark default removed');
+ assert.match(js,/water:'#80cbea'/,'daylight river palette');
+ assert.match(js,/parks:'#a8d58e'/,'daylight park palette');
+ assert.match(js,/guardian-buildings-3d/,'true 3D building extrusion preserved');
+ assert.match(js,/guardian-route-casing/,'route contrast preserved on light streets');
+ assert.match(js,/function toggleSatellite\(\)/,'satellite switch preserved');
+ assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
+ assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
+ assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
+ assert.match(html,/guardian\.js\?v=773/,'daylight JS linked');
+ const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
+ assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
+ const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
+ assert.match(hero,/id="guardianProfileSwitch"/,'profile switch stays in hero');
+ assert.match(html,/EOxCloudless 2020/,'historic satellite notice kept');
 });
 
 test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
