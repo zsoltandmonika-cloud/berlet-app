@@ -1,0 +1,12 @@
+/* Smart Arrival Premium v791, mobile portrait progressive enhancement. Scoped, no core Family Guard overrides. */
+.hh-transit-v791{display:grid;gap:10px;margin-top:12px;padding:12px;border:1px solid rgba(124,204,250,.45);border-radius:16px;background:linear-gradient(140deg,rgba(31,101,154,.30),rgba(9,28,68,.72));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.hh-transit-v791>label{font-weight:750;color:#e7f7ff}
+.hh-transit-v791>select{min-height:46px;width:100%;border-radius:12px;background:#163a66;color:white;border:1px solid #81c9ff;padding:0 12px;font:700 16px system-ui}
+.hh-transit-v791-directions{display:grid;gap:7px;min-width:0}
+.hh-transit-v791-directions p{font:600 .82rem/1.4 system-ui;color:#d0e9ff;margin:0 0 5px}
+.hh-transit-v791-directions strong{margin-top:8px;color:#fff;font-weight:850;font-size:1rem}
+.hh-transit-v791-directions label{display:flex;gap:12px;align-items:center;padding:10px 12px;min-height:48px;border-radius:12px;background:rgba(10,37,77,.75);border:1px solid rgba(132,209,255,.24);font:650 .91rem/1.35 system-ui;color:#f1f9ff;cursor:pointer}
+.hh-transit-v791-directions input{width:22px;height:22px;accent-color:#24a2fa;flex-shrink:0}
+.hh-transit-v791-directions span{overflow-wrap:anywhere}
+@media(max-width:640px){.hh-transit-panel{border-radius:20px}.hh-transit-panel>details>summary{min-height:48px}.hh-transit-body{padding:0 12px 16px}.hh-transit-v791{margin-top:14px}}
+@media(prefers-reduced-motion:reduce){.hh-transit-v791 *{scroll-behavior:auto!important;transition:none!important}}
