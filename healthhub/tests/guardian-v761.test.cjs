@@ -1075,11 +1075,11 @@ test('v800 original Family Guard loads the approved compact live glass set',()=>
  const live=read('guardian/bkk-live-map-v793.js');
  const glass=read('guardian/bkk-live-glass-v800.css');
  new Function(transit);new Function(live);
- assert.match(html,/bkk-live-glass-v800\\.css\\?v=800-approved-set/);
- assert.match(html,/guardian-transit-v791\\.js\\?v=800-glassy-marker/);
- assert.match(transit,/url\\.searchParams\\.set\\('v','800-glassy-marker'\\)/);
+ assert.match(html,/bkk-live-glass-v800\.css\?v=800-approved-set/);
+ assert.match(html,/guardian-transit-v791\.js\?v=800-glassy-marker/);
+ assert.match(transit,/url\.searchParams\.set\('v','800-glassy-marker'\)/);
  assert.match(live,/hh-bkk-glass-marker-v800/);
- assert.match(live,/ICONS=Object\\.freeze/);
+ assert.match(live,/ICONS=Object\.freeze/);
  assert.match(glass,/hh-bkk-glass--tram/);
  assert.match(glass,/hh-bkk-glass--hev/);
  assert.match(glass,/height:30px;min-width:70px/);
