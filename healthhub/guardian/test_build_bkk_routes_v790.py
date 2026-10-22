@@ -56,7 +56,7 @@ class GeneratorTests(unittest.TestCase):
         raw=fixture()
         with zipfile.ZipFile(io.BytesIO(raw)) as z:
             parts={n:z.read(n) for n in z.namelist()}
-        parts["routes.txt"]=parts["routes.txt"].replace(b"R19,19,","R19,319,")
+        parts["routes.txt"]=parts["routes.txt"].replace(b"R19,19,",b"R19,319,")
         out=io.BytesIO()
         with zipfile.ZipFile(out,"w") as z:
             for k,v in parts.items():z.writestr(k,v)
