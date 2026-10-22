@@ -44,13 +44,13 @@ test('v803 uses own MapLibre destination marker, preserves v800 live buses and m
  const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js'),css=read('guardian-smart-hub-native-v803.css');
  assert.ok(html.includes('hhSmartHubNativeResultsV803'));
  assert.ok(html.includes('hhSmartHubSelectedV803'));
- assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-c'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=804-paired-origin'));
  assert.ok(!html.includes('id="hhSmartHubDirectionsV802"'));
  assert.ok(html.includes('bkk-live-glass-v800.css'));
  assert.ok(js.includes('HH_GUARDIAN_V761.map'));
  assert.ok(js.includes('new Marker({element:node'));
  assert.ok(js.includes('textContent=item.name'));
- assert.ok(js.includes('BKK-útvonaltervezés ehhez a célhoz a következő fejlesztés'));
+ assert.ok(js.includes('Ha az indulás és az úti cél is megvan'));
  assert.ok(js.includes('DEBOUNCE_MS=1000,MIN_GAP_MS=1400'));
  assert.ok(js.includes('w.fetch(searchUrl(value)'));
  assert.ok(!js.includes('maps.google.com'));
