@@ -103,22 +103,28 @@ function attach(){
    });
    const badges='hh-bkk-badges-'+id;
    if(!map.getSource(badges))map.addSource(badges,{type:'geojson',data:badgeFeatures(id)});
-   if(!map.getLayer(badges+'-disc'))map.addLayer({
-    id:badges+'-disc',type:'circle',source:badges,minzoom:10.5,
+   if(!map.getLayer(badges+'-glow'))map.addLayer({
+    id:badges+'-glow',type:'circle',source:badges,minzoom:11.8,
     layout:{visibility:visible},
-    paint:{'circle-radius':['interpolate',['linear'],['zoom'],10.5,15,15,20],
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],11.8,20,15,28],
+     'circle-color':id==='260'?'#45a8f7':'#ffe17c','circle-opacity':.21,'circle-blur':.7}
+   });
+   if(!map.getLayer(badges+'-disc'))map.addLayer({
+    id:badges+'-disc',type:'circle',source:badges,minzoom:11.8,
+    layout:{visibility:visible},
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],11.8,14,15,20],
      'circle-color':id==='260'?'#1764a8':'#e6ba26',
-     'circle-stroke-color':'#f5faff','circle-stroke-width':3,'circle-opacity':.96}
+     'circle-stroke-color':'#f5faff','circle-stroke-width':2.5,'circle-opacity':.92}
    });
    if(!map.getLayer(badges+'-text'))map.addLayer({
     id:badges+'-text',type:'symbol',source:badges,minzoom:10.5,
     layout:{visibility:visible,'text-field':['get','label'],'text-size':id==='260'?17:18,
      'text-font':['Open Sans Bold','Arial Unicode MS Bold'],
-     'text-allow-overlap':false,'text-anchor':'center'},
+     'text-allow-overlap':false,'text-ignore-placement':false,'text-anchor':'center'},
     paint:{'text-color':id==='260'?'#ffffff':'#172b42','text-halo-color':id==='260'?'#16416b':'#ffe798','text-halo-width':.5}
    });
-   // Static stop labels. These are NOT vehicle markers or live locations.
-   if(!map.getLayer(stops+'-number'))map.addLayer({
+   // Only one large route badge per official GTFS variant; individual stops stay compact.
+   if(false && !map.getLayer(stops+'-number'))map.addLayer({
     id:stops+'-number',type:'symbol',source:stops,minzoom:14,
     layout:{visibility:visible,'text-field':id,'text-size':14,'text-font':['Open Sans Bold','Arial Unicode MS Bold'],
      'text-offset':[0,1.3],'text-allow-overlap':false,'text-ignore-placement':false},
@@ -132,7 +138,7 @@ function showSelected(){
  attach();refreshData();
  for(const id of IDS){
   const show=checked(id)?'visible':'none';
-  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number','hh-bkk-badges-'+id+'-disc','hh-bkk-badges-'+id+'-text']){
+  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number','hh-bkk-badges-'+id+'-glow','hh-bkk-badges-'+id+'-disc','hh-bkk-badges-'+id+'-text']){
    try{if(map.getLayer(layer))map.setLayoutProperty(layer,'visibility',show)}catch(_){}
   }
  }
