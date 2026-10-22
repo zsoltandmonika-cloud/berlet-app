@@ -175,21 +175,29 @@ function switchProfile(){
  report('GPS kikapcsolva · '+name()+' profil');
 }
 /* Family Guard v773: real daylight vector map, no static image replacing GPS. */
+/* v781: one cartographic palette for both flat (2D) and extruded (3D) maps.
+   The view toggle changes only camera geometry and extrusion visibility.
+   Gender/profile affects only the route accent, not street or landscape colors. */
 function mapColors(){
  const rose=name()==='Mónika';
  return {
-  background:'#f6f2e9',
-  water:'#80cbea',
-  river:'#68bde6',
-  parks:'#a8d58e',
-  woods:'#78af7b',
-  residential:'#efe6d9',
-  road:'#e7dfd2',
-  highway:'#f3e5c9',
-  label:'#40536a',
-  roofLow:rose?'#e9cfbf':'#e4d4bd',
-  roofMid:rose?'#d7acaa':'#d5ae8b',
-  roofHigh:rose?'#be938f':'#c39a79',
+  background:'#f1f0ed',
+  water:'#9fc4f1',
+  river:'#8db8eb',
+  parks:'#cfe4b5',
+  woods:'#bbd9a7',
+  residential:'#ece9e3',
+  roadLocal:'#fffdf8',
+  roadSecondary:'#ffecc8',
+  roadPrimary:'#f8d987',
+  roadCasing:'#d0cbc0',
+  rail:'#a4aeb9',
+  buildingFootprint:'#bfc1c3',
+  label:'#34485f',
+  labelHalo:'#fffdf8',
+  roofLow:'#c9cbcd',
+  roofMid:'#b5b8bb',
+  roofHigh:'#9fa4a9',
   track:rose?'#e63198':'#168bc9',
   glow:rose?'#ff7eca':'#64caff'
  };
@@ -197,10 +205,8 @@ function mapColors(){
 function applyGoldenMapStyle(){
  if(!map||!ready)return;
  const colors=mapColors();
- /* OpenFreeMap Bright has different IDs from Dark. Inspect live layer types/IDs
-    rather than silently targeting dark-only layer names. Keep OSM labels and attribution. */
  const layers=(map.getStyle()&&map.getStyle().layers)||[];
- const paint=(id,key,value)=>{try{map.setPaintProperty(id,key,value)}catch(_){/* optional layer */}};
+ const paint=(id,key,value)=>{try{map.setPaintProperty(id,key,value)}catch(_){/* optional style layer */}};
  layers.forEach(function(layer){
   const id=(layer.id||'').toLowerCase();
   if(layer.type==='background')paint(layer.id,'background-color',colors.background);
@@ -208,18 +214,27 @@ function applyGoldenMapStyle(){
    if(/water|lake|river/.test(id))paint(layer.id,'fill-color',colors.water);
    else if(/park|grass|garden|green/.test(id))paint(layer.id,'fill-color',colors.parks);
    else if(/wood|forest/.test(id))paint(layer.id,'fill-color',colors.woods);
+   else if(/building/.test(id))paint(layer.id,'fill-color',colors.buildingFootprint);
    else if(/residential/.test(id))paint(layer.id,'fill-color',colors.residential);
   }
   if(layer.type==='line'){
    if(/waterway|river|stream|canal/.test(id))paint(layer.id,'line-color',colors.river);
+   else if(/rail|tram|subway/.test(id))paint(layer.id,'line-color',colors.rail);
    else if(/road|street|highway|transportation/.test(id)){
-    paint(layer.id,'line-color',/motorway|trunk|primary|major/.test(id)?colors.highway:colors.road);
+    // OpenFreeMap Bright layer names and underlying filter classifications vary.
+    // Distinguish arterial, secondary, local roads without replacing road geometry.
+    const classifier=id+' '+JSON.stringify(layer.filter||[]).toLowerCase();
+    const casing=/casing|outline|border/.test(id);
+    const arterial=/motorway|trunk|primary|major|expressway|highway/.test(classifier);
+    const secondary=/secondary|tertiary|collector|medium/.test(classifier);
+    paint(layer.id,'line-color',casing?colors.roadCasing:
+      arterial?colors.roadPrimary:secondary?colors.roadSecondary:colors.roadLocal);
    }
   }
   if(layer.type==='symbol'&&layer.layout&&layer.layout['text-field']&&/road|street|highway|transportation/.test(id)){
    paint(layer.id,'text-color',colors.label);
-   paint(layer.id,'text-halo-color','#ffffff');
-   paint(layer.id,'text-halo-width',1.35);
+   paint(layer.id,'text-halo-color',colors.labelHalo);
+   paint(layer.id,'text-halo-width',1.3);
   }
  });
  if(map.getLayer('guardian-buildings-3d')){
@@ -230,25 +245,19 @@ function applyGoldenMapStyle(){
  if(map.getLayer('guardian-route-glow'))paint('guardian-route-glow','line-color',colors.glow);
  if(map.getLayer('guardian-route-line'))paint('guardian-route-line','line-color',colors.track);
 }
+
 function initMap(){
  if(!w.maplibregl){message('A térképmotor nem töltődött be. Ellenőrizd az internetkapcsolatot.');return}
  try{
   map=new w.maplibregl.Map({
    container:'guardianMap',style:'https://tiles.openfreemap.org/styles/bright',
-   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:{compact:true}
+   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:false
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
   map.on('load',function(){
    ready=true;message('');
-   // Retain mandatory OpenMapTiles/OSM credits as a tappable compact ⓘ,
-   // instead of an always-visible bottom MapLibre/OpenFreeMap text strip.
-   if(typeof d.querySelector==='function'){
-    const attribution=d.querySelector('#guardianMap .maplibregl-ctrl-attrib');
-    if(attribution&&attribution.classList&&typeof attribution.classList.remove==='function'){
-     attribution.classList.remove('maplibregl-compact-show');
-     if(typeof attribution.removeAttribute==='function')attribution.removeAttribute('open');
-    }
-   }
+   // Mandatory map-data credits appear in the visible row immediately below the map.
+   // Do not add MapLibre's small ⓘ overlay under zoom controls.
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
    /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.
