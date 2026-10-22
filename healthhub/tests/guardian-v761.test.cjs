@@ -93,7 +93,7 @@ test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
  assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
  assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
  assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
- assert.match(html,/guardian\.js\?v=773/,'daylight JS linked');
+ assert.match(html,/guardian\.js\?v=776/,'daylight JS linked with landmark integration');
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
