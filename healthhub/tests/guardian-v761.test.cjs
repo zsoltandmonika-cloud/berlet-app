@@ -21,7 +21,7 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=784-premium-landmarks/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=785-family-live/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
