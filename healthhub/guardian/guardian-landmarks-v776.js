@@ -60,6 +60,8 @@ function setSelected(coords){
  const save=$('guardianLandmarksSave');if(save)save.disabled=false;
  movePreview();
  status('Pont kijelölve. A Mentés gombbal rögzítheted.');
+ const settings=$('guardianLandmarks');
+ if(settings&&typeof settings.scrollIntoView==='function')settings.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function stopPicking(){
  picking=false;
@@ -158,6 +160,7 @@ function init(loadedMap){
   const hint=$('guardianLandmarkHint');if(hint)hint.hidden=!picking;
   if(map.getCanvas)map.getCanvas().style.cursor=picking?'crosshair':'';
   status(picking?'Érintsd meg a térképen a kívánt helyet.':'Kijelölés megszakítva.');
+  if(picking){const area=$('guardianMap');if(area&&typeof area.scrollIntoView==='function')area.scrollIntoView({behavior:'smooth',block:'center'});}
  });
  const center=$('guardianLandmarksCenter');
  if(center)center.addEventListener('click',function(){
