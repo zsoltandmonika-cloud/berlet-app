@@ -27,20 +27,22 @@ test('v802 destination input is safely encoded and never interpreted as markup',
  assert.equal(place.urls('x\u0000y'),null);
  assert.ok(place.searchTerm('MOM Park').includes('Budapest'));
 });
-test('v802 is visible within existing v800 Family Guard and clearly labels external providers',()=>{
- const html=read('index.html'),script=read('guardian-smart-hub-v802.js'),css=read('guardian-smart-hub-v802.css');
+test('v803 replaces external destination handoff with native HealthHub search',()=>{
+ const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js'),css=read('guardian-smart-hub-native-v803.css');
  assert.ok(html.includes('hhSmartHubDestinationV802'));
  assert.ok(html.includes('hhSmartHubDestinationInputV802'));
- assert.ok(html.includes('guardian-smart-hub-v802.js?v=802-destination-a'));
- assert.ok(html.includes('guardian-smart-hub-v802.css?v=802-destination-a'));
- assert.ok(html.includes('hhSmartHubStreetV802'));
- assert.ok(html.includes('Google Térkép azonosítja'));
- assert.ok(html.includes('Nem élő kamera'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-b'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.css?v=803-native-b'));
+ assert.ok(html.includes('hhSmartHubNativeResultsV803'));
+ assert.ok(html.includes('OpenStreetMap-alapú Photon'));
+ assert.ok(!html.includes('id="hhSmartHubDirectionsV802"'));
+ assert.ok(!html.includes('id="hhSmartHubStreetV802"'));
+ assert.ok(!html.includes('<script defer src="./guardian-smart-hub-v802.js'));
  assert.ok(html.includes('hhTransitRoute260'));
  assert.ok(html.includes('bkk-live-glass-v800.css'));
- assert.ok(script.includes('input.addEventListener(\'input\',update)'));
- assert.ok(script.includes('form.addEventListener(\'submit\''));
- assert.ok(!script.includes('geolocation.getCurrentPosition'));
- assert.ok(!script.includes('localStorage.setItem'));
- assert.ok(css.includes('backdrop-filter:blur(12px)'));
+ assert.ok(js.includes("input.addEventListener('input'"));
+ assert.ok(js.includes("form.addEventListener('submit'"));
+ assert.ok(!js.includes('geolocation.getCurrentPosition'));
+ assert.ok(!js.includes('localStorage.setItem'));
+ assert.ok(css.includes('backdrop-filter:blur(10px)'));
 });
