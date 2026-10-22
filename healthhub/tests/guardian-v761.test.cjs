@@ -444,7 +444,7 @@ test('v784 nine distinct hand-drawn translucent SVG landmarks keep existing book
  assert.match(html,/data-family-guard-build="v784"/);
  assert.match(html,/guardian-icons-v784\.css\?v=784-glass-location-medallions/);
  assert.match(html,/guardian-icons-v784\.js\?v=784-translucent-svg-icons/);
- assert.match(html,/guardian-landmarks-v776\.js\?v=784-svg-place-icons/);
+ assert.match(html,/guardian-landmarks-v776\.js\?v=787-private-and-common/);
  assert.ok(html.indexOf('guardian-icons-v784.js')<html.indexOf('guardian-landmarks-v776.js'),'vector renderer must load before local bookmarks');
  assert.match(html,/guardian-avatars-v783\.css/,'approved neon people avatars kept');
  assert.match(html,/golden-standard-avatars-v529\.js/,'approved real family photos kept');
@@ -689,4 +689,70 @@ test('v786 profile-scoped location preferences sync without touching device cons
  assert.match(html,/guardian-live-v785\.js\?v=786-location-cloud-sync/);
  assert.match(live,/AUTO_KEY='hh-guardian-foreground-auto-v786'/,'remembered foreground consent untouched');
  assert.doesNotMatch(live,/service_role|sb_secret_/,'no secrets in browser code');
+});
+
+
+test('v787 Landmark Sync keeps legacy places private and enables opt-in shared cloud bookmarks',()=>{
+ const html=read('guardian/family-guard-v785.html'),canonical=read('guardian/index.html');
+ const places=read('guardian/guardian-landmarks-v776.js');
+ const sync=read('guardian/guardian-landmarks-sync-v787.js');
+ const css=read('guardian/guardian-landmarks-sync-v787.css');
+ new Function(places);new Function(sync);
+ for(const page of [html,canonical]){
+  assert.match(page,/id="guardianLandmarkScope"/);
+  assert.match(page,/id="guardianLandmarkSyncStatus"/);
+  assert.match(page,/value="private" selected/,'private opt-in default');
+  assert.match(page,/value="shared"/);
+  assert.match(page,/guardian-landmarks-sync-v787\.js/);
+  assert.match(page,/guardian-landmarks-sync-v787\.css/);
+ }
+ assert.match(places,/const KEY='hh-guardian-landmarks-v776'/,'old local key unchanged');
+ assert.match(places,/setSharedEntries/);
+ assert.match(places,/setBridge/);
+ assert.match(places,/Megosztod ezt a helyet/,'existing local place requires explicit confirmation');
+ assert.match(sync,/hh-guardian-shared-landmarks-outbox-v787/,'offline pending is durable');
+ assert.match(sync,/hh_guardian_shared_landmarks/,'separate RLS family table');
+ assert.doesNotMatch(sync,/service_role|sb_secret_/);
+ assert.doesNotMatch(css,/guardian-hero|hhBottomNav|guardianProfileSwitch/,'no hero or navigation changes');
+});
+
+test('v787 shared places retry offline, sync to another client and tombstone deletions',async()=>{
+ const code=read('guardian/guardian-landmarks-sync-v787.js');
+ const store={'hh-profile':'z','hh-guardian-landmarks-v776':'[{"id":"local_01","kind":"home","name":"Privát otthon","lng":19,"lat":47}]'};
+ const storage={getItem(k){return store[k]||null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}};
+ let bridge=null,shown=[],cloud=[],fail=false;
+ const api={from(name){
+  assert.equal(name,'hh_guardian_shared_landmarks');
+  return {
+   async upsert(row){if(fail)return {error:{message:'Offline'}};cloud=cloud.filter(x=>x.id!==row.id).concat(row);return {error:null}},
+   update(change){return {async eq(key,id){assert.equal(key,'id');cloud=cloud.map(x=>x.id===id?{...x,...change}:x);return {error:null}}}},
+   select(){return {order(){return {async limit(){return {data:cloud,error:null}}}}}}
+  }
+ }};
+ const live={authenticated:true,familyAuthorized:true,getClient(){return api},boundProfile:'zsolt'};
+ const landmarks={setBridge(x){bridge=x},setSharedEntries(x){shown=x}};
+ const events={},doc={hidden:false,getElementById(){return {textContent:''}},addEventListener(k,cb){events['doc-'+k]=cb}};
+ const win={HH_GUARDIAN_LIVE_V785:live,HH_GUARDIAN_LANDMARKS_V776:landmarks,localStorage:storage,
+  addEventListener(k,cb){events[k]=cb},setInterval(){return 1},setTimeout(){}};
+ vm.runInNewContext(code,{window:win,document:doc,Date,Math,Number,String,Array,Map,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.ok(bridge,'cloud bridge installed');
+ assert.deepEqual(JSON.parse(store['hh-guardian-landmarks-v776']).map(x=>x.name),['Privát otthon']);
+ fail=true;
+ bridge.create({id:'shared_001',kind:'doctor',name:'Közös rendelő',lng:19.1,lat:47.5});
+ assert.equal(JSON.parse(store['hh-guardian-shared-landmarks-outbox-v787']).length,1);
+ await win.HH_GUARDIAN_LANDMARK_SYNC_V787.sync();
+ assert.equal(cloud.length,0,'network failure cannot silently claim cloud success');
+ assert.equal(JSON.parse(store['hh-guardian-shared-landmarks-outbox-v787']).length,1,'retry survives offline');
+ fail=false;
+ await win.HH_GUARDIAN_LANDMARK_SYNC_V787.sync();
+ assert.equal(cloud.length,1);
+ assert.equal(shown.length,1);
+ assert.equal(shown[0].name,'Közös rendelő');
+ assert.equal(JSON.parse(store['hh-guardian-shared-landmarks-outbox-v787']).length,0);
+ bridge.remove('shared_001');
+ await win.HH_GUARDIAN_LANDMARK_SYNC_V787.sync();
+ assert.equal(shown.length,0,'shared deletion removes the remote marker');
+ assert.ok(cloud[0].deleted_at,'deletion is preserved as a tombstone for later sync');
+ assert.equal(JSON.parse(store['hh-guardian-landmarks-v776']).length,1,'private record never uploaded or deleted');
 });
