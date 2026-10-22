@@ -2430,7 +2430,7 @@
       "dependency": "HH-GUARD-001;HH-CORE-005",
       "targetDate": null,
       "actualDone": null,
-      "notes": "v788 szerkeszthető, csak helyi beállításokat tároló stúdió + manuális TESZT előnézet kódban. Önálló geofencing, natív háttér GPS és valódi érkezési push még NINCS. Leírás: healthhub/docs/SMART_ARRIVAL_MOKUSKA_NOTIFICATION_STUDIO_V1.md"
+      "notes": "v788 szerkeszthető, csak helyi beállításokat tároló stúdió + manuális TESZT előnézet kódban. Önálló geofencing, natív háttér GPS és valódi érkezési push még NINCS. Leírás: healthhub/docs/SMART_ARRIVAL_MOKUSKA_NOTIFICATION_STUDIO_V1.md v789 Buddy standard 3D karakter + külön menthető 0–100% hangerő (75% default), önálló TESZT hanggal; valós GPS-értesítés még nincs."
     }
   ],
   "changeLog": [
@@ -3066,6 +3066,12 @@
       "version": "Family Guard · Smart Arrival Studio v788",
       "type": "Configuration UX + manual sound preview; no background GPS",
       "change": "A Mókuska Studio tervének első UI implementációja: személy/hely/esemény sablonok, módosítható szöveg, öt hang (Mókuska default), hangteszt és TESZT felugró ablak; profiltól és böngészőtől függő helyi mentés. Nem éles érkezésérzékelés, nem natív push és nem background sharing. Következő Transit cél: 260-as busz, majd 17-es és 19-es villamos."
+    },
+    {
+      "date": "2026-10-22",
+      "version": "Family Guard Smart Arrival v789 · Buddy Edition",
+      "type": "Config UI · CI/Pilot pending",
+      "change": "A Smart Arrival Studio a már ismert HealthHub Buddy 3D-mókusasszisztens illusztrációját használja az előnézetben és teszt pop-upban. Külön 0–100%-os hangerőcsúszka 75%-os alapértékkel, 0%-nál tényleges némítással és régebbi sablonok megőrzésével. Csak manuális hangeffekt-teszt, automatikus háttérértesítés nélkül."
     }
   ],
   "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke, nem tükrözi a 2026-10-21-es v742 ChatGPT Analytics modul jelenlegi életciklusát. Modulfájl-verzió a healthhub/index.html és GitHub commit alapján.",

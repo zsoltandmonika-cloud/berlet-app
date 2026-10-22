@@ -51,3 +51,15 @@
 @media(max-width:390px){.hh-arrival-grid{grid-template-columns:1fr}.hh-arrival-field-wide{grid-column:auto}
  .hh-arrival-preview img{width:60px;height:60px}.hh-arrival-test-card img{width:72px;height:72px}}
 @media(prefers-reduced-motion:reduce){.hh-arrival-test-card,.hh-arrival-test-card img{animation:none!important}}
+
+/* v789 Buddy controls: visually consistent dedicated 0–100% volume setting. */
+.hh-arrival-volume{display:flex;flex-direction:column;gap:8px;padding:11px 13px;
+ border:1px solid rgba(126,184,229,.36);border-radius:13px;background:rgba(8,29,61,.42)}
+.hh-arrival-volume>label{display:flex;justify-content:space-between;align-items:center;gap:10px;
+ font-weight:750;font-size:.86rem;color:#e8f7ff}
+.hh-arrival-volume output{min-width:48px;font-variant-numeric:tabular-nums;text-align:right;color:#9addff}
+.hh-arrival-volume input[type=range]{width:100%;height:27px;cursor:pointer;accent-color:#73c9fa}
+.hh-arrival-volume-scale{display:flex;justify-content:space-between;gap:8px;
+ color:#b2d5ed;font-size:.72rem}
+.hh-arrival-volume small{color:#c5deef;font-size:.72rem;line-height:1.4}
+.hh-arrival-preview img,.hh-arrival-test-card img{object-fit:contain}

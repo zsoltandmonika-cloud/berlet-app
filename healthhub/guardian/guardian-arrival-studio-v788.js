@@ -1,4 +1,4 @@
-/* HealthHub Guardian v788 · Smart Arrival Studio (editor and manual preview only).
+/* HealthHub Guardian v789 · Buddy Smart Arrival Studio (editor and manual preview only).
  * This does NOT listen to GPS or send real notifications; it changes only local preferences.
  * One device's settings never grant another device permission to share locations.
  */
@@ -7,6 +7,8 @@
 const KEY='hh-guardian-smart-arrival-studio-v788';
 const PEOPLE=['zsolt','monika'],PLACES=['home','work'],EVENTS=['arrive','leave'];
 const SOUNDS=['mokuska','tada','chime','soft','silent'];
+const DEFAULT_VOLUME=75;
+function volumeValue(v){const n=Number(v);return v===null||v===undefined||v===''||!Number.isFinite(n)?DEFAULT_VOLUME:Math.max(0,Math.min(100,Math.round(n)))}
 const $=id=>d.getElementById(id);
 const personNames={zsolt:'Zsolt',monika:'Mónika'};
 const placeNames={home:'Otthon',work:'Munkahely'};
@@ -23,8 +25,8 @@ function defaults(){
  const loc=placeNames[place]||'a kijelölt hely';
  return {
   title:arriving?(place==='home'?person+' hazaért! 🏡':person+' megérkezett a munkahelyére! 💼'):person+' elindult: '+loc+' 🚶',
-  body:arriving?'Mókuska jelenti: '+person+' megérkezett.':'Mókuska jelenti: '+person+' elhagyta a kijelölt helyet.',
-  sound:'mokuska',animation:true,quiet:true,enabled:true
+  body:arriving?'Buddy jelenti: '+person+' megérkezett.':'Buddy jelenti: '+person+' elhagyta a kijelölt helyet.',
+  sound:'mokuska',volume:DEFAULT_VOLUME,animation:true,quiet:true,enabled:true
  };
 }
 function tidy(obj){
@@ -32,7 +34,7 @@ function tidy(obj){
  return {
   title:typeof v.title==='string'&&v.title.trim()?v.title.trim().slice(0,90):fallback.title,
   body:typeof v.body==='string'&&v.body.trim()?v.body.trim().slice(0,240):fallback.body,
-  sound:SOUNDS.includes(v.sound)?v.sound:'mokuska',
+  sound:SOUNDS.includes(v.sound)?v.sound:'mokuska',volume:volumeValue(v.volume),
   animation:v.animation!==false,quiet:v.quiet!==false,enabled:v.enabled!==false
  };
 }
@@ -50,23 +52,24 @@ function load(){
 }
 function current(){
  return tidy({
-  title:field('hhArrivalTitle'),body:field('hhArrivalBody'),sound:field('hhArrivalSound'),
+  title:field('hhArrivalTitle'),body:field('hhArrivalBody'),sound:field('hhArrivalSound'),volume:field('hhArrivalVolume'),
   animation:enabled('hhArrivalAnimation'),quiet:enabled('hhArrivalQuiet'),enabled:enabled('hhArrivalEnabled')
  });
 }
 function preview(){
  const x=current();
  const t=$('hhArrivalPreviewTitle'),b=$('hhArrivalPreviewText'),m=$('hhArrivalPreviewMascot');
- const s=$('hhArrivalPreviewSound'),a=$('hhArrivalPreviewActive');
+ const s=$('hhArrivalPreviewSound'),a=$('hhArrivalPreviewActive'),v=$('hhArrivalVolumeValue');
  if(t)t.textContent=x.title;
  if(b)b.textContent=x.body;
  if(m)m.hidden=!x.animation;
- if(s)s.textContent={mokuska:'🐿️ Játékos Mókuska',tada:'🎺 Ta-daaa!',chime:'🔔 Csilingelés',soft:'✨ Diszkrét',silent:'🔕 Néma'}[x.sound];
+ if(s)s.textContent={mokuska:'🐿️ Játékos Buddy',tada:'🎺 Ta-daaa!',chime:'🔔 Csilingelés',soft:'✨ Diszkrét',silent:'🔕 Néma'}[x.sound];
  if(a)a.textContent=x.enabled?'Értesítés: BE':'Értesítés: KI';
+ if(v)v.textContent=x.volume+'%';
 }
 function fill(){
  const x=tidy(data[key()]||defaults());
- setField('hhArrivalTitle',x.title);setField('hhArrivalBody',x.body);setField('hhArrivalSound',x.sound);
+ setField('hhArrivalTitle',x.title);setField('hhArrivalBody',x.body);setField('hhArrivalSound',x.sound);setField('hhArrivalVolume',String(x.volume));
  if($('hhArrivalAnimation'))$('hhArrivalAnimation').checked=x.animation;
  if($('hhArrivalQuiet'))$('hhArrivalQuiet').checked=x.quiet;
  if($('hhArrivalEnabled'))$('hhArrivalEnabled').checked=x.enabled;
@@ -89,7 +92,7 @@ function save(){
  note('✓ Sablon elmentve ezen a készüléken. Valós érkezési értesítés még nincs bekapcsolva.');
 }
 function reset(){
- if(!w.confirm('Visszaállítod ennek az eseménynek az alapértelmezett Mókuska-sablonját?'))return;
+ if(!w.confirm('Visszaállítod ennek az eseménynek az alapértelmezett Buddy-sablonját?'))return;
  const next={...data};delete next[key()];
  try{w.localStorage.setItem(KEY,JSON.stringify(next))}
  catch(_){note('A visszaállítást nem sikerült menteni.');return}
@@ -105,8 +108,9 @@ function tone(ctx,frequency,at,length,type,volume){
  osc.connect(gain);gain.connect(ctx.destination);
  osc.start(at);osc.stop(at+length+0.02);
 }
-function play(sound){
- if(sound==='silent')return;
+function play(sound,volume){
+ const vol=volumeValue(volume);
+ if(sound==='silent'||vol===0)return;
  const Ctx=w.AudioContext||w.webkitAudioContext;
  if(!Ctx){note('A böngésző nem támogatja a hangeffekt-előnézetet.');return}
  try{
@@ -116,7 +120,9 @@ function play(sound){
   if(sound==='tada')notes=[[392,0,.16,'triangle'],[523,.18,.16,'triangle'],[784,.36,.42,'triangle']];
   if(sound==='chime')notes=[[784,0,.31,'sine'],[1046,.23,.43,'sine']];
   if(sound==='soft')notes=[[660,0,.32,'sine']];
-  notes.forEach(n=>tone(ctx,n[0],start+n[1],n[2],n[3],sound==='mokuska'?0.045:0.035));
+  // v789: louder default with a bounded gain below 0.25.
+  const peak=(sound==='mokuska'?0.23:0.19)*(vol/100);
+  notes.forEach(n=>tone(ctx,n[0],start+n[1],n[2],n[3],peak));
   w.setTimeout(()=>{if(ctx.close)ctx.close().catch(()=>{})},1800);
  }catch(_){note('A hang nem játszható le ezen a készüléken.')}
 }
@@ -132,7 +138,7 @@ function test(){
  if(t)t.textContent=x.title;if(b)b.textContent=x.body;if(m)m.hidden=!x.animation;
  box.hidden=false;
  // Audio is never emitted automatically. Only the explicit manual test button calls this.
- play(x.sound);
+ play(x.sound,x.volume);
  timeout=w.setTimeout(closeTest,6500);
  note('TESZT ELŐNÉZET · nem jelent valódi érkezési vagy távozási eseményt.');
 }
@@ -142,7 +148,7 @@ function init(){
  for(const id of ['hhArrivalPerson','hhArrivalPlace','hhArrivalEvent']){
   const el=$(id);if(el)el.addEventListener('change',switchContext);
  }
- for(const id of ['hhArrivalTitle','hhArrivalBody','hhArrivalSound','hhArrivalAnimation','hhArrivalQuiet','hhArrivalEnabled']){
+ for(const id of ['hhArrivalTitle','hhArrivalBody','hhArrivalSound','hhArrivalVolume','hhArrivalAnimation','hhArrivalQuiet','hhArrivalEnabled']){
   const el=$(id);if(!el)continue;
   for(const ev of ['input','change'])el.addEventListener(ev,()=>{dirty=true;preview();note('Nem mentett módosítások.');});
  }
@@ -150,6 +156,6 @@ function init(){
  for(const id of Object.keys(handlers)){const el=$(id);if(el)el.addEventListener('click',handlers[id])}
  w.addEventListener('pagehide',closeTest);
 }
-w.HH_GUARDIAN_ARRIVAL_STUDIO_V788=Object.freeze({init,version:'788'});
+w.HH_GUARDIAN_ARRIVAL_STUDIO_V788=Object.freeze({init,version:'789'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
 })(window,document);

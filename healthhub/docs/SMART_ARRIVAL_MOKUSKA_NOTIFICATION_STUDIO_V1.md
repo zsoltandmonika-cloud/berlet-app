@@ -1,5 +1,5 @@
 # HealthHub · Smart Arrival / Mókuska Notification Studio
-## Living feature specification · v1.0 · 2026-10-22
+## Living feature specification · v1.1 (Buddy Edition v789) · 2026-10-22
 
 **Állapot:** APPROVED PRODUCT SPEC · v788 LOCAL-ONLY EDITOR CODED, DEVICE TEST PENDING. A valódi geofencing, push és háttér-GPS továbbra is PLANNED, nem éles. Kizárólag technikai és általános termékdokumentáció: nincs benne privát koordináta, token vagy személyes napló.
 
@@ -7,9 +7,9 @@
 A Family Guard által már kezelt, kifejezetten megosztott Landmarkokhoz később megadhatók eseményszabályok: *megérkezett*, *elhagyta*. A HH One natív, önként engedélyezett Android helyszolgáltatása megerősített esemény esetén, címzett/érintett profil szerinti engedélyekkel küldhet értesítést. A felhasználók külön-külön és visszavonhatóan döntik el, hogy saját mozgásukból mely események oszthatók meg a családtaggal.
 
 ### Elfogadott, elsődleges design-döntés
-- **Alapértelmezett hang:** **Játékos Mókuska-hangeffekt** 🐿️. Rövid, barátságos, nem riasztó, eredeti/jogszerűen használható hangsáv.
-- **Választható hangok:** Játékos Mókuska (default) / rövid „Ta-daaa!” / lágy csilingelés / diszkrét jelzés / néma. Legalább négy választás maradjon elérhető.
-- **Mókuska animáció:** prémium, szerethető, rövid felugró karakter a HealthHub stílusában, önálló ki-/bekapcsolóval; tiszteletben tartja a csökkentett animáció rendszerszintű kérését.
+- **Alapértelmezett hang:** **Játékos Buddy-hangeffekt** 🐿️. Rövid, barátságos, nem riasztó, eredeti/jogszerűen használható hangsáv.
+- **Választható hangok:** Játékos Buddy (default) / rövid „Ta-daaa!” / lágy csilingelés / diszkrét jelzés / néma. Legalább négy választás maradjon elérhető.
+- **Buddy animáció:** az eredeti, már meglévő HealthHub Buddy mókus/chipmunk asszisztens (közös Nutrition és további modulok karakterazonossága), prémium, szerethető, rövid felugró karakter a HealthHub stílusában, önálló ki-/bekapcsolóval; tiszteletben tartja a csökkentett animáció rendszerszintű kérését.
 - **Értesítésszerkesztő:** cím és szöveg szabadon szerkeszthető; eseményenként és címzettenként külön sablon, előnézet, visszaállítás az alapértékre.
 - **Biztonságos helyettesítő változók:** `{person}`, `{place}`, `{event}`, `{time}` (a felhasználó eszközén feloldva; ártalmatlanítás és szöveghossz-korlát).
 - **Személyes választások:** hang, animáció, hang nélküli időszak, be/ki, eseménytípus, érintett személy és Landmark; később esetleges hangerő/rezgés, amit az Android értesítési csatornák és az eszköz beállításai korlátozhatnak.
@@ -38,3 +38,9 @@ A Family Guard alatt a **Smart Arrival Studio** kinyitható panelben helyben leh
 
 ### Project Control
 `HH-GUARD-006` · Smart Arrival / Mókuska Notification Studio · PLANNED / 0%.
+
+### v789 jóváhagyott finomítás · egységes Buddy + hangerő
+- **Egyetlen standard karakter:** **Buddy**, a HealthHub más moduljaiban már használt, eredeti 3D mókusasszisztens. A Smart Arrival előnézet/pop-up ugyanazt a `healthhub/nutrition/nutri-chipmunk-3d-v594.webp` assetet használja, amelyet a Buddy companion modul már használ. Nem generálunk új, eltérő mókuskaraktert.
+- **Hangerő:** külön, profilonkénti eseménysablonhoz mentett **0–100%** csúszka, alapérték **75%**. 0% = teljes némítás. A teszt Web Audio hangja a v788-nál hangosabb, maximálisan korlátozott gainnel; a készülék rendszerhangerőjét nem módosítja.
+- **Kompatibilitás:** megmarad a meglévő `hh-guardian-smart-arrival-studio-v788` localStorage kulcs és az összes korábbi mentett szöveg, hang, jelölő. A volume mezővel nem rendelkező korábbi sablonok 75%-ot kapnak.
+- **Scope:** a hangerő csak a kézi hangpróbán érvényesül. Android natív push-hangerőre továbbra is platformszabályok vonatkoznak. Valódi helyesemény / érkezésértesítés továbbra sem él.

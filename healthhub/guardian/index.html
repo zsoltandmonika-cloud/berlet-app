@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="./guardian-polish-v767.css?v=768-family-guard-hero">
 <link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
 <link rel="stylesheet" href="./guardian-landmarks-sync-v787.css?v=787-optin-private-common">
-<link rel="stylesheet" href="./guardian-arrival-studio-v788.css?v=788-mokuska-studio">
+<link rel="stylesheet" href="./guardian-arrival-studio-v788.css?v=789-buddy-volume">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
    Keep the regular FIVE-slot HealthHub bottom nav unchanged. */
@@ -117,10 +117,10 @@
    </div>
   </details>
  </section>
- <details id="hhArrivalStudio" class="hh-arrival-studio" aria-label="Smart Arrival Mókuska értesítés szerkesztő">
-  <summary>🐿️ Smart Arrival Studio <small>Hangok · üzenetek · előnézet</small></summary>
+ <details id="hhArrivalStudio" class="hh-arrival-studio" aria-label="Smart Arrival Buddy értesítés szerkesztő">
+  <summary>🐿️ Buddy Smart Arrival Studio <small>Hangok · hangerő · előnézet</small></summary>
   <div class="hh-arrival-body">
-   <p class="hh-arrival-about">Saját Mókuska-értesítéseket tervezhettek és menthettek ezen a telefonon. A <strong>TESZT</strong> gomb csak előnézetet ad: valódi helyérkezés-érzékelés és automatikus értesítés még nincs bekapcsolva.</p>
+   <p class="hh-arrival-about">Saját Buddy-értesítéseket tervezhettek és menthettek ezen a telefonon. A <strong>TESZT</strong> gomb csak előnézetet ad: valódi helyérkezés-érzékelés és automatikus értesítés még nincs bekapcsolva.</p>
    <div class="hh-arrival-grid">
     <label class="hh-arrival-field">Kiről szól?
      <select id="hhArrivalPerson"><option value="monika" selected>Mónika</option><option value="zsolt">Zsolt</option></select>
@@ -139,28 +139,34 @@
     </label>
     <label class="hh-arrival-field hh-arrival-field-wide">Választható hang
      <select id="hhArrivalSound">
-      <option value="mokuska" selected>🐿️ Játékos Mókuska · alapértelmezett</option>
+      <option value="mokuska" selected>🐿️ Játékos Buddy · alapértelmezett</option>
       <option value="tada">🎺 Vidám Ta-daaa!</option>
       <option value="chime">🔔 Lágy csilingelés</option>
       <option value="soft">✨ Diszkrét jelzés</option>
       <option value="silent">🔕 Néma</option>
      </select>
     </label>
+    <div class="hh-arrival-volume hh-arrival-field-wide">
+      <label for="hhArrivalVolume">🔊 Hangeffekt hangerő <output id="hhArrivalVolumeValue" for="hhArrivalVolume">75%</output></label>
+      <input id="hhArrivalVolume" type="range" min="0" max="100" step="5" value="75" aria-label="Buddy hangeffekt hangerő százalékban">
+      <div class="hh-arrival-volume-scale" aria-hidden="true"><span>0% · Néma</span><span>100% · Maximális</span></div>
+      <small>Csak a Smart Arrival saját hangeffektjét szabályozza, a telefon rendszerhangerejét nem.</small>
+    </div>
    </div>
    <div class="hh-arrival-flags">
-    <label><input id="hhArrivalAnimation" type="checkbox" checked> Animált Mókuska-pop-up</label>
+    <label><input id="hhArrivalAnimation" type="checkbox" checked> Animált Buddy-pop-up</label>
     <label><input id="hhArrivalQuiet" type="checkbox" checked> Éjszakai csendes mód (a későbbi automatikus értesítéshez)</label>
     <label><input id="hhArrivalEnabled" type="checkbox" checked> Ennek az eseménysablonnak az engedélyezése</label>
    </div>
    <div class="hh-arrival-preview" aria-label="Szerkesztett értesítés előnézete">
-    <img id="hhArrivalPreviewMascot" src="../nutrition-preview/nutri-chipmunk-v592.svg" alt="Mókuska karakter" loading="lazy">
+    <img id="hhArrivalPreviewMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub standard chipmunk asszisztense" loading="lazy">
     <div><strong id="hhArrivalPreviewTitle">Mónika hazaért! 🏡</strong>
-    <p id="hhArrivalPreviewText">Mókuska jelenti: Mónika megérkezett.</p>
-    <small><span id="hhArrivalPreviewSound">🐿️ Játékos Mókuska</span> · <span id="hhArrivalPreviewActive">Értesítés: BE</span></small></div>
+    <p id="hhArrivalPreviewText">Buddy jelenti: Mónika megérkezett.</p>
+    <small><span id="hhArrivalPreviewSound">🐿️ Játékos Buddy</span> · <span id="hhArrivalPreviewActive">Értesítés: BE</span></small></div>
    </div>
    <div class="hh-arrival-actions">
     <button type="button" class="hh-arrival-primary" id="hhArrivalSave">💾 Sablon mentése</button>
-    <button type="button" id="hhArrivalTest">🐿️ TESZT · Hang + pop-up</button>
+    <button type="button" id="hhArrivalTest">🐿️ Buddy TESZT · Hang + pop-up</button>
     <button type="button" id="hhArrivalReset">↺ Alapértékek</button>
    </div>
    <p id="hhArrivalStatus" role="status" aria-live="polite" class="hh-arrival-status">Szerkeszthető értesítési sablon.</p>
@@ -245,11 +251,11 @@
 <script defer src="./guardian.js?v=786-location-cloud-sync"></script>
 <script defer src="./guardian-live-v785.js?v=787-landmarks-session"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
-<script defer src="./guardian-arrival-studio-v788.js?v=788-personal-mokuska-editor"></script>
+<script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
-  <img id="hhArrivalTestMascot" src="../nutrition-preview/nutri-chipmunk-v592.svg" alt="Mókuska integet" loading="lazy">
-  <div><span class="hh-arrival-test-flag">🐿️ SMART ARRIVAL · TESZT</span>
+  <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">
+  <div><span class="hh-arrival-test-flag">🐿️ BUDDY · SMART ARRIVAL · TESZT</span>
    <strong id="hhArrivalTestTitle">Tesztértesítés</strong><p id="hhArrivalTestText">Nem valódi helyzetesemény.</p>
   </div>
   <button type="button" id="hhArrivalTestClose" class="hh-arrival-test-close" aria-label="Tesztértesítés bezárása">×</button>
