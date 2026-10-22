@@ -31,8 +31,8 @@ test('v803 replaces external destination handoff with native HealthHub search',(
  const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js'),css=read('guardian-smart-hub-native-v803.css');
  assert.ok(html.includes('hhSmartHubDestinationV802'));
  assert.ok(html.includes('hhSmartHubDestinationInputV802'));
- assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-b'));
- assert.ok(html.includes('guardian-smart-hub-native-v803.css?v=803-native-b'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.js?v=803-native-c'));
+ assert.ok(html.includes('guardian-smart-hub-native-v803.css?v=803-native-c'));
  assert.ok(html.includes('hhSmartHubNativeResultsV803'));
  assert.ok(html.includes('OpenStreetMap-alapú Photon'));
  assert.ok(!html.includes('id="hhSmartHubDirectionsV802"'));
