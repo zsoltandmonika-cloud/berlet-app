@@ -10,3 +10,13 @@
 .hh-transit-v791-directions span{overflow-wrap:anywhere}
 @media(max-width:640px){.hh-transit-panel{border-radius:20px}.hh-transit-panel>details>summary{min-height:48px}.hh-transit-body{padding:0 12px 16px}.hh-transit-v791{margin-top:14px}}
 @media(prefers-reduced-motion:reduce){.hh-transit-v791 *{scroll-behavior:auto!important;transition:none!important}}
+
+/* S24 Ultra portrait: compact transit tray below shared map, never cover fixed HealthHub dock. */
+@media(max-width:640px) and (orientation:portrait){
+ .hh-transit-panel{margin:10px 0 12px;border-radius:20px;background:linear-gradient(140deg,rgba(13,44,86,.95),rgba(9,30,63,.96));box-shadow:0 14px 30px rgba(2,16,45,.34)}
+ .hh-transit-panel>details>summary{min-height:52px;padding:12px 14px;touch-action:manipulation}
+ .hh-transit-panel .hh-transit-body{max-height:min(66dvh,630px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:calc(15px + env(safe-area-inset-bottom,0px))}
+ .hh-transit-item button{min-height:44px}
+ .hh-transit-item label{min-height:44px;flex:1}
+ .hh-transit-item input{min-width:22px;min-height:22px}
+}
