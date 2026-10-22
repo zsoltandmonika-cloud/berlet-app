@@ -8,6 +8,7 @@ on:
     paths:
       - 'healthhub/guardian/build-bkk-routes-v790.py'
       - 'healthhub/guardian/build-bkk-catalog-v801.py'
+      - 'healthhub/guardian/build-bkk-network-v806.py'
       - '.github/workflows/healthhub-transit-bkk-v790.yml'
 
 permissions:
@@ -54,11 +55,24 @@ jobs:
           assert all(x['gtfsRouteIds'] for x in f['routes'])
           print("Verified official BKK catalogue",len(f['routes']),"lines")
           PY
+      - name: Verify expanded v806 BKK directed stop graph
+        run: |
+          python -m unittest discover -s healthhub/guardian -p 'test_build_bkk_network_v806.py' -v
+          python - <<'PY'
+          import json
+          f=json.load(open('healthhub/guardian/bkk-network-v806.json',encoding='utf-8'))
+          assert f['schemaVersion']==1 and f['source']=='BKK Zrt., CC BY 4.0'
+          assert len(f['routes'])>=100
+          assert {'260','17','19'}.issubset({x['id'] for x in f['routes']})
+          assert all(len(x['stops'])>=2 for x in f['routes'])
+          assert all(all(isinstance(y[2],(int,float)) and isinstance(y[3],(int,float)) for y in x['stops']) for x in f['routes'])
+          print('Verified v806 full BKK static stop graph:',len(f['routes']),'directed variants')
+          PY
       - name: Publish BKK snapshot to GitHub Pages source branch
         run: |
           git config user.name "healthhub-bkk-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add healthhub/guardian/bkk-routes-v790.json healthhub/guardian/bkk-catalog-v801.json
+          git add healthhub/guardian/bkk-routes-v790.json healthhub/guardian/bkk-catalog-v801.json healthhub/guardian/bkk-network-v806.json
           if git diff --cached --quiet; then
             echo "BKK snapshot is unchanged."
             exit 0
