@@ -890,3 +890,94 @@ test('v789 Buddy volume affects ONLY manual sound preview, including true 0% mut
  node('hhArrivalSave').click();
  assert.equal(JSON.parse(store['hh-guardian-smart-arrival-studio-v788'])['monika:home:arrive'].volume,100);
 });
+
+
+test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 selectable routes',()=>{
+ const html=read('guardian/family-guard-v785.html'),other=read('guardian/index.html');
+ const js=read('guardian/guardian-transit-v790.js'),css=read('guardian/guardian-transit-v790.css');
+ const guardian=read('guardian/guardian.js');
+ new Function(js);
+ for(const page of [html,other]){
+  assert.match(page,/id="hhTransitPanel"/);
+  assert.match(page,/id="hhTransitRoute260" checked/);
+  assert.match(page,/id="hhTransitRoute17"/);
+  assert.match(page,/id="hhTransitRoute19"/);
+  assert.match(page,/id="hhTransitShow260"/);
+  assert.match(page,/id="hhTransitShow17"/);
+  assert.match(page,/id="hhTransitShow19"/);
+  assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
+  assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
+  assert.match(page,/BKK Zrt., CC BY 4\.0/);
+  assert.match(page,/nem élő busz-/);
+  assert.match(page,/<section class="intro guardian-hero"/,'do not remove existing Family Guard Hero');
+ }
+ assert.match(js,/hh-guardian-transit-selected-v790/);
+ assert.match(js,/bkk-routes-v790\.json/);
+ assert.match(js,/source!==SOURCE/);
+ assert.doesNotMatch(js,/watchPosition|navigator\.geolocation|service_role|sb_secret_|VehiclePositions/,'must not fabricate live location or require API key');
+ assert.doesNotMatch(css,/\.guardian-hero|#guardianHHNav/,'do not override original Hero or dock');
+ assert.match(guardian,/get map\(\)\{return map\}/,'reuses the existing MapLibre engine');
+});
+test('v790 BKK Transit map renders only validated GTFS geometry and persists checkboxes',async()=>{
+ const src=read('guardian/guardian-transit-v790.js');
+ const docElements={},storage={},events={},handlers={},sources=new Map(),layers=new Map(),visibility=[];
+ let fitted=null;
+ const fake={
+  schemaVersion:1,source:'BKK Zrt., CC BY 4.0',generatedAt:'2026-10-22T10:00:00+00:00',
+  routes:Object.fromEntries(['260','17','19'].map((id,i)=>[id,{
+   name:id,mode:i?'tram':'bus',color:i?'#d4ac18':'#167ec5',variants:[
+    {direction:'0',headsign:id+' cél',shape:[[19+i*.01,47.5],[19.002+i*.01,47.51]],
+     stops:[{id:'p'+id,name:id+' megálló',lng:19+i*.01,lat:47.5}]}
+   ]}]))
+ };
+ function el(id){return docElements[id]||(docElements[id]={
+  value:'',checked:false,disabled:true,textContent:'',listeners:{},
+  addEventListener(t,fn){this.listeners[t]=fn},change(){this.listeners.change?.()},
+  click(){this.listeners.click?.()}
+ })}
+ el('hhTransitRoute260').checked=true;
+ const map={
+  on(t,id,fn){if(typeof id==='function')handlers[t]=id;else handlers[t+':'+id]=fn},
+  isStyleLoaded(){return true},
+  getSource(id){return sources.get(id)},
+  getLayer(id){return layers.get(id)},
+  addSource(id,source){sources.set(id,source)},
+  addLayer(layer){layers.set(layer.id,layer)},
+  setLayoutProperty(id,key,val){visibility.push({id,key,val})},
+  fitBounds(b){fitted=b}
+ };
+ const doc={readyState:'complete',getElementById:el,addEventListener(t,f){events[t]=f}};
+ const win={
+  HH_GUARDIAN_V761:{map},
+  fetch:async()=>({ok:true,json:async()=>fake}),
+  location:{href:'https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/guardian/family-guard-v785.html'},
+  localStorage:{getItem(k){return storage[k]||null},setItem(k,v){storage[k]=v}},
+  setTimeout(){return 1}
+ };
+ vm.runInNewContext(src,{window:win,document:doc,URL,Date,Math,Number,String,Array,Set,Map,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(el('hhTransitRoute260').checked,true);
+ assert.equal(el('hhTransitRoute17').checked,false);
+ assert.equal(layers.get('hh-bkk-route-260-main').layout.visibility,'visible');
+ assert.equal(layers.get('hh-bkk-route-17-main').layout.visibility,'none');
+ assert.equal(sources.get('hh-bkk-route-260').data.features[0].geometry.coordinates[0][0],19);
+ el('hhTransitRoute17').checked=true;el('hhTransitRoute17').change();
+ assert.equal(storage['hh-guardian-transit-selected-v790'],'["260","17"]');
+ assert.ok(visibility.some(x=>x.id==='hh-bkk-route-17-main'&&x.val==='visible'));
+ el('hhTransitShow19').click();
+ assert.deepEqual(JSON.parse(storage['hh-guardian-transit-selected-v790']),['260','17','19']);
+ assert.ok(fitted&&fitted.length===2,'full route fits when user clicks Mutasd');
+ assert.match(el('hhTransitStatus').textContent,/Nem élő járműkövetés/);
+});
+test('v790 invalid BKK data never becomes a fictional line on the map',async()=>{
+ const src=read('guardian/guardian-transit-v790.js');
+ const doc={readyState:'complete',getElementById(){return {checked:false,disabled:false,textContent:'',addEventListener(){}}}};
+ const map={isStyleLoaded(){return true},on(){},getSource(){return null},getLayer(){return null},
+  addSource(){throw Error('no source must be created')},addLayer(){throw Error('no layer must be created')}};
+ const win={HH_GUARDIAN_V761:{map},localStorage:{getItem(){return null},setItem(){}},
+  fetch:async()=>({ok:true,json:async()=>({schemaVersion:1,source:'incorrect',routes:{}})}),
+  location:{href:'https://example.com/guardian/index.html'},setTimeout(){}};
+ vm.runInNewContext(src,{window:win,document:doc,URL,Date,Math,Number,String,Array,Set,Map,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(JSON.stringify(win.HH_GUARDIAN_TRANSIT_V790.selected),'["260"]');
+});

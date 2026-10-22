@@ -1,0 +1,38 @@
+/* HealthHub Transit v790 · scoped premium blue glass. No Hero, MapLibre skin or dock overrides. */
+.hh-transit-panel{margin:13px 0 14px;color:#eef9ff;background:linear-gradient(125deg,rgba(17,44,78,.96),rgba(10,34,70,.94));
+ border:1px solid rgba(120,189,238,.49);border-radius:18px;
+ box-shadow:0 12px 28px rgba(3,24,51,.21);overflow:hidden}
+.hh-transit-panel>details>summary{cursor:pointer;padding:15px 14px;font:800 1.05rem/1.35 system-ui,sans-serif;
+ display:flex;gap:9px;align-items:center;list-style-position:inside}
+.hh-transit-panel summary small{font-size:.78rem;font-weight:650;color:#b4e4ff}
+.hh-transit-count{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;
+ border:1px solid rgba(147,208,250,.44);background:rgba(31,91,130,.7);
+ border-radius:99px;min-width:27px;height:27px;font-size:.8rem;color:#fff}
+.hh-transit-body{padding:0 12px 13px}
+.hh-transit-subtitle{margin:0 0 13px;font:500 .86rem/1.5 system-ui,sans-serif;color:#cce6f9}
+.hh-transit-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hh-transit-item{min-width:0;background:rgba(7,29,59,.74);border:1px solid rgba(124,182,231,.48);
+ border-radius:14px;padding:9px;display:flex;flex-direction:column;gap:8px}
+.hh-transit-item label{cursor:pointer;display:flex;gap:8px;align-items:center;min-width:0}
+.hh-transit-item input{width:18px;height:18px;accent-color:#76ceff;flex:0 0 auto}
+.hh-transit-line-num{display:inline-flex;justify-content:center;align-items:center;flex-shrink:0;
+ min-width:40px;padding:5px 6px;font:850 .9rem/1.2 system-ui,sans-serif;border-radius:8px;
+ background:#166cb0;color:white;box-shadow:0 2px 9px #071b3577}
+.hh-transit-tram .hh-transit-line-num{background:#d4ac18;color:#152b36}
+.hh-transit-item-name{min-width:0}
+.hh-transit-item-name strong{font-size:.89rem;display:block;white-space:normal}
+.hh-transit-item-name small{font-size:.7rem;color:#b9d7eb;display:block}
+.hh-transit-item button{font:750 .82rem system-ui,sans-serif;border:1px solid rgba(150,211,249,.62);
+ background:linear-gradient(105deg,#276c9b,#274f84);color:#f5fbff;
+ border-radius:10px;min-height:36px;cursor:pointer}
+.hh-transit-item button:disabled{opacity:.38;cursor:not-allowed}
+.hh-transit-item button:focus-visible,.hh-transit-item input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.hh-transit-status{border-radius:10px;background:rgba(26,91,132,.26);border:1px solid rgba(139,196,235,.28);
+ padding:9px 11px;font:600 .8rem/1.5 system-ui,sans-serif;color:#e6f5ff;min-height:20px}
+.hh-transit-credit{font:.72rem/1.5 system-ui,sans-serif;color:#b6d1e2;margin:7px 0 0}
+.hh-transit-credit a{color:#c7ecff;text-underline-offset:3px}
+@media(max-width:640px){
+ .hh-transit-choices{grid-template-columns:1fr}
+ .hh-transit-item{flex-direction:row;align-items:center;justify-content:space-between;padding:9px 11px}
+ .hh-transit-item button{width:auto;min-width:86px;padding:0 10px}
+}
