@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v773\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v776\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=773-daylight-map-entry/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=776-destinations/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -99,6 +99,61 @@ test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
  assert.match(hero,/id="guardianProfileSwitch"/,'profile switch stays in hero');
  assert.match(html,/EOxCloudless 2020/,'historic satellite notice kept');
+});
+
+test('v776 registers landmarks with icons, map tap, and on-device storage',()=>{
+ const src=read('guardian/guardian-landmarks-v776.js');
+ const html=read('guardian/family-guard-v776.html');
+ new Function(src);
+ assert.equal((html.match(/data-guardian-landmark-kind=/g)||[]).length,6);
+ assert.match(html,/guardianLandmarksSave/);
+ assert.match(html,/guardian-landmarks-v776\.css/);
+ assert.match(read('guardian/guardian.js'),/HH_GUARDIAN_LANDMARKS_V776\.init\(map\)/);
+ assert.doesNotMatch(src,/fetch\(|sendBeacon\(|XMLHttpRequest|navigator\.geolocation|https?:\/\//);
+ const buttons=['home','work','doctor','family','favorite','other'].map(kind=>({
+   dataset:{guardianLandmarkKind:kind},listeners:{},setAttribute(){},
+   addEventListener(e,fn){this.listeners[e]=fn},click(){this.listeners.click()}}));
+ function node(tag){
+  return {tagName:tag,children:[],listeners:{},style:{},textContent:'',value:'',disabled:true,hidden:false,
+   setAttribute(){},addEventListener(e,fn){this.listeners[e]=fn},
+   click(){if(this.listeners.click)this.listeners.click()},
+   appendChild(n){this.children.push(n);this.firstChild=this.children[0];return n},
+   removeChild(n){this.children.splice(this.children.indexOf(n),1);this.firstChild=this.children[0]},
+   scrollIntoView(){},focus(){}};
+ }
+ const elements={};
+ const doc={getElementById(id){return elements[id]||(elements[id]=node('div'))},
+  createElement:node,querySelectorAll(){return buttons}};
+ const store={};
+ const win={localStorage:{getItem(k){return store[k]||null},setItem(k,v){store[k]=v}},
+  confirm(){return true},
+  maplibregl:{Marker:class{setLngLat(c){this.coords=c;return this}addTo(){return this}remove(){}}}};
+ const callbacks={},canvas={style:{}};
+ let lastFlight=null;
+ const map={on(e,cb){callbacks[e]=cb},getCenter(){return {lng:19.12,lat:47.52}},
+  getCanvas(){return canvas},getZoom(){return 15.3},flyTo(options){lastFlight=options}};
+ vm.runInNewContext(src,{window:win,document:doc,Date,Math,Number,String,Array,JSON,Object});
+ win.HH_GUARDIAN_LANDMARKS_V776.init(map);
+ assert.equal(doc.getElementById('guardianLandmarkName').value,'Otthon');
+ doc.getElementById('guardianLandmarksSelect').click();
+ callbacks.click({lngLat:{lng:19.11,lat:47.51}});
+ assert.equal(doc.getElementById('guardianLandmarksSave').disabled,false);
+ doc.getElementById('guardianLandmarksSave').click();
+ let items=JSON.parse(store['hh-guardian-landmarks-v776']);
+ assert.equal(items.length,1);assert.equal(items[0].kind,'home');
+ assert.equal(items[0].lng,19.11);assert.equal(items[0].lat,47.51);
+ assert.equal(doc.getElementById('guardianLandmarksCount').textContent,'1');
+ const first=doc.getElementById('guardianLandmarksList').children[0];
+ assert.equal(first.children[0].textContent,'🏠');
+ first.children[2].click();assert.equal(lastFlight.center[0],19.11);
+ buttons[1].click();
+ assert.equal(doc.getElementById('guardianLandmarkName').value,'Munkahely');
+ doc.getElementById('guardianLandmarksCenter').click();
+ doc.getElementById('guardianLandmarksSave').click();
+ items=JSON.parse(store['hh-guardian-landmarks-v776']);
+ assert.equal(items.length,2);assert.equal(items[1].kind,'work');
+ first.children[3].click();
+ assert.equal(JSON.parse(store['hh-guardian-landmarks-v776']).length,1);
 });
 
 test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
