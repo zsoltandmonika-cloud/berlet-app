@@ -993,13 +993,13 @@ test('v791 premium transit keeps portrait controls, route badges, and static-onl
  for(const id of ['260','17','19'])assert.match(html,new RegExp('id="hhTransitRoute'+id+'"'));
  assert.match(html,/hhTransitCardsV791/);
  assert.match(html,/hh-transit-sheet-grip/);
- assert.match(html,/guardian-transit-sheet-v791\\.js/);
- assert.match(js,/function badgeFeatures\\(id\\)/);
+ assert.match(html,/guardian-transit-sheet-v791\.js/);
+ assert.match(js,/function badgeFeatures\(id\)/);
  assert.match(js,/hh-bkk-badges-/);
  assert.match(js,/hh-guardian-transit-direction-v791/);
  assert.match(js,/nem élő helyzet/);
  assert.match(sheet,/pointerup/);
  assert.match(sheet,/ArrowUp/);
  assert.match(css,/data-sheet-size=full/);
- assert.doesNotMatch(js,/navigator\\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
+ assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
 });
