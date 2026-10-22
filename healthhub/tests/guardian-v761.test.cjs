@@ -539,7 +539,7 @@ test('v785 Family Live exposes consented auth, six intervals, correct original p
  const guardian=read('guardian/guardian.js');
  new Function(live);
  assert.match(html,/data-family-guard-build="v785"/);
- assert.match(html,/guardian-live-v785\.js\?v=786-foreground-four-in-one/);
+ assert.match(html,/guardian-live-v785\.js\?v=786-location-cloud-sync/);
  assert.match(html,/guardian-live-v785\.css\?v=785-private-live/);
  assert.match(html,/supabase-js@2\.57\.2/,'pinned browser client');
  assert.match(html,/central-vault\/config\.js/,'use existing publishable-only config');
@@ -670,4 +670,23 @@ test('v786 remembered owner consent restarts foreground 4-in-1 without another d
  assert.equal(store['hh-guardian-foreground-auto-v786'],undefined,'explicit stop revokes persistent consent');
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
  assert.equal(dialogs,0);
+});
+
+test('v786 profile-scoped location preferences sync without touching device consent',()=>{
+ const js=read('guardian/guardian.js'),live=read('guardian/guardian-live-v785.js');
+ const html=read('guardian/family-guard-v785.html'),canonical=read('guardian/index.html');
+ new Function(js);new Function(live);
+ assert.match(live,/PREF_TABLE='hh_guardian_location_settings'/);
+ assert.match(live,/function syncSettings\(\)/);
+ assert.match(live,/function loadSettings\(\)/);
+ assert.match(live,/hh-guardian-location-settings-changed/);
+ assert.match(live,/\.upsert\(payload,\{onConflict:'profile_key'\}\)/);
+ assert.match(js,/getLocationSettings:locationSettings/);
+ assert.match(js,/applyLocationSettings/);
+ assert.match(js,/notifySettings/);
+ assert.match(html,/id="guardianLocationSyncStatus"/);
+ assert.match(canonical,/id="guardianLocationSyncStatus"/);
+ assert.match(html,/guardian-live-v785\.js\?v=786-location-cloud-sync/);
+ assert.match(live,/AUTO_KEY='hh-guardian-foreground-auto-v786'/,'remembered foreground consent untouched');
+ assert.doesNotMatch(live,/service_role|sb_secret_/,'no secrets in browser code');
 });
