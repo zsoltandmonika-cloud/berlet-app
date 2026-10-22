@@ -42,9 +42,16 @@
  function readPrefs(){
   try{
    const saved=JSON.parse(w.localStorage.getItem(STORE)||'null');
-   for(const p of ['zsolt','monika'])
-    if(saved&&Array.isArray(saved[p]))
-     favorites[p]=saved[p].filter(x=>typeof x==='string'&&x.length<=16).slice(0,150);
+   if(saved){
+    for(const p of ['zsolt','monika'])
+     if(Array.isArray(saved[p]))
+      favorites[p]=saved[p].filter(x=>typeof x==='string'&&x.length<=16).slice(0,150);
+   }else{
+    // One-time migration: retain existing choices from the earlier three-line selector.
+    const original=JSON.parse(w.localStorage.getItem('hh-guardian-transit-selected-profiles-v801')||'null');
+    if(original)for(const p of ['zsolt','monika'])
+     if(Array.isArray(original[p]))favorites[p]=original[p].filter(x=>FEATURED.has(x));
+   }
   }catch(_){}
  }
  function savePrefs(){
