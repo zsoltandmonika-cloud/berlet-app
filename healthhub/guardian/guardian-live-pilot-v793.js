@@ -18,15 +18,39 @@ p.setAttribute('role','status');
 p.setAttribute('aria-live','polite');
 p.style.cssText='font:700 14px/1.45 system-ui;color:#f1fbff;padding:12px 14px;margin:0 0 12px;border:1px solid #78c5f6;border-radius:12px;background:#114879;box-shadow:0 5px 18px #001b3655;';
 p.textContent='🚍 v793 ÉLŐ BKK TESZT · Kapcsolat ellenőrzése…';
-holder.prepend(p);
+const bar=d.createElement('div');
+bar.id='hhBkkLiveBarV796';
+bar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;padding:9px 10px;border:1px solid #78c5f6;border-radius:12px;background:#114879;';
+p.style.cssText='flex:1 1 175px;font:700 13px/1.45 system-ui;color:#f1fbff;margin:0;padding:0;box-shadow:none;border:0;background:none;';
+const focusButton=d.createElement('button');
+focusButton.type='button';
+focusButton.id='hhBkkFocusV796';
+focusButton.hidden=true;
+focusButton.textContent='Élő jármű mutatása ↗';
+focusButton.style.cssText='min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #8ceaff;background:#1a81bd;color:white;font:750 13px system-ui;cursor:pointer;';
+bar.append(p,focusButton);
+holder.prepend(bar);
 if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
  p.textContent='⚠️ v793 ÉLŐ BKK TESZT · A szükséges modul még nem töltődött be. Frissítsd a lapot.';
  return;
 }
 let polling=null;
 let inFlight=false;
+let lastVehicles=[];
+function showLive(){
+ if(!lastVehicles.length||!mapApi.map)return;
+ const focused=renderer.focus(mapApi.map,lastVehicles);
+ if(!focused){status('a térképre közelítés nem sikerült');return}
+ const mapElement=d.getElementById('guardianMap');
+ if(mapElement&&mapElement.scrollIntoView)mapElement.scrollIntoView({behavior:'smooth',block:'center'});
+}
+focusButton.addEventListener('click',showLive);
 function status(message){p.textContent='🚍 v793 ÉLŐ BKK TESZT · '+message}
-function clear(){if(mapApi.map)renderer.clear(mapApi.map)}
+function clear(){
+ lastVehicles=[];
+ focusButton.hidden=true;
+ if(mapApi.map)renderer.clear(mapApi.map);
+}
 async function poll(){
  if(inFlight||d.hidden)return;
  inFlight=true;
@@ -45,7 +69,15 @@ async function poll(){
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
   const wanted=new Set(w.HH_GUARDIAN_TRANSIT_V790?.selected||[]);
   const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
-  if(!renderer.render(mapApi.map,active)){status('a térképréteg betöltésére várunk');return}
+  if(!renderer.render(mapApi.map,active)){
+   lastVehicles=[];focusButton.hidden=true;
+   status('a térképréteg betöltésére várunk');return;
+  }
+  lastVehicles=active.vehicles;
+  focusButton.hidden=lastVehicles.length===0;
+  focusButton.textContent=lastVehicles.length===1
+   ?(lastVehicles[0].routeId==='260'?'Élő 260-as busz mutatása ↗':'Élő '+lastVehicles[0].routeId+'-es villamos ↗')
+   :'Élő járművek mutatása ↗';
   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(data.generatedAt).toLocaleTimeString('hu-HU'));
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
  finally{inFlight=false}
