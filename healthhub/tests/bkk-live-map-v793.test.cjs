@@ -41,3 +41,39 @@ test('v796 focuses only on genuine visible vehicles when explicitly requested',(
  assert.equal(overlay.focus(map,[{lat:47.57,lng:19.01},{lat:47.6,lng:19.03}]),true);
  assert.deepEqual(seen.fitBounds[0],[[19.01,47.57],[19.03,47.6]]);
 });
+
+
+test('v797 puts verified vehicles in DOM above WebGL extrusions, then removes stale markers',()=>{
+ const seen=[];
+ function node(tag){
+  return {tag,style:{},children:[],attributes:{},append(...children){this.children.push(...children)},
+   appendChild(child){this.children.push(child)},setAttribute(k,v){this.attributes[k]=v}};
+ }
+ const document={createElement:node};
+ class FakeMarker{
+  constructor(opts){this.options=opts;this.removed=false;seen.push(this)}
+  setLngLat(point){this.point=point;return this}
+  addTo(map){this.map=map;return this}
+  remove(){this.removed=true;return this}
+ }
+ const map={getSource:()=>null,isStyleLoaded:()=>true,
+  addLayer(){throw Error('DOM implementation must not add a map paint layer')}};
+ const vehicle={id:'v260-real',routeId:'260',lat:47.56,lng:19.04};
+ const deps={Marker:FakeMarker,document};
+ assert.equal(overlay.render(map,{ok:true,vehicles:[vehicle]},deps),true);
+ assert.equal(seen.length,1);
+ assert.deepEqual(seen[0].point,[19.04,47.56]);
+ assert.equal(seen[0].options.opacityWhenCovered,1);
+ assert.equal(seen[0].options.element.className,'hh-bkk-live-vehicle-dom-v797');
+ assert.equal(seen[0].options.element.children[0].children[0].textContent,'● ÉLŐ');
+ assert.equal(seen[0].options.element.children[0].children[1].textContent,'🚌 260');
+ assert.equal(overlay.render(map,{ok:true,vehicles:[{...vehicle,lng:19.05}]},deps),true);
+ assert.equal(seen.length,1,'reuse existing marker on refresh');
+ assert.deepEqual(seen[0].point,[19.05,47.56]);
+ assert.equal(overlay.render(map,{ok:true,vehicles:[]},deps),true);
+ assert.equal(seen[0].removed,true,'remove vehicle when no longer in verified snapshot');
+ overlay.render(map,{ok:true,vehicles:[vehicle]},deps);
+ assert.equal(seen.length,2);
+ overlay.clear(map);
+ assert.equal(seen[1].removed,true,'clear on timeout, network error or page hiding');
+});
