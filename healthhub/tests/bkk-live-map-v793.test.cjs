@@ -107,7 +107,7 @@ test('v800 approved glass markers are compact, vector-based and mode-specific',(
  }
  const css=require('node:fs').readFileSync(require('node:path').join(__dirname,'../guardian/bkk-live-glass-v800.css'),'utf8');
  assert.match(css,/backdrop-filter:blur\(10px\)/);
- assert.match(css,/hh-bkk-glass--bus/); // default hue in shared root
+ assert.match(css,/hh-bkk-glass-marker-v800/); // blue bus is the default palette
  assert.match(css,/hh-bkk-glass--tram/);
  assert.match(css,/hh-bkk-glass--hev/);
  assert.match(css,/height:30px;min-width:70px/);
