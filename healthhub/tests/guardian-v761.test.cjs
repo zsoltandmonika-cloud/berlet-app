@@ -539,15 +539,19 @@ test('v785 Family Live exposes consented auth, six intervals, correct original p
  const guardian=read('guardian/guardian.js');
  new Function(live);
  assert.match(html,/data-family-guard-build="v785"/);
- assert.match(html,/guardian-live-v785\.js\?v=785-optin-family-live/);
+ assert.match(html,/guardian-live-v785\.js\?v=786-foreground-four-in-one/);
  assert.match(html,/guardian-live-v785\.css\?v=785-private-live/);
  assert.match(html,/supabase-js@2\.57\.2/,'pinned browser client');
  assert.match(html,/central-vault\/config\.js/,'use existing publishable-only config');
  assert.match(canonical,/guardian-live-v785\.js/,'canonical page enables same Live');
- for(const id of ['guardianLiveLogin','guardianLiveLogout','guardianLiveStart','guardianLiveStop','guardianLiveInterval','guardianLiveOwnSpeed','guardianLiveResetDevice','guardianOtherState'])assert.ok(html.includes('id="'+id+'"'),'new live control '+id);
+ for(const id of ['guardianLiveLogin','guardianLiveLogout','guardianLiveStart','guardianLiveStop','guardianLiveInterval','guardianLiveOwnSpeed','guardianLiveAutoStatus','guardianLiveDisableAuto','guardianLiveResetDevice','guardianOtherState'])assert.ok(html.includes('id="'+id+'"'),'new live control '+id);
  for(const ms of [1000,3000,5000,10000,30000,60000])assert.ok(html.includes('value="'+ms+'"'));
  assert.match(live,/getUser\(\)/,'server-verified auth identity');
  assert.match(live,/hh_profile_access/,'authorized family membership');
+ assert.match(live,/AUTO_KEY='hh-guardian-foreground-auto-v786'/,'remembered owner consent');
+ assert.match(live,/function maybeAutoStart/,'single-tap automatic foreground entry');
+ assert.match(live,/function userStopSharing/,'revocable persisted consent');
+ assert.match(guardian,/function startFollowing/,'four-in-one starts map following');
  assert.match(live,/onGpsFix/,'only genuine foreground GPS callbacks allowed');
  assert.match(live,/if\(!sharing\|\|sharingProfile!==k/,'no hidden upload while disabled');
  assert.match(live,/AGE_MS=20000/,'remove stale people after 20 seconds');
@@ -607,9 +611,11 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
  assert.equal(writes[0].data.latitude,47.5);
  assert.equal(writes[0].data.speed_kmh,7.2);
  assert.equal(store['hh-guardian-own-phone-profile-v785'],'zsolt');
+ assert.equal(store['hh-guardian-foreground-auto-v786'],'zsolt','first confirmation remembers auto start');
  controls.guardianLiveStop.click();
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
+ assert.equal(store['hh-guardian-foreground-auto-v786'],undefined,'stop revokes auto start');
  assert.ok(actions.some(x=>x.method==='delete'),'stop deletes own latest location');
  const n=actions.filter(x=>x.method==='upsert').length;
  win.HH_GUARDIAN_LIVE_V785.onGpsFix(fix);
@@ -620,4 +626,48 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
  controls.guardianLiveStart.click();
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false,'cannot silently pretend other person owns phone');
  assert.match(controls.guardianLiveStatus.textContent,/telefon/);
+});
+
+
+test('v786 remembered owner consent restarts foreground 4-in-1 without another dialog; stop revokes it',async()=>{
+ const source=read('guardian/guardian-live-v785.js');
+ const controls={},listeners={},writes=[];
+ const make=()=>({disabled:false,hidden:false,textContent:'',value:'',classList:{add(){},remove(){}},
+  setAttribute(){},addEventListener(k,fn){this[k]=fn},click(){if(this.clickListener)this.clickListener()}});
+ const doc={hidden:false,getElementById(id){return controls[id]||(controls[id]=make())},
+  addEventListener(k,fn){listeners[k]=fn},createElement:make};
+ const store={'hh-profile':'z','hh-guardian-own-phone-profile-v785':'zsolt','hh-guardian-foreground-auto-v786':'zsolt'};
+ const storage={getItem(k){return store[k]||null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}};
+ const requests=()=>({select(){return this},in(){return Promise.resolve({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null})},
+  eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
+  upsert(payload){writes.push(payload);return Promise.resolve({error:null})},
+  delete(){return this},then(fn){return Promise.resolve({error:null}).then(fn)}});
+ let follows=0,dialogs=0;
+ const auth={getUser(){return Promise.resolve({data:{user:{id:'test-owner'}},error:null})},
+  onAuthStateChange(){},signOut(){return Promise.resolve({error:null})}};
+ const win={HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://test.invalid',publishableKey:'publishable-test'},
+  supabase:{createClient(){return {auth,from(){return requests()}}}},localStorage:storage,
+  HH_GUARDIAN_V761:{active:false,startFollowing(){follows++}},
+  HH_GOLDEN_AVATARS_V529:{z:'z-photo',m:'m-photo'},
+  confirm(){dialogs++;return true},setInterval(){return 1},clearInterval(){},setTimeout(){return 1},
+  addEventListener(){},location:{origin:'https://test.invalid',pathname:'/guardian/family-guard-v785.html'}};
+ vm.runInNewContext(source,{window:win,document:doc,Date,Math,Number,String,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(follows,1,'saved permission starts all four features after verified auth');
+ assert.equal(dialogs,0,'no repeat confirmation on same bound phone');
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,true);
+ assert.equal(writes.length,0,'GPS coordinates must originate only from a real callback');
+ win.HH_GUARDIAN_LIVE_V785.onGpsFix({coords:{latitude:47.5,longitude:19.05,accuracy:8,speed:0},timestamp:Date.now()});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(writes.length,1,'genuine GPS callback uploads after remembered opt-in');
+ doc.hidden=true;listeners.visibilitychange();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false,'hidden page never shares');
+ assert.equal(store['hh-guardian-foreground-auto-v786'],'zsolt','hiding does not revoke user choice');
+ doc.hidden=false;listeners.visibilitychange();
+ assert.equal(follows,2,'foreground return starts again after prior one-time consent');
+ controls.guardianLiveStop.click();
+ assert.equal(store['hh-guardian-foreground-auto-v786'],undefined,'explicit stop revokes persistent consent');
+ assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
+ assert.equal(dialogs,0);
 });
