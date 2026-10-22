@@ -235,11 +235,20 @@ function initMap(){
  try{
   map=new w.maplibregl.Map({
    container:'guardianMap',style:'https://tiles.openfreemap.org/styles/bright',
-   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:true
+   center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:{compact:true}
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
   map.on('load',function(){
    ready=true;message('');
+   // Retain mandatory OpenMapTiles/OSM credits as a tappable compact ⓘ,
+   // instead of an always-visible bottom MapLibre/OpenFreeMap text strip.
+   if(typeof d.querySelector==='function'){
+    const attribution=d.querySelector('#guardianMap .maplibregl-ctrl-attrib');
+    if(attribution&&attribution.classList&&typeof attribution.classList.remove==='function'){
+     attribution.classList.remove('maplibregl-compact-show');
+     if(typeof attribution.removeAttribute==='function')attribution.removeAttribute('open');
+    }
+   }
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
    /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.
