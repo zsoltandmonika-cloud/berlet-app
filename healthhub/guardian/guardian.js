@@ -152,16 +152,34 @@ function applyView(){
  if(map.getLayer('guardian-buildings-3d'))map.setLayoutProperty('guardian-buildings-3d','visibility',threeD?'visible':'none');
  map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:620});
 }
+function locationSettings(){return {follow_map:follow,map_3d:threeD}}
+function notifyLocationSettings(){
+ try{if(typeof w.CustomEvent==='function')d.dispatchEvent(new w.CustomEvent('hh-guardian-location-settings-changed'))}catch(_){}
+}
+function applyLocationSettings(s){
+ if(s&&typeof s.follow_map==='boolean')follow=s.follow_map;
+ if(s&&typeof s.map_3d==='boolean')threeD=s.map_3d;
+ applyView();
+}
+function startHomeFollow(){
+ follow=true;
+ renderButtons();
+ if(!active)start();
+ else if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
+ notifyLocationSettings();
+}
 function toggle3D(){
  threeD=!threeD;
  applyView();
+ notifyLocationSettings();
 }
 function enableFollow(){
  // A deliberate tap on Follow also starts this device's GPS if currently stopped.
  // Permission is still requested by the browser; never start location on page load.
- if(!active){follow=true;renderButtons();start();return}
+ if(!active){follow=true;renderButtons();start();notifyLocationSettings();return}
  follow=!follow;renderButtons();
  if(follow&&marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
+ notifyLocationSettings();
 }
 function toggleFamily(){
  const panel=$('guardianFamilyPanel'),button=$('guardianFamilyButton');
@@ -365,5 +383,5 @@ w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  if(map&&ready)applyGoldenMapStyle();
 }});
 theme();renderButtons();initMap();
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',get active(){return active},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startHomeFollow,getLocationSettings:locationSettings,applyLocationSettings,get active(){return active},get pointCount(){return path.length}});
 })(window,document);
