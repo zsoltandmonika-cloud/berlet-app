@@ -993,7 +993,7 @@ test('v794 Transit shows selectable routes immediately with no redundant panel c
   assert.match(html,new RegExp('id="hhTransitRoute'+id+'"'));
   assert.match(html,new RegExp('id="hhTransitShow'+id+'"'));
  }
- assert.match(html,/id="hhTransitDetails" open/);
+ assert.doesNotMatch(html,/hhTransitDetails|hh-transit-subtitle/);
  assert.match(html,/hhTransitCardsV791/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|guardian-transit-sheet-v791\\.js|hh-transit-subtitle|Pipáld ki, melyik járat/);
  assert.doesNotMatch(html,/<summary>🚌 HealthHub Transit/);
