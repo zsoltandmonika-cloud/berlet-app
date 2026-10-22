@@ -11,6 +11,7 @@ on:
       - 'healthhub/premium-glass-home-v520.css'
       - 'healthhub/tests/guardian-v761.test.cjs'
       - 'healthhub/tests/smart-hub-catalog-v801.test.cjs'
+      - 'healthhub/tests/smart-hub-destination-v802.test.cjs'
       - 'healthhub/index.html'
       - '.github/workflows/healthhub-family-guard-v761.yml'
   pull_request:
@@ -39,8 +40,10 @@ jobs:
           node --check healthhub/tests/guardian-v761.test.cjs
           node --check healthhub/guardian/guardian-bkk-catalog-v801.js
           node --check healthhub/tests/smart-hub-catalog-v801.test.cjs
+          node --check healthhub/guardian/guardian-smart-hub-v802.js
+          node --check healthhub/tests/smart-hub-destination-v802.test.cjs
       - name: Run Guardian and Timeline migration checks
-        run: node --test healthhub/tests/guardian-v761.test.cjs healthhub/tests/smart-hub-catalog-v801.test.cjs
+        run: node --test healthhub/tests/guardian-v761.test.cjs healthhub/tests/smart-hub-catalog-v801.test.cjs healthhub/tests/smart-hub-destination-v802.test.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
