@@ -42,3 +42,16 @@
 .hh-smart-hub-priority-v805 button[disabled]{opacity:.45}
 @media(max-width:390px){.hh-smart-hub-favorite-row-v806{grid-template-columns: minmax(0,1fr) minmax(0,1fr) 55px 34px;gap:4px}
  .hh-smart-hub-favorite-row-v806 input,.hh-smart-hub-favorite-row-v806 button{padding:4px;font-size:10px}}
+
+.hh-smart-trip-card-v804{cursor:pointer}
+.hh-smart-trip-card-v804.hh-smart-trip-selected-v806{
+ border-color:#a6f6de;
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 0 0 1px rgba(106,251,198,.23),0 7px 20px rgba(5,49,80,.32);
+}
+.hh-smart-trip-card-v804:focus-visible{outline:2px solid #b8f7e4;outline-offset:2px}
+.hh-smart-trip-ticket-v806{
+ display:flex;align-items:center;justify-content:center;min-height:44px;
+ border:1px solid rgba(156,222,250,.7);border-radius:10px;
+ background:rgba(16,65,112,.68);color:#e3f9ff;
+ text-decoration:none;padding:0 12px;font:750 12px system-ui;
+}
