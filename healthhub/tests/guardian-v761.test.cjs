@@ -905,7 +905,7 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/id="hhTransitShow260"/);
   assert.match(page,/id="hhTransitShow17"/);
   assert.match(page,/id="hhTransitShow19"/);
-  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=791-portrait-direction/);
+  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=793-pilot-status-v795/);
   else assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
@@ -1019,11 +1019,11 @@ test('v795 live pilot has visible status before route selectors and detects load
  const loader=read('guardian/guardian-transit-v791.js');
  const pilot=read('guardian/guardian-live-pilot-v793.js');
  new Function(loader);new Function(pilot);
- assert.match(html,/guardian-transit-v791\\.js\\?v=793-pilot-status-v795/);
+ assert.match(html,/guardian-transit-v791\.js\?v=793-pilot-status-v795/);
  assert.match(loader,/hhLivePilot/);
- assert.match(loader,/script\\.onerror/);
+ assert.match(loader,/script\.onerror/);
  assert.match(loader,/793-pilot-status-v795/);
- assert.match(pilot,/holder\\.prepend\\(p\\)/);
+ assert.match(pilot,/holder\.prepend\(p\)/);
  assert.match(pilot,/v793 ÉLŐ BKK TESZT/);
  assert.match(pilot,/Family Live részben/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|hhTransitDetails/);
