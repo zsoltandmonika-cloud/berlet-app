@@ -78,7 +78,9 @@
   }
   if(key==='timeline')return showPage('timeline'); // Existing timeline retained for Egészség submenu.
   if(key==='guardian'){
-   root.location.assign(new URL('./guardian/family-guard-v785.html',root.location.href).href);
+   var guardianLaunch=new URL('./guardian/family-guard-v785.html',root.location.href);
+   guardianLaunch.searchParams.set('hhlaunch','home');
+   root.location.assign(guardianLaunch.href);
    return true;
   }
   if(key==='spark')return showPage('spark');
