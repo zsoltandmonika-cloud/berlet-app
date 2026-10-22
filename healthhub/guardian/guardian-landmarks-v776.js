@@ -34,11 +34,17 @@ function load(){
  }catch(_){return []}
 }
 function status(text){const el=$('guardianLandmarkStatus');if(el)el.textContent=text;}
+function paintIcon(el,kind){
+ const iconKit=w.HH_GUARDIAN_ICONS_V784;
+ // Preserve the original category data and an emoji fallback when the optional
+ // vector icon module is unavailable (e.g. offline).
+ if(!iconKit||!iconKit.draw(el,kind))el.textContent=TYPES[kind].icon;
+}
 function markerNode(entry,temporary){
  const el=d.createElement('button');
  el.type='button';
  el.className='guardian-landmark-pin'+(temporary?' is-preview':'');
- el.textContent=TYPES[entry.kind].icon;
+ paintIcon(el,entry.kind);
  el.title=entry.name+(temporary?' (mentés előtt)':'');
  el.setAttribute('aria-label',el.title);
  if(!temporary)el.addEventListener('click',function(evt){
@@ -99,7 +105,7 @@ function renderList(){
  const count=$('guardianLandmarksCount');if(count)count.textContent=String(items.length);
  items.forEach(function(item){
   const li=d.createElement('li');li.className='guardian-landmark-item';
-  const icon=d.createElement('span');icon.className='guardian-landmark-item-icon';icon.textContent=TYPES[item.kind].icon;
+  const icon=d.createElement('span');icon.className='guardian-landmark-item-icon';paintIcon(icon,item.kind);
   const label=d.createElement('span');label.className='guardian-landmark-item-name';label.textContent=item.name;
   const go=d.createElement('button');go.type='button';go.textContent='Mutasd';
   go.className='guardian-landmark-action';
@@ -153,6 +159,7 @@ function selectKind(next){
 function init(loadedMap){
  if(map||!loadedMap)return;
  map=loadedMap;items=load();
+ if(w.HH_GUARDIAN_ICONS_V784)w.HH_GUARDIAN_ICONS_V784.decoratePicker();
  paintPins();renderList();
  const field=$('guardianLandmarkName');if(field)field.value=TYPES[kind].label;
  selectKind(kind);
