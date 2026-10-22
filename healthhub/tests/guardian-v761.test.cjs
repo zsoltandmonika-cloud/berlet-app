@@ -17,11 +17,11 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.ok(!tiles.some(t=>t[0]==='timeline'),'old standalone Home tile retired, Timeline page not deleted');
  assert.match(js,/guardian:'<path/);
  assert.match(js,/if\(key==='guardian'\)/);
- assert.match(js,/new URL\('\.\/guardian\/family-guard-v776\.html',root\.location\.href\)/);
+ assert.match(js,/new URL\('\.\/guardian\/family-guard-v778\.html',root\.location\.href\)/);
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=776-destinations/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=778-follow-gps/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -93,7 +93,7 @@ test('v773 daylight live map keeps 3D, satellite and route visible',()=>{
  assert.match(js,/function applyGoldenMapStyle\(\)/,'profile-palette handler preserved');
  assert.match(daylight,/#guardianMap \.maplibregl-canvas\{filter:none!important\}/,'dark canvas brightness filter disabled');
  assert.match(html,/guardian-daylight-v773\.css/,'daylight CSS linked');
- assert.match(html,/guardian\.js\?v=776/,'daylight JS linked with landmark integration');
+ assert.match(html,/guardian\.js\?v=778/,'daylight JS linked with landmark integration');
  const nav=html.slice(html.indexOf('<nav id="guardianHHNav"'),html.indexOf('</nav>'));
  assert.equal((nav.match(/<(?:a|button)\b/g)||[]).length,5,'canonical 5-slot taskbar stays intact');
  const hero=html.slice(html.indexOf('<section class="intro guardian-hero"'),html.indexOf('</section>'));
@@ -186,8 +186,17 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  vm.runInNewContext(script,{window:w,document:d,Date,Math,Number,String,Set});
  assert.equal(nextWatch,0,'opening the Guardian must NOT request GPS');
  assert.equal(w.HH_GUARDIAN_V761.active,false);
+ controls.guardianFollow.click();
+ assert.equal(nextWatch,1,'Follow explicitly starts own GPS if it was off');
+ assert.equal(w.HH_GUARDIAN_V761.active,true);
+ assert.equal(controls.guardianFollow['aria-pressed'],'true','Follow keeps camera tracking enabled');
+ controls.guardianFollow.click();
+ assert.equal(controls.guardianFollow['aria-pressed'],'false','Follow can disable camera tracking without stopping GPS');
+ assert.equal(nextWatch,1,'Follow does not create a duplicate GPS watcher');
+ controls.guardianFollow.click();
+ assert.equal(controls.guardianFollow['aria-pressed'],'true','Follow can re-enable camera tracking');
  controls.guardianStart.click();
- assert.equal(nextWatch,1);
+ assert.equal(nextWatch,1,'separate Start button stays safe when GPS is already running');
  assert.equal(w.HH_GUARDIAN_V761.active,true);
  controls.guardianSatellite.click();
  assert.equal(controls.guardianSatellite['aria-pressed'],'true','satellite can be activated');
@@ -206,6 +215,15 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  assert.equal(w.HH_GUARDIAN_V761.active,false);
  controls.guardianProfileSwitch.click();
  assert.equal(profile,'z','second portrait tap returns to Zsolt');
+ w.isSecureContext=false;
+ controls.guardianFollow.click();
+ assert.equal(nextWatch,2,'Follow never starts GPS from insecure contexts');
+ assert.equal(w.HH_GUARDIAN_V761.active,false);
+ w.isSecureContext=true;
+ controls.guardianFollow.click();
+ assert.equal(nextWatch,3,'Follow restarts GPS after explicit new tap');
+ controls.guardianStop.click();
+ assert.deepEqual(stopped,[1,2,3]);
  assert.doesNotMatch(script,/fetch\(|sendBeacon|WebSocket|indexedDB\.open|setItem\('(guardian|gps|location|route)/,'no tracking upload or persistence');
  assert.match(script,/localStorage\.setItem\('hh-profile',next\)/,'only profile selection is stored');
  assert.match(script,/d\.addEventListener\('visibilitychange'/,'browser GPS stops when hidden');
