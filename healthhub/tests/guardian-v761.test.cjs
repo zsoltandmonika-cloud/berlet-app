@@ -21,7 +21,7 @@ test('approved 12-tile Home replaces only Timeline entry with Guardian',()=>{
  assert.match(js,/if\(key==='timeline'\)return showPage\('timeline'\)/);
  assert.match(css,/\.hhpg-tile\[data-key="guardian"\]/);
  assert.match(css,/data-hhpg-profile="m"\] #home \.hhpg-tile\[data-key="guardian"\]/);
- assert.match(html,/premium-glass-home-v520\.js\?v=785-family-live/);
+ assert.match(html,/premium-glass-home-v520\.js\?v=786-family-4in1/);
 });
 
 test('the original Timeline opens unchanged via Health submenu',()=>{
@@ -539,7 +539,7 @@ test('v785 Family Live exposes consented auth, six intervals, correct original p
  const guardian=read('guardian/guardian.js');
  new Function(live);
  assert.match(html,/data-family-guard-build="v785"/);
- assert.match(html,/guardian-live-v785\.js\?v=785-optin-family-live/);
+ assert.match(html,/guardian-live-v785\.js\?v=786-home-4in1-settings/);
  assert.match(html,/guardian-live-v785\.css\?v=785-private-live/);
  assert.match(html,/supabase-js@2\.57\.2/,'pinned browser client');
  assert.match(html,/central-vault\/config\.js/,'use existing publishable-only config');
@@ -576,15 +576,15 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
   createElement:make,addEventListener(){}};
  const store={'hh-profile':'z'},actions=[],row={};
  const storage={getItem(k){return store[k]||null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}};
- const makeQuery=()=>({
+ const makeQuery=(table)=>({
   select(){return this},in(){return Promise.resolve({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null})},
   eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
-  upsert(data){actions.push({method:'upsert',data});return Promise.resolve({data,error:null})},
-  delete(){actions.push({method:'delete'});return this},then(fn){return Promise.resolve({error:null}).then(fn)}
+  upsert(data){actions.push({method:'upsert',table,data});return Promise.resolve({data,error:null})},
+  delete(){actions.push({method:'delete',table});return this},then(fn){return Promise.resolve({error:null}).then(fn)}
  });
  const api={auth:{getUser(){return Promise.resolve({data:{user:{id:'owner-1'}},error:null})},
   onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}},signOut(){return Promise.resolve({error:null})}},
-  from(table){return makeQuery()}
+  from(table){return makeQuery(table)}
  };
  const win={HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://fake.example',publishableKey:'public-key'},
   supabase:{createClient(){return api}},localStorage:storage,
@@ -593,14 +593,14 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
   addEventListener(){}};
  vm.runInNewContext(code,{window:win,document:doc,Date,Math,Number,String,Promise});
  await new Promise(resolve=>setImmediate(resolve));
- assert.equal(actions.filter(x=>x.method==='upsert').length,0,'authentication never initiates sharing');
+ assert.equal(actions.filter(x=>x.method==='upsert'&&x.table==='hh_guardian_live_locations').length,0,'authentication never initiates location sharing');
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
  controls.guardianLiveStart.click();
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,true,'own-phone tap is necessary');
  const fix={coords:{latitude:47.5,longitude:19.05,accuracy:9,speed:2},timestamp:Date.now()};
  win.HH_GUARDIAN_LIVE_V785.onGpsFix(fix);
  await new Promise(resolve=>setImmediate(resolve));
- const writes=actions.filter(x=>x.method==='upsert');
+ const writes=actions.filter(x=>x.method==='upsert'&&x.table==='hh_guardian_live_locations');
  assert.equal(writes.length,1);
  assert.equal(writes[0].data.profile_key,'zsolt');
  assert.equal(writes[0].data.owner_id,'owner-1');
@@ -610,14 +610,37 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
  controls.guardianLiveStop.click();
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
- assert.ok(actions.some(x=>x.method==='delete'),'stop deletes own latest location');
- const n=actions.filter(x=>x.method==='upsert').length;
+ assert.ok(actions.some(x=>x.method==='delete'&&x.table==='hh_guardian_live_locations'),'stop deletes own latest location');
+ const n=actions.filter(x=>x.method==='upsert'&&x.table==='hh_guardian_live_locations').length;
  win.HH_GUARDIAN_LIVE_V785.onGpsFix(fix);
  await new Promise(resolve=>setImmediate(resolve));
- assert.equal(actions.filter(x=>x.method==='upsert').length,n,'off means no more uploads');
+ assert.equal(actions.filter(x=>x.method==='upsert'&&x.table==='hh_guardian_live_locations').length,n,'off means no more uploads');
  store['hh-profile']='m';
  win.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  controls.guardianLiveStart.click();
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false,'cannot silently pretend other person owns phone');
  assert.match(controls.guardianLiveStatus.textContent,/telefon/);
+});
+
+test('v786 Home Family Guard 4-in-1 requires per-device consent and synchronizes only profile settings',()=>{
+ const home=read('premium-glass-home-v520.js'),guard=read('guardian/guardian.js'),live=read('guardian/guardian-live-v785.js');
+ const html=read('guardian/family-guard-v785.html'),shell=read('index.html');
+ for(const code of [home,guard,live])new Function(code);
+ assert.match(home,/guardianLaunch\\.searchParams\\.set\\('hhlaunch','home'\\)/);
+ assert.match(live,/hh-guardian-home-4in1-consent-v786/);
+ assert.match(live,/function runHomeLaunch\\(\\)/);
+ assert.match(live,/if\\(!approveHomeLaunch\\(\\)\\)return/);
+ assert.match(live,/if\\(!startSharing\\(\\)\\)return/);
+ assert.match(live,/gps\\.startHomeFollow\\(\\)/);
+ assert.match(live,/PREF_TABLE='hh_guardian_location_settings'/);
+ assert.match(live,/function loadSettings\\(\\)/);
+ assert.match(live,/function syncSettings\\(\\)/);
+ assert.match(live,/w\\.localStorage\\.removeItem\\(HOME_CONSENT_KEY\\)/);
+ assert.match(live,/d\\.hidden/);
+ assert.match(guard,/startHomeFollow/);
+ assert.match(guard,/notifyLocationSettings/);
+ assert.match(html,/id="guardianHomeAutoToggle"/);
+ assert.match(html,/id="guardianHomeLaunchStatus"/);
+ assert.match(shell,/premium-glass-home-v520\\.js\\?v=786-family-4in1/);
+ assert.doesNotMatch(live,/service_role|sb_secret_/,'private keys never in client');
 });
