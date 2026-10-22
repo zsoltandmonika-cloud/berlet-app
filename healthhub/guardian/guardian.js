@@ -1,4 +1,4 @@
-/* HealthHub Family Guard v761: explicit foreground-only, memory-only GPS tracking. */
+/* HealthHub Family Guard v773: daylight map skin; foreground-only, memory-only GPS. */
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
@@ -179,54 +179,74 @@ function switchProfile(){
  if(map)map.easeTo({center:neutral,zoom:15.3,duration:650});
  report('GPS kikapcsolva · '+name()+' profil');
 }
+/* Family Guard v773: real daylight vector map, no static image replacing GPS. */
 function mapColors(){
  const rose=name()==='Mónika';
  return {
-  Background:rose?'#4d4163':'#324e70',
-  Residential:rose?'#655073':'#45637d',
-  Water:rose?'#466c91':'#337da6',
-  River:rose?'#72a3ca':'#4f9ac4',
-  'Road network':rose?'#ceabc5':'#a6cce4',
-  Grass:rose?'#4b7467':'#377966',
-  Wood:rose?'#3c715f':'#2c695d',
-  'Road labels':rose?'#fff0f8':'#ffffff'
+  background:'#f6f2e9',
+  water:'#80cbea',
+  river:'#68bde6',
+  parks:'#a8d58e',
+  woods:'#78af7b',
+  residential:'#efe6d9',
+  road:'#e7dfd2',
+  highway:'#f3e5c9',
+  label:'#40536a',
+  roofLow:rose?'#e9cfbf':'#e4d4bd',
+  roofMid:rose?'#d7acaa':'#d5ae8b',
+  roofHigh:rose?'#be938f':'#c39a79',
+  track:rose?'#e63198':'#168bc9',
+  glow:rose?'#ff7eca':'#64caff'
  };
 }
 function applyGoldenMapStyle(){
  if(!map||!ready)return;
  const colors=mapColors();
- const types={'Background':['background-color','background'],'Residential':['fill-color','fill'],
-  'Water':['fill-color','fill'],'River':['line-color','line'],'Road network':['line-color','line'],
-  Grass:['fill-color','fill'],Wood:['fill-color','fill'],'Road labels':['text-color','symbol']};
- Object.keys(types).forEach(function(id){
-  const layer=map.getLayer(id);
-  if(layer&&layer.type===types[id][1]){
-   try{map.setPaintProperty(id,types[id][0],colors[id])}catch(e){}
+ /* OpenFreeMap Bright has different IDs from Dark. Inspect live layer types/IDs
+    rather than silently targeting dark-only layer names. Keep OSM labels and attribution. */
+ const layers=(map.getStyle()&&map.getStyle().layers)||[];
+ const paint=(id,key,value)=>{try{map.setPaintProperty(id,key,value)}catch(_){/* optional layer */}};
+ layers.forEach(function(layer){
+  const id=(layer.id||'').toLowerCase();
+  if(layer.type==='background')paint(layer.id,'background-color',colors.background);
+  if(layer.type==='fill'){
+   if(/water|lake|river/.test(id))paint(layer.id,'fill-color',colors.water);
+   else if(/park|grass|garden|green/.test(id))paint(layer.id,'fill-color',colors.parks);
+   else if(/wood|forest/.test(id))paint(layer.id,'fill-color',colors.woods);
+   else if(/residential/.test(id))paint(layer.id,'fill-color',colors.residential);
+  }
+  if(layer.type==='line'){
+   if(/waterway|river|stream|canal/.test(id))paint(layer.id,'line-color',colors.river);
+   else if(/road|street|highway|transportation/.test(id)){
+    paint(layer.id,'line-color',/motorway|trunk|primary|major/.test(id)?colors.highway:colors.road);
+   }
+  }
+  if(layer.type==='symbol'&&layer.layout&&layer.layout['text-field']&&/road|street|highway|transportation/.test(id)){
+   paint(layer.id,'text-color',colors.label);
+   paint(layer.id,'text-halo-color','#ffffff');
+   paint(layer.id,'text-halo-width',1.35);
   }
  });
  if(map.getLayer('guardian-buildings-3d')){
-  const rose=name()==='Mónika';
-  map.setPaintProperty('guardian-buildings-3d','fill-extrusion-color',
-   ['interpolate',['linear'],['coalesce',['get','render_height'],0],
-    0,rose?'#4b366c':'#234c77',55,rose?'#b56ab5':'#4d9cdb',180,rose?'#ffd0ee':'#bceeff']);
+  paint('guardian-buildings-3d','fill-extrusion-color',
+   ['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],0],
+    0,colors.roofLow,55,colors.roofMid,180,colors.roofHigh]);
  }
- if(map.getLayer('guardian-route-glow'))map.setPaintProperty('guardian-route-glow','line-color',
-  name()==='Mónika'?'#fc76c3':'#5cc7ff');
- if(map.getLayer('guardian-route-line'))map.setPaintProperty('guardian-route-line','line-color',
-  name()==='Mónika'?'#ffabd9':'#79c5ff');
+ if(map.getLayer('guardian-route-glow'))paint('guardian-route-glow','line-color',colors.glow);
+ if(map.getLayer('guardian-route-line'))paint('guardian-route-line','line-color',colors.track);
 }
 function initMap(){
  if(!w.maplibregl){message('A térképmotor nem töltődött be. Ellenőrizd az internetkapcsolatot.');return}
  try{
   map=new w.maplibregl.Map({
-   container:'guardianMap',style:'https://tiles.openfreemap.org/styles/dark',
+   container:'guardianMap',style:'https://tiles.openfreemap.org/styles/bright',
    center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:true
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
   map.on('load',function(){
    ready=true;message('');
-   try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#bcdcff',intensity:0.43,position:[1.25,207,32]})}catch(e){}
-   /* Reuse the dark style's own OSM building vector source when possible.
+   try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
+   /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.
     * A fallback TileJSON source is used only if the basemap lacks buildings. */
    try{
@@ -240,10 +260,10 @@ function initMap(){
      'source-layer':'building',minzoom:14,layout:{visibility:threeD?'visible':'none'},
      filter:['!=',['get','hide_3d'],true],
      paint:{
-      'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],0],0,name()==='Mónika'?'#4b366c':'#234c77',55,name()==='Mónika'?'#b56ab5':'#4d9cdb',180,name()==='Mónika'?'#ffd0ee':'#bceeff'],
-      'fill-extrusion-height':['interpolate',['linear'],['zoom'],14,0,16,['coalesce',['get','render_height'],0]],
+      'fill-extrusion-color':['interpolate',['linear'],['coalesce',['get','render_height'],['get','height'],0],0,'#e4d4bd',55,'#d5ae8b',180,'#c39a79'],
+      'fill-extrusion-height':['interpolate',['linear'],['zoom'],14,0,16,['coalesce',['get','render_height'],['get','height'],0]],
       'fill-extrusion-base':['coalesce',['get','render_min_height'],0],
-      'fill-extrusion-opacity':0.82
+      'fill-extrusion-opacity':0.88
      }
     },firstLabel&&firstLabel.id);
    }catch(e){w.console&&w.console.warn('Guardian 3D buildings fallback',e)}
@@ -262,10 +282,13 @@ function initMap(){
    }catch(e){w.console&&w.console.warn('Guardian satellite source unavailable',e)}
    map.addSource('guardian-route',{type:'geojson',data:pathJson()});
    map.addLayer({id:'guardian-route-glow',type:'line',source:'guardian-route',paint:{
-    'line-color':name()==='Mónika'?'#fc76c3':'#5cc7ff','line-width':12,'line-opacity':0.22,'line-blur':5
+    'line-color':name()==='Mónika'?'#fc76c3':'#5cc7ff','line-width':13,'line-opacity':0.22,'line-blur':5
+   }});
+   map.addLayer({id:'guardian-route-casing',type:'line',source:'guardian-route',paint:{
+    'line-color':'#ffffff','line-width':8,'line-opacity':0.86
    }});
    map.addLayer({id:'guardian-route-line',type:'line',source:'guardian-route',paint:{
-    'line-color':name()==='Mónika'?'#ffabd9':'#79c5ff','line-width':5,'line-opacity':0.95
+    'line-color':name()==='Mónika'?'#ffabd9':'#79c5ff','line-width':5.5,'line-opacity':0.95
    }});
    applyGoldenMapStyle();
    applyView();

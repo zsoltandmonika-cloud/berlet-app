@@ -1,0 +1,35 @@
+/* HealthHub Family Guard v773 · real daylight MapLibre map only.
+   Preserve every Golden Standard control, hero image and fixed taskbar. */
+.map-card{background:#e9f2ed!important;border-color:rgba(119,181,208,.65)!important}
+#guardianMap{background:#edf3ea!important}
+#guardianMap .maplibregl-canvas{filter:none!important}
+#guardianMap .maplibregl-control-container{color:#f7fbff}
+.map-label{
+ background:rgba(12,37,69,.89)!important;
+ border-color:rgba(170,219,251,.65)!important;
+ color:#f7fbff!important;
+ text-shadow:0 1px 3px rgba(0,0,0,.33)!important
+}
+.map-follow,.map-3d,.map-satellite,.map-family{
+ background:rgba(10,41,78,.91)!important;
+ border-color:rgba(183,221,255,.69)!important;
+ color:#f9fdff!important;
+ box-shadow:0 5px 18px rgba(10,44,75,.26),inset 0 1px rgba(255,255,255,.18)!important
+}
+.map-follow:focus-visible,.map-3d:focus-visible,.map-satellite:focus-visible,.map-family:focus-visible{
+ outline:2px solid #a6deff!important;outline-offset:2px!important
+}
+#guardianMap .maplibregl-ctrl-attrib{
+ background:rgba(14,44,75,.91)!important;
+ color:#f6fbff!important;
+ text-shadow:0 1px 2px rgba(0,0,0,.35)!important
+}
+#guardianMap .maplibregl-ctrl-attrib a{color:#d9f2ff!important}
+#guardianMap .maplibregl-ctrl-group{
+ background:rgba(15,43,76,.93)!important;
+ border:1px solid rgba(155,210,246,.57)!important;
+ box-shadow:0 4px 16px rgba(10,44,75,.24)!important
+}
+#guardianMap .maplibregl-ctrl-group button{filter:invert(1)}
+/* Satellite remains historical raster imagery; the approved photos are a design reference,
+   not map data. The map may not reproduce photogrammetric buildings or decorative routes. */
