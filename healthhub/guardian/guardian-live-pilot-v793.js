@@ -76,7 +76,7 @@ async function poll(){
   lastVehicles=active.vehicles;
   focusButton.hidden=lastVehicles.length===0;
   focusButton.textContent=lastVehicles.length===1
-   ?'Mutasd az élő '+lastVehicles[0].routeId+'-ast ↗'
+   ?(lastVehicles[0].routeId==='260'?'Élő 260-as busz mutatása ↗':'Élő '+lastVehicles[0].routeId+'-es villamos ↗')
    :'Élő járművek mutatása ↗';
   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(data.generatedAt).toLocaleTimeString('hu-HU'));
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
