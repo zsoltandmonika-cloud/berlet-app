@@ -906,7 +906,7 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/id="hhTransitShow17"/);
   assert.match(page,/id="hhTransitShow19"/);
   if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=791-portrait-direction/);
-  else assert.match(page,/guardian-transit-v790\\.js\\?v=790-bkk-static-gtfs/);
+  else assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
   assert.match(page,/nem élő busz-/);
