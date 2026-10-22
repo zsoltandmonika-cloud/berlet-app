@@ -1055,10 +1055,10 @@ test('v799 canonical Family Guard enables live BKK automatically and keeps trans
  const live=read('guardian/guardian-live-pilot-v793.js');
  const css=read('guardian/guardian-transit-v791.css');
  new Function(js);new Function(live);
- assert.match(html,/guardian-transit-v791\\.js\\?v=799-live-default/);
- assert.match(html,/guardian-transit-v791\\.css\\?v=799-transport-color/);
- assert.match(js,/get\\('hhLivePilot'\\)!=='off'/);
- assert.match(live,/get\\('hhLivePilot'\\)==='off'/);
+ assert.match(html,/guardian-transit-v791\.js\?v=799-live-default/);
+ assert.match(html,/guardian-transit-v791\.css\?v=799-transport-color/);
+ assert.match(js,/get\('hhLivePilot'\)!=='off'/);
+ assert.match(live,/get\('hhLivePilot'\)==='off'/);
  assert.match(live,/BKK élő helyzet/);
  assert.doesNotMatch(live,/ÉLŐ BKK TESZT/);
  assert.match(js,/hh-transit-dir--/);
