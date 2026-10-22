@@ -122,7 +122,7 @@ function renderList(){
    items=next;renderList();paintPins();status('Hely törölve.');
   });
   const tag=d.createElement('span');tag.className='guardian-landmark-scope';tag.textContent='🔒 Privát';
-  li.appendChild(icon);li.appendChild(label);li.appendChild(go);li.appendChild(tag);
+  li.appendChild(icon);li.appendChild(label);li.appendChild(go);li.appendChild(del);li.appendChild(tag);
   if(bridge){
    const share=d.createElement('button');share.type='button';share.textContent='⇧ Közössé';
    share.className='guardian-landmark-action';share.setAttribute('aria-label',item.name+' megosztása a családdal');
@@ -138,7 +138,7 @@ function renderList(){
    });
    li.appendChild(share);
   }
-  li.appendChild(del);list.appendChild(li);
+  list.appendChild(li);
  });
  shared.forEach(function(item){
   const li=d.createElement('li');li.className='guardian-landmark-item';
