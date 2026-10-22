@@ -77,3 +77,28 @@ test('v797 puts verified vehicles in DOM above WebGL extrusions, then removes st
  overlay.clear(map);
  assert.equal(seen[1].removed,true,'clear on timeout, network error or page hiding');
 });
+
+
+test('v798 live marker is compact, premium and remains above the 3D map',()=>{
+ const created=[];
+ function node(tag){return {tag,style:{},children:[],append(...items){this.children.push(...items)},appendChild(item){this.children.push(item)},setAttribute(){}}}
+ class Marker{
+  constructor(opts){this.opts=opts;created.push(this)}
+  setLngLat(point){this.point=point;return this}
+  addTo(){return this}
+  remove(){}
+ }
+ const map={getSource:()=>null,isStyleLoaded:()=>true};
+ const vehicle={id:'v798-real-bus',routeId:'260',lat:47.56,lng:19.04};
+ assert.equal(overlay.render(map,{ok:true,vehicles:[vehicle]},{Marker,document:{createElement:node}}),true);
+ const [live,badge,pin]=created[0].opts.element.children[0].children;
+ assert.match(live.style.cssText,/font:850 9px/);
+ assert.match(live.style.cssText,/border-radius:9px 9px 0 0/);
+ assert.match(badge.style.cssText,/min-width:53px;min-height:33px/);
+ assert.match(badge.style.cssText,/linear-gradient/);
+ assert.match(pin.style.cssText,/width:7px;height:7px/);
+ assert.equal(live.textContent,'● ÉLŐ');
+ assert.equal(badge.textContent,'🚌 260');
+ assert.deepEqual(created[0].point,[19.04,47.56]);
+ overlay.clear(map);
+});

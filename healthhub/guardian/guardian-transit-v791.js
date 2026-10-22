@@ -241,7 +241,7 @@ function loadPrefs(){try{const x=JSON.parse(w.localStorage.getItem(PREF_KEY)||'{
 function savePrefs(){try{w.localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(_){}}
 function setProfile(p){if(!['zsolt','monika'].includes(p))return;profile=p;renderDirections();showSelected();renderCards()}
 function toggleVariant(id,index,enabled){if(!info(id))return;const all=info(id).variants.map((_,i)=>i);const old=Array.isArray(prefs[profile][id])?prefs[profile][id]:all;const next=new Set(old);if(enabled)next.add(index);else next.delete(index);prefs[profile][id]=[...next].sort((a,b)=>a-b);savePrefs();showSelected();renderDirections();renderCards()}
-function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();const title=d.createElement('p');title.textContent='Irányok külön, a BKK tényleges végállomásneveivel · menetrendi útvonal';host.append(title);for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
+function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();const title=d.createElement('p');title.textContent='Irányok külön, a BKK tényleges végállomásneveivel · menetrendi útvonal';host.append(title);for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');label.className='hh-transit-dir hh-transit-dir--'+(r.mode==='bus'?'bus':r.mode==='tram'?'tram':r.mode==='hev'?'hev':'other');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
 function init(){
  if(!$('hhTransitPanel'))return;
  restore();loadPrefs();updateControls();
@@ -260,13 +260,14 @@ function init(){
 }
 w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,version:'791'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
-// v793 opt-in only: load the live BKK preview without touching v794 production UX.
-if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
+// v799 default: live BKK on the original Family Guard URL, using authenticated snapshots.
+// A private diagnostic ?hhLivePilot=off remains available as a fail-closed fallback.
+if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
  const dir=new URL('./',d.currentScript?.src||w.location.href);
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v','793-foreground-v797');
+  const url=new URL(file,dir);url.searchParams.set('v','799-live-default');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');
@@ -274,7 +275,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
    let label=d.getElementById('hhBkkLiveStatusV793');
    if(!label){label=d.createElement('p');label.id='hhBkkLiveStatusV793';holder.prepend(label)}
    label.setAttribute('role','status');
-   label.textContent='⚠️ v793 ÉLŐ BKK TESZT · Egy szükséges fájl nem töltődött be. Frissítsd az oldalt.';
+   label.textContent='⚠️ BKK élő helyzet · Egy szükséges fájl nem töltődött be. Frissítsd az oldalt.';
   };
   d.head.appendChild(script);
  }

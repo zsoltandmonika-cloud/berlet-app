@@ -24,23 +24,23 @@
   domMarkers.clear();domMap=null;
  }
  function makeMarkerElement(doc,vehicle){
-  const bus=vehicle.routeId==='260',color=bus?'#168fdf':'#e7b50b';
+  const bus=vehicle.routeId==='260',color=bus?'linear-gradient(145deg,#249ce4,#0963aa)':'linear-gradient(145deg,#ffe67a,#e8b522)';
   const wrapper=doc.createElement('div');
   wrapper.className='hh-bkk-live-vehicle-dom-v797';
   // Do NOT override MapLibre's position/transform on this outer marker node.
-  wrapper.style.cssText='z-index:50;pointer-events:auto;filter:drop-shadow(0 5px 9px rgba(0,18,43,.65))';
+  wrapper.style.cssText='z-index:50;pointer-events:auto;filter:drop-shadow(0 3px 7px rgba(0,18,43,.5))';
   wrapper.setAttribute('role','img');
   wrapper.setAttribute('aria-label','Élő '+(bus?'260-as busz':vehicle.routeId+'-es villamos')+' · BKK-járműpozíció');
   const stack=doc.createElement('div');
-  stack.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap';
+  stack.style.cssText='display:flex;flex-direction:column;align-items:center;gap:0;white-space:nowrap';
   const live=doc.createElement('span');
   live.textContent='● ÉLŐ';
-  live.style.cssText='font:900 12px system-ui;color:#fff;background:#085378;border:2px solid #6ff5ff;border-radius:20px;padding:3px 9px;letter-spacing:.6px';
+  live.style.cssText='font:850 9px/1.1 system-ui;color:#e8fbff;background:linear-gradient(135deg,#0a567b,#093757);border:1px solid #6de6ef;border-bottom:0;border-radius:9px 9px 0 0;padding:3px 8px 2px;letter-spacing:.6px;position:relative;top:1px';
   const badge=doc.createElement('span');
   badge.textContent=(bus?'🚌 ':'🚋 ')+vehicle.routeId;
-  badge.style.cssText='display:flex;align-items:center;justify-content:center;min-width:64px;min-height:42px;padding:0 9px;border-radius:14px;border:3px solid #fff;background:'+color+';color:'+(bus?'#fff':'#162c46')+';font:900 17px system-ui;box-shadow:0 0 0 4px rgba(47,232,255,.35)';
+  badge.style.cssText='display:flex;align-items:center;justify-content:center;min-width:53px;min-height:33px;padding:0 8px;border-radius:11px;border:2px solid rgba(255,255,255,.95);background:'+color+';color:'+(bus?'#fff':'#172a41')+';font:850 14px/1.1 system-ui;letter-spacing:.15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 0 0 2px rgba(47,232,255,.19)';
   const pin=doc.createElement('span');
-  pin.style.cssText='width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #07365a;box-shadow:0 0 0 3px #36f2ff';
+  pin.style.cssText='width:7px;height:7px;border-radius:50%;background:#e9feff;border:1px solid #07365a;box-shadow:0 0 0 2px rgba(54,242,255,.8)';
   stack.append(live,badge,pin);wrapper.appendChild(stack);
   return wrapper;
  }

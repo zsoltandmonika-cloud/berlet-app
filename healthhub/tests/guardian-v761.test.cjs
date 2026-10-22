@@ -905,11 +905,12 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/id="hhTransitShow260"/);
   assert.match(page,/id="hhTransitShow17"/);
   assert.match(page,/id="hhTransitShow19"/);
-  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=793-foreground-v797/);
+  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=799-live-default/);
   else assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
-  assert.match(page,/nem élő busz-/);
+  if(page===other)assert.match(page,/ÉLŐ járműjelölők/);
+  else assert.match(page,/nem élő busz-/);
   assert.match(page,/<section class="intro guardian-hero"/,'do not remove existing Family Guard Hero');
  }
  assert.match(js,/hh-guardian-transit-selected-v790/);
@@ -1019,12 +1020,15 @@ test('v795 live pilot has visible status before route selectors and detects load
  const loader=read('guardian/guardian-transit-v791.js');
  const pilot=read('guardian/guardian-live-pilot-v793.js');
  new Function(loader);new Function(pilot);
- assert.match(html,/guardian-transit-v791\.js\?v=793-foreground-v797/);
+ assert.match(html,/guardian-transit-v791\.js\?v=799-live-default/);
  assert.match(loader,/hhLivePilot/);
  assert.match(loader,/script\.onerror/);
- assert.match(loader,/793-foreground-v797/);
+ assert.match(loader,/799-live-default/);
+ assert.match(loader,/get\('hhLivePilot'\)!=='off'/);
+ assert.match(pilot,/get\('hhLivePilot'\)==='off'/);
  assert.match(pilot,/holder\.prepend\(bar\)/);
- assert.match(pilot,/v793 ÉLŐ BKK TESZT/);
+ assert.match(pilot,/BKK élő helyzet/);
+ assert.doesNotMatch(pilot,/ÉLŐ BKK TESZT/);
  assert.match(pilot,/Family Live részben/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|hhTransitDetails/);
 });
@@ -1041,5 +1045,26 @@ test('v796 live-only focus button shows real vehicles without changing v794 defa
  assert.match(pilot,/scrollIntoView/);
  assert.match(overlay,/ÉLŐ/);
  assert.match(overlay,/function focus\(map,vehicles\)/);
+ assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
+});
+
+
+test('v799 canonical Family Guard enables live BKK automatically and keeps transport-colored direction checks',()=>{
+ const html=read('guardian/index.html');
+ const js=read('guardian/guardian-transit-v791.js');
+ const live=read('guardian/guardian-live-pilot-v793.js');
+ const css=read('guardian/guardian-transit-v791.css');
+ new Function(js);new Function(live);
+ assert.match(html,/guardian-transit-v791\.js\?v=799-live-default/);
+ assert.match(html,/guardian-transit-v791\.css\?v=799-transport-color/);
+ assert.match(js,/get\('hhLivePilot'\)!=='off'/);
+ assert.match(live,/get\('hhLivePilot'\)==='off'/);
+ assert.match(live,/BKK élő helyzet/);
+ assert.doesNotMatch(live,/ÉLŐ BKK TESZT/);
+ assert.match(js,/hh-transit-dir--/);
+ for(const [kind,color] of [['bus','#279ff0'],['tram','#ffcb2c'],['hev','#36bf80']]){
+  assert.ok(css.includes('.hh-transit-dir--'+kind+' input[type=checkbox]{accent-color:'+color+'}'),kind);
+ }
+ assert.match(html,/ÉLŐ járműjelölők/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
 });
