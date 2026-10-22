@@ -54,9 +54,9 @@ test('v804 can connect official BKK stop sequences with one short transfer',()=>
 test('v804 has own HealthHub UI, origin chooser and no fabricated ETA or GPS access',()=>{
  const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js');
  const code=read('guardian-smart-hub-router-v804.js'),css=read('guardian-smart-hub-router-v804.css');
- for(const id of ['hhSmartHubOriginModeV804','hhSmartHubTargetModeV804','hhSmartHubTripPlansV804','hhSmartHubTripStatusV804'])
+ for(const id of ['hhSmartHubFromV806','hhSmartHubToV806','hhSmartHubTripPlansV804','hhSmartHubTripStatusV804'])
   assert.ok(html.includes(id),id);
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=805-fewest-go-a'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=806-network-a'));
  assert.ok(html.includes('guardian-smart-hub-router-v804.css?v=804-router-a'));
  assert.ok(js.includes('HH_SMART_HUB_ROUTER_V804'));
  assert.ok(js.includes("router.setPlace(mode,item)"));

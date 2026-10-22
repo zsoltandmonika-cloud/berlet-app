@@ -1,0 +1,57 @@
+/* Smart Arrival v806 · always-visible paired directions and editable favourites */
+.hh-smart-hub-paired-v806{display:grid;grid-template-columns:minmax(0,1fr) 61px;column-gap:9px;row-gap:6px;align-items:center}
+.hh-smart-hub-field-v806{min-width:0;grid-column:1 / -1;display:grid;gap:5px;padding:9px;
+ border:1px solid rgba(137,205,248,.45);border-radius:13px;background:rgba(6,32,70,.77)}
+.hh-smart-hub-field-v806:first-child{grid-row:1;grid-column:1 / -1}
+.hh-smart-hub-field-v806:last-child{grid-row:3;grid-column:1 / -1}
+.hh-smart-hub-field-v806 label{font:850 11px/1.2 system-ui;color:#ceeaff;letter-spacing:1px}
+.hh-smart-hub-field-v806 input{box-sizing:border-box;width:100%;min-height:46px;
+ border:1px solid rgba(127,207,250,.5);border-radius:11px;background:rgba(2,19,46,.88);
+ padding:9px 11px;color:white;font:650 15px/1.3 system-ui;outline-offset:2px}
+.hh-smart-hub-field-v806 input::placeholder{color:#a5bfd3}
+.hh-smart-hub-field-v806 input:focus-visible{outline:2px solid #8be6ff}
+.hh-smart-hub-field-v806.hh-smart-hub-active-v806{border-color:#86ddff;box-shadow:0 0 0 1px rgba(113,211,254,.22)}
+.hh-smart-hub-field-v806.hh-smart-hub-confirmed-v806 label:after{content:' ✓';color:#86f4ba}
+.hh-smart-hub-swap-v806{grid-row:2;grid-column:2;justify-self:end;width:61px;min-height:43px;
+ border:1px solid #91dfff;border-radius:13px;background:linear-gradient(135deg,#178acc,#124979);
+ color:#fff;font:850 23px/1 system-ui;display:flex;align-items:center;justify-content:center;gap:3px}
+.hh-smart-hub-swap-v806 span{font:650 9px system-ui}
+.hh-smart-hub-auto-v806{display:flex}
+.hh-smart-hub-auto-v806 button{width:100%;min-height:43px;border-radius:11px;
+ border:1px solid #a2eddb;background:linear-gradient(120deg,#158d95,#0b646e);
+ color:white;font:800 13px system-ui}
+.hh-smart-hub-auto-v806 button:disabled{opacity:.58;background:rgba(22,60,87,.65);border-color:rgba(137,204,228,.55)}
+.hh-smart-hub-favorites-v806{border:1px solid rgba(120,202,246,.35);border-radius:12px;
+ background:rgba(9,38,78,.66);padding:7px 9px}
+.hh-smart-hub-favorites-v806 summary{min-height:40px;display:flex;align-items:center;gap:7px;
+ font:780 13px/1.3 system-ui;cursor:pointer;list-style:none}
+.hh-smart-hub-favorites-v806 summary::-webkit-details-marker{display:none}
+.hh-smart-hub-favorites-v806 summary small{margin-left:auto;color:#beddf4;font:600 10px/1.2 system-ui}
+.hh-smart-hub-favorite-profile-v806{font:720 12px/1.35 system-ui;color:#a7f0f9}
+.hh-smart-hub-favorite-list-v806{display:grid;gap:7px;margin-block:9px}
+.hh-smart-hub-favorite-row-v806{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 66px 38px;gap:5px;align-items:center}
+.hh-smart-hub-favorite-row-v806 input,.hh-smart-hub-favorite-row-v806 button{box-sizing:border-box;min-height:42px;
+ border-radius:9px;border:1px solid rgba(146,215,246,.5);padding:5px 7px;
+ background:rgba(7,35,73,.8);color:#f1faff;font:650 11px/1.2 system-ui;min-width:0}
+.hh-smart-hub-favorite-row-v806 button{cursor:pointer}
+.hh-smart-hub-favorite-row-v806 button:disabled{opacity:.47;cursor:default}
+.hh-smart-hub-favorite-row-v806 .hh-smart-hub-favorite-use-v806{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hh-smart-hub-favorite-row-v806 button:nth-last-child(2){background:rgba(16,121,110,.79)}
+.hh-smart-hub-favorite-row-v806 .hh-smart-hub-favorite-clear-v806{color:#ffd4dc}
+.hh-smart-hub-priority-v805{grid-template-columns:repeat(2,minmax(0,1fr))}
+.hh-smart-hub-priority-v805 button[disabled]{opacity:.45}
+@media(max-width:390px){.hh-smart-hub-favorite-row-v806{grid-template-columns: minmax(0,1fr) minmax(0,1fr) 55px 34px;gap:4px}
+ .hh-smart-hub-favorite-row-v806 input,.hh-smart-hub-favorite-row-v806 button{padding:4px;font-size:10px}}
+
+.hh-smart-trip-card-v804{cursor:pointer}
+.hh-smart-trip-card-v804.hh-smart-trip-selected-v806{
+ border-color:#a6f6de;
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 0 0 1px rgba(106,251,198,.23),0 7px 20px rgba(5,49,80,.32);
+}
+.hh-smart-trip-card-v804:focus-visible{outline:2px solid #b8f7e4;outline-offset:2px}
+.hh-smart-trip-ticket-v806{
+ display:flex;align-items:center;justify-content:center;min-height:44px;
+ border:1px solid rgba(156,222,250,.7);border-radius:10px;
+ background:rgba(16,65,112,.68);color:#e3f9ff;
+ text-decoration:none;padding:0 12px;font:750 12px system-ui;
+}

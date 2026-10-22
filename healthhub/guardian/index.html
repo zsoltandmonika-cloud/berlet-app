@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="./guardian-smart-hub-native-v803.css?v=803-native-b">
 <link rel="stylesheet" href="./guardian-smart-hub-router-v804.css?v=804-router-a">
 <link rel="stylesheet" href="./guardian-smart-hub-go-v805.css?v=805-fewest-go-a">
+<link rel="stylesheet" href="./guardian-smart-hub-v806.css?v=806-fields-b">
 <link rel="stylesheet" href="./bkk-live-glass-v800.css?v=800-approved-set">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
@@ -111,29 +112,38 @@
         <div><span class="hh-smart-hub-eyebrow-v802">SMART HUB · SAJÁT HELYKERESŐ</span><strong>Hová szeretnél menni?</strong></div>
         <span class="hh-smart-hub-search-icon-v802" aria-hidden="true">⌕</span>
       </div>
-      <div id="hhSmartHubPlaceModeV804" class="hh-smart-hub-mode-v804" role="group" aria-label="Melyik helyet keresed?">
-        <button id="hhSmartHubTargetModeV804" type="button" aria-pressed="true">📍 Úti cél</button>
-        <button id="hhSmartHubOriginModeV804" type="button" aria-pressed="false">🚶 Indulási hely</button>
-      </div>
-      <form id="hhSmartHubDestinationFormV802" autocomplete="off">
-        <label for="hhSmartHubDestinationInputV802">Helynév vagy cím · járatszám nélkül</label>
-        <div class="hh-smart-hub-search-v802">
-          <input id="hhSmartHubDestinationInputV802" name="destination" type="search" minlength="3" maxlength="120" placeholder="Pl. Bécsi Corner, Óbuda, Margitsziget…" aria-controls="hhSmartHubNativeResultsV803" aria-describedby="hhSmartHubDestinationStatusV802">
-          <button type="submit" aria-label="Hely keresése a HealthHub saját térképén">Keresés ↗</button>
+      <div id="hhSmartHubPairedV806" class="hh-smart-hub-paired-v806">
+        <div class="hh-smart-hub-field-v806">
+          <label for="hhSmartHubFromV806">🚶 HONNAN</label>
+          <input id="hhSmartHubFromV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Indulási hely vagy cím…">
         </div>
-      </form>
+        <button type="button" id="hhSmartHubSwapV806" class="hh-smart-hub-swap-v806" aria-label="Honnan és Hová helyek felcserélése" title="Helyek felcserélése">⇅ <span>Csere</span></button>
+        <div class="hh-smart-hub-field-v806">
+          <label for="hhSmartHubToV806">📍 HOVÁ</label>
+          <input id="hhSmartHubToV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Úti cél, például Bécsi Corner…">
+        </div>
+      </div>
       <div class="hh-smart-hub-actions-v802">
         <button type="button" id="hhSmartHubExampleV802" class="hh-smart-hub-example-v802">📍 Próbáld: Bécsi Corner</button>
       </div>
-      <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">A helytalálatok itt jelennek meg.</p>
+      <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Koppints egy mezőre, majd a találatra. Két hely után automatikusan tervezünk.</p>
       <div id="hhSmartHubNativeResultsV803" class="hh-smart-hub-results-v803" role="list" aria-label="Valós helytalálatok"></div>
-      <p id="hhSmartHubOriginSelectedV804" class="hh-smart-hub-selected-v803" hidden></p>
-      <p id="hhSmartHubSelectedV803" class="hh-smart-hub-selected-v803" hidden></p>
+      <div class="hh-smart-hub-auto-v806">
+        <button type="button" id="hhSmartHubPlanV806" disabled>🧭 Útvonaltervezés · válassz két helyet</button>
+      </div>
+      <details id="hhSmartHubFavoritesV806" class="hh-smart-hub-favorites-v806">
+        <summary>⭐ Kedvenc helyek <small>10 saját cím, profilonként</small></summary>
+        <p class="hh-smart-hub-privacy-v802">Válassz egy Honnan vagy Hová mezőt, majd keresd meg a címet. A Mentés a kiválasztott helyet rögzíti, a kedvenc címére kattintva pedig betöltjük az aktív mezőbe.</p>
+        <p id="hhSmartHubFavoriteProfileV806" class="hh-smart-hub-favorite-profile-v806"></p>
+        <div id="hhSmartHubFavoriteRowsV806" class="hh-smart-hub-favorite-list-v806"></div>
+        <p class="hh-smart-hub-privacy-v802">A kedvencek ezen az eszközön, Zsolt és Mónika profiljában külön tárolódnak. Nem kerülnek automatikusan a Dropboxba.</p>
+      </details>
       <section class="hh-smart-hub-routes-v804" aria-label="BKK menetrendi útvonaljavaslatok">
-        <div class="hh-smart-trip-title-v804"><strong>🧭 BKK útvonaljavaslatok</strong><small>Első változat: 260 · 17 · 19</small></div>
+        <div class="hh-smart-trip-title-v804"><strong>🧭 BKK útvonaljavaslatok</strong><small id="hhSmartHubCoverageV806">Ellenőrzött BKK GTFS</small></div>
         <div class="hh-smart-hub-priority-v805" role="group" aria-label="Útvonalválasztás szempontja">
           <button type="button" id="hhSmartHubPriorityTransfersV805" aria-pressed="true">🔁 Legkevesebb átszállás</button>
           <button type="button" id="hhSmartHubPriorityWalkingV805" aria-pressed="false">🚶 Kevesebb gyaloglás</button>
+          <button type="button" id="hhSmartHubPriorityWaitingV806" aria-pressed="false" disabled title="Menetrendi és csatlakozási időadatok bekötése után">⏳ Kevesebb várakozás · később</button>
         </div>
         <p id="hhSmartHubTripStatusV804" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Válassz indulási helyet és úti célt.</p>
         <div id="hhSmartHubTripPlansV804" class="hh-smart-hub-plans-v804"></div>
@@ -352,8 +362,9 @@
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=801-search-b"></script>
-<script defer src="./guardian-smart-hub-native-v803.js?v=804-paired-origin"></script>
-<script defer src="./guardian-smart-hub-router-v804.js?v=805-fewest-go-a"></script>
+<script defer src="./guardian-smart-hub-fields-v806.js?v=806-fields-b"></script>
+<script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a"></script>
+<script defer src="./guardian-smart-hub-router-v804.js?v=806-network-a"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">

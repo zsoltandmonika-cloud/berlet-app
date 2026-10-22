@@ -58,7 +58,7 @@ test('v805 GO and Details are visible and wired to map and planned itinerary onl
   'hhSmartHubGuideV805','hhSmartHubGuideProgressV805','hhSmartHubGuideStepV805',
   'hhSmartHubGuideBackV805','hhSmartHubGuideNextV805','hhSmartHubGuideCloseV805'])
   assert.ok(html.includes(id),'Missing '+id);
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=805-fewest-go-a'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=806-network-a'));
  assert.ok(html.includes('guardian-smart-hub-go-v805.css?v=805-fewest-go-a'));
  assert.match(js,/GO · Út indítása/);
  assert.match(js,/Részletek ▾/);
