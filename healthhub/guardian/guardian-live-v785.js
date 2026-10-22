@@ -102,8 +102,8 @@ function stopSharing(){
  sharing=false;sharingProfile=null;lastUploaded=0;lastSeen=null;
  set('guardianLiveOwnSpeed','—');
  updateUi();
- if(k&&uid)clearRow(k,uid);
  if(k)msg('Élő helymegosztás kikapcsolva ezen a telefonon.');
+ return k&&uid?clearRow(k,uid):Promise.resolve();
 }
 function onGpsStopped(){if(sharing)stopSharing()}
 function onProfileChanged(){
