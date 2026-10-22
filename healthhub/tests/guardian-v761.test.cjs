@@ -758,7 +758,7 @@ test('v787 shared places retry offline, sync to another client and tombstone del
 });
 
 
-test('v788 Smart Arrival Studio is editable, local-only and explicitly TEST-labelled',()=>{
+test('v789 Buddy Arrival Studio retains editable and TEST-labelled private templates',()=>{
  const html=read('guardian/family-guard-v785.html'),mirror=read('guardian/index.html');
  const js=read('guardian/guardian-arrival-studio-v788.js');
  const css=read('guardian/guardian-arrival-studio-v788.css');
@@ -770,18 +770,23 @@ test('v788 Smart Arrival Studio is editable, local-only and explicitly TEST-labe
   assert.match(page,/id="hhArrivalTitle"/);
   assert.match(page,/id="hhArrivalBody"/);
   assert.match(page,/id="hhArrivalSound"/);
-  assert.match(page,/hh-arrival-test-flag">🐿️ SMART ARRIVAL · TESZT/);
-  assert.match(page,/guardian-arrival-studio-v788\.js\?v=788-personal-mokuska-editor/);
-  assert.match(page,/guardian-arrival-studio-v788\.css\?v=788-mokuska-studio/);
-  assert.match(page,/nutrition-preview\/nutri-chipmunk-v592\.svg/);
+  assert.match(page,/id="hhArrivalVolume" type="range" min="0" max="100"/);
+  assert.match(page,/id="hhArrivalVolumeValue"/);
+  assert.match(page,/Buddy Smart Arrival Studio/);
+  assert.match(page,/hh-arrival-test-flag">🐿️ BUDDY · SMART ARRIVAL · TESZT/);
+  assert.match(page,/guardian-arrival-studio-v788\.js\?v=789-buddy-volume/);
+  assert.match(page,/guardian-arrival-studio-v788\.css\?v=789-buddy-volume/);
+  assert.match(page,/nutrition\/nutri-chipmunk-3d-v594\.webp/);
   for(const sound of ['mokuska','tada','chime','soft','silent'])assert.match(page,new RegExp('value="'+sound+'"'));
  }
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(js,/const KEY='hh-guardian-smart-arrival-studio-v788'/);
  assert.match(js,/sound:'mokuska'/);
+ assert.match(js,/const DEFAULT_VOLUME=75/);
+ assert.match(css,/hh-arrival-volume/);
  assert.doesNotMatch(js,/geolocation|watchPosition|supabase|fetch\(|sendBeacon\(/,'only local templates, never location or cloud');
 });
-test('v788 Studio saves independent person/event templates and manual preview never fabricates an arrival',()=>{
+test('v789 Studio saves independent person/event/volume templates and manual preview never fabricates an arrival',()=>{
  const src=read('guardian/guardian-arrival-studio-v788.js');
  const listeners={},store={},elements={};
  function element(id){
@@ -800,21 +805,28 @@ test('v788 Studio saves independent person/event templates and manual preview ne
  element('hhArrivalPlace').value='home';
  element('hhArrivalEvent').value='arrive';
  element('hhArrivalSound').value='mokuska';
+ element('hhArrivalVolume').value='75';
  for(const id of ['hhArrivalAnimation','hhArrivalQuiet','hhArrivalEnabled'])element(id).checked=true;
  element('hhArrivalTestPopup').hidden=true;
  vm.runInNewContext(src,{window:win,document:doc,Date,Math,Number,String,Array,JSON,Object});
  assert.equal(element('hhArrivalTitle').value,'Mónika hazaért! 🏡');
  assert.equal(element('hhArrivalSound').value,'mokuska');
+ assert.equal(element('hhArrivalVolume').value,'75');
+ assert.equal(element('hhArrivalVolumeValue').textContent,'75%');
  element('hhArrivalTitle').value='Egyedi üzenet 🌸';
  element('hhArrivalTitle').input();
  element('hhArrivalSound').value='chime';
  element('hhArrivalSound').change();
+ element('hhArrivalVolume').value='95';element('hhArrivalVolume').input();
+ assert.equal(element('hhArrivalVolumeValue').textContent,'95%');
  element('hhArrivalSave').click();
  let saved=JSON.parse(store['hh-guardian-smart-arrival-studio-v788']);
  assert.equal(saved['monika:home:arrive'].title,'Egyedi üzenet 🌸');
  assert.equal(saved['monika:home:arrive'].sound,'chime');
+ assert.equal(saved['monika:home:arrive'].volume,95);
  element('hhArrivalPerson').value='zsolt';element('hhArrivalPerson').change();
  assert.equal(element('hhArrivalSound').value,'mokuska','new template uses requested default');
+ assert.equal(element('hhArrivalVolume').value,'75','new template uses 75% volume');
  element('hhArrivalEvent').value='leave';element('hhArrivalEvent').change();
  assert.match(element('hhArrivalTitle').value,/Zsolt elindult/);
  element('hhArrivalTest').click();
@@ -827,9 +839,54 @@ test('v788 Studio saves independent person/event templates and manual preview ne
  element('hhArrivalEvent').value='arrive';element('hhArrivalEvent').change();
  assert.equal(element('hhArrivalTitle').value,'Egyedi üzenet 🌸','saved template restored by person/event');
  assert.equal(element('hhArrivalSound').value,'chime');
+ assert.equal(element('hhArrivalVolume').value,'95','saved volume restores');
  saved=JSON.parse(store['hh-guardian-smart-arrival-studio-v788']);
  assert.deepEqual(Object.keys(saved),['monika:home:arrive']);
  element('hhArrivalReset').click();
  assert.equal(element('hhArrivalSound').value,'mokuska');
+ assert.equal(element('hhArrivalVolume').value,'75','reset restores 75%');
  assert.equal(Object.keys(JSON.parse(store['hh-guardian-smart-arrival-studio-v788'])).length,0);
+});
+
+test('v789 Buddy volume affects ONLY manual sound preview, including true 0% mute',()=>{
+ const src=read('guardian/guardian-arrival-studio-v788.js');
+ const elements={},events={},store={},gainPeaks=[];
+ function node(id){return elements[id]||(elements[id]={
+  value:'',checked:false,hidden:false,textContent:'',listeners:{},
+  addEventListener(t,fn){this.listeners[t]=fn},
+  click(){this.listeners.click?.()},input(){this.listeners.input?.()}
+ })}
+ node('hhArrivalPerson').value='monika';node('hhArrivalPlace').value='home';node('hhArrivalEvent').value='arrive';
+ node('hhArrivalSound').value='mokuska';node('hhArrivalVolume').value='75';
+ for(const id of ['hhArrivalEnabled','hhArrivalQuiet','hhArrivalAnimation'])node(id).checked=true;
+ let audioContexts=0;
+ class FakeAudio{
+  constructor(){audioContexts++}
+  currentTime=0;
+  createOscillator(){return {frequency:{setValueAtTime(){}},connect(){},start(){},stop(){}}}
+  createGain(){return {gain:{
+   setValueAtTime(){},exponentialRampToValueAtTime(v){if(v>0.01)gainPeaks.push(v)}
+  },connect(){}}}
+  get destination(){return {}}
+  close(){return Promise.resolve()}
+ }
+ const win={AudioContext:FakeAudio,localStorage:{
+   getItem(k){return store[k]||null},setItem(k,v){store[k]=v}
+  },addEventListener(t,fn){events[t]=fn},setTimeout(){return 1},clearTimeout(){},confirm(){return true}};
+ const doc={readyState:'complete',getElementById:node,addEventListener(t,fn){events[t]=fn}};
+ vm.runInNewContext(src,{window:win,document:doc,Date,Math,Number,String,Array,JSON,Object});
+ node('hhArrivalVolume').value='0';node('hhArrivalVolume').input();
+ assert.equal(node('hhArrivalVolumeValue').textContent,'0%');
+ node('hhArrivalTest').click();
+ assert.equal(audioContexts,0,'0% must suppress all sound');
+ node('hhArrivalVolume').value='75';node('hhArrivalVolume').input();
+ node('hhArrivalTest').click();
+ assert.equal(audioContexts,1);
+ assert.ok(Math.abs(gainPeaks[0]-0.1725)<0.0001,'75% gives louder than original v788 0.045');
+ node('hhArrivalVolume').value='100';node('hhArrivalVolume').input();
+ node('hhArrivalTest').click();
+ assert.equal(audioContexts,2);
+ assert.ok(Math.abs(gainPeaks.at(-1)-0.23)<0.0001,'100% stays bounded');
+ node('hhArrivalSave').click();
+ assert.equal(JSON.parse(store['hh-guardian-smart-arrival-studio-v788'])['monika:home:arrive'].volume,100);
 });
