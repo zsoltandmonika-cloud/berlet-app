@@ -345,7 +345,7 @@ function initMap(){
    if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.mountMap(map);
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
-  map.on('dragstart',function(){follow=false;renderButtons()});
+  map.on('dragstart',function(){follow=false;renderButtons();notifyLocationSettings()});
  }catch(e){message('A térkép megjelenítése nem támogatott ezen az eszközön.')}
 }
 $('guardianStart').addEventListener('click',start);
