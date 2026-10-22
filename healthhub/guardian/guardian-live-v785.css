@@ -1,0 +1,56 @@
+/* v785 live controls deliberately live in the existing Family glass panel.
+   The v784 Premium Glass map, hero, nine SVG places and five-button dock stay intact. */
+.guardian-live-v785{
+ margin-top:14px;padding:14px;
+ border:1px solid rgba(138,211,255,.42);border-radius:19px;
+ background:linear-gradient(137deg,rgba(53,107,150,.28),rgba(9,29,66,.57));
+ box-shadow:inset 0 1px rgba(255,255,255,.16),0 10px 25px rgba(4,14,44,.16);
+ backdrop-filter:blur(16px) saturate(1.3);
+ -webkit-backdrop-filter:blur(16px) saturate(1.3)
+}
+:root[data-guardian-profile="m"] .guardian-live-v785{
+ border-color:rgba(255,162,227,.49);
+ background:linear-gradient(137deg,rgba(145,72,136,.31),rgba(32,26,68,.58))
+}
+.guardian-live-head{display:flex;align-items:center;gap:9px;justify-content:space-between;flex-wrap:wrap}
+.guardian-live-head strong{font-size:15px;font-weight:800;color:#fff}
+.guardian-live-pill{padding:5px 11px;border-radius:999px;border:1px solid rgba(146,229,255,.7);
+ background:rgba(41,119,145,.45);color:#c6f6ff;font-size:10px;font-weight:850;letter-spacing:.05em}
+:root[data-guardian-profile="m"] .guardian-live-pill{border-color:#ffa5ea;background:rgba(139,62,132,.49);color:#ffe1f7}
+.guardian-live-help,.guardian-live-note{font:500 12px/1.5 system-ui;color:#d2e4f7;margin:9px 0}
+.guardian-live-status,.guardian-live-peer{font:700 12px/1.5 system-ui;color:#effaff;
+ padding:9px 10px;border-radius:12px;background:rgba(7,26,54,.56);
+ border:1px solid rgba(181,219,249,.26);margin:10px 0}
+.guardian-live-auth{font:650 12px/1.5 system-ui;color:#daedfb}
+.guardian-live-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0 0}
+.guardian-live-buttons button{
+ flex:1 1 122px;min-height:41px;padding:8px 11px;
+ border:1px solid rgba(162,218,255,.53);border-radius:13px;
+ background:linear-gradient(138deg,rgba(80,168,219,.42),rgba(20,61,110,.64));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 12px rgba(3,12,40,.22);
+ color:#fff;font:780 12px system-ui;cursor:pointer
+}
+:root[data-guardian-profile="m"] .guardian-live-buttons button{
+ background:linear-gradient(138deg,rgba(222,104,188,.43),rgba(81,44,110,.7));
+ border-color:rgba(255,157,225,.59)
+}
+.guardian-live-buttons button[hidden],.guardian-live-buttons button:disabled[hidden]{display:none!important}
+.guardian-live-buttons button:disabled{opacity:.42;cursor:not-allowed}
+.guardian-live-buttons button.guardian-live-stop{
+ background:rgba(74,38,57,.48);border-color:rgba(255,160,178,.56)
+}
+.guardian-live-settings{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;margin-top:12px}
+.guardian-live-settings label{font:700 11px/1.4 system-ui;color:#d7e9f6;display:flex;flex-direction:column;gap:5px}
+.guardian-live-settings select,.guardian-live-speed{
+ border:1px solid rgba(175,225,255,.33);border-radius:11px;
+ background:rgba(7,22,48,.7);color:#f7fcff;font:800 12px system-ui;
+ min-height:36px;padding:8px;box-sizing:border-box
+}
+.guardian-live-speed{display:flex;align-items:center}
+.guardian-live-v785 .guardian-live-reset{
+ margin-top:8px;border:0;background:transparent;color:#d1dbe9;
+ text-decoration:underline;font:650 11px system-ui;cursor:pointer;padding:5px 0
+}
+.guardian-live-v785 [hidden]{display:none!important}
+.guardian-peer-position{cursor:default!important}
+@media(max-width:350px){.guardian-live-settings{grid-template-columns:1fr}}
