@@ -264,7 +264,19 @@ if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else ini
 if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
  const dir=new URL('./',d.currentScript?.src||w.location.href);
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
-  const script=d.createElement('script');script.async=false;script.src=new URL(file,dir).href;d.head.appendChild(script);
+  const script=d.createElement('script');
+  script.async=false;
+  const url=new URL(file,dir);url.searchParams.set('v','793-pilot-status-v795');
+  script.src=url.href;
+  script.onerror=function(){
+   const holder=d.getElementById('hhTransitPanel');
+   if(!holder)return;
+   let label=d.getElementById('hhBkkLiveStatusV793');
+   if(!label){label=d.createElement('p');label.id='hhBkkLiveStatusV793';holder.prepend(label)}
+   label.setAttribute('role','status');
+   label.textContent='⚠️ v793 ÉLŐ BKK TESZT · Egy szükséges fájl nem töltődött be. Frissítsd az oldalt.';
+  };
+  d.head.appendChild(script);
  }
 }
 })(window,document);
