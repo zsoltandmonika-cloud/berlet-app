@@ -499,7 +499,7 @@ test('v784 nine distinct hand-drawn translucent SVG landmarks keep existing book
  kinds.forEach((kind,i)=>{
   assert.equal(choices[i].attributes['data-guardian-icon-kind'],kind);
   assert.equal(choices[i].medal.attributes['data-guardian-icon-kind'],kind);
-  assert.match(choices[i].medal.innerHTML,/<svg[\\s>]/);
+  assert.ok(choices[i].medal.innerHTML.startsWith('<svg '),'vector icon markup generated');
  });
  const bus=choices[kinds.indexOf('bus')].medal.innerHTML;
  const tram=choices[kinds.indexOf('tram')].medal.innerHTML;
