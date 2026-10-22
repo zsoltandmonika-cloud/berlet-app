@@ -65,7 +65,19 @@ function stopsFeatures(id){
  }
  return {type:'FeatureCollection',features:[...unique.values()]};
 }
-function refreshData(){if(!map||!routes)return;for(const id of IDS){let s=map.getSource('hh-bkk-route-'+id);if(s&&s.setData)s.setData(routeFeatures(id));s=map.getSource('hh-bkk-stops-'+id);if(s&&s.setData)s.setData(stopsFeatures(id));}}
+function badgeFeatures(id){
+ const features=[];
+ for(const v of activeVariants(id)){
+  const coordinates=v.shape;
+  if(!coordinates||coordinates.length<2)continue;
+  // A representative point ON the official route. Not a vehicle location.
+  const point=coordinates[Math.floor((coordinates.length-1)/2)];
+  features.push({type:'Feature',properties:{route:id,headsign:v.headsign||'',
+   kind:id==='260'?'bus':'tram',label:id},geometry:{type:'Point',coordinates:point}});
+ }
+ return {type:'FeatureCollection',features};
+}
+function refreshData(){if(!map||!routes)return;for(const id of IDS){let s=map.getSource('hh-bkk-route-'+id);if(s&&s.setData)s.setData(routeFeatures(id));s=map.getSource('hh-bkk-stops-'+id);if(s&&s.setData)s.setData(stopsFeatures(id));s=map.getSource('hh-bkk-badges-'+id);if(s&&s.setData)s.setData(badgeFeatures(id));}}
 function attach(){
  if(!map||!routes||!(map.isStyleLoaded&&map.isStyleLoaded()))return;
  for(const id of IDS){
@@ -89,6 +101,22 @@ function attach(){
     layout:{visibility:visible},paint:{'circle-radius':['interpolate',['linear'],['zoom'],12.5,3,16,6],
      'circle-color':'#ffffff','circle-stroke-color':r.color,'circle-stroke-width':2.3}
    });
+   const badges='hh-bkk-badges-'+id;
+   if(!map.getSource(badges))map.addSource(badges,{type:'geojson',data:badgeFeatures(id)});
+   if(!map.getLayer(badges+'-disc'))map.addLayer({
+    id:badges+'-disc',type:'circle',source:badges,minzoom:10.5,
+    layout:{visibility:visible},
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],10.5,15,15,20],
+     'circle-color':id==='260'?'#1764a8':'#e6ba26',
+     'circle-stroke-color':'#f5faff','circle-stroke-width':3,'circle-opacity':.96}
+   });
+   if(!map.getLayer(badges+'-text'))map.addLayer({
+    id:badges+'-text',type:'symbol',source:badges,minzoom:10.5,
+    layout:{visibility:visible,'text-field':['get','label'],'text-size':id==='260'?17:18,
+     'text-font':['Open Sans Bold','Arial Unicode MS Bold'],
+     'text-allow-overlap':false,'text-anchor':'center'},
+    paint:{'text-color':id==='260'?'#ffffff':'#172b42','text-halo-color':id==='260'?'#16416b':'#ffe798','text-halo-width':.5}
+   });
    // Static stop labels. These are NOT vehicle markers or live locations.
    if(!map.getLayer(stops+'-number'))map.addLayer({
     id:stops+'-number',type:'symbol',source:stops,minzoom:14,
@@ -104,7 +132,7 @@ function showSelected(){
  attach();refreshData();
  for(const id of IDS){
   const show=checked(id)?'visible':'none';
-  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number']){
+  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number','hh-bkk-badges-'+id+'-disc','hh-bkk-badges-'+id+'-text']){
    try{if(map.getLayer(layer))map.setLayoutProperty(layer,'visibility',show)}catch(_){}
   }
  }
