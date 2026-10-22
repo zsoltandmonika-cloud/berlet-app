@@ -89,6 +89,13 @@ function attach(){
     layout:{visibility:visible},paint:{'circle-radius':['interpolate',['linear'],['zoom'],12.5,3,16,6],
      'circle-color':'#ffffff','circle-stroke-color':r.color,'circle-stroke-width':2.3}
    });
+   // Static stop labels. These are NOT vehicle markers or live locations.
+   if(!map.getLayer(stops+'-number'))map.addLayer({
+    id:stops+'-number',type:'symbol',source:stops,minzoom:14,
+    layout:{visibility:visible,'text-field':id,'text-size':14,'text-font':['Open Sans Bold','Arial Unicode MS Bold'],
+     'text-offset':[0,1.3],'text-allow-overlap':false,'text-ignore-placement':false},
+    paint:{'text-color':id==='260'?'#e8f6ff':'#ffeb8c','text-halo-color':'#092345','text-halo-width':2}
+   });
   }catch(e){status('BKK-térképréteg hiba: '+(e&&e.message||'ismeretlen hiba'))}
  }
 }
@@ -97,7 +104,7 @@ function showSelected(){
  attach();refreshData();
  for(const id of IDS){
   const show=checked(id)?'visible':'none';
-  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle']){
+  for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number']){
    try{if(map.getLayer(layer))map.setLayoutProperty(layer,'visibility',show)}catch(_){}
   }
  }
