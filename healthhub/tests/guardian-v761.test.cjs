@@ -909,7 +909,7 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
   assert.match(page,/nem élő busz-/);
-  assert.match(page,/guardian-family-hero/,'do not remove existing Family Guard Hero');
+  assert.match(page,/<section class="intro guardian-hero"/,'do not remove existing Family Guard Hero');
  }
  assert.match(js,/hh-guardian-transit-selected-v790/);
  assert.match(js,/bkk-routes-v790\.json/);
