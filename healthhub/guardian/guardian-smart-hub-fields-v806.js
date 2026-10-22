@@ -263,7 +263,13 @@
   }
   function refreshProfile(){
    const current=profileId(w.localStorage);
-   if(storedProfile!==current){storedProfile=current;renderFavorites()}
+   if(storedProfile!==current){
+    storedProfile=current;stopRequest();clearResults();
+    state={origin:null,destination:null};
+    for(const key of modes){inputs[key].value='';updateMap(null,key)}
+    syncRoutes();renderFavorites();
+    message((current==='m'?'Mónika':'Zsolt')+' profilja aktív. Válassz két helyet az új tervezéshez.');
+   }
   }
   const profileSwitch=$('guardianProfileSwitch');
   if(profileSwitch)profileSwitch.addEventListener('click',()=>w.setTimeout(refreshProfile,0));
