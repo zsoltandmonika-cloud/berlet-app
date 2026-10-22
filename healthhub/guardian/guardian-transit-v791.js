@@ -43,13 +43,17 @@ function restore(){
   const saved=JSON.parse(w.localStorage.getItem(STORAGE)||'null');
   if(Array.isArray(saved))legacy=saved.filter(x=>IDS.includes(x));
  }catch(_){}
+ let hasProfileData=false;
  try{
   const saved=JSON.parse(w.localStorage.getItem(PROFILE_ROUTES)||'null');
-  if(saved)for(const p of ['zsolt','monika'])
-   if(Array.isArray(saved[p]))selectionByProfile[p]=saved[p].filter(x=>IDS.includes(x));
-  else selectionByProfile[profile]=legacy;
-  if(!saved)selectionByProfile[profile]=legacy;
- }catch(_){selectionByProfile[profile]=legacy}
+  if(saved&&typeof saved==='object'){
+   hasProfileData=true;
+   for(const p of ['zsolt','monika']){
+    if(Array.isArray(saved[p]))selectionByProfile[p]=saved[p].filter(x=>IDS.includes(x));
+   }
+  }
+ }catch(_){}
+ if(!hasProfileData)selectionByProfile[profile]=legacy;
  selected=new Set(selectionByProfile[profile]);
 }
 function save(){
