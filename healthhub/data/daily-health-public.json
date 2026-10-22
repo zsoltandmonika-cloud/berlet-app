@@ -1,24 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-10-22",
-  "generatedAt": "2026-10-22T02:46:27+02:00",
+  "generatedAt": "2026-10-22T12:22:30+02:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-10-22T02:45",
-    "temperature": 15.9,
-    "apparentTemperature": 16.7,
+    "observedAt": "2026-10-22T12:15",
+    "temperature": 12.5,
+    "apparentTemperature": 7.7,
     "daytimeMaxFeelsLike": 9.7,
-    "uvMax": 1.9,
-    "pressureHpa": 1010.2,
-    "pressureChange6h": -1.4,
-    "windGust": 10.1
+    "uvMax": 1.6,
+    "pressureHpa": 1014.2,
+    "pressureChange6h": 3.5,
+    "windGust": 61.6
   },
   "air": {
     "available": true,
-    "observedAt": "2026-10-22T02:00",
-    "aqi": 41.0,
-    "pm25": 16.1,
+    "observedAt": "2026-10-22T12:00",
+    "aqi": 17.0,
+    "pm25": 1.9,
     "pollen": {
       "available": true,
       "name": "Éger",
@@ -43,6 +43,12 @@
     ]
   },
   "alerts": [
+    {
+      "key": "wind",
+      "level": "watch",
+      "title": "Erős széllökés",
+      "explanation": "Szabadtéri programoknál legyetek óvatosak."
+    },
     {
       "key": "infection",
       "level": "watch",
