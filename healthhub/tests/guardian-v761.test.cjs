@@ -756,3 +756,80 @@ test('v787 shared places retry offline, sync to another client and tombstone del
  assert.ok(cloud[0].deleted_at,'deletion is preserved as a tombstone for later sync');
  assert.equal(JSON.parse(store['hh-guardian-landmarks-v776']).length,1,'private record never uploaded or deleted');
 });
+
+
+test('v788 Smart Arrival Studio is editable, local-only and explicitly TEST-labelled',()=>{
+ const html=read('guardian/family-guard-v785.html'),mirror=read('guardian/index.html');
+ const js=read('guardian/guardian-arrival-studio-v788.js');
+ const css=read('guardian/guardian-arrival-studio-v788.css');
+ new Function(js);
+ for(const page of [html,mirror]){
+  assert.match(page,/id="hhArrivalStudio"/);
+  assert.match(page,/id="hhArrivalSave"/);
+  assert.match(page,/id="hhArrivalTest"/);
+  assert.match(page,/id="hhArrivalTitle"/);
+  assert.match(page,/id="hhArrivalBody"/);
+  assert.match(page,/id="hhArrivalSound"/);
+  assert.match(page,/hh-arrival-test-flag">🐿️ SMART ARRIVAL · TESZT/);
+  assert.match(page,/guardian-arrival-studio-v788\.js\?v=788-personal-mokuska-editor/);
+  assert.match(page,/guardian-arrival-studio-v788\.css\?v=788-mokuska-studio/);
+  assert.match(page,/nutrition-preview\/nutri-chipmunk-v592\.svg/);
+  for(const sound of ['mokuska','tada','chime','soft','silent'])assert.match(page,new RegExp('value="'+sound+'"'));
+ }
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(js,/const KEY='hh-guardian-smart-arrival-studio-v788'/);
+ assert.match(js,/sound:'mokuska'/);
+ assert.doesNotMatch(js,/geolocation|watchPosition|supabase|fetch\(|sendBeacon\(/,'only local templates, never location or cloud');
+});
+test('v788 Studio saves independent person/event templates and manual preview never fabricates an arrival',()=>{
+ const src=read('guardian/guardian-arrival-studio-v788.js');
+ const listeners={},store={},elements={};
+ function element(id){
+  return elements[id]||(elements[id]={id,value:'',checked:false,hidden:false,textContent:'',listeners:{},
+   addEventListener(t,fn){this.listeners[t]=fn},click(){if(this.listeners.click)this.listeners.click()},
+   change(){if(this.listeners.change)this.listeners.change()},input(){if(this.listeners.input)this.listeners.input()}});
+ }
+ const doc={readyState:'complete',getElementById:element,addEventListener(t,fn){listeners['d:'+t]=fn}};
+ const win={
+  localStorage:{getItem(k){return store[k]||null},setItem(k,v){store[k]=v}},
+  addEventListener(t,fn){listeners['w:'+t]=fn},
+  setTimeout(fn){return 1},clearTimeout(){},confirm(){return true}
+ };
+ // Set defaults as rendered in the actual HTML.
+ element('hhArrivalPerson').value='monika';
+ element('hhArrivalPlace').value='home';
+ element('hhArrivalEvent').value='arrive';
+ element('hhArrivalSound').value='mokuska';
+ for(const id of ['hhArrivalAnimation','hhArrivalQuiet','hhArrivalEnabled'])element(id).checked=true;
+ element('hhArrivalTestPopup').hidden=true;
+ vm.runInNewContext(src,{window:win,document:doc,Date,Math,Number,String,Array,JSON,Object});
+ assert.equal(element('hhArrivalTitle').value,'Mónika hazaért! 🏡');
+ assert.equal(element('hhArrivalSound').value,'mokuska');
+ element('hhArrivalTitle').value='Egyedi üzenet 🌸';
+ element('hhArrivalTitle').input();
+ element('hhArrivalSound').value='chime';
+ element('hhArrivalSound').change();
+ element('hhArrivalSave').click();
+ let saved=JSON.parse(store['hh-guardian-smart-arrival-studio-v788']);
+ assert.equal(saved['monika:home:arrive'].title,'Egyedi üzenet 🌸');
+ assert.equal(saved['monika:home:arrive'].sound,'chime');
+ element('hhArrivalPerson').value='zsolt';element('hhArrivalPerson').change();
+ assert.equal(element('hhArrivalSound').value,'mokuska','new template uses requested default');
+ element('hhArrivalEvent').value='leave';element('hhArrivalEvent').change();
+ assert.match(element('hhArrivalTitle').value,/Zsolt elindult/);
+ element('hhArrivalTest').click();
+ assert.equal(element('hhArrivalTestPopup').hidden,false);
+ assert.match(element('hhArrivalStatus').textContent,/TESZT ELŐNÉZET/);
+ assert.equal(element('hhArrivalTestTitle').textContent,element('hhArrivalTitle').value);
+ element('hhArrivalTestClose').click();
+ assert.equal(element('hhArrivalTestPopup').hidden,true);
+ element('hhArrivalPerson').value='monika';element('hhArrivalPerson').change();
+ element('hhArrivalEvent').value='arrive';element('hhArrivalEvent').change();
+ assert.equal(element('hhArrivalTitle').value,'Egyedi üzenet 🌸','saved template restored by person/event');
+ assert.equal(element('hhArrivalSound').value,'chime');
+ saved=JSON.parse(store['hh-guardian-smart-arrival-studio-v788']);
+ assert.deepEqual(Object.keys(saved),['monika:home:arrive']);
+ element('hhArrivalReset').click();
+ assert.equal(element('hhArrivalSound').value,'mokuska');
+ assert.equal(Object.keys(JSON.parse(store['hh-guardian-smart-arrival-studio-v788'])).length,0);
+});
