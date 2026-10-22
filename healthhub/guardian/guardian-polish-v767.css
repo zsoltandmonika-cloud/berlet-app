@@ -108,11 +108,11 @@ body{color:#f5fbff!important}
 /* EXACT approved PNG, displayed uncropped without old medical Hero / dark gradient. */
 .guardian-hero{
  aspect-ratio:1672/941!important;min-height:0!important;height:auto!important;
- background:#132448 url('../assets/guardian-family-hero-approved-v767.png') center center / 100% 100% no-repeat!important;
+ background:#132448 url('../assets/guardian-family-hero-approved-v768.avif') center center / 100% 100% no-repeat!important;
  border-radius:20px!important;margin:5px 0 11px!important;overflow:hidden!important;
 }
 :root[data-guardian-profile="m"] .guardian-hero{
- background-image:url('../assets/guardian-family-hero-approved-v767.png')!important;
+ background-image:url('../assets/guardian-family-hero-approved-v768.avif')!important;
 }
 .guardian-hero:before,.guardian-hero:after{display:none!important}
 /* Old overlay's duplicate headline hid Léna and is superseded by exact image text. */
@@ -156,3 +156,9 @@ body{color:#f5fbff!important}
  .guardian-hero-monitor-member img{width:29px;height:29px}
  .guardian-hero-monitor-title{font-size:7px}
 }
+
+
+/* v768: the approved hero artwork already depicts Mónika, Zsolt and Corky.
+   Hide the legacy HTML illustration which would obscure those characters.
+   This is purely cosmetic; GPS and interactive family-panel components remain. */
+.guardian-hero-monitor{display:none!important}
