@@ -260,13 +260,14 @@ function init(){
 }
 w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,version:'791'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
-// v793 opt-in only: load the live BKK preview without touching v794 production UX.
-if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
+// v799 default: live BKK on the original Family Guard URL, using authenticated snapshots.
+// A private diagnostic ?hhLivePilot=off remains available as a fail-closed fallback.
+if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
  const dir=new URL('./',d.currentScript?.src||w.location.href);
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v','793-compact-v798');
+  const url=new URL(file,dir);url.searchParams.set('v','799-live-default');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');
@@ -274,7 +275,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')==='v793'){
    let label=d.getElementById('hhBkkLiveStatusV793');
    if(!label){label=d.createElement('p');label.id='hhBkkLiveStatusV793';holder.prepend(label)}
    label.setAttribute('role','status');
-   label.textContent='⚠️ v793 ÉLŐ BKK TESZT · Egy szükséges fájl nem töltődött be. Frissítsd az oldalt.';
+   label.textContent='⚠️ BKK élő helyzet · Egy szükséges fájl nem töltődött be. Frissítsd az oldalt.';
   };
   d.head.appendChild(script);
  }
