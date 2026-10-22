@@ -50,6 +50,7 @@ function renderButtons(){
  $('guardianStop').disabled=!active;
  dot.classList.toggle('live',active&&hasFix);
  $('guardianFollow').setAttribute('aria-pressed',String(follow));
+ $('guardianFollow').setAttribute('aria-label',!active?'Saját GPS indítása és automatikus követése':follow?'Automatikus térképkövetés kikapcsolása':'Automatikus térképkövetés bekapcsolása');
  $('guardian3D').setAttribute('aria-pressed',String(threeD&&!satellite));
  $('guardianSatellite').setAttribute('aria-pressed',String(satellite));
 }
@@ -139,7 +140,9 @@ function toggleSatellite(){
  applyView();
 }
 function enableFollow(){
- if(!marker&&!active){report('A saját helyzet követéséhez először indítsd el a GPS-t.');return}
+ // A deliberate tap on Follow also starts this device's GPS if currently stopped.
+ // Permission is still requested by the browser; never start location on page load.
+ if(!active){follow=true;renderButtons();start();return}
  follow=!follow;renderButtons();
  if(follow&&marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
 }
