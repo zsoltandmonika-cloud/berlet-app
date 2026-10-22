@@ -11,11 +11,18 @@
  const SOURCE='BKK Zrt., CC BY 4.0';
  const STORE='hh-bkk-route-favorites-v801';
  const MODES=new Set(['bus','tram','trolley','metro','hev','rail','other']);
- const FEATURED=new Set(['260','17','19']);
+ const FEATURED=new Set(['bus:260','tram:17','tram:19']);
+ const knownKey=id=>id==='260'?'bus:260':id==='17'?'tram:17':id==='19'?'tram:19':null;
+ const keyOf=route=>route.mode+':'+route.id;
+ function normalizedKey(value){
+  if(typeof value!=='string'||value.length>40)return null;
+  if(/^(bus|tram|trolley|metro|hev|rail|other):[^:]+$/.test(value))return value;
+  return knownKey(value);
+ }
  const PAGE_SIZE=18;
  const $=id=>w&&w.document&&w.document.getElementById(id);
  let routes=[],profile='zsolt',mode='all',query='',shown=PAGE_SIZE,loaded=false;
- let favorites={zsolt:['260'],monika:['260']};
+ let favorites={zsolt:['bus:260'],monika:['bus:260']};
  function scrub(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU').trim()}
  function validate(doc){
   if(!doc||doc.schemaVersion!==1||doc.source!==SOURCE||!Array.isArray(doc.routes)||doc.routes.length<3||doc.routes.length>3000)return null;
@@ -45,12 +52,12 @@
    if(saved){
     for(const p of ['zsolt','monika'])
      if(Array.isArray(saved[p]))
-      favorites[p]=saved[p].filter(x=>typeof x==='string'&&x.length<=16).slice(0,150);
+      favorites[p]=[...new Set(saved[p].map(normalizedKey).filter(Boolean))].slice(0,150);
    }else{
     // One-time migration: retain existing choices from the earlier three-line selector.
     const original=JSON.parse(w.localStorage.getItem('hh-guardian-transit-selected-profiles-v801')||'null');
     if(original)for(const p of ['zsolt','monika'])
-     if(Array.isArray(original[p]))favorites[p]=original[p].filter(x=>FEATURED.has(x));
+     if(Array.isArray(original[p]))favorites[p]=original[p].map(knownKey).filter(Boolean);
    }
   }catch(_){}
  }
@@ -62,24 +69,26 @@
   return field&&field.value==='monika'?'monika':field&&field.value==='zsolt'?'zsolt':
    w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
  }
- function updateCore(id,value){
-  if(!FEATURED.has(id))return;
+ function updateCore(key,value){
+  if(!FEATURED.has(key))return;
   const core=w.HH_GUARDIAN_TRANSIT_V790;
-  if(core&&typeof core.toggleLine==='function')core.toggleLine(id,value);
+  if(core&&typeof core.toggleLine==='function')core.toggleLine(key.split(':')[1],value);
  }
  function onTrackedChange(id,enabled){
-  if(!FEATURED.has(id))return;
+  const key=knownKey(id);
+  if(!key)return;
   const set=new Set(favorites[profile]);
-  if(enabled)set.add(id);else set.delete(id);
+  if(enabled)set.add(key);else set.delete(key);
   favorites[profile]=[...set];savePrefs();
   if(loaded)render();
  }
- function toggleFavorite(routeId){
+ function toggleFavorite(routeId,routeMode){
+  const key=routeMode+':'+routeId;
   const set=new Set(favorites[profile]);
-  const enabled=!set.has(routeId);
-  if(enabled)set.add(routeId);else set.delete(routeId);
+  const enabled=!set.has(key);
+  if(enabled)set.add(key);else set.delete(key);
   favorites[profile]=[...set].slice(0,150);savePrefs();
-  updateCore(routeId,enabled);
+  updateCore(key,enabled);
   render();
  }
  function setProfile(next){
@@ -93,7 +102,7 @@
   const searched=search(routes,query,mode);
   const preferred=favorites[profile];
   const list=!query&&mode==='all'?[...searched].sort((a,b)=>
-   Number(preferred.includes(b.id))-Number(preferred.includes(a.id))):searched;
+   Number(preferred.includes(keyOf(b)))-Number(preferred.includes(keyOf(a)))):searched;
   const modeNames={bus:'Busz',tram:'Villamos',trolley:'Troli',metro:'Metró',hev:'HÉV',rail:'Vasút',other:'Egyéb'};
   for(const route of list.slice(0,shown)){
    const article=w.document.createElement('article');article.className='hh-bkk-catalog-row-v801';
@@ -106,15 +115,15 @@
    const detail=w.document.createElement('small');
    detail.textContent=route.directions.length?route.directions.slice(0,2).join(' ↔ '):route.name||'BKK menetrendi járat';
    const scope=w.document.createElement('span');scope.className='hh-bkk-catalog-scope-v801';
-   scope.textContent=FEATURED.has(route.id)?'Élő térkép + kedvenc':'Kedvenc · térképes bővítés később';
+   scope.textContent=FEATURED.has(keyOf(route))?'Élő térkép + kedvenc':'Kedvenc · térképes bővítés később';
    copy.append(title,detail,scope);
    const btn=w.document.createElement('button');btn.type='button';
-   const selected=preferred.includes(route.id);
+   const selected=preferred.includes(keyOf(route));
    btn.className='hh-bkk-catalog-star-v801';
    btn.setAttribute('aria-pressed',String(selected));
    btn.setAttribute('aria-label',(selected?'Eltávolítás a kedvencekből: ':'Kedvencekhez adás: ')+route.id);
    btn.textContent=selected?'★':'☆';
-   btn.addEventListener('click',()=>toggleFavorite(route.id));
+   btn.addEventListener('click',()=>toggleFavorite(route.id,route.mode));
    article.append(badge,copy,btn);host.append(article);
   }
   if(counter)counter.textContent=!loaded?'A hivatalos BKK-járatlista betöltése…':
@@ -169,5 +178,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {validate,search,setProfile,onTrackedChange,get favoriteIds(){return [...favorites[profile]]},version:'801'};
+ return {validate,search,setProfile,onTrackedChange,keyOf,get favoriteIds(){return [...favorites[profile]]},version:'801.1'};
 });
