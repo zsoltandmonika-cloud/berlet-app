@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="hu" data-family-guard-build="v781">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1425">
+<title>HealthHub · Family Guard v781</title>
+<meta name="family-guard-build" content="v781-unified-flat-3d-colors">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="./guardian.css?v=761-first-map">
+<link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
+<link rel="stylesheet" href="./guardian-polish-v767.css?v=772-profile-hero">
+<link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
+<style id="guardian-profile-hero-v772">
+/* v772: real profile switch lives at the red-arrow target: hero bottom-left.
+   Keep the regular FIVE-slot HealthHub bottom nav unchanged. */
+#guardianHHNav.hhBottomNav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+.guardian-hero{
+  position:relative!important;
+}
+.guardian-hero>#guardianProfileSwitch.guardian-standard-profile{
+  position:absolute!important;
+  top:auto!important;right:auto!important;bottom:4px!important;left:4px!important;
+  inset:auto auto 4px 4px!important;
+  transform:none!important;z-index:20!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;height:28px!important;min-height:28px!important;
+  margin:0!important;padding:0 8px!important;
+  border:1px solid var(--guard-cyan,#79c5ff)!important;border-radius:999px!important;
+  background:rgba(8,30,63,.94)!important;backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  color:#fff!important;box-shadow:0 2px 12px rgba(0,0,0,.6)!important;
+  font:750 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  white-space:nowrap!important;cursor:pointer!important;touch-action:manipulation!important;
+}
+:root[data-guardian-profile="m"] .guardian-hero>#guardianProfileSwitch.guardian-standard-profile{
+  background:rgba(64,27,69,.94)!important;
+}
+.guardian-hero>#guardianProfileSwitch:focus-visible{
+  outline:3px solid var(--guard-cyan,#79c5ff)!important;outline-offset:2px!important;
+}
+</style>
+<link rel="stylesheet" href="./guardian-landmarks-v776.css?v=776-destinations">
+<link rel="stylesheet" href="./guardian-premium-v780.css?v=780-golden-controls">
+<link rel="stylesheet" href="./guardian-map-palette-v781.css?v=781-shared-flat-3d">
+</head>
+<body>
+<div class="shell">
+<main>
+ <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
+  <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
+   <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
+   <div class="guardian-hero-monitor-members">
+    <span class="guardian-hero-monitor-member"><img id="guardianHeroZsolt" alt="Zsolt valódi profilfotója"><b>Zsolt</b></span>
+    <span class="guardian-hero-monitor-heart" aria-hidden="true">♥</span>
+    <span class="guardian-hero-monitor-member"><img id="guardianHeroMonika" alt="Mónika valódi profilfotója"><b>Mónika</b></span>
+   </div>
+   <span class="guardian-hero-monitor-note">ILLUSZTRÁCIÓ · NEM ÉLŐ GPS</span>
+  </div>
+  <div class="guardian-hero-overlay">
+   <div class="intro-head"><span class="eyebrow">LÉNA · FAMILY GUARD</span><span class="status-dot" id="guardianLiveDot" aria-hidden="true"></span></div>
+   <h1>Akik fontosak, közelebb.</h1>
+   <p>Léna és Buddy veletek az úton. A biztonságos családi helyzetmegosztást együtt építjük fel.</p>
+  </div>
+  <button id="guardianProfileSwitch" class="guardian-standard-profile" type="button" aria-label="Profilváltás" title="Profilváltás">Zsolt ⇄</button>
+ </section>
+ <section class="map-card" aria-label="Guardian interaktív térkép">
+  <div id="guardianMap" role="region" aria-label="Interaktív Budapest térkép, érintéssel nagyítható és mozgatható"></div>
+  <div id="guardianMapMessage" class="map-message" hidden role="status"></div>
+  <span class="map-label" id="guardianMapLabel" hidden aria-hidden="true"></span>
+  <button id="guardianFollow" class="map-follow" type="button" aria-pressed="true" aria-label="Saját pozíció követése"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span><span class="guardian-control-text">Követés</span></button>
+  <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></svg></span><span class="guardian-control-text">3D</span></button>
+  <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="false" aria-controls="guardianFamilyPanel"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19v-2.2A4.8 4.8 0 0 1 8.3 12h1.4a4.8 4.8 0 0 1 4.8 4.8V19"/><path d="M16.5 5.5a3 3 0 0 1 0 5.8M17.5 13.1a4.6 4.6 0 0 1 3 4.4V19"/></svg></span><span class="guardian-control-text">Család</span></button>
+  <div id="guardianLandmarkHint" class="guardian-landmark-hint" hidden role="status">📍 Koppints a térképre a kívánt helyen</div>
+ </section>
+ <div class="guardian-map-credits" role="note" aria-label="Térképadatok forrása">Térképadatok: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a></div>
+ <section class="guardian-landmarks" aria-label="Fontos helyek kezelése">
+  <details id="guardianLandmarks" class="guardian-landmarks-details">
+   <summary>📍 Fontos helyek <span class="guardian-landmarks-count" id="guardianLandmarksCount">0</span></summary>
+   <div class="guardian-landmarks-body">
+    <p class="guardian-landmarks-help">Jelöld ki a hely típusát és nevét, majd koppints a térképre. A mentett pontokat bármikor megnyithatod. A helyek csak ezen a készüléken tárolódnak.</p>
+    <div class="guardian-landmarks-picker" role="group" aria-label="Hely ikonja">
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="home" aria-pressed="true"><span class="guardian-landmarks-emoji" aria-hidden="true">🏠</span>Otthon</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="work" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">💼</span>Munkahely</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="doctor" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🏥</span>Orvos</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="family" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">❤️</span>Család</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="favorite" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">⭐</span>Kedvenc</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="bus" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🚌</span>Buszmegálló</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="tram" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🚊</span>Villamosmegálló</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="shopping" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">🛍️</span>Bevásárlás</button>
+     <button type="button" class="guardian-landmarks-choice" data-guardian-landmark-kind="other" aria-pressed="false"><span class="guardian-landmarks-emoji" aria-hidden="true">📍</span>Egyéb</button>
+    </div>
+    <label class="guardian-landmarks-name-label" for="guardianLandmarkName">Hely neve</label>
+    <input id="guardianLandmarkName" type="text" maxlength="40" autocomplete="off" placeholder="Például: Otthon" value="Otthon">
+    <div class="guardian-landmarks-actions">
+     <button type="button" class="guardian-landmarks-action" id="guardianLandmarksSelect" aria-pressed="false">🎯 Kijelölés a térképen</button>
+     <button type="button" class="guardian-landmarks-action" id="guardianLandmarksCenter">⊕ Térkép közepe</button>
+     <button type="button" class="guardian-landmarks-action" id="guardianLandmarksSave" disabled>💾 Pont mentése</button>
+    </div>
+    <p id="guardianLandmarkStatus" class="guardian-landmarks-status" role="status" aria-live="polite">Válassz ikont és jelölj ki egy helyet.</p>
+    <div class="guardian-landmarks-saved-heading">Mentett helyek</div>
+    <p id="guardianLandmarksEmpty" class="guardian-landmarks-empty">Még nincs mentett hely ezen a készüléken.</p>
+    <ul id="guardianLandmarksList" class="guardian-landmarks-list"></ul>
+   </div>
+  </details>
+ </section>
+ <section class="family-panel" id="guardianFamilyPanel" hidden aria-label="Családi helyzetek">
+  <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
+  <div class="family-grid">
+   <div class="family-member" id="guardianMeCard"><img id="guardianMePhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianMeName">Saját telefon</strong><small id="guardianMeState">GPS kikapcsolva</small></div><i class="family-dot" aria-hidden="true"></i></div>
+   <div class="family-member" id="guardianOtherCard"><img id="guardianOtherPhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianOtherName">Családtag</strong><small>Megosztás még nincs bekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
+   <div class="family-member" id="guardianCorkyCard"><span class="family-face family-corky" aria-hidden="true">🐶</span><div><strong>Corky</strong><small>Tablet · még nincs összekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
+  </div>
+  <p class="family-note">Corky helyzetét később a hozzá társított tablet adhatja. A GPS a készülék helyét méri, nem a kutyusét. Nem mutatunk kitalált pozíciót.</p>
+ </section>
+ <section class="gps-panel" aria-label="GPS és nyomvonal">
+  <div class="state-row"><span id="guardianStatus" role="status" aria-live="polite">GPS kikapcsolva</span><span id="guardianProfile">Profil</span></div>
+  <p class="mode-note" id="guardianModeNote">Böngészős GPS: csak nyitott oldalon. A HH One tartós háttérkövetése még fejlesztés alatt.</p>
+  <div class="actions">
+   <button type="button" id="guardianStart" class="primary">◎ GPS indítása</button>
+   <button type="button" id="guardianStop" class="secondary" disabled>■ Leállítás</button>
+   <button type="button" id="guardianClear" class="secondary">↺ Nyomvonal törlése</button>
+  </div>
+  <button type="button" id="guardianNativeGps" class="native-setup" hidden>🛡️ HH One · háttérkövetés beállítása</button>
+  
+  <div class="stats">
+   <div><small>GPS-pontosság</small><strong id="guardianAccuracy">—</strong></div>
+   <div><small>Nyomvonal</small><strong id="guardianDistance">0 m</strong></div>
+   <div><small>Utolsó GPS-jel</small><strong id="guardianUpdated">—</strong></div>
+  </div>
+ </section>
+ <p class="privacy">🔒 Ez a böngészős GPS-követés a lap háttérbe kerülésekor leáll. Az Androidos HH One natív háttérkövetője külön telepítést és felhasználói engedélyt igényel, helyadatokat még nem oszt meg a családdal. A térképszolgáltató a csempék hálózati kéréseit láthatja. 112/911 és Activity-integráció későbbi fejlesztés.</p>
+</main>
+</div>
+<nav id="guardianHHNav" class="hhBottomNav" aria-label="HealthHub standard alsó navigáció">
+ <a href="../index.html" aria-label="HealthHub kezdőlap"><span class="hhNavIcon" aria-hidden="true">⌂</span><span>Kezdőlap</span></a>
+ <a href="../index.html?hhnav=health" aria-label="HealthRadar megnyitása"><span class="hhNavIcon" aria-hidden="true">♡</span><span>HealthRadar</span></a>
+ <a href="../index.html?hhnav=timeline" aria-label="Idővonal megnyitása"><span class="hhNavIcon" aria-hidden="true">▣</span><span>Idővonal</span></a>
+ <button type="button" data-guardian-nav-info="Az Elemzések oldal jelenleg a HealthHub főoldaláról érhető el." aria-label="Elemzések navigáció"><span class="hhNavIcon" aria-hidden="true">▥</span><span>Elemzések</span></button>
+ <button type="button" data-guardian-nav-info="A Továbbiak / Admin oldal a HealthHub főoldaláról érhető el." aria-label="Továbbiak navigáció"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
+</nav>
+<div id="guardianNavToast" class="hhNavToast" role="status" aria-live="polite" hidden></div>
+<script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="./guardian-landmarks-v776.js?v=780-golden-landmarks"></script>
+<script defer src="./guardian.js?v=781-unified-palette"></script>
+</body>
+</html>

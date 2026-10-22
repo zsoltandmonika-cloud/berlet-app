@@ -1,0 +1,21 @@
+/* Family Guard v781 · one daylight palette for 2D/3D and neat source credits.
+   No changes to the hero, golden glass buttons or profile switch. */
+.guardian-map-credits{
+ display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+ gap:3px 5px;margin:3px 8px 9px;padding:0 3px;
+ font:600 9px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;
+ letter-spacing:.005em;color:#bed3e4;min-height:16px;
+}
+.guardian-map-credits a{
+ color:#d7eaff;text-decoration:underline;text-decoration-color:rgba(207,233,255,.55);
+ text-underline-offset:2px;white-space:nowrap;
+}
+.guardian-map-credits a:focus-visible{
+ outline:2px solid #b7e6ff;outline-offset:2px;border-radius:2px
+}
+:root[data-guardian-profile="m"] .guardian-map-credits{color:#e1c9df}
+:root[data-guardian-profile="m"] .guardian-map-credits a{
+ color:#ffe3fa;text-decoration-color:rgba(255,215,246,.57)
+}
+/* The attribution is directly BELOW the map, not an icon on the map.
+   Keep the native MapLibre zoom & compass controls and their glass skin. */
