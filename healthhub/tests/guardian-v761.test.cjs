@@ -984,24 +984,25 @@ test('v790 invalid BKK data never becomes a fictional line on the map',async()=>
 });
 
 
-test('v791 premium transit keeps portrait controls, route badges, and static-only semantics',()=>{
+test('v794 Transit shows selectable routes immediately with no redundant panel controls or instructions',()=>{
  const html=read('guardian/index.html');
  const js=read('guardian/guardian-transit-v791.js');
- const sheet=read('guardian/guardian-transit-sheet-v791.js');
  const css=read('guardian/guardian-transit-v791.css');
- new Function(js);new Function(sheet);
- for(const id of ['260','17','19'])assert.match(html,new RegExp('id="hhTransitRoute'+id+'"'));
+ new Function(js);
+ for(const id of ['260','17','19']){
+  assert.match(html,new RegExp('id="hhTransitRoute'+id+'"'));
+  assert.match(html,new RegExp('id="hhTransitShow'+id+'"'));
+ }
+ assert.doesNotMatch(html,/hhTransitDetails|hh-transit-subtitle/);
  assert.match(html,/hhTransitCardsV791/);
- assert.match(html,/hh-transit-sheet-grip/);
- assert.match(html,/guardian-transit-sheet-v791\.js/);
+ assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|guardian-transit-sheet-v791\\.js|hh-transit-subtitle|Pipáld ki, melyik járat/);
+ assert.doesNotMatch(html,/<summary>🚌 HealthHub Transit/);
+ assert.match(css,/max-height:none!important/);
  assert.match(js,/function badgeFeatures\(id\)/);
  assert.match(js,/hh-bkk-badges-/);
  assert.match(js,/hh-guardian-transit-direction-v791/);
  assert.match(js,/nem élő helyzet/);
- assert.match(sheet,/pointerup/);
- assert.match(sheet,/ArrowUp/);
- assert.match(css,/data-sheet-size=full/);
- assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
+ assert.doesNotMatch(js,/navigator\\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
 });
 
 test('v792 transit overlay survives late MapLibre style readiness and explains route loading',()=>{

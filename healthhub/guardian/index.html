@@ -84,12 +84,7 @@
  </section>
  <div class="guardian-map-credits" role="note" aria-label="Térképadatok forrása">Térképadatok: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a></div>
  <section id="hhTransitPanel" class="hh-transit-panel" aria-label="HealthHub Transit, BKK járatválasztó">
-  <div class="hh-transit-sheet-grip" role="button" tabindex="0" aria-label="Járatpanel fel- vagy lehúzása, nyílbillentyűkkel is állítható"><span></span></div>
-  <div class="hh-transit-sheet-actions" role="group" aria-label="Járatpanel mérete"><button type="button" data-hh-transit-size="closed" aria-label="Járatpanel összecsukása">Kicsi</button><button type="button" data-hh-transit-size="half" aria-label="Járatpanel félig nyitva">Fél</button><button type="button" data-hh-transit-size="full" aria-label="Járatpanel teljes megnyitása">Teljes</button></div>
-  <details id="hhTransitDetails" open>
-   <summary>🚌 HealthHub Transit <small>260 · 17 · 19</small> <span class="hh-transit-count" id="hhTransitCount">1</span></summary>
    <div class="hh-transit-body">
-    <p class="hh-transit-subtitle">Pipáld ki, melyik járat útvonalát és megállóit szeretnéd látni a 3D térképen. A „Mutasd” gomb a kijelölt vonalra közelít.</p>
     <div class="hh-transit-choices">
      <div class="hh-transit-item hh-transit-bus">
       <label><input type="checkbox" id="hhTransitRoute260" checked><span class="hh-transit-line-num">260</span><span class="hh-transit-item-name"><strong>260-as busz</strong><small>Útvonal + megállók</small></span></label>
@@ -109,7 +104,6 @@
     <p id="hhTransitStatus" class="hh-transit-status" role="status" aria-live="polite">Hivatalos BKK GTFS-adatok betöltése…</p>
     <p class="hh-transit-credit">Menetrendi útvonal, nem élő busz-/villamospozíció. Adatok forrása: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt., CC BY 4.0</a>. A kijelölt járatok ezen a böngészőn maradnak.</p>
    </div>
-  </details>
  </section>
  <section class="guardian-landmarks" aria-label="Fontos helyek kezelése">
   <details id="guardianLandmarks" class="guardian-landmarks-details">
@@ -283,7 +277,6 @@
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=791-portrait-direction"></script>
-<script defer src="./guardian-transit-sheet-v791.js?v=791-sheet-3state"></script>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">
