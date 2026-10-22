@@ -1003,3 +1003,11 @@ test('v791 premium transit keeps portrait controls, route badges, and static-onl
  assert.match(css,/data-sheet-size=full/);
  assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|VehiclePositions|sb_secret_/);
 });
+
+test('v792 transit overlay survives late MapLibre style readiness and explains route loading',()=>{
+ const js=read('guardian/guardian-transit-v791.js');
+ assert.match(js,/map\.on\('idle'/);
+ assert.match(js,/map\.on\('load',showSelected\)/);
+ assert.match(js,/showSelected\(\);\s*if\(!\(map\.getLayer/);
+ assert.match(js,/térképrétege még töltődik/);
+});
