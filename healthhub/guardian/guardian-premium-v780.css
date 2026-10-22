@@ -1,0 +1,145 @@
+/* Family Guard v780 · Golden Standard Premium Glass controls and location pins.
+   Presentation only. Hero, 4 px lower-left profile switch, and five-slot dock unchanged. */
+#guardianMapLabel.map-label{display:none!important}
+.map-card .map-follow,
+.map-card .map-3d,
+.map-card .map-family{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:8px!important;right:11px!important;box-sizing:border-box!important;
+ min-width:99px!important;width:99px!important;height:43px!important;min-height:43px!important;
+ padding:6px 9px!important;
+ border:1px solid rgba(203,232,255,.65)!important;border-radius:15px!important;
+ color:#f9fcff!important;
+ background:linear-gradient(142deg,rgba(60,109,153,.88) 0%,rgba(22,53,94,.88) 58%,rgba(14,38,75,.94) 100%)!important;
+ backdrop-filter:blur(18px) saturate(1.35)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(1.35)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.34),
+            inset 0 -1px 0 rgba(5,19,45,.24),
+            0 6px 17px rgba(5,22,54,.3),
+            0 0 0 1px rgba(112,187,249,.13)!important;
+ text-shadow:0 1px 2px rgba(2,14,31,.52)!important;
+ font:750 11px/1.05 system-ui,-apple-system,'Segoe UI',sans-serif!important;
+ white-space:nowrap;cursor:pointer;transition:box-shadow .16s ease,filter .16s ease!important;
+}
+.map-card .map-follow{top:12px!important}
+.map-card .map-3d{top:62px!important}
+.map-card .map-family{top:112px!important}
+.map-card .map-follow:hover,
+.map-card .map-3d:hover,
+.map-card .map-family:hover{filter:brightness(1.09)!important}
+.map-card .map-follow:focus-visible,
+.map-card .map-3d:focus-visible,
+.map-card .map-family:focus-visible{
+ outline:2px solid #e4f5ff!important;outline-offset:3px!important
+}
+.map-card .map-follow[aria-pressed="true"],
+.map-card .map-3d[aria-pressed="true"],
+.map-card .map-family[aria-expanded="true"]{
+ border-color:rgba(162,228,255,.94)!important;
+ background:linear-gradient(142deg,rgba(65,135,188,.94),rgba(27,76,133,.94) 65%,rgba(19,52,104,.97))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.46),0 5px 19px rgba(17,93,175,.37),0 0 13px rgba(120,211,255,.28)!important
+}
+:root[data-guardian-profile="m"] .map-card .map-follow,
+:root[data-guardian-profile="m"] .map-card .map-3d,
+:root[data-guardian-profile="m"] .map-card .map-family{
+ border-color:rgba(255,207,242,.64)!important;
+ background:linear-gradient(141deg,rgba(137,78,140,.91),rgba(77,47,115,.91) 60%,rgba(43,33,88,.96))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 17px rgba(36,19,68,.33),0 0 0 1px rgba(243,166,236,.11)!important
+}
+:root[data-guardian-profile="m"] .map-card .map-follow[aria-pressed="true"],
+:root[data-guardian-profile="m"] .map-card .map-3d[aria-pressed="true"],
+:root[data-guardian-profile="m"] .map-card .map-family[aria-expanded="true"]{
+ border-color:#ffd1f2!important;
+ background:linear-gradient(138deg,rgba(170,97,163,.95),rgba(102,56,141,.96))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.41),0 6px 17px rgba(96,33,107,.4),0 0 12px rgba(247,157,231,.27)!important
+}
+.guardian-control-icon{
+ display:grid;place-items:center;flex:0 0 29px!important;
+ height:29px;width:29px;border-radius:11px;
+ background:linear-gradient(145deg,rgba(241,250,255,.29),rgba(109,173,232,.13))!important;
+ border:1px solid rgba(223,244,255,.5)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.36),0 2px 8px rgba(0,16,38,.22)
+}
+.guardian-control-icon svg{width:19px;height:19px;display:block;filter:drop-shadow(0 1px 1px rgba(0,17,37,.36))}
+.guardian-control-text{flex:1;text-align:left}
+:root[data-guardian-profile="m"] .guardian-control-icon{
+ background:linear-gradient(146deg,rgba(255,231,248,.34),rgba(206,144,233,.13))!important;
+ border-color:rgba(255,225,249,.55)!important
+}
+/* Premium glass on MapLibre zoom/compass without affecting map interaction. */
+#guardianMap .maplibregl-ctrl-group{
+ border-radius:14px!important;overflow:hidden!important;
+ background:linear-gradient(145deg,rgba(29,70,120,.88),rgba(9,38,82,.94))!important;
+ border:1px solid rgba(203,235,255,.76)!important;
+ backdrop-filter:blur(14px)!important;
+ -webkit-backdrop-filter:blur(14px)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.3),0 6px 16px rgba(7,33,63,.26)!important
+}
+#guardianMap .maplibregl-ctrl-group button{background-color:transparent!important}
+#guardianMap .maplibregl-ctrl-group button+button{border-top:1px solid rgba(196,225,250,.27)!important}
+/* Landmark category symbols remain recognizable emoji but sit on bespoke glass medallions. */
+.guardian-landmarks-choice{
+ border-color:rgba(196,222,247,.43)!important;
+ background:linear-gradient(142deg,rgba(65,113,160,.46),rgba(18,49,88,.63))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.14),0 4px 12px rgba(3,19,45,.16)!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important
+}
+.guardian-landmarks-choice[aria-pressed="true"]{
+ background:linear-gradient(145deg,rgba(76,153,208,.75),rgba(27,73,128,.81))!important;
+ border:2px solid #a7eaff!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.3),0 0 15px rgba(106,207,255,.22)!important
+}
+:root[data-guardian-profile="m"] .guardian-landmarks-choice[aria-pressed="true"]{
+ background:linear-gradient(145deg,rgba(175,95,164,.78),rgba(88,47,132,.79))!important;
+ border-color:#ffc9ec!important
+}
+.guardian-landmarks-choice .guardian-landmarks-emoji,
+.guardian-landmark-item-icon{
+ display:grid;place-items:center;
+ width:37px;height:37px;min-width:37px;border-radius:12px;
+ font-size:23px;line-height:1;
+ background:linear-gradient(142deg,rgba(235,249,255,.25),rgba(117,171,228,.11));
+ border:1px solid rgba(217,237,255,.44);
+ box-shadow:inset 0 1px rgba(255,255,255,.36),0 3px 10px rgba(4,23,56,.19);
+ text-shadow:0 2px 4px rgba(5,21,50,.36)
+}
+:root[data-guardian-profile="m"] .guardian-landmarks-choice .guardian-landmarks-emoji,
+:root[data-guardian-profile="m"] .guardian-landmark-item-icon{
+ background:linear-gradient(145deg,rgba(255,232,247,.29),rgba(219,142,217,.14))
+}
+.guardian-landmark-item-icon{border-radius:11px;height:36px;width:36px;min-width:36px}
+.guardian-landmark-pin{
+ width:42px!important;height:42px!important;border-radius:15px!important;
+ background:linear-gradient(140deg,rgba(64,145,199,.94),rgba(22,69,128,.96))!important;
+ border:1.5px solid rgba(243,253,255,.95)!important;
+ backdrop-filter:blur(15px) saturate(1.3)!important;
+ -webkit-backdrop-filter:blur(15px) saturate(1.3)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 15px rgba(0,24,64,.35),0 0 0 2px rgba(130,212,255,.24)!important
+}
+:root[data-guardian-profile="m"] .guardian-landmark-pin{
+ background:linear-gradient(145deg,rgba(218,115,193,.96),rgba(103,50,134,.96))!important;
+ border-color:rgba(255,243,252,.98)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.55),0 6px 16px rgba(64,22,77,.35),0 0 0 2px rgba(255,175,229,.25)!important
+}
+.guardian-landmark-pin.is-preview{
+ border-style:dashed!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.52),0 0 0 4px rgba(255,225,160,.39),0 7px 15px rgba(38,20,45,.4)!important
+}
+/* Premium glass for save, pick and view buttons; preserve touch targets. */
+.guardian-landmarks-action,
+.guardian-landmark-action{
+ border-color:rgba(206,233,255,.52)!important;
+ background:linear-gradient(145deg,rgba(67,119,171,.83),rgba(21,62,112,.88))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 4px 12px rgba(3,24,55,.19)!important;
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)
+}
+#guardianLandmarksSave{
+ background:linear-gradient(134deg,#428dcc,#2659a8 60%,#1b4184)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.29),0 6px 17px rgba(22,87,167,.29)!important
+}
+.guardian-landmarks>details>summary{
+ background:linear-gradient(135deg,rgba(255,255,255,.075),rgba(255,255,255,.01));
+}
+@media (prefers-reduced-motion:reduce){
+ .map-card .map-follow,.map-card .map-3d,.map-card .map-family{transition:none!important}
+}
