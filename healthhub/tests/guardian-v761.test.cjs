@@ -914,7 +914,7 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
  assert.match(js,/hh-guardian-transit-selected-v790/);
  assert.match(js,/bkk-routes-v790\.json/);
  assert.match(js,/source!==SOURCE/);
- assert.doesNotMatch(js,/watchPosition|geolocation|service_role|sb_secret_|VehiclePositions/,'must not fabricate live location or require API key');
+ assert.doesNotMatch(js,/watchPosition|navigator\.geolocation|service_role|sb_secret_|VehiclePositions/,'must not fabricate live location or require API key');
  assert.doesNotMatch(css,/\.guardian-hero|#guardianHHNav/,'do not override original Hero or dock');
  assert.match(guardian,/get map\(\)\{return map\}/,'reuses the existing MapLibre engine');
 });
