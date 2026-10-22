@@ -998,7 +998,7 @@ test('v794 Transit shows selectable routes immediately with no redundant panel c
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hh-transit-sheet-actions|guardian-transit-sheet-v791\\.js|hh-transit-subtitle|Pipáld ki, melyik járat/);
  assert.doesNotMatch(html,/<summary>🚌 HealthHub Transit/);
  assert.match(css,/max-height:none!important/);
- assert.match(js,/function badgeFeatures\\(id\\)/);
+ assert.match(js,/function badgeFeatures\(id\)/);
  assert.match(js,/hh-bkk-badges-/);
  assert.match(js,/hh-guardian-transit-direction-v791/);
  assert.match(js,/nem élő helyzet/);
