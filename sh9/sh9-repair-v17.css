@@ -1,0 +1,102 @@
+/* SH9 v17 · responsive S24 repair.
+   Root cause: old Golden v15 artwork required min-height:740 CSS px;
+   the actual immersive WebView may report less. Never gate the approved
+   visuals on the viewport HEIGHT. Real module buttons remain usable.
+*/
+@media (orientation:portrait) and (max-width:650px){
+  html,body{width:100%;height:auto!important;min-height:100%;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain}
+  body{min-height:100dvh;background:#061327}
+  .wrap{
+    box-sizing:border-box;position:relative;
+    display:flex;flex-direction:column;
+    width:min(100%,420px);max-width:420px;
+    height:auto!important;min-height:100dvh!important;max-height:none!important;
+    overflow:visible!important;
+    margin:0 auto;
+    padding:max(7px,env(safe-area-inset-top,0px)) 7px calc(70px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg,#051326,#06182e);
+  }
+  .hero.sh9-final-ready{
+    box-sizing:border-box;flex:0 0 auto;
+    width:100%;height:auto;min-height:0;
+    aspect-ratio:1380/1001;
+    margin:0 0 7px!important;overflow:hidden;
+    border-radius:16px;background:#061b35;
+    box-shadow:0 5px 18px rgba(1,7,20,.28);
+  }
+  .hero.sh9-final-ready img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+  .sh9-info{
+    box-sizing:border-box;flex:0 0 auto;
+    width:100%;height:58px;min-height:58px;
+    margin:0!important;padding:4px;
+    border-radius:15px;
+    background:linear-gradient(115deg,#0b2745,#091d39);
+    border:1px solid rgba(121,186,244,.64)
+  }
+  .sh9-info-cell{padding:3px 5px;min-width:0;gap:3px}
+  .sh9-info-heading{font-size:8.6px;letter-spacing:.025em}
+  .sh9-info-value{font-size:10.5px;line-height:1.15}
+  .sh9-info-sub{font-size:9px;line-height:1.1}
+  .sh9-info-status{font-size:8px}
+  .grid{
+    box-sizing:border-box;
+    width:min(96%,var(--sh9-v17-grid-width,390px))!important;
+    max-width:390px;
+    display:grid;flex:0 0 auto;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px!important;
+    margin:7px auto 0!important;
+    padding:0;
+    align-items:stretch;align-content:start
+  }
+  .grid>.tile{
+    display:block;position:relative;box-sizing:border-box;
+    width:100%;height:auto;min-width:0;min-height:0;
+    aspect-ratio:1/1;
+    padding:0!important;margin:0!important;
+    border:1px solid rgba(124,187,245,.68);
+    border-radius:15px;
+    background:#102844;
+    box-shadow:none;overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .grid>.tile::before{display:none}
+  .grid>.tile:nth-child(5){border-color:rgba(249,133,227,.88)}
+  .grid>.tile:active{transform:scale(.985);filter:brightness(1.13)}
+  .grid>.tile:focus-visible{outline:3px solid #b9f3ff;outline-offset:2px}
+  /* The atlas is one cached 600x600 WebP serving nine individually clickable buttons. */
+  .sh9-v15-art-ready .grid>.tile{
+    background-image:url('./assets/SH9_Tiles_Golden_v15.webp?v=17');
+    background-size:300% 300%;background-repeat:no-repeat;
+  }
+  .sh9-v15-art-ready .grid>.tile .tile-inner,
+  .sh9-v15-art-ready .grid>.tile .mod-name{display:none}
+  .sh9-v15-art-ready .grid>.tile:nth-child(1){background-position:0% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(2){background-position:50% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(3){background-position:100% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(4){background-position:0% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(5){background-position:50% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(6){background-position:100% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(7){background-position:0% 100%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(8){background-position:50% 100%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(9){background-position:100% 100%}
+  .nav{
+    box-sizing:border-box;position:fixed;
+    left:50%;transform:translateX(-50%);
+    bottom:0!important;z-index:20;
+    width:min(100%,420px);max-width:420px;
+    margin:0!important;padding:5px 4px calc(5px + env(safe-area-inset-bottom,0px));
+    min-height:62px;border-radius:16px;
+    border:1px solid rgba(101,170,236,.42);
+    background:linear-gradient(115deg,#0b2447,#09172c)
+  }
+  .nav button{min-width:0;min-height:52px;padding:4px 1px;font-size:9.3px;gap:2px}
+  .nav svg{width:22px;height:22px}
+  .nav button.active{background:#0d3159;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(47,158,252,.6)}
+}
+@media (orientation:portrait) and (max-width:370px){
+ .wrap{padding-left:6px;padding-right:6px}
+ .sh9-info-heading{font-size:7.8px}
+ .sh9-info-value{font-size:9.8px}
+ .sh9-info-sub{font-size:8.2px}
+}
