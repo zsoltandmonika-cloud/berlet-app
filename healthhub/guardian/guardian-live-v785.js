@@ -82,7 +82,7 @@ function peerStatus(data,age){
   const speed=Number.isFinite(data.speed_kmh)?' · '+data.speed_kmh.toFixed(1).replace('.',',')+' km/h':'';
   return '🟢 ÉLŐ · '+time(data.updated_at)+' · ±'+Math.round(data.accuracy_m)+' m'+speed;
  }
- const stamp=' · utolsó mérés: '+time(data.updated_at)+' ('+peerAgeLabel(age)+' óta)';
+ const stamp=' · UTOLSÓ ISMERT HELY, utolsó mérés: '+time(data.updated_at)+' ('+peerAgeLabel(age)+' óta)';
  if(age>=300000)return '🔴 KRITIKUS ADATKIMARADÁS · 5+ perce nincs friss GPS-jel'+stamp+' · NEM ÉLŐ. Ez nem önmagában vészhelyzet.';
  if(age>=120000)return '🟠 KAPCSOLATVESZTÉS · több mint 2 perce nincs friss GPS-jel'+stamp+' · NEM ÉLŐ.';
  if(age>=60000)return '⚠️ GPS-FRISSÍTÉSI FIGYELMEZTETÉS · több mint 1 perce nincs jel'+stamp+' · NEM ÉLŐ.';
