@@ -2,7 +2,9 @@
  * Each real phone uploads only its own explicitly selected profile's current GPS fix.
  * RLS controls readers/writers in hh_guardian_live_locations; never write a history.
  * Revocable, one-time owner consent enables automatic FOREGROUND reactivation only.
- * No background tracking, no synthetic family markers.
+ * Browser background GPS remains OFF. Keep the consented last known fix with a
+ * timestamp/stale marker, never mistake it for live tracking.
+ * No GPS history and no synthetic family markers.
  */
 (function(w,d){
 'use strict';
@@ -12,13 +14,13 @@ const api=cfg&&cfg.enabled&&cfg.supabaseUrl&&cfg.publishableKey&&w.supabase&&w.s
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{
   auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}
  }):null;
-const TABLE='hh_guardian_live_locations',PREF_TABLE='hh_guardian_location_settings',AGE_MS=20000,ACCURACY_LIMIT=100;
+const TABLE='hh_guardian_live_locations',PREF_TABLE='hh_guardian_location_settings',AGE_MS=20000,LAST_KNOWN_MS=12*60*60*1000,ACCURACY_LIMIT=100;
 const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-refresh-v785';
 const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
-let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false;
+let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
 function self(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function other(){return self()==='monika'?'zsolt':'monika'}
 function label(k){return k==='monika'?'Mónika':'Zsolt'}
@@ -45,9 +47,9 @@ function updateUi(){
  else if(!access.includes(other()))set('guardianOtherState','Nincs hozzáférés ehhez a profilhoz');
 }
 function removePeer(){
- peerAvailable=false;peerCoord=null;
+ peerAvailable=false;peerCoord=null;peerUpdatedAt=null;
  if(peerMarker){peerMarker.remove();peerMarker=null}
- const card=$('guardianOtherCard');if(card)card.classList.remove('live');
+ const card=$('guardianOtherCard');if(card){card.classList.remove('live');card.classList.remove('guardian-last-known-v807')}
 }
 function setPeerState(s){set('guardianOtherState',s);set('guardianLivePeerStatus',s)}
 function renderPeer(data){
@@ -55,12 +57,54 @@ function renderPeer(data){
  const k=other(),av=w.HH_GOLDEN_AVATARS_V529||{};
  const el=d.createElement('div');el.className='guardian-position guardian-peer-position';
  el.setAttribute('data-guardian-person',k==='monika'?'m':'z');
- el.setAttribute('role','img');el.setAttribute('aria-label',label(k)+' · friss, engedélyezett GPS-adat');
+ el.setAttribute('role','img');el.setAttribute('aria-label',label(k)+' · megosztott GPS; az állapot a családi kártyán látszik');
  const photo=d.createElement('span');photo.className='guardian-position-photo';
  const img=d.createElement('img');img.alt='';img.src=k==='monika'?av.m:av.z;
  photo.appendChild(img);el.appendChild(photo);
  const name=d.createElement('span');name.className='guardian-position-label';name.textContent=label(k);el.appendChild(name);
  peerMarker=new w.maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([data.longitude,data.latitude]).addTo(map);
+}
+function peerAgeLabel(ageMs){
+ const n=Math.max(0,Math.round(ageMs/1000));
+ return n<60?n+' mp':n<3600?Math.floor(n/60)+' perc':
+  Math.floor(n/3600)+' óra '+Math.floor(n%3600/60)+' perc';
+}
+function peerSnapshot(data,now=Date.now()){
+ if(!data||!Number.isFinite(data.latitude)||!Number.isFinite(data.longitude)||
+  Math.abs(data.latitude)>90||Math.abs(data.longitude)>180||
+  !Number.isFinite(data.accuracy_m)||data.accuracy_m<0||data.accuracy_m>ACCURACY_LIMIT)return null;
+ const stamp=Date.parse(data.updated_at),age=now-stamp;
+ if(!Number.isFinite(stamp)||age< -5000||age>LAST_KNOWN_MS)return null;
+ return {age,live:age<=AGE_MS,coord:[data.longitude,data.latitude]};
+}
+function peerStatus(data,age){
+ if(age<=AGE_MS){
+  const speed=Number.isFinite(data.speed_kmh)?' · '+data.speed_kmh.toFixed(1).replace('.',',')+' km/h':'';
+  return '🟢 ÉLŐ · '+time(data.updated_at)+' · ±'+Math.round(data.accuracy_m)+' m'+speed;
+ }
+ return '🕘 UTOLSÓ ISMERT HELY · '+time(data.updated_at)+' ('+
+  peerAgeLabel(age)+' óta nincs friss GPS-jel) · NEM ÉLŐ';
+}
+function displayPeer(data,now=Date.now()){
+ const state=peerSnapshot(data,now);
+ if(!state){removePeer();setPeerState('Nincs megosztott helyadat az elmúlt 12 órából.');return false}
+ if(!peerMarker)renderPeer(data);
+ else peerMarker.setLngLat(state.coord);
+ peerCoord=state.coord;peerAvailable=true;peerUpdatedAt=data.updated_at;
+ const card=$('guardianOtherCard');
+ if(card){
+  card.classList.toggle('live',state.live);
+  card.classList.toggle('guardian-last-known-v807',!state.live);
+ }
+ if(peerMarker&&peerMarker.getElement){
+  const node=peerMarker.getElement();
+  if(node){
+   node.classList.toggle('guardian-peer-stale-v807',!state.live);
+   node.setAttribute('aria-label',label(other())+' · '+(state.live?'ÉLŐ':'UTOLSÓ ISMERT HELY, NEM ÉLŐ')+' · '+time(data.updated_at));
+  }
+ }
+ setPeerState(peerStatus(data,state.age));
+ return true;
 }
 async function poll(){
  if(polling||d.hidden||!user||!access.includes(other())||!api)return;
@@ -71,22 +115,26 @@ async function poll(){
    .eq('profile_key',k).maybeSingle();
   if(token!==generation||d.hidden||k!==other()||!user)return;
   if(error)throw error;
-  const age=data?Date.now()-Date.parse(data.updated_at):Infinity;
-  if(!data||!Number.isFinite(age)||age< -5000||age>AGE_MS||
-   !Number.isFinite(data.latitude)||!Number.isFinite(data.longitude)||data.accuracy_m>ACCURACY_LIMIT){
-   removePeer();
-   setPeerState('Nincs friss élő jel · 20 mp után eltűnik a jelölő');
+  if(!data){
+   removePeer();setPeerState('Nincs megosztott hely: a családtag leállította, vagy még nem engedélyezte.');
    return;
   }
-  const loc=[data.longitude,data.latitude];
-  if(!peerMarker)renderPeer(data);
-  else peerMarker.setLngLat(loc);
-  peerCoord=loc;peerAvailable=true;
-  const card=$('guardianOtherCard');if(card)card.classList.add('live');
-  const speed=Number.isFinite(data.speed_kmh)?' · '+data.speed_kmh.toFixed(1).replace('.',',')+' km/h':'';
-  setPeerState('ÉLŐ · '+time(data.updated_at)+' · ±'+Math.round(data.accuracy_m)+' m'+speed);
+  displayPeer(data);
  }catch(e){
-  if(token===generation){removePeer();setPeerState('Nem sikerült lekérdezni · '+(e&&e.message?e.message:'hálózati hiba'))}
+  if(token===generation){
+   // Temporary network failure must not silently remove a still valid, consented fix.
+   const known=peerAvailable&&peerUpdatedAt&&Date.now()-Date.parse(peerUpdatedAt)<=LAST_KNOWN_MS;
+   if(!known)removePeer();
+   else{
+    const card=$('guardianOtherCard');
+    if(card){card.classList.remove('live');card.classList.add('guardian-last-known-v807')}
+    if(peerMarker&&peerMarker.getElement){
+     const el=peerMarker.getElement();if(el)el.classList.add('guardian-peer-stale-v807');
+    }
+   }
+   setPeerState((known?'⚠️ Utolsó ismert hely megőrizve · ':'⚠️ Nincs új helyadat · ')+
+    'kapcsolati hiba, NEM élő követés');
+  }
  }finally{polling=false}
 }
 function resetPolling(){
@@ -113,6 +161,14 @@ function stopSharing(){
  return k&&uid?clearRow(k,uid):Promise.resolve();
 }
 function onGpsStopped(){if(sharing)stopSharing()}
+function onGpsPaused(){
+ // Browser sleep/pagehide pauses uploading but MUST NOT revoke the owner's consent.
+ // Retain only the single last uploaded fix; foreground reactivation is opt-in.
+ if(!sharing)return;
+ sharing=false;sharingProfile=null;lastUploaded=0;lastSeen=null;
+ set('guardianLiveOwnSpeed','—');updateUi();
+ msg('Böngészős GPS szünetel. Az utolsó ismert hely megmarad, időbélyeggel (nem élő követés).');
+}
 function onProfileChanged(){
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
@@ -265,8 +321,8 @@ function init(){
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
  d.addEventListener('hh-guardian-location-settings-changed',syncSettings);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
- d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsStopped();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;removePeer();setPeerState('Háttérben nincs élő helyzetkövetés')}else{resetPolling();maybeAutoStart()}});
- w.addEventListener('pagehide',()=>{onGpsStopped();if(pollTimer!==null)w.clearInterval(pollTimer)});
+ d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsPaused();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;setPeerState('Háttérben nincs böngészős GPS · visszatéréskor frissítünk')}else{resetPolling();maybeAutoStart()}});
+ w.addEventListener('pagehide',()=>{onGpsPaused();if(pollTimer!==null)w.clearInterval(pollTimer)});
  w.addEventListener('pageshow',()=>{if(!d.hidden)maybeAutoStart()});
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')onProfileChanged()});
  updateUi();
@@ -274,7 +330,7 @@ function init(){
  api.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')w.setTimeout(refreshAuth,0)});
  refreshAuth();
 }
-w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsStopped,onProfileChanged,mountMap(m){map=m;resetPolling();},
+w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;resetPolling();},
  getClient(){return api},get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
  get boundProfile(){return bound()},
  get sharing(){return sharing},get interval(){return interval},get authenticated(){return !!user}});
