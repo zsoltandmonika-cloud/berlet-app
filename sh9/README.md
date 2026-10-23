@@ -38,3 +38,8 @@ A forrásban két README.txt is lehet. Ezek opcionálisak. A `sh9/README.md` és
 - S24 Ultra mobil Chrome megjelenés és érintés ellenőrizve.
 
 **Állapot:** mappák előkészítve; az `index.html` és PNG-assetek feltöltésig még nincsenek publikálva.
+## Központi visszanavigáció · 2026-10-23
+- HealthHub és Family Guard Launchpad-csempék: működő relatív URL-ek.
+- Az SH9-re visszalépéshez közös `healthhub/sh9-launchpad-return-v1.js` felel; a HealthHub újraépített HTML-jébe és a Family Guard oldalába be van kötve.
+- A navigációs elem diszkrét, érintésbarát, Premium Glass kapszula, a meglévő ötös navigáció/profilváltó érintése nélkül.
+- A v1 CSS/mobilos kézi vizuális ellenőrzés még szükséges; nincs igazolt Samsung S24 Ultra valós készülékes teszt.
