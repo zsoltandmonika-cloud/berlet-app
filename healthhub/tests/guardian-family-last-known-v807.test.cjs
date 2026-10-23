@@ -63,7 +63,7 @@ test('v807 remotely shared stale GPS appears on map as last known, never live, a
  win.HH_GUARDIAN_LIVE_V785.mountMap(map);
  for(let i=0;i<4;i++)await new Promise(resolve=>setImmediate(resolve));
  assert.equal(pins.length,1,'last known marker is not removed after 20 seconds');
- assert.deepEqual(pins[0].point,[19.031,47.529]);
+ assert.deepEqual(Array.from(pins[0].point),[19.031,47.529]);
  assert.match(controls.guardianOtherState.textContent,/UTOLSÓ ISMERT HELY/);
  assert.match(controls.guardianOtherState.textContent,/NEM ÉLŐ/);
  assert.ok(controls.guardianOtherCard.classList.contains('guardian-last-known-v807'));
