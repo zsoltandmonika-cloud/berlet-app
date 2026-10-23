@@ -1,0 +1,54 @@
+/* SH9 v6 · 3-cell information strip and bottom-anchored classic grid.
+ * Matches HealthHub Premium Glass home golden-reference aesthetics.
+ * 3 info groups: (date + nameday) / weather / calendar.
+ * User health records and authentication are never accessed by this CSS. */
+.wrap{
+ display:flex;flex-direction:column;
+ min-height:100dvh;
+ padding-bottom:calc(65px + env(safe-area-inset-bottom,0px));
+}
+.hero{flex:none;}
+.sh9-info{
+ display:grid;grid-template-columns:minmax(0,1.36fr) minmax(0,1.02fr) minmax(0,1.12fr);
+ gap:0;flex:none;min-height:65px;
+ border:1px solid rgba(190,225,255,.38);
+ border-radius:15px;padding:6px 5px;
+ background:linear-gradient(120deg,rgba(10,26,48,.84),rgba(21,34,59,.76));
+ -webkit-backdrop-filter:blur(15px) saturate(140%);
+ backdrop-filter:blur(15px) saturate(140%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 8px 24px rgba(2,9,23,.2);
+ color:#f7fbff;text-shadow:0 1px 5px rgba(0,0,0,.54)
+}
+.sh9-info-cell{
+ min-width:0;display:flex;flex-direction:column;justify-content:center;
+ align-items:flex-start;gap:3px;padding:3px 7px;
+ overflow-wrap:anywhere
+}
+.sh9-info-cell + .sh9-info-cell{border-left:1px solid rgba(178,215,250,.25)}
+.sh9-info-heading{font:800 8.5px/1.12 Inter,'Segoe UI',Roboto,sans-serif;letter-spacing:.065em;color:#b7dff9}
+.sh9-info-value{color:#f6faff;font:750 10.1px/1.25 Inter,'Segoe UI',Roboto,sans-serif}
+.sh9-info-sub{color:#c2def4;font:650 9.1px/1.16 Inter,'Segoe UI',Roboto,sans-serif}
+.sh9-info-status{font-size:9px;color:#afc3d9}
+.sh9-info-cell[data-status="error"] .sh9-info-value{color:#ffdacd}
+.sh9-info-cell[data-status="ready"] .sh9-info-sub{color:#e2f1ff}
+.sh9-info-icon{font-size:13px;line-height:1;vertical-align:middle}
+.sh9-info-link{
+ font:700 9px/1.2 inherit;color:#c5e5ff;text-decoration:underline;
+ text-underline-offset:2px;
+}
+.sh9-info-link:focus-visible{outline:2px solid #8ad3ff;outline-offset:3px}
+.grid{margin-top:auto;flex:none}
+@media(max-width:370px){
+ .sh9-info{padding:5px 2px;min-height:62px;border-radius:13px}
+ .sh9-info-cell{padding:3px 4px;gap:3px}
+ .sh9-info-heading{font-size:7.6px;letter-spacing:.035em}
+ .sh9-info-value{font-size:9px}
+ .sh9-info-sub{font-size:8.2px}
+}
+@media(min-width:520px){
+ .wrap{padding-bottom:76px}
+}
+@media(max-height:710px){
+ .sh9-info{min-height:58px}
+ .sh9-info-cell{gap:2px}
+}
