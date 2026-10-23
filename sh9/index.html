@@ -1,4 +1,85 @@
-<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#031229"><title>SH9 · SmartHub Nine</title><link rel="icon" type="image/png" href="./assets/sh9-icon.png"><link rel="stylesheet" href="./SH9_official_v21.css?v=22"><style id="sh9-native-fit">/* Official SH9 owns its layout. Legacy native injection must not override it. */</style></head><body>
+<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#031229"><title>SH9 · SmartHub Nine</title><link rel="icon" type="image/png" href="./assets/sh9-icon.png"><link rel="stylesheet" href="./SH9_official_v21.css?v=22"><style id="sh9-native-fit">/* Official SH9 owns its layout. Legacy native injection must not override it. */</style><style id="sh9-hh-uniform-v23">/* SH9 · HealthHub Golden Standard uniform component adaptation · v23.
+  Actual HealthHub v520 / compact v525 glass tile styling, not sprite artwork.
+  SH9 hero artwork, live info and route handling remain unchanged. */
+:root{--hhpg-border:rgba(165,210,250,.3);--hhpg-ink:#eff8ff;--hhpg-accent:#60a5fa}
+body{background:#0b1425}
+.wrap{background:#0b1425;gap:7px}
+/* Preserve SH9 approved Buddy hero and the three live info cells. */
+.wrap .grid{
+  box-sizing:border-box;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,1fr));flex:1 1 auto;min-height:0;
+  gap:6px;width:100%;margin:0!important;padding:10px 8px 9px;
+  border:1px solid rgba(169,209,255,.18);border-radius:20px 20px 0 0;
+  background:linear-gradient(145deg,rgba(29,58,96,.74),rgba(16,30,53,.93) 53%,rgba(44,33,71,.8));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -4px 34px rgba(5,15,33,.2);
+}
+.wrap .grid>.tile{
+  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;min-height:0;width:100%;height:100%;aspect-ratio:auto;
+  margin:0;padding:5px 3px!important;appearance:none;
+  border-radius:17px;border:1px solid var(--hhpg-border);
+  background-image:linear-gradient(144deg,rgba(95,160,231,.2),rgba(30,57,94,.4) 55%,rgba(70,43,99,.27))!important;
+  background-color:transparent;background-size:auto!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 8px 20px rgba(0,9,25,.26);
+  color:#eff8ff;cursor:pointer;touch-action:manipulation;
+  backdrop-filter:blur(14px) saturate(145%);-webkit-backdrop-filter:blur(14px) saturate(145%);
+  font-family:Inter,'Segoe UI',Roboto,sans-serif;
+}
+.wrap .grid>.tile::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 30%,rgba(255,255,255,.025) 80%);
+}
+.wrap .grid>.tile .tile-inner{
+  position:relative;z-index:1;display:grid;place-items:center;flex:none;
+  width:35px;height:35px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(160,226,250,.23),rgba(67,87,186,.22));
+  border:1px solid rgba(198,233,255,.35);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 5px 12px rgba(2,9,31,.23);
+  color:#a9f0fc;
+}
+.wrap .grid>.tile .tile-inner svg{display:block;width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 4px rgba(84,225,251,.24))}
+.wrap .grid>.tile .mod-name{position:relative;z-index:1;font-size:11.2px;font-weight:790;line-height:1.16;text-align:center;overflow-wrap:anywhere;letter-spacing:-.02em;color:#eff8ff}
+.wrap .grid>.tile:nth-child(5){
+  border:1px solid rgba(242,160,222,.65);
+  background-image:linear-gradient(144deg,rgba(137,90,193,.24),rgba(52,40,89,.61) 57%,rgba(181,67,147,.2))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 7px 19px rgba(2,4,22,.27),0 0 12px rgba(224,91,181,.11);
+}
+.wrap .grid>.tile:nth-child(5)::after{display:none}
+.wrap .grid>.tile:nth-child(5) .tile-inner{color:#f5b5e8;background:linear-gradient(135deg,rgba(240,148,217,.24),rgba(100,72,165,.22));border-color:rgba(249,193,231,.42)}
+.wrap .grid>.tile:nth-child(5) .mod-name{color:#ffe1f5}
+.wrap .grid>.tile:focus-visible{outline:3px solid #a1f6f1;outline-offset:2px}
+.wrap .grid>.tile:nth-child(5):focus-visible{outline-color:#ffd6f3}
+.wrap .grid>.tile:active{transform:translateY(1px);filter:none;background-image:linear-gradient(133deg,rgba(145,207,247,.3),rgba(33,68,110,.63))!important}
+/* Exact visual language of HH Golden bottom navigation: flat dark bar, upper separator,
+   no inset blue pill frame and no outer rounded card. */
+.wrap .nav{
+  box-sizing:border-box;position:relative;left:auto;bottom:auto;transform:none;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:calc(100% + 14px);
+  margin:0 -7px!important;padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px));
+  min-height:60px;flex:0 0 auto;gap:1px;
+  border:none;border-top:1px solid rgba(140,198,243,.25);
+  border-radius:0;background:rgba(15,30,54,.97);
+  box-shadow:0 -7px 22px rgba(0,0,0,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.wrap .nav button{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:4px 0;
+  border:none;border-radius:0;background:transparent;color:#b9d0e8;box-shadow:none;font-family:Inter,'Segoe UI',Roboto,sans-serif}
+.wrap .nav button svg{width:22px;height:22px;color:inherit;filter:none;stroke-width:1.85}
+.wrap .nav button span{font-size:10px;line-height:1.1;color:inherit}
+.wrap .nav button.active{border:none;border-radius:0;background:none;color:#77baff;box-shadow:none}
+.wrap .nav button.active svg{color:#4f9cf2;background:rgba(237,247,255,.96);box-sizing:content-box;padding:6px;border-radius:50%;filter:none}
+@media(max-width:360px){
+ .wrap .grid{gap:5px;padding-inline:6px}
+ .wrap .grid>.tile{padding-inline:2px!important}
+ .wrap .grid>.tile .tile-inner{width:32px;height:32px}
+ .wrap .grid>.tile .tile-inner svg{width:19px;height:19px}
+ .wrap .grid>.tile .mod-name{font-size:10px}
+}
+@media(max-height:755px){
+ .wrap{height:auto;min-height:100dvh;overflow:visible;padding-bottom:64px}
+ .wrap .grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:300px}
+ .wrap .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);margin:0!important;z-index:15}
+}
+</style></head><body>
 <main class="wrap">
 <section class="hero" role="img" aria-label="SH9 SmartHub Nine, Buddy mókus asszisztens, futurisztikus kilencmodulos központ"></section>
 <section id="sh9InfoBar6" class="sh9-info" role="group" aria-label="Mai információk: dátum, névnap, időjárás, naptár">
@@ -7,15 +88,15 @@
 <div class="sh9-info-cell"><span class="sh9-info-heading">NAPTÁR</span><span class="sh9-info-value">Nincs összekötve</span><span class="sh9-info-sub sh9-info-status">🔒 Jóváhagyás kell</span></div>
 </section>
 <section class="grid" aria-label="SH9 kilenc modulja">
-<button class="tile" type="button" data-name="HealthHub" data-href="../healthhub/" aria-label="HealthHub megnyitása"><span class="visually-hidden">HealthHub</span></button>
-<button class="tile" type="button" data-name="Family Guard" data-href="../healthhub/guardian/" aria-label="Family Guard megnyitása"><span class="visually-hidden">Family Guard</span></button>
-<button class="tile" type="button" data-name="Smart Travel"  aria-label="Smart Travel megnyitása"><span class="visually-hidden">Smart Travel</span></button>
-<button class="tile" type="button" data-name="Entertainment"  aria-label="Entertainment megnyitása"><span class="visually-hidden">Entertainment</span></button>
-<button class="tile" type="button" data-name="Ask Léna"  aria-label="Ask Léna megnyitása"><span class="visually-hidden">Ask Léna</span></button>
-<button class="tile" type="button" data-name="Smart Sports"  aria-label="Smart Sports megnyitása"><span class="visually-hidden">Smart Sports</span></button>
-<button class="tile" type="button" data-name="Daily Hub"  aria-label="Daily Hub megnyitása"><span class="visually-hidden">Daily Hub</span></button>
-<button class="tile" type="button" data-name="Smart People"  aria-label="Smart People megnyitása"><span class="visually-hidden">Smart People</span></button>
-<button class="tile" type="button" data-name="Smart Lifestyle"  aria-label="Smart Lifestyle megnyitása"><span class="visually-hidden">Smart Lifestyle</span></button>
+<button class="tile" type="button" data-name="HealthHub" data-href="../healthhub/" aria-label="HealthHub megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7.5a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M6 12h4l2-3 2 6 2-3h2"/></svg></span><span class="mod-name">HealthHub</span></button>
+<button class="tile" type="button" data-name="Family Guard" data-href="../healthhub/guardian/" aria-label="Family Guard megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="M9 11h6m-3-3v6"/></svg></span><span class="mod-name">Family Guard</span></button>
+<button class="tile" type="button" data-name="Smart Travel"  aria-label="Smart Travel megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m2 12 9 2 4 7 2-1-1-8 6-4a2 2 0 0 0-2-3l-8 6-8-4-2 2 6 5-4 4 2 1 6-4"/></svg></span><span class="mod-name">Smart Travel</span></button>
+<button class="tile" type="button" data-name="Entertainment"  aria-label="Entertainment megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 11h18M5 7l3-4h4l-3 4M14 7l3-4h4l-3 4"/><path d="m10 13 5 3-5 3z"/></svg></span><span class="mod-name">Entertainment</span></button>
+<button class="tile" type="button" data-name="Ask Léna"  aria-label="Ask Léna megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg></span><span class="mod-name">Ask Léna</span></button>
+<button class="tile" type="button" data-name="Smart Sports"  aria-label="Smart Sports megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="16.5" cy="4" r="2"/><path d="m14 9-3 5-5 1m8-6 4 3 3 1m-9 1 3 3-2 5M11 7 6 9l-2 4"/></svg></span><span class="mod-name">Smart Sports</span></button>
+<button class="tile" type="button" data-name="Daily Hub"  aria-label="Daily Hub megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M14 15h2"/></svg></span><span class="mod-name">Daily Hub</span></button>
+<button class="tile" type="button" data-name="Smart People"  aria-label="Smart People megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-2.3A4.7 4.7 0 0 1 8.2 13h1.6a4.7 4.7 0 0 1 4.7 4.7V20M16 5.5a3 3 0 0 1 0 6M17 13.5c2.3.4 3.5 2 3.5 4.2V20"/></svg></span><span class="mod-name">Smart People</span></button>
+<button class="tile" type="button" data-name="Smart Lifestyle"  aria-label="Smart Lifestyle megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 3C12 4 6 7 5 14c-.3 3.4 1.8 5.2 4.8 5.2C17 19.2 20 9 20 3Z"/><path d="M6 20C9 14 13 11 17 8"/></svg></span><span class="mod-name">Smart Lifestyle</span></button>
 </section><nav class="nav" aria-label="SH9 navigáció">
 <button type="button" data-nav="Kezdőlap" class="active" aria-label="Kezdőlap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></button>
 <button type="button" data-nav="Idővonal" class="" aria-label="Idővonal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></button>
