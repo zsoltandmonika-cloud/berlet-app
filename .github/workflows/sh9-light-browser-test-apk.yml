@@ -38,7 +38,7 @@ jobs:
             "https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/sh9/assets/sh9-icon.png" \
             --output app/src/main/res/drawable-nodpi/sh9_launcher.png
           file app/src/main/res/drawable-nodpi/sh9_launcher.png
-      - name: Bundle approved SH9 v22 Launcher snapshot
+      - name: Bundle approved SH9 v23 Golden Uniform Launcher snapshot
         run: |
           mkdir -p app/src/main/assets/sh9
           cp ../index.html app/src/main/assets/sh9/index.html
@@ -48,6 +48,8 @@ jobs:
           cp ../sh9-info-v6.js app/src/main/assets/sh9/sh9-info-v6.js
           cp ../../healthhub/data/namedays.json app/src/main/assets/sh9/namedays.json
           grep -Fq 'data-nav="Vissza"' app/src/main/assets/sh9/index.html
+          grep -Fq 'id="sh9-hh-uniform-v23"' app/src/main/assets/sh9/index.html
+          test "$(grep -o 'class="tile-inner"' app/src/main/assets/sh9/index.html | wc -l)" -eq 9
           grep -Fq 'SH9_official_v21.css?v=22' app/src/main/assets/sh9/index.html
           grep -Fq '.grid>.tile:nth-child(5)::after' app/src/main/assets/sh9/SH9_official_v21.css
           test -s app/src/main/assets/sh9/SH9_Official_Hero_v21.webp
@@ -65,15 +67,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk SH9-Light-Browser-S24Ultra-v0.1.2-test3.apk
-          gh release create sh9-light-browser-v0.1.2-test3 \
-            SH9-Light-Browser-S24Ultra-v0.1.2-test3.apk \
-            --title "SH9 Light Browser · S24 Ultra Test 3" \
-            --notes "Bundled approved SH9 v22 Premium Glass Launcher snapshot: glowing center Ask Lena tile and neutral Back button; live HealthHub and Family Guard. Android status/navigation bars hidden; native WebView. Debug signed. Does not replace HH One." \
+          cp app/build/outputs/apk/debug/app-debug.apk SH9-Light-Browser-S24Ultra-v0.1.3-test4.apk
+          gh release create sh9-light-browser-v0.1.3-test4 \
+            SH9-Light-Browser-S24Ultra-v0.1.3-test4.apk \
+            --title "SH9 Light Browser · S24 Ultra Test 4" \
+            --notes "Bundled SH9 v23 with actual HealthHub Golden Standard glass tiles, uniform flat taskbar, pink Ask Lena tile and working Back; live HealthHub and Family Guard. Android status/navigation bars hidden; native WebView. Debug signed. Does not replace HH One." \
             --prerelease
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sh9-light-browser-test-apk
-          path: sh9/android-light-browser/SH9-Light-Browser-S24Ultra-v0.1.2-test3.apk
+          path: sh9/android-light-browser/SH9-Light-Browser-S24Ultra-v0.1.3-test4.apk
           if-no-files-found: warn

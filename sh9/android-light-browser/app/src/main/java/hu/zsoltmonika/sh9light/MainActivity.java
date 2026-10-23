@@ -21,10 +21,10 @@ import java.io.IOException;
 
 public final class MainActivity extends Activity {
     private static final String HOME =
-        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=22";
+        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=23";
     private WebView browser;
 
-    // The approved SH9 v22 shell is bundled inside this APK.
+    // The HH Golden Standard unified SH9 v23 shell is bundled inside this APK.
     // Only the Launcher is pinned. HealthHub/Guardian and external weather remain live.
     // Serving local resources at their original HTTPS URLs preserves relative navigation
     // and the same origin used by the live nameday/weather script.

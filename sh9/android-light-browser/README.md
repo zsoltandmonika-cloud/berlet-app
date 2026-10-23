@@ -19,3 +19,6 @@ WebView request interceptor. The Launcher appearance therefore does not depend
 on GitHub Pages rendering or cache at startup. All other modules remain live.
 Weather still requires internet. Future changes to the packaged Launcher shell
 require a new APK; the public website continues updating separately.
+
+## v0.1.3-test4 · HealthHub Golden Standard visual uniformity
+Nine SH9 buttons are now real HealthHub-style Premium Glass DOM tiles, not slices of a raster atlas. The SH9 taskbar uses the HealthHub flat dark bottom strip; the center Ask Léna tile has a subtle pink-purple tint. The approved Buddy hero and all current routes remain. The complete v23 HTML/CSS is bundled within the APK.
