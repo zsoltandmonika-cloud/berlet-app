@@ -36,6 +36,7 @@
    var r=await fetch('../healthhub/data/namedays.json',{cache:'force-cache'});
    if(!r.ok)throw new Error('nameday');
    namedayData=await r.json();
+   currentDay='';
    showNameday(setDate());
   }catch(e){nameEl.textContent='Névnap nem elérhető';}
  }
