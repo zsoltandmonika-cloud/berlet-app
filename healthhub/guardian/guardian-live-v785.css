@@ -54,3 +54,12 @@
 .guardian-live-v785 [hidden]{display:none!important}
 .guardian-peer-position{cursor:default!important}
 @media(max-width:350px){.guardian-live-settings{grid-template-columns:1fr}}
+
+/* v807: visibly distinguish stale last-known GPS from live position. */
+.guardian-peer-position.guardian-peer-stale-v807{opacity:.68!important;filter:grayscale(.48)!important}
+.guardian-peer-position.guardian-peer-stale-v807 .guardian-position-photo{
+ border:2px dashed #e5bb6c!important;box-shadow:0 0 0 3px rgba(232,173,91,.15)!important;
+}
+.family-member.guardian-last-known-v807{border-color:rgba(247,194,109,.6)!important;background:rgba(102,74,37,.34)!important}
+.family-member.guardian-last-known-v807 .family-dot{background:#e5b661!important;box-shadow:0 0 5px rgba(242,186,80,.34)!important}
+.family-member.guardian-last-known-v807 small{color:#f8ddb1!important}
