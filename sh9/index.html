@@ -13,7 +13,10 @@
  html .grid>.tile:nth-child(7){background-position:0% 100%!important}
  html .grid>.tile:nth-child(8){background-position:50% 100%!important}
  html .grid>.tile:nth-child(9){background-position:100% 100%!important}
-}</style></head><body><main class="wrap"><section class="hero" aria-label="Jóváhagyott SH9 hero logó Buddy asszisztenssel"><img src="assets/SH9_Hero_Approved.png" alt="SH9 neon üveggömb, Buddy és Your Life. Smarter Together."></section><section id="sh9InfoBar6" class="sh9-info" role="group" aria-label="Mai információk: dátum és névnap, időjárás, naptár">
+}
+/* v20 · Single change: lower SH9 square grid by 10 CSS pixels, preserve everything else. */
+@media (orientation:portrait) and (max-width:650px){html body main.wrap > section.grid{margin-top:17px!important}}
+</style></head><body><main class="wrap"><section class="hero" aria-label="Jóváhagyott SH9 hero logó Buddy asszisztenssel"><img src="assets/SH9_Hero_Approved.png" alt="SH9 neon üveggömb, Buddy és Your Life. Smarter Together."></section><section id="sh9InfoBar6" class="sh9-info" role="group" aria-label="Mai információk: dátum és névnap, időjárás, naptár">
 <div class="sh9-info-cell" aria-label="Dátum és névnap">
  <span class="sh9-info-heading">DÁTUM · NÉVNAP</span>
  <span id="sh9Date6" class="sh9-info-value">Dátum betöltése…</span>
