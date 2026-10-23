@@ -37,7 +37,10 @@
  text-underline-offset:2px;
 }
 .sh9-info-link:focus-visible{outline:2px solid #8ad3ff;outline-offset:3px}
-.grid{margin-top:auto;flex:none}
+.grid{margin-top:auto;margin-bottom:7px;flex:none}
+/* The status is still available when tapping an unfinished module.
+   Do not let release-note text consume mobile viewport or overlap taskbar. */
+.disclaimer{display:none!important}
 @media(max-width:370px){
  .sh9-info{padding:5px 2px;min-height:62px;border-radius:13px}
  .sh9-info-cell{padding:3px 4px;gap:3px}
