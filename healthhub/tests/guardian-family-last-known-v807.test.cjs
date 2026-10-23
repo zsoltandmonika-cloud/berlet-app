@@ -70,6 +70,12 @@ test('v807 remotely shared stale GPS appears on map as last known, never live, a
  assert.ok(pins[0].getElement().classList.contains('guardian-peer-stale-v807'));
  assert.equal(controls.guardianOtherCard.classList.contains('live'),false);
  assert.deepEqual(calls,[],'simply viewing another member does not upload or delete any GPS');
+ remote={...remote,updated_at:new Date(Date.now()-6*60*1000).toISOString()};
+ win.HH_GUARDIAN_LIVE_V785.mountMap(map);
+ for(let i=0;i<2;i++)await new Promise(resolve=>setImmediate(resolve));
+ assert.match(controls.guardianOtherState.textContent,/KRITIKUS ADATKIMARADÁS/);
+ assert.match(controls.guardianOtherState.textContent,/nem önmagában vészhelyzet/i);
+ assert.ok(controls.guardianOtherCard.classList.contains('guardian-peer-critical-v808'));
  remote={...remote,updated_at:new Date().toISOString()};
  win.HH_GUARDIAN_LIVE_V785.mountMap(map);
  for(let i=0;i<2;i++)await new Promise(resolve=>setImmediate(resolve));
