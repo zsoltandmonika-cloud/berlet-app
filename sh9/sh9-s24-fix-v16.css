@@ -1,0 +1,49 @@
+/* SH9 v16 · S24 Ultra live regression repair.
+ * Preserve approved artwork & module routing.
+ * Never hide/crop Hero to force content into a dynamic Android WebView viewport.
+ */
+@media (orientation:portrait) and (max-width:519px){
+ html,body{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain}
+ body{min-height:100dvh;height:auto}
+ .wrap{
+   box-sizing:border-box;position:relative;
+   width:min(100%,420px);
+   min-height:100dvh;height:auto;max-height:none;
+   overflow:visible;display:flex;flex-direction:column;
+   margin-inline:auto;
+   padding-top:max(6px,env(safe-area-inset-top,0px));
+   padding-right:7px;padding-left:7px;
+   padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))
+ }
+ .hero.sh9-final-ready{
+   box-sizing:border-box;position:relative;
+   width:100%;height:auto;min-height:0;
+   aspect-ratio:1380/1001;
+   flex:0 0 auto;overflow:hidden;
+   margin:0 0 7px;
+ }
+ .hero.sh9-final-ready img{
+   display:block;width:100%;height:100%;
+   object-fit:contain;object-position:center center
+ }
+ .sh9-info{flex:0 0 auto;margin:0;height:58px;min-height:58px}
+ .grid{
+   width:min(96%,var(--sh9-v16-grid-max,390px))!important;
+   max-width:390px;
+   margin:7px auto 0!important;
+   flex:0 0 auto;align-content:start;
+   grid-template-columns:repeat(3,minmax(0,1fr))
+ }
+ .nav{
+   box-sizing:border-box;position:fixed;
+   bottom:0!important;
+   left:50%;transform:translateX(-50%);
+   width:min(100%,420px);
+   min-height:62px;padding-bottom:calc(5px + env(safe-area-inset-bottom,0px));
+   z-index:20
+ }
+}
+@media (orientation:portrait) and (max-width:370px) {
+ .wrap{padding-left:6px;padding-right:6px}
+ .grid{margin-top:7px!important}
+}
