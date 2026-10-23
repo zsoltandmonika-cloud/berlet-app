@@ -1,0 +1,70 @@
+/* SH9 · S24 Ultra Immersive Shell v14
+   Target: own Chrome-less lightweight fullscreen viewer (no browser URL/nav bars).
+   Reference: 1440x3120 native pixels -> CSS examples 384x832, 400x867.
+   Do not force CSS viewport to 1440x3120: actual CSS pixel dimensions
+   depend on Android display scaling, status/navigation bars and WebView.
+   Only SH9 app's existing five-button internal taskbar remains.
+   No APK, system-bar settings, status-bar toggles, or browser code here.
+ */
+@media (orientation:portrait) and (max-width:519px) and (min-height:740px){
+  html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{height:100dvh;min-height:0}
+  .wrap{
+    box-sizing:border-box;
+    width:min(100%,420px);
+    height:100vh; /* older WebView fallback */
+    height:100dvh; /* browser chrome-free content viewport */
+    min-height:0;
+    max-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    margin-inline:auto;
+    padding-top:max(7px, env(safe-area-inset-top,0px));
+    padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));
+  }
+  .hero{flex:0 0 auto;min-height:0}
+  .sh9-info{flex:0 0 auto}
+  .grid{
+    flex:0 0 auto;
+    width:94%;
+    margin-top:auto!important;
+    margin-bottom:3px!important;
+    margin-inline:auto;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    align-content:end;
+  }
+  .grid>.tile{
+    aspect-ratio:1/1;
+    width:100%;
+    min-width:0;
+    min-height:0;
+    height:auto;
+    padding:4px 3px;
+  }
+  .nav{
+    bottom:0;
+    height:auto;
+    min-height:58px;
+    padding-bottom:calc(5px + env(safe-area-inset-bottom,0px));
+    width:min(100%,420px);
+  }
+}
+/* Smaller or split-screen viewports fall back to natural document scrolling.
+   Never crop an interactive tile because fullscreen cannot be guaranteed. */
+@media (orientation:landscape), (max-height:739px){
+  html,body{overflow-y:auto}
+  .wrap{height:auto;min-height:100dvh;max-height:none;overflow:visible}
+}
+/* Optional layout-measure helper in development only:
+   ?sh9layout=measure is read by sh9-immersive-v14.js. */
+#sh9LayoutMeasure14{
+  position:fixed;z-index:1000;
+  left:50%;transform:translateX(-50%);
+  bottom:calc(66px + env(safe-area-inset-bottom,0px));
+  background:rgba(8,20,41,.92);border:1px solid rgba(166,212,246,.7);
+  color:#eaf5ff;padding:6px 10px;border-radius:12px;
+  text-align:center;font:700 11px/1.3 system-ui,sans-serif;
+  pointer-events:none;white-space:nowrap;max-width:95vw
+}
