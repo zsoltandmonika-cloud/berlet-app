@@ -7,7 +7,7 @@
  var hero=document.querySelector('.hero');
  var img=hero&&hero.querySelector('img');
  if(!hero||!img)return;
- var src='assets/SH9_Final_Approved.png?v=10';
+ var src='assets/SH9_CommandCenter_Final_v10.avif?v=10';
  var probe=new Image();
  probe.onload=function(){
   img.src=src;
