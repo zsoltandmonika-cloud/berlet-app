@@ -1,0 +1,125 @@
+/* SH9 Ambient Weather Hero v8. Transparent vector/CSS effects only.
+ * The original Hero image, Buddy, logo, module grid and navigation are unchanged.
+ * All weather visuals are clipped to Hero and do not intercept taps. */
+.hero{isolation:isolate}
+.sh9-wx-layer{
+ position:absolute;inset:0;z-index:2;border-radius:inherit;overflow:hidden;
+ pointer-events:none;isolation:isolate;color:#d7f1ff
+}
+.sh9-wx-layer>div{position:absolute;inset:0;pointer-events:none}
+.sh9-wx-ambient{transition:opacity 1.8s ease;opacity:0}
+.sh9-wx-layer[data-phase="night"] .sh9-wx-ambient{
+ opacity:1;background:linear-gradient(180deg,rgba(3,13,41,.24),rgba(4,17,42,.12) 60%,rgba(2,11,30,.18))
+}
+.sh9-wx-layer[data-phase="dawn"] .sh9-wx-ambient{
+ opacity:1;background:linear-gradient(110deg,rgba(255,195,137,.14),rgba(106,166,225,.06) 55%,transparent)
+}
+.sh9-wx-layer[data-phase="dusk"] .sh9-wx-ambient{
+ opacity:1;background:linear-gradient(110deg,rgba(99,91,169,.06),rgba(255,157,125,.14),rgba(8,20,52,.15))
+}
+.sh9-wx-clouds{
+ opacity:0;transition:opacity 2s ease;
+ background:
+ radial-gradient(ellipse 40% 25% at 23% 26%,rgba(209,231,251,.29),transparent 90%),
+ radial-gradient(ellipse 52% 22% at 76% 44%,rgba(197,216,245,.26),transparent 94%),
+ radial-gradient(ellipse 36% 18% at 43% 66%,rgba(213,234,250,.16),transparent 95%);
+ background-size:120% 100%;
+ animation:sh9WxClouds 35s ease-in-out infinite alternate
+}
+.sh9-wx-layer[data-condition="cloudy"] .sh9-wx-clouds,
+.sh9-wx-layer[data-condition="rain"] .sh9-wx-clouds,
+.sh9-wx-layer[data-condition="storm"] .sh9-wx-clouds,
+.sh9-wx-layer[data-condition="snow"] .sh9-wx-clouds,
+.sh9-wx-layer[data-condition="fog"] .sh9-wx-clouds{opacity:.8}
+.sh9-wx-rain{opacity:0;transition:opacity 1s ease}
+.sh9-wx-rain::before,.sh9-wx-rain::after{
+ content:"";position:absolute;inset:-35% -15%;
+ background-image:repeating-linear-gradient(169deg,
+ transparent 0px,transparent 23px,
+ rgba(207,236,255,.58) 23.5px,rgba(207,236,255,.58) 24.5px,
+ transparent 25px,transparent 52px);
+ background-size:79px 120px;
+ animation:sh9WxRain .95s linear infinite;
+ mask-image:linear-gradient(180deg,transparent,black 18%,black 83%,transparent);
+ -webkit-mask-image:linear-gradient(180deg,transparent,black 18%,black 83%,transparent);
+}
+.sh9-wx-rain::after{
+ opacity:.45;background-size:105px 144px;
+ animation-duration:1.35s;animation-direction:reverse
+}
+.sh9-wx-layer[data-condition="rain"] .sh9-wx-rain{opacity:.68}
+.sh9-wx-layer[data-condition="storm"] .sh9-wx-rain{opacity:.88}
+.sh9-wx-snow{opacity:0;transition:opacity 1.2s ease}
+.sh9-wx-layer[data-condition="snow"] .sh9-wx-snow{opacity:1}
+.sh9-wx-snow i{
+ position:absolute;top:-14px;left:var(--x);
+ width:var(--size);height:var(--size);border-radius:50%;
+ background:radial-gradient(circle at 36% 28%,white,rgba(226,242,255,.85) 52%,rgba(193,221,251,.42) 76%,transparent);
+ box-shadow:0 0 5px rgba(238,249,255,.6);
+ opacity:var(--alpha);
+ animation:sh9WxSnow var(--duration) linear infinite;
+ animation-delay:var(--delay);
+ will-change:transform
+}
+.sh9-wx-fog{
+ opacity:0;
+ background:linear-gradient(180deg,transparent 12%,rgba(202,228,245,.19) 45%,rgba(222,235,247,.29) 66%,rgba(201,226,249,.13) 92%),
+ radial-gradient(ellipse 85% 23% at 38% 75%,rgba(226,239,251,.3),transparent);
+ animation:sh9WxFog 11s ease-in-out infinite alternate;
+ transition:opacity 2s ease
+}
+.sh9-wx-layer[data-condition="fog"] .sh9-wx-fog{opacity:.76}
+.sh9-wx-frost{
+ opacity:0;
+ background:
+ radial-gradient(ellipse 38% 37% at 0% 0%,rgba(210,237,253,.47),transparent 95%),
+ radial-gradient(ellipse 42% 36% at 100% 0%,rgba(215,238,255,.39),transparent 95%),
+ radial-gradient(ellipse 41% 35% at 0% 100%,rgba(221,245,255,.42),transparent 95%),
+ radial-gradient(ellipse 50% 30% at 100% 100%,rgba(209,234,255,.41),transparent 96%);
+ box-shadow:inset 0 0 18px rgba(206,238,255,.29),inset 0 0 2px 1px rgba(238,251,255,.32);
+ transition:opacity 3s ease
+}
+.sh9-wx-frost svg{position:absolute;inset:0;width:100%;height:100%;stroke:#dbf4ff;fill:none;stroke-width:.8;opacity:.47}
+.sh9-wx-layer[data-freeze="true"] .sh9-wx-frost{opacity:1}
+.sh9-wx-lightning{opacity:0}
+.sh9-wx-lightning::before{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(121deg,transparent 28%,rgba(205,228,255,.14) 47%,rgba(248,252,255,.27) 53%,transparent 77%);
+}
+.sh9-wx-lightning svg{
+ width:29%;height:70%;position:absolute;right:17%;top:4%;
+ stroke:#e3f7ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+ filter:drop-shadow(0 0 7px rgba(205,238,255,.65))
+}
+.sh9-wx-layer[data-condition="storm"] .sh9-wx-lightning{
+ animation:sh9WxLightning 17s linear infinite
+}
+.sh9-wx-preview-label{
+ position:absolute;z-index:5;right:9px;bottom:9px;
+ max-width:calc(100% - 20px);padding:5px 7px;border-radius:10px;
+ border:1px solid rgba(232,242,255,.64);
+ background:rgba(10,23,45,.91);color:#fff;
+ font:700 9px/1.2 system-ui,sans-serif;letter-spacing:.02em;
+ pointer-events:none
+}
+.sh9-wx-preview-label[hidden]{display:none}
+.sh9-wx-layer[data-paused="true"] *,
+.sh9-wx-layer[data-paused="true"]::before,
+.sh9-wx-layer[data-paused="true"]::after{
+ animation-play-state:paused!important
+}
+@keyframes sh9WxRain{from{background-position:0 -120px}to{background-position:-19px 120px}}
+@keyframes sh9WxSnow{from{transform:translate3d(0,-20px,0)}to{transform:translate3d(var(--drift),310px,0)}}
+@keyframes sh9WxClouds{from{background-position:0 0}to{background-position:100% 0}}
+@keyframes sh9WxFog{from{transform:translateX(-4%)}to{transform:translateX(5%)}}
+@keyframes sh9WxLightning{
+ 0%,90%,91.5%,93%,94%,100%{opacity:0}
+ 90.7%{opacity:.24}
+ 92.4%{opacity:.12}
+}
+@media(prefers-reduced-motion:reduce){
+ .sh9-wx-layer *{animation:none!important;transition:none!important}
+ .sh9-wx-layer[data-condition="storm"] .sh9-wx-lightning{opacity:0!important}
+ .sh9-wx-layer[data-condition="rain"] .sh9-wx-rain{opacity:.24}
+ .sh9-wx-layer[data-condition="snow"] .sh9-wx-snow{opacity:.55}
+}
