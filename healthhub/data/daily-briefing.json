@@ -1,178 +1,208 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-22",
-  "generatedAt": "2026-10-22T11:27:31+02:00",
-  "headline": "A reggel fő témái: What is PHP and why did it spark a global cyber-security scramble?; How Arab parties could hold critical balance of power in Israeli election",
+  "date": "2026-10-23",
+  "generatedAt": "2026-10-23T11:23:46+02:00",
+  "headline": "A reggel fő témái: Ukraine says Starlink still restricted after Trump says limits lifted; Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
-        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks",
-        "BBC World: Celebrity shark guided out of South Korea canal refuses to swim out to sea"
+        "BBC World: Ukraine says Starlink still restricted after Trump says limits lifted",
+        "BBC World: Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds",
+        "BBC World: Hundreds of flights cancelled as Typhoon Champi shuts Taiwan",
+        "BBC World: Powerful earthquake hits Tibet killing 16 people, reports say"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
-        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks"
+        "BBC World: Ukraine says Starlink still restricted after Trump says limits lifted",
+        "BBC World: Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds",
+        "BBC World: Hundreds of flights cancelled as Typhoon Champi shuts Taiwan"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC World: How Arab parties could hold critical balance of power in Israeli election",
-        "BBC World: Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks"
+        "BBC World: Ukraine says Starlink still restricted after Trump says limits lifted",
+        "BBC World: Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds",
+        "BBC World: Hundreds of flights cancelled as Typhoon Champi shuts Taiwan"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Forbes Magyarország: Leállt a magyarorszag.hu és több kormányzati oldal, eddig szünetel az ügyintézés - Forbes Magyarország",
-        "Portfolio.hu: Tanács Zoltán globális méretű veszélyre figyelmeztet, leállították a Magyarország.hu-t is a súlyos hiba miatt - Portfolio.hu",
-        "Világgazdaság: Elszólta magát Magyar Péter: Amerikából vette át Magyarország 2027-es költségvetését a Tisza-kormány, de nagyon rossz modellt választhatott – száz éve vitáznak róla a közgazdászok - Világgazdaság"
+        "Euronews: Fitch Ratings: Magyarország 2030-ra teljesítheti az euróövezeti csatlakozás feltételeit - Euronews",
+        "Raketa.hu: Ha a legrosszabb forgatókönyv valósul meg, Románia és Magyarország között akár két óra eltérés is lehet majd - Raketa.hu",
+        "Magyarország Kormánya: Nagy Imre sírjának megkoszorúzásával kezdődött a megemlékezés 1956-ról - Magyarország Kormánya"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Barclays cutting 5,000 jobs as it increases reliance on AI",
-        "BBC Business: The 'trillion pound' oil fund the government believes Britain could have built",
-        "BBC Business: Is an 'AI war' complicating your job search?"
+        "BBC Business: Lights will stay on this winter, grid operator says after concerns",
+        "BBC Business: 'I'm 96 and have 15 million followers': The grannies taking over TikTok",
+        "BBC Business: Zuckerberg wins Meta deal to help him foot bill for possible California billionaire tax"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: UK working to identify exposure after global cyber-security warning",
-        "BBC Technology: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC Technology: Trump's green card curbs test Indian tech workers' American dream"
+        "BBC Technology: The Indian workers filming their work to train AI",
+        "BBC Technology: Zuckerberg wins Meta deal to help him foot bill for possible California billionaire tax",
+        "BBC Technology: Race to update services' computer systems after cyber-security flaw found"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: What is PHP and why did it spark a global cyber-security scramble? (BBC World).",
-        "Figyelmi pont: US orders some diplomats to leave Saudi Arabia as Houthi attacks escalate (BBC World).",
-        "Figyelmi pont: The 'trillion pound' oil fund the government believes Britain could have built (BBC Business)."
+        "Figyelmi pont: Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds (BBC World).",
+        "Figyelmi pont: Newborn twins fight for survival as conflict fuels Yemen's hunger crisis (BBC World).",
+        "Figyelmi pont: Race to update services' computer systems after cyber-security flaw found (BBC Technology)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC World: How Arab parties could hold critical balance of power in Israeli election"
+        "BBC World: Ukraine says Starlink still restricted after Trump says limits lifted",
+        "BBC World: Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds"
       ]
     }
   ],
   "sources": [
     {
-      "title": "What is PHP and why did it spark a global cyber-security scramble?",
+      "title": "Ukraine says Starlink still restricted after Trump says limits lifted",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3qjnwye0ep5o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cq74pjpmx0e8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Hospitals deliberately targeted by Sudan's RSF fighters, BBC finds",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c54g1kxw4nvvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Hundreds of flights cancelled as Typhoon Champi shuts Taiwan",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cw98zn304zg7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Powerful earthquake hits Tibet killing 16 people, reports say",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck5ynd1z6e83o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "L'Oreal says weight loss drugs are impacting beauty and skincare sales",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cvglwgwpgrlpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Trump ordered to answer questions under oath in BBC lawsuit",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmy0ryjx7741o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Nigeria and Kenya Ebola patients may have crossed paths at Uganda airport, officials say",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmwy4wlzqz3zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Newborn twins fight for survival as conflict fuels Yemen's hunger crisis",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cr5ynl63v0pyo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-22"
     },
     {
-      "title": "How Arab parties could hold critical balance of power in Israeli election",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cx8dzrp768j8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
+      "title": "Fitch Ratings: Magyarország 2030-ra teljesítheti az euróövezeti csatlakozás feltételeit - Euronews",
+      "publisher": "Euronews",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPS1VkX0JyU1I4UlVvOHF0T1cwUy1HM1RXbEQ3Njk1ZkFaT2I5STBlQ3djdUFZWS1BbnFjQzM1RGdGZUVGU0NGczhGY0d2dXppS3pEbEswa3JkNmZqQjdrbVZLbG5YcElFakR6UVN6bzNxMkYzcHdnYVJzWjlKY0dZa01HZXowZlBYdVFEdkJNS05JMl96ZE9YajV2ekIwTGt3TWVGMHVrV2tLejdseVVCTjNSTDcwMm9fOFBVUXV3?oc=5",
+      "publishedAt": "2026-10-23"
     },
     {
-      "title": "Missiles hit Kyiv after Russia agrees to US call to resume Ukraine peace talks",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq3djn5nxx12o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
+      "title": "Ha a legrosszabb forgatókönyv valósul meg, Románia és Magyarország között akár két óra eltérés is lehet majd - Raketa.hu",
+      "publisher": "Raketa.hu",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOVWFpcGctaFZZUFluUmZIWlBPamhVVUlKMld2LV9MUGxMcGtUWUZFTU9zUmY3dThtdGtiQ25Od2xxS1AxWmNlOEt0WlVMemFGcy1FbVhUQU1FQlBPcVdpTVBqMW5zR2ptQ1dXQzRURjc2SFFYS3V6YUxzMm5kTjVpVHljaVV2S3JzY2R3?oc=5",
+      "publishedAt": "2026-10-23"
     },
     {
-      "title": "Celebrity shark guided out of South Korea canal refuses to swim out to sea",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr3wv99614deo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
+      "title": "Nagy Imre sírjának megkoszorúzásával kezdődött a megemlékezés 1956-ról - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOcUJiSTNjWmNkXzNWTjloN3VZUzdMN0xsSHNIX21VZXZ3Rnhwbzg2YWJreXkyelFJQTBsT2xpbmptcEx5R1hxZ09ZbTB2WnBGWHc1SU5BTzF0YTFpLVBTX0lUT0h1Tm95dUF0cGxJTld5SGM1RjFfTFR5aHU1cVBYTkdWQmtEOFZTbDVIbnlRN0xLQW9yd1hoZ2p6UQ?oc=5",
+      "publishedAt": "2026-10-23"
     },
     {
-      "title": "US orders some diplomats to leave Saudi Arabia as Houthi attacks escalate",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6x2vpk93770o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
+      "title": "Nemzetközi segítségét kap Magyarország: különleges akció indul - Agrárszektor",
+      "publisher": "Agrárszektor",
+      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPdHRzdmNCRlNRSHBCWlIwN1pwNDhCX0ZENkpDSUtDR3F4VzRaVkxPcjd3U1Jpbll0b2R3RGRJb1BrUGxRZXdYU3VJMGs5T1RQckVVVWNBaU1DM0loLTIyQTNWY2ljcHFXZzhtR0JXS1lIVDRWekRRWnhSaUhtWUZDRzJlUmgxUjRMdVc3ckhNN1ZZeTczNEplRXk0VDBVLXJJbGFTQXRISHpGVFlGNEg0Xy1fQ3U?oc=5",
+      "publishedAt": "2026-10-23"
     },
     {
-      "title": "Two European women held captive for more than a year in Niger freed in Libya",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq62y0v7434yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Macron accuses foreign leaders of exploiting French riots",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckjrw044ggxgo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "Meta fined $25bn for 'lies' over user data privacy",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqdr8zxrr3dxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "Leállt a magyarorszag.hu és több kormányzati oldal, eddig szünetel az ügyintézés - Forbes Magyarország",
-      "publisher": "Forbes Magyarország",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPeTN3VVRKeTByLWFEcmY2NnM1ZVFvNVpFRUc3M21tWk5NeVVSWl9ZQlROb1NHR0Rwb1NqUjhzSTZDYU16aGNLYlNES0FhUllLX2l0NnNLbmV6c251UVdJQWZfYTNWelVaLVJjcUFOX0dyUlY4aTRJR2JDWDliajVUSm0yQXd2SWpUY0FhNDRNbUpTNG92Ylg0WEdlSXlVYWlVZzFTVm9OdGlFZDRS?oc=5",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Tanács Zoltán globális méretű veszélyre figyelmeztet, leállították a Magyarország.hu-t is a súlyos hiba miatt - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxOOHpNaGFPZGxXUzRKX3JqMlQ0bG9wbWJqY2RWSTUtbHpGOXdnSG9GaTlfbTNjVFV2SUE1R0dXc19KQWlLeGF6amRqZ0w1ZS1QamxmMXJwS2Jtb1J6cGdfRk9hQ3NjQ3pKWXVGcUptSnBvbVFFMVdaMlNrM29EdXlySEkzb1l2T0htaTBZOUZnN3pEdjJLYURfQTJ2M1A3VUZwb3NpNkNPRlZaUmF2Tnh3SjdudXlxZU81QVpNWjNwaW5FSG1GQXI0ZUdOdmJoMl9fd2ppZ2VxRU9lZ3p2b0FxXzRXYlVWcWdiUFHSAe8BQVVfeXFMT3QwQXdLYWhjcFNwRnZLd2NNaXFOeks3NnE4a1pqOFlOcTZ3WU1iQlVYc1VjVVJqT3BUcXE0VGpXcFcxZWRqSndhSnJOZVk0T0tKNWR0eVVDSHZodVM5UmQ0bzZ4SVFyWEQtckI2dFEtVGlMLWFnaG9LOHVXVnRrckw4a1pQak1VSDlzN0trOVFLS0NObVZtMGxhMXYtY3Q4blNLbVY5Z2UxejFJLWVZWUNnVzUwZXc2bVNHWWdzYjI2STlfTWlKZHJSR21wMXpKcVY5VjBBcHc5SmF1RkMtZFBPVHY2YzNxOWoyLUdjMlk?oc=5",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Elszólta magát Magyar Péter: Amerikából vette át Magyarország 2027-es költségvetését a Tisza-kormány, de nagyon rossz modellt választhatott – száz éve vitáznak róla a közgazdászok - Világgazdaság",
+      "title": "Október 23-án kimondták az oroszok, amit Magyarország soha nem akart hallani: leállhat Paks II. építése, pontosan közölték a következményeket – \"Magyar Péter kormánya megpróbálhatja elkerülni Finnország hibáit\" - Világgazdaság",
       "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNQ3ZtSmxnZlZmam13UjNqcEotNXRBUEhNRTNHTGl2WFBNRVRLQ2R5a3Z3cVRwZjJKT3lacHN1ZVlfVjA4Y0Y3VGlLVW1xaFVhQXR4N3dtM3pNblB0cXhHWXdPVU9SODQzNzR5b3NiLXh6RG5iRjk5R0hlb1pIR0VFZXFiaWlmbFFqYTFjMDNqVExWaG1UeTdJeTQ2emE0VnR0UERnbGxyZXFHU09sbnc?oc=5",
-      "publishedAt": "2026-10-22"
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNdjVENGVzdFJTSDBWVTJ4YWZuOVFWLUZCUVpFMFpRNXQxeTFPa1EwYXZKTDUtUHY0Y1lsaDJNVFZpbU12cDE4RW5nSjZkTk8tX0xuaTNmdW00a0ZlM0dtQVQ3ZTc3b0hoclBOYS1peEJiWkItVmtqdU1YZENiRFRtZW9UazR4WDZtN1ZuQ21B?oc=5",
+      "publishedAt": "2026-10-23"
     },
     {
-      "title": "510 milliárd forinttal több jut a gyógyításra, a dolgozókra és a kórházak fejlesztésére. 95 milliárddal több jut a nagy költségű kórházi gyógyszerek finanszírozására, 38 milliárddal emelkedik a patikákban elérhető gyógyszerek támogatása. - Facebook",
+      "title": "A Fitch hitelminősítő szerint is van esély rá, hogy Magyarország 2030-ra teljesítse az euróövezeti csatlakozás feltételeit - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBkUXA4NzB5M2R5aVdJeXBqbE90M09OQldsb1VQVW9JQjVuclRqc01JRXQwQzk2SEpqT1hGM1NUOXlyZWJwSnZXMHlvUnF3NlB5cVZyMHFTRHktZVdWLUVubXEtbUY2ZHRfYTg2X1doR3I?oc=5",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Magyarország Kormánya. . Megemlekezés a 301-es parcellában a forradalom hőseire - Facebook",
       "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMilAJBVV95cUxNaWhBUXdEcHRTblFKUDc0TEF6SkdDaXFqbzc5WS1jMzZhZHdjdi1NTjFXRTVHSW1RckQ0MHpqNUplb0JqODg4S29sYlV2V19SWnpIVTUzcmR2Z3J3NXl6dnNQUGZndHlfZXFzY0RFSktKcGNhbVlERVBNaWE4LTZST2RHakl3cHByUEpVMWN5WHFkUGRyRWlua0dtb3FSWVY1TEFpT1ZGSHdaS0RTSVBtbHUxV2hjMjI2NXdYeFo1LVp0Q0F6RUZSdlhqcTYxTW9kenNTOGxndHZNcF8wSkc3eGdVOG5Ja0V1VmhuVURGbDVwWGt5MW5seDBBaE5RU05iX2QycU9WRV9ZbXdsa2k4TjYtNHI?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNVzlXRUk2QlN3aDE4UkNOaVVUZ2xMRUVWVllCbWk1eF8yMU9tSFRtd2JaMzl2UGhSczd3dER1ZG4wZ1N4S1ZsOE1sbUJxWVNqanFRaldTanZrMmJnY0gyeDMzNmJmYjRPZGFUdmZsajhHQjJFWkVEQjlrMHNvNFlQdVVhZHN2YjNVWjRtWGthRDhYS21tRjc2OVVLdFM4UmYyWlVfRkItNjhWZm5oSDI4S3NaRXZtenJxel9uOHR3TG5RZ0l6X1VEU1VB?oc=5",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Hitelminősítők szerint Magyarország jó úton halad, hogy 2032-ben csatlakozhasson az euróövezethez - Hírstart",
+      "publisher": "Hírstart",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPdndkdmJGRGNYbEhKRWhmZ1VJQ0R1T1dxWHRrVmZEV0RQOHFXRVRKSTl2LTk2YXR2UWNlaVJFaWplRU5qS3lheVgtaHFkcTY0c0RxNWVXcEJrd3BzSzI5MkxjZGhmUEhhU182MGxoTHZJTTNLVHkzRjhrMThmVmJQdjktd3JVM0JaVHBrSi1nZjFvUEJidExZNXVlNlJOa3FzeU56R1NxT0EyWnltaUJpcXVCV0hNYXAzWEQtZFpkMGpoZENJZy0ycG9nRWQ?oc=5",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Lights will stay on this winter, grid operator says after concerns",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmy56q2n1veqo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "'I'm 96 and have 15 million followers': The grannies taking over TikTok",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c63r5xpezz51o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
+    },
+    {
+      "title": "Zuckerberg wins Meta deal to help him foot bill for possible California billionaire tax",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cky83vwnyglno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-22"
     },
     {
-      "title": "Újabb gyomrost kapott az uniós bíróságtól Magyarország - Mfor.hu",
-      "publisher": "Mfor.hu",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOMzZwS014UHNDZVdlUWdDTWZ6dzFocGlJUV9vV2twMTNvZ2h5eW1wcUMzZlpGX1lxYXllbnZLWWZUMHRnSjk0UE8yTUE0RjV1d0ZDT1pHX3ZNV0kzYkV1S0JobTItYUtmNnBjNFhGaUlnX1ZwU0phRGFBbTZuLVR6QXhtR09NMW44MnlPUlJmZV9uQQ?oc=5",
+      "title": "'I wasn't thinking straight' says five jobs civil servant",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmx23dwp3qzro?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-22"
     },
     {
-      "title": "Kvíz: Melyik Magyarország legmagasabb hegycsúcsa? – Jól ismered a hazai földrajzi legeket? - Gyerekszoba.hu",
-      "publisher": "Gyerekszoba.hu",
-      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE5hZTViQlBDOWxfekI3R004T0hQYnBuLXYwYkJkYVE5V2FRYU9McGVqNUc5RFZFQXozNy11LVBxVzFBaWpBcFdTUFFTcGxadkl2ZUVpQndISWtST1RobFhaMmY5TEhfQ2I2VmJaTHZvREZmQQ?oc=5",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Lekapcsolták a Magyarország.hu-t: 10 éves hibát fedezett fel az AI a PHP-ben, és emiatt weboldalak ezrei álltak le - PCWPlus.hu",
-      "publisher": "PCWPlus.hu",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQU0lHb1ZMUTEyXzdqM2FfYmQ2aGtfRmljUms0SE1DRDREUDZ4dkl1Qjl1WVlpdmhJWGRHMzlGdEQ3eENHWEo3bVlZUENVdGY3X3hnd1A0SVl2VTVDT2ZodUhiYTFQX2dXY181QnQ2c2Y3WmduNlB3eEF0eG1rZWNJaXlVOFNLanBYZEJHT1JwOWNmREMwdWRxcDBjVnZQclFPTl9oUnBtM25LVWtpcmd1NndTbEtYZw?oc=5",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Leállították a magyarorszag.hu-t a világszintű biztonsági fenyegetettség miatt - 444",
-      "publisher": "444",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOWFVQY2tVajFkcUYxcjNYZEh0dkZXUUhjMmlsM09na2c4bDBldjFZVGtaTWc5QXU1WnptQmloMzBYdXhOT3ZkcllKLTVfSGUtenRFX3g3WVlqdDhSU0pTaUI3YUpaZm5KZS0wMUd6S3g0RmJGNk55ZW5vZlROZmJ5YjF5d2Z5NGNFTk1mSl9rY3B3RmR4WkpRUzVpaGZneENZbHBuQVNR?oc=5",
-      "publishedAt": "2026-10-22"
+      "title": "The Indian workers filming their work to train AI",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckvgyml6pdm9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-23"
     },
     {
       "title": "Barclays cutting 5,000 jobs as it increases reliance on AI",
@@ -181,45 +211,15 @@
       "publishedAt": "2026-10-22"
     },
     {
-      "title": "The 'trillion pound' oil fund the government believes Britain could have built",
+      "title": "Tank barrel production returns to UK after 20 years",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm4g1zrl2nrqo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm70pj51zdk4o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-22"
     },
     {
-      "title": "Is an 'AI war' complicating your job search?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm9qzgg5z89no?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Websites taken down worldwide as critical cyber-security update issued",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmly0lg3w5x2o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-21"
-    },
-    {
-      "title": "No order, no seat: Starbucks China rolls out new store policy",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckzd6rjmlzvmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "The grads ditching the UK for a fresh start abroad",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmzxj4e8w44vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "UK working to identify exposure after global cyber-security warning",
+      "title": "Race to update services' computer systems after cyber-security flaw found",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cmx23d0k57d3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-22"
-    },
-    {
-      "title": "Trump's green card curbs test Indian tech workers' American dream",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cqj34j7dk771o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c9j34zgmkxx1o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-22"
     }
   ]
