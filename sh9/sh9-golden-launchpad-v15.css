@@ -1,0 +1,95 @@
+/* SH9 Golden S24 Ultra v15 · approved exact pixels from 1440×3120 concept.
+   Scoped to SH9. Keep module routes, namedays, live Open-Meteo and taskbar functional.
+   Screenshot-derived tile art is decorative only; every tile remains a real HTML button.
+   CSS px != panel pixels: the phone's fullscreen WebView reports its own viewport. */
+:root{--sh9-golden-tile-art:url('./assets/SH9_Tiles_Golden_v15.webp')}
+@media (orientation:portrait) and (max-width:519px) and (min-height:740px){
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{height:100dvh;background:#061327}
+  .wrap{
+    box-sizing:border-box;position:relative;width:min(100%,420px);
+    height:100dvh;min-height:0;max-height:100dvh;overflow:hidden;
+    display:flex;flex-direction:column;
+    padding:max(6px,env(safe-area-inset-top,0px)) 7px 0;
+    margin:0 auto;
+    background:linear-gradient(180deg,#051326 0%,#06182e 100%);
+  }
+  .hero.sh9-final-ready{
+    width:100%;aspect-ratio:1380/1001;flex:0 0 auto;
+    margin:0 0 7px;border-radius:16px;overflow:hidden;
+    background:#061b35;box-shadow:0 5px 18px rgba(1,7,20,.28)
+  }
+  .hero.sh9-final-ready img{width:100%;height:100%;object-fit:fill;display:block}
+  .sh9-info{
+    box-sizing:border-box;width:100%;flex:0 0 auto;
+    height:58px;min-height:58px;padding:4px 4px;margin:0;
+    border-radius:15px;gap:0;background:linear-gradient(115deg,#0b2745,#091d39);
+    border:1px solid rgba(121,186,244,.64)
+  }
+  .sh9-info-cell{padding:3px 5px;gap:3px;min-width:0}
+  .sh9-info-heading{font-size:8.6px;letter-spacing:.025em}
+  .sh9-info-value{font-size:10.5px;line-height:1.15}
+  .sh9-info-sub{font-size:9px;line-height:1.1}
+  .sh9-info-status{font-size:8px}
+  .grid{
+    box-sizing:border-box;width:96%!important;max-width:390px;
+    display:grid;flex:0 0 auto;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px!important;margin:7px auto 0!important;
+    padding:0;align-items:stretch;align-content:start
+  }
+  .grid>.tile{
+    display:block;position:relative;min-width:0;min-height:0;
+    padding:0!important;margin:0;
+    width:100%;height:auto;aspect-ratio:1;
+    border:1px solid rgba(124,187,245,.68);border-radius:15px;
+    background:#102844;
+    box-shadow:none;overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    transition:filter .12s ease
+  }
+  .grid>.tile::before{display:none}
+  .grid>.tile:nth-child(5){border-color:rgba(249,133,227,.88)}
+  .grid>.tile:active{transform:scale(.985);filter:brightness(1.13)}
+  .grid>.tile:focus-visible{outline:3px solid #b9f3ff;outline-offset:2px}
+  /* Exact artwork from the user-approved S24 screenshot, one texture for all 9 cells.
+     Regular SVG icons and text remain as a working fallback until this art is loaded. */
+  .sh9-v15-art-ready .grid>.tile{
+    background-image:var(--sh9-golden-tile-art);
+    background-repeat:no-repeat;
+    background-size:300% 300%;
+  }
+  .sh9-v15-art-ready .grid>.tile .tile-inner,
+  .sh9-v15-art-ready .grid>.tile .mod-name{display:none}
+  .sh9-v15-art-ready .grid>.tile:nth-child(1){background-position:0% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(2){background-position:50% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(3){background-position:100% 0%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(4){background-position:0% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(5){background-position:50% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(6){background-position:100% 50%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(7){background-position:0% 100%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(8){background-position:50% 100%}
+  .sh9-v15-art-ready .grid>.tile:nth-child(9){background-position:100% 100%}
+  .nav{
+    box-sizing:border-box;position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(clamp(40px,6.2dvh,54px) + env(safe-area-inset-bottom,0px));
+    width:min(100%,420px);margin:0;padding:5px 4px;min-height:62px;
+    border-radius:16px;border:1px solid rgba(101,170,236,.42);
+    background:linear-gradient(115deg,#0b2447,#09172c);
+    box-shadow:0 8px 24px rgba(0,6,19,.2);z-index:6;
+  }
+  .nav button{min-height:52px;min-width:0;padding:4px 1px;font-size:9.3px;gap:2px}
+  .nav svg{width:22px;height:22px}
+  .nav button.active{background:#0d3159;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(47,158,252,.6)}
+}
+@media (orientation:portrait) and (max-width:370px) and (min-height:740px){
+  .nav{bottom:calc(38px + env(safe-area-inset-bottom,0px))}
+  .wrap{padding-inline:6px}
+  .grid{width:97%!important;gap:5px!important}
+  .sh9-info-heading{font-size:7.8px}
+  .sh9-info-value{font-size:9.8px}
+  .sh9-info-sub{font-size:8.2px}
+}
+/* Outside the full-size S24 portrait viewport, retain natural scroll instead of cutting off modules. */
+@media (orientation:landscape), (max-height:739px){
+  .wrap{height:auto;min-height:100dvh;max-height:none;overflow:visible}
+}
