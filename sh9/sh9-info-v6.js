@@ -67,7 +67,7 @@
  }
  async function refreshWeather(){
   try{
-   var url='https://api.open-meteo.com/v1/forecast?latitude=47.4979&longitude=19.0402&current=temperature_2m,weather_code,is_day&timezone=Europe%2FBudapest';
+   var url='https://api.open-meteo.com/v1/forecast?latitude=47.4979&longitude=19.0402&current=temperature_2m,weather_code,is_day&daily=sunrise,sunset&timezone=Europe%2FBudapest&forecast_days=1';
    var r=await fetch(url,{cache:'no-store'});
    if(!r.ok)throw new Error('weather '+r.status);
    var j=await r.json(),cur=j.current||{};
@@ -76,11 +76,23 @@
    weatherSub.textContent=weatherLabel(cur.weather_code)+' · Budapest';
    weatherCell.dataset.status='ready';
    weatherCell.title='Open-Meteo · '+new Intl.DateTimeFormat('hu-HU',{timeZone:tz,hour:'2-digit',minute:'2-digit'}).format(new Date());
+   /* Single source of truth for SH9's visual weather layer. */
+   var wx={
+    temp:cur.temperature_2m,code:cur.weather_code,isDay:cur.is_day===1,
+    sunrise:j.daily&&j.daily.sunrise&&j.daily.sunrise[0]||null,
+    sunset:j.daily&&j.daily.sunset&&j.daily.sunset[0]||null,
+    observedAt:cur.time||null,receivedAt:new Date().toISOString(),
+    source:'Open-Meteo',location:'Budapest'
+   };
+   window.SH9Weather=wx;
+   window.dispatchEvent(new CustomEvent('sh9:weather',{detail:wx}));
   }catch(e){
    weatherEl.textContent='Nem elérhető';
    weatherSub.textContent='Budapest · nincs friss adat';
    weatherCell.dataset.status='error';
    weatherCell.title='Az élő időjárás lekérése sikertelen';
+   window.SH9Weather=null;
+   window.dispatchEvent(new CustomEvent('sh9:weather-error'));
   }
  }
  function tick(){
