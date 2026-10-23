@@ -16,56 +16,48 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceResponse;
+import java.io.IOException;
 
 public final class MainActivity extends Activity {
     private static final String HOME =
-        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=21";
+        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=22";
     private WebView browser;
 
-    private static final String LAYOUT_SCRIPT =
-        "(function(){" +
-        "if(document.getElementById('sh9-native-fit'))return;" +
-        "var css=document.createElement('style');css.id='sh9-native-fit';" +
-        "css.textContent='" +
-          "html,body{overflow-x:hidden!important;overflow-y:auto!important;height:auto!important;min-height:100%!important;}" +
-          "body{background:#061327!important;}" +
-          ".wrap{box-sizing:border-box!important;width:min(100%,420px)!important;max-width:420px!important;" +
-          "height:auto!important;max-height:none!important;min-height:100dvh!important;overflow:visible!important;" +
-          "display:flex!important;flex-direction:column!important;margin:0 auto!important;" +
-          "padding:6px 7px calc(72px + env(safe-area-inset-bottom,0px))!important;}" +
-          ".hero.sh9-final-ready{width:100%!important;min-height:0!important;height:auto!important;" +
-          "aspect-ratio:1380 / 1001!important;flex:0 0 auto!important;" +
-          "margin:0 0 7px!important;overflow:hidden!important;}" +
-          ".hero.sh9-final-ready img{width:100%!important;height:100%!important;object-fit:contain!important;}" +
-          ".sh9-info{flex:0 0 auto!important;height:58px!important;min-height:58px!important;" +
-          "margin:0!important;}" +
-          ".grid{flex:0 0 auto!important;width:var(--sh9-native-grid,96%)!important;" +
-          "max-width:none!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;" +
-          "gap:6px!important;margin:7px auto 0!important;align-content:start!important;}" +
-          ".grid>.tile{aspect-ratio:1/1!important;min-height:0!important;width:100%!important;}" +
-          ".nav{position:fixed!important;left:50%!important;transform:translateX(-50%)!important;" +
-          "bottom:0!important;max-width:420px!important;width:100%!important;" +
-          "min-height:58px!important;z-index:40!important;}" +
-          "@media(orientation:landscape){.wrap{min-height:100dvh!important;}}';" +
-        "document.head.appendChild(css);" +
-        "var wrap=document.querySelector('.wrap'),hero=document.querySelector('.hero')," +
-        "info=document.getElementById('sh9InfoBar6'),grid=document.querySelector('.grid'),nav=document.querySelector('.nav');" +
-        "if(!wrap||!hero||!info||!grid||!nav)return;" +
-        "function fit(){" +
-        "var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;" +
-        "var sw=getComputedStyle(wrap);var maxW=wrap.clientWidth-(parseFloat(sw.paddingLeft)||7)-(parseFloat(sw.paddingRight)||7);" +
-        "var h=hero.getBoundingClientRect().height||maxW*1001/1380;" +
-        "var inf=info.getBoundingClientRect().height||58;var n=nav.getBoundingClientRect().height||62;" +
-        "var room=Math.floor(vh-(parseFloat(sw.paddingTop)||6)-h-7-inf-7-n-12);" +
-        "var width=Math.floor(Math.min(maxW*.96,390,room));" +
-        "if(width<282){width=Math.floor(Math.min(maxW*.96,390));}" +
-        "grid.style.setProperty('--sh9-native-grid',width+'px');" +
-        "}" +
-        "fit();window.addEventListener('resize',fit,{passive:true});" +
-        "if(window.visualViewport)window.visualViewport.addEventListener('resize',fit,{passive:true});" +
-        "var img=hero.querySelector('img');if(img)img.addEventListener('load',fit,{passive:true});" +
-        "window.scrollTo(0,0);" +
-        "})();";
+    // The approved SH9 v22 shell is bundled inside this APK.
+    // Only the Launcher is pinned. HealthHub/Guardian and external weather remain live.
+    // Serving local resources at their original HTTPS URLs preserves relative navigation
+    // and the same origin used by the live nameday/weather script.
+    private WebResourceResponse bundledLauncher(WebResourceRequest request) {
+        Uri uri = request.getUrl();
+        if (!"https".equalsIgnoreCase(uri.getScheme()) ||
+            !"zsoltandmonika-cloud.github.io".equalsIgnoreCase(uri.getHost())) return null;
+        String path = uri.getPath();
+        if (path == null) return null;
+        String name = null, mime = null;
+        if ("/berlet-app/sh9/".equals(path) || "/berlet-app/sh9/index.html".equals(path)) {
+            name = "index.html"; mime = "text/html";
+        } else if ("/berlet-app/sh9/SH9_official_v21.css".equals(path)) {
+            name = "SH9_official_v21.css"; mime = "text/css";
+        } else if ("/berlet-app/sh9/assets/SH9_Official_Hero_v21.webp".equals(path)) {
+            name = "SH9_Official_Hero_v21.webp"; mime = "image/webp";
+        } else if ("/berlet-app/sh9/assets/SH9_Official_Tiles_v21.webp".equals(path)) {
+            name = "SH9_Official_Tiles_v21.webp"; mime = "image/webp";
+        } else if ("/berlet-app/sh9/sh9-info-v6.js".equals(path)) {
+            name = "sh9-info-v6.js"; mime = "application/javascript";
+        } else if ("/berlet-app/healthhub/data/namedays.json".equals(path)) {
+            name = "namedays.json"; mime = "application/json";
+        }
+        if (name == null) return null;
+        try {
+            return new WebResourceResponse(mime,
+                mime.startsWith("image/") ? null : "UTF-8",
+                getAssets().open("sh9/" + name));
+        } catch (IOException error) {
+            // Fall back to the published GitHub content if local assets are corrupt.
+            return null;
+        }
+    }
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -99,6 +91,11 @@ public final class MainActivity extends Activity {
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         browser.setWebChromeClient(new WebChromeClient());
         browser.setWebViewClient(new WebViewClient() {
+            @Override public WebResourceResponse shouldInterceptRequest(
+                    WebView view, WebResourceRequest request) {
+                WebResourceResponse packaged = bundledLauncher(request);
+                return packaged != null ? packaged : super.shouldInterceptRequest(view, request);
+            }
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest req) {
                 Uri uri = req.getUrl();
                 if ("https".equalsIgnoreCase(uri.getScheme()) &&
@@ -111,12 +108,6 @@ public final class MainActivity extends Activity {
                     try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}
                 }
                 return true;
-            }
-            @Override public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                if (url.startsWith("https://zsoltandmonika-cloud.github.io/berlet-app/sh9/")) {
-                    // Official SH9 v21 includes its own unified responsive layout; do not inject legacy CSS.
-                }
             }
         });
         setContentView(browser);

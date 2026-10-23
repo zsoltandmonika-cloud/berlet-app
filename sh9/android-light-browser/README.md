@@ -11,3 +11,11 @@ Uses the real web app and its own SH9 bottom taskbar. This does NOT modify HH On
 - Does not implement background location or other Family Guard tracking.
 - APK is an independently debug-signed test build, NOT an OTA release or Play-distributed app.
 - If rebuilding the debug APK, Android may require uninstalling the prior version because runner debug signatures differ.
+
+## v0.1.2-test3 safety snapshot
+The approved v22 Launcher HTML, stylesheet, hero and tile images, live-info script,
+and Hungarian nameday data are bundled inside the APK and served via the HTTPS
+WebView request interceptor. The Launcher appearance therefore does not depend
+on GitHub Pages rendering or cache at startup. All other modules remain live.
+Weather still requires internet. Future changes to the packaged Launcher shell
+require a new APK; the public website continues updating separately.
