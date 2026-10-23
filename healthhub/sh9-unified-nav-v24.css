@@ -1,0 +1,44 @@
+/* SH9 v24 global dock · exact Golden Standard v23 visual language.
+   Does not modify v23 Launcher, premium glass content, navigation controllers, profiles, GPS. */
+html[data-sh9-unified-nav="on"] :is(#navHomeBar,#navHealthBar,#navTimelineBar,#navDetailBar,.hhBottomNav) {
+  display:none!important;
+}
+#sh9GlobalNavV24.sh9GlobalNavV24{
+  box-sizing:border-box!important;position:fixed!important;z-index:85!important;
+  bottom:0!important;left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  width:min(100%,420px)!important;min-height:60px!important;
+  margin:0!important;padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;
+  gap:1px!important;border:0!important;border-top:1px solid rgba(140,198,243,.25)!important;
+  border-radius:0!important;background:rgba(15,30,54,.97)!important;
+  box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  font-family:Inter,'Segoe UI',Roboto,sans-serif;color:#b9d0e8;
+}
+#sh9GlobalNavV24 button{
+  box-sizing:border-box!important;appearance:none;min-width:0!important;min-height:0!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:3px!important;padding:4px 0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;color:#b9d0e8!important;cursor:pointer;
+  font:500 10px/1.1 Inter,'Segoe UI',Roboto,sans-serif!important;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+#sh9GlobalNavV24 button svg{
+  display:block!important;width:22px!important;height:22px!important;
+  color:inherit!important;fill:none!important;stroke:currentColor!important;
+  stroke-width:1.85!important;stroke-linecap:round!important;stroke-linejoin:round!important;
+  filter:none!important;
+}
+#sh9GlobalNavV24 button span{font-size:10px!important;line-height:1.1!important;color:inherit!important;white-space:nowrap!important}
+#sh9GlobalNavV24 button.active{background:transparent!important;color:#77baff!important;box-shadow:none!important}
+#sh9GlobalNavV24 button.active svg{
+  color:#4f9cf2!important;background:rgba(237,247,255,.96)!important;
+  box-sizing:content-box!important;padding:6px!important;border-radius:50%!important;
+}
+#sh9GlobalNavV24 button:focus-visible{outline:2px solid #90cfff!important;outline-offset:-3px!important}
+html[data-sh9-unified-nav="on"] body{padding-bottom:max(66px,env(safe-area-inset-bottom,0px))}
+/* Transient no-route notices do not compete with the existing content or dialogs. */
+#sh9DockToastV24{position:fixed;z-index:88;bottom:calc(75px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:max-content;max-width:min(90vw,370px);padding:10px 14px;border:1px solid rgba(141,197,249,.55);border-radius:13px;background:#0d2949f2;color:#eef7ff;font:600 12px/1.4 Inter,'Segoe UI',sans-serif;box-shadow:0 7px 22px #0007;text-align:center}
+#sh9DockToastV24[hidden]{display:none!important}
