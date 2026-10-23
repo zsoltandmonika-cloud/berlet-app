@@ -427,7 +427,7 @@ test('v783 live person GPS marker uses circular authentic photo and profile-spec
  assert.equal(created[1].coord[0],19.05);
  // No extra upload or background tracking introduced by a cosmetic feature.
  assert.doesNotMatch(js,/sendBeacon|new WebSocket|fetch\(/);
- assert.match(js,/if\(d.hidden&&active\)\{stop\(\)/);
+ assert.match(js,/if\(d.hidden&&active\)\{stop\(true\)/,'screen-off suspends browser GPS without revoking last known location');
  assert.match(html,/guardian-map-palette-v781\.css/,'approved color map untouched');
  assert.match(html,/guardian-controls-v782\.css/,'approved glass map controls untouched');
  assert.match(html,/inset:auto auto 4px 4px!important/,'approved miniature hero switch untouched');
