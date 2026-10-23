@@ -346,6 +346,12 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 6, 0, 6)
         }
         root.addView(ownerLabel)
+        root.addView(Button(this).apply {
+            text = "🛡️ Family Guard · Folyamatos háttér-GPS"
+            setOnClickListener {
+                startActivity(Intent(this@MainActivity, GuardianNativeTrackingActivity::class.java))
+            }
+        })
 
         profileSpinner = Spinner(this)
         profileSpinner.adapter = ArrayAdapter(
