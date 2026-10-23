@@ -6,10 +6,14 @@ on:
     paths:
       - "healthhub/android-bridge/**"
       - ".github/workflows/healthhub-bridge-android.yml"
+  pull_request:
+    paths:
+      - "healthhub/android-bridge/**"
+      - ".github/workflows/healthhub-bridge-android.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: healthhub-bridge-android
