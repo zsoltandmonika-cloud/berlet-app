@@ -1,0 +1,31 @@
+/* SH9 Launcher Official v21. Approved 2026-10-23 image. Clean single-source mobile CSS. */
+:root {color-scheme:dark;--sh9-background:#031229;--sh9-blue:#65cbff;--sh9-pink:#ef83e0;--sh9-gap:7px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%;overflow-x:hidden}
+body{background:#030e22;color:#eef7ff;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
+.wrap{display:flex;flex-direction:column;gap:var(--sh9-gap);width:min(100%,420px);height:100dvh;min-height:0;margin:auto;padding:6px 7px 0;background:linear-gradient(180deg,#03132b,#031127 90%);overflow:hidden}
+.hero{flex:0 0 auto;width:100%;aspect-ratio:883 / 622;border-radius:17px;background:#06142b url('./assets/SH9_Official_Hero_v21.webp') center/100% 100% no-repeat;box-shadow:0 8px 22px #0004;overflow:hidden}
+.sh9-info{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1.19fr) minmax(0,1.05fr);height:64px;min-height:64px;flex:0 0 auto;border:1px solid #63c8ffb9;border-radius:17px;overflow:hidden;padding:5px 4px;background:linear-gradient(116deg,#082c51f5,#071c39fa);box-shadow:inset 0 1px 1px #e5f5ff42,0 4px 17px #0005}
+.sh9-info-cell{display:flex;flex-direction:column;gap:2px;justify-content:center;min-width:0;padding:1px 5px;overflow-wrap:anywhere}
+.sh9-info-cell+.sh9-info-cell{border-left:1px solid #76cfff6b}
+.sh9-info-heading{font-size:9px;font-weight:800;letter-spacing:.04em;color:#bde4ff;line-height:1.12}
+.sh9-info-value{font-size:11px;font-weight:780;color:#fcfdff;line-height:1.15}
+.sh9-info-sub{font-size:9px;font-weight:560;color:#c8e2f9;line-height:1.14}
+.sh9-info-status{font-size:9px}
+.grid{flex:0 0 auto;align-self:stretch;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin:clamp(0px,calc((100dvh - 760px)*.17),22px) 0 0;padding:0}
+.tile{appearance:none;display:block;position:relative;width:100%;min-width:0;aspect-ratio:1;border:0;outline:0;padding:0;border-radius:14px;overflow:hidden;background-image:url('./assets/SH9_Official_Tiles_v21.webp');background-repeat:no-repeat;background-size:300% 300%;background-color:#0a2649;box-shadow:0 3px 7px #0006;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.tile:nth-child(1){background-position:0% 0%}.tile:nth-child(2){background-position:50% 0%}.tile:nth-child(3){background-position:100% 0%}
+.tile:nth-child(4){background-position:0% 50%}.tile:nth-child(5){background-position:50% 50%}.tile:nth-child(6){background-position:100% 50%}
+.tile:nth-child(7){background-position:0% 100%}.tile:nth-child(8){background-position:50% 100%}.tile:nth-child(9){background-position:100% 100%}
+.tile:focus-visible{outline:3px solid #d9f6ff;outline-offset:2px}.tile:active{filter:brightness(1.17);transform:scale(.985)}
+.nav{margin-top:auto;flex:0 0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;min-height:70px;padding:5px 4px 6px;border-radius:17px 17px 0 0;border:1px solid #5fc6ffad;background:linear-gradient(115deg,#08294a,#061b36);box-shadow:0 -5px 23px #0209189c,inset 0 1px 0 #a5defe4d}
+.nav button{min-width:0;appearance:none;border:0;background:transparent;color:#b9dfff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;padding:5px 1px;font:500 10px/1.1 inherit;border-radius:14px}
+.nav button svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.nav button span{font-size:10px;white-space:nowrap}
+.nav button.active{background:linear-gradient(135deg,#154b86,#0d3266);color:#effdff;box-shadow:inset 0 0 0 1px #6ed0ffab,0 0 11px #328eff66}.nav button.active svg{color:#8ce8ff;filter:drop-shadow(0 0 4px #43a7ff)}
+.modal{position:fixed;inset:0;z-index:50;background:#000b;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}.modal.on{display:flex}
+.dialog{max-width:350px;width:100%;text-align:center;background:linear-gradient(130deg,#16375e,#06172f);border:1px solid #7acbffa1;border-radius:20px;box-shadow:0 10px 30px #0008;padding:20px}.dialog p{font-size:14px;line-height:1.45}.dialog button{border:1px solid #a4daff88;border-radius:13px;background:#225b94;color:#fff;padding:10px 20px;font:inherit}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;pointer-events:none}
+@media(max-height:760px){.wrap{height:auto;min-height:100dvh;overflow:visible;padding-bottom:77px}.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);z-index:9}.grid{margin-top:7px}}
+@media(max-width:360px){.wrap{padding-inline:6px}.sh9-info{height:60px;min-height:60px}.sh9-info-heading{font-size:8px}.sh9-info-value{font-size:10px}.sh9-info-sub{font-size:8px}.nav button span{font-size:9px}}
+/* Fill tall full-screen S24 layouts with slightly thicker glass information and navigation bars. */
+@media (min-height:820px) and (max-height:889px){.sh9-info{height:68px;min-height:68px}.nav{min-height:80px}}
+@media (min-height:890px){.sh9-info{height:76px;min-height:76px}.nav{min-height:86px}.grid{margin-top:30px}}

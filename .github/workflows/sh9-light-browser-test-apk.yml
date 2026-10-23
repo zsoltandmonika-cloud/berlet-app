@@ -44,15 +44,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk
-          gh release create sh9-light-browser-v0.1.0-test1 \
-            SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk \
-            --title "SH9 Light Browser · S24 Ultra Test 1" \
-            --notes "Installable experimental immersive SH9 viewer. Android status/navigation bars hidden; native WebView. Debug signed. Does not replace HH One." \
+          cp app/build/outputs/apk/debug/app-debug.apk SH9-Light-Browser-S24Ultra-v0.1.1-test2.apk
+          gh release create sh9-light-browser-v0.1.1-test2 \
+            SH9-Light-Browser-S24Ultra-v0.1.1-test2.apk \
+            --title "SH9 Light Browser · S24 Ultra Test 2" \
+            --notes "Installable official SH9 Launcher test with approved Premium Glass assets and responsive fit. Android status/navigation bars hidden; native WebView. Debug signed. Does not replace HH One." \
             --prerelease
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sh9-light-browser-test-apk
-          path: sh9/android-light-browser/SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk
+          path: sh9/android-light-browser/SH9-Light-Browser-S24Ultra-v0.1.1-test2.apk
           if-no-files-found: warn

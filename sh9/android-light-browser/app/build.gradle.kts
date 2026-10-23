@@ -6,8 +6,8 @@ android {
         applicationId = "hu.zsoltmonika.sh9light"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-test1"
+        versionCode = 2
+        versionName = "0.1.1-test2"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

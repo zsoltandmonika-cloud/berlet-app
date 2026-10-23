@@ -19,7 +19,7 @@ import android.webkit.WebViewClient;
 
 public final class MainActivity extends Activity {
     private static final String HOME =
-        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=18";
+        "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1&v=21";
     private WebView browser;
 
     private static final String LAYOUT_SCRIPT =
@@ -115,7 +115,7 @@ public final class MainActivity extends Activity {
             @Override public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 if (url.startsWith("https://zsoltandmonika-cloud.github.io/berlet-app/sh9/")) {
-                    view.evaluateJavascript(LAYOUT_SCRIPT, null);
+                    // Official SH9 v21 includes its own unified responsive layout; do not inject legacy CSS.
                 }
             }
         });
