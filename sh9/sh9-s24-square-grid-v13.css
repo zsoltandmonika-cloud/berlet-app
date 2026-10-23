@@ -1,0 +1,53 @@
+/* SH9 S24 Ultra mobile-fit v13 · CSS viewport reference: 384x832 / 400x867.
+   Native display: 1440x3120 (height/width 13/6 ≈ 2.167).
+   CSS pixels are not physical panel pixels. Only nine module tiles change.
+   Preserve user-approved Hero, 3 info cells and fixed bottom taskbar.
+   The natural surplus remains above the bottom-anchored module grid. */
+@media (max-width:519px){
+  .wrap{
+    min-height:100dvh;
+    /* Footer space matches the existing fixed SH9 taskbar and device safe area. */
+    padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));
+  }
+  .grid{
+    width:94%;
+    max-width:390px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:auto;
+    margin-bottom:3px;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    align-items:stretch;
+  }
+  .tile{
+    box-sizing:border-box;
+    display:flex;
+    aspect-ratio:1 / 1;
+    width:100%;
+    height:auto;
+    min-width:0;
+    min-height:0;
+    padding:5px 4px;
+    gap:5px;
+    justify-self:stretch;
+    align-items:center;
+    justify-content:center;
+  }
+  .tile-inner{
+    width:34px;
+    height:34px;
+    flex:0 0 auto;
+    max-height:none;
+  }
+  .tile .mod-name{
+    font-size:clamp(9px,2.7vw,11px);
+    line-height:1.16;
+  }
+}
+@media(max-width:360px){
+  .grid{width:96%;gap:5px}
+  .tile{padding:3px 2px;gap:3px}
+  .tile-inner{width:30px;height:30px}
+  .tile .mod-name{font-size:9px}
+}
