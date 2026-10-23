@@ -5,7 +5,7 @@
 .wrap{
  display:flex;flex-direction:column;
  min-height:100dvh;
- padding-bottom:calc(65px + env(safe-area-inset-bottom,0px));
+ padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));
 }
 .hero{flex:none;}
 .sh9-info{
@@ -37,7 +37,9 @@
  text-underline-offset:2px;
 }
 .sh9-info-link:focus-visible{outline:2px solid #8ad3ff;outline-offset:3px}
-.grid{margin-top:auto;margin-bottom:7px;flex:none}
+/* Keep all nine square tiles as one block just above the fixed taskbar.
+   Auto top margin absorbs leftover viewport height BETWEEN info strip and tiles. */
+.grid{margin-top:auto;margin-bottom:2px;flex:none}
 /* The status is still available when tapping an unfinished module.
    Do not let release-note text consume mobile viewport or overlap taskbar. */
 .disclaimer{display:none!important}
@@ -49,7 +51,7 @@
  .sh9-info-sub{font-size:8.2px}
 }
 @media(min-width:520px){
- .wrap{padding-bottom:76px}
+ .wrap{padding-bottom:60px}
 }
 @media(max-height:710px){
  .sh9-info{min-height:58px}
