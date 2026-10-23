@@ -75,12 +75,15 @@ function clear(){
  path=[];distance=0;last=null;
  $('guardianDistance').textContent='0 m';draw();
 }
-function stop(){
+function stop(temporary=false){
  const old=watchId;watchId=null;active=false;hasFix=false;
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
  renderButtons();report('GPS kikapcsolva');
  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
- if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsStopped();
+ if(w.HH_GUARDIAN_LIVE_V785){
+  if(temporary&&typeof w.HH_GUARDIAN_LIVE_V785.onGpsPaused==='function')w.HH_GUARDIAN_LIVE_V785.onGpsPaused();
+  else w.HH_GUARDIAN_LIVE_V785.onGpsStopped();
+ }
 }
 function makeOwnPositionNode(){
  // This represents the location of THIS DEVICE only. The profile is a visual
@@ -373,8 +376,8 @@ if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
   w.location.href='healthhubconnect://guardian';
  });
 }
-d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop();report('Háttérbe került a lap: GPS leállítva.')}});
-w.addEventListener('pagehide',stop);
+d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop(true);report('A böngésző GPS-e szünetel · az utolsó ismert családi hely megmarad.')}});
+w.addEventListener('pagehide',()=>stop(true));
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  stop();clear();if(marker){marker.remove();marker=null}hasFix=false;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
