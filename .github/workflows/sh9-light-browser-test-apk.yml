@@ -1,0 +1,58 @@
+name: SH9 Light Browser · S24 Ultra Test APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sh9/android-light-browser/**"
+      - ".github/workflows/sh9-light-browser-test-apk.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sh9-light-browser-apk
+  cancel-in-progress: false
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sh9/android-light-browser
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Install Android SDK 35
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - name: Fetch existing approved SH9 icon
+        run: |
+          mkdir -p app/src/main/res/drawable-nodpi
+          curl --fail --location --silent --show-error --retry 3 \
+            "https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/sh9/assets/sh9-icon.png" \
+            --output app/src/main/res/drawable-nodpi/sh9_launcher.png
+          file app/src/main/res/drawable-nodpi/sh9_launcher.png
+      - name: Assemble installable debug APK
+        run: gradle :app:assembleDebug --stacktrace
+      - name: Publish test installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk
+          gh release create sh9-light-browser-v0.1.0-test1 \
+            SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk \
+            --title "SH9 Light Browser · S24 Ultra Test 1" \
+            --notes "Installable experimental immersive SH9 viewer. Android status/navigation bars hidden; native WebView. Debug signed. Does not replace HH One." \
+            --prerelease
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sh9-light-browser-test-apk
+          path: sh9/android-light-browser/SH9-Light-Browser-S24Ultra-v0.1.0-test1.apk
+          if-no-files-found: warn
