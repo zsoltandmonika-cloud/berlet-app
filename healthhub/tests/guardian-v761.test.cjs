@@ -554,7 +554,7 @@ test('v785 Family Live exposes consented auth, six intervals, correct original p
  assert.match(guardian,/function startFollowing/,'four-in-one starts map following');
  assert.match(live,/onGpsFix/,'only genuine foreground GPS callbacks allowed');
  assert.match(live,/if\(!sharing\|\|sharingProfile!==k/,'no hidden upload while disabled');
- assert.match(live,/AGE_MS=20000/,'remove stale people after 20 seconds');
+ assert.match(live,/AGE_MS=20000,LAST_KNOWN_MS=12\*60\*60\*1000/,'after 20 s mark stale, keep time-stamped last known for 12 h');
  assert.match(live,/\.upsert\(payload,\{onConflict:'profile_key'\}\)/,'one latest position per authorized profile');
  assert.match(live,/\.delete\(\)\.eq\('profile_key',k\)\.eq\('owner_id',uid\)/,'stop clears the sender-owned position');
  assert.match(live,/document|d\.hidden/,'foreground only');
@@ -631,7 +631,7 @@ test('v785 never uploads on page load or sign-in; publishes real data only after
 
 test('v786 remembered owner consent restarts foreground 4-in-1 without another dialog; stop revokes it',async()=>{
  const source=read('guardian/guardian-live-v785.js');
- const controls={},listeners={},writes=[];
+ const controls={},listeners={},writes=[],deletions=[];
  const make=()=>({disabled:false,hidden:false,textContent:'',value:'',classList:{add(){},remove(){}},
   setAttribute(){},addEventListener(k,fn){this[k]=fn},click(){if(this.clickListener)this.clickListener()}});
  const doc={hidden:false,getElementById(id){return controls[id]||(controls[id]=make())},
@@ -641,7 +641,7 @@ test('v786 remembered owner consent restarts foreground 4-in-1 without another d
  const requests=()=>({select(){return this},in(){return Promise.resolve({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null})},
   eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
   upsert(payload){writes.push(payload);return Promise.resolve({error:null})},
-  delete(){return this},then(fn){return Promise.resolve({error:null}).then(fn)}});
+  delete(){deletions.push('delete');return this},then(fn){return Promise.resolve({error:null}).then(fn)}});
  let follows=0,dialogs=0;
  const auth={getUser(){return Promise.resolve({data:{user:{id:'test-owner'}},error:null})},
   onAuthStateChange(){},signOut(){return Promise.resolve({error:null})}};
@@ -663,11 +663,15 @@ test('v786 remembered owner consent restarts foreground 4-in-1 without another d
  doc.hidden=true;listeners.visibilitychange();
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false,'hidden page never shares');
+ assert.equal(deletions.length,0,'screen off never deletes the consented last known server location');
+ assert.match(controls.guardianLiveStatus.textContent,/utolsó ismert hely|Böngészős GPS szünetel/i);
  assert.equal(store['hh-guardian-foreground-auto-v786'],'zsolt','hiding does not revoke user choice');
  doc.hidden=false;listeners.visibilitychange();
  assert.equal(follows,2,'foreground return starts again after prior one-time consent');
  controls.guardianLiveStop.click();
  assert.equal(store['hh-guardian-foreground-auto-v786'],undefined,'explicit stop revokes persistent consent');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.ok(deletions.length>=1,'explicit stop deletes the previously published GPS location');
  assert.equal(win.HH_GUARDIAN_LIVE_V785.sharing,false);
  assert.equal(dialogs,0);
 });
