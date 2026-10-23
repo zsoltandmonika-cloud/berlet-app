@@ -5,9 +5,14 @@ plugins {
 
 // Reuse the PUBLIC browser Supabase configuration, no service_role secret in APK.
 val guardianPublicConfig = file("../../central-vault/config.js").readText()
-fun publicVaultField(name: String): String =
-    Regex(name + ":\\\\s*\\\"([^\\\"]+)\\\"").find(guardianPublicConfig)?.groupValues?.get(1)
-        ?: error("Missing public HealthHub configuration: $name")
+fun publicVaultField(name: String): String {
+    val row = guardianPublicConfig.lineSequence()
+        .firstOrNull { it.trimStart().startsWith(name + ":") }
+        ?: error("Missing public HealthHub configuration: " + name)
+    return row.substringAfter('"').substringBefore('"').also {
+        require(it.isNotBlank()) { "Empty public config field: " + name }
+    }
+}
 
 android {
     namespace = "hu.zsoltmonika.healthhubbridge"
@@ -20,9 +25,9 @@ android {
         versionCode = 26
         versionName = "0.14.6"
         buildConfigField("String", "GUARDIAN_SUPABASE_URL",
-            "\\""+publicVaultField("supabaseUrl")+"\\"")
+            "\"" + publicVaultField("supabaseUrl") + "\"")
         buildConfigField("String", "GUARDIAN_SUPABASE_PUBLISHABLE_KEY",
-            "\\""+publicVaultField("publishableKey")+"\\"")
+            "\"" + publicVaultField("publishableKey") + "\"")
     }
 
     buildFeatures {
