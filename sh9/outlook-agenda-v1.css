@@ -1,4 +1,13 @@
-/* SH9 Golden Standard Outlook Agenda v1: one compact calendar status + accessible sheet. */
+/* SH9 Golden Standard Outlook Agenda v3: entire compact calendar tile is a native button. */
+#sh9CalendarCell.sh9-calendar-click-target{
+ appearance:none;box-sizing:border-box;min-width:0;width:100%;height:100%;
+ border:0;border-left:1px solid #76cfff6b;
+ background:transparent;color:inherit;font:inherit;text-align:left;
+ cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(244,183,234,.12);
+}
+#sh9CalendarCell.sh9-calendar-click-target:focus-visible{outline:2px solid #f4b7ea;outline-offset:-2px;border-radius:7px}
+#sh9CalendarCell.sh9-calendar-click-target:active{background:rgba(212,121,237,.1)}
+
 .sh9-calendar-summary{
  appearance:none;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
  gap:3px;width:100%;min-width:0;margin:0;padding:0;border:0;border-radius:5px;
