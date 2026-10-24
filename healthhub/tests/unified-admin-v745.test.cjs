@@ -8,7 +8,7 @@ const source=fs.readFileSync(path.join(root,'hh-unified-admin-v745.js'),'utf8');
 const oldDataHub=fs.readFileSync(path.join(root,'live-v137.js'),'utf8');
 const touch=fs.readFileSync(path.join(root,'health-interactions-v552.js'),'utf8');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(index,/hh-unified-admin-v745\.js\?v=746-admin-contrast/);
+assert.match(index,/hh-unified-admin-v745\.js\?v=747-sh9-version-center/);
 assert.match(oldDataHub,/window\.haOpen=/);
 assert.match(source,/portal\.append\(overlay\)/);
 assert.match(touch,/root\.hhAdminGoInlineV745/);
