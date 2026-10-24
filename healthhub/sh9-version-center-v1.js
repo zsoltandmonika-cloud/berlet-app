@@ -68,6 +68,7 @@ function draw(){
  const status=d.getElementById(ID+'Status'),grid=d.getElementById(ID+'Grid');
  if(!status||!grid)return;
  status.textContent=loading?'Élő jelentések lekérése…':
+  state&&state.feedback?state.feedback:
   state&&state.error?'⚠ '+state.error:
   state?'Legutóbbi központi lekérés: '+date(state.readAt):
   'A verzióközpont a Dropbox-kapcsolat ellenőrzésére vár.';
@@ -122,8 +123,10 @@ async function refreshNow(force){
   const v=w.HH_DROPBOX_VAULT;
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function'||
      typeof w.hhOrchestratorDevices305!=='function'){
-   state={readAt:Date.now(),error:'A Dropbox Vault vagy az Orchestrator nincs csatlakoztatva. Az eszközállapot nem ellenőrizhető.',
-     model:MODEL.read(null,[],null,null,Date.now())};return;
+   const published=await Promise.allSettled([json('./data/bridge-ota.json'),json('../sh9/version.json')]);
+   const pub=i=>published[i].status==='fulfilled'?published[i].value:null;
+   state={readAt:Date.now(),error:'A Dropbox Vault vagy az Orchestrator nincs csatlakoztatva. A telefonok telepített verziója nem ellenőrizhető.',
+     model:MODEL.read(null,[],pub(0),pub(1),Date.now())};return;
   }
   const results=await Promise.allSettled([
    v.downloadJson(REG),w.hhOrchestratorDevices305(),
@@ -131,7 +134,7 @@ async function refreshNow(force){
   ]);
   const val=i=>results[i].status==='fulfilled'?results[i].value:null;
   const failed=results.map((x,i)=>x.status==='rejected'?['regiszter','eszközök','OTA leíró','webverzió'][i]:null).filter(Boolean);
-  state={readAt:Date.now(),error:failed.length?'Nem ellenőrizhető: '+failed.join(', '):'',
+  state={readAt:Date.now(),feedback:'',error:failed.length?'Nem ellenőrizhető: '+failed.join(', '):'',
     model:MODEL.read(val(0),val(1),val(2),val(3),Date.now())};
   lastRead=Date.now();
  }catch(e){state={readAt:Date.now(),error:'Verzióközpont hiba: '+String(e&&e.message||e).slice(0,120),
@@ -155,8 +158,8 @@ async function dispatch(owner){
   if(!valid)throw Error('A céltelefon nem egyezik a frissített regiszterrel.');
   const answer=await w.hhOrchestratorDispatchScope355(owner,id,'ota');
   const status=d.getElementById(ID+'Status');
-  if(status)status.textContent='✓ OTA CHECK kérés sorba állítva: '+String(answer.commandId||'')+'. Nem jelenti a frissítés végrehajtását.';
- }catch(e){const status=d.getElementById(ID+'Status');if(status)status.textContent='⚠ Nem sikerült: '+String(e&&e.message||e).slice(0,160)}
+  state.feedback='✓ OTA CHECK kérés sorba állítva: '+String(answer.commandId||'')+'. Nem jelenti a frissítés végrehajtását.';
+ }catch(e){state.feedback='⚠ Nem sikerült: '+String(e&&e.message||e).slice(0,160)}
  finally{interacting=false;draw();w.setTimeout(()=>void refreshNow(true),3000)}
 }
 function tick(){
