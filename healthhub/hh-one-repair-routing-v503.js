@@ -19,6 +19,7 @@
  });
  const PREFIX=Object.freeze({
   'OPS-DEVICE-':{group:'devices',target:'hhDeviceRegistry401',label:'Telefon kijelölésének ellenőrzése'},
+  'OPS-CANDIDATE-':{group:'devices',target:'hhDeviceRegistry401',label:'Friss, nem kijelölt telefon ellenőrzése'},
   'OPS-HEARTBEAT-':{group:'devices',target:'hhSyncOrchestrator305',label:'Telefonkapcsolat ellenőrzése'},
   'OPS-COMMAND-':{group:'devices',target:'hhSyncOrchestrator305',label:'Parancsállapot és napló megnyitása'},
   'OPS-WAIT-':{group:'devices',target:'hhSyncOrchestrator305',label:'Függőben lévő kérés megtekintése'}
