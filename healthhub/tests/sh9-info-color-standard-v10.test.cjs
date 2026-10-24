@@ -13,7 +13,7 @@ const stripe=html.slice(html.indexOf('<section id="sh9InfoBar6"'),html.indexOf('
 test('all three SH9 fixed category labels and nameday label use identical blue',()=>{
  assert.match(css,/#sh9InfoBar6 \.sh9-info-heading,[\s\S]*#sh9NamedayCell \.sh9-nameday-label\{color:#bde4ff\}/);
  for(const label of ['DÁTUM','IDŐJÁRÁS','NAPTÁR'])
-  assert.match(stripe,new RegExp('class="sh9-info-heading">'+label+'<\\\\/span>'));
+  assert.ok(stripe.includes('class="sh9-info-heading">'+label+'</span>'),label+' missing');
  assert.match(stripe,/<span class="sh9-nameday-label">NÉVNAP · <\/span>/);
  assert.doesNotMatch(stripe,/DÁTUM · NÉVNAP/);
 });
