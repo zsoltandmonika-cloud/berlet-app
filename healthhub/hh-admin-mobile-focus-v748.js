@@ -44,7 +44,7 @@ function style(){
   css.push('#'+ID+' .hhRegistryActionV809[hidden]{display:none!important}');
  css.push('html[data-hh-inline-admin="yes"] #'+ROOT+' .hhAdminGroupLabelV745{margin:2px 0 0!important;padding:13px!important}');
  const colors={architecture:['#203b65','#33578a'],cloud:['#104254','#256b78'],data:['#3c305b','#655183'],recovery:['#4c402f','#7a633f'],other:['#2b3a4e','#52647c']};
- for(const group of CATEGORIES.filter(g=>g.id!=='devices')){
+ for(const group of CATEGORIES.filter(g=>g.id!=='devices'&&g.id!=='registry')){
   const c=colors[group.id];
   css.push('#hhAdminGroup'+group.id+'V745{background:linear-gradient(125deg,'+c[0]+','+c[1]+')!important;border-color:'+c[1]+'!important}');
   css.push('html[data-hh-admin-focus="'+group.id+'"] #'+ROOT+' > *:not(#'+ID+'):not(#hhAdminGroup'+group.id+'V745):not([data-hh-admin-group="'+group.id+'"]){display:none!important}');
