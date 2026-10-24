@@ -22,3 +22,6 @@ require a new APK; the public website continues updating separately.
 
 ## v0.1.3-test4 · HealthHub Golden Standard visual uniformity
 Nine SH9 buttons are now real HealthHub-style Premium Glass DOM tiles, not slices of a raster atlas. The SH9 taskbar uses the HealthHub flat dark bottom strip; the center Ask Léna tile has a subtle pink-purple tint. The approved Buddy hero and all current routes remain. The complete v23 HTML/CSS is bundled within the APK.
+
+## v0.1.4-test5 · Ask Léna central entry (visual v23 unchanged)
+The center Ask Léna tile opens the configured original chatgpt.com ChatGPT Project directly. The only project URL setting lives in the HealthHub Admin Center; an unset APK is sent to the Admin config card. The external HTTPS destination uses Android's default browser via native ACTION_VIEW. The shared v712 project registry is loaded from the live HealthHub code, so it is not hardcoded in the APK. Each browser/WebView has its own same-origin localStorage, so the link must be configured once per browser/app until private authenticated cross-device sync is implemented. The approved Golden Standard v23 CSS, Hero, and 3×3 grid are not changed.
