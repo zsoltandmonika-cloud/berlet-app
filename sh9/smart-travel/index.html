@@ -8,9 +8,8 @@ button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipul
 .st-hero{position:relative;flex:0 0 auto;aspect-ratio:1402/1122;min-height:0;width:100%;border:1px solid rgba(180,217,255,.24);border-radius:17px;overflow:hidden;background:linear-gradient(140deg,#142949,#211e40);box-shadow:0 8px 22px #0007}
 .st-hero::after{content:"";pointer-events:none;position:absolute;inset:45% 0 0;background:linear-gradient(0deg,rgba(5,13,31,.53),transparent 75%)}
 .st-hero-image{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-.st-profile{position:absolute;left:9px;bottom:8px;z-index:2;display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:6px 12px;border:1px solid #79bfff;border-radius:999px;background:rgba(6,20,44,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:11px;font-weight:780;box-shadow:0 3px 12px #000a;cursor:pointer}
-html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56,.89)}
-.st-hero-title{position:absolute;z-index:2;top:10px;left:10px;max-width:calc(100% - 20px);padding:8px 12px 7px;border:1px solid rgba(182,224,255,.43);border-radius:13px;background:linear-gradient(115deg,rgba(5,21,47,.84),rgba(14,38,69,.60));backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);box-shadow:0 3px 14px rgba(2,7,23,.35)}
+.st-hero-overlay-stack{position:absolute;z-index:2;top:10px;left:10px;width:max-content;max-width:calc(100% - 20px);display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.st-hero-title{position:relative;max-width:100%;padding:8px 12px 7px;border:1px solid rgba(182,224,255,.43);border-radius:13px;background:linear-gradient(115deg,rgba(5,21,47,.84),rgba(14,38,69,.60));backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);box-shadow:0 3px 14px rgba(2,7,23,.35)}
 .st-hero-title h1{margin:0;color:#f4faff;font-size:19px;line-height:1.12;font-weight:810;letter-spacing:-.025em;text-shadow:0 2px 5px #0009}
 .st-hero-title p{margin:4px 0 0;color:#d1eaff;font-size:10px;line-height:1.12;white-space:nowrap;text-shadow:0 1px 5px #0009}
 .st-world{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 39px;align-items:stretch;gap:0;min-height:52px;padding:5px 5px;border:1px solid rgba(163,212,255,.30);border-radius:15px;background:linear-gradient(116deg,rgba(30,61,98,.85),rgba(16,28,53,.97));box-shadow:inset 0 1px rgba(255,255,255,.14)}
@@ -22,6 +21,25 @@ html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56
 .st-flight-link svg{height:21px;width:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .st-flight-link:focus-visible{outline:3px solid #b3f0ff;outline-offset:2px}
 .st-flight-link:active{filter:brightness(1.25)}
+
+/* Smart Travel Weather v3: compact translucent widget, no Hero profile control. */
+.st-weather{width:204px;max-width:100%;min-height:76px;padding:8px 10px 7px;display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden;text-decoration:none;color:#f2faff;border:1px solid rgba(182,224,255,.42);border-radius:13px;background:linear-gradient(135deg,rgba(7,23,46,.56),rgba(21,42,77,.40));backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);box-shadow:0 6px 17px rgba(0,8,25,.30);touch-action:manipulation}
+.st-weather-top{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.st-weather-city{font-size:11px;line-height:1.1;font-weight:780;color:#edfaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-weather-main{display:flex;align-items:center;gap:7px;line-height:1.05}
+.st-weather-icon{font-size:22px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 1px 3px #0005)}
+.st-weather-temp{font-size:22px;font-weight:820;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.st-weather-desc{max-width:100%;font-size:9.8px;font-weight:620;color:#e0f0ff;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-weather-attribution{font-size:8.5px;line-height:1.1;color:#b6daf5;white-space:nowrap}
+.st-weather:focus-visible{outline:3px solid #b3f0ff;outline-offset:2px}
+.st-weather:active{filter:brightness(1.17)}
+.st-clock{appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;touch-action:manipulation;border-radius:8px;transition:background .15s ease}
+.st-clock+.st-clock{border-left:1px solid rgba(142,195,235,.20)}
+.st-clock.is-active{background:rgba(120,191,251,.13);box-shadow:inset 0 0 0 1px rgba(146,219,255,.42)}
+.st-clock.is-active .st-city{color:#e9f7ff}
+.st-clock.is-active .st-time{color:#ffffff}
+.st-clock:focus-visible{outline:2px solid #b3f0ff;outline-offset:-2px}
+
 .st-grid{box-sizing:border-box;flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:6px;padding:9px 8px 10px;border:1px solid rgba(169,209,255,.19);border-radius:20px 20px 0 0;background:linear-gradient(145deg,rgba(29,58,96,.73),rgba(16,30,53,.93) 53%,rgba(44,33,71,.83));box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -4px 30px rgba(5,15,33,.22)}
 .st-tile{position:relative;isolation:isolate;min-width:0;min-height:0;padding:6px 2px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(165,210,250,.34);border-radius:17px;background:linear-gradient(144deg,rgba(95,160,231,.20),rgba(30,57,94,.42) 55%,rgba(70,43,99,.27));color:#eff8ff;box-shadow:inset 0 1px rgba(255,255,255,.19),0 8px 19px rgba(0,9,25,.27);backdrop-filter:blur(14px) saturate(145%);-webkit-backdrop-filter:blur(14px) saturate(145%);cursor:pointer}
 .st-tile::before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13),transparent 32%,rgba(255,255,255,.025) 82%)}
@@ -44,7 +62,7 @@ html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56
 .st-dialog h2{margin:0 0 9px;font-size:20px}.st-dialog p{margin:0 0 18px;color:#c8def4;font-size:13px;line-height:1.45}
 .st-dialog button{min-width:120px;min-height:42px;border:1px solid #b7e0ff8a;border-radius:13px;background:#24619a;color:white;font-weight:700;cursor:pointer}
 .st-toast{position:fixed;z-index:40;left:50%;bottom:calc(75px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:min(90vw,380px);padding:10px 13px;text-align:center;border:1px solid #99d1fc70;border-radius:13px;background:#123252f2;color:white;font-size:12px;box-shadow:0 8px 24px #0008}
-@media(max-width:365px){.st-grid{padding:7px 5px;gap:5px}.st-tile-orb{width:31px;height:31px}.st-tile-orb svg{width:19px;height:19px}.st-tile strong{font-size:10px}.st-tile small{font-size:8px}.st-world{grid-template-columns:repeat(4,minmax(0,1fr)) 35px;padding-inline:3px}.st-city{font-size:8.4px}.st-time{font-size:12px}.st-hero-title{top:8px;left:8px;padding:7px 10px}.st-hero-title h1{font-size:17px}}
+@media(max-width:365px){.st-grid{padding:7px 5px;gap:5px}.st-tile-orb{width:31px;height:31px}.st-tile-orb svg{width:19px;height:19px}.st-tile strong{font-size:10px}.st-tile small{font-size:8px}.st-world{grid-template-columns:repeat(4,minmax(0,1fr)) 35px;padding-inline:3px}.st-city{font-size:8.4px}.st-time{font-size:12px}.st-hero-overlay-stack{top:8px;left:8px;gap:5px}.st-hero-title{padding:7px 10px}.st-weather{width:190px;padding:6px 9px;min-height:71px}.st-hero-title h1{font-size:17px}}
 @media(max-height:755px){.st-shell{height:auto;min-height:100dvh;overflow:visible;padding-bottom:68px}.st-grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:auto}.st-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,420px);margin:0;z-index:15}}
 @media(min-width:700px){.st-shell{border-inline:1px solid rgba(134,192,243,.15)}}
 @media(prefers-reduced-motion:reduce){.st-tile{transition:none}}
@@ -53,15 +71,22 @@ html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56
 <main class="st-shell">
 <section class="st-hero" aria-label="Smart Travel · Róma, Párizs, Dubai · Léna, Mónika, Zsolt, Corky és Buddy">
 <img id="stHeroImage" class="st-hero-image" src="../assets/SH9_Smart_Travel_Hero_1402x1122.png" width="1402" height="1122" alt="Léna utazási kalauzként Róma, Párizs és Dubai kombinált panorámájára mutat Mónikával, Zsolttal, Corkyval és Buddyval">
+<div class="st-hero-overlay-stack">
+<a id="stWeatherWidget" class="st-weather" href="https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643" target="_blank" rel="noopener noreferrer external" aria-label="Budapest időjárás-előrejelzésének megnyitása" title="Budapest · részletes időjárás-előrejelzés" data-weather-status="loading">
+<span class="st-weather-top"><span id="stWeatherCity" class="st-weather-city">Budapest</span><span class="st-weather-attribution">Open-Meteo</span></span>
+<span class="st-weather-main"><span id="stWeatherIcon" class="st-weather-icon" aria-hidden="true">🌤️</span><strong id="stWeatherTemp" class="st-weather-temp">--°C</strong></span>
+<span id="stWeatherDesc" class="st-weather-desc" role="status" aria-live="polite">Időjárás betöltése…</span>
+<span class="st-weather-attribution">Előrejelzés ↗</span>
+</a>
 <div class="st-hero-title"><h1>Smart Travel</h1><p>Your journey. Smarter together.</p></div>
-<button id="stProfile" class="st-profile" type="button" aria-label="Profilváltás">Zsolt ⇄</button>
+</div>
 </section>
 <section class="st-world" aria-label="Élő világórák: New York, London, Paris, Budapest">
-<div class="st-clock"><span class="st-city">New York</span><time class="st-time" data-st-zone="America/New_York">--:--</time></div>
-<div class="st-clock"><span class="st-city">London</span><time class="st-time" data-st-zone="Europe/London">--:--</time></div>
-<div class="st-clock"><span class="st-city">Paris</span><time class="st-time" data-st-zone="Europe/Paris">--:--</time></div>
-<div class="st-clock"><span class="st-city">Budapest</span><time class="st-time" data-st-zone="Europe/Budapest">--:--</time></div>
-<a id="stFlightTracker" class="st-flight-link" href="https://www.flightradar24.com/" target="_blank" rel="noopener noreferrer external" aria-label="Élő repülőjárat-követés megnyitása a Flightradar24 oldalon" title="Flightradar24 · élő járatkövetés"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 16 9 2 5 4 2-1-2-7 6-5a2 2 0 0 0-2.6-3L13 11 6 6 4 8l5 7-5 3z"/></svg></a>
+<button class="st-clock" type="button" data-city="newyork" aria-label="New York időjárásának megjelenítése" aria-pressed="false"><span class="st-city">New York</span><time class="st-time" data-st-zone="America/New_York">--:--</time></button>
+<button class="st-clock" type="button" data-city="london" aria-label="London időjárásának megjelenítése" aria-pressed="false"><span class="st-city">London</span><time class="st-time" data-st-zone="Europe/London">--:--</time></button>
+<button class="st-clock" type="button" data-city="paris" aria-label="Paris időjárásának megjelenítése" aria-pressed="false"><span class="st-city">Paris</span><time class="st-time" data-st-zone="Europe/Paris">--:--</time></button>
+<button class="st-clock" type="button" data-city="budapest" aria-label="Budapest időjárásának megjelenítése" aria-pressed="true"><span class="st-city">Budapest</span><time class="st-time" data-st-zone="Europe/Budapest">--:--</time></button>
+<a id="stFlightTracker" class="st-flight-link" href="https://adsb.lol/" target="_blank" rel="noopener noreferrer external" aria-label="Ingyenes élő repülőjárat-követés megnyitása az ADSB.lol oldalon" title="ADSB.lol · élő járatkövetés"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 16 9 2 5 4 2-1-2-7 6-5a2 2 0 0 0-2.6-3L13 11 6 6 4 8l5 7-5 3z"/></svg></a>
 </section>
 <section class="st-grid" aria-label="Smart Travel kilenc kategóriája">
 <button type="button" class="st-tile" data-name="Trip Planner" data-href="../../healthhub/guardian/#hhSmartHubDestinationV802" aria-label="Trip Planner megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c4 0 4-7 8-7s4-7 8-7"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="5" r="2"/><path d="m10 4 3 3-3 3"/></svg></span><strong>Trip Planner</strong><small>Saját útvonaltervező</small></button>
@@ -86,17 +111,10 @@ html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56
 <div id="stToast" class="st-toast" role="status" aria-live="polite" hidden></div>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="./world-clocks-v2.js?v=2"></script>
+<script defer src="./weather-v3.js?v=3"></script>
 <script>(function(w,d){'use strict';
-const PROFILE_KEY='hh-profile';
 const qs=s=>d.querySelector(s);
 const go=relative=>w.location.assign(new URL(relative,d.baseURI).href);
-function profile(){try{return w.localStorage.getItem(PROFILE_KEY)==='m'?'m':'z'}catch(e){return 'z'}}
-function updateProfile(){const p=profile(),b=qs('#stProfile');d.documentElement.dataset.profile=p;b.textContent=(p==='m'?'Mónika':'Zsolt')+' ⇄';b.setAttribute('aria-label','Profilváltás '+(p==='m'?'Zsolt':'Mónika')+' profiljára')}
-let audio=null;
-function tap(){try{if(w.localStorage.getItem('hh-nutrition-PREVIEW-sound')==='off')return;const AC=w.AudioContext||w.webkitAudioContext;if(!AC)return;audio=audio||new AC();if(audio.state==='suspended')audio.resume();const t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=900;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.012,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.075);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.085)}catch(e){}try{w.navigator.vibrate&&w.navigator.vibrate(9)}catch(e){}}
-qs('#stProfile').addEventListener('click',()=>{try{w.localStorage.setItem(PROFILE_KEY,profile()==='m'?'z':'m')}catch(e){}tap();updateProfile();w.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile()}}))});
-updateProfile();
-w.addEventListener('storage',e=>{if(e.key===PROFILE_KEY)updateProfile()});
 const img=qs('#stHeroImage');img.addEventListener('error',()=>{if(!img.dataset.fallback){img.dataset.fallback='1';img.src='../assets/SH9_Official_Hero_v21.webp'}});if(img.complete&&img.naturalWidth===0)img.dispatchEvent(new Event('error'));
 const modal=qs('#stModal'),title=qs('#stModalTitle'),desc=qs('#stModalText'),close=qs('#stModalClose');
 const texts={'Road Travel':'Az autós útvonaltervezés, forgalom és parkolási lehetőségek még fejlesztés alatt állnak.',
