@@ -293,6 +293,10 @@
    <p class="guardian-live-auth" id="guardianLiveAuth">Belépés ellenőrzése…</p>
    <p class="guardian-live-note" id="guardianLocationSyncStatus">Helybeállítások · szinkronizáció előkészítése…</p>
    <p class="guardian-live-note" id="guardianLiveIdentity">Saját telefon: még nincs hozzárendelve</p>
+   <div id="guardianLiveOwnerHelp811" class="guardian-live-note" hidden role="alert">
+    ⚠️ Ez a böngésző egy másik családtag saját telefonjához van kötve. Ne állítsd át pusztán azért, mert profilt váltottál. Ha ténylegesen ez Mónika saját készüléke, külön jóváhagyással módosítható.
+   </div>
+   <button id="guardianLiveResolveOwner811" type="button" class="guardian-live-reset" hidden>📱 Saját telefon hozzárendelésének ellenőrzése</button>
    <div class="guardian-live-buttons">
     <button id="guardianLiveLogin" type="button">Google-belépés</button>
     <button id="guardianLiveLogout" type="button" hidden>Kijelentkezés</button>
@@ -315,6 +319,7 @@
     </label>
    </div>
    <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A Family Live csak külön engedéllyel küld helyadatot.</p>
+   <p id="guardianLiveGpsDetail811" class="guardian-live-note" role="status">⚪ Böngészős GPS: még nem indult. A HH One natív GPS ettől független.</p>
    <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
@@ -356,8 +361,8 @@
 <script defer src="./guardian-landmarks-v776.js?v=787-private-and-common"></script>
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./guardian.js?v=810-gps-signal-settings&service=806"></script>
-<script defer src="./guardian-live-v785.js?v=807-last-known"></script>
+<script defer src="./guardian.js?v=811-profile-gps-diagnostics&service=806"></script>
+<script defer src="./guardian-live-v785.js?v=811-profile-gps-diagnostics"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
