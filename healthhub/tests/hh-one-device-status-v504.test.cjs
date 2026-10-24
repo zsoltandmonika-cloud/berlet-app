@@ -79,3 +79,19 @@ test('Premium Glass correction is scoped to the Admin and deployed with cache bu
  assert.match(home,/hh-admin-device-contrast-v749\.css\?v=749-contrast&device=504/);
  assert.match(digital,/hh-one-rag-v500\.js\?v=504-glass-top-left&repair=503&device=504/);
 });
+
+test('phone-registry readback proof and actionable, stable central admin',()=>{
+ const registry=read('device-registry-v401.js');
+ assert.match(registry,/verified=await read\(\)/);
+ assert.match(registry,/verified\.activePhones\.monika!==next\.activePhones\.monika/);
+ assert.match(registry,/mentve és Dropboxból visszaellenőrizve/);
+ const center=read('sh9-version-center-v1.js');
+ assert.match(center,/Dropbox kapcsolat javítása/);
+ assert.match(center,/Telefon regisztrációjának javítása/);
+ assert.match(center,/gridKey===lastGridKey/);
+ assert.match(center,/registryVerified/);
+ const admin=read('hh-admin-mobile-focus-v748.js');
+ assert.match(admin,/Dropbox kapcsolat javítása/);
+ const rag=read('hh-one-rag-v500.js');
+ assert.match(rag,/\$id\(PANEL\)\?\.dataset\.open!=='1'/);
+});
