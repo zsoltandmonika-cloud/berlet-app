@@ -1,0 +1,7 @@
+{
+  "schema": "sh9.web.release/1",
+  "version": "2026.10.24.1",
+  "channel": "github-pages",
+  "description": "SH9 Premium Glass web Start Page · 3 tappable live information tiles + Outlook Agenda",
+  "tracking": "public web release marker; not proof of a particular WebView cache"
+}
