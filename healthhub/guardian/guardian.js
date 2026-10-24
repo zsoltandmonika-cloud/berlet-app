@@ -43,6 +43,11 @@ function theme(){
  }
 
 }
+function gpsDiagnostic(state,code){
+ try{w.localStorage.setItem('hh-service-guardian-gps-v806',JSON.stringify({
+  at:new Date().toISOString(),state,errorCode:[1,2,3].includes(code)?code:null
+ }))}catch(_){}
+}
 function report(s){
  status.textContent=s;
  const own=$('guardianMeState'),card=$('guardianMeCard');
@@ -78,7 +83,7 @@ function clear(){
 function stop(temporary=false){
  const old=watchId;watchId=null;active=false;hasFix=false;
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
- renderButtons();report('GPS kikapcsolva');
+ renderButtons();gpsDiagnostic(temporary?'paused':'stopped');report('GPS kikapcsolva');
  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(w.HH_GUARDIAN_LIVE_V785){
   if(temporary&&typeof w.HH_GUARDIAN_LIVE_V785.onGpsPaused==='function')w.HH_GUARDIAN_LIVE_V785.onGpsPaused();
@@ -125,6 +130,7 @@ function onPosition(pos){
  if(Number.isFinite(accuracy)&&accuracy>100){report('GPS aktív · pontatlan jel, nyomvonal szünetel');return}
  // Only an independently enabled Family Live module can publish a real fix.
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
+ gpsDiagnostic('fix');
  report('GPS aktív · élő pozíció');
  if(!last){path.push(coord);last=coord;draw();return}
  const delta=metres(last,coord);
@@ -138,11 +144,12 @@ function onGpsError(err){
  const text=err&&err.code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
   :err&&err.code===2?'Nem érkezik GPS-jel. Próbáld meg szabadtéren.'
   :'A GPS-jel nem érkezett meg időben. Indítsd újra a követést.';
- stop();report(text);
+ stop();gpsDiagnostic('error',err&&err.code);report(text);
 }
 function start(){
  if(active)return;
- if(!w.isSecureContext||!w.navigator.geolocation){report('Ehhez HTTPS és GPS-hozzáférés szükséges.');return}
+ if(!w.isSecureContext||!w.navigator.geolocation){gpsDiagnostic('unsupported');report('Ehhez HTTPS és GPS-hozzáférés szükséges.');return}
+ gpsDiagnostic('starting');
  active=true;hasFix=false;renderButtons();report('GPS-engedély kérése…');
  try{
   watchId=w.navigator.geolocation.watchPosition(onPosition,onGpsError,{enableHighAccuracy:true,maximumAge:10000,timeout:20000});

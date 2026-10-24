@@ -65,11 +65,25 @@ function consolidate(){
  var root=document.getElementById('healthSubContent');if(!root)return;
  busy=true;
  try{
+  const next=html(),current=document.getElementById(CARD_ID);
+  // Do not re-create a control when page focus or a passive render fires.
+  if(current&&current.parentNode===root){
+    for(const id of ['hhCloudVaultCard','hhDropboxVaultCard']){
+      const old=document.getElementById(id);if(old&&old.parentNode===root)old.remove();
+    }
+    if(current.innerHTML!==next&&!current.contains(document.activeElement)){
+      current.innerHTML=next;
+      (window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).cloudPaints=
+        (window.__hhServiceUiCountersV806.cloudPaints||0)+1;
+    }
+    return;
+  }
   removeLegacyCards(root);
   var card=document.createElement('div');
   card.id=CARD_ID;card.className='hhUnifiedCloudVault';
-  card.innerHTML=html();
-
+  card.innerHTML=next;
+  (window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).cloudPaints=
+    (window.__hhServiceUiCountersV806.cloudPaints||0)+1;
   var admin=document.getElementById('hhAdminMenuCard');
   if(admin&&admin.parentNode===root)root.insertBefore(card,admin);
   else root.insertBefore(card,root.firstChild);

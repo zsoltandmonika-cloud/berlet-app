@@ -307,7 +307,7 @@ function renderAdmin(){
  // Keep the current Orchestrator card stable during mobile swipe gestures.
  if(window.hhAdminScrollActiveV748?.()&&document.getElementById(ADMIN_ID))return;
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
- ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
+ ensureStyle();var old=document.getElementById(ADMIN_ID);
  var rows=deviceCache.map(function(d){
   var isPrimary=phoneRegistryCache&&eligiblePhone(d,phoneRegistryCache,'all');
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
@@ -317,8 +317,16 @@ function renderAdmin(){
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
- var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
- if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
+ // Skip identical DOM replacement; never steal focus during user interaction.
+ if(old&&old.parentNode===body&&old.outerHTML===html)return;
+ if(old&&old.contains(document.activeElement))return;
+ if(old&&old.parentNode===body){old.insertAdjacentHTML('afterend',html);old.remove();}
+ else {
+  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
+  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
+ }
+ (window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).orchPaints=
+   (window.__hhServiceUiCountersV806.orchPaints||0)+1;
  var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
  // Stable delegated handlers survive Admin panel redraws and do not create duplicate sends.
  ensureOrchestratorHandlers();
@@ -357,7 +365,10 @@ function attachAdmin(){
  adminObserver=new MutationObserver(function(){if(ov.classList.contains('on')){refreshAdmin();checkCommand(true)}});
  adminObserver.observe(ov,{attributes:true,attributeFilter:['class']});
  if(ov.classList.contains('on'))refreshAdmin();
- clearInterval(adminTimer);adminTimer=setInterval(function(){if(ov.classList.contains('on'))refreshAdmin()},30000);
+ clearInterval(adminTimer);adminTimer=setInterval(function(){
+ if(ov.classList.contains('on')&&document.visibilityState==='visible'&&
+    document.documentElement.dataset.hhInlineAdmin!=='yes')refreshAdmin();
+},60000);
 }
 function scheduleChecks(){
  clearInterval(visibleTimer);

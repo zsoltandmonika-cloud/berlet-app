@@ -142,6 +142,13 @@ function mount(){
   for(const x of [['hhDeviceRegistry401','📱 Eszközregiszter megnyitása'],['sh9VersionCenterV1','📦 APK és OTA állapot']]){
    const b=el('button','',x[1]);b.type='button';b.addEventListener('click',()=>jump(x[0]));actions.appendChild(b);
   }
+  const service=el('button','', '🛠️ Léna Service Portal');
+  service.type='button';service.addEventListener('click',()=>{
+    if(w.HH_SERVICE_PORTAL_V806&&typeof w.HH_SERVICE_PORTAL_V806.open==='function')
+      w.HH_SERVICE_PORTAL_V806.open();
+    else help('A Service Portal még nem töltődött be. Frissítsd az SH9 webes felületét.');
+  });
+  actions.appendChild(service);
   const cloudFix=el('button','', '☁️ Dropbox kapcsolat javítása');
   cloudFix.type='button';cloudFix.addEventListener('click',()=>openTarget('cloud','hhUnifiedCloudVaultCard'));
   actions.appendChild(cloudFix);
