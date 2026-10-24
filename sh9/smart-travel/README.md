@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v3
+# SH9 · Smart Travel · Golden Standard v5
 
 ## Purpose and compatibility
 - Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
@@ -20,7 +20,7 @@
 - Budapest is selected when the page first opens.
 
 ## Weather widget v3
-- Compact transparent dark-glass card at the **Hero's upper left**, with the Smart Travel title **below** it.
+- Compact transparent dark-glass weather card at the **Hero's upper right**, without any Smart Travel title plaque on the Hero.
 - Defaults to **Budapest** as the agreed home-city/local-weather fallback. This is NOT the device's GPS location; no geolocation permission is requested.
 - Selected city's public coordinates are fetched from Open-Meteo, using `https://api.open-meteo.com/v1/forecast`, `current=temperature_2m,weather_code,is_day`. No key. Noncommercial Open-Meteo usage, attribution shown in the card.
 - Cached ten minutes per city, periodic stale refresh and refresh after tab resume. Valid loading/error states are shown instead of fabricated temperatures.
@@ -39,3 +39,10 @@
 - Weather and Smart Travel title cards are equal width (220 px regular, 200 px on narrow mobile) with aligned left/right edges and the same border radius.
 - Both surfaces use shared `--st-hero-glass-fill`, `--st-hero-glass-border`, and `--st-hero-glass-shadow` variables: cooler dark-blue Premium Glass, moderately increased transparency with `rgba(8,24,48,.46)` → `rgba(20,42,77,.30)`, consistent 12 px blur.
 - Only these two hero card styles change. Live weather, city selection, world clocks, tracker and 3×3 Golden Standard tiles are untouched.
+
+## v5 · Top-right weather only
+- Weather widget relocated to **top: 10px; right: 10px**, maintaining existing width, colors and forecast interaction.
+- On narrow mobile screens: **top: 8px; right: 8px; width: 200px**.
+- The Smart Travel title plaque and its subtitle, associated HTML and unused CSS were **removed**, freeing the panorama from an unnecessary overlay. The page's HTML document title and its SH9 tile name remain Smart Travel.
+- The previously used v4 matching-pair CSS remains documented as historical development context only.
+- Everything below the Hero (world clocks, ADSB.lol, 3×3 tiles, bottom navigation), weather service and API requests are unchanged.
