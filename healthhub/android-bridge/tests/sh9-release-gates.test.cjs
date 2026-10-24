@@ -18,8 +18,8 @@ const version = gradle.match(/versionName\s*=\s*"([^"]+)"/)?.[1];
 
 test('single signed HH One package identity and monotonic staged OTA version', () => {
   assert.match(gradle, /applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.equal(code, 28);
-  assert.equal(version, '0.15.1');
+  assert.equal(code, 29);
+  assert.equal(version, '0.15.2');
   assert.equal(ota.applicationId, 'hu.zsoltmonika.healthhubbridge');
   assert.ok(Number.isInteger(code) && code >= ota.versionCode);
   if (code === ota.versionCode) assert.equal(version, ota.version);
@@ -50,6 +50,20 @@ test('GPS is opt-in, permission-gated, user-stoppable and does not request backg
   assert.match(activity, /SH9 legyen a kezdőoldal: KI/);
   assert.match(activity, /GPS bekapcsolása/);
   assert.match(activity, /GPS leállítása/);
+});
+
+test('SH9 native browser opens HH One settings in the SAME signed package without an SH9 loop',()=>{
+  assert.match(manifest, /android:scheme="healthhubconnect" android:host="settings"/);
+  assert.match(shell,/request\.isForMainFrame && u\.scheme == "healthhubconnect"/);
+  assert.match(shell,/u\.host == "settings"/);
+  assert.match(shell,/source\.host == HOST/);
+  assert.match(shell,/Intent\(this@Sh9WebActivity, MainActivity::class\.java\)/);
+  assert.match(shell,/FLAG_ACTIVITY_REORDER_TO_FRONT/);
+  assert.match(shell,/finish\(\)/);
+  assert.match(activity,/intent\?\.getBooleanExtra\("openNativeSettings", false\) != true/);
+  assert.match(activity,/intent\?\.data == null/);
+  assert.match(activity,/"settings" ->/);
+  assert.doesNotMatch(shell,/addJavascriptInterface/);
 });
 
 test('SH9 native browser uses private browser-owned Microsoft session handoff', () => {
