@@ -10,7 +10,7 @@ var PANEL='hhDeviceRegistry401', STYLE='hhDeviceRegistry401Style';
 var registry=null,devices=[],loading=false,writing=false,syncing=false,error='',note='',observer=null,timer=null,interactionUntil=0;
 var idOK=function(id){return typeof id==='string'&&/^[a-zA-Z0-9-]{1,90}$/.test(id)};
 var clean=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]})};
-var online=function(d){var n=Date.parse(d.lastSeenAt||'');return Number.isFinite(n)&&Date.now()-n<=20*60000};
+var online=function(d){var n=Date.parse(d.lastSeenAt||'');var age=Date.now()-n;return Number.isFinite(n)&&age>=0&&age<=20*60000};
 var stamp=function(s){var n=Date.parse(s||'');return Number.isFinite(n)?new Date(n).toLocaleString('hu-HU'):'Nincs adat'};
 var stub=function(){return {schema:'healthhub.device_registry/1',activePhones:{zsolt:null,monika:null},archived:[],history:[],updatedAt:null}};
 var api=function(){return window.HH_DROPBOX_VAULT};
@@ -41,14 +41,24 @@ function badge(d){
  var state=String(d.status&&d.status.state||'nincs parancs').toLowerCase();
  var expires=state==='pending'&&Date.now()-Date.parse(d.status.updatedAt||0)>24*3600*1000;
  if(expires)state='régi pending';
- return '<small>Utolsó jelentkezés: '+clean(stamp(d.lastSeenAt))+' · '+(online(d)?'🟢 jelenleg elérhetőnek tűnik':'⚪ nincs friss jelentkezés')+'<br>Parancs: '+clean(state)+' · '+clean(d.build||'verzió ismeretlen')+'</small>';
+ var sel=chosen(d),fresh=online(d);
+ var evidence=fresh?(sel?'🟢 friss jelentés a KIJELÖLT telefontól':'🟣 friss jelentés, de NINCS kijelölve'):
+   (sel?'🟠 a KIJELÖLT telefon jelentése elavult':'⚪ csak régi készülékjelentés');
+ return '<small>Utolsó Android-jelentés: '+clean(stamp(d.lastSeenAt))+
+  '<br><span class="hhRegSignal504">'+evidence+'</span><br>Parancs: '+clean(state)+
+  ' · APK: '+clean(d.build||'verzió ismeretlen')+
+  '<br><span class="hhRegEvidence504">A jelentkezés nem bizonyít sikeres Health Connect adatfeltöltést.</span></small>';
 }
 function row(d,p){
- var active=chosen(d),archived=!!(registry&&registry.archived.includes(d.deviceId));
- var tag=active?'✅ KIJELÖLT':archived?'📦 ARCHIVÁLT':'NINCS KIJELÖLVE';
- return '<div class="hhRegRow401"><div><b>'+label(d)+'</b><small>'+tag+'</small>'+badge(d)+'</div><div class="hhRegBtns401">'+
+ var active=chosen(d),archived=!!(registry&&registry.archived.includes(d.deviceId)),fresh=online(d);
+ var tag=active?'✅ KIJELÖLT FŐ TELEFON':archived?'📦 ARCHIVÁLT':
+   fresh?'🟣 FRISS, DE NINCS KIJELÖLVE':'⚪ KORÁBBI REGISZTRÁCIÓ';
+ var notice=!active&&!archived&&fresh?
+  '<p class="hhRegSuggestion504">Ellenőrizhető új Android-bejegyzés. Ha ez a profil aktuális fizikai telefonja, a Kijelölés gombbal teheted fő telefonná.</p>':
+  active&&!fresh?'<p class="hhRegAlert504">Ennek a kijelölt telefonnak nincs friss jelentése. A régi PENDING vagy DONE parancs nem friss kapcsolat.</p>':'';
+ return '<div class="hhRegRow401'+(active&&!fresh?' hhRegStale504':!active&&fresh?' hhRegCandidate504':'')+'"><div><b>'+label(d)+'</b><small>'+tag+'</small>'+badge(d)+notice+'</div><div class="hhRegBtns401">'+
  (active?'<button data-hh-reg-action="sync" data-id="'+clean(d.deviceId)+'">🔄 SYNC NOW</button>':
- '<button data-hh-reg-action="'+(archived?'restore':'choose')+'" data-id="'+clean(d.deviceId)+'">'+(archived?'↩ Visszaállítás':'✓ Kijelölés')+'</button>')+
+ '<button data-hh-reg-action="'+(archived?'restore':'choose')+'" data-id="'+clean(d.deviceId)+'">'+(archived?'↩ Visszaállítás':'✓ Kijelölés fő telefonnak')+'</button>')+
  (!active&&!archived?'<button data-hh-reg-action="archive" data-id="'+clean(d.deviceId)+'">📦 Archiválás</button>':'')+
  '</div></div>';
 }
@@ -67,16 +77,38 @@ function panel(force){
  ['zsolt','monika'].forEach(function(p){
   var name=p==='zsolt'?'Zsolt':'Mónika',items=candidates(p);
   var primary=registry&&registry.activePhones[p];
-  var matched=items.some(function(d){return d.deviceId===primary});
-  html+='<div class="hhRegGroup401"><h4>'+name+' · '+(matched?'✅ kijelölt telefon':primary?'⚠️ kijelölt telefon nem jelentkezett':'⚪ kijelölés szükséges')+'</h4>'+
-  (items.length?items.map(function(d){return row(d,p)}).join(''):
-     '<p class="hhRegNoNative401">'+(primary?
-       'A korábban kijelölt telefon nem küldött most ellenőrizhető Android-jelentést. ':
-       'Még nem érkezett ellenőrizhető Android-jelentés ehhez a profilhoz. ')+
-       'Nyisd meg a <b>HH One / HH Connect natív alkalmazást</b> ezen a telefonon, '+
-       'ellenőrizd a tulajdonosprofilt és a Dropbox-kapcsolatot, indíts kézi szinkront, '+
-       'majd nyomd meg itt az <b>Állapot frissítése</b> gombot. '+
-       'A webes kliens nem helyettesíti az Android-eszközjelentést.</p>')+'</div>';
+  var selected=items.find(function(d){return d.deviceId===primary&&!registry.archived.includes(d.deviceId)});
+  var freshSelected=selected&&online(selected);
+  var recentOther=items.filter(function(d){return !chosen(d)&&!registry.archived.includes(d.deviceId)&&online(d)})
+   .sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
+  var oldOthers=items.filter(function(d){return !chosen(d)&&!recentOther.includes(d)});
+  var state=freshSelected?'✅ kijelölt fő telefon frissen jelentkezett':
+   primary?'⚠️ kijelölt fő telefonja nem adott friss jelentést':'⚠️ nincs kijelölt fő telefon';
+  html+='<div class="hhRegGroup401"><h4>'+name+' · '+state+'</h4>';
+  if(!freshSelected&&recentOther.length){
+   html+='<p class="hhRegAlert504">⚠️ '+name+': a kijelölt telefon nem jelentkezik frissen, '+
+      'de '+recentOther.length+' másik, friss Android-bejegyzés található. '+
+      'Ellenőrizd a készüléket és a profilt, majd szükség esetén jelöld ki az új fő telefont. '+
+      'Ez nem történik meg automatikusan.</p>';
+  }
+  if(selected)html+=row(selected,p);
+  if(recentOther.length){
+   html+='<h5 class="hhRegCandidateTitle504">🟣 Friss, de NEM kijelölt telefon'+(recentOther.length>1?'ok':'')+'</h5>';
+   html+=recentOther.map(function(d){return row(d,p)}).join('');
+  }
+  if(oldOthers.length){
+   html+='<details class="hhRegOld504"><summary>Korábbi regisztrációk ('+oldOthers.length+') · kibontás</summary>'+
+       oldOthers.map(function(d){return row(d,p)}).join('')+'</details>';
+  }
+  if(!items.length){
+   html+='<p class="hhRegNoNative401">'+(primary?
+      'A korábban kijelölt telefonhoz most nincs ellenőrizhető Android-bejegyzés. ':
+      'Még nem érkezett ellenőrizhető Android-jelentés ehhez a profilhoz. ')+
+      'Nyisd meg a <b>HH One / HH Connect natív alkalmazást</b> ezen a telefonon, '+
+      'ellenőrizd a tulajdonosprofilt és a Dropbox-kapcsolatot, indíts kézi szinkront, '+
+      'majd nyomd meg itt az <b>Állapot frissítése</b> gombot.</p>';
+  }
+  html+='</div>';
  });
  var web=devices.filter(function(d){return d.deviceType!=='android'}),others=devices.filter(function(d){return d.deviceType==='android'&&!isPhone(d)});
  html+='<details class="hhRegMinor401"><summary>💻 Webes kliensek ('+web.length+') és ismeretlen Android ('+others.length+')</summary>'+
@@ -116,7 +148,11 @@ async function saveChange(action,dev){
   var next=normalize(current),pre={activePhones:Object.assign({},current.activePhones),archived:current.archived.slice()};
   if(action==='choose'){
    if(next.activePhones[d.activeProfile]===d.deviceId&&!next.archived.includes(d.deviceId))return;
-   if(!confirm('Biztosan a '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' profil fő telefonja legyen ez a készülék?\nAzonosító: '+d.deviceId))return;
+   if(!online(d))throw Error('Csak friss Android-jelentésű telefon jelölhető ki. Előbb nyisd meg a HH One Connectet a készüléken.');
+   if(!confirm('Ez a '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' profil MOST HASZNÁLT fizikai telefonja?\n\n'+
+      'Új Android ID: '+d.deviceId+'\nUtolsó jelentés: '+stamp(d.lastSeenAt)+
+      '\nAPK: '+(d.build||'ismeretlen')+
+      '\n\nA régi kijelölés megváltozik, de semmilyen eszköz- vagy egészségadatot nem törlünk.'))return;
    next.activePhones[d.activeProfile]=d.deviceId;
    var other=d.activeProfile==='zsolt'?'monika':'zsolt';
    if(next.activePhones[other]===d.deviceId)next.activePhones[other]=null;
