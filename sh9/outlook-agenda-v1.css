@@ -6,10 +6,12 @@
 }
 .sh9-calendar-summary .sh9-info-value{max-width:100%;font-size:9.5px;line-height:1.2;overflow-wrap:anywhere}
 .sh9-calendar-summary .sh9-info-sub{max-width:100%;font-size:8.6px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Golden pink/purple applies only to genuine calendar values, never to connection errors. */
+#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-value{color:#f4b7ea}
+#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-sub{color:#d8bafa}
 .sh9-calendar-summary:focus-visible{outline:2px solid #b9e9ff;outline-offset:3px}
 #sh9CalendarCell[data-status="conflict"] .sh9-info-value{color:#ffd6ad}
 #sh9CalendarCell[data-status="conflict"] .sh9-info-heading{color:#ffd8b6}
-#sh9CalendarCell[data-status="ready"] .sh9-info-value{color:#d7f7ff}
 #sh9CalendarCell[data-status="error"] .sh9-info-value{color:#ffd9d9}
 .sh9-agenda-overlay[hidden],.sh9-agenda-setup[hidden],.sh9-agenda-actions [hidden]{display:none!important}
 .sh9-agenda-overlay{
@@ -49,8 +51,8 @@
 .sh9-agenda-day{margin:18px 0 9px;font-weight:800;font-size:13px;color:#d6ebff;text-transform:capitalize}
 .sh9-agenda-event{position:relative;padding:10px 11px;margin-bottom:7px;border:1px solid rgba(151,199,244,.19);border-radius:12px;background:rgba(107,169,240,.09);min-width:0}
 .sh9-agenda-event.is-conflict{border-color:rgba(255,186,98,.59);background:rgba(156,89,43,.18)}
-.sh9-agenda-hour{font-size:10px;color:#b9d8f5;font-weight:740}
-.sh9-agenda-subject{margin:4px 0 0;color:#f4f9ff;font-size:12px;line-height:1.25;font-weight:720;overflow-wrap:anywhere}
+.sh9-agenda-hour{font-size:10px;color:#d8bafa;font-weight:740}
+.sh9-agenda-subject{margin:4px 0 0;color:#f4b7ea;font-size:12px;line-height:1.25;font-weight:720;overflow-wrap:anywhere}
 .sh9-agenda-collision{display:inline-block;margin-top:6px;font-size:10px;color:#ffd3a5;font-weight:800}
 .sh9-agenda-empty{color:#c4d9ee;font-size:12px}
 .sh9-agenda-outlook-footer{margin:11px 0 4px}
