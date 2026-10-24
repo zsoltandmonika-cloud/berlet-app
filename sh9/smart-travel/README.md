@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v5
+# SH9 · Smart Travel · Golden Standard v6
 
 ## Purpose and compatibility
 - Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
@@ -46,3 +46,9 @@
 - The Smart Travel title plaque and its subtitle, associated HTML and unused CSS were **removed**, freeing the panorama from an unnecessary overlay. The page's HTML document title and its SH9 tile name remain Smart Travel.
 - The previously used v4 matching-pair CSS remains documented as historical development context only.
 - Everything below the Hero (world clocks, ADSB.lol, 3×3 tiles, bottom navigation), weather service and API requests are unchanged.
+
+## v6 · Kompakt időjárás-widget
+- Jobb felső Hero-időjáráskártya: **196 px** széles (korábban 220 px), keskeny mobilon **184 px** (korábban 200 px).
+- Minimum magasság **68 px**, keskeny mobilon **65 px**; enyhén kompaktabb ikonok és betűk a jó olvashatóság megtartásával.
+- Glass háttér áttetszőbb: gradient `rgba(8,24,48,.38)` → `rgba(20,42,77,.23)`; egységes lágyabb keret/árnyék.
+- Változatlan: jobb felső elhelyezés, Smart Travel Hero-label nélküli háttér, négy világóra, Budapest alapértelmezett időjárás, világóra→weather váltás, előrejelzés-link, ADSB.lol és kilenc csempe.
