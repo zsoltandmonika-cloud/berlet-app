@@ -142,6 +142,9 @@ function mount(){
   for(const x of [['hhDeviceRegistry401','📱 Eszközregiszter megnyitása'],['sh9VersionCenterV1','📦 APK és OTA állapot']]){
    const b=el('button','',x[1]);b.type='button';b.addEventListener('click',()=>jump(x[0]));actions.appendChild(b);
   }
+  const cloudFix=el('button','', '☁️ Dropbox kapcsolat javítása');
+  cloudFix.type='button';cloudFix.addEventListener('click',()=>openTarget('cloud','hhUnifiedCloudVaultCard'));
+  actions.appendChild(cloudFix);
   // Keep the existing six category cards. One direct Calendar settings link
   // appears only in Cloud & AI; authentication stays in the first-party browser.
   const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
