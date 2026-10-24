@@ -204,8 +204,12 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  latestError({code:3});
  assert.equal(w.HH_GUARDIAN_V761.active,true,'20s timeout does not stop the GPS watch');
  assert.deepEqual(stopped,[],'timeout must not clearWatch');
- assert.match(controls.guardianStatus.textContent,/új jelre várunk/);
+ assert.match(controls.guardianStatus.textContent,/szabad ég alatt/);
  assert.match(controls.guardianMapLabel.textContent,/NINCS FRISS POZÍCIÓ/);
+ latestPosition({coords:{latitude:47.5,longitude:19.04,accuracy:180},timestamp:Date.now()});
+ assert.match(controls.guardianStatus.textContent,/100 m felett/,'inaccurate position explains waiting');
+ assert.match(controls.guardianMeState.textContent,/GPS-jelre vár/,'poor accuracy must not fake LIVE');
+ assert.match(controls.guardianMapLabel.textContent,/NEM ÉLŐ/);
  latestPosition({coords:{latitude:47.5,longitude:19.04,accuracy:15},timestamp:Date.now()});
  assert.equal(w.HH_GUARDIAN_V761.active,true,'fresh real position recovers same watch');
  assert.match(controls.guardianStatus.textContent,/GPS aktív/);
@@ -1101,4 +1105,16 @@ test('v800 original Family Guard loads the approved compact live glass set',()=>
  assert.match(glass,/hh-bkk-glass--hev/);
  assert.match(glass,/height:30px;min-width:70px/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
+});
+
+test('Android Guardian button targets a real handled HH One native settings deep-link',()=>{
+ const guardian=read('guardian/guardian.js');
+ const native=read('android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt');
+ const manifest=read('android-bridge/app/src/main/AndroidManifest.xml');
+ const html=read('guardian/index.html');
+ assert.match(guardian,/healthhubconnect:\/\/settings/);
+ assert.doesNotMatch(guardian,/healthhubconnect:\/\/guardian/);
+ assert.match(native,/u\.host == "settings"/);
+ assert.match(manifest,/android:host="settings"/);
+ assert.match(html,/HH One · GPS és Android-engedélyek/);
 });
