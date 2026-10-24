@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v8
+# SH9 · Smart Travel · Golden Standard v9
 
 ## Purpose and compatibility
 - Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
@@ -62,3 +62,7 @@
 - Keep current widget 118px width (110px at narrow mobile), glass opacity and weather behavior unchanged.
 - Move right/up by 4px: desktop `top:6px; right:6px`, narrow mobile by 3px: `top:5px; right:5px`.
 - No other layout or functional changes.
+
+## v9 · Utolsó +1/+1 pixeles korrekció
+- Weather widget 1 px-szel feljebb/jobbra: normál elhelyezés `top:5px; right:5px`; keskeny mobilon `top:4px; right:4px`.
+- Megjelenés és funkciók változatlanok.
