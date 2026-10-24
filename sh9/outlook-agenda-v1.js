@@ -110,6 +110,8 @@
  }
  async function silentlyResumeMicrosoft(){
   if(NATIVE||!priorApproved()||!cfg)return false;
+  // If a live refresh credential merely hit a network error, do not redirect.
+  if(refreshToken&&refreshIssuedAt&&Date.now()-refreshIssuedAt<23*60*60*1000)return false;
   const last=Number(local(SILENT_ATTEMPT_KEY)||0);
   if(last>0&&Date.now()-last<SILENT_RETRY_MS)return false;
   // One top-level prompt=none attempt, no redirect loops and no browser iframes.
@@ -193,7 +195,7 @@
    await persistRefreshAfterVerify();
    saveLocal(TRUST_KEY,JSON.stringify({clientId:cfg.clientId,account:cfg.account}));
    await sync(true);
-  }catch(e){disconnectSession();setCard('Nincs összekötve','Microsoft hitelesítés sikertelen','error');setStatus('Belépési hiba: '+escapeMessage(e))}
+  }catch(e){await forgetStoredSession();setCard('Nincs összekötve','Microsoft hitelesítés sikertelen','error');setStatus('Belépési hiba: '+escapeMessage(e))}
   return true;
  }
  async function verifyAccount(){
