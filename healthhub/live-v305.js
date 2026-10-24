@@ -300,7 +300,7 @@ function ensureStyle(){
  '.hhOrchHead305{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.hhOrchHead305 h3{margin:0;color:#173f62}.hhOrchHead305 small{display:block;color:#758a98;margin-top:2px;line-height:1.4}.hhOrchBadge305{font-size:7px;font-weight:900;padding:5px 7px;border-radius:999px;background:#e7f7ef;color:#18714c;white-space:nowrap}.hhOrchBadge305.off{background:#f0f3f6;color:#758392}'+
  '.hhOrchControls305{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.hhOrchControls305 button,.hhOrchControls305 select{border:1px solid #d8e4eb;border-radius:10px;padding:8px 9px;font-size:7.4px;font-weight:850;background:#f7fafc;color:#31536f}.hhOrchControls305 button.primary{background:#173f62;color:white;border-color:#173f62}.hhOrchControls305 button:disabled{opacity:.5}'+
  '.hhOrchControls305,.hhOrchDevices305{position:relative;z-index:2;pointer-events:auto!important}.hhOrchControls305 button,.hhOrchControls305 select,.hhOrchDevice305 button{position:relative;z-index:3;pointer-events:auto!important;touch-action:manipulation;cursor:pointer;min-height:34px}'+
- '.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}';
+ '.hhOrchRegistryWarning809{display:flex;align-items:center;flex-wrap:wrap;gap:9px;border:1px solid #cf96cc;background:#fdf0fb;padding:10px;border-radius:11px;margin-top:10px;color:#613065;font:750 12px/1.4 system-ui}.hhOrchRegistryWarning809 span{flex:1;min-width:130px}.hhOrchRegistryWarning809 button{border:1px solid #a66ca4;border-radius:9px;background:#63396c;color:white;font-size:12px;min-height:46px;padding:9px 11px;cursor:pointer}.hhOrchRegistryWarning809[hidden]{display:none!important}.hhOrchDevices305{display:grid;gap:6px;margin-top:10px}.hhOrchDevice305{border:1px solid #e1e9ee;border-radius:12px;padding:9px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.hhOrchDevice305 b{font-size:8.5px;color:#173f62}.hhOrchDevice305 small{font-size:6.8px;color:#7b8f9d;display:block;margin-top:2px;line-height:1.45}.hhOrchDot305{display:inline-block;width:7px;height:7px;border-radius:50%;background:#abb8c0;margin-right:5px}.hhOrchDot305.on{background:#28a96b}.hhOrchDevice305 button{border:0;border-radius:9px;padding:7px 8px;background:#eef5fa;color:#31536f;font-size:7px;font-weight:900}.hhOrchNote305{font-size:6.8px;color:#718895;background:#f4f8fa;border-radius:10px;padding:8px;margin-top:9px;line-height:1.5}';
  document.head.appendChild(s);
 }
 function renderAdmin(){
@@ -313,21 +313,43 @@ function renderAdmin(){
   var st=d.status||{},stText=st.state?String(st.state).toUpperCase():'IDLE',prof=(d.profileCapability||[]).join(' + ')||'—';
   return '<div class="hhOrchDevice305"><div><b><span class="hhOrchDot305 '+(online(d)?'on':'')+'"></span>'+esc(d.name||d.deviceId)+'</b><small>'+esc(d.deviceType||'device')+' · '+esc(prof)+' · utoljára '+esc(fmtAge(d.lastSeenAt))+' · '+esc(stText)+(st.commandId?' · '+esc(st.commandId.slice(-10)):'')+'</small></div><button type="button" data-hh-orch-device="'+esc(d.deviceId)+'" '+(isPrimary?'':'disabled title="Előbb jelöld ki a fizikai telefont a v401 regiszterben"')+'>SYNC</button></div>';
  }).join('');
- var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
+ var missing=phoneRegistryCache&&phoneRegistryCache.activePhones?
+   ['zsolt','monika'].filter(function(p){return !phoneRegistryCache.activePhones[p]}):[];
+  var warning=phoneRegistryCache?missing.length?
+   '⚠ Nincs kijelölt fő telefon: '+missing.map(function(p){return p==='zsolt'?'Zsolt':'Mónika'}).join(' és '):
+   '':'📱 A telefonkijelölés még nem ellenőrizhető. Nyisd meg az Eszközregisztert.';
+  var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
- '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
+ '<div class="hhOrchRegistryWarning809"'+(warning?'':' hidden')+'><span>'+esc(warning)+'</span><button type="button" data-hh-orch-registry="1">📱 Eszközregiszter · kijelölés</button></div>'+
+  '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
- // Skip identical DOM replacement; never steal focus during user interaction.
- if(old&&old.parentNode===body&&old.outerHTML===html)return;
- if(old&&old.contains(document.activeElement))return;
- if(old&&old.parentNode===body){old.insertAdjacentHTML('afterend',html);old.remove();}
- else {
-  var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
-  if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
- }
- (window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).orchPaints=
+  // Update only the actual device rows and badges. Avoid replacing the
+  // entire Orchestrator card, which made the mobile Admin jump every refresh.
+  if(old&&old.parentNode===body){
+   if(old.contains(document.activeElement)||Date.now()<orchInteractingUntil)return;
+   var badge=old.querySelector('.hhOrchBadge305'),rowsBox=old.querySelector('.hhOrchDevices305');
+   var hint=old.querySelector('.hhOrchRegistryWarning809');
+   if(badge&&rowsBox&&hint){
+    var onlineNow=connected(),nextRows=rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>';
+    var changed=false;
+    if(badge.textContent!==(onlineNow?'CONNECTED':'OFFLINE')){badge.textContent=onlineNow?'CONNECTED':'OFFLINE';changed=true}
+    badge.classList.toggle('off',!onlineNow);
+    if(hint.hidden!==!warning){hint.hidden=!warning;changed=true}
+    var msg=hint.querySelector('span');if(msg&&msg.textContent!==warning){msg.textContent=warning;changed=true}
+    if(rowsBox.innerHTML!==nextRows){rowsBox.innerHTML=nextRows;changed=true}
+    if(changed)(window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).orchPaints=
+     (window.__hhServiceUiCountersV806.orchPaints||0)+1;
+    ensureOrchestratorHandlers();return;
+   }
+  }
+  if(old&&old.parentNode===body){old.insertAdjacentHTML('afterend',html);old.remove();}
+  else {
+   var anchor=document.getElementById('hhCentralManualSync302')||document.getElementById('hhLevel3V301')||document.getElementById('hhAiImprovement300');
+   if(anchor)anchor.insertAdjacentHTML('afterend',html);else body.insertAdjacentHTML('afterbegin',html);
+  }
+  (window.__hhServiceUiCountersV806=window.__hhServiceUiCountersV806||{}).orchPaints=
    (window.__hhServiceUiCountersV806.orchPaints||0)+1;
- var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
+  var select=document.getElementById('hhOrchScope305');if(select)select.value=orchSelectedScope;
  // Stable delegated handlers survive Admin panel redraws and do not create duplicate sends.
  ensureOrchestratorHandlers();
 }
@@ -344,7 +366,11 @@ function ensureOrchestratorHandlers(){
  body.addEventListener('click',function(e){
   var btn=e.target.closest&&e.target.closest('button');
   if(!btn||!btn.closest('#'+ADMIN_ID))return;
-  var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
+  if(btn.getAttribute('data-hh-orch-registry')==='1'){
+    if(window.HH_ADMIN_MOBILE_V748?.openRegistry)window.HH_ADMIN_MOBILE_V748.openRegistry();
+    return;
+   }
+   var id=btn.id,device=btn.getAttribute('data-hh-orch-device');
   if(id==='hhOrchRefresh305'){refreshAdmin(true);return}
   var job=id==='hhOrchAll305'?dispatch('all'):
    id==='hhOrchZ305'?dispatch('zsolt'):
