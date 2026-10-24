@@ -116,8 +116,11 @@ function onPosition(pos){
  const c=pos.coords||{},lat=Number(c.latitude),lng=Number(c.longitude),accuracy=Number(c.accuracy);
  if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)return;
  const coord=[lng,lat];
- hasFix=true;renderButtons();
- $('guardianMapLabel').textContent='SAJÁT GPS · '+name().toLocaleUpperCase('hu-HU');
+ // A coarse or weak (>100m) fix is a real measurement but NOT a live,
+ // shareable Family Live position. Keep the timestamp/accuracy truthful.
+ hasFix=Number.isFinite(accuracy)&&accuracy>=0&&accuracy<=100;
+ renderButtons();
+ $('guardianMapLabel').textContent=(hasFix?'SAJÁT GPS · ':'PONTATLAN MÉRÉS · NEM ÉLŐ · ')+name().toLocaleUpperCase('hu-HU');
  $('guardianAccuracy').textContent=Number.isFinite(accuracy)?Math.round(accuracy)+' m':'—';
  $('guardianUpdated').textContent=new Date(pos.timestamp||Date.now()).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
  if(map){
@@ -127,7 +130,7 @@ function onPosition(pos){
   }else marker.setLngLat(coord);
   if(follow)map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
- if(Number.isFinite(accuracy)&&accuracy>100){report('GPS aktív · pontatlan jel, nyomvonal szünetel');return}
+ if(!hasFix){gpsDiagnostic('paused',2);report('GPS-pontosság még nem megfelelő (100 m felett vagy ismeretlen). A térkép nem élő; új jelre várunk.');return}
  // Only an independently enabled Family Live module can publish a real fix.
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
  gpsDiagnostic('fix');
@@ -151,8 +154,8 @@ function onGpsError(err){
   hasFix=false;renderButtons();
   $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':'GPS-JELRE VÁR · NINCS FRISS POZÍCIÓ';
   gpsDiagnostic('paused',code);
-  report(code===3?'20 mp alatt nem érkezett GPS-jel · követés aktív, új jelre várunk.'
-   :'GPS-jel átmenetileg nem érhető el · követés aktív, új jelre várunk.');
+  report(code===3?'GPS-jelre vár · 20 mp alatt nem érkezett pozíció. A követés aktív; ellenőrizd a pontos helyengedélyt, és próbáld szabad ég alatt.'
+   :'GPS-jel átmenetileg nem érhető el · a követés aktív; ellenőrizd a helyengedélyt.');
   return;
  }
  const text=code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
@@ -393,7 +396,7 @@ if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
  nativeButton.hidden=false;
  nativeButton.addEventListener('click',function(){
   // Only opens native permission controls; never turns GPS on without consent.
-  w.location.href='healthhubconnect://guardian';
+  w.location.href='healthhubconnect://settings';
  });
 }
 d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop(true);report('A böngésző GPS-e szünetel · az utolsó ismert családi hely megmarad.')}});
