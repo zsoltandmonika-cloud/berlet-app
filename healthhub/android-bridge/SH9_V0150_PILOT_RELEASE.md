@@ -81,3 +81,15 @@ manual manifest rollout adjustment is required.
   or OS scheduling frequency.
 - Actual on-device foreground GPS behavior, battery and update-in-place
   behavior cannot be verified solely through GitHub CI.
+
+
+## 2026-10-24 · Mónika bővített OTA jogosultság (GPS)
+
+- A **korábban már kiadott, aláírt** `healthhub-connect-ota-v0.15.0` APK (build 27) Zsolt mellett **Mónika** profil számára is engedélyezve lett a változatlan, SHA-256 ellenőrzött leíróban.
+- Ez **nem új kiadás** és nem natív GPS kapcsoló: `healthhub/data/bridge-ota.json` `rolloutProfiles = ["zsolt", "monika"]`. Az aláírás, a letöltési URL és az APK-kód változatlan.
+- Mónika telefonján a **natív HH One / HealthHub Connect alkalmazás** `Tulajdonosprofil: Mónika` beállításával nyomd meg a **„🔎 Új Connect-verzió ellenőrzése”** gombot. Ha a v0.14.6 van telepítve, a v0.15.0 felajánlható; **a tényleges telepítéshez Android-jóváhagyás kell**.
+- Frissítés után: natív **HH One beállítások → 📍 SH9 · GPS kapcsolat fenntartása**. Válassz **15 / 30 / 60 másodperc** közül (kezdetben 30 mp), mentés, majd **📍 GPS bekapcsolása** és precíz helyhozzáférés jóváhagyása. A GPS aktív állapot Android-értesítést ad, és abból leállítható.
+- **Korlát:** a GPS foreground service nem képes garantálni a más alkalmazások saját GPS-/háttérhelyhozzáférését, illetve a folyamatos műholdas pozíciót. Folyamatos futása plusz akkumulátorhasználattal jár. Nincs GPS-koordináta mentés vagy központi feltöltés.
+- **Fontos eszközazonosító:** a natív OTA-ellenőrzés a *telefonon beállított tulajdonosprofilból* dolgozik, nem attól, hogy melyik készülék van jelenleg kijelölve a Dropbox Eszközregiszterben. A központi **OTA CHECK** parancs ugyanakkor a pontos kijelölt Android-ID-t célozza, ezért a régi regisztrációt és az új készüléket ne keverjük össze. Ne archiválj régi eszközt az új telepítés ellenőrzése előtt.
+- Ha az APK telepítője aláírásütközésről ír, **ne távolítsd el az alkalmazást**, mert az helyi adat- vagy beállításvesztést okozhat. Ellenőrizd a telefonon telepített app eredetét és aláírását.
+
