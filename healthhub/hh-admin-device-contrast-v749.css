@@ -1,0 +1,117 @@
+/* HH Admin v749 · scoped Premium Glass contrast and readable registered device cards.
+ * The underlying Device Registry v401 and Orchestrator v305 stay functional.
+ * No change to phone identity, Dropbox records, event handlers or OTA permissions.
+ */
+html[data-hh-inline-admin="yes"] #healthSubContent #hhAdminInlineToolsV745 #haBody #hhDeviceRegistry401{
+  background:linear-gradient(145deg,#102b47,#173752)!important;
+  color:#eef7ff!important;
+  border:1px solid #8aadd0!important;
+  border-radius:16px!important;
+  padding:14px!important;
+  box-shadow:0 9px 25px #07172a37!important;
+  margin:4px 0 12px!important;
+  min-width:0!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegHead401{
+  display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+  gap:10px!important;flex-wrap:wrap!important;padding:2px 0 12px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegHead401 h3{
+  font:800 17px/1.35 system-ui,-apple-system,sans-serif!important;
+  color:#f8faff!important;margin:0 0 5px!important;letter-spacing:.02em!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegHead401 small{
+  display:block!important;color:#c3d8eb!important;font-size:12px!important;line-height:1.55!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegHead401 span{
+  color:#bcf0df!important;background:#1d4f55!important;border:1px solid #64b8a477!important;
+  font-size:11px!important;padding:5px 8px!important;border-radius:18px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegGroup401{
+  background:linear-gradient(140deg,#223751,#302e51)!important;
+  border:1px solid #a996ce81!important;
+  border-radius:14px!important;padding:13px!important;margin-top:10px!important;
+  color:#eef6ff!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegGroup401 h4{
+  color:#fff!important;font:800 15px/1.45 system-ui,-apple-system,sans-serif!important;
+  margin:0 0 10px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegNoNative401{
+  color:#d9e7f4!important;font:500 13px/1.6 system-ui,-apple-system,sans-serif!important;
+  background:#172d4777!important;border:1px solid #84add342!important;
+  border-radius:11px!important;padding:11px!important;margin:6px 0 0!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegNoNative401 b{
+  color:#f4bfe9!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegRow401{
+  background:#142a42!important;border:1px solid #6b93b16b!important;
+  border-radius:11px!important;padding:11px!important;margin-top:8px!important;
+  color:#f1f8ff!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegRow401 b{
+  color:#f9fbff!important;font-size:14px!important;line-height:1.5!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegRow401 small{
+  color:#d2e1ef!important;font-size:12px!important;line-height:1.55!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegId401{
+  color:#edbcea!important;font-size:11px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegMinor401,
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegMinor401 summary{
+  color:#dbedff!important;font-size:13px!important;line-height:1.55!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegNote401{
+  background:#183852!important;border:1px solid #6899bb55!important;
+  border-radius:11px!important;color:#d7e9f8!important;
+  padding:11px!important;font-size:12px!important;line-height:1.6!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegWarn401{
+  background:#4e2935!important;color:#ffe6df!important;
+  border:1px solid #dc9fa3!important;font-size:13px!important;line-height:1.55!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 button{
+  min-height:46px!important;padding:10px 12px!important;border-radius:11px!important;
+  background:#e2b8e3!important;color:#271e37!important;border:1px solid #f3cdef!important;
+  font:800 13px/1.4 system-ui,-apple-system,sans-serif!important;
+  white-space:normal!important;touch-action:manipulation!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 button:focus-visible{
+  outline:3px solid #f1eaff!important;outline-offset:2px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305{
+  border-radius:16px!important;background:linear-gradient(145deg,#142d48,#213c58)!important;
+  border:1px solid #80a7c38c!important;padding:13px!important;min-width:0!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchHead305 h3{
+  color:#fff!important;font-size:16px!important;line-height:1.4!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchHead305 small,
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchNote305{
+  font-size:12px!important;line-height:1.5!important;color:#d4e5f6!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305{
+  background:#193750!important;border:1px solid #7395b166!important;
+  border-radius:12px!important;padding:11px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305 b{
+  font-size:14px!important;color:#f1f7ff!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305 small{
+  font-size:12px!important;line-height:1.5!important;color:#c4d8e9!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchControls305 button,
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchControls305 select,
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305 button{
+  min-height:44px!important;font-size:12px!important;padding:9px 12px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305 button:disabled{
+  opacity:.68!important;
+}
+@media(max-width:520px){
+ html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegHead401{flex-direction:column!important}
+ html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305{grid-template-columns:minmax(0,1fr)!important}
+ html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegBtns401{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+}

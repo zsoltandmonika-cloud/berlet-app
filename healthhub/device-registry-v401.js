@@ -69,7 +69,14 @@ function panel(force){
   var primary=registry&&registry.activePhones[p];
   var matched=items.some(function(d){return d.deviceId===primary});
   html+='<div class="hhRegGroup401"><h4>'+name+' · '+(matched?'✅ kijelölt telefon':primary?'⚠️ kijelölt telefon nem jelentkezett':'⚪ kijelölés szükséges')+'</h4>'+
-  (items.length?items.map(function(d){return row(d,p)}).join(''):'<p>Ehhez a profilhoz nincs regisztrált Android-készülék.</p>')+'</div>';
+  (items.length?items.map(function(d){return row(d,p)}).join(''):
+     '<p class="hhRegNoNative401">'+(primary?
+       'A korábban kijelölt telefon nem küldött most ellenőrizhető Android-jelentést. ':
+       'Még nem érkezett ellenőrizhető Android-jelentés ehhez a profilhoz. ')+
+       'Nyisd meg a <b>HH One / HH Connect natív alkalmazást</b> ezen a telefonon, '+
+       'ellenőrizd a tulajdonosprofilt és a Dropbox-kapcsolatot, indíts kézi szinkront, '+
+       'majd nyomd meg itt az <b>Állapot frissítése</b> gombot. '+
+       'A webes kliens nem helyettesíti az Android-eszközjelentést.</p>')+'</div>';
  });
  var web=devices.filter(function(d){return d.deviceType!=='android'}),others=devices.filter(function(d){return d.deviceType==='android'&&!isPhone(d)});
  html+='<details class="hhRegMinor401"><summary>💻 Webes kliensek ('+web.length+') és ismeretlen Android ('+others.length+')</summary>'+
