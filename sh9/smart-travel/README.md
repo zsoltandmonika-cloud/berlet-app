@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v6
+# SH9 · Smart Travel · Golden Standard v7
 
 ## Purpose and compatibility
 - Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
@@ -52,3 +52,8 @@
 - Minimum magasság **68 px**, keskeny mobilon **65 px**; enyhén kompaktabb ikonok és betűk a jó olvashatóság megtartásával.
 - Glass háttér áttetszőbb: gradient `rgba(8,24,48,.38)` → `rgba(20,42,77,.23)`; egységes lágyabb keret/árnyék.
 - Változatlan: jobb felső elhelyezés, Smart Travel Hero-label nélküli háttér, négy világóra, Budapest alapértelmezett időjárás, világóra→weather váltás, előrejelzés-link, ADSB.lol és kilenc csempe.
+
+## v7 · Weather widget 40% narrower
+- At the user's request, the **horizontal width** was shortened ~40%, **196px → 118px**, and on narrow mobile screens **184px → 110px**.
+- Widget remains top-right, transparent and functional. Reduced side padding and gently smaller city/attribution labels fit the narrower glass panel.
+- Weather values, city selection, forecast link, 4 clocks, ADSB.lol and 3×3 tile grid remain unchanged.
