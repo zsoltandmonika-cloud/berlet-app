@@ -186,8 +186,8 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
   addEventListener(name,cb){events[name]=cb}
  };
  let profile='z';
- let nextWatch=0,stopped=[];
- const geo={watchPosition(){return ++nextWatch},clearWatch(id){stopped.push(id)}};
+ let nextWatch=0,stopped=[],latestPosition=null,latestError=null;
+ const geo={watchPosition(position,error){latestPosition=position;latestError=error;return ++nextWatch},clearWatch(id){stopped.push(id)}};
  const w={
   navigator:{geolocation:geo},isSecureContext:true,localStorage:{getItem(key){return key==='hh-profile'?profile:'z'},setItem(key,value){if(key==='hh-profile')profile=value}},
   HH_GOLDEN_AVATARS_V529:{z:'data:image/png;base64,z',m:'data:image/png;base64,m'},
@@ -199,6 +199,19 @@ test('GPS is opt-in, memory-only, stops on background and explicit stop',()=>{
  controls.guardianFollow.click();
  assert.equal(nextWatch,1,'Follow explicitly starts own GPS if it was off');
  assert.equal(w.HH_GUARDIAN_V761.active,true);
+ // The previous 20-second geolocation timeout silently called stop() and
+ // disconnected a consenting owner's Family Live sharing session.
+ latestError({code:3});
+ assert.equal(w.HH_GUARDIAN_V761.active,true,'20s timeout does not stop the GPS watch');
+ assert.deepEqual(stopped,[],'timeout must not clearWatch');
+ assert.match(controls.guardianStatus.textContent,/új jelre várunk/);
+ assert.match(controls.guardianMapLabel.textContent,/NINCS FRISS POZÍCIÓ/);
+ latestPosition({coords:{latitude:47.5,longitude:19.04,accuracy:15},timestamp:Date.now()});
+ assert.equal(w.HH_GUARDIAN_V761.active,true,'fresh real position recovers same watch');
+ assert.match(controls.guardianStatus.textContent,/GPS aktív/);
+ latestError({code:2});
+ assert.equal(w.HH_GUARDIAN_V761.active,true,'temporary missing fix does not stop a watch');
+ assert.deepEqual(stopped,[],'no duplicate watch or automatic stop');
  assert.equal(controls.guardianFollow['aria-pressed'],'true','Follow keeps camera tracking enabled');
  controls.guardianFollow.click();
  assert.equal(controls.guardianFollow['aria-pressed'],'false','Follow can disable camera tracking without stopping GPS');
