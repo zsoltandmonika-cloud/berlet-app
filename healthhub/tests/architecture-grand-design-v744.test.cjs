@@ -23,7 +23,7 @@ const blueprint=read('docs/HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md');
 const runbook=read('docs/HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md');
 const docs=read('docs/README.md');
 assert.match(index,/hh-architecture-admin-v744\.js\?v=745-inline-admin-grand-design/);
-assert.match(index,/hh-unified-admin-v745\.js\?v=746-admin-contrast/);
+assert.match(index,/hh-unified-admin-v745\.js\?v=747-sh9-version-center/);
 assert.match(blueprint,/isAutomaticSync:false/);
 assert.match(blueprint,/30/);
 assert.match(blueprint,/Gondoskodás/);

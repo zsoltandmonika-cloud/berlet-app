@@ -87,7 +87,7 @@ function label(root,g){
 }
 function category(el){
  if(el.id==='hhArchitectureGrandDesign744')return 'architecture';
- if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742','hhAskLenaProjectAdminV756'].includes(el.id))return 'cloud';
+ if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742','hhAskLenaProjectAdminV756','sh9VersionCenterV1'].includes(el.id))return 'cloud';
  if(el.id===ID)return 'data';
  if(el.id==='hhDocsRecoveryCard'||el.classList.contains('hrSectionCard'))return 'recovery';
  return 'other';
@@ -151,7 +151,7 @@ function layout(){
   if(['hhAdminMenuCard','hhDropboxVaultCard','hhCloudVaultCard'].includes(child.id)){child.hidden=true;continue}
   child.dataset.hhAdminGroup=group;
   const preferred=child.id==='hhArchitectureGrandDesign744'?11:
-   child.id==='hhUnifiedCloudVaultCard'?21:child.id===ID?31:
+   child.id==='hhUnifiedCloudVaultCard'?21:child.id==='sh9VersionCenterV1'?23:child.id===ID?31:
    child.id==='hhDocsRecoveryCard'?41:g.order+2;
   if(child.style.order!==String(preferred))child.style.order=String(preferred);
   if(group==='other')unknownCount++;
