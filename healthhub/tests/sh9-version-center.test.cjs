@@ -35,7 +35,7 @@ test('signed releases require a matching URL/checksum and explicit rollout scope
 
 test('only registered exact-owner physical Android devices count; browser and stale telemetry excluded',()=>{
  const z=sample('android-z-device','zsolt',Math.max(27,ota.versionCode),'0.15.0');
- const m=sample('android-m-device','monika',ota.versionCode,ota.version);
+ const m=sample('android-m-device','monika',26,'0.14.6');
  const both={...ota,rolloutProfiles:['zsolt','monika']};
  const view=model.read(reg,[z,m],both,web,now);
  assert.deepEqual(view.devices.map(x=>x.registered),[true,true]);
@@ -43,7 +43,7 @@ test('only registered exact-owner physical Android devices count; browser and st
  assert.equal(view.devices[0].ota,'up-to-date');
  assert.equal(view.devices[0].connectivity,'recent');
  assert.equal(view.devices[1].sh9,'legacy-no-integrated-sh9');
- assert.equal(view.devices[1].ota,'up-to-date');
+ assert.equal(view.devices[1].ota,ota.versionCode>26?'approved-update':'up-to-date');
  assert.equal(view.webRelease.version,'2026.10.24.1');
  const wrong=model.read(reg,[{...z,deviceType:'web'}, {...m,activeProfile:'zsolt'}],both,web,now);
  assert.deepEqual(wrong.devices.map(x=>x.registered),[false,false]);
