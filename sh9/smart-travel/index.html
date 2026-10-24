@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1425"><meta name="description" content="SH9 Smart Travel · Léna személyes Travel Concierge szolgáltatása"><title>SH9 · Smart Travel</title>
+<link rel="icon" type="image/png" href="../assets/sh9-icon.png">
+<style>:root{color-scheme:dark;--bg:#0b1425;--glass:#132845;--ink:#eef7ff;--cyan:#a9f0fc;--pink:#f8b6e7}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%;overflow-x:hidden}body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.st-shell{display:flex;flex-direction:column;gap:7px;width:min(100%,420px);height:100dvh;min-height:0;padding:6px 7px 0;margin:0 auto;background:#0b1425;overflow:hidden}
+.st-hero{position:relative;flex:0 0 auto;aspect-ratio:1402/1122;min-height:0;width:100%;border:1px solid rgba(180,217,255,.24);border-radius:17px;overflow:hidden;background:linear-gradient(140deg,#142949,#211e40);box-shadow:0 8px 22px #0007}
+.st-hero::after{content:"";pointer-events:none;position:absolute;inset:45% 0 0;background:linear-gradient(0deg,rgba(5,13,31,.53),transparent 75%)}
+.st-hero-image{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.st-profile{position:absolute;left:9px;bottom:8px;z-index:2;display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:6px 12px;border:1px solid #79bfff;border-radius:999px;background:rgba(6,20,44,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:white;font-size:11px;font-weight:780;box-shadow:0 3px 12px #000a;cursor:pointer}
+html[data-profile="m"] .st-profile{border-color:#f9a6d3;background:rgba(60,21,56,.89)}
+.st-head{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:46px;padding:4px 11px 3px;border:1px solid rgba(163,212,255,.24);border-radius:15px;background:linear-gradient(116deg,rgba(30,61,98,.75),rgba(16,28,53,.91));box-shadow:inset 0 1px rgba(255,255,255,.12)}
+.st-head h1{margin:0;font-size:17px;letter-spacing:-.025em;line-height:1.13;font-weight:810}.st-head p{margin:3px 0 0;color:#b7d0ea;font-size:10px;line-height:1.1;white-space:nowrap}
+.st-head-mark{display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:11px;border:1px solid rgba(158,217,254,.35);background:rgba(91,163,226,.15);font-size:16px}
+.st-grid{box-sizing:border-box;flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:6px;padding:9px 8px 10px;border:1px solid rgba(169,209,255,.19);border-radius:20px 20px 0 0;background:linear-gradient(145deg,rgba(29,58,96,.73),rgba(16,30,53,.93) 53%,rgba(44,33,71,.83));box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -4px 30px rgba(5,15,33,.22)}
+.st-tile{position:relative;isolation:isolate;min-width:0;min-height:0;padding:6px 2px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(165,210,250,.34);border-radius:17px;background:linear-gradient(144deg,rgba(95,160,231,.20),rgba(30,57,94,.42) 55%,rgba(70,43,99,.27));color:#eff8ff;box-shadow:inset 0 1px rgba(255,255,255,.19),0 8px 19px rgba(0,9,25,.27);backdrop-filter:blur(14px) saturate(145%);-webkit-backdrop-filter:blur(14px) saturate(145%);cursor:pointer}
+.st-tile::before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13),transparent 32%,rgba(255,255,255,.025) 82%)}
+.st-tile-orb{position:relative;display:grid;place-items:center;flex:0 0 auto;width:36px;height:36px;border:1px solid rgba(198,233,255,.37);border-radius:12px;background:linear-gradient(135deg,rgba(160,226,250,.23),rgba(67,87,186,.23));box-shadow:inset 0 1px rgba(255,255,255,.23),0 5px 12px rgba(2,9,31,.24);color:#a9f0fc}
+.st-tile-orb svg{width:22px;height:22px;filter:drop-shadow(0 1px 4px rgba(84,225,251,.24))}
+.st-tile strong{position:relative;text-align:center;letter-spacing:-.023em;font-size:11.1px;font-weight:800;line-height:1.14;overflow-wrap:anywhere}
+.st-tile small{position:relative;color:#bad4ef;max-width:95%;font-size:8.6px;font-weight:580;line-height:1.05;text-align:center}
+.st-tile-lena{border-color:rgba(246,156,226,.77);background:linear-gradient(144deg,rgba(137,90,193,.30),rgba(52,40,89,.65) 57%,rgba(181,67,147,.26));box-shadow:inset 0 1px rgba(255,255,255,.24),0 7px 18px rgba(2,4,22,.28),0 0 16px rgba(224,91,181,.17)}
+.st-tile-lena .st-tile-orb{color:#f4b6ea;border-color:#f9c1e7;background:linear-gradient(135deg,rgba(240,148,217,.24),rgba(100,72,165,.22))}
+.st-tile-lena strong{color:#ffe4f5}.st-tile-lena small{color:#ecc4e6}
+.st-tile:focus-visible,.st-profile:focus-visible,.st-nav button:focus-visible{outline:3px solid #b3f0ff;outline-offset:1px}
+.st-tile:active{transform:translateY(1px);filter:brightness(1.2)}
+.st-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:calc(100% + 14px);min-height:60px;flex:0 0 auto;gap:1px;margin:0 -7px;padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px));border:none;border-top:1px solid rgba(140,198,243,.25);background:rgba(15,30,54,.97);box-shadow:0 -7px 22px rgba(0,0,0,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.st-nav button{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;border:0;background:none;color:#b9d0e8;cursor:pointer;padding:4px 0}
+.st-nav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}.st-nav button span{font-size:10px;line-height:1.1}
+.st-nav button.active{color:#77baff}.st-nav button.active svg{box-sizing:content-box;padding:6px;border-radius:50%;background:rgba(237,247,255,.96);color:#4f9cf2}
+.st-modal[hidden],.st-toast[hidden]{display:none!important}
+.st-modal{position:fixed;z-index:50;inset:0;padding:18px;display:flex;align-items:center;justify-content:center;background:#020917bd;backdrop-filter:blur(7px)}
+.st-dialog{width:min(100%,350px);padding:21px;text-align:center;border:1px solid rgba(151,209,255,.55);border-radius:20px;background:linear-gradient(145deg,#1a416f,#0b1a34 78%);box-shadow:0 18px 55px #0009}
+.st-dialog h2{margin:0 0 9px;font-size:20px}.st-dialog p{margin:0 0 18px;color:#c8def4;font-size:13px;line-height:1.45}
+.st-dialog button{min-width:120px;min-height:42px;border:1px solid #b7e0ff8a;border-radius:13px;background:#24619a;color:white;font-weight:700;cursor:pointer}
+.st-toast{position:fixed;z-index:40;left:50%;bottom:calc(75px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:min(90vw,380px);padding:10px 13px;text-align:center;border:1px solid #99d1fc70;border-radius:13px;background:#123252f2;color:white;font-size:12px;box-shadow:0 8px 24px #0008}
+@media(max-width:365px){.st-grid{padding:7px 5px;gap:5px}.st-tile-orb{width:31px;height:31px}.st-tile-orb svg{width:19px;height:19px}.st-tile strong{font-size:10px}.st-tile small{font-size:8px}.st-head{min-height:40px}.st-head h1{font-size:15px}}
+@media(max-height:755px){.st-shell{height:auto;min-height:100dvh;overflow:visible;padding-bottom:68px}.st-grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:auto}.st-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,420px);margin:0;z-index:15}}
+@media(min-width:700px){.st-shell{border-inline:1px solid rgba(134,192,243,.15)}}
+@media(prefers-reduced-motion:reduce){.st-tile{transition:none}}
+</style>
+</head><body>
+<main class="st-shell">
+<section class="st-hero" aria-label="Smart Travel · Róma, Párizs, Dubai · Léna, Mónika, Zsolt, Corky és Buddy">
+<img id="stHeroImage" class="st-hero-image" src="../assets/SH9_Smart_Travel_Hero_1402x1122.png" width="1402" height="1122" alt="Léna utazási kalauzként Róma, Párizs és Dubai kombinált panorámájára mutat Mónikával, Zsolttal, Corkyval és Buddyval">
+<button id="stProfile" class="st-profile" type="button" aria-label="Profilváltás">Zsolt ⇄</button>
+</section>
+<header class="st-head"><div><h1>Smart Travel</h1><p>Your journey. Smarter together.</p></div><span class="st-head-mark" aria-hidden="true">✈️</span></header>
+<section class="st-grid" aria-label="Smart Travel kilenc kategóriája">
+<button type="button" class="st-tile" data-name="Trip Planner" data-href="../../healthhub/guardian/#hhSmartHubDestinationV802" aria-label="Trip Planner megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c4 0 4-7 8-7s4-7 8-7"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="5" r="2"/><path d="m10 4 3 3-3 3"/></svg></span><strong>Trip Planner</strong><small>Saját útvonaltervező</small></button>
+<button type="button" class="st-tile" data-name="Public Transport" data-href="../../healthhub/guardian/#hhTransitPanel" aria-label="Public Transport megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="16" rx="3"/><path d="M5 11h14M9 15h.01M15 15h.01M8 19v2M16 19v2"/></svg></span><strong>Public Transport</strong><small>Járatok · menetrend</small></button>
+<button type="button" class="st-tile" data-name="Road Travel" data-pending="true" aria-label="Road Travel megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 2-6h10l2 6"/><rect x="3" y="12" width="18" height="7" rx="2"/><path d="M7 19v2M17 19v2M7 15h2m6 0h2"/></svg></span><strong>Road Travel</strong><small>Autós utazások</small></button>
+<button type="button" class="st-tile" data-name="Air Travel" data-pending="true" aria-label="Air Travel megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m2 16 9 2 5 4 2-1-2-7 6-5a2 2 0 0 0-2.6-3L13 11 6 6 4 8l5 7-5 3z"/></svg></span><strong>Air Travel</strong><small>Repülés · járatok</small></button>
+<button type="button" class="st-tile st-tile-lena" data-name="Ask Léna" data-href="ask" aria-label="Ask Léna megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 9.7 9.7 3 12l6.7 2.3L12 21l2.3-6.7L21 12l-6.7-2.3z"/><path d="M19 3v4M17 5h4"/></svg></span><strong>Ask Léna</strong><small>Travel Concierge</small></button>
+<button type="button" class="st-tile" data-name="Taxi" data-pending="true" aria-label="Taxi megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V4h8v3M5 12l2-5h10l2 5"/><rect x="3" y="12" width="18" height="7" rx="2"/><path d="M7 19v2m10-2v2M7 15h2m6 0h2"/></svg></span><strong>Taxi</strong><small>Taxik · rendelés</small></button>
+<button type="button" class="st-tile" data-name="Shared Mobility" data-pending="true" aria-label="Shared Mobility megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m6 17 4-9 3 9h5l-4-9H9M11 6h4"/></svg></span><strong>Shared Mobility</strong><small>Autó · bringa · roller</small></button>
+<button type="button" class="st-tile" data-name="My Trips" data-pending="true" aria-label="My Trips megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="15" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2M9 11v7M15 11v7"/></svg></span><strong>My Trips</strong><small>Utazási terveink</small></button>
+<button type="button" class="st-tile" data-name="My Places" data-href="../../healthhub/guardian/#hhSmartHubFavoritesV806" aria-label="My Places megnyitása"><span class="st-tile-orb"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><strong>My Places</strong><small>Kedvenc helyek</small></button>
+</section>
+<nav class="st-nav" aria-label="SH9 Golden Standard navigáció">
+<button type="button" data-nav="Kezdőlap" aria-label="Kezdőlap"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></button>
+<button type="button" data-nav="Idővonal" aria-label="Idővonal"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></button>
+<button type="button" data-nav="Vissza" aria-label="Vissza"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></button>
+<button type="button" data-nav="Értesítések" aria-label="Értesítések"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+<button type="button" data-nav="Admin" aria-label="Admin"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><span>Admin</span></button>
+</nav>
+</main>
+<div class="st-modal" id="stModal" role="dialog" aria-modal="true" aria-labelledby="stModalTitle" hidden><div class="st-dialog"><h2 id="stModalTitle">Smart Travel</h2><p id="stModalText"></p><button id="stModalClose" type="button">Bezárás</button></div></div>
+<div id="stToast" class="st-toast" role="status" aria-live="polite" hidden></div>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script>(function(w,d){'use strict';
+const PROFILE_KEY='hh-profile';
+const qs=s=>d.querySelector(s);
+const go=relative=>w.location.assign(new URL(relative,d.baseURI).href);
+function profile(){try{return w.localStorage.getItem(PROFILE_KEY)==='m'?'m':'z'}catch(e){return 'z'}}
+function updateProfile(){const p=profile(),b=qs('#stProfile');d.documentElement.dataset.profile=p;b.textContent=(p==='m'?'Mónika':'Zsolt')+' ⇄';b.setAttribute('aria-label','Profilváltás '+(p==='m'?'Zsolt':'Mónika')+' profiljára')}
+let audio=null;
+function tap(){try{if(w.localStorage.getItem('hh-nutrition-PREVIEW-sound')==='off')return;const AC=w.AudioContext||w.webkitAudioContext;if(!AC)return;audio=audio||new AC();if(audio.state==='suspended')audio.resume();const t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=900;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.012,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.075);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.085)}catch(e){}try{w.navigator.vibrate&&w.navigator.vibrate(9)}catch(e){}}
+qs('#stProfile').addEventListener('click',()=>{try{w.localStorage.setItem(PROFILE_KEY,profile()==='m'?'z':'m')}catch(e){}tap();updateProfile();w.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{profile:profile()}}))});
+updateProfile();
+w.addEventListener('storage',e=>{if(e.key===PROFILE_KEY)updateProfile()});
+const img=qs('#stHeroImage');img.addEventListener('error',()=>{if(!img.dataset.fallback){img.dataset.fallback='1';img.src='../assets/SH9_Official_Hero_v21.webp'}});if(img.complete&&img.naturalWidth===0)img.dispatchEvent(new Event('error'));
+const modal=qs('#stModal'),title=qs('#stModalTitle'),desc=qs('#stModalText'),close=qs('#stModalClose');
+const texts={'Road Travel':'Az autós útvonaltervezés, forgalom és parkolási lehetőségek még fejlesztés alatt állnak.',
+'Air Travel':'A repülőjáratok és repülőtéri adatok integrációja következő fejlesztési lépés.',
+'Taxi':'A taxitársaságok és rendelési szolgáltatások bekötése még előkészítés alatt áll.',
+'Shared Mobility':'A közösségi autók, kerékpárok és elektromos rollerek adatkapcsolatai még előkészítés alatt állnak.',
+'My Trips':'A saját utazási tervek és foglalások kezelése még fejlesztés alatt áll.'};
+function dismiss(){modal.hidden=true;close.blur()}
+function showPending(name){title.textContent=name;desc.textContent=texts[name]||'Ez a funkció fejlesztés alatt áll.';modal.hidden=false;close.focus()}
+close.addEventListener('click',dismiss);modal.addEventListener('click',e=>{if(e.target===modal)dismiss()});d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)dismiss()});
+function toast(message){const el=qs('#stToast');el.textContent=message;el.hidden=false;w.clearTimeout(toast.timer);toast.timer=w.setTimeout(()=>{el.hidden=true},2800)}
+d.querySelectorAll('[data-name]').forEach(b=>b.addEventListener('click',()=>{
+ if(b.dataset.name==='Ask Léna'){const api=w.HH_CHATGPT_PROJECT_SHORTCUT_V712;if(api&&typeof api.openProject==='function')api.openProject();else go('../../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');return}
+ if(b.dataset.href){go(b.dataset.href);return}
+ showPending(b.dataset.name);
+}));
+d.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
+switch(b.dataset.nav){
+case 'Kezdőlap':go('../');break;
+case 'Idővonal':go('../../healthhub/index.html?sh9nav=timeline');break;
+case 'Vissza':if(w.history.length>1)w.history.back();else go('../');break;
+case 'Értesítések':toast('Az SH9 értesítési központja még fejlesztés alatt áll.');break;
+case 'Admin':go('../../healthhub/index.html?sh9nav=admin');break;
+}}));
+})(window,document);</script>
+</body></html>
