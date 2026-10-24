@@ -42,18 +42,24 @@
    const device=(typeof wanted==='string'&&ID.test(wanted)&&!r.archived.includes(wanted)&&
     Array.isArray(devices))?devices.find(d=>d&&d.deviceId===wanted&&d.deviceType==='android'&&
     d.activeProfile===owner):null;
-   if(!device)return {owner,registered:false,connectivity:'not-reported',installed:null,
+   // Saved selection != fresh heartbeat. Never erase or hide a persisted mapping.
+   if(!device)return {owner,registered:false,savedAssignment:typeof wanted==='string'&&ID.test(wanted)&&
+    !r.archived.includes(wanted),deviceId:typeof wanted==='string'&&ID.test(wanted)?wanted.slice(-11):null,
+    connectivity:'not-reported',installed:null,
     sh9:'unknown',ota:'unknown',otaLastCheckedAt:null,lastSeenAt:null,command:'unknown'};
    const code=Number(device.buildCode),validCode=Number.isSafeInteger(code)&&code>0;
    const version=typeof device.build==='string'&&/^\d+\.\d+\.\d+$/.test(device.build)?device.build:null;
    const seen=goodDate(device.lastSeenAt);
-   const connectivity=seen!==null&&clock>=seen&&clock-seen<=20*60*1000?'recent':
+   // 15-minute Android WorkManager tasks can be delayed by Doze mode.
+   const age=seen!==null?clock-seen:null;
+   const connectivity=age!==null&&age>=0&&age<=20*60*1000?'recent':
+    age!==null&&age>20*60*1000&&age<=60*60*1000?'delayed':
     seen!==null?'stale':'not-reported';
    let otaStatus='unknown';
    if(release&&validCode)otaStatus=release.versionCode>code?
        (release.rolloutProfiles.includes(owner)?'approved-update':'not-in-rollout'):'up-to-date';
    return {
-    owner,registered:true,name:String(device.name||'Android').slice(0,70),
+    owner,registered:true,savedAssignment:true,name:String(device.name||'Android').slice(0,70),
     deviceId:String(device.deviceId).slice(-11),
     connectivity,installed:validCode?{version:version||'ismeretlen',buildCode:code}:null,
     sh9:validCode?(code>=BUILD_SH9_UNIFIED?'unified':'legacy-no-integrated-sh9'):'unknown',
