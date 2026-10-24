@@ -91,3 +91,38 @@ test('SH9 native browser uses private browser-owned Microsoft session handoff', 
   assert.match(shell, /origin != "https:\/\/" \+ HOST/);
   assert.match(shell, /window\.setSoftInputMode/);
 });
+
+test('Food Scanner requests only first-party Android camera permission and never microphone', () => {
+  assert.match(manifest, /android\.permission\.CAMERA/);
+  assert.match(manifest, /android:required="false"/);
+  assert.match(shell, /override fun onPermissionRequest\(request: PermissionRequest\)/);
+  assert.match(shell, /ActivityResultContracts\.RequestPermission\(\)/);
+  assert.match(shell, /Manifest\.permission\.CAMERA/);
+  assert.match(shell, /request\.resources\.contentEquals\(arrayOf\(PermissionRequest\.RESOURCE_VIDEO_CAPTURE\)\)/);
+  assert.match(shell, /request\.grant\(arrayOf\(PermissionRequest\.RESOURCE_VIDEO_CAPTURE\)\)/);
+  assert.match(shell, /request\.deny\(\)/);
+  assert.match(shell, /trustedPage\(Uri\.parse\(web\?\.url/);
+  assert.match(shell, /url\?\.scheme == "https"/);
+  assert.match(shell, /url\.host == HOST/);
+  assert.match(shell, /url\.path\?\.startsWith\(BASE\)/);
+  assert.doesNotMatch(manifest, /RECORD_AUDIO/);
+  assert.doesNotMatch(shell, /request\.grant\(request\.resources\)/);
+  assert.doesNotMatch(shell, /addJavascriptInterface/);
+});
+
+test('Photo upload/capture needs an Android chooser and a dedicated restricted cache provider', () => {
+  const paths=read('healthhub/android-bridge/app/src/main/res/xml/healthhub_ota_paths.xml');
+  assert.match(shell,/override fun onShowFileChooser/);
+  assert.match(shell,/ActivityResultContracts\.StartActivityForResult/);
+  assert.match(shell,/fileResult\.launch\(params\.createIntent\(\)/);
+  assert.match(shell,/FileProvider\.getUriForFile/);
+  assert.match(shell,/MediaStore\.ACTION_IMAGE_CAPTURE/);
+  assert.match(shell,/Intent\.FLAG_GRANT_WRITE_URI_PERMISSION/);
+  assert.match(shell,/it\.scheme == "content"/);
+  assert.match(shell,/it\.authority != packageName \+ "\.ota"/);
+  assert.match(shell,/finishFileRequest\(null\)/);
+  assert.match(paths,/path="web-camera\/"/);
+  assert.match(paths,/path="ota\/"/);
+  assert.doesNotMatch(shell,/allowFileAccess = true/);
+  assert.doesNotMatch(shell,/allowUniversalAccessFromFileURLs = true/);
+});
