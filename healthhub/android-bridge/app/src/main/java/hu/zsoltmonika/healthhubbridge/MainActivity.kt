@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
         private const val DROPBOX_REDIRECT = DropboxVaultClient.WEB_REDIRECT
         private const val HEALTHHUB_URL = DropboxVaultClient.WEB_REDIRECT
         private const val PREFS = "healthhub_connect"
+        private const val SH9_START_DEFAULT = "sh9_start_default_v1"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -182,6 +183,10 @@ class MainActivity : ComponentActivity() {
         updateOtaStatus()
         updateSh9GpsUi()
         checkOta(false)
+        if (savedInstanceState == null && prefs.getBoolean(SH9_START_DEFAULT, false) &&
+            intent?.getBooleanExtra("openNativeSettings", false) != true && intent?.data == null) {
+            startActivity(Intent(this, Sh9WebActivity::class.java))
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -648,6 +653,21 @@ class MainActivity : ComponentActivity() {
             text = "🚀 SH9 Start Page megnyitása"
             setOnClickListener { startActivity(Intent(this@MainActivity, Sh9WebActivity::class.java)) }
         })
+        val sh9Default = Button(this)
+        fun updateDefaultButton() {
+            val enabled = prefs.getBoolean(SH9_START_DEFAULT, false)
+            sh9Default.text = if (enabled) "✓ SH9 legyen a kezdőoldal: BE"
+                else "SH9 legyen a kezdőoldal: KI"
+        }
+        sh9Default.setOnClickListener {
+            val next = !prefs.getBoolean(SH9_START_DEFAULT, false)
+            prefs.edit().putBoolean(SH9_START_DEFAULT, next).apply()
+            updateDefaultButton()
+            status.text = if (next) "✓ Következő alkalmazásindításkor az SH9 nyílik meg. Vissza: HH One beállítások."
+                else "✓ A HH One beállítások nyílnak meg induláskor."
+        }
+        updateDefaultButton()
+        root.addView(sh9Default)
         root.addView(TextView(this).apply {
             text = "📍 SH9 · GPS kapcsolat fenntartása"
             textSize = 18f
