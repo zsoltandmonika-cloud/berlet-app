@@ -84,22 +84,22 @@ test('SH9 weather reports current conditions and handles common weather codes',(
  assert.throws(()=>weather.parseCurrent({current:{weather_code:3}}),/Érvénytelen/);
 });
 
-test('SH9 top-right weather glass stays compact, readable, and transparent',()=>{
+test('SH9 top-right weather glass is 40 percent narrower and remains interactive',()=>{
  const stack=page.match(/\.st-hero-overlay-stack\{([^}]+)\}/);
  const weather=page.match(/\.st-weather\{([^}]+)\}/);
  assert.ok(stack&&weather);
  assert.match(stack[1],/top:10px;right:10px;left:auto/);
- assert.match(stack[1],/width:196px/);
+ assert.match(stack[1],/width:118px/);
  assert.match(stack[1],/align-items:stretch/);
  assert.match(stack[1],/--st-hero-glass-fill:linear-gradient\(135deg,rgba\(8,24,48,\.38\),rgba\(20,42,77,\.23\)\)/);
  assert.match(weather[1],/width:100%/);
- assert.match(weather[1],/min-height:68px;padding:7px 9px 6px/);
- assert.match(page,/\.st-weather\{padding:6px 8px;min-height:65px\}/);
+ assert.match(weather[1],/min-height:68px;padding:7px 7px 6px/);
+ assert.match(page,/\.st-weather\{padding:6px 6px;min-height:65px\}/);
  assert.match(weather[1],/background:var\(--st-hero-glass-fill\)/);
  assert.match(weather[1],/border:1px solid var\(--st-hero-glass-border\)/);
  assert.match(weather[1],/backdrop-filter:blur\(12px\)/);
  assert.match(weather[1],/box-shadow:var\(--st-hero-glass-shadow\)/);
- assert.match(page,/\.st-hero-overlay-stack\{top:8px;right:8px;left:auto;width:184px\}/);
+ assert.match(page,/\.st-hero-overlay-stack\{top:8px;right:8px;left:auto;width:110px\}/);
  assert.doesNotMatch(page,/\.st-hero-title/);
  assert.doesNotMatch(page,/class="st-hero-title"/);
 });
