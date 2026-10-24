@@ -43,7 +43,9 @@ test('Sanitized report contains failures but no raw user health, GPS coordinates
 test('Native GPS diagnostics record only status and error code, no latitude or longitude',()=>{
  const guardian=read('guardian/guardian.js');
  assert.match(guardian,/hh-service-guardian-gps-v806/);
- assert.match(guardian,/gpsDiagnostic\('error',err&&err\.code\)/);
+ assert.match(guardian,/gpsDiagnostic\('error',code\)/);
+ assert.match(guardian,/gpsDiagnostic\('paused',code\)/);
+ assert.match(guardian,/if\(code===2\|\|code===3\)/);
  assert.match(guardian,/gpsDiagnostic\('fix'\)/);
  assert.doesNotMatch(guardian,/gpsDiagnostic\([^\n]*coord/);
 });

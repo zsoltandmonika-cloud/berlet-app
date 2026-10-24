@@ -141,10 +141,23 @@ function onPosition(pos){
  }
 }
 function onGpsError(err){
- const text=err&&err.code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
-  :err&&err.code===2?'Nem érkezik GPS-jel. Próbáld meg szabadtéren.'
-  :'A GPS-jel nem érkezett meg időben. Indítsd újra a követést.';
- stop();gpsDiagnostic('error',err&&err.code);report(text);
+ if(!active)return;
+ const code=err&&err.code;
+ // watchPosition timeouts (3) and temporarily unavailable positions (2) do
+ // NOT revoke a user-started GPS watch or Family Live consent. The browser may
+ // deliver another real fix later; stop() here caused the observed ~20s drop.
+ // Never display an older marker as LIVE until a fresh accurate fix arrives.
+ if(code===2||code===3){
+  hasFix=false;renderButtons();
+  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':'GPS-JELRE VÁR · NINCS FRISS POZÍCIÓ';
+  gpsDiagnostic('paused',code);
+  report(code===3?'20 mp alatt nem érkezett GPS-jel · követés aktív, új jelre várunk.'
+   :'GPS-jel átmenetileg nem érhető el · követés aktív, új jelre várunk.');
+  return;
+ }
+ const text=code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
+  :'A GPS követése váratlan hiba miatt megszakadt.';
+ stop();gpsDiagnostic('error',code);report(text);
 }
 function start(){
  if(active)return;
