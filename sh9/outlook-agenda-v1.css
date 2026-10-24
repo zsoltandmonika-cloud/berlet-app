@@ -11,12 +11,20 @@
  outline:2px solid #f4b7ea;outline-offset:-2px;border-radius:7px
 }
 #sh9NamedayCell.sh9-info-tap:active,#sh9WeatherCell6.sh9-info-tap:active{background:rgba(212,121,237,.10)}
-#sh9NamedayCell .sh9-info-value,#sh9NamedayCell .sh9-info-sub,
-#sh9WeatherCell6[data-status="ready"] .sh9-info-value,
-#sh9WeatherCell6[data-status="ready"] .sh9-info-sub{
- color:#f4b7ea;
-}
-#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-sub{color:#f4b7ea}
+/* Golden Standard: same light-blue shade for every fixed label,
+   same pastel pink for every live value. An alert's value can retain
+   amber/red when a real conflict or error requires attention. */
+#sh9InfoBar6 .sh9-info-heading,
+#sh9NamedayCell .sh9-info-sub,
+#sh9NamedayCell .sh9-nameday-label{color:#bde4ff}
+#sh9NamedayCell .sh9-info-value,
+#sh9NamedayCell .sh9-nameday-value,
+#sh9WeatherCell6 .sh9-info-value,
+#sh9WeatherCell6 .sh9-info-sub,
+#sh9CalendarCell .sh9-calendar-summary .sh9-info-value,
+#sh9CalendarCell .sh9-calendar-summary .sh9-info-sub{color:#f4b7ea}
+#sh9NamedayCell .sh9-nameday-label{font-weight:800;letter-spacing:.02em}
+#sh9NamedayCell .sh9-nameday-value{font-weight:740}
 
 /* SH9 Golden Standard Outlook Agenda v3: entire compact calendar tile is a native button. */
 #sh9CalendarCell.sh9-calendar-click-target{
@@ -35,13 +43,14 @@
 }
 .sh9-calendar-summary .sh9-info-value{max-width:100%;font-size:9.5px;line-height:1.2;overflow-wrap:anywhere}
 .sh9-calendar-summary .sh9-info-sub{max-width:100%;font-size:8.6px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Golden pink/purple applies only to genuine calendar values, never to connection errors. */
+/* Normal/awaiting Microsoft values keep the shared pastel accent.
+   Status semantics override only actual conflict/error values. */
 #sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-value{color:#f4b7ea}
-#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-sub{color:#d8bafa}
+#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-sub{color:#f4b7ea}
 .sh9-calendar-summary:focus-visible{outline:2px solid #b9e9ff;outline-offset:3px}
 #sh9CalendarCell[data-status="conflict"] .sh9-info-value{color:#ffd6ad}
-#sh9CalendarCell[data-status="conflict"] .sh9-info-heading{color:#ffd8b6}
 #sh9CalendarCell[data-status="error"] .sh9-info-value{color:#ffd9d9}
+#sh9WeatherCell6[data-status="error"] .sh9-info-value{color:#ffd9d9}
 .sh9-agenda-overlay[hidden],.sh9-agenda-setup[hidden],.sh9-agenda-actions [hidden]{display:none!important}
 .sh9-agenda-overlay{
  position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;

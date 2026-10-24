@@ -14,9 +14,9 @@ test('date tile shows DÁTUM, actual date and a single NÉVNAP · Salamon line',
   static now(){return new Date('2026-10-24T10:00:00Z').getTime()}
  }
  const nodes={};
- for(const id of ['sh9InfoBar6','sh9Date6','sh9Nameday6','sh9Weather6','sh9WeatherDetail6','sh9WeatherCell6'])
+ for(const id of ['sh9InfoBar6','sh9Date6','sh9Nameday6','sh9NamedayValue6','sh9Weather6','sh9WeatherDetail6','sh9WeatherCell6'])
   nodes[id]={id,dataset:{},textContent:'',title:''};
- nodes.sh9Nameday6.textContent='NÉVNAP · betöltés…';
+ nodes.sh9NamedayValue6.textContent='betöltés…';
  const doc={getElementById:id=>nodes[id]||null,addEventListener:()=>{},hidden:false};
  const requests=[];
  async function mockFetch(url){
@@ -33,8 +33,9 @@ test('date tile shows DÁTUM, actual date and a single NÉVNAP · Salamon line',
   setInterval:()=>{},console});
  await new Promise(resolve=>setImmediate(resolve));
  assert.match(nodes.sh9Date6.textContent,/október 24/);
- assert.equal(nodes.sh9Nameday6.textContent,'NÉVNAP · Salamon');
- assert.equal((nodes.sh9Nameday6.textContent.match(/névnap/gi)||[]).length,1);
+ assert.equal(nodes.sh9NamedayValue6.textContent,'Salamon');
+ assert.equal((nodes.sh9NamedayValue6.textContent.match(/névnap/gi)||[]).length,0);
+ assert.match(html,/<span class="sh9-nameday-label">NÉVNAP · <\/span><span id="sh9NamedayValue6"/);
  assert.equal(requests.filter(x=>x.includes('namedays.json')).length,1);
 });
 
@@ -52,13 +53,13 @@ test('full date/nameday tile opens the actual Outlook monthly link rather than S
  const calendar=html.match(/<button id="sh9CalendarCell"[\s\S]*?<\/button>/);
  assert.ok(calendar);
  assert.match(calendar[0],/aria-controls="sh9AgendaDialog"/);
- assert.match(html,/sh9-info-v6\.js\?v=9-date-nameday-month/);
+ assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
  assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
 
 test('nameday data error still uses one label and never invents a name',()=>{
- assert.match(script,/NÉVNAP · nem elérhető/);
+ assert.match(script,/nameEl\.textContent='nem elérhető'/);
  assert.doesNotMatch(script,/names\.join\(', '\)\+' névnap'/);
  assert.doesNotMatch(script,/location\.reload|localStorage\.clear|sessionStorage\.clear/);
 });
