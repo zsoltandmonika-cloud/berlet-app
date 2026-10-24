@@ -24,9 +24,9 @@ const sample=(id,owner,buildCode,build)=>({
 test('signed releases require a matching URL/checksum and explicit rollout scope',()=>{
  const okay=model.shapeOta(ota);
  assert.ok(okay);
- assert.equal(okay.version,'0.14.6');
- assert.equal(okay.versionCode,26);
- assert.deepEqual(okay.rolloutProfiles,['zsolt','monika']);
+ assert.equal(okay.version,ota.version);
+ assert.equal(okay.versionCode,ota.versionCode);
+ assert.deepEqual(okay.rolloutProfiles,ota.rolloutProfiles);
  assert.equal(model.shapeOta({...ota,sha256:'f'.repeat(63)}),null);
  assert.equal(model.shapeOta({...ota,downloadUrl:'https://example.com/a.apk'}),null);
  assert.equal(model.shapeOta({...ota,applicationId:'fake.package'}),null);
@@ -34,9 +34,10 @@ test('signed releases require a matching URL/checksum and explicit rollout scope
 });
 
 test('only registered exact-owner physical Android devices count; browser and stale telemetry excluded',()=>{
- const z=sample('android-z-device','zsolt',27,'0.15.0');
- const m=sample('android-m-device','monika',26,'0.14.6');
- const view=model.read(reg,[z,m],ota,web,now);
+ const z=sample('android-z-device','zsolt',Math.max(27,ota.versionCode),'0.15.0');
+ const m=sample('android-m-device','monika',ota.versionCode,ota.version);
+ const both={...ota,rolloutProfiles:['zsolt','monika']};
+ const view=model.read(reg,[z,m],both,web,now);
  assert.deepEqual(view.devices.map(x=>x.registered),[true,true]);
  assert.equal(view.devices[0].sh9,'unified');
  assert.equal(view.devices[0].ota,'up-to-date');
@@ -44,24 +45,24 @@ test('only registered exact-owner physical Android devices count; browser and st
  assert.equal(view.devices[1].sh9,'legacy-no-integrated-sh9');
  assert.equal(view.devices[1].ota,'up-to-date');
  assert.equal(view.webRelease.version,'2026.10.24.1');
- const wrong=model.read(reg,[{...z,deviceType:'web'}, {...m,activeProfile:'zsolt'}],ota,web,now);
+ const wrong=model.read(reg,[{...z,deviceType:'web'}, {...m,activeProfile:'zsolt'}],both,web,now);
  assert.deepEqual(wrong.devices.map(x=>x.registered),[false,false]);
- const archived=model.read({...reg,archived:['android-z-device']},[z,m],ota,web,now);
+ const archived=model.read({...reg,archived:['android-z-device']},[z,m],both,web,now);
  assert.equal(archived.devices[0].registered,false);
- const stale=model.read(reg,[{...z,lastSeenAt:'2026-10-23T04:50:00.000Z'},m],ota,web,now);
+ const stale=model.read(reg,[{...z,lastSeenAt:'2026-10-23T04:50:00.000Z'},m],both,web,now);
  assert.equal(stale.devices[0].connectivity,'stale');
 });
 
 test('only signed published OTA is called available; no fake update for unpublished build 27',()=>{
- const z=sample('android-z-device','zsolt',25,'0.14.5');
- const x=model.read(reg,[z],ota,web,now).devices[0];
+ const z=sample('android-z-device','zsolt',ota.versionCode-1,'0.14.5');
+ const x=model.read(reg,[z],{...ota,rolloutProfiles:['zsolt','monika']},web,now).devices[0];
  assert.equal(x.ota,'approved-update');
- assert.equal(x.approvedVersion,'0.14.6');
+ assert.equal(x.approvedVersion,ota.version);
  const blocked=model.read(reg,[z],{...ota,rolloutProfiles:['monika']},web,now).devices[0];
  assert.equal(blocked.ota,'not-in-rollout');
  const invalid=model.read(reg,[z],{...ota,sha256:'invalid'},web,now).devices[0];
  assert.equal(invalid.ota,'unknown');
- const fresh=model.read(reg,[{...z,buildCode:27,build:'0.15.0'}],ota,web,now).devices[0];
+ const fresh=model.read(reg,[{...z,buildCode:Math.max(27,ota.versionCode),build:ota.version}],ota,web,now).devices[0];
  assert.equal(fresh.ota,'up-to-date');
  assert.equal(fresh.approvedVersion,null);
 });
