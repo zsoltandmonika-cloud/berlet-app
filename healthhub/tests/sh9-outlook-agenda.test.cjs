@@ -86,7 +86,7 @@ test('All three SH9 live info cells have full-size accessible click targets and 
  assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub"><span class="sh9-nameday-label">NÉVNAP · <\/span><span id="sh9NamedayValue6" class="sh9-nameday-value">betöltés/);
  assert.match(strip,/<a id="sh9WeatherCell6" class="sh9-info-cell sh9-info-tap" href="https:\/\/www\.meteoblue\.com\/en\/weather\/week\/budapest_hungary_3054643"/);
  assert.match(strip,/<a id="sh9CalendarCell" class="sh9-info-cell sh9-calendar-click-target" href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
- assert.match(script,/card\.addEventListener\('click',show\)/);
+ assert.doesNotMatch(script,/card\.addEventListener\('click',show\)/);
  assert.match(script,/card\.setAttribute\('aria-label'/);
  assert.doesNotMatch(script,/summary\.addEventListener\('click',show\)/);
  assert.match(css,/#sh9NamedayCell\.sh9-info-tap:focus-visible/);
@@ -109,8 +109,8 @@ test('Daily nameday, weather reading, calendar entry are pink; alerts retain the
 test('native SH9 browser handoff opens private calendar through trusted native host, not false native sync',()=>{
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
  assert.match(script,/if\(NATIVE\)\{[\s\S]*?card\.addEventListener\('click',/);
- assert.match(script,/searchParams\.set\('sh9external','calendar'\)/);
- assert.match(script,/searchParams\.set\('sh9calendar','1'\)/);
+ assert.match(script,/w\.location\.assign\(OUTLOOK_AGENDA\)/);
+ assert.match(script,/const OUTLOOK_AGENDA='https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'/);
  assert.match(script,/if\(new URLSearchParams\(w\.location\.search\)\.get\('sh9calendar'\)==='1'\)show\(\)/);
  assert.match(script,/setCard\('Outlook Agenda','Megnyitás a böngészőben ›','pending'\)/);
  assert.doesNotMatch(script,/client_secret/);
