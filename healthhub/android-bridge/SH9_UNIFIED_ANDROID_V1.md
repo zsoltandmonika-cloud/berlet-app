@@ -25,8 +25,12 @@ requires a new trusted, signed OTA APK.
   requires precise location permission, and always shows a foreground notification.
 - It does **not** automatically restart after a device reboot, restart itself
   after being killed, or request Android `ACCESS_BACKGROUND_LOCATION`.
-- No GPS coordinates or travel path are written to disk, uploaded to Dropbox,
-  or shared with the web page. Only an in-process last-fix timestamp is held.
+- The optional GPS foreground service never saves or uploads coordinates or
+  travel paths. Only an in-process last-fix timestamp is retained. Separately,
+  the SH9 first-party WebView may request an individual position through
+  `navigator.geolocation`, after Android location permission; the coordinates
+  are then accessible to the trusted SH9 web page for its map. Third-party web
+  origins are not granted location through the native permission handler.
 - The optional GPS subscription may help keep the receiver active while the
   service is operating, but Android can still interrupt it, hardware can lose
   satellite lock, battery use may rise, and **another app's** location
