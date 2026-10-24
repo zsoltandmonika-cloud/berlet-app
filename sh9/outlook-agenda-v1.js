@@ -293,22 +293,21 @@
   modal.hidden=true;open=false;
   if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
  }
- // The entire top NAPTÁR tile opens Outlook's real Agenda in ONE tap.
- // Web: new browser tab, preserving the SH9 launchpad.
- // Android WebView: main-frame HTTPS navigation triggers its existing
- // allowlisted external-browser handoff, with NO new APK or OAuth bridge.
- // The SH9's own read-only Agenda dialog remains accessible from Admin via
- // ?sh9calendar=1 for Microsoft account settings and local diagnostics.
+ // The top NAPTÁR tile is a real anchor. Chrome opens the official
+ // Outlook Agenda directly in a new tab; no custom modal or second click.
+ // The existing Android native WebView redirects its main frame to HTTPS
+ // so the already-installed host hands it to the system browser.
+ // The private SH9 read-only Agenda remains reachable from Admin using
+ // ?sh9calendar=1, including settings/renewal.
  const OUTLOOK_AGENDA='https://outlook.live.com/calendar/0/view/agenda';
- function openOutlookAgenda(){
-  if(NATIVE){w.location.assign(OUTLOOK_AGENDA);return}
-  // Synchronous user activation is required by mobile popup policies.
-  const opened=w.open(OUTLOOK_AGENDA,'_blank','noopener,noreferrer');
-  if(!opened)w.location.assign(OUTLOOK_AGENDA);
+ if(NATIVE){
+  card.addEventListener('click',e=>{
+   e.preventDefault();
+   w.location.assign(OUTLOOK_AGENDA);
+  });
+  sub.textContent='Outlook Agenda ›';
  }
- card.addEventListener('click',openOutlookAgenda);
  card.setAttribute('aria-label','Outlook Agenda megnyitása közvetlenül');
- if(NATIVE)sub.textContent='Outlook Agenda ›';
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
  d.addEventListener('keydown',e=>{
