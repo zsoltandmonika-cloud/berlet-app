@@ -1,0 +1,31 @@
+name: SH9 Smart Travel Golden QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/**'
+      - 'healthhub/tests/sh9-smart-travel-golden.test.cjs'
+      - '.github/workflows/sh9-smart-travel-v3-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/**'
+      - 'healthhub/tests/sh9-smart-travel-golden.test.cjs'
+      - '.github/workflows/sh9-smart-travel-v3-qa.yml'
+permissions:
+  contents: read
+jobs:
+  golden-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript syntax
+        run: |
+          node --check sh9/smart-travel/weather-v3.js
+          node --check sh9/smart-travel/world-clocks-v2.js
+      - name: Run Smart Travel Golden Standard tests
+        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs
