@@ -113,7 +113,10 @@ test('Monika v0.14.6 is eligible for immutable signed v0.15.0 GPS OTA after roll
  const other=model.read(reg,[z,monika],ota,web,now);
  assert.equal(other.devices[0].ota,'up-to-date');
  const outdatedSelected=sample('android-m-old','monika',23,'0.12.0');
- const wrong=model.read(reg,[z,outdatedSelected,monika],ota,web,now);
- assert.equal(wrong.devices[1].registered,false,
-   'OTA eligibility does not select a newer Android ID automatically or hide a wrong registry link.');
+ const oldSelected={...reg,activePhones:{...reg.activePhones,monika:'android-m-old'}};
+ const wrong=model.read(oldSelected,[z,outdatedSelected,monika],ota,web,now);
+ assert.equal(wrong.devices[1].registered,true);
+ assert.equal(wrong.devices[1].installed.buildCode,23,
+   'OTA availability must not auto-select newer Android ID or silently rewrite the registry.');
+ assert.equal(wrong.devices[1].deviceId,'android-m-old'.slice(-11));
 });
