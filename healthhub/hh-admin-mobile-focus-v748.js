@@ -66,6 +66,9 @@ function apply(){
  const menu=q(ID);
  if(!menu)return;
  for(const btn of menu.querySelectorAll('button[data-group]'))btn.setAttribute('aria-pressed',String(btn.dataset.group===selected));
+ // Central settings shortcut, never read or expose Outlook credentials in Admin.
+ const calendar=q('hhAdminMicrosoftCalendarV2');
+ if(calendar)calendar.hidden=selected!=='cloud';
  help(CATEGORIES.find(x=>x.id===selected).note);
 }
 function select(group,scroll){
@@ -139,6 +142,15 @@ function mount(){
   for(const x of [['hhDeviceRegistry401','📱 Eszközregiszter megnyitása'],['sh9VersionCenterV1','📦 APK és OTA állapot']]){
    const b=el('button','',x[1]);b.type='button';b.addEventListener('click',()=>jump(x[0]));actions.appendChild(b);
   }
+  // Keep the existing six category cards. One direct Calendar settings link
+  // appears only in Cloud & AI; authentication stays in the first-party browser.
+  const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
+  outlook.type='button';outlook.id='hhAdminMicrosoftCalendarV2';outlook.hidden=true;
+  outlook.addEventListener('click',()=>{
+   const page=new URL('../sh9/?sh9calendar=1',w.location.href);
+   w.location.assign(page.href);
+  });
+  actions.appendChild(outlook);
   panel.appendChild(actions);
   const note=el('p','hhQuickHelpV748');note.id=ID+'Help';panel.appendChild(note);
   root.appendChild(panel);
