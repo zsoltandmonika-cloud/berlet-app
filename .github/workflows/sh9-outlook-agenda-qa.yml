@@ -4,9 +4,11 @@ on:
     paths:
       - 'sh9/index.html'
       - 'sh9/outlook-agenda-*.js'
+      - 'sh9/outlook-session-v2.js'
       - 'sh9/outlook-agenda-*.css'
       - 'sh9/outlook-agenda-README.md'
       - 'healthhub/tests/sh9-outlook-agenda.test.cjs'
+      - 'healthhub/tests/sh9-outlook-persistent-v2.test.cjs'
       - '.github/workflows/sh9-outlook-agenda-qa.yml'
   push:
     branches: [main]
@@ -29,6 +31,9 @@ jobs:
       - name: JavaScript syntax
         run: |
           node --check sh9/outlook-agenda-v1.js
+          node --check sh9/outlook-session-v2.js
           node --check sh9/outlook-agenda-model-v1.js
       - name: Offline synthetic Outlook QA
-        run: node --test healthhub/tests/sh9-outlook-agenda.test.cjs
+        run: |
+          node --test healthhub/tests/sh9-outlook-agenda.test.cjs
+          node --test healthhub/tests/sh9-outlook-persistent-v2.test.cjs
