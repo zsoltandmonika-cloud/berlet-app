@@ -1,0 +1,36 @@
+name: HH One · Accurate Selected Device v504
+on:
+  pull_request:
+    paths:
+      - 'healthhub/device-registry-v401.js'
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/hh-one-repair-routing-v503.js'
+      - 'healthhub/hh-admin-device-contrast-v749.css'
+      - 'healthhub/index.html'
+      - 'healthhub/digital-health/index.html'
+      - 'healthhub/tests/hh-one-device-status-v504.test.cjs'
+      - '.github/workflows/hh-one-device-status-v504-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  device-selection-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax / precise selected Android diagnostics
+        run: |
+          node --check healthhub/hh-one-rag-v500.js
+          node --check healthhub/device-registry-v401.js
+          node --check healthhub/hh-one-repair-routing-v503.js
+          node --test healthhub/tests/hh-one-device-status-v504.test.cjs
+      - name: Established selected Android, service center and one-click repair checks
+        run: |
+          node healthhub/tests/hh-one-rag-v500.test.cjs
+          node --test healthhub/tests/hh-one-one-tap-repair-v503.test.cjs
+          node --test healthhub/tests/hh-admin-device-contrast-v749.test.cjs
+          node --test healthhub/tests/sh9-version-center.test.cjs

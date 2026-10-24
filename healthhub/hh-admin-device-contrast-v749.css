@@ -115,3 +115,41 @@ html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305
  html[data-hh-inline-admin="yes"] #haBody #hhSyncOrchestrator305 .hhOrchDevice305{grid-template-columns:minmax(0,1fr)!important}
  html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegBtns401{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 }
+
+
+/* v504: selected identity and last heartbeat must never look equivalent.
+ * Stale identities remain visible but collapsed, not deleted/archived. */
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegStale504{
+ border:1px solid #e4bb828e!important;
+ background:linear-gradient(145deg,#41343e,#302f49)!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegCandidate504{
+ border:1px solid #dea4e3aa!important;
+ background:linear-gradient(145deg,#422d53,#283a5d)!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegAlert504{
+ padding:12px;border-radius:12px;background:#4e3b2f!important;
+ border:1px solid #e4c083a8!important;color:#ffe4b8!important;
+ font:650 13px/1.55 system-ui,sans-serif!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegSuggestion504{
+ color:#f4d9f8!important;line-height:1.5!important;font-size:12px!important;
+ border-left:3px solid #d89cdd;padding:5px 10px;background:#452d57b0!important;
+ border-radius:6px;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegSignal504{
+ color:#f5d3f1!important;font-weight:750!important;font-size:12px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegEvidence504{
+ color:#bad2e8!important;font-size:11.5px!important;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegOld504{
+ padding:10px 0;border-top:1px solid #789abb50;margin-top:12px;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegOld504 summary{
+ cursor:pointer;color:#d9bbf9!important;font:750 13px/1.6 system-ui!important;
+ padding:8px 5px;min-height:44px;
+}
+html[data-hh-inline-admin="yes"] #haBody #hhDeviceRegistry401 .hhRegCandidateTitle504{
+ color:#f5bceb!important;font:800 14px/1.5 system-ui!important;margin:14px 0 3px!important;
+}

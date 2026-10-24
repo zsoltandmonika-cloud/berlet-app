@@ -27,7 +27,7 @@ test('real mobile Admin loads accessible v749 style with cache-busting',()=>{
 });
 
 test('registry accurately states missing native heartbeats, preserving enrolled identity',()=>{
- assert.match(reg,/A korábban kijelölt telefon nem küldött most ellenőrizhető Android-jelentést/);
+ assert.match(reg,/A korábban kijelölt telefonhoz most nincs ellenőrizhető Android-bejegyzés/);
  assert.match(reg,/Még nem érkezett ellenőrizhető Android-jelentés/);
  assert.match(reg,/HH One \/ HH Connect natív alkalmazást/);
  assert.match(reg,/ellenőrizd a tulajdonosprofilt és a Dropbox-kapcsolatot/);
