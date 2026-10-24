@@ -179,10 +179,14 @@ function renderPanel(){
     'Nem tekinthető élő kapcsolatnak, még ha régen DONE állapotot kapott is.',line);
   }
   if(alternative){
-   issueCard(line,'OPS-CANDIDATE-'+p,'🟣 '+(p==='zsolt'?'Zsolt':'Mónika')+
+   // When d is absent, line itself is already a clickable button. Do not nest buttons.
+   if(d)issueCard(line,'OPS-CANDIDATE-'+p,'🟣 '+(p==='zsolt'?'Zsolt':'Mónika')+
     ': frissebb Android-bejegyzés ellenőrizhető',
     'Új, de nem kijelölt azonosító: …'+safeText(alternative.deviceId).slice(-11)+
     ' · '+dt(alternative.lastSeenAt)+'. Ellenőrizd a valódi telefont, majd jelöld ki a regiszterben.');
+   else txt('small','🟣 Friss, NEM kijelölt Android: …'+
+    safeText(alternative.deviceId).slice(-11)+' · '+dt(alternative.lastSeenAt)+
+    '. Koppints a kártyára a regiszter megnyitásához.',line);
   }
   if(d){
    txt('small','Utolsó jelentkezés: '+dt(d.lastSeenAt),line);
