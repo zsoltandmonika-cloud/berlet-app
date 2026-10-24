@@ -7,6 +7,7 @@
 const ID='hhServicePortal806',ROOT='/HealthHub-ChatGPT-Analytics';
 const ROOT_ID='id:n7qchVNGAogAAAAAAAAABQ';
 const FILE=ROOT+'/hh-service-last.json';
+const CHROME_URL='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/?hhservice=1';
 let busy=false;
 const get=id=>d.getElementById(id);
 const validTime=s=>{const v=Date.parse(s||'');return Number.isFinite(v)?new Date(v).toISOString():null};
@@ -110,6 +111,13 @@ function open(){
  const panel=get(ID);if(panel)panel.hidden=false;
 }
 function close(){const panel=get(ID);if(panel)panel.hidden=true}
+function inWebview(){return /Android.*; wv\)|; wv\b/i.test(String(w.navigator.userAgent||''))}
+function oauthError(e){
+ const msg=String(e&&e.message||e||'Ismeretlen Dropbox hiba');
+ if(/reached.*user.limit|user.limit.*reach|app.*user.limit/i.test(msg))
+  return 'A Dropbox alkalmazás felhasználói limitet jelez. Ez nem tárhelyhiba, és nem javítható újabb bejelentkezési próbálkozásokkal. A Dropbox App Console-ban ellenőrizni kell a ChatGPT cél-alkalmazás Development users / Production állapotát.';
+ return msg.slice(0,210);
+}
 function mount(){
  if(get(ID)||!d.body)return;
  const panel=d.createElement('section');panel.id=ID;panel.hidden=true;
@@ -123,18 +131,44 @@ function mount(){
  const status=d.createElement('p');status.id=ID+'Status';status.setAttribute('role','status');status.textContent='Nincs elküldött diagnosztika.';
  const buttons=d.createElement('div');buttons.style.cssText='display:flex;flex-wrap:wrap;gap:10px';
  function make(label,handler){const b=d.createElement('button');b.type='button';b.textContent=label;b.style.cssText='background:#245c7f;color:#fff;border:1px solid #8bc1e3;border-radius:12px;padding:13px 14px;min-height:48px;font-weight:750';b.addEventListener('click',handler);buttons.append(b);return b}
+ const connect=make('🔗 ChatGPT cél Dropbox csatlakoztatása',async()=>{
+  const auth=w.HH_CHATGPT_TARGET_AUTH_V739;
+  if(!auth||typeof auth.authorize!=='function'){status.textContent='⚠ A Dropbox OAuth modul hiányzik. Frissítsd a HealthHub webes oldalt.';return}
+  if(inWebview()){
+   status.textContent='A beépített HH One böngésző és a Chrome eltérő Dropbox-munkamenetet használhat. Nyisd meg ezt a Service Portalt a Chrome-ban a másolható címmel, majd ott engedélyezd a célt.';
+   return;
+  }
+  connect.disabled=true;status.textContent='A cél Dropbox engedélyezése indul. Azonos böngészőben térj vissza a Service Portalhoz.';
+  try{await auth.authorize()}catch(e){status.textContent='⚠ '+oauthError(e);connect.disabled=false}
+ });
+ const copy=make('📋 Service Portal címe · másolás Chrome-hoz',async()=>{
+  try{await w.navigator.clipboard.writeText(CHROME_URL);status.textContent='✓ A Service Portal címe másolva. Nyisd meg Chrome-ban, és illeszd be a címsorba.'}
+  catch(e){status.textContent='Nyisd meg Chrome-ban ezt a címet: '+CHROME_URL}
+ });
+ const check=make('🔎 Dropbox-cél ellenőrzése',async()=>{
+  const auth=w.HH_CHATGPT_TARGET_AUTH_V739,V=w.HH_CHATGPT_TARGET_ONBOARD_V739;
+  check.disabled=true;status.textContent='Cél Dropbox-engedély és célmappa ellenőrzése…';
+  try{
+   if(!auth||!V||!(await auth.read()))throw Error('A ChatGPT cél Dropbox nincs engedélyezve ebben a böngészőben.');
+   const folder=await V.verifyTargetFolder();
+   if(folder.id!==ROOT_ID||String(folder.path).toLowerCase()!==ROOT.toLowerCase())throw Error('Eltérő Dropbox-célmappa. Hozzáférés letiltva.');
+   status.textContent='✓ A ChatGPT cél Dropbox kapcsolódik, a pontos privát célmappa ellenőrizve. A műszaki jelentés most megosztható.';
+  }catch(e){status.textContent='⚠ '+oauthError(e)}
+  finally{check.disabled=false}
+ });
  const share=make('🔐 Egyszeri diagnosztika megosztása',async()=>{
   if(busy)return;
   if(!w.confirm('Engedélyezed egy kizárólag műszaki adatokat tartalmazó jelentés egyszeri feltöltését a privát ChatGPT Dropbox mappába? Nem indul folyamatos megfigyelés.'))return;
   busy=true;share.disabled=true;status.textContent='Műszaki állapot összeállítása és ellenőrzött privát feltöltés…';
   try{const doc=await snapshot();const file=await upload(doc);
    status.textContent='✓ Feltöltve és visszaolvasva: '+file+'. Most már ellenőrizhető a ChatGPT Dropbox-kapcsolaton keresztül.'}
-  catch(e){status.textContent='⚠ A megosztás nem igazolt: '+String(e.message||e).slice(0,180)+'. A meglévő beállításokat nem módosítottuk.'}
+  catch(e){status.textContent='⚠ A megosztás nem igazolt: '+oauthError(e)+'. A meglévő beállításokat nem módosítottuk.'}
   finally{busy=false;share.disabled=false}
  });
  make('✕ Bezárás',close);
  content.append(h,intro,details,buttons,status);panel.append(content);d.body.append(panel);
 }
 w.HH_SERVICE_PORTAL_V806=Object.freeze({open,close,snapshot});
-if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+function boot(){mount();if(new URL(w.location.href).searchParams.get('hhservice')==='1')w.setTimeout(open,180)}
+if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })(window,document);
