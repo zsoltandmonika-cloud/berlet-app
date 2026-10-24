@@ -62,12 +62,16 @@ function row(d,p){
  (!active&&!archived?'<button data-hh-reg-action="archive" data-id="'+clean(d.deviceId)+'">📦 Archiválás</button>':'')+
  '</div></div>';
 }
+function elIsInteracting(){
+ var el=document.getElementById(PANEL),a=document.activeElement;
+ return !!(el&&a&&el.contains(a)&&a.matches&&a.matches('button,summary,input,select,textarea'));
+}
 function panel(force){
  // Avoid replacing the card and buttons while Admin is being scrolled.
  if(!force&&window.hhAdminScrollActiveV748?.()&&document.getElementById(PANEL))return;
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
  if(!ov||!body||!ov.classList.contains('on'))return;
- if(!force&&Date.now()<interactionUntil)return;
+ if(!force&&(Date.now()<interactionUntil||elIsInteracting()))return;
  var el=document.getElementById(PANEL);
  if(!el){el=document.createElement('section');el.id=PANEL;var anchor=document.getElementById('hhSyncOrchestrator305');if(anchor)anchor.insertAdjacentElement('beforebegin',el);else body.prepend(el)}
  var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
@@ -119,7 +123,14 @@ function panel(force){
  html+='<div class="hhRegBottom401"><button type="button" data-hh-reg-action="refresh">↻ Állapot frissítése</button>'+
  (registry&&registry.history.length?'<button type="button" data-hh-reg-action="undo">↩ Utolsó változás visszavonása</button>':'')+'</div>'+
  '<p class="hhRegNote401">A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
+ if(el.innerHTML===html)return;
+ // Preserve visual position and expanded sections on background refresh.
+ var openDetails=Array.from(el.querySelectorAll('details')).map(function(d,i){return d.open?i:-1}).filter(function(i){return i>=0});
+ var top=body.scrollTop,left=body.scrollLeft;
  el.innerHTML=html;
+ var details=el.querySelectorAll('details');
+ openDetails.forEach(function(i){if(details[i])details[i].open=true});
+ if(body.scrollTop!==top||body.scrollLeft!==left)body.scrollTo({top:top,left:left,behavior:'instant'});
 }
 function style(){
  if(document.getElementById(STYLE))return;
