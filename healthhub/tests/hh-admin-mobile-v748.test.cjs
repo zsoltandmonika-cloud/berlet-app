@@ -13,13 +13,20 @@ const ux=read('hh-admin-mobile-focus-v748.js'),old=read('hh-unified-admin-v745.j
 test('SH9 Admin has six color-coded, accessible single-tap categories and direct device actions',()=>{
  for(const k of ['devices','cloud','data','architecture','recovery','other'])
   assert.match(ux,new RegExp("id:'"+k+"'"));
- for(const k of ['📱 Eszközregiszter megnyitása','📦 APK és OTA állapot','SH9 · Admin Control Center'])
+ for(const k of ['📱 Eszközregiszter megnyitása','📦 APK és OTA állapot','📱 HH One Connect megnyitása','SH9 · Admin Control Center'])
   assert.ok(ux.includes(k));
  assert.match(ux,/aria-pressed/);
  assert.match(ux,/min-height:54px/);
  assert.match(ux,/font-size:13px/);
  assert.match(ux,/hhAdminScrollActiveV748/);
  assert.doesNotMatch(ux,/location\.reload\(|localStorage\.clear|innerHTML\s*=|indexedDB\.deleteDatabase/);
+});
+
+test('native settings shortcut is Android-only and user-initiated, not an autoplay loop',()=>{
+ assert.match(ux,/native\.hidden=!\/Android\/i/);
+ assert.match(ux,/w\.location\.assign\('healthhubconnect:\/\/settings'\)/);
+ assert.match(ux,/native\.addEventListener\('click'/);
+ assert.doesNotMatch(ux,/w\.location\.assign\('healthhubconnect:\/\/settings'\);\s*mount\(/);
 });
 
 test('header is inserted once, categories filter in place, and user tap never rebuilds Admin',()=>{
@@ -73,7 +80,7 @@ test('periodic portal/registry/Orchestrator updates cannot recycle cards during 
 });
 
 test('mobile loader cache bust and existing non-Admin functionality preserved',()=>{
- assert.match(home,/hh-admin-mobile-focus-v748\.js\?v=748/);
+ assert.match(home,/hh-admin-mobile-focus-v748\.js\?v=748[^"']*one=752/);
  assert.match(home,/device-registry-v401\.js\?v=401-reversible-housekeeping&admin=748/);
  assert.match(home,/hh-unified-admin-v745\.js\?v=747-sh9-version-center&admin=748/);
  assert.match(home,/sh9-version-center-v1\.js\?v=1/);

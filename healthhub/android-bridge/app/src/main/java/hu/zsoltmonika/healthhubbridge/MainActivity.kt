@@ -55,7 +55,6 @@ class MainActivity : ComponentActivity() {
         private const val DROPBOX_REDIRECT = DropboxVaultClient.WEB_REDIRECT
         private const val HEALTHHUB_URL = DropboxVaultClient.WEB_REDIRECT
         private const val PREFS = "healthhub_connect"
-        private const val SH9_START_DEFAULT = "sh9_start_default_v1"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -183,8 +182,13 @@ class MainActivity : ComponentActivity() {
         updateOtaStatus()
         updateSh9GpsUi()
         checkOta(false)
-        if (savedInstanceState == null && prefs.getBoolean(SH9_START_DEFAULT, false) &&
-            intent?.getBooleanExtra("openNativeSettings", false) != true && intent?.data == null) {
+        // Single-app rule: app icon opens the LIVE SH9 launcher. Native settings
+        // are reachable only by an explicit deep-link, notification or user action.
+        // Never rely on the legacy SH9_START_DEFAULT preference, which can be OFF
+        // on already installed phones and otherwise traps users in two entrypoints.
+        if (savedInstanceState == null &&
+            intent?.getBooleanExtra("openNativeSettings", false) != true &&
+            intent?.data == null) {
             startActivity(Intent(this, Sh9WebActivity::class.java))
         }
     }
@@ -192,6 +196,8 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        // settings deep-links are display-only. In particular, they must not
+        // run OAuth, change Dropbox credentials, or relaunch SH9.
         handleIntent(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
@@ -337,6 +343,11 @@ class MainActivity : ComponentActivity() {
                 syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
+            "settings" -> {
+                // User explicitly requested the native HH One screen.
+                // Its existing controls are already visible; no automatic SH9 launch.
+                status.text = "✓ HH One natív beállítások · szinkron, GPS, OTA."
+            }
         }
     }
 
@@ -650,24 +661,17 @@ class MainActivity : ComponentActivity() {
             setTextColor(0xFF315F98.toInt())
         })
         root.addView(Button(this).apply {
-            text = "🚀 SH9 Start Page megnyitása"
+            text = "🚀 Vissza az SH9 Start Page-re"
             setOnClickListener { startActivity(Intent(this@MainActivity, Sh9WebActivity::class.java)) }
         })
-        val sh9Default = Button(this)
-        fun updateDefaultButton() {
-            val enabled = prefs.getBoolean(SH9_START_DEFAULT, false)
-            sh9Default.text = if (enabled) "✓ SH9 legyen a kezdőoldal: BE"
-                else "SH9 legyen a kezdőoldal: KI"
-        }
-        sh9Default.setOnClickListener {
-            val next = !prefs.getBoolean(SH9_START_DEFAULT, false)
-            prefs.edit().putBoolean(SH9_START_DEFAULT, next).apply()
-            updateDefaultButton()
-            status.text = if (next) "✓ Következő alkalmazásindításkor az SH9 nyílik meg. Vissza: HH One beállítások."
-                else "✓ A HH One beállítások nyílnak meg induláskor."
-        }
-        updateDefaultButton()
-        root.addView(sh9Default)
+        root.addView(TextView(this).apply {
+            text = "Az alkalmazás ikonja mindig az élő SH9 Start Page-et nyitja. " +
+                "Ez a natív HH One kezelő az SH9 Admin Centerből érhető el; itt " +
+                "működik a Health Connect, Dropbox-szinkron, GPS és az aláírt OTA."
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 8, 0, 12)
+        })
         root.addView(TextView(this).apply {
             text = "📍 SH9 · GPS kapcsolat fenntartása"
             textSize = 18f
@@ -1131,6 +1135,10 @@ class MainActivity : ComponentActivity() {
             try {
                 val found = OtaUpdateManager.check(this@MainActivity)
                 updateOtaStatus()
+                // The SH9 launcher normally hides this native screen. Notify the
+                // owner when the signed update becomes available on app startup.
+                // Android still requires explicit permission and install approval.
+                if (!showResult && found != null) OtaUpdateManager.notifyAvailable(this@MainActivity, found)
                 if (showResult) {
                     val result = if (found == null)
                         "✓ Nincs ehhez a készülékhez engedélyezett új OTA-kiadás."

@@ -54,11 +54,11 @@ object OtaUpdateManager {
     )
 
     fun schedule(context: Context) {
-        val req = PeriodicWorkRequestBuilder<OtaCheckWorker>(12, TimeUnit.HOURS)
+        val req = PeriodicWorkRequestBuilder<OtaCheckWorker>(6, TimeUnit.HOURS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "healthhub-ota-check-v1", ExistingPeriodicWorkPolicy.KEEP, req
+            "healthhub-ota-check-v1", ExistingPeriodicWorkPolicy.UPDATE, req
         )
     }
 
@@ -199,6 +199,7 @@ object OtaUpdateManager {
             NotificationChannel(CHANNEL, "HealthHub alkalmazásfrissítések", NotificationManager.IMPORTANCE_DEFAULT)
         )
         val tapIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra("openNativeSettings", true)
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
         val tap = PendingIntent.getActivity(

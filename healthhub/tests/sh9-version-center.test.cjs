@@ -98,18 +98,18 @@ test('version center is first-party Admin-only and reuses v401 registry, no dupl
 });
 
 
-test('Monika v0.14.6 is eligible for immutable signed v0.15.0 GPS OTA after rollout approval',()=>{
- // The shipped baseline is immutable. Monika was blocked ONLY by rolloutProfiles.
- assert.equal(ota.version,'0.15.0');
- assert.equal(ota.versionCode,27);
- assert.deepEqual(ota.rolloutProfiles,['zsolt','monika']);
- assert.equal(ota.sha256,'465bf5ba49cc01dc2eb340c87f16e88744eb81fa40ecc347439cd06a9e4eb1b6');
+test('Monika needs explicit rollout for signed v0.15.1 OTA',()=>{
+ // v0.15.1 is immutable; rollout scope is a separate approval.
+ assert.equal(ota.version,'0.15.1');
+ assert.equal(ota.versionCode,28);
+ assert.deepEqual(ota.rolloutProfiles,['zsolt']);
+ assert.equal(ota.sha256,'f40ad11a712fea61b9439779f2ba06d3848a27e444ac9411be57fd7fcc2e5156');
  const monika=sample('android-m-device','monika',26,'0.14.6');
  const out=model.read(reg,[monika],ota,web,now);
  assert.equal(out.devices[1].registered,true);
- assert.equal(out.devices[1].ota,'approved-update');
- assert.equal(out.devices[1].approvedVersion,'0.15.0');
- const z=sample('android-z-device','zsolt',27,'0.15.0');
+ assert.equal(out.devices[1].ota,'not-in-rollout');
+ assert.equal(out.devices[1].approvedVersion,null);
+ const z=sample('android-z-device','zsolt',28,'0.15.1');
  const other=model.read(reg,[z,monika],ota,web,now);
  assert.equal(other.devices[0].ota,'up-to-date');
  const outdatedSelected=sample('android-m-old','monika',23,'0.12.0');

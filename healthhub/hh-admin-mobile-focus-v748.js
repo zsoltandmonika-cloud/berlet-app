@@ -149,6 +149,21 @@ function mount(){
     else help('A Service Portal még nem töltődött be. Frissítsd az SH9 webes felületét.');
   });
   actions.appendChild(service);
+  // One installed signed HH One APK: an explicit user tap opens the native
+  // settings via Android. In the integrated SH9 WebView the native shell
+  // handles it in-place. Never trigger automatically on Admin render.
+  const native=el('button','', '📱 HH One Connect megnyitása');
+  native.type='button';native.id='hhAdminOpenNativeOneV752';
+  native.hidden=!/Android/i.test(w.navigator?.userAgent||'');
+  native.addEventListener('click',()=>{
+    if(!/Android/i.test(w.navigator?.userAgent||'')){
+      help('A HH One Connect natív beállításai csak Android telefonon nyithatók meg.');
+      return;
+    }
+    help('HH One Connect natív beállítások megnyitása. Ha nem történik semmi, a régi külön SH9 Lite APK helyett az új közös HH One APK szükséges.');
+    w.location.assign('healthhubconnect://settings');
+  });
+  actions.appendChild(native);
   const cloudFix=el('button','', '☁️ Dropbox kapcsolat javítása');
   cloudFix.type='button';cloudFix.addEventListener('click',()=>openTarget('cloud','hhUnifiedCloudVaultCard'));
   actions.appendChild(cloudFix);

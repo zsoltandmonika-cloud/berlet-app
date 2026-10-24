@@ -109,6 +109,9 @@ class Sh9WebActivity : ComponentActivity() {
             useWideViewPort = true
             loadWithOverviewMode = true
             textZoom = 100
+            // Load the published SH9/HealthHub pages, not a frozen v23 APK
+            // snapshot. Avoid stale JS/CSS after central web deployments.
+            cacheMode = WebSettings.LOAD_NO_CACHE
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
         }
         view.webChromeClient = object : WebChromeClient() {
@@ -121,6 +124,22 @@ class Sh9WebActivity : ComponentActivity() {
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
+                // Only a main-frame navigation from our first-party pages can request
+                // the native settings screen. The SH9 WebView itself NEVER reopens.
+                // REORDER_TO_FRONT resumes the existing HH One settings activity,
+                // avoiding a stack of duplicate apps or an SH9 startup loop.
+                val source = Uri.parse(view.url ?: "")
+                if (request.isForMainFrame && u.scheme == "healthhubconnect" &&
+                    u.host == "settings" &&
+                    source.scheme == "https" && source.host == HOST &&
+                    source.path?.startsWith(BASE) == true) {
+                    val settings = Intent(this@Sh9WebActivity, MainActivity::class.java)
+                        .putExtra("openNativeSettings", true)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(settings)
+                    finish()
+                    return true
+                }
                 if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) {
                     // Calendar requires a browser-owned Microsoft OAuth session.
                     // Open the SAME SH9 Agenda in the system browser, not a disconnected WebView.
@@ -145,7 +164,10 @@ class Sh9WebActivity : ComponentActivity() {
         }
         web = view
         setContentView(view)
-        if (savedInstanceState == null) view.loadUrl(HOME)
+        // Timestamp affects only the public SH9 entry document. Relative
+        // module routes remain the same first-party GitHub Pages paths.
+        if (savedInstanceState == null)
+            view.loadUrl(HOME + "&hhfresh=" + System.currentTimeMillis())
         else view.restoreState(savedInstanceState)
     }
 
