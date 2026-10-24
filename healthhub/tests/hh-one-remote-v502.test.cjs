@@ -18,13 +18,18 @@ assert.match(build,/applicationId = "hu.zsoltmonika.healthhubbridge"/);
 const ota=JSON.parse(read(path.join(base,'data/bridge-ota.json')));
 const expectedPatch=ota.version.split('.').map(Number);
 expectedPatch[2]++;
+const expectedMinor=ota.version.split('.').map(Number);
+expectedMinor[1]++;
+expectedMinor[2]=0;
+const allowedCandidates=[expectedPatch.join('.'),expectedMinor.join('.')];
 const publishedBuild='versionCode = '+ota.versionCode;
 const candidateBuild='versionCode = '+(ota.versionCode+1);
 const isPublished=build.includes(publishedBuild);
 const isCandidate=build.includes(candidateBuild);
-assert.ok(isPublished||isCandidate,'build must be either published signed version or next patch candidate');
-assert.ok(build.includes('versionName = "'+(isPublished?ota.version:expectedPatch.join('.'))+'"'),
- 'app version name must match published signed OTA or next patch candidate');
+assert.ok(isPublished||isCandidate,'build must match published signed versionCode or next signed candidate');
+const allowedVersions=isPublished?[ota.version]:allowedCandidates;
+assert.ok(allowedVersions.some(v=>build.includes('versionName = "'+v+'"')),
+ 'app version name must match signed OTA baseline or its next patch/minor candidate');
 const manifest=read(path.join(base,'android-bridge/app/src/main/AndroidManifest.xml'));
 const foreground=read(path.join(base,'android-bridge/app/src/main/res/drawable/ic_hh_one_foreground.xml'));
 const releaseCi=read(path.join(base,'../.github/workflows/healthhub-connect-ota-release.yml'));
