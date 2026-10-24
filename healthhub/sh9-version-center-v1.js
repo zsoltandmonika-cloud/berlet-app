@@ -9,7 +9,7 @@ const ID='sh9VersionCenterV1',STYLE='sh9VersionCenterV1Style';
 const REG='/HealthHub/orchestrator/device-registry-v401.json';
 const MODEL=w.SH9_VERSION_MODEL_V1;
 if(!MODEL)return;
-let state=null,loading=false,interacting=false,lastRead=0;
+let state=null,loading=false,interacting=false,lastRead=0,lastGridKey='';
 function el(tag,cls,parent,content){const n=d.createElement(tag);if(cls)n.className=cls;
  if(content!==undefined)n.textContent=String(content);if(parent)parent.appendChild(n);return n;}
 function date(t){return Number.isFinite(t)?new Date(t).toLocaleString('hu-HU'):'Nincs jelentett adat'}
@@ -59,6 +59,15 @@ function mount(){
  }
  return box;
 }
+function repair(group,id,parent,labelText){
+ const btn=el('button','',parent,labelText);btn.type='button';
+ btn.addEventListener('click',()=>{
+  const admin=w.HH_ADMIN_MOBILE_V748;
+  if(admin&&typeof admin.openTarget==='function')admin.openTarget(group,id);
+  else { const status=d.getElementById(ID+'Status');if(status)status.textContent='Nyisd meg az Admin '+(group==='cloud'?'Cloud és AI':'Telefonok és APK')+' csoportját.'; }
+ });
+ return btn;
+}
 function line(parent,k,v,cls){
  const p=el('p','sh9vmLine'+(cls?' '+cls:''),parent);
  p.append(d.createTextNode(k+': '));el('strong','',p,v==null?'Nincs adat':v);return p;
@@ -72,9 +81,16 @@ function draw(){
   state&&state.error?'⚠ '+state.error:
   state?'Legutóbbi központi lekérés: '+date(state.readAt):
   'A verzióközpont a Dropbox-kapcsolat ellenőrzésére vár.';
- grid.replaceChildren();
- if(!state){return;}
+ if(!state)return;
  const result=state.model;
+ const gridKey=JSON.stringify({model:result,error:state.error,verified:state.registryVerified});
+ if(gridKey===lastGridKey)return; // Keep cards, focus and scroll stable during background polling.
+ lastGridKey=gridKey;
+ grid.replaceChildren();
+ if(!state.registryVerified){
+  const cloudActions=el('div','sh9vmButtons',grid);
+  repair('cloud','hhUnifiedCloudVaultCard',cloudActions,'☁️ Dropbox kapcsolat javítása');
+ }
  const general=el('article','sh9vmCard',grid);el('h4','',general,'🌐 Központi kiadások');
  line(general,'SH9 webes kiadás',result.webRelease?result.webRelease.version:'Nincs hiteles verziójelző');
  line(general,'Jóváhagyott OTA',result.release?'HH One '+result.release.version+' · build '+result.release.versionCode:'Nincs ellenőrzött aláírt kiadási leíró');
@@ -82,9 +98,15 @@ function draw(){
  line(general,'Webszinkron','Az aktuális nyilvános kiadás, nem az eszköz betöltött verziója');
  for(const device of result.devices){
   const card=el('article','sh9vmCard',grid);
-  el('h4','',card,label(device.owner)+' · '+(device.registered?device.name:'Nincs kiválasztott fizikai telefon'));
+  el('h4','',card,label(device.owner)+' · '+(device.registered?device.name:
+    state.registryVerified?'Nincs ellenőrzött fő telefon':'Telefonkijelölés nem ellenőrizhető'));
   if(!device.registered){
-   line(card,'Státusz','Nincs ellenőrzött v401 eszközjelentés','sh9vmWarn');
+   line(card,'Státusz',state.registryVerified?'Nincs egyező ellenőrzött Android-jelentés':
+     'A Dropbox-regiszter nem olvasható. A korábbi kijelölés ettől még megmaradhat.','sh9vmWarn');
+   const actions=el('div','sh9vmButtons',card);
+   repair(state.registryVerified?'devices':'cloud',
+     state.registryVerified?'hhDeviceRegistry401':'hhUnifiedCloudVaultCard',actions,
+     state.registryVerified?'📱 Telefon regisztrációjának javítása':'☁️ Dropbox újracsatlakoztatása');
    continue;
   }
   line(card,'Azonosító vége',device.deviceId);
@@ -104,6 +126,7 @@ function draw(){
   if(device.otaError)line(card,'OTA-hiba',device.otaError,'sh9vmWarn');
   line(card,'Utolsó parancs',device.command);
   const actions=el('div','sh9vmButtons',card);
+  if(device.connectivity!=='recent')repair('devices','hhDeviceRegistry401',actions,'🔧 Telefonkapcsolat ellenőrzése');
   const check=el('button','',actions,'📦 OTA CHECK · '+(device.owner==='zsolt'?'Zsolt':'Mónika'));
   check.type='button';check.disabled=!device.canRequestCheck||loading||interacting;
   check.title='Csak új verzió ellenőrzése az adott telefonon, nem telepítés';
@@ -118,14 +141,14 @@ async function json(url){
 async function refreshNow(force){
  const box=mount();if(!box||loading||interacting)return;
  if(!force&&Date.now()-lastRead<90000)return;
- loading=true;draw();
+ loading=true;
  try{
   const v=w.HH_DROPBOX_VAULT;
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function'||
      typeof w.hhOrchestratorDevices305!=='function'){
    const published=await Promise.allSettled([json('./data/bridge-ota.json'),json('../sh9/version.json')]);
    const pub=i=>published[i].status==='fulfilled'?published[i].value:null;
-   state={readAt:Date.now(),error:'A Dropbox Vault vagy az Orchestrator nincs csatlakoztatva. A telefonok telepített verziója nem ellenőrizhető.',
+   state={readAt:Date.now(),registryVerified:false,error:'A Dropbox Vault vagy az Orchestrator nincs csatlakoztatva. A telefonok telepített verziója nem ellenőrizhető.',
      model:MODEL.read(null,[],pub(0),pub(1),Date.now())};return;
   }
   const results=await Promise.allSettled([
@@ -134,10 +157,12 @@ async function refreshNow(force){
   ]);
   const val=i=>results[i].status==='fulfilled'?results[i].value:null;
   const failed=results.map((x,i)=>x.status==='rejected'?['regiszter','eszközök','OTA leíró','webverzió'][i]:null).filter(Boolean);
-  state={readAt:Date.now(),feedback:'',error:failed.length?'Nem ellenőrizhető: '+failed.join(', '):'',
+  const reg=val(0);
+  const registryVerified=!!(reg&&reg.schema==='healthhub.device_registry/1'&&reg.activePhones&&Array.isArray(reg.archived));
+  state={readAt:Date.now(),registryVerified,feedback:'',error:failed.length?'Nem ellenőrizhető: '+failed.join(', '):'',
     model:MODEL.read(val(0),val(1),val(2),val(3),Date.now())};
   lastRead=Date.now();
- }catch(e){state={readAt:Date.now(),error:'Verzióközpont hiba: '+String(e&&e.message||e).slice(0,120),
+ }catch(e){state={readAt:Date.now(),registryVerified:false,error:'Verzióközpont hiba: '+String(e&&e.message||e).slice(0,120),
   model:MODEL.read(null,[],null,null,Date.now())};}
  finally{lastRead=Date.now();loading=false;draw();}
 }
