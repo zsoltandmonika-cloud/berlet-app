@@ -1159,3 +1159,63 @@ test('v811 same-device profile mismatch is visible and never assumes Monika owns
  assert.match(controls.guardianLiveGpsDetail811.textContent,/megfelelő pontosságú valódi pozíció/);
  assert.equal(window.HH_GUARDIAN_LIVE_V785.sharing,false,'GPS hardware alone never gives permission to share');
 });
+
+test('v812 foreground GPS timeout triggers one bounded network fix and offers safe retry',()=>{
+ const code=read('guardian/guardian.js'),html=read('guardian/index.html');
+ assert.match(html,/id="guardianRetryGps812"/);
+ assert.match(html,/guardian\.js\?v=812-network-gps-recovery/);
+ const controls={},events={};
+ function make(){
+  return {textContent:'',disabled:false,hidden:false,
+   classList:{toggle(){}},setAttribute(){},
+   addEventListener(k,fn){this[k]=fn},
+   click(){if(this.click)this.click()}}
+ }
+ const doc={hidden:false,documentElement:{dataset:{}},
+  getElementById(id){return controls[id]||(controls[id]={
+   textContent:'',disabled:false,hidden:false,classList:{toggle(){}},
+   addEventListener(k,fn){this[k]=fn},setAttribute(){},
+  })},createElement(){return make()},addEventListener(k,fn){events[k]=fn}};
+ const watches=[],oneshots=[],cleared=[],fixes=[];
+ const geo={
+  watchPosition(success,error,options){watches.push({success,error,options});return watches.length},
+  clearWatch(id){cleared.push(id)},
+  getCurrentPosition(success,error,options){oneshots.push({success,error,options})}
+ };
+ const local={'hh-profile':'m'};
+ const win={navigator:{geolocation:geo},isSecureContext:true,
+  localStorage:{getItem(k){return local[k]||null},setItem(k,v){local[k]=v}},
+  HH_GUARDIAN_LIVE_V785:{onGpsSignal(){},onGpsFix(pos){fixes.push(pos)},onGpsStopped(){},onGpsPaused(){},onProfileChanged(){}},
+  addEventListener(){},console:{warn(){}}
+ };
+ vm.runInNewContext(code,{window:win,document:doc,Date,Math,Number,String,Set});
+ assert.equal(oneshots.length,0,'no unsolicited network location request on page load');
+ controls.guardianStart.click();
+ assert.equal(watches.length,1);
+ assert.equal(oneshots.length,0,'native precise watcher gets first opportunity');
+ watches[0].error({code:3});
+ assert.equal(watches.length,1,'timeout must not start a second watcher');
+ assert.equal(oneshots.length,1,'fallback runs once after real timeout');
+ assert.equal(oneshots[0].options.enableHighAccuracy,false);
+ assert.equal(oneshots[0].options.maximumAge,0,'never accept cached coordinates by default');
+ watches[0].error({code:3});
+ assert.equal(oneshots.length,1,'repeated timeouts are bounded to one network request per session');
+ oneshots[0].success({coords:{latitude:47.5,longitude:19.05,accuracy:7},timestamp:Date.now()-30000});
+ assert.equal(fixes.length,0,'stale recovery fix never shared');
+ assert.match(controls.guardianStatus.textContent,/Régi vagy dátum nélküli helyadat/);
+ assert.equal(controls.guardianRetryGps812.hidden,false,'retry visible while awaiting a fresh fix');
+ controls.guardianRetryGps812.click();
+ assert.deepEqual(cleared,[1],'old watcher is disposed before explicit new one');
+ assert.equal(watches.length,2);
+ assert.equal(oneshots.length,2,'explicit retry starts a new low-accuracy one-shot');
+ oneshots[1].success({coords:{latitude:47.5,longitude:19.05,accuracy:180},timestamp:Date.now()});
+ assert.equal(fixes.length,0,'coarse GPS cannot upload as Family Live');
+ assert.match(controls.guardianStatus.textContent,/100 m felett/);
+ watches[1].success({coords:{latitude:47.5,longitude:19.05,accuracy:8},timestamp:Date.now()});
+ assert.equal(fixes.length,1,'fresh accurate fix from active watcher is forwarded');
+ assert.equal(controls.guardianRetryGps812.hidden,true,'retry hidden after valid current location');
+ controls.guardianStop.click();
+ assert.deepEqual(cleared,[1,2]);
+ watches[1].success({coords:{latitude:48,longitude:20,accuracy:5},timestamp:Date.now()});
+ assert.equal(fixes.length,1,'stopped callback cannot leak location');
+});
