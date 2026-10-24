@@ -8,7 +8,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipul
 .st-hero{position:relative;flex:0 0 auto;aspect-ratio:1402/1122;min-height:0;width:100%;border:1px solid rgba(180,217,255,.24);border-radius:17px;overflow:hidden;background:linear-gradient(140deg,#142949,#211e40);box-shadow:0 8px 22px #0007}
 .st-hero::after{content:"";pointer-events:none;position:absolute;inset:45% 0 0;background:linear-gradient(0deg,rgba(5,13,31,.53),transparent 75%)}
 .st-hero-image{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-.st-hero-overlay-stack{position:absolute;z-index:2;top:10px;right:10px;left:auto;width:196px;max-width:calc(100% - 20px);display:flex;flex-direction:column;align-items:stretch;--st-hero-glass-border:rgba(182,224,255,.30);--st-hero-glass-fill:linear-gradient(135deg,rgba(8,24,48,.38),rgba(20,42,77,.23));--st-hero-glass-shadow:0 4px 12px rgba(0,8,25,.21)}
+.st-hero-overlay-stack{position:absolute;z-index:2;top:10px;right:10px;left:auto;width:118px;max-width:calc(100% - 20px);display:flex;flex-direction:column;align-items:stretch;--st-hero-glass-border:rgba(182,224,255,.30);--st-hero-glass-fill:linear-gradient(135deg,rgba(8,24,48,.38),rgba(20,42,77,.23));--st-hero-glass-shadow:0 4px 12px rgba(0,8,25,.21)}
 .st-world{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 39px;align-items:stretch;gap:0;min-height:52px;padding:5px 5px;border:1px solid rgba(163,212,255,.30);border-radius:15px;background:linear-gradient(116deg,rgba(30,61,98,.85),rgba(16,28,53,.97));box-shadow:inset 0 1px rgba(255,255,255,.14)}
 .st-clock{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:1px 0;text-align:center}
 .st-clock+.st-clock{border-left:1px solid rgba(142,195,235,.20)}
@@ -20,14 +20,14 @@ button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipul
 .st-flight-link:active{filter:brightness(1.25)}
 
 /* Smart Travel Weather v3: compact translucent widget, no Hero profile control. */
-.st-weather{width:100%;max-width:100%;min-height:68px;padding:7px 9px 6px;display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden;text-decoration:none;color:#f2faff;border:1px solid var(--st-hero-glass-border);border-radius:13px;background:var(--st-hero-glass-fill);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--st-hero-glass-shadow);touch-action:manipulation}
-.st-weather-top{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
-.st-weather-city{font-size:10.5px;line-height:1.1;font-weight:780;color:#edfaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-weather{width:100%;max-width:100%;min-height:68px;padding:7px 7px 6px;display:flex;flex-direction:column;justify-content:center;gap:2px;overflow:hidden;text-decoration:none;color:#f2faff;border:1px solid var(--st-hero-glass-border);border-radius:13px;background:var(--st-hero-glass-fill);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--st-hero-glass-shadow);touch-action:manipulation}
+.st-weather-top{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0}
+.st-weather-city{font-size:9.6px;line-height:1.1;font-weight:780;color:#edfaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .st-weather-main{display:flex;align-items:center;gap:6px;line-height:1.05}
 .st-weather-icon{font-size:20px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 1px 3px #0005)}
 .st-weather-temp{font-size:20px;font-weight:820;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.st-weather-desc{max-width:100%;font-size:9.5px;font-weight:620;color:#e0f0ff;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.st-weather-attribution{font-size:8.2px;line-height:1.1;color:#b6daf5;white-space:nowrap}
+.st-weather-desc{max-width:100%;font-size:9.1px;font-weight:620;color:#e0f0ff;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-weather-attribution{font-size:7.4px;line-height:1.1;color:#b6daf5;white-space:nowrap}
 .st-weather:focus-visible{outline:3px solid #b3f0ff;outline-offset:2px}
 .st-weather:active{filter:brightness(1.17)}
 .st-clock{appearance:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;touch-action:manipulation;border-radius:8px;transition:background .15s ease}
@@ -59,7 +59,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipul
 .st-dialog h2{margin:0 0 9px;font-size:20px}.st-dialog p{margin:0 0 18px;color:#c8def4;font-size:13px;line-height:1.45}
 .st-dialog button{min-width:120px;min-height:42px;border:1px solid #b7e0ff8a;border-radius:13px;background:#24619a;color:white;font-weight:700;cursor:pointer}
 .st-toast{position:fixed;z-index:40;left:50%;bottom:calc(75px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:min(90vw,380px);padding:10px 13px;text-align:center;border:1px solid #99d1fc70;border-radius:13px;background:#123252f2;color:white;font-size:12px;box-shadow:0 8px 24px #0008}
-@media(max-width:365px){.st-grid{padding:7px 5px;gap:5px}.st-tile-orb{width:31px;height:31px}.st-tile-orb svg{width:19px;height:19px}.st-tile strong{font-size:10px}.st-tile small{font-size:8px}.st-world{grid-template-columns:repeat(4,minmax(0,1fr)) 35px;padding-inline:3px}.st-city{font-size:8.4px}.st-time{font-size:12px}.st-hero-overlay-stack{top:8px;right:8px;left:auto;width:184px}.st-weather{padding:6px 8px;min-height:65px}}
+@media(max-width:365px){.st-grid{padding:7px 5px;gap:5px}.st-tile-orb{width:31px;height:31px}.st-tile-orb svg{width:19px;height:19px}.st-tile strong{font-size:10px}.st-tile small{font-size:8px}.st-world{grid-template-columns:repeat(4,minmax(0,1fr)) 35px;padding-inline:3px}.st-city{font-size:8.4px}.st-time{font-size:12px}.st-hero-overlay-stack{top:8px;right:8px;left:auto;width:110px}.st-weather{padding:6px 6px;min-height:65px}}
 @media(max-height:755px){.st-shell{height:auto;min-height:100dvh;overflow:visible;padding-bottom:68px}.st-grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:auto}.st-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,420px);margin:0;z-index:15}}
 @media(min-width:700px){.st-shell{border-inline:1px solid rgba(134,192,243,.15)}}
 @media(prefers-reduced-motion:reduce){.st-tile{transition:none}}
