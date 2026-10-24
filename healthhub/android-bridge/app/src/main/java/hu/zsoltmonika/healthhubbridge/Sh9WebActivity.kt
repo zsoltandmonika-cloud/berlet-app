@@ -109,6 +109,9 @@ class Sh9WebActivity : ComponentActivity() {
             useWideViewPort = true
             loadWithOverviewMode = true
             textZoom = 100
+            // Load the published SH9/HealthHub pages, not a frozen v23 APK
+            // snapshot. Avoid stale JS/CSS after central web deployments.
+            cacheMode = WebSettings.LOAD_NO_CACHE
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
         }
         view.webChromeClient = object : WebChromeClient() {
@@ -161,7 +164,10 @@ class Sh9WebActivity : ComponentActivity() {
         }
         web = view
         setContentView(view)
-        if (savedInstanceState == null) view.loadUrl(HOME)
+        // Timestamp affects only the public SH9 entry document. Relative
+        // module routes remain the same first-party GitHub Pages paths.
+        if (savedInstanceState == null)
+            view.loadUrl(HOME + "&hhfresh=" + System.currentTimeMillis())
         else view.restoreState(savedInstanceState)
     }
 
