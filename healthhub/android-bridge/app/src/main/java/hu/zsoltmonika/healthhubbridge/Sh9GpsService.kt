@@ -102,7 +102,8 @@ class Sh9GpsService : Service() {
     }
 
     private fun notification(): Notification {
-        val content = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java),
+        val content = PendingIntent.getActivity(this, 0,
+            Intent(this, MainActivity::class.java).putExtra("openNativeSettings", true),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val stop = PendingIntent.getService(this, 1,
             Intent(this, Sh9GpsService::class.java).setAction(ACTION_STOP),
