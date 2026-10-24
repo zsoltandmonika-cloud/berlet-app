@@ -45,6 +45,7 @@ function mount(){
  let box=d.getElementById(ID);
  if(box&&box.parentNode!==root)box=null;
  if(!box){
+  lastGridKey=''; // A newly mounted Admin screen must render its cards even if the data snapshot is unchanged.
   style();box=el('section','',root);box.id=ID;box.dataset.hhAdminGroup='cloud';box.style.order='23';
   box.setAttribute('aria-label','SH9 központi verziók és csatlakoztatott eszközök');
   const head=el('div','',box);el('h3','',head,'🐿️ SH9 · Central Version & Device Management');
