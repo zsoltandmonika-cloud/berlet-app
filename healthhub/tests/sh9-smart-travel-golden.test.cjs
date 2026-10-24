@@ -82,3 +82,22 @@ test('SH9 weather reports current conditions and handles common weather codes',(
  assert.equal(weather.weatherVisual(95,1).label,'Zivatar');
  assert.throws(()=>weather.parseCurrent({current:{weather_code:3}}),/Érvénytelen/);
 });
+
+test('SH9 hero weather and title glass share width, color, opacity, and alignment',()=>{
+ const stack=page.match(/\.st-hero-overlay-stack\{([^}]+)\}/);
+ const weather=page.match(/\.st-weather\{([^}]+)\}/);
+ const title=page.match(/\.st-hero-title\{([^}]+)\}/);
+ assert.ok(stack&&weather&&title);
+ assert.match(stack[1],/width:220px/);
+ assert.match(stack[1],/align-items:stretch/);
+ assert.match(stack[1],/--st-hero-glass-fill:linear-gradient\(135deg,rgba\(8,24,48,\.46\),rgba\(20,42,77,\.30\)\)/);
+ for(const panel of [weather[1],title[1]]){
+  assert.match(panel,/width:100%/);
+  assert.match(panel,/background:var\(--st-hero-glass-fill\)/);
+  assert.match(panel,/border:1px solid var\(--st-hero-glass-border\)/);
+  assert.match(panel,/backdrop-filter:blur\(12px\)/);
+  assert.match(panel,/box-shadow:var\(--st-hero-glass-shadow\)/);
+ }
+ assert.match(page,/\.st-hero-overlay-stack\{top:8px;left:8px;width:200px;gap:5px\}/);
+ assert.doesNotMatch(page,/\.st-weather\{width:190px/);
+});
