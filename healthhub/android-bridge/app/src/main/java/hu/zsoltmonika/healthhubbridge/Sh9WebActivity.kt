@@ -1,5 +1,10 @@
 package hu.zsoltmonika.healthhubbridge
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.webkit.GeolocationPermissions
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
@@ -36,6 +41,45 @@ class Sh9WebActivity : ComponentActivity() {
     }
 
     private var web: WebView? = null
+    private var pendingGeoOrigin: String? = null
+    private var pendingGeoCallback: GeolocationPermissions.Callback? = null
+
+    private val geoPermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val origin = pendingGeoOrigin
+        val callback = pendingGeoCallback
+        pendingGeoOrigin = null
+        pendingGeoCallback = null
+        if (origin != null && callback != null) {
+            callback.invoke(origin, permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true, false)
+        }
+    }
+
+    private fun onGeoPermissionRequested(origin: String?, callback: GeolocationPermissions.Callback?) {
+        if (origin == null || callback == null) return
+        // Only the trusted SH9 first-party origin may ask the native shell for position.
+        if (origin != "https://" + HOST) {
+            callback.invoke(origin, false, false)
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+            callback.invoke(origin, true, false)
+            return
+        }
+        // Reject concurrent permission prompts instead of swapping callbacks.
+        if (pendingGeoCallback != null) {
+            callback.invoke(origin, false, false)
+            return
+        }
+        pendingGeoOrigin = origin
+        pendingGeoCallback = callback
+        geoPermissions.launch(arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +111,13 @@ class Sh9WebActivity : ComponentActivity() {
             textZoom = 100
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
         }
-        view.webChromeClient = WebChromeClient()
+        view.webChromeClient = object : WebChromeClient() {
+            override fun onGeolocationPermissionsShowPrompt(
+                origin: String?, callback: GeolocationPermissions.Callback?
+            ) {
+                onGeoPermissionRequested(origin, callback)
+            }
+        }
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
@@ -122,6 +172,9 @@ class Sh9WebActivity : ComponentActivity() {
             it.stopLoading()
             it.destroy()
         }
+        pendingGeoOrigin?.let { pendingGeoCallback?.invoke(it, false, false) }
+        pendingGeoOrigin = null
+        pendingGeoCallback = null
         web = null
         super.onDestroy()
     }
