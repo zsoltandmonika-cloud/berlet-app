@@ -96,3 +96,24 @@ test('version center is first-party Admin-only and reuses v401 registry, no dupl
  assert.match(ui,/A külön telepített régi SH9 Lite Browser APK nem jelent verziót/);
  assert.doesNotMatch(ui,/localStorage\.setItem|addJavascriptInterface|accessToken\(/);
 });
+
+
+test('Monika v0.14.6 is eligible for immutable signed v0.15.0 GPS OTA after rollout approval',()=>{
+ // The shipped baseline is immutable. Monika was blocked ONLY by rolloutProfiles.
+ assert.equal(ota.version,'0.15.0');
+ assert.equal(ota.versionCode,27);
+ assert.deepEqual(ota.rolloutProfiles,['zsolt','monika']);
+ assert.equal(ota.sha256,'465bf5ba49cc01dc2eb340c87f16e88744eb81fa40ecc347439cd06a9e4eb1b6');
+ const monika=sample('android-m-device','monika',26,'0.14.6');
+ const out=model.read(reg,[monika],ota,web,now);
+ assert.equal(out.devices[1].registered,true);
+ assert.equal(out.devices[1].ota,'approved-update');
+ assert.equal(out.devices[1].approvedVersion,'0.15.0');
+ const z=sample('android-z-device','zsolt',27,'0.15.0');
+ const other=model.read(reg,[z,monika],ota,web,now);
+ assert.equal(other.devices[0].ota,'up-to-date');
+ const outdatedSelected=sample('android-m-old','monika',23,'0.12.0');
+ const wrong=model.read(reg,[z,outdatedSelected,monika],ota,web,now);
+ assert.equal(wrong.devices[1].registered,false,
+   'OTA eligibility does not select a newer Android ID automatically or hide a wrong registry link.');
+});
