@@ -10,7 +10,7 @@ var state={color:'amber',message:'Ellenőrzésre vár',devices:[],registry:null,
 var reading=false,sending=false,lastRead=0,timer=null,initialized=false;
 function $id(n){return document.getElementById(n)}
 function safeText(s){return String(s==null?'':s)}
-function isoAge(s){var ms=Date.parse(s||'');return Number.isFinite(ms)?Date.now()-ms:Infinity}
+function isoAge(s){var ms=Date.parse(s||'');var age=Date.now()-ms;return Number.isFinite(ms)&&age>=0?age:Infinity}
 function dt(s){var ms=Date.parse(s||'');return Number.isFinite(ms)?new Date(ms).toLocaleString('hu-HU'):'Nincs adat'}
 function idValid(s){return typeof s==='string'&&/^[A-Za-z0-9-]{1,90}$/.test(s)}
 function vault(){return root.HH_DROPBOX_VAULT||null}
@@ -35,9 +35,24 @@ function classify(reg,devices,cloud){
    isoAge(d.status.updatedAt)<=24*60*60*1000});
  var inProgress=matches.some(function(d){return d&&d.status&&['pending','running','queued'].includes(d.status.state)&&
    isoAge(d.status.updatedAt)<=24*60*60*1000});
- if(count===2&&fresh===2&&!failures&&!inProgress)return {color:'green',message:'Mindkét telefon jelentkezett',primary:matches};
- if(count===0)return {color:'red',message:'Nincs ellenőrzött telefon',primary:matches};
- return {color:'amber',message:count===2?'Részleges vagy régi kapcsolat':'Egy telefon hiányzik',primary:matches};
+ if(count===2&&fresh===2&&!failures&&!inProgress)
+  return {color:'green',message:'Mindkét kijelölt telefon frissen jelentkezett',primary:matches};
+ if(count===0)return {color:'red',message:'Nincs ellenőrzött, kijelölt telefon',primary:matches};
+ var states=['zsolt','monika'].map(function(owner,i){
+  var d=matches[i];return {owner:owner,selected:d,fresh:!!(d&&isoAge(d.lastSeenAt)<=ttl)};
+ });
+ var problems=states.filter(function(x){return !x.fresh});
+ var first=problems[0],ownerName=first&&first.owner==='zsolt'?'Zsolt':'Mónika';
+ var alternative=first&&(devices||[]).some(function(d){
+  return d&&d.deviceType==='android'&&d.activeProfile===first.owner&&
+   d.deviceId!==reg.activePhones[first.owner]&&!reg.archived.includes(d.deviceId)&&
+   isoAge(d.lastSeenAt)<=ttl;
+ });
+ var msg=first?(ownerName+(first.selected?': kijelölt telefonja nem friss':': nincs kijelölt telefonjelentés')+
+   (alternative?' · új bejegyzés ellenőrizendő':'')):
+   failures?'A kijelölt telefonoknál friss parancshiba van':
+   inProgress?'A kijelölt telefonok egyikén művelet folyamatban':'Ellenőrzést igénylő kapcsolat';
+ return {color:'amber',message:msg,primary:matches};
 }
 function elt(t,cls,parent){var e=document.createElement(t);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e}
 function txt(t,value,parent,cls){var e=elt(t,cls,parent);e.textContent=safeText(value);return e}
@@ -153,6 +168,22 @@ function renderPanel(){
    line.addEventListener('click',function(){openRepair('OPS-DEVICE-'+p)});
   }
   txt('strong',(p==='zsolt'?'💙 Zsolt':'🩷 Mónika')+' · '+(d?safeText(d.name||'Android'):'Nincs ellenőrzött natív telefonjelentés'),line);
+  var freshSelected=d&&isoAge(d.lastSeenAt)<=ttl;
+  var alternative=state.registry&&Array.isArray(state.registry.archived)&&state.devices.find(function(x){
+   return x&&x.deviceType==='android'&&x.activeProfile===p&&
+    x.deviceId!==state.registry.activePhones[p]&&!state.registry.archived.includes(x.deviceId)&&
+    isoAge(x.lastSeenAt)<=ttl;
+  });
+  if(d&&!freshSelected){
+   txt('small','🟠 Ez a KIJELÖLT telefon több mint 20 perce nem jelentkezett. '+
+    'Nem tekinthető élő kapcsolatnak, még ha régen DONE állapotot kapott is.',line);
+  }
+  if(alternative){
+   issueCard(line,'OPS-CANDIDATE-'+p,'🟣 '+(p==='zsolt'?'Zsolt':'Mónika')+
+    ': frissebb Android-bejegyzés ellenőrizhető',
+    'Új, de nem kijelölt azonosító: …'+safeText(alternative.deviceId).slice(-11)+
+    ' · '+dt(alternative.lastSeenAt)+'. Ellenőrizd a valódi telefont, majd jelöld ki a regiszterben.');
+  }
   if(d){
    txt('small','Utolsó jelentkezés: '+dt(d.lastSeenAt),line);
    txt('small','Utolsó tényleges Health Connect-feltöltés: '+dt(d.lastHealthSyncAt),line);
