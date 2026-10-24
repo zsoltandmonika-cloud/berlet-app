@@ -4,6 +4,7 @@
 const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
 let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
+let gpsSession=0,fallbackAttempted=false,fallbackPending=false;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -56,6 +57,8 @@ function report(s){
 }
 function message(s){mapError.textContent=s;mapError.hidden=!s}
 function renderButtons(){
+ const retry=$('guardianRetryGps812');
+ if(retry){retry.hidden=!active||hasFix;retry.disabled=!active||fallbackPending}
  $('guardianStart').disabled=active;
  $('guardianStop').disabled=!active;
  dot.classList.toggle('live',active&&hasFix);
@@ -81,6 +84,7 @@ function clear(){
  $('guardianDistance').textContent='0 m';draw();
 }
 function stop(temporary=false){
+ gpsSession++;fallbackPending=false;fallbackAttempted=false;
  const old=watchId;watchId=null;active=false;hasFix=false;
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
  renderButtons();gpsDiagnostic(temporary?'paused':'stopped');report('GPS kikapcsolva');
@@ -113,6 +117,15 @@ function makeOwnPositionNode(){
 }
 function onPosition(pos){
  if(!active)return;
+ const ts=Number(pos&&pos.timestamp),now=Date.now();
+ // Ignore cached/out-of-order data beyond Family Live's 20s freshness limit.
+ // A stale callback may never be described as this owner's LIVE position.
+ if(!Number.isFinite(ts)||ts<now-20000||ts>now+5000){
+  hasFix=false;renderButtons();
+  report('Régi vagy dátum nélküli helyadat · friss GPS-pozícióra várunk.');
+  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('unavailable');
+  return;
+ }
  const c=pos.coords||{},lat=Number(c.latitude),lng=Number(c.longitude),accuracy=Number(c.accuracy);
  if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)return;
  const coord=[lng,lat];
@@ -149,6 +162,30 @@ function onPosition(pos){
   $('guardianDistance').textContent=fmtLength(distance);draw();
  }
 }
+function tryNetworkFix(){
+ // A second, deliberately lower-accuracy one-shot is allowed ONLY after
+ // the user has started GPS and the precise watcher has timed out. It can
+ // use Wi-Fi/cellular hints where satellite acquisition is slow indoors.
+ // No second watch, no fake coords, no background restart, one try/session.
+ if(!active||d.hidden||fallbackAttempted||fallbackPending||
+    typeof w.navigator.geolocation.getCurrentPosition!=='function')return;
+ fallbackAttempted=true;fallbackPending=true;renderButtons();
+ const session=gpsSession;
+ w.navigator.geolocation.getCurrentPosition(
+  pos=>{
+   if(session!==gpsSession||!active||d.hidden)return;
+   fallbackPending=false;renderButtons();
+   onPosition(pos); // same accuracy and freshness gates as satellite GPS
+  },
+  err=>{
+   if(session!==gpsSession||!active||d.hidden)return;
+   fallbackPending=false;renderButtons();
+   if(err&&err.code===1){onGpsError(err);return}
+   report('GPS-jelre vár · a hálózati helymeghatározás sem adott friss jelet. A pontos követés aktív; újrapróbálhatod.');
+  },
+  {enableHighAccuracy:false,maximumAge:0,timeout:12000}
+ );
+}
 function onGpsError(err){
  if(!active)return;
  const code=err&&err.code;
@@ -161,8 +198,9 @@ function onGpsError(err){
   $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':'GPS-JELRE VÁR · NINCS FRISS POZÍCIÓ';
   gpsDiagnostic('paused',code);
   w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.(code===3?'timeout':'unavailable');
-  report(code===3?'GPS-jelre vár · 20 mp alatt nem érkezett pozíció. A követés aktív; ellenőrizd a pontos helyengedélyt, és próbáld szabad ég alatt.'
-   :'GPS-jel átmenetileg nem érhető el · a követés aktív; ellenőrizd a helyengedélyt.');
+  report(code===3?'GPS-jelre vár · 20 mp alatt nem érkezett pozíció. Hálózati helymeghatározást is próbálunk; próbáld szabad ég alatt.'
+   :'GPS-jel átmenetileg nem érhető el · hálózati helymeghatározást is próbálunk.');
+  tryNetworkFix();
   return;
  }
  const text=code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
@@ -170,15 +208,33 @@ function onGpsError(err){
  stop();gpsDiagnostic('error',code);
  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.(code===1?'denied':'unavailable');report(text);
 }
+function startWatch(){
+ const session=++gpsSession;
+ const geo=w.navigator.geolocation;
+ watchId=geo.watchPosition(
+  pos=>{if(active&&session===gpsSession&&!d.hidden)onPosition(pos)},
+  err=>{if(active&&session===gpsSession&&!d.hidden)onGpsError(err)},
+  {enableHighAccuracy:true,maximumAge:10000,timeout:20000}
+ );
+}
 function start(){
  if(active)return;
  if(!w.isSecureContext||!w.navigator.geolocation){gpsDiagnostic('unsupported');report('Ehhez HTTPS és GPS-hozzáférés szükséges.');return}
  gpsDiagnostic('starting');
  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('starting');
- active=true;hasFix=false;renderButtons();report('GPS-engedély kérése…');
- try{
-  watchId=w.navigator.geolocation.watchPosition(onPosition,onGpsError,{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
- }catch(e){stop();report('A GPS nem indítható ezen a készüléken.')}
+ active=true;hasFix=false;fallbackAttempted=false;fallbackPending=false;
+ renderButtons();report('GPS-engedély kérése…');
+ try{startWatch()}catch(e){stop();report('A GPS nem indítható ezen a készüléken.')}
+}
+function retryGps(){
+ // Explicit retry keeps the Family Live owner/consent and never changes profile.
+ if(!active||d.hidden||!w.navigator.geolocation)return;
+ const old=watchId;watchId=null;gpsSession++;
+ if(old!==null)w.navigator.geolocation.clearWatch(old);
+ fallbackAttempted=false;fallbackPending=false;hasFix=false;
+ renderButtons();report('Új GPS-mérés indítása · műholdas és hálózati jel keresése…');
+ try{startWatch();tryNetworkFix()}
+ catch(e){stop();report('GPS újrapróbálása nem sikerült. Ellenőrizd az alkalmazás helyengedélyét.')}
 }
 function applyView(){
  renderButtons();
@@ -382,6 +438,7 @@ function initMap(){
  }catch(e){message('A térkép megjelenítése nem támogatott ezen az eszközön.')}
 }
 $('guardianStart').addEventListener('click',start);
+const retryGpsButton=$('guardianRetryGps812');if(retryGpsButton)retryGpsButton.addEventListener('click',retryGps);
 $('guardianStop').addEventListener('click',stop);
 $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
