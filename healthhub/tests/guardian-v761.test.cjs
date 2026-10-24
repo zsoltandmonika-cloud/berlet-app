@@ -1118,3 +1118,44 @@ test('Android Guardian button targets a real handled HH One native settings deep
  assert.match(manifest,/android:host="settings"/);
  assert.match(html,/HH One · GPS és Android-engedélyek/);
 });
+
+test('v811 same-device profile mismatch is visible and never assumes Monika owns Zsolt phone',async()=>{
+ const source=read('guardian/guardian-live-v785.js');
+ const html=read('guardian/index.html');
+ const script=read('guardian/guardian.js');
+ for(const id of ['guardianLiveGpsDetail811','guardianLiveOwnerHelp811','guardianLiveResolveOwner811'])
+  assert.ok(html.includes('id="'+id+'"'));
+ assert.match(script,/onGpsSignal\?\.\('inaccurate',accuracy\)/);
+ assert.match(script,/onGpsSignal\?\.\(code===3\?'timeout':'unavailable'\)/);
+ assert.match(source,/ownerMismatch=!!owner&&owner!==me/);
+ const controls={};
+ const store={'hh-profile':'m','hh-guardian-own-phone-profile-v785':'zsolt'};
+ const element=()=>({textContent:'',disabled:false,hidden:false,
+  classList:{add(){},remove(){}},addEventListener(k,fn){this[k]=fn},setAttribute(){}});
+ const document={hidden:false,getElementById(id){return controls[id]||(controls[id]=element())},
+  createElement:element,addEventListener(){}};
+ const api={
+  auth:{getUser(){return Promise.resolve({data:{user:{id:'user-1'}},error:null})},onAuthStateChange(){}},
+  from(){return {select(){return this},in(){return Promise.resolve({data:[{profile_key:'monika'},{profile_key:'zsolt'}],error:null})},
+   eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
+   upsert(){throw Error('GPS cannot upload without consent')},delete(){throw Error('Cannot remove other person position')}}}
+ };
+ const window={HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://test.invalid',publishableKey:'public'},
+  supabase:{createClient(){return api}},localStorage:{getItem(k){return store[k]||null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}},
+  setInterval(){return 1},clearInterval(){},setTimeout(){return 1},addEventListener(){},
+  confirm(){throw Error('No automatic phone reassignment')},
+  location:{origin:'https://test.invalid',pathname:'/healthhub/guardian/'}
+ };
+ vm.runInNewContext(source,{window,document,Date,Math,Number,String,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(controls.guardianLiveResolveOwner811.hidden,false,'direct fix link visible');
+ assert.equal(controls.guardianLiveStart.disabled,true,'wrong owner cannot publish another person');
+ assert.match(controls.guardianLiveIdentity.textContent,/NEM egyezik/);
+ window.HH_GUARDIAN_LIVE_V785.onGpsSignal('timeout');
+ assert.match(controls.guardianLiveGpsDetail811.textContent,/20 mp időtúllépés/);
+ window.HH_GUARDIAN_LIVE_V785.onGpsSignal('inaccurate',185);
+ assert.match(controls.guardianLiveGpsDetail811.textContent,/185 m/);
+ window.HH_GUARDIAN_LIVE_V785.onGpsSignal('fix');
+ assert.match(controls.guardianLiveGpsDetail811.textContent,/megfelelő pontosságú valódi pozíció/);
+ assert.equal(window.HH_GUARDIAN_LIVE_V785.sharing,false,'GPS hardware alone never gives permission to share');
+});
