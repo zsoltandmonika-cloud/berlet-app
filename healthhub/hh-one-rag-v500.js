@@ -375,7 +375,7 @@ function mount(){
  updateBadge();refresh(true);
  var params=new URL(root.location.href).searchParams;
  if(params.get('hhone')==='service')root.setTimeout(openPanel,400);
- timer=root.setInterval(function(){if(document.visibilityState==='visible')refresh(false)},refreshEvery);
+ timer=root.setInterval(function(){if(document.visibilityState==='visible'&&$id(PANEL)?.dataset.open!=='1')refresh(false)},refreshEvery);
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refresh(true)});
  root.addEventListener('healthhub:device-registry-updated',function(){refresh(true)});
 }
