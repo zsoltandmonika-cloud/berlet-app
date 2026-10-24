@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'healthhub/hh-admin-mobile-focus-v748.js'
+      - 'healthhub/hh-admin-device-contrast-v749.css'
+      - 'healthhub/tests/hh-admin-device-contrast-v749.test.cjs'
       - 'healthhub/hh-unified-admin-v745.js'
       - 'healthhub/device-registry-v401.js'
       - 'healthhub/live-v305.js'
@@ -30,5 +32,6 @@ jobs:
       - name: Mobile navigation / preservation tests
         run: |
           node --test healthhub/tests/hh-admin-mobile-v748.test.cjs
+          node --test healthhub/tests/hh-admin-device-contrast-v749.test.cjs
           node healthhub/tests/unified-admin-v745.test.cjs
           node healthhub/tests/hh-one-service-center-502.test.cjs
