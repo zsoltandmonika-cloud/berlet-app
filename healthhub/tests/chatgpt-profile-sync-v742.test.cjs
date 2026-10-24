@@ -62,7 +62,13 @@ const W={
 };
 const D={readyState:'loading',hidden:false,addEventListener:()=>{},
  querySelectorAll:()=>[]};
-vm.runInNewContext(source,{window:W,document:D,Date,JSON,TextEncoder,TextDecoder,Uint8Array,Array,Set,Intl});
+// The sample source is from 2026-10-21. Freeze the test clock to that fixture
+// so its freshness assertions remain deterministic instead of failing after 24h.
+class FixtureDate extends Date{
+ constructor(...args){super(...(args.length?args:['2026-10-21T05:00:00Z']))}
+ static now(){return Date.parse('2026-10-21T05:00:00Z')}
+}
+vm.runInNewContext(source,{window:W,document:D,Date:FixtureDate,JSON,TextEncoder,TextDecoder,Uint8Array,Array,Set,Intl});
 const api=W.HH_CHATGPT_PROFILE_SYNC_V742;
 (async()=>{
  assert.equal(api.version,'742');
