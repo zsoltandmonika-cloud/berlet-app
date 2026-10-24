@@ -77,9 +77,10 @@ function panel(force){
  ['zsolt','monika'].forEach(function(p){
   var name=p==='zsolt'?'Zsolt':'Mónika',items=candidates(p);
   var primary=registry&&registry.activePhones[p];
-  var selected=items.find(function(d){return d.deviceId===primary&&!registry.archived.includes(d.deviceId)});
+  var excluded=registry&&Array.isArray(registry.archived)?registry.archived:[];
+  var selected=items.find(function(d){return d.deviceId===primary&&!excluded.includes(d.deviceId)});
   var freshSelected=selected&&online(selected);
-  var recentOther=items.filter(function(d){return !chosen(d)&&!registry.archived.includes(d.deviceId)&&online(d)})
+  var recentOther=items.filter(function(d){return !chosen(d)&&!excluded.includes(d.deviceId)&&online(d)})
    .sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
   var oldOthers=items.filter(function(d){return !chosen(d)&&!recentOther.includes(d)});
   var state=freshSelected?'✅ kijelölt fő telefon frissen jelentkezett':
