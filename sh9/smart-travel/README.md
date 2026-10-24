@@ -34,3 +34,8 @@
 ## Regression QA
 - Test: `node --test healthhub/tests/sh9-smart-travel-golden.test.cjs`.
 - The dedicated workflow `.github/workflows/sh9-smart-travel-v3-qa.yml` validates JS syntax and the Golden Standard tests on relevant changes.
+
+## v4 · Hero overlay glass alignment
+- Weather and Smart Travel title cards are equal width (220 px regular, 200 px on narrow mobile) with aligned left/right edges and the same border radius.
+- Both surfaces use shared `--st-hero-glass-fill`, `--st-hero-glass-border`, and `--st-hero-glass-shadow` variables: cooler dark-blue Premium Glass, moderately increased transparency with `rgba(8,24,48,.46)` → `rgba(20,42,77,.30)`, consistent 12 px blur.
+- Only these two hero card styles change. Live weather, city selection, world clocks, tracker and 3×3 Golden Standard tiles are untouched.
