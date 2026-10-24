@@ -26,9 +26,10 @@ test('SH9 Smart Travel keeps standard navigation and hides the profile switch',(
 });
 
 // Live clocks remain independent of the user's timezone and respect DST.
-test('SH9 Smart Travel hero title and clock strip are in the approved slots',()=>{
+test('SH9 Smart Travel hero has only the top-right weather card and clock strip',()=>{
  assert.match(page,/<div class="st-hero-overlay-stack">/);
- assert.match(page,/<div class="st-hero-title"><h1>Smart Travel<\/h1>/);
+ assert.doesNotMatch(page,/class="st-hero-title"/);
+ assert.doesNotMatch(page,/<h1>Smart Travel<\/h1>/);
  assert.match(page,/<section class="st-world"/);
  assert.equal([...page.matchAll(/data-st-zone="/g)].length,4);
  assert.match(page,/href="https:\/\/adsb\.lol\/"/);
@@ -83,21 +84,20 @@ test('SH9 weather reports current conditions and handles common weather codes',(
  assert.throws(()=>weather.parseCurrent({current:{weather_code:3}}),/Érvénytelen/);
 });
 
-test('SH9 hero weather and title glass share width, color, opacity, and alignment',()=>{
+test('SH9 weather glass is top-right, translucent, with no Smart Travel label',()=>{
  const stack=page.match(/\.st-hero-overlay-stack\{([^}]+)\}/);
  const weather=page.match(/\.st-weather\{([^}]+)\}/);
- const title=page.match(/\.st-hero-title\{([^}]+)\}/);
- assert.ok(stack&&weather&&title);
+ assert.ok(stack&&weather);
+ assert.match(stack[1],/top:10px;right:10px;left:auto/);
  assert.match(stack[1],/width:220px/);
  assert.match(stack[1],/align-items:stretch/);
  assert.match(stack[1],/--st-hero-glass-fill:linear-gradient\(135deg,rgba\(8,24,48,\.46\),rgba\(20,42,77,\.30\)\)/);
- for(const panel of [weather[1],title[1]]){
-  assert.match(panel,/width:100%/);
-  assert.match(panel,/background:var\(--st-hero-glass-fill\)/);
-  assert.match(panel,/border:1px solid var\(--st-hero-glass-border\)/);
-  assert.match(panel,/backdrop-filter:blur\(12px\)/);
-  assert.match(panel,/box-shadow:var\(--st-hero-glass-shadow\)/);
- }
- assert.match(page,/\.st-hero-overlay-stack\{top:8px;left:8px;width:200px;gap:5px\}/);
- assert.doesNotMatch(page,/\.st-weather\{width:190px/);
+ assert.match(weather[1],/width:100%/);
+ assert.match(weather[1],/background:var\(--st-hero-glass-fill\)/);
+ assert.match(weather[1],/border:1px solid var\(--st-hero-glass-border\)/);
+ assert.match(weather[1],/backdrop-filter:blur\(12px\)/);
+ assert.match(weather[1],/box-shadow:var\(--st-hero-glass-shadow\)/);
+ assert.match(page,/\.st-hero-overlay-stack\{top:8px;right:8px;left:auto;width:200px\}/);
+ assert.doesNotMatch(page,/\.st-hero-title/);
+ assert.doesNotMatch(page,/class="st-hero-title"/);
 });
