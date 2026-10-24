@@ -10,9 +10,9 @@ const home=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 assert(home.includes("['ask','Kérdezd Lénát']"));
 assert(home.includes("fallbackClick('Ask Léna')"));
 const ai=fs.readFileSync(path.join(root,'live-v331.js'),'utf8');
-assert(html.includes('chatgpt-project-shortcut-v712.js?v=714-kerdezd-lenat'));
+assert(html.includes('chatgpt-project-shortcut-v712.js?v=756-central-ask-lena'));
 assert(html.indexOf('live-v299.js')<html.indexOf('chatgpt-project-shortcut-v712.js'));
-const version='v714-kerdezd-lenat';
+const version='v728-inline-bs-aj';
 assert.equal(html.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1],version);
 assert.equal('v'+html.match(/var v='([^']+)'/)?.[1],version);
 assert.equal(html.match(/window\.HH_LIVE_BUILD='([^']+)'/)?.[1],version);
@@ -38,7 +38,7 @@ class Element {
 }
 const head=new Element('head'), page=new Element('section'),card=new Element('section');
 page.id='hhLenaSmart299';byId.set(page.id,page);page.appendChild(card);
-const listeners={}, store=new Map(),opened=[],prompts=[],alerts=[];
+const listeners={}, store=new Map(),opened=[],assigned=[],prompts=[],alerts=[];
 const document={
  readyState:'complete',head,
  createElement:tag=>new Element(tag),
@@ -46,7 +46,7 @@ const document={
  addEventListener:(event,fn)=>{listeners[event]=fn;}
 };
 const win={
- location:{search:''},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},
+ location:{search:'',assign:url=>assigned.push(url)},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)},
  addEventListener:(event,fn)=>{listeners[event]=fn;},
  open:(url,target,flags)=>{opened.push({url,target,flags});return {};},
  prompt:(text,def)=>{prompts.push({text,def});return 'https://chatgpt.com/g/g-p-123abc-healthhub/project';},
@@ -60,7 +60,7 @@ assert(dock&&card.children.includes(dock),'Glass card replaces search composer')
 const launch=byId.get('hhChatGptProjectLaunch712');
 const gear=byId.get('hhChatGptProjectSettings712');
 assert(launch?.handlers?.click,'Glass launch button is functional');
-assert(gear?.handlers?.click,'project URL can be changed');
+assert.equal(gear,undefined,'project URL settings moved to the central Admin');
 assert(byId.get('hhChatGptGlassCss712'),'Glass style installed');
 assert.equal(launch.textContent,'Kérdezd Lénát','Glass action label is stable even before configuration');
 assert.equal(api.normalizeProjectUrl('https://chatgpt.com/g/g-p-123abc-healthhub/project'),
@@ -80,17 +80,18 @@ for(const bad of [
 ]) assert.throws(()=>api.normalizeProjectUrl(bad),'reject unsafe/non-project URLs: '+bad);
 assert.equal(opened.length,0,'no automatic browser navigation');
 launch.handlers.click();
-assert.equal(prompts.length,1,'prompt only for first use');
-assert.equal(opened.length,1,'first click opens project after setup');
-assert.equal(opened[0].url,'https://chatgpt.com/g/g-p-123abc-healthhub/project');
+assert.equal(prompts.length,0,'no settings prompt on Ask Lena');
+assert.equal(opened.length,0,'unset project cannot open');
+assert.equal(assigned[0],'/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena','unset URL routes to central Admin');
+const configured=api.save('https://chatgpt.com/g/g-p-123abc-healthhub/project');
+assert.equal(configured,api.saved(),'the single v712 API owns the project URL');
+launch.handlers.click();
+assert.equal(opened.length,1,'one click opens the configured project');
+assert.equal(opened[0].url,configured);
 assert.equal(opened[0].target,'_blank');
 assert.match(opened[0].flags,/noopener/);
-assert.match(opened[0].flags,/noreferrer/);
-assert.equal(api.saved(),opened[0].url);
-launch.handlers.click();
-assert.equal(prompts.length,1,'no repeated login/setup prompt');
-assert.equal(opened.length,2,'second click opens same project');
-assert.equal(byId.get('hhChatGptProjectStatus712').textContent.includes('új lapon'),true);
+assert.equal(prompts.length,0,'Ask Lena never reconfigures project');
+assert.match(byId.get('hhChatGptProjectStatus712').textContent,/külön lapon/);
 assert.equal(alerts.length,0);
 // Desktop: best-effort browser popup is sized and centered over the visible Glass card.
 win.innerWidth=1280;win.innerHeight=830;win.screenX=70;win.screenY=20;
@@ -108,9 +109,12 @@ assert.equal(popup.target,'_blank');
 assert.equal(popup.url,api.saved());
 assert.equal(launch.textContent,'Kérdezd Lénát');
 assert.match(byId.get('hhChatGptProjectStatus712').textContent,/kompakt ablakban/);
-// Android: browser controls window size; open the original ChatGPT in a normal tab.
+// Android: navigate directly, so the APK WebView can hand off to the system browser.
 win.navigator.userAgent='Mozilla/5.0 (Linux; Android 16)';
+const desktopOpens=opened.length;
 launch.handlers.click();
-assert.doesNotMatch(opened.at(-1).flags,/popup=yes/);
-assert.match(opened.at(-1).flags,/noopener/);
-console.log('PASS v714: HH/Home labels, compact desktop ChatGPT window request, native mobile tab, original research routes untouched');
+assert.equal(opened.length,desktopOpens,'no unsupported new popup WebView on Android');
+assert.equal(assigned.at(-1),configured,'native external HTTPS navigation');
+api.clearProject();
+assert.equal(api.saved(),null,'central Admin can clear the project');
+console.log('PASS v756: Admin-only URL setup; direct desktop popup and Android browser; legacy research untouched');
