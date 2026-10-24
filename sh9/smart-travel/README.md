@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v7
+# SH9 · Smart Travel · Golden Standard v8
 
 ## Purpose and compatibility
 - Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
@@ -57,3 +57,8 @@
 - At the user's request, the **horizontal width** was shortened ~40%, **196px → 118px**, and on narrow mobile screens **184px → 110px**.
 - Widget remains top-right, transparent and functional. Reduced side padding and gently smaller city/attribution labels fit the narrower glass panel.
 - Weather values, city selection, forecast link, 4 clocks, ADSB.lol and 3×3 tile grid remain unchanged.
+
+## v8 · Pixel-perfect weather position
+- Keep current widget 118px width (110px at narrow mobile), glass opacity and weather behavior unchanged.
+- Move right/up by 4px: desktop `top:6px; right:6px`, narrow mobile by 3px: `top:5px; right:5px`.
+- No other layout or functional changes.

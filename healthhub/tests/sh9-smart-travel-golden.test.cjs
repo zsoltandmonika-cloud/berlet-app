@@ -88,7 +88,7 @@ test('SH9 top-right weather glass is 40 percent narrower and remains interactive
  const stack=page.match(/\.st-hero-overlay-stack\{([^}]+)\}/);
  const weather=page.match(/\.st-weather\{([^}]+)\}/);
  assert.ok(stack&&weather);
- assert.match(stack[1],/top:10px;right:10px;left:auto/);
+ assert.match(stack[1],/top:6px;right:6px;left:auto/);
  assert.match(stack[1],/width:118px/);
  assert.match(stack[1],/align-items:stretch/);
  assert.match(stack[1],/--st-hero-glass-fill:linear-gradient\(135deg,rgba\(8,24,48,\.38\),rgba\(20,42,77,\.23\)\)/);
@@ -99,7 +99,7 @@ test('SH9 top-right weather glass is 40 percent narrower and remains interactive
  assert.match(weather[1],/border:1px solid var\(--st-hero-glass-border\)/);
  assert.match(weather[1],/backdrop-filter:blur\(12px\)/);
  assert.match(weather[1],/box-shadow:var\(--st-hero-glass-shadow\)/);
- assert.match(page,/\.st-hero-overlay-stack\{top:8px;right:8px;left:auto;width:110px\}/);
+ assert.match(page,/\.st-hero-overlay-stack\{top:5px;right:5px;left:auto;width:110px\}/);
  assert.doesNotMatch(page,/\.st-hero-title/);
  assert.doesNotMatch(page,/class="st-hero-title"/);
 });
