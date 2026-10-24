@@ -24,7 +24,7 @@
  var TILES=[
   ['health','Egészség'],['records','Leletek'],['meds','Gyógyszer & Supplement'],
   ['sleep','Alvás'],['activity','Aktivitás'],['digital','Digital Health'],
-  ['nutrition','Nutrition'],['ask','Kérdezd Lénát'],['guardian','Family Guard'],
+  ['nutrition','Nutrition'],['ask','Ask Léna'],['guardian','Family Guard'],
   ['spark','Daily Spark'],['headline','Daily Headline'],['dailyhealth','Daily Health']
  ];
  var style=document.createElement('link');
@@ -73,8 +73,11 @@
    return true;
   }
   if(key==='ask'){
-   if(typeof root.hhOpenLenaSmart299==='function'){root.hhOpenLenaSmart299();return true}
-   return fallbackClick('Ask Léna')||message('Az Ask Léna modul még töltődik.');
+   // SH9 and HealthHub use the same Admin-managed ChatGPT Project shortcut.
+   // A direct project launch, no intermediate HealthHub Ask Lena screen.
+   var project=root.HH_CHATGPT_PROJECT_SHORTCUT_V712;
+   if(project&&typeof project.openProject==='function'){project.openProject();return true}
+   message('A ChatGPT-projekt kapcsolat még betöltődik.');return false;
   }
   if(key==='timeline')return showPage('timeline'); // Existing timeline retained for Egészség submenu.
   if(key==='guardian'){

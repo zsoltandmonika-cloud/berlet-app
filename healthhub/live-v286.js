@@ -27,6 +27,8 @@ function openChatGPT(){
 
 document.addEventListener('click',function(e){
   var el=e.target&&e.target.closest&&e.target.closest('button,a,[role="button"]');
+  // The Premium Home Ask Léna button owns its direct ChatGPT Project route.
+  if(el&&el.closest&&el.closest('#home .hhpg-tile[data-key="ask"]'))return;
   if(!isAskLena(el))return;
   e.preventDefault();
   e.stopPropagation();

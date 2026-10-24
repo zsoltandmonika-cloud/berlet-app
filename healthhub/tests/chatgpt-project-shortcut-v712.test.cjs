@@ -7,8 +7,8 @@ const js=fs.readFileSync(path.join(root,'chatgpt-project-shortcut-v712.js'),'utf
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const original=fs.readFileSync(path.join(root,'live-v299.js'),'utf8');
 const home=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
-assert(home.includes("['ask','Kérdezd Lénát']"));
-assert(home.includes("fallbackClick('Ask Léna')"));
+assert(home.includes("['ask','Ask Léna']"));
+assert(home.includes('HH_CHATGPT_PROJECT_SHORTCUT_V712'),'Home Ask Léna calls shared ChatGPT Project');
 const ai=fs.readFileSync(path.join(root,'live-v331.js'),'utf8');
 assert(html.includes('chatgpt-project-shortcut-v712.js?v=756-central-ask-lena'));
 assert(html.indexOf('live-v299.js')<html.indexOf('chatgpt-project-shortcut-v712.js'));

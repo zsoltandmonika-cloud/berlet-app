@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-glass-home-v520.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-glass-home-v520.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.match(html,/premium-glass-home-v520\.js\?v=785-family-live/);
+assert.match(html,/premium-glass-home-v520\.js\?v=785-family-live-ask-direct-756/);
 assert.ok(source.includes("params.get('hhpremium')==='0'"),'approved Home is default; classic is opt-out');
 assert.match(css,/data-hh-premium-preview="on"/,'all preview visuals scoped');
 assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
@@ -112,7 +112,8 @@ function load(query){
   MutationObserver:class{constructor(cb){hero.mutationCallback=cb}observe(target){assert.equal(target,hero)}},
   location,localStorage:{getItem(k){assert.equal(k,'hh-profile');return selected}},
   show(id){pageCalls.push(id)},hhOpenActivity(){pageCalls.push('activity')},
-  hhOpenLenaSmart299(){pageCalls.push('ask')},
+  hhOpenLenaSmart299(){pageCalls.push('legacy-ask')},
+  HH_CHATGPT_PROJECT_SHORTCUT_V712:{openProject(){pageCalls.push('chatgpt-project')}},
   HH_DAILY_HEALTH_V312:{open(){pageCalls.push('dailyhealth')}},
   addEventListener(key,fn){this.listeners[key]=fn},toast(s){opened.push('toast:'+s)}
  };
@@ -159,7 +160,7 @@ assert.equal(grid.children.map(n=>n.dataset.key).join('|'),
  'health|records|meds|sleep|activity|digital|nutrition|ask|guardian|spark|headline|dailyhealth');
 assert.equal(on.document.documentElement.dataset.hhPremiumPreview,'on');
 assert.equal(on.document.documentElement.dataset.hhPremiumTiles,'12');
-assert.equal(grid.children[7].children[1].textContent,'Kérdezd Lénát','Ask Lena is centered on row 3');
+assert.equal(grid.children[7].children[1].textContent,'Ask Léna','Ask Léna Home label is standardized');
 assert.equal(grid.children[9].dataset.group,'daily');
 assert.equal(grid.children[11].dataset.group,'daily');
 assert.equal(on.document.documentElement.dataset.hhpgProfile,'z');
@@ -178,8 +179,9 @@ on.window.HH_PREMIUM_HOME_V520.go('timeline');
 on.window.HH_PREMIUM_HOME_V520.go('spark');
 on.window.HH_PREMIUM_HOME_V520.go('headline');
 on.window.HH_PREMIUM_HOME_V520.go('activity');
-on.window.HH_PREMIUM_HOME_V520.go('ask');
-assert.equal(on.pageCalls.join('|'),'health|health|timeline|spark|briefing|activity|ask');
+grid.children[7].click(); // Test actual Premium Home button, no second intermediary click.
+assert.equal(on.pageCalls.join('|'),'health|health|timeline|spark|briefing|activity|chatgpt-project',
+ 'Home Ask Léna must launch the original ChatGPT Project directly');
 on.window.HH_PREMIUM_HOME_V520.go('sleep');
 assert.equal(on.legacy[0].clicked,1,'existing Sleep route is reused');
 on.window.HH_PREMIUM_HOME_V520.go('nutrition');
@@ -188,4 +190,7 @@ on.window.HH_PREMIUM_HOME_V520.go('dailyhealth');
 assert.equal(on.healthStrip.clicked,1,'Daily Health opens the existing consented report');
 on.window.HH_PREMIUM_HOME_V520.go('digital');
 assert.ok(on.opened.includes('https://example.test/healthhub/digital-health/'),'Digital Health route remains live');
-console.log('Premium Glass Home v528: default on, opt-out classic, 12 routes, two profiles, approved images PASS');
+const globalCapture=fs.readFileSync(path.join(root,'live-v286.js'),'utf8');
+assert(globalCapture.includes("el.closest('#home .hhpg-tile[data-key=\"ask\"]')"),
+ 'legacy global click interceptor must exempt the direct Home Ask Léna tile');
+console.log('Premium Glass Home: visual unchanged, direct Ask Léna project route, two profiles PASS');
