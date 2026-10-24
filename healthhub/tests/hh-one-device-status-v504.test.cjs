@@ -54,7 +54,7 @@ test('registry visually separates stale selected, new unselected, archived histo
  assert.match(reg,/sort\(function\(a,b\)\{return Date\.parse\(b\.lastSeenAt/);
  assert.match(reg,/registry&&Array\.isArray\(registry\.archived\)/);
  assert.match(reg,/Csak friss Android-jelentésű telefon jelölhető ki/);
- assert.match(reg,/Ez a .*MOST HASZNÁLT fizikai telefonja/);
+ assert.match(reg,/profil MOST HASZNÁLT fizikai telefonja/);
  assert.match(reg,/await api\(\)\.uploadJson\(backup,/);
  assert.match(reg,/await api\(\)\.uploadJson\(PATH,next\)/);
  assert.doesNotMatch(reg,/localStorage\.clear\(|indexedDB\.deleteDatabase/);
@@ -65,7 +65,7 @@ test('a candidate repair navigates to the existing registry and cannot auto-sele
  assert.equal(router.resolve('OPS-CANDIDATE-other'),null);
  assert.match(rag,/issueCard\(line,'OPS-CANDIDATE-'\+p/);
  assert.match(rag,/frissebb Android-bejegyzés ellenőrizhető/);
- assert.match(rag,/Ennek a KIJELÖLT telefonnak nincs friss jelentése/);
+ assert.match(rag,/Ez a KIJELÖLT telefon több mint 20 perce nem jelentkezett/);
  assert.match(reg,/if\(!confirm\(/);
  assert.doesNotMatch(router.resolve('OPS-CANDIDATE-monika').label,/automatikus|mentve|javítva/i);
 });
