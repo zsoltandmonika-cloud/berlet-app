@@ -78,6 +78,66 @@ object DropboxVaultClient {
         return access
     }
 
+    /**
+     * User-initiated account check; no files, health data or credentials are uploaded.
+     * The legacy Dropbox OAuth flow did not request account_info.read. In that case
+     * we report MISSING_SCOPE, not a disconnected phone or a guessed email.
+     */
+    data class AccountCheck(
+        val status: String,
+        val email: String? = null,
+        val accountId: String? = null,
+        val emailVerified: Boolean = false
+    )
+
+    suspend fun inspectCurrentAccount(prefs: SharedPreferences): AccountCheck {
+        if (!hasRefreshToken(prefs)) return AccountCheck("not_connected")
+        val token = try {
+            accessToken(prefs)
+        } catch (cancel: CancellationException) {
+            throw cancel
+        } catch (_: Exception) {
+            return AccountCheck("token_error")
+        }
+        return inspectTokenAccount(token)
+    }
+
+    /** Inspect a candidate OAuth token without persisting or replacing current tokens. */
+    suspend fun inspectTokenAccount(token: String): AccountCheck = withContext(Dispatchers.IO) {
+        try {
+            val conn = (URL("https://api.dropboxapi.com/2/users/get_current_account")
+                .openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 20_000
+                readTimeout = 20_000
+                setRequestProperty("Authorization", "Bearer $token")
+                setRequestProperty("Content-Type", "application/json")
+            }
+            val body = responseText(conn)
+            when (conn.responseCode) {
+                in 200..299 -> {
+                    val j = JSONObject(body)
+                    val id = j.optString("account_id").takeIf { it.startsWith("dbid:") }
+                    val email = j.optString("email").takeIf { it.contains('@') }
+                    if (id == null) AccountCheck("invalid_response")
+                    else AccountCheck("verified", email, id, j.optBoolean("email_verified", false))
+                }
+                401 -> AccountCheck("token_error")
+                403 -> {
+                    // Never disclose raw Dropbox error content or the Bearer token.
+                    val missing = body.contains("missing_scope", ignoreCase = true)
+                    AccountCheck(if (missing) "missing_scope" else "forbidden")
+                }
+                429 -> AccountCheck("rate_limit")
+                else -> AccountCheck("http_error")
+            }
+        } catch (cancel: CancellationException) {
+            throw cancel
+        } catch (_: Exception) {
+            AccountCheck("network_error")
+        }
+    }
+
     suspend fun ensureFolder(prefs: SharedPreferences, path: String) {
         val token = accessToken(prefs)
         withContext(Dispatchers.IO) {
