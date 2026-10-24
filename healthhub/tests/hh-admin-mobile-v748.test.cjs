@@ -11,7 +11,7 @@ const ux=read('hh-admin-mobile-focus-v748.js'),old=read('hh-unified-admin-v745.j
   home=read('index.html');
 
 test('SH9 Admin has six color-coded, accessible single-tap categories and direct device actions',()=>{
- for(const k of ['devices','cloud','data','architecture','recovery','other'])
+ for(const k of ['registry','devices','cloud','data','architecture','recovery','other'])
   assert.match(ux,new RegExp("id:'"+k+"'"));
  for(const k of ['📱 Eszközregiszter megnyitása','📦 APK és OTA állapot','📱 HH One Connect megnyitása','SH9 · Admin Control Center'])
   assert.ok(ux.includes(k));
@@ -53,19 +53,21 @@ test('header is inserted once, categories filter in place, and user tap never re
   addEventListener:()=>{},hhDeviceRegistry401:{reload:()=>{reloads++}},
   SH9_VERSION_CENTER_V1:{refresh:()=>{draws++}}};
  vm.runInNewContext(ux,{window:W,document:D,Date});
- assert.equal(W.HH_ADMIN_MOBILE_V748.category(),'devices');
+ assert.equal(W.HH_ADMIN_MOBILE_V748.category(),'registry');
  const menu=D.getElementById('hhAdminQuickV748');assert.ok(menu);
  const categories=menu.querySelectorAll('button[data-group]');
- assert.equal(categories.length,6);
- assert.equal(D.documentElement.dataset.hhAdminFocus,'devices');
- categories[1].listeners.click();
+ assert.equal(categories.length,7);
+ assert.equal(D.documentElement.dataset.hhAdminFocus,'registry');
+ categories[2].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'cloud');
- categories[0].listeners.click();
+ categories[1].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'devices');
+ categories[0].listeners.click();
+ assert.equal(D.documentElement.dataset.hhAdminFocus,'registry');
  assert.equal(reloads,1);assert.equal(draws,1);
  W.HH_ADMIN_MOBILE_V748.tick();
  assert.equal(all(root).filter(x=>x.id==='hhAdminQuickV748').length,1);
- assert.equal(W.HH_ADMIN_MOBILE_V748.category(),'devices');
+ assert.equal(W.HH_ADMIN_MOBILE_V748.category(),'registry');
 });
 
 test('periodic portal/registry/Orchestrator updates cannot recycle cards during scrolling',()=>{
@@ -76,7 +78,9 @@ test('periodic portal/registry/Orchestrator updates cannot recycle cards during 
  assert.match(reg,/hhAdminScrollActiveV748/);
  assert.match(orch,/hhAdminScrollActiveV748/);
  assert.match(ux,/data-hh-admin-focus="devices"/);
- assert.match(ux,/not\(#hhDeviceRegistry401\):not\(#hhSyncOrchestrator305\)/);
+ assert.match(ux,/admin-focus="registry"/);
+ assert.match(ux,/not\(#hhDeviceRegistry401\)/);
+ assert.match(ux,/openRegistry/);
 });
 
 test('mobile loader cache bust and existing non-Admin functionality preserved',()=>{

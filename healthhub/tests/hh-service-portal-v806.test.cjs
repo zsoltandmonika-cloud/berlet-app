@@ -52,7 +52,8 @@ test('Native GPS diagnostics record only status and error code, no latitude or l
 test('Cloud and Orchestrator cards do not unconditionally tear down each polling cycle',()=>{
  const cloud=read('live-v205.js'),orch=read('live-v305.js');
  assert.match(cloud,/current\.innerHTML!==next/);
- assert.match(orch,/old\.outerHTML===html/);
+ assert.match(orch,/rowsBox=old\.querySelector\('\.hhOrchDevices305'\)/);
+ assert.match(orch,/data-hh-orch-registry/);
  assert.doesNotMatch(orch,/var old=document\.getElementById\(ADMIN_ID\);if\(old\)old\.remove\(\)/);
  assert.match(orch,/hhInlineAdmin!=='yes'/);
 });
