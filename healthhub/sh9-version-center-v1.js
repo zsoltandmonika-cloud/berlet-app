@@ -139,7 +139,7 @@ async function refreshNow(force){
   lastRead=Date.now();
  }catch(e){state={readAt:Date.now(),error:'Verzióközpont hiba: '+String(e&&e.message||e).slice(0,120),
   model:MODEL.read(null,[],null,null,Date.now())};}
- finally{loading=false;draw();}
+ finally{lastRead=Date.now();loading=false;draw();}
 }
 async function dispatch(owner){
  if(interacting||loading||!state||!['zsolt','monika'].includes(owner))return;
