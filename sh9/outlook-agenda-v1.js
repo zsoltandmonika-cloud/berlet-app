@@ -42,7 +42,7 @@
  function setCard(title,detail,kind){
   value.textContent=title;sub.textContent=detail;
   card.dataset.status=kind||'pending';
-  card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
+  card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Outlook Agenda közvetlen megnyitása');
  }
  function disconnectSession(){
   token=null;expiresAt=0;refreshToken=null;refreshIssuedAt=0;
@@ -293,20 +293,22 @@
   modal.hidden=true;open=false;
   if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
  }
- // The packaged SH9 WebView has no browser OAuth session. Route its calendar
- // tap to the real SH9 Agenda in the system browser, via the trusted native host.
- if(NATIVE){
-  card.addEventListener('click',()=>{
-   const url=new URL('./',w.location.href);
-   url.searchParams.set('sh9external','calendar');
-   url.searchParams.set('sh9calendar','1');
-   w.location.assign(url.href);
-  });
-  card.setAttribute('aria-label','Outlook Agenda megnyitása a telefon böngészőjében');
-  sub.textContent='Agenda a böngészőben ›';
- } else {
-  card.addEventListener('click',show);
+ // The entire top NAPTÁR tile opens Outlook's real Agenda in ONE tap.
+ // Web: new browser tab, preserving the SH9 launchpad.
+ // Android WebView: main-frame HTTPS navigation triggers its existing
+ // allowlisted external-browser handoff, with NO new APK or OAuth bridge.
+ // The SH9's own read-only Agenda dialog remains accessible from Admin via
+ // ?sh9calendar=1 for Microsoft account settings and local diagnostics.
+ const OUTLOOK_AGENDA='https://outlook.live.com/calendar/0/view/agenda';
+ function openOutlookAgenda(){
+  if(NATIVE){w.location.assign(OUTLOOK_AGENDA);return}
+  // Synchronous user activation is required by mobile popup policies.
+  const opened=w.open(OUTLOOK_AGENDA,'_blank','noopener,noreferrer');
+  if(!opened)w.location.assign(OUTLOOK_AGENDA);
  }
+ card.addEventListener('click',openOutlookAgenda);
+ card.setAttribute('aria-label','Outlook Agenda megnyitása közvetlenül');
+ if(NATIVE)sub.textContent='Outlook Agenda ›';
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
  d.addEventListener('keydown',e=>{
