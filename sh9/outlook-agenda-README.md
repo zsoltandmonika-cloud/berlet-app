@@ -1,5 +1,14 @@
 # SH9 Start Page · Outlook Agenda & Időpontütközések · Add-on 1/3
 
+## 2026-10-24 · Direct Outlook Agenda v11
+
+- The **DÁTUM / NÉVNAP** info tile remains a direct Outlook **monthly** browser link.
+- The **NAPTÁR** info tile now opens the actual Outlook **Agenda** at `https://outlook.live.com/calendar/0/view/agenda` in **one tap**, in a new browser tab rather than first displaying the SH9 custom Agenda panel. This is a real anchor link even if JavaScript fails.
+- On HH One unified Android's SH9 WebView, the external HTTPS URL uses the existing Android host's `Intent.ACTION_VIEW` handoff to the system browser. A **new APK is not required** for this web update.
+- The existing internal SH9 Agenda remains accessible via Admin → Cloud és AI → **Microsoft Calendar · beállítások** (the `?sh9calendar=1` route), for account setup, connection diagnostics and the read-only 14-day preview.
+- The Outlook-hosted page may use Microsoft's own view/account preferences, which the SH9 site cannot override. No Microsoft tokens, private events, Dropbox data, or device identifiers are copied to Outlook by this navigation.
+
+
 ## Scope and first-release status
 - SH9's existing third **NAPTÁR** info-strip cell is now a tappable status button.
 - Pressing the cell opens a Premium Glass, S24 Ultra-friendly **Agenda** drawer, grouped by local Budapest dates with a scrollable 14-day event timeline.
