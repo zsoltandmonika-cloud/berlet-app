@@ -62,8 +62,11 @@
    refreshToken=raw.refresh_token;
    // SPA refresh-token lifetime is non-sliding: rotation never resets the 24h window.
    refreshIssuedAt=originalIssuedAt||Date.now();
-   if(PERSIST)await PERSIST.save(w,cfg.clientId,cfg.account,refreshToken,refreshIssuedAt);
   }
+ }
+ async function persistRefreshAfterVerify(){
+  if(refreshToken&&PERSIST&&cfg)
+   await PERSIST.save(w,cfg.clientId,cfg.account,refreshToken,refreshIssuedAt);
  }
  async function reloadStoredSession(){
   if(!cfg||!PERSIST)return false;
@@ -88,6 +91,7 @@
     await storeToken(raw,refreshIssuedAt);
     // Never use calendar details before checking actual signed-in account.
     await verifyAccount();
+    await persistRefreshAfterVerify();
     return tokenReady();
    }catch(e){
     token=null;expiresAt=0;dropSession(TOKEN_KEY);
@@ -186,6 +190,7 @@
    const auth=await jsonRequest(AUTHORITY+'token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
    await storeToken(auth);
    await verifyAccount();
+   await persistRefreshAfterVerify();
    saveLocal(TRUST_KEY,JSON.stringify({clientId:cfg.clientId,account:cfg.account}));
    await sync(true);
   }catch(e){disconnectSession();setCard('Nincs összekötve','Microsoft hitelesítés sikertelen','error');setStatus('Belépési hiba: '+escapeMessage(e))}
@@ -316,9 +321,13 @@
  save.addEventListener('click',()=>{
   const clientId=clientInput.value.trim(),account=accountInput.value.trim().toLowerCase();
   if(!ID_RE.test(clientId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){setStatus('Érvényes Microsoft Application Client ID és e-mail cím szükséges.');return}
-  if(!saveLocal(CONFIG_KEY,JSON.stringify({clientId:clientId,account:account}))){setStatus('A böngésző nem engedi a helyi beállítás mentését.');return}
-  cfg={clientId:clientId,account:account};void forgetStoredSession();
-  setupState();setStatus('Beállítás mentve. Következő Microsoft-belépéskor engedélyezheted az automatikus megújítást.');
+  // Forget an earlier account before binding a new one, never re-use its tokens.
+  void (async()=>{
+   await forgetStoredSession();
+   if(!saveLocal(CONFIG_KEY,JSON.stringify({clientId:clientId,account:account}))){setStatus('A böngésző nem engedi a helyi beállítás mentését.');return}
+   cfg={clientId:clientId,account:account};
+   setupState();setStatus('Beállítás mentve. Következő Microsoft-belépéskor engedélyezheted az automatikus megújítást.');
+  })();
  });
  connect.addEventListener('click',()=>{void beginAuth().catch(e=>setStatus('Nem indítható a Microsoft-belépés: '+escapeMessage(e)))});
  refreshBtn.addEventListener('click',()=>{void sync(true)});
