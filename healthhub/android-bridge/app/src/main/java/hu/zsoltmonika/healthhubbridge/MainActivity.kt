@@ -193,11 +193,6 @@ class MainActivity : ComponentActivity() {
         updateResilientStatus()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (::gpsSummary.isInitialized) updateSh9GpsUi()
-    }
-
     private fun initHealthConnect() {
         when (HealthConnectClient.getSdkStatus(this)) {
             HealthConnectClient.SDK_AVAILABLE -> {
@@ -1484,6 +1479,7 @@ class MainActivity : ComponentActivity() {
         CollectionScheduler.reconcile(this)
         updateDigitalStatus()
         if (::otaSummary.isInitialized) updateOtaStatus()
+        if (::gpsSummary.isInitialized) updateSh9GpsUi()
     }
 
     override fun onDestroy() {
