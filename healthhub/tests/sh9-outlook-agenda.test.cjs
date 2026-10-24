@@ -69,7 +69,7 @@ test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fa
 });
 
 test('Golden pink/purple highlights only live Outlook values and agenda entries',()=>{
- assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=5-consistent-pink"/);
+ assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=6-direct-agenda"/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
  assert.match(css,/\.sh9-agenda-subject\{[^}]*color:#f4b7ea/);
