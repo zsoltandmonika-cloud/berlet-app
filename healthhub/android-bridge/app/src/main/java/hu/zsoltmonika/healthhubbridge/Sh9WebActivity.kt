@@ -121,6 +121,22 @@ class Sh9WebActivity : ComponentActivity() {
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
+                // Only a main-frame navigation from our first-party pages can request
+                // the native settings screen. The SH9 WebView itself NEVER reopens.
+                // REORDER_TO_FRONT resumes the existing HH One settings activity,
+                // avoiding a stack of duplicate apps or an SH9 startup loop.
+                val source = Uri.parse(view.url ?: "")
+                if (request.isForMainFrame && u.scheme == "healthhubconnect" &&
+                    u.host == "settings" &&
+                    source.scheme == "https" && source.host == HOST &&
+                    source.path?.startsWith(BASE) == true) {
+                    val settings = Intent(this@Sh9WebActivity, MainActivity::class.java)
+                        .putExtra("openNativeSettings", true)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(settings)
+                    finish()
+                    return true
+                }
                 if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) {
                     // Calendar requires a browser-owned Microsoft OAuth session.
                     // Open the SAME SH9 Agenda in the system browser, not a disconnected WebView.
