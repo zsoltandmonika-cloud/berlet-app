@@ -82,7 +82,8 @@ test('Golden pink/purple highlights only live Outlook values and agenda entries'
 test('All three SH9 live info cells have full-size accessible click targets and safe destinations',()=>{
  const strip=html.slice(html.indexOf('<section id="sh9InfoBar6"'),html.indexOf('</section>',html.indexOf('<section id="sh9InfoBar6"')));
  assert.match(strip,/<a id="sh9NamedayCell" class="sh9-info-cell sh9-info-tap" href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
- assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub">Névnap betöltése/);
+ assert.match(strip,/<span class="sh9-info-heading">DÁTUM<\/span><span id="sh9Date6"/);
+ assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub">NÉVNAP · betöltés/);
  assert.match(strip,/<a id="sh9WeatherCell6" class="sh9-info-cell sh9-info-tap" href="https:\/\/www\.meteoblue\.com\/en\/weather\/week\/budapest_hungary_3054643"/);
  assert.match(strip,/<button id="sh9CalendarCell" type="button" class="sh9-info-cell sh9-calendar-click-target"/);
  assert.match(script,/card\.addEventListener\('click',show\)/);

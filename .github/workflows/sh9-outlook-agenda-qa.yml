@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'sh9/index.html'
+      - 'sh9/sh9-info-v6.js'
+      - 'healthhub/tests/sh9-nameday-month-v9.test.cjs'
       - 'sh9/outlook-agenda-*.js'
       - 'sh9/outlook-session-v2.js'
       - 'sh9/outlook-agenda-*.css'
@@ -14,6 +16,8 @@ on:
     branches: [main]
     paths:
       - 'sh9/index.html'
+      - 'sh9/sh9-info-v6.js'
+      - 'healthhub/tests/sh9-nameday-month-v9.test.cjs'
       - 'sh9/outlook-agenda-*.js'
       - 'sh9/outlook-agenda-*.css'
       - 'healthhub/tests/sh9-outlook-agenda.test.cjs'
@@ -30,6 +34,7 @@ jobs:
           node-version: '22'
       - name: JavaScript syntax
         run: |
+          node --check sh9/sh9-info-v6.js
           node --check sh9/outlook-agenda-v1.js
           node --check sh9/outlook-session-v2.js
           node --check sh9/outlook-agenda-model-v1.js
@@ -37,3 +42,4 @@ jobs:
         run: |
           node --test healthhub/tests/sh9-outlook-agenda.test.cjs
           node --test healthhub/tests/sh9-outlook-persistent-v2.test.cjs
+          node --test healthhub/tests/sh9-nameday-month-v9.test.cjs

@@ -26,10 +26,10 @@
  var namedayData=null;
  function showNameday(p){
   var k=p.month+'-'+p.day;
-  if(k===currentDay&&nameEl.textContent!=='Névnap betöltése…')return;
+  if(k===currentDay&&nameEl.textContent!=='NÉVNAP · betöltés…')return;
   currentDay=k;
   var names=namedayData&&namedayData.namedays&&namedayData.namedays[String(p.month)]&&namedayData.namedays[String(p.month)][String(p.day)];
-  nameEl.textContent=Array.isArray(names)&&names.length?names.join(', ')+' névnap':'Névnap nem elérhető';
+  nameEl.textContent=Array.isArray(names)&&names.length?'NÉVNAP · '+names.join(', '):'NÉVNAP · nem elérhető';
  }
  async function fetchNamedays(){
   try{
@@ -38,7 +38,7 @@
    namedayData=await r.json();
    currentDay='';
    showNameday(setDate());
-  }catch(e){nameEl.textContent='Névnap nem elérhető';}
+  }catch(e){nameEl.textContent='NÉVNAP · nem elérhető';}
  }
  function weatherLabel(c){
   if(c===0)return 'Derült';
