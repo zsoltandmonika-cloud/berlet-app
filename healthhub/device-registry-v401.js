@@ -107,7 +107,8 @@ function panel(force){
       'Még nem érkezett ellenőrizhető Android-jelentés ehhez a profilhoz. ')+
       'Nyisd meg a <b>HH One / HH Connect natív alkalmazást</b> ezen a telefonon, '+
       'ellenőrizd a tulajdonosprofilt és a Dropbox-kapcsolatot, indíts kézi szinkront, '+
-      'majd nyomd meg itt az <b>Állapot frissítése</b> gombot.</p>';
+      'majd nyomd meg itt az <b>Állapot frissítése</b> gombot. '+
+      'A webes kliens nem helyettesíti az Android-eszközjelentést.</p>';
   }
   html+='</div>';
  });
