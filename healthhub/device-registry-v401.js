@@ -90,6 +90,7 @@ function panel(force){
   var state=freshSelected?'✅ kijelölt fő telefon frissen jelentkezett':
    primary?'⚠️ kijelölt fő telefonja nem adott friss jelentést':'⚠️ nincs kijelölt fő telefon';
   html+='<div class="hhRegGroup401"><h4>'+name+' · '+state+'</h4>';
+  if(primary&&!selected)html+='<p class="hhRegAlert504">A mentett eszközazonosító: …'+clean(primary.slice(-11))+' · ehhez jelenleg nincs azonosítható Android-jelentés. Alkalmazásadat-törlés új azonosítót eredményezhet. Az eredeti regisztrációt nem töröljük.</p>';
   if(!freshSelected&&recentOther.length){
    html+='<p class="hhRegAlert504">⚠️ '+name+': a kijelölt telefon nem jelentkezik frissen, '+
       'de '+recentOther.length+' másik, friss Android-bejegyzés található. '+
@@ -193,9 +194,17 @@ async function saveChange(action,dev){
   var backup=ROOT+'/device-registry-backup-'+next.updatedAt.replace(/[:.]/g,'-')+'-'+Math.random().toString(36).slice(2,8)+'.json';
   await api().uploadJson(backup,{schema:'healthhub.device_registry.backup/1',savedAt:next.updatedAt,previous:current});
   await api().uploadJson(PATH,next);
-  registry=next;devices=present;error='';note='✓ Mentés és regiszterfrissítés kész. Visszavonható.';
+  // A successful upload is not proof that Dropbox now returns this selection.
+  var verified;
+  try{verified=await read()}
+  catch(e){throw Error('A mentést nem sikerült visszaellenőrizni: '+String(e.message||e).slice(0,160))}
+  if(verified.activePhones.zsolt!==next.activePhones.zsolt||
+     verified.activePhones.monika!==next.activePhones.monika||
+     JSON.stringify(verified.archived.slice().sort())!==JSON.stringify(next.archived.slice().sort()))
+   throw Error('A visszaolvasott Dropbox-regiszter eltér a kijelöléstől. A mentés nem igazolt.');
+  registry=verified;devices=present;error='';note='✓ Kijelölés mentve és Dropboxból visszaellenőrizve.';
   window.dispatchEvent(new CustomEvent('healthhub:device-registry-updated',{detail:{action:action}}));
- }catch(e){error=String(e.message||e)}
+ }catch(e){note='';error=String(e.message||e)}
  finally{writing=false;panel(true)}
 }
 async function sync(id){
