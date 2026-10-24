@@ -1,32 +1,36 @@
-# SH9 · Smart Travel · Golden Standard v2
+# SH9 · Smart Travel · Golden Standard v3
 
-## Scope
-- The SH9 launchpad's **Smart Travel** tile opens `/sh9/smart-travel/`.
-- Approved premium-glass 3×3 categorization, with **Ask Léna** centered.
-- Five-button SH9-standard dock. **Kezdőlap** returns to `/sh9/`.
-- Familiar one-tap Zsolt/Mónika profile switch stored via existing `hh-profile` key, with matching tap sound and no medical data mutation.
-- Hero expects `sh9/assets/SH9_Smart_Travel_Hero_1402x1122.png` (user-approved **1402 × 1122 px** PNG). If not deployed, the existing SH9 Hero displays as an explicit technical fallback.
+## Purpose and compatibility
+- Central SH9 Launchpad Smart Travel tile → `/sh9/smart-travel/`.
+- Existing Golden Standard **3×3 Premium Glass** tiles and **Ask Léna** center remain unchanged.
+- The bottom five-button SH9 taskbar and all existing Family Guard / HealthHub features remain unchanged.
+- The Smart Travel Hero uses the approved **1402 × 1122 px** `sh9/assets/SH9_Smart_Travel_Hero_1402x1122.png`, already uploaded to main. This page does **not** have a profile-switch button.
+- No personal HealthHub data is written or uploaded by the weather display.
 
-## Connected (real) services
-- **Trip Planner** → existing Family Guard Smart Hub Planner, via in-page anchor `#hhSmartHubDestinationV802`. Its currently supported GTFS routing remains limited to 260, 17, 19.
-- **Public Transport** → existing Family Guard public-transit panel `#hhTransitPanel`.
-- **My Places** → existing Family Guard per-profile favorites `#hhSmartHubFavoritesV806`.
-- **Ask Léna** → existing central HealthHub `chatgpt-project-shortcut-v712.js`, unchanged; missing project configuration redirects to central Admin.
+## Connected module navigation
+- **Trip Planner** → existing Family Guard planner (`#hhSmartHubDestinationV802`), currently GTFS-limited 260/17/19.
+- **Public Transport** → existing Family Guard transit UI (`#hhTransitPanel`).
+- **My Places** → existing Family Guard favorites (`#hhSmartHubFavoritesV806`).
+- **Ask Léna** → existing central ChatGPT project shortcut (`chatgpt-project-shortcut-v712.js`).
+- Road Travel, Air Travel, Taxi, Shared Mobility and My Trips are explicitly marked as under development rather than implying live service.
 
-## Explicitly not activated
-Road Travel, Air Travel, Taxi, Shared Mobility, My Trips. These tile buttons display an honest 'under development' modal; no fake prices, routes, bookings, or location data.
+## World clocks
+- New York / London / Paris / Budapest, mobile-size 24-hour local clocks based on `Intl.DateTimeFormat`, respecting DST.
+- Each city chip is a keyboard-accessible **button**. Tap a chip to select the corresponding weather card city; selection is shown with a subtle glass highlight and `aria-pressed`.
+- Budapest is selected when the page first opens.
 
-## Deployment note
-The approved PNG is supplied separately with the SH9 Smart Travel Hero upload kit. Its exact repository path is:
-`sh9/assets/SH9_Smart_Travel_Hero_1402x1122.png`.
-The image should be uploaded to GitHub before final visual sign-off. Do not use a temporary sandbox URL for a production background.
+## Weather widget v3
+- Compact transparent dark-glass card at the **Hero's upper left**, with the Smart Travel title **below** it.
+- Defaults to **Budapest** as the agreed home-city/local-weather fallback. This is NOT the device's GPS location; no geolocation permission is requested.
+- Selected city's public coordinates are fetched from Open-Meteo, using `https://api.open-meteo.com/v1/forecast`, `current=temperature_2m,weather_code,is_day`. No key. Noncommercial Open-Meteo usage, attribution shown in the card.
+- Cached ten minutes per city, periodic stale refresh and refresh after tab resume. Valid loading/error states are shown instead of fabricated temperatures.
+- Tap the card to open that city's `meteoblue` weekly forecast (desktop new tab, Android WebView same-tab external URL).
+- Cities: New York, London, Paris, Budapest. URLs are explicit and verified for each.
 
-## Regression protection
-No existing Family Guard / HealthHub logic was modified. The launchpad change is limited to one new `data-href` for Smart Travel.
+## Flight tracker
+- The right-side airplane shortcut opens user-selected **https://adsb.lol/**.
+- Android WebViews navigate to the URL without relying on unsupported popup handling; desktop uses a standard external link.
 
-## v2 · World clocks & active flight tracker
-- The **Smart Travel** heading and subtitle now overlay the upper left of the approved 1402×1122 Hero; the original profile switch stays at the lower left.
-- The former heading strip is now a compact 4-city world clock (New York, London, Paris, Budapest), using the device's **Intl.DateTimeFormat** and official timezone identifiers with automatic daylight saving time changes; no server clock/API, GPS, or geo-location access.
-- 24-hour `HH:mm` time updates on the minute and resumes immediately on tab focus/visibility changes. Unit tests verify winter/summer DST offsets.
-- The right-side plane icon opens the official **https://www.flightradar24.com/** live tracker. Mobile WebViews open the URL using same-tab location, avoiding unsupported pop-up windows; desktop uses a standard external link.
-- Existing 3×3 Golden Standard tiles, profile switch, module routes and dock remain unchanged.
+## Regression QA
+- Test: `node --test healthhub/tests/sh9-smart-travel-golden.test.cjs`.
+- The dedicated workflow `.github/workflows/sh9-smart-travel-v3-qa.yml` validates JS syntax and the Golden Standard tests on relevant changes.
