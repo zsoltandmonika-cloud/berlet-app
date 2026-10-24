@@ -39,3 +39,11 @@ The old static `sh9/index.html` inside the installed test APK will not change un
 - Agenda event names and time ranges follow the same pink/purple emphasis.
 - Amber collision warnings, red errors, and unconnected states keep their own high-contrast colors.
 - The original Hero, module tiles, navigation, Agenda functionality and Microsoft OAuth are unchanged.
+
+## Start Page · Three tappable info tiles (click repair)
+- **DÁTUM · NÉVNAP:** today's actual Budapest-local nameday remains visible in pink, alongside today's date. Tapping anywhere in the cell opens the official Outlook **monthly** calendar at `https://outlook.live.com/calendar/0/view/month`.
+- **IDŐJÁRÁS:** live Open-Meteo reading and description are pink when ready. Tapping anywhere in the cell opens Meteoblue's Budapest detailed weekly forecast.
+- **NAPTÁR:** the full tile, including the header, now opens the existing SH9 Premium Glass **Agenda** dialog. The DOM click handler and accessibility label are attached to the true outer button rather than the inner text span.
+- All three live data regions are pink `#f4b7ea`; blue headings remain, amber calendar collision warnings and red errors remain distinct.
+- Original Hero, 3×3 module grid, bottom 5-button taskbar, calendar OAuth authorization and weather polling unchanged.
+- The new APK has not been built. The old APK bundles a previous Launcher and must be rebuilt after the remaining approved Start Page add-ons.

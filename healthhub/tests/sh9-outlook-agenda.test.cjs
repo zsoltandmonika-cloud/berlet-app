@@ -69,12 +69,36 @@ test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fa
 });
 
 test('Golden pink/purple highlights only live Outlook values and agenda entries',()=>{
- assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=2-pink-purple"/);
+ assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=4-three-tiles"/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
- assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#d8bafa\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
  assert.match(css,/\.sh9-agenda-subject\{[^}]*color:#f4b7ea/);
  assert.match(css,/\.sh9-agenda-hour\{[^}]*color:#d8bafa/);
  assert.match(css,/#sh9CalendarCell\[data-status="conflict"\] \.sh9-info-value\{color:#ffd6ad\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="error"\] \.sh9-info-value\{color:#ffd9d9\}/);
  assert.doesNotMatch(css,/#sh9CalendarCell\[data-status="pending"\][^\n]*color:#f4b7ea/);
+});
+
+test('All three SH9 live info cells have full-size accessible click targets and safe destinations',()=>{
+ const strip=html.slice(html.indexOf('<section id="sh9InfoBar6"'),html.indexOf('</section>',html.indexOf('<section id="sh9InfoBar6"')));
+ assert.match(strip,/<a id="sh9NamedayCell" class="sh9-info-cell sh9-info-tap" href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
+ assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub">Névnap betöltése/);
+ assert.match(strip,/<a id="sh9WeatherCell6" class="sh9-info-cell sh9-info-tap" href="https:\/\/www\.meteoblue\.com\/en\/weather\/week\/budapest_hungary_3054643"/);
+ assert.match(strip,/<button id="sh9CalendarCell" type="button" class="sh9-info-cell sh9-calendar-click-target"/);
+ assert.match(script,/card\.addEventListener\('click',show\)/);
+ assert.match(script,/card\.setAttribute\('aria-label'/);
+ assert.doesNotMatch(script,/summary\.addEventListener\('click',show\)/);
+ assert.match(css,/#sh9NamedayCell\.sh9-info-tap:focus-visible/);
+ assert.match(css,/#sh9WeatherCell6\.sh9-info-tap:focus-visible/);
+ assert.match(css,/#sh9CalendarCell\.sh9-calendar-click-target:focus-visible/);
+ assert.match(html,/src="\.\/outlook-agenda-v1\.js\?v=4-three-tiles"/);
+});
+test('Daily nameday, weather reading, calendar entry are pink; alerts retain their own contrast',()=>{
+ assert.match(css,/#sh9NamedayCell \.sh9-info-value,#sh9NamedayCell \.sh9-info-sub/);
+ assert.match(css,/#sh9WeatherCell6\[data-status="ready"\] \.sh9-info-value/);
+ assert.match(css,/#sh9WeatherCell6\[data-status="ready"\] \.sh9-info-sub\{\s*color:#f4b7ea/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="conflict"\] \.sh9-info-value\{color:#ffd6ad\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="error"\] \.sh9-info-value\{color:#ffd9d9\}/);
 });

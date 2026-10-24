@@ -1,4 +1,33 @@
-/* SH9 Golden Standard Outlook Agenda v1: one compact calendar status + accessible sheet. */
+/* SH9 Start Page: every info tile is touchable, while the live readings are pink.
+   Names stay visible in the first tile and the month-view link is separate from the Agenda. */
+#sh9NamedayCell.sh9-info-tap,#sh9WeatherCell6.sh9-info-tap{
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ box-sizing:border-box;min-width:0;width:100%;height:100%;
+ color:inherit;text-decoration:none;cursor:pointer;touch-action:manipulation;
+ -webkit-tap-highlight-color:rgba(244,183,234,.14);
+}
+#sh9NamedayCell.sh9-info-tap:visited,#sh9WeatherCell6.sh9-info-tap:visited{color:inherit}
+#sh9NamedayCell.sh9-info-tap:focus-visible,#sh9WeatherCell6.sh9-info-tap:focus-visible{
+ outline:2px solid #f4b7ea;outline-offset:-2px;border-radius:7px
+}
+#sh9NamedayCell.sh9-info-tap:active,#sh9WeatherCell6.sh9-info-tap:active{background:rgba(212,121,237,.10)}
+#sh9NamedayCell .sh9-info-value,#sh9NamedayCell .sh9-info-sub,
+#sh9WeatherCell6[data-status="ready"] .sh9-info-value,
+#sh9WeatherCell6[data-status="ready"] .sh9-info-sub{
+ color:#f4b7ea;
+}
+#sh9CalendarCell[data-status="ready"] .sh9-calendar-summary .sh9-info-sub{color:#f4b7ea}
+
+/* SH9 Golden Standard Outlook Agenda v3: entire compact calendar tile is a native button. */
+#sh9CalendarCell.sh9-calendar-click-target{
+ appearance:none;box-sizing:border-box;min-width:0;width:100%;height:100%;
+ border:0;border-left:1px solid #76cfff6b;
+ background:transparent;color:inherit;font:inherit;text-align:left;
+ cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(244,183,234,.12);
+}
+#sh9CalendarCell.sh9-calendar-click-target:focus-visible{outline:2px solid #f4b7ea;outline-offset:-2px;border-radius:7px}
+#sh9CalendarCell.sh9-calendar-click-target:active{background:rgba(212,121,237,.1)}
+
 .sh9-calendar-summary{
  appearance:none;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
  gap:3px;width:100%;min-width:0;margin:0;padding:0;border:0;border-radius:5px;

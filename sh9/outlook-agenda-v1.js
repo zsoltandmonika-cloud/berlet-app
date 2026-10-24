@@ -38,7 +38,7 @@
  function setCard(title,detail,kind){
   value.textContent=title;sub.textContent=detail;
   card.dataset.status=kind||'pending';
-  summary.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
+  card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
  }
  function disconnectSession(){
   token=null;expiresAt=0;lastSync=0;dropSession(TOKEN_KEY);result=model.analyze([]);
@@ -207,7 +207,7 @@
   modal.hidden=true;open=false;
   if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
  }
- summary.addEventListener('click',show);
+ card.addEventListener('click',show);
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
  d.addEventListener('keydown',e=>{
