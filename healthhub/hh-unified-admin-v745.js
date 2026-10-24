@@ -87,7 +87,7 @@ function label(root,g){
 }
 function category(el){
  if(el.id==='hhArchitectureGrandDesign744')return 'architecture';
- if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742'].includes(el.id))return 'cloud';
+ if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742','hhAskLenaProjectAdminV756'].includes(el.id))return 'cloud';
  if(el.id===ID)return 'data';
  if(el.id==='hhDocsRecoveryCard'||el.classList.contains('hrSectionCard'))return 'recovery';
  return 'other';

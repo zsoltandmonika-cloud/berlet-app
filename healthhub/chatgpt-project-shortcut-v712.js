@@ -58,9 +58,9 @@
   if(/Android|iPhone|iPad|iPod/i.test(ua)||!Number.isFinite(root.innerWidth)||root.innerWidth<780)
    return 'noopener,noreferrer';
   const card=el(PANEL);
-  if(!card||typeof card.getBoundingClientRect!=='function')return 'noopener,noreferrer';
+  if(!card||typeof card.getBoundingClientRect!=='function')return 'popup=yes,width=465,height=740,noopener,noreferrer';
   const r=card.getBoundingClientRect();
-  if(!r||!Number.isFinite(r.width)||!Number.isFinite(r.height)||r.width<100)return 'noopener,noreferrer';
+  if(!r||!Number.isFinite(r.width)||!Number.isFinite(r.height)||r.width<100)return 'popup=yes,width=465,height=740,noopener,noreferrer';
   const sc=root.screen||{};
   const sw=Number.isFinite(sc.availWidth)?sc.availWidth:root.innerWidth;
   const sh=Number.isFinite(sc.availHeight)?sc.availHeight:root.innerHeight||850;
@@ -75,16 +75,32 @@
   return 'popup=yes,width='+Math.round(width)+',height='+Math.round(height)+
    ',left='+left+',top='+top+',noopener,noreferrer';
  }
+ function clearProject(){
+  root.localStorage.removeItem(STORAGE);
+  refresh();
+ }
+ // One source of truth: Admin owns configuration, every entry opens this URL.
  function openProject(){
-  if(!saved()&&!configure())return false;
   const url=saved();
-  if(!url)return false;
+  if(!url){
+   // A first-time setup is routed directly into the central Admin, not a modal
+   // on the frozen SH9 Launchpad nor a second Ask Lena screen.
+   root.location.assign('/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena');
+   return false;
+  }
+  const mobile=/Android|iPhone|iPad|iPod/i.test(String(root.navigator&&root.navigator.userAgent||''));
+  if(mobile){
+   // The SH9 Android WebView passes foreign HTTPS to the OS browser.
+   // A fresh _blank window is not reliable in Android WebView.
+   root.location.assign(url);
+   return true;
+  }
   const features=popupFeatures();
-  // The actual shape/position depends on browser popup policies and screen size.
+  // Browser policies decide the final compact window size.
   root.open(url,'_blank',features);
   status(features.includes('popup=yes')?
-   '↗ ChatGPT kompakt ablakban kérve a Glass kártyához igazítva. A pontos méretet a böngésző dönti el.':
-   '↗ ChatGPT új lapon nyílik meg. Mobilon az ablakméretet a készülék szabályozza.');
+   '↗ ChatGPT kompakt ablakban megnyitva (a méretet a böngésző szabályozza).':
+   '↗ ChatGPT külön lapon megnyitva.');
   return true;
  }
  function make(tag,cls,value){
@@ -135,9 +151,8 @@
    launch.addEventListener('click',openProject);dock.appendChild(launch);
    const foot=make('div','hhProjectFooter712');
    foot.appendChild(make('span','hhProjectVoice712','🎙️ Hangmód az eredeti ChatGPT-ben'));
-   const settings=make('button',null,'⚙ Projekt beállítása');
-   settings.type='button';settings.id='hhChatGptProjectSettings712';
-   settings.addEventListener('click',configure);foot.appendChild(settings);dock.appendChild(foot);
+   // Project settings are located in the SH9/HealthHub Admin Center only.
+   dock.appendChild(foot);
    const info=make('p');info.id='hhChatGptProjectStatus712';dock.appendChild(info);
    host.appendChild(dock);
   }
@@ -169,6 +184,6 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
   else mount();
  }
- root.HH_CHATGPT_PROJECT_SHORTCUT_V712={normalizeProjectUrl,save,saved,openProject,refresh,mount};
+ root.HH_CHATGPT_PROJECT_SHORTCUT_V712={normalizeProjectUrl,save,saved,clearProject,configure,openProject,refresh,mount};
  install();
 })(window);
