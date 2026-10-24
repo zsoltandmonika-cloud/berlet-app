@@ -50,9 +50,9 @@ test('full date/nameday tile opens the actual Outlook monthly link rather than S
  assert.match(tile,/class="sh9-info-heading">DÁTUM<\/span>/);
  assert.match(tile,/<span id="sh9Date6"[^>]*>[^<]+<\/span><span id="sh9Nameday6"/);
  assert.doesNotMatch(tile,/view\/agenda|sh9AgendaDialog|DÁTUM · NÉVNAP/);
- const calendar=html.match(/<button id="sh9CalendarCell"[\s\S]*?<\/button>/);
+ const calendar=html.match(/<a id="sh9CalendarCell"[\s\S]*?<\/a>/);
  assert.ok(calendar);
- assert.match(calendar[0],/aria-controls="sh9AgendaDialog"/);
+ assert.match(calendar[0],/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
  assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
  assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
