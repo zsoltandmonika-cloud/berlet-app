@@ -80,6 +80,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="healthhubconnect" android:host="sync" />
             </intent-filter>
+            <!-- Explicit settings deep-link: never invokes automatic SH9 startup. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="healthhubconnect" android:host="settings" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
