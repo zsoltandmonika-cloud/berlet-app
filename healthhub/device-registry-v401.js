@@ -53,6 +53,8 @@ function row(d,p){
  '</div></div>';
 }
 function panel(force){
+ // Avoid replacing the card and buttons while Admin is being scrolled.
+ if(!force&&window.hhAdminScrollActiveV748?.()&&document.getElementById(PANEL))return;
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
  if(!ov||!body||!ov.classList.contains('on'))return;
  if(!force&&Date.now()<interactionUntil)return;
