@@ -79,18 +79,18 @@ body{background:#0b1425}
  .wrap .grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:300px}
  .wrap .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);margin:0!important;z-index:15}
 }
-</style><link rel="stylesheet" href="./outlook-agenda-v1.css?v=2-pink-purple"></head><body>
+</style><link rel="stylesheet" href="./outlook-agenda-v1.css?v=3-full-tap"></head><body>
 <main class="wrap">
 <section class="hero" role="img" aria-label="SH9 SmartHub Nine, Buddy mókus asszisztens, futurisztikus kilencmodulos központ"></section>
 <section id="sh9InfoBar6" class="sh9-info" role="group" aria-label="Mai információk: dátum, névnap, időjárás, naptár">
 <div class="sh9-info-cell"><span class="sh9-info-heading">DÁTUM · NÉVNAP</span><span id="sh9Date6" class="sh9-info-value">Dátum betöltése…</span><span id="sh9Nameday6" class="sh9-info-sub">Névnap betöltése…</span></div>
 <div id="sh9WeatherCell6" class="sh9-info-cell"><span class="sh9-info-heading">IDŐJÁRÁS</span><span id="sh9Weather6" class="sh9-info-value">Betöltés…</span><span id="sh9WeatherDetail6" class="sh9-info-sub">Budapest</span></div>
-<div id="sh9CalendarCell" class="sh9-info-cell" data-status="pending">
+<button id="sh9CalendarCell" type="button" class="sh9-info-cell sh9-calendar-click-target" data-status="pending" aria-haspopup="dialog" aria-controls="sh9AgendaDialog" aria-label="Naptár · Nincs összekötve · Agenda megnyitása">
 <span class="sh9-info-heading">NAPTÁR</span>
-<button id="sh9CalendarSummary" type="button" class="sh9-calendar-summary" aria-haspopup="dialog" aria-controls="sh9AgendaDialog" aria-label="Naptár · Nincs összekötve · Agenda megnyitása">
+<span id="sh9CalendarSummary" class="sh9-calendar-summary">
 <span id="sh9CalendarValue" class="sh9-info-value">Nincs összekötve</span>
 <span id="sh9CalendarSub" class="sh9-info-sub sh9-info-status">Agenda megnyitása ›</span>
-</button></div>
+</span></button>
 </section>
 <section class="grid" aria-label="SH9 kilenc modulja">
 <button class="tile" type="button" data-name="HealthHub" data-href="../healthhub/" aria-label="HealthHub megnyitása"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7.5a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M6 12h4l2-3 2 6 2-3h2"/></svg></span><span class="mod-name">HealthHub</span></button>
@@ -134,4 +134,4 @@ body{background:#0b1425}
 <script defer src="../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script>
 (function(){'use strict';const m=document.getElementById('modal'),c=document.getElementById('close'),msg=m.querySelector('.dialog p'),standardMessage=msg.textContent;document.querySelectorAll('[data-name],[data-nav]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.nav==='Kezdőlap')return;if(b.dataset.nav==='Vissza'){if(history.length>1){history.back();return;}document.getElementById('modal-title').textContent='Vissza';msg.textContent='Nincs előző oldal az SH9 előzményeiben.';m.classList.add('on');c.focus();return;}if(b.dataset.name==='Ask Léna'){const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;if(api&&typeof api.openProject==='function')api.openProject();else location.assign('../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');return;}if(b.dataset.href){location.assign(new URL(b.dataset.href,document.baseURI).href);return;}msg.textContent=standardMessage;document.getElementById('modal-title').textContent=b.dataset.name||b.dataset.nav;m.classList.add('on');c.focus();}));function close(){m.classList.remove('on')}c.addEventListener('click',close);m.addEventListener('click',e=>{if(e.target===m)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});})();
-</script><script defer src="./sh9-info-v6.js?v=8"></script><script defer src="./outlook-agenda-model-v1.js?v=1"></script><script defer src="./outlook-agenda-v1.js?v=1"></script></body></html>
+</script><script defer src="./sh9-info-v6.js?v=8"></script><script defer src="./outlook-agenda-model-v1.js?v=1"></script><script defer src="./outlook-agenda-v1.js?v=3-full-tap"></script></body></html>
