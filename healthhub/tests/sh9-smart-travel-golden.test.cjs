@@ -24,3 +24,22 @@ test('SH9 Smart Travel keeps standard navigation and profile switch',()=>{
  assert.match(page,/id="stProfile"/);
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
 });
+
+// Live clocks remain independent of the user's timezone and respect DST.
+test('SH9 Smart Travel hero title and clock strip are in the approved slots',()=>{
+ assert.match(page,/<div class="st-hero-title"><h1>Smart Travel<\/h1>/);
+ assert.match(page,/<section class="st-world"/);
+ assert.equal([...page.matchAll(/data-st-zone="/g)].length,4);
+ assert.match(page,/href="https:\/\/www\.flightradar24\.com\/"/);
+ assert.match(page,/world-clocks-v2\.js/);
+ assert.doesNotMatch(page,/<header class="st-head">/);
+});
+test('SH9 world clocks handle winter and summer offsets including DST',()=>{
+ const clocks=require('../../sh9/smart-travel/world-clocks-v2.js');
+ const winter=new Date('2026-01-15T12:00:00Z');
+ const summer=new Date('2026-07-15T12:00:00Z');
+ assert.deepEqual(clocks.ZONES,['America/New_York','Europe/London','Europe/Paris','Europe/Budapest']);
+ assert.deepEqual(clocks.ZONES.map(z=>clocks.cityTime(z,winter)),['07:00','12:00','13:00','13:00']);
+ assert.deepEqual(clocks.ZONES.map(z=>clocks.cityTime(z,summer)),['08:00','13:00','14:00','14:00']);
+ assert.equal(clocks.cityTime('fake/zone',winter),null);
+});
