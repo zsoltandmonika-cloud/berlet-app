@@ -1,0 +1,246 @@
+/* SH9 Outlook Agenda v1 · read-only Microsoft Graph client for the WEB Start Page.
+ * This code NEVER transfers ChatGPT connector access into GitHub Pages and
+ * NEVER uploads private events into GitHub. Microsoft OAuth SPA app registration required.
+ * Android's native packaged WebView needs a separate, explicitly approved auth bridge.
+ */
+(function(w,d){
+ 'use strict';
+ if(!w||!d)return;
+ const model=w.SH9_OUTLOOK_AGENDA_MODEL_V1;
+ const get=id=>d.getElementById(id);
+ const card=get('sh9CalendarCell'),summary=get('sh9CalendarSummary'),value=get('sh9CalendarValue'),sub=get('sh9CalendarSub');
+ const modal=get('sh9AgendaDialog'),close=get('sh9AgendaClose'),status=get('sh9AgendaStatus');
+ const list=get('sh9AgendaList'),connect=get('sh9AgendaConnect'),save=get('sh9AgendaSave');
+ const clientInput=get('sh9AgendaClientId'),accountInput=get('sh9AgendaAccount'),configBox=get('sh9AgendaSetup');
+ const refreshBtn=get('sh9AgendaRefresh'),disconnect=get('sh9AgendaDisconnect');
+ if(!model||!card||!summary||!value||!sub||!modal||!close||!status||!list||!connect||!save||!clientInput||!accountInput||!configBox||!refreshBtn||!disconnect)return;
+ const CONFIG_KEY='sh9-ms-calendar-config-v1',TOKEN_KEY='sh9-ms-calendar-session-v1',FLOW_KEY='sh9-ms-calendar-oauth-flow-v1';
+ const NATIVE=new URLSearchParams(w.location.search).get('sh9native')==='1';
+ const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+ const AUTHORITY='https://login.microsoftonline.com/consumers/oauth2/v2.0/';
+ const GRAPH='https://graph.microsoft.com/v1.0/';
+ const SCOPES='openid profile User.Read Calendars.Read';
+ const TZ='Europe/Budapest';
+ let cfg=null,token=null,expiresAt=0,loading=false,lastSync=0,result=model.analyze([]),open=false,focusFrom=null;
+ function local(key){try{return w.localStorage.getItem(key)}catch(e){return null}}
+ function saveLocal(key,data){try{w.localStorage.setItem(key,data);return true}catch(e){return false}}
+ function session(key){try{return w.sessionStorage.getItem(key)}catch(e){return null}}
+ function saveSession(key,data){try{w.sessionStorage.setItem(key,data);return true}catch(e){return false}}
+ function dropSession(key){try{w.sessionStorage.removeItem(key)}catch(e){}}
+ function loadConfig(){
+  try{const s=JSON.parse(local(CONFIG_KEY)||'null');
+   if(s&&ID_RE.test(s.clientId)&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.account)){return {clientId:s.clientId,account:s.account.toLowerCase()}}
+  }catch(e){}
+  return null;
+ }
+ cfg=loadConfig();
+ function setStatus(text){status.textContent=text}
+ function setCard(title,detail,kind){
+  value.textContent=title;sub.textContent=detail;
+  card.dataset.status=kind||'pending';
+  summary.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
+ }
+ function disconnectSession(){
+  token=null;expiresAt=0;lastSync=0;dropSession(TOKEN_KEY);result=model.analyze([]);
+ }
+ function storeToken(raw){
+  if(!raw||!raw.access_token)throw new Error('Microsoft token válasz hiányos');
+  token=raw.access_token;
+  expiresAt=Date.now()+Math.max(60,Number(raw.expires_in)||3600)*1000;
+  // Session-only token. No refresh token, no cross-device credentials and no GitHub writes.
+  saveSession(TOKEN_KEY,JSON.stringify({accessToken:token,expiresAt:expiresAt,clientId:cfg.clientId,account:cfg.account}));
+ }
+ function resumeSession(){
+  if(!cfg)return;
+  try{
+   const p=JSON.parse(session(TOKEN_KEY)||'null');
+   if(p&&p.clientId===cfg.clientId&&p.account===cfg.account&&typeof p.accessToken==='string'&&p.expiresAt>Date.now()+45000){
+    token=p.accessToken;expiresAt=p.expiresAt;
+   }else dropSession(TOKEN_KEY);
+  }catch(e){dropSession(TOKEN_KEY)}
+ }
+ function tokenReady(){return !!token&&expiresAt>Date.now()+45000}
+ function escapeMessage(e){return e&&e.message?String(e.message).slice(0,180):'Nem sikerült betölteni a naptárt'}
+ function urlBase(){return new URL('./',w.location.href).href}
+ function base64url(bytes){
+  let binary='';bytes.forEach(x=>{binary+=String.fromCharCode(x)});
+  return w.btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+ }
+ function randomString(n){
+  const buf=new Uint8Array(n);w.crypto.getRandomValues(buf);return base64url(buf);
+ }
+ async function beginAuth(){
+  if(NATIVE){setStatus('Az SH9 APK-ban a Microsoft-bejelentkezéshez külön natív hitelesítési kapcsolat szükséges. A webes változat Chrome-ban előkészítve.');return}
+  if(!cfg){setStatus('Előbb add meg a Microsoft alkalmazásazonosítóját és a kapcsolni kívánt fiókot.');return}
+  if(!w.isSecureContext||!w.crypto||!w.crypto.subtle){setStatus('Biztonságos HTTPS kapcsolat szükséges a Microsoft-belépéshez.');return}
+  const verifier=randomString(48),state=randomString(24);
+  const dig=await w.crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));
+  const challenge=base64url(new Uint8Array(dig));
+  const redirectUri=urlBase();
+  if(!saveSession(FLOW_KEY,JSON.stringify({verifier:verifier,state:state,at:Date.now(),clientId:cfg.clientId,redirectUri:redirectUri}))){setStatus('A böngésző nem engedélyezi az ideiglenes biztonságos munkamenetet.');return}
+  const u=new URL(AUTHORITY+'authorize');
+  u.searchParams.set('client_id',cfg.clientId);
+  u.searchParams.set('response_type','code');
+  u.searchParams.set('redirect_uri',redirectUri);
+  u.searchParams.set('response_mode','query');
+  u.searchParams.set('scope',SCOPES);
+  u.searchParams.set('code_challenge_method','S256');
+  u.searchParams.set('code_challenge',challenge);
+  u.searchParams.set('state',state);
+  w.location.assign(u.href);
+ }
+ async function jsonRequest(url,opts){
+  const r=await w.fetch(url,Object.assign({cache:'no-store',credentials:'omit'},opts||{}));
+  if(!r.ok)throw new Error('Microsoft szolgáltatás: HTTP '+r.status);
+  return await r.json();
+ }
+ function safelyStripAuthQuery(){
+  const u=new URL(w.location.href);
+  for(const k of ['code','state','error','error_description','session_state'])u.searchParams.delete(k);
+  w.history.replaceState(w.history.state,'',u.pathname+u.search+u.hash);
+ }
+ async function handleCallback(){
+  const params=new URLSearchParams(w.location.search);
+  if(!params.has('code')&&!params.has('error'))return false;
+  let saved=null;
+  try{saved=JSON.parse(session(FLOW_KEY)||'null')}catch(e){}
+  dropSession(FLOW_KEY);
+  const code=params.get('code'),returnedState=params.get('state'),error=params.get('error');
+  safelyStripAuthQuery();
+  if(error){setStatus('Microsoft-belépés nem fejeződött be: '+error);return true}
+  if(!code||!saved||!cfg||saved.clientId!==cfg.clientId||returnedState!==saved.state||Date.now()-saved.at>10*60*1000||saved.redirectUri!==urlBase()){
+   setStatus('A Microsoft-belépés biztonsági ellenőrzése sikertelen. Kapcsolódj újra.');return true;
+  }
+  try{
+   const body=new URLSearchParams({client_id:cfg.clientId,grant_type:'authorization_code',code:code,code_verifier:saved.verifier,redirect_uri:saved.redirectUri,scope:SCOPES});
+   const auth=await jsonRequest(AUTHORITY+'token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+   storeToken(auth);
+   await verifyAccount();
+   await sync(true);
+  }catch(e){disconnectSession();setCard('Nincs összekötve','Microsoft hitelesítés sikertelen','error');setStatus('Belépési hiba: '+escapeMessage(e))}
+  return true;
+ }
+ async function verifyAccount(){
+  if(!tokenReady()||!cfg)throw new Error('A kapcsolat lejárt');
+  const me=await jsonRequest(GRAPH+'me?$select=mail,userPrincipalName,otherMails',{headers:{Authorization:'Bearer '+token}});
+  const addresses=[me.mail,me.userPrincipalName,...(Array.isArray(me.otherMails)?me.otherMails:[])].filter(Boolean).map(x=>String(x).toLowerCase());
+  if(!addresses.includes(cfg.account))throw new Error('Másik Microsoft-fiók jelentkezett be. A naptár nem jeleníthető meg.');
+ }
+ async function fetchEvents(){
+  const now=Date.now(),start=new Date(now-24*3600000).toISOString(),end=new Date(now+14*86400000).toISOString();
+  let next=new URL(GRAPH+'me/calendar/calendarView');
+  next.searchParams.set('startDateTime',start);
+  next.searchParams.set('endDateTime',end);
+  next.searchParams.set('$top','100');
+  next.searchParams.set('$select','id,subject,start,end,isAllDay,showAs,isCancelled,sensitivity');
+  const events=[];
+  for(let page=0;next&&page<5;page++){
+   if(next.protocol!=='https:'||next.hostname!=='graph.microsoft.com'||!next.pathname.startsWith('/v1.0/'))throw new Error('Nem megbízható naptáradat-hivatkozás');
+   const data=await jsonRequest(next.href,{headers:{Authorization:'Bearer '+token,Prefer:'outlook.timezone="UTC"'}});
+   if(!Array.isArray(data.value))throw new Error('Hiányzó Outlook-események');
+   events.push(...data.value);
+   next=data['@odata.nextLink']?new URL(data['@odata.nextLink']):null;
+  }
+  return events;
+ }
+ function displayTime(ms){return new Intl.DateTimeFormat('hu-HU',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(ms))}
+ function displayDay(ms){return new Intl.DateTimeFormat('hu-HU',{timeZone:TZ,weekday:'long',month:'long',day:'numeric'}).format(new Date(ms))}
+ function append(tag,cls,txt,parent){
+  const el=d.createElement(tag);if(cls)el.className=cls;
+  if(txt!=null)el.textContent=String(txt);
+  parent.appendChild(el);return el;
+ }
+ function renderEvents(){
+  list.replaceChildren();
+  if(!result.events.length){append('p','sh9-agenda-empty','Nincs megjeleníthető esemény a következő 14 napban.',list);return}
+  let currentDay='';
+  for(const ev of result.events){
+   const day=model.todayKey(ev.startMs);
+   if(day!==currentDay){currentDay=day;append('h3','sh9-agenda-day',displayDay(ev.startMs),list)}
+   const isConflict=result.conflicts.has(ev.id);
+   const card=append('article','sh9-agenda-event'+(isConflict?' is-conflict':''),null,list);
+   const time=ev.allDay?'Egész nap':displayTime(ev.startMs)+' – '+displayTime(ev.endMs);
+   append('time','sh9-agenda-hour',time,card);
+   append('p','sh9-agenda-subject',ev.title,card);
+   if(isConflict)append('span','sh9-agenda-collision','⚠️ Átfedő időpont',card);
+  }
+ }
+ async function sync(force){
+  if(NATIVE||!cfg)return;
+  if(!tokenReady()){
+   disconnectSession();setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');
+   setStatus('Naptár nincs összekötve. Microsoft-belépés szükséges.');
+   return;
+  }
+  if(loading||(!force&&lastSync&&Date.now()-lastSync<9*60*1000))return;
+  loading=true;setCard('Frissítés…','Outlook események','loading');setStatus('Outlook naptár betöltése…');
+  try{
+   const raws=await fetchEvents();
+   result=model.analyze(raws);
+   lastSync=Date.now();
+   const h=model.headline(result);
+   setCard(h.value,h.detail,h.status);
+   setStatus('Kapcsolódva · '+cfg.account+' · következő 14 nap · csak olvasás');
+   renderEvents();
+  }catch(e){
+   const msg=escapeMessage(e);
+   if(/HTTP 401/.test(msg)){disconnectSession();setCard('Kapcsolat lejárt','Újra be kell jelentkezni','pending')}
+   else setCard('Naptár nem elérhető','Újrapróbálás az Agendában','error');
+   setStatus('Nem sikerült a frissítés: '+msg);
+  }finally{loading=false}
+ }
+ function setupState(){
+  configBox.hidden=!!cfg;
+  if(cfg){clientInput.value=cfg.clientId;accountInput.value=cfg.account}
+  connect.hidden=NATIVE;
+  refreshBtn.hidden=!tokenReady()||NATIVE;
+  disconnect.hidden=!cfg;
+  if(NATIVE)setStatus('APK üzemmód: a személyes Outlook-naptár külön natív Microsoft-hitelesítést igényel. Nincs automatikus kapcsolat.');
+  else if(cfg&&!tokenReady())setStatus('A naptár olvasásához jelentkezz be Microsoft-fiókoddal. Csak Calendars.Read jogosultságot kérünk az eseményekhez.');
+  else if(!cfg)setStatus('A Microsoft alkalmazásazonosító (Client ID) és a célfiók megadása szükséges. Privát naptáradat nem kerül a GitHubra.');
+ }
+ function show(){
+  focusFrom=d.activeElement;modal.hidden=false;open=true;setupState();renderEvents();
+  close.focus();
+ }
+ function hide(){
+  modal.hidden=true;open=false;
+  if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
+ }
+ summary.addEventListener('click',show);
+ close.addEventListener('click',hide);
+ modal.addEventListener('click',e=>{if(e.target===modal)hide()});
+ d.addEventListener('keydown',e=>{
+  if(!open)return;
+  if(e.key==='Escape'){hide();return}
+  if(e.key==='Tab'){
+   const focusables=Array.from(modal.querySelectorAll('button:not([hidden]):not([disabled]),input:not([hidden]):not([disabled]),a[href]')).filter(x=>x.getClientRects().length);
+   if(!focusables.length)return;
+   const first=focusables[0],last=focusables[focusables.length-1];
+   if(e.shiftKey&&d.activeElement===first){e.preventDefault();last.focus()}
+   else if(!e.shiftKey&&d.activeElement===last){e.preventDefault();first.focus()}
+  }
+ });
+ save.addEventListener('click',()=>{
+  const clientId=clientInput.value.trim(),account=accountInput.value.trim().toLowerCase();
+  if(!ID_RE.test(clientId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){setStatus('Érvényes Microsoft Application Client ID és e-mail cím szükséges.');return}
+  if(!saveLocal(CONFIG_KEY,JSON.stringify({clientId:clientId,account:account}))){setStatus('A böngésző nem engedi a helyi beállítás mentését.');return}
+  cfg={clientId:clientId,account:account};disconnectSession();setupState();setStatus('Beállítás mentve ezen a készüléken. Következő lépés: Microsoft-belépés.');
+ });
+ connect.addEventListener('click',()=>{void beginAuth().catch(e=>setStatus('Nem indítható a Microsoft-belépés: '+escapeMessage(e)))});
+ refreshBtn.addEventListener('click',()=>{void sync(true)});
+ disconnect.addEventListener('click',()=>{
+  disconnectSession();cfg=null;try{w.localStorage.removeItem(CONFIG_KEY)}catch(e){}
+  configBox.hidden=false;clientInput.value='';accountInput.value='';
+  setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');setupState();list.replaceChildren();
+ });
+ if(NATIVE){setCard('Nincs összekötve','Agenda · Microsoft-kapcsolat kell','pending')}
+ else{
+  resumeSession();
+  if(tokenReady())void sync(true);
+  else setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');
+  void handleCallback().then(handled=>{if(handled)setupState()});
+  w.setInterval(()=>{if(!d.hidden)void sync(false)},10*60*1000);
+  d.addEventListener('visibilitychange',()=>{if(!d.hidden)void sync(false)});
+ }
+})(typeof window!=='undefined'?window:null,typeof document!=='undefined'?document:null);
