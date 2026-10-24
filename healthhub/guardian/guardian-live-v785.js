@@ -30,16 +30,41 @@ function set(elId,s){const el=$(elId);if(el)el.textContent=s}
 function bound(){try{return w.localStorage.getItem(DEVICE_KEY)}catch(_){return null}}
 function autoEnabled(){try{return bound()===self()&&w.localStorage.getItem(AUTO_KEY)===self()}catch(_){return false}}
 function removeAuto(){try{w.localStorage.removeItem(AUTO_KEY)}catch(_){}}
+function gpsInfo(s){
+ set('guardianLiveGpsDetail811',s);
+}
+function onGpsSignal(kind,accuracy){
+ // The browser GPS feed is device-level; permission/owner consent and
+ // server publishing are separately verified by Family Live.
+ if(kind==='starting')gpsInfo('📡 Böngészős GPS: pozíciókérés folyamatban.');
+ else if(kind==='timeout')gpsInfo('🟠 Böngészős GPS: 20 mp időtúllépés, még nincs új helyadat. Követés aktív.');
+ else if(kind==='unavailable')gpsInfo('🟠 Böngészős GPS: átmenetileg nem érhető el pozíció.');
+ else if(kind==='inaccurate')gpsInfo('🟠 Valódi, de pontatlan mérés: '+(Number.isFinite(accuracy)?'±'+Math.round(accuracy)+' m':'pontosság ismeretlen')+'. 100 m alatt válhat élővé.');
+ else if(kind==='fix')gpsInfo('🟢 Böngészős GPS: megfelelő pontosságú valódi pozíció érkezett.');
+ else if(kind==='stopped')gpsInfo('⚪ Böngészős GPS: leállítva vagy háttérbe került.');
+ else if(kind==='denied')gpsInfo('🔴 Böngészős GPS: helyengedély megtagadva.');
+ if(sharing&&(kind==='timeout'||kind==='unavailable'||kind==='inaccurate'))
+  msg('A Family Live megosztása engedélyezett, de még nincs új, megfelelő GPS-pozíció. A részletes GPS-állapot lent látható.');
+}
 function updateUi(){
  const me=self(),meReady=!!user&&access.includes(me);
- set('guardianLiveIdentity','Saját profil: '+label(me)+(bound()?' · telefonhoz rögzítve':' · még nincs hozzárendelve'));
+ const owner=bound(),ownerMismatch=!!owner&&owner!==me;
+ set('guardianLiveIdentity',ownerMismatch?
+  '⚠️ A kiválasztott '+label(me)+' profil NEM egyezik a telefon korábbi, '+label(owner)+' hozzárendelésével.':
+  'Saját profil: '+label(me)+(owner?' · ehhez a profilhoz rögzítve':' · még nincs hozzárendelve'));
+ const ownerNotice=$('guardianLiveOwnerHelp811'),ownerFix=$('guardianLiveResolveOwner811');
+ if(ownerNotice)ownerNotice.hidden=!ownerMismatch;
+ if(ownerFix)ownerFix.hidden=!ownerMismatch;
  set('guardianLiveAuth',user?'Hitelesítve · családi hozzáférés ellenőrizve':'Google-bejelentkezés szükséges');
  const login=$('guardianLiveLogin'),logout=$('guardianLiveLogout');
  if(login)login.hidden=!!user;if(logout)logout.hidden=!user;
  const start=$('guardianLiveStart'),stop=$('guardianLiveStop');
- if(start){start.disabled=!meReady||sharing;start.hidden=sharing}
+ if(start){start.disabled=!meReady||sharing||ownerMismatch;start.hidden=sharing}
  if(stop){stop.disabled=!sharing;stop.hidden=!sharing}
- const reset=$('guardianLiveResetDevice');if(reset)reset.hidden=!bound();
+ const reset=$('guardianLiveResetDevice');if(reset){
+  reset.hidden=!owner;
+  reset.textContent=ownerMismatch?'📱 Saját telefon hozzárendelésének ellenőrzése':'Ez egy másik családtag telefonja';
+ }
  const auto=autoEnabled();
  set('guardianLiveAutoStatus',auto?'Automatikus előtéri indulás: BE · csak ezen a telefonon, amíg ki nem kapcsolod.':'Automatikus előtéri indulás: KI · egyszeri jóváhagyás szükséges.');
  const disableAuto=$('guardianLiveDisableAuto');if(disableAuto)disableAuto.hidden=!auto;
@@ -160,7 +185,7 @@ function stopSharing(){
  if(k)msg('Élő helymegosztás kikapcsolva ezen a telefonon.');
  return k&&uid?clearRow(k,uid):Promise.resolve();
 }
-function onGpsStopped(){if(sharing)stopSharing()}
+function onGpsStopped(){onGpsSignal('stopped');if(sharing)stopSharing()}
 function onGpsPaused(){
  // Browser sleep/pagehide pauses uploading but MUST NOT revoke the owner's consent.
  // Retain only the single last uploaded fix; foreground reactivation is opt-in.
@@ -172,6 +197,7 @@ function onGpsPaused(){
 function onProfileChanged(){
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
+ gpsInfo('⚪ Profilváltás után a böngészős GPS-t külön újra kell indítani.');
  updateUi();resetPolling();loadSettings();maybeAutoStart();
 }
 function onGpsFix(pos){
@@ -261,7 +287,11 @@ function startSharing(){
  if(!user){msg('Előbb jelentkezz be a Google-fiókoddal.');return}
  if(!access.includes(p)){msg('Ez a Google-fiók nem jogosult a '+label(p)+' profilhoz.');return}
  const registered=bound();
- if(registered&&registered!==p){msg('Ez a telefon a '+label(registered)+' profilhoz van rögzítve. Előbb módosítsd a készülék-hozzárendelést.');return}
+ if(registered&&registered!==p){
+  updateUi();
+  msg('⚠️ Ez a telefon a '+label(registered)+' profilhoz van rögzítve. Ha valóban '+label(p)+' saját készüléke, használd a fenti telefon-hozzárendelés ellenőrzése gombot. Másik személy helyét nem másoljuk.');
+  return;
+ }
  if(!autoEnabled()){
   // The owner must explicitly grant the persistent preference on THIS device.
   const consent='Ez valóban '+label(p)+' saját telefonja?\n\nEGYSZERI ENGEDÉLY: a Family Guard megnyitásakor vagy előtérbe visszatérve automatikusan indulhat a SAJÁT GPS, a térképes követés és a családi élő helymegosztás.\n\nA böngésző háttérben és lezárt képernyőn NEM követ. A megosztást bármikor visszavonhatod a Leállítás gombbal. Engedélyezed?';
@@ -290,7 +320,7 @@ function userStopSharing(){
 }
 function resetDevice(){
  if(sharing){msg('Előbb állítsd le az élő megosztást.');return}
- if(w.confirm&&!w.confirm('Megváltoztatod, hogy kihez tartozik ez a telefon? A korábbi személy GPS-adatait ez nem mozgatja át.'))return;
+ if(w.confirm&&!w.confirm('Biztosan a '+label(self())+' profilhoz tartozik ez a FIZIKAI telefon?\n\nCsak a tényleges tulajdonos saját készülékén módosítsd a hozzárendelést. Más személy GPS-adatait nem mozgatjuk át.'))return;
  try{w.localStorage.removeItem(DEVICE_KEY)}catch(_){}
  removeAuto();
  updateUi();msg('Telefon-hozzárendelés törölve. A következő engedélyezéskor újra meg kell erősítened.');
@@ -319,6 +349,7 @@ function init(){
   if(autoEnabled()){removeAuto();updateUi();msg('A GPS és az automatikus helymegosztás leállítva.');}
  });
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
+ const ownerFix=$('guardianLiveResolveOwner811');if(ownerFix)ownerFix.addEventListener('click',resetDevice);
  d.addEventListener('hh-guardian-location-settings-changed',syncSettings);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
  d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsPaused();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;setPeerState('Háttérben nincs böngészős GPS · visszatéréskor frissítünk')}else{resetPolling();maybeAutoStart()}});
@@ -330,7 +361,7 @@ function init(){
  api.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')w.setTimeout(refreshAuth,0)});
  refreshAuth();
 }
-w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;resetPolling();},
+w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsSignal,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;resetPolling();},
  getClient(){return api},get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
  get boundProfile(){return bound()},
  get sharing(){return sharing},get interval(){return interval},get authenticated(){return !!user}});

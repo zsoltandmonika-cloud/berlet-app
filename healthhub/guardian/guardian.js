@@ -130,9 +130,15 @@ function onPosition(pos){
   }else marker.setLngLat(coord);
   if(follow)map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
- if(!hasFix){gpsDiagnostic('paused',2);report('GPS-pontosság még nem megfelelő (100 m felett vagy ismeretlen). A térkép nem élő; új jelre várunk.');return}
+ if(!hasFix){
+  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('inaccurate',accuracy);
+  gpsDiagnostic('paused',2);report('GPS-pontosság még nem megfelelő (100 m felett vagy ismeretlen). A térkép nem élő; új jelre várunk.');return
+ }
  // Only an independently enabled Family Live module can publish a real fix.
- if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
+ if(w.HH_GUARDIAN_LIVE_V785){
+  w.HH_GUARDIAN_LIVE_V785.onGpsSignal?.('fix');
+  w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
+ }
  gpsDiagnostic('fix');
  report('GPS aktív · élő pozíció');
  if(!last){path.push(coord);last=coord;draw();return}
@@ -154,18 +160,21 @@ function onGpsError(err){
   hasFix=false;renderButtons();
   $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':'GPS-JELRE VÁR · NINCS FRISS POZÍCIÓ';
   gpsDiagnostic('paused',code);
+  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.(code===3?'timeout':'unavailable');
   report(code===3?'GPS-jelre vár · 20 mp alatt nem érkezett pozíció. A követés aktív; ellenőrizd a pontos helyengedélyt, és próbáld szabad ég alatt.'
    :'GPS-jel átmenetileg nem érhető el · a követés aktív; ellenőrizd a helyengedélyt.');
   return;
  }
  const text=code===1?'Helyhozzáférés megtagadva. A telefon beállításaiban engedélyezheted.'
   :'A GPS követése váratlan hiba miatt megszakadt.';
- stop();gpsDiagnostic('error',code);report(text);
+ stop();gpsDiagnostic('error',code);
+ w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.(code===1?'denied':'unavailable');report(text);
 }
 function start(){
  if(active)return;
  if(!w.isSecureContext||!w.navigator.geolocation){gpsDiagnostic('unsupported');report('Ehhez HTTPS és GPS-hozzáférés szükséges.');return}
  gpsDiagnostic('starting');
+ w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('starting');
  active=true;hasFix=false;renderButtons();report('GPS-engedély kérése…');
  try{
   watchId=w.navigator.geolocation.watchPosition(onPosition,onGpsError,{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
