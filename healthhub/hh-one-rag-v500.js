@@ -67,7 +67,13 @@ function styles(){
  '#'+PANEL+' .hhLine small{display:block;font:400 11px/1.5 system-ui,sans-serif;color:#60788f;margin-top:3px}'+
  '#'+PANEL+' .hhWarning{color:#8c5433!important}'+
  '#'+PANEL+' .hhActions{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0}'+
- '#'+PANEL+' .hhFeedback{font-weight:750;color:#295c7d;white-space:pre-wrap;overflow-wrap:anywhere}';
+ '#'+PANEL+' .hhFeedback{font-weight:750;color:#295c7d;white-space:pre-wrap;overflow-wrap:anywhere}'+
+ /* v503: entire issue card is the mobile-friendly one-tap repair target. */
+ '#'+PANEL+' .hhOneFixIssueV503{display:block;width:100%;min-height:58px;text-align:left;white-space:normal;background:linear-gradient(130deg,#173957,#302b4b)!important;border:1px solid #b9a2d4!important;color:#f5f9ff!important;touch-action:manipulation;padding:13px;border-radius:13px;cursor:pointer}'+
+ '#'+PANEL+' .hhOneFixIssueV503 strong{color:#f7c6ee!important;font-size:13px!important;line-height:1.45!important}'+
+ '#'+PANEL+' .hhOneFixIssueV503 small{color:#dfebf7!important;font-size:12px!important;line-height:1.55!important}'+
+ '#'+PANEL+' .hhOneFixIssueV503 .hhRepairArrowV503{color:#ffe3f6!important;font-size:13px!important;font-weight:800!important}'+
+ '#'+PANEL+' .hhOneFixIssueV503:focus-visible{outline:3px solid #f0b9ea;outline-offset:3px}';
  document.head.appendChild(s);
 }
 function updateBadge(){
@@ -78,12 +84,60 @@ function updateBadge(){
 }
 function openPanel(){var p=$id(PANEL);if(!p)return;p.dataset.open='1';$id('hhOneClose500').focus();renderPanel();if(isMain())refresh(true)}
 function closePanel(){var p=$id(PANEL);if(!p)return;p.dataset.open='0';$id(ID).focus()}
+// One tap jumps directly to the existing fix UI; never starts a sync,
+// installs an APK, grants authorization or writes Dropbox metadata.
+function repairRoute(id){
+ var router=root.HH_ONE_REPAIR_ROUTING_V503;
+ return router&&typeof router.resolve==='function'?router.resolve(id):null;
+}
+function openRepair(id){
+ var route=repairRoute(id);if(!route)return false;
+ if(!isMain()){root.location.href='../index.html?hhone=service';return true}
+ try{
+  closePanel();
+  var opened=true;
+  if(root.healthSectionKind!=='more'){
+   if(typeof root.hhAdminGoInlineV745==='function')opened=root.hhAdminGoInlineV745();
+   else if(typeof root.openHealthSection==='function')root.openHealthSection('more');
+   else opened=false;
+  }
+  if(!opened)throw Error('Admin navigáció nem elérhető');
+  var tries=0;
+  function go(){
+   if(root.healthSectionKind==='more'&&root.HH_ADMIN_MOBILE_V748&&
+      typeof root.HH_ADMIN_MOBILE_V748.openTarget==='function'&&
+      root.HH_ADMIN_MOBILE_V748.openTarget(route.group,route.target))return;
+   if(++tries<16){root.setTimeout(go,160);return}
+   state.feedback='A célpanel még nem elérhető. Nyisd meg az Admin kategóriáit.';
+   // Keep user in Admin, and do not claim any repair succeeded.
+  }
+  root.setTimeout(go,130);
+  return true;
+ }catch(e){state.feedback='Navigációs hiba: '+safeText(e.message||e);
+  openPanel();return false}
+}
+function issueCard(parent,id,label,details){
+ var r=repairRoute(id);
+ if(!r)return null;
+ var button=elt('button','hhLine hhOneFixIssueV503',parent);button.type='button';
+ button.setAttribute('aria-label',label+' · '+r.label);
+ txt('strong',label,button);
+ if(details)txt('small',details,button);
+ txt('small','↗ '+r.label+' · 1 koppintás',button,'hhRepairArrowV503');
+ button.addEventListener('click',function(){openRepair(id)});
+ return button;
+}
 function renderPanel(){
  var area=$id('hhOneBody500');if(!area)return;
  area.replaceChildren();
  txt('p','HH One · Központi eszközkapcsolat és Léna Service Center. A RAG kizárólag a friss kapcsolati jeleket mutatja, NEM igazolja az egészségügyi adatok szinkronját.',area);
  txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
  if(state.error)txt('p','Ellenőrzési hiba: '+state.error,area,'hhWarning');
+ if(isMain()&&state.color!=='green'){
+  // Error status itself is navigable, not just the optional recommendations.
+  var primaryId=!state.connected?'OPS-CLOUD':'OPS-REGISTRY';
+  issueCard(area,primaryId,'⚠ '+state.message,'A megfelelő javítóbeállításhoz ugrás. Az állapotot nem módosítjuk automatikusan.');
+ }
  if(!isMain()){
   txt('p','A különálló Digital Health oldal nem tárol felhő-tokeneket. Élő állapotellenőrzés és központi parancs csak a HealthHub hitelesített főoldalán végezhető.',area);
   var dest=elt('a','hhAction',area);dest.href='../index.html?hhone=service';dest.textContent='Megnyitás a HealthHubban';
@@ -94,8 +148,11 @@ function renderPanel(){
    state.devices.find(function(x){
    return x.deviceType==='android'&&x.deviceId===state.registry.activePhones[p]&&x.activeProfile===p&&
     !state.registry.archived.includes(x.deviceId)});
-  var line=elt('div','hhLine',area);
-  txt('strong',(p==='zsolt'?'💙 Zsolt':'🩷 Mónika')+' · '+(d?safeText(d.name||'Android'):'Nincs kiválasztott telefon'),line);
+  var line=d?elt('div','hhLine',area):elt('button','hhLine hhOneFixIssueV503',area);
+  if(!d){line.type='button';line.setAttribute('aria-label',(p==='zsolt'?'Zsolt':'Mónika')+' telefonja · Eszközregiszter megnyitása');
+   line.addEventListener('click',function(){openRepair('OPS-DEVICE-'+p)});
+  }
+  txt('strong',(p==='zsolt'?'💙 Zsolt':'🩷 Mónika')+' · '+(d?safeText(d.name||'Android'):'Nincs ellenőrzött natív telefonjelentés'),line);
   if(d){
    txt('small','Utolsó jelentkezés: '+dt(d.lastSeenAt),line);
    txt('small','Utolsó tényleges Health Connect-feltöltés: '+dt(d.lastHealthSyncAt),line);
@@ -105,6 +162,12 @@ function renderPanel(){
    txt('small','Agent verzió: '+safeText(d.build||'ismeretlen')+' · OTA ellenőrzés: '+dt(d.otaLastCheckedAt),line);
    if(d.otaCandidateVersion)txt('small','Elérhető OTA jelölt: '+safeText(d.otaCandidateVersion),line);
    if(d.otaLastError)txt('small','OTA hiba: '+safeText(d.otaLastError).slice(0,150),line);
+   if(d.lastHealthError||d.otaLastError||
+      (d.status&&['failed','partial','rejected'].includes(d.status.state))){
+    var errId=d.otaLastError?'DEV-ONE-AGENT':'OPS-COMMAND-'+p;
+    issueCard(line,errId,'⚠ '+(d.otaLastError?'OTA frissítés hibája':'Telefonos szinkron vagy Health Connect hiba'),
+     'A meglévő javítási és diagnosztikai panel megnyitása.');
+   }
    var st=d.status||{},diag=st.diagnostics;
    if(diag&&st.state==='done'&&Array.isArray(st.scopes)&&st.scopes.includes('diagnostics')){
     var detail=elt('details','',line);
@@ -150,7 +213,10 @@ function renderPanel(){
    otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
    otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
    otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
-  }else txt('small','A v401 eszközregiszterben kell kijelölni az eredeti fizikai telefont.',line);
+  }else{
+   txt('small','A natív HH One jelentést és a v401 Eszközregisztert kell ellenőrizni. Nem jelölünk ki ismeretlen telefont.',line);
+   txt('small','↗ Telefon kijelölésének ellenőrzése · 1 koppintás',line,'hhRepairArrowV503');
+  }
  });
  var intelligence=root.HH_ONE_SERVICE_INTELLIGENCE_V501;
  if(intelligence&&typeof intelligence.recommend==='function'){
@@ -163,11 +229,19 @@ function renderPanel(){
   txt('strong','🧠 HH Service Intelligence · működési és fejlesztési javaslatok',heading);
   txt('small','Valós technikai jelek + Level 3 helyi telemetria, forrás és javasolt intézkedés. Nem automatikus javítás.',heading);
   advice.forEach(function(a){
-   var box=elt('div','hhLine',area);
+   // Entire supported advisory is clickable with pointer, keyboard, or touch.
+   var mapped=repairRoute(a.id),box=mapped?
+      elt('button','hhLine hhOneFixIssueV503',area):elt('div','hhLine',area);
+   if(mapped){
+    box.type='button';
+    box.setAttribute('aria-label',a.title+' · '+mapped.label);
+    box.addEventListener('click',function(){openRepair(a.id)});
+   }
    txt('strong',a.kind+' · '+a.title+' · '+a.priority,box);
    txt('small','Megfigyelés: '+a.evidence,box);
    txt('small','Javaslat: '+a.proposal,box);
    txt('small',a.status,box);
+   if(mapped)txt('small','↗ '+mapped.label+' · 1 koppintás',box,'hhRepairArrowV503');
   });
   txt('p','Részletes trendek és wishlist: Admin → AI Improvement Center (v300). A javítás menete: jóváhagyás → biztonsági mentés → teszt → élesítés → visszamérés.',area);
  }else{

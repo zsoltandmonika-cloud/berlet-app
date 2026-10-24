@@ -85,6 +85,38 @@ function jump(id){
  if(id==='hhDeviceRegistry401')w.hhDeviceRegistry401?.reload?.(true);
  help('Eszközlista még nem érhető el. Ha a Dropbox-kapcsolat hibás, először azt kell helyreállítani. A régi regisztrációkat ne töröld.');
 }
+const REPAIR_TARGETS=Object.freeze({
+ devices:['hhDeviceRegistry401','hhSyncOrchestrator305','sh9VersionCenterV1'],
+ cloud:['hhUnifiedCloudVaultCard'],
+ data:['hhAiImprovement300'],
+ architecture:[],recovery:[],other:[]
+});
+function openTarget(group,id){
+ if(!isAdmin()||!Object.prototype.hasOwnProperty.call(REPAIR_TARGETS,group)||
+    !REPAIR_TARGETS[group].includes(id))return false;
+ select(group,false);
+ // Reuse the real Admin widget; do not reset it or trigger a privileged command.
+ // Some legacy cards arrive asynchronously after the page becomes visible.
+ let attempts=0;
+ function locate(){
+  if(!isAdmin()||selected!==group)return;
+  const dest=q(id);
+  if(dest&&dest.isConnected){
+   dest.scrollIntoView?.({behavior:'instant',block:'start'});
+   try{dest.setAttribute('data-hh-repair-target','true')}catch(_){}
+   help('Megnyitva: '+(group==='devices'?'telefonok és APK':
+     group==='cloud'?'felhőkapcsolat':'rendszerdiagnosztika')+
+     '. A tényleges javítás vagy engedélyezés csak külön jóváhagyással történik.');
+   return;
+  }
+  if(++attempts<8){w.setTimeout(locate,170);return}
+  q(ID)?.scrollIntoView?.({behavior:'instant',block:'start'});
+  help('A kiválasztott javítópanel még nem töltődött be. Ellenőrizd a kapcsolódást, majd frissítsd az állapotot.');
+ }
+ // Device registry refresh may rebuild its DOM after a tap; scroll once it settles.
+ w.setTimeout(locate,group==='devices'?310:80);
+ return true;
+}
 function mount(){
  if(!isAdmin())return;
  const root=q(ROOT);if(!root)return;
@@ -122,5 +154,5 @@ w.addEventListener('focus',tick);
 w.addEventListener('healthhub:device-registry-updated',tick);
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',tick,{once:true});else tick();
 w.setInterval(tick,4500);
-w.HH_ADMIN_MOBILE_V748={version:'748',openDevices:()=>select('devices',true),category:()=>selected,tick};
+w.HH_ADMIN_MOBILE_V748={version:'748',openDevices:()=>select('devices',true),openTarget,category:()=>selected,tick};
 })(window,document);
