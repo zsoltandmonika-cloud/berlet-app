@@ -9,6 +9,10 @@ central orchestrator and signed OTA checker remain unchanged.
 The HH One screen now includes:
 - **SH9 Start Page megnyitása**: opens `Sh9WebActivity`, the existing SH9 Golden
   Standard web launcher in a fullscreen address-bar-free WebView.
+- **SH9 legyen a kezdőoldal**: optional saved toggle (default OFF) to open the
+  SH9 launchpad immediately on the next normal app start. Android Back returns
+  to the native HH One settings; the active-GPS notification always opens the
+  native settings directly.
 - **GPS kapcsolat fenntartása**: an explicit *opt-in* Android location
   foreground service with 15/30/60-second update requests and a persistent
   notification containing **GPS leállítása**.
