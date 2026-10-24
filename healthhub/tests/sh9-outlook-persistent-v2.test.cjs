@@ -92,7 +92,7 @@ test('requires secure browser IndexedDB and WebCrypto, no raw token in localStor
  assert.match(app,/await forgetStoredSession\(\)/);
  assert.doesNotMatch(app,/saveLocal\(.*refreshToken|saveSession\(.*refreshToken|addJavascriptInterface|client_secret/);
  assert.match(html,/outlook-session-v2\.js\?v=2/);
- assert.match(html,/outlook-agenda-v1\.js\?v=6-persistent-ms/);
+ assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
 });
 test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',()=>{
  assert.match(app,/u\.searchParams\.set\('prompt','none'\)/);
@@ -103,7 +103,7 @@ test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',
  assert.match(app,/error==='login_required'/);
  assert.match(app,/if\(callback\.has\('code'\)\|\|callback\.has\('error'\)\)/);
  assert.match(app,/if\(NATIVE\)/);
- assert.match(app,/sh9external/);
+ assert.match(app,/const OUTLOOK_AGENDA='https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'/);
  assert.match(app,/await getAccessToken\(\)/);
  assert.match(app,/Microsoft-belépés/);
  assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);

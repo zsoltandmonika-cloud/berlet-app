@@ -42,7 +42,7 @@
  function setCard(title,detail,kind){
   value.textContent=title;sub.textContent=detail;
   card.dataset.status=kind||'pending';
-  card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
+  card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Outlook Agenda közvetlen megnyitása');
  }
  function disconnectSession(){
   token=null;expiresAt=0;refreshToken=null;refreshIssuedAt=0;
@@ -293,20 +293,21 @@
   modal.hidden=true;open=false;
   if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
  }
- // The packaged SH9 WebView has no browser OAuth session. Route its calendar
- // tap to the real SH9 Agenda in the system browser, via the trusted native host.
+ // The top NAPTÁR tile is a real anchor. Chrome opens the official
+ // Outlook Agenda directly in a new tab; no custom modal or second click.
+ // The existing Android native WebView redirects its main frame to HTTPS
+ // so the already-installed host hands it to the system browser.
+ // The private SH9 read-only Agenda remains reachable from Admin using
+ // ?sh9calendar=1, including settings/renewal.
+ const OUTLOOK_AGENDA='https://outlook.live.com/calendar/0/view/agenda';
  if(NATIVE){
-  card.addEventListener('click',()=>{
-   const url=new URL('./',w.location.href);
-   url.searchParams.set('sh9external','calendar');
-   url.searchParams.set('sh9calendar','1');
-   w.location.assign(url.href);
+  card.addEventListener('click',e=>{
+   e.preventDefault();
+   w.location.assign(OUTLOOK_AGENDA);
   });
-  card.setAttribute('aria-label','Outlook Agenda megnyitása a telefon böngészőjében');
-  sub.textContent='Agenda a böngészőben ›';
- } else {
-  card.addEventListener('click',show);
+  sub.textContent='Outlook Agenda ›';
  }
+ card.setAttribute('aria-label','Outlook Agenda megnyitása közvetlenül');
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
  d.addEventListener('keydown',e=>{
