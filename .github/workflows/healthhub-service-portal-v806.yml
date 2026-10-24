@@ -1,0 +1,31 @@
+name: HH Service Portal · Permission and stability QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-service-portal-v806.js'
+      - 'healthhub/hh-admin-mobile-focus-v748.js'
+      - 'healthhub/live-v205.js'
+      - 'healthhub/live-v305.js'
+      - 'healthhub/guardian/**'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/hh-service-portal-v806.test.cjs'
+      - '.github/workflows/healthhub-service-portal-v806.yml'
+permissions:
+  contents: read
+jobs:
+  service-portal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript parse
+        run: |
+          node --check healthhub/hh-service-portal-v806.js
+          node --check healthhub/hh-admin-mobile-focus-v748.js
+          node --check healthhub/live-v205.js
+          node --check healthhub/live-v305.js
+          node --check healthhub/guardian/guardian.js
+      - name: Run nonclinical, manual-consent tests
+        run: node --test healthhub/tests/hh-service-portal-v806.test.cjs
