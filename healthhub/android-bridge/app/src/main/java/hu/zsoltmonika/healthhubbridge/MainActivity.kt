@@ -2,6 +2,7 @@ package hu.zsoltmonika.healthhubbridge
 
 import android.Manifest
 import android.app.TimePickerDialog
+import android.app.AlertDialog
 import android.os.Build
 import android.provider.Settings
 import android.content.Intent
@@ -72,6 +73,9 @@ class MainActivity : ComponentActivity() {
     // One manual export at a time. Repeated SYNC NOW taps must not overlap
     // Dropbox writes or create competing 30-day Health Connect reads.
     private var manualSyncInProgress = false
+    private var checkingDropboxAccount = false
+    private lateinit var dropboxAccountSummary: TextView
+    private lateinit var dropboxIdentityPermissionButton: Button
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -403,6 +407,32 @@ class MainActivity : ComponentActivity() {
             text = "🔄 SYNC MOST · kézi adatlekérés"
             setOnClickListener { syncNow() }
         })
+
+        root.addView(TextView(this).apply {
+            text = "☁️ Dropbox-fiók ellenőrzése"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 4)
+        })
+        dropboxAccountSummary = TextView(this).apply {
+            text = "Csak ezen a telefonon látható műszaki fiókadat. Nincs automatikus adatküldés.\nDropbox App key: " +
+                DropboxVaultClient.APP_KEY
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 4, 0, 8)
+        }
+        root.addView(dropboxAccountSummary)
+        root.addView(Button(this).apply {
+            text = "🔎 Dropbox-fiók ellenőrzése MOST"
+            setOnClickListener { inspectDropboxAccount() }
+        })
+        dropboxIdentityPermissionButton = Button(this).apply {
+            text = "🔐 E-mail-cím lekérési engedély jóváhagyása"
+            visibility = View.GONE
+            setOnClickListener { requestDropboxAccountScope() }
+        }
+        root.addView(dropboxIdentityPermissionButton)
 
         root.addView(TextView(this).apply {
             text = "📱 Digital Wellbeing · központi családi mérések"
@@ -1325,7 +1355,77 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, back))
     }
 
-    private fun startDropboxAuth(profile: String) {
+
+    private fun inspectDropboxAccount() {
+        if (checkingDropboxAccount) return
+        checkingDropboxAccount = true
+        dropboxIdentityPermissionButton.visibility = View.GONE
+        dropboxAccountSummary.text = "Dropbox-fiók ellenőrzése…\nApp key: " + DropboxVaultClient.APP_KEY
+        scope.launch {
+            try {
+                val check = DropboxVaultClient.inspectCurrentAccount(prefs)
+                val savedId = prefs.getString("dropbox_account_id", null)
+                val idText = (check.accountId ?: savedId)?.takeLast(12)?.let { "…$it" }
+                    ?: "nem ismert"
+                val connection = if (DropboxVaultClient.hasRefreshToken(prefs))
+                    "Hitelesítési adat jelen van" else "Nincs kapcsolódási adat"
+                val description = when (check.status) {
+                    "verified" -> {
+                        if (!check.accountId.isNullOrBlank()) {
+                            prefs.edit().putString("dropbox_account_id", check.accountId).apply()
+                        }
+                        val email = check.email ?: "nem érkezett e-mail-cím"
+                        val valid = if (check.emailVerified) "ellenőrzött" else "nem igazolt"
+                        "✓ Dropbox API élő válasz.\nE-mail: $email ($valid)\nFiókazonosító: $idText"
+                    }
+                    "not_connected" ->
+                        "Nincs csatlakoztatott HH One Dropbox-fiók. Korábbi fiókazonosító: $idText"
+                    "missing_scope" ->
+                        "⚠ A kapcsolat létezik, de nem rendelkezik account_info.read engedéllyel. " +
+                        "E-mail csak külön jóváhagyás után kérhető le.\nKorábbi fiókazonosító: $idText"
+                    "token_error" ->
+                        "⚠ A Dropbox hozzáférését nem sikerült hitelesíteni. A meglévő adatokat nem töröltük."
+                    "forbidden" ->
+                        "⚠ A Dropbox fiókadataihoz nincs hozzáférés. Nem tekintjük leválasztottnak a telefont."
+                    "rate_limit" -> "⚠ Dropbox API túl sok kérést jelez. Később érdemes ellenőrizni."
+                    else -> "⚠ A fiókadat-lekérés sikertelen (" + check.status + "). A kapcsolatot nem módosítottuk."
+                }
+                dropboxAccountSummary.text = description +
+                    "\nÁllapot: $connection\nDropbox App key: " + DropboxVaultClient.APP_KEY
+                if (check.status == "missing_scope" && deviceOwnerProfile() != null)
+                    dropboxIdentityPermissionButton.visibility = View.VISIBLE
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+                dropboxAccountSummary.text = "⚠ Fiókellenőrzési hiba; meglévő kapcsolat változatlan."
+            } finally {
+                checkingDropboxAccount = false
+            }
+        }
+    }
+
+    private fun requestDropboxAccountScope() {
+        val owner = deviceOwnerProfile()
+        if (owner == null || !DropboxVaultClient.hasRefreshToken(prefs)) {
+            dropboxAccountSummary.text = "Nincs tulajdonoshoz kötött Dropbox-kapcsolat. Újraengedélyezés nem indult."
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Dropbox fiókadatok engedélyezése")
+            .setMessage(
+                "A Dropbox account_info.read jogosultságot csak az e-mail és a fiókazonosító " +
+                "ellenőrzésére kérjük. Ez külön bejelentkezést igényelhet. A meglévő kapcsolat " +
+                "a sikeres, általad jóváhagyott ellenőrzésig változatlan marad. " +
+                "A Dropbox felületén ugyanazt a fiókot válaszd, amelyet eddig a HH One-hoz használtál."
+            )
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Engedélyezés") { _, _ ->
+                startDropboxAuth(owner, forAccountCheck = true)
+            }
+            .show()
+    }
+
+    private fun startDropboxAuth(profile: String, forAccountCheck: Boolean = false) {
         val verifier = randomUrlSafe(64)
         val challenge = sha256UrlSafe(verifier)
         val state = "hhbridge_" + randomUrlSafe(24)
@@ -1333,6 +1433,7 @@ class MainActivity : ComponentActivity() {
             .putString("dropbox_pkce_verifier", verifier)
             .putString("dropbox_oauth_state", state)
             .putString("dropbox_pending_profile", profile)
+            .putString("dropbox_pending_purpose", if (forAccountCheck) "account_check" else "sync")
             .apply()
 
         val url = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
@@ -1342,7 +1443,10 @@ class MainActivity : ComponentActivity() {
             .appendQueryParameter("code_challenge", challenge)
             .appendQueryParameter("code_challenge_method", "S256")
             .appendQueryParameter("token_access_type", "offline")
-            .appendQueryParameter("scope", "files.metadata.write files.content.read files.content.write")
+            // An existing user's account_info.read permission always requires explicit consent.
+            .appendQueryParameter("scope",
+                "files.metadata.write files.content.read files.content.write" +
+                    if (forAccountCheck) " account_info.read" else "")
             .appendQueryParameter("state", state)
             .build()
         startActivity(Intent(Intent.ACTION_VIEW, url))
@@ -1359,6 +1463,7 @@ class MainActivity : ComponentActivity() {
         val expected = prefs.getString("dropbox_oauth_state", null)
         val verifier = prefs.getString("dropbox_pkce_verifier", null)
         val profile = prefs.getString("dropbox_pending_profile", null) ?: selectedProfile()
+        val forAccountCheck = prefs.getString("dropbox_pending_purpose", null) == "account_check"
         if (state.isNullOrBlank() || state != expected || verifier.isNullOrBlank()) {
             status.text = "Dropbox OAuth állapotellenőrzés sikertelen."
             return
@@ -1374,13 +1479,57 @@ class MainActivity : ComponentActivity() {
                 val access = tokenJson.optString("access_token")
                 val expires = tokenJson.optLong("expires_in", 14400L)
                 if (refresh.isBlank()) error("Dropbox refresh token hiányzik")
+                val currentOwner = deviceOwnerProfile()
+                if (currentOwner != null && currentOwner != profile)
+                    error("A telefon profilja eltér. Korábbi kapcsolat megőrizve.")
+                val newAccountId = tokenJson.optString("account_id")
+                val previousAccountId = prefs.getString("dropbox_account_id", null)
+                if (!previousAccountId.isNullOrBlank() && newAccountId.isNotBlank() &&
+                    previousAccountId != newAccountId)
+                    error("Másik Dropbox-fiók jelentkezett be. A meglévő kapcsolat megmaradt.")
+                if (forAccountCheck) {
+                    if (currentOwner == null || !DropboxVaultClient.hasRefreshToken(prefs))
+                        error("Fiókadat-engedély csak már regisztrált telefonon kérhető.")
+                    val checked = DropboxVaultClient.inspectTokenAccount(access)
+                    if (checked.status != "verified" || checked.accountId.isNullOrBlank())
+                        error("A Dropbox nem adta meg az account_info.read fiókadat-engedélyt.")
+                    // Never replace prior tokens until the owner confirms the account identity.
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Dropbox-fiók megerősítése")
+                        .setMessage("Ezt a Dropbox-fiókot kapcsolod az eddigi HH One kapcsolat helyébe?\n" +
+                            "E-mail: " + (checked.email ?: "nem elérhető") +
+                            "\nAzonosító vége: …" + checked.accountId.takeLast(12) +
+                            "\nHa ez nem a megszokott fiókod, válaszd a Mégse lehetőséget.")
+                        .setNegativeButton("Mégse") { _, _ ->
+                            clearPendingDropboxIdentityAuth()
+                            dropboxAccountSummary.text =
+                                "A fiókcsere elutasítva. Korábbi Dropbox-kapcsolat változatlan."
+                        }
+                        .setPositiveButton("Megerősítem") { _, _ ->
+                            prefs.edit()
+                                .putString("dropbox_refresh_token", refresh)
+                                .putString("dropbox_access_token", access)
+                                .putLong("dropbox_access_expires",
+                                    System.currentTimeMillis() + (expires - 60L) * 1000L)
+                                .putString("dropbox_account_id", checked.accountId)
+                                .apply()
+                            clearPendingDropboxIdentityAuth()
+                            inspectDropboxAccount()
+                        }
+                        .setOnCancelListener { clearPendingDropboxIdentityAuth() }
+                        .show()
+                    return@launch
+                }
                 prefs.edit()
                     .putString("dropbox_refresh_token", refresh)
                     .putString("dropbox_access_token", access)
                     .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
                     .remove("dropbox_pkce_verifier")
                     .remove("dropbox_oauth_state")
+                    .remove("dropbox_pending_purpose")
                     .apply()
+                if (newAccountId.startsWith("dbid:"))
+                    prefs.edit().putString("dropbox_account_id", newAccountId).apply()
                 val owner = bindOwnerIfNeeded(profile)
                 if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
                 DailyContentScheduler.runNow(this@MainActivity)
@@ -1392,6 +1541,15 @@ class MainActivity : ComponentActivity() {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
             }
         }
+    }
+
+    private fun clearPendingDropboxIdentityAuth() {
+        prefs.edit()
+            .remove("dropbox_pkce_verifier")
+            .remove("dropbox_oauth_state")
+            .remove("dropbox_pending_profile")
+            .remove("dropbox_pending_purpose")
+            .apply()
     }
 
     private suspend fun getAccessToken(): String {
