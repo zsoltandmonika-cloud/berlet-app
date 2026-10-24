@@ -192,6 +192,8 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        // settings deep-links are display-only. In particular, they must not
+        // run OAuth, change Dropbox credentials, or relaunch SH9.
         handleIntent(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
@@ -337,6 +339,11 @@ class MainActivity : ComponentActivity() {
                 syncNow(requested)
             }
             "dropbox" -> handleDropboxCallback(data)
+            "settings" -> {
+                // User explicitly requested the native HH One screen.
+                // Its existing controls are already visible; no automatic SH9 launch.
+                status.text = "✓ HH One natív beállítások · szinkron, GPS, OTA."
+            }
         }
     }
 
@@ -650,7 +657,7 @@ class MainActivity : ComponentActivity() {
             setTextColor(0xFF315F98.toInt())
         })
         root.addView(Button(this).apply {
-            text = "🚀 SH9 Start Page megnyitása"
+            text = "🚀 Vissza az SH9 Start Page-re"
             setOnClickListener { startActivity(Intent(this@MainActivity, Sh9WebActivity::class.java)) }
         })
         val sh9Default = Button(this)
