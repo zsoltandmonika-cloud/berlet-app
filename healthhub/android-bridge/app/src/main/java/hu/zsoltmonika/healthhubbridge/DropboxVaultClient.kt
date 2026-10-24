@@ -78,36 +78,24 @@ object DropboxVaultClient {
         return access
     }
 
+    /**
+     * Dropbox App Folder sync must only rely on existing file-content scopes.
+     * The legacy native OAuth grant has files.content.write but does NOT have
+     * files.metadata.read. Previously get_metadata here returned 403 and
+     * prevented every health snapshot/heartbeat from ever being uploaded.
+     *
+     * create_folder_v2 requires only files.content.write. A conflict is safe
+     * ONLY if Dropbox explicitly says the path already contains a folder.
+     * Never mistake file conflicts or other 409 errors for a valid directory.
+     * No token migration, reauthorization, deletion, or profile reset.
+     */
     suspend fun ensureFolder(prefs: SharedPreferences, path: String) {
+        require(path.startsWith("/") && path.length > 1) { "Érvénytelen Dropbox mappaútvonal" }
         val token = accessToken(prefs)
         withContext(Dispatchers.IO) {
-            fun metadataExists(): Boolean {
-                val body = JSONObject()
-                    .put("path", path)
-                    .put("include_media_info", false)
-                    .put("include_deleted", false)
-                    .toString()
-                val conn = (URL("https://api.dropboxapi.com/2/files/get_metadata").openConnection() as HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    doOutput = true
-                    connectTimeout = 20_000
-                    readTimeout = 20_000
-                    setRequestProperty("Authorization", "Bearer $token")
-                    setRequestProperty("Content-Type", "application/json")
-                }
-                conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
-                val text = responseText(conn)
-                if (conn.responseCode in 200..299) {
-                    return try { JSONObject(text).optString(".tag") == "folder" } catch (_: Exception) { false }
-                }
-                if (conn.responseCode == 409) return false
-                error("Dropbox mappa ellenőrzési hiba " + conn.responseCode + ": " + text)
-            }
-
-            if (metadataExists()) return@withContext
-
             val body = JSONObject().put("path", path).put("autorename", false).toString()
-            val conn = (URL("https://api.dropboxapi.com/2/files/create_folder_v2").openConnection() as HttpURLConnection).apply {
+            val conn = (URL("https://api.dropboxapi.com/2/files/create_folder_v2")
+                .openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
                 connectTimeout = 20_000
@@ -116,20 +104,24 @@ object DropboxVaultClient {
                 setRequestProperty("Content-Type", "application/json")
             }
             conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
-            val text = responseText(conn)
-            if (conn.responseCode in 200..299) return@withContext
-
-            if (conn.responseCode == 409) {
-                try {
-                    if (metadataExists()) return@withContext
-                } catch (_: Exception) {
-                    // Fall through to the original Dropbox response below.
-                }
-            }
-
-            error("Dropbox mappa hiba " + path + " · HTTP " + conn.responseCode + ": " + text)
+            val response = responseText(conn)
+            val http = conn.responseCode
+            if (http in 200..299) return@withContext
+            if (http == 409 && existingFolderConflict(response)) return@withContext
+            val code = try {
+                JSONObject(response).optString("error_summary").take(120)
+            } catch (_: Exception) { "ismeretlen" }
+            error("Dropbox mappa művelet sikertelen: HTTP $http · $code")
         }
     }
+
+    /** Parse the actual Dropbox conflict variant; never accept a generic 409. */
+    internal fun existingFolderConflict(body: String): Boolean = try {
+        val root = JSONObject(body).getJSONObject("error")
+        root.optString(".tag") == "path" &&
+            root.optJSONObject("path")?.optString(".tag") == "conflict" &&
+            root.getJSONObject("path").optJSONObject("conflict")?.optString(".tag") == "folder"
+    } catch (_: Exception) { false }
 
     suspend fun uploadText(prefs: SharedPreferences, path: String, text: String) {
         val token = accessToken(prefs)
