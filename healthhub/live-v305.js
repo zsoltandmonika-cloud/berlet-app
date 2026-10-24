@@ -304,6 +304,8 @@ function ensureStyle(){
  document.head.appendChild(s);
 }
 function renderAdmin(){
+ // Keep the current Orchestrator card stable during mobile swipe gestures.
+ if(window.hhAdminScrollActiveV748?.()&&document.getElementById(ADMIN_ID))return;
  var body=document.getElementById('haBody'),ov=document.getElementById('haOv');if(!body||!ov||!ov.classList.contains('on'))return;
  ensureStyle();var old=document.getElementById(ADMIN_ID);if(old)old.remove();
  var rows=deviceCache.map(function(d){
