@@ -1,4 +1,4 @@
-# SH9 · Smart Travel · Golden Standard v1
+# SH9 · Smart Travel · Golden Standard v2
 
 ## Scope
 - The SH9 launchpad's **Smart Travel** tile opens `/sh9/smart-travel/`.
@@ -23,3 +23,10 @@ The image should be uploaded to GitHub before final visual sign-off. Do not use 
 
 ## Regression protection
 No existing Family Guard / HealthHub logic was modified. The launchpad change is limited to one new `data-href` for Smart Travel.
+
+## v2 · World clocks & active flight tracker
+- The **Smart Travel** heading and subtitle now overlay the upper left of the approved 1402×1122 Hero; the original profile switch stays at the lower left.
+- The former heading strip is now a compact 4-city world clock (New York, London, Paris, Budapest), using the device's **Intl.DateTimeFormat** and official timezone identifiers with automatic daylight saving time changes; no server clock/API, GPS, or geo-location access.
+- 24-hour `HH:mm` time updates on the minute and resumes immediately on tab focus/visibility changes. Unit tests verify winter/summer DST offsets.
+- The right-side plane icon opens the official **https://www.flightradar24.com/** live tracker. Mobile WebViews open the URL using same-tab location, avoiding unsupported pop-up windows; desktop uses a standard external link.
+- Existing 3×3 Golden Standard tiles, profile switch, module routes and dock remain unchanged.
