@@ -30,8 +30,11 @@
   try{return await new Promise((resolve,reject)=>{
    const t=d.transaction(STORE,mode),store=t.objectStore(STORE);
    const request=op==='get'?store.get(key):op==='put'?store.put(value,key):store.delete(key);
-   request.onsuccess=()=>resolve(request.result);
+   let result;
+   request.onsuccess=()=>{result=request.result};
    request.onerror=()=>reject(new Error('Biztonságos munkamenettárolás sikertelen'));
+   t.oncomplete=()=>resolve(result);
+   t.onerror=()=>reject(new Error('Munkamenettárolás nem sikerült'));
    t.onabort=()=>reject(new Error('Munkamenettárolás megszakadt'));
   })}finally{d.close()}
  }
