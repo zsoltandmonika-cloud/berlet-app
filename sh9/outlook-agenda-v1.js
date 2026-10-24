@@ -207,7 +207,20 @@
   modal.hidden=true;open=false;
   if(focusFrom&&typeof focusFrom.focus==='function')focusFrom.focus();
  }
- card.addEventListener('click',show);
+ // The packaged SH9 WebView has no browser OAuth session. Route its calendar
+ // tap to the real SH9 Agenda in the system browser, via the trusted native host.
+ if(NATIVE){
+  card.addEventListener('click',()=>{
+   const url=new URL('./',w.location.href);
+   url.searchParams.set('sh9external','calendar');
+   url.searchParams.set('sh9calendar','1');
+   w.location.assign(url.href);
+  });
+  card.setAttribute('aria-label','Outlook Agenda megnyitása a telefon böngészőjében');
+  sub.textContent='Agenda a böngészőben ›';
+ } else {
+  card.addEventListener('click',show);
+ }
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
  d.addEventListener('keydown',e=>{
@@ -234,7 +247,7 @@
   configBox.hidden=false;clientInput.value='';accountInput.value='';
   setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');setupState();list.replaceChildren();
  });
- if(NATIVE){setCard('Nincs összekötve','Agenda · Microsoft-kapcsolat kell','pending')}
+ if(NATIVE){setCard('Outlook Agenda','Megnyitás a böngészőben ›','pending')}
  else{
   resumeSession();
   if(tokenReady())void sync(true);
@@ -242,5 +255,8 @@
   void handleCallback().then(handled=>{if(handled)setupState()});
   w.setInterval(()=>{if(!d.hidden)void sync(false)},10*60*1000);
   d.addEventListener('visibilitychange',()=>{if(!d.hidden)void sync(false)});
+  // Direct links from the SH9 Android shell bring up the existing, private
+  // browser session without copying credentials into a native WebView.
+  if(new URLSearchParams(w.location.search).get('sh9calendar')==='1')show();
  }
 })(typeof window!=='undefined'?window:null,typeof document!=='undefined'?document:null);
