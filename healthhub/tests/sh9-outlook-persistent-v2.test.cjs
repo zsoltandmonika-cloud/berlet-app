@@ -9,6 +9,8 @@ const vault=require('../../sh9/outlook-session-v2.js');
 const app=read('sh9/outlook-agenda-v1.js');
 const html=read('sh9/index.html');
 const readme=read('sh9/outlook-agenda-README.md');
+const admin=read('healthhub/hh-admin-mobile-focus-v748.js');
+const healthHub=read('healthhub/index.html');
 const uuid='c7f16654-67a5-4e2e-8b7e-db014598501d';
 function fakeStorage(){
  const entries=new Map();
@@ -106,4 +108,13 @@ test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',
  assert.match(app,/Microsoft-belépés/);
  assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
+});
+
+test('Cloud Admin exposes a single direct Calendar connection shortcut without handling credentials',()=>{
+ assert.match(admin,/hhAdminMicrosoftCalendarV2/);
+ assert.match(admin,/selected!=='cloud'/);
+ assert.match(admin,/\.\.\/sh9\/\?sh9calendar=1/);
+ assert.match(healthHub,/hh-admin-mobile-focus-v748\.js\?v=748&outlook=2/);
+ assert.doesNotMatch(admin,/refreshToken|client_secret|access_token/);
+ assert.match(readme,/## Outlook Persistent Sign-In v2/);
 });
