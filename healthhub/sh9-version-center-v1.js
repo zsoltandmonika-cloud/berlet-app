@@ -18,7 +18,7 @@ function style(){
  if(d.getElementById(STYLE))return;
  const s=el('style');s.id=STYLE;
  s.textContent=`
- #${ID}{order:23;min-width:0;padding:15px;border-radius:18px;border:1px solid #629dc498!important;
+ html[data-hh-inline-admin="yes"] #healthSubContent #${ID}{order:23;min-width:0;padding:15px;border-radius:18px;border:1px solid #629dc498!important;
  background:linear-gradient(145deg,#0c2038,#173b58)!important;color:#eaf5ff!important;
  font:500 12px/1.5 system-ui,sans-serif;box-shadow:0 7px 24px #03132933}
  #${ID} h3{font-size:15px!important;line-height:1.4;color:#f6faff!important;margin:0}
