@@ -1,12 +1,19 @@
 package hu.zsoltmonika.healthhubbridge
 
 import android.Manifest
+import android.app.Activity
+import android.content.ClipData
 import android.content.pm.PackageManager
 import android.webkit.GeolocationPermissions
+import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import java.io.File
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.provider.MediaStore
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -43,6 +50,150 @@ class Sh9WebActivity : ComponentActivity() {
     private var web: WebView? = null
     private var pendingGeoOrigin: String? = null
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
+    private var pendingVideoRequest: PermissionRequest? = null
+    private var pendingFileCallback: ValueCallback<Array<Uri>>? = null
+    private var pendingFileParams: WebChromeClient.FileChooserParams? = null
+    private var pendingCaptureUri: Uri? = null
+    private var pendingCaptureFile: File? = null
+
+    private fun trustedPage(url: Uri?): Boolean =
+        url?.scheme == "https" && url.host == HOST && url.path?.startsWith(BASE) == true
+
+    // The HTML Food Scanner uses getUserMedia, NOT an Android native camera
+    // button. Grant ONLY the requested video resource to the approved origin.
+    private val cameraPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val request = pendingVideoRequest
+        pendingVideoRequest = null
+        if (request != null) {
+            if (granted && trustedPage(Uri.parse(web?.url ?: "")) &&
+                request.origin.scheme == "https" && request.origin.host == HOST &&
+                request.resources.contentEquals(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))) {
+                request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+            } else request.deny()
+        }
+    }
+
+    private val capturePermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (pendingFileCallback == null) return@registerForActivityResult
+        if (granted) launchPhotoCapture() else finishFileRequest(null)
+    }
+
+    private val fileResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val captured = pendingCaptureUri
+        val captureFile = pendingCaptureFile
+        val uris = if (result.resultCode != Activity.RESULT_OK) null
+          else if (captured != null) {
+            if (captureFile?.isFile == true && captureFile.length() > 0L) arrayOf(captured) else null
+          } else {
+            val selected = mutableListOf<Uri>()
+            result.data?.data?.let { selected.add(it) }
+            val clips = result.data?.clipData
+            if (clips != null) for (i in 0 until minOf(clips.itemCount, 16))
+                clips.getItemAt(i).uri?.let { selected.add(it) }
+            // Never pass file:// or the app's own OTA FileProvider to an
+            // uploaded web document. Only explicitly user-selected content Uris.
+            selected.distinct().filter { it.scheme == "content" &&
+                it.authority != packageName + ".ota" }.take(16).toTypedArray()
+                .takeIf { it.isNotEmpty() }
+          }
+        finishFileRequest(uris)
+    }
+
+    private fun finishFileRequest(uris: Array<Uri>?) {
+        val callback = pendingFileCallback
+        val file = pendingCaptureFile
+        pendingFileCallback = null
+        pendingFileParams = null
+        pendingCaptureUri = null
+        pendingCaptureFile = null
+        if (uris == null) file?.delete()
+        callback?.onReceiveValue(uris)
+    }
+
+    private fun launchPicker(params: WebChromeClient.FileChooserParams) {
+        try {
+            pendingCaptureUri = null
+            pendingCaptureFile = null
+            fileResult.launch(params.createIntent().apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            })
+        } catch (_: ActivityNotFoundException) {
+            finishFileRequest(null)
+        } catch (_: SecurityException) {
+            finishFileRequest(null)
+        }
+    }
+
+    private fun launchPhotoCapture() {
+        if (pendingFileCallback == null) return
+        val params = pendingFileParams ?: return finishFileRequest(null)
+        try {
+            val dir = File(cacheDir, "web-camera").also { it.mkdirs() }
+            val photoFile = File.createTempFile("hh-photo-", ".jpg", dir)
+            val uri = FileProvider.getUriForFile(this, packageName + ".ota", photoFile)
+            pendingCaptureUri = uri
+            pendingCaptureFile = photoFile
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                clipData = ClipData.newRawUri("HH One camera", uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            }
+            fileResult.launch(intent)
+        } catch (_: ActivityNotFoundException) {
+            pendingCaptureFile?.delete()
+            launchPicker(params) // Gallery/document picker remains usable.
+        } catch (_: SecurityException) {
+            finishFileRequest(null)
+        } catch (_: IllegalArgumentException) {
+            finishFileRequest(null)
+        }
+    }
+
+    private fun showFileChooser(
+        view: WebView?, callback: ValueCallback<Array<Uri>>?,
+        params: WebChromeClient.FileChooserParams?
+    ): Boolean {
+        if (callback == null) return false
+        if (!trustedPage(Uri.parse(view?.url ?: "")) || params == null) {
+            callback.onReceiveValue(null)
+            return true
+        }
+        // A second picker cancels the first, rather than leaking callbacks.
+        finishFileRequest(null)
+        pendingFileCallback = callback
+        pendingFileParams = params
+        val photoCapture = params.isCaptureEnabled &&
+            params.acceptTypes.any { it.startsWith("image/") }
+        if (photoCapture) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED) launchPhotoCapture()
+            else capturePermission.launch(Manifest.permission.CAMERA)
+        } else launchPicker(params)
+        return true
+    }
+
+    private fun onVideoPermissionRequested(request: PermissionRequest) {
+        if (!trustedPage(Uri.parse(web?.url ?: "")) ||
+            request.origin.scheme != "https" || request.origin.host != HOST ||
+            !request.resources.contentEquals(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) ||
+            pendingVideoRequest != null) {
+            request.deny()
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED) {
+            request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+        } else {
+            pendingVideoRequest = request
+            cameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
 
     private val geoPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -120,6 +271,19 @@ class Sh9WebActivity : ComponentActivity() {
             ) {
                 onGeoPermissionRequested(origin, callback)
             }
+
+            override fun onPermissionRequest(request: PermissionRequest) {
+                onVideoPermissionRequested(request)
+            }
+
+            override fun onPermissionRequestCanceled(request: PermissionRequest) {
+                if (pendingVideoRequest === request) pendingVideoRequest = null
+            }
+
+            override fun onShowFileChooser(
+                webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean = showFileChooser(webView, filePathCallback, fileChooserParams)
         }
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -210,6 +374,9 @@ class Sh9WebActivity : ComponentActivity() {
         pendingGeoOrigin?.let { pendingGeoCallback?.invoke(it, false, false) }
         pendingGeoOrigin = null
         pendingGeoCallback = null
+        pendingVideoRequest?.deny()
+        pendingVideoRequest = null
+        finishFileRequest(null)
         web = null
         super.onDestroy()
     }
