@@ -91,7 +91,7 @@ test('All three SH9 live info cells have full-size accessible click targets and 
  assert.match(css,/#sh9NamedayCell\.sh9-info-tap:focus-visible/);
  assert.match(css,/#sh9WeatherCell6\.sh9-info-tap:focus-visible/);
  assert.match(css,/#sh9CalendarCell\.sh9-calendar-click-target:focus-visible/);
- assert.match(html,/src="\.\/outlook-agenda-v1\.js\?v=5-native-browser"/);
+ assert.match(html,/src="\.\/outlook-agenda-v1\.js\?v=6-persistent-ms"/);
 });
 test('Daily nameday, weather reading, calendar entry are pink; alerts retain their own contrast',()=>{
  assert.match(css,/#sh9NamedayCell \.sh9-info-value,#sh9NamedayCell \.sh9-info-sub/);
@@ -104,7 +104,7 @@ test('Daily nameday, weather reading, calendar entry are pink; alerts retain the
 });
 
 test('native SH9 browser handoff opens private calendar through trusted native host, not false native sync',()=>{
- assert.match(html,/outlook-agenda-v1\.js\?v=5-native-browser/);
+ assert.match(html,/outlook-agenda-v1\.js\?v=6-persistent-ms/);
  assert.match(script,/if\(NATIVE\)\{[\s\S]*?card\.addEventListener\('click',/);
  assert.match(script,/searchParams\.set\('sh9external','calendar'\)/);
  assert.match(script,/searchParams\.set\('sh9calendar','1'\)/);
