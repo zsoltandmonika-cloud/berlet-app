@@ -15,13 +15,17 @@
  const refreshBtn=get('sh9AgendaRefresh'),disconnect=get('sh9AgendaDisconnect');
  if(!model||!card||!summary||!value||!sub||!modal||!close||!status||!list||!connect||!save||!clientInput||!accountInput||!configBox||!refreshBtn||!disconnect)return;
  const CONFIG_KEY='sh9-ms-calendar-config-v1',TOKEN_KEY='sh9-ms-calendar-session-v1',FLOW_KEY='sh9-ms-calendar-oauth-flow-v1';
+ const TRUST_KEY='sh9-ms-calendar-prior-approval-v2',SILENT_ATTEMPT_KEY='sh9-ms-calendar-silent-attempt-v2';
+ const PERSIST=w.SH9_OUTLOOK_PERSISTENCE_V2;
+ const SILENT_RETRY_MS=4*60*60*1000;
  const NATIVE=new URLSearchParams(w.location.search).get('sh9native')==='1';
  const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  const AUTHORITY='https://login.microsoftonline.com/consumers/oauth2/v2.0/';
  const GRAPH='https://graph.microsoft.com/v1.0/';
- const SCOPES='openid profile User.Read Calendars.Read';
+ const SCOPES='openid profile offline_access User.Read Calendars.Read';
  const TZ='Europe/Budapest';
- let cfg=null,token=null,expiresAt=0,loading=false,lastSync=0,result=model.analyze([]),open=false,focusFrom=null;
+ let cfg=null,token=null,expiresAt=0,refreshToken=null,refreshIssuedAt=0;
+ let loading=false,lastSync=0,renewing=null,result=model.analyze([]),open=false,focusFrom=null;
  function local(key){try{return w.localStorage.getItem(key)}catch(e){return null}}
  function saveLocal(key,data){try{w.localStorage.setItem(key,data);return true}catch(e){return false}}
  function session(key){try{return w.sessionStorage.getItem(key)}catch(e){return null}}
@@ -41,14 +45,73 @@
   card.setAttribute('aria-label','Naptár · '+title+' · '+detail+' · Agenda megnyitása');
  }
  function disconnectSession(){
-  token=null;expiresAt=0;lastSync=0;dropSession(TOKEN_KEY);result=model.analyze([]);
+  token=null;expiresAt=0;refreshToken=null;refreshIssuedAt=0;
+  lastSync=0;dropSession(TOKEN_KEY);result=model.analyze([]);
  }
- function storeToken(raw){
+ async function forgetStoredSession(){
+  disconnectSession();
+  try{w.localStorage.removeItem(TRUST_KEY);w.localStorage.removeItem(SILENT_ATTEMPT_KEY)}catch(_){}
+  if(PERSIST)await PERSIST.clear(w);
+ }
+ async function storeToken(raw,originalIssuedAt){
   if(!raw||!raw.access_token)throw new Error('Microsoft token válasz hiányos');
   token=raw.access_token;
   expiresAt=Date.now()+Math.max(60,Number(raw.expires_in)||3600)*1000;
-  // Session-only token. No refresh token, no cross-device credentials and no GitHub writes.
   saveSession(TOKEN_KEY,JSON.stringify({accessToken:token,expiresAt:expiresAt,clientId:cfg.clientId,account:cfg.account}));
+  if(raw.refresh_token){
+   refreshToken=raw.refresh_token;
+   // SPA refresh-token lifetime is non-sliding: rotation never resets the 24h window.
+   refreshIssuedAt=originalIssuedAt||Date.now();
+   if(PERSIST)await PERSIST.save(w,cfg.clientId,cfg.account,refreshToken,refreshIssuedAt);
+  }
+ }
+ async function reloadStoredSession(){
+  if(!cfg||!PERSIST)return false;
+  const saved=await PERSIST.load(w,cfg.clientId,cfg.account);
+  if(!saved)return false;
+  refreshToken=saved.refreshToken;refreshIssuedAt=saved.issuedAt;
+  return true;
+ }
+ async function getAccessToken(){
+  if(tokenReady())return true;
+  if(NATIVE||!cfg)return false;
+  if(renewing)return renewing;
+  renewing=(async()=>{
+   if(!refreshToken)await reloadStoredSession();
+   if(!refreshToken||Date.now()-refreshIssuedAt>=23*60*60*1000)return false;
+   try{
+    const raw=await jsonRequest(AUTHORITY+'token',{
+     method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+     body:new URLSearchParams({client_id:cfg.clientId,grant_type:'refresh_token',
+      refresh_token:refreshToken,scope:SCOPES}).toString()
+    });
+    await storeToken(raw,refreshIssuedAt);
+    // Never use calendar details before checking actual signed-in account.
+    await verifyAccount();
+    return tokenReady();
+   }catch(e){
+    token=null;expiresAt=0;dropSession(TOKEN_KEY);
+    if(/HTTP 400|HTTP 401/.test(escapeMessage(e))){
+     refreshToken=null;refreshIssuedAt=0;
+     if(PERSIST)await PERSIST.clear(w);
+    }
+    return false;
+   }
+  })().finally(()=>{renewing=null});
+  return renewing;
+ }
+ function priorApproved(){
+  try{const x=JSON.parse(local(TRUST_KEY)||'null');
+   return !!(cfg&&x&&x.clientId===cfg.clientId&&x.account===cfg.account)}catch(_){return false}
+ }
+ async function silentlyResumeMicrosoft(){
+  if(NATIVE||!priorApproved()||!cfg)return false;
+  const last=Number(local(SILENT_ATTEMPT_KEY)||0);
+  if(last>0&&Date.now()-last<SILENT_RETRY_MS)return false;
+  // One top-level prompt=none attempt, no redirect loops and no browser iframes.
+  saveLocal(SILENT_ATTEMPT_KEY,String(Date.now()));
+  await beginAuth(true);
+  return true;
  }
  function resumeSession(){
   if(!cfg)return;
@@ -69,7 +132,7 @@
  function randomString(n){
   const buf=new Uint8Array(n);w.crypto.getRandomValues(buf);return base64url(buf);
  }
- async function beginAuth(){
+ async function beginAuth(silent){
   if(NATIVE){setStatus('Az SH9 APK-ban a Microsoft-bejelentkezéshez külön natív hitelesítési kapcsolat szükséges. A webes változat Chrome-ban előkészítve.');return}
   if(!cfg){setStatus('Előbb add meg a Microsoft alkalmazásazonosítóját és a kapcsolni kívánt fiókot.');return}
   if(!w.isSecureContext||!w.crypto||!w.crypto.subtle){setStatus('Biztonságos HTTPS kapcsolat szükséges a Microsoft-belépéshez.');return}
@@ -87,6 +150,7 @@
   u.searchParams.set('code_challenge_method','S256');
   u.searchParams.set('code_challenge',challenge);
   u.searchParams.set('state',state);
+  if(silent)u.searchParams.set('prompt','none');
   w.location.assign(u.href);
  }
  async function jsonRequest(url,opts){
@@ -107,15 +171,22 @@
   dropSession(FLOW_KEY);
   const code=params.get('code'),returnedState=params.get('state'),error=params.get('error');
   safelyStripAuthQuery();
-  if(error){setStatus('Microsoft-belépés nem fejeződött be: '+error);return true}
+  if(error){
+   setCard('Újraengedélyezés szükséges','Microsoft-belépés ›','pending');
+   setStatus(error==='login_required'||error==='interaction_required'||error==='consent_required'?
+    'A Microsoft munkamenete lejárt. A naptárhoz egyszeri megerősítés szükséges.':
+    'Microsoft-belépés nem fejeződött be: '+error);
+   return true;
+  }
   if(!code||!saved||!cfg||saved.clientId!==cfg.clientId||returnedState!==saved.state||Date.now()-saved.at>10*60*1000||saved.redirectUri!==urlBase()){
    setStatus('A Microsoft-belépés biztonsági ellenőrzése sikertelen. Kapcsolódj újra.');return true;
   }
   try{
    const body=new URLSearchParams({client_id:cfg.clientId,grant_type:'authorization_code',code:code,code_verifier:saved.verifier,redirect_uri:saved.redirectUri,scope:SCOPES});
    const auth=await jsonRequest(AUTHORITY+'token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
-   storeToken(auth);
+   await storeToken(auth);
    await verifyAccount();
+   saveLocal(TRUST_KEY,JSON.stringify({clientId:cfg.clientId,account:cfg.account}));
    await sync(true);
   }catch(e){disconnectSession();setCard('Nincs összekötve','Microsoft hitelesítés sikertelen','error');setStatus('Belépési hiba: '+escapeMessage(e))}
   return true;
@@ -167,33 +238,41 @@
  }
  async function sync(force){
   if(NATIVE||!cfg)return;
-  if(!tokenReady()){
-   disconnectSession();setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');
-   setStatus('Naptár nincs összekötve. Microsoft-belépés szükséges.');
-   return;
-  }
   if(loading||(!force&&lastSync&&Date.now()-lastSync<9*60*1000))return;
   loading=true;setCard('Frissítés…','Outlook események','loading');setStatus('Outlook naptár betöltése…');
   try{
-   const raws=await fetchEvents();
+   if(!await getAccessToken()){
+    setCard('Kapcsolat megújítása','Microsoft megerősítés szükséges','pending');
+    setStatus('A naptár hozzáférése lejárt. Koppints a Microsoft-belépésre; a fiókot megjegyeztük.');
+    return;
+   }
+   let raws;
+   try{raws=await fetchEvents()}catch(e){
+    if(!/HTTP 401/.test(escapeMessage(e)))throw e;
+    // Expired/invalid Graph token: exactly one refresh and one retry.
+    token=null;expiresAt=0;dropSession(TOKEN_KEY);
+    if(!await getAccessToken())throw e;
+    raws=await fetchEvents();
+   }
    result=model.analyze(raws);
    lastSync=Date.now();
    const h=model.headline(result);
    setCard(h.value,h.detail,h.status);
-   setStatus('Kapcsolódva · '+cfg.account+' · következő 14 nap · csak olvasás');
+   setStatus('Kapcsolódva · '+cfg.account+' · naptár automatikusan megújítható · csak olvasás');
    renderEvents();
   }catch(e){
    const msg=escapeMessage(e);
-   if(/HTTP 401/.test(msg)){disconnectSession();setCard('Kapcsolat lejárt','Újra be kell jelentkezni','pending')}
+   if(/HTTP 401/.test(msg)){token=null;expiresAt=0;dropSession(TOKEN_KEY);
+    setCard('Kapcsolat lejárt','Microsoft-megerősítés szükséges','pending')}
    else setCard('Naptár nem elérhető','Újrapróbálás az Agendában','error');
    setStatus('Nem sikerült a frissítés: '+msg);
-  }finally{loading=false}
+  }finally{loading=false;setupState()}
  }
  function setupState(){
   configBox.hidden=!!cfg;
   if(cfg){clientInput.value=cfg.clientId;accountInput.value=cfg.account}
   connect.hidden=NATIVE;
-  refreshBtn.hidden=!tokenReady()||NATIVE;
+  refreshBtn.hidden=NATIVE;
   disconnect.hidden=!cfg;
   if(NATIVE)setStatus('APK üzemmód: a személyes Outlook-naptár külön natív Microsoft-hitelesítést igényel. Nincs automatikus kapcsolat.');
   else if(cfg&&!tokenReady())setStatus('A naptár olvasásához jelentkezz be Microsoft-fiókoddal. Csak Calendars.Read jogosultságot kérünk az eseményekhez.');
@@ -238,21 +317,36 @@
   const clientId=clientInput.value.trim(),account=accountInput.value.trim().toLowerCase();
   if(!ID_RE.test(clientId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){setStatus('Érvényes Microsoft Application Client ID és e-mail cím szükséges.');return}
   if(!saveLocal(CONFIG_KEY,JSON.stringify({clientId:clientId,account:account}))){setStatus('A böngésző nem engedi a helyi beállítás mentését.');return}
-  cfg={clientId:clientId,account:account};disconnectSession();setupState();setStatus('Beállítás mentve ezen a készüléken. Következő lépés: Microsoft-belépés.');
+  cfg={clientId:clientId,account:account};void forgetStoredSession();
+  setupState();setStatus('Beállítás mentve. Következő Microsoft-belépéskor engedélyezheted az automatikus megújítást.');
  });
  connect.addEventListener('click',()=>{void beginAuth().catch(e=>setStatus('Nem indítható a Microsoft-belépés: '+escapeMessage(e)))});
  refreshBtn.addEventListener('click',()=>{void sync(true)});
  disconnect.addEventListener('click',()=>{
-  disconnectSession();cfg=null;try{w.localStorage.removeItem(CONFIG_KEY)}catch(e){}
+  void forgetStoredSession();cfg=null;try{w.localStorage.removeItem(CONFIG_KEY)}catch(e){}
   configBox.hidden=false;clientInput.value='';accountInput.value='';
   setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');setupState();list.replaceChildren();
  });
  if(NATIVE){setCard('Outlook Agenda','Megnyitás a böngészőben ›','pending')}
  else{
   resumeSession();
-  if(tokenReady())void sync(true);
-  else setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');
-  void handleCallback().then(handled=>{if(handled)setupState()});
+  const callback=new URLSearchParams(w.location.search);
+  if(callback.has('code')||callback.has('error')){
+   void handleCallback().then(()=>setupState());
+  }else{
+   void (async()=>{
+    if(!cfg){setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');return}
+    if(tokenReady()||await getAccessToken())await sync(true);
+    else{
+     setCard('Kapcsolat megújítása','Microsoft munkamenet ellenőrzése','pending');
+     // After 24h a first-party Microsoft SSO visit may avoid any password entry.
+     if(!await silentlyResumeMicrosoft()){
+      setCard('Kapcsolat megújítása','Koppints: Microsoft-belépés','pending');
+      setupState();
+     }
+    }
+   })();
+  }
   w.setInterval(()=>{if(!d.hidden)void sync(false)},10*60*1000);
   d.addEventListener('visibilitychange',()=>{if(!d.hidden)void sync(false)});
   // Direct links from the SH9 Android shell bring up the existing, private
