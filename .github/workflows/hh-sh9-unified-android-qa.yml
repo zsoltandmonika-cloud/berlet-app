@@ -1,0 +1,38 @@
+name: HH One + SH9 · Unified Native QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/android-bridge/**'
+      - '.github/workflows/hh-sh9-unified-android-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  debug-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: healthhub/android-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Install Android SDK 36
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - name: Compile unified Android and run unit tests
+        run: gradle :app:assembleDebug :app:testDebugUnitTest --no-daemon --stacktrace
+      - name: Verify permissions and package identity in debug APK
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$AAPT" dump badging app/build/outputs/apk/debug/app-debug.apk | grep "package: name='hu.zsoltmonika.healthhubbridge'"
+          "$AAPT" dump xmltree app/build/outputs/apk/debug/app-debug.apk AndroidManifest.xml | grep -E -m 1 'Sh9GpsService|Sh9WebActivity'

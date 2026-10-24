@@ -1,11 +1,8 @@
 name: HealthHub Connect · Signed OTA
 
+# Signed APK releases require explicit central approval. Client devices continue
+# checking the existing signed OTA manifest automatically and request install consent.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "healthhub/android-bridge/**"
-      - ".github/workflows/healthhub-connect-ota-release.yml"
   workflow_dispatch:
     inputs:
       rollout:

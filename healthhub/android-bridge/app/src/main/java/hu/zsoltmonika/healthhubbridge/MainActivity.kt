@@ -5,6 +5,10 @@ import android.app.TimePickerDialog
 import android.os.Build
 import android.provider.Settings
 import android.content.Intent
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import androidx.core.content.ContextCompat
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
@@ -51,6 +55,7 @@ class MainActivity : ComponentActivity() {
         private const val DROPBOX_REDIRECT = DropboxVaultClient.WEB_REDIRECT
         private const val HEALTHHUB_URL = DropboxVaultClient.WEB_REDIRECT
         private const val PREFS = "healthhub_connect"
+        private const val SH9_START_DEFAULT = "sh9_start_default_v1"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -74,6 +79,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var digitalSummary: TextView
     private lateinit var otaCheckButton: Button
     private var otaChecking = false
+    private lateinit var gpsSummary: TextView
+    private lateinit var gpsToggleButton: Button
+    private lateinit var gpsIntervalSpinner: Spinner
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
 
@@ -132,6 +140,19 @@ class MainActivity : ComponentActivity() {
             else "A frissítések manuálisan továbbra is ellenőrizhetők."
     }
 
+    // Separate Android location permission from Health Connect permissions.
+    // Neither GPS access nor running the service is ever required for HH data sync.
+    private val sh9GpsPermission = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        if (grants[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+            startSh9Gps()
+        } else {
+            status.text = "A precíz helyengedély hiányzik. GPS életben tartás kikapcsolva."
+            updateSh9GpsUi()
+        }
+    }
+
     private val saveLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -160,7 +181,12 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
         updateResilientStatus()
         updateOtaStatus()
+        updateSh9GpsUi()
         checkOta(false)
+        if (savedInstanceState == null && prefs.getBoolean(SH9_START_DEFAULT, false) &&
+            intent?.getBooleanExtra("openNativeSettings", false) != true && intent?.data == null) {
+            startActivity(Intent(this, Sh9WebActivity::class.java))
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -612,6 +638,99 @@ class MainActivity : ComponentActivity() {
         root.addView(diagnosisToggle)
 
         root.addView(TextView(this).apply {
+            text = "🐿️ SH9 · Közös Android alkalmazás"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        root.addView(TextView(this).apply {
+            text = "Az SH9 Start Page és a HH One ugyanabban az alkalmazásban. A webes SH9-modulok online frissülnek; a natív funkciókhoz a meglévő aláírt OTA-frissítés tartozik."
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+        })
+        root.addView(Button(this).apply {
+            text = "🚀 SH9 Start Page megnyitása"
+            setOnClickListener { startActivity(Intent(this@MainActivity, Sh9WebActivity::class.java)) }
+        })
+        val sh9Default = Button(this)
+        fun updateDefaultButton() {
+            val enabled = prefs.getBoolean(SH9_START_DEFAULT, false)
+            sh9Default.text = if (enabled) "✓ SH9 legyen a kezdőoldal: BE"
+                else "SH9 legyen a kezdőoldal: KI"
+        }
+        sh9Default.setOnClickListener {
+            val next = !prefs.getBoolean(SH9_START_DEFAULT, false)
+            prefs.edit().putBoolean(SH9_START_DEFAULT, next).apply()
+            updateDefaultButton()
+            status.text = if (next) "✓ Következő alkalmazásindításkor az SH9 nyílik meg. Vissza: HH One beállítások."
+                else "✓ A HH One beállítások nyílnak meg induláskor."
+        }
+        updateDefaultButton()
+        root.addView(sh9Default)
+        root.addView(TextView(this).apply {
+            text = "📍 SH9 · GPS kapcsolat fenntartása"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 14, 0, 5)
+        })
+        gpsSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 3, 0, 8)
+        }
+        root.addView(gpsSummary)
+        gpsIntervalSpinner = Spinner(this).apply {
+            adapter = ArrayAdapter(this@MainActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                listOf("15 mp · intenzív", "30 mp · normál", "60 mp · takarékos"))
+            setSelection(when (Sh9GpsService.interval(this@MainActivity)) {
+                15 -> 0
+                60 -> 2
+                else -> 1
+            })
+        }
+        root.addView(gpsIntervalSpinner)
+        root.addView(Button(this).apply {
+            text = "GPS időköz mentése"
+            setOnClickListener {
+                val seconds = when (gpsIntervalSpinner.selectedItemPosition) {
+                    0 -> 15
+                    2 -> 60
+                    else -> 30
+                }
+                Sh9GpsService.setInterval(this@MainActivity, seconds)
+                if (Sh9GpsService.active) {
+                    // Restart only from a visible user action, within Android FGS rules.
+                    startSh9Gps()
+                } else updateSh9GpsUi()
+                status.text = "✓ GPS frissítési időköz: $seconds másodperc."
+            }
+        })
+        gpsToggleButton = Button(this).apply {
+            text = "📍 GPS bekapcsolása"
+            setOnClickListener {
+                if (Sh9GpsService.active) {
+                    Sh9GpsService.stop(this@MainActivity)
+                    status.text = "GPS leállítása kérve."
+                    gpsToggleButton.postDelayed({ updateSh9GpsUi() }, 500)
+                } else requestSh9Gps()
+            }
+        }
+        root.addView(gpsToggleButton)
+        root.addView(Button(this).apply {
+            text = "📍 Android helyszolgáltatás beállításai"
+            setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+        })
+        root.addView(TextView(this).apply {
+            text = "Alapból KI. Csak kézi indítás; aktív állapotban látható Android értesítésből is leállítható. Nem mentünk vagy továbbítunk GPS-koordinátákat. Nem garantálja más appok háttérbeli GPS-hozzáférését. Folyamatos használata növeli az akkumulátorfogyasztást."
+            textSize = 12f
+            setTextColor(0xFF6A7F91.toInt())
+            setPadding(0, 4, 0, 12)
+        })
+
+        root.addView(TextView(this).apply {
             text = "📦 HH One · OTA Updates"
             textSize = 18f
             setTypeface(typeface, Typeface.BOLD)
@@ -941,6 +1060,48 @@ class MainActivity : ComponentActivity() {
             status.text = "✓ Ütemezett sync hozzáadva: $value"
             updateScheduleUi()
         }, 7, 30, true).show()
+    }
+
+    private fun updateSh9GpsUi() {
+        if (!::gpsSummary.isInitialized || !::gpsToggleButton.isInitialized) return
+        val period = Sh9GpsService.interval(this)
+        val running = Sh9GpsService.active
+        val last = Sh9GpsService.lastFixAtMillis
+        val lastText = if (running && last > 0L) {
+            SimpleDateFormat("HH:mm:ss", Locale("hu", "HU")).format(Date(last))
+        } else "nincs megerősített GPS-fix"
+        gpsSummary.text = (if (running) "🟢 Aktív GPS előtérszolgáltatás" else "⚪ GPS ki van kapcsolva") +
+            "\nFrissítési időköz: $period mp · $lastText"
+        gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
+    }
+
+    private fun requestSh9Gps() {
+        val location = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!location.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            status.text = "Kapcsold be a telefon helyszolgáltatását; GPS jelenleg nem elérhető."
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
+            startSh9Gps()
+        } else {
+            sh9GpsPermission.launch(arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ))
+        }
+    }
+
+    private fun startSh9Gps() {
+        try {
+            Sh9GpsService.start(this)
+            status.text = "GPS indítása kérése elküldve · látható értesítést kapsz."
+            gpsToggleButton.postDelayed({ updateSh9GpsUi() }, 800)
+        } catch (e: Exception) {
+            status.text = "GPS szolgáltatás nem indítható: " + e.javaClass.simpleName
+            updateSh9GpsUi()
+        }
     }
 
     private fun updateOtaStatus() {
@@ -1338,6 +1499,7 @@ class MainActivity : ComponentActivity() {
         CollectionScheduler.reconcile(this)
         updateDigitalStatus()
         if (::otaSummary.isInitialized) updateOtaStatus()
+        if (::gpsSummary.isInitialized) updateSh9GpsUi()
     }
 
     override fun onDestroy() {
