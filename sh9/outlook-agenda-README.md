@@ -33,3 +33,9 @@ The old static `sh9/index.html` inside the installed test APK will not change un
 - Existing SH9 Golden Standard tiles (9), nav (5), weather, namedays and Smart Travel tile routing remain unchanged.
 - New workflow `.github/workflows/sh9-outlook-agenda-qa.yml` runs JS syntax and regression checks.
 - Synthetic test events only; never publish real calendar records in GitHub.
+
+## Golden Standard · pink/purple calendar value polish
+- The Start Page's live calendar time and next entry use pastel pink (`#f4b7ea`) and lavender (`#d8bafa`).
+- Agenda event names and time ranges follow the same pink/purple emphasis.
+- Amber collision warnings, red errors, and unconnected states keep their own high-contrast colors.
+- The original Hero, module tiles, navigation, Agenda functionality and Microsoft OAuth are unchanged.

@@ -67,3 +67,14 @@ test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fa
  assert.doesNotMatch(script,/client_secret|password=|SH9_MOCK_EVENTS/);
  assert.doesNotMatch(script,/zsolt\.monika@outlook\.com/i,'Do not publish personal account as constant on public GitHub');
 });
+
+test('Golden pink/purple highlights only live Outlook values and agenda entries',()=>{
+ assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=2-pink-purple"/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#d8bafa\}/);
+ assert.match(css,/\.sh9-agenda-subject\{[^}]*color:#f4b7ea/);
+ assert.match(css,/\.sh9-agenda-hour\{[^}]*color:#d8bafa/);
+ assert.match(css,/#sh9CalendarCell\[data-status="conflict"\] \.sh9-info-value\{color:#ffd6ad\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="error"\] \.sh9-info-value\{color:#ffd9d9\}/);
+ assert.doesNotMatch(css,/#sh9CalendarCell\[data-status="pending"\][^\n]*color:#f4b7ea/);
+});
