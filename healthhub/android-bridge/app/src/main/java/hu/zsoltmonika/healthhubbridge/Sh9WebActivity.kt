@@ -121,7 +121,20 @@ class Sh9WebActivity : ComponentActivity() {
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
-                if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) return false
+                if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) {
+                    // Calendar requires a browser-owned Microsoft OAuth session.
+                    // Open the SAME SH9 Agenda in the system browser, not a disconnected WebView.
+                    if (request.isForMainFrame &&
+                        u.path == "/berlet-app/sh9/" &&
+                        u.getQueryParameter("sh9external") == "calendar") {
+                        val browserAgenda = u.buildUpon().clearQuery()
+                            .appendQueryParameter("sh9calendar", "1").build()
+                        try { startActivity(Intent(Intent.ACTION_VIEW, browserAgenda)) }
+                        catch (_: ActivityNotFoundException) { }
+                        return true
+                    }
+                    return false
+                }
                 if (request.isForMainFrame && u.scheme == "https") {
                     try { startActivity(Intent(Intent.ACTION_VIEW, u)) }
                     catch (_: ActivityNotFoundException) { }

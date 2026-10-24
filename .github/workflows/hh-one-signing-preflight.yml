@@ -56,7 +56,7 @@ jobs:
           m=json.load(open("healthhub/data/bridge-ota.json",encoding="utf-8"))
           assert m["applicationId"] == "hu.zsoltmonika.healthhubbridge"
           assert m["channel"] == "signed-release"
-          assert re.fullmatch(r"0\.14\.[0-9]+",m["version"])
+          assert re.fullmatch(r"0\.[0-9]+\.[0-9]+",m["version"])
           assert isinstance(m["versionCode"],int) and m["versionCode"]>=20
           assert re.fullmatch(r"[a-f0-9]{64}",m["sha256"])
           print(m["version"])
@@ -70,15 +70,16 @@ jobs:
           NEW_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           NEW_VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' healthhub/android-bridge/app/build.gradle.kts | head -1)"
           NEXT_VERSION="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "$BASE_VERSION")"
+          NEXT_MINOR="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[1]=str(int(a[1])+1); a[2]="0"; print(".".join(a))' "$BASE_VERSION")"
           if [[ "$NEW_CODE" == "$BASE_CODE" && "$NEW_VERSION" == "$BASE_VERSION" ]]; then
             # Only the profile allow-list changed. Verify the already-published signed APK;
             # do not build or publish a redundant candidate, or force a new package.
             echo "stage_candidate=false" >> "$GITHUB_OUTPUT"
             echo "Read-only rollout extension: existing signed release v$BASE_VERSION."
-          elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && "$NEW_VERSION" == "$NEXT_VERSION" ]]; then
+          elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && ( "$NEW_VERSION" == "$NEXT_VERSION" || "$NEW_VERSION" == "$NEXT_MINOR" ) ]]; then
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch."
+            echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch or minor version."
             exit 1
           fi
           RELEASE="healthhub-connect-ota-v$BASE_VERSION"
@@ -121,7 +122,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   signed-pilot-candidate:
-    name: Sign next patch candidate (artifact only; no OTA publish)
+    name: Sign next patch/minor candidate (artifact only; no OTA publish)
     needs: [compare-signed-release-to-existing-keystore]
     # Only a trusted same-repository PR may access the signing credential.
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.compare-signed-release-to-existing-keystore.outputs.stage_candidate == 'true'
@@ -191,8 +192,9 @@ jobs:
           PY
           )
           NEXT="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "${BASE[0]}")"
+          NEXT_MINOR="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[1]=str(int(a[1])+1); a[2]="0"; print(".".join(a))' "${BASE[0]}")"
           if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
-             [[ "$VERSION" != "$NEXT" || "$CODE" != "$((BASE[1]+1))" ]]; then
+             [[ ( "$VERSION" != "$NEXT" && "$VERSION" != "$NEXT_MINOR" ) || "$CODE" != "$((BASE[1]+1))" ]]; then
             echo "::error::Incorrect Android package/version; signed candidate rejected."
             exit 1
           fi
