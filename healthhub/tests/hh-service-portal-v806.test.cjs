@@ -54,3 +54,18 @@ test('Cloud and Orchestrator cards do not unconditionally tear down each polling
  assert.doesNotMatch(orch,/var old=document\.getElementById\(ADMIN_ID\);if\(old\)old\.remove\(\)/);
  assert.match(orch,/hhInlineAdmin!=='yes'/);
 });
+
+test('Service Portal has direct Dropbox OAuth repair and Chrome-only browser session return',()=>{
+ const src=read('hh-service-portal-v806.js');
+ const cb=read('chatgpt-dropbox-callback-v739.html');
+ const idx=read('index.html');
+ assert.match(src,/ChatGPT cél Dropbox csatlakoztatása/);
+ assert.match(src,/typeof auth\.authorize/);
+ assert.match(src,/await auth\.authorize\(\)/);
+ assert.match(src,/if\(inWebview\(\)\)/);
+ assert.match(src,/clipboard\.writeText\(CHROME_URL\)/);
+ assert.match(src,/hhservice/);
+ assert.match(src,/felhasználói limitet jelez/);
+ assert.match(cb,/index\.html\?hhservice=1/);
+ assert.match(idx,/hh-service-portal-v806\.js\?v=806&oauth=1/);
+});
