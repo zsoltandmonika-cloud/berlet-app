@@ -7,7 +7,7 @@
  var region=document.getElementById('sh9InfoBar6');
  if(!region)return;
  var dateEl=document.getElementById('sh9Date6');
- var nameEl=document.getElementById('sh9Nameday6');
+ var nameEl=document.getElementById('sh9NamedayValue6');
  var weatherEl=document.getElementById('sh9Weather6');
  var weatherSub=document.getElementById('sh9WeatherDetail6');
  var weatherCell=document.getElementById('sh9WeatherCell6');
@@ -26,10 +26,10 @@
  var namedayData=null;
  function showNameday(p){
   var k=p.month+'-'+p.day;
-  if(k===currentDay&&nameEl.textContent!=='NÉVNAP · betöltés…')return;
+  if(k===currentDay&&nameEl.textContent!=='betöltés…')return;
   currentDay=k;
   var names=namedayData&&namedayData.namedays&&namedayData.namedays[String(p.month)]&&namedayData.namedays[String(p.month)][String(p.day)];
-  nameEl.textContent=Array.isArray(names)&&names.length?'NÉVNAP · '+names.join(', '):'NÉVNAP · nem elérhető';
+  nameEl.textContent=Array.isArray(names)&&names.length?names.join(', '):'nem elérhető';
  }
  async function fetchNamedays(){
   try{
@@ -38,7 +38,7 @@
    namedayData=await r.json();
    currentDay='';
    showNameday(setDate());
-  }catch(e){nameEl.textContent='NÉVNAP · nem elérhető';}
+  }catch(e){nameEl.textContent='nem elérhető';}
  }
  function weatherLabel(c){
   if(c===0)return 'Derült';
