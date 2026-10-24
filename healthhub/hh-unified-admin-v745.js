@@ -115,7 +115,9 @@ function inlineTools(root){
   overlayRef=overlay;
   if(overlay.parentNode!==portal){
    portal.append(overlay);portalActive=true;
-   if(typeof w.haOpen==='function')w.haOpen();
+   // haOpen() clears haBody.innerHTML; preserve registry during remounts.
+   if(!d.getElementById('haBody')?.querySelector('.haSys')&&typeof w.haOpen==='function')
+    w.haOpen();
    else overlay.classList.add('on');
   }
  }
@@ -145,7 +147,7 @@ function layout(){
  const ids=new Set(GROUPS.map(g=>'hhAdminGroup'+g.id+'V745'));
  let unknownCount=0;
  for(const child of [...root.children]){
-  if(ids.has(child.id))continue;
+  if(ids.has(child.id)||child.id==='hhAdminQuickV748')continue;
   const group=category(child),g=GROUPS.find(x=>x.id===group);
   // Hide only duplicate historical launcher/cards; never delete their data.
   if(['hhAdminMenuCard','hhDropboxVaultCard','hhCloudVaultCard'].includes(child.id)){child.hidden=true;continue}
@@ -180,7 +182,9 @@ function start(){
   safe.__hhAdminPortalV745=true;w.renderHealthSection=safe;
  }
  layout();observe();
- w.setInterval(()=>{observe();layout()},1600);
+ // Existing observer and renderHealthSection hook handle remounts.
+ // No unconditional 1.6s full layout reconciliation while mobile scrolling.
+ w.setInterval(()=>{if(d.getElementById(ROOT)!==lastRoot)observe()},10000);
  w.addEventListener('focus',queue);d.addEventListener('visibilitychange',queue);
 }
 w.hhAdminGoInlineV745=goAdmin;
