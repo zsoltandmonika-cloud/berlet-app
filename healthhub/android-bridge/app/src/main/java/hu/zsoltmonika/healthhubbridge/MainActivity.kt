@@ -1120,8 +1120,18 @@ class MainActivity : ComponentActivity() {
         val lastText = if (running && last > 0L) {
             SimpleDateFormat("HH:mm:ss", Locale("hu", "HU")).format(Date(last))
         } else "nincs megerősített GPS-fix"
-        gpsSummary.text = (if (running) "🟢 Aktív GPS előtérszolgáltatás" else "⚪ GPS ki van kapcsolva") +
-            "\nFrissítési időköz: $period mp · $lastText"
+        val smart = getSharedPreferences(Sh9GpsService.PREFS, MODE_PRIVATE)
+        val engine = smart.getString(Sh9GpsService.KEY_LOCATION_ENGINE, "még nem indult")
+        val mode = smart.getString(Sh9GpsService.KEY_LOCATION_MODE, "ismeretlen")
+        val engineLabel = when (engine) {
+            "fused" -> "Fused Location · GPS + Wi-Fi + mobilhálózat"
+            "android-fallback" -> "Android tartalék helymeghatározás"
+            "provider-unavailable", "no-provider" -> "Helyszolgáltatás átmenetileg nem elérhető"
+            else -> "Első GPS-indításra vár"
+        }
+        gpsSummary.text = (if (running) "🟢 Smart Location aktív" else "⚪ Helymeghatározás leállítva") +
+            "\nMérési alap: $engineLabel · mód: $mode" +
+            "\nCél-időköz: $period mp · utolsó valódi fix: $lastText"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
         if (::gpsBootButton.isInitialized) {
             val approved = FamilyGuardContinuity.enabled(this)
