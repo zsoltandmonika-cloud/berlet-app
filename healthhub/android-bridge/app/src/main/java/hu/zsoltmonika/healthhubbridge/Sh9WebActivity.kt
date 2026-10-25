@@ -281,7 +281,10 @@ class Sh9WebActivity : ComponentActivity() {
         pendingGeoOrigin = null
         pendingGeoCallback = null
         if (origin != null && callback != null) {
-            callback.invoke(origin, permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true, false)
+            // Android site permission persists only inside THIS WebView storage;
+            // never transfers OAuth sessions or grants to other browser origins.
+            val approved = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+            callback.invoke(origin, approved, approved)
         }
     }
 
@@ -294,7 +297,8 @@ class Sh9WebActivity : ComponentActivity() {
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED) {
-            callback.invoke(origin, true, false)
+            // Remember only the explicitly trusted HealthHub origin in WebView.
+            callback.invoke(origin, true, true)
             return
         }
         // Reject concurrent permission prompts instead of swapping callbacks.
