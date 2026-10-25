@@ -1,5 +1,5 @@
 /* HealthHub Smart Arrival v801: source-verified full BKK line search + per-profile favorites.
- * Discovery is NOT a promise of live tracking on routes beyond 260, 17 and 19.
+ * Static route map coverage can expand without claiming live BKK vehicle tracking.
  * Personal favorites are stored locally on this device, not uploaded or shared.
  */
 (function(root,factory){
@@ -11,7 +11,8 @@
  const SOURCE='BKK Zrt., CC BY 4.0';
  const STORE='hh-bkk-route-favorites-v801';
  const MODES=new Set(['bus','tram','trolley','metro','hev','rail','other']);
- const FEATURED=new Set(['bus:260','tram:17','tram:19']);
+ const FEATURED=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
+ const LIVE_MAP=new Set(['bus:260','tram:17','tram:19']);
  const knownKey=id=>id==='260'?'bus:260':id==='17'?'tram:17':id==='19'?'tram:19':null;
  const keyOf=route=>route.mode+':'+route.id;
  function normalizedKey(value){
@@ -139,7 +140,8 @@
    const detail=w.document.createElement('small');
    detail.textContent=route.directions.length?route.directions.slice(0,2).join(' ↔ '):route.name||'BKK menetrendi járat';
    const scope=w.document.createElement('span');scope.className='hh-bkk-catalog-scope-v801';
-   scope.textContent=FEATURED.has(keyOf(route))?'Élő térkép + kedvenc':'Kedvenc · térképes bővítés később';
+   scope.textContent=LIVE_MAP.has(keyOf(route))?'Élő járműréteg + menetrendi útvonal':
+    FEATURED.has(keyOf(route))?'BKK menetrendi útvonal a térképen (nem élő)':'Kedvenc · térképes bővítés később';
    copy.append(title,detail,scope);
    const btn=w.document.createElement('button');btn.type='button';
    const selected=preferred.includes(keyOf(route));

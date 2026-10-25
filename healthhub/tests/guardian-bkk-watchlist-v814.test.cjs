@@ -12,9 +12,9 @@ test('Watchlist is on canonical Family Guard, reuses verified BKK catalog with e
  const style=read('guardian-bkk-watchlist-v814.css');
  assert.match(html,/id="hhBkkWatchlistV814"/);
  assert.match(html,/id="hhBkkWatchEditV814"/);
- assert.match(html,/guardian-bkk-watchlist-v814.js\?v=814/);
+ assert.match(html,/guardian-bkk-watchlist-v814.js\?v=817-1-41-static/);
  assert.match(html,/guardian-bkk-watchlist-v814.css\?v=814/);
- assert.match(html,/guardian-bkk-catalog-v801.js\?v=814-watchlist/);
+ assert.match(html,/guardian-bkk-catalog-v801.js\?v=817-1-41-static/);
  assert.match(style,/hh-bkk-watch-ready-v814 \.hh-transit-choices/);
  assert.match(style,/#hhTransitCardsV791/);
  assert.match(catalog,/const STORE='hh-bkk-route-favorites-v801'/);
@@ -23,7 +23,7 @@ test('Watchlist is on canonical Family Guard, reuses verified BKK catalog with e
  assert.match(catalog,/moveFavoriteKey/);
  assert.match(catalog,/routeByKey/);
  assert.match(catalog,/hh-bkk-watchlist-v814-changed/);
- assert.match(catalog,/FEATURED=new Set\(\['bus:260','tram:17','tram:19'\]\)/);
+ assert.match(catalog,/FEATURED=new Set\(\['bus:260','tram:17','tram:19','tram:1','tram:41'\]\)/);
 });
 
 test('Watchlist renders, reorders, edits and removes with no GPS or fabricated live status',()=>{
@@ -92,6 +92,6 @@ test('Watchlist renders, reorders, edits and removes with no GPS or fabricated l
  all.hhTransitProfileV791.events.change();
  assert.equal(all.hhBkkWatchRowsV814.children.length,1);
  assert.equal(all.hhBkkWatchRowsV814.children[0].children[0].textContent,'17');
- assert.match(source,/FEATURED=new Set\(\['bus:260','tram:17','tram:19'\]\)/);
+ assert.match(source,/FEATURED=new Set\(\['bus:260','tram:17','tram:19','tram:1','tram:41'\]\)/);
  assert.doesNotMatch(source,/navigator\.geolocation|watchPosition|sendBeacon|access_token|refresh_token/);
 });

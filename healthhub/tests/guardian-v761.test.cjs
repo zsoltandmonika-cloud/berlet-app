@@ -926,7 +926,7 @@ test('v790 BKK Transit preserves approved Guardian design and offers 260/17/19 s
   assert.match(page,/id="hhTransitShow260"/);
   assert.match(page,/id="hhTransitShow17"/);
   assert.match(page,/id="hhTransitShow19"/);
-  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=816-watchlist-live/);
+  if(page===other)assert.match(page,/guardian-transit-v791\.js\?v=817-1-41-static/);
   else assert.match(page,/guardian-transit-v790\.js\?v=790-bkk-static-gtfs/);
   assert.match(page,/guardian-transit-v790\.css\?v=790-bkk-route-choices/);
   assert.match(page,/BKK Zrt., CC BY 4\.0/);
@@ -1041,10 +1041,10 @@ test('v795 live pilot has visible status before route selectors and detects load
  const loader=read('guardian/guardian-transit-v791.js');
  const pilot=read('guardian/guardian-live-pilot-v793.js');
  new Function(loader);new Function(pilot);
- assert.match(html,/guardian-transit-v791\.js\?v=816-watchlist-live/);
+ assert.match(html,/guardian-transit-v791\.js\?v=817-1-41-static/);
  assert.match(loader,/hhLivePilot/);
  assert.match(loader,/script\.onerror/);
- assert.match(loader,/816-watchlist-live/);
+ assert.match(loader,/817-1-41-static/);
  assert.match(loader,/get\('hhLivePilot'\)!=='off'/);
  assert.match(pilot,/get\('hhLivePilot'\)==='off'/);
  assert.match(pilot,/holder\.prepend\(bar\)/);
@@ -1076,7 +1076,7 @@ test('v799 canonical Family Guard enables live BKK automatically and keeps trans
  const live=read('guardian/guardian-live-pilot-v793.js');
  const css=read('guardian/guardian-transit-v791.css');
  new Function(js);new Function(live);
- assert.match(html,/guardian-transit-v791\.js\?v=816-watchlist-live/);
+ assert.match(html,/guardian-transit-v791\.js\?v=817-1-41-static/);
  assert.match(html,/guardian-transit-v791\.css\?v=799-transport-color/);
  assert.match(js,/get\('hhLivePilot'\)!=='off'/);
  assert.match(live,/get\('hhLivePilot'\)==='off'/);
@@ -1097,8 +1097,8 @@ test('v800 original Family Guard loads the approved compact live glass set',()=>
  const glass=read('guardian/bkk-live-glass-v800.css');
  new Function(transit);new Function(live);
  assert.match(html,/bkk-live-glass-v800\.css\?v=800-approved-set/);
- assert.match(html,/guardian-transit-v791\.js\?v=816-watchlist-live/);
- assert.match(transit,/url\.searchParams\.set\('v','816-watchlist-live'\)/);
+ assert.match(html,/guardian-transit-v791\.js\?v=817-1-41-static/);
+ assert.match(transit,/url\.searchParams\.set\('v','817-1-41-static'\)/);
  assert.match(live,/hh-bkk-glass-marker-v800/);
  assert.match(live,/ICONS=Object\.freeze/);
  assert.match(glass,/hh-bkk-glass--tram/);
