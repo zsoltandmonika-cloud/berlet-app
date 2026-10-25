@@ -1135,9 +1135,21 @@ class MainActivity : ComponentActivity() {
                     "🟢 Family Guard · helymegosztás BE · visszavonás"
                 else "⚪ Family Guard · helymegosztás KI · jóváhagyás"
             val info = gpsBackgroundSummary.text.toString().substringBefore("\nAutomatikus natív GPS:")
+            val relayResult = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
+            val relayText = when {
+                relayResult == "uploaded" -> "✓ Utolsó pozíció feltöltve"
+                relayResult == "revoked" -> "✓ Privát pozíció visszavonva"
+                relayResult == "not-selected-in-device-registry" ->
+                    "⚠ Nem ez a kijelölt fizikai telefon · Admin → Eszközregiszter"
+                relayResult.startsWith("network-error:") -> "⚠ Hálózati feltöltési hiba"
+                relayResult.startsWith("revoke-pending:") || relayResult == "stopping" ->
+                    "⚠ Visszavonás folyamatban"
+                else -> "Még nincs ellenőrzött feltöltés"
+            }
             gpsBackgroundSummary.text = info + "\nAutomatikus natív GPS: " +
                 (if (approved) "jóváhagyva" else "nincs bekapcsolva") +
-                " · utolsó helyreállítás: " + last
+                " · utolsó helyreállítás: " + last +
+                "\nNatív Family Guard: " + relayText
         }
     }
 
