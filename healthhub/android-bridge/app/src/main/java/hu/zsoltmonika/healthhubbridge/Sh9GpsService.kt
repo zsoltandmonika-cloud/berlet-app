@@ -148,6 +148,8 @@ class Sh9GpsService : Service() {
         lastAcceptedFixAt = 0L
         lastRecoveryAt = 0L
         recoveryAttempts = 0
+        // A previous service session's fix must never make a fresh start look healthy.
+        lastFixAtMillis = 0L
         receiverStatus("acquiring")
         val tick = object : Runnable {
             override fun run() {
