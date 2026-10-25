@@ -53,6 +53,8 @@ android {
 
 dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")
+    // Browser-backed session UI; does NOT import/copy WebView or native OAuth tokens.
+    implementation("androidx.browser:browser:1.8.0")
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
     implementation("androidx.work:work-runtime-ktx:2.11.2")
