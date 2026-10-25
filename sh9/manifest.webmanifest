@@ -1,0 +1,27 @@
+{
+  "id": "/berlet-app/sh9/",
+  "name": "SH9 · SmartHub Nine",
+  "short_name": "SH9",
+  "description": "A családi SH9 kezdőképernyő: HealthHub, Family Guard, Smart Travel és a kapcsolódó modulok.",
+  "lang": "hu-HU",
+  "start_url": "/berlet-app/sh9/?source=installed",
+  "scope": "/berlet-app/",
+  "display": "standalone",
+  "background_color": "#0b1425",
+  "theme_color": "#031229",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/sh9-icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
