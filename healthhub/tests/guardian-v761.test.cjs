@@ -1163,7 +1163,7 @@ test('v811 same-device profile mismatch is visible and never assumes Monika owns
 test('v812 foreground GPS timeout triggers one bounded network fix and offers safe retry',()=>{
  const code=read('guardian/guardian.js'),html=read('guardian/index.html');
  assert.match(html,/id="guardianRetryGps812"/);
- assert.match(html,/guardian\.js\?v=812-network-gps-recovery/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
  const controls={},events={};
  function make(){
   return {textContent:'',disabled:false,hidden:false,
