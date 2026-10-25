@@ -472,6 +472,12 @@ w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  if(map&&ready)applyGoldenMapStyle();
 }});
+// Every page load opens with Follow + 3D + Family as the map view.
+// This is presentation-only; no GPS, permission prompt or location upload.
+follow=true;threeD=true;
+const familyPanel=$('guardianFamilyPanel'),familyButton=$('guardianFamilyButton');
+if(familyPanel)familyPanel.hidden=false;
+if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
 w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,getLocationSettings:locationSettings,applyLocationSettings,get map(){return map},get active(){return active},get pointCount(){return path.length}});
 })(window,document);

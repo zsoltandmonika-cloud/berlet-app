@@ -1163,7 +1163,7 @@ test('v811 same-device profile mismatch is visible and never assumes Monika owns
 test('v812 foreground GPS timeout triggers one bounded network fix and offers safe retry',()=>{
  const code=read('guardian/guardian.js'),html=read('guardian/index.html');
  assert.match(html,/id="guardianRetryGps812"/);
- assert.match(html,/guardian\.js\?v=812-network-gps-recovery/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
  const controls={},events={};
  function make(){
   return {textContent:'',disabled:false,hidden:false,
@@ -1218,4 +1218,27 @@ test('v812 foreground GPS timeout triggers one bounded network fix and offers sa
  assert.deepEqual(cleared,[1,2]);
  watches[1].success({coords:{latitude:48,longitude:20,accuracy:5},timestamp:Date.now()});
  assert.equal(fixes.length,1,'stopped callback cannot leak location');
+});
+
+test('v813 canonical Family Guard loads Follow, 3D and Family expanded without auto GPS or sharing',()=>{
+ const html=read('guardian/index.html');
+ const guardian=read('guardian/guardian.js');
+ const live=read('guardian/guardian-live-v785.js');
+ const follow=html.match(/<button id="guardianFollow"[^>]+>/)?.[0]||'';
+ const mode3d=html.match(/<button id="guardian3D"[^>]+>/)?.[0]||'';
+ const family=html.match(/<button id="guardianFamilyButton"[^>]+>/)?.[0]||'';
+ const panel=html.match(/<section class="family-panel" id="guardianFamilyPanel"[^>]+>/)?.[0]||'';
+ assert.match(follow,/aria-pressed="true"/,'Follow selected on startup');
+ assert.match(mode3d,/aria-pressed="true"/,'3D selected on startup');
+ assert.match(family,/aria-expanded="true"/,'Family expanded on startup');
+ assert.doesNotMatch(panel,/\shidden(?:\s|=|>)/,'Family panel must show on startup');
+ assert.match(guardian,/follow=true;threeD=true;\s*const familyPanel=/);
+ assert.match(guardian,/if\(familyPanel\)familyPanel\.hidden=false/);
+ assert.match(guardian,/familyButton\.setAttribute\('aria-expanded','true'\)/);
+ assert.match(guardian,/theme\(\);renderButtons\(\);initMap\(\)/);
+ assert.doesNotMatch(live,/applyLocationSettings\(data\)/,'stale cloud setting must not override launch view');
+ assert.match(live,/function maybeAutoStart\(\)/,'existing opt-in own-phone foreground sharing remains');
+ assert.match(live,/if\(sharing\|\|d\.hidden\|\|!user\|\|!access\.includes\(self\(\)\)\|\|!autoEnabled\(\)\)return/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
+ assert.match(html,/guardian-live-v785\.js\?v=813-default-follow-3d-family/);
 });

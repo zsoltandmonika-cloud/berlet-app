@@ -255,8 +255,10 @@ async function loadSettings(){
    const select=$('guardianLiveInterval');if(select)select.value=String(interval);
    try{w.localStorage.setItem(INTERVAL_KEY,String(interval))}catch(_){}
   }
-  if(w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.applyLocationSettings)w.HH_GUARDIAN_V761.applyLocationSettings(data);
-  resetPolling();set('guardianLocationSyncStatus','Helybeállítások · felhőből betöltve');
+  // Preserve the saved refresh interval, but never use older cloud
+  // follow_map/map_3d booleans to switch off the requested launch view.
+  // User taps can still change and explicitly sync these settings later.
+  resetPolling();set('guardianLocationSyncStatus','Helybeállítások · frissítési idő betöltve; nézet: Követés + 3D + Család');
  }catch(e){set('guardianLocationSyncStatus','Helybeállítások · felhőkapcsolat nem elérhető: '+(e&&e.message||'hálózat'))}
 }
 async function refreshAuth(){
