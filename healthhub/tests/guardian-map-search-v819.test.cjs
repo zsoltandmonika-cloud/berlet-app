@@ -21,7 +21,7 @@ test('v819 search is over the SAME MapLibre map and expands it on a verified res
   'guardianMapSearchMicV819','guardianMapSearchGoV819','guardianMapSearchExitV819',
   'guardianMapSearchNavigateV819'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,'missing '+id);
- assert.match(html,/guardian-map-search-v819\.css\?v=821-compact-profile-glass/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=822-lower-slim-glass/);
  assert.match(html,/guardian-map-search-v819\.js\?v=819-search-fullscreen/);
  assert.match(code,/getMap|const map=\(\)=>w\.HH_GUARDIAN_V761&&w\.HH_GUARDIAN_V761\.map/);
  assert.match(code,/if\(!g\|\|!g\.validPlace\(place\)\)return false/);
@@ -69,10 +69,10 @@ test('v820 selecting a verified address pauses map camera follow but not GPS col
 test('v821 glass search is compact, profile-tinted and preserves fullscreen UX',()=>{
  const css=read('guardian-map-search-v819.css');
  const html=read('index.html');
- assert.match(html,/guardian-map-search-v819\.css\?v=821-compact-profile-glass/);
- assert.match(css,/width:min\(88%,440px\)/,'bar should be shorter than map width');
+ assert.match(html,/guardian-map-search-v819\.css\?v=822-lower-slim-glass/);
+ assert.match(css,/width:min\(82%,410px\)/,'bar should be shorter than map width');
  assert.match(css,/height:39px;min-height:39px/,'low controls');
- assert.match(css,/padding:5px 7px;border:0/,'no thick purple outer ring');
+ assert.match(css,/padding:5px 7px;border:1px solid var\(--hh-map-shell-border\)/,'no thick purple outer ring');
  assert.match(css,/:root\[data-guardian-profile="m"\] \.hh-map-search-v819/,'Mónika pink skin');
  assert.match(css,/--hh-map-action:/,'glassy action tones');
  assert.match(css,/--hh-map-input:/,'glass input background');
@@ -80,4 +80,19 @@ test('v821 glass search is compact, profile-tinted and preserves fullscreen UX',
  assert.match(css,/hh-map-search-nav-v819\[hidden\]/,'routing action visibility preserved');
  assert.match(css,/safe-area-inset-bottom/,'full-size S24 safe area');
  assert.match(css,/body \.map-card #guardianMap \.maplibregl-ctrl-bottom-right/,'map controls stay visible above bar');
+});
+
+test('v822 search is lower, slimmer and more glassy for both profiles without helper text',()=>{
+ const css=read('guardian-map-search-v819.css'),html=read('index.html');
+ assert.match(html,/guardian-map-search-v819\.css\?v=822-lower-slim-glass/);
+ assert.match(css,/width:min\(82%,410px\)/,'keep proportional narrow search capsule');
+ assert.match(css,/right:auto;bottom:2px/,'lower bar towards map bottom');
+ assert.match(css,/bottom:calc\(2px \+ env\(safe-area-inset-bottom\)\)/,'maintain Android fullscreen safe area');
+ assert.match(css,/blur\(24px\) saturate\(1\.4\)/,'stronger translucent glass effect');
+ assert.match(css,/--hh-map-shell-border:rgba\(184,225,255,.33\)/,'Zsolt pale blue glass line');
+ assert.match(css,/--hh-map-shell-border:rgba\(255,211,246,.37\)/,'Mónika subtle pink glass line');
+ assert.match(css,/\.hh-map-search-status-v819\{[\s\S]*?clip-path:inset\(50%\)!important/,'helper text not visually shown');
+ assert.match(html,/id="guardianMapSearchStatusV819"[^>]*aria-live="polite"/,'announcements still accessible');
+ assert.match(css,/@media\(max-width:385px\)/,'small devices keep comfortable controls');
+ assert.doesNotMatch(read('guardian-map-search-v819.js'),/new w\.maplibregl\.Map|navigator\.geolocation/);
 });
