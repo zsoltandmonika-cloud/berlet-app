@@ -68,6 +68,9 @@
    cancel();hideResults();current=place;
    input.value=place.name+(place.subtitle?' · '+place.subtitle:'');
    input.blur();
+   // Do not let an active GPS follow camera immediately overwrite the searched view.
+   // This does NOT stop GPS collection, live uploads or consented sharing.
+   w.HH_GUARDIAN_V761?.pauseCameraForMapSearch?.();
    const event=new w.CustomEvent('hh-guardian-map-destination-v819',{detail:place,cancelable:true});
    w.dispatchEvent(event);
    if(!event.defaultPrevented)addFallbackMarker(place);
