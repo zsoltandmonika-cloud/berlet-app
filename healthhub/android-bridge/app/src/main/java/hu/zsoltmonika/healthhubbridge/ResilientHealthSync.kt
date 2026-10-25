@@ -103,11 +103,13 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             return Result.success()
         }
         // Do not repeat a successful sync while both jobs are queued.
-        if (System.currentTimeMillis() - prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L) < 20 * 60_000L)
+        if (NativeHealthOutbox.pendingCount(applicationContext, owner) == 0 &&
+            System.currentTimeMillis() - prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L) < 20 * 60_000L)
             return Result.success()
 
         prefs.edit().putLong(ResilientHealthSync.KEY_LAST_ATTEMPT, System.currentTimeMillis()).apply()
         return try {
+            NativeHealthOutbox.flush(applicationContext, prefs, owner)
             if (HealthConnectClient.getSdkStatus(applicationContext) != HealthConnectClient.SDK_AVAILABLE) {
                 requiresAction(prefs, "Health Connect nem elérhető ezen a telefonon.")
                 return Result.success()
@@ -133,7 +135,7 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
             }
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
             DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-            DropboxVaultClient.uploadHealthConnectSnapshot(prefs, owner, payload)
+            NativeHealthOutbox.submit(applicationContext, prefs, owner, payload)
             prefs.edit()
                 .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
                 .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(payload))
