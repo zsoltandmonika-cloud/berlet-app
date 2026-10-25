@@ -8,6 +8,9 @@ const vault = read('DropboxVaultClient.kt');
 const activity = read('MainActivity.kt');
 const resilient = read('ResilientHealthSync.kt');
 const gps = read('Sh9GpsService.kt');
+const outbox = read('NativeHealthOutbox.kt');
+const scheduled = read('ScheduledSyncWorker.kt');
+const orchestrator = read('OrchestratorWorker.kt');
 
 test('Dropbox marker migration does not silently delete grants', () => {
   const method = vault.match(/fun ensureCredentialVersion\([\s\S]*?\n    }/);
@@ -41,4 +44,24 @@ test('persistent Dropbox diagnostics never store raw HTTP bodies or OAuth text',
   assert.doesNotMatch(resilient, /putString\(ResilientHealthSync\.KEY_LAST_ERROR, msg\)/);
   assert.match(resilient, /HTTP 429/);
   assert.match(resilient, /Hálózati vagy kapcsolat-időtúllépési hiba/);
+});
+
+test('Health Connect snapshots persist atomically before any Dropbox attempt', () => {
+  assert.match(outbox, /context\.noBackupFilesDir/);
+  assert.match(outbox, /AtomicFile\(file\)/);
+  assert.match(outbox, /atomic\.finishWrite\(stream\)/);
+  assert.match(outbox, /persist\(context, owner, snapshot\)\s*\n\s*flushLocked/);
+  assert.match(outbox, /DropboxVaultClient\.uploadHealthConnectSnapshot\(prefs, owner, payload\)/);
+  assert.match(outbox, /check\(file\.delete\(\)\)/);
+  assert.match(outbox, /snapshot\.optString\("profile"\) == owner/);
+});
+
+test('all native manual/periodic/remote/recovery exports use durable outbox', () => {
+  assert.match(activity, /NativeHealthOutbox\.submit\(this@MainActivity, prefs, profile, json\)/);
+  assert.match(scheduled, /NativeHealthOutbox\.submit\(applicationContext, prefs, profile, json\)/);
+  assert.match(orchestrator, /NativeHealthOutbox\.submit\(applicationContext, prefs, owner, json\)/);
+  assert.match(resilient, /NativeHealthOutbox\.submit\(applicationContext, prefs, owner, payload\)/);
+  assert.match(resilient, /NativeHealthOutbox\.flush\(applicationContext, prefs, owner\)/);
+  assert.match(scheduled, /NativeHealthOutbox\.flush\(applicationContext, prefs, profile\)/);
+  assert.match(outbox, /private val gate = Mutex\(\)/);
 });
