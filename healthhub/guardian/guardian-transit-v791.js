@@ -4,7 +4,8 @@
  */
 (function(w,d){
 'use strict';
-const IDS=['260','17','19'];
+const IDS=['260','17','19','1','41'];
+const REQUIRED_IDS=new Set(['260','17','19']);
 const STORAGE='hh-guardian-transit-selected-v790';
 const PREF_KEY='hh-guardian-transit-direction-v791';
 const PROFILE_ROUTES='hh-guardian-transit-selected-profiles-v801';
@@ -22,7 +23,10 @@ function validate(doc){
  const clean={};
  for(const id of IDS){
   const raw=doc.routes[id];
-  if(!raw||raw.name!==id||!Array.isArray(raw.variants)||!raw.variants.length)return null;
+  // Old signed snapshots contain only 260/17/19; accept them without
+  // inventing coordinates for the new 1/41 layers.
+  if(!raw){if(REQUIRED_IDS.has(id))return null;continue;}
+  if(raw.name!==id||!Array.isArray(raw.variants)||!raw.variants.length)return null;
   const variants=[];
   for(const v of raw.variants.slice(0,5)){
    if(!Array.isArray(v.shape)||v.shape.length<2||!v.shape.every(validCoord))return null;
@@ -100,7 +104,9 @@ function refreshData(){if(!map||!routes)return;for(const id of IDS){let s=map.ge
 function attach(){
  if(!map||!routes||!(map.isStyleLoaded&&map.isStyleLoaded()))return;
  for(const id of IDS){
-  const r=info(id),line='hh-bkk-route-'+id,stops='hh-bkk-stops-'+id;
+  const r=info(id);
+  if(!r)continue;
+  const line='hh-bkk-route-'+id,stops='hh-bkk-stops-'+id;
   const visible=checked(id)?'visible':'none';
   try{
    if(!map.getSource(line))map.addSource(line,{type:'geojson',data:routeFeatures(id)});
@@ -250,6 +256,9 @@ async function download(){
   }
   if(!clean)throw Error('A hivatalos BKK GTFS-pillanatkép még nem érhető el ('+problem+').');
   routes=clean;retry=0;updateControls();showSelected();renderDirections();renderCards();
+  // Watchlist enables newly supported buttons only AFTER verified shapes load.
+  if(w.dispatchEvent&&typeof w.CustomEvent==='function')
+   w.dispatchEvent(new w.CustomEvent('hh-bkk-static-map-ready-v817'));
   const refreshed=Date.parse(doc.generatedAt||'');
   const age=Number.isFinite(refreshed)?Math.round((Date.now()-refreshed)/86400000):NaN;
   const stale=Number.isFinite(age)&&age>7;
@@ -292,7 +301,14 @@ function init(){
  download();
 }
 w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,
- toggleLine(id,enabled){if(!IDS.includes(id))return false;onToggle(id,!!enabled);return true;},version:'801'});
+ toggleLine(id,enabled){if(!IDS.includes(id))return false;onToggle(id,!!enabled);return true;},
+ hasMapRoute(id){return IDS.includes(id)&&!!info(id);},
+ showLine(id){
+  if(!IDS.includes(id)||!info(id))return false;
+  if(!checked(id))onToggle(id,true);
+  showRoute(id);
+  return true;
+ },version:'817'});
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);else init();
 // v799 default: live BKK on the original Family Guard URL, using authenticated snapshots.
 // A private diagnostic ?hhLivePilot=off remains available as a fail-closed fallback.
