@@ -90,6 +90,9 @@ class OrchestratorWorker(
             .put("smartLocationMode", applicationContext.getSharedPreferences(
                 Sh9GpsService.PREFS, Context.MODE_PRIVATE)
                 .getString(Sh9GpsService.KEY_LOCATION_MODE, "not-started"))
+            .put("smartLocationReceiverStatus", applicationContext.getSharedPreferences(
+                Sh9GpsService.PREFS, Context.MODE_PRIVATE)
+                .getString(Sh9GpsService.KEY_RECEIVER_STATUS, "not-started"))
             .put("smartLocationLastFixAt", Sh9GpsService.lastFixAtMillis.takeIf { it > 0L }?.let {
                 java.time.Instant.ofEpochMilli(it).toString()
             } ?: JSONObject.NULL)
