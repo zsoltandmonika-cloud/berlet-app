@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SH9">
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#102c53"/><stop offset="1" stop-color="#091428"/></linearGradient>
+    <linearGradient id="glass" x2=".9" y2="1"><stop stop-color="#a3d7ff"/><stop offset="1" stop-color="#55a2ed"/></linearGradient>
+  </defs>
+  <rect x="8" y="8" width="496" height="496" rx="112" fill="url(#bg)" stroke="#85c3f5" stroke-opacity=".45" stroke-width="12"/>
+  <path d="M88 127h336" stroke="#9ed1fd" stroke-opacity=".2" stroke-width="5"/>
+  <text x="256" y="293" font-family="Arial, sans-serif" font-size="169" font-weight="750" text-anchor="middle" fill="url(#glass)">SH9</text>
+  <text x="256" y="370" font-family="Arial, sans-serif" font-size="31" font-weight="600" text-anchor="middle" letter-spacing="5" fill="#dcefff">SMART HUB NINE</text>
+</svg>
