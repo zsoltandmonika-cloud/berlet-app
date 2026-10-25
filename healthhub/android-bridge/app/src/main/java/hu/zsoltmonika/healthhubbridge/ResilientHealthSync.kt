@@ -142,13 +142,27 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 .apply()
             Result.success()
         } catch (e: Exception) {
-            val msg = (e.message ?: e.javaClass.simpleName).take(200)
-            val unrecoverable = msg.contains("invalid_grant", true) ||
-                msg.contains("revoked", true) ||
-                msg.contains("not_allowed", true) ||
-                msg.contains("PERMISSION_DENIED", true)
+            // Classify errors without persisting provider response bodies, OAuth values
+            // or user content in persistent operational diagnostics.
+            val detail = e.message.orEmpty()
+            val userAction = detail.contains("invalid_grant", true) ||
+                detail.contains("revoked", true) ||
+                detail.contains("not_allowed", true) ||
+                detail.contains("PERMISSION_DENIED", true) ||
+                detail.contains("alkalmazásazonosító eltérés", true)
+            val unrecoverable = userAction
+            val category = when {
+                detail.contains("invalid_grant", true) || detail.contains("revoked", true) -> "Dropbox engedély lejárt vagy visszavonva"
+                detail.contains("alkalmazásazonosító eltérés", true) -> "Dropbox alkalmazásazonosító ellenőrzendő"
+                detail.contains("PERMISSION_DENIED", true) || detail.contains("not_allowed", true) -> "Dropbox jogosultság szükséges"
+                detail.contains("HTTP 429") -> "Dropbox korlátozás · újrapróbálkozás"
+                detail.contains("HTTP 401") -> "Dropbox hitelesítési hiba · újrapróbálkozás"
+                detail.contains("HTTP 5") -> "Dropbox szolgáltatás átmenetileg nem elérhető"
+                e is java.io.IOException -> "Hálózati vagy kapcsolat-időtúllépési hiba"
+                else -> "Szinkronhiba · automatikus újrapróbálkozás"
+            }
             prefs.edit()
-                .putString(ResilientHealthSync.KEY_LAST_ERROR, msg)
+                .putString(ResilientHealthSync.KEY_LAST_ERROR, category)
                 .putBoolean(ResilientHealthSync.KEY_NEEDS_ACTION, unrecoverable)
                 .apply()
             if (unrecoverable) Result.success() else Result.retry()
