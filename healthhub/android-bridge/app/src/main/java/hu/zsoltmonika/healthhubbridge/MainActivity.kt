@@ -918,9 +918,7 @@ class MainActivity : ComponentActivity() {
 
         root.addView(Button(this).apply {
             text = "HealthHub megnyitása"
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(HEALTHHUB_URL)))
-            }
+            setOnClickListener { openHealthHubInsideHhOne() }
         })
 
         status = TextView(this).apply {
@@ -1332,12 +1330,26 @@ class MainActivity : ComponentActivity() {
         updateScheduleUi()
         OrchestratorScheduler.runNow(this@MainActivity)
 
-        val back = Uri.parse(HEALTHHUB_URL).buildUpon()
-            .appendQueryParameter("bridgeSync", "1")
-            .appendQueryParameter("profile", profile)
-            .appendQueryParameter("ts", System.currentTimeMillis().toString())
+        // A successful native Dropbox sync must return to HH One's own
+        // trusted WebView, not launch Chrome/Samsung Internet via ACTION_VIEW.
+        // Preserve the bridgeSync hint for the HealthHub web import listener.
+        openHealthHubInsideHhOne(profile)
+    }
+
+    private fun openHealthHubInsideHhOne(profile: String? = null) {
+        val target = Uri.parse(HEALTHHUB_URL).buildUpon()
+            .apply {
+                if (profile != null) {
+                    appendQueryParameter("bridgeSync", "1")
+                    appendQueryParameter("profile", profile)
+                    appendQueryParameter("ts", System.currentTimeMillis().toString())
+                }
+            }
             .build()
-        startActivity(Intent(Intent.ACTION_VIEW, back))
+        val internal = Intent(this, Sh9WebActivity::class.java)
+            .putExtra(Sh9WebActivity.EXTRA_FIRST_PARTY_URL, target.toString())
+            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(internal)
     }
 
     private fun startDropboxAuth(profile: String) {
