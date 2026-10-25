@@ -76,7 +76,7 @@ assert.match(worker,/technicalSnapshot = OneTechnicalDiagnostics\.snapshot/);
 assert.match(worker,/put\("diagnostics", technicalSnapshot\)/);
 assert.match(worker,/finalState = if \(failed == 0 && skipped == 0\) "done" else "partial"/);
 assert.match(worker,/skipped\+\+ \/\/ Enqueued is not proof/);
-assert.match(adm,/\['full','health','daily','ota','diagnostics'\]/);
+assert.match(adm,/\['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'\]/);
 assert.match(adm,/d\.capabilities\.includes\('diagnostics'\)/);
 assert.match(adm,/Number\(d\.buildCode\)<21/);
 assert.match(service,/sendRemote\(p,d\.deviceId,'diagnostics'\)/);
