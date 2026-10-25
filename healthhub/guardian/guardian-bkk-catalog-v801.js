@@ -61,8 +61,14 @@
    }
   }catch(_){}
  }
+ function notifyWatchlist(){
+  if(w&&w.dispatchEvent&&typeof w.CustomEvent==='function'){
+   w.dispatchEvent(new w.CustomEvent('hh-bkk-watchlist-v814-changed',{detail:{profile}}));
+  }
+ }
  function savePrefs(){
   try{w.localStorage.setItem(STORE,JSON.stringify(favorites))}catch(_){}
+  notifyWatchlist();
  }
  function pickProfile(){
   const field=$('hhTransitProfileV791');
@@ -93,7 +99,25 @@
  }
  function setProfile(next){
   if(next!=='zsolt'&&next!=='monika')return;
-  profile=next;render();
+  profile=next;render();notifyWatchlist();
+ }
+ function routeByKey(key){
+  const safe=normalizedKey(key);
+  return safe?routes.find(route=>keyOf(route)===safe)||null:null;
+ }
+ function removeFavoriteKey(key){
+  const safe=normalizedKey(key);
+  if(!safe||!favorites[profile].includes(safe))return false;
+  favorites[profile]=favorites[profile].filter(item=>item!==safe);
+  savePrefs();updateCore(safe,false);render();return true;
+ }
+ function moveFavoriteKey(key,delta){
+  const safe=normalizedKey(key);
+  if(!safe||![-1,1].includes(delta))return false;
+  const list=favorites[profile].slice(),i=list.indexOf(safe),next=i+delta;
+  if(i<0||next<0||next>=list.length)return false;
+  [list[i],list[next]]=[list[next],list[i]];
+  favorites[profile]=list;savePrefs();render();return true;
  }
  function render(){
   const host=$('hhBkkCatalogResultsV801'),counter=$('hhBkkCatalogMetaV801');
@@ -146,7 +170,7 @@
     const res=await w.fetch(url,{cache:'no-cache'});
     if(!res.ok)continue;
     const result=validate(await res.json());
-    if(result){routes=result.routes;loaded=true;render();return}
+    if(result){routes=result.routes;loaded=true;render();notifyWatchlist();return}
    }catch(_){}
   }
   const meta=$('hhBkkCatalogMetaV801');
@@ -154,7 +178,7 @@
  }
  function init(){
   if(!$('hhBkkCatalogV801')||!w.fetch||!w.document)return;
-  readPrefs();profile=pickProfile();render();
+  readPrefs();profile=pickProfile();render();notifyWatchlist();
   const searchBox=$('hhBkkCatalogSearchV801');
   if(searchBox)searchBox.addEventListener('input',()=>{
    query=String(searchBox.value||'').slice(0,80);shown=PAGE_SIZE;render();
@@ -170,7 +194,7 @@
   if(profileSelect)profileSelect.addEventListener('change',()=>{profile=pickProfile();render()});
   if(w.addEventListener)w.addEventListener('storage',e=>{
    if(e.key==='hh-profile'){profile=pickProfile();render()}
-   if(e.key===STORE){readPrefs();render()}
+   if(e.key===STORE){readPrefs();render();notifyWatchlist()}
   });
   load();
  }
@@ -178,5 +202,6 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {validate,search,setProfile,onTrackedChange,keyOf,get favoriteIds(){return [...favorites[profile]]},version:'801.1'};
+ return {validate,search,setProfile,onTrackedChange,keyOf,routeByKey,removeFavoriteKey,moveFavoriteKey,
+  get loaded(){return loaded},get favoriteIds(){return [...favorites[profile]]},version:'814-watchlist'};
 });
