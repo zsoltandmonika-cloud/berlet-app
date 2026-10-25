@@ -37,7 +37,7 @@ test('v801 is on canonical Guardian page, keeps visible map baseline and per-pro
  const ui=read('guardian-bkk-catalog-v801.js'),css=read('guardian-bkk-catalog-v801.css');
  assert.match(html,/hhBkkCatalogV801/);
  assert.match(html,/hhBkkCatalogSearchV801/);
- assert.match(html,/guardian-bkk-catalog-v801\.js\?v=814-watchlist/);
+ assert.match(html,/guardian-bkk-catalog-v801\.js\?v=817-1-41-static/);
  assert.match(html,/guardian-bkk-catalog-v801\.css\?v=801-catalog-a/);
  assert.match(js,/hh-guardian-transit-selected-profiles-v801/);
  assert.match(js,/toggleLine\(id,enabled\)/);
@@ -45,7 +45,7 @@ test('v801 is on canonical Guardian page, keeps visible map baseline and per-pro
  assert.match(ui,/Kedvenc · térképes bővítés később/);
  assert.match(css,/min-height:44px/);
  assert.match(html,/id="hhTransitRoute260"/);
- assert.match(html,/guardian-transit-v791\.js\?v=816-watchlist-live/);
+ assert.match(html,/guardian-transit-v791\.js\?v=817-1-41-static/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
 });
 
