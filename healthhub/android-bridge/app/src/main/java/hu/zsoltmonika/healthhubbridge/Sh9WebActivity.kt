@@ -2,6 +2,7 @@ package hu.zsoltmonika.healthhubbridge
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.pm.PackageManager
 import android.webkit.GeolocationPermissions
@@ -48,6 +49,7 @@ class Sh9WebActivity : ComponentActivity() {
     }
 
     private var web: WebView? = null
+    private var sessionBoundaryDialog: AlertDialog? = null
     private var pendingGeoOrigin: String? = null
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
     private var pendingVideoRequest: PermissionRequest? = null
@@ -58,6 +60,60 @@ class Sh9WebActivity : ComponentActivity() {
 
     private fun trustedPage(url: Uri?): Boolean =
         url?.scheme == "https" && url.host == HOST && url.path?.startsWith(BASE) == true
+
+
+    /**
+     * The Android WebView has a distinct cookie/localStorage jar from Chrome/Edge.
+     * A fresh WebView cannot silently inherit the user's existing Dropbox,
+     * Google, Outlook or HealthHub browser sessions.
+     *
+     * Route FIRST entry into a personal HealthHub area via an explicit user
+     * decision. Never copy browser cookies, refresh tokens, or PKCE data.
+     */
+    private fun browserSessionArea(url: Uri?): Boolean {
+        if (!trustedPage(url)) return false
+        val path = url?.path ?: return false
+        return path == "/berlet-app/healthhub" ||
+            path.startsWith("/berlet-app/healthhub/")
+    }
+
+    private fun showSessionBoundary(target: Uri) {
+        // One dialog per navigation; repeated redirects must not stack prompts.
+        if (sessionBoundaryDialog?.isShowing == true) return
+        if (!browserSessionArea(target)) return
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("HealthHub · meglévő kapcsolatok")
+            .setMessage(
+                "A HH One beépített nézete nem osztja meg a Chrome/Edge " +
+                "Dropbox-, Google- és Microsoft-belépéseit.\\n\\n" +
+                "A meglévő kapcsolataid megtartásához nyisd meg ezt a " +
+                "modult a szokásos böngésződben. Az alkalmazáson belüli " +
+                "nézet külön bejelentkezést kérhet."
+            )
+            .setPositiveButton("Meglévő böngésző") { _, _ ->
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, target).apply {
+                        addCategory(Intent.CATEGORY_BROWSABLE)
+                    })
+                } catch (_: ActivityNotFoundException) {
+                    AlertDialog.Builder(this)
+                        .setTitle("Böngésző nem érhető el")
+                        .setMessage("Nem nyílt meg a rendszerböngésző. A HealthHub adatait nem módosítottuk.")
+                        .setPositiveButton("Rendben", null)
+                        .show()
+                }
+            }
+            .setNeutralButton("Külön HH One nézet") { _, _ ->
+                // Explicit opt-in to a new WebView session. This does not reuse
+                // browser auth and never transfers native credential material.
+                if (browserSessionArea(target)) web?.loadUrl(target.toString())
+            }
+            .setNegativeButton("Mégsem", null)
+            .create()
+        sessionBoundaryDialog = dialog
+        dialog.setOnDismissListener { sessionBoundaryDialog = null }
+        dialog.show()
+    }
 
     // The HTML Food Scanner uses getUserMedia, NOT an Android native camera
     // button. Grant ONLY the requested video resource to the approved origin.
@@ -305,6 +361,14 @@ class Sh9WebActivity : ComponentActivity() {
                     return true
                 }
                 if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) {
+                    // Only main-frame navigation FROM the SH9 display into
+                    // browser-session-owned HealthHub needs explicit handling.
+                    // Already-consented embedded modules navigate normally.
+                    if (request.isForMainFrame && trustedPage(source) &&
+                        !browserSessionArea(source) && browserSessionArea(u)) {
+                        showSessionBoundary(u)
+                        return true
+                    }
                     // Calendar requires a browser-owned Microsoft OAuth session.
                     // Open the SAME SH9 Agenda in the system browser, not a disconnected WebView.
                     if (request.isForMainFrame &&
@@ -367,6 +431,8 @@ class Sh9WebActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        sessionBoundaryDialog?.dismiss()
+        sessionBoundaryDialog = null
         web?.let {
             it.stopLoading()
             it.destroy()
