@@ -11,8 +11,8 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 33
-        versionName = "0.15.6"
+        versionCode = 34
+        versionName = "0.15.7"
     }
 
     buildFeatures {
@@ -56,5 +56,8 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
     implementation("androidx.work:work-runtime-ktx:2.11.2")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    // Keep Activity Result lifecycle compatible with transitive Play services fragments.
+    implementation("androidx.fragment:fragment:1.7.1")
     testImplementation("junit:junit:4.13.2")
 }

@@ -84,6 +84,21 @@ class OrchestratorWorker(
             })
             .put("familyGuardGpsAutoRestarts", FamilyGuardContinuity.enabled(applicationContext))
             .put("familyGuardNativeGpsActive", Sh9GpsService.active)
+            .put("smartLocationEngine", applicationContext.getSharedPreferences(
+                Sh9GpsService.PREFS, Context.MODE_PRIVATE)
+                .getString(Sh9GpsService.KEY_LOCATION_ENGINE, "not-started"))
+            .put("smartLocationMode", applicationContext.getSharedPreferences(
+                Sh9GpsService.PREFS, Context.MODE_PRIVATE)
+                .getString(Sh9GpsService.KEY_LOCATION_MODE, "not-started"))
+            .put("smartLocationLastFixAt", Sh9GpsService.lastFixAtMillis.takeIf { it > 0L }?.let {
+                java.time.Instant.ofEpochMilli(it).toString()
+            } ?: JSONObject.NULL)
+            .put("familyGuardUploadStatus", prefs.getString(
+                FamilyGuardNativeRelay.KEY_RESULT, "not-started"))
+            .put("familyGuardLastUploadedAt", prefs.getLong(
+                FamilyGuardNativeRelay.KEY_LAST_UPLOAD, 0L).takeIf { it > 0L }?.let {
+                    java.time.Instant.ofEpochMilli(it).toString()
+                } ?: JSONObject.NULL)
             .put("familyGuardBackgroundPermission", FamilyGuardContinuity.hasBackgroundLocation(applicationContext))
             .put("familyGuardBootResult", prefs.getString(FamilyGuardContinuity.KEY_BOOT_RESULT, "not-tested"))
             .put("lastSeenAt", java.time.Instant.now().toString())

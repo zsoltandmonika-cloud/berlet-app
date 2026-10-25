@@ -14,9 +14,9 @@ const scope=read('healthhub/live-v305.js');
 const admin=read('healthhub/hh-one-rag-v500.js');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
 
-test('signed HH One v0.15.6 build33 keeps same physical app identity',()=>{
- assert.match(gradle,/versionCode = 33/);
- assert.match(gradle,/versionName = "0\.15\.6"/);
+test('signed HH One v0.15.7 build34 keeps same physical app identity',()=>{
+ assert.match(gradle,/versionCode = 34/);
+ assert.match(gradle,/versionName = "0\.15\.7"/);
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
 });
 test('opted-in location service restores only after normal boot and owner + background permission',()=>{

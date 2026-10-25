@@ -33,14 +33,14 @@ const isExistingRelease=gradle.includes('versionName = "'+manifest.version+'"')&
 const isNextSignedRelease=allowedNextVersions.some(v=>gradle.includes('versionName = "'+v+'"'))&&
  gradle.includes('versionCode = '+(manifest.versionCode+1));
 const isExactPrivatePilot=manifest.version==='0.15.2'&&manifest.versionCode===29&&
- gradle.includes('versionName = "0.15.6"')&&gradle.includes('versionCode = 33');
+ gradle.includes('versionName = "0.15.7"')&&gradle.includes('versionCode = 34');
 assert.ok(isExistingRelease||isNextSignedRelease||isExactPrivatePilot,
- 'preflight accepts signed baseline, next candidate or exact 0.15.6 private pilot');
+ 'preflight accepts signed baseline, next candidate or exact 0.15.7 private pilot');
 if(isExactPrivatePilot){
- assert.ok(yml.includes('"$NEW_VERSION" == "0.15.6"'));
- assert.ok(yml.includes('"$NEW_CODE" == "33"'));
- assert.ok(yml.includes('"$VERSION" == "0.15.6"'));
- assert.ok(yml.includes('"$CODE" == "33"'));
+ assert.ok(yml.includes('"$NEW_VERSION" == "0.15.7"'));
+ assert.ok(yml.includes('"$NEW_CODE" == "34"'));
+ assert.ok(yml.includes('"$VERSION" == "0.15.7"'));
+ assert.ok(yml.includes('"$CODE" == "34"'));
 }
 assert.ok(yml.includes('stage_candidate'),'preflight must explicitly skip candidate creation for profile-only rollout');
 for(const needle of [
