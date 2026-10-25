@@ -45,6 +45,9 @@ class Sh9WebActivity : ComponentActivity() {
             "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1"
         private const val HOST = "zsoltandmonika-cloud.github.io"
         private const val BASE = "/berlet-app/"
+        // Explicit native-only navigation to a first-party HealthHub page.
+        // Never accept a URL from an external exported Android intent.
+        const val EXTRA_FIRST_PARTY_URL = "hh_one_internal_healthhub_url"
     }
 
     private var web: WebView? = null
@@ -58,6 +61,14 @@ class Sh9WebActivity : ComponentActivity() {
 
     private fun trustedPage(url: Uri?): Boolean =
         url?.scheme == "https" && url.host == HOST && url.path?.startsWith(BASE) == true
+
+    private fun requestedHealthHubUrl(i: Intent?): String? {
+        val requested = i?.getStringExtra(EXTRA_FIRST_PARTY_URL) ?: return null
+        val uri = Uri.parse(requested)
+        // Allow just the official HH HealthHub landing path, optionally with
+        // bridgeSync/profile query params. No arbitrary destinations or schemes.
+        return if (trustedPage(uri) && uri.path == "/berlet-app/healthhub/") requested else null
+    }
 
     // The HTML Food Scanner uses getUserMedia, NOT an Android native camera
     // button. Grant ONLY the requested video resource to the approved origin.
@@ -331,8 +342,14 @@ class Sh9WebActivity : ComponentActivity() {
         // Timestamp affects only the public SH9 entry document. Relative
         // module routes remain the same first-party GitHub Pages paths.
         if (savedInstanceState == null)
-            view.loadUrl(HOME + "&hhfresh=" + System.currentTimeMillis())
+            view.loadUrl(requestedHealthHubUrl(intent) ?: (HOME + "&hhfresh=" + System.currentTimeMillis()))
         else view.restoreState(savedInstanceState)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        requestedHealthHubUrl(intent)?.let { web?.loadUrl(it) }
     }
 
     private fun hideBars() {
