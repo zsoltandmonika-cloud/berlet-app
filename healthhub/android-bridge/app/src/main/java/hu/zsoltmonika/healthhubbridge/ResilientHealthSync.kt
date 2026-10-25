@@ -133,8 +133,6 @@ class ResilientHealthWorker(context: Context, params: WorkerParameters) : Corout
                 requiresAction(prefs, "Nincs tényleges mérési rekord az elmúlt 30 napban. Ellenőrizd a Samsung Health adatmegosztást.")
                 return Result.success()
             }
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
             NativeHealthOutbox.submit(applicationContext, prefs, owner, payload)
             prefs.edit()
                 .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
