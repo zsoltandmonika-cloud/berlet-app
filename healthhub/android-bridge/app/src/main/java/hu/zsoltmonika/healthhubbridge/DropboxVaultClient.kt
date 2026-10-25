@@ -277,7 +277,7 @@ object DropboxVaultClient {
         val structured = root.optJSONObject("error")
         summary.startsWith("path/not_found/") ||
             (structured?.optString(".tag") == "path" &&
-                structured.optJSONObject("path")?.optString(".tag") == "not_found")
+                structured?.optJSONObject("path")?.optString(".tag") == "not_found")
     } catch (_: Exception) { false }
 
     suspend fun downloadTextOrNull(prefs: SharedPreferences, path: String): String? {
