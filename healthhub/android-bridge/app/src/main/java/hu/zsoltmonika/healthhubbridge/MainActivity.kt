@@ -1617,7 +1617,7 @@ class MainActivity : ComponentActivity() {
                 if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
                 // Explicit consent is the ONLY path allowed to replace a stored
                 // grant from a different OAuth client; app startup never clears it.
-                DropboxVaultClient.storeAuthorizedGrant(prefs, refresh, access, expires)
+                DropboxVaultClient.storeAuthorizedGrant(prefs, refresh, access, expires, state, verifier)
                 DailyContentScheduler.runNow(this@MainActivity)
                 OrchestratorScheduler.schedule(this@MainActivity)
                 OrchestratorScheduler.runNow(this@MainActivity)
