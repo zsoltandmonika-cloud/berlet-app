@@ -153,6 +153,12 @@ object FamilyGuardNativeRelay {
             val profile = owner(context) ?: return true
             if (!DropboxVaultClient.hasRefreshToken(prefs(context))) return false
             return try {
+                // A retired phone must never revoke the selected phone's
+                // shared record even when it has the same local profile label.
+                if (!isSelectedPhysicalPhone(context, profile)) {
+                    prefs(context).edit().putString(KEY_RESULT, "not-selected-in-device-registry").apply()
+                    return true
+                }
                 ensureFolder(context)
                 DropboxVaultClient.uploadText(prefs(context), latestPath(profile),
                     JSONObject().put("schema", "healthhub.guardian.native/1")
