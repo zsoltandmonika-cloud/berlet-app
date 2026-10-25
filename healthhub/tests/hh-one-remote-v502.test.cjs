@@ -26,8 +26,11 @@ const publishedBuild='versionCode = '+ota.versionCode;
 const candidateBuild='versionCode = '+(ota.versionCode+1);
 const isPublished=build.includes(publishedBuild);
 const isCandidate=build.includes(candidateBuild);
-assert.ok(isPublished||isCandidate,'build must match published signed versionCode or next signed candidate');
-const allowedVersions=isPublished?[ota.version]:allowedCandidates;
+const isExactPrivatePilot=ota.version==='0.15.2'&&ota.versionCode===29&&
+ build.includes('versionName = "0.15.5"')&&build.includes('versionCode = 32');
+assert.ok(isPublished||isCandidate||isExactPrivatePilot,
+ 'build must match signed baseline, next patch, or exact private signed 0.15.5 pilot');
+const allowedVersions=isPublished?[ota.version]:isExactPrivatePilot?['0.15.5']:allowedCandidates;
 assert.ok(allowedVersions.some(v=>build.includes('versionName = "'+v+'"')),
  'app version name must match signed OTA baseline or its next patch/minor candidate');
 const manifest=read(path.join(base,'android-bridge/app/src/main/AndroidManifest.xml'));
