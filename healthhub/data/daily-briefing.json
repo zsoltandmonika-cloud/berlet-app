@@ -1,226 +1,191 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-24",
-  "generatedAt": "2026-10-24T10:55:14+02:00",
-  "headline": "A reggel fő témái: France prepares for day of protest a week after nationwide riots; Arrest made after fire at Hitler's famed Eagle's Nest retreat",
+  "date": "2026-10-25",
+  "generatedAt": "2026-10-25T10:12:09+01:00",
+  "headline": "A reggel fő témái: Almost 1,000 arrested as clashes follow another day of mass protests across France; Israel to close West Bank crossings on election day as crackdown escalates",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: France prepares for day of protest a week after nationwide riots",
-        "BBC World: Arrest made after fire at Hitler's famed Eagle's Nest retreat",
-        "BBC World: Father who killed Oregon school gunman describes anguish over children he couldn't save",
-        "BBC World: Trump administration sues to block certification of upcoming Alaska election"
+        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
+        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
+        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son",
+        "BBC World: Musk says SpaceX restricted Ukraine's Starlink connection as service restored"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: France prepares for day of protest a week after nationwide riots",
-        "BBC World: Arrest made after fire at Hitler's famed Eagle's Nest retreat",
-        "BBC World: Father who killed Oregon school gunman describes anguish over children he couldn't save"
+        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
+        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
+        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: France prepares for day of protest a week after nationwide riots",
-        "BBC World: Arrest made after fire at Hitler's famed Eagle's Nest retreat",
-        "BBC World: Father who killed Oregon school gunman describes anguish over children he couldn't save"
+        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
+        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
+        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Telex: A Fitch hitelminősítő szerint is van esély rá, hogy Magyarország 2030-ra teljesítse az euróövezeti csatlakozás feltételeit - Telex",
-        "Euronews: Videók. Magyarország: 70 évvel a szovjet leverés után megemlékeznek a felkelés áldozatairól - Euronews",
-        "Pénzcentrum: Itt a friss rangsor: ezek Magyarország legjobb gimnáziumai 2027-re, történelmi fordulat a dobogón - Pénzcentrum"
+        "| hvg.hu: Történelmi esély a befektetőknek, hogy Magyarország be akar kerülni az euróövezetbe - | hvg.hu",
+        "WBASKET: Edzői várakozások a vasárnapi mérkőzések előtt - WBASKET",
+        "Agrárszektor: Akkora a baj, hogy már az EU-tól kér segítséget Magyarország is - Agrárszektor"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: How does the UK state pension compare with other countries?",
-        "BBC Business: UK to invest £100m in 'world first' AI Biosecurity Lab",
-        "BBC Business: Civil servant who juggled five jobs says he was 'surprised' to be charged with fraud"
+        "BBC Business: Four ways Labour could raise money in the Budget without hiking income tax",
+        "BBC Business: Budget to include £1bn for social and affordable housing",
+        "BBC Business: Rosebank: Life on the oil field at the centre of a political storm"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
-      "items": [
-        "BBC Technology: UK to invest £100m in 'world first' AI Biosecurity Lab",
-        "BBC Technology: What is PHP and why did it spark a global cyber-security scramble?",
-        "BBC Technology: 'It's been relentless' say IT workers on frontline of PHP cyber-security scramble"
-      ]
+      "items": []
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Australian MP's condition improves after alleged car attack (BBC World).",
-        "Figyelmi pont: What is PHP and why did it spark a global cyber-security scramble? (BBC Business).",
-        "Figyelmi pont: 'It's been relentless' say IT workers on frontline of PHP cyber-security scramble (BBC Technology)."
+        "Figyelmi pont: Obama attacks Trump as he campaigns for Democrats ahead of midterm elections (BBC World).",
+        "Figyelmi pont: Rosebank: Life on the oil field at the centre of a political storm (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: France prepares for day of protest a week after nationwide riots",
-        "BBC World: Arrest made after fire at Hitler's famed Eagle's Nest retreat"
+        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
+        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates"
       ]
     }
   ],
   "sources": [
     {
-      "title": "France prepares for day of protest a week after nationwide riots",
+      "title": "Almost 1,000 arrested as clashes follow another day of mass protests across France",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cj62yv5k0w4yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
+      "url": "https://www.bbc.co.uk/news/articles/c95ynd587ynzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "Arrest made after fire at Hitler's famed Eagle's Nest retreat",
+      "title": "Israel to close West Bank crossings on election day as crackdown escalates",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6y93ylpl5p2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Voters in Brazil to choose between Lula and Bolsonaro's son",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cxp8g21j4648o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Musk says SpaceX restricted Ukraine's Starlink connection as service restored",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cvx28ljp8n4xo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Gunmen kill at least 10 villagers and loot shops in north-east Nigeria",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq1kdlm1ze7do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Man arrested after fire at Hitler's mountaintop Eagle's Nest retreat",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/cr93zwjw1k4qo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-24"
     },
     {
-      "title": "Father who killed Oregon school gunman describes anguish over children he couldn't save",
+      "title": "Vanessa Trump says she is cancer-free six months after revealing diagnosis",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crgj9ndwvj9jo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cm1dwzvn6227o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-24"
     },
     {
-      "title": "Trump administration sues to block certification of upcoming Alaska election",
+      "title": "Obama attacks Trump as he campaigns for Democrats ahead of midterm elections",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c678pv4krx37o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
+      "url": "https://www.bbc.co.uk/news/articles/cmj6jwe1j1gjo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "Student movement takes Serbia's Vučić to the wire in neck-and-neck election",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm1dwz311476o?at_medium=RSS&at_campaign=rss",
+      "title": "Történelmi esély a befektetőknek, hogy Magyarország be akar kerülni az euróövezetbe - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxORWdUVzRVY3h2Z1RBbzVIdURKOWJ1dU9ERTZlWXoyWkhnZ2tBMnJwS0FiSzVINHdaRXJQYmpMV3IwYW9kdmdQR2JYUGlzQnl6UHJJWG10ZlpHcTRkc1g1M1M1RHlPbXpDMjdYN2NLNEtaT2tpRnFxQlJJUGRib3kzZGFMNXp4TjkyeEdz?oc=5",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Edzői várakozások a vasárnapi mérkőzések előtt - WBASKET",
+      "publisher": "WBASKET",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE56WWlDWVFLVUdOV1E5OE5lRHMzSkZ5cjBaZmJiWkxhdFFDTVhkUFNhaHZQMVRWMENjZkpsZ2d6Q3ZVam1qUEFiMUc2b2h1cEduVnIxejZwZE1QU3lTdmFpZHFBVkdMWXBYbWpDNk5sQWxDcVNl?oc=5",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Akkora a baj, hogy már az EU-tól kér segítséget Magyarország is - Agrárszektor",
+      "publisher": "Agrárszektor",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQTEUzc3NmWlhEVWc4djNmOTZIWjRRYjBDTl94LTYzRUVfY3FpbVJTVFNYclNPcXVnRVIyS29zN2Ytc1A4RTU1TXA5SHpnUTg5c3BhZk41WWRaQTZxd3VHOGJsczdfeHhpTW9OZUxvVUR3S0UwclZUZGhpY2E2c19YOThUNzUydGt5TDljVW5ZTTY1NnNidkZ5YTdMMDZtcXB1bXVFYkZSN3RHNHFMdkZMUGkyYXI4WEpF?oc=5",
       "publishedAt": "2026-10-24"
     },
     {
-      "title": "Woman, 65, becomes second patient to die of Ebola in Kenya",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6x2355448eyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
+      "title": "Exkluzív interjú: Mukesh Srivastava második otthona Magyarország - Helló Magyar",
+      "publisher": "Helló Magyar",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNUUp0VmdGUjltYTdDdWdpNU5SN2k3VTdzRkI0OV9wcmM0Q25vMHE4YjQ1cGE1VW9kYUdlSmNXbEwxQ0l2NHlKbEZycGNFRFgtNGlSb3MzNDNNTXY5RXRueG5QSGR5WjlCZFp1OXJra1MxSHNST1RTamFlU1Q0WnU2aw?oc=5",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "White House lifts tariffs on some Canadian goods as midterm elections loom",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c60qk573yzz8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
+      "title": "Belső haveri körnek osztották a pénzeket, aztán kiderült, így halt meg a legnagyobb magyar fesztiválmutyi főszereplője - Blikk",
+      "publisher": "Blikk",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNSFktd3RRLW9FTEpkU0MyQ0dOdXRJRWt2LUQxSnpySDFXSWJ6U0QxVzY4REp2Y3BTYzJibEE4MV9FZUdHODFReVdrbnZUSmE3bUtCcG9BTUVvSlhicU1OR3A3VEsxVGx1bWRBLW1oUl80UG96cTVKNmduTFJTMnhWZ1dUSEJicTVtVWpVa25vT3dXamVuMmloN0xqeTVERUpsRlVOOUlaOU02Q2ZTOElYTVBSbV9wb3M1?oc=5",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "Australian MP's condition improves after alleged car attack",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c670pr1ryxyno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "A Fitch hitelminősítő szerint is van esély rá, hogy Magyarország 2030-ra teljesítse az euróövezeti csatlakozás feltételeit - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBkUXA4NzB5M2R5aVdJeXBqbE90M09OQldsb1VQVW9JQjVuclRqc01JRXQwQzk2SEpqT1hGM1NUOXlyZWJwSnZXMHlvUnF3NlB5cVZyMHFTRHktZVdWLUVubXEtbUY2ZHRfYTg2X1doR3I?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Videók. Magyarország: 70 évvel a szovjet leverés után megemlékeznek a felkelés áldozatairól - Euronews",
-      "publisher": "Euronews",
-      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPOHVuYV92TW12dVN1ckdsZ1dGeGdMLUJZVTRQR1hXdXd4b3MwM2xTWXBEMzFsSm9pc19JQS1oYnM1OEdjMnk3SmR3UDdEVU5KMHE3dk1vWW1MTmlxT1A2QmFHbWZzME50SDYwM1h4b2p0T0RydHVpSGQzX3hpSkEzUktQYzJBMUcxTGpPVTJmemduUGxMUU95V3Z2MlU4YzVWOG5abDQyYnFqNE15WkYtZlFaeEw3dGZ1RXlWMUZQNEE?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Itt a friss rangsor: ezek Magyarország legjobb gimnáziumai 2027-re, történelmi fordulat a dobogón - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxOUkh2UV9XU2pENjc0YVRpbUhFSEo3Wkg1Q1pLd0NXR1NoTUZVQ0RkMVZfS2Q5N05sbnZ0Vlg1SmdxYUI4c1llVFJMeklQMVlNVHlYNHpfOGxkTEdBeFNuRjZmcmphVGJJUnA2bHA4TzdyY1hqbUdtU2pRRzZGU3dGWTJpdlYyT0djZTFUdHpFZUpfRmNuVG5sNFZ2XzAzY0VVMDM0UW5UX1N1RnFacEg4OUFRbVhlaXBHMTUtUGc5YVRNVTJKbWR0dkY4aTU1bGs2MjNLbW4zN1djYVp2X0RIVNIB5gFBVV95cUxPNVd1MWRTTGUzcmdXN3hJU3Azb3lQeGdUaW1WaGl5MEpDdlhMTTVJM2tGN3N1dDZQaHUweXpqQW45V3I5X2tDSktDR2JSNG9pSklfRml4WmFNdEh5dU5nZ2dDWHpzU0haRzJHbTJZZkhXWFBBdmlsTnJQbUNpYlNpZWlUOVZBZ2NEU0l6Q2pkQmdzSmRYYmJSbmlHMHhGU2luUlpFYUNGcmlWN1dmNkJTTjM5al9DelNpazh5eldqcXk0aS1hMjRxN3RGUWxrUTVUVUZyYUEyTmRlWXBPV2E1b25FZDZlZw?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Magyarország közjogi méltóságaival, az Európai Unió vezetőivel, valamint több ország államfőjével és képviselőjével együtt tartottak díszülést az Országgyűlésben az 1956. október 23-i forradalom 70. évfordulója alkalmából. - Facebook",
+      "title": "Magyarország Kormánya on Reels - Facebook",
       "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMikwJBVV95cUxNNGltTGhvb1dBM0ZTVHZUNU9uZER0TVRTYVJrM3pHOGZRRlhaU3ZiUGliem00ZFZLZzBzMzQ5T25kQnVrZUJHMjdYSW1fSmJFNFUzODRoVGpGUWx6YkFvNU5pa0Z6cHpQTlNNQTEtNm9Vd3A4dEVCU09BWTF2WnBoWlFyLWgyNVV2eGltUl9vNk0tV005WXJxOVFDLUJOUmR0T1NkUWVGWW1rY18tbUQzQUVPN2VFaGg3UXJ5aGZLRkNmRFZFOUpsQzN3a0p0d1RZbTFuU2NudWo1WUYzLTdHbXZVLWs0QlBOR3EtUWlHeGxGQ3o5WmhZdVJFSDl2dHlOODB2TDBBSVZ6S2xSZnF1ZDlJNA?oc=5",
-      "publishedAt": "2026-10-24"
+      "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxNODJmYTRVVDBldzh0N3VwS1h4YWJlV2w5Yl9kM2N1TmxKZnFPVHlfUUo0bXpVSFVDRGs1b2JzOWtFT19lNllrSGg3VU5IaXJUbTdzSWtiM3RmektTZ2kxWnhnd01NaW1md3drUVFGcGl5b0NCV2dmR3JXSldIWXNoMjFwc1N2QXJ1TTdURC1TV2Vic211SC1wZWlwd2FtQVhiaHJNSFpsNjBqMk1FZjdEWjdZVWYzODB2ZDdFWk5Cdjd6Tjl4VzAtTDQweWc3RUVheVp0Y3N4TmlLeXp1ZGJVR2JvQ2hfY1dTR0NjZzFJdWNXZDZkUUtqYkFXcVhvdmpmRXljZVBVbzg3X1pPQVlnRzZieFFmeGEwNFE?oc=5",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "„6 hónapra érkeztem, de Magyarország lett az otthonom” – Mit jelent a haza egy magyar–japán nőnek és brit férjének? - WMN",
-      "publisher": "WMN",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5aaG1Ka0V2LWljS3IwWWpmcENuekt2ankxQWZ0UWhnWENyX0U1YlBCREhxY0ZOSV9xSmhXVUo4RGJUNHRscUVIdzJHbjBVcENfLWZmZWt3cEJlcEQ2ZUhtU3dGYnE0Q0s4bEhKZjRsS0o?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Uniós vezetőkkel tartottak díszülést az Országházban 1956 emlékére - Magyarország Kormánya",
+      "title": "A fejlődés költségvetése: otthonteremtés és infrastruktúra-fejlesztés - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQMHNrdHROM2hpbEFObDJKTEpidjl2YWFZN1NBNFh1alUyY1lHY3JwajU4aHlqWk5EVkhGRTN2U1hmWkkwOVowX0ZzZzNwWE5YSWRjN0ZvdWlEdFR1NDV6NUhCcE9QdmJRZXhaV0pBU0ZXMXhRaksxRWtsR3FyQUtSZ2pkUlVqcWQ5ZTVpTnl0OURBRzA0Zmc?oc=5",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "Von der Leyen: Magyarország világossá tette, hogy a demokratikus visszacsúszás visszafordítható - Klubrádió",
-      "publisher": "Klubrádió",
-      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPc0hSSmh1SXh0R2N3Mi14aHdyN0U0QTN1bmlWa3MtYlJicGpBeTgzU1ZBRm5Idm1PMVNzMG5CRmFxUHhUX0p3YWhHNlVPWHhldDVzY2QtRExQblhhY2RkVUd6MDhTSG4xR3VCdWJ5WVVwVW96WWN2SlBYN050Zmd5T0VYZXZqYjRQcnNKMzU4N2xnWGJmdzA1XzJaRWJTSmhiYTNyTG1iZWw2UVVPdXA3Vlh2cFBkS1YxZG1kNXpNZkJuOF8wMEZxcllmOA?oc=5",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "Baka András az európai vezetőkhöz is szólt: 1956 jelentősége messze túlmutatott Magyarország határain - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxQb0lodGozcXM1ZjR5ZUNLLWU1aUNKeTliWWhDOVB2ZmdXQVBsNkV0NVJmZkhkQUtyZTBRVkliWFV2d0VaZlFQY3hxMEJIMFBYU2pBZEliSVdfTDVRQ0VBTkl6R0Q3RzhGT0hSUGlqeTByb0pDM1ZfSW9IYTJ2elBmY180eFRaWDZaMmlfZWNnQzY3QnRFZnpNM2VqNTVTa3FJM0NJT29aamlROExtdXVNbndlNjdpaFdQdm1fSWJUZDVBT0cxQTFPdnU2UFFsTmFLRGlzOEdTVW9USEZDWWIydXhB0gHnAUFVX3lxTFBpTWtuOXNabURaeEdualctdlhTdzhzdUwzbUNPR2VTSjlhV2RHRFBtRmdqR0VHU2xYTkdMYno2Q1NWUUdUTEZ2Y0hZVTFpSmhuRDVZX2xfOTdPZVp4QkpPNE1yanpwaHVNRXdkcmlVeUE2ajFxQXFqX0N3RV8zV1g0WmUyb2NSOG53TUlXcFRFQ0lJMENhNGpRTDBsRThlTnFHNmltSks0bnQwVHI4QmZqdEIwdUxFWU1XeTdObUd3SkdQdjNfYjN1Q2s3OWF6NGM0ZEZuLVhJdUdtVUd4OWkzaFFNVU9PQQ?oc=5",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "How does the UK state pension compare with other countries?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3gr84w85glyo?at_medium=RSS&at_campaign=rss",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPU2dGdHJRdHh1cDhhS3ltSi1ZTEd2a0gwUXZvYUlZRkV0enM1ZkhMZjVha2RraVNaUEtXU19xZ0pKTHEzcVJEWmJTckRRd3BGbk1Vc0FVTjFoaWpLVjRZMnpjOHJHaUFhdHgzSmJlbXhadl9UaE9HQy0zeDhuQkNjYjgxcGJJWWlhRzA5M3ZVNUpMQ0Q1RHplNA?oc=5",
       "publishedAt": "2026-10-24"
     },
     {
-      "title": "UK to invest £100m in 'world first' AI Biosecurity Lab",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqdjv8xllvyyo?at_medium=RSS&at_campaign=rss",
+      "title": "Hazazavartak négy orosz diplomatát Magyarország szomszédjából - Privátbankár.hu",
+      "publisher": "Privátbankár.hu",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPVlVzV0JPdDNoUE9tQ0hEaXV3dXpZenM5bFZveUxZLV92X2VaQ2hqalVvamR0dElvaFZLVVVtUE5aY0MtMlJKQnBkUnJCSTIxcWlLSDhBcVpTMm1LUDBLSzdxQVVjcGl3alpINHRVWllMTFppeTYydzNpYnhuYnFGWjI2NkhfUmNrQlFob0RIWGE0VElvMUVSSGJETUIxQlNUX3ZBOUhvV09TOExO?oc=5",
       "publishedAt": "2026-10-24"
     },
     {
-      "title": "Civil servant who juggled five jobs says he was 'surprised' to be charged with fraud",
+      "title": "Four ways Labour could raise money in the Budget without hiking income tax",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6lykzwjkj1eo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
+      "url": "https://www.bbc.co.uk/news/articles/c65yn9p55np2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "Earnings limit of up to £140K for first-time buyers loan scheme",
+      "title": "Budget to include £1bn for social and affordable housing",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6n8dex0zeg9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
+      "url": "https://www.bbc.co.uk/news/articles/cqm24j9y9zn7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
     },
     {
-      "title": "The Indian workers filming their work to train AI",
+      "title": "Rosebank: Life on the oil field at the centre of a political storm",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckvgyml6pdm9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "Lights will stay on this winter, grid operator says after concerns",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmy56q2n1veqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "What is PHP and why did it spark a global cyber-security scramble?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3qjnwye0ep5o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
-    },
-    {
-      "title": "'It's been relentless' say IT workers on frontline of PHP cyber-security scramble",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cxnv025d8qpmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-23"
+      "url": "https://www.bbc.co.uk/news/articles/cqy8ljkle97ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
     }
   ]
 }
