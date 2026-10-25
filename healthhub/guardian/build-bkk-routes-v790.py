@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate strictly source-backed route shapes/stops for 260, 17 and 19 from BKK official GTFS.
+"""Generate source-backed route shapes/stops for 260, 17, 19, 1 and 41 from BKK GTFS.
 
 No coordinates are invented. Fail closed if fresh feed is missing or routes incomplete.
 The generated JSON is the only input to the map; no API key or personal data is needed.
@@ -24,7 +24,7 @@ URLS = (
     "https://go.bkk.hu/api/static/v1/public-gtfs/budapest_gtfs.zip",
     "https://bkk.hu/gtfs/budapest_gtfs.zip",
 )
-NAMES = ("260", "17", "19")
+NAMES = ("260", "17", "19", "1", "41")
 MAX_BYTES = 512 * 1024 * 1024  # Actual full BKK GTFS ZIP exceeded v790 pilot's 60 MiB cap.
 
 
@@ -70,7 +70,10 @@ def fixcoord(n: str, maxabs: float) -> float:
 
 def make_document(raw: bytes):
     with zipfile.ZipFile(io.BytesIO(raw)) as z:
-        routes = [r for r in rows(z, "routes.txt") if (r.get("route_short_name") or "").strip() in NAMES]
+        routes = [r for r in rows(z, "routes.txt")
+                  if (r.get("route_short_name") or "").strip() in NAMES
+                  and ((r.get("route_short_name") or "").strip() not in ("1", "41")
+                       or str(r.get("route_type") or "") == "0")]
         wanted = {r["route_id"]: r for r in routes}
         if set((r.get("route_short_name") or "").strip() for r in routes) != set(NAMES):
             raise RuntimeError("GTFS missing one or more requested lines")
@@ -135,7 +138,7 @@ def make_document(raw: bytes):
                 except (KeyError, ValueError):
                     continue
         out = {}
-        modes = {"260": "bus", "17": "tram", "19": "tram"}
+        modes = {"260": "bus", "17": "tram", "19": "tram", "1": "tram", "41": "tram"}
         for short in NAMES:
             records = [r for r in routes if r.get("route_short_name", "").strip() == short]
             lines = []
