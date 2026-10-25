@@ -37,17 +37,33 @@ async function token(){
  try{return await tokenRefreshInFlight}finally{tokenRefreshInFlight=null}
 }
 async function request(endpoint,arg,expectedContent){
- const access=await token();
  const isDownload=endpoint==='files/download',isUpload=endpoint==='files/upload';
- const headers={Authorization:'Bearer '+access};
- if(isDownload||isUpload){
-  headers['Dropbox-API-Arg']=JSON.stringify(arg);
-  if(isUpload)headers['Content-Type']='application/octet-stream';
- }else headers['Content-Type']='application/json';
  const url=(isDownload||isUpload?CONTENT:API)+endpoint;
- const options={method:'POST',headers:headers};
- if(!isDownload)options.body=isUpload?expectedContent:JSON.stringify(arg);
- const res=await fetch(url,options);
+ // Retrying a rejected token is safe; refresh only once per request.
+ async function send(access){
+  const headers={Authorization:'Bearer '+access};
+  if(isDownload||isUpload){
+   headers['Dropbox-API-Arg']=JSON.stringify(arg);
+   if(isUpload)headers['Content-Type']='application/octet-stream';
+  }else headers['Content-Type']='application/json';
+  const options={method:'POST',headers:headers};
+  if(!isDownload)options.body=isUpload?expectedContent:JSON.stringify(arg);
+  return fetch(url,options);
+ }
+ const access=await token();
+ let res=await send(access);
+ if(res.status===401){
+  // Do not erase the long-lived refresh grant. Only invalidate THIS stale
+  // access token, and never overwrite one freshly obtained by another call.
+  const latest=parseToken();
+  if(latest&&latest.access_token===access){
+   latest.access_token='';
+   latest.expires_at=0;
+   localStorage.setItem(TOKEN_KEY,JSON.stringify(latest));
+  }
+  const renewed=await token();
+  if(renewed!==access)res=await send(renewed);
+ }
  if(!res.ok){
   let message='Dropbox '+endpoint+' HTTP '+res.status;
   try{const j=await res.json();message=j.error_summary||message}catch(_){}
