@@ -12,6 +12,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.SystemClock
@@ -36,6 +37,7 @@ class Sh9GpsService : Service() {
         const val KEY_INTERVAL_SECONDS = "interval_seconds"
         const val KEY_LOCATION_ENGINE = "location_engine_v157"
         const val KEY_LOCATION_MODE = "location_mode_v157"
+        const val KEY_RECEIVER_STATUS = "location_receiver_status_v158"
         private const val CHANNEL = "sh9-gps-active-v1"
         private const val NOTIFICATION_ID = 9357
         private val ALLOWED_INTERVALS = setOf(15, 30, 60)
@@ -71,6 +73,13 @@ class Sh9GpsService : Service() {
     private var previousFix: Location? = null
     private var callbackGeneration = 0
     private var engine = "starting"
+    // Main-looper only: no CPU wake lock and no second tracking service.
+    private val watchdog = Handler(Looper.getMainLooper())
+    private var watchdogTick: Runnable? = null
+    private var subscriptionStartedAt = 0L
+    private var lastAcceptedFixAt = 0L
+    private var lastRecoveryAt = 0L
+    private var recoveryAttempts = 0
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -104,6 +113,7 @@ class Sh9GpsService : Service() {
             createChannel()
             startForeground(NOTIFICATION_ID, notification())
             active = true
+            startWatchdog(callbackGeneration)
             startFused(callbackGeneration)
         } catch (_: SecurityException) {
             finishService()
@@ -121,13 +131,92 @@ class Sh9GpsService : Service() {
             .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
     }
 
+    private fun receiverStatus(value: String) {
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_RECEIVER_STATUS, value).apply()
+    }
+
+    /**
+     * Receiver silence and Dropbox upload failures are separate states.
+     * After 150 seconds without an accepted fix, retry FLP once and then
+     * use Android fallback. No wakelock or infinite restart loop.
+     * Handler callbacks can be delayed by Android power management.
+     */
+    private fun startWatchdog(generation: Int) {
+        watchdogTick?.let { watchdog.removeCallbacks(it) }
+        subscriptionStartedAt = SystemClock.elapsedRealtime()
+        lastAcceptedFixAt = 0L
+        lastRecoveryAt = 0L
+        recoveryAttempts = 0
+        // A previous service session's fix must never make a fresh start look healthy.
+        lastFixAtMillis = 0L
+        receiverStatus("acquiring")
+        val tick = object : Runnable {
+            override fun run() {
+                if (!active || callbackGeneration != generation) return
+                val now = SystemClock.elapsedRealtime()
+                val reference = maxOf(subscriptionStartedAt, lastAcceptedFixAt, lastRecoveryAt)
+                if (now - reference >= 150_000L) {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            this@Sh9GpsService, Manifest.permission.ACCESS_FINE_LOCATION
+                        ) != PackageManager.PERMISSION_GRANTED -> {
+                            receiverStatus("permission-revoked")
+                            finishService()
+                            return
+                        }
+                        !FamilyGuardContinuity.gpsAvailable(this@Sh9GpsService) ->
+                            receiverStatus("location-disabled")
+                        engine == "fused" && recoveryAttempts == 0 -> {
+                            recoveryAttempts++
+                            lastRecoveryAt = now
+                            receiverStatus("fused-retry")
+                            val client = fused
+                            val callback = fusedCallback
+                            if (client != null && callback != null) {
+                                requestFused(client, callback, generation)
+                            } else {
+                                startLegacy(generation)
+                            }
+                        }
+                        engine == "fused" -> {
+                            recoveryAttempts++
+                            lastRecoveryAt = now
+                            receiverStatus("fused-timeout-fallback")
+                            startLegacy(generation)
+                        }
+                        else -> receiverStatus("no-fresh-fix")
+                    }
+                }
+                if (active && callbackGeneration == generation) {
+                    watchdog.postDelayed(this, 30_000L)
+                }
+            }
+        }
+        watchdogTick = tick
+        watchdog.postDelayed(tick, 30_000L)
+    }
+
+    private fun stopFusedUpdates() {
+        val callback = fusedCallback
+        val client = fused
+        fusedCallback = null
+        fused = null
+        if (callback != null && client != null) {
+            try { client.removeLocationUpdates(callback) }
+            catch (_: RuntimeException) { /* Android may already have dropped it. */ }
+        }
+    }
+
     private fun startFused(generation: Int) {
         if (!active || callbackGeneration != generation) return
         try {
             val client = LocationServices.getFusedLocationProviderClient(this)
             val callback = object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
-                    if (!active || callbackGeneration != generation) return
+                    // A cancelled FLP callback must not publish after fallback.
+                    if (!active || callbackGeneration != generation ||
+                        fusedCallback !== this) return
                     result.lastLocation?.let { processFix(it, generation) }
                 }
             }
@@ -176,6 +265,7 @@ class Sh9GpsService : Service() {
 
     private fun startLegacy(generation: Int) {
         if (!active || callbackGeneration != generation) return
+        stopFusedUpdates()
         try {
             val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val provider = when {
@@ -203,13 +293,21 @@ class Sh9GpsService : Service() {
             finishService()
         } catch (_: IllegalArgumentException) {
             updateEngine("provider-unavailable")
+        } catch (_: RuntimeException) {
+            updateEngine("provider-unavailable")
         }
     }
 
     private fun processFix(location: Location, generation: Int) {
         if (!active || callbackGeneration != generation) return
         val age = System.currentTimeMillis() - location.time
-        if (age < -5_000L || age > 20_000L || location.isFromMockProvider) return
+        if (age < -5_000L || age > 20_000L || location.isFromMockProvider ||
+            !location.hasAccuracy() || !location.accuracy.isFinite() ||
+            location.accuracy !in 0f..100f ||
+            !location.latitude.isFinite() || location.latitude !in -90.0..90.0 ||
+            !location.longitude.isFinite() || location.longitude !in -180.0..180.0 ||
+            (previousFix != null &&
+                location.elapsedRealtimeNanos <= previousFix!!.elapsedRealtimeNanos)) return
         val distance = previousFix?.takeIf {
             it.hasAccuracy() && it.accuracy <= 25f &&
             location.hasAccuracy() && location.accuracy <= 25f &&
@@ -221,6 +319,10 @@ class Sh9GpsService : Service() {
             if (location.hasAccuracy()) location.accuracy else Float.POSITIVE_INFINITY,
             SystemClock.elapsedRealtime())
         previousFix = location
+        lastAcceptedFixAt = SystemClock.elapsedRealtime()
+        recoveryAttempts = 0
+        lastRecoveryAt = 0L
+        receiverStatus("receiving")
         lastFixAtMillis = System.currentTimeMillis()
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
@@ -233,10 +335,10 @@ class Sh9GpsService : Service() {
     }
 
     private fun clearSubscriptions() {
+        watchdogTick?.let { watchdog.removeCallbacks(it) }
+        watchdogTick = null
         callbackGeneration++
-        fusedCallback?.let { cb -> try { fused?.removeLocationUpdates(cb) } catch (_: Exception) {} }
-        fusedCallback = null
-        fused = null
+        stopFusedUpdates()
         try { listener?.let { manager?.removeUpdates(it) } } catch (_: SecurityException) {}
         listener = null
         manager = null

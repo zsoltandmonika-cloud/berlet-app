@@ -1129,8 +1129,24 @@ class MainActivity : ComponentActivity() {
             "provider-unavailable", "no-provider" -> "Helyszolgáltatás átmenetileg nem elérhető"
             else -> "Első GPS-indításra vár"
         }
-        gpsSummary.text = (if (running) "🟢 Smart Location aktív" else "⚪ Helymeghatározás leállítva") +
+        val receiver = smart.getString(Sh9GpsService.KEY_RECEIVER_STATUS, "not-started") ?: "not-started"
+        val hasFreshFix = running && last > 0L &&
+            System.currentTimeMillis() - last in 0L..150_000L
+        val receiverLabel = when (receiver) {
+            "receiving" -> if (hasFreshFix) "érkeznek friss GPS-mérések" else "utolsó GPS-mérés elavult"
+            "acquiring" -> "első GPS-mérésre vár"
+            "fused-retry" -> "FLP újracsatlakozás folyamatban"
+            "fused-timeout-fallback" -> "Android tartalék helymeghatározásra váltás"
+            "no-fresh-fix" -> "nem érkezik friss GPS-mérés"
+            "location-disabled" -> "telefonos helyszolgáltatás kikapcsolva"
+            "permission-revoked" -> "Android helyengedély visszavonva"
+            else -> "GPS állapot még nem igazolt"
+        }
+        gpsSummary.text = (if (!running) "⚪ Helymeghatározás leállítva"
+            else if (hasFreshFix) "🟢 Smart Location · friss GPS-mérés"
+            else "🟠 GPS-szolgáltatás fut, friss helyzet nem igazolt") +
             "\nMérési alap: $engineLabel · mód: $mode" +
+            "\nGPS-vevő: $receiverLabel" +
             "\nCél-időköz: $period mp · utolsó valódi fix: $lastText"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
         if (::gpsBootButton.isInitialized) {
@@ -1201,8 +1217,9 @@ class MainActivity : ComponentActivity() {
                 "távoli újraindításnál ezen a telefonon új jóváhagyás kell. " +
                 "A központ SOS kapcsolatfelvételi értesítést is küldhet, " +
                 "de kamerát és mikrofont nem kapcsolhat be.\n\n" +
-                "Fontos: a natív szolgáltatás egyelőre csak a GPS-fix időpontját tartja meg, " +
-                "nem tölt fel helykoordinátákat a Family Guardba. " +
+                "A natív GPS önmagában nem oszt meg koordinátát. A Family Guard " +
+                "külön engedélyezett helymegosztása a kijelölt telefon utolsó " +
+                "pozícióját privát Dropboxba továbbíthatja, és bármikor visszavonható. " +
                 "Az Edge követését és a kamera/mikrofon használatát ez nem indítja el. " +
                 "Akkumulátorfogyasztása növekedhet. Jóváhagyod a saját telefonodon?"
             )
