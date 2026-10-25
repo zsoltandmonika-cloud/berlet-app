@@ -754,7 +754,7 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { openBackgroundLocationSettings() }
         })
         root.addView(TextView(this).apply {
-            text = "A Family Guard automatikus natív GPS-helyreállítása csak saját telefonon, külön jóváhagyással kapcsolható be. Android-értesítésből leállítható; az Edge GPS-ét nem indítja újra és önmagában nem küld koordinátákat a Family Guardhoz. Folyamatos használata növeli az akkumulátorfogyasztást."
+            text = "Natív GPS autostart külön jóváhagyással, családi helymegosztás egy MÁSODIK, külön jóváhagyással engedélyezhető. Csak az aktuális pozíció kerül a privát Dropboxba, nincs útvonalnapló. Leállításkor visszavonó rekord készül. Edge GPS-t nem ébreszt, akkumulátort használ."
             textSize = 12f
             setTextColor(0xFF6A7F91.toInt())
             setPadding(0, 4, 0, 12)
@@ -1258,9 +1258,9 @@ class MainActivity : ComponentActivity() {
             .setTitle("SH9 GPS · Mindig engedélyezett")
             .setMessage(
                 "A beállítás engedélyezheti a HH One natív helyhozzáférését háttérben is. " +
-                "A jelenlegi natív GPS-szolgáltatás csak a mérés időpontját tartja nyilván, " +
-                "nem küld helykoordinátát a Family Guardba. Az Edge GPS-korlátait " +
-                "ez az engedély nem oldja fel.\n\n" +
+                "Az Android helyengedély NEM engedélyezi automatikusan a családi megosztást. " +
+                "Ahhoz külön, látható telefonos hozzájárulás és privát Dropbox-kapcsolat szükséges. " +
+                "Az Edge GPS-korlátait ez az engedély nem oldja fel.\n\n" +
                 "Az Androidban nyisd meg: Engedélyek → Hely → Mindig engedélyezett. " +
                 "Az engedély bármikor visszavonható."
             )
