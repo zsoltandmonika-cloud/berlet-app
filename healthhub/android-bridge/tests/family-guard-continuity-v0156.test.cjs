@@ -26,7 +26,7 @@ test('opted-in location service restores only after normal boot and owner + back
  assert.match(continuity,/Intent\.ACTION_BOOT_COMPLETED/);
  assert.match(continuity,/Intent\.ACTION_MY_PACKAGE_REPLACED/);
  assert.match(continuity,/hasOwner\(context\) && hasBackgroundLocation\(context\) && gpsAvailable\(context\)/);
- assert.match(continuity,/if \(!enabled\(context\)\)/);
+ assert.match(continuity,/!enabled\(context\) -> "disabled"/);
  assert.match(continuity,/SyncScheduler\.scheduleAll/);
  assert.match(continuity,/ResilientHealthSync\.schedule/);
  assert.match(continuity,/OrchestratorScheduler\.schedule/);
