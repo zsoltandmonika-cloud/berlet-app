@@ -32,8 +32,19 @@ const isExistingRelease=gradle.includes('versionName = "'+manifest.version+'"')&
  gradle.includes('versionCode = '+manifest.versionCode);
 const isNextSignedRelease=allowedNextVersions.some(v=>gradle.includes('versionName = "'+v+'"'))&&
  gradle.includes('versionCode = '+(manifest.versionCode+1));
-assert.ok(isExistingRelease||isNextSignedRelease,
- 'preflight accepts current signed baseline, next patch or next minor with incremented versionCode');
+// Narrowly scoped pilot exception: the user already installed a private,
+// signed 0.15.3/build30 artifact, while public OTA remains 0.15.2/build29.
+// Do not reuse this exception for later versions or unrelated packages.
+const isPrivatePilotHotfix=manifest.version==='0.15.2'&&manifest.versionCode===29&&
+ gradle.includes('versionName = "0.15.4"')&&gradle.includes('versionCode = 31');
+assert.ok(isExistingRelease||isNextSignedRelease||isPrivatePilotHotfix,
+ 'preflight accepts next published patch or the explicitly identified private 0.15.4 pilot hotfix');
+if(isPrivatePilotHotfix){
+ assert.match(yml,/BASE_VERSION" == "0\.15\.2"/);
+ assert.match(yml,/NEW_VERSION" == "0\.15\.4"/);
+ assert.match(yml,/BASE\[0\]\}" == "0\.15\.2"/);
+ assert.match(yml,/VERSION" == "0\.15\.4"/);
+}
 assert.ok(yml.includes('stage_candidate'),'preflight must explicitly skip candidate creation for profile-only rollout');
 for(const needle of [
  'healthhub/data/bridge-ota.json','BASE_VERSION','BASE_CODE','NEW_CODE',
