@@ -80,6 +80,8 @@ class Sh9GpsService : Service() {
     private var lastAcceptedFixAt = 0L
     private var lastRecoveryAt = 0L
     private var recoveryAttempts = 0
+    private var providerWasUnavailable = false
+    private var lastLegacyProvider: String? = null
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -148,6 +150,7 @@ class Sh9GpsService : Service() {
         lastAcceptedFixAt = 0L
         lastRecoveryAt = 0L
         recoveryAttempts = 0
+        providerWasUnavailable = false
         // A previous service session's fix must never make a fresh start look healthy.
         lastFixAtMillis = 0L
         receiverStatus("acquiring")
@@ -165,8 +168,21 @@ class Sh9GpsService : Service() {
                             finishService()
                             return
                         }
-                        !FamilyGuardContinuity.gpsAvailable(this@Sh9GpsService) ->
+                        !FamilyGuardContinuity.gpsAvailable(this@Sh9GpsService) -> {
+                            providerWasUnavailable = true
                             receiverStatus("location-disabled")
+                        }
+                        providerWasUnavailable -> {
+                            // Re-enable a location provider without restarting the service
+                            // or changing a user's previously granted consent.
+                            providerWasUnavailable = false
+                            recoveryAttempts = 0
+                            lastRecoveryAt = now
+                            receiverStatus("provider-restored")
+                            clearLegacyUpdates()
+                            stopFusedUpdates()
+                            startFused(generation)
+                        }
                         engine == "fused" && recoveryAttempts == 0 -> {
                             recoveryAttempts++
                             lastRecoveryAt = now
@@ -184,6 +200,15 @@ class Sh9GpsService : Service() {
                             lastRecoveryAt = now
                             receiverStatus("fused-timeout-fallback")
                             startLegacy(generation)
+                        }
+                        (engine == "android-fallback" || engine == "provider-unavailable" ||
+                            engine == "no-provider") && recoveryAttempts < 3 -> {
+                            // A registered legacy callback can go silent when the GPS/network
+                            // provider changes. Re-register at most 3 times, no spin loop.
+                            recoveryAttempts++
+                            lastRecoveryAt = now
+                            receiverStatus("native-retry")
+                            startLegacy(generation, alternateProvider = true)
                         }
                         else -> receiverStatus("no-fresh-fix")
                     }
@@ -263,38 +288,68 @@ class Sh9GpsService : Service() {
         }
     }
 
-    private fun startLegacy(generation: Int) {
+    private fun clearLegacyUpdates() {
+        val old = listener
+        val lm = manager
+        listener = null
+        manager = null
+        if (old != null && lm != null) {
+            try { lm.removeUpdates(old) }
+            catch (_: SecurityException) { /* Permission might have changed. */ }
+            catch (_: RuntimeException) { /* Provider might have disappeared. */ }
+        }
+    }
+
+    private fun startLegacy(generation: Int, alternateProvider: Boolean = false) {
         if (!active || callbackGeneration != generation) return
         stopFusedUpdates()
+        // Never accumulate legacy callbacks while retrying a silent receiver.
+        clearLegacyUpdates()
         try {
             val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            val network = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
             val provider = when {
-                lm.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
-                lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
+                alternateProvider && lastLegacyProvider == LocationManager.GPS_PROVIDER && network ->
+                    LocationManager.NETWORK_PROVIDER
+                alternateProvider && lastLegacyProvider == LocationManager.NETWORK_PROVIDER && gps ->
+                    LocationManager.GPS_PROVIDER
+                gps -> LocationManager.GPS_PROVIDER
+                network -> LocationManager.NETWORK_PROVIDER
                 else -> {
                     updateEngine("no-provider")
+                    receiverStatus("location-disabled")
                     return
                 }
             }
             val callback = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
-                    if (active && generation == callbackGeneration) processFix(location, generation)
+                    if (active && generation == callbackGeneration && listener === this)
+                        processFix(location, generation)
                 }
                 override fun onProviderDisabled(provider: String) {
-                    if (active && generation == callbackGeneration) updateEngine("provider-unavailable")
+                    if (active && generation == callbackGeneration && listener === this) {
+                        updateEngine("provider-unavailable")
+                        receiverStatus("provider-unavailable")
+                    }
                 }
             }
             manager = lm
             listener = callback
             lm.requestLocationUpdates(provider, interval(this) * 1000L, 0f,
                 callback, Looper.getMainLooper())
+            lastLegacyProvider = provider
             updateEngine("android-fallback")
         } catch (_: SecurityException) {
             finishService()
         } catch (_: IllegalArgumentException) {
+            clearLegacyUpdates()
             updateEngine("provider-unavailable")
+            receiverStatus("provider-unavailable")
         } catch (_: RuntimeException) {
+            clearLegacyUpdates()
             updateEngine("provider-unavailable")
+            receiverStatus("provider-unavailable")
         }
     }
 
@@ -322,6 +377,7 @@ class Sh9GpsService : Service() {
         lastAcceptedFixAt = SystemClock.elapsedRealtime()
         recoveryAttempts = 0
         lastRecoveryAt = 0L
+        providerWasUnavailable = false
         receiverStatus("receiving")
         lastFixAtMillis = System.currentTimeMillis()
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -339,9 +395,9 @@ class Sh9GpsService : Service() {
         watchdogTick = null
         callbackGeneration++
         stopFusedUpdates()
-        try { listener?.let { manager?.removeUpdates(it) } } catch (_: SecurityException) {}
-        listener = null
-        manager = null
+        clearLegacyUpdates()
+        lastLegacyProvider = null
+        providerWasUnavailable = false
         previousFix = null
     }
 
