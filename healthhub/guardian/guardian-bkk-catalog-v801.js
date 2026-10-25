@@ -98,7 +98,7 @@
   render();
  }
  function setProfile(next){
-  if(next!=='zsolt'&&next!=='monika')return;
+  if(next!=='zsolt'&&next!=='monika'||profile===next)return;
   profile=next;render();notifyWatchlist();
  }
  function routeByKey(key){
@@ -203,5 +203,5 @@
   else init();
  }
  return {validate,search,setProfile,onTrackedChange,keyOf,routeByKey,removeFavoriteKey,moveFavoriteKey,
-  get loaded(){return loaded},get favoriteIds(){return [...favorites[profile]]},version:'814-watchlist'};
+  get loaded(){return loaded},get activeProfile(){return profile},get favoriteIds(){return [...favorites[profile]]},version:'814-watchlist'};
 });
