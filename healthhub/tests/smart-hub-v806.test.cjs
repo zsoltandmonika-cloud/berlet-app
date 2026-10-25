@@ -90,7 +90,7 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
   'hhSmartHubPlanV806','hhSmartHubFavoritesV806','hhSmartHubFavoriteRowsV806',
   'hhSmartHubPriorityWaitingV806'])
   assert.ok(html.includes(id),'Missing '+id);
- assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=806-fields-b'));
+ assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=824-results-glass'));
  assert.ok(html.includes('guardian-smart-hub-network-v806.js?v=806-network-a'));
  assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=806-network-a'));
  assert.match(js,/router\.setJourney\(state\.origin,state\.destination\)/);
