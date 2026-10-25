@@ -162,13 +162,15 @@
    for(const item of items){
     const button=d.createElement('button');button.type='button';
     button.className='hh-smart-hub-result-v803';
-    const pin=d.createElement('span');pin.className='hh-smart-hub-result-icon-v803';pin.textContent='⌖';
+    const pin=d.createElement('span');pin.className='hh-smart-hub-result-icon-v803';pin.textContent='📍';
+    pin.setAttribute('aria-hidden','true');
     const copy=d.createElement('span');copy.className='hh-smart-hub-result-copy-v803';
     const title=d.createElement('strong');title.textContent=item.name;
-    const address=d.createElement('small');address.textContent=item.subtitle||'OSM helytalálat';
+    const address=d.createElement('small');address.textContent=item.subtitle||'OpenStreetMap · cím';
     copy.append(title,address);
-    const arrow=d.createElement('span');arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');
-    button.append(pin,copy,arrow);
+    const tag=d.createElement('span');tag.className='hh-smart-hub-result-tag-v824';
+    tag.textContent='CÍM';tag.setAttribute('aria-hidden','true');
+    button.append(pin,copy,tag);
     button.addEventListener('click',()=>selectPlace(item,active));
     results.append(button);
    }
