@@ -1,13 +1,13 @@
 # HH One Connection Stability vNext · Architecture Release Gate
 
 Date: 2026-10-25
-Status: proposal / blocking diagnosis; **NOT a release**.
+Status: **implementation in draft PR #491, NOT a release**. Native Health Connect offline outbox and web Nutrition foreground recovery are implemented on the branch; on-device acceptance is pending.
 
 ## Findings from repository
 - Main Android Gradle source currently reports `versionCode=30`, `versionName=0.15.3`. Published `healthhub/data/bridge-ota.json` advertises **0.15.2 / code 29** to both family profiles. This does not prove either phone's installed version.
-- `DropboxVaultClient.ensureCredentialVersion()` deletes both `dropbox_refresh_token` and `dropbox_access_token` when the stored `dropbox_client_id_v2` differs from the current application key, including missing-marker legacy installs. This is a credible cause of unexpected reconnect; first determine whether the marker is missing or changed on affected devices, without revealing tokens.
+- Original root cause: `DropboxVaultClient.ensureCredentialVersion()` could delete stored OAuth grants when a version marker was missing. Draft patch preserves tokens for a missing marker and refuses a genuinely mismatching client ID without deletion; phone-side confirmation remains outstanding.
 - Native `Sh9GpsService` requests periodic location updates but does not publish Family Guard positions; browser watcher stops when page is backgrounded.
-- `ResilientHealthSync` uses WorkManager with network constraints/backoff; idle delays must be distinguished from OAuth revocation.
+- `ResilientHealthSync` uses WorkManager with network constraints/backoff. Native Health Connect snapshot exports are now persisted through `NativeHealthOutbox` before Dropbox delivery, separately from browser Nutrition localStorage. Browser Nutrition now retries on online/foreground with capped backoff and performs a single stale-access-token refresh after HTTP 401. These measures do not guarantee background web execution.
 
 ## Stability architecture
 1. **Credential vault**: single serialized native token authority for OAuth refresh. Do not delete valid refresh credentials solely because a local version marker is missing. On actual client ID mismatch, preserve credentials securely until explicit verified migration/consent; never silently reuse credentials with a different OAuth client. Expose nonsecret credential-state codes only.
@@ -17,12 +17,12 @@ Status: proposal / blocking diagnosis; **NOT a release**.
 5. **Admin Center**: expose per-device state for last heartbeat, last confirmed Dropbox write, outbox size, token refresh state, WorkManager result and browser/native GPS status. No coordinates, access tokens or health record payloads in diagnostics.
 6. **Security & rollout**: keep package ID and signing identity; do not alter production OTA manifest until debug builds, regression tests, consent review, and on-device pilot have passed. Pilot Zsolt S24 Ultra first, then Mónika with explicit approval. Rollback/forward-recovery must preserve local entries and Dropbox snapshots.
 
-## Immediate release blocker
+## Remaining release blockers (post-implementation)
 **Do not publish v0.15.3 from source just because the OTA machinery exists.** First:
 - Verify last healthy phone APK versions, relevant manifest behavior and any concurrent web Dropbox connector expiry.
 - Investigate `ensureCredentialVersion` destructive path and whether it runs against preexisting valid refresh grants.
 - Reproduce idle reconnect, report HTTP class without sensitive body, and verify pending writes.
-- Add unit/instrumentation tests for migration from missing marker, token expiry, simultaneous workers, offline queue, retry/restart, profile isolation, and work cancellation.
-- Confirm whether HealthHub's new-entry form uses native Dropbox credentials or independent browser OAuth, because fixing one does not automatically fix the other.
+- Complete and verify runtime/instrumentation tests for migration from missing marker, token expiry, simultaneous workers, offline queue, retry/restart, profile isolation, and work cancellation. Static source guards exist but are not a substitute for device tests.
+- Confirm each HealthHub web entry form's separate browser OAuth and persistence semantics. Native `NativeHealthOutbox` only covers Health Connect snapshots; browser Nutrition uses localStorage and separate refresh tokens. Other web forms remain outside the confirmed durable outbox scope.
 
 Acceptance: no manual reconnect after idle with valid refresh credential, no silently lost input, stale states explicitly labelled, current signed release unaffected until gates pass.
