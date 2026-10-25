@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
 <link rel="stylesheet" href="./guardian-landmarks-sync-v787.css?v=787-optin-private-common">
 <link rel="stylesheet" href="./guardian-arrival-studio-v788.css?v=789-buddy-volume">
+<link rel="stylesheet" href="./guardian-buddy-stop-alert-v815.css?v=815">
 <link rel="stylesheet" href="./guardian-transit-v790.css?v=790-bkk-route-choices">
 <link rel="stylesheet" href="./guardian-transit-v791.css?v=799-transport-color">
 <link rel="stylesheet" href="./guardian-bkk-catalog-v801.css?v=801-catalog-a">
@@ -237,6 +238,51 @@
  <details id="hhArrivalStudio" class="hh-arrival-studio" aria-label="Smart Arrival Buddy értesítés szerkesztő">
   <summary>🐿️ Buddy Smart Arrival Studio <small>Hangok · hangerő · előnézet</small></summary>
   <div class="hh-arrival-body">
+   <section id="hhStopAlertStudioV815" class="hh-stop-studio-v815" aria-label="Buddy leszállás- és indulásjelző">
+    <h3>🚌🚋 Buddy · Leszállás- és indulásjelző</h3>
+    <p>Válaszd ki a járatot, az irányt és a megállót. Csak a látható, aktív Edge-oldalon figyelünk; a riasztást külön kell indítani.</p>
+    <div class="hh-stop-grid-v815">
+     <label class="hh-stop-field-v815">Járat
+      <select id="hhStopRouteV815"><option value="260">🚌 260-as busz</option><option value="17">🚋 17-es villamos</option><option value="19">🚋 19-es villamos</option></select>
+     </label>
+     <label class="hh-stop-field-v815">Riasztás típusa
+      <select id="hhStopModeV815"><option value="alight">🔔 Egy megállóval leszállás előtt</option><option value="leave">🏠 Mónika induljon a 260-ashoz</option></select>
+     </label>
+     <label class="hh-stop-field-v815 wide">Menetirány
+      <select id="hhStopDirectionV815"><option value="">BKK-megállósorrend betöltése…</option></select>
+     </label>
+     <label class="hh-stop-field-v815 wide">Célmegálló
+      <select id="hhStopTargetV815"><option value="">Válassz célt…</option></select>
+     </label>
+     <div class="hh-stop-lead-v815 hh-stop-field-v815 wide" id="hhStopLeadV815">Az előző megállót a cél kiválasztása után mutatjuk.</div>
+     <div class="hh-stop-field-v815 wide" id="hhStopLeaveSettingsV815" hidden>
+      <label class="hh-stop-field-v815">Jelzőmegálló a Citronella előtt
+       <select id="hhStopWatchV815"><option value="">Válassz a 260-as Harsánylejtő irányában…</option></select>
+      </label>
+      <label class="hh-stop-field-v815">Mónika indulási üzenete
+       <textarea id="hhStopLeaveTextV815" maxlength="240" rows="2">Mónika, ideje elindulni a Citronella utcai megállóhoz!</textarea>
+      </label>
+     </div>
+     <label class="hh-stop-field-v815 wide">Buddy leszállásjelző üzenete · szerkeszthető
+      <textarea id="hhStopTextV815" maxlength="240" rows="2">Figyelem, a beállított célállomás következik!</textarea>
+     </label>
+     <label class="hh-stop-field-v815">Hang
+      <select id="hhStopSoundV815"><option value="mokuska">🐿️ Játékos Buddy</option><option value="chime">🔔 Csilingelés</option><option value="tada">🎺 Ta-daaa!</option><option value="soft">✨ Diszkrét</option><option value="silent">🔕 Néma</option></select>
+     </label>
+     <label class="hh-stop-field-v815">🔊 Hangerő <output id="hhStopVolumeValueV815">75%</output>
+      <input type="range" id="hhStopVolumeV815" min="0" max="100" step="5" value="75">
+     </label>
+    </div>
+    <p id="hhStopModeHelpV815" class="hh-stop-note-v815">Ez a saját GPS-pozícióból ad megálló-előjelzést.</p>
+    <div class="hh-stop-actions-v815">
+     <button id="hhStopSaveV815" type="button">💾 Mentés</button>
+     <button id="hhStopStartV815" type="button">▶ Figyelés indítása</button>
+     <button id="hhStopStopV815" type="button" hidden>■ Figyelés leállítása</button>
+     <button id="hhStopTestV815" type="button">🐿️ Buddy TESZT</button>
+    </div>
+    <p id="hhStopStatusV815" class="hh-stop-status-v815" role="status" aria-live="polite">A BKK-megállóadatok ellenőrzése…</p>
+    <p class="hh-stop-note-v815">A BKK-járműpozíció alapján csak közelítést érzékelünk, nem bizonyított megállást vagy valós érkezési időt. Az Edge a képernyő lezárásakor megszakíthatja a követést. Nem biztonsági riasztó.</p>
+   </section>
    <p class="hh-arrival-about">Saját Buddy-értesítéseket tervezhettek és menthettek ezen a telefonon. A <strong>TESZT</strong> gomb csak előnézetet ad: valódi helyérkezés-érzékelés és automatikus értesítés még nincs bekapcsolva.</p>
    <div class="hh-arrival-grid">
     <label class="hh-arrival-field">Kiről szól?
@@ -375,12 +421,22 @@
 <script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
+<script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>
+<script defer src="./guardian-buddy-stop-alert-v815.js?v=815"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=814-watchlist"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=814"></script>
 <script defer src="./guardian-smart-hub-fields-v806.js?v=806-fields-b"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=806-network-a"></script>
+<div id="hhStopPopupV815" class="hh-stop-popup-v815" role="alert" aria-live="assertive" hidden>
+ <div class="hh-stop-popup-card-v815">
+  <img src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy mókus" loading="lazy">
+  <div><small id="hhStopPopupFlagV815">🐿️ BUDDY · ÉRTESÍTÉS</small><strong id="hhStopPopupTitleV815">Leszállásjelző</strong>
+   <p id="hhStopPopupBodyV815">Figyelem, a beállított célállomás következik!</p>
+  </div><button id="hhStopClosePopupV815" aria-label="Értesítés bezárása" type="button">×</button>
+ </div>
+</div>
 <div id="hhArrivalTestPopup" class="hh-arrival-test-popup" hidden role="status" aria-live="polite" aria-label="TESZT értesítés, nem valódi érkezés">
  <div class="hh-arrival-test-card">
   <img id="hhArrivalTestMascot" src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy, a HealthHub chipmunk asszisztense" loading="lazy">

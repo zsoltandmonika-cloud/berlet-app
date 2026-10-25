@@ -67,6 +67,14 @@ async function poll(){
   if(!res.ok){clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
   const parsed=validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
+  // Keep the verified BKK vehicle stream separate from profile GPS.
+  // Buddy only sees validated snapshots already obtained via the
+  // authenticated Family Live request. No additional network or location sharing.
+  if(!d.hidden&&typeof w.CustomEvent==='function'){
+   w.dispatchEvent(new w.CustomEvent('hh-bkk-live-verified-v815',{
+    detail:{vehicles:parsed.vehicles,generatedAt:parsed.generatedAt}
+   }));
+  }
   const wanted=new Set(w.HH_GUARDIAN_TRANSIT_V790?.selected||[]);
   const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
   if(!renderer.render(mapApi.map,active)){
