@@ -26,8 +26,14 @@ const publishedBuild='versionCode = '+ota.versionCode;
 const candidateBuild='versionCode = '+(ota.versionCode+1);
 const isPublished=build.includes(publishedBuild);
 const isCandidate=build.includes(candidateBuild);
-assert.ok(isPublished||isCandidate,'build must match published signed versionCode or next signed candidate');
-const allowedVersions=isPublished?[ota.version]:allowedCandidates;
+// Exception only for the already-installed, private signed 0.15.3 pilot.
+// Public OTA 0.15.2/build29 has not yet been updated; a new in-place pilot
+// for its browser routing bug must use 0.15.4/build31.
+const isPrivatePilotHotfix=ota.version==='0.15.2'&&ota.versionCode===29&&
+ build.includes('versionCode = 31')&&build.includes('versionName = "0.15.4"');
+assert.ok(isPublished||isCandidate||isPrivatePilotHotfix,
+ 'build must match signed OTA baseline, next candidate or exact private pilot hotfix');
+const allowedVersions=isPublished?[ota.version]:isPrivatePilotHotfix?['0.15.4']:allowedCandidates;
 assert.ok(allowedVersions.some(v=>build.includes('versionName = "'+v+'"')),
  'app version name must match signed OTA baseline or its next patch/minor candidate');
 const manifest=read(path.join(base,'android-bridge/app/src/main/AndroidManifest.xml'));
