@@ -38,6 +38,7 @@ class ScheduledSyncWorker(
         }
 
         return try {
+            NativeHealthOutbox.flush(applicationContext, prefs, profile)
             if (HealthConnectClient.getSdkStatus(applicationContext) != HealthConnectClient.SDK_AVAILABLE) {
                 error("Health Connect nem elérhető")
             }
@@ -56,9 +57,7 @@ class ScheduledSyncWorker(
             if (!exporter.hasUsefulData(json)) {
                 error("Nem érkezett tényleges Health Connect-mérés az elmúlt 30 napban: " + exporter.countSummary(json))
             }
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-            DropboxVaultClient.uploadHealthConnectSnapshot(prefs, profile, json)
+            NativeHealthOutbox.submit(applicationContext, prefs, profile, json)
 
             prefs.edit()
                 .putLong("last_auto_sync_ms", System.currentTimeMillis())

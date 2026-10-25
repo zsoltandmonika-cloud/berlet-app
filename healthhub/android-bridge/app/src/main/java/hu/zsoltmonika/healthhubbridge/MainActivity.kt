@@ -918,9 +918,7 @@ class MainActivity : ComponentActivity() {
 
         root.addView(Button(this).apply {
             text = "HealthHub megnyitása"
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(HEALTHHUB_URL)))
-            }
+            setOnClickListener { openHealthHubInsideHhOne() }
         })
 
         status = TextView(this).apply {
@@ -1200,7 +1198,12 @@ class MainActivity : ComponentActivity() {
         val enabled = ResilientHealthSync.isEnabled(prefs)
         val stamp = if (last > 0L) SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault()).format(Date(last)) else "még nincs"
         val t = if (enabled) "BE · 3 óránként + automatikus újrapróbálás" else "KI"
+        val owner = deviceOwnerProfile()
+        val pending = if (owner == "zsolt" || owner == "monika") {
+            NativeHealthOutbox.pendingCount(this, owner)
+        } else 0
         val txt = "🔄 Automatikus kapcsolattartás: $t\nUtolsó sikeres Health Connect → Dropbox feltöltés: $stamp" +
+            "\n📥 Helyben várakozó natív mentések: $pending" +
             (if (!error.isNullOrBlank()) "\n⚠️ Utolsó probléma: $error" else "") +
             "\n" + prefs.getString(ResilientHealthSync.KEY_COUNTS, "Még nincs rekordösszesítő")
         resilientSummary?.text = txt
@@ -1279,8 +1282,12 @@ class MainActivity : ComponentActivity() {
                 DailyContentScheduler.runNow(this@MainActivity)
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                val pending = NativeHealthOutbox.pendingCount(this@MainActivity, owner)
+                if (pending > 0) ResilientHealthSync.kick(this@MainActivity)
                 status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}" +
-                    "\nA már mentett Dropbox-adatok megmaradnak. Indítható új SYNC NOW."
+                    (if (pending > 0) "\n📥 $pending Health Connect mentés a telefonon várakozik; újrapróbálkozás beütemezve." else
+                        "\nNincs új helyben sorba állított mentés.") +
+                    "\nA már mentett Dropbox-adatok megmaradnak."
             } finally {
                 manualSyncInProgress = false
             }
@@ -1310,9 +1317,7 @@ class MainActivity : ComponentActivity() {
         status.text = "Health Connect beolvasva · " +
             (if (hcDate.isBlank()) "nincs napi aktivitás" else hcDate + " · " + hcSteps + " lépés") +
             " · Dropbox feltöltés…"
-        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-        DropboxVaultClient.uploadHealthConnectSnapshot(prefs, profile, json)
+        NativeHealthOutbox.submit(this@MainActivity, prefs, profile, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
             .putString(ResilientHealthSync.KEY_COUNTS, summary)
@@ -1325,12 +1330,26 @@ class MainActivity : ComponentActivity() {
         updateScheduleUi()
         OrchestratorScheduler.runNow(this@MainActivity)
 
-        val back = Uri.parse(HEALTHHUB_URL).buildUpon()
-            .appendQueryParameter("bridgeSync", "1")
-            .appendQueryParameter("profile", profile)
-            .appendQueryParameter("ts", System.currentTimeMillis().toString())
+        // A successful native Dropbox sync must return to HH One's own
+        // trusted WebView, not launch Chrome/Samsung Internet via ACTION_VIEW.
+        // Preserve the bridgeSync hint for the HealthHub web import listener.
+        openHealthHubInsideHhOne(profile)
+    }
+
+    private fun openHealthHubInsideHhOne(profile: String? = null) {
+        val target = Uri.parse(HEALTHHUB_URL).buildUpon()
+            .apply {
+                if (profile != null) {
+                    appendQueryParameter("bridgeSync", "1")
+                    appendQueryParameter("profile", profile)
+                    appendQueryParameter("ts", System.currentTimeMillis().toString())
+                }
+            }
             .build()
-        startActivity(Intent(Intent.ACTION_VIEW, back))
+        val internal = Intent(this, Sh9WebActivity::class.java)
+            .putExtra(Sh9WebActivity.EXTRA_FIRST_PARTY_URL, target.toString())
+            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(internal)
     }
 
     private fun startDropboxAuth(profile: String) {
@@ -1402,23 +1421,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun getAccessToken(): String {
-        val existing = prefs.getString("dropbox_access_token", null)
-        val exp = prefs.getLong("dropbox_access_expires", 0L)
-        if (!existing.isNullOrBlank() && exp > System.currentTimeMillis() + 60_000L) return existing
-
-        val refresh = prefs.getString("dropbox_refresh_token", null)
-            ?: error("Dropbox nincs csatlakoztatva")
-        val j = withContext(Dispatchers.IO) { refreshAccessToken(refresh) }
-        val access = j.optString("access_token")
-        val expires = j.optLong("expires_in", 14400L)
-        if (access.isBlank()) error("Dropbox access token hiányzik")
-        prefs.edit()
-            .putString("dropbox_access_token", access)
-            .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
-            .apply()
-        return access
-    }
+    // Route all native manual and scheduled Dropbox operations through the same
+    // serialized credential authority; avoid competing refresh writes.
+    private suspend fun getAccessToken(): String = DropboxVaultClient.accessToken(prefs)
 
     private fun exchangeCode(code: String, verifier: String): JSONObject {
         val body = form(

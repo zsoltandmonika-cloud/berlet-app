@@ -57,13 +57,30 @@ async function handleCallback(){
  toast('Dropbox Health Vault csatlakoztatva');
  setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'oauth')},80);
 }
+var tokenRefreshInFlight=null;
 async function accessToken(){
  var t=readToken();if(!t||!t.refresh_token)throw new Error('A Dropbox nincs csatlakoztatva.');
  if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
- var body=new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP_KEY});
- var r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body});
- var j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||'Dropbox token frissítési hiba');
- t.access_token=j.access_token;t.expires_at=Date.now()+((Number(j.expires_in)||14400)-60)*1000;saveToken(t);return t.access_token;
+ if(tokenRefreshInFlight)return tokenRefreshInFlight;
+ tokenRefreshInFlight=(async function(){
+  // A parallel sync may have refreshed while this request was waiting.
+  var current=readToken();
+  if(!current||!current.refresh_token)throw new Error('A Dropbox nincs csatlakoztatva.');
+  if(current.access_token&&Number(current.expires_at)>Date.now()+60000)return current.access_token;
+  var body=new URLSearchParams({refresh_token:current.refresh_token,grant_type:'refresh_token',client_id:APP_KEY});
+  var r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body});
+  var j=await r.json();
+  if(!r.ok)throw new Error(j.error_description||j.error||'Dropbox token frissítési hiba');
+  if(!j.access_token)throw new Error('Dropbox access token hiányzik');
+  // Disconnect/reconnect during refresh must not resurrect an old OAuth grant.
+  var latest=readToken();
+  if(!latest||latest.refresh_token!==current.refresh_token)throw new Error('A Dropbox munkamenet időközben megváltozott.');
+  latest.access_token=j.access_token;
+  latest.expires_at=Date.now()+Math.max(0,(Number(j.expires_in)||14400)-60)*1000;
+  saveToken(latest);
+  return latest.access_token;
+ })();
+ try{return await tokenRefreshInFlight}finally{tokenRefreshInFlight=null}
 }
 
 async function uploadJsonPath(path,data){
