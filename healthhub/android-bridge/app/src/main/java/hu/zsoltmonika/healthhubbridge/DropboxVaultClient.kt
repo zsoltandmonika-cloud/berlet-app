@@ -60,9 +60,15 @@ object DropboxVaultClient {
      * An old cross-client grant is replaced only by a newly received grant.
      */
     suspend fun storeAuthorizedGrant(
-        prefs: SharedPreferences, refresh: String, access: String, expiresSeconds: Long
+        prefs: SharedPreferences, refresh: String, access: String, expiresSeconds: Long,
+        expectedState: String, expectedVerifier: String
     ) = tokenRefreshLock.withLock {
         require(refresh.isNotBlank() && access.isNotBlank())
+        check(expectedState.isNotBlank() && expectedVerifier.isNotBlank() &&
+            prefs.getString("dropbox_oauth_state", null) == expectedState &&
+            prefs.getString("dropbox_pkce_verifier", null) == expectedVerifier) {
+            "Dropbox engedélyezési munkamenet közben megváltozott"
+        }
         prefs.edit()
             .putString(CLIENT_MARKER, APP_KEY)
             .putString("dropbox_refresh_token", refresh)
