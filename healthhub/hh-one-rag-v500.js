@@ -194,6 +194,20 @@ function renderPanel(){
    txt('small','Parancs: '+safeText(d.status&&d.status.state||'Nincs visszaigazolás')+
     ' · '+dt(d.status&&d.status.updatedAt),line);
    if(d.lastHealthError)txt('small','Health hiba: '+safeText(d.lastHealthError).slice(0,180),line);
+   if(Number(d.buildCode)>=34){
+    var mode=safeText(d.smartLocationMode||'ismeretlen');
+    var provider=safeText(d.smartLocationEngine||'indításra vár');
+    var fixAt=d.smartLocationLastFixAt,cloudAt=d.familyGuardLastUploadedAt;
+    var result=safeText(d.familyGuardUploadStatus||'még nincs feltöltés');
+    txt('small','📍 Smart Location: '+provider+' · '+mode+
+      ' · utolsó helymérés: '+(fixAt?dt(fixAt):'nincs'),line);
+    txt('small','☁️ Családi felhő: '+result+
+      ' · utolsó feltöltés: '+(cloudAt?dt(cloudAt):'nincs'),line);
+    if(fixAt&&Date.now()-Date.parse(fixAt)>120000)
+      txt('small','⚠ Több mint két perce nincs natív helymérés.',line);
+    else if(fixAt&&(!cloudAt||Date.parse(cloudAt)<Date.parse(fixAt)-120000))
+      txt('small','⚠ Van helymérés, de nem igazolt friss felhőfeltöltés. Ellenőrizd a Dropboxot és az Eszközregisztert.',line);
+   }
    txt('small','Agent verzió: '+safeText(d.build||'ismeretlen')+' · OTA ellenőrzés: '+dt(d.otaLastCheckedAt),line);
    if(d.otaCandidateVersion)txt('small','Elérhető OTA jelölt: '+safeText(d.otaCandidateVersion),line);
    if(d.otaLastError)txt('small','OTA hiba: '+safeText(d.otaLastError).slice(0,150),line);
