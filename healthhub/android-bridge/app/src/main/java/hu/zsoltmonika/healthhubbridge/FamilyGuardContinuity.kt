@@ -42,7 +42,9 @@ object FamilyGuardContinuity {
 
     fun gpsAvailable(context: Context): Boolean = runCatching {
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) manager.isLocationEnabled
+        else manager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }.getOrDefault(false)
 
     fun canRestart(context: Context): Boolean =
