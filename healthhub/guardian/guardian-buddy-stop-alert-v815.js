@@ -159,14 +159,19 @@
   if(p.mode==='leave'){
    if(p.route!=='260'||v.headsign!=='Harsánylejtő'){
     status('Mónika indulásjelzőjéhez válaszd a 260-as Harsánylejtő irányát.');return}
+   const bound=w.HH_GUARDIAN_LIVE_V785?.boundProfile;
+   if(profile()!=='monika'||(bound&&bound!=='monika')){
+    status('Az indulásjelzőt Mónika saját, Mónika-profilhoz rendelt telefonján indítsd el. Másik telefonra ez a böngésző nem küld értesítést.');return}
    const trigger=v.stops.findIndex(s=>s.id===p.watchStopId);
    const citronella=v.stops.findIndex(s=>s.name==='Citronella utca');
    if(trigger<0||citronella<1||trigger>=citronella){
     status('Válaszd ki a Citronella előtti jelzőmegállót.');return}
   }
   prefs[profile()]=p;if(!save())return;
+  const index=v.stops.findIndex(s=>s.id===p.watchStopId);
   armed={...p,profile:profile(),headsign:v.headsign,target:v.stops[target]||null,
-   lead:C.leadStop(v,p.stopId),trigger:v.stops.find(s=>s.id===p.watchStopId)||null};
+   lead:C.leadStop(v,p.stopId),trigger:v.stops[index]||null,
+   previousStop:v.stops[index-1]||null};
   lastDistance=null;seenVehicles.clear();lastTriggered.clear();
   $('hhStopStartV815').hidden=true;$('hhStopStopV815').hidden=false;
   status(p.mode==='leave'?
@@ -187,17 +192,15 @@
   const payload=event?.detail||{};
   if(!Array.isArray(payload.vehicles))return;
   for(const v of payload.vehicles){
-   const fix=C.liveBus(v,armed.headsign);
-   if(!fix||lastTriggered.has(fix.id))continue;
-   const dist=C.distance(fix,armed.trigger);
+   const fix=C.liveBus(v);
+   if(!fix||lastTriggered.has(fix.id)||!armed.previousStop)continue;
    const old=seenVehicles.get(fix.id);
    if(old&&fix.timestamp<=old.timestamp)continue;
-   if(old&&C.detection(old.distance,dist,115)){
-    lastTriggered.add(fix.id);
-    const p=armed;stop('🔔 Figyelőmegálló elérve: '+p.trigger.name+' · Mónika indulásjelző.');
+   if(old&&C.directionalApproach(old,fix,armed.previousStop,armed.trigger,115)){
+    const p=armed;stop('🔔 Friss járműjel a(z) '+p.trigger.name+' megálló felé · Mónika indulásjelző.');
     announce(p.leaveMessage,'Indulás a Citronellához · 260',p);break;
    }
-   seenVehicles.set(fix.id,{distance:dist,timestamp:fix.timestamp});
+   seenVehicles.set(fix.id,fix);
   }
  }
  async function download(){
