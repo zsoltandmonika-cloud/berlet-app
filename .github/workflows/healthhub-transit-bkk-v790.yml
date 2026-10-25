@@ -38,7 +38,7 @@ jobs:
           python - <<'PY'
           import json
           f=json.load(open('healthhub/guardian/bkk-routes-v790.json',encoding='utf-8'))
-          assert set(f['routes']) == {'260','17','19'}
+          assert set(f['routes']) == {'260','17','19','1','41'}
           assert all(len(x['variants']) > 0 for x in f['routes'].values())
           assert all(len(v['shape']) > 1 and len(v['stops']) > 0 for r in f['routes'].values() for v in r['variants'])
           print(f['generatedAt'],[(k,len(v['variants'])) for k,v in f['routes'].items()])
@@ -51,7 +51,7 @@ jobs:
           f=json.load(open('healthhub/guardian/bkk-catalog-v801.json',encoding='utf-8'))
           assert f['schemaVersion']==1 and f['source']=='BKK Zrt., CC BY 4.0'
           assert len(f['routes'])>100
-          assert {'260','17','19'}.issubset({x['id'] for x in f['routes']})
+          assert {'260','17','19','1','41'}.issubset({x['id'] for x in f['routes']})
           assert all(x['gtfsRouteIds'] for x in f['routes'])
           print("Verified official BKK catalogue",len(f['routes']),"lines")
           PY
