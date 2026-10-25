@@ -29,6 +29,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
+import androidx.browser.customtabs.CustomTabsIntent
 
 /**
  * The same HH One signed APK now offers the SH9 launcher as a live web surface.
@@ -87,18 +88,39 @@ class Sh9WebActivity : ComponentActivity() {
                 "A HH One beépített nézete nem osztja meg a Chrome/Edge " +
                 "Dropbox-, Google- és Microsoft-belépéseit.\n\n" +
                 "A meglévő kapcsolataid megtartásához nyisd meg ezt a " +
-                "modult a szokásos böngésződben. Az alkalmazáson belüli " +
-                "nézet külön bejelentkezést kérhet."
+                "modult a telefon alapértelmezett böngészőjének lapján. " +
+                "Ez a böngésző saját munkamenetét használja, így csak akkor " +
+                "lesz bejelentkezve, ha ott is kapcsolódtál. A HH One saját " +
+                "WebView-ja külön bejelentkezést kérhet."
             )
-            .setPositiveButton("Meglévő böngésző") { _, _ ->
+            .setPositiveButton("Meglévő böngészős kapcsolat") { _, _ ->
+                // Chrome/Edge Custom Tabs use the selected BROWSER's cookies,
+                // NOT the isolated WebView or the native Dropbox token vault.
+                // Retain the browser chrome for a trustworthy HTTPS identity.
                 try {
-                    startActivity(Intent(Intent.ACTION_VIEW, target).apply {
-                        addCategory(Intent.CATEGORY_BROWSABLE)
-                    })
+                    CustomTabsIntent.Builder()
+                        .setShowTitle(false)
+                        .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+                        .build()
+                        .launchUrl(this, target)
                 } catch (_: ActivityNotFoundException) {
+                    // Some browsers do not implement Custom Tabs; use the
+                    // existing default browser rather than starting a new login.
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, target).apply {
+                            addCategory(Intent.CATEGORY_BROWSABLE)
+                        })
+                    } catch (_: ActivityNotFoundException) {
+                        AlertDialog.Builder(this)
+                            .setTitle("Böngésző nem érhető el")
+                            .setMessage("Nem nyílt meg a böngésző. A HealthHub adatait nem módosítottuk.")
+                            .setPositiveButton("Rendben", null)
+                            .show()
+                    }
+                } catch (_: SecurityException) {
                     AlertDialog.Builder(this)
-                        .setTitle("Böngésző nem érhető el")
-                        .setMessage("Nem nyílt meg a rendszerböngésző. A HealthHub adatait nem módosítottuk.")
+                        .setTitle("Böngészőhozzáférés tiltva")
+                        .setMessage("A böngésző indítása nem engedélyezett. A korábbi kapcsolataidhoz nem nyúltunk.")
                         .setPositiveButton("Rendben", null)
                         .show()
                 }
