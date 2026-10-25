@@ -66,7 +66,17 @@ function updateUi(){
   reset.textContent=ownerMismatch?'📱 Saját telefon hozzárendelésének ellenőrzése':'Ez egy másik családtag telefonja';
  }
  const auto=autoEnabled();
- set('guardianLiveAutoStatus',auto?'Automatikus előtéri indulás: BE · csak ezen a telefonon, amíg ki nem kapcsolod.':'Automatikus előtéri indulás: KI · egyszeri jóváhagyás szükséges.');
+ // v827: a remembered Follow camera setting is NOT evidence of a running GPS.
+ // Explain which own-phone prerequisite is missing without guessing a location.
+ const autoMessage=ownerMismatch?
+  'Automatikus GPS: nem indul · ez a telefon '+label(owner)+' profiljához van rendelve.':
+  !owner?'Automatikus GPS: nincs beállítva · saját telefon hozzárendelése és egyszeri jóváhagyás szükséges.':
+  !auto?'Automatikus GPS: KI · egyszeri jóváhagyás szükséges '+label(me)+' saját telefonján.':
+  !user?'Automatikus GPS: engedélyezve · Google-bejelentkezés ellenőrzésére várunk.':
+  !meReady?'Automatikus GPS: engedélyezve, de ehhez a profilhoz nincs hitelesített hozzáférés.':
+  sharing?'Automatikus GPS: BE · saját telefon · ellenőrizd a GPS-jel frissességét.':
+  'Automatikus GPS: engedélyezve · előtéri GPS-indítás ellenőrzése folyamatban.';
+ set('guardianLiveAutoStatus',autoMessage);
  const disableAuto=$('guardianLiveDisableAuto');if(disableAuto)disableAuto.hidden=!auto;
  if(!user)set('guardianOtherState','Csak belépés után kérdezhető le');
  else if(!access.includes(other()))set('guardianOtherState','Nincs hozzáférés ehhez a profilhoz');
@@ -220,7 +230,7 @@ function onProfileChanged(){
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
  gpsInfo('⚪ Profilváltás után a böngészős GPS-t külön újra kell indítani.');
- updateUi();resetPolling();loadSettings();maybeAutoStart();
+ updateUi();resetPolling();loadSettings();resumeOwnPhoneAutoFollow();
 }
 function onGpsFix(pos){
  if(!api||!sharing||!user||d.hidden||sharingProfile!==self()||!access.includes(sharingProfile))return;
@@ -335,6 +345,14 @@ function maybeAutoStart(){
  if(sharing||d.hidden||!user||!access.includes(self())||!autoEnabled())return;
  startSharing();
 }
+// Revalidate auth on foreground return. A transient Google/network check failure
+// must not force a previously consented owner to tap Follow every time.
+// Never trigger a new consent prompt or start GPS on a different owner's phone.
+function resumeOwnPhoneAutoFollow(){
+ if(d.hidden)return;
+ if(!user){if(api)refreshAuth();return}
+ maybeAutoStart();
+}
 function userStopSharing(){
  removeAuto();
  stopSharing();
@@ -376,9 +394,9 @@ function init(){
  const ownerFix=$('guardianLiveResolveOwner811');if(ownerFix)ownerFix.addEventListener('click',resetDevice);
  d.addEventListener('hh-guardian-location-settings-changed',syncSettings);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
- d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsPaused();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;setPeerState('Háttérben nincs böngészős GPS · visszatéréskor frissítünk')}else{resetPolling();maybeAutoStart()}});
+ d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsPaused();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;setPeerState('Háttérben nincs böngészős GPS · visszatéréskor frissítünk')}else{resetPolling();resumeOwnPhoneAutoFollow()}});
  w.addEventListener('pagehide',()=>{onGpsPaused();if(pollTimer!==null)w.clearInterval(pollTimer)});
- w.addEventListener('pageshow',()=>{if(!d.hidden)maybeAutoStart()});
+ w.addEventListener('pageshow',resumeOwnPhoneAutoFollow);
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')onProfileChanged()});
  updateUi();
  if(!api){msg('A Family Live hitelesített adatkapcsolata nem elérhető. A helyadat nem kerül továbbításra.');return}

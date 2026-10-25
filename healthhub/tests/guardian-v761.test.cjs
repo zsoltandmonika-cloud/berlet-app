@@ -1264,3 +1264,78 @@ test('v818 Family Live is above profile member cards without moving GPS consent 
  assert.doesNotMatch(panel,/class="family-grid"[\\s\\S]*class="guardian-live-v785"/,
   'member cards must not precede consent controls');
 });
+
+test('v827 foreground resumes approved owner after temporary auth loss, never another profile',async()=>{
+ const source=read('guardian/guardian-live-v785.js');
+ const controls={},listeners={},windowListeners={},store={
+  'hh-profile':'m',
+  'hh-guardian-own-phone-profile-v785':'monika',
+  'hh-guardian-foreground-auto-v786':'monika'
+ };
+ function el(){return {disabled:false,hidden:false,textContent:'',value:'',
+  classList:{add(){},remove(){}},addEventListener(k,fn){this[k]=fn},
+  setAttribute(){},click(){if(this.click)this.click()}}}
+ const doc={hidden:false,getElementById(id){return controls[id]||(controls[id]=el())},
+  addEventListener(k,fn){listeners[k]=fn},createElement:el};
+ const storage={getItem(k){return store[k]??null},setItem(k,v){store[k]=v},removeItem(k){delete store[k]}};
+ let authCalls=0,follows=0,dialogs=0;
+ const auth={
+  async getUser(){
+   authCalls++;
+   if(authCalls===1)return {data:{user:null},error:{message:'temporary offline'}};
+   return {data:{user:{id:'own-m'}},error:null}
+  },
+  onAuthStateChange(){},signOut(){return Promise.resolve({error:null})}
+ };
+ const api={auth,from(){return {select(){return this},
+  in(){return Promise.resolve({data:[{profile_key:'monika'},{profile_key:'zsolt'}],error:null})},
+  eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},
+  upsert(){return Promise.resolve({error:null})},
+  delete(){return Promise.resolve({error:null})}
+ }}};
+ const win={
+  HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://example.invalid',publishableKey:'publishable-test'},
+  supabase:{createClient(){return api}},localStorage:storage,
+  HH_GUARDIAN_V761:{active:false,startFollowing(){follows++}},
+  HH_GOLDEN_AVATARS_V529:{z:'z-photo',m:'m-photo'},
+  confirm(){dialogs++;return true},setInterval(){return 1},clearInterval(){},
+  setTimeout(){return 1},addEventListener(k,fn){windowListeners[k]=fn},
+  location:{origin:'https://example.invalid',pathname:'/guardian/index.html'}
+ };
+ vm.runInNewContext(source,{window:win,document:doc,Date,Math,Number,String,Promise});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(follows,0,'transient auth failure must not begin GPS/host upload');
+ assert.equal(authCalls,1);
+ assert.match(controls.guardianLiveAutoStatus.textContent,/Google-bejelentkezés/);
+ windowListeners.pageshow();
+ await new Promise(resolve=>setImmediate(resolve));
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(authCalls,2,'foreground retry rechecks auth');
+ assert.equal(follows,1,'same already consented Monika phone resumes location');
+ assert.equal(dialogs,0,'no repeat permission dialog');
+ store['hh-profile']='z';
+ windowListeners.storage({key:'hh-profile'});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(follows,1,'switching to Zsolt on Mónika phone must NOT start own GPS again');
+ assert.match(controls.guardianLiveIdentity.textContent,/NEM egyezik/);
+ assert.match(controls.guardianLiveAutoStatus.textContent,/telefon.*Mónika/);
+ assert.equal(store['hh-guardian-foreground-auto-v786'],'monika','profile switch does not revoke own consent');
+});
+
+test('v827 clearly distinguishes GPS follow camera from authorized automatic GPS start',()=>{
+ const live=read('guardian/guardian-live-v785.js'),guardian=read('guardian/guardian.js');
+ const html=read('guardian/index.html');
+ assert.match(live,/function resumeOwnPhoneAutoFollow\(\)/);
+ assert.match(live,/if\(!user\)\{if\(api\)refreshAuth\(\);return\}/);
+ assert.match(live,/w\.addEventListener\('pageshow',resumeOwnPhoneAutoFollow\)/);
+ assert.match(live,/else\{resetPolling\(\);resumeOwnPhoneAutoFollow\(\)\}/);
+ assert.match(live,/function maybeAutoStart\(\)\{/);
+ assert.match(live,/if\(sharing\|\|d\.hidden\|\|!user\|\|!access\.includes\(self\(\)\)\|\|!autoEnabled\(\)\)return/);
+ assert.match(live,/ownerMismatch\?/,'owner mismatch is clearly signaled');
+ assert.match(live,/Automatikus GPS: KI/);
+ assert.match(live,/Automatikus GPS: BE/);
+ assert.match(guardian,/follow=true;threeD=true;/,'default map view is Follow + 3D, not GPS capture');
+ assert.match(guardian,/if\(!active\)\{start\(\);return\}/,'only consented owner can call startFollowing');
+ assert.match(html,/id="guardianLiveAutoStatus"/);
+ assert.doesNotMatch(live,/service_role|sb_secret_/);
+});
