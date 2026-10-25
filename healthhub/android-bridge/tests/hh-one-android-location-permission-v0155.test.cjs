@@ -32,9 +32,12 @@ test('user opted in to Android Always location in system settings, never auto-gr
  assert.match(service,/startForeground\(NOTIFICATION_ID, notification\(\)\)/);
  assert.match(service,/START_NOT_STICKY/);
 });
-test('permission access does not imply existing family tracking or coordinate publishing',()=>{
- assert.match(activity,/nem küld helykoordinátát a Family Guardba/);
+test('Android permission alone does not grant natív family sharing',()=>{
+ assert.match(activity,/Android helyengedély NEM engedélyezi automatikusan/);
+ assert.match(activity,/Kifejezetten jóváhagyom/);
+ assert.match(activity,/toggleNativeFamilyShare/);
  assert.match(activity,/Edge GPS-korlátait/);
  assert.match(service,/lastFixAtMillis = System\.currentTimeMillis\(\)/);
+ assert.match(service,/FamilyGuardNativeRelay\.publish/);
  assert.doesNotMatch(service,/supabase|\.upload\(|\.insert\(|\.upsert\(|\.send\(/i);
 });
