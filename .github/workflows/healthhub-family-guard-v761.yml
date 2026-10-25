@@ -53,6 +53,7 @@ jobs:
           node --check healthhub/tests/guardian-buddy-stop-alert-v815.test.cjs
           node --check healthhub/tests/guardian-buddy-stop-v815.test.cjs
           node --check healthhub/tests/guardian-bkk-watchlist-v814.test.cjs
+          node --check healthhub/tests/guardian-bkk-live-watchlist-v816.test.cjs
           node --check healthhub/tests/smart-hub-catalog-v801.test.cjs
           node --check healthhub/guardian/guardian-smart-hub-v802.js
           node --check healthhub/tests/smart-hub-destination-v802.test.cjs
@@ -65,7 +66,7 @@ jobs:
           node --check healthhub/guardian/guardian-smart-hub-network-v806.js
           node --check healthhub/tests/smart-hub-v806.test.cjs
       - name: Run Guardian and Timeline migration checks
-        run: node --test healthhub/tests/guardian-v761.test.cjs healthhub/tests/guardian-family-last-known-v807.test.cjs healthhub/tests/guardian-bkk-watchlist-v814.test.cjs healthhub/tests/guardian-buddy-stop-alert-v815.test.cjs healthhub/tests/guardian-buddy-stop-v815.test.cjs healthhub/tests/smart-hub-catalog-v801.test.cjs healthhub/tests/smart-hub-destination-v802.test.cjs healthhub/tests/smart-hub-native-v803.test.cjs healthhub/tests/smart-hub-router-v804.test.cjs healthhub/tests/smart-hub-go-v805.test.cjs healthhub/tests/smart-hub-v806.test.cjs
+        run: node --test healthhub/tests/guardian-v761.test.cjs healthhub/tests/guardian-family-last-known-v807.test.cjs healthhub/tests/guardian-bkk-watchlist-v814.test.cjs healthhub/tests/guardian-bkk-live-watchlist-v816.test.cjs healthhub/tests/guardian-buddy-stop-alert-v815.test.cjs healthhub/tests/guardian-buddy-stop-v815.test.cjs healthhub/tests/smart-hub-catalog-v801.test.cjs healthhub/tests/smart-hub-destination-v802.test.cjs healthhub/tests/smart-hub-native-v803.test.cjs healthhub/tests/smart-hub-router-v804.test.cjs healthhub/tests/smart-hub-go-v805.test.cjs healthhub/tests/smart-hub-v806.test.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

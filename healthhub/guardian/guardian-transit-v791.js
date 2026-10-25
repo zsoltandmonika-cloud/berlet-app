@@ -301,7 +301,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v','800-glassy-marker');
+  const url=new URL(file,dir);url.searchParams.set('v','816-watchlist-live');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');

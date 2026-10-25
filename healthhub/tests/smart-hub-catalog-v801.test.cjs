@@ -45,7 +45,7 @@ test('v801 is on canonical Guardian page, keeps visible map baseline and per-pro
  assert.match(ui,/Kedvenc · térképes bővítés később/);
  assert.match(css,/min-height:44px/);
  assert.match(html,/id="hhTransitRoute260"/);
- assert.match(html,/guardian-transit-v791\.js\?v=800-glassy-marker/);
+ assert.match(html,/guardian-transit-v791\.js\?v=816-watchlist-live/);
  assert.doesNotMatch(html,/hh-transit-sheet-grip|hhTransitDetails/);
 });
 
