@@ -1117,8 +1117,9 @@ class MainActivity : ComponentActivity() {
             gpsBootButton.text = if (approved)
                 "🟢 Family Guard GPS · újraindítás után BE · kikapcsolás"
                 else "⚪ Family Guard GPS · újraindítás után KI · engedélyezés"
-            gpsBackgroundSummary.text = gpsBackgroundSummary.text.toString() +
-                "\nAutomatikus natív GPS: " + (if (approved) "jóváhagyva" else "nincs bekapcsolva") +
+            val info = gpsBackgroundSummary.text.toString().substringBefore("\nAutomatikus natív GPS:")
+            gpsBackgroundSummary.text = info + "\nAutomatikus natív GPS: " +
+                (if (approved) "jóváhagyva" else "nincs bekapcsolva") +
                 " · utolsó helyreállítás: " + last
         }
     }
@@ -1131,6 +1132,7 @@ class MainActivity : ComponentActivity() {
                 .setNegativeButton("Mégse", null)
                 .setPositiveButton("Kikapcsolás") { _, _ ->
                     FamilyGuardContinuity.disable(this)
+                    FamilyGuardContinuity.setApproved(this, false)
                     updateSh9GpsUi()
                     status.text = "Family Guard natív GPS automatikus indítás KI."
                 }.show()
@@ -1157,7 +1159,9 @@ class MainActivity : ComponentActivity() {
                 "megpróbálja helyreállítani a natív GPS előtérszolgáltatást. " +
                 "Folyamatos Android-értesítés látszik és bármikor leállíthatod. " +
                 "A központi, kijelölt családi eszköz kérhet távoli LEÁLLÍTÁST; " +
-                "távoli újraindításnál ezen a telefonon új jóváhagyás kell.\n\n" +
+                "távoli újraindításnál ezen a telefonon új jóváhagyás kell. " +
+                "A központ SOS kapcsolatfelvételi értesítést is küldhet, " +
+                "de kamerát és mikrofont nem kapcsolhat be.\n\n" +
                 "Fontos: a natív szolgáltatás egyelőre csak a GPS-fix időpontját tartja meg, " +
                 "nem tölt fel helykoordinátákat a Family Guardba. " +
                 "Az Edge követését és a kamera/mikrofon használatát ez nem indítja el. " +
