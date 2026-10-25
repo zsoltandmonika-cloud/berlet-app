@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var gpsBackgroundSummary: TextView
     private lateinit var gpsToggleButton: Button
     private lateinit var gpsBootButton: Button
+    private lateinit var familyShareButton: Button
     private lateinit var gpsIntervalSpinner: Spinner
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
@@ -733,6 +734,11 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { toggleGpsBootConsent() }
         }
         root.addView(gpsBootButton)
+        familyShareButton = Button(this).apply {
+            text = "Family Guard · natív családi megosztás"
+            setOnClickListener { toggleNativeFamilyShare() }
+        }
+        root.addView(familyShareButton)
         root.addView(Button(this).apply {
             text = "📍 Android helyszolgáltatás beállításai"
             setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
@@ -1117,6 +1123,10 @@ class MainActivity : ComponentActivity() {
             gpsBootButton.text = if (approved)
                 "🟢 Family Guard GPS · újraindítás után BE · kikapcsolás"
                 else "⚪ Family Guard GPS · újraindítás után KI · engedélyezés"
+            if (::familyShareButton.isInitialized) familyShareButton.text =
+                if (FamilyGuardNativeRelay.enabled(this))
+                    "🟢 Family Guard · helymegosztás BE · visszavonás"
+                else "⚪ Family Guard · helymegosztás KI · jóváhagyás"
             val info = gpsBackgroundSummary.text.toString().substringBefore("\nAutomatikus natív GPS:")
             gpsBackgroundSummary.text = info + "\nAutomatikus natív GPS: " +
                 (if (approved) "jóváhagyva" else "nincs bekapcsolva") +
@@ -1171,6 +1181,45 @@ class MainActivity : ComponentActivity() {
             .setPositiveButton("Jóváhagyom") { _, _ ->
                 FamilyGuardContinuity.setApproved(this, true)
                 startSh9Gps()
+                updateSh9GpsUi()
+            }.show()
+    }
+
+    private fun toggleNativeFamilyShare() {
+        if (FamilyGuardNativeRelay.enabled(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("Family Guard · helymegosztás visszavonása")
+                .setMessage("Az új helyadatok küldése leáll. A privát családi felhőben a legutóbbi rekordot visszavonó jelzés váltja fel, amint van internet.")
+                .setNegativeButton("Mégse", null)
+                .setPositiveButton("Megosztás leállítása") { _, _ ->
+                    FamilyGuardNativeRelay.disable(this)
+                    updateSh9GpsUi()
+                }.show()
+            return
+        }
+        if (!FamilyGuardContinuity.enabled(this) ||
+            !FamilyGuardContinuity.hasBackgroundLocation(this)) {
+            status.text = "Előbb a saját telefonodon engedélyezd a natív GPS automatikus működését és a pontos háttérhelyet."
+            return
+        }
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            status.text = "A privát családi Dropbox csatlakoztatása szükséges."
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Family Guard · külön helymegosztási hozzájárulás")
+            .setMessage("Engedélyezed, hogy EZ A TELEFON a saját profilod aktuális GPS-pozícióját " +
+                "a meglévő privát családi Dropboxba küldje? Az előző helyadatot felülírjuk, " +
+                "útvonalnaplót nem készítünk. Lezárt képernyőn is történhet feltöltés. " +
+                "A megosztás látható Android-értesítésből, valamint itt bármikor leállítható. " +
+                "A kérelmező családtag csak a hitelesített Family Guardon keresztül láthatja. " +
+                "Nincs mikrofon vagy kamera használat.")
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Kifejezetten jóváhagyom") { _, _ ->
+                if (FamilyGuardNativeRelay.enable(this)) {
+                    startSh9Gps()
+                    status.text = "Family Guard: a saját aktuális GPS-pozíció feltöltése engedélyezve."
+                } else status.text = "Nem indulhat a megosztás: ellenőrizd a tulajdonosi profilt és a Dropboxot."
                 updateSh9GpsUi()
             }.show()
     }
