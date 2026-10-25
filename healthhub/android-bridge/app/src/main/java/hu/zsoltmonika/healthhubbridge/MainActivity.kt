@@ -401,6 +401,13 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
+                val nativeShared = prefs.getBoolean(FamilyGuardNativeRelay.KEY_SHARE, false)
+                val nativeStatus = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
+                if (nativeShared || FamilyGuardContinuity.enabled(this@MainActivity) ||
+                    nativeStatus == "stopping" || nativeStatus.startsWith("revoke-pending:")) {
+                    status.text = "Előbb állítsd le a Family Guard GPS-autostartot és a natív megosztást, majd várd meg a Dropbox visszavonó jelzését, mielőtt a telefon tulajdonosát módosítod."
+                    return@setOnClickListener
+                }
                 val digitalPrefs = PilotState.prefs(this@MainActivity)
                 if (digitalPrefs.getBoolean(PilotState.CLOUD_ENABLED, false) ||
                     digitalPrefs.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)) {
