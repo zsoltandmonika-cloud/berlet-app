@@ -2,6 +2,7 @@ package hu.zsoltmonika.healthhubbridge
 
 import android.Manifest
 import android.app.TimePickerDialog
+import android.app.AlertDialog
 import android.os.Build
 import android.provider.Settings
 import android.content.Intent
@@ -79,6 +80,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var otaCheckButton: Button
     private var otaChecking = false
     private lateinit var gpsSummary: TextView
+    private lateinit var gpsBackgroundSummary: TextView
     private lateinit var gpsToggleButton: Button
     private lateinit var gpsIntervalSpinner: Spinner
 
@@ -727,6 +729,16 @@ class MainActivity : ComponentActivity() {
             text = "📍 Android helyszolgáltatás beállításai"
             setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
         })
+        gpsBackgroundSummary = TextView(this).apply {
+            textSize = 14f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(0, 12, 0, 6)
+        }
+        root.addView(gpsBackgroundSummary)
+        root.addView(Button(this).apply {
+            text = "📍 Mindig engedélyezett · Android helyjogosultság"
+            setOnClickListener { openBackgroundLocationSettings() }
+        })
         root.addView(TextView(this).apply {
             text = "Alapból KI. Csak kézi indítás; aktív állapotban látható Android értesítésből is leállítható. Nem mentünk vagy továbbítunk GPS-koordinátákat. Nem garantálja más appok háttérbeli GPS-hozzáférését. Folyamatos használata növeli az akkumulátorfogyasztást."
             textSize = 12f
@@ -1068,6 +1080,19 @@ class MainActivity : ComponentActivity() {
 
     private fun updateSh9GpsUi() {
         if (!::gpsSummary.isInitialized || !::gpsToggleButton.isInitialized) return
+        if (::gpsBackgroundSummary.isInitialized) {
+            val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+            val background = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+            gpsBackgroundSummary.text = when {
+                !fine -> "Helyjogosultság: pontos GPS még nincs engedélyezve."
+                background -> "✓ Android helyjogosultság: Mindig engedélyezett."
+                else -> "Android helyjogosultság: csak használat közben. " +
+                    "A Mindig engedélyezett opciót külön, kézzel választhatod."
+            }
+        }
         val period = Sh9GpsService.interval(this)
         val running = Sh9GpsService.active
         val last = Sh9GpsService.lastFixAtMillis
@@ -1077,6 +1102,32 @@ class MainActivity : ComponentActivity() {
         gpsSummary.text = (if (running) "🟢 Aktív GPS előtérszolgáltatás" else "⚪ GPS ki van kapcsolva") +
             "\nFrissítési időköz: $period mp · $lastText"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
+    }
+
+    private fun openBackgroundLocationSettings() {
+        // Android 11+ does not allow granting "Allow all the time" from a normal
+        // runtime popup. Only the actual device owner can enable it in Settings.
+        // Merely opening Settings never starts sharing, GPS or a background job.
+        AlertDialog.Builder(this)
+            .setTitle("SH9 GPS · Mindig engedélyezett")
+            .setMessage(
+                "A beállítás engedélyezheti a HH One natív helyhozzáférését háttérben is. " +
+                "A jelenlegi natív GPS-szolgáltatás csak a mérés időpontját tartja nyilván, " +
+                "nem küld helykoordinátát a Family Guardba. Az Edge GPS-korlátait " +
+                "ez az engedély nem oldja fel.\n\n" +
+                "Az Androidban nyisd meg: Engedélyek → Hely → Mindig engedélyezett. " +
+                "Az engedély bármikor visszavonható."
+            )
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Alkalmazás beállításai") { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:$packageName"))
+                try { startActivity(intent) }
+                catch (_: Exception) {
+                    status.text = "Nem sikerült megnyitni az Android alkalmazásbeállításait."
+                }
+            }
+            .show()
     }
 
     private fun requestSh9Gps() {

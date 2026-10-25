@@ -18,8 +18,8 @@ const version = gradle.match(/versionName\s*=\s*"([^"]+)"/)?.[1];
 
 test('single signed HH One package identity and monotonic staged OTA version', () => {
   assert.match(gradle, /applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.equal(code, 30);
-  assert.equal(version, '0.15.3');
+  assert.equal(code, 32);
+  assert.equal(version, '0.15.5');
   assert.equal(ota.applicationId, 'hu.zsoltmonika.healthhubbridge');
   assert.ok(Number.isInteger(code) && code >= ota.versionCode);
   if (code === ota.versionCode) assert.equal(version, ota.version);
@@ -35,11 +35,16 @@ test('OTA publishing never starts just because native source changes', () => {
   assert.match(workflow, /expected|sha256|SHA/i);
 });
 
-test('GPS is opt-in, permission-gated, user-stoppable and does not request background location', () => {
+test('GPS is opt-in, permission-gated, user-stoppable with explicitly optional Always access', () => {
   assert.match(manifest, /android\.permission\.ACCESS_FINE_LOCATION/);
   assert.match(manifest, /android\.permission\.FOREGROUND_SERVICE_LOCATION/);
   assert.match(manifest, /android:foregroundServiceType="location"/);
-  assert.doesNotMatch(manifest, /ACCESS_BACKGROUND_LOCATION/);
+  assert.match(manifest, /ACCESS_BACKGROUND_LOCATION/);
+  assert.match(activity, /openBackgroundLocationSettings\(\)/);
+  assert.match(activity, /ACTION_APPLICATION_DETAILS_SETTINGS/);
+  assert.match(activity, /Mindig engedélyezett/);
+  assert.match(activity, /gpsBackgroundSummary\.text/);
+  assert.doesNotMatch(activity, /sh9GpsPermission\.launch\(arrayOf\([^)]*ACCESS_BACKGROUND_LOCATION/);
   assert.doesNotMatch(manifest, /RECEIVE_BOOT_COMPLETED/);
   assert.match(gps, /START_NOT_STICKY/);
   assert.match(gps, /ACTION_STOP/);

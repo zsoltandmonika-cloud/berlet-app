@@ -37,7 +37,7 @@ test('scope repair is non-destructive and cannot silently deploy an unsigned OTA
   const folder=native.split('suspend fun ensureFolder(')[1].split('suspend fun uploadText(')[0];
   assert.doesNotMatch(folder,/\.remove\("dropbox_|clearToken|launch.*OAuth|\.remove\("device_owner_profile"/);
   assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.match(build,/versionCode = 30/);
+  assert.match(build,/versionCode = 32/);
   assert.match(build,/versionName = "0\.15\.3"/);
   assert.equal(ota.version,'0.15.2');
   assert.equal(ota.versionCode,29);
