@@ -44,6 +44,7 @@
   const timestamp=Number(pos&&pos.timestamp);
   if(!Number.isFinite(timestamp)||timestamp>now+5000||now-timestamp>MAX_GPS_AGE||
     !Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||
+    Math.abs(c.latitude)>90||Math.abs(c.longitude)>180||
     !Number.isFinite(c.accuracy)||c.accuracy<0||c.accuracy>50)return null;
   return {lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,timestamp};
  }
