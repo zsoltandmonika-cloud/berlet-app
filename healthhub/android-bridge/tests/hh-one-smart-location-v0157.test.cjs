@@ -14,7 +14,7 @@ test('v0.15.7 build34 is same OTA-signed application with verified FLP dependenc
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
  assert.match(gradle,/versionName = "0\.15\.7"/);
  assert.match(gradle,/versionCode = 34/);
- assert.match(gradle,/play-services-location:21\.4\.0/);
+ assert.match(gradle,/play-services-location:21\.3\.0/);
 });
 test('native background location FGS requests FLP before supported Android fallback',()=>{
  assert.match(gps,/LocationServices\.getFusedLocationProviderClient/);
