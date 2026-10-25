@@ -229,6 +229,8 @@ w.HH_GUARDIAN_LANDMARKS_V776=Object.freeze({
  init,
  setBridge(next){bridge=next;if(map)renderList()},
  setSharedEntries(rows){shared=Array.isArray(rows)?rows.map(sanitize).filter(Boolean).slice(0,200):[];if(map){renderList();paintPins()}},
+ // Read-only view of places already exposed as shared pins. Never expose local private items.
+ get sharedEntries(){return shared.map(item=>({...item}))},
  get privateCount(){return items.length},get sharedCount(){return shared.length}
 });
 })(window,document);
