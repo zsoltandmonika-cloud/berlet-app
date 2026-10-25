@@ -42,7 +42,14 @@ object DropboxVaultClient {
             prefs.edit().putString(CLIENT_MARKER, APP_KEY).apply()
             return
         }
-        error("Dropbox OAuth alkalmazásazonosító eltérés: újraengedélyezés szükséges")
+        // Keep existing credentials untouched; accessToken will reject reuse.
+        // This migration routine also runs at Activity startup and must not crash it.
+    }
+
+    private fun requireCompatibleMarker(prefs: SharedPreferences) {
+        check(prefs.getString(CLIENT_MARKER, null) == APP_KEY) {
+            "Dropbox OAuth alkalmazásazonosító eltérés: újraengedélyezés szükséges"
+        }
     }
 
     fun hasRefreshToken(prefs: SharedPreferences): Boolean =
@@ -52,9 +59,9 @@ object DropboxVaultClient {
      * Only after an explicitly authorized, state-verified PKCE callback.
      * An old cross-client grant is replaced only by a newly received grant.
      */
-    fun storeAuthorizedGrant(
+    suspend fun storeAuthorizedGrant(
         prefs: SharedPreferences, refresh: String, access: String, expiresSeconds: Long
-    ) {
+    ) = tokenRefreshLock.withLock {
         require(refresh.isNotBlank() && access.isNotBlank())
         prefs.edit()
             .putString(CLIENT_MARKER, APP_KEY)
@@ -70,6 +77,7 @@ object DropboxVaultClient {
 
     suspend fun accessToken(prefs: SharedPreferences): String {
         ensureCredentialVersion(prefs)
+        requireCompatibleMarker(prefs)
         val initial = prefs.getString("dropbox_access_token", null)
         if (!initial.isNullOrBlank() &&
             prefs.getLong("dropbox_access_expires", 0L) > System.currentTimeMillis() + 60_000L) {
@@ -78,6 +86,7 @@ object DropboxVaultClient {
         return tokenRefreshLock.withLock {
             // A different caller may already have refreshed while we waited.
             ensureCredentialVersion(prefs)
+            requireCompatibleMarker(prefs)
             val latest = prefs.getString("dropbox_access_token", null)
             if (!latest.isNullOrBlank() &&
                 prefs.getLong("dropbox_access_expires", 0L) > System.currentTimeMillis() + 60_000L) {
@@ -98,6 +107,7 @@ object DropboxVaultClient {
             // In-flight responses from the previous login must NEVER restore
             // a disconnected/reconnected account's stale access token.
             ensureCredentialVersion(prefs)
+            requireCompatibleMarker(prefs)
             check(prefs.getString("dropbox_refresh_token", null) == refresh) {
                 "Dropbox munkamenet megváltozott, korábbi token nem írható vissza"
             }
