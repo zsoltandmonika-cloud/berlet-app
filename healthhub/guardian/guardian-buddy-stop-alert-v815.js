@@ -160,7 +160,7 @@
    if(p.route!=='260'||v.headsign!=='Harsánylejtő'){
     status('Mónika indulásjelzőjéhez válaszd a 260-as Harsánylejtő irányát.');return}
    const bound=w.HH_GUARDIAN_LIVE_V785?.boundProfile;
-   if(profile()!=='monika'||(bound&&bound!=='monika')){
+   if(profile()!=='monika'||bound!=='monika'){
     status('Az indulásjelzőt Mónika saját, Mónika-profilhoz rendelt telefonján indítsd el. Másik telefonra ez a böngésző nem küld értesítést.');return}
    const trigger=v.stops.findIndex(s=>s.id===p.watchStopId);
    const citronella=v.stops.findIndex(s=>s.name==='Citronella utca');
