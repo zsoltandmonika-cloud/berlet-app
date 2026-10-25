@@ -9,7 +9,8 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Optional Android 11+ "Mindig engedélyezett" for explicitly approved location use. -->
-    <!-- No permission is automatically granted and there is no restart/boot tracking. -->
+    <!-- Boot restoration only after explicit owner approval; permissions are never auto-granted. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -42,6 +43,13 @@
         android:icon="@mipmap/ic_hh_one"
         android:roundIcon="@mipmap/ic_hh_one_round"
         android:theme="@style/AppTheme">
+        <receiver android:name=".GuardianBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <!-- SH9 visual shell and native GPS share this application's existing signed OTA identity. -->
         <activity android:name=".Sh9WebActivity" android:exported="false" />
         <service android:name=".Sh9GpsService"
