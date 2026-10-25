@@ -97,3 +97,10 @@ test('web Nutrition diary retries after connectivity returns with capped foregro
   assert.match(nutrition, /hitelesítés frissítése szükséges/);
   assert.match(nutrition, /const finalDoc=merge\(read\(profile\),combined,profile\)/);
 });
+
+test('Dropbox download treats only an actual missing path as an absent cloud snapshot', () => {
+  assert.match(vault, /internal fun missingFileConflict\(body: String\)/);
+  assert.match(vault, /summary\.startsWith\("path\/not_found\/"\)/);
+  assert.match(vault, /conn\.responseCode == 409 && missingFileConflict\(text\)/);
+  assert.doesNotMatch(vault, /if \(conn\.responseCode == 409\) return@withContext null/);
+});
