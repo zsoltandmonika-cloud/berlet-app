@@ -161,9 +161,10 @@ class OrchestratorWorker(
         if (!exporter.hasUsefulData(json)) {
             error("Nincs tényleges Health Connect-adat; az előző Dropbox-fájl érintetlen. " + exporter.countSummary(json))
         }
+        NativeHealthOutbox.flush(applicationContext, prefs, owner)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-        DropboxVaultClient.uploadHealthConnectSnapshot(prefs, owner, json)
+        NativeHealthOutbox.submit(applicationContext, prefs, owner, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
             .putString(ResilientHealthSync.KEY_COUNTS, exporter.countSummary(json))
