@@ -78,6 +78,13 @@ jobs:
             echo "Read-only rollout extension: existing signed release v$BASE_VERSION."
           elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && ( "$NEW_VERSION" == "$NEXT_VERSION" || "$NEW_VERSION" == "$NEXT_MINOR" ) ]]; then
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$BASE_VERSION" == "0.15.2" && "$BASE_CODE" == "29" &&
+                  "$NEW_VERSION" == "0.15.5" && "$NEW_CODE" == "32" ]]; then
+            # v0.15.3/build30 and v0.15.4/build31 were previously installed
+            # private pilot versions, never published to production OTA.
+            # This is the EXACT signed opt-in background-location PILOT only.
+            echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
+            echo "Signed private pilot upgrade 0.15.5/build32, OTA baseline unchanged."
           else
             echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch or minor version."
             exit 1
@@ -193,8 +200,13 @@ jobs:
           )
           NEXT="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "${BASE[0]}")"
           NEXT_MINOR="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[1]=str(int(a[1])+1); a[2]="0"; print(".".join(a))' "${BASE[0]}")"
+          VERSION_ALLOWED=false
+          if [[ ( "$VERSION" == "$NEXT" || "$VERSION" == "$NEXT_MINOR" ) &&
+                "$CODE" == "$((BASE[1]+1))" ]]; then VERSION_ALLOWED=true; fi
+          if [[ "${BASE[0]}" == "0.15.2" && "${BASE[1]}" == "29" &&
+                "$VERSION" == "0.15.5" && "$CODE" == "32" ]]; then VERSION_ALLOWED=true; fi
           if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
-             [[ ( "$VERSION" != "$NEXT" && "$VERSION" != "$NEXT_MINOR" ) || "$CODE" != "$((BASE[1]+1))" ]]; then
+             [[ "$VERSION_ALLOWED" != "true" ]]; then
             echo "::error::Incorrect Android package/version; signed candidate rejected."
             exit 1
           fi
