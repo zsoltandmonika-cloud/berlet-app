@@ -18,23 +18,33 @@ def fixture():
         "routes.txt":[["route_id","route_short_name","route_long_name","route_type","route_color"],
                       ["R260","260","Synthetic circular 260", "3","2476C5"],
                       ["R17","17","Synthetic tram 17","0","CCA513"],
-                      ["R19","19","Synthetic tram 19","0","CCA513"]],
+                      ["R19","19","Synthetic tram 19","0","CCA513"],
+                      ["R1","1","Synthetic tram 1","0","CCA513"],
+                      ["R41","41","Synthetic tram 41","0","CCA513"]],
         "trips.txt":[["route_id","service_id","trip_id","trip_headsign","direction_id","shape_id"],
                      ["R260","WK","T260","260 kör","0","S260"],
                      ["R17","WK","T17","17 cél","0","S17"],
-                     ["R19","WK","T19","19 cél","0","S19"]],
+                     ["R19","WK","T19","19 cél","0","S19"],
+                     ["R1","WK","T1","1 cél","0","S1"],
+                     ["R41","WK","T41","41 cél","0","S41"]],
         "shapes.txt":[["shape_id","shape_pt_lat","shape_pt_lon","shape_pt_sequence"],
                       ["S260","47.51","19.02","1"],["S260","47.52","19.03","2"],
                       ["S17","47.50","19.01","1"],["S17","47.51","19.02","2"],
-                      ["S19","47.49","19.01","1"],["S19","47.50","19.02","2"]],
+                      ["S19","47.49","19.01","1"],["S19","47.50","19.02","2"],
+                      ["S1","47.53","19.04","1"],["S1","47.54","19.05","2"],
+                      ["S41","47.55","19.06","1"],["S41","47.56","19.07","2"]],
         "stops.txt":[["stop_id","stop_name","stop_lat","stop_lon"],
                      ["P260","260 Megálló","47.51","19.02"],
                      ["P17","17 Megálló","47.50","19.01"],
-                     ["P19","19 Megálló","47.49","19.01"]],
+                     ["P19","19 Megálló","47.49","19.01"],
+                     ["P1","1 Megálló","47.53","19.04"],
+                     ["P41","41 Megálló","47.55","19.06"]],
         "stop_times.txt":[["trip_id","arrival_time","departure_time","stop_id","stop_sequence"],
                           ["T260","09:00","09:00","P260","1"],
                           ["T17","09:00","09:00","P17","1"],
-                          ["T19","09:00","09:00","P19","1"]],
+                          ["T19","09:00","09:00","P19","1"],
+                          ["T1","09:00","09:00","P1","1"],
+                          ["T41","09:00","09:00","P41","1"]],
     }
     b=io.BytesIO()
     with zipfile.ZipFile(b,"w",zipfile.ZIP_DEFLATED) as z:
@@ -45,7 +55,7 @@ def fixture():
     return b.getvalue()
 
 class GeneratorTests(unittest.TestCase):
-    def test_synthetic_fixture_parses_three_real_gtfs_shapes(self):
+    def test_synthetic_fixture_parses_five_real_gtfs_shapes(self):
         doc=generator.make_document(fixture())
         self.assertEqual(set(doc["routes"]),set(generator.NAMES))
         self.assertEqual(doc["source"],"BKK Zrt., CC BY 4.0")
@@ -54,6 +64,10 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual(doc["routes"]["260"]["gtfsRouteIds"],["R260"])
         self.assertEqual(doc["routes"]["17"]["gtfsRouteIds"],["R17"])
         self.assertEqual(doc["routes"]["19"]["gtfsRouteIds"],["R19"])
+        self.assertEqual(doc["routes"]["1"]["gtfsRouteIds"],["R1"])
+        self.assertEqual(doc["routes"]["41"]["gtfsRouteIds"],["R41"])
+        self.assertEqual(doc["routes"]["1"]["mode"],"tram")
+        self.assertEqual(doc["routes"]["41"]["mode"],"tram")
         self.assertIn("NOT real-time",doc["feedType"])
     def test_missing_requested_line_fails_closed(self):
         raw=fixture()
