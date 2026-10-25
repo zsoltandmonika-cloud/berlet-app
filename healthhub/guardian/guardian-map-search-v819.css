@@ -1,28 +1,30 @@
-/* v821 · Family Guard compact Premium Glass search, matched to top-right map actions.
+/* v822 · Family Guard slim floating Premium Glass search, aligned with top-right controls.
  * Only visual layout: preserve v819 Photon, voice, map, fullscreen and Smart Travel behavior.
  * The search panel inherits the active Zsolt blue / Monika pink profile.
  */
 .map-card{overflow:visible}
 .hh-map-search-v819{
- --hh-map-tint:linear-gradient(145deg,rgba(75,139,197,.75),rgba(21,70,122,.82));
- --hh-map-input:rgba(36,87,139,.68);
- --hh-map-action:linear-gradient(143deg,rgba(69,136,191,.81),rgba(25,76,131,.88));
- --hh-map-highlight:rgba(173,229,255,.47);
+ --hh-map-tint:linear-gradient(145deg,rgba(86,156,211,.56),rgba(26,76,126,.64));
+ --hh-map-input:rgba(43,100,151,.54);
+ --hh-map-action:linear-gradient(143deg,rgba(82,151,206,.64),rgba(31,89,152,.76));
+ --hh-map-highlight:rgba(195,232,255,.55);
+ --hh-map-shell-border:rgba(184,225,255,.33);
  --hh-map-softshadow:rgba(6,27,63,.30);
- position:absolute;z-index:25;left:50%;right:auto;bottom:9px;
+ position:absolute;z-index:25;left:50%;right:auto;bottom:2px;
  transform:translateX(-50%);
- display:grid;gap:3px;width:min(88%,440px);max-width:calc(100% - 20px);
- padding:5px 7px;border:0;border-radius:16px;
+ display:grid;gap:3px;width:min(82%,410px);max-width:calc(100% - 16px);
+ padding:5px 7px;border:1px solid var(--hh-map-shell-border);border-radius:15px;
  background:var(--hh-map-tint);
- -webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15);
- box-shadow:0 5px 18px var(--hh-map-softshadow),inset 0 1px 0 rgba(255,255,255,.22);
+ -webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);
+ box-shadow:0 6px 20px var(--hh-map-softshadow),inset 0 1px 0 rgba(255,255,255,.32);
  box-sizing:border-box;color:#f1faff;
 }
 :root[data-guardian-profile="m"] .hh-map-search-v819{
- --hh-map-tint:linear-gradient(145deg,rgba(179,113,171,.78),rgba(88,48,124,.85));
- --hh-map-input:rgba(133,71,140,.65);
- --hh-map-action:linear-gradient(143deg,rgba(174,111,175,.85),rgba(105,63,141,.90));
- --hh-map-highlight:rgba(255,210,241,.48);
+ --hh-map-tint:linear-gradient(145deg,rgba(193,129,185,.56),rgba(108,59,140,.68));
+ --hh-map-input:rgba(155,91,161,.52);
+ --hh-map-action:linear-gradient(143deg,rgba(195,129,187,.65),rgba(124,71,153,.78));
+ --hh-map-highlight:rgba(255,216,244,.57);
+ --hh-map-shell-border:rgba(255,211,246,.37);
  --hh-map-softshadow:rgba(56,24,75,.32);
 }
 .hh-map-search-row-v819{display:flex;align-items:center;gap:5px;min-width:0}
@@ -53,8 +55,12 @@
 .hh-map-search-row-v819>button:disabled{opacity:.43}
 .hh-map-search-row-v819>button.listening{background:linear-gradient(140deg,#d16b9a,#96427d)}
 .hh-map-search-status-v819{
- margin:0 3px;min-width:0;padding:0;color:rgba(241,249,255,.81);
- font:520 9px/1.2 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ /* Keep live announcements for screen readers; remove the visual instruction
+    row entirely so the search floats as one compact glass capsule. */
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;border:0!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;
+ white-space:nowrap!important;
 }
 .hh-map-search-hits-v819{
  position:absolute;left:0;right:0;bottom:calc(100% + 7px);z-index:30;
@@ -117,7 +123,7 @@ body.hh-map-full-v819{overflow:hidden!important}
 }
 /* Reuse the same centered compact search, with safe margins on S24 Ultra. */
 .map-card.hh-map-full-v819 .hh-map-search-v819,.map-card:fullscreen .hh-map-search-v819{
- bottom:calc(9px + env(safe-area-inset-bottom));left:50%;right:auto
+ bottom:calc(2px + env(safe-area-inset-bottom));left:50%;right:auto
 }
 .map-card.hh-map-full-v819 #guardianMapLabel,.map-card:fullscreen #guardianMapLabel{
  top:68px!important
@@ -125,10 +131,10 @@ body.hh-map-full-v819{overflow:hidden!important}
 /* Fullscreen has the extra Navigate row: move controls higher accordingly. */
 body .map-card.hh-map-full-v819 #guardianMap .maplibregl-ctrl-bottom-right,
 body .map-card:fullscreen #guardianMap .maplibregl-ctrl-bottom-right{
- bottom:calc(114px + env(safe-area-inset-bottom))!important
+ bottom:calc(100px + env(safe-area-inset-bottom))!important
 }
 @media(max-width:385px){
- .hh-map-search-v819{width:92%;max-width:calc(100% - 16px);padding:5px 6px}
+ .hh-map-search-v819{width:88%;max-width:calc(100% - 12px);padding:5px 6px}
  .hh-map-search-row-v819>button{width:38px;min-width:38px;flex-basis:38px;height:39px;min-height:39px}
  .hh-map-search-input-v819{font-size:12px;padding:0 8px}
 }
