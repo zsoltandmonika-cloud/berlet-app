@@ -17,9 +17,9 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 
 /**
- * Opt-in location foreground service for a user-initiated journey.
- * No uploaded/saved GPS coordinates. Notification has an immediate STOP action.
- * Cannot bypass Android GPS location or another app's own background limits.
+ * Opt-in foreground location service. Separate explicit native family-sharing
+ * consent permits uploading the single latest fix via private Dropbox.
+ * Active notification provides immediate STOP; Android and browser restrictions apply.
  */
 class Sh9GpsService : Service() {
     companion object {
@@ -87,7 +87,7 @@ class Sh9GpsService : Service() {
             listener?.let { lm.removeUpdates(it) }
             val updates = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
-                    // Keep only a non-sensitive activity timestamp; never persist positions.
+                    // Keep the fix timestamp; the optional consented relay sends only the latest fix.
                     lastFixAtMillis = System.currentTimeMillis()
                     FamilyGuardNativeRelay.publish(this@Sh9GpsService, location)
                 }
