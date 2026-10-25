@@ -1,0 +1,79 @@
+/* Family Guard v826 · Slim destination marker, not the old solid-blue board.
+ * Uses the same Premium Glass tokens as bus/tram + map search.
+ * Separate final stylesheet intentionally overrides old native marker styling.
+ * The full map remains our CSS overlay; no browser requestFullscreen() is used.
+ */
+#guardianMap .hh-smart-hub-map-pin-v803,
+.map-card .hh-smart-hub-map-pin-v803{
+ --hh-pin-border:rgba(191,235,255,.57);
+ --hh-pin-light:rgba(96,181,233,.50);
+ --hh-pin-dark:rgba(20,77,130,.66);
+ --hh-pin-shadow:rgba(9,42,81,.24);
+ position:relative!important;box-sizing:border-box!important;
+ min-width:68px!important;max-width:min(210px,64vw)!important;
+ padding:9px 13px!important;
+ border:1px solid var(--hh-pin-border)!important;
+ border-radius:16px!important;
+ background:linear-gradient(135deg,var(--hh-pin-light),var(--hh-pin-dark))!important;
+ -webkit-backdrop-filter:blur(25px) saturate(1.45)!important;
+ backdrop-filter:blur(25px) saturate(1.45)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.37),
+   0 7px 20px var(--hh-pin-shadow),
+   0 0 0 1px rgba(255,255,255,.08)!important;
+ color:#fff!important;
+ font:780 12px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ text-align:center!important;letter-spacing:.015em;
+ overflow-wrap:anywhere;
+ -webkit-font-smoothing:antialiased;
+}
+/* The little tip remains discreet instead of a solid neon-blue pointer. */
+#guardianMap .hh-smart-hub-map-pin-v803:after,
+.map-card .hh-smart-hub-map-pin-v803:after{
+ content:''!important;position:absolute!important;
+ left:calc(50% - 5px)!important;bottom:-8px!important;
+ border-left:5px solid transparent!important;
+ border-right:5px solid transparent!important;
+ border-top:8px solid var(--hh-pin-border)!important;
+ filter:drop-shadow(0 3px 3px var(--hh-pin-shadow));
+}
+:root[data-guardian-profile="m"] #guardianMap .hh-smart-hub-map-pin-v803,
+:root[data-guardian-profile="m"] .map-card .hh-smart-hub-map-pin-v803{
+ --hh-pin-border:rgba(255,221,247,.64);
+ --hh-pin-light:rgba(216,148,205,.52);
+ --hh-pin-dark:rgba(115,66,153,.69);
+ --hh-pin-shadow:rgba(75,28,91,.28);
+}
+/* Search results use the same airy glass card language as the transit view. */
+#guardianMapSearchResultsV819.hh-map-search-hits-v819{
+ background:linear-gradient(147deg,rgba(58,126,177,.61),rgba(15,50,94,.72))!important;
+ -webkit-backdrop-filter:blur(30px) saturate(1.4)!important;
+ backdrop-filter:blur(30px) saturate(1.4)!important;
+ border-color:rgba(177,229,255,.48)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.27),0 9px 22px rgba(8,29,62,.25)!important;
+}
+:root[data-guardian-profile="m"] #guardianMapSearchResultsV819.hh-map-search-hits-v819{
+ background:linear-gradient(147deg,rgba(182,111,180,.62),rgba(92,50,126,.76))!important;
+ border-color:rgba(255,214,244,.53)!important;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-v819{
+ background:linear-gradient(125deg,rgba(80,154,202,.45),rgba(25,84,144,.57))!important;
+ -webkit-backdrop-filter:blur(18px) saturate(1.25)!important;
+ backdrop-filter:blur(18px) saturate(1.25)!important;
+}
+:root[data-guardian-profile="m"] #guardianMapSearchResultsV819 .hh-map-search-hit-v819{
+ background:linear-gradient(125deg,rgba(211,141,202,.43),rgba(119,73,151,.56))!important;
+}
+@media(max-width:385px){
+ #guardianMap .hh-smart-hub-map-pin-v803,.map-card .hh-smart-hub-map-pin-v803{
+  max-width:66vw!important;font-size:11px!important;padding:8px 10px!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ #guardianMap .hh-smart-hub-map-pin-v803,.map-card .hh-smart-hub-map-pin-v803{
+  background:rgba(27,76,126,.92)!important;
+ }
+ :root[data-guardian-profile="m"] #guardianMap .hh-smart-hub-map-pin-v803,
+ :root[data-guardian-profile="m"] .map-card .hh-smart-hub-map-pin-v803{
+  background:rgba(111,65,142,.93)!important;
+ }
+}
