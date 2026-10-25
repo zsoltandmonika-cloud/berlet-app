@@ -6,6 +6,7 @@ const path = require('node:path');
 const read = name => fs.readFileSync(path.resolve(__dirname, '..', 'app', 'src', 'main', 'java', 'hu', 'zsoltmonika', 'healthhubbridge', name), 'utf8');
 const vault = read('DropboxVaultClient.kt');
 const activity = read('MainActivity.kt');
+const shell = read('Sh9WebActivity.kt');
 const resilient = read('ResilientHealthSync.kt');
 const gps = read('Sh9GpsService.kt');
 const outbox = read('NativeHealthOutbox.kt');
@@ -64,4 +65,24 @@ test('all native manual/periodic/remote/recovery exports use durable outbox', ()
   assert.match(resilient, /NativeHealthOutbox\.flush\(applicationContext, prefs, owner\)/);
   assert.match(scheduled, /NativeHealthOutbox\.flush\(applicationContext, prefs, profile\)/);
   assert.match(outbox, /private val gate = Mutex\(\)/);
+});
+
+test('manual Dropbox completion stays inside trusted HH One Light Browser', () => {
+  assert.match(activity, /openHealthHubInsideHhOne\(profile\)/);
+  assert.match(activity, /text = "HealthHub megnyitása"[\s\S]*?openHealthHubInsideHhOne\(\)/);
+  assert.match(activity, /Intent\(this, Sh9WebActivity::class\.java\)/);
+  assert.match(activity, /Sh9WebActivity\.EXTRA_FIRST_PARTY_URL/);
+  assert.match(activity, /appendQueryParameter\("bridgeSync", "1"\)/);
+  assert.doesNotMatch(activity, /startActivity\(Intent\(Intent\.ACTION_VIEW, back\)\)/);
+  assert.doesNotMatch(activity, /startActivity\(Intent\(Intent\.ACTION_VIEW, Uri\.parse\(HEALTHHUB_URL\)\)\)/);
+});
+
+test('native WebView accepts only approved HealthHub return URL and reuses WebView', () => {
+  assert.match(shell, /uri\.path == "\/berlet-app\/healthhub\/"/);
+  assert.match(shell, /trustedPage\(uri\)/);
+  assert.match(shell, /view\.loadUrl\(requestedHealthHubUrl\(intent\)/);
+  assert.match(shell, /override fun onNewIntent\(intent: Intent\)/);
+  assert.match(shell, /requestedHealthHubUrl\(intent\)\?\.let \{ web\?\.loadUrl\(it\) \}/);
+  assert.match(shell, /Intent\.ACTION_VIEW, browserAgenda/);
+  assert.match(activity, /startActivity\(Intent\(Intent\.ACTION_VIEW, url\)\)/);
 });
