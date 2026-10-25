@@ -30,6 +30,8 @@ jobs:
           "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
       - name: Signed release candidate and Android permissions safety checks
         run: node --test tests/sh9-release-gates.test.cjs
+      - name: Connection stability regression checks
+        run: node --test tests/hh-one-connection-stability.test.cjs
       - name: Compile unified Android and run unit tests
         run: gradle :app:assembleDebug :app:testDebugUnitTest --no-daemon --stacktrace
       - name: Verify permissions and package identity in debug APK
