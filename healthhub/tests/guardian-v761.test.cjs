@@ -1314,7 +1314,7 @@ test('v827 foreground resumes approved owner after temporary auth loss, never an
  assert.equal(follows,1,'same already consented Monika phone resumes location');
  assert.equal(dialogs,0,'no repeat permission dialog');
  store['hh-profile']='z';
- listeners.storage({key:'hh-profile'});
+ windowListeners.storage({key:'hh-profile'});
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(follows,1,'switching to Zsolt on Mónika phone must NOT start own GPS again');
  assert.match(controls.guardianLiveIdentity.textContent,/NEM egyezik/);
