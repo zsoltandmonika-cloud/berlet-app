@@ -1312,7 +1312,7 @@ class MainActivity : ComponentActivity() {
             " · Dropbox feltöltés…"
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-        DropboxVaultClient.uploadHealthConnectSnapshot(prefs, profile, json)
+        NativeHealthOutbox.submit(this@MainActivity, prefs, profile, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
             .putString(ResilientHealthSync.KEY_COUNTS, summary)
