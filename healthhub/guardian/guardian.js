@@ -152,6 +152,9 @@ function onPosition(pos){
   w.HH_GUARDIAN_LIVE_V785.onGpsSignal?.('fix');
   w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
  }
+ // Opt-in Buddy stop alert uses the same fresh, accurate GPS fix. No extra
+ // location watcher, upload, or cross-profile sharing is introduced.
+ if(w.HH_BUDDY_STOP_ALERT_V815?.onGpsFix)w.HH_BUDDY_STOP_ALERT_V815.onGpsFix(pos);
  gpsDiagnostic('fix');
  report('GPS aktív · élő pozíció');
  if(!last){path.push(coord);last=coord;draw();return}
