@@ -59,7 +59,15 @@ class Sh9GpsService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action != ACTION_START) {
+        if (intent?.action == ACTION_STOP) {
+            // This explicit stop may come from the phone notification or the
+            // registered emergency controller. It must prevent silent reboot restart.
+            FamilyGuardContinuity.setApproved(this, false)
+            finishService()
+            return START_NOT_STICKY
+        }
+        if (intent?.action != ACTION_START &&
+            !(intent == null && FamilyGuardContinuity.canRestart(this))) {
             finishService()
             return START_NOT_STICKY
         }
@@ -98,7 +106,8 @@ class Sh9GpsService : Service() {
         } catch (_: IllegalStateException) {
             finishService()
         }
-        return START_NOT_STICKY
+        return if (FamilyGuardContinuity.canRestart(this)) START_STICKY
+            else START_NOT_STICKY
     }
 
     private fun notification(): Notification {
