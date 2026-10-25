@@ -85,7 +85,7 @@ class Sh9WebActivity : ComponentActivity() {
             .setTitle("HealthHub · meglévő kapcsolatok")
             .setMessage(
                 "A HH One beépített nézete nem osztja meg a Chrome/Edge " +
-                "Dropbox-, Google- és Microsoft-belépéseit.\\n\\n" +
+                "Dropbox-, Google- és Microsoft-belépéseit.\n\n" +
                 "A meglévő kapcsolataid megtartásához nyisd meg ezt a " +
                 "modult a szokásos böngésződben. Az alkalmazáson belüli " +
                 "nézet külön bejelentkezést kérhet."
