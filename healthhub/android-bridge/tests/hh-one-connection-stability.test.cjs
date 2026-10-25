@@ -86,3 +86,14 @@ test('native WebView accepts only approved HealthHub return URL and reuses WebVi
   assert.match(shell, /Intent\.ACTION_VIEW, browserAgenda/);
   assert.match(activity, /startActivity\(Intent\(Intent\.ACTION_VIEW, url\)\)/);
 });
+
+test('web Nutrition diary retries after connectivity returns with capped foreground backoff', () => {
+  const nutrition = fs.readFileSync(path.resolve(__dirname, '..', '..', 'nutrition', 'nutrition-preview-v592.js'), 'utf8');
+  assert.match(nutrition, /function scheduleRetry\(profile,error\)/);
+  assert.match(nutrition, /Math\.min\(300000,3000\*Math\.pow/);
+  assert.match(nutrition, /document\.hidden\|\|!navigator\.onLine/);
+  assert.match(nutrition, /root\.addEventListener\('online'/);
+  assert.match(nutrition, /retryFailures\[profile\]=0/);
+  assert.match(nutrition, /hitelesítés frissítése szükséges/);
+  assert.match(nutrition, /const finalDoc=merge\(read\(profile\),combined,profile\)/);
+});
