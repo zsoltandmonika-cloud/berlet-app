@@ -29,7 +29,7 @@ jobs:
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
       - name: Signed release candidate and Android permissions safety checks
-        run: node --test tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs
+        run: node --test tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
       - name: Compile unified Android and run unit tests
         run: gradle :app:assembleDebug :app:testDebugUnitTest --no-daemon --stacktrace
       - name: Verify permissions and package identity in debug APK
