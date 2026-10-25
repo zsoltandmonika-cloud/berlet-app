@@ -26,7 +26,7 @@ test('SH9 has its own stable Edge install identity, never the unrelated Bérlet 
 test('PWA reuses SH9 approved icon, no replacement of launcher or 3x3 layout',()=>{
  for(const i of manifest.icons){
    assert.ok(fs.existsSync(path.join(sh9,i.src)));
-   assert.match(i.src,/^(\\.\\/)?(assets\\/sh9-(?:icon|install-(?:192|512))\\.png|pwa-icon\\.svg)$/);
+   assert.match(i.src,/^(\.\/)?(assets\/sh9-(?:icon|install-(?:192|512))\.png|pwa-icon\.svg)$/);
  }
  const expectedSizes=[192,512];
  for(const size of expectedSizes){
