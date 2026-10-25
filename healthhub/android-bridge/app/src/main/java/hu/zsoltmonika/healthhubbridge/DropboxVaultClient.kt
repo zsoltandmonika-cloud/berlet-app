@@ -17,6 +17,8 @@ object DropboxVaultClient {
     // Multiple WorkManager workers and manual sync all write the same owner file.
     // Serializing read/compare/merge/upload in-process prevents routine last-write-wins loss.
     private val healthSnapshotLock = Mutex()
+    // One native refresh authority shared by manual and background workers.
+    private val tokenRefreshLock = Mutex()
     const val APP_KEY = "t68rmhh5f1l8d85"
     const val WEB_REDIRECT = "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/"
     const val ROOT = "/HealthHub"
@@ -29,53 +31,84 @@ object DropboxVaultClient {
 
     private const val CLIENT_MARKER = "dropbox_client_id_v2"
 
+    /**
+     * Missing historical client marker is not proof of invalid credentials.
+     * Mismatched known clients fail closed, but must not silently erase tokens.
+     */
     fun ensureCredentialVersion(prefs: SharedPreferences) {
         val marker = prefs.getString(CLIENT_MARKER, null)
         if (marker == APP_KEY) return
-        prefs.edit()
-            .remove("dropbox_refresh_token")
-            .remove("dropbox_access_token")
-            .remove("dropbox_access_expires")
-            .remove("dropbox_pkce_verifier")
-            .remove("dropbox_oauth_state")
-            .remove("dropbox_pending_profile")
-            .putString(CLIENT_MARKER, APP_KEY)
-            .apply()
+        if (marker.isNullOrBlank()) {
+            prefs.edit().putString(CLIENT_MARKER, APP_KEY).apply()
+            return
+        }
+        error("Dropbox OAuth alkalmazásazonosító eltérés: újraengedélyezés szükséges")
     }
 
     fun hasRefreshToken(prefs: SharedPreferences): Boolean =
         !prefs.getString("dropbox_refresh_token", null).isNullOrBlank()
 
+    /**
+     * Only after an explicitly authorized, state-verified PKCE callback.
+     * An old cross-client grant is replaced only by a newly received grant.
+     */
+    fun storeAuthorizedGrant(
+        prefs: SharedPreferences, refresh: String, access: String, expiresSeconds: Long
+    ) {
+        require(refresh.isNotBlank() && access.isNotBlank())
+        prefs.edit()
+            .putString(CLIENT_MARKER, APP_KEY)
+            .putString("dropbox_refresh_token", refresh)
+            .putString("dropbox_access_token", access)
+            .putLong("dropbox_access_expires",
+                System.currentTimeMillis() + (expiresSeconds - 60L).coerceAtLeast(0L) * 1000L)
+            .remove("dropbox_pkce_verifier")
+            .remove("dropbox_oauth_state")
+            .remove("dropbox_pending_profile")
+            .apply()
+    }
+
     suspend fun accessToken(prefs: SharedPreferences): String {
         ensureCredentialVersion(prefs)
-        val existing = prefs.getString("dropbox_access_token", null)
-        val exp = prefs.getLong("dropbox_access_expires", 0L)
-        if (!existing.isNullOrBlank() && exp > System.currentTimeMillis() + 60_000L) {
-            return existing
+        val initial = prefs.getString("dropbox_access_token", null)
+        if (!initial.isNullOrBlank() &&
+            prefs.getLong("dropbox_access_expires", 0L) > System.currentTimeMillis() + 60_000L) {
+            return initial
         }
-
-        val refresh = prefs.getString("dropbox_refresh_token", null)
-            ?: error("Dropbox nincs csatlakoztatva")
-
-        val body = form(
-            mapOf(
+        return tokenRefreshLock.withLock {
+            // A different caller may already have refreshed while we waited.
+            ensureCredentialVersion(prefs)
+            val latest = prefs.getString("dropbox_access_token", null)
+            if (!latest.isNullOrBlank() &&
+                prefs.getLong("dropbox_access_expires", 0L) > System.currentTimeMillis() + 60_000L) {
+                return@withLock latest
+            }
+            val refresh = prefs.getString("dropbox_refresh_token", null)
+                ?: error("Dropbox nincs csatlakoztatva")
+            val body = form(mapOf(
                 "refresh_token" to refresh,
                 "grant_type" to "refresh_token",
                 "client_id" to APP_KEY
-            )
-        )
-        val j = withContext(Dispatchers.IO) {
-            postForm("https://api.dropboxapi.com/oauth2/token", body)
+            ))
+            val j = withContext(Dispatchers.IO) {
+                postForm("https://api.dropboxapi.com/oauth2/token", body)
+            }
+            val access = j.optString("access_token")
+            if (access.isBlank()) error("Dropbox access token hiányzik")
+            // In-flight responses from the previous login must NEVER restore
+            // a disconnected/reconnected account's stale access token.
+            ensureCredentialVersion(prefs)
+            check(prefs.getString("dropbox_refresh_token", null) == refresh) {
+                "Dropbox munkamenet megváltozott, korábbi token nem írható vissza"
+            }
+            val expires = j.optLong("expires_in", 14400L)
+            prefs.edit()
+                .putString("dropbox_access_token", access)
+                .putLong("dropbox_access_expires",
+                    System.currentTimeMillis() + (expires - 60L).coerceAtLeast(0L) * 1000L)
+                .apply()
+            access
         }
-        val access = j.optString("access_token")
-        val expires = j.optLong("expires_in", 14400L)
-        if (access.isBlank()) error("Dropbox access token hiányzik")
-
-        prefs.edit()
-            .putString("dropbox_access_token", access)
-            .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
-            .apply()
-        return access
     }
 
     /**
