@@ -1242,3 +1242,25 @@ test('v813 canonical Family Guard loads Follow, 3D and Family expanded without a
  assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
  assert.match(html,/guardian-live-v785\.js\?v=813-default-follow-3d-family/);
 });
+
+test('v818 Family Live is above profile member cards without moving GPS consent controls',()=>{
+ const html=read('guardian/index.html');
+ const panelStart=html.indexOf('<section class="family-panel" id="guardianFamilyPanel"');
+ const panelEnd=html.indexOf('<section class="gps-panel"',panelStart);
+ assert.ok(panelStart>0&&panelEnd>panelStart);
+ const panel=html.slice(panelStart,panelEnd);
+ const header=panel.indexOf('class="family-panel-head"');
+ const live=panel.indexOf('class="guardian-live-v785"');
+ const grid=panel.indexOf('class="family-grid"');
+ const corkyNote=panel.indexOf('class="family-note"');
+ assert.ok(header>=0&&header<live&&live<grid&&grid<corkyNote,
+  'Family header -> live GPS -> member cards -> Corky note');
+ for(const id of ['guardianMeCard','guardianOtherCard','guardianCorkyCard',
+  'guardianLiveStart','guardianLiveStop','guardianLiveInterval','guardianLiveIdentity',
+  'guardianLiveResetDevice','guardianLiveDisableAuto']){
+  assert.equal(html.split('id="'+id+'"').length-1,1,'must preserve '+id);
+ }
+ assert.match(html,/guardian-live-first-v818/);
+ assert.doesNotMatch(panel,/class="family-grid"[\\s\\S]*class="guardian-live-v785"/,
+  'member cards must not precede consent controls');
+});
