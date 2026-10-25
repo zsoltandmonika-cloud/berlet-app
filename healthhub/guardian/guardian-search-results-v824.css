@@ -1,0 +1,105 @@
+/* v824 · ONE Family Guard Premium Glass language for BOTH result lists:
+   Map search suggestions + Smart Travel Honnan/Hová results.
+   Loaded last in guardian/index.html. No map, GPS, geocoder or data mutation. */
+#guardianMapSearchResultsV819,
+#hhSmartHubNativeResultsV803{
+ --hh-results-panel:linear-gradient(147deg,rgba(43,108,161,.77),rgba(10,40,84,.85));
+ --hh-results-card:linear-gradient(122deg,rgba(68,135,185,.66),rgba(22,72,127,.76));
+ --hh-results-border:rgba(166,219,249,.45);
+ --hh-results-stroke:rgba(204,238,255,.43);
+ --hh-results-chip:rgba(144,209,249,.20);
+ --hh-results-glow:rgba(8,29,64,.30);
+ min-width:0;
+}
+:root[data-guardian-profile="m"] #guardianMapSearchResultsV819,
+:root[data-guardian-profile="m"] #hhSmartHubNativeResultsV803{
+ --hh-results-panel:linear-gradient(147deg,rgba(164,94,164,.79),rgba(77,38,112,.86));
+ --hh-results-card:linear-gradient(122deg,rgba(192,128,187,.65),rgba(103,59,143,.78));
+ --hh-results-border:rgba(255,196,238,.49);
+ --hh-results-stroke:rgba(255,227,250,.49);
+ --hh-results-chip:rgba(244,175,225,.20);
+ --hh-results-glow:rgba(57,25,79,.32);
+}
+/* Results tray: airy rather than a thick, flat purple/navy rectangle. */
+#guardianMapSearchResultsV819.hh-map-search-hits-v819,
+#hhSmartHubNativeResultsV803.hh-smart-hub-results-v803:not(:empty){
+ display:grid;gap:6px;
+ padding:7px!important;
+ border:1px solid var(--hh-results-border)!important;
+ border-radius:16px!important;
+ background:var(--hh-results-panel)!important;
+ -webkit-backdrop-filter:blur(27px) saturate(1.45)!important;
+ backdrop-filter:blur(27px) saturate(1.45)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 9px 25px var(--hh-results-glow)!important;
+}
+#guardianMapSearchResultsV819[hidden]{display:none!important}
+#hhSmartHubNativeResultsV803.hh-smart-hub-results-v803:empty{display:none!important}
+/* Identical cards, independent of which search field produced the address. */
+#guardianMapSearchResultsV819 .hh-map-search-hit-v819,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{
+ box-sizing:border-box;
+ display:flex;align-items:center;gap:9px;
+ width:100%;min-height:54px;margin:0;padding:8px 10px;
+ border:1px solid var(--hh-results-border)!important;
+ border-radius:13px!important;
+ background:var(--hh-results-card)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(1.15)!important;
+ backdrop-filter:blur(14px) saturate(1.15)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 3px 11px var(--hh-results-glow)!important;
+ color:#f6fbff!important;text-align:left;cursor:pointer;touch-action:manipulation;
+ transition:filter .16s ease,border-color .16s ease;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-v819:last-child{
+ border-bottom:1px solid var(--hh-results-border)!important
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-v819:hover,
+#guardianMapSearchResultsV819 .hh-map-search-hit-v819:focus-visible,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803:hover,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803:focus-visible{
+ filter:brightness(1.15);
+ border-color:rgba(231,248,255,.85)!important;
+ outline:2px solid var(--guard-cyan,#80d5fc);outline-offset:1px;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-icon-v823,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-icon-v803{
+ flex:0 0 35px;display:flex;align-items:center;justify-content:center;
+ width:35px;height:35px;border:1px solid var(--hh-results-stroke)!important;
+ border-radius:11px!important;
+ background:var(--hh-results-chip)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+ color:#f2fbff;font:700 19px/1 system-ui;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-text-v819,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803{
+ flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-text-v819 strong,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 strong{
+ font:780 12px/1.3 system-ui;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-text-v819 small,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 small{
+ font:550 10px/1.3 system-ui;color:#e3f1fb;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#guardianMapSearchResultsV819 .hh-map-search-hit-tag-v823,
+#hhSmartHubNativeResultsV803 .hh-smart-hub-result-tag-v824{
+ box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+ min-width:37px;max-width:66px;min-height:23px;padding:0 6px;
+ border:1px solid var(--hh-results-stroke)!important;
+ border-radius:999px!important;
+ background:var(--hh-results-chip)!important;
+ color:#fff;font:790 8px/1 system-ui;letter-spacing:.035em;
+}
+@media(max-width:385px){
+ #guardianMapSearchResultsV819.hh-map-search-hits-v819,
+ #hhSmartHubNativeResultsV803.hh-smart-hub-results-v803:not(:empty){gap:5px;padding:5px!important}
+ #guardianMapSearchResultsV819 .hh-map-search-hit-v819,
+ #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{gap:6px;padding:7px}
+ #guardianMapSearchResultsV819 .hh-map-search-hit-icon-v823,
+ #hhSmartHubNativeResultsV803 .hh-smart-hub-result-icon-v803{flex-basis:31px;width:31px;height:31px}
+}
+@media(prefers-reduced-motion:reduce){
+ #guardianMapSearchResultsV819 .hh-map-search-hit-v819,
+ #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{transition:none}
+}
