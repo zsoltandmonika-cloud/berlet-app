@@ -14,6 +14,13 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import androidx.core.content.ContextCompat
 
 /**
@@ -27,6 +34,8 @@ class Sh9GpsService : Service() {
         const val ACTION_STOP = "hu.zsoltmonika.healthhubbridge.GPS_STOP"
         const val PREFS = "sh9_native_gps_v1"
         const val KEY_INTERVAL_SECONDS = "interval_seconds"
+        const val KEY_LOCATION_ENGINE = "location_engine_v157"
+        const val KEY_LOCATION_MODE = "location_mode_v157"
         private const val CHANNEL = "sh9-gps-active-v1"
         private const val NOTIFICATION_ID = 9357
         private val ALLOWED_INTERVALS = setOf(15, 30, 60)
@@ -56,6 +65,12 @@ class Sh9GpsService : Service() {
 
     private var manager: LocationManager? = null
     private var listener: LocationListener? = null
+    private val smartPolicy = SmartLocationPolicy()
+    private var fused: FusedLocationProviderClient? = null
+    private var fusedCallback: LocationCallback? = null
+    private var previousFix: Location? = null
+    private var callbackGeneration = 0
+    private var engine = "starting"
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -78,37 +93,154 @@ class Sh9GpsService : Service() {
         }
         try {
             val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            val enabled = if (android.os.Build.VERSION.SDK_INT >= 28) lm.isLocationEnabled
+                else lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            if (!enabled) {
                 finishService()
                 return START_NOT_STICKY
             }
+            clearSubscriptions()
             createChannel()
             startForeground(NOTIFICATION_ID, notification())
-            listener?.let { lm.removeUpdates(it) }
-            val updates = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    // Keep the fix timestamp; the optional consented relay sends only the latest fix.
-                    lastFixAtMillis = System.currentTimeMillis()
-                    FamilyGuardNativeRelay.publish(this@Sh9GpsService, location)
-                }
-                override fun onProviderDisabled(provider: String) {
-                    if (provider == LocationManager.GPS_PROVIDER) finishService()
-                }
-            }
-            manager = lm
-            listener = updates
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, interval(this) * 1000L, 0f,
-                updates, Looper.getMainLooper())
             active = true
+            startFused(callbackGeneration)
         } catch (_: SecurityException) {
             finishService()
-        } catch (_: IllegalArgumentException) {
-            finishService()
-        } catch (_: IllegalStateException) {
+        } catch (_: RuntimeException) {
             finishService()
         }
         return if (FamilyGuardContinuity.canRestart(this)) START_STICKY
             else START_NOT_STICKY
+    }
+
+    private fun updateEngine(name: String) {
+        engine = name
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_LOCATION_ENGINE, name)
+            .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
+    }
+
+    private fun startFused(generation: Int) {
+        if (!active || callbackGeneration != generation) return
+        try {
+            val client = LocationServices.getFusedLocationProviderClient(this)
+            val callback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    if (!active || callbackGeneration != generation) return
+                    result.lastLocation?.let { processFix(it, generation) }
+                }
+            }
+            fused = client
+            fusedCallback = callback
+            updateEngine("fused")
+            requestFused(client, callback, generation)
+        } catch (_: RuntimeException) {
+            startLegacy(generation)
+        } catch (_: LinkageError) {
+            startLegacy(generation)
+        }
+    }
+
+    private fun requestFused(
+        client: FusedLocationProviderClient, callback: LocationCallback, generation: Int
+    ) {
+        if (!active || callbackGeneration != generation || fusedCallback !== callback) return
+        val ms = smartPolicy.intervalMillis(interval(this))
+        val priority = if (smartPolicy.highAccuracy()) Priority.PRIORITY_HIGH_ACCURACY
+            else Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        val request = LocationRequest.Builder(priority, ms)
+            .setMinUpdateIntervalMillis(maxOf(10_000L, ms / 2))
+            .setMaxUpdateDelayMillis(0L)
+            .setWaitForAccurateLocation(false)
+            .build()
+        try {
+            client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+                .addOnFailureListener {
+                    if (active && generation == callbackGeneration &&
+                        fusedCallback === callback) {
+                        client.removeLocationUpdates(callback)
+                        fusedCallback = null
+                        fused = null
+                        startLegacy(generation)
+                    }
+                }
+        } catch (_: RuntimeException) {
+            fusedCallback = null
+            fused = null
+            startLegacy(generation)
+        } catch (_: SecurityException) {
+            finishService()
+        }
+    }
+
+    private fun startLegacy(generation: Int) {
+        if (!active || callbackGeneration != generation) return
+        try {
+            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val provider = when {
+                lm.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
+                lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
+                else -> {
+                    updateEngine("no-provider")
+                    return
+                }
+            }
+            val callback = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    if (active && generation == callbackGeneration) processFix(location, generation)
+                }
+                override fun onProviderDisabled(provider: String) {
+                    if (active && generation == callbackGeneration) updateEngine("provider-unavailable")
+                }
+            }
+            manager = lm
+            listener = callback
+            lm.requestLocationUpdates(provider, interval(this) * 1000L, 0f,
+                callback, Looper.getMainLooper())
+            updateEngine("android-fallback")
+        } catch (_: SecurityException) {
+            finishService()
+        } catch (_: IllegalArgumentException) {
+            updateEngine("provider-unavailable")
+        }
+    }
+
+    private fun processFix(location: Location, generation: Int) {
+        if (!active || callbackGeneration != generation) return
+        val age = System.currentTimeMillis() - location.time
+        if (age < -5_000L || age > 20_000L || location.isFromMockProvider) return
+        val distance = previousFix?.takeIf {
+            it.hasAccuracy() && it.accuracy <= 25f &&
+            location.hasAccuracy() && location.accuracy <= 25f &&
+            location.time >= it.time
+        }?.distanceTo(location)
+        val speed = if (location.hasSpeed() && location.speed >= 0f) location.speed else null
+        val oldMode = smartPolicy.mode
+        smartPolicy.observe(speed, distance,
+            if (location.hasAccuracy()) location.accuracy else Float.POSITIVE_INFINITY,
+            SystemClock.elapsedRealtime())
+        previousFix = location
+        lastFixAtMillis = System.currentTimeMillis()
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
+        // The existing consent, owner registry, freshness and Dropbox gates remain unchanged.
+        FamilyGuardNativeRelay.publish(this, location)
+        val cb = fusedCallback
+        val client = fused
+        if (engine == "fused" && cb != null && client != null &&
+            oldMode != smartPolicy.mode) requestFused(client, cb, generation)
+    }
+
+    private fun clearSubscriptions() {
+        callbackGeneration++
+        fusedCallback?.let { cb -> try { fused?.removeLocationUpdates(cb) } catch (_: Exception) {} }
+        fusedCallback = null
+        fused = null
+        try { listener?.let { manager?.removeUpdates(it) } } catch (_: SecurityException) {}
+        listener = null
+        manager = null
+        previousFix = null
     }
 
     private fun notification(): Notification {
@@ -119,9 +251,9 @@ class Sh9GpsService : Service() {
             Intent(this, Sh9GpsService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return Notification.Builder(this, CHANNEL)
-            .setContentTitle("SH9 · GPS aktív")
+            .setContentTitle("SH9 · Smart Location aktív")
             .setContentText(if (FamilyGuardNativeRelay.enabled(this))
-                "Családi helymegosztás aktív · azonnal leállítható"
+                "Családi helymegosztás · Smart Location · leállítható"
                 else "Natív helymeghatározás: " + interval(this) + " mp · leállítható")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(content)
@@ -140,18 +272,14 @@ class Sh9GpsService : Service() {
 
     private fun finishService() {
         active = false
-        try { listener?.let { manager?.removeUpdates(it) } } catch (_: SecurityException) { }
-        listener = null
-        manager = null
+        clearSubscriptions()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     override fun onDestroy() {
         active = false
-        try { listener?.let { manager?.removeUpdates(it) } } catch (_: SecurityException) { }
-        listener = null
-        manager = null
+        clearSubscriptions()
         super.onDestroy()
     }
 }
