@@ -18,8 +18,8 @@ const version = gradle.match(/versionName\s*=\s*"([^"]+)"/)?.[1];
 
 test('single signed HH One package identity and monotonic staged OTA version', () => {
   assert.match(gradle, /applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.equal(code, 32);
-  assert.equal(version, '0.15.5');
+  assert.equal(code, 33);
+  assert.equal(version, '0.15.6');
   assert.equal(ota.applicationId, 'hu.zsoltmonika.healthhubbridge');
   assert.ok(Number.isInteger(code) && code >= ota.versionCode);
   if (code === ota.versionCode) assert.equal(version, ota.version);
@@ -45,7 +45,8 @@ test('GPS is opt-in, permission-gated, user-stoppable with explicitly optional A
   assert.match(activity, /Mindig engedélyezett/);
   assert.match(activity, /gpsBackgroundSummary\.text/);
   assert.doesNotMatch(activity, /sh9GpsPermission\.launch\(arrayOf\([^)]*ACCESS_BACKGROUND_LOCATION/);
-  assert.doesNotMatch(manifest, /RECEIVE_BOOT_COMPLETED/);
+  assert.match(manifest, /RECEIVE_BOOT_COMPLETED/);
+  assert.match(manifest, /GuardianBootReceiver/);
   assert.match(gps, /START_NOT_STICKY/);
   assert.match(gps, /ACTION_STOP/);
   assert.match(gps, /Notification\.Builder/);
