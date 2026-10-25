@@ -256,7 +256,8 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota','diagnostics'].includes(scope))throw new Error('Android távoli vezérlés: Health + Activity, Daily, OTA vagy támogatott diagnosztika választható.');
+ if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'].includes(scope))
+  throw new Error('Ismeretlen vagy nem támogatott Android távoli művelet.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
  });
@@ -269,11 +270,15 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  }))throw new Error('A távoli műszaki diagnosztikához HH One Agent v0.14.1+ szükséges. Régi telefonra nem küldünk nem támogatott parancsot.');
  if(scope==='ota'&&selected.some(function(d){return Number(d.buildCode)<20;}))
   throw new Error('Az eszköz még nem igazolta vissza az OTA-t támogató Connect v0.14+ verzióját.');
+ if(['gps_stop','gps_resume_request','sos_contact_request'].includes(scope)&&selected.some(function(d){
+   return !Array.isArray(d.capabilities)||!d.capabilities.includes(scope)||Number(d.buildCode)<33;
+  }))throw new Error('A kijelölt HH One v0.15.6+ nem jelezte a vészhelyzeti művelet előzetes tulajdonosi engedélyét.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
-   issuedAt:issued,expiresAt:new Date(Date.now()+24*3600*1000).toISOString(),
+   issuedAt:issued,expiresAt:new Date(Date.now()+
+      (['gps_stop','gps_resume_request','sos_contact_request'].includes(scope)?40*60*1000:24*3600*1000)).toISOString(),
    requestedBy:deviceId(),profileScope:d.activeProfile,scopes:[scope],state:'pending'
   };
   await upload(commandPath(d.deviceId),cmd);
