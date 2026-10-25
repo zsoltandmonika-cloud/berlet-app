@@ -274,6 +274,11 @@
   const profileSwitch=$('guardianProfileSwitch');
   if(profileSwitch)profileSwitch.addEventListener('click',()=>w.setTimeout(refreshProfile,0));
   if(w.addEventListener)w.addEventListener('storage',e=>{if(e.key==='hh-profile')refreshProfile()});
+  // A verified map result fills the existing Hová field and triggers the single planner.
+  if(w.addEventListener)w.addEventListener('hh-guardian-map-destination-v819',e=>{
+   if(!e||!validPlace(e.detail))return;
+   if(selectPlace(e.detail,'destination'))e.preventDefault();
+  });
   if(w.addEventListener)w.addEventListener('pagehide',()=>{
    stopRequest();for(const kind of modes){if(markers[kind])markers[kind].remove()}
   });
