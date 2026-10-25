@@ -44,7 +44,7 @@ test('v803 uses own MapLibre destination marker, preserves v800 live buses and m
  const html=read('index.html'),js=read('guardian-smart-hub-native-v803.js'),css=read('guardian-smart-hub-native-v803.css');
  assert.ok(html.includes('hhSmartHubNativeResultsV803'));
  assert.ok(html.includes('hhSmartHubFromV806') && html.includes('hhSmartHubToV806'));
- assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=806-fields-b'));
+ assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=824-results-glass'));
  assert.ok(!html.includes('id="hhSmartHubDirectionsV802"'));
  assert.ok(html.includes('bkk-live-glass-v800.css'));
  assert.ok(js.includes('HH_GUARDIAN_V761.map'));
