@@ -1310,8 +1310,6 @@ class MainActivity : ComponentActivity() {
         status.text = "Health Connect beolvasva · " +
             (if (hcDate.isBlank()) "nincs napi aktivitás" else hcDate + " · " + hcSteps + " lépés") +
             " · Dropbox feltöltés…"
-        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
         NativeHealthOutbox.submit(this@MainActivity, prefs, profile, json)
         prefs.edit()
             .putLong(ResilientHealthSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
