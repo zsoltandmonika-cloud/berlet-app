@@ -76,7 +76,16 @@ class OrchestratorWorker(
             .put("activeProfile", owner ?: JSONObject.NULL)
             .put("capabilities", JSONArray().put("health").put("daily").put("ota").also {
                 if (owner != null && OneTechnicalDiagnostics.consent(prefs)) it.put("diagnostics")
+                if (owner != null && FamilyGuardContinuity.remoteStopAllowed(applicationContext)) {
+                    it.put("gps_stop")
+                    it.put("gps_resume_request")
+                    it.put("sos_contact_request")
+                }
             })
+            .put("familyGuardGpsAutoRestarts", FamilyGuardContinuity.enabled(applicationContext))
+            .put("familyGuardNativeGpsActive", Sh9GpsService.active)
+            .put("familyGuardBackgroundPermission", FamilyGuardContinuity.hasBackgroundLocation(applicationContext))
+            .put("familyGuardBootResult", prefs.getString(FamilyGuardContinuity.KEY_BOOT_RESULT, "not-tested"))
             .put("lastSeenAt", java.time.Instant.now().toString())
             .put("lastHealthSyncAt",
                 prefs.getLong(ResilientHealthSync.KEY_LAST_SUCCESS, 0L).takeIf { it > 0L }?.let {
@@ -199,7 +208,8 @@ class OrchestratorWorker(
             val requestedOwner = cmd.optString("profileScope")
             val actionScopes = scopes(cmd)
             val allowed = setOf("health", "daily", "ota", "diagnostics",
-                "structured", "profile", "devices", "lena")
+                "structured", "profile", "devices", "lena",
+                "gps_stop", "gps_resume_request", "sos_contact_request")
             val issued = runCatching { java.time.Instant.parse(cmd.getString("issuedAt")) }.getOrNull()
             val deadline = runCatching { java.time.Instant.parse(cmd.getString("expiresAt")) }.getOrNull()
             val now = java.time.Instant.now()
@@ -281,6 +291,54 @@ class OrchestratorWorker(
                 }
             }
 
+            if ("gps_stop" in requestedScopes) {
+                if (!FamilyGuardContinuity.remoteStopAllowed(applicationContext)) {
+                    failed++
+                    steps.put(step("gps_stop", "GPS távoli leállítása", "rejected",
+                        "A telefon tulajdonosa nem engedélyezte a távoli leállítást."))
+                } else {
+                    try {
+                        FamilyGuardContinuity.disable(applicationContext)
+                        // stopService succeeded in dispatching a stop: live GPS cessation must
+                        // be independently verified by a later fresh heartbeat.
+                        steps.put(step("gps_stop", "GPS leállítás", "queued",
+                            "Android stopService kérve; következő heartbeat szükséges."))
+                        skipped++
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step("gps_stop", "GPS leállítás", "failed", e.javaClass.simpleName))
+                    }
+                }
+            }
+            for ((scope,requestKind,label) in listOf(
+                Triple("gps_resume_request", GuardianEmergencyNotification.ACTION_GPS_RESUME,
+                    "GPS újraindítási jóváhagyáskérés"),
+                Triple("sos_contact_request", GuardianEmergencyNotification.ACTION_SOS_CONTACT,
+                    "SOS kapcsolatfelvételi kérés")
+            )) {
+                if (scope !in requestedScopes) continue
+                if (!FamilyGuardContinuity.remoteStopAllowed(applicationContext)) {
+                    failed++
+                    steps.put(step(scope, label, "rejected", "Telefonos, előzetes hozzájárulás szükséges."))
+                } else {
+                    try {
+                        if (GuardianEmergencyNotification.request(applicationContext, requestKind, commandId)) {
+                            // Notification delivery is NOT user approval, GPS activation or a call.
+                            skipped++
+                            steps.put(step(scope, label, "queued",
+                                "Android-értesítés közzétéve, tulajdonosi döntésre vár."))
+                        } else {
+                            failed++
+                            steps.put(step(scope, label, "failed",
+                                "Android értesítési engedély hiányzik vagy nem támogatott."))
+                        }
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step(scope, label, "failed", e.javaClass.simpleName))
+                    }
+                }
+            }
+
             if ("daily" in requestedScopes) {
                 try {
                     DailyContentScheduler.runNow(applicationContext)
@@ -309,6 +367,8 @@ class OrchestratorWorker(
             writeStatus(
                 prefs, id, cmd, finalState, steps,
                 if (finalState == "done") "A kért műveletek ténylegesen befejeződtek."
+                else if (requestedScopes.any { it in setOf("gps_stop", "gps_resume_request", "sos_contact_request") })
+                    "Vészhelyzeti parancs feldolgozva. KÉRÉS vagy értesítés, nem megerősített követés/hívás."
                 else "Egy vagy több művelet sikertelen vagy nem támogatott.",
                 startedAt, technicalSnapshot
             )

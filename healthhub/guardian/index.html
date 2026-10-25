@@ -374,7 +374,8 @@
     </label>
    </div>
    <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A Family Live csak külön engedéllyel küld helyadatot.</p>
-   <p id="guardianLiveGpsDetail811" class="guardian-live-note" role="status">⚪ Böngészős GPS: még nem indult. A HH One natív GPS ettől független.</p>
+   <p id="guardianLiveGpsDetail811" class="guardian-live-note" role="status">⚪ Böngészős GPS: még nem indult. A külön jóváhagyott HH One natív helymegosztás lezárt képernyőn is működhet.</p>
+   <p class="guardian-live-note">📍 Natív Family Guard: a HH One privát Dropbox-feltöltése külön, a saját telefonon jóváhagyható. A másik családtag böngészőjében a családi <a href="../index.html">HealthHub Dropbox Vault</a> kapcsolata is szükséges. Nincs helyelőzmény vagy rejtett kamera/mikrofon.</p>
    <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
@@ -418,7 +419,8 @@
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./guardian.js?v=813-default-follow-3d-family&service=806"></script>
-<script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family"></script>
+<script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay"></script>
+<script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family&native=156"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>

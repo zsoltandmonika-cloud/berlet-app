@@ -17,9 +17,9 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 
 /**
- * Opt-in location foreground service for a user-initiated journey.
- * No uploaded/saved GPS coordinates. Notification has an immediate STOP action.
- * Cannot bypass Android GPS location or another app's own background limits.
+ * Opt-in foreground location service. Separate explicit native family-sharing
+ * consent permits uploading the single latest fix via private Dropbox.
+ * Active notification provides immediate STOP; Android and browser restrictions apply.
  */
 class Sh9GpsService : Service() {
     companion object {
@@ -59,7 +59,15 @@ class Sh9GpsService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action != ACTION_START) {
+        if (intent?.action == ACTION_STOP) {
+            // This explicit stop may come from the phone notification or the
+            // registered emergency controller. It must prevent silent reboot restart.
+            FamilyGuardContinuity.setApproved(this, false)
+            finishService()
+            return START_NOT_STICKY
+        }
+        if (intent?.action != ACTION_START &&
+            !(intent == null && FamilyGuardContinuity.canRestart(this))) {
             finishService()
             return START_NOT_STICKY
         }
@@ -79,8 +87,9 @@ class Sh9GpsService : Service() {
             listener?.let { lm.removeUpdates(it) }
             val updates = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
-                    // Keep only a non-sensitive activity timestamp; never persist positions.
+                    // Keep the fix timestamp; the optional consented relay sends only the latest fix.
                     lastFixAtMillis = System.currentTimeMillis()
+                    FamilyGuardNativeRelay.publish(this@Sh9GpsService, location)
                 }
                 override fun onProviderDisabled(provider: String) {
                     if (provider == LocationManager.GPS_PROVIDER) finishService()
@@ -98,7 +107,8 @@ class Sh9GpsService : Service() {
         } catch (_: IllegalStateException) {
             finishService()
         }
-        return START_NOT_STICKY
+        return if (FamilyGuardContinuity.canRestart(this)) START_STICKY
+            else START_NOT_STICKY
     }
 
     private fun notification(): Notification {
@@ -110,7 +120,9 @@ class Sh9GpsService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return Notification.Builder(this, CHANNEL)
             .setContentTitle("SH9 · GPS aktív")
-            .setContentText("Helymeghatározás: " + interval(this) + " mp · leállítható")
+            .setContentText(if (FamilyGuardNativeRelay.enabled(this))
+                "Családi helymegosztás aktív · azonnal leállítható"
+                else "Natív helymeghatározás: " + interval(this) + " mp · leállítható")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(content)
             .setOngoing(true)
@@ -122,7 +134,7 @@ class Sh9GpsService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel(CHANNEL, "SH9 GPS aktív utazás",
                 NotificationManager.IMPORTANCE_LOW).apply {
-                description = "Utazási helymeghatározás, mindig leállítható"
+                description = "Családi helymeghatározás, bármikor leállítható"
             })
     }
 

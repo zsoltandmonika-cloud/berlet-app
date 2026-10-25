@@ -248,6 +248,18 @@ function renderPanel(){
    otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
    otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
    otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
+   var familyActions=[
+     ['gps_stop','🛑 GPS STOP','Natív GPS leállítás, folytatáshoz új tulajdonosi jóváhagyás'],
+     ['gps_resume_request','📍 GPS KÉRÉS','Látható telefonos jóváhagyáskérés, nem kapcsolja be távolról'],
+     ['sos_contact_request','🆘 SOS KAPCSOLAT','Látható kapcsolatkérés, nem indít kamerát vagy mikrofont']
+   ];
+   familyActions.forEach(function(entry){
+     var permitted=Number(d.buildCode)>=33&&Array.isArray(d.capabilities)&&d.capabilities.includes(entry[0]);
+     var b=elt('button','',buttons);b.type='button';b.textContent=entry[1];
+     b.title=permitted?entry[2]:'HH One 0.15.6+ és telefonos hozzájárulás szükséges';
+     b.disabled=!authorized||!permitted||sending||reading;
+     b.addEventListener('click',function(){sendRemote(p,d.deviceId,entry[0])});
+   });
   }else{
    txt('small','A natív HH One jelentést és a v401 Eszközregisztert kell ellenőrizni. Nem jelölünk ki ismeretlen telefont.',line);
    txt('small','↗ Telefon kijelölésének ellenőrzése · 1 koppintás',line,'hhRepairArrowV503');
@@ -311,7 +323,9 @@ async function refresh(force){
  }finally{reading=false;updateBadge();if($id(PANEL)?.dataset.open==='1')renderPanel()}
 }
 async function sendRemote(owner,id,kind){
- if(sending||!isMain()||!['diagnostics','ota'].includes(kind)||!['zsolt','monika'].includes(owner))return;
+ if(sending||!isMain()||
+      !['diagnostics','ota','gps_stop','gps_resume_request','sos_contact_request'].includes(kind)||
+      !['zsolt','monika'].includes(owner))return;
  try{
   await refresh(true);
   if(!state.connected||!state.registry||!Array.isArray(state.registry.archived))
@@ -326,7 +340,17 @@ async function sendRemote(owner,id,kind){
   if(kind==='ota'&&(!Array.isArray(device.capabilities)||
      !device.capabilities.includes('ota')||Number(device.buildCode)<20))
     throw Error('A készülék nem jelezte az OTA ellenőrzés támogatását.');
-  var label=kind==='ota'?'frissítés ellenőrzését (telepítés NÉLKÜL)':'műszaki diagnosztikáját';
+  if(['gps_stop','gps_resume_request','sos_contact_request'].includes(kind)&&
+     (!Array.isArray(device.capabilities)||!device.capabilities.includes(kind)||Number(device.buildCode)<33))
+     throw Error('A telefon még nem engedélyezte ezt a Family Guard műveletet.');
+  var labels={
+     ota:'frissítés ellenőrzését (telepítés NÉLKÜL)',
+     diagnostics:'műszaki diagnosztikáját',
+     gps_stop:'GPS leállítását, az újraindítási engedély visszavonásával',
+     gps_resume_request:'GPS jóváhagyáskérését (NEM indul el távolról)',
+     sos_contact_request:'SOS kapcsolatfelvételi kérését (nincs kamera/mikrofon bekapcsolás)'
+  };
+  var label=labels[kind];
   if(!root.confirm('Elindítsuk '+(owner==='monika'?'Mónika':'Zsolt')+
      ' kijelölt telefonján a '+label+'? A telefon késve válaszolhat.'))return;
   sending=true;renderPanel();

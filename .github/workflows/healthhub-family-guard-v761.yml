@@ -53,7 +53,9 @@ jobs:
           node --check healthhub/tests/guardian-buddy-stop-alert-v815.test.cjs
           node --check healthhub/tests/guardian-buddy-stop-v815.test.cjs
           node --check healthhub/tests/guardian-bkk-watchlist-v814.test.cjs
-          node --check healthhub/tests/guardian-bkk-live-watchlist-v816.test.cjs
+          node --check healthhub/tests/guardian-bkk-live-watchlist-v816.test.cjs healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --check healthhub/guardian/guardian-native-dropbox-v156.js
+          node --check healthhub/tests/guardian-native-relay-v156.test.cjs
           node --check healthhub/tests/smart-hub-catalog-v801.test.cjs
           node --check healthhub/guardian/guardian-smart-hub-v802.js
           node --check healthhub/tests/smart-hub-destination-v802.test.cjs

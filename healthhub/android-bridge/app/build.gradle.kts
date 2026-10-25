@@ -11,8 +11,8 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 32
-        versionName = "0.15.5"
+        versionCode = 33
+        versionName = "0.15.6"
     }
 
     buildFeatures {

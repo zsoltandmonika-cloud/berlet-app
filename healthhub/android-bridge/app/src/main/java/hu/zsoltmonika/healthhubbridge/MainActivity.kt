@@ -82,6 +82,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var gpsSummary: TextView
     private lateinit var gpsBackgroundSummary: TextView
     private lateinit var gpsToggleButton: Button
+    private lateinit var gpsBootButton: Button
+    private lateinit var familyShareButton: Button
     private lateinit var gpsIntervalSpinner: Spinner
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
@@ -180,6 +182,7 @@ class MainActivity : ComponentActivity() {
         updateScheduleUi()
         updateDigitalStatus()
         handleIntent(intent)
+        showFamilyGuardRequest(intent)
         updateResilientStatus()
         updateOtaStatus()
         updateSh9GpsUi()
@@ -201,6 +204,7 @@ class MainActivity : ComponentActivity() {
         // settings deep-links are display-only. In particular, they must not
         // run OAuth, change Dropbox credentials, or relaunch SH9.
         handleIntent(intent)
+        showFamilyGuardRequest(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
         updateResilientStatus()
@@ -397,6 +401,13 @@ class MainActivity : ComponentActivity() {
         ownerButton = Button(this).apply {
             text = "Tulajdonos módosítása"
             setOnClickListener {
+                val nativeShared = prefs.getBoolean(FamilyGuardNativeRelay.KEY_SHARE, false)
+                val nativeStatus = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
+                if (nativeShared || FamilyGuardContinuity.enabled(this@MainActivity) ||
+                    nativeStatus == "stopping" || nativeStatus.startsWith("revoke-pending:")) {
+                    status.text = "Előbb állítsd le a Family Guard GPS-autostartot és a natív megosztást, majd várd meg a Dropbox visszavonó jelzését, mielőtt a telefon tulajdonosát módosítod."
+                    return@setOnClickListener
+                }
                 val digitalPrefs = PilotState.prefs(this@MainActivity)
                 if (digitalPrefs.getBoolean(PilotState.CLOUD_ENABLED, false) ||
                     digitalPrefs.getBoolean(PilotState.CLOUD_ERASE_PENDING, false)) {
@@ -725,6 +736,16 @@ class MainActivity : ComponentActivity() {
             }
         }
         root.addView(gpsToggleButton)
+        gpsBootButton = Button(this).apply {
+            text = "🛡️ Family Guard · automatikus GPS-helyreállítás"
+            setOnClickListener { toggleGpsBootConsent() }
+        }
+        root.addView(gpsBootButton)
+        familyShareButton = Button(this).apply {
+            text = "Family Guard · natív családi megosztás"
+            setOnClickListener { toggleNativeFamilyShare() }
+        }
+        root.addView(familyShareButton)
         root.addView(Button(this).apply {
             text = "📍 Android helyszolgáltatás beállításai"
             setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
@@ -740,7 +761,7 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { openBackgroundLocationSettings() }
         })
         root.addView(TextView(this).apply {
-            text = "Alapból KI. Csak kézi indítás; aktív állapotban látható Android értesítésből is leállítható. Nem mentünk vagy továbbítunk GPS-koordinátákat. Nem garantálja más appok háttérbeli GPS-hozzáférését. Folyamatos használata növeli az akkumulátorfogyasztást."
+            text = "Natív GPS autostart külön jóváhagyással, családi helymegosztás egy MÁSODIK, külön jóváhagyással engedélyezhető. Csak az aktuális pozíció kerül a privát Dropboxba, nincs útvonalnapló. Leállításkor visszavonó rekord készül. Edge GPS-t nem ébreszt, akkumulátort használ."
             textSize = 12f
             setTextColor(0xFF6A7F91.toInt())
             setPadding(0, 4, 0, 12)
@@ -1102,6 +1123,150 @@ class MainActivity : ComponentActivity() {
         gpsSummary.text = (if (running) "🟢 Aktív GPS előtérszolgáltatás" else "⚪ GPS ki van kapcsolva") +
             "\nFrissítési időköz: $period mp · $lastText"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
+        if (::gpsBootButton.isInitialized) {
+            val approved = FamilyGuardContinuity.enabled(this)
+            val last = getSharedPreferences(PREFS, MODE_PRIVATE)
+                .getString(FamilyGuardContinuity.KEY_BOOT_RESULT, "nincs indulási teszt")
+            gpsBootButton.text = if (approved)
+                "🟢 Family Guard GPS · újraindítás után BE · kikapcsolás"
+                else "⚪ Family Guard GPS · újraindítás után KI · engedélyezés"
+            if (::familyShareButton.isInitialized) familyShareButton.text =
+                if (FamilyGuardNativeRelay.enabled(this))
+                    "🟢 Family Guard · helymegosztás BE · visszavonás"
+                else "⚪ Family Guard · helymegosztás KI · jóváhagyás"
+            val info = gpsBackgroundSummary.text.toString().substringBefore("\nAutomatikus natív GPS:")
+            val relayResult = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
+            val relayText = when {
+                relayResult == "uploaded" -> "✓ Utolsó pozíció feltöltve"
+                relayResult == "revoked" -> "✓ Privát pozíció visszavonva"
+                relayResult == "not-selected-in-device-registry" ->
+                    "⚠ Nem ez a kijelölt fizikai telefon · Admin → Eszközregiszter"
+                relayResult.startsWith("network-error:") -> "⚠ Hálózati feltöltési hiba"
+                relayResult.startsWith("revoke-pending:") || relayResult == "stopping" ->
+                    "⚠ Visszavonás folyamatban"
+                else -> "Még nincs ellenőrzött feltöltés"
+            }
+            gpsBackgroundSummary.text = info + "\nAutomatikus natív GPS: " +
+                (if (approved) "jóváhagyva" else "nincs bekapcsolva") +
+                " · utolsó helyreállítás: " + last +
+                "\nNatív Family Guard: " + relayText
+        }
+    }
+
+    private fun toggleGpsBootConsent() {
+        if (FamilyGuardContinuity.enabled(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("Family Guard GPS · automatikus működés kikapcsolása")
+                .setMessage("Az újraindítás utáni GPS-helyreállítás megszűnik, és az aktív natív GPS is leáll. A távoli leállítás/jóváhagyás beállításai szintén törlődnek.")
+                .setNegativeButton("Mégse", null)
+                .setPositiveButton("Kikapcsolás") { _, _ ->
+                    FamilyGuardContinuity.disable(this)
+                    FamilyGuardContinuity.setApproved(this, false)
+                    updateSh9GpsUi()
+                    status.text = "Family Guard natív GPS automatikus indítás KI."
+                }.show()
+            return
+        }
+        if (!FamilyGuardContinuity.hasOwner(this)) {
+            status.text = "Előbb állítsd be a saját fizikai telefon profilját."
+            return
+        }
+        if (!FamilyGuardContinuity.hasBackgroundLocation(this)) {
+            status.text = "Előbb engedélyezd az Androidban a Mindig engedélyezett + pontos helyadatot."
+            openBackgroundLocationSettings()
+            return
+        }
+        if (!FamilyGuardContinuity.gpsAvailable(this)) {
+            status.text = "Kapcsold be az Android helyszolgáltatását."
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("🛡️ Family Guard · automatikus natív GPS")
+            .setMessage(
+                "A saját telefonod újraindítása és alkalmazásfrissítés után a HH One " +
+                "megpróbálja helyreállítani a natív GPS előtérszolgáltatást. " +
+                "Folyamatos Android-értesítés látszik és bármikor leállíthatod. " +
+                "A központi, kijelölt családi eszköz kérhet távoli LEÁLLÍTÁST; " +
+                "távoli újraindításnál ezen a telefonon új jóváhagyás kell. " +
+                "A központ SOS kapcsolatfelvételi értesítést is küldhet, " +
+                "de kamerát és mikrofont nem kapcsolhat be.\n\n" +
+                "Fontos: a natív szolgáltatás egyelőre csak a GPS-fix időpontját tartja meg, " +
+                "nem tölt fel helykoordinátákat a Family Guardba. " +
+                "Az Edge követését és a kamera/mikrofon használatát ez nem indítja el. " +
+                "Akkumulátorfogyasztása növekedhet. Jóváhagyod a saját telefonodon?"
+            )
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Jóváhagyom") { _, _ ->
+                FamilyGuardContinuity.setApproved(this, true)
+                startSh9Gps()
+                updateSh9GpsUi()
+            }.show()
+    }
+
+    private fun toggleNativeFamilyShare() {
+        if (FamilyGuardNativeRelay.enabled(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("Family Guard · helymegosztás visszavonása")
+                .setMessage("Az új helyadatok küldése leáll. A privát családi felhőben a legutóbbi rekordot visszavonó jelzés váltja fel, amint van internet.")
+                .setNegativeButton("Mégse", null)
+                .setPositiveButton("Megosztás leállítása") { _, _ ->
+                    FamilyGuardNativeRelay.disable(this)
+                    updateSh9GpsUi()
+                }.show()
+            return
+        }
+        if (!FamilyGuardContinuity.enabled(this) ||
+            !FamilyGuardContinuity.hasBackgroundLocation(this)) {
+            status.text = "Előbb a saját telefonodon engedélyezd a natív GPS automatikus működését és a pontos háttérhelyet."
+            return
+        }
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            status.text = "A privát családi Dropbox csatlakoztatása szükséges."
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Family Guard · külön helymegosztási hozzájárulás")
+            .setMessage("Engedélyezed, hogy EZ A TELEFON a saját profilod aktuális GPS-pozícióját " +
+                "a meglévő privát családi Dropboxba küldje? Az előző helyadatot felülírjuk, " +
+                "útvonalnaplót nem készítünk. Lezárt képernyőn is történhet feltöltés. " +
+                "A megosztás látható Android-értesítésből, valamint itt bármikor leállítható. " +
+                "A kérelmező családtag csak a hitelesített Family Guardon keresztül láthatja. " +
+                "Nincs mikrofon vagy kamera használat.")
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Kifejezetten jóváhagyom") { _, _ ->
+                if (FamilyGuardNativeRelay.enable(this)) {
+                    startSh9Gps()
+                    status.text = "Family Guard: a saját aktuális GPS-pozíció feltöltése engedélyezve."
+                } else status.text = "Nem indulhat a megosztás: ellenőrizd a tulajdonosi profilt és a Dropboxot."
+                updateSh9GpsUi()
+            }.show()
+    }
+
+    private fun showFamilyGuardRequest(request: Intent?) {
+        when (request?.getStringExtra("guardianEmergencyRequest")) {
+            GuardianEmergencyNotification.ACTION_GPS_RESUME -> {
+                AlertDialog.Builder(this)
+                    .setTitle("🛡️ Családi GPS helyreállítási kérés")
+                    .setMessage("A regisztrált családi Admin Center a GPS újraindítását kérte. " +
+                        "Csak te hagyhatod jóvá. Az Edge és a Family Guard webes helymegosztása ettől független.")
+                    .setNegativeButton("Elutasítom", null)
+                    .setPositiveButton("GPS indítása") { _, _ -> requestSh9Gps() }
+                    .show()
+            }
+            GuardianEmergencyNotification.ACTION_SOS_CONTACT -> {
+                AlertDialog.Builder(this)
+                    .setTitle("🆘 Family Guard · vészhelyzeti kapcsolat")
+                    .setMessage("A családod kapcsolatfelvételt kér. Ezen a képernyőn nem kapcsoltunk be mikrofont " +
+                        "vagy kamerát. A Family Guard megnyitható, de élő audio/videohívás még nincs bevezetve. " +
+                        "Sürgős veszély esetén hívd a 112-t.")
+                    .setNegativeButton("Bezárás", null)
+                    .setPositiveButton("Family Guard megnyitása") { _, _ ->
+                        startActivity(Intent(this, Sh9WebActivity::class.java))
+                    }.show()
+            }
+        }
+        request?.removeExtra("guardianEmergencyRequest")
     }
 
     private fun openBackgroundLocationSettings() {
@@ -1112,9 +1277,9 @@ class MainActivity : ComponentActivity() {
             .setTitle("SH9 GPS · Mindig engedélyezett")
             .setMessage(
                 "A beállítás engedélyezheti a HH One natív helyhozzáférését háttérben is. " +
-                "A jelenlegi natív GPS-szolgáltatás csak a mérés időpontját tartja nyilván, " +
-                "nem küld helykoordinátát a Family Guardba. Az Edge GPS-korlátait " +
-                "ez az engedély nem oldja fel.\n\n" +
+                "Az Android helyengedély NEM engedélyezi automatikusan a családi megosztást. " +
+                "Ahhoz külön, látható telefonos hozzájárulás és privát Dropbox-kapcsolat szükséges. " +
+                "Az Edge GPS-korlátait ez az engedély nem oldja fel.\n\n" +
                 "Az Androidban nyisd meg: Engedélyek → Hely → Mindig engedélyezett. " +
                 "Az engedély bármikor visszavonható."
             )
