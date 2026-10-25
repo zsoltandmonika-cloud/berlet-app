@@ -21,7 +21,7 @@ test('v819 search is over the SAME MapLibre map and expands it on a verified res
   'guardianMapSearchMicV819','guardianMapSearchGoV819','guardianMapSearchExitV819',
   'guardianMapSearchNavigateV819'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,'missing '+id);
- assert.match(html,/guardian-map-search-v819\.css\?v=823-favorites-glass/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
  assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
  assert.match(code,/getMap|const map=\(\)=>w\.HH_GUARDIAN_V761&&w\.HH_GUARDIAN_V761\.map/);
  assert.match(code,/if\(!g\|\|!g\.validPlace\(place\)\)return false/);
@@ -69,7 +69,7 @@ test('v820 selecting a verified address pauses map camera follow but not GPS col
 test('v821 glass search is compact, profile-tinted and preserves fullscreen UX',()=>{
  const css=read('guardian-map-search-v819.css');
  const html=read('index.html');
- assert.match(html,/guardian-map-search-v819\.css\?v=823-favorites-glass/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
  assert.match(css,/width:min\(82%,410px\)/,'bar should be shorter than map width');
  assert.match(css,/height:39px;min-height:39px/,'low controls');
  assert.match(css,/padding:5px 7px;border:1px solid var\(--hh-map-shell-border\)/,'no thick purple outer ring');
@@ -84,7 +84,7 @@ test('v821 glass search is compact, profile-tinted and preserves fullscreen UX',
 
 test('v822 search is lower, slimmer and more glassy for both profiles without helper text',()=>{
  const css=read('guardian-map-search-v819.css'),html=read('index.html');
- assert.match(html,/guardian-map-search-v819\.css\?v=823-favorites-glass/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
  assert.match(css,/width:min\(82%,410px\)/,'keep proportional narrow search capsule');
  assert.match(css,/right:auto;bottom:2px/,'lower bar towards map bottom');
  assert.match(css,/bottom:calc\(2px \+ env\(safe-area-inset-bottom\)\)/,'maintain Android fullscreen safe area');
@@ -151,11 +151,36 @@ test('v823 search offers favorites instantly while official address search remai
  assert.match(code,/place\.profile!==g\.profileId\(w\.localStorage\)/,'block stale profile access');
  assert.match(code,/function invalidateProfile\(\)/);
  assert.match(html,/placeholder="Cím, Otthon, Munkahely…"/);
- assert.match(html,/guardian-map-search-v819\.css\?v=823-favorites-glass/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
  assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
  assert.match(css,/\.hh-map-search-hit-icon-v823/);
  assert.match(css,/\.hh-map-search-hit-tag-v823/);
  assert.match(css,/:root\[data-guardian-profile="m"\] \.hh-map-search-hits-v819/);
  assert.match(css,/backdrop-filter:blur\(26px\) saturate\(1\.35\)/);
  assert.doesNotMatch(code,/navigator\.geolocation|GPS_START|uploadJson|\.setItem\(/);
+});
+
+test('v824 both real results lists load the SAME final style after older CSS',()=>{
+ const html=read('index.html'),css=read('guardian-search-results-v824.css');
+ const client=read('guardian-smart-hub-fields-v806.js');
+ assert.match(html,/guardian-search-results-v824\.css\?v=824-unified-dual-glass/);
+ assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=824-results-glass/);
+ const nativeCss=html.indexOf('guardian-smart-hub-native-v803.css');
+ const mapCss=html.indexOf('guardian-map-search-v819.css');
+ const finalCss=html.indexOf('guardian-search-results-v824.css');
+ assert.ok(nativeCss>=0&&mapCss>=0&&finalCss>nativeCss&&finalCss>mapCss,'shared override must load last');
+ for(const id of ['guardianMapSearchResultsV819','hhSmartHubNativeResultsV803']){
+  assert.match(css,new RegExp('#'+id),'both actual result roots must be explicitly covered');
+ }
+ assert.match(css,/#guardianMapSearchResultsV819 \.hh-map-search-hit-v819/);
+ assert.match(css,/#hhSmartHubNativeResultsV803 \.hh-smart-hub-result-v803/);
+ assert.match(css,/:root\[data-guardian-profile="m"\] #guardianMapSearchResultsV819/);
+ assert.match(css,/:root\[data-guardian-profile="m"\] #hhSmartHubNativeResultsV803/);
+ assert.match(css,/backdrop-filter:blur\(27px\) saturate\(1\.45\)/);
+ assert.match(client,/hh-smart-hub-result-tag-v824/);
+ assert.match(client,/tag\.textContent='CÍM'/);
+ assert.match(css,/hh-map-search-hit-tag-v823/);
+ assert.match(css,/hh-smart-hub-result-tag-v824/);
+ assert.match(css,/#guardianMapSearchResultsV819\[hidden\]\{display:none!important\}/);
+ assert.doesNotMatch(css,/navigator\.geolocation|localStorage|supabase|dropbox/i);
 });
