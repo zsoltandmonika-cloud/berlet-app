@@ -52,15 +52,24 @@ test('GPS trigger rejects stale or inaccurate fixes and requires actual approach
  assert.equal(C.detection(125,70),false);
  assert.equal(C.detection(180,103),false);
 });
-test('live 260 signal requires the intended headsign, identity and fresh verified position',()=>{
+test('live 260 signal requires the correct route, identity and fresh verified position',()=>{
  const now=Date.UTC(2026,9,25,9,0,0);
  const source={routeId:'260',id:'live-example-id',headsign:'Harsánylejtő',
   timestamp:new Date(now-2000).toISOString(),lat:47.55,lng:19.04};
- assert.ok(C.liveBus(source,'Harsánylejtő',now));
- assert.equal(C.liveBus({...source,routeId:'19'},'Harsánylejtő',now),null);
- assert.equal(C.liveBus({...source,headsign:'Óbudai rendelőintézet'},'Harsánylejtő',now),null);
- assert.equal(C.liveBus({...source,id:''},'Harsánylejtő',now),null);
- assert.equal(C.liveBus({...source,timestamp:new Date(now-91000).toISOString()},'Harsánylejtő',now),null);
+ assert.ok(C.liveBus(source,now));
+ assert.equal(C.liveBus({...source,routeId:'19'},now),null);
+ // The authenticated live feed has no reliable headsign field. Direction
+ // is verified from consecutive, source-backed vehicle positions instead.
+ assert.ok(C.liveBus({...source,headsign:''},now));
+ assert.equal(C.liveBus({...source,id:''},now),null);
+ assert.equal(C.liveBus({...source,timestamp:new Date(now-91000).toISOString()},now),null);
+ const from={lat:47.5700,lng:19.0000};
+ const to={lat:47.5720,lng:19.0000};
+ const earlier={lat:47.5699,lng:19.0000,timestamp:now-20000};
+ const approaching={lat:47.5714,lng:19.0000,timestamp:now-4000};
+ assert.equal(C.directionalApproach(earlier,approaching,from,to,115),true);
+ assert.equal(C.directionalApproach(approaching,earlier,from,to,115),false,'travel in reverse never fires');
+
 });
 test('live snapshots only enter Buddy from verified BKK event, never static map geometry',()=>{
  const pilot=read('guardian-live-pilot-v793.js');
@@ -80,6 +89,8 @@ test('live snapshots only enter Buddy from verified BKK event, never static map 
  assert.match(alerts,/function announce\(/);
  assert.match(alerts,/function onGps\(/);
  assert.match(alerts,/function onVehicles\(/);
- assert.doesNotMatch(alerts,/navigator\.geolocation|fetch\(|ACCESS_BACKGROUND_LOCATION|Notification\.requestPermission/);
+ assert.doesNotMatch(alerts,/navigator\.geolocation|ACCESS_BACKGROUND_LOCATION|Notification\.requestPermission/);
+ assert.match(alerts,/bkk-routes-v790\.json/,'static BKK feed is fetched for stop names');
+ assert.doesNotMatch(alerts,/\/functions\/v1\/|\/rest\/v1\/|watchPosition|sendBeacon/);
  assert.doesNotMatch(core,/supabase|fetch\(|watchPosition|sendBeacon/);
 });
