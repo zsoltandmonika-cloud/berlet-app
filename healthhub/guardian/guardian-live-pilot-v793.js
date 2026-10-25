@@ -70,7 +70,7 @@ async function poll(){
   if(!client){status('a HealthHub bejelentkezés nem érhető el');clear();return}
   const {data:{session}}=await client.auth.getSession();
   if(!session||!session.access_token){
-   status('Nincs aktív Family Live bejelentkezés ebben a böngészőben. Nyisd meg Edge-ben a Family Guardot, és jelentkezz be; a HH One belső böngészője külön munkamenet.');
+   status('Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
    clear();return
   }
   const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview';
