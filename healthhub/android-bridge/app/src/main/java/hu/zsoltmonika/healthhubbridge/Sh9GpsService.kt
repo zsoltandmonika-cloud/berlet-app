@@ -165,12 +165,12 @@ class Sh9GpsService : Service() {
                         startLegacy(generation)
                     }
                 }
+        } catch (_: SecurityException) {
+            finishService()
         } catch (_: RuntimeException) {
             fusedCallback = null
             fused = null
             startLegacy(generation)
-        } catch (_: SecurityException) {
-            finishService()
         }
     }
 
