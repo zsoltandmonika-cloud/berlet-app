@@ -104,3 +104,13 @@ test('Dropbox download treats only an actual missing path as an absent cloud sna
   assert.match(vault, /conn\.responseCode == 409 && missingFileConflict\(text\)/);
   assert.doesNotMatch(vault, /if \(conn\.responseCode == 409\) return@withContext null/);
 });
+
+test('browser Dropbox retries stale 401 access token once while preserving the refresh grant', () => {
+  const cloud = fs.readFileSync(path.resolve(__dirname, '..', '..', 'nutrition', 'nutrition-cloud-v626.js'), 'utf8');
+  assert.match(cloud, /if\(res\.status===401\)/);
+  assert.match(cloud, /latest\.access_token===access/);
+  assert.match(cloud, /latest\.expires_at=0/);
+  assert.match(cloud, /const renewed=await token\(\)/);
+  assert.match(cloud, /if\(renewed!==access\)res=await send\(renewed\)/);
+  assert.doesNotMatch(cloud, /removeItem\(TOKEN_KEY\)/);
+});
