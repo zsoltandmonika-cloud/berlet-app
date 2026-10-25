@@ -1129,8 +1129,24 @@ class MainActivity : ComponentActivity() {
             "provider-unavailable", "no-provider" -> "Helyszolgáltatás átmenetileg nem elérhető"
             else -> "Első GPS-indításra vár"
         }
-        gpsSummary.text = (if (running) "🟢 Smart Location aktív" else "⚪ Helymeghatározás leállítva") +
+        val receiver = smart.getString(Sh9GpsService.KEY_RECEIVER_STATUS, "not-started") ?: "not-started"
+        val hasFreshFix = running && last > 0L &&
+            System.currentTimeMillis() - last in 0L..150_000L
+        val receiverLabel = when (receiver) {
+            "receiving" -> if (hasFreshFix) "érkeznek friss GPS-mérések" else "utolsó GPS-mérés elavult"
+            "acquiring" -> "első GPS-mérésre vár"
+            "fused-retry" -> "FLP újracsatlakozás folyamatban"
+            "fused-timeout-fallback" -> "Android tartalék helymeghatározásra váltás"
+            "no-fresh-fix" -> "nem érkezik friss GPS-mérés"
+            "location-disabled" -> "telefonos helyszolgáltatás kikapcsolva"
+            "permission-revoked" -> "Android helyengedély visszavonva"
+            else -> "GPS állapot még nem igazolt"
+        }
+        gpsSummary.text = (if (!running) "⚪ Helymeghatározás leállítva"
+            else if (hasFreshFix) "🟢 Smart Location · friss GPS-mérés"
+            else "🟠 GPS-szolgáltatás fut, friss helyzet nem igazolt") +
             "\nMérési alap: $engineLabel · mód: $mode" +
+            "\nGPS-vevő: $receiverLabel" +
             "\nCél-időköz: $period mp · utolsó valódi fix: $lastText"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
         if (::gpsBootButton.isInitialized) {
@@ -1201,8 +1217,9 @@ class MainActivity : ComponentActivity() {
                 "távoli újraindításnál ezen a telefonon új jóváhagyás kell. " +
                 "A központ SOS kapcsolatfelvételi értesítést is küldhet, " +
                 "de kamerát és mikrofont nem kapcsolhat be.\n\n" +
-                "Fontos: a natív szolgáltatás egyelőre csak a GPS-fix időpontját tartja meg, " +
-                "nem tölt fel helykoordinátákat a Family Guardba. " +
+                "A natív GPS önmagában nem oszt meg koordinátát. A Family Guard " +
+                "külön engedélyezett helymegosztása a kijelölt telefon utolsó " +
+                "pozícióját privát Dropboxba továbbíthatja, és bármikor visszavonható. " +
                 "Az Edge követését és a kamera/mikrofon használatát ez nem indítja el. " +
                 "Akkumulátorfogyasztása növekedhet. Jóváhagyod a saját telefonodon?"
             )
@@ -1607,16 +1624,17 @@ class MainActivity : ComponentActivity() {
                 val refresh = tokenJson.optString("refresh_token")
                 val access = tokenJson.optString("access_token")
                 val expires = tokenJson.optLong("expires_in", 14400L)
-                if (refresh.isBlank()) error("Dropbox refresh token hiányzik")
-                prefs.edit()
-                    .putString("dropbox_refresh_token", refresh)
-                    .putString("dropbox_access_token", access)
-                    .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
-                    .remove("dropbox_pkce_verifier")
-                    .remove("dropbox_oauth_state")
-                    .apply()
+                if (refresh.isBlank() || access.isBlank()) error("Dropbox OAuth token hiányzik")
+                // An earlier callback must never replace a newer login request.
+                check(prefs.getString("dropbox_oauth_state", null) == state &&
+                    prefs.getString("dropbox_pkce_verifier", null) == verifier) {
+                    "Dropbox engedélyezési munkamenet közben megváltozott"
+                }
                 val owner = bindOwnerIfNeeded(profile)
                 if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
+                // Explicit consent is the ONLY path allowed to replace a stored
+                // grant from a different OAuth client; app startup never clears it.
+                DropboxVaultClient.storeAuthorizedGrant(prefs, refresh, access, expires, state, verifier)
                 DailyContentScheduler.runNow(this@MainActivity)
                 OrchestratorScheduler.schedule(this@MainActivity)
                 OrchestratorScheduler.runNow(this@MainActivity)
@@ -1628,23 +1646,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun getAccessToken(): String {
-        val existing = prefs.getString("dropbox_access_token", null)
-        val exp = prefs.getLong("dropbox_access_expires", 0L)
-        if (!existing.isNullOrBlank() && exp > System.currentTimeMillis() + 60_000L) return existing
-
-        val refresh = prefs.getString("dropbox_refresh_token", null)
-            ?: error("Dropbox nincs csatlakoztatva")
-        val j = withContext(Dispatchers.IO) { refreshAccessToken(refresh) }
-        val access = j.optString("access_token")
-        val expires = j.optLong("expires_in", 14400L)
-        if (access.isBlank()) error("Dropbox access token hiányzik")
-        prefs.edit()
-            .putString("dropbox_access_token", access)
-            .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
-            .apply()
-        return access
-    }
+    private suspend fun getAccessToken(): String = DropboxVaultClient.accessToken(prefs)
 
     private fun exchangeCode(code: String, verifier: String): JSONObject {
         val body = form(
@@ -1653,17 +1655,6 @@ class MainActivity : ComponentActivity() {
                 "grant_type" to "authorization_code",
                 "redirect_uri" to DROPBOX_REDIRECT,
                 "code_verifier" to verifier,
-                "client_id" to DROPBOX_APP_KEY
-            )
-        )
-        return postForm("https://api.dropboxapi.com/oauth2/token", body)
-    }
-
-    private fun refreshAccessToken(refresh: String): JSONObject {
-        val body = form(
-            mapOf(
-                "refresh_token" to refresh,
-                "grant_type" to "refresh_token",
                 "client_id" to DROPBOX_APP_KEY
             )
         )

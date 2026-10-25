@@ -56,3 +56,31 @@ test('native vs cloud status separately visible on both phone and Admin Center',
  assert.match(admin,/familyGuardLastUploadedAt/);
  assert.match(admin,/Dropboxot és az Eszközregisztert/);
 });
+
+test('bounded FLP stall recovery never loops indefinitely or restarts after STOP',()=>{
+ assert.match(gps,/private fun startWatchdog\(generation: Int\)/);
+ assert.match(gps,/150_000L/);
+ assert.match(gps,/engine == "fused" && recoveryAttempts == 0/);
+ assert.match(gps,/receiverStatus\("fused-retry"\)/);
+ assert.match(gps,/receiverStatus\("fused-timeout-fallback"\)/);
+ assert.match(gps,/startLegacy\(generation\)/);
+ assert.match(gps,/watchdog\.postDelayed\(tick, 30_000L\)/);
+ assert.match(gps,/watchdog\.removeCallbacks\(it\)/);
+ assert.match(gps,/!active \|\| callbackGeneration != generation/);
+ assert.match(gps,/FamilyGuardContinuity\.setApproved\(this, false\)/);
+ assert.doesNotMatch(gps,/PowerManager\.WakeLock|PARTIAL_WAKE_LOCK|WAKE_LOCK/);
+});
+test('only fresh and plausible location updates can reset stall timer',()=>{
+ assert.match(gps,/location\.elapsedRealtimeNanos <= previousFix!!\.elapsedRealtimeNanos/);
+ assert.match(gps,/location\.accuracy !in 0f\.\.100f/);
+ assert.match(gps,/location\.latitude !in -90\.0\.\.90\.0/);
+ assert.match(gps,/lastAcceptedFixAt = SystemClock\.elapsedRealtime\(\)/);
+});
+test('native receiver health is separate from guarded family Dropbox result',()=>{
+ assert.match(gps,/KEY_RECEIVER_STATUS/);
+ assert.match(worker,/smartLocationReceiverStatus/);
+ assert.match(worker,/familyGuardUploadStatus/);
+ assert.match(main,/GPS-vevő: \$receiverLabel/);
+ assert.match(main,/hasFreshFix/);
+ assert.match(main,/külön engedélyezett helymegosztása/);
+});
