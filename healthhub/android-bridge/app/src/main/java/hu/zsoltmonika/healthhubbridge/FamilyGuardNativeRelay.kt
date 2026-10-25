@@ -33,6 +33,8 @@ object FamilyGuardNativeRelay {
     private const val DIRECTORY = "/HealthHub/guardian"
     private const val LIVE_DIRECTORY = "/HealthHub/guardian/native-live"
     private const val REVOKE_WORK = "hh-one-guardian-native-revoke"
+    private const val REGISTRY_PATH = "/HealthHub/orchestrator/device-registry-v401.json"
+    private const val DEVICE_ID_KEY = "orchestrator_device_id_v1"
     private val io = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val uploadLock = Mutex()
     @Volatile private var lastQueuedAt = 0L
@@ -61,6 +63,19 @@ object FamilyGuardNativeRelay {
     fun latestPath(profile: String): String {
         require(profile == "zsolt" || profile == "monika")
         return "$LIVE_DIRECTORY/$profile.json"
+    }
+
+    private suspend fun isSelectedPhysicalPhone(context: Context, profile: String): Boolean {
+        val id = prefs(context).getString(DEVICE_ID_KEY, null)
+            ?.takeIf { it.startsWith("android-") && it.length <= 96 } ?: return false
+        val text = DropboxVaultClient.downloadTextOrNull(prefs(context), REGISTRY_PATH)
+            ?: return false
+        val registry = JSONObject(text)
+        if (registry.optString("schema") != "healthhub.device_registry/1") return false
+        if (registry.optJSONObject("activePhones")?.optString(profile) != id) return false
+        val archived = registry.optJSONArray("archived") ?: return false
+        for (i in 0 until archived.length()) if (archived.optString(i) == id) return false
+        return true
     }
 
     private suspend fun ensureFolder(context: Context) {
@@ -100,6 +115,10 @@ object FamilyGuardNativeRelay {
             uploadLock.lock()
             try {
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
+                if (!isSelectedPhysicalPhone(app, profile)) {
+                    prefs(app).edit().putString(KEY_RESULT, "not-selected-in-device-registry").apply()
+                    return@launch
+                }
                 ensureFolder(app)
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
                 DropboxVaultClient.uploadText(prefs(app), latestPath(profile), payload)
