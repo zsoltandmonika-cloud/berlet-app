@@ -22,7 +22,7 @@ test('v819 search is over the SAME MapLibre map and expands it on a verified res
   'guardianMapSearchNavigateV819'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,'missing '+id);
  assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
- assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
+ assert.match(html,/guardian-map-search-v819\.js\?v=826-css-only-fullmap/);
  assert.match(code,/getMap|const map=\(\)=>w\.HH_GUARDIAN_V761&&w\.HH_GUARDIAN_V761\.map/);
  assert.match(code,/if\(!g\|\|!g\.validPlace\(place\)\)return false/);
  assert.match(code,/openFullscreen\(\)/);
@@ -152,7 +152,7 @@ test('v823 search offers favorites instantly while official address search remai
  assert.match(code,/function invalidateProfile\(\)/);
  assert.match(html,/placeholder="Cím, Otthon, Munkahely…"/);
  assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
- assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
+ assert.match(html,/guardian-map-search-v819\.js\?v=826-css-only-fullmap/);
  assert.match(css,/\.hh-map-search-hit-icon-v823/);
  assert.match(css,/\.hh-map-search-hit-tag-v823/);
  assert.match(css,/:root\[data-guardian-profile="m"\] \.hh-map-search-hits-v819/);
