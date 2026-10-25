@@ -69,6 +69,10 @@ test('Android shares only after separate consent and has durable revocation with
  assert.match(kotlin,/put\("active", true\)/);
  assert.match(kotlin,/uploadLock\.lock\(\)/);
  assert.match(kotlin,/location\.accuracy > 100f/);
+ assert.match(kotlin,/isSelectedPhysicalPhone\(app, profile\)/);
+ assert.match(kotlin,/device-registry-v401\.json/);
+ assert.match(kotlin,/registry\.optJSONObject\("activePhones"\)\?\.optString\(profile\) != id/);
+ assert.match(kotlin,/not-selected-in-device-registry/);
  assert.match(kotlin,/now - lastQueuedAt < maxOf\(30_000L/);
  assert.doesNotMatch(kotlin,/Firestore|RoomDatabase|insertHistory|trackPoints|MediaRecorder|CameraManager/);
 });
