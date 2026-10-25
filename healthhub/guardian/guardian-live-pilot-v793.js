@@ -37,6 +37,17 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
 let polling=null;
 let inFlight=false;
 let lastVehicles=[];
+// The editable BKK Watchlist is the visible source of truth. Legacy transit
+// selections live in another browser storage key; after HH One WebView/Edge
+// changes they can disagree and incorrectly hide valid live vehicle positions.
+function watchedLines(){
+ const catalog=w.HH_BKK_CATALOG_V801;
+ if(catalog&&Array.isArray(catalog.favoriteIds)){
+  const keys=new Set(catalog.favoriteIds);
+  return ['260','17','19'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id));
+ }
+ return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19'].includes(id));
+}
 function showLive(){
  if(!lastVehicles.length||!mapApi.map)return;
  const focused=renderer.focus(mapApi.map,lastVehicles);
@@ -58,7 +69,10 @@ async function poll(){
   const client=auth.getClient&&auth.getClient();
   if(!client){status('a HealthHub bejelentkezés nem érhető el');clear();return}
   const {data:{session}}=await client.auth.getSession();
-  if(!session||!session.access_token){status('Jelentkezz be a Family Live részben, majd frissítsd ezt az oldalt.');clear();return}
+  if(!session||!session.access_token){
+   status('Nincs aktív Family Live bejelentkezés ebben a böngészőben. Nyisd meg Edge-ben a Family Guardot, és jelentkezz be; a HH One belső böngészője külön munkamenet.');
+   clear();return
+  }
   const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview';
   const res=await w.fetch(url,{method:'GET',cache:'no-store',headers:{
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
@@ -75,7 +89,7 @@ async function poll(){
     detail:{vehicles:parsed.vehicles,generatedAt:parsed.generatedAt}
    }));
   }
-  const wanted=new Set(w.HH_GUARDIAN_TRANSIT_V790?.selected||[]);
+  const wanted=new Set(watchedLines());
   const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
   if(!renderer.render(mapApi.map,active)){
    lastVehicles=[];focusButton.hidden=true;
@@ -86,13 +100,26 @@ async function poll(){
   focusButton.textContent=lastVehicles.length===1
    ?(lastVehicles[0].routeId==='260'?'Élő 260-as busz mutatása ↗':'Élő '+lastVehicles[0].routeId+'-es villamos ↗')
    :'Élő járművek mutatása ↗';
-  status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(data.generatedAt).toLocaleTimeString('hu-HU'));
+  if(!wanted.size){
+   status('Nincs kijelölt, élő térképen támogatott Watchlist-járat. Jelöld a 260, 17 vagy 19 járatot a Szerkesztésnél.');
+  }else if(!active.vehicles.length){
+   status([...wanted].join(', ')+' · nincs friss, ellenőrzött járműpozíció. Az adatkapcsolat működik, de nem rajzolunk kitalált buszokat.');
+  }else{
+   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(data.generatedAt).toLocaleTimeString('hu-HU'));
+  }
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
  finally{inFlight=false}
 }
 function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,15000)}
 function stop(){if(polling!==null){w.clearInterval(polling);polling=null}clear()}
 d.addEventListener('visibilitychange',()=>{if(d.hidden)stop();else start()});
+// A Watchlist editor changes favorites, not the old hidden map checkboxes.
+// Re-evaluate immediately instead of leaving stale vehicle markers visible.
+w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{
+ if(d.hidden)return;
+ clear();
+ poll();
+});
 w.addEventListener('pagehide',stop);
 start();
 })(window,document);
