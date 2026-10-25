@@ -164,7 +164,7 @@ test('v824 both real results lists load the SAME final style after older CSS',()
  const html=read('index.html'),css=read('guardian-search-results-v824.css');
  const client=read('guardian-smart-hub-fields-v806.js');
  assert.match(html,/guardian-search-results-v824\.css\?v=824-unified-dual-glass/);
- assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=824-results-glass/);
+ assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=825-script-parser-repair/);
  const nativeCss=html.indexOf('guardian-smart-hub-native-v803.css');
  const mapCss=html.indexOf('guardian-map-search-v819.css');
  const finalCss=html.indexOf('guardian-search-results-v824.css');
@@ -183,4 +183,19 @@ test('v824 both real results lists load the SAME final style after older CSS',()
  assert.match(css,/hh-smart-hub-result-tag-v824/);
  assert.match(css,/#guardianMapSearchResultsV819\[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(css,/navigator\.geolocation|localStorage|supabase|dropbox/i);
+});
+
+test('v825 all external JavaScript tags close immediately, especially map search dependencies',()=>{
+ const html=read('index.html');
+ const tags=Array.from(html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/g));
+ assert.ok(tags.length>=20);
+ for(const tag of tags){
+  const next=html.slice(tag.index+tag[0].length);
+  assert.ok(next.startsWith('</script>'), 'unclosed script tag would swallow all following markup: '+tag[1]);
+ }
+ for(const path of ['guardian-smart-hub-fields-v806.js','guardian-map-search-v819.js',
+  'guardian-smart-hub-network-v806.js','guardian-smart-hub-router-v804.js']){
+  assert.ok(tags.some(tag=>tag[1].includes(path)),'missing required active script '+path);
+ }
+ assert.match(html,/<script defer src="\.\/guardian-smart-hub-fields-v806\.js\?v=825-script-parser-repair"><\/script>/);
 });
