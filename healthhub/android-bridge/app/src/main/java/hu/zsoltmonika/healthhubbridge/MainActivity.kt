@@ -1200,7 +1200,12 @@ class MainActivity : ComponentActivity() {
         val enabled = ResilientHealthSync.isEnabled(prefs)
         val stamp = if (last > 0L) SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault()).format(Date(last)) else "még nincs"
         val t = if (enabled) "BE · 3 óránként + automatikus újrapróbálás" else "KI"
+        val owner = deviceOwnerProfile()
+        val pending = if (owner == "zsolt" || owner == "monika") {
+            NativeHealthOutbox.pendingCount(this, owner)
+        } else 0
         val txt = "🔄 Automatikus kapcsolattartás: $t\nUtolsó sikeres Health Connect → Dropbox feltöltés: $stamp" +
+            "\n📥 Helyben várakozó natív mentések: $pending" +
             (if (!error.isNullOrBlank()) "\n⚠️ Utolsó probléma: $error" else "") +
             "\n" + prefs.getString(ResilientHealthSync.KEY_COUNTS, "Még nincs rekordösszesítő")
         resilientSummary?.text = txt
@@ -1279,8 +1284,12 @@ class MainActivity : ComponentActivity() {
                 DailyContentScheduler.runNow(this@MainActivity)
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                val pending = NativeHealthOutbox.pendingCount(this@MainActivity, owner)
+                if (pending > 0) ResilientHealthSync.kick(this@MainActivity)
                 status.text = "SYNC hiba: ${e.message ?: e.javaClass.simpleName}" +
-                    "\nA már mentett Dropbox-adatok megmaradnak. Indítható új SYNC NOW."
+                    (if (pending > 0) "\n📥 $pending Health Connect mentés a telefonon várakozik; újrapróbálkozás beütemezve." else
+                        "\nNincs új helyben sorba állított mentés.") +
+                    "\nA már mentett Dropbox-adatok megmaradnak."
             } finally {
                 manualSyncInProgress = false
             }
