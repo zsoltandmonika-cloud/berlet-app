@@ -270,6 +270,16 @@ object DropboxVaultClient {
         incoming.put(key, merged)
     }
 
+    /** An unrelated Dropbox 409 is not evidence that a health record is absent. */
+    internal fun missingFileConflict(body: String): Boolean = try {
+        val root = JSONObject(body)
+        val summary = root.optString("error_summary")
+        val structured = root.optJSONObject("error")
+        summary.startsWith("path/not_found/") ||
+            (structured?.optString(".tag") == "path" &&
+                structured.optJSONObject("path")?.optString(".tag") == "not_found")
+    } catch (_: Exception) { false }
+
     suspend fun downloadTextOrNull(prefs: SharedPreferences, path: String): String? {
         val token = accessToken(prefs)
         return withContext(Dispatchers.IO) {
@@ -282,7 +292,7 @@ object DropboxVaultClient {
                 setRequestProperty("Dropbox-API-Arg", arg)
             }
             val text = responseText(conn)
-            if (conn.responseCode == 409) return@withContext null
+            if (conn.responseCode == 409 && missingFileConflict(text)) return@withContext null
             if (conn.responseCode !in 200..299) {
                 error("Dropbox download HTTP " + conn.responseCode + ": " + text)
             }
