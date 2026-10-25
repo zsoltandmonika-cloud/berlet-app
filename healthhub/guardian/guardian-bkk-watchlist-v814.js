@@ -1,13 +1,14 @@
 /* Family Guard BKK Watchlist v814
  * The verified official BKK catalog remains the SINGLE source of favorites.
  * Favorites are scoped to profile and to this Edge browser, never GPS data.
- * Only 260/17/19 currently have supported map/route actions; never imply
- * unsupported services offer live tracking.
+ * 260/17/19 have verified live overlays; 1/41 gain source-backed
+ * static GTFS maps after geometry loads. Never imply new live tracking.
  */
 (function(w,d){
  'use strict';
  const $=id=>d.getElementById(id);
- const FEATURED=new Set(['bus:260','tram:17','tram:19']);
+ const FEATURED=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
+ const LIVE_MAP=new Set(['bus:260','tram:17','tram:19']);
  const MODE={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',rail:'Vasút',other:'Járat'};
  function catalog(){return w.HH_BKK_CATALOG_V801}
  function currentProfile(){
@@ -48,15 +49,23 @@
    detail.append(node('strong','',MODE[mode]||'Járat'));
    detail.append(node('span','',route?(route.directions.slice(0,2).join(' ↔ ')||route.name||'BKK menetrendi járat'):'BKK járat · adatok betöltése…'));
    const supported=FEATURED.has(key);
-   const note=supported?'Térképes útvonal elérhető · élő adat csak friss jel esetén':
+   const transit=w.HH_GUARDIAN_TRANSIT_V790;
+   const original=$('hhTransitShow'+id);
+   const mapReady=supported&&(transit&&typeof transit.hasMapRoute==='function'?
+    transit.hasMapRoute(id):!!original);
+   const note=mapReady?(LIVE_MAP.has(key)?
+    'Térképes útvonal elérhető · élő adat csak friss jel esetén':
+    'BKK menetrendi útvonal elérhető · nem élő járműkövetés'):
+    supported?'Menetrendi térképes útvonal betöltésre vár':
     'Kedvenc járat · élő térképes követés még nem elérhető';
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
    if(supported){
     const show=action('Mutasd ↗',id+' útvonal mutatása a térképen',()=>{
-     const original=$('hhTransitShow'+id);
-     if(original&&!original.disabled)original.click();
-    },!route);
+     if(!mapReady)return;
+     if(transit&&typeof transit.showLine==='function')transit.showLine(id);
+     else if(original&&!original.disabled)original.click();
+    },!route||!mapReady);
     show.classList.add('hh-bkk-watch-show-v814');
     controls.append(show);
    }
@@ -91,6 +100,7 @@
   });
   if(w.addEventListener){
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
+   w.addEventListener('hh-bkk-static-map-ready-v817',render);
    w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
   }
   const profile=$('hhTransitProfileV791');
