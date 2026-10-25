@@ -1,0 +1,102 @@
+/* Family Guard BKK Watchlist v814
+ * The verified official BKK catalog remains the SINGLE source of favorites.
+ * Favorites are scoped to profile and to this Edge browser, never GPS data.
+ * Only 260/17/19 currently have supported map/route actions; never imply
+ * unsupported services offer live tracking.
+ */
+(function(w,d){
+ 'use strict';
+ const $=id=>d.getElementById(id);
+ const FEATURED=new Set(['bus:260','tram:17','tram:19']);
+ const MODE={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',rail:'Vasút',other:'Járat'};
+ function catalog(){return w.HH_BKK_CATALOG_V801}
+ function currentProfile(){
+  const x=$('hhTransitProfileV791');
+  return x&&x.value==='monika'?'monika':x&&x.value==='zsolt'?'zsolt':
+   w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
+ }
+ function node(tag,cls,text){
+  const e=d.createElement(tag);
+  if(cls)e.className=cls;
+  if(text!==undefined)e.textContent=text;
+  return e;
+ }
+ function action(label,aria,run,disabled){
+  const b=node('button','hh-bkk-watch-action-v814',label);
+  b.type='button';b.setAttribute('aria-label',aria);b.disabled=!!disabled;
+  b.addEventListener('click',run);
+  return b;
+ }
+ function render(){
+  const api=catalog(),host=$('hhBkkWatchRowsV814'),section=$('hhBkkWatchlistV814');
+  const panel=$('hhTransitPanel');
+  if(!api||!host||!section||!panel)return;
+  const profile=currentProfile();
+  if(api.setProfile&&api.favoriteIds)api.setProfile(profile);
+  // This is a user-controlled display list, never an unconsented GPS watch.
+  const keys=api.favoriteIds;
+  const count=$('hhBkkWatchCountV814');
+  if(count)count.textContent=keys.length+' figyelt járat · '+(profile==='monika'?'Mónika':'Zsolt');
+  host.replaceChildren();
+  if(!keys.length)host.append(node('p','hh-bkk-watch-empty-v814','A figyelőlista üres. A Szerkesztés gombbal kiválaszthatod a járataidat.'));
+  keys.forEach((key,i)=>{
+   const parts=key.split(':'),mode=parts[0],id=parts.slice(1).join(':');
+   const route=api.routeByKey?api.routeByKey(key):null;
+   const row=node('article','hh-bkk-watch-row-v814 hh-bkk-watch-mode-'+mode);
+   const badge=node('span','hh-bkk-watch-number-v814',id);
+   const detail=node('div','hh-bkk-watch-copy-v814');
+   detail.append(node('strong','',MODE[mode]||'Járat'));
+   detail.append(node('span','',route?(route.directions.slice(0,2).join(' ↔ ')||route.name||'BKK menetrendi járat'):'BKK járat · adatok betöltése…'));
+   const supported=FEATURED.has(key);
+   const note=supported?'Térképes útvonal elérhető · élő adat csak friss jel esetén':
+    'Kedvenc járat · élő térképes követés még nem elérhető';
+   detail.append(node('small','',note));
+   const controls=node('div','hh-bkk-watch-actions-v814');
+   if(supported){
+    const show=action('Mutasd ↗',id+' útvonal mutatása a térképen',()=>{
+     const original=$('hhTransitShow'+id);
+     if(original&&!original.disabled)original.click();
+    },!route);
+    show.classList.add('hh-bkk-watch-show-v814');
+    controls.append(show);
+   }
+   const up=action('↑',id+' feljebb helyezése',()=>api.moveFavoriteKey(key,-1),i===0);
+   const down=action('↓',id+' lejjebb helyezése',()=>api.moveFavoriteKey(key,1),i===keys.length-1);
+   const remove=action('×',id+' eltávolítása a figyelőlistából',()=>api.removeFavoriteKey(key));
+   remove.classList.add('hh-bkk-watch-remove-v814');
+   controls.append(up,down,remove);row.append(badge,detail,controls);host.append(row);
+  });
+  section.hidden=false;
+  // Hide three old hardcoded selector rows only after the enhanced list works.
+  // Keep original buttons in DOM because map and live route logic use them.
+  panel.classList.add('hh-bkk-watch-ready-v814');
+ }
+ function init(){
+  const section=$('hhBkkWatchlistV814'),editor=$('hhBkkCatalogV801'),edit=$('hhBkkWatchEditV814');
+  if(!section||!editor||!edit||!catalog())return;
+  // Reuse the EXISTING official BKK search instead of creating a second one.
+  if(editor.parentNode===section.parentNode)section.after(editor);
+  edit.addEventListener('click',()=>{
+   editor.open=!editor.open;
+   edit.setAttribute('aria-expanded',String(editor.open));
+   edit.textContent=editor.open?'✕ Szerkesztés bezárása':'✎ Szerkesztés';
+   if(editor.open){
+    editor.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+    $('hhBkkCatalogSearchV801')?.focus({preventScroll:true});
+   }
+  });
+  editor.addEventListener('toggle',()=>{
+   edit.setAttribute('aria-expanded',String(editor.open));
+   edit.textContent=editor.open?'✕ Szerkesztés bezárása':'✎ Szerkesztés';
+  });
+  if(w.addEventListener){
+   w.addEventListener('hh-bkk-watchlist-v814-changed',render);
+   w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
+  }
+  const profile=$('hhTransitProfileV791');
+  if(profile)profile.addEventListener('change',render);
+  render();
+ }
+ if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);
+ else init();
+})(window,document);

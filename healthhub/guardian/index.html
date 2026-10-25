@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="./guardian-transit-v790.css?v=790-bkk-route-choices">
 <link rel="stylesheet" href="./guardian-transit-v791.css?v=799-transport-color">
 <link rel="stylesheet" href="./guardian-bkk-catalog-v801.css?v=801-catalog-a">
+<link rel="stylesheet" href="./guardian-bkk-watchlist-v814.css?v=814">
 <link rel="stylesheet" href="./guardian-smart-hub-v802.css?v=802-destination-a">
 <link rel="stylesheet" href="./guardian-smart-hub-native-v803.css?v=803-native-b">
 <link rel="stylesheet" href="./guardian-smart-hub-router-v804.css?v=804-router-a">
@@ -92,6 +93,14 @@
  <div class="guardian-map-credits" role="note" aria-label="Térképadatok forrása">Térképadatok: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a></div>
  <section id="hhTransitPanel" class="hh-transit-panel" aria-label="HealthHub Transit, BKK járatválasztó">
    <div class="hh-transit-body">
+    <section id="hhBkkWatchlistV814" class="hh-bkk-watchlist-v814" aria-label="Saját BKK figyelőlista" hidden>
+     <div class="hh-bkk-watch-header-v814">
+      <div><strong>⭐ Saját BKK Watchlist</strong><small id="hhBkkWatchCountV814">Járatok betöltése…</small></div>
+      <button id="hhBkkWatchEditV814" class="hh-bkk-watch-edit-v814" type="button" aria-controls="hhBkkCatalogV801" aria-expanded="false">✎ Szerkesztés</button>
+     </div>
+     <div id="hhBkkWatchRowsV814" class="hh-bkk-watch-rows-v814" aria-live="polite"></div>
+     <p class="hh-bkk-watch-note-v814">Járatok keresése, hozzáadása, eltávolítása és sorrendezése · profilonként ezen az eszközön. Élő járműjel csak támogatott vonalakon és friss BKK-adatok esetén.</p>
+    </section>
     <div class="hh-transit-choices">
      <div class="hh-transit-item hh-transit-bus">
       <label><input type="checkbox" id="hhTransitRoute260" checked><span class="hh-transit-line-num">260</span><span class="hh-transit-item-name"><strong>260-as busz</strong><small>Útvonal + megállók</small></span></label>
@@ -367,7 +376,8 @@
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-transit-v791.js?v=800-glassy-marker"></script>
-<script defer src="./guardian-bkk-catalog-v801.js?v=801-search-b"></script>
+<script defer src="./guardian-bkk-catalog-v801.js?v=814-watchlist"></script>
+<script defer src="./guardian-bkk-watchlist-v814.js?v=814"></script>
 <script defer src="./guardian-smart-hub-fields-v806.js?v=806-fields-b"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=806-network-a"></script>

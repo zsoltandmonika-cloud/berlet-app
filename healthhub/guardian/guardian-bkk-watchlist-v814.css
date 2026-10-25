@@ -1,0 +1,43 @@
+/* Family Guard BKK Watchlist v814 · Premium Glass, S24 Ultra first. */
+.hh-bkk-watchlist-v814{margin:14px 0 12px;padding:13px;border:1px solid rgba(128,205,250,.48);border-radius:19px;
+ background:linear-gradient(145deg,rgba(20,70,115,.88),rgba(8,29,63,.95));color:#f3faff;
+ box-shadow:0 9px 25px rgba(0,14,37,.26)}
+.hh-bkk-watchlist-v814[hidden]{display:none!important}
+.hh-bkk-watch-header-v814{display:flex;gap:9px;align-items:center;justify-content:space-between}
+.hh-bkk-watch-header-v814>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.hh-bkk-watch-header-v814 strong{font:850 1.05rem/1.2 system-ui}
+.hh-bkk-watch-header-v814 small{font:600 .78rem system-ui;color:#cce7fc}
+.hh-bkk-watch-edit-v814{flex:0 0 auto;min-height:44px;border-radius:12px;border:1px solid #88d5fc;
+ color:white;background:#1977b0;padding:7px 11px;font:750 .83rem system-ui}
+.hh-bkk-watch-rows-v814{display:grid;gap:9px;margin-top:12px}
+.hh-bkk-watch-row-v814{display:flex;gap:9px;align-items:center;min-width:0;
+ padding:10px;border:1px solid rgba(135,208,255,.34);border-radius:15px;background:rgba(5,27,59,.62)}
+.hh-bkk-watch-number-v814{flex:0 0 auto;display:flex;justify-content:center;align-items:center;
+ min-width:53px;min-height:48px;border-radius:12px;padding:0 6px;background:linear-gradient(135deg,#268bd2,#145d96);
+ color:white;font:850 1.12rem system-ui;box-sizing:border-box}
+.hh-bkk-watch-mode-tram .hh-bkk-watch-number-v814{background:linear-gradient(135deg,#f4d866,#dca515);color:#1c2c42}
+.hh-bkk-watch-mode-hev .hh-bkk-watch-number-v814{background:linear-gradient(135deg,#3cdaa5,#178062)}
+.hh-bkk-watch-mode-trolley .hh-bkk-watch-number-v814{background:linear-gradient(135deg,#dc738b,#993658)}
+.hh-bkk-watch-mode-metro .hh-bkk-watch-number-v814{background:linear-gradient(135deg,#7189e8,#405a9d)}
+.hh-bkk-watch-copy-v814{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.hh-bkk-watch-copy-v814 strong{font:750 .9rem system-ui}
+.hh-bkk-watch-copy-v814 span{font:560 .75rem/1.35 system-ui;color:#dcefff;overflow-wrap:anywhere}
+.hh-bkk-watch-copy-v814 small{font:520 .66rem/1.3 system-ui;color:#b7d7e8}
+.hh-bkk-watch-actions-v814{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex:0 0 auto;flex-wrap:wrap;max-width:114px}
+.hh-bkk-watch-action-v814{min-width:32px;min-height:36px;border-radius:9px;border:1px solid rgba(140,215,255,.52);
+ background:rgba(37,113,164,.45);color:#fff;font:750 .85rem system-ui;padding:5px;cursor:pointer}
+.hh-bkk-watch-action-v814:disabled{opacity:.4;cursor:not-allowed}
+.hh-bkk-watch-show-v814{min-height:44px;flex-basis:100%;font:.75rem system-ui}
+.hh-bkk-watch-remove-v814{border-color:rgba(255,166,166,.7);font-size:1.13rem;color:#ffe5e5}
+.hh-bkk-watch-empty-v814{margin:0;padding:12px 4px;color:#c3e2f8;font:600 .83rem/1.5 system-ui}
+.hh-bkk-watch-note-v814{margin:11px 1px 0;color:#afcde1;font:520 .71rem/1.5 system-ui}
+.hh-transit-panel.hh-bkk-watch-ready-v814 .hh-transit-choices,
+.hh-transit-panel.hh-bkk-watch-ready-v814 #hhTransitCardsV791{display:none!important}
+.hh-bkk-watchlist-v814+ .hh-bkk-catalog-v801{margin-top:8px}
+@media(max-width:390px){
+.hh-bkk-watchlist-v814{padding:10px}
+.hh-bkk-watch-row-v814{gap:7px;padding:8px}
+.hh-bkk-watch-number-v814{min-width:46px}
+.hh-bkk-watch-actions-v814{max-width:104px}
+.hh-bkk-watch-edit-v814{padding:6px 8px}}
+@media(prefers-reduced-motion:reduce){.hh-bkk-watchlist-v814 *{scroll-behavior:auto!important;transition:none!important}}
