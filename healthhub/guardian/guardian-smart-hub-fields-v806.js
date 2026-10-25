@@ -72,6 +72,20 @@
   });
   return out;
  }
+ // One read-only source for the existing ten per-profile Smart Travel destinations.
+ // Empty slots are not search results. No new storage, syncing or GPS access.
+ function listFavoritePlaces(storage){
+  if(!storage||typeof storage.getItem!=='function')return [];
+  const profile=profileId(storage),key=STORE+profile;
+  try{
+   const slots=normalizedSlots(JSON.parse(storage.getItem(key)||'null'));
+   return slots.filter(slot=>!!slot.place).map(slot=>({
+    displayName:slot.label,name:slot.place.name,
+    subtitle:slot.place.subtitle||'',lat:slot.place.lat,lng:slot.place.lng,
+    source:'favorite',profile
+   }));
+  }catch(_){return []}
+ }
  function init(){
   const d=w&&w.document;
   if(!d||!w.fetch)return;
@@ -290,5 +304,5 @@
   else init();
  }
  return {queryText,searchUrl,normalizeResults,validPlace,swapState,slotLabel,
-  blankSlots,normalizedSlots,profileId,init,version:'806'};
+  blankSlots,normalizedSlots,profileId,listFavoritePlaces,init,version:'806'};
 });
