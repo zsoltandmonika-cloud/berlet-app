@@ -56,7 +56,7 @@ object FamilyGuardContinuity {
     /** Explicit owner stop, local notification stop, or owner-approved remote STOP. */
     fun disable(context: Context) {
         setApproved(context, false)
-        Sh9GpsService.stop(context)
+        context.stopService(Intent(context, Sh9GpsService::class.java))
     }
 
     fun restartApprovedGps(context: Context): String {
