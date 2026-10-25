@@ -57,8 +57,6 @@ class ScheduledSyncWorker(
             if (!exporter.hasUsefulData(json)) {
                 error("Nem érkezett tényleges Health Connect-mérés az elmúlt 30 napban: " + exporter.countSummary(json))
             }
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-            DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
             NativeHealthOutbox.submit(applicationContext, prefs, profile, json)
 
             prefs.edit()
