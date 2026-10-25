@@ -84,3 +84,17 @@ test('native receiver health is separate from guarded family Dropbox result',()=
  assert.match(main,/hasFreshFix/);
  assert.match(main,/külön engedélyezett helymegosztása/);
 });
+
+test('P1 GPS provider recovery uses bounded native retry, cleans up stale listeners and keeps STOP safe',()=>{
+ assert.match(gps,/providerWasUnavailable = true/);
+ assert.match(gps,/receiverStatus\("provider-restored"\)/);
+ assert.match(gps,/startFused\(generation\)/);
+ assert.match(gps,/recoveryAttempts < 3/);
+ assert.match(gps,/receiverStatus\("native-retry"\)/);
+ assert.match(gps,/startLegacy\(generation, alternateProvider = true\)/);
+ assert.match(gps,/private fun clearLegacyUpdates\(\)/);
+ assert.match(gps,/lm.removeUpdates\(old\)/);
+ assert.match(gps,/listener === this/);
+ assert.match(gps,/!active \|\| callbackGeneration != generation/);
+ assert.doesNotMatch(gps,/PowerManager\.WakeLock|WAKE_LOCK/);
+});
