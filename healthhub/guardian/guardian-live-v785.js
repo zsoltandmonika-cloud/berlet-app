@@ -100,14 +100,17 @@ function peerSnapshot(data,now=Date.now()){
   !Number.isFinite(data.accuracy_m)||data.accuracy_m<0||data.accuracy_m>ACCURACY_LIMIT)return null;
  const stamp=Date.parse(data.updated_at),age=now-stamp;
  if(!Number.isFinite(stamp)||age< -5000||age>LAST_KNOWN_MS)return null;
- return {age,live:age<=AGE_MS,coord:[data.longitude,data.latitude]};
+ const freshness=data.source==='HH One Native GPS'?75_000:AGE_MS;
+ return {age,live:age<=freshness,coord:[data.longitude,data.latitude]};
 }
 function peerStatus(data,age){
- if(age<=AGE_MS){
+ const native=data.source==='HH One Native GPS',freshness=native?75_000:AGE_MS;
+ const source=native?' · HH One natív':' · böngészős';
+ if(age<=freshness){
   const speed=Number.isFinite(data.speed_kmh)?' · '+data.speed_kmh.toFixed(1).replace('.',',')+' km/h':'';
-  return '🟢 ÉLŐ · '+time(data.updated_at)+' · ±'+Math.round(data.accuracy_m)+' m'+speed;
+  return '🟢 ÉLŐ'+source+' · '+time(data.updated_at)+' · ±'+Math.round(data.accuracy_m)+' m'+speed;
  }
- return '🕘 UTOLSÓ ISMERT HELY · '+time(data.updated_at)+' ('+
+ return '🕘 UTOLSÓ ISMERT HELY'+source+' · '+time(data.updated_at)+' ('+
   peerAgeLabel(age)+' óta nincs friss GPS-jel) · NEM ÉLŐ';
 }
 function displayPeer(data,now=Date.now()){
@@ -138,13 +141,32 @@ async function poll(){
  try{
   const {data,error}=await api.from(TABLE).select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
    .eq('profile_key',k).maybeSingle();
+  const relay=w.HH_GUARDIAN_NATIVE_V156;
+  const native=relay&&relay.connected()?await relay.read(k):null;
   if(token!==generation||d.hidden||k!==other()||!user)return;
-  if(error)throw error;
-  if(!data){
-   removePeer();setPeerState('Nincs megosztott hely: a családtag leállította, vagy még nem engedélyezte.');
+  const nativeFix=native&&native.status==='ok'?native.data:null;
+  // Native revocation supersedes older cached browser positions.
+  if(native&&native.status==='revoked'&&
+     (!data||Date.parse(data.updated_at)<=Date.parse(native.updated_at))){
+   removePeer();setPeerState('Natív helymegosztás visszavonva.');
    return;
   }
-  displayPeer(data);
+  if(error&&!nativeFix)throw error;
+  let selected=data;
+  if(nativeFix&&peerSnapshot(nativeFix)&&
+     (!selected||!peerSnapshot(selected)||
+      Date.parse(nativeFix.updated_at)>Date.parse(selected.updated_at)))
+   selected=nativeFix;
+  if(!selected){
+   removePeer();
+   setPeerState(native?.status==='error'?
+     'Nincs friss helyadat · privát Dropbox kapcsolat hiba.':
+     !relay||!relay.connected()?
+     'Nincs megosztott hely · a natív adatokhoz a családi Dropboxot ebben a böngészőben is csatlakoztatni kell.':
+     'Nincs friss, jóváhagyott családi GPS-pozíció.');
+   return;
+  }
+  displayPeer(selected);
  }catch(e){
   if(token===generation){
    // Temporary network failure must not silently remove a still valid, consented fix.
