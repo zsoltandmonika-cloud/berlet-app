@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
+<style id="guardian-live-first-v818">#guardianFamilyPanel.family-live-first-v818>.guardian-live-v785{margin-top:0;margin-bottom:12px}</style>
 <link rel="stylesheet" href="./guardian-polish-v767.css?v=768-family-guard-hero">
 <link rel="stylesheet" href="./guardian-daylight-v773.css?v=773-natural-bright-map">
 <link rel="stylesheet" href="./guardian-landmarks-sync-v787.css?v=787-optin-private-common">
@@ -335,13 +336,8 @@
    <p id="hhArrivalStatus" role="status" aria-live="polite" class="hh-arrival-status">Szerkeszthető értesítési sablon.</p>
   </div>
  </details>
- <section class="family-panel" id="guardianFamilyPanel" aria-label="Családi helyzetek">
+ <section class="family-panel family-live-first-v818" id="guardianFamilyPanel" aria-label="Családi helyzetek">
   <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
-  <div class="family-grid">
-   <div class="family-member" id="guardianMeCard"><img id="guardianMePhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianMeName">Saját telefon</strong><small id="guardianMeState">GPS kikapcsolva</small></div><i class="family-dot" aria-hidden="true"></i></div>
-   <div class="family-member" id="guardianOtherCard"><img id="guardianOtherPhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianOtherName">Családtag</strong><small id="guardianOtherState">Hitelesített élő jelre vár</small></div><i class="family-dot" aria-hidden="true"></i></div>
-   <div class="family-member" id="guardianCorkyCard"><span class="family-face family-corky" aria-hidden="true">🐶</span><div><strong>Corky</strong><small>Tablet · még nincs összekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
-  </div>
   <section class="guardian-live-v785" aria-label="Family Live vezérlés">
    <div class="guardian-live-head"><strong>🛡️ Family Live</strong><span class="guardian-live-pill">VALÓDI GPS</span></div>
    <p class="guardian-live-help">Két telefon · hitelesített családi fiók · böngészős élő GPS csak előtérben. Lezárt vagy háttérben lévő telefon utolsó ismert helye külön, nem élőként, frissítési idővel jelenhet meg.</p>
@@ -382,6 +378,11 @@
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
    <p class="guardian-live-note">🔒 Az automatikus előtéri induláshoz egyszeri, visszavonható engedély kell minden saját telefonon. Másik profilra váltás nem indít idegen helymegosztást. Leállításkor az automatikus újraindítás is kikapcsol. 20 mp frissítés nélkül a jelölő UTOLSÓ ISMERT HELY állapotra vált (legfeljebb 12 óráig). Tudatos leállításkor a szerveroldali hely törlődik. Lezárt telefonon a böngésző nem végez háttérkövetést.</p>
   </section>
+  <div class="family-grid">
+   <div class="family-member" id="guardianMeCard"><img id="guardianMePhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianMeName">Saját telefon</strong><small id="guardianMeState">GPS kikapcsolva</small></div><i class="family-dot" aria-hidden="true"></i></div>
+   <div class="family-member" id="guardianOtherCard"><img id="guardianOtherPhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianOtherName">Családtag</strong><small id="guardianOtherState">Hitelesített élő jelre vár</small></div><i class="family-dot" aria-hidden="true"></i></div>
+   <div class="family-member" id="guardianCorkyCard"><span class="family-face family-corky" aria-hidden="true">🐶</span><div><strong>Corky</strong><small>Tablet · még nincs összekötve</small></div><i class="family-dot" aria-hidden="true"></i></div>
+  </div>
   <p class="family-note">Corky helyzetét később a hozzá társított tablet adhatja. A GPS a készülék helyét méri, nem a kutyusét. Nem mutatunk kitalált pozíciót.</p>
  </section>
  <section class="gps-panel" aria-label="GPS és nyomvonal">
