@@ -14,6 +14,40 @@
    p.lat>=47.25&&p.lat<=47.75&&p.lng>=18.7&&p.lng<=19.6;
   return Array.isArray(items)?items.slice().sort((a,b)=>Number(local(b))-Number(local(a))):[];
  }
+ // Match Hungarian and English shortcut words against saved names and addresses.
+ function normalizeTerm(value){
+  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .toLocaleLowerCase('hu-HU').replace(/\s+/g,' ').trim();
+ }
+ function matchSaved(items,query){
+  const term=normalizeTerm(query);
+  if(!Array.isArray(items))return [];
+  const shortcuts={home:'otthon',work:'munkahely'};
+  const mapped=shortcuts[term]||term;
+  return items.filter(place=>{
+   if(!place||typeof place.name!=='string'||!Number.isFinite(place.lat)||!Number.isFinite(place.lng)||
+     Math.abs(place.lat)>90||Math.abs(place.lng)>180)return false;
+   if(!term)return true;
+   return [place.displayName,place.name,place.subtitle,place.kind]
+    .some(v=>normalizeTerm(v).includes(mapped));
+  }).slice(0,12);
+ }
+ function combineResults(saved,remote){
+  const out=[],unique=new Set(),favoriteCoords=new Set();
+  for(const entry of (Array.isArray(saved)?saved:[])){
+   if(!entry||!Number.isFinite(entry.lat)||!Number.isFinite(entry.lng))continue;
+   const coords=entry.lat.toFixed(5)+':'+entry.lng.toFixed(5);
+   unique.add((entry.source||'saved')+':'+normalizeTerm(entry.displayName||entry.name)+':'+coords);
+   favoriteCoords.add(coords);out.push(entry);
+  }
+  for(const entry of (Array.isArray(remote)?remote:[])){
+   if(!entry||!Number.isFinite(entry.lat)||!Number.isFinite(entry.lng))continue;
+   const coords=entry.lat.toFixed(5)+':'+entry.lng.toFixed(5);
+   if(favoriteCoords.has(coords)||unique.has('osm:'+coords))continue;
+   unique.add('osm:'+coords);out.push(entry);
+  }
+  return out.slice(0,12);
+ }
  function init(){
   const d=w&&w.document;if(!d||!w.fetch)return;
   const box=$('guardianMapSearchV819'),input=$('guardianMapSearchInputV819');
@@ -25,6 +59,22 @@
   let current=null,results=[],seq=0,timer=null,abort=null,lastRequest=0;
   let expanded=false,ownMarker=null,recognition=null;
   const geocoder=()=>w.HH_SMART_HUB_FIELDS_V806;
+  const readSaved=()=>{
+   const g=geocoder(),live=w.HH_GUARDIAN_LIVE_V785;
+   const personal=g&&typeof g.listFavoritePlaces==='function'?g.listFavoritePlaces(w.localStorage):[];
+   // Common map pins become searchable only for an authenticated authorized family.
+   let shared=[];
+   if(live?.authenticated&&live?.familyAuthorized){
+    const landmarks=w.HH_GUARDIAN_LANDMARKS_V776;
+    const entries=landmarks&&landmarks.sharedEntries;
+    if(Array.isArray(entries))shared=entries.map(p=>({
+     name:p.name,displayName:p.name,subtitle:'☁ Közös térképes hely',
+     lat:p.lat,lng:p.lng,kind:p.kind,source:'shared'
+    }));
+   }
+   return personal.concat(shared);
+  };
+  const localMatches=query=>matchSaved(readSaved(),query);
   const map=()=>w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   const report=s=>{message.textContent=s};
   const resize=()=>{const m=map();if(m&&typeof m.resize==='function')try{m.resize()}catch(_){}};
@@ -65,8 +115,11 @@
   }
   function select(place){
    const g=geocoder();if(!g||!g.validPlace(place))return false;
+   // Ignore stale selections made just as a profile or sharing permission changes.
+   if(place.source==='favorite'&&place.profile!==g.profileId(w.localStorage))return false;
+   if(place.source==='shared'&&!(w.HH_GUARDIAN_LIVE_V785?.authenticated&&w.HH_GUARDIAN_LIVE_V785?.familyAuthorized))return false;
    cancel();hideResults();current=place;
-   input.value=place.name+(place.subtitle?' · '+place.subtitle:'');
+   input.value=(place.displayName&&place.displayName!==place.name?place.displayName+' · ':'')+place.name+(place.subtitle?' · '+place.subtitle:'');
    input.blur();
    // Do not let an active GPS follow camera immediately overwrite the searched view.
    // This does NOT stop GPS collection, live uploads or consented sharing.
@@ -82,48 +135,77 @@
    return true;
   }
   function showResults(items){
-   hideResults();results=budapestFirst(items);
+   hideResults();results=combineResults(items,[]);
    results.forEach(place=>{
-    const row=d.createElement('button');row.type='button';row.className='hh-map-search-hit-v819';
-    const symbol=d.createElement('span');symbol.textContent='📍';symbol.setAttribute('aria-hidden','true');
+    const saved=place.source==='favorite'||place.source==='shared';
+    const row=d.createElement('button');row.type='button';
+    row.className='hh-map-search-hit-v819'+(saved?' hh-map-search-hit-saved-v823':'');
+    const symbol=d.createElement('span');symbol.className='hh-map-search-hit-icon-v823';
+    symbol.textContent=place.source==='favorite'?'⭐':place.source==='shared'?'🏠':'📍';
+    symbol.setAttribute('aria-hidden','true');
     const details=d.createElement('span');details.className='hh-map-search-hit-text-v819';
-    const title=d.createElement('strong');title.textContent=place.name;
-    const desc=d.createElement('small');desc.textContent=place.subtitle||'OpenStreetMap · ellenőrzött találat';
-    const arrow=d.createElement('span');arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');
-    details.append(title,desc);row.append(symbol,details,arrow);
+    const title=d.createElement('strong');title.textContent=place.displayName||place.name;
+    const desc=d.createElement('small');
+    const address=place.displayName&&place.displayName!==place.name?place.name+(place.subtitle?' · '+place.subtitle:''):
+     place.subtitle||'OpenStreetMap · ellenőrzött találat';
+    desc.textContent=address;
+    const tag=d.createElement('span');tag.className='hh-map-search-hit-tag-v823';
+    tag.textContent=place.source==='favorite'?'KEDVENC':place.source==='shared'?'KÖZÖS':'CÍM';
+    details.append(title,desc);row.append(symbol,details,tag);
     row.addEventListener('click',()=>select(place));
     suggestions.append(row);
    });
-   suggestions.hidden=!results.length;input.setAttribute('aria-expanded',String(!!results.length));
+   suggestions.hidden=!results.length;
+   input.setAttribute('aria-expanded',String(!!results.length));
   }
   async function search(){
-   const g=geocoder(),value=g&&g.queryText(input.value);
-   cancel();hideResults();current=null;navigate.hidden=true;
-   if(!g||!value){report('Adj meg legalább három karaktert egy budapesti címből.');return}
+   const g=geocoder(),query=input.value,value=g&&g.queryText(query);
+   cancel();
+   const saved=localMatches(query);
+   showResults(saved);current=null;navigate.hidden=true;
+   if(!g||!value){
+    report(saved.length?'Mentett címek · válassz egy találatot.':'Írj legalább 3 karaktert egy utcából vagy kedvenc névből.');
+    return;
+   }
    const own=seq,wait=Math.max(0,1450-(Date.now()-lastRequest));
    if(wait){timer=w.setTimeout(()=>{if(own===seq)search()},wait);return}
    lastRequest=Date.now();
    const controller=w.AbortController?new w.AbortController():null;abort=controller;
-   report('🔎 Valós címek keresése…');
+   report(saved.length?'Mentett címek megjelenítve · további címek keresése…':'🔎 Valós címek keresése…');
    try{
-    const response=await w.fetch(g.searchUrl(value),{mode:'cors',cache:'no-store',signal:controller?controller.signal:undefined});
+    const response=await w.fetch(g.searchUrl(value),{
+     mode:'cors',cache:'no-store',signal:controller?controller.signal:undefined
+    });
     if(!response.ok)throw Error('HTTP '+response.status);
     const found=g.normalizeResults(await response.json());
     if(own!==seq)return;
-    showResults(found);
-    report(found.length?'Válaszd ki a megfelelő címet a találatok közül.':
-     'Nincs ellenőrzött cím. Próbálj pontosabb utcanevet vagy házszámot.');
+    showResults(combineResults(saved,found));
+    report(saved.length||found.length?'Válassz egy mentett helyet vagy ellenőrzött címet.':
+     'Nincs találat. Próbálj másik helynevet vagy címet.');
    }catch(e){
     if(own!==seq||e&&e.name==='AbortError')return;
-    report('A címkereső most nem érhető el. Ellenőrizd az internetkapcsolatot.');
+    showResults(saved);
+    report(saved.length?'A mentett helyek elérhetők, az online címkereső most nem működik.':
+     'A címkereső most nem érhető el. Ellenőrizd az internetkapcsolatot.');
    }finally{if(abort===controller)abort=null}
   }
   function type(){
-   cancel();hideResults();current=null;navigate.hidden=true;
+   cancel();current=null;navigate.hidden=true;
+   const saved=localMatches(input.value);
+   showResults(saved);
    const g=geocoder(),value=g&&g.queryText(input.value);
-   if(!value){report('Kezdj el gépelni egy címet vagy helyet.');return}
+   if(!value){
+    report(saved.length?'Mentett helyek · koppints egy címre.':'Kezdj el gépelni egy címet vagy mentett hely nevét.');
+    return;
+   }
    const own=seq;timer=w.setTimeout(()=>{if(own===seq)search()},650);
   }
+  input.addEventListener('focus',()=>{
+   if(!input.value.trim()){
+    showResults(localMatches(''));
+    if(results.length)report('Saját kedvencek · válassz egy mentett helyet.');
+   }
+  });
   input.addEventListener('input',type);
   input.addEventListener('keydown',e=>{
    if(e.key==='Enter'){
@@ -169,6 +251,13 @@
    resize();
   });
   d.addEventListener('keydown',e=>{if(e.key==='Escape'&&expanded)setFullscreen(false)});
+  // Dismiss old results on profile change; never retain another profile's favorites.
+  function invalidateProfile(){
+   cancel();hideResults();current=null;navigate.hidden=true;input.value='';
+  }
+  w.addEventListener('storage',e=>{if(e.key==='hh-profile')invalidateProfile()});
+  const switcher=$('guardianProfileSwitch');
+  if(switcher)switcher.addEventListener('click',()=>w.setTimeout(invalidateProfile,0));
   w.addEventListener('pagehide',()=>{cancel();if(ownMarker){ownMarker.remove();ownMarker=null}});
   report('Írj be vagy mondj egy budapesti címet.');
  }
@@ -176,5 +265,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {budapestFirst,init,version:'819'};
+ return {budapestFirst,normalizeTerm,matchSaved,combineResults,init,version:'819'};
 });
