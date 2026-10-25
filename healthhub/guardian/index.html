@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="./guardian-smart-hub-router-v804.css?v=804-router-a">
 <link rel="stylesheet" href="./guardian-smart-hub-go-v805.css?v=805-fewest-go-a">
 <link rel="stylesheet" href="./guardian-smart-hub-v806.css?v=806-fields-b">
+<link rel="stylesheet" href="./guardian-map-search-v819.css?v=819-glass-fullscreen">
 <link rel="stylesheet" href="./bkk-live-glass-v800.css?v=800-approved-set">
 <style id="guardian-profile-hero-v772">
 /* v772: real profile switch lives at the red-arrow target: hero bottom-left.
@@ -91,6 +92,18 @@
   <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></svg></span><span class="guardian-control-text">3D</span></button>
   <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="true" aria-controls="guardianFamilyPanel"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19v-2.2A4.8 4.8 0 0 1 8.3 12h1.4a4.8 4.8 0 0 1 4.8 4.8V19"/><path d="M16.5 5.5a3 3 0 0 1 0 5.8M17.5 13.1a4.6 4.6 0 0 1 3 4.4V19"/></svg></span><span class="guardian-control-text">Család</span></button>
   <div id="guardianLandmarkHint" class="guardian-landmark-hint" hidden role="status">📍 Koppints a térképre a kívánt helyen</div>
+  <button type="button" id="guardianMapSearchExitV819" class="hh-map-search-exit-v819" hidden aria-label="Teljes képernyős térkép bezárása">← Vissza a Family Guardhoz</button>
+  <div id="guardianMapSearchV819" class="hh-map-search-v819" role="search" aria-label="Címkeresés a Family Guard térképén">
+   <div class="hh-map-search-row-v819">
+    <span class="hh-map-search-icon-v819" aria-hidden="true">⌕</span>
+    <input id="guardianMapSearchInputV819" class="hh-map-search-input-v819" type="search" autocomplete="off" enterkeyhint="search" maxlength="120" aria-label="Keress budapesti címet vagy helyet" aria-controls="guardianMapSearchResultsV819" aria-expanded="false" placeholder="Cím, utca, hely keresése…">
+    <button type="button" id="guardianMapSearchMicV819" aria-label="Cím bemondása mikrofonnal" title="Cím bemondása">🎙️</button>
+    <button type="button" id="guardianMapSearchGoV819" aria-label="Cím keresése vagy megmutatása a térképen" title="Keresés">⌕</button>
+   </div>
+   <div id="guardianMapSearchResultsV819" class="hh-map-search-hits-v819" role="group" aria-label="Címjavaslatok" hidden></div>
+   <button type="button" id="guardianMapSearchNavigateV819" class="hh-map-search-nav-v819" hidden>🧭 Útvonaltervezés ide · Smart Travel</button>
+   <p id="guardianMapSearchStatusV819" class="hh-map-search-status-v819" role="status" aria-live="polite">Címkeresés Budapest környékén</p>
+  </div>
  </section>
  <div class="guardian-map-credits" role="note" aria-label="Térképadatok forrása">Térképadatok: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a></div>
  <section id="hhTransitPanel" class="hh-transit-panel" aria-label="HealthHub Transit, BKK járatválasztó">
@@ -430,6 +443,7 @@
 <script defer src="./guardian-bkk-catalog-v801.js?v=817-1-41-static"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=817-1-41-static"></script>
 <script defer src="./guardian-smart-hub-fields-v806.js?v=806-fields-b"></script>
+<script defer src="./guardian-map-search-v819.js?v=819-search-fullscreen"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=806-network-a"></script>
 <div id="hhStopPopupV815" class="hh-stop-popup-v815" role="alert" aria-live="assertive" hidden>
