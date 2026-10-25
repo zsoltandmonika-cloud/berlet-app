@@ -11,7 +11,7 @@ class SmartLocationPolicyTest {
         assertEquals(SmartLocationPolicy.Mode.MOVING,
             p.observe(2.3f, 25f, 6f, 10_000L))
         assertTrue(p.highAccuracy())
-        assertEquals(15_000L, p.intervalMillis(30))
+        assertEquals(20_000L, p.intervalMillis(30))
     }
 
     @Test fun idleNeedsThreeValidFixesAndDwell() {
