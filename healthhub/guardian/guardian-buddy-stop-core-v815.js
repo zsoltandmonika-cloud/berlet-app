@@ -47,12 +47,31 @@
     !Number.isFinite(c.accuracy)||c.accuracy<0||c.accuracy>50)return null;
   return {lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,timestamp};
  }
- function liveBus(v,expectedHead,now=Date.now()){
-  if(!v||v.routeId!=='260'||typeof v.id!=='string'||!v.id||v.headsign!==expectedHead)return null;
+ function liveBus(v,now=Date.now()){
+  // The currently deployed authenticated BKK server does NOT provide a
+  // direction/headsign field. Never require or manufacture one.
+  if(!v||v.routeId!=='260'||typeof v.id!=='string'||!v.id)return null;
   const timestamp=Date.parse(v.timestamp||'');
   if(!Number.isFinite(timestamp)||timestamp>now+10000||now-timestamp>MAX_BUS_AGE||
-    !Number.isFinite(v.lat)||!Number.isFinite(v.lng))return null;
+    !Number.isFinite(v.lat)||!Number.isFinite(v.lng)||Math.abs(v.lat)>90||Math.abs(v.lng)>180)return null;
   return {lat:v.lat,lng:v.lng,id:v.id,timestamp};
+ }
+ function progress(point,from,to){
+  if(!point||!from||!to)return NaN;
+  const lat=rad((from.lat+to.lat)/2);
+  const dx=(to.lng-from.lng)*Math.cos(lat),dy=to.lat-from.lat;
+  const px=(point.lng-from.lng)*Math.cos(lat),py=point.lat-from.lat;
+  const len=dx*dx+dy*dy;
+  return len>1e-12?(px*dx+py*dy)/len:NaN;
+ }
+ function directionalApproach(oldFix,newFix,fromStop,toStop,radius=115){
+  if(!oldFix||!newFix||newFix.timestamp<=oldFix.timestamp||
+     newFix.timestamp-oldFix.timestamp>120000||
+     distance(fromStop,toStop)<140)return false;
+  const oldProgress=progress(oldFix,fromStop,toStop),newProgress=progress(newFix,fromStop,toStop);
+  return detection(distance(oldFix,toStop),distance(newFix,toStop),radius)&&
+    Number.isFinite(oldProgress)&&Number.isFinite(newProgress)&&
+    newProgress>oldProgress+.02&&newProgress>.45&&newProgress<1.35;
  }
  function detection(oldDistance,newDistance,radius=RADIUS){
   // Require real approach from outside and a fresh inside fix, not an
@@ -60,5 +79,5 @@
   return Number.isFinite(oldDistance)&&Number.isFinite(newDistance)&&
     oldDistance>radius+35&&newDistance<=radius&&newDistance<oldDistance;
  }
- return {distance,validateRoutes,leadStop,currentFix,liveBus,detection,RADIUS};
+ return {distance,validateRoutes,leadStop,currentFix,liveBus,detection,directionalApproach,RADIUS};
 });
