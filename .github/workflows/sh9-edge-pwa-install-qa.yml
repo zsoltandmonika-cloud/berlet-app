@@ -1,0 +1,32 @@
+name: SH9 · Edge Installable PWA QA
+
+on:
+  pull_request:
+    paths:
+      - "sh9/**"
+      - ".github/workflows/sh9-edge-pwa-install-qa.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "sh9/**"
+      - ".github/workflows/sh9-edge-pwa-install-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sh9-edge-pwa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: SH9 install manifest, icons, launch and cache isolation
+        run: node --test sh9/tests/edge-install.test.cjs
+      - name: Check optional service worker and installer scripts
+        run: |
+          node --check sh9/sw.js
+          node --check sh9/pwa-install-v1.js
