@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -98,20 +97,20 @@ object FamilyGuardNativeRelay {
             .put("updated_at", Instant.ofEpochMilli(location.time).toString())
             .toString()
         io.launch {
-            uploadLock.withLock {
-                // A queued upload MUST NOT resurrect a stopped or re-profiled phone.
-                if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@withLock
-                try {
-                    ensureFolder(app)
-                    if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@withLock
-                    DropboxVaultClient.uploadText(prefs(app), latestPath(profile), payload)
-                    prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
-                        .putString(KEY_RESULT, "uploaded").apply()
-                } catch (e: Exception) {
-                    lastQueuedAt = 0L
-                    prefs(app).edit().putString(KEY_RESULT,
-                        "network-error:" + e.javaClass.simpleName.take(40)).apply()
-                }
+            uploadLock.lock()
+            try {
+                if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
+                ensureFolder(app)
+                if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
+                DropboxVaultClient.uploadText(prefs(app), latestPath(profile), payload)
+                prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
+                    .putString(KEY_RESULT, "uploaded").apply()
+            } catch (e: Exception) {
+                lastQueuedAt = 0L
+                prefs(app).edit().putString(KEY_RESULT,
+                    "network-error:" + e.javaClass.simpleName.take(40)).apply()
+            } finally {
+                uploadLock.unlock()
             }
         }
     }
@@ -128,24 +127,29 @@ object FamilyGuardNativeRelay {
         WorkManager.getInstance(app).enqueueUniqueWork(REVOKE_WORK, ExistingWorkPolicy.REPLACE, req)
     }
 
-    suspend fun revokeIfStopped(context: Context): Boolean = uploadLock.withLock {
-        if (enabled(context)) return@withLock true // A newer approval wins.
-        val profile = owner(context) ?: return@withLock true
-        if (!DropboxVaultClient.hasRefreshToken(prefs(context))) return@withLock false
-        return@withLock try {
-            ensureFolder(context)
-            DropboxVaultClient.uploadText(prefs(context), latestPath(profile),
-                JSONObject().put("schema", "healthhub.guardian.native/1")
-                    .put("source", "HH One Native GPS")
-                    .put("profile", profile)
-                    .put("active", false)
-                    .put("updated_at", Instant.now().toString()).toString())
-            prefs(context).edit().putString(KEY_RESULT, "revoked").apply()
-            true
-        } catch (e: Exception) {
-            prefs(context).edit().putString(KEY_RESULT,
-                "revoke-pending:" + e.javaClass.simpleName.take(40)).apply()
-            false
+    suspend fun revokeIfStopped(context: Context): Boolean {
+        uploadLock.lock()
+        try {
+            if (enabled(context)) return true // Later consent takes priority.
+            val profile = owner(context) ?: return true
+            if (!DropboxVaultClient.hasRefreshToken(prefs(context))) return false
+            return try {
+                ensureFolder(context)
+                DropboxVaultClient.uploadText(prefs(context), latestPath(profile),
+                    JSONObject().put("schema", "healthhub.guardian.native/1")
+                        .put("source", "HH One Native GPS")
+                        .put("profile", profile)
+                        .put("active", false)
+                        .put("updated_at", Instant.now().toString()).toString())
+                prefs(context).edit().putString(KEY_RESULT, "revoked").apply()
+                true
+            } catch (e: Exception) {
+                prefs(context).edit().putString(KEY_RESULT,
+                    "revoke-pending:" + e.javaClass.simpleName.take(40)).apply()
+                false
+            }
+        } finally {
+            uploadLock.unlock()
         }
     }
 }
