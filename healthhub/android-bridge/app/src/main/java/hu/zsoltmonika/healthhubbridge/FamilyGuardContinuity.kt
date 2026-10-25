@@ -55,7 +55,9 @@ object FamilyGuardContinuity {
 
     /** Explicit owner stop, local notification stop, or owner-approved remote STOP. */
     fun disable(context: Context) {
-        setApproved(context, false)
+        // A STOP permanently cancels automatic GPS, but an explicitly approved
+        // future SOS/resume *request* can still notify the owner until revoked.
+        prefs(context).edit().putBoolean(KEY_AUTO_GPS, false).apply()
         context.stopService(Intent(context, Sh9GpsService::class.java))
     }
 
