@@ -56,8 +56,8 @@ test('legacy permission, camera, SMS-free consent and calendar routes remain int
   assert.match(manifest,/Sh9WebActivity/);
 });
 test('session router is not a release or OTA change',()=>{
-  assert.match(gradle,/versionName = "0\.15\.7"/);
-  assert.match(gradle,/versionCode = 34/);
+  assert.match(gradle,/versionName = "0\.15\.8"/);
+  assert.match(gradle,/versionCode = 35/);
   assert.equal(ota.version,'0.15.2');
   assert.equal(ota.versionCode,29);
   assert.equal(ota.channel,'signed-release');
