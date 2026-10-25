@@ -253,6 +253,11 @@ function applyLocationSettings(settings){
  if(settings&&typeof settings.map_3d==='boolean')threeD=settings.map_3d;
  applyView();
 }
+// Verified address selection pauses only camera recentering, never GPS collection or sharing.
+function pauseCameraForMapSearch(){
+ if(!follow)return false;
+ follow=false;renderButtons();notifySettings();return true;
+}
 function startFollowing(){
  follow=true;renderButtons();
  notifySettings();
@@ -482,5 +487,5 @@ const familyPanel=$('guardianFamilyPanel'),familyButton=$('guardianFamilyButton'
 if(familyPanel)familyPanel.hidden=false;
 if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,getLocationSettings:locationSettings,applyLocationSettings,get map(){return map},get active(){return active},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,get map(){return map},get active(){return active},get pointCount(){return path.length}});
 })(window,document);
