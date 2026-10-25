@@ -58,3 +58,27 @@ for(const needle of ['needs: [compare-signed-release-to-existing-keystore]',
 assert.ok(!/gh release create|git push|bridge-ota\.json.*write/.test(candidate),'candidate must not publish OTA');
 assert.ok(release.includes("if: steps.signing.outputs.ready == 'true'"));
 console.log('HH One signing preflight: dynamic signed baseline, SHA and certificate check, read-only PASS');
+
+/* STAGED_DROPBOX_PILOT_GATES_20261025
+ * A signed pilot must retain native Health Connect exports locally before
+ * attempting Dropbox; this preflight runs without unlocking rollout.
+ */
+const nativeRoot=path.join(base,'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge');
+const outbox=fs.readFileSync(path.join(nativeRoot,'NativeHealthOutbox.kt'),'utf8');
+const nativeVault=fs.readFileSync(path.join(nativeRoot,'DropboxVaultClient.kt'),'utf8');
+const nativeMain=fs.readFileSync(path.join(nativeRoot,'MainActivity.kt'),'utf8');
+const nativeScheduled=fs.readFileSync(path.join(nativeRoot,'ScheduledSyncWorker.kt'),'utf8');
+const nativeResilient=fs.readFileSync(path.join(nativeRoot,'ResilientHealthSync.kt'),'utf8');
+const nativeOrchestrator=fs.readFileSync(path.join(nativeRoot,'OrchestratorWorker.kt'),'utf8');
+assert.match(outbox,/context\.noBackupFilesDir/,'pending medical records must stay in app-private no-backup storage');
+assert.match(outbox,/AtomicFile\(file\)/,'atomic pending export required');
+assert.match(outbox,/persist\(context, owner, snapshot\)\s*\n\s*flushLocked/,'persist-before-network order required');
+assert.match(outbox,/DropboxVaultClient\.uploadHealthConnectSnapshot\(prefs, owner, payload\)/);
+assert.ok(outbox.indexOf('uploadHealthConnectSnapshot') < outbox.indexOf('check(file.delete())'),
+ 'do not remove pending export before Dropbox acknowledgment');
+assert.match(nativeMain,/NativeHealthOutbox\.submit\(this@MainActivity, prefs, profile, json\)/);
+assert.match(nativeScheduled,/NativeHealthOutbox\.submit\(applicationContext, prefs, profile, json\)/);
+assert.match(nativeResilient,/NativeHealthOutbox\.submit\(applicationContext, prefs, owner, payload\)/);
+assert.match(nativeOrchestrator,/NativeHealthOutbox\.submit\(applicationContext, prefs, owner, json\)/);
+assert.match(nativeVault,/tokenRefreshLock\.withLock/,'central token refresh must be serialized');
+console.log('Signed Dropbox pilot source gates: durable outbox and token refresh PASS');
