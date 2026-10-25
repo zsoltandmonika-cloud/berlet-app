@@ -83,23 +83,18 @@
    if(abort){abort.abort();abort=null}
   }
   function hideResults(){results=[];suggestions.replaceChildren();suggestions.hidden=true;input.setAttribute('aria-expanded','false')}
-  function setFullscreen(value,skipExit){
+  function setFullscreen(value){
+   // The same MapLibre map expands in our own app layout. Chrome native
+   // requestFullscreen causes an intrusive browser/system exit hint.
+   // This CSS-only mode avoids it and keeps the existing controls usable.
    expanded=!!value;d.body.classList.toggle('hh-map-full-v819',expanded);
    card.classList.toggle('hh-map-full-v819',expanded);
    exit.hidden=!expanded;navigate.hidden=!expanded||!current;
-   if(!expanded&&!skipExit&&d.fullscreenElement===card&&d.exitFullscreen){
-    try{const p=d.exitFullscreen();if(p&&p.catch)p.catch(()=>{})}catch(_){}
-   }
    w.setTimeout(resize,40);w.setTimeout(resize,300);
   }
   function openFullscreen(){
    if(expanded)return;
-   setFullscreen(true,true);
-   // Must be called from the actual user click, and gracefully degrade to CSS
-   // when Android Chrome blocks immersive fullscreen.
-   if(typeof card.requestFullscreen==='function'){
-    try{const p=card.requestFullscreen();if(p&&p.catch)p.catch(()=>{})}catch(_){}
-   }
+   setFullscreen(true);
   }
   function focusPlace(place){
    const m=map();if(!m||!place)return;
@@ -245,10 +240,6 @@
     mic.classList.add('listening');report('🎙️ Mondd be a címet…');
     recognition.start();
    }catch(_){recognition=null;mic.classList.remove('listening');report('A hangbevitel ezen a böngészőn nem érhető el.')}
-  });
-  d.addEventListener('fullscreenchange',()=>{
-   if(!d.fullscreenElement&&expanded)setFullscreen(false,true);
-   resize();
   });
   d.addEventListener('keydown',e=>{if(e.key==='Escape'&&expanded)setFullscreen(false)});
   // Dismiss old results on profile change; never retain another profile's favorites.

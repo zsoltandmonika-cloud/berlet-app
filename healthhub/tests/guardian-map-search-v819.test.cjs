@@ -22,11 +22,11 @@ test('v819 search is over the SAME MapLibre map and expands it on a verified res
   'guardianMapSearchNavigateV819'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,'missing '+id);
  assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
- assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
+ assert.match(html,/guardian-map-search-v819\.js\?v=826-css-only-fullmap/);
  assert.match(code,/getMap|const map=\(\)=>w\.HH_GUARDIAN_V761&&w\.HH_GUARDIAN_V761\.map/);
  assert.match(code,/if\(!g\|\|!g\.validPlace\(place\)\)return false/);
  assert.match(code,/openFullscreen\(\)/);
- assert.match(code,/card\.requestFullscreen\(\)/);
+ assert.doesNotMatch(code,/card\.requestFullscreen\(\)/,'native browser fullscreen toast must never trigger');
  assert.match(code,/map\.flyTo|m\.flyTo/);
  assert.match(code,/\.resize\(/);
  assert.match(css,/100dvh/);
@@ -152,7 +152,7 @@ test('v823 search offers favorites instantly while official address search remai
  assert.match(code,/function invalidateProfile\(\)/);
  assert.match(html,/placeholder="Cím, Otthon, Munkahely…"/);
  assert.match(html,/guardian-map-search-v819\.css\?v=824-unified-results/);
- assert.match(html,/guardian-map-search-v819\.js\?v=823-favorites-first/);
+ assert.match(html,/guardian-map-search-v819\.js\?v=826-css-only-fullmap/);
  assert.match(css,/\.hh-map-search-hit-icon-v823/);
  assert.match(css,/\.hh-map-search-hit-tag-v823/);
  assert.match(css,/:root\[data-guardian-profile="m"\] \.hh-map-search-hits-v819/);
@@ -198,4 +198,28 @@ test('v825 all external JavaScript tags close immediately, especially map search
   assert.ok(tags.some(tag=>tag[1].includes(path)),'missing required active script '+path);
  }
  assert.match(html,/<script defer src="\.\/guardian-smart-hub-fields-v806\.js\?v=825-script-parser-repair"><\/script>/);
+});
+
+test('v826 address selection expands the SAME map via app CSS only, without Chrome native fullscreen prompt',()=>{
+ const html=read('index.html'),search=read('guardian-map-search-v819.js');
+ const pin=read('guardian-map-glass-pin-v826.css');
+ const base=read('guardian-map-search-v819.css');
+ assert.match(html,/guardian-map-search-v819\.js\?v=826-css-only-fullmap/);
+ assert.match(html,/guardian-map-glass-pin-v826\.css\?v=826-pin-soft-glass/);
+ assert.ok(html.indexOf('guardian-map-glass-pin-v826.css')>html.indexOf('guardian-search-results-v824.css'),
+  'new destination styles load after earlier styles');
+ assert.match(search,/function openFullscreen\(\)\{[\s\S]*?setFullscreen\(true\)/);
+ assert.match(search,/card\.classList\.toggle\('hh-map-full-v819',expanded\)/);
+ assert.match(search,/w\.setTimeout\(resize,40\)/);
+ assert.doesNotMatch(search,/card\.requestFullscreen\s*\(|d\.exitFullscreen\s*\(|addEventListener\('fullscreenchange'/,
+  'no Chrome native fullscreen or black browser exit notice');
+ assert.match(base,/\.map-card\.hh-map-full-v819/,'map is CSS fixed in viewport');
+ assert.match(base,/100dvh/);
+ assert.match(pin,/#guardianMap \.hh-smart-hub-map-pin-v803/,'the screenshot destination badge now has an explicit glass style');
+ assert.match(pin,/backdrop-filter:blur\(25px\) saturate\(1\.45\)/,'soft glass badge');
+ assert.match(pin,/--hh-pin-light:rgba\(96,181,233,.50\)/,'Zsolt blue');
+ assert.match(pin,/:root\[data-guardian-profile="m"\] #guardianMap \.hh-smart-hub-map-pin-v803/,'Mónika pink');
+ assert.match(pin,/#guardianMapSearchResultsV819 \.hh-map-search-hit-v819/,'suggestion list also refined');
+ assert.doesNotMatch(pin,/navigator\.geolocation|supabase|dropbox|localStorage|requestFullscreen\(/i,
+  'styles cannot manipulate GPS or open browser native fullscreen');
 });
