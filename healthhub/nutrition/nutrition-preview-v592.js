@@ -464,7 +464,26 @@ function reportNutritionSync(profile,state,message){
  * Never overwrite remote blindly: download + merge + conditional revision upload.
  */
 const syncPending={};
+// Foreground-only reconnect: no tight loop during airplane mode, idle or OAuth failure.
+const retryTimers={},retryFailures={};
+function cancelRetry(profile){
+ if(retryTimers[profile]){clearTimeout(retryTimers[profile]);delete retryTimers[profile];}
+}
+function scheduleRetry(profile,error){
+ const message=String(error&&error.message||'');
+ // Revoked consent needs a real user decision, never a password/relink loop.
+ if(/hitelesítés frissítése szükséges|nincs csatlakoztatva|kapcsolat időközben megváltozott/i.test(message))return;
+ if(document.hidden||!navigator.onLine||!window.HH_NUTRITION_CLOUD_V626?.connected())return;
+ const attempt=retryFailures[profile]=(retryFailures[profile]||0)+1;
+ const delay=Math.min(300000,3000*Math.pow(2,Math.min(attempt-1,7)));
+ cancelRetry(profile);
+ retryTimers[profile]=setTimeout(()=>{
+  delete retryTimers[profile];
+  if(!document.hidden&&navigator.onLine)syncProfile(profile).catch(()=>{});
+ },delay);
+}
 function queueSync(profile){
+ cancelRetry(profile);
  syncPending[profile]=true;
  if(profile===active){
   displayStatus('◌ Nutrition mentve helyben · automatikus Dropbox-szinkron…');
@@ -502,6 +521,8 @@ async function syncProfile(profile){
    const combined=cloudData?merge(latest,cloudData,profile):latest;
    try{
     saved=await api.upload(profile,combined,remote.rev);
+    cancelRetry(profile);
+    retryFailures[profile]=0;
     // A felhőbe küldés közben létrejött új helyi bejegyzéseket is megőrizzük.
     const finalDoc=merge(read(profile),combined,profile);
     localStorage.setItem(LS+profile,JSON.stringify(finalDoc));
@@ -522,6 +543,8 @@ async function syncProfile(profile){
   }
   throw new Error('Több eszköz egyidejű mentése miatt a szinkron nem fejeződött be');
  }catch(error){
+  // The full journal remains on this device; retry only with bounded backoff.
+  scheduleRetry(profile,error);
   if(profile===active){
    const reason=String(error&&error.message||'nem elérhető').slice(0,105);
    displayStatus('⚠ Helyi mentés megmaradt · Dropbox: '+reason,true);
@@ -999,9 +1022,11 @@ function start(){
   syncProfile(active).catch(()=>{});
  }
  document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden){checkJarMidnight();refreshFromCloud();}
+  if(!document.hidden){checkJarMidnight();if(navigator.onLine)queueSync(active);refreshFromCloud();}
  });
- root.addEventListener('focus',()=>{checkJarMidnight();refreshFromCloud();});
+ // Android Chrome/HH One foreground will resume without a manual Dropbox reconnect.
+ root.addEventListener('online',()=>{if(!document.hidden)queueSync(active);});
+ root.addEventListener('focus',()=>{checkJarMidnight();if(navigator.onLine)queueSync(active);refreshFromCloud();});
  root.setInterval(refreshFromCloud,120000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
