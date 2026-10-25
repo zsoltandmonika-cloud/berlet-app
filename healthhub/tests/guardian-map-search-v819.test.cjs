@@ -50,3 +50,18 @@ test('v819 only binds existing Smart Travel destination after verified Photon se
  assert.match(searchCode,/setFullscreen\(false\)/);
  assert.match(searchCode,/hhSmartHubDestinationV802/);
 });
+
+test('v820 selecting a verified address pauses map camera follow but not GPS collection',()=>{
+ const guardian=read('guardian.js');
+ const address=read('guardian-map-search-v819.js');
+ const found=guardian.match(/function pauseCameraForMapSearch\(\)\{([\s\S]*?)\n\}/);
+ assert.ok(found,'dedicated pause-camera method required');
+ assert.match(found[1],/follow=false;renderButtons\(\);notifySettings\(\);return true/);
+ assert.doesNotMatch(found[1],/stop\(|clearWatch|active=false|onGpsStopped|publish|upload/);
+ assert.match(guardian,/startFollowing,pauseCameraForMapSearch,getLocationSettings/);
+ assert.match(address,/HH_GUARDIAN_V761\?\.pauseCameraForMapSearch\?\.\(\)/);
+ assert.ok(address.indexOf('if(!g||!g.validPlace(place))return false')<
+  address.indexOf('pauseCameraForMapSearch'),'reject fake coordinates before camera change');
+ assert.ok(address.indexOf('pauseCameraForMapSearch')<
+  address.indexOf("new w.CustomEvent('hh-guardian-map-destination-v819'"));
+});
