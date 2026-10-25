@@ -1,0 +1,36 @@
+/* v815: scoped Buddy Stop Alert studio, S24 Ultra touch-first. */
+.hh-stop-studio-v815{margin:18px 0 7px;padding:13px;border:1px solid rgba(127,206,250,.45);
+ border-radius:17px;background:linear-gradient(135deg,rgba(22,72,115,.85),rgba(9,28,62,.94));color:#f5faff}
+.hh-stop-studio-v815 h3{font:800 1rem/1.35 system-ui;margin:0 0 7px}
+.hh-stop-studio-v815 p{font:.78rem/1.5 system-ui;color:#c6e2f4}
+.hh-stop-grid-v815{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.hh-stop-field-v815{display:flex;flex-direction:column;gap:5px;min-width:0;color:#d9efff;font:700 .8rem/1.4 system-ui}
+.hh-stop-field-v815.wide{grid-column:1/-1}
+.hh-stop-field-v815 select,.hh-stop-field-v815 input,.hh-stop-field-v815 textarea{
+ box-sizing:border-box;min-height:44px;width:100%;padding:9px 10px;color:white;background:#08294f;
+ border:1px solid #77b9e2;border-radius:12px;font:550 15px/1.3 system-ui}
+.hh-stop-field-v815 textarea{resize:vertical;min-height:72px}
+.hh-stop-field-v815 input[type=range]{padding:0;accent-color:#75d8ff}
+.hh-stop-lead-v815{border-radius:11px;padding:9px;background:rgba(44,104,149,.28);
+ font:700 .78rem/1.45 system-ui;color:#dff4ff}
+.hh-stop-studio-v815 [hidden],.hh-stop-popup-v815[hidden]{display:none!important}
+.hh-stop-actions-v815{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.hh-stop-actions-v815 button{min-height:46px;padding:9px 12px;border-radius:12px;border:1px solid #84d0ff;
+ background:#145f99;color:white;font:750 .82rem system-ui;cursor:pointer}
+.hh-stop-actions-v815 button:first-child{background:#257ead}
+.hh-stop-status-v815{color:#bfe9ff;font:650 .8rem/1.45 system-ui;margin:11px 0}
+.hh-stop-note-v815{font:.71rem/1.55 system-ui;color:#b7d1e6;margin:9px 0 0}
+.hh-stop-popup-v815{position:fixed;z-index:1810;left:12px;right:12px;bottom:max(83px,env(safe-area-inset-bottom));
+ display:flex;justify-content:center;pointer-events:none}
+.hh-stop-popup-card-v815{position:relative;max-width:440px;width:100%;display:flex;align-items:center;gap:13px;
+ padding:14px 38px 14px 12px;color:white;border:1px solid #96dfff;border-radius:19px;
+ background:linear-gradient(120deg,rgba(8,50,89,.98),rgba(46,42,92,.98));
+ box-shadow:0 14px 40px rgba(0,0,0,.55);pointer-events:auto}
+.hh-stop-popup-card-v815 img{width:79px;height:79px;object-fit:contain;flex-shrink:0}
+.hh-stop-popup-card-v815 strong{font:850 1rem/1.25 system-ui}
+.hh-stop-popup-card-v815 p{font:.87rem/1.38 system-ui;margin:6px 0 0}
+.hh-stop-popup-card-v815 small{font:700 .69rem system-ui;color:#9ee5ff}
+.hh-stop-popup-card-v815 button{position:absolute;top:7px;right:7px;min-width:34px;min-height:34px;
+ border:1px solid #9bd8fc;border-radius:9px;background:#16426d;color:white}
+@media(max-width:390px){.hh-stop-grid-v815{grid-template-columns:1fr}.hh-stop-field-v815.wide{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.hh-stop-studio-v815 *{transition:none!important}}
