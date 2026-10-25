@@ -1,7 +1,7 @@
 /* Family Guard v826 · Slim destination marker, not the old solid-blue board.
  * Uses the same Premium Glass tokens as bus/tram + map search.
  * Separate final stylesheet intentionally overrides old native marker styling.
- * The full map remains our CSS overlay; no browser requestFullscreen() is used.
+ * The full map remains our CSS overlay, with no browser-native fullscreen API.
  */
 #guardianMap .hh-smart-hub-map-pin-v803,
 .map-card .hh-smart-hub-map-pin-v803{
