@@ -58,8 +58,8 @@ test('OAuth callback must stay on same state/verifier and authorized owner befor
 });
 test('release and user sessions remain unmodified in this isolated fix',()=>{
   assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.match(build,/versionName = "0\.15\.7"/);
-  assert.match(build,/versionCode = 34/);
+  assert.match(build,/versionName = "0\.15\.8"/);
+  assert.match(build,/versionCode = 35/);
   assert.equal(ota.version,'0.15.2');
   assert.equal(ota.versionCode,29);
   assert.match(web,/private const val HOME/);

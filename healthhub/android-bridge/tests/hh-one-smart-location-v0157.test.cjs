@@ -10,10 +10,10 @@ const worker=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const main=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
 const admin=read('healthhub/hh-one-rag-v500.js');
-test('v0.15.7 build34 is same OTA-signed application with verified FLP dependency',()=>{
+test('v0.15.8 build35 is same OTA-signed application with verified FLP dependency',()=>{
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
- assert.match(gradle,/versionName = "0\.15\.7"/);
- assert.match(gradle,/versionCode = 34/);
+ assert.match(gradle,/versionName = "0\.15\.8"/);
+ assert.match(gradle,/versionCode = 35/);
  assert.match(gradle,/play-services-location:21\.3\.0/);
 });
 test('native background location FGS requests FLP before supported Android fallback',()=>{
@@ -83,4 +83,18 @@ test('native receiver health is separate from guarded family Dropbox result',()=
  assert.match(main,/GPS-vevő: \$receiverLabel/);
  assert.match(main,/hasFreshFix/);
  assert.match(main,/külön engedélyezett helymegosztása/);
+});
+
+test('P1 GPS provider recovery uses bounded native retry, cleans up stale listeners and keeps STOP safe',()=>{
+ assert.match(gps,/providerWasUnavailable = true/);
+ assert.match(gps,/receiverStatus\("provider-restored"\)/);
+ assert.match(gps,/startFused\(generation\)/);
+ assert.match(gps,/recoveryAttempts < 3/);
+ assert.match(gps,/receiverStatus\("native-retry"\)/);
+ assert.match(gps,/startLegacy\(generation, alternateProvider = true\)/);
+ assert.match(gps,/private fun clearLegacyUpdates\(\)/);
+ assert.match(gps,/lm.removeUpdates\(old\)/);
+ assert.match(gps,/listener === this/);
+ assert.match(gps,/!active \|\| callbackGeneration != generation/);
+ assert.doesNotMatch(gps,/PowerManager\.WakeLock|WAKE_LOCK/);
 });
