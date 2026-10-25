@@ -1,72 +1,107 @@
-/* v819 · Family Guard Premium Glass, same MapLibre map in compact and immersive modes. */
+/* v821 · Family Guard compact Premium Glass search, matched to top-right map actions.
+ * Only visual layout: preserve v819 Photon, voice, map, fullscreen and Smart Travel behavior.
+ * The search panel inherits the active Zsolt blue / Monika pink profile.
+ */
 .map-card{overflow:visible}
 .hh-map-search-v819{
- position:absolute;z-index:25;left:11px;right:11px;bottom:12px;
- display:grid;gap:7px;max-width:calc(100% - 22px);
- padding:9px;border:1px solid var(--guard-ring,rgba(143,211,255,.4));
- border-radius:19px;background:linear-gradient(145deg,rgba(10,31,63,.94),rgba(7,22,47,.96));
- -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
- box-shadow:0 7px 24px rgba(1,8,22,.66),inset 0 1px rgba(255,255,255,.19);
- box-sizing:border-box;color:#f0faff;
+ --hh-map-tint:linear-gradient(145deg,rgba(75,139,197,.75),rgba(21,70,122,.82));
+ --hh-map-input:rgba(36,87,139,.68);
+ --hh-map-action:linear-gradient(143deg,rgba(69,136,191,.81),rgba(25,76,131,.88));
+ --hh-map-highlight:rgba(173,229,255,.47);
+ --hh-map-softshadow:rgba(6,27,63,.30);
+ position:absolute;z-index:25;left:50%;right:auto;bottom:9px;
+ transform:translateX(-50%);
+ display:grid;gap:3px;width:min(88%,440px);max-width:calc(100% - 20px);
+ padding:5px 7px;border:0;border-radius:16px;
+ background:var(--hh-map-tint);
+ -webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15);
+ box-shadow:0 5px 18px var(--hh-map-softshadow),inset 0 1px 0 rgba(255,255,255,.22);
+ box-sizing:border-box;color:#f1faff;
 }
 :root[data-guardian-profile="m"] .hh-map-search-v819{
- background:linear-gradient(145deg,rgba(52,25,64,.95),rgba(26,18,47,.97));
+ --hh-map-tint:linear-gradient(145deg,rgba(179,113,171,.78),rgba(88,48,124,.85));
+ --hh-map-input:rgba(133,71,140,.65);
+ --hh-map-action:linear-gradient(143deg,rgba(174,111,175,.85),rgba(105,63,141,.90));
+ --hh-map-highlight:rgba(255,210,241,.48);
+ --hh-map-softshadow:rgba(56,24,75,.32);
 }
-.hh-map-search-row-v819{display:flex;align-items:center;gap:6px;min-width:0}
+.hh-map-search-row-v819{display:flex;align-items:center;gap:5px;min-width:0}
+.hh-map-search-icon-v819{display:none}
 .hh-map-search-input-v819{
- flex:1;min-width:0;min-height:45px;box-sizing:border-box;
- border-radius:12px;border:1px solid rgba(152,214,251,.47);
- background:rgba(3,16,36,.67);color:#fff;
- font:600 14px/1.4 system-ui,sans-serif;padding:0 12px;
+ flex:1;min-width:0;width:100%;height:39px;min-height:39px;box-sizing:border-box;
+ border-radius:12px;border:1px solid var(--hh-map-highlight);
+ background:var(--hh-map-input);color:#fff;
+ font:610 13px/1.25 system-ui,sans-serif;padding:0 10px;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13);
+ -webkit-appearance:none;appearance:none;
 }
-.hh-map-search-input-v819::placeholder{color:#c1d5e5;opacity:.93}
+.hh-map-search-input-v819::placeholder{color:rgba(250,252,255,.86);opacity:1}
 .hh-map-search-input-v819:focus{outline:2px solid var(--guard-cyan,#80d5fc);outline-offset:1px}
-.hh-map-search-icon-v819{font-size:18px;color:var(--guard-cyan);padding-inline:3px}
 .hh-map-search-row-v819>button{
- flex:none;min-width:43px;min-height:45px;padding:0 9px;border-radius:12px;
- border:1px solid rgba(157,223,255,.46);background:rgba(38,82,122,.78);
- font:750 19px system-ui;color:#fff;cursor:pointer;touch-action:manipulation;
+ flex:0 0 39px;width:39px;min-width:39px;height:39px;min-height:39px;padding:0;
+ display:grid;place-items:center;
+ border-radius:12px;border:1px solid var(--hh-map-highlight);background:var(--hh-map-action);
+ color:#fff;font:740 17px/1 system-ui;cursor:pointer;touch-action:manipulation;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.23),0 2px 8px rgba(2,15,38,.16);
 }
 .hh-map-search-row-v819>button:last-child{
- border-color:rgba(156,247,219,.69);background:linear-gradient(140deg,#177d9c,#0d566f)
+ background:var(--hh-map-action);border-color:var(--hh-map-highlight);
 }
-.hh-map-search-row-v819>button:disabled{opacity:.42}
-.hh-map-search-row-v819>button.listening{background:linear-gradient(130deg,#b25177,#7f305d)}
-.hh-map-search-status-v819{margin:0;padding:0 4px;color:#bedced;font:600 10px/1.35 system-ui}
+.hh-map-search-row-v819>button:focus-visible,.hh-map-search-nav-v819:focus-visible{
+ outline:2px solid #fff;outline-offset:2px
+}
+.hh-map-search-row-v819>button:disabled{opacity:.43}
+.hh-map-search-row-v819>button.listening{background:linear-gradient(140deg,#d16b9a,#96427d)}
+.hh-map-search-status-v819{
+ margin:0 3px;min-width:0;padding:0;color:rgba(241,249,255,.81);
+ font:520 9px/1.2 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .hh-map-search-hits-v819{
- position:absolute;left:0;right:0;bottom:calc(100% + 8px);z-index:30;
- max-height:min(39dvh,330px);overflow:auto;overscroll-behavior:contain;
- padding:5px;border:1px solid var(--guard-ring,rgba(145,212,255,.4));
- border-radius:16px;background:rgba(8,27,56,.97);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
- box-shadow:0 10px 27px rgba(0,0,0,.52);
+ position:absolute;left:0;right:0;bottom:calc(100% + 7px);z-index:30;
+ max-height:min(37dvh,310px);overflow:auto;overscroll-behavior:contain;
+ padding:5px;border:1px solid var(--hh-map-highlight);border-radius:15px;
+ background:linear-gradient(160deg,rgba(30,68,107,.97),rgba(9,34,69,.98));
+ -webkit-backdrop-filter:blur(19px);backdrop-filter:blur(19px);
+ box-shadow:0 8px 23px rgba(2,13,38,.40);
 }
 .hh-map-search-hits-v819[hidden]{display:none}
-:root[data-guardian-profile="m"] .hh-map-search-hits-v819{background:rgba(45,26,59,.97)}
+:root[data-guardian-profile="m"] .hh-map-search-hits-v819{
+ background:linear-gradient(160deg,rgba(115,64,133,.97),rgba(53,30,84,.98))
+}
 .hh-map-search-hit-v819{
- width:100%;border:0;border-bottom:1px solid rgba(156,217,245,.13);
- color:#f1f8ff;background:transparent;padding:10px 7px;display:flex;gap:9px;align-items:center;
- text-align:left;min-height:56px;border-radius:8px;cursor:pointer;
+ width:100%;border:0;border-bottom:1px solid rgba(210,234,255,.15);
+ color:#f4fbff;background:transparent;padding:9px 7px;
+ display:flex;gap:8px;align-items:center;text-align:left;min-height:52px;
+ border-radius:8px;cursor:pointer
 }
 .hh-map-search-hit-v819:last-child{border-bottom:0}
-.hh-map-search-hit-v819:hover,.hh-map-search-hit-v819:focus-visible{background:rgba(113,183,237,.17);outline:1px solid rgba(137,219,255,.46)}
+.hh-map-search-hit-v819:hover,.hh-map-search-hit-v819:focus-visible{
+ background:rgba(209,233,255,.15);outline:1px solid var(--hh-map-highlight)
+}
 .hh-map-search-hit-text-v819{display:grid;gap:2px;flex:1;min-width:0}
-.hh-map-search-hit-text-v819 strong{font:750 12px/1.3 system-ui;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
-.hh-map-search-hit-text-v819 small{font:550 10px/1.3 system-ui;color:#bfd4e8;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.hh-map-search-hit-text-v819 strong{
+ font:750 12px/1.3 system-ui;white-space:nowrap;text-overflow:ellipsis;overflow:hidden
+}
+.hh-map-search-hit-text-v819 small{
+ font:550 10px/1.3 system-ui;color:#d2e3f4;white-space:nowrap;text-overflow:ellipsis;overflow:hidden
+}
 .hh-map-search-exit-v819{
  position:absolute;top:11px;left:11px;z-index:35;
- background:rgba(8,30,61,.94);border:1px solid var(--guard-ring,rgba(164,210,255,.5));
- border-radius:13px;color:#fff;min-height:43px;padding:0 14px;
- font:780 12px system-ui;cursor:pointer;box-shadow:0 5px 16px rgba(0,0,0,.33);
+ background:rgba(19,56,93,.91);border:1px solid var(--guard-ring,rgba(164,210,255,.5));
+ border-radius:13px;color:#fff;min-height:42px;padding:0 12px;
+ font:770 12px system-ui;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.28);
  -webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px)
 }
+:root[data-guardian-profile="m"] .hh-map-search-exit-v819{background:rgba(89,48,123,.93)}
 .hh-map-search-exit-v819[hidden],.hh-map-search-nav-v819[hidden]{display:none!important}
 .hh-map-search-nav-v819{
- min-height:43px;border:1px solid rgba(138,253,213,.6);border-radius:12px;
- background:linear-gradient(120deg,#157f81,#086d72);color:white;font:790 13px system-ui;
+ min-height:41px;border:1px solid var(--hh-map-highlight);border-radius:11px;
+ background:var(--hh-map-action);color:white;font:780 12px system-ui;
  cursor:pointer;touch-action:manipulation
 }
 .hh-map-search-pin-v819{font-size:27px;filter:drop-shadow(0 2px 7px rgba(0,0,0,.65))}
-.map-card .maplibregl-ctrl-bottom-right{bottom:92px!important}
+/* Keep native map controls above the new compact panel, rather than behind it. */
+body .map-card #guardianMap .maplibregl-ctrl-bottom-right{bottom:73px!important}
 .map-card.hh-map-full-v819,.map-card:fullscreen{
  position:fixed!important;inset:0!important;z-index:100000!important;
  width:100vw!important;max-width:none!important;height:100dvh!important;
@@ -80,15 +115,20 @@ body.hh-map-full-v819{overflow:hidden!important}
  height:100%!important;min-height:0!important;width:100%!important;
  border-radius:0!important
 }
+/* Reuse the same centered compact search, with safe margins on S24 Ultra. */
 .map-card.hh-map-full-v819 .hh-map-search-v819,.map-card:fullscreen .hh-map-search-v819{
- bottom:calc(10px + env(safe-area-inset-bottom));left:12px;right:12px;
+ bottom:calc(9px + env(safe-area-inset-bottom));left:50%;right:auto
 }
-.map-card.hh-map-full-v819 #guardianMapLabel,.map-card:fullscreen #guardianMapLabel{top:68px!important}
-.map-card.hh-map-full-v819 .maplibregl-ctrl-bottom-right,.map-card:fullscreen .maplibregl-ctrl-bottom-right{
- bottom:calc(100px + env(safe-area-inset-bottom))!important;
+.map-card.hh-map-full-v819 #guardianMapLabel,.map-card:fullscreen #guardianMapLabel{
+ top:68px!important
+}
+/* Fullscreen has the extra Navigate row: move controls higher accordingly. */
+body .map-card.hh-map-full-v819 #guardianMap .maplibregl-ctrl-bottom-right,
+body .map-card:fullscreen #guardianMap .maplibregl-ctrl-bottom-right{
+ bottom:calc(114px + env(safe-area-inset-bottom))!important
 }
 @media(max-width:385px){
- .hh-map-search-v819{left:7px;right:7px;max-width:calc(100% - 14px);padding:6px}
- .hh-map-search-row-v819>button{min-width:40px;min-height:43px;padding:0 7px}
- .hh-map-search-input-v819{font-size:13px;padding:0 9px}
+ .hh-map-search-v819{width:92%;max-width:calc(100% - 16px);padding:5px 6px}
+ .hh-map-search-row-v819>button{width:38px;min-width:38px;flex-basis:38px;height:39px;min-height:39px}
+ .hh-map-search-input-v819{font-size:12px;padding:0 8px}
 }
