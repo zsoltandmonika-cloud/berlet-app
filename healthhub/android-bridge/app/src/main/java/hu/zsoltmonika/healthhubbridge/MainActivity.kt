@@ -1402,23 +1402,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun getAccessToken(): String {
-        val existing = prefs.getString("dropbox_access_token", null)
-        val exp = prefs.getLong("dropbox_access_expires", 0L)
-        if (!existing.isNullOrBlank() && exp > System.currentTimeMillis() + 60_000L) return existing
-
-        val refresh = prefs.getString("dropbox_refresh_token", null)
-            ?: error("Dropbox nincs csatlakoztatva")
-        val j = withContext(Dispatchers.IO) { refreshAccessToken(refresh) }
-        val access = j.optString("access_token")
-        val expires = j.optLong("expires_in", 14400L)
-        if (access.isBlank()) error("Dropbox access token hiányzik")
-        prefs.edit()
-            .putString("dropbox_access_token", access)
-            .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
-            .apply()
-        return access
-    }
+    // Route all native manual and scheduled Dropbox operations through the same
+    // serialized credential authority; avoid competing refresh writes.
+    private suspend fun getAccessToken(): String = DropboxVaultClient.accessToken(prefs)
 
     private fun exchangeCode(code: String, verifier: String): JSONObject {
         val body = form(
