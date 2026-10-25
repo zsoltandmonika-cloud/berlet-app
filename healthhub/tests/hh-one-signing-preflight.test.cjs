@@ -37,8 +37,8 @@ const isExactPrivatePilot=manifest.version==='0.15.2'&&manifest.versionCode===29
 assert.ok(isExistingRelease||isNextSignedRelease||isExactPrivatePilot,
  'preflight accepts signed baseline, next candidate or exact 0.15.5 private pilot');
 if(isExactPrivatePilot){
- assert.ok(yml.includes('"NEW_VERSION" == "0.15.5"'));
- assert.ok(yml.includes('"NEW_CODE" == "32"'));
+ assert.ok(yml.includes('"$NEW_VERSION" == "0.15.5"'));
+ assert.ok(yml.includes('"$NEW_CODE" == "32"'));
  assert.ok(yml.includes('"$VERSION" == "0.15.5"'));
  assert.ok(yml.includes('"$CODE" == "32"'));
 }
