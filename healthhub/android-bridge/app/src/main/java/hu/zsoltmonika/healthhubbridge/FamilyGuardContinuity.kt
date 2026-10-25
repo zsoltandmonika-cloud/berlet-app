@@ -11,7 +11,8 @@ import androidx.core.content.ContextCompat
 
 /**
  * Boot recovery of PREVIOUSLY APPROVED native GPS continuity and resilient sync.
- * Never grants permissions, starts camera/microphone, changes owner or shares coordinates.
+ * Never grants permissions, starts camera/microphone, or changes phone owner.
+ * Native coordinate sharing requires a separate visible consent and Dropbox auth.
  * Android background launch restrictions are checked before attempting location FGS.
  */
 object FamilyGuardContinuity {
@@ -51,6 +52,7 @@ object FamilyGuardContinuity {
     fun setApproved(context: Context, allow: Boolean) {
         prefs(context).edit().putBoolean(KEY_AUTO_GPS, allow)
             .putBoolean(KEY_REMOTE_STOP, allow).apply()
+        if (!allow) FamilyGuardNativeRelay.disable(context)
     }
 
     /** Explicit owner stop, local notification stop, or owner-approved remote STOP. */
@@ -58,6 +60,7 @@ object FamilyGuardContinuity {
         // A STOP permanently cancels automatic GPS, but an explicitly approved
         // future SOS/resume *request* can still notify the owner until revoked.
         prefs(context).edit().putBoolean(KEY_AUTO_GPS, false).apply()
+        FamilyGuardNativeRelay.disable(context)
         context.stopService(Intent(context, Sh9GpsService::class.java))
     }
 
