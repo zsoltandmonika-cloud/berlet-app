@@ -214,7 +214,9 @@ class Sh9GpsService : Service() {
             val client = LocationServices.getFusedLocationProviderClient(this)
             val callback = object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
-                    if (!active || callbackGeneration != generation) return
+                    // A cancelled FLP callback must not publish after fallback.
+                    if (!active || callbackGeneration != generation ||
+                        fusedCallback !== this) return
                     result.lastLocation?.let { processFix(it, generation) }
                 }
             }
