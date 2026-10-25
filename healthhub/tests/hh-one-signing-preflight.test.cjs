@@ -32,8 +32,16 @@ const isExistingRelease=gradle.includes('versionName = "'+manifest.version+'"')&
  gradle.includes('versionCode = '+manifest.versionCode);
 const isNextSignedRelease=allowedNextVersions.some(v=>gradle.includes('versionName = "'+v+'"'))&&
  gradle.includes('versionCode = '+(manifest.versionCode+1));
-assert.ok(isExistingRelease||isNextSignedRelease,
- 'preflight accepts current signed baseline, next patch or next minor with incremented versionCode');
+const isExactPrivatePilot=manifest.version==='0.15.2'&&manifest.versionCode===29&&
+ gradle.includes('versionName = "0.15.5"')&&gradle.includes('versionCode = 32');
+assert.ok(isExistingRelease||isNextSignedRelease||isExactPrivatePilot,
+ 'preflight accepts signed baseline, next candidate or exact 0.15.5 private pilot');
+if(isExactPrivatePilot){
+ assert.ok(yml.includes('"NEW_VERSION" == "0.15.5"'));
+ assert.ok(yml.includes('"NEW_CODE" == "32"'));
+ assert.ok(yml.includes('"$VERSION" == "0.15.5"'));
+ assert.ok(yml.includes('"$CODE" == "32"'));
+}
 assert.ok(yml.includes('stage_candidate'),'preflight must explicitly skip candidate creation for profile-only rollout');
 for(const needle of [
  'healthhub/data/bridge-ota.json','BASE_VERSION','BASE_CODE','NEW_CODE',
