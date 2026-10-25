@@ -78,6 +78,14 @@ jobs:
             echo "Read-only rollout extension: existing signed release v$BASE_VERSION."
           elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && ( "$NEW_VERSION" == "$NEXT_VERSION" || "$NEW_VERSION" == "$NEXT_MINOR" ) ]]; then
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$BASE_VERSION" == "0.15.2" && "$BASE_CODE" == "29" &&
+                  "$NEW_VERSION" == "0.15.4" && "$NEW_CODE" == "31" ]]; then
+            # v0.15.3/build 30 was already signed and installed as a PRIVATE
+            # pilot artifact, but never published as an OTA. A follow-up native
+            # navigation hotfix must increment versionCode for in-place install.
+            # This exact exception stages an artifact ONLY, not an OTA release.
+            echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
+            echo "Private signed pilot hotfix v0.15.4 accepted; public OTA baseline unchanged."
           else
             echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch or minor version."
             exit 1
@@ -193,8 +201,14 @@ jobs:
           )
           NEXT="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[-1]=str(int(a[-1])+1); print(".".join(a))' "${BASE[0]}")"
           NEXT_MINOR="$(python3 -c 'import sys; a=sys.argv[1].split("."); a[1]=str(int(a[1])+1); a[2]="0"; print(".".join(a))' "${BASE[0]}")"
+          VERSION_ALLOWED=false
+          if [[ ( "$VERSION" == "$NEXT" || "$VERSION" == "$NEXT_MINOR" ) &&
+                "$CODE" == "$((BASE[1]+1))" ]]; then VERSION_ALLOWED=true; fi
+          # The only two-step skip permitted is the private 0.15.3 pilot hotfix.
+          if [[ "${BASE[0]}" == "0.15.2" && "${BASE[1]}" == "29" &&
+                "$VERSION" == "0.15.4" && "$CODE" == "31" ]]; then VERSION_ALLOWED=true; fi
           if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
-             [[ ( "$VERSION" != "$NEXT" && "$VERSION" != "$NEXT_MINOR" ) || "$CODE" != "$((BASE[1]+1))" ]]; then
+             [[ "$VERSION_ALLOWED" != "true" ]]; then
             echo "::error::Incorrect Android package/version; signed candidate rejected."
             exit 1
           fi
