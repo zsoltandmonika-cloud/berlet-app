@@ -21,7 +21,7 @@ test('v819 search is over the SAME MapLibre map and expands it on a verified res
   'guardianMapSearchMicV819','guardianMapSearchGoV819','guardianMapSearchExitV819',
   'guardianMapSearchNavigateV819'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,'missing '+id);
- assert.match(html,/guardian-map-search-v819\.css\?v=819-glass-fullscreen/);
+ assert.match(html,/guardian-map-search-v819\.css\?v=821-compact-profile-glass/);
  assert.match(html,/guardian-map-search-v819\.js\?v=819-search-fullscreen/);
  assert.match(code,/getMap|const map=\(\)=>w\.HH_GUARDIAN_V761&&w\.HH_GUARDIAN_V761\.map/);
  assert.match(code,/if\(!g\|\|!g\.validPlace\(place\)\)return false/);
@@ -64,4 +64,20 @@ test('v820 selecting a verified address pauses map camera follow but not GPS col
   address.indexOf('pauseCameraForMapSearch'),'reject fake coordinates before camera change');
  assert.ok(address.indexOf('pauseCameraForMapSearch')<
   address.indexOf("new w.CustomEvent('hh-guardian-map-destination-v819'"));
+});
+
+test('v821 glass search is compact, profile-tinted and preserves fullscreen UX',()=>{
+ const css=read('guardian-map-search-v819.css');
+ const html=read('index.html');
+ assert.match(html,/guardian-map-search-v819\.css\?v=821-compact-profile-glass/);
+ assert.match(css,/width:min\(88%,440px\)/,'bar should be shorter than map width');
+ assert.match(css,/height:39px;min-height:39px/,'low controls');
+ assert.match(css,/padding:5px 7px;border:0/,'no thick purple outer ring');
+ assert.match(css,/:root\[data-guardian-profile="m"\] \.hh-map-search-v819/,'Mónika pink skin');
+ assert.match(css,/--hh-map-action:/,'glassy action tones');
+ assert.match(css,/--hh-map-input:/,'glass input background');
+ assert.match(css,/\.hh-map-search-hits-v819\[hidden\]/,'suggestion collapse preserved');
+ assert.match(css,/hh-map-search-nav-v819\[hidden\]/,'routing action visibility preserved');
+ assert.match(css,/safe-area-inset-bottom/,'full-size S24 safe area');
+ assert.match(css,/body \.map-card #guardianMap \.maplibregl-ctrl-bottom-right/,'map controls stay visible above bar');
 });
