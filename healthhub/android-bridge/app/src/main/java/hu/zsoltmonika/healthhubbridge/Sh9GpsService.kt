@@ -89,6 +89,7 @@ class Sh9GpsService : Service() {
                 override fun onLocationChanged(location: Location) {
                     // Keep only a non-sensitive activity timestamp; never persist positions.
                     lastFixAtMillis = System.currentTimeMillis()
+                    FamilyGuardNativeRelay.publish(this@Sh9GpsService, location)
                 }
                 override fun onProviderDisabled(provider: String) {
                     if (provider == LocationManager.GPS_PROVIDER) finishService()
@@ -119,7 +120,9 @@ class Sh9GpsService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return Notification.Builder(this, CHANNEL)
             .setContentTitle("SH9 · GPS aktív")
-            .setContentText("Helymeghatározás: " + interval(this) + " mp · leállítható")
+            .setContentText(if (FamilyGuardNativeRelay.enabled(this))
+                "Családi helymegosztás aktív · azonnal leállítható"
+                else "Natív helymeghatározás: " + interval(this) + " mp · leállítható")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(content)
             .setOngoing(true)
@@ -131,7 +134,7 @@ class Sh9GpsService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel(CHANNEL, "SH9 GPS aktív utazás",
                 NotificationManager.IMPORTANCE_LOW).apply {
-                description = "Utazási helymeghatározás, mindig leállítható"
+                description = "Családi helymeghatározás, bármikor leállítható"
             })
     }
 
