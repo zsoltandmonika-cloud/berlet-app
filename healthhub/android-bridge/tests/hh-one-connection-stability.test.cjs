@@ -35,3 +35,10 @@ test('native GPS is opt-in and not a background Family Guard publisher', () => {
   assert.match(gps, /GPS leállítása/);
   assert.doesNotMatch(gps, /hh_guardian_live_locations|publishLocation|uploadLocation/);
 });
+
+test('persistent Dropbox diagnostics never store raw HTTP bodies or OAuth text', () => {
+  assert.match(resilient, /putString\(ResilientHealthSync\.KEY_LAST_ERROR, category\)/);
+  assert.doesNotMatch(resilient, /putString\(ResilientHealthSync\.KEY_LAST_ERROR, msg\)/);
+  assert.match(resilient, /HTTP 429/);
+  assert.match(resilient, /Hálózati vagy kapcsolat-időtúllépési hiba/);
+});
