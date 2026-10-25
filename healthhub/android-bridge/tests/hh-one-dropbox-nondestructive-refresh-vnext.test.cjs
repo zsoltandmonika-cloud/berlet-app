@@ -39,7 +39,7 @@ test('native access token refresh is single flight and rejects an outdated grant
 test('manual sync uses identical token refresh authority, no redundant network path',()=>{
   assert.match(main,/private suspend fun getAccessToken\(\): String = DropboxVaultClient\.accessToken\(prefs\)/);
   assert.doesNotMatch(main,/private fun refreshAccessToken\(/);
-  assert.match(main,/DropboxVaultClient\.storeAuthorizedGrant\(prefs, refresh, access, expires\)/);
+  assert.match(main,/DropboxVaultClient\.storeAuthorizedGrant\(prefs, refresh, access, expires, state, verifier\)/);
 });
 test('OAuth callback must stay on same state/verifier and authorized owner before committing',()=>{
   const callback=main.split('private fun handleDropboxCallback(')[1].split('private suspend fun getAccessToken(')[0];
@@ -50,6 +50,8 @@ test('OAuth callback must stay on same state/verifier and authorized owner befor
     callback.indexOf('DropboxVaultClient.storeAuthorizedGrant('));
   const grant=vault.split('suspend fun storeAuthorizedGrant(')[1].split('suspend fun accessToken(')[0];
   assert.match(grant,/tokenRefreshLock\.withLock/);
+  assert.match(grant,/prefs\.getString\("dropbox_oauth_state", null\) == expectedState/);
+  assert.match(grant,/prefs\.getString\("dropbox_pkce_verifier", null\) == expectedVerifier/);
   assert.match(grant,/putString\(CLIENT_MARKER, APP_KEY\)/);
   assert.match(grant,/remove\("dropbox_oauth_state"\)/);
   assert.match(grant,/remove\("dropbox_pending_profile"\)/);
