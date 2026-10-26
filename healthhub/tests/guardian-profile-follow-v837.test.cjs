@@ -106,3 +106,31 @@ test('v837 adds only read-only follow and keeps the approved Family Guard design
  assert.match(css,/\.hh-guardian-local-superseded-v837/);
  assert.doesNotMatch(src,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(|\.delete\(|\bsetItem\(|\bupload\(/);
 });
+
+test('v838 GPS family portraits sit above map pins without altering Follow or UX',()=>{
+ const html=read('index.html'),css=read('guardian-profile-foreground-v838.css');
+ const accepted=read('guardian-profile-follow-v837.css');
+ const guardian=read('guardian.js');
+ const live=read('guardian-live-v785.js');
+ const own=read('guardian-profile-follow-v837.js');
+ assert.match(html,/guardian-profile-foreground-v838\.css\?v=838-gps-portraits-top/);
+ assert.ok(html.indexOf('guardian-profile-foreground-v838.css')>
+  html.indexOf('guardian-profile-follow-v837.css'),'foreground is the final profile-pin layer');
+ assert.match(css,/#guardianMap \.maplibregl-marker\.guardian-position\{/);
+ assert.match(css,/z-index:80!important/);
+ assert.match(css,/\.guardian-position\.guardian-peer-position\{/);
+ assert.match(css,/z-index:81!important/);
+ assert.match(css,/\.guardian-position\.guardian-selected-profile-position-v837\{/);
+ assert.match(css,/z-index:82!important/);
+ assert.match(css,/\.guardian-position\.hh-guardian-local-superseded-v837/);
+ assert.match(accepted,/display:none!important/,'previous superseded-browser-marker remains hidden');
+ assert.match(guardian,/className='guardian-position'/);
+ assert.match(live,/className='guardian-position guardian-peer-position'/);
+ assert.match(own,/className='guardian-position guardian-selected-profile-position-v837'/);
+ assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family|maplibregl-ctrl|#guardianMapSearch|#guardianMapOrigin|#guardianHHNav|guardian-hero/);
+ assert.match(css,/pointer-events:none!important/,'no new tap interception');
+ assert.doesNotMatch(css,/transform|top:|left:|bottom:|position:/,'do not move the real GPS anchor');
+ assert.match(html,/guardian-attribution-dot-v834\.css/);
+ assert.match(html,/guardian-zoom-center-v835\.css/);
+ assert.match(html,/guardian-origin-search-v836\.css/);
+});

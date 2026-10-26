@@ -1,0 +1,20 @@
+/* Family Guard v838 · GPS profile portraits are always on top of map pins.
+ * Marker stacking only. Keeps the verified GPS coordinates, 3D basemap,
+ * Premium Glass overlays, zoom, attribution, routing and camera unchanged.
+ * In MapLibre the marker DOM node itself is .maplibregl-marker, so the
+ * z-index belongs on THAT element, not just on its child photo/label.
+ */
+#guardianMap .maplibregl-marker.guardian-position{
+ z-index:80!important;
+ pointer-events:none!important;
+}
+#guardianMap .maplibregl-marker.guardian-position.guardian-peer-position{
+ z-index:81!important;
+}
+#guardianMap .maplibregl-marker.guardian-position.guardian-selected-profile-position-v837{
+ z-index:82!important;
+}
+/* v837 deliberately hides superseded browser fixes, even in frontmost layer. */
+#guardianMap .maplibregl-marker.guardian-position.hh-guardian-local-superseded-v837{
+ display:none!important;
+}
