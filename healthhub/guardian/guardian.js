@@ -4,7 +4,7 @@
 const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
 let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
-let gpsSession=0,fallbackAttempted=false,fallbackPending=false;
+let gpsSession=0,fallbackAttempted=false,fallbackPending=false,lastBrowserFixAt=0;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -141,7 +141,11 @@ function onPosition(pos){
    marker=new w.maplibregl.Marker({element:makeOwnPositionNode(),anchor:'bottom'})
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
-  if(follow)map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
+  lastBrowserFixAt=ts;
+  w.HH_GUARDIAN_V761?.setRemoteMarkerPreferred?.(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.ready);
+  const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+  if(follow&&!remote?.ready)
+   map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(!hasFix){
   w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('inaccurate',accuracy);
@@ -247,6 +251,12 @@ function applyView(){
  map.easeTo({pitch:threeD?58:0,bearing:threeD?-21:0,duration:620});
 }
 function locationSettings(){return {follow_map:follow,map_3d:threeD}}
+function setRemoteMarkerPreferred(yes){
+ if(marker&&marker.getElement){
+  const el=marker.getElement();
+  if(el&&el.classList)el.classList.toggle('hh-guardian-local-superseded-v837',!!yes);
+ }
+}
 function notifySettings(){try{if(typeof w.CustomEvent==='function')d.dispatchEvent(new w.CustomEvent('hh-guardian-location-settings-changed'))}catch(_){}}
 function applyLocationSettings(settings){
  if(settings&&typeof settings.follow_map==='boolean')follow=settings.follow_map;
@@ -259,9 +269,12 @@ function pauseCameraForMapSearch(){
  follow=false;renderButtons();notifySettings();return true;
 }
 function startFollowing(){
- follow=true;renderButtons();
- notifySettings();
+ follow=true;renderButtons();notifySettings();
+ // The existing consented auto-share flow MUST still start this device's own
+ // browser GPS; remote coordinates never substitute for a local GPS uploader.
  if(!active){start();return}
+ const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+ if(remote?.ready&&remote.requestFollow())return;
  if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
 }
 function toggle3D(){
@@ -270,12 +283,22 @@ function toggle3D(){
  notifySettings();
 }
 function enableFollow(){
- // A deliberate tap on Follow also starts this device's GPS if currently stopped.
- // Permission is still requested by the browser; never start location on page load.
- if(!active){follow=true;renderButtons();start();notifySettings();return}
- follow=!follow;renderButtons();
- if(follow&&marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
- notifySettings();
+ const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+ // Following a verified profile signal moves only the camera, not phone binding.
+ if(!active){
+  follow=true;renderButtons();notifySettings();
+  if(remote?.requestFollow())return;
+  // Switching profiles must never start this physical phone's GPS for another owner.
+  if(remote?.preventWrongDeviceGps()){
+   report('A kiválasztott profil friss megosztott GPS-jelére várunk.');
+   return;
+  }
+  start();return;
+ }
+ follow=!follow;renderButtons();notifySettings();
+ if(follow&&remote?.requestFollow())return;
+ if(follow&&marker&&map)
+  map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
 }
 function toggleFamily(){
  const panel=$('guardianFamilyPanel'),button=$('guardianFamilyButton');
@@ -306,7 +329,7 @@ function switchProfile(){
  // A previous owner's route and GPS marker must never be relabelled.
  stop();clear();
  if(marker){marker.remove();marker=null}
- follow=true;hasFix=false;
+ follow=true;hasFix=false;lastBrowserFixAt=0;
  try{w.localStorage.setItem('hh-profile',next)}catch(e){report('A profilváltás most nem menthető el.');return}
  tapSound();theme();renderButtons();applyGoldenMapStyle();
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
@@ -493,7 +516,7 @@ if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
 d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop(true);report('A böngésző GPS-e szünetel · az utolsó ismert családi hely megmarad.')}});
 w.addEventListener('pagehide',()=>stop(true));
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
- stop();clear();if(marker){marker.remove();marker=null}hasFix=false;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
+ stop();clear();if(marker){marker.remove();marker=null}hasFix=false;lastBrowserFixAt=0;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  if(map&&ready)applyGoldenMapStyle();
 }});
@@ -504,5 +527,5 @@ const familyPanel=$('guardianFamilyPanel'),familyButton=$('guardianFamilyButton'
 if(familyPanel)familyPanel.hidden=false;
 if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,get map(){return map},get active(){return active},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get pointCount(){return path.length}});
 })(window,document);

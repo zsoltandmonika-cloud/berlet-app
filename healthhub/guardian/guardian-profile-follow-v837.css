@@ -1,0 +1,6 @@
+/* Family Guard v837 · Only de-duplicate a local browser marker when
+ * an authorized newer native/shared own-profile marker is on screen.
+ * No changes to the premium glass controls, camera, zoom or attribution. */
+#guardianMap .guardian-position.hh-guardian-local-superseded-v837{
+ display:none!important;
+}
