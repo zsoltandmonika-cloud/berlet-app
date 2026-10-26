@@ -67,6 +67,7 @@ jobs:
           node --check healthhub/tests/smart-hub-go-v805.test.cjs
           node --check healthhub/guardian/guardian-smart-hub-fields-v806.js
           node --check healthhub/guardian/guardian-map-search-v819.js
+          node --check healthhub/guardian/guardian-map-dock-fill-v828.js
           node --check healthhub/tests/guardian-map-search-v819.test.cjs
           node --check healthhub/guardian/guardian-smart-hub-network-v806.js
           node --check healthhub/tests/smart-hub-v806.test.cjs
