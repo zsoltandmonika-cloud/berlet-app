@@ -48,7 +48,7 @@
   const live=()=>w.HH_GUARDIAN_LIVE_V785;
   const guardian=()=>w.HH_GUARDIAN_V761;
   const getMap=()=>guardian()?.map;
-  let latest=null,marker=null,run=0,loading=false,lastCenteredAt=0;
+  let latest=null,marker=null,run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false;
   const selected=()=>selectedProfile(w.localStorage);
   const bound=()=>live()?.boundProfile;
@@ -60,7 +60,7 @@
    guardian()?.setRemoteMarkerPreferred?.(false);
   }
   function invalidate(){
-   run++;latest=null;followRequest=false;clearMarker();
+   run++;latest=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
   }
   function current(){
    return authorized()&&!d.hidden&&!!latest&&latest.profile===selected()&&
@@ -70,10 +70,10 @@
    if(!current()||!followOn())return false;
    const map=getMap();
    if(!map||typeof map.easeTo!=='function')return false;
-   if(force||latest.ts!==lastCenteredAt){
+   if(force||latest.ts!==lastCenteredAt||latest.profile!==lastCenteredProfile){
     map.easeTo({center:[latest.lng,latest.lat],
      zoom:Math.max(map.getZoom?.()||15,15.3),duration:force?640:820});
-    lastCenteredAt=latest.ts;
+    lastCenteredAt=latest.ts;lastCenteredProfile=latest.profile;
    }
    return true;
   }
@@ -105,8 +105,11 @@
    if(own)own.textContent='🟢 '+fix.source+' · friss profilpozíció';
    if(followOn())focusLatest();
   }
+  // A profile switch can happen while Dropbox or Supabase is still reading
+  // the previous profile. Always run one fresh query once that read finishes.
   async function refresh(){
-   if(loading||d.hidden)return;
+   if(d.hidden)return;
+   if(loading){rerun=true;return;}
    const k=selected(),l=live();
    if(!canRead(l,k)){invalidate();return}
    const client=l?.getClient?.();
@@ -143,7 +146,18 @@
     if(ticket===run&&(!latest||!preferRemote(latest,localFixAt())))clearMarker();
    }finally{
     loading=false;
+    if(rerun){rerun=false;w.setTimeout?.(refresh,0)}
    }
+  }
+  // Called synchronously on EVERY local GPS callback, before the next map
+  // paint. Keep exactly one portrait for this profile: whichever verified
+  // source is freshest. Never allow the older native marker to coexist with
+  // a newly updated, more recent browser GPS portrait.
+  function onLocalGpsFix(){
+   if(!current()){if(marker)clearMarker();return false}
+   if(!marker&&latest)showFix(latest);
+   else guardian()?.setRemoteMarkerPreferred?.(true);
+   return true;
   }
   function requestFollow(){
    followRequest=true;
@@ -163,10 +177,21 @@
   function onProfile(){
    invalidate();refresh();
   }
+  function onMapReady(){
+   if(current()){
+    if(!marker)showFix(latest);
+    if(followOn())focusLatest(true);
+   }else refresh();
+  }
   const switcher=d.getElementById('guardianProfileSwitch');
   switcher?.addEventListener('click',()=>w.setTimeout(onProfile,0));
   w.addEventListener?.('storage',e=>{if(e.key==='hh-profile')onProfile()});
-  w.addEventListener?.('hh-guardian-auth-changed',()=>{invalidate();refresh()});
+  // Token refresh must not flash/delete a still-fresh, authorized portrait.
+  w.addEventListener?.('hh-guardian-auth-changed',()=>{
+   if(!authorized()){invalidate();return}
+   refresh();
+  });
+  w.addEventListener?.('hh-guardian-map-ready-v839',onMapReady);
   d.addEventListener?.('visibilitychange',()=>{
    if(d.hidden){invalidate();return}
    refresh();
@@ -175,8 +200,8 @@
   w.addEventListener?.('pagehide',invalidate);
   w.setInterval?.(refresh,5000);
   refresh();
-  return {refresh,requestFollow,focusLatest,onFollowState,preventWrongDeviceGps,
-   get latest(){return latest},get ready(){return current()}};
+  return {refresh,requestFollow,focusLatest,onFollowState,onLocalGpsFix,
+   preventWrongDeviceGps,get latest(){return latest},get ready(){return current()}};
  }
  let controller=null;
  function start(){
@@ -193,5 +218,6 @@
   focusLatest(force){return controller?.focusLatest(force)||false},
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
   onFollowState(){controller?.onFollowState()},
-  get ready(){return !!controller?.ready},version:'837'};
+  onLocalGpsFix(){return controller?.onLocalGpsFix()||false},
+  get ready(){return !!controller?.ready},version:'837',revision:'839'};
 });
