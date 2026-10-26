@@ -51,6 +51,10 @@ h1{font-size:clamp(24px,6vw,36px);letter-spacing:-1px;line-height:1.11;margin:12
 .daybar.unknown,.daybar.future{border-radius:2px}
 .apps{display:grid;gap:12px;margin-top:14px}.app{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;column-gap:10px;font-size:12px}
 .appicon{width:36px;height:36px;display:grid;place-items:center;background:#263e57;border-radius:12px;font-size:17px}
+/* v515: verified app identity. Official icons are decorative; the text label is
+   retained for screen readers, with emoji fallback on any image error. */
+.appicon.appicon-logo-v515{overflow:hidden;background:rgba(255,255,255,.085);padding:3px;box-sizing:border-box}
+.appicon-original-v515{display:block;width:100%;height:100%;object-fit:contain;border-radius:7px;pointer-events:none}
 .appname{font-weight:750}.appdetail{font-size:10px;color:var(--muted);margin-top:3px}
 .appval{font-variant-numeric:tabular-nums;font-weight:850;font-size:12px}
 #categories{gap:11px}
@@ -277,7 +281,8 @@ body{
 </nav>
 <div class="hhNavToast" id="hhDigitalNavToast" role="status" aria-live="polite" hidden></div>
 <script src="./digital-usage-vault-v507.js?v=510-monday-week"></script>
-<script src="./digital-live-v507.js?v=514-app-category-breakdown"></script>
+<script src="./digital-app-registry-v515.js?v=515-verified-app-icons"></script>
+<script src="./digital-live-v507.js?v=515-global-name-and-icon-registry"></script>
 <script>
 'use strict';
 (function(){
