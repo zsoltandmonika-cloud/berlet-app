@@ -82,6 +82,7 @@
 <link rel="stylesheet" href="./guardian-bkk-pastel-v853.css?v=853-watchlist-catalog-profile">
 <link rel="stylesheet" href="./guardian-trip-flow-v854.css?v=854-compact-offer-timeline">
 <link rel="stylesheet" href="./guardian-bkk-polish-v855.css?v=855-pastel-routes-gold-favorites">
+<link rel="stylesheet" href="./guardian-planner-compact-v856.css?v=856-one-row-saved-predictions">
 </head>
 <body>
 <div class="shell">
@@ -213,16 +214,13 @@
       <div id="hhSmartHubPairedV806" class="hh-smart-hub-paired-v806">
         <div class="hh-smart-hub-field-v806">
           <label for="hhSmartHubFromV806">🚶 HONNAN</label>
-          <input id="hhSmartHubFromV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Indulási hely vagy cím…">
+          <input id="hhSmartHubFromV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Pl. Mónika Munkahely vagy cím…">
         </div>
         <button type="button" id="hhSmartHubSwapV806" class="hh-smart-hub-swap-v806" aria-label="Honnan és Hová helyek felcserélése" title="Helyek felcserélése">⇅ <span>Csere</span></button>
         <div class="hh-smart-hub-field-v806">
           <label for="hhSmartHubToV806">📍 HOVÁ</label>
-          <input id="hhSmartHubToV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Úti cél, például Bécsi Corner…">
+          <input id="hhSmartHubToV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Pl. Otthon vagy mentett cím…">
         </div>
-      </div>
-      <div class="hh-smart-hub-actions-v802">
-        <button type="button" id="hhSmartHubExampleV802" class="hh-smart-hub-example-v802">📍 Próbáld: Bécsi Corner</button>
       </div>
       <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Koppints egy mezőre, majd a találatra. Két hely után automatikusan tervezünk.</p>
       <div id="hhSmartHubNativeResultsV803" class="hh-smart-hub-results-v803" role="list" aria-label="Valós helytalálatok"></div>
@@ -239,9 +237,9 @@
       <section class="hh-smart-hub-routes-v804" aria-label="BKK menetrendi útvonaljavaslatok">
         <div class="hh-smart-trip-title-v804"><strong>🧭 BKK útvonaljavaslatok</strong><small id="hhSmartHubCoverageV806">Ellenőrzött BKK GTFS</small></div>
         <div class="hh-smart-hub-priority-v805" role="group" aria-label="Útvonalválasztás szempontja">
-          <button type="button" id="hhSmartHubPriorityTransfersV805" aria-pressed="true">🔁 Legkevesebb átszállás</button>
-          <button type="button" id="hhSmartHubPriorityWalkingV805" aria-pressed="false">🚶 Kevesebb gyaloglás</button>
-          <button type="button" id="hhSmartHubPriorityWaitingV806" aria-pressed="false" disabled title="Menetrendi és csatlakozási időadatok bekötése után">⏳ Kevesebb várakozás · később</button>
+          <button type="button" id="hhSmartHubPriorityTransfersV805" aria-pressed="true">Kevesebb átszállás</button>
+          <button type="button" id="hhSmartHubPriorityWalkingV805" aria-pressed="false">Kevesebb gyaloglás</button>
+          <button type="button" id="hhSmartHubPriorityWaitingV806" aria-pressed="false" disabled title="Menetrendi és csatlakozási időadatok bekötése után">Kevesebb várakozás</button>
         </div>
         <p id="hhSmartHubTripStatusV804" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Válassz indulási helyet és úti célt.</p>
         <div id="hhSmartHubTripPlansV804" class="hh-smart-hub-plans-v804"></div>
@@ -519,7 +517,7 @@
 <script defer src="./guardian-transit-v791.js?v=855-one-tap-line-visibility"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=855-independent-gold-favorites"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=855-one-tap-show-hide"></script>
-<script defer src="./guardian-smart-hub-fields-v806.js?v=825-script-parser-repair&pin=829"></script>
+<script defer src="./guardian-smart-hub-fields-v806.js?v=856-profile-favorite-predict&pin=829"></script>
 <script defer src="./guardian-map-search-v819.js?v=826-css-only-fullmap"></script>
 <script defer src="./guardian-map-dock-fill-v828.js?v=829-dock-robust"></script>
 <script defer src="./guardian-keyboard-guard-v832.js?v=832-keyboard-safe"></script>
