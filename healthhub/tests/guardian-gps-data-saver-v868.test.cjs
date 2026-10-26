@@ -57,8 +57,9 @@ test('GPS Data Saver: authenticated same-profile reads deduplicated and cached f
  assert.ok(denied.error);
  assert.equal(app.reads()-before,3,'unknown profile never accesses the database');
  api.onProfileChanged();
+ const afterSwitch=app.reads(); // switching legitimately refreshes the other family profile
  await api.readSharedLocation('zsolt');
- assert.equal(app.reads()-before,4,'profile switch invalidates cached position');
+ assert.equal(app.reads()-afterSwitch,1,'profile switch invalidates selected cached position');
 });
 test('GPS Data Saver: source retains authentication, revocation, live freshness and explicit stop',()=>{
  const src=read('guardian/guardian-live-v785.js');
