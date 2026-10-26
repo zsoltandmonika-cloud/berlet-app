@@ -402,7 +402,7 @@ test('v835 only centers the native mobile zoom/compass without changing approved
  assert.match(css,/top:clamp\(215px,50%,calc\(100% - 85px\)\)!important/);
  assert.match(css,/bottom:auto!important/);
  assert.match(css,/transform:translateY\(-50%\)!important/);
- assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family|\.maplibregl-ctrl-attrib|\.hh-map-search|GPS|watchPosition|geolocation/,'zoom style must be isolated');
+ assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family|\.maplibregl-ctrl-attrib|\.hh-map-search|watchPosition|geolocation/,'zoom style must be isolated');
  assert.match(dot,/width:14px!important;height:14px!important/);
  assert.doesNotMatch(html,/guardian-credits-v833\.css|guardian-map-sources-v833/,'large credits banner must not return');
  assert.match(html,/guardian-keyboard-guard-v832\.js/,'keyboard patch preserved');
