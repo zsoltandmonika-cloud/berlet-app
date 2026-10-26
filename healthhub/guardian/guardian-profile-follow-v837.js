@@ -10,6 +10,8 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const FRESH_BROWSER_MS=20000,FRESH_NATIVE_MS=75000,MAX_ACCURACY=100;
+ // v850: optional measured speed only, never computed from the portrait position.
+ const MAX_SPEED_ACCURACY=40,MAX_SPEED_KMH=200,SHOW_ABOVE=5,HIDE_BELOW=4;
  function selectedProfile(storage){
   try{return storage?.getItem('hh-profile')==='m'?'monika':'zsolt'}
   catch(_){return 'zsolt'}
@@ -24,14 +26,25 @@
   const ts=Date.parse(record.updated_at),native=record.source==='HH One Native GPS';
   const freshness=native?FRESH_NATIVE_MS:FRESH_BROWSER_MS;
   if(!Number.isFinite(ts)||ts>now+5000||now-ts>freshness)return null;
+  const speedKmh=typeof record.speed_kmh==='number'&&Number.isFinite(record.speed_kmh)&&
+   record.speed_kmh>=0&&record.speed_kmh<=MAX_SPEED_KMH&&
+   record.accuracy_m<=MAX_SPEED_ACCURACY?record.speed_kmh:null;
   return {profile,lat:record.latitude,lng:record.longitude,ts,
-    source:native?'HH One Native GPS':'Family Live',accuracy:record.accuracy_m};
+    source:native?'HH One Native GPS':'Family Live',accuracy:record.accuracy_m,speedKmh};
  }
  function newest(browser,native,profile,now=Date.now()){
   const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
   if(!a)return b;
   if(!b)return a;
   return b.ts>=a.ts?b:a;
+ }
+ // 5 km/h opens; <4 closes; the band between retains its previous state.
+ // Never retain a badge for a missing, stale or malformed reading.
+ function speedState(previousVisible,value){
+  if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>MAX_SPEED_KMH)
+   return {visible:false,rounded:null};
+  const visible=value>SHOW_ABOVE?true:value<HIDE_BELOW?false:!!previousVisible;
+  return {visible,rounded:visible?Math.round(value):null};
  }
  function canRead(live,profile){
   return !!(live?.authenticated&&(live.familyAuthorized||live.boundProfile===profile));
@@ -48,7 +61,8 @@
   const live=()=>w.HH_GUARDIAN_LIVE_V785;
   const guardian=()=>w.HH_GUARDIAN_V761;
   const getMap=()=>guardian()?.map;
-  let latest=null,marker=null,run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
+  let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,speedVisible=false,
+   run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false;
   const selected=()=>selectedProfile(w.localStorage);
   const bound=()=>live()?.boundProfile;
@@ -57,7 +71,20 @@
   const localFixAt=()=>guardian()?.lastGpsFixAt||0;
   function clearMarker(){
    if(marker){try{marker.remove()}catch(_){}marker=null}
+   markerNode=null;speedBadge=null;speedValue=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
+  }
+  function paintSpeed(fix){
+   if(!speedBadge||!speedValue||!markerNode)return;
+   const reading=fix?.profile===selected()?fix.speedKmh:null;
+   const next=speedState(speedVisible,reading);
+   speedVisible=next.visible;
+   speedBadge.setAttribute('data-active',next.visible?'true':'false');
+   speedBadge.setAttribute('aria-hidden',next.visible?'false':'true');
+   speedValue.textContent=next.visible?next.rounded+' km/h':'';
+   const owner=selected()==='monika'?'Mónika':'Zsolt';
+   markerNode.setAttribute('aria-label',owner+' · hitelesített friss profilpozíció'+
+    (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
    run++;latest=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
@@ -90,16 +117,27 @@
    photo.appendChild(img);
    const label=d.createElement('span');label.className='guardian-position-label';
    label.textContent=k==='monika'?'Mónika':'Zsolt';
-   el.append(photo,label);
+   // Only the already-followed portrait gets the bubble: no extra figure.
+   const speed=d.createElement('span');speed.className='hh-guardian-speed-glass-v850';
+   speed.setAttribute('data-active','false');
+   speed.setAttribute('aria-hidden','true');
+   const gauge=d.createElement('span');gauge.className='hh-guardian-speed-gauge-v850';
+   gauge.setAttribute('aria-hidden','true');gauge.textContent='◴';
+   const reading=d.createElement('span');reading.className='hh-guardian-speed-reading-v850';
+   speed.append(gauge,reading);
+   speedBadge=speed;speedValue=reading;
+   el.append(photo,label,speed);
    return el;
   }
   function showFix(fix){
    const map=getMap(),Marker=w.maplibregl?.Marker;
    if(!map||typeof Marker!=='function')return;
    if(!marker){
-    marker=new Marker({element:decorate(fix),anchor:'bottom'})
+    markerNode=decorate(fix);
+    marker=new Marker({element:markerNode,anchor:'bottom'})
      .setLngLat([fix.lng,fix.lat]).addTo(map);
    }else marker.setLngLat([fix.lng,fix.lat]);
+   paintSpeed(fix);
    guardian()?.setRemoteMarkerPreferred?.(true);
    const own=d.getElementById('guardianMeState');
    if(own)own.textContent='🟢 '+fix.source+' · friss profilpozíció';
@@ -213,11 +251,11 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',start);
   else start();
  }
- return {snapshot,newest,selectedProfile,canRead,preferRemote,start,
+ return {snapshot,newest,selectedProfile,speedState,canRead,preferRemote,start,
   requestFollow(){return controller?.requestFollow()||false},
   focusLatest(force){return controller?.focusLatest(force)||false},
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
   onFollowState(){controller?.onFollowState()},
   onLocalGpsFix(){return controller?.onLocalGpsFix()||false},
-  get ready(){return !!controller?.ready},version:'837',revision:'839'};
+  get ready(){return !!controller?.ready},version:'837',revision:'839',speedVersion:'850'};
 });
