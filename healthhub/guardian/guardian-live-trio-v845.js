@@ -236,7 +236,9 @@
    const sleep=snapshot?.sleep||null,nutrition=snapshot?.nutrition||null;
    const h=healthState(sleep,nutrition);
    heart.dataset.rag=h.tone;
-   health.textContent=sleep?sleep.score+'/100':'—';
+   // v847: the small Health tile displays the observed score alone.
+   // Keep the explicit /100 scale only in the expanded Sleep detail.
+   health.textContent=sleep?String(sleep.score):'—';
    const owner=lastProfile==='monika'?'Mónika':'Zsolt';
    batteryCaption.textContent=owner+' telefon';
    sleepRow.dataset.rag=sleep?.tone||'unknown';
