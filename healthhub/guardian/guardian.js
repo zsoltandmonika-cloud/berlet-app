@@ -398,10 +398,16 @@ function initMap(){
    center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:false
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
+  // v829: MapLibre's native compact ⓘ provides required links without a strip.
+  if(typeof w.maplibregl.AttributionControl==='function'){
+   map.addControl(new w.maplibregl.AttributionControl({
+    compact:true,
+    customAttribution:'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a>'
+   }),'bottom-left');
+  }
   map.on('load',function(){
    ready=true;message('');
-   // Mandatory map-data credits appear in the visible row immediately below the map.
-   // Do not add MapLibre's small ⓘ overlay under zoom controls.
+   // Required source links open via the compact native MapLibre attribution.
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
    /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.

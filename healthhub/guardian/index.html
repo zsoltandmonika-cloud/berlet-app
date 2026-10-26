@@ -66,6 +66,7 @@
 <link rel="stylesheet" href="./guardian-search-results-v824.css?v=824-unified-dual-glass">
 <link rel="stylesheet" href="./guardian-map-glass-pin-v826.css?v=826-pin-soft-glass">
 <link rel="stylesheet" href="./guardian-map-dock-fill-v828.css?v=828-map-credits-inset">
+<link rel="stylesheet" href="./guardian-map-final-v829.css?v=829-compact-dock-attribution">
 </head>
 <body>
 <div class="shell">
@@ -102,12 +103,11 @@
     <input id="guardianMapSearchInputV819" class="hh-map-search-input-v819" type="search" autocomplete="off" enterkeyhint="search" maxlength="120" aria-label="Keress budapesti címet, mentett kedvencet vagy közös helyet" aria-controls="guardianMapSearchResultsV819" aria-expanded="false" placeholder="Cím, Otthon, Munkahely…">
     <button type="button" id="guardianMapSearchMicV819" aria-label="Cím bemondása mikrofonnal" title="Cím bemondása">🎙️</button>
     <button type="button" id="guardianMapSearchGoV819" aria-label="Cím keresése vagy megmutatása a térképen" title="Keresés">⌕</button>
+    <button type="button" id="guardianMapSearchNavigateV819" class="hh-map-search-nav-v819" aria-label="Útvonaltervezés a kiválasztott címre · Smart Travel" title="Útvonaltervezés · Smart Travel" hidden>🧭</button>
    </div>
    <div id="guardianMapSearchResultsV819" class="hh-map-search-hits-v819" role="group" aria-label="Mentett helyek és címjavaslatok" hidden></div>
-   <button type="button" id="guardianMapSearchNavigateV819" class="hh-map-search-nav-v819" hidden>🧭 Útvonaltervezés ide · Smart Travel</button>
    <p id="guardianMapSearchStatusV819" class="hh-map-search-status-v819" role="status" aria-live="polite">Címkeresés Budapest környékén</p>
   </div>
-  <div class="guardian-map-credits" role="note" aria-label="Térképadatok forrása">Térképadatok: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a></div>
  </section>
  <section id="hhTransitPanel" class="hh-transit-panel" aria-label="HealthHub Transit, BKK járatválasztó">
    <div class="hh-transit-body">
@@ -435,7 +435,7 @@
 <script defer src="./guardian-landmarks-v776.js?v=787-private-and-common"></script>
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./guardian.js?v=813-default-follow-3d-family&service=806"></script>
+<script defer src="./guardian.js?v=813-default-follow-3d-family&service=806&attrib=829"></script>
 <script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay"></script>
 <script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family&native=156&autofollow=827"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
@@ -445,9 +445,9 @@
 <script defer src="./guardian-transit-v791.js?v=817-1-41-static"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=817-1-41-static"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=817-1-41-static"></script>
-<script defer src="./guardian-smart-hub-fields-v806.js?v=825-script-parser-repair"></script>
+<script defer src="./guardian-smart-hub-fields-v806.js?v=825-script-parser-repair&pin=829"></script>
 <script defer src="./guardian-map-search-v819.js?v=826-css-only-fullmap"></script>
-<script defer src="./guardian-map-dock-fill-v828.js?v=828-layout-fit"></script>
+<script defer src="./guardian-map-dock-fill-v828.js?v=829-dock-robust"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=806-network-a"></script>
 <div id="hhStopPopupV815" class="hh-stop-popup-v815" role="alert" aria-live="assertive" hidden>

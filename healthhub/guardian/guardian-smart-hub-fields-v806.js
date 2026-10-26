@@ -123,7 +123,9 @@
    try{
     const node=d.createElement('div');node.className='hh-smart-hub-map-pin-v803';
     if(kind==='origin')node.className+=' hh-smart-hub-origin-pin-v804';
-    node.textContent=(kind==='origin'?'🚶 ':'📍 ')+place.name;
+    const title=d.createElement('span');title.className='hh-guardian-pin-label-v829';
+    title.textContent=(kind==='origin'?'🚶 ':'📍 ')+place.name;
+    node.appendChild(title);
     node.setAttribute('aria-label',(kind==='origin'?'Indulási hely: ':'Úti cél: ')+place.name);
     markers[kind]=new Marker({element:node,anchor:'bottom',offset:[0,-5]})
      .setLngLat([place.lng,place.lat]).addTo(map);
