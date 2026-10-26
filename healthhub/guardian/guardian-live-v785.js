@@ -20,7 +20,11 @@ const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
-let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
+let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),settingsSignature='',authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
+// GPS Data Saver v868: share a short-lived authenticated GPS read between the
+// Family Live map, the profile portrait and the Health/GPS status tile.
+const LOCATION_READ_CACHE_MS=2200,locationReads=new Map();
+let lastPeerSpeedKmh=null,lastPeerReadAt=0;
 function self(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function other(){return self()==='monika'?'zsolt':'monika'}
 function label(k){return k==='monika'?'Mónika':'Zsolt'}
@@ -144,13 +148,35 @@ function displayPeer(data,now=Date.now()){
  setPeerState(peerStatus(data,state.age));
  return true;
 }
+function readSharedLocation(k){
+ if(!api||!user||!access.includes(k)||!['zsolt','monika'].includes(k))
+  return Promise.resolve({data:null,error:{message:'Nincs GPS-olvasási jogosultság'}});
+ const key=user.id+':'+k,now=Date.now(),old=locationReads.get(key);
+ if(old&&old.pending)return old.pending;
+ if(old&&old.result&&now-old.at<LOCATION_READ_CACHE_MS)
+  return Promise.resolve(old.result);
+ const ownerId=user.id;
+ const pending=Promise.resolve(api.from(TABLE)
+  .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
+  .eq('profile_key',k).maybeSingle()).then(result=>{
+   if(user&&user.id===ownerId&&!result.error)
+    locationReads.set(key,{result,at:Date.now()});
+   else locationReads.delete(key);
+   return result;
+  }).catch(error=>{locationReads.delete(key);throw error});
+ locationReads.set(key,{pending});
+ return pending;
+}
 async function poll(){
  if(polling||d.hidden||!user||!access.includes(other())||!api)return;
- polling=true;
+ // The source speed must be genuinely measured. Unknown/moving remains fast;
+ // verified stationary data can be read every 10s without ageing out at 20s.
+ const now=Date.now();
+ if(lastPeerSpeedKmh!==null&&lastPeerSpeedKmh<4&&lastPeerReadAt&&now-lastPeerReadAt<10000)return;
+ lastPeerReadAt=now;polling=true;
  const token=generation,k=other();
  try{
-  const {data,error}=await api.from(TABLE).select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
-   .eq('profile_key',k).maybeSingle();
+  const {data,error}=await readSharedLocation(k);
   const relay=w.HH_GUARDIAN_NATIVE_V156;
   const native=relay&&relay.connected()?await relay.read(k):null;
   if(token!==generation||d.hidden||k!==other()||!user)return;
@@ -158,7 +184,7 @@ async function poll(){
   // Native revocation supersedes older cached browser positions.
   if(native&&native.status==='revoked'&&
      (!data||Date.parse(data.updated_at)<=Date.parse(native.updated_at))){
-   removePeer();setPeerState('Natív helymegosztás visszavonva.');
+   lastPeerSpeedKmh=null;removePeer();setPeerState('Natív helymegosztás visszavonva.');
    return;
   }
   if(error&&!nativeFix)throw error;
@@ -168,7 +194,7 @@ async function poll(){
       Date.parse(nativeFix.updated_at)>Date.parse(selected.updated_at)))
    selected=nativeFix;
   if(!selected){
-   removePeer();
+   lastPeerSpeedKmh=null;removePeer();
    setPeerState(native?.status==='error'?
      'Nincs friss helyadat · privát Dropbox kapcsolat hiba.':
      !relay||!relay.connected()?
@@ -176,8 +202,10 @@ async function poll(){
      'Nincs friss, jóváhagyott családi GPS-pozíció.');
    return;
   }
+  lastPeerSpeedKmh=Number.isFinite(selected.speed_kmh)&&selected.speed_kmh>=0&&selected.speed_kmh<200&&selected.accuracy_m<=40?selected.speed_kmh:null;
   displayPeer(selected);
  }catch(e){
+  lastPeerSpeedKmh=null;
   if(token===generation){
    // Temporary network failure must not silently remove a still valid, consented fix.
    const known=peerAvailable&&peerUpdatedAt&&Date.now()-Date.parse(peerUpdatedAt)<=LAST_KNOWN_MS;
@@ -195,6 +223,7 @@ async function poll(){
  }finally{polling=false}
 }
 function resetPolling(){
+ lastPeerSpeedKmh=null;lastPeerReadAt=0;
  if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}
  generation++;
  if(user&&!d.hidden){
@@ -227,6 +256,7 @@ function onGpsPaused(){
  msg('Böngészős GPS szünetel. Az utolsó ismert hely megmarad, időbélyeggel (nem élő követés).');
 }
 function onProfileChanged(){
+ locationReads.clear();
  stopSharing();removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
  gpsInfo('⚪ Profilváltás után a böngészős GPS-t külön újra kell indítani.');
@@ -250,7 +280,9 @@ function onGpsFix(pos){
  lastSeen={lat,lon,ts,accuracy};
  const kmh=speed!==null&&speed<=300?Math.round(speed*10)/10:null;
  set('guardianLiveOwnSpeed',kmh===null?'—':kmh.toFixed(1).replace('.',',')+' km/h');
- const now=Date.now();if(now-lastUploaded<interval)return;
+ // Save bandwidth while standing still: keep a genuine heartbeat within 20s.
+ const uploadMs=kmh!==null&&kmh<4?Math.max(interval,10000):interval;
+ const now=Date.now();if(now-lastUploaded<uploadMs)return;
  lastUploaded=now;
  const uid=user.id,k=sharingProfile;
  const payload={profile_key:k,owner_id:uid,latitude:lat,longitude:lon,accuracy_m:accuracy,
@@ -265,13 +297,24 @@ function onGpsFix(pos){
 function syncSettings(){
  if(!api||!user||!access.includes(self()))return Promise.resolve();
  const k=self(),g=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.getLocationSettings?w.HH_GUARDIAN_V761.getLocationSettings():{};
+ const uid=user.id;
  const payload={profile_key:k,refresh_interval_ms:interval,follow_map:g.follow_map!==false,map_3d:g.map_3d!==false,updated_at:new Date().toISOString()};
+ // v867: Map drag/follow events can fire repeatedly without changing settings.
+ // Do not create a new POST (and timestamp) unless one of the values changed.
+ const signature=JSON.stringify([k,uid,payload.refresh_interval_ms,payload.follow_map,payload.map_3d]);
+ if(settingsSignature===signature)return settingsWrites;
+ settingsSignature=signature;
  settingsWrites=settingsWrites.catch(()=>{}).then(async()=>{
-  if(!user||!access.includes(k))return;
+  if(!user||user.id!==uid||!access.includes(k))return;
   const {error}=await api.from(PREF_TABLE).upsert(payload,{onConflict:'profile_key'});
-  if(error)set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+error.message);
-  else set('guardianLocationSyncStatus','Helybeállítások · szinkronizálva');
- }).catch(e=>set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+(e&&e.message||'hálózat')));
+  if(error){
+   if(settingsSignature===signature)settingsSignature='';
+   set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+error.message);
+  }else set('guardianLocationSyncStatus','Helybeállítások · szinkronizálva');
+ }).catch(e=>{
+  if(settingsSignature===signature)settingsSignature='';
+  set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+(e&&e.message||'hálózat'));
+ });
  return settingsWrites;
 }
 async function loadSettings(){
@@ -295,6 +338,7 @@ async function loadSettings(){
 }
 async function refreshAuth(){
  if(!api||authInFlight)return;
+ locationReads.clear();
  authInFlight=true;
  const token=++authGeneration;
  try{
@@ -403,8 +447,8 @@ function init(){
  api.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')w.setTimeout(refreshAuth,0)});
  refreshAuth();
 }
-w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsSignal,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;resetPolling();},
- getClient(){return api},get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
+w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsSignal,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;locationReads.clear();resetPolling();},
+ getClient(){return api},readSharedLocation,get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
  get boundProfile(){return bound()},
  get sharing(){return sharing},get interval(){return interval},get authenticated(){return !!user}});
 init();

@@ -64,7 +64,7 @@
   let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
-  let followRequest=false;
+  let followRequest=false,lastAdaptivePoll=0;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
@@ -251,12 +251,14 @@
    if(!canRead(l,k)){invalidate();return}
    const client=l?.getClient?.();
    if(!client){paintSpeed(null);return}
-   loading=true;const ticket=++run;
+   loading=true;lastAdaptivePoll=Date.now();const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
-    const res=await client.from('hh_guardian_live_locations')
-     .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
-     .eq('profile_key',k).maybeSingle();
+    const res=typeof l.readSharedLocation==='function'
+     ?await l.readSharedLocation(k)
+     :await client.from('hh_guardian_live_locations')
+      .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
+      .eq('profile_key',k).maybeSingle();
     if(!res.error&&res.data)db=res.data;
     const relay=w.HH_GUARDIAN_NATIVE_V156;
     if(relay?.connected?.()){
@@ -341,9 +343,13 @@
   });
   w.addEventListener?.('pageshow',refresh);
   w.addEventListener?.('pagehide',invalidate);
-  // v863: 3-second follow cadence matches the recommended Family Live
-  // setting. No extra GPS sampling, only authorized reads of fresh positions.
-  w.setInterval?.(refresh,3000);
+  // v868: preserve 3s moving/unknown-speed tracking, reduce verified
+  // stationary reads to roughly 9s. An explicit follow still refreshes now.
+  w.setInterval?.(()=>{
+   if(typeof latest?.speedKmh==='number'&&latest.speedKmh<4&&
+      Date.now()-lastAdaptivePoll<9000)return;
+   refresh();
+  },3000);
   refresh();
   return {refresh,requestFollow,focusLatest,onFollowState,onLocalGpsFix,
    preventWrongDeviceGps,get latest(){return latest},get ready(){return current()}};

@@ -287,9 +287,11 @@
    if(!client)return {state:'unknown',text:'Nincs jel'};
    let browser=null,native=null,revokeAt=NaN;
    try{
-    const resp=await client.from('hh_guardian_live_locations')
-     .select('profile_key,latitude,longitude,accuracy_m,updated_at')
-     .eq('profile_key',profile).maybeSingle();
+    const resp=typeof live.readSharedLocation==='function'
+     ?await live.readSharedLocation(profile)
+     :await client.from('hh_guardian_live_locations')
+      .select('profile_key,latitude,longitude,accuracy_m,updated_at')
+      .eq('profile_key',profile).maybeSingle();
     if(!resp.error&&resp.data)browser=resp.data;
    }catch(_){}
    try{

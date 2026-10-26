@@ -6,9 +6,9 @@
 (function(w,d){
 'use strict';
 const TABLE='hh_guardian_shared_landmarks',OUTBOX='hh-guardian-shared-landmarks-outbox-v787';
-const CACHE='hh-guardian-shared-landmarks-cache-v787',TICK=15000;
+const CACHE='hh-guardian-shared-landmarks-cache-v787',TICK=120000;
 const $=id=>d.getElementById(id),landmarks=w.HH_GUARDIAN_LANDMARKS_V776;
-let pending=read(OUTBOX),remote=[],running=false,ready=false;
+let pending=read(OUTBOX),remote=[],running=false,ready=false,lastRemoteRead=0;
 function read(key){
  try{const x=JSON.parse(w.localStorage.getItem(key)||'[]');return Array.isArray(x)?x:[]}catch(_){return []}
 }
@@ -74,6 +74,9 @@ async function sync(){
   status('🔒 Privát helyek elérhetők · közös helyekhez Google-belépés szükséges');
   return;
  }
+ // v867: Landmarks are rarely edited. Preserve immediate uploads,
+ // but avoid repeated identical database downloads on each app event.
+ if(!pending.length&&lastRemoteRead&&Date.now()-lastRemoteRead<TICK)return;
  const api=client();if(!api)return;
  running=true;
  try{
@@ -87,7 +90,7 @@ async function sync(){
   }
   const {data,error}=await api.from(TABLE).select('id,profile_key,kind,name,longitude,latitude,updated_at,deleted_at').order('updated_at',{ascending:false}).limit(250);
   if(error)throw error;
-  remote=(data||[]).filter(x=>safePlace(x));write(CACHE,remote);visible();
+  remote=(data||[]).filter(x=>safePlace(x));lastRemoteRead=Date.now();write(CACHE,remote);visible();
   status('☁ Közös Landmarkok szinkronban · '+remote.filter(x=>!x.deleted_at).length+' hely');
  }catch(e){
   visible();
