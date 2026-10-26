@@ -13,6 +13,8 @@ android {
         targetSdk = 35
         versionCode = 34
         versionName = "0.15.7"
+        // v842 Family Battery Safety candidate: native per-owner battery opt-in.
+        // Intentionally keep the unpublished signed OTA pilot version/build 0.15.7/34.
     }
 
     buildFeatures {
