@@ -104,7 +104,26 @@ const APP_LABELS=Object.freeze({
 });
 // Pure presentation mapping: raw Android package identifiers remain in signed
 // source data and consented private Dropbox records. Never guess unknown names.
-function resolveApp(id){return APP_LABELS[id]||[id,'📱','Besorolatlan'];}
+function resolveApp(id){
+ const registry=root.HH_DW_APP_REGISTRY_V515;
+ return registry&&typeof registry.resolveApp==='function'
+  ?registry.resolveApp(id)
+  :APP_LABELS[id]||[id,'📱','Besorolatlan'];
+}
+function appIcon(node,info){
+ const url=info[3],registry=root.HH_DW_APP_REGISTRY_V515;
+ if(!registry||!registry.allowedLogo?.(url))return;
+ const image=document.createElement('img');
+ image.className='appicon-original-v515';
+ image.alt=''; // the adjacent application name remains the accessible label
+ image.loading='lazy';
+ image.decoding='async';
+ image.referrerPolicy='no-referrer';
+ image.onerror=()=>{node.replaceChildren();node.textContent=info[1];node.classList.remove?.('appicon-logo-v515')};
+ node.replaceChildren(image);
+ node.classList.add?.('appicon-logo-v515');
+ image.src=url;
+}
 
 // Categories are derived only from real, consented app-hour measurements.
 // Exact verified IDs win; everything else remains explicitly unclassified.
@@ -155,7 +174,8 @@ function apps(s){
  s.topApps.slice(0,8).forEach(([id,ms],i)=>{
    const info=resolveApp(id);
    const el=row(list,'app');
-   row(el,'appicon',info[1]);
+   const logoSlot=row(el,'appicon',info[1]);
+   appIcon(logoSlot,info);
    const desc=row(el,'');
    const label=row(desc,'appname',info[0]);
    label.title='Eredeti Android-csomagnév: '+id;
