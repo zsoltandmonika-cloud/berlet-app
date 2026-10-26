@@ -1,0 +1,48 @@
+/* v828 · Family Guard map to fixed taskbar, with visible source attribution in-map.
+ * Portrait mobile only gets viewport-fitting height, fed by the layout module.
+ * Larger screens, compact/immersive switching, live GPS and MapLibre stay intact.
+ */
+@media (max-width:600px) {
+ .map-card:not(.hh-map-full-v819) #guardianMap{
+  height:var(--hh-guardian-map-dock-height-v828,clamp(350px,53vh,570px))!important;
+  min-height:350px;
+ }
+}
+/* One tiny legally-visible, clickable attribution chip ON the map, never a
+   separate line beneath it. Keep both source links and accessible focus. */
+.map-card>.guardian-map-credits{
+ position:absolute!important;z-index:26!important;
+ left:8px!important;right:auto!important;
+ bottom:calc(61px + env(safe-area-inset-bottom,0px))!important;
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ flex-wrap:wrap!important;gap:1px 4px!important;
+ width:max-content!important;max-width:calc(100% - 16px)!important;
+ min-height:0!important;margin:0!important;padding:3px 7px!important;
+ box-sizing:border-box!important;
+ border:1px solid rgba(180,225,251,.46)!important;border-radius:10px!important;
+ background:linear-gradient(135deg,rgba(23,65,108,.66),rgba(8,34,75,.74))!important;
+ -webkit-backdrop-filter:blur(17px) saturate(1.28)!important;
+ backdrop-filter:blur(17px) saturate(1.28)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.22),0 3px 11px rgba(2,15,39,.26)!important;
+ color:#ecf7ff!important;
+ font:650 8.5px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ letter-spacing:0!important;white-space:normal;
+ pointer-events:auto!important;
+}
+.map-card>.guardian-map-credits a{
+ color:#fff!important;text-decoration:underline!important;
+ text-decoration-color:rgba(225,245,255,.7)!important;
+ text-underline-offset:2px;
+}
+:root[data-guardian-profile="m"] .map-card>.guardian-map-credits{
+ border-color:rgba(255,210,243,.49)!important;
+ background:linear-gradient(135deg,rgba(174,96,165,.66),rgba(77,41,112,.77))!important;
+ color:#fff1fb!important;
+}
+.map-card.hh-map-full-v819>.guardian-map-credits{
+ bottom:calc(122px + env(safe-area-inset-bottom,0px))!important;
+}
+@media (max-width:385px){
+ .map-card>.guardian-map-credits{font-size:8px!important;padding:3px 5px!important}
+}
+/* The original rounded map and fixed five-button dock remain separate surfaces. */
