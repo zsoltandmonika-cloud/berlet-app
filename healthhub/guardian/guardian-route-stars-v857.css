@@ -35,3 +35,13 @@
  #hhSmartHubDestinationV802 .hh-trip-stars-v857{font-size:16px!important;letter-spacing:.8px!important}
  #hhSmartHubDestinationV802 .hh-trip-times-v857 strong{font-size:14px!important}
 }
+
+/* v859 matched official GTFS departure: compact boarding and walking rows. */
+#hhSmartHubDestinationV802 .hh-trip-card-boarding-v859{
+ display:block!important;color:var(--ink)!important;
+ font:670 11px/1.35 system-ui!important;font-variant-numeric:tabular-nums;
+}
+#hhSmartHubDestinationV802 .hh-trip-card-walkmin-v859{
+ display:block!important;color:var(--muted)!important;
+ font:610 11px/1.35 system-ui!important;
+}
