@@ -223,3 +223,58 @@ test('v826 address selection expands the SAME map via app CSS only, without Chro
  assert.doesNotMatch(pin,/navigator\.geolocation|supabase|dropbox|localStorage|requestFullscreen\(/i,
   'styles cannot manipulate GPS or open browser native fullscreen');
 });
+
+test('v828 moves both required map-source links INTO map and visually fills up to fixed dock',()=>{
+ const html=read('index.html'),css=read('guardian-map-dock-fill-v828.css');
+ const mapStart=html.indexOf('<section class="map-card"'),transitStart=html.indexOf('<section id="hhTransitPanel"');
+ const block=html.slice(mapStart,transitStart),mapClose=block.lastIndexOf('</section>');
+ assert.ok(mapStart>=0&&transitStart>mapStart);
+ assert.equal((html.match(/class="guardian-map-credits"/g)||[]).length,1);
+ assert.ok(block.indexOf('class="guardian-map-credits"')<mapClose,
+   'source credit chip is inside existing MapLibre map section, not a separate row');
+ assert.match(block,/https:\/\/www\.openstreetmap\.org\/copyright/);
+ assert.match(block,/https:\/\/openmaptiles\.org\//);
+ assert.match(html,/guardian-map-dock-fill-v828\.css\?v=828-map-credits-inset/);
+ assert.match(html,/guardian-map-dock-fill-v828\.js\?v=828-layout-fit/);
+ const cssIndex=html.indexOf('guardian-map-dock-fill-v828.css');
+ assert.ok(cssIndex>html.indexOf('guardian-map-glass-pin-v826.css'),
+   'v828 final CSS must override earlier map height rules');
+ assert.match(css,/--hh-guardian-map-dock-height-v828/);
+ assert.match(css,/\.map-card>\.guardian-map-credits/);
+ assert.match(css,/position:absolute!important/);
+ assert.match(css,/z-index:26!important/);
+ assert.match(css,/safe-area-inset-bottom/);
+ assert.match(css,/:root\[data-guardian-profile="m"\] \.map-card>\.guardian-map-credits/);
+ assert.doesNotMatch(css,/display:none.*guardian-map-credits|visibility:hidden/);
+});
+
+test('v828 fits existing map to real navigation top, without GPS or keyboard jumps',()=>{
+ const script=read('guardian-map-dock-fill-v828.js');
+ const vm=require('node:vm');
+ let top=262,navTop=730,activeElement=null,navFits=[],resizeCount=0;
+ const handlers={},style={setProperty(k,v){navFits.push({k,v})},removeProperty(){}};
+ const card={classList:{contains(){return false}},style,
+  getBoundingClientRect(){return {top}}};
+ const nav={getBoundingClientRect(){return {top:navTop}}};
+ const mapNode={},input={};
+ const document={body:{classList:{contains(){return false}}},activeElement,
+  querySelector(s){return s==='.map-card'?card:null},
+  getElementById(id){return ({guardianHHNav:nav,guardianMap:mapNode,guardianMapSearchInputV819:input})[id]||null}};
+ const win={HH_GUARDIAN_V761:{map:{resize(){resizeCount++}}},
+  matchMedia(){return {matches:true}},
+  setTimeout(fn){fn();return 1},requestAnimationFrame(fn){fn();return 1},
+  addEventListener(k,fn){handlers[k]=fn},visualViewport:{addEventListener(){}}
+ };
+ vm.runInNewContext(script,{window:win,document});
+ assert.equal(navFits[0].v,'466px','map uses actual nav.top - map.top - 2 px');
+ assert.equal(navFits[0].k,'--hh-guardian-map-dock-height-v828');
+ assert.ok(resizeCount>0,'existing MapLibre map resized after CSS update');
+ const count=navFits.length;
+ document.activeElement=input;navTop=510;
+ handlers.resize();
+ assert.equal(navFits.length,count,'keyboard viewport shrink does not collapse map');
+ document.activeElement=null;navTop=730;
+ handlers.resize();
+ assert.equal(navFits.length,count,'stable layout does not continuously rewrite map size');
+ assert.doesNotMatch(script,/geolocation|watchPosition|startFollowing|supabase|dropbox|requestFullscreen|createClient/i);
+});
