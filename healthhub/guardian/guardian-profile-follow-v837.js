@@ -25,7 +25,8 @@
   const freshness=native?FRESH_NATIVE_MS:FRESH_BROWSER_MS;
   if(!Number.isFinite(ts)||ts>now+5000||now-ts>freshness)return null;
   return {profile,lat:record.latitude,lng:record.longitude,ts,
-    source:native?'HH One Native GPS':'Family Live',accuracy:record.accuracy_m};
+    source:native?'HH One Native GPS':'Family Live',accuracy:record.accuracy_m,
+    speedKmh:typeof record.speed_kmh==='number'&&Number.isFinite(record.speed_kmh)?record.speed_kmh:null};
  }
  function newest(browser,native,profile,now=Date.now()){
   const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
@@ -100,6 +101,10 @@
     marker=new Marker({element:decorate(fix),anchor:'bottom'})
      .setLngLat([fix.lng,fix.lat]).addTo(map);
    }else marker.setLngLat([fix.lng,fix.lat]);
+   // v850: attach a speed row to the EXISTING portrait name pill only.
+   // No new marker, source, GPS listener, permission or upload.
+   w.HH_GUARDIAN_SPEED_BADGE_V850?.update(marker?.getElement?.(),{
+    speed:fix.speedKmh,accuracy:fix.accuracy,ts:fix.ts});
    guardian()?.setRemoteMarkerPreferred?.(true);
    const own=d.getElementById('guardianMeState');
    if(own)own.textContent='🟢 '+fix.source+' · friss profilpozíció';
@@ -113,7 +118,7 @@
    const k=selected(),l=live();
    if(!canRead(l,k)){invalidate();return}
    const client=l?.getClient?.();
-   if(!client)return;
+   if(!client){w.HH_GUARDIAN_SPEED_BADGE_V850?.hide(marker?.getElement?.());return}
    loading=true;const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
@@ -143,7 +148,11 @@
      }
     }
    }catch(_){
-    if(ticket===run&&(!latest||!preferRemote(latest,localFixAt())))clearMarker();
+    if(ticket===run){
+     if(!latest||!preferRemote(latest,localFixAt()))clearMarker();
+     else w.HH_GUARDIAN_SPEED_BADGE_V850?.update(marker?.getElement?.(),{
+      speed:latest.speedKmh,accuracy:latest.accuracy,ts:latest.ts});
+    }
    }finally{
     loading=false;
     if(rerun){rerun=false;w.setTimeout?.(refresh,0)}
