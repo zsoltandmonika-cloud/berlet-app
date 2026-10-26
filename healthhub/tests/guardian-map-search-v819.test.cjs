@@ -232,13 +232,13 @@ test('v829 replaces oversized credits strip with linked native MapLibre compact 
  assert.match(map,/compact:true/);
  assert.match(map,/https:\/\/www\.openstreetmap\.org\/copyright/);
  assert.match(map,/https:\/\/openmaptiles\.org\//);
- assert.match(map,/,'bottom-left'\)/,'the credit is a small native map corner button');
+ assert.match(map,/,'top-left'\)/,'source info has moved to top-left');
  assert.match(css,/#guardianMap \.maplibregl-ctrl-bottom-left/);
  assert.match(css,/display:block!important/,'old CSS must no longer hide native attribution');
  assert.match(css,/#guardianMap \.maplibregl-ctrl-attrib\.maplibregl-compact/);
  assert.match(html,/guardian-map-final-v829\.css\?v=829-compact-dock-attribution/);
  assert.match(html,/guardian-map-dock-fill-v828\.js\?v=829-dock-robust/);
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=830/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=831/);
 });
 test('v829 one-row selected destination and half-sized content-width chip',()=>{
  const html=read('index.html'),css=read('guardian-map-final-v829.css');
@@ -331,7 +331,7 @@ test('v830 starts MapLibre in icon-only attribution mode (never a large credit b
  assert.match(map,/node\.removeAttribute\('open'\)/);
  assert.match(map,/map\.addControl\(new w\.maplibregl\.AttributionControl\(/);
  assert.match(map,/compact:true/);
- const controlEnd=map.indexOf("}),'bottom-left');");
+ const controlEnd=map.indexOf("}),'top-left');");
  assert.ok(controlEnd>0);
  assert.match(map.slice(controlEnd,controlEnd+110),/collapseInitialAttribution\(\)/,
   'collapse synchronously, before first browser paint');
@@ -342,10 +342,33 @@ test('v830 starts MapLibre in icon-only attribution mode (never a large credit b
  assert.match(icon,/\.maplibregl-compact\.maplibregl-compact-show \.maplibregl-ctrl-attrib-inner\{\s*display:block!important/);
  assert.match(html,/guardian-attribution-v830\.css\?v=830-no-visible-banner/);
  assert.ok(html.indexOf('guardian-attribution-v830.css')>html.indexOf('guardian-map-final-v829.css'));
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=830/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=831/);
  assert.doesNotMatch(html,/class="guardian-map-credits"/);
  assert.match(map,/https:\/\/www\.openstreetmap\.org\/copyright/);
  assert.match(map,/https:\/\/openmaptiles\.org\//);
  assert.doesNotMatch(icon,/display:none!important.*maplibregl-ctrl-attrib\.maplibregl-compact/,
   'only the detail text, never the whole source controller, may be collapsed');
+});
+
+test('v831 copyright icon remains tiny at furthest top-left, with a larger finger hit target',()=>{
+ const html=read('index.html'),map=read('guardian.js');
+ const css=read('guardian-attribution-top-left-v831.css');
+ assert.match(map,/map\.addControl\(new w\.maplibregl\.AttributionControl\(/);
+ assert.match(map,/compact:true/);
+ assert.match(map,/,'top-left'\)/,'compact info button should be top-left');
+ assert.match(html,/guardian-attribution-top-left-v831\.css\?v=831-20px-top-left/);
+ assert.ok(html.indexOf('guardian-attribution-top-left-v831.css')>
+  html.indexOf('guardian-attribution-v830.css'),'v831 overrides v830 sizing');
+ assert.match(css,/#guardianMap \.maplibregl-ctrl-top-left\{/);
+ assert.match(css,/top:2px!important;left:2px!important/,'almost flush with map edge');
+ assert.match(css,/width:20px!important;height:20px!important/,'visible control shrunk to 20 px');
+ assert.match(css,/width:32px!important;height:32px!important/,'keeps usable finger-sized tap region');
+ assert.match(css,/background-size:12px 12px!important/,'small visible info glyph');
+ assert.match(css,/\.maplibregl-compact:not\(\.maplibregl-compact-show\) \.maplibregl-ctrl-attrib-inner\{\s*display:none!important/);
+ assert.match(css,/\.maplibregl-compact\.maplibregl-compact-show \.maplibregl-ctrl-attrib-inner\{\s*display:block!important/);
+ assert.match(css,/\.map-card\.hh-map-full-v819 #guardianMap \.maplibregl-ctrl-top-left/,'should not overlap fullscreen back control');
+ assert.match(css,/:root\[data-guardian-profile="m"\] #guardianMap/,'pink profile stays themed');
+ assert.match(map,/https:\/\/www\.openstreetmap\.org\/copyright/);
+ assert.match(map,/https:\/\/openmaptiles\.org\//);
+ assert.doesNotMatch(css,/opacity:0!important|pointer-events:none!important;\s*cursor:pointer/);
 });

@@ -413,7 +413,7 @@ function initMap(){
    map.addControl(new w.maplibregl.AttributionControl({
     compact:true,
     customAttribution:'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a>'
-   }),'bottom-left');
+   }),'top-left');
    collapseInitialAttribution();
   }
   map.on('load',function(){
