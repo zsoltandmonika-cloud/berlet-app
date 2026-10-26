@@ -398,27 +398,12 @@ function initMap(){
    center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:false
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
-  // v830: MapLibre 4.7.1 starts a compact credit control EXPANDED
-  // until the user drags the map. Collapse it before first browser paint.
-  // Users can still open the same linked credits by tapping its native ⓘ.
-  function collapseInitialAttribution(){
-   const node=d.querySelector('#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact');
-   if(!node)return false;
-   node.classList.remove('maplibregl-compact-show');
-   node.removeAttribute('open');
-   return true;
-  }
-  // v829: MapLibre's native compact ⓘ provides required links without a strip.
-  if(typeof w.maplibregl.AttributionControl==='function'){
-   map.addControl(new w.maplibregl.AttributionControl({
-    compact:true,
-    customAttribution:'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a>'
-   }),'top-left');
-   collapseInitialAttribution();
-  }
+  // v833: no native attribution control in the top-left.
+  // Visible linked credits are displayed at the lower edge of the map.
+  // No hidden button, tap area or placeholder remains.
   map.on('load',function(){
    ready=true;message('');
-   // Required source links open via the compact native MapLibre attribution.
+   // Source links are directly visible on the lower edge of the map.
    try{if(typeof map.setLight==='function')map.setLight({anchor:'viewport',color:'#fff1d9',intensity:0.67,position:[1.2,210,45]})}catch(e){}
    /* Reuse the light style's own OSM building vector source when possible.
     * Loading a duplicate vector source wastes mobile bandwidth and memory.
