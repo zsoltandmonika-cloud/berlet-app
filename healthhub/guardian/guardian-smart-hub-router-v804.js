@@ -262,6 +262,66 @@ function renderGuide(){
   }catch(_){}
  }
  function originPoint(){return start}
+ // Only explicitly source-backed, matched timetable data may populate time slots.
+ // Current stop-order graph has NO timetable object; it will never fabricate one.
+ function verifiedTiming(p,now=Date.now()){
+  const t=p&&p.timing;
+  if(!t||t.verified!==true||t.source!=='BKK_GTFS'||
+    typeof t.generatedAt!=='string'||!Number.isFinite(Date.parse(t.generatedAt)))return null;
+  const created=Date.parse(t.generatedAt);
+  if(created>now+60000||now-created>24*3600000)return null;
+  const departure=Date.parse(t.departure),arrival=Date.parse(t.arrival);
+  if(!Number.isFinite(departure)||!Number.isFinite(arrival)||arrival<=departure||
+    arrival-departure>5*3600000||departure<now-5*60000||departure>now+72*3600000)return null;
+  if(!Array.isArray(t.matchedLegs)||t.matchedLegs.length!==p.legs.length)return null;
+  if(!t.matchedLegs.every((entry,i)=>entry&&
+   String(entry.lineId)===String(p.legs[i].line.id)&&
+   String(entry.boardStopId)===String(p.legs[i].enter.id)&&
+   String(entry.alightStopId)===String(p.legs[i].exit.id)&&
+   typeof entry.tripId==='string'&&entry.tripId.length>0))return null;
+  // Delays must be computed from matched journeys upstream, never inferred here.
+  const waiting=Number(t.waitMinutes),walking=Number(t.walkMinutes);
+  return {departure,arrival,durationMinutes:Math.round((arrival-departure)/60000),
+   waitMinutes:Number.isFinite(waiting)&&waiting>=0?waiting:null,
+   walkMinutes:t.walkVerified===true&&Number.isFinite(walking)&&walking>=0?walking:null,
+   generatedAt:created};
+ }
+ function routeRating(p,now=Date.now()){
+  const timing=verifiedTiming(p,now);
+  const transfers=Number(p?.transfer);
+  const transferGood=Number.isFinite(transfers)&&transfers<2&&transfers>=0;
+  const walkVerified=!!timing&&timing.walkMinutes!==null;
+  const waitingVerified=!!timing&&timing.waitMinutes!==null;
+  const walkGood=walkVerified&&timing.walkMinutes<5;
+  const waitGood=waitingVerified&&timing.waitMinutes<5;
+  // Static walk is straight-line only: never pretend it proves <5 actual minutes.
+  const possibleEasyWalk=!walkVerified&&Number.isFinite(p?.walk)&&p.walk<350;
+  const complete=!!timing&&walkVerified&&waitingVerified;
+  const perfect=complete&&transferGood&&walkGood&&waitGood;
+  const stars=perfect?5:Math.min(4,1+(transferGood?1:0)+
+   ((walkVerified?walkGood:possibleEasyWalk)?1:0)+(waitGood?1:0));
+  const waitCost=waitingVerified?timing.waitMinutes:20;
+  const walkCost=walkVerified?timing.walkMinutes:(Number(p?.walk)||1000)/70;
+  const transferCost=(Number.isFinite(transfers)?transfers:4)*10;
+  const score=transferCost+walkCost+waitCost;
+  return {stars,perfect,preliminary:!complete,score,timing,
+   description:perfect?'Mindhárom feltétel teljesül (séta, átszállás, várakozás)':
+    complete?'Ellenőrzött, de nem teljesíti mindhárom 5 csillagos feltételt':
+    'Előzetes értékelés · nincs ellenőrzött gyaloglási és várakozási idő'};
+ }
+ function rankOffers(items,now=Date.now()){
+  return (Array.isArray(items)?items.slice():[]).sort((a,b)=>{
+   const x=routeRating(a,now),y=routeRating(b,now);
+   return y.stars-x.stars||x.score-y.score||
+    (Number(a.transfer)||0)-(Number(b.transfer)||0)||
+    (Number(a.walk)||0)-(Number(b.walk)||0);
+  });
+ }
+ function prettyClock(timestamp){
+  try{return new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',
+   hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(timestamp))}
+  catch(_){return ''}
+ }
  function render(){
   const host=$('hhSmartHubTripPlansV804'),note=$('hhSmartHubTripStatusV804');
   if(!host||!note||!w.document)return;
@@ -275,10 +335,10 @@ function renderGuide(){
   if(!feed&&!network){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
   const networkModule=w.HH_SMART_HUB_NETWORK_V806;
   const broad=network&&networkModule;
-  plans=(broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
+  plans=rankOffers((broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
    .filter(option=>option&&Array.isArray(option.legs)&&option.legs.length&&
     option.legs.every(leg=>leg&&leg.line&&
-     !['960','917','917A'].includes(String(leg.line.id).trim())));
+     !['960','917','917A'].includes(String(leg.line.id).trim()))));
   const coverage=$('hhSmartHubCoverageV806');
   if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
 
@@ -292,10 +352,23 @@ function renderGuide(){
    const d=w.document,row=d.createElement('article');
    row.className='hh-smart-trip-card-v804 hh-trip-card-compact-v854';
    const head=d.createElement('div');head.className='hh-trip-card-head-v854';
-   const heading=d.createElement('strong');heading.textContent=(i+1)+'. ajánlat';
+   const rating=routeRating(p);
+   const heading=d.createElement('span');heading.className='hh-trip-stars-v857';
+   heading.textContent='★'.repeat(rating.stars)+'☆'.repeat(5-rating.stars);
+   heading.setAttribute('role','img');
+   heading.setAttribute('aria-label',rating.stars+' csillag az ötből. '+rating.description);
+   heading.title=rating.description;
    const transfers=d.createElement('span');transfers.className='hh-trip-transfer-count-v854';
    transfers.textContent=p.transfer+' átszállás';
    head.append(heading,transfers);row.append(head);
+   if(rating.timing){
+    const timeHeader=d.createElement('div');timeHeader.className='hh-trip-times-v857';
+    const clocks=d.createElement('strong');clocks.textContent=
+     prettyClock(rating.timing.departure)+' → '+prettyClock(rating.timing.arrival);
+    const minutes=d.createElement('b');minutes.textContent=
+     rating.timing.durationMinutes+' perc';
+    timeHeader.append(clocks,minutes);row.append(timeHeader);
+   }
    const line=d.createElement('div');line.className='hh-trip-card-lines-v854';
    for(const [index,leg] of p.legs.entries()){
     if(index){
@@ -313,9 +386,12 @@ function renderGuide(){
    stop.textContent=p.legs[0].enter.name+' → '+p.legs[p.legs.length-1].exit.name;
    const walk=d.createElement('small');walk.className='hh-trip-card-walk-v854';
    walk.textContent='🚶 Kb. '+Math.round(p.walk)+' m gyaloglás (légvonal)';
-   const time=d.createElement('small');time.className='hh-trip-card-time-v854';
-   time.textContent='Indulási és érkezési idő még nem elérhető';
-   row.append(stop,walk,time);
+   row.append(stop,walk);
+   if(!rating.timing){
+    const provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
+    provisional.textContent='Előzetes értékelés · menetrendi idő még nem elérhető';
+    row.append(provisional);
+   }
    const actions=d.createElement('div');actions.className='hh-smart-trip-actions-v805 hh-trip-actions-v854';
    const flow=d.createElement('button');flow.type='button';
    flow.className='hh-smart-trip-go-v805';
@@ -404,5 +480,5 @@ function renderGuide(){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'854'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'857'};
 });
