@@ -37,6 +37,7 @@
  }
  function ownState(){return active&&active.profile===displayed()&&active.expires>Date.now()?active:null}
  function getStatus(which=displayed(),now=Date.now()){
+  if(stopPending.has(which))return null;
   if(which===displayed()&&ownState()&&(!own()||own()===which))return active;
   const entry=remote.get(which);
   return entry&&entry.expires>now?entry:null;
@@ -197,9 +198,15 @@
     'Nincs aktív utazás.';
   if(select)select.hidden=!waiting;
   if(stopBtn)stopBtn.hidden=!state&&!waiting;
-  if(startBtn)startBtn.textContent=state?.onboard?'🚋 Másik járatra szálltam':'🚋 Felszálltam';
+  if(startBtn)startBtn.textContent=state?.onboard?'🚋 Másik járatra szálltam':
+   state?.selection==='planned'?'🚋 Felszálltam a '+state.route+'-re':'🚋 Felszálltam';
  }
  function board(){
+  const pending=ownState();
+  if(pending&&pending.selection==='planned'&&!pending.onboard){
+   choose(pending.route,pending.mode,'planned',true);
+   return;
+  }
   const bound=own();
   if(bound&&bound!==displayed()){
    setNote('A GPS ehhez a profilhoz nem a saját telefonról érkezik. Válts profilt.');
