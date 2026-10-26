@@ -162,7 +162,7 @@ object FamilyGuardNativeRelay {
                 // Consent can be withdrawn while an earlier GPS snapshot is
                 // waiting on the upload lock. Remove battery fields again at
                 // the last possible moment to prevent privacy race conditions.
-                val finalPayload = JSONObject(payload)
+                val finalPayload = JSONObject(payload.toString())
                 if (!batteryEnabled(app)) {
                     finalPayload.put("battery_pct", JSONObject.NULL)
                         .put("battery_charging", JSONObject.NULL)
