@@ -25,6 +25,13 @@ test('single canonical global-profile authority, blue Zsolt and pink Mónika',()
  assert.match(css,/:root\[data-guardian-profile\] :is\(\.guardian-landmarks,\.hh-arrival-studio,\.family-panel,\.gps-panel\)/);
  assert.match(css,/:root\[data-guardian-profile\] #hhTransitPanel #hhTransitStatus/);
  assert.match(css,/:root\[data-guardian-profile\] #hhTransitPanel \.hh-transit-credit/);
+ // Credit text sits directly on the DARK page, unlike dark ink on glass cards.
+ assert.match(css,/--hhg-credit:#d9eaff/);
+ assert.match(css,/--hhg-credit:#ffe2f1/);
+ assert.match(css,/--hhg-credit-link:#a7deff/);
+ assert.match(css,/--hhg-credit-link:#ffb8df/);
+ assert.match(css,/\.hh-transit-credit\{\s*color:var\(--hhg-credit\)!important/);
+ assert.match(css,/\.hh-transit-credit a:visited\{\s*color:var\(--hhg-credit-link\)!important/);
 });
 test('BKK local data selection must never override the global glass colours',()=>{
  assert.doesNotMatch(bkk,/#hhTransitPanel\[data-bkk-profile=/);
@@ -41,7 +48,7 @@ test('global hero switch also updates BKK route data and browser storage switch'
  assert.match(core,/localStorage\.setItem\('hh-profile',next\)/);
 });
 test('v868 style loads last in head; route identities and GPS semantics remain intact',()=>{
- const i=html.indexOf('guardian-theme-final-lock-v868.css?v=868-profile-root-blue-pink-lock');
+ const i=html.indexOf('guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit');
  assert.ok(i>html.indexOf('guardian-bkk-status-glass-v867.css'));
  assert.ok(i>html.indexOf('guardian-final-panels-glass-v861.css'));
  assert.ok(i>html.indexOf('guardian-soft-glass-v852.css'));
