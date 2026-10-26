@@ -390,3 +390,20 @@ test('v834 full rollback keeps v832 functionality and only tiny transparent uppe
  assert.match(html,/guardian-keyboard-guard-v832\.js/,'approved keyboard fix preserved');
  assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=831/);
 });
+
+test('v835 only centers the native mobile zoom/compass without changing approved v834 corner dot',()=>{
+ const html=read('index.html'),css=read('guardian-zoom-center-v835.css');
+ const dot=read('guardian-attribution-dot-v834.css');
+ assert.match(html,/guardian-zoom-center-v835\.css\?v=835-mobile-center/);
+ assert.ok(html.indexOf('guardian-zoom-center-v835.css')>html.indexOf('guardian-attribution-dot-v834.css'),
+  'zoom override must load after the approved tiny credit icon');
+ assert.match(css,/@media \(max-width:600px\) and \(orientation:portrait\)/);
+ assert.match(css,/#guardianMap \.maplibregl-ctrl-bottom-right/);
+ assert.match(css,/top:clamp\(215px,50%,calc\(100% - 85px\)\)!important/);
+ assert.match(css,/bottom:auto!important/);
+ assert.match(css,/transform:translateY\(-50%\)!important/);
+ assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family|\.maplibregl-ctrl-attrib|\.hh-map-search|watchPosition|geolocation/,'zoom style must be isolated');
+ assert.match(dot,/width:14px!important;height:14px!important/);
+ assert.doesNotMatch(html,/guardian-credits-v833\.css|guardian-map-sources-v833/,'large credits banner must not return');
+ assert.match(html,/guardian-keyboard-guard-v832\.js/,'keyboard patch preserved');
+});
