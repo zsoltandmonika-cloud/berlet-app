@@ -12,7 +12,7 @@
  const SOURCE='BKK Zrt., CC BY 4.0';
  const LINES=new Set(['260','17','19']);
  const WALK=1000,CHANGE=180,MAX_RESULTS=3;
- let start=null,target=null,feed=null,network=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
+ let start=null,target=null,feed=null,network=null,timetable=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
  const $=id=>w&&w.document&&w.document.getElementById(id);
  function distance(a,b){
   if(!a||!b||![a.lat,a.lng,b.lat,b.lng].every(Number.isFinite))return Infinity;
@@ -285,6 +285,9 @@ function renderGuide(){
   return {departure,arrival,durationMinutes:Math.round((arrival-departure)/60000),
    waitMinutes:Number.isFinite(waiting)&&waiting>=0?waiting:null,
    walkMinutes:t.walkVerified===true&&Number.isFinite(walking)&&walking>=0?walking:null,
+   estimatedWalkMinutes:Number.isFinite(walking)&&walking>=0?walking:null,
+   firstBoard:Number.isFinite(Date.parse(t.firstBoard))?Date.parse(t.firstBoard):null,
+   departureStop:typeof t.departureStop==='string'?t.departureStop:null,
    generatedAt:created};
  }
  function routeRating(p,now=Date.now()){
@@ -336,17 +339,24 @@ function renderGuide(){
   if(!feed&&!network){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
   const networkModule=w.HH_SMART_HUB_NETWORK_V806;
   const broad=network&&networkModule;
-  plans=rankOffers((broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
+  const raw=(broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
    .filter(option=>option&&Array.isArray(option.legs)&&option.legs.length&&
     option.legs.every(leg=>leg&&leg.line&&
-     !['960','917','917A'].includes(String(leg.line.id).trim()))));
+     !['960','917','917A'].includes(String(leg.line.id).trim())));
+  const schedules=w.HH_BKK_TIMETABLE_V859;
+  plans=rankOffers(raw.map(option=>{
+   if(!timetable||!schedules?.findTiming)return option;
+   const timing=schedules.findTiming(timetable,option);
+   return timing?{...option,timing}:option;
+  }));
   const coverage=$('hhSmartHubCoverageV806');
   if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
 
   note.textContent=plans.length?
-   plans.length+' statikus BKK-útvonaljavaslat · '+(priority==='transfers'?'legkevesebb átszállás előre':'kevesebb légvonalbeli gyaloglás előre')+
-    (broad?' · többjáratos hálózat (legfeljebb 3 átszállás).':' · csak 260, 17, 19.')+
-    ' Ez nem időpontfüggő menetrendi tervezés és nem igazolt csatlakozás.':
+   plans.length+' BKK útvonaljavaslat · '+(timetable
+    ?'időpontok csak a támogatott, összeillesztett menetrendi utaknál'
+    :'menetrendi időadat még nem elérhető')+
+    ' · gyaloglás légvonalból becsült, élő késés nélkül.':
    (broad?'Nem találtam ellenőrizhető statikus útvonalat a rendelkezésre álló BKK-mintákon. Lehet másik útvonal vagy több átszállás.':
     'A 260-as, 17-es és 19-es járat között nincs statikus összeköttetés. A teljesebb BKK-adatok betöltéséig ez még korlátozott pilot.');
   plans.forEach((p,i)=>{
@@ -388,7 +398,18 @@ function renderGuide(){
    const walk=d.createElement('small');walk.className='hh-trip-card-walk-v854';
    walk.textContent='🚶 Kb. '+Math.round(p.walk)+' m gyaloglás (légvonal)';
    row.append(stop,walk);
-   if(!rating.timing){
+   if(rating.timing){
+    const boarding=d.createElement('small');boarding.className='hh-trip-card-boarding-v859';
+    boarding.textContent=(rating.timing.firstBoard?prettyClock(rating.timing.firstBoard)+' · ':'')+
+     (rating.timing.departureStop||p.legs[0].enter.name)+' · tervezett járatindulás';
+    row.append(boarding);
+    if(rating.timing.estimatedWalkMinutes!==null){
+     const walking=d.createElement('small');walking.className='hh-trip-card-walkmin-v859';
+     walking.textContent='🚶 kb. '+rating.timing.estimatedWalkMinutes+
+      ' perc gyaloglás (légvonalból becsülve)';
+     row.append(walking);
+    }
+   }else{
     const provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
     provisional.textContent='Előzetes értékelés · menetrendi idő még nem elérhető';
     row.append(provisional);
@@ -423,6 +444,21 @@ function renderGuide(){
     }
    });
   });
+ }
+ async function downloadTimetable(){
+  const module=w.HH_BKK_TIMETABLE_V859;
+  if(!module||!module.validate||!w.fetch)return false;
+  const urls=[new URL('./bkk-timetable-v859.json',w.location.href).href,
+   'https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-timetable-v859.json'];
+  for(const url of urls){
+   try{
+    const res=await w.fetch(url,{cache:'no-store'});
+    if(!res.ok)continue;
+    const checked=module.validate(await res.json());
+    if(checked){timetable=checked;render();return true}
+   }catch(_){}
+  }
+  timetable=null;return false;
  }
  async function downloadNetwork(){
   const module=w.HH_SMART_HUB_NETWORK_V806;
@@ -475,7 +511,11 @@ function renderGuide(){
   if(next)next.addEventListener('click',guideNext);
   if(back)back.addEventListener('click',guideBack);
   if(close)close.addEventListener('click',closeGuide);
-  renderGuide();render();loading=download();
+  renderGuide();render();loading=download();downloadTimetable();
+  // The static schedule is date-sensitive; update offers when the page becomes visible.
+  if(w.addEventListener)w.addEventListener('focus',()=>{
+   if(timetable)render();
+  });
  }
  if(w&&w.document){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
