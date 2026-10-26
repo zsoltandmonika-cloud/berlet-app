@@ -40,7 +40,7 @@ test('scope repair is non-destructive and cannot silently deploy an unsigned OTA
   assert.match(build,/versionCode = 35/);
   assert.match(build,/versionName = "0\.15\.8"/);
   // The signed OTA manifest is immutable per RELEASE, not forever pinned to 0.15.2.
-  assert.match(ota.version,/^0\\.\\d+\\.\\d+$/);
+  assert.match(ota.version,/^0\.\d+\.\d+$/);
   assert.ok(Number.isInteger(ota.versionCode)&&ota.versionCode>=29);
   assert.ok(ota.rolloutProfiles.length>=1&&ota.rolloutProfiles.every(x=>['zsolt','monika'].includes(x)));
   assert.match(ota.sha256,/^[a-f0-9]{64}$/);
