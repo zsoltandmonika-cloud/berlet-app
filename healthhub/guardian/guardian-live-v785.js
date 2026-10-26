@@ -184,7 +184,7 @@ async function poll(){
   // Native revocation supersedes older cached browser positions.
   if(native&&native.status==='revoked'&&
      (!data||Date.parse(data.updated_at)<=Date.parse(native.updated_at))){
-   removePeer();setPeerState('Natív helymegosztás visszavonva.');
+   lastPeerSpeedKmh=null;removePeer();setPeerState('Natív helymegosztás visszavonva.');
    return;
   }
   if(error&&!nativeFix)throw error;
@@ -194,7 +194,7 @@ async function poll(){
       Date.parse(nativeFix.updated_at)>Date.parse(selected.updated_at)))
    selected=nativeFix;
   if(!selected){
-   removePeer();
+   lastPeerSpeedKmh=null;removePeer();
    setPeerState(native?.status==='error'?
      'Nincs friss helyadat · privát Dropbox kapcsolat hiba.':
      !relay||!relay.connected()?
@@ -202,9 +202,10 @@ async function poll(){
      'Nincs friss, jóváhagyott családi GPS-pozíció.');
    return;
   }
-  lastPeerSpeedKmh=Number.isFinite(selected.speed_kmh)?selected.speed_kmh:null;
+  lastPeerSpeedKmh=Number.isFinite(selected.speed_kmh)&&selected.speed_kmh>=0&&selected.speed_kmh<200&&selected.accuracy_m<=40?selected.speed_kmh:null;
   displayPeer(selected);
  }catch(e){
+  lastPeerSpeedKmh=null;
   if(token===generation){
    // Temporary network failure must not silently remove a still valid, consented fix.
    const known=peerAvailable&&peerUpdatedAt&&Date.now()-Date.parse(peerUpdatedAt)<=LAST_KNOWN_MS;
