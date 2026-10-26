@@ -308,5 +308,12 @@
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
   onFollowState(){controller?.onFollowState()},
   onLocalGpsFix(){return controller?.onLocalGpsFix()||false},
-  get ready(){return !!controller?.ready},version:'837',revision:'839',speedVersion:'862'};
+  // Read-only reuse of the ALREADY verified GPS position on this physical phone.
+  // Never expose a different family member's remote fix as this device's own.
+  get latestOwnFix(){
+   const k=selectedProfile(w?.localStorage);
+   return controller?.ready&&w?.HH_GUARDIAN_LIVE_V785?.boundProfile===k&&
+    controller?.latest?.profile===k?controller.latest:null;
+  },
+  get ready(){return !!controller?.ready},version:'837',revision:'862',speedVersion:'862'};
 });
