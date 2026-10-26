@@ -315,5 +315,12 @@
    return controller?.ready&&w?.HH_GUARDIAN_LIVE_V785?.boundProfile===k&&
     controller?.latest?.profile===k?controller.latest:null;
   },
-  get ready(){return !!controller?.ready},version:'837',revision:'862',speedVersion:'862'};
+  // Read-only, already authenticated Family Live fix for the currently followed
+  // household member. No new GPS query or visibility permission is created.
+  get latestAuthorizedSelectedFix(){
+   const k=selectedProfile(w?.localStorage),fix=controller?.latest;
+   return canRead(w?.HH_GUARDIAN_LIVE_V785,k)&&fix?.profile===k&&
+    preferRemote(fix,0)?fix:null;
+  },
+  get ready(){return !!controller?.ready},version:'837',revision:'863',speedVersion:'862'};
 });
