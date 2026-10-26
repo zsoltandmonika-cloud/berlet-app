@@ -155,9 +155,11 @@ function onPosition(pos){
   setRemoteMarkerPreferred(remotePreferred);
   // v850: speed is from this already-consented browser GPS fix in m/s.
   // The selected remote portrait remains the only visible one when newer.
-  w.HH_GUARDIAN_SPEED_BADGE_V850?.update(marker?.getElement?.(),{
+  if(remote?.preventWrongDeviceGps?.()||!hasFix)
+   w.HH_GUARDIAN_SPEED_BADGE_V850?.hide(marker?.getElement?.());
+  else w.HH_GUARDIAN_SPEED_BADGE_V850?.update(marker?.getElement?.(),{
    speed:typeof c.speed==='number'&&Number.isFinite(c.speed)&&c.speed>=0?c.speed*3.6:null,
-   accuracy,ts});
+   accuracy:typeof c.accuracy==='number'?accuracy:NaN,ts});
   if(follow&&!remotePreferred)
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
