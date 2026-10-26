@@ -236,7 +236,7 @@
     '⚠️ Eltérés a kiválasztott járat útvonalától. Ellenőrizd a járatszámot!';
   }
   const confirm=$('hhLiveFlowConfirmV863'),end=$('hhLiveFlowEndV863');
-  if(confirm)confirm.hidden=!preview&&!s?.selection?.includes('planned');
+  if(confirm)confirm.hidden=!(preview||(s?.selection==='planned'&&!s.onboard));
   if(confirm)confirm.textContent=preview?'✓ Igen, ezen utazom':
    !s?.onboard?'✓ Felszálltam a '+route+'-re':'✓ Megerősítve';
   if(end)end.hidden=preview||!s;
