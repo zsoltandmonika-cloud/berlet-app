@@ -10,6 +10,10 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const SOURCE='BKK Zrt., CC BY 4.0';
+ // 960 is an overnight, advance-request Telebusz. This static graph cannot
+ // verify operating times or bookings: never propose it as a normal journey.
+ const NON_ROUTABLE=new Set(['960']);
+ function routeAllowed(line){return !!line&&typeof line.id==='string'&&!NON_ROUTABLE.has(line.id.trim())}
  const LIMIT=3,ACCESS=950,TRANSFER=180,MAX_TRANSFERS=3,MAX_ITER=90000;
  const rad=Math.PI/180;
  function distance(a,b){
@@ -23,7 +27,7 @@
   if(raw.routes.length<minRoutes||raw.routes.length>8000)return null;
   const routes=[];
   for(const r of raw.routes){
-   if(!r||typeof r.id!=='string'||!Array.isArray(r.stops)||r.stops.length<2)continue;
+   if(!r||typeof r.id!=='string'||!routeAllowed(r)||!Array.isArray(r.stops)||r.stops.length<2)continue;
    const stops=[];
    for(const s of r.stops){
     if(!Array.isArray(s)||s.length<4||!Number.isFinite(s[2])||!Number.isFinite(s[3])||
@@ -43,7 +47,7 @@
  function createGraph(lines){
   const nodes=[],cells=new Map();
   lines.forEach((line,li)=>{
-   if(!line||!Array.isArray(line.stops))return;
+   if(!routeAllowed(line)||!Array.isArray(line.stops))return;
    line.stops.forEach((stop,index)=>{
     const node={li,line,stop,index,next:-1,coord:line.id+':'+line.mode};
     const nid=nodes.length;nodes.push(node);
@@ -155,5 +159,5 @@
    ? a.walk-b.walk||a.transfer-b.transfer||a.score-b.score
    : a.transfer-b.transfer||a.walk-b.walk||a.score-b.score).slice(0,LIMIT);
  }
- return {SOURCE,distance,validate,createGraph,plan,version:'806'};
+ return {SOURCE,distance,validate,createGraph,plan,routeAllowed,NON_ROUTABLE,version:'806'};
 });
