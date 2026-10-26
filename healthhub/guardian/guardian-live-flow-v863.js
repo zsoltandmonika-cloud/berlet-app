@@ -31,9 +31,10 @@
  function currentFix(){
   const e=engine();
   if(e?.isFresh(fix))return fix;
-  const native=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestOwnFix;
-  if(native?.profile===selected()&&e?.isFresh(native)){
-   return {lat:native.lat,lng:native.lng,accuracy:native.accuracy,ts:native.ts};
+  const follow=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+  const verified=isOwner()?follow?.latestOwnFix:follow?.latestAuthorizedSelectedFix;
+  if(verified?.profile===selected()&&e?.isFresh(verified)){
+   return {lat:verified.lat,lng:verified.lng,accuracy:verified.accuracy,ts:verified.ts};
   }
   return null;
  }
@@ -123,8 +124,9 @@
   const status=e.warningUpdate(warningState,variant,nowFix,previous);
   warningState=status;warning=status.alert;
  }
- function setFix(next){
-  const e=engine();if(!e?.isFresh(next)||!isOwner())return;
+ function setFix(next,authorizedFamilyRead=false){
+  const e=engine();
+  if(!e?.isFresh(next)||(!isOwner()&&!authorizedFamilyRead))return;
   if(fix&&next.ts<=fix.ts)return;
   previous=fix&&next.ts-fix.ts<=90000?fix:null;fix=next;
   if(opened){
@@ -144,7 +146,14 @@
    if(!preview){route=null;chosen=null;resetRoute()}
    return;
   }
-  if(!isOwner())return;
+  if(!isOwner()){
+   // Mónika's route may be viewed from Zsolt's phone, but never changed there.
+   if(opened&&(route!==s.route||chosen?.started!==s.started)){
+    resetRoute();route=s.route;mode=s.mode;chosen=s;preview=false;
+    updateEstimate();render();
+   }
+   return;
+  }
   const key=routeKey(s);
   if(route!==s.route||chosen?.started!==s.started||chosen?.onboard!==s.onboard){
    const keep=forced?.id===s.route?forced:null;
@@ -221,7 +230,8 @@
   overlay.dataset.mode=mode||'other';
   overlay.dataset.alarm=warning?'red':'normal';
   if(title)title.textContent=emoji(mode)+' '+(route||'—')+' · Live Trip Flow';
-  if(caption)caption.textContent=preview?'GPS alapján valószínű vonal · még nem megerősített':
+  if(caption)caption.textContent=!isOwner()?'Családi megtekintés · megosztott GPS-alapú becslés':
+   preview?'GPS alapján valószínű vonal · még nem megerősített':
    s?.onboard?'Felszállás megjelölve · járat GPS-szel becsülve':
    'Tervezett útvonal · felszállás még nincs megerősítve';
   if(stateLine)stateLine.textContent=!nowFix?'GPS-jelre várunk · a pozíció nem élő':
@@ -236,10 +246,12 @@
     '⚠️ Eltérés a kiválasztott járat útvonalától. Ellenőrizd a járatszámot!';
   }
   const confirm=$('hhLiveFlowConfirmV863'),end=$('hhLiveFlowEndV863');
-  if(confirm)confirm.hidden=!(preview||(s?.selection==='planned'&&!s.onboard));
+  if(confirm)confirm.hidden=!isOwner()||!(preview||(s?.selection==='planned'&&!s.onboard));
   if(confirm)confirm.textContent=preview?'✓ Igen, ezen utazom':
    !s?.onboard?'✓ Felszálltam a '+route+'-re':'✓ Megerősítve';
-  if(end)end.hidden=preview||!s;
+  if(end)end.hidden=preview||!s||!isOwner();
+  const switcher=$('hhLiveFlowSwitchLineV863');
+  if(switcher)switcher.hidden=!isOwner();
   renderDirections();renderStops();
  }
  function openManually(){
@@ -297,7 +309,7 @@
    sync();
    if(opened){
     const fresh=currentFix();
-    if(fresh&&(!fix||fresh.ts>fix.ts)){setFix(fresh)}
+    if(fresh&&(!fix||fresh.ts>fix.ts)){setFix(fresh,true)}
     else {
      if(!fresh){lastPos=null;warning=null;warningState={reverse:0,off:0,lastTs:0}}
      render();
