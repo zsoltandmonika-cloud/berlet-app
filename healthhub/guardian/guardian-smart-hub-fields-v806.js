@@ -121,16 +121,28 @@
   return {...place,name:same.name,subtitle:same.subtitle,
    displayName:place.displayName||place.name};
  }
+ // One-shot browser geolocation only. This does not start Guardian background tracking.
+ function currentPositionPlace(position,now=Date.now()){
+  const c=position&&position.coords;
+  if(!c||!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||
+    Math.abs(c.latitude)>90||Math.abs(c.longitude)>180||
+    !Number.isFinite(c.accuracy)||c.accuracy<0||c.accuracy>300||
+    !Number.isFinite(position.timestamp)||
+    position.timestamp<now-60000||position.timestamp>now+60000)return null;
+  return {name:'Jelenlegi pozícióm',subtitle:'',lat:c.latitude,lng:c.longitude,
+    source:'device-gps',accuracyMeters:Math.round(c.accuracy)};
+ }
  function init(){
   const d=w&&w.document;
   if(!d||!w.fetch)return;
   const inputs={origin:$('hhSmartHubFromV806'),destination:$('hhSmartHubToV806')};
   const results=$('hhSmartHubNativeResultsV803'),status=$('hhSmartHubDestinationStatusV802');
   const swapButton=$('hhSmartHubSwapV806'),planButton=$('hhSmartHubPlanV806');
+  const locateButton=$('hhSmartHubCurrentPositionV860');
   const favorites=$('hhSmartHubFavoriteRowsV806'),profileText=$('hhSmartHubFavoriteProfileV806');
-  if(!inputs.origin||!inputs.destination||!results||!status||!swapButton||!planButton||!favorites)return;
+  if(!inputs.origin||!inputs.destination||!results||!status||!swapButton||!planButton||!favorites||!locateButton)return;
   let state={origin:null,destination:null},active='destination',timer=null,pending=null,requestId=0,lastRequest=0;
-  let markers={origin:null,destination:null},storedProfile=profileId(w.localStorage);
+  let markers={origin:null,destination:null},storedProfile=profileId(w.localStorage),geoBusy=false;
   const message=text=>{status.textContent=text};
   const fields=()=>inputs;
   function stopRequest(){
@@ -308,6 +320,51 @@
     if(e.key==='Enter'){e.preventDefault();search(kind)}
    });
   }
+  function locateOrigin(){
+   if(geoBusy)return;
+   const geolocation=w.navigator&&w.navigator.geolocation;
+   if(!geolocation||typeof geolocation.getCurrentPosition!=='function'){
+    message('A jelenlegi pozíció nem érhető el ebben a böngészőben. Adj meg egy indulási címet.');
+    return;
+   }
+   stopRequest();clearResults();
+   const token=requestId,expectedProfile=storedProfile;
+   geoBusy=true;locateButton.disabled=true;
+   locateButton.setAttribute('aria-busy','true');
+   message('Jelenlegi pozíció lekérése… Engedélyezd a helyhozzáférést, ha a telefon kéri.');
+   const finish=()=>{
+    geoBusy=false;locateButton.disabled=false;
+    locateButton.setAttribute('aria-busy','false');
+   };
+   try{
+    geolocation.getCurrentPosition(position=>{
+     const validToken=token===requestId&&expectedProfile===storedProfile;
+     finish();
+     if(!validToken)return;
+     const place=currentPositionPlace(position);
+     if(!place){
+      message('A GPS-pozíció nem elég friss vagy pontos (300 m feletti bizonytalanság). Próbáld szabad ég alatt, vagy adj meg címet.');
+      return;
+     }
+     if(selectPlace(place,'origin')){
+      const suffix=state.destination?' Az útvonalakat újraterveztem.':' Válaszd ki az úti célt.';
+      message('Jelenlegi pozíció rögzítve indulási helyként (±'+place.accuracyMeters+' m).'+suffix);
+     }
+    },error=>{
+     const validToken=token===requestId&&expectedProfile===storedProfile;
+     finish();
+     if(!validToken)return;
+     const code=error&&error.code;
+     message(code===1
+      ?'A helymeghatározás nincs engedélyezve. Engedélyezd a telefon és a böngésző/HH One beállításaiban, vagy írj be címet.'
+      :code===3?'A helymeghatározás időtúllépéssel megszakadt. Próbáld újra szabad ég alatt.'
+      :'Nem sikerült meghatározni a jelenlegi pozíciót. Próbáld újra, vagy írj be címet.');
+    },{enableHighAccuracy:true,maximumAge:15000,timeout:12000});
+   }catch(_){
+    finish();message('A helymeghatározás nem indítható ezen az eszközön. Használd a címkeresőt.');
+   }
+  }
+  locateButton.addEventListener('click',locateOrigin);
   function swap(){
    stopRequest();clearResults();
    state=swapState(state);
@@ -405,5 +462,5 @@
   else init();
  }
  return {queryText,searchUrl,normalizeResults,validPlace,swapState,slotLabel,
-  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,enrichSharedWithFavorite,init,version:'856'};
+  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,enrichSharedWithFavorite,currentPositionPlace,init,version:'860'};
 });
