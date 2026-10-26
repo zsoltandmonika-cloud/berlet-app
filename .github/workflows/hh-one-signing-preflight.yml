@@ -79,12 +79,12 @@ jobs:
           elif [[ "$NEW_CODE" == "$((BASE_CODE+1))" && ( "$NEW_VERSION" == "$NEXT_VERSION" || "$NEW_VERSION" == "$NEXT_MINOR" ) ]]; then
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
           elif [[ "$BASE_VERSION" == "0.15.2" && "$BASE_CODE" == "29" &&
-                  "$NEW_VERSION" == "0.15.7" && "$NEW_CODE" == "34" ]]; then
-            # v0.15.3/build30 and v0.15.4/build31 were previously installed
+                  "$NEW_VERSION" == "0.15.8" && "$NEW_CODE" == "35" ]]; then
+            # v0.15.3–0.15.7/build30–34 were earlier installed
             # private pilot versions, never published to production OTA.
             # This is the EXACT signed opt-in background-location PILOT only.
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
-            echo "Signed private pilot upgrade 0.15.7/build34, OTA baseline unchanged."
+            echo "Signed private pilot upgrade 0.15.8/build35, OTA baseline unchanged."
           else
             echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch or minor version."
             exit 1
@@ -204,7 +204,7 @@ jobs:
           if [[ ( "$VERSION" == "$NEXT" || "$VERSION" == "$NEXT_MINOR" ) &&
                 "$CODE" == "$((BASE[1]+1))" ]]; then VERSION_ALLOWED=true; fi
           if [[ "${BASE[0]}" == "0.15.2" && "${BASE[1]}" == "29" &&
-                "$VERSION" == "0.15.7" && "$CODE" == "34" ]]; then VERSION_ALLOWED=true; fi
+                "$VERSION" == "0.15.8" && "$CODE" == "35" ]]; then VERSION_ALLOWED=true; fi
           if ! grep -Fq 'applicationId = "hu.zsoltmonika.healthhubbridge"' app/build.gradle.kts ||
              [[ "$VERSION_ALLOWED" != "true" ]]; then
             echo "::error::Incorrect Android package/version; signed candidate rejected."
