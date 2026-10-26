@@ -66,8 +66,7 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
  assert.doesNotMatch(js,/function toggleSatellite|tiles\.maps\.eox\.at/,'satellite mode not offered in v780');
  assert.match(js,/attributionControl:false/,'native compact attribution is added separately');
- assert.doesNotMatch(js,/new w\.maplibregl\.AttributionControl/,'obsolete top-left icon must not exist');
- assert.match(html,/class="guardian-map-sources-v833"/,'visible linked map data credits');
+ assert.match(js,/new w\.maplibregl\.AttributionControl/,'mandatory map credits accessible via native compact info button');
  assert.doesNotMatch(html,/class="guardian-map-credits"/,'old wide credits strip removed');
  assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
@@ -291,8 +290,7 @@ test('v780 premium place categories retain browser bookmark storage and add bus 
  assert.doesNotMatch(html,/3D BUDAPEST · FELFEDEZŐ NÉZET/,'top corner prose removed');
  const map=read('guardian/guardian.js');
  assert.match(map,/attributionControl:false/,'MapLibre control added explicitly for compact display');
- assert.doesNotMatch(map,/new w\.maplibregl\.AttributionControl/,'map data credits now use inline linked strip');
- assert.match(read('guardian/index.html'),/href="https:\/\/www\.openstreetmap\.org\/copyright"/,'live map credit remains visible');
+ assert.match(map,/new w\.maplibregl\.AttributionControl/,'native compact copyright links preserved');
  assert.match(html,/guardian-map-credits/,'v780 historical snapshot keeps its original layout');
 });
 
