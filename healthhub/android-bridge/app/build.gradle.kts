@@ -13,6 +13,7 @@ android {
         targetSdk = 35
         versionCode = 35
         versionName = "0.15.8"
+        // v842 Family Battery Safety, separate local opt-in. Signed OTA candidate 0.15.8/35.
     }
 
     buildFeatures {
