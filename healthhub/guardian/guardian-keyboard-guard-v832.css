@@ -1,0 +1,23 @@
+/* v832 · Only while the mobile map address field is focused.
+ * The search stays above Android's keyboard; saved results scroll inside their
+ * own glass panel instead of shifting the entire Family Guard page.
+ */
+@media(max-width:600px) and (orientation:portrait){
+ .map-card.hh-map-typing-v832:not(.hh-map-full-v819){
+  z-index:75!important;overflow:visible!important;
+ }
+ .map-card.hh-map-typing-v832:not(.hh-map-full-v819) > #guardianMapSearchV819{
+  position:fixed!important;
+  top:var(--hh-map-typing-top-v832,calc(100dvh - 64px))!important;
+  bottom:auto!important;
+  left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:80!important;
+ }
+ .map-card.hh-map-typing-v832:not(.hh-map-full-v819) #guardianMapSearchResultsV819{
+  max-height:var(--hh-map-typing-results-v832,240px)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch;
+ }
+}
