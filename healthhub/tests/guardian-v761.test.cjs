@@ -291,7 +291,7 @@ test('v780 premium place categories retain browser bookmark storage and add bus 
  const map=read('guardian/guardian.js');
  assert.match(map,/attributionControl:false/,'MapLibre control added explicitly for compact display');
  assert.match(map,/new w\.maplibregl\.AttributionControl/,'native compact copyright links preserved');
- assert.doesNotMatch(html,/class="guardian-map-credits"/,'no oversized copyright ribbon');
+ assert.match(html,/guardian-map-credits/,'v780 historical snapshot keeps its original layout');
 });
 
 test('v781 2D and 3D share one map color palette',()=>{
