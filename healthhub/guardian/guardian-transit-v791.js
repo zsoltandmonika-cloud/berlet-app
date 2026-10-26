@@ -300,6 +300,7 @@ function setProfile(p){
  }
  const field=$('hhTransitProfileV791');if(field)field.value=profile;
  const card=d.querySelector?.('.hh-transit-v791');if(card)card.setAttribute('data-bkk-profile',profile);
+ const panel=$('hhTransitPanel');if(panel)panel.setAttribute('data-bkk-profile',profile);
  updateControls();renderDirections();showSelected();renderCards();
  const catalog=w.HH_BKK_CATALOG_V801;
  if(catalog&&catalog.setProfile)catalog.setProfile(profile);
@@ -311,6 +312,7 @@ function init(){
  profile=w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
  restore();loadPrefs();updateControls();
  const card=d.querySelector?.('.hh-transit-v791');if(card)card.setAttribute('data-bkk-profile',profile);
+ const panel=$('hhTransitPanel');if(panel)panel.setAttribute('data-bkk-profile',profile);
  for(const id of IDS){
   const cb=$('hhTransitRoute'+id),show=$('hhTransitShow'+id);
   if(cb)cb.addEventListener('change',()=>onToggle(id,cb.checked));
