@@ -99,8 +99,8 @@ test('v845 renders one hero Battery tile, GPS and Health, with exact popup rows'
  assert.doesNotMatch(code,/navigator\.getBattery|navigator\.geolocation|\.upload\(|\.upsert\(|setRemoteMarkerPreferred/);
  for(const legacy of ['guardianProfileSwitch','guardianMap','guardian-profile-battery-v841.js'])
   assert.match(html,new RegExp(legacy.replaceAll('.','\\.')));
- assert.match(read('guardian-polish-v767.css'),/guardian-family-hero-approved-v768\\.avif/);
- assert.doesNotMatch(css,/background-image:|hero-approved-v768\\.avif/);
+ assert.ok(read('guardian-polish-v767.css').includes('guardian-family-hero-approved-v768.avif'));
+ assert.ok(!css.includes('background-image:')&&!css.includes('hero-approved-v768.avif'));
 });
 test('v845 mini Health card toggles a real, profile-scoped expanded glass view',async()=>{
  const els=new Map(),listeners={};
