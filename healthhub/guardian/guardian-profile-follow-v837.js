@@ -65,32 +65,51 @@
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false;
-  let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0;
-  // Visual interpolation ONLY between two measured positions. Never predict
-  // beyond the newest fix; cancel instantly on profile/revocation/stale data.
+  let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
+  let lastMotionDuration=820;
+  // Camera and portrait move toward the newest REAL position, never beyond it.
+  // The camera and portrait should glide for most of the observed fix cadence.
+  // A re-read of the SAME timestamp must not cancel an unfinished animation.
+  function smoothingMs(cadence){
+   if(!Number.isFinite(cadence)||cadence<=0)return 2300;
+   return Math.min(3400,Math.max(950,Math.round(cadence*.82)));
+  }
   function paintCoordinate(fix){
-   const next=[fix.lng,fix.lat],prev=markerCoord;
-   markerCoord=next;
-   moveToken++;
-   if(moveFrame!==null&&w.cancelAnimationFrame){w.cancelAnimationFrame(moveFrame);moveFrame=null}
-   const age=Date.now()-fix.ts,delta=prev?Math.hypot(
+   if(!marker||!fix||!Number.isFinite(fix.ts))return;
+   if(fix.ts<=lastPaintTs)return;
+   const next=[fix.lng,fix.lat],prev=markerCoord&&markerCoord.slice();
+   const receivedAt=Date.now();
+   const cadence=lastReceiveAt?receivedAt-lastReceiveAt:3000;
+   lastReceiveAt=receivedAt;
+   lastPaintTs=fix.ts;
+   const age=receivedAt-fix.ts;
+   const delta=prev?Math.hypot(
     (next[0]-prev[0])*111195*Math.cos(next[1]*Math.PI/180),
     (next[1]-prev[1])*111195):Infinity;
    const reduce=!!w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-   const canSmooth=!!prev&&fix.ts>lastPaintTs&&delta>=2&&delta<=220&&age<=12000&&
+   const canSmooth=!!prev&&delta>=3&&delta<=220&&age>=0&&age<=10000&&
     !d.hidden&&!reduce&&typeof w.requestAnimationFrame==='function';
-   lastPaintTs=fix.ts;
-   if(!canSmooth){marker?.setLngLat(next);return}
-   const token=moveToken,start=w.performance?.now?.()??Date.now(),duration=850;
+   moveToken++;
+   if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
+   moveFrame=null;
+   if(!canSmooth){
+    markerCoord=next;marker.setLngLat(next);lastMotionDuration=820;return;
+   }
+   const token=moveToken,start=w.performance?.now?.()??receivedAt,
+    duration=smoothingMs(cadence);
+   lastMotionDuration=duration;
    function frame(stamp){
-    if(token!==moveToken||!marker||d.hidden||!authorized())return;
-    const fraction=Math.min(1,Math.max(0,(stamp-start)/duration));
-    const ease=fraction*fraction*(3-2*fraction);
-    marker.setLngLat([
-     prev[0]+(next[0]-prev[0])*ease,
-     prev[1]+(next[1]-prev[1])*ease
-    ]);
-    if(fraction<1)moveFrame=w.requestAnimationFrame(frame);
+    if(token!==moveToken||!marker||d.hidden||!authorized()||
+      !preferRemote(fix,localFixAt()))return;
+    const progress=Math.min(1,Math.max(0,(stamp-start)/duration));
+    // Gentle easing, no continued motion after reaching the last measured fix.
+    const eased=progress*progress*(3-2*progress);
+    markerCoord=[
+     prev[0]+(next[0]-prev[0])*eased,
+     prev[1]+(next[1]-prev[1])*eased
+    ];
+    marker.setLngLat(markerCoord);
+    if(progress<1)moveFrame=w.requestAnimationFrame(frame);
     else moveFrame=null;
    }
    moveFrame=w.requestAnimationFrame(frame);
@@ -103,7 +122,7 @@
   function clearMarker(){
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
-   moveFrame=null;markerCoord=null;lastPaintTs=0;
+   moveFrame=null;markerCoord=null;lastPaintTs=0;lastReceiveAt=0;lastMotionDuration=820;
    if(marker){try{marker.remove()}catch(_){}marker=null}
    markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
@@ -163,7 +182,8 @@
    if(!map||typeof map.easeTo!=='function')return false;
    if(force||latest.ts!==lastCenteredAt||latest.profile!==lastCenteredProfile){
     map.easeTo({center:[latest.lng,latest.lat],
-     zoom:Math.max(map.getZoom?.()||15,15.3),duration:force?640:820});
+     zoom:Math.max(map.getZoom?.()||15,15.3),
+     duration:force?640:lastMotionDuration});
     lastCenteredAt=latest.ts;lastCenteredProfile=latest.profile;
    }
    return true;
