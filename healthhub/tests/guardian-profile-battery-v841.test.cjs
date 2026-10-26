@@ -101,7 +101,7 @@ test('v841 is a scoped premium hero change, using only approved owner-bound rela
  assert.match(android,/BatteryManager\.EXTRA_STATUS/);
  assert.match(android,/\.put\("battery_pct", percent \?: JSONObject\.NULL\)/);
  assert.match(android,/\.put\("battery_charging", charging \?: JSONObject\.NULL\)/);
- assert.match(relay,/profile:profile/);
+ assert.match(relay,/profile_key:profile/);
  assert.match(relay,/battery_pct:Number\.isInteger\(raw\.battery_pct\)/);
  assert.doesNotMatch(js,/navigator\.getBattery|navigator\.geolocation|localStorage\.setItem|\.upsert\(|\.upload\(/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
