@@ -20,7 +20,8 @@
  const client=()=>authorized()?w?.HH_GUARDIAN_LIVE_V785?.getClient?.():null;
  const displayed=()=>profile();
  let active=null,remote=new Map(),lastFix=null,network=null,waiting=false;
- let uiReady=false,syncBusy=false,refreshBusy=false,lastSuggestAt=0,lastBroadcast=0;
+ let uiReady=false,refreshBusy=false,lastSuggestAt=0,lastBroadcast=0;
+ let syncQueue=Promise.resolve(),stopPending=new Set();
  const name=p=>p==='monika'?'Mónika':'Zsolt';
  const elementId=id=>$(id);
  function normalize(raw,now=Date.now()){
@@ -75,28 +76,35 @@
    if(restored&&(!own()||restored.profile===own()))active=restored;
   }catch(_){}
  }
- async function send(){
-  const item=ownState(),c=client();
-  // Do not publish a status from a browser viewing the OTHER profile.
-  if(!item||!c||own()!==item.profile)return;
-  if(syncBusy)return;
-  syncBusy=true;
-  try{
-   const session=await c.auth.getUser();
-   if(!session?.data?.user?.id)return;
-   const payload={profile_key:item.profile,owner_id:session.data.user.id,
-    route_id:item.route,mode:item.mode,selection:item.selection,onboard:item.onboard,
-    started_at:new Date(item.started).toISOString(),
-    updated_at:new Date().toISOString(),expires_at:new Date(item.expires).toISOString()};
-   const {error}=await c.from(TABLE).upsert(payload,{onConflict:'profile_key'});
-   if(!error)lastBroadcast=Date.now();
-  }catch(_){}
-  finally{syncBusy=false}
+ function send(){
+  const item=ownState();
+  if(!item||own()!==item.profile)return syncQueue;
+  syncQueue=syncQueue.catch(()=>{}).then(async()=>{
+   if(active!==item||stopPending.has(item.profile))return;
+   const c=client();if(!c||own()!==item.profile)return;
+   try{
+    const session=await c.auth.getUser();
+    if(!session?.data?.user?.id||active!==item)return;
+    const payload={profile_key:item.profile,owner_id:session.data.user.id,
+     route_id:item.route,mode:item.mode,selection:item.selection,onboard:item.onboard,
+     started_at:new Date(item.started).toISOString(),
+     updated_at:new Date().toISOString(),expires_at:new Date(item.expires).toISOString()};
+    const {error}=await c.from(TABLE).upsert(payload,{onConflict:'profile_key'});
+    if(!error)lastBroadcast=Date.now();
+   }catch(_){}
+  });
+  return syncQueue;
  }
- async function stopShared(which){
-  const c=client();
-  if(!c||own()!==which)return;
-  try{await c.from(TABLE).delete().eq('profile_key',which)}catch(_){}
+ function stopShared(which){
+  if(!which||own()!==which)return syncQueue;
+  stopPending.add(which);
+  syncQueue=syncQueue.catch(()=>{}).then(async()=>{
+   const c=client();
+   if(c&&own()===which){
+    try{await c.from(TABLE).delete().eq('profile_key',which)}catch(_){}
+   }
+  }).finally(()=>stopPending.delete(which));
+  return syncQueue;
  }
  function choose(route,mode,selection='manual',onboard=true){
   const line=String(route||'').trim();
@@ -106,7 +114,7 @@
   const now=Date.now();
   active={profile:displayed(),route:line,mode,selection,
    onboard:!!onboard,started:now,expires:now+MAX_TIME};
-  waiting=false;save();announce();send();
+  waiting=false;stopPending.delete(active.profile);save();announce();send();
   setNote((onboard?'Felszállás megjelölve: ':'Kiválasztott útvonal: ')+
    line+'. A járatszám saját választás, nem igazolt járműazonosítás.');
   return true;
@@ -118,7 +126,7 @@
  }
  function stop(){
   const prior=active?.profile;
-  active=null;waiting=false;save();announce();
+  active=null;waiting=false;remote.delete(prior);save();announce();
   if(prior)stopShared(prior);
   setNote('Utazási mód kikapcsolva.');
  }
@@ -253,7 +261,7 @@
   });
   w.addEventListener?.('hh-guardian-own-fix-v862',e=>ownGpsFix(e.detail));
   w.addEventListener?.('hh-transit-network-ready-v862',()=>{network=w?.HH_SMART_HUB_ROUTER_V804?.networkLines||null;if(waiting)renderCandidates()});
-  w.addEventListener?.('hh-guardian-auth-changed',refresh);
+  w.addEventListener?.('hh-guardian-auth-changed',()=>{if(ownState())send();refresh()});
   w.addEventListener?.('pageshow',refresh);
   w.addEventListener?.('storage',e=>{
    if(e.key==='hh-profile'){active=null;waiting=false;lastFix=null;restore();render();refresh()}
