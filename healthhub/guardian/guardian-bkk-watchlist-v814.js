@@ -45,6 +45,8 @@
    const route=api.routeByKey?api.routeByKey(key):null;
    const row=node('article','hh-bkk-watch-row-v814 hh-bkk-watch-mode-'+mode);
    const badge=node('span','hh-bkk-watch-number-v814',id);
+   badge.setAttribute('data-bkk-mode',mode);
+   if(mode==='metro')badge.setAttribute('data-bkk-route',id);
    const detail=node('div','hh-bkk-watch-copy-v814');
    detail.append(node('strong','',MODE[mode]||'Járat'));
    detail.append(node('span','',route?(route.directions.slice(0,2).join(' ↔ ')||route.name||'BKK menetrendi járat'):'BKK járat · adatok betöltése…'));
@@ -61,12 +63,21 @@
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
    if(supported){
-    const show=action('Mutasd ↗',id+' útvonal mutatása a térképen',()=>{
-     if(!mapReady)return;
-     if(transit&&typeof transit.showLine==='function')transit.showLine(id);
-     else if(original&&!original.disabled)original.click();
+    const shown=!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id));
+    const show=action(shown?'Ne mutasd':'Mutasd ↗',
+     id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
+      if(!mapReady)return;
+      if(transit&&typeof transit.setLineVisible==='function'){
+       if(shown)transit.setLineVisible(id,false);
+       else if(typeof transit.showLine==='function')transit.showLine(id);
+       else transit.setLineVisible(id,true);
+      }else if(!shown&&original&&!original.disabled)original.click();
+      render();
     },!route||!mapReady);
     show.classList.add('hh-bkk-watch-show-v814');
+    show.setAttribute('aria-pressed',String(shown));
+    show.dataset.visible=String(shown);
+    row.dataset.mapVisible=String(shown);
     controls.append(show);
    }
    const up=action('↑',id+' feljebb helyezése',()=>api.moveFavoriteKey(key,-1),i===0);
@@ -101,6 +112,7 @@
   if(w.addEventListener){
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
    w.addEventListener('hh-bkk-static-map-ready-v817',render);
+   w.addEventListener('hh-bkk-line-visibility-v855',render);
    w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
   }
   const profile=$('hhTransitProfileV791');
