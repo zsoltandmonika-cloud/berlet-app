@@ -1,0 +1,87 @@
+/* SH9 Family Guard · Profile Theme Hardening Pass · FINAL LOCK v868
+ * There is ONE visual owner: :root[data-guardian-profile="z"|"m"].
+ * BKK's data-bkk-profile is a DATA-ONLY selector for route preferences.
+ * Do not paint map transport identities, GPS/RAG safety states, avatar rings,
+ * the approved hero photograph, or the standardized global taskbar.
+ */
+:root[data-guardian-profile="z"]{
+ --hhg-ink:#193653;
+ --hhg-muted:#4d6984;
+ --hhg-accent:#78b4e6;
+ --hhg-selected:rgba(153,207,247,.68);
+ --hhg-surface:rgba(231,244,255,.74);
+ --hhg-panel-start:rgba(223,239,252,.86);
+ --hhg-panel-end:rgba(189,221,246,.78);
+ --hhg-shadow:rgba(37,63,101,.10);
+}
+:root[data-guardian-profile="m"]{
+ --hhg-ink:#562946;
+ --hhg-muted:#78546d;
+ --hhg-accent:#dc8fc0;
+ --hhg-selected:rgba(249,186,224,.68);
+ --hhg-surface:rgba(255,238,250,.75);
+ --hhg-panel-start:rgba(255,238,249,.86);
+ --hhg-panel-end:rgba(239,210,233,.79);
+ --hhg-shadow:rgba(101,44,83,.10);
+}
+/* All three domain-local variable families reference only canonical profile.
+ * These important custom properties intentionally beat old component-local
+ * themes even after changing the independent BKK route-data dropdown. */
+:root[data-guardian-profile] #hhSmartHubDestinationV802{
+ --accent:var(--hhg-accent)!important;
+ --ink:var(--hhg-ink)!important;
+ --muted:var(--hhg-muted)!important;
+ --selected:var(--hhg-selected)!important;
+ --surface:var(--hhg-surface)!important;
+ --edge:rgba(255,255,255,.86)!important;
+ background:linear-gradient(138deg,var(--hhg-panel-start),var(--hhg-panel-end))!important;
+ color:var(--hhg-ink)!important;
+}
+:root[data-guardian-profile] #hhTransitPanel{
+ --bk-ink:var(--hhg-ink)!important;
+ --bk-muted:var(--hhg-muted)!important;
+ --bk-accent:var(--hhg-accent)!important;
+ --bk-selected:var(--hhg-selected)!important;
+ --bk-surface:var(--hhg-surface)!important;
+ --bk-edge:rgba(255,255,255,.86)!important;
+}
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-v791{
+ --dr-ink:var(--hhg-ink)!important;
+ --dr-muted:var(--hhg-muted)!important;
+ --dr-accent:var(--hhg-accent)!important;
+ --dr-selected:var(--hhg-selected)!important;
+ --dr-bg:var(--hhg-surface)!important;
+ --dr-edge:rgba(255,255,255,.86)!important;
+}
+:root[data-guardian-profile] :is(.guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel){
+ --fg-ink:var(--hhg-ink)!important;
+ --fg-muted:var(--hhg-muted)!important;
+ --fg-accent:var(--hhg-accent)!important;
+ --fg-selected:var(--hhg-selected)!important;
+ --fg-surface:var(--hhg-surface)!important;
+ --fg-card:rgba(255,255,255,.35)!important;
+ --fg-edge:rgba(255,255,255,.86)!important;
+ --fg-shadow:var(--hhg-shadow)!important;
+ color:var(--hhg-ink)!important;
+ background:linear-gradient(138deg,var(--hhg-panel-start),var(--hhg-panel-end))!important;
+}
+/* Legacy BKK static-status and license note must use the same inherited palette
+ * even if the BKK data selector currently displays the other profile's list. */
+:root[data-guardian-profile] #hhTransitPanel #hhTransitStatus.hh-transit-status{
+ color:var(--hhg-ink)!important;
+ background:linear-gradient(135deg,var(--hhg-surface),rgba(255,255,255,.38))!important;
+ border-color:rgba(255,255,255,.86)!important;
+}
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit{
+ color:var(--hhg-muted)!important;
+}
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit a{
+ color:var(--hhg-ink)!important;
+ text-decoration-color:var(--hhg-accent)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ :root[data-guardian-profile="z"] #hhTransitPanel #hhTransitStatus.hh-transit-status{background:#e3f0fb!important}
+ :root[data-guardian-profile="m"] #hhTransitPanel #hhTransitStatus.hh-transit-status{background:#f5e2ee!important}
+ :root[data-guardian-profile="z"] :is(.guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel){background:#dceaf8!important}
+ :root[data-guardian-profile="m"] :is(.guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel){background:#f5e1ee!important}
+}
