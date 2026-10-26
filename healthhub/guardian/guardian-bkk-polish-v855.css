@@ -15,9 +15,6 @@
  background:#2872bd!important;color:#fff!important
 }
 #hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M1"],
-#hhTransitPanel .hh-bkk-catalog-row-v801:has(.hh-bkk-catalog-number-v801.hh-bkk-mode-metro) .hh-bkk-catalog-number-v801.hh-bkk-mode-metro:is(:first-child):empty{
- background:#ffd33f!important;color:#343019!important
-}
 #hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M2"]{background:#e54445!important;color:#fff!important}
 #hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M3"]{background:#2074b8!important;color:#fff!important}
 #hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M4"]{background:#299d73!important;color:#fff!important}
@@ -32,6 +29,15 @@
 #hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M2"]{background:#e54445!important;color:#fff!important}
 #hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M3"]{background:#2074b8!important;color:#fff!important}
 #hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M4"]{background:#299d73!important;color:#fff!important}
+/* The BKK profile dropdown can explicitly select a profile within this area. */
+#hhTransitPanel[data-bkk-profile="monika"]{
+ --bk-ink:#562946;--bk-muted:#78546d;--bk-surface:rgba(255,238,250,.74);
+ --bk-edge:rgba(255,255,255,.85);--bk-selected:rgba(249,186,224,.66);--bk-accent:#dc8fc0
+}
+#hhTransitPanel[data-bkk-profile="zsolt"]{
+ --bk-ink:#193653;--bk-muted:#4d6984;--bk-surface:rgba(231,244,255,.72);
+ --bk-edge:rgba(255,255,255,.85);--bk-selected:rgba(153,207,247,.64);--bk-accent:#78b4e6
+}
 /* Stars are always amber-gold, independent from profile skin. */
 #hhTransitPanel .hh-bkk-catalog-star-v801{
  color:#ab7610!important;background:rgba(255,243,207,.67)!important;
