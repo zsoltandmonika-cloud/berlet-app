@@ -93,10 +93,23 @@
  }
  function init(){
   const section=$('hhBkkWatchlistV814'),editor=$('hhBkkCatalogV801'),edit=$('hhBkkWatchEditV814');
-  if(!section||!editor||!edit||!catalog())return;
+  const toggle=$('hhBkkWatchToggleV858'),content=$('hhBkkWatchContentV858');
+  if(!section||!editor||!edit||!toggle||!content||!catalog())return;
+  // Single accessible collapse target. Existing watchlist values stay mounted.
+  // Initial state: compact, collapsed on page load.
+  function setExpanded(expanded){
+   content.hidden=!expanded;
+   toggle.setAttribute('aria-expanded',String(expanded));
+   toggle.setAttribute('aria-label',expanded?'Saját BKK Watchlist összecsukása':'Saját BKK Watchlist megnyitása');
+   if(!expanded&&editor.open)editor.open=false;
+  }
+  setExpanded(false);
+  toggle.addEventListener('click',()=>setExpanded(content.hidden));
   // Reuse the EXISTING official BKK search instead of creating a second one.
   if(editor.parentNode===section.parentNode)section.after(editor);
   edit.addEventListener('click',()=>{
+   // Editing is independent of collapse but always shows the list context.
+   if(!editor.open)setExpanded(true);
    editor.open=!editor.open;
    edit.setAttribute('aria-expanded',String(editor.open));
    edit.textContent=editor.open?'✕ Szerkesztés bezárása':'✎ Szerkesztés';
