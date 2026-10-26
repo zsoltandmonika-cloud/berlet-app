@@ -65,8 +65,9 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.ok(html.indexOf('id="guardianProfileSwitch"')>html.indexOf('<section class="intro guardian-hero"')&&html.indexOf('id="guardianProfileSwitch"')<html.indexOf('</section>'),'profile switch stays in hero bottom-left');
  assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
  assert.doesNotMatch(js,/function toggleSatellite|tiles\.maps\.eox\.at/,'satellite mode not offered in v780');
- assert.match(js,/attributionControl:false/,'no info icon under zoom controls; credits shown adjacent');
- assert.match(html,/guardian-map-credits/,'map data credits visible adjacent to map');
+ assert.match(js,/attributionControl:false/,'native compact attribution is added separately');
+ assert.match(js,/new w\.maplibregl\.AttributionControl/,'mandatory map credits accessible via native compact info button');
+ assert.doesNotMatch(html,/class="guardian-map-credits"/,'old wide credits strip removed');
  assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
  assert.match(js,/hz\.src=avatars\.z/,'Hero must bind canonical Zsolt photo');
@@ -288,8 +289,9 @@ test('v780 premium place categories retain browser bookmark storage and add bus 
  assert.doesNotMatch(html,/id="guardianSatellite"/);
  assert.doesNotMatch(html,/3D BUDAPEST · FELFEDEZŐ NÉZET/,'top corner prose removed');
  const map=read('guardian/guardian.js');
- assert.match(map,/attributionControl:false/,'MapLibre info icon removed in favor of adjacent source credit');
- assert.match(html,/guardian-map-credits/,'provider credits remain legible under the map');
+ assert.match(map,/attributionControl:false/,'MapLibre control added explicitly for compact display');
+ assert.match(map,/new w\.maplibregl\.AttributionControl/,'native compact copyright links preserved');
+ assert.doesNotMatch(html,/class="guardian-map-credits"/,'no oversized copyright ribbon');
 });
 
 test('v781 2D and 3D share one map color palette',()=>{
