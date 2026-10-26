@@ -89,6 +89,9 @@
    origin=place;
    if(!editing)input.value=displayName(place);
    input.classList.toggle('hh-origin-confirmed-v836',!!place);
+   go.textContent=place?'🧭':'⌕';
+   go.title=place?'Útvonaljavaslatok megnyitása':'Kiindulási pont keresése';
+   go.setAttribute('aria-label',go.title);
   }
   function routeState(e){
    const state=e?.detail||{};
@@ -175,6 +178,8 @@
    w.dispatchEvent(new w.CustomEvent('hh-guardian-map-origin-clear-v836'));
    editing=false;origin=null;
    input.classList.remove('hh-origin-confirmed-v836');
+   go.textContent='⌕';go.title='Kiindulási pont keresése';
+   go.setAttribute('aria-label',go.title);
   }
   input.addEventListener('focus',onFocus);
   input.addEventListener('input',()=>{
@@ -185,16 +190,20 @@
    const mine=seq;timer=w.setTimeout(()=>{if(mine===seq)search()},650);
   });
   input.addEventListener('keydown',e=>{
-   if(e.key==='Enter'){e.preventDefault();if(results.length)select(results[0]);else search()}
+   if(e.key==='Enter'){e.preventDefault();if(results.length===1)select(results[0]);else search()}
    if(e.key==='Escape'){clearHits();input.blur()}
   });
   input.addEventListener('blur',()=>{
    blurTimer=w.setTimeout(()=>{blurTimer=null;hideKeyboardMode()},300);
   });
   go.addEventListener('click',()=>{
-   if(results.length)select(results[0]);
-   else if(origin){input.focus();input.select?.()}
-   else search();
+   if(origin&&destination){
+    // Reveal existing source-verified BKK plans, never fabricate a route here.
+    $('guardianMapSearchExitV819')?.click();
+    w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
+     behavior:'smooth',block:'nearest'
+    }),120);
+   }else search();
   });
   w.addEventListener('hh-guardian-map-route-state-v836',routeState);
   w.addEventListener('hh-guardian-map-destination-v819',e=>{
@@ -205,6 +214,8 @@
   const reset=()=>{
    stop();clearHits();destination=null;origin=null;input.value='';
    input.classList.remove('hh-origin-confirmed-v836');
+   go.textContent='⌕';go.title='Kiindulási pont keresése';
+   go.setAttribute('aria-label',go.title);
    card.classList.remove('hh-map-has-destination-v836');
    hideKeyboardMode();
   };
