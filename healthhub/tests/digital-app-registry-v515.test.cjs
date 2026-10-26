@@ -13,7 +13,7 @@ test('four observed package IDs get human-friendly exact matches',()=>{
   'com.sec.android.app.launcher':['Kezdőképernyő','Rendszerfelület'],
   'com.zzkko':['SHEIN','Vásárlás'],
   'com.lppsa.app.sinsay':['Sinsay','Vásárlás'],
-  'com.titastudio.mahjong':['Mahjong','Játék']
+  'com.vitastudio.mahjong':['Vita Mahjong','Játék']
  };
  for(const [pkg,[name,category]] of Object.entries(expected)){
   const x=reg.resolveApp(pkg);
@@ -22,13 +22,14 @@ test('four observed package IDs get human-friendly exact matches',()=>{
  }
 });
 test('verified public original icons and safe fallback rules',()=>{
- for(const pkg of ['com.sec.android.app.launcher','com.zzkko','com.lppsa.app.sinsay']){
+ for(const pkg of ['com.sec.android.app.launcher','com.zzkko','com.lppsa.app.sinsay','com.vitastudio.mahjong']){
   const x=reg.resolveApp(pkg);
   assert.ok(reg.allowedLogo(x[3]),pkg);
  }
- const mahjong=reg.resolveApp('com.titastudio.mahjong');
- assert.equal(mahjong[3],null,'do not misattribute unverified Mahjong publisher logo');
- assert.equal(mahjong[1],'🀄');
+ const mahjong=reg.resolveApp('com.vitastudio.mahjong');
+ assert.equal(mahjong[0],'Vita Mahjong','identify the real package from Mónika log');
+ assert.ok(reg.allowedLogo(mahjong[3]),'use Vita Studio original Play icon');
+ assert.equal(reg.resolveApp('com.titastudio.mahjong')[2],'Besorolatlan','do not guess nonexistent package names');
  assert.equal(reg.allowedLogo('http://img.samsungapps.com/logo.png'),false);
  assert.equal(reg.allowedLogo('https://evil.test/logo.png'),false);
  assert.equal(reg.allowedLogo('javascript:alert(1)'),false);
@@ -37,6 +38,7 @@ test('unknown packages are never guessed, categorized, or sent externally',()=>{
  assert.deepEqual(reg.resolveApp('my.unknown.package'),['my.unknown.package','📱','Besorolatlan',null]);
  assert.equal(reg.resolveApp('com.zzkko')[0],'SHEIN');
  assert.equal(reg.resolveApp('com.zzkko.fake')[0],'com.zzkko.fake');
+ assert.ok(Object.keys(reg.entries).length>=65,'central map covers previously unrecognized apps in both logs');
  assert.ok(!/fetch\(|localStorage|Dropbox|navigator\./.test(fs.readFileSync(path.join(base,'digital-health/digital-app-registry-v515.js'),'utf8').replace(/\/\*[\s\S]*?\*\//g,'')),'registry makes no API/network/data access');
 });
 test('production renderer preserves totals, profile isolation, source and icon fallback',()=>{
