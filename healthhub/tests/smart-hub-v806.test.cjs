@@ -100,3 +100,95 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
  assert.ok(html.includes('hhBkkCatalogV801'));
  assert.ok(html.includes('hhSmartHubGuideV805'));
 });
+
+test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS JSON still includes it',()=>{
+ const raw={schemaVersion:1,source:'BKK Zrt., CC BY 4.0',generatedAt:new Date().toISOString(),routes:[
+  line('960',[s('S','Otthon',47.50,19.00),s('T','Munkahely',47.53,19.03)]),
+  line('260',[s('S','Otthon',47.50,19.00),s('X','Köztes',47.515,19.015),s('T','Munkahely',47.53,19.03)]),
+  line('17',[s('Q','Tér',47.53,19.03),s('R','Vég',47.54,19.04)],'tram'),
+  line('960A',[s('K','Alt',47.57,19.06),s('L','Alt vég',47.58,19.07)])
+ ]};
+ assert.equal(net.routeAllowed({id:'960'}),false);
+ assert.equal(net.routeAllowed({id:' 960 '}),false);
+ assert.equal(net.routeAllowed({id:'960A'}),true,'only the specifically disallowed 960 is affected');
+ const valid=net.validate(raw,3);
+ assert.ok(valid,'other BKK lines must remain available');
+ assert.deepEqual(valid.map(x=>x.id),['260','17','960A']);
+ const from=p('Otthon',47.50,19.00),to=p('Munkahely',47.53,19.03);
+ const results=net.plan(valid,from,to);
+ assert.ok(results.length>0,'a valid daytime alternate must remain');
+ assert.equal(results[0].legs[0].line.id,'260');
+ assert.equal(results.some(r=>r.legs.some(leg=>leg.line.id==='960')),false);
+ // Even callers bypassing validation must not be able to route via 960.
+ const direct=raw.routes.map(r=>({id:r.id,mode:r.mode,headsign:r.headsign,
+  stops:r.stops.map(x=>({id:x[0],name:x[1],lat:x[2],lng:x[3]}))}));
+ const graph=net.createGraph(direct);
+ assert.ok(graph);
+ assert.equal(graph.nodes.some(n=>n.line.id==='960'),false);
+ assert.equal(net.plan(direct,from,to).some(r=>r.legs.some(l=>l.line.id==='960')),false);
+ for(const preference of ['transfers','walking']){
+  for(const [a,b] of [[from,to],[to,from]]){
+   const options=net.plan(direct,a,b,preference);
+   assert.ok(options.every(x=>x.legs.every(l=>l.line.id!=='960')));
+  }
+ }
+ const routerSrc=read('guardian-smart-hub-router-v804.js');
+ const html=read('index.html');
+ assert.match(routerSrc,/\['960','917','917A'\]\.includes\(String\(leg\.line\.id\)\.trim\(\)\)/);
+ assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=806-network-a&no960=840/);
+});
+
+test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 41 tram alternatives to bus 260',()=>{
+ // Exact matching BKK GTFS stop IDs/ordering; all 3 trams share the same
+ // northbound stops. Route 917 exists ONLY as an overnight bus, not tram 17.
+ const shared=[
+  s('F00135','Kolosy tér',47.527983,19.037660),
+  s('A1','Katinyi mártírok parkja',47.5312,19.0351),
+  s('A2','Selmeci utca',47.5351,19.0320),
+  s('A3','Szent Margit Kórház',47.539,19.0313),
+  s('A4','Váradi utca',47.5435,19.0299),
+  s('082200','Bécsi út / Vörösvári út',47.546762,19.029194),
+  s('F00568','Bécsi út / Vörösvári út',47.548489,19.028994)
+ ];
+ const home=s('HOME','Otthon / 260',47.571,19.010);
+ const raw={schemaVersion:1,source:'BKK Zrt., CC BY 4.0',
+  generatedAt:new Date().toISOString(),routes:[
+   line('17',shared,'tram'),line('19',shared,'tram'),line('41',shared,'tram'),
+   line('260',[shared.at(-1),home],'bus'),
+   line('917',[shared[0],shared.at(-1)],'bus'),
+   line('917A',[shared[0],shared.at(-1)],'bus'),
+   line('960',[shared.at(-1),home],'bus')
+  ]};
+ const verified=net.validate(raw,4);
+ assert.ok(verified,'verified directed BKK patterns must load');
+ assert.deepEqual(verified.map(x=>x.id),['17','19','41','260']);
+ assert.equal(net.routeAllowed({id:'917',mode:'tram'}),false);
+ assert.equal(net.routeAllowed({id:'917A',mode:'bus'}),false);
+ assert.equal(net.routeAllowed({id:'960',mode:'bus'}),false);
+ const from=p('Kolosy tér',47.527983,19.037660);
+ const to=p('Otthon',47.571,19.010);
+ for(const pref of ['transfers','walking']){
+  const routes=net.plan(verified,from,to,pref);
+  assert.equal(routes.length,3,'show 3 real tram options, no fake night lines');
+  assert.deepEqual(routes.map(x=>x.legs.map(l=>l.line.id)),[
+   ['17','260'],['19','260'],['41','260']
+  ]);
+  assert.ok(routes.every(x=>x.transfer===1));
+  assert.ok(routes.every(x=>x.legs[0].line.mode==='tram'&&x.legs[1].line.mode==='bus'));
+ }
+ const testVariant=net.equivalentTramLegs({
+  line:verified[0],enter:verified[0].stops[0],
+  exit:verified[0].stops.at(-1),stopCount:6
+ },verified);
+ assert.deepEqual(testVariant.map(v=>v.line.id),['17','19','41']);
+ // Names alone don't certify interchange routes: a stop-ID mismatch must NOT
+ // create an invented line alternative, nor substitute a bus such as 917.
+ const fake={...verified[1],stops:verified[1].stops.map(v=>({...v}))};
+ fake.stops[2].id='DIFFERENT_PLATFORM';
+ assert.deepEqual(net.equivalentTramLegs({
+  line:verified[0],enter:verified[0].stops[0],
+  exit:verified[0].stops.at(-1),stopCount:6
+ },[verified[0],fake]),[{line:verified[0],enter:verified[0].stops[0],
+   exit:verified[0].stops.at(-1),stopCount:6}]);
+});

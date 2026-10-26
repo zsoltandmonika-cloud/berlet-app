@@ -234,7 +234,10 @@
   if(!feed&&!network){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
   const networkModule=w.HH_SMART_HUB_NETWORK_V806;
   const broad=network&&networkModule;
-  plans=broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]);
+  plans=(broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
+   .filter(option=>option&&Array.isArray(option.legs)&&option.legs.length&&
+    option.legs.every(leg=>leg&&leg.line&&
+     !['960','917','917A'].includes(String(leg.line.id).trim())));
   const coverage=$('hhSmartHubCoverageV806');
   if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
 

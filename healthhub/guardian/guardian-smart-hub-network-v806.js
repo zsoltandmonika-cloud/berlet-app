@@ -10,6 +10,10 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const SOURCE='BKK Zrt., CC BY 4.0';
+ // Night-only 917/917A are BUSES, not tram 17; 960 requires advance request.
+ // This static graph knows stops, NOT service hours or booked departures.
+ const NON_ROUTABLE=new Set(['960','917','917A']);
+ function routeAllowed(line){return !!line&&typeof line.id==='string'&&!NON_ROUTABLE.has(line.id.trim())}
  const LIMIT=3,ACCESS=950,TRANSFER=180,MAX_TRANSFERS=3,MAX_ITER=90000;
  const rad=Math.PI/180;
  function distance(a,b){
@@ -23,7 +27,7 @@
   if(raw.routes.length<minRoutes||raw.routes.length>8000)return null;
   const routes=[];
   for(const r of raw.routes){
-   if(!r||typeof r.id!=='string'||!Array.isArray(r.stops)||r.stops.length<2)continue;
+   if(!r||typeof r.id!=='string'||!routeAllowed(r)||!Array.isArray(r.stops)||r.stops.length<2)continue;
    const stops=[];
    for(const s of r.stops){
     if(!Array.isArray(s)||s.length<4||!Number.isFinite(s[2])||!Number.isFinite(s[3])||
@@ -43,7 +47,7 @@
  function createGraph(lines){
   const nodes=[],cells=new Map();
   lines.forEach((line,li)=>{
-   if(!line||!Array.isArray(line.stops))return;
+   if(!routeAllowed(line)||!Array.isArray(line.stops))return;
    line.stops.forEach((stop,index)=>{
     const node={li,line,stop,index,next:-1,coord:line.id+':'+line.mode};
     const nid=nodes.length;nodes.push(node);
@@ -80,6 +84,59 @@
    for(;;){let c=i*2+1;if(c>=a.length)break;if(c+1<a.length&&a[c+1][0]<a[c][0])c++;
     if(a[c][0]>=last[0])break;a[i]=a[c];i=c}a[i]=last}return head}
   return {push,pop,get size(){return a.length}};
+ }
+ // GTFS-verified corridor alternatives, not fictitious route substitutions.
+ // Example: from Kolosy tér to Bécsi út / Vörösvári út, the 17, 19 and 41
+ // tram lines have the SAME directed stop sequence and can each connect to 260.
+ // The generic rule works only with the exact stop IDs in the same order and
+ // a matching tram mode; similarly named places or bus 917 never qualify.
+ function equivalentTramLegs(leg,lines){
+  const original=leg?.line;
+  if(!original||original.mode!=='tram'||!Array.isArray(original.stops))return [leg];
+  const from=original.stops.findIndex(x=>x.id===leg.enter?.id);
+  const to=original.stops.findIndex((x,i)=>i>from&&x.id===leg.exit?.id);
+  if(from<0||to<=from||to-from!==leg.stopCount)return [leg];
+  const seq=original.stops.slice(from,to+1).map(x=>x.id);
+  const out=[];
+  for(const route of lines){
+   if(!routeAllowed(route)||route.mode!=='tram'||!Array.isArray(route.stops))continue;
+   for(let i=0;i+seq.length<=route.stops.length;i++){
+    if(seq.every((id,j)=>route.stops[i+j]?.id===id)){
+     out.push({...leg,line:route,enter:route.stops[i],
+      exit:route.stops[i+seq.length-1],stopCount:seq.length-1});
+     break;
+    }
+   }
+  }
+  return out.length?out:[leg];
+ }
+ function diversifyEquivalentTrams(plans,lines,preference='transfers'){
+  const expanded=[];
+  for(const candidate of plans){
+   const index=candidate.legs.findIndex(leg=>leg.line?.mode==='tram');
+   if(index<0){expanded.push(candidate);continue}
+   for(const altLeg of equivalentTramLegs(candidate.legs[index],lines)){
+    const legs=candidate.legs.slice();legs[index]=altLeg;
+    expanded.push({...candidate,legs});
+   }
+  }
+  // One offer per service sequence, rather than 3 near-identical boarding
+  // positions on the same line; keeps the same verified transfers and walking.
+  const unique=new Map();
+  for(const option of expanded){
+   const key=option.legs.map(leg=>leg.line.mode+':'+leg.line.id).join('>');
+   const prev=unique.get(key);
+   if(!prev||option.score<prev.score)unique.set(key,option);
+  }
+  return [...unique.values()].sort((a,b)=>{
+   const metric=preference==='walking'
+    ?a.walk-b.walk||a.transfer-b.transfer
+    :a.transfer-b.transfer||a.walk-b.walk;
+   if(metric)return metric;
+   const ak=a.legs.map(l=>l.line.id).join('>'),
+    bk=b.legs.map(l=>l.line.id).join('>');
+   return ak.localeCompare(bk,'hu',{numeric:true})||a.score-b.score;
+  });
  }
  function plan(lines,origin,destination,preference='transfers'){
   if(!Array.isArray(lines)||!origin||!destination||distance(origin,destination)<100)return [];
@@ -151,9 +208,10 @@
     }
    }
   }
-  return finished.sort((a,b)=>preference==='walking'
+  const ranked=finished.sort((a,b)=>preference==='walking'
    ? a.walk-b.walk||a.transfer-b.transfer||a.score-b.score
-   : a.transfer-b.transfer||a.walk-b.walk||a.score-b.score).slice(0,LIMIT);
+   : a.transfer-b.transfer||a.walk-b.walk||a.score-b.score);
+  return diversifyEquivalentTrams(ranked,lines,preference).slice(0,LIMIT);
  }
- return {SOURCE,distance,validate,createGraph,plan,version:'806'};
+ return {SOURCE,distance,validate,createGraph,plan,routeAllowed,NON_ROUTABLE,equivalentTramLegs,diversifyEquivalentTrams,version:'806'};
 });

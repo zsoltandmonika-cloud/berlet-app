@@ -19,6 +19,7 @@ import zipfile
 
 OUTPUT=Path(__file__).with_name("bkk-network-v806.json")
 SOURCE="BKK Zrt., CC BY 4.0"
+NON_ROUTABLE={"960","917","917A"}  # unverified night buses; 960 is advance-request Telebusz
 MODES={"0":"tram","1":"metro","2":"rail","3":"bus","11":"trolley",
        "100":"rail","109":"hev","400":"metro","700":"bus","800":"trolley"}
 
@@ -41,7 +42,7 @@ def make_network(raw):
         for r in rows(z,"routes.txt"):
             rid=(r.get("route_id") or "").strip()
             short=(r.get("route_short_name") or "").strip().upper()
-            if not rid or not short or len(short)>16:continue
+            if not rid or not short or len(short)>16 or short in NON_ROUTABLE:continue
             routes[rid]=(short,getmode(r))
         if not routes:raise ValueError("BKK GTFS has no routes")
         counters=Counter()
