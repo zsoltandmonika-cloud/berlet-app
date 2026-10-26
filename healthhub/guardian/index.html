@@ -220,6 +220,27 @@
         <div><span class="hh-smart-hub-eyebrow-v802">SMART HUB · SAJÁT HELYKERESŐ</span><strong>Hová szeretnél menni?</strong></div>
         <span class="hh-smart-hub-search-icon-v802" aria-hidden="true">⌕</span>
       </div>
+      <section id="hhActiveTransitPanelV862" class="hh-active-transit-v862" aria-label="Aktív utazás · Felszálltam">
+       <div class="hh-active-transit-top-v862">
+        <button id="hhActiveTransitBoardV862" type="button" class="hh-active-transit-board-v862">🚋 Felszálltam</button>
+        <button id="hhActiveTransitStopV862" type="button" class="hh-active-transit-stop-v862" hidden>Utazás befejezése</button>
+       </div>
+       <p id="hhActiveTransitCurrentV862" class="hh-active-transit-current-v862" role="status">Nincs aktív utazás.</p>
+       <div id="hhActiveTransitSelectV862" class="hh-active-transit-select-v862" hidden>
+        <p class="hh-active-transit-hint-v862">GPS alapján lehetséges járatok. A járatot te erősíted meg.</p>
+        <div id="hhActiveTransitCandidatesV862" class="hh-active-transit-candidates-v862"></div>
+        <div class="hh-active-transit-manual-v862">
+         <input type="search" id="hhActiveTransitManualV862" placeholder="Járatszám · pl. 17" maxlength="16" aria-label="Járatszám kézi megadása">
+         <select id="hhActiveTransitModeV862" aria-label="Jármű típusa">
+          <option value="tram">🚋 Villamos</option><option value="bus">🚌 Busz</option>
+          <option value="trolley">🚎 Troli</option><option value="metro">🚇 Metró</option>
+          <option value="hev">🚈 HÉV</option><option value="rail">🚆 Vonat</option>
+         </select>
+         <button id="hhActiveTransitConfirmV862" type="button">✓ Ezen utazom</button>
+        </div>
+       </div>
+       <p id="hhActiveTransitStatusV862" class="hh-active-transit-status-v862" aria-live="polite">Egyetlen koppintással indulhatsz, útvonalterv nélkül is.</p>
+      </section>
       <div id="hhSmartHubPairedV806" class="hh-smart-hub-paired-v806">
         <div class="hh-smart-hub-field-v806">
           <label for="hhSmartHubFromV806">🚶 HONNAN</label>
