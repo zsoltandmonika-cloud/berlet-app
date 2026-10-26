@@ -19,7 +19,7 @@
  const authorized=()=>!!w?.HH_GUARDIAN_LIVE_V785?.authenticated;
  const client=()=>authorized()?w?.HH_GUARDIAN_LIVE_V785?.getClient?.():null;
  const displayed=()=>profile();
- let active=null,remote=new Map(),lastFix=null,network=null,waiting=false;
+ let active=null,remote=new Map(),lastFix=null,previousFix=null,network=null,waiting=false;
  let uiReady=false,refreshBusy=false,lastSuggestAt=0,lastBroadcast=0;
  let syncQueue=Promise.resolve(),stopPending=new Set();
  const name=p=>p==='monika'?'Mónika':'Zsolt';
@@ -123,7 +123,9 @@
  function planned(itinerary){
   const leg=itinerary?.legs?.[0],line=lineMode(leg);
   if(!line)return false;
-  waiting=false;return choose(line.id,line.mode,'planned',false);
+  waiting=false;
+  w?.HH_GUARDIAN_LIVE_FLOW_V863?.setPlannedLeg?.(leg);
+  return choose(line.id,line.mode,'planned',false);
  }
  function stop(){
   const prior=active?.profile;
@@ -183,7 +185,13 @@
    b.addEventListener('click',()=>choose(row.id,row.mode));
    out.append(b);
   }
-  if(rows.length)setNote('Közeli lehetséges járatok. Koppints a helyes járatszámra, vagy add meg kézzel.');
+  // Two confirmed moving fixes and a uniquely plausible direction may open a
+  // visual preview, but NEVER silently publish the inferred line as boarded.
+  if(rows.length===1&&previousFix&&lastFix&&lastFix.ts>previousFix.ts){
+   w?.HH_GUARDIAN_LIVE_FLOW_V863?.previewRoute?.(
+    rows[0].id,rows[0].mode,lastFix,previousFix);
+  }
+  if(rows.length)setNote('Közeli lehetséges járatok. Ha egyértelmű a GPS-irány, a Flow magától megnyílik.');
   else setNote('Nem találtam megbízható közeli járatot. Add meg a járatszámot kézzel.');
  }
  function render(){
@@ -224,7 +232,7 @@
   }
   if(lastFix&&Date.now()-lastFix.ts<MAX_AGE)renderCandidates();
   else setNote('Helymeghatározás indul. Várjuk a friss GPS-jelet, vagy add meg a járatszámot kézzel.');
-  $('hhActiveTransitManualV862')?.focus?.();
+  // No automatic keyboard popup while traveling.
  }
  function ownGpsFix(pos){
   if(!pos?.coords)return;
@@ -234,6 +242,7 @@
   if(!Number.isFinite(ts)||Date.now()-ts>MAX_AGE||ts>Date.now()+5000||
    !Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||
    !Number.isFinite(c.accuracy)||c.accuracy>100)return;
+  previousFix=lastFix&&ts>lastFix.ts&&ts-lastFix.ts<=90000?lastFix:null;
   lastFix={lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,ts};
   if(waiting&&Date.now()-lastSuggestAt>8000){
    lastSuggestAt=Date.now();renderCandidates();
@@ -276,10 +285,10 @@
   w.addEventListener?.('hh-guardian-auth-changed',()=>{if(ownState())send();refresh()});
   w.addEventListener?.('pageshow',refresh);
   w.addEventListener?.('storage',e=>{
-   if(e.key==='hh-profile'){active=null;waiting=false;lastFix=null;restore();render();refresh()}
+   if(e.key==='hh-profile'){active=null;waiting=false;lastFix=null;previousFix=null;restore();render();refresh()}
   });
   $('guardianProfileSwitch')?.addEventListener('click',()=>w.setTimeout?.(()=>{
-   active=null;waiting=false;lastFix=null;restore();render();refresh()
+   active=null;waiting=false;lastFix=null;previousFix=null;restore();render();refresh()
   },0));
   w.document.addEventListener?.('visibilitychange',()=>{if(!w.document.hidden)refresh()});
   w.setInterval?.(()=>{if(!w.document.hidden)refresh()},10000);
