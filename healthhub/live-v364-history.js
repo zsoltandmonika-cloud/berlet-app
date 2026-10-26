@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 // Profile-scoped Ask Léna history: RLS-protected Supabase sync + local offline fallback.
-var STORE='hh-ask-lena-history-v364-',STATE='hh-ask-lena-history-sync-v364-',MAX=60,inFlight={},versions={};
+var STORE='hh-ask-lena-history-v364-',STATE='hh-ask-lena-history-sync-v364-',MAX=60,inFlight={},versions={},lastAttempt={};
 function profile(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function svc(){return window.HH_DAILY_HEALTH_SYNC_V319}
@@ -135,6 +135,17 @@ function render(){
 async function sync(p,manual){
  if(!['zsolt','monika'].includes(p)||inFlight[p])return;
  if(!connected()){if(manual)render();return}
+ // v867: The same history should not be downloaded thousands of times a day.
+ // Keep a five-minute shared (localStorage) cache across tabs, while manual
+ // refresh and unsynced local answers always go through immediately.
+ var cached=state(p),now=Date.now();
+ var dirty=entries(p).some(function(x){return x.synced!==true});
+ if(!manual&&!dirty){
+  var freshness=Date.parse(cached.updatedAt||'');
+  if(!cached.error&&Number.isFinite(freshness)&&now>=freshness&&now-freshness<300000)return;
+  if(cached.error&&lastAttempt[p]&&now-lastAttempt[p]<60000)return;
+ }
+ lastAttempt[p]=now;
  var api=svc();
  inFlight[p]=true;
  var stamp=versions[p]||0;
