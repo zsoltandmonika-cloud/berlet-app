@@ -124,7 +124,11 @@ function makeOwnPositionNode(){
 function paintOwnTransit(pos){
  const route=ownTransitTag,speed=ownSpeedTag;
  if(!route||!speed)return;
- const state=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862?.getStatus?.(name()==='Mónika'?'monika':'zsolt')||null;
+ const selected=name()==='Mónika'?'monika':'zsolt';
+ const deviceOwner=w.HH_GUARDIAN_LIVE_V785?.boundProfile||null;
+ // Never attach a different household member's journey to THIS device marker.
+ const state=deviceOwner&&deviceOwner!==selected?null:
+  w.HH_GUARDIAN_ACTIVE_TRANSIT_V862?.getStatus?.(selected)||null;
  if(state&&state.expires>Date.now()){
   const ico=state.mode==='tram'?'🚋':state.mode==='bus'?'🚌':
    state.mode==='metro'?'🚇':state.mode==='trolley'?'🚎':
