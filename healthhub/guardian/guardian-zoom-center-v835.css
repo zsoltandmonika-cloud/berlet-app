@@ -1,0 +1,19 @@
+/* Family Guard v835: move ONLY the MapLibre zoom (+/-) and compass stack
+ * upward on phone screens, centered in the usable map area.
+ * Never touch the v834 transparent attribution dot, search, GPS, BKK, dock,
+ * the separate Follow/3D/Family buttons, or any JS event handlers.
+ *
+ * MapLibre's three-button group is about 116px high. At the 350px minimum
+ * map height, 215px keeps it below the 3 top-right buttons and above search.
+ */
+@media (max-width:600px) and (orientation:portrait){
+ body .map-card #guardianMap .maplibregl-ctrl-bottom-right,
+ body .map-card.hh-map-full-v819 #guardianMap .maplibregl-ctrl-bottom-right,
+ body .map-card:fullscreen #guardianMap .maplibregl-ctrl-bottom-right{
+  position:absolute!important;
+  top:clamp(215px,50%,calc(100% - 85px))!important;
+  bottom:auto!important;
+  right:2px!important;
+  transform:translateY(-50%)!important;
+ }
+}
