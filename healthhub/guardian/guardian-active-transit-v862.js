@@ -213,8 +213,13 @@
    return;
   }
   waiting=true;render();
-  if(!w?.HH_GUARDIAN_V761?.active){
-   // Explicit button press. The established GPS owner/consent rules stay intact.
+  const native=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestOwnFix;
+  if(native&&native.profile===displayed()&&Number.isFinite(native.ts)&&
+   Date.now()-native.ts<=MAX_AGE&&native.accuracy<=100){
+   lastFix={lat:native.lat,lng:native.lng,accuracy:native.accuracy,ts:native.ts};
+  }
+  if((!lastFix||Date.now()-lastFix.ts>=MAX_AGE)&&!w?.HH_GUARDIAN_V761?.active){
+   // Explicit boarding request, only when an existing verified own GPS fix is unavailable.
    w?.HH_GUARDIAN_V761?.startFollowing?.();
   }
   if(lastFix&&Date.now()-lastFix.ts<MAX_AGE)renderCandidates();
