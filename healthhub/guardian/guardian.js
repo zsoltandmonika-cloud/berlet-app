@@ -5,7 +5,7 @@ const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
 let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
 let gpsSession=0,fallbackAttempted=false,fallbackPending=false,lastBrowserFixAt=0;
-let ownTransitTag=null,ownSpeedTag=null;
+let ownTransitTag=null,ownSpeedTag=null,lastOwnTransitFix=null;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -100,7 +100,7 @@ function makeOwnPositionNode(){
  // identity selection; it does not fetch or imply a second person's location.
  const labelText=name(),isMonika=labelText==='Mónika';
  const el=d.createElement('div');
- el.className='guardian-position';
+ el.className='guardian-position guardian-own-position-v862';
  el.setAttribute('data-guardian-person',isMonika?'m':'z');
  el.setAttribute('role','img');
  el.setAttribute('aria-label',labelText+' · saját készülék GPS-pozíciója');
@@ -167,7 +167,8 @@ function onPosition(pos){
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
   lastBrowserFixAt=ts;
-  paintOwnTransit(hasFix?pos:null);
+  lastOwnTransitFix=hasFix?pos:null;
+  paintOwnTransit(lastOwnTransitFix);
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   // Synchronously hand off visibility between native/shared and browser GPS
   // before either portrait can paint. The freshest real fix wins.
@@ -565,7 +566,7 @@ if(familyPanel)familyPanel.hidden=false;
 if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
 w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
-  if(marker)paintOwnTransit(null);
+  if(marker)paintOwnTransit(lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null);
  });
 w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get pointCount(){return path.length}});
 })(window,document);
