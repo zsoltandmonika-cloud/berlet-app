@@ -64,3 +64,78 @@
 @media(prefers-reduced-motion:reduce){
  .hh-guardian-trio-v845 *{transition:none!important;animation:none!important}
 }
+
+
+/* Expanded glass Health status. Only the Health button is interactive; the
+ * two other tiles use the existing read-only data, unchanged navigation.
+ * Same click on the expanded surface closes it. */
+.guardian-hero>.hh-guardian-trio-v845>.hh-health-v845{
+ cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;
+}
+.guardian-hero>.hh-guardian-trio-v845>.hh-health-v845:focus-visible{
+ outline:2px solid #eef9ff!important;outline-offset:2px!important;
+}
+.guardian-hero>.hh-guardian-health-popup-v845[hidden]{display:none!important}
+.guardian-hero>.hh-guardian-health-popup-v845{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ position:absolute!important;top:35%!important;right:1.2%!important;left:auto!important;
+ z-index:29!important;width:60%!important;height:auto!important;max-height:61%!important;
+ padding:clamp(8px,1.3vw,14px)!important;gap:clamp(5px,1vw,11px)!important;
+ color:#fff!important;border-radius:clamp(9px,1.5vw,16px)!important;
+ border:1px solid rgba(149,196,255,.76)!important;
+ background:linear-gradient(140deg,rgba(26,46,109,.96),rgba(11,26,69,.96))!important;
+ -webkit-backdrop-filter:blur(19px) saturate(1.4)!important;
+ backdrop-filter:blur(19px) saturate(1.4)!important;
+ box-shadow:inset 0 1px 0 #ffffff35,0 5px 27px rgba(0,7,36,.55)!important;
+ overflow:auto!important;overscroll-behavior:contain!important;
+ cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;
+ text-align:left!important;font-family:Inter,Segoe UI,Roboto,system-ui,sans-serif!important;
+}
+.hh-guardian-health-popup-v845 .hh-health-popup-heading-v845{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;
+ font-size:clamp(11px,1.85vw,18px);line-height:1.1;font-weight:850;color:#fff;
+}
+.hh-guardian-health-popup-v845 .hh-health-popup-close-v845{
+ opacity:.85;font-size:clamp(12px,2vw,19px);
+}
+.hh-guardian-health-popup-v845 .hh-health-popup-row-v845{
+ display:grid;grid-template-columns:clamp(26px,4vw,42px) minmax(0,1fr);align-items:center;
+ gap:clamp(5px,1vw,10px);border:1px solid rgba(138,189,255,.24);
+ border-radius:9px;padding:clamp(4px,.75vw,9px);
+ background:rgba(10,29,73,.52);
+}
+.hh-guardian-health-popup-v845 .hh-health-popup-status-v845{
+ width:clamp(22px,3.4vw,33px);height:clamp(22px,3.4vw,33px);
+ display:grid;place-items:center;border-radius:50%;border:1px solid rgba(255,255,255,.34);
+ background:rgba(164,182,211,.22);color:#bfcbe1;font-size:clamp(10px,1.55vw,16px);
+}
+.hh-health-popup-row-v845[data-rag="good"] .hh-health-popup-status-v845{
+ background:rgba(36,236,161,.18);border-color:#24eca1;color:#24eca1}
+.hh-health-popup-row-v845[data-rag="warn"] .hh-health-popup-status-v845{
+ background:rgba(255,187,88,.16);border-color:#ffbb58;color:#ffbb58}
+.hh-health-popup-row-v845[data-rag="bad"] .hh-health-popup-status-v845{
+ background:rgba(255,91,114,.16);border-color:#ff5b72;color:#ff5b72}
+.hh-guardian-health-popup-v845 .hh-health-popup-data-v845{min-width:0;display:flex;flex-direction:column;gap:2px}
+.hh-guardian-health-popup-v845 .hh-health-popup-data-v845 strong{
+ color:#f8fbff;font-size:clamp(10px,1.5vw,16px);line-height:1.2}
+.hh-guardian-health-popup-v845 .hh-health-popup-data-v845 small{
+ color:#ccdfff;font-size:clamp(8px,1.1vw,11px);line-height:1.2;white-space:normal}
+.hh-guardian-health-popup-v845 .hh-health-popup-explain-v845{
+ color:#c7dafa;font-size:clamp(8px,1.05vw,11px);line-height:1.28;white-space:normal}
+.hh-guardian-health-popup-v845:focus-visible{
+ outline:2px solid #eef9ff!important;outline-offset:-2px!important;
+}
+@media(max-width:425px){
+ .guardian-hero>.hh-guardian-health-popup-v845{
+   top:36%!important;right:1%!important;width:66%!important;max-height:59%!important;
+   padding:5px!important;gap:3px!important;
+ }
+ .hh-guardian-health-popup-v845 .hh-health-popup-heading-v845{font-size:10px}
+ .hh-guardian-health-popup-v845 .hh-health-popup-row-v845{
+   grid-template-columns:20px minmax(0,1fr);gap:3px;padding:3px;border-radius:6px;
+ }
+ .hh-guardian-health-popup-v845 .hh-health-popup-status-v845{width:18px;height:18px;font-size:9px}
+ .hh-guardian-health-popup-v845 .hh-health-popup-data-v845 strong{font-size:9px}
+ .hh-guardian-health-popup-v845 .hh-health-popup-data-v845 small{font-size:7px}
+ .hh-guardian-health-popup-v845 .hh-health-popup-explain-v845{font-size:7px}
+}
