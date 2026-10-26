@@ -76,17 +76,60 @@
 <link rel="stylesheet" href="./guardian-profile-follow-v837.css?v=837-selected-profile-pin">
 <link rel="stylesheet" href="./guardian-profile-foreground-v838.css?v=838-gps-portraits-top">
 <link rel="stylesheet" href="./guardian-profile-battery-v841.css?v=841-hero-owner-battery">
+<link rel="stylesheet" href="./guardian-live-trio-v845.css?v=845-hero-live-trio-popup">
 </head>
 <body>
 <div class="shell">
 <main>
  <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
-   <div id="guardianBatteryV841" class="guardian-battery-v841" data-level="unknown" data-charging="false"
-    role="img" aria-label="A kiválasztott profil telefonjának töltöttsége: nincs friss adat">
-    <span class="guardian-battery-icon-v841" aria-hidden="true"><span id="guardianBatteryFillV841" class="guardian-battery-fill-v841"></span></span>
-    <span id="guardianBatteryTextV841" class="guardian-battery-text-v841">—</span>
-    <span class="guardian-battery-charge-v841" aria-hidden="true">⚡</span>
+
+   <div id="guardianTrioV845" class="hh-guardian-trio-v845" role="group" aria-label="Family Guard · Battery, GPS és Health napi állapot">
+    <div id="guardianBatteryV841" class="guardian-battery-v841" data-level="unknown" data-charging="false"
+      role="img" aria-label="A kiválasztott profil telefonjának töltöttsége: nincs friss adat">
+     <div class="hh-guardian-card-top-v845">
+      <span class="guardian-battery-icon-v841" aria-hidden="true"><span id="guardianBatteryFillV841" class="guardian-battery-fill-v841"></span></span>
+      <span id="guardianBatteryTextV841" class="guardian-battery-text-v841">—</span>
+      <span class="guardian-battery-charge-v841" aria-hidden="true">⚡</span>
+     </div>
+     <span class="hh-guardian-caption-v845" id="guardianBatteryCaptionV845">Zsolt telefon</span>
+    </div>
+    <div class="hh-guardian-card-v845 hh-gps-v845" id="guardianGpsCardV845"
+      role="status" aria-label="Kiválasztott családtag GPS-kapcsolata">
+     <div class="hh-guardian-card-top-v845">
+      <svg class="hh-guardian-icon-v845 hh-gps-pin-v845" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8Zm0 11.1a3.1 3.1 0 1 1 0-6.2 3.1 3.1 0 0 1 0 6.2Z"/></svg>
+      <strong class="hh-guardian-value-v845">GPS</strong>
+     </div>
+     <small class="hh-guardian-caption-v845" id="guardianGpsTextV845">Nincs jel</small>
+    </div>
+    <button type="button" class="hh-guardian-card-v845 hh-health-v845" id="guardianHealthCardV845"
+      aria-controls="guardianHealthPopupV845" aria-expanded="false" data-rag="unknown"
+      aria-label="Health · napi státusz. Koppints a részletekhez.">
+     <div class="hh-guardian-card-top-v845">
+      <svg class="hh-guardian-icon-v845 hh-health-heart-v845" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.7a5.7 5.7 0 0 0-8.05 0L12 5.5l-.75-.8a5.7 5.7 0 0 0-8.05 8.05L12 21l8.8-8.25a5.7 5.7 0 0 0 0-8.05Z"/><path d="M4.3 12.5h4l2-3.1 3.1 6 2.1-3.1h4"/></svg>
+      <strong class="hh-guardian-value-v845" id="guardianHealthTextV845">—</strong>
+     </div>
+     <small class="hh-guardian-caption-v845">Health</small>
+    </button>
    </div>
+   <button type="button" id="guardianHealthPopupV845" class="hh-guardian-health-popup-v845"
+     aria-label="Health napi részletek · koppints a bezáráshoz" hidden>
+     <span class="hh-health-popup-heading-v845"><span>♡ Health · napi státusz</span><span class="hh-health-popup-close-v845">✕</span></span>
+     <span class="hh-health-popup-row-v845" id="guardianHealthSleepRowV845" data-rag="unknown">
+      <span class="hh-health-popup-status-v845" aria-hidden="true">☾</span>
+      <span class="hh-health-popup-data-v845">
+       <strong>Last Night Sleep · <span id="guardianHealthSleepDetailV845">—</span></strong>
+       <small id="guardianHealthSleepMetaV845">Alvásadatokra vár</small>
+      </span>
+     </span>
+     <span class="hh-health-popup-row-v845" id="guardianHealthNutriRowV845" data-rag="unknown">
+      <span class="hh-health-popup-status-v845" aria-hidden="true">⚖</span>
+      <span class="hh-health-popup-data-v845">
+       <strong>Nutrition RAG · <span id="guardianHealthNutriDetailV845">—</span></strong>
+       <small id="guardianHealthNutriMetaV845">Kalóriaegyensúlyra vár</small>
+      </span>
+     </span>
+     <span class="hh-health-popup-explain-v845" id="guardianHealthNoteV845">Tájékoztató státusz · koppints a becsukáshoz</span>
+   </button>
   <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
    <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
    <div class="guardian-hero-monitor-members">
@@ -463,6 +506,7 @@
 <script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family&native=156&autofollow=827"></script>
 <script defer src="./guardian-profile-follow-v837.js?v=837-selected-own-live&handoff=839"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=841-per-profile-battery"></script>
+<script defer src="./guardian-live-trio-v845.js?v=845-sleep-nutri-gps-detail"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>
