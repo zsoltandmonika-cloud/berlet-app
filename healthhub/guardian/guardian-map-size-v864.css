@@ -1,0 +1,53 @@
+/* Family Guard v864 · One-touch map fullscreen ↔ minimized toggle.
+ * Single existing MapLibre instance and v819 CSS fullscreen, no new tracking.
+ * Compact, thumb-safe Premium Glass Zsolt blue / Mónika pink.
+ */
+.map-card #guardianMapSizeToggleV864.hh-map-size-toggle-v864{
+ position:absolute!important;z-index:75!important;
+ top:9px!important;left:9px!important;right:auto!important;bottom:auto!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+ margin:0!important;padding:0!important;
+ color:#effaff!important;
+ background:linear-gradient(140deg,rgba(54,121,190,.83),rgba(14,53,104,.90))!important;
+ border:1px solid rgba(200,235,255,.66)!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.32),0 4px 13px rgba(4,28,55,.24)!important;
+ backdrop-filter:blur(16px) saturate(125%)!important;
+ -webkit-backdrop-filter:blur(16px) saturate(125%)!important;
+ cursor:pointer!important;touch-action:manipulation!important;
+ -webkit-tap-highlight-color:transparent!important;
+ line-height:1!important;transition:background .16s ease!important;
+}
+:root[data-guardian-profile="m"] .map-card #guardianMapSizeToggleV864.hh-map-size-toggle-v864{
+ background:linear-gradient(140deg,rgba(203,118,178,.84),rgba(99,47,125,.91))!important;
+ border-color:rgba(255,216,242,.72)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.33),0 4px 13px rgba(64,22,70,.25)!important;
+}
+.map-card #guardianMapSizeIconV864{
+ color:inherit!important;display:block!important;
+ font:800 25px/1 system-ui!important;transform:translateY(-1px)!important;
+}
+.map-card #guardianMapSizeToggleV864:focus-visible{
+ outline:3px solid rgba(255,255,255,.95)!important;outline-offset:2px!important
+}
+.map-card.hh-map-full-v819 #guardianMapSizeToggleV864.hh-map-size-toggle-v864{
+ top:max(10px,env(safe-area-inset-top))!important;
+ left:max(10px,env(safe-area-inset-left))!important;
+}
+.map-card.hh-map-full-v819 #guardianMapSizeToggleV864[aria-pressed="true"]{
+ background:linear-gradient(140deg,rgba(98,166,223,.87),rgba(30,80,138,.95))!important
+}
+:root[data-guardian-profile="m"] .map-card.hh-map-full-v819 #guardianMapSizeToggleV864[aria-pressed="true"]{
+ background:linear-gradient(140deg,rgba(217,134,193,.87),rgba(130,61,149,.95))!important
+}
+/* We have a persistent, identical one-tap exit control now. Retain the old
+ * back button in markup as a JS fallback, but don't clutter the map with two. */
+.map-card:has(#guardianMapSizeToggleV864) #guardianMapSearchExitV819{
+ display:none!important
+}
+/* Existing dedicated map size CSS already adjusts map height and other
+ * controls; never alter the camera, native attribution or search panel. */
+@media(prefers-reduced-motion:reduce){
+ .map-card #guardianMapSizeToggleV864{transition:none!important}
+}
