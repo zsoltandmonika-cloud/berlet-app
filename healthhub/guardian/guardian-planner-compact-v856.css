@@ -1,0 +1,49 @@
+/* v856 · one-row BKK priorities, native favorites prediction and uncluttered premium glass.
+   All backgrounds derive from the v852 profile palette. */
+#hhSmartHubDestinationV802 .hh-smart-hub-priority-v805{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:5px!important;align-items:stretch!important;width:100%!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-priority-v805>button{
+ box-sizing:border-box!important;min-width:0!important;width:100%!important;
+ min-height:47px!important;padding:6px 4px!important;
+ font:740 10.5px/1.2 system-ui!important;white-space:normal!important;
+ text-align:center!important;overflow-wrap:normal!important;border-radius:11px!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-priority-v805>button:disabled{
+ opacity:.43!important;cursor:not-allowed!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-results-v803{gap:5px!important}
+#hhSmartHubDestinationV802 .hh-smart-hub-result-v803{
+ background:var(--surface)!important;color:var(--ink)!important;
+ border:1px solid var(--edge)!important;min-height:49px!important;
+ border-radius:12px!important;box-shadow:inset 0 1px rgba(255,255,255,.7)!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-result-icon-v803{
+ color:var(--ink)!important;background:var(--selected)!important;
+ border:1px solid var(--edge)!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-result-copy-v803 strong{
+ color:var(--ink)!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-result-copy-v803 small{
+ color:var(--muted)!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-result-tag-v824{
+ color:var(--ink)!important;background:var(--selected)!important;
+ border:1px solid var(--edge)!important;border-radius:8px!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-favorite-row-v806 input,
+#hhSmartHubDestinationV802 .hh-smart-hub-favorite-row-v806 button{
+ background:var(--surface)!important;color:var(--ink)!important;
+ border:1px solid var(--edge)!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-favorite-profile-v806{
+ color:var(--muted)!important
+}
+@media(max-width:380px){
+ #hhSmartHubDestinationV802 .hh-smart-hub-priority-v805{gap:4px!important}
+ #hhSmartHubDestinationV802 .hh-smart-hub-priority-v805>button{
+  font-size:10px!important;padding:5px 2px!important
+ }
+}
