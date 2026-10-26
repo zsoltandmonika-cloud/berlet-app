@@ -70,16 +70,18 @@
   if(auto&&manuallyDismissed===key)return false;
   show(true);return true;
  }
- function previewRoute(id,transport){
+ function previewRoute(id,transport,newFix=null,oldFix=null){
   if(!isOwner()||!routeIdOk(id)||!engine()||state()?.onboard)return false;
   const s=state();
   if(s&&s.route!==id)return false;
-  const opts=engine().match(network(),id,currentFix(),previous);
+  const current=newFix&&engine().isFresh(newFix)?newFix:currentFix();
+  const old=oldFix&&engine().isFresh(oldFix,current?.ts,90000)?oldFix:previous;
+  const opts=engine().match(network(),id,current,old);
   if(!opts.auto)return false; // Never identify based on a single reading.
   const key='preview:'+id+':'+opts.auto.line.headsign;
   if(lastAuto===key)return false;
   lastAuto=key;route=id;mode=transport;chosen=null;preview=true;
-  resetRoute();variant=opts.auto.line;
+  resetRoute();variant=opts.auto.line;previous=old;fix=current;
   show(true);return true;
  }
  function routeIdOk(text){return /^[0-9A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű-]{1,16}$/.test(String(text||''))}
@@ -249,6 +251,7 @@
  }
  function confirm(){
   if(preview){
+   if(variant)setPlannedLeg({line:variant});
    const confirmed=activeTransit()?.choose?.(route,mode,'manual',true);
    if(confirmed){preview=false;chosen=state();render()}
   }else if(state()&&!state().onboard){
@@ -267,6 +270,13 @@
   if(initialized||!d()||!$('hhLiveFlowV863'))return;
   initialized=true;
   $('hhLiveFlowCloseV863')?.addEventListener('click',close);
+  $('hhLiveFlowCloseBottomV863')?.addEventListener('click',close);
+  $('hhLiveFlowSwitchLineV863')?.addEventListener('click',()=>{
+   const label=$('hhActiveTransitBoardV862');
+   close();
+   label?.click?.();
+   $('hhActiveTransitPanelV862')?.scrollIntoView?.({block:'center',behavior:'smooth'});
+  });
   $('hhLiveFlowOpenV863')?.addEventListener('click',openManually);
   $('hhLiveFlowChangeV863')?.addEventListener('click',changeDirection);
   $('hhLiveFlowConfirmV863')?.addEventListener('click',confirm);
