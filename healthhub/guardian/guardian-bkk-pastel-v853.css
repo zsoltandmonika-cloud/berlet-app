@@ -14,3 +14,8 @@
 #hhTransitPanel .hh-bkk-watch-action-v814:disabled{opacity:.38!important}
 #hhTransitPanel .hh-bkk-watch-remove-v814{color:var(--bk-ink)!important}
 #hhTransitPanel button:focus-visible,#hhTransitPanel summary:focus-visible,#hhTransitPanel input:focus-visible{outline:2px solid var(--bk-accent)!important;outline-offset:2px!important}
+
+/* Live BKK banner uses inline legacy colors; explicitly override them. */
+#hhTransitPanel #hhBkkLiveBarV796{background:var(--bk-surface)!important;color:var(--bk-ink)!important;border:1px solid var(--bk-edge)!important;border-radius:16px!important;box-shadow:inset 0 1px rgba(255,255,255,.8),0 4px 14px rgba(40,58,85,.09)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important}
+#hhTransitPanel #hhBkkLiveStatusV793{color:var(--bk-ink)!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#hhTransitPanel #hhBkkFocusV796{background:var(--bk-selected)!important;color:var(--bk-ink)!important;border:1px solid var(--bk-edge)!important}
