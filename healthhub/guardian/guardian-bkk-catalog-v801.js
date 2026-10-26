@@ -136,6 +136,7 @@
    const badge=w.document.createElement('span');
    badge.className='hh-bkk-catalog-number-v801 hh-bkk-mode-'+route.mode;
    badge.textContent=route.id;
+   badge.setAttribute('data-bkk-route',route.id);
    const copy=w.document.createElement('div');copy.className='hh-bkk-catalog-copy-v801';
    const title=w.document.createElement('strong');
    title.textContent=modeNames[route.mode]||'Járat';
