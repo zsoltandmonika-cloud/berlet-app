@@ -1,0 +1,131 @@
+/* Family Guard v866 · verified battery RAG, filled cell and unoverlapped charge glyph.
+ * WEB visual-only patch. The physical owner telemetry is unchanged.
+ * Battery level ≠ charging state: colour encodes level; second-row lightning
+ * only appears when battery_charging is explicitly true.
+ */
+#guardianTrioV845 #guardianBatteryV841{
+ --hh-batt-fill:#aebbd0;
+ --hh-batt-rag:#c9d5e6;
+ --hh-batt-glow:rgba(171,198,230,.12);
+}
+#guardianTrioV845 #guardianBatteryV841[data-level="green"]{
+ --hh-batt-fill:#25eaa1;
+ --hh-batt-rag:#60ffc2;
+ --hh-batt-glow:rgba(34,234,161,.55);
+}
+#guardianTrioV845 #guardianBatteryV841[data-level="amber"]{
+ --hh-batt-fill:#ffbe56;
+ --hh-batt-rag:#ffcf7d;
+ --hh-batt-glow:rgba(255,186,75,.52);
+}
+#guardianTrioV845 #guardianBatteryV841[data-level="red"],
+#guardianTrioV845 #guardianBatteryV841[data-level="critical"]{
+ --hh-batt-fill:#ff6372;
+ --hh-batt-rag:#ff9ba0;
+ --hh-batt-glow:rgba(255,91,109,.52);
+}
+/* Avoid inherited alignment/box rules turning the tiny interior into a
+ * zero-height empty battery. Width always comes from the verified percent. */
+#guardianTrioV845 #guardianBatteryV841 .hh-guardian-card-top-v845{
+ width:100%!important;
+ min-width:0!important;
+ display:flex!important;
+ flex-wrap:nowrap!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:clamp(2px,.45vw,4px)!important;
+ padding:0!important;
+ box-sizing:border-box!important;
+}
+#guardianTrioV845 #guardianBatteryV841 .guardian-battery-icon-v841{
+ position:relative!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ align-items:stretch!important;
+ flex:0 0 clamp(16px,2.2vw,23px)!important;
+ width:clamp(16px,2.2vw,23px)!important;
+ height:clamp(11px,1.5vw,15px)!important;
+ min-height:11px!important;
+ min-width:16px!important;
+ padding:2px!important;
+ overflow:visible!important;
+ border:1.5px solid rgba(239,252,255,.98)!important;
+ background:rgba(3,15,42,.68)!important;
+ box-shadow:inset 0 0 3px rgba(0,0,0,.35),0 0 4px var(--hh-batt-glow)!important;
+ border-radius:3px!important;
+}
+#guardianTrioV845 #guardianBatteryV841 .guardian-battery-icon-v841::after{
+ content:""!important;
+ position:absolute!important;
+ right:-4px!important;top:calc(50% - 3px)!important;
+ width:2px!important;height:6px!important;
+ background:#f2fcff!important;
+ border-radius:0 2px 2px 0!important;
+}
+#guardianTrioV845 #guardianBatteryV841 .guardian-battery-fill-v841{
+ display:block!important;
+ flex:none!important;
+ align-self:stretch!important;
+ width:var(--hh-batt-percent,0%)!important;
+ max-width:100%!important;
+ min-width:0!important;
+ height:auto!important;
+ border-radius:1px!important;
+ background:var(--hh-batt-fill)!important;
+ box-shadow:0 0 5px var(--hh-batt-glow)!important;
+ opacity:1!important;
+ visibility:visible!important;
+ transition:width .4s ease,background-color .25s ease!important;
+}
+#guardianTrioV845 #guardianBatteryV841 .guardian-battery-text-v841{
+ display:inline-block!important;
+ flex:0 0 auto!important;
+ color:var(--hh-batt-rag)!important;
+ font-variant-numeric:tabular-nums!important;
+ font-weight:850!important;
+ letter-spacing:-.03em!important;
+ white-space:nowrap!important;
+ text-align:center!important;
+ text-shadow:0 0 4px var(--hh-batt-glow)!important;
+}
+/* Original bolt was inline beside "88%" and could overlap/clamp the number.
+ * The caption is already on a separate line, so it gets the charging mark. */
+#guardianTrioV845 #guardianBatteryV841 .guardian-battery-charge-v841{
+ display:none!important;
+}
+#guardianTrioV845 #guardianBatteryV841 #guardianBatteryCaptionV845{
+ white-space:nowrap!important;
+ text-align:center!important;
+}
+#guardianTrioV845 #guardianBatteryV841[data-charging="true"] #guardianBatteryCaptionV845::before{
+ content:"⚡"!important;
+ display:inline-block!important;
+ color:#8dffcd!important;
+ font-size:1.2em!important;
+ line-height:1!important;
+ margin-right:1px!important;
+ text-shadow:0 0 4px rgba(62,254,173,.52)!important;
+ vertical-align:-.02em!important;
+}
+/* On the S24 Ultra the hero occupies only a short vertical strip. Keep two
+ * readable rows, never shrink the battery body below 16px in a 3-card trio. */
+@media(max-width:425px){
+ #guardianTrioV845 #guardianBatteryV841 .guardian-battery-icon-v841{
+  flex-basis:16px!important;width:16px!important;min-width:16px!important;
+  height:11px!important;min-height:11px!important;padding:2px!important;
+ }
+ #guardianTrioV845 #guardianBatteryV841 .guardian-battery-text-v841{
+  font-size:clamp(7px,2vw,9px)!important;
+ }
+ #guardianTrioV845 #guardianBatteryV841 .hh-guardian-card-top-v845{
+  gap:3px!important;
+ }
+ #guardianTrioV845 #guardianBatteryV841 #guardianBatteryCaptionV845{
+  font-size:clamp(5px,1.45vw,7px)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #guardianTrioV845 #guardianBatteryV841 .guardian-battery-fill-v841{
+  transition:none!important;
+ }
+}
