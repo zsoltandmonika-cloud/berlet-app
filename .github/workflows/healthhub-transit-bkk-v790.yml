@@ -9,6 +9,7 @@ on:
       - 'healthhub/guardian/build-bkk-routes-v790.py'
       - 'healthhub/guardian/build-bkk-catalog-v801.py'
       - 'healthhub/guardian/build-bkk-network-v806.py'
+      - 'healthhub/guardian/build-bkk-timetable-v859.py'
       - '.github/workflows/healthhub-transit-bkk-v790.yml'
 
 permissions:
@@ -68,11 +69,21 @@ jobs:
           assert all(all(isinstance(y[2],(int,float)) and isinstance(y[3],(int,float)) for y in x['stops']) for x in f['routes'])
           print('Verified v806 full BKK static stop graph:',len(f['routes']),'directed variants')
           PY
+      - name: Validate BKK timetable v859 scheduled stop times
+        run: |
+          python - <<'PY'
+          import json
+          f=json.load(open('healthhub/guardian/bkk-timetable-v859.json',encoding='utf-8'))
+          assert f['source']=='BKK Zrt., CC BY 4.0' and f['schemaVersion']==1
+          assert len(f['trips'])>=50 and '260' in f['routes']
+          assert all(isinstance(s[1],int) and isinstance(s[2],int) and s[1]<=s[2] for _,_,stops in f['trips'] for s in stops)
+          print('Verified planned GTFS departures:',len(f['trips']),'trip instances')
+          PY
       - name: Publish BKK snapshot to GitHub Pages source branch
         run: |
           git config user.name "healthhub-bkk-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add healthhub/guardian/bkk-routes-v790.json healthhub/guardian/bkk-catalog-v801.json healthhub/guardian/bkk-network-v806.json
+          git add healthhub/guardian/bkk-routes-v790.json healthhub/guardian/bkk-catalog-v801.json healthhub/guardian/bkk-network-v806.json healthhub/guardian/bkk-timetable-v859.json
           if git diff --cached --quiet; then
             echo "BKK snapshot is unchanged."
             exit 0
