@@ -141,6 +141,7 @@ function onPosition(pos){
    marker=new w.maplibregl.Marker({element:makeOwnPositionNode(),anchor:'bottom'})
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
+  w.HH_GUARDIAN_V761?.setRemoteMarkerPreferred?.(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.ready);
   lastBrowserFixAt=ts;
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   if(follow&&!remote?.ready)
@@ -269,11 +270,11 @@ function pauseCameraForMapSearch(){
 }
 function startFollowing(){
  follow=true;renderButtons();notifySettings();
- // Prefer this authenticated profile's latest verified HH One/native location.
+ // The existing consented auto-share flow MUST still start this device's own
+ // browser GPS; remote coordinates never substitute for a local GPS uploader.
+ if(!active){start();return}
  const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
  if(remote?.ready&&remote.requestFollow())return;
- // Keep pre-approved local GPS auto-start limited to this device's owner.
- if(!active){start();return}
  if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
 }
 function toggle3D(){
