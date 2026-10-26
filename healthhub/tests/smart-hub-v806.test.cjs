@@ -134,7 +134,61 @@ test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS J
  }
  const routerSrc=read('guardian-smart-hub-router-v804.js');
  const html=read('index.html');
- assert.match(routerSrc,/option\.legs\.every\(leg=>leg&&leg\.line&&String\(leg\.line\.id\)\.trim\(\)!=='960'\)/);
+ assert.match(routerSrc,/\['960','917','917A'\]\.includes\(String\(leg\.line\.id\)\.trim\(\)\)/);
  assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
  assert.match(html,/guardian-smart-hub-router-v804\.js\?v=806-network-a&no960=840/);
+});
+
+test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 41 tram alternatives to bus 260',()=>{
+ // Exact matching BKK GTFS stop IDs/ordering; all 3 trams share the same
+ // northbound stops. Route 917 exists ONLY as an overnight bus, not tram 17.
+ const shared=[
+  s('F00135','Kolosy tér',47.527983,19.037660),
+  s('A1','Katinyi mártírok parkja',47.5312,19.0351),
+  s('A2','Selmeci utca',47.5351,19.0320),
+  s('A3','Szent Margit Kórház',47.539,19.0313),
+  s('A4','Váradi utca',47.5435,19.0299),
+  s('082200','Bécsi út / Vörösvári út',47.546762,19.029194),
+  s('F00568','Bécsi út / Vörösvári út',47.548489,19.028994)
+ ];
+ const home=s('HOME','Otthon / 260',47.571,19.010);
+ const raw={schemaVersion:1,source:'BKK Zrt., CC BY 4.0',
+  generatedAt:new Date().toISOString(),routes:[
+   line('17',shared,'tram'),line('19',shared,'tram'),line('41',shared,'tram'),
+   line('260',[shared.at(-1),home],'bus'),
+   line('917',[shared[0],shared.at(-1)],'bus'),
+   line('917A',[shared[0],shared.at(-1)],'bus'),
+   line('960',[shared.at(-1),home],'bus')
+  ]};
+ const verified=net.validate(raw,4);
+ assert.ok(verified,'verified directed BKK patterns must load');
+ assert.deepEqual(verified.map(x=>x.id),['17','19','41','260']);
+ assert.equal(net.routeAllowed({id:'917',mode:'tram'}),false);
+ assert.equal(net.routeAllowed({id:'917A',mode:'bus'}),false);
+ assert.equal(net.routeAllowed({id:'960',mode:'bus'}),false);
+ const from=p('Kolosy tér',47.527983,19.037660);
+ const to=p('Otthon',47.571,19.010);
+ for(const pref of ['transfers','walking']){
+  const routes=net.plan(verified,from,to,pref);
+  assert.equal(routes.length,3,'show 3 real tram options, no fake night lines');
+  assert.deepEqual(routes.map(x=>x.legs.map(l=>l.line.id)),[
+   ['17','260'],['19','260'],['41','260']
+  ]);
+  assert.ok(routes.every(x=>x.transfer===1));
+  assert.ok(routes.every(x=>x.legs[0].line.mode==='tram'&&x.legs[1].line.mode==='bus'));
+ }
+ const testVariant=net.equivalentTramLegs({
+  line:verified[0],enter:verified[0].stops[0],
+  exit:verified[0].stops.at(-1),stopCount:6
+ },verified);
+ assert.deepEqual(testVariant.map(v=>v.line.id),['17','19','41']);
+ // Names alone don't certify interchange routes: a stop-ID mismatch must NOT
+ // create an invented line alternative, nor substitute a bus such as 917.
+ const fake={...verified[1],stops:verified[1].stops.map(v=>({...v}))};
+ fake.stops[2].id='DIFFERENT_PLATFORM';
+ assert.deepEqual(net.equivalentTramLegs({
+  line:verified[0],enter:verified[0].stops[0],
+  exit:verified[0].stops.at(-1),stopCount:6
+ },[verified[0],fake]),[{line:verified[0],enter:verified[0].stops[0],
+   exit:verified[0].stops.at(-1),stopCount:6}]);
 });
