@@ -236,7 +236,8 @@
   const broad=network&&networkModule;
   plans=(broad?networkModule.plan(network,start,target,priority):(feed?plan(feed,start,target,priority):[]))
    .filter(option=>option&&Array.isArray(option.legs)&&option.legs.length&&
-    option.legs.every(leg=>leg&&leg.line&&String(leg.line.id).trim()!=='960'));
+    option.legs.every(leg=>leg&&leg.line&&
+     !['960','917','917A'].includes(String(leg.line.id).trim())));
   const coverage=$('hhSmartHubCoverageV806');
   if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
 
