@@ -14,6 +14,27 @@ let prefs={zsolt:{},monika:{}};let profile='zsolt';
 const SOURCE='BKK Zrt., CC BY 4.0';
 const $=id=>d.getElementById(id);
 let selected=new Set(['260']),routes=null,map=null,mounted=false,retry=0;
+// Map overlays are transient, per-profile display choices independent of favorites.
+const visibleByProfile={zsolt:new Set(),monika:new Set()};
+function isLineVisible(id){return IDS.includes(id)&&visibleByProfile[profile].has(id)}
+function visibilityChanged(id){
+ if(w.dispatchEvent&&typeof w.CustomEvent==='function')
+  w.dispatchEvent(new w.CustomEvent('hh-bkk-line-visibility-v855',{detail:{id,profile,visible:isLineVisible(id)}}));
+}
+function setLineVisible(id,visible){
+ if(!IDS.includes(id)||!info(id))return false;
+ if(visible)visibleByProfile[profile].add(id);
+ else visibleByProfile[profile].delete(id);
+ showSelected();visibilityChanged(id);
+ status(id+' · '+(visible?'térképes útvonal megjelenítve':'térképes útvonal elrejtve')+'.');
+ return true;
+}
+function setFavoriteTracked(id,enabled){
+ if(!IDS.includes(id))return false;
+ if(enabled)selected.add(id);else {selected.delete(id);visibleByProfile[profile].delete(id)}
+ save();updateControls();showSelected();visibilityChanged(id);
+ return true;
+}
 const info=id=>routes&&routes[id];
 function status(s){const x=$('hhTransitStatus');if(x)x.textContent=s}
 function checked(id){return selected.has(id)}
@@ -107,7 +128,7 @@ function attach(){
   const r=info(id);
   if(!r)continue;
   const line='hh-bkk-route-'+id,stops='hh-bkk-stops-'+id;
-  const visible=checked(id)?'visible':'none';
+  const visible=isLineVisible(id)?'visible':'none';
   try{
    if(!map.getSource(line))map.addSource(line,{type:'geojson',data:routeFeatures(id)});
    if(!map.getSource(stops))map.addSource(stops,{type:'geojson',data:stopsFeatures(id)});
@@ -156,7 +177,7 @@ function showSelected(){
  if(!map||!routes)return;
  attach();refreshData();
  for(const id of IDS){
-  const show=checked(id)?'visible':'none';
+  const show=isLineVisible(id)?'visible':'none';
   for(const layer of ['hh-bkk-route-'+id+'-outline','hh-bkk-route-'+id+'-main','hh-bkk-stops-'+id+'-circle','hh-bkk-stops-'+id+'-number','hh-bkk-badges-'+id+'-glow','hh-bkk-badges-'+id+'-disc','hh-bkk-badges-'+id+'-text']){
    try{if(map.getLayer(layer))map.setLayoutProperty(layer,'visibility',show)}catch(_){}
   }
@@ -205,8 +226,9 @@ function showRoute(id){
 }
 function onToggle(id,value){
  if(!IDS.includes(id))return;
- if(value)selected.add(id);else selected.delete(id);
- save();updateControls();showSelected();
+ if(value){selected.add(id);visibleByProfile[profile].add(id)}
+ else {selected.delete(id);visibleByProfile[profile].delete(id)}
+ save();updateControls();showSelected();visibilityChanged(id);
  const catalog=w.HH_BKK_CATALOG_V801;
  if(catalog&&catalog.onTrackedChange)catalog.onTrackedChange(id,value);
  const count=selected.size;
@@ -277,6 +299,7 @@ function setProfile(p){
   profile=p;selected=new Set(selectionByProfile[profile]);
  }
  const field=$('hhTransitProfileV791');if(field)field.value=profile;
+ const card=d.querySelector?.('.hh-transit-v791');if(card)card.setAttribute('data-bkk-profile',profile);
  updateControls();renderDirections();showSelected();renderCards();
  const catalog=w.HH_BKK_CATALOG_V801;
  if(catalog&&catalog.setProfile)catalog.setProfile(profile);
@@ -287,11 +310,12 @@ function init(){
  if(!$('hhTransitPanel'))return;
  profile=w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
  restore();loadPrefs();updateControls();
+ const card=d.querySelector?.('.hh-transit-v791');if(card)card.setAttribute('data-bkk-profile',profile);
  for(const id of IDS){
   const cb=$('hhTransitRoute'+id),show=$('hhTransitShow'+id);
   if(cb)cb.addEventListener('change',()=>onToggle(id,cb.checked));
   if(show)show.addEventListener('click',()=>{
-   if(!checked(id))onToggle(id,true);
+   setLineVisible(id,true);
    showRoute(id);
   });
  }
@@ -303,9 +327,13 @@ function init(){
 w.HH_GUARDIAN_TRANSIT_V790=Object.freeze({init,mountMap:connectMap,get selected(){return [...selected]},setProfile,
  toggleLine(id,enabled){if(!IDS.includes(id))return false;onToggle(id,!!enabled);return true;},
  hasMapRoute(id){return IDS.includes(id)&&!!info(id);},
+ isLineVisible,
+ setLineVisible,
+ toggleLineVisible(id){return setLineVisible(id,!isLineVisible(id))},
+ setFavoriteTracked,
  showLine(id){
   if(!IDS.includes(id)||!info(id))return false;
-  if(!checked(id))onToggle(id,true);
+  setLineVisible(id,true);
   showRoute(id);
   return true;
  },version:'817'});
