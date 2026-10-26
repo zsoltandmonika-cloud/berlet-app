@@ -88,6 +88,7 @@
 <link rel="stylesheet" href="./guardian-smart-hub-location-v860.css?v=860-device-position-button">
 <link rel="stylesheet" href="./guardian-final-panels-glass-v861.css?v=861-profile-final-sections">
 <link rel="stylesheet" href="./guardian-active-transit-v862.css?v=862-final-boarding-local-family">
+<link rel="stylesheet" href="./guardian-live-flow-v863.css?v=863-fullscreen-one-handed">
 </head>
 <body>
 <div class="shell">
@@ -563,8 +564,8 @@
 <script defer src="./guardian-bkk-timetable-v859.js?v=859-matched-stop-times"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=863-linked-liveflow&no960=840"></script>
 <script defer src="./guardian-live-flow-core-v863.js?v=863-gps-stop-projection"></script>
-<script defer src="./guardian-active-transit-v862.js?v=863-auto-live-flow"></script>
-<script defer src="./guardian-live-flow-v863.js?v=863-one-handed-fullscreen"></script>
+<script defer src="./guardian-active-transit-v862.js?v=863-flow-auto-two-fixes"></script>
+<script defer src="./guardian-live-flow-v863.js?v=863-safety-flow-two-fixes"></script>
 <section id="hhLiveFlowV863" class="hh-live-flow-fullscreen-v863" role="dialog" aria-modal="true" aria-label="Live Trip Flow · utazás megállóinak követése" data-mode="tram" data-alarm="normal" hidden>
  <header class="hh-live-flow-header-v863">
   <div class="hh-live-flow-header-titles-v863">
@@ -582,9 +583,10 @@
  </div>
  <footer class="hh-live-flow-bottom-v863">
   <button type="button" id="hhLiveFlowConfirmV863" class="hh-flow-confirm-v863" hidden>✓ Igen, ezen utazom</button>
-  <button type="button" id="hhLiveFlowChangeV863" class="hh-flow-change-v863">↔ Irány / járat ellenőrzése</button>
+  <button type="button" id="hhLiveFlowChangeV863" class="hh-flow-change-v863">↔ Irány ellenőrzése</button>
   <div class="hh-flow-bottom-secondary-v863">
    <button type="button" id="hhLiveFlowCloseBottomV863" class="hh-flow-minimize-v863">↓ Bezárás</button>
+   <button type="button" id="hhLiveFlowSwitchLineV863" class="hh-flow-switch-v863">↻ Másik járat</button>
    <button type="button" id="hhLiveFlowEndV863" class="hh-flow-end-v863" hidden>■ Utazás vége</button>
   </div>
  </footer>
