@@ -143,7 +143,7 @@
   const note=d.createElement('small');note.textContent=step.note;
   copy.append(title,detail,note);item.append(num,copy);parent.append(item);
  }
- function flowNode(list,kind,name,description,route){
+ function flowNode(list,kind,name,description,route,routeMode){
   const d=w.document,item=d.createElement('li');
   item.className='hh-trip-flow-item-v854 hh-trip-flow-'+kind+'-v854';
   const rail=d.createElement('span');rail.className='hh-trip-flow-rail-v854';
@@ -154,6 +154,7 @@
   if(route){
    const tag=d.createElement('span');tag.className='hh-trip-line-v854';
    tag.dataset.route=String(route);
+   tag.dataset.mode=String(routeMode||(String(route)==='260'?'bus':'tram'));
    tag.textContent=String(route);
    title.append(tag,d.createTextNode(' '+name));
   }else title.textContent=name;
@@ -178,7 +179,7 @@ function renderTimeline(host,itinerary){
    }
    flowNode(list,'stop',leg.enter.name,'Felszállás');
    flowNode(list,'ride',leg.line.headsign||'Irány a járat kijelzőjén',
-    leg.stopCount+' megálló · statikus BKK megállósorrend',leg.line.id);
+    leg.stopCount+' megálló · statikus BKK megállósorrend',leg.line.id,leg.line.mode);
    flowNode(list,'stop',leg.exit.name,'Leszállás');
   });
   flowNode(list,'walk','Séta a célhoz',
@@ -302,7 +303,9 @@ function renderGuide(){
      arrow.textContent='›';arrow.setAttribute('aria-hidden','true');line.append(arrow);
     }
     const badge=d.createElement('span');badge.className='hh-trip-line-v854';
-    badge.dataset.route=String(leg.line.id);badge.textContent=String(leg.line.id);
+    badge.dataset.route=String(leg.line.id);
+    badge.dataset.mode=String(leg.line.mode||(String(leg.line.id)==='260'?'bus':'tram'));
+    badge.textContent=String(leg.line.id);
     line.append(badge);
    }
    row.append(line);
