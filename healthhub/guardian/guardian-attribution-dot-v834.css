@@ -1,0 +1,54 @@
+/* Family Guard v834 · v832 UI restored; smallest transparent top-left credit dot.
+ * The native attribution control stays functional, but its exact collapsed
+ * 14x14 px box is also its only touch target. No halo, chip, shadow or footer.
+ */
+#guardianMap .maplibregl-ctrl-top-left{
+ top:1px!important;left:1px!important;right:auto!important;bottom:auto!important;
+ margin:0!important;padding:0!important;
+ pointer-events:none!important;
+}
+#guardianMap .maplibregl-ctrl-top-left .maplibregl-ctrl-attrib.maplibregl-compact{
+ border:0!important;border-radius:0!important;
+ background:transparent!important;background-color:transparent!important;
+ box-shadow:none!important;-webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ margin:0!important;padding:0!important;
+}
+#guardianMap .maplibregl-ctrl-top-left .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){
+ box-sizing:border-box!important;display:block!important;
+ width:14px!important;height:14px!important;
+ min-width:14px!important;min-height:14px!important;
+ max-width:14px!important;max-height:14px!important;
+ overflow:hidden!important;white-space:nowrap!important;
+ pointer-events:auto!important;
+}
+#guardianMap .maplibregl-ctrl-top-left .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)>.maplibregl-ctrl-attrib-button{
+ box-sizing:border-box!important;display:block!important;
+ width:14px!important;height:14px!important;
+ min-width:14px!important;min-height:14px!important;
+ max-width:14px!important;max-height:14px!important;
+ margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;
+ background-color:transparent!important;
+ background-size:10px 10px!important;background-position:center!important;
+ box-shadow:none!important;opacity:.74!important;
+ touch-action:manipulation!important;
+ pointer-events:auto!important;
+}
+/* Expanded credits are shown only after an intentional touch and remain linked. */
+#guardianMap .maplibregl-ctrl-top-left .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show{
+ width:auto!important;height:auto!important;
+ max-width:min(78vw,280px)!important;
+ min-width:14px!important;min-height:14px!important;
+ padding:4px!important;
+ border-radius:7px!important;
+ background:rgba(15,40,75,.92)!important;
+ pointer-events:auto!important;
+}
+:root[data-guardian-profile="m"] #guardianMap .maplibregl-ctrl-top-left .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){
+ border:0!important;background:transparent!important;
+}
+.map-card.hh-map-full-v819 #guardianMap .maplibregl-ctrl-top-left,
+.map-card:fullscreen #guardianMap .maplibregl-ctrl-top-left{
+ top:64px!important;left:1px!important;
+}
