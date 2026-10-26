@@ -37,6 +37,15 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
 let polling=null;
 let inFlight=false;
 let lastVehicles=[];
+let lastVerified=null;
+// Live map visibility is a presentation toggle, not a change to BKK polling.
+let liveVisible=true;
+function updateLiveButton(){
+ focusButton.hidden=!lastVehicles.length;
+ focusButton.textContent=liveVisible?'Ne mutasd élő járműveket':'Mutasd élő járműveket';
+ focusButton.setAttribute('aria-pressed',String(liveVisible));
+ focusButton.setAttribute('aria-label',focusButton.textContent);
+}
 // The editable BKK Watchlist is the visible source of truth. Legacy transit
 // selections live in another browser storage key; after HH One WebView/Edge
 // changes they can disagree and incorrectly hide valid live vehicle positions.
@@ -48,18 +57,24 @@ function watchedLines(){
  }
  return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19'].includes(id));
 }
-function showLive(){
- if(!lastVehicles.length||!mapApi.map)return;
- const focused=renderer.focus(mapApi.map,lastVehicles);
- if(!focused){status('a térképre közelítés nem sikerült');return}
+function toggleLive(){
+ if(!lastVehicles.length||!mapApi.map||!lastVerified)return;
+ if(liveVisible){
+  liveVisible=false;renderer.clear(mapApi.map);updateLiveButton();return;
+ }
+ if(!renderer.render(mapApi.map,lastVerified)){
+  status('az élő járműréteg még nem áll készen');return;
+ }
+ liveVisible=true;updateLiveButton();
+ renderer.focus(mapApi.map,lastVehicles);
  const mapElement=d.getElementById('guardianMap');
  if(mapElement&&mapElement.scrollIntoView)mapElement.scrollIntoView({behavior:'smooth',block:'center'});
 }
-focusButton.addEventListener('click',showLive);
+focusButton.addEventListener('click',toggleLive);
 function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
 function clear(){
- lastVehicles=[];
- focusButton.hidden=true;
+ lastVehicles=[];lastVerified=null;
+ updateLiveButton();
  if(mapApi.map)renderer.clear(mapApi.map);
 }
 async function poll(){
@@ -91,15 +106,14 @@ async function poll(){
   }
   const wanted=new Set(watchedLines());
   const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
-  if(!renderer.render(mapApi.map,active)){
-   lastVehicles=[];focusButton.hidden=true;
+  if(liveVisible&&!renderer.render(mapApi.map,active)){
+   lastVehicles=[];lastVerified=null;updateLiveButton();
    status('a térképréteg betöltésére várunk');return;
   }
+  if(!liveVisible&&mapApi.map)renderer.clear(mapApi.map);
   lastVehicles=active.vehicles;
-  focusButton.hidden=lastVehicles.length===0;
-  focusButton.textContent=lastVehicles.length===1
-   ?(lastVehicles[0].routeId==='260'?'Élő 260-as busz mutatása ↗':'Élő '+lastVehicles[0].routeId+'-es villamos ↗')
-   :'Élő járművek mutatása ↗';
+  lastVerified=active;
+  updateLiveButton();
   if(!wanted.size){
    status('Nincs kijelölt, élő térképen támogatott Watchlist-járat. Jelöld a 260, 17 vagy 19 járatot a Szerkesztésnél.');
   }else if(!active.vehicles.length){
