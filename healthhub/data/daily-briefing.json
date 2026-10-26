@@ -1,65 +1,66 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-25",
-  "generatedAt": "2026-10-25T10:12:09+01:00",
-  "headline": "A reggel fő témái: Almost 1,000 arrested as clashes follow another day of mass protests across France; Israel to close West Bank crossings on election day as crackdown escalates",
+  "date": "2026-10-26",
+  "generatedAt": "2026-10-26T11:13:06+01:00",
+  "headline": "A reggel fő témái: Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement; Venezuelan opposition leader María Machado returns after months in exile",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
-        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
-        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son",
-        "BBC World: Musk says SpaceX restricted Ukraine's Starlink connection as service restored"
+        "BBC World: Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement",
+        "BBC World: Venezuelan opposition leader María Machado returns after months in exile",
+        "BBC World: Australian murderer loses bid to eat Vegemite in prison",
+        "BBC World: Eric Bauza, voice of Bugs Bunny and Daffy Duck, dies aged 46"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
-        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
-        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son"
+        "BBC World: Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement",
+        "BBC World: Venezuelan opposition leader María Machado returns after months in exile",
+        "BBC World: Australian murderer loses bid to eat Vegemite in prison"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
-        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates",
-        "BBC World: Voters in Brazil to choose between Lula and Bolsonaro's son"
+        "BBC World: Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement",
+        "BBC World: Venezuelan opposition leader María Machado returns after months in exile",
+        "BBC World: Australian murderer loses bid to eat Vegemite in prison"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "| hvg.hu: Történelmi esély a befektetőknek, hogy Magyarország be akar kerülni az euróövezetbe - | hvg.hu",
-        "WBASKET: Edzői várakozások a vasárnapi mérkőzések előtt - WBASKET",
-        "Agrárszektor: Akkora a baj, hogy már az EU-tól kér segítséget Magyarország is - Agrárszektor"
+        "Világgazdaság: Óriási balhé készül Brüsszelben: Magyarország nemet mondhat az újabb ukrán milliárdokra, a németek máris fenyegetőznek - Világgazdaság",
+        "Portfolio.hu: A horvát jegybank alelnöke az euróbevezetésről: „Magyarország már nyitott ajtón kopogtat, de így is hosszú lesz az út” - Portfolio.hu",
+        "24.hu: Magyarország az élre törhet jövőre az EU-ban hiánycsökkentésben, ha tényleg bejön a 4,9% - 24.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Four ways Labour could raise money in the Budget without hiking income tax",
-        "BBC Business: Budget to include £1bn for social and affordable housing",
-        "BBC Business: Rosebank: Life on the oil field at the centre of a political storm"
+        "BBC Business: Healey to shield low-income pensioners from income tax in the Budget",
+        "BBC Business: Healey's Budget needs to sustain the stronger economy through gathering clouds",
+        "BBC Business: Big, noisy and coming to a town near you - why the data centre backlash is growing"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
-      "items": []
+      "items": [
+        "BBC Technology: Big, noisy and coming to a town near you - why the data centre backlash is growing"
+      ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Obama attacks Trump as he campaigns for Democrats ahead of midterm elections (BBC World).",
         "Figyelmi pont: Rosebank: Life on the oil field at the centre of a political storm (BBC Business)."
       ]
     },
@@ -67,124 +68,154 @@
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Almost 1,000 arrested as clashes follow another day of mass protests across France",
-        "BBC World: Israel to close West Bank crossings on election day as crackdown escalates"
+        "BBC World: Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement",
+        "BBC World: Venezuelan opposition leader María Machado returns after months in exile"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Almost 1,000 arrested as clashes follow another day of mass protests across France",
+      "title": "Celebrations in Serbia after veteran ruler Vučić loses election to student-led protest movement",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c95ynd587ynzo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cw5yn3xlprpmo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Venezuelan opposition leader María Machado returns after months in exile",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq8ez592pp0eo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Australian murderer loses bid to eat Vegemite in prison",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cvwy7wz9x12go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Eric Bauza, voice of Bugs Bunny and Daffy Duck, dies aged 46",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwzd6q630vjeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Rapper Nicki Minaj joins Trump onstage at Michigan rally",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqrmyl1mljppo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Uganda imposes 21-day quarantine on citizens returning from DR Congo",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/crx2dyd24188o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Deeply divided Israel braces for pivotal election",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ckpdgy6pl7xlo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-25"
     },
     {
-      "title": "Israel to close West Bank crossings on election day as crackdown escalates",
+      "title": "Suspect in deadly Paris suburb shooting sent for psychiatric observation",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6y93ylpl5p2o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6e3xek2457wo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-25"
     },
     {
-      "title": "Voters in Brazil to choose between Lula and Bolsonaro's son",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxp8g21j4648o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-25"
+      "title": "Óriási balhé készül Brüsszelben: Magyarország nemet mondhat az újabb ukrán milliárdokra, a németek máris fenyegetőznek - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9SQm9qXzZodXhlbmVnU0FXaUZzeFp3U2NnMjJDTnByZmo2Qi00R0k4Yk5qVC1FQVA2OHY1R3NCVU9oWGdWUEtHQU5BOVVyUnhtQ1hzWFNYZHlUSXp5ajMtLWNPMWFPekNBLXNMSmdyNUFtdw?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Musk says SpaceX restricted Ukraine's Starlink connection as service restored",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cvx28ljp8n4xo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-25"
+      "title": "A horvát jegybank alelnöke az euróbevezetésről: „Magyarország már nyitott ajtón kopogtat, de így is hosszú lesz az út” - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxNaTcyT1VCeUpTenJ2VzJURnZhQkc3T2JoMU9hM1BObFZERXhWVVNSVFZaWkhUbkx2M0hHcjFSXzJIMDFESkdudVZLYXBDMEZQWFZ5WU1ET0laTGR3NEZWcGxES0VFTjh2eGFheXZ3MzY1eG53TkRhMU9XXzZXUkk4NDBndVNZY0hiVUo5ckRzVXRwUjBORE13RHU0RlhFRjZUV2w2Y3dMRlFQOUJZUG1ibndleEE0bWo2VU55dktMT2NTUnIxMEh1dldXLXNNYTN5VGZlV2QwazRTM0E3UHk0UkxNSVg1Z29pa3N6OUVGeFJnLWw4SzlZ0gH8AUFVX3lxTE9pRlgzZXFUa1liVlBQX2dvT2Z2WFdmUll4U1Rmd1l6MU9BRmpJSUpHa3JPMmxqcUx5cndpWFdBSzVxSk05cnk4VEowREx0VEp5Z0xhTzYtcDN0UW83al8xa1poY3N0MmFRckpmUXdRajJjRzB0RGE5TGpZSk1VOTRxeGNncV9FYlE4Q0szSmdONWxCYlVxcTN1MERjZVM0Nkg2aFR6OHdJX01zdGFGLXRONmVTQ0hXdDdncF9GRUozVS1qckJfbnNEbE9uZnJacXlzRVk5X182ZlQ2ak1iNDhianFRS2c0bUExQWRlVF9OSHlXZjhoOHhNRVhIXw?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Gunmen kill at least 10 villagers and loot shops in north-east Nigeria",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq1kdlm1ze7do?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-25"
+      "title": "Magyarország az élre törhet jövőre az EU-ban hiánycsökkentésben, ha tényleg bejön a 4,9% - 24.hu",
+      "publisher": "24.hu",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOZXFlUlFUY19RU3JlNnk5Q0g3MDI1R1l3MTdJV25aQjU3LXFIYTI4VkRkS3ZWZUNldzhGZkoxR1NsRjZzdGFyVG5VcTRIZE9SQUdYeDNkakxJdjE0SERDazRZYWd4QXlJS2d2R1cwN0c0aXhRaDA2ZVNlQi14WExzcTdNaUdDYjJvMFhTY0V3TDRxQS1I?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Man arrested after fire at Hitler's mountaintop Eagle's Nest retreat",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr93zwjw1k4qo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
+      "title": "Magyarország tovább erősítette olasz piaci kapcsolatait a TTG Travel Experience szakvásáron - Turizmus.com",
+      "publisher": "Turizmus.com",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPaDJkbm9JTVBqSnNCS1p3M1M0cVhUdXFQZHI1S1RZOFlwQ0hqTEZIRDdNQTMwcGxzX20ycWdYeVpxaEpkTFVSbEhvZlBHNVhMRk5IY1Z6WTJ4d2FXd0VZc1JJY1pmOG4zRFd2VmZtQWpqUFF4WkE5c1Q3LXh6Tm5TbkNqRjRNSm9Kc1JjdVhNWUdFNHYtX3ZrcXBfZVBVOXkxUUZDT054VnJNVERLU2E1RFc5WmlvUUp6T3VBd3gya3NXQlNuckxxVmdFSldSQQ?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Vanessa Trump says she is cancer-free six months after revealing diagnosis",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm1dwzvn6227o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-24"
+      "title": "Parno Graszt: Már nem szédülök | Magyarország, szeretlek! zenekara - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNUTNiTERqNDA1Tm9uY0xUUkI5a0hVNjVQaWpERW5mUDZhM1ZkS0o3bE12QXBHQ1Q0SWFBbDllTGw1ZERRXzZNVUVmamIzUXM3ZnFXR2lqaVBmZkk4MUdRQk9Bc3ZRU2xON1dJYjZlaHlsWUotYk5wbURLYTlZald3c2tpVS1OcWdLYV9RejM4LU5LVW9XekNiQk9GSVBPdm54NHc?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Obama attacks Trump as he campaigns for Democrats ahead of midterm elections",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmj6jwe1j1gjo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-25"
+      "title": "Szakít az 1970-es évek formavilágával Magyarország egyik legnagyobb gyógyfürdője - Magyar Építők",
+      "publisher": "Magyar Építők",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOdV9PUHpCOF96SXlGQWxGbzBlSDBHSWZ4cW5uWUJFajllcVJhWDRPaDdLOGcxaTZESGlFX2FXUjZpM1AwX3h3cTdxN3pPTkZrcGx6ZDA4RWJ1RXpjNjlGSGdNVVZ6bFVyaWJfWXlYS2FGRkRNbXNhNW5jNjZhb3FnYmtwc18xTk5hTm82YmREeUh1OTUyUnBDZ2NHZUE1NmcxMjg4aFNsaGxHNkZCbGJrekRTdno1N0UwaTRQaQ?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Történelmi esély a befektetőknek, hogy Magyarország be akar kerülni az euróövezetbe - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxORWdUVzRVY3h2Z1RBbzVIdURKOWJ1dU9ERTZlWXoyWkhnZ2tBMnJwS0FiSzVINHdaRXJQYmpMV3IwYW9kdmdQR2JYUGlzQnl6UHJJWG10ZlpHcTRkc1g1M1M1RHlPbXpDMjdYN2NLNEtaT2tpRnFxQlJJUGRib3kzZGFMNXp4TjkyeEdz?oc=5",
-      "publishedAt": "2026-10-25"
-    },
-    {
-      "title": "Edzői várakozások a vasárnapi mérkőzések előtt - WBASKET",
+      "title": "Lelik Réka dupla-duplája a török bajnokságban - WBASKET",
       "publisher": "WBASKET",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE56WWlDWVFLVUdOV1E5OE5lRHMzSkZ5cjBaZmJiWkxhdFFDTVhkUFNhaHZQMVRWMENjZkpsZ2d6Q3ZVam1qUEFiMUc2b2h1cEduVnIxejZwZE1QU3lTdmFpZHFBVkdMWXBYbWpDNk5sQWxDcVNl?oc=5",
-      "publishedAt": "2026-10-25"
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9SRXltTXlCbi1CRXcybmE1VDdWZFdPem5NM2ptMmVxRWZEMW9uVTZoZ1VtaGxEQnMxLTJRbkhnRTlrYmZreFkwb0VQSVlseXJFSmZoQTNnYlJwWG96OENST3k4Z084UmtGUTBaWmcyN2Vuam8?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Akkora a baj, hogy már az EU-tól kér segítséget Magyarország is - Agrárszektor",
-      "publisher": "Agrárszektor",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQTEUzc3NmWlhEVWc4djNmOTZIWjRRYjBDTl94LTYzRUVfY3FpbVJTVFNYclNPcXVnRVIyS29zN2Ytc1A4RTU1TXA5SHpnUTg5c3BhZk41WWRaQTZxd3VHOGJsczdfeHhpTW9OZUxvVUR3S0UwclZUZGhpY2E2c19YOThUNzUydGt5TDljVW5ZTTY1NnNidkZ5YTdMMDZtcXB1bXVFYkZSN3RHNHFMdkZMUGkyYXI4WEpF?oc=5",
-      "publishedAt": "2026-10-24"
+      "title": "Negyedik lett Magyarország a világbajnokságon, szekszárdi sportolók is hozzátettek a sikerhez - tolnamegyeihirek.hu",
+      "publisher": "tolnamegyeihirek.hu",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOU0pHcER5aFV5Zm1FOTB6SksxSnRGZFVsZURCRUJiM1hlUGttRXEtdWJJcnhUV3AzMUd0d1cycTNOUm9SVUhHOE1ZUld3RVJIZi1uc0FscWNELXNtSFYta25nZFNBX0FvN1Z3V0FySGxUZTB3Q3RmUGI2aTJZTm5fcjZaS3d5bTluZnJGVFVGREZDVXlpNzd5bFJqcUNDeFpMMm10c1BnYTltUUZEU3BwRXJtVTM0ODhKZGJzLWFR?oc=5",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Exkluzív interjú: Mukesh Srivastava második otthona Magyarország - Helló Magyar",
-      "publisher": "Helló Magyar",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNUUp0VmdGUjltYTdDdWdpNU5SN2k3VTdzRkI0OV9wcmM0Q25vMHE4YjQ1cGE1VW9kYUdlSmNXbEwxQ0l2NHlKbEZycGNFRFgtNGlSb3MzNDNNTXY5RXRueG5QSGR5WjlCZFp1OXJra1MxSHNST1RTamFlU1Q0WnU2aw?oc=5",
-      "publishedAt": "2026-10-25"
-    },
-    {
-      "title": "Belső haveri körnek osztották a pénzeket, aztán kiderült, így halt meg a legnagyobb magyar fesztiválmutyi főszereplője - Blikk",
-      "publisher": "Blikk",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNSFktd3RRLW9FTEpkU0MyQ0dOdXRJRWt2LUQxSnpySDFXSWJ6U0QxVzY4REp2Y3BTYzJibEE4MV9FZUdHODFReVdrbnZUSmE3bUtCcG9BTUVvSlhicU1OR3A3VEsxVGx1bWRBLW1oUl80UG96cTVKNmduTFJTMnhWZ1dUSEJicTVtVWpVa25vT3dXamVuMmloN0xqeTVERUpsRlVOOUlaOU02Q2ZTOElYTVBSbV9wb3M1?oc=5",
-      "publishedAt": "2026-10-25"
-    },
-    {
-      "title": "Magyarország Kormánya on Reels - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxNODJmYTRVVDBldzh0N3VwS1h4YWJlV2w5Yl9kM2N1TmxKZnFPVHlfUUo0bXpVSFVDRGs1b2JzOWtFT19lNllrSGg3VU5IaXJUbTdzSWtiM3RmektTZ2kxWnhnd01NaW1md3drUVFGcGl5b0NCV2dmR3JXSldIWXNoMjFwc1N2QXJ1TTdURC1TV2Vic211SC1wZWlwd2FtQVhiaHJNSFpsNjBqMk1FZjdEWjdZVWYzODB2ZDdFWk5Cdjd6Tjl4VzAtTDQweWc3RUVheVp0Y3N4TmlLeXp1ZGJVR2JvQ2hfY1dTR0NjZzFJdWNXZDZkUUtqYkFXcVhvdmpmRXljZVBVbzg3X1pPQVlnRzZieFFmeGEwNFE?oc=5",
-      "publishedAt": "2026-10-25"
-    },
-    {
-      "title": "A fejlődés költségvetése: otthonteremtés és infrastruktúra-fejlesztés - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPU2dGdHJRdHh1cDhhS3ltSi1ZTEd2a0gwUXZvYUlZRkV0enM1ZkhMZjVha2RraVNaUEtXU19xZ0pKTHEzcVJEWmJTckRRd3BGbk1Vc0FVTjFoaWpLVjRZMnpjOHJHaUFhdHgzSmJlbXhadl9UaE9HQy0zeDhuQkNjYjgxcGJJWWlhRzA5M3ZVNUpMQ0Q1RHplNA?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Hazazavartak négy orosz diplomatát Magyarország szomszédjából - Privátbankár.hu",
-      "publisher": "Privátbankár.hu",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPVlVzV0JPdDNoUE9tQ0hEaXV3dXpZenM5bFZveUxZLV92X2VaQ2hqalVvamR0dElvaFZLVVVtUE5aY0MtMlJKQnBkUnJCSTIxcWlLSDhBcVpTMm1LUDBLSzdxQVVjcGl3alpINHRVWllMTFppeTYydzNpYnhuYnFGWjI2NkhfUmNrQlFob0RIWGE0VElvMUVSSGJETUIxQlNUX3ZBOUhvV09TOExO?oc=5",
-      "publishedAt": "2026-10-24"
-    },
-    {
-      "title": "Four ways Labour could raise money in the Budget without hiking income tax",
+      "title": "Healey to shield low-income pensioners from income tax in the Budget",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c65yn9p55np2o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-25"
+      "url": "https://www.bbc.co.uk/news/articles/ck98zp7zeq65o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
     },
     {
-      "title": "Budget to include £1bn for social and affordable housing",
+      "title": "Healey's Budget needs to sustain the stronger economy through gathering clouds",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqm24j9y9zn7o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ck87z4ng2l03o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Big, noisy and coming to a town near you - why the data centre backlash is growing",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cq2e9we7w2ejo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "What is the Budget and what could be in it?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6x2zrjl7kjno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Salon owners urge Budget VAT cut as staffing pressures grow",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c60rlp8kkz1zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-26"
+    },
+    {
+      "title": "Will a new code end 'rip-off parking charges'?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckjwe90z56ewo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-25"
     },
     {
       "title": "Rosebank: Life on the oil field at the centre of a political storm",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cqy8ljkle97ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-25"
+    },
+    {
+      "title": "Budget to include £1bn for social and affordable housing",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqm24j9y9zn7o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-25"
     }
   ]
