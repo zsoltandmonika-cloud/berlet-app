@@ -197,7 +197,7 @@ test('v825 all external JavaScript tags close immediately, especially map search
   'guardian-smart-hub-network-v806.js','guardian-smart-hub-router-v804.js']){
   assert.ok(tags.some(tag=>tag[1].includes(path)),'missing required active script '+path);
  }
- assert.match(html,/<script defer src="\.\/guardian-smart-hub-fields-v806\.js\?v=825-script-parser-repair"><\/script>/);
+ assert.match(html,/<script defer src="\.\/guardian-smart-hub-fields-v806\.js\?v=825-script-parser-repair(?:&pin=829)?"><\/script>/);
 });
 
 test('v826 address selection expands the SAME map via app CSS only, without Chrome native fullscreen prompt',()=>{
