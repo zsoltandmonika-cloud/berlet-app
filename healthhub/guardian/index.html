@@ -75,11 +75,18 @@
 <link rel="stylesheet" href="./guardian-origin-search-v836.css?v=836-map-from-row">
 <link rel="stylesheet" href="./guardian-profile-follow-v837.css?v=837-selected-profile-pin">
 <link rel="stylesheet" href="./guardian-profile-foreground-v838.css?v=838-gps-portraits-top">
+<link rel="stylesheet" href="./guardian-profile-battery-v841.css?v=841-hero-owner-battery">
 </head>
 <body>
 <div class="shell">
 <main>
  <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
+   <div id="guardianBatteryV841" class="guardian-battery-v841" data-level="unknown" data-charging="false"
+    role="img" aria-label="A kiválasztott profil telefonjának töltöttsége: nincs friss adat">
+    <span class="guardian-battery-icon-v841" aria-hidden="true"><span id="guardianBatteryFillV841" class="guardian-battery-fill-v841"></span></span>
+    <span id="guardianBatteryTextV841" class="guardian-battery-text-v841">—</span>
+    <span class="guardian-battery-charge-v841" aria-hidden="true">⚡</span>
+   </div>
   <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
    <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
    <div class="guardian-hero-monitor-members">
@@ -452,9 +459,10 @@
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./guardian.js?v=813-default-follow-3d-family&service=806&attrib=831&handoff=839"></script>
-<script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay"></script>
+<script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay&battery=841"></script>
 <script defer src="./guardian-live-v785.js?v=813-default-follow-3d-family&native=156&autofollow=827"></script>
 <script defer src="./guardian-profile-follow-v837.js?v=837-selected-own-live&handoff=839"></script>
+<script defer src="./guardian-profile-battery-v841.js?v=841-per-profile-battery"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>

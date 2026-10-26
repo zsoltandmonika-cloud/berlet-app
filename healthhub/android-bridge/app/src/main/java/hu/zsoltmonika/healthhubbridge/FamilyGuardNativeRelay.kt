@@ -1,6 +1,9 @@
 package hu.zsoltmonika.healthhubbridge
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.content.SharedPreferences
 import android.location.Location
 import androidx.work.BackoffPolicy
@@ -100,6 +103,24 @@ object FamilyGuardNativeRelay {
         val profile = owner(app) ?: return
         val speed = if (location.hasSpeed() && location.speed >= 0f)
             (location.speed * 3.6).toDouble() else null
+        // Battery is sampled on THIS approved physical device at the same
+        // instant as the one existing consented live GPS snapshot.
+        // No extra permission, writer, endpoint or location sharing is started.
+        val battery = try {
+            context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        } catch (_: RuntimeException) { null }
+        val level = battery?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = battery?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+        val percent = if (level >= 0 && scale > 0 && level <= scale)
+            ((level * 100.0 / scale).toInt()).coerceIn(0, 100) else null
+        val status = battery?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val charging: Boolean? = when (status) {
+            BatteryManager.BATTERY_STATUS_CHARGING,
+            BatteryManager.BATTERY_STATUS_FULL -> true
+            BatteryManager.BATTERY_STATUS_DISCHARGING,
+            BatteryManager.BATTERY_STATUS_NOT_CHARGING -> false
+            else -> null
+        }
         val payload = JSONObject()
             .put("schema", "healthhub.guardian.native/1")
             .put("source", "HH One Native GPS")
@@ -109,6 +130,8 @@ object FamilyGuardNativeRelay {
             .put("longitude", location.longitude)
             .put("accuracy_m", location.accuracy.toDouble())
             .put("speed_kmh", speed ?: JSONObject.NULL)
+            .put("battery_pct", percent ?: JSONObject.NULL)
+            .put("battery_charging", charging ?: JSONObject.NULL)
             .put("updated_at", Instant.ofEpochMilli(location.time).toString())
             .toString()
         io.launch {
