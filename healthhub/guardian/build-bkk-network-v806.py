@@ -19,7 +19,7 @@ import zipfile
 
 OUTPUT=Path(__file__).with_name("bkk-network-v806.json")
 SOURCE="BKK Zrt., CC BY 4.0"
-NON_ROUTABLE={"960"}  # nighttime, advance-request Telebusz; no verified operating time / booking in pilot
+NON_ROUTABLE={"960","917","917A"}  # unverified night buses; 960 is advance-request Telebusz
 MODES={"0":"tram","1":"metro","2":"rail","3":"bus","11":"trolley",
        "100":"rail","109":"hev","400":"metro","700":"bus","800":"trolley"}
 
