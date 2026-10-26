@@ -52,6 +52,8 @@ const window={HH_DW_VAULT_V507:{
    topApps:doc.appIds?doc.appIds.map(id=>[id,60000]):(doc.detail?[['com.openai.chatgpt',180000]]:[]),appDetailShared:!!doc.detail};
  }
 }};
+const appRegistryScript=fs.readFileSync(path.join(root,'digital-health/digital-app-registry-v515.js'),'utf8');
+vm.runInNewContext(appRegistryScript,{window,URL,Date,Object,String});
 vm.runInNewContext(fs.readFileSync(path.join(root,'digital-health/digital-live-v507.js'),'utf8'),
  {window,document,Date,Intl,Map,Math,Number,String,Error,Set});
 async function run(){
@@ -109,7 +111,7 @@ async function run(){
  const named=[
   ['com.samsung.android.forest','Samsung Digital Wellbeing','Digitális jóllét'],
   ['com.microsoft.emmx','Microsoft Edge','Böngészés'],
-  ['com.sec.android.app.launcher','One UI kezdőképernyő','Rendszerfelület'],
+  ['com.sec.android.app.launcher','Kezdőképernyő','Rendszerfelület'],
   ['com.samsung.android.incallui','Samsung hívásképernyő','Telefonálás'],
   ['com.samsung.android.rubin.app','Samsung testreszabási szolgáltatás','Rendszerszolgáltatás'],
   ['hu.zsoltmonika.healthhubbridge','HH One Connect','Egészség / HealthHub'],
