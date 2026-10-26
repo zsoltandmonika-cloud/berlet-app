@@ -398,12 +398,23 @@ function initMap(){
    center:neutral,zoom:15.3,pitch:58,bearing:-21,antialias:true,attributionControl:false
   });
   map.addControl(new w.maplibregl.NavigationControl({showCompass:true}),'bottom-right');
+  // v830: MapLibre 4.7.1 starts a compact credit control EXPANDED
+  // until the user drags the map. Collapse it before first browser paint.
+  // Users can still open the same linked credits by tapping its native ⓘ.
+  function collapseInitialAttribution(){
+   const node=d.querySelector('#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact');
+   if(!node)return false;
+   node.classList.remove('maplibregl-compact-show');
+   node.removeAttribute('open');
+   return true;
+  }
   // v829: MapLibre's native compact ⓘ provides required links without a strip.
   if(typeof w.maplibregl.AttributionControl==='function'){
    map.addControl(new w.maplibregl.AttributionControl({
     compact:true,
     customAttribution:'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-közreműködők</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">© OpenMapTiles</a>'
    }),'bottom-left');
+   collapseInitialAttribution();
   }
   map.on('load',function(){
    ready=true;message('');
