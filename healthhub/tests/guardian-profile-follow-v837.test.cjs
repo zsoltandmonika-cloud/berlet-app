@@ -301,20 +301,23 @@ test('v850 measured GPS speed is shown only for fresh, valid, accurate owner fix
 test('v850 premium speed bubble exists only by followed photo; no cloned figure or location permissions',()=>{
  const html=read('index.html'),css=read('guardian-speed-glass-v850.css'),
   code=read('guardian-profile-follow-v837.js');
- assert.match(html,/guardian-speed-glass-v850\.css\?v=850-frosted-motion-chip/);
- assert.match(html,/guardian-profile-follow-v837\.js\?v=837-selected-own-live&handoff=839&speed=850/);
+ assert.match(html,/guardian-speed-glass-v850\.css\?v=851-attached-name-dropdown/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=837-selected-own-live&handoff=839&speed=851/);
  assert.match(css,/#guardianMap \.guardian-selected-profile-position-v837/);
  assert.match(css,/\[data-guardian-person="m"\]/);
  assert.match(css,/--hh-speed-glass-a:rgba\(226,105,201/);
  assert.match(css,/--hh-speed-glass-a:rgba\(45,133,204/);
- assert.match(css,/backdrop-filter:blur\(18px\)/);
+ assert.match(css,/backdrop-filter:blur\(22px\)/);
  assert.match(css,/translateY\(-9px\)/);
  assert.match(css,/data-active="true"/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(css,/pointer-events:none!important/);
  assert.doesNotMatch(css,/#guardianHHNav|guardian-hero|\.map-follow|\.map-3d|\.map-family/);
  assert.match(code,/className='hh-guardian-speed-glass-v850'/);
- assert.match(code,/el\.append\(photo,label,speed\)/);
+ assert.match(code,/label\.append\(name,speed\)/);
+ assert.match(code,/el\.append\(photo,label\)/);
+ assert.match(css,/top:calc\(100% - 24px\)/,'speed grows BELOW existing name');
+ assert.match(css,/height:19px!important/);
  assert.match(code,/relay\.read\(k\)/);
  assert.match(code,/\.select\('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh'\)/);
  assert.doesNotMatch(code,/geolocation\.getCurrentPosition|navigator\.geolocation|\.upsert\(|\.upload\(|\.delete\(|setItem\(/);
@@ -354,8 +357,13 @@ test('v850 follows Monika with a real dropdown speed chip and hides it below 4 k
  assert.equal(markers.length,1,'existing profile marker, no second marker');
  const marker=markers[0].element;
  assert.ok(marker.children.some(c=>c.className==='guardian-position-photo'));
- const chip=marker.children.find(c=>c.className==='hh-guardian-speed-glass-v850');
- assert.ok(chip,'bubble on existing avatar');
+ const label=marker.children.find(c=>c.className==='guardian-position-label');
+ assert.ok(label,'existing nametag preserved');
+ const name=label.children.find(c=>c.className==='hh-guardian-speed-name-v851');
+ assert.equal(name?.textContent,'Mónika');
+ const chip=label.children.find(c=>c.className==='hh-guardian-speed-glass-v850');
+ assert.ok(chip,'speed descends from existing name, not a floating second tag');
+ assert.equal(marker.children.length,2,'one portrait + one expandable nametag');
  assert.equal(chip.attrs['data-active'],'true');
  assert.equal(chip.children.find(c=>c.className==='hh-guardian-speed-reading-v850').textContent,'12 km/h');
  real={...real,updated_at:new Date().toISOString(),speed_kmh:4.5};
@@ -375,6 +383,10 @@ test('v850 follows Monika with a real dropdown speed chip and hides it below 4 k
  real={...real,updated_at:new Date().toISOString(),speed_kmh:null};
  await controller.refresh();await settle();
  assert.equal(chip.attrs['data-active'],'false','missing data hides immediately');
+ real={...real,updated_at:new Date(Date.now()-31000).toISOString(),speed_kmh:24};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'false','expired speed hidden while portrait remains valid');
+ assert.equal(markers.length,1,'no additional marker for the speed');
  store['hh-profile']='z';events.storage({key:'hh-profile'});
  assert.ok(removed.length>=1,'profile swap immediately removes old speed chip and GPS marker');
  await settle();
