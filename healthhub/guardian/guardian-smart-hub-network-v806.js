@@ -10,9 +10,9 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const SOURCE='BKK Zrt., CC BY 4.0';
- // 960 is an overnight, advance-request Telebusz. This static graph cannot
- // verify operating times or bookings: never propose it as a normal journey.
- const NON_ROUTABLE=new Set(['960']);
+ // Night-only 917/917A are BUSES, not tram 17; 960 requires advance request.
+ // This static graph knows stops, NOT service hours or booked departures.
+ const NON_ROUTABLE=new Set(['960','917','917A']);
  function routeAllowed(line){return !!line&&typeof line.id==='string'&&!NON_ROUTABLE.has(line.id.trim())}
  const LIMIT=3,ACCESS=950,TRANSFER=180,MAX_TRANSFERS=3,MAX_ITER=90000;
  const rad=Math.PI/180;
