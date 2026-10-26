@@ -1,0 +1,83 @@
+/* Family Guard v836 · Extra compact, fullscreen-only From search.
+   Preserve the approved 14px credit dot, centered zoom stack and bottom To row.
+ */
+#guardianMapOriginV836{display:none}
+.map-card.hh-map-full-v819.hh-map-has-destination-v836 #guardianMapOriginV836{
+ --hh-origin-border:rgba(190,233,255,.53);
+ --hh-origin-tint:linear-gradient(145deg,rgba(77,152,208,.64),rgba(26,77,132,.75));
+ --hh-origin-input:rgba(31,92,151,.62);
+ display:flex!important;align-items:center;gap:6px;
+ position:absolute!important;z-index:33!important;
+ bottom:calc(65px + env(safe-area-inset-bottom,0px))!important;
+ left:50%!important;right:auto!important;top:auto!important;
+ transform:translateX(-50%)!important;
+ width:min(82%,410px)!important;max-width:calc(100% - 16px)!important;
+ padding:5px 6px!important;box-sizing:border-box!important;
+ border:1px solid var(--hh-origin-border)!important;border-radius:14px!important;
+ background:var(--hh-origin-tint)!important;
+ -webkit-backdrop-filter:blur(23px) saturate(1.4)!important;
+ backdrop-filter:blur(23px) saturate(1.4)!important;
+ box-shadow:0 7px 19px rgba(4,23,55,.31),inset 0 1px rgba(255,255,255,.25)!important;
+}
+:root[data-guardian-profile="m"] .map-card.hh-map-full-v819.hh-map-has-destination-v836 #guardianMapOriginV836{
+ --hh-origin-border:rgba(255,208,246,.57);
+ --hh-origin-tint:linear-gradient(145deg,rgba(193,129,185,.63),rgba(105,59,139,.76));
+ --hh-origin-input:rgba(149,85,154,.65);
+}
+#guardianMapOriginV836 .hh-origin-label-v836{
+ font:760 10px/1.18 system-ui;color:#fff;letter-spacing:.01em;
+ flex:0 0 61px;white-space:normal;text-align:left;
+}
+#guardianMapOriginInputV836{
+ flex:1;min-width:0;width:100%;height:39px;min-height:39px;
+ border:1px solid var(--hh-origin-border)!important;border-radius:11px!important;
+ background:var(--hh-origin-input)!important;color:#fff!important;
+ font:650 12px/1.2 system-ui;padding:0 9px!important;
+ -webkit-appearance:none;appearance:none;
+}
+#guardianMapOriginInputV836::placeholder{color:rgba(255,255,255,.82);opacity:1}
+#guardianMapOriginInputV836:focus-visible{outline:2px solid #e4f7ff;outline-offset:0}
+#guardianMapOriginInputV836.hh-origin-confirmed-v836{
+ border-color:rgba(159,255,214,.88)!important;
+}
+#guardianMapOriginGoV836{
+ flex:0 0 39px;width:39px;min-width:39px;height:39px;min-height:39px;
+ border:1px solid var(--hh-origin-border);border-radius:11px;
+ background:var(--hh-origin-input);color:#fff;font:760 18px/1 system-ui;
+ cursor:pointer;touch-action:manipulation;
+}
+#guardianMapOriginGoV836:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#guardianMapOriginResultsV836{
+ display:grid;gap:5px;
+ position:absolute;left:0;right:0;bottom:calc(100% + 7px);z-index:34;
+ max-height:min(33dvh,265px);overflow-y:auto;overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;
+ padding:6px;border:1px solid var(--hh-origin-border);border-radius:15px;
+ background:linear-gradient(150deg,rgba(45,110,166,.95),rgba(10,43,89,.97));
+ -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+ box-shadow:0 9px 25px rgba(3,21,48,.37);
+}
+:root[data-guardian-profile="m"] #guardianMapOriginResultsV836{
+ background:linear-gradient(145deg,rgba(158,90,166,.96),rgba(65,37,107,.97));
+}
+#guardianMapOriginResultsV836[hidden]{display:none!important}
+#guardianMapOriginResultsV836 .hh-map-search-hit-v819{min-height:48px}
+#guardianMapOriginStatusV836{
+ position:absolute!important;width:1px!important;height:1px!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+.map-card.hh-map-full-v819.hh-origin-typing-v836 #guardianMapOriginV836{
+ position:fixed!important;
+ top:var(--hh-origin-keyboard-top-v836,calc(100dvh - 115px))!important;
+ bottom:auto!important;
+}
+.map-card.hh-map-full-v819.hh-origin-typing-v836 #guardianMapOriginResultsV836{
+ max-height:var(--hh-origin-results-max-v836,180px)!important;
+}
+@media(max-width:385px){
+ .map-card.hh-map-full-v819.hh-map-has-destination-v836 #guardianMapOriginV836{
+  width:88%!important;padding:4px 5px!important;
+ }
+ #guardianMapOriginV836 .hh-origin-label-v836{flex-basis:53px;font-size:9px}
+ #guardianMapOriginInputV836{font-size:11px;padding:0 6px!important}
+}
