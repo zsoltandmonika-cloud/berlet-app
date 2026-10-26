@@ -1,0 +1,189 @@
+/* Family Guard v861: consistent Pastel Transparent Glass on remaining lower controls.
+ * Profile alone determines the pink/blue skin. Behavioral logic untouched.
+ * Semantic GPS status dots, route identity colors, hero, 3D map and SH9 taskbar remain unchanged.
+ */
+.guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel{
+ --fg-ink:#193653;--fg-muted:#4d6984;--fg-accent:#78b4e6;
+ --fg-selected:rgba(153,207,247,.68);--fg-surface:rgba(230,244,255,.74);
+ --fg-card:rgba(255,255,255,.34);--fg-edge:rgba(255,255,255,.86);
+ --fg-shadow:rgba(37,63,101,.10);
+ color:var(--fg-ink)!important;
+ border:1px solid var(--fg-edge)!important;
+ background:linear-gradient(138deg,rgba(223,239,252,.86),rgba(189,221,246,.77))!important;
+ border-radius:19px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.89),0 7px 22px var(--fg-shadow)!important;
+ backdrop-filter:blur(20px) saturate(118%)!important;
+ -webkit-backdrop-filter:blur(20px) saturate(118%)!important;
+}
+:root[data-guardian-profile="m"] .guardian-landmarks,
+:root[data-guardian-profile="m"] .hh-arrival-studio,
+:root[data-guardian-profile="m"] .family-panel,
+:root[data-guardian-profile="m"] .gps-panel{
+ --fg-ink:#562946;--fg-muted:#77536d;--fg-accent:#dc8fc0;
+ --fg-selected:rgba(248,188,224,.67);--fg-surface:rgba(255,239,250,.76);
+ --fg-card:rgba(255,255,255,.36);--fg-shadow:rgba(101,44,83,.10);
+ background:linear-gradient(138deg,rgba(255,238,249,.86),rgba(239,210,233,.79))!important;
+}
+/* Landmark editor: soft inner glass, no dark category tiles */
+.guardian-landmarks .guardian-landmarks-details>summary,
+.hh-arrival-studio>summary{
+ color:var(--fg-ink)!important;
+}
+.guardian-landmarks .guardian-landmarks-details>summary::after{color:var(--fg-muted)!important}
+.guardian-landmarks .guardian-landmarks-count,
+.guardian-landmarks .guardian-landmark-scope{
+ color:var(--fg-ink)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important
+}
+.guardian-landmarks .guardian-landmarks-help,
+.guardian-landmarks .guardian-landmarks-status,
+.guardian-landmarks .guardian-landmarks-empty,
+.guardian-landmarks .guardian-landmark-sync-status{
+ color:var(--fg-muted)!important
+}
+.guardian-landmarks .guardian-landmarks-name-label,
+.guardian-landmarks .guardian-landmarks-saved-heading,
+.guardian-landmarks .guardian-landmark-item-name{
+ color:var(--fg-ink)!important
+}
+.guardian-landmarks .guardian-landmarks-choice,
+.guardian-landmarks .guardian-landmarks-action,
+.guardian-landmarks .guardian-landmark-action,
+.guardian-landmarks .guardian-landmark-delete,
+.guardian-landmarks .guardian-landmark-item,
+.guardian-landmarks #guardianLandmarksSave,
+.guardian-landmarks .guardian-landmark-sync-status{
+ color:var(--fg-ink)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.60)!important
+}
+.guardian-landmarks .guardian-landmarks-choice[aria-pressed="true"],
+.guardian-landmarks .guardian-landmarks-action[aria-pressed="true"]{
+ color:var(--fg-ink)!important;background:var(--fg-selected)!important;
+ border:1px solid var(--fg-accent)!important
+}
+.guardian-landmarks :is(#guardianLandmarkName,.guardian-landmark-scope-select){
+ color:var(--fg-ink)!important;background:rgba(255,255,255,.43)!important;
+ border:1px solid var(--fg-accent)!important;color-scheme:light!important
+}
+/* Buddy: both notification studio and active stop selection */
+.hh-arrival-studio>summary small{
+ color:var(--fg-muted)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important
+}
+.hh-arrival-studio .hh-arrival-about,
+.hh-arrival-studio .hh-arrival-field,
+.hh-arrival-studio .hh-arrival-flags label,
+.hh-arrival-studio .hh-arrival-volume>label,
+.hh-arrival-studio .hh-stop-field-v815,
+.hh-arrival-studio .hh-stop-studio-v815 h3,
+.hh-arrival-studio .hh-arrival-preview strong,
+.hh-arrival-studio .hh-arrival-preview p{
+ color:var(--fg-ink)!important
+}
+.hh-arrival-studio :is(.hh-arrival-status,.hh-arrival-preview small,.hh-arrival-volume-scale,
+ .hh-arrival-volume small,.hh-stop-studio-v815 p,.hh-stop-note-v815,
+ .hh-stop-status-v815,.hh-arrival-volume output){
+ color:var(--fg-muted)!important
+}
+.hh-arrival-studio :is(.hh-stop-studio-v815,.hh-arrival-preview,.hh-arrival-volume,
+ .hh-stop-lead-v815,.hh-arrival-flags label){
+ color:var(--fg-ink)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important;border-radius:14px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.64)!important
+}
+.hh-arrival-studio .hh-stop-studio-v815{margin-top:10px!important}
+.hh-arrival-studio .hh-arrival-flags label{padding:8px 10px}
+.hh-arrival-studio :is(.hh-arrival-field select,.hh-arrival-field input,.hh-arrival-field textarea,
+ .hh-stop-field-v815 select,.hh-stop-field-v815 textarea,.hh-stop-field-v815 input:not([type=range])){
+ color:var(--fg-ink)!important;background:rgba(255,255,255,.44)!important;
+ border:1px solid var(--fg-accent)!important;
+ color-scheme:light!important;box-shadow:none!important
+}
+.hh-arrival-studio :is(.hh-arrival-actions button,.hh-stop-actions-v815 button,
+ .hh-arrival-primary){
+ color:var(--fg-ink)!important;background:var(--fg-selected)!important;
+ border:1px solid var(--fg-edge)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.76)!important;
+ min-height:44px!important
+}
+.hh-arrival-studio :is(input[type=checkbox],input[type=range]){
+ accent-color:var(--fg-accent)!important
+}
+/* Family Live safety controls and GPS badges: retain the status meaning */
+.family-panel .family-panel-head strong,
+.family-panel .guardian-live-head strong,
+.family-panel .family-member strong,
+.family-panel .guardian-live-settings label{
+ color:var(--fg-ink)!important
+}
+.family-panel :is(.family-panel-head span,.guardian-live-help,.guardian-live-note,
+ .guardian-live-auth,.family-member small,.family-note){
+ color:var(--fg-muted)!important
+}
+.family-panel :is(.guardian-live-v785,.family-member,.guardian-live-status,
+ .guardian-live-peer,.guardian-live-settings select,.guardian-live-speed){
+ color:var(--fg-ink)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.59)!important
+}
+.family-panel .guardian-live-v785{
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+.family-panel .guardian-live-pill{
+ color:var(--fg-ink)!important;background:var(--fg-selected)!important;
+ border:1px solid var(--fg-edge)!important
+}
+.family-panel .guardian-live-buttons button,
+.family-panel .guardian-live-reset{
+ color:var(--fg-ink)!important;background:var(--fg-selected)!important;
+ border:1px solid var(--fg-edge)!important;
+ border-radius:12px!important;min-height:44px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.65)!important
+}
+.family-panel .guardian-live-buttons button:disabled{
+ opacity:.43!important
+}
+.family-panel .guardian-live-settings select{color-scheme:light!important}
+.family-panel .guardian-live-reset[hidden],
+.family-panel .guardian-live-v785 [hidden]{display:none!important}
+/* GPS/track panel at very bottom: same surface and cards as the route planner */
+.gps-panel :is(.state-row,.state-row #guardianStatus,.state-row #guardianProfile){
+ color:var(--fg-ink)!important
+}
+.gps-panel :is(.mode-note,.privacy,.stats small){
+ color:var(--fg-muted)!important
+}
+.gps-panel .stats>div{
+ color:var(--fg-ink)!important;background:var(--fg-card)!important;
+ border:1px solid var(--fg-edge)!important;
+ border-radius:12px!important;box-shadow:inset 0 1px rgba(255,255,255,.60)!important
+}
+.gps-panel .stats strong{color:var(--fg-ink)!important}
+.gps-panel :is(.actions button,.native-setup){
+ color:var(--fg-ink)!important;background:var(--fg-selected)!important;
+ border:1px solid var(--fg-edge)!important;
+ border-radius:12px!important;box-shadow:inset 0 1px rgba(255,255,255,.75)!important
+}
+.gps-panel :is(button:disabled,[disabled]){opacity:.43!important}
+/* Focus feedback accessible on both skins. */
+:is(.guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel)
+ :is(button,summary,select,input,textarea):focus-visible{
+ outline:2px solid var(--fg-accent)!important;outline-offset:2px!important
+}
+@media(max-width:390px){
+ .family-panel,.gps-panel{padding:11px 9px!important}
+ .guardian-landmarks .guardian-landmarks-body{padding-inline:9px!important}
+ .hh-arrival-studio .hh-arrival-body{padding-inline:10px!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ .guardian-landmarks,.hh-arrival-studio,.family-panel,.gps-panel{
+  background:#dceaf8!important
+ }
+ :root[data-guardian-profile="m"] .guardian-landmarks,
+ :root[data-guardian-profile="m"] .hh-arrival-studio,
+ :root[data-guardian-profile="m"] .family-panel,
+ :root[data-guardian-profile="m"] .gps-panel{
+  background:#f5e1ee!important
+ }
+}
