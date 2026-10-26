@@ -218,8 +218,11 @@
    sleepInfo=d.getElementById('guardianHealthSleepMetaV845'),
    nutriText=d.getElementById('guardianHealthNutriDetailV845'),
    nutriInfo=d.getElementById('guardianHealthNutriMetaV845'),
-   note=d.getElementById('guardianHealthNoteV845');
-  if(!root||!gps||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note)return null;
+   note=d.getElementById('guardianHealthNoteV845'),
+   sleepRow=d.getElementById('guardianHealthSleepRowV845'),
+   nutriRow=d.getElementById('guardianHealthNutriRowV845'),
+   batteryCaption=d.getElementById('guardianBatteryCaptionV845');
+  if(!root||!gps||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note||!sleepRow||!nutriRow||!batteryCaption)return null;
   let generation=0,busy=false,rerun=false,lastProfile=profileKey(w.localStorage),updatedAt=0,
    cachedSleep=null,cachedNutrition=null,cachedGPS=null,lastHealthFetch=0;
   const selected=()=>profileKey(w.localStorage);
@@ -232,7 +235,11 @@
    heart.dataset.rag=h.tone;
    health.textContent=sleep?sleep.score+'/100':'—';
    const owner=lastProfile==='monika'?'Mónika':'Zsolt';
-   heart.setAttribute('aria-label',owner+' · napi Health státusz · '+(h.tone==='unknown'?'nincs hiteles adat':h.tone)+'. Koppints a részletekhez');
+   batteryCaption.textContent=owner+' telefon';
+   sleepRow.dataset.rag=sleep?.tone||'unknown';
+   nutriRow.dataset.rag=nutrition?.tone||'unknown';
+   const overall={good:'kedvező',warn:'figyelendő',bad:'figyelmet igényel',unknown:'nincs adat'};
+   heart.setAttribute('aria-label',owner+' · napi Health státusz · '+overall[h.tone]+'. Koppints a részletekhez');
    scoreText.textContent=sleep?sleep.score+' / 100':'—';
    sleepInfo.textContent=sleep?sleep.date+' · '+sleep.source:'Nincs friss, ellenőrizhető éjszakai alvásindex';
    nutriText.textContent=nutrition?(nutrition.net<0?'−':nutrition.net>0?'+':'')+
@@ -292,10 +299,10 @@
   }
   async function refresh(){
    if(d.hidden)return;
-   if(busy){rerun=true;return}
    const p=selected();
    if(lastProfile!==p)invalidate();
    if(!permitted(auth(),p)){invalidate();return}
+   if(busy){rerun=true;return}
    busy=true;const ticket=++generation;
    const stamp=Date.now(),needHealth=stamp-lastHealthFetch>2*MIN;
    try{
