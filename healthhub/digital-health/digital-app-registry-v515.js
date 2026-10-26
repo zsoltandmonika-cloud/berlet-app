@@ -55,12 +55,9 @@
   return entry?entry.slice():[packageName,'📱','Besorolatlan',null];
  }
  function allowedLogo(url){
-  if(typeof url!=='string'||url.length>350)return false;
-  try{
-   const x=new URL(url);
-   return x.protocol==='https:'&&
-     ['img.samsungapps.com','img.iconpusher.com','cdn.simpleicons.org'].includes(x.hostname);
-  }catch(_){return false}
+  if(typeof url!=='string'||url.length>350||/[\\s<>"']/.test(url))return false;
+  return ['https://img.samsungapps.com/','https://img.iconpusher.com/',
+    'https://cdn.simpleicons.org/'].some(prefix=>url.startsWith(prefix));
  }
  return {resolveApp,allowedLogo,entries,version:'515'};
 });
