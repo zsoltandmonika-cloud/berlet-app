@@ -370,6 +370,9 @@ function switchProfile(){
  follow=true;hasFix=false;lastBrowserFixAt=0;
  try{w.localStorage.setItem('hh-profile',next)}catch(e){report('A profilváltás most nem menthető el.');return}
  tapSound();theme();renderButtons();applyGoldenMapStyle();
+ // v868: one physical profile switch also restores its separately saved BKK routes.
+ // A BKK-only dropdown may inspect another list, but must never recolour the skin.
+ w.HH_GUARDIAN_TRANSIT_V790?.setProfile?.(next==='m'?'monika':'zsolt');
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  $('guardianMapLabel').textContent=(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(map)map.easeTo({center:neutral,zoom:15.3,duration:650});
@@ -558,7 +561,9 @@ if(nativeButton&&/Android/i.test(w.navigator.userAgent||'')){
 d.addEventListener('visibilitychange',function(){if(d.hidden&&active){stop(true);report('A böngésző GPS-e szünetel · az utolsó ismert családi hely megmarad.')}});
 w.addEventListener('pagehide',()=>stop(true));
 w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
- stop();clear();if(marker){marker.remove();marker=null}hasFix=false;lastBrowserFixAt=0;theme();$('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
+ stop();clear();if(marker){marker.remove();marker=null}hasFix=false;lastBrowserFixAt=0;theme();
+ w.HH_GUARDIAN_TRANSIT_V790?.setProfile?.(name()==='Mónika'?'monika':'zsolt');
+ $('guardianMapLabel').textContent='3D BUDAPEST · FELFEDEZŐ NÉZET';
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  if(map&&ready)applyGoldenMapStyle();
 }});
