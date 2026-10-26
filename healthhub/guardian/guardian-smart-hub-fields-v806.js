@@ -142,6 +142,10 @@
     }
    }
    updateStyles();
+   // The existing Smart Travel controller owns both confirmed endpoints.
+   w.dispatchEvent(new w.CustomEvent('hh-guardian-map-route-state-v836',{
+    detail:{origin:state.origin,destination:state.destination}
+   }));
   }
   function selectPlace(place,kind=active){
    if(!validPlace(place)||!modes.includes(kind))return false;
@@ -296,6 +300,18 @@
   if(w.addEventListener)w.addEventListener('hh-guardian-map-destination-v819',e=>{
    if(!e||!validPlace(e.detail))return;
    if(selectPlace(e.detail,'destination'))e.preventDefault();
+  });
+  // v836 fullscreen origin suggestions feed exactly this same BKK route planner.
+  if(w.addEventListener)w.addEventListener('hh-guardian-map-origin-v836',e=>{
+   if(!e||!validPlace(e.detail))return;
+   if(e.detail.source==='favorite'&&e.detail.profile!==profileId(w.localStorage))return;
+   if(e.detail.source==='shared'&&
+      !(w.HH_GUARDIAN_LIVE_V785?.authenticated&&w.HH_GUARDIAN_LIVE_V785?.familyAuthorized))return;
+   if(selectPlace(e.detail,'origin'))e.preventDefault();
+  });
+  if(w.addEventListener)w.addEventListener('hh-guardian-map-origin-clear-v836',()=>{
+   stopRequest();clearResults();state.origin=null;
+   inputs.origin.value='';updateMap(null,'origin');syncRoutes();
   });
   if(w.addEventListener)w.addEventListener('pagehide',()=>{
    stopRequest();for(const kind of modes){if(markers[kind])markers[kind].remove()}

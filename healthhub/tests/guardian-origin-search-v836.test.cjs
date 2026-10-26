@@ -1,0 +1,62 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.join(__dirname,'../guardian');
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const mod=require('../guardian/guardian-origin-search-v836.js');
+const fields=require('../guardian/guardian-smart-hub-fields-v806.js');
+test('v836 supports a verified origin, not made-up or other-profile addresses',()=>{
+ assert.equal(mod.version,'836');
+ const g=fields,valid={name:'Bécsi út 10',lat:47.53,lng:19.037};
+ assert.equal(mod.verified(valid,g,'m',false),true);
+ assert.equal(mod.verified({...valid,lat:Infinity},g,'m',false),false);
+ assert.equal(mod.verified({...valid,source:'favorite',profile:'z'},g,'m',false),false);
+ assert.equal(mod.verified({...valid,source:'favorite',profile:'m'},g,'m',false),true);
+ assert.equal(mod.verified({...valid,source:'shared'},g,'m',false),false);
+ assert.equal(mod.verified({...valid,source:'shared'},g,'m',true),true);
+ assert.equal(mod.displayName({displayName:'Munkahely',...valid}), 'Munkahely · Bécsi út 10');
+});
+test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-only origin row',()=>{
+ const html=read('index.html'),css=read('guardian-origin-search-v836.css');
+ const js=read('guardian-origin-search-v836.js'),route=read('guardian-smart-hub-fields-v806.js');
+ const block=html.slice(html.indexOf('<section class="map-card"'),html.indexOf('</section>',html.indexOf('<section class="map-card"')));
+ for(const id of ['guardianMapOriginV836','guardianMapOriginInputV836',
+    'guardianMapOriginGoV836','guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
+  assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
+ assert.match(html,/guardian-origin-search-v836\.css\?v=836-map-from-row/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=836-map-from-search/);
+ assert.match(html,/guardian-attribution-dot-v834\.css/);
+ assert.match(html,/guardian-zoom-center-v835\.css/);
+ assert.match(html,/guardian-keyboard-guard-v832\.js/);
+ assert.ok(html.indexOf('guardian-origin-search-v836.js')>html.indexOf('guardian-map-search-v819.js'));
+ assert.match(css,/\.map-card\.hh-map-full-v819\.hh-map-has-destination-v836 #guardianMapOriginV836/);
+ assert.match(css,/bottom:calc\(65px \+ env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(css,/\.hh-origin-typing-v836 #guardianMapOriginV836/);
+ assert.match(css,/#guardianMapOriginResultsV836\[hidden\]\{display:none!important\}/);
+ assert.doesNotMatch(css,/maplibregl-ctrl|\.map-follow|\.map-3d|\.map-family/);
+ assert.doesNotMatch(js,/navigator\.geolocation|getCurrentPosition|watchPosition|setItem\(|new .*Map\(/);
+ assert.doesNotMatch(html,/guardian-map-sources-v833/);
+});
+test('v836 verified From search reuses exact same favourite+Photon parsing and Smart Travel endpoints',()=>{
+ const js=read('guardian-origin-search-v836.js');
+ const search=read('guardian-map-search-v819.js');
+ const fields=read('guardian-smart-hub-fields-v806.js');
+ assert.match(js,/search\.matchSaved\(personal\.concat\(allowSharedEntries\(\)\),query\)/);
+ assert.match(js,/search\.combineResults\(a,b\)/);
+ assert.match(js,/fields\.searchUrl\(value\)/);
+ assert.match(js,/fields\.normalizeResults\(await response\.json\(\)\)/);
+ assert.match(js,/hh-guardian-map-origin-v836/);
+ assert.match(fields,/hh-guardian-map-origin-v836/);
+ assert.match(fields,/selectPlace\(e\.detail,'origin'\)/);
+ assert.match(fields,/hh-guardian-map-origin-clear-v836/);
+ assert.match(fields,/state\.origin=null/);
+ assert.match(fields,/hh-guardian-map-route-state-v836/);
+ assert.match(js,/hh-guardian-map-route-state-v836/);
+ assert.match(search,/hh-guardian-map-destination-v819/);
+ assert.match(fields,/selectPlace\(e\.detail,'destination'\)/);
+ assert.match(fields,/router\.setJourney\(state\.origin,state\.destination\)/);
+ assert.match(js,/map\.fitBounds/);
+ assert.match(js,/go\.textContent=place\?'🧭':'⌕'/,'search becomes route action after confirmation');
+ assert.match(js,/guardianMapSearchExitV819/,'route action exits immersive map');
+ assert.match(js,/hhSmartHubTripPlansV804/,'route action opens existing real BKK plans');
+ assert.match(js,/else search\(\)/,'search remains available before selection');
+});
