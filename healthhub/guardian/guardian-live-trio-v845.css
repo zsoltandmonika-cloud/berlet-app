@@ -1,0 +1,66 @@
+/* Family Guard v845 · approved Hero, data-backed Battery → GPS → Health trio.
+ * Only overlays the existing 1672×941 reference PNG. Never alters the
+ * approved character, title, profile button, map or shared taskbar.
+ */
+.guardian-hero>.hh-guardian-trio-v845{
+ position:absolute!important;z-index:24!important;right:1.15%!important;left:auto!important;
+ top:21.1%!important;bottom:auto!important;width:38.2%!important;height:12.5%!important;
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:2.1%!important;pointer-events:none!important;
+ font-family:Inter,Segoe UI,Roboto,system-ui,sans-serif!important;
+}
+.hh-guardian-trio-v845>.hh-guardian-card-v845,
+.hh-guardian-trio-v845>.guardian-battery-v841{
+ position:relative!important;inset:auto!important;transform:none!important;z-index:auto!important;
+ box-sizing:border-box!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex-direction:column!important;gap:2px!important;
+ padding:3px 2px!important;overflow:hidden!important;
+ background:linear-gradient(135deg,rgba(16,41,100,.77),rgba(9,26,70,.86))!important;
+ border:1px solid rgba(137,184,255,.69)!important;border-radius:clamp(6px,1.3vw,12px)!important;
+ color:#fff!important;box-shadow:inset 0 1px 0 #ffffff36,0 2px 10px #06153480!important;
+ -webkit-backdrop-filter:blur(12px) saturate(1.3)!important;backdrop-filter:blur(12px) saturate(1.3)!important;
+ opacity:1!important;white-space:nowrap!important;user-select:none!important;pointer-events:none!important;
+}
+.hh-guardian-card-v845 .hh-guardian-card-top-v845,
+.hh-guardian-trio-v845>.guardian-battery-v841 .hh-guardian-card-top-v845{
+ display:flex;align-items:center;justify-content:center;gap:3px;max-width:100%;min-width:0;
+}
+.hh-guardian-trio-v845 .hh-guardian-value-v845,
+.hh-guardian-trio-v845 .guardian-battery-text-v841{
+ color:#fff!important;font-size:clamp(10px,1.55vw,17px)!important;font-weight:850!important;
+ font-variant-numeric:tabular-nums!important;line-height:1!important;letter-spacing:0!important;min-width:0!important;
+}
+.hh-guardian-trio-v845 .hh-guardian-caption-v845{
+ color:#dfeeff!important;font:650 clamp(7px,1vw,10px)/1.1 Inter,Segoe UI,system-ui,sans-serif!important;
+ max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center!important;
+}
+.hh-guardian-trio-v845 .hh-guardian-icon-v845{width:clamp(13px,2vw,21px);height:clamp(13px,2vw,21px);flex:none}
+.hh-guardian-trio-v845 .hh-guardian-icon-v845.hh-gps-pin-v845{
+ color:#00ed9e;filter:drop-shadow(0 0 3px #00eca599)
+}
+.hh-guardian-trio-v845 .hh-guardian-icon-v845.hh-health-heart-v845{
+ color:var(--hh-health-heart-v845,#a4b6d3);
+ filter:drop-shadow(0 0 3px var(--hh-health-heart-glow-v845,transparent));
+}
+.hh-guardian-trio-v845 [data-rag="good"].hh-health-v845{--hh-health-heart-v845:#24eca1;--hh-health-heart-glow-v845:#24eca184}
+.hh-guardian-trio-v845 [data-rag="warn"].hh-health-v845{--hh-health-heart-v845:#ffbb58;--hh-health-heart-glow-v845:#ffbb587c}
+.hh-guardian-trio-v845 [data-rag="bad"].hh-health-v845{--hh-health-heart-v845:#ff5b72;--hh-health-heart-glow-v845:#ff5b7288}
+.hh-guardian-trio-v845 .guardian-battery-icon-v841{
+ display:block!important;width:clamp(15px,2.2vw,22px)!important;height:clamp(9px,1.27vw,13px)!important;
+ flex:none!important;padding:2px!important;
+}
+.hh-guardian-trio-v845 .guardian-battery-charge-v841{font-size:clamp(9px,1.3vw,12px)!important}
+@media(max-width:425px){
+ .guardian-hero>.hh-guardian-trio-v845{top:21%!important;height:13.7%!important;width:40%!important;right:1%!important;gap:2%!important}
+ .hh-guardian-trio-v845>.hh-guardian-card-v845,.hh-guardian-trio-v845>.guardian-battery-v841{
+  gap:1px!important;padding:1px!important;border-radius:7px!important;
+ }
+ .hh-guardian-trio-v845 .hh-guardian-icon-v845{width:12px;height:12px}
+ .hh-guardian-trio-v845 .hh-guardian-value-v845,.hh-guardian-trio-v845 .guardian-battery-text-v841{font-size:10px!important}
+ .hh-guardian-trio-v845 .hh-guardian-caption-v845{font-size:7px!important}
+ .hh-guardian-trio-v845 .guardian-battery-icon-v841{width:13px!important;height:9px!important;padding:1px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .hh-guardian-trio-v845 *{transition:none!important;animation:none!important}
+}
