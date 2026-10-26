@@ -76,7 +76,10 @@
   }
   function paintSpeed(fix){
    if(!speedBadge||!speedValue||!markerNode)return;
-   const reading=fix?.profile===selected()?fix.speedKmh:null;
+   // Location can remain valid for 75s, but MOVEMENT needs a <=25s fix.
+   // A stale speed must never stay visible just because Follow is still live.
+   const reading=fix?.profile===selected()&&Number.isFinite(fix.ts)&&
+    fix.ts<=Date.now()+5000&&Date.now()-fix.ts<=25000?fix.speedKmh:null;
    const next=speedState(speedVisible,reading);
    speedVisible=next.visible;
    speedBadge.setAttribute('data-active',next.visible?'true':'false');
@@ -116,7 +119,8 @@
    const img=d.createElement('img');img.alt='';img.src=k==='monika'?av.m:av.z;
    photo.appendChild(img);
    const label=d.createElement('span');label.className='guardian-position-label';
-   label.textContent=k==='monika'?'Mónika':'Zsolt';
+   const name=d.createElement('span');name.className='hh-guardian-speed-name-v851';
+   name.textContent=k==='monika'?'Mónika':'Zsolt';
    // Only the already-followed portrait gets the bubble: no extra figure.
    const speed=d.createElement('span');speed.className='hh-guardian-speed-glass-v850';
    speed.setAttribute('data-active','false');
@@ -126,7 +130,9 @@
    const reading=d.createElement('span');reading.className='hh-guardian-speed-reading-v850';
    speed.append(gauge,reading);
    speedBadge=speed;speedValue=reading;
-   el.append(photo,label,speed);
+   // One name tag with a dropdown second line. Never clone the photo or pin.
+   label.append(name,speed);
+   el.append(photo,label);
    return el;
   }
   function showFix(fix){
@@ -151,7 +157,7 @@
    const k=selected(),l=live();
    if(!canRead(l,k)){invalidate();return}
    const client=l?.getClient?.();
-   if(!client)return;
+   if(!client){paintSpeed(null);return}
    loading=true;const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
@@ -181,7 +187,10 @@
      }
     }
    }catch(_){
-    if(ticket===run&&(!latest||!preferRemote(latest,localFixAt())))clearMarker();
+    if(ticket===run){
+     if(!latest||!preferRemote(latest,localFixAt()))clearMarker();
+     else paintSpeed(latest); // age-out the speed even across network outages
+    }
    }finally{
     loading=false;
     if(rerun){rerun=false;w.setTimeout?.(refresh,0)}
