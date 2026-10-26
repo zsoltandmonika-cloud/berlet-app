@@ -7,6 +7,8 @@
 :root[data-guardian-profile="z"]{
  --hhg-ink:#193653;
  --hhg-muted:#4d6984;
+ --hhg-credit:#d9eaff;
+ --hhg-credit-link:#a7deff;
  --hhg-accent:#78b4e6;
  --hhg-selected:rgba(153,207,247,.68);
  --hhg-surface:rgba(231,244,255,.74);
@@ -17,6 +19,8 @@
 :root[data-guardian-profile="m"]{
  --hhg-ink:#562946;
  --hhg-muted:#78546d;
+ --hhg-credit:#ffe2f1;
+ --hhg-credit-link:#ffb8df;
  --hhg-accent:#dc8fc0;
  --hhg-selected:rgba(249,186,224,.68);
  --hhg-surface:rgba(255,238,250,.75);
@@ -72,12 +76,21 @@
  background:linear-gradient(135deg,var(--hhg-surface),rgba(255,255,255,.38))!important;
  border-color:rgba(255,255,255,.86)!important;
 }
+/* v869 contrast correction: this attribution sits OUTSIDE the pale cards,
+ * directly on a dark page. Muted dark-on-light ink was unreadable here.
+ * Keep light-on-dark credit/link tokens separate from glass-card muted text. */
 :root[data-guardian-profile] #hhTransitPanel .hh-transit-credit{
- color:var(--hhg-muted)!important;
+ color:var(--hhg-credit)!important;
 }
-:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit a{
- color:var(--hhg-ink)!important;
- text-decoration-color:var(--hhg-accent)!important;
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit a,
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit a:visited{
+ color:var(--hhg-credit-link)!important;
+ text-decoration-color:currentColor!important;
+ text-underline-offset:3px!important;
+}
+:root[data-guardian-profile] #hhTransitPanel .hh-transit-credit a:focus-visible{
+ outline:2px solid var(--hhg-credit-link)!important;
+ outline-offset:3px!important;
 }
 @media(prefers-reduced-transparency:reduce){
  :root[data-guardian-profile="z"] #hhTransitPanel #hhTransitStatus.hh-transit-status{background:#e3f0fb!important}
