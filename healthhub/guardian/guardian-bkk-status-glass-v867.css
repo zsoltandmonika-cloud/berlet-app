@@ -55,5 +55,5 @@
 @media(prefers-reduced-transparency:reduce){
  #hhTransitPanel #hhTransitStatus.hh-transit-status{background:#e3f0fb!important}
  :root[data-guardian-profile="m"] #hhTransitPanel #hhTransitStatus.hh-transit-status,
- #hhTransitPanel[data-bkk-profile="monika"] #hhTransitStatus.hh-transit-status{background:#f5e2ee!important}
+ :root[data-guardian-profile="m"] #hhTransitPanel #hhTransitStatus.hh-transit-status{background:#f5e2ee!important}
 }
