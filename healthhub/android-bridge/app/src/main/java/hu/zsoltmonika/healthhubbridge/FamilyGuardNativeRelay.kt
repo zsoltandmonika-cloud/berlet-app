@@ -31,6 +31,9 @@ import java.util.concurrent.TimeUnit
  */
 object FamilyGuardNativeRelay {
     const val KEY_SHARE = "family_guard_native_share_v156"
+    // Battery Safety is a separate, revocable user choice. Old GPS-only
+    // approvals must never silently start publishing battery telemetry.
+    const val KEY_BATTERY_SHARE = "family_guard_battery_share_v842"
     const val KEY_RESULT = "family_guard_native_upload_status_v156"
     const val KEY_LAST_UPLOAD = "family_guard_native_last_upload_v156"
     private const val DIRECTORY = "/HealthHub/guardian"
@@ -54,6 +57,18 @@ object FamilyGuardNativeRelay {
         prefs(context).getBoolean(KEY_SHARE, false) &&
         FamilyGuardContinuity.enabled(context) && owner(context) != null &&
         DropboxVaultClient.hasRefreshToken(prefs(context))
+
+    fun batteryEnabled(context: Context): Boolean =
+        enabled(context) && prefs(context).getBoolean(KEY_BATTERY_SHARE, false)
+
+    fun setBatterySharing(context: Context, granted: Boolean): Boolean {
+        if (granted && !enabled(context)) return false
+        prefs(context).edit().putBoolean(KEY_BATTERY_SHARE, granted).apply()
+        // Suppress any previous in-memory snapshot; next GPS fix must reflect
+        // the newly consented/withdrawn state, not a queued old value.
+        lastQueuedAt = 0L
+        return true
+    }
 
     fun enable(context: Context): Boolean {
         if (owner(context) == null || !DropboxVaultClient.hasRefreshToken(prefs(context)) ||
@@ -106,9 +121,9 @@ object FamilyGuardNativeRelay {
         // Battery is sampled on THIS approved physical device at the same
         // instant as the one existing consented live GPS snapshot.
         // No extra permission, writer, endpoint or location sharing is started.
-        val battery = try {
-            context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        } catch (_: RuntimeException) { null }
+        val battery = if (batteryEnabled(app)) try {
+            app.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        } catch (_: RuntimeException) { null } else null
         val level = battery?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         val scale = battery?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
         val percent = if (level >= 0 && scale > 0 && level <= scale)
@@ -144,7 +159,15 @@ object FamilyGuardNativeRelay {
                 }
                 ensureFolder(app)
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
-                DropboxVaultClient.uploadText(prefs(app), latestPath(profile), payload)
+                // Consent can be withdrawn while an earlier GPS snapshot is
+                // waiting on the upload lock. Remove battery fields again at
+                // the last possible moment to prevent privacy race conditions.
+                val finalPayload = JSONObject(payload.toString())
+                if (!batteryEnabled(app)) {
+                    finalPayload.put("battery_pct", JSONObject.NULL)
+                        .put("battery_charging", JSONObject.NULL)
+                }
+                DropboxVaultClient.uploadText(prefs(app), latestPath(profile), finalPayload.toString())
                 prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
                     .putString(KEY_RESULT, "uploaded").apply()
             } catch (e: Exception) {
@@ -160,7 +183,9 @@ object FamilyGuardNativeRelay {
     /** Immediate stop of further updates plus durable tombstone when online. */
     fun disable(context: Context) {
         val app = context.applicationContext
-        prefs(app).edit().putBoolean(KEY_SHARE, false).putString(KEY_RESULT, "stopping").apply()
+        prefs(app).edit().putBoolean(KEY_SHARE, false)
+            .putBoolean(KEY_BATTERY_SHARE, false)
+            .putString(KEY_RESULT, "stopping").apply()
         lastQueuedAt = 0L
         val req = OneTimeWorkRequestBuilder<GuardianNativeRevokeWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())

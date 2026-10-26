@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var gpsToggleButton: Button
     private lateinit var gpsBootButton: Button
     private lateinit var familyShareButton: Button
+    private lateinit var familyBatteryButton: Button
     private lateinit var gpsIntervalSpinner: Spinner
 
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
@@ -746,6 +747,11 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { toggleNativeFamilyShare() }
         }
         root.addView(familyShareButton)
+        familyBatteryButton = Button(this).apply {
+            text = "🔋 Family Battery Safety · külön engedély"
+            setOnClickListener { toggleBatterySharing() }
+        }
+        root.addView(familyBatteryButton)
         root.addView(Button(this).apply {
             text = "📍 Android helyszolgáltatás beállításai"
             setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
@@ -761,7 +767,7 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { openBackgroundLocationSettings() }
         })
         root.addView(TextView(this).apply {
-            text = "Natív GPS autostart külön jóváhagyással, családi helymegosztás egy MÁSODIK, külön jóváhagyással engedélyezhető. Csak az aktuális pozíció kerül a privát Dropboxba, nincs útvonalnapló. Leállításkor visszavonó rekord készül. Edge GPS-t nem ébreszt, akkumulátort használ."
+            text = "Natív GPS autostart és családi helymegosztás külön engedélyezhető. Az akkumulátorszint és a töltési állapot egy HARMADIK, opcionális Family Battery Safety hozzájárulással kerülhet a legutolsó privát GPS-státusz mellé. Nincs útvonalnapló. A megosztás bármikor visszavonható. A GPS akkumulátort használ."
             textSize = 12f
             setTextColor(0xFF6A7F91.toInt())
             setPadding(0, 4, 0, 12)
@@ -1144,6 +1150,11 @@ class MainActivity : ComponentActivity() {
                 if (FamilyGuardNativeRelay.enabled(this))
                     "🟢 Family Guard · helymegosztás BE · visszavonás"
                 else "⚪ Family Guard · helymegosztás KI · jóváhagyás"
+            if (::familyBatteryButton.isInitialized) {
+                familyBatteryButton.text = if (FamilyGuardNativeRelay.batteryEnabled(this))
+                    "🟢 Family Battery Safety · töltöttség megosztása BE"
+                else "🔋 Family Battery Safety · töltöttség megosztása KI"
+            }
             val info = gpsBackgroundSummary.text.toString().substringBefore("\nAutomatikus natív GPS:")
             val relayResult = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
             val relayText = when {
@@ -1210,6 +1221,34 @@ class MainActivity : ComponentActivity() {
             .setPositiveButton("Jóváhagyom") { _, _ ->
                 FamilyGuardContinuity.setApproved(this, true)
                 startSh9Gps()
+                updateSh9GpsUi()
+            }.show()
+    }
+
+    private fun toggleBatterySharing() {
+        if (FamilyGuardNativeRelay.batteryEnabled(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("Family Battery Safety · megosztás visszavonása")
+                .setMessage("A következő privát GPS-státusz már nem tartalmaz akkumulátorszintet vagy töltési állapotot. Az előző érték legfeljebb a rövid frissességi idő lejártáig maradhat látható.")
+                .setNegativeButton("Mégse", null)
+                .setPositiveButton("Akkumulátormegosztás KI") { _, _ ->
+                    FamilyGuardNativeRelay.setBatterySharing(this, false)
+                    updateSh9GpsUi()
+                }.show()
+            return
+        }
+        if (!FamilyGuardNativeRelay.enabled(this)) {
+            status.text = "Akkumulátormegosztás előtt a saját telefon natív Family Guard-helymegosztását engedélyezd."
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Family Battery Safety · külön hozzájárulás")
+            .setMessage("Engedélyezed, hogy EZ A TELEFON a saját akkumulátorszázalékát és töltési állapotát a meglévő, hitelesített Family Guard GPS-státusz mellé feltöltse a privát családi Dropboxba? Csak az aktuális értéket tároljuk, előzmény nélkül. A családtag a saját engedélyezett Family Guard-felületén látja. Külön bármikor kikapcsolható, és nem indít új GPS-megosztást.")
+            .setNegativeButton("Mégse", null)
+            .setPositiveButton("Kifejezetten engedélyezem") { _, _ ->
+                if (FamilyGuardNativeRelay.setBatterySharing(this, true))
+                    status.text = "Family Battery Safety: következő GPS-státusszal akkumulátoradat is megosztható."
+                else status.text = "Nem engedélyezhető: saját telefonon aktivált natív Family Guard szükséges."
                 updateSh9GpsUi()
             }.show()
     }
