@@ -1,10 +1,10 @@
 {
   "schema": "healthhub.infection-watch/1",
-  "edition": "2026-W41-auto",
-  "sourceWeek": "2026. 41. hét",
-  "periodStart": "2026-10-05",
-  "periodEnd": "2026-10-11",
-  "reviewedOn": "2026-10-19",
+  "edition": "2026-W42-auto",
+  "sourceWeek": "2026. 42. hét",
+  "periodStart": "2026-10-12",
+  "periodEnd": "2026-10-18",
+  "reviewedOn": "2026-10-26",
   "geography": "Budapest · országos kitekintés",
   "overall": {
     "level": "watch",
@@ -45,7 +45,7 @@
       "level": "unknown",
       "label": "Budapesti bejelentések, trend nélkül",
       "scope": "Budapest",
-      "summary": "Campylobacteriosis: 9; salmonellosis: 6; rotavírus-gastroenteritis: 2 heti jelentés.",
+      "summary": "Campylobacteriosis: 21; salmonellosis: 12; rotavírus-gastroenteritis: 4 heti jelentés.",
       "detail": "A három külön kórkép előzetes bejelentései. Nem adhatók össze egyetlen általános fertőzési indexként."
     },
     {
@@ -54,31 +54,31 @@
       "level": "high",
       "label": "Legalább ötszörös országos heti medián",
       "scope": "Országos összesítés · Budapest külön",
-      "summary": "Országosan 33 heti eset; ötéves heti medián 6. Budapest: 1 bejelentés.",
+      "summary": "Országosan 27 heti eset; ötéves heti medián 4. Budapest: 1 bejelentés.",
       "detail": "Országos heti összehasonlítás az NNGYK jelentésében közölt ötéves mediánnal. Előzetes, részben tisztított adatok."
     }
   ],
   "sources": {
-    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-41-het.html",
+    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-42-het.html",
     "weekly": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai",
-    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_41_het_30ed3ef349.pdf"
+    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_42_het_04c3c4ca6b.pdf"
   },
   "methodology": "A HealthHub saját színei NEM NNGYK riasztási fokozatok. Hepatitis A esetek / ötéves heti medián: sárga ≥1,5×, narancs ≥3×, piros ≥5× (utóbbinál legalább 20 eset). A surveillance mutatókat nem adjuk össze. Hiányzó adat nem bizonyít alacsony kockázatot.",
   "raw": {
     "budapest": {
-      "campylobacteriosis": 9,
-      "salmonellosis": 6,
-      "rotavirus": 2,
+      "campylobacteriosis": 21,
+      "salmonellosis": 12,
+      "rotavirus": 4,
       "hepatitisA": 1
     },
     "national": {
-      "hepatitisA": 33,
-      "hepatitisMedian": 6
+      "hepatitisA": 27,
+      "hepatitisMedian": 4
     },
     "week": [
       2026,
-      41
+      42
     ]
   },
-  "respiratoryWeek": "2026. 41. hét"
+  "respiratoryWeek": "2026. 42. hét"
 }

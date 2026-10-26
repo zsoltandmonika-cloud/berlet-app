@@ -54,6 +54,33 @@
         "gastro": "unknown",
         "hepatitis": "high"
       }
+    },
+    {
+      "sourceWeek": "2026. 42. hét",
+      "periodEnd": "2026-10-18",
+      "raw": {
+        "budapest": {
+          "campylobacteriosis": 21,
+          "salmonellosis": 12,
+          "rotavirus": 4,
+          "hepatitisA": 1
+        },
+        "national": {
+          "hepatitisA": 27,
+          "hepatitisMedian": 4
+        },
+        "week": [
+          2026,
+          42
+        ]
+      },
+      "signals": {
+        "influenza": "low",
+        "covid": "watch",
+        "rsv": "low",
+        "gastro": "unknown",
+        "hepatitis": "high"
+      }
     }
   ]
 }
