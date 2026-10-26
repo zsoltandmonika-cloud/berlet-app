@@ -141,8 +141,8 @@ function onPosition(pos){
    marker=new w.maplibregl.Marker({element:makeOwnPositionNode(),anchor:'bottom'})
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
-  w.HH_GUARDIAN_V761?.setRemoteMarkerPreferred?.(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.ready);
   lastBrowserFixAt=ts;
+  w.HH_GUARDIAN_V761?.setRemoteMarkerPreferred?.(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.ready);
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   if(follow&&!remote?.ready)
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
