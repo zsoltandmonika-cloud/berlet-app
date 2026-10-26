@@ -92,6 +92,8 @@ test('v845 renders one hero Battery tile, GPS and Health, with exact popup rows'
  assert.match(html,/guardianHealthPopupV845/);
  assert.match(css,/guardian-hero>\.hh-guardian-trio-v845/);
  assert.match(css,/guardian-hero>\.hh-guardian-health-popup-v845/);
+ assert.match(css,/\.hh-gps-v845\[data-state="stale"\]/);
+ assert.match(code,/gpsCard\.dataset\.state=g\.state/);
  assert.match(css,/\.hh-health-v845:focus-visible/);
  assert.match(code,/heart\.addEventListener\('click'/);
  assert.match(code,/pop\.addEventListener\('click',close\)/);
