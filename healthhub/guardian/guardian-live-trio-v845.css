@@ -139,3 +139,14 @@
  .hh-guardian-health-popup-v845 .hh-health-popup-data-v845 small{font-size:7px}
  .hh-guardian-health-popup-v845 .hh-health-popup-explain-v845{font-size:7px}
 }
+
+/* GPS RAG from verified Family Guard freshness, never static green. */
+.hh-guardian-trio-v845 .hh-gps-v845[data-state="unknown"] .hh-gps-pin-v845{
+ color:#aabbd3;filter:none
+}
+.hh-guardian-trio-v845 .hh-gps-v845[data-state="stale"] .hh-gps-pin-v845{
+ color:#ffc16b;filter:drop-shadow(0 0 3px #ffc16b75)
+}
+.hh-guardian-trio-v845 .hh-gps-v845[data-state="online"] .hh-gps-pin-v845{
+ color:#00ed9e;filter:drop-shadow(0 0 3px #00eca599)
+}
