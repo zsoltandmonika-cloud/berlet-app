@@ -1,4 +1,4 @@
-/* Family Guard v828 · presentation-only mobile map-to-taskbar fit.
+/* Family Guard v829 · robust presentation-only mobile map-to-taskbar fit.
  * Measures the actual bottom navigation and existing map-card, rather than
  * assuming a Samsung viewport size. Never starts GPS or alters coordinates.
  */
@@ -16,14 +16,19 @@
  function mobilePortrait(){
   return !!(w.matchMedia&&w.matchMedia('(max-width:600px) and (orientation:portrait)').matches);
  }
+ function resetMapHeight(){
+  card.style.removeProperty('--hh-guardian-map-dock-height-v828');
+  if(mapNode.style&&typeof mapNode.style.removeProperty==='function')
+   mapNode.style.removeProperty('height');
+  if(lastHeight){lastHeight=0;w.setTimeout(resizeMap,60)}
+ }
  function fit(){
   scheduled=false;
-  if(!mobilePortrait()){
-   card.style.removeProperty('--hh-guardian-map-dock-height-v828');
-   if(lastHeight){lastHeight=0;w.setTimeout(resizeMap,60)}
-   return;
+  if(!mobilePortrait()){resetMapHeight();return}
+  // The CSS immersive mode must own height:100%, so inline height may not persist.
+  if(card.classList.contains('hh-map-full-v819')||d.body.classList.contains('hh-map-full-v819')){
+   resetMapHeight();return;
   }
-  if(card.classList.contains('hh-map-full-v819')||d.body.classList.contains('hh-map-full-v819'))return;
   // Browser keyboards may shrink the visual viewport; do not collapse the map
   // while someone enters an address.
   if(input&&d.activeElement===input)return;
@@ -36,6 +41,10 @@
   if(Math.abs(desired-lastHeight)<2)return;
   lastHeight=desired;
   card.style.setProperty('--hh-guardian-map-dock-height-v828',desired+'px');
+  // Some older map CSS layers still set #guardianMap height !important.
+  // An inline important value is deterministic and reaches the real dock edge.
+  if(mapNode.style&&typeof mapNode.style.setProperty==='function')
+   mapNode.style.setProperty('height',desired+'px','important');
   w.setTimeout(resizeMap,40);w.setTimeout(resizeMap,180);
  }
  function schedule(){
@@ -47,6 +56,14 @@
  w.addEventListener('resize',schedule,{passive:true});
  w.addEventListener('orientationchange',schedule,{passive:true});
  w.addEventListener('pageshow',schedule);
+ if(input)input.addEventListener('blur',()=>w.setTimeout(schedule,180));
+ // Opening or closing the app's fullscreen map changes the map class.
+ // Reapply measured mobile height only after the normal view returns.
+ if(typeof w.MutationObserver==='function'){
+  const observer=new w.MutationObserver(schedule);
+  observer.observe(card,{attributes:true,attributeFilter:['class']});
+ }
+
  if(w.visualViewport&&w.visualViewport.addEventListener){
   w.visualViewport.addEventListener('resize',schedule,{passive:true});
  }
