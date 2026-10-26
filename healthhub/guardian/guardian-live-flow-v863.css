@@ -165,7 +165,15 @@ body[data-guardian-profile="m"] #hhLiveFlowV863{
  font:790 13px/1.25 system-ui!important
 }
 #hhLiveFlowV863 .hh-flow-confirm-v863{background:#ffdf69!important;color:#4a3808!important}
-#hhLiveFlowV863 .hh-flow-bottom-secondary-v863{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+#hhLiveFlowV863 .hh-flow-bottom-secondary-v863{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important
+}
+#hhLiveFlowV863 .hh-flow-bottom-secondary-v863:has(.hh-flow-end-v863[hidden]){
+ grid-template-columns:repeat(2,minmax(0,1fr))!important
+}
+#hhLiveFlowV863 .hh-flow-bottom-secondary-v863 button{
+ min-width:0!important;padding:9px 5px!important;font-size:clamp(10px,2.9vw,13px)!important
+}
 #hhLiveFlowV863 .hh-flow-bottom-secondary-v863 .hh-flow-end-v863{
  background:rgba(242,200,208,.8)!important;color:#80314c!important;
  border-color:rgba(184,90,112,.65)!important
