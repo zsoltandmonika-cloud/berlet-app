@@ -159,6 +159,10 @@ function onPosition(pos){
   w.HH_GUARDIAN_LIVE_V785.onGpsSignal?.('fix');
   w.HH_GUARDIAN_LIVE_V785.onGpsFix(pos);
  }
+ // Active Transit listens to the same verified on-device fix. No extra GPS
+ // watch or network upload; the event is local to this browsing context.
+ try{w.dispatchEvent(new w.CustomEvent('hh-guardian-own-fix-v862',{detail:pos}))}
+ catch(_){}
  // Opt-in Buddy stop alert uses the same fresh, accurate GPS fix. No extra
  // location watcher, upload, or cross-profile sharing is introduced.
  if(w.HH_BUDDY_STOP_ALERT_V815?.onGpsFix)w.HH_BUDDY_STOP_ALERT_V815.onGpsFix(pos);
