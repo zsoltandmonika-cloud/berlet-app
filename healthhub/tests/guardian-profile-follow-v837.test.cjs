@@ -269,3 +269,114 @@ test('v839 keeps automatic follow and single-marker handoff limited to GPS JS wi
  assert.match(html,/guardian-origin-search-v836\.css/);
  assert.doesNotMatch(controller,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(|\.delete\(|\bsetItem\(|\bupload\(/);
 });
+
+test('v850 measured GPS speed is shown only for fresh, valid, accurate owner fixes',()=>{
+ const now=Date.now();
+ const valid={...sample('monika','HH One Native GPS',1200),speed_kmh:12.4};
+ assert.equal(follow.snapshot(valid,'monika',now).speedKmh,12.4);
+ assert.equal(follow.snapshot({...valid,accuracy_m:40},'monika',now).speedKmh,12.4);
+ assert.equal(follow.snapshot({...valid,accuracy_m:40.1},'monika',now).speedKmh,null);
+ for(const speed of [null,undefined,-1,201,Infinity,NaN,'12']){
+  assert.equal(follow.snapshot({...valid,speed_kmh:speed},'monika',now).speedKmh,null,
+   'invalid speed '+String(speed)+' must not be displayed');
+ }
+ assert.equal(follow.snapshot(valid,'zsolt',now),null,'profile boundary');
+ assert.equal(follow.snapshot({...valid,updated_at:new Date(now-90000).toISOString()},'monika',now),null,'stale fix');
+ assert.equal(follow.snapshot({...valid,source:'Family Live',updated_at:new Date(now-22000).toISOString()},'monika',now),null,'stale browser fix');
+ assert.equal(follow.snapshot({...valid,accuracy_m:120},'monika',now),null,'unreliable fix');
+ assert.equal(follow.speedState(false,5.01).visible,true);
+ assert.equal(follow.speedState(false,5).visible,false,'show strictly >5');
+ assert.equal(follow.speedState(false,4.9).visible,false);
+ assert.equal(follow.speedState(true,4.9).visible,true,'hysteresis prevents jitter');
+ assert.equal(follow.speedState(true,4).visible,true,'hide strictly <4');
+ assert.equal(follow.speedState(true,3.99).visible,false);
+ assert.equal(follow.speedState(true,0).visible,false);
+ assert.equal(follow.speedState(true,null).visible,false);
+ assert.equal(follow.speedState(true,NaN).visible,false);
+ assert.equal(follow.speedState(true,Infinity).visible,false);
+ assert.equal(follow.speedState(true,'20').visible,false);
+ assert.equal(follow.speedState(true,12.6).rounded,13);
+ assert.equal(follow.speedVersion,'850');
+});
+test('v850 premium speed bubble exists only by followed photo; no cloned figure or location permissions',()=>{
+ const html=read('index.html'),css=read('guardian-speed-glass-v850.css'),
+  code=read('guardian-profile-follow-v837.js');
+ assert.match(html,/guardian-speed-glass-v850\.css\?v=850-frosted-motion-chip/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=837-selected-own-live&handoff=839&speed=850/);
+ assert.match(css,/#guardianMap \.guardian-selected-profile-position-v837/);
+ assert.match(css,/\[data-guardian-person="m"\]/);
+ assert.match(css,/--hh-speed-glass-a:rgba\(226,105,201/);
+ assert.match(css,/--hh-speed-glass-a:rgba\(45,133,204/);
+ assert.match(css,/backdrop-filter:blur\(18px\)/);
+ assert.match(css,/translateY\(-9px\)/);
+ assert.match(css,/data-active="true"/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(css,/pointer-events:none!important/);
+ assert.doesNotMatch(css,/#guardianHHNav|guardian-hero|\.map-follow|\.map-3d|\.map-family/);
+ assert.match(code,/className='hh-guardian-speed-glass-v850'/);
+ assert.match(code,/el\.append\(photo,label,speed\)/);
+ assert.match(code,/relay\.read\(k\)/);
+ assert.match(code,/\.select\('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh'\)/);
+ assert.doesNotMatch(code,/geolocation\.getCurrentPosition|navigator\.geolocation|\.upsert\(|\.upload\(|\.delete\(|setItem\(/);
+});
+test('v850 follows Monika with a real dropdown speed chip and hides it below 4 km/h',async()=>{
+ const events={},markers=[],removed=[],nodes=[],store={'hh-profile':'m'};
+ let real={...sample('monika','HH One Native GPS',1000),speed_kmh:12.2};
+ const mk=(tag)=>{const el={tag,className:'',textContent:'',attrs:{},children:[],
+  setAttribute(k,v){this.attrs[k]=v},append(...x){this.children.push(...x)},
+  appendChild(x){this.children.push(x)},addEventListener(){}};nodes.push(el);return el};
+ const doc={readyState:'complete',hidden:false,
+  getElementById(){return {textContent:'',addEventListener(){}}},
+  createElement:mk,addEventListener(k,fn){events['doc:'+k]=fn}};
+ const win={document:doc,
+  localStorage:{getItem(k){return store[k]||null}},
+  HH_GOLDEN_AVATARS_V529:{m:'monika.jpg',z:'zsolt.jpg'},
+  HH_GUARDIAN_V761:{map:{getZoom(){return 15},easeTo(){}},
+   lastGpsFixAt:0,getLocationSettings(){return {follow_map:false}},
+   setRemoteMarkerPreferred(){}},
+  HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'monika',
+   getClient(){return {from(){return {select(){return this},eq(){return this},
+    async maybeSingle(){return {data:null,error:null}}}}}}},
+  HH_GUARDIAN_NATIVE_V156:{connected(){return true},async read(k){
+    return {status:'ok',data:k==='monika'?real:null}}},
+  maplibregl:{Marker:class{
+   constructor({element}){this.element=element;markers.push(this)}
+   setLngLat(){return this}addTo(){return this}remove(){removed.push(this)}
+  }},
+  addEventListener(k,fn){events[k]=fn},
+  setTimeout(fn){fn()},setInterval(){return 1}
+ };
+ vm.runInNewContext(read('guardian-profile-follow-v837.js'),{window:win,Date,Number,Math,Promise,Object});
+ const controller=win.HH_GUARDIAN_PROFILE_FOLLOW_V837.start();
+ const settle=async()=>{for(let j=0;j<7;j++)await new Promise(setImmediate)};
+ await settle();
+ await controller.refresh();await settle();
+ assert.equal(markers.length,1,'existing profile marker, no second marker');
+ const marker=markers[0].element;
+ assert.ok(marker.children.some(c=>c.className==='guardian-position-photo'));
+ const chip=marker.children.find(c=>c.className==='hh-guardian-speed-glass-v850');
+ assert.ok(chip,'bubble on existing avatar');
+ assert.equal(chip.attrs['data-active'],'true');
+ assert.equal(chip.children.find(c=>c.className==='hh-guardian-speed-reading-v850').textContent,'12 km/h');
+ real={...real,updated_at:new Date().toISOString(),speed_kmh:4.5};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'true','4–5 holds the prior state');
+ assert.equal(chip.children[1].textContent,'5 km/h');
+ real={...real,updated_at:new Date().toISOString(),speed_kmh:3.9};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'false');
+ assert.equal(chip.children[1].textContent,'');
+ real={...real,updated_at:new Date().toISOString(),speed_kmh:5};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'false','exactly 5 remains hidden');
+ real={...real,updated_at:new Date().toISOString(),speed_kmh:8};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'true');
+ real={...real,updated_at:new Date().toISOString(),speed_kmh:null};
+ await controller.refresh();await settle();
+ assert.equal(chip.attrs['data-active'],'false','missing data hides immediately');
+ store['hh-profile']='z';events.storage({key:'hh-profile'});
+ assert.ok(removed.length>=1,'profile swap immediately removes old speed chip and GPS marker');
+ await settle();
+ assert.equal(win.HH_GUARDIAN_PROFILE_FOLLOW_V837.ready,false);
+});
