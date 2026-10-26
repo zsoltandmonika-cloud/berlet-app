@@ -132,3 +132,25 @@ test('Photo upload/capture needs an Android chooser and a dedicated restricted c
   assert.doesNotMatch(shell,/allowFileAccess = true/);
   assert.doesNotMatch(shell,/allowUniversalAccessFromFileURLs = true/);
 });
+
+
+test('Family Battery Safety is separately approved, revocable, and never starts or uploads GPS',()=>{
+  const relay=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt');
+  assert.match(relay,/KEY_BATTERY_SHARE = "family_guard_battery_share_v842"/);
+  assert.match(relay,/fun batteryEnabled\(context: Context\): Boolean/);
+  assert.match(relay,/enabled\(context\) && prefs\(context\)\.getBoolean\(KEY_BATTERY_SHARE, false\)/);
+  assert.match(relay,/fun setBatterySharing\(context: Context, granted: Boolean\): Boolean/);
+  assert.match(relay,/if \(granted && !enabled\(context\)\) return false/);
+  assert.match(relay,/if \(batteryEnabled\(app\)\) try/);
+  assert.match(relay,/if \(!batteryEnabled\(app\)\) \{/);
+  assert.match(relay,/finalPayload\.put\("battery_pct", JSONObject\.NULL\)/);
+  assert.match(relay,/\.putBoolean\(KEY_BATTERY_SHARE, false\)/);
+  assert.match(activity,/private fun toggleBatterySharing\(\)/);
+  assert.match(activity,/Family Battery Safety · külön hozzájárulás/);
+  assert.match(activity,/Kifejezetten engedélyezem/);
+  assert.match(activity,/Akkumulátormegosztás KI/);
+  assert.match(activity,/FamilyGuardNativeRelay\.setBatterySharing\(this, false\)/);
+  assert.match(activity,/FamilyGuardNativeRelay\.setBatterySharing\(this, true\)/);
+  assert.match(activity,/root\.addView\(familyBatteryButton\)/);
+  assert.doesNotMatch(relay,/requestPermissions|getCurrentLocation|startForegroundService/);
+});
