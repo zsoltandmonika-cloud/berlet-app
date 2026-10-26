@@ -372,3 +372,21 @@ test('v831 copyright icon remains tiny at furthest top-left, with a larger finge
  assert.match(map,/https:\/\/openmaptiles\.org\//);
  assert.doesNotMatch(css,/opacity:0!important|pointer-events:none!important;\s*cursor:pointer/);
 });
+
+test('v834 full rollback keeps v832 functionality and only tiny transparent upper-left dot',()=>{
+ const html=read('index.html'),css=read('guardian-attribution-dot-v834.css');
+ const map=read('guardian.js');
+ assert.match(html,/guardian-attribution-dot-v834\.css\?v=834-transparent-dot/);
+ assert.ok(html.indexOf('guardian-attribution-dot-v834.css')>html.indexOf('guardian-attribution-top-left-v831.css'));
+ assert.match(css,/width:14px!important;height:14px!important/);
+ assert.match(css,/min-width:14px!important;min-height:14px!important/);
+ assert.match(css,/background:transparent!important/);
+ assert.match(css,/box-shadow:none!important/);
+ assert.match(css,/background-size:10px 10px!important/);
+ assert.match(css,/pointer-events:none!important/);
+ assert.match(css,/pointer-events:auto!important/);
+ assert.match(map,/new w\.maplibregl\.AttributionControl/,'only native map credits are retained');
+ assert.doesNotMatch(html,/guardian-credits-v833\.css|guardian-map-sources-v833/,'no large footer ribbon');
+ assert.match(html,/guardian-keyboard-guard-v832\.js/,'approved keyboard fix preserved');
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=831/);
+});
