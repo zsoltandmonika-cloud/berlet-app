@@ -20,7 +20,7 @@ const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
-let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
+let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),settingsSignature='',authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
 function self(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function other(){return self()==='monika'?'zsolt':'monika'}
 function label(k){return k==='monika'?'Mónika':'Zsolt'}
@@ -265,13 +265,24 @@ function onGpsFix(pos){
 function syncSettings(){
  if(!api||!user||!access.includes(self()))return Promise.resolve();
  const k=self(),g=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.getLocationSettings?w.HH_GUARDIAN_V761.getLocationSettings():{};
+ const uid=user.id;
  const payload={profile_key:k,refresh_interval_ms:interval,follow_map:g.follow_map!==false,map_3d:g.map_3d!==false,updated_at:new Date().toISOString()};
+ // v867: Map drag/follow events can fire repeatedly without changing settings.
+ // Do not create a new POST (and timestamp) unless one of the values changed.
+ const signature=JSON.stringify([k,uid,payload.refresh_interval_ms,payload.follow_map,payload.map_3d]);
+ if(settingsSignature===signature)return settingsWrites;
+ settingsSignature=signature;
  settingsWrites=settingsWrites.catch(()=>{}).then(async()=>{
-  if(!user||!access.includes(k))return;
+  if(!user||user.id!==uid||!access.includes(k))return;
   const {error}=await api.from(PREF_TABLE).upsert(payload,{onConflict:'profile_key'});
-  if(error)set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+error.message);
-  else set('guardianLocationSyncStatus','Helybeállítások · szinkronizálva');
- }).catch(e=>set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+(e&&e.message||'hálózat')));
+  if(error){
+   if(settingsSignature===signature)settingsSignature='';
+   set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+error.message);
+  }else set('guardianLocationSyncStatus','Helybeállítások · szinkronizálva');
+ }).catch(e=>{
+  if(settingsSignature===signature)settingsSignature='';
+  set('guardianLocationSyncStatus','Helybeállítások · szinkronhiba: '+(e&&e.message||'hálózat'));
+ });
  return settingsWrites;
 }
 async function loadSettings(){
