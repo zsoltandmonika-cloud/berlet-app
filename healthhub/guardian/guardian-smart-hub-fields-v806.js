@@ -102,11 +102,12 @@
   const name=String(place.name||'').trim();
   const address=String(place.subtitle||'').trim();
   // Cloud/source metadata is not a street address.
-  const detail=(address&&!/közös térképes hely/i.test(address)&&address!==name)
-   ?address:(label&&label!==name?name:'');
+  // A favorite alias shows the actual saved place name first, not the
+  // geocoder's generic district/city metadata.
+  const isAddress=address&&!/közös térképes hely/i.test(address)&&address!==name;
   return label&&label!==name
-   ?label+(detail?' ('+detail+')':'')
-   :name+(detail?' ('+detail+')':'');
+   ?label+' ('+name+')'
+   :name+(isAddress?' ('+address+')':'');
  }
  function init(){
   const d=w&&w.document;
