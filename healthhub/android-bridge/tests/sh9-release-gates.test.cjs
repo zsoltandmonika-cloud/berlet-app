@@ -18,8 +18,8 @@ const version = gradle.match(/versionName\s*=\s*"([^"]+)"/)?.[1];
 
 test('single signed HH One package identity and monotonic staged OTA version', () => {
   assert.match(gradle, /applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.equal(code, 35);
-  assert.equal(version, '0.15.8');
+  assert.equal(code, 36);
+  assert.equal(version, '0.15.9');
   assert.equal(ota.applicationId, 'hu.zsoltmonika.healthhubbridge');
   assert.ok(Number.isInteger(code) && code >= ota.versionCode);
   if (code === ota.versionCode) assert.equal(version, ota.version);

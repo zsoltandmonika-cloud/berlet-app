@@ -11,9 +11,10 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 35
-        versionName = "0.15.8"
-        // v842 Family Battery Safety, separate local opt-in. Signed OTA candidate 0.15.8/35.
+        versionCode = 36
+        versionName = "0.15.9"
+        // v843 unique signed OTA build 36: never reuse the older v0.15.8/build35 binary.
+        // Family Battery Safety requires its own freshly incremented Android build.
     }
 
     buildFeatures {
