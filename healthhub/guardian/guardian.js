@@ -142,9 +142,12 @@ function onPosition(pos){
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
   lastBrowserFixAt=ts;
-  w.HH_GUARDIAN_V761?.setRemoteMarkerPreferred?.(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.ready);
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
-  if(follow&&!remote?.ready)
+  // Synchronously hand off visibility between native/shared and browser GPS
+  // before either portrait can paint. The freshest real fix wins.
+  const remotePreferred=remote?.onLocalGpsFix?.()??!!remote?.ready;
+  setRemoteMarkerPreferred(remotePreferred);
+  if(follow&&!remotePreferred)
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(!hasFix){
@@ -480,6 +483,10 @@ function initMap(){
    if(w.HH_GUARDIAN_LANDMARKS_V776)w.HH_GUARDIAN_LANDMARKS_V776.init(map);
    if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.mountMap(map);
    if(w.HH_GUARDIAN_TRANSIT_V790)w.HH_GUARDIAN_TRANSIT_V790.mountMap(map);
+   // The selected profile's verified point may arrive before MapLibre loads.
+   // On every style-ready map launch, restore automatic Follow to THAT point.
+   if(w.dispatchEvent&&w.CustomEvent)
+    w.dispatchEvent(new w.CustomEvent('hh-guardian-map-ready-v839'));
   });
   map.on('error',function(e){if(!ready)message('Nem sikerült letölteni a térképet. GPS engedély nélkül is próbálkozhatsz később.')});
   map.on('dragstart',function(){follow=false;renderButtons();notifySettings()});
