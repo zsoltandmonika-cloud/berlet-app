@@ -79,7 +79,9 @@
  function updateCore(key,value){
   if(!FEATURED.has(key))return;
   const core=w.HH_GUARDIAN_TRANSIT_V790;
-  if(core&&typeof core.toggleLine==='function')core.toggleLine(key.split(':')[1],value);
+  if(core&&typeof core.setFavoriteTracked==='function')
+   core.setFavoriteTracked(key.split(':')[1],value);
+  else if(core&&typeof core.toggleLine==='function')core.toggleLine(key.split(':')[1],value);
  }
  function onTrackedChange(id,enabled){
   const key=knownKey(id);
