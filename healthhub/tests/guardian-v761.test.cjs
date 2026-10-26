@@ -65,8 +65,9 @@ test('the Family Guard Hero and 3D map carry both approved profiles',()=>{
  assert.ok(html.indexOf('id="guardianProfileSwitch"')>html.indexOf('<section class="intro guardian-hero"')&&html.indexOf('id="guardianProfileSwitch"')<html.indexOf('</section>'),'profile switch stays in hero bottom-left');
  assert.match(read('guardian/guardian-daylight-v773.css'),/filter:none!important/,'true daylight canvas without dark-map brightening filter');
  assert.doesNotMatch(js,/function toggleSatellite|tiles\.maps\.eox\.at/,'satellite mode not offered in v780');
- assert.match(js,/attributionControl:false/,'native compact attribution is added separately');
- assert.match(js,/new w\.maplibregl\.AttributionControl/,'mandatory map credits accessible via native compact info button');
+ assert.match(js,/attributionControl:false/,'native top-left attribution disabled');
+ assert.doesNotMatch(js,/new w\.maplibregl\.AttributionControl/,'no native attribution icon or hit box');
+  assert.match(html,/id="guardianMapCreditsV833"/,'linked sources remain visible in map');
  assert.doesNotMatch(html,/class="guardian-map-credits"/,'old wide credits strip removed');
  assert.match(html,/guardianHeroZsolt/,'actual Zsolt photo displayed in Hero monitor');
  assert.match(html,/guardianHeroMonika/,'actual Mónika photo displayed in Hero monitor');
@@ -289,8 +290,9 @@ test('v780 premium place categories retain browser bookmark storage and add bus 
  assert.doesNotMatch(html,/id="guardianSatellite"/);
  assert.doesNotMatch(html,/3D BUDAPEST · FELFEDEZŐ NÉZET/,'top corner prose removed');
  const map=read('guardian/guardian.js');
- assert.match(map,/attributionControl:false/,'MapLibre control added explicitly for compact display');
- assert.match(map,/new w\.maplibregl\.AttributionControl/,'native compact copyright links preserved');
+ assert.match(map,/attributionControl:false/,'MapLibre default info button disabled');
+ assert.doesNotMatch(map,/new w\.maplibregl\.AttributionControl/,'native copyright widget removed');
+  assert.match(read('guardian/index.html'),/id="guardianMapCreditsV833"/,'linked map source credit remains');
  assert.match(html,/guardian-map-credits/,'v780 historical snapshot keeps its original layout');
 });
 
@@ -1165,7 +1167,7 @@ test('v811 same-device profile mismatch is visible and never assumes Monika owns
 test('v812 foreground GPS timeout triggers one bounded network fix and offers safe retry',()=>{
  const code=read('guardian/guardian.js'),html=read('guardian/index.html');
  assert.match(html,/id="guardianRetryGps812"/);
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
+ assert.match(html,/guardian\.js\?v=833-map-credit-no-top-left/);
  const controls={},events={};
  function make(){
   return {textContent:'',disabled:false,hidden:false,
@@ -1241,7 +1243,7 @@ test('v813 canonical Family Guard loads Follow, 3D and Family expanded without a
  assert.doesNotMatch(live,/applyLocationSettings\(data\)/,'stale cloud setting must not override launch view');
  assert.match(live,/function maybeAutoStart\(\)/,'existing opt-in own-phone foreground sharing remains');
  assert.match(live,/if\(sharing\|\|d\.hidden\|\|!user\|\|!access\.includes\(self\(\)\)\|\|!autoEnabled\(\)\)return/);
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
+ assert.match(html,/guardian\.js\?v=833-map-credit-no-top-left/);
  assert.match(html,/guardian-live-v785\.js\?v=813-default-follow-3d-family/);
 });
 
