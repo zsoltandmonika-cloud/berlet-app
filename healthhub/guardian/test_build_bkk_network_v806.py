@@ -8,7 +8,7 @@ module=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 def build():
-    route_names=["260","17","19"]+[str(1000+i) for i in range(105)]
+    route_names=["260","17","19","960"]+[str(1000+i) for i in range(105)]
     def table(header,body):
         out=io.StringIO();writer=csv.writer(out);writer.writerow(header);writer.writerows(body)
         return out.getvalue()
@@ -36,6 +36,7 @@ class NetworkTests(unittest.TestCase):
         self.assertEqual(len(network["routes"]),108)
         self.assertIn("260",{x["id"] for x in network["routes"]})
         self.assertIn("17",{x["id"] for x in network["routes"]})
+        self.assertNotIn("960",{x["id"] for x in network["routes"]})
         bus=next(x for x in network["routes"] if x["id"]=="260")
         self.assertEqual([st[0] for st in bus["stops"]],["A","B","C"])
         self.assertEqual(bus["stops"][0][2:],[47.51,19.041])
