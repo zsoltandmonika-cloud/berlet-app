@@ -55,7 +55,7 @@
   return entry?entry.slice():[packageName,'📱','Besorolatlan',null];
  }
  function allowedLogo(url){
-  if(typeof url!=='string'||url.length>350||/[\\s<>"']/.test(url))return false;
+  if(typeof url!=='string'||url.length>350||/[\s<>"']/.test(url))return false;
   return ['https://img.samsungapps.com/','https://img.iconpusher.com/',
     'https://cdn.simpleicons.org/'].some(prefix=>url.startsWith(prefix));
  }
