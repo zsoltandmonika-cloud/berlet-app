@@ -280,7 +280,8 @@ function renderGuide(){
    String(entry.alightStopId)===String(p.legs[i].exit.id)&&
    typeof entry.tripId==='string'&&entry.tripId.length>0))return null;
   // Delays must be computed from matched journeys upstream, never inferred here.
-  const waiting=Number(t.waitMinutes),walking=Number(t.walkMinutes);
+  const waiting=typeof t.waitMinutes==='number'?t.waitMinutes:NaN;
+  const walking=typeof t.walkMinutes==='number'?t.walkMinutes:NaN;
   return {departure,arrival,durationMinutes:Math.round((arrival-departure)/60000),
    waitMinutes:Number.isFinite(waiting)&&waiting>=0?waiting:null,
    walkMinutes:t.walkVerified===true&&Number.isFinite(walking)&&walking>=0?walking:null,
