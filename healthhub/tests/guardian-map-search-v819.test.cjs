@@ -238,7 +238,7 @@ test('v829 replaces oversized credits strip with linked native MapLibre compact 
  assert.match(css,/#guardianMap \.maplibregl-ctrl-attrib\.maplibregl-compact/);
  assert.match(html,/guardian-map-final-v829\.css\?v=829-compact-dock-attribution/);
  assert.match(html,/guardian-map-dock-fill-v828\.js\?v=829-dock-robust/);
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=829/);
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=830/);
 });
 test('v829 one-row selected destination and half-sized content-width chip',()=>{
  const html=read('index.html'),css=read('guardian-map-final-v829.css');
@@ -321,4 +321,31 @@ test('v829 map-dock fit sets actual MapLibre element height and resets in full v
  expanded=false;observer();
  assert.equal(inline.at(-1)[1],'479px','closing full view restores dock-fitted map');
  assert.doesNotMatch(script,/geolocation|watchPosition|supabase|dropbox|createClient/);
+});
+
+test('v830 starts MapLibre in icon-only attribution mode (never a large credit banner)',()=>{
+ const map=read('guardian.js'),html=read('index.html');
+ const icon=read('guardian-attribution-v830.css');
+ assert.match(map,/function collapseInitialAttribution\(\)\{/);
+ assert.match(map,/classList\.remove\('maplibregl-compact-show'\)/);
+ assert.match(map,/node\.removeAttribute\('open'\)/);
+ assert.match(map,/map\.addControl\(new w\.maplibregl\.AttributionControl\(/);
+ assert.match(map,/compact:true/);
+ const controlEnd=map.indexOf("}),'bottom-left');");
+ assert.ok(controlEnd>0);
+ assert.match(map.slice(controlEnd,controlEnd+110),/collapseInitialAttribution\(\)/,
+  'collapse synchronously, before first browser paint');
+ assert.match(icon,/#guardianMap \.maplibregl-ctrl-attrib\.maplibregl-compact:not\(\.maplibregl-compact-show\)/);
+ assert.match(icon,/width:27px!important;height:27px!important/);
+ assert.match(icon,/max-width:27px!important;max-height:27px!important/);
+ assert.match(icon,/\.maplibregl-ctrl-attrib-inner\{\s*display:none!important/);
+ assert.match(icon,/\.maplibregl-compact\.maplibregl-compact-show \.maplibregl-ctrl-attrib-inner\{\s*display:block!important/);
+ assert.match(html,/guardian-attribution-v830\.css\?v=830-no-visible-banner/);
+ assert.ok(html.indexOf('guardian-attribution-v830.css')>html.indexOf('guardian-map-final-v829.css'));
+ assert.match(html,/guardian\.js\?v=813-default-follow-3d-family&service=806&attrib=830/);
+ assert.doesNotMatch(html,/class="guardian-map-credits"/);
+ assert.match(map,/https:\/\/www\.openstreetmap\.org\/copyright/);
+ assert.match(map,/https:\/\/openmaptiles\.org\//);
+ assert.doesNotMatch(icon,/display:none!important.*maplibregl-ctrl-attrib\.maplibregl-compact/,
+  'only the detail text, never the whole source controller, may be collapsed');
 });
