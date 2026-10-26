@@ -298,9 +298,16 @@
    if(opened){
     const fresh=currentFix();
     if(fresh&&(!fix||fresh.ts>fix.ts)){setFix(fresh)}
-    else {if(!fresh)lastPos=null;render()}
+    else {
+     if(!fresh){lastPos=null;warning=null;warningState={reverse:0,off:0,lastTs:0}}
+     render();
+    }
    }
   },6000);
+  // Reopening/reloading a live route must not unexpectedly cover the page.
+  // Only a NEW explicit boarding/route selection or a strong GPS preview opens it.
+  const remembered=state();
+  if(remembered){chosen=remembered;route=remembered.route;mode=remembered.mode}
   sync();
  }
  if(d()){
