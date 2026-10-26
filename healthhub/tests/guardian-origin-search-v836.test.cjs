@@ -55,4 +55,8 @@ test('v836 verified From search reuses exact same favourite+Photon parsing and S
  assert.match(fields,/selectPlace\(e\.detail,'destination'\)/);
  assert.match(fields,/router\.setJourney\(state\.origin,state\.destination\)/);
  assert.match(js,/map\.fitBounds/);
+ assert.match(js,/go\.textContent=place\?'🧭':'⌕'/,'search becomes route action after confirmation');
+ assert.match(js,/guardianMapSearchExitV819/,'route action exits immersive map');
+ assert.match(js,/hhSmartHubTripPlansV804/,'route action opens existing real BKK plans');
+ assert.match(js,/else search\(\)/,'search remains available before selection');
 });
