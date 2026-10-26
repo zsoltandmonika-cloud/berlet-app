@@ -84,7 +84,7 @@ jobs:
             # private pilot versions, never published to production OTA.
             # This is the EXACT signed opt-in background-location PILOT only.
             echo "stage_candidate=true" >> "$GITHUB_OUTPUT"
-            echo "Signed private pilot upgrade 0.15.8/build34, OTA baseline unchanged."
+            echo "Signed private pilot upgrade 0.15.8/build35, OTA baseline unchanged."
           else
             echo "::error::Native version must equal the verified OTA baseline (rollout-only) or be its next signed patch or minor version."
             exit 1
