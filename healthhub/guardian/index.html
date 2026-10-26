@@ -227,6 +227,7 @@
         <button id="hhActiveTransitStopV862" type="button" class="hh-active-transit-stop-v862" hidden>Utazás befejezése</button>
        </div>
        <p id="hhActiveTransitCurrentV862" class="hh-active-transit-current-v862" role="status">Nincs aktív utazás.</p>
+       <button type="button" id="hhLiveFlowOpenV863" class="hh-flow-reopen-v863" hidden>🧭 Élő Trip Flow megnyitása</button>
        <div id="hhActiveTransitSelectV862" class="hh-active-transit-select-v862" hidden>
         <p class="hh-active-transit-hint-v862">GPS alapján lehetséges járatok. A járatot te erősíted meg.</p>
         <div id="hhActiveTransitCandidatesV862" class="hh-active-transit-candidates-v862"></div>
@@ -560,8 +561,34 @@
 <script defer src="./guardian-origin-search-v836.js?v=836-map-from-search"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a&no960=840"></script>
 <script defer src="./guardian-bkk-timetable-v859.js?v=859-matched-stop-times"></script>
-<script defer src="./guardian-smart-hub-router-v804.js?v=862-explicit-trip-select&no960=840"></script>
-<script defer src="./guardian-active-transit-v862.js?v=863-live-flow-board"></script>
+<script defer src="./guardian-smart-hub-router-v804.js?v=863-linked-liveflow&no960=840"></script>
+<script defer src="./guardian-live-flow-core-v863.js?v=863-gps-stop-projection"></script>
+<script defer src="./guardian-active-transit-v862.js?v=863-auto-live-flow"></script>
+<script defer src="./guardian-live-flow-v863.js?v=863-one-handed-fullscreen"></script>
+<section id="hhLiveFlowV863" class="hh-live-flow-fullscreen-v863" role="dialog" aria-modal="true" aria-label="Live Trip Flow · utazás megállóinak követése" data-mode="tram" data-alarm="normal" hidden>
+ <header class="hh-live-flow-header-v863">
+  <div class="hh-live-flow-header-titles-v863">
+   <small>ACTIVE TRANSIT · LIVE STOP FLOW</small>
+   <strong id="hhLiveFlowTitleV863">🚋 Live Trip Flow</strong>
+   <span id="hhLiveFlowCaptionV863">A járatot és irányt a GPS alapján becsüljük</span>
+  </div>
+  <button type="button" id="hhLiveFlowCloseV863" class="hh-live-flow-close-v863" aria-label="Teljes képernyős nézet bezárása, utazás folytatása">✕</button>
+ </header>
+ <p id="hhLiveFlowWarningV863" class="hh-live-flow-warning-v863" role="alert" hidden>⚠️ Ellenőrizd az útirányt!</p>
+ <p id="hhLiveFlowStateV863" class="hh-live-flow-state-v863" role="status" aria-live="polite">GPS-jelre várunk…</p>
+ <div id="hhLiveFlowScrollerV863" class="hh-live-flow-scroller-v863" tabindex="0" aria-label="A járat megállóinak sorrendje és a becsült GPS-pozíció">
+  <div id="hhLiveFlowDirectionsV863" class="hh-flow-directions-v863"></div>
+  <div id="hhLiveFlowStopsV863" class="hh-flow-stops-v863"></div>
+ </div>
+ <footer class="hh-live-flow-bottom-v863">
+  <button type="button" id="hhLiveFlowConfirmV863" class="hh-flow-confirm-v863" hidden>✓ Igen, ezen utazom</button>
+  <button type="button" id="hhLiveFlowChangeV863" class="hh-flow-change-v863">↔ Irány / járat ellenőrzése</button>
+  <div class="hh-flow-bottom-secondary-v863">
+   <button type="button" id="hhLiveFlowCloseBottomV863" class="hh-flow-minimize-v863">↓ Bezárás</button>
+   <button type="button" id="hhLiveFlowEndV863" class="hh-flow-end-v863" hidden>■ Utazás vége</button>
+  </div>
+ </footer>
+</section>
 <div id="hhStopPopupV815" class="hh-stop-popup-v815" role="alert" aria-live="assertive" hidden>
  <div class="hh-stop-popup-card-v815">
   <img src="../nutrition/nutri-chipmunk-3d-v594.webp" alt="Buddy mókus" loading="lazy">
