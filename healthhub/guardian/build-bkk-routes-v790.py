@@ -205,6 +205,12 @@ def main():
     network = importlib.util.module_from_spec(net_spec)
     net_spec.loader.exec_module(network)
     network.save_network(raw)
+    # v859 scheduled stop times: reuse the downloaded ZIP, no extra network call.
+    schedule_script = HERE / "build-bkk-timetable-v859.py"
+    schedule_spec = importlib.util.spec_from_file_location("hh_bkk_timetable_v859",schedule_script)
+    schedule = importlib.util.module_from_spec(schedule_spec)
+    schedule_spec.loader.exec_module(schedule)
+    schedule.save_schedule(raw)
     print(f"Validated official BKK GTFS: {', '.join(NAMES)}; {len(serialized):,} bytes")
     for key, route in doc["routes"].items():
         print(f"  {key}: {len(route['variants'])} directions, " +
