@@ -1,0 +1,38 @@
+/* v830 · Truly compact copyright control, no default expanded banner.
+ * MapLibre GL JS opens its compact attribution on initial render and waits
+ * until the first map drag to collapse. The guardian.js v830 startup now
+ * immediately clears that expanded state before the browser paints it.
+ * A tap on native ⓘ reveals all clickable original source credits.
+ */
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){
+ display:block!important;
+ box-sizing:border-box!important;
+ width:27px!important;height:27px!important;
+ min-width:27px!important;min-height:27px!important;
+ max-width:27px!important;max-height:27px!important;
+ margin:0!important;padding:1px!important;
+ overflow:hidden!important;white-space:nowrap!important;
+}
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner{
+ display:none!important;
+}
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show{
+ box-sizing:border-box!important;
+ width:auto!important;height:auto!important;
+ max-width:min(75vw,278px)!important;
+ max-height:min(42dvh,170px)!important;
+ overflow:auto!important;white-space:normal!important;
+}
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show .maplibregl-ctrl-attrib-inner{
+ display:block!important;max-width:100%!important;
+ overflow-wrap:anywhere!important;
+}
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact>.maplibregl-ctrl-attrib-button{
+ display:block!important;
+ width:25px!important;height:25px!important;
+ min-width:25px!important;min-height:25px!important;
+ cursor:pointer!important;
+}
+#guardianMap .maplibregl-ctrl-attrib.maplibregl-compact>.maplibregl-ctrl-attrib-button:focus-visible{
+ outline:2px solid #fff!important;outline-offset:-2px!important;
+}
