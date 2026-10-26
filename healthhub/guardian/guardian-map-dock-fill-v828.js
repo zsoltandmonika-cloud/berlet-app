@@ -56,7 +56,7 @@
  w.addEventListener('resize',schedule,{passive:true});
  w.addEventListener('orientationchange',schedule,{passive:true});
  w.addEventListener('pageshow',schedule);
- if(input)input.addEventListener('blur',()=>w.setTimeout(schedule,180));
+ if(input&&typeof input.addEventListener==='function')input.addEventListener('blur',()=>w.setTimeout(schedule,180));
  // Opening or closing the app's fullscreen map changes the map class.
  // Reapply measured mobile height only after the normal view returns.
  if(typeof w.MutationObserver==='function'){
