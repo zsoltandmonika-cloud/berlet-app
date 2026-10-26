@@ -5,6 +5,7 @@ const $=id=>d.getElementById(id);
 const neutral=[19.0467,47.5060]; // Budapest city-center discovery view, NOT a family or device coordinate.
 let map=null,marker=null,watchId=null,active=false,hasFix=false,follow=true,threeD=true,path=[],distance=0,ready=false,last=null;
 let gpsSession=0,fallbackAttempted=false,fallbackPending=false,lastBrowserFixAt=0;
+let ownTransitTag=null,ownSpeedTag=null;
 const status=$('guardianStatus'),dot=$('guardianLiveDot'),mapError=$('guardianMapMessage');
 function name(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'Mónika':'Zsolt'}
 function theme(){
@@ -111,9 +112,33 @@ function makeOwnPositionNode(){
   photo.appendChild(img);
  }
  const badge=d.createElement('span');
- badge.className='guardian-position-label';badge.textContent=labelText;
+ badge.className='guardian-position-label';badge.textContent='';
+ const ownName=d.createElement('span');ownName.className='hh-own-transit-name-v862';
+ ownName.textContent=labelText;
+ const route=d.createElement('span');route.className='hh-own-transit-route-v862';route.hidden=true;
+ const speed=d.createElement('span');speed.className='hh-own-transit-speed-v862';speed.hidden=true;
+ badge.append(ownName,route,speed);ownTransitTag=route;ownSpeedTag=speed;
  el.appendChild(photo);el.appendChild(badge);
  return el;
+}
+function paintOwnTransit(pos){
+ const route=ownTransitTag,speed=ownSpeedTag;
+ if(!route||!speed)return;
+ const state=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862?.getStatus?.(name()==='Mónika'?'monika':'zsolt')||null;
+ if(state&&state.expires>Date.now()){
+  const ico=state.mode==='tram'?'🚋':state.mode==='bus'?'🚌':
+   state.mode==='metro'?'🚇':state.mode==='trolley'?'🚎':
+   state.mode==='hev'?'🚈':state.mode==='rail'?'🚆':'🚏';
+  route.dataset.mode=state.mode;
+  route.textContent=ico+' '+state.route+' · '+(state.onboard?'felszálltam':'tervezett');
+  route.hidden=false;
+ }else{route.hidden=true;route.textContent=''}
+ const c=pos?.coords||{},value=c.speed;
+ const kmh=typeof value==='number'&&Number.isFinite(value)&&value>=0&&
+  value<=55.5556&&Number.isFinite(c.accuracy)&&c.accuracy<=40?value*3.6:null;
+ if(kmh!==null&&kmh>5){
+  speed.textContent=Math.round(kmh)+' km/h · GPS';speed.hidden=false;
+ }else{speed.textContent='';speed.hidden=true}
 }
 function onPosition(pos){
  if(!active)return;
@@ -142,6 +167,7 @@ function onPosition(pos){
     .setLngLat(coord).addTo(map);
   }else marker.setLngLat(coord);
   lastBrowserFixAt=ts;
+  paintOwnTransit(hasFix?pos:null);
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   // Synchronously hand off visibility between native/shared and browser GPS
   // before either portrait can paint. The freshest real fix wins.
@@ -538,5 +564,8 @@ const familyPanel=$('guardianFamilyPanel'),familyButton=$('guardianFamilyButton'
 if(familyPanel)familyPanel.hidden=false;
 if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
+w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
+  if(marker)paintOwnTransit(null);
+ });
 w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get pointCount(){return path.length}});
 })(window,document);
