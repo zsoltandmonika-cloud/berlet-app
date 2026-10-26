@@ -38,10 +38,6 @@ function stylesheet(){
  '@media(min-width:720px){html[data-hh-inline-admin="yes"] #hhAnalytics732 > button[data-act]{display:inline-flex!important;width:calc(50% - 9px);margin:5px 4px;vertical-align:top}}',
  '#healthSubContent [data-hh-admin-group="recovery"]{border:1px solid #bc9c7c7d!important;background:linear-gradient(135deg,#fff7ef,#f5f0ec)!important;border-radius:16px!important}',
  '#healthSubContent [data-hh-admin-group="other"]{border:1px solid #a0a7ba4d!important;border-radius:16px!important;background:linear-gradient(135deg,#f7f9fd,#eef1f8)!important}',
- '#healthSubContent #hhGuardianMapCreditsV833{padding:13px 15px;border:1px solid rgba(118,190,234,.54)!important;border-radius:15px;background:linear-gradient(135deg,#132d4b,#244866)!important;color:#ecf8ff!important}',
- '#healthSubContent #hhGuardianMapCreditsV833 h3{margin:0 0 7px!important;color:#fff;font-size:14px}',
- '#healthSubContent #hhGuardianMapCreditsV833 p{margin:0 0 8px;color:#d9effe;font:500 12px/1.5 system-ui}',
- '#healthSubContent #hhGuardianMapCreditsV833 a{color:#b9eaff!important;text-decoration:underline;text-underline-offset:2px;font-size:12px}',
  '#healthSubContent #hhAdminMenuCard,#healthSubContent #hhDropboxVaultCard,#healthSubContent #hhCloudVaultCard{display:none!important}',
  '#healthSubContent #hhAdminInlineToolsV745{padding:14px;border:1px solid #7e99c366;border-radius:17px;background:linear-gradient(135deg,#eef4ff,#eaf4fa);color:#173f62}',
  '#hhAdminInlineToolsV745 #haOv{position:static!important;inset:auto!important;z-index:auto!important;display:block!important;width:100%!important;background:transparent!important;overflow:visible!important;padding:0!important}',
@@ -90,7 +86,7 @@ function label(root,g){
  h.append(name,note);root.append(h);return h;
 }
 function category(el){
- if(el.id==='hhArchitectureGrandDesign744'||el.id==='hhGuardianMapCreditsV833')return 'architecture';
+ if(el.id==='hhArchitectureGrandDesign744')return 'architecture';
  if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742','hhAskLenaProjectAdminV756','sh9VersionCenterV1'].includes(el.id))return 'cloud';
  if(el.id===ID)return 'data';
  if(el.id==='hhDocsRecoveryCard'||el.classList.contains('hrSectionCard'))return 'recovery';
@@ -127,29 +123,6 @@ function inlineTools(root){
  }
  return box;
 }
-function mapCredits(root){
- let box=root.querySelector('#hhGuardianMapCreditsV833');
- if(box)return box;
- box=d.createElement('section');box.id='hhGuardianMapCreditsV833';
- box.dataset.hhAdminGroup='architecture';box.style.order='12';
- const title=d.createElement('h3');title.textContent='🗺️ Family Guard · Térképadatok és licencek';
- const info=d.createElement('p');
- info.textContent='A Family Guard térképe az alábbi adatokkal és szolgáltatásokkal működik. A fontos térképforrások közvetlenül a térkép alsó szélén is szerepelnek.';
- const links=d.createElement('p');
- const sources=[
-  ['OpenStreetMap · közreműködők és ODbL','https://www.openstreetmap.org/copyright'],
-  ['OpenMapTiles · térképes adatséma','https://openmaptiles.org/'],
-  ['OpenFreeMap · térképcsempék és stílus','https://openfreemap.org/']
- ];
- for(const [index,pair] of sources.entries()){
-  if(index){const sep=d.createElement('span');sep.textContent=' · ';links.append(sep)}
-  const a=d.createElement('a');
-  a.textContent=pair[0];a.href=pair[1];a.target='_blank';a.rel='noopener noreferrer';
-  links.append(a);
- }
- box.append(title,info,links);root.append(box);
- return box;
-}
 function hideObsoleteInfo(){
  const body=d.getElementById('haBody');
  if(!body||typeof body.querySelectorAll!=='function')return;
@@ -169,7 +142,7 @@ function layout(){
  const enabled=w.healthSectionKind==='more'&&!!root&&root.isConnected;
  d.documentElement.dataset.hhInlineAdmin=enabled?'yes':'no';
  if(!enabled){detach();return;}
- stylesheet();inlineTools(root);mapCredits(root);hideObsoleteInfo();
+ stylesheet();inlineTools(root);hideObsoleteInfo();
  for(const group of GROUPS)label(root,group);
  const ids=new Set(GROUPS.map(g=>'hhAdminGroup'+g.id+'V745'));
  let unknownCount=0;
