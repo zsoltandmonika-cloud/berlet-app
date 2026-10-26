@@ -98,23 +98,26 @@ test('version center is first-party Admin-only and reuses v401 registry, no dupl
 });
 
 
-test('Monika receives approved immutable signed v0.15.2 OTA',()=>{
- // The v0.15.2 release artifact remains unchanged, only its authorized owners change.
- assert.equal(ota.version,'0.15.2');
- assert.equal(ota.versionCode,29);
- assert.deepEqual(ota.rolloutProfiles,['zsolt','monika']);
- assert.equal(ota.sha256,'3c4f1c8ab2f83e01eff269109e3ad512437d067c82338e667632a5651c0fb7e9');
+test('Monika is eligible for the current signed release only when in rollout scope',()=>{
+ // This models expanding a single immutable pilot APK to a second approved owner.
+ // It must remain true after a new signed OTA is published.
+ assert.match(ota.version,/^0\.\d+\.\d+$/);
+ assert.ok(ota.versionCode>=29);
+ assert.match(ota.sha256,/^[a-f0-9]{64}$/);
+ const available={...ota,rolloutProfiles:['zsolt','monika']};
  const monika=sample('android-m-device','monika',26,'0.14.6');
- const out=model.read(reg,[monika],ota,web,now);
+ const out=model.read(reg,[monika],available,web,now);
  assert.equal(out.devices[1].registered,true);
  assert.equal(out.devices[1].ota,'approved-update');
- assert.equal(out.devices[1].approvedVersion,'0.15.2');
- const z=sample('android-z-device','zsolt',29,'0.15.2');
- const other=model.read(reg,[z,monika],ota,web,now);
+ assert.equal(out.devices[1].approvedVersion,ota.version);
+ const blocked=model.read(reg,[monika],{...available,rolloutProfiles:['zsolt']},web,now);
+ assert.equal(blocked.devices[1].ota,'not-in-rollout');
+ const z=sample('android-z-device','zsolt',ota.versionCode,ota.version);
+ const other=model.read(reg,[z,monika],available,web,now);
  assert.equal(other.devices[0].ota,'up-to-date');
  const outdatedSelected=sample('android-m-old','monika',23,'0.12.0');
  const oldSelected={...reg,activePhones:{...reg.activePhones,monika:'android-m-old'}};
- const wrong=model.read(oldSelected,[z,outdatedSelected,monika],ota,web,now);
+ const wrong=model.read(oldSelected,[z,outdatedSelected,monika],available,web,now);
  assert.equal(wrong.devices[1].registered,true);
  assert.equal(wrong.devices[1].installed.buildCode,23,
    'OTA availability must not auto-select newer Android ID or silently rewrite the registry.');
