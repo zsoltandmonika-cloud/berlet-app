@@ -1,0 +1,142 @@
+/* SH9 Active Transit v862 · mobile-first boarding, selected route, family bubble.
+ * Uses existing Zsolt blue / Mónika pink pastel glass and BKK mode badges.
+ */
+#hhSmartHubDestinationV802 .hh-active-transit-v862{
+ --transit-ink:var(--ink,#193653);--transit-edge:var(--edge,rgba(255,255,255,.85));
+ --transit-selected:var(--selected,rgba(153,207,247,.63));
+ margin:9px 0 12px;padding:10px;border:1px solid var(--transit-edge);
+ border-radius:15px;background:rgba(255,255,255,.3);
+ box-shadow:inset 0 1px rgba(255,255,255,.75);
+ color:var(--transit-ink)
+}
+#hhSmartHubDestinationV802 .hh-active-transit-top-v862{
+ display:flex;align-items:center;gap:7px;flex-wrap:wrap
+}
+#hhSmartHubDestinationV802 .hh-active-transit-board-v862{
+ display:flex;align-items:center;justify-content:center;flex:1 1 150px;
+ min-height:45px;padding:9px 12px;border:1px solid var(--accent);
+ border-radius:12px;background:var(--transit-selected);color:var(--transit-ink);
+ font:850 13px/1.22 system-ui;box-shadow:inset 0 1px rgba(255,255,255,.8);
+ touch-action:manipulation;cursor:pointer
+}
+#hhSmartHubDestinationV802 .hh-active-transit-stop-v862{
+ min-height:44px;padding:7px 10px;border:1px solid var(--transit-edge);
+ border-radius:11px;background:rgba(255,255,255,.43);
+ color:var(--transit-ink);font:740 11px/1.2 system-ui;cursor:pointer
+}
+#hhSmartHubDestinationV802 .hh-active-transit-current-v862{
+ color:var(--transit-ink);font:760 12px/1.45 system-ui;margin-top:6px
+}
+#hhSmartHubDestinationV802 .hh-active-transit-status-v862,
+#hhSmartHubDestinationV802 .hh-active-transit-hint-v862{
+ color:var(--muted);font:570 11px/1.43 system-ui;margin-top:6px
+}
+#hhSmartHubDestinationV802 .hh-active-transit-select-v862{
+ margin-top:7px;padding:9px;border:1px solid var(--transit-edge);
+ border-radius:12px;background:rgba(255,255,255,.23)
+}
+#hhSmartHubDestinationV802 .hh-active-transit-candidates-v862{
+ display:flex;gap:6px;flex-wrap:wrap;margin:7px 0
+}
+#hhSmartHubDestinationV802 .hh-transit-candidate-v862{
+ min-height:42px;max-width:100%;padding:7px 10px;border-radius:10px;
+ border:1px solid var(--transit-edge);background:var(--transit-selected);
+ color:var(--transit-ink);font:780 12px/1.3 system-ui;cursor:pointer
+}
+#hhSmartHubDestinationV802 .hh-transit-candidate-v862[data-mode="tram"]{
+ background:#ffdf69!important;color:#383014!important;border-color:#f0c343!important
+}
+#hhSmartHubDestinationV802 .hh-transit-candidate-v862[data-mode="bus"]{
+ background:#84c6f9!important;color:#153c68!important
+}
+#hhSmartHubDestinationV802 .hh-active-transit-manual-v862{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.84fr);
+ gap:7px;align-items:center;margin-top:8px
+}
+#hhSmartHubDestinationV802 .hh-active-transit-manual-v862 :is(input,select){
+ color:var(--transit-ink)!important;background:rgba(255,255,255,.47)!important;
+ min-width:0;min-height:43px;border:1px solid var(--accent)!important;
+ border-radius:10px;padding:7px;font:620 12px/1.3 system-ui
+}
+#hhSmartHubDestinationV802 .hh-active-transit-manual-v862 button{
+ grid-column:1/-1;min-height:43px;border-radius:10px;border:1px solid var(--accent);
+ background:var(--transit-selected);color:var(--transit-ink);font:830 12px/1.2 system-ui
+}
+#hhSmartHubDestinationV802 .hh-active-route-select-v862{
+ display:block!important;width:100%;margin-top:7px;min-height:43px;
+ padding:8px 9px;border-radius:12px;
+ border:1px solid var(--accent)!important;
+ background:var(--selected)!important;color:var(--ink)!important;
+ font:810 12px/1.28 system-ui!important;
+ touch-action:manipulation;cursor:pointer
+}
+#hhSmartHubDestinationV802 .hh-active-transit-v862 [hidden],
+#hhSmartHubDestinationV802 .hh-active-route-select-v862[hidden]{display:none!important}
+#hhSmartHubDestinationV802 .hh-active-transit-v862 :is(button,input,select):focus-visible,
+#hhSmartHubDestinationV802 .hh-active-route-select-v862:focus-visible{
+ outline:2px solid var(--accent)!important;outline-offset:2px!important
+}
+/* Existing selected-profile glass bubble extends downward. No new portrait. */
+#guardianMap .guardian-selected-profile-position-v837 .guardian-position-label{
+ max-width:167px!important;min-width:74px!important;
+ overflow:visible!important;pointer-events:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:3px!important;max-width:158px!important;min-height:21px!important;
+ margin:4px 0 0!important;padding:3px 6px!important;
+ border-radius:8px!important;border:1px solid rgba(255,255,255,.55)!important;
+ color:#fff!important;background:rgba(60,110,174,.53)!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ font:840 10px/1.2 system-ui!important;letter-spacing:0!important;
+ pointer-events:auto!important;cursor:pointer!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[data-mode="tram"]{
+ background:#ffdf69!important;color:#3b310d!important;
+ text-shadow:none!important;border-color:#ffe79b!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[data-mode="bus"]{
+ background:#6ebdf6!important;color:#14365b!important;text-shadow:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[data-mode="trolley"]{
+ background:#fb9b9f!important;color:#5b1c28!important;text-shadow:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[data-mode="hev"]{
+ background:#91dcae!important;color:#16452c!important;text-shadow:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[data-mode="rail"]{
+ background:#6a94d7!important;color:white!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-details-v862{
+ display:block!important;width:159px!important;max-width:159px!important;
+ margin-top:5px!important;white-space:normal!important;
+ color:var(--hh-speed-glass-text,#f0fbff)!important;
+ font:640 10px/1.3 system-ui!important;text-align:left!important;
+ padding:5px!important;background:rgba(17,38,80,.35);
+ border-radius:8px!important;pointer-events:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862[hidden],
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-details-v862[hidden]{
+ display:none!important
+}
+#guardianMap .guardian-selected-profile-position-v837 .guardian-position-label
+ .hh-guardian-speed-glass-v850[data-active="true"]{
+ max-width:160px!important
+}
+#guardianMap .maplibregl-marker.guardian-selected-profile-position-v837{pointer-events:auto!important}
+#guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862:focus-visible{
+ outline:2px solid #fff!important;outline-offset:1px!important
+}
+@media(max-width:385px){
+ #guardianMap .guardian-selected-profile-position-v837 .guardian-position-label{
+  max-width:154px!important
+ }
+ #guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-badge-v862{
+  max-width:146px!important;font-size:9px!important
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ #guardianMap .guardian-selected-profile-position-v837 .hh-guardian-route-details-v862{
+  background:#1c3f75!important
+ }
+}
