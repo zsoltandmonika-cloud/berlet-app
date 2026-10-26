@@ -64,9 +64,10 @@
   if(!options.length)return {status:'off-route',options:[]};
   const confident=options.filter(o=>o.directionConfirmed);
   // An automatic choice requires forward movement on one unique variant.
-  const auto=confident.length===1&&(
-   options.length===1||options.every(o=>o===confident[0]||
-    o.position.distance>confident[0].position.distance+45));
+  // Opposite-direction vehicles can share the exact same rails. Their
+  // projected distance is identical, but ONLY one can have positive movement
+  // along the official ordered stop sequence. If both can, ask instead.
+  const auto=confident.length===1;
   return {status:auto?'direction-confirmed':options.length===1?'near-route':'ambiguous',
    options,auto:auto?confident[0]:null};
  }
