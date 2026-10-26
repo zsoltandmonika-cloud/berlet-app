@@ -1,0 +1,39 @@
+name: HealthHub Free Plan Usage Saver v868 QA
+
+on:
+  pull_request:
+    paths:
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+      - 'healthhub/guardian/guardian-landmarks-sync-v787.js'
+      - 'healthhub/tests/hh-usage-streamline-v867.test.cjs'
+      - 'healthhub/tests/guardian-gps-data-saver-v868.test.cjs'
+      - '.github/workflows/hh-usage-saver-v868-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+      - 'healthhub/tests/guardian-gps-data-saver-v868.test.cjs'
+
+jobs:
+  usage-saver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS syntax checks
+        run: |
+          node --check healthhub/live-v364-history.js
+          node --check healthhub/guardian/guardian-live-v785.js
+          node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --check healthhub/guardian/guardian-live-trio-v845.js
+          node --check healthhub/guardian/guardian-landmarks-sync-v787.js
+      - name: Before/after and GPS regression tests
+        run: |
+          node --test healthhub/tests/hh-usage-streamline-v867.test.cjs healthhub/tests/guardian-gps-data-saver-v868.test.cjs
