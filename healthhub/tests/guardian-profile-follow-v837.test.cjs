@@ -65,6 +65,9 @@ test('v837 verified Monika native fix recenters Monika view without starting GPS
  w.document=d;
  vm.runInNewContext(read('guardian-profile-follow-v837.js'),{window:w,Date,Number,Math,Promise,Object});
  const ctrl=w.HH_GUARDIAN_PROFILE_FOLLOW_V837.start();
+ // The module starts its first read on load; let that pending read resolve
+ // before requesting the next refresh to assert actual map behaviour.
+ for(let n=0;n<3;n++)await new Promise(resolve=>setImmediate(resolve));
  await ctrl.refresh();
  assert.ok(mapMoves.length>=1,'valid native fix must move map camera');
  assert.equal(mapMoves.at(-1).center[0],19.035);
