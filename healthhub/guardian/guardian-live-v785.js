@@ -447,7 +447,7 @@ function init(){
  api.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='TOKEN_REFRESHED')w.setTimeout(refreshAuth,0)});
  refreshAuth();
 }
-w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsSignal,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;resetPolling();},
+w.HH_GUARDIAN_LIVE_V785=Object.freeze({onGpsFix,onGpsSignal,onGpsStopped,onGpsPaused,onProfileChanged,mountMap(m){map=m;locationReads.clear();resetPolling();},
  getClient(){return api},readSharedLocation,get familyAuthorized(){return !!user&&access.includes('zsolt')&&access.includes('monika')},
  get boundProfile(){return bound()},
  get sharing(){return sharing},get interval(){return interval},get authenticated(){return !!user}});
