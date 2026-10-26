@@ -142,7 +142,7 @@ function mapCredits(root){
   ['OpenFreeMap · térképcsempék és stílus','https://openfreemap.org/']
  ];
  for(const [index,pair] of sources.entries()){
-  if(index)links.append(d.createTextNode(' · '));
+  if(index){const sep=d.createElement('span');sep.textContent=' · ';links.append(sep)}
   const a=d.createElement('a');
   a.textContent=pair[0];a.href=pair[1];a.target='_blank';a.rel='noopener noreferrer';
   links.append(a);
