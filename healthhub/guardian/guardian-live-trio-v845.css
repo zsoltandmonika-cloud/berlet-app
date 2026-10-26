@@ -1,3 +1,4 @@
+/* v849: 1px smaller value and label typography, no layout or data changes. */
 /* v846 cosmetic polish: 3px lower, airier 3-card capsule, smaller digits, translucent frosted glass. */
 /* Family Guard v845 · approved Hero, data-backed Battery → GPS → Health trio.
  * Only overlays the existing 1672×941 reference PNG. Never alters the
@@ -29,11 +30,11 @@
 }
 .hh-guardian-trio-v845 .hh-guardian-value-v845,
 .hh-guardian-trio-v845 .guardian-battery-text-v841{
- color:#fff!important;font-size:clamp(9px,1.4vw,15px)!important;font-weight:830!important;
+ color:#fff!important;font-size:clamp(8px,1.3vw,14px)!important;font-weight:830!important;
  font-variant-numeric:tabular-nums!important;line-height:1!important;letter-spacing:0!important;min-width:0!important;
 }
 .hh-guardian-trio-v845 .hh-guardian-caption-v845{
- color:#dfeeff!important;font:620 clamp(7px,.86vw,9px)/1.1 Inter,Segoe UI,system-ui,sans-serif!important;
+ color:#dfeeff!important;font:620 clamp(6px,.76vw,8px)/1.1 Inter,Segoe UI,system-ui,sans-serif!important;
  max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center!important;
 }
 .hh-guardian-trio-v845 .hh-guardian-icon-v845{width:clamp(13px,2vw,21px);height:clamp(13px,2vw,21px);flex:none}
@@ -58,8 +59,8 @@
   gap:3px!important;padding:2px!important;border-radius:7px!important;
  }
  .hh-guardian-trio-v845 .hh-guardian-icon-v845{width:12px;height:12px}
- .hh-guardian-trio-v845 .hh-guardian-value-v845,.hh-guardian-trio-v845 .guardian-battery-text-v841{font-size:9px!important}
- .hh-guardian-trio-v845 .hh-guardian-caption-v845{font-size:6.5px!important;line-height:1.08!important}
+ .hh-guardian-trio-v845 .hh-guardian-value-v845,.hh-guardian-trio-v845 .guardian-battery-text-v841{font-size:8px!important}
+ .hh-guardian-trio-v845 .hh-guardian-caption-v845{font-size:5.5px!important;line-height:1.08!important}
  .hh-guardian-trio-v845 .guardian-battery-icon-v841{width:13px!important;height:9px!important;padding:1px!important}
 }
 @media(prefers-reduced-motion:reduce){
