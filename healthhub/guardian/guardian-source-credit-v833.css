@@ -1,0 +1,28 @@
+/* Family Guard v833: no native attribution icon or hit region in top-left.
+   Small, linked source credits stay visible at the map's lower left edge. */
+#guardianMapCreditsV833.hh-map-source-credit-v833{
+ position:absolute!important;z-index:28!important;
+ bottom:64px!important;left:6px!important;top:auto!important;right:auto!important;
+ display:inline-flex!important;align-items:center!important;gap:3px!important;
+ width:max-content!important;max-width:calc(100% - 12px)!important;
+ margin:0!important;padding:3px 5px!important;border:0!important;border-radius:7px!important;
+ background:rgba(10,37,73,.72)!important;color:#f4fbff!important;
+ box-shadow:0 2px 8px rgba(7,23,51,.16)!important;
+ -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+ font:650 10px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ white-space:nowrap!important;pointer-events:auto!important;
+}
+#guardianMapCreditsV833 a{
+ color:#fff!important;text-decoration:underline!important;
+ text-underline-offset:2px!important;text-decoration-thickness:1px!important;
+}
+:root[data-guardian-profile="m"] #guardianMapCreditsV833{
+ background:rgba(99,53,127,.72)!important;color:#fff9ff!important;
+}
+.map-card.hh-map-full-v819 #guardianMapCreditsV833,
+.map-card:fullscreen #guardianMapCreditsV833{
+ bottom:calc(66px + env(safe-area-inset-bottom,0px))!important;
+}
+@media(max-width:385px){
+ #guardianMapCreditsV833.hh-map-source-credit-v833{font-size:9px!important;padding:3px 4px!important}
+}
