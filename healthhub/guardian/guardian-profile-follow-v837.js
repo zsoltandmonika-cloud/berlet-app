@@ -65,12 +65,45 @@
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false;
+  let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0;
+  // Visual interpolation ONLY between two measured positions. Never predict
+  // beyond the newest fix; cancel instantly on profile/revocation/stale data.
+  function paintCoordinate(fix){
+   const next=[fix.lng,fix.lat],prev=markerCoord;
+   markerCoord=next;
+   moveToken++;
+   if(moveFrame!==null&&w.cancelAnimationFrame){w.cancelAnimationFrame(moveFrame);moveFrame=null}
+   const age=Date.now()-fix.ts,delta=prev?Math.hypot(
+    (next[0]-prev[0])*111195*Math.cos(next[1]*Math.PI/180),
+    (next[1]-prev[1])*111195):Infinity;
+   const reduce=!!w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+   const canSmooth=!!prev&&fix.ts>lastPaintTs&&delta>=2&&delta<=220&&age<=12000&&
+    !d.hidden&&!reduce&&typeof w.requestAnimationFrame==='function';
+   lastPaintTs=fix.ts;
+   if(!canSmooth){marker?.setLngLat(next);return}
+   const token=moveToken,start=w.performance?.now?.()??Date.now(),duration=850;
+   function frame(stamp){
+    if(token!==moveToken||!marker||d.hidden||!authorized())return;
+    const fraction=Math.min(1,Math.max(0,(stamp-start)/duration));
+    const ease=fraction*fraction*(3-2*fraction);
+    marker.setLngLat([
+     prev[0]+(next[0]-prev[0])*ease,
+     prev[1]+(next[1]-prev[1])*ease
+    ]);
+    if(fraction<1)moveFrame=w.requestAnimationFrame(frame);
+    else moveFrame=null;
+   }
+   moveFrame=w.requestAnimationFrame(frame);
+  }
   const selected=()=>selectedProfile(w.localStorage);
   const bound=()=>live()?.boundProfile;
   const authorized=()=>canRead(live(),selected());
   const followOn=()=>guardian()?.getLocationSettings?.().follow_map===true;
   const localFixAt=()=>guardian()?.lastGpsFixAt||0;
   function clearMarker(){
+   moveToken++;
+   if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
+   moveFrame=null;markerCoord=null;lastPaintTs=0;
    if(marker){try{marker.remove()}catch(_){}marker=null}
    markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
@@ -181,7 +214,8 @@
     markerNode=decorate(fix);
     marker=new Marker({element:markerNode,anchor:'bottom'})
      .setLngLat([fix.lng,fix.lat]).addTo(map);
-   }else marker.setLngLat([fix.lng,fix.lat]);
+    markerCoord=[fix.lng,fix.lat];lastPaintTs=fix.ts;
+   }else paintCoordinate(fix);
    paintSpeed(fix);
    guardian()?.setRemoteMarkerPreferred?.(true);
    const own=d.getElementById('guardianMeState');
@@ -287,7 +321,9 @@
   });
   w.addEventListener?.('pageshow',refresh);
   w.addEventListener?.('pagehide',invalidate);
-  w.setInterval?.(refresh,5000);
+  // v863: 3-second follow cadence matches the recommended Family Live
+  // setting. No extra GPS sampling, only authorized reads of fresh positions.
+  w.setInterval?.(refresh,3000);
   refresh();
   return {refresh,requestFollow,focusLatest,onFollowState,onLocalGpsFix,
    preventWrongDeviceGps,get latest(){return latest},get ready(){return current()}};
