@@ -61,7 +61,8 @@
   const live=()=>w.HH_GUARDIAN_LIVE_V785;
   const guardian=()=>w.HH_GUARDIAN_V761;
   const getMap=()=>guardian()?.map;
-  let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,speedVisible=false,
+  let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,
+   routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false;
   const selected=()=>selectedProfile(w.localStorage);
@@ -71,8 +72,32 @@
   const localFixAt=()=>guardian()?.lastGpsFixAt||0;
   function clearMarker(){
    if(marker){try{marker.remove()}catch(_){}marker=null}
-   markerNode=null;speedBadge=null;speedValue=null;speedVisible=false;
+   markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
+  }
+  function paintTransit(fix){
+   if(!routeBadge||!routeDetails||!markerNode)return;
+   const transit=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862;
+   const state=transit?.getStatus?.(selected())||null;
+   const valid=!!fix&&fix.profile===selected()&&state?.profile===selected()&&
+    Number.isFinite(fix.ts)&&Date.now()-fix.ts<=(fix.source==='HH One Native GPS'?75000:20000);
+   if(!valid){
+    routeBadge.hidden=true;routeDetails.hidden=true;routeBadge.textContent='';
+    markerNode.removeAttribute?.('data-transit-route');
+    return;
+   }
+   const emoji=state.mode==='tram'?'🚋':state.mode==='bus'?'🚌':
+    state.mode==='trolley'?'🚎':state.mode==='hev'?'🚈':
+    state.mode==='metro'?'🚇':state.mode==='rail'?'🚆':'🚏';
+   const category=state.onboard?'felszálltam':'tervezett';
+   routeBadge.hidden=false;routeBadge.dataset.mode=state.mode;
+   routeBadge.textContent=emoji+' '+state.route+' · '+category;
+   routeBadge.setAttribute('aria-label',state.route+' · '+category+
+    ' · saját kiválasztás, nem automatikus járműazonosítás. További adatok.');
+   routeDetails.textContent=(state.onboard?
+    'Saját telefonon megjelölt felszállás':'Kiválasztott tervezett járat')+
+    ' · GPS és járatszám külön adat · Késés: nincs igazolt élő adat';
+   markerNode.dataset.transitRoute=state.route;
   }
   function paintSpeed(fix){
    if(!speedBadge||!speedValue||!markerNode)return;
@@ -86,7 +111,10 @@
    speedBadge.setAttribute('aria-hidden',next.visible?'false':'true');
    speedValue.textContent=next.visible?next.rounded+' km/h':'';
    const owner=selected()==='monika'?'Mónika':'Zsolt';
+   paintTransit(fix);
+   const route=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862?.getStatus?.(selected());
    markerNode.setAttribute('aria-label',owner+' · hitelesített friss profilpozíció'+
+    (route?' · '+route.route+' '+(route.onboard?'felszálltam':'tervezett')+' (saját választás)':'')+
     (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
@@ -130,8 +158,19 @@
    const reading=d.createElement('span');reading.className='hh-guardian-speed-reading-v850';
    speed.append(gauge,reading);
    speedBadge=speed;speedValue=reading;
-   // One name tag with a dropdown second line. Never clone the photo or pin.
-   label.append(name,speed);
+   const transit=d.createElement('button');transit.type='button';
+   transit.className='hh-guardian-route-badge-v862';transit.hidden=true;
+   transit.setAttribute('aria-expanded','false');
+   const details=d.createElement('span');details.className='hh-guardian-route-details-v862';
+   details.hidden=true;
+   transit.addEventListener('click',event=>{
+    event.stopPropagation();
+    const open=details.hidden;
+    details.hidden=!open;transit.setAttribute('aria-expanded',String(open));
+   });
+   routeBadge=transit;routeDetails=details;
+   // Reuse one existing owner portrait and its speed name label, no avatar clone.
+   label.append(name,transit,speed,details);
    el.append(photo,label);
    return el;
   }
@@ -239,6 +278,9 @@
    refresh();
   });
   w.addEventListener?.('hh-guardian-map-ready-v839',onMapReady);
+  w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
+   if(marker&&latest&&current())paintSpeed(latest);
+  });
   d.addEventListener?.('visibilitychange',()=>{
    if(d.hidden){invalidate();return}
    refresh();
@@ -266,5 +308,5 @@
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
   onFollowState(){controller?.onFollowState()},
   onLocalGpsFix(){return controller?.onLocalGpsFix()||false},
-  get ready(){return !!controller?.ready},version:'837',revision:'839',speedVersion:'850'};
+  get ready(){return !!controller?.ready},version:'837',revision:'839',speedVersion:'862'};
 });
