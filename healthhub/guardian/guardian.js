@@ -38,7 +38,11 @@ function theme(){
   const img=node.querySelector('img');
   const label=node.querySelector('.guardian-position-label');
   if(img&&avatars)img.src=monika?avatars.m:avatars.z;
-  if(label)label.textContent=name();
+  if(label){
+   const caption=label.querySelector?.('.guardian-speed-name-v850');
+   if(caption)caption.textContent=name();else label.textContent=name();
+   w.HH_GUARDIAN_SPEED_BADGE_V850?.hide(node);
+  }
   node.setAttribute('data-guardian-person',monika?'m':'z');
   node.setAttribute('aria-label',name()+' · saját készülék GPS-pozíciója');
  }
@@ -87,6 +91,7 @@ function stop(temporary=false){
  gpsSession++;fallbackPending=false;fallbackAttempted=false;
  const old=watchId;watchId=null;active=false;hasFix=false;
  if(old!==null&&w.navigator.geolocation)w.navigator.geolocation.clearWatch(old);
+ w.HH_GUARDIAN_SPEED_BADGE_V850?.hide(marker?.getElement?.());
  renderButtons();gpsDiagnostic(temporary?'paused':'stopped');report('GPS kikapcsolva');
  $('guardianMapLabel').textContent=marker?'UTOLSÓ MÉRT HELY · NEM ÉLŐ':(threeD?'3D':'SÍK')+' BUDAPEST · FELFEDEZŐ NÉZET';
  if(w.HH_GUARDIAN_LIVE_V785){
@@ -124,6 +129,7 @@ function onPosition(pos){
   hasFix=false;renderButtons();
   report('Régi vagy dátum nélküli helyadat · friss GPS-pozícióra várunk.');
   w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('unavailable');
+  w.HH_GUARDIAN_SPEED_BADGE_V850?.hide(marker?.getElement?.());
   return;
  }
  const c=pos.coords||{},lat=Number(c.latitude),lng=Number(c.longitude),accuracy=Number(c.accuracy);
@@ -147,6 +153,11 @@ function onPosition(pos){
   // before either portrait can paint. The freshest real fix wins.
   const remotePreferred=remote?.onLocalGpsFix?.()??!!remote?.ready;
   setRemoteMarkerPreferred(remotePreferred);
+  // v850: speed is from this already-consented browser GPS fix in m/s.
+  // The selected remote portrait remains the only visible one when newer.
+  w.HH_GUARDIAN_SPEED_BADGE_V850?.update(marker?.getElement?.(),{
+   speed:typeof c.speed==='number'&&Number.isFinite(c.speed)&&c.speed>=0?c.speed*3.6:null,
+   accuracy,ts});
   if(follow&&!remotePreferred)
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
