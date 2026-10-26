@@ -211,6 +211,7 @@
   if(!d)return null;
   const root=d.getElementById('guardianTrioV845'),
    gps=d.getElementById('guardianGpsTextV845'),
+   gpsCard=d.getElementById('guardianGpsCardV845'),
    health=d.getElementById('guardianHealthTextV845'),
    heart=d.getElementById('guardianHealthCardV845'),
    pop=d.getElementById('guardianHealthPopupV845'),
@@ -222,7 +223,7 @@
    sleepRow=d.getElementById('guardianHealthSleepRowV845'),
    nutriRow=d.getElementById('guardianHealthNutriRowV845'),
    batteryCaption=d.getElementById('guardianBatteryCaptionV845');
-  if(!root||!gps||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note||!sleepRow||!nutriRow||!batteryCaption)return null;
+  if(!root||!gps||!gpsCard||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note||!sleepRow||!nutriRow||!batteryCaption)return null;
   let generation=0,busy=false,rerun=false,lastProfile=profileKey(w.localStorage),updatedAt=0,
    cachedSleep=null,cachedNutrition=null,cachedGPS=null,lastHealthFetch=0;
   const selected=()=>profileKey(w.localStorage);
@@ -230,6 +231,8 @@
   function show(snapshot){
    const g=snapshot?.gps||{state:'unknown',text:'Nincs jel'};
    gps.textContent=g.text;
+   gpsCard.dataset.state=g.state;
+   gpsCard.setAttribute('aria-label','GPS · '+g.text);
    const sleep=snapshot?.sleep||null,nutrition=snapshot?.nutrition||null;
    const h=healthState(sleep,nutrition);
    heart.dataset.rag=h.tone;
