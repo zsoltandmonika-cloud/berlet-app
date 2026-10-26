@@ -1,0 +1,49 @@
+/* v858: One-tap collapsible BKK Watchlist, same inherited profile pastel glass. */
+#hhTransitPanel .hh-bkk-watch-content-v858[hidden]{display:none!important}
+#hhTransitPanel .hh-bkk-watchlist-v814:has(.hh-bkk-watch-content-v858[hidden]){
+ padding-top:9px!important;padding-bottom:9px!important
+}
+#hhTransitPanel .hh-bkk-watch-toggle-v858{
+ display:flex;flex:1 1 auto;min-width:0;min-height:44px;align-items:center;
+ gap:7px;justify-content:space-between;text-align:left;cursor:pointer;
+ border:0;background:transparent;box-shadow:none;
+ color:var(--bk-ink);padding:3px 4px;border-radius:12px;
+ -webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+#hhTransitPanel .hh-bkk-watch-toggle-label-v858{
+ display:flex;min-width:0;flex-direction:column;gap:3px;align-items:flex-start
+}
+#hhTransitPanel .hh-bkk-watch-toggle-label-v858 strong{
+ color:var(--bk-ink)!important;font-size:clamp(13px,3.8vw,16px);line-height:1.25;
+ white-space:normal
+}
+#hhTransitPanel .hh-bkk-watch-toggle-label-v858 small{
+ color:var(--bk-muted)!important;font-size:11px;line-height:1.3
+}
+#hhTransitPanel .hh-bkk-watch-chevron-v858{
+ display:grid;place-items:center;flex:0 0 22px;
+ color:var(--bk-ink);font:850 21px/1 system-ui;
+ transition:transform 160ms ease
+}
+#hhTransitPanel .hh-bkk-watch-toggle-v858[aria-expanded="true"] .hh-bkk-watch-chevron-v858{
+ transform:rotate(180deg)
+}
+#hhTransitPanel .hh-bkk-watch-toggle-v858:focus-visible{
+ outline:2px solid var(--bk-accent);outline-offset:2px
+}
+#hhTransitPanel .hh-bkk-watch-content-v858 .hh-bkk-watch-rows-v814{
+ margin-top:10px
+}
+#hhTransitPanel .hh-bkk-watch-edit-v814{
+ flex:0 0 auto;min-width:0;max-width:44%;font-size:11px!important;
+ padding:7px 8px!important;color:var(--bk-ink)!important
+}
+@media(max-width:390px){
+ #hhTransitPanel .hh-bkk-watchlist-v814{padding-inline:9px!important}
+ #hhTransitPanel .hh-bkk-watch-header-v814{gap:4px}
+ #hhTransitPanel .hh-bkk-watch-toggle-v858{gap:3px;padding:2px}
+ #hhTransitPanel .hh-bkk-watch-edit-v814{font-size:10px!important;padding:5px 6px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #hhTransitPanel .hh-bkk-watch-chevron-v858{transition:none}
+}
