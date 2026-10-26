@@ -1,0 +1,115 @@
+/* Smart Arrival v855 · transport identity + amber stars + unified pastel glass.
+ * Route mode colors are functional BKK identifiers, not separate card themes.
+ * Theme panels remain profile-sensitive to Zsolt/Mónika.
+ */
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="bus"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-bus{
+ background:#2587c9!important;color:#fff!important;border-color:rgba(255,255,255,.8)!important
+}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="tram"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-tram{
+ background:#ffd23a!important;color:#3a300c!important;border-color:#fff3bd!important
+}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro{
+ background:#2872bd!important;color:#fff!important
+}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M1"],
+#hhTransitPanel .hh-bkk-catalog-row-v801:has(.hh-bkk-catalog-number-v801.hh-bkk-mode-metro) .hh-bkk-catalog-number-v801.hh-bkk-mode-metro:is(:first-child):empty{
+ background:#ffd33f!important;color:#343019!important
+}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M2"]{background:#e54445!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M3"]{background:#2074b8!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="metro"][data-bkk-route="M4"]{background:#299d73!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="hev"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-hev{background:#279a71!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="trolley"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-trolley{background:#d74752!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-watch-number-v814[data-bkk-mode="rail"],
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-rail{background:#155a9b!important;color:#fff!important}
+/* Each individual metro line retains its official line identity. */
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M1"]{background:#ffd33f!important;color:#343019!important}
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M2"]{background:#e54445!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M3"]{background:#2074b8!important;color:#fff!important}
+#hhTransitPanel .hh-bkk-catalog-number-v801.hh-bkk-mode-metro[data-bkk-route="M4"]{background:#299d73!important;color:#fff!important}
+/* Stars are always amber-gold, independent from profile skin. */
+#hhTransitPanel .hh-bkk-catalog-star-v801{
+ color:#ab7610!important;background:rgba(255,243,207,.67)!important;
+ border:1px solid rgba(209,155,36,.69)!important;
+ font-size:27px!important;line-height:1!important;
+}
+#hhTransitPanel .hh-bkk-catalog-star-v801[aria-pressed="true"]{
+ color:#a87506!important;background:rgba(255,223,136,.85)!important;
+ border-color:#d9a93d!important;text-shadow:0 1px rgba(255,255,255,.6)!important
+}
+/* Reflect actual map overlay state and keep show/hide hit targets generous. */
+#hhTransitPanel .hh-bkk-watch-show-v814{
+ font-size:12px!important;font-weight:750!important;
+ min-height:44px!important;min-width:92px!important;white-space:nowrap!important;
+ touch-action:manipulation!important
+}
+#hhTransitPanel .hh-bkk-watch-show-v814[data-visible="true"]{
+ background:var(--bk-selected)!important;border-color:var(--bk-accent)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.83)!important
+}
+#hhTransitPanel .hh-bkk-watch-row-v814 .hh-bkk-watch-action-v814:disabled{
+ opacity:.36!important
+}
+/* The direction/profile card is part of the same pastel glass standard. */
+#hhTransitPanel .hh-transit-v791{
+ --dr-ink:var(--bk-ink);--dr-muted:var(--bk-muted);
+ --dr-bg:var(--bk-surface);--dr-edge:var(--bk-edge);--dr-selected:var(--bk-selected);
+ --dr-accent:var(--bk-accent);
+ background:var(--dr-bg)!important;color:var(--dr-ink)!important;
+ border:1px solid var(--dr-edge)!important;border-radius:19px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.87),0 5px 20px rgba(44,57,83,.08)!important;
+ backdrop-filter:blur(19px)!important;-webkit-backdrop-filter:blur(19px)!important
+}
+#hhTransitPanel .hh-transit-v791[data-bkk-profile="monika"]{
+ --dr-ink:#562946;--dr-muted:#78546d;--dr-bg:rgba(255,238,250,.77);
+ --dr-edge:rgba(255,255,255,.88);--dr-selected:rgba(249,186,224,.65);
+ --dr-accent:#dc8fc0
+}
+#hhTransitPanel .hh-transit-v791[data-bkk-profile="zsolt"]{
+ --dr-ink:#193653;--dr-muted:#4d6984;--dr-bg:rgba(231,244,255,.76);
+ --dr-edge:rgba(255,255,255,.88);--dr-selected:rgba(153,207,247,.65);
+ --dr-accent:#78b4e6
+}
+#hhTransitPanel .hh-transit-v791>label,
+#hhTransitPanel .hh-transit-v791-directions strong{
+ color:var(--dr-ink)!important
+}
+#hhTransitPanel .hh-transit-v791-directions p{color:var(--dr-muted)!important}
+#hhTransitPanel .hh-transit-v791>select{
+ background:rgba(255,255,255,.36)!important;color:var(--dr-ink)!important;
+ border:1px solid var(--dr-accent)!important;border-radius:12px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.5)!important
+}
+#hhTransitPanel .hh-transit-v791>select option{color:#1b3049;background:#f3f6fd}
+#hhTransitPanel .hh-transit-v791-directions label{
+ background:rgba(255,255,255,.34)!important;color:var(--dr-ink)!important;
+ border:1px solid var(--dr-edge)!important;border-radius:12px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.55)!important
+}
+#hhTransitPanel .hh-transit-v791-directions label:has(input:checked){
+ background:var(--dr-selected)!important;border-color:var(--dr-accent)!important
+}
+#hhTransitPanel .hh-transit-v791-directions .hh-transit-dir--bus input[type=checkbox]{accent-color:#2587c9!important}
+#hhTransitPanel .hh-transit-v791-directions .hh-transit-dir--tram input[type=checkbox]{accent-color:#e1b000!important}
+#hhTransitPanel .hh-transit-v791-directions .hh-transit-dir--hev input[type=checkbox]{accent-color:#279a71!important}
+#hhTransitPanel .hh-transit-status,#hhTransitPanel .hh-transit-credit{color:var(--bk-muted)!important}
+/* Compact route and trip-flow badges also follow the mode color. */
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="bus"]{background:#2587c9!important;color:#fff!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="tram"]{background:#ffd23a!important;color:#3a300c!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="trolley"]{background:#d74752!important;color:#fff!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="hev"]{background:#279a71!important;color:#fff!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="rail"]{background:#155a9b!important;color:#fff!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="metro"]{background:#2872bd!important;color:#fff!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="metro"][data-route="M1"]{background:#ffd33f!important;color:#343019!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="metro"][data-route="M2"]{background:#e54445!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="metro"][data-route="M3"]{background:#2074b8!important}
+#hhSmartHubDestinationV802 .hh-trip-line-v854[data-mode="metro"][data-route="M4"]{background:#299d73!important}
+@media(max-width:395px){
+ #hhTransitPanel .hh-bkk-watch-row-v814{gap:6px!important;padding:8px!important}
+ #hhTransitPanel .hh-bkk-watch-show-v814{min-width:78px!important}
+}
