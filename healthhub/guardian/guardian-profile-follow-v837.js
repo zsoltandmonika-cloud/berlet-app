@@ -257,5 +257,5 @@
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
   onFollowState(){controller?.onFollowState()},
   onLocalGpsFix(){return controller?.onLocalGpsFix()||false},
-  get ready(){return !!controller?.ready},version:'837',revision:'850'};
+  get ready(){return !!controller?.ready},version:'837',revision:'839',speedVersion:'850'};
 });
