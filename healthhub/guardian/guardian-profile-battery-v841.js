@@ -53,8 +53,11 @@
    badge.style.setProperty('--hh-batt-percent',Number.isInteger(p)?p+'%':'0%');
    text.textContent=Number.isInteger(p)?p+'%':'—';
    const owner= getProfile()==='monika'?'Mónika':'Zsolt';
+   const condition=p<15?'kritikusan alacsony':p<30?'alacsony':p<70?'közepes':'megfelelő';
+   const chargeState=record?.charging===true?' · töltés alatt':
+    record?.charging===false?' · nem tölt':' · a töltés állapota nem ismert';
    const label=Number.isInteger(p)?
-    owner+' telefonja · '+p+'%'+(record.charging===true?' · töltés alatt':''):
+    owner+' telefonja · '+p+'% · '+condition+' töltöttség'+chargeState:
     owner+' telefonja · nincs friss, hitelesített akkumulátoradat';
    badge.setAttribute('aria-label',label);
    badge.title=label;
