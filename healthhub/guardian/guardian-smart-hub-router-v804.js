@@ -426,7 +426,15 @@ function renderGuide(){
    ticket.href='https://bkk.hu/mobiljegy';ticket.target='_blank';
    ticket.rel='noopener noreferrer';ticket.textContent='🎫 Jegy / bérlet ↗';
    actions.append(flow,map,ticket);
-   row.append(actions);host.append(row);
+   const chooseTrip=d.createElement('button');chooseTrip.type='button';
+   chooseTrip.className='hh-active-route-select-v862';
+   chooseTrip.textContent='✓ Kiválasztom ezt az útvonalat';
+   chooseTrip.setAttribute('aria-label','Ezt a(z) '+p.legs.map(l=>l.line.id).join(' → ')+' útvonalat választom, felszállás nélkül');
+   chooseTrip.addEventListener('click',()=>{
+    const active=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862;
+    if(active?.planned(p)){selectCard();focus(p)}
+   });
+   row.append(actions,chooseTrip);host.append(row);
    row.tabIndex=0;
    row.setAttribute('aria-label','A(z) '+(i+1)+'. útvonal áttekintése');
    function selectCard(){
@@ -468,7 +476,9 @@ function renderGuide(){
    if(!res.ok)return false;
    const checked=module.validate(await res.json());
    if(!checked)return false;
-   network=checked;render();return true;
+   network=checked;render();
+   w.dispatchEvent?.(new w.CustomEvent('hh-transit-network-ready-v862'));
+   return true;
   }catch(_){return false}
  }
  async function download(){
@@ -521,5 +531,5 @@ function renderGuide(){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},version:'857'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},version:'862'};
 });
