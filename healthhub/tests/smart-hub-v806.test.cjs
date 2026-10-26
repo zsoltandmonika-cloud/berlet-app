@@ -100,3 +100,41 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
  assert.ok(html.includes('hhBkkCatalogV801'));
  assert.ok(html.includes('hhSmartHubGuideV805'));
 });
+
+test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS JSON still includes it',()=>{
+ const raw={schemaVersion:1,source:'BKK Zrt., CC BY 4.0',generatedAt:new Date().toISOString(),routes:[
+  line('960',[s('S','Otthon',47.50,19.00),s('T','Munkahely',47.53,19.03)]),
+  line('260',[s('S','Otthon',47.50,19.00),s('X','Köztes',47.515,19.015),s('T','Munkahely',47.53,19.03)]),
+  line('17',[s('Q','Tér',47.53,19.03),s('R','Vég',47.54,19.04)],'tram'),
+  line('960A',[s('K','Alt',47.57,19.06),s('L','Alt vég',47.58,19.07)])
+ ]};
+ assert.equal(net.routeAllowed({id:'960'}),false);
+ assert.equal(net.routeAllowed({id:' 960 '}),false);
+ assert.equal(net.routeAllowed({id:'960A'}),true,'only the specifically disallowed 960 is affected');
+ const valid=net.validate(raw,3);
+ assert.ok(valid,'other BKK lines must remain available');
+ assert.deepEqual(valid.map(x=>x.id),['260','17','960A']);
+ const from=p('Otthon',47.50,19.00),to=p('Munkahely',47.53,19.03);
+ const results=net.plan(valid,from,to);
+ assert.ok(results.length>0,'a valid daytime alternate must remain');
+ assert.equal(results[0].legs[0].line.id,'260');
+ assert.equal(results.some(r=>r.legs.some(leg=>leg.line.id==='960')),false);
+ // Even callers bypassing validation must not be able to route via 960.
+ const direct=raw.routes.map(r=>({id:r.id,mode:r.mode,headsign:r.headsign,
+  stops:r.stops.map(x=>({id:x[0],name:x[1],lat:x[2],lng:x[3]}))}));
+ const graph=net.createGraph(direct);
+ assert.ok(graph);
+ assert.equal(graph.nodes.some(n=>n.line.id==='960'),false);
+ assert.equal(net.plan(direct,from,to).some(r=>r.legs.some(l=>l.line.id==='960')),false);
+ for(const preference of ['transfers','walking']){
+  for(const [a,b] of [[from,to],[to,from]]){
+   const options=net.plan(direct,a,b,preference);
+   assert.ok(options.every(x=>x.legs.every(l=>l.line.id!=='960')));
+  }
+ }
+ const routerSrc=read('guardian-smart-hub-router-v804.js');
+ const html=read('index.html');
+ assert.match(routerSrc,/option\.legs\.every\(leg=>leg&&leg\.line&&String\(leg\.line\.id\)\.trim\(\)!=='960'\)/);
+ assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=806-network-a&no960=840/);
+});
