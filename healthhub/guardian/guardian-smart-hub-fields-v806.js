@@ -86,6 +86,15 @@
    }));
   }catch(_){return []}
  }
+ // Preferred home remains the first existing favorite slot, per profile.
+ // This reads local verified coordinates only, with no new GPS or storage.
+ function homeFavorite(storage){
+  if(!storage||typeof storage.getItem!=='function')return null;
+  try{
+   const slots=normalizedSlots(JSON.parse(storage.getItem(STORE+profileId(storage))||'null'));
+   return slots[0]?.place||null;
+  }catch(_){return null}
+ }
  function init(){
   const d=w&&w.document;
   if(!d||!w.fetch)return;
@@ -324,5 +333,5 @@
   else init();
  }
  return {queryText,searchUrl,normalizeResults,validPlace,swapState,slotLabel,
-  blankSlots,normalizedSlots,profileId,listFavoritePlaces,init,version:'806'};
+  blankSlots,normalizedSlots,profileId,listFavoritePlaces,homeFavorite,init,version:'806'};
 });
