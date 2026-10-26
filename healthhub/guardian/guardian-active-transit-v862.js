@@ -208,6 +208,8 @@
  }
  function ownGpsFix(pos){
   if(!pos?.coords)return;
+  // A switched-on old browser watch must never label another family member.
+  if(own()&&own()!==displayed()){lastFix=null;render();return;}
   const ts=Number(pos.timestamp),c=pos.coords;
   if(!Number.isFinite(ts)||Date.now()-ts>MAX_AGE||ts>Date.now()+5000||
    !Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||
