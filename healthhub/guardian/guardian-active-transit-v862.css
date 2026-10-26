@@ -140,3 +140,52 @@
   background:#1c3f75!important
  }
 }
+
+/* Traveler's already existing browser-GPS portrait: reuse that same icon
+ * whenever a newer authorized shared portrait has NOT superseded it. */
+#guardianMap .guardian-own-position-v862 .guardian-position-label{
+ display:inline-flex!important;flex-direction:column!important;
+ align-items:center!important;gap:3px!important;
+ max-width:160px!important;width:max-content!important;
+ min-width:64px!important;height:auto!important;
+ border-radius:13px!important;padding:5px 8px!important;
+ background:linear-gradient(137deg,rgba(43,117,188,.76),rgba(15,45,104,.87))!important;
+ backdrop-filter:blur(18px) saturate(1.3)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(1.3)!important
+}
+#guardianMap .guardian-own-position-v862[data-guardian-person="m"] .guardian-position-label{
+ background:linear-gradient(137deg,rgba(212,103,181,.74),rgba(85,34,114,.88))!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-name-v862{
+ color:#fff!important;font:800 11px/1.1 system-ui!important;
+ white-space:nowrap!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862{
+ display:block!important;max-width:148px!important;white-space:nowrap!important;
+ font:830 10px/1.2 system-ui!important;padding:3px 6px!important;
+ background:rgba(80,149,219,.65)!important;color:#fff!important;
+ border-radius:8px!important;border:1px solid rgba(255,255,255,.6)!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[data-mode="tram"]{
+ background:#ffdf69!important;color:#37300c!important;text-shadow:none!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[data-mode="bus"]{
+ background:#75c1f7!important;color:#16375c!important;text-shadow:none!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[data-mode="trolley"]{
+ background:#f7a3a7!important;color:#56202b!important;text-shadow:none!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[data-mode="hev"]{
+ background:#86d7a2!important;color:#19462d!important;text-shadow:none!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[data-mode="rail"]{
+ background:#6790cf!important;color:white!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-speed-v862{
+ color:#fff!important;font:780 10px/1.2 system-ui!important;
+ white-space:nowrap!important;font-variant-numeric:tabular-nums!important
+}
+#guardianMap .guardian-own-position-v862 .hh-own-transit-route-v862[hidden],
+#guardianMap .guardian-own-position-v862 .hh-own-transit-speed-v862[hidden]{
+ display:none!important
+}
