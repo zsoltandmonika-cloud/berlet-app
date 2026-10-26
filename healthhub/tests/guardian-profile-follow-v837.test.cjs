@@ -246,7 +246,7 @@ test('v839 profile switch during pending GPS read refetches the new owner and fo
  assert.equal(created.length,1,'only the NEW profile gets a portrait');
  assert.equal(created[0].el.className.includes('guardian-selected-profile-position-v837'),true);
  assert.ok(maps.length>=1,'automatic Follow focuses the new profile');
- assert.deepEqual(maps.at(-1).center,[19.12,47.59]);
+ assert.deepEqual(Array.from(maps.at(-1).center),[19.12,47.59]);
  assert.equal(removed.length,0,'no old profile pin appears');
 });
 
