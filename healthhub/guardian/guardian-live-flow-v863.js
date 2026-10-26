@@ -29,14 +29,13 @@
  }
  function routeKey(s){return s?s.profile+':'+s.route+':'+s.started+':'+s.onboard:''}
  function currentFix(){
-  const e=engine();
-  if(e?.isFresh(fix))return fix;
-  const follow=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+  const e=engine(),follow=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   const verified=isOwner()?follow?.latestOwnFix:follow?.latestAuthorizedSelectedFix;
-  if(verified?.profile===selected()&&e?.isFresh(verified)){
+  if(verified?.profile===selected()&&e?.isFresh(verified)&&
+   (!e.isFresh(fix)||verified.ts>fix.ts)){
    return {lat:verified.lat,lng:verified.lng,accuracy:verified.accuracy,ts:verified.ts};
   }
-  return null;
+  return e?.isFresh(fix)?fix:null;
  }
  function show(open=true){
   const overlay=$('hhLiveFlowV863');if(!overlay)return false;
@@ -124,9 +123,15 @@
   const status=e.warningUpdate(warningState,variant,nowFix,previous);
   warningState=status;warning=status.alert;
  }
- function setFix(next,authorizedFamilyRead=false){
-  const e=engine();
-  if(!e?.isFresh(next)||(!isOwner()&&!authorizedFamilyRead))return;
+ function setFix(next){
+  const e=engine();if(!e?.isFresh(next))return;
+  if(!isOwner()){
+   // Family GPS can enter this chart ONLY through the already authenticated,
+   // same-profile shared reading. A local callback cannot claim another phone.
+   const allowed=w?.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix;
+   if(!allowed||allowed.profile!==selected()||allowed.ts!==next.ts||
+    allowed.lat!==next.lat||allowed.lng!==next.lng)return;
+  }
   if(fix&&next.ts<=fix.ts)return;
   previous=fix&&next.ts-fix.ts<=90000?fix:null;fix=next;
   if(opened){
@@ -309,7 +314,7 @@
    sync();
    if(opened){
     const fresh=currentFix();
-    if(fresh&&(!fix||fresh.ts>fix.ts)){setFix(fresh,true)}
+    if(fresh&&(!fix||fresh.ts>fix.ts)){setFix(fresh)}
     else {
      if(!fresh){lastPos=null;warning=null;warningState={reverse:0,off:0,lastTs:0}}
      render();
