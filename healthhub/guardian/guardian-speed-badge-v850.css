@@ -1,0 +1,63 @@
+/* Family Guard v850 · selected profile name expands into a speed row.
+ * Only the already-existing GPS portrait name pill, never the image anchor.
+ * A genuinely translucent layered glass finish, pink for Mónika, blue for Zsolt.
+ */
+#guardianMap .guardian-position:not(.guardian-peer-position) .guardian-position-label{
+ top:calc(100% - 24px)!important;bottom:auto!important;
+ display:inline-flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ max-width:102px!important;min-width:65px!important;min-height:23px!important;
+ padding:4px 9px!important;gap:0!important;
+ border-radius:13px!important;border:1px solid rgba(182,229,255,.72)!important;
+ background:linear-gradient(140deg,rgba(44,109,187,.50),rgba(10,38,98,.73))!important;
+ -webkit-backdrop-filter:blur(22px) saturate(1.45)!important;
+ backdrop-filter:blur(22px) saturate(1.45)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.45),
+ 0 1px 0 rgba(67,178,248,.18),0 3px 11px rgba(8,30,70,.28)!important;
+ text-shadow:0 1px 3px rgba(1,17,49,.66)!important;
+ font:750 11px/1.05 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ isolation:isolate;white-space:nowrap!important;
+ overflow:hidden!important;pointer-events:none!important;
+}
+#guardianMap .guardian-position[data-guardian-person="m"]:not(.guardian-peer-position) .guardian-position-label{
+ border-color:rgba(255,207,246,.78)!important;
+ background:linear-gradient(140deg,rgba(190,81,174,.52),rgba(84,28,130,.76))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.47),
+ 0 1px 0 rgba(255,159,222,.2),0 3px 12px rgba(83,23,102,.3)!important;
+}
+#guardianMap .guardian-position:not(.guardian-peer-position) .guardian-speed-name-v850{
+ display:block;white-space:nowrap;line-height:1.1;color:#fff;letter-spacing:.01em;
+}
+#guardianMap .guardian-position:not(.guardian-peer-position) .guardian-speed-row-v850{
+ display:flex;align-items:center;justify-content:center;gap:4px;
+ white-space:nowrap;font:770 10px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;
+ color:#e7f7ff;
+ max-height:0;opacity:0;margin-top:0;padding-top:0;
+ border-top:1px solid transparent;
+ overflow:hidden;pointer-events:none;
+ transition:max-height .24s ease,opacity .2s ease,margin-top .24s ease,padding-top .24s ease;
+}
+#guardianMap .guardian-position:not(.guardian-peer-position) .guardian-position-label.guardian-speed-open-v850 .guardian-speed-row-v850{
+ max-height:20px;opacity:1;margin-top:3px;padding-top:4px;
+ border-top-color:rgba(196,235,255,.34);
+}
+#guardianMap .guardian-position[data-guardian-person="m"]:not(.guardian-peer-position) .guardian-speed-row-v850{
+ color:#ffeaff;
+}
+#guardianMap .guardian-position[data-guardian-person="m"]:not(.guardian-peer-position) .guardian-position-label.guardian-speed-open-v850 .guardian-speed-row-v850{
+ border-top-color:rgba(255,211,245,.38);
+}
+#guardianMap .guardian-speed-gauge-v850{
+ font-size:12px;line-height:1;opacity:.94;
+}
+@media(prefers-reduced-motion:reduce){
+ #guardianMap .guardian-position .guardian-speed-row-v850{transition:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ #guardianMap .guardian-position:not(.guardian-peer-position) .guardian-position-label{
+  background:rgba(16,62,121,.91)!important;
+ }
+ #guardianMap .guardian-position[data-guardian-person="m"]:not(.guardian-peer-position) .guardian-position-label{
+  background:rgba(123,48,135,.91)!important;
+ }
+}
