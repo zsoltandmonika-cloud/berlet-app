@@ -109,6 +109,18 @@
    ?label+' ('+name+')'
    :name+(isAddress?' ('+address+')':'');
  }
+ function enrichSharedWithFavorite(place,storage){
+  if(!place||place.source!=='shared'||!validPlace(place))return place;
+  const rows=listFavoritePlaces(storage);
+  const same=rows.find(f=>{
+   const lat=(f.lat-place.lat)*111000;
+   const lng=(f.lng-place.lng)*111000*Math.cos(place.lat*Math.PI/180);
+   return Math.hypot(lat,lng)<35;
+  });
+  if(!same)return place;
+  return {...place,name:same.name,subtitle:same.subtitle,
+   displayName:place.displayName||place.name};
+ }
  function init(){
   const d=w&&w.document;
   if(!d||!w.fetch)return;
@@ -172,8 +184,11 @@
    if(!validPlace(place)||!modes.includes(kind))return false;
    stopRequest();
    if(place.source==='favorite'&&place.profile!==storedProfile)return false;
-   const item={name:place.name.slice(0,120),subtitle:String(place.subtitle||'').slice(0,190),
-    displayName:String(place.displayName||'').slice(0,80),lat:place.lat,lng:place.lng};
+   if(place.source==='shared'&&
+    !(w.HH_GUARDIAN_LIVE_V785?.authenticated&&w.HH_GUARDIAN_LIVE_V785?.familyAuthorized))return false;
+   const verified=enrichSharedWithFavorite(place,w.localStorage);
+   const item={name:verified.name.slice(0,120),subtitle:String(verified.subtitle||'').slice(0,190),
+    displayName:String(verified.displayName||'').slice(0,80),lat:verified.lat,lng:verified.lng};
    state[kind]=item;inputs[kind].value=formatPlace(item);
    active=kind;clearResults();updateMap(item,kind);syncRoutes();
    message(state.origin&&state.destination
@@ -218,10 +233,10 @@
     const entries=w.HH_GUARDIAN_LANDMARKS_V776?.sharedEntries;
     if(Array.isArray(entries))shared=entries.filter(item=>validPlace(item))
      .filter(item=>!raw||term(item.name).includes(term(raw)))
-     .slice(0,7).map(item=>({
+     .slice(0,7).map(item=>enrichSharedWithFavorite({
       name:item.name,displayName:item.name,subtitle:'Közös térképes hely',
       lat:item.lat,lng:item.lng,source:'shared'
-     }));
+     },w.localStorage));
    }
    const unique=new Set();
    const items=[...saved,...shared].filter(item=>{
@@ -390,5 +405,5 @@
   else init();
  }
  return {queryText,searchUrl,normalizeResults,validPlace,swapState,slotLabel,
-  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,init,version:'856'};
+  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,enrichSharedWithFavorite,init,version:'856'};
 });
