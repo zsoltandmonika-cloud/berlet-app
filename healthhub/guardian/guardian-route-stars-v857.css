@@ -1,0 +1,37 @@
+/* Smart Hub Route Cards v857: gold star ratings, compact timetable facts.
+ * Only verified source-backed route timings may populate actual times. */
+#hhSmartHubDestinationV802 .hh-trip-card-compact-v854{
+ gap:5px!important;padding:9px 11px!important
+}
+#hhSmartHubDestinationV802 .hh-trip-card-head-v854{
+ min-height:21px!important
+}
+#hhSmartHubDestinationV802 .hh-trip-stars-v857{
+ color:#bd8a11!important;
+ font:870 17px/1.2 system-ui!important;
+ letter-spacing:1.2px!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.68)!important;
+ white-space:nowrap
+}
+#hhSmartHubDestinationV802 .hh-trip-transfer-count-v854{
+ color:var(--muted)!important;font:710 11px/1.3 system-ui!important
+}
+#hhSmartHubDestinationV802 .hh-trip-times-v857{
+ display:flex;align-items:baseline;justify-content:space-between;
+ flex-wrap:wrap;gap:6px 10px;width:100%;
+ font-variant-numeric:tabular-nums;
+}
+#hhSmartHubDestinationV802 .hh-trip-times-v857 strong{
+ color:var(--ink)!important;font:830 15px/1.2 system-ui!important
+}
+#hhSmartHubDestinationV802 .hh-trip-times-v857 b{
+ color:var(--ink)!important;font:800 13px/1.2 system-ui!important
+}
+#hhSmartHubDestinationV802 .hh-trip-card-compact-v854 .hh-trip-card-time-v854{
+ font:560 10px/1.3 system-ui!important;color:var(--muted)!important;
+ font-style:normal!important
+}
+@media(max-width:390px){
+ #hhSmartHubDestinationV802 .hh-trip-stars-v857{font-size:16px!important;letter-spacing:.8px!important}
+ #hhSmartHubDestinationV802 .hh-trip-times-v857 strong{font-size:14px!important}
+}
