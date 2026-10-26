@@ -82,7 +82,7 @@
   if(lastAuto===key)return false;
   lastAuto=key;route=id;mode=transport;chosen=null;preview=true;
   resetRoute();variant=opts.auto.line;previous=old;fix=current;
-  show(true);return true;
+  updateEstimate();show(true);return true;
  }
  function routeIdOk(text){return /^[0-9A-Za-zÁÉÍÓÖŐÚÜŰáéíóöőúüű-]{1,16}$/.test(String(text||''))}
  function variants(){
@@ -150,7 +150,7 @@
    const keep=forced?.id===s.route?forced:null;
    resetRoute();forced=keep;
    route=s.route;mode=s.mode;chosen=s;preview=false;
-   if(manuallyDismissed!==key)show(true);
+   if(manuallyDismissed!==key){updateEstimate();show(true)}
   }else if(opened){updateEstimate();render()}
  }
  function addText(parent,tag,text,cls){
@@ -246,7 +246,7 @@
   const s=state();
   if(s){
    route=s.route;mode=s.mode;chosen=s;preview=false;
-   manuallyDismissed='';show(true);
+   manuallyDismissed='';updateEstimate();show(true);
   }else if(preview)show(true);
  }
  function confirm(){
