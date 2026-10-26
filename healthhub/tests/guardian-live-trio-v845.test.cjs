@@ -92,19 +92,27 @@ test('v845 renders one hero Battery tile, GPS and Health, with exact popup rows'
  assert.match(html,/guardianHealthPopupV845/);
  assert.match(css,/guardian-hero>\.hh-guardian-trio-v845/);
  assert.match(css,/guardian-hero>\.hh-guardian-health-popup-v845/);
- assert.match(html,/guardian-live-trio-v845\.css\?v=846-airy-frosted-glass-3px/);
+ assert.match(html,/guardian-live-trio-v845\.css\?v=848-smaller-captions/);
  assert.ok(css.includes('top:calc(21.1% + 3px)!important'));
  assert.ok(css.includes('top:calc(21% + 3px)!important'));
  assert.ok(css.includes('height:14.8%!important'));
  assert.ok(css.includes('height:16%!important'));
  assert.ok(css.includes('font-size:clamp(9px,1.4vw,15px)!important'));
  assert.ok(css.includes('font-size:9px!important'));
+ assert.ok(css.includes('font:620 clamp(7px,.86vw,9px)/1.1'));
+ assert.ok(css.includes('font-size:6.5px!important;line-height:1.08!important'));
  assert.ok(css.includes('background:linear-gradient(145deg,rgba(42,78,151,.51),rgba(12,32,82,.64))!important'));
  assert.ok(css.includes('backdrop-filter:blur(18px) saturate(1.38)!important'));
  assert.ok(css.includes('background:linear-gradient(140deg,rgba(35,65,131,.82),rgba(11,29,75,.88))!important'));
 
  assert.match(css,/\.hh-gps-v845\[data-state="stale"\]/);
  assert.match(code,/gpsCard\.dataset\.state=g\.state/);
+ assert.match(code,/health\.textContent=sleep\?String\(sleep\.score\):'—'/);
+ assert.match(code,/batteryCaption\.textContent=owner\+' Mobil'/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=848-score-mobile-label/);
+ assert.match(code,/scoreText\.textContent=sleep\?sleep\.score\+' \/ 100'/);
+ assert.doesNotMatch(code,/health\.textContent=sleep\?sleep\.score\+'\/100'/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=848-score-mobile-label/);
  assert.match(css,/\.hh-health-v845:focus-visible/);
  assert.match(code,/heart\.addEventListener\('click'/);
  assert.match(code,/pop\.addEventListener\('click',close\)/);
@@ -174,7 +182,7 @@ test('v845 mini Health card toggles a real, profile-scoped expanded glass view',
  make('guardianProfileSwitch').handlers.click();
  assert.equal(make('guardianHealthPopupV845').hidden,true);
  assert.equal(make('guardianHealthTextV845').textContent,'—');
- assert.equal(make('guardianBatteryCaptionV845').textContent,'Mónika telefon');
+ assert.equal(make('guardianBatteryCaptionV845').textContent,'Mónika Mobil');
  w.HH_GUARDIAN_LIVE_V785.authenticated=false;
  listeners['hh-guardian-auth-changed']();
  assert.equal(make('guardianHealthTextV845').textContent,'—');
