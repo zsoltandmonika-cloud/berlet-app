@@ -68,6 +68,10 @@
     profile_key:profile,latitude:lat,longitude:lon,accuracy_m:acc,
     updated_at:raw.updated_at,
     speed_kmh:typeof raw.speed_kmh==='number'&&Number.isFinite(raw.speed_kmh)?raw.speed_kmh:null,
+    // Optional v841 battery fields. Old HH One APKs have neither field.
+    // Never invent a reading for null, missing or malformed telemetry.
+    battery_pct:Number.isInteger(raw.battery_pct)&&raw.battery_pct>=0&&raw.battery_pct<=100?raw.battery_pct:null,
+    battery_charging:typeof raw.battery_charging==='boolean'?raw.battery_charging:null,
     source:'HH One Native GPS'
    }};
   }catch(e){
