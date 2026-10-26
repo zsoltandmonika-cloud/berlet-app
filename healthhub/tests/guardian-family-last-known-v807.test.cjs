@@ -15,7 +15,7 @@ test('v807 browser background stops GPS but does not send share deletion, retain
  assert.match(live,/LAST_KNOWN_MS=12\*60\*60\*1000/);
  assert.match(html,/UTOLSÓ ISMERT HELY/);
  assert.match(html,/guardian-live-v785\.js\?v=813-default-follow-3d-family/);
- assert.match(html,/guardian\.js\?v=813-default-follow-3d-family/);
+ assert.match(html,/guardian\.js\?v=833-map-credit-no-top-left/);
 });
 
 test('v807 remotely shared stale GPS appears on map as last known, never live, and expires after 12h',async()=>{
