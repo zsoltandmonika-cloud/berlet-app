@@ -54,6 +54,7 @@
   const suggestions=$('guardianMapSearchResultsV819'),message=$('guardianMapSearchStatusV819');
   const go=$('guardianMapSearchGoV819'),mic=$('guardianMapSearchMicV819');
   const exit=$('guardianMapSearchExitV819'),navigate=$('guardianMapSearchNavigateV819');
+  const sizeButton=$('guardianMapSizeToggleV864'),sizeIcon=$('guardianMapSizeIconV864');
   const card=box&&box.closest('.map-card');
   if(!card||!input||!suggestions||!message||!go||!mic||!exit||!navigate)return;
   let current=null,results=[],seq=0,timer=null,abort=null,lastRequest=0;
@@ -87,9 +88,19 @@
    // The same MapLibre map expands in our own app layout. Chrome native
    // requestFullscreen causes an intrusive browser/system exit hint.
    // This CSS-only mode avoids it and keeps the existing controls usable.
-   expanded=!!value;d.body.classList.toggle('hh-map-full-v819',expanded);
+   const next=!!value;
+   if(expanded===next)return;
+   expanded=next;d.body.classList.toggle('hh-map-full-v819',expanded);
    card.classList.toggle('hh-map-full-v819',expanded);
    exit.hidden=!expanded;navigate.hidden=!expanded||!current;
+   if(sizeButton){
+    sizeButton.setAttribute('aria-pressed',String(expanded));
+    sizeButton.setAttribute('aria-label',expanded?
+     'Térkép visszaállítása normál méretre':'Térkép teljes képernyőre nagyítása');
+    sizeButton.title=expanded?'Normál térképméret':'Teljes képernyő';
+   }
+   if(sizeIcon)sizeIcon.textContent=expanded?'⤢':'⛶';
+   // Same map instance and camera. No extra GPS watch, marker or permissions.
    w.setTimeout(resize,40);w.setTimeout(resize,300);
   }
   function openFullscreen(){
@@ -215,6 +226,7 @@
    else search();
   });
   exit.addEventListener('click',()=>setFullscreen(false));
+  sizeButton?.addEventListener('click',()=>setFullscreen(!expanded));
   navigate.addEventListener('click',()=>{
    if(!current)return;
    // Existing Smart Travel planner is the route planner. Never call this
