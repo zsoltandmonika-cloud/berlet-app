@@ -6,8 +6,8 @@ const path=require('node:path');
 const vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-function boot({speedKmh=7,accuracyM=12,ageMs=0}={}){
- const cache=new Map(),events={},activeTimers=new Map();
+function boot({speedKmh=7,accuracyM=12,ageMs=0,deferOwnReads=false}={}){
+ const cache=new Map(),events={},activeTimers=new Map(),pendingReads=[];
  let now=Date.now(),gpsReads=0,settingsWrites=0,nextTimer=0;
  class Clock extends Date {static now(){return now}}
  const storage={getItem:key=>cache.has(key)?cache.get(key):null,
@@ -20,8 +20,11 @@ function boot({speedKmh=7,accuracyM=12,ageMs=0}={}){
    in:async()=>({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null}),
    maybeSingle:async()=>{
     if(table==='hh_guardian_live_locations'){
-     gpsReads++;return {data:{profile_key:key,latitude:47.5,longitude:19.1,
+     gpsReads++;
+     const row={data:{profile_key:key,latitude:47.5,longitude:19.1,
        accuracy_m:accuracyM,speed_kmh:speedKmh,updated_at:new Date(now-ageMs).toISOString()},error:null};
+     if(deferOwnReads&&key==='zsolt')return await new Promise(resolve=>pendingReads.push(()=>resolve(row)));
+     return row;
     }
     return {data:null,error:null};
    },
@@ -39,6 +42,7 @@ function boot({speedKmh=7,accuracyM=12,ageMs=0}={}){
   {window:w,document:d,Date:Clock,Promise,Map,Number,Math,console},{timeout:1000});
  return {w,d,advance:ms=>{now+=ms},reads:()=>gpsReads,writes:()=>settingsWrites,
   fire:name=>events[name]&&events[name](),timerCount:()=>activeTimers.size,
+  releaseReads:()=>{for(const fn of pendingReads.splice(0))fn()},
   ready:async()=>{for(let i=0;i<32;i++)await Promise.resolve()}};
 }
 test('GPS Data Saver: authenticated same-profile reads deduplicated and cached for 2200ms',async()=>{
@@ -129,4 +133,18 @@ test('Steady v879: source retains revocation, owner consent and Android GPS sepa
  assert.match(src,/onGpsPaused\(\)/);
  assert.match(src,/if\(lastPeerSpeedKmh!==null&&lastPeerSpeedKmh<4/);
  assert.match(src,/AGE_MS=20000/);
+});
+
+test('Steady v879: a late response after profile change cannot resurrect a cleared GPS cache',async()=>{
+ const app=boot({deferOwnReads:true});await app.ready();
+ const api=app.w.HH_GUARDIAN_LIVE_V785;
+ const before=app.reads(),first=api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-before,1);
+ api.onProfileChanged(); // invalidates pending location cache
+ app.releaseReads();
+ await first;
+ const second=api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-before,2,'invalidated pending result is not cached again');
+ app.releaseReads();
+ await second;
 });
