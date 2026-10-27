@@ -353,3 +353,16 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
  font:700 20px/1 system-ui;cursor:pointer
 }
 .fh-card .fh-task-dismiss:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* v902 · Final S24 Ultra pixel polish. No markup, logic, data or taskbar changes. */
+.fh-sheet-scroll .fh-title-field{transform:translateY(3px)}
+.fh-category-field .fh-category-manage{transform:translateY(-3px)}
+.fh-title-field .fh-microphone{
+ box-sizing:border-box;
+ right:6px;
+ width:30px;height:30px;
+ min-width:30px;min-height:30px;
+ border-radius:9px;
+ font-size:13px;
+ padding:0;
+}
