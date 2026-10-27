@@ -170,7 +170,16 @@ async function readUnread(){
  const items=data||[];
  lastEvent=Math.max(lastEvent,...items.map(x=>Number(x.id)));
  // First upgrade/open establishes baseline, not a flood of old Sticky Notes.
- try{if(w.localStorage.getItem(ackKey(p))===null)writeAck(lastEvent,p)}catch(_){}
+ try{
+  if(w.localStorage.getItem(ackKey(p))===null){
+   // Preserve genuinely unseen recent notifications on upgrade, without replaying 30 days.
+   const oldSeen=seen(p),dayAgo=Date.now()-86400000;
+   const older=items.filter(x=>Date.parse(x.created_at)<dayAgo);
+   const recentLimit=items.length>5?Number(items[5].id):0;
+   const olderId=older.length?Math.max(...older.map(x=>Number(x.id))):0;
+   writeAck(Math.max(oldSeen,recentLimit,olderId),p);
+  }
+ }catch(_){}
  pending=items.filter(x=>Number(x.id)>storedAck(p)).sort((a,b)=>Number(a.id)-Number(b.id));
  if(!pending.some(x=>Number(x.id)===activeEventId)){activeEventId=0;holder?.replaceChildren()}
  drawPending();
