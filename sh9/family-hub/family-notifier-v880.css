@@ -41,3 +41,9 @@
 .fh-notice-editor textarea{box-sizing:border-box;width:100%;border:1px solid #caa552;border-radius:8px;padding:7px;background:#fffde5;color:#4d3210;font:13px/1.3 system-ui}
 .fh-notice .fh-notice-note-save{min-height:36px;border:1px solid #b58c3a;border-radius:8px;background:#f4db87;color:#54320e;font:750 13px/1 system-ui}
 .fh-notice .fh-note-link{border:0;background:transparent;text-align:left;min-height:35px;padding:6px 0;cursor:pointer;font:800 12px/1.2 system-ui;color:#765118}
+
+/* v908 · Shared, cloud-synced task note. Gentle confirmation, visible errors. */
+.fh-notice .fh-note-sync-status{display:block;font:700 11px/1.35 system-ui;color:#596e3a;overflow-wrap:anywhere}
+.fh-notice .fh-note-sync-status:empty{display:none}
+.fh-notice .fh-notice-note-save:disabled{opacity:.6;cursor:progress}
+.fh-notice .fh-notice-custom:empty{display:none}
