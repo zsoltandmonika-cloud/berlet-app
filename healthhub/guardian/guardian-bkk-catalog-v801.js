@@ -143,8 +143,8 @@
    const detail=w.document.createElement('small');
    detail.textContent=route.directions.length?route.directions.slice(0,2).join(' ↔ '):route.name||'BKK menetrendi járat';
    const scope=w.document.createElement('span');scope.className='hh-bkk-catalog-scope-v801';
-   scope.textContent=LIVE_MAP.has(keyOf(route))?'Élő járműréteg + menetrendi útvonal':
-    FEATURED.has(keyOf(route))?'BKK menetrendi útvonal a térképen (nem élő)':'Kedvenc · térképes bővítés később';
+   scope.textContent=LIVE_MAP.has(keyOf(route))?'Élő BKK-járműjel, ha elérhető · menetrendi útvonal is':
+    'Élő BKK-járműjel, ha elérhető · vonalrajz később';
    copy.append(title,detail,scope);
    const btn=w.document.createElement('button');btn.type='button';
    const selected=preferred.includes(keyOf(route));

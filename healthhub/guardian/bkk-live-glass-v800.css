@@ -143,3 +143,7 @@
  .hh-bkk-glass-pin-v800::before{left:2.5px;top:2.5px;width:5px;height:5px}
  .hh-bkk-glass-pin-v800::after{left:1.5px}
 }
+
+/* v911: trolley and metro inherit the original small premium glass marker. */
+.hh-bkk-glass--trolley{--hh-live-edge:#ff9eb9;--hh-live-lamp:#ffb9cc;--hh-live-icon:#ffb9cc;--hh-live-from:rgba(164,35,72,.88);--hh-live-to:rgba(62,10,40,.94);--hh-live-aura:rgba(255,120,155,.3)}
+.hh-bkk-glass--metro{--hh-live-edge:#82baff;--hh-live-lamp:#a1d1ff;--hh-live-icon:#a1d1ff;--hh-live-from:rgba(38,97,172,.88);--hh-live-to:rgba(16,39,91,.94);--hh-live-aura:rgba(90,155,248,.3)}

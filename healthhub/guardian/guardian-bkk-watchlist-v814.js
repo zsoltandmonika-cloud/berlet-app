@@ -55,20 +55,18 @@
    const original=$('hhTransitShow'+id);
    const mapReady=supported&&(transit&&typeof transit.hasMapRoute==='function'?
     transit.hasMapRoute(id):!!original);
-   const note=mapReady?(LIVE_MAP.has(key)?
-    'Térképes útvonal elérhető · élő adat csak friss jel esetén':
-    'BKK menetrendi útvonal elérhető · nem élő járműkövetés'):
-    supported?'Menetrendi térképes útvonal betöltésre vár':
-    'Kedvenc járat · élő térképes követés még nem elérhető';
+   const note=mapReady?'Menetrendi vonal · élő jel csak friss BKK-adatból':
+    supported?'Menetrendi útvonal betöltésre vár · élő jel csak friss BKK-adatból':
+    route?'Élő járműjel friss BKK-adat esetén · vonalrajz itt még nincs':'Katalógus betöltésére vár';
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
    // Static route lines and LIVE vehicles must never share their toggle state.
    const liveFilter=w.HH_BKK_LIVE_PER_LINE_V909;
-   if(LIVE_MAP.has(key)&&liveFilter){
-    const enabled=liveFilter.enabled(id,profile);
+   if(route&&liveFilter){
+    const enabled=liveFilter.enabled(key,profile);
     const live=action(enabled?'Élő: BE':'Élő: KI',
-     id+'-es járat élő járműveinek '+(enabled?'elrejtése':'megjelenítése'),()=>{
-      liveFilter.setEnabled(id,!liveFilter.enabled(id,profile),profile);
+     (MODE[mode]||'Járat')+' '+id+' élő járműveinek '+(enabled?'elrejtése':'megjelenítése'),()=>{
+      liveFilter.setEnabled(key,!liveFilter.enabled(key,profile),profile);
     });
     live.classList.add('hh-bkk-watch-live-v909');
     live.dataset.liveEnabled=String(enabled);

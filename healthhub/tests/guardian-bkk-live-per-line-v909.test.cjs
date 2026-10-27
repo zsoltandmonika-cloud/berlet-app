@@ -59,7 +59,7 @@ test('v909: global LIVE master remains authoritative and route-line toggle indep
  assert.equal(x.calls.length,1);
  b.click();assert.deepEqual(x.rendered.at(-1),['17'],'global ON respects route choice');
  assert.match(watchSource,/transit\.setLineVisible\(id,false\)/);
- assert.match(watchSource,/liveFilter\.setEnabled\(id,!liveFilter\.enabled\(id,profile\),profile\)/);
+ assert.match(watchSource,/liveFilter\.setEnabled\(key,!liveFilter\.enabled\(key,profile\),profile\)/);
 });
 test('v909: cached profile-specific preferences do not mutate favorites',async()=>{
  const x=harness(),f=x.root.HH_BKK_LIVE_PER_LINE_V909;await flush();

@@ -8,11 +8,13 @@ import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 
 const ALLOWED_ORIGIN="https://zsoltandmonika-cloud.github.io";
 const SOURCE="BKK Zrt., CC BY 4.0";
-const GTFS_URL="https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-routes-v790.json";
+const GTFS_URL="https://raw.githubusercontent.com/zsoltandmonika-cloud/berlet-app/main/healthhub/guardian/bkk-catalog-v801.json";
 const BKK_VEHICLES="https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/VehiclePositions.pb";
 const MAX_AGE_S=90;
-const ROUTES=["260","17","19","1","41"];
-type RouteMap=Map<string,string>;
+const LEGACY=new Set(["bus:260","tram:17","tram:19","tram:1","tram:41"]);
+const ROUTE_KEY=/^(?:bus|tram|trolley|metro|hev|other):[A-Za-z0-9_-]{1,16}$/;
+type RouteInfo={routeId:string,routeKey:string,mode:string};
+type RouteMap=Map<string,RouteInfo>;
 let routeCache:{at:number,map:RouteMap}|null=null;
 let feedCache:{at:number,payload:Record<string,unknown>}|null=null;
 
@@ -32,21 +34,24 @@ function reply(req:Request,status:number,data:Record<string,unknown>){
 }
 async function routeMap():Promise<RouteMap>{
  if(routeCache&&Date.now()-routeCache.at<300000)return routeCache.map;
- const resp=await fetch(GTFS_URL,{signal:AbortSignal.timeout(9000),headers:{"Accept":"application/json"}});
- if(!resp.ok)throw new Error("route-map-unavailable");
- const doc=await resp.json();
- if(doc?.schemaVersion!==1||doc?.source!==SOURCE||!doc.routes||typeof doc.generatedAt!=="string")throw new Error("route-map-invalid");
+ const res=await fetch(GTFS_URL,{signal:AbortSignal.timeout(9000),headers:{"Accept":"application/json"}});
+ if(!res.ok)throw new Error("route-map-unavailable");
+ const doc=await res.json();
+ if(doc?.schemaVersion!==1||doc?.source!==SOURCE||!Array.isArray(doc.routes)||doc.routes.length<5||doc.routes.length>3000||typeof doc.generatedAt!=="string")throw new Error("route-map-invalid");
  const date=Date.parse(doc.generatedAt);
- if(!Number.isFinite(date)||Math.abs(Date.now()-date)>8*86400000)throw new Error("route-map-stale");
- const ids=new Map<string,string>();
- for(const short of ROUTES){
-  const row=doc.routes[short];
-  if(!row||!Array.isArray(row.gtfsRouteIds)||row.gtfsRouteIds.length<1)throw new Error("route-map-pending");
-  for(const routeId of row.gtfsRouteIds){
-   if(typeof routeId!=="string"||!routeId||ids.has(routeId))throw new Error("route-map-invalid");
-   ids.set(routeId,short);
+ if(!Number.isFinite(date)||Math.abs(Date.now()-date)>45*86400000)throw new Error("route-map-stale");
+ const ids=new Map<string,RouteInfo>(),keys=new Set<string>();
+ for(const r of doc.routes){
+  if(typeof r?.mode!=="string"||typeof r?.id!=="string")throw new Error("route-map-invalid");
+  const routeKey=r.mode+":"+r.id;
+  if(!ROUTE_KEY.test(routeKey)||keys.has(routeKey)||!Array.isArray(r.gtfsRouteIds)||!r.gtfsRouteIds.length||r.gtfsRouteIds.length>10)throw new Error("route-map-invalid");
+  keys.add(routeKey);
+  for(const gtfsId of r.gtfsRouteIds){
+   if(typeof gtfsId!=="string"||!gtfsId||gtfsId.length>40||ids.has(gtfsId))throw new Error("route-map-invalid");
+   ids.set(gtfsId,{routeId:r.id,routeKey,mode:r.mode});
   }
  }
+ if(ids.get("2600")?.routeKey!=="bus:260")throw new Error("route-map-pending");
  routeCache={at:Date.now(),map:ids};
  return ids;
 }
@@ -86,7 +91,7 @@ async function fetchLive():Promise<Record<string,unknown>>{
   if(!route||!id||seen.has(id)||!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180
    ||!Number.isFinite(observed)||observed<now-MAX_AGE_S||observed>now+10)continue;
   seen.add(id);
-  vehicles.push({id,routeId:route,lat,lng,timestamp:new Date(observed*1000).toISOString()});
+  vehicles.push({id,routeId:route.routeId,routeKey:route.routeKey,mode:route.mode,lat,lng,timestamp:new Date(observed*1000).toISOString()});
  }
  const payload={schemaVersion:1,source:SOURCE,feedType:"GTFS-RT VehiclePositions",
   generatedAt:new Date(timestamp*1000).toISOString(),vehicles};
@@ -109,7 +114,21 @@ Deno.serve(async req=>{
   const result=await client.auth.getUser(token);
   if(result.error||!result.data.user)return reply(req,401,{ok:false,reason:"login-required"});
  }catch(_){return reply(req,401,{ok:false,reason:"login-required"})}
- try{return reply(req,200,await fetchLive())}
+ // Old clients remain limited to five lines, current clients request ONLY favorites.
+ const selected=new URL(req.url).searchParams.get("routes");
+ let allowed=LEGACY;
+ if(selected!==null){
+  if(selected.length>4000)return reply(req,400,{ok:false,reason:"invalid-route-selection"});
+  const keys=selected?selected.split(","):[];
+  if(keys.length>150||keys.some(key=>!ROUTE_KEY.test(key)))return reply(req,400,{ok:false,reason:"invalid-route-selection"});
+  allowed=new Set(keys);
+ }
+ try{
+  const payload=await fetchLive();
+  const matched=(payload.vehicles as Array<{routeKey:string}>).filter(v=>allowed.has(v.routeKey));
+  const vehicles=matched.slice(0,1200);
+  return reply(req,200,{...payload,vehicles,truncated:matched.length>vehicles.length});
+ }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
   return reply(req,503,{ok:false,reason,vehicles:[]})}
 });

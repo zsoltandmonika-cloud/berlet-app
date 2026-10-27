@@ -50,16 +50,21 @@ function updateLiveButton(){
 // The editable BKK Watchlist is the visible source of truth. Legacy transit
 // selections live in another browser storage key; after HH One WebView/Edge
 // changes they can disagree and incorrectly hide valid live vehicle positions.
+function favoriteKeys(){
+ const catalog=w.HH_BKK_CATALOG_V801;
+ if(catalog&&Array.isArray(catalog.favoriteIds))return catalog.favoriteIds.slice(0,150);
+ return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19'].includes(id))
+  .map(id=>id==='260'?'bus:260':'tram:'+id);
+}
 function watchedLines(){
  const catalog=w.HH_BKK_CATALOG_V801;
- if(catalog&&Array.isArray(catalog.favoriteIds)){
-  const keys=new Set(catalog.favoriteIds);
-  const p=catalog.activeProfile==='monika'?'monika':'zsolt';
-  const lineFilter=w.HH_BKK_LIVE_PER_LINE_V909;
-  return ['260','17','19','1','41'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id))
-   .filter(id=>!lineFilter||lineFilter.enabled(id,p));
- }
- return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19','1','41'].includes(id));
+ const profile=catalog&&catalog.activeProfile==='monika'?'monika':'zsolt';
+ const filter=w.HH_BKK_LIVE_PER_LINE_V909;
+ return favoriteKeys().filter(key=>!filter||filter.enabled(key,profile));
+}
+function routeKeyForVehicle(v){
+ if(typeof v.routeKey==='string')return v.routeKey;
+ return v.routeId==='260'?'bus:260':['17','19','1','41'].includes(v.routeId)?'tram:'+v.routeId:null;
 }
 function toggleLive(){
  if(!lastVehicles.length||!mapApi.map||!lastVerified)return;
@@ -84,7 +89,7 @@ function clear(){
 // Per-line button changes redraw the ALREADY VERIFIED response, not a new API request.
 function renderLiveFromSnapshot(parsed){
  const wanted=new Set(watchedLines());
- const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
+ const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(routeKeyForVehicle(v)))};
  if(liveVisible&&!renderer.render(mapApi.map,active)){
   lastVehicles=[];lastVerified=null;updateLiveButton();
   status('a térképréteg betöltésére várunk');return;
@@ -94,7 +99,7 @@ function renderLiveFromSnapshot(parsed){
  lastVerified=active;
  updateLiveButton();
  if(!wanted.size){
-  status('Nincs külön bekapcsolt, élő térképen támogatott kedvenc járat.');
+  status('Nincs kijelölt, élő járműveket mutató kedvenc járat.');
  }else if(!active.vehicles.length){
   status([...wanted].join(', ')+' · nincs friss, ellenőrzött járműpozíció. Az adatkapcsolat működik, de nem rajzolunk kitalált buszokat.');
  }else{
@@ -112,7 +117,7 @@ async function poll(){
    status('Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
    clear();return
   }
-  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview';
+  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?routes='+encodeURIComponent(favoriteKeys().join(','));
   const res=await w.fetch(url,{method:'GET',cache:'no-store',headers:{
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
   }});

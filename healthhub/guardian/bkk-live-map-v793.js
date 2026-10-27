@@ -12,7 +12,7 @@
  const EMPTY={type:'FeatureCollection',features:[]};
  function toFeatureCollection(vehicles){
   return {type:'FeatureCollection',features:vehicles.map(v=>({
-   type:'Feature',properties:{route:v.routeId,label:v.routeId,vehicleId:v.id,observedAt:v.timestamp,headsign:v.headsign||''},
+   type:'Feature',properties:{route:v.routeId,routeKey:v.routeKey||'',mode:v.mode||'',label:v.routeId,vehicleId:v.id,observedAt:v.timestamp,headsign:v.headsign||''},
    geometry:{type:'Point',coordinates:[v.lng,v.lat]}
   }))};
  }
@@ -32,13 +32,13 @@
  });
  function makeMarkerElement(doc,vehicle){
   const route=String(vehicle.routeId);
-  const mode=route==='260'?'bus':/^H[0-9]/.test(route)?'hev':'tram';
+  const mode=['bus','tram','trolley','metro','hev','other'].includes(vehicle.mode)?vehicle.mode:route==='260'?'bus':/^H[0-9]/.test(route)?'hev':'tram';
   const wrapper=doc.createElement('div');
   wrapper.className='hh-bkk-live-vehicle-dom-v797 hh-bkk-glass-marker-v800 hh-bkk-glass--'+mode;
   // MapLibre writes transforms on the outer element; never override them.
   wrapper.style.cssText='z-index:50;pointer-events:none';
   wrapper.setAttribute('role','img');
-  wrapper.setAttribute('aria-label','Élő '+(mode==='bus'?route+'-as busz':mode==='hev'?route+' HÉV':route+'-es villamos')+' · friss BKK-járműpozíció');
+  wrapper.setAttribute('aria-label','Élő '+route+' · '+({bus:'busz',tram:'villamos',trolley:'trolibusz',metro:'metró',hev:'HÉV',other:'járat'}[mode]||'BKK-járat')+' · friss BKK-pozíció');
   const stack=doc.createElement('div');
   stack.className='hh-bkk-glass-stack-v800';
   const badge=doc.createElement('div');
@@ -46,7 +46,7 @@
   const icon=doc.createElement('span');
   icon.className='hh-bkk-glass-icon-v800';
   // These icon strings are static application artwork, not external BKK content.
-  icon.innerHTML=ICONS[mode];
+  icon.innerHTML=ICONS[mode]||ICONS.bus;
   const lamp=doc.createElement('span');
   lamp.className='hh-bkk-glass-live-v800';
   lamp.setAttribute('aria-hidden','true');
@@ -72,7 +72,7 @@
    const present=new Set();
    for(const v of vehicles){
     if(!v||typeof v.id!=='string'||!v.id||!Number.isFinite(v.lat)||!Number.isFinite(v.lng)
-     ||Math.abs(v.lat)>90||Math.abs(v.lng)>180||!['260','17','19','1','41'].includes(v.routeId))continue;
+     ||Math.abs(v.lat)>90||Math.abs(v.lng)>180||typeof v.routeId!=='string'||(!v.routeKey&&!['260','17','19','1','41'].includes(v.routeId)))continue;
     present.add(v.id);
     let marker=domMarkers.get(v.id);
     if(!marker){
@@ -115,7 +115,7 @@
    });
    if(!map.getLayer(ID+'-disc'))map.addLayer({
     id:ID+'-disc',type:'circle',source:ID,
-    paint:{'circle-radius':18,'circle-color':['match',['get','route'],'260',COLORS[260],COLORS[17]],
+    paint:{'circle-radius':18,'circle-color':['match',['get','mode'],'tram','#e4ab00','hev','#279a71','trolley','#cf414d','metro','#2872bd','#148ee0'],
      'circle-stroke-color':'#fff','circle-stroke-width':2}
    });
    if(!map.getLayer(ID+'-number'))map.addLayer({
