@@ -14,3 +14,12 @@
 .fh-badge .fh-badge-count{min-width:18px;text-align:center;border-radius:999px;background:#efbd62;color:#142038;padding:3px 5px;font-size:11px}
 @keyframes fh-drop{from{opacity:0;transform:translateY(-110%) rotate(-4deg)}to{opacity:1;transform:translateY(0) rotate(-1.5deg)}}
 @media(prefers-reduced-motion:reduce){.fh-notice{animation:none}}
+
+/* v900 · Approved existing Buddy artwork in the yellow note. */
+.fh-notice .fh-note-buddy{
+ display:block;align-self:center;
+ width:86px;height:86px;object-fit:contain;
+ margin:0 auto -2px;
+ filter:drop-shadow(0 3px 5px rgba(101,62,18,.26));
+}
+.fh-notice .fh-note-buddy[hidden]{display:none}
