@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=891">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=893">
 </head><body>
 <main class="fh-shell">
   <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a családi képen">
@@ -55,12 +55,22 @@
       <small class="fh-note" id="fhVoiceStatus" aria-live="polite"></small>
     </div>
     <div class="fh-field fh-category-field">
-      <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
+      <div id="fhCategories" class="fh-chip-row" aria-label="Főkategóriák, három oszlopban"></div>
+      <div id="fhPresetGroup" class="fh-preset-group" hidden>
+        <div id="fhPresetHeading" class="fh-preset-heading">Gyorsfeladatok · egy érintéssel</div>
+        <div id="fhPresets" class="fh-presets" aria-label="Kiválasztott kategória mintafeladatai"></div>
+      </div>
       <button type="button" id="fhCategoryManage" class="fh-category-manage">⚙ Kategóriák szerkesztése</button>
       <section id="fhCategoryEditor" class="fh-category-editor glass" hidden aria-label="Közös családi kategóriák">
         <p>Közös kategóriák Zsoltnak és Mónikának. A módosítás mindkét profilnál látható.</p>
         <div id="fhCategoryRows"></div>
         <div class="fh-category-create"><input id="fhCategoryNew" maxlength="60" placeholder="Új kategória, pl. 🎂 Születésnap" aria-label="Új kategória neve"><button type="button" id="fhCategoryAdd">＋ Hozzáadás</button></div>
+        <h3 id="fhPresetEditHeading" class="fh-preset-edit-heading">Mintafeladatok</h3>
+        <div id="fhPresetRows"></div>
+        <div class="fh-category-create">
+          <input id="fhPresetNew" maxlength="90" placeholder="Új mintafeladat" aria-label="Új mintafeladat">
+          <button type="button" id="fhPresetAdd">＋ Mintafeladat</button>
+        </div>
         <p id="fhCategoryMessage" role="status" aria-live="polite"></p>
       </section>
     </div>
@@ -92,6 +102,6 @@
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=888-nav-dock"></script>
+<script defer src="./family-tasks-v880.js?v=893-presets-and-log-hide"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>
