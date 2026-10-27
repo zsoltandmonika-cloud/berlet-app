@@ -165,3 +165,30 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-title-field .fh-microphone{right:4px;width:40px;height:40px;border-radius:10px;font-size:17px}
 .fh-title-field #fhVoiceStatus:empty{display:none}
 .fh-sheet-scroll .fh-category-field{margin-top:12px}
+
+/* v890 · Match the Quick Add text field to the FIRST PAGE search input.
+   One shared height, typography, border radius and width, not approximate sizing. */
+.fh-tools input,
+.fh-title-field .fh-title{
+  box-sizing:border-box;
+  display:block;
+  width:100%;
+  height:44px;
+  min-height:44px;
+  max-height:44px;
+  font-size:14px;
+  line-height:20px;
+  border-radius:13px;
+  border:1px solid var(--line);
+  background:#0d213c;
+  color:#fff;
+}
+.fh-tools input{padding:0 12px}
+.fh-title-field .fh-title{padding:0 46px 0 12px}
+.fh-title-field .fh-microphone{
+  right:4px;
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  font-size:16px;
+}
