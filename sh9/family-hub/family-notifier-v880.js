@@ -44,7 +44,7 @@ function openTask(taskId){
 }
 function style(){
  if(d.getElementById('fhNotifierCssV880'))return;
- const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=880';d.head.append(s);
+ const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=900-buddy-note';d.head.append(s);
 }
 function makeUi(){
  if(!d.body)return;
@@ -57,7 +57,11 @@ function makeUi(){
  const number=d.createElement('span');number.className='fh-badge-count';number.hidden=true;
  badge.append(face,label,number);badge.setAttribute('aria-label','Family Tasks megnyitása');badge.addEventListener('click',()=>openTask(null));
  const hero=d.querySelector('.hero,.guardian-hero,.fh-hero');
- if(hero)hero.append(badge);else d.body.append(badge);
+ // The Family Tasks page already has its own Golden Standard Tasks button.
+ // Keep this notifier's unread-state logic and sticky notes, without adding a second badge.
+ if(!w.location.pathname.includes('/family-hub/')){
+   if(hero)hero.append(badge);else d.body.append(badge);
+ }
  const found=Number(new URLSearchParams(w.location.search).has('task'));
  if(found&&w.location.pathname.includes('/family-hub/'))markSeen(lastEvent);
 }
@@ -70,7 +74,12 @@ function announce(e){
  node.tabIndex=0;node.setAttribute('role','button');
  node.setAttribute('aria-label',(action[e.event_type]||'Buddy-értesítés')+' '+e.title_snapshot+' · megnyitás');
  const top=d.createElement('div');top.className='fh-note-top';
- const title=d.createElement('strong');title.textContent='🐿️ Buddy üzenete';
+ const title=d.createElement('strong');title.textContent='Buddy üzenete';
+ const buddy=d.createElement('img');
+ buddy.className='fh-note-buddy';
+ buddy.src='/berlet-app/sh9/family-hub/assets/family-success-buddy-v881.webp';
+ buddy.alt='Buddy, a családi asszisztens mókus';buddy.loading='eager';buddy.decoding='async';
+ buddy.addEventListener('error',()=>{buddy.hidden=true},{once:true});
  const x=d.createElement('button');x.type='button';x.className='fh-notice-close';x.textContent='×';
  x.setAttribute('aria-label','Sticky Note bezárása, feladat megtartása');
  x.addEventListener('click',ev=>{ev.stopPropagation();node.remove()});
@@ -78,7 +87,7 @@ function announce(e){
  const h=d.createElement('h3');h.textContent=e.title_snapshot||'Családi teendő';
  const p=d.createElement('p');p.textContent=action[e.event_type]||'Family Tasks frissítés';
  const foot=d.createElement('span');foot.className='fh-note-link';foot.textContent='Megnyitás · Family Tasks ›';
- node.append(top,h,p,foot);
+ node.append(top,buddy,h,p,foot);
  node.addEventListener('click',()=>openTask(e.task_id));
  node.addEventListener('keydown',ev=>{if(ev.target===node&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();openTask(e.task_id)}});
  holder.replaceChildren(node);
