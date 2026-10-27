@@ -7,11 +7,30 @@
 if(w.HH_FAMILY_NOTIFIER_V880)return;
 const HOME='/berlet-app/sh9/family-hub/';
 const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}};
-const cfg=w.HH_CENTRAL_VAULT;
-const api=cfg?.enabled&&w.supabase?.createClient
- ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{
-  storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'
- }}):null;
+let api=null,apiRequested=false;
+function getSessionHint(){try{return !!w.localStorage.getItem('hh-guardian-family-auth-v785')}catch(_){return false}}
+function loadScript(src){
+ return new Promise((resolve,reject)=>{
+  const s=d.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('A kapcsolat szkriptje nem tölthető be.'));d.head.append(s);
+ });
+}
+async function ensureApi(){
+ if(api)return true;
+ if(!getSessionHint())return false; // No hidden JS/CDN traffic for visitors without a saved login.
+ if(apiRequested)return false;
+ apiRequested=true;
+ try{
+  if(!w.HH_CENTRAL_VAULT)await loadScript('/berlet-app/healthhub/central-vault/config.js?v=785');
+  if(!w.supabase?.createClient)await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js');
+  const cfg=w.HH_CENTRAL_VAULT;
+  if(!cfg?.enabled||!w.supabase?.createClient)return false;
+  api=w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{
+   storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'
+  }});
+  api.auth.onAuthStateChange(()=>w.setTimeout(join,0));
+  return true;
+ }catch(_){return false}finally{apiRequested=false}
+}
 let ch=null,user=null,currentProfile=profile(),badge=null,holder=null,lastEvent=0,lastPopupId=0,loadPromise=null;
 function seenKey(p){return 'hh-family-tasks-v880-seen-'+p}
 function seen(p){try{return Number(w.localStorage.getItem(seenKey(p))||0)}catch(_){return 0}}
@@ -82,7 +101,7 @@ async function readUnread(){
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
 }
 async function join(){
- if(!api)return;
+ if(!await ensureApi())return;
  const p=profile();currentProfile=p;
  if(ch){api.removeChannel(ch);ch=null}
  const {data:{user:found}}=await api.auth.getUser();
@@ -101,11 +120,10 @@ async function join(){
 }
 function initialize(){
  makeUi();
- if(!api)return;
- api.auth.onAuthStateChange(()=>w.setTimeout(join,0));
  w.addEventListener('hh-family-profile-changed',join);
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')join()});
- d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){readUnread()}});
+ d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){if(profile()!==currentProfile)join();else readUnread()}});
+ d.addEventListener('click',()=>{if(profile()!==currentProfile)w.setTimeout(join,0)});
  join();
 }
 w.HH_FAMILY_NOTIFIER_V880={openTask,markSeen};
