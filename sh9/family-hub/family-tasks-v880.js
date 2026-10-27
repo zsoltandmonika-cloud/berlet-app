@@ -183,6 +183,53 @@ async function loadCategories(){
  category=defaultCategory()?.name||'❤️ CSALÁD & EGYÉB';
  renderPresets();renderPresetEditor();
 }
+/* v903 · Same subtle mechanical scroll detent as HH Buddy scroll companion v595.
+   Lazy WebAudio, only following real interaction. 1 click per 48px task row,
+   90ms minimum interval, no remote asset, no timers or network polling. */
+function wireTaskScrollClicks(){
+ const rail=$('fhPresets');if(!rail||rail.dataset.fhTick903==='on')return;
+ rail.dataset.fhTick903='on';
+ let ctx=null, gestureUntil=0,lastRow=Math.floor(rail.scrollTop/48),lastTickAt=0;
+ function unlock(){
+  try{
+   const AC=w.AudioContext||w.webkitAudioContext;
+   if(!AC)return;
+   if(!ctx)ctx=new AC();
+   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+  }catch(_){}
+ }
+ function begin(){lastRow=Math.floor(rail.scrollTop/48);gestureUntil=Date.now()+4000;unlock()}
+ function end(){gestureUntil=Date.now()+1300}
+ function note(freq,offset,duration,volume,type){
+  if(!ctx||ctx.state!=='running')return;
+  const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,t+offset);
+  g.gain.setValueAtTime(.0001,t+offset);
+  g.gain.exponentialRampToValueAtTime(volume,t+offset+.006);
+  g.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
+  o.connect(g);g.connect(ctx.destination);
+  o.start(t+offset);o.stop(t+offset+duration+.014);
+ }
+ rail.addEventListener('pointerdown',begin,{passive:true});
+ rail.addEventListener('touchstart',begin,{passive:true});
+ rail.addEventListener('pointerup',end,{passive:true});
+ rail.addEventListener('touchend',end,{passive:true});
+ rail.addEventListener('pointercancel',end,{passive:true});
+ rail.addEventListener('wheel',()=>{gestureUntil=Date.now()+1100;unlock()},{passive:true});
+ rail.addEventListener('scroll',()=>{
+  const row=Math.floor(rail.scrollTop/48);
+  if(row===lastRow)return;
+  lastRow=row;
+  const now=Date.now();
+  if(now>gestureUntil||now-lastTickAt<90||d.visibilityState==='hidden')return;
+  lastTickAt=now;
+  try{
+   note(950,0,.046,.075,'triangle');
+   note(1430,.012,.034,.024,'sine');
+  }catch(_){}
+ },{passive:true});
+ w.addEventListener('pagehide',()=>{if(ctx&&ctx.state!=='closed')ctx.close().catch(()=>{});ctx=null},{once:true});
+}
 function renderPresets(){
  const host=$('fhPresets');if(!host)return;
  host.replaceChildren();
@@ -416,6 +463,7 @@ function wireStandardNav(){
 }
 function wire(){
  wireStandardNav();
+ wireTaskScrollClicks();
  $('fhCategoryManage').addEventListener('click',()=>{
   const panel=$('fhCategoryEditor');panel.hidden=!panel.hidden;if(!panel.hidden)renderPresetEditor();
  });
