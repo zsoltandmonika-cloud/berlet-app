@@ -114,6 +114,11 @@ legend{color:#b4cddd}
 .github-billing-net{text-align:right;color:#4bdfbd}
 @media(max-width:750px){.github-billing-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:400px){.github-billing-row{grid-template-columns:minmax(100px,1.2fr) minmax(56px,.6fr) minmax(52px,.6fr);gap:4px;font-size:10px}.github-billing-kpi strong{font-size:19px}}
+
+.gh-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0}
+.gh-compare-cell{border:1px solid #274e70;border-radius:12px;background:#0b1b31;padding:12px}
+.gh-compare-cell strong{display:block;margin-top:5px;font-size:19px;color:#c5f3ff;font-variant-numeric:tabular-nums}
+@media(max-width:600px){.gh-compare-grid{grid-template-columns:1fr}.gh-compare-cell{padding:10px}.gh-compare-cell strong{font-size:18px}}
 </style>
 </head>
 <body>
@@ -157,6 +162,16 @@ legend{color:#b4cddd}
  <button type="button" id="githubBillingVaultLoginV876" class="btn" aria-label="Központi Health Vault belépés és állapot">🔐 Health Vault belépés / állapot</button>
  <div id="githubBillingRowsV873"></div>
  <div class="notice">A GitHub Billing API tokenje csak Supabase Edge Function Secrets mezőben tárolható. Jogosultság: <b>Plan: Read</b>. Ha még nincs beállítva, az oldal ezt jelzi; semmilyen titkos kulcsot nem kell ide beírni. A teljes havi költségkeret továbbra is külön szolgáltatói beállítás.</div>
+</section>
+
+<section class="card" id="sh9GitHubCompareV878" aria-label="GitHub Actions Linux-perc előtte utána">
+ <div class="sectionhead">
+  <div><h2>⌁ GitHub Actions · Before / After</h2>
+   <div class="small">Kiindulás: 2026. október 27., 10:11 · valós GitHub Billing API</div></div>
+ </div>
+ <p id="sh9GitHubCompareStatusV878" class="small" role="status">Kiinduló mérés</p>
+ <div id="sh9GitHubCompareRowsV878" aria-live="polite"></div>
+ <p class="small">Az új Billing-lekérés frissíti a mérést. Nincs külön automatikus API-hívás vagy havi értékekből számolt hamis megtakarítás.</p>
 </section>
 <section class="statgrid">
  <div class="card"><div class="sectionhead"><div><h2>▥ Legnagyobb fogyasztók</h2><div class="small">Összehasonlítható mértékegységek szerint</div></div><select id="driverUnit" class="btn small" aria-label="Mértékegység"></select></div><div id="drivers"></div></div>
@@ -365,5 +380,6 @@ month.addEventListener('change',render);$('driverUnit').addEventListener('change
 <script src="../central-vault/daily-health-sync.js?v=876-billing-inline-vault"></script>
 <script src="./github-live-v872.js?v=872-public-actions"></script>
 <script src="./github-billing-v873.js?v=876-inline-vault"></script>
+<script src="./github-before-after-v878.js?v=878-measured-comparison"></script>
 </body>
 </html>
