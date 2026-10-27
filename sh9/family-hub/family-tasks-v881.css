@@ -336,3 +336,20 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
  mask-composite:intersect;
  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
+
+/* v900 · Definitively remove the secondary Tasks badge supplied by the notifier.
+   The approved family hero artwork must never be hidden behind an artificial patch. */
+.fh-hero::after{content:none!important;display:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.fh-hero > .fh-badge{display:none!important}
+.fh-card.is-done{position:relative}
+.fh-card.is-done .fh-cardtop{padding-right:32px}
+.fh-card .fh-task-dismiss{
+ position:absolute;z-index:4;right:8px;top:8px;display:grid;place-items:center;
+ width:34px;height:34px;min-height:34px;padding:0;
+ border-radius:11px;border:1px solid rgba(222,237,250,.53);
+ color:#ffebf1;background:linear-gradient(140deg,rgba(41,76,112,.9),rgba(12,30,55,.94));
+ box-shadow:inset 0 1px rgba(255,255,255,.15),0 3px 12px rgba(0,0,0,.28);
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+ font:700 20px/1 system-ui;cursor:pointer
+}
+.fh-card .fh-task-dismiss:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
