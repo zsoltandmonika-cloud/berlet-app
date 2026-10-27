@@ -774,6 +774,79 @@ class MainActivity : ComponentActivity() {
         })
 
         root.addView(TextView(this).apply {
+            text = "🐿️ Family Tasks · Floating Sticky Note"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 6)
+        })
+        root.addView(TextView(this).apply {
+            text = "A jelenlegi Buddy Sticky Note natív próbája, más alkalmazások felett. " +
+                "Csak külön jóváhagyással indul. Nincs folyamatos adatlekérés vagy GPS."
+            textSize = 12f
+            setTextColor(0xFF6A7F91.toInt())
+        })
+        root.addView(Button(this).apply {
+            text = "🔒 Lebegő Sticky Note · engedélyezés / kikapcsolás"
+            setOnClickListener {
+                if (FamilyTaskFloatingNote.enabled(this@MainActivity)) {
+                    FamilyTaskFloatingNote.setEnabled(this@MainActivity, false)
+                    status.text = "✓ Lebegő Sticky Note kikapcsolva, nyitott próbakártya bezárva."
+                } else {
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Family Tasks · lebegő Buddy")
+                        .setMessage(
+                            "A Sticky Note más alkalmazások fölött is megjelenhet. " +
+                            "A jogosultság külön Android-beállítás, a funkció alapból KI van kapcsolva. " +
+                            "A jelen verzió csak kézi tesztet tud; automatikus háttér-push még nincs."
+                        )
+                        .setNegativeButton("Mégsem", null)
+                        .setPositiveButton("Engedélyezem") { _, _ ->
+                            FamilyTaskFloatingNote.setEnabled(this@MainActivity, true)
+                            if (!FamilyTaskFloatingNote.permitted(this@MainActivity)) {
+                                try { startActivity(FamilyTaskFloatingNote.permissionIntent(this@MainActivity)) }
+                                catch (_: Exception) {
+                                    status.text = "A megjelenítési engedély az Android Beállításokban állítható."
+                                }
+                            } else status.text = "✓ Lebegő Sticky Note engedélyezve."
+                        }
+                        .show()
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "🐿️ Sticky Note próbamegjelenítés · hanggal"
+            setOnClickListener {
+                if (!FamilyTaskFloatingNote.enabled(this@MainActivity)) {
+                    status.text = "Előbb engedélyezd a Family Tasks Floating Sticky Note-ot."
+                    return@setOnClickListener
+                }
+                if (!FamilyTaskFloatingNote.permitted(this@MainActivity)) {
+                    status.text = "Android-engedély szükséges: Megjelenítés más alkalmazások felett."
+                    try { startActivity(FamilyTaskFloatingNote.permissionIntent(this@MainActivity)) }
+                    catch (_: Exception) { }
+                    return@setOnClickListener
+                }
+                val owner = selectedProfile()
+                val from = if (owner == "monika") "Zsolt" else "Mónika"
+                val now = java.text.SimpleDateFormat("MMM d. HH:mm",
+                    java.util.Locale("hu", "HU")).format(java.util.Date())
+                val shown = FamilyTaskFloatingNote.show(
+                    this@MainActivity,
+                    "Family Tasks · tesztértesítés",
+                    from,
+                    "Premium Buddy Sticky Note • Android overlay teszt. " +
+                        "Nincs valódi feladatmentés vagy Supabase-kérés.",
+                    now,
+                    playSound = true
+                )
+                status.text = if (shown) "✓ Lebegő Sticky Note megjelent. " +
+                    "Lépj át másik alkalmazásba, majd az × gombbal zárd be."
+                else "A Sticky Note nem jeleníthető meg. Ellenőrizd az Android-engedélyt."
+            }
+        })
+
+        root.addView(TextView(this).apply {
             text = "📦 HH One · OTA Updates"
             textSize = 18f
             setTypeface(typeface, Typeface.BOLD)
