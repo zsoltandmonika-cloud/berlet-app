@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=881">
 </head><body>
 <main class="fh-shell">
   <header class="fh-head">
@@ -39,20 +39,21 @@
   <button id="fhAdd" class="fh-new" type="button">＋ Új feladat</button>
 </main>
 <div class="fh-sheet-backdrop" id="fhBackdrop" hidden></div>
-<section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
-  <header><h2>🐿️ Quick Add</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
+<section class="fh-sheet fh-sheet-full-v881" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden tabindex="-1">
+  <header class="fh-quick-header-v881"><div><span class="eyebrow">FAMILY HUB · GOLDEN STANDARD</span><h2>🐿️ Quick Add</h2><p>Napi feladatok · Léna Concierge</p></div><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
+  <div class="fh-concierge-hero-v881 glass" aria-label="Léna Family Concierge"><img id="fhConciergeImageV881" alt="Léna Family Concierge és Buddy" src="../../healthhub/assets/healthhub-nutrition-lena-buddy-approved.webp"><span class="fh-concierge-stamp-v881">Léna ♡<small>Family Concierge</small></span></div>
   <form id="fhForm">
     <div class="fh-field"><label for="fhTitle">Mit kell elintézni?</label>
-      <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
+      <div class="fh-title-entry-v881"><input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
         lang="hu" autocomplete="on" autocapitalize="sentences" enterkeyhint="done"
-        placeholder="Pl. Locsold meg a virágokat…" />
-      <small class="fh-note">🎙️ Magyar diktálás a mobil billentyűzet mikrofonjával.</small>
+        placeholder="Pl. Locsold meg a virágokat…" /><button id="fhMicV881" class="fh-mic-v881" type="button" aria-label="Magyar hangbevitel indítása" aria-pressed="false">🎙️</button></div>
+      <small class="fh-note" id="fhVoiceInfoV881" role="status" aria-live="polite">Billentyűzet vagy magyar hangbevitel.</small>
     </div>
-    <div class="fh-field"><label>Kategória · görgesd oldalra</label>
-      <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
+    <div class="fh-field"><label>Kategória · görgess lefelé, válassz sablont</label>
+      <div id="fhCategories" class="fh-chip-row fh-category-list-v881" role="group" aria-label="Kategóriák"></div>
     </div>
     <div class="fh-field"><label>Kinek szól? · alapból a saját profilod</label>
-      <div class="fh-people" id="fhPeople" role="group" aria-label="Felelős kiválasztása"></div>
+      <div class="fh-people fh-people-large-v881" id="fhPeople" role="group" aria-label="Felelős kiválasztása"></div>
     </div>
     <div class="fh-field"><label>Határidő · opcionális</label>
       <div class="fh-due-row" id="fhDueChoices">
@@ -67,9 +68,11 @@
     <p id="fhSaveInfo" class="fh-note" role="status" aria-live="polite"></p>
   </form>
 </section>
+<section id="fhSuccessV881" class="fh-success-v881" role="status" aria-live="polite" hidden><div class="fh-success-content-v881 glass"><img id="fhBuddySuccessV881" src="../../sh9/assets/buddy-sh9-hd.png" alt="Happy Buddy: sikerült!"><h2>🎉 TADAAA!</h2><p id="fhSuccessTextV881">Feladat sikeresen mentve!</p></div></section>
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=880"></script>
+<script defer src="./family-tasks-v880.js?v=881-quickadd"></script>
+<script defer src="./family-tasks-v881.js?v=881"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>

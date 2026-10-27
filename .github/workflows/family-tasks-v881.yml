@@ -1,0 +1,25 @@
+name: Family Tasks v881 Golden Quick Add QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/family-hub/**'
+      - 'sh9/index.html'
+      - 'healthhub/tests/family-tasks-v881.test.cjs'
+      - '.github/workflows/family-tasks-v881.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/family-hub/**'
+      - 'sh9/index.html'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JS syntax
+        run: |
+          node --check sh9/family-hub/family-tasks-v880.js
+          node --check sh9/family-hub/family-tasks-v881.js
+      - name: Verify v880 regression and v881 UI
+        run: |
+          node --test healthhub/tests/family-tasks-v880.test.cjs healthhub/tests/family-tasks-v881.test.cjs

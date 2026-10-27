@@ -145,7 +145,9 @@ function showSheet(){
  $('fhTitle').value='';$('fhCustomDue').value='';$('fhSaveInfo').textContent='';
  $('fhBackdrop').hidden=false;$('fhSheet').hidden=false;
  d.body.style.overflow='hidden';renderPeople();renderCategories();renderDue();
- w.setTimeout(()=>$('fhTitle').focus(),50);
+ // No autofocus: keep the Android keyboard closed until the user taps the text field.
+ // The form opens at the top without moving focus to the input.
+ $('fhSheet').scrollTop=0;
 }
 function hideSheet(){
  $('fhBackdrop').hidden=true;$('fhSheet').hidden=true;d.body.style.overflow='';
@@ -212,6 +214,7 @@ async function save(e){
   const {data,error}=await api.from(TABLE).insert(payload).select('id').single();
   if(error)throw error;
   hideSheet();announce(selected==='lena'?'✓ Lénának kijelölve; az AI-feladat nem indul el automatikusan.':'✓ Feladat elmentve. Buddy úton van! 🐿️');
+  w.dispatchEvent(new CustomEvent('hh-family-tasks-saved-v881',{detail:{taskId:data?.id||null,title,assignedTo:selected}}));
   if(data?.id){w.history.replaceState(null,'',w.location.pathname); }
   await fetchData();
  }catch(err){$('fhSaveInfo').textContent='Nem sikerült menteni: '+err.message}
