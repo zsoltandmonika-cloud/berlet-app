@@ -73,8 +73,8 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-standard-nav span{font-size:10px;line-height:1.1}
 .fh-new{bottom:calc(69px + env(safe-area-inset-bottom));width:min(89%,400px)}
 .fh-sheet{padding-top:0!important;padding-left:max(14px,calc((100vw - 520px)/2))!important;padding-right:max(14px,calc((100vw - 520px)/2))!important}
-.fh-sheet>header.fh-quick-hero{position:relative;top:auto;display:flex;justify-content:flex-end;align-items:flex-start;width:calc(100% + 28px);height:auto;aspect-ratio:1672/941;max-height:300px;margin:0 -14px 14px;padding:calc(10px + env(safe-area-inset-top)) 13px 0;border:0;border-radius:0 0 19px 19px;background:url('./assets/family-tasks-hero-approved-v881.webp') center/cover no-repeat;box-shadow:0 12px 23px #0005;backdrop-filter:none}
-.fh-sheet>header.fh-quick-hero .fh-close{flex:none;background:rgba(8,25,55,.75);border:1px solid #b6d7ff6b;backdrop-filter:blur(10px)}
+.fh-sheet-scroll>header.fh-quick-hero{position:relative;top:auto;display:flex;justify-content:flex-end;align-items:flex-start;width:calc(100% + 28px);height:auto;aspect-ratio:1672/941;max-height:300px;margin:0 -14px 14px;padding:calc(10px + env(safe-area-inset-top)) 13px 0;border:0;border-radius:0 0 19px 19px;background:url('./assets/family-tasks-hero-approved-v881.webp') center/cover no-repeat;box-shadow:0 12px 23px #0005;backdrop-filter:none}
+.fh-sheet-scroll>header.fh-quick-hero .fh-close{flex:none;background:rgba(8,25,55,.75);border:1px solid #b6d7ff6b;backdrop-filter:blur(10px)}
 .fh-people .fh-person .avatar{width:72px;height:72px}
 .fh-people .fh-person{min-height:125px}
 @media(max-height:700px){.fh-people .fh-person .avatar{width:58px;height:58px}}
