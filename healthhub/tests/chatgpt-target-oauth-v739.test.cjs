@@ -23,6 +23,8 @@ assert.equal(a.version,'739');
 assert.equal(a.defaultAppKey,'dv5a4o8h09wwgtn');
 assert.throws(()=>a.checkKey('not valid app secret'),/App key/);
 assert.match(callback,/hh-chatgpt-target-auth-v739.js/);
+assert.match(callback,/v=739-account-871/);
+assert.match(index,/hh-chatgpt-target-auth-v739.js\?v=739-pkce&account=871/);
 assert.match(index,/hh-chatgpt-target-auth-v739.js\?v=739-pkce/);
 assert.match(index,/hh-chatgpt-target-onboard-v739.js\?v=(?:739-consent|740-target-folder-read)/);
 assert.match(panel,/Ez a külön engedély/);
@@ -36,11 +38,15 @@ assert.doesNotMatch(panel,/files\/upload|files\/download|dropboxapi\.com\/2\/fil
  assert.equal(redirect.searchParams.get('code_challenge_method'),'S256');
  assert.equal(redirect.searchParams.get('redirect_uri'),a.callback);
  assert.equal(redirect.searchParams.get('scope'),
-  'files.metadata.read files.metadata.write files.content.read files.content.write');
+  'account_info.read files.metadata.read files.metadata.write files.content.read files.content.write');
  const pending=JSON.parse(store.get('hh-chatgpt-target-pkce-v739'));
  assert.ok(pending.verifier.length>=43);
  assert.equal(pending.state,redirect.searchParams.get('state'));
  assert.equal(pending.appKey,a.defaultAppKey);
  assert.doesNotMatch(source,/\bAPP_SECRET\s*=/);
- console.log('PASS: v739 public app key, PKCE authorization URL, full-scope disclosure, private callback, read-only onboarding.');
+ assert.equal(typeof a.getSpaceUsage,'function');
+ assert.match(source,/\/2\/users\/get_space_usage/);
+ assert.match(source,/scope:data\.scope/);
+ assert.match(source,/account_info\.read/);
+ console.log('PASS: Dropbox OAuth includes account_info.read and exposes explicit read-only space usage.');
 })().catch(e=>{console.error(e);process.exitCode=1});

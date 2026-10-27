@@ -42,6 +42,18 @@ test('No new Supabase costs or sensitive health/GPS payload collection',()=>{
  assert.match(html,/nem GB/);
 });
 
+test('v871 quota reads are opt-in with explicit OAuth and measured-only cards',()=>{
+ assert.match(html,/hh-chatgpt-target-auth-v739\.js\?v=739-account-871/);
+ assert.match(html,/id="dropboxUsageRead"/);
+ assert.match(html,/id="dropboxUsageAuthorize"/);
+ assert.match(html,/api\.getSpaceUsage\(\)/);
+ assert.match(html,/api\.authorize\(\)/);
+ assert.match(html,/OBSERVED='sh9-usage-center-observed-v871'/);
+ assert.match(html,/provider:'dropbox'/);
+ assert.match(html,/unit:'GB tárhely'/);
+ assert.match(html,/source:'Dropbox \/users\/get_space_usage'/);
+ assert.doesNotMatch(html,/setInterval\(/);
+});
 test('Production entry busts stale cached Admin JS for v870',()=>{
  const entry=fs.readFileSync(path.join(root,'index.html'),'utf8');
  assert.match(entry,/hh-admin-mobile-focus-v748\.js\?v=748[^"']*usage=870/);
