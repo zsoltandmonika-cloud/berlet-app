@@ -281,3 +281,26 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
   box-shadow:inset 0 1px rgba(255,255,255,.16),0 2px 9px #0005;
   font-size:18px;
 }
+
+/* v896 · Hide normal synchronization metadata and reclaim space above task cards.
+   Critical sync/auth errors remain visible rather than silently disappearing. */
+.fh-status:not(.is-alert){
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;
+ padding:0!important;margin:-1px!important;border:0!important;
+ min-height:0!important;
+}
+.fh-status.is-alert{
+ display:block;
+ min-height:0;
+ margin:5px 2px 9px;
+ padding:8px 10px;
+ border-radius:10px;
+ border:1px solid rgba(255,156,165,.40);
+ background:rgba(111,36,55,.24);
+ color:#ffd9dd;
+}
+.fh-tools{margin-bottom:7px}
+.fh-list{margin-top:0}
