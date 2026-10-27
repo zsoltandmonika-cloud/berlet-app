@@ -6,8 +6,9 @@ const path=require('node:path');
 const vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-function boot(){
- const cache=new Map();let now=Date.now(),gpsReads=0,settingsWrites=0;
+function boot({speedKmh=7,accuracyM=12,ageMs=0,deferOwnReads=false}={}){
+ const cache=new Map(),events={},activeTimers=new Map(),pendingReads=[];
+ let now=Date.now(),gpsReads=0,settingsWrites=0,nextTimer=0;
  class Clock extends Date {static now(){return now}}
  const storage={getItem:key=>cache.has(key)?cache.get(key):null,
   setItem:(key,value)=>cache.set(key,String(value)),
@@ -19,8 +20,11 @@ function boot(){
    in:async()=>({data:[{profile_key:'zsolt'},{profile_key:'monika'}],error:null}),
    maybeSingle:async()=>{
     if(table==='hh_guardian_live_locations'){
-     gpsReads++;return {data:{profile_key:key,latitude:47.5,longitude:19.1,
-       accuracy_m:12,speed_kmh:0,updated_at:new Date(now).toISOString()},error:null};
+     gpsReads++;
+     const row={data:{profile_key:key,latitude:47.5,longitude:19.1,
+       accuracy_m:accuracyM,speed_kmh:speedKmh,updated_at:new Date(now-ageMs).toISOString()},error:null};
+     if(deferOwnReads&&key==='zsolt')return await new Promise(resolve=>pendingReads.push(()=>resolve(row)));
+     return row;
     }
     return {data:null,error:null};
    },
@@ -30,12 +34,15 @@ function boot(){
  };
  const w={HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://example.invalid',publishableKey:'public'},
   supabase:{createClient:()=>client},localStorage:storage,
-  addEventListener(){},dispatchEvent(){},setInterval(){return 1},
-  clearInterval(){},setTimeout(){},CustomEvent:null};
+  addEventListener(name,fn){events[name]=fn},dispatchEvent(){},
+  setInterval(fn,ms){const id=++nextTimer;activeTimers.set(id,{fn,ms});return id},
+  clearInterval(id){activeTimers.delete(id)},setTimeout(){},CustomEvent:null};
  const d={hidden:false,getElementById:()=>null,addEventListener(){}};
  vm.runInNewContext(read('guardian/guardian-live-v785.js'),
   {window:w,document:d,Date:Clock,Promise,Map,Number,Math,console},{timeout:1000});
  return {w,d,advance:ms=>{now+=ms},reads:()=>gpsReads,writes:()=>settingsWrites,
+  fire:name=>events[name]&&events[name](),timerCount:()=>activeTimers.size,
+  releaseReads:()=>{for(const fn of pendingReads.splice(0))fn()},
   ready:async()=>{for(let i=0;i<32;i++)await Promise.resolve()}};
 }
 test('GPS Data Saver: authenticated same-profile reads deduplicated and cached for 2200ms',async()=>{
@@ -77,4 +84,68 @@ test('GPS Data Saver: source retains authentication, revocation, live freshness 
  assert.match(trio,/live\.readSharedLocation\(profile\)/);
  assert.match(follow,/Date\.now\(\)-lastAdaptivePoll<9000/);
  assert.match(follow,/FRESH_BROWSER_MS=20000/);
+});
+
+test('Steady v879: fresh accurately measured stationary GPS is reused up to 8.5s across panels',async()=>{
+ const app=boot({speedKmh:0});await app.ready();
+ const api=app.w.HH_GUARDIAN_LIVE_V785;
+ const initial=app.reads();
+ await api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-initial,1);
+ app.advance(6000);
+ await api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-initial,1,'stationary position reuses one authenticated read');
+ app.advance(2600);
+ await api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-initial,2,'8.5s cache expires and rechecks live data');
+});
+test('Steady v879: unknown/moving, low-quality or aged GPS is never long-cached',async()=>{
+ for(const opts of [{speedKmh:7},{speedKmh:null},{speedKmh:0,accuracyM:80},{speedKmh:0,ageMs:19000}]){
+  const app=boot(opts);await app.ready();
+  const api=app.w.HH_GUARDIAN_LIVE_V785,initial=app.reads();
+  await api.readSharedLocation('zsolt');
+  app.advance(2250);
+  await api.readSharedLocation('zsolt');
+  assert.equal(app.reads()-initial,2,'2.2s cache required for '+JSON.stringify(opts));
+ }
+});
+test('Steady v879: a pagehide / bfcache pageshow recovers polling exactly once',async()=>{
+ const app=boot();await app.ready();
+ assert.equal(app.timerCount(),1,'one interval for active Family Live');
+ app.fire('pagehide');
+ assert.equal(app.timerCount(),0,'no hidden browser polling');
+ app.fire('pageshow');await app.ready();
+ assert.equal(app.timerCount(),1,'one fresh polling interval after bfcache restore');
+ app.fire('pageshow');await app.ready();
+ assert.equal(app.timerCount(),1,'repeated pageshow cannot create duplicated intervals');
+ app.fire('online');await app.ready();
+ assert.equal(app.timerCount(),1,'network recovery leaves existing timer alone');
+});
+test('Steady v879: source retains revocation, owner consent and Android GPS separation',()=>{
+ const src=read('guardian/guardian-live-v785.js');
+ assert.match(src,/function locationCacheMs/);
+ assert.match(src,/LOCATION_IDLE_CACHE_MS=8500/);
+ assert.match(src,/if\(k&&uid\)locationReads\.delete\(uid\+':'\+k\)/);
+ assert.match(src,/w\.addEventListener\('pagehide'/);
+ assert.match(src,/w\.addEventListener\('pageshow'/);
+ assert.match(src,/w\.addEventListener\('online'/);
+ assert.match(src,/if\(!d\.hidden&&user&&pollTimer===null\)resetPolling\(\)/);
+ assert.match(src,/onGpsPaused\(\)/);
+ assert.match(src,/if\(lastPeerSpeedKmh!==null&&lastPeerSpeedKmh<4/);
+ assert.match(src,/AGE_MS=20000/);
+});
+
+test('Steady v879: a late response after profile change cannot resurrect a cleared GPS cache',async()=>{
+ const app=boot({deferOwnReads:true});await app.ready();
+ const api=app.w.HH_GUARDIAN_LIVE_V785;
+ const before=app.reads(),first=api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-before,1);
+ api.onProfileChanged(); // invalidates pending location cache
+ app.releaseReads();
+ await first;
+ const afterInvalidation=app.reads(); // profile change legitimately polls peer location
+ const second=api.readSharedLocation('zsolt');
+ assert.equal(app.reads()-afterInvalidation,1,'invalidated pending result is not cached again');
+ app.releaseReads();
+ await second;
 });

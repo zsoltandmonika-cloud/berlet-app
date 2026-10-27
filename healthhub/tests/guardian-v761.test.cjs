@@ -1329,7 +1329,9 @@ test('v827 clearly distinguishes GPS follow camera from authorized automatic GPS
  const html=read('guardian/index.html');
  assert.match(live,/function resumeOwnPhoneAutoFollow\(\)/);
  assert.match(live,/if\(!user\)\{if\(api\)refreshAuth\(\);return\}/);
- assert.match(live,/w\.addEventListener\('pageshow',resumeOwnPhoneAutoFollow\)/);
+ assert.match(live,/w\.addEventListener\('pageshow',\(\)=>\{/);
+ assert.match(live,/if\(!d\.hidden&&user&&pollTimer===null\)resetPolling\(\)/);
+ assert.match(live,/resumeOwnPhoneAutoFollow\(\)/);
  assert.match(live,/else\{resetPolling\(\);resumeOwnPhoneAutoFollow\(\)\}/);
  assert.match(live,/function maybeAutoStart\(\)\{/);
  assert.match(live,/if\(sharing\|\|d\.hidden\|\|!user\|\|!access\.includes\(self\(\)\)\|\|!autoEnabled\(\)\)return/);

@@ -23,7 +23,20 @@ let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastS
 let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),settingsSignature='',authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
 // GPS Data Saver v868: share a short-lived authenticated GPS read between the
 // Family Live map, the profile portrait and the Health/GPS status tile.
-const LOCATION_READ_CACHE_MS=2200,locationReads=new Map();
+const LOCATION_READ_CACHE_MS=2200,LOCATION_IDLE_CACHE_MS=8500,locationReads=new Map();
+// Read-only GPS responses can be shared by all three UI consumers in this tab.
+// A longer cache is allowed ONLY for fresh, accurate, measured stationary fixes.
+// Moving, unknown-speed, poor-accuracy and stale fixes keep the 2.2s path.
+function locationCacheMs(response,at){
+ const fix=response&&response.data;
+ if(!fix||response.error||typeof fix.speed_kmh!=='number'||
+  !Number.isFinite(fix.speed_kmh)||fix.speed_kmh<0||fix.speed_kmh>=4||
+  typeof fix.accuracy_m!=='number'||!Number.isFinite(fix.accuracy_m)||
+  fix.accuracy_m<0||fix.accuracy_m>40)return LOCATION_READ_CACHE_MS;
+ const ts=Date.parse(fix.updated_at||''),age=at-ts;
+ if(!Number.isFinite(ts)||age<0||age>=AGE_MS)return LOCATION_READ_CACHE_MS;
+ return Math.max(LOCATION_READ_CACHE_MS,Math.min(LOCATION_IDLE_CACHE_MS,AGE_MS-age));
+}
 let lastPeerSpeedKmh=null,lastPeerReadAt=0;
 function self(){return w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function other(){return self()==='monika'?'zsolt':'monika'}
@@ -153,17 +166,23 @@ function readSharedLocation(k){
   return Promise.resolve({data:null,error:{message:'Nincs GPS-olvasási jogosultság'}});
  const key=user.id+':'+k,now=Date.now(),old=locationReads.get(key);
  if(old&&old.pending)return old.pending;
- if(old&&old.result&&now-old.at<LOCATION_READ_CACHE_MS)
+ if(old&&old.result&&now-old.at<locationCacheMs(old.result,old.at))
   return Promise.resolve(old.result);
  const ownerId=user.id;
  const pending=Promise.resolve(api.from(TABLE)
   .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
   .eq('profile_key',k).maybeSingle()).then(result=>{
-   if(user&&user.id===ownerId&&!result.error)
-    locationReads.set(key,{result,at:Date.now()});
-   else locationReads.delete(key);
+   // An invalidated pending request must not repopulate a revoked/profile-switched cache.
+   if(locationReads.get(key)?.pending===pending){
+    if(user&&user.id===ownerId&&access.includes(k)&&!result.error)
+     locationReads.set(key,{result,at:Date.now()});
+    else locationReads.delete(key);
+   }
    return result;
-  }).catch(error=>{locationReads.delete(key);throw error});
+  }).catch(error=>{
+   if(locationReads.get(key)?.pending===pending)locationReads.delete(key);
+   throw error;
+  });
  locationReads.set(key,{pending});
  return pending;
 }
@@ -240,6 +259,8 @@ function clearRow(k,uid){
 }
 function stopSharing(){
  const k=sharingProfile,uid=user&&user.id;
+ // Never serve a cached own fix after explicit Stop/revocation.
+ if(k&&uid)locationReads.delete(uid+':'+k);
  sharing=false;sharingProfile=null;lastUploaded=0;lastSeen=null;
  set('guardianLiveOwnSpeed','—');
  updateUi();
@@ -439,8 +460,25 @@ function init(){
  d.addEventListener('hh-guardian-location-settings-changed',syncSettings);
  const card=$('guardianOtherCard');if(card)card.addEventListener('click',()=>{if(map&&peerAvailable&&peerCoord)map.easeTo({center:peerCoord,zoom:Math.max(map.getZoom(),15.3),duration:750})});
  d.addEventListener('visibilitychange',()=>{if(d.hidden){onGpsPaused();if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}generation++;setPeerState('Háttérben nincs böngészős GPS · visszatéréskor frissítünk')}else{resetPolling();resumeOwnPhoneAutoFollow()}});
- w.addEventListener('pagehide',()=>{onGpsPaused();if(pollTimer!==null)w.clearInterval(pollTimer)});
- w.addEventListener('pageshow',resumeOwnPhoneAutoFollow);
+ w.addEventListener('pagehide',()=>{
+  onGpsPaused();
+  if(pollTimer!==null){w.clearInterval(pollTimer);pollTimer=null}
+  generation++; // Ignore a pre-hide asynchronous GPS read.
+ });
+ // A bfcache restore does NOT rerun init(). Re-arm the read loop once,
+ // without page reload or a second interval. Native foreground tracking
+ // remains a separate owner-approved Android service.
+ w.addEventListener('pageshow',()=>{
+  if(!d.hidden&&user&&pollTimer===null)resetPolling();
+  resumeOwnPhoneAutoFollow();
+ });
+ // Network recovery gets one immediate authenticated read; the normal
+ // timer remains in charge afterwards. Poll() already deduplicates.
+ w.addEventListener('online',()=>{
+  if(!d.hidden&&user&&pollTimer!==null){
+   locationReads.clear();poll();
+  }
+ });
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')onProfileChanged()});
  updateUi();
  if(!api){msg('A Family Live hitelesített adatkapcsolata nem elérhető. A helyadat nem kerül továbbításra.');return}
