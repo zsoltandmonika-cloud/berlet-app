@@ -117,7 +117,8 @@ function drawPending(){
  const h=d.createElement('h3');h.textContent=e.title_snapshot||'Családi teendő';
  const info=d.createElement('p');info.className='fh-notice-action';info.textContent=messageFor(e);
  const meta=d.createElement('div');meta.className='fh-notice-meta';
- const actor=d.createElement('span');actor.textContent='Feladó: '+(e.actor_profile==='monika'?'Mónika':e.actor_profile==='zsolt'?'Zsolt':e.actor_profile||'Család');
+ const actor=d.createElement('span');const actorName=e.actor_profile==='monika'?'Mónika':e.actor_profile==='zsolt'?'Zsolt':e.actor_profile||'Család';
+ actor.textContent=e.event_type==='status'?'Állapotot módosította: '+actorName:'Feladó: '+actorName;
  const at=d.createElement('time');at.dateTime=e.created_at||'';at.textContent=e.created_at?new Date(e.created_at).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
  meta.append(actor,at);
  const detail=d.createElement('p');detail.className='fh-notice-details';
@@ -142,6 +143,7 @@ function drawPending(){
   api.from('hh_family_tasks').select('category,details,due_at,status,creator_profile').eq('id',e.task_id).maybeSingle().then(({data,error})=>{
    if(error||!data||!node.isConnected)return;
    const parts=[];
+   if(data.creator_profile)actor.textContent='Feladó: '+(data.creator_profile==='monika'?'Mónika':data.creator_profile==='zsolt'?'Zsolt':'Család')+(e.event_type==='status'?' · Készre állította: '+actorName:'');
    if(data.category)parts.push(data.category);
    if(data.details)parts.push(data.details);
    if(data.due_at)parts.push('Határidő: '+new Date(data.due_at).toLocaleDateString('hu-HU'));
