@@ -8,13 +8,13 @@ const $=id=>d.getElementById(id), cfg=w.HH_CENTRAL_VAULT;
 const api=cfg&&cfg.enabled&&w.supabase?.createClient
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,
  {auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}}):null;
-const TABLE='hh_family_tasks',LOG='hh_family_task_logbook',HIDDEN_LOG='hh_family_task_logbook_hidden',PRESET_TABLE='hh_family_task_presets';
+const TABLE='hh_family_tasks',LOG='hh_family_task_logbook',HIDDEN_LOG='hh_family_task_logbook_hidden',HIDDEN_TASK='hh_family_task_hidden',PRESET_TABLE='hh_family_task_presets';
 const CAT_TABLE='hh_family_task_categories';
 const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
 let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
 const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész'};
-let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
+let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),hiddenTasks=new Set(),tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
 function self(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function imgFor(p){
  const avatar=w.HH_GOLDEN_AVATARS_V529||{};
@@ -78,12 +78,18 @@ function render(){
   });return;
  }
  records=tasks.filter(t=>
+   !hiddenTasks.has(String(t.id))&&
    (tab==='mine'?(t.assigned_profile===self()&&!t.assigned_agent):
     tab==='issued'?(t.creator_profile===self()&&(t.assigned_profile!==self()||!!t.assigned_agent)):true)
    &&(t.title+' '+t.category+' '+label(t.assigned_profile)).toLocaleLowerCase('hu-HU').includes(needle));
  if(!records.length){$('fhList').append(element('p','fh-empty','Itt még nincs teendő. A ＋ Új feladat gombbal kezdheted.'));return}
  records.forEach(t=>{
-   const card=element('article','fh-card glass');card.id='task-'+t.id;card.dataset.id=t.id;
+   const card=element('article','fh-card glass'+(t.status==='done'?' is-done':''));card.id='task-'+t.id;card.dataset.id=t.id;
+   if(t.status==='done'){
+      const dismiss=button('×','fh-task-dismiss',()=>hideCompletedTask(t));
+      dismiss.title='Kész feladat elrejtése';dismiss.setAttribute('aria-label','Kész feladat elrejtése: '+t.title);
+      card.append(dismiss);
+   }
    const head=element('div','fh-cardtop');
    const categoryButton=button(t.category,'fh-category',()=>{
      const query=$('fhSearch');
@@ -136,6 +142,14 @@ function render(){
  }
 }
 
+async function hideCompletedTask(task){
+ if(!api||!user||!authorized.includes(self())||task.status!=='done')return;
+ if(!w.confirm('Elrejted a kész feladatot a saját listádból? A feladat és a naplója megmarad.'))return;
+ const {error}=await api.from(HIDDEN_TASK).insert({profile_key:self(),task_id:task.id,hidden_by:user.id});
+ if(error){announce('Nem sikerült elrejteni a kész feladatot: '+error.message);return}
+ hiddenTasks.add(String(task.id));render();
+ announce('✓ Kész feladat elrejtve. A feladat és a naplója megmaradt.');
+}
 async function hideLogEntry(event){
  if(!api||!user||!authorized.includes(self()))return;
  if(!w.confirm('Elrejted ezt a naplóbejegyzést? Csak az aktuális profil Napló nézetéből tűnik el; az auditadat megmarad.'))return;
@@ -280,12 +294,14 @@ async function fetchData(){
  const result=await Promise.all([
   api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at').order('updated_at',{ascending:false}).limit(150),
   api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120),
-  api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500)
+  api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500),
+  api.from(HIDDEN_TASK).select('task_id').eq('profile_key',self()).limit(1500)
  ]);
  loading=false;
- if(result[0].error||result[1].error||result[2].error){announce('Adathiba: '+(result[0].error?.message||result[1].error?.message||result[2].error?.message));return}
+ if(result.some(r=>r.error)){announce('Adathiba: '+result.find(r=>r.error).error.message);return}
  tasks=result[0].data||[];logs=result[1].data||[];
  hiddenLogs=new Set((result[2].data||[]).map(e=>String(e.log_id)));
+ hiddenTasks=new Set((result[3].data||[]).map(e=>String(e.task_id)));
  setStats();render();announce('Szinkronizálva · '+tasks.length+' feladat · 30 napos napló');
 }
 function reloadSoon(){
@@ -342,7 +358,7 @@ async function authSync(){
  $('fhAuthText').textContent=user?'Ehhez a profilhoz nincs hozzáférésed.':'A családi feladatokhoz bejelentkezés szükséges.';
  profileUi();
  if(user&&authorized.includes(self())){await loadCategories();await fetchData();subscribe();}
- else{tasks=[];logs=[];setStats();render();if(liveChannel){api.removeChannel(liveChannel);liveChannel=null}}
+ else{tasks=[];logs=[];hiddenTasks.clear();hiddenLogs.clear();setStats();render();if(liveChannel){api.removeChannel(liveChannel);liveChannel=null}}
 }
 function subscribe(){
  if(!api||!user)return;
