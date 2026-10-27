@@ -7,7 +7,7 @@
 const DB='hh-chatgpt-target-v739',STORE='session',KEY='target';
 const PKCE='hh-chatgpt-target-pkce-v739';
 const CALLBACK='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/chatgpt-dropbox-callback-v739.html';
-const SCOPES='files.metadata.read files.metadata.write files.content.read files.content.write';
+const SCOPES='account_info.read files.metadata.read files.metadata.write files.content.read files.content.write';
 // Public Dropbox OAuth application ID; never an access token or App secret.
 const DEFAULT_APP_KEY='dv5a4o8h09wwgtn';
 const MAX_AUTH_AGE=10*60*1000;
@@ -88,9 +88,13 @@ async function exchange(urlString){
  const data=await res.json();
  if(!data.refresh_token||!data.access_token||!data.account_id)
   throw Error('Nem kaptunk offline hozzáférést. Ellenőrizd az alkalmazás jogait.');
+ // Fail closed: never overwrite an already working Dropbox connection with an incomplete consent.
+ const granted=String(data.scope||'').trim().split(/\s+/);
+ if(!SCOPES.split(' ').every(scope=>granted.includes(scope)))
+  throw Error('A Dropbox nem adta meg a kért olvasási jogosultságokat. A korábbi kapcsolat érintetlen.');
  const auth={appKey,refreshToken:data.refresh_token,accessToken:data.access_token,
   expiresAt:Date.now()+Math.max(60,(Number(data.expires_in)||14400)-90)*1000,
-  accountId:data.account_id,connectedAt:new Date().toISOString()};
+  accountId:data.account_id,scope:data.scope,connectedAt:new Date().toISOString()};
  await save(auth);
  return {accountSuffix:data.account_id.slice(-8)};
 }
@@ -107,6 +111,28 @@ async function accessToken(){
   expiresAt:Date.now()+Math.max(60,(Number(data.expires_in)||14400)-90)*1000};
  await save(next);return next.accessToken;
 }
+/* Read-only, explicit user action only. Dropbox returns total ACCOUNT storage,
+   not the HealthHub sync volume or monthly egress. Do not log or store tokens. */
+async function getSpaceUsage(){
+ const grant=await read();
+ if(!grant||!grant.refreshToken)
+  throw Error('A ChatGPT-cél Dropbox még nincs csatlakoztatva.');
+ if(!String(grant.scope||'').split(/\s+/).includes('account_info.read'))
+  throw Error('A jelenlegi Dropbox-engedélyből hiányzik az account_info.read. Újraengedélyezés szükséges.');
+ const token=await accessToken();
+ const res=await w.fetch('https://api.dropboxapi.com/2/users/get_space_usage',{
+  method:'POST',headers:{Authorization:'Bearer '+token},cache:'no-store'
+ });
+ if(!res.ok)throw Error('Dropbox tárhelymérés sikertelen (HTTP '+res.status+').');
+ const data=await res.json();
+ const used=Number(data?.used),allocation=Number(data?.allocation?.allocated);
+ if(!Number.isSafeInteger(used)||used<0)
+  throw Error('A Dropbox nem küldött ellenőrizhető tárhelyadatot.');
+ const total=Number.isSafeInteger(allocation)&&allocation>0?allocation:null;
+ return Object.freeze({usedBytes:used,totalBytes:total,unit:'bytes',
+  measuredAt:new Date().toISOString(),source:'Dropbox /users/get_space_usage',
+  scopeConfirmed:true,allocationType:String(data?.allocation?.['.tag']||'unknown').slice(0,30)});
+}
 w.HH_CHATGPT_TARGET_AUTH_V739={version:'739',callback:CALLBACK,authorize,exchange,
- accessToken,read,remove,checkKey,defaultAppKey:DEFAULT_APP_KEY};
+ accessToken,read,remove,checkKey,getSpaceUsage,defaultAppKey:DEFAULT_APP_KEY};
 })(window);
