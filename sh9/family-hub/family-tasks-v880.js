@@ -8,13 +8,13 @@ const $=id=>d.getElementById(id), cfg=w.HH_CENTRAL_VAULT;
 const api=cfg&&cfg.enabled&&w.supabase?.createClient
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,
  {auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}}):null;
-const TABLE='hh_family_tasks',LOG='hh_family_task_logbook';
+const TABLE='hh_family_tasks',LOG='hh_family_task_logbook',HIDDEN_LOG='hh_family_task_logbook_hidden',PRESET_TABLE='hh_family_task_presets';
 const CAT_TABLE='hh_family_task_categories';
 const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
-let categoryRows=[],cat=catDefault.slice();
+let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
 const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész'};
-let user=null,authorized=[],tasks=[],logs=[],tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
+let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
 function self(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function imgFor(p){
  const avatar=w.HH_GOLDEN_AVATARS_V529||{};
@@ -45,7 +45,7 @@ function render(){
  const needle=$('fhSearch').value.toLocaleLowerCase('hu-HU').trim();let records=[];
  $('fhList').replaceChildren();
  if(tab==='log'){
-  records=logs.filter(e=>(e.title_snapshot+' '+e.event_type+' '+label(e.actor_profile)+' '+label(e.recipient_profile)).toLocaleLowerCase('hu-HU').includes(needle));
+  records=logs.filter(e=>!hiddenLogs.has(String(e.id))&&(e.title_snapshot+' '+e.event_type+' '+label(e.actor_profile)+' '+label(e.recipient_profile)).toLocaleLowerCase('hu-HU').includes(needle));
   if(!records.length){$('fhList').append(element('p','fh-empty','Ebben a 30 napos időszakban nincs ilyen naplóbejegyzés.'));return}
   records.forEach(e=>{
     const name=e.title_snapshot||'Feladat';
@@ -55,6 +55,9 @@ function render(){
       e.event_type==='deadline'?'határidőt változtatott':
       e.event_type==='reaction'?'reakciót adott':'szerkesztette a feladatot';
     const item=element('article','fh-log glass');
+    const remove=button('×','fh-log-remove',()=>hideLogEntry(e));
+    remove.title='Bejegyzés elrejtése a Naplóból';remove.setAttribute('aria-label','Naplóbejegyzés elrejtése: '+name);
+    item.append(remove);
     item.append(element('strong',null,label(e.actor_profile)+' '+sentence),element('p',null,'„'+name+'”'));
     if(e.event_type==='status'){
       item.append(element('p',null,'Állapot: '+(statuses[e.previous_value?.status]||'–')+' → '+(statuses[e.current_value?.status]||'–')));
@@ -116,13 +119,24 @@ function render(){
  }
 }
 
+async function hideLogEntry(event){
+ if(!api||!user||!authorized.includes(self()))return;
+ if(!w.confirm('Elrejted ezt a naplóbejegyzést? Csak az aktuális profil Napló nézetéből tűnik el; az auditadat megmarad.'))return;
+ const {error}=await api.from(HIDDEN_LOG).insert({profile_key:self(),log_id:event.id,hidden_by:user.id});
+ if(error){announce('Nem sikerült elrejteni a bejegyzést: '+error.message);return}
+ hiddenLogs.add(String(event.id));render();announce('✓ Naplóbejegyzés elrejtve a profilból.');
+}
 async function loadCategories(){
  if(!api||!user||!authorized.includes(self()))return;
  const {data,error}=await api.from(CAT_TABLE).select('id,name,sort_order,active').order('sort_order',{ascending:true}).order('name',{ascending:true});
  if(error){$('fhCategoryMessage').textContent='Kategóriák: '+error.message;return}
  categoryRows=data||[];cat=categoryRows.filter(x=>x.active).map(x=>x.name);
  if(!cat.includes(category))category=cat[0]||'💡 Egyéb';
- renderCategories();renderCategoryEditor();
+ const {data:presetData,error:presetError}=await api.from(PRESET_TABLE)
+    .select('id,category_id,title,sort_order,active').order('sort_order',{ascending:true}).order('title',{ascending:true});
+ if(presetError){categoryFeedback('Mintafeladatok betöltése sikertelen: '+presetError.message);return}
+ presetRows=presetData||[];
+ renderCategories();renderCategoryEditor();renderPresets();
 }
 function categoryFeedback(msg){$('fhCategoryMessage').textContent=msg}
 function renderCategoryEditor(){
@@ -146,6 +160,7 @@ function renderCategoryEditor(){
   });
   row.append(input,rename,remove);host.append(row);
  });
+ renderPresetEditor();
 }
 async function addCategory(){
  const input=$('fhCategoryNew'),name=input.value.trim();
@@ -157,18 +172,63 @@ async function addCategory(){
  if(error){categoryFeedback('Nem menthető: '+error.message);return}
  input.value='';categoryFeedback('✓ Kategória mentve a családi adatbázisba.');await loadCategories();
 }
+
+function chosenCategory(){return categoryRows.find(c=>c.name===category&&c.active)}
+function chosenPresets(){const current=chosenCategory();return current?presetRows.filter(p=>p.category_id===current.id&&p.active):[]}
+function renderPresets(){
+ const host=$('fhPresets');if(!host)return;host.replaceChildren();
+ const title=$('fhPresetHeading');if(title)title.textContent=chosenPresets().length?'Gyorsfeladatok · egy érintéssel':'Nincs mintafeladat · írj sajátot';
+ chosenPresets().forEach(p=>{
+  const b=button(p.title,'fh-preset-chip',()=>{$('fhTitle').value=p.title;$('fhVoiceStatus').textContent='';});
+  b.title=p.title;host.append(b);
+ });
+ if(!$('fhPresetGroup'))return;
+ $('fhPresetGroup').hidden=!chosenPresets().length;
+}
+function renderPresetEditor(){
+ const host=$('fhPresetRows');if(!host)return;host.replaceChildren();
+ const selected=chosenCategory();
+ $('fhPresetEditHeading').textContent='Mintafeladatok: '+(selected?selected.name:'Válassz kategóriát');
+ if(!selected)return;
+ chosenPresets().forEach(p=>{
+  const row=element('div','fh-category-row');
+  const input=element('input');input.value=p.title;input.maxLength=90;
+  input.setAttribute('aria-label','Mintafeladat átnevezése');
+  const save=button('Mentés','',async()=>{
+   const title=input.value.trim();if(title.length<2||title.length>90){categoryFeedback('2–90 karakter szükséges.');return}
+   save.disabled=true;
+   const {error}=await api.from(PRESET_TABLE).update({title,updated_at:new Date().toISOString()}).eq('id',p.id);
+   if(error){categoryFeedback('Hiba: '+error.message);save.disabled=false;return}
+   categoryFeedback('✓ Mintafeladat átnevezve.');await loadCategories();
+  });
+  const hide=button('×','fh-category-delete',async()=>{
+   if(!w.confirm('Elrejted ezt a mintafeladatot? A már létrehozott feladatokat ez nem érinti.'))return;
+   hide.disabled=true;
+   const {error}=await api.from(PRESET_TABLE).update({active:false,updated_at:new Date().toISOString()}).eq('id',p.id);
+   if(error){categoryFeedback('Hiba: '+error.message);hide.disabled=false;return}
+   categoryFeedback('✓ Mintafeladat elrejtve.');await loadCategories();
+  });
+  hide.setAttribute('aria-label','Mintafeladat elrejtése: '+p.title);
+  row.append(input,save,hide);host.append(row);
+ });
+}
+async function addPreset(){
+ const current=chosenCategory();if(!current){categoryFeedback('Válassz előbb kategóriát.');return}
+ const field=$('fhPresetNew'),title=field.value.trim();
+ if(title.length<2||title.length>90){categoryFeedback('A mintafeladat 2–90 karakter legyen.');return}
+ const b=$('fhPresetAdd');b.disabled=true;
+ const inactive=presetRows.find(p=>p.category_id===current.id&&p.title===title&&!p.active);
+ const op=inactive
+ ?api.from(PRESET_TABLE).update({active:true,updated_at:new Date().toISOString()}).eq('id',inactive.id)
+ :api.from(PRESET_TABLE).insert({category_id:current.id,title,sort_order:presetRows.length*10+10});
+ const {error}=await op;b.disabled=false;
+ if(error){categoryFeedback('Nem menthető: '+error.message);return}
+ field.value='';categoryFeedback('✓ Mintafeladat mentve a családi listába.');await loadCategories();
+}
 function renderCategories(){
  const host=$('fhCategories');host.replaceChildren();
  cat.forEach(c=>{host.append(button(c,c===category?'fh-chip active':'fh-chip',()=>{
-  category=c;renderCategories();
-  if(!$('fhTitle').value.trim()){
-   const examples={'🏠 Otthon':'Locsold meg a virágokat','🛒 Bevásárlás':'Bevásárlás elintézése',
-   '🍕 Étel / ital rendelés':'Rendelj vacsorát','📦 Webshopping':'Webshop rendelés elintézése',
-   '🚚 Csomagátvétel':'Csomag átvétele','🐶 Corky':'Corky ellátása',
-   '📅 Ügyintézés':'Időpont egyeztetése','✈️ Utazás':'Utazás előkészítése',
-   '🩺 Egészség':'Kontroll időpont egyeztetése','💡 Egyéb':''};
-   $('fhTitle').value=examples[c]||'';
-  }
+  category=c;renderCategories();renderPresets();renderPresetEditor();
  }));});
 }
 function renderPeople(){
@@ -185,12 +245,12 @@ function renderPeople(){
 }
 function showSheet(){
  if(!user||!authorized.includes(self())){announce('Előbb jelentkezz be a Family Hubba.');return}
- selected=self();category='🏠 Otthon';due='none';
+ selected=self();category=cat[0]||'🍳 KONYHA';due='none';
  $('fhTitle').value='';$('fhCustomDue').value='';$('fhSaveInfo').textContent='';
  $('fhBackdrop').hidden=false;$('fhSheet').hidden=false;
  // Dock the ONE standard SH9 navigation inside the dialog, below its scrollable content.
  const standardNav=d.querySelector('.fh-standard-nav');if(standardNav)$('fhSheet').appendChild(standardNav);
- d.body.style.overflow='hidden';renderPeople();renderCategories();renderDue();
+ d.body.style.overflow='hidden';renderPeople();renderCategories();renderPresets();renderDue();
  // Do not autofocus: preserve the full S24 Ultra Quick Add screen until explicitly tapped.
 }
 function hideSheet(){
@@ -220,11 +280,13 @@ async function fetchData(){
  const thirty=new Date(Date.now()-30*864e5).toISOString();
  const result=await Promise.all([
   api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at').order('updated_at',{ascending:false}).limit(150),
-  api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120)
+  api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120),
+  api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500)
  ]);
  loading=false;
- if(result[0].error||result[1].error){announce('Adathiba: '+(result[0].error?.message||result[1].error?.message));return}
+ if(result[0].error||result[1].error||result[2].error){announce('Adathiba: '+(result[0].error?.message||result[1].error?.message||result[2].error?.message));return}
  tasks=result[0].data||[];logs=result[1].data||[];
+ hiddenLogs=new Set((result[2].data||[]).map(e=>String(e.log_id)));
  setStats();render();announce('Szinkronizálva · '+tasks.length+' feladat · 30 napos napló');
 }
 function reloadSoon(){
@@ -341,6 +403,7 @@ function wire(){
  wireStandardNav();
  $('fhCategoryManage').addEventListener('click',()=>{const el=$('fhCategoryEditor');el.hidden=!el.hidden;if(!el.hidden)renderCategoryEditor()});
  $('fhCategoryAdd').addEventListener('click',addCategory);
+ $('fhPresetAdd').addEventListener('click',addPreset);
  $('fhProfileSwitch').addEventListener('click',()=>{
   const next=self()==='monika'?'zsolt':'monika';
   if(user&&!authorized.includes(next)){announce(label(next)+' profil nem engedélyezett.');return}
