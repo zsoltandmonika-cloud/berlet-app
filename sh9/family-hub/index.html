@@ -2,12 +2,12 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=882">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=883">
 </head><body>
 <main class="fh-shell">
   <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a családi képen">
     <header class="fh-head">
-      <a class="fh-home" href="../" aria-label="Vissza az SH9 kezdőlapra">‹ SH9 Kezdőlap</a>
+      <span class="fh-module-badge" aria-label="Tasks modul">🐿️ Tasks</span>
       <button class="fh-owner" id="fhProfileSwitch" type="button" aria-label="Profilváltás">
         <img id="fhProfileAvatar" class="avatar" alt=""><span id="fhProfileName">Profil</span> ⇄
       </button>
@@ -33,14 +33,17 @@
   <section id="fhList" class="fh-list" aria-label="Feladatlista"></section>
   <button id="fhAdd" class="fh-new" type="button">＋ Új feladat</button>
 </main>
+<nav class="fh-standard-nav" aria-label="SH9 Golden Standard navigáció">
+<a href="../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+<a href="../../healthhub/index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a>
+<button id="fhNavBack" type="button" aria-label="Vissza"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></button>
+<button id="fhNavNotifications" type="button" aria-label="Értesítések"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+<a href="../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3z"/></svg><span>Admin</span></a>
+</nav>
 <div class="fh-sheet-backdrop" id="fhBackdrop" hidden></div>
 <section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
-  <header><h2>🐿️ Quick Add · Family Tasks</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
+  <header class="fh-quick-hero" aria-label="Family Tasks családi hero kép"><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
   <form id="fhForm">
-    <aside class="fh-lena-guide" aria-label="Léna, Family Concierge">
-      <img src="./assets/family-quickadd-lena-v881.webp" alt="A jóváhagyott Léna Family Concierge karakter" loading="lazy">
-      <div><strong>Léna · Family Concierge 💗</strong><p>Írd be vagy diktáld a feladatot. Egy érintéssel kioszthatod!</p></div>
-    </aside>
     <div class="fh-field"><label for="fhTitle">Mit kell elintézni?</label>
       <div class="fh-input-wrap">
         <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
@@ -48,9 +51,9 @@
           placeholder="Pl. Locsold meg a virágokat…" />
         <button type="button" class="fh-microphone" id="fhVoice" aria-label="Magyar hangdiktálás indítása">🎙️</button>
       </div>
-      <small class="fh-note" id="fhVoiceStatus">Beszélhetsz magyarul, majd javíthatod a szöveget.</small>
+      <small class="fh-note" id="fhVoiceStatus" aria-live="polite"></small>
     </div>
-    <div class="fh-field"><label>Kategória · görgesd oldalra</label>
+    <div class="fh-field"><label>Kategória · görgesd lefelé</label>
       <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
     </div>
     <div class="fh-field"><label>Kinek szól? · alapból a saját profilod</label>
@@ -80,6 +83,6 @@
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=881-no-autofocus-success"></script>
+<script defer src="./family-tasks-v880.js?v=883-sh9-standard-nav"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>
