@@ -95,3 +95,12 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-category-editor input{min-width:0;flex:1;background:#0b213e;border:1px solid var(--line);border-radius:10px;padding:9px 8px;color:#fff;font-size:13px}
 .fh-category-editor button{min-height:40px;padding:7px 9px;background:#1d527e;color:white;border:1px solid var(--line);border-radius:10px;font-size:12px}
 .fh-category-editor .fh-category-delete{background:#5b2843}
+
+/* v885 · Golden Glass compact action parity, S24 Ultra */
+.fh-hero .fh-owner{left:calc(2px + env(safe-area-inset-left));bottom:1px;min-height:32px;padding:2px 6px;gap:4px;font-size:10px;border-radius:15px;background:linear-gradient(135deg,rgba(112,169,227,.32),rgba(12,29,63,.68));border:1px solid rgba(210,235,255,.48);box-shadow:inset 0 1px rgba(255,255,255,.25),0 4px 15px #0007;backdrop-filter:blur(19px) saturate(1.35)}
+.fh-hero .fh-owner .avatar{width:24px;height:24px;border-width:1.5px}
+.fh-new,.fh-save{box-sizing:border-box;width:min(76%,320px)!important;min-height:40px!important;height:40px!important;padding:7px 12px!important;margin-inline:auto;font-size:13px!important;font-weight:800;border-radius:13px!important;border:1px solid rgba(221,240,255,.57)!important;background:linear-gradient(125deg,rgba(95,180,241,.79),rgba(135,184,237,.65) 58%,rgba(244,203,224,.65))!important;box-shadow:inset 0 1px rgba(255,255,255,.38),0 8px 22px #0007,0 0 11px var(--fh-glow)!important;backdrop-filter:blur(17px) saturate(1.3);-webkit-backdrop-filter:blur(17px) saturate(1.3);color:#071e3a}
+.fh-new{bottom:calc(58px + env(safe-area-inset-bottom))!important}
+.fh-save{position:fixed!important;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom))!important;margin:0!important}
+.fh-sheet form{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.fh-sheet[hidden] .fh-save{display:none}
