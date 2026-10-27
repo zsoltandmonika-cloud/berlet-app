@@ -125,3 +125,53 @@ test('v876 missing session opens native Health Vault modal from Billing click (s
  assert.match(elements.githubBillingStatusV873.textContent,/bejelentkezve/);
  assert.equal(w.location,undefined,'No navigation to Main Admin');
 });
+
+
+test('v878 Billing before/after baseline is sourced to observed Oct 27 snapshot, not a fabricated savings figure',()=>{
+ const api=require(path.join(ROOT,'usage-control/github-before-after-v878.js'));
+ assert.equal(api.BASE.linuxMinutes,21184);
+ assert.equal(api.BASE.grossUSD,127.15);
+ assert.equal(api.BASE.billedUSD,0);
+ assert.equal(api.BASE.measuredAt,'2026-10-27T09:11:06Z');
+ const initial=api.calculate(null);
+ assert.equal(initial.status,'no_measurement');
+ assert.ok(initial.beforeRate>700&&initial.beforeRate<900);
+ const html=fs.readFileSync(path.join(ROOT,'usage-control/index.html'),'utf8');
+ assert.match(html,/id="sh9GitHubCompareV878"/);
+ assert.match(html,/github-before-after-v878\.js\?v=878-measured-comparison/);
+ assert.match(html,/sh9:github-billing-measured/);
+});
+test('v878 normalizes partial October intervals by elapsed days and never invents dollar savings',()=>{
+ const api=require(path.join(ROOT,'usage-control/github-before-after-v878.js'));
+ const base={schema:'sh9.github.billing/1',period:'2026-10',currency:'USD',verified:true,
+   measuredAt:'2026-10-29T09:11:06Z',actionsLinuxMinutes:22000,grossAmount:132,netAmount:0};
+ const now=Date.parse('2026-10-30T10:00:00Z');
+ const result=api.calculate(base,now);
+ assert.equal(result.status,'measured');
+ assert.equal(result.afterMinutes,816);
+ assert.equal(result.afterRate,408);
+ assert.ok(result.rateChangePct < -40);
+ assert.equal(result.netUSD,0);
+ assert.ok(!Object.keys(result).some(k=>/usdSaved|savedDollars|claimedSavedUSD/i.test(k)));
+ const early={...base,measuredAt:'2026-10-27T12:11:06Z',actionsLinuxMinutes:21300};
+ assert.equal(api.calculate(early,now).status,'pending');
+ assert.equal(api.calculate({...base,actionsLinuxMinutes:21000},now).status,'inconsistent');
+ assert.equal(api.calculate({...base,verified:false},now).status,'no_measurement');
+});
+test('v878 local comparison stores aggregates only and uses DST-aware Hungarian month start',()=>{
+ const api=require(path.join(ROOT,'usage-control/github-before-after-v878.js'));
+ const records=new Map();
+ const storage={setItem:(key,val)=>records.set(key,val),getItem:key=>records.get(key)||null};
+ const sample={schema:'sh9.github.billing/1',period:'2026-10',currency:'USD',verified:true,
+   measuredAt:'2026-10-27T09:11:06Z',actionsLinuxMinutes:21184,grossAmount:127.15,netAmount:0,
+   topSkus:[{sku:'PRIVATE DETAILS'}],unrelatedToken:'must-not-store'};
+ assert.equal(api.save(storage,sample),true);
+ const serialized=[...records.values()][0];
+ assert.doesNotMatch(serialized,/PRIVATE DETAILS|must-not-store|topSkus|token/i);
+ assert.equal(api.load(storage,'2026-10').grossAmount,127.15);
+ assert.equal(api.load(storage,'2026-11'),null);
+ assert.equal(api.monthStart('2026-10'),Date.parse('2026-09-30T22:00:00Z'));
+ assert.equal(api.monthStart('2026-11'),Date.parse('2026-10-31T23:00:00Z'));
+ const js=fs.readFileSync(path.join(ROOT,'usage-control/github-before-after-v878.js'),'utf8');
+ assert.doesNotMatch(js,/fetch\(|setInterval\(|setTimeout\(|github_pat_|ghp_[A-Za-z0-9]{20,}/);
+});
