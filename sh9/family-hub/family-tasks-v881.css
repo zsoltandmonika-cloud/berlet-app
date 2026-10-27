@@ -61,3 +61,20 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-hero .fh-owner{position:absolute;left:calc(14px + env(safe-area-inset-left));bottom:13px;top:auto;right:auto;min-height:46px;min-width:115px;justify-content:center;padding:6px 11px;pointer-events:auto;background:rgba(10,27,57,.72);border:1px solid var(--accent);box-shadow:0 5px 20px #0008;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .fh-hero .fh-owner .avatar{width:36px;height:36px}
 .fh-hero.has-photo{background-image:url('./assets/family-tasks-hero-approved-v881.webp')}
+
+/* v883 Family Tasks · SH9 fixed golden taskbar and clean dual hero */
+.fh-shell{padding-bottom:calc(162px + env(safe-area-inset-bottom))}
+.fh-hero .fh-module-badge{position:absolute;top:calc(10px + env(safe-area-inset-top));left:13px;min-height:37px;padding:9px 13px;border-radius:22px;background:rgba(10,27,57,.78);border:1px solid rgba(205,231,255,.38);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:#edf7ff;font-size:13px;font-weight:800}
+.fh-hero .fh-owner{bottom:4px;left:calc(7px + env(safe-area-inset-left));min-width:0;min-height:37px;padding:3px 8px;gap:4px;font-size:11px;border-radius:19px}
+.fh-hero .fh-owner .avatar{width:28px;height:28px}
+.fh-standard-nav{box-sizing:border-box;position:fixed;z-index:100;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,420px);height:calc(58px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;padding:5px 4px calc(6px + env(safe-area-inset-bottom));border-top:1px solid rgba(140,198,243,.25);background:rgba(15,30,54,.97);box-shadow:0 -7px 22px rgba(0,0,0,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.fh-standard-nav a,.fh-standard-nav button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#b9d0e8;text-decoration:none;font:inherit}
+.fh-standard-nav svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.85;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.fh-standard-nav span{font-size:10px;line-height:1.1}
+.fh-new{bottom:calc(69px + env(safe-area-inset-bottom));width:min(89%,400px)}
+.fh-sheet{padding-top:0!important;padding-left:max(14px,calc((100vw - 520px)/2))!important;padding-right:max(14px,calc((100vw - 520px)/2))!important}
+.fh-sheet>header.fh-quick-hero{position:relative;top:auto;display:flex;justify-content:flex-end;align-items:flex-start;width:calc(100% + 28px);height:auto;aspect-ratio:1672/941;max-height:300px;margin:0 -14px 14px;padding:calc(10px + env(safe-area-inset-top)) 13px 0;border:0;border-radius:0 0 19px 19px;background:url('./assets/family-tasks-hero-approved-v881.webp') center/cover no-repeat;box-shadow:0 12px 23px #0005;backdrop-filter:none}
+.fh-sheet>header.fh-quick-hero .fh-close{flex:none;background:rgba(8,25,55,.75);border:1px solid #b6d7ff6b;backdrop-filter:blur(10px)}
+.fh-people .fh-person .avatar{width:72px;height:72px}
+.fh-people .fh-person{min-height:125px}
+@media(max-height:700px){.fh-people .fh-person .avatar{width:58px;height:58px}}
