@@ -1,0 +1,16 @@
+/* Family Hub shared Buddy Sticky Note v880. Passive event UI on supported SH9 pages. */
+.fh-notice-anchor{position:fixed;z-index:2147483000;top:calc(env(safe-area-inset-top,0px) + 9px);left:9px;max-width:calc(100vw - 18px);pointer-events:none}
+.fh-notice{position:relative;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;width:min(264px,75vw);min-height:225px;padding:18px 15px 15px;pointer-events:auto;cursor:pointer;border:1px solid #d9ad4c;border-radius:3px 3px 12px 6px;color:#4c3315;background:linear-gradient(130deg,#fff9c9 0%,#fff0a1 55%,#ebd272 100%);box-shadow:3px 8px 2px #d2b55422,0 14px 35px #0008;transform:rotate(-1.5deg);animation:fh-drop .32s ease-out;font-family:"Segoe Print","Comic Sans MS",cursive}
+.fh-notice:before{position:absolute;content:"";left:0;right:0;top:0;height:21px;background:linear-gradient(180deg,#fff9ea72,transparent);pointer-events:none}
+.fh-notice .fh-note-top{display:flex;align-items:center;justify-content:space-between;gap:3px}
+.fh-notice .fh-note-top strong{font-size:15px}
+.fh-notice h3{font:750 16px/1.25 "Segoe Print","Comic Sans MS",cursive;margin:6px 0 1px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.fh-notice p{font-size:12px;line-height:1.32;margin:2px 0;overflow-wrap:anywhere}
+.fh-notice .fh-note-link{margin-top:auto;font-weight:800;font-size:12px;color:#765118}
+.fh-notice-close{border:0;background:#fff2a6;color:#715221;font:900 19px/1 system-ui;padding:6px 9px;border-radius:50%;cursor:pointer}
+.fh-notice:focus-visible,.fh-notice-close:focus-visible,.fh-badge:focus-visible{outline:3px solid #73c9ff;outline-offset:4px}
+.fh-badge{position:fixed;z-index:899;top:calc(env(safe-area-inset-top,0px) + 12px);right:13px;display:flex;align-items:center;gap:6px;border:1px solid #edcc7999;border-radius:999px;padding:7px 10px;color:#fff8e3;background:linear-gradient(145deg,#12345b,#281c3c);box-shadow:0 3px 12px #0009;font:800 13px/1 system-ui;cursor:pointer}
+.hero .fh-badge,.guardian-hero .fh-badge{position:absolute;top:8px;right:8px;z-index:8}
+.fh-badge .fh-badge-count{min-width:18px;text-align:center;border-radius:999px;background:#efbd62;color:#142038;padding:3px 5px;font-size:11px}
+@keyframes fh-drop{from{opacity:0;transform:translateY(-110%) rotate(-4deg)}to{opacity:1;transform:translateY(0) rotate(-1.5deg)}}
+@media(prefers-reduced-motion:reduce){.fh-notice{animation:none}}
