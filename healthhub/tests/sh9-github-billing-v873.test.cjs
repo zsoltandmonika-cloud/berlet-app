@@ -46,7 +46,7 @@ test('Mobile UI exposes explicit Billing button, never PAT, and reuses Central V
  const js=fs.readFileSync(path.join(ROOT,'usage-control/github-billing-v873.js'),'utf8');
  assert.match(html,/id="githubBillingReadV873"/);
  assert.match(html,/id="githubBillingRowsV873"/);
- assert.match(html,/github-billing-v873\.js\?v=874-billing-errors/);
+ assert.match(html,/github-billing-v873\.js\?v=876-inline-vault/);
  assert.match(html,/central-vault\/config\.js/);
  assert.match(html,/sh9:github-billing-measured/);
  assert.match(html,/@media\(max-width:750px\)/);
@@ -73,4 +73,55 @@ test('v874 distinguishes invalid token, 403 permission, account limitation and G
  assert.doesNotMatch(server,/github_plan_read_required/);
  assert.doesNotMatch(browser,/github_plan_read_required/);
  assert.match(browser,/Plan → Read-only/);
+});
+
+test('v876 loads existing Health Vault dialog in Usage Center without leaving the page',()=>{
+ const html=fs.readFileSync(path.join(ROOT,'usage-control/index.html'),'utf8');
+ const src=fs.readFileSync(path.join(ROOT,'usage-control/github-billing-v873.js'),'utf8');
+ assert.match(html,/id="githubBillingVaultLoginV876"/);
+ assert.match(html,/central-vault\/daily-health-sync\.js\?v=876-billing-inline-vault/);
+ assert.ok(html.indexOf('central-vault/config.js')<html.indexOf('central-vault/daily-health-sync.js?v=876'));
+ assert.ok(html.indexOf('daily-health-sync.js?v=876')<html.indexOf('github-billing-v873.js?v=876'));
+ assert.match(src,/api\.openLogin\(\)/);
+ assert.match(src,/api\.request\('\/rest\/v1\/hh_profiles\?select=profile_key'\)/);
+ assert.doesNotMatch(src,/Lépj be a fő Admin felületen/);
+ assert.doesNotMatch(src,/refresh_token\s*:/);
+});
+test('v876 missing session opens native Health Vault modal from Billing click (same tab)',async()=>{
+ const vm=require('node:vm');
+ const js=fs.readFileSync(path.join(ROOT,'usage-control/github-billing-v873.js'),'utf8');
+ let loggedIn=false,openCount=0,refreshRequests=0;
+ const listeners={},elements={};
+ for(const id of ['githubBillingReadV873','githubBillingRowsV873','githubBillingStatusV873',
+                  'githubBillingVaultLoginV876','month']){
+  elements[id]={value:id==='month'?'2026-10':'',textContent:'',disabled:false,handlers:{},
+   replaceChildren(){},addEventListener(type,fn){this.handlers[type]=fn;}};
+ }
+ const makeSession=()=>({
+   access_token:'eyJ'+('a'.repeat(80)),expires_at:Math.floor(Date.now()/1000)+3600
+ });
+ const vaultSession={};
+ const w={
+   HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://example.supabase.co',publishableKey:'sb_publishable_public_test_value'},
+   HH_DAILY_HEALTH_SYNC_V319:{
+      openLogin(){openCount++},
+      request:async()=>{refreshRequests++;throw new Error('no session')}
+   },
+   sessionStorage:{getItem:k=>vaultSession[k]||null,setItem:(k,v)=>{vaultSession[k]=v}},
+   localStorage:{getItem:()=>null},
+   addEventListener(name,fn){listeners[name]=fn}
+ };
+ const d={readyState:'complete',getElementById:id=>elements[id]};
+ vm.runInNewContext(js,{window:w,document:d,Intl,Date,JSON,Number,String,Array,RegExp,Math});
+ assert.equal(openCount,0);
+ await elements.githubBillingReadV873.handlers.click();
+ assert.equal(openCount,1);
+ assert.equal(refreshRequests,1);
+ assert.match(elements.githubBillingStatusV873.textContent,/ezen az oldalon/);
+ elements.githubBillingVaultLoginV876.handlers.click();
+ assert.equal(openCount,2);
+ vaultSession['hh-supabase-health-session-v1']=JSON.stringify(makeSession());
+ listeners['healthhub:central-auth-changed']();
+ assert.match(elements.githubBillingStatusV873.textContent,/bejelentkezve/);
+ assert.equal(w.location,undefined,'No navigation to Main Admin');
 });

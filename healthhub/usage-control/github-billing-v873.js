@@ -40,6 +40,24 @@ function boot(){
  const button=$('githubBillingReadV873'),root=$('githubBillingRowsV873'),status=$('githubBillingStatusV873');
  if(!button||!root||!status)return;
  const month=$('month');
+ const vaultLogin=$('githubBillingVaultLoginV876');
+ const vault=()=>w.HH_DAILY_HEALTH_SYNC_V319;
+ function openVault(){
+  const api=vault();
+  if(!api||typeof api.openLogin!=='function'){
+   status.textContent='⚠ A Health Vault belépési modulja nem töltődött be. Frissítsd az Usage Control oldalt.';
+   return false;
+  }
+  api.openLogin();
+  return true;
+ }
+ if(vaultLogin)vaultLogin.addEventListener('click',openVault);
+ w.addEventListener('healthhub:central-auth-changed',()=>{
+  if(getSession()){
+   status.textContent='✓ Health Vault bejelentkezve. Most nyomd meg a GitHub Billing lekérése gombot.';
+  }
+ });
+
  const create=(tag,text,cls='')=>{const e=d.createElement(tag);e.textContent=String(text);if(cls)e.className=cls;return e};
  let busy=false;
  function dispatch(data){d.dispatchEvent(new CustomEvent('sh9:github-billing-measured',{detail:data}))}
@@ -80,14 +98,27 @@ function boot(){
   if(busy)return;
   const m=month.value,cached=parseCached(m);
   if(cached){draw(cached,true);status.textContent='✓ Cache-ből betöltve, nincs új API-hívás.';return}
-  const cfg=w.HH_CENTRAL_VAULT||{},token=getSession();
-  if(!token){status.textContent='⚠ A HealthHub Központi Vault-belépés hiányzik vagy lejárt. Lépj be a fő Admin felületen, majd térj vissza.';return}
+  const cfg=w.HH_CENTRAL_VAULT||{};
   if(cfg.enabled!==true||!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(cfg.supabaseUrl||'')||
     typeof cfg.publishableKey!=='string'||cfg.publishableKey.length<15){
    status.textContent='⚠ A HealthHub Vault központi konfigurációja nem érhető el.';return
   }
-  busy=true;button.disabled=true;status.textContent='GitHub Billing lekérése biztonságos közvetítőn át…';
+  busy=true;button.disabled=true;status.textContent='Health Vault belépés ellenőrzése…';
   try{
+   let token=getSession();
+   const api=vault();
+   if(!token&&api&&typeof api.request==='function'){
+    // Only after this explicit Billing click: allow the existing Vault
+    // refresh logic to renew an expired session. Never handle refresh tokens here.
+    try{await api.request('/rest/v1/hh_profiles?select=profile_key')}catch(_){}
+    token=getSession();
+   }
+   if(!token){
+    status.textContent='🔐 A Health Vault bejelentkezés most ezen az oldalon nyílik meg. Belépés után nyomd meg újra a Billing gombot.';
+    openVault();
+    return;
+   }
+   status.textContent='GitHub Billing lekérése biztonságos közvetítőn át…';
    const ctl=new AbortController(),timeout=w.setTimeout(()=>ctl.abort(),24000);
    let res;
    try{res=await w.fetch(cfg.supabaseUrl+'/functions/v1/hh-github-billing-v873',{
