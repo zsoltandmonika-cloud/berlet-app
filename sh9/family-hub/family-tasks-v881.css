@@ -192,3 +192,6 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
   border-radius:10px;
   font-size:16px;
 }
+
+/* v891 · Remove redundant assignee heading and raise all three profile cards. */
+.fh-sheet-scroll .fh-people-field{margin-top:4px;gap:0}
