@@ -337,6 +337,10 @@ function showSheet(){
  selected=self();category=defaultCategory()?.name||'❤️ CSALÁD & EGYÉB';due='none';
  $('fhTitle').value='';$('fhCustomDue').value='';$('fhSaveInfo').textContent='';
  $('fhBackdrop').hidden=false;$('fhSheet').hidden=false;
+ // Move the original profile switch into Quick Add's family hero (bottom-left).
+ // Moving, not cloning, preserves one handler, one avatar and the current profile.
+ const quickHero=$('fhSheet').querySelector('.fh-quick-hero');
+ if(quickHero&&$('fhProfileSwitch'))quickHero.appendChild($('fhProfileSwitch'));
  // Dock the ONE standard SH9 navigation inside the dialog, below its scrollable content.
  const standardNav=d.querySelector('.fh-standard-nav');if(standardNav)$('fhSheet').appendChild(standardNav);
  d.body.style.overflow='hidden';renderPeople();renderPresets();renderDue();
@@ -344,6 +348,10 @@ function showSheet(){
 }
 function hideSheet(){
  if(d.activeElement&&$('fhSheet').contains(d.activeElement))d.activeElement.blur();
+ // Restore the same profile switch to the main hero; no duplicate buttons.
+ const originalHead=d.querySelector('.fh-hero .fh-head');
+ const switcher=$('fhProfileSwitch');
+ if(originalHead&&switcher)originalHead.appendChild(switcher);
  // Return the original taskbar to the main screen without cloning or losing handlers.
  const standardNav=$('fhSheet').querySelector('.fh-standard-nav');if(standardNav)d.body.insertBefore(standardNav,$('fhBackdrop'));
  $('fhBackdrop').hidden=true;$('fhSheet').hidden=true;d.body.style.overflow='';
