@@ -145,7 +145,7 @@ function showSheet(){
  $('fhTitle').value='';$('fhCustomDue').value='';$('fhSaveInfo').textContent='';
  $('fhBackdrop').hidden=false;$('fhSheet').hidden=false;
  d.body.style.overflow='hidden';renderPeople();renderCategories();renderDue();
- w.setTimeout(()=>$('fhTitle').focus(),50);
+ // Deliberately do NOT auto-focus: never open a keyboard over Quick Add.
 }
 function hideSheet(){
  $('fhBackdrop').hidden=true;$('fhSheet').hidden=true;d.body.style.overflow='';
@@ -213,6 +213,10 @@ async function save(e){
   if(error)throw error;
   hideSheet();announce(selected==='lena'?'✓ Lénának kijelölve; az AI-feladat nem indul el automatikusan.':'✓ Feladat elmentve. Buddy úton van! 🐿️');
   if(data?.id){w.history.replaceState(null,'',w.location.pathname); }
+  // A saved task may trigger a visual/audio acknowledgement; never before DB commit.
+  w.dispatchEvent(new CustomEvent('hh-family-task-saved',{detail:{
+    taskId:data?.id,recipient:selected,owner:self(),title
+  }}));
   await fetchData();
  }catch(err){$('fhSaveInfo').textContent='Nem sikerült menteni: '+err.message}
  finally{save.disabled=false}
