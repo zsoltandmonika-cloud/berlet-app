@@ -304,3 +304,7 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 }
 .fh-tools{margin-bottom:7px}
 .fh-list{margin-top:0}
+
+/* v897 · Two-pixel fine alignment, visual-only. */
+.fh-sheet-scroll .fh-title-field{transform:translateY(2px)}
+.fh-category-field .fh-category-manage{transform:translateY(-2px)}
