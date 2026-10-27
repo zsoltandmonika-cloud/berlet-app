@@ -51,17 +51,8 @@ function makeUi(){
  style();
  holder=d.createElement('div');holder.className='fh-notice-anchor';holder.setAttribute('role','region');
  holder.setAttribute('aria-label','Buddy Family Tasks értesítések');d.body.append(holder);
- badge=d.createElement('button');badge.className='fh-badge';badge.type='button';
- const face=d.createElement('span');face.textContent='🐿️';
- const label=d.createElement('span');label.textContent='Tasks';
- const number=d.createElement('span');number.className='fh-badge-count';number.hidden=true;
- badge.append(face,label,number);badge.setAttribute('aria-label','Family Tasks megnyitása');badge.addEventListener('click',()=>openTask(null));
- const hero=d.querySelector('.hero,.guardian-hero,.fh-hero');
- // The Family Tasks page already has its own Golden Standard Tasks button.
- // Keep this notifier's unread-state logic and sticky notes, without adding a second badge.
- if(!w.location.pathname.includes('/family-hub/')){
-   if(hero)hero.append(badge);else d.body.append(badge);
- }
+ // Reuse the one Golden Standard Tasks link; never inject another button.
+ badge=d.getElementById('sh9TasksGolden')||d.querySelector('.fh-module-badge')||null;
  const found=Number(new URLSearchParams(w.location.search).has('task'));
  if(found&&w.location.pathname.includes('/family-hub/'))markSeen(lastEvent);
 }
@@ -106,7 +97,7 @@ async function readUnread(){
  lastEvent=Math.max(lastEvent,...items.map(x=>Number(x.id)));
  if(w.location.pathname.includes('/family-hub/'))markSeen(lastEvent,p);
  const unread=items.filter(x=>Number(x.id)>seen(p)).length;
- const n=badge.querySelector('.fh-badge-count');n.textContent=unread>49?'50+':String(unread);n.hidden=!unread;
+ const n=badge.querySelector('.fh-badge-count');if(n){n.textContent=unread>49?'50+':String(unread);n.hidden=!unread}
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
 }
 async function join(){
