@@ -47,6 +47,19 @@ class Sh9WebActivity : ComponentActivity() {
         private const val BASE = "/berlet-app/"
     }
 
+    // Only allow the native Floating Buddy "open task" intent to reach a
+    // first-party task URL; never arbitrary external pages or JS bridges.
+    private fun floatingTaskUrl(uri: Uri?): String? {
+        if (uri?.scheme != "https" || uri.host != HOST ||
+            uri.path != "/berlet-app/sh9/family-hub/") return null
+        val id = uri.getQueryParameter("task")
+        val valid = id != null && Regex(
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+        ).matches(id)
+        return "https://$HOST/berlet-app/sh9/family-hub/" +
+            (if (valid) "?task=$id" else "")
+    }
+
     private var web: WebView? = null
     private var pendingGeoOrigin: String? = null
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
@@ -331,7 +344,8 @@ class Sh9WebActivity : ComponentActivity() {
         // Timestamp affects only the public SH9 entry document. Relative
         // module routes remain the same first-party GitHub Pages paths.
         if (savedInstanceState == null)
-            view.loadUrl(HOME + "&hhfresh=" + System.currentTimeMillis())
+            view.loadUrl(floatingTaskUrl(intent?.data) ?:
+                (HOME + "&hhfresh=" + System.currentTimeMillis()))
         else view.restoreState(savedInstanceState)
     }
 
