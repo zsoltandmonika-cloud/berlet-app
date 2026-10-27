@@ -7,18 +7,52 @@ const STORE="sh9-github-billing-result-v873",SESSION="hh-supabase-health-session
 const TRUSTED="hh-health-vault-trusted-device-v332",TTL=30*60*1000;
 const $=id=>d.getElementById(id);
 const fmt=x=>new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(x);
-function getSession(){
+/* Keep the same per-tab / trusted-device policy as the central Vault. */
+function savedSession(){
  let recent=null,remembered=null;
  try{recent=JSON.parse(w.sessionStorage.getItem(SESSION)||'null')}catch(_){}
  try{if(w.localStorage.getItem(TRUSTED)==='yes')remembered=JSON.parse(w.localStorage.getItem(SESSION)||'null')}catch(_){}
- if(!recent)recent=remembered;
- else if(remembered&&Number(remembered.expires_at)>Number(recent.expires_at))recent=remembered;
- if(!recent||typeof recent.access_token!=='string'||
-    !/^eyJ[A-Za-z0-9._-]{30,}$/.test(recent.access_token)||
-    Number(recent.expires_at)<=Math.floor(Date.now()/1000)+75)
-   return null;
- return recent.access_token;
+ if(!recent)return remembered;
+ if(remembered&&Number(remembered.expires_at)>Number(recent.expires_at))return remembered;
+ return recent;
 }
+const tokenPattern=/^eyJ[A-Za-z0-9._-]{30,}$/;
+async function getSession(cfg){
+ const validSession=x=>x&&typeof x.access_token==='string'&&tokenPattern.test(x.access_token);
+ const current=()=>savedSession();
+ let stored=current();
+ if(!validSession(stored))return null;
+ if(Number(stored.expires_at)>Date.now()/1000+75)return stored.access_token;
+ if(typeof stored.refresh_token!=='string'||!stored.refresh_token)return null;
+ if(cfg.enabled!==true||!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(cfg.supabaseUrl||'')||
+  typeof cfg.publishableKey!=='string'||cfg.publishableKey.length<15)return null;
+ async function refresh(){
+  // If the main Vault refreshed in a different tab, adopt its newer trusted token.
+  stored=current();
+  if(!validSession(stored))return null;
+  if(Number(stored.expires_at)>Date.now()/1000+75)return stored.access_token;
+  if(!stored.refresh_token)return null;
+  const res=await w.fetch(cfg.supabaseUrl+'/auth/v1/token?grant_type=refresh_token',{
+   method:'POST',headers:{apikey:cfg.publishableKey,'Content-Type':'application/json'},
+   body:JSON.stringify({refresh_token:stored.refresh_token}),cache:'no-store'
+  });
+  if(!res.ok)return null;
+  const data=await res.json();
+  if(!validSession(data)||typeof data.refresh_token!=='string'||!data.refresh_token)return null;
+  const next={access_token:data.access_token,refresh_token:data.refresh_token,
+   expires_at:Math.floor(Date.now()/1000)+Number(data.expires_in||3600)};
+  try{w.sessionStorage.setItem(SESSION,JSON.stringify(next))}catch(_){}
+  try{if(w.localStorage.getItem(TRUSTED)==='yes')
+   w.localStorage.setItem(SESSION,JSON.stringify(next))}catch(_){}
+  return next.access_token;
+ }
+ try{
+  if(w.navigator?.locks?.request)
+   return await w.navigator.locks.request('hh-private-vault-token-refresh',refresh);
+  return await refresh();
+ }catch(_){return null}
+}
+
 function valid(data,month){
  if(!data||data.schema!=='sh9.github.billing/1'||data.period!==month||data.currency!=='USD')return false;
  const keys=['grossAmount','discountAmount','netAmount','actionsLinuxMinutes','actionsStorageGBHours'];
@@ -40,6 +74,7 @@ function boot(){
  const button=$('githubBillingReadV873'),root=$('githubBillingRowsV873'),status=$('githubBillingStatusV873');
  if(!button||!root||!status)return;
  const month=$('month');
+ const loginLink=$('githubBillingVaultLoginV875');
  const create=(tag,text,cls='')=>{const e=d.createElement(tag);e.textContent=String(text);if(cls)e.className=cls;return e};
  let busy=false;
  function dispatch(data){d.dispatchEvent(new CustomEvent('sh9:github-billing-measured',{detail:data}))}
@@ -80,14 +115,21 @@ function boot(){
   if(busy)return;
   const m=month.value,cached=parseCached(m);
   if(cached){draw(cached,true);status.textContent='✓ Cache-ből betöltve, nincs új API-hívás.';return}
-  const cfg=w.HH_CENTRAL_VAULT||{},token=getSession();
-  if(!token){status.textContent='⚠ A HealthHub Központi Vault-belépés hiányzik vagy lejárt. Lépj be a fő Admin felületen, majd térj vissza.';return}
+  const cfg=w.HH_CENTRAL_VAULT||{};
   if(cfg.enabled!==true||!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(cfg.supabaseUrl||'')||
     typeof cfg.publishableKey!=='string'||cfg.publishableKey.length<15){
    status.textContent='⚠ A HealthHub Vault központi konfigurációja nem érhető el.';return
   }
-  busy=true;button.disabled=true;status.textContent='GitHub Billing lekérése biztonságos közvetítőn át…';
+  busy=true;button.disabled=true;status.textContent='Health Vault-munkamenet ellenőrzése…';
   try{
+   const token=await getSession(cfg);
+   if(!token){
+    status.textContent='🔐 Ebben a böngészőfülben nincs használható Vault-belépés. Nyisd meg a bejelentkezést ugyanebben a fülben.';
+    loginLink.hidden=false;
+    return;
+   }
+   loginLink.hidden=true;
+   status.textContent='GitHub Billing lekérése biztonságos közvetítőn át…';
    const ctl=new AbortController(),timeout=w.setTimeout(()=>ctl.abort(),24000);
    let res;
    try{res=await w.fetch(cfg.supabaseUrl+'/functions/v1/hh-github-billing-v873',{
