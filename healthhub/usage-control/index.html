@@ -103,6 +103,17 @@ legend{color:#b4cddd}
 .github-live-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .github-live-header .btn{min-height:44px}
 @media(max-width:600px){.github-live-row{grid-template-columns:minmax(82px,1fr) minmax(50px,.65fr) auto;gap:6px}.github-live-label,.github-live-row strong{font-size:10px}.github-live-header{align-items:stretch}.github-live-header .btn{width:100%}}
+
+.github-billing-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}
+.github-billing-kpi{border:1px solid #274e70;border-radius:10px;background:#0b1b31;padding:10px}
+.github-billing-kpi strong{display:block;font-size:21px;color:#eaf8ff;margin-top:3px}
+.github-billing-table{margin-top:12px}
+.github-billing-row{display:grid;grid-template-columns:minmax(130px,1.2fr) minmax(72px,.6fr) minmax(70px,.6fr);gap:8px;padding:10px 5px;border-bottom:1px solid #28415a;align-items:center;font-size:12px}
+.github-billing-sku{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.github-billing-gross{text-align:right;color:#bed0e2}
+.github-billing-net{text-align:right;color:#4bdfbd}
+@media(max-width:750px){.github-billing-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:400px){.github-billing-row{grid-template-columns:minmax(100px,1.2fr) minmax(56px,.6fr) minmax(52px,.6fr);gap:4px;font-size:10px}.github-billing-kpi strong{font-size:19px}}
 </style>
 </head>
 <body>
@@ -134,6 +145,17 @@ legend{color:#b4cddd}
  <p class="small" id="githubActionsStatusV872" role="status">Még nincs lekért GitHub-adat.</p>
  <div id="githubActionsRowsV872" aria-live="polite"></div>
  <div class="notice">A GitHub-futtatások nem azonosak a Billing riportban szereplő Linux-percekkel. A <a class="github-live-link" style="margin:0" href="https://github.com/settings/billing" target="_blank" rel="noopener noreferrer">GitHub Usage & Billing</a> pénzügyi kimutatásához külön, biztonságos szerveroldali jogosultság szükséges. Ide API-kulcsot nem kérünk.</div>
+</section>
+
+<section class="card" id="githubBillingV873" aria-label="GitHub Billing számlázott fogyasztás">
+ <div class="github-live-header">
+  <div><h2>＄ GitHub Billing · valós költségek</h2>
+   <p class="small" style="margin:4px 0">Bruttó érték · kedvezmény · tényleges USD · Actions-percek. Kizárólag bejelentkezett HealthHub-fiókból, manuális lekérésre.</p></div>
+  <button type="button" id="githubBillingReadV873" class="btn primary">🔐 GitHub Billing lekérése</button>
+ </div>
+ <p id="githubBillingStatusV873" role="status" class="small">A privát Billing kapcsolat még nincs ellenőrizve.</p>
+ <div id="githubBillingRowsV873"></div>
+ <div class="notice">A GitHub Billing API tokenje csak Supabase Edge Function Secrets mezőben tárolható. Jogosultság: <b>Plan: Read</b>. Ha még nincs beállítva, az oldal ezt jelzi; semmilyen titkos kulcsot nem kell ide beírni. A teljes havi költségkeret továbbra is külön szolgáltatói beállítás.</div>
 </section>
 <section class="statgrid">
  <div class="card"><div class="sectionhead"><div><h2>▥ Legnagyobb fogyasztók</h2><div class="small">Összehasonlítható mértékegységek szerint</div></div><select id="driverUnit" class="btn small" aria-label="Mértékegység"></select></div><div id="drivers"></div></div>
@@ -167,7 +189,7 @@ legend{color:#b4cddd}
   <button class="btn small" id="clear" type="button" style="margin-top:12px">Kézi mérések törlése ezen az eszközön</button>
  </div>
 </section>
-<footer>HH / SH9 Usage Center v872 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
+<footer>HH / SH9 Usage Center v873 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
 </main>
 <script src="../hh-chatgpt-target-auth-v739.js?v=739-account-871"></script>
 <script>
@@ -190,7 +212,7 @@ const $=id=>document.getElementById(id);
 const mk=(tag,cls,content)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=String(content);return e};
 const N=x=>typeof x==='number'&&Number.isFinite(x);
 const fmt=n=>N(n)?new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(n):'—';
-let manual=[],observed=[];
+let manual=[],observed=[],billingRows=[];
 try{const m=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(m))manual=m.filter(valid).slice(-300)}catch(e){}
 try{const m=JSON.parse(localStorage.getItem(OBSERVED)||'[]');if(Array.isArray(m))observed=m.filter(r=>valid(r)&&r.source==='Dropbox /users/get_space_usage').slice(-250)}catch(e){}
 function valid(r){return r&&PROVIDERS.some(p=>p.id===r.provider)&&typeof r.metric==='string'&&r.metric.length<=65&&typeof r.unit==='string'&&r.unit.length<=30&&N(r.used)&&r.used>=0&&(r.limit===null||(N(r.limit)&&r.limit>0))&&Number.isFinite(Date.parse(r.at))}
@@ -198,7 +220,7 @@ const month=$('month');month.value=new Date().toISOString().slice(0,7);
 $('recorded').value=new Date().toISOString().slice(0,10);
 const provider=$('provider');
 PROVIDERS.forEach(p=>{const o=mk('option','',p.name);o.value=p.id;provider.append(o)});
-function monthRows(){return BASE.concat(manual,observed).filter(r=>r.at.slice(0,7)===month.value)}
+function monthRows(){return BASE.concat(manual,observed,billingRows).filter(r=>(r.period||r.at.slice(0,7))===month.value)}
 function latest(rows){const map=new Map();rows.forEach(r=>{const key=r.provider+'|'+r.metric+'|'+r.unit;const old=map.get(key);if(!old||Date.parse(r.at)>Date.parse(old.at)||(r.at===old.at&&!r.id?.includes('baseline')))map.set(key,r)});return [...map.values()]}
 function state(r){if(!r||!N(r.used)||!N(r.limit))return{key:'none',text:'Nincs teljes mérés',pct:null};const pct=100*r.used/r.limit;return {pct,key:pct>=90?'danger':pct>=75?'warn':'good',text:pct>=90?'Kritikus':pct>=75?'Figyelés':'Rendben'}}
 function kpi(label,num,detail,icon){const e=mk('div','card kpi');const t=mk('div','row');t.append(mk('span','ico',icon),mk('span','label',label));e.append(t,mk('div','num',num),mk('div','detail',detail));return e}
@@ -326,10 +348,20 @@ $('export').addEventListener('click',()=>{
  const lines=[columns,...monthRows().map(r=>[PROVIDERS.find(p=>p.id===r.provider)?.name||r.provider,r.metric,r.used,r.limit,r.unit,r.at,r.source,r.verified?'igen':'nem'])].map(a=>a.map(csvCell).join(';'));
  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='sh9-usage-'+month.value+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+document.addEventListener('sh9:github-billing-measured',event=>{
+ const b=event.detail;
+ if(!b||b.schema!=='sh9.github.billing/1'||b.currency!=='USD'||b.period!==month.value)return;
+ billingRows=[{id:'github-billing-'+b.period,provider:'github',metric:'GitHub számlázott költség',
+  used:b.netAmount,limit:null,unit:'USD / hó',at:b.measuredAt,period:b.period,
+  source:'GitHub Billing REST API',verified:true}];
+ render();
+});
 $('back').addEventListener('click',()=>{try{if(document.referrer&&new URL(document.referrer).origin===location.origin){history.back();return}}catch(e){}location.assign('../index.html')});
 month.addEventListener('change',render);$('driverUnit').addEventListener('change',()=>renderDrivers(latest(monthRows())));$('trendMetric').addEventListener('change',renderTrend);render();
 })();
 </script>
+<script src="../central-vault/config.js?v=873-billing-publishable"></script>
 <script src="./github-live-v872.js?v=872-public-actions"></script>
+<script src="./github-billing-v873.js?v=873-github-billing"></script>
 </body>
 </html>

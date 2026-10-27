@@ -1,0 +1,31 @@
+name: SH9 GitHub Billing v873 QA
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-github-billing-v873/**'
+      - 'healthhub/usage-control/**'
+      - 'healthhub/tests/sh9-github-billing-v873.test.cjs'
+      - '.github/workflows/sh9-github-billing-v873.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/hh-github-billing-v873/**'
+      - 'healthhub/usage-control/**'
+      - 'healthhub/tests/sh9-github-billing-v873.test.cjs'
+      - '.github/workflows/sh9-github-billing-v873.yml'
+permissions:
+  contents: read
+jobs:
+  billing-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse UI and verify private read-only Billing contracts
+        run: |
+          node --check healthhub/usage-control/github-billing-v873.js
+          node --test healthhub/tests/sh9-github-billing-v873.test.cjs
+          node --test healthhub/tests/sh9-usage-control-v870.test.cjs
