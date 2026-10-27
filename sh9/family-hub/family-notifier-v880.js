@@ -6,6 +6,7 @@
 'use strict';
 if(w.HH_FAMILY_NOTIFIER_V880)return;
 const HOME='/berlet-app/sh9/family-hub/';
+const NOTES_TABLE='hh_family_task_sticky_notes', ACK_TABLE='hh_family_task_sticky_ack';
 const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}};
 let api=null,apiRequested=false;
 function getSessionHint(){try{return !!w.localStorage.getItem('hh-guardian-family-auth-v785')}catch(_){return false}}
@@ -31,7 +32,7 @@ async function ensureApi(){
   return true;
  }catch(_){return false}finally{apiRequested=false}
 }
-let ch=null,user=null,currentProfile=profile(),badge=null,holder=null,lastEvent=0,activeEventId=0,pending=[],soundContext=null;
+let ch=null,user=null,currentProfile=profile(),badge=null,holder=null,lastEvent=0,activeEventId=0,pending=[],soundContext=null,cloudAckCache=new Map();
 function seenKey(p){return 'hh-family-tasks-v880-seen-'+p}
 function ackKey(p){return 'hh-family-sticky-ack-v904-'+p}
 function noteKey(p,taskId){return 'hh-family-sticky-note-v904-'+p+'-'+taskId}
@@ -39,6 +40,84 @@ function storedAck(p){try{return Number(w.localStorage.getItem(ackKey(p))||0)}ca
 function writeAck(id,p){try{w.localStorage.setItem(ackKey(p),String(Math.max(storedAck(p),Number(id)||0)))}catch(_){}}
 function stickyText(p,id){try{return w.localStorage.getItem(noteKey(p,id))||''}catch(_){return ''}}
 function setStickyText(p,id,text){try{w.localStorage.setItem(noteKey(p,id),text)}catch(_){}}
+/* Cloud note is SHARED per task by both family profiles; acknowledgement stays per profile.
+   No background timers, separate sockets or extra GPS traffic. */
+async function pushAck(p,id){
+ if(!api||!user)return false;
+ const next=Math.max(Number(id)||0,storedAck(p),cloudAckCache.get(p)||0);
+ if(next<=0)return true;
+ const {error}=await api.from(ACK_TABLE).upsert({
+  profile_key:p,last_event_id:next,updated_by:user.id,updated_at:new Date().toISOString()
+ },{onConflict:'profile_key'});
+ if(error){console.warn('Sticky ack sync error',error.message);return false}
+ cloudAckCache.set(p,next);
+ return true;
+}
+async function loadCloudAck(p){
+ if(!api||!user)return;
+ const {data,error}=await api.from(ACK_TABLE).select('last_event_id')
+  .eq('profile_key',p).maybeSingle();
+ if(error){console.warn('Sticky ack read error',error.message);return}
+ const remote=Number(data?.last_event_id)||0,local=storedAck(p);
+ cloudAckCache.set(p,remote);
+ if(remote>local){writeAck(remote,p);markSeen(remote,p)}
+ if(local>remote)await pushAck(p,local); // migrate an earlier on-device dismissal
+}
+function onCloudAckChange(event,p){
+ const data=event.new;if(!data||data.profile_key!==p)return;
+ const next=Number(data.last_event_id)||0;
+ cloudAckCache.set(p,Math.max(cloudAckCache.get(p)||0,next));
+ if(next<=storedAck(p))return;
+ writeAck(next,p);markSeen(next,p);
+ pending=pending.filter(e=>Number(e.id)>next);
+ activeEventId=0;holder?.replaceChildren();drawPending();
+}
+function onCloudNoteChange(event){
+ const row=event.new;
+ if(!row||!row.task_id||!holder||!holder.firstChild)return;
+ const active=pending[0];if(!active||String(active.task_id)!==String(row.task_id))return;
+ const node=holder.firstChild,custom=node.querySelector('.fh-notice-custom'),
+  textarea=node.querySelector('.fh-notice-editor textarea'),editBox=node.querySelector('.fh-notice-editor'),
+  syncLabel=node.querySelector('.fh-note-sync-status');
+ const val=String(row.note||'');
+ setStickyText(currentProfile,row.task_id,val);
+ if(custom)custom.textContent=val?'✎ '+val:'';
+ if(textarea&&editBox?.hidden)textarea.value=val;
+ if(syncLabel)syncLabel.textContent=editBox&&!editBox.hidden?'☁ Közben frissült, ellenőrizd a szerkesztést.':'☁ Szinkronizálva';
+}
+async function getSharedNote(taskId,p,node,custom,textarea,editBox,syncLabel){
+ if(!api||!user||!taskId)return;
+ const {data,error}=await api.from(NOTES_TABLE).select('note,updated_at')
+  .eq('task_id',taskId).maybeSingle();
+ if(!node.isConnected||p!==currentProfile)return;
+ if(error){syncLabel.textContent='⚠ Felhőkapcsolat nem érhető el';return}
+ if(data){
+  const value=String(data.note||'');
+  setStickyText(p,taskId,value);
+  custom.textContent=value?'✎ '+value:'';
+  if(editBox.hidden)textarea.value=value;
+  syncLabel.textContent='☁ Szinkronizálva';
+  return;
+ }
+ const old=stickyText(p,taskId).trim().slice(0,240);
+ if(!old){syncLabel.textContent='☁ Közös megjegyzés';return}
+ // One-time migration from old phone storage. INSERT, never overwrite a note
+ // that another phone may have written since the SELECT.
+ const migration=await api.from(NOTES_TABLE).insert({
+  task_id:taskId,note:old,updated_by_profile:p,updated_by:user.id
+ });
+ if(!node.isConnected||p!==currentProfile)return;
+ if(!migration.error){syncLabel.textContent='☁ Régi megjegyzés átemelve';return}
+ if(migration.error.code==='23505'){
+  const latest=await api.from(NOTES_TABLE).select('note').eq('task_id',taskId).maybeSingle();
+  if(!latest.error&&node.isConnected&&p===currentProfile){
+   const value=String(latest.data?.note||'');
+   setStickyText(p,taskId,value);custom.textContent=value?'✎ '+value:'';
+   if(editBox.hidden)textarea.value=value;syncLabel.textContent='☁ Szinkronizálva';
+  }
+ }else syncLabel.textContent='⚠ Régi megjegyzés nincs szinkronizálva';
+}
+
 function armSound(){
  try{
   const AC=w.AudioContext||w.webkitAudioContext;if(!AC)return;
@@ -74,7 +153,7 @@ function openTask(taskId){
 }
 function style(){
  if(d.getElementById('fhNotifierCssV880'))return;
- const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=904-sticky-ack';d.head.append(s);
+ const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=908-cloud-notes';d.head.append(s);
 }
 function makeUi(){
  if(!d.body)return;
@@ -107,6 +186,7 @@ function drawPending(){
  x.setAttribute('aria-label','Értesítés láttamozása és bezárása');
  x.addEventListener('click',event=>{
   event.stopPropagation();writeAck(e.id,pkey);markSeen(e.id,pkey);
+  void pushAck(pkey,e.id);
   pending=pending.filter(item=>Number(item.id)>Number(e.id));
   activeEventId=0;holder.replaceChildren();drawPending();
  });
@@ -129,16 +209,33 @@ function drawPending(){
  const existing=stickyText(pkey,e.task_id);
  custom.textContent=existing?'✎ '+existing:'';
  const editBox=d.createElement('div');editBox.className='fh-notice-editor';editBox.hidden=true;
- const textarea=d.createElement('textarea');textarea.maxLength=240;textarea.rows=3;textarea.value=existing;textarea.placeholder='Saját megjegyzés (ezen a készüléken)';
+ const textarea=d.createElement('textarea');textarea.maxLength=240;textarea.rows=3;textarea.value=existing;textarea.placeholder='Közös megjegyzés (Mónika és Zsolt)';
  textarea.setAttribute('aria-label','Saját Sticky Note megjegyzés');
  const save=d.createElement('button');save.type='button';save.textContent='✓ Mentés';save.className='fh-notice-note-save';
- save.addEventListener('click',event=>{event.stopPropagation();const val=textarea.value.trim();setStickyText(pkey,e.task_id,val);custom.textContent=val?'✎ '+val:'';editBox.hidden=true;});
+ const syncLabel=d.createElement('small');syncLabel.className='fh-note-sync-status';
+ syncLabel.textContent='☁ Közös megjegyzés';syncLabel.setAttribute('role','status');
+ save.addEventListener('click',async event=>{
+  event.stopPropagation();
+  if(!api||!user){syncLabel.textContent='⚠ Nincs bejelentkezés';return}
+  const val=textarea.value.trim();save.disabled=true;syncLabel.textContent='☁ Szinkronizálás…';
+  try{
+   const {error}=await api.from(NOTES_TABLE).upsert({
+    task_id:e.task_id,note:val,updated_by_profile:pkey,updated_by:user.id,
+    updated_at:new Date().toISOString()
+   },{onConflict:'task_id'});
+   if(error)throw error;
+   setStickyText(pkey,e.task_id,val);custom.textContent=val?'✎ '+val:'';
+   editBox.hidden=true;syncLabel.textContent='☁ Szinkronizálva';
+  }catch(err){syncLabel.textContent='⚠ Nem sikerült menteni: '+(err?.message||'kapcsolati hiba')}
+  finally{save.disabled=false}
+ });
  editBox.append(textarea,save);
  editor.addEventListener('click',event=>{event.stopPropagation();editBox.hidden=!editBox.hidden;if(!editBox.hidden)textarea.focus()});
  const foot=d.createElement('button');foot.type='button';foot.className='fh-note-link';foot.textContent='Feladat megnyitása ›';
  foot.addEventListener('click',event=>{event.stopPropagation();openTask(e.task_id)});
- node.append(top,buddy,h,info,meta,detail,custom,editBox,foot);
+ node.append(top,buddy,h,info,meta,detail,custom,editBox,syncLabel,foot);
  holder.replaceChildren(node);ping();
+ void getSharedNote(e.task_id,pkey,node,custom,textarea,editBox,syncLabel);
  // The card survives until X, including navigation/reloads; acknowledging it is independent of opening the task.
  if(api&&user&&e.task_id){
   api.from('hh_family_tasks').select('category,details,due_at,status,creator_profile').eq('id',e.task_id).maybeSingle().then(({data,error})=>{
@@ -196,6 +293,7 @@ async function join(){
  user=found;if(!user){if(badge)badge.hidden=false;return}
  const {data, error}=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
  if(error||!(data||[]).some(x=>x.profile_key===p))return;
+ await loadCloudAck(p);
  await readUnread();
  ch=api.channel('hh-family-notifier-v880-'+p+'-'+user.id)
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'hh_family_task_events',filter:'recipient_profile=eq.'+p},payload=>{
@@ -204,7 +302,10 @@ async function join(){
     lastEvent=Math.max(lastEvent,Number(e.id));
     announce(e);
     readUnread();
-  }).subscribe();
+  })
+  .on('postgres_changes',{event:'*',schema:'public',table:NOTES_TABLE},onCloudNoteChange)
+  .on('postgres_changes',{event:'*',schema:'public',table:ACK_TABLE,filter:'profile_key=eq.'+p},payload=>onCloudAckChange(payload,p))
+  .subscribe();
 }
 function initialize(){
  makeUi();
@@ -213,10 +314,15 @@ function initialize(){
  d.addEventListener('keydown',armSound,{once:true});
  w.addEventListener('hh-family-profile-changed',join);
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')join()});
- d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){if(profile()!==currentProfile)join();else readUnread()}});
+ d.addEventListener('visibilitychange',()=>{
+  if(d.visibilityState==='visible'){
+   if(profile()!==currentProfile)join();
+   else if(api&&user){loadCloudAck(currentProfile).then(()=>readUnread()).catch(()=>{});}
+  }
+ });
  d.addEventListener('click',()=>{if(profile()!==currentProfile)w.setTimeout(join,0)});
  join();
 }
-w.HH_FAMILY_NOTIFIER_V880={openTask,markSeen,version:'904'};
+w.HH_FAMILY_NOTIFIER_V880={openTask,markSeen,version:'908-cloud-sync'};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',initialize,{once:true});else initialize();
 })(window,document);
