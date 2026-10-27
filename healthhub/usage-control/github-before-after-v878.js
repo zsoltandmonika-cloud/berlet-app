@@ -32,17 +32,17 @@ function monthStart(month){
  const offset=(match[1]==='-'?-1:1)*(Number(match[2])*60+Number(match[3]||0));
  return guess-offset*60000;
 }
-function valid(d){
+function valid(d,now=Date.now()){
  if(!d||d.schema!=='sh9.github.billing/1'||d.currency!=='USD'||d.verified!==true)return false;
  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(d.period||''))return false;
  if(![d.actionsLinuxMinutes,d.grossAmount,d.netAmount].every(finite))return false;
  const measured=Date.parse(d.measuredAt||'');
- return Number.isFinite(measured)&&measured>=Date.parse(BASE.startAt)&&measured<=Date.now()+60000;
+ return Number.isFinite(measured)&&measured>=Date.parse(BASE.startAt)&&measured<=now+60000;
 }
-function calculate(d){
+function calculate(d,now=Date.now()){
  const beforeRate=BASE.linuxMinutes/((Date.parse(BASE.measuredAt)-Date.parse(BASE.startAt))/DAY);
  const common={beforeRate:round(beforeRate),beforeMinutes:BASE.linuxMinutes,baselineAt:BASE.measuredAt};
- if(!valid(d))return {...common,status:'no_measurement'};
+ if(!valid(d,now))return {...common,status:'no_measurement'};
  if(d.period<BASE.month)return {...common,status:'outside'};
  let beginning,minutes;
  try{
