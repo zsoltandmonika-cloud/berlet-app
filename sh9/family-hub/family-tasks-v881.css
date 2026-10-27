@@ -195,3 +195,16 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 
 /* v891 · Remove redundant assignee heading and raise all three profile cards. */
 .fh-sheet-scroll .fh-people-field{margin-top:4px;gap:0}
+
+/* v893 · SH9 Family Tasks 3-column categories, editable quick presets and log dismiss. */
+.fh-category-field .fh-chip-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:142px;overflow-y:auto!important;gap:5px!important;padding:3px 1px 5px}
+.fh-category-field .fh-chip-row .fh-chip{box-sizing:border-box;width:100%;min-width:0;min-height:43px;height:auto;padding:6px 4px;border-radius:11px;font-size:10.2px;line-height:1.16;text-align:center;font-weight:750;overflow-wrap:anywhere;word-break:normal}
+.fh-preset-group[hidden]{display:none}
+.fh-preset-group{margin-top:5px}
+.fh-preset-heading{font-size:11px;font-weight:750;color:#bcdaf1;margin:0 0 5px 2px}
+.fh-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;max-height:138px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;padding:2px 1px 6px}
+.fh-preset-chip{min-width:0;min-height:41px;border-radius:10px;border:1px solid rgba(151,207,246,.36);background:linear-gradient(120deg,rgba(35,85,143,.52),rgba(11,30,59,.82));color:#eef6ff;font-size:10px;line-height:1.2;font-weight:700;overflow-wrap:anywhere;text-align:center;padding:5px 3px}
+.fh-preset-chip:active{border-color:var(--accent);background:var(--accent-soft)}
+.fh-preset-edit-heading{font-size:13px;color:#f4e8ff;margin:14px 0 6px}
+.fh-log{position:relative;padding-right:52px}
+.fh-log .fh-log-remove{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:36px;height:36px;font-size:21px;font-weight:700;line-height:1;border-radius:12px;border:1px solid rgba(185,214,247,.42);background:rgba(12,31,58,.73);color:#f9d9e5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
