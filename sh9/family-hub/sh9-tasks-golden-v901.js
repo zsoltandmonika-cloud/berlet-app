@@ -8,8 +8,8 @@
  const STYLES=`
 #sh9TasksGolden{
  box-sizing:border-box!important;
- position:fixed;top:calc(3px + env(safe-area-inset-top,0px));left:3px;right:auto;bottom:auto;
- z-index:180;display:grid!important;place-items:center;
+ position:fixed!important;top:calc(3px + env(safe-area-inset-top,0px))!important;left:3px!important;right:auto!important;bottom:auto!important;
+ z-index:2147482000!important;display:grid!important;place-items:center;
  width:75px!important;height:30px!important;min-height:30px!important;
  max-width:75px!important;min-width:75px!important;margin:0!important;padding:5px 8px!important;
  text-decoration:none!important;text-align:center;white-space:nowrap;
@@ -22,10 +22,6 @@
  pointer-events:auto;cursor:pointer;transition:none!important;transform:none!important;
 }
 #sh9TasksGolden:focus-visible{outline:2px solid #a6e7ff;outline-offset:2px}
-.fh-hero #sh9TasksGolden{
- position:absolute!important;top:calc(3px + env(safe-area-inset-top,0px))!important;
- left:3px!important;z-index:5!important;
-}
 `;
  function install(){
   if(!d.body)return;
@@ -35,7 +31,8 @@
   if(!b){
    b=d.querySelector('.fh-hero .fh-module-badge')||d.createElement('a');
    b.id='sh9TasksGolden';b.classList.add('sh9-tasks-golden');
-   if(!b.isConnected)d.body.append(b);
+   // Move the SAME anchor to body so it remains visible above full-screen Quick Add.
+   d.body.append(b);
   }
   b.href=HOME;
   b.textContent='Tasks';
