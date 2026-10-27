@@ -37,6 +37,7 @@ function style(){
  css.push('#'+ID+' button[aria-pressed="true"]{outline:2px solid #f1e6fa;outline-offset:1px;box-shadow:0 0 0 4px #dc9fea30}');
  css.push('#'+ID+' .hhQuickDirectV748{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}');
  css.push('#'+ID+' .hhQuickDirectV748 button{flex:1;min-height:46px;border-color:#e6b6df;background:#252f50}');
+ css.push('#'+ID+' #hhUsageOpenV870{display:block;width:100%;margin-top:12px;min-height:56px;padding:13px 16px;background:linear-gradient(115deg,#073452,#173656,#34265c);border:1px solid #43abed;box-shadow:inset 0 1px #ffffff22,0 6px 18px #082a4b66;color:#f5fbff;font-weight:850;font-size:14px}');
  css.push('#'+ID+' .hhQuickHelpV748{color:#f3c5ed;margin:9px 0 0!important;font:650 13px/1.5 system-ui!important}');
   css.push('#'+ID+' .hhRegistryActionV809{margin:11px 0;padding:11px;border-radius:12px;border:1px solid #e7a8db;background:#432a4b;color:#fff;display:flex;gap:9px;align-items:center;flex-wrap:wrap}');
   css.push('#'+ID+' .hhRegistryActionV809 span{flex:1;min-width:130px;font-size:12px;font-weight:700}');
@@ -154,6 +155,11 @@ function mount(){
    b.addEventListener('click',()=>select(item.id,true));nav.appendChild(b);
   }
   panel.appendChild(nav);
+  // v870: one-tap full-screen Usage Control; no cloud connection or polling.
+  const usage=el('button','', '📊 Usage Control · Fogyasztás és limitek');
+  usage.type='button';usage.id='hhUsageOpenV870';
+  usage.addEventListener('click',()=>w.location.assign(new URL('./usage-control/index.html',w.location.href).href));
+  panel.appendChild(usage);
   const fast=el('div','hhRegistryActionV809');fast.id='hhAdminRegistryFastV809';
    const fastText=el('span');fastText.id='hhAdminRegistryTextV809';fast.appendChild(fastText);
    const fastBtn=el('button','', '📱 Telefon kijelölése · Eszközregiszter');
