@@ -32,7 +32,7 @@ test('Edge gateway has strict origin, JWT, RLS-gated membership, bounded respons
  assert.match(src,/get\("authorization"\)/);
  assert.match(src,/\/auth\/v1\/user/);
  assert.match(src,/\/rest\/v1\/hh_profile_access/);
- assert.match(src,/github_plan_read_required/);
+ assert.match(src,/github_account_permission_denied/);
  assert.match(src,/get\("origin"\)/);
  assert.match(src,/origin!==ORIGIN/);
  assert.match(src,/monthQuery\(month\)/);
