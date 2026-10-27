@@ -3,6 +3,7 @@ name: HealthHub Free Plan Usage Saver v868 QA
 on:
   pull_request:
     paths:
+      - 'healthhub/index.html'
       - 'healthhub/live-v364-history.js'
       - 'healthhub/guardian/guardian-live-v785.js'
       - 'healthhub/guardian/guardian-profile-follow-v837.js'
@@ -14,6 +15,9 @@ on:
   push:
     branches: [main]
     paths:
+      - 'healthhub/index.html'
+      - 'healthhub/live-v364-history.js'
+      - 'healthhub/tests/hh-usage-streamline-v867.test.cjs'
       - 'healthhub/guardian/guardian-live-v785.js'
       - 'healthhub/guardian/guardian-profile-follow-v837.js'
       - 'healthhub/guardian/guardian-live-trio-v845.js'
