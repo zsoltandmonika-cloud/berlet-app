@@ -51,13 +51,14 @@
    detail.append(node('strong','',MODE[mode]||'Járat'));
    detail.append(node('span','',route?(route.directions.slice(0,2).join(' ↔ ')||route.name||'BKK menetrendi járat'):'BKK járat · adatok betöltése…'));
    const supported=FEATURED.has(key);
+   const extra=w.HH_BKK_EXTRA_ROUTE_V912;
    const transit=w.HH_GUARDIAN_TRANSIT_V790;
    const original=$('hhTransitShow'+id);
    const mapReady=supported&&(transit&&typeof transit.hasMapRoute==='function'?
     transit.hasMapRoute(id):!!original);
    const note=mapReady?'Menetrendi vonal · élő jel csak friss BKK-adatból':
     supported?'Menetrendi útvonal betöltésre vár · élő jel csak friss BKK-adatból':
-    route?'Élő járműjel friss BKK-adat esetén · vonalrajz itt még nincs':'Katalógus betöltésére vár';
+    route?'Új: Mutasd → hiteles megállósorrend, sematikus útvonal · élő jármű külön':'Katalógus betöltésére vár';
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
    // Static route lines and LIVE vehicles must never share their toggle state.
@@ -74,10 +75,15 @@
     live.title='Csak ennek a járatnak az élő járműveit kapcsolja';
     controls.append(live);
    }
-   if(supported){
-    const shown=!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id));
+   if(route){
+    const shown=supported?!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id)):
+     !!(extra&&extra.isLineVisible&&extra.isLineVisible(key));
     const show=action(shown?'Ne mutasd':'Mutasd ↗',
-     id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
+     (MODE[mode]||'Járat')+' '+id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
+      if(!supported){
+       if(extra){if(shown)extra.setLineVisible(key,false);else extra.showLine(key)}
+       return;
+      }
       if(!mapReady)return;
       if(transit&&typeof transit.setLineVisible==='function'){
        if(shown)transit.setLineVisible(id,false);
@@ -85,7 +91,7 @@
        else transit.setLineVisible(id,true);
       }else if(!shown&&original&&!original.disabled)original.click();
       render();
-    },!route||!mapReady);
+    },!route||(supported&&!mapReady)||(!supported&&!extra));
     show.classList.add('hh-bkk-watch-show-v814');
     show.setAttribute('aria-pressed',String(shown));
     show.dataset.visible=String(shown);
@@ -138,6 +144,7 @@
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
    w.addEventListener('hh-bkk-static-map-ready-v817',render);
    w.addEventListener('hh-bkk-line-visibility-v855',render);
+   w.addEventListener('hh-bkk-extra-route-v912-changed',render);
    w.addEventListener('hh-bkk-live-per-line-v909-changed',render);
    w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
   }

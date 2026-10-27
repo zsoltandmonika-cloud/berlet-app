@@ -36,7 +36,7 @@
   const wrapper=doc.createElement('div');
   wrapper.className='hh-bkk-live-vehicle-dom-v797 hh-bkk-glass-marker-v800 hh-bkk-glass--'+mode;
   // MapLibre writes transforms on the outer element; never override them.
-  wrapper.style.cssText='z-index:50;pointer-events:none';
+  wrapper.style.cssText='z-index:50';
   wrapper.setAttribute('role','img');
   wrapper.setAttribute('aria-label','Élő '+route+' · '+({bus:'busz',tram:'villamos',trolley:'trolibusz',metro:'metró',hev:'HÉV',other:'járat'}[mode]||'BKK-járat')+' · friss BKK-pozíció');
   const stack=doc.createElement('div');
@@ -59,6 +59,26 @@
   pin.setAttribute('aria-hidden','true');
   stack.append(badge,pin);
   wrapper.appendChild(stack);
+  if(doc&&typeof wrapper.addEventListener==='function'&&root?.maplibregl?.Popup){
+   wrapper.setAttribute('tabindex','0');wrapper.setAttribute('role','button');
+   const details=()=>{
+    const m=root.HH_GUARDIAN_V761?.map;
+    if(!m||!Number.isFinite(vehicle.lng)||!Number.isFinite(vehicle.lat))return;
+    try{
+     const el=doc.createElement('div');el.className='hh-bkk-route-info-v912';
+     const title=doc.createElement('strong');title.textContent=({bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'}[mode]||'BKK')+' '+route;
+     const line=doc.createElement('div');line.textContent=vehicle.headsign?'Irány: '+vehicle.headsign:'Irány: nincs adat';
+     const time=doc.createElement('small');
+     const timeValue=Date.parse(vehicle.timestamp);
+     time.textContent=Number.isFinite(timeValue)?'Utolsó hiteles BKK-járműpozíció: '+new Date(timeValue).toLocaleTimeString('hu-HU'):'Élő megfigyelés ideje nem ismert';
+     el.append(title,line,time);
+     new root.maplibregl.Popup({offset:14,closeButton:true,className:'hh-bkk-popup-v912'})
+      .setLngLat([vehicle.lng,vehicle.lat]).setDOMContent(el).addTo(m);
+    }catch(_){}
+   };
+   wrapper.addEventListener('click',e=>{if(e?.stopPropagation)e.stopPropagation();details()});
+   wrapper.addEventListener('keydown',e=>{if(e?.key==='Enter'||e?.key===' '){if(e.preventDefault)e.preventDefault();details()}});
+  }
   return wrapper;
  }
  // Optional DOM dependency injection supports deterministic tests without a browser.

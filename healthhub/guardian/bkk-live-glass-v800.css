@@ -147,3 +147,6 @@
 /* v911: trolley and metro inherit the original small premium glass marker. */
 .hh-bkk-glass--trolley{--hh-live-edge:#ff9eb9;--hh-live-lamp:#ffb9cc;--hh-live-icon:#ffb9cc;--hh-live-from:rgba(164,35,72,.88);--hh-live-to:rgba(62,10,40,.94);--hh-live-aura:rgba(255,120,155,.3)}
 .hh-bkk-glass--metro{--hh-live-edge:#82baff;--hh-live-lamp:#a1d1ff;--hh-live-icon:#a1d1ff;--hh-live-from:rgba(38,97,172,.88);--hh-live-to:rgba(16,39,91,.94);--hh-live-aura:rgba(90,155,248,.3)}
+
+/* v912: a genuine BKK live vehicle marker can open its sourced detail popup. */
+.hh-bkk-live-vehicle-dom-v797.hh-bkk-glass-marker-v800{pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
