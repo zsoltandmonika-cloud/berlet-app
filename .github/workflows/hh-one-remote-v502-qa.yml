@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "healthhub/android-bridge/**"
+      - "healthhub/data/bridge-ota.json"
+      - "healthhub/scripts/should-build-android-v877.cjs"
       - "healthhub/live-v305.js"
       - "healthhub/live-v328.js"
       - "healthhub/live-v330.js"
@@ -23,11 +25,22 @@ permissions:
 jobs:
   source-contract:
     runs-on: ubuntu-latest
+    outputs:
+      android_build: ${{ steps.native_gate.outputs.android_build }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Detect native changes (fail open when diff is unavailable)
+        id: native_gate
+        env:
+          SH9_EVENT: ${{ github.event_name }}
+          SH9_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          SH9_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node healthhub/scripts/should-build-android-v877.cjs
+      - name: Verify Android change classifier
+        run: node --test healthhub/tests/should-build-android-v877.test.cjs
       - name: Verify scoped remote controls, source and JS parse
         run: |
           node --check healthhub/live-v305.js
@@ -44,6 +57,10 @@ jobs:
           node healthhub/tests/hh-one-rag-v500.test.cjs
           node healthhub/tests/hh-one-service-intelligence-v501.test.cjs
   android-compile:
+    # Source contracts still run for JS changes, but Android SDK/Gradle
+    # work is only required for native bridge, OTA metadata or manual dispatch.
+    needs: source-contract
+    if: ${{ needs.source-contract.outputs.android_build == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     defaults:
