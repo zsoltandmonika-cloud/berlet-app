@@ -132,7 +132,7 @@ async function route(req:Request){
    code="github_account_not_found";
   else if(upstream.status===400)
    code="github_billing_request_invalid";
-  const retryAfter=retry&&/^\\d{1,5}$/.test(retry)?Number(retry):null;
+  const retryAfter=retry&&/^\d{1,5}$/.test(retry)?Number(retry):null;
   return result({configured:true,error:code,httpStatus:upstream.status,
    ...(code==="github_rate_limited"&&retryAfter!==null?{retryAfterSeconds:retryAfter}:{})},502);
  }
