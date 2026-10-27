@@ -93,7 +93,54 @@ object FamilyTaskFloatingNote {
           <style>
           html,body{margin:0;padding:0;background:transparent;overflow:hidden;font-family:system-ui}
           *,*::before,*::after{box-sizing:border-box}
-          $css
+          .fh-notice-anchor{position:fixed;z-index:2147483000;top:calc(env(safe-area-inset-top,0px) + 9px);left:9px;max-width:calc(100vw - 18px);pointer-events:none}
+.fh-notice{position:relative;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;width:min(264px,75vw);min-height:225px;padding:18px 15px 15px;pointer-events:auto;cursor:pointer;border:1px solid #d9ad4c;border-radius:3px 3px 12px 6px;color:#4c3315;background:linear-gradient(130deg,#fff9c9 0%,#fff0a1 55%,#ebd272 100%);box-shadow:3px 8px 2px #d2b55422,0 14px 35px #0008;transform:rotate(-1.5deg);animation:fh-drop .32s ease-out;font-family:"Segoe Print","Comic Sans MS",cursive}
+.fh-notice:before{position:absolute;content:"";left:0;right:0;top:0;height:21px;background:linear-gradient(180deg,#fff9ea72,transparent);pointer-events:none}
+.fh-notice .fh-note-top{display:flex;align-items:center;justify-content:space-between;gap:3px}
+.fh-notice .fh-note-top strong{font-size:15px}
+.fh-notice h3{font:750 16px/1.25 "Segoe Print","Comic Sans MS",cursive;margin:6px 0 1px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.fh-notice p{font-size:12px;line-height:1.32;margin:2px 0;overflow-wrap:anywhere}
+.fh-notice .fh-note-link{margin-top:auto;font-weight:800;font-size:12px;color:#765118}
+.fh-notice-close{border:0;background:#fff2a6;color:#715221;font:900 19px/1 system-ui;padding:6px 9px;border-radius:50%;cursor:pointer}
+.fh-notice:focus-visible,.fh-notice-close:focus-visible,.fh-badge:focus-visible{outline:3px solid #73c9ff;outline-offset:4px}
+.fh-badge{position:fixed;z-index:899;top:calc(env(safe-area-inset-top,0px) + 12px);right:13px;display:flex;align-items:center;gap:6px;border:1px solid #edcc7999;border-radius:999px;padding:7px 10px;color:#fff8e3;background:linear-gradient(145deg,#12345b,#281c3c);box-shadow:0 3px 12px #0009;font:800 13px/1 system-ui;cursor:pointer}
+.hero .fh-badge,.guardian-hero .fh-badge{position:absolute;top:8px;right:8px;z-index:8}
+.fh-badge .fh-badge-count{min-width:18px;text-align:center;border-radius:999px;background:#efbd62;color:#142038;padding:3px 5px;font-size:11px}
+@keyframes fh-drop{from{opacity:0;transform:translateY(-110%) rotate(-4deg)}to{opacity:1;transform:translateY(0) rotate(-1.5deg)}}
+@media(prefers-reduced-motion:reduce){.fh-notice{animation:none}}
+
+
+.fh-notice .fh-note-buddy{
+ display:block;align-self:center;
+ width:86px;height:86px;object-fit:contain;
+ margin:0 auto -2px;
+ filter:drop-shadow(0 3px 5px rgba(101,62,18,.26));
+}
+.fh-notice .fh-note-buddy[hidden]{display:none}
+
+
+.fh-notice-anchor{top:calc(env(safe-area-inset-top,0px) + 42px);left:8px;max-height:calc(100dvh - 54px);overflow-y:auto}
+.fh-notice{box-sizing:border-box;width:min(292px,83vw);min-height:220px;max-height:calc(100dvh - 70px);overflow-y:auto;cursor:default;gap:8px;padding:13px 12px 15px}
+.fh-notice .fh-note-top strong{font-size:17px}
+.fh-notice h3{font-size:19px;line-height:1.23;margin:4px 0}
+.fh-notice .fh-notice-action{font:700 13px/1.35 system-ui;margin:0}
+.fh-notice .fh-notice-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px;font:650 12px/1.35 system-ui;color:#62410f}
+.fh-notice .fh-notice-details{font:600 12px/1.4 system-ui;margin:0;color:#604318}
+.fh-notice .fh-notice-custom{font:600 12px/1.4 system-ui;white-space:pre-wrap}
+.fh-notice .fh-note-buddy{width:72px;height:72px}
+.fh-notice .fh-note-edit{margin-left:auto}
+.fh-notice .fh-note-edit,.fh-notice .fh-notice-close{min-width:36px;min-height:36px;display:grid;place-items:center;border:1px solid #d5ab4b;border-radius:9px;background:#fff2ad;color:#684314;font:750 19px/1 system-ui}
+.fh-notice-editor[hidden]{display:none!important}
+.fh-notice-editor{display:grid;gap:5px}
+.fh-notice-editor textarea{box-sizing:border-box;width:100%;border:1px solid #caa552;border-radius:8px;padding:7px;background:#fffde5;color:#4d3210;font:13px/1.3 system-ui}
+.fh-notice .fh-notice-note-save{min-height:36px;border:1px solid #b58c3a;border-radius:8px;background:#f4db87;color:#54320e;font:750 13px/1 system-ui}
+.fh-notice .fh-note-link{border:0;background:transparent;text-align:left;min-height:35px;padding:6px 0;cursor:pointer;font:800 12px/1.2 system-ui;color:#765118}
+
+
+.fh-notice .fh-note-sync-status{display:block;font:700 11px/1.35 system-ui;color:#596e3a;overflow-wrap:anywhere}
+.fh-notice .fh-note-sync-status:empty{display:none}
+.fh-notice .fh-notice-note-save:disabled{opacity:.6;cursor:progress}
+.fh-notice .fh-notice-custom:empty{display:none}
           .fh-notice-anchor{position:static!important;left:auto!important;top:auto!important;
             max-height:none!important;overflow:visible!important;width:100%!important}
           .fh-notice{width:calc(100% - 10px)!important;max-height:345px!important;
