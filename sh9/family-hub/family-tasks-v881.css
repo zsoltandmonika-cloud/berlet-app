@@ -328,11 +328,11 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
    A wide feathered glass/photo-toned patch covers just its upper-right region. */
 .fh-hero::after{
  content:"";position:absolute;z-index:2;top:0;right:0;bottom:auto;left:auto;
- width:29%;height:29%;pointer-events:none;border:0;clip-path:none;
+ width:36%;height:32%;pointer-events:none;border:0;clip-path:none;
  background:linear-gradient(110deg,rgba(42,64,115,.04) 0%,rgba(45,66,120,.96) 40%,rgba(55,75,135,.99) 74%,rgba(77,84,148,.99) 100%);
- -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 35%),linear-gradient(to bottom,#000 58%,transparent 100%);
+ -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 24%),linear-gradient(to bottom,#000 74%,transparent 100%);
  -webkit-mask-composite:source-in;
- mask-image:linear-gradient(to right,transparent 0%,#000 35%),linear-gradient(to bottom,#000 58%,transparent 100%);
+ mask-image:linear-gradient(to right,transparent 0%,#000 24%),linear-gradient(to bottom,#000 74%,transparent 100%);
  mask-composite:intersect;
  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
