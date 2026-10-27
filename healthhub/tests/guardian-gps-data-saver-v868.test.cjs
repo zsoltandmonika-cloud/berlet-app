@@ -143,8 +143,9 @@ test('Steady v879: a late response after profile change cannot resurrect a clear
  api.onProfileChanged(); // invalidates pending location cache
  app.releaseReads();
  await first;
+ const afterInvalidation=app.reads(); // profile change legitimately polls peer location
  const second=api.readSharedLocation('zsolt');
- assert.equal(app.reads()-before,2,'invalidated pending result is not cached again');
+ assert.equal(app.reads()-afterInvalidation,1,'invalidated pending result is not cached again');
  app.releaseReads();
  await second;
 });
