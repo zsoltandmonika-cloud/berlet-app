@@ -1,14 +1,14 @@
 /* Family Guard BKK Watchlist v814
  * The verified official BKK catalog remains the SINGLE source of favorites.
  * Favorites are scoped to profile and to this Edge browser, never GPS data.
- * 260/17/19 have verified live overlays; 1/41 gain source-backed
- * static GTFS maps after geometry loads. Never imply new live tracking.
+ * 260/17/19/1/41 have source-backed GTFS route maps. Their live vehicles
+ * are displayed ONLY from fresh verified BKK GTFS-RT positions; never simulated.
  */
 (function(w,d){
  'use strict';
  const $=id=>d.getElementById(id);
  const FEATURED=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
- const LIVE_MAP=new Set(['bus:260','tram:17','tram:19']);
+ const LIVE_MAP=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
  const MODE={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',rail:'Vasút',other:'Járat'};
  function catalog(){return w.HH_BKK_CATALOG_V801}
  function currentProfile(){

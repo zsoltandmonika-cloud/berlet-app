@@ -9,7 +9,7 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const KEY='hh-bkk-live-disabled-per-profile-v909';
- const IDS=new Set(['260','17','19']);
+ const IDS=new Set(['260','17','19','1','41']);
  const PROFILES=['zsolt','monika'];
  const hidden={zsolt:new Set(),monika:new Set()};
  const normalizeProfile=x=>x==='monika'?'monika':'zsolt';

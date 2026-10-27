@@ -8,7 +8,7 @@
  if(root)root.HH_BKK_LIVE_V793=Object.freeze(api);
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const ROUTES=new Set(['260','17','19']);
+ const ROUTES=new Set(['260','17','19','1','41']);
  const MAX_AGE_MS=90000;
  function validate(snapshot,now=Date.now()){
   if(!snapshot||snapshot.schemaVersion!==1||snapshot.source!=='BKK Zrt., CC BY 4.0'||snapshot.feedType!=='GTFS-RT VehiclePositions')return {ok:false,reason:'invalid-source',vehicles:[]};

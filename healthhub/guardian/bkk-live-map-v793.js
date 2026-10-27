@@ -8,7 +8,7 @@
 })(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  const ID='hh-bkk-live-v793';
- const COLORS={260:'#148ee0',17:'#e4ab00',19:'#e4ab00'};
+ const COLORS={260:'#148ee0',17:'#e4ab00',19:'#e4ab00',1:'#e4ab00',41:'#e4ab00'};
  const EMPTY={type:'FeatureCollection',features:[]};
  function toFeatureCollection(vehicles){
   return {type:'FeatureCollection',features:vehicles.map(v=>({
@@ -72,7 +72,7 @@
    const present=new Set();
    for(const v of vehicles){
     if(!v||typeof v.id!=='string'||!v.id||!Number.isFinite(v.lat)||!Number.isFinite(v.lng)
-     ||Math.abs(v.lat)>90||Math.abs(v.lng)>180||!['260','17','19'].includes(v.routeId))continue;
+     ||Math.abs(v.lat)>90||Math.abs(v.lng)>180||!['260','17','19','1','41'].includes(v.routeId))continue;
     present.add(v.id);
     let marker=domMarkers.get(v.id);
     if(!marker){

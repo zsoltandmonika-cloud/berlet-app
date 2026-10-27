@@ -56,10 +56,10 @@ function watchedLines(){
   const keys=new Set(catalog.favoriteIds);
   const p=catalog.activeProfile==='monika'?'monika':'zsolt';
   const lineFilter=w.HH_BKK_LIVE_PER_LINE_V909;
-  return ['260','17','19'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id))
+  return ['260','17','19','1','41'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id))
    .filter(id=>!lineFilter||lineFilter.enabled(id,p));
  }
- return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19'].includes(id));
+ return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19','1','41'].includes(id));
 }
 function toggleLive(){
  if(!lastVehicles.length||!mapApi.map||!lastVerified)return;
