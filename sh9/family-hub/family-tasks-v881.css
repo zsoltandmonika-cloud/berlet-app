@@ -155,3 +155,13 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
   width:min(100%,420px)!important;
   margin:0 auto!important;
 }
+
+/* v889 · Compact Quick Add title input beneath the photo.
+   Keep label available to screen readers and speech-status messages accessible. */
+.fh-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.fh-sheet-scroll>header.fh-quick-hero{margin-bottom:5px}
+.fh-sheet-scroll .fh-title-field{margin-top:3px;gap:0}
+.fh-title-field .fh-title{box-sizing:border-box;height:48px;min-height:48px;padding:9px 49px 9px 13px;font-size:16px;line-height:1.4;border-radius:13px}
+.fh-title-field .fh-microphone{right:4px;width:40px;height:40px;border-radius:10px;font-size:17px}
+.fh-title-field #fhVoiceStatus:empty{display:none}
+.fh-sheet-scroll .fh-category-field{margin-top:12px}
