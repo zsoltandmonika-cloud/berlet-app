@@ -366,3 +366,14 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
  font-size:13px;
  padding:0;
 }
+
+/* v904 · visible sender/completion state, hidden items restore, compact no-popup controls */
+.fh-tools{display:flex;align-items:center;gap:6px}
+.fh-tools input{flex:1;min-width:0}
+.fh-tools .fh-hidden-toggle{flex:0 0 auto;min-height:40px;padding:5px 9px;border-radius:12px;font:750 11px/1.2 system-ui;color:#f0e8ff;border:1px solid rgba(176,209,245,.48);background:linear-gradient(135deg,rgba(45,80,127,.67),rgba(18,40,76,.88));backdrop-filter:blur(12px)}
+.fh-tools .fh-hidden-toggle[hidden]{display:none}
+.fh-provenance{display:flex;align-items:center;flex-wrap:wrap;column-gap:9px;row-gap:3px;margin:5px 0 7px;padding:4px 7px;border-radius:9px;background:rgba(19,49,83,.4);color:#c8d9ec;font-size:11px}
+.fh-provenance time{font-size:10px;opacity:.8}
+.fh-provenance .fh-done-label{font-size:12px;color:#abf0ce}
+.fh-card.is-done{border-color:rgba(106,214,156,.62)}
+.fh-card.is-done .fh-provenance{background:rgba(22,91,74,.27)}
