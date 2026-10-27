@@ -382,10 +382,21 @@ async function fetchData(){
  hiddenTasks=new Set((result[3].data||[]).map(e=>String(e.task_id)));
  setStats();render();announce('Szinkronizálva · '+tasks.length+' feladat · 30 napos napló');
 }
-function refreshWhenForeground(){
- if(!user||d.visibilityState==='hidden'||!authorized.includes(self()))return;
- if(Date.now()-lastFresh<12000)return;
- fetchData();
+let lastForegroundRequest=0;
+async function refreshWhenForeground(){
+ if(!api||!user||d.visibilityState==='hidden'||!authorized.includes(self()))return;
+ const now=Date.now();
+ // Exactly one bounded task read per return to foreground. No polling or redundant log/history fetch.
+ if(now-lastForegroundRequest<1800)return;
+ lastForegroundRequest=now;
+ if(loading){fetchAgain=true;return}
+ try{
+  const {data,error}=await api.from(TABLE)
+    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at,updated_at')
+    .order('updated_at',{ascending:false}).limit(150);
+  if(error){announce('Adathiba: '+error.message);return}
+  tasks=data||[];setStats();render();
+ }catch(err){announce('Adathiba: '+err.message)}
 }
 function reloadSoon(){
  if(refreshId!==null)w.clearTimeout(refreshId);
