@@ -119,3 +119,39 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
   padding-bottom:16px!important;
 }
 .fh-standard-nav{z-index:1500}
+
+/* v888 · One shared SH9 taskbar docked INSIDE Quick Add, never covered by the dialog. */
+.fh-sheet:not([hidden]){
+  display:flex!important;
+  flex-direction:column!important;
+  position:fixed!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+  inset:0!important;
+  width:100%!important;
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  padding:0!important;
+}
+.fh-sheet-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:0 max(14px,calc((100vw - 520px)/2)) calc(110px + env(safe-area-inset-bottom,0px));
+}
+.fh-sheet>.fh-standard-nav{
+  position:relative!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:none!important;
+  z-index:1500!important;
+  flex:0 0 auto;
+  width:min(100%,420px)!important;
+  margin:0 auto!important;
+}
