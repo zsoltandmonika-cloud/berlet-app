@@ -308,3 +308,31 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 /* v897 · Two-pixel fine alignment, visual-only. */
 .fh-sheet-scroll .fh-title-field{transform:translateY(2px)}
 .fh-category-field .fh-category-manage{transform:translateY(-2px)}
+
+/* v898 · interactive task category chip, and cover baked-in duplicate hero label. */
+.fh-cardtop .fh-category{
+ appearance:none;display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 auto;min-height:30px;max-width:48%;
+ padding:4px 7px;margin:-5px -5px 0 0;
+ color:#c4d6ed;background:linear-gradient(140deg,rgba(42,82,137,.23),rgba(12,30,60,.44));
+ border:1px solid rgba(161,211,250,.31);border-radius:10px;
+ box-shadow:inset 0 1px rgba(255,255,255,.09);
+ font-size:11px;text-align:right;cursor:pointer;
+ overflow-wrap:anywhere;white-space:normal;
+}
+.fh-cardtop .fh-category[aria-pressed="true"]{
+ color:#fff;border-color:var(--accent);background:var(--accent-soft);
+}
+.fh-cardtop .fh-category:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* The second Tasks marking is baked into the approved photo, not HTML.
+   A wide feathered glass/photo-toned patch covers just its upper-right region. */
+.fh-hero::after{
+ content:"";position:absolute;z-index:2;top:0;right:0;bottom:auto;left:auto;
+ width:29%;height:29%;pointer-events:none;border:0;clip-path:none;
+ background:linear-gradient(110deg,rgba(42,64,115,.04) 0%,rgba(45,66,120,.96) 40%,rgba(55,75,135,.99) 74%,rgba(77,84,148,.99) 100%);
+ -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 35%),linear-gradient(to bottom,#000 58%,transparent 100%);
+ -webkit-mask-composite:source-in;
+ mask-image:linear-gradient(to right,transparent 0%,#000 35%),linear-gradient(to bottom,#000 58%,transparent 100%);
+ mask-composite:intersect;
+ backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
