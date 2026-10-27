@@ -88,6 +88,12 @@ legend{color:#b4cddd}
 @media(max-width:600px){.shell{padding:15px 10px calc(24px + env(safe-area-inset-bottom))}header{align-items:flex-start;flex-wrap:wrap;gap:12px}.brand{gap:10px}.logo{font-size:27px}.subtitle{font-size:11px}.controls{width:100%;justify-content:space-between}.controls input{flex:1;min-width:0}.kpis{gap:9px}.kpi{min-height:106px;padding:11px}.kpi .num{font-size:20px}.kpi .label{font-size:11px}.services{gap:9px}.service{min-height:145px;padding:11px}.service .head{align-items:flex-start}.service .name{font-size:12px}.service .usage{font-size:12px}.service .meta{font-size:10px;min-height:27px}.pill{font-size:9px;padding:3px 5px}.actiongrid{grid-template-columns:1fr}.action{min-height:auto}.metricrow{grid-template-columns:minmax(92px,1fr) minmax(65px,.85fr) auto;gap:5px}.metricrow strong{font-size:11px}.card{padding:12px}.sectionhead h2{font-size:16px}}
 @media(max-width:360px){.services{grid-template-columns:1fr}.kpi .num{font-size:18px}form .fields{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.oauth-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+.oauth-status{color:#c0d5ea;flex:1;min-width:180px;font-size:12px}
+.oauth-actions{display:flex;gap:9px;flex-wrap:wrap}
+.oauth-actions button{min-height:44px}
+@media(max-width:600px){.oauth-actions{width:100%}.oauth-actions button{flex:1;font-size:12px;white-space:normal}}
 </style>
 </head>
 <body>
@@ -97,6 +103,13 @@ legend{color:#b4cddd}
  <div class="controls"><button class="btn small" id="back">← Admin</button><label class="small" for="month">Hónap</label><input type="month" id="month" aria-label="Hónap kiválasztása"><button class="btn primary" id="export">⬇ Export</button></div>
 </header>
 <div class="notice" id="sourceNote"><strong>Valós adatok, nem demószámok.</strong> A GitHub, Dropbox, Google, Outter és AI számlázási adatai addig „Nincs mérés” állapotban maradnak, amíg hiteles mérés vagy kézi elszámolás nem érkezik. A Supabase GPS-referencia API-hívásszám, nem GB.</div>
+<section class="card" id="dropboxUsageAuth" aria-label="Dropbox fiók tárhelyadatok">
+ <div class="sectionhead"><h2>◆ Dropbox fiók · tárhely / limit</h2><span class="pill" id="dropboxScopeStatus">Kapcsolat ellenőrzésre vár</span></div>
+ <div class="small">A külön HealthHub ChatGPT Sync OAuth-fiók teljes tárhelye. Ez nem a havi adatforgalom, és nem az App Folder külön mérete.</div>
+ <div class="oauth-row"><div class="oauth-status" role="status" id="dropboxUsageStatus">A fiókhasználat csak gombnyomásra kérdezhető le. Nem indul háttérszinkron.</div>
+ <div class="oauth-actions"><button type="button" class="btn primary" id="dropboxUsageRead">◉ Tárhely lekérése</button>
+ <button type="button" class="btn" id="dropboxUsageAuthorize">🔐 Dropbox jogosultság megújítása</button></div></div>
+</section>
 <section class="kpis" id="kpis" aria-label="Kulcsmutatók"></section>
 <section aria-label="Szolgáltatások">
  <div class="sectionhead"><h2>◈ Szolgáltatások</h2><span class="small" id="coverage"></span></div>
@@ -125,17 +138,18 @@ legend{color:#b4cddd}
  </div>
  <div class="card"><h2>⛨ Adatminőség és kontroll</h2>
   <div id="quality" class="small" style="margin-top:10px"></div>
-  <div class="notice">A mérések mértékegységenként és elszámolási időszakonként külön kezelendők. A teljes GB-keret és a forgalmi végpontok hívásszáma nem összeadható. A trend nem készít interpolált vagy kitalált értékeket.</div>
+  <div class="notice">A Dropbox tárhelymérés önálló (GB tárhely), nem összeadható havi hálózati forgalommal. A mérések mértékegységenként és elszámolási időszakonként külön kezelendők. A teljes GB-keret és a forgalmi végpontok hívásszáma nem összeadható. A trend nem készít interpolált vagy kitalált értékeket.</div>
   <details style="margin-top:14px"><summary>Források és frissítési szabályok</summary>
    <p class="small">Supabase: 2026. október 25. 22:00 – 26. 22:00 UTC, <a style="color:#8bccff" href="https://github.com/zsoltandmonika-cloud/berlet-app/commit/553cc44f3ea29097dd3440b23f5da5e98d801310" target="_blank" rel="noopener noreferrer">v868 mérési audit</a>. Az 5 GB-os Free uncached egress havi keret ismert, a felhasználás nem.</p>
    <p class="small">GitHub / Dropbox / Google / Outter / AI: hiteles szolgáltatói usage endpoint vagy számlázási export bekötése külön, szerveroldali hitelesítéssel lehetséges. A böngésző nem fogad titkos API-kulcsot.</p>
-   <p class="small">A kézi számok csak ezen a böngészőn jelennek meg. Automatikus felhőszinkron, GPS-adat vagy személyes egészségügyi adat nincs. Nincs háttér-polling.</p>
+   <p class="small">A kézi számok és a felhasználó által lekért Dropbox tárhelyérték csak ezen a böngészőn jelennek meg. Automatikus felhőszinkron, GPS-adat vagy személyes egészségügyi adat nincs. Nincs háttér-polling.</p>
   </details>
   <button class="btn small" id="clear" type="button" style="margin-top:12px">Kézi mérések törlése ezen az eszközön</button>
  </div>
 </section>
-<footer>HH / SH9 Usage Center v870 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
+<footer>HH / SH9 Usage Center v870 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
 </main>
+<script src="../hh-chatgpt-target-auth-v739.js?v=739-account-871"></script>
 <script>
 (function(){
 'use strict';
@@ -151,19 +165,20 @@ const BASE=[
 {id:'supabase-gps-baseline',provider:'supabase',metric:'GPS + kapcsolódó HTTP-hívások',used:17777,limit:null,unit:'hívás / 24h',at:'2026-10-26T22:00:00Z',source:'Supabase edge_logs · v868 audit',verified:true,period:'2026-10-25T22:00:00Z / 2026-10-26T22:00:00Z'},
 {id:'supabase-ask-baseline',provider:'supabase',metric:'Ask Léna előzmény GET',used:5467,limit:null,unit:'hívás / 24h',at:'2026-10-26T22:00:00Z',source:'Supabase edge_logs · v868 audit',verified:true,period:'2026-10-25T22:00:00Z / 2026-10-26T22:00:00Z'},
 {id:'supabase-egress-limit',provider:'supabase',metric:'Uncached egress',used:null,limit:5,unit:'GB / hó',at:'2026-10-27T00:00:00Z',source:'Supabase Free Plan dokumentált keret · használat nem mért',verified:true,period:'2026-10'}];
-const STORE='sh9-usage-center-manual-v870';
+const STORE='sh9-usage-center-manual-v870',OBSERVED='sh9-usage-center-observed-v871';
 const $=id=>document.getElementById(id);
 const mk=(tag,cls,content)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=String(content);return e};
 const N=x=>typeof x==='number'&&Number.isFinite(x);
 const fmt=n=>N(n)?new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(n):'—';
-let manual=[];
+let manual=[],observed=[];
 try{const m=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(m))manual=m.filter(valid).slice(-300)}catch(e){}
+try{const m=JSON.parse(localStorage.getItem(OBSERVED)||'[]');if(Array.isArray(m))observed=m.filter(r=>valid(r)&&r.source==='Dropbox /users/get_space_usage').slice(-250)}catch(e){}
 function valid(r){return r&&PROVIDERS.some(p=>p.id===r.provider)&&typeof r.metric==='string'&&r.metric.length<=65&&typeof r.unit==='string'&&r.unit.length<=30&&N(r.used)&&r.used>=0&&(r.limit===null||(N(r.limit)&&r.limit>0))&&Number.isFinite(Date.parse(r.at))}
 const month=$('month');month.value=new Date().toISOString().slice(0,7);
 $('recorded').value=new Date().toISOString().slice(0,10);
 const provider=$('provider');
 PROVIDERS.forEach(p=>{const o=mk('option','',p.name);o.value=p.id;provider.append(o)});
-function monthRows(){return BASE.concat(manual).filter(r=>r.at.slice(0,7)===month.value)}
+function monthRows(){return BASE.concat(manual,observed).filter(r=>r.at.slice(0,7)===month.value)}
 function latest(rows){const map=new Map();rows.forEach(r=>{const key=r.provider+'|'+r.metric+'|'+r.unit;const old=map.get(key);if(!old||Date.parse(r.at)>Date.parse(old.at)||(r.at===old.at&&!r.id?.includes('baseline')))map.set(key,r)});return [...map.values()]}
 function state(r){if(!r||!N(r.used)||!N(r.limit))return{key:'none',text:'Nincs teljes mérés',pct:null};const pct=100*r.used/r.limit;return {pct,key:pct>=90?'danger':pct>=75?'warn':'good',text:pct>=90?'Kritikus':pct>=75?'Figyelés':'Rendben'}}
 function kpi(label,num,detail,icon){const e=mk('div','card kpi');const t=mk('div','row');t.append(mk('span','ico',icon),mk('span','label',label));e.append(t,mk('div','num',num),mk('div','detail',detail));return e}
@@ -234,6 +249,47 @@ function renderQuality(rows){
  $('quality').textContent='Tényleges mért érték: '+n+' · Mért érték és limit együtt: '+paired+' · Kézi adatok a böngészőben: '+manual.length+'. Ellenőrizetlen számlázási mezőket nem számolunk bele a kihasználtságba.';
 }
 function render(){const rows=latest(monthRows());renderKpis(rows);renderServices(rows);renderDrivers(rows);renderTrend();renderQuality(rows)}
+/* Dropbox: no quota polling, no credentials in localStorage, no user/health data.
+   Only read-only bytes and timestamp are stored after an explicit click. */
+function dropboxStatus(message,state){
+ $('dropboxUsageStatus').textContent=message;
+ $('dropboxScopeStatus').textContent=state==='good'?'Hitelesített API-adat':state==='warn'?'Jogosultság szükséges':'Ellenőrzésre vár';
+ $('dropboxScopeStatus').className='pill '+(state==='good'?'good':state==='warn'?'warn':'');
+}
+let dropboxBusy=false;
+$('dropboxUsageRead').addEventListener('click',async()=>{
+ if(dropboxBusy)return;dropboxBusy=true;
+ const btn=$('dropboxUsageRead');btn.disabled=true;
+ dropboxStatus('Dropbox tárhely és limit lekérdezése…','');
+ try{
+  const api=window.HH_CHATGPT_TARGET_AUTH_V739;
+  if(!api||typeof api.getSpaceUsage!=='function')
+   throw Error('A Dropbox engedélyező modul nem töltődött be. Frissítsd a weboldalt.');
+  const data=await api.getSpaceUsage();
+  const gb=1073741824;
+  const value=Math.round(data.usedBytes/gb*1000)/1000;
+  const limit=data.totalBytes===null?null:Math.round(data.totalBytes/gb*1000)/1000;
+  const point={id:'dropbox-usage-'+data.measuredAt,provider:'dropbox',
+   metric:'Dropbox teljes fióktárhely',used:value,limit,unit:'GB tárhely',
+   at:data.measuredAt,source:'Dropbox /users/get_space_usage',verified:true};
+  if(!valid(point))throw Error('Érvénytelen Dropbox mérési eredmény.');
+  observed.push(point);observed=observed.slice(-250);
+  try{localStorage.setItem(OBSERVED,JSON.stringify(observed))}catch(e){}
+  month.value=point.at.slice(0,7);render();
+  dropboxStatus('✓ '+fmt(value)+(limit!==null?' / '+fmt(limit):'')+
+   ' GB, valós Dropbox API-adat · '+new Date(data.measuredAt).toLocaleString('hu-HU')+
+   '. Ez tárhelykapacitás, nem havi forgalmi adat.','good');
+ }catch(e){
+  const msg=String(e&&e.message||e);
+  dropboxStatus('⚠ '+msg,/account_info|nincs csatlakoztatva|hozzáférés|engedély/i.test(msg)?'warn':'');
+ }finally{dropboxBusy=false;btn.disabled=false}
+});
+$('dropboxUsageAuthorize').addEventListener('click',()=>{
+ const api=window.HH_CHATGPT_TARGET_AUTH_V739;
+ if(!api||typeof api.authorize!=='function'){dropboxStatus('⚠ A Dropbox OAuth modul nem elérhető.','warn');return}
+ dropboxStatus('Átirányítás a Dropbox saját engedélyező oldalára…','');
+ void api.authorize().catch(e=>dropboxStatus('⚠ '+String(e&&e.message||e),'warn'));
+});
 function persist(){try{localStorage.setItem(STORE,JSON.stringify(manual))}catch(e){$('formStatus').textContent='A helyi tárhely nem írható.';return false}return true}
 $('metricForm').addEventListener('submit',e=>{
  e.preventDefault();const p=provider.value,m=$('metric').value.trim(),used=Number($('used').value),lim=$('limit').value.trim(),limit=lim===''?null:Number(lim),unit=$('unit').value,date=$('recorded').value;
