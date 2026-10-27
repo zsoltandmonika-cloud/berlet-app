@@ -172,11 +172,17 @@ function readSharedLocation(k){
  const pending=Promise.resolve(api.from(TABLE)
   .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
   .eq('profile_key',k).maybeSingle()).then(result=>{
-   if(user&&user.id===ownerId&&!result.error)
-    locationReads.set(key,{result,at:Date.now()});
-   else locationReads.delete(key);
+   // An invalidated pending request must not repopulate a revoked/profile-switched cache.
+   if(locationReads.get(key)?.pending===pending){
+    if(user&&user.id===ownerId&&access.includes(k)&&!result.error)
+     locationReads.set(key,{result,at:Date.now()});
+    else locationReads.delete(key);
+   }
    return result;
-  }).catch(error=>{locationReads.delete(key);throw error});
+  }).catch(error=>{
+   if(locationReads.get(key)?.pending===pending)locationReads.delete(key);
+   throw error;
+  });
  locationReads.set(key,{pending});
  return pending;
 }
