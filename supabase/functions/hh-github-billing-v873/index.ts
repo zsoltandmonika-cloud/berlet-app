@@ -100,10 +100,41 @@ async function route(req:Request){
    "X-GitHub-Api-Version":"2026-03-10"
   },signal:AbortSignal.timeout(18000)});
  if(!upstream.ok){
-  const error=upstream.status===401||upstream.status===403?
-   "github_plan_read_required":upstream.status===429?
-   "github_rate_limited":"github_billing_unavailable";
-  return result({configured:true,error},502);
+  // Do not assume every HTTP 403 means a missing Plan permission.
+  // Rate limits and GitHub account/billing restrictions can also return 403.
+  // Never expose GitHub's raw response, token or response headers.
+  const remaining=upstream.headers.get("x-ratelimit-remaining");
+  const retry=upstream.headers.get("retry-after");
+  const denied=upstream.status===403;
+  let message="";
+  try{
+   const body=await upstream.text();
+   if(body.length<20000){
+    const parsed=JSON.parse(body);
+    if(typeof parsed?.message==="string")message=parsed.message.slice(0,300).toLowerCase();
+   }
+  }catch(_){}
+  let code="github_upstream_unavailable";
+  if(upstream.status===401||/bad credentials|requires authentication|token has expired/.test(message))
+   code="github_token_invalid";
+  else if(upstream.status===429||(
+    denied&&(remaining==="0"||/rate limit|secondary rate limit|abuse detection/.test(message))))
+   code="github_rate_limited";
+  else if(denied&&/enhanced billing|billing platform|not enabled for/.test(message))
+   code="github_billing_account_unavailable";
+  else if(denied&&/resource not accessible by personal access token|insufficient permission|requires.*permission/.test(message))
+   code="github_account_permission_denied";
+  else if(denied&&/saml|single sign.on|sso/.test(message))
+   code="github_sso_required";
+  else if(denied)
+   code="github_access_forbidden";
+  else if(upstream.status===404)
+   code="github_account_not_found";
+  else if(upstream.status===400)
+   code="github_billing_request_invalid";
+  const retryAfter=retry&&/^\\d{1,5}$/.test(retry)?Number(retry):null;
+  return result({configured:true,error:code,httpStatus:upstream.status,
+   ...(code==="github_rate_limited"&&retryAfter!==null?{retryAfterSeconds:retryAfter}:{})},502);
  }
  const payloadGithub=await readLimitedBody(upstream);
  const data=aggregateBilling(payloadGithub,month,new Date().toISOString());
