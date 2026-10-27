@@ -2,6 +2,8 @@
 **Utolsó karbantartás: 2026-10-22** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
 
 ## 🏛️ A rendszer jelenlegi műszaki kiindulópontja
+- **[SH9 Guardian Intelligence · Quality Guardian Epic v1.0](./SH9_GUARDIAN_INTELLIGENCE_EPIC_V1.md)**: ONBOARD alacsony terhelésű diagnosztika, EXTERNAL QA + Golden Standard pixelteszt, Supabase/GitHub/Android Resource Watch, RETURN HOME hibajelentés és emberi release gate. Jóváhagyott terv; még nem éles rendszer.
+
 
 - **[Architecture Grand Design · Living Blueprint](./HEALTHHUB_ARCHITECTURE_GRAND_DESIGN.md)**: kétprofilos topológia, Android → HealthHub → Dropbox App Folder → ChatGPT Analytics adatáram, Supabase/Ask Léna, jogosultságok, fájlsémák, E2E bizonyítékok és verziók.
 - **[Operations & Recovery Runbook](./HEALTHHUB_OPERATIONS_RECOVERY_RUNBOOK.md)**: Project Control gomb eltűnés, Admin renderer, Dropbox 401/403/409, frissességi eltérések, profilizoláció, hibakeresési és rollback lépések.
