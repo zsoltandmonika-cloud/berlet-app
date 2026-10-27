@@ -30,7 +30,7 @@ test('all 5 original routes remain catalogued, but live tracking now universal',
  const catalog=require('../guardian/bkk-catalog-v801.json');
  for(const id of ['260','17','19','1','41'])assert.ok(catalog.routes.some(z=>z.id===id&&z.gtfsRouteIds.length));
  const edge=fs.readFileSync(path.join(__dirname,'../../supabase/functions/hh-bkk-live-v793-preview/index.ts'),'utf8');
- assert.match(edge,/bkk-catalog-v801\\.json/);
- assert.match(read('guardian-live-pilot-v793.js'),/favoriteKeys\\(\\)/);
- assert.match(read('guardian-bkk-watchlist-v814.js'),/if\\(route&&liveFilter\\)/);
+ assert.match(edge,/bkk-catalog-v801\.json/);
+ assert.match(read('guardian-live-pilot-v793.js'),/favoriteKeys\(\)/);
+ assert.match(read('guardian-bkk-watchlist-v814.js'),/if\(route&&liveFilter\)/);
 });

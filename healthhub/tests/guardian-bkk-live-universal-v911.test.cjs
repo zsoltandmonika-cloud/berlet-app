@@ -29,8 +29,8 @@ test('individual live selectors scoped by profile and mode',()=>{
 });
 test('server keeps existing BKK feed and auth; browser sends only favorites',()=>{
  const edge=fs.readFileSync(path.join(__dirname,'../../supabase/functions/hh-bkk-live-v793-preview/index.ts'),'utf8');
- assert.match(edge,/getUser\\(token\\)/);assert.match(edge,/feedCache/);
- assert.match(edge,/bkk-catalog-v801\\.json/);assert.match(edge,/allowed\\.has\\(v\\.routeKey\\)/);
- assert.match(read('guardian-live-pilot-v793.js'),/encodeURIComponent\\(favoriteKeys\\(\\)\\.join\\(','\\)\\)/);
- assert.match(read('guardian-bkk-watchlist-v814.js'),/if\\(route&&liveFilter\\)/);
+ assert.match(edge,/getUser\(token\)/);assert.match(edge,/feedCache/);
+ assert.match(edge,/bkk-catalog-v801\.json/);assert.match(edge,/allowed\.has\(v\.routeKey\)/);
+ assert.match(read('guardian-live-pilot-v793.js'),/encodeURIComponent\(favoriteKeys\(\)\.join\(','\)\)/);
+ assert.match(read('guardian-bkk-watchlist-v814.js'),/if\(route&&liveFilter\)/);
 });
