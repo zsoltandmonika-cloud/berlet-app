@@ -24,7 +24,13 @@ function element(tag,cl,text){const n=d.createElement(tag);if(cl)n.className=cl;
 function button(text,cl,fn){const b=element('button',cl,text);b.type='button';if(fn)b.addEventListener('click',fn);return b}
 function avatar(p){const a=element('img','avatar');a.src=imgFor(p);a.alt=(names[p]||p)+' profilképe';a.loading='lazy';return a}
 function label(p){return names[p]||p||'Ismeretlen'}
-function announce(t){$('fhStatus').textContent=t}
+function announce(t){
+ const status=$('fhStatus');
+ status.textContent=t;
+ // Keep successful synchronization off-screen without losing ARIA feedback.
+ // Errors and actionable warnings remain visible to the user.
+ status.classList.toggle('is-alert',/adathiba|hiba:|nem sikerült|offline|hiányzó kapcsolat|jelentkezz be|nincs hozzáférés|nem engedélyezett|próbáld újra/i.test(String(t)));
+}
 function profileUi(){
  const me=self();
  d.documentElement.dataset.fhProfile=me==='monika'?'m':'z';
