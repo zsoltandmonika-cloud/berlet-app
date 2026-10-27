@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=883">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=884">
 </head><body>
 <main class="fh-shell">
   <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a családi képen">
@@ -23,10 +23,10 @@
    <button id="fhLogin" type="button">Google-belépés a Family Hubba</button>
   </section>
   <nav class="fh-tabs" aria-label="Family Tasks nézetek">
-    <button class="fh-tab active" type="button" data-tab="mine" aria-current="page">👤 Feladataim</button>
+    <button class="fh-tab active" type="button" data-tab="mine" aria-current="page">👤 Saját</button>
     <button class="fh-tab" type="button" data-tab="issued">📤 Kiadott</button>
     <button class="fh-tab" type="button" data-tab="all">👥 Családi</button>
-    <button class="fh-tab" type="button" data-tab="log">📖 Logbook · 30 nap</button>
+    <button class="fh-tab" type="button" data-tab="log">📖 Napló</button>
   </nav>
   <div class="fh-tools"><input id="fhSearch" type="search" placeholder="🔎 Keresés feladatok, virág, csomag…" autocomplete="off" aria-label="Feladatok keresése"></div>
   <p id="fhStatus" class="fh-status" role="status" aria-live="polite">Family Tasks betöltése…</p>
@@ -55,6 +55,13 @@
     </div>
     <div class="fh-field"><label>Kategória · görgesd lefelé</label>
       <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
+      <button type="button" id="fhCategoryManage" class="fh-category-manage">⚙ Kategóriák szerkesztése</button>
+      <section id="fhCategoryEditor" class="fh-category-editor glass" hidden aria-label="Közös családi kategóriák">
+        <p>Közös kategóriák Zsoltnak és Mónikának. A módosítás mindkét profilnál látható.</p>
+        <div id="fhCategoryRows"></div>
+        <div class="fh-category-create"><input id="fhCategoryNew" maxlength="60" placeholder="Új kategória, pl. 🎂 Születésnap" aria-label="Új kategória neve"><button type="button" id="fhCategoryAdd">＋ Hozzáadás</button></div>
+        <p id="fhCategoryMessage" role="status" aria-live="polite"></p>
+      </section>
     </div>
     <div class="fh-field"><label>Kinek szól? · alapból a saját profilod</label>
       <div class="fh-people" id="fhPeople" role="group" aria-label="Felelős kiválasztása"></div>
@@ -83,6 +90,6 @@
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=883-lena-profile-final"></script>
+<script defer src="./family-tasks-v880.js?v=884-categories"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>
