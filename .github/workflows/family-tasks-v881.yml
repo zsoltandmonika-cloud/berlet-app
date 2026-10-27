@@ -1,0 +1,23 @@
+name: Family Tasks v881 Golden Polish QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/family-hub/**'
+      - 'healthhub/tests/family-tasks-v881.test.cjs'
+      - '.github/workflows/family-tasks-v881.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/family-hub/**'
+      - 'healthhub/tests/family-tasks-v881.test.cjs'
+jobs:
+  golden-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify preserved JavaScript integrity
+        run: |
+          node --check sh9/family-hub/family-tasks-v880.js
+          node --check sh9/family-hub/family-notifier-v880.js
+      - name: Regression · Family Tasks v880 + Visual v881
+        run: node --test healthhub/tests/family-tasks-v880.test.cjs healthhub/tests/family-tasks-v881.test.cjs

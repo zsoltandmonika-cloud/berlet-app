@@ -145,9 +145,10 @@ function showSheet(){
  $('fhTitle').value='';$('fhCustomDue').value='';$('fhSaveInfo').textContent='';
  $('fhBackdrop').hidden=false;$('fhSheet').hidden=false;
  d.body.style.overflow='hidden';renderPeople();renderCategories();renderDue();
- w.setTimeout(()=>$('fhTitle').focus(),50);
+ // Do not autofocus: preserve the full S24 Ultra Quick Add screen until explicitly tapped.
 }
 function hideSheet(){
+ if(d.activeElement&&$('fhSheet').contains(d.activeElement))d.activeElement.blur();
  $('fhBackdrop').hidden=true;$('fhSheet').hidden=true;d.body.style.overflow='';
 }
 function renderDue(){
@@ -212,6 +213,7 @@ async function save(e){
   const {data,error}=await api.from(TABLE).insert(payload).select('id').single();
   if(error)throw error;
   hideSheet();announce(selected==='lena'?'✓ Lénának kijelölve; az AI-feladat nem indul el automatikusan.':'✓ Feladat elmentve. Buddy úton van! 🐿️');
+  showSuccess(selected==='lena'?'Léna Family Concierge listájára került a teendő. A végrehajtás külön indítást igényel.':('Mentve! '+(selected===self()?'A feladat a saját listádra került.':(selected==='monika'?'Mónika':'Zsolt')+' megkapja az értesítést.')));
   if(data?.id){w.history.replaceState(null,'',w.location.pathname); }
   await fetchData();
  }catch(err){$('fhSaveInfo').textContent='Nem sikerült menteni: '+err.message}
@@ -240,6 +242,47 @@ function subscribe(){
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'hh_family_task_events'},()=>reloadSoon())
   .subscribe();
 }
+function showSuccess(message){
+ const overlay=$('fhSuccess');if(!overlay)return;
+ $('fhSuccessText').textContent=message;
+ overlay.hidden=false;
+ playTada();
+}
+function hideSuccess(){const overlay=$('fhSuccess');if(overlay)overlay.hidden=true}
+function playTada(){
+ try {
+  const C=w.AudioContext||w.webkitAudioContext;
+  if(!C)return;
+  const ctx=new C();
+  if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+  const t=ctx.currentTime+.02;
+  [523.25,659.26,783.99,1046.5].forEach((hz,i)=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.setValueAtTime(hz,t+i*.105);
+   gain.gain.setValueAtTime(.0001,t+i*.105);
+   gain.gain.exponentialRampToValueAtTime(.085,t+i*.105+.014);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+i*.105+.22);
+   osc.connect(gain).connect(ctx.destination);
+   osc.start(t+i*.105);osc.stop(t+i*.105+.23);
+  });
+  w.setTimeout(()=>ctx.close().catch(()=>{}),1250);
+ }catch(_){/* Audio is optional and never blocks a successful save. */}
+}
+function startDictation(){
+ const status=$('fhVoiceStatus');
+ const Speech=w.SpeechRecognition||w.webkitSpeechRecognition;
+ if(!Speech){status.textContent='Ezen a böngészőn nincs natív hangfelismerés. A Samsung billentyűzet 🎙️ mikrofonját használd.';return}
+ const rec=new Speech();rec.lang='hu-HU';rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+ const b=$('fhVoice');b.disabled=true;b.classList.add('listening');
+ status.textContent='🎙️ Figyelek… mondd el a feladatot magyarul!';
+ rec.onresult=e=>{
+  const phrase=Array.from(e.results).map(x=>x[0]?.transcript||'').join(' ').trim();
+  if(phrase){const input=$('fhTitle');input.value=(input.value.trim()?input.value.trim()+' ':'')+phrase;status.textContent='✓ Bediktálva · a szöveg szerkeszthető.'}
+ };
+ rec.onerror=e=>{status.textContent=e.error==='not-allowed'?'Mikrofonengedély nincs megadva.':'Hangbevitel nem sikerült: '+e.error};
+ rec.onend=()=>{b.disabled=false;b.classList.remove('listening')};
+ try{rec.start()}catch(_){b.disabled=false;b.classList.remove('listening');status.textContent='A hangbevitel nem indítható.'}
+}
 function wire(){
  $('fhProfileSwitch').addEventListener('click',()=>{
   const next=self()==='monika'?'zsolt':'monika';
@@ -251,6 +294,8 @@ function wire(){
  $('fhClose').addEventListener('click',hideSheet);
  $('fhBackdrop').addEventListener('click',hideSheet);
  $('fhForm').addEventListener('submit',save);
+ $('fhVoice').addEventListener('click',startDictation);
+ $('fhSuccessClose').addEventListener('click',hideSuccess);
  $('fhSearch').addEventListener('input',render);
  $('fhCustomDue').addEventListener('change',()=>{due='custom';d.querySelectorAll('[data-due]').forEach(b=>b.classList.remove('active'))});
  d.querySelectorAll('[data-due]').forEach(b=>b.addEventListener('click',()=>chooseDue(b.dataset.due)));
@@ -265,7 +310,7 @@ function wire(){
   if(error)announce('Belépési hiba: '+error.message);
  });
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')authSync()});
- d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fhSheet').hidden)hideSheet()});
+ d.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('fhSuccess').hidden)hideSuccess();else if(!$('fhSheet').hidden)hideSheet()}});
  if(new URLSearchParams(w.location.search).has('task')){tab='all';d.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab==='all'))}
  if(api)api.auth.onAuthStateChange(()=>w.setTimeout(authSync,0));
  profileUi();authSync();
