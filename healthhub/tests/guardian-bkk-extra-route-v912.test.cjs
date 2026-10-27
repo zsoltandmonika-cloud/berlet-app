@@ -23,5 +23,7 @@ test('v912 popup is opt-in, source-aware, and does not invent vehicle locations/
  assert.match(e,/setDOMContent\(root\)/);
  assert.match(m,/setDOMContent\(el\)/);
  assert.match(m,/stopPropagation/);
+ assert.match(read('guardian-transit-v791.js'),/routeDetailsPopup/);
+ assert.match(m,/hhSetVehicle/);
  assert.doesNotMatch(e,/geolocation|setInterval\(|Math\.random\(/);
 });

@@ -61,19 +61,21 @@
   wrapper.appendChild(stack);
   if(doc&&typeof wrapper.addEventListener==='function'&&root?.maplibregl?.Popup){
    wrapper.setAttribute('tabindex','0');wrapper.setAttribute('role','button');
+   let newest=vehicle;
+   wrapper.hhSetVehicle=(v)=>{if(v&&v.id===vehicle.id)newest=v};
    const details=()=>{
     const m=root.HH_GUARDIAN_V761?.map;
-    if(!m||!Number.isFinite(vehicle.lng)||!Number.isFinite(vehicle.lat))return;
+    if(!m||!Number.isFinite(newest.lng)||!Number.isFinite(newest.lat))return;
     try{
      const el=doc.createElement('div');el.className='hh-bkk-route-info-v912';
      const title=doc.createElement('strong');title.textContent=({bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'}[mode]||'BKK')+' '+route;
-     const line=doc.createElement('div');line.textContent=vehicle.headsign?'Irány: '+vehicle.headsign:'Irány: nincs adat';
+     const line=doc.createElement('div');line.textContent=newest.headsign?'Irány: '+newest.headsign:'Irány: nincs adat';
      const time=doc.createElement('small');
-     const timeValue=Date.parse(vehicle.timestamp);
+     const timeValue=Date.parse(newest.timestamp);
      time.textContent=Number.isFinite(timeValue)?'Utolsó hiteles BKK-járműpozíció: '+new Date(timeValue).toLocaleTimeString('hu-HU'):'Élő megfigyelés ideje nem ismert';
      el.append(title,line,time);
      new root.maplibregl.Popup({offset:14,closeButton:true,className:'hh-bkk-popup-v912'})
-      .setLngLat([vehicle.lng,vehicle.lat]).setDOMContent(el).addTo(m);
+      .setLngLat([newest.lng,newest.lat]).setDOMContent(el).addTo(m);
     }catch(_){}
    };
    wrapper.addEventListener('click',e=>{if(e?.stopPropagation)e.stopPropagation();details()});
@@ -99,7 +101,11 @@
      marker=new Marker({element:makeMarkerElement(doc,v),anchor:'bottom',offset:[0,-6],opacity:1,opacityWhenCovered:1});
      marker.setLngLat([v.lng,v.lat]).addTo(map);
      domMarkers.set(v.id,marker);
-    }else marker.setLngLat([v.lng,v.lat]);
+    }else{
+     const domElement=marker.getElement&&marker.getElement();
+     if(domElement&&typeof domElement.hhSetVehicle==='function')domElement.hhSetVehicle(v);
+     marker.setLngLat([v.lng,v.lat]);
+    }
    }
    for(const [id,marker] of domMarkers)if(!present.has(id)){marker.remove();domMarkers.delete(id)}
    return true;

@@ -209,6 +209,22 @@ function updateControls(){
  const counter=$('hhTransitCount');if(counter)counter.textContent=String(selected.size);
  renderCards();
 }
+function routeDetailsPopup(id,position,stop){
+ const route=info(id),Popup=w.maplibregl&&w.maplibregl.Popup;
+ if(!route||!map||!Popup||!position||!d.createElement)return false;
+ try{
+  const node=d.createElement('div');node.className='hh-bkk-route-info-v912';
+  const title=d.createElement('strong');title.textContent=(route.mode==='bus'?'Busz ':'Villamos ')+id;
+  const desc=d.createElement('div');
+  desc.textContent=(stop?'Megálló: '+stop+' · ':'')+'Irány: '+(route.variants.map(v=>v.headsign).filter(Boolean).slice(0,3).join(' / ')||'nincs adat');
+  const stops=d.createElement('div');
+  stops.textContent=route.variants.length+' menetrendi útvonalváltozat · '+Math.max(...route.variants.map(v=>v.stops.length))+' megállóig';
+  const note=d.createElement('small');note.textContent='BKK hivatalos menetrendi útvonal és megállók. Nem élő járműpozíció.';
+  node.append(title,desc,stops,note);
+  new Popup({closeButton:true,offset:14,className:'hh-bkk-popup-v912'}).setLngLat(position).setDOMContent(node).addTo(map);
+  return true;
+ }catch(_){return false}
+}
 function showRoute(id){
  const r=info(id);
  if(!r){status('A '+id+'-es BKK-útvonal adatai még töltődnek.');return;}
@@ -221,6 +237,8 @@ function showRoute(id){
  const bounds=[[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]];
  try{map.fitBounds(bounds,{padding:{top:75,bottom:70,left:35,right:35},maxZoom:15.3,duration:650})}
  catch(_){status('Nem sikerült az útvonalra közelíteni.')}
+ const first=activeVariants(id)[0]?.stops?.[0];
+ if(first)routeDetailsPopup(id,[first.lng,first.lat]);
  const summary=r.variants.map(v=>v.headsign).filter(Boolean);
  status(id+' · BKK menetrendi útvonal, '+r.variants.length+' változat'+(summary.length?' · '+summary.join(' / '):'')+'. Nem élő járműkövetés.');
 }
@@ -246,6 +264,11 @@ function connectMap(m){
    if(routes&&map.getLayer&&!map.getLayer('hh-bkk-route-260-main'))showSelected();
   });
   if(map.isStyleLoaded&&map.isStyleLoaded())showSelected();
+  // Tap on a source-backed route to inspect official directions/stops.
+  for(const id of IDS)map.on('click','hh-bkk-route-'+id+'-main',function(e){
+   const point=e?.lngLat;
+   if(isLineVisible(id)&&point)routeDetailsPopup(id,point);
+  });
   for(const id of IDS)map.on('click','hh-bkk-stops-'+id+'-circle',function(e){
    const feature=e&&e.features&&e.features[0];if(!feature)return;
    const p=feature.properties||{};

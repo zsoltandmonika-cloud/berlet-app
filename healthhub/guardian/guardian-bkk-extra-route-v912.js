@@ -13,6 +13,7 @@
  const MODE={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'};
  const MAX_OPEN=12,STORE={zsolt:new Set(),monika:new Set()},activeLayer=new Set();
  let currentMap=null,profiles='zsolt',routes=null,loading=null;
+ const boundClicks=new Map();
  const profile=()=>w?.document?.getElementById('hhTransitProfileV791')?.value==='monika'?'monika':'zsolt';
  const validCoord=x=>Array.isArray(x)&&x.length===4&&typeof x[0]==='string'&&typeof x[1]==='string'&&Number.isFinite(x[2])&&Number.isFinite(x[3])&&x[2]>=45&&x[2]<=49&&x[3]>=16&&x[3]<=23;
  function parse(doc,now=Date.now()){
@@ -73,6 +74,11 @@
  function remove(key){
   const m=currentMap;if(!validMap(m))return;
   const id=layerId(key);
+  const handlers=boundClicks.get(key);
+  if(handlers&&typeof m.off==='function'){
+   try{m.off('click',id+'-line',handlers.line);m.off('click',id+'-stops',handlers.stops)}catch(_){}
+  }
+  boundClicks.delete(key);
   for(const suffix of ['-stops','-line']){
    try{if(m.getLayer(id+suffix)&&m.removeLayer)m.removeLayer(id+suffix)}catch(_){}
   }
@@ -112,18 +118,24 @@
     m.addLayer({id:id+'-line',type:'line',source:id+'-line',
      layout:{visibility:'visible','line-cap':'round','line-join':'round'},
      paint:{'line-color':color,'line-opacity':.9,'line-width':3.2,'line-dasharray':[2,2]}});
-    if(m.on)m.on('click',id+'-line',e=>{
-     if(STORE[profile()].has(key))popup(key,e?.lngLat);
-    });
+    if(m.on){
+     const fn=e=>{if(STORE[profile()].has(key))popup(key,e?.lngLat)};
+     m.on('click',id+'-line',fn);
+     boundClicks.set(key,{...(boundClicks.get(key)||{}),line:fn});
+    }
    }
    if(!m.getLayer(id+'-stops')){
     m.addLayer({id:id+'-stops',type:'circle',source:id+'-stops',minzoom:12,
      layout:{visibility:'visible'},paint:{'circle-color':'#fff','circle-radius':4,
      'circle-stroke-color':color,'circle-stroke-width':2}});
-    if(m.on)m.on('click',id+'-stops',e=>{
-     const f=e?.features?.[0],c=f?.geometry?.coordinates;
-     if(STORE[profile()].has(key)&&Array.isArray(c))popup(key,c,f?.properties?.stop);
-    });
+    if(m.on){
+     const fn=e=>{
+      const f=e?.features?.[0],c=f?.geometry?.coordinates;
+      if(STORE[profile()].has(key)&&Array.isArray(c))popup(key,c,f?.properties?.stop);
+     };
+     m.on('click',id+'-stops',fn);
+     boundClicks.set(key,{...(boundClicks.get(key)||{}),stops:fn});
+    }
    }
    for(const suf of ['-line','-stops'])m.setLayoutProperty(id+suf,'visibility',STORE[profile()].has(key)?'visible':'none');
    activeLayer.add(key);return true;
