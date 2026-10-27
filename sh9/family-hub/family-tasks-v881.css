@@ -52,3 +52,12 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-success-card button{width:100%;border:0;border-radius:16px;min-height:55px;background:linear-gradient(120deg,#71bbff,#ffc7e6);font-weight:850;font-size:16px;color:#10233e}
 @media(min-width:540px){.fh-sheet{padding-inline:max(22px,calc((100vw - 490px)/2))!important}}
 @media(max-height:700px){.fh-people .fh-person{min-height:100px}.fh-people .fh-person .avatar{width:48px;height:48px}.fh-chip-row{max-height:145px}}
+
+/* v882 · Hero edge-to-top and profile switch on photo, visual only. */
+.fh-shell{padding-top:0}
+.fh-hero{position:relative;margin:0 -12px 12px;border-radius:0 0 20px 20px;align-items:stretch}
+.fh-hero .fh-head{position:absolute;z-index:3;inset:0;display:block;margin:0;pointer-events:none}
+.fh-hero .fh-home{position:absolute;left:calc(12px + env(safe-area-inset-left));top:calc(10px + env(safe-area-inset-top));min-height:44px;padding:8px 12px;border-radius:22px;pointer-events:auto;background:rgba(9,22,46,.62);border:1px solid rgba(205,231,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);text-shadow:0 1px 5px #000}
+.fh-hero .fh-owner{position:absolute;left:calc(14px + env(safe-area-inset-left));bottom:13px;top:auto;right:auto;min-height:46px;min-width:115px;justify-content:center;padding:6px 11px;pointer-events:auto;background:rgba(10,27,57,.72);border:1px solid var(--accent);box-shadow:0 5px 20px #0008;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.fh-hero .fh-owner .avatar{width:36px;height:36px}
+.fh-hero.has-photo{background-image:url('./assets/family-tasks-hero-approved-v881.webp')}
