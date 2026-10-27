@@ -69,7 +69,8 @@ function markSeen(value,p=currentProfile){
  if(badge){const span=badge.querySelector('.fh-badge-count');if(span){span.textContent='0';span.hidden=true}}
 }
 function openTask(taskId){
- markSeen(lastEvent);w.location.assign(HOME+(taskId?'?task='+encodeURIComponent(taskId):''));
+ // Opening a task is not an acknowledgment; only the Sticky Note X is.
+ w.location.assign(HOME+(taskId?'?task='+encodeURIComponent(taskId):''));
 }
 function style(){
  if(d.getElementById('fhNotifierCssV880'))return;
@@ -105,7 +106,7 @@ function drawPending(){
  const x=d.createElement('button');x.type='button';x.className='fh-notice-close';x.textContent='×';
  x.setAttribute('aria-label','Értesítés láttamozása és bezárása');
  x.addEventListener('click',event=>{
-  event.stopPropagation();writeAck(e.id,pkey);
+  event.stopPropagation();writeAck(e.id,pkey);markSeen(e.id,pkey);
   pending=pending.filter(item=>Number(item.id)>Number(e.id));
   activeEventId=0;holder.replaceChildren();drawPending();
  });
