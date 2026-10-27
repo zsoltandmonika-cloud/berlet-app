@@ -62,3 +62,9 @@ test('GPS settings: do not upsert unchanged values; keep live tracking cadence',
  const l=read('guardian/guardian-landmarks-sync-v787.js');
  assert.match(l,/TICK=120000/);
 });
+
+test('Ask Lena history optimizer: entry uses cache-busted v868 module',()=>{
+ const html=read('index.html');
+ assert.match(html,/src="\.\/live-v364-history\.js\?v=868-history-data-saver"/);
+ assert.doesNotMatch(html,/live-v364-history\.js\?v=699-no-flicker/);
+});
