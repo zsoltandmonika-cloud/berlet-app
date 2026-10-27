@@ -78,3 +78,20 @@ html[data-fh-profile="m"] .fh-sheet {background:radial-gradient(ellipse at 13% 1
 .fh-people .fh-person .avatar{width:72px;height:72px}
 .fh-people .fh-person{min-height:125px}
 @media(max-height:700px){.fh-people .fh-person .avatar{width:58px;height:58px}}
+
+/* v884 · compact S24 touch layout, fixed SH9 taskbar and non-scrolling tabs */
+.fh-hero .fh-module-badge{top:calc(2px + env(safe-area-inset-top));left:2px;padding:5px 9px;min-height:29px;font-size:11px;border-radius:0 0 15px 0}
+/* Any old image-internal Tasks mark is part of the approved image itself; crop right upper corner with a discrete theme patch. */
+.fh-hero::after{content:"";position:absolute;right:0;top:0;width:20%;height:20%;pointer-events:none;background:linear-gradient(145deg,rgba(30,44,86,.85),rgba(29,53,92,.12));clip-path:polygon(18% 0,100% 0,100% 78%,70% 70%)}
+.fh-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible;margin:11px 0}
+.fh-tabs .fh-tab{min-width:0;min-height:42px;white-space:nowrap;overflow:hidden;text-overflow:clip;padding:8px 3px;font-size:clamp(10px,2.8vw,12px);text-align:center}
+.fh-new{bottom:calc(58px + env(safe-area-inset-bottom));width:min(80%,340px);min-height:44px;padding:9px 13px;font-size:14px;border-radius:14px}
+.fh-save{min-height:44px;padding:9px 12px;font-size:14px;border-radius:13px;bottom:calc(env(safe-area-inset-bottom) + 1px)}
+.fh-category-manage{width:100%;min-height:38px;border:1px solid var(--line);border-radius:12px;background:rgba(34,65,102,.45);color:#e9f6ff;font-size:13px;font-weight:750}
+.fh-category-editor[hidden]{display:none}
+.fh-category-editor{padding:12px;margin:6px 0}
+.fh-category-editor p{font-size:12px;line-height:1.4;color:#d8e7fa}
+.fh-category-editor .fh-category-row,.fh-category-create{display:flex;align-items:center;gap:6px;margin:7px 0}
+.fh-category-editor input{min-width:0;flex:1;background:#0b213e;border:1px solid var(--line);border-radius:10px;padding:9px 8px;color:#fff;font-size:13px}
+.fh-category-editor button{min-height:40px;padding:7px 9px;background:#1d527e;color:white;border:1px solid var(--line);border-radius:10px;font-size:12px}
+.fh-category-editor .fh-category-delete{background:#5b2843}
