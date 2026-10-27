@@ -150,3 +150,32 @@
 
 /* v912: a genuine BKK live vehicle marker can open its sourced detail popup. */
 .hh-bkk-live-vehicle-dom-v797.hh-bkk-glass-marker-v800{pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
+
+/* v913: compact, vehicle-only card inspired by the BudapestGO information hierarchy.
+ * Live BKK fields only. Transport color = mode; not a fabricated vehicle type. */
+.hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{
+ background:rgba(16,19,27,.94);color:#f8fbff;
+ border:1px solid rgba(255,255,255,.21);border-radius:17px;
+ box-shadow:0 15px 35px rgba(0,0,0,.45);
+ -webkit-backdrop-filter:blur(20px) saturate(160%);
+ backdrop-filter:blur(20px) saturate(160%);
+ padding:14px 16px;max-width:min(335px,85vw);
+}
+.hh-bkk-vehicle-popup-v913 .maplibregl-popup-close-button{
+ color:#e6e9f1;font-size:21px;padding:2px 8px;
+}
+.hh-bkk-vehicle-card-v913{font:500 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-width:min(238px,68vw)}
+.hh-bkk-vehicle-top-v913{display:flex;gap:9px;align-items:center;margin:6px 21px 12px 0}
+.hh-bkk-vehicle-line-v913{
+ border-radius:5px;padding:5px 9px;min-width:37px;
+ font:800 19px/1 system-ui;text-align:center;color:#192126;
+ background:#ffda04;flex:0 0 auto;
+}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-bus{background:#188fdf;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-hev{background:#229b61;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-trolley{background:#df4966;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-metro{background:#427bc4;color:#fff}
+.hh-bkk-vehicle-direction-v913{font-size:13px;font-weight:720;overflow-wrap:anywhere}
+.hh-bkk-vehicle-details-v913{display:flex;gap:7px;flex-wrap:wrap;color:#c9ccd3;font-size:12px}
+.hh-bkk-vehicle-details-v913 span+span::before{content:"·";margin-right:7px;color:#8a909d}
+.hh-bkk-vehicle-updated-v913{font-size:11px;color:#adb5c4;text-align:right;margin-top:12px;font-variant-numeric:tabular-nums}
