@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=881">
 </head><body>
 <main class="fh-shell">
   <header class="fh-head">
@@ -11,12 +11,8 @@
       <img id="fhProfileAvatar" class="avatar" alt=""><span id="fhProfileName">Profil</span> ⇄
     </button>
   </header>
-  <section class="fh-hero glass" aria-label="Family Hub · Family Tasks">
-    <span class="eyebrow">Family Hub · Golden Standard</span>
-    <h1>Family Tasks</h1>
-    <p>Az egyszerű teendőkből közös családi sikerek. Léna és Buddy segítenek.</p>
-    <div class="fh-buddy" aria-hidden="true">🐿️</div>
-    <div class="fh-hero-sticky" aria-hidden="true">✓ click · click · kész!</div>
+  <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a jóváhagyott családi Hero-képen">
+    <div class="fh-hero-copy"><span class="eyebrow">Family Hub · Golden Standard</span><h1>Family Tasks</h1><p>Léna & Buddy · Family Concierge</p></div>
   </section>
   <div class="fh-stats" aria-label="Feladatok napi áttekintése">
    <div class="fh-stat glass"><b id="fhTodoCount">–</b><span>🔴 Teendő</span></div>
@@ -40,13 +36,20 @@
 </main>
 <div class="fh-sheet-backdrop" id="fhBackdrop" hidden></div>
 <section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
-  <header><h2>🐿️ Quick Add</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
+  <header><h2>🐿️ Quick Add · Family Tasks</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
   <form id="fhForm">
+    <aside class="fh-lena-guide" aria-label="Léna, Family Concierge">
+      <img src="./assets/family-quickadd-lena-v881.webp" alt="A jóváhagyott Léna Family Concierge karakter" loading="lazy">
+      <div><strong>Léna · Family Concierge 💗</strong><p>Írd be vagy diktáld a feladatot. Egy érintéssel kioszthatod!</p></div>
+    </aside>
     <div class="fh-field"><label for="fhTitle">Mit kell elintézni?</label>
-      <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
-        lang="hu" autocomplete="on" autocapitalize="sentences" enterkeyhint="done"
-        placeholder="Pl. Locsold meg a virágokat…" />
-      <small class="fh-note">🎙️ Magyar diktálás a mobil billentyűzet mikrofonjával.</small>
+      <div class="fh-input-wrap">
+        <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
+          lang="hu" autocomplete="on" autocapitalize="sentences" enterkeyhint="done"
+          placeholder="Pl. Locsold meg a virágokat…" />
+        <button type="button" class="fh-microphone" id="fhVoice" aria-label="Magyar hangdiktálás indítása">🎙️</button>
+      </div>
+      <small class="fh-note" id="fhVoiceStatus">Beszélhetsz magyarul, majd javíthatod a szöveget.</small>
     </div>
     <div class="fh-field"><label>Kategória · görgesd oldalra</label>
       <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
@@ -67,9 +70,17 @@
     <p id="fhSaveInfo" class="fh-note" role="status" aria-live="polite"></p>
   </form>
 </section>
+<section class="fh-success" id="fhSuccess" role="dialog" aria-modal="true" aria-labelledby="fhSuccessTitle" hidden>
+  <div class="fh-success-card glass">
+    <img src="./assets/family-success-buddy-v881.webp" alt="Buddy mókus, vidám sikerjelzés, hüvelykujj felmutatva">
+    <h2 id="fhSuccessTitle">TADAAA! 🎉</h2>
+    <p id="fhSuccessText">A feladat sikeresen elmentve.</p>
+    <button id="fhSuccessClose" type="button">✓ Szuper, kész!</button>
+  </div>
+</section>
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=880"></script>
+<script defer src="./family-tasks-v880.js?v=881-no-autofocus-success"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>
