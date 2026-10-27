@@ -1,0 +1,4 @@
+# SH9 Smart Travel · MÁV → MÁV+BKK útvonaltervező
+**2026-10-28 első fejlesztési prioritás. Approved concept / Backlog.**
+**RAIL-M1 (először):** önálló MÁV útvonaltervező magyar állomás-kereséssel, indulási/érkezési dátummal és idővel, menetrendi kapcsolatokkal, járatszámmal, átszállásokkal. Valós idejű késés, vágány/peron, tarifa csak hiteles forrás esetén. Adat/API licenc és megbízhatóság feasibility, valódi E2E, S24 Ultra mobil-first Premium Glass.
+**RAIL-M2 (M1 elfogadása után):** MÁV + BKK közös multimodális útvonaltervezés tényleges gyalogos/átszállási pufferrel; ne csak két független találati lista. BKK 260-as busz és 17/19 villamos kiemelt valós helyi használati eset; busz kék, villamos sárga, HÉV zöld. Menetrend vs realtime egyértelmű, forrás és frissesség, API- és költségkeret, golden QA/release gate. Meglévő BKK funkciókat nem töröljük.

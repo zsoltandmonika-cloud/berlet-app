@@ -79,3 +79,28 @@ Minden user story minimális mezői: ID, modul, funkcionális elvárás, képern
 | GI-M5 Release Gate | kéttelefonos S24 Ultra UAT, rollback-protokoll | emberi Go/No-Go |
 
 **Első megvalósítási mérföldkő:** GI-M1 Ledger és referencia-screenshot baseline, nem egy minden modulra kiterjedő önálló AI-indítás.
+
+## 7. Guardian Intelligence v1.1 · Három intelligens pillér
+
+**2026-10-27 · jóváhagyott koncepció / backlog; nem éles autonóm szolgáltatás.** Az egész SH9-ben újrahasználható [AI Intelligence Core](./SH9_AI_INTELLIGENCE_CORE_GOLDEN_STANDARD_V1.md) az architekturális **alap**, a Guardian ennek reliability/quality specializációja. Az Admin Center része, nem új launcher-csempe.
+
+### Pillér 1: Self-Health Check
+- Hiteles, takarékos rendszeregészség-monitoring; HealthHub valódi böngészős betöltés, HTML és inline JS szintaxis, a `document.write`-tal létrehozott DOM smoke. Zöld GitHub Pages workflow önmagában nem elég.
+- Supabase request/egress/Realtime, GPS adatforgalom/akku, Dropbox, CI minutes, OTA/sync, API/token usage. Forrással, időbélyeggel, RAG/UNKNOWN státusszal, baseline-deltával; alacsony frekvencia, költség- és riasztási limitek.
+- A 2026-10-27-i HealthHub script-lezárási regresszió kötelező újraellenőrzési teszt.
+
+### Pillér 2: Self-Healing / Auto Remedy
+- Előre jóváhagyott, idempotens, visszafordítható L1 recovery (retry, reconnect, cache), max. két kísérlet, cooldown és stop/circuit breaker.
+- AI diagnózis → izolált branch/patch → független JavaScript, web, Android, Golden Standard és security QA → PR. **Nincs önálló éles merge/deploy.**
+- Éles egészségügyi/GPS adat, DB/RLS, secrets, jogosultságok és natív aláírt OTA külön, szűk scope-jú emberi engedélyhez kötöttek.
+
+### Pillér 3: Self-Improvement Advisor + Technology Scout
+- Előrekeresi a mérhető pazarlást és a fejlesztési lehetőségeket: redundáns GPS/Supabase/CI/API usage, lassú UI, akku és Cloud költség.
+- Minden javaslat kötelező **feasibility + benefit + risk** értékeléssel, mérési forrásokkal, alternatívákkal, pesszimista/alap/optimista becsléssel, AI token- és üzemeltetési költséggel, bizonytalansággal, QA és rollback tervvel. Ismeretlen adat = UNKNOWN, kitalált megtakarítás tiltva.
+- Döntési kártya **MEHET / ÁTDOLGOZÁS / HALASZTÁS / ELVETÉS**; jóváhagyás csak az adott tervre és scope-ra érvényes, release-hez külön Go/No-Go.
+- External Scout: nyilvános GitHub, Hugging Face, dokumentáció, fórumok read-only; külső DeepSeek vagy más modell csak anonimizált/szintetikus kérdéseket kap. **ZERO ACCESS** privát SH9/GitHub/Supabase/Dropbox/Android hozzáféréshez, jelszóhoz, orvosi/GPS adathoz vagy belső kódhoz. Külső válasz UNTRUSTED, injection/licenc/supply-chain ellenőrzéssel. A „Genesys/Gen-Z” poénból nem következik konkrét működő AI API.
+
+### Központi AI Squad
+**Léna orchestrator + opcionális DeepSeek technical challenger + később kiválasztott harmadik Innovation Scout modell**. Egyetlen közös, on-demand, budgetelt AI routing mind a kilenc SH9 modulhoz; nem három párhuzamos LLM minden eseményre. A jóváhagyott Léna/Buddy vizuális identitás marad.
+
+**AIC/GI állapot:** dokumentációs és backlog-terv. Sem külső AI/API bekötés, sem önjáró live repair/deploy nem működik még.
