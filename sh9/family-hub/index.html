@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=887">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=888">
 </head><body>
 <main class="fh-shell">
   <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a családi képen">
@@ -42,6 +42,7 @@
 </nav>
 <div class="fh-sheet-backdrop" id="fhBackdrop" hidden></div>
 <section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
+  <div class="fh-sheet-scroll">
   <header class="fh-quick-hero" aria-label="Family Tasks családi hero kép"><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
   <form id="fhForm">
     <div class="fh-field"><label for="fhTitle">Mit kell elintézni?</label>
@@ -78,6 +79,7 @@
     <button class="fh-save" id="fhSave" type="submit">✓ Feladat mentése</button>
     <p id="fhSaveInfo" class="fh-note" role="status" aria-live="polite"></p>
   </form>
+  </div>
 </section>
 <section class="fh-success" id="fhSuccess" role="dialog" aria-modal="true" aria-labelledby="fhSuccessTitle" hidden>
   <div class="fh-success-card glass">
@@ -90,6 +92,6 @@
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=884-categories"></script>
+<script defer src="./family-tasks-v880.js?v=888-nav-dock"></script>
 <script defer src="./family-notifier-v880.js?v=880"></script>
 </body></html>
