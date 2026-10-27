@@ -12,7 +12,7 @@
  const STORE='hh-bkk-route-favorites-v801';
  const MODES=new Set(['bus','tram','trolley','metro','hev','rail','other']);
  const FEATURED=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
- const LIVE_MAP=new Set(['bus:260','tram:17','tram:19']);
+ const LIVE_MAP=new Set(['bus:260','tram:17','tram:19','tram:1','tram:41']);
  const knownKey=id=>id==='260'?'bus:260':id==='17'?'tram:17':id==='19'?'tram:19':null;
  const keyOf=route=>route.mode+':'+route.id;
  function normalizedKey(value){
