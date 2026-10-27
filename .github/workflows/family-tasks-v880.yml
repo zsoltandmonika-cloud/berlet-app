@@ -1,0 +1,24 @@
+name: Family Hub Tasks v880 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/family-hub/**'
+      - 'supabase/migrations/20261027112000_sh9_family_tasks_v880.sql'
+      - 'healthhub/tests/family-tasks-v880.test.cjs'
+      - '.github/workflows/family-tasks-v880.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/family-hub/**'
+      - 'healthhub/tests/family-tasks-v880.test.cjs'
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check sh9/family-hub/family-tasks-v880.js
+          node --check sh9/family-hub/family-notifier-v880.js
+      - name: Family Tasks security and integration tests
+        run: node --test healthhub/tests/family-tasks-v880.test.cjs
