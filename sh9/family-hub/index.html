@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880">
+<meta name="theme-color" content="#091628"><title>Family Hub · Napi feladatok</title>
+<link rel="stylesheet" href="./family-tasks-v880.css?v=881">
 </head><body>
 <main class="fh-shell">
   <header class="fh-head">
@@ -12,8 +12,8 @@
     </button>
   </header>
   <section class="fh-hero glass" aria-label="Family Hub · Family Tasks">
-    <span class="eyebrow">Family Hub · Golden Standard</span>
-    <h1>Family Tasks</h1>
+    <span class="eyebrow">Daily Hub · Family Tasks · Golden Standard</span>
+    <h1>Napi feladatok</h1>
     <p>Az egyszerű teendőkből közös családi sikerek. Léna és Buddy segítenek.</p>
     <div class="fh-buddy" aria-hidden="true">🐿️</div>
     <div class="fh-hero-sticky" aria-hidden="true">✓ click · click · kész!</div>
@@ -40,15 +40,22 @@
 </main>
 <div class="fh-sheet-backdrop" id="fhBackdrop" hidden></div>
 <section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
-  <header><h2>🐿️ Quick Add</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
+  <header><h2>🐿️ Quick Add · Napi feladat</h2><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
   <form id="fhForm">
+    <div class="fh-concierge glass" aria-label="Léna Family Concierge">
+      <img class="fh-concierge-avatar" id="fhConciergeShot" alt="Léna, Family Concierge" src="../../healthhub/assets/ask-lena-approved-hero.webp" loading="lazy">
+      <span><b>💗 Léna · Family Concierge</b><small>Feladat rögzítése, egyetlen képernyőn. Buddy kézbesíti. 🐿️</small></span>
+    </div>
     <div class="fh-field"><label for="fhTitle">Mit kell elintézni?</label>
-      <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
+      <div class="fh-input-wrap">
+        <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
         lang="hu" autocomplete="on" autocapitalize="sentences" enterkeyhint="done"
         placeholder="Pl. Locsold meg a virágokat…" />
-      <small class="fh-note">🎙️ Magyar diktálás a mobil billentyűzet mikrofonjával.</small>
+        <button id="fhMic" class="fh-mic" type="button" aria-label="Magyar hangbevitel indítása" aria-pressed="false" title="Diktálás magyarul">🎙️</button>
+      </div>
+      <small id="fhVoiceFeedback" class="fh-voice-feedback" role="status">Magyar gépelés vagy mikrofonos diktálás · csak koppintásra indul.</small>
     </div>
-    <div class="fh-field"><label>Kategória · görgesd oldalra</label>
+    <div class="fh-field"><label>Kategória · görgesd lefelé</label>
       <div id="fhCategories" class="fh-chip-row" aria-label="Kategóriák"></div>
     </div>
     <div class="fh-field"><label>Kinek szól? · alapból a saját profilod</label>
@@ -67,9 +74,18 @@
     <p id="fhSaveInfo" class="fh-note" role="status" aria-live="polite"></p>
   </form>
 </section>
+<section id="fhSuccess" class="fh-success" role="dialog" aria-modal="true" aria-label="Feladat sikeresen mentve" hidden>
+  <div class="fh-success-inner">
+    <img id="fhSuccessBuddy" class="fh-success-art" src="../assets/buddy-sh9-hd.png" alt="Boldog Buddy, a Family Hub asszisztense">
+    <h2>🎉 TADAAA!</h2>
+    <p id="fhSuccessMessage">Feladat mentve! Buddy már intézi az értesítést.</p>
+    <button id="fhSuccessClose" class="fh-success-close" type="button">Szuper! ✓</button>
+  </div>
+</section>
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=880"></script>
-<script defer src="./family-notifier-v880.js?v=880"></script>
+<script defer src="./family-tasks-v880.js?v=881"></script>
+<script defer src="./family-notifier-v880.js?v=881"></script>
+<script defer src="./family-quick-add-v881.js?v=881"></script>
 </body></html>
