@@ -98,9 +98,21 @@ function boot(){
    })}finally{w.clearTimeout(timeout)}
    const v=await res.json().catch(()=>null);
    if(!res.ok){
-    if(res.status===401||res.status===403)throw Error('A Központi Vault-bejelentkezés vagy jogosultság hiányzik.');
-    if(v?.error==='github_plan_read_required')throw Error('A GitHub tokent Plan: Read jogosultsággal kell engedélyezni.');
-    throw Error('A GitHub Billing kapcsolat nem érhető el (HTTP '+res.status+').');
+    if(res.status===401||res.status===403)
+     throw Error('A Központi Vault-bejelentkezés vagy HealthHub-hozzáférés hiányzik.');
+    const errors={
+     github_token_invalid:'A GitHub-token érvénytelen, lejárt vagy vissza lett vonva. Ellenőrizd a GitHub tokent és a Supabase Secret értékét.',
+     github_account_permission_denied:'A GitHub nem engedélyezi a kérést. Ellenőrizd a token tulajdonosát (zsoltandmonika-cloud) és az Account permissions → Plan → Read-only beállítást.',
+     github_access_forbidden:'A GitHub 403-as hozzáférési tiltást adott. Nem feltétlenül hiányzik a Plan-jogosultság: ellenőrizd a token tulajdonosát és a Billing-fiók hozzáférését.',
+     github_rate_limited:'GitHub API forgalmi limit. Újabb gyors próbálkozás helyett később ellenőrizzük.',
+     github_billing_account_unavailable:'Ehhez a GitHub-fiókhoz a Billing Usage API jelenleg nem használható (enhanced billing jogosultság).',
+     github_sso_required:'A GitHub ehhez a tokenhez SSO-jóváhagyást kér.',
+     github_account_not_found:'A megadott GitHub számlázási fiókhoz nem férünk hozzá.',
+     github_billing_request_invalid:'A GitHub elutasította a Billing-lekérdezés paramétereit.',
+     github_upstream_unavailable:'A GitHub Billing API átmenetileg nem érhető el.'
+    };
+    const error=typeof v?.error==='string'?v.error:'';
+    throw Error(errors[error]||'GitHub Billing API hiba (HTTP '+(v?.httpStatus||res.status)+').');
    }
    if(v?.configured===false){status.textContent='🔐 A GitHub Plan: Read token még nincs beállítva a Supabase Secrets felületen. Ez nem GitHub-hiba.';return}
    if(!valid(v?.data,m))throw Error('A Billing API hiányos vagy eltérő havi adatot adott.');
