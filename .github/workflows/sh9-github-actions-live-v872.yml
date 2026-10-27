@@ -1,0 +1,29 @@
+name: SH9 GitHub Actions Live v872 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/usage-control/**'
+      - 'healthhub/tests/sh9-github-actions-live-v872.test.cjs'
+      - '.github/workflows/sh9-github-actions-live-v872.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/usage-control/**'
+      - 'healthhub/tests/sh9-github-actions-live-v872.test.cjs'
+      - '.github/workflows/sh9-github-actions-live-v872.yml'
+permissions:
+  contents: read
+jobs:
+  github-actions-sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source contract and on-demand quota-safe interactions
+        run: |
+          node --check healthhub/usage-control/github-live-v872.js
+          node --test healthhub/tests/sh9-github-actions-live-v872.test.cjs
+          node --test healthhub/tests/sh9-usage-control-v870.test.cjs
