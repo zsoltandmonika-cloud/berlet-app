@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=902">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=904">
 </head><body>
 <main class="fh-shell">
   <section class="fh-hero glass has-photo" aria-label="Family Tasks · Mónika, Zsolt, Léna, Buddy és Corky a családi képen">
@@ -28,7 +28,7 @@
     <button class="fh-tab" type="button" data-tab="all">👥 Családi</button>
     <button class="fh-tab" type="button" data-tab="log">📖 Napló</button>
   </nav>
-  <div class="fh-tools"><input id="fhSearch" type="search" placeholder="🔎 Keresés feladatok, virág, csomag…" autocomplete="off" aria-label="Feladatok keresése"></div>
+  <div class="fh-tools"><input id="fhSearch" type="search" placeholder="🔎 Keresés feladatok, virág, csomag…" autocomplete="off" aria-label="Feladatok keresése"><button id="fhHiddenToggle" class="fh-hidden-toggle" type="button" aria-pressed="false" hidden>👁 Rejtettek</button></div>
   <p id="fhStatus" class="fh-status" role="status" aria-live="polite">Family Tasks betöltése…</p>
   <section id="fhList" class="fh-list" aria-label="Feladatlista"></section>
   <button id="fhAdd" class="fh-new" type="button">＋ Új feladat</button>
@@ -97,7 +97,7 @@
 <script src="../../healthhub/golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./family-tasks-v880.js?v=903-scroll-clicks"></script>
+<script defer src="./family-tasks-v880.js?v=904-sync-hidden"></script>
 <script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=901"></script>
 <script defer src="./family-notifier-v880.js?v=901-single-standard"></script>
 </body></html>
