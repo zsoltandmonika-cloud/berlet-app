@@ -24,12 +24,23 @@ create index if not exists hh_family_tasks_due_idx on public.hh_family_tasks(due
 create table if not exists public.hh_family_task_events (
  id bigint generated always as identity primary key,
  task_id uuid not null references public.hh_family_tasks(id) on delete cascade,
- event_type text not null check(event_type in ('created','assigned','status','reaction','deadline')),
+ event_type text not null check(event_type in ('created','assigned','status','reaction','deadline','edited')),
  actor_profile text not null references public.hh_profiles(profile_key),
+ actor_user_id uuid not null default auth.uid() references auth.users(id),
  recipient_profile text not null references public.hh_profiles(profile_key),
+ title_snapshot text not null check(char_length(title_snapshot) between 1 and 180),
+ status_before text check(status_before is null or status_before in ('todo','progress','done')),
+ status_after text not null check(status_after in ('todo','progress','done')),
+ assignee_before text references public.hh_profiles(profile_key),
+ assignee_after text not null references public.hh_profiles(profile_key),
+ due_before timestamptz,
+ due_after timestamptz,
  created_at timestamptz not null default now()
 );
+-- The Family Tasks UI queries a rolling last-30-days window; task records
+-- themselves are NOT deleted or expired. Audit events are append-only.
 create index if not exists hh_family_task_events_recipient_idx on public.hh_family_task_events(recipient_profile,id desc);
+create index if not exists hh_family_task_events_recent_idx on public.hh_family_task_events(created_at desc,id desc);
 
 alter table public.hh_family_tasks enable row level security;
 alter table public.hh_family_task_events enable row level security;
@@ -88,25 +99,51 @@ create or replace function hh_task_internal.task_events()
 returns trigger language plpgsql security definer set search_path=pg_catalog,public as $$
 begin
  if tg_op='INSERT' then
-  insert into public.hh_family_task_events(task_id,event_type,actor_profile,recipient_profile)
-  values(new.id,case when new.assigned_profile=new.creator_profile then 'created' else 'assigned' end,
-  new.creator_profile,new.assigned_profile);
+  insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+  values
+    (new.id,case when new.assigned_profile=new.creator_profile then 'created' else 'assigned' end,
+     new.creator_profile,auth.uid(),new.assigned_profile,new.title,
+     null,new.status,null,new.assigned_profile,null,new.due_at);
  else
+  -- Store independent before/after values; never derive past facts from the
+  -- current mutable task row. Only actual changes create events.
   if new.assigned_profile is distinct from old.assigned_profile then
-   insert into public.hh_family_task_events(task_id,event_type,actor_profile,recipient_profile)
-   values(new.id,'assigned',old.assigned_profile,new.assigned_profile);
+   insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+   values (new.id,'assigned',old.assigned_profile,auth.uid(),new.assigned_profile,new.title,
+     old.status,new.status,old.assigned_profile,new.assigned_profile,old.due_at,new.due_at);
   end if;
   if new.status is distinct from old.status then
-   insert into public.hh_family_task_events(task_id,event_type,actor_profile,recipient_profile)
-   values(new.id,'status',new.assigned_profile,new.creator_profile);
+   insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+   values (new.id,'status',new.assigned_profile,auth.uid(),new.creator_profile,new.title,
+     old.status,new.status,old.assigned_profile,new.assigned_profile,old.due_at,new.due_at);
   end if;
   if new.due_at is distinct from old.due_at then
-   insert into public.hh_family_task_events(task_id,event_type,actor_profile,recipient_profile)
-   values(new.id,'deadline',new.assigned_profile,new.assigned_profile);
+   insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+   values (new.id,'deadline',new.assigned_profile,auth.uid(),new.assigned_profile,new.title,
+     old.status,new.status,old.assigned_profile,new.assigned_profile,old.due_at,new.due_at);
+  end if;
+  if new.title is distinct from old.title or new.details is distinct from old.details
+     or new.category is distinct from old.category then
+   insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+   values (new.id,'edited',new.assigned_profile,auth.uid(),new.assigned_profile,new.title,
+     old.status,new.status,old.assigned_profile,new.assigned_profile,old.due_at,new.due_at);
   end if;
   if new.stars is distinct from old.stars or new.reaction is distinct from old.reaction then
-   insert into public.hh_family_task_events(task_id,event_type,actor_profile,recipient_profile)
-   values(new.id,'reaction',new.creator_profile,new.assigned_profile);
+   insert into public.hh_family_task_events
+    (task_id,event_type,actor_profile,actor_user_id,recipient_profile,title_snapshot,
+     status_before,status_after,assignee_before,assignee_after,due_before,due_after)
+   values (new.id,'reaction',new.creator_profile,auth.uid(),new.assigned_profile,new.title,
+     old.status,new.status,old.assigned_profile,new.assigned_profile,old.due_at,new.due_at);
   end if;
  end if;
  return null;
