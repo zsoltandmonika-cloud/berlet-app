@@ -85,7 +85,18 @@ function render(){
  records.forEach(t=>{
    const card=element('article','fh-card glass');card.id='task-'+t.id;card.dataset.id=t.id;
    const head=element('div','fh-cardtop');
-   head.append(element('h2',null,t.title),element('span','fh-category',t.category));
+   const categoryButton=button(t.category,'fh-category',()=>{
+     const query=$('fhSearch');
+     // Tap once to show all family tasks in this category; tap again to clear.
+     query.value=query.value.trim()===t.category?'':t.category;
+     const all=d.querySelector('[data-tab="all"]');
+     if(all)all.click();else {tab='all';render()}
+     d.querySelector('.fh-tabs')?.scrollIntoView({block:'start',behavior:'smooth'});
+   });
+   categoryButton.title='Kategória szerinti szűrés: '+t.category;
+   categoryButton.setAttribute('aria-label','Szűrés erre a kategóriára: '+t.category);
+   categoryButton.setAttribute('aria-pressed',String($('fhSearch').value.trim()===t.category));
+   head.append(element('h2',null,t.title),categoryButton);
    card.append(head);
    const meta=element('div','fh-meta');
    meta.append(avatar(t.assigned_agent?'lena':t.assigned_profile),
