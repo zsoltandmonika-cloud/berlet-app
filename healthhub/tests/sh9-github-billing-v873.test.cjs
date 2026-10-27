@@ -46,7 +46,7 @@ test('Mobile UI exposes explicit Billing button, never PAT, and reuses Central V
  const js=fs.readFileSync(path.join(ROOT,'usage-control/github-billing-v873.js'),'utf8');
  assert.match(html,/id="githubBillingReadV873"/);
  assert.match(html,/id="githubBillingRowsV873"/);
- assert.match(html,/github-billing-v873\.js\?v=873-github-billing/);
+ assert.match(html,/github-billing-v873\.js\?v=874-billing-errors/);
  assert.match(html,/central-vault\/config\.js/);
  assert.match(html,/sh9:github-billing-measured/);
  assert.match(html,/@media\(max-width:750px\)/);
@@ -57,4 +57,20 @@ test('Mobile UI exposes explicit Billing button, never PAT, and reuses Central V
  assert.match(js,/getSession\(\)/);
  assert.doesNotMatch(js,/setInterval\(|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}/);
  assert.doesNotMatch(html,/github_pat_[A-Za-z0-9_]{20,}|sk-proj-/);
+});
+
+test('v874 distinguishes invalid token, 403 permission, account limitation and GitHub rate limit',()=>{
+ const server=fs.readFileSync(path.join(ROOT,'../supabase/functions/hh-github-billing-v873/index.ts'),'utf8');
+ const browser=fs.readFileSync(path.join(ROOT,'usage-control/github-billing-v873.js'),'utf8');
+ for(const code of ['github_token_invalid','github_account_permission_denied','github_access_forbidden',
+ 'github_rate_limited','github_billing_account_unavailable','github_sso_required']){
+  assert.ok(server.includes(code),'server not mapping '+code);
+  assert.ok(browser.includes(code),'browser not mapping '+code);
+ }
+ assert.match(server,/x-ratelimit-remaining/);
+ assert.match(server,/resource not accessible by personal access token/);
+ assert.match(server,/enhanced billing/);
+ assert.doesNotMatch(server,/github_plan_read_required/);
+ assert.doesNotMatch(browser,/github_plan_read_required/);
+ assert.match(browser,/Plan → Read-only/);
 });
