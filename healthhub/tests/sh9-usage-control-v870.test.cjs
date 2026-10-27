@@ -41,3 +41,8 @@ test('No new Supabase costs or sensitive health/GPS payload collection',()=>{
  assert.match(html,/Nincs szolgáltatói usage adat/);
  assert.match(html,/nem GB/);
 });
+
+test('Production entry busts stale cached Admin JS for v870',()=>{
+ const entry=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ assert.match(entry,/hh-admin-mobile-focus-v748\.js\?v=748[^"']*usage=870/);
+});
