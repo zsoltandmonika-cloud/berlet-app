@@ -94,6 +94,15 @@ legend{color:#b4cddd}
 .oauth-actions{display:flex;gap:9px;flex-wrap:wrap}
 .oauth-actions button{min-height:44px}
 @media(max-width:600px){.oauth-actions{width:100%}.oauth-actions button{flex:1;font-size:12px;white-space:normal}}
+
+.github-live-kpis{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.github-live-row{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(70px,.8fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #263b52}
+.github-live-label{font-size:12px;color:#e3edf9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.github-live-row strong{font-size:11px;text-align:right;white-space:nowrap}
+.github-live-link{display:inline-block;color:#80cafa;font-weight:750;margin-top:12px;font-size:12px;text-underline-offset:3px}
+.github-live-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.github-live-header .btn{min-height:44px}
+@media(max-width:600px){.github-live-row{grid-template-columns:minmax(82px,1fr) minmax(50px,.65fr) auto;gap:6px}.github-live-label,.github-live-row strong{font-size:10px}.github-live-header{align-items:stretch}.github-live-header .btn{width:100%}}
 </style>
 </head>
 <body>
@@ -102,7 +111,7 @@ legend{color:#b4cddd}
  <div class="brand"><span class="logo" aria-hidden="true">H</span><div><h1>HealthHub / SH9 <span style="font-size:.73em;font-weight:600">Usage Control Center</span></h1><div class="subtitle">Minden szolgáltatás · fogyasztás, limitek, trendek</div></div></div>
  <div class="controls"><button class="btn small" id="back">← Admin</button><label class="small" for="month">Hónap</label><input type="month" id="month" aria-label="Hónap kiválasztása"><button class="btn primary" id="export">⬇ Export</button></div>
 </header>
-<div class="notice" id="sourceNote"><strong>Valós adatok, nem demószámok.</strong> A GitHub, Dropbox, Google, Outter és AI számlázási adatai addig „Nincs mérés” állapotban maradnak, amíg hiteles mérés vagy kézi elszámolás nem érkezik. A Supabase GPS-referencia API-hívásszám, nem GB.</div>
+<div class="notice" id="sourceNote"><strong>Valós adatok, nem demószámok.</strong> A GitHub számlázási, valamint a Dropbox, Google, Outter és AI számlázási adatai addig „Nincs mérés” állapotban maradnak, amíg hiteles mérés vagy kézi elszámolás nem érkezik. A Supabase GPS-referencia API-hívásszám, nem GB.</div>
 <section class="card" id="dropboxUsageAuth" aria-label="Dropbox fiók tárhelyadatok">
  <div class="sectionhead"><h2>◆ Dropbox fiók · tárhely / limit</h2><span class="pill" id="dropboxScopeStatus">Kapcsolat ellenőrzésre vár</span></div>
  <div class="small">A külön HealthHub ChatGPT Sync OAuth-fiók teljes tárhelye. Ez nem a havi adatforgalom, és nem az App Folder külön mérete.</div>
@@ -114,6 +123,17 @@ legend{color:#b4cddd}
 <section aria-label="Szolgáltatások">
  <div class="sectionhead"><h2>◈ Szolgáltatások</h2><span class="small" id="coverage"></span></div>
  <div class="services" id="services"></div>
+</section>
+
+<section class="card" id="githubActionsLiveV872" aria-label="GitHub Actions közvetlen futtatási statisztika">
+ <div class="github-live-header">
+  <div><h2>◉ GitHub Actions · élő futtatási minta</h2>
+   <p class="small" style="margin:4px 0 0">Nyilvános repository, olvasási API. A kiválasztott hónap legutóbbi 100 futtatásának darabszáma és állapota.</p></div>
+  <button type="button" id="githubActionsLoadV872" class="btn primary">GitHub futtatások lekérése</button>
+ </div>
+ <p class="small" id="githubActionsStatusV872" role="status">Még nincs lekért GitHub-adat.</p>
+ <div id="githubActionsRowsV872" aria-live="polite"></div>
+ <div class="notice">A GitHub-futtatások nem azonosak a Billing riportban szereplő Linux-percekkel. A <a class="github-live-link" style="margin:0" href="https://github.com/settings/billing" target="_blank" rel="noopener noreferrer">GitHub Usage & Billing</a> pénzügyi kimutatásához külön, biztonságos szerveroldali jogosultság szükséges. Ide API-kulcsot nem kérünk.</div>
 </section>
 <section class="statgrid">
  <div class="card"><div class="sectionhead"><div><h2>▥ Legnagyobb fogyasztók</h2><div class="small">Összehasonlítható mértékegységek szerint</div></div><select id="driverUnit" class="btn small" aria-label="Mértékegység"></select></div><div id="drivers"></div></div>
@@ -147,7 +167,7 @@ legend{color:#b4cddd}
   <button class="btn small" id="clear" type="button" style="margin-top:12px">Kézi mérések törlése ezen az eszközön</button>
  </div>
 </section>
-<footer>HH / SH9 Usage Center v870 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
+<footer>HH / SH9 Usage Center v872 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
 </main>
 <script src="../hh-chatgpt-target-auth-v739.js?v=739-account-871"></script>
 <script>
@@ -310,5 +330,6 @@ $('back').addEventListener('click',()=>{try{if(document.referrer&&new URL(docume
 month.addEventListener('change',render);$('driverUnit').addEventListener('change',()=>renderDrivers(latest(monthRows())));$('trendMetric').addEventListener('change',renderTrend);render();
 })();
 </script>
+<script src="./github-live-v872.js?v=872-public-actions"></script>
 </body>
 </html>
