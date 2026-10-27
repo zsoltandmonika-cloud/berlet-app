@@ -38,6 +38,7 @@ let polling=null;
 let inFlight=false;
 let lastVehicles=[];
 let lastVerified=null;
+let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
 // Live map visibility is a presentation toggle, not a change to BKK polling.
 let liveVisible=true;
 function updateLiveButton(){
@@ -53,7 +54,10 @@ function watchedLines(){
  const catalog=w.HH_BKK_CATALOG_V801;
  if(catalog&&Array.isArray(catalog.favoriteIds)){
   const keys=new Set(catalog.favoriteIds);
-  return ['260','17','19'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id));
+  const p=catalog.activeProfile==='monika'?'monika':'zsolt';
+  const lineFilter=w.HH_BKK_LIVE_PER_LINE_V909;
+  return ['260','17','19'].filter(id=>keys.has(id==='260'?'bus:260':'tram:'+id))
+   .filter(id=>!lineFilter||lineFilter.enabled(id,p));
  }
  return (w.HH_GUARDIAN_TRANSIT_V790?.selected||[]).filter(id=>['260','17','19'].includes(id));
 }
@@ -73,9 +77,29 @@ function toggleLive(){
 focusButton.addEventListener('click',toggleLive);
 function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
 function clear(){
- lastVehicles=[];lastVerified=null;
+ lastVehicles=[];lastVerified=null;lastSourceSnapshot=null;
  updateLiveButton();
  if(mapApi.map)renderer.clear(mapApi.map);
+}
+// Per-line button changes redraw the ALREADY VERIFIED response, not a new API request.
+function renderLiveFromSnapshot(parsed){
+ const wanted=new Set(watchedLines());
+ const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
+ if(liveVisible&&!renderer.render(mapApi.map,active)){
+  lastVehicles=[];lastVerified=null;updateLiveButton();
+  status('a térképréteg betöltésére várunk');return;
+ }
+ if(!liveVisible&&mapApi.map)renderer.clear(mapApi.map);
+ lastVehicles=active.vehicles;
+ lastVerified=active;
+ updateLiveButton();
+ if(!wanted.size){
+  status('Nincs külön bekapcsolt, élő térképen támogatott kedvenc járat.');
+ }else if(!active.vehicles.length){
+  status([...wanted].join(', ')+' · nincs friss, ellenőrzött járműpozíció. Az adatkapcsolat működik, de nem rajzolunk kitalált buszokat.');
+ }else{
+  status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
+ }
 }
 async function poll(){
  if(inFlight||d.hidden)return;
@@ -104,23 +128,8 @@ async function poll(){
     detail:{vehicles:parsed.vehicles,generatedAt:parsed.generatedAt}
    }));
   }
-  const wanted=new Set(watchedLines());
-  const active={...parsed,vehicles:parsed.vehicles.filter(v=>wanted.has(v.routeId))};
-  if(liveVisible&&!renderer.render(mapApi.map,active)){
-   lastVehicles=[];lastVerified=null;updateLiveButton();
-   status('a térképréteg betöltésére várunk');return;
-  }
-  if(!liveVisible&&mapApi.map)renderer.clear(mapApi.map);
-  lastVehicles=active.vehicles;
-  lastVerified=active;
-  updateLiveButton();
-  if(!wanted.size){
-   status('Nincs kijelölt, élő térképen támogatott Watchlist-járat. Jelöld a 260, 17 vagy 19 járatot a Szerkesztésnél.');
-  }else if(!active.vehicles.length){
-   status([...wanted].join(', ')+' · nincs friss, ellenőrzött járműpozíció. Az adatkapcsolat működik, de nem rajzolunk kitalált buszokat.');
-  }else{
-   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(data.generatedAt).toLocaleTimeString('hu-HU'));
-  }
+  lastSourceSnapshot=parsed;
+  renderLiveFromSnapshot(parsed);
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
  finally{inFlight=false}
 }
@@ -133,6 +142,11 @@ w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{
  if(d.hidden)return;
  clear();
  poll();
+});
+// Toggle ONE route's vehicles without requesting another BKK snapshot.
+w.addEventListener('hh-bkk-live-per-line-v909-changed',()=>{
+ if(d.hidden||!lastSourceSnapshot)return;
+ renderLiveFromSnapshot(lastSourceSnapshot);
 });
 w.addEventListener('pagehide',stop);
 start();

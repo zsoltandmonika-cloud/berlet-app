@@ -41,3 +41,15 @@
 .hh-bkk-watch-actions-v814{max-width:104px}
 .hh-bkk-watch-edit-v814{padding:6px 8px}}
 @media(prefers-reduced-motion:reduce){.hh-bkk-watchlist-v814 *{scroll-behavior:auto!important;transition:none!important}}
+
+/* v909: separate, accessible route-specific LIVE button (static route button remains). */
+#hhTransitPanel .hh-bkk-watch-live-v909{
+ flex-basis:100%;min-width:92px;min-height:44px;
+ font:750 12px system-ui;white-space:nowrap;touch-action:manipulation
+}
+#hhTransitPanel .hh-bkk-watch-live-v909[data-live-enabled="true"]{
+ background:rgba(17,125,118,.36);border-color:rgba(125,220,205,.9)
+}
+#hhTransitPanel .hh-bkk-watch-live-v909[data-live-enabled="false"]{
+ background:rgba(75,90,109,.42);border-color:rgba(164,178,191,.67)
+}

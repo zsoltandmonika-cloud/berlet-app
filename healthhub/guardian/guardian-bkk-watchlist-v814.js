@@ -62,6 +62,20 @@
     'Kedvenc járat · élő térképes követés még nem elérhető';
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
+   // Static route lines and LIVE vehicles must never share their toggle state.
+   const liveFilter=w.HH_BKK_LIVE_PER_LINE_V909;
+   if(LIVE_MAP.has(key)&&liveFilter){
+    const enabled=liveFilter.enabled(id,profile);
+    const live=action(enabled?'Élő: BE':'Élő: KI',
+     id+'-es járat élő járműveinek '+(enabled?'elrejtése':'megjelenítése'),()=>{
+      liveFilter.setEnabled(id,!liveFilter.enabled(id,profile),profile);
+    });
+    live.classList.add('hh-bkk-watch-live-v909');
+    live.dataset.liveEnabled=String(enabled);
+    live.setAttribute('aria-pressed',String(enabled));
+    live.title='Csak ennek a járatnak az élő járműveit kapcsolja';
+    controls.append(live);
+   }
    if(supported){
     const shown=!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id));
     const show=action(shown?'Ne mutasd':'Mutasd ↗',
@@ -126,6 +140,7 @@
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
    w.addEventListener('hh-bkk-static-map-ready-v817',render);
    w.addEventListener('hh-bkk-line-visibility-v855',render);
+   w.addEventListener('hh-bkk-live-per-line-v909-changed',render);
    w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
   }
   const profile=$('hhTransitProfileV791');
