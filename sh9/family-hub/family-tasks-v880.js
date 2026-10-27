@@ -283,7 +283,14 @@ function startDictation(){
  rec.onend=()=>{b.disabled=false;b.classList.remove('listening')};
  try{rec.start()}catch(_){b.disabled=false;b.classList.remove('listening');status.textContent='A hangbevitel nem indítható.'}
 }
+
+function wireStandardNav(){
+ const back=$('fhNavBack'),note=$('fhNavNotifications');
+ back?.addEventListener('click',()=>{if(!$('fhSuccess').hidden){hideSuccess();return}if(!$('fhSheet').hidden){hideSheet();return}if(w.history.length>1)w.history.back();else w.location.assign('../')});
+ note?.addEventListener('click',()=>announce('Az SH9 értesítési központja még fejlesztés alatt áll.'));
+}
 function wire(){
+ wireStandardNav();
  $('fhProfileSwitch').addEventListener('click',()=>{
   const next=self()==='monika'?'zsolt':'monika';
   if(user&&!authorized.includes(next)){announce(label(next)+' profil nem engedélyezett.');return}
