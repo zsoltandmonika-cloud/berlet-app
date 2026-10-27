@@ -9,7 +9,9 @@ const api=cfg&&cfg.enabled&&w.supabase?.createClient
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,
  {auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}}):null;
 const TABLE='hh_family_tasks',LOG='hh_family_task_logbook';
-const cat=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
+const CAT_TABLE='hh_family_task_categories';
+const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
+let categoryRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
 const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész'};
 let user=null,authorized=[],tasks=[],logs=[],tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
@@ -112,6 +114,48 @@ function render(){
   const target=d.getElementById('task-'+linked);
   if(target&&!target.dataset.opened){target.dataset.opened='1';target.classList.add('flash');target.scrollIntoView({block:'center',behavior:'smooth'});}
  }
+}
+
+async function loadCategories(){
+ if(!api||!user||!authorized.includes(self()))return;
+ const {data,error}=await api.from(CAT_TABLE).select('id,name,sort_order,active').order('sort_order',{ascending:true}).order('name',{ascending:true});
+ if(error){$('fhCategoryMessage').textContent='Kategóriák: '+error.message;return}
+ categoryRows=data||[];cat=categoryRows.filter(x=>x.active).map(x=>x.name);
+ if(!cat.includes(category))category=cat[0]||'💡 Egyéb';
+ renderCategories();renderCategoryEditor();
+}
+function categoryFeedback(msg){$('fhCategoryMessage').textContent=msg}
+function renderCategoryEditor(){
+ const host=$('fhCategoryRows');if(!host)return;host.replaceChildren();
+ categoryRows.filter(x=>x.active).forEach(item=>{
+  const row=element('div','fh-category-row'),input=element('input');input.value=item.name;input.maxLength=60;
+  input.setAttribute('aria-label','Kategória átnevezése');
+  const rename=button('Mentés','',async()=>{
+   const name=input.value.trim();if(name.length<2||name.length>60){categoryFeedback('2–60 karakter szükséges.');return}
+   rename.disabled=true;
+   const {error}=await api.from(CAT_TABLE).update({name,updated_at:new Date().toISOString()}).eq('id',item.id);
+   if(error){categoryFeedback('Hiba: '+error.message);rename.disabled=false;return}
+   if(category===item.name)category=name;
+   categoryFeedback('✓ Átnevezve. A régi feladatok korábbi kategóriája változatlan marad.');await loadCategories();
+  });
+  const remove=button('Elrejtés','fh-category-delete',async()=>{
+   if(!w.confirm('Elrejted a kategóriát az új feladatok listájából? A régi feladatok megmaradnak.'))return;
+   remove.disabled=true;const {error}=await api.from(CAT_TABLE).update({active:false,updated_at:new Date().toISOString()}).eq('id',item.id);
+   if(error){categoryFeedback('Hiba: '+error.message);remove.disabled=false;return}
+   categoryFeedback('✓ Kategória elrejtve.');await loadCategories();
+  });
+  row.append(input,rename,remove);host.append(row);
+ });
+}
+async function addCategory(){
+ const input=$('fhCategoryNew'),name=input.value.trim();
+ if(name.length<2||name.length>60){categoryFeedback('Adj meg 2–60 karaktert.');return}
+ const b=$('fhCategoryAdd');b.disabled=true;
+ const old=categoryRows.find(x=>x.name===name&&!x.active);
+ const query=old?api.from(CAT_TABLE).update({active:true,updated_at:new Date().toISOString()}).eq('id',old.id):api.from(CAT_TABLE).insert({name,sort_order:categoryRows.length*10+10});
+ const {error}=await query;b.disabled=false;
+ if(error){categoryFeedback('Nem menthető: '+error.message);return}
+ input.value='';categoryFeedback('✓ Kategória mentve a családi adatbázisba.');await loadCategories();
 }
 function renderCategories(){
  const host=$('fhCategories');host.replaceChildren();
@@ -232,7 +276,7 @@ async function authSync(){
  $('fhSignIn').hidden=!!user&&authorized.includes(self());
  $('fhAuthText').textContent=user?'Ehhez a profilhoz nincs hozzáférésed.':'A családi feladatokhoz bejelentkezés szükséges.';
  profileUi();
- if(user&&authorized.includes(self())){await fetchData();subscribe();}
+ if(user&&authorized.includes(self())){await loadCategories();await fetchData();subscribe();}
  else{tasks=[];logs=[];setStats();render();if(liveChannel){api.removeChannel(liveChannel);liveChannel=null}}
 }
 function subscribe(){
@@ -291,6 +335,8 @@ function wireStandardNav(){
 }
 function wire(){
  wireStandardNav();
+ $('fhCategoryManage').addEventListener('click',()=>{const el=$('fhCategoryEditor');el.hidden=!el.hidden;if(!el.hidden)renderCategoryEditor()});
+ $('fhCategoryAdd').addEventListener('click',addCategory);
  $('fhProfileSwitch').addEventListener('click',()=>{
   const next=self()==='monika'?'zsolt':'monika';
   if(user&&!authorized.includes(next)){announce(label(next)+' profil nem engedélyezett.');return}
