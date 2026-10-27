@@ -5,7 +5,7 @@
 - **[Universal AI Intelligence Core · Golden Standard v1](./SH9_AI_INTELLIGENCE_CORE_GOLDEN_STANDARD_V1.md)**: minden új projekt AI / Usage / Reporting / Self-Health / Self-Healing / Self-Improvement alapja, Lite/Standard/Critical. Backlog.
 - **[Guardian Intelligence v1.1 · három intelligens motor + AI Squad](./SH9_GUARDIAN_INTELLIGENCE_EPIC_V1.md)**: külső read-only Technology Scout, scope-hoz kötött Mehet és külön release gate. Backlog.
 - **[Smart Shopping: Tesco/Auchan + Universal Price Hunter](./SH9_SMART_SHOPPING_EPIC_V1.md)**: bruttó termék+shipping végár, három kosár, Price Watch. Backlog.
-- **[Smart Travel: MÁV, majd MÁV+BKK](./SH9_MAV_BKK_ROUTE_EPIC_V1.md)**: 2026-10-28 kiemelt prioritás, két egymásra épülő mérföldkő. Backlog.
+- **[SH9 Tömegközlekedés: BKK / MÁV / Volán önálló page](./SH9_MAV_BKK_ROUTE_EPIC_V1.md)**: BKK közel kész, MÁV és Volán 2026-10-28 kiemelt prioritás; később közös útvonaltervezés. Backlog.
 - **[Connected Wearables](./SH9_CONNECTED_WEARABLES_EPIC_V1.md)**: Health Connect mérések forrása vs konkrét eszköz és valós online státusz. Backlog.
 - **[SH9 Guardian Intelligence · Quality Guardian Epic v1.0](./SH9_GUARDIAN_INTELLIGENCE_EPIC_V1.md)**: ONBOARD alacsony terhelésű diagnosztika, EXTERNAL QA + Golden Standard pixelteszt, Supabase/GitHub/Android Resource Watch, RETURN HOME hibajelentés és emberi release gate. Jóváhagyott terv; még nem éles rendszer.
 

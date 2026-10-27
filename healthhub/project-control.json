@@ -4,7 +4,7 @@
   "updatedAt": "2026-10-27",
   "liveBuild": "v380",
   "currentFocus": "Architecture Grand Design és egységes Admin oldal v745: taskbar Továbbiak→Admin, csoportosított közvetlen Admin Data Hub, Project Control, Recovery, Dropbox Analytics; működő eszközök megtartása, duplikált és információs legacy elemek eltüntetése; a v742 privát Dropbox-ChatGPT E2E működik.",
-  "nextDevelopment": "2026-10-28 KIEMELT: MÁV útvonaltervező pilot (HH-RAIL-001), utána MÁV+BKK (HH-RAIL-002). Ezt követi a Universal AI Intelligence Core + Guardian, Shopping és Wearables új epicjeinek ütemezett előkészítése. A korábbi Admin/Analytics stabilitási feladatok nem törlődnek.",
+  "nextDevelopment": "2026-10-28 KIEMELT: külön Tömegközlekedés oldal három modullal BKK/MÁV/Volán (HH-TRANSIT-001). BKK felhasználó szerint közel 100%, meglévő működést megtartani. MÁV (HH-RAIL-001) és Volán (HH-VOLAN-001) azonos nap fejlesztési fókuszban. Közös BKK+MÁV+Volán routing csak a külön pilotok után (HH-RAIL-002). Más modulok AI Intelligence Core/Guardian, Shopping/Wearables a prioritást nem írják felül.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -2721,22 +2721,22 @@
       "notes": "Jóváhagyott tervezési irány, NEM éles implementáció."
     },
     {
-      "priority": "High",
+      "priority": "Critical",
       "status": "Backlog",
       "progress": 0,
       "owner": "Léna + Zsolt",
       "targetDate": null,
       "actualDone": null,
       "id": "HH-RAIL-001",
-      "epic": "SH9 Smart Travel · MÁV/BKK",
+      "epic": "SH9 Tömegközlekedés · BKK/MÁV/Volán",
       "feature": "MÁV-first route planning",
-      "title": "2026-10-28 PRIORITY: official-source MÁV journey planning",
+      "title": "2026-10-28 PRIORITY: önálló MÁV útvonaltervező, hivatalos/hiteles menetrend",
       "milestone": "RAIL-M1",
       "storyPoints": 13,
       "acceptanceCriteria": "Authentic stations/schedules/transfers, verified realtime or explicit schedule-only, tested mobile UI.",
       "sprint": "Priority 2026-10-28",
       "dependency": null,
-      "notes": "Jóváhagyott tervezési irány, NEM éles implementáció."
+      "notes": "2026-10-27 döntés: BKK közel 100%; MÁV és Volán 2026-10-28 párhuzamos fejlesztési prioritások; nem éles implementáció."
     },
     {
       "priority": "High",
@@ -2746,15 +2746,15 @@
       "targetDate": null,
       "actualDone": null,
       "id": "HH-RAIL-002",
-      "epic": "SH9 Smart Travel · MÁV/BKK",
+      "epic": "SH9 Tömegközlekedés · BKK/MÁV/Volán",
       "feature": "Intermodal route planning",
-      "title": "MÁV+BKK connected multimodal itineraries after MÁV pilot",
+      "title": "Későbbi közös BKK+MÁV+Volán útvonaltervezés átszállási pufferekkel",
       "milestone": "RAIL-M2",
       "storyPoints": 13,
-      "acceptanceCriteria": "Actual feasible train/transit transfers and time buffers with validated sources, no breaking existing BKK.",
+      "acceptanceCriteria": "Verified multimodal itineraries across BKK + MÁV + Volán, realistic transit interchange buffers, provenance and realtime vs schedule labels, no BKK regression.",
       "sprint": "Architecture & Future Backlog",
-      "dependency": "HH-RAIL-001",
-      "notes": "Jóváhagyott tervezési irány, NEM éles implementáció."
+      "dependency": "HH-RAIL-001;HH-VOLAN-001;HH-TRANSIT-001",
+      "notes": "Nem 2026-10-28 kész delivery; MÁV és Volán önálló pilotok után integráció."
     },
     {
       "priority": "High",
@@ -2773,6 +2773,42 @@
       "sprint": "Architecture & Future Backlog",
       "dependency": null,
       "notes": "Jóváhagyott tervezési irány, NEM éles implementáció."
+    },
+    {
+      "epic": "SH9 Tömegközlekedés · BKK/MÁV/Volán",
+      "owner": "Léna + Zsolt",
+      "status": "Backlog",
+      "progress": 0,
+      "targetDate": null,
+      "actualDone": null,
+      "id": "HH-TRANSIT-001",
+      "feature": "Standalone Transport Portal",
+      "title": "Tömegközlekedés önálló SH9 oldal három Premium Glass BKK/MÁV/Volán modullal",
+      "priority": "Critical",
+      "sprint": "Priority 2026-10-28",
+      "milestone": "TRANSIT-M1",
+      "storyPoints": 8,
+      "dependency": "Existing BKK pilot",
+      "acceptanceCriteria": "Mobile-first standalone page, existing nearly-complete BKK module reused without regressions, two dedicated MÁV and Volán entries, unified SH9 taskbar/profile themes, no invented live status.",
+      "notes": "2026-10-27 user direction: BKK közel 100%, MÁV és Volán holnap. UX + nav Backlog; nem éles."
+    },
+    {
+      "epic": "SH9 Tömegközlekedés · BKK/MÁV/Volán",
+      "owner": "Léna + Zsolt",
+      "status": "Backlog",
+      "progress": 0,
+      "targetDate": null,
+      "actualDone": null,
+      "id": "HH-VOLAN-001",
+      "feature": "Volán Route Planning",
+      "title": "2026-10-28 PRIORITY: önálló Volán buszos útvonaltervező hiteles adatforrásokkal",
+      "priority": "Critical",
+      "sprint": "Priority 2026-10-28",
+      "milestone": "TRANSIT-M2",
+      "storyPoints": 13,
+      "dependency": "HH-TRANSIT-001",
+      "acceptanceCriteria": "Verifiable stops/routes/timetables, source licensing feasibility, provenance, realistic connections, Premium Glass phone QA, safe bounded requests.",
+      "notes": "MÁV-val párhuzamosan a következő nap prioritása; megvalósítás még nincs."
     }
   ],
   "changeLog": [
@@ -3432,6 +3468,12 @@
       "version": "Smart Shopping, Smart Travel, Connected Wearables",
       "type": "APPROVED BACKLOG / PRIORITIZED",
       "change": "Tesco/Auchan megosztott kosár, Universal Price Hunter + Price Watch, teljes bruttó szállított ár; MÁV 2026-10-28 első prioritás, később MÁV+BKK; Health Connect wearables forrás/valós kapcsolat szétválasztás."
+    },
+    {
+      "date": "2026-10-27",
+      "version": "SH9 Tömegközlekedés · BKK/MÁV/Volán hárommodulos oldal",
+      "type": "USER APPROVED ARCHITECTURE / PRIORITY · BACKLOG",
+      "change": "BKK közel 100% (felhasználói becslés), megtartjuk. 2026-10-28 különálló Tömegközlekedés page + MÁV és Volán egyaránt első prioritás. Későbbi intermodal BKK+MÁV+Volán. Két új Project Control tétel; nem éles implementáció."
     }
   ],
   "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke, nem tükrözi a 2026-10-21-es v742 ChatGPT Analytics modul jelenlegi életciklusát. Modulfájl-verzió a healthhub/index.html és GitHub commit alapján.",
