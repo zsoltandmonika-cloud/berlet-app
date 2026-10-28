@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const trigger=$('smartTripOpen'),panel=$('smartTripPanel'),form=$('smartTripForm'),from=$('smartTripFrom'),to=$('smartTripDestination');
 if(!trigger||!panel||!form||!from||!to)return;
-const date=$('smartTripDate'),time=$('smartTripTime'),status=$('smartTripStatus'),saved=$('smartTripJourneysPanel'),list=$('smartTripJourneyList');
+const date=$('smartTripDate'),time=$('smartTripTime'),dateTrigger=$('smartTripDateTrigger'),timeTrigger=$('smartTripTimeTrigger'),dateDisplay=$('smartTripDateDisplay'),timeDisplay=$('smartTripTimeDisplay'),status=$('smartTripStatus'),saved=$('smartTripJourneysPanel'),list=$('smartTripJourneyList');
 const storePrefix='sh9-smart-trip-journeys-v2-',handoffKey='sh9-bkk-grand-planner-handoff-v1';
 let selected='now';
 function profile(){try{return localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}}
@@ -23,7 +23,50 @@ function setMode(value){
  }
  date.title=value==='arrive'?'Érkezés napja':value==='depart'?'Indulás napja':'Mai dátum';
  time.title=value==='arrive'?'Érkezés időpontja':value==='depart'?'Indulás időpontja':'Jelenlegi idő';
+ syncPickerDisplays();
 }
+/* Keep compact labels legible even on the narrow 41% datetime column. */
+function syncPickerDisplays(){
+ const d=date.value||budapestNow().date;
+ const m=/^\\d{4}-(\\d{2})-(\\d{2})$/.exec(d);
+ dateDisplay.textContent=m?Number(m[1])+'.'+Number(m[2])+'.':'Dátum';
+ timeDisplay.textContent=/^\\d{2}:\\d{2}$/.test(time.value)?time.value:'Idő';
+ dateTrigger.setAttribute('aria-label','Naptár megnyitása · '+d);
+ timeTrigger.setAttribute('aria-label','Időpontválasztó megnyitása · '+(time.value||'nincs időpont'));
+}
+/* Android Chrome and Edge need showPicker synchronously on the user's tap.
+   No delayed callbacks or fake noninteractive calendar icon. */
+function openNativePicker(input){
+ if(selected==='now'){
+  const now=budapestNow();
+  date.value=now.date;time.value=now.time;
+  setMode('depart');
+ }
+ try{
+  if(typeof input.showPicker==='function'){input.showPicker();return}
+ }catch(_){}
+ try{input.focus();input.click()}catch(_){input.focus()}
+}
+function wirePicker(target,input){
+ target.addEventListener('click',()=>openNativePicker(input));
+ target.addEventListener('keydown',event=>{
+  if(event.key==='Enter'||event.key===' '){
+   event.preventDefault();openNativePicker(input);
+  }
+ });
+ input.addEventListener('change',()=>{
+  if(selected==='now')setMode('depart');
+  syncPickerDisplays();
+ });
+ input.addEventListener('input',syncPickerDisplays);
+}
+wirePicker(dateTrigger,date);
+wirePicker(timeTrigger,time);
+window.addEventListener('scroll',queueFit,{passive:true});
+window.addEventListener('resize',()=>{
+ if(panel.hidden)return;
+ panel.style.minHeight='';panelFilled=false;queueFit();
+});
 function snapshot(){
  const now=budapestNow();
  return {
@@ -33,13 +76,41 @@ function snapshot(){
  time:selected==='now'?now.time:time.value
  };
 }
+/* Match the Smart Trip card's lower edge to the fixed taskbar, without
+   stretching the whole SH9 page when the planner is closed. */
+let panelFilled=false,fitQueued=false;
+function fitPanelToTaskbar(){
+ fitQueued=false;
+ if(panel.hidden||panelFilled)return;
+ const nav=document.querySelector('nav.nav');
+ if(!nav)return;
+ const box=panel.getBoundingClientRect(),bar=nav.getBoundingClientRect();
+ if(box.top<0||box.top>=bar.top-85)return;
+ const missing=Math.floor(bar.top-box.bottom-5);
+ if(missing>8){
+   panel.style.minHeight=Math.ceil(box.height+missing)+'px';
+   panelFilled=true;
+ }
+}
+function queueFit(){
+ if(panel.hidden||panelFilled||fitQueued)return;
+ fitQueued=true;
+ requestAnimationFrame(fitPanelToTaskbar);
+}
 function show(visible){
  panel.hidden=!visible;trigger.setAttribute('aria-expanded',String(visible));
  if(visible){
- if(!date.value||!time.value){const now=budapestNow();date.value=now.date;time.value=now.time}
- panel.scrollIntoView({behavior:'smooth',block:'start'});
- // Deliberately no .focus() on input: avoid immediate S24 Ultra keyboard.
- }else trigger.focus();
+  if(!date.value||!time.value){const now=budapestNow();date.value=now.date;time.value=now.time}
+  syncPickerDisplays();
+  panelFilled=false;panel.style.minHeight='';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // Keep native Android keyboard closed until a real text field is tapped.
+  queueFit();
+  window.setTimeout(queueFit,320);
+ }else{
+  panelFilled=false;panel.style.minHeight='';
+  trigger.focus();
+ }
 }
 function read(){
  try{
@@ -63,7 +134,7 @@ function renderJourneys(){
  info.append(title,desc);
  const load=document.createElement('button');load.type='button';load.textContent='Betöltés';
  load.addEventListener('click',()=>{
- from.value=item.from;to.value=item.to;date.value=item.date;time.value=item.time;setMode(item.mode);
+ from.value=item.from;to.value=item.to;date.value=item.date;time.value=item.time;setMode(item.mode);syncPickerDisplays();
  saved.hidden=true;panel.scrollIntoView({behavior:'smooth',block:'start'});feedback('✓ Utazás betöltve. Az útvonalat a Keresés gombbal nyithatod meg.');
  });
  const remove=document.createElement('button');remove.type='button';remove.className='del';remove.textContent='Törlés';
@@ -94,7 +165,7 @@ function startSearch(event){
 trigger.addEventListener('click',()=>show(panel.hidden));
 $('smartTripClose')?.addEventListener('click',()=>show(false));
 for(const button of panel.querySelectorAll('[data-trip-mode]'))button.addEventListener('click',()=>setMode(button.dataset.tripMode));
-for(const input of [date,time])input.addEventListener('change',()=>{if(selected==='now')setMode('depart')});
+// Native date/time input listeners are attached by wirePicker().
 $('smartTripSwap')?.addEventListener('click',()=>{const a=from.value;from.value=to.value;to.value=a});
 form.addEventListener('submit',startSearch);
 $('smartTripSave')?.addEventListener('click',saveJourney);
