@@ -24,3 +24,31 @@ test('Preview actions are visibly staged and script parses',()=>{
  assert.ok(inline,'inline concept script');
  assert.doesNotThrow(()=>new vm.Script(inline));
 });
+
+
+test('Exact carbon-copy shell: MÁV dimensions and glass tokens are reused unchanged',()=>{
+ const mav=fs.readFileSync(path.resolve(bkk,'../mav/index.html'),'utf8');
+ const parity=fs.readFileSync(path.join(bkk,'grand-concept/golden-carbon-parity-v1.css'),'utf8');
+ for(const token of ['.hero{height:clamp(289px,76.2vw,346px)',
+                      '.quick{margin:0 3px 9px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))',
+                      '.planner{margin:0 5px 9px;padding:8px 7px 9px',
+                      '.phead{display:grid;grid-template-columns:42% 58%',
+                      '.routebox{display:grid;grid-template-columns:58.9% 1fr',
+                      '.datetime{min-width:0;height:62px',
+                      '.bottom{grid-template-columns:repeat(5,minmax(0,1fr));height:calc(60px']){
+  assert.ok(mav.includes(token),'MÁV canonical style: '+token);
+  assert.ok(parity.includes(token),'BKK carbon-copy style: '+token);
+ }
+ for(const id of ['id="app"','id="planner"','id="depart"','id="profile"'])
+  assert.match(concept,new RegExp(id));
+ for(const cls of ['class="hero-img"','class="stationfields"','class="route-rail"','class="rail-journey-quick"'])
+  assert.ok(concept.includes(cls));
+ assert.match(concept,/href="\.\/golden-carbon-parity-v1\.css"/);
+});
+test('Volán 53px service-card sizing retained for BKK concept',()=>{
+ const volan=fs.readFileSync(path.resolve(bkk,'../volan/index.html'),'utf8');
+ const parity=fs.readFileSync(path.join(bkk,'grand-concept/golden-carbon-parity-v1.css'),'utf8');
+ assert.match(volan,/\.volan-bus-card\{height:53px;display:grid;grid-template-columns:80px minmax\(0,1fr\) 20px/);
+ assert.match(parity,/\.service\{height:53px;display:grid;grid-template-columns:80px minmax\(0,1fr\) 20px/);
+ assert.equal((concept.match(/class="service"/g)||[]).length,3);
+});
