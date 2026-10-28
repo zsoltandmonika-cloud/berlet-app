@@ -5,7 +5,7 @@ test('BKK Grand Concept is standalone and preserves live BKK flows',()=>{
  for(const x of ['id="favoriteRoutes"','id="routeSearch"','id="bkkPdfOverlay"','hh-bkk-route-favorites-v801','guardian/?sh9Transit=1'])assert.ok(source.includes(x));
  assert.match(concept,/<title>SH9 · BKK Grand Control Concept V3<\/title>/);
  assert.match(concept,/src="\.\.\/bkk-hero-approved\.webp"/);
- assert.match(concept,/href="\.\.\/" class="back"/);
+ assert.match(concept,/href="\.\.\/\.\.\/" class="back"/);
  assert.doesNotMatch(concept,/fetch\(|XMLHttpRequest|supabase\.co|setInterval\(|geolocation\./);
 });
 test('BKK concept repeats MÁV/Volán five-button structure and three mode planner',()=>{
