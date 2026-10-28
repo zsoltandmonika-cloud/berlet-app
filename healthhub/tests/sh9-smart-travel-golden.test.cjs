@@ -115,3 +115,22 @@ test('Public Transport v916 launcher has exactly three providers and preserves B
  assert.equal([...pt.matchAll(/class="nav"/g)].length,1);
  assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
 });
+
+test('Public Transport v917 includes exact approved 941x1672 WEBP and glass hit zones',()=>{
+ const base=path.join(root,'sh9/smart-travel/public-transport');
+ const img=fs.readFileSync(path.join(base,'public-transport-hero-approved.webp'));
+ const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
+ assert.equal(img.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(img.subarray(8,12).toString('ascii'),'WEBP');
+ assert.equal(img.subarray(12,16).toString('ascii'),'VP8 ');
+ assert.equal(img.readUInt16LE(26)&0x3fff,941);
+ assert.equal(img.readUInt16LE(28)&0x3fff,1672);
+ assert.ok(img.byteLength>200000,'approved high-quality artwork must not be a placeholder');
+ assert.match(html,/src="\.\/public-transport-hero-approved\.webp"/);
+ assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
+ assert.deepEqual([...html.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
+ assert.match(html,/poster-hit\.bkk\{top:51\.2%;height:14\.45%\}/);
+ assert.match(html,/poster-hit\.mav\{top:66\.55%;height:14\.3%\}/);
+ assert.match(html,/poster-hit\.volan\{top:81\.45%;height:14\.45%\}/);
+ assert.match(html,/assetMissing/);
+});
