@@ -116,3 +116,14 @@ test('v3: MÁV untouched; Volán buttons not falsely connected to live bus APIs'
  const nav=html.match(/<nav class="bottom"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
  assert.equal((nav.match(/<a /g)||[]).length,5);
 });
+
+test('v4: approved Volán hero is free of redundant title and subtitle overlay',()=>{
+ const hero=html.match(/<section class="hero">([\s\S]*?)<\/section>/)?.[1];
+ assert.ok(hero,'Volán hero should remain visible');
+ assert.match(hero,/id="volan-hero"/);
+ assert.match(hero,/id="profile"/);
+ assert.match(hero,/class="back"/);
+ assert.doesNotMatch(hero,/class="hero-title"/);
+ assert.doesNotMatch(hero,/class="hero-sub"/);
+ assert.match(html,/data:image\/avif;base64,/);
+});
