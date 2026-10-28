@@ -126,8 +126,49 @@ main{
 @media(max-width:375px){.quick{gap:8px}.quick a{min-height:116px}.quick small{font-size:10.5px}}
 @media(prefers-reduced-motion:reduce){.quick a{transition:none}.quick a:hover{transform:none}}
 
+/* v933 · S24 Ultra first-fold layout: hero + title + four proportional
+   Golden Glass tiles fill the visible screen down to the fixed taskbar.
+   Content below remains in the document and accessible via normal scroll.
+   No extra JS, GPS, network work or changes to Public Transport launcher. */
+.bkk-first-fold{
+ display:flex;
+ flex-direction:column;
+ min-height:calc(100vh - 74px);
+ min-height:calc(100dvh - 72px - env(safe-area-inset-bottom,0px));
+}
+.bkk-first-fold>.hero,.bkk-first-fold>.heading{flex:0 0 auto}
+.bkk-first-fold>.quick{
+ flex:1 1 auto;
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ grid-template-rows:repeat(2,minmax(0,1fr));
+ align-content:stretch;
+ gap:11px;
+ min-height:270px;
+ padding-bottom:9px;
+}
+.bkk-first-fold>.quick>a{
+ min-height:0;
+ height:100%;
+ padding:clamp(13px,3.4vw,19px) clamp(11px,3.0vw,16px);
+ gap:9px;
+ justify-content:space-between;
+}
+.bkk-first-fold .quick svg{width:clamp(30px,8vw,40px);height:clamp(30px,8vw,40px)}
+.bkk-first-fold .quick strong{font-size:clamp(15px,3.8vw,18px);line-height:1.18}
+.bkk-first-fold .quick small{font-size:clamp(10.5px,2.7vw,12px);line-height:1.4}
+@media(max-width:375px){
+ .bkk-first-fold>.quick{gap:8px}
+ .bkk-first-fold>.quick>a{padding:13px 11px}
+}
+@media(max-height:620px) and (orientation:landscape){
+ .bkk-first-fold{min-height:0}
+ .bkk-first-fold>.quick{flex:0 0 auto;grid-template-rows:repeat(2,minmax(124px,auto))}
+}
+
 </style></head><body>
 <main>
+<div class="bkk-first-fold">
 <figure class="hero"><img src="./bkk-hero-approved.webp" width="1672" height="941" alt="A 260-as BKK-busz ajtajában Léna sofőrként várja Zsoltot, Mónikát és Corkyt; Budapest látképe naplementében." fetchpriority="high"></figure>
 <div class="heading"><div><div class="eyebrow">SH9 · SMART TRAVEL · BKK</div><h1>BKK Smart Control</h1></div><span class="profile" id="profileLabel">Zsolt</span></div>
 <section class="quick" aria-label="BKK gyorsfunkciók">
@@ -136,6 +177,7 @@ main{
 <a class="glass" href="../../../../healthhub/guardian/?sh9Transit=1" aria-label="Következő járat · saját SH9 Smart Travel térkép és BKK-járatok"><span class="quick-head"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 13h8M8 17h1m6 0h1"/></svg><span class="arrow">↗</span></span><strong>Következő járat</strong><small>Saját térkép · ellenőrzött BKK-adatok</small></a>
 <a class="glass" href="../../../../healthhub/guardian/#hhBkkWatchlistV814" aria-label="Family Guard BKK kedvencek szerkesztése"><span class="quick-head"><svg viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg><span class="arrow">↗</span></span><strong>Kedvenceim</strong><small>Meglévő Family Guard lista</small></a>
 </section>
+</div>
 <section id="favorites"><div class="section-head"><h2>⭐ My BKK · Kedvenc járataim</h2><a href="../../../../healthhub/guardian/#hhBkkWatchlistV814">Szerkesztés ↗</a></div>
 <p class="intro">Profilod saját figyelőlistája. Minden járat mellett a hivatalos, mindenkor aktuális menetrend megtekintése.</p><div class="routes" id="favoriteRoutes" aria-live="polite"><div class="glass route-empty">Kedvencek betöltése…</div></div></section>
 <section><div class="section-head"><h2>⏱ Smart Arrival</h2><small>Megállók</small></div>

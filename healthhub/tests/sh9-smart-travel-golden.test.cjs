@@ -439,3 +439,34 @@ test('v932 SH9 restores top on new page/reload only, preserving history, anchors
  // No recurring scroll watcher, no new location/GPS/network machinery.
  assert.doesNotMatch(src,/setInterval\(|setTimeout\(|watchPosition\(|getCurrentPosition\(|fetch\(/);
 });
+
+
+test('BKK v933 first fold expands four Golden Glass tiles exactly to fixed taskbar',()=>{
+ const pathBkk=path.join(root,'sh9/smart-travel/public-transport/bkk/index.html');
+ const bkk=fs.readFileSync(pathBkk,'utf8');
+ const publicTransport=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ const block=bkk.match(/<main>\s*<div class="bkk-first-fold">([\s\S]*?)<\/section>\s*<\/div>\s*<section id="favorites">/);
+ assert.ok(block,'first fold wraps only hero, heading, four tiles');
+ assert.match(block[1],/<figure class="hero"><img src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(block[1],/<div class="heading">/);
+ assert.match(block[1],/<section class="quick" aria-label="BKK gyorsfunkciók">/);
+ assert.equal([...block[1].matchAll(/<a class="glass" href=/g)].length,4);
+ for(const label of ['Élő BKK térkép','Útvonaltervező','Következő járat','Kedvenceim'])
+  assert.ok(block[1].includes('<strong>'+label+'</strong>'));
+ assert.match(bkk,/\.bkk-first-fold\{\s*display:flex;\s*flex-direction:column;\s*min-height:calc\(100vh - 74px\);\s*min-height:calc\(100dvh - 72px - env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(bkk,/\.bkk-first-fold>\.quick\{\s*flex:1 1 auto;[\s\S]*?grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(bkk,/\.bkk-first-fold>\.quick>a\{\s*min-height:0;\s*height:100%/);
+ assert.match(bkk,/padding-bottom:9px/);
+ assert.match(bkk,/@media\(max-height:620px\) and \(orientation:landscape\)/);
+ assert.match(bkk,/<section id="favorites">/);
+ assert.match(bkk,/id="favoriteRoutes"/);
+ assert.match(bkk,/id="routeSearch"/);
+ assert.match(bkk,/id="bkkPdfOverlay"/);
+ assert.match(bkk,/bkk-pdf-viewer-v923\.js\?v=924/);
+ assert.match(bkk,/<nav class="nav" aria-label="SH9 Golden Standard navigáció">/);
+ assert.match(bkk,/\.nav\{position:fixed;z-index:30;left:50%;bottom:0/);
+ assert.match(bkk,/:root\[data-profile="m"\]/);
+ assert.doesNotMatch(bkk,/setInterval\(|watchPosition\(|geolocation\.|supabase\.co/);
+ assert.match(publicTransport,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.equal([...publicTransport.matchAll(/class="poster-hit /g)].length,3);
+});
