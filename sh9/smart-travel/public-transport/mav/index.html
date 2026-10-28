@@ -148,6 +148,26 @@
 .rail-backup-import input::file-selector-button{border:1px solid rgba(205,227,255,.46);background:rgba(43,100,173,.45);color:white;padding:8px;border-radius:7px}
 .rail-backup-preview{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.5;border-radius:9px;color:#dcecff;background:rgba(10,39,78,.52);padding:11px;border:1px solid rgba(172,215,255,.26)}
 :root[data-profile="m"] .rail-backup-primary,:root[data-profile="m"] .rail-backup-shortcut{background:linear-gradient(135deg,rgba(160,63,161,.52),rgba(70,31,91,.65));border-color:rgba(250,188,236,.43)}
+
+/* v610 · Smart Rail System Health · Golden Glass RAG diagnostics */
+.rail-health-shortcut{display:flex;align-items:center;justify-content:space-between;gap:9px;min-height:44px;margin:0 6px 9px;padding:8px 12px;border-radius:12px;width:calc(100% - 12px);font-size:11px;font-weight:750;color:#f1faff;text-align:left;touch-action:manipulation}
+.rail-health-shortcut svg{width:17px;height:17px;flex-shrink:0}
+.rail-health-arrow{font-size:21px;margin-left:auto;color:#c2dffa}
+.rail-health-summary{padding:10px;border-radius:10px;border:1px solid rgba(190,225,255,.32);background:rgba(18,48,91,.55);font-size:12px;font-weight:750;color:#f1faff;line-height:1.4}
+.rail-health-results{display:grid;gap:8px;margin-top:10px}
+.rail-health-row{border:1px solid rgba(185,223,255,.35);background:linear-gradient(125deg,rgba(32,73,123,.42),rgba(18,32,67,.5));padding:10px;border-radius:11px;min-width:0}
+.rail-health-row[data-rag="ok"]{border-left:4px solid #39e28c}
+.rail-health-row[data-rag="warn"]{border-left:4px solid #ffc66e}
+.rail-health-row[data-rag="error"]{border-left:4px solid #ff6d80}
+.rail-health-row-head{display:flex;justify-content:space-between;gap:9px;align-items:center}
+.rail-health-row-head strong{font-size:11px;color:#f4faff}
+.rail-health-pill{flex-shrink:0;border-radius:18px;padding:5px 9px;background:rgba(171,211,250,.12);border:1px solid rgba(175,220,255,.23);font-size:10px;font-weight:750}
+.rail-health-row[data-rag="ok"] .rail-health-pill{color:#7dffc0}
+.rail-health-row[data-rag="warn"] .rail-health-pill{color:#ffd393}
+.rail-health-row[data-rag="error"] .rail-health-pill{color:#ff9eaa}
+.rail-health-row p{margin:6px 0 0;font-size:10px;color:#d0e2f6;line-height:1.5;overflow-wrap:anywhere}
+:root[data-profile="m"] .rail-health-shortcut{border-color:rgba(255,175,233,.42)}
+:root[data-profile="m"] .rail-health-row{background:linear-gradient(125deg,rgba(94,40,116,.42),rgba(48,26,74,.52))}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
@@ -166,6 +186,7 @@
 </div></section>
 <section class="depart glass" id="depart"><div class="departhead"><h2><span data-icon="train"></span>Következő járatok</h2><a href="https://mikorindul.hu/keleti" data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája">Összes találat →</a></div><div class="demo">Élő járatadat csak hitelesített forrásból</div><div class="trainlist" id="trainlist"></div></section>
 <section class="utils" aria-label="Vasúti funkciók"><button data-rail-action="mapRoute" title="A beírt két állomás útvonala a Google Térképen"><span data-icon="map"></span>Térkép</button><button data-go="favorites"><span data-icon="star"></span>Kedvenc<br>vonalak</button><button data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája"><span data-icon="clock"></span>Indulási<br>tábla</button><button data-rail-action="station" title="Kiválasztott állomás hivatalos MÁV-adatlapja"><span data-icon="station"></span>Állomás<br>infó</button><button data-rail-action="tickets" title="Hivatalos MÁV jegyvásárlás"><span data-icon="ticket"></span>Jegyvásárlás</button><button data-go="extras"><span data-icon="dots"></span>Egyebek</button></section>
+<button id="rail-health-shortcut" type="button" class="rail-health-shortcut glass" data-go="rail-health"><span data-icon="settings"></span> Smart Rail · Rendszerállapot és diagnosztika <span class="rail-health-arrow">›</span></button>
 <datalist id="rail-popular-stations"><option value="Budapest-Keleti"></option><option value="Budapest-Nyugati"></option><option value="Budapest-Déli"></option><option value="Budapest-Kelenföld"></option><option value="Kőbánya-Kispest"></option><option value="Miskolc-Tiszai"></option><option value="Kazincbarcika"></option><option value="Debrecen"></option><option value="Győr"></option><option value="Szolnok"></option><option value="Eger"></option><option value="Szeged"></option><option value="Pécs"></option></datalist>
 <section id="favorites" class="drawer glass" aria-label="Kedvenc útvonalak és keresési előzmények">
 <h3>♡ Kedvencek PRO</h3>
@@ -195,6 +216,15 @@
 </div>
 <p id="rail-backup-preview" class="rail-backup-preview" role="status" aria-live="polite">A visszaállítás nem írja felül a meglévő útvonalakat. A fájl ellenőrzése után külön jóváhagyás szükséges.</p>
 <p class="rail-personal-caption">Helyi, offline mentés. Dropbox-szinkron nincs bekapcsolva. A mentésfájlt őrizd biztonságos helyen.</p>
+</section>
+<section id="rail-health" class="drawer glass" aria-label="Smart Rail rendszerállapot és diagnosztika">
+<h3>🛡️ Smart Rail · System Health</h3>
+<p class="rail-personal-caption">Naptár, profilok, helyi adatok, biztonsági mentés, belső útvonaltervező, MÁV GTFS és Google Routes állapotellenőrzése.</p>
+<p class="rail-trip-warning">Ez nem élő MÁV- vagy API-elérhetőségi teszt. A natív naptár tényleges megjelenését koppintással lehet ellenőrizni. A vizsgálat nem ír adatot és nem indít hálózati kérést.</p>
+<button id="rail-health-run" type="button" class="rail-backup-primary">◉ Rendszerellenőrzés indítása</button>
+<p id="rail-health-summary" class="rail-health-summary" role="status" aria-live="polite">Még nem futott ellenőrzés ezen a képernyőn.</p>
+<p id="rail-health-checked" class="rail-personal-caption">Zöld: helyben ellenőrzött · Sárga: további teendő vagy kikapcsolt szolgáltatás · Piros: észlelt hiba.</p>
+<div id="rail-health-results" class="rail-health-results" aria-label="A vizsgálat eredményei"></div>
 </section>
 <section id="station-help" class="drawer glass" aria-label="Hivatalos állomási információk"><h3>🚉 Állomási információk</h3><p class="footnote" id="station-help-message">Ehhez az állomáshoz nincs ellenőrzött közvetlen megnyitási címünk. Válassz hivatalos szolgáltatást.</p><div class="rail-station-links"><a href="https://mikorindul.hu/keleti">Keleti · indulási tábla ↗</a><a href="https://mikorindul.hu/nyugati">Nyugati · indulási tábla ↗</a><a href="https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/vasutallomas/kazincbarcika">Kazincbarcika · állomásinfó ↗</a><a href="https://mavplusz.hu/">MÁVPlusz · összes állomás ↗</a></div></section>
 <section id="extras" class="drawer glass"><h3>Utazási preferenciák</h3><div class="pref"><label>Utasok<input id="pax" type="number" min="1" max="10" value="2"></label><label>Osztály<select id="class"><option value="2">2. osztály</option><option value="1">1. osztály</option></select></label><label>Ülőhely<select id="seat"><option value="any">Mindegy</option><option value="window">Ablak</option><option value="aisle">Folyosó</option></select></label><label>Kedvezmény<select id="discount"><option>Nincs</option><option>Életkori</option><option>Kártya</option><option>Egyéb</option></select></label><label class="wide"><input id="dog" type="checkbox"> Kisállat / kutya</label><label class="wide"><input id="bike" type="checkbox"> Kerékpár</label></div><button class="save" id="save">Preferenciák mentése</button><p class="footnote">A preferenciák helyben menthetők, nem továbbítjuk automatikusan a MÁV foglalási rendszerébe.</p></section>
@@ -333,4 +363,4 @@ function show(id){const target=$(id);for(const d of document.querySelectorAll('.
  * Keep this named function for the existing profile switch and initial sync(). */
 function loadFav(){window.SH9_MAV_PERSONAL_UI?.render()}
 const pk=()=>`sh9-mav-rail-preferences-v1-${profile==='m'?'monika':'zsolt'}`;function loadPrefs(){let o={};try{o=JSON.parse(localStorage.getItem(pk())||'{}')}catch{};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);if(o[k]!==undefined){if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]}}};$('save').onclick=()=>{const o={};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value}try{localStorage.setItem(pk(),JSON.stringify(o))}catch{}msg('Preferenciák mentve')};sync();whenUpdate();window.addEventListener('pageshow',whenUpdate);document.addEventListener('visibilitychange',()=>{if(!document.hidden)whenUpdate()});
-</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script></body></html>
+</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script><script src="./rail-health-v610.js"></script></body></html>
