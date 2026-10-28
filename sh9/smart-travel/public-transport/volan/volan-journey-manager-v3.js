@@ -87,7 +87,7 @@ function splitJourneyPlans(items,now=budapestNow()){
 }
 function tripTitle(item){return 'SH9 – '+modeLabel(item.mode)+': '+item.from+' → '+item.to}
 function shareText(item){
- return 'SH9 Smart Bus · Személyes utazási terv\n'+item.from+' → '+item.to+
+ return 'SH9 Volán Smart Bus · Személyes utazási terv\n'+item.from+' → '+item.to+
   '\n'+modeLabel(item.mode)+': '+item.when.slice(0,10)+' '+item.when.slice(11)+
   '\nNem ellenőrzött Volán-menetrend. A jegyadatok és személyes jegyzetek nincsenek megosztva.';
 }
