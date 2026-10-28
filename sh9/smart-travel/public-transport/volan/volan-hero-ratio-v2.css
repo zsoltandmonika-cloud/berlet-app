@@ -1,0 +1,20 @@
+/* Volán Golden Standard · latest user-approved 1670×942 image without stretching or crop. */
+/* Applied after all existing inline Golden Glass/mobile overrides. */
+.hero{
+  height:auto !important;
+  min-height:0;
+  aspect-ratio:1670 / 942;
+  overflow:hidden;
+}
+.hero > img#volan-hero.hero-img{
+  display:block;
+  width:100% !important;
+  height:auto !important;
+  max-width:100%;
+  aspect-ratio:1670 / 942;
+  object-fit:contain !important;
+  object-position:center;
+}
+@media (min-height:860px), (min-height:900px), (max-height:740px){
+  .hero{height:auto !important;aspect-ratio:1670 / 942}
+}
