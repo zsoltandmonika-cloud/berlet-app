@@ -129,6 +129,7 @@
    if(!q){status('Válassz két különböző állomást és érvényes időpontot.');return}
    last=q;presentSearch(q);
    doc.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+   open(transitLink(q)); // a valós útvonaltervező egyetlen érintéssel nyílik
    // If no feed is installed, station board remains the only genuine live source.
    if(feed)rows(feed);else emptyState();
   };
@@ -147,5 +148,5 @@
  return Object.freeze({searchRequest,transitLink,validateFeed,officialLink,mount});
 });
 if(typeof document!=='undefined'&&window.SH9_MAV_JOURNEYS_V2){
- window.SH9_MAV_JOURNEYS_V2.mount(document,window);
+ window.SH9_MAV_JOURNEYS_INSTANCE=window.SH9_MAV_JOURNEYS_V2.mount(document,window);
 }
