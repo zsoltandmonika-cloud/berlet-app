@@ -331,3 +331,6 @@ test('v927 SH9 mode is inert on normal Family Guard and activates existing MapLi
  active.element('sh9TransitMapV927').handlers.click();
  assert.ok(active.stats().scrolled.includes('guardianMap'));
 });
+
+// Include v928 all-BKK low-usage and isolation tests in the established SH9 Golden CI.
+require('./sh9-bkk-all-v928.test.cjs');

@@ -5,6 +5,7 @@
 (function(w,d){
 'use strict';
 if(new URLSearchParams(w.location.search).get('hhLivePilot')==='off')return;
+const sh9AllMode=new URLSearchParams(w.location.search).get('sh9Transit')==='1';
 const validator=w.HH_BKK_LIVE_V793;
 const renderer=w.HH_BKK_LIVE_MAP_V793;
 const mapApi=w.HH_GUARDIAN_V761;
@@ -35,13 +36,15 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
  return;
 }
 let polling=null;
-let inFlight=false;
+let sh9AllEnabled=true;
+let inFlight=false,sh9Abort=null,lastSh9RequestAt=0;
 let lastVehicles=[];
 let lastVerified=null;
 let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
 // Live map visibility is a presentation toggle, not a change to BKK polling.
 let liveVisible=true;
 function updateLiveButton(){
+ if(sh9AllMode){focusButton.hidden=true;return;}
  focusButton.hidden=!lastVehicles.length;
  focusButton.textContent=liveVisible?'Ne mutasd élő járműveket':'Mutasd élő járműveket';
  focusButton.setAttribute('aria-pressed',String(liveVisible));
@@ -84,6 +87,10 @@ function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
 function clear(){
  lastVehicles=[];lastVerified=null;lastSourceSnapshot=null;
  updateLiveButton();
+ if(sh9AllMode){
+  if(typeof w.CustomEvent==='function')w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-clear-v928'));
+  return;
+ }
  if(mapApi.map)renderer.clear(mapApi.map);
 }
 // Per-line button changes redraw the ALREADY VERIFIED response, not a new API request.
@@ -106,8 +113,26 @@ function renderLiveFromSnapshot(parsed){
   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
  }
 }
+function visibleBBox(){
+ if(!sh9AllMode)return null;
+ const bounds=mapApi.map?.getBounds?.();
+ if(!bounds)return null;
+ const west=Number(bounds.getWest?.()),east=Number(bounds.getEast?.());
+ const south=Number(bounds.getSouth?.()),north=Number(bounds.getNorth?.());
+ if(![west,east,south,north].every(Number.isFinite))return null;
+ const values=[Math.max(16,west),Math.max(45,south),Math.min(23,east),Math.min(49,north)];
+ if(values[0]>=values[2]||values[1]>=values[3])return null;
+ return values.map(v=>v.toFixed(5)).join(',');
+}
 async function poll(){
- if(inFlight||d.hidden)return;
+ if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
+ const bbox=sh9AllMode?visibleBBox():null;
+ if(sh9AllMode&&!bbox){status('térképre várunk · nincs felesleges szerverlekérdezés');return;}
+ // Bound even repeated manual taps to ONE server request per 45 seconds.
+ if(sh9AllMode&&Date.now()-lastSh9RequestAt<45000){
+  status('takarékos mód: az előző lekérdezés után legalább 45 másodpercet várunk');return;
+ }
+ if(sh9AllMode)lastSh9RequestAt=Date.now();
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
@@ -117,14 +142,31 @@ async function poll(){
    status('Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
    clear();return
   }
-  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?routes='+encodeURIComponent(favoriteKeys().join(','));
-  const res=await w.fetch(url,{method:'GET',cache:'no-store',headers:{
+  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?'+
+   (sh9AllMode?'all=1&bbox='+encodeURIComponent(bbox):'routes='+encodeURIComponent(favoriteKeys().join(',')));
+  const abort=sh9AllMode&&w.AbortController?new w.AbortController():null;
+  if(abort)sh9Abort=abort;
+  const res=await w.fetch(url,{method:'GET',cache:'no-store',...(abort?{signal:abort.signal}:{}),headers:{
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
   }});
   const data=await res.json().catch(()=>null);
   if(!res.ok){clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
-  const parsed=validator.validate(data);
+  const parsed=sh9AllMode?validator.validate(data,Date.now(),3500):validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
+  if(sh9AllMode){
+   if(!sh9AllEnabled||d.hidden)return;
+   // A dedicated clustered MapLibre source draws every verified BKK vehicle
+   // using the SAME authenticated snapshot. Never change normal Watchlist markers.
+   lastSourceSnapshot=parsed;
+   if(!d.hidden&&typeof w.CustomEvent==='function')
+    w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-v928',{
+     detail:{generatedAt:parsed.generatedAt,vehicles:parsed.vehicles,truncated:data.truncated===true}
+    }));
+   status(parsed.vehicles.length+' hiteles, friss jármű · SH9 teljes térképréteg'+
+    (data.truncated===true?' · korlátozott adatcsomag':'')+' · '+
+    new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
+   return;
+  }
   // Keep the verified BKK vehicle stream separate from profile GPS.
   // Buddy only sees validated snapshots already obtained via the
   // authenticated Family Live request. No additional network or location sharing.
@@ -136,22 +178,38 @@ async function poll(){
   lastSourceSnapshot=parsed;
   renderLiveFromSnapshot(parsed);
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
- finally{inFlight=false}
+ finally{inFlight=false;sh9Abort=null}
 }
-function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,15000)}
-function stop(){if(polling!==null){w.clearInterval(polling);polling=null}clear()}
+function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?120000:15000)}
+function stop(){
+ if(sh9AllMode){try{sh9Abort?.abort()}catch(_){ }sh9Abort=null;}
+ if(polling!==null){w.clearInterval(polling);polling=null}
+ clear();
+}
 d.addEventListener('visibilitychange',()=>{if(d.hidden)stop();else start()});
 // A Watchlist editor changes favorites, not the old hidden map checkboxes.
 // Re-evaluate immediately instead of leaving stale vehicle markers visible.
 w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{
- if(d.hidden)return;
+ if(sh9AllMode||d.hidden)return;
  clear();
  poll();
 });
 // Toggle ONE route's vehicles without requesting another BKK snapshot.
 w.addEventListener('hh-bkk-live-per-line-v909-changed',()=>{
- if(d.hidden||!lastSourceSnapshot)return;
+ if(sh9AllMode||d.hidden||!lastSourceSnapshot)return;
  renderLiveFromSnapshot(lastSourceSnapshot);
+});
+// A SH9-only display toggle also stops ALL extra traffic while switched off.
+if(sh9AllMode)w.addEventListener('hh-sh9-all-live-enabled-v928',e=>{
+ const enabled=e?.detail?.enabled===true;
+ if(enabled===sh9AllEnabled)return;
+ sh9AllEnabled=enabled;
+ if(enabled&&!d.hidden)start();
+ else stop();
+});
+// User-only refresh; moving/zooming never creates another network request.
+if(sh9AllMode)w.addEventListener('hh-sh9-all-live-refresh-v928',()=>{
+ if(!d.hidden&&sh9AllEnabled)poll();
 });
 w.addEventListener('pagehide',stop);
 start();

@@ -11,11 +11,11 @@
  const ROUTE_KEY=/^(?:bus|tram|trolley|metro|hev|other):[A-Za-z0-9_-]{1,16}$/;
  const LEGACY={260:'bus:260',17:'tram:17',19:'tram:19',1:'tram:1',41:'tram:41'};
  const MAX_AGE_MS=90000;
- function validate(snapshot,now=Date.now()){
+ function validate(snapshot,now=Date.now(),maxVehicles=1200){
   if(!snapshot||snapshot.schemaVersion!==1||snapshot.source!=='BKK Zrt., CC BY 4.0'||snapshot.feedType!=='GTFS-RT VehiclePositions')return {ok:false,reason:'invalid-source',vehicles:[]};
   const stamp=Date.parse(snapshot.generatedAt);
   if(!Number.isFinite(stamp)||stamp>now+10000||now-stamp>MAX_AGE_MS)return {ok:false,reason:'stale',vehicles:[]};
-  if(!Array.isArray(snapshot.vehicles)||snapshot.vehicles.length>1200)return {ok:false,reason:'invalid-vehicles',vehicles:[]};
+  if(!Number.isInteger(maxVehicles)||maxVehicles<1||maxVehicles>3500||!Array.isArray(snapshot.vehicles)||snapshot.vehicles.length>maxVehicles)return {ok:false,reason:'invalid-vehicles',vehicles:[]};
   const vehicles=[];const seen=new Set();
   for(const v of snapshot.vehicles){
    if(!v||typeof v.routeId!=='string'||v.routeId.length>16||typeof v.id!=='string'||!v.id||v.id.length>128||seen.has(v.id))continue;
