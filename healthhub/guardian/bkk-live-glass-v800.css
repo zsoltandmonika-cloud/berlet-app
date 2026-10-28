@@ -151,31 +151,72 @@
 /* v912: a genuine BKK live vehicle marker can open its sourced detail popup. */
 .hh-bkk-live-vehicle-dom-v797.hh-bkk-glass-marker-v800{pointer-events:auto!important;touch-action:manipulation;cursor:pointer}
 
-/* v913: compact, vehicle-only card inspired by the BudapestGO information hierarchy.
- * Live BKK fields only. Transport color = mode; not a fabricated vehicle type. */
+/* v913.1: icon is the existing v800 vehicle marker; only its popup changes.
+ * Quarter-footprint frosted-glass vehicle card, S24 Ultra one-hand first.
+ * No map, route badge, GPS, personal GPS, or BKK marker size changes. */
+#guardianMap .hh-bkk-glass-icon-v800{
+ display:flex!important;visibility:visible!important;opacity:1!important;flex:0 0 18px;
+ color:var(--hh-live-icon);align-items:center;justify-content:center;
+}
+#guardianMap .hh-bkk-glass-icon-v800 svg{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ width:18px;height:18px;stroke:currentColor;fill:none;
+}
+#guardianMap .hh-bkk-glass-marker-v800{
+ display:block!important;visibility:visible!important;opacity:1!important;
+}
+#guardianMap .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content,
 .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{
- background:rgba(16,19,27,.94);color:#f8fbff;
- border:1px solid rgba(255,255,255,.21);border-radius:17px;
- box-shadow:0 15px 35px rgba(0,0,0,.45);
- -webkit-backdrop-filter:blur(20px) saturate(160%);
- backdrop-filter:blur(20px) saturate(160%);
- padding:14px 16px;max-width:min(335px,85vw);
+ box-sizing:border-box;width:168px;max-width:min(168px,67vw);
+ background:linear-gradient(145deg,rgba(52,38,69,.68),rgba(26,36,61,.61));
+ border:1px solid rgba(235,196,251,.56);border-radius:12px;
+ color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);
+ box-shadow:0 6px 16px rgba(11,13,37,.26),inset 0 1px rgba(255,255,255,.24);
+ -webkit-backdrop-filter:blur(17px) saturate(140%);
+ backdrop-filter:blur(17px) saturate(140%);
+ padding:8px 9px 7px;
 }
+:root[data-guardian-profile="z"] .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{
+ background:linear-gradient(145deg,rgba(29,72,108,.72),rgba(23,38,69,.63));
+ border-color:rgba(139,213,255,.62);
+}
+:root[data-guardian-profile="m"] .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{
+ background:linear-gradient(145deg,rgba(116,49,102,.69),rgba(57,31,75,.67));
+ border-color:rgba(255,178,232,.70);
+}
+.hh-bkk-vehicle-popup-v913 .maplibregl-popup-tip{border-top-color:rgba(54,40,74,.72)}
 .hh-bkk-vehicle-popup-v913 .maplibregl-popup-close-button{
- color:#e6e9f1;font-size:21px;padding:2px 8px;
+ color:#fff;font:700 17px/1 system-ui;
+ width:28px;height:28px;border-radius:10px;padding:2px 6px;
+ background:rgba(255,255,255,.09);
 }
-.hh-bkk-vehicle-card-v913{font:500 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-width:min(238px,68vw)}
-.hh-bkk-vehicle-top-v913{display:flex;gap:9px;align-items:center;margin:6px 21px 12px 0}
+.hh-bkk-vehicle-popup-v913 .maplibregl-popup-close-button:focus-visible{
+ outline:2px solid #fff;outline-offset:2px;
+}
+.hh-bkk-vehicle-card-v913{
+ box-sizing:border-box;width:148px;min-width:0;
+ display:grid;gap:4px;overflow-wrap:anywhere;
+ font:520 11px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.hh-bkk-vehicle-top-v913{
+ display:flex;flex-wrap:wrap;gap:4px;align-items:center;
+ margin:1px 21px 1px 0;
+}
 .hh-bkk-vehicle-line-v913{
- border-radius:5px;padding:5px 9px;min-width:37px;
- font:800 19px/1 system-ui;text-align:center;color:#192126;
- background:#ffda04;flex:0 0 auto;
+ flex:none;min-width:27px;border-radius:4px;padding:3px 5px;
+ font:850 14px/1 system-ui;text-align:center;color:#1e1c1c;
+ background:#ffda04;box-sizing:border-box;
 }
-.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-bus{background:#188fdf;color:#fff}
-.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-hev{background:#229b61;color:#fff}
-.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-trolley{background:#df4966;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-bus{background:#148ee0;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-hev{background:#26996c;color:#fff}
+.hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-trolley{background:#cc4463;color:#fff}
 .hh-bkk-vehicle-line-v913.hh-bkk-vehicle-mode-metro{background:#427bc4;color:#fff}
-.hh-bkk-vehicle-direction-v913{font-size:13px;font-weight:720;overflow-wrap:anywhere}
-.hh-bkk-vehicle-details-v913{display:flex;gap:7px;flex-wrap:wrap;color:#c9ccd3;font-size:12px}
-.hh-bkk-vehicle-details-v913 span+span::before{content:"·";margin-right:7px;color:#8a909d}
-.hh-bkk-vehicle-updated-v913{font-size:11px;color:#adb5c4;text-align:right;margin-top:12px;font-variant-numeric:tabular-nums}
+.hh-bkk-vehicle-direction-v913{font:700 10px/1.2 system-ui;min-width:0;overflow-wrap:anywhere}
+.hh-bkk-vehicle-details-v913{display:flex;flex-wrap:wrap;gap:3px;color:#fff;font-size:11px;font-weight:650}
+.hh-bkk-vehicle-details-v913 span+span::before{content:"·";padding-right:4px;opacity:.7}
+.hh-bkk-vehicle-updated-v913{font-size:9px;color:#f6e8ff;text-align:right;margin:1px 0 0;font-variant-numeric:tabular-nums}
+:root[data-guardian-profile="z"] .hh-bkk-vehicle-updated-v913{color:#e1f2ff}
+@media(prefers-reduced-transparency:reduce){
+ .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{background:#24344f}
+ :root[data-guardian-profile="m"] .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{background:#4c2d53}
+}
