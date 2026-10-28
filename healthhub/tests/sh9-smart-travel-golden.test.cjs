@@ -290,3 +290,44 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
 });
+
+
+test('v927 SH9 mode is inert on normal Family Guard and activates existing MapLibre without new location requests',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.js'),'utf8');
+ function setup(search,profile='z'){
+  let calls=0,resize=0,toggles=0,scrolled=[];
+  const els=new Map();
+  function element(id){
+   if(!els.has(id))els.set(id,{
+    hidden:true,handlers:{},textContent:'',
+    addEventListener(name,fn){this.handlers[name]=fn},
+    scrollIntoView(){scrolled.push(id)},
+    click(){toggles++; if(id==='hhBkkWatchToggleV858')element('hhBkkWatchContentV858').hidden=false}
+   });
+   return els.get(id);
+  }
+  const doc={readyState:'complete',documentElement:{dataset:{guardianProfile:profile}},
+   getElementById(id){calls++;return element(id)}};
+  const win={location:{search},localStorage:{getItem:()=>profile==='m'?'m':'z'},
+   HH_GUARDIAN_V761:{map:{resize(){resize++}}},
+   requestAnimationFrame(fn){fn()},addEventListener(){},
+   matchMedia(){return {matches:true}}};
+  vm.runInNewContext(source,{window:win,document:doc,URLSearchParams});
+  return {element,doc,stats(){return{calls,resize,toggles,scrolled}}};
+ }
+ const ordinary=setup('');
+ assert.equal(ordinary.stats().calls,0);
+ assert.equal(ordinary.stats().resize,0);
+ const active=setup('?sh9Transit=1','m');
+ assert.equal(active.doc.documentElement.dataset.sh9Transit,'on');
+ assert.equal(active.element('sh9TransitHeaderV927').hidden,false);
+ assert.equal(active.element('sh9TransitNavV927').hidden,false);
+ assert.equal(active.element('sh9TransitProfileV927').textContent,'Mónika');
+ assert.ok(active.stats().resize>=1);
+ active.element('sh9TransitFavoritesV927').handlers.click();
+ assert.equal(active.stats().toggles,1);
+ assert.ok(active.stats().scrolled.includes('hhBkkWatchlistV814'));
+ active.element('sh9TransitMapV927').handlers.click();
+ assert.ok(active.stats().scrolled.includes('guardianMap'));
+});
