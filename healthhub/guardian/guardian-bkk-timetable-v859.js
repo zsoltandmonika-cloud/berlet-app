@@ -89,7 +89,7 @@
   }
   const choices=itinerary.legs.map(leg=>legMatches(schedule,leg));
   if(choices.some(a=>!a.length))return [];
-  const nowMin=Math.ceil(now/60000),atMin=Math.ceil(at/60000);
+  const nowMin=Math.ceil(now/60000),atMin=mode==='arrive'?Math.floor(at/60000):Math.ceil(at/60000);
   // Time-bound calculations are only possible for matching published GTFS trips.
   // Arrive-by searches backward up to 4 hours for a feasible connection.
   const minOrigin=mode==='arrive'?Math.max(nowMin,atMin-240):Math.max(nowMin,atMin);
@@ -99,7 +99,9 @@
    const origin=a.board-approach-1;
    return origin>=minOrigin&&origin<=maxOrigin;
   });
-  for(const initial of first.slice(0,600)){
+  // For arrive-by, prefer the LATEST candidate departures if service is frequent.
+  const candidates=mode==='arrive'?first.slice(-600):first.slice(0,600);
+  for(const initial of candidates){
    let previous=initial,legs=[initial],waiting=0,possible=true;
    for(let i=1;i<choices.length;i++){
     const walk=transferWalks[i-1];
