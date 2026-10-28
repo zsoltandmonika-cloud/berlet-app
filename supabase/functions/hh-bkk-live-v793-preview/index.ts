@@ -55,6 +55,17 @@ async function routeMap():Promise<RouteMap>{
  routeCache={at:Date.now(),map:ids};
  return ids;
 }
+// Strict geography validation: anonymous/bad requests must not trigger a costly upstream query.
+function sh9Bounds(raw:string|null){
+ if(!raw||raw.length>105)return null;
+ const parts=raw.split(",");if(parts.length!==4)return null;
+ const v=parts.map(x=>Number(x));
+ if(v.some(x=>!Number.isFinite(x)))return null;
+ const [west,south,east,north]=v;
+ // Budapest and nearby outer BKK service area. Prevent accidental world-wide map payloads.
+ if(west<16||east>23||south<45||north>49||west>=east||south>=north)return null;
+ return {west,south,east,north};
+}
 function unixSeconds(value:unknown):number{
  if(value==null)return NaN;
  const n=Number(typeof value==="object"&&"toString" in value?value.toString():value);
@@ -131,6 +142,8 @@ Deno.serve(async req=>{
  const query=new URL(req.url).searchParams;
  const selected=query.get("routes");
  const allMode=query.get("all")==="1"&&selected===null;
+ const bbox=allMode?sh9Bounds(query.get("bbox")):null;
+ if(allMode&&!bbox)return reply(req,400,{ok:false,reason:"invalid-sh9-viewport"});
  let allowed=LEGACY;
  if(selected!==null){
   if(selected.length>4000)return reply(req,400,{ok:false,reason:"invalid-route-selection"});
@@ -141,11 +154,18 @@ Deno.serve(async req=>{
  try{
   const payload=await fetchLive();
   const all=(payload.vehicles as Array<{routeKey:string}>);
-  const matched=allMode?all:all.filter(v=>allowed.has(v.routeKey));
-  // Historic favorite feed remains <=1200. SH9 groups at most 3500 validated
-  // records into ONE MapLibre GeoJSON source; never spawn DOM markers per vehicle.
+  const matched=allMode?all.filter(v=>{
+   const p=v as {lng:number,lat:number};
+   return !!bbox&&p.lng>=bbox.west&&p.lng<=bbox.east&&p.lat>=bbox.south&&p.lat<=bbox.north;
+  }):all.filter(v=>allowed.has(v.routeKey));
+  // Default favorite response is byte-for-byte compatible with old clients.
+  // SH9 transfers only minimal, verified location data inside the visible map.
   const cap=allMode?3500:1200;
-  const vehicles=matched.slice(0,cap);
+  const chosen=matched.slice(0,cap);
+  const vehicles=allMode?chosen.map(v=>{
+   const p=v as {id:string,routeId:string,routeKey:string,mode:string,lat:number,lng:number,timestamp:string};
+   return {id:p.id,routeId:p.routeId,routeKey:p.routeKey,mode:p.mode,lat:p.lat,lng:p.lng,timestamp:p.timestamp};
+  }):chosen;
   return reply(req,200,{...payload,vehicles,truncated:matched.length>vehicles.length});
  }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
