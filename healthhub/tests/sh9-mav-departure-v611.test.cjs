@@ -157,7 +157,7 @@ test('v611 Golden Glass drawer + BKK link, original 5 taskbar and working native
  assert.match(html,/id="rail-time-trigger"/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
  assert.match(html,/rail-golden-glass-v3/);
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp/);
  assert.doesNotMatch(source,/\bfetch\(|XMLHttpRequest|navigator\.geolocation|supabase\.co|dropbox\.com|\.innerHTML\s*=/i);
  const nav=html.match(/<nav class="bottom"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
  assert.equal((nav.match(/<a /g)||[]).length,5);

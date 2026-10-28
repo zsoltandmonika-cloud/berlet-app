@@ -1,0 +1,20 @@
+/* User-approved MÁV hero: preserve the final 1671×941 source without cropping or stretching. */
+/* Loaded last, after the original Golden Standard rules and responsive overrides. */
+.hero{
+  height:auto !important;
+  min-height:0;
+  aspect-ratio:1671 / 941;
+  overflow:hidden;
+}
+.hero > img.hero-img{
+  display:block;
+  width:100%;
+  height:auto !important;
+  aspect-ratio:1671 / 941;
+  max-width:100%;
+  object-fit:contain !important;
+  object-position:center;
+}
+@media (min-height:860px), (min-height:900px), (max-height:740px){
+  .hero{height:auto !important;aspect-ratio:1671 / 941}
+}

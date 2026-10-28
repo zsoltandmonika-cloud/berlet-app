@@ -89,7 +89,7 @@ test('Golden Glass UI contains accessible favorite edits/history without touchin
  assert.match(page,/window\.SH9_MAV_PLANNER_V607=Object\.freeze/);
  assert.match(page,/id="swap" class="swap" title="Oda-vissza iránycsere · dátum és időpont megmarad"/);
  assert.match(page,/bottom:9px;left:6px;width:45px/);
- assert.match(page,/mav-hero-approved\.webp/);
+ assert.match(page,/mav-hero-final-approved-v2\.webp/);
  assert.match(page,/rail-golden-glass-v3/);
  assert.match(page,/id="rail-date-trigger"/);
  assert.match(page,/openNativeRailPicker\(input\)/);

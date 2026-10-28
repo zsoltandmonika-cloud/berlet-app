@@ -69,7 +69,7 @@ test('every shortcut has a dedicated functional action, not generic mavplusz clo
  for(const code of scripts)assert.doesNotThrow(()=>new vm.Script(code));
 });
 test('Golden visual parity: same hero, avatar, FLIRT, three photos and five nav slots',()=>{
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp/);
  assert.match(html,/id="profile-photo"/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
  assert.match(html,/id="signal" class="sound"/);

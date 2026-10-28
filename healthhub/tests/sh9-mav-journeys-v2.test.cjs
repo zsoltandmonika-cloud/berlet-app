@@ -51,7 +51,7 @@ test('Only fresh, matching, typed authenticated-provider feed can become train c
 test('Golden native cards are provider-gated, without synthetic timetable, GPS or polling',()=>{
  assert.match(page,/rail-journeys-v2\.js/);
  assert.match(page,/rail-train-thumbs-v2\.webp/);
- assert.match(page,/mav-hero-approved\.webp/);
+ assert.match(page,/mav-hero-final-approved-v2\.webp/);
  assert.match(page,/id="profile-photo"/);
  assert.match(page,/bottom:9px;left:6px;width:45px/);
  assert.match(page,/id="rail-golden-glass-v3"/);

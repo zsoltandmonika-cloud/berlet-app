@@ -22,7 +22,7 @@ test('Golden visual assets exist, are images, and phone status UI is OS-owned',(
  assert.equal(photo.subarray(0,4).toString('ascii'),'RIFF');
  assert.equal(title.subarray(1,4).toString('ascii'),'PNG');
  assert.ok(hero.length>200000&&photo.length>5000&&title.length>20000);
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp\?v=2/);
  assert.doesNotMatch(html,/<img[^>]+class="hero-title-art"/);
  assert.doesNotMatch(html,/Gyorsan\. Kényelmesen\. Bárhová\./);
  assert.match(html,/id="profile-photo"/);
