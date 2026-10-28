@@ -28,9 +28,9 @@ function setMode(value){
 /* Keep compact labels legible even on the narrow 41% datetime column. */
 function syncPickerDisplays(){
  const d=date.value||budapestNow().date;
- const m=/^\\d{4}-(\\d{2})-(\\d{2})$/.exec(d);
+ const m=/^\d{4}-(\d{2})-(\d{2})$/.exec(d);
  dateDisplay.textContent=m?Number(m[1])+'.'+Number(m[2])+'.':'Dátum';
- timeDisplay.textContent=/^\\d{2}:\\d{2}$/.test(time.value)?time.value:'Idő';
+ timeDisplay.textContent=/^\d{2}:\d{2}$/.test(time.value)?time.value:'Idő';
  dateTrigger.setAttribute('aria-label','Naptár megnyitása · '+d);
  timeTrigger.setAttribute('aria-label','Időpontválasztó megnyitása · '+(time.value||'nincs időpont'));
 }
