@@ -126,11 +126,17 @@ test('Public Transport v917 includes exact approved 941x1672 WEBP and glass hit 
  assert.equal(img.readUInt16LE(26)&0x3fff,941);
  assert.equal(img.readUInt16LE(28)&0x3fff,1672);
  assert.ok(img.byteLength>200000,'approved high-quality artwork must not be a placeholder');
- assert.match(html,/src="\.\/public-transport-hero-approved\.webp"/);
+ assert.match(html,/src="\.\/public-transport-hero-approved\.webp\?v=918"/);
  assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
  assert.deepEqual([...html.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
  assert.match(html,/poster-hit\.bkk\{top:51\.2%;height:14\.45%\}/);
  assert.match(html,/poster-hit\.mav\{top:66\.55%;height:14\.3%\}/);
  assert.match(html,/poster-hit\.volan\{top:81\.45%;height:14\.45%\}/);
  assert.match(html,/assetMissing/);
+});
+
+test('Public Transport v918 ships approved artwork without fictitious device status indicators',()=>{
+ const crypto=require('node:crypto');
+ const img=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/public-transport-hero-approved.webp'));
+ assert.equal(crypto.createHash('sha256').update(img).digest('hex'),'0fb977edf33718c7a40800e799f0dc8bd6cf5b2c37472b749b00187a02adb291');
 });
