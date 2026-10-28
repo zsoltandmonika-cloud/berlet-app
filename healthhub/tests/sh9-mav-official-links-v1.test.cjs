@@ -71,7 +71,7 @@ test('every shortcut has a dedicated functional action, not generic mavplusz clo
 test('Golden visual parity: same hero, avatar, FLIRT, three photos and five nav slots',()=>{
  assert.match(html,/mav-hero-approved\.webp/);
  assert.match(html,/id="profile-photo"/);
- assert.match(html,/bottom:6px;left:6px;width:45px/);
+ assert.match(html,/bottom:9px;left:6px;width:45px/);
  assert.match(html,/id="signal" class="sound"/);
  assert.match(html,/rail-train-thumbs-v2\.webp/);
  assert.match(html,/id="rail-golden-glass-v3"/);
