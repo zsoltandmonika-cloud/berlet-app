@@ -1,0 +1,99 @@
+/* SH9 Smart Travel v927 · an opt-in facade over the ORIGINAL Family Guard MapLibre map.
+   NEVER creates a second map, location watcher, BKK feed or tracker.
+   Mode is enabled ONLY by ?sh9Transit=1. Family Guard default remains untouched.
+*/
+:root[data-sh9-transit="on"]{
+ --sh9-tr-accent:#a3ddff;--sh9-tr-frame:rgba(139,210,254,.51);
+ --sh9-tr-glow:rgba(54,144,240,.24);--sh9-tr-start:rgba(27,64,115,.91);
+ --sh9-tr-end:rgba(8,22,51,.97);--sh9-tr-ink:#f4faff;--sh9-tr-muted:#c2d9ee;
+ color-scheme:dark;
+}
+:root[data-sh9-transit="on"][data-guardian-profile="m"]{
+ --sh9-tr-accent:#ffd0f0;--sh9-tr-frame:rgba(255,176,235,.56);
+ --sh9-tr-glow:rgba(226,101,197,.27);--sh9-tr-start:rgba(94,43,109,.92);
+ --sh9-tr-end:rgba(31,16,57,.97);--sh9-tr-muted:#f4cfe8;
+}
+:root[data-sh9-transit="on"] body{
+ margin:0;color:var(--sh9-tr-ink);
+ background:radial-gradient(ellipse at 50% 0,var(--sh9-tr-glow),transparent 65%),#08132a;
+}
+:root[data-sh9-transit="on"] .shell{width:min(100%,470px);max-width:470px;padding:0 9px calc(95px + env(safe-area-inset-bottom,0px));}
+:root[data-sh9-transit="on"] .shell>main>.guardian-hero,
+:root[data-sh9-transit="on"] .shell>main>:not(.map-card):not(#hhTransitPanel){
+ display:none!important;
+}
+:root[data-sh9-transit="on"] #guardianHHNav{display:none!important}
+:root:not([data-sh9-transit="on"]) #sh9TransitHeaderV927,
+:root:not([data-sh9-transit="on"]) #sh9TransitNavV927{display:none!important}
+#sh9TransitHeaderV927[hidden],#sh9TransitNavV927[hidden]{display:none!important}
+#sh9TransitHeaderV927{
+ box-sizing:border-box;width:min(100%,470px);margin:0 auto 9px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;
+ background:linear-gradient(148deg,var(--sh9-tr-start),var(--sh9-tr-end));
+ border:1px solid var(--sh9-tr-frame);border-top:0;border-radius:0 0 23px 23px;
+ box-shadow:inset 0 1px rgba(255,255,255,.23),0 10px 27px #0007,0 0 17px var(--sh9-tr-glow);
+ -webkit-backdrop-filter:blur(18px) saturate(145%);backdrop-filter:blur(18px) saturate(145%);
+ font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--sh9-tr-ink);
+}
+.sh9-transit-top-v927{display:flex;align-items:center;gap:10px;}
+.sh9-transit-back-v927{
+ display:grid;place-items:center;min-width:44px;min-height:44px;
+ border:1px solid var(--sh9-tr-frame);border-radius:14px;
+ background:rgba(255,255,255,.095);font-size:23px;color:var(--sh9-tr-accent);text-decoration:none;
+}
+.sh9-transit-name-v927{flex:1;min-width:0}
+.sh9-transit-name-v927 small{display:block;font-size:10px;letter-spacing:.125em;font-weight:900;color:var(--sh9-tr-accent)}
+.sh9-transit-name-v927 strong{display:block;font-size:21px;line-height:1.12;letter-spacing:-.035em;color:#fff}
+#sh9TransitProfileV927{flex:0 0 auto;font:850 11px system-ui;padding:8px 10px;color:var(--sh9-tr-accent);border:1px solid var(--sh9-tr-frame);border-radius:99px;background:rgba(255,255,255,.08)}
+.sh9-transit-subtitle-v927{margin:9px 0 10px;font:600 11px/1.55 system-ui;color:var(--sh9-tr-muted)}
+.sh9-transit-actions-v927{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sh9-transit-actions-v927 button,.sh9-transit-actions-v927 a{
+ display:grid;place-items:center;min-height:44px;min-width:0;padding:9px 5px;
+ border:1px solid var(--sh9-tr-frame);border-radius:13px;
+ background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(13,29,62,.18));
+ box-shadow:inset 0 1px rgba(255,255,255,.19);color:#fff;
+ font:780 11px system-ui;text-align:center;text-decoration:none;cursor:pointer;
+}
+#sh9TransitStatusV927{margin:9px 0 0;font:650 10px/1.45 system-ui;color:var(--sh9-tr-muted)}
+:root[data-sh9-transit="on"] .shell>main>.map-card{
+ border:1px solid var(--sh9-tr-frame)!important;border-radius:21px!important;
+ box-shadow:0 12px 26px #0007,0 0 15px var(--sh9-tr-glow)!important;
+ margin-bottom:11px!important;
+}
+:root[data-sh9-transit="on"] .shell>main>.map-card:not(.hh-map-full-v819) #guardianMap{
+ width:100%!important;height:clamp(360px,54dvh,740px)!important;min-height:360px!important;
+}
+:root[data-sh9-transit="on"] #hhTransitPanel{
+ --bk-ink:var(--sh9-tr-ink)!important;--bk-muted:var(--sh9-tr-muted)!important;
+ --bk-accent:var(--sh9-tr-accent)!important;
+ color:var(--sh9-tr-ink)!important;
+ background:linear-gradient(144deg,var(--sh9-tr-start),var(--sh9-tr-end))!important;
+ border:1px solid var(--sh9-tr-frame)!important;border-radius:20px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.24),0 10px 25px #0006,0 0 17px var(--sh9-tr-glow)!important;
+}
+:root[data-sh9-transit="on"] #hhTransitPanel .hh-bkk-watchlist-v814{
+ border-color:var(--sh9-tr-frame)!important;
+ background:linear-gradient(144deg,var(--sh9-tr-start),var(--sh9-tr-end))!important;
+ color:var(--sh9-tr-ink)!important;
+}
+:root[data-sh9-transit="on"] #hhTransitPanel .hh-transit-credit{font-size:11px!important}
+#sh9TransitNavV927{
+ box-sizing:border-box;position:fixed;z-index:200;left:50%;bottom:0;transform:translateX(-50%);
+ width:min(100%,470px);min-height:65px;padding:5px 4px calc(7px + env(safe-area-inset-bottom,0px));
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;
+ border-top:1px solid var(--sh9-tr-frame);
+ background:linear-gradient(135deg,var(--sh9-tr-start),var(--sh9-tr-end));
+ box-shadow:0 -8px 22px #0007;-webkit-backdrop-filter:blur(17px);backdrop-filter:blur(17px);
+}
+#sh9TransitNavV927 a,#sh9TransitNavV927 button{
+ min-width:0;min-height:49px;border:0;background:none;color:#e2eefc;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+ font:750 10px system-ui;text-decoration:none;cursor:pointer;
+}
+#sh9TransitNavV927 svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#sh9TransitNoticeV927{position:fixed;z-index:250;left:50%;bottom:86px;transform:translateX(-50%);width:min(90vw,400px);
+ border:1px solid var(--sh9-tr-frame);border-radius:14px;padding:13px;background:var(--sh9-tr-end);
+ box-shadow:0 8px 22px #0008;color:white;text-align:center;font:650 12px system-ui}
+#sh9TransitNoticeV927[hidden]{display:none!important}
+#sh9TransitHeaderV927 :focus-visible,#sh9TransitNavV927 :focus-visible{outline:3px solid var(--sh9-tr-accent);outline-offset:2px}
+@media(max-width:370px){.sh9-transit-actions-v927{gap:5px}.sh9-transit-name-v927 strong{font-size:19px}}
+@media(prefers-reduced-motion:reduce){#sh9TransitHeaderV927 *,#sh9TransitNavV927 *{scroll-behavior:auto!important;transition:none!important}}
