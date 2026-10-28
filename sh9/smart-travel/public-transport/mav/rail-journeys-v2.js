@@ -161,20 +161,21 @@
    const chosen=fmt(new Date(q.when));
    const label=q.mode==='arrive'?'Érkezés eddig':q.mode==='depart'?'Indulás ekkor':'Indulás most';
    panel.append(span('rail-search-meta',label+' · '+dateFmt.format(new Date(q.when))+' · '+chosen));
-   if(q.mode!=='now')panel.append(span('rail-warning','A kiválasztott időt a külső tervezőben is állítsd be: a hivatalos Google Maps URL nem fogadja át az indulás/érkezés időmódját.'));
+   if(q.mode!=='now')panel.append(span('rail-warning','A dátumot és az időmódot az SH9 megőrizte. A külső Google Térkép-hivatkozás ezeket nem adja át; ott szükség esetén külön válaszd ki.'));
+   panel.append(span('rail-search-source-info','A saját menetrendi találatokhoz engedélyezett GTFS vagy Google Routes adatkapcsolat szükséges. Addig a hivatalos szolgáltatások külön nyithatók meg.'));
    const actions=doc.createElement('div');actions.className='rail-empty-actions';
-   actions.append(btn('Útvonalak megnyitása ↗',transitLink(q)),btn('MÁVPlusz ↗','https://mavplusz.hu/'));
+   actions.append(btn('Google Térkép ↗',transitLink(q)),btn('MÁVPlusz ↗','https://mavplusz.hu/'));
    panel.append(actions);
   }
   search.onclick=()=>{
    const q=currentQuery();
    if(!q){status('Válassz két különböző állomást és érvényes időpontot.');return}
    last=q;presentSearch(q);
-   doc.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
-   open(transitLink(q)); // a valós útvonaltervező egyetlen érintéssel nyílik
-   // If no feed is installed, station board remains the only genuine live source.
+   // Stay in SH9. External maps only open from the explicit Google Térkép action.
+   // Without a licensed provider, the three approved photo cards link to separate official rail services.
    if(feed&&feedQuery&&sameSearch(feedQuery,q)&&Date.now()<feedValidUntil)rows(feed);
    else{feed=null;feedQuery=null;emptyState()}
+   doc.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
   refresh.onclick=()=>{const q=currentQuery();if(!q){status('Érvényes útvonal szükséges.');return}last=q;presentSearch(q);open('https://mavplusz.hu/')};
   // Deliberately no automatic remote fetch/polling or mutable global injection.
