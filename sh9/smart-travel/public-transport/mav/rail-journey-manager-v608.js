@@ -209,6 +209,14 @@ function mount(doc,win){
    card.append(span('rail-trip-route',item.from+' → '+item.to));
    card.append(span('rail-personal-caption',modeLabel(item.mode)+' · '+item.when.slice(0,10)+' '+item.when.slice(11)));
    card.append(span('rail-trip-disclaimer','Saját utazási terv · nem ellenőrzött vonatindulás'));
+   // v612 · Show only a departure time the user explicitly saved for THIS trip/profile.
+   const assistant=win.SH9_MAV_DEPARTURE_V611;
+   const departureSettings=assistant?.readSaved(storage,active(),item);
+   const calculated=departureSettings&&assistant.calculate(departureSettings.time,
+    departureSettings.travel,departureSettings.buffer);
+   if(calculated)card.append(span('rail-trip-departure','🏠 Tervezett otthoni indulás: '+
+    calculated.leaveLocal.slice(0,10)+' · '+calculated.leaveLocal.slice(11)+
+    ' · kézi időkkel számolva (nem élő menetrend)'));
    if(item.car||item.seat||item.ticket||item.note){
     const line=[];
     if(item.car)line.push('Kocsi: '+item.car);
