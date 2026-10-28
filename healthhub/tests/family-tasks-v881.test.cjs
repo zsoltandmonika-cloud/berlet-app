@@ -16,7 +16,8 @@ test('approved final pink/blue family hero is real, optimized and in place',()=>
  assert.ok(size>30000 && size<150000,'hero must be quality-focused but bandwidth conscious');
 });
 test('approved Lena and success Buddy are bundled for visual v881',()=>{
- assert.match(html,/assets\/family-quickadd-lena-v881\.webp/);
+ // The approved hero now uses the common family montage instead of a second Lena image.
+ assert.match(css,/fh-quick-hero.*family-tasks-hero-approved-v881\.webp/);
  assert.match(html,/assets\/family-success-buddy-v881\.webp/);
  assert.ok(exists('sh9/family-hub/assets/family-quickadd-lena-v881.webp')>2000);
  assert.ok(exists('sh9/family-hub/assets/family-success-buddy-v881.webp')>6000);
