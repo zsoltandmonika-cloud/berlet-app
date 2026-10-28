@@ -227,4 +227,7 @@ return Object.freeze({CHECKS,STATES,key,localBudapest,instantForBudapest,localFr
 });
 if(typeof window!=='undefined'&&typeof document!=='undefined'&&window.SH9_MAV_DEPARTURE_V611){
  window.SH9_MAV_DEPARTURE_UI=window.SH9_MAV_DEPARTURE_V611.mount(document,window);
+ // The saved-journey module mounts earlier. Refresh after this adapter loads,
+ // so existing saved departure summaries are visible on the first page load.
+ window.SH9_MAV_JOURNEYS_UI?.render();
 }
