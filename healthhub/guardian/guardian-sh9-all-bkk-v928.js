@@ -33,19 +33,66 @@ function fromVerified(detail,now=Date.now()){
 }
 function init(w,d){
  if(new URLSearchParams(w.location.search).get('sh9Transit')!=='1')return;
- let enabled=true,last=null,truncated=false,map=null,attached=false,lastAt=null,clickBound=false;
+ let enabled=true,last=null,truncated=false,map=null,lastAt=null,clickBound=false;
+ let verifiedVehicles=[],domMarkers=new Map(),lastDrawn=0;
  const $=id=>d.getElementById(id),toggle=$('sh9AllVehiclesToggleV928'),refresh=$('sh9AllVehiclesRefreshV928'),status=$('sh9AllVehiclesStatusV928');
  if(!toggle||!refresh||!status)return;
  const mapApi=()=>w.HH_GUARDIAN_V761?.map||null;
  const message=s=>{status.textContent=s};
+ function clearDom(){
+  for(const marker of domMarkers.values())try{marker.remove()}catch(_){}
+  domMarkers.clear();lastDrawn=0;
+ }
+ // Existing approved Golden Glass vehicle capsules sit above the 3D buildings.
+ // MapLibre's clustered GeoJSON remains the efficient fallback at wide zoom.
+ // At detailed zoom only a bounded number of visible capsules are created.
+ function showVisibleDom(){
+  if(!enabled||!map||!w.maplibregl?.Marker||!w.HH_BKK_LIVE_MAP_V793?.makeMarkerElement){
+   clearDom();return false;
+  }
+  const bounds=map.getBounds?.(),zoom=Number(map.getZoom?.());
+  if(!bounds||!Number.isFinite(zoom)||zoom<13.25){clearDom();return false}
+  const west=bounds.getWest?.(),east=bounds.getEast?.();
+  const south=bounds.getSouth?.(),north=bounds.getNorth?.();
+  if(![west,east,south,north].every(Number.isFinite)){clearDom();return false}
+  const visible=verifiedVehicles.filter(v=>v.lng>=west&&v.lng<=east&&v.lat>=south&&v.lat<=north);
+  if(visible.length>80){clearDom();return false}
+  const ids=new Set(visible.map(v=>v.id));
+  for(const [id,marker] of domMarkers)if(!ids.has(id)){
+   try{marker.remove()}catch(_){}domMarkers.delete(id);
+  }
+  try{
+   for(const vehicle of visible){
+    let marker=domMarkers.get(vehicle.id);
+    if(!marker){
+     const node=w.HH_BKK_LIVE_MAP_V793.makeMarkerElement(d,vehicle);
+     marker=new w.maplibregl.Marker({element:node,anchor:'bottom',offset:[0,-6],
+      opacity:1,opacityWhenCovered:1}).setLngLat([vehicle.lng,vehicle.lat]).addTo(map);
+     domMarkers.set(vehicle.id,marker);
+    }else{
+     marker.setLngLat([vehicle.lng,vehicle.lat]);
+     marker.getElement?.()?.hhSetVehicle?.(vehicle);
+    }
+   }
+  }catch(_){clearDom();return false}
+  lastDrawn=visible.length;
+  return visible.length>0;
+ }
  function applyData(){
-  if(!map?.getSource?.(ID))return;
-  map.getSource(ID).setData(enabled&&last?last:EMPTY);
+  if(!map)return;
+  const dom=showVisibleDom();
+  // Avoid double markers when the approved HTML capsules are in use.
+  for(const layer of [ID+'-vehicles',ID+'-route']){
+   if(map.getLayer?.(layer)&&map.setLayoutProperty)
+    try{map.setLayoutProperty(layer,'visibility',dom?'none':'visible')}catch(_){}
+  }
+  const source=map.getSource?.(ID);
+  if(source?.setData)source.setData(enabled&&last?last:EMPTY);
  }
  function install(){
   const active=mapApi();
   if(!active||typeof active.getSource!=='function')return false;
-  if(active!==map){map=active;attached=false;clickBound=false}
+  if(active!==map){clearDom();map=active;clickBound=false}
   if(!map.isStyleLoaded?.())return false;
   try{
    if(!map.getSource(ID))map.addSource(ID,{type:'geojson',data:EMPTY,cluster:true,clusterRadius:48,clusterMaxZoom:14});
@@ -110,11 +157,15 @@ function init(w,d){
  }
  function showCount(){
   if(!enabled){message('Az összes jármű megjelenítése és frissítése kikapcsolva.');return}
-  if(!last){message('A kiválasztott térképrész friss BKK-adataira várunk.');return}
+  if(!last){message('A kiválasztott térképrész friss BKK-adataira várunk. Ha nincs adat, az adatkapcsolat állapotát fent láthatod.');return}
   const at=lastAt?new Date(lastAt).toLocaleTimeString('hu-HU'):'—';
-  message(last.features.length+' ellenőrzött jármű a lekért térképrészben · '+at+
-   (truncated?' · a kiszolgáló részleges választ adott':'')+
-   ' · új térképrészhez koppints a Frissítés gombra');
+  if(last.features.length===0){
+   message('0 jármű a lekért térképrészben · '+at+' · próbálj távolítani, majd Frissítés.');return;
+  }
+  const count=lastDrawn?' · '+lastDrawn+' ikon a térképen':' · térképréteg/csoportok';
+  message(last.features.length+' ellenőrzött jármű'+count+' · '+at+
+   (truncated?' · részleges válasz':'')+
+   ' · új térképrészhez Frissítés');
  }
  function emit(type,detail){
   if(typeof w.CustomEvent==='function')w.dispatchEvent(new w.CustomEvent(type,{detail}));
@@ -127,7 +178,7 @@ function init(w,d){
  }
  toggle.addEventListener('click',()=>{
   enabled=!enabled;syncToggle();
-  if(!enabled){last=null;truncated=false;lastAt=null;applyData();showCount()}
+  if(!enabled){last=null;verifiedVehicles=[];truncated=false;lastAt=null;clearDom();applyData();showCount()}
   else {start();showCount()}
   emit('hh-sh9-all-live-enabled-v928',{enabled});
  });
@@ -140,20 +191,27 @@ function init(w,d){
   if(!enabled||d.hidden)return;
   const data=fromVerified(e.detail);
   if(!data){last=null;applyData();message('Nem kaptunk ellenőrizhető, friss BKK-járműadatot.');return}
-  last=data;lastAt=e.detail.generatedAt;truncated=e.detail.truncated===true;
+  last=data;verifiedVehicles=e.detail.vehicles.slice();lastAt=e.detail.generatedAt;truncated=e.detail.truncated===true;
   start();applyData();showCount();
  });
  w.addEventListener('hh-sh9-all-live-clear-v928',()=>{
-  last=null;truncated=false;lastAt=null;applyData();
+  last=null;verifiedVehicles=[];truncated=false;lastAt=null;clearDom();applyData();
   if(enabled)message('Járműadatok szünetelnek, vagy új frissítés szükséges.');
  });
- w.addEventListener('pagehide',()=>{last=null;applyData()});
+ w.addEventListener('pagehide',()=>{last=null;verifiedVehicles=[];clearDom();applyData()});
  const active=mapApi();
  active?.on?.('style.load',()=>{install();applyData()});
  active?.on?.('moveend',()=>{
-  if(enabled&&last)message('A térkép elmozdult · az új területhez koppints a Frissítés gombra.');
+  if(enabled&&last){
+   applyData();showCount();
+   if(last.features.length>0)message(status.textContent+' · új területhez Frissítés');
+  }
  });
+ // Ready handshake replays an earlier, already validated response without a
+ // second network request. A map with no bounds yet retries after its load.
  syncToggle();start();showCount();
+ emit('hh-sh9-all-live-ready-v929');
+ active?.once?.('load',()=>{start();emit('hh-sh9-all-live-ready-v929')});
 }
 return {fromVerified,init,ID};
 });

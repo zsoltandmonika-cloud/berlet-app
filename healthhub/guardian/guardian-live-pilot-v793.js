@@ -83,7 +83,13 @@ function toggleLive(){
  if(mapElement&&mapElement.scrollIntoView)mapElement.scrollIntoView({behavior:'smooth',block:'center'});
 }
 focusButton.addEventListener('click',toggleLive);
-function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
+function status(message){
+ p.textContent='🚍 BKK élő helyzet · '+message;
+ if(sh9AllMode){
+  const head=d.getElementById('sh9TransitStatusV927');
+  if(head)head.textContent='BKK-adatkapcsolat · '+message;
+ }
+}
 function clear(){
  lastVehicles=[];lastVerified=null;lastSourceSnapshot=null;
  updateLiveButton();
@@ -210,6 +216,17 @@ if(sh9AllMode)w.addEventListener('hh-sh9-all-live-enabled-v928',e=>{
 // User-only refresh; moving/zooming never creates another network request.
 if(sh9AllMode)w.addEventListener('hh-sh9-all-live-refresh-v928',()=>{
  if(!d.hidden&&sh9AllEnabled)poll();
+});
+// The map UI may mount after the first authenticated response.
+// Replay the in-memory verified snapshot, never fetch again just to repaint.
+if(sh9AllMode)w.addEventListener('hh-sh9-all-live-ready-v929',()=>{
+ if(d.hidden||!sh9AllEnabled)return;
+ if(lastSourceSnapshot&&typeof w.CustomEvent==='function'){
+  w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-v928',{
+   detail:{generatedAt:lastSourceSnapshot.generatedAt,
+    vehicles:lastSourceSnapshot.vehicles,truncated:false}
+  }));
+ }else if(!inFlight&&lastSh9RequestAt===0)poll();
 });
 w.addEventListener('pagehide',stop);
 start();
