@@ -269,19 +269,56 @@ const $=id=>document.getElementById(id);
 const paths={search:'<circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/>',heart:'<path d="M21 6a5 5 0 0 0-9-2 5 5 0 0 0-9 2c0 6 9 13 9 13s9-7 9-13z"/>',bus:'<rect x="3" y="4" width="18" height="15" rx="3"/><path d="M3 11h18M7 19v2m10-2v2"/><circle cx="7" cy="15" r="1"/><circle cx="17" cy="15" r="1"/>',ticket:'<path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4z"/><path d="M12 6v12" stroke-dasharray="2 2"/>',map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 9a7 7 0 0 1 12-2l2 2M4 15l2 2a7 7 0 0 0 12-2"/>',star:'<path d="m12 2 3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/>',station:'<path d="M4 20V5h16v15M2 20h20M7 9h10m-10 4h10"/>',dots:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>'};
 document.querySelectorAll('[data-icon]').forEach(n=>{n.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+(paths[n.dataset.icon]||paths.bus)+'</svg>'});
 let profile='z';try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){}
-function syncProfile(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529;const photo=$('profile-photo');if(avatars)photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe';$('profile').title=name+' · Profilváltás';$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára'))}
+function syncProfile(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529;const photo=$('profile-photo');if(avatars)photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe';window.SH9_VOLAN_JOURNEYS_UI?.render();$('profile').title=name+' · Profilváltás';$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára'))}
 $('profile').addEventListener('click',()=>{profile=profile==='m'?'z':'m';try{localStorage.setItem('hh-profile',profile)}catch(_){}syncProfile();toast('Aktív profil: '+(profile==='m'?'Mónika':'Zsolt'))});syncProfile();
 let dismiss;function toast(message){const el=$('volan-toast');el.textContent=message;el.hidden=false;clearTimeout(dismiss);dismiss=setTimeout(()=>el.hidden=true,3600)}
 document.querySelectorAll('[data-stage]').forEach(el=>el.addEventListener('click',()=>toast('Volán '+el.dataset.stage+' · bekötés a következő lépésben')));
 document.querySelector('[data-go="planner"]').addEventListener('click',()=>$('planner').scrollIntoView({behavior:'smooth',block:'start'}));
-let mode='now';document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===btn))}));
+let mode='now';function setMode(next){
+ mode=next;
+ document.querySelectorAll('[data-mode]').forEach(btn=>{
+  const selected=btn.dataset.mode===next;btn.classList.toggle('on',selected);
+  btn.setAttribute('aria-pressed',String(selected));
+ });
+ showDateTime();
+}
+document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.mode)));
 const pad=n=>String(n).padStart(2,'0');function local(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());const p={};for(const x of parts)p[x.type]=x.value;return{date:p.year+'-'+p.month+'-'+p.day,time:p.hour+':'+p.minute}};
 const initial=local();$('rail-date').value=initial.date;$('rail-time').value=initial.time;
-function showDateTime(){const d=$('rail-date').value,t=$('rail-time').value;$('dateTxt').textContent=d||'Dátum';$('timeTxt').textContent=t||'Idő';$('when').value=d&&t?d+'T'+t:''}
+function showDateTime(){
+ // Exact MÁV Golden display: formatted Hungarian short date, not raw YYYY-MM-DD input.
+ const current=local(),d=$('rail-date').value,t=$('rail-time').value;
+ const selected=(mode==='now'?current.date+'T'+current.time:(d&&t?d+'T'+t:''));
+ const parsed=selected?new Date(selected):null;
+ if(parsed&&Number.isFinite(parsed.getTime())){
+  $('dateTxt').textContent=parsed.toLocaleDateString('hu-HU',{weekday:'short',month:'short',day:'numeric'});
+  $('timeTxt').textContent=parsed.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
+ }else{$('dateTxt').textContent='Dátum';$('timeTxt').textContent='Idő'}
+ $('when').value=selected;
+}
 for(const id of ['rail-date','rail-time'])$(id).addEventListener('change',showDateTime);
 function openPicker(id){const input=$(id);try{input.showPicker()}catch(_){input.focus();input.click()}}
 for(const [trigger,picker] of [['rail-date-trigger','rail-date'],['rail-time-trigger','rail-time']]){const el=$(trigger);el.addEventListener('click',e=>{if(e.target.id!==picker)openPicker(picker)});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPicker(picker)}})}
-showDateTime();
+showDateTime();window.addEventListener('pageshow',showDateTime);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)showDateTime()});
+document.querySelector('[data-go="journeys"]').addEventListener('click',()=>{
+ const el=$('journeys');if(!el)return;
+ el.classList.toggle('open');
+ if(el.classList.contains('open')){window.SH9_VOLAN_JOURNEYS_UI?.render();el.scrollIntoView({behavior:'smooth',block:'start'})}
+});
+window.SH9_VOLAN_PLANNER_V3={
+ toast,
+ applyRoute(route){
+  if(!route||typeof route.from!=='string'||typeof route.to!=='string'||typeof route.when!=='string')return false;
+  $('from').value=route.from;$('to').value=route.to;
+  if(!['now','depart','arrive'].includes(route.mode))return false;
+  const match=/^20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(route.when);
+  if(!match)return false;
+  $('rail-date').value=route.when.slice(0,10);
+  $('rail-time').value=route.when.slice(11,16);
+  setMode(route.mode);return true;
+ }
+};
 $('swap').addEventListener('click',()=>{const from=$('from').value;$('from').value=$('to').value;$('to').value=from;toast('Megállók felcserélve · dátum és időpont változatlan.')});
 $('find').addEventListener('click',()=>{const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){toast('Adj meg két különböző buszmegállót.');return}toast('Saját útvonal-előnézet: '+a+' → '+b+'. Élő Volán-menetrend még nincs bekötve.')});
 $('refresh').addEventListener('click',()=>toast('Hivatalos Volán-menetrend hivatkozása külön bekötésre vár.'));
