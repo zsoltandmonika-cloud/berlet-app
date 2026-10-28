@@ -52,7 +52,7 @@ test('v928 overlay creates one clustered GeoJSON source, only in SH9 mode and wi
  const src=read('guardian-sh9-all-bkk-v928.js');
  const html=read('index.html');
  const css=read('guardian-sh9-all-bkk-v928.css');
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=928-viewport-low-usage/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
  assert.match(html,/id="sh9AllVehiclesToggleV928"/);
  assert.match(html,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css/);
