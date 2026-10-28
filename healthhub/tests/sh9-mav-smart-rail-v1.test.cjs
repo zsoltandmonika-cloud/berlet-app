@@ -58,7 +58,8 @@ test('Golden glass has genuine multiple translucent layers, hover-free mobile be
 test('Planner and favorites remain clickable profile-specific DOM, not image slices',()=>{
  for(const field of ['from','to','swap','when','find','refresh','favorite-add','favlist','profile','save','pax','class','seat','discount','dog','bike'])assert.match(html,new RegExp('id="'+field+'"'));
  for(const mode of ['now','depart','arrive'])assert.match(html,new RegExp('data-mode="'+mode+'"'));
- assert.match(html,/sh9-mav-rail-favorites-v1-/);
+ assert.match(html,/rail-personal-v607\.js/);
+ assert.match(fs.readFileSync(path.join(base,'mav/rail-personal-v607.js'),'utf8'),/sh9-mav-rail-favorites-v1-/);
  assert.match(html,/sh9-mav-rail-preferences-v1-/);
  assert.match(html,/helyben menthetők, nem továbbítjuk automatikusan/);
  assert.match(html,/Élő járatadat csak hitelesített forrásból/);
