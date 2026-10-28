@@ -1,0 +1,25 @@
+/* SH9 BKK v928 · ALL vehicles, viewport-only, no effect on Family Guard UI. */
+:root:not([data-sh9-transit="on"]) #sh9AllVehiclesControlsV928{display:none!important}
+#sh9AllVehiclesControlsV928{
+ display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);
+ gap:8px;margin:10px 0 4px;align-items:center;
+}
+#sh9AllVehiclesControlsV928 button{
+ min-width:0;min-height:46px;padding:8px 10px;
+ border:1px solid var(--sh9-tr-frame);border-radius:13px;
+ background:linear-gradient(140deg,rgba(120,197,252,.19),rgba(12,28,62,.48));
+ box-shadow:inset 0 1px rgba(255,255,255,.21),0 4px 14px #0004;
+ color:#fff;font:800 11px/1.3 system-ui;cursor:pointer;
+ backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);
+}
+:root[data-guardian-profile="m"] #sh9AllVehiclesControlsV928 button{
+ background:linear-gradient(140deg,rgba(247,151,211,.20),rgba(43,19,69,.54));
+}
+#sh9AllVehiclesControlsV928 button[aria-pressed="false"]{opacity:.72;filter:saturate(.45)}
+#sh9AllVehiclesControlsV928 button:disabled{opacity:.5;cursor:default}
+#sh9AllVehiclesStatusV928{font:600 10px/1.55 system-ui;color:var(--sh9-tr-muted);margin:4px 0 9px;min-height:16px}
+#sh9AllVehiclesControlsV928 button:focus-visible{outline:3px solid var(--sh9-tr-accent);outline-offset:2px}
+.sh9-bkk-popup-v928{display:flex;flex-direction:column;gap:5px;font:700 12px system-ui;color:#1c3854}
+.sh9-bkk-popup-v928 strong{font-size:19px;color:#0d4880}
+.sh9-bkk-popup-v928 small{font:600 10px/1.4 system-ui;color:#547189}
+@media(max-width:350px){#sh9AllVehiclesControlsV928{gap:5px}#sh9AllVehiclesControlsV928 button{font-size:10px;padding:7px 6px}}
