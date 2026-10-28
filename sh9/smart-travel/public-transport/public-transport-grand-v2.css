@@ -52,7 +52,7 @@
   z-index:-2;
   inset:-44px -44px -54px;
   pointer-events:none;
-  background-image:url("./public-transport-grand-hero-v2.avif?v=2");
+  background-image:url("./public-transport-approved-poster-v5.avif?v=5");
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center 34%;
@@ -127,7 +127,7 @@
   width:100%;
   max-width:415px;
   min-height:0;
-  aspect-ratio:391 / 126;
+  aspect-ratio:857 / 214;
   margin:0 auto;
   padding:0;
   overflow:visible;
@@ -185,4 +185,29 @@
 }
 @media(prefers-reduced-motion:reduce){
   .transport-grand .transport-neon-options .transport-choice{transition:none}
+}
+
+/* V5 approved art: every character and uniform is from the approved source.
+   Only the crop is altered to make the original four neon cards live controls. */
+.transport-grand .transport-visual{
+  aspect-ratio:941 / 785;
+  max-height:none;
+  background:transparent;
+}
+.transport-grand .transport-visual>img{
+  width:100%;height:100%;object-fit:contain;object-position:center;
+}
+.transport-grand .transport-options.transport-neon-options{
+  padding:0 4px;gap:1px;
+}
+.transport-grand .transport-neon-options .transport-choice{aspect-ratio:857 / 214}
+.transport-grand .transport-neon-options .choice-art{border-radius:14px}
+.shell.transport-grand::before{
+  background-position:center top;
+  background-size:100% 100%;
+  opacity:.93;
+}
+@media(max-height:770px){
+ .transport-grand .transport-visual{max-height:none;aspect-ratio:941 / 785}
+ .transport-grand .transport-visual>img{object-fit:contain}
 }
