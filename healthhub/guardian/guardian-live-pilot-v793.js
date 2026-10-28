@@ -5,6 +5,7 @@
 (function(w,d){
 'use strict';
 if(new URLSearchParams(w.location.search).get('hhLivePilot')==='off')return;
+const sh9AllMode=new URLSearchParams(w.location.search).get('sh9Transit')==='1';
 const validator=w.HH_BKK_LIVE_V793;
 const renderer=w.HH_BKK_LIVE_MAP_V793;
 const mapApi=w.HH_GUARDIAN_V761;
@@ -42,6 +43,7 @@ let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never
 // Live map visibility is a presentation toggle, not a change to BKK polling.
 let liveVisible=true;
 function updateLiveButton(){
+ if(sh9AllMode){focusButton.hidden=true;return;}
  focusButton.hidden=!lastVehicles.length;
  focusButton.textContent=liveVisible?'Ne mutasd élő járműveket':'Mutasd élő járműveket';
  focusButton.setAttribute('aria-pressed',String(liveVisible));
@@ -84,6 +86,10 @@ function status(message){p.textContent='🚍 BKK élő helyzet · '+message}
 function clear(){
  lastVehicles=[];lastVerified=null;lastSourceSnapshot=null;
  updateLiveButton();
+ if(sh9AllMode){
+  if(typeof w.CustomEvent==='function')w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-clear-v928'));
+  return;
+ }
  if(mapApi.map)renderer.clear(mapApi.map);
 }
 // Per-line button changes redraw the ALREADY VERIFIED response, not a new API request.
@@ -117,14 +123,28 @@ async function poll(){
    status('Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
    clear();return
   }
-  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?routes='+encodeURIComponent(favoriteKeys().join(','));
+  const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?'+
+   (sh9AllMode?'all=1':'routes='+encodeURIComponent(favoriteKeys().join(',')));
   const res=await w.fetch(url,{method:'GET',cache:'no-store',headers:{
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
   }});
   const data=await res.json().catch(()=>null);
   if(!res.ok){clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
-  const parsed=validator.validate(data);
+  const parsed=sh9AllMode?validator.validate(data,Date.now(),3500):validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
+  if(sh9AllMode){
+   // A dedicated clustered MapLibre source draws every verified BKK vehicle
+   // using the SAME authenticated snapshot. Never change normal Watchlist markers.
+   lastSourceSnapshot=parsed;
+   if(!d.hidden&&typeof w.CustomEvent==='function')
+    w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-v928',{
+     detail:{generatedAt:parsed.generatedAt,vehicles:parsed.vehicles,truncated:data.truncated===true}
+    }));
+   status(parsed.vehicles.length+' hiteles, friss jármű · SH9 teljes térképréteg'+
+    (data.truncated===true?' · korlátozott adatcsomag':'')+' · '+
+    new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
+   return;
+  }
   // Keep the verified BKK vehicle stream separate from profile GPS.
   // Buddy only sees validated snapshots already obtained via the
   // authenticated Family Live request. No additional network or location sharing.
@@ -138,19 +158,19 @@ async function poll(){
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
  finally{inFlight=false}
 }
-function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,15000)}
+function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?60000:15000)}
 function stop(){if(polling!==null){w.clearInterval(polling);polling=null}clear()}
 d.addEventListener('visibilitychange',()=>{if(d.hidden)stop();else start()});
 // A Watchlist editor changes favorites, not the old hidden map checkboxes.
 // Re-evaluate immediately instead of leaving stale vehicle markers visible.
 w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{
- if(d.hidden)return;
+ if(sh9AllMode||d.hidden)return;
  clear();
  poll();
 });
 // Toggle ONE route's vehicles without requesting another BKK snapshot.
 w.addEventListener('hh-bkk-live-per-line-v909-changed',()=>{
- if(d.hidden||!lastSourceSnapshot)return;
+ if(sh9AllMode||d.hidden||!lastSourceSnapshot)return;
  renderLiveFromSnapshot(lastSourceSnapshot);
 });
 w.addEventListener('pagehide',stop);
