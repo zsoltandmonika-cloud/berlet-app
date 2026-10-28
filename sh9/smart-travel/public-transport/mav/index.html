@@ -74,6 +74,13 @@
 .rail-source-status{font-size:9px!important;color:#d5eaff!important}
 .rail-train-sub{font-size:10px;color:#d6f2ff}
 @media(max-width:355px){.rail-official-action{font-size:9px;padding:4px}.rail-empty-body,.rail-warning{font-size:9.5px}}
+
+/* Phase 2C GTFS schedule detail is additive; all existing Golden controls keep their geometry. */
+.rail-gtfs-row .track{font-size:8px;line-height:1.2;color:#d2e8ff}
+.rail-gtfs-detail{padding:10px 11px;border-radius:10px;display:flex;flex-direction:column;gap:7px;margin:0 3px 5px;font-size:10px}
+.rail-gtfs-detail[hidden]{display:none}
+.rail-leg-line{display:block;line-height:1.45;color:#eff8ff;border-left:2px solid #64bbff;padding:4px 7px;background:rgba(32,86,145,.19);border-radius:4px}
+:root[data-profile="m"] .rail-leg-line{border-color:#f2a5e5}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
@@ -143,4 +150,4 @@ for(const b of document.querySelectorAll('[data-rail-action]'))b.addEventListene
 });
 function show(id){const target=$(id);for(const d of document.querySelectorAll('.drawer'))d.classList.toggle('open',d===target);target.scrollIntoView({behavior:'smooth',block:'center'})};for(const b of document.querySelectorAll('[data-go]'))b.onclick=()=>{const target=b.dataset.go;if(target==='planner')$('planner').scrollIntoView({behavior:'smooth'});else show(target)};
 const key=()=>`sh9-mav-rail-favorites-v1-${profile==='m'?'monika':'zsolt'}`;function getFav(){try{return JSON.parse(localStorage.getItem(key())||'[]')}catch{return []}};function loadFav(){const items=getFav();$('favlist').textContent=items.length?items.map(x=>x.from+' → '+x.to).join(' • '):'Még nincs kedvenc útvonal.'};$('favorite-add').onclick=()=>{if(!valid())return;const a=getFav(),j={from:$('from').value.trim(),to:$('to').value.trim()};if(!a.some(x=>x.from===j.from&&x.to===j.to)){a.push(j);try{localStorage.setItem(key(),JSON.stringify(a))}catch{}}loadFav();msg('Kedvenc útvonal mentve')};const pk=()=>`sh9-mav-rail-preferences-v1-${profile==='m'?'monika':'zsolt'}`;function loadPrefs(){let o={};try{o=JSON.parse(localStorage.getItem(pk())||'{}')}catch{};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);if(o[k]!==undefined){if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]}}};$('save').onclick=()=>{const o={};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value}try{localStorage.setItem(pk(),JSON.stringify(o))}catch{}msg('Preferenciák mentve')};sync();whenUpdate();window.addEventListener('pageshow',whenUpdate);document.addEventListener('visibilitychange',()=>{if(!document.hidden)whenUpdate()});
-</script><script src="./rail-journeys-v2.js"></script></body></html>
+</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script></body></html>
