@@ -1,0 +1,79 @@
+/* Extracted Golden Standard primitives: styles from MÁV canonical planner. */
+.transport-grand .smart-trip-panel .planner{margin:0 5px 9px;padding:8px 7px 9px;border-radius:15px}
+.transport-grand .smart-trip-panel .phead{display:grid;grid-template-columns:42% 58%;gap:0;align-items:center;margin-bottom:8px}
+.transport-grand .smart-trip-panel .phead h2,.transport-grand .smart-trip-panel .planner h2{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;letter-spacing:-.4px;white-space:nowrap}
+.transport-grand .smart-trip-panel .phead h2 svg,.transport-grand .smart-trip-panel .planner h2 svg{width:19px;height:19px}
+.transport-grand .smart-trip-panel .mode{display:flex;height:30px;padding:2px;border:1px solid #9cbbdc78;background:#1525408a;border-radius:13px;align-items:stretch;gap:0}
+.transport-grand .smart-trip-panel .mode button{flex:1;min-width:0;padding:1px;border:0;border-radius:11px;background:transparent;color:#e1eaf9;white-space:nowrap;font-size:9.1px}
+.transport-grand .smart-trip-panel .mode button.on{background:linear-gradient(123deg,#1aa6ff,#066af2);box-shadow:0 0 9px #149affaa;color:white;font-weight:bold}
+.transport-grand .smart-trip-panel .routebox{display:grid;grid-template-columns:58.9% 1fr;gap:8px}
+.transport-grand .smart-trip-panel .stationfields{position:relative;border-radius:9px;border:1px solid #c5e3ff83;background:#0a244a78;height:62px;display:grid;grid-template-columns:21px minmax(0,1fr) 31px;align-items:center;overflow:hidden}
+.transport-grand .smart-trip-panel .route-rail{width:18px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-around;position:relative}
+.transport-grand .smart-trip-panel .route-rail:before{content:'';position:absolute;top:18px;bottom:17px;width:2px;background:#9ebee88c}
+.transport-grand .smart-trip-panel .dot{position:relative;z-index:1;width:12px;height:12px;border-radius:50%;border:4px solid #159cf9;background:#0e1b39}
+.transport-grand .smart-trip-panel .dot.end{border-color:#f04c86}
+.transport-grand .smart-trip-panel .stations{height:100%;display:flex;flex-direction:column}
+.transport-grand .smart-trip-panel .stations input{width:100%;min-width:0;flex:1;padding:0 4px;color:#fff;font-size:11px;font-weight:bold;background:transparent;border:0;outline:0;text-overflow:ellipsis}
+.transport-grand .smart-trip-panel .stations input:first-child{border-bottom:1px solid #d5e5fc6b}
+.transport-grand .smart-trip-panel .swap{margin-right:3px;width:26px;height:32px;border-radius:7px;border:1px solid #abcbe467;background:#899fb58a;font-size:15px}
+.transport-grand .smart-trip-panel .datetime{min-width:0;height:62px;border:1px solid #b9cee28f;border-radius:10px;background:linear-gradient(120deg,#354a7082,#2624329c);display:grid;grid-template-columns:1.42fr .75fr;align-items:center;gap:0}
+.transport-grand .smart-trip-panel .datebox,.transport-grand .smart-trip-panel .timebox{min-width:0;display:flex;gap:4px;align-items:center;justify-content:center;font-size:10px;font-weight:bold;white-space:nowrap}
+.transport-grand .smart-trip-panel .datebox{padding:0 2px}
+.transport-grand .smart-trip-panel .timebox{min-width:0;display:flex;gap:4px;align-items:center;justify-content:center;font-size:10px;font-weight:bold;white-space:nowrap}
+.transport-grand .smart-trip-panel .datetime svg{width:16px;height:16px;flex-shrink:0}
+.transport-grand .smart-trip-panel .actions{margin-top:8px;display:grid;grid-template-columns:2.25fr 1fr;gap:8px}
+.transport-grand .smart-trip-panel .actions button{min-width:0;height:35px;border-radius:11px;font-size:10px;font-weight:bold;display:flex;align-items:center;gap:6px;justify-content:center;border:1px solid #cde7ff8f}
+.transport-grand .smart-trip-panel .actions svg{width:15px;height:15px}
+.transport-grand .smart-trip-panel .search{background:var(--hot);box-shadow:0 0 9px #1265f38d}
+.transport-grand .smart-trip-panel .refresh{background:#2c3551ac}
+.transport-grand .smart-trip-panel .rail-journey-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+
+/* Smart Trip: the exact MÁV/Volán 42:58 header, 58.9:41.1 route/time row, 62px fields and two journey actions. */
+.transport-grand .smart-trip-panel{margin:8px 0 0;padding:8px 7px 11px;border-radius:15px}
+.transport-grand .smart-trip-panel .planner{padding:0;margin:0;border:0;box-shadow:none;background:transparent}
+.transport-grand .smart-trip-panel form{display:block;gap:0}
+.transport-grand .smart-trip-panel label{display:flex;font-weight:inherit;gap:3px}
+.transport-grand .smart-trip-panel .phead{display:grid;grid-template-columns:42% 58%;gap:0;align-items:center;margin-bottom:8px}
+.transport-grand .smart-trip-panel .phead h2{font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:5px;margin:0}
+.transport-grand .smart-trip-panel .mode{display:flex;height:30px;padding:2px;border:1px solid #9cbbdc78;background:#1525408a;border-radius:13px;gap:0}
+.transport-grand .smart-trip-panel .mode button{display:block;flex:1;min-width:0;width:auto;min-height:0;height:24px;padding:1px;border:0;border-radius:11px;background:transparent;color:#e1eaf9;box-shadow:none;font-size:9px;white-space:nowrap;font-weight:500}
+.transport-grand .smart-trip-panel .mode button.on{background:linear-gradient(125deg,#19aaff,#0e69ee);color:#fff;font-weight:750;box-shadow:0 0 9px #149aff99}
+:root[data-profile="m"] .transport-grand .smart-trip-panel .mode button.on{background:linear-gradient(130deg,#e56cd5,#ad44c9);box-shadow:0 0 9px #df69cc9a}
+.transport-grand .smart-trip-panel .routebox{display:grid;grid-template-columns:58.9% minmax(0,1fr);gap:8px;min-width:0}
+.transport-grand .smart-trip-panel .stationfields{height:62px;min-width:0;grid-template-columns:21px minmax(0,1fr) 31px;background:#10254584}
+.transport-grand .smart-trip-panel .stations{min-width:0;display:flex;flex-direction:column;height:100%;gap:0}
+.transport-grand .smart-trip-panel .stations input{min-width:0;width:100%;height:50%;min-height:0;padding:0 4px;border:0;border-radius:0;background:transparent;box-shadow:none;font-size:10px;font-weight:700}
+.transport-grand .smart-trip-panel .stations input::placeholder{color:#b5c6dc}
+.transport-grand .smart-trip-panel .stationfields .swap{width:26px;min-height:0;height:32px;padding:0;border-radius:7px;background:#899fb58a;border:1px solid #abcbe467;font-size:19px}
+.transport-grand .smart-trip-panel .datetime{display:grid;grid-template-columns:1.42fr .75fr;height:62px;min-width:0;align-items:stretch;overflow:hidden}
+.transport-grand .smart-trip-panel .datetime label{position:relative;min-width:0;height:100%;display:flex;align-items:center;justify-content:center;gap:3px;color:#ecf5ff;padding:2px}
+.transport-grand .smart-trip-panel .datetime label + label{border-left:1px solid #c4d3f74a}
+.transport-grand .smart-trip-panel .datetime input{height:100%;width:100%;min-height:0;min-width:0;padding:0 2px;background:transparent;border:0;border-radius:0;box-shadow:none;font-size:10px;color:white;font-variant-numeric:tabular-nums;font-weight:750;color-scheme:dark}
+.transport-grand .smart-trip-panel .datetime input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.8;width:11px;margin:0}
+.transport-grand .smart-trip-panel .datetime input:disabled{opacity:.75}
+.transport-grand .smart-trip-panel .actions{display:grid;grid-template-columns:2.25fr 1fr;gap:8px;margin-top:8px}
+.transport-grand .smart-trip-panel .actions button{height:35px;min-height:35px;border-radius:11px;padding:4px;font-size:10px;flex:none}
+.transport-grand .smart-trip-panel .actions .search{background:linear-gradient(105deg,#159df6,#844ce4)}
+:root[data-profile="m"] .transport-grand .smart-trip-panel .actions .search{background:linear-gradient(115deg,#f06fcb,#994ede)}
+.transport-grand .smart-trip-panel .actions .refresh{background:#2c3551ac;border-color:#b9d5ff77}
+.transport-grand .smart-trip-panel .rail-journey-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.transport-grand .smart-trip-panel .rail-journey-quick button{width:100%;min-height:44px;border-radius:10px;background:linear-gradient(125deg,rgba(67,111,170,.53),rgba(16,37,83,.65));border:1px solid #b7ddff62;font-size:11px;font-weight:750}
+:root[data-profile="m"] .transport-grand .smart-trip-panel .rail-journey-quick button{background:linear-gradient(120deg,#86458c80,#351e5d9c);border-color:#f9b8f276}
+.transport-grand .smart-trip-panel .trip-status{margin:8px 1px 3px;color:#eadfb8;font-size:10px;line-height:1.35}
+.transport-grand .smart-trip-panel .trip-status strong{color:#fff}
+.transport-grand .smart-trip-panel .trip-journeys[hidden]{display:none!important}
+.transport-grand .smart-trip-panel .trip-journeys{margin-top:9px;border:1px solid #b6dcff78;border-radius:11px;padding:8px;display:grid;gap:5px;background:#0b285381}
+.transport-grand .smart-trip-panel .trip-journeys h3{font-size:12px;margin:0 0 3px}
+.transport-grand .smart-trip-panel .trip-journey{display:grid;grid-template-columns:minmax(0,1fr) 59px 47px;gap:6px;align-items:center;padding:6px;border:1px solid #bddcff62;border-radius:9px}
+.transport-grand .smart-trip-panel .trip-journey div{min-width:0}
+.transport-grand .smart-trip-panel .trip-journey strong{display:block;font-size:10px;overflow-wrap:anywhere}
+.transport-grand .smart-trip-panel .trip-journey small{display:block;font-size:9px;color:#bcd2ea;margin-top:3px}
+.transport-grand .smart-trip-panel .trip-journey button{width:100%;min-height:34px;padding:3px;font-size:10px;background:#21577b7c}
+.transport-grand .smart-trip-panel .trip-journey button.del{background:#6234577c}
+.transport-grand .smart-trip-panel .trip-journeys p{margin:0;font-size:11px}
+.transport-grand .smart-trip-panel .trip-journeys .trip-empty{color:#c6dcef;font-size:11px}
+.transport-grand .smart-trip-panel .planner-close{width:auto;min-height:30px;background:#18395d9c;border:1px solid #bedef28c;border-radius:9px;font-size:10px;padding:5px 10px}
+.transport-grand .smart-trip-panel .smart-trip-brand{display:flex;justify-content:space-between;align-items:center;gap:9px;margin:0 0 7px}
+.transport-grand .smart-trip-panel .smart-trip-brand strong{font-size:11px}
+.transport-grand .smart-trip-panel .trip-help{margin:7px 1px 0;color:#c9dff0;font-size:10px}
+@media(max-width:375px){.transport-grand .smart-trip-panel .phead h2{font-size:11px}.transport-grand .smart-trip-panel .mode button{font-size:8px}.transport-grand .smart-trip-panel .routebox{gap:5px;grid-template-columns:58% minmax(0,1fr)}.transport-grand .smart-trip-panel .datetime input{font-size:9px}}
