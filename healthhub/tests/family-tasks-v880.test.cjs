@@ -23,8 +23,9 @@ test('Quick Add renders input, existing avatars, 3-state RAG and two profiles',(
 });
 test('clickable sticky note with separate X and deep-link',()=>{
  assert.match(notice,/w.location.assign\(HOME\+\(taskId/);
- assert.match(notice,/ev.stopPropagation\(\)/);
- assert.match(notice,/if\(node.isConnected\)node.remove\(\)/);
+ assert.match(notice,/event.stopPropagation\(\)/);
+ assert.match(notice,/writeAck\(e.id,pkey\);markSeen\(e.id,pkey\)/);
+ assert.match(notice,/holder.replaceChildren\(\);drawPending\(\)/);
  assert.match(notice,/postgre?s_changes|postgres_changes/);
 });
 test('RLS and immutable server-side history, 30-day read, no hidden cron',()=>{
@@ -50,7 +51,7 @@ test('v915 firebreak avoids Auth-driven refetch loops and duplicate realtime cha
  assert.match(app,/event==='SIGNED_IN'/);
  assert.doesNotMatch(app,/onAuthStateChange\(\(\)=>w\.setTimeout\(authSync/);
  assert.match(notice,/joinInProgress/);
- assert.match(notice,/lastJoinedAt<300000/);
+ assert.match(notice,/if\(!force&&ch&&user&&profile\(\)===currentProfile\)return/);
  assert.match(notice,/lastForegroundReadAt>=45000/);
  assert.match(notice,/event==='TOKEN_REFRESHED'|Token refresh/);
  assert.doesNotMatch(notice,/onAuthStateChange\(\(\)=>w\.setTimeout\(join/);
