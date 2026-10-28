@@ -36,6 +36,7 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
  return;
 }
 let polling=null;
+let sh9AllEnabled=true;
 let inFlight=false;
 let lastVehicles=[];
 let lastVerified=null;
@@ -113,7 +114,7 @@ function renderLiveFromSnapshot(parsed){
  }
 }
 async function poll(){
- if(inFlight||d.hidden)return;
+ if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
@@ -133,6 +134,7 @@ async function poll(){
   const parsed=sh9AllMode?validator.validate(data,Date.now(),3500):validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
   if(sh9AllMode){
+   if(!sh9AllEnabled||d.hidden)return;
    // A dedicated clustered MapLibre source draws every verified BKK vehicle
    // using the SAME authenticated snapshot. Never change normal Watchlist markers.
    lastSourceSnapshot=parsed;
@@ -172,6 +174,14 @@ w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{
 w.addEventListener('hh-bkk-live-per-line-v909-changed',()=>{
  if(sh9AllMode||d.hidden||!lastSourceSnapshot)return;
  renderLiveFromSnapshot(lastSourceSnapshot);
+});
+// A SH9-only display toggle also stops ALL extra traffic while switched off.
+if(sh9AllMode)w.addEventListener('hh-sh9-all-live-enabled-v928',e=>{
+ const enabled=e?.detail?.enabled===true;
+ if(enabled===sh9AllEnabled)return;
+ sh9AllEnabled=enabled;
+ if(enabled&&!d.hidden)start();
+ else stop();
 });
 w.addEventListener('pagehide',stop);
 start();
