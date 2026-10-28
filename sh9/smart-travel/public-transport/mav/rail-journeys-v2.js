@@ -155,8 +155,61 @@
    if(!verified)return false;
    feed=verified;rows(feed);return true;
   }
+  function showTimetable(result,q){
+   last=q;
+   presentSearch(q);
+   // Replace external-planner timing disclaimer: native GTFS schedule respects selected mode.
+   const searchPanel=doc.getElementById('rail-journey-result');
+   if(searchPanel){
+    const warning=searchPanel.querySelector('.rail-warning');
+    if(warning)warning.textContent='A helyi MÁV GTFS-menetrend a kiválasztott időpont alapján keres; késés és vágány nem élő adat.';
+   }
+   if(!result||result.status!=='ok'){
+    emptyState();
+    status(result?.status==='station-not-in-feed'
+     ?'A kiválasztott állomás még nincs az engedélyezett GTFS-kivonatban.'
+     :'Az engedélyezett menetrend nem olvasható. Használd a MÁVPlusz-t.');
+    return false;
+   }
+   list.replaceChildren();
+   if(!result.journeys?.length){
+    const message=doc.createElement('div');message.className='rail-empty glass';
+    message.append(span('rail-empty-heading','Nincs menetrendi találat az adott időszakban'),
+      span('rail-empty-body','A GTFS a tervezett menetrendet mutatja. Másik időponttal, vagy a MÁVPlusz segítségével keress tovább.'));
+    message.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
+    list.append(message);
+   }else result.journeys.slice(0,3).forEach((j,i)=>{
+    const row=doc.createElement('button');row.className='trainrow rail-gtfs-row';row.type='button';
+    row.setAttribute('aria-expanded','false');
+    row.setAttribute('aria-label',j.legs[0].service+' · '+fmt(new Date(j.departure))+' · '+j.transfers+' átszállás · részletek');
+    const picture=span('trainthumb trainthumb-'+i,'');picture.setAttribute('aria-hidden','true');
+    const clocks=span('clocking','');
+    clocks.append(span('times',fmt(new Date(j.departure))+' → '+fmt(new Date(j.arrival))),span('duration',j.durationMinutes+' perc'));
+    const summary=span('traincopy','');
+    const title=doc.createElement('strong');title.textContent=j.legs[0].service||'MÁV járat';
+    summary.append(title,span('rail-train-sub',j.transfers===0?'Közvetlen':'Átszállás: '+j.transfers));
+    row.append(picture,clocks,summary,span('track','Menetrend'),span('arrowright','›'));
+    const details=doc.createElement('section');details.className='rail-gtfs-detail glass';details.hidden=true;
+    details.append(span('rail-empty-heading','Útvonal részletei · tervezett menetrend'));
+    j.legs.forEach((leg,n)=>{
+     details.append(span('rail-leg-line',(n+1)+'. '+leg.service+
+      ' · '+leg.from+' '+fmt(new Date(leg.departure))+
+      ' → '+leg.to+' '+fmt(new Date(leg.arrival))));
+    });
+    details.append(span('rail-warning','Vágány-, késés- és vonatpozíció-adat még nincs ellenőrizve.'));
+    details.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
+    row.addEventListener('click',()=>{
+      const expanded=row.getAttribute('aria-expanded')==='true';
+      row.setAttribute('aria-expanded',String(!expanded));details.hidden=expanded;
+    });
+    list.append(row,details);
+   });
+   status('Forrás: '+String(result.source||'MÁV GTFS').slice(0,120)+' · tervezett menetrend, NEM élő késés/vágány');
+   return true;
+  }
   emptyState();
-  return {acceptProviderData,currentQuery};
+  return {acceptProviderData,currentQuery,showTimetable};
+
  }
  return Object.freeze({searchRequest,transitLink,validateFeed,officialLink,mount});
 });
