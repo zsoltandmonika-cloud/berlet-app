@@ -41,3 +41,18 @@ test('Family Tasks notifier integrated across agreed pages',()=>{
   assert.match(read(f),/family-notifier-v880.js/,f);
  }
 });
+
+test('v915 firebreak avoids Auth-driven refetch loops and duplicate realtime channels',()=>{
+ assert.match(app,/authSyncPending/);
+ assert.match(app,/authenticatedFor===user.id&&liveChannel/);
+ assert.match(app,/if\(liveChannel&&subscribedFor===user.id\)return/);
+ assert.match(app,/event==='SIGNED_OUT'/);
+ assert.match(app,/event==='SIGNED_IN'/);
+ assert.doesNotMatch(app,/onAuthStateChange\(\(\)=>w\.setTimeout\(authSync/);
+ assert.match(notice,/joinInProgress/);
+ assert.match(notice,/lastJoinedAt<300000/);
+ assert.match(notice,/lastForegroundReadAt>=45000/);
+ assert.match(notice,/event==='TOKEN_REFRESHED'|Token refresh/);
+ assert.doesNotMatch(notice,/onAuthStateChange\(\(\)=>w\.setTimeout\(join/);
+ assert.doesNotMatch(notice,/setInterval/);
+});
