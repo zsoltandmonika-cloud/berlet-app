@@ -34,3 +34,80 @@
 @media(max-height:770px){.transport-grand .transport-visual{max-height:38dvh}.transport-grand .transport-visual>img{object-fit:contain}.transport-grand .transport-choice{min-height:63px;padding:6px}.transport-grand .choice-icon{height:36px;width:36px;font-size:21px}.transport-grand .transport-choice{grid-template-columns:36px minmax(0,1fr) 12px}}
 @media(max-width:355px){.transport-grand .transport-choice{grid-template-columns:35px minmax(0,1fr) 12px;gap:4px;padding:6px}.transport-grand .choice-icon{width:35px;height:36px}.transport-grand .choice-name{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.transport-grand .transport-choice:active{transform:none}}
+
+
+/* V3: ambient hero outpainting without a second image file. The same approved
+   AVIF is rendered sharp in the hero and softly continued beneath the cards. */
+.shell.transport-grand{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  height:auto;
+  min-height:100dvh;
+  background:transparent;
+}
+.shell.transport-grand::before{
+  content:"";
+  position:absolute;
+  z-index:-2;
+  inset:-44px -44px -54px;
+  pointer-events:none;
+  background-image:url("./public-transport-grand-hero-v2.avif?v=2");
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center 34%;
+  filter:blur(15px) saturate(1.44) brightness(.82);
+  transform:scale(1.035);
+}
+.shell.transport-grand::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(4,13,34,.06) 0%,
+    rgba(4,13,34,.12) 35%,
+    rgba(3,12,32,.37) 55%,
+    rgba(3,12,32,.54) 75%,
+    rgba(4,11,28,.75) 100%);
+}
+.transport-grand .transport-visual{
+  background:transparent;
+  border-color:rgba(182,224,255,.24);
+  border-bottom-color:transparent;
+  box-shadow:0 3px 22px #0006,0 0 19px rgba(23,143,230,.16);
+}
+.transport-grand .transport-visual:after{
+  inset:84% 0 0;
+  background:linear-gradient(transparent,rgba(4,15,37,.46));
+}
+.transport-grand .transport-title{
+  position:relative;
+  text-shadow:0 2px 10px #000c;
+}
+.transport-grand .transport-choice{
+  background:linear-gradient(127deg,rgba(46,103,157,.46),rgba(6,25,58,.68) 72%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:inset 0 1px rgba(255,255,255,.32),0 7px 22px #0008,0 0 15px var(--glow);
+}
+:root[data-profile="m"] .transport-grand .transport-choice{
+  background:linear-gradient(125deg,rgba(141,72,152,.42),rgba(37,18,66,.7) 72%);
+}
+.transport-grand .transport-foot,
+.transport-grand .smart-trip-panel{position:relative}
+.transport-grand .transport-foot{text-shadow:0 2px 8px #000c}
+/* Prior short-screen CSS fixed the shell height and clipped content.
+   Keep the full page scrollable on S24 Ultra and shorter displays. */
+@media(max-height:755px){
+  .shell.transport-grand{
+    height:auto;
+    min-height:100dvh;
+    overflow:hidden;
+    padding-bottom:calc(75px + env(safe-area-inset-bottom,0px));
+  }
+}
+@media(prefers-reduced-transparency:reduce){
+  .transport-grand .transport-choice{background:rgba(8,29,60,.91)}
+}
