@@ -64,7 +64,7 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 .poster-frame{transform:translateY(-23px)}
 
 
-</style><link rel="stylesheet" href="./public-transport-grand-v2.css"></head><body>
+</style><link rel="stylesheet" href="./public-transport-grand-v2.css"><link rel="stylesheet" href="./public-transport-smart-trip-golden-v2.css"></head><body>
 <main class="shell transport-grand" aria-label="SH9 · Public Transport Golden Glass">
 <section class="transport-visual" aria-label="Public Transport · Léna, Buddy, Zsolt, Mónika és Corky Budapesten">
 <img id="transportPoster" src="./public-transport-grand-hero-v2.avif?v=2" alt="Léna a BKK, MÁV és Volán közlekedéséről segít Zsoltnak és Mónikának. Corky és Buddy is velük utazik a budapesti közlekedési csomópontban." width="960" height="768" fetchpriority="high" decoding="async">
@@ -81,15 +81,47 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 <button class="transport-choice choice-ai" id="smartTripOpen" type="button" aria-controls="smartTripPanel" aria-expanded="false" aria-label="Léna Smart Trip AI célállomás megadása">
 <span class="choice-icon" aria-hidden="true">✨</span><span class="choice-name">Smart Trip AI<small>Úticélból útvonal</small></span><span class="choice-arrow" aria-hidden="true">›</span></button>
 </section>
-<section class="smart-trip-panel" id="smartTripPanel" aria-label="Léna Smart Trip úticél megadása" hidden>
-<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2>✨ Léna Smart Trip</h2><button id="smartTripClose" type="button" style="min-height:34px;width:auto;padding:4px 10px;background:rgba(29,65,109,.6);font-size:11px">Bezárás</button></div>
-<p>Csak az úticélt add meg. Az indulási helyet a következő képernyőn választhatod ki, akár a jelenlegi helyzeted alapján.</p>
-<form id="smartTripForm">
-<label for="smartTripDestination">Hová szeretnél eljutni?
-<input id="smartTripDestination" type="search" maxlength="120" placeholder="Pl. Kazincbarcika, autóbusz-állomás" autocomplete="off" enterkeyhint="go" required></label>
-<button type="submit">✦ Útvonal tervezése</button></form>
-<div class="trip-state" id="smartTripStatus">🟡 Első körben a meglévő BKK-tervező indul. A valódi BKK + MÁV + Volán optimalizálás a menetrendi adatkapcsolatok engedélyezése után aktiválható.</div>
-<p class="trip-help">A Smart Trip nem indít automatikus GPS-követést, és nem talál ki menetrendi időpontokat.</p>
+<section class="smart-trip-panel glass" id="smartTripPanel" aria-label="Léna Smart Trip útvonaltervező" hidden>
+<div class="smart-trip-brand"><strong>✨ SMART TRIP AI · közlekedési mód automatikus választása</strong><button class="planner-close" id="smartTripClose" type="button">Bezárás</button></div>
+<div class="planner" id="smartTripPlanner">
+<form id="smartTripForm" autocomplete="off">
+<div class="phead"><h2>♧ Útvonaltervező</h2>
+<div class="mode" role="group" aria-label="Indulás és érkezés időmódja">
+<button type="button" class="on" data-trip-mode="now" aria-pressed="true">Indulás most</button>
+<button type="button" data-trip-mode="depart" aria-pressed="false">Indulás ekkor</button>
+<button type="button" data-trip-mode="arrive" aria-pressed="false">Érkezés ekkor</button>
+</div></div>
+<div class="routebox">
+<div class="stationfields">
+<div class="route-rail" aria-hidden="true"><span class="dot"></span><span class="dot end"></span></div>
+<div class="stations">
+<input id="smartTripFrom" type="text" maxlength="120" aria-label="Indulási hely, opcionális" placeholder="Indulási hely / megálló">
+<input id="smartTripDestination" type="text" maxlength="120" aria-label="Érkezési hely vagy megálló" placeholder="Érkezési hely / megálló" required>
+</div>
+<button id="smartTripSwap" class="swap" type="button" aria-label="Indulási és érkezési hely felcserélése">↕</button>
+</div>
+<div class="datetime">
+<label class="datebox" for="smartTripDate"><span aria-hidden="true">▦</span><input id="smartTripDate" type="date" aria-label="Utazás dátuma" required></label>
+<label class="timebox" for="smartTripTime"><span aria-hidden="true">◷</span><input id="smartTripTime" type="time" aria-label="Utazás ideje" required></label>
+</div></div>
+<div class="actions">
+<button class="search" type="submit" id="smartTripSearch">⌕ Útvonal keresése</button>
+<button class="refresh" type="button" id="smartTripSchedule" aria-expanded="false" aria-controls="smartTripSources">⟳ Menetrend ↗</button>
+</div>
+<div class="rail-journey-quick">
+<button type="button" id="smartTripSave">✚ Utazás mentése</button>
+<button type="button" id="smartTripJourneys">▣ Utazásaim</button>
+</div>
+</form>
+</div>
+<div id="smartTripSources" class="trip-journeys" hidden>
+<h3>Menetrendek</h3>
+<div class="trip-source-links"><a href="./bkk/grand-concept/">🚋 BKK</a><a href="./mav/">🚆 MÁV</a><a href="./volan/">🚌 Volán</a></div>
+<p>Az automatikus BKK + MÁV + Volán összehasonlítás még nem él.</p>
+</div>
+<section id="smartTripJourneysPanel" class="trip-journeys" aria-label="Mentett Smart Trip utazások" hidden><h3>♥ Utazásaim</h3><div id="smartTripJourneyList"></div></section>
+<p class="trip-status" id="smartTripStatus" role="status" aria-live="polite"><strong>🟡 Smart Trip előnézet.</strong> A keresés egyelőre a meglévő BKK-tervezőre adja át az útvonalat. A MÁV és Volán adatkapcsolatok után lehet teljes multimodális optimalizálás.</p>
+<p class="trip-help">Az indulási helyet üresen is hagyhatod. A következő képernyőn kiválasztható; automatikus GPS-követés nem indul.</p>
 </section>
 <p class="transport-foot">Három közlekedési hálózat, egy SH9. A Smart Trip először célállomás-átadással működik; az AI útvonal-összehasonlítás még előkészítés alatt áll.</p>
 </main>
