@@ -63,9 +63,9 @@
 .toast[hidden]{display:none!important}.toast{position:fixed;z-index:40;left:50%;bottom:76px;transform:translateX(-50%);max-width:min(390px,91vw);padding:10px 14px;border-radius:11px;background:#102c52ed;color:#fff;border:1px solid #b3dbf4ad;box-shadow:0 4px 18px #0009;font-size:11px;text-align:center}
 @media(max-width:375px){.phead h2{font-size:12px}.mode button{font-size:8px}.quick button{font-size:8.5px}.stations input{font-size:9.5px}.datebox,.timebox{font-size:9px}}
 @media(max-height:740px){.hero{height:clamp(260px,76.2vw,346px)}}@media(min-height:860px){.hero{height:clamp(284px,74.5vw,338px)}}
-</style></head><body>
-<main class="app">
-<section class="hero"><img src="../bkk-hero-approved.webp" alt="BKK busz naplementében, Léna a vezetőfülkében, budapesti látkép" fetchpriority="high">
+</style><link rel="stylesheet" href="./golden-carbon-parity-v1.css"></head><body>
+<main class="app" id="app">
+<section class="hero"><img class="hero-img" src="../bkk-hero-approved.webp" alt="BKK busz naplementében, Léna a vezetőfülkében, budapesti látkép" fetchpriority="high">
 <a href="../" class="back" aria-label="Vissza az élő BKK modulra">‹</a>
 <button id="profile" class="profile" type="button" aria-label="Profilváltás"><img id="profileImage" alt="Profilkép" width="41" height="41"></button>
 <span class="hero-badge">BKK · GRAND CONCEPT V3</span></section>
@@ -83,7 +83,7 @@
 <button type="button" data-mode="depart" aria-pressed="false">Indulás ekkor</button>
 <button type="button" data-mode="arrive" aria-pressed="false">Érkezés ekkor</button></div></div>
 <div class="routebox">
-<div class="stations-wrap"><span class="rail"><span class="dot"></span><span class="dot end"></span></span><div class="stations">
+<div class="stationfields"><span class="route-rail"><span class="dot"></span><span class="dot end"></span></span><div class="stations">
 <input id="from" type="text" autocomplete="off" aria-label="Honnan indulunk" placeholder="Honnan?" value="Batthyány tér">
 <input id="to" type="text" autocomplete="off" aria-label="Hová érkezünk" placeholder="Hová?" value="Harsánylejtő"></div>
 <button id="swap" class="swap" type="button" aria-label="Indulás és érkezés felcserélése">↕</button></div>
@@ -92,9 +92,9 @@
 <label class="timebox"><span data-icon="clock"></span><span id="timeTxt">Idő</span><input class="native-picker" id="time" type="time" aria-label="Utazás időpontja"></label></div>
 </div>
 <div class="actions"><button id="find" type="button" class="search"><span data-icon="search"></span>Útvonal keresése</button><button class="refresh" data-concept="BKK menetrend" type="button"><span data-icon="clock"></span>BKK ↗</button></div>
-<div class="travel"><button type="button" data-concept="Utazás mentése">✚ Utazás mentése</button><button type="button" data-concept="Utazásaim">▣ Utazásaim</button></div>
+<div class="rail-journey-quick"><button type="button" data-concept="Utazás mentése">✚ Utazás mentése</button><button type="button" data-concept="Utazásaim">▣ Utazásaim</button></div>
 </section>
-<section class="depart glass" aria-label="Tervezett útvonal és BKK szolgáltatások">
+<section class="depart glass" id="depart" aria-label="Tervezett útvonal és BKK szolgáltatások">
 <div class="departhead"><h2><span data-icon="bus"></span>BKK járatinformációk</h2><button type="button" data-concept="Összes találat">Összes találat →</button></div>
 <div class="preview-result"><strong>🚌 BKK · koncepció-előnézet</strong>A járatok, indulási idők és késések itt még nem élő adatok. A jóváhagyott felülethez később kötjük hozzá a meglévő BKK-adatforrásokat.</div>
 <p class="source">Golden Glass · MÁV és Volán dizájnstandard · BKK színek</p>
