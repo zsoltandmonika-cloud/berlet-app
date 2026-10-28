@@ -90,3 +90,46 @@ test('v928 mounted layer displays all source modes, toggle OFF hides AND signals
  vm.runInNewContext(src,{window:blank,document:d,URLSearchParams,Date,Number,Set});
  assert.equal(sources.size,1);
 });
+
+
+test('v929 uses approved floating Golden Glass BKK icons above 3D for verified vehicles, no extra requests',()=>{
+ const source=read('guardian-sh9-all-bkk-v928.js');
+ const events={},els={},sources=new Map(),layers=new Set(),layout=[],markers=[];
+ function el(id){return els[id]||(els[id]={id,textContent:'',disabled:false,handlers:{},setAttribute(){},addEventListener(name,fn){this.handlers[name]=fn}})}
+ const bounds={getWest:()=>18.95,getEast:()=>19.2,getSouth:()=>47.45,getNorth:()=>47.65};
+ const map={isStyleLoaded:()=>true,getSource:id=>sources.get(id),getLayer:id=>layers.has(id),
+  getBounds:()=>bounds,getZoom:()=>16,addSource(id,o){sources.set(id,{setData(d){this.data=d},data:o.data})},
+  addLayer(x){layers.add(x.id)},setLayoutProperty(id,k,v){layout.push([id,k,v])},on(){},once(){}};
+ class Marker{constructor(args){this.args=args;markers.push(this)}setLngLat(x){this.coords=x;return this}addTo(m){this.map=m;return this}remove(){this.removed=true}getElement(){return this.args.element}}
+ const d={hidden:false,getElementById:el,createElement:()=>({append(){},textContent:''})};
+ const w={document:d,location:{search:'?sh9Transit=1'},
+  HH_GUARDIAN_V761:{map},maplibregl:{Marker},
+  HH_BKK_LIVE_MAP_V793:{makeMarkerElement(_doc,v){return{vehicle:v,hhSetVehicle(){}}}},
+  addEventListener(type,fn){events[type]=fn},
+  CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts?.detail}},
+  dispatchEvent(e){if(e.type==='hh-sh9-all-live-ready-v929')return}
+ };
+ vm.runInNewContext(source,{window:w,document:d,URLSearchParams,Date,Number,Set});
+ assert.equal(sources.size,1);
+ const timestamp=new Date(Date.now()-11000).toISOString();
+ const vehicles=[['bus:260','260','bus'],['tram:17','17','tram'],['trolley:75','75','trolley'],['hev:H5','H5','hev'],['metro:M2','M2','metro']]
+ .map(([routeKey,routeId,mode],i)=>({id:'v'+i,routeKey,routeId,mode,lat:47.51+i*.004,lng:19.02+i*.01,timestamp}));
+ events['hh-sh9-all-live-v928']({detail:{generatedAt:timestamp,vehicles}});
+ assert.equal(markers.length,5);
+ assert.equal(sources.get(renderer.ID).data.features.length,5);
+ assert.equal(layout.at(-1)[2],'none');
+ assert.match(el('sh9AllVehiclesStatusV928').textContent,/5 ellenőrzött jármű/);
+ el('sh9AllVehiclesToggleV928').handlers.click();
+ assert.equal(sources.get(renderer.ID).data.features.length,0);
+ assert.equal(markers.filter(m=>m.removed).length,5);
+});
+test('v929 shows real server errors instead of stale movement instructions',()=>{
+ const live=read('guardian-live-pilot-v793.js'),ui=read('guardian-sh9-all-bkk-v928.js');
+ assert.match(live,/const head=d.getElementById\('sh9TransitStatusV927'\)/);
+ assert.match(live,/hh-sh9-all-live-ready-v929/);
+ assert.match(ui,/emit\('hh-sh9-all-live-ready-v929'\)/);
+ assert.match(ui,/last\.features\.length===0/);
+ assert.match(ui,/A térkép elmozdult|új területhez Frissítés/);
+ assert.match(ui,/makeMarkerElement\(d,vehicle\)/);
+ assert.doesNotMatch(ui,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(/);
+});
