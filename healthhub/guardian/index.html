@@ -95,6 +95,7 @@
 <link rel="stylesheet" href="./guardian-bkk-status-glass-v867.css?v=867-profiled-gtfs-credit">
 <link rel="stylesheet" href="./guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit">
 <link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=927-own-map-glass">
+<link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=928-viewport-low-usage">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -109,6 +110,11 @@
   <button type="button" id="sh9TransitFavoritesV927">⭐ Kedvenceim</button>
   <button type="button" id="sh9TransitPlannerV927">📍 Útvonal</button>
  </div>
+ <div id="sh9AllVehiclesControlsV928" aria-label="Összes BKK-jármű, takarékos lekérdezés">
+  <button id="sh9AllVehiclesToggleV928" type="button" aria-pressed="true">🟢 Összes BKK-jármű: BE</button>
+  <button id="sh9AllVehiclesRefreshV928" type="button">↻ Frissítés</button>
+ </div>
+ <p id="sh9AllVehiclesStatusV928" role="status" aria-live="polite">Csak a térképen látható járművek · automatikus frissítés 2 percenként.</p>
  <p id="sh9TransitStatusV927" role="status">A meglévő BKK-térkép betöltése…</p>
 </header>
 <div class="shell">
@@ -647,5 +653,6 @@
 <script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=901"></script>
 <script defer src="../../sh9/family-hub/family-notifier-v880.js?v=915-usage-firebreak"></script>
 <script defer src="./guardian-sh9-transit-v927.js?v=927-own-map-glass"></script>
+<script defer src="./guardian-sh9-all-bkk-v928.js?v=928-viewport-low-usage"></script>
 </body>
 </html>
