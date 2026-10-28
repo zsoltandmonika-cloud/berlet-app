@@ -8,7 +8,7 @@ try{raw=sessionStorage.getItem(KEY);if(raw)sessionStorage.removeItem(KEY)}catch(
 if(!raw)return;
 let d;
 try{d=JSON.parse(raw)}catch(_){return}
-if(!d||d.source!=='sh9-bkk-grand-v3'||typeof d.from!=='string'||typeof d.to!=='string'||!Number.isFinite(d.created)||Date.now()-d.created>600000||d.created-Date.now()>60000)return;
+if(!d||!['sh9-bkk-grand-v3','sh9-public-transport-smart-trip-v1'].includes(d.source)||typeof d.from!=='string'||typeof d.to!=='string'||!Number.isFinite(d.created)||Date.now()-d.created>600000||d.created-Date.now()>60000)return;
 function install(){
  const from=document.getElementById('hhSmartHubFromV806'),to=document.getElementById('hhSmartHubToV806');
  if(!from||!to)return;
@@ -21,7 +21,7 @@ function install(){
   if(input){input.value=d.date+'T'+d.time;input.dispatchEvent(new Event('change',{bubbles:true}))}
  }
  const status=document.getElementById('hhSmartHubDestinationStatusV802');
- if(status)status.textContent='✓ BKK Grand útvonal átvéve. Válaszd ki a megállót vagy címet a találatokból, majd indítsd a keresést.';
+ if(status)status.textContent=d.source==='sh9-public-transport-smart-trip-v1'?'✓ Smart Trip útvonal átvéve. Válaszd ki a hitelesített kiindulópontot és a célállomást, majd indítsd a BKK-keresést. A MÁV/Volán összehasonlítás még nem elérhető.':'✓ BKK Grand útvonal átvéve. Válaszd ki a megállót vagy címet a találatokból, majd indítsd a keresést.';
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
