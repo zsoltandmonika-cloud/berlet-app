@@ -119,7 +119,7 @@
      layout:{visibility:'visible','line-cap':'round','line-join':'round'},
      paint:{'line-color':color,'line-opacity':.9,'line-width':3.2,'line-dasharray':[2,2]}});
     if(m.on){
-     const fn=e=>{if(STORE[profile()].has(key))popup(key,e?.lngLat)};
+     const fn=e=>{if(STORE[profile()].has(key))status(key+' · menetrendi vonal, nem élő jármű');};
      m.on('click',id+'-line',fn);
      boundClicks.set(key,{...(boundClicks.get(key)||{}),line:fn});
     }
@@ -131,7 +131,7 @@
     if(m.on){
      const fn=e=>{
       const f=e?.features?.[0],c=f?.geometry?.coordinates;
-      if(STORE[profile()].has(key)&&Array.isArray(c))popup(key,c,f?.properties?.stop);
+      if(STORE[profile()].has(key)&&Array.isArray(c))status(key+' · '+String(f?.properties?.stop||'megálló')+' · menetrendi megálló');
      };
      m.on('click',id+'-stops',fn);
      boundClicks.set(key,{...(boundClicks.get(key)||{}),stops:fn});
@@ -169,7 +169,8 @@
   const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
   if(m?.fitBounds)try{m.fitBounds([[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],
     {padding:{top:80,bottom:75,left:38,right:38},maxZoom:15.2,duration:650});}catch(_){}
-  popup(key,[coords[0][0],coords[0][1]]);
+  // Show the selected route on the map, without a large static data card.
+  // Vehicle information opens only from an authenticated GTFS-RT vehicle marker.
   status(key+' · hivatalos BKK megállósorrend · sematikus összekötés (nem pontos útpálya)');
   return true;
  }
