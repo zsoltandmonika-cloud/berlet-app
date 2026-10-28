@@ -40,6 +40,8 @@ test('v928 backend only accepts bounded viewport and leaves old favorites untouc
  assert.match(client,/sh9AllMode\?'all=1&bbox='\+encodeURIComponent\(bbox\)/);
  assert.match(client,/sh9AllMode\?validator\.validate\(data,Date\.now\(\),3500\):validator\.validate\(data\)/);
  assert.match(client,/sh9AllMode\?120000:15000/);
+ assert.match(client,/lastSh9RequestAt<45000/);
+ assert.match(client,/if\(sh9AllMode\)lastSh9RequestAt=Date\.now\(\)/);
  assert.match(client,/if\(sh9AllMode\|\|d\.hidden\)return/);
  assert.match(client,/hh-sh9-all-live-enabled-v928/);
  assert.match(client,/hh-sh9-all-live-refresh-v928/);
