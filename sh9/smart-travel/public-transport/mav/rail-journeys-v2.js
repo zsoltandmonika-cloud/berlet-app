@@ -156,13 +156,14 @@
    feed=verified;rows(feed);return true;
   }
   function showTimetable(result,q){
+   const isGoogle=result?.attribution==='© Google Maps';
    last=q;
    presentSearch(q);
    // Replace external-planner timing disclaimer: native GTFS schedule respects selected mode.
    const searchPanel=doc.getElementById('rail-journey-result');
    if(searchPanel){
     const warning=searchPanel.querySelector('.rail-warning');
-    if(warning)warning.textContent='A helyi MÁV GTFS-menetrend a kiválasztott időpont alapján keres; késés és vágány nem élő adat.';
+    if(warning)warning.textContent=isGoogle?'A Google tömegközlekedési keresője a választott időpont alapján tervez. A vágány, késés és GPS nem élő adat. © Google Maps':'A helyi MÁV GTFS-menetrend a kiválasztott időpont alapján keres; késés és vágány nem élő adat.';
    }
    if(!result||result.status!=='ok'){
     emptyState();
@@ -175,7 +176,7 @@
    if(!result.journeys?.length){
     const message=doc.createElement('div');message.className='rail-empty glass';
     message.append(span('rail-empty-heading','Nincs menetrendi találat az adott időszakban'),
-      span('rail-empty-body','A GTFS a tervezett menetrendet mutatja. Másik időponttal, vagy a MÁVPlusz segítségével keress tovább.'));
+      span('rail-empty-body',isGoogle?'A Google most nem adott vissza vasúti találatot. Próbálj másik időpontot vagy MÁVPlusz-t. © Google Maps':'A GTFS a tervezett menetrendet mutatja. Másik időponttal, vagy a MÁVPlusz segítségével keress tovább.'));
     message.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
     list.append(message);
    }else result.journeys.slice(0,3).forEach((j,i)=>{
@@ -204,7 +205,7 @@
     });
     list.append(row,details);
    });
-   status('Forrás: '+String(result.source||'MÁV GTFS').slice(0,120)+' · tervezett menetrend, NEM élő késés/vágány');
+   status('Forrás: '+String(result.source||'MÁV GTFS').slice(0,120)+' · tervezett útvonal, NEM élő késés/vágány'+(isGoogle?' · © Google Maps':''));
    return true;
   }
   emptyState();
