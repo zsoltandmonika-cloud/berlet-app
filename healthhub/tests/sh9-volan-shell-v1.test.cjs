@@ -83,3 +83,25 @@ test('All bus functions remain unlinked until one-by-one activation',()=>{
  assert.doesNotMatch(html,/\bfetch\s*\(|\bXMLHttpRequest\b|navigator\.geolocation/);
  assert.doesNotMatch(html,/src="\.\/rail-.*\.js"/);
 });
+
+test('Volán Golden taskbar uses the same five real SVG glyphs as MÁV, not the bus fallback',()=>{
+ const nav=html.match(/<nav class="bottom"[^>]*>[\s\S]*?<\/nav>/)?.[0];
+ assert.ok(nav,'Volán bottom nav missing');
+ const order=[...nav.matchAll(/data-icon="([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(order,['home','clock','back','bell','settings']);
+ assert.equal((nav.match(/<a /g)||[]).length,5);
+ const vIcons=html.match(/const paths=\{[\s\S]*?\};/)?.[0];
+ const mIcons=mav.match(/const paths=\{[\s\S]*?\};/)?.[0];
+ assert.ok(vIcons&&mIcons);
+ for(const key of order){
+  const regex=new RegExp('(?:^|[,{])'+key+":'([^']+)'");
+  const v=vIcons.match(regex)?.[1];
+  const m=mIcons.match(regex)?.[1];
+  assert.ok(v,'Volán '+key+' icon must not silently render a fallback bus');
+  assert.equal(v,m,'Volán '+key+' must match Golden MÁV glyph');
+ }
+ assert.match(html,/\.bottom\{grid-template-columns:repeat\(5,minmax\(0,1fr\)\);height:calc\(60px \+ env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(nav,/sh9nav=timeline/);
+ assert.match(nav,/sh9nav=notifications/);
+ assert.match(nav,/sh9nav=admin/);
+});
