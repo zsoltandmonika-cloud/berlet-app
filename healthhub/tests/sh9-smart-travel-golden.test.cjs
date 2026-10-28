@@ -222,3 +222,27 @@ test('BKK v924 PDF controls are mobile-first, opt-in and preserve all approved h
  assert.match(parent,/data-service="bkk" href="\.\/bkk\/"/);
  assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
 });
+
+
+test('BKK v925 premium glass is profile aware, keeps approved image and relabels arrival',()=>{
+ const html=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/index.html'),'utf8');
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(html,/v925 · SH9 Golden Standard premium glass polish/);
+ assert.match(html,/--bkk-edge-glow:rgba\(131,208,255,.28\)/);
+ assert.match(html,/:root\[data-profile="m"\]\{[\s\S]*?--bkk-edge-glow:rgba\(255,164,235,.34\)/);
+ assert.match(html,/\.glass\{[\s\S]*?backdrop-filter:blur\(17px\) saturate\(147%\)/);
+ assert.match(html,/\.quick a::before\{/);
+ assert.match(html,/\.nav\{border-top:1px solid var\(--bkk-edge-glow\)/);
+ assert.match(html,/<strong>Mikor jön\?<\/strong>/);
+ assert.match(html,/Megállói indulások · SH9 Smart Travel/);
+ assert.doesNotMatch(html,/BudapestGO/);
+ assert.match(html,/a SH9 Smart Travel központból/i);
+ assert.equal([...html.matchAll(/href="https:\/\/go\.bkk\.hu\/"/g)].length,2);
+ assert.doesNotMatch(html,/<strong>Indulási tábla<\/strong>/);
+ assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+ assert.doesNotMatch(html,/setInterval\(|geolocation\.|supabase\.co/);
+});
