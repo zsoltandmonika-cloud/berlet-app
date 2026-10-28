@@ -48,3 +48,22 @@ test('SH9 MÁV URL and input handling fails closed',()=>{
  assert.equal(u.hostname,'www.google.com');assert.equal(u.searchParams.get('travelmode'),'transit');
  assert.equal(lib.normalizeFavorites([{from:'Keleti',to:'Miskolc'},{from:'Keleti',to:'Miskolc'}]).length,1);
 });
+
+test('SH9 MÁV Golden FLIRT audio defaults ON with persistent opt-out and no surprise OFF tap',()=>{
+ const css=fs.readFileSync(path.join(base,'mav/rail-golden-v2.css'),'utf8');
+ const overlay=fs.readFileSync(path.join(base,'mav/rail-golden-v2.js'),'utf8');
+ assert.match(html,/id="signal" class="signal" aria-pressed="true"/);
+ assert.match(ui,/let soundAllowed=true/);
+ assert.match(ui,/SIGNAL_PREF='sh9-mav-flirt-signal-v2'/);
+ assert.match(ui,/localStorage\.getItem\(SIGNAL_PREF\)!=='off'/);
+ assert.match(ui,/localStorage\.setItem\(SIGNAL_PREF,soundAllowed\?'on':'off'\)/);
+ assert.match(ui,/attemptStart\(\); \/\/ may be blocked/);
+ assert.match(ui,/document\.addEventListener\('pointerdown',gestureStart,true\)/);
+ assert.match(ui,/event\.target\?\.closest\?\.\('#signal'\)/);
+ assert.match(ui,/removeStartGesture\(\)/);
+ assert.match(css,/\.hero \.signal\{position:absolute;top:auto;bottom:10px;right:12px/);
+ assert.match(css,/\.hero \.signal\[aria-pressed="true"\]::after/);
+ assert.match(overlay,/hero\.append\(signal\)/);
+ assert.doesNotMatch(overlay,/signal\.title=/);
+ assert.doesNotMatch(html,/<audio[^>]*autoplay/i);
+});
