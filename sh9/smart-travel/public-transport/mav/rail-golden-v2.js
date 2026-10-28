@@ -40,7 +40,7 @@
  // Keep all hero pixels photographic. There is deliberately no fabricated clock/battery/wifi overlay.
  const back=el('a','rail-back');back.href='../';back.setAttribute('aria-label','Vissza a Tömegközlekedéshez');back.innerHTML=icon('arrow');hero.append(back);
  hero.append(profile);
- const signal=$('signal');if(signal){hero.append(signal);signal.title='Eredeti FLIRT szignál · indítás érintésre';}
+ const signal=$('signal');if(signal){hero.append(signal);/* title and state belong to the v1 audio controller */}
  const short=el('section','rail-shortcuts');short.setAttribute('aria-label','MÁV gyors funkciók');
  function shortcut(label,ico,fn,active){
   const b=el('button','rail-shortcut');b.type='button';b.innerHTML='<span class="rail-icon">'+icon(ico)+'</span><span>'+label+'</span>';
