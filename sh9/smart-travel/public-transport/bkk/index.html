@@ -29,7 +29,7 @@ main{max-width:470px;margin:auto;min-height:100dvh;padding:0 12px calc(89px + en
 .bkk-pdf-overlay[hidden],.bkk-pdf-reader[hidden]{display:none!important}
 .bkk-pdf-overlay{position:fixed;inset:0;z-index:80;background:rgba(3,7,22,.88);backdrop-filter:blur(12px);color:var(--ink);overflow:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 .bkk-pdf-shell{width:min(100%,520px);min-height:100%;margin:auto;background:radial-gradient(ellipse at 50% 0,var(--glow),transparent 55%),var(--background);border-inline:1px solid var(--border)}
-.bkk-pdf-top{display:flex;align-items:center;justify-content:space-between;padding:16px;gap:10px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--panel1),var(--panel2))}
+.bkk-pdf-top{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:16px;gap:10px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--panel1),var(--panel2))}
 .bkk-pdf-top small{color:var(--accent);display:block;font-size:10px;font-weight:800;letter-spacing:.12em}
 .bkk-pdf-top strong{display:block;font-size:22px;margin-top:3px}
 #bkkPdfClose{border:1px solid var(--border);border-radius:15px;background:var(--panel1);min-width:46px;min-height:46px;font-size:24px}
@@ -42,6 +42,19 @@ main{max-width:470px;margin:auto;min-height:100dvh;padding:0 12px calc(89px + en
 .bkk-pdf-canvas-wrap{max-height:65dvh;overflow:auto;display:flex;align-items:flex-start;justify-content:flex-start;padding:7px;background:#364558}.bkk-pdf-canvas-wrap canvas{display:block;margin:auto;box-shadow:0 2px 12px #0007;background:#fff;max-width:none}
 .bkk-pdf-status{font-size:11px;color:var(--muted);line-height:1.5;padding:0 3px;min-height:18px}
 body.bkk-pdf-open{overflow:hidden}
+
+/* v924 · S24 Ultra thumb-safe PDF controls, source only loaded on user action. */
+.bkk-pdf-routebar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 13px;padding:8px 10px;border:1px solid var(--border);border-radius:14px;background:rgba(33,85,139,.19)}
+#bkkPdfSelectedRoute{font-size:23px;line-height:1.15;font-weight:900;letter-spacing:-.035em;color:var(--accent)}
+#bkkPdfCopyRoute{min-height:44px;padding:8px 12px;border-radius:11px;border:1px solid var(--border);background:var(--panel1);color:var(--accent);font-size:11px;font-weight:800}
+.bkk-pdf-input{flex-wrap:wrap}
+.bkk-pdf-input input{flex-basis:100%;min-height:44px}
+.bkk-pdf-input button{min-height:44px;flex:1}
+.bkk-pdf-toolbar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bkk-pdf-toolbar button{width:42px;min-width:42px;min-height:44px}
+#bkkPdfDownload[hidden]{display:none!important}
+.bkk-pdf-overlay :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media(max-width:375px){.bkk-pdf-main{padding-inline:10px}.bkk-pdf-toolbar{gap:4px}.bkk-pdf-toolbar button{width:40px;min-width:40px}}
 
 </style></head><body>
 <main>
@@ -61,7 +74,7 @@ body.bkk-pdf-open{overflow:hidden}
 <div class="glass search-wrap"><label for="routeSearch">Járatszám vagy járatnév</label><div class="search-controls"><input id="routeSearch" type="search" autocomplete="off" placeholder="260, 17, 41, M3…" maxlength="60" enterkeyhint="search"><button id="routeSearchBtn" type="button">Keresés</button></div>
 <p class="catalog-meta" id="catalogMeta">A meglévő BKK-katalógust csak kereséskor töltjük be, fölösleges háttérforgalom nélkül.</p><div class="catalog-results" id="catalogResults" hidden></div><button class="catalog-more" id="catalogMore" type="button" hidden>További járatok</button></div></section>
 <section><div class="section-head"><h2>🚦 Forgalmi információk</h2></div><div class="more"><a class="glass" href="https://bkk.hu/bkk-info/" target="_blank" rel="noopener noreferrer external"><span>BKK Info <small>Terelések, pótlások, forgalmi változások</small></span><span class="external">↗</span></a><a class="glass" href="https://bkk.hu/menetrendek/" target="_blank" rel="noopener noreferrer external"><span>Teljes hivatalos menetrend <small>A BKK aktuális járatlistája és tájékoztatói</small></span><span class="external">↗</span></a></div></section>
-<p class="source-note">Menetrendi forrás: <a href="https://bkk.hu/menetrendek/" target="_blank" rel="noopener noreferrer external">BKK hivatalos menetrend</a>. A HealthHub PDF-olvasó a BKK által közvetlenül elérhető PDF-et meg tudja jeleníteni, ha a forrás engedi; automatikusan fel nem oldott vagy blokkolt PDF esetén a hivatalos BKK-oldal az elsődleges út. Sem lejárt PDF-archívum, sem háttérletöltés nincs. A meglévő kedvencek kizárólag a készülék helyi tárolójából származnak.</p>
+<p class="source-note">Menetrendi forrás: <a href="https://bkk.hu/menetrendek/" target="_blank" rel="noopener noreferrer external">BKK hivatalos menetrend</a>. A HealthHub PDF-olvasó az általad megnyitott hivatalos PDF-et a böngésző engedélyével jeleníti meg; automatikusan fel nem oldott vagy blokkolt PDF esetén a hivatalos BKK-oldal az elsődleges út. Sem lejárt PDF-archívum, sem háttérletöltés nincs. A meglévő kedvencek kizárólag a készülék helyi tárolójából származnak.</p>
 </main>
 <nav class="nav" aria-label="SH9 Golden Standard navigáció"><a href="../../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a><a href="../../../../healthhub/index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a><a href="../" aria-label="Vissza"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></a><button id="notifications" type="button" aria-label="Értesítések"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button><a href="../../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 2-3 2 1 2 3 3 2v4l-3 2 1 3-3 2-2-3h-4l-1 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></a></nav>
 <div id="notice" role="status" hidden>Az SH9 értesítési központja még fejlesztés alatt áll.</div>
@@ -70,18 +83,19 @@ body.bkk-pdf-open{overflow:hidden}
  <div class="bkk-pdf-shell">
   <div class="bkk-pdf-top"><div><small>SH9 · BKK · HIVATALOS MENETREND</small><strong id="bkkPdfTitle">Menetrend</strong></div><button type="button" id="bkkPdfClose" aria-label="Menetrend bezárása">✕</button></div>
   <div class="bkk-pdf-main">
-   <p class="bkk-pdf-hint" id="bkkPdfHint">A BKK hivatalos menetrendjében kiválaszthatod az aktuális PDF-et. A kiválasztott hivatalos PDF-et itt is megnézheted, ha a forrás engedélyezi a beolvasást.</p>
+   <p class="bkk-pdf-hint" id="bkkPdfHint">Az aktuális PDF-et a BKK hivatalos menetrendjében választhatod ki. Visszatérve a hivatkozást egy koppintással beillesztheted a HealthHub olvasójába, ha a böngésző támogatja.</p>
+   <div class="bkk-pdf-routebar"><span id="bkkPdfSelectedRoute" aria-label="Kiválasztott BKK-járat">260</span><button type="button" id="bkkPdfCopyRoute" aria-label="Kiválasztott járatszám másolása">Járatszám másolása</button></div>
    <a id="bkkPdfOfficial" class="bkk-pdf-official" href="https://bkk.hu/menetrendek/" target="_blank" rel="noopener noreferrer external">Aktuális BKK-menetrend kiválasztása ↗</a>
-   <details class="bkk-pdf-details"><summary>PDF megtekintése a HealthHub olvasójában</summary><label for="bkkPdfUrl">BKK hivatalos PDF-hivatkozás</label><div class="bkk-pdf-input"><input id="bkkPdfUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://bkk.hu/.../menetrend.pdf"><button id="bkkPdfLoad" type="button">Megnyitás</button></div><p>Az eredeti PDF-et csak a megtekintéshez töltjük be a memóriába. Nem tároljuk el, és nem indítunk háttérszinkront.</p></details>
+   <details class="bkk-pdf-details"><summary>PDF megtekintése a HealthHub olvasójában</summary><label for="bkkPdfUrl">BKK hivatalos PDF-hivatkozás</label><div class="bkk-pdf-input"><input id="bkkPdfUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://bkk.hu/.../menetrend.pdf"><button id="bkkPdfPaste" type="button" aria-label="BKK PDF-hivatkozás beillesztése a vágólapról">Beillesztés</button><button id="bkkPdfLoad" type="button">Megnyitás</button></div><p>Az eredeti PDF-et csak a megtekintéshez töltjük be a memóriába. Nem tároljuk el, és nem indítunk háttérszinkront.</p></details>
    <div id="bkkPdfReader" class="bkk-pdf-reader" hidden>
-    <div class="bkk-pdf-toolbar"><button id="bkkPdfPrev" type="button" aria-label="Előző oldal">‹</button><span id="bkkPdfPages">1 / 1</span><button id="bkkPdfNext" type="button" aria-label="Következő oldal">›</button><span class="bkk-pdf-grow"></span><button id="bkkPdfMinus" type="button" aria-label="Kicsinyítés">−</button><span id="bkkPdfZoom">100%</span><button id="bkkPdfPlus" type="button" aria-label="Nagyítás">+</button></div>
+    <div class="bkk-pdf-toolbar"><button id="bkkPdfPrev" type="button" aria-label="Előző oldal">‹</button><span id="bkkPdfPages">1 / 1</span><button id="bkkPdfNext" type="button" aria-label="Következő oldal">›</button><span class="bkk-pdf-grow"></span><button id="bkkPdfMinus" type="button" aria-label="Kicsinyítés">−</button><span id="bkkPdfZoom">100%</span><button id="bkkPdfPlus" type="button" aria-label="Nagyítás">+</button><button id="bkkPdfDownload" type="button" aria-label="Aktuálisan megnyitott PDF letöltése" title="Letöltés csak koppintásra" hidden>⇩</button></div>
     <div class="bkk-pdf-canvas-wrap"><canvas id="bkkPdfCanvas" aria-label="Hivatalos menetrendi PDF oldal"></canvas></div>
    </div>
    <p class="bkk-pdf-status" id="bkkPdfStatus" role="status" aria-live="polite"></p>
   </div>
  </div>
 </div>
-<script src="./bkk-pdf-viewer-v923.js?v=923" defer></script>
+<script src="./bkk-pdf-viewer-v923.js?v=924" defer></script>
 <script>
 (function(){'use strict';
 const STORE='hh-bkk-route-favorites-v801',OFFICIAL='https://bkk.hu/menetrendek/';

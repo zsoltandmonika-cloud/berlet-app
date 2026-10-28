@@ -184,7 +184,7 @@ test('BKK PDF reader validates official PDF URL and avoids background documents'
  const reader=require('../../sh9/smart-travel/public-transport/bkk/bkk-pdf-viewer-v923.js');
  assert.equal(reader.validateOfficialPdf('https://bkk.hu/menetrendek/test.pdf'),'https://bkk.hu/menetrendek/test.pdf');
  assert.equal(reader.validateOfficialPdf('https://www.bkk.hu/test.pdf'),'https://www.bkk.hu/test.pdf');
- for(const url of ['http://bkk.hu/file.pdf','https://evil.test/file.pdf','https://bkk.hu.evil.test/260.pdf','https://bkk.hu@evil.test/pdf.pdf','https://bkk.hu/file.html','javascript:alert(1)'])
+ for(const url of ['https://bkk.hu:444/260.pdf','http://bkk.hu/file.pdf','https://evil.test/file.pdf','https://bkk.hu.evil.test/260.pdf','https://bkk.hu@evil.test/pdf.pdf','https://bkk.hu/file.html','javascript:alert(1)'])
    assert.equal(reader.validateOfficialPdf(url),null);
  const source=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/bkk-pdf-viewer-v923.js'),'utf8');
  assert.match(source,/pdfjs-dist@4\.10\.38/);
@@ -192,4 +192,33 @@ test('BKK PDF reader validates official PDF URL and avoids background documents'
  assert.match(source,/cache:'no-store'/);
  assert.match(source,/15\*1024\*1024/);
  assert.doesNotMatch(source,/setInterval\(|localStorage\.setItem|indexedDB|supabase\.co|geolocation/);
+});
+
+
+test('BKK v924 PDF controls are mobile-first, opt-in and preserve all approved hero artwork',()=>{
+ const base=path.join(root,'sh9/smart-travel/public-transport/bkk');
+ const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
+ const js=fs.readFileSync(path.join(base,'bkk-pdf-viewer-v923.js'),'utf8');
+ const parent=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ for(const id of ['bkkPdfSelectedRoute','bkkPdfCopyRoute','bkkPdfPaste','bkkPdfLoad','bkkPdfDownload','bkkPdfClose','bkkPdfCanvas'])
+   assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
+ assert.match(html,/bkk-hero-approved\.webp/);
+ assert.match(html,/\.bkk-pdf-top\{position:sticky/);
+ assert.match(html,/#bkkPdfDownload\[hidden\]\{display:none!important\}/);
+ assert.match(html,/\.bkk-pdf-input button\{min-height:44px;flex:1\}/);
+ assert.match(js,/function pasteOfficialLink\(\)/);
+ assert.match(js,/function copyRoute\(\)/);
+ assert.match(js,/function download\(\)/);
+ assert.match(js,/downloadBytes=null/);
+ assert.match(js,/abortPdf\?\.abort\(\)/);
+ assert.match(js,/redirect:'error'/);
+ assert.match(js,/clipboard\.readText\(\)/);
+ assert.match(js,/createObjectURL\(new Blob/);
+ assert.match(js,/revok[eE]ObjectURL/);
+ assert.match(js,/if\(e\.key==='Tab'\)/);
+ assert.doesNotMatch(js,/setInterval\(|geolocation\.|indexedDB|localStorage\.setItem|supabase\.co/);
+ assert.match(parent,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(parent,/data-service="bkk" href="\.\/bkk\/"/);
+ assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
 });
