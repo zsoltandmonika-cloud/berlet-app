@@ -661,3 +661,47 @@ test('BKK planner v939 departure, arrive-by and verified next three departures',
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(pt,/class="transport-visual"/);
 });
+
+test('Smart Trip native S24 calendar and time pickers open from full-height Golden touch targets',()=>{
+ const dir=path.join(root,'sh9/smart-travel/public-transport');
+ const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
+ const css=fs.readFileSync(path.join(dir,'public-transport-smart-trip-mobile-v3.css'),'utf8');
+ const js=fs.readFileSync(path.join(dir,'public-transport-smart-trip-v1.js'),'utf8');
+ for(const kind of ['Date','Time']){
+  assert.match(html,new RegExp('id="smartTrip'+kind+'Trigger" role="button" tabindex="0"'));
+  assert.match(html,new RegExp('id="smartTrip'+kind+'" class="picker-native" type="'+(kind==='Date'?'date':'time')+'"'));
+  assert.match(html,new RegExp('id="smartTrip'+kind+'Display"'));
+  assert.match(js,new RegExp('wirePicker\\('+kind.toLowerCase()+'Trigger,'+kind.toLowerCase()+'\\)'));
+ }
+ assert.match(html,/smart-trip-mobile-v3\.css\?v=3/);
+ assert.match(html,/public-transport-smart-trip-v1\.js\?v=3/);
+ assert.match(css,/\.datetime \.picker-target\{/);
+ assert.match(css,/\.datetime \.picker-native\{/);
+ assert.match(css,/pointer-events:none/);
+ assert.match(js,/input\.showPicker\(\)/);
+ assert.match(js,/input\.focus\(\);input\.click\(\)/);
+ assert.match(js,/event\.key==='Enter'\|\|event\.key===' '/);
+ assert.match(js,/syncPickerDisplays\(\)/);
+ assert.match(js,/if\(selected==='now'\)[\s\S]*?setMode\('depart'\)/);
+ assert.doesNotMatch(js,/fetch\(|XMLHttpRequest|navigator\.geolocation|setInterval\(/);
+ assert.doesNotThrow(()=>new (require('node:vm').Script)(js));
+});
+
+test('Expanded Smart Trip Glass card dynamically reaches the actual bottom taskbar',()=>{
+ const dir=path.join(root,'sh9/smart-travel/public-transport');
+ const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
+ const css=fs.readFileSync(path.join(dir,'public-transport-smart-trip-mobile-v3.css'),'utf8');
+ const js=fs.readFileSync(path.join(dir,'public-transport-smart-trip-v1.js'),'utf8');
+ assert.match(html,/<section class="smart-trip-panel glass" id="smartTripPanel"/);
+ assert.match(css,/\.transport-grand \.smart-trip-panel\{\s*display:flex;\s*flex-direction:column/);
+ assert.match(css,/\.transport-grand \.smart-trip-panel\[hidden\]\{display:none!important\}/);
+ assert.match(js,/function fitPanelToTaskbar\(\)/);
+ assert.match(js,/document\.querySelector\('nav\.nav'\)/);
+ assert.match(js,/nav\.getBoundingClientRect\(\)|bar=nav\.getBoundingClientRect\(\)/);
+ assert.match(js,/Math\.floor\(bar\.top-box\.bottom-5\)/);
+ assert.match(js,/panel\.style\.minHeight=Math\.ceil\(box\.height\+missing\)\+'px'/);
+ assert.match(js,/window\.addEventListener\('scroll',queueFit,\{passive:true\}\)/);
+ assert.match(js,/panel\.scrollIntoView\(\{behavior:'smooth',block:'nearest'\}\)/);
+ assert.match(html,/class="transport-options transport-neon-options"/);
+ assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
+});
