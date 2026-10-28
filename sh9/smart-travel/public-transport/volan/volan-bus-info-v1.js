@@ -35,8 +35,8 @@ function getPlanner(){
 function render(input){
  const d=input&&typeof input==='object'?input:{},plan=getPlanner();
  const verified=d.source==='official'&&d.verified===true;
- const from=String(d.from||plan.from||'Nincs megadva').slice(0,100);
- const to=String(d.to||plan.to||'Nincs megadva').slice(0,100);
+ const from=String((verified?d.from:(d.from||plan.from))||(verified?'Nincs adat':'Nincs megadva')).slice(0,100);
+ const to=String((verified?d.to:(d.to||plan.to))||(verified?'Nincs adat':'Nincs megadva')).slice(0,100);
  setText('volan-bi-number',d.number||'—');
  setText('volan-bi-route',(from!=='Nincs megadva'||to!=='Nincs megadva')?from+' ↔ '+to:'Nincs kiválasztott járat');
  setText('volan-bi-from',from);setText('volan-bi-to',to);
