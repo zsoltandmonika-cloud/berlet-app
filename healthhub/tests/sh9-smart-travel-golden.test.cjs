@@ -140,3 +140,12 @@ test('Public Transport v918 ships approved artwork without fictitious device sta
  const img=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/public-transport-hero-approved.webp'));
  assert.equal(crypto.createHash('sha256').update(img).digest('hex'),'0fb977edf33718c7a40800e799f0dc8bd6cf5b2c37472b749b00187a02adb291');
 });
+
+test('Public Transport v919 shifts only the artboard 10px up, preserving image and tap alignment',()=>{
+ const html=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(html,/\.poster-frame\{transform:translateY\(-10px\)\}/);
+ assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
+ assert.match(html,/src="\.\/public-transport-hero-approved\.webp\?v=918"/);
+ assert.match(html,/\.nav\{z-index:12;width:min\(100%,470px\)\}/);
+ assert.doesNotMatch(html,/\.nav\{transform:translateY\(-10px\)/);
+});
