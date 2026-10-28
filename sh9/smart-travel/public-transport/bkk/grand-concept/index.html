@@ -1,4 +1,4 @@
-<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142b"><title>SH9 · BKK Grand Control Concept V3</title><style>
+<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142b"><title>SH9 · BKK Grand Control V3</title><style>
 :root{color-scheme:dark;--accent:#0b8dff;--line:#b8d8ff74;--body:#eff8ff;--dim:#c2d7f1;--panel:linear-gradient(129deg,rgba(65,107,163,.48),rgba(6,29,65,.77) 54%,rgba(33,38,72,.70));--nav:#06132b;--hot:linear-gradient(108deg,#0aa9ff,#166cf4 62%,#a348ea)}
 :root[data-profile="m"]{--accent:#ed73c3;--line:#ffc0e786;--panel:linear-gradient(129deg,rgba(126,85,148,.46),rgba(58,25,87,.82) 54%,rgba(71,35,77,.66));--nav:#210f34;--hot:linear-gradient(108deg,#ec71d4,#c745c4 62%,#8069ed)}
 *{box-sizing:border-box}html{background:#030e22;scroll-behavior:smooth}body{margin:0;font:12px/1.32 Arial,"Helvetica Neue",sans-serif;background:#071326;color:var(--body)}button,input,a{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{text-decoration:none}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #e6fbff;outline-offset:2px}
@@ -63,10 +63,10 @@
 .toast[hidden]{display:none!important}.toast{position:fixed;z-index:40;left:50%;bottom:76px;transform:translateX(-50%);max-width:min(390px,91vw);padding:10px 14px;border-radius:11px;background:#102c52ed;color:#fff;border:1px solid #b3dbf4ad;box-shadow:0 4px 18px #0009;font-size:11px;text-align:center}
 @media(max-width:375px){.phead h2{font-size:12px}.mode button{font-size:8px}.quick button{font-size:8.5px}.stations input{font-size:9.5px}.datebox,.timebox{font-size:9px}}
 @media(max-height:740px){.hero{height:clamp(260px,76.2vw,346px)}}@media(min-height:860px){.hero{height:clamp(284px,74.5vw,338px)}}
-</style><link rel="stylesheet" href="./golden-carbon-parity-v1.css"></head><body>
+</style><link rel="stylesheet" href="./golden-carbon-parity-v1.css"><link rel="stylesheet" href="./bkk-grand-wiring-v1.css"></head><body>
 <main class="app" id="app">
 <section class="hero"><img class="hero-img" src="../bkk-hero-approved.webp" alt="BKK busz naplementében, Léna a vezetőfülkében, budapesti látkép" fetchpriority="high">
-<a href="../" class="back" aria-label="Vissza az élő BKK modulra"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" aria-hidden="true"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a>
+<a href="../../" class="back" aria-label="Vissza a Public Transport kezdőoldalra"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" aria-hidden="true"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a>
 <button id="profile" class="profile" type="button" aria-label="Profilváltás"><img id="profileImage" alt="Profilkép" width="41" height="41"></button>
 </section>
 <section class="quick" aria-label="BKK gyorsfunkciók">
@@ -96,14 +96,15 @@
 </section>
 <section class="depart glass" id="depart" aria-label="Tervezett útvonal és BKK szolgáltatások">
 <div class="departhead"><h2><span data-icon="bus"></span>BKK járatinformációk</h2><button type="button" data-concept="Összes találat">Összes találat →</button></div>
-<div class="preview-result"><strong>🚌 BKK · koncepció-előnézet</strong>A járatok, indulási idők és késések itt még nem élő adatok. A jóváhagyott felülethez később kötjük hozzá a meglévő BKK-adatforrásokat.</div>
+<div class="preview-result"><strong>🚌 BKK · kapcsolt szolgáltatások</strong>A menetrend és az élő járművek a meglévő BKK és Family Guard modulban jelennek meg, ellenőrzött adatforrásból. Ezen a felületen nem jelenítünk meg kitalált járatokat.</div>
 <p class="source">Golden Glass · MÁV és Volán dizájnstandard · BKK színek</p>
 <div class="services">
 <button class="service" type="button" data-concept="Megállói indulások"><span class="service-icon">🚌</span><span><strong>Megállói indulások</strong><small>Busz, villamos, metró, HÉV, troli</small></span><span class="chev">›</span></button>
 <button class="service" type="button" data-concept="BKK menetrend"><span class="service-icon">🚋</span><span><strong>BKK menetrend</strong><small>Járatszámok és útvonalak</small></span><span class="chev">›</span></button>
 <button class="service" type="button" data-concept="Élő járművek"><span class="service-icon">🚉</span><span><strong>Élő járművek</strong><small>A jelenlegi Family Guard térképpel</small></span><span class="chev">›</span></button>
 </div></section>
-<div class="utils" aria-label="BKK gyorssegédletek, koncepció-előnézet">
+<section id="bkkGrandTrips" class="bkk-grand-trips glass" hidden aria-label="Mentett BKK-utazások"><div class="bkk-grand-trip-head"><h2>♥ Utazásaim</h2><button id="bkkGrandTripsClose" type="button">Bezárás</button></div><div class="bkk-grand-trip-list" id="bkkGrandTripList"></div></section>
+<div class="utils" aria-label="BKK gyorssegédletek">
 <button type="button" data-concept="Térkép"><span data-icon="map"></span>Térkép</button>
 <button type="button" data-concept="Kedvenc vonalak"><span data-icon="heart"></span>Kedvenc<br>vonalak</button>
 <button type="button" data-concept="Megálló infó"><span data-icon="bus"></span>Megálló<br>infó</button>
@@ -111,11 +112,11 @@
 <button type="button" data-concept="Jegyvásárlás"><span data-icon="ticket"></span>Jegyvásárlás</button>
 <button type="button" data-concept="Forgalmi információk"><span data-icon="map"></span>Forgalmi<br>infó</button>
 </div>
-<p class="panel-foot">Design preview · az élő BKK funkciók a meglévő oldalon változatlanul elérhetők. Ezen a képernyőn még nincs új adatkapcsolat.</p>
+<p class="panel-foot">SH9 Public Transport · A BKK-adatforrások a meglévő modulokban működnek; az új felület nem kezdeményez háttéradatlekérést. A mentett utazások profilhoz kötötten, a készüléken tárolódnak. <a href="../" title="Korábbi BKK Smart Control felület">Korábbi BKK felület ↗</a></p>
 <nav class="bottom" aria-label="SH9 Golden Standard navigáció">
 <a href="../../../../"><span data-icon="home"></span>Kezdőlap</a>
 <a href="../../../../../healthhub/index.html?sh9nav=timeline"><span data-icon="clock"></span>Idővonal</a>
-<a href="../"><span data-icon="back"></span>Vissza</a>
+<a href="../../"><span data-icon="back"></span>Vissza</a>
 <a href="../../../../../healthhub/index.html?sh9nav=notifications"><span data-icon="bell"></span>Értesítések</a>
 <a href="../../../../../healthhub/index.html?sh9nav=admin"><span data-icon="settings"></span>Admin</a>
 </nav>
@@ -145,8 +146,7 @@ $('timeTxt').textContent=dateStr.toLocaleTimeString('hu-HU',{hour:'2-digit',minu
 for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(t=>{t.classList.toggle('on',t===b);t.setAttribute('aria-pressed',String(t===b))});showDate()});
 date.addEventListener('change',showDate);time.addEventListener('change',showDate);showDate();
 $('swap').addEventListener('click',()=>{const a=$('from'),b=$('to'),v=a.value;a.value=b.value;b.value=v});
-$('find').addEventListener('click',()=>toast('BKK Grand Concept · a járatkeresést a jóváhagyás után kötjük be.'));
-document.querySelectorAll('[data-concept]').forEach(e=>e.addEventListener('click',()=>toast(e.dataset.concept+' · dizájn-előnézet, a bekötés a következő fázisban jön.')));
+/* Live controls are connected by bkk-grand-wiring-v1.js. */
 document.querySelector('[data-menu="planner"]').addEventListener('click',()=>$('planner').scrollIntoView({behavior:'smooth',block:'start'}));
 })();
-</script></body></html>
+</script><script defer src="./bkk-grand-wiring-v1.js"></script></body></html>

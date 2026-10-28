@@ -108,7 +108,7 @@ test('Public Transport v923 launcher has three providers and dedicated BKK landi
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  const providers=[...pt.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(providers,['bkk','mav','volan']);
- assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
+ assert.match(pt,/data-service="bkk" href="\.\/bkk\/grand-concept\/"/);
  assert.match(pt,/data-service="mav" href="\.\/mav\/"/);
  assert.match(pt,/data-service="volan" href="\.\/volan\/"/);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
@@ -223,7 +223,7 @@ test('BKK v924 PDF controls are mobile-first, opt-in and preserve all approved h
  assert.match(js,/if\(e\.key==='Tab'\)/);
  assert.doesNotMatch(js,/setInterval\(|geolocation\.|indexedDB|localStorage\.setItem|supabase\.co/);
  assert.match(parent,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.match(parent,/data-service="bkk" href="\.\/bkk\/"/);
+ assert.match(parent,/data-service="bkk" href="\.\/bkk\/grand-concept\/"/);
  assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
 });
 
@@ -249,7 +249,7 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
+ assert.match(pt,/data-service="bkk" href="\.\/bkk\/grand-concept\/"/);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
  assert.doesNotMatch(html,/setInterval\(|geolocation\.|supabase\.co/);
 });
