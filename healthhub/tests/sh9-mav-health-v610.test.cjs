@@ -154,7 +154,7 @@ test('Golden Glass layout and v606 calendar, profile avatar, five-slot taskbar r
  assert.match(page,/id="rail-time-trigger"/);
  assert.match(page,/bottom:9px;left:6px;width:45px/);
  assert.match(page,/rail-golden-glass-v3/);
- assert.match(page,/mav-hero-approved\.webp/);
+ assert.match(page,/mav-hero-final-approved-v2\.webp/);
  const nav=page.match(/<nav class="bottom"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
  assert.equal((nav.match(/<a /g)||[]).length,5);
 });
