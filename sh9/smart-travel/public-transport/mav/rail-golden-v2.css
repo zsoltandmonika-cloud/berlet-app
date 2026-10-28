@@ -18,7 +18,12 @@ body{background:#07152c;color:#f5faff;overflow-x:hidden}
 .hero .profile::before{content:"◉";color:#4ab9ff;background:#f0f8ff;display:grid;place-items:center;min-width:24px;width:24px;height:24px;border-radius:50%;font-size:15px;text-shadow:none}
 .hero .profile::after{content:"⌄";font-size:18px;margin-left:auto;color:#eefaff}
 :root[data-profile=m] .hero .profile::before{color:#df57bc}
-.hero .signal{position:absolute;top:64px;right:13px;z-index:7;border-radius:999px;min-width:36px;max-width:130px;min-height:31px;padding:5px 8px;background:#102849a4;border:1px solid #cce7ff69;box-shadow:inset 0 1px #fff3;font-size:10px;color:white}
+.hero .signal{position:absolute;top:auto;bottom:10px;right:12px;z-index:9;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;max-width:44px;padding:0;border-radius:15px;border:1px solid rgba(210,236,255,.28);background:linear-gradient(145deg,rgba(29,51,82,.32),rgba(9,23,50,.35));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px rgba(255,255,255,.17),0 3px 10px rgba(0,0,0,.26);font-size:20px;font-weight:500;line-height:1;color:#e7f5ff;opacity:.88;transition:opacity .15s ease}
+.hero .signal::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:#9ca9b8;box-shadow:0 0 0 2px rgba(8,19,37,.5)}
+.hero .signal[aria-pressed="true"]{background:linear-gradient(145deg,rgba(36,85,92,.33),rgba(9,30,52,.4));border-color:rgba(171,237,225,.38)}
+.hero .signal[aria-pressed="true"]::after{background:#52f5a8;box-shadow:0 0 6px rgba(88,255,173,.75)}
+.hero .signal[aria-pressed="false"]{color:#9caac1;opacity:.62}
+.hero .signal:focus-visible{outline:3px solid #b8f3ff;outline-offset:1px;opacity:1}
 .top{display:none!important}
 .rail-shortcuts{position:relative;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:-2px 0 10px;padding:7px 6px;border:1px solid var(--rail-border);border-radius:20px;background:linear-gradient(118deg,rgba(53,93,144,.64),rgba(29,29,67,.58) 45%,rgba(78,52,77,.53));box-shadow:inset 0 1px #fff4,0 9px 18px #0008;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 .rail-shortcut{padding:7px 2px 6px;min-width:0;min-height:69px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;text-align:center;border:1px solid #d1e4ff2e;border-radius:15px;background:linear-gradient(145deg,rgba(124,176,243,.22),rgba(13,34,70,.31));color:#fff;font-size:10px;font-weight:750;line-height:1.15;text-decoration:none;box-shadow:inset 0 1px #fff3;cursor:pointer}
