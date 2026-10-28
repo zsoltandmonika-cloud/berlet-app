@@ -182,7 +182,7 @@ test('BKK Smart Control v923 uses exact user-approved hero and preserves launche
  assert.match(html,/id="notifications"/);
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
  assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
- assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
 });
 test('BKK PDF reader validates official PDF URL and avoids background documents',()=>{
  const reader=require('../../sh9/smart-travel/public-transport/bkk/bkk-pdf-viewer-v923.js');
@@ -250,7 +250,7 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
  assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
- assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
  assert.doesNotMatch(html,/setInterval\(|geolocation\.|supabase\.co/);
 });
 
@@ -292,7 +292,7 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.doesNotMatch(boot,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(|new maplibregl\.Map|supabase\.co|localStorage\.setItem/);
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
  assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
- assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
 });
 
 

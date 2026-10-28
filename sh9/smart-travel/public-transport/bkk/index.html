@@ -190,7 +190,7 @@ main{
 .heading #profileLabel:active{transform:scale(.96);filter:brightness(1.13)}
 @media(prefers-reduced-motion:reduce){.heading #profileLabel{transition:none}}
 
-</style></head><body>
+</style><link rel="stylesheet" href="./bkk-grand-v2.css"></head><body>
 <main>
 <div class="bkk-first-fold">
 <figure class="hero"><img src="./bkk-hero-approved.webp" width="1672" height="941" alt="A 260-as BKK-busz ajtajában Léna sofőrként várja Zsoltot, Mónikát és Corkyt; Budapest látképe naplementében." fetchpriority="high"></figure>
@@ -202,7 +202,19 @@ main{
 <a class="glass" href="../../../../healthhub/guardian/#hhBkkWatchlistV814" aria-label="Family Guard BKK kedvencek szerkesztése"><span class="quick-head"><svg viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg><span class="arrow">↗</span></span><strong>Kedvenceim</strong><small>Meglévő Family Guard lista</small></a>
 </section>
 </div>
-<section id="favorites"><div class="section-head"><h2>⭐ My BKK · Kedvenc járataim</h2><a href="../../../../healthhub/guardian/#hhBkkWatchlistV814">Szerkesztés ↗</a></div>
+<section id="favorites"><div class="bkk-v2-platform" id="bkkV2Modes" aria-label="BKK járműtípusok">
+<div class="bkk-v2-identity"><b>🚌 BKK · Grand Control V2</b><small>Premium Glass · Budapest</small></div>
+<div class="bkk-v2-mode-row" role="group" aria-label="Szűrés a kedvenc járatok járműtípusa szerint">
+<button class="bkk-v2-mode" type="button" data-bkk-mode="all" aria-pressed="true"><span class="bkk-v2-mode-icon">✦</span><span>Összes</span></button>
+<button class="bkk-v2-mode" type="button" data-bkk-mode="bus" aria-pressed="false"><span class="bkk-v2-mode-icon">🚌</span><span>Busz</span></button>
+<button class="bkk-v2-mode" type="button" data-bkk-mode="tram" aria-pressed="false"><span class="bkk-v2-mode-icon">🚋</span><span>Villamos</span></button>
+<button class="bkk-v2-mode" type="button" data-bkk-mode="metro" aria-pressed="false"><span class="bkk-v2-mode-icon">Ⓜ</span><span>Metró</span></button>
+<button class="bkk-v2-mode" type="button" data-bkk-mode="hev" aria-pressed="false"><span class="bkk-v2-mode-icon">🚉</span><span>HÉV</span></button>
+<button class="bkk-v2-mode" type="button" data-bkk-mode="trolley" aria-pressed="false"><span class="bkk-v2-mode-icon">🚎</span><span>Troli</span></button>
+</div>
+<div class="bkk-v2-detail"><div class="bkk-v2-detail-top"><b id="bkkV2ModeName">Minden kedvenc</b><span class="bkk-v2-count" id="bkkV2Count">0 kedvenc</span></div><small id="bkkV2ModeDesc">A profilod összes mentett járata, eredeti sorrendben.</small>
+<div class="bkk-v2-jump"><a href="../../../../healthhub/guardian/#hhSmartHubDestinationV802">✧ Útvonaltervező</a><a href="../../../../healthhub/guardian/?sh9Transit=1">◎ Élő térkép</a><a href="#allLines">⌕ Járatkereső</a></div></div>
+<span id="bkkV2Hint" class="bkk-v2-active-hint">Profilhoz kötött saját lista · nincs új adatlekérés</span></div><div class="section-head"><h2>⭐ My BKK · Kedvenc járataim</h2><a href="../../../../healthhub/guardian/#hhBkkWatchlistV814">Szerkesztés ↗</a></div>
 <p class="intro">Profilod saját figyelőlistája. A Menetrend gomb egy koppintással a kiválasztott járat BKK-keresését nyitja meg, másolás nélkül.</p><div class="routes" id="favoriteRoutes" aria-live="polite"><div class="glass route-empty">Kedvencek betöltése…</div></div></section>
 <section><div class="section-head"><h2>⏱ Smart Arrival</h2><small>Megállók</small></div>
 <div class="glass arrival"><div class="arrival-icon" aria-hidden="true">◷</div><div><strong>Indulás előtt egy pillantás</strong><p>A saját SH9 Smart Travel térképünkön láthatod a meglévő BKK-járatokat és a hiteles élő járműjelölőket. A megállói indulási idők kijelzése még nincs bekötve.</p><a class="action" href="../../../../healthhub/guardian/?sh9Transit=1">SH9 Smart Travel térkép <span aria-hidden="true">↗</span></a></div></div></section>
@@ -293,4 +305,4 @@ function renderCatalog(){const host=$('catalogResults'),more=$('catalogMore');ho
 async function findRoutes(){const q=$('routeSearch').value.trim().slice(0,60).toLocaleLowerCase('hu-HU');if(!q){$('catalogResults').hidden=true;$('catalogMore').hidden=true;$('catalogMeta').textContent='Írj be egy járatszámot vagy járatnevet.';return}$('catalogMeta').textContent='A hiteles járatkatalógus betöltése…';const doc=await getCatalog();if(!doc){$('catalogMeta').textContent='A hiteles BKK-katalógus nem érhető el vagy elavult. Használd a hivatalos menetrendoldalt.';$('catalogResults').hidden=true;$('catalogMore').hidden=true;return}shown=12;searchMatches=doc.routes.filter(r=>(r.id+' '+r.name+' '+(r.directions||[]).join(' ')).toLocaleLowerCase('hu-HU').includes(q));renderCatalog()}
 $('profileLabel').addEventListener('click',toggleProfile);$('routeSearchBtn').addEventListener('click',findRoutes);$('routeSearch').addEventListener('keydown',e=>{if(e.key==='Enter')findRoutes()});$('catalogMore').addEventListener('click',()=>{shown+=12;renderCatalog()});$('notifications').addEventListener('click',()=>{$('notice').hidden=!$('notice').hidden});window.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key===STORE)syncProfile()});window.addEventListener('pageshow',syncProfile);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncProfile()});syncProfile();
 })();
-</script></body></html>
+</script><script src="./bkk-grand-v2.js" defer></script></body></html>
