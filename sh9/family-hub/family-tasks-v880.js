@@ -547,7 +547,11 @@ function wire(){
   const next=self()==='monika'?'zsolt':'monika';
   if(user&&!authorized.includes(next)){announce(label(next)+' profil nem engedélyezett.');return}
   w.localStorage.setItem('hh-profile',next==='monika'?'m':'z');
-  w.dispatchEvent(new CustomEvent('hh-family-profile-changed'));selected=next;authSync();
+  // v916: manual profile switching must bypass the v915 auth/ACL fast path.
+  // Update the visible identity now, then fetch profile-scoped hidden tasks/history.
+  selected=next;showHidden=false;profileUi();
+  w.dispatchEvent(new CustomEvent('hh-family-profile-changed'));
+  authSync(true);
  });
  $('fhAdd').addEventListener('click',showSheet);
  $('fhClose').addEventListener('click',hideSheet);
