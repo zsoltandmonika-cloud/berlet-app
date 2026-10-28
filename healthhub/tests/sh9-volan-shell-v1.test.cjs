@@ -16,12 +16,16 @@ test('Volán shell is separate from working MÁV v612 module and preserves Golde
  assert.match(html,/class="depart glass"/);
  assert.match(mav,/<title>SH9 · MÁV Smart Rail<\/title>/);
 });
-test('User-approved Volán hero preview is embedded and actually decodable, no broken remote dependency',()=>{
+test('User-approved Volán HD hero is embedded at 1000x833, no tiny 240px preview',()=>{
  const match=html.match(/src="data:image\/avif;base64,([A-Za-z0-9+/=]+)"/);
  assert.ok(match,'approved image embed missing');
  const bytes=Buffer.from(match[1],'base64');
- assert.ok(bytes.length>3000,'hero asset too small');
+ assert.ok(bytes.length>90000,'approved Volán HD image unexpectedly too small');
  assert.equal(bytes.toString('ascii',4,12),'ftypavif');
+ const ispe=bytes.indexOf(Buffer.from('ispe'));
+ assert.ok(ispe>0,'AVIF dimensions missing');
+ assert.equal(bytes.readUInt32BE(ispe+8),1000,'Hero should be 1000 CSS pixels wide');
+ assert.equal(bytes.readUInt32BE(ispe+12),833,'Hero should retain approved aspect ratio');
  assert.match(html,/Léna a busznál fogadja Mónikát/);
  assert.doesNotMatch(html,/mav-hero-approved.webp|volan-hero-approved.webp/);
 });
