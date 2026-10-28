@@ -233,7 +233,9 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(html,/\.glass\{[\s\S]*?backdrop-filter:blur\(17px\) saturate\(147%\)/);
  assert.match(html,/\.quick a::before\{/);
  assert.match(html,/\.nav\{border-top:1px solid var\(--bkk-edge-glow\)/);
- assert.match(html,/<strong>Mikor jön\?<\/strong>/);
+ assert.match(html,/<strong>Következő járat<\/strong>/);
+ assert.match(html,/aria-label="Következő járat · SH9 Smart Travel, hivatalos BKK-indulások külső oldalon"/);
+ assert.doesNotMatch(html,/<strong>Mikor jön\?<\/strong>/);
  assert.match(html,/Megállói indulások · SH9 Smart Travel/);
  assert.doesNotMatch(html,/BudapestGO/);
  assert.match(html,/a SH9 Smart Travel központból/i);
