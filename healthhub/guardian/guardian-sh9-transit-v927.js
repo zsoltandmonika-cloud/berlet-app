@@ -11,6 +11,23 @@ function syncTheme(){
  if($('sh9TransitProfileV927'))$('sh9TransitProfileV927').textContent=isM?'Mónika':'Zsolt';
 }
 function mapResize(){try{w.HH_GUARDIAN_V761?.map?.resize?.()}catch(_){}}
+// v932: BKK page reload opens at the SH9 header, not a restored middle-of-map
+// position. Never override a deliberate hash target or browser back/forward.
+function resetLandingTop(){
+ if(w.location.hash)return;
+ const type=w.performance?.getEntriesByType?.('navigation')?.[0]?.type;
+ if(type==='back_forward')return;
+ try{w.scrollTo?.(0,0)}catch(_){}
+ if(d.scrollingElement)d.scrollingElement.scrollTop=0;
+ if(d.documentElement)d.documentElement.scrollTop=0;
+ if(d.body)d.body.scrollTop=0;
+}
+function scheduleLandingTop(){
+ resetLandingTop();
+ // Browser scroll restoration and layout may complete after DOMContentLoaded.
+ // One bounded two-frame correction, no timers, no polling, no map movements.
+ w.requestAnimationFrame?.(()=>w.requestAnimationFrame?.(resetLandingTop));
+}
 function scrollTo(id){
  const el=$(id);if(!el){showNotice('Ez a rész most nem érhető el.');return}
  el.scrollIntoView({behavior:w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches?'auto':'smooth',block:'start'});
@@ -24,14 +41,18 @@ function init(){
  const head=$('sh9TransitHeaderV927'),nav=$('sh9TransitNavV927');
  if(!head||!nav||!$('guardianMap')||!$('hhTransitPanel'))return;
  d.documentElement.dataset.sh9Transit='on';head.hidden=false;nav.hidden=false;
- syncTheme();
+ syncTheme();scheduleLandingTop();
  $('sh9TransitMapV927')?.addEventListener('click',()=>scrollTo('guardianMap'));
  $('sh9TransitFavoritesV927')?.addEventListener('click',openFavorites);
  $('sh9TransitPlannerV927')?.addEventListener('click',()=>scrollTo('hhSmartHubDestinationV802'));
  $('sh9TransitNotifierV927')?.addEventListener('click',()=>showNotice('Az SH9 értesítéseket a központi modul kezeli.'));
  $('guardianProfileSwitch')?.addEventListener('click',()=>w.requestAnimationFrame(syncTheme));
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')syncTheme()});
- w.addEventListener('pageshow',()=>{syncTheme();mapResize()});
+ w.addEventListener('pageshow',e=>{
+  syncTheme();mapResize();
+  // Returning from another page should keep the user's prior scroll position.
+  if(!e?.persisted)scheduleLandingTop();
+ });
  w.addEventListener('resize',mapResize,{passive:true});
  // MapLibre owns this existing map. Resize only its viewport after CSS switches view.
  w.requestAnimationFrame(()=>{mapResize();w.requestAnimationFrame(mapResize)});
