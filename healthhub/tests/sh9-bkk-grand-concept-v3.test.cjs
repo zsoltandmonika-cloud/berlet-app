@@ -17,9 +17,10 @@ test('BKK concept repeats MÁV/Volán five-button structure and three mode plann
  assert.match(concept,/background:var\(--panel\)/);
  assert.match(concept,/href="\.\.\/\.\.\/\.\.\/\.\.\/"[^>]*>/);
 });
-test('Preview actions are visibly staged and script parses',()=>{
- assert.match(concept,/dizájn-előnézet, a bekötés a következő fázisban/);
- assert.match(concept,/még nem élő adatok/);
+test('BKK Grand V3 buttons are wired, local script parses and unverified departures stay absent',()=>{
+ assert.match(concept,/bkk-grand-wiring-v1\.js/);
+ assert.match(concept,/a meglévő BKK és Family Guard modulban jelennek meg/);
+ assert.doesNotMatch(concept,/dizájn-előnézet, a bekötés a következő fázisban/);
  const inline=concept.match(/<script>\s*(\(function\(\)\{'use strict';[\s\S]*?\}\)\(\);)\s*<\/script>/)?.[1];
  assert.ok(inline,'inline concept script');
  assert.doesNotThrow(()=>new vm.Script(inline));
