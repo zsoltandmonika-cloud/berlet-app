@@ -37,7 +37,7 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
 }
 let polling=null;
 let sh9AllEnabled=true;
-let inFlight=false,sh9Abort=null;
+let inFlight=false,sh9Abort=null,lastSh9RequestAt=0;
 let lastVehicles=[];
 let lastVerified=null;
 let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
@@ -128,6 +128,11 @@ async function poll(){
  if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
  const bbox=sh9AllMode?visibleBBox():null;
  if(sh9AllMode&&!bbox){status('térképre várunk · nincs felesleges szerverlekérdezés');return;}
+ // Bound even repeated manual taps to ONE server request per 45 seconds.
+ if(sh9AllMode&&Date.now()-lastSh9RequestAt<45000){
+  status('takarékos mód: az előző lekérdezés után legalább 45 másodpercet várunk');return;
+ }
+ if(sh9AllMode)lastSh9RequestAt=Date.now();
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
