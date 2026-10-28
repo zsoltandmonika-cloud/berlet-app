@@ -90,15 +90,15 @@
 /* v603 · Actual native Android date/time pickers over the existing glass digits.
    Invisible inputs are touch targets; no fake JS-only calendar or keyboard popup. */
 .datetime .datebox,.datetime .timebox{position:relative;height:100%;cursor:pointer;touch-action:manipulation}
-.datetime .rail-picker-overlay{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.datetime .datebox:focus-within,.datetime .timebox:focus-within{outline:1px solid rgba(179,235,255,.7);outline-offset:-1px;border-radius:8px}
+.datetime .rail-picker-overlay{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;margin:0;padding:0;opacity:0;pointer-events:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.datetime .datebox:focus,.datetime .datebox:focus-within,.datetime .timebox:focus,.datetime .timebox:focus-within{outline:1px solid rgba(179,235,255,.7);outline-offset:-1px;border-radius:8px}
 :root[data-profile="m"] .datetime .datebox:focus-within,:root[data-profile="m"] .datetime .timebox:focus-within{outline-color:rgba(255,188,245,.85)}
 .datetime #when.whenInput{display:none!important}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
 <section class="quick" aria-label="Gyors funkciók"><button class="active" data-go="planner"><span class="ico" data-icon="search"></span>Útvonal</button><button data-rail-action="timetable" title="Hivatalos MÁVPlusz menetrend"><span class="ico" data-icon="clock"></span>Menetrend</button><button data-go="favorites"><span class="ico" data-icon="heart"></span>Kedvencek</button><button data-rail-action="liveTrains" title="Vonatinfó: közlekedő vonatok térképe"><span class="ico" data-icon="train"></span>Élő vonatok</button><button data-rail-action="tickets" title="Hivatalos MÁV jegyvásárlás"><span class="ico" data-icon="ticket"></span>Jegyek ↗</button></section>
-<section class="planner glass" id="planner"><div class="phead"><h2><span data-icon="map"></span>Útvonaltervező</h2><div class="mode" role="group" aria-label="Időpont típusa"><button class="on" data-mode="now">Indulás most</button><button data-mode="depart">Indulás ekkor</button><button data-mode="arrive">Érkezés ekkor</button></div></div><div class="routebox"><div class="stationfields"><div class="route-rail"><span class="dot"></span><span class="dot end"></span></div><div class="stations"><input id="from" value="Budapest-Keleti" list="rail-popular-stations" autocomplete="off" aria-label="Indulás"><input id="to" value="Kazincbarcika" list="rail-popular-stations" autocomplete="off" aria-label="Érkezés"></div><button id="swap" class="swap" title="Felcserélés">↕</button></div><div class="datetime"><div class="datebox"><span data-icon="calendar"></span><span id="dateTxt">Dátum</span><input id="rail-date" class="rail-picker-overlay" type="date" aria-label="Utazás dátumának kiválasztása" title="Naptár megnyitása"></div><div class="timebox"><span data-icon="clock"></span><span id="timeTxt">Idő</span><input id="rail-time" class="rail-picker-overlay" type="time" step="60" aria-label="Utazás időpontjának kiválasztása" title="Időpont kiválasztása"></div><input id="when" class="whenInput" type="datetime-local" aria-label="Választott időpont" tabindex="-1"></div></div><div class="actions"><button class="search" id="find"><span data-icon="search"></span>Útvonal keresése</button><button class="refresh" id="refresh" title="Hivatalos élő menetrend"><span data-icon="refresh"></span>MÁVPlusz ↗</button></div></section>
+<section class="planner glass" id="planner"><div class="phead"><h2><span data-icon="map"></span>Útvonaltervező</h2><div class="mode" role="group" aria-label="Időpont típusa"><button class="on" data-mode="now">Indulás most</button><button data-mode="depart">Indulás ekkor</button><button data-mode="arrive">Érkezés ekkor</button></div></div><div class="routebox"><div class="stationfields"><div class="route-rail"><span class="dot"></span><span class="dot end"></span></div><div class="stations"><input id="from" value="Budapest-Keleti" list="rail-popular-stations" autocomplete="off" aria-label="Indulás"><input id="to" value="Kazincbarcika" list="rail-popular-stations" autocomplete="off" aria-label="Érkezés"></div><button id="swap" class="swap" title="Felcserélés">↕</button></div><div class="datetime"><div id="rail-date-trigger" class="datebox" role="button" tabindex="0" aria-label="Naptár megnyitása · utazási dátum"><span data-icon="calendar"></span><span id="dateTxt">Dátum</span><input id="rail-date" class="rail-picker-overlay" type="date" tabindex="-1" aria-label="Utazás dátumának kiválasztása"></div><div id="rail-time-trigger" class="timebox" role="button" tabindex="0" aria-label="Időpontválasztó megnyitása"><span data-icon="clock"></span><span id="timeTxt">Idő</span><input id="rail-time" class="rail-picker-overlay" type="time" tabindex="-1" step="60" aria-label="Utazás időpontjának kiválasztása"></div><input id="when" class="whenInput" type="datetime-local" aria-label="Választott időpont" tabindex="-1"></div></div><div class="actions"><button class="search" id="find"><span data-icon="search"></span>Útvonal keresése</button><button class="refresh" id="refresh" title="Hivatalos élő menetrend"><span data-icon="refresh"></span>MÁVPlusz ↗</button></div></section>
 <section class="depart glass" id="depart"><div class="departhead"><h2><span data-icon="train"></span>Következő járatok</h2><a href="https://mikorindul.hu/keleti" data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája">Összes találat →</a></div><div class="demo">Élő járatadat csak hitelesített forrásból</div><div class="trainlist" id="trainlist"></div></section>
 <section class="utils" aria-label="Vasúti funkciók"><button data-rail-action="mapRoute" title="A beírt két állomás útvonala a Google Térképen"><span data-icon="map"></span>Térkép</button><button data-go="favorites"><span data-icon="star"></span>Kedvenc<br>vonalak</button><button data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája"><span data-icon="clock"></span>Indulási<br>tábla</button><button data-rail-action="station" title="Kiválasztott állomás hivatalos MÁV-adatlapja"><span data-icon="station"></span>Állomás<br>infó</button><button data-rail-action="tickets" title="Hivatalos MÁV jegyvásárlás"><span data-icon="ticket"></span>Jegyvásárlás</button><button data-go="extras"><span data-icon="dots"></span>Egyebek</button></section>
 <datalist id="rail-popular-stations"><option value="Budapest-Keleti"></option><option value="Budapest-Nyugati"></option><option value="Budapest-Déli"></option><option value="Budapest-Kelenföld"></option><option value="Kőbánya-Kispest"></option><option value="Miskolc-Tiszai"></option><option value="Kazincbarcika"></option><option value="Debrecen"></option><option value="Győr"></option><option value="Szolnok"></option><option value="Eger"></option><option value="Szeged"></option><option value="Pécs"></option></datalist>
@@ -145,22 +145,33 @@ function pickerChanged(){
  if(mode==='now')setMode('depart');
  else whenUpdate();
 }
-function activatePicker(){
+function openNativeRailPicker(input){
+ // Crucial: showPicker must run synchronously in the *tap/click* gesture.
+ // A transparent input receives a focus ring on Android without opening a picker.
  if(mode==='now')setMode('depart');
  else ensureSelected();
+ try{
+  if(typeof input.showPicker==='function'){input.showPicker();return}
+ }catch(_){}
+ // Older Android WebViews: invoke the original native input from the same gesture.
+ try{input.focus();input.click()}catch(_){input.focus()}
+}
+for(const [trigger,input] of [
+ [$('rail-date-trigger'),railDate],
+ [$('rail-time-trigger'),railTime]
+]){
+ trigger.addEventListener('click',()=>openNativeRailPicker(input));
+ trigger.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();openNativeRailPicker(input)}
+ });
 }
 for(const control of [railDate,railTime]){
- control.addEventListener('pointerdown',activatePicker,{passive:true});
- control.addEventListener('focus',activatePicker);
  control.addEventListener('change',pickerChanged);
  control.addEventListener('input',pickerChanged);
 }
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
  setMode(b.dataset.mode);
- if(mode!=='now'){
-  try{if(typeof railDate.showPicker==='function')railDate.showPicker();else railDate.focus()}
-  catch(_){railDate.focus()}
- }
+ if(mode!=='now')openNativeRailPicker(railDate);
 });
 $('swap').onclick=()=>{const a=$('from').value;$('from').value=$('to').value;$('to').value=a};function valid(){const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){msg('Két különböző állomás szükséges');return false}return true};$('find').onclick=()=>{if(valid())msg('A belső útvonalkereső nem töltődött be. Frissítsd az oldalt, vagy válaszd külön a Térkép gombot.')};$('refresh').onclick=()=>openRailAction('timetable');
 

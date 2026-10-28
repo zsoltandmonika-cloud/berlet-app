@@ -4,63 +4,78 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const html=fs.readFileSync(path.resolve(__dirname,'../../sh9/smart-travel/public-transport/mav/index.html'),'utf8');
-test('MÁV calendar and clock have their own full-size native tap areas, no broken grid row',()=>{
- assert.match(html,/<input id="rail-date" class="rail-picker-overlay" type="date"[^>]*aria-label="Utazás dátumának kiválasztása"/);
- assert.match(html,/<input id="rail-time" class="rail-picker-overlay" type="time"[^>]*aria-label="Utazás időpontjának kiválasztása"/);
- assert.match(html,/\.datetime \.rail-picker-overlay\{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%/);
- assert.match(html,/\.datetime #when\.whenInput\{display:none!important\}/);
- assert.match(html,/id="when" class="whenInput" type="datetime-local"[^>]*tabindex="-1"/);
- assert.doesNotMatch(html,/\$\('when'\)\.style\.display='block'/);
-});
-test('one-tap native date selection switches from Now to Depart and syncs route query',()=>{
+function runPickerController(){
  const from=html.indexOf("let mode='now';");
  const until=html.indexOf("$('swap').onclick=",from);
  assert.ok(from>0&&until>from);
- const code=html.slice(from,until);
  const els=new Map();
- function el(name){
-  if(!els.has(name)){
-   const events={};
-   els.set(name,{value:'',textContent:'',events,onclick:null,
-    addEventListener(type,fn){events[type]=fn},focus(){this.focused=true},
-    setAttribute(k,v){this[k]=v},classList:{toggle(k,v){this[k]=v}}});
+ function el(id){
+  if(!els.has(id)){
+   const events={};els.set(id,{id,value:'',textContent:'',events,clickCount:0,
+    addEventListener(k,fn){events[k]=fn},setAttribute(k,v){this[k]=v},
+    classList:{toggle(k,v){this[k]=v}},focus(){this.focused=true},
+    click(){this.clickCount++}});
   }
-  return els.get(name);
+  return els.get(id);
  }
- const buttons=['now','depart','arrive'].map(name=>({...el('button-'+name),dataset:{mode:name}}));
- const mockDocument={getElementById:el,querySelectorAll(selector){
-  if(selector==='[data-mode]')return buttons;return [];
- }};
- const sandbox={document:mockDocument,Date,Number,String,Intl,$:el};
- assert.doesNotThrow(()=>vm.runInNewContext(code,sandbox));
- const date=el('rail-date'),time=el('rail-time'),when=el('when');
- date.events.pointerdown();
- date.value='2026-10-30';
- time.value='16:55';
- date.events.change();
- assert.equal(when.value,'2026-10-30T16:55');
- assert.equal(buttons[1]['aria-pressed'],'true');
- assert.equal(buttons[0]['aria-pressed'],'false');
- assert.match(el('dateTxt').textContent,/okt/);
- assert.equal(el('timeTxt').textContent,'16:55');
- buttons[2].onclick();
- assert.equal(buttons[2]['aria-pressed'],'true');
- assert.equal(when.value,'2026-10-30T16:55');
- buttons[0].onclick();
- assert.equal(buttons[0]['aria-pressed'],'true');
- time.events.focus();
- assert.equal(buttons[1]['aria-pressed'],'true');
- assert.equal(when.value,'2026-10-30T16:55');
+ const buttons=['now','depart','arrive'].map(mode=>({...el('mode-'+mode),dataset:{mode}}));
+ const document={getElementById:el,querySelectorAll(selector){return selector==='[data-mode]'?buttons:[]}};
+ vm.runInNewContext(html.slice(from,until),{document,Date,Intl,Number,String,$:el});
+ return {els,el,buttons};
+}
+test('Native calendar & time touch targets are visible glass surfaces, not transparent dead overlays',()=>{
+ assert.match(html,/<div id="rail-date-trigger" class="datebox" role="button" tabindex="0"/);
+ assert.match(html,/<div id="rail-time-trigger" class="timebox" role="button" tabindex="0"/);
+ assert.match(html,/<input id="rail-date" class="rail-picker-overlay" type="date" tabindex="-1"/);
+ assert.match(html,/<input id="rail-time" class="rail-picker-overlay" type="time" tabindex="-1"/);
+ assert.match(html,/\.datetime \.rail-picker-overlay\{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%/);
+ assert.match(html,/opacity:0;pointer-events:none;cursor:pointer/);
+ assert.match(html,/\.datetime #when\.whenInput\{display:none!important\}/);
 });
-test('Date mode button opens native Android date picker on user gesture',()=>{
- const from=html.indexOf("let mode='now';"),until=html.indexOf("$('swap').onclick=",from);
- const controls={},buttons=['now','depart','arrive'].map(mode=>({dataset:{mode},classList:{toggle(){}},setAttribute(){}}));
- const doc={getElementById(id){if(!controls[id])controls[id]={value:'',textContent:'',handlers:{},
-  addEventListener(type,fn){this.handlers[type]=fn},focus(){this.focused=true}};return controls[id]},
-  querySelectorAll(){return buttons}};
- let count=0;doc.getElementById('rail-date').showPicker=()=>{count++};
- vm.runInNewContext(html.slice(from,until),{document:doc,Date,Intl,Number,String,$:id=>doc.getElementById(id)});
- buttons[2].onclick();assert.equal(count,1);
- buttons[1].onclick();assert.equal(count,2);
- buttons[0].onclick();assert.equal(count,2);
+test('Tap on date itself synchronously invokes native showPicker and activates Depart',()=>{
+ const b=runPickerController(),d=b.el('rail-date'),t=b.el('rail-time');
+ let called=0;d.showPicker=()=>called++;
+ b.el('rail-date-trigger').events.click();
+ assert.equal(called,1,'date tile must open real picker on same tap');
+ assert.equal(b.buttons[1]['aria-pressed'],'true');
+ assert.equal(b.buttons[0]['aria-pressed'],'false');
+ assert.ok(d.value,'selected date must be initialized');
+ assert.ok(t.value,'time must be initialized');
+ d.value='2026-10-30';t.value='16:55';d.events.change();
+ assert.equal(b.el('when').value,'2026-10-30T16:55');
+ assert.match(b.el('dateTxt').textContent,/okt/);
+ assert.equal(b.el('timeTxt').textContent,'16:55');
+});
+test('Tap on time opens time picker; Arrival mode remains selected',()=>{
+ const b=runPickerController(),t=b.el('rail-time'),date=b.el('rail-date');
+ let tCalls=0,dCalls=0;t.showPicker=()=>tCalls++;date.showPicker=()=>dCalls++;
+ b.buttons[2].onclick();
+ assert.equal(dCalls,1);
+ b.el('rail-time-trigger').events.click();
+ assert.equal(tCalls,1);
+ assert.equal(b.buttons[2]['aria-pressed'],'true');
+ t.value='18:25';t.events.change();
+ assert.equal(b.el('when').value.slice(11),'18:25');
+ assert.match(b.el('timeTxt').textContent,/18:25/);
+});
+test('Keyboard Enter/Space also opens the native picker and prevents page scroll',()=>{
+ const b=runPickerController();let calls=0;b.el('rail-date').showPicker=()=>calls++;
+ for(const key of ['Enter',' ']){
+  let prevented=false;b.el('rail-date-trigger').events.keydown({key,preventDefault(){prevented=true}});
+  assert.equal(prevented,true);
+ }
+ assert.equal(calls,2);
+});
+test('Mode buttons still open native calendar, and Now does not',()=>{
+ const b=runPickerController();let count=0;b.el('rail-date').showPicker=()=>count++;
+ b.buttons[2].onclick();assert.equal(count,1);
+ b.buttons[1].onclick();assert.equal(count,2);
+ b.buttons[0].onclick();assert.equal(count,2);
+ assert.equal(b.buttons[0]['aria-pressed'],'true');
+});
+test('Fallback opens original native control only when showPicker is missing/throws',()=>{
+ const b=runPickerController(),d=b.el('rail-date');d.showPicker=()=>{throw Error('Android unsupported')};
+ b.el('rail-date-trigger').events.click();
+ assert.equal(d.focused,true);
+ assert.equal(d.clickCount,1);
 });
