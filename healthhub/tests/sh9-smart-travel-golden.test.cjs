@@ -644,6 +644,19 @@ test('BKK planner v939 departure, arrive-by and verified next three departures',
  assert.equal(planner.setTimeChoice('arrive',now+38*3600000,now),false);
  assert.equal(planner.timeChoice.mode,'depart');
  assert.ok(planner.setTimeChoice('now',null,now));
+ const transfer={legs:[
+  {line:{id:'260'},enter:{id:'A',name:'Induló'},exit:{id:'X',name:'Átszállás',lat:47.5,lng:19}},
+  {line:{id:'17'},enter:{id:'X',name:'Átszállás',lat:47.5,lng:19},exit:{id:'B',name:'Cél'}}],
+  approach:0,finish:0};
+ const transferSchedule={generatedAt:new Date(now).toISOString(),_index:new Map(),
+  trips:[
+   {line:'260',tripId:'A1',stops:[['A',min+10,min+10],['X',min+15,min+15]]},
+   {line:'17',tripId:'B1',stops:[['X',min+18,min+18],['B',min+26,min+26]]}
+  ]};
+ assert.equal(matcher.findTimings(transferSchedule,transfer,{mode:'arrive',at:now+25*60000},3,now).length,0);
+ const matchedTransfer=matcher.findTimings(transferSchedule,transfer,{mode:'arrive',at:now+26*60000},3,now);
+ assert.equal(matchedTransfer.length,1);
+ assert.deepEqual(matchedTransfer[0].matchedLegs.map(x=>x.lineId),['260','17']);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
