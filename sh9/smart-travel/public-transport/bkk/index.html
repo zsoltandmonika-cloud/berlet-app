@@ -258,18 +258,20 @@ function syncProfile(){
 }
 function toggleProfile(){
  const next=profile()==='monika'?'z':'m';
- try{
-  localStorage.setItem('hh-profile',next);
-  // storage events do not fire in the tab where the value was changed.
-  syncProfile();
-  window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{
-   detail:{code:next,profile:next==='m'?'monika':'zsolt',name:next==='m'?'Mónika':'Zsolt',source:'sh9-bkk'}
-  }));
- }catch(_){
+ try{localStorage.setItem('hh-profile',next)}
+ catch(_){
   const notice=$('notice');
   notice.textContent='A profilváltás nem menthető. Ellenőrizd a böngésző helyi tárolási engedélyét.';
   notice.hidden=false;
+  return;
  }
+ // storage events do not fire in the tab where the value was changed.
+ syncProfile();
+ try{
+  window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{
+   detail:{code:next,profile:next==='m'?'monika':'zsolt',name:next==='m'?'Mónika':'Zsolt',source:'sh9-bkk'}
+  }));
+ }catch(_){};
 }
 function validatedCatalog(data){if(!data||data.schemaVersion!==1||data.source!=='BKK Zrt., CC BY 4.0'||!Array.isArray(data.routes)||data.routes.length<3||data.routes.length>3000)return null;const t=Date.parse(data.generatedAt);if(!Number.isFinite(t)||t>Date.now()+60000||Date.now()-t>45*86400000)return null;return data}
 async function getCatalog(){if(catalog)return catalog;if(loading)return loading;loading=(async()=>{try{const res=await fetch('../../../../healthhub/guardian/bkk-catalog-v801.json',{cache:'no-cache'});if(!res.ok)throw Error('BKK katalógus nem érhető el');const json=validatedCatalog(await res.json());if(!json)throw Error('A katalógus elavult vagy nem ellenőrizhető');catalog=json;renderFavorites();return json}catch(_){return null}finally{loading=null}})();return loading}
