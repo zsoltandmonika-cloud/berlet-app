@@ -104,11 +104,11 @@ test('SH9 top-right weather glass is 40 percent narrower and remains interactive
  assert.doesNotMatch(page,/class="st-hero-title"/);
 });
 
-test('Public Transport v916 launcher has exactly three providers and preserves BKK live module',()=>{
+test('Public Transport v923 launcher has three providers and dedicated BKK landing',()=>{
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  const providers=[...pt.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]);
  assert.deepEqual(providers,['bkk','mav','volan']);
- assert.match(pt,/href="\.\.\/\.\.\/\.\.\/healthhub\/guardian\/#hhTransitPanel"/);
+ assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
  assert.match(pt,/data-profile="m"/);
  assert.doesNotMatch(pt,/fetch\(|setInterval\(|geolocation\.|supabase\.co/);
@@ -148,4 +148,48 @@ test('Public Transport v922 shifts only the artboard 23px up, preserving image a
  assert.match(html,/src="\.\/public-transport-hero-approved\.webp\?v=918"/);
  assert.match(html,/\.nav\{z-index:12;width:min\(100%,470px\)\}/);
  assert.doesNotMatch(html,/\.nav\{transform:translateY\(-23px\)/);
+});
+
+
+test('BKK Smart Control v923 uses exact user-approved hero and preserves launcher golden standard',()=>{
+ const crypto=require('node:crypto');
+ const bkk=path.join(root,'sh9/smart-travel/public-transport/bkk');
+ const art=fs.readFileSync(path.join(bkk,'bkk-hero-approved.webp'));
+ const html=fs.readFileSync(path.join(bkk,'index.html'),'utf8');
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.equal(art.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(art.subarray(8,12).toString('ascii'),'WEBP');
+ assert.equal(crypto.createHash('sha256').update(art).digest('hex'),'43202c14afe11b01a9abbb5d6626e2967228fca56fbf54561d94b4e681d9d010');
+ assert.match(html,/bkk-hero-approved\.webp/);
+ assert.match(html,/BKK Smart Control/);
+ assert.match(html,/data-profile="m"/);
+ assert.match(html,/id="favoriteRoutes"/);
+ assert.match(html,/hh-bkk-route-favorites-v801/);
+ assert.match(html,/hh-profile/);
+ assert.match(html,/id="routeSearch"/);
+ assert.match(html,/bkk-catalog-v801\.json/);
+ assert.match(html,/id="bkkPdfOverlay"/);
+ assert.match(html,/bkk-pdf-viewer-v923\.js/);
+ assert.match(html,/dataset\.bkkSchedule='true'/);
+ assert.match(html,/https:\/\/bkk\.hu\/menetrendek\//);
+ assert.match(html,/healthhub\/guardian\/#hhTransitPanel/);
+ assert.match(html,/healthhub\/guardian\/#hhSmartHubDestinationV802/);
+ assert.match(html,/healthhub\/guardian\/#hhBkkWatchlistV814/);
+ assert.match(html,/id="notifications"/);
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+});
+test('BKK PDF reader validates official PDF URL and avoids background documents',()=>{
+ const reader=require('../../sh9/smart-travel/public-transport/bkk/bkk-pdf-viewer-v923.js');
+ assert.equal(reader.validateOfficialPdf('https://bkk.hu/menetrendek/test.pdf'),'https://bkk.hu/menetrendek/test.pdf');
+ assert.equal(reader.validateOfficialPdf('https://www.bkk.hu/test.pdf'),'https://www.bkk.hu/test.pdf');
+ for(const url of ['http://bkk.hu/file.pdf','https://evil.test/file.pdf','https://bkk.hu.evil.test/260.pdf','https://bkk.hu@evil.test/pdf.pdf','https://bkk.hu/file.html','javascript:alert(1)'])
+   assert.equal(reader.validateOfficialPdf(url),null);
+ const source=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/bkk-pdf-viewer-v923.js'),'utf8');
+ assert.match(source,/pdfjs-dist@4\.10\.38/);
+ assert.match(source,/credentials:'omit'/);
+ assert.match(source,/cache:'no-store'/);
+ assert.match(source,/15\*1024\*1024/);
+ assert.doesNotMatch(source,/setInterval\(|localStorage\.setItem|indexedDB|supabase\.co|geolocation/);
 });
