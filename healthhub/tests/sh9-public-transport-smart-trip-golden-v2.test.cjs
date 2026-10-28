@@ -12,7 +12,7 @@ const guardian=fs.readFileSync(path.resolve(root,'../../../healthhub/guardian/gu
 test('Public Transport has four real Golden Glass entries and approved family artwork',()=>{
  assert.deepEqual([...page.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
  assert.equal((page.match(/class="transport-choice /g)||[]).length,4);
- assert.match(page,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
+ assert.match(page,/src="\.\/public-transport-approved-hero-v5\.avif\?v=5"/);
  assert.match(page,/id="smartTripOpen"/);
  assert.match(page,/aria-expanded="false"/);
  assert.match(page,/id="smartTripPanel"/);
