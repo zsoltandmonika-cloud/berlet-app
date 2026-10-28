@@ -62,7 +62,7 @@ test('B Plan gives immediate user benefits independent of GTFS grant',()=>{
  assert.match(html,/id="rail-popular-stations"/);
  for(const station of ['Budapest-Keleti','Miskolc-Tiszai','Kazincbarcika'])
    assert.match(html,new RegExp('<option value="'+station+'"'));
- assert.match(html,/className='rail-favorite-choice'/);
+ assert.match(fs.readFileSync(path.join(base,'rail-personal-v607.js'),'utf8'),/rail-favorite-choice/);
  assert.match(html,/Kedvenc útvonal betöltve/);
  assert.match(html,/localStorage\.setItem\('hh-profile',profile\)/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
