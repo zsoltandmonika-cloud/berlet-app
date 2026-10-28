@@ -81,7 +81,7 @@ test('GTFS UI integration is opt-in, same-origin, on-demand, bounded, and leaves
  assert.doesNotMatch(bridge,/\bsetInterval\(|navigator\.geolocation|supabase\.co|credentials:'include'/);
  for(const file of ['rail-gtfs-config-v1.js','rail-gtfs-core-v1.js','rail-gtfs-bridge-v1.js'])assert.match(html,new RegExp(file.replaceAll('.','\\.')));
  assert.match(html,/rail-golden-glass-v3/);
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
  assert.match(html,/id="signal" class="sound"/);
  assert.match(fs.readFileSync(path.join(base,'rail-journeys-v2.js'),'utf8'),/showTimetable/);
