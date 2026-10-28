@@ -170,7 +170,7 @@ test('BKK Smart Control v923 uses exact user-approved hero and preserves launche
  assert.match(html,/bkk-catalog-v801\.json/);
  assert.match(html,/id="bkkPdfOverlay"/);
  assert.match(html,/bkk-pdf-viewer-v923\.js/);
- assert.match(html,/data\.bkkSchedule='true'/);
+ assert.match(html,/dataset\.bkkSchedule='true'/);
  assert.match(html,/https:\/\/bkk\.hu\/menetrendek\//);
  assert.match(html,/healthhub\/guardian\/#hhTransitPanel/);
  assert.match(html,/healthhub\/guardian\/#hhSmartHubDestinationV802/);
