@@ -47,7 +47,7 @@
    const dep=validDate(v.departure),arrival=validDate(v.arrival);
    if(!dep||!arrival||arrival<=dep||arrival.getTime()-dep.getTime()>24*3600*1000)return null;
    const service=cleanText(v.service,44),number=cleanText(v.number,24);
-   if(!service||!number||!/^[\p{L}\p{N} \-\/]+$/u.test(number))return null;
+   if(!service||!number||/[<>]/.test(String(v.number??''))||!/^[\p{L}\p{N} \-\/]+$/u.test(number))return null;
    const platform=(typeof v.platform==='string'||typeof v.platform==='number')?cleanText(v.platform,12):'';
    const delay=v.delayMinutes===null||v.delayMinutes===undefined?null:Number(v.delayMinutes);
    if(delay!==null&&(!Number.isInteger(delay)||delay< -15||delay>600))return null;
