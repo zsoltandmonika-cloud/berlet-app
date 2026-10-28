@@ -44,7 +44,7 @@
     const blocked=others.reduce((sum,r)=>r&&[r.left,r.right,r.top,r.bottom].every(Number.isFinite)?sum+overlap(box,r):sum,0);
     const spill=Math.max(0,bounds.left+9-box.left)+Math.max(0,box.right-(bounds.right-9))
      +Math.max(0,bounds.top+9-box.top)+Math.max(0,box.bottom-(bounds.bottom-9));
-    const cost=blocked*50+spill*15+rise*.55+Math.abs(dx)*.19;
+    const cost=blocked*50+spill*15+rise*.55+Math.abs(dx)*.65;
     if(!best||cost<best.cost)best={cost,anchor:'bottom',offset:[dx,dy]};
    }
   }
