@@ -62,7 +62,9 @@ test('Golden native cards are provider-gated, without synthetic timetable, GPS o
  assert.match(raw,/function validateFeed\(payload,query,now=new Date\(\)\)/);
  assert.match(raw,/Csak hitelesített vonatadat/);
  assert.match(raw,/const q=currentQuery\(\)/);
- assert.match(raw,/open\(transitLink\(q\)\)/);
+ assert.doesNotMatch(raw,/open\(transitLink\(q\)\)/);
+ assert.match(raw,/Google Térkép ↗/);
+ assert.match(raw,/Stay in SH9/);
  assert.match(raw,/acceptProviderData/);
  assert.doesNotMatch(raw,/\bsetInterval\(|navigator\.geolocation|supabase\.co|\.innerHTML\s*=/i);
 });
