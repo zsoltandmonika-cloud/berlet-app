@@ -10,6 +10,8 @@ const lib=require('../../sh9/smart-travel/public-transport/mav/rail-links-v1.js'
 
 test('SH9 MÁV Phase1 has clickable internal landing and keeps Volán external',()=>{
  assert.match(entry,/data-service="mav" href="\.\/mav\/"/);
+ assert.match(entry,/<a class="poster-hit mav"[^>]*aria-label="MÁV · saját Smart Rail útvonaltervező megnyitása"/);
+ assert.doesNotMatch(entry,/<a class="poster-hit mav"[^>]*target="_blank"/);
  assert.match(entry,/data-service="volan" href="https:\/\/mavplusz.hu\/"/);
 });
 test('SH9 MÁV approved hero is real WebP with no phone status baked into HTML',()=>{
