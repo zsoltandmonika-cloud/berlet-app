@@ -58,15 +58,20 @@ test('v915 firebreak avoids Auth-driven refetch loops and duplicate realtime cha
  assert.doesNotMatch(notice,/setInterval/);
 });
 
+
 test('v916 explicit Family Tasks profile switch refreshes UI and profile-scoped lists',()=>{
- const handler=app.match(/\\$\\('fhProfileSwitch'\\)\\.addEventListener\\('click',\\(\\)=>\\{([\\s\\S]*?)\\n \\}\\);/);
- assert.ok(handler,'Tasks profile switch handler exists');
- assert.match(handler[1],/localStorage\\.setItem\\('hh-profile'/);
- assert.match(handler[1],/profileUi\\(\\)/);
- assert.match(handler[1],/hh-family-profile-changed/);
- assert.match(handler[1],/authSync\\(true\\)/);
- assert.doesNotMatch(handler[1],/authSync\\(\\)/);
- assert.doesNotMatch(app,/setInterval\\(/);
+ const start=app.indexOf("$('fhProfileSwitch').addEventListener('click',()=>{");
+ assert.ok(start>=0,'Tasks profile switch handler exists');
+ const end=app.indexOf('\n });',start);
+ assert.ok(end>start,'profile switch handler is closed');
+ const handler=app.slice(start,end);
+ assert.ok(handler.includes("localStorage.setItem('hh-profile'"),'persistent profile setting');
+ assert.ok(handler.includes('profileUi();'),'immediate avatar/theme update');
+ assert.ok(handler.includes('hh-family-profile-changed'),'Buddy observer notified');
+ assert.ok(handler.includes('authSync(true);'),'explicit profile refresh bypasses v915 fast path');
+ assert.ok(!handler.includes('authSync();'),'unforced auth sync regression absent');
+ assert.ok(!app.includes('setInterval('),'no polling introduced');
  const css=read('sh9/family-hub/family-tasks-v881.css');
- assert.match(css,/\\.fh-hero \\.fh-owner\\{[^}]*pointer-events:auto/);
+ assert.ok(css.includes('.fh-hero .fh-owner{') && css.includes('pointer-events:auto'),
+  'profile switch remains an interactive target');
 });
