@@ -52,6 +52,23 @@ function load(storage,id,trip){
   return {...s,time:s.time||localFromTrip(trip)};
  }catch(_){return {...fallback,time:localFromTrip(trip)}}
 }
+/* v612 · Return only explicitly saved assistant data. No synthetic default
+ * values and no cross-trip or cross-profile fallback. Read-only. */
+function readSaved(storage,id,trip){
+ if(!trip||! /^[a-zA-Z0-9_-]{5,64}$/.test(trip.id||''))return null;
+ try{
+  const rows=JSON.parse(storage.getItem(key(id))||'{}');
+  if(!rows||typeof rows!=='object'||Array.isArray(rows)||!Object.prototype.hasOwnProperty.call(rows,trip.id))return null;
+  const raw=rows[trip.id],value=safeSettings(raw);
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)||
+     typeof raw.time!=='string'||(raw.time!==''&&!instantForBudapest(raw.time))||
+     !Number.isInteger(raw.travel)||raw.travel<5||raw.travel>180||
+     !Number.isInteger(raw.buffer)||raw.buffer<5||raw.buffer>60||
+     !Array.isArray(raw.checklist)||raw.checklist.length!==CHECKS.length||
+     raw.checklist.some(v=>typeof v!=='boolean')||!STATES.includes(raw.status))return null;
+  return value;
+ }catch(_){return null}
+}
 function save(storage,id,trip,settings){
  const validated=safeSettings(settings);
  const rows=Object.create(null);
@@ -205,7 +222,7 @@ function mount(doc,win){
   refresh:update,close:stop};
 }
 return Object.freeze({CHECKS,STATES,key,localBudapest,instantForBudapest,localFromTrip,
- safeSettings,load,save,calculate,remainingLabel,calendarItem,mount});
+ safeSettings,load,readSaved,save,calculate,remainingLabel,calendarItem,mount});
 });
 if(typeof window!=='undefined'&&typeof document!=='undefined'&&window.SH9_MAV_DEPARTURE_V611){
  window.SH9_MAV_DEPARTURE_UI=window.SH9_MAV_DEPARTURE_V611.mount(document,window);
