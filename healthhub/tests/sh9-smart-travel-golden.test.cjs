@@ -262,7 +262,7 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.match(bkk,/<strong>Következő járat<\/strong>/);
  assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(guardian,/get\('sh9Transit'\)==='1'/);
- assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=930-clean-header/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=931-centered-map-plus35/);
  assert.match(guardian,/guardian-sh9-transit-v927\.js\?v=927-own-map-glass/);
  assert.match(guardian,/id="sh9TransitHeaderV927" hidden/);
  assert.match(guardian,/id="sh9TransitNavV927" hidden/);
@@ -357,7 +357,7 @@ test('v930 Golden Glass header visually hides only the three user-marked paragra
  const css=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.css'),'utf8');
  const guardian=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
  const original=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=930-clean-header/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=931-centered-map-plus35/);
  assert.match(css,/v930 · Clean SH9 Transit header/);
  assert.match(css,/:root\[data-sh9-transit="on"\] #sh9TransitHeaderV927 \.sh9-transit-subtitle-v927\{\s*display:none!important/);
  assert.match(css,/:root\[data-sh9-transit="on"\] #sh9AllVehiclesStatusV928,\s*:root\[data-sh9-transit="on"\] #sh9TransitStatusV927\{/);
@@ -370,4 +370,28 @@ test('v930 Golden Glass header visually hides only the three user-marked paragra
  assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(guardian,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
  assert.match(original,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
+
+
+test('v931 centers SH9 brand, removes duplicate header Back and adds exactly 35px to native map',()=>{
+ const guardian=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ const css=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.css'),'utf8');
+ const main=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=931-centered-map-plus35/);
+ assert.doesNotMatch(guardian,/class="sh9-transit-back-v927"/);
+ assert.match(guardian,/id="sh9TransitNavV927" hidden/);
+ assert.match(guardian,/<span>Vissza<\/span>/);
+ assert.match(guardian,/<strong>SH9 Smart Travel<\/strong>/);
+ assert.match(guardian,/id="sh9TransitProfileV927"/);
+ assert.match(css,/v931 · SH9 centered brand and taller map/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] #sh9TransitHeaderV927 \.sh9-transit-top-v927\{/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/);
+ assert.match(css,/\.sh9-transit-name-v927\{\s*grid-column:2;\s*grid-row:1;\s*justify-self:center;\s*text-align:center;/);
+ assert.match(css,/#sh9TransitProfileV927\{\s*grid-column:3;\s*grid-row:1;\s*justify-self:end;/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] \.shell>main>\.map-card:not\(\.hh-map-full-v819\) #guardianMap\{\s*height:clamp\(395px,calc\(54dvh \+ 35px\),775px\)!important;\s*min-height:395px!important;/);
+ assert.match(css,/#sh9AllVehiclesStatusV928,\s*:root\[data-sh9-transit="on"\] #sh9TransitStatusV927/);
+ assert.match(guardian,/id="sh9AllVehiclesToggleV928"/);
+ assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
+ assert.equal([...guardian.matchAll(/id="guardianMap"/g)].length,1);
+ assert.match(main,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
