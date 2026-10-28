@@ -249,7 +249,8 @@
     status('Visszaállítás kész. Zsolt: +'+counts.z.favoritesAdded+' kedvenc, +'+
      counts.z.historyAdded+' előzmény, +'+counts.z.journeysAdded+' utazás. Mónika: +'+
      counts.m.favoritesAdded+' kedvenc, +'+counts.m.historyAdded+' előzmény, +'+
-     counts.m.journeysAdded+' utazás. A meglévő magánadatok megmaradtak.');
+     counts.m.journeysAdded+' utazás. Indulási beállítások: +'+(counts.z.departureAdded||0)+
+     ' Zsolt, +'+(counts.m.departureAdded||0)+' Mónika. A meglévő magánadatok megmaradtak.');
     win.SH9_MAV_PERSONAL_UI?.render();
     win.SH9_MAV_JOURNEYS_UI?.render();
     selected=null;apply.disabled=true;file.value='';
