@@ -220,6 +220,9 @@ function mount(doc,win){
    const actions=doc.createElement('div');actions.className='rail-trip-actions';
    actions.append(
     button('Betöltés','rail-personal-tool',()=>openPlanner(item)),
+    button('⏱ Indulási asszisztens','rail-personal-tool',()=>{
+     if(!win.SH9_MAV_DEPARTURE_UI?.open(item))toast('Indulási asszisztens nem elérhető.');
+    }),
     button('Naptár (.ics)','rail-personal-tool',()=>downloadCalendar(item)),
     button('Google Naptár ↗','rail-personal-tool',()=>openGoogleCalendar(item)),
     button('Megosztás','rail-personal-tool',()=>shareJourney(item)),

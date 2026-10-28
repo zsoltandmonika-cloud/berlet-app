@@ -168,6 +168,29 @@
 .rail-health-row p{margin:6px 0 0;font-size:10px;color:#d0e2f6;line-height:1.5;overflow-wrap:anywhere}
 :root[data-profile="m"] .rail-health-shortcut{border-color:rgba(255,175,233,.42)}
 :root[data-profile="m"] .rail-health-row{background:linear-gradient(125deg,rgba(94,40,116,.42),rgba(48,26,74,.52))}
+
+/* Phase 2I · Golden Glass Smart Departure · S24 Ultra one-handed. */
+.rail-departure-route{font-size:12px;font-weight:800;line-height:1.45;overflow-wrap:anywhere;color:#f3faff}
+.rail-departure-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rail-departure-controls label{display:flex;flex-direction:column;gap:6px;min-width:0;color:#deedff;font-size:11px;line-height:1.4}
+.rail-departure-wide{grid-column:1/-1}
+.rail-departure-controls input{display:block;min-width:0;width:100%;min-height:44px;padding:8px;color:#f9fbff;border:1px solid rgba(186,223,255,.46);background:rgba(9,28,63,.8);border-radius:10px;color-scheme:dark;font-size:13px}
+.rail-departure-result{display:flex;flex-direction:column;gap:8px;margin:13px 0;padding:13px 10px;border:1px solid rgba(170,220,255,.43);border-radius:13px;background:linear-gradient(135deg,rgba(27,87,145,.42),rgba(15,31,67,.55));text-align:center}
+.rail-departure-result strong{font-size:15px;color:#e5f8ff;line-height:1.45}
+.rail-departure-result span{font-size:12px;color:#cae5ff}
+.rail-departure-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.rail-departure-actions button,.rail-departure-actions a{display:flex;justify-content:center;align-items:center;text-align:center;min-height:45px;padding:8px 5px;background:linear-gradient(125deg,rgba(47,116,187,.53),rgba(24,49,94,.6));border-radius:10px;border:1px solid rgba(172,220,255,.38);color:#f4faff;font-size:11px;font-weight:750}
+.rail-departure-actions button:disabled{opacity:.35}
+#rail-departure h4{font-size:12px;margin:15px 0 8px;color:#f0f9ff}
+.rail-departure-checklist{display:grid;gap:5px}
+.rail-departure-check{display:flex;align-items:center;gap:12px;padding:9px;border:1px solid rgba(175,218,255,.23);border-radius:9px;background:rgba(17,48,90,.42);font-size:12px;color:#f5faff;min-height:43px}
+.rail-departure-check input{width:20px;height:20px;accent-color:#55ccff;flex-shrink:0}
+.rail-departure-status{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.rail-departure-state{min-height:44px;border-radius:9px;border:1px solid rgba(178,218,250,.37);background:rgba(35,68,109,.45);color:#e1efff;font-size:11px;padding:7px}
+.rail-departure-state[aria-pressed="true"]{border-color:#a0e7ff;background:linear-gradient(130deg,rgba(37,122,198,.78),rgba(62,70,150,.61));color:white;font-weight:800}
+:root[data-profile="m"] .rail-departure-result{background:linear-gradient(130deg,rgba(135,57,142,.42),rgba(47,25,86,.7));border-color:rgba(255,185,238,.46)}
+:root[data-profile="m"] .rail-departure-state[aria-pressed="true"]{background:linear-gradient(130deg,rgba(182,78,162,.74),rgba(75,43,129,.63));border-color:#ffd1f2}
+:root[data-profile="m"] .rail-departure-check input{accent-color:#f59adc}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
@@ -204,6 +227,31 @@
 <div id="rail-journey-plans"></div>
 <button type="button" data-go="rail-backup" class="rail-backup-shortcut">⇩ Utazásaim biztonsági mentése</button>
 </section>
+<section id="rail-departure" class="drawer glass" aria-label="Smart Departure személyes indulási asszisztens">
+<h3>⏱ Smart Departure · Indulási asszisztens</h3>
+<p id="rail-departure-route" class="rail-departure-route"></p>
+<p class="rail-trip-warning">Minden időpont kézzel megadott személyes terv. Nem MÁV-menetrend, nem élő BKK-útvonalidő és nem GPS-becslés. Indulási és érkezési idő ne legyen összekeverve.</p>
+<div class="rail-departure-controls">
+<label class="rail-departure-wide">Mikor szeretnél az állomáson lenni? (saját időpont)
+<input id="rail-departure-station-time" type="datetime-local" aria-label="Saját állomási időpont"></label>
+<label>Utazás az állomásig (perc)
+<input id="rail-departure-travel" type="number" min="5" max="180" step="5" inputmode="numeric" value="45"></label>
+<label>Biztonsági ráhagyás (perc)
+<input id="rail-departure-buffer" type="number" min="5" max="60" step="5" inputmode="numeric" value="20"></label>
+</div>
+<div class="rail-departure-result"><strong id="rail-departure-summary">Adj meg állomási időpontot.</strong><span id="rail-departure-remaining" role="status" aria-live="polite">Visszaszámlálás a saját indulásodig</span></div>
+<div class="rail-departure-actions">
+<button id="rail-departure-save" type="button">✓ Terv mentése</button>
+<button id="rail-departure-refresh" type="button">↻ Visszaszámláló frissítése</button>
+<button id="rail-departure-calendar" type="button" disabled>▦ Naptári emlékeztető (.ics)</button>
+<a href="../bkk/" id="rail-departure-bkk">🚋 BKK útvonaltervező ↗</a>
+</div>
+<h4>Utazási ellenőrzőlista</h4>
+<div id="rail-departure-checklist" class="rail-departure-checklist"></div>
+<h4>Utazási státusz</h4>
+<div id="rail-departure-status" class="rail-departure-status"></div>
+<p id="rail-departure-note" class="rail-personal-caption" role="status" aria-live="polite">Személyes időadatok, külső forrás nélkül.</p>
+</section>
 <section id="rail-backup" class="drawer glass" aria-label="MÁV személyes adatok mentése és visszaállítása">
 <h3>🛡️ Smart Rail · Backup & Restore</h3>
 <p class="rail-personal-caption">Mindkét profil (Zsolt és Mónika) kedvencei, keresési előzményei és mentett utazási tervei. Kizárólag helyi JSON-fájl, felhőfeltöltés nélkül.</p>
@@ -237,7 +285,7 @@ const paths={settings:'<path d="M10 2h4l1 3 2 1 3-1 2 4-2 2v2l2 2-2 4-3-1-2 1-1 
 for(const node of document.querySelectorAll('[data-icon]'))node.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[node.dataset.icon]||paths.train)+'</svg>';
 const $=id=>document.getElementById(id);let timer;function msg(x){const t=$('toast');t.textContent=x;t.hidden=false;clearTimeout(timer);timer=setTimeout(()=>t.hidden=true,3000)}
 /* v2B: no hardcoded train departures, delays or invented platforms. */
-let profile;try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch{profile='z'};function sync(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529,photo=$('profile-photo');if(avatars&&photo){photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe'}else if(photo){photo.alt=name+' profilkép nem érhető el'}$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára')+'.');$('profile').title=name+' · Profilváltás';loadFav();loadPrefs();window.SH9_MAV_JOURNEYS_UI?.render()};$('profile').onclick=()=>{profile=profile==='m'?'z':'m';try{localStorage.setItem('hh-profile',profile)}catch{}sync();msg('Profil: '+(profile==='m'?'Mónika':'Zsolt'))};
+let profile;try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch{profile='z'};function sync(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529,photo=$('profile-photo');if(avatars&&photo){photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe'}else if(photo){photo.alt=name+' profilkép nem érhető el'}$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára')+'.');$('profile').title=name+' · Profilváltás';loadFav();loadPrefs();window.SH9_MAV_JOURNEYS_UI?.render();window.SH9_MAV_DEPARTURE_UI?.profileChanged()};$('profile').onclick=()=>{profile=profile==='m'?'z':'m';try{localStorage.setItem('hh-profile',profile)}catch{}sync();msg('Profil: '+(profile==='m'?'Mónika':'Zsolt'))};
 let soundOn=true;try{soundOn=localStorage.getItem('sh9-mav-flirt-signal-v2')!=='off'}catch{};const audio=new Audio('assets/flirt-signal.mp3');audio.preload='none';audio.volume=.5;let played=false;const cue=()=>{if(soundOn&&!played){audio.play().then(()=>played=true).catch(()=>{})}};function syncSound(){$('signal').setAttribute('aria-pressed',String(soundOn));$('signal').title='FLIRT szignál '+(soundOn?'BE':'KI')};syncSound();$('signal').onclick=()=>{soundOn=!soundOn;try{localStorage.setItem('sh9-mav-flirt-signal-v2',soundOn?'on':'off')}catch{};if(!soundOn){audio.pause();audio.currentTime=0}else{played=false;cue()}syncSound()};document.addEventListener('pointerdown',e=>{if(!e.target.closest('#signal'))cue()},{capture:true,once:false});cue();
 let mode='now';
 const railDate=$('rail-date'),railTime=$('rail-time'),whenField=$('when');
@@ -363,4 +411,4 @@ function show(id){const target=$(id);for(const d of document.querySelectorAll('.
  * Keep this named function for the existing profile switch and initial sync(). */
 function loadFav(){window.SH9_MAV_PERSONAL_UI?.render()}
 const pk=()=>`sh9-mav-rail-preferences-v1-${profile==='m'?'monika':'zsolt'}`;function loadPrefs(){let o={};try{o=JSON.parse(localStorage.getItem(pk())||'{}')}catch{};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);if(o[k]!==undefined){if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]}}};$('save').onclick=()=>{const o={};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value}try{localStorage.setItem(pk(),JSON.stringify(o))}catch{}msg('Preferenciák mentve')};sync();whenUpdate();window.addEventListener('pageshow',whenUpdate);document.addEventListener('visibilitychange',()=>{if(!document.hidden)whenUpdate()});
-</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script><script src="./rail-health-v610.js"></script></body></html>
+</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script><script src="./rail-health-v610.js"></script><script src="./rail-departure-v611.js"></script></body></html>
