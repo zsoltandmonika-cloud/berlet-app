@@ -6,12 +6,12 @@ const js=fs.readFileSync(path.join(root,'public-transport-smart-trip-v1.js'),'ut
 test('Four authentic user-art neon cards have actual optimized assets',()=>{
  const names=['bkk','mav','volan','smarttrip'];
  for(const name of names){
-  const filepath=path.join(root,'assets',name+'-golden-card-v1.webp');
+  const filepath=path.join(root,'assets',name+'-approved-card-v5.webp');
   const asset=fs.readFileSync(filepath);
   assert.ok(asset.length>7000&&asset.length<35000,name+' optimized file size');
   assert.equal(asset.subarray(0,4).toString(),'RIFF');
   assert.equal(asset.subarray(8,12).toString(),'WEBP');
-  assert.ok(html.includes('src="./assets/'+name+'-golden-card-v1.webp"'));
+  assert.ok(html.includes('src="./assets/'+name+'-approved-card-v5.webp"'));
  }
  assert.equal((html.match(/class="choice-art"/g)||[]).length,4);
  assert.equal((html.match(/class="transport-choice /g)||[]).length,4);
@@ -32,7 +32,7 @@ test('Buttons are separately clickable, accessible and keep Smart Trip functiona
  assert.match(css,/\.transport-grand \.transport-neon-options \.choice-art\{/);
  assert.match(css,/object-fit:contain/);
  assert.match(css,/\.transport-grand \.transport-neon-options \.transport-choice:focus-visible/);
- assert.match(html,/public-transport-grand-v2\.css\?v=4-neon-art-cards/);
+ assert.match(html,/public-transport-grand-v2\.css\?v=5-approved-art/);
  assert.doesNotThrow(()=>new vm.Script(js));
 });
 test('Image-only presentation does not introduce polling or provider traffic',()=>{
