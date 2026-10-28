@@ -63,7 +63,9 @@ test('Planner and favorites remain clickable profile-specific DOM, not image sli
  assert.match(html,/helyben menthetők, nem továbbítjuk automatikusan/);
  assert.match(html,/Látványtervi adatok · nem élő menetrend/);
  assert.match(html,/https:\/\/mavplusz\.hu\//);
- assert.match(html,/https:\/\/jegy\.mav\.hu\//);
+ const official=require('../../sh9/smart-travel/public-transport/mav/rail-official-v1.js');
+ assert.equal(official.URLS.tickets,'https://jegy.mav.hu/');
+ assert.match(html,/data-rail-action="tickets"/);
  const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(x=>x[1]).filter(Boolean);
  assert.ok(scripts.length>=1);
  for(const s of scripts)assert.doesNotThrow(()=>new vm.Script(s));
