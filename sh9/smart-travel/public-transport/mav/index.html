@@ -86,11 +86,19 @@
 #favlist{display:grid;gap:7px}
 .rail-favorite-choice{min-height:43px;border:1px solid var(--rail-glass-edge);border-radius:11px;background:var(--rail-glass-fill);color:#f4faff;font-size:11px;font-weight:700;text-align:left;padding:8px 10px;overflow-wrap:anywhere;box-shadow:inset 0 1px #fff3}
 .rail-favorite-choice:focus-visible{outline:3px solid #99e0ff;outline-offset:2px}
+
+/* v603 · Actual native Android date/time pickers over the existing glass digits.
+   Invisible inputs are touch targets; no fake JS-only calendar or keyboard popup. */
+.datetime .datebox,.datetime .timebox{position:relative;height:100%;cursor:pointer;touch-action:manipulation}
+.datetime .rail-picker-overlay{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.datetime .datebox:focus-within,.datetime .timebox:focus-within{outline:1px solid rgba(179,235,255,.7);outline-offset:-1px;border-radius:8px}
+:root[data-profile="m"] .datetime .datebox:focus-within,:root[data-profile="m"] .datetime .timebox:focus-within{outline-color:rgba(255,188,245,.85)}
+.datetime #when.whenInput{display:none!important}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
 <section class="quick" aria-label="Gyors funkciók"><button class="active" data-go="planner"><span class="ico" data-icon="search"></span>Útvonal</button><button data-rail-action="timetable" title="Hivatalos MÁVPlusz menetrend"><span class="ico" data-icon="clock"></span>Menetrend</button><button data-go="favorites"><span class="ico" data-icon="heart"></span>Kedvencek</button><button data-rail-action="liveTrains" title="Vonatinfó: közlekedő vonatok térképe"><span class="ico" data-icon="train"></span>Élő vonatok</button><button data-rail-action="tickets" title="Hivatalos MÁV jegyvásárlás"><span class="ico" data-icon="ticket"></span>Jegyek ↗</button></section>
-<section class="planner glass" id="planner"><div class="phead"><h2><span data-icon="map"></span>Útvonaltervező</h2><div class="mode" role="group" aria-label="Időpont típusa"><button class="on" data-mode="now">Indulás most</button><button data-mode="depart">Indulás ekkor</button><button data-mode="arrive">Érkezés ekkor</button></div></div><div class="routebox"><div class="stationfields"><div class="route-rail"><span class="dot"></span><span class="dot end"></span></div><div class="stations"><input id="from" value="Budapest-Keleti" list="rail-popular-stations" autocomplete="off" aria-label="Indulás"><input id="to" value="Kazincbarcika" list="rail-popular-stations" autocomplete="off" aria-label="Érkezés"></div><button id="swap" class="swap" title="Felcserélés">↕</button></div><div class="datetime"><div class="datebox"><span data-icon="calendar"></span><span id="dateTxt">Pén, okt. 30.</span></div><div class="timebox"><span data-icon="clock"></span><span id="timeTxt">16:55</span></div><input id="when" class="whenInput" type="datetime-local" aria-label="Választott időpont"></div></div><div class="actions"><button class="search" id="find"><span data-icon="search"></span>Útvonal keresése</button><button class="refresh" id="refresh" title="Hivatalos élő menetrend"><span data-icon="refresh"></span>MÁVPlusz ↗</button></div></section>
+<section class="planner glass" id="planner"><div class="phead"><h2><span data-icon="map"></span>Útvonaltervező</h2><div class="mode" role="group" aria-label="Időpont típusa"><button class="on" data-mode="now">Indulás most</button><button data-mode="depart">Indulás ekkor</button><button data-mode="arrive">Érkezés ekkor</button></div></div><div class="routebox"><div class="stationfields"><div class="route-rail"><span class="dot"></span><span class="dot end"></span></div><div class="stations"><input id="from" value="Budapest-Keleti" list="rail-popular-stations" autocomplete="off" aria-label="Indulás"><input id="to" value="Kazincbarcika" list="rail-popular-stations" autocomplete="off" aria-label="Érkezés"></div><button id="swap" class="swap" title="Felcserélés">↕</button></div><div class="datetime"><div class="datebox"><span data-icon="calendar"></span><span id="dateTxt">Dátum</span><input id="rail-date" class="rail-picker-overlay" type="date" aria-label="Utazás dátumának kiválasztása" title="Naptár megnyitása"></div><div class="timebox"><span data-icon="clock"></span><span id="timeTxt">Idő</span><input id="rail-time" class="rail-picker-overlay" type="time" step="60" aria-label="Utazás időpontjának kiválasztása" title="Időpont kiválasztása"></div><input id="when" class="whenInput" type="datetime-local" aria-label="Választott időpont" tabindex="-1"></div></div><div class="actions"><button class="search" id="find"><span data-icon="search"></span>Útvonal keresése</button><button class="refresh" id="refresh" title="Hivatalos élő menetrend"><span data-icon="refresh"></span>MÁVPlusz ↗</button></div></section>
 <section class="depart glass" id="depart"><div class="departhead"><h2><span data-icon="train"></span>Következő járatok</h2><a href="https://mikorindul.hu/keleti" data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája">Összes találat →</a></div><div class="demo">Élő járatadat csak hitelesített forrásból</div><div class="trainlist" id="trainlist"></div></section>
 <section class="utils" aria-label="Vasúti funkciók"><button data-rail-action="mapRoute" title="A beírt két állomás útvonala a Google Térképen"><span data-icon="map"></span>Térkép</button><button data-go="favorites"><span data-icon="star"></span>Kedvenc<br>vonalak</button><button data-rail-action="board" title="Kiválasztott állomás hivatalos indulási táblája"><span data-icon="clock"></span>Indulási<br>tábla</button><button data-rail-action="station" title="Kiválasztott állomás hivatalos MÁV-adatlapja"><span data-icon="station"></span>Állomás<br>infó</button><button data-rail-action="tickets" title="Hivatalos MÁV jegyvásárlás"><span data-icon="ticket"></span>Jegyvásárlás</button><button data-go="extras"><span data-icon="dots"></span>Egyebek</button></section>
 <datalist id="rail-popular-stations"><option value="Budapest-Keleti"></option><option value="Budapest-Nyugati"></option><option value="Budapest-Déli"></option><option value="Budapest-Kelenföld"></option><option value="Kőbánya-Kispest"></option><option value="Miskolc-Tiszai"></option><option value="Kazincbarcika"></option><option value="Debrecen"></option><option value="Győr"></option><option value="Szolnok"></option><option value="Eger"></option><option value="Szeged"></option><option value="Pécs"></option></datalist>
@@ -108,7 +116,52 @@ const $=id=>document.getElementById(id);let timer;function msg(x){const t=$('toa
 /* v2B: no hardcoded train departures, delays or invented platforms. */
 let profile;try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch{profile='z'};function sync(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529,photo=$('profile-photo');if(avatars&&photo){photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe'}else if(photo){photo.alt=name+' profilkép nem érhető el'}$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára')+'.');$('profile').title=name+' · Profilváltás';loadFav();loadPrefs()};$('profile').onclick=()=>{profile=profile==='m'?'z':'m';try{localStorage.setItem('hh-profile',profile)}catch{}sync();msg('Profil: '+(profile==='m'?'Mónika':'Zsolt'))};
 let soundOn=true;try{soundOn=localStorage.getItem('sh9-mav-flirt-signal-v2')!=='off'}catch{};const audio=new Audio('assets/flirt-signal.mp3');audio.preload='none';audio.volume=.5;let played=false;const cue=()=>{if(soundOn&&!played){audio.play().then(()=>played=true).catch(()=>{})}};function syncSound(){$('signal').setAttribute('aria-pressed',String(soundOn));$('signal').title='FLIRT szignál '+(soundOn?'BE':'KI')};syncSound();$('signal').onclick=()=>{soundOn=!soundOn;try{localStorage.setItem('sh9-mav-flirt-signal-v2',soundOn?'on':'off')}catch{};if(!soundOn){audio.pause();audio.currentTime=0}else{played=false;cue()}syncSound()};document.addEventListener('pointerdown',e=>{if(!e.target.closest('#signal'))cue()},{capture:true,once:false});cue();
-let mode='now';function whenUpdate(){const value=$('when').value;if(mode!=='now'&&value){const d=new Date(value);if(!Number.isNaN(d.getTime())){$('dateTxt').textContent=d.toLocaleDateString('hu-HU',{weekday:'short',month:'short',day:'numeric'});$('timeTxt').textContent=d.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});return}}const now=new Date();$('dateTxt').textContent=now.toLocaleDateString('hu-HU',{weekday:'short',month:'short',day:'numeric'});$('timeTxt').textContent=now.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'})}document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(c=>c.classList.toggle('on',c===b));if(mode==='now'){$('when').style.display='none';whenUpdate()}else{$('when').style.display='block';if(!$('when').value){const d=new Date(Date.now()+3600000);$('when').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}$('when').showPicker?.();whenUpdate()}});$('when').onchange=whenUpdate;
+let mode='now';
+const railDate=$('rail-date'),railTime=$('rail-time'),whenField=$('when');
+function localMinute(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
+function ensureSelected(){
+ if(!whenField.value)whenField.value=localMinute(new Date(Date.now()+3600000));
+ if(!railDate.value)railDate.value=whenField.value.slice(0,10);
+ if(!railTime.value)railTime.value=whenField.value.slice(11,16);
+}
+function setMode(next){
+ mode=next;
+ document.querySelectorAll('[data-mode]').forEach(b=>{
+  b.classList.toggle('on',b.dataset.mode===mode);
+  b.setAttribute('aria-pressed',String(b.dataset.mode===mode));
+ });
+ if(mode!=='now')ensureSelected();
+ whenUpdate();
+}
+function whenUpdate(){
+ const d=mode!=='now'&&whenField.value?new Date(whenField.value):new Date();
+ if(!Number.isFinite(d.getTime()))return;
+ $('dateTxt').textContent=d.toLocaleDateString('hu-HU',{weekday:'short',month:'short',day:'numeric'});
+ $('timeTxt').textContent=d.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
+}
+function pickerChanged(){
+ if(!railDate.value||!railTime.value)return;
+ whenField.value=railDate.value+'T'+railTime.value;
+ if(mode==='now')setMode('depart');
+ else whenUpdate();
+}
+function activatePicker(){
+ if(mode==='now')setMode('depart');
+ else ensureSelected();
+}
+for(const control of [railDate,railTime]){
+ control.addEventListener('pointerdown',activatePicker,{passive:true});
+ control.addEventListener('focus',activatePicker);
+ control.addEventListener('change',pickerChanged);
+ control.addEventListener('input',pickerChanged);
+}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
+ setMode(b.dataset.mode);
+ if(mode!=='now'){
+  try{if(typeof railDate.showPicker==='function')railDate.showPicker();else railDate.focus()}
+  catch(_){railDate.focus()}
+ }
+});
 $('swap').onclick=()=>{const a=$('from').value;$('from').value=$('to').value;$('to').value=a};function valid(){const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){msg('Két különböző állomás szükséges');return false}return true};$('find').onclick=()=>{if(valid()){if(mode!=='now')msg('A választott időpontot a Google Térképen külön állítsd be.');openRailAction('mapRoute')}};$('refresh').onclick=()=>openRailAction('timetable');
 
 const railOfficial=window.SH9_MAV_OFFICIAL_V1;
