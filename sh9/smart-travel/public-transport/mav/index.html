@@ -191,6 +191,10 @@
 :root[data-profile="m"] .rail-departure-result{background:linear-gradient(130deg,rgba(135,57,142,.42),rgba(47,25,86,.7));border-color:rgba(255,185,238,.46)}
 :root[data-profile="m"] .rail-departure-state[aria-pressed="true"]{background:linear-gradient(130deg,rgba(182,78,162,.74),rgba(75,43,129,.63));border-color:#ffd1f2}
 :root[data-profile="m"] .rail-departure-check input{accent-color:#f59adc}
+
+/* v612 · Manual departure summary on journey cards · original Golden Glass. */
+.rail-trip-departure{display:block;line-height:1.5;margin:7px 0;padding:8px 9px;font-size:11px;font-weight:750;border-radius:9px;color:#d3f4ff;border:1px solid rgba(158,219,255,.42);background:rgba(22,79,117,.38);overflow-wrap:anywhere}
+:root[data-profile="m"] .rail-trip-departure{color:#ffe6f8;border-color:rgba(255,181,237,.46);background:rgba(103,43,109,.38)}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
@@ -254,7 +258,7 @@
 </section>
 <section id="rail-backup" class="drawer glass" aria-label="MÁV személyes adatok mentése és visszaállítása">
 <h3>🛡️ Smart Rail · Backup & Restore</h3>
-<p class="rail-personal-caption">Mindkét profil (Zsolt és Mónika) kedvencei, keresési előzményei és mentett utazási tervei. Kizárólag helyi JSON-fájl, felhőfeltöltés nélkül.</p>
+<p class="rail-personal-caption">Mindkét profil (Zsolt és Mónika) kedvencei, keresési előzményei, mentett utazásai és Smart Departure beállításai (állomási célidő, utazási perc, ráhagyás, checklist, státusz). Kizárólag helyi JSON-fájl, felhőfeltöltés nélkül.</p>
 <p class="rail-trip-warning">Adatvédelem: a jegyszámok, foglalási adatok, kocsi-, ülőhelyadatok és személyes jegyzetek NEM kerülnek a mentésbe. Ezek csak az eredeti telefonon maradnak.</p>
 <button id="rail-backup-download" type="button" class="rail-backup-primary">⇩ Biztonsági mentés készítése (.json)</button>
 <div class="rail-backup-import">
@@ -262,7 +266,7 @@
 <input id="rail-backup-file" type="file" accept=".json,application/json" aria-label="SH9 MÁV mentésfájl kiválasztása">
 <button id="rail-backup-apply" type="button" class="rail-backup-primary" disabled>✓ Ellenőrzött adatok hozzáadása</button>
 </div>
-<p id="rail-backup-preview" class="rail-backup-preview" role="status" aria-live="polite">A visszaállítás nem írja felül a meglévő útvonalakat. A fájl ellenőrzése után külön jóváhagyás szükséges.</p>
+<p id="rail-backup-preview" class="rail-backup-preview" role="status" aria-live="polite">A v609-es régi mentések is visszaállíthatók. Az import csak hiányzó beállításokat ad hozzá, meglévőket nem ír felül. A fájl ellenőrzése után külön jóváhagyás szükséges.</p>
 <p class="rail-personal-caption">Helyi, offline mentés. Dropbox-szinkron nincs bekapcsolva. A mentésfájlt őrizd biztonságos helyen.</p>
 </section>
 <section id="rail-health" class="drawer glass" aria-label="Smart Rail rendszerállapot és diagnosztika">
@@ -411,4 +415,4 @@ function show(id){const target=$(id);for(const d of document.querySelectorAll('.
  * Keep this named function for the existing profile switch and initial sync(). */
 function loadFav(){window.SH9_MAV_PERSONAL_UI?.render()}
 const pk=()=>`sh9-mav-rail-preferences-v1-${profile==='m'?'monika':'zsolt'}`;function loadPrefs(){let o={};try{o=JSON.parse(localStorage.getItem(pk())||'{}')}catch{};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);if(o[k]!==undefined){if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]}}};$('save').onclick=()=>{const o={};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value}try{localStorage.setItem(pk(),JSON.stringify(o))}catch{}msg('Preferenciák mentve')};sync();whenUpdate();window.addEventListener('pageshow',whenUpdate);document.addEventListener('visibilitychange',()=>{if(!document.hidden)whenUpdate()});
-</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script><script src="./rail-health-v610.js"></script><script src="./rail-departure-v611.js"></script></body></html>
+</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-departure-v611.js"></script><script src="./rail-backup-v609.js"></script><script src="./rail-health-v610.js"></script></body></html>
