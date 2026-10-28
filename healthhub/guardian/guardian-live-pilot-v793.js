@@ -37,7 +37,7 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
 }
 let polling=null;
 let sh9AllEnabled=true;
-let inFlight=false;
+let inFlight=false,sh9Abort=null;
 let lastVehicles=[];
 let lastVerified=null;
 let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
@@ -113,8 +113,21 @@ function renderLiveFromSnapshot(parsed){
   status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
  }
 }
+function visibleBBox(){
+ if(!sh9AllMode)return null;
+ const bounds=mapApi.map?.getBounds?.();
+ if(!bounds)return null;
+ const west=Number(bounds.getWest?.()),east=Number(bounds.getEast?.());
+ const south=Number(bounds.getSouth?.()),north=Number(bounds.getNorth?.());
+ if(![west,east,south,north].every(Number.isFinite))return null;
+ const values=[Math.max(16,west),Math.max(45,south),Math.min(23,east),Math.min(49,north)];
+ if(values[0]>=values[2]||values[1]>=values[3])return null;
+ return values.map(v=>v.toFixed(5)).join(',');
+}
 async function poll(){
  if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
+ const bbox=sh9AllMode?visibleBBox():null;
+ if(sh9AllMode&&!bbox){status('térképre várunk · nincs felesleges szerverlekérdezés');return;}
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
@@ -125,8 +138,10 @@ async function poll(){
    clear();return
   }
   const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?'+
-   (sh9AllMode?'all=1':'routes='+encodeURIComponent(favoriteKeys().join(',')));
-  const res=await w.fetch(url,{method:'GET',cache:'no-store',headers:{
+   (sh9AllMode?'all=1&bbox='+encodeURIComponent(bbox):'routes='+encodeURIComponent(favoriteKeys().join(',')));
+  const abort=sh9AllMode&&w.AbortController?new w.AbortController():null;
+  if(abort)sh9Abort=abort;
+  const res=await w.fetch(url,{method:'GET',cache:'no-store',...(abort?{signal:abort.signal}:{}),headers:{
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
   }});
   const data=await res.json().catch(()=>null);
@@ -158,10 +173,14 @@ async function poll(){
   lastSourceSnapshot=parsed;
   renderLiveFromSnapshot(parsed);
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
- finally{inFlight=false}
+ finally{inFlight=false;sh9Abort=null}
 }
-function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?60000:15000)}
-function stop(){if(polling!==null){w.clearInterval(polling);polling=null}clear()}
+function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?120000:15000)}
+function stop(){
+ if(sh9AllMode){try{sh9Abort?.abort()}catch(_){ }sh9Abort=null;}
+ if(polling!==null){w.clearInterval(polling);polling=null}
+ clear();
+}
 d.addEventListener('visibilitychange',()=>{if(d.hidden)stop();else start()});
 // A Watchlist editor changes favorites, not the old hidden map checkboxes.
 // Re-evaluate immediately instead of leaving stale vehicle markers visible.
@@ -182,6 +201,10 @@ if(sh9AllMode)w.addEventListener('hh-sh9-all-live-enabled-v928',e=>{
  sh9AllEnabled=enabled;
  if(enabled&&!d.hidden)start();
  else stop();
+});
+// User-only refresh; moving/zooming never creates another network request.
+if(sh9AllMode)w.addEventListener('hh-sh9-all-live-refresh-v928',()=>{
+ if(!d.hidden&&sh9AllEnabled)poll();
 });
 w.addEventListener('pagehide',stop);
 start();
