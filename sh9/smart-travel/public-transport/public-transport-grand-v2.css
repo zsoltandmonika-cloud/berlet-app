@@ -1,0 +1,36 @@
+/* SH9 Public Transport Grand Landing v2 · genuine Premium Glass, four native navigation controls. */
+.shell.transport-grand{width:min(100%,470px);max-width:470px;min-height:100dvh;padding:0 8px calc(75px + env(safe-area-inset-bottom,0px));gap:0;align-items:stretch;justify-content:flex-start;background:radial-gradient(ellipse at 50% 22%,rgba(51,128,197,.2),transparent 70%)}
+.transport-grand .transport-visual{width:100%;aspect-ratio:960/768;max-height:none;position:relative;overflow:hidden;border-radius:0 0 18px 18px;border:1px solid var(--border);border-top:none;box-shadow:0 7px 28px #0009,0 0 15px var(--glow);background:#07182f}
+.transport-grand .transport-visual>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;user-select:none;-webkit-user-drag:none}
+.transport-grand .transport-visual:after{content:"";position:absolute;inset:80% 0 0;background:linear-gradient(transparent,#071629c8);pointer-events:none}
+.transport-grand .transport-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px 7px}
+.transport-grand .transport-title h1{font-size:clamp(15px,4.2vw,19px);letter-spacing:-.03em;margin:0;line-height:1.15}
+.transport-grand .transport-title span{color:var(--accent);font-size:10px;text-align:right;font-weight:760}
+.transport-grand .transport-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.transport-grand .transport-choice{--choice-color:#4ec5ff;display:grid;grid-template-columns:43px minmax(0,1fr) 14px;align-items:center;gap:7px;text-align:left;min-width:0;min-height:73px;padding:8px 8px;border:1px solid var(--border);border-radius:15px;background:linear-gradient(132deg,var(--glass1),var(--glass2));-webkit-backdrop-filter:blur(17px) saturate(145%);backdrop-filter:blur(17px) saturate(145%);box-shadow:inset 0 1px #fff4,0 5px 15px #0006,0 0 11px var(--glow);cursor:pointer;font-family:inherit;color:#f9fbff}
+.transport-grand .transport-choice:active{filter:brightness(1.18);transform:translateY(1px)}
+.transport-grand .transport-choice:focus-visible,.transport-grand .smart-trip-panel button:focus-visible,.transport-grand .smart-trip-panel input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.transport-grand .choice-bkk{--choice-color:#fd79d6}.transport-grand .choice-mav{--choice-color:#30aaff}.transport-grand .choice-volan{--choice-color:#ffd650}.transport-grand .choice-ai{--choice-color:#81f0d2;border-color:rgba(129,240,210,.76)}
+.transport-grand .choice-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:24px;border:1px solid color-mix(in srgb,var(--choice-color) 68%,#fff);background:color-mix(in srgb,var(--choice-color) 22%,#081d35);box-shadow:inset 0 1px #fff6,0 0 12px color-mix(in srgb,var(--choice-color) 34%,transparent)}
+.transport-grand .choice-name{min-width:0;font-size:14px;font-weight:850;line-height:1.22;letter-spacing:-.025em}
+.transport-grand .choice-name small{display:block;margin-top:3px;color:#d5e6f7;font-size:9px;font-weight:620;line-height:1.25;letter-spacing:0}
+.transport-grand .choice-arrow{font-size:20px;color:var(--accent);text-align:right}
+.transport-grand .choice-ai[aria-expanded="true"]{box-shadow:inset 0 1px #fff7,0 0 17px #60d9d459;border-color:#91ffe6}
+.transport-grand .smart-trip-panel[hidden]{display:none!important}
+.transport-grand .smart-trip-panel{margin-top:9px;padding:13px 12px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(129deg,var(--glass1),var(--glass2));box-shadow:inset 0 1px #fff4,0 6px 24px #0006}
+.transport-grand .smart-trip-panel h2{font-size:16px;margin:0 0 5px}
+.transport-grand .smart-trip-panel p{font-size:11px;margin:0 0 9px;color:#dce9fa;line-height:1.5}
+.transport-grand .smart-trip-panel form{display:grid;gap:8px}
+.transport-grand .smart-trip-panel label{display:grid;gap:5px;font-size:11px;font-weight:750;color:#d9eaff}
+.transport-grand .smart-trip-panel input{width:100%;height:43px;min-width:0;border-radius:11px;border:1px solid #c3e3ff97;padding:9px 11px;background:#09274ab5;color:#fff;font-size:14px;outline:none}
+.transport-grand .smart-trip-panel input::placeholder{color:#bbd0e3}
+.transport-grand .smart-trip-panel button{width:100%;min-height:44px;border-radius:11px;border:1px solid #bdeeffbc;background:linear-gradient(115deg,#058ae7,#266be8 65%,#a348d2);box-shadow:0 4px 14px #164a9c77;color:#fff;font-weight:810;font-size:13px}
+:root[data-profile="m"] .transport-grand .smart-trip-panel button{background:linear-gradient(115deg,#f175cb,#b349b7 65%,#8067dd)}
+.transport-grand .trip-state{display:flex;gap:7px;align-items:flex-start;margin-top:8px;color:#f5dda6;font-size:10px;line-height:1.45}
+.transport-grand .smart-trip-panel .trip-help{margin:6px 0 0;font-size:10px;color:#c8def1}
+.transport-grand .transport-foot{margin:11px 3px 4px;color:#c6d9ea;font-size:10px;line-height:1.4;text-align:center}
+.transport-grand .nav{width:min(100%,470px)}
+.transport-grand #assetMissing{max-width:100%}
+@media(max-height:770px){.transport-grand .transport-visual{max-height:38dvh}.transport-grand .transport-visual>img{object-fit:contain}.transport-grand .transport-choice{min-height:63px;padding:6px}.transport-grand .choice-icon{height:36px;width:36px;font-size:21px}.transport-grand .transport-choice{grid-template-columns:36px minmax(0,1fr) 12px}}
+@media(max-width:355px){.transport-grand .transport-choice{grid-template-columns:35px minmax(0,1fr) 12px;gap:4px;padding:6px}.transport-grand .choice-icon{width:35px;height:36px}.transport-grand .choice-name{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.transport-grand .transport-choice:active{transform:none}}
