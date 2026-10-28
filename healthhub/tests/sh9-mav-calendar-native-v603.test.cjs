@@ -31,7 +31,7 @@ test('one-tap native date selection switches from Now to Depart and syncs route 
  const mockDocument={getElementById:el,querySelectorAll(selector){
   if(selector==='[data-mode]')return buttons;return [];
  }};
- const sandbox={document:mockDocument,Date,Number,String,Intl};
+ const sandbox={document:mockDocument,Date,Number,String,Intl,$:el};
  assert.doesNotThrow(()=>vm.runInNewContext(code,sandbox));
  const date=el('rail-date'),time=el('rail-time'),when=el('when');
  date.events.pointerdown();
@@ -59,7 +59,7 @@ test('Date mode button opens native Android date picker on user gesture',()=>{
   addEventListener(type,fn){this.handlers[type]=fn},focus(){this.focused=true}};return controls[id]},
   querySelectorAll(){return buttons}};
  let count=0;doc.getElementById('rail-date').showPicker=()=>{count++};
- vm.runInNewContext(html.slice(from,until),{document:doc,Date,Intl,Number,String});
+ vm.runInNewContext(html.slice(from,until),{document:doc,Date,Intl,Number,String,$:id=>doc.getElementById(id)});
  buttons[2].onclick();assert.equal(count,1);
  buttons[1].onclick();assert.equal(count,2);
  buttons[0].onclick();assert.equal(count,2);
