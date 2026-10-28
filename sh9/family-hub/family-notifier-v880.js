@@ -295,7 +295,7 @@ async function readUnread(){
 let joinInProgress=false,queuedJoin=false,lastJoinedAt=0,lastForegroundReadAt=0;
 async function join(force=false){
  if(joinInProgress){if(force||profile()!==currentProfile)queuedJoin=true;return}
- if(!force&&ch&&user&&profile()===currentProfile&&Date.now()-lastJoinedAt<300000)return;
+ if(!force&&ch&&user&&profile()===currentProfile)return;
  joinInProgress=true;
  try{
   if(!await ensureApi())return;
