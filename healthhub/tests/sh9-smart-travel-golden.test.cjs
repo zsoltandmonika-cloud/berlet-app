@@ -110,7 +110,8 @@ test('Public Transport v923 launcher has three providers and dedicated BKK landi
  assert.deepEqual(providers,['bkk','mav','volan']);
  assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
  assert.match(pt,/data-service="mav" href="\.\/mav\/"/);
- assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
+ assert.match(pt,/data-service="volan" href="\.\/volan\/"/);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
  assert.match(pt,/data-profile="m"/);
  assert.doesNotMatch(pt,/fetch\(|setInterval\(|geolocation\.|supabase\.co/);
  assert.equal([...pt.matchAll(/class="nav"/g)].length,1);

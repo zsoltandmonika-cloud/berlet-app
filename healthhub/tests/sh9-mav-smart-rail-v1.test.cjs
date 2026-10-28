@@ -8,10 +8,11 @@ const html=fs.readFileSync(path.join(base,'mav/index.html'),'utf8');
 const entry=fs.readFileSync(path.join(base,'index.html'),'utf8');
 const lib=require('../../sh9/smart-travel/public-transport/mav/rail-links-v1.js');
 
-test('MÁV landing opens internally, BKK and Volán navigation unchanged',()=>{
+test('MÁV and Volán landings open internally without external redirect',()=>{
  assert.match(entry,/data-service="mav" href="\.\/mav\/"/);
  assert.doesNotMatch(entry,/<a class="poster-hit mav"[^>]*target="_blank"/);
- assert.match(entry,/data-service="volan" href="https:\/\/mavplusz.hu\/"/);
+ assert.match(entry,/data-service="volan" href="\.\/volan\/"/);
+ assert.doesNotMatch(entry,/<a class="poster-hit volan"[^>]*target="_blank"/);
 });
 test('Golden visual assets exist, are images, and phone status UI is OS-owned',()=>{
  const hero=fs.readFileSync(path.join(base,'mav/assets/mav-hero-approved.webp'));
