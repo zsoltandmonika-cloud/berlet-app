@@ -28,6 +28,8 @@ test('Golden visual assets exist, are images, and phone status UI is OS-owned',(
  assert.match(html,/golden-standard-avatars-v529\.js/);
  assert.match(html,/window\.HH_GOLDEN_AVATARS_V529/);
  assert.match(html,/\.hero #profile\.profile\{[^}]*width:45px;min-width:45px;max-width:45px;height:45px/);
+ assert.match(html,/\.hero #profile\.profile\{[^}]*top:auto;right:auto;bottom:6px;left:6px;width:45px/);
+ assert.match(html,/\.sound\{position:absolute;right:8px;bottom:9px/);
  assert.match(html,/:root\[data-profile="m"\] \.hero #profile\.profile/);
  assert.match(html,/rail-train-thumbs-v2\.webp/);
  for(const i of [0,1,2]) assert.match(html,new RegExp('trainthumb-'+i));
