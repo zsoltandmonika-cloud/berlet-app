@@ -89,3 +89,8 @@
 .service .chev{text-align:center}
 :root[data-profile="m"] .service{background:linear-gradient(130deg,rgba(116,64,136,.46),rgba(44,33,73,.64));border-color:#f6b9e94d}
 :root[data-profile="m"] .service strong{color:#ffd0f0}
+
+/* Exact MÁV / Volán six-icon utility row. */
+.utils{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:0 2px;margin-bottom:9px}
+.utils button,.utils a{height:63px;min-width:0;border:1px solid #b1cde74e;background:linear-gradient(131deg,#565b7e88,#10375ab9);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;color:white;font-size:9px;font-weight:bold;text-align:center;line-height:1.15;padding:3px 1px;box-shadow:inset 0 1px #fff4,0 4px 9px #0007}
+.utils svg{width:21px;height:21px}
