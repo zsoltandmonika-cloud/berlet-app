@@ -346,6 +346,7 @@ test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guar
  assert.match(loader,/get\('sh9Transit'\)==='1'\?'929-sh9-bkk-3d-fix':'914-mini-above-marker'/);
  assert.match(live,/hh-sh9-all-live-ready-v929/);
  assert.match(render,/makeMarkerElement\(d,vehicle\)/);
+ assert.match(render,/if\(source\?\.setData\)source\.setData/);
  assert.match(render,/last\.features\.length===0/);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
