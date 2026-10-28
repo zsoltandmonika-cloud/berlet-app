@@ -263,7 +263,7 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(guardian,/get\('sh9Transit'\)==='1'/);
  assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=931-centered-map-plus35/);
- assert.match(guardian,/guardian-sh9-transit-v927\.js\?v=927-own-map-glass/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.js\?v=932-reload-scroll-top/);
  assert.match(guardian,/id="sh9TransitHeaderV927" hidden/);
  assert.match(guardian,/id="sh9TransitNavV927" hidden/);
  assert.match(guardian,/>SH9 Smart Travel<\/strong>/);
@@ -394,4 +394,48 @@ test('v931 centers SH9 brand, removes duplicate header Back and adds exactly 35p
  assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
  assert.equal([...guardian.matchAll(/id="guardianMap"/g)].length,1);
  assert.match(main,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
+
+
+test('v932 SH9 restores top on new page/reload only, preserving history, anchors and in-page scrolling',()=>{
+ const vm=require('node:vm');
+ const src=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.js'),'utf8');
+ const html=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ assert.match(html,/get\('sh9Transit'\)==='1'\)\{document\.documentElement\.dataset\.sh9Transit='on';if\(!location\.hash\)\{try\{history\.scrollRestoration='manual'/);
+ assert.match(html,/guardian-sh9-transit-v927\.js\?v=932-reload-scroll-top/);
+ function run(search,{type='reload',hash='',initialY=420}={}){
+  const events={},elements=new Map(),scrolls=[],scrollingElement={scrollTop:initialY};
+  const doc={readyState:'complete',hidden:false,scrollingElement,
+   documentElement:{dataset:{},scrollTop:initialY},body:{scrollTop:initialY},
+   getElementById(id){
+    if(!elements.has(id))elements.set(id,{id,hidden:true,textContent:'',addEventListener(){},scrollIntoView(){}});
+    return elements.get(id);
+   }};
+  const win={location:{search,hash},performance:{getEntriesByType:()=>[{type}]},
+   localStorage:{getItem:()=> 'z'},requestAnimationFrame(fn){fn()},
+   scrollTo(x,y){scrolls.push([x,y]);scrollingElement.scrollTop=y},
+   HH_GUARDIAN_V761:{map:{resize(){}}},addEventListener(name,fn){events[name]=fn},
+   matchMedia:()=>({matches:false})};
+  vm.runInNewContext(src,{window:win,document:doc,URLSearchParams});
+  return {scrolls,doc,events,scrollingElement};
+ }
+ const reload=run('?sh9Transit=1');
+ assert.ok(reload.scrolls.length>=1);
+ assert.equal(reload.scrollingElement.scrollTop,0);
+ assert.equal(reload.doc.documentElement.scrollTop,0);
+ reload.scrollingElement.scrollTop=310;
+ reload.events.pageshow({persisted:true});
+ assert.equal(reload.scrollingElement.scrollTop,310);
+ reload.events.pageshow({persisted:false});
+ assert.equal(reload.scrollingElement.scrollTop,0);
+ const returned=run('?sh9Transit=1',{type:'back_forward'});
+ assert.equal(returned.scrolls.length,0);
+ assert.equal(returned.scrollingElement.scrollTop,420);
+ const anchored=run('?sh9Transit=1',{hash:'#hhTransitPanel'});
+ assert.equal(anchored.scrolls.length,0);
+ const family=run('');
+ assert.equal(family.scrolls.length,0);
+ assert.equal(family.doc.documentElement.dataset.sh9Transit,undefined);
+ // No recurring scroll watcher, no new location/GPS/network machinery.
+ assert.doesNotMatch(src,/setInterval\(|setTimeout\(|watchPosition\(|getCurrentPosition\(|fetch\(/);
 });
