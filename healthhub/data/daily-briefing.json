@@ -1,189 +1,207 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-27",
-  "generatedAt": "2026-10-27T10:51:47+01:00",
-  "headline": "A reggel fő témái: Israel heads to polls for pivotal election defined by security and democracy; Lula's comeback in Brazil dents Trump's ambitions for Latin America",
+  "date": "2026-10-28",
+  "generatedAt": "2026-10-28T11:38:20+01:00",
+  "headline": "A reggel fő témái: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs; Ceasefire extended across Ukraine's Kherson region, officials say",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Israel heads to polls for pivotal election defined by security and democracy",
-        "BBC World: Lula's comeback in Brazil dents Trump's ambitions for Latin America",
-        "BBC World: Truce begins in Ukraine city where residents ate weeds to survive",
-        "BBC World: Jordan carries out deadly strike in Syria in retaliation for church attack"
+        "BBC World: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs",
+        "BBC World: Ceasefire extended across Ukraine's Kherson region, officials say",
+        "BBC World: King acknowledges 'suffering of the past' as Caribbean tour begins",
+        "BBC World: Dutch zookeeper dies after being mauled by leopard"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Israel heads to polls for pivotal election defined by security and democracy",
-        "BBC World: Lula's comeback in Brazil dents Trump's ambitions for Latin America",
-        "BBC World: Truce begins in Ukraine city where residents ate weeds to survive"
+        "BBC World: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs",
+        "BBC World: King acknowledges 'suffering of the past' as Caribbean tour begins",
+        "BBC World: Alexander brothers each sentenced to 30 years in prison in sex trafficking case"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Israel heads to polls for pivotal election defined by security and democracy",
-        "BBC World: Lula's comeback in Brazil dents Trump's ambitions for Latin America",
-        "BBC World: Truce begins in Ukraine city where residents ate weeds to survive"
+        "BBC World: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs",
+        "BBC World: Ceasefire extended across Ukraine's Kherson region, officials say",
+        "BBC World: King acknowledges 'suffering of the past' as Caribbean tour begins"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "| hvg.hu: Hogyan kerülhet ki Magyarország az elátkozott uniós eljárásból? - | hvg.hu",
-        "Portfolio.hu: Kimondta a hitelminősítő: Magyarország képes lehet bevezetni az eurót 2032-ben - Portfolio.hu",
-        "Infostart: Fontos dolgokat ért el Magyarország az EU-nál az utolsó pillanatban - Infostart"
+        "Magyarország Kormánya: Összefoglaltuk a sport-tao-támogatások összegeit és kedvezményezettjeit - Magyarország Kormánya",
+        "Portfolio.hu: Kedd éjjel egy lépéssel közelebb került Magyarország az amerikai nukleáris képességekhez - Portfolio.hu",
+        "Hunbasket: Megkezdődött a jegyértékesítés a Portugália és a Dánia elleni női Eb-selejtezőkre - Hunbasket"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: I'm a single mum on £41,000 and limit my weekly shop to £40 - it's hard",
-        "BBC Business: Budget measures to include fuel duty freeze and food tariff cuts",
-        "BBC Business: Donald Trump's biggest economic problem looks strangely familiar"
+        "BBC Business: I get £4,062 a year and am trying my best - here's what I want from the Budget",
+        "BBC Business: Energy bill help, minimum wage rise and bank taxes - what could be in the Budget?",
+        "BBC Business: Minimum wage set to rise but 18-20 year-olds will not get bigger increase"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Apple says it will replace iPhone Duo handsets with screen problems",
-        "BBC Technology: Anthropic's blockbuster share listing - 5 surprising things we now know",
-        "BBC Technology: Anthropic warns of 'catastrophic risk' to humankind ahead of blockbuster share listing"
+        "BBC Technology: 'An annoying buzz': The search for stealthier drones",
+        "BBC Technology: Apple to replace iPhone Duos affected by screen problem",
+        "BBC Technology: Tech Life"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Jordan carries out deadly strike in Syria in retaliation for church attack (BBC World).",
-        "Figyelmi pont: Anthropic warns of 'catastrophic risk' to humankind ahead of blockbuster share listing (BBC Business)."
+        "Figyelmi pont: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs (BBC World).",
+        "Figyelmi pont: Ceasefire extended across Ukraine's Kherson region, officials say (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Israel heads to polls for pivotal election defined by security and democracy",
-        "BBC World: Lula's comeback in Brazil dents Trump's ambitions for Latin America"
+        "BBC World: Luxury cruise passengers stranded in Cambodia due to soaring fuel costs",
+        "BBC World: Ceasefire extended across Ukraine's Kherson region, officials say"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Israel heads to polls for pivotal election defined by security and democracy",
+      "title": "Luxury cruise passengers stranded in Cambodia due to soaring fuel costs",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3j47l4kdez4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-27"
+      "url": "https://www.bbc.co.uk/news/articles/cwj342k62exyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Lula's comeback in Brazil dents Trump's ambitions for Latin America",
+      "title": "Ceasefire extended across Ukraine's Kherson region, officials say",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq62yg6rggj0o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6lye1w9p2l8o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Truce begins in Ukraine city where residents ate weeds to survive",
+      "title": "King acknowledges 'suffering of the past' as Caribbean tour begins",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck20wjnv3w0jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-27"
+      "url": "https://www.bbc.co.uk/news/articles/cmwyv8ld22z1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Jordan carries out deadly strike in Syria in retaliation for church attack",
+      "title": "Dutch zookeeper dies after being mauled by leopard",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq8ezg6dy6xlo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/crwyq90gwg8jo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Ex-FBI chief James Comey faces federal charges for third time",
+      "title": "Norway and Finland leaders hold rare call with Putin",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckly0xqjnlwvo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6vgj813mlelo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Jay-Z to perform at Super Bowl half-time show",
+      "title": "Ex-wife of Zimbabwe's vice-president freed after collapse of attempted murder case",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq8ezg4364epo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6e3xgq11jqlo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Major Chinese brands drop Mbappé as backlash grows over Mao joke",
+      "title": "Alexander brothers each sentenced to 30 years in prison in sex trafficking case",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cv62yg0erp8zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-27"
+      "url": "https://www.bbc.co.uk/news/articles/cqn498mng08ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Meghan to co-host Junior MasterChef Australia",
+      "title": "Egypt court fines journalist Lina Attalah and orders news site's closure",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crgqwg3ll1v1o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cw8rz14k1jvxo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Hogyan kerülhet ki Magyarország az elátkozott uniós eljárásból? - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE4ycWQteVRkRk1XX0NoWHBoUWNMM3hlR1ZWX3ZXbzZuWjJ1STJBbUZLbTAzN0VqQ29MN3prNHdWMjRjQ0VqSWNBeERXQzQ5WVdhSjRmVEZ0UWp6V09LSFBkc1NoR2FtNloxWEE4cnRuNC1uUHRwdEFya0JRTQ?oc=5",
-      "publishedAt": "2026-10-27"
+      "title": "Összefoglaltuk a sport-tao-támogatások összegeit és kedvezményezettjeit - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOanNrQXVqSlZwMzdVaU1lQVVyUXBSUFhpbmo3dkowalZrdURZcjF1U21aQnV0ZmxXbkJrakZRNk5TenZ1RkdoTUVSN0otMGxVQ0NuWDZIM3FpZmpTZ29XTkdVQUFRMERyY2FOdnFJX2RzZEJzVXpfNEhhdUNKYWhBejBsdzk2aXo0MmEyUjBBcllQQjQ0R2ZTMVNNRXc?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Kimondta a hitelminősítő: Magyarország képes lehet bevezetni az eurót 2032-ben - Portfolio.hu",
+      "title": "Kedd éjjel egy lépéssel közelebb került Magyarország az amerikai nukleáris képességekhez - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQbW9UZ0w0RFo5V3ZSdHExU3BFSE1wMzBjVkZvLWgteHFoNlpVVHl6Zm5lZXo0dXhZOEEzd2RKOGo3enZaN1pIQ0JaSzRRZzlnWXd6NzZnTzZEZ1hHRTBOWVVPR3dHSDNxbzlMZDFrMGpRYzM4akw3bzJBSGNrNUpVTEJwUVUyRnhkOTFmUkh2U3ljSEVzUktVZVQzcGFMMVhLZ0RNdXFCTEtCdnhIOEl3Z3VVNTNaUkxhMWc4V0tqd2NzSWlmNnc?oc=5",
-      "publishedAt": "2026-10-27"
+      "url": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxPY0g4ejVYam5OZXJFQVVELXI3ZkowM3psaHl5dTh6QUZLQlBCdDc0SXJMdTJRUGZSXzlmQlN1XzFqcENIVjkxS09MX1NpVUtndEhXdWh3QjBFOUN6TXRSMFFQZDRsaDc5THR0T09wSm1qUm5ONVJMckl5QWtzYmV3NGxhNE1JRkRxNnpUZ292ZnhrV3dLSTJnS21rbWJNOUxkX2pIMUE3X0piZmxxb3JmdHVpTmZkOHl3eFNsT2VTTkc5Z2hBdi0xbXNZcFBSYm1ZOHdYddIB2gFBVV95cUxQMy1DNVlrRmVnU1FtbE43OC1fSi1TcU5Ja19DUC1oajBia3BVTEhCRUM1dnE2cGVaQ2pqZFlzRkVfckJkOGpHZEF6V0MxZGRQd05YTmtrUDU5bUNNNG5UbmxXVXJkQ2VEWjlKelZ2MVFrZDlUYXZWMGR0a3BkUWlOeHhSSVozaXBJZnRsQm9rSlNkcHlUUXhsd3ZMdFpGZkEwTDVaZmJnYmpaeGN3eXhwUmxSUk5kT2w1cE50MWVaYzRvREg5RGZVTWRNNGhzMVlDd0xxWENCTXFHQQ?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Fontos dolgokat ért el Magyarország az EU-nál az utolsó pillanatban - Infostart",
-      "publisher": "Infostart",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOY2tqVTlCa1FKbVRESW1IMFVIS2pMTl85bmwyWGxKZHZUcW4tamQyajlsTTZ1RE5NZTZHSmFSejZfaWZ0STVnbTR6NzIzeFFCemxtd2gwaDlhMmctYnRldURIZjhvaDM3YzdicEZ3eWxxb1lUTU5jMVNwU2ZKNnlsb3JfaWlQbkRjUHJFZzA3LUxMd3Bzb29vSzlqRVZBV2U0MjdvbXJrZDFXTWM?oc=5",
-      "publishedAt": "2026-10-27"
+      "title": "Megkezdődött a jegyértékesítés a Portugália és a Dánia elleni női Eb-selejtezőkre - Hunbasket",
+      "publisher": "Hunbasket",
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPWGQ1eXFDT1Bsbm9keUdRY2ZXWnRfSnZTVXF6VkdtNVVsb3JWUUp1eXlOYnhySDBKNjZvSFlsMUJIQTRyLXlLdXBkcElKdVFGNXFnOEt2TkpjQmYxRHhPYzJFRE0za3dYaFoxWl9OaFZiNzdXd2ViTXQ2Y3Vod2RFd3l1TERBODdaY2lxdnBwR21JZDAtYU1EMHEzUEdxam9yS3NiYzFMWVhWVExJazh0ZEtn?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Durva üzenet érkezett Berlinből: az uniós pénzek bánhatják, ha Magyarország nemet mond Kijev finanszírozására – indul az újabb nyomásgyakorlás, Magyar Péterék alkuba kezdenek? - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOcXdrMWJNYzB2amZvSjFEcFV0eW52dGFKbmh6SmhreHVEdU1ITm02Z1BuUEVHRmZHS0Y0Z090aUlHRkhOVUxfUWF6TXV2TmpSSHB6aW1FTFVfczJnMi1zZmtBSW1CdEpDeFlyVFVNTFdXTkFqMzZfN2s3OExKZDFyNlFLYzlMWVhULUdN?oc=5",
-      "publishedAt": "2026-10-27"
+      "title": "Soha nem látott vízhiány – Magyarország vízkészletei történelmi mélyponton - Szegedi Tudományegyetem",
+      "publisher": "Szegedi Tudományegyetem",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQaWFnWlMtR2VvRWs5Q0k2QkVGVzJMWmJsb0ExODFNVzdMclp0WmpSNDJTcGVTOXB0c1U1bEFCNjRLOVFqOTBWVHZ4Q0RCaGltY1V5dmZPUjFOOHBqQTlzV0c2bTdyQnVvY0JxbGM5eElEbndmR2l2c2VBVFRYckdrOGNxS1RsWnM5YlBkM3lZYWNmUDdsdzkxek9n?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "A 19. század óta keresték, most végre előkerült Magyarország szellemfaja - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTFB6Vm1WVjNwQUpxdHVkMFNLU3FrOTVtTmJRN1lkTGZPUTRlcE9XLVd1U2RoSXR1d2JpSGM0TWtubnFJZXNlMG5SdEZzdy01TllIdExrcjRaQmxDaHlBUmpVTlBhVFNWYllkeHp5ZG5lbTdNdWUtTVRYYmhIR044eUk?oc=5",
-      "publishedAt": "2026-10-27"
+      "title": "Egekben a földgázár, de Magyarország időben lépett - TrendFM",
+      "publisher": "TrendFM",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQWkZnZ3VoS01wWmhoRnNaay1GWXg0SFVRY2locmdvdUd5OGhSSXVjcnl1WFAwVzZ1WkdqZ0RwLXFqaGZfWmhLeF8wMWp1VFVEeG10aERXV2N0eG5zenVyZ3dOUG5ya2xiejV6eTZQdldqdW9aWDhwVkRVbGZGY3IycDFBSUNfU0w0?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Közelít a sarkvidéki hideg Magyarország felé, már jövő héten betörhet az első igazi fagy - ATV",
-      "publisher": "ATV",
-      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5CclJ1VlJpRVQzd2J0VUItLVhNWDlrZVZ5M3VSVkZzT3RBbnRRZHVONlUyemRfZEt2SlI2d1JZd0NPUHZmNXZhWGVna2FyVkVUVDlIWTRaRFF4NlNQM1BqOXpMbjB0UFZZZ19sN2V2UHdjZldZNnN1NzFJcGQ?oc=5",
-      "publishedAt": "2026-10-27"
-    },
-    {
-      "title": "Magyarország Kormánya - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE8yTFVCNWdma2R4a0tqTGdsaGhqNzU3ODZCcTJ4Vld4UFRmcUJmVWRubE9sQXNpdnhvcUFxRUVRdUFBQ1JrTDZiOTJ2RThaVmQxemk4X3JxRVhEUW1QU1VHamFsb0Rwa1ZrQV9V?oc=5",
-      "publishedAt": "2026-10-27"
-    },
-    {
-      "title": "Humanoid robotok lepik el Szegeden a TIK-et! Jön Dél-Magyarország legnagyobb ingyenes IT-expója, és mutatunk 3 nyomós okot, amiért neked is ott a helyed (videó) – Szegedi hírek - Szeged365",
+      "title": "Szegedi kutatók: történelmi mélyponton vannak Magyarország vízkészletei, soha nem látott vízhiány van az országunkban – Szegedi hírek - Szeged365",
       "publisher": "Szeged365",
-      "url": "https://news.google.com/rss/articles/CBMilwJBVV95cUxNMUlIbXZIVFB5Z0VSOXg2VndjQW1ON2tLVWZZM3NOZU1uU2g1Zm9vU0tCSkdLVmdVNUR4ZlZ1NmtlWDc1ZW5XNDgyWjU1b2ZIaF9oS09BNHBNYl9sZVB2YWc3QlRpZEJ1dUNRTU1ZWUhxTno3cllaR3RUbk40RGNxM1c1b28yc1B3ajdyTC1ic2hNMjRra0c4N1hYRERfT2YwSFItWkZrVUMzaFZ2SXUzZFh5YTYzSmlmaEotTm1yY0gtSWxvbXRnOXl2R2d5aTAxU3FOUUlaWUZ6R0hrUFpWbWVSMEc4eDI1OTZmVG5tVXZoeVZHdHJvajNRdXViYWJpeWE4d3hMY3lHSmw2UzZTUmNwRWs5V1U?oc=5",
-      "publishedAt": "2026-10-27"
+      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxPYmVzTC1mOUxzREl4UDV4SHk0UE4wcGlUdEd0bzhTa3BuQmg4TEJPY2p1SzFPX3oxa2dqNlpyWW56aGJrelRORE93LVN6Xzh4ZS1VSFhuTGlNenNGTFBQc3BiY3YwMjVaazVPR25DS2VFemhsTVRtMW9LREFKWHZEdEdDUXkxT21xX0VkYk5tMUZGR29EWUhsSkJZeGhXaDZ1Ukl5NjV1S3YtMWUwUXlra3NyQXdCS3Vha3RoMkVrRVFGWTlibzFEUHdrdWMzb0ZRd210SW5vbjVfajBhUmRFbC13?oc=5",
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "I'm a single mum on £41,000 and limit my weekly shop to £40 - it's hard",
+      "title": "Január 1-től megduplázzuk a tartósan beteg vagy súlyos fogyatékossággal élő gyermekek után járó emelt családi pótlékot. - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMikwJBVV95cUxNS0hJYmZKY09LTE1JLTVOQmF3SnZvNXV6VzJrQnAwQVlIZFZPeUNkQlJlQzhObjNJMEF4WTRXWl85c0lkeC1hVzZsVWs4VHRRTDJQcU9NYkNjNlIwNkJ4RGlDdTFBVGMtUzlzMUhxSlVIbUNPSzlUTXNqLXNJOTQ0TlE4d1FTb3pMaWpTQklPMVl2ZVB6V3VZWHhITHA3MkIxYmRRdFNCcTJ3U25JRFJ1amVRRHR4SE5pQXFzMUxVNWMtS0ducF9ZMDFTTFd6Z0NPNERsdVlBUlY5a29Qd2ZCNnRpNTh1Y1pVQ2FWdzZtTDE5SVZyZ0s5MTlGeUtCcHZfR3lKVmtNWm41dEM2Rkd3T2dGMA?oc=5",
+      "publishedAt": "2026-10-28"
+    },
+    {
+      "title": "Középtávú program 2027-2030 - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFBVMzhXOVJIZGlzajBRUU52VGlwbDA1amRwdWpzbmJNdWlmY2l1UHh0QUkwMEtmV1VoREJzWFAyb1dHZEdfSFM1VmJZdGZNOHB5azhhcVZQdk1TUVdNVVVpVnJR?oc=5",
+      "publishedAt": "2026-10-28"
+    },
+    {
+      "title": "I get £4,062 a year and am trying my best - here's what I want from the Budget",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cmx235r9wr3yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-27"
+      "publishedAt": "2026-10-28"
     },
     {
-      "title": "Budget measures to include fuel duty freeze and food tariff cuts",
+      "title": "Energy bill help, minimum wage rise and bank taxes - what could be in the Budget?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6x2zrjl7kjno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
+    },
+    {
+      "title": "Minimum wage set to rise but 18-20 year-olds will not get bigger increase",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/c6d93gq1xdgno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
+    },
+    {
+      "title": "'An annoying buzz': The search for stealthier drones",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck1exgejq3xvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
+    },
+    {
+      "title": "China's families are now supporting more old people than kids",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cr20wzwyzl1qo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-28"
     },
     {
       "title": "Donald Trump's biggest economic problem looks strangely familiar",
@@ -198,22 +216,10 @@
       "publishedAt": "2026-10-27"
     },
     {
-      "title": "Apple says it will replace iPhone Duo handsets with screen problems",
-      "publisher": "BBC Business",
+      "title": "Apple to replace iPhone Duos affected by screen problem",
+      "publisher": "BBC Technology",
       "url": "https://www.bbc.co.uk/news/articles/c893zwlev2xpo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-27"
-    },
-    {
-      "title": "Anthropic's blockbuster share listing - 5 surprising things we now know",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwn8d7g29vd9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-26"
-    },
-    {
-      "title": "Anthropic warns of 'catastrophic risk' to humankind ahead of blockbuster share listing",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cq398p1wd1evo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-26"
     }
   ]
 }
