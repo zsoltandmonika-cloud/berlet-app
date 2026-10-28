@@ -37,8 +37,10 @@
   const line=doc.createElement('span');line.className='hh-bkk-vehicle-line-v913 hh-bkk-vehicle-mode-'+(vehicle.mode||'other');
   line.textContent=info.routeId;top.append(line);
   const destination=doc.createElement('strong');destination.className='hh-bkk-vehicle-direction-v913';
-  destination.textContent=info.headsign?'▶  '+info.headsign:'Irányadat nem elérhető';
-  top.append(destination);card.append(top);
+  // The GTFS-RT VehiclePositions snapshot does not always carry a destination.
+  // Don't waste space with an invented or repeated placeholder.
+  if(info.headsign){destination.textContent='▶ '+info.headsign;top.append(destination);}
+  card.append(top);
   const details=doc.createElement('div');details.className='hh-bkk-vehicle-details-v913';
   if(info.vehicleCode){
    const id=doc.createElement('span');id.textContent=info.vehicleCode;details.append(id);
@@ -47,11 +49,11 @@
    const plate=doc.createElement('span');plate.textContent=info.licensePlate;details.append(plate);
   }
   if(!details.children.length){
-   const missing=doc.createElement('span');missing.textContent='Járműazonosító nem elérhető';details.append(missing);
+   const missing=doc.createElement('span');missing.textContent='Járműszám: —';details.append(missing);
   }
   card.append(details);
   const foot=doc.createElement('div');foot.className='hh-bkk-vehicle-updated-v913';
-  foot.textContent='BKK · Frissítve: '+info.age;card.append(foot);
+  foot.textContent='Frissítve: '+info.age;card.append(foot);
   return card;
  }
  function removeDom(){
@@ -63,7 +65,9 @@
  const ICONS=Object.freeze({
   bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="16" rx="3"/><path d="M4.5 11h15M8 7.5h8M7.5 19.5v2m9-2v2"/><circle cx="8" cy="15.6" r=".9" fill="currentColor" stroke="none"/><circle cx="16" cy="15.6" r=".9" fill="currentColor" stroke="none"/></svg>',
   tram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 2 3 3 3-3M12 5v2M7 20l-2 2m12-2 2 2"/><rect x="5.5" y="7" width="13" height="12" rx="2.5"/><path d="M12 7v7M5.5 14h13"/><circle cx="8.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="15.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>',
-  hev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v3M8 5h8M7 21l-2 2m12-2 2 2"/><rect x="4.5" y="6" width="15" height="14" rx="3"/><path d="M12 6v8M4.5 14h15"/><circle cx="8.5" cy="17" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>'
+  hev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v3M8 5h8M7 21l-2 2m12-2 2 2"/><rect x="4.5" y="6" width="15" height="14" rx="3"/><path d="M12 6v8M4.5 14h15"/><circle cx="8.5" cy="17" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>',
+  trolley:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 4 1m13 3 3-3M5 4l7 3 7-3"/><rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M4 13h16M8 20v2m8-2v2"/><circle cx="8" cy="16.5" r=".8"/><circle cx="16" cy="16.5" r=".8"/></svg>',
+  metro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="17" rx="4"/><path d="M5 12h14M8 20l-2 2m10-2 2 2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/></svg>'
  });
  function makeMarkerElement(doc,vehicle){
   const route=String(vehicle.routeId);
