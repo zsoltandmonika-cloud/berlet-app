@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="hu"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1425">
+<meta name="description" content="SH9 Smart Travel · Public Transport · BKK, MÁV, Volán">
+<title>SH9 · Public Transport</title>
+<link rel="icon" type="image/png" href="../../assets/sh9-icon.png">
+<style>
+:root{color-scheme:dark;--accent:#9bdaff;--border:rgba(163,212,255,.34);--glass1:rgba(34,77,124,.55);--glass2:rgba(12,29,62,.83);--glow:rgba(57,156,247,.13)}
+:root[data-profile="m"]{--accent:#ffd0ee;--border:rgba(255,185,233,.44);--glass1:rgba(110,55,116,.58);--glass2:rgba(49,28,78,.84);--glow:rgba(241,112,202,.18)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;width:100%;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f4f9ff;background:#0b1425}
+body{background:radial-gradient(ellipse at 50% -22%,var(--glow),transparent 65%),#0b1425}
+a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{font:inherit}
+.shell{max-width:420px;min-height:100dvh;margin:0 auto;display:flex;flex-direction:column;gap:18px;padding:13px 13px calc(83px + env(safe-area-inset-bottom,0px))}
+.back{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;min-height:44px;padding:7px 12px;border-radius:13px;border:1px solid var(--border);background:var(--glass2);font-weight:750;color:var(--accent)}
+.head{padding:21px 16px 18px;border:1px solid var(--border);border-radius:23px;background:linear-gradient(135deg,var(--glass1),var(--glass2));box-shadow:inset 0 1px rgba(255,255,255,.21),0 10px 25px #0004;backdrop-filter:blur(15px)}
+.kicker{margin:0 0 7px;font-size:10px;font-weight:800;letter-spacing:.17em;color:var(--accent)}
+h1{margin:0;font-size:27px;line-height:1.12;letter-spacing:-.04em}
+.head p:last-child{margin:8px 0 0;font-size:12px;color:#d8e8f8}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;align-items:stretch;margin-top:2px}
+.card{min-width:0;min-height:186px;padding:17px 6px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:11px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(140deg,var(--glass1),var(--glass2));box-shadow:inset 0 1px rgba(255,255,255,.2),0 10px 24px #0005;-webkit-backdrop-filter:blur(16px) saturate(145%);backdrop-filter:blur(16px) saturate(145%);cursor:pointer}
+.card:active{transform:translateY(1px);filter:brightness(1.15)}
+.symbol{display:grid;place-items:center;width:63px;height:63px;border-radius:19px;border:1px solid rgba(255,255,255,.35);box-shadow:inset 0 1px rgba(255,255,255,.25),0 5px 12px #0003}
+.symbol svg{height:36px;width:36px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.card-bkk .symbol{color:#e7faff;background:linear-gradient(145deg,#1688cf,#114575)}
+.card-mav .symbol{color:#eaf0ff;background:linear-gradient(145deg,#3d68b9,#1b2a62)}
+.card-volan .symbol{color:#332710;background:linear-gradient(145deg,#f7e17c,#dda32b)}
+.card strong{font-size:19px;line-height:1.15;font-weight:850;letter-spacing:-.025em}
+.card small{font-size:10px;font-weight:650;line-height:1.3;color:#d3e4f8}
+.card .link-hint{color:var(--accent);font-weight:700}
+.foot{margin:0;padding:11px 12px;color:#c6d9ee;background:rgba(21,37,68,.48);border:1px solid rgba(152,204,253,.19);border-radius:13px;font-size:11px;line-height:1.5}
+.foot strong{color:#f5faff}
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));min-height:63px;padding:5px 4px calc(7px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);background:rgba(14,28,52,.97);backdrop-filter:blur(16px)}
+.nav a,.nav button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;padding:3px 0;background:transparent;color:#c3d6ed;cursor:pointer;font-size:10px}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.back:focus-visible,.card:focus-visible,.nav a:focus-visible,.nav button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#notice[hidden]{display:none}
+#notice{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);width:min(90%,350px);border:1px solid var(--border);background:#203452;border-radius:12px;padding:12px;text-align:center;box-shadow:0 5px 20px #0008}
+@media(max-width:365px){.shell{padding-left:8px;padding-right:8px}.cards{gap:6px}.card{padding-inline:3px;min-height:173px}.symbol{width:53px;height:53px}.symbol svg{width:30px;height:30px}.card strong{font-size:17px}.card small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.card:active{transform:none}}
+
+/* v917 Golden Glass · approved 941x1672 static artwork is the entire visual UI.
+   Overlay links are 100% transparent and align to the image's actual three glass cards.
+   The original BKK route destination remains unchanged. */
+body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
+.shell{width:min(100%,470px);max-width:470px;min-height:100dvh;padding:0 0 calc(64px + env(safe-area-inset-bottom,0px));gap:0;align-items:center;justify-content:center;position:relative;background:transparent}
+.poster-frame{width:min(100vw,calc((100dvh - 70px - env(safe-area-inset-bottom,0px)) * 941 / 1672),470px);aspect-ratio:941/1672;position:relative;isolation:isolate;overflow:hidden;flex:none;box-shadow:0 0 30px #0008}
+.poster-frame>img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.poster-hit{display:block;position:absolute;left:9.5%;width:79.4%;border-radius:20px;background:transparent;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;z-index:5}
+.poster-hit.bkk{top:51.2%;height:14.45%}
+.poster-hit.mav{top:66.55%;height:14.3%}
+.poster-hit.volan{top:81.45%;height:14.45%}
+.poster-hit:active{background:rgba(255,255,255,.12);box-shadow:0 0 13px #fff7}
+.poster-hit:focus-visible{outline:3px solid #fff;outline-offset:-5px}
+.asset-missing[hidden]{display:none!important}
+.asset-missing{max-width:90%;padding:12px;border:1px solid #ff8fce;border-radius:14px;background:#442a47;color:white;text-align:center;font-size:12px}
+.nav{z-index:12;width:min(100%,470px)}
+@media(max-height:755px){.shell{height:100dvh;min-height:0;overflow:hidden;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}}
+@media(min-width:700px){.shell{border-inline:0}}
+
+</style></head><body>
+<main class="shell" aria-label="SH9 · Public Transport Golden Glass">
+<section class="poster-frame" aria-label="BKK MÁV Volán, három nagyméretű üveggomb">
+<img id="transportPoster" src="./public-transport-hero-approved.webp" alt="Budapest esti közlekedése: Léna és Buddy a 260-as BKK-buszon; a kép alsó részén három egymás alatti prémium üveggomb BKK, MÁV, Volán logókkal és járművekkel." width="941" height="1672">
+<a class="poster-hit bkk" data-service="bkk" href="../../../healthhub/guardian/#hhTransitPanel" aria-label="BKK · a meglévő Family Guard közlekedési modul megnyitása"></a>
+<a class="poster-hit mav" data-service="mav" href="https://mavplusz.hu/" target="_blank" rel="noopener noreferrer external" aria-label="MÁV · hivatalos MÁVPlusz útvonaltervező megnyitása"></a>
+<a class="poster-hit volan" data-service="volan" href="https://mavplusz.hu/" target="_blank" rel="noopener noreferrer external" aria-label="Volán · hivatalos MÁVPlusz helyközi autóbusz menetrend megnyitása"></a>
+</section>
+<p id="assetMissing" class="asset-missing" hidden>A jóváhagyott Public Transport hero-kép még nincs publikálva. Ez a verzió nem kiadható.</p>
+</main>
+<nav class="nav" aria-label="SH9 Golden Standard navigáció">
+<a href="../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+<a href="../../../healthhub/index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a>
+<a href="../" aria-label="Vissza"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></a>
+<button id="notifier" type="button" aria-label="Értesítések"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+<a href="../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><span>Admin</span></a>
+</nav>
+<div id="notice" role="status" hidden>Az SH9 értesítési központja még fejlesztés alatt áll.</div>
+<script>
+(function(){'use strict';
+try{document.documentElement.dataset.profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){document.documentElement.dataset.profile='z'}
+const btn=document.getElementById('notifier'),notice=document.getElementById('notice');
+btn.addEventListener('click',()=>{notice.hidden=!notice.hidden});
+const posterImage=document.getElementById('transportPoster');posterImage.addEventListener('error',()=>{document.getElementById('assetMissing').hidden=false});
+})();
+</script>
+</body></html>

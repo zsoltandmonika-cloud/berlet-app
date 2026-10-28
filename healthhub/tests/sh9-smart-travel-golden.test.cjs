@@ -11,7 +11,7 @@ test('SH9 Smart Travel Golden page has nine tiles with Ask Léna in the center',
 });
 test('SH9 Smart Travel uses existing Family Guard modules and canonical ChatGPT shortcut',()=>{
  assert.match(page,/\#hhSmartHubDestinationV802/);
- assert.match(page,/\#hhTransitPanel/);
+ assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
  assert.match(page,/\#hhSmartHubFavoritesV806/);
  assert.match(page,/chatgpt-project-shortcut-v712\.js/);
  assert.match(page,/data-name="Ask Léna"/);
@@ -102,4 +102,35 @@ test('SH9 top-right weather glass is 40 percent narrower and remains interactive
  assert.match(page,/\.st-hero-overlay-stack\{top:4px;right:4px;left:auto;width:110px\}/);
  assert.doesNotMatch(page,/\.st-hero-title/);
  assert.doesNotMatch(page,/class="st-hero-title"/);
+});
+
+test('Public Transport v916 launcher has exactly three providers and preserves BKK live module',()=>{
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ const providers=[...pt.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]);
+ assert.deepEqual(providers,['bkk','mav','volan']);
+ assert.match(pt,/href="\.\.\/\.\.\/\.\.\/healthhub\/guardian\/#hhTransitPanel"/);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+ assert.match(pt,/data-profile="m"/);
+ assert.doesNotMatch(pt,/fetch\(|setInterval\(|geolocation\.|supabase\.co/);
+ assert.equal([...pt.matchAll(/class="nav"/g)].length,1);
+ assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
+});
+
+test('Public Transport v917 includes exact approved 941x1672 WEBP and glass hit zones',()=>{
+ const base=path.join(root,'sh9/smart-travel/public-transport');
+ const img=fs.readFileSync(path.join(base,'public-transport-hero-approved.webp'));
+ const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
+ assert.equal(img.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(img.subarray(8,12).toString('ascii'),'WEBP');
+ assert.equal(img.subarray(12,16).toString('ascii'),'VP8 ');
+ assert.equal(img.readUInt16LE(26)&0x3fff,941);
+ assert.equal(img.readUInt16LE(28)&0x3fff,1672);
+ assert.ok(img.byteLength>200000,'approved high-quality artwork must not be a placeholder');
+ assert.match(html,/src="\.\/public-transport-hero-approved\.webp"/);
+ assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
+ assert.deepEqual([...html.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
+ assert.match(html,/poster-hit\.bkk\{top:51\.2%;height:14\.45%\}/);
+ assert.match(html,/poster-hit\.mav\{top:66\.55%;height:14\.3%\}/);
+ assert.match(html,/poster-hit\.volan\{top:81\.45%;height:14\.45%\}/);
+ assert.match(html,/assetMissing/);
 });
