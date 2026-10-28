@@ -57,7 +57,7 @@ test('v928 overlay creates one clustered GeoJSON source, only in SH9 mode and wi
  assert.match(html,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css/);
  assert.match(src,/cluster:true,clusterRadius:48,clusterMaxZoom:14/);
- assert.match(src,/map\.getSource\(ID\)\.setData/);
+ assert.match(src,/if\(source\?\.setData\)source\.setData/);
  assert.match(src,/if\(new URLSearchParams\(w.location.search\).get\('sh9Transit'\)!=='1'\)return/);
  assert.doesNotMatch(src,/fetch\(|setInterval\(|getCurrentPosition\(|watchPosition\(|new maplibregl\.Map|supabase\.co/);
  assert.match(css,/:root:not\(\[data-sh9-transit="on"\]\)/);
