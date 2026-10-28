@@ -262,7 +262,7 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.match(bkk,/<strong>Következő járat<\/strong>/);
  assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(guardian,/get\('sh9Transit'\)==='1'/);
- assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=927-own-map-glass/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=930-clean-header/);
  assert.match(guardian,/guardian-sh9-transit-v927\.js\?v=927-own-map-glass/);
  assert.match(guardian,/id="sh9TransitHeaderV927" hidden/);
  assert.match(guardian,/id="sh9TransitNavV927" hidden/);
@@ -350,4 +350,24 @@ test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guar
  assert.match(render,/last\.features\.length===0/);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
+
+
+test('v930 Golden Glass header visually hides only the three user-marked paragraphs',()=>{
+ const css=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.css'),'utf8');
+ const guardian=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ const original=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=930-clean-header/);
+ assert.match(css,/v930 · Clean SH9 Transit header/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] #sh9TransitHeaderV927 \.sh9-transit-subtitle-v927\{\s*display:none!important/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] #sh9AllVehiclesStatusV928,\s*:root\[data-sh9-transit="on"\] #sh9TransitStatusV927\{/);
+ assert.match(css,/clip-path:inset\(50%\)!important/);
+ assert.match(css,/position:absolute!important/);
+ // The live diagnostic status elements must stay mounted for JS updates and assistive tech.
+ for(const id of ['sh9AllVehiclesStatusV928','sh9TransitStatusV927'])
+   assert.match(guardian,new RegExp('id="'+id+'" role="status"'));
+ assert.match(guardian,/id="sh9AllVehiclesToggleV928"/);
+ assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
+ assert.match(guardian,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
+ assert.match(original,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
