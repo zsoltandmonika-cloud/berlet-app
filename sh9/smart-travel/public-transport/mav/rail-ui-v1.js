@@ -2,7 +2,7 @@
 (function(){'use strict';
 const lib=window.SH9_MAV_RAIL_V1,$=id=>document.getElementById(id);if(!lib)return;
 const modeButtons=[...document.querySelectorAll('[data-mode]')],prefs=['pax','class','seat','discount','dog','bike','access'];
-let mode='now',active='zsolt',toastTimer=null,soundAllowed=false;
+let mode='now',active='zsolt',toastTimer=null;
 function read(k,fallback){try{const s=JSON.parse(localStorage.getItem(k));return s===null?fallback:s}catch(_){return fallback}}
 function put(k,value){try{localStorage.setItem(k,JSON.stringify(value));return true}catch(_){return false}}
 function current(){try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
@@ -20,9 +20,73 @@ function savePrefs(){let values={};for(const id of prefs){const el=$(id);values[
 function loadPrefs(){const values=read(prefKey(),null);for(const id of prefs){const el=$(id);if(!values||!(id in values)){if(el.type==='checkbox')el.checked=false;else if(id==='pax')el.value='2';else el.selectedIndex=0;continue}if(el.type==='checkbox')el.checked=values[id]===true;else el.value=String(values[id]);}}
 function syncProfile(){active=current();document.documentElement.dataset.profile=active==='monika'?'m':'z';$('profile').textContent=(active==='monika'?'Mónika':'Zsolt')+' ⇄';loadPrefs();renderFavorites()}
 function toggleProfile(){const next=current()==='monika'?'z':'m';try{localStorage.setItem('hh-profile',next)}catch(_){toast('Profilváltás nem menthető.');return}syncProfile();try{window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{detail:{code:next,profile:active,source:'sh9-mav'}}))}catch(_){}}
-const sound=new Audio('./assets/flirt-signal.mp3');sound.preload='none';sound.volume=.6;
-function flipSound(){soundAllowed=!soundAllowed;$('signal').setAttribute('aria-pressed',String(soundAllowed));$('signal').textContent=soundAllowed?'🔇 Szignál kikapcsolás':'🔊 FLIRT szignál';if(soundAllowed){sound.currentTime=0;sound.play().catch(()=>toast('Hang lejátszása blokkolva. Ellenőrizd a készülék hangbeállítását.'))}else{sound.pause();sound.currentTime=0}}
+/* Golden Standard FLIRT arrival cue: default ON, persistent user opt-out.
+   Autoplay may be refused by Android Chrome/WebView. Try once at page load;
+   if refused, retry on first genuine in-page gesture, never via a timer/poll.
+   The control is a quiet icon-sized toggle at the bottom of the hero.
+*/
+const SIGNAL_PREF='sh9-mav-flirt-signal-v2';
+let soundAllowed=true;
+try{soundAllowed=localStorage.getItem(SIGNAL_PREF)!=='off'}catch(_){}
+const sound=new Audio('./assets/flirt-signal.mp3');
+sound.preload=soundAllowed?'auto':'none';
+sound.volume=.6;
+let soundPlayed=false,playPending=false;
+function signalLabel(){
+ const btn=$('signal');if(!btn)return;
+ btn.setAttribute('aria-pressed',String(soundAllowed));
+ btn.setAttribute('aria-label',soundAllowed?'FLIRT-szignál bekapcsolva. Kikapcsolás':'FLIRT-szignál kikapcsolva. Bekapcsolás');
+ btn.title=soundAllowed?'FLIRT-szignál BE · koppints a kikapcsoláshoz':'FLIRT-szignál KI · koppints a bekapcsoláshoz';
+ btn.textContent='♫';
+}
+function removeStartGesture(){
+ document.removeEventListener('pointerdown',gestureStart,true);
+ document.removeEventListener('keydown',keyboardStart,true);
+}
+function attemptStart(force=false){
+ if(!soundAllowed||document.hidden||playPending||(!force&&soundPlayed))return;
+ if(force){sound.pause();sound.currentTime=0;soundPlayed=false}
+ playPending=true;
+ let request;
+ try{request=sound.play()}
+ catch(_){playPending=false;return}
+ Promise.resolve(request).then(()=>{
+   soundPlayed=true;
+   removeStartGesture();
+ },()=>{
+   // NotAllowedError is normal in browsers with autoplay restrictions.
+   // Keep first-interaction retry armed while the preference is ON.
+ }).finally(()=>{playPending=false});
+}
+function gestureStart(event){
+ if(event.target?.closest?.('#signal'))return; // the OFF tap must not produce a sound
+ if(soundAllowed&&!soundPlayed)attemptStart();
+}
+function keyboardStart(event){
+ if(event.key==='Tab'||event.key==='Shift'||event.key==='Control'||event.key==='Alt'||event.key==='Meta')return;
+ if(event.target?.closest?.('#signal'))return;
+ if(soundAllowed&&!soundPlayed)attemptStart();
+}
+function flipSound(){
+ soundAllowed=!soundAllowed;
+ try{localStorage.setItem(SIGNAL_PREF,soundAllowed?'on':'off')}catch(_){}
+ signalLabel();
+ if(!soundAllowed){
+   sound.pause();sound.currentTime=0;
+   removeStartGesture();
+ } else {
+   document.addEventListener('pointerdown',gestureStart,true);
+   document.addEventListener('keydown',keyboardStart,true);
+   attemptStart(true); // user's explicit tap is a permitted playback gesture
+ }
+}
 $('signal').addEventListener('click',flipSound);
+signalLabel();
+if(soundAllowed){
+ document.addEventListener('pointerdown',gestureStart,true);
+ document.addEventListener('keydown',keyboardStart,true);
+ attemptStart(); // may be blocked; next real gesture safely retries
+}
 $('profile').addEventListener('click',toggleProfile);
 modeButtons.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 $('swap').addEventListener('click',()=>{const a=$('from').value;$('from').value=$('to').value;$('to').value=a});
