@@ -81,6 +81,7 @@ for(const el of document.querySelectorAll('[data-concept]')){
  });
 }
 $('bkkGrandTripsClose')?.addEventListener('click',()=>{$('bkkGrandTrips').hidden=true});
+$('profile')?.addEventListener('click',()=>{if(!$('bkkGrandTrips').hidden)showJourneys()});
 window.addEventListener('pageshow',()=>{
  const panel=$('bkkGrandTrips');if(panel&&!panel.hidden)showJourneys();
 });
