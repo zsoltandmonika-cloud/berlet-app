@@ -1,0 +1,90 @@
+/* SH9 Smart Trip v3: phone-native date/time triggers + panel down to taskbar.
+   The final visual only overrides the current Smart Trip panel, never the four cards. */
+.transport-grand .smart-trip-panel{
+  display:flex;
+  flex-direction:column;
+  box-sizing:border-box;
+  scroll-margin-top:10px;
+}
+.transport-grand .smart-trip-panel[hidden]{display:none!important}
+.transport-grand .smart-trip-panel .trip-help{
+  margin-top:auto!important;
+  padding-top:12px;
+}
+.transport-grand .smart-trip-panel .routebox{
+  grid-template-columns:58.9% minmax(0,1fr);
+}
+.transport-grand .smart-trip-panel .datetime{
+  grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+  overflow:hidden;
+  min-width:0;
+}
+.transport-grand .smart-trip-panel .datetime .picker-target{
+  position:relative;
+  min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  padding:3px 2px;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  color:#f2f9ff;
+  user-select:none;
+  border:0;
+}
+.transport-grand .smart-trip-panel .datetime .timebox.picker-target{
+  border-left:1px solid #c4d3f74a;
+}
+.transport-grand .smart-trip-panel .datetime .picker-target svg{
+  width:14px;
+  height:14px;
+  flex:0 0 14px;
+  pointer-events:none;
+}
+.transport-grand .smart-trip-panel .datetime .picker-display{
+  font-size:10px;
+  font-weight:800;
+  min-width:0;
+  color:#fff;
+  letter-spacing:-.03em;
+  white-space:nowrap;
+  pointer-events:none;
+  font-variant-numeric:tabular-nums;
+}
+.transport-grand .smart-trip-panel .datetime .picker-native{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  margin:0;
+  padding:0;
+  opacity:0;
+  pointer-events:none;
+  border:0;
+  border-radius:0;
+  cursor:pointer;
+  box-shadow:none;
+}
+.transport-grand .smart-trip-panel .datetime .picker-target:focus-visible,
+.transport-grand .smart-trip-panel .datetime .picker-target:focus-within{
+  outline:2px solid #def6ff;
+  outline-offset:-2px;
+  border-radius:8px;
+}
+:root[data-profile="m"] .transport-grand .smart-trip-panel .datetime .picker-target:focus-visible,
+:root[data-profile="m"] .transport-grand .smart-trip-panel .datetime .picker-target:focus-within{
+  outline-color:#ffb8ef;
+}
+@media(max-width:375px){
+  .transport-grand .smart-trip-panel .datetime{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+  .transport-grand .smart-trip-panel .datetime .picker-target{gap:2px;padding:1px}
+  .transport-grand .smart-trip-panel .datetime .picker-target svg{width:12px;height:12px;flex-basis:12px}
+  .transport-grand .smart-trip-panel .datetime .picker-display{font-size:9px}
+}
