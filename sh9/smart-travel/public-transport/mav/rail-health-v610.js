@@ -71,7 +71,7 @@
     return item('backup','Biztonsági mentés',STATUS.error,'Az offline Backup & Restore modul nem érhető el.');
    // Read-only in-memory round trip: NEVER invoke restore()/download() here.
    const archive=b.build(store,now),text=b.encode(archive),roundTrip=b.parse(text,now.getTime());
-   if(roundTrip.format!=='sh9-mav-backup-v1'||!roundTrip.profiles?.z||!roundTrip.profiles?.m||
+   if(!['sh9-mav-backup-v1','sh9-mav-backup-v2'].includes(roundTrip.format)||!roundTrip.profiles?.z||!roundTrip.profiles?.m||
       ['z','m'].some(id=>roundTrip.profiles[id].journeys.some(x=>['ticket','note','car','seat'].some(k=>k in x))))
     return item('backup','Biztonsági mentés',STATUS.error,'A mentési séma vagy a magánadatok kizárása nem ellenőrizhető.');
    return item('backup','Biztonsági mentés',STATUS.ok,

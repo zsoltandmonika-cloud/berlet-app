@@ -6,30 +6,36 @@
  'use strict';
  const personal=root?.SH9_MAV_PERSONAL_V607||(typeof require==='function'?require('./rail-personal-v607.js'):null);
  const journey=root?.SH9_MAV_JOURNEY_MANAGER_V608||(typeof require==='function'?require('./rail-journey-manager-v608.js'):null);
- const api=factory(personal,journey);
+ const departure=root?.SH9_MAV_DEPARTURE_V611||(typeof require==='function'?require('./rail-departure-v611.js'):null);
+ const api=factory(personal,journey,departure);
  if(typeof module==='object'&&module.exports)module.exports=api;
  if(root)root.SH9_MAV_BACKUP_V609=api;
-})(typeof window!=='undefined'?window:null,function(personal,journey){
+})(typeof window!=='undefined'?window:null,function(personal,journey,departure){
  'use strict';
- const FORMAT='sh9-mav-backup-v1',MAX_BYTES=256*1024,PROFILES=['z','m'];
+ const FORMAT='sh9-mav-backup-v2',LEGACY_FORMAT='sh9-mav-backup-v1',MAX_BYTES=256*1024,PROFILES=['z','m'];
  const favoriteFields=['from','to','label'],historyFields=['from','to','label','mode','when','timestamp'];
  const journeyFields=['id','from','to','mode','when','savedAt'];
+ const departureFields=['journeyId','time','travel','buffer','checklist','status'];
  const fieldsOnly=(obj,fields)=>{const out={};for(const field of fields)if(obj[field]!==undefined)out[field]=obj[field];return out};
  const signature=p=>p.from.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu')+
   '\u001F'+p.to.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu');
  const histSignature=p=>signature(p)+'\u001F'+p.mode+'\u001F'+p.when;
  function privateFreeTrip(item){return fieldsOnly(item,journeyFields)}
  function build(storage,now=new Date()){
-  if(!personal||!journey)throw Error('A vasúti modulok nem érhetők el');
+  if(!personal||!journey||!departure)throw Error('A vasúti modulok nem érhetők el');
   const profiles={};
   for(const id of PROFILES){
    profiles[id]={
     favorites:personal.loadFavorites(storage,id).map(x=>fieldsOnly(x,favoriteFields)),
     history:personal.loadHistory(storage,id,now.getTime()).map(x=>fieldsOnly(x,historyFields)),
-    journeys:journey.read(storage,id).map(privateFreeTrip)
+    journeys:journey.read(storage,id).map(privateFreeTrip),
+    departure:journey.read(storage,id).map(j=>{
+     const saved=departure.readSaved(storage,id,j);
+     return saved?{journeyId:j.id,...fieldsOnly(saved,departureFields.slice(1))}:null
+    }).filter(Boolean)
    };
   }
-  return {format:FORMAT,version:1,createdAt:now.toISOString(),privacy:'redacted',profiles};
+  return {format:FORMAT,version:2,createdAt:now.toISOString(),privacy:'redacted',profiles};
  }
  function encode(backup){
   const text=JSON.stringify(backup,null,2);
@@ -62,12 +68,25 @@
   if(!parsed||parsed.when!==raw.when||parsed.id!==raw.id||parsed.savedAt!==raw.savedAt||parsed.mode!==raw.mode)return null;
   return privateFreeTrip(parsed);
  }
+ function checkDeparture(raw){
+  if(!departure||!strictRecord(raw,departureFields)||typeof raw.journeyId!=='string'||
+     !/^[a-zA-Z0-9_-]{5,64}$/.test(raw.journeyId)||
+     typeof raw.time!=='string'||(raw.time!==''&&!departure.instantForBudapest(raw.time))||
+     !Number.isInteger(raw.travel)||raw.travel<5||raw.travel>180||
+     !Number.isInteger(raw.buffer)||raw.buffer<5||raw.buffer>60||
+     !Array.isArray(raw.checklist)||raw.checklist.length!==departure.CHECKS.length||
+     raw.checklist.some(x=>typeof x!=='boolean')||
+     !departure.STATES.includes(raw.status))return null;
+  return fieldsOnly(raw,departureFields);
+ }
  function parse(input,now=Date.now()){
   if(!personal||!journey)throw Error('Hiányzó helyi vasúti adatmodul');
   const text=typeof input==='string'?input:JSON.stringify(input);
   if(typeof text!=='string'||new TextEncoder().encode(text).length>MAX_BYTES)throw Error('Túl nagy mentésfájl (maximum 256 KB)');
   let raw;try{raw=JSON.parse(text)}catch(_){throw Error('Sérült vagy nem JSON mentésfájl')}
-  if(!raw||typeof raw!=='object'||raw.format!==FORMAT||raw.version!==1||raw.privacy!=='redacted'||
+  const legacy=raw?.format===LEGACY_FORMAT&&raw.version===1;
+  const current=raw?.format===FORMAT&&raw.version===2;
+  if(!raw||typeof raw!=='object'||(!legacy&&!current)||raw.privacy!=='redacted'||
    typeof raw.createdAt!=='string'||!Number.isFinite(Date.parse(raw.createdAt)))
    throw Error('Ismeretlen vagy nem biztonságos mentésformátum');
   if(!raw.profiles||typeof raw.profiles!=='object'||Array.isArray(raw.profiles)||
@@ -76,10 +95,18 @@
   const profiles={};
   for(const id of PROFILES){
    const p=raw.profiles[id];
-   if(!p||typeof p!=='object'||Array.isArray(p)||Object.keys(p).sort().join(',')!=='favorites,history,journeys')
+   const fields=Object.keys(p||{}).sort().join(',');
+   // Import preview parses a legacy v1 once, then restore() validates it again.
+   // Allow ONLY an empty normalized departure array in that second pass.
+   const legacyFields=fields==='favorites,history,journeys'||
+    (fields==='departure,favorites,history,journeys'&&Array.isArray(p.departure)&&p.departure.length===0);
+   if(!p||typeof p!=='object'||Array.isArray(p)||
+      (legacy?!legacyFields:fields!=='departure,favorites,history,journeys'))
     throw Error('Hiányzó vagy hibás profiladatok');
    if(!Array.isArray(p.favorites)||!Array.isArray(p.history)||!Array.isArray(p.journeys)||
-    p.favorites.length>40||p.history.length>10||p.journeys.length>30)
+    (current&&!Array.isArray(p.departure))||
+    p.favorites.length>40||p.history.length>10||p.journeys.length>30||
+    (current&&p.departure.length>30))
     throw Error('Az adatok túllépik a biztonságos elemszámot');
    const favorites=p.favorites.map(checkFavorite);
    const history=p.history.map(v=>checkHistory(v,now));
@@ -88,9 +115,15 @@
     throw Error('A mentés hibás adatot vagy nem engedélyezett személyes mezőt tartalmaz');
    const ids=journeys.map(j=>j.id);
    if(new Set(ids).size!==ids.length)throw Error('Duplikált utazásazonosító a mentésben');
-   profiles[id]={favorites,history,journeys};
+   const assistants=current?p.departure.map(checkDeparture):[];
+   if(assistants.some(x=>!x))throw Error('Hibás vagy tiltott indulási asszisztens adat');
+   const assistantIds=assistants.map(x=>x.journeyId);
+   if(new Set(assistantIds).size!==assistantIds.length||
+      assistantIds.some(assistantId=>!ids.includes(assistantId)))
+    throw Error('Az indulási beállítások nem a mentésben lévő utazáshoz tartoznak');
+   profiles[id]={favorites,history,journeys,departure:assistants};
   }
-  return {format:FORMAT,version:1,createdAt:raw.createdAt,privacy:'redacted',profiles};
+  return {format:legacy?LEGACY_FORMAT:FORMAT,version:legacy?1:2,createdAt:raw.createdAt,privacy:'redacted',profiles};
  }
  function merge(storage,archive,now=Date.now()){
   const data=parse(archive,now),writes=[],counts={};
@@ -115,17 +148,45 @@
    const histAdded=history.filter(p=>!beforeH.has(histSignature(p))).length;
    const j=journey.read(storage,id);const jIds=new Set(j.map(p=>p.id));let jAdded=0;
    for(const p of incoming.journeys){
-    if(jIds.has(p.id))continue; // original local data (including private notes) always wins
+    if(jIds.has(p.id)){
+     const old=j.find(x=>x.id===p.id);
+     if(data.version===2&&(old.from!==p.from||old.to!==p.to||old.mode!==p.mode||old.when!==p.when))
+      throw Error('Utazásazonosító ütközés: eltérő útvonal vagy időpont');
+     continue;
+    }
     if(j.length>=30)throw Error((id==='m'?'Mónika':'Zsolt')+' utazásai megteltek (30/30)');
     j.push({...p,ticket:'',car:'',seat:'',note:''});
     jIds.add(p.id);jAdded++;
    }
-   // Only the SIX known profile-scoped keys. Never write hh-profile or unrelated app keys.
+   let departureAdded=0,departureTotal=0,assistantRows=null;
+   if(data.version===2){
+    const departureKey=departure.key(id);
+    let raw;try{raw=storage.getItem(departureKey)}catch(_){throw Error('Nem olvasható az indulási beállítások tárhelye')}
+    let existing={};
+    if(raw!==null){
+     try{existing=JSON.parse(raw)}catch(_){throw Error('Sérült helyi indulási adatok. Előbb készíts biztonsági másolatot.')}
+     if(!existing||typeof existing!=='object'||Array.isArray(existing)||
+        Object.keys(existing).some(k=>!/^[a-zA-Z0-9_-]{5,64}$/.test(k)))
+      throw Error('Érvénytelen helyi indulási beállítások; import leállítva');
+    }
+    assistantRows=Object.assign(Object.create(null),existing);
+    for(const item of incoming.departure){
+     if(Object.prototype.hasOwnProperty.call(assistantRows,item.journeyId))continue;
+     if(Object.keys(assistantRows).length>=30)
+      throw Error((id==='m'?'Mónika':'Zsolt')+' indulási beállításai megteltek (30/30)');
+     assistantRows[item.journeyId]=fieldsOnly(item,departureFields.slice(1));
+     departureAdded++;
+    }
+    departureTotal=Object.keys(assistantRows).length;
+   }
+   // Exactly six keys for legacy v1; eight for v2. No hh-profile or unrelated keys.
    writes.push([personal.favoritesKey(id),JSON.stringify(f)]);
    writes.push([personal.historyKey(id),JSON.stringify(history)]);
    writes.push([journey.storageKey(id),JSON.stringify(j)]);
+   if(data.version===2)writes.push([departure.key(id),JSON.stringify(assistantRows)]);
    counts[id]={favoritesAdded:favAdded,historyAdded:histAdded,journeysAdded:jAdded,
     favoritesTotal:f.length,historyTotal:history.length,journeysTotal:j.length};
+   if(data.version===2)Object.assign(counts[id],{departureAdded,departureTotal});
   }
   return {writes,counts};
  }
@@ -167,7 +228,7 @@
     a.download='SH9-MAV-biztonsagi-mentes-'+new Date().toISOString().slice(0,10)+'.json';
     doc.body.append(a);a.click();a.remove();
     win.setTimeout(()=>win.URL.revokeObjectURL(url),1500);
-    status('Biztonsági mentés elkészítve mindkét profilról. Jegyszámok, ülőhelyek és magánjegyzetek nélkül.');
+    status('Biztonsági mentés v2 elkészítve mindkét profilról, az indulási asszisztens beállításaival. Jegyszámok, ülőhelyek és magánjegyzetek nélkül.');
    }catch(err){status('Exporthiba: '+err.message)}
   });
   file.addEventListener('change',async()=>{
@@ -178,10 +239,10 @@
     const text=(await chosen.text()).replace(/^\uFEFF/,'');
     selected=parse(text);
     const a=selected.profiles.z,b=selected.profiles.m;
-    status('Ellenőrzött mentés · Zsolt: '+a.favorites.length+' kedvenc, '+a.history.length+
-     ' előzmény, '+a.journeys.length+' utazás · Mónika: '+b.favorites.length+' kedvenc, '+
-     b.history.length+' előzmény, '+b.journeys.length+
-     ' utazás. Az adatok csak a saját profiljukhoz adódnak hozzá. A meglévő adatok nem íródnak felül.');
+    status('Ellenőrzött v'+selected.version+' mentés · Zsolt: '+a.favorites.length+' kedvenc, '+a.history.length+
+     ' előzmény, '+a.journeys.length+' utazás, '+a.departure.length+' indulási terv · Mónika: '+b.favorites.length+' kedvenc, '+
+     b.history.length+' előzmény, '+b.journeys.length+' utazás, '+b.departure.length+
+     ' indulási terv. A régi v1 mentések is támogatottak. A meglévő adatok nem íródnak felül.');
     apply.disabled=false;
    }catch(err){status('Nem tölthető be: '+err.message)}
   });
@@ -192,7 +253,8 @@
     status('Visszaállítás kész. Zsolt: +'+counts.z.favoritesAdded+' kedvenc, +'+
      counts.z.historyAdded+' előzmény, +'+counts.z.journeysAdded+' utazás. Mónika: +'+
      counts.m.favoritesAdded+' kedvenc, +'+counts.m.historyAdded+' előzmény, +'+
-     counts.m.journeysAdded+' utazás. A meglévő magánadatok megmaradtak.');
+     counts.m.journeysAdded+' utazás. Indulási beállítások: +'+(counts.z.departureAdded||0)+
+     ' Zsolt, +'+(counts.m.departureAdded||0)+' Mónika. A meglévő magánadatok megmaradtak.');
     win.SH9_MAV_PERSONAL_UI?.render();
     win.SH9_MAV_JOURNEYS_UI?.render();
     selected=null;apply.disabled=true;file.value='';
