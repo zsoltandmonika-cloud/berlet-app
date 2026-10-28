@@ -11,7 +11,7 @@ test('SH9 Smart Travel Golden page has nine tiles with Ask Léna in the center',
 });
 test('SH9 Smart Travel uses existing Family Guard modules and canonical ChatGPT shortcut',()=>{
  assert.match(page,/\#hhSmartHubDestinationV802/);
- assert.match(page,/\#hhTransitPanel/);
+ assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
  assert.match(page,/\#hhSmartHubFavoritesV806/);
  assert.match(page,/chatgpt-project-shortcut-v712\.js/);
  assert.match(page,/data-name="Ask Léna"/);
@@ -102,4 +102,16 @@ test('SH9 top-right weather glass is 40 percent narrower and remains interactive
  assert.match(page,/\.st-hero-overlay-stack\{top:4px;right:4px;left:auto;width:110px\}/);
  assert.doesNotMatch(page,/\.st-hero-title/);
  assert.doesNotMatch(page,/class="st-hero-title"/);
+});
+
+test('Public Transport v916 launcher has exactly three providers and preserves BKK live module',()=>{
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ const providers=[...pt.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]);
+ assert.deepEqual(providers,['bkk','mav','volan']);
+ assert.match(pt,/href="\.\.\/\.\.\/\.\.\/healthhub\/guardian\/#hhTransitPanel"/);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+ assert.match(pt,/data-profile="m"/);
+ assert.doesNotMatch(pt,/fetch\(|setInterval\(|geolocation\.|supabase\.co/);
+ assert.equal([...pt.matchAll(/class="nav"/g)].length,1);
+ assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
 });
