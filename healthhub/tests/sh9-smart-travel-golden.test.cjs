@@ -441,7 +441,7 @@ test('v932 SH9 restores top on new page/reload only, preserving history, anchors
 });
 
 
-test('BKK v933 first fold expands four Golden Glass tiles exactly to fixed taskbar',()=>{
+test('BKK v934 first fold proportionally fits four tiles with 35px clearance from taskbar',()=>{
  const pathBkk=path.join(root,'sh9/smart-travel/public-transport/bkk/index.html');
  const bkk=fs.readFileSync(pathBkk,'utf8');
  const publicTransport=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
@@ -453,7 +453,8 @@ test('BKK v933 first fold expands four Golden Glass tiles exactly to fixed taskb
  assert.equal([...block[1].matchAll(/<a class="glass" href=/g)].length,4);
  for(const label of ['Élő BKK térkép','Útvonaltervező','Következő járat','Kedvenceim'])
   assert.ok(block[1].includes('<strong>'+label+'</strong>'));
- assert.match(bkk,/\.bkk-first-fold\{\s*display:flex;\s*flex-direction:column;\s*min-height:calc\(100vh - 74px\);\s*min-height:calc\(100dvh - 72px - env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(bkk,/\.bkk-first-fold\{\s*display:flex;\s*flex-direction:column;\s*min-height:calc\(100vh - 109px\);\s*min-height:calc\(100dvh - 107px - env\(safe-area-inset-bottom,0px\)\)/);
+ assert.doesNotMatch(bkk,/min-height:calc\(100dvh - 72px - env\(safe-area-inset-bottom,0px\)\)/);
  assert.match(bkk,/\.bkk-first-fold>\.quick\{\s*flex:1 1 auto;[\s\S]*?grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(bkk,/\.bkk-first-fold>\.quick>a\{\s*min-height:0;\s*height:100%/);
  assert.match(bkk,/padding-bottom:9px/);
