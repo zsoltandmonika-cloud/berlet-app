@@ -471,3 +471,25 @@ test('BKK v935 first fold trims another 5px from each tile',()=>{
  assert.match(publicTransport,/\.poster-frame\{transform:translateY\(-23px\)\}/);
  assert.equal([...publicTransport.matchAll(/class="poster-hit /g)].length,3);
 });
+
+
+test('BKK v936 colors exactly four first-fold SVG pictograms green with glow only',()=>{
+ const bkk=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/index.html'),'utf8');
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ const m=bkk.match(/\/\* v936 · 260-as busz[\s\S]*?\.bkk-first-fold>\.quick \.quick-head>svg\{([\s\S]*?)\}/);
+ assert.ok(m,'green BKK pictogram CSS must be present');
+ assert.match(m[1],/color:#37F36B/);
+ assert.match(m[1],/stroke:currentColor/);
+ assert.match(m[1],/fill:none/);
+ assert.match(m[1],/filter:drop-shadow\(0 0 4px rgba\(55,243,107,.45\)\)/);
+ const fold=bkk.match(/<div class="bkk-first-fold">([\s\S]*?)<\/section>\s*<\/div>\s*<section id="favorites">/);
+ assert.ok(fold);
+ assert.equal([...fold[1].matchAll(/<span class="quick-head"><svg/g)].length,4);
+ assert.equal([...fold[1].matchAll(/<span class="arrow">↗<\/span>/g)].length,4);
+ assert.match(bkk,/\.quick-head\{[^}]*color:var\(--accent\)/);
+ assert.match(bkk,/\.nav a,\.nav button\{/);
+ assert.match(bkk,/:root\[data-profile="m"\]/);
+ assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
