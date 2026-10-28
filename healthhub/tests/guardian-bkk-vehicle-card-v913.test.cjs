@@ -43,8 +43,8 @@ test('v913 uses existing verified/cache-bound authenticated BKK API and refreshe
  assert.match(edge,/if\(label\)entry\.vehicleLabel=label/);
  assert.match(edge,/feedCache/);assert.match(edge,/getUser\(token\)/);
  assert.doesNotMatch(read('bkk-live-map-v793.js'),/fetch\(|setInterval\(/);
- assert.match(read('index.html'),/913-compact-icon-tap/);
- assert.match(read('guardian-transit-v791.js'),/913-compact-icon-tap/);
+ assert.match(read('index.html'),/914-mini-above-marker/);
+ assert.match(read('guardian-transit-v791.js'),/914-mini-above-marker/);
  assert.match(read('bkk-live-glass-v800.css'),/hh-bkk-vehicle-card-v913/);
 });
 
@@ -69,10 +69,36 @@ test('v913.1 no static automatic route popovers and phone-sized pink/blue glass'
  assert.doesNotMatch(originalZoom,/routeDetailsPopup\(/);
  assert.doesNotMatch(extraZoom,/popup\(/);
  const css=read('bkk-live-glass-v800.css'),html=read('index.html');
- assert.match(css,/width:168px;max-width:min\(168px,67vw\)/);
+ assert.match(css,/width:126px;max-width:min\(126px,58vw\)/);
  assert.match(css,/data-guardian-profile="m"/);
  assert.match(css,/data-guardian-profile="z"/);
  assert.match(css,/hh-bkk-glass-icon-v800 svg/);
- assert.match(html,/v=913-compact-icon-tap/);
+ assert.match(html,/v=914-mini-above-marker/);
  assert.match(html,/v=913-static-no-auto-popup/);
+});
+
+test('v914 places popup above clicked vehicle and avoids nearby live BKK marker collision',()=>{
+ const clicked={left:230,right:300,top:290,bottom:337,width:70,height:47};
+ const adjacent={left:200,right:320,top:207,bottom:257};
+ const viewport={left:20,right:500,top:20,bottom:700};
+ const choice=live.vehiclePopupPlacement(clicked,[adjacent],viewport);
+ assert.equal(choice.anchor,'bottom','popup never opens below/over its own vehicle');
+ assert.ok(choice.offset[1]<=-54,'placement clears the tapped vehicle marker');
+ const pinX=(clicked.left+clicked.right)/2+choice.offset[0],bottom=clicked.bottom+6+choice.offset[1];
+ const card={left:pinX-63,right:pinX+63,top:bottom-96,bottom};
+ const intersects=(a,b)=>Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);
+ assert.equal(intersects(card,clicked),false,'selected icon remains fully visible');
+ assert.equal(intersects(card,adjacent),false,'other vehicle icon remains visible when safe placement exists');
+ assert.ok(card.top>=viewport.top,'on-screen room is preferred when available');
+});
+test('v914 fallback and micro glass stay independent of external API requests',()=>{
+ assert.deepEqual(live.vehiclePopupPlacement(null),{anchor:'bottom',offset:[0,-57]});
+ const css=read('bkk-live-glass-v800.css'),src=read('bkk-live-map-v793.js');
+ assert.match(css,/width:126px;max-width:min\(126px,58vw\)/);
+ assert.match(css,/rgba\(29,72,108,\.43\)/);
+ assert.match(css,/rgba\(116,49,102,\.44\)/);
+ assert.match(src,/placementForMarker\(wrapper,m\)/);
+ assert.match(src,/anchor:place\.anchor,offset:place\.offset,maxWidth:'126px'/);
+ assert.match(src,/removeVehiclePopup\(\)/);
+ assert.doesNotMatch(src,/fetch\(|setInterval\(|geolocation\./);
 });
