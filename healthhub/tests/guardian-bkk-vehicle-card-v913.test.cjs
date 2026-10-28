@@ -44,6 +44,35 @@ test('v913 uses existing verified/cache-bound authenticated BKK API and refreshe
  assert.match(edge,/feedCache/);assert.match(edge,/getUser\(token\)/);
  assert.doesNotMatch(read('bkk-live-map-v793.js'),/fetch\(|setInterval\(/);
  assert.match(read('index.html'),/913-bkkgo-vehicle/);
- assert.match(read('guardian-transit-v791.js'),/913-bkkgo-vehicle/);
+ assert.match(read('guardian-transit-v791.js'),/913-compact-icon-tap/);
  assert.match(read('bkk-live-glass-v800.css'),/hh-bkk-vehicle-card-v913/);
+});
+
+test('v913.1 gives bus tram trolley metro HEV distinct SVG icons with original live-marker geometry',()=>{
+ const cases=[['260','bus'],['17','tram'],['75','trolley'],['M2','metro'],['H5','hev']];
+ const doc={createElement(tag){return {tag,style:{},attributes:{},children:[],setAttribute(k,v){this.attributes[k]=v},append(...kids){this.children.push(...kids)},appendChild(k){this.children.push(k)}}}};
+ for(const [routeId,mode] of cases){
+  const marker=live.makeMarkerElement(doc,{routeId,mode});
+  assert.match(marker.className,new RegExp('hh-bkk-glass--'+mode));
+  const originalCapsule=marker.children[0].children[0];
+  assert.equal(originalCapsule.className,'hh-bkk-glass-capsule-v800');
+  const icon=originalCapsule.children[0];
+  assert.match(icon.innerHTML,/<svg/);
+  assert.notEqual(icon.innerHTML,'');
+  assert.equal(originalCapsule.children[2].textContent,routeId);
+ }
+});
+test('v913.1 no static automatic route popovers and phone-sized pink/blue glass',()=>{
+ const routes=read('guardian-transit-v791.js'),extra=read('guardian-bkk-extra-route-v912.js');
+ const originalZoom=routes.slice(routes.indexOf('function showRoute(id){'),routes.indexOf('function onToggle(id,value){'));
+ const extraZoom=extra.slice(extra.indexOf('async function showLine(key){'),extra.indexOf('if(w?.addEventListener)'));
+ assert.doesNotMatch(originalZoom,/routeDetailsPopup\(/);
+ assert.doesNotMatch(extraZoom,/popup\(/);
+ const css=read('bkk-live-glass-v800.css'),html=read('index.html');
+ assert.match(css,/width:168px;max-width:min\(168px,67vw\)/);
+ assert.match(css,/data-guardian-profile="m"/);
+ assert.match(css,/data-guardian-profile="z"/);
+ assert.match(css,/hh-bkk-glass-icon-v800 svg/);
+ assert.match(html,/v=913-compact-icon-tap/);
+ assert.match(html,/v=913-static-no-auto-popup/);
 });
