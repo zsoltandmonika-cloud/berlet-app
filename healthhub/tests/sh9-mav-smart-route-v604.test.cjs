@@ -120,7 +120,7 @@ test('Phase 2D accepts only official destinations and preserves Golden shell',()
  assert.match(source,/dateFmt\.format\(new Date\(q\.when\)\)/);
  assert.doesNotMatch(source,/\bsetInterval\(|navigator\.geolocation|supabase\.co|\.innerHTML\s*=/i);
  assert.match(html,/rail-golden-glass-v3/);
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
  assert.match(html,/id="rail-date" class="rail-picker-overlay"/);
  assert.match(html,/id="signal" class="sound"/);
