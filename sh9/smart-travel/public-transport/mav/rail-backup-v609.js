@@ -96,8 +96,12 @@
   for(const id of PROFILES){
    const p=raw.profiles[id];
    const fields=Object.keys(p||{}).sort().join(',');
+   // Import preview parses a legacy v1 once, then restore() validates it again.
+   // Allow ONLY an empty normalized departure array in that second pass.
+   const legacyFields=fields==='favorites,history,journeys'||
+    (fields==='departure,favorites,history,journeys'&&Array.isArray(p.departure)&&p.departure.length===0);
    if(!p||typeof p!=='object'||Array.isArray(p)||
-      fields!==(legacy?'favorites,history,journeys':'departure,favorites,history,journeys'))
+      (legacy?!legacyFields:fields!=='departure,favorites,history,journeys'))
     throw Error('Hiányzó vagy hibás profiladatok');
    if(!Array.isArray(p.favorites)||!Array.isArray(p.history)||!Array.isArray(p.journeys)||
     (current&&!Array.isArray(p.departure))||
