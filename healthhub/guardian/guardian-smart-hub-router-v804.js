@@ -13,6 +13,7 @@
  const LINES=new Set(['260','17','19']);
  const WALK=1000,CHANGE=180,MAX_RESULTS=3;
  let start=null,target=null,feed=null,network=null,timetable=null,plans=[],loading=null,priority='transfers',activeGuide=null,activeStep=0;
+ let timeChoice={mode:'now',at:null};
  const $=id=>w&&w.document&&w.document.getElementById(id);
  function distance(a,b){
   if(!a||!b||![a.lat,a.lng,b.lat,b.lng].every(Number.isFinite))return Infinity;
@@ -326,6 +327,27 @@ function renderGuide(){
    hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(timestamp))}
   catch(_){return ''}
  }
+ function timeControls(){
+  const modes={now:'hhPlannerNowV939',depart:'hhPlannerDepartV939',arrive:'hhPlannerArriveV939'};
+  for(const [mode,id] of Object.entries(modes))$(''+id)?.setAttribute?.('aria-pressed',String(timeChoice.mode===mode));
+  const field=$('hhPlannerDateV939'),label=$('hhPlannerTimeLabelV939');
+  if(field)field.hidden=timeChoice.mode==='now';
+  if(label){label.hidden=timeChoice.mode==='now';label.textContent=timeChoice.mode==='arrive'?'Mikorra szeretnél megérkezni?':'Mikor szeretnél indulni?'}
+  const note=$('hhPlannerTimeStatusV939');
+  if(note)note.textContent=timeChoice.mode==='now'?'Indulás most · a következő igazolható BKK-járatokat keressük.':
+   timeChoice.mode==='arrive'?'Érkezés eddig · legkésőbbi igazolt indulási lehetőséget keressük.':
+    'Indulás ettől · ellenőrzött menetrendi járatokat keresünk.';
+ }
+ function setTimeChoice(mode,at=null,now=Date.now()){
+  if(!['now','depart','arrive'].includes(mode))return false;
+  if(mode!=='now'&&(!Number.isFinite(at)||at<now-60000||at>now+36*3600000))return false;
+  timeChoice={mode,at:mode==='now'?null:at};
+  activeGuide=null;activeStep=0;renderGuide();timeControls();render();return true;
+ }
+ function localDateTime(timestamp){
+  const d=new Date(timestamp),pad=n=>String(n).padStart(2,'0');
+  return [d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-')+'T'+[pad(d.getHours()),pad(d.getMinutes())].join(':');
+ }
  function render(){
   const host=$('hhSmartHubTripPlansV804'),note=$('hhSmartHubTripStatusV804');
   if(!host||!note||!w.document)return;
@@ -344,19 +366,24 @@ function renderGuide(){
     option.legs.every(leg=>leg&&leg.line&&
      !['960','917','917A'].includes(String(leg.line.id).trim())));
   const schedules=w.HH_BKK_TIMETABLE_V859;
+  const query=timeChoice.mode==='now'?{mode:'now'}:{...timeChoice};
   plans=rankOffers(raw.map(option=>{
    if(!timetable||!schedules?.findTiming)return option;
-   const timing=schedules.findTiming(timetable,option);
-   return timing?{...option,timing}:option;
+   const match=timeChoice.mode==='now'
+    ?schedules.findTiming(timetable,option)
+    :schedules.findTimings?.(timetable,option,query,1)?.[0];
+   return match?{...option,timing:match}:option;
   }));
   const coverage=$('hhSmartHubCoverageV806');
   if(coverage)coverage.textContent=broad?'Teljesebb BKK hálózati pilot · statikus GTFS':'260 · 17 · 19 · hálózati adat még nincs';
 
+  const timeMatches=plans.filter(p=>verifiedTiming(p)).length;
   note.textContent=plans.length?
-   plans.length+' BKK útvonaljavaslat · '+(timetable
-    ?'időpontok csak a támogatott, összeillesztett menetrendi utaknál'
-    :'menetrendi időadat még nem elérhető')+
-    ' · gyaloglás légvonalból becsült, élő késés nélkül.':
+   plans.length+' BKK útvonaljavaslat · '+(timeChoice.mode!=='now'&&timeMatches===0
+    ?'A választott időpontra nincs igazolt menetrendi találat; a megjelenő útvonalak csak statikus lehetőségek.'
+    :timetable?timeMatches+' útvonalhoz ellenőrzött tervezett időpont, valós idejű késés nélkül.'
+    :'menetrendi időadat még nem elérhető, csak statikus útvonalak.')+
+    ' · gyaloglás légvonalból becsült.':
    (broad?'Nem találtam ellenőrizhető statikus útvonalat a rendelkezésre álló BKK-mintákon. Lehet másik útvonal vagy több átszállás.':
     'A 260-as, 17-es és 19-es járat között nincs statikus összeköttetés. A teljesebb BKK-adatok betöltéséig ez még korlátozott pilot.');
   plans.forEach((p,i)=>{
@@ -420,12 +447,45 @@ function renderGuide(){
    flow.textContent='Útvonal áttekintése ▾';
    flow.setAttribute('aria-label','A(z) '+(i+1)+'. útvonal teljes, függőleges Trip Plan Flow nézete');
    flow.addEventListener('click',()=>selectCard());
+   const next=d.createElement('button');next.type='button';
+   next.className='hh-next-button-v939';
+   next.textContent='◷ Következő járat';
+   next.setAttribute('aria-expanded','false');
+   next.setAttribute('aria-controls','hhNextDeparturesV939-'+i);
+   const nextPanel=d.createElement('div');
+   nextPanel.id='hhNextDeparturesV939-'+i;
+   nextPanel.className='hh-next-departures-v939';nextPanel.hidden=true;
+   next.addEventListener('click',()=>{
+    const opening=nextPanel.hidden;
+    nextPanel.hidden=!opening;next.setAttribute('aria-expanded',String(opening));
+    if(!opening)return;
+    nextPanel.replaceChildren();
+    const sched=w.HH_BKK_TIMETABLE_V859;
+    const now=Date.now();
+    const valid=timetable&&sched?.findTimings?sched.findTimings(timetable,p,{mode:'now'},3,now)
+     .filter(t=>verifiedTiming({...p,timing:t},now)):[];
+    if(!valid.length){
+     const message=d.createElement('span');
+     message.textContent='Ehhez az útvonalhoz nincs ellenőrzött következő indulási időadat. Ez nem jelenti azt, hogy nem jár a jármű.';
+     nextPanel.append(message);return;
+    }
+    const heading=d.createElement('strong');
+    heading.textContent='Menetrend szerinti indulások · nem élő késési adatok';
+    nextPanel.append(heading);
+    for(const t of valid){
+     const line=d.createElement('span');
+     line.textContent=prettyClock(t.firstBoard||t.departure)+' · '+
+      (t.departureStop||p.legs[0].enter.name)+' → érkezés kb. '+
+      prettyClock(t.arrival)+' (menetrendi)';
+     nextPanel.append(line);
+    }
+   });
    const map=d.createElement('button');map.type='button';map.textContent='Térkép ↗';
    map.addEventListener('click',()=>focus(p));
    const ticket=d.createElement('a');ticket.className='hh-smart-trip-ticket-v806';
    ticket.href='https://bkk.hu/mobiljegy';ticket.target='_blank';
    ticket.rel='noopener noreferrer';ticket.textContent='🎫 Jegy / bérlet ↗';
-   actions.append(flow,map,ticket);
+   actions.append(flow,next,map,ticket);
    const chooseTrip=d.createElement('button');chooseTrip.type='button';
    chooseTrip.className='hh-active-route-select-v862';
    chooseTrip.textContent='✓ Kiválasztom ezt az útvonalat';
@@ -434,7 +494,7 @@ function renderGuide(){
     const active=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862;
     if(active?.planned(p)){selectCard();focus(p)}
    });
-   row.append(actions,chooseTrip);host.append(row);
+   row.append(actions,chooseTrip,nextPanel);host.append(row);
    row.tabIndex=0;
    row.setAttribute('aria-label','A(z) '+(i+1)+'. útvonal áttekintése');
    function selectCard(){
@@ -514,6 +574,26 @@ function renderGuide(){
  }
  function init(){
   if(!$('hhSmartHubTripPlansV804')||!w.fetch)return;
+  const dateInput=$('hhPlannerDateV939'),dateStatus=$('hhPlannerTimeStatusV939');
+  const choices={now:'hhPlannerNowV939',depart:'hhPlannerDepartV939',arrive:'hhPlannerArriveV939'};
+  const report=()=>{if(dateStatus)dateStatus.textContent='A kiválasztott időpont érvénytelen vagy 36 órán túli. Ellenőrizd a dátumot.'};
+  for(const [mode,id] of Object.entries(choices)){
+   $(id)?.addEventListener('click',()=>{
+    if(mode==='now'){setTimeChoice('now');return}
+    if(!dateInput)return;
+    // Keep date/time local to the browser (Europe/Budapest on the user's phone).
+    const floor=Math.ceil((Date.now()+15*60000)/60000)*60000;
+    const selected=timeChoice.mode==='now'?floor:timeChoice.at;
+    dateInput.value=localDateTime(selected);
+    if(!setTimeChoice(mode,selected))report();
+   });
+  }
+  dateInput?.addEventListener('change',()=>{
+   if(timeChoice.mode==='now')return;
+   const millis=Date.parse(dateInput.value);
+   if(!setTimeChoice(timeChoice.mode,millis))report();
+  });
+  timeControls();
   const transfers=$('hhSmartHubPriorityTransfersV805'),walking=$('hhSmartHubPriorityWalkingV805');
   if(transfers)transfers.addEventListener('click',()=>setPreference('transfers'));
   if(walking)walking.addEventListener('click',()=>setPreference('walking'));
@@ -531,5 +611,5 @@ function renderGuide(){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},version:'862'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,setTimeChoice,get timeChoice(){return {...timeChoice}},get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},version:'862'};
 });

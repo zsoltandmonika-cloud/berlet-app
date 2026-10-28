@@ -593,3 +593,70 @@ test('BKK v938 timetable buttons open official selected-route search in one tap,
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
+
+
+test('BKK planner v939 departure, arrive-by and verified next three departures',()=>{
+ const matcher=require('../guardian/guardian-bkk-timetable-v859.js');
+ const planner=require('../guardian/guardian-smart-hub-router-v804.js');
+ const html=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ const css=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-planner-time-v939.css'),'utf8');
+ const router=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-smart-hub-router-v804.js'),'utf8');
+ for(const id of ['hhPlannerNowV939','hhPlannerDepartV939','hhPlannerArriveV939',
+  'hhPlannerDateV939','hhPlannerTimeStatusV939'])assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/guardian-planner-time-v939\.css\?v=939-arrival-departure/);
+ assert.match(html,/guardian-bkk-timetable-v859\.js\?v=939-time-modes-next-service/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=939-time-modes-next-service/);
+ assert.match(css,/\.hh-planner-time-buttons-v939/);
+ assert.match(css,/\.hh-next-departures-v939\[hidden\]/);
+ assert.match(router,/function setTimeChoice\(mode,at=null,now=Date\.now\(\)\)/);
+ assert.match(router,/schedules\.findTimings\?\.\(timetable,option,query,1\)/);
+ assert.match(router,/◷ Következő járat/);
+ assert.match(router,/sched\.findTimings\(timetable,p,\{mode:'now'\},3,now\)/);
+ assert.doesNotMatch(router,/setInterval\(|geolocation\.getCurrentPosition\(/);
+ const now=Date.parse('2026-10-28T10:00:00Z'),min=Math.ceil(now/60000);
+ const stops=(a)=>[['A',a,a],['B',a+5,a+5]];
+ const schedule={generatedAt:new Date(now).toISOString(),
+  trips:[10,20,30,40,50].map((diff,i)=>({line:'260',tripId:'T'+i,stops:stops(min+diff)})),
+  _index:new Map()};
+ const line={id:'260'};
+ const itinerary={legs:[{line,enter:{id:'A',name:'Kiinduló'},exit:{id:'B',name:'Végállomás'}}],approach:0,finish:0};
+ const match=(mode,at,limit=3)=>matcher.findTimings(schedule,itinerary,{mode,at},limit,now);
+ const upcoming=match('now',now);
+ assert.equal(upcoming.length,3);
+ assert.equal(Date.parse(upcoming[0].firstBoard),now+10*60000);
+ assert.equal(Date.parse(upcoming[2].firstBoard),now+30*60000);
+ assert.equal(upcoming[0].source,'BKK_GTFS');
+ assert.equal(upcoming[0].matchedLegs[0].boardStopId,'A');
+ const later=match('depart',now+25*60000);
+ assert.equal(later.length,3);
+ assert.equal(Date.parse(later[0].firstBoard),now+30*60000);
+ const arrival=match('arrive',now+44*60000);
+ assert.equal(arrival.length,3);
+ assert.equal(Date.parse(arrival[0].firstBoard),now+30*60000);
+ assert.ok(arrival.every(x=>Date.parse(x.arrival)<=now+44*60000));
+ assert.deepEqual(match('arrive',now+3*60000),[]);
+ assert.deepEqual(match('depart',now+38*3600000),[]);
+ assert.deepEqual(match('depart',now-3600000),[]);
+ assert.deepEqual(match('invalid',now+60000),[]);
+ assert.ok(planner.setTimeChoice('depart',now+25*60000,now));
+ assert.equal(planner.timeChoice.mode,'depart');
+ assert.equal(planner.timeChoice.at,now+25*60000);
+ assert.equal(planner.setTimeChoice('arrive',now+38*3600000,now),false);
+ assert.equal(planner.timeChoice.mode,'depart');
+ assert.ok(planner.setTimeChoice('now',null,now));
+ const transfer={legs:[
+  {line:{id:'260'},enter:{id:'A',name:'Induló'},exit:{id:'X',name:'Átszállás',lat:47.5,lng:19}},
+  {line:{id:'17'},enter:{id:'X',name:'Átszállás',lat:47.5,lng:19},exit:{id:'B',name:'Cél'}}],
+  approach:0,finish:0};
+ const transferSchedule={generatedAt:new Date(now).toISOString(),_index:new Map(),
+  trips:[
+   {line:'260',tripId:'A1',stops:[['A',min+10,min+10],['X',min+15,min+15]]},
+   {line:'17',tripId:'B1',stops:[['X',min+18,min+18],['B',min+26,min+26]]}
+  ]};
+ assert.equal(matcher.findTimings(transferSchedule,transfer,{mode:'arrive',at:now+25*60000},3,now).length,0);
+ const matchedTransfer=matcher.findTimings(transferSchedule,transfer,{mode:'arrive',at:now+26*60000},3,now);
+ assert.equal(matchedTransfer.length,1);
+ assert.deepEqual(matchedTransfer[0].matchedLegs.map(x=>x.lineId),['260','17']);
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});

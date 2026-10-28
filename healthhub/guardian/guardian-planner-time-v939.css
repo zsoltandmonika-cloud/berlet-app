@@ -1,0 +1,51 @@
+/* v939 · BKK Smart Travel time-aware planning, ONLY inside existing planner.
+   Uses the current Guardian profile tokens, no new theme, data or services. */
+#hhSmartHubDestinationV802 .hh-planner-time-v939{
+ display:flex;flex-direction:column;gap:9px;min-width:0;
+ margin:10px 0 11px;padding:12px;
+ border-radius:16px;border:1px solid var(--edge);
+ color:var(--ink);background:var(--surface);
+ box-shadow:inset 0 1px rgba(255,255,255,.28);
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
+}
+#hhSmartHubDestinationV802 .hh-planner-time-buttons-v939{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px
+}
+#hhSmartHubDestinationV802 .hh-planner-time-buttons-v939 button{
+ min-width:0;min-height:44px;padding:8px 4px;border-radius:11px;
+ border:1px solid var(--edge);background:var(--surface);
+ color:var(--ink);font:780 11px/1.25 system-ui;
+ white-space:normal;cursor:pointer;touch-action:manipulation
+}
+#hhSmartHubDestinationV802 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ background:var(--selected);border-color:var(--accent);
+ box-shadow:inset 0 1px rgba(255,255,255,.25),0 0 9px rgba(133,181,238,.13)
+}
+#hhSmartHubDestinationV802 #hhPlannerDateV939{
+ box-sizing:border-box;width:100%;min-height:45px;
+ padding:9px 12px;border-radius:12px;border:1px solid var(--edge);
+ color:var(--ink);background:var(--surface);font:700 14px system-ui;
+ color-scheme:light
+}
+#hhSmartHubDestinationV802 #hhPlannerTimeLabelV939{
+ color:var(--ink);font:700 12px system-ui
+}
+#hhSmartHubDestinationV802 #hhPlannerTimeStatusV939{
+ color:var(--muted);font:620 11px/1.45 system-ui;margin:0
+}
+#hhSmartHubDestinationV802 .hh-next-departures-v939{
+ margin-top:7px;padding:9px;border:1px solid var(--edge);border-radius:11px;
+ background:var(--surface);display:grid;gap:5px;color:var(--ink);
+ font:670 11px/1.4 system-ui
+}
+#hhSmartHubDestinationV802 .hh-next-departures-v939[hidden],
+#hhSmartHubDestinationV802 [hidden]{display:none!important}
+#hhSmartHubDestinationV802 .hh-next-departures-v939 strong{font-weight:850}
+#hhSmartHubDestinationV802 .hh-next-departures-v939 span{font-variant-numeric:tabular-nums}
+#hhSmartHubDestinationV802 .hh-trip-actions-v854 .hh-next-button-v939{
+ border-color:var(--accent)!important
+}
+@media(max-width:360px){
+ #hhSmartHubDestinationV802 .hh-planner-time-buttons-v939 button{font-size:10px;padding:5px 2px}
+ #hhSmartHubDestinationV802 .hh-planner-time-v939{padding:9px}
+}

@@ -71,30 +71,40 @@
   return Math.round(6371000*Math.hypot((a.lat-b.lat)*k,(a.lng-b.lng)*k*
    Math.cos(((a.lat+b.lat)/2)*k)));
  }
- function findTiming(schedule,itinerary,now=Date.now()){
+ function findTimings(schedule,itinerary,request={mode:'now'},limit=3,now=Date.now()){
   if(!schedule||!itinerary||!Array.isArray(itinerary.legs)||!itinerary.legs.length||
-   itinerary.legs.length>5||!Number.isFinite(now))return null;
+   itinerary.legs.length>5||!Number.isFinite(now))return [];
+  const mode=request?.mode||'now';
+  if(!['now','depart','arrive'].includes(mode))return [];
+  const at=mode==='now'?now:Number(request?.at);
+  if(!Number.isFinite(at)||at<now-60000||at>now+36*3600000)return [];
   const approach=walkingMinutes(itinerary.approach);
   const finish=walkingMinutes(itinerary.finish);
-  if(approach===null||finish===null)return null;
+  if(approach===null||finish===null)return [];
   const transferWalks=[];
   for(let i=1;i<itinerary.legs.length;i++){
    const a=itinerary.legs[i-1],b=itinerary.legs[i],walk=walkingMinutes(distance(a.exit,b.enter));
-   if(walk===null)return null;
+   if(walk===null)return [];
    transferWalks.push(walk);
   }
-  // Passengers can realistically reach a platform, with a 1-minute boarding buffer.
-  // Search departures starting after 'now' and up to 90 min later.
   const choices=itinerary.legs.map(leg=>legMatches(schedule,leg));
-  if(choices.some(arr=>!arr.length))return null;
-  const nowMin=Math.ceil(now/60000);
-  const first=choices[0].filter(a=>a.board>=nowMin+approach+1&&a.board<=nowMin+90);
-  let best=null;
-  for(const initial of first.slice(0,120)){
+  if(choices.some(a=>!a.length))return [];
+  const nowMin=Math.ceil(now/60000),atMin=mode==='arrive'?Math.floor(at/60000):Math.ceil(at/60000);
+  // Time-bound calculations are only possible for matching published GTFS trips.
+  // Arrive-by searches backward up to 4 hours for a feasible connection.
+  const minOrigin=mode==='arrive'?Math.max(nowMin,atMin-240):Math.max(nowMin,atMin);
+  const maxOrigin=mode==='arrive'?atMin:atMin+90;
+  const out=[];
+  const first=choices[0].filter(a=>{
+   const origin=a.board-approach-1;
+   return origin>=minOrigin&&origin<=maxOrigin;
+  });
+  // For arrive-by, prefer the LATEST candidate departures if service is frequent.
+  const candidates=mode==='arrive'?first.slice(-600):first.slice(0,600);
+  for(const initial of candidates){
    let previous=initial,legs=[initial],waiting=0,possible=true;
    for(let i=1;i<choices.length;i++){
     const walk=transferWalks[i-1];
-    // Boarding after alighting, transfer walk and a one-minute buffer.
     const next=choices[i].find(t=>t.board>=previous.alight+walk+1&&
      t.board<=previous.alight+walk+90);
     if(!next){possible=false;break}
@@ -102,26 +112,31 @@
     previous=next;legs.push(next);
    }
    if(!possible)continue;
-   const originMin=initial.board-approach-1;
-   const arrivalMin=previous.alight+finish;
-   if(originMin<nowMin||arrivalMin<=originMin)continue;
-   const candidate={departure:new Date(originMin*60000).toISOString(),
+   const originMin=initial.board-approach-1,arrivalMin=previous.alight+finish;
+   if(originMin<nowMin||arrivalMin<=originMin||
+      (mode==='arrive'&&arrivalMin>atMin))continue;
+   out.push({departure:new Date(originMin*60000).toISOString(),
     arrival:new Date(arrivalMin*60000).toISOString(),
     firstBoard:new Date(initial.board*60000).toISOString(),
     departureStop:itinerary.legs[0].enter.name,
     waitMinutes:waiting,
-    // Direct-distance conversion gives approximate walking, never verified 5-star walking.
     walkMinutes:approach+finish+transferWalks.reduce((a,b)=>a+b,0),
     walkVerified:false,verified:true,source:'BKK_GTFS',
     generatedAt:schedule.generatedAt,
     matchedLegs:legs.map((t,i)=>({lineId:t.routeId,boardStopId:t.boardId,
      alightStopId:t.alightId,tripId:t.tripId}))
-   };
-   if(!best||Date.parse(candidate.arrival)<Date.parse(best.arrival)||
-    (candidate.arrival===best.arrival&&Date.parse(candidate.departure)<Date.parse(best.departure)))
-    best=candidate;
+   });
   }
-  return best;
+  out.sort((a,b)=>mode==='arrive'
+   ?Date.parse(b.departure)-Date.parse(a.departure)||Date.parse(a.arrival)-Date.parse(b.arrival)
+   :Date.parse(a.departure)-Date.parse(b.departure)||Date.parse(a.arrival)-Date.parse(b.arrival));
+  const keep=Number.isInteger(limit)?Math.max(1,Math.min(5,limit)):3;
+  return out.slice(0,keep);
  }
- return {validate,walkingMinutes,legMatches,findTiming,version:'859'};
+ function findTiming(schedule,itinerary,now=Date.now()){
+  const matches=findTimings(schedule,itinerary,{mode:'now'},5,now);
+  return matches.sort((a,b)=>Date.parse(a.arrival)-Date.parse(b.arrival)||
+   Date.parse(a.departure)-Date.parse(b.departure))[0]||null;
+ }
+ return {validate,walkingMinutes,legMatches,findTiming,findTimings,version:'939'};
 });

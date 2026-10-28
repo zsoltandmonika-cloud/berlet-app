@@ -84,6 +84,7 @@
 <link rel="stylesheet" href="./guardian-trip-flow-v854.css?v=854-compact-offer-timeline">
 <link rel="stylesheet" href="./guardian-bkk-polish-v855.css?v=855-pastel-routes-gold-favorites">
 <link rel="stylesheet" href="./guardian-planner-compact-v856.css?v=856-one-row-saved-predictions">
+<link rel="stylesheet" href="./guardian-planner-time-v939.css?v=939-arrival-departure">
 <link rel="stylesheet" href="./guardian-route-stars-v857.css?v=859-scheduled-trip-clocks">
 <link rel="stylesheet" href="./guardian-bkk-watch-collapse-v858.css?v=858-compact-accordion">
 <link rel="stylesheet" href="./guardian-smart-hub-location-v860.css?v=860-device-position-button">
@@ -288,6 +289,16 @@
           <input id="hhSmartHubToV806" type="search" autocomplete="off" maxlength="120" aria-controls="hhSmartHubNativeResultsV803" placeholder="Pl. Otthon vagy mentett cím…">
         </div>
       </div>
+      <section id="hhPlannerTimeV939" class="hh-planner-time-v939" aria-label="Utazás időpontja">
+        <div class="hh-planner-time-buttons-v939" role="group" aria-label="Időpont típusa">
+          <button id="hhPlannerNowV939" type="button" aria-pressed="true">Indulás most</button>
+          <button id="hhPlannerDepartV939" type="button" aria-pressed="false">Indulás</button>
+          <button id="hhPlannerArriveV939" type="button" aria-pressed="false">Érkezés</button>
+        </div>
+        <label id="hhPlannerTimeLabelV939" for="hhPlannerDateV939" hidden>Választott időpont</label>
+        <input type="datetime-local" id="hhPlannerDateV939" aria-labelledby="hhPlannerTimeLabelV939" step="60" hidden>
+        <p id="hhPlannerTimeStatusV939" role="status" aria-live="polite">Indulás most · csak ellenőrzött GTFS-menetrendi idők jelennek meg.</p>
+      </section>
       <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Koppints egy mezőre, majd a találatra. Két hely után automatikusan tervezünk.</p>
       <div id="hhSmartHubNativeResultsV803" class="hh-smart-hub-results-v803" role="list" aria-label="Valós helytalálatok"></div>
       <div class="hh-smart-hub-auto-v806">
@@ -599,8 +610,8 @@
 <script defer src="./guardian-keyboard-guard-v832.js?v=832-keyboard-safe"></script>
 <script defer src="./guardian-origin-search-v836.js?v=836-map-from-search"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a&no960=840"></script>
-<script defer src="./guardian-bkk-timetable-v859.js?v=859-matched-stop-times"></script>
-<script defer src="./guardian-smart-hub-router-v804.js?v=863-linked-liveflow&no960=840"></script>
+<script defer src="./guardian-bkk-timetable-v859.js?v=939-time-modes-next-service"></script>
+<script defer src="./guardian-smart-hub-router-v804.js?v=939-time-modes-next-service&no960=840"></script>
 <script defer src="./guardian-live-flow-core-v863.js?v=863-direction-confidence-fix"></script>
 <script defer src="./guardian-active-transit-v862.js?v=863-flow-auto-two-fixes"></script>
 <script defer src="./guardian-live-flow-v863.js?v=863-family-gps-freshness-fix"></script>
