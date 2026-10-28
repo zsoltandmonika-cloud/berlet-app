@@ -19,6 +19,43 @@
  // Browser DOM markers live ABOVE the WebGL canvas, including the 3D building layer.
  // Keep the source-backed positions, never fall back to a made-up vehicle location.
  const domMarkers=new Map();let domMap=null;
+ const MODE_HU={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'};
+ function vehicleInfo(vehicle,now=Date.now()){
+  const clean=(x,max=120)=>typeof x==='string'?x.trim().slice(0,max):'';
+  // The backend ID may be a feed entity key. Never masquerade it as a vehicle number.
+  const vehicleCode=clean(vehicle?.vehicleLabel,64)||clean(vehicle?.vehicleNumber,64);
+  const stamp=Date.parse(vehicle?.timestamp||''),seconds=Number.isFinite(stamp)?Math.max(0,Math.floor((now-stamp)/1000)):NaN;
+  const age=Number.isFinite(seconds)?seconds<60?seconds+' mp':Math.floor(seconds/60)+' p':'nincs adat';
+  return {routeId:clean(vehicle?.routeId,16),mode:MODE_HU[vehicle?.mode]||'Járat',
+   headsign:clean(vehicle?.headsign),vehicleCode,licensePlate:clean(vehicle?.licensePlate,32),
+   age,hasTimestamp:Number.isFinite(seconds)};
+ }
+ function renderVehicleInfo(doc,vehicle){
+  const info=vehicleInfo(vehicle),card=doc.createElement('section');
+  card.className='hh-bkk-vehicle-card-v913';
+  const top=doc.createElement('div');top.className='hh-bkk-vehicle-top-v913';
+  const line=doc.createElement('span');line.className='hh-bkk-vehicle-line-v913 hh-bkk-vehicle-mode-'+(vehicle.mode||'other');
+  line.textContent=info.routeId;top.append(line);
+  const destination=doc.createElement('strong');destination.className='hh-bkk-vehicle-direction-v913';
+  // The GTFS-RT VehiclePositions snapshot does not always carry a destination.
+  // Don't waste space with an invented or repeated placeholder.
+  if(info.headsign){destination.textContent='▶ '+info.headsign;top.append(destination);}
+  card.append(top);
+  const details=doc.createElement('div');details.className='hh-bkk-vehicle-details-v913';
+  if(info.vehicleCode){
+   const id=doc.createElement('span');id.textContent=info.vehicleCode;details.append(id);
+  }
+  if(info.licensePlate&&info.licensePlate!==info.vehicleCode){
+   const plate=doc.createElement('span');plate.textContent=info.licensePlate;details.append(plate);
+  }
+  if(!details.children.length){
+   const missing=doc.createElement('span');missing.textContent='Járműszám: —';details.append(missing);
+  }
+  card.append(details);
+  const foot=doc.createElement('div');foot.className='hh-bkk-vehicle-updated-v913';
+  foot.textContent='Frissítve: '+info.age;card.append(foot);
+  return card;
+ }
  function removeDom(){
   for(const marker of domMarkers.values())try{marker.remove()}catch(_){}
   domMarkers.clear();domMap=null;
@@ -28,7 +65,9 @@
  const ICONS=Object.freeze({
   bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="16" rx="3"/><path d="M4.5 11h15M8 7.5h8M7.5 19.5v2m9-2v2"/><circle cx="8" cy="15.6" r=".9" fill="currentColor" stroke="none"/><circle cx="16" cy="15.6" r=".9" fill="currentColor" stroke="none"/></svg>',
   tram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 2 3 3 3-3M12 5v2M7 20l-2 2m12-2 2 2"/><rect x="5.5" y="7" width="13" height="12" rx="2.5"/><path d="M12 7v7M5.5 14h13"/><circle cx="8.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/><circle cx="15.5" cy="16.5" r=".8" fill="currentColor" stroke="none"/></svg>',
-  hev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v3M8 5h8M7 21l-2 2m12-2 2 2"/><rect x="4.5" y="6" width="15" height="14" rx="3"/><path d="M12 6v8M4.5 14h15"/><circle cx="8.5" cy="17" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>'
+  hev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v3M8 5h8M7 21l-2 2m12-2 2 2"/><rect x="4.5" y="6" width="15" height="14" rx="3"/><path d="M12 6v8M4.5 14h15"/><circle cx="8.5" cy="17" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>',
+  trolley:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 4 1m13 3 3-3M5 4l7 3 7-3"/><rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M4 13h16M8 20v2m8-2v2"/><circle cx="8" cy="16.5" r=".8"/><circle cx="16" cy="16.5" r=".8"/></svg>',
+  metro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="17" rx="4"/><path d="M5 12h14M8 20l-2 2m10-2 2 2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/></svg>'
  });
  function makeMarkerElement(doc,vehicle){
   const route=String(vehicle.routeId);
@@ -67,14 +106,8 @@
     const m=root.HH_GUARDIAN_V761?.map;
     if(!m||!Number.isFinite(newest.lng)||!Number.isFinite(newest.lat))return;
     try{
-     const el=doc.createElement('div');el.className='hh-bkk-route-info-v912';
-     const title=doc.createElement('strong');title.textContent=({bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'}[mode]||'BKK')+' '+route;
-     const line=doc.createElement('div');line.textContent=newest.headsign?'Irány: '+newest.headsign:'Irány: nincs adat';
-     const time=doc.createElement('small');
-     const timeValue=Date.parse(newest.timestamp);
-     time.textContent=Number.isFinite(timeValue)?'Utolsó hiteles BKK-járműpozíció: '+new Date(timeValue).toLocaleTimeString('hu-HU'):'Élő megfigyelés ideje nem ismert';
-     el.append(title,line,time);
-     new root.maplibregl.Popup({offset:14,closeButton:true,className:'hh-bkk-popup-v912'})
+     const el=renderVehicleInfo(doc,newest);
+     new root.maplibregl.Popup({offset:14,closeButton:true,className:'hh-bkk-popup-v912 hh-bkk-vehicle-popup-v913'})
       .setLngLat([newest.lng,newest.lat]).setDOMContent(el).addTo(m);
     }catch(_){}
    };
@@ -180,5 +213,5 @@
    return true;
   }catch(_){return false}
  }
- return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement};
+ return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement,vehicleInfo,renderVehicleInfo};
 });

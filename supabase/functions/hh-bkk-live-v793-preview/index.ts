@@ -91,7 +91,18 @@ async function fetchLive():Promise<Record<string,unknown>>{
   if(!route||!id||seen.has(id)||!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180
    ||!Number.isFinite(observed)||observed<now-MAX_AGE_S||observed>now+10)continue;
   seen.add(id);
-  vehicles.push({id,routeId:route.routeId,routeKey:route.routeKey,mode:route.mode,lat,lng,timestamp:new Date(observed*1000).toISOString()});
+  // Only the BKK vehicle descriptor identifies the physical vehicle. Entity IDs
+  // are used for map-marker identity, NEVER shown as a fleet/vehicle number.
+  const descriptor=v?.vehicle;
+  const label=typeof descriptor?.label==="string"?descriptor.label.trim().slice(0,64):"";
+  const number=typeof descriptor?.id==="string"?descriptor.id.trim().slice(0,64):"";
+  const plate=typeof descriptor?.licensePlate==="string"?descriptor.licensePlate.trim().slice(0,32):"";
+  const entry:Record<string,unknown>={id,routeId:route.routeId,routeKey:route.routeKey,mode:route.mode,
+   lat,lng,timestamp:new Date(observed*1000).toISOString()};
+  if(label)entry.vehicleLabel=label;
+  if(number)entry.vehicleNumber=number;
+  if(plate)entry.licensePlate=plate;
+  vehicles.push(entry);
  }
  const payload={schemaVersion:1,source:SOURCE,feedType:"GTFS-RT VehiclePositions",
   generatedAt:new Date(timestamp*1000).toISOString(),vehicles};

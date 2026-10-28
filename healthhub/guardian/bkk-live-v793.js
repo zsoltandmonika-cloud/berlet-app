@@ -25,7 +25,12 @@
    const timestamp=Date.parse(v.timestamp);
    if(!Number.isFinite(timestamp)||timestamp>now+10000||now-timestamp>MAX_AGE_MS)continue;
    seen.add(v.id);
-   vehicles.push({id:v.id,routeId:v.routeId,routeKey:key,mode:key.split(':')[0],lat:v.lat,lng:v.lng,timestamp:v.timestamp,headsign:typeof v.headsign==='string'?v.headsign.slice(0,120):''});
+   // Public GTFS-RT vehicle descriptors, not arbitrary marker/entity IDs.
+   const clean=(value,max)=>typeof value==='string'?value.trim().slice(0,max):'';
+   vehicles.push({id:v.id,routeId:v.routeId,routeKey:key,mode:key.split(':')[0],
+    lat:v.lat,lng:v.lng,timestamp:v.timestamp,headsign:clean(v.headsign,120),
+    vehicleLabel:clean(v.vehicleLabel,64),vehicleNumber:clean(v.vehicleNumber,64),
+    licensePlate:clean(v.licensePlate,32)});
   }
   return {ok:true,reason:null,generatedAt:snapshot.generatedAt,vehicles};
  }

@@ -237,8 +237,8 @@ function showRoute(id){
  const bounds=[[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]];
  try{map.fitBounds(bounds,{padding:{top:75,bottom:70,left:35,right:35},maxZoom:15.3,duration:650})}
  catch(_){status('Nem sikerült az útvonalra közelíteni.')}
- const first=activeVariants(id)[0]?.stops?.[0];
- if(first)routeDetailsPopup(id,[first.lng,first.lat]);
+ // "Mutasd" controls ONLY the static route overlay. Vehicle details belong
+ // exclusively to a freshly verified BKK live marker tap, not to a route line.
  const summary=r.variants.map(v=>v.headsign).filter(Boolean);
  status(id+' · BKK menetrendi útvonal, '+r.variants.length+' változat'+(summary.length?' · '+summary.join(' / '):'')+'. Nem élő járműkövetés.');
 }
@@ -264,11 +264,8 @@ function connectMap(m){
    if(routes&&map.getLayer&&!map.getLayer('hh-bkk-route-260-main'))showSelected();
   });
   if(map.isStyleLoaded&&map.isStyleLoaded())showSelected();
-  // Tap on a source-backed route to inspect official directions/stops.
-  for(const id of IDS)map.on('click','hh-bkk-route-'+id+'-main',function(e){
-   const point=e?.lngLat;
-   if(isLineVisible(id)&&point)routeDetailsPopup(id,point);
-  });
+  // Do not open a misleading vehicle-details card from static route geometry.
+  // The live BKK marker handles taps separately using its actual vehicle ID.
   for(const id of IDS)map.on('click','hh-bkk-stops-'+id+'-circle',function(e){
    const feature=e&&e.features&&e.features[0];if(!feature)return;
    const p=feature.properties||{};
@@ -370,7 +367,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
  for(const file of ['bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v','911-universal-bkk-live');
+  const url=new URL(file,dir);url.searchParams.set('v','913-compact-icon-tap');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');

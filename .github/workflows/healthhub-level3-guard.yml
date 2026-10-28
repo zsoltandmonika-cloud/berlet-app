@@ -123,7 +123,7 @@ jobs:
       - name: BKK favorite route Mutasd + official stop-pattern popup QA
         shell: bash
         run: |
-          node --test healthhub/tests/guardian-bkk-extra-route-v912.test.cjs
+          node --test healthhub/tests/guardian-bkk-extra-route-v912.test.cjs healthhub/tests/guardian-bkk-vehicle-card-v913.test.cjs
 
       - name: Golden Backup after successful HealthCheck
         if: success() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
