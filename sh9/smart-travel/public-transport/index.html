@@ -64,15 +64,34 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 .poster-frame{transform:translateY(-23px)}
 
 
-</style></head><body>
-<main class="shell" aria-label="SH9 · Public Transport Golden Glass">
-<section class="poster-frame" aria-label="BKK MÁV Volán, három nagyméretű üveggomb">
-<img id="transportPoster" src="./public-transport-hero-approved.webp?v=918" alt="Budapest esti közlekedése: Léna és Buddy a 260-as BKK-buszon; a kép alsó részén három egymás alatti prémium üveggomb BKK, MÁV, Volán logókkal és járművekkel." width="941" height="1672">
-<a class="poster-hit bkk" data-service="bkk" href="./bkk/grand-concept/" aria-label="BKK · Grand Control V3 megnyitása"></a>
-<a class="poster-hit mav" data-service="mav" href="./mav/" aria-label="MÁV · saját Smart Rail útvonaltervező megnyitása"></a>
-<a class="poster-hit volan" data-service="volan" href="./volan/" aria-label="Volán · saját Smart Bus oldal megnyitása"></a>
+</style><link rel="stylesheet" href="./public-transport-grand-v2.css"></head><body>
+<main class="shell transport-grand" aria-label="SH9 · Public Transport Golden Glass">
+<section class="transport-visual" aria-label="Public Transport · Léna, Buddy, Zsolt, Mónika és Corky Budapesten">
+<img id="transportPoster" src="./public-transport-grand-hero-v2.avif?v=2" alt="Léna a BKK, MÁV és Volán közlekedéséről segít Zsoltnak és Mónikának. Corky és Buddy is velük utazik a budapesti közlekedési csomópontban." width="960" height="768" fetchpriority="high" decoding="async">
 </section>
-<p id="assetMissing" class="asset-missing" hidden>A jóváhagyott Public Transport hero-kép még nincs publikálva. Ez a verzió nem kiadható.</p>
+<p id="assetMissing" class="asset-missing" hidden>A Public Transport hero kép nem tölthető be. Az alábbi szolgáltatások továbbra is elérhetők.</p>
+<header class="transport-title"><h1>Public Transport</h1><span>BKK · MÁV · VOLÁN<br>Golden Glass V2</span></header>
+<section class="transport-options" aria-label="Közlekedési szolgáltatók és Léna Smart Trip">
+<a class="transport-choice choice-bkk" data-service="bkk" href="./bkk/grand-concept/" aria-label="BKK Grand Control V3 megnyitása">
+<span class="choice-icon" aria-hidden="true">🚋</span><span class="choice-name">BKK<small>Budapesti közlekedés</small></span><span class="choice-arrow" aria-hidden="true">›</span></a>
+<a class="transport-choice choice-mav" data-service="mav" href="./mav/" aria-label="MÁV Smart Rail útvonaltervező megnyitása">
+<span class="choice-icon" aria-hidden="true">🚆</span><span class="choice-name">MÁV<small>Vasúti utazások</small></span><span class="choice-arrow" aria-hidden="true">›</span></a>
+<a class="transport-choice choice-volan" data-service="volan" href="./volan/" aria-label="Volán Smart Bus megnyitása">
+<span class="choice-icon" aria-hidden="true">🚌</span><span class="choice-name">VOLÁN<small>Helyközi autóbusz</small></span><span class="choice-arrow" aria-hidden="true">›</span></a>
+<button class="transport-choice choice-ai" id="smartTripOpen" type="button" aria-controls="smartTripPanel" aria-expanded="false" aria-label="Léna Smart Trip AI célállomás megadása">
+<span class="choice-icon" aria-hidden="true">✨</span><span class="choice-name">Smart Trip AI<small>Úticélból útvonal</small></span><span class="choice-arrow" aria-hidden="true">›</span></button>
+</section>
+<section class="smart-trip-panel" id="smartTripPanel" aria-label="Léna Smart Trip úticél megadása" hidden>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2>✨ Léna Smart Trip</h2><button id="smartTripClose" type="button" style="min-height:34px;width:auto;padding:4px 10px;background:rgba(29,65,109,.6);font-size:11px">Bezárás</button></div>
+<p>Csak az úticélt add meg. Az indulási helyet a következő képernyőn választhatod ki, akár a jelenlegi helyzeted alapján.</p>
+<form id="smartTripForm">
+<label for="smartTripDestination">Hová szeretnél eljutni?
+<input id="smartTripDestination" type="search" maxlength="120" placeholder="Pl. Kazincbarcika, autóbusz-állomás" autocomplete="off" enterkeyhint="go" required></label>
+<button type="submit">✦ Útvonal tervezése</button></form>
+<div class="trip-state" id="smartTripStatus">🟡 Első körben a meglévő BKK-tervező indul. A valódi BKK + MÁV + Volán optimalizálás a menetrendi adatkapcsolatok engedélyezése után aktiválható.</div>
+<p class="trip-help">A Smart Trip nem indít automatikus GPS-követést, és nem talál ki menetrendi időpontokat.</p>
+</section>
+<p class="transport-foot">Három közlekedési hálózat, egy SH9. A Smart Trip először célállomás-átadással működik; az AI útvonal-összehasonlítás még előkészítés alatt áll.</p>
 </main>
 <nav class="nav" aria-label="SH9 Golden Standard navigáció">
 <a href="../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
@@ -89,5 +108,5 @@ const btn=document.getElementById('notifier'),notice=document.getElementById('no
 btn.addEventListener('click',()=>{notice.hidden=!notice.hidden});
 const posterImage=document.getElementById('transportPoster');posterImage.addEventListener('error',()=>{document.getElementById('assetMissing').hidden=false});
 })();
-</script>
+</script><script defer src="./public-transport-smart-trip-v1.js"></script>
 </body></html>
