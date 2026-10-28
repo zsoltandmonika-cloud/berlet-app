@@ -170,7 +170,9 @@ test('BKK Smart Control v923 uses exact user-approved hero and preserves launche
  assert.match(html,/bkk-catalog-v801\.json/);
  assert.match(html,/id="bkkPdfOverlay"/);
  assert.match(html,/bkk-pdf-viewer-v923\.js/);
- assert.match(html,/dataset\.bkkSchedule='true'/);
+ assert.match(html,/function officialScheduleUrl\(route\)/);
+ assert.match(html,/return OFFICIAL\+'\?searchstr='\+encodeURIComponent\(route\.id\)/);
+ assert.match(html,/a\.href=officialScheduleUrl\(route\)/);
  assert.match(html,/https:\/\/bkk\.hu\/menetrendek\//);
  assert.match(html,/healthhub\/guardian\/#hhTransitPanel/);
  assert.match(html,/healthhub\/guardian\/#hhSmartHubDestinationV802/);
@@ -548,4 +550,46 @@ test('BKK v937 one-tap profile pill updates shared profile, Golden Glass theme a
  assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
  const landing=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.match(landing,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
+
+
+test('BKK v938 timetable buttons open official selected-route search in one tap, no copy-paste',()=>{
+ const vm=require('node:vm');
+ const html=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/index.html'),'utf8');
+ const js=html.match(/<script>\s*(\(function\(\)\{'use strict';[\s\S]*?\}\)\(\);)\s*<\/script>/)?.[1];
+ assert.ok(js,'BKK standalone JS available');
+ const elements=new Map(),store=new Map([
+  ['hh-profile','m'],['hh-bkk-route-favorites-v801',JSON.stringify({monika:['bus:260','tram:17','tram:19','hev:H5','metro:M2'],zsolt:[]})]
+ ]);
+ const doc={documentElement:{dataset:{}},
+  createElement:tag=>mk(tag),getElementById:id=>{
+   if(!elements.has(id))elements.set(id,mk('div',id));return elements.get(id)},
+  addEventListener(){}};
+ function mk(tag,id=''){return {tagName:tag,id,children:[],dataset:{},hidden:false,
+  handlers:{},setAttribute(k,v){this[k]=v},addEventListener(k,v){this.handlers[k]=v},
+  append(...v){this.children.push(...v)},replaceChildren(...v){this.children=[...v]},
+  textContent:'',className:''}}
+ const storage={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)};
+ const env={window:{addEventListener(){}},document:doc,localStorage:storage,
+  CustomEvent:class{},Set,JSON,Date,Number,Intl,
+  fetch(){throw Error('timetable button must not fetch or require a copy/paste')}};
+ vm.runInNewContext(js,env);
+ const cards=elements.get('favoriteRoutes').children;
+ assert.equal(cards.length,5);
+ for(const [i,id] of ['260','17','19','H5','M2'].entries()){
+  const link=cards[i].children[2].children[0];
+  assert.equal(link.tagName,'a');
+  assert.equal(link.href,'https://bkk.hu/menetrendek/?searchstr='+encodeURIComponent(id));
+  assert.equal(link.target,'_blank');
+  assert.equal(link.rel,'noopener noreferrer external');
+  assert.match(link['aria-label'],new RegExp('^'+id+'-es járat hivatalos menetrend'));
+  assert.equal(link.textContent,'Menetrend ↗');
+ }
+ assert.doesNotMatch(js,/navigator\.clipboard|document\.execCommand|new window\.open/);
+ assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(html,/color:#37F36B/);
+ assert.match(html,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(html,/<button class="profile" id="profileLabel"/);
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
