@@ -13,7 +13,7 @@ test('Volán shell is separate from working MÁV v612 module and preserves Golde
  assert.match(html,/class="utils"/);
  assert.match(html,/class="bottom"/);
  assert.match(html,/--panel:linear-gradient/);
- assert.match(html,/class="glass"/);
+ assert.match(html,/class="volan-view glass"/);
  assert.match(mav,/<title>SH9 · MÁV Smart Rail<\/title>/);
 });
 test('User-approved Volán hero preview is embedded and actually decodable, no broken remote dependency',()=>{
