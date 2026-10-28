@@ -6,6 +6,7 @@ on:
       - 'healthhub/tests/sh9-smart-travel-golden.test.cjs'
       - 'healthhub/tests/sh9-mav-smart-rail-v1.test.cjs'
       - 'healthhub/tests/sh9-mav-official-links-v1.test.cjs'
+      - 'healthhub/tests/sh9-mav-journeys-v2.test.cjs'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - 'healthhub/tests/sh9-smart-travel-golden.test.cjs'
       - 'healthhub/tests/sh9-mav-smart-rail-v1.test.cjs'
       - 'healthhub/tests/sh9-mav-official-links-v1.test.cjs'
+      - 'healthhub/tests/sh9-mav-journeys-v2.test.cjs'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
 permissions:
   contents: read
@@ -34,5 +36,6 @@ jobs:
           node --check sh9/smart-travel/public-transport/mav/rail-links-v1.js
           node --check sh9/smart-travel/public-transport/mav/rail-ui-v1.js
           node --check sh9/smart-travel/public-transport/mav/rail-official-v1.js
+          node --check sh9/smart-travel/public-transport/mav/rail-journeys-v2.js
       - name: Run Smart Travel Golden Standard tests
-        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs
+        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs healthhub/tests/sh9-mav-journeys-v2.test.cjs
