@@ -120,17 +120,17 @@ test('Public Transport v923 launcher has three providers and dedicated BKK landi
 
 test('Public Transport Grand V2 serves the approved hero and four tappable Glass navigation choices',()=>{
  const base=path.join(root,'sh9/smart-travel/public-transport');
- const img=fs.readFileSync(path.join(base,'public-transport-grand-hero-v2.avif'));
+ const img=fs.readFileSync(path.join(base,'public-transport-approved-hero-v5.avif'));
  const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
  const layout=fs.readFileSync(path.join(base,'public-transport-grand-v2.css'),'utf8');
  assert.ok(img.byteLength>25000,'real optimized family hero asset is present');
  assert.equal(img.subarray(4,12).toString('ascii'),'ftypavif');
- assert.match(html,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
+ assert.match(html,/src="\.\/public-transport-approved-hero-v5\.avif\?v=5"/);
  assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
  assert.deepEqual([...html.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
  assert.match(html,/id="smartTripOpen"/);
  assert.match(html,/id="smartTripPanel"/);
- assert.match(layout,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(layout,/grid-template-columns:minmax\(0,1fr\)/);
  assert.doesNotMatch(html,/class="poster-hit /);
  assert.match(html,/assetMissing/);
 });
@@ -144,7 +144,7 @@ test('Public Transport v918 ships approved artwork without fictitious device sta
 test('Public Transport V2 has native tappable choices independent of old image hotspot positions',()=>{
  const html=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
  assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
- assert.match(html,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
+ assert.match(html,/src="\.\/public-transport-approved-hero-v5\.avif\?v=5"/);
  assert.match(html,/public-transport-grand-v2\.css/);
  assert.match(html,/public-transport-smart-trip-golden-v2\.css/);
  assert.match(html,/public-transport-smart-trip-v1\.js/);
