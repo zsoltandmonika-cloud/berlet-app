@@ -493,3 +493,59 @@ test('BKK v936 colors exactly four first-fold SVG pictograms green with glow onl
  assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
  assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
 });
+
+
+test('BKK v937 one-tap profile pill updates shared profile, Golden Glass theme and each favorite list without fetch',()=>{
+ const vm=require('node:vm');
+ const bkk=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/index.html'),'utf8');
+ const script=bkk.match(/<script>\s*(\(function\(\)\{'use strict';[\s\S]*?\}\)\(\);)\s*<\/script>/)?.[1];
+ assert.ok(script,'the standalone BKK page has a runnable local module');
+ assert.match(bkk,/<button class="profile" id="profileLabel" type="button"/);
+ assert.match(bkk,/\.heading #profileLabel\{\s*cursor:pointer;[\s\S]*?min-height:44px/);
+ assert.match(bkk,/aria-label="Aktív profil: Zsolt\. Váltás Mónikára"/);
+ assert.match(bkk,/function toggleProfile\(\)/);
+ const listeners={},events=[],store=new Map([
+  ['hh-profile','z'],
+  ['hh-bkk-route-favorites-v801',JSON.stringify({zsolt:['bus:260','tram:17'],monika:['tram:19','hev:H5']})]
+ ]);
+ const localStorage={getItem:k=>store.has(k)?store.get(k):null,setItem(k,v){store.set(k,v)}};
+ const elements=new Map();
+ function el(tag='div',id=''){
+  return {tagName:tag,id,children:[],dataset:{},handlers:{},hidden:false,
+   textContent:'',title:'',className:'',
+   setAttribute(k,v){this[k]=v},addEventListener(type,fn){this.handlers[type]=fn},
+   append(...nodes){this.children.push(...nodes)},
+   replaceChildren(...nodes){this.children=[...nodes]}
+  };
+ }
+ const get=id=>{if(!elements.has(id))elements.set(id,el('div',id));return elements.get(id)};
+ const document={documentElement:{dataset:{}},createElement:tag=>el(tag),
+  getElementById:get,addEventListener(name,cb){listeners['doc:'+name]=cb}};
+ const window={addEventListener(name,cb){listeners[name]=cb},
+  dispatchEvent(e){events.push(e)}};
+ class CustomEvent{constructor(type,opts){this.type=type;this.detail=opts.detail}}
+ vm.runInNewContext(script,{window,document,localStorage,CustomEvent,Set,JSON,Date,Number,Intl,fetch(){throw Error('profile switch must not request network')}});
+ assert.equal(get('profileLabel').textContent,'Zsolt');
+ assert.equal(get('favoriteRoutes').children.length,2);
+ assert.equal(document.documentElement.dataset.profile,'z');
+ get('profileLabel').handlers.click();
+ assert.equal(store.get('hh-profile'),'m');
+ assert.equal(get('profileLabel').textContent,'Mónika');
+ assert.equal(get('profileLabel')['aria-label'],'Aktív profil: Mónika. Váltás Zsoltra');
+ assert.equal(document.documentElement.dataset.profile,'m');
+ assert.deepEqual(get('favoriteRoutes').children.map(x=>x.children[0].textContent),['19','H5']);
+ assert.equal(events[0].type,'healthhub:profile-changed');
+ assert.equal(events[0].detail.code,'m');
+ get('profileLabel').handlers.click();
+ assert.equal(store.get('hh-profile'),'z');
+ assert.equal(get('profileLabel').textContent,'Zsolt');
+ assert.deepEqual(get('favoriteRoutes').children.map(x=>x.children[0].textContent),['260','17']);
+ store.set('hh-profile','m');
+ listeners.storage({key:'hh-profile'});
+ assert.equal(get('profileLabel').textContent,'Mónika');
+ assert.equal(document.documentElement.dataset.profile,'m');
+ assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
+ const landing=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(landing,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});

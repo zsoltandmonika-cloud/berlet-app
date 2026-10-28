@@ -175,11 +175,26 @@ main{
  filter:drop-shadow(0 0 4px rgba(55,243,107,.45));
 }
 
+/* v937 · One-tap profile toggle, shared HealthHub hh-profile identity.
+   The existing Golden Glass pill remains visually identical. */
+.heading #profileLabel{
+ cursor:pointer;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ min-height:44px;
+ min-width:69px;
+ touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+}
+.heading #profileLabel:active{transform:scale(.96);filter:brightness(1.13)}
+@media(prefers-reduced-motion:reduce){.heading #profileLabel{transition:none}}
+
 </style></head><body>
 <main>
 <div class="bkk-first-fold">
 <figure class="hero"><img src="./bkk-hero-approved.webp" width="1672" height="941" alt="A 260-as BKK-busz ajtajában Léna sofőrként várja Zsoltot, Mónikát és Corkyt; Budapest látképe naplementében." fetchpriority="high"></figure>
-<div class="heading"><div><div class="eyebrow">SH9 · SMART TRAVEL · BKK</div><h1>BKK Smart Control</h1></div><span class="profile" id="profileLabel">Zsolt</span></div>
+<div class="heading"><div><div class="eyebrow">SH9 · SMART TRAVEL · BKK</div><h1>BKK Smart Control</h1></div><button class="profile" id="profileLabel" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára" title="Profilváltás: Mónika">Zsolt</button></div>
 <section class="quick" aria-label="BKK gyorsfunkciók">
 <a class="glass" href="../../../../healthhub/guardian/#hhTransitPanel" aria-label="Élő BKK térkép megnyitása a Family Guardban"><span class="quick-head"><svg viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6zm6-3v15m6-12v15"/></svg><span class="arrow">↗</span></span><strong>Élő BKK térkép</strong><small>Járművek és járatvonalak</small></a>
 <a class="glass" href="../../../../healthhub/guardian/#hhSmartHubDestinationV802" aria-label="Meglévő BKK útvonaltervező megnyitása"><span class="quick-head"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="5" r="2"/><path d="M7 16C11 9 16 19 18 7M3 5h6"/></svg><span class="arrow">↗</span></span><strong>Útvonaltervező</strong><small>Honnan, hová, mikorra?</small></a>
@@ -232,11 +247,36 @@ function timetableLink(){const a=el('button','bkk-link','Menetrend');a.type='but
 function row(route){const line=el('article','glass route');line.dataset.mode=route.mode;const badge=el('span','route-code',route.id);const copy=el('div','route-copy');copy.append(el('strong','',LABELS[route.mode]||'BKK járat'),el('span','',route.name||'Hivatalos menetrend a BKK oldalán'));const actions=el('div','route-actions');const link=timetableLink();link.dataset.routeId=route.id;link.dataset.mode=route.mode;link.setAttribute('aria-label',route.id+'-es járat: menetrend és PDF megtekintése');actions.append(link);line.append(badge,copy,actions);return line}
 function nameOf(k){const entry=catalog&&catalog.routes&&catalog.routes.find(x=>x.mode===k.mode&&x.id===k.id);return entry?(Array.isArray(entry.directions)&&entry.directions.length?entry.directions.slice(0,2).join(' ↔ '):entry.name)||'BKK járat':'A BKK hivatalos járatoldalán'}
 function renderFavorites(){const host=$('favoriteRoutes');host.replaceChildren();const list=favorites();if(!list.length){const empty=el('div','glass route-empty','Még nincs kedvenc járat ebben a profilban.');const link=el('a','','Kedvencek szerkesztése ↗');link.href='../../../../healthhub/guardian/#hhBkkWatchlistV814';empty.append(document.createElement('br'),link);host.append(empty);return}list.forEach(k=>host.append(row({...k,name:nameOf(k)})))}
-function syncProfile(){currentProfile=profile();document.documentElement.dataset.profile=currentProfile==='monika'?'m':'z';$('profileLabel').textContent=currentProfile==='monika'?'Mónika':'Zsolt';renderFavorites()}
+function syncProfile(){
+ currentProfile=profile();
+ const monika=currentProfile==='monika',pill=$('profileLabel');
+ document.documentElement.dataset.profile=monika?'m':'z';
+ pill.textContent=monika?'Mónika':'Zsolt';
+ pill.setAttribute('aria-label',monika?'Aktív profil: Mónika. Váltás Zsoltra':'Aktív profil: Zsolt. Váltás Mónikára');
+ pill.title=monika?'Profilváltás: Zsolt':'Profilváltás: Mónika';
+ renderFavorites();
+}
+function toggleProfile(){
+ const next=profile()==='monika'?'z':'m';
+ try{localStorage.setItem('hh-profile',next)}
+ catch(_){
+  const notice=$('notice');
+  notice.textContent='A profilváltás nem menthető. Ellenőrizd a böngésző helyi tárolási engedélyét.';
+  notice.hidden=false;
+  return;
+ }
+ // storage events do not fire in the tab where the value was changed.
+ syncProfile();
+ try{
+  window.dispatchEvent(new CustomEvent('healthhub:profile-changed',{
+   detail:{code:next,profile:next==='m'?'monika':'zsolt',name:next==='m'?'Mónika':'Zsolt',source:'sh9-bkk'}
+  }));
+ }catch(_){};
+}
 function validatedCatalog(data){if(!data||data.schemaVersion!==1||data.source!=='BKK Zrt., CC BY 4.0'||!Array.isArray(data.routes)||data.routes.length<3||data.routes.length>3000)return null;const t=Date.parse(data.generatedAt);if(!Number.isFinite(t)||t>Date.now()+60000||Date.now()-t>45*86400000)return null;return data}
 async function getCatalog(){if(catalog)return catalog;if(loading)return loading;loading=(async()=>{try{const res=await fetch('../../../../healthhub/guardian/bkk-catalog-v801.json',{cache:'no-cache'});if(!res.ok)throw Error('BKK katalógus nem érhető el');const json=validatedCatalog(await res.json());if(!json)throw Error('A katalógus elavult vagy nem ellenőrizhető');catalog=json;renderFavorites();return json}catch(_){return null}finally{loading=null}})();return loading}
 function renderCatalog(){const host=$('catalogResults'),more=$('catalogMore');host.replaceChildren();for(const r of searchMatches.slice(0,shown)){const route=routeKey(r.mode+':'+r.id);if(!route)continue;host.append(row({...route,name:Array.isArray(r.directions)&&r.directions.length?r.directions.slice(0,2).join(' ↔ '):r.name}))}host.hidden=false;more.hidden=searchMatches.length<=shown;$('catalogMeta').textContent=searchMatches.length+' ellenőrzött BKK-járat találat · hivatalos menetrend megnyitása a BKK honlapján';if(!searchMatches.length)host.append(el('p','route-empty','Nincs találat. A BKK hivatalos menetrendjében is kereshetsz.'))}
 async function findRoutes(){const q=$('routeSearch').value.trim().slice(0,60).toLocaleLowerCase('hu-HU');if(!q){$('catalogResults').hidden=true;$('catalogMore').hidden=true;$('catalogMeta').textContent='Írj be egy járatszámot vagy járatnevet.';return}$('catalogMeta').textContent='A hiteles járatkatalógus betöltése…';const doc=await getCatalog();if(!doc){$('catalogMeta').textContent='A hiteles BKK-katalógus nem érhető el vagy elavult. Használd a hivatalos menetrendoldalt.';$('catalogResults').hidden=true;$('catalogMore').hidden=true;return}shown=12;searchMatches=doc.routes.filter(r=>(r.id+' '+r.name+' '+(r.directions||[]).join(' ')).toLocaleLowerCase('hu-HU').includes(q));renderCatalog()}
-$('routeSearchBtn').addEventListener('click',findRoutes);$('routeSearch').addEventListener('keydown',e=>{if(e.key==='Enter')findRoutes()});$('catalogMore').addEventListener('click',()=>{shown+=12;renderCatalog()});$('notifications').addEventListener('click',()=>{$('notice').hidden=!$('notice').hidden});window.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key===STORE)syncProfile()});window.addEventListener('pageshow',syncProfile);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncProfile()});syncProfile();
+$('profileLabel').addEventListener('click',toggleProfile);$('routeSearchBtn').addEventListener('click',findRoutes);$('routeSearch').addEventListener('keydown',e=>{if(e.key==='Enter')findRoutes()});$('catalogMore').addEventListener('click',()=>{shown+=12;renderCatalog()});$('notifications').addEventListener('click',()=>{$('notice').hidden=!$('notice').hidden});window.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key===STORE)syncProfile()});window.addEventListener('pageshow',syncProfile);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncProfile()});syncProfile();
 })();
 </script></body></html>
