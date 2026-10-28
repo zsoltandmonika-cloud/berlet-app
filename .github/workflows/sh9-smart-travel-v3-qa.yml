@@ -8,6 +8,7 @@ on:
       - 'healthhub/tests/sh9-mav-official-links-v1.test.cjs'
       - 'healthhub/tests/sh9-mav-journeys-v2.test.cjs'
       - 'healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs'
+      - 'healthhub/tests/sh9-mav-google-fallback-v1.test.cjs'
       - 'healthhub/tests/test_sh9_mav_gtfs_import_v1.py'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
   push:
@@ -19,6 +20,7 @@ on:
       - 'healthhub/tests/sh9-mav-official-links-v1.test.cjs'
       - 'healthhub/tests/sh9-mav-journeys-v2.test.cjs'
       - 'healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs'
+      - 'healthhub/tests/sh9-mav-google-fallback-v1.test.cjs'
       - 'healthhub/tests/test_sh9_mav_gtfs_import_v1.py'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
 permissions:
@@ -44,8 +46,11 @@ jobs:
           node --check sh9/smart-travel/public-transport/mav/rail-gtfs-config-v1.js
           node --check sh9/smart-travel/public-transport/mav/rail-gtfs-core-v1.js
           node --check sh9/smart-travel/public-transport/mav/rail-gtfs-bridge-v1.js
+          node --check sh9/smart-travel/public-transport/mav/rail-google-config-v1.js
+          node --check sh9/smart-travel/public-transport/mav/rail-google-routes-v1.js
+          node --check sh9/smart-travel/public-transport/mav/rail-google-bridge-v1.js
           python3 -m py_compile sh9/smart-travel/public-transport/mav/gtfs/build_gtfs_snapshot.py
       - name: Run Smart Travel Golden Standard tests
-        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs healthhub/tests/sh9-mav-journeys-v2.test.cjs healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs
+        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs healthhub/tests/sh9-mav-journeys-v2.test.cjs healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs healthhub/tests/sh9-mav-google-fallback-v1.test.cjs
       - name: Verify safe GTFS snapshot importer
         run: python3 -m unittest discover -s healthhub/tests -p 'test_sh9_mav_gtfs_import_v1.py' -v
