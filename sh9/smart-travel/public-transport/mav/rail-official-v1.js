@@ -27,7 +27,7 @@
   const s=normalizeStation(value);
   if(!s)return null;
   if(/\bkeleti\b/.test(s) && (/budapest|paly/.test(s)||s==='keleti'))return 'keleti';
-  if(/\bnyugati\b/.test(s) && (/budapest|paly/a.test(s)||s==='nyugati'))return 'nyugati';
+  if(/\bnyugati\b/.test(s) && (/budapest|paly/.test(s)||s==='nyugati'))return 'nyugati';
   if(/\bkazincbarcika\b/.test(s)&&!/\balso\b/.test(s))return 'kazincbarcika';
   return null;
  }
