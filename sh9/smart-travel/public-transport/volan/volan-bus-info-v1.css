@@ -1,0 +1,52 @@
+
+/* Volán Buszinfó Golden Glass: standalone, zero external requests */
+.volan-bus-info-trigger{width:100%;font:inherit;color:inherit;cursor:pointer;text-align:left;appearance:none;-webkit-appearance:none}
+.volan-bus-info-trigger:focus-visible{outline:2px solid #9be4ff;outline-offset:3px}
+.volan-bi-overlay[hidden]{display:none!important}
+.volan-bi-overlay{position:fixed;inset:0;z-index:950;display:grid;place-items:center;padding:env(safe-area-inset-top,12px) 10px env(safe-area-inset-bottom,12px);background:rgba(2,9,23,.77);-webkit-backdrop-filter:blur(17px);backdrop-filter:blur(17px)}
+.volan-bi-dialog{--bi-edge:rgba(171,226,255,.51);--bi-highlight:#ffe49e;position:relative;width:min(100%,445px);max-height:min(92dvh,820px);overflow:auto;overscroll-behavior:contain;border:1px solid var(--bi-edge);border-radius:24px;padding:16px 13px 18px;background:radial-gradient(ellipse at 13% 3%,rgba(44,150,227,.32),transparent 48%),linear-gradient(140deg,rgba(19,50,82,.97),rgba(5,23,46,.97) 72%,rgba(16,33,64,.98));box-shadow:0 18px 65px #000b,inset 0 1px #fff5;color:#f3f8ff;isolation:isolate}
+.volan-bi-dialog:focus{outline:none}
+:root[data-profile="m"] .volan-bi-dialog{--bi-edge:rgba(255,187,245,.58);background:radial-gradient(ellipse at 14% 4%,rgba(225,93,185,.28),transparent 50%),linear-gradient(140deg,rgba(77,37,87,.98),rgba(27,19,61,.98) 72%,rgba(50,24,79,.98))}
+.volan-bi-head{display:flex;align-items:center;gap:11px;padding:4px 42px 0 3px}
+.volan-bi-symbol{display:grid;place-items:center;flex:0 0 45px;height:45px;border-radius:50%;background:linear-gradient(145deg,#ffd94e,#c27b03);box-shadow:0 0 22px #ffcb4370,inset 0 1px #fff9;color:#0b2944;font-size:25px}
+.volan-bi-brand{margin:0;font-size:clamp(21px,6vw,28px);font-weight:850;line-height:1;letter-spacing:.35px}
+.volan-bi-subtitle{margin:5px 0 0;font-size:13px;color:#d5e5f5}
+.volan-bi-close{position:absolute;right:12px;top:15px;width:38px;height:38px;border-radius:50%;border:1px solid #d5eeff94;background:linear-gradient(135deg,#5c9ac080,#0b2d5480);color:white;font-size:25px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.volan-bi-close:focus-visible{outline:2px solid white;outline-offset:3px}
+.volan-bi-bus-stage{display:grid;place-items:center;position:relative;margin:9px -7px -5px;min-height:115px;overflow:visible}
+.volan-bi-bus-stage:before{content:"";position:absolute;bottom:11%;left:8%;width:84%;height:38%;border-radius:50%;background:radial-gradient(ellipse,#37a9e64c,transparent 65%);filter:blur(12px);pointer-events:none}
+.volan-bi-bus-image{position:relative;max-width:min(100%,390px);width:100%;height:143px;object-fit:contain;filter:drop-shadow(0 12px 9px #000c);transform:translateY(2px)}
+.volan-bi-card{border:1px solid rgba(193,228,255,.46);border-radius:18px;padding:12px 13px;margin-top:9px;background:linear-gradient(118deg,rgba(100,148,181,.33),rgba(12,32,63,.66));-webkit-backdrop-filter:blur(15px);backdrop-filter:blur(15px);box-shadow:inset 0 1px #fff3,0 5px 12px #0004}
+:root[data-profile="m"] .volan-bi-card{border-color:rgba(255,187,237,.45);background:linear-gradient(115deg,rgba(143,87,163,.31),rgba(49,27,76,.67))}
+.volan-bi-eyebrow{font-size:11px;color:#cadbec;letter-spacing:.4px}
+.volan-bi-line{display:flex;gap:10px;justify-content:space-between;align-items:center;min-width:0}
+.volan-bi-number{display:block;font-size:clamp(30px,9vw,42px);line-height:1.14;color:var(--bi-highlight);font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.volan-bi-route{font-size:12px;font-weight:720;line-height:1.35;max-width:54%;text-align:right;overflow-wrap:anywhere}
+.volan-bi-state{font-size:11px;border-radius:999px;text-align:center;padding:6px 10px;background:rgba(255,198,89,.13);border:1px solid rgba(255,219,141,.48);color:#ffe9b9}
+.volan-bi-state.verified{border-color:#85f5ae;background:#02694e85;color:#e3fff0}
+.volan-bi-stop{display:grid;grid-template-columns:13px minmax(0,1fr);column-gap:12px;align-items:start}
+.volan-bi-rail{position:relative;align-self:stretch;width:3px;margin:9px auto;background:linear-gradient(#ffcb36,#f3a916);border-radius:6px}
+.volan-bi-rail:before,.volan-bi-rail:after{content:"";position:absolute;left:50%;width:12px;height:12px;transform:translateX(-50%);border-radius:50%;border:3px solid #ffcf35;background:#123451}
+.volan-bi-rail:before{top:-2px}.volan-bi-rail:after{bottom:-2px}
+.volan-bi-stop-list{display:grid;gap:15px;padding:4px 0}
+.volan-bi-place{display:grid;gap:3px;min-width:0}
+.volan-bi-place b{font-size:16px;line-height:1.3;overflow-wrap:anywhere}
+.volan-bi-place span{font-size:11px;color:#cfdeec}
+.volan-bi-time{font-weight:850;font-size:19px;line-height:1.2;color:var(--bi-highlight);font-variant-numeric:tabular-nums}
+.volan-bi-tiny{font-size:10px;color:#c9dcec;margin:9px 0 0}
+.volan-bi-facilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.volan-bi-facility{display:grid;grid-template-columns:30px minmax(0,1fr);gap:3px 7px;align-items:center;border-radius:13px;border:1px solid #b3ddfa70;padding:9px 7px;background:#1c416364;min-width:0}
+.volan-bi-facility .symbol{grid-row:span 2;font-size:25px;text-align:center}
+.volan-bi-facility .label{font-size:12px;font-weight:720;min-width:0}
+.volan-bi-facility .value{font-size:10px;color:#cbddea}
+.volan-bi-facility[data-status="yes"] .value{color:#a9ffcb}.volan-bi-facility[data-status="no"] .value{color:#ffb3bc}
+.volan-bi-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.volan-bi-metric{border-radius:12px;padding:10px 6px;min-width:0;text-align:center;border:1px solid #c5e2ff57;background:#26517a55}
+.volan-bi-metric span{display:block;font-size:11px;color:#c9ddea}
+.volan-bi-metric b{display:block;margin-top:4px;font-size:13px;line-height:1.3;overflow-wrap:anywhere}
+.volan-bi-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:12px 4px 0}
+.volan-bi-bottom p{font-size:10px;color:#c8d9ee;margin:0;line-height:1.45}
+.volan-bi-bottom button{flex-shrink:0;min-height:34px;border-radius:10px;border:1px solid var(--bi-edge);background:#467aa064;color:white;padding:6px 12px;font-weight:700;cursor:pointer}
+@media(min-width:700px){.volan-bi-dialog{width:min(690px,95vw);padding:19px 23px}.volan-bi-bus-stage{min-height:176px;margin:0 0 -9px}.volan-bi-bus-image{max-width:480px;height:190px}.volan-bi-two-col{display:grid;grid-template-columns:1fr 1fr;gap:9px}.volan-bi-two-col .volan-bi-card{min-width:0}}
+@media(max-height:720px){.volan-bi-dialog{max-height:94dvh}.volan-bi-bus-stage{min-height:75px;margin:2px -7px -7px}.volan-bi-bus-image{height:88px}.volan-bi-card{padding:9px 11px;margin-top:6px}.volan-bi-stop-list{gap:9px}.volan-bi-head{padding-top:0}}
+@media(prefers-reduced-motion:no-preference){.volan-bi-dialog{animation:volan-bi-entrance .2s ease-out}@keyframes volan-bi-entrance{from{opacity:.6;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}}
