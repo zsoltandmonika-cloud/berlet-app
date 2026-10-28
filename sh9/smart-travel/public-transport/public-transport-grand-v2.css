@@ -52,7 +52,7 @@
   z-index:-2;
   inset:-44px -44px -54px;
   pointer-events:none;
-  background-image:url("./public-transport-grand-hero-v2.avif?v=2");
+  background-image:url("./public-transport-approved-poster-v5.avif?v=5");
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center 34%;
@@ -110,4 +110,104 @@
 }
 @media(prefers-reduced-transparency:reduce){
   .transport-grand .transport-choice{background:rgba(8,29,60,.91)}
+}
+
+
+/* V4 · Real image-backed BKK / MÁV / Volán / Smart Trip neon controls. */
+.transport-grand .transport-options.transport-neon-options{
+  grid-template-columns:minmax(0,1fr);
+  gap:4px;
+  justify-items:center;
+  padding:0 6px;
+}
+.transport-grand .transport-neon-options .transport-choice,
+:root[data-profile="m"] .transport-grand .transport-neon-options .transport-choice{
+  display:block;
+  position:relative;
+  width:100%;
+  max-width:415px;
+  min-height:0;
+  aspect-ratio:857 / 214;
+  margin:0 auto;
+  padding:0;
+  overflow:visible;
+  border:0;
+  border-radius:16px;
+  background:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  transition:transform .16s ease,filter .16s ease;
+}
+.transport-grand .transport-neon-options .choice-art{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  border-radius:16px;
+  filter:drop-shadow(0 4px 9px rgba(0,0,0,.32));
+  user-select:none;
+  -webkit-user-drag:none;
+  pointer-events:none;
+}
+.transport-grand .transport-neon-options .choice-accessible,
+.transport-grand .transport-screenreader-title{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+.transport-grand .transport-neon-options .transport-choice:active{
+  transform:scale(.988);
+  filter:brightness(1.14);
+}
+.transport-grand .transport-neon-options .transport-choice:focus-visible{
+  outline:3px solid #fff;
+  outline-offset:3px;
+}
+.transport-grand .transport-neon-options .choice-ai[aria-expanded="true"]{
+  filter:drop-shadow(0 0 8px rgba(255,99,203,.60));
+}
+@media(hover:hover){
+  .transport-grand .transport-neon-options .transport-choice:hover{
+    filter:brightness(1.07);
+    transform:translateY(-1px);
+  }
+}
+@media(max-width:360px){
+  .transport-grand .transport-options.transport-neon-options{padding:0 2px;gap:2px}
+}
+@media(prefers-reduced-motion:reduce){
+  .transport-grand .transport-neon-options .transport-choice{transition:none}
+}
+
+/* V5 approved art: every character and uniform is from the approved source.
+   Only the crop is altered to make the original four neon cards live controls. */
+.transport-grand .transport-visual{
+  aspect-ratio:941 / 785;
+  max-height:none;
+  background:transparent;
+}
+.transport-grand .transport-visual>img{
+  width:100%;height:100%;object-fit:contain;object-position:center;
+}
+.transport-grand .transport-options.transport-neon-options{
+  padding:0 4px;gap:1px;
+}
+.transport-grand .transport-neon-options .transport-choice{aspect-ratio:857 / 214}
+.transport-grand .transport-neon-options .choice-art{border-radius:14px}
+.shell.transport-grand::before{
+  background-position:center top;
+  background-size:100% 100%;
+  opacity:.93;
+}
+@media(max-height:770px){
+ .transport-grand .transport-visual{max-height:none;aspect-ratio:941 / 785}
+ .transport-grand .transport-visual>img{object-fit:contain}
 }
