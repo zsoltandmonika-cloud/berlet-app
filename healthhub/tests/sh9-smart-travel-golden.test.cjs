@@ -223,7 +223,7 @@ test('BKK v924 PDF controls are mobile-first, opt-in and preserve all approved h
  assert.doesNotMatch(js,/setInterval\(|geolocation\.|indexedDB|localStorage\.setItem|supabase\.co/);
  assert.match(parent,/\.poster-frame\{transform:translateY\(-23px\)\}/);
  assert.match(parent,/data-service="bkk" href="\.\/bkk\/"/);
- assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+ assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
 });
 
 
