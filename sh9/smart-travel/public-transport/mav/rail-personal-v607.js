@@ -3,7 +3,7 @@
  */
 (function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.SH9_MAV_PERSONAL_V607=api;})(typeof window!=='undefined'?window:null,function(){
 'use strict';
-const FAVORITES_MAX=30,HISTORY_MAX=10;
+const FAVORITES_MAX=40,HISTORY_MAX=10;
 const station=value=>typeof value==='string'?value.trim().replace(/\s+/g,' ').slice(0,120):'';
 const label=value=>typeof value==='string'?value.trim().replace(/[\u0000-\u001f<>]/g,'').slice(0,42):'';
 const profile=id=>id==='m'?'monika':'zsolt';
@@ -167,7 +167,7 @@ function mount(doc,win){
  save.addEventListener('click',()=>{
   const outcome=saveFavorite(storage,active(),{from:doc.getElementById('from').value,to:doc.getElementById('to').value});
   if(outcome.ok){renderFavorites();notify('Kedvenc elmentve')}
-  else notify(outcome.reason==='duplicate'?'Ez az útvonal már kedvenc':outcome.reason==='limit'?'Legfeljebb 30 kedvenc menthető':'Két különböző állomás szükséges');
+  else notify(outcome.reason==='duplicate'?'Ez az útvonal már kedvenc':outcome.reason==='limit'?'Legfeljebb 40 kedvenc menthető':'Két különböző állomás szükséges');
  });
  search.addEventListener('click',()=>{
   const q=win.SH9_MAV_JOURNEYS_INSTANCE?.currentQuery();
