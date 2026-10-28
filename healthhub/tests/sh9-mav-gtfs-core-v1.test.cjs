@@ -41,8 +41,8 @@ test('calendar weekdays, removal, added holiday and midnight GTFS 25-hour servic
  assert.equal(core.serviceActive(wd,'2026-10-31'),false);
  assert.equal(core.serviceActive(holiday,'2026-10-31'),true);
  assert.equal(core.serviceActive(holiday,'2026-10-28'),false);
- assert.equal(new Date(core.wallEpoch('2026-10-28',1505)).toISOString(),'2026-10-28T23:05:00.000Z');
- assert.equal(new Date(core.wallEpoch('2026-10-28',1590)).toISOString(),'2026-10-29T00:30:00.000Z');
+ assert.equal(new Date(core.wallEpoch('2026-10-28',1505)).toISOString(),'2026-10-29T00:05:00.000Z');
+ assert.equal(new Date(core.wallEpoch('2026-10-28',1590)).toISOString(),'2026-10-29T01:30:00.000Z');
  assert.equal(new Date(core.wallEpoch('2026-10-25',210)).toISOString(),'2026-10-25T02:30:00.000Z');
 });
 test('departure-now/depart/arrive searches find real direct and transfer itineraries',()=>{
@@ -60,7 +60,7 @@ test('departure-now/depart/arrive searches find real direct and transfer itinera
  assert.equal(arrive.journeys[0].arrival,'2026-10-28T18:35:00.000Z');
  const tomorrow=core.route(f,q('2026-10-28T22:50:00Z','depart'),{limit:3});
  assert.equal(tomorrow.journeys[0].legs[0].tripId,'overnight');
- assert.equal(tomorrow.journeys[0].arrival,'2026-10-29T00:30:00.000Z');
+ assert.equal(tomorrow.journeys[0].arrival,'2026-10-29T01:30:00.000Z');
 });
 test('GTFS filters services and rejects absent stations without forging matches',()=>{
  const f=feed();
