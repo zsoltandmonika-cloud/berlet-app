@@ -32,8 +32,8 @@ function seeded(){
 }
 test('v609 export contains both original profile keys and all 3 safe collections',()=>{
  const {db}=seeded(),result=backup.build(db,at);
- assert.equal(result.format,'sh9-mav-backup-v1');
- assert.equal(result.version,1);assert.equal(result.privacy,'redacted');
+ assert.equal(result.format,'sh9-mav-backup-v2');
+ assert.equal(result.version,2);assert.equal(result.privacy,'redacted');
  assert.deepEqual(Object.keys(result.profiles),['z','m']);
  for(const id of ['z','m']){
   assert.equal(result.profiles[id].favorites.length,1);
@@ -58,8 +58,8 @@ test('strict parser round-trips exported data and imports into another phone wit
  const exported=backup.encode(backup.build(first.db,at));
  const parsed=backup.parse(exported,at.getTime());
  const newPhone=store(),result=backup.restore(newPhone,parsed,at.getTime());
- assert.deepEqual(result.z,{favoritesAdded:1,historyAdded:1,journeysAdded:1,favoritesTotal:1,historyTotal:1,journeysTotal:1});
- assert.deepEqual(result.m,{favoritesAdded:1,historyAdded:1,journeysAdded:1,favoritesTotal:1,historyTotal:1,journeysTotal:1});
+ assert.deepEqual(result.z,{favoritesAdded:1,historyAdded:1,journeysAdded:1,favoritesTotal:1,historyTotal:1,journeysTotal:1,departureAdded:0,departureTotal:0});
+ assert.deepEqual(result.m,{favoritesAdded:1,historyAdded:1,journeysAdded:1,favoritesTotal:1,historyTotal:1,journeysTotal:1,departureAdded:0,departureTotal:0});
  assert.equal(personal.loadFavorites(newPhone,'z')[0].to,'Kazincbarcika');
  assert.equal(personal.loadFavorites(newPhone,'m')[0].to,'Győr');
  assert.equal(journeys.read(newPhone,'z')[0].ticket,'');
@@ -108,7 +108,7 @@ test('capacity overload rejects full restore before writing, never silently trun
  assert.throws(()=>backup.restore(db,archive,at.getTime()),/megteltek/);
  assert.deepEqual([...db.values],[...original]);
 });
-test('localStorage failure during six-key import rolls back prior values',()=>{
+test('localStorage failure during eight-key import rolls back prior values',()=>{
  const archive=backup.build(seeded().db,at);
  const db=store();
  db.setItem(personal.favoritesKey('z'),JSON.stringify([{from:'Pécs',to:'Szeged'}]));
