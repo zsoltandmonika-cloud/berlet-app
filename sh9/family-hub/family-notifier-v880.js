@@ -28,7 +28,12 @@ async function ensureApi(){
   api=w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{
    storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'
   }});
-  api.auth.onAuthStateChange(()=>w.setTimeout(join,0));
+  api.auth.onAuthStateChange((event,session)=>{
+    // Token refresh and repeated SIGNED_IN on tab focus are not data changes.
+    if(event==='SIGNED_OUT'||event==='USER_UPDATED'||
+       (event==='SIGNED_IN'&&(!user||session?.user?.id!==user.id)))
+     w.setTimeout(()=>join(true),0);
+   });
   return true;
  }catch(_){return false}finally{apiRequested=false}
 }
@@ -266,6 +271,7 @@ async function readUnread(){
  .order('id',{ascending:false}).limit(50);
  if(error||p!==currentProfile||!badge)return;
  const items=data||[];
+ lastForegroundReadAt=Date.now();
  lastEvent=Math.max(lastEvent,...items.map(x=>Number(x.id)));
  // First upgrade/open establishes baseline, not a flood of old Sticky Notes.
  try{
@@ -285,27 +291,41 @@ async function readUnread(){
  const n=badge.querySelector('.fh-badge-count');if(n){n.textContent=unread>49?'50+':String(unread);n.hidden=!unread}
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
 }
-async function join(){
- if(!await ensureApi())return;
- const p=profile();if(p!==currentProfile){pending=[];activeEventId=0;holder?.replaceChildren()}currentProfile=p;
- if(ch){api.removeChannel(ch);ch=null}
- const {data:{user:found}}=await api.auth.getUser();
- user=found;if(!user){if(badge)badge.hidden=false;return}
- const {data, error}=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
- if(error||!(data||[]).some(x=>x.profile_key===p))return;
- await loadCloudAck(p);
- await readUnread();
- ch=api.channel('hh-family-notifier-v880-'+p+'-'+user.id)
-  .on('postgres_changes',{event:'INSERT',schema:'public',table:'hh_family_task_events',filter:'recipient_profile=eq.'+p},payload=>{
+/* v915: reconnect at most once per meaningful auth/profile change. */
+let joinInProgress=false,queuedJoin=false,lastJoinedAt=0,lastForegroundReadAt=0;
+async function join(force=false){
+ if(joinInProgress){if(force||profile()!==currentProfile)queuedJoin=true;return}
+ if(!force&&ch&&user&&profile()===currentProfile&&Date.now()-lastJoinedAt<300000)return;
+ joinInProgress=true;
+ try{
+  if(!await ensureApi())return;
+  const p=profile();
+  if(p!==currentProfile){pending=[];activeEventId=0;holder?.replaceChildren()}
+  currentProfile=p;
+  if(ch){api.removeChannel(ch);ch=null}
+  const {data:{user:found}}=await api.auth.getUser();
+  user=found;
+  if(!user){if(badge)badge.hidden=false;return}
+  const {data,error}=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
+  if(error||!(data||[]).some(x=>x.profile_key===p))return;
+  await loadCloudAck(p);
+  await readUnread();
+  ch=api.channel('hh-family-notifier-v880-'+p+'-'+user.id)
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'hh_family_task_events',filter:'recipient_profile=eq.'+p},payload=>{
     const e=payload.new;
     if(!e)return;
     lastEvent=Math.max(lastEvent,Number(e.id));
     announce(e);
     readUnread();
-  })
-  .on('postgres_changes',{event:'*',schema:'public',table:NOTES_TABLE},onCloudNoteChange)
-  .on('postgres_changes',{event:'*',schema:'public',table:ACK_TABLE,filter:'profile_key=eq.'+p},payload=>onCloudAckChange(payload,p))
-  .subscribe();
+   })
+   .on('postgres_changes',{event:'*',schema:'public',table:NOTES_TABLE},onCloudNoteChange)
+   .on('postgres_changes',{event:'*',schema:'public',table:ACK_TABLE,filter:'profile_key=eq.'+p},payload=>onCloudAckChange(payload,p))
+   .subscribe();
+  lastJoinedAt=Date.now();
+ }finally{
+  joinInProgress=false;
+  if(queuedJoin){queuedJoin=false;w.setTimeout(()=>join(true),0)}
+ }
 }
 function initialize(){
  makeUi();
@@ -317,7 +337,10 @@ function initialize(){
  d.addEventListener('visibilitychange',()=>{
   if(d.visibilityState==='visible'){
    if(profile()!==currentProfile)join();
-   else if(api&&user){loadCloudAck(currentProfile).then(()=>readUnread()).catch(()=>{});}
+   else if(api&&user&&Date.now()-lastForegroundReadAt>=45000){
+    lastForegroundReadAt=Date.now();
+    loadCloudAck(currentProfile).then(()=>readUnread()).catch(()=>{});
+   }
   }
  });
  d.addEventListener('click',()=>{if(profile()!==currentProfile)w.setTimeout(join,0)});
