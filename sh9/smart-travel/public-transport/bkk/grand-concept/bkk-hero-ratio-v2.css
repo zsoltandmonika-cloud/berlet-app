@@ -1,0 +1,20 @@
+/* BKK Grand V3 · final approved 1672x941 bus hero, no phone stretching or crop. */
+/* Loaded last after the Golden Shell's responsive overrides. */
+.hero{
+  height:auto !important;
+  min-height:0;
+  aspect-ratio:1672 / 941;
+  overflow:hidden;
+}
+.hero > img.hero-img{
+  display:block;
+  width:100% !important;
+  height:auto !important;
+  max-width:100%;
+  aspect-ratio:1672 / 941;
+  object-fit:contain !important;
+  object-position:center;
+}
+@media (min-height:860px), (min-height:900px), (max-height:740px){
+  .hero{height:auto !important;aspect-ratio:1672 / 941}
+}
