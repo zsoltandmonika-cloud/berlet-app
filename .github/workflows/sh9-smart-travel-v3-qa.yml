@@ -19,6 +19,7 @@ on:
       - 'healthhub/tests/sh9-mav-complete-backup-v612.test.cjs'
       - 'healthhub/tests/sh9-volan-shell-v1.test.cjs'
       - 'healthhub/tests/sh9-volan-golden-journeys-v3.test.cjs'
+      - 'healthhub/tests/sh9-volan-bus-thumbnails-v5.test.cjs'
       - 'healthhub/tests/test_sh9_mav_gtfs_import_v1.py'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
   push:
@@ -41,6 +42,7 @@ on:
       - 'healthhub/tests/sh9-mav-complete-backup-v612.test.cjs'
       - 'healthhub/tests/sh9-volan-shell-v1.test.cjs'
       - 'healthhub/tests/sh9-volan-golden-journeys-v3.test.cjs'
+      - 'healthhub/tests/sh9-volan-bus-thumbnails-v5.test.cjs'
       - 'healthhub/tests/test_sh9_mav_gtfs_import_v1.py'
       - '.github/workflows/sh9-smart-travel-v3-qa.yml'
 permissions:
@@ -77,6 +79,6 @@ jobs:
           node --check sh9/smart-travel/public-transport/volan/volan-journey-manager-v3.js
           python3 -m py_compile sh9/smart-travel/public-transport/mav/gtfs/build_gtfs_snapshot.py
       - name: Run Smart Travel Golden Standard tests
-        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs healthhub/tests/sh9-mav-journeys-v2.test.cjs healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs healthhub/tests/sh9-mav-google-fallback-v1.test.cjs healthhub/tests/sh9-mav-calendar-native-v603.test.cjs healthhub/tests/sh9-mav-smart-route-v604.test.cjs healthhub/tests/sh9-mav-personal-v607.test.cjs healthhub/tests/sh9-mav-journey-manager-v608.test.cjs healthhub/tests/sh9-mav-backup-v609.test.cjs healthhub/tests/sh9-mav-health-v610.test.cjs healthhub/tests/sh9-mav-departure-v611.test.cjs healthhub/tests/sh9-mav-complete-backup-v612.test.cjs healthhub/tests/sh9-volan-shell-v1.test.cjs healthhub/tests/sh9-volan-golden-journeys-v3.test.cjs
+        run: node --test healthhub/tests/sh9-smart-travel-golden.test.cjs healthhub/tests/sh9-mav-smart-rail-v1.test.cjs healthhub/tests/sh9-mav-official-links-v1.test.cjs healthhub/tests/sh9-mav-journeys-v2.test.cjs healthhub/tests/sh9-mav-gtfs-core-v1.test.cjs healthhub/tests/sh9-mav-google-fallback-v1.test.cjs healthhub/tests/sh9-mav-calendar-native-v603.test.cjs healthhub/tests/sh9-mav-smart-route-v604.test.cjs healthhub/tests/sh9-mav-personal-v607.test.cjs healthhub/tests/sh9-mav-journey-manager-v608.test.cjs healthhub/tests/sh9-mav-backup-v609.test.cjs healthhub/tests/sh9-mav-health-v610.test.cjs healthhub/tests/sh9-mav-departure-v611.test.cjs healthhub/tests/sh9-mav-complete-backup-v612.test.cjs healthhub/tests/sh9-volan-shell-v1.test.cjs healthhub/tests/sh9-volan-golden-journeys-v3.test.cjs healthhub/tests/sh9-volan-bus-thumbnails-v5.test.cjs
       - name: Verify safe GTFS snapshot importer
         run: python3 -m unittest discover -s healthhub/tests -p 'test_sh9_mav_gtfs_import_v1.py' -v
