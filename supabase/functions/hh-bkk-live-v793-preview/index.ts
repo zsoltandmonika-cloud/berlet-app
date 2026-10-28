@@ -125,8 +125,12 @@ Deno.serve(async req=>{
   const result=await client.auth.getUser(token);
   if(result.error||!result.data.user)return reply(req,401,{ok:false,reason:"login-required"});
  }catch(_){return reply(req,401,{ok:false,reason:"login-required"})}
- // Old clients remain limited to five lines, current clients request ONLY favorites.
- const selected=new URL(req.url).searchParams.get("routes");
+ // Preserve the existing five-line and favorites contracts unchanged.
+ // Only the SH9 Smart Travel map opts into this separately authenticated,
+ // bounded, single-request all-vehicle mode. No second BKK upstream poller.
+ const query=new URL(req.url).searchParams;
+ const selected=query.get("routes");
+ const allMode=query.get("all")==="1"&&selected===null;
  let allowed=LEGACY;
  if(selected!==null){
   if(selected.length>4000)return reply(req,400,{ok:false,reason:"invalid-route-selection"});
@@ -136,8 +140,12 @@ Deno.serve(async req=>{
  }
  try{
   const payload=await fetchLive();
-  const matched=(payload.vehicles as Array<{routeKey:string}>).filter(v=>allowed.has(v.routeKey));
-  const vehicles=matched.slice(0,1200);
+  const all=(payload.vehicles as Array<{routeKey:string}>);
+  const matched=allMode?all:all.filter(v=>allowed.has(v.routeKey));
+  // Historic favorite feed remains <=1200. SH9 groups at most 3500 validated
+  // records into ONE MapLibre GeoJSON source; never spawn DOM markers per vehicle.
+  const cap=allMode?3500:1200;
+  const vehicles=matched.slice(0,cap);
   return reply(req,200,{...payload,vehicles,truncated:matched.length>vehicles.length});
  }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
