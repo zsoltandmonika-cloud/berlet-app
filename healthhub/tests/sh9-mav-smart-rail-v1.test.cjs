@@ -61,7 +61,8 @@ test('Planner and favorites remain clickable profile-specific DOM, not image sli
  assert.match(html,/sh9-mav-rail-favorites-v1-/);
  assert.match(html,/sh9-mav-rail-preferences-v1-/);
  assert.match(html,/helyben menthetők, nem továbbítjuk automatikusan/);
- assert.match(html,/Látványtervi adatok · nem élő menetrend/);
+ assert.match(html,/Élő járatadat csak hitelesített forrásból/);
+ assert.doesNotMatch(html,/const trains=\[\['16:55'/);
  assert.match(html,/https:\/\/mavplusz\.hu\//);
  const official=require('../../sh9/smart-travel/public-transport/mav/rail-official-v1.js');
  assert.equal(official.URLS.tickets,'https://jegy.mav.hu/');
