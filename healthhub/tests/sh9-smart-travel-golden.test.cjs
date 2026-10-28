@@ -234,12 +234,12 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(html,/\.quick a::before\{/);
  assert.match(html,/\.nav\{border-top:1px solid var\(--bkk-edge-glow\)/);
  assert.match(html,/<strong>Következő járat<\/strong>/);
- assert.match(html,/aria-label="Következő járat · SH9 Smart Travel, hivatalos BKK-indulások külső oldalon"/);
+ assert.match(html,/aria-label="Következő járat · saját SH9 Smart Travel térkép és BKK-járatok"/);
  assert.doesNotMatch(html,/<strong>Mikor jön\?<\/strong>/);
- assert.match(html,/Megállói indulások · SH9 Smart Travel/);
+ assert.match(html,/Saját térkép · ellenőrzött BKK-adatok/);
  assert.doesNotMatch(html,/BudapestGO/);
- assert.match(html,/a SH9 Smart Travel központból/i);
- assert.equal([...html.matchAll(/guardian\\/\\?sh9Transit=1/g)].length,2);
+ assert.match(html,/A saját SH9 Smart Travel térképünkön/i);
+ assert.equal([...html.matchAll(/guardian\/\?sh9Transit=1/g)].length,2);
  assert.doesNotMatch(html,/href="https:\/\/go\.bkk\.hu\//);
  assert.doesNotMatch(html,/<strong>Indulási tábla<\/strong>/);
  assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
@@ -273,7 +273,7 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.equal([...guardian.matchAll(/id="sh9TransitNavV927"/g)].length,1);
  assert.match(guardian,/id="hhBkkWatchlistV814"/);
  assert.match(guardian,/id="hhTransitPanel"/);
- assert.match(guardian,/bkk-live-v793/);
+ assert.match(guardian,/guardian-transit-v791\.js/);
  assert.match(skin,/:root\[data-sh9-transit="on"\]/);
  assert.match(skin,/:root\[data-sh9-transit="on"\]\[data-guardian-profile="m"\]/);
  assert.match(skin,/\.shell>main>:not\(\.map-card\):not\(#hhTransitPanel\)/);
