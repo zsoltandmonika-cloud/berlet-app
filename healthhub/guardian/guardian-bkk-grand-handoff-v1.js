@@ -1,4 +1,4 @@
-/* SH9 BKK V3 → Family Guard planner one-shot local handoff. No geolocation, fetch, timers or polling. */
+/* SH9 BKK V3 → Family Guard planner one-shot local handoff. No background data requests or polling. */
 (function(){
 'use strict';
 if(window.location.hash!=='#hhSmartHubDestinationV802')return;
