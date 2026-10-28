@@ -144,17 +144,45 @@
    const histAdded=history.filter(p=>!beforeH.has(histSignature(p))).length;
    const j=journey.read(storage,id);const jIds=new Set(j.map(p=>p.id));let jAdded=0;
    for(const p of incoming.journeys){
-    if(jIds.has(p.id))continue; // original local data (including private notes) always wins
+    if(jIds.has(p.id)){
+     const old=j.find(x=>x.id===p.id);
+     if(data.version===2&&(old.from!==p.from||old.to!==p.to||old.mode!==p.mode||old.when!==p.when))
+      throw Error('Utazásazonosító ütközés: eltérő útvonal vagy időpont');
+     continue;
+    }
     if(j.length>=30)throw Error((id==='m'?'Mónika':'Zsolt')+' utazásai megteltek (30/30)');
     j.push({...p,ticket:'',car:'',seat:'',note:''});
     jIds.add(p.id);jAdded++;
    }
-   // Only the SIX known profile-scoped keys. Never write hh-profile or unrelated app keys.
+   let departureAdded=0,departureTotal=0,assistantRows=null;
+   if(data.version===2){
+    const departureKey=departure.key(id);
+    let raw;try{raw=storage.getItem(departureKey)}catch(_){throw Error('Nem olvasható az indulási beállítások tárhelye')}
+    let existing={};
+    if(raw!==null){
+     try{existing=JSON.parse(raw)}catch(_){throw Error('Sérült helyi indulási adatok. Előbb készíts biztonsági másolatot.')}
+     if(!existing||typeof existing!=='object'||Array.isArray(existing)||
+        Object.keys(existing).some(k=>!/^[a-zA-Z0-9_-]{5,64}$/.test(k)))
+      throw Error('Érvénytelen helyi indulási beállítások; import leállítva');
+    }
+    assistantRows=Object.assign(Object.create(null),existing);
+    for(const item of incoming.departure){
+     if(Object.prototype.hasOwnProperty.call(assistantRows,item.journeyId))continue;
+     if(Object.keys(assistantRows).length>=30)
+      throw Error((id==='m'?'Mónika':'Zsolt')+' indulási beállításai megteltek (30/30)');
+     assistantRows[item.journeyId]=fieldsOnly(item,departureFields.slice(1));
+     departureAdded++;
+    }
+    departureTotal=Object.keys(assistantRows).length;
+   }
+   // Exactly six keys for legacy v1; eight for v2. No hh-profile or unrelated keys.
    writes.push([personal.favoritesKey(id),JSON.stringify(f)]);
    writes.push([personal.historyKey(id),JSON.stringify(history)]);
    writes.push([journey.storageKey(id),JSON.stringify(j)]);
+   if(data.version===2)writes.push([departure.key(id),JSON.stringify(assistantRows)]);
    counts[id]={favoritesAdded:favAdded,historyAdded:histAdded,journeysAdded:jAdded,
     favoritesTotal:f.length,historyTotal:history.length,journeysTotal:j.length};
+   if(data.version===2)Object.assign(counts[id],{departureAdded,departureTotal});
   }
   return {writes,counts};
  }
@@ -196,7 +224,7 @@
     a.download='SH9-MAV-biztonsagi-mentes-'+new Date().toISOString().slice(0,10)+'.json';
     doc.body.append(a);a.click();a.remove();
     win.setTimeout(()=>win.URL.revokeObjectURL(url),1500);
-    status('Biztonsági mentés elkészítve mindkét profilról. Jegyszámok, ülőhelyek és magánjegyzetek nélkül.');
+    status('Biztonsági mentés v2 elkészítve mindkét profilról, az indulási asszisztens beállításaival. Jegyszámok, ülőhelyek és magánjegyzetek nélkül.');
    }catch(err){status('Exporthiba: '+err.message)}
   });
   file.addEventListener('change',async()=>{
@@ -207,10 +235,10 @@
     const text=(await chosen.text()).replace(/^\uFEFF/,'');
     selected=parse(text);
     const a=selected.profiles.z,b=selected.profiles.m;
-    status('Ellenőrzött mentés · Zsolt: '+a.favorites.length+' kedvenc, '+a.history.length+
-     ' előzmény, '+a.journeys.length+' utazás · Mónika: '+b.favorites.length+' kedvenc, '+
-     b.history.length+' előzmény, '+b.journeys.length+
-     ' utazás. Az adatok csak a saját profiljukhoz adódnak hozzá. A meglévő adatok nem íródnak felül.');
+    status('Ellenőrzött v'+selected.version+' mentés · Zsolt: '+a.favorites.length+' kedvenc, '+a.history.length+
+     ' előzmény, '+a.journeys.length+' utazás, '+a.departure.length+' indulási terv · Mónika: '+b.favorites.length+' kedvenc, '+
+     b.history.length+' előzmény, '+b.journeys.length+' utazás, '+b.departure.length+
+     ' indulási terv. A régi v1 mentések is támogatottak. A meglévő adatok nem íródnak felül.');
     apply.disabled=false;
    }catch(err){status('Nem tölthető be: '+err.message)}
   });
