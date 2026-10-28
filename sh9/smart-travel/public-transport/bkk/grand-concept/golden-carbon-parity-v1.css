@@ -1,0 +1,101 @@
+/* SH9 Public Transport Golden Shell parity · canonical CSS selectors copied exactly from MÁV; applies to BKK concept only. */
+:root{color-scheme:dark;--accent:#0b8dff;--accentglow:#2198ffc2;--line:#b8d8ff74;--body:#eff8ff;--dim:#c2d7f1;--panel:linear-gradient(129deg,rgba(65,107,163,.48),rgba(6,29,65,.77) 54%,rgba(33,38,72,.70));--tile:linear-gradient(135deg,rgba(110,160,216,.32),rgba(11,33,70,.77));--nav:#06132b;--hot:linear-gradient(108deg,#0aa9ff,#166cf4 62%,#a348ea)}
+:root[data-profile="m"]{--accent:#ed73c3;--accentglow:#ff8fe7a6;--line:#ffc0e786;--panel:linear-gradient(129deg,rgba(126,85,148,.46),rgba(58,25,87,.82) 54%,rgba(71,35,77,.66));--tile:linear-gradient(135deg,rgba(195,125,185,.30),rgba(48,25,76,.77));--nav:#210f34;--hot:linear-gradient(108deg,#ec71d4,#c745c4 62%,#8069ed)}
+.app{width:min(100%,470px);margin:0 auto;min-height:100dvh;padding:0 0 74px;background:radial-gradient(ellipse at 10% 53%,#174a78a0,transparent 62%),radial-gradient(ellipse at 100% 65%,#3020407a,transparent 60%),#07152d;overflow:hidden}
+.hero{height:clamp(289px,76.2vw,346px);position:relative;isolation:isolate;overflow:hidden}
+.hero-img{height:100%;width:100%;display:block;object-fit:fill}
+.back{position:absolute;left:0;top:29px;width:30px;height:36px;border-radius:0 40px 40px 0;background:#172b49a1;display:grid;place-items:center;z-index:5;border:1px solid #e9f5ff55;box-shadow:0 2px 10px #0009}
+.glass{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px) saturate(145%);box-shadow:inset 0 1px rgba(255,255,255,.25),0 5px 13px #0006}
+.quick{margin:0 3px 9px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;border-radius:15px;background:linear-gradient(112deg,#214f89c9,#2b2b5cc9 51%,#3d364db8);padding:2px;box-shadow:inset 0 1px #fff4,0 4px 12px #0007}
+.quick button{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-width:0;height:55px;padding:2px 0;border:1px solid #9bbde64a;border-radius:13px;background:linear-gradient(140deg,#6a92c53a,#171f427f);font-size:9px;font-weight:bold;white-space:nowrap;box-shadow:inset 0 1px #fff2}
+.quick button.active{background:linear-gradient(132deg,#10b6fd,#0064e0);border-color:#a4e6ff;box-shadow:0 0 11px #047affbd,inset 0 1px #fff6}
+.quick svg{height:22px;width:22px}
+.planner{margin:0 5px 9px;padding:8px 7px 9px;border-radius:15px}
+.phead{display:grid;grid-template-columns:42% 58%;gap:0;align-items:center;margin-bottom:8px}
+.phead h2,.depart h2{margin:0;display:flex;align-items:center;gap:6px;font-size:13px;letter-spacing:-.4px;white-space:nowrap}
+.phead h2 svg,.depart h2 svg{width:19px;height:19px}
+.mode{display:flex;height:30px;padding:2px;border:1px solid #9cbbdc78;background:#1525408a;border-radius:13px;align-items:stretch;gap:0}
+.mode button{flex:1;min-width:0;padding:1px;border:0;border-radius:11px;background:transparent;color:#e1eaf9;white-space:nowrap;font-size:9.1px}
+.mode button.on{background:linear-gradient(123deg,#1aa6ff,#066af2);box-shadow:0 0 9px #149affaa;color:white;font-weight:bold}
+.routebox{display:grid;grid-template-columns:58.9% 1fr;gap:8px}
+.stationfields{position:relative;border-radius:9px;border:1px solid #c5e3ff83;background:#0a244a78;height:62px;display:grid;grid-template-columns:21px minmax(0,1fr) 31px;align-items:center;overflow:hidden}
+.route-rail{width:18px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-around;position:relative}
+.route-rail:before{content:'';position:absolute;top:18px;bottom:17px;width:2px;background:#9ebee88c}
+.dot{position:relative;z-index:1;width:12px;height:12px;border-radius:50%;border:4px solid #159cf9;background:#0e1b39}
+.dot.end{border-color:#f04c86}
+.stations{height:100%;display:flex;flex-direction:column}
+.stations input{width:100%;min-width:0;flex:1;padding:0 4px;color:#fff;font-size:11px;font-weight:bold;background:transparent;border:0;outline:0;text-overflow:ellipsis}
+.stations input:first-child{border-bottom:1px solid #d5e5fc6b}
+.swap{margin-right:3px;width:26px;height:32px;border-radius:7px;border:1px solid #abcbe467;background:#899fb58a;font-size:15px}
+.datetime{min-width:0;height:62px;border:1px solid #b9cee28f;border-radius:10px;background:linear-gradient(120deg,#354a7082,#2624329c);display:grid;grid-template-columns:1.42fr .75fr;align-items:center;gap:0}
+.datebox,.timebox{min-width:0;display:flex;gap:4px;align-items:center;justify-content:center;font-size:10px;font-weight:bold;white-space:nowrap}
+.datebox{padding:0 2px}
+.datetime svg{width:16px;height:16px;flex-shrink:0}
+.timebox{border-left:1px solid #c4d3f74a;height:100%}
+.whenInput{display:none;width:100%;background:transparent;color:white;border:0;font-size:10px;outline:none}
+.actions{margin-top:8px;display:grid;grid-template-columns:2.25fr 1fr;gap:8px}
+.actions button{min-width:0;height:35px;border-radius:11px;font-size:10px;font-weight:bold;display:flex;align-items:center;gap:6px;justify-content:center;border:1px solid #cde7ff8f}
+.search{background:var(--hot);box-shadow:0 0 9px #1265f38d}
+.refresh{background:#2c3551ac}
+.depart{margin:0 5px 9px;padding:9px 6px 7px;border-radius:15px}
+.departhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:4px}
+.demo{font-size:8px;color:#d7e8ffba;margin:-4px 0 4px;text-align:right}
+.bottom{height:67px;position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,470px);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;background:linear-gradient(180deg,#071529f8,#031025fa);border-top:1px solid #b0c8ed6b;border-radius:18px 18px 0 0;padding:5px 1px 4px;box-shadow:0 -4px 13px #000b;z-index:10}
+.bottom a{min-width:0;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:5px;font-size:9.5px;color:#cee0fa;font-weight:bold;border:1px solid transparent;border-radius:12px}
+.bottom svg{height:23px;width:23px}
+.hero{height:min(36vh,390px)}
+.mode button{font-size:8px}
+.app{padding-bottom:78px}
+.hero{height:clamp(260px,76.2vw,346px)}
+.quick{margin-top:-7px;position:relative;z-index:6;margin-bottom:8px;background:linear-gradient(108deg,#3567a497,#3e305a91 54%,#514252a1);backdrop-filter:blur(15px)}
+.quick button{border-color:#9fc3ff39;background:linear-gradient(140deg,#96b8e531,#1e315053)}
+.planner{padding:7px 7px 7px;margin-bottom:8px}
+.phead{margin-bottom:7px}
+.depart{padding:8px 6px 6px;margin-bottom:7px}
+.departhead{margin-bottom:5px}
+.demo{margin:-1px 0 3px;font-size:7px}
+.hero{height:clamp(284px,74.5vw,338px)}
+:root{--rail-ambient-blue:rgba(30,142,248,.27);--rail-ambient-pink:rgba(174,88,184,.18);--rail-glass-fill:linear-gradient(128deg,rgba(95,155,223,.38) 0%,rgba(35,78,129,.50) 47%,rgba(66,53,109,.43) 100%);--rail-glass-edge:rgba(212,234,255,.51)}
+:root[data-profile="m"]{--rail-ambient-blue:rgba(144,59,166,.25);--rail-ambient-pink:rgba(242,100,188,.25);--rail-glass-fill:linear-gradient(128deg,rgba(167,95,185,.37),rgba(97,51,124,.50) 54%,rgba(105,48,120,.38));--rail-glass-edge:rgba(255,214,245,.57)}
+.app{background:radial-gradient(ellipse 86% 53% at 12% 43%,var(--rail-ambient-blue),transparent 76%),radial-gradient(ellipse 70% 48% at 94% 61%,var(--rail-ambient-pink),transparent 73%),linear-gradient(177deg,#071327,#0c2548 51%,#071428)}
+.glass{background:var(--rail-glass-fill);border:1px solid var(--rail-glass-edge);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 1px rgba(255,255,255,.39),inset 1px 0 rgba(197,231,255,.1),0 7px 20px rgba(0,4,25,.46),0 0 18px rgba(88,158,252,.09)}
+.quick{border:1px solid rgba(200,232,255,.28);background:linear-gradient(118deg,rgba(76,131,194,.58),rgba(59,53,107,.51) 50%,rgba(145,81,137,.42));-webkit-backdrop-filter:blur(21px) saturate(150%);backdrop-filter:blur(21px) saturate(150%);box-shadow:inset 0 1px rgba(255,255,255,.37),0 5px 18px #0007}
+.quick button{background:linear-gradient(138deg,rgba(132,185,249,.31),rgba(18,49,94,.42));border-color:rgba(219,241,255,.31);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px rgba(255,255,255,.27),0 3px 12px rgba(4,11,37,.35)}
+.quick button.active{background:linear-gradient(128deg,#15a6ff,#0064e1);box-shadow:inset 0 1px #fffa,0 0 14px rgba(34,143,250,.66)}
+:root[data-profile="m"] .quick button.active{background:linear-gradient(128deg,#f177d6,#9c4ece);box-shadow:0 0 14px rgba(246,99,191,.64),inset 0 1px #fff9}
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr));height:calc(60px + env(safe-area-inset-bottom,0px));min-height:60px;width:min(100%,470px);background:rgba(9,28,55,.90);border-top:1px solid rgba(176,223,255,.42);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-radius:16px 16px 0 0;box-shadow:inset 0 1px #fff3,0 -5px 15px #0007}
+.bottom a{font-size:9.5px;min-height:49px}
+.bottom a svg{width:20px;height:20px}
+.app{padding-bottom:calc(75px + env(safe-area-inset-bottom,0px))}
+.hero #profile.profile{position:absolute;z-index:8;top:auto;right:auto;bottom:9px;left:6px;width:45px;min-width:45px;max-width:45px;height:45px;min-height:45px;max-height:45px;display:grid;place-items:center;gap:0;padding:0;margin:0;border:2px solid #e6f7ff;border-radius:15px;background:rgba(12,33,63,.42);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 1px #fff5,0 3px 12px #0007;overflow:hidden;transition:none;touch-action:manipulation}
+.hero #profile.profile img{width:41px;height:41px;display:block;object-fit:cover;border-radius:12px;pointer-events:none}
+:root[data-profile="m"] .hero #profile.profile{border-color:#ffe5f1;background:rgba(86,29,81,.42)}
+.rail-journey-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.rail-journey-quick button,.rail-trip-compose .rail-trip-actions button{min-height:44px;border-radius:10px;color:#f7faff;font-size:11px;font-weight:750;padding:9px 7px;border:1px solid rgba(183,221,255,.38);background:linear-gradient(125deg,rgba(67,111,170,.53),rgba(16,37,83,.65));box-shadow:inset 0 1px #ffffff36;touch-action:manipulation}
+/* Keep the layout's five bottom links and a usable native date/time picker in concept. */
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr))}
+.datetime .native-picker{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;opacity:0;border:0;pointer-events:auto;cursor:pointer}
+.hero #profile.profile{bottom:9px;left:6px}
+:root[data-profile="m"] .mode button.on{background:linear-gradient(125deg,#ec73d9,#953de6)}
+
+
+/* Volán carbon-copy service card geometry; BKK transport symbols keep native colors. */
+.service{height:53px;display:grid;grid-template-columns:80px minmax(0,1fr) 20px;align-items:center;gap:8px;margin:4px 0 6px;padding:5px 7px;border:1px solid rgba(183,223,255,.38);border-radius:10px;background:linear-gradient(120deg,rgba(66,117,164,.41),rgba(20,45,88,.55));box-shadow:inset 0 1px rgba(255,255,255,.13)}
+.service strong{color:#b4e7ff;font-size:11px;line-height:1.3;display:block}
+.service small{color:#d9edff;font-size:9px;line-height:1.3;display:block}
+.service .chev{color:white;font-size:18px;text-align:center}
+.service{width:100%;grid-template-columns:80px minmax(0,1fr) 20px;min-height:53px;height:53px;gap:8px;text-align:left;font:inherit;color:inherit}
+.service-icon{width:80px;height:41px;display:grid;place-items:center;border:1px solid #c4e4ff6f;border-radius:7px;background:rgba(25,56,94,.45);padding:1px;font-size:22px}
+.service .chev{text-align:center}
+:root[data-profile="m"] .service{background:linear-gradient(130deg,rgba(116,64,136,.46),rgba(44,33,73,.64));border-color:#f6b9e94d}
+:root[data-profile="m"] .service strong{color:#ffd0f0}
+
+/* Exact MÁV / Volán six-icon utility row. */
+.utils{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:0 2px;margin-bottom:9px}
+.utils button,.utils a{height:63px;min-width:0;border:1px solid #b1cde74e;background:linear-gradient(131deg,#565b7e88,#10375ab9);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;color:white;font-size:9px;font-weight:bold;text-align:center;line-height:1.15;padding:3px 1px;box-shadow:inset 0 1px #fff4,0 4px 9px #0007}
+.utils svg{width:21px;height:21px}
+
+/* Canonical hero art geometry and exact overlay/back icon specificity. */
+.hero>img.hero-img{height:100%;width:100%;display:block;object-fit:fill}
+.hero:after{content:"";position:absolute;inset:73% 0 0;background:linear-gradient(transparent,#08132cb8 77%,#071326);pointer-events:none}
+.back svg{width:23px;height:23px}
