@@ -64,7 +64,7 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 .poster-frame{transform:translateY(-23px)}
 
 
-</style><link rel="stylesheet" href="./public-transport-grand-v2.css?v=5-approved-art"><link rel="stylesheet" href="./public-transport-smart-trip-golden-v2.css"></head><body>
+</style><link rel="stylesheet" href="./public-transport-grand-v2.css?v=5-approved-art"><link rel="stylesheet" href="./public-transport-smart-trip-golden-v2.css"><link rel="stylesheet" href="./public-transport-smart-trip-mobile-v3.css?v=3"></head><body>
 <main class="shell transport-grand" aria-label="SH9 · Public Transport Golden Glass">
 <section class="transport-visual" aria-label="Public Transport · Léna, Buddy, Zsolt, Mónika és Corky Budapesten">
 <img id="transportPoster" src="./public-transport-approved-hero-v5.avif?v=5" alt="Léna a BKK, MÁV és Volán közlekedéséről segít Zsoltnak és Mónikának. Corky és Buddy is velük utazik a budapesti közlekedési csomópontban." width="941" height="785" fetchpriority="high" decoding="async">
@@ -100,9 +100,17 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 </div>
 <button id="smartTripSwap" class="swap" type="button" aria-label="Indulási és érkezési hely felcserélése">↕</button>
 </div>
-<div class="datetime">
-<label class="datebox" for="smartTripDate"><span aria-hidden="true">▦</span><input id="smartTripDate" type="date" aria-label="Utazás dátuma" required></label>
-<label class="timebox" for="smartTripTime"><span aria-hidden="true">◷</span><input id="smartTripTime" type="time" aria-label="Utazás ideje" required></label>
+<div class="datetime" role="group" aria-label="Utazás dátuma és ideje">
+<div class="datebox picker-target" id="smartTripDateTrigger" role="button" tabindex="0" aria-label="Naptár megnyitása, utazás dátuma" aria-controls="smartTripDate">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>
+<span class="picker-display" id="smartTripDateDisplay">Dátum</span>
+<input id="smartTripDate" class="picker-native" type="date" tabindex="-1" aria-label="Utazás dátuma" required>
+</div>
+<div class="timebox picker-target" id="smartTripTimeTrigger" role="button" tabindex="0" aria-label="Időpontválasztó megnyitása" aria-controls="smartTripTime">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
+<span class="picker-display" id="smartTripTimeDisplay">Idő</span>
+<input id="smartTripTime" class="picker-native" type="time" tabindex="-1" step="60" aria-label="Utazás ideje" required>
+</div>
 </div></div>
 <div class="actions">
 <button class="search" type="submit" id="smartTripSearch">⌕ Útvonal keresése</button>
@@ -140,5 +148,5 @@ const btn=document.getElementById('notifier'),notice=document.getElementById('no
 btn.addEventListener('click',()=>{notice.hidden=!notice.hidden});
 const posterImage=document.getElementById('transportPoster');posterImage.addEventListener('error',()=>{document.getElementById('assetMissing').hidden=false});
 })();
-</script><script defer src="./public-transport-smart-trip-v1.js"></script>
+</script><script defer src="./public-transport-smart-trip-v1.js?v=3"></script>
 </body></html>
