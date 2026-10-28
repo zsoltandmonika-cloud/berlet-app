@@ -147,6 +147,6 @@ test('Golden UI shows explicit download, manually staged import, no automatic sy
  assert.match(html,/id="rail-date-trigger"/);
  assert.match(html,/id="rail-time-trigger"/);
  assert.match(html,/bottom:9px;left:6px;width:45px/);
- assert.match(html,/mav-hero-approved\.webp/);
+ assert.match(html,/mav-hero-final-approved-v2\.webp/);
  assert.match(html,/rail-golden-glass-v3/);
 });
