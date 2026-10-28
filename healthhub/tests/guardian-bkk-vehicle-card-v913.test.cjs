@@ -43,7 +43,7 @@ test('v913 uses existing verified/cache-bound authenticated BKK API and refreshe
  assert.match(edge,/if\(label\)entry\.vehicleLabel=label/);
  assert.match(edge,/feedCache/);assert.match(edge,/getUser\(token\)/);
  assert.doesNotMatch(read('bkk-live-map-v793.js'),/fetch\(|setInterval\(/);
- assert.match(read('index.html'),/913-bkkgo-vehicle/);
+ assert.match(read('index.html'),/913-compact-icon-tap/);
  assert.match(read('guardian-transit-v791.js'),/913-compact-icon-tap/);
  assert.match(read('bkk-live-glass-v800.css'),/hh-bkk-vehicle-card-v913/);
 });
