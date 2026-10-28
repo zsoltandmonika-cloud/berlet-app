@@ -11,6 +11,7 @@
  'use strict';
  const TRUSTED=['https://mavplusz.hu/','https://jegy.mav.hu/','https://vonatinfo.mav.hu/','https://mikorindul.hu/keleti','https://mikorindul.hu/nyugati'];
  const MAX_AGE=10*60*1000;
+ const dateFmt=new Intl.DateTimeFormat('hu-HU',{weekday:'short',year:'numeric',month:'short',day:'numeric',timeZone:'Europe/Budapest'});
  const station=x=>String(x??'').trim().replace(/\s+/g,' ').slice(0,120);
  const cleanText=(s,max=65)=>String(s??'').trim().replace(/[\u0000-\u001f<>]/g,'').slice(0,max);
  const validDate=(value)=>{const dt=new Date(value);return Number.isFinite(dt.getTime())?dt:null};
@@ -24,6 +25,11 @@
   // Queries beyond a reasonable published-timetable horizon are rejected, not guessed.
   if(d.getTime()<now.getTime()-24*3600*1000||d.getTime()>now.getTime()+90*86400000)return null;
   return {from:a,to:b,mode:selected,when:d.toISOString(),createdAt:now.toISOString()};
+ }
+ function sameSearch(a,b){
+  if(!a||!b)return false;
+  return a.from===b.from&&a.to===b.to&&a.mode===b.mode&&
+   (a.mode==='now'||a.when===b.when);
  }
  function transitLink(query){
   if(!query)return null;
@@ -64,7 +70,7 @@
         departures=doc.getElementById('depart');
   if(!list||!from||!to||!search||!departures)return;
   const routeEngine=win.SH9_MAV_OFFICIAL_V1;
-  let last=null,feed=null;
+  let last=null,feed=null,feedQuery=null,feedValidUntil=0;
   const header=departures.querySelector('.demo');
   if(header){header.textContent='Csak hitelesített vonatadat · nincs háttérlekérdezés';header.classList.add('rail-source-status');header.setAttribute('role','status');}
   function status(msg){if(header)header.textContent=msg;}
@@ -74,13 +80,21 @@
    b.addEventListener('click',()=>open(href));return b;
   }
   function open(href){
-   if(!href||!/^https:\/\//.test(href))return;
+   let target;
+   try{target=new URL(href)}catch(_){return}
+   if(target.protocol!=='https:'||!(
+      officialLink(target.href)||
+      routeEngine?.allowedUrl?.(target.href)||
+      (target.hostname==='www.google.com'&&target.pathname==='/maps/dir/'&&target.searchParams.get('api')==='1')
+   ))return;
    if(/Android|iPhone|iPad/i.test(win.navigator.userAgent)){win.location.assign(href);return}
    const a=doc.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.click();
   }
   const boardUrl=()=>routeEngine?.boardFor(from.value)||routeEngine?.URLS.timetable||'https://mavplusz.hu/';
   function emptyState(){
    list.replaceChildren();
+   const heading=departures.querySelector('h2');
+   if(heading)heading.lastChild?.nodeType===3?heading.lastChild.textContent=' Vasúti szolgáltatások':heading.setAttribute('aria-label','Vasúti szolgáltatások');
    // Preserve the approved three photo-card positions, but NEVER show fake trains.
    const options=[
     {title:'Állomási indulások',info:'Hiteles indulások · aktuális állomás',url:()=>boardUrl()},
@@ -104,6 +118,8 @@
   }
   function rows(data){
    list.replaceChildren();
+   const heading=departures.querySelector('h2');
+   if(heading)heading.lastChild?.nodeType===3?heading.lastChild.textContent=' Következő járatok':heading.setAttribute('aria-label','Következő járatok');
    data.trains.slice(0,3).forEach((train,i)=>{
     const row=doc.createElement('button');row.className='trainrow';row.type='button';
     row.setAttribute('aria-label',train.service+' '+train.number+' '+fmt(new Date(train.departure))+' indulás');
@@ -114,7 +130,20 @@
     copy.append(name,span('rail-train-sub',train.number+(train.delayMinutes!==null?(train.delayMinutes>0?' · +'+train.delayMinutes+' perc':' · pontos'):' · nincs késésadat')));
     const track=span('track',train.platform?'Vágány '+train.platform:'Vágány: nincs adat');
     row.append(pic,clocks,copy,track,span('arrowright','›'));
-    row.addEventListener('click',()=>open(train.link||boardUrl()));list.append(row);
+    row.setAttribute('aria-expanded','false');
+    row.setAttribute('aria-label',train.service+' '+train.number+' · járat részleteinek megnyitása');
+    const detail=doc.createElement('section');detail.className='rail-gtfs-detail glass';detail.hidden=true;
+    detail.append(span('rail-empty-heading',train.service+' · '+train.number));
+    detail.append(span('rail-leg-line','Indulás: '+dateFmt.format(new Date(train.departure))+' '+fmt(new Date(train.departure))));
+    detail.append(span('rail-leg-line','Érkezés: '+dateFmt.format(new Date(train.arrival))+' '+fmt(new Date(train.arrival))));
+    detail.append(span('rail-search-meta','Forrás: '+train.source+' · '+(train.live?'élő adat':'menetrendi adat')));
+    detail.append(span('rail-warning',
+      (train.delayMinutes!==null?'Jelzett eltérés: '+train.delayMinutes+' perc. ':'Késési adat nem áll rendelkezésre. ')+
+      (train.platform?'Vágány: '+train.platform+'. ':'Vágányadat nem áll rendelkezésre. ')+
+      'Az aktuális tájékoztatást mindig ellenőrizd a MÁV-nál.'));
+    detail.append(btn('Hivatalos információ ↗',train.link||boardUrl()));
+    row.addEventListener('click',()=>{const expanded=row.getAttribute('aria-expanded')==='true';row.setAttribute('aria-expanded',String(!expanded));detail.hidden=expanded;});
+    list.append(row,detail);
    });
    status('Forrás: '+data.provider+' · frissítve: '+fmt(new Date(data.fetchedAt))+(data.trains.some(t=>t.live)?' · élő adat':' · menetrendi adat'));
   }
@@ -131,7 +160,7 @@
    panel.append(span('rail-search-route',q.from+' → '+q.to));
    const chosen=fmt(new Date(q.when));
    const label=q.mode==='arrive'?'Érkezés eddig':q.mode==='depart'?'Indulás ekkor':'Indulás most';
-   panel.append(span('rail-search-meta',label+' · '+chosen));
+   panel.append(span('rail-search-meta',label+' · '+dateFmt.format(new Date(q.when))+' · '+chosen));
    if(q.mode!=='now')panel.append(span('rail-warning','A kiválasztott időt a külső tervezőben is állítsd be: a hivatalos Google Maps URL nem fogadja át az indulás/érkezés időmódját.'));
    const actions=doc.createElement('div');actions.className='rail-empty-actions';
    actions.append(btn('Útvonalak megnyitása ↗',transitLink(q)),btn('MÁVPlusz ↗','https://mavplusz.hu/'));
@@ -144,18 +173,22 @@
    doc.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
    open(transitLink(q)); // a valós útvonaltervező egyetlen érintéssel nyílik
    // If no feed is installed, station board remains the only genuine live source.
-   if(feed)rows(feed);else emptyState();
+   if(feed&&feedQuery&&sameSearch(feedQuery,q)&&Date.now()<feedValidUntil)rows(feed);
+   else{feed=null;feedQuery=null;emptyState()}
   };
-  refresh.onclick=()=>{const q=currentQuery();if(q){last=q;presentSearch(q)}else{status('Érvényes útvonal szükséges.');return}if(feed)rows(feed);else emptyState()};
+  refresh.onclick=()=>{const q=currentQuery();if(!q){status('Érvényes útvonal szükséges.');return}last=q;presentSearch(q);open('https://mavplusz.hu/')};
   // Deliberately no automatic remote fetch/polling or mutable global injection.
   // An approved live provider must supply validated JSON via an explicit integration.
   function acceptProviderData(json){
    const q=last||currentQuery();
    const verified=validateFeed(json,q,new Date());
    if(!verified)return false;
-   feed=verified;rows(feed);return true;
+   if(!sameSearch(q,currentQuery()))return false;
+   feed=verified;feedQuery=q;feedValidUntil=Date.parse(verified.fetchedAt)+MAX_AGE;
+   rows(feed);return true;
   }
   function showTimetable(result,q){
+   if(!sameSearch(q,currentQuery()))return false;
    const isGoogle=result?.attribution==='© Google Maps';
    last=q;
    presentSearch(q);
@@ -212,7 +245,7 @@
   return {acceptProviderData,currentQuery,showTimetable};
 
  }
- return Object.freeze({searchRequest,transitLink,validateFeed,officialLink,mount});
+ return Object.freeze({searchRequest,sameSearch,transitLink,validateFeed,officialLink,mount});
 });
 if(typeof document!=='undefined'&&window.SH9_MAV_JOURNEYS_V2){
  window.SH9_MAV_JOURNEYS_INSTANCE=window.SH9_MAV_JOURNEYS_V2.mount(document,window);
