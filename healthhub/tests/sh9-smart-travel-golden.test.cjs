@@ -334,3 +334,19 @@ test('v927 SH9 mode is inert on normal Family Guard and activates existing MapLi
 
 // Include v928 all-BKK low-usage and isolation tests in the established SH9 Golden CI.
 require('./sh9-bkk-all-v928.test.cjs');
+
+
+test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guard dynamic loader',()=>{
+ const html=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ const loader=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-transit-v791.js'),'utf8');
+ const live=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-live-pilot-v793.js'),'utf8');
+ const render=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-all-bkk-v928.js'),'utf8');
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
+ assert.match(html,/guardian-transit-v791\.js\?v=929-sh9-loader-cache-fix/);
+ assert.match(loader,/get\('sh9Transit'\)==='1'\?'929-sh9-bkk-3d-fix':'914-mini-above-marker'/);
+ assert.match(live,/hh-sh9-all-live-ready-v929/);
+ assert.match(render,/makeMarkerElement\(d,vehicle\)/);
+ assert.match(render,/last\.features\.length===0/);
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+});
