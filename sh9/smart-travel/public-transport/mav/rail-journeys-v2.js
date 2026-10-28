@@ -198,6 +198,8 @@
    if(searchPanel){
     const warning=searchPanel.querySelector('.rail-warning');
     if(warning)warning.textContent=isGoogle?'A Google tömegközlekedési keresője a választott időpont alapján tervez. A vágány, késés és GPS nem élő adat. © Google Maps':'A helyi MÁV GTFS-menetrend a kiválasztott időpont alapján keres; késés és vágány nem élő adat.';
+    const info=searchPanel.querySelector('.rail-search-source-info');
+    if(info)info.textContent='Járattalálatok forrása: '+String(result?.source||'Engedélyezett menetrendi adatforrás').slice(0,100)+(isGoogle?' · © Google Maps':'')+'. A menetrend nem élő késés- vagy vágányadat.';
    }
    if(!result||result.status!=='ok'){
     emptyState();
