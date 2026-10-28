@@ -137,6 +137,17 @@
 .rail-trip-edit{display:grid;gap:7px;padding:9px;border-top:1px solid rgba(183,218,255,.25);margin-top:8px}
 #rail-journey-plans{display:grid;gap:6px}
 #journeys .rail-trip-card{padding:9px}
+
+/* v609 · Offline two-profile backup and staged restore · approved Golden Glass. */
+.rail-backup-shortcut{display:block;width:100%;min-height:44px;padding:11px 10px;margin:11px 0 2px;border-radius:11px;border:1px solid rgba(166,220,255,.46);color:#eaf9ff;font-weight:750;font-size:11px;background:linear-gradient(115deg,rgba(37,109,172,.35),rgba(41,60,111,.45));touch-action:manipulation}
+.rail-backup-primary{width:100%;min-height:46px;margin:7px 0;padding:10px;border-radius:11px;color:#f5faff;font-weight:750;font-size:12px;border:1px solid rgba(185,223,255,.45);background:linear-gradient(135deg,rgba(28,120,197,.6),rgba(31,53,113,.65))}
+.rail-backup-primary:disabled{opacity:.4}
+.rail-backup-import{display:grid;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(190,229,255,.24)}
+.rail-backup-import label{font-size:11px;color:var(--body)}
+.rail-backup-import input{width:100%;max-width:100%;border-radius:9px;min-height:44px;border:1px solid rgba(169,215,255,.4);background:rgba(6,22,50,.64);color:#f4faff;font-size:11px;padding:8px}
+.rail-backup-import input::file-selector-button{border:1px solid rgba(205,227,255,.46);background:rgba(43,100,173,.45);color:white;padding:8px;border-radius:7px}
+.rail-backup-preview{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.5;border-radius:9px;color:#dcecff;background:rgba(10,39,78,.52);padding:11px;border:1px solid rgba(172,215,255,.26)}
+:root[data-profile="m"] .rail-backup-primary,:root[data-profile="m"] .rail-backup-shortcut{background:linear-gradient(135deg,rgba(160,63,161,.52),rgba(70,31,91,.65));border-color:rgba(250,188,236,.43)}
 </style>
 </head><body><div class="app" id="app">
 <section class="hero"><img class="hero-img" src="./assets/mav-hero-approved.webp" alt="MÁV FLIRT motorvonat, Zsolt, Mónika, Corky és Léna a Keleti pályaudvaron"><a class="back" href="../" aria-label="Vissza"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m14 4-8 8 8 8M6 12h15"/></svg></a><button id="profile" class="profile" type="button" aria-label="Aktív profil: Zsolt. Váltás Mónikára." title="Profilváltás"><img id="profile-photo" alt="Zsolt profilképe" width="41" height="41" decoding="async"></button><button id="signal" class="sound" aria-pressed="true" title="FLIRT szignál BE · koppintásra kikapcsolás" aria-label="FLIRT szignál kapcsoló">♫</button></section>
@@ -163,12 +174,27 @@
 <div class="rail-history-head"><h3>🕘 Keresési előzmények</h3><button id="rail-history-clear" type="button" class="rail-personal-tool rail-personal-delete">Előzmények törlése</button></div>
 <p class="rail-personal-caption">Legutóbbi 10 keresés · csak ezen a készüléken · profilonként külön</p>
 <div id="rail-history-list" aria-live="polite"></div>
+<button type="button" data-go="rail-backup" class="rail-backup-shortcut">☁ Mentés és visszaállítás</button>
 </section>
 <section id="journeys" class="drawer glass" aria-label="Mentett utazási tervek">
 <h3>🚆 Utazásaim</h3>
 <p class="rail-personal-caption">Közelgő és korábbi saját tervek · Zsolt és Mónika külön · maximum 30 utazás profilonként</p>
 <p class="rail-trip-warning">A dátum nem élő MÁV-menetrend. Az ICS és a Google Naptár 15 perces emlékeztetőt készít, nem igazolt menetidőt. A megosztás kizárja a jegyszámot és a magánjegyzeteket.</p>
 <div id="rail-journey-plans"></div>
+<button type="button" data-go="rail-backup" class="rail-backup-shortcut">⇩ Utazásaim biztonsági mentése</button>
+</section>
+<section id="rail-backup" class="drawer glass" aria-label="MÁV személyes adatok mentése és visszaállítása">
+<h3>🛡️ Smart Rail · Backup & Restore</h3>
+<p class="rail-personal-caption">Mindkét profil (Zsolt és Mónika) kedvencei, keresési előzményei és mentett utazási tervei. Kizárólag helyi JSON-fájl, felhőfeltöltés nélkül.</p>
+<p class="rail-trip-warning">Adatvédelem: a jegyszámok, foglalási adatok, kocsi-, ülőhelyadatok és személyes jegyzetek NEM kerülnek a mentésbe. Ezek csak az eredeti telefonon maradnak.</p>
+<button id="rail-backup-download" type="button" class="rail-backup-primary">⇩ Biztonsági mentés készítése (.json)</button>
+<div class="rail-backup-import">
+<label for="rail-backup-file">Korábbi mentésfájl kiválasztása</label>
+<input id="rail-backup-file" type="file" accept=".json,application/json" aria-label="SH9 MÁV mentésfájl kiválasztása">
+<button id="rail-backup-apply" type="button" class="rail-backup-primary" disabled>✓ Ellenőrzött adatok hozzáadása</button>
+</div>
+<p id="rail-backup-preview" class="rail-backup-preview" role="status" aria-live="polite">A visszaállítás nem írja felül a meglévő útvonalakat. A fájl ellenőrzése után külön jóváhagyás szükséges.</p>
+<p class="rail-personal-caption">Helyi, offline mentés. Dropbox-szinkron nincs bekapcsolva. A mentésfájlt őrizd biztonságos helyen.</p>
 </section>
 <section id="station-help" class="drawer glass" aria-label="Hivatalos állomási információk"><h3>🚉 Állomási információk</h3><p class="footnote" id="station-help-message">Ehhez az állomáshoz nincs ellenőrzött közvetlen megnyitási címünk. Válassz hivatalos szolgáltatást.</p><div class="rail-station-links"><a href="https://mikorindul.hu/keleti">Keleti · indulási tábla ↗</a><a href="https://mikorindul.hu/nyugati">Nyugati · indulási tábla ↗</a><a href="https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/vasutallomas/kazincbarcika">Kazincbarcika · állomásinfó ↗</a><a href="https://mavplusz.hu/">MÁVPlusz · összes állomás ↗</a></div></section>
 <section id="extras" class="drawer glass"><h3>Utazási preferenciák</h3><div class="pref"><label>Utasok<input id="pax" type="number" min="1" max="10" value="2"></label><label>Osztály<select id="class"><option value="2">2. osztály</option><option value="1">1. osztály</option></select></label><label>Ülőhely<select id="seat"><option value="any">Mindegy</option><option value="window">Ablak</option><option value="aisle">Folyosó</option></select></label><label>Kedvezmény<select id="discount"><option>Nincs</option><option>Életkori</option><option>Kártya</option><option>Egyéb</option></select></label><label class="wide"><input id="dog" type="checkbox"> Kisállat / kutya</label><label class="wide"><input id="bike" type="checkbox"> Kerékpár</label></div><button class="save" id="save">Preferenciák mentése</button><p class="footnote">A preferenciák helyben menthetők, nem továbbítjuk automatikusan a MÁV foglalási rendszerébe.</p></section>
@@ -307,4 +333,4 @@ function show(id){const target=$(id);for(const d of document.querySelectorAll('.
  * Keep this named function for the existing profile switch and initial sync(). */
 function loadFav(){window.SH9_MAV_PERSONAL_UI?.render()}
 const pk=()=>`sh9-mav-rail-preferences-v1-${profile==='m'?'monika':'zsolt'}`;function loadPrefs(){let o={};try{o=JSON.parse(localStorage.getItem(pk())||'{}')}catch{};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);if(o[k]!==undefined){if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]}}};$('save').onclick=()=>{const o={};for(const k of ['pax','class','seat','discount','dog','bike']){const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value}try{localStorage.setItem(pk(),JSON.stringify(o))}catch{}msg('Preferenciák mentve')};sync();whenUpdate();window.addEventListener('pageshow',whenUpdate);document.addEventListener('visibilitychange',()=>{if(!document.hidden)whenUpdate()});
-</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script></body></html>
+</script><script src="./rail-journeys-v2.js"></script><script src="./rail-gtfs-config-v1.js"></script><script src="./rail-gtfs-core-v1.js"></script><script src="./rail-gtfs-bridge-v1.js"></script><script src="./rail-google-config-v1.js"></script><script src="./rail-google-routes-v1.js"></script><script src="./rail-google-bridge-v1.js"></script><script src="./rail-personal-v607.js"></script><script src="./rail-journey-manager-v608.js"></script><script src="./rail-backup-v609.js"></script></body></html>
