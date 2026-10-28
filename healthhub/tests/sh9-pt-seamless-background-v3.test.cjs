@@ -8,10 +8,10 @@ const css=fs.readFileSync(path.join(base,'public-transport-grand-v2.css'),'utf8'
 const js=fs.readFileSync(path.join(base,'public-transport-smart-trip-v1.js'),'utf8');
 
 test('Public Transport extends the approved hero behind all four controls without distortions',()=>{
- assert.match(page,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
- assert.match(page,/public-transport-grand-v2\.css\?v=3-seamless-ambient/);
+ assert.match(page,/src="\.\/public-transport-approved-hero-v5\.avif\?v=5"/);
+ assert.match(page,/public-transport-grand-v2\.css\?v=5-approved-art/);
  assert.match(css,/\.shell\.transport-grand::before\{/);
- assert.match(css,/background-image:url\("\.\/public-transport-grand-hero-v2\.avif\?v=2"\)/);
+ assert.match(css,/background-image:url\("\.\/public-transport-approved-poster-v5\.avif\?v=5"\)/);
  assert.match(css,/background-repeat:no-repeat/);
  assert.match(css,/filter:blur\(15px\) saturate\(1\.44\) brightness\(\.82\)/);
  assert.match(css,/\.shell\.transport-grand::after\{/);
