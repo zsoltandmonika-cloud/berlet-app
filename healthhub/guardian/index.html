@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1425">
-<script>if(new URLSearchParams(location.search).get('sh9Transit')==='1')document.documentElement.dataset.sh9Transit='on';</script>
+<script>if(new URLSearchParams(location.search).get('sh9Transit')==='1'){document.documentElement.dataset.sh9Transit='on';if(!location.hash){try{history.scrollRestoration='manual'}catch(_){}}}</script>
 <title>HealthHub · Family Guard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
@@ -651,7 +651,7 @@
 <script src="../sh9-unified-nav-v24.js?v=24"></script>
 <script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=901"></script>
 <script defer src="../../sh9/family-hub/family-notifier-v880.js?v=915-usage-firebreak"></script>
-<script defer src="./guardian-sh9-transit-v927.js?v=927-own-map-glass"></script>
+<script defer src="./guardian-sh9-transit-v927.js?v=932-reload-scroll-top"></script>
 <script defer src="./guardian-sh9-all-bkk-v928.js?v=929-visible-3d-vehicles"></script>
 </body>
 </html>
