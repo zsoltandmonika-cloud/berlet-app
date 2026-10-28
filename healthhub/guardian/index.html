@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1425">
+<script>if(new URLSearchParams(location.search).get('sh9Transit')==='1')document.documentElement.dataset.sh9Transit='on';</script>
 <title>HealthHub · Family Guard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
@@ -93,8 +94,23 @@
 <link rel="stylesheet" href="./guardian-battery-rag-v866.css?v=866-realfill-rag-charge-caption">
 <link rel="stylesheet" href="./guardian-bkk-status-glass-v867.css?v=867-profiled-gtfs-credit">
 <link rel="stylesheet" href="./guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit">
+<link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=927-own-map-glass">
 </head>
 <body>
+<header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
+ <div class="sh9-transit-top-v927">
+  <a class="sh9-transit-back-v927" href="../../sh9/smart-travel/public-transport/bkk/" aria-label="Vissza a BKK Smart Control oldalára">‹</a>
+  <div class="sh9-transit-name-v927"><small>SH9 · GOLDEN STANDARD</small><strong>SH9 Smart Travel</strong></div>
+  <span id="sh9TransitProfileV927" aria-label="Aktív profil">Zsolt</span>
+ </div>
+ <p class="sh9-transit-subtitle-v927">Következő járat · a saját Family Guard térképünkkel. Hivatalos útvonalak és ellenőrzött élő járműjelzések, ha elérhetők.</p>
+ <div class="sh9-transit-actions-v927" aria-label="Közlekedési gyorsműveletek">
+  <button type="button" id="sh9TransitMapV927">🗺️ Térkép</button>
+  <button type="button" id="sh9TransitFavoritesV927">⭐ Kedvenceim</button>
+  <button type="button" id="sh9TransitPlannerV927">📍 Útvonal</button>
+ </div>
+ <p id="sh9TransitStatusV927" role="status">A meglévő BKK-térkép betöltése…</p>
+</header>
 <div class="shell">
 <main>
  <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
@@ -543,6 +559,14 @@
  <button type="button" data-guardian-nav-info="A Továbbiak / Admin oldal a HealthHub főoldaláról érhető el." aria-label="Továbbiak navigáció"><span class="hhNavIcon" aria-hidden="true">•••</span><span>Továbbiak</span></button>
 </nav>
 <div id="guardianNavToast" class="hhNavToast" role="status" aria-live="polite" hidden></div>
+<nav id="sh9TransitNavV927" hidden aria-label="SH9 Golden Standard navigáció">
+ <a href="../../sh9/" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+ <a href="../index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a>
+ <a href="../../sh9/smart-travel/public-transport/bkk/" aria-label="Vissza a BKK Smart Control oldalára"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></a>
+ <button id="sh9TransitNotifierV927" type="button" aria-label="Értesítések"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+ <a href="../index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><span>Admin</span></a>
+</nav>
+<div id="sh9TransitNoticeV927" hidden role="status"></div>
 <script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="./guardian-icons-v784.js?v=784-translucent-svg-icons"></script>
@@ -622,5 +646,6 @@
 <script src="../sh9-unified-nav-v24.js?v=24"></script>
 <script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=901"></script>
 <script defer src="../../sh9/family-hub/family-notifier-v880.js?v=915-usage-firebreak"></script>
+<script defer src="./guardian-sh9-transit-v927.js?v=927-own-map-glass"></script>
 </body>
 </html>

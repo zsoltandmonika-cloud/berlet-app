@@ -234,12 +234,13 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(html,/\.quick a::before\{/);
  assert.match(html,/\.nav\{border-top:1px solid var\(--bkk-edge-glow\)/);
  assert.match(html,/<strong>Következő járat<\/strong>/);
- assert.match(html,/aria-label="Következő járat · SH9 Smart Travel, hivatalos BKK-indulások külső oldalon"/);
+ assert.match(html,/aria-label="Következő járat · saját SH9 Smart Travel térkép és BKK-járatok"/);
  assert.doesNotMatch(html,/<strong>Mikor jön\?<\/strong>/);
- assert.match(html,/Megállói indulások · SH9 Smart Travel/);
+ assert.match(html,/Saját térkép · ellenőrzött BKK-adatok/);
  assert.doesNotMatch(html,/BudapestGO/);
- assert.match(html,/a SH9 Smart Travel központból/i);
- assert.equal([...html.matchAll(/href="https:\/\/go\.bkk\.hu\/"/g)].length,2);
+ assert.match(html,/A saját SH9 Smart Travel térképünkön/i);
+ assert.equal([...html.matchAll(/guardian\/\?sh9Transit=1/g)].length,2);
+ assert.doesNotMatch(html,/href="https:\/\/go\.bkk\.hu\//);
  assert.doesNotMatch(html,/<strong>Indulási tábla<\/strong>/);
  assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
@@ -247,4 +248,86 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.match(pt,/data-service="bkk" href="\.\/bkk\/"/);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
  assert.doesNotMatch(html,/setInterval\(|geolocation\.|supabase\.co/);
+});
+
+
+test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without external GO iframe',()=>{
+ const bkk=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/bkk/index.html'),'utf8');
+ const guardian=fs.readFileSync(path.join(root,'healthhub/guardian/index.html'),'utf8');
+ const skin=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.css'),'utf8');
+ const boot=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.js'),'utf8');
+ const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
+ assert.equal([...bkk.matchAll(/guardian\/\?sh9Transit=1/g)].length,2);
+ assert.doesNotMatch(bkk,/https:\/\/go\.bkk\.hu\//);
+ assert.match(bkk,/<strong>Következő járat<\/strong>/);
+ assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
+ assert.match(guardian,/get\('sh9Transit'\)==='1'/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.css\?v=927-own-map-glass/);
+ assert.match(guardian,/guardian-sh9-transit-v927\.js\?v=927-own-map-glass/);
+ assert.match(guardian,/id="sh9TransitHeaderV927" hidden/);
+ assert.match(guardian,/id="sh9TransitNavV927" hidden/);
+ assert.match(guardian,/>SH9 Smart Travel<\/strong>/);
+ assert.match(guardian,/Következő járat · a saját Family Guard térképünkkel/);
+ assert.equal([...guardian.matchAll(/id="guardianMap"/g)].length,1);
+ assert.equal([...guardian.matchAll(/id="guardianHHNav"/g)].length,1);
+ assert.equal([...guardian.matchAll(/id="sh9TransitNavV927"/g)].length,1);
+ assert.match(guardian,/id="hhBkkWatchlistV814"/);
+ assert.match(guardian,/id="hhTransitPanel"/);
+ assert.match(guardian,/guardian-transit-v791\.js/);
+ assert.match(skin,/:root\[data-sh9-transit="on"\]/);
+ assert.match(skin,/:root\[data-sh9-transit="on"\]\[data-guardian-profile="m"\]/);
+ assert.match(skin,/\.shell>main>:not\(\.map-card\):not\(#hhTransitPanel\)/);
+ assert.match(skin,/#guardianHHNav\{display:none!important\}/);
+ assert.match(skin,/#guardianMap/);
+ assert.match(skin,/--sh9-tr-accent:#a3ddff/);
+ assert.match(skin,/--sh9-tr-accent:#ffd0f0/);
+ assert.match(boot,/if\(!active\(\)\)return/);
+ assert.match(boot,/HH_GUARDIAN_V761\?\.map\?\.resize/);
+ assert.match(boot,/hhBkkWatchToggleV858/);
+ assert.match(boot,/sh9TransitProfileV927/);
+ assert.doesNotMatch(boot,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(|new maplibregl\.Map|supabase\.co|localStorage\.setItem/);
+ assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
+ assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,2);
+});
+
+
+test('v927 SH9 mode is inert on normal Family Guard and activates existing MapLibre without new location requests',()=>{
+ const vm=require('node:vm');
+ const source=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-transit-v927.js'),'utf8');
+ function setup(search,profile='z'){
+  let calls=0,resize=0,toggles=0,scrolled=[];
+  const els=new Map();
+  function element(id){
+   if(!els.has(id))els.set(id,{
+    hidden:true,handlers:{},textContent:'',
+    addEventListener(name,fn){this.handlers[name]=fn},
+    scrollIntoView(){scrolled.push(id)},
+    click(){toggles++; if(id==='hhBkkWatchToggleV858')element('hhBkkWatchContentV858').hidden=false}
+   });
+   return els.get(id);
+  }
+  const doc={readyState:'complete',documentElement:{dataset:{guardianProfile:profile}},
+   getElementById(id){calls++;return element(id)}};
+  const win={location:{search},localStorage:{getItem:()=>profile==='m'?'m':'z'},
+   HH_GUARDIAN_V761:{map:{resize(){resize++}}},
+   requestAnimationFrame(fn){fn()},addEventListener(){},
+   matchMedia(){return {matches:true}}};
+  vm.runInNewContext(source,{window:win,document:doc,URLSearchParams});
+  return {element,doc,stats(){return{calls,resize,toggles,scrolled}}};
+ }
+ const ordinary=setup('');
+ assert.equal(ordinary.stats().calls,0);
+ assert.equal(ordinary.stats().resize,0);
+ const active=setup('?sh9Transit=1','m');
+ assert.equal(active.doc.documentElement.dataset.sh9Transit,'on');
+ assert.equal(active.element('sh9TransitHeaderV927').hidden,false);
+ assert.equal(active.element('sh9TransitNavV927').hidden,false);
+ assert.equal(active.element('sh9TransitProfileV927').textContent,'Mónika');
+ assert.ok(active.stats().resize>=1);
+ active.element('sh9TransitFavoritesV927').handlers.click();
+ assert.equal(active.stats().toggles,1);
+ assert.ok(active.stats().scrolled.includes('hhBkkWatchlistV814'));
+ active.element('sh9TransitMapV927').handlers.click();
+ assert.ok(active.stats().scrolled.includes('guardianMap'));
 });
