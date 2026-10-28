@@ -89,8 +89,9 @@ function launchRail(url){
  // The HH One Android light browser does not reliably support window.open.
  // Same-tab navigation is supported by the Android Back action; no copy/paste.
  if(/Android|iPhone|iPad/i.test(navigator.userAgent)){window.location.assign(url);return true;}
- const opened=window.open(url,'_blank','noopener,noreferrer');
- if(!opened)window.location.assign(url);
+ const link=document.createElement('a');
+ link.href=url;link.target='_blank';link.rel='noopener noreferrer';
+ link.click();
  return true;
 }
 function openRailAction(action){
