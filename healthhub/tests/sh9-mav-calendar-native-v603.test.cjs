@@ -20,7 +20,7 @@ function runPickerController(){
  }
  const buttons=['now','depart','arrive'].map(mode=>({...el('mode-'+mode),dataset:{mode}}));
  const document={getElementById:el,querySelectorAll(selector){return selector==='[data-mode]'?buttons:[]}};
- vm.runInNewContext(html.slice(from,until),{window:{},document,Date,Intl,Number,String,$:el});
+ vm.runInNewContext(html.slice(from,until),{window:{},document,Date,Intl,Number,String,$:el,msg:()=>{}});
  return {els,el,buttons};
 }
 test('Native calendar & time touch targets are visible glass surfaces, not transparent dead overlays',()=>{
