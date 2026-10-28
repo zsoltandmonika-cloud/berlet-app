@@ -446,28 +446,48 @@ async function save(e){
  }catch(err){$('fhSaveInfo').textContent='Nem sikerült menteni: '+err.message}
  finally{save.disabled=false}
 }
-async function authSync(){
- if(!api){$('fhSignIn').hidden=false;$('fhAuthText').textContent='A Supabase-kapcsolat nem érhető el.';announce('Offline vagy hiányzó kapcsolat.');return}
- const {data:{user:current},error}=await api.auth.getUser();
- user=error?null:current;
- authorized=[];
- if(user){
-  const {data,error:aclErr}=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
-  if(aclErr){announce('Profiljogosultság hiba: '+aclErr.message);}
-  else authorized=(data||[]).map(x=>x.profile_key);
+/* v915 firebreak: one session check in flight, no re-fetch/re-subscribe on token refresh. */
+let authSyncPending=null,authSyncQueued=false,authenticatedFor='',subscribedFor='';
+async function authSync(force=false){
+ if(authSyncPending){if(force)authSyncQueued=true;return authSyncPending}
+ if(!force&&user&&authorized.includes(self())&&authenticatedFor===user.id&&liveChannel)return;
+ authSyncPending=(async()=>{
+  if(!api){$('fhSignIn').hidden=false;$('fhAuthText').textContent='A Supabase-kapcsolat nem érhető el.';announce('Offline vagy hiányzó kapcsolat.');return}
+  const {data:{user:current},error}=await api.auth.getUser();
+  user=error?null:current;
+  authorized=[];
+  if(user){
+   const {data,error:aclErr}=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
+   if(aclErr){announce('Profiljogosultság hiba: '+aclErr.message);}
+   else authorized=(data||[]).map(x=>x.profile_key);
+  }
+  $('fhSignIn').hidden=!!user&&authorized.includes(self());
+  $('fhAuthText').textContent=user?'Ehhez a profilhoz nincs hozzáférésed.':'A családi feladatokhoz bejelentkezés szükséges.';
+  profileUi();
+  if(user&&authorized.includes(self())){
+   if(force||authenticatedFor!==user.id||!liveChannel){
+    await loadCategories();await fetchData();subscribe();authenticatedFor=user.id;
+   }
+  }else{
+   authenticatedFor='';subscribedFor='';
+   tasks=[];logs=[];hiddenTasks.clear();hiddenLogs.clear();setStats();render();
+   if(liveChannel){api.removeChannel(liveChannel);liveChannel=null}
+  }
+ })();
+ try{return await authSyncPending}
+ finally{
+  authSyncPending=null;
+  if(authSyncQueued){authSyncQueued=false;w.setTimeout(()=>authSync(true),0)}
  }
- $('fhSignIn').hidden=!!user&&authorized.includes(self());
- $('fhAuthText').textContent=user?'Ehhez a profilhoz nincs hozzáférésed.':'A családi feladatokhoz bejelentkezés szükséges.';
- profileUi();
- if(user&&authorized.includes(self())){await loadCategories();await fetchData();subscribe();}
- else{tasks=[];logs=[];hiddenTasks.clear();hiddenLogs.clear();setStats();render();if(liveChannel){api.removeChannel(liveChannel);liveChannel=null}}
 }
 function subscribe(){
  if(!api||!user)return;
+ if(liveChannel&&subscribedFor===user.id)return;
  if(liveChannel)api.removeChannel(liveChannel);
  liveChannel=api.channel('fh-tasks-'+user.id)
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'hh_family_task_events'},()=>reloadSoon())
   .subscribe();
+ subscribedFor=user.id;
 }
 function showSuccess(message){
  const overlay=$('fhSuccess');if(!overlay)return;
@@ -549,14 +569,19 @@ function wire(){
   const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
   if(error)announce('Belépési hiba: '+error.message);
  });
- w.addEventListener('storage',e=>{if(e.key==='hh-profile'){showHidden=false;authSync()}});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'){showHidden=false;authSync(true)}});
  d.addEventListener('visibilitychange',refreshWhenForeground);
  w.addEventListener('focus',refreshWhenForeground);
  w.addEventListener('pageshow',e=>{if(e.persisted)refreshWhenForeground()});
  d.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('fhSuccess').hidden)hideSuccess();else if(!$('fhSheet').hidden)hideSheet()}});
  if(new URLSearchParams(w.location.search).has('task')){tab='all';d.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab==='all'))}
- if(api)api.auth.onAuthStateChange(()=>w.setTimeout(authSync,0));
- profileUi();authSync();
+ if(api)api.auth.onAuthStateChange((event,session)=>{
+  // SIGNED_IN can fire on tab focus; TOKEN_REFRESHED must not reload data.
+  if(event==='SIGNED_OUT'||event==='USER_UPDATED'||
+     (event==='SIGNED_IN'&&(!user||session?.user?.id!==user.id)))
+   w.setTimeout(()=>authSync(true),0);
+ });
+ profileUi();authSync(true);
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 w.FAMILY_TASKS_V880=Object.freeze({version:'880',get tab(){return tab},get profile(){return self()}});
