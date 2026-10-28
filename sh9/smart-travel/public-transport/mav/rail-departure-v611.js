@@ -144,6 +144,7 @@ function mount(doc,win){
   if(!calculate(val.time,val.travel,val.buffer)){statusLine('Adj meg érvényes állomási időpontot, utazási időt és ráhagyást.');return false}
   if(!save(store,active(),item,val)){statusLine('A helyi mentés nem sikerült. Ellenőrizd a telefon tárhelyét.');return false}
   statusLine('A személyes indulási terv elmentve. A megadott idők nem ellenőrzött BKK/MÁV adatok.');
+  win.SH9_MAV_JOURNEYS_UI?.render();
   return true;
  }
  function renderChecks(settings){
