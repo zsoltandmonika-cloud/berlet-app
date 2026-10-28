@@ -19,6 +19,53 @@
  // Browser DOM markers live ABOVE the WebGL canvas, including the 3D building layer.
  // Keep the source-backed positions, never fall back to a made-up vehicle location.
  const domMarkers=new Map();let domMap=null;
+ // Exactly one live vehicle info card at a time; the original transport markers remain untouched.
+ let activeVehiclePopup=null,activeVehicleId=null;
+ // Pure geometry helper, invoked ONLY on a real user tap (no network or GPS reads).
+ // Keep the card above its own marker and minimize overlap with nearby live markers.
+ function vehiclePopupPlacement(clicked,others=[],viewport=null){
+  const fallback={anchor:'bottom',offset:[0,-57]};
+  if(!clicked||![clicked.left,clicked.right,clicked.top,clicked.bottom].every(Number.isFinite))return fallback;
+  const height=Number.isFinite(clicked.height)?clicked.height:clicked.bottom-clicked.top;
+  const pointX=(clicked.left+clicked.right)/2,pointY=clicked.bottom+6;
+  const gap=Math.max(54,Math.ceil(height)+12);
+  const width=126,cardHeight=96;
+  const bounds=viewport||{left:-Infinity,top:-Infinity,right:Infinity,bottom:Infinity};
+  let best=null;
+  function overlap(a,b,pad=5){
+   const x=Math.max(0,Math.min(a.right,b.right+pad)-Math.max(a.left,b.left-pad));
+   const y=Math.max(0,Math.min(a.bottom,b.bottom+pad)-Math.max(a.top,b.top-pad));
+   return x*y;
+  }
+  for(const rise of [0,38,76,116,156]){
+   for(const dx of [0,-72,72,-132,132]){
+    const dy=-(gap+rise),bottom=pointY+dy;
+    const box={left:pointX+dx-width/2,right:pointX+dx+width/2,top:bottom-cardHeight,bottom};
+    const blocked=others.reduce((sum,r)=>r&&[r.left,r.right,r.top,r.bottom].every(Number.isFinite)?sum+overlap(box,r):sum,0);
+    const spill=Math.max(0,bounds.left+9-box.left)+Math.max(0,box.right-(bounds.right-9))
+     +Math.max(0,bounds.top+9-box.top)+Math.max(0,box.bottom-(bounds.bottom-9));
+    const cost=blocked*50+spill*15+rise*.55+Math.abs(dx)*.65;
+    if(!best||cost<best.cost)best={cost,anchor:'bottom',offset:[dx,dy]};
+   }
+  }
+  return best?{anchor:best.anchor,offset:best.offset}:fallback;
+ }
+ function removeVehiclePopup(){
+  const p=activeVehiclePopup;activeVehiclePopup=null;activeVehicleId=null;
+  if(p&&typeof p.remove==='function')try{p.remove()}catch(_){}
+ }
+ function placementForMarker(wrapper,map){
+  const rect=wrapper?.getBoundingClientRect?.();
+  const viewport=map?.getContainer?.()?.getBoundingClientRect?.()||null;
+  const others=[];
+  for(const marker of domMarkers.values()){
+   const element=marker.getElement?.();
+   if(!element||element===wrapper)continue;
+   const other=element.getBoundingClientRect?.();
+   if(other)others.push(other);
+  }
+  return vehiclePopupPlacement(rect,others,viewport);
+ }
  const MODE_HU={bus:'Busz',tram:'Villamos',trolley:'Trolibusz',metro:'Metró',hev:'HÉV',other:'Járat'};
  function vehicleInfo(vehicle,now=Date.now()){
   const clean=(x,max=120)=>typeof x==='string'?x.trim().slice(0,max):'';
@@ -57,6 +104,7 @@
   return card;
  }
  function removeDom(){
+  removeVehiclePopup();
   for(const marker of domMarkers.values())try{marker.remove()}catch(_){}
   domMarkers.clear();domMap=null;
  }
@@ -106,9 +154,14 @@
     const m=root.HH_GUARDIAN_V761?.map;
     if(!m||!Number.isFinite(newest.lng)||!Number.isFinite(newest.lat))return;
     try{
-     const el=renderVehicleInfo(doc,newest);
-     new root.maplibregl.Popup({offset:14,closeButton:true,className:'hh-bkk-popup-v912 hh-bkk-vehicle-popup-v913'})
-      .setLngLat([newest.lng,newest.lat]).setDOMContent(el).addTo(m);
+     const el=renderVehicleInfo(doc,newest),place=placementForMarker(wrapper,m);
+     removeVehiclePopup();
+     const popup=new root.maplibregl.Popup({
+      anchor:place.anchor,offset:place.offset,maxWidth:'126px',closeButton:true,
+      className:'hh-bkk-popup-v912 hh-bkk-vehicle-popup-v913 hh-bkk-vehicle-popup-v914'
+     }).setLngLat([newest.lng,newest.lat]).setDOMContent(el).addTo(m);
+     activeVehiclePopup=popup;activeVehicleId=newest.id;
+     popup.on?.('close',()=>{if(activeVehiclePopup===popup){activeVehiclePopup=null;activeVehicleId=null;}});
     }catch(_){}
    };
    wrapper.addEventListener('click',e=>{if(e?.stopPropagation)e.stopPropagation();details()});
@@ -141,6 +194,11 @@
     }
    }
    for(const [id,marker] of domMarkers)if(!present.has(id)){marker.remove();domMarkers.delete(id)}
+   if(activeVehicleId&&!present.has(activeVehicleId))removeVehiclePopup();
+   else if(activeVehicleId&&activeVehiclePopup?.setLngLat){
+    const observed=vehicles.find(v=>v.id===activeVehicleId);
+    if(observed)activeVehiclePopup.setLngLat([observed.lng,observed.lat]);
+   }
    return true;
   }catch(_){removeDom();return false}
  }
@@ -213,5 +271,5 @@
    return true;
   }catch(_){return false}
  }
- return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement,vehicleInfo,renderVehicleInfo};
+ return {render,clear,focus,toFeatureCollection,sourceId:ID,makeMarkerElement,vehicleInfo,renderVehicleInfo,vehiclePopupPlacement};
 });
