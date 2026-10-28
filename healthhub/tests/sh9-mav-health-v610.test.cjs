@@ -89,7 +89,7 @@ test('If native picker API is unavailable show amber, not an invented touchscree
  const e=env();delete e.el('rail-date').showPicker;
  const report=health.inspect(e.doc,e.win,NOW);
  assert.equal(row(report,'calendar').state,'warn');
- assert.match(row(report,'calendar').detail,/érintéssel/);
+ assert.match(row(report,'calendar').detail,/érintéssel/i);
  e.nodes.delete('rail-date-trigger');
  // e.el always remakes nodes so override missing getElementById explicitly.
  e.doc.getElementById=id=>id==='rail-date-trigger'?null:e.el(id);
