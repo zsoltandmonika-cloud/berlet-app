@@ -81,13 +81,26 @@
   const boardUrl=()=>routeEngine?.boardFor(from.value)||routeEngine?.URLS.timetable||'https://mavplusz.hu/';
   function emptyState(){
    list.replaceChildren();
-   const card=doc.createElement('div');card.className='rail-empty glass';
-   card.append(span('rail-empty-heading','🚆 Menetrendi adatokra várva'));
-   card.append(span('rail-empty-body','Hitelesített élő járatadat még nincs összekötve az SH9-cel. Korábbi mintajáratokat nem jelenítünk meg valós indulásként.'));
-   const actions=doc.createElement('div');actions.className='rail-empty-actions';
-   actions.append(btn('Állomási indulások ↗',boardUrl()),btn('MÁVPlusz tervező ↗','https://mavplusz.hu/'));
-   card.append(actions);list.append(card);
-   status('Élő adatkapcsolat: nincs · az eredeti MÁV-forrás elérhető egy érintéssel');
+   // Preserve the approved three photo-card positions, but NEVER show fake trains.
+   const options=[
+    {title:'Állomási indulások',info:'Hiteles indulások · aktuális állomás',url:()=>boardUrl()},
+    {title:'MÁVPlusz menetrend',info:'Hivatalos utazástervező',url:()=>routeEngine?.URLS.timetable||'https://mavplusz.hu/'},
+    {title:'Vonatinfó',info:'Valós vonatkövető térkép',url:()=>routeEngine?.URLS.liveTrains||'https://vonatinfo.mav.hu/'}
+   ];
+   options.forEach((item,i)=>{
+    const b=doc.createElement('button');b.type='button';b.className='trainrow rail-provider-row';
+    b.setAttribute('aria-label',item.title+' · hivatalos szolgáltatás megnyitása');
+    const image=span('trainthumb trainthumb-'+i,'');image.setAttribute('aria-hidden','true');
+    const clock=span('clocking','');
+    clock.append(span('times','–:–'),span('duration','Nincs élő adat'));
+    const copy=span('traincopy','');
+    const title=doc.createElement('strong');title.textContent=item.title;
+    copy.append(title,span('rail-train-sub',item.info));
+    b.append(image,clock,copy,span('track','—'),span('arrowright','›'));
+    b.addEventListener('click',()=>open(item.url()));
+    list.append(b);
+   });
+   status('Élő adatkapcsolat: még nincs · a három kártya hivatalos szolgáltatást nyit');
   }
   function rows(data){
    list.replaceChildren();
