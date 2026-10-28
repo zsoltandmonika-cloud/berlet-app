@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const BKK_ROOT='../',GUARDIAN='../../../../../healthhub/guardian/',OFFICIAL='https://bkk.hu/';
+const BKK_ROOT='../',GUARDIAN='../../../../../healthhub/guardian/';
 const HANDOFF='sh9-bkk-grand-planner-handoff-v1',STORE='sh9-bkk-grand-journeys-v1-';
 const MAX_SAVED=40,MAX_AGE=10*60*1000;
 const toast=message=>{const el=$('toast');if(!el)return;el.textContent=message;el.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.hidden=true,4200)};
@@ -63,9 +63,9 @@ const destinations=Object.freeze({
  'Megállói indulások':GUARDIAN+'?sh9Transit=1',
  'Megálló infó':GUARDIAN+'?sh9Transit=1',
  'Indulási tábla':GUARDIAN+'?sh9Transit=1',
- 'Jegyek':OFFICIAL+'jegyek-es-berletek/',
- 'Jegyvásárlás':OFFICIAL+'jegyek-es-berletek/',
- 'Forgalmi információk':OFFICIAL+'bkk-info/'
+ 'Jegyek':'https://bkk.hu/jegyek-es-berletek/',
+ 'Jegyvásárlás':'https://bkk.hu/jegyek-es-berletek/',
+ 'Forgalmi információk':'https://bkk.hu/bkk-info/'
 });
 function go(target){
  const url=destinations[target];if(!url)return;
