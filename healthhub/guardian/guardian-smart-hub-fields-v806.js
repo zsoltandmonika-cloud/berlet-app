@@ -158,7 +158,7 @@
      wrapper.classList.toggle('hh-smart-hub-confirmed-v806',!!state[key]);}
    }
    planButton.disabled=!state.origin||!state.destination;
-   planButton.textContent=planButton.disabled?'🧭 Útvonaltervezés · válassz két helyet':'🧭 Útvonalak újratervezése';
+   planButton.textContent=planButton.disabled?'🧭 Útvonaltervezés · válassz két helyet':'🔄 Útvonalak frissítése';
   }
   function updateMap(place,kind){
    const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
