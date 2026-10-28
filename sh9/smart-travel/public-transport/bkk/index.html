@@ -126,15 +126,15 @@ main{
 @media(max-width:375px){.quick{gap:8px}.quick a{min-height:116px}.quick small{font-size:10.5px}}
 @media(prefers-reduced-motion:reduce){.quick a{transition:none}.quick a:hover{transform:none}}
 
-/* v933 · S24 Ultra first-fold layout: hero + title + four proportional
+/* v934 · S24 Ultra first-fold layout: hero + title + four proportional
    Golden Glass tiles fill the visible screen down to the fixed taskbar.
    Content below remains in the document and accessible via normal scroll.
    No extra JS, GPS, network work or changes to Public Transport launcher. */
 .bkk-first-fold{
  display:flex;
  flex-direction:column;
- min-height:calc(100vh - 74px);
- min-height:calc(100dvh - 72px - env(safe-area-inset-bottom,0px));
+ min-height:calc(100vh - 109px);
+ min-height:calc(100dvh - 107px - env(safe-area-inset-bottom,0px));
 }
 .bkk-first-fold>.hero,.bkk-first-fold>.heading{flex:0 0 auto}
 .bkk-first-fold>.quick{
