@@ -140,7 +140,7 @@ test('v612 UI only presents explicit saved plans; no arrival-to-departure or pha
  assert.match(page,/rail-trip-departure/);
  assert.match(page,/id="rail-date-trigger"/);
  assert.match(page,/bottom:9px;left:6px;width:45px/);
- assert.match(page,/mav-hero-approved\.webp/);
+ assert.match(page,/mav-hero-final-approved-v2\.webp/);
  assert.match(page,/rail-golden-glass-v3/);
  assert.equal(page.indexOf('src="./rail-departure-v611.js"')<page.indexOf('src="./rail-backup-v609.js"'),true);
 });
