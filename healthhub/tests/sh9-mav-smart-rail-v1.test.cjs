@@ -22,7 +22,13 @@ test('Golden visual assets exist, are images, and phone status UI is OS-owned',(
  assert.equal(title.subarray(1,4).toString('ascii'),'PNG');
  assert.ok(hero.length>200000&&photo.length>5000&&title.length>20000);
  assert.match(html,/mav-hero-approved\.webp/);
- assert.match(html,/assets\/title\.png/);
+ assert.doesNotMatch(html,/<img[^>]+class="hero-title-art"/);
+ assert.doesNotMatch(html,/Gyorsan\. Kényelmesen\. Bárhová\./);
+ assert.match(html,/id="profile-photo"/);
+ assert.match(html,/golden-standard-avatars-v529\.js/);
+ assert.match(html,/window\.HH_GOLDEN_AVATARS_V529/);
+ assert.match(html,/\.hero #profile\.profile\{[^}]*width:45px;min-width:45px;max-width:45px;height:45px/);
+ assert.match(html,/:root\[data-profile="m"\] \.hero #profile\.profile/);
  assert.match(html,/rail-train-thumbs-v2\.webp/);
  for(const i of [0,1,2]) assert.match(html,new RegExp('trainthumb-'+i));
  assert.doesNotMatch(html,/(?:12:45|fake-status-bar|signal-strength|battery-100%)/i);
