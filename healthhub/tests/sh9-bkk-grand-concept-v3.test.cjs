@@ -52,3 +52,17 @@ test('Volán 53px service-card sizing retained for BKK concept',()=>{
  assert.match(parity,/\.service\{height:53px;display:grid;grid-template-columns:80px minmax\(0,1fr\) 20px/);
  assert.equal((concept.match(/class="service"/g)||[]).length,3);
 });
+
+test('Golden Shell keeps all five top actions, six utility controls, three services and five taskbar links',()=>{
+ const quick=concept.match(/<section class="quick"[\s\S]*?<\/section>/)?.[0];
+ const utils=concept.match(/<div class="utils"[\s\S]*?<\/div>/)?.[0];
+ const nav=concept.match(/<nav class="bottom"[\s\S]*?<\/nav>/)?.[0];
+ assert.ok(quick&&utils&&nav);
+ assert.equal((quick.match(/<button /g)||[]).length,5);
+ assert.equal((utils.match(/<button /g)||[]).length,6);
+ assert.equal((nav.match(/<a /g)||[]).length,5);
+ assert.equal((concept.match(/class="service"/g)||[]).length,3);
+ assert.match(concept,/class="hero-img"/);
+ assert.doesNotMatch(concept,/class="hero-badge"/);
+ assert.match(concept,/class="back"[^>]+><svg/);
+});
