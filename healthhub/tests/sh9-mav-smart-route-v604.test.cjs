@@ -61,22 +61,32 @@ test('Without licensed source exactly three honest, actionable official provider
  rows[0].click();rows[1].click();rows[2].click();
  assert.deepEqual(b.opened,['https://mikorindul.hu/keleti','https://mavplusz.hu/','https://vonatinfo.mav.hu/']);
 });
-test('Actual route search keeps calendar mode + full date and opens one valid route, while refresh opens MÁV',()=>{
+test('Actual route search stays in SH9 with the selected calendar mode; Google Maps is opt-in',()=>{
  const b=build();b.setMode('arrive');
  b.get('when').value='2026-10-30T16:55';
  b.get('find').onclick();
+ assert.deepEqual(b.opened,[],'Search must not navigate to Google Maps automatically');
+ const panel=b.get('rail-journey-result');
+ assert.ok(panel);
+ assert.match(panel.children.find(x=>x.className==='rail-search-meta').textContent,/Érkezés eddig.*2026/);
+ assert.match(panel.children.find(x=>x.className==='rail-warning').textContent,/Google Térkép-hivatkozás/);
+ assert.match(panel.children.find(x=>x.className==='rail-search-source-info').textContent,/engedélyezett GTFS vagy Google Routes/);
+ const actions=panel.children.find(x=>x.className==='rail-empty-actions');
+ assert.ok(actions);
+ const [maps,mav]=actions.children;
+ assert.equal(maps.textContent,'Google Térkép ↗');
+ assert.equal(mav.textContent,'MÁVPlusz ↗');
+ maps.click();
  assert.equal(b.opened.length,1);
  const u=new URL(b.opened[0]);
  assert.equal(u.hostname,'www.google.com');
  assert.equal(u.searchParams.get('origin'),'Budapest-Keleti');
  assert.equal(u.searchParams.get('destination'),'Kazincbarcika');
  assert.equal(u.searchParams.get('travelmode'),'transit');
- const panel=b.get('rail-journey-result');
- assert.ok(panel);
- assert.match(panel.children.find(x=>x.className==='rail-search-meta').textContent,/Érkezés eddig.*2026/);
- assert.match(panel.children.find(x=>x.className==='rail-warning').textContent,/külső tervezőben/);
- b.get('refresh').onclick();
+ mav.click();
  assert.equal(b.opened[1],'https://mavplusz.hu/');
+ b.get('refresh').onclick();
+ assert.equal(b.opened[2],'https://mavplusz.hu/');
 });
 test('Verified feeds show expandable details and never leak into another route',()=>{
  const b=build(),q=b.api.currentQuery();

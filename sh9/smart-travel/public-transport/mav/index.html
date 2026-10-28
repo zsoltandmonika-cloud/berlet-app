@@ -162,7 +162,7 @@ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
   catch(_){railDate.focus()}
  }
 });
-$('swap').onclick=()=>{const a=$('from').value;$('from').value=$('to').value;$('to').value=a};function valid(){const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){msg('Két különböző állomás szükséges');return false}return true};$('find').onclick=()=>{if(valid()){if(mode!=='now')msg('A választott időpontot a Google Térképen külön állítsd be.');openRailAction('mapRoute')}};$('refresh').onclick=()=>openRailAction('timetable');
+$('swap').onclick=()=>{const a=$('from').value;$('from').value=$('to').value;$('to').value=a};function valid(){const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){msg('Két különböző állomás szükséges');return false}return true};$('find').onclick=()=>{if(valid())msg('A belső útvonalkereső nem töltődött be. Frissítsd az oldalt, vagy válaszd külön a Térkép gombot.')};$('refresh').onclick=()=>openRailAction('timetable');
 
 const railOfficial=window.SH9_MAV_OFFICIAL_V1;
 function launchRail(url){
