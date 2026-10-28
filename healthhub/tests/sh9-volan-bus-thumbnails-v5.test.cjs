@@ -26,7 +26,7 @@ test('Volán v5: no invented tourist-bus, remote image provider or incorrect pho
 test('Volán v5 preserves HD hero image, Golden Glass, MÁV-size cards and existing trip controls',()=>{
  const hero=volan.match(/id="volan-hero" class="hero-img" src="\.\/assets\/volan-hero-final-approved-v2\.webp\?v=2" width="1670" height="942"/);
  assert.ok(hero,'final approved Volán HD hero must remain');
- const art=fs.readFileSync(path.join(base,'volan/assets/volan-hero-final-approved-v2.webp'));
+ const art=fs.readFileSync(path.resolve(__dirname,'../../sh9/smart-travel/public-transport/volan/assets/volan-hero-final-approved-v2.webp'));
  assert.ok(art.length>200000,'must not revert to tiny hero');
  assert.match(volan,/\.volan-bus-thumb\{height:41px/);
  assert.match(volan,/width:80px/);
