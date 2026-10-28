@@ -118,22 +118,20 @@ test('Public Transport v923 launcher has three providers and dedicated BKK landi
  assert.match(page,/data-name="Public Transport" data-href="\.\/public-transport\/"/);
 });
 
-test('Public Transport v917 includes exact approved 941x1672 WEBP and glass hit zones',()=>{
+test('Public Transport Grand V2 serves the approved hero and four tappable Glass navigation choices',()=>{
  const base=path.join(root,'sh9/smart-travel/public-transport');
- const img=fs.readFileSync(path.join(base,'public-transport-hero-approved.webp'));
+ const img=fs.readFileSync(path.join(base,'public-transport-grand-hero-v2.avif'));
  const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
- assert.equal(img.subarray(0,4).toString('ascii'),'RIFF');
- assert.equal(img.subarray(8,12).toString('ascii'),'WEBP');
- assert.equal(img.subarray(12,16).toString('ascii'),'VP8 ');
- assert.equal(img.readUInt16LE(26)&0x3fff,941);
- assert.equal(img.readUInt16LE(28)&0x3fff,1672);
- assert.ok(img.byteLength>200000,'approved high-quality artwork must not be a placeholder');
- assert.match(html,/src="\.\/public-transport-hero-approved\.webp\?v=918"/);
- assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
+ const layout=fs.readFileSync(path.join(base,'public-transport-grand-v2.css'),'utf8');
+ assert.ok(img.byteLength>25000,'real optimized family hero asset is present');
+ assert.equal(img.subarray(4,12).toString('ascii'),'ftypavif');
+ assert.match(html,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
+ assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
  assert.deepEqual([...html.matchAll(/data-service="([^"]+)"/g)].map(x=>x[1]),['bkk','mav','volan']);
- assert.match(html,/poster-hit\.bkk\{top:51\.2%;height:14\.45%\}/);
- assert.match(html,/poster-hit\.mav\{top:66\.55%;height:14\.3%\}/);
- assert.match(html,/poster-hit\.volan\{top:81\.45%;height:14\.45%\}/);
+ assert.match(html,/id="smartTripOpen"/);
+ assert.match(html,/id="smartTripPanel"/);
+ assert.match(layout,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.doesNotMatch(html,/class="poster-hit /);
  assert.match(html,/assetMissing/);
 });
 
@@ -143,15 +141,16 @@ test('Public Transport v918 ships approved artwork without fictitious device sta
  assert.equal(crypto.createHash('sha256').update(img).digest('hex'),'0fb977edf33718c7a40800e799f0dc8bd6cf5b2c37472b749b00187a02adb291');
 });
 
-test('Public Transport v922 shifts only the artboard 23px up, preserving image and tap alignment',()=>{
+test('Public Transport V2 has native tappable choices independent of old image hotspot positions',()=>{
  const html=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(html,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.equal([...html.matchAll(/class="poster-hit /g)].length,3);
- assert.match(html,/src="\.\/public-transport-hero-approved\.webp\?v=918"/);
- assert.match(html,/\.nav\{z-index:12;width:min\(100%,470px\)\}/);
- assert.doesNotMatch(html,/\.nav\{transform:translateY\(-23px\)/);
+ assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
+ assert.match(html,/src="\.\/public-transport-grand-hero-v2\.avif\?v=2"/);
+ assert.match(html,/public-transport-grand-v2\.css/);
+ assert.match(html,/public-transport-smart-trip-golden-v2\.css/);
+ assert.match(html,/public-transport-smart-trip-v1\.js/);
+ assert.doesNotMatch(html,/<a class="poster-hit /);
+ assert.match(html,/<nav class="nav" aria-label="SH9 Golden Standard navigáció">/);
 });
-
 
 test('BKK Smart Control v923 uses exact user-approved hero and preserves launcher golden standard',()=>{
  const crypto=require('node:crypto');
@@ -180,8 +179,8 @@ test('BKK Smart Control v923 uses exact user-approved hero and preserves launche
  assert.match(html,/healthhub\/guardian\/#hhSmartHubDestinationV802/);
  assert.match(html,/healthhub\/guardian\/#hhBkkWatchlistV814/);
  assert.match(html,/id="notifications"/);
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
+ assert.match(pt,/class="transport-visual"/);
+ assert.equal([...pt.matchAll(/class="transport-choice /g)].length,4);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
 });
 test('BKK PDF reader validates official PDF URL and avoids background documents',()=>{
@@ -222,9 +221,9 @@ test('BKK v924 PDF controls are mobile-first, opt-in and preserve all approved h
  assert.match(js,/revok[eE]ObjectURL/);
  assert.match(js,/if\(e\.key==='Tab'\)/);
  assert.doesNotMatch(js,/setInterval\(|geolocation\.|indexedDB|localStorage\.setItem|supabase\.co/);
- assert.match(parent,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(parent,/class="transport-visual"/);
  assert.match(parent,/data-service="bkk" href="\.\/bkk\/grand-concept\/"/);
- assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,1);
+ assert.equal([...parent.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
 });
 
 
@@ -248,7 +247,7 @@ test('BKK v925 premium glass is profile aware, keeps approved image and relabels
  assert.doesNotMatch(html,/<strong>Indulási tábla<\/strong>/);
  assert.match(html,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(html,/bkk-pdf-viewer-v923\.js\?v=924/);
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/class="transport-visual"/);
  assert.match(pt,/data-service="bkk" href="\.\/bkk\/grand-concept\/"/);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
  assert.doesNotMatch(html,/setInterval\(|geolocation\.|supabase\.co/);
@@ -290,8 +289,8 @@ test('BKK v927 launches a true SH9 branded Family Guard MapLibre view without ex
  assert.match(boot,/hhBkkWatchToggleV858/);
  assert.match(boot,/sh9TransitProfileV927/);
  assert.doesNotMatch(boot,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(|new maplibregl\.Map|supabase\.co|localStorage\.setItem/);
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.equal([...pt.matchAll(/class="poster-hit /g)].length,3);
+ assert.match(pt,/class="transport-visual"/);
+ assert.equal([...pt.matchAll(/class="transport-choice /g)].length,4);
  assert.equal([...pt.matchAll(/href="https:\/\/mavplusz\.hu\/"/g)].length,0);
 });
 
@@ -353,7 +352,7 @@ test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guar
  assert.match(render,/if\(source\?\.setData\)source\.setData/);
  assert.match(render,/last\.features\.length===0/);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/class="transport-visual"/);
 });
 
 
@@ -373,7 +372,7 @@ test('v930 Golden Glass header visually hides only the three user-marked paragra
  assert.match(guardian,/id="sh9AllVehiclesToggleV928"/);
  assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(guardian,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
- assert.match(original,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(original,/class="transport-visual"/);
 });
 
 
@@ -397,7 +396,7 @@ test('v931 centers SH9 brand, removes duplicate header Back and adds exactly 35p
  assert.match(guardian,/id="sh9AllVehiclesToggleV928"/);
  assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
  assert.equal([...guardian.matchAll(/id="guardianMap"/g)].length,1);
- assert.match(main,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(main,/class="transport-visual"/);
 });
 
 
@@ -472,8 +471,8 @@ test('BKK v935 first fold trims another 5px from each tile',()=>{
  assert.match(bkk,/\.nav\{position:fixed;z-index:30;left:50%;bottom:0/);
  assert.match(bkk,/:root\[data-profile="m"\]/);
  assert.doesNotMatch(bkk,/setInterval\(|watchPosition\(|geolocation\.|supabase\.co/);
- assert.match(publicTransport,/\.poster-frame\{transform:translateY\(-23px\)\}/);
- assert.equal([...publicTransport.matchAll(/class="poster-hit /g)].length,3);
+ assert.match(publicTransport,/class="transport-visual"/);
+ assert.equal([...publicTransport.matchAll(/class="transport-choice /g)].length,4);
 });
 
 
@@ -495,7 +494,7 @@ test('BKK v936 colors exactly four first-fold SVG pictograms green with glow onl
  assert.match(bkk,/:root\[data-profile="m"\]/);
  assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/class="transport-visual"/);
 });
 
 
@@ -551,7 +550,7 @@ test('BKK v937 one-tap profile pill updates shared profile, Golden Glass theme a
  assert.match(bkk,/src="\.\/bkk-hero-approved\.webp"/);
  assert.match(bkk,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
  const landing=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(landing,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(landing,/class="transport-visual"/);
 });
 
 
@@ -593,7 +592,7 @@ test('BKK v938 timetable buttons open official selected-route search in one tap,
  assert.match(html,/min-height:calc\(100dvh - 117px - env\(safe-area-inset-bottom,0px\)\)/);
  assert.match(html,/<button class="profile" id="profileLabel"/);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/class="transport-visual"/);
 });
 
 
@@ -660,5 +659,5 @@ test('BKK planner v939 departure, arrive-by and verified next three departures',
  assert.equal(matchedTransfer.length,1);
  assert.deepEqual(matchedTransfer[0].matchedLegs.map(x=>x.lineId),['260','17']);
  const pt=fs.readFileSync(path.join(root,'sh9/smart-travel/public-transport/index.html'),'utf8');
- assert.match(pt,/\.poster-frame\{transform:translateY\(-23px\)\}/);
+ assert.match(pt,/class="transport-visual"/);
 });
