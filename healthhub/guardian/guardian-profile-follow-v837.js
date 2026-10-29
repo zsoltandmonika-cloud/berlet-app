@@ -74,6 +74,33 @@
    if(!Number.isFinite(cadence)||cadence<=0)return 2300;
    return Math.min(3400,Math.max(950,Math.round(cadence*.82)));
   }
+  // The moving pin and the follow-camera must use the SAME easing and duration.
+  // No additional sensor, geolocation request, database call or invented GPS fix.
+  function smoothStep(t){return t*t*(3-2*t)}
+  function metresBetween(a,b){
+   if(!a||!b)return Infinity;
+   return Math.hypot(
+    (b[0]-a[0])*111195*Math.cos((a[1]+b[1])*Math.PI/360),
+    (b[1]-a[1])*111195);
+  }
+  function ignoreGpsNoise(previous,next,fix){
+   if(!previous||!fix)return false;
+   const metres=metresBetween(previous,next);
+   // Unknown speed is not assumed to mean stopped: only sub-3m movement
+   // is ignored. A verified (<4km/h) stationary reading can absorb the
+   // larger random satellite scatter, relative to reported accuracy.
+   const stationary=typeof fix.speedKmh==='number'&&fix.speedKmh<4;
+   const threshold=stationary?Math.max(5,Math.min(12,fix.accuracy*.55)):2.8;
+   return metres<threshold;
+  }
+  function alignFollowCamera(fix,center,duration,easing){
+   if(!followOn()||!authorized()||!preferRemote(fix,localFixAt()))return;
+   const map=getMap();
+   if(!map||typeof map.easeTo!=='function')return;
+   map.easeTo({center,zoom:Math.max(map.getZoom?.()||15,15.3),
+    duration,...(easing?{easing}:{})});
+   lastCenteredAt=fix.ts;lastCenteredProfile=fix.profile;
+  }
   function paintCoordinate(fix){
    if(!marker||!fix||!Number.isFinite(fix.ts))return;
    if(fix.ts<=lastPaintTs)return;
@@ -83,27 +110,38 @@
    lastReceiveAt=receivedAt;
    lastPaintTs=fix.ts;
    const age=receivedAt-fix.ts;
-   const delta=prev?Math.hypot(
-    (next[0]-prev[0])*111195*Math.cos(next[1]*Math.PI/180),
-    (next[1]-prev[1])*111195):Infinity;
+   const delta=metresBetween(prev,next);
    const reduce=!!w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-   const canSmooth=!!prev&&delta>=3&&delta<=220&&age>=0&&age<=10000&&
+   const canSmooth=!!prev&&delta>=3&&delta<=220&&age>=0&&age<=15000&&
     !d.hidden&&!reduce&&typeof w.requestAnimationFrame==='function';
+   // A measured stationary device must not wander around the street just
+   // because its satellite fix changes a few metres. Record freshness and
+   // still update the speed bubble, but do not move the pin/camera.
+   if(ignoreGpsNoise(prev,next,fix)){
+    lastPaintTs=fix.ts;
+    if(followOn()){lastCenteredAt=fix.ts;lastCenteredProfile=fix.profile}
+    return;
+   }
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
    moveFrame=null;
    if(!canSmooth){
-    markerCoord=next;marker.setLngLat(next);lastMotionDuration=820;return;
+    markerCoord=next;marker.setLngLat(next);lastMotionDuration=0;
+    alignFollowCamera(fix,next,0);
+    return;
    }
    const token=moveToken,start=w.performance?.now?.()??receivedAt,
     duration=smoothingMs(cadence);
    lastMotionDuration=duration;
+   // MapLibre's eased camera and the on-screen portrait share the same
+   // destination, duration and exact easing curve. The pre-existing
+   // focusLatest() sees this timestamp as handled and does not restart it.
+   alignFollowCamera(fix,next,duration,smoothStep);
    function frame(stamp){
     if(token!==moveToken||!marker||d.hidden||!authorized()||
       !preferRemote(fix,localFixAt()))return;
     const progress=Math.min(1,Math.max(0,(stamp-start)/duration));
-    // Gentle easing, no continued motion after reaching the last measured fix.
-    const eased=progress*progress*(3-2*progress);
+    const eased=smoothStep(progress);
     markerCoord=[
      prev[0]+(next[0]-prev[0])*eased,
      prev[1]+(next[1]-prev[1])*eased
@@ -181,7 +219,11 @@
    const map=getMap();
    if(!map||typeof map.easeTo!=='function')return false;
    if(force||latest.ts!==lastCenteredAt||latest.profile!==lastCenteredProfile){
-    map.easeTo({center:[latest.lng,latest.lat],
+    // Follow the displayed, filtered portrait, not a noisy raw satellite
+    // point. User-driven Follow remains immediate and respects map settings.
+    const visible=markerCoord&&lastPaintTs>=latest.ts
+     ?markerCoord:[latest.lng,latest.lat];
+    map.easeTo({center:visible,
      zoom:Math.max(map.getZoom?.()||15,15.3),
      duration:force?640:lastMotionDuration});
     lastCenteredAt=latest.ts;lastCenteredProfile=latest.profile;
