@@ -11,10 +11,10 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 36
-        versionName = "0.15.9"
-        // v843 unique signed OTA build 36: never reuse the older v0.15.8/build35 binary.
-        // Family Battery Safety requires its own freshly incremented Android build.
+        versionCode = 37
+        versionName = "0.15.10"
+        // v0.15.10/build37 native GPS cadence candidate, above published v0.15.9/build36.
+        // No signed OTA is published by merging: release requires manual approval.
     }
 
     buildFeatures {
