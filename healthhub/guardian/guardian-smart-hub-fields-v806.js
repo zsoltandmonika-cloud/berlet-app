@@ -76,6 +76,8 @@
  // Empty slots are not search results. No new storage, syncing or GPS access.
  function listFavoritePlaces(storage){
   if(!storage||typeof storage.getItem!=='function')return [];
+  const pool=w&&w.HH_TRAVEL_FAVORITES_V972;
+  if(pool?.favoritePlaces)return pool.favoritePlaces();
   const profile=profileId(storage),key=STORE+profile;
   try{
    const slots=normalizedSlots(JSON.parse(storage.getItem(key)||'null'));
@@ -385,16 +387,22 @@
    if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
   function loadSlots(){
+   const pool=w.HH_TRAVEL_FAVORITES_V972;
+   if(pool?.getSlots)return pool.getSlots();
    try{return normalizedSlots(JSON.parse(w.localStorage.getItem(STORE+storedProfile)||'null'))}
    catch(_){return blankSlots()}
   }
   function saveSlots(slots){
+   const pool=w.HH_TRAVEL_FAVORITES_V972;
+   if(pool?.setSlots)return pool.setSlots(slots);
    try{w.localStorage.setItem(STORE+storedProfile,JSON.stringify(normalizedSlots(slots)));return true}
    catch(_){message('A kedvenc címek tárolása ezen a böngészőn nem sikerült.');return false}
   }
   function renderFavorites(){
    const slots=loadSlots();favorites.replaceChildren();
-   if(profileText)profileText.textContent=(storedProfile==='m'?'Mónika':'Zsolt')+' · 10 saját kedvenc hely';
+   if(profileText)profileText.textContent=w.HH_TRAVEL_FAVORITES_V972?
+    '40 közös családi kedvenc hely · BKK / MÁV / Volán':
+    (storedProfile==='m'?'Mónika':'Zsolt')+' · 10 saját kedvenc hely';
    slots.forEach((entry,index)=>{
     const row=d.createElement('div');row.className='hh-smart-hub-favorite-row-v806';
     const name=d.createElement('input');name.type='text';name.maxLength=34;
@@ -458,6 +466,10 @@
   });
   if(w.addEventListener)w.addEventListener('pagehide',()=>{
    stopRequest();for(const kind of modes){if(markers[kind])markers[kind].remove()}
+  });
+  w.addEventListener?.('hh-travel-favorites-changed',()=>{
+   renderFavorites();
+   if(d.activeElement===inputs[active])showSaved(active,inputs[active].value,requestId);
   });
   renderFavorites();updateStyles();
   message('Koppints a Honnan vagy Hová mezőre. Két kiválasztott cím után automatikusan tervezünk.');
