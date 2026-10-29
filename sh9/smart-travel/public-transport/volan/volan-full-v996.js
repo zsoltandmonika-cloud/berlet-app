@@ -146,6 +146,7 @@ async function search(e){
    return;
   }
   display(result.journeys,from,to,when);
+  if(result.journeys.length>0)w.dispatchEvent(new CustomEvent('sh9:volan-results-success',{detail:{count:result.journeys.length}}));
   message('✅ '+result.journeys.length+' közvetlen útvonal · '+result.origin.label+' → '+result.destination.label+'. A járatkártyákon láthatók a pontos megállók.');
  }catch(err){console.error('Volán Smart Search:',err);message('⚠️ A keresés nem sikerült: '+err.message)}
  finally{isSearching=false}
