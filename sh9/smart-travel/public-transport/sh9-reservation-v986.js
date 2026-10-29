@@ -19,7 +19,7 @@ const pax=field('Utasok száma',[['1','1 utas'],['2','2 utas'],['3','3 utas'],['
 const note=d.createElement('p');note.className='sh9-reservation-note-v986';
 note.textContent=service==='volan'?'Busznál a grafikus helyválasztás csak az érintett járatokon, és jellemzően a kezdőállomáson felszállóknak elérhető.':'A menetirány és a szabad helyek a MÁV hivatalos kocsirajzán ellenőrizendők.';
 const preview=d.createElement('div');preview.className='sh9-reservation-preview-v986';
-const action=d.createElement('button');action.type='button';action.textContent='Foglalás a MÁV-nál ↗';
+const action=d.createElement('button');action.type='button';action.textContent='Útvonal átadása a MÁVPlusznak ↗';
 function refresh(){
  const from=d.getElementById('from')?.value.trim()||'',to=d.getElementById('to')?.value.trim()||'';
  const date=d.getElementById('rail-date')?.value||'';
@@ -38,7 +38,15 @@ action.addEventListener('click',()=>{
   }));
  }catch(_){}
  // No undocumented booking deep link, no embedded payment or fabricated seats.
- w.location.assign('https://jegy.mav.hu/');
+ const a=(d.getElementById('from')?.value||'').trim().toLowerCase(),b=(d.getElementById('to')?.value||'').trim().toLowerCase();
+ const date=d.getElementById('rail-date')?.value||'',time=d.getElementById('rail-time')?.value||'';
+ const origin=/^(budapest|budapest-keleti|budapest keleti|keleti pályaudvar)$/.test(a);
+ const destination=/^kazincbarcika(?:,? vasútállomás)?$/.test(b);
+ if(service==='mav'&&origin&&destination&&/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(date)&&/^[0-9]{2}:[0-9]{2}$/.test(time)){
+  const params=new URLSearchParams({ui_itineraryView:'full',fromPlace:'BUDAPEST*::47.4978789,19.0402383::OSM:Budapest',toPlace:'Kazincbarcika, vasútállomás::48.263975,20.628052::hkir:hkir_213692_1',date,time,arriveBy:'false',mode:'WALK,TRANSIT',showIntermediateStops:'true',ignoreRealtimeUpdates:'true',numItineraries:'15'});
+  w.location.assign('https://mavplusz.hu/#/?'+params.toString());return;
+ }
+ w.location.assign('https://mavplusz.hu/');
 });
 body.append(note,preview,action);
 form.append(head,body);root.append(form);
