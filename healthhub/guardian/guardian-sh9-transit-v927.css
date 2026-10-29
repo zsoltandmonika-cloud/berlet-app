@@ -185,3 +185,17 @@
 :root:not([data-sh9-transit="on"]) #hhSh9FamilyLiveLoginV949:focus-visible{
  outline:3px solid var(--guard-cyan,#79c5ff);outline-offset:2px;
 }
+
+
+/* v953 · SH9 Live Vehicles compact brand.
+   Remove the decorative eyebrow in markup. Keep SH9 Smart Travel horizontally
+   centered, lift only its white title above the row's optical center.
+   Scope is the opt-in ?sh9Transit=1 view; standard Family Guard unchanged. */
+:root[data-sh9-transit="on"] #sh9TransitHeaderV927 .sh9-transit-name-v927{
+  transform:translateY(-7px);
+}
+:root[data-sh9-transit="on"] #sh9TransitHeaderV927 .sh9-transit-name-v927 strong{
+  display:block;
+  color:#fff;
+  text-align:center;
+}
