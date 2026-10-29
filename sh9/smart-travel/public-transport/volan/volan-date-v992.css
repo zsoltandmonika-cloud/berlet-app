@@ -1,0 +1,10 @@
+.datetime #rail-date.rail-picker-overlay{pointer-events:none!important}
+.volan-date-dialog-v992[hidden]{display:none!important}
+.volan-date-dialog-v992{position:fixed;z-index:99999;top:50%;left:50%;transform:translate(-50%,-50%);width:min(90vw,380px);padding:20px;display:grid;gap:16px;border:1px solid rgba(169,220,255,.85);border-radius:20px;background:#142a4c;box-shadow:0 0 0 120vmax rgba(1,9,22,.69),0 20px 70px #000a;color:#fff}
+.volan-date-dialog-v992 strong{font-size:16px}
+.volan-date-dialog-v992 input{width:100%;min-height:52px;font-size:18px;border:1px solid #8ccaff;border-radius:10px;background:#fff;color:#14263f;padding:8px;box-sizing:border-box;color-scheme:light}
+.volan-date-dialog-v992>div{display:flex;gap:8px}
+.volan-date-dialog-v992 button{flex:1;min-height:48px;padding:8px;border:1px solid #83b9eb;border-radius:11px;background:#195caa;color:white;font-weight:750}
+.volan-date-dialog-v992 button:first-child{background:#31435d}
+:root[data-profile=m] .volan-date-dialog-v992{border-color:#ffb4e5;background:#39234b}
+:root[data-profile=m] .volan-date-dialog-v992 button:last-child{background:#a83c9e}
