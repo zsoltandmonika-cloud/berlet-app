@@ -53,3 +53,87 @@
  #railPrivateGTFSV2 .rail-private-gtfs-acts-v2{grid-template-columns:minmax(0,1fr)}
  #railPrivateGTFSV2 button{min-height:42px}
 }
+
+/* v977 · MÁV Golden Standard touch targets, without changing hero or taskbar. */
+#planner .stationfields,#planner .datetime{
+ height:76px;min-height:76px
+}
+#planner .stations input{
+ min-height:37px;font-size:11px;padding:2px 5px
+}
+#planner .datebox,#planner .timebox{
+ height:100%;min-height:76px;cursor:pointer
+}
+#planner .swap{
+ min-height:44px;height:44px;min-width:30px;width:30px;margin:0 3px 0 0;
+ touch-action:manipulation
+}
+#planner .stationfields{
+ grid-template-columns:21px minmax(0,1fr) 36px
+}
+#planner .mode{height:38px;min-height:38px}
+#planner .mode button{min-height:32px;touch-action:manipulation}
+#planner .actions button{
+ height:auto;min-height:46px;padding:8px 6px;
+ font-size:10.5px;touch-action:manipulation
+}
+#planner .rail-journey-quick button{
+ min-height:46px;touch-action:manipulation
+}
+#rail-journey-result.rail-journey-result{
+ padding:10px 10px 11px;gap:9px;margin-top:4px
+}
+#rail-journey-result .rail-search-heading-v977{
+ display:flex;align-items:center;gap:9px;min-height:37px
+}
+#rail-journey-result .rail-search-icon-v977{
+ display:grid;place-items:center;box-sizing:border-box;flex:none;
+ width:37px;height:37px;border:1px solid rgba(166,226,255,.75);
+ border-radius:50%;background:linear-gradient(135deg,rgba(15,116,224,.75),rgba(18,63,157,.67));
+ box-shadow:inset 0 1px rgba(255,255,255,.39),0 0 9px rgba(34,158,255,.39);
+}
+#rail-journey-result .rail-search-icon-v977 svg{
+ display:block;width:32px;height:32px
+}
+#rail-journey-result .rail-search-title{
+ color:#dbf5ff;font-size:13px;font-weight:830
+}
+#rail-journey-result .rail-search-route{
+ font-size:12px;line-height:1.35
+}
+#rail-journey-result .rail-search-meta{
+ font-size:11px;line-height:1.35
+}
+#rail-journey-result .rail-empty-actions{
+ gap:8px;margin-top:1px
+}
+#rail-journey-result .rail-official-action{
+ box-sizing:border-box;min-height:48px;padding:9px 6px;
+ border-radius:12px;font-size:11px;line-height:1.3;
+ touch-action:manipulation
+}
+#depart .trainrow{
+ height:auto;min-height:54px;padding:5px 6px;
+ grid-template-columns:clamp(55px,16vw,73px) minmax(79px,92px) minmax(0,1fr) 40px 10px;
+ gap:3px;touch-action:manipulation
+}
+#depart .trainthumb{height:42px}
+#depart .trainrow .times{font-size:11px}
+#depart .trainrow .duration{font-size:10px}
+#depart .trainrow .traincopy strong{font-size:10.5px}
+#depart .rail-gtfs-detail .rail-official-action{
+ min-height:48px;font-size:11px;touch-action:manipulation
+}
+#depart .rail-gtfs-detail .rail-leg-line{
+ min-height:34px;padding:8px;line-height:1.4
+}
+:root[data-profile="m"] #rail-journey-result .rail-search-icon-v977{
+ border-color:rgba(255,200,241,.8);
+ background:linear-gradient(135deg,rgba(214,79,173,.78),rgba(117,58,169,.75));
+ box-shadow:inset 0 1px rgba(255,255,255,.39),0 0 9px rgba(235,95,190,.38)
+}
+@media(max-width:370px){
+ #depart .trainrow{grid-template-columns:54px 76px minmax(0,1fr) 33px 9px;gap:2px}
+ #depart .trainrow .times{font-size:10px}
+ #rail-journey-result .rail-official-action{font-size:10px}
+}
