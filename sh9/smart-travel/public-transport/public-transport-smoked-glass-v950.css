@@ -1,0 +1,110 @@
+/* SH9 Public Transport v950 · Mónika-approved Smoked Golden Glass.
+   The base is the real SH9 Launchpad navy (#0B1425). The four original
+   user-approved WebP images are untouched: no replacement logo, text, vehicle,
+   route destination, card hit box or interaction.
+   The same cached image is reused under its foreground content with CSS only.
+   No JS, request timers, GPS, telemetry or new external dependencies. */
+:root{--sh9-pt-smoked:#0b1425}
+html,body{background:var(--sh9-pt-smoked)!important}
+.shell.transport-grand{background:var(--sh9-pt-smoked)!important}
+/* Previously a saturated, enlarged photo continued under all the cards. */
+.shell.transport-grand::before,.shell.transport-grand::after{display:none!important}
+
+/* Each card keeps its own original imagery and a muted brand-aware rim. */
+.transport-grand .transport-neon-options .choice-bkk{
+ --sh9-pt-original:url("./assets/bkk-approved-card-v5.webp");
+ --sh9-pt-edge:rgba(174,148,220,.35);
+}
+.transport-grand .transport-neon-options .choice-mav{
+ --sh9-pt-original:url("./assets/mav-approved-card-v5.webp");
+ --sh9-pt-edge:rgba(126,179,228,.36);
+}
+.transport-grand .transport-neon-options .choice-volan{
+ --sh9-pt-original:url("./assets/volan-approved-card-v5.webp");
+ --sh9-pt-edge:rgba(214,174,108,.33);
+}
+.transport-grand .transport-neon-options .choice-ai{
+ --sh9-pt-original:url("./assets/smarttrip-approved-card-v5.webp");
+ --sh9-pt-edge:rgba(197,137,189,.35);
+}
+.transport-grand .transport-options.transport-neon-options .transport-choice,
+:root[data-profile="m"] .transport-grand .transport-options.transport-neon-options .transport-choice{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ border:0!important;
+ border-radius:16px;
+ background:var(--sh9-pt-smoked)!important;
+ box-shadow:0 5px 14px rgba(0,0,0,.32)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ transition:transform .15s ease;
+}
+/* Dim the neon tint beneath *everything*, never the main content itself. */
+.transport-grand .transport-neon-options .transport-choice::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:0;
+ pointer-events:none;
+ background-image:
+   linear-gradient(rgba(11,20,37,.69),rgba(11,20,37,.69)),
+   var(--sh9-pt-original);
+ background-position:center;
+ background-size:100% 100%;
+ background-repeat:no-repeat;
+ filter:saturate(.58);
+}
+/* The 1px glass rim remains brand-aware but is no longer a neon halo. */
+.transport-grand .transport-neon-options .transport-choice::after{
+ content:"";
+ position:absolute;
+ inset:1px;
+ z-index:2;
+ pointer-events:none;
+ border:1px solid var(--sh9-pt-edge);
+ border-radius:15px;
+ box-shadow:inset 0 1px rgba(255,255,255,.10);
+}
+/* Bright *original* logos, titles, vehicles, route art and chevrons stay
+   on the foreground. The mask fades near edges where baked-in neon is strongest.
+   Three additive soft focus areas protect left branding, central vehicle/map,
+   and the right chevron. No global brightness/saturation filter on content. */
+.transport-grand .transport-neon-options .transport-choice .choice-art{
+ position:relative;
+ z-index:1;
+ filter:none!important;
+ -webkit-mask-image:
+  radial-gradient(ellipse 41% 85% at 27% 53%,#000 33%,transparent 88%),
+  radial-gradient(ellipse 35% 78% at 70% 52%,#000 36%,transparent 93%),
+  radial-gradient(ellipse 10% 75% at 92% 51%,#000 26%,transparent 94%);
+ mask-image:
+  radial-gradient(ellipse 41% 85% at 27% 53%,#000 33%,transparent 88%),
+  radial-gradient(ellipse 35% 78% at 70% 52%,#000 36%,transparent 93%),
+  radial-gradient(ellipse 10% 75% at 92% 51%,#000 26%,transparent 94%);
+ -webkit-mask-repeat:no-repeat;
+ mask-repeat:no-repeat;
+}
+/* Accessible labels are still present, but are never drawn over the art. */
+.transport-grand .transport-neon-options .choice-accessible{z-index:3}
+/* Keep the approved crisp tap and keyboard/focus behavior. */
+.transport-grand .transport-neon-options .transport-choice:active{
+ transform:scale(.988);
+ filter:none!important;
+}
+@media(hover:hover){
+ .transport-grand .transport-neon-options .transport-choice:hover{
+  transform:translateY(-1px);
+  filter:none!important;
+ }
+}
+.transport-grand .transport-neon-options .choice-ai[aria-expanded="true"]{
+ filter:none!important;
+ box-shadow:0 5px 14px rgba(0,0,0,.32),0 0 0 1px var(--sh9-pt-edge)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ .transport-grand .transport-neon-options .transport-choice{background:#0b1425!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .transport-grand .transport-neon-options .transport-choice{transition:none}
+}
