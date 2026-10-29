@@ -96,7 +96,7 @@
   if(!key)return;
   stop();
   const raw=input[key].value.trim(),local=favorites(raw);
-  draw(local.length?local:favorites('').slice(0,7));
+  draw(raw?local:favorites('').slice(0,7));
   const query=core.queryText(raw);
   if(!allowRemote||!query)return;
   const request=token;
