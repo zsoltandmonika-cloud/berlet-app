@@ -29,14 +29,14 @@ test('v956 BKK Control is one outer glass card, live status first and no extra p
  }
 });
 
-test('v956 moves extra routes ahead of planner in actual DOM, keeping keyboard/tab and visual order aligned',()=>{
+test('v956 retains one BKK card and accessible DOM order after the user-approved v960 catalog move',()=>{
  const start=html.indexOf('<section id="hhTransitPanel"');
- const end=html.indexOf('</section>',html.indexOf('id="hhSmartHubDestinationV802"'))+10;
+ const end=html.indexOf('<div class="hh-transit-v791"',start);
  const segment=html.slice(start,end);
- const keys=['id="hhBkkWatchlistV814"','id="hhBkkCatalogV801"','id="hhSmartHubDestinationV802"'];
+ const keys=['id="hhBkkWatchlistV814"','id="hhSmartHubDestinationV802"','id="hhPlannerTimeV939"','id="hhBkkCatalogV801"','id="hhSmartHubFavoritesV806"'];
  const positions=keys.map(k=>segment.indexOf(k));
  assert.ok(positions.every(i=>i>=0),JSON.stringify(positions));
- assert.ok(positions[0]<positions[1]&&positions[1]<positions[2],JSON.stringify(positions));
+ assert.ok(positions.every((v,i)=>i===0||positions[i-1]<v),JSON.stringify(positions));
  assert.equal((html.match(/id="hhBkkCatalogV801"/g)||[]).length,1);
  assert.equal((html.match(/id="hhBkkWatchlistV814"/g)||[]).length,1);
  assert.equal((html.match(/id="hhSmartHubDestinationV802"/g)||[]).length,1);
