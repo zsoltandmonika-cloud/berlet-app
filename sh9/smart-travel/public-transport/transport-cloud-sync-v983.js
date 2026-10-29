@@ -298,7 +298,12 @@
   d.addEventListener('visibilitychange',()=>{if(!d.hidden)void runCheck()});
   const pathHint=d.createElement('small');pathHint.textContent=
    'Privát mentés: '+sync.paths.dir+' · nagy GTFS-fájl csak kézi jóváhagyás után; nincs háttérfeltöltés vagy Supabase.';
-  panel.append(title,description,buttons,label,note,pathHint);
+  const connectLink=d.createElement('a');
+  connectLink.className='sh9-transport-sync-connect-v983';
+  connectLink.href='../../../../healthhub/';
+  connectLink.textContent='🔗 HealthHub webes Dropbox-kapcsolat megnyitása';
+  connectLink.title='A meglévő HealthHub webes Dropbox-fiókkapcsolat ellenőrzése';
+  panel.append(title,description,buttons,label,note,pathHint,connectLink);
   parent.append(panel);
   setStatus(sync.connected()?'Dropbox-kapcsolat elérhető · privát mentés még nem indult.':
    'A HealthHub webes Dropbox-kapcsolata ezen a böngészőn még nincs csatlakoztatva.');
