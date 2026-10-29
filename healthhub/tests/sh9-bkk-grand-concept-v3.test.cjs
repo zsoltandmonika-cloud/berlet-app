@@ -19,7 +19,7 @@ test('BKK concept repeats MÁV/Volán five-button structure and three mode plann
 });
 test('BKK Grand V3 buttons are wired, local script parses and unverified departures stay absent',()=>{
  assert.match(concept,/bkk-grand-wiring-v1\.js/);
- assert.match(concept,/a meglévő BKK és Family Guard modulban jelennek meg/);
+ assert.doesNotMatch(concept,/BKK · kapcsolt szolgáltatások|Golden Glass · MÁV és Volán dizájnstandard/);
  assert.doesNotMatch(concept,/dizájn-előnézet, a bekötés a következő fázisban/);
  const inline=concept.match(/<script>\s*(\(function\(\)\{'use strict';[\s\S]*?\}\)\(\);)\s*<\/script>/)?.[1];
  assert.ok(inline,'inline concept script');
