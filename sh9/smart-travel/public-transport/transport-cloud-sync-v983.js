@@ -255,7 +255,7 @@
   const confirm=w.confirm?.bind(w)||(()=>false);
   action('☁️ Mentés privát Dropboxba',async()=>{
    if(!sync.connected())throw Error('Csatlakoztasd a HealthHub webes Dropbox-kapcsolatát.');
-   if(!confirm('A saját MÁV GTFS menetrend jelenleg csak helyi használatra van megjelölve. Kifejezetten jóváhagyod, hogy egy privát családi Dropbox-másolat készüljön róla? Nem kerül nyilvános tárhelyre.'))return;
+   if(!confirm('A saját '+MODULES[module]+' GTFS menetrend jelenleg csak helyi használatra van megjelölve. Kifejezetten jóváhagyod, hogy egy privát családi Dropbox-másolat készüljön róla? Nem kerül nyilvános tárhelyre.'))return;
    const result=await sync.push(true);
    setStatus(result.action==='unchanged'?'✅ Már ugyanez a menetrend van a felhőben.':
     '✅ Privát Dropbox-másolat ellenőrizve · '+Math.round(result.bytes/1024)+' KB.');
