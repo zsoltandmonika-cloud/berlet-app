@@ -49,10 +49,13 @@ test('v816 BKK live map follows favorite Watchlist, not hidden unchecked route s
  assert.match(ui.elements.holder.children[0].children[0].textContent,/Nincs kijelölt/);
  assert.equal(ui.urls.length,3);
 });
-test('v816 refuses to claim live data when Edge or APK has no active Family Live session',async()=>{
+test('v949 unauthenticated Family Guard shows Google sign-in without requesting BKK data',async()=>{
  const ui=setup(['bus:260'],null);await flush();
  assert.equal(ui.urls.length,0,'Unauthenticated clients must not call the BKK API');
- assert.match(ui.elements.holder.children[0].children[0].textContent,/Edge-ben/);
+ assert.match(ui.elements.holder.children[0].children[0].textContent,/bejelentkezés gombra/);
+ const button=ui.elements.holder.children[0].children[2];
+ assert.equal(button.hidden,false);
+ assert.match(button.textContent,/Family Live bejelentkezés/);
 });
 test('v816 live source retains verification and polling, no fabricated bus markers',()=>{
  assert.match(source,/validator\.validate\(data\)/);

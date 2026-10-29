@@ -4,7 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1425">
-<script>if(new URLSearchParams(location.search).get('sh9Transit')==='1'){document.documentElement.dataset.sh9Transit='on';if(!location.hash){try{history.scrollRestoration='manual'}catch(_){}}}</script>
+<script>
+/* v949: restore the SH9 view after a Family Live Google OAuth round trip.
+   Keep the URL hash intact: Supabase implicit OAuth reads the auth fragment. */
+try{
+ if(sessionStorage.getItem('hh-sh9-family-login-return-v949')==='1'){
+  sessionStorage.removeItem('hh-sh9-family-login-return-v949');
+  const q=new URLSearchParams(location.search);
+  if(q.get('sh9Transit')!=='1'){
+   q.set('sh9Transit','1');
+   history.replaceState(history.state,'',location.pathname+'?'+q.toString()+location.hash);
+  }
+ }
+}catch(_){}
+if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
+ document.documentElement.dataset.sh9Transit='on';
+ if(!location.hash){try{history.scrollRestoration='manual'}catch(_){}}
+}
+</script>
 <title>HealthHub · Family Guard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
@@ -95,7 +112,7 @@
 <link rel="stylesheet" href="./guardian-battery-rag-v866.css?v=866-realfill-rag-charge-caption">
 <link rel="stylesheet" href="./guardian-bkk-status-glass-v867.css?v=867-profiled-gtfs-credit">
 <link rel="stylesheet" href="./guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit">
-<link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=931-centered-map-plus35">
+<link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=949-glass-family-auth">
 <link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=928-viewport-low-usage">
 </head>
 <body>

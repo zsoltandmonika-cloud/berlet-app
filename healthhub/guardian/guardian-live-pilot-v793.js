@@ -30,6 +30,21 @@ focusButton.hidden=true;
 focusButton.textContent='Élő jármű mutatása ↗';
 focusButton.style.cssText='min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #8ceaff;background:#1a81bd;color:white;font:750 13px system-ui;cursor:pointer;';
 bar.append(p,focusButton);
+// Family Guard + SH9 tablet monitor: reuse the EXISTING Google identity.
+// Neither entry point activates local GPS sharing.
+const loginButton=d.createElement('button');
+if(loginButton){
+ loginButton.id='hhSh9FamilyLiveLoginV949';
+ loginButton.type='button';
+ loginButton.className='sh9-family-live-login-v949';
+ loginButton.textContent='🔐 Family Live bejelentkezés';
+ loginButton.setAttribute('aria-label','Google-belépés a Family Live élő BKK-járműadataihoz');
+ loginButton.hidden=true;
+ const header=d.getElementById('sh9TransitHeaderV927');
+ const controls=d.getElementById('sh9AllVehiclesControlsV928');
+ if(sh9AllMode&&header&&controls)header.insertBefore(loginButton,controls);
+ else bar.append(loginButton);
+}
 holder.prepend(bar);
 if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
  p.textContent='⚠️ BKK élő helyzet · A szükséges modul még nem töltődött be. Frissítsd a lapot.';
@@ -90,6 +105,28 @@ function status(message){
   if(head)head.textContent='BKK-adatkapcsolat · '+message;
  }
 }
+function showLogin(needed){if(loginButton)loginButton.hidden=!needed;}
+if(loginButton)loginButton.addEventListener('click',async()=>{
+ if(loginButton.disabled)return;
+ const client=auth.getClient&&auth.getClient();
+ if(!client){status('Family Live bejelentkezés nem elérhető');return;}
+ loginButton.disabled=true;
+ loginButton.textContent='🔐 Google-belépés megnyitása…';
+ try{
+  // Preserve the original, already configured OAuth redirect path. A temporary
+  // same-tab navigation hint restores ?sh9Transit=1 on the return page.
+  if(sh9AllMode)try{w.sessionStorage?.setItem('hh-sh9-family-login-return-v949','1')}catch(_){}
+  const {error}=await client.auth.signInWithOAuth({
+   provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}
+  });
+  if(error)throw error;
+ }catch(e){
+  if(sh9AllMode)try{w.sessionStorage?.removeItem('hh-sh9-family-login-return-v949')}catch(_){}
+  loginButton.disabled=false;
+  loginButton.textContent='🔐 Family Live bejelentkezés';
+  status('Google-belépés nem indult: '+(e?.message||'kapcsolati hiba'));
+ }
+});
 function clear(){
  lastVehicles=[];lastVerified=null;lastSourceSnapshot=null;
  updateLiveButton();
@@ -142,12 +179,15 @@ async function poll(){
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
-  if(!client){status('a HealthHub bejelentkezés nem érhető el');clear();return}
+  if(!client){showLogin(false);status('a HealthHub bejelentkezés nem érhető el');clear();return}
   const {data:{session}}=await client.auth.getSession();
   if(!session||!session.access_token){
-   status('Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
+   showLogin(true);
+   status(sh9AllMode?'Családi Google-belépés szükséges az élő BKK-adatokhoz. Használd a fenti bejelentkezés gombot.':
+    'Family Live bejelentkezés szükséges az élő BKK-járművekhez. Koppints a bejelentkezés gombra.');
    clear();return
   }
+  showLogin(false);
   const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?'+
    (sh9AllMode?'all=1&bbox='+encodeURIComponent(bbox):'routes='+encodeURIComponent(favoriteKeys().join(',')));
   const abort=sh9AllMode&&w.AbortController?new w.AbortController():null;
@@ -156,7 +196,7 @@ async function poll(){
    'Authorization':'Bearer '+session.access_token,'apikey':cfg.publishableKey,'Accept':'application/json'
   }});
   const data=await res.json().catch(()=>null);
-  if(!res.ok){clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
+  if(!res.ok){if(res.status===401)showLogin(true);clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
   const parsed=sh9AllMode?validator.validate(data,Date.now(),3500):validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
   if(sh9AllMode){
