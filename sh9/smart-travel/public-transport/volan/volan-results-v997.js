@@ -76,7 +76,7 @@ function render({list,from,to,when,results,stopById,wall}){
     const st=stopById.get(stop[0]),arr=wall(j.day,stop[1]),dep=wall(j.day,stop[2]);
     row.append(el('strong','',time(arr)));
     const name=el('span','',st?.name||stop[0]);
-    if(stop[2]-stop[1]>0)name.append(el('small','','Érkezés '+time(arr)+' · indulás '+time(dep)+(stop[2]-stop[1]>=10?' · '+(stop[2]-stop[1])+' perc várakozás (WC nem igazolt)':''));
+    if(stop[2]-stop[1]>0)name.append(el('small','','Érkezés '+time(arr)+' · indulás '+time(dep)+(stop[2]-stop[1]>=10?' · '+(stop[2]-stop[1])+' perc várakozás (WC nem igazolt)':'')));
     row.append(name);stops.append(row);
    }
    intermediate.append(stops);timeline.append(intermediate);
