@@ -34,7 +34,9 @@
   const count=d.createElement('small');count.className='hh-family-favorites-count-v972';
   const list=d.createElement('div');list.className='hh-family-favorites-list-v972';
   panel.append(bar,search,count,list);
-  route?.insertAdjacentElement('afterend',panel);
+  const opener=d.getElementById('hhTravelFavOpenV972');
+  if(opener)opener.insertAdjacentElement('afterend',panel);
+  else route?.insertAdjacentElement('afterend',panel);
   function render(){
    const all=api.favoritePlaces(),term=search.value.trim().toLocaleLowerCase('hu-HU');
    const data=all.filter(p=>[p.displayName,p.name,p.subtitle].some(t=>String(t||'').toLocaleLowerCase('hu-HU').includes(term)));
@@ -59,6 +61,7 @@
       field.dispatchEvent(new Event('input',{bubbles:true}));
       field.dispatchEvent(new Event('change',{bubbles:true}));
       panel.hidden=true;
+      d.getElementById('hhTravelFavOpenV972')?.setAttribute('aria-expanded','false');
       field.blur();
      });actions.append(btn);
     }
