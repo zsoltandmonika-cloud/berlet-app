@@ -56,7 +56,7 @@ test('v959 one-card is purely presentational: no new tracking, network or map in
  for(const code of [normal, page.slice(page.indexOf('<style id="guardian-bkk-family-first-paint-v959">'),page.indexOf('</style>',page.indexOf('<style id="guardian-bkk-family-first-paint-v959">')))]){
   assert.doesNotMatch(code,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(|supabase\.co|new maplibregl|XMLHttpRequest/);
  }
- assert.match(page,/Forrás: BKK Zrt\., CC BY 4\.0/);
+ assert.match(page,/Forrás: <a href="https:\/\/opendata\.bkk\.hu\/data-sources"/);
  assert.match(page,/id="guardianMap"/);
  assert.match(page,/id="guardianHHNav"/);
  assert.match(page,/id="sh9TransitNavV927"/);

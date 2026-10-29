@@ -36,7 +36,14 @@ function setFavoriteTracked(id,enabled){
  return true;
 }
 const info=id=>routes&&routes[id];
-function status(s){const x=$('hhTransitStatus');if(x)x.textContent=s}
+function status(s){
+ const x=$('hhTransitStatus');if(!x)return;
+ // Routine GTFS loading/success and per-route toggles never occupy the UI.
+ // Actual failures or stale data must remain visible to the user.
+ const warning=/⚠️|hiba|nem érhet|nem siker|frissítésre vár|nem tölt|hiány/i.test(String(s));
+ x.textContent=warning?String(s):'';
+ x.hidden=!warning;
+}
 function checked(id){return selected.has(id)}
 function validCoord(x){return Array.isArray(x)&&x.length===2&&x.every(Number.isFinite)&&Math.abs(x[0])<=180&&Math.abs(x[1])<=90}
 function validate(doc){
@@ -326,7 +333,7 @@ function setProfile(p){
  if(catalog&&catalog.setProfile)catalog.setProfile(profile);
 }
 function toggleVariant(id,index,enabled){if(!info(id))return;const all=info(id).variants.map((_,i)=>i);const old=Array.isArray(prefs[profile][id])?prefs[profile][id]:all;const next=new Set(old);if(enabled)next.add(index);else next.delete(index);prefs[profile][id]=[...next].sort((a,b)=>a-b);savePrefs();showSelected();renderDirections();renderCards()}
-function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();const title=d.createElement('p');title.textContent='Irányok külön, a BKK tényleges végállomásneveivel · menetrendi útvonal';host.append(title);for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');label.className='hh-transit-dir hh-transit-dir--'+(r.mode==='bus'?'bus':r.mode==='tram'?'tram':r.mode==='hev'?'hev':'other');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
+function renderDirections(){const host=$('hhTransitDirectionsV791');if(!host)return;host.replaceChildren();/* Labels and checkboxes are self-explanatory. */for(const id of IDS){const r=info(id);if(!r)continue;const header=d.createElement('strong');header.textContent=(r.mode==='bus'?'🚌 ':'🚋 ')+id;host.append(header);r.variants.forEach((v,i)=>{const label=d.createElement('label'),cb=d.createElement('input'),span=d.createElement('span');label.className='hh-transit-dir hh-transit-dir--'+(r.mode==='bus'?'bus':r.mode==='tram'?'tram':r.mode==='hev'?'hev':'other');cb.type='checkbox';const sel=prefs[profile][id];cb.checked=!Array.isArray(sel)||sel.includes(i);cb.addEventListener('change',()=>toggleVariant(id,i,cb.checked));span.textContent=v.headsign||('Változat '+(i+1));label.append(cb,span);host.append(label)})}}
 function init(){
  if(!$('hhTransitPanel'))return;
  profile=w.localStorage&&w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';

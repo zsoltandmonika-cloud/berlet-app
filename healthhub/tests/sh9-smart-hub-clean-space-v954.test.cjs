@@ -23,13 +23,12 @@ test('v954 removes default onboarding chatter, not core controls or live status 
  assert.match(css,/\.hh-smart-hub-auto-v806\[hidden\]\{\s*display:none!important/);
 });
 
-test('v954 important BKK attribution stays retrievable but long text is folded by default',()=>{
- assert.match(html,/<details class="hh-smart-hub-sources-v954">/);
- assert.match(html,/<summary>ⓘ Adatok és pontosság<\/summary>/);
- assert.match(html,/Forrás: © OpenStreetMap-közreműködők · Photon \(komoot\)/);
- assert.match(html,/A megállók és az útvonalak hivatalos BKK GTFS-adatok/);
- const block=html.match(/<details class="hh-smart-hub-sources-v954">([\s\S]*?)<\/details>/)?.[1];
- assert.ok(block&&block.includes('BKK GTFS')&&block.includes('OpenStreetMap'));
+test('v961 clean card removes verbose source disclosure; source attributions remain in existing BKK catalog',()=>{
+ assert.doesNotMatch(html,/<details class="hh-smart-hub-sources-v954">/);
+ assert.doesNotMatch(html,/Adatok és pontosság/);
+ assert.match(html,/id="hhBkkCatalogV801"/);
+ assert.match(html,/BKK Zrt\., CC BY 4\.0<\/a>/);
+ assert.match(html,/© OpenStreetMap-közreműködők<\/a> · Photon \(komoot\)/);
  assert.match(css,/#hhSmartHubDestinationV802 \.hh-smart-hub-sources-v954/);
 });
 
