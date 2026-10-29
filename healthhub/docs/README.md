@@ -1,6 +1,8 @@
 # HealthHub · Living Architecture & Development Documentation
 **Utolsó karbantartás: 2026-10-22** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
 
+**Golden Standard UX alapelv:** [Csendes prémium: a minőség nem reklámfelirat](./GOLDEN-STANDARD-RULE.md#quiet-prestige--the-golden-standard-must-not-advertise-itself-2026-10-29). Minden HH/SH9 fejlesztésnél kötelező ellenőrzési pont.
+
 ## 🏛️ A rendszer jelenlegi műszaki kiindulópontja
 - **[Universal AI Intelligence Core · Golden Standard v1](./SH9_AI_INTELLIGENCE_CORE_GOLDEN_STANDARD_V1.md)**: minden új projekt AI / Usage / Reporting / Self-Health / Self-Healing / Self-Improvement alapja, Lite/Standard/Critical. Backlog.
 - **[Guardian Intelligence v1.1 · három intelligens motor + AI Squad](./SH9_GUARDIAN_INTELLIGENCE_EPIC_V1.md)**: külső read-only Technology Scout, scope-hoz kötött Mehet és külön release gate. Backlog.

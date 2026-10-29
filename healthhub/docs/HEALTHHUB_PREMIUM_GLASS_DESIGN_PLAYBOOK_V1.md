@@ -59,6 +59,18 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 - **Mónika pink golden rule (2026-10-14):** a Digital Health jóváhagyott Budapest-est / pink LED Hero színvilágához finoman simuljon. Sötét grafit-mélykék alap, nagyon kevés, az oldal élén megjelenő meleg pink fény. Finom rose peremek a csempéken, rose kiemelés a profilfotón, aktív és fókuszjelzéseken, a Daily Intelligence csempéken. **Nem pink háttér, nem telített pink kártyák.** Zsolt kék-cyan témája változatlan marad. A nézőpont és jóváhagyott Hero karakter megőrzése elsődleges; a színezés CSS-szintű, nem képszerkesztés. Implementációs referencia: [Premium Glass Home CSS](../premium-glass-home-v520.css), kizárólag `?hhpremium=1` opt-in módban, `data-hhpg-profile="m"` feltétellel.
 - Ne legyenek egymásnak ellentmondó modulonkénti profilváltók, fontok, kártyaradiusok vagy navigációs jelölések.
 
+### 3/A. Csendes prémium · a minőség ne legyen reklámfelirat
+
+**„Az igazi prémium minőség nem hirdeti magát. Felismerhető.”** Ez a HealthHub és az SH9 kötelező vizuális szabálya, nem puszta stíluspreferencia. A Savile Row-i szabászat mintájára a jó arány, anyagszerűség, tipográfia, kifogástalan részletek és következetes működés mutatják meg az értéket.
+
+- A **Golden Standard**, **Premium**, **Elite**, **Luxury**, **Gold** vagy más, kizárólag a dizájnt dicsérő címke **ne jelenjen meg a felhasználói fejlécben, Hero-n, csempén, navigáción, badge-en, díszfeliraton vagy láblécben**.
+- A prémium hatást a visszafogott navy smoked glass, finom színperem, pontos igazítások, kiemelkedően jó jóváhagyott képek, megfelelő kontraszt és valóban működő funkciók teremtsék meg. **Nincs „nézd, milyen prémium vagyok” kiírás.**
+- Minden képernyőn csak a felhasználónak hasznos tartalom maradjon: funkció neve, tényleges állapota, lényeges információ, szükséges adatforrás- és biztonsági közlés. A pusztán dekoratív fejlesztői / dizájnszabványos kiírás menjen a dokumentációba.
+- Kivétel lehet egy **valódi, felhasználó szempontjából jelentéssel bíró** termék-/előfizetéscsomag hivatalos neve, valamint a fejlesztői dokumentáció és diagnosztika. A szabály nem indokolhat lényeges adatok elrejtését.
+- **Elfogadási próba:** a képernyő jelzőszavak nélkül is azonnal prémium hatású, használható, hiteles és felismerhető? Ha nem, a megjelenésen kell dolgozni, nem reklámfeliratot ráírni.
+
+Részletes normatív szabály: [GOLDEN-STANDARD-RULE.md](./GOLDEN-STANDARD-RULE.md).
+
 ## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép
 
 **Felhasználó által jóváhagyott navigációs sorrend (2026-10-14):** a Home ne széttöredezett linkgyűjtemény, hanem egységes, 3 oszlopos × 4 soros, **12 Premium Glass navigációs csempéből** álló, kompakt belépőoldal legyen.
