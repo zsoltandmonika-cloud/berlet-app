@@ -12,7 +12,7 @@ if(!engine||!ui?.showTimetable||!planner||!search||!refresh)return;
 const DB='sh9-mav-private-gtfs-v2',STORE='datasets',KEY='household';
 const MAX_FILE=22*1024*1024;
 const prevFind=search.onclick,prevRefresh=refresh.onclick;
-let data=null,processing=false,dbPromise=null;
+let data=null,processing=false,dbPromise=null,stationNames=[];
 const section=d.createElement('details');
 section.className='rail-private-gtfs-v2';
 section.id='railPrivateGTFSV2';
@@ -90,12 +90,12 @@ function activate(raw){
  const stations=d.getElementById('rail-popular-stations');
  // All published GTFS station names are searchable, without uploading any
  // addresses. A bounded datalist avoids rendering 1200 options on S24.
- let names=[...new Set(data.stops.map(row=>row[1]))].sort((a,b)=>a.localeCompare(b,'hu'));
+ stationNames=[...new Set(data.stops.map(row=>row[1]))].sort((a,b)=>a.localeCompare(b,'hu'));
  const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU');
  function suggestions(term){
   if(!stations)return;
   const t=fold(term).trim();
-  const matching=t?names.filter(n=>fold(n).includes(t)).slice(0,45):names.filter(n=>
+  const matching=t?stationNames.filter(n=>fold(n).includes(t)).slice(0,45):stationNames.filter(n=>
    /Budapest-Keleti|Budapest-Nyugati|Budapest-Déli|Miskolc-Tiszai|Kazincbarcika|Budapest-Kelenföld/.test(n)).slice(0,45);
   const frag=d.createDocumentFragment();
   for(const name of matching){
@@ -112,7 +112,7 @@ function activate(raw){
  }
  suggestions($('from')?.value||'');
  status('✓ Saját MÁV menetrend használatra kész · '+data.trips.length.toLocaleString('hu-HU')+
-  ' menet · '+names.length.toLocaleString('hu-HU')+' állomás · verzió: '+
+  ' menet · '+stationNames.length.toLocaleString('hu-HU')+' állomás · verzió: '+
   String(data.feedVersion||'ismeretlen').slice(0,70)+'.');
  summary.textContent='✅ MÁV GTFS · saját menetrend aktív';
  return true;
@@ -158,7 +158,7 @@ input.addEventListener('change',async()=>{
 });
 remove.addEventListener('click',async()=>{
  try{
-  await clearStored();data=null;status('A saját menetrend törölve. A MÁV hivatalos keresője továbbra is elérhető.');
+  await clearStored();data=null;stationNames=[];status('A saját menetrend törölve. A MÁV hivatalos keresője továbbra is elérhető.');
   summary.textContent='🚆 MÁV GTFS · saját menetrend betöltése';
  }catch(_){status('A helyi tároló törlése nem sikerült.')}
 });
