@@ -1,6 +1,7 @@
 /* SH9 Smart Rail · v2 private full-network MÁV GTFS importer.
  * No published train data, no external uploads, no Supabase, no tracking.
- * Operator-selected local-only JSON stays in this browser's IndexedDB.
+ * The imported JSON stays in IndexedDB unless its owner explicitly opts in
+ * to private family Dropbox backup using the separate shared transport adapter.
  */
 (function(w,d){
 'use strict';
@@ -20,7 +21,7 @@ const summary=d.createElement('summary');
 summary.textContent='🚆 MÁV GTFS · saját menetrend betöltése';
 const body=d.createElement('div');body.className='rail-private-gtfs-body-v2';
 const expl=d.createElement('p');
-expl.textContent='Az eredeti MÁV GTFS-ből készített helyi JSON-fájlt válaszd ki. Az adatok csak ezen a készüléken maradnak, nem kerülnek GitHubra, Dropboxba vagy a Supabase-be.';
+expl.textContent='Az eredeti MÁV GTFS-ből készített helyi JSON-fájlt válaszd ki. Alapból csak ezen a készüléken marad; privát Dropbox-másolat kizárólag külön jóváhagyással készül. GitHubra vagy Supabase-be nem kerül.';
 const line=d.createElement('div');line.className='rail-private-gtfs-acts-v2';
 const input=d.createElement('input');input.type='file';input.accept='.json,application/json';
 input.id='railPrivateFileV2';input.setAttribute('aria-label','Saját MÁV menetrendi JSON betöltése');
@@ -117,6 +118,25 @@ function activate(raw){
  summary.textContent='✅ MÁV GTFS · saját menetrend aktív';
  return true;
 }
+async function importSyncedDataset(raw){
+ const candidate=verified(raw);
+ if(!candidate)throw Error('A felhőben kapott menetrendi állomány nem ellenőrzött.');
+ // Never discard the working dataset before a durable IndexedDB commit.
+ await saveStored(candidate);
+ if(!activate(candidate))throw Error('A mentett menetrend nem aktiválható.');
+ status(info.textContent+' Privát Dropboxból visszaállítva erre a telefonra.');
+ return true;
+}
+function syncIntegration(){
+ const core=w.SH9_TRANSPORT_CLOUD_SYNC_V983;
+ if(!core?.mount)return;
+ w.SH9_MAV_GTFS_CLOUD_V983=core.mount(w,d,{
+  module:'mav',mountId:'railPrivateGTFSV2',
+  readLocal:()=>data,
+  validate:raw=>!!verified(raw),
+  importLocal:importSyncedDataset
+ });
+}
 function searchRoute(fallback){
  if(processing)return;
  if(!data){
@@ -166,5 +186,11 @@ readStored().then(raw=>{
  if(!raw){status('Még nincs saját MÁV GTFS-fájl betöltve.');return}
  if(!activate(raw))status('A korábban mentett menetrend hibás vagy nem támogatott.');
 }).catch(()=>status('Nem érhető el a helyi tároló. A JSON-fájlt ettől még kipróbálhatod.'));
-w.SH9_MAV_PRIVATE_GTFS_V2=Object.freeze({get active(){return !!data},getDataset(){return data},version:'2+979-board'});
+w.SH9_MAV_PRIVATE_GTFS_V2=Object.freeze({
+ get active(){return !!data},
+ getDataset(){return data},
+ importSyncedDataset,
+ version:'2+983-cloud'
+});
+syncIntegration();
 })(typeof window!=='undefined'?window:null,typeof document!=='undefined'?document:null);
