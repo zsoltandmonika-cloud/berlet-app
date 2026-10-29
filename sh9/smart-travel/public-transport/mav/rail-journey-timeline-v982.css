@@ -1,0 +1,21 @@
+/* v982 Smart Rail Journey Timeline: native, local rendering, no requests. */
+#depart .rail-timeline-v982{gap:10px;padding:13px 11px;border:1px solid rgba(198,231,255,.48);background:linear-gradient(135deg,rgba(27,64,109,.80),rgba(28,38,80,.82));font-size:12px}
+#depart .rail-timeline-head-v982{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:4px}
+#depart .rail-timeline-head-v982 .rail-empty-heading{font-size:13px;color:#f4faff}
+#depart .rail-timeline-tag-v982{padding:5px 9px;border-radius:20px;background:rgba(184,217,255,.13);border:1px solid rgba(184,217,255,.25);font-size:10px;font-weight:750}
+#depart .rail-timeline-leg-v982{position:relative;display:flex;flex-direction:column;gap:0}
+#depart .rail-timeline-leg-v982:before{content:"";position:absolute;z-index:0;left:62px;top:15px;bottom:15px;width:2px;background:linear-gradient(#80b8ff,#b3a0ff,#3addae)}
+#depart .rail-timeline-point-v982{display:grid;grid-template-columns:49px 14px minmax(0,1fr);gap:7px;align-items:center;min-height:35px;position:relative;z-index:1}
+#depart .rail-timeline-time-v982{font-size:13px;font-weight:850;color:#f8fcff;font-variant-numeric:tabular-nums}
+#depart .rail-timeline-dot-v982{width:11px;height:11px;border-radius:50%;border:2px solid #70b7ff;background:#142d56;box-shadow:0 0 0 3px rgba(106,163,248,.12)}
+#depart .arrival .rail-timeline-dot-v982{border-color:#40dc9e;background:#0e453d}
+#depart .rail-timeline-place-v982{font-size:12px;font-weight:800;line-height:1.35;overflow-wrap:anywhere}
+#depart .rail-timeline-ride-v982{display:grid;gap:3px;margin:2px 0 5px 70px;padding:8px 9px;border-radius:9px;background:rgba(78,135,199,.14);border:1px solid rgba(152,199,246,.16)}
+#depart .rail-timeline-train-v982{font-size:11px;font-weight:780;color:#eaf6ff}
+#depart .rail-timeline-duration-v982{font-size:10px;color:#c8dcf5}
+#depart .rail-timeline-transfer-v982{margin:4px 0 8px 70px;border-radius:8px;padding:8px;background:rgba(245,184,89,.13);color:#ffe2b8;font-weight:780;font-size:11px}
+:root[data-profile="m"] #depart .rail-timeline-v982{background:linear-gradient(135deg,rgba(86,42,106,.84),rgba(53,28,88,.84));border-color:rgba(255,202,243,.45)}
+:root[data-profile="m"] #depart .rail-timeline-leg-v982:before{background:linear-gradient(#ff9cde,#ca9bff,#40dc9e)}
+:root[data-profile="m"] #depart .departure .rail-timeline-dot-v982{border-color:#ff9cde}
+:root[data-profile="m"] #depart .rail-timeline-ride-v982{background:rgba(187,105,177,.14);border-color:rgba(255,180,232,.18)}
+@media(max-width:370px){#depart .rail-timeline-point-v982{grid-template-columns:45px 14px minmax(0,1fr);gap:5px}#depart .rail-timeline-leg-v982:before{left:56px}#depart .rail-timeline-ride-v982,#depart .rail-timeline-transfer-v982{margin-left:64px}}
