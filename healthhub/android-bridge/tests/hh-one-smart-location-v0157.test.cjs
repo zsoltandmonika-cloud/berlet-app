@@ -10,10 +10,10 @@ const worker=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const main=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
 const admin=read('healthhub/hh-one-rag-v500.js');
-test('v0.15.9 build36 is same OTA-signed application with verified FLP dependency',()=>{
+test('v0.15.10 build37 is same OTA-signed application with verified FLP dependency',()=>{
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
- assert.match(gradle,/versionName = "0\.15\.9"/);
- assert.match(gradle,/versionCode = 36/);
+ assert.match(gradle,/versionName = "0\.15\.10"/);
+ assert.match(gradle,/versionCode = 37/);
  assert.match(gradle,/play-services-location:21\.3\.0/);
 });
 test('native background location FGS requests FLP before supported Android fallback',()=>{
