@@ -243,7 +243,7 @@
      ?'Gyorsabb utazás és kevesebb átszállás előnyben · csak menetrendi adatok.'
      :'Menetrend szerinti találatok.';
     controls.append(sortLabel,info);
-    if(all.length>3)controls.append(showMore);
+    if(all.length>5)controls.append(showMore);
     list.append(controls,results);
     function reordered(){
      if(!smart)return all.slice();
@@ -254,7 +254,7 @@
     function draw(){
      results.replaceChildren();
      const ordered=reordered();
-     for(const [i,j] of (expanded?ordered:ordered.slice(0,3)).entries()){
+     for(const [i,j] of (expanded?ordered:ordered.slice(0,5)).entries()){
       const row=doc.createElement('button');row.className='trainrow rail-gtfs-row';row.type='button';
       row.setAttribute('aria-expanded','false');
       row.setAttribute('aria-label',j.legs[0].service+' · '+fmt(new Date(j.departure))+' · '+j.transfers+' átszállás · részletek');
@@ -281,8 +281,8 @@
       });
       results.append(row,details);
      }
-     if(all.length>3){
-      const count=expanded?all.length:Math.min(3,ordered.length);
+     if(all.length>5){
+      const count=expanded?all.length:Math.min(5,ordered.length);
       const suffix=total>all.length?' · első '+all.length+' / '+total:'';
       showMore.textContent=expanded?'Kevesebb találat ↑':
        'Összes útvonal ('+total+') ↓'+suffix;
