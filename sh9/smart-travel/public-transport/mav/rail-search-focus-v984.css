@@ -1,0 +1,1 @@
+#depart.rail-search-success-v984{animation:railFocus984 1s ease-out}@keyframes railFocus984{25%{box-shadow:0 0 20px rgba(100,180,255,.5)}}:root[data-profile=m] #depart.rail-search-success-v984{animation-name:railPink984}@keyframes railPink984{25%{box-shadow:0 0 20px rgba(255,128,215,.5)}}@media(prefers-reduced-motion:reduce){#depart.rail-search-success-v984{animation:none}}
