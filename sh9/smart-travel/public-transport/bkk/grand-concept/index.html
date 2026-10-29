@@ -84,8 +84,8 @@
 <button type="button" data-mode="arrive" aria-pressed="false">Érkezés ekkor</button></div></div>
 <div class="routebox">
 <div class="stationfields"><span class="route-rail"><span class="dot"></span><span class="dot end"></span></span><div class="stations">
-<input id="from" type="text" autocomplete="off" aria-label="Honnan indulunk" placeholder="Honnan?" value="Batthyány tér">
-<input id="to" type="text" autocomplete="off" aria-label="Hová érkezünk" placeholder="Hová?" value="Harsánylejtő"></div>
+<input id="from" type="text" autocomplete="off" aria-label="Honnan indulunk" placeholder="Pl. Batthyány tér · válassz találatot">
+<input id="to" type="text" autocomplete="off" aria-label="Hová érkezünk" placeholder="Pl. Harsánylejtő · válassz találatot"></div>
 <button id="swap" class="swap" type="button" aria-label="Indulás és érkezés felcserélése">↕</button></div>
 <div class="datetime">
 <div class="datebox" id="bkkGrandDateTriggerV4" role="button" tabindex="0" aria-label="Naptár megnyitása"><span data-icon="clock"></span><span id="dateTxt">Dátum</span><input class="native-picker" id="date" type="date" tabindex="-1" aria-label="Utazás dátuma"></div>
@@ -147,4 +147,4 @@ $('swap').addEventListener('click',()=>{const a=$('from'),b=$('to'),v=a.value;a.
 /* Live controls are connected by bkk-grand-wiring-v1.js. */
 document.querySelector('[data-menu="planner"]').addEventListener('click',()=>$('planner').scrollIntoView({behavior:'smooth',block:'start'}));
 })();
-</script><script defer src="./bkk-grand-wiring-v1.js"></script><script defer src="../../../../../healthhub/central-vault/config.js?v=972-household-publishable"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script><script defer src="../../../../../healthhub/guardian/guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script><script defer src="../../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=bkk-grand-photon-favorites-v4"></script><script defer src="./bkk-grand-search-picker-v4.js?v=4-predict-top-picker"></script><script defer src="../../transport-family-favorites-v972.js?v=972-family-40"></script></body></html>
+</script><script defer src="./bkk-grand-wiring-v1.js?v=974-verified-routes"></script><script defer src="../../../../../healthhub/central-vault/config.js?v=972-household-publishable"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script><script defer src="../../../../../healthhub/guardian/guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script><script defer src="../../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=bkk-grand-photon-favorites-v4"></script><script defer src="./bkk-grand-search-picker-v4.js?v=974-verified-selection"></script><script defer src="../../transport-family-favorites-v972.js?v=972-family-40"></script></body></html>
