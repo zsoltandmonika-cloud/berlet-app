@@ -12,7 +12,30 @@ pane.append(file,status);box.append(summary,pane);planner.append(box);
 const results=d.createElement('section');results.id='volanGtfsResultsV990';results.className='volan-results-v990';
 results.setAttribute('aria-label','Volán menetrendi találatok');planner.insertAdjacentElement('afterend',results);
 let data=null,audio=null;
-const normal=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+/* v994: same device-local persistence principle as MÁV, no cloud traffic. */
+const DB='sh9-volan-private-gtfs-v994',KEY='pilot';
+function store(mode,payload){
+ return new Promise((resolve,reject)=>{
+  if(!w.indexedDB){reject(Error('Helyi tároló nem elérhető'));return}
+  const req=w.indexedDB.open(DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('data'))req.result.createObjectStore('data')};
+  req.onerror=()=>reject(req.error);
+  req.onsuccess=()=>{
+   const db=req.result,tx=db.transaction('data',mode==='read'?'readonly':'readwrite');
+   const op=mode==='read'?tx.objectStore('data').get(KEY):tx.objectStore('data').put(payload,KEY);
+   op.onsuccess=()=>resolve(op.result);
+   op.onerror=()=>reject(op.error);
+   tx.oncomplete=()=>db.close();
+  };
+ });
+}
+store('read').then(raw=>{
+ if(!raw||!core.validate(raw,{allowPrivate:true})||!String(raw.source||'').includes('Volán'))return;
+ data=raw;status.textContent='✅ Helyi Volán menetrend visszatöltve · '+raw.trips.length+' járat · '+raw.stops.length+' megálló.';
+ for(const id of ['from','to']){const input=$(id);if(input)renderStops(input,d.getElementById('volanStopsV993-'+id))}
+}).catch(()=>{});
+
+const normal=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 for(const id of ['from','to']){
  const input=$(id);if(!input)continue;
  const suggestions=d.createElement('datalist');suggestions.id='volanStopsV993-'+id;
@@ -38,7 +61,7 @@ file.addEventListener('change',async()=>{
   if(f.size>22*1024*1024)throw Error('22 MB-nál nagyobb fájl nem tölthető be.');
   const raw=JSON.parse(await f.text());
   if(!core.validate(raw,{allowPrivate:true})||!String(raw.source||'').includes('Volán'))throw Error('Nem megfelelő Volán menetrendi fájl.');
-  data=raw;for(const id of ['from','to']){const input=$(id);if(input)renderStops(input,d.getElementById('volanStopsV993-'+id))}status.textContent='✅ Volán menetrend betöltve · '+raw.trips.length+' járat · '+raw.stops.length+' megálló.';
+  data=raw;store('write',raw).catch(()=>{status.textContent='⚠️ A menetrend most használható, de nem sikerült tartósan menteni.'});for(const id of ['from','to']){const input=$(id);if(input)renderStops(input,d.getElementById('volanStopsV993-'+id))}status.textContent='✅ Volán menetrend betöltve · '+raw.trips.length+' járat · '+raw.stops.length+' megálló.';
  }catch(e){data=null;status.textContent='⚠️ '+e.message}finally{file.value=''}
 });
 function clock(s){return new Intl.DateTimeFormat('hu-HU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Budapest'}).format(new Date(s))}
@@ -69,6 +92,7 @@ function search(e){
  const date=$('rail-date')?.value,time=$('rail-time')?.value;
  const when=mode==='now'?new Date():new Date(date+'T'+time+':00');
  if(!Number.isFinite(when.getTime())){status.textContent='Hibás dátum vagy időpont.';return}
+ status.textContent='Keresés · '+from+' → '+to+' · '+new Intl.DateTimeFormat('hu-HU',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Budapest'}).format(when);
  const route=core.route(data,{from,to,mode,when:when.toISOString()},{limit:40,maxTransfers:1,localOnly:true,ranking:'recommended'});
  results.replaceChildren();
  const title=el('h3','',route.status==='ok'?route.totalJourneys+' menetrendi útvonal':'Nincs ellenőrzött találat');results.append(title);
