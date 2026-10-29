@@ -172,10 +172,10 @@
     const {manifest:remote,metadata}=await readManifest();
     if(remote?.sha256===current.sha256)return {action:'unchanged',sha256:current.sha256,bytes:current.bytes.length};
     if(remote&&remote.sha256!==current.sha256&&
-      Number.isFinite(Date.parse(remote.feedGeneratedAt))&&
-      Number.isFinite(Date.parse(current.data.generatedAt))&&
-      Date.parse(remote.feedGeneratedAt)>Date.parse(current.data.generatedAt))
-     throw Error('A Dropboxban újabb menetrend található. Töltsd le, ne írd felül.');
+      !(Number.isFinite(Date.parse(remote.feedGeneratedAt))&&
+        Number.isFinite(Date.parse(current.data.generatedAt))&&
+        Date.parse(current.data.generatedAt)>Date.parse(remote.feedGeneratedAt)))
+     throw Error('A Dropboxban azonos dátumú vagy újabb, eltérő menetrend található. Automatikus felülírás letiltva.');
     const file=p.blob(current.sha256),existing=await client.meta(file);
     if(existing){
      if(existing['.tag']!=='file'||Number(existing.size)!==current.bytes.length)
@@ -206,8 +206,15 @@
     if(!manifest)return {action:'empty'};
     const current=await local();
     if(current?.sha256===manifest.sha256)return {action:'unchanged'};
-    if(current&&automatic)return {action:'different',manifest};
-    if(current&&!allowReplace)return {action:'confirmation-required',manifest};
+    if(current&&automatic){
+     // Never silently downgrade or resolve equal-version conflicts. A newer
+     // verified published timetable is allowed only after user opt-in.
+     const remoteTime=Date.parse(manifest.feedGeneratedAt);
+     const localTime=Date.parse(current.data.generatedAt);
+     if(!Number.isFinite(remoteTime)||!Number.isFinite(localTime)||remoteTime<=localTime)
+      return {action:'different',manifest};
+    }
+    if(current&&!allowReplace&&!automatic)return {action:'confirmation-required',manifest};
     const bytes=await client.download(manifest.path,MAX);
     if(bytes.length!==manifest.bytes||await digest(bytes,w.crypto)!==manifest.sha256)
      throw Error('A felhőadat ellenőrzőösszege nem egyezik. Helyi menetrend érintetlen.');
@@ -272,12 +279,12 @@
   });
   const label=d.createElement('label');label.className='sh9-transport-sync-option-v983';
   const toggle=d.createElement('input');toggle.type='checkbox';toggle.checked=sync.readState().enabled===true;
-  label.append(toggle,d.createTextNode(' Napi, kímélő automatikus verzióellenőrzés'));
+  label.append(toggle,d.createTextNode(' Napi automatikus ellenőrzés és újabb menetrend betöltése'));
   toggle.addEventListener('change',()=>{
    sync.enable(toggle.checked);
-   setStatus(toggle.checked?'✅ Bekapcsolva: legfeljebb napi egy verzióellenőrzés, csak megnyitott oldalon.':
+   setStatus(toggle.checked?'✅ Bekapcsolva: legfeljebb napi egyszer frissít, ha a felhőmenetrend bizonyíthatóan újabb.':
     'Automatikus ellenőrzés kikapcsolva.');
-   if(toggle.checked)void runCheck();
+   if(toggle.checked)void Promise.resolve(config?.ready).then(runCheck);
   });
   async function runCheck(){
    try{
@@ -295,7 +302,9 @@
   parent.append(panel);
   setStatus(sync.connected()?'Dropbox-kapcsolat elérhető · privát mentés még nem indult.':
    'A HealthHub webes Dropbox-kapcsolata ezen a böngészőn még nincs csatlakoztatva.');
-  if(toggle.checked)w.setTimeout(()=>{if(!d.hidden)void runCheck()},1000);
+  if(toggle.checked)void Promise.resolve(config?.ready).then(()=>{
+   if(!d.hidden)return runCheck();
+  });
   return sync;
  }
  return Object.freeze({paths,verifyManifest,createClient,createSync,mount,version:'983'});
