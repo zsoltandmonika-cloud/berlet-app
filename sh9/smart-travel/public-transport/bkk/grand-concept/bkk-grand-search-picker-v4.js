@@ -76,17 +76,28 @@
    tag.textContent=item.source==='favorite'?'KEDVENC':item.source==='shared'?'KÖZÖS':'CÍM';
    btn.append(pin,copy,tag);
    btn.addEventListener('click',()=>{
-    if(!active||!core.validPlace(item))return;
-    const key=active;
-    const label=core.displayPlace(item);
-    selected[key]={name:item.name,displayName:item.displayName||'',lat:item.lat,lng:item.lng,subtitle:item.subtitle||''};
-    input[key].value=label;
-    stop();close();
+    if(!active)return;
+    setVerifiedPlace(active,item);
    });
    results.append(btn);
   }
   results.hidden=items.length===0;
   if(active)input[active].setAttribute('aria-expanded',String(items.length>0));
+ }
+ function setVerifiedPlace(key,place){
+  if(!Object.hasOwn(input,key)||!core.validPlace(place))return false;
+  const safe={name:String(place.name).slice(0,120),
+   displayName:String(place.displayName||'').slice(0,80),
+   subtitle:String(place.subtitle||'').slice(0,190),
+   lat:Number(place.lat),lng:Number(place.lng)};
+  if(!Number.isFinite(safe.lat)||!Number.isFinite(safe.lng))return false;
+  selected[key]=safe;
+  input[key].value=core.displayPlace(safe);
+  if(active===key){stop();close()}
+  return true;
+ }
+ function clearSelections(){
+  selected.origin=null;selected.destination=null;
  }
  function favorites(query){
   try{return core.favoriteSuggestions(w.localStorage,query,40)}catch(_){return []}
@@ -218,6 +229,7 @@
  picker($('bkkGrandTimeTriggerV4'),time);
  w.SH9_BKK_GRAND_PREDICTIVE_V4=Object.freeze({
   get selection(){return {...selected}},
-  version:'4'
+  setVerifiedPlace,clearSelections,
+  version:'5'
  });
 })(window,document);
