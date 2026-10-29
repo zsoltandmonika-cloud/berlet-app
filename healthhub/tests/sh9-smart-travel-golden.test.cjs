@@ -705,3 +705,6 @@ test('Expanded Smart Trip Glass card dynamically reaches the actual bottom taskb
  assert.match(html,/class="transport-options transport-neon-options"/);
  assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
 });
+
+// Unifying the BKK live planner must not alter existing functions or data layers.
+require('./sh9-smart-planner-unified-v955.test.cjs');
