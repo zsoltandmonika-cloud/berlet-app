@@ -196,13 +196,12 @@
    feed=verified;feedQuery=q;feedValidUntil=Date.parse(verified.fetchedAt)+MAX_AGE;
    rows(feed);return true;
   }
+  /* v981: one private GTFS search, all sorting and expansion stay on device.
+   * Native station departure board retains the existing header action. */
   function showTimetable(result,q){
    if(!sameSearch(q,currentQuery()))return false;
    const isGoogle=result?.attribution==='© Google Maps';
-   last=q;
-   presentSearch(q);
-   // Train cards and source status retain timetable/live disclosure.
-   // The upper route summary intentionally contains just route, time and actions.
+   last=q;presentSearch(q);
    if(!result||result.status!=='ok'){
     emptyState();
     status(result?.status==='station-not-in-feed'
@@ -210,40 +209,97 @@
      :'Az engedélyezett menetrend nem olvasható. Használd a MÁVPlusz-t.');
     return false;
    }
+   const all=Array.isArray(result.journeys)?result.journeys:[];
    list.replaceChildren();
-   if(!result.journeys?.length){
+   if(!all.length){
     const message=doc.createElement('div');message.className='rail-empty glass';
     message.append(span('rail-empty-heading','Nincs menetrendi találat az adott időszakban'),
-      span('rail-empty-body',isGoogle?'A Google most nem adott vissza vasúti találatot. Próbálj másik időpontot vagy MÁVPlusz-t. © Google Maps':'A GTFS a tervezett menetrendet mutatja. Másik időponttal, vagy a MÁVPlusz segítségével keress tovább.'));
+     span('rail-empty-body',isGoogle?'A Google most nem adott vissza vasúti találatot. Próbálj másik időpontot vagy MÁVPlusz-t. © Google Maps':'A GTFS a tervezett menetrendet mutatja. Másik időponttal, vagy a MÁVPlusz segítségével keress tovább.'));
     message.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
     list.append(message);
-   }else result.journeys.slice(0,3).forEach((j,i)=>{
-    const row=doc.createElement('button');row.className='trainrow rail-gtfs-row';row.type='button';
-    row.setAttribute('aria-expanded','false');
-    row.setAttribute('aria-label',j.legs[0].service+' · '+fmt(new Date(j.departure))+' · '+j.transfers+' átszállás · részletek');
-    const picture=span('trainthumb trainthumb-'+i,'');picture.setAttribute('aria-hidden','true');
-    const clocks=span('clocking','');
-    clocks.append(span('times',fmt(new Date(j.departure))+' → '+fmt(new Date(j.arrival))),span('duration',j.durationMinutes+' perc'));
-    const summary=span('traincopy','');
-    const title=doc.createElement('strong');title.textContent=j.legs[0].service||'MÁV járat';
-    summary.append(title,span('rail-train-sub',j.transfers===0?'Közvetlen':'Átszállás: '+j.transfers));
-    row.append(picture,clocks,summary,span('track','Menetrend'),span('arrowright','›'));
-    const details=doc.createElement('section');details.className='rail-gtfs-detail glass';details.hidden=true;
-    details.append(span('rail-empty-heading','Útvonal részletei · tervezett menetrend'));
-    j.legs.forEach((leg,n)=>{
-     details.append(span('rail-leg-line',(n+1)+'. '+leg.service+
-      ' · '+leg.from+' '+fmt(new Date(leg.departure))+
-      ' → '+leg.to+' '+fmt(new Date(leg.arrival))));
+   }else{
+    const smart=result.ranking==='recommended'&&!isGoogle;
+    const controls=doc.createElement('div');controls.className='rail-route-controls-v981';
+    const sortLabel=doc.createElement('label');sortLabel.textContent='Találatok sorrendje';
+    const sort=doc.createElement('select');sort.className='rail-route-sort-v981';
+    sort.setAttribute('aria-label','Útvonaltalálatok rendezési szempontja');
+    for(const [value,label] of [
+     ['recommended','⭐ Ajánlott'],['earliest','Indulás szerint'],
+     ['arrival','Érkezés szerint'],['duration','Legrövidebb menetidő'],
+     ['transfers','Legkevesebb átszállás']
+    ]){
+     const option=doc.createElement('option');option.value=value;option.textContent=label;
+     sort.append(option);
+    }
+    sort.value=smart?'recommended':'earliest';
+    sortLabel.append(sort);
+    const showMore=doc.createElement('button');showMore.type='button';
+    showMore.className='rail-route-more-v981';
+    let expanded=false;
+    const results=doc.createElement('div');results.className='rail-route-list-v981';
+    const total=Number.isInteger(result.totalJourneys)?result.totalJourneys:all.length;
+    const info=doc.createElement('small');info.className='rail-route-help-v981';
+    info.textContent=smart
+     ?'Gyorsabb utazás és kevesebb átszállás előnyben · csak menetrendi adatok.'
+     :'Menetrend szerinti találatok.';
+    controls.append(sortLabel,info);
+    if(all.length>3)controls.append(showMore);
+    list.append(controls,results);
+    function reordered(){
+     if(!smart)return all.slice();
+     const engine=win.SH9_MAV_GTFS_CORE_V1;
+     if(!engine?.rankJourneys)return all.slice();
+     return engine.rankJourneys(all,q,{ranking:sort.value}).journeys;
+    }
+    function draw(){
+     results.replaceChildren();
+     const ordered=reordered();
+     for(const [i,j] of (expanded?ordered:ordered.slice(0,3)).entries()){
+      const row=doc.createElement('button');row.className='trainrow rail-gtfs-row';row.type='button';
+      row.setAttribute('aria-expanded','false');
+      row.setAttribute('aria-label',j.legs[0].service+' · '+fmt(new Date(j.departure))+' · '+j.transfers+' átszállás · részletek');
+      const picture=span('trainthumb trainthumb-'+i%3,'');picture.setAttribute('aria-hidden','true');
+      const clocks=span('clocking','');
+      clocks.append(span('times',fmt(new Date(j.departure))+' → '+fmt(new Date(j.arrival))),
+       span('duration',j.durationMinutes+' perc'));
+      const summary=span('traincopy','');
+      const name=doc.createElement('strong');name.textContent=j.legs[0].service||'MÁV járat';
+      summary.append(name,span('rail-train-sub',j.transfers===0?'Közvetlen':'Átszállás: '+j.transfers));
+      row.append(picture,clocks,summary,span('track','Menetrend'),span('arrowright','›'));
+      const details=doc.createElement('section');details.className='rail-gtfs-detail glass';details.hidden=true;
+      details.append(span('rail-empty-heading','Útvonal részletei · tervezett menetrend'));
+      j.legs.forEach((leg,n)=>{
+       details.append(span('rail-leg-line',(n+1)+'. '+leg.service+
+        ' · '+leg.from+' '+fmt(new Date(leg.departure))+
+        ' → '+leg.to+' '+fmt(new Date(leg.arrival))));
+      });
+      details.append(span('rail-warning','Vágány-, késés- és vonatpozíció-adat még nincs ellenőrizve.'));
+      details.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
+      row.addEventListener('click',()=>{
+       const visible=row.getAttribute('aria-expanded')==='true';
+       row.setAttribute('aria-expanded',String(!visible));details.hidden=visible;
+      });
+      results.append(row,details);
+     }
+     if(all.length>3){
+      const count=expanded?all.length:Math.min(3,ordered.length);
+      const suffix=total>all.length?' · első '+all.length+' / '+total:'';
+      showMore.textContent=expanded?'Kevesebb találat ↑':
+       'Összes útvonal ('+total+') ↓'+suffix;
+      showMore.setAttribute('aria-expanded',String(expanded));
+      showMore.setAttribute('aria-controls','railRouteListV981');
+      results.id='railRouteListV981';
+     }
+    }
+    sort.addEventListener('change',draw);
+    showMore.addEventListener('click',()=>{
+     expanded=!expanded;draw();
+     if(!expanded)controls.scrollIntoView?.({behavior:'smooth',block:'nearest'});
     });
-    details.append(span('rail-warning','Vágány-, késés- és vonatpozíció-adat még nincs ellenőrizve.'));
-    details.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
-    row.addEventListener('click',()=>{
-      const expanded=row.getAttribute('aria-expanded')==='true';
-      row.setAttribute('aria-expanded',String(!expanded));details.hidden=expanded;
-    });
-    list.append(row,details);
-   });
-   status('Forrás: '+String(result.source||'MÁV GTFS').slice(0,120)+' · tervezett útvonal, NEM élő késés/vágány'+(isGoogle?' · © Google Maps':''));
+    draw();
+   }
+   status('Forrás: '+String(result.source||'MÁV GTFS').slice(0,120)+
+    ' · tervezett útvonal, NEM élő késés/vágány'+(isGoogle?' · © Google Maps':''));
    return true;
   }
   emptyState();
