@@ -712,3 +712,6 @@ require('./sh9-smart-planner-unified-v955.test.cjs');
 
 // SH9 v956 · one BKK Control card, live status first, keyboard-compatible order.
 require('./sh9-bkk-control-one-card-v956.test.cjs');
+
+// v957 · First-paint guard: no legacy vehicle-card flash, one BKK sheet.
+require('./sh9-bkk-first-paint-v957.test.cjs');
