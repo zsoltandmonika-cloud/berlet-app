@@ -80,71 +80,73 @@ for(const id of ['from','to']){let input=$(id);if(!input)continue;input.removeAt
 (w.visualViewport||w).addEventListener('resize',locate);
 const hh=t=>new Intl.DateTimeFormat('hu-HU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Budapest'}).format(new Date(t));
 function display(list,from,to,when){if(!results)return;try{if(w.SH9_VOLAN_RESULTS_V997?.render?.({list,from,to,when,results,stopById,wall}))return}catch(err){console.error('Golden Standard render hiba, visszaállítás:',err)}results.replaceChildren();const title=d.createElement('h3');title.textContent=list.length+' menetrendi útvonal';results.append(title);const caption=d.createElement('p');caption.textContent=from+' → '+to+' · '+when.toLocaleString('hu-HU');results.append(caption);if(!list.length){const n=d.createElement('p');n.textContent='Ebben az időablakban nincs közvetlen járat. Az átszállásos keresés külön fejlesztési lépés.';results.append(n)}for(const j of list.slice(0,40)){const card=d.createElement('details');card.className='volan-trip-v990';const head=d.createElement('summary');head.textContent=hh(j.depart)+' → '+hh(j.arrive)+' · '+j.route.number+' · '+Math.round((j.arrive-j.depart)/60000)+' perc';card.append(head);const line=d.createElement('p');line.textContent='🚌 '+(j.trip.number||'')+' · '+(j.trip.headsign||j.route.name||'');card.append(line);for(const s of j.trip.stops.slice(j.start,j.end+1)){const p=d.createElement('p'),stop=stopById.get(s[0]);p.textContent='• '+hh(wall(j.day,s[1]))+' '+(stop?.name||s[0])+(s[2]-s[1]>=10?' · '+(s[2]-s[1])+' perc állás (WC nem igazolt)':'');card.append(p)}results.append(card)}w.scrollTo({top:Math.max(0,results.getBoundingClientRect().top+w.scrollY-8),behavior:'smooth'})}
-async function search(e){
- e.preventDefault();e.stopImmediatePropagation();
- if(isSearching)return;
- if(!api.ready||!placeIndex){panel.open=true;message('A teljes GTFS még nem áll készen.');return}
- const from=$('from')?.value.trim(),to=$('to')?.value.trim();
+/* Reusable query API: later Smart Search can call this without touching UI fields. */
+api.resolvePlace=query=>placeIndex?.resolve(query)||null;
+api.suggestPlaces=(query,limit=8)=>placeIndex?.suggest(query,limit)||[];
+api.searchJourneys=async function({from,to,mode='depart',when},onProgress){
+ if(!api.ready||!placeIndex)return {status:'not-ready',journeys:[]};
  const origin=placeIndex.resolve(from),destination=placeIndex.resolve(to);
- if(!origin.ids.length||!destination.ids.length){
-  panel.open=true;
-  const missing=[!origin.ids.length?'indulás':'',!destination.ids.length?'érkezés':''].filter(Boolean).join(' és ');
-  message('Nem egyértelmű '+missing+'. Írj be egy várost vagy pontos megállót; a kereséshez NEM kell tudnod a buszpályaudvar nevét.');
-  return;
+ if(!origin.ids.length||!destination.ids.length)return {status:'unknown-place',origin,destination,journeys:[]};
+ if(origin.normalized===destination.normalized)return {status:'same-place',origin,destination,journeys:[]};
+ const date=when instanceof Date?when:new Date(when);
+ if(!Number.isFinite(date.getTime())||!['now','depart','arrive'].includes(mode))return {status:'invalid-query',journeys:[]};
+ const progress=typeof onProgress==='function'?onProgress:()=>{};
+ const pivot=date.getTime(),start=mode==='arrive'?pivot-12*3600000:pivot,end=mode==='arrive'?pivot:pivot+12*3600000;
+ const dates=[-1,0,1].map(n=>day(new Date(pivot+n*86400000)));
+ progress('🔎 '+origin.label+' ('+origin.ids.length+' megállórekord) → '+destination.label+' ('+destination.ids.length+' megállórekord) · keresés…');
+ const startIndexes=await getMany('index',origin.ids),dest=new Set(destination.ids),candidatePositions=new Map();
+ for(const ix of startIndexes)for(const [id,pos,mins] of ix.refs||[]){
+  if(!candidatePositions.has(id))candidatePositions.set(id,new Map());
+  candidatePositions.get(id).set(pos,mins);
  }
- if(origin.normalized===destination.normalized){message('Az indulási és célváros nem lehet ugyanaz.');return}
- const mode=d.querySelector('[data-mode].on')?.dataset.mode||'now';
- const when=mode==='now'?new Date():new Date(($('rail-date')?.value||'')+'T'+($('rail-time')?.value||'')+':00');
- if(!Number.isFinite(when.getTime())){message('Hibás dátum vagy időpont.');return}
- panel.open=false;
- isSearching=true;
- try{
-  const pivot=when.getTime(),start=mode==='arrive'?pivot-12*3600000:pivot,end=mode==='arrive'?pivot:pivot+12*3600000;
-  const dates=[-1,0,1].map(n=>day(new Date(pivot+n*86400000)));
-  message('🔎 '+origin.label+' ('+origin.ids.length+' megállórekord) → '+destination.label+' ('+destination.ids.length+' megállórekord) · keresés…');
-  // All city stop IDs are considered. The full GTFS remains unchanged.
-  // One IndexedDB transaction per batch avoids thousands of sequential DB opens.
-  const startIndexes=await getMany('index',origin.ids),dest=new Set(destination.ids),candidatePositions=new Map();
-  for(const ix of startIndexes)for(const [id,pos,mins] of ix.refs||[]){
-   if(!candidatePositions.has(id))candidatePositions.set(id,new Map());
-   candidatePositions.get(id).set(pos,mins);
-  }
-  const tripIds=[...candidatePositions.keys()],res=[],seen=new Set();
-  const active=new Map(),epoch=new Map();
-  const isActive=(service,ymd)=>{
-   const k=service+'|'+ymd;
-   if(!active.has(k))active.set(k,valid(services.get(service),ymd));
-   return active.get(k);
-  };
-  const at=(ymd,mins)=>{
-   const k=ymd+'|'+mins;if(!epoch.has(k))epoch.set(k,wall(ymd,mins));return epoch.get(k);
-  };
-  for(let i=0;i<tripIds.length;i+=250){
-   const batch=await getMany('trips',tripIds.slice(i,i+250));
-   for(const trip of batch){
-    const positions=candidatePositions.get(trip.id);
-    if(!positions)continue;
-    for(const ymd of dates){
-     if(!isActive(trip.service,ymd))continue;
-     for(const [pos,mins] of positions){
-      const dep=at(ymd,mins);
-      if(dep<start||dep>end||trip.stops[pos]?.[3]==='1')continue;
-      for(let j=pos+1;j<trip.stops.length;j++){
-       const s=trip.stops[j];if(!dest.has(s[0])||s[4]==='1')continue;
-       const arr=at(ymd,s[1]);
-       if(arr<=dep||arr>end)continue;
-       const key=trip.id+'|'+ymd+'|'+pos+'|'+j;
-       if(seen.has(key))continue;seen.add(key);
-       res.push({trip,route:routes.get(trip.route)||{},start:pos,end:j,day:ymd,depart:dep,arrive:arr});
-      }
+ const tripIds=[...candidatePositions.keys()],journeys=[],seen=new Set();
+ const active=new Map(),epoch=new Map();
+ const isActive=(service,ymd)=>{const k=service+'|'+ymd;if(!active.has(k))active.set(k,valid(services.get(service),ymd));return active.get(k)};
+ const at=(ymd,mins)=>{const k=ymd+'|'+mins;if(!epoch.has(k))epoch.set(k,wall(ymd,mins));return epoch.get(k)};
+ for(let i=0;i<tripIds.length;i+=250){
+  const batch=await getMany('trips',tripIds.slice(i,i+250));
+  for(const trip of batch){
+   const positions=candidatePositions.get(trip.id);
+   if(!positions)continue;
+   for(const ymd of dates){
+    if(!isActive(trip.service,ymd))continue;
+    for(const [pos,mins] of positions){
+     const dep=at(ymd,mins);
+     if(dep<start||dep>end||trip.stops[pos]?.[3]==='1')continue;
+     for(let j=pos+1;j<trip.stops.length;j++){
+      const s=trip.stops[j];if(!dest.has(s[0])||s[4]==='1')continue;
+      const arr=at(ymd,s[1]);
+      if(arr<=dep||arr>end)continue;
+      const key=trip.id+'|'+ymd+'|'+pos+'|'+j;
+      if(seen.has(key))continue;seen.add(key);
+      journeys.push({trip,route:routes.get(trip.route)||{},start:pos,end:j,day:ymd,depart:dep,arrive:arr});
      }
     }
    }
-   if(i%1250===0){message('🚌 '+origin.label+' → '+destination.label+' · '+Math.min(i+250,tripIds.length).toLocaleString('hu-HU')+'/'+tripIds.length.toLocaleString('hu-HU')+' járat ellenőrizve');await tick()}
   }
-  res.sort((a,b)=>mode==='arrive'?b.arrive-a.arrive:a.depart-b.depart||a.arrive-b.arrive);
-  display(res,from,to,when);
-  message('✅ '+res.length+' közvetlen menetrendi útvonal · '+origin.label+' → '+destination.label+'. A kártyák mutatják a pontos induló- és célmegállót.');
+  if(i%1250===0){progress('🚌 '+origin.label+' → '+destination.label+' · '+Math.min(i+250,tripIds.length).toLocaleString('hu-HU')+'/'+tripIds.length.toLocaleString('hu-HU')+' járat ellenőrizve');await tick()}
+ }
+ journeys.sort((a,b)=>mode==='arrive'?b.arrive-a.arrive:a.depart-b.depart||a.arrive-b.arrive);
+ return {status:'ok',origin,destination,when:date,journeys,source:'local-original-volan-gtfs'};
+};
+async function search(e){
+ e.preventDefault();e.stopImmediatePropagation();if(isSearching)return;
+ const from=$('from')?.value.trim(),to=$('to')?.value.trim();
+ const mode=d.querySelector('[data-mode].on')?.dataset.mode||'now';
+ const when=mode==='now'?new Date():new Date(($('rail-date')?.value||'')+'T'+($('rail-time')?.value||'')+':00');
+ if(!api.ready){panel.open=true;message('A teljes Volán GTFS még nincs kész.');return}
+ isSearching=true;panel.open=false;
+ try{
+  const result=await api.searchJourneys({from,to,mode,when},message);
+  if(result.status!=='ok'){
+   panel.open=true;
+   message(result.status==='unknown-place'?'Írj be két várost vagy pontos megállót. Nem kell tudnod a pályaudvar nevét.':
+    result.status==='same-place'?'Az indulási és célváros nem lehet ugyanaz.':
+    result.status==='not-ready'?'A teljes GTFS még nem áll készen.':'Hibás dátum vagy időpont.');
+   return;
+  }
+  display(result.journeys,from,to,when);
+  message('✅ '+result.journeys.length+' közvetlen útvonal · '+result.origin.label+' → '+result.destination.label+'. A járatkártyákon láthatók a pontos megállók.');
  }catch(err){console.error('Volán Smart Search:',err);message('⚠️ A keresés nem sikerült: '+err.message)}
  finally{isSearching=false}
 }
