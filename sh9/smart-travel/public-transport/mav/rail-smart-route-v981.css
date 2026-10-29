@@ -1,0 +1,59 @@
+/* MÁV Smart Rail v981 · native journey controls, Golden Glass mobile standard.
+ * Only the verified GTFS itinerary cards change. Station board v979 and
+ * near-me RAG v980 keep their independently approved behavior and sizes. */
+#depart .rail-route-controls-v981{
+ box-sizing:border-box;display:grid;gap:8px;min-width:0;margin:1px 0 8px;
+ padding:10px;border:1px solid rgba(198,229,255,.43);border-radius:12px;
+ background:linear-gradient(116deg,rgba(32,74,131,.55),rgba(30,39,93,.56));
+ -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+ box-shadow:inset 0 1px rgba(255,255,255,.18)
+}
+#depart .rail-route-controls-v981 label{
+ display:grid;gap:5px;min-width:0;color:#e6f3ff;
+ font:780 11px/1.3 Arial,sans-serif
+}
+#depart .rail-route-sort-v981{
+ min-width:0;width:100%;height:46px;min-height:46px;padding:8px 12px;
+ border:1px solid rgba(199,229,255,.64);border-radius:11px;
+ background:#183a69;color:#fff;
+ font:790 12px/1.3 Arial,sans-serif;
+ color-scheme:dark;touch-action:manipulation
+}
+#depart .rail-route-more-v981{
+ width:100%;min-height:48px;padding:10px 11px;
+ border:1px solid rgba(202,231,255,.7);border-radius:11px;
+ background:linear-gradient(124deg,rgba(27,143,226,.78),rgba(43,76,170,.83));
+ color:#fff;font:830 12px/1.3 Arial,sans-serif;
+ box-shadow:inset 0 1px rgba(255,255,255,.25);
+ touch-action:manipulation;text-align:center
+}
+#depart .rail-route-help-v981{
+ font:590 10px/1.4 Arial,sans-serif;color:#d2e4f8
+}
+#depart .rail-route-list-v981{
+ display:grid;gap:5px;min-width:0
+}
+#depart .rail-route-list-v981 .rail-gtfs-row{
+ min-height:54px;touch-action:manipulation
+}
+#depart .rail-route-list-v981 .rail-gtfs-detail{
+ margin-bottom:5px
+}
+:root[data-profile="m"] #depart .rail-route-controls-v981{
+ background:linear-gradient(116deg,rgba(104,53,116,.58),rgba(59,29,99,.59));
+ border-color:rgba(255,203,243,.49)
+}
+:root[data-profile="m"] #depart .rail-route-sort-v981{
+ background:#593570;border-color:rgba(255,209,241,.68)
+}
+:root[data-profile="m"] #depart .rail-route-more-v981{
+ background:linear-gradient(115deg,rgba(218,87,173,.80),rgba(135,73,172,.81));
+ border-color:rgba(255,204,239,.69)
+}
+#depart .rail-route-controls-v981 :is(select,button):focus-visible{
+ outline:2px solid #ecfaff;outline-offset:2px
+}
+@media(max-width:370px){
+ #depart .rail-route-controls-v981{padding:8px}
+ #depart .rail-route-more-v981{font-size:11px}
+}
