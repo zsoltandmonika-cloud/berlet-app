@@ -3,6 +3,8 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const BKK_ROOT='../',GUARDIAN='../../../../../healthhub/guardian/';
+// v958: the tested v957 Guardian view can be cached separately from the unversioned URL.
+const SH9_LIVE_V958='?sh9Transit=1&v=957-20261029';
 const HANDOFF='sh9-bkk-grand-planner-handoff-v1',STORE='sh9-bkk-grand-journeys-v1-';
 const MAX_SAVED=40,MAX_AGE=10*60*1000;
 const toast=message=>{const el=$('toast');if(!el)return;el.textContent=message;el.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.hidden=true,4200)};
@@ -58,11 +60,11 @@ const destinations=Object.freeze({
  'Összes találat':BKK_ROOT+'#allLines',
  'Kedvencek':BKK_ROOT+'#favorites',
  'Kedvenc vonalak':BKK_ROOT+'#favorites',
- 'Élő járművek':GUARDIAN+'?sh9Transit=1',
- 'Térkép':GUARDIAN+'?sh9Transit=1',
- 'Megállói indulások':GUARDIAN+'?sh9Transit=1',
- 'Megálló infó':GUARDIAN+'?sh9Transit=1',
- 'Indulási tábla':GUARDIAN+'?sh9Transit=1',
+ 'Élő járművek':GUARDIAN+SH9_LIVE_V958,
+ 'Térkép':GUARDIAN+SH9_LIVE_V958,
+ 'Megállói indulások':GUARDIAN+SH9_LIVE_V958,
+ 'Megálló infó':GUARDIAN+SH9_LIVE_V958,
+ 'Indulási tábla':GUARDIAN+SH9_LIVE_V958,
  'Jegyek':'https://bkk.hu/jegyek-es-berletek/',
  'Jegyvásárlás':'https://bkk.hu/jegyek-es-berletek/',
  'Forgalmi információk':'https://bkk.hu/bkk-info/'
