@@ -11,7 +11,7 @@ test('v950 adopts exact SH9 Launchpad navy and is loaded last for transport only
  assert.match(css,/--sh9-pt-smoked:#0b1425/);
  assert.match(css,/\.shell\.transport-grand/);
  const source=html.indexOf('public-transport-smart-trip-mobile-v3.css?v=3');
- const style=html.indexOf('public-transport-smoked-glass-v950.css?v=950-launchpad-smoked');
+ const style=html.indexOf('public-transport-smoked-glass-v950.css?v=951-deep-smoked-unified-nav');
  assert.ok(source>=0&&style>source);
 });
 
@@ -29,7 +29,7 @@ test('v950 keeps four original approved image assets and all user navigation',()
 
 test('v950 keeps bright original image content above dim backdrop, with modest glass border',()=>{
  assert.match(css,/\.transport-choice::before\{/);
- assert.match(css,/linear-gradient\(rgba\(11,20,37,\.69\),rgba\(11,20,37,\.69\)\)/);
+ assert.match(css,/linear-gradient\(rgba\(11,20,37,\.92\),rgba\(11,20,37,\.92\)\)/);
  assert.match(css,/\.transport-choice::after\{/);
  assert.match(css,/\.transport-choice \.choice-art\{/);
  assert.match(css,/-webkit-mask-image:/);
@@ -39,4 +39,16 @@ test('v950 keeps bright original image content above dim backdrop, with modest g
 
 test('v950 has no new data access, GPS access, animation loops or image URLs',()=>{
  assert.doesNotMatch(css,/https?:\/\/|fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(|url\(data:/);
+});
+
+/* v951 acceptance: the live SH9 Launcher palette remains identical and no
+   all-card opacity/filter affects the original user-approved foreground images. */
+test('v951 has exactly the shared SH9 navigation color and very low neon rim',()=>{
+ assert.match(css,/\.transport-grand \.nav\{\s*background:rgba\(15,30,54,\.97\)!important/);
+ assert.match(css,/border-top:1px solid rgba\(140,198,243,\.25\)!important/);
+ assert.match(css,/--sh9-pt-edge:rgba\(174,148,220,\.105\)/);
+ assert.match(css,/--sh9-pt-edge:rgba\(197,137,189,\.105\)/);
+ assert.match(css,/filter:saturate\(\.18\)/);
+ assert.match(css,/box-shadow:none!important/);
+ assert.match(css,/\.transport-choice \.choice-art\{[\s\S]*?filter:none!important/);
 });
