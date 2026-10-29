@@ -4,7 +4,7 @@
  */
 (function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.SH9_MAV_GTFS_CORE_V1=api;})(typeof window!=='undefined'?window:null,function(){
 'use strict';
-const TZ='Europe/Budapest',MAX_TRIPS=25000,MAX_STOPS=9000;
+const TZ='Europe/Budapest',MAX_TRIPS=40000,MAX_STOPS=9000;
 const clock=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
 const normalize=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
 const short=x=>normalize(x).replace(/\b(palyaudvar|vasutallomas|megallohely|allomas)\b/g,'').trim();
@@ -37,14 +37,14 @@ function serviceActive(s,ymd){
  const dayOfWeek=(new Date(ymd+'T12:00:00Z').getUTCDay()+6)%7;
  return s.days[dayOfWeek]==='1';
 }
-function validate(data){
+function validate(data,{allowPrivate=false}={}){
  if(!data||data.schema!=='sh9-mav-gtfs-v1'||data.timezone!==TZ||
     !Array.isArray(data.stops)||!Array.isArray(data.trips)||
     data.stops.length<2||data.stops.length>MAX_STOPS||data.trips.length>MAX_TRIPS||
     !data.services||typeof data.services!=='object'||Array.isArray(data.services)||
     typeof data.source!=='string'||data.source.length>180||
     !/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt||'')||
-    data.rightsConfirmed!==true)return null;
+    !(data.rightsConfirmed===true||(allowPrivate===true&&data.rightsConfirmed===false&&data.localOnly===true)))return null;
  const stopMap=new Map(),trips=[];
  for(const row of data.stops){
   if(!Array.isArray(row)||row.length<2||typeof row[0]!=='string'||typeof row[1]!=='string'||!row[0]||!row[1]||row[0].length>100||row[1].length>160)return null;
@@ -89,8 +89,8 @@ function instances(data,startDay,endDay){
  }
  return all;
 }
-function route(data,query,{limit=3,maxTransfers=1}={}){
- const parsed=validate(data);
+function route(data,query,{limit=3,maxTransfers=1,localOnly=false}={}){
+ const parsed=validate(data,{allowPrivate:localOnly===true});
  if(!parsed||!query||!['now','depart','arrive'].includes(query.mode))return {status:'invalid-feed',journeys:[]};
  const date=new Date(query.when);
  if(!Number.isFinite(date.getTime()))return {status:'invalid-query',journeys:[]};
