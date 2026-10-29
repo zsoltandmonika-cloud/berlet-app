@@ -166,5 +166,5 @@ readStored().then(raw=>{
  if(!raw){status('Még nincs saját MÁV GTFS-fájl betöltve.');return}
  if(!activate(raw))status('A korábban mentett menetrend hibás vagy nem támogatott.');
 }).catch(()=>status('Nem érhető el a helyi tároló. A JSON-fájlt ettől még kipróbálhatod.'));
-w.SH9_MAV_PRIVATE_GTFS_V2=Object.freeze({get active(){return !!data},version:'2'});
+w.SH9_MAV_PRIVATE_GTFS_V2=Object.freeze({get active(){return !!data},getDataset(){return data},version:'2+979-board'});
 })(typeof window!=='undefined'?window:null,typeof document!=='undefined'?document:null);
