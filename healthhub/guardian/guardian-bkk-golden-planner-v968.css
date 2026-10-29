@@ -243,3 +243,17 @@
  #hhBkkGoldenPlannerV968{background:#3b326a!important;-webkit-backdrop-filter:none;backdrop-filter:none}
  :root[data-guardian-profile="m"] #hhBkkGoldenPlannerV968{background:#653d73!important}
 }
+
+/* v970: Native date/time picker is explicitly opened by its full-size
+   Golden Standard control; the invisible input must not steal tap targets. */
+#hhBkkGoldenPlannerV968 :is(#hhBkkGoldenDateTriggerV970,#hhBkkGoldenTimeTriggerV970){
+ cursor:pointer;touch-action:manipulation
+}
+#hhBkkGoldenPlannerV968 :is(#hhBkkGoldenDateTriggerV970,#hhBkkGoldenTimeTriggerV970) input{
+ left:2px!important;top:2px!important;right:auto!important;bottom:auto!important;
+ width:2px!important;height:2px!important;min-height:0!important;
+ pointer-events:none!important;opacity:.01!important;z-index:0!important;
+}
+#hhBkkGoldenPlannerV968 :is(#hhBkkGoldenDateTriggerV970,#hhBkkGoldenTimeTriggerV970):focus-visible{
+ outline:2px solid var(--gaccent)!important;outline-offset:-2px;border-radius:9px
+}
