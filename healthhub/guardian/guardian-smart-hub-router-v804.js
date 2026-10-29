@@ -317,7 +317,9 @@ function renderGuide(){
  function rankOffers(items,now=Date.now()){
   return (Array.isArray(items)?items.slice():[]).sort((a,b)=>{
    const x=routeRating(a,now),y=routeRating(b,now);
-   return y.stars-x.stars||x.score-y.score||
+   // Schedule-matched services go ahead of untimed static possibilities.
+   return Number(!!y.timing)-Number(!!x.timing)||
+    y.stars-x.stars||x.score-y.score||
     (Number(a.transfer)||0)-(Number(b.transfer)||0)||
     (Number(a.walk)||0)-(Number(b.walk)||0);
   });
@@ -405,7 +407,10 @@ function renderGuide(){
      prettyClock(rating.timing.departure)+' → '+prettyClock(rating.timing.arrival);
     const minutes=d.createElement('b');minutes.textContent=
      rating.timing.durationMinutes+' perc';
-    timeHeader.append(clocks,minutes);row.append(timeHeader);
+    const provenance=d.createElement('small');
+    provenance.className='hh-trip-timing-source-v966';
+    provenance.textContent='BKK menetrend · tervezett idő, nem élő';
+    timeHeader.append(clocks,minutes,provenance);row.append(timeHeader);
    }
    const line=d.createElement('div');line.className='hh-trip-card-lines-v854';
    for(const [index,leg] of p.legs.entries()){
@@ -423,22 +428,20 @@ function renderGuide(){
    const stop=d.createElement('small');stop.className='hh-trip-card-stops-v854';
    stop.textContent=p.legs[0].enter.name+' → '+p.legs[p.legs.length-1].exit.name;
    const walk=d.createElement('small');walk.className='hh-trip-card-walk-v854';
-   walk.textContent='🚶 Kb. '+Math.round(p.walk)+' m gyaloglás (légvonal)';
+   const walkDistance=Number(p.walk);
+   const walkMin=Number.isFinite(walkDistance)&&walkDistance>=0
+    ?Math.ceil(walkDistance/70):null;
+   walk.textContent='🚶 '+(walkMin!==null?'kb. '+walkMin+' perc · ':'')+
+    'kb. '+Math.round(p.walk)+' m gyaloglás (légvonalból becsült)';
    row.append(stop,walk);
    if(rating.timing){
     const boarding=d.createElement('small');boarding.className='hh-trip-card-boarding-v859';
     boarding.textContent=(rating.timing.firstBoard?prettyClock(rating.timing.firstBoard)+' · ':'')+
      (rating.timing.departureStop||p.legs[0].enter.name)+' · tervezett járatindulás';
     row.append(boarding);
-    if(rating.timing.estimatedWalkMinutes!==null){
-     const walking=d.createElement('small');walking.className='hh-trip-card-walkmin-v859';
-     walking.textContent='🚶 kb. '+rating.timing.estimatedWalkMinutes+
-      ' perc gyaloglás (légvonalból becsülve)';
-     row.append(walking);
-    }
    }else{
     const provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
-    provisional.textContent='Előzetes értékelés · menetrendi idő még nem elérhető';
+    provisional.textContent='Nincs igazolt indulási idő ehhez az útvonalhoz · csak statikus útvonal';
     row.append(provisional);
    }
    const actions=d.createElement('div');actions.className='hh-smart-trip-actions-v805 hh-trip-actions-v854';
@@ -604,7 +607,10 @@ function renderGuide(){
   renderGuide();render();loading=download();downloadTimetable();
   // The static schedule is date-sensitive; update offers when the page becomes visible.
   if(w.addEventListener)w.addEventListener('focus',()=>{
-   if(timetable)render();
+   // Long-lived mobile tab: only re-fetch if its daily GTFS snapshot expired.
+   const age=timetable?Date.now()-Date.parse(timetable.generatedAt):Infinity;
+   if(age>30*3600000)downloadTimetable();
+   else render();
   });
  }
  if(w&&w.document){
