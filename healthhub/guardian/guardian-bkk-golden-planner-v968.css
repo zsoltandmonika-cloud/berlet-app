@@ -1,0 +1,245 @@
+/* HealthHub v968 · Common Golden Standard planner skin for BKK inside Guardian.
+   Geometry matches approved MÁV/Volán/Smart Trip: header/mode, station/date,
+   primary/secondary actions, two trip buttons. Only profile coloring differs.
+   Scoped to this BKK sheet: retains map, arrivals, keyboard, schedules and nav. */
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968.hh-bkk-golden-v968{
+ --gtext:#f4faff;--gmuted:#dee5fd;--gaccent:#1ba5ff;
+ --goutline:rgba(193,215,255,.55);--gdeep:rgba(17,36,77,.76);
+ --gglow:rgba(39,145,255,.2);
+ box-sizing:border-box;display:flex!important;flex-direction:column;gap:0!important;
+ margin:0 0 10px!important;padding:8px 8px 9px!important;
+ width:100%;min-width:0;max-width:100%;
+ background:linear-gradient(136deg,rgba(60,42,111,.97),rgba(45,31,86,.97))!important;
+ border:1px solid var(--goutline)!important;border-radius:15px!important;
+ box-shadow:0 0 0 1px rgba(213,195,255,.14),inset 0 1px rgba(255,255,255,.29),0 7px 20px rgba(25,15,73,.22)!important;
+ color:var(--gtext)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(135%);backdrop-filter:blur(18px) saturate(135%);
+}
+:root[data-guardian-profile="m"] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968{
+ --gaccent:#ef60c7;--goutline:rgba(255,187,235,.7);
+ --gdeep:rgba(82,40,106,.75);--gglow:rgba(239,96,199,.21);
+ background:linear-gradient(136deg,rgba(101,46,115,.98),rgba(59,31,92,.98))!important;
+}
+#hhBkkGoldenPlannerV968 *{box-sizing:border-box}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-head-v968{
+ display:grid;grid-template-columns:42% minmax(0,1fr);align-items:center;
+ gap:0;margin-bottom:8px;min-width:0
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-head-v968 h2{
+ margin:0;display:flex;align-items:center;gap:5px;min-width:0;
+ color:var(--gtext)!important;font:810 13px/1.2 system-ui,sans-serif;
+ letter-spacing:-.25px;white-space:nowrap
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939{
+ display:flex!important;align-items:stretch!important;gap:0!important;
+ height:31px!important;min-height:31px!important;margin:0!important;padding:2px!important;
+ border-radius:13px!important;border:1px solid var(--goutline)!important;
+ background:rgba(13,27,61,.65)!important
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button{
+ min-width:0!important;min-height:0!important;height:25px!important;
+ flex:1!important;padding:1px 2px!important;margin:0!important;
+ font:700 9px/1.05 system-ui,sans-serif!important;
+ white-space:nowrap!important;letter-spacing:-.25px!important;
+ border:0!important;border-radius:10px!important;
+ color:var(--gmuted)!important;background:transparent!important;
+ box-shadow:none!important;touch-action:manipulation!important;
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ color:#fff!important;font-weight:850!important;
+ background:linear-gradient(117deg,var(--gaccent),#4b6cec)!important;
+ box-shadow:0 0 9px var(--gglow)!important
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-routebox-v968{
+ display:grid;grid-template-columns:minmax(0,1.46fr) minmax(0,1fr);gap:7px;
+ align-items:stretch;min-width:0;
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806{
+ min-width:0!important;height:68px!important;max-height:68px!important;
+ display:grid!important;grid-template-columns:19px minmax(0,1fr) 30px!important;
+ grid-template-rows:33px 33px!important;gap:0!important;
+ align-items:stretch!important;padding:0 2px!important;margin:0!important;
+ border:1px solid var(--goutline)!important;border-radius:9px!important;
+ background:rgba(7,29,66,.67)!important;box-shadow:none!important;
+ overflow:hidden!important
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968{
+ position:relative;grid-column:1;grid-row:1/3;
+ display:flex;flex-direction:column;align-items:center;justify-content:space-around;
+ width:17px;height:66px;min-width:0
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968:before{
+ content:'';position:absolute;top:19px;bottom:19px;width:2px;
+ background:rgba(167,193,240,.65)
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968 span{
+ z-index:1;width:11px;height:11px;border-radius:50%;border:3px solid #18acff;
+ background:#0c1b3e
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968 span:last-child{border-color:#ec4f90}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806 > .hh-smart-hub-field-v806{
+ min-width:0!important;width:100%!important;height:33px!important;
+ display:flex!important;align-items:center!important;
+ margin:0!important;padding:0!important;gap:0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806 > [data-golden-field="from"]{
+ grid-column:2!important;grid-row:1!important;
+ border-bottom:1px solid rgba(221,227,255,.3)!important
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806 > [data-golden-field="to"]{
+ grid-column:2!important;grid-row:2!important
+}
+#hhBkkGoldenPlannerV968 #hhSmartHubPairedV806 .hh-smart-hub-field-v806 > label{
+ position:absolute!important;width:1px;height:1px;overflow:hidden;
+ clip-path:inset(50%);white-space:nowrap;margin:0;padding:0;border:0
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input{
+ width:100%!important;min-width:0!important;min-height:30px!important;
+ height:30px!important;padding:4px 1px!important;
+ margin:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;color:#fff!important;
+ box-shadow:none!important;outline:none!important;
+ font:730 12px/1.15 system-ui,sans-serif!important;text-overflow:ellipsis
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input::placeholder{
+ color:rgba(232,238,255,.72)!important;opacity:1
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input:focus-visible{
+ outline:2px solid var(--gaccent)!important;outline-offset:-3px!important;
+ border-radius:5px!important;
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-origin-row-v860{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 28px!important;
+ gap:1px!important;align-items:center!important;min-width:0!important;width:100%
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubCurrentPositionV860{
+ min-width:27px!important;width:27px!important;min-height:28px!important;
+ height:28px!important;padding:0!important;border:0!important;
+ border-radius:7px!important;background:rgba(255,255,255,.15)!important;
+ box-shadow:none!important;color:white!important
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-current-icon-v860{
+ color:white!important;font:750 17px/1 system-ui!important
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubSwapV806{
+ grid-column:3!important;grid-row:1/3!important;
+ align-self:center!important;justify-self:center!important;
+ min-width:27px!important;width:27px!important;
+ min-height:35px!important;height:35px!important;margin:0!important;
+ padding:0!important;border:1px solid var(--goutline)!important;
+ border-radius:7px!important;background:rgba(193,207,237,.38)!important;
+ box-shadow:none!important;color:white!important;
+ font:800 20px/1 system-ui!important;
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubSwapV806 span{display:none!important}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
+ display:grid;grid-template-columns:1.55fr 1fr;gap:0;
+ min-width:0;height:68px;border:1px solid var(--goutline);border-radius:9px;
+ background:linear-gradient(120deg,rgba(51,73,117,.82),rgba(41,31,70,.89))
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-date-v968,
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ position:relative;display:flex;align-items:center;justify-content:center;
+ gap:5px;min-width:0;padding:0 3px;color:#f5f8ff;
+ cursor:pointer;touch-action:manipulation
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-date-v968 > span,
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968 > span{
+ font:750 18px/1 system-ui;color:#d4e8ff;flex:none
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-date-v968 b,
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968 b{
+ font:780 10px/1.3 system-ui,sans-serif;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;color:#fff;min-width:0
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ border-left:1px solid rgba(209,223,252,.38)
+}
+#hhBkkGoldenPlannerV968 :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968) input{
+ position:absolute;inset:0;width:100%;height:100%;
+ padding:0;margin:0;opacity:.015;cursor:pointer;z-index:2;border:0;
+ color-scheme:dark
+}
+#hhBkkGoldenPlannerV968 :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968):focus-within{
+ outline:2px solid var(--gaccent);outline-offset:-2px;border-radius:8px
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-actions-v968{
+ display:grid;grid-template-columns:2.25fr 1fr;gap:8px;
+ margin-top:8px;min-width:0
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-actions-v968 button{
+ min-width:0;min-height:42px;height:42px;display:flex;align-items:center;
+ justify-content:center;gap:5px;padding:5px 7px;
+ border-radius:11px;border:1px solid var(--goutline);
+ font:810 11px/1.2 system-ui,sans-serif;color:#fff;
+ white-space:normal;cursor:pointer;touch-action:manipulation
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-search-v968{
+ background:linear-gradient(110deg,#e158bd,#7762e5);
+ box-shadow:0 0 8px rgba(215,81,209,.19)
+}
+:root[data-guardian-profile="z"] #hhBkkGoldenPlannerV968 .hh-bkk-golden-search-v968{
+ background:linear-gradient(110deg,#4388ec,#6856d9);
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-schedule-v968{background:rgba(31,38,78,.75)}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-quick-v968{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+ margin-top:8px
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-quick-v968 button{
+ box-sizing:border-box;min-width:0;min-height:44px;padding:8px 6px;
+ font:760 11px/1.2 system-ui,sans-serif;color:#fff;
+ background:rgba(36,34,83,.62);border:1px solid rgba(229,179,244,.46);
+ border-radius:10px;box-shadow:inset 0 1px rgba(255,255,255,.13);
+ cursor:pointer;touch-action:manipulation
+}
+#hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhPlannerTimeV939{
+ display:block!important;min-height:0!important;margin:0!important;
+ padding:0!important;border:0!important;background:transparent!important;
+ box-shadow:none!important;backdrop-filter:none!important;
+}
+#hhBkkGoldenPlannerV968 #hhPlannerDateV939,
+#hhBkkGoldenPlannerV968 #hhPlannerTimeLabelV939{display:none!important}
+#hhBkkGoldenPlannerV968 #hhPlannerTimeStatusV939:empty{display:none!important}
+#hhBkkGoldenPlannerV968 #hhPlannerTimeStatusV939:not(:empty){
+ margin:6px 0 0!important;font-size:10px!important;color:#f8dcef!important
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-status-v968{
+ min-height:0;margin:0;color:#eaf0ff;font:610 11px/1.4 system-ui
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-status-v968:empty{display:none!important}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-trips-v968{
+ margin-top:9px;padding:9px;display:grid;gap:8px;
+ border-radius:11px;border:1px solid var(--goutline);
+ background:var(--gdeep);color:#fff;font:620 11px/1.3 system-ui
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-trips-v968[hidden]{display:none!important}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-saved-v968{
+ display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:5px;align-items:center;
+ border-bottom:1px solid rgba(255,255,255,.18);padding:5px 0;
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-saved-v968 span{
+ overflow-wrap:anywhere;min-width:0
+}
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-saved-v968 button{
+ min-height:33px;padding:5px 6px;border-radius:8px;
+ color:#fff;background:rgba(135,85,182,.56);border:1px solid var(--goutline);
+ font:700 10px/1.1 system-ui
+}
+#hhBkkGoldenPlannerV968 :is(button,input):focus-visible{
+ outline:2px solid var(--gaccent)!important;outline-offset:2px
+}
+@media(max-width:390px){
+ #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968{padding:7px 6px 8px!important}
+ #hhBkkGoldenPlannerV968 .hh-bkk-golden-head-v968 h2{font-size:12px}
+ #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button{font-size:8px!important}
+ #hhBkkGoldenPlannerV968 .hh-bkk-golden-routebox-v968{gap:5px}
+ #hhBkkGoldenPlannerV968 .hh-bkk-golden-date-v968 b,
+ #hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968 b{font-size:9px}
+}
+@media(prefers-reduced-transparency:reduce){
+ #hhBkkGoldenPlannerV968{background:#3b326a!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+ :root[data-guardian-profile="m"] #hhBkkGoldenPlannerV968{background:#653d73!important}
+}
