@@ -156,13 +156,36 @@
     departures.parentNode.insertBefore(panel,departures);
    }
    panel.replaceChildren();
-   panel.append(span('rail-search-title','🚆 Útvonalkeresés'));
+   // Compact Golden Standard title: route-map pin pictogram, no text clutter.
+   const title=doc.createElement('div');title.className='rail-search-heading-v977';
+   if(typeof doc.createElementNS==='function'){
+    const ns='http://www.w3.org/2000/svg';
+    const svg=doc.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 48 48');
+    svg.setAttribute('fill','none');
+    svg.setAttribute('aria-hidden','true');
+    const path=doc.createElementNS(ns,'path');
+    path.setAttribute('d','M14 35 L25 25 L34 34');
+    path.setAttribute('stroke','#95dcff');path.setAttribute('stroke-width','3');
+    path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-dasharray','3 4');
+    svg.append(path);
+    for(const [x,y] of [[13,33],[26,22],[35,33]]){
+     const marker=doc.createElementNS(ns,'circle');
+     marker.setAttribute('cx',x);marker.setAttribute('cy',y);marker.setAttribute('r','4.5');
+     marker.setAttribute('fill','#156ddb');marker.setAttribute('stroke','#d4f4ff');
+     marker.setAttribute('stroke-width','2');svg.append(marker);
+    }
+    const emblem=doc.createElement('span');emblem.className='rail-search-icon-v977';
+    emblem.append(svg);title.append(emblem);
+   }
+   title.append(span('rail-search-title','Útvonalkeresés'));
+   panel.append(title);
    panel.append(span('rail-search-route',q.from+' → '+q.to));
    const chosen=fmt(new Date(q.when));
    const label=q.mode==='arrive'?'Érkezés eddig':q.mode==='depart'?'Indulás ekkor':'Indulás most';
    panel.append(span('rail-search-meta',label+' · '+dateFmt.format(new Date(q.when))+' · '+chosen));
-   if(q.mode!=='now')panel.append(span('rail-warning','A dátumot és az időmódot az SH9 megőrizte. A külső Google Térkép-hivatkozás ezeket nem adja át; ott szükség esetén külön válaszd ki.'));
-   panel.append(span('rail-search-source-info','A saját menetrendi találatokhoz engedélyezett GTFS vagy Google Routes adatkapcsolat szükséges. Addig a hivatalos szolgáltatások külön nyithatók meg.'));
+   // No duplicated technical disclaimers in the route card.
+   // Source and schedule/live status are displayed in the train results instead.
    const actions=doc.createElement('div');actions.className='rail-empty-actions';
    actions.append(btn('Google Térkép ↗',transitLink(q)),btn('MÁVPlusz ↗','https://mavplusz.hu/'));
    panel.append(actions);
@@ -193,14 +216,8 @@
    const isGoogle=result?.attribution==='© Google Maps';
    last=q;
    presentSearch(q);
-   // Replace external-planner timing disclaimer: native GTFS schedule respects selected mode.
-   const searchPanel=doc.getElementById('rail-journey-result');
-   if(searchPanel){
-    const warning=searchPanel.querySelector('.rail-warning');
-    if(warning)warning.textContent=isGoogle?'A Google tömegközlekedési keresője a választott időpont alapján tervez. A vágány, késés és GPS nem élő adat. © Google Maps':'A helyi MÁV GTFS-menetrend a kiválasztott időpont alapján keres; késés és vágány nem élő adat.';
-    const info=searchPanel.querySelector('.rail-search-source-info');
-    if(info)info.textContent='Járattalálatok forrása: '+String(result?.source||'Engedélyezett menetrendi adatforrás').slice(0,100)+(isGoogle?' · © Google Maps':'')+'. A menetrend nem élő késés- vagy vágányadat.';
-   }
+   // Train cards and source status retain timetable/live disclosure.
+   // The upper route summary intentionally contains just route, time and actions.
    if(!result||result.status!=='ok'){
     emptyState();
     status(result?.status==='station-not-in-feed'
