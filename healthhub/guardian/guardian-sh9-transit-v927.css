@@ -163,3 +163,25 @@
  outline:3px solid var(--sh9-tr-accent);outline-offset:2px;
 }
 :root[data-sh9-transit="on"] #hhSh9FamilyLiveLoginV949:disabled{opacity:.65;cursor:progress}
+
+/* v949 · The SAME login action on the normal Family Guard BKK status bar. */
+:root:not([data-sh9-transit="on"]) #hhSh9FamilyLiveLoginV949{
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
+ flex:1 1 208px;min-height:46px;margin:3px 0;padding:10px 13px;
+ border:1px solid rgba(126,199,250,.68);border-radius:14px;
+ background:linear-gradient(140deg,rgba(51,111,166,.82),rgba(18,45,89,.87));
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 5px 15px #001f4666;
+ color:#f7fbff;font:800 12px/1.35 system-ui,-apple-system,Segoe UI,sans-serif;
+ text-align:center;cursor:pointer;touch-action:manipulation;
+ -webkit-backdrop-filter:blur(16px) saturate(145%);backdrop-filter:blur(16px) saturate(145%);
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"] #hhSh9FamilyLiveLoginV949{
+ border-color:rgba(255,181,231,.75);
+ background:linear-gradient(140deg,rgba(179,78,151,.76),rgba(74,35,98,.89));
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 5px 15px #35133e66;
+}
+:root:not([data-sh9-transit="on"]) #hhSh9FamilyLiveLoginV949[hidden]{display:none!important}
+:root:not([data-sh9-transit="on"]) #hhSh9FamilyLiveLoginV949:disabled{opacity:.65;cursor:progress}
+:root:not([data-sh9-transit="on"]) #hhSh9FamilyLiveLoginV949:focus-visible{
+ outline:3px solid var(--guard-cyan,#79c5ff);outline-offset:2px;
+}
