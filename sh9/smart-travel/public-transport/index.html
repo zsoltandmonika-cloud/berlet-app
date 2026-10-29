@@ -125,10 +125,10 @@ body{background:radial-gradient(ellipse at 50% 25%,#292253,#0c0e24 67%)}
 <div id="smartTripSources" class="trip-journeys" hidden>
 <h3>Menetrendek</h3>
 <div class="trip-source-links"><a href="./bkk/grand-concept/">🚋 BKK</a><a href="./mav/">🚆 MÁV</a><a href="./volan/">🚌 Volán</a></div>
-<p>Az automatikus BKK + MÁV + Volán összehasonlítás még nem él.</p>
+<p>A buszos, vasúti és helyi útvonalakat a hivatalos MÁVPlusz tervező vizsgálja. A HealthHub nem állít elő saját menetrendi találatot.</p>
 </div>
 <section id="smartTripJourneysPanel" class="trip-journeys" aria-label="Mentett Smart Trip utazások" hidden><h3>♥ Utazásaim</h3><div id="smartTripJourneyList"></div></section>
-<p class="trip-status" id="smartTripStatus" role="status" aria-live="polite"><strong>🟡 Smart Trip előnézet.</strong> A keresés egyelőre a meglévő BKK-tervezőre adja át az útvonalat. A MÁV és Volán adatkapcsolatok után lehet teljes multimodális optimalizálás.</p>
+<p class="trip-status" id="smartTripStatus" role="status" aria-live="polite"><strong>🚌🚆 Smart Trip AI + MÁVPlusz.</strong> A keresést a hivatalos, közös BKK + MÁV + Volán tervezőnek adjuk át. A beágyazhatóságot a szolgáltató szabályozza; a hivatalos megnyitás mindig elérhető.</p>
 <p class="trip-help">Az indulási helyet üresen is hagyhatod. A következő képernyőn kiválasztható; automatikus GPS-követés nem indul.</p>
 </section>
 
@@ -148,5 +148,5 @@ const btn=document.getElementById('notifier'),notice=document.getElementById('no
 btn.addEventListener('click',()=>{notice.hidden=!notice.hidden});
 const posterImage=document.getElementById('transportPoster');posterImage.addEventListener('error',()=>{document.getElementById('assetMissing').hidden=false});
 })();
-</script><script defer src="./public-transport-smart-trip-v1.js?v=3"></script>
+</script><link rel="stylesheet" href="./smart-trip-mavplusz-v1003.css?v=1003"><script defer src="./smart-trip-mavplusz-v1003.js?v=1003"></script><script defer src="./public-transport-smart-trip-v1.js?v=1003-mavplusz"></script>
 </body></html>

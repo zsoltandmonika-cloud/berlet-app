@@ -157,6 +157,19 @@ function startSearch(event){
  if(!r.to){to.focus();feedback('Adj meg egy célállomást az útvonaltervezéshez.');return}
  if(r.from&&r.from.toLocaleLowerCase('hu-HU')===r.to.toLocaleLowerCase('hu-HU')){feedback('Két különböző hely szükséges.');return}
  if(r.mode!=='now'&&(!/^\d{4}-\d\d-\d\d$/.test(r.date)||!/^\d\d:\d\d$/.test(r.time))){feedback('Válassz érvényes utazási dátumot és időpontot.');return}
+ // Let the official MÁVPlusz engine do multimodal routing inside our
+ // Golden Glass shell. The legacy BKK Guardian handoff stays available as
+ // a dedicated option within the provider shell.
+ const provider=window.SH9_SMART_TRIP_MAVPLUSZ_V1003;
+ if(provider){
+  const outcome=provider.open(r);
+  if(outcome.ok){
+   feedback(outcome.prepared?'MÁVPlusz keresés megnyitva a HealthHub keretében.':'Hivatalos MÁVPlusz tervező megnyitva. A még nem ismert helyeket ott válaszd ki.');
+   return;
+  }
+  feedback(outcome.error||'A MÁVPlusz tervező megnyitása nem sikerült.');
+  return;
+ }
  const handoff={...r,created:Date.now(),source:'sh9-public-transport-smart-trip-v1'};
  try{sessionStorage.setItem(handoffKey,JSON.stringify(handoff))}
  catch(_){feedback('Az útvonal átadása nem sikerült. Próbáld meg újra, vagy nyisd meg közvetlenül a BKK útvonaltervezőt.');return}

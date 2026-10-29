@@ -1,0 +1,33 @@
+/* Smart Trip AI Golden Glass · official MÁVPlusz provider shell v1003.
+   Only the HealthHub wrapper can be styled: never modify cross-origin provider UI. */
+html.sh9-provider-open-v1003,html.sh9-provider-open-v1003 body{overflow:hidden!important}
+#sh9MavPluszShellV1003[hidden]{display:none!important}
+#sh9MavPluszShellV1003{position:fixed;inset:0;z-index:2147483000;box-sizing:border-box;display:flex;flex-direction:column;gap:0;overflow:hidden;color:#f7fbff;background:#071426;font:13px/1.38 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+#sh9MavPluszShellV1003 *{box-sizing:border-box}
+.sh9-provider-header-v1003{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px max(12px,env(safe-area-inset-right,0px)) 9px max(12px,env(safe-area-inset-left,0px));border-bottom:1px solid #c0e7ff60;background:linear-gradient(112deg,#16467abf,#292e65d9)}
+.sh9-provider-brand-v1003{display:grid;gap:2px;min-width:0}
+.sh9-provider-brand-v1003 strong{color:#fff;font-size:14px;letter-spacing:.03em}
+.sh9-provider-brand-v1003 span{font-size:11px;color:#d5edfe;font-weight:720}
+.sh9-provider-close-v1003{flex:0 0 auto;min-width:44px;min-height:44px;border:1px solid #c3e9ff8c;border-radius:12px;background:#ffffff18;color:#fff;font-size:17px;font-weight:820;touch-action:manipulation}
+.sh9-provider-toolbar-v1003{flex:0 0 auto;display:grid;gap:7px;padding:9px 12px 10px;background:linear-gradient(115deg,rgba(32,81,132,.63),rgba(30,40,92,.67));border-bottom:1px solid #bbe6ff61}
+.sh9-provider-description-v1003{display:grid;gap:3px}
+.sh9-provider-description-v1003 strong{font-size:12px;color:white;overflow-wrap:anywhere}
+.sh9-provider-description-v1003 span{font-size:11px;color:#cee8fc}
+.sh9-provider-support-v1003{font-size:10px;line-height:1.45;color:#f4eecb}
+.sh9-provider-actions-v1003{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:7px}
+.sh9-provider-actions-v1003 :is(a,button){display:flex;align-items:center;justify-content:center;min-height:48px;padding:8px 10px;border:1px solid #c0e6ff9e;border-radius:10px;background:linear-gradient(113deg,#137dc3,#2862b0);color:white;font:800 11px/1.4 system-ui,sans-serif;text-align:center;text-decoration:none;touch-action:manipulation}
+.sh9-provider-actions-v1003 .sh9-provider-bkk-v1003{background:linear-gradient(113deg,#25548a,#344272)}
+.sh9-provider-stage-v1003{flex:1 1 auto;min-height:160px;overflow:hidden;background:#f8f9fc}
+.sh9-provider-frame-v1003{display:block;width:100%;height:100%;border:0;background:#f8f9fc}
+.sh9-provider-foot-v1003{flex:0 0 auto;padding:7px 12px;font-size:9px;line-height:1.35;color:#b9d5e9;background:#081a32;border-top:1px solid #b8dcf842}
+:root[data-profile=m] .sh9-provider-header-v1003{background:linear-gradient(116deg,#793f8acb,#452e74e3);border-color:#fbd0e673}
+:root[data-profile=m] .sh9-provider-toolbar-v1003{background:linear-gradient(122deg,#6c357fc2,#432b6ed5);border-color:#f0c0e470}
+:root[data-profile=m] .sh9-provider-actions-v1003 a{background:linear-gradient(113deg,#c45da6,#8250a9);border-color:#f8ceec}
+:root[data-profile=m] .sh9-provider-actions-v1003 button{background:linear-gradient(113deg,#854573,#5a468c);border-color:#f5cde9}
+#sh9MavPluszShellV1003 :is(button,a):focus-visible{outline:2px solid white;outline-offset:2px}
+@media(max-width:355px){.sh9-provider-actions-v1003{grid-template-columns:1fr}.sh9-provider-foot-v1003{font-size:8px}}
+
+/* Android platform app-link handoff, without leaving the HealthHub shell until user taps. */
+#sh9MavPluszShellV1003 .sh9-provider-app-v1003{width:100%;min-height:49px;padding:10px 12px;border:1px solid #97edcead;border-radius:10px;background:linear-gradient(110deg,#157e73,#1e7aab);color:white;font:850 12px/1.4 system-ui,sans-serif;touch-action:manipulation}
+#sh9MavPluszShellV1003 .sh9-provider-app-v1003[hidden]{display:none!important}
+:root[data-profile=m] #sh9MavPluszShellV1003 .sh9-provider-app-v1003{background:linear-gradient(113deg,#a4519e,#6348a5);border-color:#ffc5e1}
