@@ -8,6 +8,18 @@
  'use strict';
  if(!w||!d)return;
  const LINES=new Set(['260','17','19','1','41']);
+ const PREF='hh-bkk-nearby-quick-prefs-v975-';
+ const profile=()=>{try{return w.localStorage?.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}};
+ function readPrefs(){
+  let raw={};try{raw=JSON.parse(w.localStorage?.getItem(PREF+profile())||'{}')||{}}catch(_){}
+  const lines=Array.isArray(raw.lines)?raw.lines.filter(x=>LINES.has(x)):Array.from(LINES);
+  return {lines:lines.length?Array.from(new Set(lines)):Array.from(LINES),
+   radius:[300,600,1200].includes(raw.radius)?raw.radius:1200,
+   limit:[5,10,15].includes(raw.limit)?raw.limit:10};
+ }
+ function savePrefs(p){
+  try{w.localStorage?.setItem(PREF+profile(),JSON.stringify(p))}catch(_){}
+ }
  const script=d.currentScript;
  const base=script?.src?new URL('./',script.src):new URL('/berlet-app/healthhub/guardian/',w.location.origin);
  const urls={network:new URL('bkk-network-v806.json',base).href,
@@ -60,11 +72,11 @@
   })();
   try{return await loading}finally{loading=null}
  }
- function near(network,location,maxMeters=1200){
+ function near(network,location,maxMeters=1200,allowed=LINES){
   const point={lat:location.lat,lng:location.lng},places=new Map();
   for(const route of network.routes){
    const line=String(route.id||'');
-   if(!LINES.has(line)||!Array.isArray(route.stops))continue;
+   if(!LINES.has(line)||!allowed.has(line)||!Array.isArray(route.stops))continue;
    for(const raw of route.stops){
     if(!Array.isArray(raw)||raw.length<4)continue;
     const [id,name,lat,lng]=raw;
@@ -129,15 +141,65 @@
   note.id='hhBkkNearStatusV975';note.setAttribute('role','status');
   note.setAttribute('aria-live','polite');
   const rows=d.createElement('div');rows.className='hh-bkk-near-rows-v975';
+  const settings=d.createElement('details');settings.id='hhBkkNearSettingsV975';
+  settings.className='hh-bkk-near-settings-v975';
+  const summary=d.createElement('summary');summary.textContent='⚙️ Járatok, távolság és találatok szerkesztése';
+  settings.append(summary);
+  const controls=d.createElement('div');controls.className='hh-bkk-near-controls-v975';
+  const checks=new Map();
+  for(const line of LINES){
+   const label=d.createElement('label');label.className='hh-bkk-near-toggle-v975';
+   const check=d.createElement('input');check.type='checkbox';check.value=line;
+   check.setAttribute('aria-label',line+'-es járat megjelenítése');checks.set(line,check);
+   const text=d.createElement('span');text.textContent=line+(line==='260'?' busz':' villamos');
+   label.append(check,text);controls.append(label);
+  }
+  const range=d.createElement('label');range.className='hh-bkk-near-select-v975';
+  const rangeTitle=d.createElement('span');rangeTitle.textContent='Keresési távolság';
+  const radius=d.createElement('select');radius.setAttribute('aria-label','Keresési távolság');
+  for(const [n,t] of [[300,'300 m'],[600,'600 m'],[1200,'1200 m']]){
+   const opt=d.createElement('option');opt.value=String(n);opt.textContent=t;radius.append(opt);
+  }
+  range.append(rangeTitle,radius);controls.append(range);
+  const amount=d.createElement('label');amount.className='hh-bkk-near-select-v975';
+  const amtTitle=d.createElement('span');amtTitle.textContent='Indulások száma';
+  const limitSelect=d.createElement('select');limitSelect.setAttribute('aria-label','Indulások száma');
+  for(const n of [5,10,15]){
+   const option=d.createElement('option');option.value=String(n);option.textContent=n+' indulás';limitSelect.append(option);
+  }
+  amount.append(amtTitle,limitSelect);controls.append(amount);
+  settings.append(controls);
+  function setControls(){
+   const p=readPrefs();
+   for(const [line,check] of checks)check.checked=p.lines.includes(line);
+   radius.value=String(p.radius);limitSelect.value=String(p.limit);
+  }
+  let lastLocation=null,lastData=null;
+  function settingsChanged(){
+   const lines=[...checks].filter(([_,check])=>check.checked).map(([line])=>line);
+   if(!lines.length){
+    const first=checks.get('260');if(first)first.checked=true;
+    note.textContent='Legalább egy járatot válassz ki.';return;
+   }
+   const p={lines,radius:Number(radius.value),limit:Number(limitSelect.value)};
+   savePrefs(p);
+   if(lastData&&lastLocation){
+    const candidates=near(lastData.network,lastLocation,p.radius,new Set(p.lines));
+    render(departures(lastData.calendar,candidates,Date.now(),p.limit),lastLocation,p);
+   }
+  }
+  for(const check of checks.values())check.addEventListener('change',settingsChanged);
+  radius.addEventListener('change',settingsChanged);
+  limitSelect.addEventListener('change',settingsChanged);
   const footer=d.createElement('small');footer.className='hh-bkk-near-footer-v975';
   footer.textContent='Hivatalos BKK GTFS · tervezett, nem élő indulás. Támogatott járatok: 260, 17, 19, 1, 41. A sétaidő becslés.';
-  panel.append(heading,note,rows,footer);
+  panel.append(heading,settings,note,rows,footer);
   actions.insertAdjacentElement('afterend',btn);
   btn.insertAdjacentElement('afterend',panel);
-  function render(result,loc){
+  function render(result,loc,prefs=readPrefs()){
    rows.replaceChildren();
    if(!result.length){
-    note.textContent='Nincs ellenőrzött, elérhető indulás a következő 12 órában a támogatott öt vonalon, 1,2 km-en belül.';
+    note.textContent='Nincs ellenőrzött, elérhető indulás a kiválasztott járatokon '+prefs.radius+' méteren belül, a következő 12 órában.';
     return;
    }
    note.textContent=result.length+' következő, elérhető menetrendi indulás · GPS-pontosság kb. '+
@@ -161,23 +223,25 @@
   btn.addEventListener('click',async()=>{
    if(working)return;
    panel.hidden=false;btn.setAttribute('aria-expanded','true');
-   working=true;btn.disabled=true;rows.replaceChildren();
+   working=true;btn.disabled=true;rows.replaceChildren();setControls();
    note.textContent='GPS-helyzet kérése…';
    try{
     const loc=await geo();
     note.textContent='Közeli megállók és ellenőrzött BKK-menetrend betöltése…';
-    const {network,calendar}=await load();
-    const candidates=near(network,loc);
+    const data=await load(),{network,calendar}=data,prefs=readPrefs();
+    lastLocation=loc;lastData=data;
+    const candidates=near(network,loc,prefs.radius,new Set(prefs.lines));
     if(!candidates.length){
-     note.textContent='Nincs 260-as, 17-es, 19-es, 1-es vagy 41-es megálló 1,2 km-en belül. Más járatok menetrendjéhez még bővíteni kell a forrást.';
+     rows.replaceChildren();
+     note.textContent='Nincs a kiválasztott járatokhoz megálló '+prefs.radius+' méteren belül. Módosítsd a szűrőket.';
      return;
     }
-    render(departures(calendar,candidates),loc);
+    render(departures(calendar,candidates,Date.now(),prefs.limit),loc,prefs);
     panel.scrollIntoView({behavior:'smooth',block:'nearest'});
    }catch(e){note.textContent='⚠️ '+String(e?.message||'Nem sikerült a keresés.')}
    finally{working=false;btn.disabled=false}
   });
-  w.HH_BKK_NEAR_DEPARTURES_V975=Object.freeze({near,departures,version:'975'});
+  w.HH_BKK_NEAR_DEPARTURES_V975=Object.freeze({near,departures,readPrefs,version:'975-editable'});
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
