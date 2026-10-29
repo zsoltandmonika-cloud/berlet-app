@@ -14,7 +14,7 @@ function fakeEl(id){
   setAttribute(){},append(){},prepend(){},insertBefore(){},
   addEventListener(k,fn){this.handlers[k]=fn}};
 }
-function boot(session){
+function boot(session,search='?sh9Transit=1'){
  const els=new Map();
  const el=id=>{if(!els.has(id))els.set(id,fakeEl(id));return els.get(id)};
  const d={hidden:false,getElementById:el,createElement:()=>{
@@ -29,7 +29,7 @@ function boot(session){
   }
  };
  const map={getBounds:()=>({getWest:()=>18.9,getEast:()=>19.2,getSouth:()=>47.3,getNorth:()=>47.7})};
- const w={location:{search:'?sh9Transit=1',origin:'https://example.org',pathname:'/berlet-app/healthhub/guardian/'},
+ const w={location:{search,origin:'https://example.org',pathname:'/berlet-app/healthhub/guardian/'},
   HH_BKK_LIVE_V793:{validate:()=>({ok:true,generatedAt:new Date().toISOString(),vehicles:[]})},
   HH_BKK_LIVE_MAP_V793:{render:()=>true,clear(){}},HH_GUARDIAN_V761:{map},
   HH_GUARDIAN_LIVE_V785:{getClient:()=>client},
@@ -58,6 +58,16 @@ test('tablet-only Family Live sign-in appears on missing session and invokes exi
  assert.equal(login.x.options.redirectTo,'https://example.org/berlet-app/healthhub/guardian/');
  assert.equal(ui.store.get('hh-sh9-family-login-return-v949'),'1');
 });
+test('normal Family Guard also offers read-only BKK login without SH9 navigation hint',async()=>{
+ const ui=boot(null,'');
+ await flush();
+ const btn=ui.el('hhSh9FamilyLiveLoginV949');
+ assert.equal(btn.hidden,false);
+ assert.match(ui.el('hhBkkLiveStatusV793').textContent,/bejelentkezés gombra/);
+ await btn.handlers.click();
+ assert.equal(ui.calls.find(c=>c.kind==='login').x.provider,'google');
+ assert.equal(ui.store.has('hh-sh9-family-login-return-v949'),false);
+});
 test('tablet sign-in button stays hidden when a Family Live session already exists',async()=>{
  const ui=boot({access_token:'valid-test-token'});
  await flush();
@@ -70,7 +80,7 @@ test('SH9 theme uses existing profile variables, retains normal Family Guard and
  assert.match(css,/var\(--sh9-tr-glow\)/);
  assert.match(css,/#hhSh9FamilyLiveLoginV949\[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(live,/startSharing\(|watchPosition\(|getCurrentPosition\(/);
- assert.match(live,/sh9AllMode\?d\.createElement\('button'\):null/);
+ assert.match(live,/const loginButton=d\.createElement\('button'\)/);
 });
 test('OAuth return restores SH9 URL but preserves implicit auth hash',()=>{
  const script=html.match(/<script>\s*\/\* v949:[\s\S]*?<\/script>/)?.[0];
