@@ -1,0 +1,41 @@
+/* SH9 Smart Hub v954 · first pass: eliminate idle copy, not useful status.
+ * Scoped to the existing Guardian Smart Hub. Do not alter navigation, GPS,
+ * map, profile, BKK GTFS loading, error messages or trip-planning behavior.
+ * Three empty live regions remain in DOM for meaningful runtime feedback.
+ */
+#hhSmartHubDestinationV802 :is(
+  #hhActiveTransitStatusV862,
+  #hhPlannerTimeStatusV939,
+  #hhSmartHubDestinationStatusV802,
+  #hhSmartHubTripStatusV804
+):empty{display:none!important}
+#hhSmartHubDestinationV802 .hh-smart-hub-auto-v806[hidden]{
+  display:none!important
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954{
+  border-top:1px solid rgba(155,190,224,.20);
+  margin-top:1px;
+  padding:5px 0 0;
+  color:var(--muted,#b3c3d4);
+  font:600 10px/1.35 system-ui
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954 summary{
+  cursor:pointer;
+  padding:5px 3px;
+  list-style:revert;
+  width:max-content;
+  max-width:100%;
+  touch-action:manipulation
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954 summary:focus-visible{
+  outline:2px solid currentColor;outline-offset:2px
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954[open]{
+  padding-bottom:6px
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954 p{
+  padding:6px 3px 2px;
+  margin:0;
+  font:500 10px/1.5 system-ui;
+  color:inherit
+}

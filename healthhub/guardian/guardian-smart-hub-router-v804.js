@@ -334,9 +334,9 @@ function renderGuide(){
   if(field)field.hidden=timeChoice.mode==='now';
   if(label){label.hidden=timeChoice.mode==='now';label.textContent=timeChoice.mode==='arrive'?'Mikorra szeretnél megérkezni?':'Mikor szeretnél indulni?'}
   const note=$('hhPlannerTimeStatusV939');
-  if(note)note.textContent=timeChoice.mode==='now'?'Indulás most · a következő igazolható BKK-járatokat keressük.':
-   timeChoice.mode==='arrive'?'Érkezés eddig · legkésőbbi igazolt indulási lehetőséget keressük.':
-    'Indulás ettől · ellenőrzött menetrendi járatokat keresünk.';
+  // Normal mode is already clear from the selected button. Keep live
+  // validation messages, but do not repeat the user's selection in prose.
+  if(note)note.textContent='';
  }
  function setTimeChoice(mode,at=null,now=Date.now()){
   if(!['now','depart','arrive'].includes(mode))return false;
@@ -356,7 +356,7 @@ function renderGuide(){
   if(optTransfers)optTransfers.setAttribute('aria-pressed',String(priority==='transfers'));
   if(optWalking)optWalking.setAttribute('aria-pressed',String(priority==='walking'));
   if(!start||!target){
-   note.textContent='Az útvonaljavaslathoz válassz ki egy indulási helyet és egy úti célt.';return
+   note.textContent='';return
   }
   if(!feed&&!network){note.textContent='A hivatalos BKK megállóadatok betöltése…';return}
   const networkModule=w.HH_SMART_HUB_NETWORK_V806;

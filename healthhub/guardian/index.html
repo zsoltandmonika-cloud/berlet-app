@@ -114,6 +114,7 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
 <link rel="stylesheet" href="./guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit">
 <link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=953-compact-title-up">
 <link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=928-viewport-low-usage">
+<link rel="stylesheet" href="./guardian-smart-hub-clean-space-v954.css?v=954">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -288,7 +289,7 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
          <button id="hhActiveTransitConfirmV862" type="button">✓ Ezen utazom</button>
         </div>
        </div>
-       <p id="hhActiveTransitStatusV862" class="hh-active-transit-status-v862" aria-live="polite">Egyetlen koppintással indulhatsz, útvonalterv nélkül is.</p>
+       <p id="hhActiveTransitStatusV862" class="hh-active-transit-status-v862" aria-live="polite"></p>
       </section>
       <div id="hhSmartHubPairedV806" class="hh-smart-hub-paired-v806">
         <div class="hh-smart-hub-field-v806">
@@ -314,11 +315,11 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
         </div>
         <label id="hhPlannerTimeLabelV939" for="hhPlannerDateV939" hidden>Választott időpont</label>
         <input type="datetime-local" id="hhPlannerDateV939" aria-labelledby="hhPlannerTimeLabelV939" step="60" hidden>
-        <p id="hhPlannerTimeStatusV939" role="status" aria-live="polite">Indulás most · csak ellenőrzött GTFS-menetrendi idők jelennek meg.</p>
+        <p id="hhPlannerTimeStatusV939" role="status" aria-live="polite"></p>
       </section>
-      <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Koppints egy mezőre, majd a találatra. Két hely után automatikusan tervezünk.</p>
+      <p id="hhSmartHubDestinationStatusV802" class="hh-smart-hub-status-v802" role="status" aria-live="polite"></p>
       <div id="hhSmartHubNativeResultsV803" class="hh-smart-hub-results-v803" role="list" aria-label="Valós helytalálatok"></div>
-      <div class="hh-smart-hub-auto-v806">
+      <div class="hh-smart-hub-auto-v806" hidden>
         <button type="button" id="hhSmartHubPlanV806" disabled>🧭 Útvonaltervezés · válassz két helyet</button>
       </div>
       <details id="hhSmartHubFavoritesV806" class="hh-smart-hub-favorites-v806">
@@ -335,7 +336,7 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
           <button type="button" id="hhSmartHubPriorityWalkingV805" aria-pressed="false">Kevesebb gyaloglás</button>
           <button type="button" id="hhSmartHubPriorityWaitingV806" aria-pressed="false" disabled title="Menetrendi és csatlakozási időadatok bekötése után">Kevesebb várakozás</button>
         </div>
-        <p id="hhSmartHubTripStatusV804" class="hh-smart-hub-status-v802" role="status" aria-live="polite">Válassz indulási helyet és úti célt.</p>
+        <p id="hhSmartHubTripStatusV804" class="hh-smart-hub-status-v802" role="status" aria-live="polite"></p>
         <div id="hhSmartHubTripPlansV804" class="hh-smart-hub-plans-v804"></div>
         <section id="hhSmartHubGuideV805" class="hh-smart-trip-guide-v805" aria-label="Trip Plan Flow · teljes útvonal áttekintése" hidden>
           <div class="hh-smart-trip-guide-top-v805">
@@ -350,9 +351,12 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
             <button type="button" id="hhSmartHubGuideNextV805">Következő lépés →</button>
           </div>
         </section>
-        <p class="hh-smart-hub-privacy-v802">A megállók és az útvonalak hivatalos BKK GTFS-adatok. Az itt jelzett gyaloglás légvonalbeli távolság, nem járdákra tervezett séta. Menetrendi indulás csak összeillesztett, érvényes GTFS-járatnál jelenik meg, élő késési korrekció nélkül.</p>
-      </section>
-      <p class="hh-smart-hub-privacy-v802">A helytalálatok OpenStreetMap-alapú Photon adatokból származnak, és a saját HealthHub 3D térképen jelennek meg. A keresett szöveget a helykereső szolgáltatás kapja meg; GPS-t nem kérünk. Forrás: © OpenStreetMap-közreműködők · Photon (komoot). A három ellenőrzött vonalra korlátozott menetrendi útvonaljavaslat külön jelenik meg.</p>
+        </section>
+       <details class="hh-smart-hub-sources-v954">
+         <summary>ⓘ Adatok és pontosság</summary>
+         <p class="hh-smart-hub-privacy-v802">A megállók és az útvonalak hivatalos BKK GTFS-adatok. Az itt jelzett gyaloglás légvonalbeli távolság, nem járdákra tervezett séta. Menetrendi indulás csak összeillesztett, érvényes GTFS-járatnál jelenik meg, élő késési korrekció nélkül.</p>
+         <p class="hh-smart-hub-privacy-v802">A helytalálatok OpenStreetMap-alapú Photon adatokból származnak, és a saját HealthHub 3D térképen jelennek meg. A keresett szöveget a helykereső szolgáltatás kapja meg; GPS-t nem kérünk. Forrás: © OpenStreetMap-közreműködők · Photon (komoot). A három ellenőrzött vonalra korlátozott menetrendi útvonaljavaslat külön jelenik meg.</p>
+       </details>
     </section>
     <details id="hhBkkCatalogV801" class="hh-bkk-catalog-v801">
       <summary><span aria-hidden="true">🔎</span> Smart Hub · További BKK-járatok <span class="hh-bkk-catalog-chevron" aria-hidden="true">⌄</span></summary>
@@ -621,14 +625,14 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
 <script defer src="./guardian-bkk-catalog-v801.js?v=911-universal-bkk-live"></script>
 <script defer src="./guardian-bkk-extra-route-v912.js?v=913-static-no-auto-popup"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=912-extra-gtfs-stop-pattern"></script>
-<script defer src="./guardian-smart-hub-fields-v806.js?v=941-route-refresh-label&pin=829"></script>
+<script defer src="./guardian-smart-hub-fields-v806.js?v=954-clean-instructions&pin=829"></script>
 <script defer src="./guardian-map-search-v819.js?v=864-one-tap-full-minimize"></script>
 <script defer src="./guardian-map-dock-fill-v828.js?v=829-dock-robust"></script>
 <script defer src="./guardian-keyboard-guard-v832.js?v=832-keyboard-safe"></script>
 <script defer src="./guardian-origin-search-v836.js?v=836-map-from-search"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a&no960=840"></script>
 <script defer src="./guardian-bkk-timetable-v859.js?v=939-time-modes-next-service"></script>
-<script defer src="./guardian-smart-hub-router-v804.js?v=939-time-modes-next-service&no960=840"></script>
+<script defer src="./guardian-smart-hub-router-v804.js?v=954-clean-space&no960=840"></script>
 <script defer src="./guardian-live-flow-core-v863.js?v=863-direction-confidence-fix"></script>
 <script defer src="./guardian-active-transit-v862.js?v=863-flow-auto-two-fixes"></script>
 <script defer src="./guardian-live-flow-v863.js?v=863-family-gps-freshness-fix"></script>

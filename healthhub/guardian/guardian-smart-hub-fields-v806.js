@@ -143,7 +143,10 @@
   if(!inputs.origin||!inputs.destination||!results||!status||!swapButton||!planButton||!favorites||!locateButton)return;
   let state={origin:null,destination:null},active='destination',timer=null,pending=null,requestId=0,lastRequest=0;
   let markers={origin:null,destination:null},storedProfile=profileId(w.localStorage),geoBusy=false;
-  const message=text=>{status.textContent=text};
+  // Routine instructions no longer consume vertical space. Relevant search,
+   // GPS, permission and persistence errors remain in the live status element.
+   const routineHint=/^(?:Koppints\b|Válassz\b|Írj legalább\b|Hely rögzítve\b|Honnan és Hová ellenőrizve\b|Helyek felcserélve\b|(?:Zsolt|Mónika) profilja aktív\b)/;
+   const message=text=>{status.textContent=routineHint.test(text)?'':text};
   const fields=()=>inputs;
   function stopRequest(){
    requestId++;if(timer!==null){w.clearTimeout(timer);timer=null}
@@ -159,6 +162,8 @@
    }
    planButton.disabled=!state.origin||!state.destination;
    planButton.textContent=planButton.disabled?'🧭 Útvonaltervezés · válassz két helyet':'🔄 Útvonalak frissítése';
+    const planWrapper=planButton.closest('.hh-smart-hub-auto-v806');
+    if(planWrapper)planWrapper.hidden=planButton.disabled;
   }
   function updateMap(place,kind){
    const map=w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
