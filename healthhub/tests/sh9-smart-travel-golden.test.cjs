@@ -606,7 +606,8 @@ test('BKK planner v939 departure, arrive-by and verified next three departures',
   'hhPlannerDateV939','hhPlannerTimeStatusV939'])assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(html,/guardian-planner-time-v939\.css\?v=939-arrival-departure/);
  assert.match(html,/guardian-bkk-timetable-v859\.js\?v=939-time-modes-next-service/);
- assert.match(html,/guardian-smart-hub-router-v804\.js\?v=939-time-modes-next-service/);
+ // v954 updated the router cache key while keeping the v939 time-mode API intact.
+  assert.match(html,/guardian-smart-hub-router-v804\.js\?v=954-clean-space/);
  assert.match(css,/\.hh-planner-time-buttons-v939/);
  assert.match(css,/\.hh-next-departures-v939\[hidden\]/);
  assert.match(router,/function setTimeChoice\(mode,at=null,now=Date\.now\(\)\)/);
@@ -705,3 +706,6 @@ test('Expanded Smart Trip Glass card dynamically reaches the actual bottom taskb
  assert.match(html,/class="transport-options transport-neon-options"/);
  assert.equal([...html.matchAll(/class="transport-choice /g)].length,4);
 });
+
+// Unifying the BKK live planner must not alter existing functions or data layers.
+require('./sh9-smart-planner-unified-v955.test.cjs');

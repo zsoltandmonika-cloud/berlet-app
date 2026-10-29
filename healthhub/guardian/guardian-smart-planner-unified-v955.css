@@ -1,0 +1,148 @@
+/* SH9 Smart Planner v955 · one cohesive Premium Glass panel.
+   Intent: visual unification only. Existing DOM IDs, taps, accessible status,
+   BKK route data, map/GPS flow, favorites, profile colors and nav are unchanged.
+   The outer Smart Hub owns the ONE glass surface. Internal sections are open,
+   with hairline seams rather than nested glass cards. */
+#hhSmartHubDestinationV802.hh-smart-hub-v802{
+  --sh9-planner-seam:rgba(95,116,143,.23);
+  display:grid!important;
+  gap:0!important;
+  padding:13px 13px 11px!important;
+  border-radius:20px!important;
+}
+:root[data-guardian-profile="m"] #hhSmartHubDestinationV802{
+  --sh9-planner-seam:rgba(118,75,104,.22);
+}
+/* Header and boarding belong to the same continuous sheet. */
+#hhSmartHubDestinationV802 .hh-smart-hub-top-v802{
+  min-width:0;
+  padding:0 0 12px!important;
+}
+#hhSmartHubDestinationV802 .hh-active-transit-v862{
+  margin:0!important;
+  padding:0 0 13px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+#hhSmartHubDestinationV802 .hh-active-transit-top-v862{
+  gap:7px;
+}
+#hhSmartHubDestinationV802 .hh-active-transit-current-v862{
+  margin:5px 2px 0!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+}
+#hhSmartHubDestinationV802 .hh-active-transit-status-v862:not(:empty){
+  margin:6px 1px 0!important;
+}
+/* Destination is the primary action: two native fields, no field-shaped cards. */
+#hhSmartHubDestinationV802 .hh-smart-hub-paired-v806{
+  border-top:1px solid var(--sh9-planner-seam)!important;
+  padding:12px 0!important;
+  margin:0!important;
+  row-gap:10px!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-field-v806{
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  min-width:0;
+  gap:5px!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-field-v806 input{
+  min-height:44px!important;
+  border-radius:10px!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-field-v806 input:focus-visible{
+  outline:2px solid var(--accent)!important;
+  outline-offset:2px!important;
+}
+/* Time choice is the next row in the same panel, not another card. */
+#hhSmartHubDestinationV802 .hh-planner-time-v939{
+  margin:0!important;
+  padding:11px 0 12px!important;
+  gap:9px!important;
+  border:0!important;
+  border-top:1px solid var(--sh9-planner-seam)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+/* Live diagnostics remain visible when populated, hidden when idle (v954). */
+#hhSmartHubDestinationV802 #hhSmartHubDestinationStatusV802:not(:empty),
+#hhSmartHubDestinationV802 #hhSmartHubTripStatusV804:not(:empty){
+  margin:6px 0 8px!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-results-v803:not(:empty){
+  margin:5px 0 9px!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-auto-v806:not([hidden]){
+  margin:8px 0 11px!important;
+}
+/* Favorite places and BKK suggestions share the same sheet and fine dividers. */
+#hhSmartHubDestinationV802 .hh-smart-hub-favorites-v806{
+  margin:0!important;
+  padding:5px 0 6px!important;
+  border:0!important;
+  border-top:1px solid var(--sh9-planner-seam)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-favorites-v806>summary{
+  min-height:44px!important;
+  padding:2px 1px!important;
+  cursor:pointer;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-favorites-v806>summary:focus-visible{
+  outline:2px solid var(--accent)!important;
+  outline-offset:2px!important;
+  border-radius:6px;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-routes-v804{
+  margin:0!important;
+  padding:12px 0 9px!important;
+  border-top:1px solid var(--sh9-planner-seam)!important;
+  gap:9px!important;
+  min-width:0;
+}
+#hhSmartHubDestinationV802 .hh-smart-hub-priority-v805{
+  margin:0!important;
+}
+/* Trip offers are DATA cards, so keep their actual selectable styling. */
+#hhSmartHubDestinationV802 .hh-smart-hub-plans-v804:not(:empty){
+  margin-top:4px!important;
+}
+/* Attribution remains accessible but unobtrusive, following v954. */
+#hhSmartHubDestinationV802 .hh-smart-hub-sources-v954{
+  margin:0!important;
+  padding:5px 0 0!important;
+  border-top:1px solid var(--sh9-planner-seam)!important;
+}
+#hhSmartHubDestinationV802 :is(
+ .hh-active-transit-v862,.hh-planner-time-v939,
+ .hh-smart-hub-favorites-v806,.hh-smart-hub-routes-v804
+) [hidden]{display:none!important}
+@media(max-width:375px){
+  #hhSmartHubDestinationV802.hh-smart-hub-v802{padding:11px 10px 10px!important}
+  #hhSmartHubDestinationV802 .hh-smart-hub-paired-v806{row-gap:8px!important}
+  #hhSmartHubDestinationV802 .hh-smart-trip-title-v804 small{font-size:9px!important}
+}
+@media(prefers-reduced-transparency:reduce){
+  #hhSmartHubDestinationV802 .hh-active-transit-v862,
+  #hhSmartHubDestinationV802 .hh-planner-time-v939,
+  #hhSmartHubDestinationV802 .hh-smart-hub-favorites-v806{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+}
