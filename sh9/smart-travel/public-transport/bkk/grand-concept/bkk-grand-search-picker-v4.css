@@ -137,3 +137,9 @@
  #bkkGrandKeyboardDockV4{left:5px!important;right:5px!important;padding:8px}
  #bkkGrandPredictionsV4 .bkk-grand-prediction-v4{gap:6px;padding:7px}
 }
+
+/* v974: Example labels are only hints; never look like confirmed destinations. */
+#planner .stations input::placeholder{
+ color:rgba(204,220,245,.64)!important;opacity:1!important;
+ font-weight:480!important;font-style:italic!important
+}
