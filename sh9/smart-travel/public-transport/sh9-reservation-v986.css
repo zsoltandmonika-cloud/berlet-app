@@ -1,0 +1,10 @@
+.sh9-reservation-v986{margin:10px 0 2px;border:1px solid rgba(195,226,255,.52);border-radius:12px;background:linear-gradient(128deg,rgba(41,89,146,.6),rgba(48,39,91,.69));color:#f5faff}
+.sh9-reservation-v986 summary{cursor:pointer;min-height:48px;display:flex;align-items:center;padding:12px;font-size:12px;font-weight:800;touch-action:manipulation}
+.sh9-reservation-body-v986{padding:0 11px 12px;display:grid;gap:9px}
+.sh9-reservation-body-v986 p{margin:0;font-size:11px;line-height:1.45}
+.sh9-reservation-body-v986 label{display:grid;gap:5px;font-size:11px;font-weight:750}
+.sh9-reservation-body-v986 select{width:100%;min-height:44px;color:#fff;background:#183d6b;border:1px solid #adceec;border-radius:9px;padding:8px}
+.sh9-reservation-body-v986 button{width:100%;min-height:48px;color:white;font-weight:800;border-radius:10px;border:1px solid #acd8fb;background:linear-gradient(115deg,#087dc7,#2553a3);touch-action:manipulation}
+.sh9-reservation-preview-v986{font-size:11px;font-weight:750;color:#dcf2ff;overflow-wrap:anywhere}
+:root[data-profile=m] .sh9-reservation-v986{background:linear-gradient(130deg,rgba(138,62,137,.56),rgba(62,32,100,.78));border-color:rgba(255,193,240,.59)}
+:root[data-profile=m] .sh9-reservation-body-v986 button{background:linear-gradient(115deg,#c04aab,#8553b4)}
