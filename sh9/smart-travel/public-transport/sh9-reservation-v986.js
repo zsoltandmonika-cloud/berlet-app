@@ -50,4 +50,24 @@ action.addEventListener('click',()=>{
 });
 body.append(note,preview,action);
 form.append(head,body);root.append(form);
+/* v988: concrete result handoff. Never invent station identifiers. */
+w.SH9_RESERVATION_V987=Object.freeze({
+ openItinerary(j){
+  const first=j?.legs?.[0],last=j?.legs?.[j.legs.length-1];
+  if(!first||!last){w.location.assign('https://mavplusz.hu/');return false}
+  const a=String(first.from||'').trim().toLowerCase(),b=String(last.to||'').trim().toLowerCase();
+  const origin=/^(budapest|budapest-keleti|budapest keleti|keleti pályaudvar|budapest-keleti pályaudvar)$/.test(a);
+  const dest=/^kazincbarcika(?:,? vasútállomás)?$/.test(b);
+  const dt=new Date(first.departure);
+  if(service==='mav'&&origin&&dest&&Number.isFinite(dt.getTime())){
+   const local=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(dt);
+   const p={};for(const x of local)p[x.type]=x.value;
+   const date=p.year+'-'+p.month+'-'+p.day,time=p.hour+':'+p.minute;
+   const args=new URLSearchParams({ui_itineraryView:'full',fromPlace:'BUDAPEST*::47.4978789,19.0402383::OSM:Budapest',toPlace:'Kazincbarcika, vasútállomás::48.263975,20.628052::hkir:hkir_213692_1',date,time,arriveBy:'false',mode:'WALK,TRANSIT',showIntermediateStops:'true',ignoreRealtimeUpdates:'true',numItineraries:'15'});
+   w.location.assign('https://mavplusz.hu/#/?'+args.toString());return true;
+  }
+  // No confirmed place IDs for other destinations; use official planner.
+  w.location.assign('https://mavplusz.hu/');return false;
+ }
+});
 })(window,document);
