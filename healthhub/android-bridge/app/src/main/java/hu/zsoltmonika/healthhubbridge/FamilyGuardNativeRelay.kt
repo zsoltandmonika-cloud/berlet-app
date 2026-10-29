@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.Mutex
 import org.json.JSONObject
 import java.time.Instant
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * HH One -> private Dropbox App Folder -> Family Guard. Single latest fix only,
@@ -43,7 +44,10 @@ object FamilyGuardNativeRelay {
     private const val DEVICE_ID_KEY = "orchestrator_device_id_v1"
     private val io = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val uploadLock = Mutex()
+    private val uploadInFlight = AtomicBoolean(false)
     @Volatile private var lastQueuedAt = 0L
+    @Volatile private var lastFailureAt = 0L
+    @Volatile private var foldersReady = false
 
     fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
@@ -67,6 +71,7 @@ object FamilyGuardNativeRelay {
         // Suppress any previous in-memory snapshot; next GPS fix must reflect
         // the newly consented/withdrawn state, not a queued old value.
         lastQueuedAt = 0L
+        lastFailureAt = 0L
         return true
     }
 
@@ -97,13 +102,15 @@ object FamilyGuardNativeRelay {
     }
 
     private suspend fun ensureFolder(context: Context) {
+        if (foldersReady) return
         val p = prefs(context)
         DropboxVaultClient.ensureFolder(p, DropboxVaultClient.ROOT)
         DropboxVaultClient.ensureFolder(p, DIRECTORY)
         DropboxVaultClient.ensureFolder(p, LIVE_DIRECTORY)
+        foldersReady = true
     }
 
-    fun publish(context: Context, location: Location) {
+    fun publish(context: Context, location: Location, mode: SmartLocationPolicy.Mode) {
         if (!enabled(context) || !Sh9GpsService.active) return
         val ageMs = System.currentTimeMillis() - location.time
         if (ageMs < -5_000 || ageMs > 20_000 || !location.hasAccuracy() ||
@@ -111,13 +118,22 @@ object FamilyGuardNativeRelay {
             location.latitude !in -90.0..90.0 ||
             location.longitude !in -180.0..180.0) return
         val now = System.currentTimeMillis()
-        // 30-second upload minimum. GPS measurements may remain every 15 sec.
-        if (now - lastQueuedAt < maxOf(30_000L, Sh9GpsService.interval(context) * 1_000L)) return
+        val speedMps = if (location.hasSpeed() && location.speed.isFinite() &&
+            location.speed >= 0f) location.speed else null
+        val intervalMs = NativeGpsUploadPolicy.minimumUploadMs(
+            Sh9GpsService.interval(context), mode, speedMps, location.accuracy)
+        if (now - lastQueuedAt < intervalMs || now - lastFailureAt < 60_000L) return
+        // Prevent an accumulating backlog when Dropbox requests are slower
+        // than the GPS samples. Newest real fix wins on the next opportunity.
+        if (!uploadInFlight.compareAndSet(false, true)) return
         lastQueuedAt = now
         val app = context.applicationContext
-        val profile = owner(app) ?: return
-        val speed = if (location.hasSpeed() && location.speed >= 0f)
-            (location.speed * 3.6).toDouble() else null
+        val profile = owner(app)
+        if (profile == null) {
+            uploadInFlight.set(false)
+            return
+        }
+        val speed = speedMps?.let { (it * 3.6).toDouble() }
         // Battery is sampled on THIS approved physical device at the same
         // instant as the one existing consented live GPS snapshot.
         // No extra permission, writer, endpoint or location sharing is started.
@@ -168,14 +184,18 @@ object FamilyGuardNativeRelay {
                         .put("battery_charging", JSONObject.NULL)
                 }
                 DropboxVaultClient.uploadText(prefs(app), latestPath(profile), finalPayload.toString())
+                lastFailureAt = 0L
                 prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
                     .putString(KEY_RESULT, "uploaded").apply()
             } catch (e: Exception) {
-                lastQueuedAt = 0L
+                // Retry at most once a minute on Dropbox errors: no request storm.
+                lastFailureAt = System.currentTimeMillis()
+                foldersReady = false
                 prefs(app).edit().putString(KEY_RESULT,
                     "network-error:" + e.javaClass.simpleName.take(40)).apply()
             } finally {
                 uploadLock.unlock()
+                uploadInFlight.set(false)
             }
         }
     }
@@ -187,6 +207,7 @@ object FamilyGuardNativeRelay {
             .putBoolean(KEY_BATTERY_SHARE, false)
             .putString(KEY_RESULT, "stopping").apply()
         lastQueuedAt = 0L
+        lastFailureAt = 0L
         val req = OneTimeWorkRequestBuilder<GuardianNativeRevokeWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
