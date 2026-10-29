@@ -110,7 +110,7 @@
 /* v603 · Actual native Android date/time pickers over the existing glass digits.
    Invisible inputs are touch targets; no fake JS-only calendar or keyboard popup. */
 .datetime .datebox,.datetime .timebox{position:relative;height:100%;cursor:pointer;touch-action:manipulation}
-.datetime .rail-picker-overlay{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;margin:0;padding:0;opacity:0;pointer-events:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.datetime .rail-picker-overlay{position:absolute;inset:0;z-index:4;display:block;width:100%;height:100%;margin:0;padding:0;opacity:0;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .datetime .datebox:focus,.datetime .datebox:focus-within,.datetime .timebox:focus,.datetime .timebox:focus-within{outline:1px solid rgba(179,235,255,.7);outline-offset:-1px;border-radius:8px}
 :root[data-profile="m"] .datetime .datebox:focus-within,:root[data-profile="m"] .datetime .timebox:focus-within{outline-color:rgba(255,188,245,.85)}
 .datetime #when.whenInput{display:none!important}
@@ -296,7 +296,7 @@ function showDateTime(){
  }else{$('dateTxt').textContent='Dátum';$('timeTxt').textContent='Idő'}
  $('when').value=selected;
 }
-for(const id of ['rail-date','rail-time'])$(id).addEventListener('change',showDateTime);
+for(const id of ['rail-date','rail-time'])$(id).addEventListener('change',()=>{if(mode==='now')setMode('depart');else showDateTime()});
 function openPicker(id){const input=$(id);try{input.showPicker()}catch(_){input.focus();input.click()}}
 for(const [trigger,picker] of [['rail-date-trigger','rail-date'],['rail-time-trigger','rail-time']]){const el=$(trigger);el.addEventListener('click',e=>{if(e.target.id!==picker)openPicker(picker)});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPicker(picker)}})}
 showDateTime();window.addEventListener('pageshow',showDateTime);
