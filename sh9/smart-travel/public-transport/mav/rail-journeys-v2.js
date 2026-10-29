@@ -313,7 +313,17 @@
        }
       });
       details.append(span('rail-warning','Vágány-, késés- és vonatpozíció-adat még nincs ellenőrizve.'));
-      details.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
+      const handoff=doc.createElement('button');
+      handoff.type='button';handoff.className='rail-reservation-handoff-v988';
+      handoff.textContent='🎫 Útvonal átadása a MÁVPlusznak ↗';
+      handoff.setAttribute('aria-label','Kiválasztott útvonal átadása a MÁVPlusznak · helyfoglalás és fizetés');
+      handoff.addEventListener('click',event=>{
+       event.stopPropagation();
+       const launch=win.SH9_RESERVATION_V987?.openItinerary;
+       if(launch)launch(j);
+       else open('https://mavplusz.hu/');
+      });
+      details.append(handoff);
       row.addEventListener('click',()=>{
        const visible=row.getAttribute('aria-expanded')==='true';
        row.setAttribute('aria-expanded',String(!visible));details.hidden=visible;
