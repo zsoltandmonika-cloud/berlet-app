@@ -12,13 +12,33 @@ pane.append(file,status);box.append(summary,pane);planner.append(box);
 const results=d.createElement('section');results.id='volanGtfsResultsV990';results.className='volan-results-v990';
 results.setAttribute('aria-label','Volán menetrendi találatok');planner.insertAdjacentElement('afterend',results);
 let data=null,audio=null;
+const normal=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+for(const id of ['from','to']){
+ const input=$(id);if(!input)continue;
+ const suggestions=d.createElement('datalist');suggestions.id='volanStopsV993-'+id;
+ input.setAttribute('list',suggestions.id);input.setAttribute('autocomplete','off');input.parentElement?.append(suggestions);
+ input.addEventListener('input',()=>renderStops(input,suggestions));
+ input.addEventListener('focus',()=>renderStops(input,suggestions));
+}
+function renderStops(input,target){
+ target.replaceChildren();if(!data)return;
+ const needle=normal(input.value),seen=new Set(),names=[];
+ for(const item of data.stops){
+  const name=item[1],normalized=normal(name);
+  if(seen.has(name)||needle&&!normalized.includes(needle))continue;
+  seen.add(name);names.push(name);
+ }
+ names.sort((a,b)=>{const aa=normal(a),bb=normal(b);return Number(bb.startsWith(needle))-Number(aa.startsWith(needle))||a.localeCompare(b,'hu')});
+ for(const name of names.slice(0,24)){const option=d.createElement('option');option.value=name;target.append(option)}
+}
+
 file.addEventListener('change',async()=>{
  const f=file.files?.[0];if(!f)return;
  try{
   if(f.size>22*1024*1024)throw Error('22 MB-nál nagyobb fájl nem tölthető be.');
   const raw=JSON.parse(await f.text());
   if(!core.validate(raw,{allowPrivate:true})||!String(raw.source||'').includes('Volán'))throw Error('Nem megfelelő Volán menetrendi fájl.');
-  data=raw;status.textContent='✅ Volán menetrend betöltve · '+raw.trips.length+' járat · '+raw.stops.length+' megálló.';
+  data=raw;for(const id of ['from','to']){const input=$(id);if(input)renderStops(input,d.getElementById('volanStopsV993-'+id))}status.textContent='✅ Volán menetrend betöltve · '+raw.trips.length+' járat · '+raw.stops.length+' megálló.';
  }catch(e){data=null;status.textContent='⚠️ '+e.message}finally{file.value=''}
 });
 function clock(s){return new Intl.DateTimeFormat('hu-HU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Budapest'}).format(new Date(s))}
@@ -35,7 +55,15 @@ function tadaa(){
 function search(e){
  e.preventDefault();e.stopImmediatePropagation();
  if(!data){box.open=true;status.textContent='Először töltsd be a Volán GTFS keresési JSON-fájlt.';box.scrollIntoView({behavior:'smooth',block:'nearest'});return}
- const from=$('from')?.value.trim(),to=$('to')?.value.trim();
+ let from=$('from')?.value.trim(),to=$('to')?.value.trim();
+ const available=new Set(data.stops.map(x=>x[1]));
+ if(!available.has(from)&&normal(from)==='budapest, autobusz-allomas'&&available.has('Budapest, Stadion autóbusz-pályaudvar')){
+  from='Budapest, Stadion autóbusz-pályaudvar';$('from').value=from;
+ }
+ if(!available.has(from)||!available.has(to)){
+  status.textContent='Válassz a betöltött GTFS-ben szereplő pontos megállónevet (például Budapest, Stadion autóbusz-pályaudvar).';
+  box.open=true;return;
+ }
  if(!from||!to||from===to){status.textContent='Két különböző buszmegálló szükséges.';return}
  const mode=d.querySelector('[data-mode].on')?.dataset.mode||'now';
  const date=$('rail-date')?.value,time=$('rail-time')?.value;
