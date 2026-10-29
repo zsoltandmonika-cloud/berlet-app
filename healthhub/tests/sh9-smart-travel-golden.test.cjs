@@ -719,3 +719,6 @@ require('./sh9-bkk-first-paint-v957.test.cjs');
 require('./guardian-bkk-family-one-card-v959.test.cjs');
 // v960 · BKK extra routes between time selector and Favorite Places on both GUARDIAN views.
 require('./guardian-bkk-extra-routes-v960.test.cjs');
+
+// v961 · Remove unnecessary BKK source copy, profile dropdown and routine GTFS footer.
+require('./guardian-bkk-directions-cleanup-v961.test.cjs');
