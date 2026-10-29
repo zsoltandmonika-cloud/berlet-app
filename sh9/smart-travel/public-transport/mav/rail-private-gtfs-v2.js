@@ -132,6 +132,7 @@ function syncIntegration(){
  if(!core?.mount)return;
  w.SH9_MAV_GTFS_CLOUD_V983=core.mount(w,d,{
   module:'mav',mountId:'railPrivateGTFSV2',
+  ready:restoreReady,
   readLocal:()=>data,
   validate:raw=>!!verified(raw),
   importLocal:importSyncedDataset
@@ -182,7 +183,7 @@ remove.addEventListener('click',async()=>{
   summary.textContent='🚆 MÁV GTFS · saját menetrend betöltése';
  }catch(_){status('A helyi tároló törlése nem sikerült.')}
 });
-readStored().then(raw=>{
+const restoreReady=readStored().then(raw=>{
  if(!raw){status('Még nincs saját MÁV GTFS-fájl betöltve.');return}
  if(!activate(raw))status('A korábban mentett menetrend hibás vagy nem támogatott.');
 }).catch(()=>status('Nem érhető el a helyi tároló. A JSON-fájlt ettől még kipróbálhatod.'));
