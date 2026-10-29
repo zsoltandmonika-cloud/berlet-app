@@ -1,0 +1,16 @@
+/* v996 complete original nationwide Volan GTFS offline importer */
+.volan-full-v996{margin-top:12px;padding:12px;border:1px solid rgba(143,210,255,.48);border-radius:16px;background:rgba(15,38,76,.65);color:#f0f8ff;font-size:12px;box-shadow:0 8px 20px #06112733}
+.volan-full-v996 summary{cursor:pointer;font-size:12px;font-weight:750;padding:5px}
+.volan-full-body{padding:7px 2px;display:grid;gap:9px}
+.volan-full-body p{margin:4px 0;line-height:1.45}
+.volan-full-body input[type=file]{max-width:100%;width:100%;font-size:12px}
+.volan-full-body progress{height:12px;width:100%;accent-color:#19adf4}
+.volan-full-body button{min-height:43px;padding:8px 12px;background:#1766ad;color:white;border:1px solid #a4d5ff;border-radius:11px;font-weight:700}
+.volan-full-suggest[hidden]{display:none!important}
+.volan-full-suggest{position:fixed;z-index:99999;max-height:232px;overflow-y:auto;overscroll-behavior:contain;border:1px solid #afd8ff;border-radius:13px;background:rgba(11,32,70,.97);box-shadow:0 12px 36px #000a;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+.volan-full-suggest button{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid #ffffff26;min-height:46px;color:white;padding:10px 12px;font-size:12px;font-weight:650;white-space:normal}
+.volan-full-suggest button:active,.volan-full-suggest button:focus{background:#276d9b}
+:root[data-profile=m] .volan-full-v996{border-color:#ffb9ec;background:rgba(74,29,84,.69)}
+:root[data-profile=m] .volan-full-suggest{border-color:#fdb7e9;background:rgba(64,29,81,.97)}
+:root[data-profile=m] .volan-full-suggest button:active{background:#8b3c87}
+.volan-predict-v995{display:none!important}
