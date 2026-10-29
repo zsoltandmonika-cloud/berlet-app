@@ -91,6 +91,14 @@ function render({list,from,to,when,results,stopById,wall}){
    if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('Nem sikerült előkészíteni az utazási adatokat.');
   });
   actions.append(book);
+  const direct=el('button','volan-golden-direct-v1001','🚌 MÁVPlusz · útvonal átadása ↗');
+  direct.type='button';
+  direct.title='Pontos megállók és indulási idő átadása a hivatalos MÁVPlusz útvonaltervezőnek. Nem kész foglalás.';
+  direct.addEventListener('click',()=>{
+   const ok=w.SH9_VOLAN_DIRECT_V1001?.launch(j,{stopById});
+   if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('Az útvonal közvetlen átadása nem sikerült.');
+  });
+  actions.prepend(direct);
   const note=el('p','','Forrás: teljes, helyben tárolt Volán GTFS. A WC, késés és jegyfoglalás nincs igazolva.');
   detail.append(actions,note);item.append(detail);
   return item;
