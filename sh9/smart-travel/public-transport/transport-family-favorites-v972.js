@@ -26,7 +26,10 @@
   const title=d.createElement('strong');title.textContent='⭐ Családi kedvenc helyek';
   const close=d.createElement('button');close.type='button';close.textContent='✕';close.setAttribute('aria-label','Kedvenc helyek bezárása');
   close.addEventListener('click',()=>{panel.hidden=true});
-  bar.append(title,close);
+  const refresh=d.createElement('button');refresh.type='button';
+  refresh.textContent='☁';refresh.title='Közös helyek frissítése';
+  refresh.setAttribute('aria-label','Közös családi kedvenc helyek frissítése a felhőből');
+  bar.append(title,refresh,close);
   const search=d.createElement('input');search.id='hhTravelFavFilterV972';
   search.type='search';search.placeholder='Keresés 40 hely között…';
   search.setAttribute('aria-label','Kedvenc helyek szűrése');
@@ -74,6 +77,12 @@
    if(!existingTop)d.getElementById('hhTravelFavOpenV972')?.setAttribute('aria-expanded','true');
   }
   close.addEventListener('click',()=>d.getElementById('hhTravelFavOpenV972')?.setAttribute('aria-expanded','false'));
+  refresh.addEventListener('click',async()=>{
+   refresh.disabled=true;refresh.textContent='…';
+   const ok=await api.sync(true);
+   refresh.disabled=false;refresh.textContent='☁';
+   render();count.textContent+=(ok?' · szinkronizálva':' · helyi lista (offline vagy nincs belépés)');
+  });
   search.addEventListener('input',render);
   api.subscribe?.(()=>{if(!panel.hidden)render()});
   w.addEventListener('pageshow',()=>{if(!panel.hidden)render()});
