@@ -37,7 +37,8 @@ test('SH9 v955 retains all real controls and the original BKK/live route archite
   'hhSmartHubPriorityWaitingV806','hhSmartHubTripPlansV804','hhSmartHubGuideV805',
   'hhSmartHubTripStatusV804','hhSmartHubDestinationStatusV802'
  ]) assert.ok(html.includes('id="'+id+'"'),id+' retained');
- assert.match(html,/<details class="hh-smart-hub-sources-v954">/);
+ // v961 removes the now-unnecessary long technical data disclosure.
+ assert.doesNotMatch(html,/<details class="hh-smart-hub-sources-v954">/);
  assert.match(css,/min-height:44px!important/);
  assert.match(css,/@media\(max-width:375px\)/);
  assert.match(css,/:root\[data-guardian-profile="m"\] #hhSmartHubDestinationV802/);
