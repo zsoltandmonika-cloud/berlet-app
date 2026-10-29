@@ -145,3 +145,21 @@
  height:clamp(395px,calc(54dvh + 35px),775px)!important;
  min-height:395px!important;
 }
+
+/* v949 · Read-only SH9 tablet Family Live sign-in, uses existing profile palette. */
+:root[data-sh9-transit="on"] #hhSh9FamilyLiveLoginV949{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:48px;margin:10px 0 0;padding:11px 14px;
+ border:1px solid var(--sh9-tr-frame);border-radius:15px;
+ background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(255,255,255,.07)),
+  linear-gradient(140deg,var(--sh9-tr-start),var(--sh9-tr-end));
+ box-shadow:inset 0 1px rgba(255,255,255,.28),0 6px 18px #0005,0 0 14px var(--sh9-tr-glow);
+ color:var(--sh9-tr-ink);font:800 12px/1.35 system-ui,-apple-system,Segoe UI,sans-serif;
+ text-align:center;letter-spacing:.01em;cursor:pointer;touch-action:manipulation;
+ -webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);
+}
+:root[data-sh9-transit="on"] #hhSh9FamilyLiveLoginV949[hidden]{display:none!important}
+:root[data-sh9-transit="on"] #hhSh9FamilyLiveLoginV949:focus-visible{
+ outline:3px solid var(--sh9-tr-accent);outline-offset:2px;
+}
+:root[data-sh9-transit="on"] #hhSh9FamilyLiveLoginV949:disabled{opacity:.65;cursor:progress}
