@@ -1,0 +1,157 @@
+/* Family Guard v962 · One true Family Live Control glass card.
+   A shared shell visually unites authenticated Family Live, family members and
+   local browser GPS actions. IDs and JS ownership are unchanged.
+   IMPORTANT: #guardianFamilyPanel remains the independent map-Family collapse
+   target. The GPS Stop/Retry controls remain reachable in the shared shell
+   even when the Family section is collapsed. No overlays or trackers. */
+#guardianFamilyLiveControlV962.family-live-control-v962{
+ --fg-ink:#193653;
+ --fg-muted:#4d6984;
+ --fg-accent:#78b4e6;
+ --fg-selected:rgba(153,207,247,.68);
+ --fg-surface:rgba(230,244,255,.74);
+ --fg-card:rgba(255,255,255,.34);
+ --fg-edge:rgba(255,255,255,.86);
+ --fg-shadow:rgba(37,63,101,.10);
+ --fg-seam:rgba(74,112,142,.22);
+ box-sizing:border-box;
+ margin:11px 0 0;
+ padding:13px 12px 12px;
+ border:1px solid var(--fg-edge);
+ border-radius:20px;
+ color:var(--fg-ink);
+ background:linear-gradient(138deg,rgba(223,239,252,.86),rgba(189,221,246,.77));
+ box-shadow:inset 0 1px rgba(255,255,255,.9),0 7px 22px var(--fg-shadow);
+ -webkit-backdrop-filter:blur(20px) saturate(118%);
+ backdrop-filter:blur(20px) saturate(118%);
+ min-width:0;
+}
+:root[data-guardian-profile="m"] #guardianFamilyLiveControlV962.family-live-control-v962{
+ --fg-ink:#562946;
+ --fg-muted:#77536d;
+ --fg-accent:#dc8fc0;
+ --fg-selected:rgba(248,188,224,.67);
+ --fg-surface:rgba(255,239,250,.76);
+ --fg-card:rgba(255,255,255,.36);
+ --fg-shadow:rgba(101,44,83,.10);
+ --fg-seam:rgba(126,69,108,.22);
+ background:linear-gradient(138deg,rgba(255,238,249,.86),rgba(239,210,233,.79));
+}
+#guardianFamilyLiveControlV962 .family-live-control-head-v962{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:8px;
+ padding:1px 1px 12px;
+ border-bottom:1px solid var(--fg-seam);
+ min-width:0;
+}
+#guardianFamilyLiveControlV962 .family-live-control-head-v962 strong{
+ font:800 14px/1.3 system-ui;
+ color:var(--fg-ink);
+}
+#guardianFamilyLiveControlV962 .family-live-control-head-v962 .guardian-live-pill{
+ color:var(--fg-ink)!important;
+ background:var(--fg-selected)!important;
+ border:1px solid var(--fg-edge)!important;
+ border-radius:99px;
+ white-space:nowrap;
+ padding:4px 9px;
+ font:800 9px/1.1 system-ui;
+}
+/* Existing Family and GPS panels share the OUTER sheet, no two card skins. */
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel,
+#guardianFamilyLiveControlV962 > .gps-panel{
+ box-sizing:border-box!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:none!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ color:var(--fg-ink)!important;
+}
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel[hidden]{
+ display:none!important;
+}
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel .family-panel-head,
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel .guardian-live-head{
+ display:none!important;
+}
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel .guardian-live-v785{
+ box-sizing:border-box!important;
+ padding:12px 0 0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:none!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+/* Preserve the security, consent, identity, authentication, error and GPS
+   disclosures. Make them readable without creating nested card effects. */
+#guardianFamilyLiveControlV962 .guardian-live-v785 :is(
+ .guardian-live-help,.guardian-live-note,.guardian-live-auth,
+ .guardian-live-status,.guardian-live-peer
+){color:var(--fg-muted)!important;}
+#guardianFamilyLiveControlV962 .guardian-live-v785 :is(
+ .guardian-live-status,.guardian-live-peer
+){box-shadow:none!important;}
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel .family-grid{
+ margin-top:12px!important;
+ padding-top:12px!important;
+ border-top:1px solid var(--fg-seam)!important;
+}
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel .family-note{
+ margin:8px 1px 12px!important;
+}
+#guardianFamilyLiveControlV962 > .gps-panel{
+ padding-top:13px!important;
+ border-top:1px solid var(--fg-seam)!important;
+}
+/* When Family is collapsed the shared header and GPS remain reachable. */
+#guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel[hidden]+.gps-panel{
+ border-top:0!important;
+}
+#guardianFamilyLiveControlV962 > .gps-panel .state-row{
+ margin:0 0 8px!important;
+ gap:6px;
+ color:var(--fg-ink)!important;
+}
+#guardianFamilyLiveControlV962 > .gps-panel .mode-note{
+ margin:0 0 10px!important;
+ color:var(--fg-muted)!important;
+}
+#guardianFamilyLiveControlV962 :is(
+ .guardian-live-buttons button,.gps-panel .actions button,.gps-panel .native-setup
+){min-height:44px!important;}
+#guardianFamilyLiveControlV962 > .gps-panel .stats{
+ margin-top:11px!important;
+}
+#guardianFamilyLiveControlV962 :is(button,select,a):focus-visible{
+ outline:2px solid var(--fg-accent)!important;
+ outline-offset:2px!important;
+}
+#guardianFamilyLiveControlV962 [hidden]{
+ display:none!important;
+}
+@media(max-width:390px){
+ #guardianFamilyLiveControlV962.family-live-control-v962{padding:11px 10px 10px;}
+ #guardianFamilyLiveControlV962 .family-live-control-head-v962{padding-bottom:10px;}
+}
+@media(prefers-reduced-transparency:reduce){
+ #guardianFamilyLiveControlV962.family-live-control-v962{
+  background:#dceaf8;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+ }
+ :root[data-guardian-profile="m"] #guardianFamilyLiveControlV962.family-live-control-v962{
+  background:#f5e1ee;
+ }
+}
