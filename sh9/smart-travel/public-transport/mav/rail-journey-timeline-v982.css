@@ -19,3 +19,19 @@
 :root[data-profile="m"] #depart .departure .rail-timeline-dot-v982{border-color:#ff9cde}
 :root[data-profile="m"] #depart .rail-timeline-ride-v982{background:rgba(187,105,177,.14);border-color:rgba(255,180,232,.18)}
 @media(max-width:370px){#depart .rail-timeline-point-v982{grid-template-columns:45px 14px minmax(0,1fr);gap:5px}#depart .rail-timeline-leg-v982:before{left:56px}#depart .rail-timeline-ride-v982,#depart .rail-timeline-transfer-v982{margin-left:64px}}
+
+/* v983: intermediate stop disclosure and compact native rail pictogram */
+#depart .rail-timeline-train-v982{display:flex;align-items:center;gap:7px}
+#depart .rail-timeline-train-icon-v983{display:inline-grid;place-items:center;width:26px;height:26px;border:1px solid rgba(190,226,255,.42);border-radius:8px;background:rgba(51,128,209,.25);font-size:16px;flex-shrink:0}
+#depart .rail-timeline-train-name-v983{min-width:0;overflow-wrap:anywhere}
+#depart .rail-timeline-stops-v983{margin:3px 0 8px 70px;border:1px solid rgba(179,216,250,.23);border-radius:9px;background:rgba(7,30,65,.22);overflow:hidden}
+#depart .rail-timeline-stops-v983 summary{cursor:pointer;min-height:43px;padding:12px 10px;font-size:11px;font-weight:790;color:#def0ff;touch-action:manipulation}
+#depart .rail-timeline-stops-v983 summary:focus-visible{outline:2px solid #d7edff;outline-offset:-2px}
+#depart .rail-timeline-stop-list-v983{list-style:none;padding:2px 9px 9px 10px;margin:0;border-top:1px solid rgba(188,224,253,.17)}
+#depart .rail-timeline-stop-list-v983 li{display:flex;gap:9px;align-items:baseline;padding:7px 1px;border-bottom:1px solid rgba(207,231,255,.10);font-size:11px}
+#depart .rail-timeline-stop-list-v983 li:last-child{border-bottom:0}
+#depart .rail-timeline-stop-time-v983{min-width:37px;font-weight:800;font-variant-numeric:tabular-nums;color:#a8dcff}
+#depart .rail-timeline-stop-name-v983{color:#f0f8ff;overflow-wrap:anywhere}
+:root[data-profile="m"] #depart .rail-timeline-train-icon-v983{background:rgba(211,95,177,.19);border-color:rgba(255,184,239,.37)}
+:root[data-profile="m"] #depart .rail-timeline-stop-time-v983{color:#ffc6f1}
+@media(max-width:370px){#depart .rail-timeline-stops-v983{margin-left:64px}}
