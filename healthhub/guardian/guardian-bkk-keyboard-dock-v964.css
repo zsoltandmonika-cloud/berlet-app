@@ -36,19 +36,22 @@
  box-shadow:inset 0 1px rgba(255,255,255,.65);
  font:800 20px/1 system-ui;cursor:pointer;touch-action:manipulation
 }
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964{
+ min-width:0;flex:1;display:flex;align-items:center;
+}
 #hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-row-v964{
  display:flex;align-items:center;gap:7px;min-width:0;flex:none
 }
-#hhBkkKeyboardDockV964 #hhBkkKeyboardInputV964{
- display:block;min-width:0;flex:1;min-height:48px;
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input{
+ display:block;min-width:0;width:100%;flex:1;min-height:48px;
  box-sizing:border-box;padding:10px 12px;
  border:2px solid var(--hhkb-accent);border-radius:12px;
  color:var(--hhkb-ink);background:rgba(255,255,255,.7);
  font:650 16px/1.25 system-ui,sans-serif;outline:none;
  color-scheme:light;
 }
-#hhBkkKeyboardDockV964 #hhBkkKeyboardInputV964::placeholder{color:var(--hhkb-muted);opacity:.95}
-#hhBkkKeyboardDockV964 #hhBkkKeyboardInputV964:focus-visible{
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input::placeholder{color:var(--hhkb-muted);opacity:.95}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input:focus-visible{
  box-shadow:0 0 0 2px var(--hhkb-selected)
 }
 #hhBkkKeyboardDockV964 #hhBkkKeyboardGpsV964[hidden]{display:none!important}
