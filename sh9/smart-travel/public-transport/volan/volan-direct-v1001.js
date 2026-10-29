@@ -18,15 +18,15 @@ function handoff(j,ctx){
  // A route planner typically searches connections departing AT or AFTER a
  // timestamp. Request one minute before the selected service departure.
  const before=new Date(departure.getTime()-60*1000),t=parts(before);
- const fromPlace=a.name+'::'+a.lat.toFixed(6)+','+a.lon.toFixed(6);
- const toPlace=b.name+'::'+b.lat.toFixed(6)+','+b.lon.toFixed(6);
+ const fromPlace=a.name+'::'+a.lat.toFixed(6)+','+a.lon.toFixed(6)+(typeof a.id==='string'&&/^hkir_[0-9]+(?:_[0-9]+)?$/.test(a.id)?'::hkir:'+a.id:'');
+ const toPlace=b.name+'::'+b.lat.toFixed(6)+','+b.lon.toFixed(6)+(typeof b.id==='string'&&/^hkir_[0-9]+(?:_[0-9]+)?$/.test(b.id)?'::hkir:'+b.id:'');
  const qs=new URLSearchParams({
   ui_itineraryView:'full',
   fromPlace,toPlace,
   date:t.year+'-'+t.month+'-'+t.day,
   time:t.hour+':'+t.minute,
   arriveBy:'false',
-  mode:'WALK,BUS',
+  mode:'WALK,TRANSIT',
   showIntermediateStops:'true',
   numItineraries:'15'
  });
@@ -36,13 +36,29 @@ function handoff(j,ctx){
   date:p.year+'-'+p.month+'-'+p.day,
   warning:'Az útvonal átadása nem jelent konkrét járat- vagy ülőhelyfoglalást. Az MÁVPluszban ellenőrizd a járatot.'};
 }
+/* Official MÁV-csoport published trip links use the HKIR vehicle key:
+ * https://mavplusz.hu/#/trip/hkir:hkir_3770_847-1?ui_activeItinerary=-1
+ * Only use the unchanged GTFS trip ID when it has this exact key shape.
+ */
+function vehicleHandoff(j){
+ const id=j?.trip?.id;
+ if(typeof id!=='string'||!/^hkir_[0-9]+_[0-9]+-[0-9]+$/.test(id))
+  return {ok:false,reason:'Ehhez a GTFS-járathoz nincs ellenőrizhető HKIR formátumú azonosító.'};
+ return {ok:true,url:'https://mavplusz.hu/#/trip/hkir:'+id+'?ui_activeItinerary=-1',
+  id,kind:'official-hkir-trip-link',
+  warning:'Hivatalos járatinfó-oldal. A konkrét jegy vagy helyfoglalás elérhetősége a MÁVPluszban ellenőrizendő.'};
+}
+function direct(j,ctx){
+ const vehicle=vehicleHandoff(j);
+ return vehicle.ok?vehicle:handoff(j,ctx);
+}
 function launch(j,ctx){
- const r=handoff(j,ctx);
+ const r=direct(j,ctx);
  if(!r.ok){w.SH9_VOLAN_PLANNER_V3?.toast?.(r.reason);return false}
  // Browser popup only in a direct user gesture.
  const link=d.createElement('a');link.href=r.url;link.target='_blank';link.rel='noopener noreferrer';link.referrerPolicy='no-referrer';
  link.style.display='none';d.body.append(link);link.click();link.remove();
  return true;
 }
-w.SH9_VOLAN_DIRECT_V1001=Object.freeze({handoff,launch});
+w.SH9_VOLAN_DIRECT_V1001=Object.freeze({handoff,vehicleHandoff,direct,launch});
 })(window,document);
