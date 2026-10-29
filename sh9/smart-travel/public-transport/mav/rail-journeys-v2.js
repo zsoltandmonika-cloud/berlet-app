@@ -102,19 +102,17 @@
     {title:'Vonatinfó',info:'Valós vonatkövető térkép',url:()=>routeEngine?.URLS.liveTrains||'https://vonatinfo.mav.hu/'}
    ];
    options.forEach((item,i)=>{
-    const b=doc.createElement('button');b.type='button';b.className='trainrow rail-provider-row';
+    const b=doc.createElement('button');b.type='button';b.className='trainrow rail-provider-row rail-service-v978';
     b.setAttribute('aria-label',item.title+' · hivatalos szolgáltatás megnyitása');
-    const image=span('trainthumb trainthumb-'+i,'');image.setAttribute('aria-hidden','true');
-    const clock=span('clocking','');
-    clock.append(span('times','–:–'),span('duration','Nincs élő adat'));
-    const copy=span('traincopy','');
+    const image=span('rail-service-art-v978 rail-service-art-'+i,'');image.setAttribute('aria-hidden','true');
+    const copy=span('rail-service-copy-v978','');
     const title=doc.createElement('strong');title.textContent=item.title;
-    copy.append(title,span('rail-train-sub',item.info));
-    b.append(image,clock,copy,span('track','—'),span('arrowright','›'));
+    copy.append(title,span('rail-service-description-v978',item.info));
+    b.append(image,copy,span('rail-service-chevron-v978','›'));
     b.addEventListener('click',()=>open(item.url()));
     list.append(b);
    });
-   status('Élő adatkapcsolat: még nincs · a három kártya hivatalos szolgáltatást nyit');
+   status('Hivatalos MÁV szolgáltatások');
   }
   function rows(data){
    list.replaceChildren();
@@ -158,26 +156,8 @@
    panel.replaceChildren();
    // Compact Golden Standard title: route-map pin pictogram, no text clutter.
    const title=doc.createElement('div');title.className='rail-search-heading-v977';
-   if(typeof doc.createElementNS==='function'){
-    const ns='http://www.w3.org/2000/svg';
-    const svg=doc.createElementNS(ns,'svg');
-    svg.setAttribute('viewBox','0 0 48 48');
-    svg.setAttribute('fill','none');
-    svg.setAttribute('aria-hidden','true');
-    const path=doc.createElementNS(ns,'path');
-    path.setAttribute('d','M14 35 L25 25 L34 34');
-    path.setAttribute('stroke','#95dcff');path.setAttribute('stroke-width','3');
-    path.setAttribute('stroke-linecap','round');path.setAttribute('stroke-dasharray','3 4');
-    svg.append(path);
-    for(const [x,y] of [[13,33],[26,22],[35,33]]){
-     const marker=doc.createElementNS(ns,'circle');
-     marker.setAttribute('cx',x);marker.setAttribute('cy',y);marker.setAttribute('r','4.5');
-     marker.setAttribute('fill','#156ddb');marker.setAttribute('stroke','#d4f4ff');
-     marker.setAttribute('stroke-width','2');svg.append(marker);
-    }
-    const emblem=doc.createElement('span');emblem.className='rail-search-icon-v977';
-    emblem.append(svg);title.append(emblem);
-   }
+   const emblem=doc.createElement('span');emblem.className='rail-search-icon-v977 rail-search-iconpack-v978';
+   emblem.setAttribute('aria-hidden','true');title.append(emblem);
    title.append(span('rail-search-title','Útvonalkeresés'));
    panel.append(title);
    panel.append(span('rail-search-route',q.from+' → '+q.to));
