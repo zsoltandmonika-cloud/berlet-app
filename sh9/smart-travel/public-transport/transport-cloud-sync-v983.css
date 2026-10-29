@@ -1,0 +1,58 @@
+/* SH9 shared transport cloud sync v983 · Golden Glass mobile component.
+   MÁV/Volán reuse the same controls; no global button overrides. */
+.sh9-transport-sync-v983{
+ display:grid;gap:9px;min-width:0;padding:12px 10px;margin-top:12px;
+ border:1px solid rgba(190,228,255,.42);border-radius:12px;
+ background:linear-gradient(130deg,rgba(22,77,137,.34),rgba(30,35,89,.40));
+ box-shadow:inset 0 1px rgba(255,255,255,.20)
+}
+.sh9-transport-sync-v983 strong{font:850 13px/1.3 Arial,sans-serif;color:#eff8ff}
+.sh9-transport-sync-v983 p{
+ margin:0;line-height:1.45;font-size:10.5px;color:#dbeeff
+}
+.sh9-transport-sync-actions-v983{
+ display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:0
+}
+.sh9-transport-sync-v983 button{
+ box-sizing:border-box;width:100%;min-width:0;min-height:49px;
+ border:1px solid rgba(173,219,255,.64);border-radius:11px;
+ padding:9px 7px;font:800 11px/1.35 Arial,sans-serif;
+ color:white;text-align:center;overflow-wrap:anywhere;
+ background:linear-gradient(110deg,rgba(40,129,211,.85),rgba(52,72,147,.81));
+ box-shadow:inset 0 1px rgba(255,255,255,.24);
+ touch-action:manipulation
+}
+.sh9-transport-sync-v983 button:disabled{opacity:.6;cursor:wait}
+.sh9-transport-sync-option-v983{
+ display:flex;align-items:center;gap:10px;min-height:45px;padding:6px 8px;
+ border:1px solid rgba(175,212,250,.30);border-radius:9px;
+ font:760 11px/1.4 Arial,sans-serif;color:#eaf7ff;
+ background:rgba(24,57,113,.26);cursor:pointer
+}
+.sh9-transport-sync-option-v983 input{
+ appearance:auto!important;width:21px!important;height:21px!important;min-height:21px!important;
+ flex:none;accent-color:#50c5ff
+}
+.sh9-transport-sync-v983 .sh9-transport-sync-status-v983{
+ padding:8px 9px;border:1px solid rgba(186,224,253,.32);
+ border-radius:9px;background:rgba(19,59,102,.38);
+ color:#e7f7ff;font-size:11px;line-height:1.4
+}
+.sh9-transport-sync-v983 small{
+ color:#c4d9ec;font:600 9.5px/1.4 Arial,sans-serif;
+ overflow-wrap:anywhere
+}
+:root[data-profile="m"] .sh9-transport-sync-v983{
+ border-color:rgba(255,192,237,.43);
+ background:linear-gradient(130deg,rgba(115,51,133,.35),rgba(72,34,101,.40))
+}
+:root[data-profile="m"] .sh9-transport-sync-v983 button{
+ background:linear-gradient(110deg,rgba(214,93,174,.86),rgba(131,66,170,.82));
+ border-color:rgba(255,209,244,.71)
+}
+:root[data-profile="m"] .sh9-transport-sync-option-v983 input{accent-color:#e88bd6}
+.sh9-transport-sync-v983 button:focus-visible,
+.sh9-transport-sync-v983 input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:350px){
+ .sh9-transport-sync-actions-v983{grid-template-columns:1fr}
+}
