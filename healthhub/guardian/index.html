@@ -195,6 +195,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-bkk-control-one-card-v956.css?v=957-firstpaint">
 <link rel="stylesheet" href="./guardian-bkk-first-paint-v957.css?v=957">
 <link rel="stylesheet" href="./guardian-bkk-family-one-card-v959.css?v=959-guardian-parity">
+<link rel="stylesheet" href="./guardian-bkk-extra-routes-order-v960.css?v=960">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -344,26 +345,6 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
      </div>
     </div>
     <div id="hhTransitCardsV791" class="hh-transit-premium-cards" aria-label="Kiválasztott járatok prémium kártyái"></div>
-    <details id="hhBkkCatalogV801" class="hh-bkk-catalog-v801">
-      <summary><span aria-hidden="true">🔎</span> Smart Hub · További BKK-járatok <span class="hh-bkk-catalog-chevron" aria-hidden="true">⌄</span></summary>
-      <div class="hh-bkk-catalog-body-v801">
-        <label class="hh-bkk-catalog-label-v801" for="hhBkkCatalogSearchV801">Járatszám vagy végállomás keresése</label>
-        <input id="hhBkkCatalogSearchV801" type="search" autocomplete="off" maxlength="80" placeholder="Pl. 9, H5, 1, Óbuda…" aria-controls="hhBkkCatalogResultsV801">
-        <div class="hh-bkk-catalog-filters-v801" role="group" aria-label="Közlekedési mód szűrése">
-          <button type="button" data-hh-bkk-catalog-mode="all" aria-pressed="true">Összes</button>
-          <button type="button" data-hh-bkk-catalog-mode="bus" aria-pressed="false">🚌 Busz</button>
-          <button type="button" data-hh-bkk-catalog-mode="tram" aria-pressed="false">🚋 Villamos</button>
-          <button type="button" data-hh-bkk-catalog-mode="trolley" aria-pressed="false">🚎 Troli</button>
-          <button type="button" data-hh-bkk-catalog-mode="metro" aria-pressed="false">🚇 Metró</button>
-          <button type="button" data-hh-bkk-catalog-mode="hev" aria-pressed="false">🚈 HÉV</button>
-        </div>
-        <p id="hhBkkCatalogMetaV801" class="hh-bkk-catalog-meta-v801" role="status" aria-live="polite">A BKK-járatlista betöltése…</p>
-        <div id="hhBkkCatalogResultsV801" class="hh-bkk-catalog-results-v801" role="list" aria-label="Hivatalos BKK-járatok"></div>
-        <p id="hhBkkCatalogEmptyV801" class="hh-bkk-catalog-meta-v801" hidden>Nincs találat ezzel a szűréssel.</p>
-        <button id="hhBkkCatalogMoreV801" class="hh-bkk-catalog-more-v801" type="button" hidden>További járatok betöltése</button>
-        <p class="hh-bkk-catalog-note-v801">A kedvencek profilonként, ezen az eszközön tárolódnak. A 260-as, 17-es és 19-es támogatott élő járműréteggel; az 1-es és 41-es villamoshoz ellenőrzött BKK menetrendi útvonal jeleníthető meg, amint a GTFS-adatok betöltődtek (nem élő járműkövetés). Forrás: BKK Zrt., CC BY 4.0.</p>
-      </div>
-    </details>
     <section id="hhSmartHubDestinationV802" class="hh-smart-hub-v802" aria-label="Smart Hub · Saját helykereső">
       <div class="hh-smart-hub-top-v802">
         <div><span class="hh-smart-hub-eyebrow-v802">SMART HUB · SAJÁT HELYKERESŐ</span><strong>Hová szeretnél menni?</strong></div>
@@ -422,6 +403,26 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
       <div class="hh-smart-hub-auto-v806" hidden>
         <button type="button" id="hhSmartHubPlanV806" disabled>🧭 Útvonaltervezés · válassz két helyet</button>
       </div>
+      <details id="hhBkkCatalogV801" class="hh-bkk-catalog-v801">
+        <summary><span aria-hidden="true">🔎</span> Smart Hub · További BKK-járatok <span class="hh-bkk-catalog-chevron" aria-hidden="true">⌄</span></summary>
+        <div class="hh-bkk-catalog-body-v801">
+          <label class="hh-bkk-catalog-label-v801" for="hhBkkCatalogSearchV801">Járatszám vagy végállomás keresése</label>
+          <input id="hhBkkCatalogSearchV801" type="search" autocomplete="off" maxlength="80" placeholder="Pl. 9, H5, 1, Óbuda…" aria-controls="hhBkkCatalogResultsV801">
+          <div class="hh-bkk-catalog-filters-v801" role="group" aria-label="Közlekedési mód szűrése">
+            <button type="button" data-hh-bkk-catalog-mode="all" aria-pressed="true">Összes</button>
+            <button type="button" data-hh-bkk-catalog-mode="bus" aria-pressed="false">🚌 Busz</button>
+            <button type="button" data-hh-bkk-catalog-mode="tram" aria-pressed="false">🚋 Villamos</button>
+            <button type="button" data-hh-bkk-catalog-mode="trolley" aria-pressed="false">🚎 Troli</button>
+            <button type="button" data-hh-bkk-catalog-mode="metro" aria-pressed="false">🚇 Metró</button>
+            <button type="button" data-hh-bkk-catalog-mode="hev" aria-pressed="false">🚈 HÉV</button>
+          </div>
+          <p id="hhBkkCatalogMetaV801" class="hh-bkk-catalog-meta-v801" role="status" aria-live="polite">A BKK-járatlista betöltése…</p>
+          <div id="hhBkkCatalogResultsV801" class="hh-bkk-catalog-results-v801" role="list" aria-label="Hivatalos BKK-járatok"></div>
+          <p id="hhBkkCatalogEmptyV801" class="hh-bkk-catalog-meta-v801" hidden>Nincs találat ezzel a szűréssel.</p>
+          <button id="hhBkkCatalogMoreV801" class="hh-bkk-catalog-more-v801" type="button" hidden>További járatok betöltése</button>
+          <p class="hh-bkk-catalog-note-v801">A kedvencek profilonként, ezen az eszközön tárolódnak. A 260-as, 17-es és 19-es támogatott élő járműréteggel; az 1-es és 41-es villamoshoz ellenőrzött BKK menetrendi útvonal jeleníthető meg, amint a GTFS-adatok betöltődtek (nem élő járműkövetés). Forrás: BKK Zrt., CC BY 4.0.</p>
+        </div>
+      </details>
       <details id="hhSmartHubFavoritesV806" class="hh-smart-hub-favorites-v806">
         <summary>⭐ Kedvenc helyek <small>10 saját cím, profilonként</small></summary>
         <p class="hh-smart-hub-privacy-v802">Válassz egy Honnan vagy Hová mezőt, majd keresd meg a címet. A Mentés a kiválasztott helyet rögzíti, a kedvenc címére kattintva pedig betöltjük az aktív mezőbe.</p>
