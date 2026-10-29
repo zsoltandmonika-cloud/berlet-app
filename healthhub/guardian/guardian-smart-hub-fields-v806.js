@@ -92,7 +92,7 @@
   return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
    .toLocaleLowerCase('hu-HU').replace(/\s+/g,' ').trim();
  }
- function favoriteSuggestions(storage,query,limit=7){
+ function favoriteSuggestions(storage,query,limit=40){
   const rows=listFavoritePlaces(storage),needle=term(query);
   return rows.filter(item=>!needle||[
    item.displayName,item.name,item.subtitle
@@ -244,7 +244,7 @@
   }
   function showSaved(kind,raw,requestToken,includeShared=true){
    if(requestToken!==requestId||active!==kind)return [];
-   const saved=favoriteSuggestions(w.localStorage,raw,7);
+   const saved=favoriteSuggestions(w.localStorage,raw,40);
    const permitted=!!(w.HH_GUARDIAN_LIVE_V785?.authenticated&&
     w.HH_GUARDIAN_LIVE_V785?.familyAuthorized);
    let shared=[];
@@ -262,7 +262,7 @@
     const key=item.lat.toFixed(6)+':'+item.lng.toFixed(6);
     if(unique.has(key))return false;
     unique.add(key);return true;
-   }).slice(0,8);
+   }).slice(0,50);
    searchResults(items);return items;
   }
   async function search(kind=active){
@@ -296,7 +296,7 @@
     const combined=local.concat(remote.filter(item=>{
      const key=item.lat.toFixed(5)+':'+item.lng.toFixed(5);
      if(existing.has(key))return false;existing.add(key);return true;
-    })).slice(0,10);
+    })).slice(0,50);
     searchResults(combined);
     message(combined.length?'Válassz egy ellenőrzött helyet.':
      'Nincs helytalálat. Próbálj másik nevet vagy címet.');
