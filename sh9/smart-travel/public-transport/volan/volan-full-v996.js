@@ -96,6 +96,7 @@ async function search(e){
  const mode=d.querySelector('[data-mode].on')?.dataset.mode||'now';
  const when=mode==='now'?new Date():new Date(($('rail-date')?.value||'')+'T'+($('rail-time')?.value||'')+':00');
  if(!Number.isFinite(when.getTime())){message('Hibás dátum vagy időpont.');return}
+ panel.open=false;
  isSearching=true;
  try{
   const pivot=when.getTime(),start=mode==='arrive'?pivot-12*3600000:pivot,end=mode==='arrive'?pivot:pivot+12*3600000;
