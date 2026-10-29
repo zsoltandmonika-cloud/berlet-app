@@ -400,6 +400,19 @@
   }
   function renderFavorites(){
    const slots=loadSlots();favorites.replaceChildren();
+   if(w.HH_TRAVEL_FAVORITES_V972){
+    const refresh=d.createElement('button');refresh.type='button';
+    refresh.className='hh-family-fav-refresh-v972';
+    refresh.textContent='☁ Közös helyek frissítése';
+    refresh.setAttribute('aria-label','40 családi kedvenc hely felhőszinkronjának frissítése');
+    refresh.addEventListener('click',async()=>{
+     refresh.disabled=true;refresh.textContent='☁ Frissítés…';
+     const ok=await w.HH_TRAVEL_FAVORITES_V972.sync(true);
+     refresh.disabled=false;refresh.textContent='☁ Közös helyek frissítése';
+     message(ok?'A közös családi helyek frissültek.':'Helyi lista elérhető · felhőszinkronhoz családi belépés és internet szükséges.');
+    });
+    favorites.append(refresh);
+   }
    if(profileText)profileText.textContent=w.HH_TRAVEL_FAVORITES_V972?
     '40 közös családi kedvenc hely · BKK / MÁV / Volán':
     (storedProfile==='m'?'Mónika':'Zsolt')+' · 10 saját kedvenc hely';
