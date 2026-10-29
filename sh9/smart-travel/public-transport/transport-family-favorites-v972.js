@@ -60,9 +60,14 @@
      const btn=d.createElement('button');btn.type='button';btn.textContent=txt;
      btn.setAttribute('aria-label',(place.displayName||place.name)+' használata: '+txt);
      btn.addEventListener('click',()=>{
-      field.value=place.name;
-      field.dispatchEvent(new Event('input',{bubbles:true}));
-      field.dispatchEvent(new Event('change',{bubbles:true}));
+      const picker=w.SH9_BKK_GRAND_PREDICTIVE_V4;
+      const kind=field===from?'origin':'destination';
+      const verified=picker?.setVerifiedPlace?.(kind,place);
+      if(!verified){
+       field.value=place.name;
+       field.dispatchEvent(new Event('input',{bubbles:true}));
+       field.dispatchEvent(new Event('change',{bubbles:true}));
+      }
       panel.hidden=true;
       d.getElementById('hhTravelFavOpenV972')?.setAttribute('aria-expanded','false');
       field.blur();
