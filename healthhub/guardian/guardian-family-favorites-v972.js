@@ -8,7 +8,7 @@
  if(!w)return;
  const COUNT=40,KEY='hh-family-favorite-places-v972';
  const PENDING=KEY+'-pending',LEGACY='hh-smart-arrival-favorite-places-v806-';
- const LAST_READ=KEY+'-last-read',TTL=20*60*1000,TABLE='hh_travel_family_places';
+ const LAST_READ=KEY+'-last-read',IMPORTED=KEY+'-legacy-imported',MIGRATION=KEY+'-legacy-awaiting-cloud',TTL=20*60*1000,TABLE='hh_travel_family_places';
  const NAMES=['Otthon','Munkahely','Orvos','Kórház','Család','Barátok','Bolt','Ügyintézés','Szabadidő','Egyéb'];
  const clean=s=>String(s||'').trim();
  const label=(s,i)=>clean(s).slice(0,40)||NAMES[i]||('Kedvenc '+(i+1));
@@ -48,7 +48,8 @@
  }
  function importLegacy(){
   let a=normalize(getJson(KEY,[]));
-  // Read each legacy profile only; never change or delete its original data.
+  if(w.localStorage?.getItem(IMPORTED)==='1')return a;
+  // Read each legacy profile only ONCE; never delete its original data.
   for(const key of ['z','m']){
    const old=getJson(LEGACY+key,null);
    if(!Array.isArray(old))continue;
@@ -57,16 +58,18 @@
    entries.forEach((entry,i)=>{candidates[i]={label:label(entry.label,i),place:entry.place}});
    a=merge(a,candidates);
   }
-  write(KEY,a);return a;
+  write(KEY,a);
+  try{w.localStorage?.setItem(IMPORTED,'1');w.localStorage?.setItem(MIGRATION,'1')}catch(_){}
+  return a;
  }
  let slots=importLegacy(),client=null,working=false;
  let pending=getJson(PENDING,{});
  if(!pending||typeof pending!=='object'||Array.isArray(pending))pending={};
- function publish(){
-  write(KEY,slots);
+ function notify(){
   if(typeof w.dispatchEvent==='function'&&typeof w.CustomEvent==='function')
    w.dispatchEvent(new w.CustomEvent('hh-travel-favorites-changed',{detail:{count:COUNT}}));
  }
+ function publish(){write(KEY,slots);notify()}
  function getSlots(){return normalize(slots)}
  function queue(i,row){
   pending[i]={label:row.label,place:row.place,updatedAt:new Date().toISOString()};
@@ -136,7 +139,9 @@
    // unless an explicit locally pending change is newer.
    const merged=online.map((x,i)=>pending[i]?local[i]:x);
    const additions=[];
-   for(const item of local){
+   // Import only once: stale local cache must not resurrect cloud deletions.
+   const needsMigration=w.localStorage?.getItem(MIGRATION)==='1';
+   for(const item of (needsMigration?local:[])){
     if(!item.place||merged.some(x=>same(x.place,item.place)))continue;
     const open=merged.findIndex((x,i)=>!occupied.has(i)&&!pending[i]&&!x.place);
     if(open<0)break;
@@ -153,7 +158,10 @@
     for(const i of indexes)delete pending[i];
     write(PENDING,pending);
    }
-   try{w.localStorage?.setItem(LAST_READ,String(Date.now()))}catch(_){}
+   try{
+    w.localStorage?.setItem(LAST_READ,String(Date.now()));
+    w.localStorage?.removeItem(MIGRATION);
+   }catch(_){}
    return true;
   }catch(e){
    // The pending queue stays local, including on authorization or network errors.
@@ -161,7 +169,7 @@
   }finally{working=false}
  }
  w.addEventListener?.('storage',e=>{
-  if(e.key===KEY){slots=normalize(getJson(KEY,[]));publish()}
+  if(e.key===KEY){slots=normalize(getJson(KEY,[]));notify()}
   if(e.key===PENDING)pending=getJson(PENDING,{})||{};
  });
  w.addEventListener?.('online',()=>sync(true).catch(()=>{}));
