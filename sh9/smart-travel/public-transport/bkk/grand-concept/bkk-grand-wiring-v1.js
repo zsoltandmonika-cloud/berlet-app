@@ -77,6 +77,8 @@ for(const el of document.querySelectorAll('[data-concept]')){
   const key=el.dataset.concept;
   if(key==='Utazás mentése')saveJourney();
   else if(key==='Utazásaim')showJourneys();
+  else if(key==='Kedvencek'&&window.HH_TRAVEL_FAVORITES_UI_V972)
+   window.HH_TRAVEL_FAVORITES_UI_V972.open();
   else go(key);
  });
 }
