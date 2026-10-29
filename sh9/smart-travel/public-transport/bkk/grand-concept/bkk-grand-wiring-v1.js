@@ -24,6 +24,7 @@ function showJourneys(){
   hint.textContent=(r.mode==='arrive'?'Érkezés ekkor':r.mode==='depart'?'Indulás ekkor':'Indulás most')+' · '+r.date+' '+r.time+' · helyben mentve, nem foglalás';
   copy.append(title,hint);
   const open=document.createElement('button');open.type='button';open.textContent='Betöltés';open.addEventListener('click',()=>{
+   window.SH9_BKK_GRAND_PREDICTIVE_V4?.clearSelections?.();
    $('from').value=r.from;$('to').value=r.to;$('date').value=r.date;$('time').value=r.time;
    document.querySelector('[data-mode="'+r.mode+'"]')?.click();
    panel.hidden=true;$('planner')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -46,10 +47,36 @@ function saveJourney(){
 }
 function openPlanner(){
  const p=current();
- if(!p.from||!p.to){toast('Írd be az indulási és az érkezési helyet.');(!p.from?$('from'):$('to')).focus();return}
- if(p.from.toLocaleLowerCase('hu-HU')===p.to.toLocaleLowerCase('hu-HU')){toast('Válassz két különböző helyet.');return}
- const draft={...p,created:Date.now(),source:'sh9-bkk-grand-v3'};
- try{sessionStorage.setItem(HANDOFF,JSON.stringify(draft))}catch(_){toast('A kereső megnyílik, de az adatok automatikus átadása nem sikerült.')}
+ if(!p.from||!p.to){
+  toast('Add meg az indulási és érkezési helyet.');
+  (!p.from?$('from'):$('to')).focus();return;
+ }
+ if(p.from.toLocaleLowerCase('hu-HU')===p.to.toLocaleLowerCase('hu-HU')){
+  toast('Válassz két különböző helyet.');return;
+ }
+ // Text typed into a field is not verified. Only an explicitly selected
+ // Photon/favorite result may become a route coordinate.
+ const predictor=window.SH9_BKK_GRAND_PREDICTIVE_V4?.selection;
+ const core=window.HH_SMART_HUB_FIELDS_V806;
+ const valid=(key,visible)=>{
+  const x=predictor?.[key];if(!core?.validPlace?.(x))return null;
+  if(core.displayPlace(x).trim()!==visible.trim())return null;
+  return {name:x.name,displayName:x.displayName||'',subtitle:x.subtitle||'',
+   lat:x.lat,lng:x.lng};
+ };
+ const origin=valid('origin',p.from),destination=valid('destination',p.to);
+ if(!origin||!destination){
+  const missing=!origin?'from':'to';
+  toast('Válaszd ki a '+(!origin?'Honnan':'Hová')+' címet a prediktív találatokból, majd indítsd a keresést.');
+  $(missing).focus();return;
+ }
+ if(Math.hypot((origin.lat-destination.lat)*111000,(origin.lng-destination.lng)*74000)<25){
+  toast('Az indulási és érkezési helynek különböznie kell.');return;
+ }
+ const draft={...p,verified:{origin,destination},
+  created:Date.now(),source:'sh9-bkk-grand-v3'};
+ try{sessionStorage.setItem(HANDOFF,JSON.stringify(draft))}
+ catch(_){toast('A két kereső közötti címátadás nem sikerült. Próbáld újra.');return}
  window.location.assign(GUARDIAN+'#hhSmartHubDestinationV802');
 }
 const destinations=Object.freeze({
