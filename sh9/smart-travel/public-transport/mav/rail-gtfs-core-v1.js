@@ -89,7 +89,53 @@ function instances(data,startDay,endDay){
  }
  return all;
 }
-function route(data,query,{limit=3,maxTransfers=1,localOnly=false}={}){
+/* v981: prune strictly inferior connections sharing the SAME departure time.
+ * The Friday SAJÓ 16:55 direct must outrank/remove an itinerary starting
+ * on that train that reaches the same destination much later by changing.
+ * Other departure times remain genuine choices; never fabricate availability. */
+function rankJourneys(journeys,query,{ranking='recommended'}={}){
+ const mode=query?.mode==='arrive'?'arrive':'depart';
+ const pivot=Date.parse(query?.when||'');
+ const groups=new Map();
+ for(const j of journeys||[]){
+  const dep=Date.parse(j?.departure),arr=Date.parse(j?.arrival);
+  if(!Number.isFinite(dep)||!Number.isFinite(arr)||dep>=arr)continue;
+  if(!groups.has(dep))groups.set(dep,[]);
+  groups.get(dep).push(j);
+ }
+ const kept=[];
+ for(const group of groups.values()){
+  group.sort((a,b)=>Date.parse(a.arrival)-Date.parse(b.arrival)||a.transfers-b.transfers);
+  let bestTransfers=Infinity;
+  for(const j of group){
+   if(j.transfers>=bestTransfers)continue;
+   kept.push(j);bestTransfers=j.transfers;
+  }
+ }
+ function score(j){
+  const dep=Date.parse(j.departure),arr=Date.parse(j.arrival);
+  const wait=Number.isFinite(pivot)?
+   Math.max(0,mode==='arrive'?(pivot-arr)/60000:(dep-pivot)/60000):0;
+  const ride=(arr-dep)/60000;
+  return ride + Math.max(0,j.transfers)*50 + wait*.45;
+ }
+ kept.sort((a,b)=>{
+  if(ranking==='earliest')return Date.parse(a.departure)-Date.parse(b.departure)||
+   a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival);
+  if(ranking==='arrival')return Date.parse(a.arrival)-Date.parse(b.arrival)||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='transfers')return a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='duration')return a.durationMinutes-b.durationMinutes||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  const diff=score(a)-score(b);
+  return diff||a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+ });
+ return {journeys:kept,removed:Math.max(0,(journeys||[]).length-kept.length),
+  total:(journeys||[]).length};
+}
+function route(data,query,{limit=3,maxTransfers=1,localOnly=false,ranking='chronological'}={}){
  const parsed=validate(data,{allowPrivate:localOnly===true});
  if(!parsed||!query||!['now','depart','arrive'].includes(query.mode))return {status:'invalid-feed',journeys:[]};
  const date=new Date(query.when);
@@ -152,8 +198,11 @@ function route(data,query,{limit=3,maxTransfers=1,localOnly=false}={}){
  results.sort((a,b)=>query.mode==='arrive'
    ?Date.parse(b.arrival)-Date.parse(a.arrival)||Date.parse(b.departure)-Date.parse(a.departure)||a.transfers-b.transfers
    :Date.parse(a.departure)-Date.parse(b.departure)||a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival));
+ const smart=ranking==='chronological'?null:rankJourneys(results,query,{ranking});
+ const ranked=smart?.journeys||results;
  return {status:'ok',source:parsed.source,generatedAt:parsed.generatedAt,
-   journeys:results.slice(0,Math.max(1,Math.min(10,limit)))};
+   totalJourneys:ranked.length,dominatedRemoved:smart?.removed||0,ranking,
+   journeys:ranked.slice(0,Math.max(1,Math.min(60,limit)))};
 }
-return Object.freeze({TZ,normalize,short,budapestDay,dayShift,wallEpoch,serviceActive,validate,stationIds,route});
+return Object.freeze({TZ,normalize,short,budapestDay,dayShift,wallEpoch,serviceActive,validate,stationIds,rankJourneys,route});
 });
