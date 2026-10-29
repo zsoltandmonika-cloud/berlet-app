@@ -1,0 +1,57 @@
+/* SH9 v957: harden unified BKK Control without waiting for the watchlist.
+   Critical matching rules also exist inline at the START of <head> for zero FOUC.
+   No JS, polling, GPS, data mutation or new overlay elements. */
+:root[data-sh9-transit="on"] #hhTransitPanel :is(
+ .hh-transit-choices,#hhTransitCardsV791
+){display:none!important}
+/* Enforce one surface in case other legacy styles are appended dynamically. */
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel{
+ position:relative!important;
+ isolation:auto!important;
+ overflow:visible!important;
+ background-clip:padding-box!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel>.hh-transit-body{
+ display:block!important;
+}
+/* Only the user-controlled, functional inputs and actual result rows retain
+   their separate selection surfaces. Structural wrappers are not cards. */
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ .hh-bkk-watchlist-v814,
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhBkkCatalogV801,
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802{
+ background-image:none!important;
+ background-color:transparent!important;
+ filter:none!important;
+ text-shadow:none!important;
+}
+/* Preserve the visually useful divider, avoid extra vertical cards and gaps. */
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhBkkCatalogV801>summary{
+ min-height:48px!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802{
+ padding-top:11px!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel
+ .hh-bkk-watch-toggle-v858{
+ min-height:44px!important;
+}
+/* A collapsed accordion's real hidden content is never surfaced by display
+   rules above. Keep the Android minimum touch targets and focus rings. */
+html[data-sh9-transit="on"] #hhTransitPanel [hidden]{
+ display:none!important;
+}
+@media(max-width:375px){
+ html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel{
+  padding:9px 10px 10px!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel{
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+}

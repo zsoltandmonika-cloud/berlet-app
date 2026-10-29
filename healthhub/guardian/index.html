@@ -22,6 +22,56 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
  if(!location.hash){try{history.scrollRestoration='manual'}catch(_){}}
 }
 </script>
+<style id="sh9-bkk-first-paint-v957">
+/* v957: critical first-paint styles. URL mode is set synchronously ABOVE.
+   Legacy transport selections stay in DOM for internal route logic but never
+   appear on SH9 while waiting for Watchlist JavaScript. No flash or overlays. */
+html[data-sh9-transit="on"] #hhTransitPanel .hh-transit-choices,
+html[data-sh9-transit="on"] #hhTransitPanel #hhTransitCardsV791{display:none!important}
+/* One sheet from the very first frame, even before secondary CSS arrives. */
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel{
+ box-sizing:border-box!important;
+ width:100%!important;margin:9px 0 14px!important;padding:11px 12px 12px!important;
+ border:1px solid rgba(255,255,255,.86)!important;border-radius:20px!important;
+ background:linear-gradient(138deg,var(--hhg-panel-start,rgba(223,239,252,.86)),
+ var(--hhg-panel-end,rgba(189,221,246,.78)))!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.9),0 7px 21px var(--hhg-shadow,rgba(37,63,101,.10))!important;
+ -webkit-backdrop-filter:blur(20px) saturate(118%)!important;
+ backdrop-filter:blur(20px) saturate(118%)!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel>.hh-transit-body{
+ padding:0!important;margin:0!important;background:transparent!important;
+ max-height:none!important;overflow:visible!important
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel>#hhBkkLiveBarV796{
+ margin:0!important;padding:2px 0 11px!important;
+ background:transparent!important;border:0!important;
+ border-bottom:1px solid rgba(83,108,138,.24)!important;border-radius:0!important;
+ box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel .hh-bkk-watchlist-v814,
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel .hh-bkk-watchlist-v814:has(.hh-bkk-watch-content-v858[hidden]){
+ margin:0!important;padding:7px 0 10px!important;
+ border:0!important;border-bottom:1px solid rgba(83,108,138,.24)!important;
+ border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkCatalogV801{
+ margin:0!important;padding:0 0 2px!important;
+ border:0!important;border-bottom:1px solid rgba(83,108,138,.24)!important;
+ border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel #hhSmartHubDestinationV802.hh-smart-hub-v802{
+ margin:0!important;padding:12px 0 1px!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+html[data-sh9-transit="on"][data-guardian-profile="m"] body .shell>main>#hhTransitPanel.hh-transit-panel{
+ background:linear-gradient(138deg,rgba(255,238,249,.86),rgba(239,210,233,.79))!important
+}
+</style>
 <title>HealthHub · Family Guard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
@@ -116,7 +166,8 @@ if(new URLSearchParams(location.search).get('sh9Transit')==='1'){
 <link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=928-viewport-low-usage">
 <link rel="stylesheet" href="./guardian-smart-hub-clean-space-v954.css?v=954">
 <link rel="stylesheet" href="./guardian-smart-planner-unified-v955.css?v=955-one-surface">
-<link rel="stylesheet" href="./guardian-bkk-control-one-card-v956.css?v=956-unified">
+<link rel="stylesheet" href="./guardian-bkk-control-one-card-v956.css?v=957-firstpaint">
+<link rel="stylesheet" href="./guardian-bkk-first-paint-v957.css?v=957">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
