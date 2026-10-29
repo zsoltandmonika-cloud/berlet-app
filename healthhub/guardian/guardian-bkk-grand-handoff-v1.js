@@ -26,24 +26,54 @@ function safe(p){
  return {name:p.name.slice(0,120),displayName:String(p.displayName||'').slice(0,80),
   subtitle:String(p.subtitle||'').slice(0,190),lat:p.lat,lng:p.lng};
 }
+/* v985: success feedback is triggered only on a verified rendered route card.
+ * The receiving page has no guaranteed audio gesture: autoplay restrictions
+ * are respected, and failure is silent, never an extra network request. */
+function celebrate(){
+ const host=$('hhSmartHubTripPlansV804');
+ if(!host?.querySelector('.hh-smart-trip-card-v804'))return;
+ host.classList.remove('hh-bkk-search-success-v985');
+ void host.offsetWidth;
+ host.classList.add('hh-bkk-search-success-v985');
+ w.setTimeout(()=>host.classList.remove('hh-bkk-search-success-v985'),1050);
+ let soundEnabled=true;
+ try{soundEnabled=w.localStorage.getItem('sh9-mav-flirt-signal-v2')!=='off'}catch(_){}
+ if(!soundEnabled)return;
+ try{
+  const AudioCtx=w.AudioContext||w.webkitAudioContext;
+  if(!AudioCtx)return;
+  const ctx=new AudioCtx();
+  if(ctx.state!=='running'){ctx.close().catch(()=>{});return}
+  [659.25,830.61,1046.5].forEach((hz,i)=>{
+   const at=ctx.currentTime+i*.105,osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.value=hz;
+   gain.gain.setValueAtTime(.0001,at);
+   gain.gain.exponentialRampToValueAtTime(.075,at+.02);
+   gain.gain.exponentialRampToValueAtTime(.0001,at+.21);
+   osc.connect(gain);gain.connect(ctx.destination);
+   osc.start(at);osc.stop(at+.22);
+  });
+  w.setTimeout(()=>ctx.close().catch(()=>{}),1100);
+ }catch(_){}
+}
 function focusRouteResults(){
  const plans=$('hhSmartHubTripPlansV804'),note=$('hhSmartHubTripStatusV804');
  if(!plans||!note)return;
  let finished=false;
  function move(){
   const destination=plans.querySelector('.hh-smart-trip-card-v804')?plans:note;
-  try{destination.scrollIntoView({behavior:'smooth',block:'start'})}
-  catch(_){destination.scrollIntoView()}
+  const position=Math.max(0,destination.getBoundingClientRect().top+w.scrollY-8);
+  w.scrollTo({top:position,behavior:w.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  }
  // Scroll first to the route status even if GTFS is still loading.
  const schedule=w.requestAnimationFrame?
   cb=>w.requestAnimationFrame(()=>w.requestAnimationFrame(cb)):cb=>w.setTimeout(cb,100);
  schedule(move);
- if(plans.querySelector('.hh-smart-trip-card-v804'))return;
+ if(plans.querySelector('.hh-smart-trip-card-v804')){celebrate();return;}
  if(!w.MutationObserver)return;
  const observer=new w.MutationObserver(()=>{
   if(finished||!plans.querySelector('.hh-smart-trip-card-v804'))return;
-  finished=true;observer.disconnect();move();
+  finished=true;observer.disconnect();move();celebrate();
  });
  observer.observe(plans,{childList:true,subtree:true});
  w.setTimeout(()=>{finished=true;observer.disconnect()},20000);

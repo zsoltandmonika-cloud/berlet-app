@@ -1,0 +1,6 @@
+/* BKK v985 arrival focus success, no layout shift */
+@keyframes hhBkkFocusV985{0%,100%{filter:none}25%{filter:drop-shadow(0 0 12px rgba(73,170,255,.66))}}
+#hhSmartHubTripPlansV804.hh-bkk-search-success-v985{animation:hhBkkFocusV985 1s ease-out}
+:root[data-profile="m"] #hhSmartHubTripPlansV804.hh-bkk-search-success-v985{animation-name:hhBkkPinkV985}
+@keyframes hhBkkPinkV985{0%,100%{filter:none}25%{filter:drop-shadow(0 0 12px rgba(244,121,216,.68))}}
+@media(prefers-reduced-motion:reduce){#hhSmartHubTripPlansV804.hh-bkk-search-success-v985{animation:none}}
