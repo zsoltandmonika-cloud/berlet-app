@@ -1,0 +1,66 @@
+/* SH9 BKK Grand v952 · three approved illustrated service buttons.
+   Only the 3 service buttons change; planner, live navigation and taskbar stay
+   untouched. Artwork is an optimized sprite cropped from user-supplied image.
+   No new JS, requests, GPS or provider polling. */
+#depart .preview-result,
+#depart .source{display:none!important}
+#depart .services{display:grid;gap:8px;margin-top:9px}
+#depart .service{
+  display:grid;
+  grid-template-columns:110px minmax(0,1fr) 22px;
+  align-items:center;
+  gap:10px;
+  height:auto;
+  min-height:92px;
+  width:100%;
+  padding:6px 9px 6px 6px;
+  margin:0;
+  border:1px solid rgba(180,216,248,.37);
+  border-radius:14px;
+  background:linear-gradient(115deg,rgba(25,47,81,.83),rgba(39,31,71,.72));
+  box-shadow:inset 0 1px rgba(255,255,255,.15),0 4px 11px rgba(0,4,20,.24);
+  -webkit-backdrop-filter:blur(15px);
+  backdrop-filter:blur(15px);
+  color:#f1f7ff;
+  text-align:left;
+  touch-action:manipulation;
+  transition:transform .14s ease,border-color .14s ease;
+}
+#depart .service:active{transform:scale(.992)}
+#depart .service:focus-visible{outline:2px solid #e4faff;outline-offset:2px}
+#depart .service-icon{
+  width:110px;
+  height:78px;
+  display:block;
+  overflow:hidden;
+  border-radius:10px;
+  padding:0;
+  border:1px solid rgba(196,222,247,.26);
+  background-image:url('./assets/bkk-services-triptych-v952.webp');
+  background-size:300% 100%;
+  background-repeat:no-repeat;
+  background-position:0% center;
+  box-shadow:inset 0 1px rgba(255,255,255,.12),0 3px 8px rgba(0,0,0,.26);
+  font-size:0;
+  flex:none;
+}
+#depart .service:nth-child(2) .service-icon{background-position:50% center}
+#depart .service:nth-child(3) .service-icon{background-position:100% center}
+#depart .service strong{font-size:13.3px;line-height:1.18;font-weight:800;color:#f3f7ff;letter-spacing:-.018em}
+#depart .service small{font-size:10.5px;line-height:1.23;max-width:100%;margin-top:5px;color:#c5d8ed;font-weight:530}
+#depart .service .chev{font-size:27px;font-weight:400;color:#e7efff;line-height:1;text-align:right}
+:root[data-profile="m"] #depart .service{
+  background:linear-gradient(115deg,rgba(48,34,72,.85),rgba(43,30,69,.77));
+  border-color:rgba(244,183,226,.35);
+}
+:root[data-profile="m"] #depart .service strong{color:#ffe2f3}
+#depart .service:nth-child(1){border-left:2px solid rgba(205,153,235,.56)}
+#depart .service:nth-child(2){border-left:2px solid rgba(132,187,246,.55)}
+#depart .service:nth-child(3){border-left:2px solid rgba(142,216,184,.52)}
+@media(max-width:375px){
+  #depart .service{grid-template-columns:94px minmax(0,1fr) 18px;min-height:85px;gap:8px;padding:5px 7px 5px 5px}
+  #depart .service-icon{width:94px;height:71px}
+  #depart .service strong{font-size:12.2px}
+  #depart .service small{font-size:9.5px}
+}
+@media(prefers-reduced-motion:reduce){#depart .service{transition:none}}
