@@ -43,7 +43,7 @@
    field.dataset.goldenField=field.querySelector('#hhSmartHubFromV806')?'from':'to';
   });
   const datetime=d.createElement('div');datetime.className='hh-bkk-golden-datetime-v968';
-  datetime.innerHTML='<label class="hh-bkk-golden-date-v968" aria-label="Utazási dátum"><span aria-hidden="true">▦</span><b id="hhBkkGoldenDateLabelV968">Dátum</b><input type="date" id="hhBkkGoldenDateV968" aria-label="Utazási dátum kiválasztása"></label><label class="hh-bkk-golden-time-v968" aria-label="Utazási idő"><span aria-hidden="true">◷</span><b id="hhBkkGoldenTimeLabelV968">Idő</b><input type="time" id="hhBkkGoldenTimeV968" step="60" aria-label="Utazási idő kiválasztása"></label>';
+  datetime.innerHTML='<div class="hh-bkk-golden-date-v968" id="hhBkkGoldenDateTriggerV970" role="button" tabindex="0" aria-label="Naptár megnyitása"><span aria-hidden="true">▦</span><b id="hhBkkGoldenDateLabelV968">Dátum</b><input type="date" id="hhBkkGoldenDateV968" tabindex="-1" aria-label="Utazási dátum kiválasztása"></div><div class="hh-bkk-golden-time-v968" id="hhBkkGoldenTimeTriggerV970" role="button" tabindex="0" aria-label="Időpontválasztó megnyitása"><span aria-hidden="true">◷</span><b id="hhBkkGoldenTimeLabelV968">Idő</b><input type="time" id="hhBkkGoldenTimeV968" step="60" tabindex="-1" aria-label="Utazási idő kiválasztása"></div>';
   route.append(nativePair,datetime);
   const actions=d.createElement('div');actions.className='hh-bkk-golden-actions-v968';
   actions.innerHTML='<button type="button" class="hh-bkk-golden-search-v968" id="hhBkkGoldenFindV968">⌕ Útvonal keresése</button><button type="button" id="hhBkkGoldenScheduleV968" class="hh-bkk-golden-schedule-v968">↻ BKK járatok ↗</button>';
@@ -87,6 +87,20 @@
     w.requestAnimationFrame?w.requestAnimationFrame(sync):w.setTimeout(sync,0);
    });
   }
+  // Open native calendar/time from the user's actual tap or keypress.
+  function picker(trigger,field){
+   if(!trigger||!field)return;
+   function activate(){
+    try{if(typeof field.showPicker==='function'){field.showPicker();return}}catch(_){}
+    try{field.focus({preventScroll:true});field.click()}catch(_){field.focus()}
+   }
+   trigger.addEventListener('click',event=>{if(event.target!==field)activate()});
+   trigger.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){event.preventDefault();activate()}
+   });
+  }
+  picker($('hhBkkGoldenDateTriggerV970'),date);
+  picker($('hhBkkGoldenTimeTriggerV970'),time);
   date.addEventListener('change',applyDate);
   time.addEventListener('change',applyDate);
   sync();
