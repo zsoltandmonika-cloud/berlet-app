@@ -225,7 +225,7 @@ class Sh9GpsService : Service() {
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
         // The existing consent, owner registry, freshness and Dropbox gates remain unchanged.
-        FamilyGuardNativeRelay.publish(this, location)
+        FamilyGuardNativeRelay.publish(this, location, smartPolicy.mode)
         val cb = fusedCallback
         val client = fused
         if (engine == "fused" && cb != null && client != null &&
