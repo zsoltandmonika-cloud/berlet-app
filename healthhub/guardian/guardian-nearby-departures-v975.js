@@ -92,6 +92,16 @@
   }
   return Array.from(places.values()).sort((a,b)=>a.meters-b.meters);
  }
+ // The walk is a straight-line estimate, not a verified pedestrian route.
+ // Conservative buffers: >=7 minutes is green, 3..7 amber, below 3 red.
+ // Never describe these as a live ETA or a guarantee of catching the vehicle.
+ function reachability(item,now=Date.now()){
+  const timeLeft=item.departure-now/60000;
+  const margin=timeLeft-item.walkMinutes;
+  return {level:margin>=7?'green':margin>=3?'amber':'red',
+   marginMinutes:Math.floor(margin),
+   waitMinutes:Math.max(0,Math.ceil(timeLeft))};
+ }
  function departures(schedule,candidates,now=Date.now(),limit=10){
   const choices=new Map();
   for(const stop of candidates){
@@ -106,17 +116,42 @@
     const key=trip.line+'|'+stop[0],nearby=choices.get(key);
     if(!nearby)continue;
     const departure=stop[2];
-    if(departure<start+nearby.walkMinutes||departure>end)continue;
+    // Keep the imminent departure visible even when walking there is too slow.
+    // Otherwise users never see the red warning or the following service.
+    if(departure<start||departure>end)continue;
     const id=key+'|'+departure;
     if(!found.has(id))found.set(id,{...nearby,departure,
       waitMinutes:Math.max(0,Math.ceil(departure-now/60000)),
       tripId:trip.tripId});
    }
   }
-  // Prefer the soonest catchable departures. Different buses using the same
-  // route+stop+minute are one row, not invented additional services.
-  return [...found.values()].sort((a,b)=>a.departure-b.departure||
-   a.meters-b.meters).slice(0,limit);
+  // Official departure at a specific line+stop+minute is listed once.
+  const ordered=[...found.values()].sort((a,b)=>a.departure-b.departure||
+   a.meters-b.meters);
+  const firstCatchable=new Map();
+  for(const item of ordered){
+   if(reachability(item,now).level==='red')continue;
+   const key=item.line+'|'+item.id;
+   if(!firstCatchable.has(key))firstCatchable.set(key,item.departure);
+  }
+  for(const item of ordered){
+   if(reachability(item,now).level!=='red')continue;
+   const alternative=firstCatchable.get(item.line+'|'+item.id);
+   if(Number.isFinite(alternative)&&alternative>item.departure)
+    item.nextCatchable=alternative;
+  }
+  const max=Number.isInteger(limit)?Math.max(1,Math.min(15,limit)):10;
+  const result=ordered.slice(0,max);
+  // At least one potentially reachable alternative must be visible when
+  // early results are all too tight, including the sparse 260 timetable.
+  if(result.length&&result.every(x=>reachability(x,now).level==='red')){
+   const next=ordered.find(x=>reachability(x,now).level!=='red');
+   if(next&&!result.includes(next)){
+    result[result.length-1]=next;
+    result.sort((a,b)=>a.departure-b.departure||a.meters-b.meters);
+   }
+  }
+  return result;
  }
  function init(){
   const guardian=$('hhBkkGoldenPlannerV968');
@@ -192,7 +227,7 @@
   radius.addEventListener('change',settingsChanged);
   limitSelect.addEventListener('change',settingsChanged);
   const footer=d.createElement('small');footer.className='hh-bkk-near-footer-v975';
-  footer.textContent='Hivatalos BKK GTFS · tervezett, nem élő indulás. Támogatott járatok: 260, 17, 19, 1, 41. A sétaidő becslés.';
+  footer.textContent='Hivatalos BKK GTFS · tervezett, nem élő indulás. 260, 17, 19, 1, 41. Zöld: legalább 7 perc ráhagyás; sárga: 3–7 perc; piros: 3 percnél kevesebb. Légvonali sétaidő, nem garantált útvonal vagy elérés. Új kereséshez koppints újra a gombra.';
   panel.append(heading,settings,note,rows,footer);
   actions.insertAdjacentElement('afterend',btn);
   btn.insertAdjacentElement('afterend',panel);
@@ -202,10 +237,12 @@
     note.textContent='Nincs ellenőrzött, elérhető indulás a kiválasztott járatokon '+prefs.radius+' méteren belül, a következő 12 órában.';
     return;
    }
-   note.textContent=result.length+' következő, elérhető menetrendi indulás · GPS-pontosság kb. '+
-    Math.round(loc.accuracy)+' m · sétaidő csak légvonalból becsült';
+   note.textContent=result.length+' következő menetrendi indulás · GPS-pontosság kb. '+
+    Math.round(loc.accuracy)+' m. A gyaloglás légvonalból becsült; a jelzés nem garantált elérés.';
    for(const item of result){
+    const risk=reachability(item,Date.now());
     const row=d.createElement('article');row.className='hh-bkk-near-result-v975';
+    row.dataset.reach=risk.level;
     const pill=d.createElement('b');pill.className='hh-bkk-near-line-v975';
     pill.textContent=item.line;
     pill.dataset.mode=['17','19','1','41'].includes(item.line)?'tram':'bus';
@@ -214,10 +251,20 @@
     const towards=d.createElement('span');towards.textContent='Irány: '+(item.headsign||'a járat útvonala');
     const walk=d.createElement('small');walk.textContent=item.meters+' m · kb. '+item.walkMinutes+' perc séta';
     info.append(stop,towards,walk);
+    if(risk.level==='red'&&Number.isFinite(item.nextCatchable)){
+     const next=d.createElement('small');next.className='hh-bkk-near-next-v976';
+     next.textContent='Következő várhatóan elérhető indulás innen: '+
+      fmt.format(new Date(item.nextCatchable*60000));
+     info.append(next);
+    }
     const time=d.createElement('div');time.className='hh-bkk-near-clock-v975';
     const hh=d.createElement('strong');hh.textContent=fmt.format(new Date(item.departure*60000));
-    const until=d.createElement('b');until.textContent=item.waitMinutes+' perc múlva';
-    time.append(hh,until);row.append(pill,info,time);rows.append(row);
+    const until=d.createElement('b');until.textContent=risk.waitMinutes+' perc múlva';
+    const rag=d.createElement('span');rag.className='hh-bkk-near-rag-v976';
+    rag.textContent=risk.level==='green'?'● Elérhetőnek tűnik':
+     risk.level==='amber'?'● Szoros az idő':'● Valószínűleg lekésed';
+    rag.setAttribute('aria-label','Becsült elérési esély: '+rag.textContent);
+    time.append(hh,until,rag);row.append(pill,info,time);rows.append(row);
    }
   }
   btn.addEventListener('click',async()=>{
@@ -241,7 +288,7 @@
    }catch(e){note.textContent='⚠️ '+String(e?.message||'Nem sikerült a keresés.')}
    finally{working=false;btn.disabled=false}
   });
-  w.HH_BKK_NEAR_DEPARTURES_V975=Object.freeze({near,departures,readPrefs,version:'975-editable'});
+  w.HH_BKK_NEAR_DEPARTURES_V975=Object.freeze({near,departures,reachability,readPrefs,version:'976-rag'});
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
