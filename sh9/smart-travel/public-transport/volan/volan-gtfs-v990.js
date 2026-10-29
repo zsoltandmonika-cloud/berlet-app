@@ -120,7 +120,7 @@ function search(e){
  const route=core.route(data,{from,to,mode,when:when.toISOString()},{limit:40,maxTransfers:1,localOnly:true,ranking:'recommended'});
  results.replaceChildren();
  const title=el('h3','',route.status==='ok'?route.totalJourneys+' menetrendi útvonal':'Nincs ellenőrzött találat');results.append(title);
- if(route.status!=='ok'||!route.journeys?.length){results.append(el('p','','Próbálj másik megállót vagy dátumot. A GTFS nem élő adat.'));return}
+ if(route.status!=='ok'||!route.journeys?.length){results.append(el('p','','Próbálj korábbi időpontot (például 06:00), vagy másik megállót. A GTFS nem élő adat.'));w.scrollTo({top:Math.max(0,results.getBoundingClientRect().top+w.scrollY-8),behavior:w.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});return}
  for(const j of route.journeys){
   const row=el('details','volan-trip-v990'),head=el('summary','',clock(j.departure)+' → '+clock(j.arrival)+' · '+j.durationMinutes+' perc · '+j.transfers+' átszállás');
   row.append(head);
