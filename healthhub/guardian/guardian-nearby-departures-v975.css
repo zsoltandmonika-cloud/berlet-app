@@ -98,3 +98,47 @@
  #hhBkkNearPanelV975 .hh-bkk-near-result-v975{gap:5px;padding:7px 5px}
  #hhBkkNearPanelV975 .hh-bkk-near-clock-v975 strong{font-size:13px}
 }
+
+/* v975 editable profile-specific line, radius and result filters. */
+#hhBkkNearSettingsV975.hh-bkk-near-settings-v975{
+ border:1px solid rgba(216,236,255,.45);border-radius:10px;
+ background:rgba(255,255,255,.09);padding:0!important;
+ color:#f7faff;
+}
+#hhBkkNearSettingsV975 summary{
+ min-height:42px;display:flex;align-items:center;
+ font:760 11px/1.25 system-ui;padding:9px 10px;
+ cursor:pointer;touch-action:manipulation;list-style-position:inside;
+}
+#hhBkkNearSettingsV975 .hh-bkk-near-controls-v975{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+ padding:8px;border-top:1px solid rgba(226,240,255,.24);
+}
+#hhBkkNearSettingsV975 .hh-bkk-near-toggle-v975{
+ display:flex;align-items:center;gap:5px;min-height:39px;
+ padding:6px;border:1px solid rgba(215,236,255,.34);
+ border-radius:8px;background:rgba(255,255,255,.08);
+ color:#fff;font:750 11px/1.1 system-ui;cursor:pointer
+}
+#hhBkkNearSettingsV975 .hh-bkk-near-toggle-v975 input{
+ width:19px;height:19px;min-width:19px;margin:0;
+ accent-color:#61b8f5;cursor:pointer
+}
+:root[data-guardian-profile="m"] #hhBkkNearSettingsV975 .hh-bkk-near-toggle-v975 input,
+:root[data-profile="m"] #hhBkkNearSettingsV975 .hh-bkk-near-toggle-v975 input{
+ accent-color:#ec8fcd
+}
+#hhBkkNearSettingsV975 .hh-bkk-near-select-v975{
+ grid-column:span 3;display:flex;align-items:center;justify-content:space-between;
+ gap:7px;min-height:43px;padding:6px 9px;
+ border:1px solid rgba(215,236,255,.32);border-radius:8px;
+ color:#fff;font:700 11px/1.2 system-ui
+}
+#hhBkkNearSettingsV975 .hh-bkk-near-select-v975 select{
+ min-width:112px;min-height:35px;padding:5px 7px;
+ border-radius:8px;border:1px solid rgba(224,240,255,.65);
+ background:#243c6b;color:#fff;font:750 12px/1.2 system-ui
+}
+#hhBkkNearSettingsV975 :is(input,select,summary):focus-visible{
+ outline:2px solid #fff!important;outline-offset:1px
+}
