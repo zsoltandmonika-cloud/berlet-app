@@ -1,0 +1,26 @@
+/* BKK v961 · Three explicit removals in both Family Guard and SH9:
+   1. duplicate long data-accuracy explanation;
+   2. obsolete profile dropdown (the real Family Guard switch owns the profile);
+   3. routine technical GTFS footer (only actionable warnings can reappear).
+   Keep the real route headings, terminal checkboxes, map and live statuses.
+ */
+#hhTransitPanel .hh-transit-v791 > label[hidden],
+#hhTransitPanel #hhTransitProfileV791[hidden],
+#hhTransitPanel #hhTransitStatus[hidden]{
+ display:none!important;
+}
+/* The static description is not a route. The actual checkboxes remain. */
+#hhTransitPanel #hhTransitDirectionsV791 > p{
+ display:none!important;
+}
+/* The existing BKK catalog is now the single source-credit location.
+   Its license links remain available when "További BKK-járatok" is opened. */
+#hhTransitPanel #hhBkkCatalogV801 .hh-bkk-catalog-note-v801 a{
+ color:var(--ink,var(--bk-ink,#193653));
+ text-decoration:underline;
+ text-underline-offset:2px;
+}
+#hhTransitPanel #hhBkkCatalogV801 .hh-bkk-catalog-note-v801 a:focus-visible{
+ outline:2px solid var(--accent,var(--bk-accent,#78b4e6));
+ outline-offset:2px;
+}
