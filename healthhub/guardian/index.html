@@ -72,6 +72,32 @@ html[data-sh9-transit="on"][data-guardian-profile="m"] body .shell>main>#hhTrans
  background:linear-gradient(138deg,rgba(255,238,249,.86),rgba(239,210,233,.79))!important
 }
 </style>
+<style id="guardian-bkk-family-first-paint-v959">
+/* The regular Family Guard gets the same approved one-card BKK Control.
+   Hide obsolete 260 / 17 / 19 selector cards before Watchlist JS loads.
+   Keep the controls mounted for the existing BKK/MapLibre logic. */
+html:not([data-sh9-transit="on"]) #hhTransitPanel .hh-transit-choices,
+html:not([data-sh9-transit="on"]) #hhTransitPanel #hhTransitCardsV791{
+ display:none!important
+}
+/* One surface immediately, scoped away from the tested SH9 view. */
+html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-panel{
+ box-sizing:border-box!important;
+ margin:9px 0 14px!important;padding:11px 12px 12px!important;
+ border:1px solid rgba(255,255,255,.86)!important;border-radius:20px!important;
+ background:linear-gradient(138deg,var(--hhg-panel-start,rgba(223,239,252,.86)),
+ var(--hhg-panel-end,rgba(189,221,246,.78)))!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.9),0 7px 21px var(--hhg-shadow,rgba(37,63,101,.10))!important;
+}
+html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-panel .hh-bkk-watchlist-v814,
+html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkCatalogV801,
+html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-panel #hhSmartHubDestinationV802.hh-smart-hub-v802{
+ background:transparent!important;border-radius:0!important;
+ border:0!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+</style>
 <title>HealthHub · Family Guard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
@@ -168,6 +194,7 @@ html[data-sh9-transit="on"][data-guardian-profile="m"] body .shell>main>#hhTrans
 <link rel="stylesheet" href="./guardian-smart-planner-unified-v955.css?v=955-one-surface">
 <link rel="stylesheet" href="./guardian-bkk-control-one-card-v956.css?v=957-firstpaint">
 <link rel="stylesheet" href="./guardian-bkk-first-paint-v957.css?v=957">
+<link rel="stylesheet" href="./guardian-bkk-family-one-card-v959.css?v=959-guardian-parity">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
