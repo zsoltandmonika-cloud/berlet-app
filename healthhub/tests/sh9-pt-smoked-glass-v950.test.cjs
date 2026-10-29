@@ -30,7 +30,7 @@ test('v950 keeps four original approved image assets and all user navigation',()
 test('v950 keeps bright original image content above dim backdrop, with modest glass border',()=>{
  assert.match(css,/\.transport-choice::before\{/);
  assert.match(css,/linear-gradient\(rgba\(11,20,37,\.69\),rgba\(11,20,37,\.69\)\)/);
- assert.match(css,/\.transport-choice\.choice-does-not-exist|\.transport-choice::after\{/);
+ assert.match(css,/\.transport-choice::after\{/);
  assert.match(css,/\.transport-choice \.choice-art\{/);
  assert.match(css,/-webkit-mask-image:/);
  assert.match(css,/filter:none!important/);
