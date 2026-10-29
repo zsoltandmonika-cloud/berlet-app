@@ -78,12 +78,14 @@ test('All five UI sort options operate purely in browser without refetch',()=>{
  assert.match(view,/rail-route-more-v981/);
  assert.match(view,/rail-route-sort-v981/);
  assert.match(view,/Összes útvonal/);
+ assert.match(view,/ordered\.slice\(0,5\)/);
+ assert.match(view,/if\(all\.length>5\)/);
  assert.match(view,/rankJourneys\(all,q,\{ranking:sort\.value\}\)/);
 });
 test('v981 frontend enabled without changing v979/v980 or Dropbox sync scopes',()=>{
  assert.match(page,/rail-smart-route-v981\.css\?v=981/);
  assert.match(page,/rail-gtfs-core-v1\.js\?v=981/);
- assert.match(page,/rail-journeys-v2\.js\?v=981/);
+ assert.match(page,/rail-journeys-v2\.js\?v=982/);
  assert.match(page,/rail-private-gtfs-v2\.js\?v=981/);
  assert.match(page,/rail-station-board-v979\.js/);
  assert.match(page,/rail-nearby-v980\.js/);
