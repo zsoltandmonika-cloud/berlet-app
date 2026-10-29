@@ -1,0 +1,4 @@
+/* Direct MÁVPlusz route handoff, 48px mobile touch target */
+#volanGtfsResultsV990 .volan-golden-direct-v1001{display:block;width:100%;min-height:50px;padding:10px 12px;border:1px solid #d5f3ffa8;border-radius:11px;color:#fff;background:linear-gradient(114deg,#147bca,#2656ab);font-size:12px;font-weight:850;line-height:1.35;text-align:center;touch-action:manipulation}
+:root[data-profile=m] #volanGtfsResultsV990 .volan-golden-direct-v1001{background:linear-gradient(115deg,#b952a6,#764fac);border-color:#ffbbeb}
+#volanGtfsResultsV990 .volan-golden-direct-v1001:focus-visible{outline:2px solid #f5feff;outline-offset:2px}

@@ -85,12 +85,29 @@ function render({list,from,to,when,results,stopById,wall}){
   const actions=el('div','volan-golden-actions-v997');
   const button=el('button','volan-golden-save-v997','☆ Utazás mentése');button.type='button';
   button.addEventListener('click',()=>save(j,button));actions.append(button);
-  const book=el('button','volan-golden-book-v1000','🎫 Jegy / helyjegy · adatátadó');book.type='button';
-  book.addEventListener('click',()=>{
-   const ok=w.SH9_VOLAN_BOOKING_V1000?.open(j,{from,to,stopById,anchor:actions});
-   if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('Nem sikerült előkészíteni az utazási adatokat.');
+  const hasDirectTrip=Boolean(w.SH9_VOLAN_DIRECT_V1001?.vehicleHandoff?.(j)?.ok);
+  const direct=el('button','volan-golden-direct-v1001',
+    hasDirectTrip?'🚌 Konkrét járat · MÁVPlusz ↗':'🗺️ Útvonal a MÁVPluszban ↗');
+  direct.type='button';
+  direct.title=hasDirectTrip
+   ?'Eredeti HKIR járatazonosító átadása a hivatalos MÁVPlusz járatinfónak. Nem jegyfoglalás.'
+   :'GTFS-megállók és indulási idő átadása a MÁVPlusz útvonaltervezőnek. A céloldali átvétel még ellenőrizendő.';
+  direct.addEventListener('click',()=>{
+   const ok=w.SH9_VOLAN_DIRECT_V1001?.launch(j,{stopById});
+   if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('A MÁVPlusz járat átadása nem sikerült.');
   });
-  actions.append(book);
+  actions.prepend(direct);
+  // Legacy copied-text handoff remains only for journeys where the provider
+  // has no HKIR-shaped official trip link candidate.
+  if(!hasDirectTrip){
+   const book=el('button','volan-golden-book-v1000','🎫 Jegyadatok előkészítése');
+   book.type='button';
+   book.addEventListener('click',()=>{
+    const ok=w.SH9_VOLAN_BOOKING_V1000?.open(j,{from,to,stopById,anchor:actions});
+    if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('A jegyadatok előkészítése nem sikerült.');
+   });
+   actions.append(book);
+  }
   const note=el('p','','Forrás: teljes, helyben tárolt Volán GTFS. A WC, késés és jegyfoglalás nincs igazolva.');
   detail.append(actions,note);item.append(detail);
   return item;
