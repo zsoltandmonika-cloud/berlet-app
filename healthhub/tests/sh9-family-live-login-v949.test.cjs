@@ -17,8 +17,11 @@ function fakeEl(id){
 function boot(session){
  const els=new Map();
  const el=id=>{if(!els.has(id))els.set(id,fakeEl(id));return els.get(id)};
- const d={hidden:false,getElementById:el,createElement:()=>fakeEl('created'),
-  addEventListener(){}};
+ const d={hidden:false,getElementById:el,createElement:()=>{
+   const e=fakeEl('created');let id='created';
+   Object.defineProperty(e,'id',{get(){return id},set(v){id=v;els.set(v,e)}});
+   return e;
+  },addEventListener(){}};
  const calls=[],store=new Map(),client={
   auth:{
    getSession:async()=>({data:{session}}),
