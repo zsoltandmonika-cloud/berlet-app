@@ -13,6 +13,44 @@ if(!engine||!ui?.showTimetable||!planner||!search||!refresh)return;
 const DB='sh9-mav-private-gtfs-v2',STORE='datasets',KEY='household';
 const MAX_FILE=22*1024*1024;
 const prevFind=search.onclick,prevRefresh=refresh.onclick;
+/* v984: click-unlocked, local-only success sound; respects existing signal switch. */
+let successAudio=null,searchGesture=false;
+search.addEventListener('click',()=>{
+ searchGesture=true;
+ if(d.getElementById('signal')?.getAttribute('aria-pressed')!=='true')return;
+ try{
+  const AudioContext=w.AudioContext||w.webkitAudioContext;
+  if(!AudioContext)return;
+  successAudio=successAudio||new AudioContext();
+  if(successAudio.state==='suspended')successAudio.resume().catch(()=>{});
+ }catch(_){}
+},{capture:true});
+function tadaa(){
+ if(d.getElementById('signal')?.getAttribute('aria-pressed')!=='true'||!successAudio||successAudio.state!=='running')return;
+ try{
+  const now=successAudio.currentTime;
+  [659.25,830.61,1046.50].forEach((hz,i)=>{
+   const start=now+i*.105,osc=successAudio.createOscillator(),gain=successAudio.createGain();
+   osc.type='sine';osc.frequency.value=hz;
+   gain.gain.setValueAtTime(.0001,start);
+   gain.gain.exponentialRampToValueAtTime(.09,start+.015);
+   gain.gain.exponentialRampToValueAtTime(.0001,start+.22);
+   osc.connect(gain);gain.connect(successAudio.destination);
+   osc.start(start);osc.stop(start+.23);
+  });
+ }catch(_){}
+}
+function focusResults(){
+ const panel=d.getElementById('rail-journey-result');
+ const target=d.getElementById('depart')||panel;
+ if(!target)return;
+ const y=Math.max(0,target.getBoundingClientRect().top+w.scrollY-8);
+ w.scrollTo({top:y,behavior:w.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ target.classList.remove('rail-search-success-v984');
+ void target.offsetWidth;
+ target.classList.add('rail-search-success-v984');
+ w.setTimeout(()=>target.classList.remove('rail-search-success-v984'),1100);
+}
 let data=null,processing=false,dbPromise=null,stationNames=[];
 const section=d.createElement('details');
 section.className='rail-private-gtfs-v2';
@@ -154,12 +192,16 @@ function searchRoute(fallback){
  w.setTimeout(()=>{
   try{
    const result=engine.route(data,q,{limit:60,maxTransfers:1,localOnly:true,ranking:'recommended'});
-   ui.showTimetable(result,q);
+   const rendered=ui.showTimetable(result,q);
+   if(rendered&&Array.isArray(result.journeys)&&result.journeys.length&&searchGesture){
+    focusResults();tadaa();
+   }
+   searchGesture=false;
    status(result.status==='ok'?
     'MÁV GTFS · '+(result.totalJourneys??result.journeys.length)+' menetrendi útvonal · nem élő késés/vágány':
     'A menetrendi keresés nem adott ellenőrzött találatot. Ellenőrizd az állomások nevét.');
-   d.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }catch(_){status('A helyi menetrend feldolgozása nem sikerült. Használd a MÁVPlusz-t.')}
+
+  }catch(_){searchGesture=false;status('A helyi menetrend feldolgozása nem sikerült. Használd a MÁVPlusz-t.')}
   finally{processing=false;search.disabled=false;refresh.disabled=false}
  },0);
 }
