@@ -1,0 +1,68 @@
+
+/* Volán Smart Travel v997 · MÁV Golden Glass results, independent of search/import. */
+#volanGtfsResultsV990.volan-golden-v997{display:grid;gap:9px;padding:12px 9px 16px;margin:14px 5px 22px;border:1px solid rgba(188,224,253,.43);border-radius:17px;background:linear-gradient(130deg,rgba(30,71,122,.81),rgba(19,35,79,.87));box-shadow:inset 0 1px rgba(255,255,255,.16),0 12px 32px #0004;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);min-width:0}
+.volan-golden-v997 *{box-sizing:border-box}
+.volan-golden-heading-v997{display:flex;align-items:center;gap:9px}
+.volan-golden-heading-icon-v997{display:grid;place-items:center;width:37px;height:37px;border:1px solid #afe2ff6e;border-radius:12px;background:#167dd24a;font-size:20px;flex-shrink:0}
+.volan-golden-heading-text-v997{display:grid;gap:3px;min-width:0}
+.volan-golden-heading-text-v997 strong{font-size:14px;font-weight:850;color:#fff}
+.volan-golden-heading-text-v997 small{font-size:10px;color:#c4ddf5;line-height:1.35}
+.volan-golden-route-v997{font-size:12px;font-weight:800;line-height:1.5;overflow-wrap:anywhere;color:#f3faff}
+.volan-golden-meta-v997{margin:0!important;font-size:10px;color:#c4daef}
+.volan-golden-controls-v997{padding:9px;display:grid;gap:6px;border:1px solid #c9e6ff64;border-radius:11px;background:#16345c79}
+.volan-golden-controls-v997 label{font-size:11px;font-weight:800;color:#f1f9ff}
+.volan-golden-sort-v997{min-height:48px;width:100%;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;border:1px solid #cce7ffa6;background:#193b65;color:white;color-scheme:dark}
+.volan-golden-controls-v997 small{font-size:10px;line-height:1.45;color:#c4daf1}
+.volan-golden-cards-v997{display:grid;gap:8px}
+#volanGtfsResultsV990 .volan-golden-card-v997{margin:0;padding:0;border:1px solid #a3d4ff7b;border-radius:13px;background:linear-gradient(126deg,rgba(50,100,163,.37),rgba(21,38,84,.76));overflow:hidden;box-shadow:inset 0 1px #ffffff23}
+.volan-golden-summary-v997{list-style:none;cursor:pointer;display:grid;gap:7px;min-height:76px;padding:12px;touch-action:manipulation}
+.volan-golden-summary-v997::-webkit-details-marker{display:none}
+.volan-golden-main-v997,.volan-golden-flags-v997,.volan-golden-bottom-v997{display:flex;align-items:center;gap:7px;justify-content:space-between;min-width:0}
+.volan-golden-times-v997{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.volan-golden-times-v997 strong{font-size:17px;font-weight:850;letter-spacing:-.3px}
+.volan-golden-times-v997 span{font-size:13px;color:#bdddfb}
+.volan-golden-flags-v997{gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.volan-golden-flags-v997 span{font-size:10px;border:1px solid #badaf55e;border-radius:7px;padding:5px 6px;color:#d7ecff;white-space:nowrap}
+.volan-golden-route-number-v997{font-weight:820!important;background:#156bb475;color:#fff!important}
+.volan-golden-bottom-v997{flex-wrap:wrap;justify-content:space-between;align-items:baseline;font-size:10px;color:#deefff;line-height:1.4}
+.volan-golden-bottom-v997 span:first-child{font-weight:750;min-width:0;overflow-wrap:anywhere}
+.volan-golden-bottom-v997 span:last-child{color:#c7e0f6}
+.volan-golden-card-v997[open]>.volan-golden-summary-v997{border-bottom:1px solid #b0d9ff50;background:#408bd523}
+.volan-golden-detail-v997{display:grid;gap:10px;padding:12px 10px}
+.volan-golden-timeline-heading-v997{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.volan-golden-timeline-heading-v997 strong{font-size:13px;font-weight:850}
+.volan-golden-timeline-heading-v997 span{font-size:10px;font-weight:750;border:1px solid #c1e2ff62;border-radius:40px;padding:4px 8px;color:#d9edff}
+.volan-golden-timeline-v997{position:relative;display:grid;gap:3px}
+.volan-golden-timeline-v997:before{content:"";position:absolute;top:17px;bottom:17px;left:59px;width:2px;background:linear-gradient(#80b8ff,#b3a0ff,#3addae)}
+.volan-golden-point-v997{position:relative;z-index:1;display:grid;grid-template-columns:48px 13px minmax(0,1fr);gap:5px;align-items:center;min-height:37px}
+.volan-golden-time-v997{font-size:13px;font-weight:850;font-variant-numeric:tabular-nums}
+.volan-golden-dot-v997{width:12px;height:12px;border:2px solid #70b7ff;border-radius:50%;background:#152f55}
+.volan-golden-point-v997.arrival .volan-golden-dot-v997{border-color:#41e2a8;background:#154e43}
+.volan-golden-place-v997{font-size:12px;font-weight:790;overflow-wrap:anywhere;line-height:1.35}
+.volan-golden-ride-v997{display:grid;gap:4px;margin:2px 0 6px 67px;padding:8px 9px;background:#4286c52b;border:1px solid #a8d3f843;border-radius:9px}
+.volan-golden-ride-v997 strong{font-size:11px;overflow-wrap:anywhere}
+.volan-golden-ride-v997 span{font-size:10px;color:#cde1f6}
+.volan-golden-intermediate-v997{margin:0 0 7px 67px;border:1px solid #abd4f850;border-radius:9px;overflow:hidden;background:#09274c65}
+.volan-golden-intermediate-v997 summary{min-height:44px;padding:11px;font-size:11px;font-weight:790;cursor:pointer}
+.volan-golden-stops-v997{list-style:none;margin:0;padding:3px 9px 8px;border-top:1px solid #b9dafe40}
+.volan-golden-stops-v997 li{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid #daecff22;font-size:11px;line-height:1.5}
+.volan-golden-stops-v997 li:last-child{border-bottom:0}
+.volan-golden-stops-v997 li>strong{min-width:37px;color:#9bd5ff;font-variant-numeric:tabular-nums}
+.volan-golden-stops-v997 li>span{overflow-wrap:anywhere;min-width:0}
+.volan-golden-stops-v997 li small{display:block;margin-top:2px;color:#c4dbef;font-size:10px}
+.volan-golden-actions-v997{display:grid;gap:6px}
+.volan-golden-save-v997,.volan-golden-more-v997{min-height:48px;border:1px solid #b3dcffa1;border-radius:11px;background:linear-gradient(115deg,#1787d5,#294da3);color:#fff;font-size:12px;font-weight:840;padding:10px 12px;touch-action:manipulation}
+.volan-golden-save-v997:disabled{opacity:.73}
+.volan-golden-detail-v997>p{margin:0;font-size:10px;color:#c0d9ef;line-height:1.4}
+.volan-golden-more-v997[hidden]{display:none!important}
+.volan-golden-empty-v997{font-size:12px;color:#dfefff;padding:12px 3px}
+.volan-golden-v997 :is(button,select,summary):focus-visible{outline:2px solid #f4faff;outline-offset:2px}
+:root[data-profile="m"] #volanGtfsResultsV990.volan-golden-v997{border-color:#f0b5e7a3;background:linear-gradient(130deg,rgba(98,50,116,.86),rgba(52,30,81,.88))}
+:root[data-profile="m"] .volan-golden-card-v997{border-color:#ffc4eb88!important;background:linear-gradient(130deg,#a75fa33b,#39244baf)!important}
+:root[data-profile="m"] .volan-golden-sort-v997{background:#54336b;border-color:#eab7e8}
+:root[data-profile="m"] .volan-golden-controls-v997{background:#713d754f;border-color:#ffc6e870}
+:root[data-profile="m"] .volan-golden-route-number-v997{background:#b34ca663!important}
+:root[data-profile="m"] .volan-golden-timeline-v997:before{background:linear-gradient(#ff9cde,#ca9bff,#40dc9e)}
+:root[data-profile="m"] .volan-golden-point-v997.departure .volan-golden-dot-v997{border-color:#f398dc}
+:root[data-profile="m"] .volan-golden-save-v997,:root[data-profile="m"] .volan-golden-more-v997{background:linear-gradient(110deg,#c154ad,#7d4cb2);border-color:#fac6ec}
+@media(max-width:390px){.volan-golden-main-v997{flex-wrap:wrap}.volan-golden-flags-v997{justify-content:flex-start}.volan-golden-summary-v997{padding:10px}}
