@@ -198,6 +198,79 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-bkk-extra-routes-order-v960.css?v=960">
 <link rel="stylesheet" href="./guardian-bkk-directions-cleanup-v961.css?v=961">
 <link rel="stylesheet" href="./guardian-family-live-control-v962.css?v=962-one-card">
+<style id="guardian-admin-one-card-v963">
+/* v963: one profile-aware Family Guard settings glass card, three independently accessible sections. */
+#guardianAdminControlsV963{
+ --fg-ink:#193653;--fg-muted:#4d6984;--fg-accent:#78b4e6;--fg-seam:rgba(74,112,142,.22);
+ box-sizing:border-box;min-width:0;margin:11px 0 13px;padding:0 12px;
+ color:var(--fg-ink);border:1px solid rgba(255,255,255,.86);border-radius:19px;
+ background:linear-gradient(138deg,rgba(223,239,252,.86),rgba(189,221,246,.77));
+ box-shadow:inset 0 1px rgba(255,255,255,.89),0 7px 22px rgba(37,63,101,.10);
+ -webkit-backdrop-filter:blur(20px) saturate(118%);backdrop-filter:blur(20px) saturate(118%)
+}
+:root[data-guardian-profile="m"] #guardianAdminControlsV963{
+ --fg-ink:#562946;--fg-muted:#77536d;--fg-accent:#dc8fc0;--fg-seam:rgba(126,69,108,.22);
+ background:linear-gradient(138deg,rgba(255,238,249,.86),rgba(239,210,233,.79))
+}
+#guardianAdminControlsV963 > .guardian-admin-heading-v963{
+ list-style:none;display:flex;align-items:center;gap:8px;min-height:52px;
+ box-sizing:border-box;padding:10px 3px;cursor:pointer;touch-action:manipulation;color:var(--fg-ink)
+}
+#guardianAdminControlsV963 summary::-webkit-details-marker{display:none}
+#guardianAdminControlsV963 > .guardian-admin-heading-v963 strong{
+ font:800 13px/1.3 system-ui,sans-serif;flex:1;min-width:0
+}
+#guardianAdminControlsV963 > .guardian-admin-heading-v963 small{
+ font:650 10px/1.2 system-ui,sans-serif;text-align:right;color:var(--fg-muted)
+}
+#guardianAdminControlsV963 > .guardian-admin-heading-v963::after{
+ content:'⌄';font:800 18px/1 system-ui,sans-serif;color:var(--fg-muted);
+ margin-left:2px;transition:transform .18s
+}
+#guardianAdminControlsV963[open] > .guardian-admin-heading-v963::after{transform:rotate(180deg)}
+#guardianAdminControlsV963 > .guardian-landmarks,
+#guardianAdminControlsV963 > .hh-arrival-studio,
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962{
+ box-sizing:border-box!important;min-width:0;margin:0!important;padding:0!important;
+ border:0!important;border-top:1px solid var(--fg-seam)!important;
+ border-radius:0!important;background:transparent!important;background-image:none!important;
+ box-shadow:none!important;-webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;color:var(--fg-ink)!important;overflow:visible
+}
+#guardianAdminControlsV963 > .guardian-landmarks .guardian-landmarks-details > summary,
+#guardianAdminControlsV963 > .hh-arrival-studio > summary,
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962 > summary{
+ list-style:none;box-sizing:border-box;min-height:48px!important;
+ padding:10px 4px!important;color:var(--fg-ink)!important;
+ font:780 12px/1.35 system-ui,sans-serif!important;
+ cursor:pointer;touch-action:manipulation
+}
+#guardianAdminControlsV963 > .hh-arrival-studio > summary small{font-size:10px!important;white-space:normal}
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962 > summary{
+ display:flex;gap:8px;align-items:center;border:0!important;
+}
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962 > summary strong{
+ font:800 12px/1.3 system-ui,sans-serif
+}
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962[open] > summary{
+ border-bottom:1px solid var(--fg-seam)!important
+}
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962 > #guardianFamilyPanel.family-panel,
+#guardianAdminControlsV963 > #guardianFamilyLiveControlV962 > .gps-panel{
+ background:transparent!important
+}
+#guardianAdminControlsV963 :is(summary,button,select,input,textarea):focus-visible{
+ outline:2px solid var(--fg-accent)!important;outline-offset:2px
+}
+@media(max-width:390px){
+ #guardianAdminControlsV963{padding:0 9px}
+ #guardianAdminControlsV963 > .guardian-admin-heading-v963 small{font-size:9px}
+}
+@media(prefers-reduced-transparency:reduce){
+ #guardianAdminControlsV963{background:#dceaf8!important}
+ :root[data-guardian-profile="m"] #guardianAdminControlsV963{background:#f5e1ee!important}
+}
+</style>
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -460,6 +533,8 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
     <p id="hhTransitStatus" class="hh-transit-status" role="status" aria-live="polite" hidden></p>
    </div>
  </section>
+ <details class="guardian-admin-controls-v963" id="guardianAdminControlsV963" aria-label="Family Guard admin és beállítások">
+  <summary class="guardian-admin-heading-v963"><strong>⚙️ Family Guard beállítások</strong><small>Helyek · Buddy · GPS</small></summary>
  <section class="guardian-landmarks" aria-label="Fontos helyek kezelése">
   <details id="guardianLandmarks" class="guardian-landmarks-details">
    <summary>📍 Fontos helyek <span class="guardian-landmarks-count" id="guardianLandmarksCount">0</span></summary>
@@ -596,11 +671,11 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
    <p id="hhArrivalStatus" role="status" aria-live="polite" class="hh-arrival-status">Szerkeszthető értesítési sablon.</p>
   </div>
  </details>
- <section class="family-live-control-v962" id="guardianFamilyLiveControlV962" aria-label="Family Live és GPS vezérlés">
-  <div class="family-live-control-head-v962">
+ <details class="family-live-control-v962" id="guardianFamilyLiveControlV962" aria-label="Family Live és GPS vezérlés">
+  <summary class="family-live-control-head-v962">
    <strong>🛡️ Family Live</strong>
    <span class="guardian-live-pill">VALÓDI GPS</span>
-  </div>
+  </summary>
  <section class="family-panel" id="guardianFamilyPanel" aria-label="Családi helyzetek">
   <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
   <section class="guardian-live-v785" aria-label="Family Live vezérlés">
@@ -667,7 +742,8 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
    <div><small>Utolsó GPS-jel</small><strong id="guardianUpdated">—</strong></div>
   </div>
  </section>
- </section>
+ </details>
+ </details>
 </main>
 </div>
 <nav id="guardianHHNav" class="hhBottomNav" aria-label="HealthHub standard alsó navigáció">
@@ -768,5 +844,19 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <script defer src="./guardian-sh9-transit-v927.js?v=932-reload-scroll-top"></script>
 <script defer src="./guardian-sh9-all-bkk-v928.js?v=929-visible-3d-vehicles"></script>
 <script defer src="./guardian-bkk-grand-handoff-v1.js?v=1"></script>
+<script id="guardian-admin-family-open-v963">
+/* Keep the map Család button useful when its settings are folded away. */
+document.addEventListener('click',function(event){
+ if(!event.target.closest('#guardianFamilyButton'))return;
+ const admin=document.getElementById('guardianAdminControlsV963');
+ const live=document.getElementById('guardianFamilyLiveControlV962');
+ const panel=document.getElementById('guardianFamilyPanel');
+ if(!admin||!live)return;
+ if(!admin.open||!live.open){
+  admin.open=true;live.open=true;
+  if(panel)panel.hidden=true; // existing click handler then reveals this panel
+ }
+},true);
+</script>
 </body>
 </html>
