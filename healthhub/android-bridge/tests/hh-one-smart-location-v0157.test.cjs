@@ -26,7 +26,7 @@ test('native background location FGS requests FLP before supported Android fallb
  assert.match(gps,/location\.isFromMockProvider/);
  assert.match(gps,/System\.currentTimeMillis\(\) - location\.time/);
  assert.match(gps,/age > 20_000L/);
- assert.match(gps,/FamilyGuardNativeRelay\.publish\(this, location\)/);
+ assert.match(gps,/FamilyGuardNativeRelay\.publish\(this, location, smartPolicy\.mode\)/);
  assert.match(gps,/FamilyGuardContinuity\.setApproved\(this, false\)/);
  assert.doesNotMatch(gps,/PowerManager\.WakeLock|PARTIAL_WAKE_LOCK|WAKE_LOCK|MediaRecorder|CameraManager/);
 });
