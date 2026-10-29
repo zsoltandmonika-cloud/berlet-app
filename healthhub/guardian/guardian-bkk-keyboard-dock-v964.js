@@ -1,4 +1,4 @@
-/* Family Guard v965: keyboard-aware BKK search without mirrored input.
+/* Family Guard v969: restore keyboard-aware predictive BKK search in v968 Golden Standard.
  * Keep the REAL Honnan/Hová input, its native input/focus listeners and the
  * same prediction list. One modal surface only; zero automatic selections.
  * On mobile, temporarily portal the focused input and results to document.body.
@@ -15,7 +15,9 @@
   const results=d.getElementById('hhSmartHubNativeResultsV803');
   const locate=d.getElementById('hhSmartHubCurrentPositionV860');
   if(!inputs.origin||!inputs.destination||!results||d.getElementById('hhBkkKeyboardDockV964'))return;
-  const mobile=()=>!!(w.matchMedia&&w.matchMedia('(max-width:640px) and (pointer:coarse)').matches);
+  // Samsung browser/WebView sometimes reports a fine pointer even on a phone.
+  // Screen width is the stable condition; desktop keeps its inline suggestions.
+  const mobile=()=>!!(w.matchMedia&&w.matchMedia('(max-width:640px)').matches);
   const dock=d.createElement('section');
   dock.id='hhBkkKeyboardDockV964';
   dock.className='hh-bkk-keyboard-v964';
@@ -66,8 +68,11 @@
    dock.appendChild(results);
    dock.hidden=false;
    position();
-   // The original input's existing focus event opens saved predictions.
+   // Reparenting a previously focused input can suppress its next native focus
+   // event. Guarantee that the existing BKK controller refreshes saved
+   // suggestions. Dispatch ONLY focus, never click/input or an auto-selection.
    focusRealField(field);
+   field.dispatchEvent(new Event('focus'));
    [80,180,330,550,800].forEach(delay=>w.setTimeout(()=>{
     if(active===kind)position();
    },delay));
@@ -90,15 +95,26 @@
   }
   for(const kind of ['origin','destination']){
    const field=inputs[kind];
-   field.addEventListener('pointerdown',event=>{
-    if(!mobile()||active||event.button>0)return;
-    // Native touch focuses a node that would be moved. Control that focus
-    // transition once so Android opens one keyboard and one editable input.
-    event.preventDefault();
+   const row=field.closest('.hh-smart-hub-field-v806');
+   const trigger=event=>{
+    if(!mobile()||active||closing||event.button>0)return;
+    // Golden Standard v968 moved the real inputs into a compact grid.
+    // Catch taps on the FIELD ROW, not just the input's text pixels.
+    // The same real input is moved into the full-width top editor.
+    if(event.target.closest('button'))return; // GPS and swap keep their actions
+    if(event.cancelable)event.preventDefault();
     open(kind);
-   },{passive:false});
+   };
+   // Capture also handles a tap swallowed by the new Golden grid.
+   if(row){
+    row.addEventListener('pointerdown',trigger,{capture:true,passive:false});
+    row.addEventListener('click',()=>{
+     if(!active&&!closing&&mobile())open(kind);
+    });
+   }
+   field.addEventListener('pointerdown',trigger,{passive:false});
    field.addEventListener('click',()=>{
-    if(!active&&mobile())open(kind);
+    if(!active&&!closing&&mobile())open(kind);
    });
    field.addEventListener('focus',()=>{
     if(!active&&!closing&&mobile())open(kind);
