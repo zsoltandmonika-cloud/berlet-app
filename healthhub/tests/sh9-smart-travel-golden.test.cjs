@@ -709,3 +709,6 @@ test('Expanded Smart Trip Glass card dynamically reaches the actual bottom taskb
 
 // Unifying the BKK live planner must not alter existing functions or data layers.
 require('./sh9-smart-planner-unified-v955.test.cjs');
+
+// SH9 v956 · one BKK Control card, live status first, keyboard-compatible order.
+require('./sh9-bkk-control-one-card-v956.test.cjs');
