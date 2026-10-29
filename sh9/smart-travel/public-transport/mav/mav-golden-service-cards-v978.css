@@ -1,0 +1,77 @@
+/* MÁV Golden Standard v978 · user-provided original MÁV transparent PNG
+   asset crops, not newly drawn SVGs. BKK v952 sizing parity.
+   Service navigation and licensed GTFS route data are unaffected. */
+#rail-journey-result .rail-search-iconpack-v978{
+ display:block;flex:none;width:37px;height:37px;
+ border:none;border-radius:50%;
+ background:rgba(7,48,103,.4) url('./assets/mav-route-icon-v978.png') center / contain no-repeat;
+ box-shadow:0 0 9px rgba(27,142,252,.35);
+}
+:root[data-profile="m"] #rail-journey-result .rail-search-iconpack-v978{
+ border-color:rgba(255,190,237,.65);
+ background-color:rgba(112,37,103,.35)
+}
+#depart:has(.rail-service-v978) .rail-source-status{display:none!important}
+#depart .trainlist:has(.rail-service-v978){
+ display:grid;gap:8px;margin-top:9px
+}
+#depart .rail-service-v978.trainrow{
+ display:grid;
+ grid-template-columns:110px minmax(0,1fr) 22px;
+ align-items:center;gap:10px;
+ width:100%;height:auto;min-height:92px;
+ padding:6px 9px 6px 6px;margin:0;
+ border:1px solid rgba(180,216,248,.37);border-radius:14px;
+ background:linear-gradient(115deg,rgba(25,47,81,.83),rgba(39,31,71,.72));
+ box-shadow:inset 0 1px rgba(255,255,255,.15),0 4px 11px rgba(0,4,20,.24);
+ backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+ color:#f1f7ff;text-align:left;touch-action:manipulation;
+ transition:transform .14s ease,border-color .14s ease
+}
+#depart .rail-service-v978:active{transform:scale(.992)}
+#depart .rail-service-v978:focus-visible{outline:2px solid #e4faff;outline-offset:2px}
+#depart .rail-service-art-v978{
+ box-sizing:border-box;
+ display:block;width:110px;height:78px;
+ border:1px solid rgba(196,222,247,.26);
+ border-radius:10px;overflow:hidden;flex:none;
+ background-color:rgba(14,42,80,.7);
+ background-image:url('./assets/mav-golden-services-v978.png');
+ background-repeat:no-repeat;background-size:300% 100%;
+ background-position:0% center;
+ box-shadow:inset 0 1px rgba(255,255,255,.12),0 3px 8px rgba(0,0,0,.26)
+}
+#depart .rail-service-art-1{background-position:50% center}
+#depart .rail-service-art-2{background-position:100% center}
+#depart .rail-service-copy-v978{display:grid;gap:5px;min-width:0}
+#depart .rail-service-copy-v978 strong{
+ display:block;font:800 13.3px/1.18 Arial,"Helvetica Neue",sans-serif;
+ color:#f3f7ff;letter-spacing:-.018em;white-space:normal
+}
+#depart .rail-service-description-v978{
+ display:block;font:530 10.5px/1.23 Arial,"Helvetica Neue",sans-serif;
+ color:#c5d8ed;white-space:normal;overflow-wrap:anywhere
+}
+#depart .rail-service-chevron-v978{
+ font:400 27px/1 Arial,sans-serif;color:#e7efff;text-align:right
+}
+#depart .rail-service-v978:nth-child(1){border-left:2px solid rgba(205,153,235,.56)}
+#depart .rail-service-v978:nth-child(2){border-left:2px solid rgba(132,187,246,.55)}
+#depart .rail-service-v978:nth-child(3){border-left:2px solid rgba(142,216,184,.52)}
+:root[data-profile="m"] #depart .rail-service-v978{
+ background:linear-gradient(115deg,rgba(48,34,72,.85),rgba(43,30,69,.77));
+ border-color:rgba(244,183,226,.35)
+}
+:root[data-profile="m"] #depart .rail-service-copy-v978 strong{color:#ffe2f3}
+@media(max-width:375px){
+ #depart .rail-service-v978.trainrow{
+  grid-template-columns:94px minmax(0,1fr) 18px;
+  gap:8px;min-height:85px;padding:5px 7px 5px 5px
+ }
+ #depart .rail-service-art-v978{width:94px;height:71px}
+ #depart .rail-service-copy-v978 strong{font-size:12.2px}
+ #depart .rail-service-description-v978{font-size:9.5px}
+}
+@media(prefers-reduced-motion:reduce){
+ #depart .rail-service-v978{transition:none}
+}
