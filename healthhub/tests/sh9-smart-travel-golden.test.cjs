@@ -722,3 +722,5 @@ require('./guardian-bkk-extra-routes-v960.test.cjs');
 
 // v961 · Remove unnecessary BKK source copy, profile dropdown and routine GTFS footer.
 require('./guardian-bkk-directions-cleanup-v961.test.cjs');
+// v962: Family Live and GPS admin share one sheet; GPS Stop survives Family collapse.
+require('./guardian-family-live-control-one-glass-v962.test.cjs');
