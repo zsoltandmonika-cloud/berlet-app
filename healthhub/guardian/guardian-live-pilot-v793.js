@@ -30,9 +30,9 @@ focusButton.hidden=true;
 focusButton.textContent='Élő jármű mutatása ↗';
 focusButton.style.cssText='min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #8ceaff;background:#1a81bd;color:white;font:750 13px system-ui;cursor:pointer;';
 bar.append(p,focusButton);
-// SH9 tablet monitor: sign in via the EXISTING Family Live Google identity.
-// The display never activates local GPS sharing.
-const loginButton=sh9AllMode?d.createElement('button'):null;
+// Family Guard + SH9 tablet monitor: reuse the EXISTING Google identity.
+// Neither entry point activates local GPS sharing.
+const loginButton=d.createElement('button');
 if(loginButton){
  loginButton.id='hhSh9FamilyLiveLoginV949';
  loginButton.type='button';
@@ -42,7 +42,7 @@ if(loginButton){
  loginButton.hidden=true;
  const header=d.getElementById('sh9TransitHeaderV927');
  const controls=d.getElementById('sh9AllVehiclesControlsV928');
- if(header&&controls)header.insertBefore(loginButton,controls);
+ if(sh9AllMode&&header&&controls)header.insertBefore(loginButton,controls);
  else bar.append(loginButton);
 }
 holder.prepend(bar);
@@ -115,13 +115,13 @@ if(loginButton)loginButton.addEventListener('click',async()=>{
  try{
   // Preserve the original, already configured OAuth redirect path. A temporary
   // same-tab navigation hint restores ?sh9Transit=1 on the return page.
-  try{w.sessionStorage?.setItem('hh-sh9-family-login-return-v949','1')}catch(_){}
+  if(sh9AllMode)try{w.sessionStorage?.setItem('hh-sh9-family-login-return-v949','1')}catch(_){}
   const {error}=await client.auth.signInWithOAuth({
    provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}
   });
   if(error)throw error;
  }catch(e){
-  try{w.sessionStorage?.removeItem('hh-sh9-family-login-return-v949')}catch(_){}
+  if(sh9AllMode)try{w.sessionStorage?.removeItem('hh-sh9-family-login-return-v949')}catch(_){}
   loginButton.disabled=false;
   loginButton.textContent='🔐 Family Live bejelentkezés';
   status('Google-belépés nem indult: '+(e?.message||'kapcsolati hiba'));
@@ -184,7 +184,7 @@ async function poll(){
   if(!session||!session.access_token){
    showLogin(true);
    status(sh9AllMode?'Családi Google-belépés szükséges az élő BKK-adatokhoz. Használd a fenti bejelentkezés gombot.':
-    'Nincs aktív belépés. Jelentkezz be a Family Live részben az Edge-ben; a HH One belső böngészője külön munkamenet.');
+    'Family Live bejelentkezés szükséges az élő BKK-járművekhez. Koppints a bejelentkezés gombra.');
    clear();return
   }
   showLogin(false);
