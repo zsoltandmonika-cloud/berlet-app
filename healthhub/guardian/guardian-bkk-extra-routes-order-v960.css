@@ -1,0 +1,48 @@
+/* BKK Smart Planner v960 · route catalog becomes the single compact row
+   between journey time and Favorite Places, in BOTH Guardian and SH9.
+   No new glass surface; interactive catalog body, focus and route data persist. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802 > #hhBkkCatalogV801.hh-bkk-catalog-v801{
+ box-sizing:border-box!important;
+ display:block;
+ min-width:0;
+ margin:0!important;
+ padding:5px 0 4px!important;
+ border:0!important;
+ border-top:1px solid var(--sh9-planner-seam,rgba(110,115,140,.25))!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ overflow:visible!important;
+ color:var(--ink,var(--bk-ink))!important;
+}
+/* Click target remains large enough for one-handed S24 Ultra use. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802 > #hhBkkCatalogV801.hh-bkk-catalog-v801 > summary{
+ display:flex!important;
+ align-items:center!important;
+ min-height:44px!important;
+ padding:2px 1px!important;
+ color:var(--ink,var(--bk-ink))!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802 > #hhBkkCatalogV801.hh-bkk-catalog-v801 > summary:focus-visible{
+ outline:2px solid var(--accent,var(--bk-accent))!important;
+ outline-offset:2px!important;
+ border-radius:7px!important;
+}
+/* Expanded list retains its full functionality without creating a second card. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802 > #hhBkkCatalogV801.hh-bkk-catalog-v801 > .hh-bkk-catalog-body-v801{
+ padding:4px 1px 10px!important;
+ min-width:0;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel
+ #hhSmartHubDestinationV802.hh-smart-hub-v802 > #hhBkkCatalogV801.hh-bkk-catalog-v801[hidden]{
+ display:none!important;
+}
