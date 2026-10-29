@@ -345,7 +345,7 @@ test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guar
  const live=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-live-pilot-v793.js'),'utf8');
  const render=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-all-bkk-v928.js'),'utf8');
  assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
- assert.match(html,/guardian-transit-v791\.js\?v=929-sh9-loader-cache-fix/);
+ assert.match(html,/guardian-transit-v791\.js\?v=961-clean-directions-status/);
  assert.match(loader,/get\('sh9Transit'\)==='1'\?'929-sh9-bkk-3d-fix':'914-mini-above-marker'/);
  assert.match(live,/hh-sh9-all-live-ready-v929/);
  assert.match(render,/makeMarkerElement\(d,vehicle\)/);
