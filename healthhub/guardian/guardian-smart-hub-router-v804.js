@@ -393,6 +393,8 @@ function renderGuide(){
    row.className='hh-smart-trip-card-v804 hh-trip-card-compact-v854';
    const head=d.createElement('div');head.className='hh-trip-card-head-v854';
    const rating=routeRating(p);
+   let currentPlan=p;
+   let timeHeader=null,clocks=null,minutes=null,boarding=null,provisional=null;
    const heading=d.createElement('span');heading.className='hh-trip-stars-v857';
    heading.textContent='★'.repeat(rating.stars)+'☆'.repeat(5-rating.stars);
    heading.setAttribute('role','img');
@@ -402,10 +404,10 @@ function renderGuide(){
    transfers.textContent=p.transfer+' átszállás';
    head.append(heading,transfers);row.append(head);
    if(rating.timing){
-    const timeHeader=d.createElement('div');timeHeader.className='hh-trip-times-v857';
-    const clocks=d.createElement('strong');clocks.textContent=
+    timeHeader=d.createElement('div');timeHeader.className='hh-trip-times-v857';
+    clocks=d.createElement('strong');clocks.textContent=
      prettyClock(rating.timing.departure)+' → '+prettyClock(rating.timing.arrival);
-    const minutes=d.createElement('b');minutes.textContent=
+    minutes=d.createElement('b');minutes.textContent=
      rating.timing.durationMinutes+' perc';
     const provenance=d.createElement('small');
     provenance.className='hh-trip-timing-source-v966';
@@ -435,12 +437,12 @@ function renderGuide(){
     'kb. '+Math.round(p.walk)+' m gyaloglás (légvonalból becsült)';
    row.append(stop,walk);
    if(rating.timing){
-    const boarding=d.createElement('small');boarding.className='hh-trip-card-boarding-v859';
+    boarding=d.createElement('small');boarding.className='hh-trip-card-boarding-v859';
     boarding.textContent=(rating.timing.firstBoard?prettyClock(rating.timing.firstBoard)+' · ':'')+
      (rating.timing.departureStop||p.legs[0].enter.name)+' · tervezett járatindulás';
     row.append(boarding);
    }else{
-    const provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
+    provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
     provisional.textContent='Nincs igazolt indulási idő ehhez az útvonalhoz · csak statikus útvonal';
     row.append(provisional);
    }
@@ -455,36 +457,63 @@ function renderGuide(){
    next.textContent='◷ Következő járat';
    next.setAttribute('aria-expanded','false');
    next.setAttribute('aria-controls','hhNextDeparturesV939-'+i);
+   next.setAttribute('aria-label','Ugyanezen az útvonalon a megjelenített járatot követő indulás');
    const nextPanel=d.createElement('div');
    nextPanel.id='hhNextDeparturesV939-'+i;
    nextPanel.className='hh-next-departures-v939';nextPanel.hidden=true;
+   nextPanel.setAttribute('role','status');
+   nextPanel.setAttribute('aria-live','polite');
    next.addEventListener('click',()=>{
-    const opening=nextPanel.hidden;
-    nextPanel.hidden=!opening;next.setAttribute('aria-expanded',String(opening));
-    if(!opening)return;
-    nextPanel.replaceChildren();
-    const sched=w.HH_BKK_TIMETABLE_V859;
+    // v967: Advance from the displayed trip. Do not repeat an existing
+    // departure by looking up the first three services from NOW again.
     const now=Date.now();
-    const valid=timetable&&sched?.findTimings?sched.findTimings(timetable,p,{mode:'now'},3,now)
-     .filter(t=>verifiedTiming({...p,timing:t},now)):[];
-    if(!valid.length){
+    const lastDeparture=Date.parse(currentPlan.timing?.departure);
+    const sched=w.HH_BKK_TIMETABLE_V859;
+    const following=timetable&&sched?.nextTiming
+     ?sched.nextTiming(timetable,currentPlan,lastDeparture,now):null;
+    const checked=following?verifiedTiming({...currentPlan,timing:following},now):null;
+    nextPanel.hidden=false;
+    next.setAttribute('aria-expanded','true');
+    nextPanel.replaceChildren();
+    if(!checked){
      const message=d.createElement('span');
-     message.textContent='Ehhez az útvonalhoz nincs ellenőrzött következő indulási időadat. Ez nem jelenti azt, hogy nem jár a jármű.';
+     message.textContent='A következő 12 órában nincs igazolt későbbi indulás ezen a járatsorrenden. Ez nem jelenti azt, hogy a járat nem közlekedik.';
      nextPanel.append(message);return;
     }
-    const heading=d.createElement('strong');
-    heading.textContent='Menetrend szerinti indulások · nem élő késési adatok';
-    nextPanel.append(heading);
-    for(const t of valid){
-     const line=d.createElement('span');
-     line.textContent=prettyClock(t.firstBoard||t.departure)+' · '+
-      (t.departureStop||p.legs[0].enter.name)+' → érkezés kb. '+
-      prettyClock(t.arrival)+' (menetrendi)';
-     nextPanel.append(line);
+    currentPlan={...currentPlan,timing:following};
+    plans[i]=currentPlan;
+    if(!timeHeader){
+     timeHeader=d.createElement('div');
+     timeHeader.className='hh-trip-times-v857';
+     clocks=d.createElement('strong');minutes=d.createElement('b');
+     const provenance=d.createElement('small');
+     provenance.className='hh-trip-timing-source-v966';
+     provenance.textContent='BKK menetrend · tervezett idő, nem élő';
+     timeHeader.append(clocks,minutes,provenance);
+     row.insertBefore(timeHeader,line);
     }
+    clocks.textContent=prettyClock(checked.departure)+' → '+prettyClock(checked.arrival);
+    minutes.textContent=checked.durationMinutes+' perc';
+    if(!boarding){
+     boarding=d.createElement('small');
+     boarding.className='hh-trip-card-boarding-v859';
+     row.insertBefore(boarding,actions);
+    }
+    boarding.textContent=(checked.firstBoard?prettyClock(checked.firstBoard)+' · ':'')+
+     (checked.departureStop||currentPlan.legs[0].enter.name)+' · tervezett járatindulás';
+    if(provisional){provisional.remove();provisional=null}
+    const updatedRating=routeRating(currentPlan,now);
+    heading.textContent='★'.repeat(updatedRating.stars)+'☆'.repeat(5-updatedRating.stars);
+    heading.setAttribute('aria-label',updatedRating.stars+' csillag az ötből. '+updatedRating.description);
+    heading.title=updatedRating.description;
+    const status=d.createElement('span');
+    status.textContent='✓ Következő menetrendi járat: '+
+     prettyClock(checked.firstBoard||checked.departure)+' → érkezés '+
+     prettyClock(checked.arrival)+' · ugyanazon az útvonalon';
+    nextPanel.append(status);
    });
    const map=d.createElement('button');map.type='button';map.textContent='Térkép ↗';
-   map.addEventListener('click',()=>focus(p));
+   map.addEventListener('click',()=>focus(currentPlan));
    const ticket=d.createElement('a');ticket.className='hh-smart-trip-ticket-v806';
    ticket.href='https://bkk.hu/mobiljegy';ticket.target='_blank';
    ticket.rel='noopener noreferrer';ticket.textContent='🎫 Jegy / bérlet ↗';
@@ -495,7 +524,7 @@ function renderGuide(){
    chooseTrip.setAttribute('aria-label','Ezt a(z) '+p.legs.map(l=>l.line.id).join(' → ')+' útvonalat választom, felszállás nélkül');
    chooseTrip.addEventListener('click',()=>{
     const active=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862;
-    if(active?.planned(p)){selectCard();focus(p)}
+    if(active?.planned(currentPlan)){selectCard();focus(currentPlan)}
    });
    row.append(actions,chooseTrip,nextPanel);host.append(row);
    row.tabIndex=0;
@@ -503,7 +532,7 @@ function renderGuide(){
    function selectCard(){
     for(const node of host.querySelectorAll('.hh-smart-trip-card-v804'))node.classList.remove('hh-smart-trip-selected-v806');
     row.classList.add('hh-smart-trip-selected-v806');
-    startGuide(p);
+    startGuide(currentPlan);
    }
    row.addEventListener('click',event=>{
     if(event.target?.closest?.('button,a,summary'))return;
