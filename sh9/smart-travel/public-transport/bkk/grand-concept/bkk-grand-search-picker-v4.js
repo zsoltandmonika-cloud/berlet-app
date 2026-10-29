@@ -89,14 +89,14 @@
   if(active)input[active].setAttribute('aria-expanded',String(items.length>0));
  }
  function favorites(query){
-  try{return core.favoriteSuggestions(w.localStorage,query,7)}catch(_){return []}
+  try{return core.favoriteSuggestions(w.localStorage,query,40)}catch(_){return []}
  }
  function search(allowRemote){
   const key=active;
   if(!key)return;
   stop();
   const raw=input[key].value.trim(),local=favorites(raw);
-  draw(raw?local:favorites('').slice(0,7));
+  draw(raw?local:favorites(''));
   const query=core.queryText(raw);
   if(!allowRemote||!query)return;
   const request=token;
@@ -119,7 +119,7 @@
      const id=p.lat.toFixed(5)+':'+p.lng.toFixed(5);
      if(existing.has(id))return false;
      existing.add(id);return true;
-    })].slice(0,10));
+    })].slice(0,50));
    }catch(e){
     if(e?.name!=='AbortError'&&request===token){
      draw(local);if(!local.length)inform('Az online címjavaslatok átmenetileg nem elérhetők.');
