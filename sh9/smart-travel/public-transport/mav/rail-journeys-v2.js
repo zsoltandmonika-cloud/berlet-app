@@ -109,7 +109,12 @@
     const title=doc.createElement('strong');title.textContent=item.title;
     copy.append(title,span('rail-service-description-v978',item.info));
     b.append(image,copy,span('rail-service-chevron-v978','›'));
-    b.addEventListener('click',()=>open(item.url()));
+    b.addEventListener('click',()=>{
+     if(i===0&&win.SH9_MAV_STATION_BOARD_V979?.open){
+      win.SH9_MAV_STATION_BOARD_V979.open(from.value);return;
+     }
+     open(item.url());
+    });
     list.append(b);
    });
    status('Hivatalos MÁV szolgáltatások');
