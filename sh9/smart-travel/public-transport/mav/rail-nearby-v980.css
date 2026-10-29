@@ -1,0 +1,144 @@
+/* SH9 Smart Rail v980 · Golden Standard GPS Quick Search.
+ * S24 Ultra 46px+ controls, responsive transparent glass, per-profile tone.
+ * GPS is one-shot and only after a real button press. */
+#railNearbyQuickV980.rail-near-open-v980{
+ display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:48px;margin:8px 0 0;padding:10px 12px;
+ border:1px solid rgba(204,234,255,.68);
+ border-radius:12px;
+ color:#fff;font:820 12.5px/1.3 Arial,sans-serif;
+ background:linear-gradient(120deg,rgba(25,151,236,.89),rgba(40,75,176,.9));
+ box-shadow:inset 0 1px rgba(255,255,255,.37),0 5px 13px rgba(6,20,55,.3);
+ touch-action:manipulation
+}
+:root[data-profile="m"] #railNearbyQuickV980{
+ background:linear-gradient(120deg,rgba(232,103,197,.9),rgba(134,76,178,.9));
+ border-color:rgba(255,205,245,.76)
+}
+#railNearbyQuickV980:disabled{opacity:.65;cursor:wait}
+#railNearbyPanelV980.rail-near-panel-v980{
+ box-sizing:border-box;display:grid;gap:9px;min-width:0;
+ padding:11px;margin:9px 0 1px;border-radius:14px;
+ border:1px solid rgba(202,231,255,.54);
+ color:#f7fbff;
+ background:linear-gradient(125deg,rgba(23,64,116,.96),rgba(29,37,80,.96));
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 6px 16px rgba(3,17,44,.28);
+ -webkit-backdrop-filter:blur(17px);backdrop-filter:blur(17px);
+ max-height:min(66dvh,625px);overflow-y:auto;
+ -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+ scroll-margin-top:8px
+}
+#railNearbyPanelV980[hidden]{display:none!important}
+#railNearbyPanelV980 *{box-sizing:border-box}
+:root[data-profile="m"] #railNearbyPanelV980{
+ background:linear-gradient(125deg,rgba(111,51,118,.96),rgba(63,32,90,.96));
+ border-color:rgba(255,202,241,.62)
+}
+#railNearbyPanelV980 .rail-near-head-v980{
+ display:flex;justify-content:space-between;align-items:center;gap:7px;
+ font:825 13px/1.3 Arial,sans-serif;color:#fff
+}
+#railNearbyPanelV980 .rail-near-close-v980{
+ min-width:44px;height:44px;padding:0;border-radius:10px;
+ border:1px solid rgba(205,235,255,.66);
+ background:rgba(255,255,255,.16);
+ color:#fff;font:850 19px/1 Arial,sans-serif
+}
+#railNearbyPanelV980 .rail-near-settings-v980{
+ border:1px solid rgba(210,235,255,.4);
+ border-radius:10px;background:rgba(255,255,255,.09);
+ overflow:hidden
+}
+#railNearbyPanelV980 .rail-near-settings-v980 summary{
+ padding:12px 10px;min-height:44px;
+ font:780 11.5px/1.25 Arial,sans-serif;
+ cursor:pointer;touch-action:manipulation
+}
+#railNearbyPanelV980 .rail-near-controls-v980{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;padding:10px;
+ border-top:1px solid rgba(220,235,255,.28)
+}
+#railNearbyPanelV980 .rail-near-controls-v980 label{
+ display:grid;gap:5px;
+ font:730 10.5px/1.3 Arial,sans-serif;color:#e6f1ff
+}
+#railNearbyPanelV980 .rail-near-controls-v980 select{
+ height:44px;min-width:0;width:100%;padding:7px;
+ border:1px solid rgba(213,235,255,.65);
+ border-radius:9px;background:#243c68;color:#fff;
+ font:760 12px/1.25 Arial,sans-serif
+}
+#railNearbyPanelV980 .rail-near-status-v980{
+ margin:0;padding:3px 1px;
+ font:670 11px/1.4 Arial,sans-serif;color:#eaf4ff
+}
+#railNearbyPanelV980 .rail-near-results-v980{
+ display:grid;gap:7px;min-width:0
+}
+#railNearbyPanelV980 .rail-near-row-v980{
+ display:grid;grid-template-columns:78px minmax(0,1fr) 96px;
+ align-items:center;gap:7px;min-width:0;min-height:74px;
+ padding:8px 7px;border-radius:11px;
+ border:1px solid rgba(216,232,253,.4);
+ background:rgba(255,255,255,.10)
+}
+#railNearbyPanelV980 .rail-near-time-v980{
+ display:grid;gap:4px;padding-right:5px;
+ border-right:1px solid rgba(216,232,253,.27)
+}
+#railNearbyPanelV980 .rail-near-time-v980 strong{
+ font:860 16px/1.2 Arial,sans-serif;color:#fff;white-space:nowrap
+}
+#railNearbyPanelV980 .rail-near-time-v980 small{
+ font:710 10px/1.2 Arial,sans-serif;color:#d0edff
+}
+#railNearbyPanelV980 .rail-near-copy-v980{
+ display:grid;gap:4px;min-width:0;overflow-wrap:anywhere
+}
+#railNearbyPanelV980 .rail-near-copy-v980 strong{
+ font:830 11px/1.3 Arial,sans-serif;color:#f2faff
+}
+#railNearbyPanelV980 .rail-near-copy-v980 span{
+ font:650 10px/1.25 Arial,sans-serif;color:#daeaff
+}
+#railNearbyPanelV980 .rail-near-copy-v980 small{
+ font:610 9.5px/1.3 Arial,sans-serif;color:#c9e3fa
+}
+#railNearbyPanelV980 .rail-near-risk-v980{
+ padding:6px 3px;text-align:center;border:1px solid transparent;
+ border-radius:8px;font:780 9.5px/1.3 Arial,sans-serif;
+ overflow-wrap:anywhere;color:#fff
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="green"]{
+ border-left:3px solid #57e2a0
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="green"] .rail-near-risk-v980{
+ color:#dcffec;background:rgba(10,130,78,.62);border-color:rgba(126,244,175,.58)
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="amber"]{
+ border-left:3px solid #ffd36d
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="amber"] .rail-near-risk-v980{
+ color:#fff4ce;background:rgba(140,91,12,.7);border-color:rgba(255,211,108,.7)
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="red"]{
+ border-left:3px solid #ff949e
+}
+#railNearbyPanelV980 .rail-near-row-v980[data-reach="red"] .rail-near-risk-v980{
+ color:#ffe7ea;background:rgba(163,47,63,.73);border-color:rgba(255,157,171,.75)
+}
+#railNearbyPanelV980 .rail-near-foot-v980{
+ display:block;padding-top:7px;border-top:1px solid rgba(225,241,255,.27);
+ font:560 9.5px/1.45 Arial,sans-serif;color:#dce9fa
+}
+#railNearbyPanelV980 :is(button,summary,select):focus-visible,
+#railNearbyQuickV980:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:390px){
+ #railNearbyPanelV980.rail-near-panel-v980{padding:8px}
+ #railNearbyPanelV980 .rail-near-row-v980{
+  grid-template-columns:68px minmax(0,1fr) 85px;gap:5px;padding:7px 5px
+ }
+ #railNearbyPanelV980 .rail-near-time-v980 strong{font-size:14px}
+ #railNearbyPanelV980 .rail-near-risk-v980{font-size:9px}
+}
