@@ -43,6 +43,30 @@ for(const id of ['from','to']){
  input.addEventListener('input',()=>renderStops(input,suggestions));
  input.addEventListener('focus',()=>renderStops(input,suggestions));
 }
+/* v995: Android-friendly tappable suggestions, without remote queries. */
+for(const id of ['from','to']){
+ const input=$(id);if(!input)continue;
+ const list=d.createElement('div');list.id='volanPredictV995-'+id;
+ list.className='volan-predict-v995';list.hidden=true;
+ input.parentElement?.append(list);
+ input.addEventListener('input',()=>predict(input,list));
+ input.addEventListener('focus',()=>predict(input,list));
+ input.addEventListener('blur',()=>w.setTimeout(()=>{list.hidden=true},180));
+}
+function predict(input,list){
+ list.replaceChildren();
+ if(!data||input.value.trim().length<2){list.hidden=true;return}
+ const needle=normal(input.value);
+ const names=[...new Set(data.stops.map(x=>x[1]))].filter(x=>normal(x).includes(needle));
+ names.sort((a,b)=>Number(normal(b).startsWith(needle))-Number(normal(a).startsWith(needle))||a.localeCompare(b,'hu'));
+ for(const name of names.slice(0,10)){
+  const b=d.createElement('button');b.type='button';b.textContent='🚌 '+name;
+  b.addEventListener('pointerdown',e=>e.preventDefault());
+  b.addEventListener('click',()=>{input.value=name;list.hidden=true;input.dispatchEvent(new Event('change',{bubbles:true}));input.blur()});
+  list.append(b);
+ }
+ list.hidden=!names.length;
+}
 function renderStops(input,target){
  target.replaceChildren();if(!data)return;
  const needle=normal(input.value),seen=new Set(),names=[];
@@ -96,7 +120,7 @@ function search(e){
  const route=core.route(data,{from,to,mode,when:when.toISOString()},{limit:40,maxTransfers:1,localOnly:true,ranking:'recommended'});
  results.replaceChildren();
  const title=el('h3','',route.status==='ok'?route.totalJourneys+' menetrendi útvonal':'Nincs ellenőrzött találat');results.append(title);
- if(route.status!=='ok'||!route.journeys?.length){results.append(el('p','','Próbálj másik megállót vagy dátumot. A GTFS nem élő adat.'));return}
+ if(route.status!=='ok'||!route.journeys?.length){results.append(el('p','','Próbálj korábbi időpontot (például 06:00), vagy másik megállót. A GTFS nem élő adat.'));w.scrollTo({top:Math.max(0,results.getBoundingClientRect().top+w.scrollY-8),behavior:w.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});return}
  for(const j of route.journeys){
   const row=el('details','volan-trip-v990'),head=el('summary','',clock(j.departure)+' → '+clock(j.arrival)+' · '+j.durationMinutes+' perc · '+j.transfers+' átszállás');
   row.append(head);
