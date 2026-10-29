@@ -132,10 +132,10 @@ function searchRoute(fallback){
  status('Vonatok keresése a helyi MÁV menetrendben…');
  w.setTimeout(()=>{
   try{
-   const result=engine.route(data,q,{limit:3,maxTransfers:1,localOnly:true});
+   const result=engine.route(data,q,{limit:60,maxTransfers:1,localOnly:true,ranking:'recommended'});
    ui.showTimetable(result,q);
    status(result.status==='ok'?
-    'MÁV GTFS · '+result.journeys.length+' menetrendi útvonal · nem élő késés/vágány':
+    'MÁV GTFS · '+(result.totalJourneys??result.journeys.length)+' menetrendi útvonal · nem élő késés/vágány':
     'A menetrendi keresés nem adott ellenőrzött találatot. Ellenőrizd az állomások nevét.');
    d.getElementById('rail-journey-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(_){status('A helyi menetrend feldolgozása nem sikerült. Használd a MÁVPlusz-t.')}
