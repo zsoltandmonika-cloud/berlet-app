@@ -85,6 +85,12 @@ function render({list,from,to,when,results,stopById,wall}){
   const actions=el('div','volan-golden-actions-v997');
   const button=el('button','volan-golden-save-v997','☆ Utazás mentése');button.type='button';
   button.addEventListener('click',()=>save(j,button));actions.append(button);
+  const book=el('button','volan-golden-book-v1000','🎫 Jegy / helyjegy · adatátadó');book.type='button';
+  book.addEventListener('click',()=>{
+   const ok=w.SH9_VOLAN_BOOKING_V1000?.open(j,{from,to,stopById,anchor:actions});
+   if(!ok)w.SH9_VOLAN_PLANNER_V3?.toast?.('Nem sikerült előkészíteni az utazási adatokat.');
+  });
+  actions.append(book);
   const note=el('p','','Forrás: teljes, helyben tárolt Volán GTFS. A WC, késés és jegyfoglalás nincs igazolva.');
   detail.append(actions,note);item.append(detail);
   return item;
