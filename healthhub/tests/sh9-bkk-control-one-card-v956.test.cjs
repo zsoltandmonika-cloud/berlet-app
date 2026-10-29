@@ -9,7 +9,7 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'guardian-bkk-control-one-card-v956.css'),'utf8');
 
 test('v956 BKK Control is one outer glass card, live status first and no extra panel frames',()=>{
- assert.match(html,/guardian-bkk-control-one-card-v956\.css\?v=956-unified/);
+ assert.match(html,/guardian-bkk-control-one-card-v956\.css\?v=957-firstpaint/);
  assert.ok(html.indexOf('guardian-bkk-control-one-card-v956.css')>html.indexOf('guardian-smart-planner-unified-v955.css'));
  assert.match(css,/:root\[data-sh9-transit="on"\] #hhTransitPanel\{[\s\S]*?border-radius:20px!important;/);
  assert.match(css,/:root\[data-sh9-transit="on"\] #hhTransitPanel>#hhBkkLiveBarV796\{[\s\S]*?border-bottom:1px solid var\(--sh9-bkk-seam\)!important;/);
