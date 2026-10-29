@@ -281,10 +281,30 @@
        };
        section.append(point(leg.departure,leg.from,'departure'));
        const ride=doc.createElement('div');ride.className='rail-timeline-ride-v982';
-       ride.append(span('rail-timeline-train-v982','🚆 '+(leg.service||'MÁV járat')));
+       const trainLine=doc.createElement('div');trainLine.className='rail-timeline-train-v982';
+       const trainIcon=doc.createElement('span');trainIcon.className='rail-timeline-train-icon-v983';trainIcon.setAttribute('aria-hidden','true');
+       trainIcon.textContent='🚆';
+       trainLine.append(trainIcon,span('rail-timeline-train-name-v983',leg.service||'MÁV járat'));
+       ride.append(trainLine);
        const minutes=Math.round((new Date(leg.arrival)-new Date(leg.departure))/60000);
        if(Number.isFinite(minutes)&&minutes>=0)ride.append(span('rail-timeline-duration-v982',Math.floor(minutes/60)+' óra '+minutes%60+' perc'));
-       section.append(ride,point(leg.arrival,leg.to,'arrival'));
+       section.append(ride);
+       if(Array.isArray(leg.intermediateStops)&&leg.intermediateStops.length){
+        const stops=doc.createElement('details');stops.className='rail-timeline-stops-v983';
+        const toggle=doc.createElement('summary');toggle.textContent='Köztes állomások ('+leg.intermediateStops.length+')';
+        stops.append(toggle);
+        const stopList=doc.createElement('ol');stopList.className='rail-timeline-stop-list-v983';
+        for(const stop of leg.intermediateStops){
+         if(!stop||typeof stop.name!=='string')continue;
+         const item=doc.createElement('li');
+         const time=stop.departure||stop.arrival;
+         item.append(span('rail-timeline-stop-time-v983',time?fmt(new Date(time)):''),
+          span('rail-timeline-stop-name-v983',stop.name));
+         stopList.append(item);
+        }
+        stops.append(stopList);section.append(stops);
+       }
+       section.append(point(leg.arrival,leg.to,'arrival'));
        details.append(section);
        if(n<j.legs.length-1){
         const wait=Math.round((new Date(j.legs[n+1].departure)-new Date(leg.arrival))/60000);

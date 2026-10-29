@@ -160,7 +160,8 @@ function route(data,query,{limit=3,maxTransfers=1,localOnly=false,ranking='chron
  function leg(x,i,j){
   const a=x.events[i],b=x.events[j];
   return {tripId:x.trip.id,service:x.trip.route,headsign:String(x.trip.headsign||'').slice(0,100),
-   from:dataStop(a.id),to:dataStop(b.id),departure:new Date(a.departure).toISOString(),arrival:new Date(b.arrival).toISOString()};
+   from:dataStop(a.id),to:dataStop(b.id),departure:new Date(a.departure).toISOString(),arrival:new Date(b.arrival).toISOString(),
+   intermediateStops:x.events.slice(i+1,j).map(e=>({name:dataStop(e.id),arrival:new Date(e.arrival).toISOString(),departure:new Date(e.departure).toISOString()}))};
  }
  function dataStop(id){return parsed.stops.get(id)||id}
  function add(legs){
