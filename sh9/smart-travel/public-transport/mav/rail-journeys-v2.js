@@ -267,11 +267,30 @@
       summary.append(name,span('rail-train-sub',j.transfers===0?'Közvetlen':'Átszállás: '+j.transfers));
       row.append(picture,clocks,summary,span('track','Menetrend'),span('arrowright','›'));
       const details=doc.createElement('section');details.className='rail-gtfs-detail glass';details.hidden=true;
-      details.append(span('rail-empty-heading','Útvonal részletei · tervezett menetrend'));
+      details.classList.add('rail-timeline-v982');
+      const heading=doc.createElement('div');heading.className='rail-timeline-head-v982';
+      heading.append(span('rail-empty-heading','🚆 Útvonal részletei'),span('rail-timeline-tag-v982','Menetrend'));
+      details.append(heading);
       j.legs.forEach((leg,n)=>{
-       details.append(span('rail-leg-line',(n+1)+'. '+leg.service+
-        ' · '+leg.from+' '+fmt(new Date(leg.departure))+
-        ' → '+leg.to+' '+fmt(new Date(leg.arrival))));
+       const section=doc.createElement('div');section.className='rail-timeline-leg-v982';
+       const point=(time,place,kind)=>{
+        const p=doc.createElement('div');p.className='rail-timeline-point-v982 '+kind;
+        p.append(span('rail-timeline-time-v982',fmt(new Date(time))),
+         span('rail-timeline-dot-v982',''),span('rail-timeline-place-v982',place));
+        return p;
+       };
+       section.append(point(leg.departure,leg.from,'departure'));
+       const ride=doc.createElement('div');ride.className='rail-timeline-ride-v982';
+       ride.append(span('rail-timeline-train-v982','🚆 '+(leg.service||'MÁV járat')));
+       const minutes=Math.round((new Date(leg.arrival)-new Date(leg.departure))/60000);
+       if(Number.isFinite(minutes)&&minutes>=0)ride.append(span('rail-timeline-duration-v982',Math.floor(minutes/60)+' óra '+minutes%60+' perc'));
+       section.append(ride,point(leg.arrival,leg.to,'arrival'));
+       details.append(section);
+       if(n<j.legs.length-1){
+        const wait=Math.round((new Date(j.legs[n+1].departure)-new Date(leg.arrival))/60000);
+        const transfer=span('rail-timeline-transfer-v982','↳ Átszállás'+(wait>=0?' · '+wait+' perc':''));
+        details.append(transfer);
+       }
       });
       details.append(span('rail-warning','Vágány-, késés- és vonatpozíció-adat még nincs ellenőrizve.'));
       details.append(btn('Hivatalos MÁVPlusz ↗','https://mavplusz.hu/'));
