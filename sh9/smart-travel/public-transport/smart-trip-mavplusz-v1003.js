@@ -57,7 +57,17 @@ function ensure(){
  description=el('div','sh9-provider-description-v1003');
  loading=el('small','sh9-provider-support-v1003','A MÁVPlusz saját útvonaltervezője dolgozik. Ha a böngésző tiltja a beágyazást, nyisd meg a hivatalos nézetet.');
  const actions=el('div','sh9-provider-actions-v1003');
- launchLink=el('a','sh9-provider-launch-v1003','↗ MÁVPlusz hivatalos megnyitása');launchLink.href=BASE;launchLink.target='_blank';launchLink.rel='noopener noreferrer';
+ const appLaunch=el('button','sh9-provider-app-v1003','📱 MÁVPlusz alkalmazás megnyitása');appLaunch.type='button';
+ appLaunch.title='Androidon a rendszer átadhatja a hivatkozást a telepített MÁVPlusz alkalmazásnak. A konkrét útvonal átvétele az alkalmazástól függ.';
+ appLaunch.hidden=!/Android/i.test(w.navigator?.userAgent||'');
+ appLaunch.addEventListener('click',()=>{
+  // The existing HH One Android WebView intercepts an external main-frame
+  // https navigation and hands it to ACTION_VIEW, allowing Android's verified
+  // app-link chooser to offer MÁVPlusz. No fake intent://, package guess or JS bridge.
+  if(launchLink?.href)w.location.assign(launchLink.href);
+ });
+ if(!appLaunch.hidden)toolbar.append(appLaunch);
+ launchLink=el('a','sh9-provider-launch-v1003','↗ MÁVPlusz megnyitása böngészőben');launchLink.href=BASE;launchLink.target='_blank';launchLink.rel='noopener noreferrer';
  const back=el('button','sh9-provider-bkk-v1003','🚋 BKK-tervező');back.type='button';
  back.addEventListener('click',()=>{
   if(!lastQuery)return;
@@ -85,7 +95,7 @@ function open(query){
  description.append(el('strong','',(query.from||'Indulás kiválasztása')+' → '+query.to));
  description.append(el('span','',query.date+' · '+query.time+(query.mode==='arrive'?' · Érkezés eddig':' · Indulás ekkor')));
  loading.textContent=result.prepared
-  ?'Valódi MÁVPlusz-helyazonosítókkal előkészítve. A találatokat és a jegyeket a hivatalos szolgáltató mutatja.'
+  ?'Valódi MÁVPlusz-helyazonosítókkal előkészítve. Ha a beágyazás üres, válaszd a hivatalos webes nézetet vagy az Android-appot.'
   :'⚠️ '+result.reason;
  launchLink.href=result.url;
  overlay.hidden=false;d.documentElement.classList.add('sh9-provider-open-v1003');
