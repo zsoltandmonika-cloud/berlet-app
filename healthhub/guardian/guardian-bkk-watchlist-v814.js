@@ -123,8 +123,10 @@
   }
   setExpanded(false);
   toggle.addEventListener('click',()=>setExpanded(content.hidden));
-  // Reuse the EXISTING official BKK search instead of creating a second one.
-  if(editor.parentNode===section.parentNode)section.after(editor);
+  // Keep the one existing BKK catalog in Smart Planner, directly before
+  // Favorite Places. Watchlist Edit still scrolls to and focuses that catalog.
+  const favorites=$('hhSmartHubFavoritesV806');
+  if(favorites&&editor.nextElementSibling!==favorites)favorites.before(editor);
   edit.addEventListener('click',()=>{
    // Editing is independent of collapse but always shows the list context.
    if(!editor.open)setExpanded(true);

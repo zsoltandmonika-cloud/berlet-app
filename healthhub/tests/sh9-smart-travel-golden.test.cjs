@@ -717,3 +717,5 @@ require('./sh9-bkk-control-one-card-v956.test.cjs');
 require('./sh9-bkk-first-paint-v957.test.cjs');
 // v959: Family Guard /guardian/ parity with approved SH9 BKK single-sheet layout.
 require('./guardian-bkk-family-one-card-v959.test.cjs');
+// v960 · BKK extra routes between time selector and Favorite Places on both GUARDIAN views.
+require('./guardian-bkk-extra-routes-v960.test.cjs');
