@@ -138,5 +138,22 @@
   return matches.sort((a,b)=>Date.parse(a.arrival)-Date.parse(b.arrival)||
    Date.parse(a.departure)-Date.parse(b.departure))[0]||null;
  }
- return {validate,walkingMinutes,legMatches,findTiming,findTimings,version:'939'};
+ /* v967: only the NEXT strictly later, verified journey for this exact
+    line sequence, boarding stops and directions. Never query from 'now'
+    when a valid itinerary is already displayed. Sparse 260 service may
+    require more than one 90-minute window, so scan up to 12 hours. */
+ function nextTiming(schedule,itinerary,afterDeparture,now=Date.now()){
+  if(!schedule||!itinerary||!Number.isFinite(now))return null;
+  const after=Number.isFinite(afterDeparture)?afterDeparture:now-60000;
+  let cursor=Math.max(now,after+60000);
+  const limit=Math.min(now+36*3600000,cursor+12*3600000);
+  for(;cursor<=limit;cursor+=90*60000){
+   const matches=findTimings(schedule,itinerary,{mode:'depart',at:cursor},5,now);
+   const next=matches.find(t=>Date.parse(t.departure)>after&&
+    Date.parse(t.departure)>=now-60000);
+   if(next)return next;
+  }
+  return null;
+ }
+ return {validate,walkingMinutes,legMatches,findTiming,findTimings,nextTiming,version:'967'};
 });
