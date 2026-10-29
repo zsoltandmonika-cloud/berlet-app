@@ -1,28 +1,28 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-10-29",
-  "generatedAt": "2026-10-29T02:53:16+01:00",
+  "generatedAt": "2026-10-29T12:39:09+01:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-10-29T02:45",
-    "temperature": 8.6,
-    "apparentTemperature": 6.2,
-    "daytimeMaxFeelsLike": 14.0,
+    "observedAt": "2026-10-29T12:30",
+    "temperature": 16.0,
+    "apparentTemperature": 14.2,
+    "daytimeMaxFeelsLike": 15.1,
     "uvMax": 2.5,
-    "pressureHpa": 1023.2,
-    "pressureChange6h": 1.0,
-    "windGust": 10.1
+    "pressureHpa": 1023.9,
+    "pressureChange6h": 0.8,
+    "windGust": 17.3
   },
   "air": {
     "available": true,
-    "observedAt": "2026-10-29T02:00",
-    "aqi": 43.0,
-    "pm25": 20.2,
+    "observedAt": "2026-10-29T12:00",
+    "aqi": 41.0,
+    "pm25": 16.8,
     "pollen": {
       "available": true,
-      "name": "Éger",
-      "value": 0.0,
+      "name": "Fűfélék",
+      "value": 0.1,
       "level": 0
     }
   },
