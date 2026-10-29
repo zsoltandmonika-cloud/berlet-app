@@ -26,3 +26,8 @@ html.sh9-provider-open-v1003,html.sh9-provider-open-v1003 body{overflow:hidden!i
 :root[data-profile=m] .sh9-provider-actions-v1003 button{background:linear-gradient(113deg,#854573,#5a468c);border-color:#f5cde9}
 #sh9MavPluszShellV1003 :is(button,a):focus-visible{outline:2px solid white;outline-offset:2px}
 @media(max-width:355px){.sh9-provider-actions-v1003{grid-template-columns:1fr}.sh9-provider-foot-v1003{font-size:8px}}
+
+/* Android platform app-link handoff, without leaving the HealthHub shell until user taps. */
+#sh9MavPluszShellV1003 .sh9-provider-app-v1003{width:100%;min-height:49px;padding:10px 12px;border:1px solid #97edcead;border-radius:10px;background:linear-gradient(110deg,#157e73,#1e7aab);color:white;font:850 12px/1.4 system-ui,sans-serif;touch-action:manipulation}
+#sh9MavPluszShellV1003 .sh9-provider-app-v1003[hidden]{display:none!important}
+:root[data-profile=m] #sh9MavPluszShellV1003 .sh9-provider-app-v1003{background:linear-gradient(113deg,#a4519e,#6348a5);border-color:#ffc5e1}
