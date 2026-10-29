@@ -175,10 +175,10 @@
    radius.value=String(p.radius);limitSelect.value=String(p.limit);
   }
   let lastLocation=null,lastData=null;
-  function settingsChanged(){
+  function settingsChanged(event){
    const lines=[...checks].filter(([_,check])=>check.checked).map(([line])=>line);
    if(!lines.length){
-    const first=checks.get('260');if(first)first.checked=true;
+    if(event?.target?.type==='checkbox')event.target.checked=true;
     note.textContent='Legalább egy járatot válassz ki.';return;
    }
    const p={lines,radius:Number(radius.value),limit:Number(limitSelect.value)};
