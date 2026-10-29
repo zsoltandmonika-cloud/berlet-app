@@ -70,9 +70,21 @@
   // Camera and portrait move toward the newest REAL position, never beyond it.
   // The camera and portrait should glide for most of the observed fix cadence.
   // A re-read of the SAME timestamp must not cancel an unfinished animation.
-  function smoothingMs(cadence){
+  function smoothingMs(cadence,fastTransit=false){
+   // On a moving bus, the previous 82%-of-cadence glide visibly trails a
+   // fresh measured GPS fix. Finish the move quickly, still at the real fix.
+   // Walking / stationary animations keep their existing calm pacing.
+   if(fastTransit)return Math.min(900,Math.max(350,
+    Math.round((Number.isFinite(cadence)&&cadence>0?cadence:3000)*.22)));
    if(!Number.isFinite(cadence)||cadence<=0)return 2300;
    return Math.min(3400,Math.max(950,Math.round(cadence*.82)));
+  }
+  function fastTransitMotion(fix,delta){
+   // Never invent or publish speed: this only adjusts animation duration.
+   // A trustworthy measured speed wins. A large accurate displacement can
+   // speed up animation when speed telemetry is temporarily unavailable.
+   if(typeof fix?.speedKmh==='number')return fix.speedKmh>=10;
+   return fix?.accuracy<=35&&delta>=18;
   }
   // The moving pin and the follow-camera must use the SAME easing and duration.
   // No additional sensor, geolocation request, database call or invented GPS fix.
@@ -131,7 +143,7 @@
     return;
    }
    const token=moveToken,start=w.performance?.now?.()??receivedAt,
-    duration=smoothingMs(cadence);
+    duration=smoothingMs(cadence,fastTransitMotion(fix,delta));
    lastMotionDuration=duration;
    // MapLibre's eased camera and the on-screen portrait share the same
    // destination, duration and exact easing curve. The pre-existing
@@ -296,15 +308,23 @@
    loading=true;lastAdaptivePoll=Date.now();const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
-    const res=typeof l.readSharedLocation==='function'
-     ?await l.readSharedLocation(k)
-     :await client.from('hh_guardian_live_locations')
-      .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
-      .eq('profile_key',k).maybeSingle();
-    if(!res.error&&res.data)db=res.data;
+    // The authorized Supabase fix and consented native Dropbox fix are
+    // independent. Read them concurrently, avoiding their combined latency;
+    // still select ONLY the freshest verified GPS timestamp after both finish.
+    // Same number of requests as before, and no new background polling.
     const relay=w.HH_GUARDIAN_NATIVE_V156;
-    if(relay?.connected?.()){
-     const n=await relay.read(k);
+    const dbRead=Promise.resolve().then(()=>typeof l.readSharedLocation==='function'
+     ?l.readSharedLocation(k)
+     :client.from('hh_guardian_live_locations')
+      .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
+      .eq('profile_key',k).maybeSingle());
+    const nativeRead=Promise.resolve().then(()=>relay?.connected?.()
+     ?relay.read(k):null);
+    const [dbOutcome,nativeOutcome]=await Promise.allSettled([dbRead,nativeRead]);
+    if(dbOutcome.status==='fulfilled'&&!dbOutcome.value?.error&&dbOutcome.value?.data)
+     db=dbOutcome.value.data;
+    if(nativeOutcome.status==='fulfilled'){
+     const n=nativeOutcome.value;
      if(n?.status==='ok')native=n.data;
      if(n?.status==='revoked')revokeAt=Date.parse(n.updated_at);
     }
