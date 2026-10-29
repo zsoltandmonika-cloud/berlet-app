@@ -1,0 +1,47 @@
+/* BKK Grand v983 · quiet Golden Glass emphasis for the native nearby departures
+ * One BKK planner action only. No script, click overlay, polling, or layout shift.
+ * Leave the shared Family Guard CSS and all navigation untouched.
+ */
+#planner #hhBkkNearQuickV975.hh-bkk-near-quick-v975{
+ position:relative;
+ isolation:isolate;
+ border:1px solid rgba(191,238,255,.88)!important;
+ background:linear-gradient(111deg,
+   rgba(47,135,207,.94) 0%,
+   rgba(55,104,194,.92) 48%,
+   rgba(99,79,180,.92) 100%)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.49),
+   inset 0 -1px 0 rgba(203,224,255,.13),
+   0 0 0 1px rgba(67,158,254,.12),
+   0 0 13px rgba(92,166,255,.23),
+   0 5px 13px rgba(8,27,76,.26)!important;
+ text-shadow:0 1px 3px rgba(9,29,76,.35);
+ transition:filter .16s ease,box-shadow .2s ease;
+ -webkit-tap-highlight-color:transparent;
+}
+#planner #hhBkkNearQuickV975.hh-bkk-near-quick-v975:active{
+ filter:brightness(1.085);
+}
+#planner #hhBkkNearQuickV975.hh-bkk-near-quick-v975:focus-visible{
+ outline:2px solid rgba(233,250,255,.95)!important;
+ outline-offset:2px;
+}
+:root[data-profile="m"] #planner #hhBkkNearQuickV975.hh-bkk-near-quick-v975{
+ border-color:rgba(255,213,245,.87)!important;
+ background:linear-gradient(111deg,
+   rgba(218,104,189,.94) 0%,
+   rgba(180,92,185,.92) 48%,
+   rgba(123,87,181,.92) 100%)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.47),
+   inset 0 -1px 0 rgba(255,215,243,.13),
+   0 0 0 1px rgba(245,135,215,.10),
+   0 0 13px rgba(237,116,218,.23),
+   0 5px 13px rgba(40,15,68,.26)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #planner #hhBkkNearQuickV975.hh-bkk-near-quick-v975{
+   transition:none;
+ }
+}
