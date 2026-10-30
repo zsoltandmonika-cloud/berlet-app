@@ -18,8 +18,8 @@
  function reconcile(){
   var parts=locate(),page=parts.page,hero=parts.hero,input=parts.input,search=parts.search;
   if(!page||!hero||!search||!input)return;
-  var records=w.healthSectionKind==='records';
-  if(records){
+  var records=w.healthSectionKind==='records',medications=w.healthSectionKind==='medications';
+  if(records||medications){
    if(!original||!original.isConnected){
     // Anchor is retained at the exact original search location in the
     // scroll body; never throw away the original form or handler.
@@ -34,12 +34,13 @@
    if(search.dataset.hhRecordsSearchPill!=='on'){
     search.dataset.hhRecordsSearchPill='on';
     search.dataset.hhOriginalPlaceholder=input.getAttribute('placeholder')||'';
-    input.placeholder='Lelet keresése…';
-    input.setAttribute('aria-label','Keresés a leletek között');
    }
+   // The same original input searches either Leletek or Gyógyszerek.
+   input.placeholder=records?'Lelet keresése…':'Gyógyszer keresése…';
+   input.setAttribute('aria-label',records?'Keresés a leletek között':'Keresés a gyógyszerek között');
    // The canonical sort button can be relocated without rebinding its inline
    // click handler; no second 'Sort' button and no duplicated result counter.
-   var section=page.querySelector('#healthSubContent .hhDocs1015');
+   var section=records&&page.querySelector('#healthSubContent .hhDocs1015');
    if(section){
     var heading=section.querySelector('.hhRsmHeading');
     var sort=section.querySelector('button[onclick*="hhToggleDocSort"]');
