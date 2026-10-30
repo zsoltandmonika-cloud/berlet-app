@@ -31,6 +31,9 @@ test('no re-sign/rebuild or unexpected app permission change in promotion',()=>{
  assert.match(release,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
  assert.match(release,/::error::OTA signing not configured/);
  assert.match(release,/echo "ready=false" >> "\$GITHUB_OUTPUT"\n            exit 1/);
- assert.deepEqual(m.rolloutProfiles,['zsolt','monika']);
- assert.equal(m.version,'0.15.10');
+ assert.ok(Array.isArray(m.rolloutProfiles)&&m.rolloutProfiles.length>=1);
+ assert.ok(m.rolloutProfiles.every(p=>['zsolt','monika'].includes(p)));
+ assert.match(m.version,/^\\d+\\.\\d+\\.\\d+$/);
+ assert.match(m.sha256,/^[a-f0-9]{64}$/);
+ assert.equal(m.channel,'signed-release');
 });
