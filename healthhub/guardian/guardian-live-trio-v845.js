@@ -222,7 +222,8 @@
    note=d.getElementById('guardianHealthNoteV845'),
    sleepRow=d.getElementById('guardianHealthSleepRowV845'),
    nutriRow=d.getElementById('guardianHealthNutriRowV845'),
-   batteryCaption=d.getElementById('guardianBatteryCaptionV845');
+   batteryCaption=d.getElementById('guardianBatteryCaptionV845'),
+   sourceStatus=d.getElementById('guardianSourceStatusV1038');
   if(!root||!gps||!gpsCard||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note||!sleepRow||!nutriRow||!batteryCaption)return null;
   let generation=0,busy=false,rerun=false,lastProfile=profileKey(w.localStorage),updatedAt=0,
    cachedSleep=null,cachedNutrition=null,cachedGPS=null,lastHealthFetch=0;
@@ -233,6 +234,7 @@
    gps.textContent=g.text;
    gpsCard.dataset.state=g.state;
    gpsCard.setAttribute('aria-label','GPS · '+g.text);
+   if(sourceStatus)sourceStatus.textContent=snapshot?.diagnostic||'📡 Adatcsatorna: hitelesített GPS- és Dropbox-ellenőrzésre vár.';
    const sleep=snapshot?.sleep||null,nutrition=snapshot?.nutrition||null;
    const h=healthState(sleep,nutrition);
    heart.dataset.rag=h.tone;
@@ -282,10 +284,28 @@
    }catch(_){nutrition=readLocalNutrition(profile)}
    return {sleep:sleepIndex(rows,stamp),nutrition};
   }
+  // Distinguish a real phone measurement gap from a missing/failed private reader.
+  // Never label any remote phone online based on the viewer's local connection.
+  function connectionDiagnostic(g,profile,now=Date.now()){
+   const owner=profile==='monika'?'Mónika':'Zsolt';
+   if(!g)return '📡 '+owner+': nincs ellenőrzött adatcsatorna.';
+   if(g.nativeStatus==='not-connected')return '⚠ '+owner+': ezen a megjelenítőn nincs Dropbox Vault kapcsolat. A telefon állapota ismeretlen.';
+   if(g.nativeStatus==='error')return '⚠ '+owner+': privát Dropbox-adatolvasási hiba. A telefon kapcsolata ebből nem állapítható meg.';
+   if(g.nativeStatus==='revoked')return '⛔ '+owner+': a natív helymegosztás visszavonva.';
+   if(g.nativeStatus==='missing')return '⚠ '+owner+': nincs natív HH One helyadat a privát tárhelyen.';
+   if(g.nativeStatus==='invalid')return '⚠ '+owner+': a natív adat érvénytelen vagy túl régi.';
+   if(g.nativeStatus==='ok'&&g.native){
+    const age=now-Date.parse(g.native.updated_at);
+    if(Number.isFinite(age)&&age>=0)
+     return age<=75000?'✓ '+owner+': HH One GPS-mérés '+Math.ceil(age/1000)+' mp-es.':
+      '⚠ '+owner+': az utolsó HH One GPS-mérés '+Math.ceil(age/60000)+' perce volt. Nincs bizonyított élő jel.';
+   }
+   return '📡 '+owner+': nincs ellenőrizhető natív mérés.';
+  }
   async function fetchGps(profile){
    const live=auth(),client=live?.getClient?.();
    if(!client)return {state:'unknown',text:'Nincs jel'};
-   let browser=null,native=null,revokeAt=NaN;
+   let browser=null,native=null,revokeAt=NaN,nativeStatus='not-connected';
    try{
     const resp=typeof live.readSharedLocation==='function'
      ?await live.readSharedLocation(profile)
@@ -298,11 +318,12 @@
     const relay=w.HH_GUARDIAN_NATIVE_V156;
     if(relay?.connected?.()){
      const result=await relay.read(profile);
-     if(result.status==='ok')native=result.data;
-     if(result.status==='revoked')revokeAt=time(result.updated_at);
+     nativeStatus=result?.status||'error';
+     if(result?.status==='ok')native=result.data;
+     if(result?.status==='revoked')revokeAt=time(result.updated_at);
     }
-   }catch(_){}
-   return {browser,native,revokeAt};
+   }catch(_){nativeStatus='error'}
+   return {browser,native,revokeAt,nativeStatus};
   }
   async function refresh(){
    if(d.hidden)return;
@@ -321,7 +342,7 @@
     if(needHealth&&h){cachedSleep=h.sleep;cachedNutrition=h.nutrition;lastHealthFetch=stamp}
     const n=nutritionBalance(p,cachedNutrition,readEnergy(p),Date.now());
     show({gps:gpsState(g.browser,g.native,p,Date.now(),g.revokeAt),
-     sleep:cachedSleep,nutrition:n});
+     diagnostic:connectionDiagnostic(g,p,Date.now()),sleep:cachedSleep,nutrition:n});
     updatedAt=Date.now();
    }catch(_){
     if(ticket===generation)show({gps:{state:'unknown',text:'Nincs jel'},
@@ -357,5 +378,5 @@
   else start();
  }
  return {profileKey,validSessions,nightCandidate,latestNight,sleepIndex,nutritionBalance,
-  healthState,gpsState,permitted,start,version:'845'};
+  healthState,gpsState,connectionDiagnostic,permitted,start,version:'845'};
 });
