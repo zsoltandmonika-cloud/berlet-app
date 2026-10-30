@@ -1,0 +1,24 @@
+name: HH One signed OTA pilot promotion v1044 QA
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hh-one-ota-promote-family-v1044.yml'
+      - '.github/workflows/hh-one-ota-promotion-qa-v1044.yml'
+      - 'healthhub/tests/ota-pilot-promotion-v1044.test.cjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hh-one-ota-promote-family-v1044.yml'
+      - 'healthhub/tests/ota-pilot-promotion-v1044.test.cjs'
+jobs:
+  promotion-guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate workflow syntax and release guardrails
+        run: |
+          ruby -e 'require "yaml"; YAML.load_file(".github/workflows/hh-one-ota-promote-family-v1044.yml", aliases: true)'
+          node --test healthhub/tests/ota-pilot-promotion-v1044.test.cjs
