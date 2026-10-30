@@ -1,0 +1,26 @@
+/* v1010 · Golden Standard: mobile date/time pickers have equal tap space.
+   Shared by Smart Trip AI, MÁV, Volán and BKK Grand.
+   Family Guard BKK already has the same 50/50 rule (v977).
+   CSS only. Preserve native showPicker, inputs, colors, size and data logic. */
+.transport-grand .smart-trip-panel .routebox > .datetime,
+#planner .routebox > .datetime{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.transport-grand .smart-trip-panel .routebox > .datetime > :is(.datebox,.timebox),
+#planner .routebox > .datetime > :is(.datebox,.timebox){
+  box-sizing:border-box;
+  min-width:0;
+  min-height:44px;
+  width:100%;
+  height:100%;
+  touch-action:manipulation;
+}
+.transport-grand .smart-trip-panel .routebox > .datetime :is(.picker-display),
+#planner .routebox > .datetime :is(#dateTxt,#timeTxt){
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
