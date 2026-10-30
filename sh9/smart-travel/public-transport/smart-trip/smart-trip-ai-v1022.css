@@ -6,12 +6,13 @@ body{background:radial-gradient(ellipse at 32% -20%,rgba(102,76,186,.32),transpa
 a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}
 [hidden]{display:none!important}
 .st22-shell{max-width:480px;margin:0 auto;padding:12px 12px calc(95px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;min-height:100dvh}
-.st22-header{position:relative;min-height:155px;border:1px solid var(--st22-edge);border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(34,46,86,.7),rgba(16,23,55,.93));box-shadow:0 7px 25px #0008}
+.st22-header{position:relative;min-height:170px;border:1px solid var(--st22-edge);border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(34,46,86,.7),rgba(16,23,55,.93));box-shadow:0 7px 25px #0008}
 .st22-header:before{content:"";position:absolute;inset:0;background:url("../../../../healthhub/nutrition/healthhub-nutrition-lena-buddy-approved.webp") 68% 39%/cover no-repeat;opacity:.7}
 .st22-header:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,14,40,.93) 0%,rgba(11,19,53,.75) 44%,rgba(20,17,60,.08) 100%);pointer-events:none}
 .st22-back{z-index:2;position:absolute;top:9px;left:9px;display:grid;place-items:center;width:37px;height:34px;border:1px solid var(--st22-edge);border-radius:12px;background:#10213abb;font-size:26px;font-weight:750}
 .st22-brand-art{position:absolute;right:9px;top:7px;width:48%;max-width:190px;height:auto;border-radius:12px;opacity:.86;filter:drop-shadow(0 0 9px rgba(211,97,232,.3));z-index:2}
-.st22-heading{z-index:2;position:absolute;left:14px;bottom:15px;max-width:68%}
+.st22-heading{z-index:2;position:absolute;left:14px;bottom:52px;max-width:68%}
+.st22-profile{position:absolute;z-index:5;left:12px;bottom:10px;display:flex;align-items:center;justify-content:center;min-height:34px;min-width:95px;padding:6px 12px;border:1px solid var(--st22-edge);border-radius:999px;background:rgba(8,22,48,.87);color:#fff;font-size:12px;font-weight:850;backdrop-filter:blur(12px);box-shadow:0 2px 10px #0008}
 .st22-kicker{font-size:9px;font-weight:850;letter-spacing:.07em;color:var(--st22-soft)}
 .st22-heading h1{margin:3px 0 3px;font-size:23px;line-height:1.05;letter-spacing:-.04em;text-shadow:0 2px 9px #001}
 .st22-heading small{font-weight:600;font-size:10px;color:#d3e4fa}
