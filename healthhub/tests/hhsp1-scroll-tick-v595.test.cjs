@@ -11,11 +11,11 @@ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(!source.includes('hhBuddy593Sound'),'no Buddy mute button or handler');
 assert.ok(!source.includes('hh-premium-select-sound-v593'),'old persisted sound-off setting cannot strand the sound');
 assert.ok(!css.includes('hhBuddy593Sound'),'no orphan mute positioning');
-assert.ok(source.includes("if(kind==='medications')return;"),'Buddy is absent only in medication filter');
+assert.ok(source.includes("if(kind==='medications'||kind==='records')return;"),'Buddy is removed from the compact Records and Medication headings');
 assert.ok(source.includes("attachRail(content.querySelector('.hhRsmChips')"),'Medication filter keeps scroll sound');
 const live=index.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1];
 assert.ok(live&&index.includes("var v='"+live.slice(1)+"'"),'shortcut build must match published metadata');
-assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=757-medication-compact'));
+assert.ok(index.includes('hh-buddy-scroll-companion-v593.js?v=1015-vertical-detent'));
 
 function el(tag='div',cl=''){
  const e={tagName:tag,className:cl,children:[],attrs:{},listeners:{},dataset:{},disabled:false,hidden:false};
@@ -35,7 +35,7 @@ function fakeRail(cls,itemCls,starts){
  items.forEach(x=>x.getBoundingClientRect=()=>({left:x.left}));
  return rail;
 }
-let clock=100,audioStarts=0,unlocks=0;
+let clock=100,audioStarts=0,unlocks=0,vibrations=[];
 class FakeDate extends Date{static now(){return clock}}
 class AudioContext{
  constructor(){this.currentTime=0;this.state='suspended';this.destination={}}
@@ -61,6 +61,7 @@ const document={
 const window={
  location:{search:'?hhv=591-health-measurements-hero'},
  healthSectionKind:'records',
+ navigator:{vibrate(ms){vibrations.push(ms);return true}},
  AudioContext,
  localStorage:{getItem(){return 'off'}},
  matchMedia(){return {matches:false}},
@@ -69,7 +70,7 @@ const window={
 vm.runInNewContext(source,{window,document,URLSearchParams,Date:FakeDate,console,Promise},{timeout:3000});
 async function test(){
  await window.renderHealthSection();
- assert.equal(heading.children.length,2,'Buddy is present without a third sound-control child');
+ assert.equal(heading.children.length,1,'Records heading is compact without Buddy art');
  assert.equal(created.filter(x=>x==='button').length,0,'no mute button is created');
  assert.equal(typeof track.listeners.scroll,'function','card rail scroll is observed');
  assert.equal(typeof chips.listeners.scroll,'function','filter chip rail scroll is observed');
@@ -97,6 +98,13 @@ async function test(){
  chip.closest=(q)=>q==='#healthSubContent'?content:q==='.hhRsmChip'?chip:null;
  docListeners.click({target:chip});
  assert.equal(audioStarts,11,'selection click plus three tada notes');
+ // v1015 vertical records retain the same audible click and add soft haptics.
+ track.dataset.hhRecordsVertical='on';
+ track.querySelectorAll().forEach((el,i)=>{el.offsetTop=i*320});
+ clock=12000;track.scrollTop=0;track.listeners.scroll(); // silent programmatic mode switch
+ clock=13000;track.listeners.pointerdown();track.scrollTop=340;track.listeners.scroll();
+ assert.equal(audioStarts,13,'vertical card boundary produces the established two-tone click');
+ assert.deepEqual(vibrations,[7],'real vertical detent sends one optional soft haptic');
  assert.ok(window.HH_BUDDY_SCROLL_V593.version==='595');
  console.log('HHSP1 v595 scroll ticks / sound gesture / no mute: PASS');
 }
