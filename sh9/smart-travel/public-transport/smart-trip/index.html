@@ -61,9 +61,15 @@
 </nav>
 <div id="st22Notice" class="st22-notice" role="status" hidden>Az értesítéseket a HealthHub főoldalon tudod kezelni.</div>
 
-<script src="../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=806-predictive-core"></script>
+<!-- v1031: same 40 shared family places as Family Guard, MÁV and Volán.
+     Local cache first; authorized cloud refresh uses the existing v972 20-minute TTL.
+     Only the public Supabase browser key and the existing RLS-scoped session are used. -->
+<script src="../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script src="../../../../healthhub/guardian/guardian-family-favorites-v972.js?v=1031-smart-trip-shared-40"></script>
+<script src="../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=1031-shared-40-predictive"></script>
 <script src="../mav/rail-gtfs-core-v1.js?v=1022-read-only-routing"></script>
 <script src="../../../../healthhub/golden-standard-avatars-v529.js?v=529"></script>
-<script src="./smart-trip-ai-v1022.js?v=1029-full-tile-picker"></script>
+<script src="./smart-trip-ai-v1022.js?v=1031-shared-40-favorites"></script>
 
 </body></html>
