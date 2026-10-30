@@ -16,6 +16,7 @@ import org.json.JSONObject
  */
 internal object OneRemoteAdmin {
     const val KEY_CONSENT = "hh_one_remote_admin_consent_v1041"
+    const val KEY_FIRST_RUN_SHOWN = "hh_one_remote_admin_first_run_shown_v1041"
     const val KEY_LAST_ACTION = "hh_one_remote_admin_last_action_v1041"
     const val KEY_LAST_ACTION_AT = "hh_one_remote_admin_last_action_at_v1041"
 
