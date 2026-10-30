@@ -1,0 +1,55 @@
+/* Smart Trip AI v1032 · Full-screen, on-demand map. Samsung S24 Ultra.
+   Nothing here changes the approved Golden Standard planner/hero. */
+#st22MapDialog{
+  position:fixed;inset:0;box-sizing:border-box;margin:0;padding:0;
+  width:100%;height:100vh;height:100dvh;max-width:none;max-height:none;
+  border:0;border-radius:0;background:#081830;color:#eaf5ff;overflow:hidden;
+  z-index:5000;overscroll-behavior:contain;
+}
+#st22MapDialog::backdrop{background:#020816fa}
+#st22MapDialog:not([open]){display:none}
+#st22MapCanvas{position:absolute;inset:0;width:100%;height:100%;background:#122941}
+.st22-map-top{
+  position:absolute;z-index:5;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;
+  background:linear-gradient(180deg,#071b37f5 65%,#071b3700);
+  pointer-events:none;
+}
+.st22-map-top>*{pointer-events:auto}
+.st22-map-heading{display:flex;flex-direction:column;gap:2px;min-width:0}
+.st22-map-heading strong{font-size:17px;letter-spacing:.01em;line-height:1.2}
+.st22-map-heading small{font-size:11px;line-height:1.3;color:#d2e8ff}
+#st22MapClose{
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  min-width:98px;min-height:48px;padding:10px 15px;
+  border:1px solid #bbd5fc99;border-radius:14px;
+  background:#092347ed;color:#fff;font-size:15px;font-weight:800;
+  box-shadow:0 6px 22px #0008;cursor:pointer;touch-action:manipulation;
+}
+.st22-map-bottom{
+  position:absolute;z-index:5;left:12px;right:12px;
+  bottom:calc(15px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  max-width:min(440px,calc(100vw - 24px));padding:11px 13px;
+  border:1px solid #a9cefb75;border-radius:14px;
+  background:#0a1d3ce9;color:#e5f4ff;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 6px 24px #071429aa;
+}
+.st22-map-places{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:12px;font-weight:750}
+.st22-map-places span{max-width:100%;overflow-wrap:anywhere}
+#st22MapStatus{font-size:12px;line-height:1.35;color:#d5e6ff}
+.st22-map-pin{
+  display:grid;place-items:center;width:38px;height:38px;
+  border:2px solid white;border-radius:50% 50% 50% 4px;
+  box-shadow:0 2px 12px #06172ab0;color:#fff;font-size:20px;
+  font-weight:850;transform:rotate(-45deg);
+}
+.st22-map-pin span{transform:rotate(45deg)}
+.st22-map-pin-origin{background:#287ad9}
+.st22-map-pin-destination{background:#c74392}
+#st22MapDialog .maplibregl-ctrl-bottom-left{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+#st22MapDialog .maplibregl-ctrl-bottom-right{bottom:calc(90px + env(safe-area-inset-bottom,0px));right:8px}
+#st22MapDialog .maplibregl-ctrl-attrib{font-size:10px}
+@media(min-width:700px){.st22-map-bottom{right:auto;left:20px;bottom:24px}}
