@@ -203,6 +203,49 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-family-favorites-v972.css?v=972-shared40-scroll">
 <link rel="stylesheet" href="./guardian-nearby-departures-v975.css?v=976-rag-catchability">
 <link rel="stylesheet" href="./guardian-bkk-keyboard-dock-v964.css?v=969-golden-predictions-visible">
+<style id="guardian-map-search-soft-pastel-v977">
+/* v977 · Family Guard map search now shares the surrounding profile's
+   gentle pastel glass palette. Visual only; no layout or search logic changes. */
+:root[data-guardian-profile] #guardianMapSearchV819.hh-map-search-v819{
+ background:linear-gradient(138deg,
+  var(--hhg-panel-start,rgba(223,239,252,.86)),
+  var(--hhg-panel-end,rgba(189,221,246,.78)))!important;
+ border-color:rgba(255,255,255,.86)!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.9),
+  0 7px 21px var(--hhg-shadow,rgba(37,63,101,.10))!important;
+ -webkit-backdrop-filter:blur(20px) saturate(118%)!important;
+ backdrop-filter:blur(20px) saturate(118%)!important;
+}
+:root[data-guardian-profile] #guardianMapSearchV819 .hh-map-search-input-v819{
+ background:rgba(255,255,255,.49)!important;
+ border-color:rgba(255,255,255,.89)!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.65)!important;
+}
+:root[data-guardian-profile] #guardianMapSearchV819 .hh-map-search-input-v819::placeholder{
+ color:var(--hhg-muted,#4d6984)!important;opacity:1!important;
+}
+:root[data-guardian-profile] #guardianMapSearchV819 .hh-map-search-row-v819 > button:not(.listening){
+ background:linear-gradient(135deg,rgba(255,255,255,.72),
+  var(--hhg-selected,rgba(153,207,247,.68)))!important;
+ border-color:rgba(255,255,255,.88)!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.7),
+  0 2px 8px var(--hhg-shadow,rgba(37,63,101,.10))!important;
+}
+:root[data-guardian-profile] #guardianMapSearchV819 .hh-map-search-row-v819 > #guardianMapSearchNavigateV819:not(.listening){
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #guardianMapSearchV819 .hh-map-search-input-v819:focus-visible{
+ outline:2px solid var(--hhg-accent,var(--accent,#79c5ff))!important;
+ outline-offset:1px;
+}
+@media(prefers-reduced-transparency:reduce){
+ :root[data-guardian-profile="z"] #guardianMapSearchV819{background:#dceaf8!important}
+ :root[data-guardian-profile="m"] #guardianMapSearchV819{background:#f5e1ee!important}
+}
+</style>
 <style id="guardian-admin-one-card-v963">
 /* v963: one profile-aware Family Guard settings glass card, three independently accessible sections. */
 #guardianAdminControlsV963{
