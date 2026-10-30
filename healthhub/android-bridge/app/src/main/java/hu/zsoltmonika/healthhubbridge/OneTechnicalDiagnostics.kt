@@ -16,6 +16,7 @@ internal object OneTechnicalDiagnostics {
     const val KEY_CONSENT = "hh_one_remote_technical_diagnostics_v1"
 
     fun consent(prefs: SharedPreferences): Boolean = prefs.getBoolean(KEY_CONSENT, false)
+    private fun timeOf(value: Long): Any = if (value > 0) Instant.ofEpochMilli(value).toString() else JSONObject.NULL
 
     suspend fun snapshot(context: Context, prefs: SharedPreferences): JSONObject {
         check(consent(prefs)) { "Távoli műszaki diagnosztika nincs engedélyezve ezen a telefonon" }
@@ -43,6 +44,16 @@ internal object OneTechnicalDiagnostics {
             .put("lastHealthAttemptAt", time(ResilientHealthSync.KEY_LAST_ATTEMPT))
             .put("lastOtaCheckAt", time("ota_checked_at_v1"))
             .put("hasDropboxRefreshToken", DropboxVaultClient.hasRefreshToken(prefs))
+            .put("remoteAdminAllowed", OneRemoteAdmin.consent(prefs))
+            .put("connectivity", OneRemoteAdmin.network(context))
+            .put("batteryPct", OneRemoteAdmin.battery(context))
+            .put("gpsServiceActive", Sh9GpsService.active)
+            .put("gpsContinuousConsent", FamilyGuardContinuity.enabled(context))
+            .put("gpsBackgroundPermission", FamilyGuardContinuity.hasBackgroundLocation(context))
+            .put("gpsLastFixAt", timeOf(context.getSharedPreferences(Sh9GpsService.PREFS, Context.MODE_PRIVATE).getLong(Sh9GpsService.KEY_LAST_FIX_AT, 0L)))
+            .put("gpsLastRecoveryAt", timeOf(context.getSharedPreferences(Sh9GpsService.PREFS, Context.MODE_PRIVATE).getLong(Sh9GpsService.KEY_LAST_REPAIR_AT, 0L)))
+            .put("gpsUploadStatus", prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "not-started"))
+            .put("gpsLastUploadedAt", timeOf(prefs.getLong(FamilyGuardNativeRelay.KEY_LAST_UPLOAD, 0L)))
             .put("recentAgentEvents", OneOpsLog.recent(prefs))
     }
 }
