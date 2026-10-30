@@ -1,0 +1,101 @@
+/* Smart Trip v1028: real UI corrections; Golden Standard hero remains unchanged.
+   Fix cramped viewport/CTA overlap without cropping any part of the artwork.
+   Keep real date/time input pickers accessible across each entire glass tile. */
+.st22-shell{
+  box-sizing:border-box;
+  width:100%;
+  max-width:470px;
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow:visible;
+  padding-bottom:calc(88px + env(safe-area-inset-bottom,0px));
+}
+.st22-header{
+  position:relative;
+  width:calc(100% + 16px);
+  height:auto;
+  min-height:0;
+  max-height:none;
+  margin:0 -8px 7px;
+  aspect-ratio:auto;
+  flex:0 0 auto;
+  overflow:hidden;
+}
+.st22-hero-img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:100%;
+  aspect-ratio:auto;
+  object-fit:contain;
+  object-position:center;
+}
+.st22-card{
+  flex:1 0 auto;
+  min-height:0;
+  margin:0;
+  padding-bottom:12px;
+}
+#st22Form{
+  flex:0 0 auto;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+.st22-actions{
+  margin-top:0;
+  padding-top:10px;
+  min-height:60px;
+  position:relative;
+  z-index:1;
+}
+.st22-actions button{
+  min-height:50px;
+  touch-action:manipulation;
+}
+.st22-setting{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  min-height:46px;
+  cursor:pointer;
+  position:relative;
+  padding:5px 8px;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+.st22-setting input{
+  width:100%;
+  height:32px;
+  min-height:32px;
+  font-size:13px;
+  font-weight:800;
+  /* One target per tile. The native picker is opened from a real user click
+     on the surrounding label through showPicker(), not the tiny input icon. */
+  pointer-events:none;
+}
+.st22-setting:focus-visible{
+  outline:2px solid #e5f5ff;
+  outline-offset:-3px;
+}
+.st22-planner-head h2{font-size:15px}
+.st22-mode button{font-size:11px}
+.st22-place label{font-size:12px}
+.st22-place input{font-size:13.5px}
+.st22-favorites{font-size:13px}
+.st22-opt select{font-size:12.5px}
+.st22-nav{
+  position:fixed;
+  bottom:0;
+  z-index:90;
+}
+@media (max-width:360px){
+  .st22-header{width:calc(100% + 12px);margin-left:-6px;margin-right:-6px}
+  .st22-setting{padding:4px 5px}
+  .st22-setting input{font-size:12px}
+  .st22-mode button{font-size:10.5px}
+}
