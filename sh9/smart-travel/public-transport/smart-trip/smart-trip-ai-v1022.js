@@ -343,7 +343,8 @@
   const field=!from.value.trim()?from:!to.value.trim()?to:from;
   field.focus();field.scrollIntoView?.({behavior:'smooth',block:'center'});
  });
- $('st22Map')?.addEventListener('click',showFamilyMap);
+ // v1032: the Map button is owned by the full-screen MapLibre overlay.
+ // The former handoff to the Family Guard card remains unused here.
  $('st22Notifier')?.addEventListener('click',()=>{
   const note=$('st22Notice');
   if(note)note.hidden=!note.hidden;
@@ -356,5 +357,13 @@
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')profileChanged(true)});
  profileChanged(false);
  updateMode('now');
- w.SH9_SMART_TRIP_AI_V1022=Object.freeze({version:'1022',snapshot,loadRailData,rank});
+ // Selected places stay local to this page; the map receives only validated
+ // user-selected records, never a location inferred from free-text.
+ function selectedPlaces(){
+  function safe(p){return p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng)
+   ?{name:String(p.name||''),actualName:String(p.actualName||p.name||''),
+      subtitle:String(p.subtitle||''),lat:p.lat,lng:p.lng}:null}
+  return {origin:safe(local.origin),destination:safe(local.destination)};
+ }
+ w.SH9_SMART_TRIP_AI_V1022=Object.freeze({version:'1032',snapshot,loadRailData,rank,selectedPlaces});
 })(window,document);
