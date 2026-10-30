@@ -1,0 +1,112 @@
+/* v1016 · Records only. Keep approved hero portrait and profile switch.
+   Place the existing live search beside the canonical one-tap profile pill,
+   and compress redundant results/filters without shrinking document cards. */
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero{
+ position:relative!important;isolation:isolate!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap[data-hh-records-search-pill="on"]{
+ position:absolute!important;
+ display:flex!important;align-items:center!important;
+ left:146px!important;right:12px!important;bottom:12px!important;
+ top:auto!important;transform:none!important;
+ width:auto!important;max-width:none!important;
+ height:38px!important;min-height:38px!important;
+ padding:0 10px!important;margin:0!important;
+ z-index:26!important;box-sizing:border-box!important;
+ border-radius:999px!important;
+ background:rgba(6,20,44,.83)!important;
+ border:1px solid rgba(246,174,227,.68)!important;
+ box-shadow:0 4px 14px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.11)!important;
+ backdrop-filter:blur(11px)!important;-webkit-backdrop-filter:blur(11px)!important;
+}
+html[data-hh-records-v1015="on"][data-hh-system-profile="z"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap{
+ border-color:rgba(128,196,247,.62)!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap input{
+ width:100%!important;max-width:100%!important;
+ height:36px!important;min-height:36px!important;
+ border:0!important;outline:0!important;box-shadow:none!important;
+ background:transparent!important;color:#f7faff!important;
+ padding:0 3px!important;margin:0!important;
+ font:650 12px/1.3 system-ui,sans-serif!important;
+ text-overflow:ellipsis!important;caret-color:#ffb7ea!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap input::placeholder{
+ color:#e9c8e2!important;opacity:.95!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap:focus-within{
+ outline:2px solid rgba(251,207,237,.86)!important;outline-offset:1px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero #hhProfileStandard652{
+ z-index:27!important; /* one-tap profile remains independent and clickable */
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent .hhDocs1015{
+ padding:8px 9px 9px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015>.vaultTools{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;margin:0 0 5px!important;padding:0!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015>.vaultTools>.vaultBtn{
+ min-width:0!important;width:100%!important;min-height:38px!important;
+ padding:7px 5px!important;margin:0!important;
+ border-radius:12px!important;font-size:10px!important;
+ line-height:1.25!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015[data-hh-docs-compact-v1016="on"]>.hrRow{
+ display:none!important; /* duplicate count: visible in the compact filter head */
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmToolbar{
+ margin:3px 0 5px!important;padding:3px 0 3px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmHeading{
+ display:grid!important;
+ grid-template-columns:auto minmax(0,1fr) auto!important;
+ align-items:center!important;gap:5px!important;
+ margin:0 0 5px!important;min-height:30px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmHeading>b{
+ font:800 11px/1.25 system-ui,sans-serif!important;
+ white-space:nowrap!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmCount{
+ justify-self:end!important;white-space:nowrap!important;
+ text-align:right!important;font-size:10px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhDocs1016Sort{
+ min-height:34px!important;min-width:0!important;max-width:98px!important;
+ padding:5px 6px!important;margin:0!important;
+ font:700 9px/1.15 system-ui,sans-serif!important;
+ border-radius:10px!important;white-space:normal!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmChips{
+ gap:6px!important;padding:0 1px 3px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmChip{
+ min-height:36px!important;padding:7px 9px!important;font-size:10px!important;
+}
+html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent
+ .hhDocs1015 .hhRsmTrack{
+ max-height:min(75dvh,900px)!important;
+}
+@media(max-width:370px){
+ html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] .healthSubHero .healthSearchWrap{
+  left:141px!important;right:10px!important;padding:0 7px!important;
+ }
+ html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent .hhDocs1015 .hhRsmHeading>b{
+  font-size:10px!important;
+ }
+ html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on"] #healthSubContent .hhDocs1015 .hhRsmCount{
+  font-size:9px!important;
+ }
+}
