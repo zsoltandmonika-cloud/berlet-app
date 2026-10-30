@@ -146,6 +146,7 @@ function renderPanel(){
  var area=$id('hhOneBody500');if(!area)return;
  area.replaceChildren();
  txt('p','HH One · Központi eszközkapcsolat és Léna Service Center. A RAG kizárólag a friss kapcsolati jeleket mutatja, NEM igazolja az egészségügyi adatok szinkronját.',area);
+ txt('p','📡 REMOTE SERVICE: a telefon legutóbbi saját jelentése alapján lehet külön ellenőrizni a GPS-szolgáltatást, a mérést és a Dropbox-feltöltést. Az újraindítási kérés telefonos jóváhagyást igényel.',area);
  txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
  if(state.error)txt('p','Ellenőrzési hiba: '+state.error,area,'hhWarning');
  if(isMain()&&state.color!=='green'){
@@ -195,6 +196,23 @@ function renderPanel(){
     ' · '+dt(d.status&&d.status.updatedAt),line);
    if(d.lastHealthError)txt('small','Health hiba: '+safeText(d.lastHealthError).slice(0,180),line);
    if(Number(d.buildCode)>=34){
+    var heartbeatAge=isoAge(d.lastSeenAt),verifiedHeartbeat=heartbeatAge<=ttl;
+    var activeGps=d.familyGuardNativeGpsActive;
+    var lastGps=isoAge(d.smartLocationLastFixAt),lastUpload=isoAge(d.familyGuardLastUploadedAt);
+    var lastUploadState=safeText(d.familyGuardUploadStatus||'ismeretlen');
+    if(!verifiedHeartbeat)
+     txt('small','📡 REMOTE DIAG: utolsó jelentés már nem friss. A telefon aktuális GPS-állapota nem igazolható.',line,'hhWarning');
+    else if(activeGps===false)
+     txt('small','🔴 REMOTE DIAG: az utolsó jelentéskor a natív GPS-szolgáltatás NEM futott.',line,'hhWarning');
+    else if(lastUploadState.indexOf('network-error:')===0)
+     txt('small','🟠 REMOTE DIAG: a telefon Dropbox-feltöltési hibát jelentett ('+lastUploadState.slice(0,65)+').',line,'hhWarning');
+    else if(activeGps===true&&lastGps>120000)
+     txt('small','🟠 REMOTE DIAG: a telefon utolsó jelentésekor a GPS futott, de a helymérés régi volt.',line,'hhWarning');
+    else if(activeGps===true&&lastUpload>120000)
+     txt('small','🟠 REMOTE DIAG: a legutóbbi Dropbox-feltöltés régi. Nem biztos, hogy a Family Guard megkapta a GPS-jelet.',line,'hhWarning');
+    else if(activeGps===true)
+     txt('small','🟢 REMOTE DIAG: az utolsó jelentéskor a GPS futott és friss mérés/feltöltés volt. Ez nem valós idejű bizonyíték.',line);
+
     var mode=safeText(d.smartLocationMode||'ismeretlen');
     var provider=safeText(d.smartLocationEngine||'indításra vár');
     var fixAt=d.smartLocationLastFixAt,cloudAt=d.familyGuardLastUploadedAt;
@@ -258,14 +276,10 @@ function renderPanel(){
    diagBtn.title=canDiagnose?'Műszaki állapot lekérése, egészségügyi értékek nélkül':
       'A HH One Connect v0.14.1+ és a telefonos engedélyezés szükséges';
    diagBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'diagnostics')});
-   var otaBtn=elt('button','',buttons);otaBtn.type='button';
-   otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
-   otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
-   otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
    var familyActions=[
-     ['gps_stop','🛑 GPS STOP','Natív GPS leállítás, folytatáshoz új tulajdonosi jóváhagyás'],
-     ['gps_resume_request','📍 GPS KÉRÉS','Látható telefonos jóváhagyáskérés, nem kapcsolja be távolról'],
-     ['sos_contact_request','🆘 SOS KAPCSOLAT','Látható kapcsolatkérés, nem indít kamerát vagy mikrofont']
+     ['gps_resume_request','↻ GPS SERVICE RESTART KÉRÉS','A kijelölt telefon értesítést kap, amelyen Mónika/Zsolt jóváhagyhatja a GPS újraindítását'],
+     ['sos_contact_request','🆘 SOS KAPCSOLAT','Látható kapcsolatkérés, nem indít kamerát vagy mikrofont'],
+     ['gps_stop','🛑 GPS STOP','Natív GPS leállítás, folytatáshoz új tulajdonosi jóváhagyás']
    ];
    familyActions.forEach(function(entry){
      var permitted=Number(d.buildCode)>=33&&Array.isArray(d.capabilities)&&d.capabilities.includes(entry[0]);
@@ -274,6 +288,11 @@ function renderPanel(){
      b.disabled=!authorized||!permitted||sending||reading;
      b.addEventListener('click',function(){sendRemote(p,d.deviceId,entry[0])});
    });
+   var otaBtn=elt('button','',buttons);otaBtn.type='button';
+   otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
+   otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
+   otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
+   txt('small','A GPS újraindítási kérelem nem távoli bekapcsolás. A telefon értesítését a tulajdonosnak kell jóváhagynia; a sikerhez új, friss GPS- és feltöltési jelentés kell.',line);
   }else{
    txt('small','A natív HH One jelentést és a v401 Eszközregisztert kell ellenőrizni. Nem jelölünk ki ismeretlen telefont.',line);
    txt('small','↗ Telefon kijelölésének ellenőrzése · 1 koppintás',line,'hhRepairArrowV503');
