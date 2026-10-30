@@ -60,9 +60,13 @@ function animate(kind,source){
 function railIndex(rail,selector){
  var items=Array.from(rail.querySelectorAll(selector)).filter(function(el){return !el.hidden&&!el.disabled});
  if(!items.length)return -1;
- var left=rail.getBoundingClientRect().left,closest=-1,distance=Infinity;
+ var vertical=rail.dataset&&rail.dataset.hhRecordsVertical==='on';
+ var leading=vertical?rail.scrollTop:rail.getBoundingClientRect().left;
+ var closest=-1,distance=Infinity;
  items.forEach(function(el,i){
-  var delta=Math.abs(el.getBoundingClientRect().left-left);
+  // Vertical cards use offsetTop relative to the scroll rail (CSS v1015).
+  // Medicine/chip rails retain their original horizontal detent behavior.
+  var delta=Math.abs((vertical?el.offsetTop:el.getBoundingClientRect().left)-leading);
   if(delta<distance){distance=delta;closest=i}
  });
  return closest;
@@ -85,7 +89,7 @@ function attachRail(rail,selector){
  rail.addEventListener('touchcancel',finish,{passive:true});
  rail.addEventListener('wheel',begin,{passive:true});
  rail.addEventListener('keydown',function(e){
-  if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown'].includes(e.key))begin();
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown'].includes(e.key))begin();
  });
  rail.addEventListener('scroll',function(){
   var current=railIndex(rail,selector);
@@ -95,9 +99,14 @@ function attachRail(rail,selector){
   if(Date.now()>gestureUntil){last=current;return}
   last=current;
   var now=Date.now();
-  if(now-lastTickAt<90)return;
+  if(now-lastTickAt<115)return;
   lastTickAt=now;
   tick();
+  // Keep the established audible detent; add a tiny optional Android haptic
+  // only when crossing a real record card during a user's scroll gesture.
+  if(selector==='.hhRsmCard'&&rail.dataset.hhRecordsVertical==='on'&&!reduce){
+   try{if(root.navigator&&typeof root.navigator.vibrate==='function')root.navigator.vibrate(7)}catch(_){}
+  }
  },{passive:true});
 }
 function decorate(){
@@ -110,7 +119,7 @@ function decorate(){
  attachRail(content.querySelector('.hhRsmChips'),'.hhRsmChip');
  // Medication filters stay compact: Buddy belongs to Records only.
  // Both medication rails keep their existing gesture/tick handlers.
- if(kind==='medications')return;
+ if(kind==='medications'||kind==='records')return; // v1015: no Buddy image in Leletek
  if(heading.querySelector('.hhBuddy593'))return;
  var buddy=make('div','hhBuddy593');
  buddy.setAttribute('aria-label','Buddy, a HealthHub mókusa');
