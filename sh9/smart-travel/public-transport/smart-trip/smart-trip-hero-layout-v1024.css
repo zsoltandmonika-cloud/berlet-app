@@ -1,0 +1,117 @@
+/* v1024 · Native S24 Premium Glass hero: full image, no overlapping controls.
+   Keep user-approved composition entirely visible; allow user-initiated detail view. */
+.st22-shell .st22-header{
+  overflow:visible!important;
+  margin-top:44px!important;
+  margin-bottom:44px!important;
+  isolation:isolate;
+  border-radius:18px!important;
+  box-shadow:0 9px 22px #0009,0 0 12px rgba(174,114,249,.20);
+}
+.st22-shell .st22-header::before{
+  border-radius:17px!important;
+  image-rendering:auto!important;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+.st22-shell .st22-header .st22-back{
+  top:-43px!important;
+  left:0!important;
+  width:auto!important;
+  min-width:70px!important;
+  min-height:35px!important;
+  height:35px!important;
+  padding:0 10px!important;
+  border-radius:12px!important;
+  font-size:22px!important;
+  background:linear-gradient(125deg,rgba(22,42,83,.96),rgba(47,37,94,.95))!important;
+  border:1px solid var(--st22-edge)!important;
+}
+.st22-shell .st22-header .st22-profile{
+  bottom:-43px!important;
+  left:0!important;
+  min-height:36px!important;
+  z-index:5!important;
+  border-radius:999px!important;
+  border:1px solid var(--st22-edge)!important;
+  background:linear-gradient(125deg,rgba(22,42,83,.96),rgba(47,37,94,.95))!important;
+}
+.st22-shell .st22-hero-detail{
+  position:absolute;
+  bottom:-43px;
+  right:0;
+  z-index:5;
+  min-height:36px;
+  padding:7px 12px;
+  border:1px solid var(--st22-edge);
+  border-radius:999px;
+  background:linear-gradient(125deg,rgba(22,42,83,.96),rgba(47,37,94,.95));
+  color:#fff;
+  font:750 11px/1.2 system-ui,sans-serif;
+}
+.st22-hero-dialog{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  width:100vw;
+  height:100dvh;
+  max-width:none;
+  max-height:none;
+  padding:0;
+  margin:0;
+  border:0;
+  background:#071329;
+  color:#fff;
+  overflow:hidden;
+}
+.st22-hero-dialog::backdrop{background:#020711e8}
+.st22-hero-dialog .st22-zoom-header{
+  position:fixed;
+  left:0;right:0;top:0;
+  z-index:205;
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:56px;
+  padding:6px 14px;
+  border-bottom:1px solid var(--st22-edge);
+  background:#0a1835f2;
+  font-size:12px;font-weight:800;
+}
+.st22-hero-dialog .st22-zoom-close{
+  border:1px solid var(--st22-edge);
+  border-radius:12px;
+  color:#fff;
+  background:#364b78;
+  min-height:38px;
+  min-width:75px;
+  font-size:13px;
+  font-weight:800;
+}
+.st22-hero-dialog .st22-zoom-scroller{
+  position:absolute;
+  inset:56px 0 0;
+  display:flex;
+  align-items:center;
+  overflow:auto;
+  overscroll-behavior:contain;
+  touch-action:pan-x pan-y pinch-zoom;
+}
+.st22-hero-dialog .st22-zoom-poster{
+  display:block;
+  flex:none;
+  width:max(100vw,900px);
+  aspect-ratio:3/2;
+  background-image:var(--st22-zoom-image);
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+  margin:auto;
+}
+@media(min-width:900px){
+  .st22-hero-dialog .st22-zoom-poster{
+    width:min(100vw,1536px);
+  }
+}
+@media(max-width:370px){
+  .st22-shell .st22-header{margin-bottom:42px!important}
+  .st22-shell .st22-hero-detail{font-size:10px;padding-inline:9px}
+}
