@@ -30,7 +30,13 @@
   button.setAttribute('aria-pressed',String(on));
   button.setAttribute('aria-label',on?'Műholdnézet kikapcsolása':'Műholdnézet bekapcsolása');
   card.dataset.hhSatellite=on?'on':'off';
-  if(logo)logo.hidden=!on;
+  if(logo){
+   if(on){
+    const img=$('guardianSatelliteLogoImgV1033');
+    if(img&&!img.getAttribute('src'))img.src=img.dataset.src;
+   }
+   logo.hidden=!on;
+  }
  }
  function setBusy(value){
   working=!!value;button.disabled=working;ok.disabled=working;
