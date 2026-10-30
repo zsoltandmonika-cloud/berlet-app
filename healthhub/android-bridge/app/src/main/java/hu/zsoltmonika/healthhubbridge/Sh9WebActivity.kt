@@ -312,6 +312,11 @@ class Sh9WebActivity : ComponentActivity() {
                     source.path?.startsWith(BASE) == true) {
                     val settings = Intent(this@Sh9WebActivity, MainActivity::class.java)
                         .putExtra("openNativeSettings", true)
+                        // Preserve only our first-party, explicit OTA check/install request.
+                        // MainActivity revalidates the signed release and asks Android consent.
+                        .apply {
+                            if (u.getQueryParameter("ota") in setOf("install", "check")) data = u
+                        }
                         .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     startActivity(settings)
                     finish()
