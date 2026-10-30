@@ -88,7 +88,7 @@ test('SH9 native browser uses private browser-owned Microsoft session handoff', 
   assert.match(shell, /sh9native=1/);
   assert.match(shell, /WebSettings.LOAD_NO_CACHE/);
   // Both the legacy literal URL and the modern Uri.Builder cache-buster work.
-  assert.match(shell, /hhfresh=|appendQueryParameter\\("hhfresh"/);
+  assert.ok(shell.includes('hhfresh=') || shell.includes('appendQueryParameter("hhfresh"'));
   assert.match(shell, /sh9external/);
   assert.match(shell, /sh9calendar/);
   assert.match(shell, /Intent\.ACTION_VIEW/);
