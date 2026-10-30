@@ -67,7 +67,7 @@
   local[field.key]=item;
   field.input.dataset.st22Chosen=item.type;
   close(field);
-  field.input.focus({preventScroll:true});
+  // Do not reopen the Samsung keyboard or predictions after a one-tap choice.
  }
  function render(field,array){
   const found=array.slice(0,8);field.box.replaceChildren();items.set(field.key,found);
