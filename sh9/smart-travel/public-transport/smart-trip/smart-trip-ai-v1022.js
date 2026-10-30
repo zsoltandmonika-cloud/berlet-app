@@ -301,20 +301,27 @@
   catch(_){say('A Family Guard térképre történő átadás nem sikerült.');return}
   w.location.assign('../../../../healthhub/guardian/#hhSmartHubDestinationV802');
  }
- // v1027: Native picker can be opened by tapping ANYWHERE on its glass card.
- // showPicker must run synchronously under the user's gesture on Samsung Chrome.
- // Do not replace the inputs: native date/time values, locale and form validation stay intact.
+ // v1028: one dependable Samsung native picker, opened on any part of the tile.
+ // Calling showPicker() synchronously inside click/keydown preserves user activation.
  [date,time].forEach(input=>{
   if(!input)return;
   const tile=input.closest('.st22-setting');
   if(!tile)return;
-  tile.addEventListener('click',event=>{
-   // Cancel only the label's synthetic follow-up click, not direct input interaction.
-   if(event.target!==input)event.preventDefault();
-   try{
-    if(typeof input.showPicker==='function'){input.showPicker();return}
-   }catch(_){}
+  tile.tabIndex=0;
+  tile.setAttribute('aria-label',input.type==='date'?'Dátum kiválasztása':'Időpont kiválasztása');
+  const openPicker=()=>{
+   try{if(typeof input.showPicker==='function'){input.showPicker();return}}catch(_){}
    input.focus({preventScroll:true});
+  };
+  tile.addEventListener('click',event=>{
+   if(event.target===input)return; // native input handles its own direct activation
+   event.preventDefault(); // avoid synthetic label-to-input double activation
+   openPicker();
+  });
+  tile.addEventListener('keydown',event=>{
+   if(event.key!=='Enter'&&event.key!==' ')return;
+   event.preventDefault();
+   openPicker();
   });
  });
  fields.forEach(wire);
