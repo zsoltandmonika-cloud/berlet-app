@@ -256,7 +256,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope,adminConfig){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request','gps_repair','remote_config','agent_reconcile'].includes(scope))
+ if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'].concat(['gps_repair','remote_config','agent_reconcile']).includes(scope))
   throw new Error('Ismeretlen vagy nem támogatott Android távoli művelet.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
