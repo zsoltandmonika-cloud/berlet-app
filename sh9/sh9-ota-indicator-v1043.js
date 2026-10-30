@@ -2,13 +2,19 @@
  * Green = this installed HH One build is up-to-date vs VERIFIED manifest.
  * Amber blink = NEWER signed OTA advertised for this actual phone owner.
  * Gray = unknown/unverified (never misrepresent app or GPS health).
- * No background polling, no APK download, no auth or permission changes.
+ * No background polling, no automatic APK download, no auth or permission changes.
+ * A user-visible manual failover offers an owner-eligible official signed release URL.
  */
 (function(w,d){
  'use strict';
  const el=d.getElementById('sh9OtaIndicatorV1043');
  const detail=d.getElementById('sh9OtaStateV1043');
- if(!el||!detail)return;
+ const manual=d.getElementById('sh9OtaManualV1044');
+ const manualClose=d.getElementById('sh9OtaManualCloseV1044');
+ const manualStatus=d.getElementById('sh9OtaManualStatusV1044');
+ const manualSettings=d.getElementById('sh9OtaManualSettingsV1044');
+ const manualApk=d.getElementById('sh9OtaManualApkV1044');
+ if(!el||!detail||!manual||!manualClose||!manualStatus||!manualSettings||!manualApk)return;
  const MANIFEST='../healthhub/data/bridge-ota.json';
  const DIRECT='healthhubconnect://settings?ota=install';
  const SETTINGS='healthhubconnect://settings';
@@ -46,7 +52,22 @@
   if(!Number.isFinite(seen)||seen<=0||seen>Date.now()+5000||Date.now()-seen>STATUS_MAX_AGE)return 'unknown';
   return allowedHealth.includes(cached?.health)?cached.health:'unknown';
  }
- let last=0,busy=false;
+ let last=0,busy=false,approvedRelease=null;
+ function showManualFallback(){
+  manual.hidden=false;
+  // Only a known, newer release that passed exact signed-channel URL and
+  // this phone owner's rollout gate may appear as a manual download.
+  const canDownload=!!approvedRelease;
+  manualApk.hidden=!canDownload;
+  manualApk.href=canDownload?approvedRelease:'#';
+  manualSettings.href=SETTINGS;
+  manualStatus.textContent=canDownload?
+   'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
+   'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
+ }
+ el.addEventListener('click',()=>showManualFallback());
+ manualClose.addEventListener('click',()=>{manual.hidden=true;el.focus()});
+
  function state(name,message,link){
   el.dataset.state=name;
   el.title=message;
@@ -69,7 +90,8 @@
  }
  async function check(force){
   if(busy||(!force&&Date.now()-last<SIX_HOURS))return;
-  last=Date.now();busy=true;
+  last=Date.now();busy=true;approvedRelease=null;
+  manualApk.hidden=true;manualApk.href='#';
   if(!known){
    state('unknown','HH One verziója ezen a felületen nem ellenőrizhető. Nyisd meg a HH One alkalmazást.',SETTINGS);
    busy=false;return;
@@ -81,6 +103,7 @@
    if(!valid(m))throw Error('Nem ellenőrizhető aláírt OTA kiadás.');
    const service=nativeHealth();
    if(m.versionCode>build&&m.rolloutProfiles.includes(owner)){
+    approvedRelease=m.downloadUrl;
     state('update','SYSTEM UPDATE AVAILABLE · HH One v'+m.version+
       ' · koppints az ellenőrzött frissítéshez.',build>=38?DIRECT:SETTINGS);
    }else if(service==='warning'){
