@@ -14,11 +14,26 @@
  const SETTINGS='healthhubconnect://settings';
  const SIX_HOURS=6*60*60*1000;
  const qs=new URLSearchParams(w.location.search);
- const build=Number(qs.get('hhBuildCode'));
- const owner=qs.get('hhOwner');
+ const queryBuild=Number(qs.get('hhBuildCode'));
+ const queryOwner=qs.get('hhOwner');
  const native=qs.get('sh9native')==='1';
- const known=native&&Number.isInteger(build)&&build>0&&
-   (owner==='zsolt'||owner==='monika');
+ const trustedLaunch=native&&Number.isInteger(queryBuild)&&queryBuild>0&&
+   (queryOwner==='zsolt'||queryOwner==='monika');
+ const KEY='sh9-ota-native-session-v1043';
+ let cached=null;
+ try{
+   if(trustedLaunch){
+     cached={build:queryBuild,owner:queryOwner};
+     w.sessionStorage?.setItem(KEY,JSON.stringify(cached));
+   }else{
+     const raw=JSON.parse(w.sessionStorage?.getItem(KEY)||'null');
+     if(raw&&Number.isInteger(raw.build)&&raw.build>0&&
+       (raw.owner==='zsolt'||raw.owner==='monika'))cached=raw;
+   }
+ }catch(_){cached=trustedLaunch?{build:queryBuild,owner:queryOwner}:null}
+ const build=cached?.build;
+ const owner=cached?.owner;
+ const known=!!cached;
  let last=0,busy=false;
  function state(name,message,link){
   el.dataset.state=name;
