@@ -10,13 +10,10 @@ html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard
  box-shadow:inset 0 1px rgba(255,255,255,.06),0 5px 14px rgba(2,9,26,.12)!important;
 }
 
-/* One short, identifiable heading. Keep the existing bell and
-   "Gyógyszer emlékeztető" label, drop repeated owner and time summary. */
+/* Hide the entire redundant heading, per approved compact design.
+   Only 08:00 / Reggeli gyógyszerek and 20:00 / Esti gyógyszerek remain. */
 html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock{
- display:flex!important;
- align-items:center!important;
- gap:8px!important;
- min-height:30px!important;
+ display:none!important; /* only time + label + settings remain on main card */
 }
 html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock .bell{
  width:30px!important;height:30px!important;flex:0 0 30px!important;
