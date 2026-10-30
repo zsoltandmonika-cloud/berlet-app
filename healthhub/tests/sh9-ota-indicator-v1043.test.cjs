@@ -11,6 +11,11 @@ const css=read('sh9/sh9-ota-indicator-v1043.css');
 const home=read('sh9/index.html');
 const native=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt');
 const ota=JSON.parse(read('healthhub/data/bridge-ota.json'));
+function makeRelease(version,versionCode,rolloutProfiles=['zsolt','monika']){
+ return {...ota,version,versionCode,rolloutProfiles,downloadUrl:
+  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v'+
+  version+'/HealthHub-Connect-v'+version+'-ota.apk'};
+}
 function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,error=false,nativeLaunch=true}={}){
  const led={textContent:''};
  const handler={};
@@ -67,14 +72,13 @@ test('genuine native startup passes a short-lived status, not GPS history or sec
  assert.doesNotMatch(native,/appendQueryParameter\("(?:latitude|longitude|gpsToken|healthRecord|accessToken)"/);
 });
 test('green only if signed-release baseline is installed and verified native health is fresh',async()=>{
- const release={...ota,versionCode:37,version:'0.15.10'};
+ const release=makeRelease('0.15.10',37);
  const {el,detail}=await run({build:37,health:'ok',release});
  assert.equal(el.dataset.state,'ok');
  assert.match(detail.textContent,/indításkor rendben/);
 });
 test('amber pulse only if newer signed OTA is approved for the actual owner',async()=>{
- const release={...ota,versionCode:38,version:'0.15.11',downloadUrl:
-  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.11/HealthHub-Connect-v0.15.11-ota.apk'};
+ const release=makeRelease('0.15.11',38);
  const {el,detail}=await run({build:37,health:'ok',release});
  assert.equal(el.dataset.state,'update');
  assert.match(detail.textContent,/FRISSÍTÉS ELÉRHETŐ/);
@@ -82,14 +86,14 @@ test('amber pulse only if newer signed OTA is approved for the actual owner',asy
  assert.doesNotMatch(el.href,/\.apk$/);
 });
 test('red if current owner phone reported real service failure, even if OTA cannot be checked',async()=>{
- const release={...ota,versionCode:37};
+ const release=makeRelease('0.15.10',37);
  const a=await run({build:37,health:'warning',release});
  assert.equal(a.el.dataset.state,'warning');
  const b=await run({build:37,health:'warning',error:true});
  assert.equal(b.el.dataset.state,'warning');
 });
 test('no false green on browser, stale native boot snapshot, or unspecified service health',async()=>{
- const release={...ota,versionCode:37};
+ const release=makeRelease('0.15.10',37);
  assert.equal((await run({nativeLaunch:false,release})).el.dataset.state,'unknown');
  assert.equal((await run({health:'unknown',release})).el.dataset.state,'unknown');
  assert.equal((await run({seenAt:Date.now()-11*60000,release})).el.dataset.state,'unknown');
@@ -102,8 +106,7 @@ test('signed update channel only; never downloads or installs automatically',()=
 });
 
 test('one tap tries installer directly; manual is visible only on failed handler, and verified owner APK',async()=>{
- const release={...ota,versionCode:38,version:'0.15.11',downloadUrl:
-  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.11/HealthHub-Connect-v0.15.11-ota.apk'};
+ const release=makeRelease('0.15.11',38);
  const view=await run({build:37,health:'ok',owner:'monika',release});
  assert.equal(view.manual.hidden,true);
  assert.equal(view.manualApk.hidden,true);
@@ -130,8 +133,7 @@ test('one tap tries installer directly; manual is visible only on failed handler
 });
 
 test('v0.15.11+ opens direct native installer in one tap, background navigation hides fallback',async()=>{
- const release={...ota,versionCode:39,version:'0.15.12',downloadUrl:
-  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.12/HealthHub-Connect-v0.15.12-ota.apk'};
+ const release=makeRelease('0.15.12',39);
  const view=await run({build:38,health:'ok',owner:'zsolt',release});
  assert.equal(view.el.href,'healthhubconnect://settings?ota=install');
  view.handler['indicator:click']();
