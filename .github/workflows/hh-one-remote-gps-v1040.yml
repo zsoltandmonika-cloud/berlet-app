@@ -1,0 +1,29 @@
+name: HH One remote GPS service triage v1040
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/index.html'
+      - 'healthhub/digital-health/index.html'
+      - 'healthhub/tests/hh-one-remote-gps-v1040.test.cjs'
+      - '.github/workflows/hh-one-remote-gps-v1040.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/index.html'
+      - 'healthhub/digital-health/index.html'
+      - 'healthhub/tests/hh-one-remote-gps-v1040.test.cjs'
+jobs:
+  remote-gps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check healthhub/hh-one-rag-v500.js
+          node --test healthhub/tests/hh-one-remote-gps-v1040.test.cjs
