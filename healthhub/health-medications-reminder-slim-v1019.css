@@ -1,0 +1,93 @@
+/* v1019 · Gyógyszerek compact reminder on the main screen ONLY.
+   No changes to alarm schedules, enabled flags, medicine selection,
+   reminders, or their settings overlay. Original texts remain in the DOM. */
+
+/* Tighten the container but preserve the card's Premium Glass colors. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard{
+ padding:9px 10px!important;
+ margin:0 0 8px!important;
+ border-radius:16px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.06),0 5px 14px rgba(2,9,26,.12)!important;
+}
+
+/* One short, identifiable heading. Keep the existing bell and
+   "Gyógyszer emlékeztető" label, drop repeated owner and time summary. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock{
+ display:flex!important;
+ align-items:center!important;
+ gap:8px!important;
+ min-height:30px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock .bell{
+ width:30px!important;height:30px!important;flex:0 0 30px!important;
+ border-radius:9px!important;font-size:18px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock small{
+ display:block!important;
+ font:850 10px/1.25 system-ui,sans-serif!important;
+ letter-spacing:.055em!important;
+ color:#ffcae8!important;
+}
+html[data-hh-system-glass="on"][data-hh-system-profile="z"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock small{
+ color:#b7e2ff!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmClock :is(b,span){
+ display:none!important;
+}
+
+/* Keep precisely the scheduled time and its real label.
+   No fake assumptions about how many medicines belong to a reminder. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;
+ padding:0!important;
+ margin:7px 0!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div{
+ box-sizing:border-box!important;
+ min-width:0!important;
+ min-height:58px!important;
+ padding:8px 9px!important;
+ border-radius:12px!important;
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ gap:2px!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div>b{
+ display:block!important;
+ color:#f3faff!important;
+ font:850 16px/1.2 system-ui,sans-serif!important;
+ margin:0!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div>small{
+ display:block!important;
+ color:#d5e8f7!important;
+ font:650 11px/1.25 system-ui,sans-serif!important;
+ margin:0!important;
+ overflow-wrap:anywhere!important;
+}
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div>span{
+ display:none!important;
+}
+
+/* Settings must remain obvious and comfortably tappable. */
+html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard>.hhMedAlarmSetup{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-height:41px!important;
+ padding:9px 10px!important;
+ margin:0!important;
+ border-radius:11px!important;
+ color:#fff!important;
+ font:800 11px/1.3 system-ui,sans-serif!important;
+ cursor:pointer!important;
+}
+@media(max-width:365px){
+ html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div{
+  padding:7px!important;
+ }
+ html[data-hh-system-glass="on"] #healthSection #healthSubContent>.hhMedAlarmCard .hhMedAlarmTimes>div>small{
+  font-size:10px!important;
+ }
+}
