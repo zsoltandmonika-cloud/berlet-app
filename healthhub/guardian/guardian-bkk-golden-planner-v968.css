@@ -257,3 +257,40 @@
 #hhBkkGoldenPlannerV968 :is(#hhBkkGoldenDateTriggerV970,#hhBkkGoldenTimeTriggerV970):focus-visible{
  outline:2px solid var(--gaccent)!important;outline-offset:-2px;border-radius:9px
 }
+
+/* v978 · Soft profile pastel for date/time. 50/50 geometry and full-area
+   native picker triggers unchanged; same shared Family Guard palette. */
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
+ background:linear-gradient(138deg,
+  var(--hhg-panel-start,rgba(223,239,252,.86)),
+  var(--hhg-panel-end,rgba(189,221,246,.78)))!important;
+ border-color:rgba(255,255,255,.85)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.72),
+  0 2px 8px var(--hhg-shadow,rgba(37,63,101,.1));
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968){
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968) > span{
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968) b{
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ border-left-color:rgba(113,105,143,.26)!important;
+}
+:root[data-guardian-profile="m"] #hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ border-left-color:rgba(126,69,108,.24)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ :root[data-guardian-profile="z"] #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
+  background:#dceaf8!important
+ }
+ :root[data-guardian-profile="m"] #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
+  background:#f5e1ee!important
+ }
+}
