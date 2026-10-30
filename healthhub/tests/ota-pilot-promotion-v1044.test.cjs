@@ -29,6 +29,8 @@ test('safe promotion validates manifest, current native app identity and publish
 test('no re-sign/rebuild or unexpected app permission change in promotion',()=>{
  assert.doesNotMatch(workflow,/gradle :app:assemble|gh release create|gh release upload|apksigner sign|keytool|keystore|installPackage|PackageInstaller/);
  assert.match(release,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
+ assert.match(release,/::error::OTA signing not configured/);
+ assert.match(release,/echo "ready=false" >> "\$GITHUB_OUTPUT"\n            exit 1/);
  assert.deepEqual(m.rolloutProfiles,['zsolt','monika']);
  assert.equal(m.version,'0.15.10');
 });
