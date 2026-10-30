@@ -141,3 +141,21 @@ test('v0.15.11+ opens direct native installer in one tap, background navigation 
  view.timers.find(t=>t.ms===1800).fn();
  assert.equal(view.manual.hidden,true,'do not show manual menu after native navigation succeeds');
 });
+
+test('manual OTA failover is ONE native check tap on v0.15.11+, legacy versions stay safe',async()=>{
+ const upToDate=makeRelease('0.15.11',38);
+ const current=await run({build:38,health:'ok',release:upToDate});
+ assert.equal(current.el.dataset.state,'ok');
+ assert.equal(current.el.href,'healthhubconnect://settings?ota=check');
+ const red=await run({build:38,health:'warning',release:upToDate});
+ assert.equal(red.el.dataset.state,'warning');
+ assert.equal(red.el.href,'healthhubconnect://settings?ota=check');
+ const offline=await run({build:38,health:'unknown',error:true});
+ assert.equal(offline.el.dataset.state,'unknown');
+ assert.equal(offline.el.href,'healthhubconnect://settings?ota=check');
+ const old=await run({build:37,health:'ok',release:makeRelease('0.15.10',37)});
+ assert.equal(old.el.href,'healthhubconnect://settings');
+ const untrusted=await run({nativeLaunch:false,release:upToDate});
+ assert.equal(untrusted.el.href,'healthhubconnect://settings');
+ assert.match(native,/u.getQueryParameter\("ota"\) == "check"/);
+});

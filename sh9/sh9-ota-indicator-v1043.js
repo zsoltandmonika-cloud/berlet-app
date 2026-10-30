@@ -18,6 +18,7 @@
  const MANIFEST='../healthhub/data/bridge-ota.json';
  const DIRECT='healthhubconnect://settings?ota=install';
  const SETTINGS='healthhubconnect://settings';
+ const CHECK='healthhubconnect://settings?ota=check';
  const SIX_HOURS=6*60*60*1000;
  const qs=new URLSearchParams(w.location.search);
  const queryBuild=Number(qs.get('hhBuildCode'));
@@ -47,6 +48,9 @@
  const build=cached?.build;
  const owner=cached?.owner;
  const known=!!cached;
+ // One tap on gray/green/red starts native OTA check on HH One 0.15.11+.
+ // Older versions open their familiar HH One settings instead.
+ const manualCheckLink=known&&build>=38?CHECK:SETTINGS;
  function nativeHealth(){
   const seen=Number(cached?.seenAt);
   if(!Number.isFinite(seen)||seen<=0||seen>Date.now()+5000||Date.now()-seen>STATUS_MAX_AGE)return 'unknown';
@@ -60,7 +64,7 @@
   const canDownload=!!approvedRelease;
   manualApk.hidden=!canDownload;
   manualApk.href=canDownload?approvedRelease:'#';
-  manualSettings.href=SETTINGS;
+  manualSettings.href=manualCheckLink;
   manualStatus.textContent=canDownload?
    'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
    'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
@@ -80,7 +84,7 @@
   el.dataset.state=name;
   el.title=message;
   el.setAttribute('aria-label',message);
-  el.href=link||SETTINGS;
+  el.href=link||manualCheckLink;
   detail.textContent=message;
   el.querySelector('.sh9-ota-label-v1043').textContent=
     name==='update'?'FRISSÍTÉS':name==='ok'?'':name==='warning'?'!':'?';
@@ -101,7 +105,7 @@
   last=Date.now();busy=true;approvedRelease=null;
   manualApk.hidden=true;manualApk.href='#';
   if(!known){
-   state('unknown','HH One verziója ezen a felületen nem ellenőrizhető. Nyisd meg a HH One alkalmazást.',SETTINGS);
+   state('unknown','HH One verziója ezen a felületen nem ellenőrizhető. Nyisd meg a HH One alkalmazást.',manualCheckLink);
    busy=false;return;
   }
   try{
@@ -115,19 +119,19 @@
     state('update','FRISSÍTÉS ELÉRHETŐ · HH One v'+m.version+
       ' · egy koppintás a telepítéshez.',build>=38?DIRECT:SETTINGS);
    }else if(service==='warning'){
-    state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',SETTINGS);
+    state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',manualCheckLink);
    }else if(m.versionCode<=build&&service==='ok'){
     state('ok','SH9 SYSTEM OK · HH One naprakész (build '+build+
-      ') és a natív szolgáltatás az indításkor rendben volt. Nem folyamatos mérés.',SETTINGS);
+      ') és a natív szolgáltatás az indításkor rendben volt. Nem folyamatos mérés.',manualCheckLink);
    }else if(m.versionCode<=build){
-    state('unknown','HH One naprakész · a natív szolgáltatás aktuális állapota még nem igazolt.',SETTINGS);
+    state('unknown','HH One naprakész · a natív szolgáltatás aktuális állapota még nem igazolt.',manualCheckLink);
    }else{
-    state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',SETTINGS);
+    state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',manualCheckLink);
    }
   }catch(_){
    if(nativeHealth()==='warning')
-    state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',SETTINGS);
-   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjének megnyitásához.',SETTINGS);
+    state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',manualCheckLink);
+   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjének megnyitásához.',manualCheckLink);
   }finally{busy=false}
  }
  // A still-open page must not keep showing yesterday's healthy boot snapshot.
@@ -135,17 +139,17 @@
   const remaining=Math.max(0,STATUS_MAX_AGE-(Date.now()-cached.seenAt));
   w.setTimeout(()=>{
    if(el.dataset.state==='ok'&&nativeHealth()!=='ok')
-    state('unknown','A telefon natív állapotjelentése már nem friss. Nyisd meg a HH One-t új ellenőrzéshez.',SETTINGS);
+    state('unknown','A telefon natív állapotjelentése már nem friss. Nyisd meg a HH One-t új ellenőrzéshez.',manualCheckLink);
   },Math.min(remaining+1000,STATUS_MAX_AGE+1000));
  }
- state('unknown','HH One frissítés ellenőrzése…',SETTINGS);
+ state('unknown','HH One frissítés ellenőrzése…',manualCheckLink);
  void check(false);
  d.addEventListener('visibilitychange',()=>{if(!d.hidden){
-  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás állapotellenőrzése elöregedett. Koppints a HH One-hoz.',SETTINGS);
+  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás állapotellenőrzése elöregedett. Koppints a HH One-hoz.',manualCheckLink);
   void check(false);
  }});
  w.addEventListener('pageshow',()=>{
-  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás ellenőrzése már nem friss. Koppints a HH One-hoz.',SETTINGS);
+  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás ellenőrzése már nem friss. Koppints a HH One-hoz.',manualCheckLink);
   void check(false);
  });
 })(window,document);
