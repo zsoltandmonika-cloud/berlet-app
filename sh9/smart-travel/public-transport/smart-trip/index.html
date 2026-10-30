@@ -10,6 +10,7 @@
 <link rel="preload" href="./assets/smart-trip-ai-approved-hero-corky-v1030.avif" as="image" type="image/avif">
 <link rel="stylesheet" href="./smart-trip-golden-v1025.css?v=1027-stable-hero-touch-picker">
 <link rel="stylesheet" href="./smart-trip-fixes-v1028.css?v=1029-full-tile-picker">
+<link rel="stylesheet" href="./smart-trip-fullscreen-map-v1032.css?v=1032-true-fullscreen">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
@@ -43,7 +44,7 @@
    </div>
    <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="duration">⚡ Legrövidebb menetidő</option><option value="departure">◷ Legkorábbi indulás</option></select></div>
-   <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">🗺️ Térképen</button></div>
+   <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">Térkép</button></div>
   </form>
   <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
   <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
@@ -60,6 +61,17 @@
  <a href="../../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><small>Admin</small></a>
 </nav>
 <div id="st22Notice" class="st22-notice" role="status" hidden>Az értesítéseket a HealthHub főoldalon tudod kezelni.</div>
+<dialog id="st22MapDialog" aria-label="Smart Trip teljes képernyős térkép" aria-modal="true">
+ <div id="st22MapCanvas" role="application" aria-label="Nagyítható, mozgatható várostérkép"></div>
+ <div class="st22-map-top">
+  <div class="st22-map-heading"><strong>🗺️ Smart Trip AI · Térkép</strong><small>OpenFreeMap · MapLibre</small></div>
+  <button type="button" id="st22MapClose" aria-label="Térkép bezárása">✕ Bezárás</button>
+ </div>
+ <div class="st22-map-bottom" aria-live="polite">
+  <div id="st22MapPlaces" class="st22-map-places"></div>
+  <div id="st22MapStatus" role="status">Térkép megnyitása…</div>
+ </div>
+</dialog>
 
 <!-- v1031: same 40 shared family places as Family Guard, MÁV and Volán.
      Local cache first; authorized cloud refresh uses the existing v972 20-minute TTL.
@@ -70,6 +82,7 @@
 <script src="../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=1031-shared-40-predictive"></script>
 <script src="../mav/rail-gtfs-core-v1.js?v=1022-read-only-routing"></script>
 <script src="../../../../healthhub/golden-standard-avatars-v529.js?v=529"></script>
-<script src="./smart-trip-ai-v1022.js?v=1031-shared-40-favorites"></script>
+<script src="./smart-trip-ai-v1022.js?v=1032-fullscreen-map-selected-places"></script>
+<script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
 </body></html>
