@@ -90,7 +90,14 @@
   const switcher=d.getElementById('guardianProfileSwitch');
   switcher?.addEventListener('click',()=>w.setTimeout?.(onProfileChanged,0));
   w.addEventListener?.('storage',e=>{if(e.key==='hh-profile')onProfileChanged()});
-  w.addEventListener?.('hh-guardian-auth-changed',onProfileChanged);
+  w.addEventListener?.('hh-guardian-auth-changed',()=>{
+   // Refreshing the same verified session is NOT a profile change: preserve
+   // the last measured battery until the next real Dropbox response arrives.
+   const p=getProfile();
+   if(!permitted(auth(),p)){seq++;paint(null);return}
+   if(last&&last.profile!==p){onProfileChanged();return}
+   refresh();
+  });
   d.addEventListener?.('visibilitychange',()=>{if(d.hidden){seq++;paint(null)}else refresh()});
   w.addEventListener?.('pageshow',refresh);
   w.setInterval?.(refresh,30000);
