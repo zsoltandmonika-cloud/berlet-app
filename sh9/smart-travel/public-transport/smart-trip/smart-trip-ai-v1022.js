@@ -112,8 +112,11 @@
   abort(field.key);local[field.key]=null;delete field.input.dataset.st22Chosen;
   const q=field.input.value.trim();const id=++tripCounter;
   if(!q){close(field);return}
-  render(field,suggestions(q));
-  if(q.length<3)return;
+  const known=suggestions(q);
+  render(field,known);
+  // The existing favorite/rail station index is free and instant.
+  // Contact Photon only when the local index cannot offer a useful match.
+  if(q.length<3||known.length)return;
   timers.set(field.key,w.setTimeout(()=>{if(field.input.value.trim()===q)void fetchRemote(field,q,id)},470));
  }
  function wire(field){
