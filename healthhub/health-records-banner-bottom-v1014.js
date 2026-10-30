@@ -1,7 +1,7 @@
-/* v1014 · Leletek: move the existing private-data status banner to the
-   foot of the records field, after its Medical Master card. Presentation only.
+/* v1019 · Leletek + Gyógyszerek: move the existing private-data banner to the
+   end of content (after Medical Master on Leletek). Presentation only.
    The original banner DOM node, text updates and privacy controls are kept.
-   Other HealthRadar subpages retain the normal banner position. */
+   All other HealthRadar subpages retain the normal banner position. */
 (function(w,d){
  'use strict';
  var anchor=null,observed=null,queued=false;
@@ -16,7 +16,7 @@
    anchor=d.createComment('HealthRadar status original position');
    banner.parentNode.insertBefore(anchor,banner);
   }
-  if(w.healthSectionKind==='records'){
+  if(w.healthSectionKind==='records'||w.healthSectionKind==='medications'){
    if(content.nextElementSibling!==banner)content.after(banner);
    banner.dataset.hhRecordsBottom='on';
   }else{
