@@ -9,7 +9,7 @@ const policy=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const android=read('healthhub/android-bridge/app/build.gradle.kts');
 const baseline=JSON.parse(read('healthhub/data/bridge-ota.json'));
 
-test('bus/idle/native relay v0.15.10 derives interval from real measured speed and accuracy only',()=>{
+test('bus/idle/native relay v0.15.11 derives interval from real measured speed and accuracy only',()=>{
  assert.match(policy,/speedMetersPerSecond\?\.takeIf/);
  assert.match(policy,/measuredSpeed >= 2\.8f/);
  assert.match(policy,/accuracyMeters in 0f\.\.40f/);
@@ -33,9 +33,9 @@ test('one active upload, no backlog, bounded network failures, selected phone & 
  assert.match(relay,/uploadLock\.lock\(\)/);
  assert.doesNotMatch(relay,/Supabase|upsert\(|saveTrack|trackHistory/);
 });
-test('signed v0.15.9 remains published until manual gated v0.15.10 release',()=>{
- assert.match(android,/versionCode = 37/);
- assert.match(android,/versionName = "0\.15\.10"/);
- assert.equal(baseline.versionCode,36);
+test('signed v0.15.10 remains published until manual gated v0.15.11 release',()=>{
+ assert.match(android,/versionCode = 38/);
+ assert.match(android,/versionName = "0\.15\.11"/);
+ assert.equal(baseline.versionCode,37);
  assert.equal(baseline.version,'0.15.9');
 });

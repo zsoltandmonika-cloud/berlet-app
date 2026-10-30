@@ -208,6 +208,11 @@ function renderPanel(){
     else if(fixAt&&(!cloudAt||Date.parse(cloudAt)<Date.parse(fixAt)-120000))
       txt('small','⚠ Van helymérés, de nem igazolt friss felhőfeltöltés. Ellenőrizd a Dropboxot és az Eszközregisztert.',line);
    }
+   var net=d.networkStatus||{};
+   if(net.transport)txt('small','📶 Hálózat: '+safeText(net.transport)+
+      ' · internet igazolt: '+(net.internetValidated===true?'igen':net.internetValidated===false?'nem':'ismeretlen'),line);
+   if(Number.isInteger(d.batteryPct))txt('small','🔋 Natív akkumulátorjel: '+d.batteryPct+'% (külön tulajdonosi megosztással)',line);
+   if(d.gpsLastRecoveryAt)txt('small','🔧 Utolsó GPS self-repair kísérlet: '+dt(d.gpsLastRecoveryAt),line);
    txt('small','Agent verzió: '+safeText(d.build||'ismeretlen')+' · OTA ellenőrzés: '+dt(d.otaLastCheckedAt),line);
    if(d.otaCandidateVersion)txt('small','Elérhető OTA jelölt: '+safeText(d.otaCandidateVersion),line);
    if(d.otaLastError)txt('small','OTA hiba: '+safeText(d.otaLastError).slice(0,150),line);
@@ -229,7 +234,16 @@ function renderPanel(){
       ['lastHealthSyncAt','Utolsó sikeres HC sync'],
       ['lastHealthAttemptAt','Utolsó HC kísérlet'],
       ['lastOtaCheckAt','Utolsó OTA ellenőrzés'],
-      ['hasDropboxRefreshToken','Dropbox hitelesítés van']].forEach(function(entry){
+      ['hasDropboxRefreshToken','Dropbox hitelesítés van'],
+      ['remoteAdminAllowed','SH9 Remote Admin engedély'],
+      ['gpsServiceActive','Natív GPS-szolgáltatás fut'],
+      ['gpsContinuousConsent','GPS autostart engedély'],
+      ['gpsBackgroundPermission','Háttérhelyzet engedély'],
+      ['gpsLastFixAt','GPS utolsó fix'],
+      ['gpsLastRecoveryAt','GPS utolsó helyreállítás'],
+      ['gpsUploadStatus','Dropbox feltöltés állapota'],
+      ['gpsLastUploadedAt','Dropbox utolsó feltöltés'],
+      ['batteryPct','Akku megosztott százalék']].forEach(function(entry){
         if(Object.prototype.hasOwnProperty.call(diag,entry[0]))
           txt('small',entry[1]+': '+safeText(diag[entry[0]]).slice(0,95),detail);
       });
@@ -262,6 +276,34 @@ function renderPanel(){
    otaBtn.textContent='📦 OTA CHECK';otaBtn.disabled=!authorized||!canOta||sending||reading;
    otaBtn.title='Ellenőrzött frissítés keresése és telefonos értesítés. NEM automatikus telepítés.';
    otaBtn.addEventListener('click',function(){sendRemote(p,d.deviceId,'ota')});
+   var adminEnabled=authorized&&Number(d.buildCode)>=38&&Array.isArray(d.capabilities)&&
+     ['gps_repair','remote_config','agent_reconcile'].every(function(c){return d.capabilities.includes(c)});
+   var adminHead=txt('strong','🛠️ SH9 Remote Administration · natív Agent',line);
+   adminHead.style.marginTop='12px';
+   var adminSettings=elt('div','hhActions',line);
+   var configSelect=elt('select','',adminSettings);
+   configSelect.setAttribute('aria-label','Távoli GPS frissítési intervallum');
+   [15,30,60].forEach(function(value){
+     var option=elt('option','',configSelect);option.value=String(value);option.textContent='GPS '+value+' mp';
+   });
+   configSelect.value='30';
+   configSelect.disabled=!adminEnabled||reading||sending;
+   var configBtn=elt('button','',adminSettings);configBtn.type='button';
+   configBtn.textContent='⚙ GPS BEÁLLÍTÁS';
+   configBtn.disabled=!adminEnabled||reading||sending;
+   configBtn.addEventListener('click',function(){
+     sendRemote(p,d.deviceId,'remote_config',{gpsIntervalSeconds:Number(configSelect.value)});
+   });
+   [['gps_repair','🔧 GPS SERVICE REPAIR','Csak már jóváhagyott GPS, sem új engedély, sem rejtett helymegosztás'],
+    ['agent_reconcile','↻ SH9 AGENT RECONCILE','SH9 háttérütemezések ellenőrzött helyreállítása']]
+   .forEach(function(op){
+     var b=elt('button','',adminSettings);b.type='button';b.textContent=op[1];
+     b.disabled=!adminEnabled||reading||sending;b.title=op[2];
+     b.addEventListener('click',function(){sendRemote(p,d.deviceId,op[0])});
+   });
+   txt('small',adminEnabled?
+     'Remote Admin engedélyezett. A távoli parancsot a telefon időzítve fogadja; a PENDING/QUEUED nem sikeres GPS-mérés.':
+     'A Remote Adminhoz HH One 0.15.11+ és a telefon tulajdonosának egyszeri engedélye szükséges.',line);
    var familyActions=[
      ['gps_stop','🛑 GPS STOP','Natív GPS leállítás, folytatáshoz új tulajdonosi jóváhagyás'],
      ['gps_resume_request','📍 GPS KÉRÉS','Látható telefonos jóváhagyáskérés, nem kapcsolja be távolról'],
@@ -336,9 +378,9 @@ async function refresh(force){
   state={color:'amber',message:'Kapcsolat nem ellenőrizhető',devices:[],registry:null,connected:connected(),error:safeText(e&&e.message||e).slice(0,170)};
  }finally{reading=false;updateBadge();if($id(PANEL)?.dataset.open==='1')renderPanel()}
 }
-async function sendRemote(owner,id,kind){
+async function sendRemote(owner,id,kind,options){
  if(sending||!isMain()||
-      !['diagnostics','ota','gps_stop','gps_resume_request','sos_contact_request'].includes(kind)||
+      !['diagnostics','ota','gps_stop','gps_resume_request','sos_contact_request','gps_repair','remote_config','agent_reconcile'].includes(kind)||
       !['zsolt','monika'].includes(owner))return;
  try{
   await refresh(true);
@@ -357,18 +399,29 @@ async function sendRemote(owner,id,kind){
   if(['gps_stop','gps_resume_request','sos_contact_request'].includes(kind)&&
      (!Array.isArray(device.capabilities)||!device.capabilities.includes(kind)||Number(device.buildCode)<33))
      throw Error('A telefon még nem engedélyezte ezt a Family Guard műveletet.');
+  if(['gps_repair','remote_config','agent_reconcile'].includes(kind)&&
+     (!Array.isArray(device.capabilities)||!device.capabilities.includes(kind)||Number(device.buildCode)<38))
+    throw Error('SH9 Remote Admin: HH One 0.15.11+ és előzetes telefonos hozzájárulás szükséges.');
+  if(kind==='remote_config'&&(!options||!Number.isInteger(options.gpsIntervalSeconds)||
+      ![15,30,60].includes(options.gpsIntervalSeconds)))
+    throw Error('Érvénytelen GPS-paraméter. Csak 15/30/60 mp.');
   var labels={
      ota:'frissítés ellenőrzését (telepítés NÉLKÜL)',
      diagnostics:'műszaki diagnosztikáját',
      gps_stop:'GPS leállítását, az újraindítási engedély visszavonásával',
      gps_resume_request:'GPS jóváhagyáskérését (NEM indul el távolról)',
-     sos_contact_request:'SOS kapcsolatfelvételi kérését (nincs kamera/mikrofon bekapcsolás)'
+     sos_contact_request:'SOS kapcsolatfelvételi kérését (nincs kamera/mikrofon bekapcsolás)',
+     gps_repair:'GPS-szolgáltatás helyreállítását a korábban engedélyezett keretek között',
+     remote_config:'GPS-intervallum beállítását ('+(options?.gpsIntervalSeconds||'?')+' mp)',
+     agent_reconcile:'SH9 natív háttérfeladatok újraütemezését'
   };
   var label=labels[kind];
   if(!root.confirm('Elindítsuk '+(owner==='monika'?'Mónika':'Zsolt')+
      ' kijelölt telefonján a '+label+'? A telefon késve válaszolhat.'))return;
   sending=true;renderPanel();
-  var response=await root.hhOrchestratorDispatchScope355(owner,id,kind);
+  var response=kind==='remote_config'?
+    await root.hhOrchestratorDispatchScope355(owner,id,kind,options):
+    await root.hhOrchestratorDispatchScope355(owner,id,kind);
   state.feedback='Kérés sorban · '+response.commandId+
     '. A telefon visszaigazolásáig NINCS végrehajtási bizonyíték.';
  }catch(e){state.feedback='Nem sikerült: '+safeText(e&&e.message||e)}

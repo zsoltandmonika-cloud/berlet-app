@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 37
-        versionName = "0.15.10"
-        // v0.15.10/build37 native GPS cadence candidate, above published v0.15.9/build36.
+        versionCode = 38
+        versionName = "0.15.11"
+        // v0.15.11/build38 native Remote Admin candidate above signed OTA v0.15.10/build37.
         // No signed OTA is published by merging: release requires manual approval.
     }
 

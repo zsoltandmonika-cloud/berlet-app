@@ -76,6 +76,11 @@ class OrchestratorWorker(
             .put("activeProfile", owner ?: JSONObject.NULL)
             .put("capabilities", JSONArray().put("health").put("daily").put("ota").also {
                 if (owner != null && OneTechnicalDiagnostics.consent(prefs)) it.put("diagnostics")
+                if (owner != null && OneRemoteAdmin.consent(prefs)) {
+                    it.put("gps_repair")
+                    it.put("remote_config")
+                    it.put("agent_reconcile")
+                }
                 if (owner != null && FamilyGuardContinuity.remoteStopAllowed(applicationContext)) {
                     it.put("gps_stop")
                     it.put("gps_resume_request")
@@ -83,6 +88,9 @@ class OrchestratorWorker(
                 }
             })
             .put("familyGuardGpsAutoRestarts", FamilyGuardContinuity.enabled(applicationContext))
+            .put("remoteAdminAllowed", OneRemoteAdmin.consent(prefs))
+            .put("networkStatus", OneRemoteAdmin.network(applicationContext))
+            .put("batteryPct", OneRemoteAdmin.battery(applicationContext))
             .put("familyGuardNativeGpsActive", Sh9GpsService.active)
             .put("smartLocationEngine", applicationContext.getSharedPreferences(
                 Sh9GpsService.PREFS, Context.MODE_PRIVATE)
@@ -90,9 +98,15 @@ class OrchestratorWorker(
             .put("smartLocationMode", applicationContext.getSharedPreferences(
                 Sh9GpsService.PREFS, Context.MODE_PRIVATE)
                 .getString(Sh9GpsService.KEY_LOCATION_MODE, "not-started"))
-            .put("smartLocationLastFixAt", Sh9GpsService.lastFixAtMillis.takeIf { it > 0L }?.let {
+            .put("smartLocationLastFixAt", maxOf(Sh9GpsService.lastFixAtMillis, applicationContext.getSharedPreferences(
+                    Sh9GpsService.PREFS, Context.MODE_PRIVATE).getLong(Sh9GpsService.KEY_LAST_FIX_AT, 0L)).takeIf { it > 0L }?.let {
                 java.time.Instant.ofEpochMilli(it).toString()
             } ?: JSONObject.NULL)
+            .put("gpsLastRecoveryAt", applicationContext.getSharedPreferences(
+                Sh9GpsService.PREFS, Context.MODE_PRIVATE)
+                .getLong(Sh9GpsService.KEY_LAST_REPAIR_AT, 0L).takeIf { it > 0L }?.let {
+                    java.time.Instant.ofEpochMilli(it).toString()
+                } ?: JSONObject.NULL)
             .put("familyGuardUploadStatus", prefs.getString(
                 FamilyGuardNativeRelay.KEY_RESULT, "not-started"))
             .put("familyGuardLastUploadedAt", prefs.getLong(
@@ -224,7 +238,8 @@ class OrchestratorWorker(
             val actionScopes = scopes(cmd)
             val allowed = setOf("health", "daily", "ota", "diagnostics",
                 "structured", "profile", "devices", "lena",
-                "gps_stop", "gps_resume_request", "sos_contact_request")
+                "gps_stop", "gps_resume_request", "sos_contact_request",
+                "gps_repair", "remote_config", "agent_reconcile")
             val issued = runCatching { java.time.Instant.parse(cmd.getString("issuedAt")) }.getOrNull()
             val deadline = runCatching { java.time.Instant.parse(cmd.getString("expiresAt")) }.getOrNull()
             val now = java.time.Instant.now()
@@ -303,6 +318,34 @@ class OrchestratorWorker(
                 } catch (e: Exception) {
                     failed++
                     steps.put(step("ota", "Software Update", "failed", e.message ?: e.javaClass.simpleName))
+                }
+            }
+
+            if (requestedScopes.any { it in setOf("gps_repair", "remote_config", "agent_reconcile") }) {
+                for (scope in listOf("remote_config", "agent_reconcile", "gps_repair")) {
+                    if (scope !in requestedScopes) continue
+                    if (!OneRemoteAdmin.consent(prefs)) {
+                        failed++
+                        steps.put(step(scope, "SH9 Remote Admin", "rejected", "Tulajdonosi Remote Admin engedély hiányzik."))
+                        continue
+                    }
+                    try {
+                        val outcome = when (scope) {
+                            "remote_config" -> OneRemoteAdmin.configure(applicationContext, prefs, cmd.optJSONObject("config"))
+                            "agent_reconcile" -> OneRemoteAdmin.reconcileJobs(applicationContext, prefs)
+                            else -> OneRemoteAdmin.repairGps(applicationContext, prefs)
+                        }
+                        if (scope == "gps_repair" || scope == "agent_reconcile") {
+                            // Scheduling or requesting a repair is never proof of a fresh GPS fix.
+                            skipped++
+                            steps.put(step(scope, "SH9 Remote Admin", "queued", outcome))
+                        } else {
+                            steps.put(step(scope, "SH9 Remote Config", "done", outcome))
+                        }
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step(scope, "SH9 Remote Admin", "failed", e.javaClass.simpleName))
+                    }
                 }
             }
 

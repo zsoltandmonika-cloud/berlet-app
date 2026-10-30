@@ -1,0 +1,41 @@
+name: SH9 Remote Admin + Family OTA v1041
+on:
+  pull_request:
+    paths:
+      - 'healthhub/android-bridge/**'
+      - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/live-v305.js'
+      - 'healthhub/tests/sh9-remote-admin-v1041.test.cjs'
+      - 'sh9/index.html'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/sh9-ota-indicator-v1043.css'
+      - '.github/workflows/sh9-remote-admin-v1041-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/android-bridge/**'
+      - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/live-v305.js'
+      - 'healthhub/tests/sh9-remote-admin-v1041.test.cjs'
+      - 'sh9/index.html'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/sh9-ota-indicator-v1043.css'
+jobs:
+  admin-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source contracts
+        run: |
+          node --check healthhub/live-v305.js
+          node --check healthhub/hh-one-rag-v500.js
+          node --check healthhub/guardian/guardian-ota-assistant-v1042.js
+          node --check sh9/sh9-ota-indicator-v1043.js
+          node --test healthhub/tests/sh9-remote-admin-v1041.test.cjs

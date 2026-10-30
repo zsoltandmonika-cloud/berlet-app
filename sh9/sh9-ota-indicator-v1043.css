@@ -1,0 +1,36 @@
+/* Official SH9 Start Page: discreet OTA lamp, top-right of the existing hero. */
+.hero{position:relative}
+.sh9-ota-indicator-v1043{
+ position:absolute;top:calc(8px + env(safe-area-inset-top,0px));right:9px;z-index:12;
+ min-height:44px;min-width:44px;max-width:112px;padding:8px 10px;
+ display:flex;align-items:center;justify-content:center;gap:6px;
+ color:#ecf5ff;text-decoration:none;background:rgba(4,19,45,.73);
+ border:1px solid rgba(198,223,255,.48);border-radius:999px;
+ box-shadow:0 3px 13px rgba(0,5,17,.43),inset 0 1px 0 rgba(255,255,255,.18);
+ -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+ font:850 10px/1.1 Inter,system-ui,sans-serif;touch-action:manipulation;
+}
+.sh9-ota-indicator-v1043:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.sh9-ota-led-v1043{
+ flex:none;width:13px;height:13px;border-radius:50%;
+ background:#8b94a5;box-shadow:0 0 0 2px rgba(217,225,234,.23),0 0 7px rgba(165,174,192,.5);
+}
+.sh9-ota-indicator-v1043[data-state="ok"] .sh9-ota-led-v1043{
+ background:#25e3a3;box-shadow:0 0 0 2px rgba(18,171,115,.24),0 0 11px rgba(37,227,163,.85);
+}
+.sh9-ota-indicator-v1043[data-state="update"]{
+ background:rgba(40,33,37,.91);border-color:rgba(255,211,119,.84);
+}
+.sh9-ota-indicator-v1043[data-state="update"] .sh9-ota-led-v1043{
+ background:#ffc345;box-shadow:0 0 0 2px rgba(255,204,74,.32),0 0 13px #ffc344;
+ animation:sh9OtaPulseV1043 1.4s ease-in-out infinite;
+}
+.sh9-ota-indicator-v1043[data-state="warning"]{
+ background:rgba(63,19,37,.91);border-color:rgba(255,136,150,.86);
+}
+.sh9-ota-indicator-v1043[data-state="warning"] .sh9-ota-led-v1043{
+ background:#ff5a70;box-shadow:0 0 0 2px rgba(255,87,107,.26),0 0 13px rgba(255,87,107,.8);
+}
+.sh9-ota-label-v1043:empty{display:none}
+@keyframes sh9OtaPulseV1043{0%,100%{opacity:1}50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.sh9-ota-indicator-v1043 .sh9-ota-led-v1043{animation:none}}

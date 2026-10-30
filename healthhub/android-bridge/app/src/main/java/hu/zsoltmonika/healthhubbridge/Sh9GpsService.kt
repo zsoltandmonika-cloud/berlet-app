@@ -14,6 +14,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.IBinder
 import android.os.Looper
+import android.os.Handler
 import android.os.SystemClock
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -39,6 +40,20 @@ class Sh9GpsService : Service() {
         private const val CHANNEL = "sh9-gps-active-v1"
         private const val NOTIFICATION_ID = 9357
         private val ALLOWED_INTERVALS = setOf(15, 30, 60)
+        const val KEY_LAST_FIX_AT = "last_fix_timestamp_v1041"
+        const val KEY_LAST_REPAIR_AT = "last_stream_repair_timestamp_v1041"
+        @Volatile private var runningInstance: Sh9GpsService? = null
+
+        /** Repair the existing foreground service only; never start a new GPS session. */
+        fun recoverActive(): String {
+            val service = runningInstance ?: return "service-not-running"
+            if (!active || !FamilyGuardContinuity.canRestart(service)) return "not-approved-or-inactive"
+            service.mainHandler.post { service.recoverLocationStream() }
+            return "repair-queued"
+        }
+
+        fun reconfigureActive(): String = recoverActive()
+
 
         @Volatile var active = false
             private set
@@ -61,6 +76,44 @@ class Sh9GpsService : Service() {
         fun stop(context: Context) {
             context.startService(Intent(context, Sh9GpsService::class.java).setAction(ACTION_STOP))
         }
+    }
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var serviceStartedAt = 0L
+    private var recentRepairAt = 0L
+    private var repairWindowAt = 0L
+    private var repairCount = 0
+    private val watchdog = object : Runnable {
+        override fun run() {
+            if (!active || runningInstance !== this@Sh9GpsService) return
+            val current = System.currentTimeMillis()
+            val last = maxOf(serviceStartedAt, lastFixAtMillis)
+            if (FamilyGuardContinuity.canRestart(this@Sh9GpsService) &&
+                current - last > 240_000L && current - recentRepairAt > 15 * 60_000L) {
+                if (current - repairWindowAt > 60 * 60_000L) {
+                    repairWindowAt = current
+                    repairCount = 0
+                }
+                if (repairCount < 2) {
+                    repairCount++
+                    recoverLocationStream()
+                }
+            }
+            mainHandler.postDelayed(this, 90_000L)
+        }
+    }
+    private fun recoverLocationStream() {
+        if (!active || runningInstance !== this || !FamilyGuardContinuity.canRestart(this)) return
+        recentRepairAt = System.currentTimeMillis()
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putLong(KEY_LAST_REPAIR_AT, recentRepairAt).apply()
+        clearSubscriptions()
+        startFused(callbackGeneration)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        runningInstance = this
     }
 
     private var manager: LocationManager? = null
@@ -104,6 +157,12 @@ class Sh9GpsService : Service() {
             createChannel()
             startForeground(NOTIFICATION_ID, notification())
             active = true
+            serviceStartedAt = System.currentTimeMillis()
+            lastFixAtMillis = 0L
+            repairWindowAt = serviceStartedAt
+            repairCount = 0
+            mainHandler.removeCallbacks(watchdog)
+            mainHandler.postDelayed(watchdog, 90_000L)
             startFused(callbackGeneration)
         } catch (_: SecurityException) {
             finishService()
@@ -223,7 +282,8 @@ class Sh9GpsService : Service() {
         previousFix = location
         lastFixAtMillis = System.currentTimeMillis()
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-            .putString(KEY_LOCATION_MODE, smartPolicy.mode.name).apply()
+            .putString(KEY_LOCATION_MODE, smartPolicy.mode.name)
+            .putLong(KEY_LAST_FIX_AT, lastFixAtMillis).apply()
         // The existing consent, owner registry, freshness and Dropbox gates remain unchanged.
         FamilyGuardNativeRelay.publish(this, location, smartPolicy.mode)
         val cb = fusedCallback
@@ -271,6 +331,7 @@ class Sh9GpsService : Service() {
     }
 
     private fun finishService() {
+        mainHandler.removeCallbacks(watchdog)
         active = false
         clearSubscriptions()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -278,6 +339,8 @@ class Sh9GpsService : Service() {
     }
 
     override fun onDestroy() {
+        mainHandler.removeCallbacks(watchdog)
+        if (runningInstance === this) runningInstance = null
         active = false
         clearSubscriptions()
         super.onDestroy()

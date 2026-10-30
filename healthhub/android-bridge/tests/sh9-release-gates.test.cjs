@@ -18,8 +18,8 @@ const version = gradle.match(/versionName\s*=\s*"([^"]+)"/)?.[1];
 
 test('single signed HH One package identity and monotonic staged OTA version', () => {
   assert.match(gradle, /applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.equal(code, 37);
-  assert.equal(version, '0.15.10');
+  assert.equal(code, 38);
+  assert.equal(version, '0.15.11');
   assert.equal(ota.applicationId, 'hu.zsoltmonika.healthhubbridge');
   assert.ok(Number.isInteger(code) && code >= ota.versionCode);
   if (code === ota.versionCode) assert.equal(version, ota.version);
@@ -87,7 +87,8 @@ test('one-tap SH9 startup and safe automatic signed OTA notifications',()=>{
 test('SH9 native browser uses private browser-owned Microsoft session handoff', () => {
   assert.match(shell, /sh9native=1/);
   assert.match(shell, /WebSettings.LOAD_NO_CACHE/);
-  assert.match(shell, /hhfresh=/);
+  // Both the legacy literal URL and the modern Uri.Builder cache-buster work.
+  assert.ok(shell.includes('hhfresh=') || shell.includes('appendQueryParameter("hhfresh"'));
   assert.match(shell, /sh9external/);
   assert.match(shell, /sh9calendar/);
   assert.match(shell, /Intent\.ACTION_VIEW/);
