@@ -42,17 +42,19 @@ class OneTapOtaActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Real 52dp touch targets, not 52 physical pixels on an S24 Ultra.
+        fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(28, 38, 28, 38)
+            setPadding(dp(24), dp(32), dp(24), dp(32))
             setBackgroundColor(Color.rgb(7, 25, 52))
         }
         val heading = TextView(this).apply {
             text = "📦 SH9 · Frissítés"
             textSize = 24f
             setTextColor(Color.WHITE)
-            setPadding(0, 0, 0, 20)
+            setPadding(0, 0, 0, dp(18))
         }
         layout.addView(heading)
         message = TextView(this).apply {
@@ -60,19 +62,19 @@ class OneTapOtaActivity : ComponentActivity() {
             textSize = 16f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 20)
+            setPadding(0, 0, 0, dp(18))
         }
         layout.addView(message)
         retry = Button(this).apply {
             text = "↻ Újrapróbálás"
             isAllCaps = false
-            minHeight = 52
+            minHeight = dp(52)
             setOnClickListener { startUpdate() }
         }
         manual = Button(this).apply {
             text = "🛠 Kézi frissítés"
             isAllCaps = false
-            minHeight = 52
+            minHeight = dp(52)
             setOnClickListener {
                 // Explicit fallback only, never implicit navigation.
                 startActivity(Intent(this@OneTapOtaActivity, MainActivity::class.java)
@@ -85,7 +87,7 @@ class OneTapOtaActivity : ComponentActivity() {
         val cancel = Button(this).apply {
             text = "Bezárás"
             isAllCaps = false
-            minHeight = 48
+            minHeight = dp(48)
             setOnClickListener { finish() }
         }
         layout.addView(cancel)
