@@ -1,0 +1,29 @@
+name: SH9 top-right system health and OTA indicator v1043
+on:
+  pull_request:
+    paths:
+      - 'sh9/index.html'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/sh9-ota-indicator-v1043.css'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt'
+      - 'healthhub/tests/sh9-ota-indicator-v1043.test.cjs'
+      - '.github/workflows/sh9-ota-indicator-v1043-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/index.html'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/sh9-ota-indicator-v1043.css'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt'
+      - 'healthhub/tests/sh9-ota-indicator-v1043.test.cjs'
+jobs:
+  honest-state-and-tap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check sh9/sh9-ota-indicator-v1043.js
+          node --test healthhub/tests/sh9-ota-indicator-v1043.test.cjs
