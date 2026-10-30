@@ -133,6 +133,22 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
       'text-shadow:0 0 16px rgba(95,177,249,.26);pointer-events:none}'+
     '</style>'
   ):'';
+  // v1011: Keep the legacy Home nav DOM for existing show()/page controllers,
+  // but prevent its old white bar from painting before the SH9 dock mounts.
+  // Emergency ?sh9dock=0 and ?hhpremium=0 retain their former behavior.
+  const dockExpected=premiumEntry&&(function(){
+    try{return new URLSearchParams(location.search).get('sh9dock')!=='0'}catch(e){return true}
+  })();
+  const dockPrepaint=dockExpected?(
+    '<style id="hh-dock-prepaint-v1011">'+
+      'html[data-hh-nav-boot="pending"] :is(#navHomeBar,#navHealthBar,#navTimelineBar,#navDetailBar){display:none!important}'+
+      '#navHomeBar,#navHealthBar,#navTimelineBar,#navDetailBar{background:rgba(15,30,54,.97)!important;'+
+      'border-top:1px solid rgba(140,198,243,.25)!important;box-shadow:0 -7px 22px rgba(0,0,0,.25)!important}'+
+      '#navHomeBar button,#navHealthBar button,#navTimelineBar button,#navDetailBar button{'+
+      'color:#b9d0e8!important;background:transparent!important}'+
+    '</style>'
+  ):'';
+  const navBootAttr=dockExpected?' data-hh-nav-boot="pending"':'';
   const hhHomeBoot='<style id="hh-home-static-bootstrap">#heroHome{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important}#heroHome #personHome{display:none!important}#home #heroHome #nameHome{display:none!important}#home #heroHome .heroCopy{top:55px!important}#home #heroHome .heroCopy .screenTitle{font-size:clamp(25px,7vw,30px)!important;font-weight:900!important;line-height:1.12!important;letter-spacing:-.55px!important;margin-top:0!important}#home #heroHome .heroCopy #dateHome{margin-top:11px!important;line-height:1.4!important}#home #heroHome .heroCopy #weatherHome{margin-top:10px!important;line-height:1.4!important}#home #heroHome .heroCopy #namedayHome{margin-top:9px!important;line-height:1.4!important}#heroHome.night,#heroHome.evening{background-image:url("./assets/hero-home-'+hp+'-approved-v215.webp?v=215")!important}</style>';
   // The initial HH ONE badge is HTML, not a late network-dependent script.
   // Amber means "not yet verified", never a false healthy signal.
@@ -143,6 +159,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
   // v537: Consistent Health module display labels, preserving the historical archive
   // and all health records, module routes, backend keys and source identifiers.
   const html=(window.HH_CHUNKS||[]).join('')
+    .replace('<html lang="hu">','<html lang="hu"'+navBootAttr+'>')
     .replaceAll('>HealthRadar</button>','>Egészség</button>')
     .replace('<div class="screenTitle">HealthRadar</div>','<div class="screenTitle">Egészség</div>')
     .replace('<h1>Daily Presidential Briefing</h1>','<h1>Daily Headline</h1>')
@@ -150,7 +167,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
     .replace('<b>HealthRadar</b><small>Orvosi adatok és elemzések</small>',
              '<b>Egészség</b><small>Orvosi adatok és elemzések</small>')
     .replace('<div id="heroH" class="hero">',"<div id=\"heroH\" class=\"hero\"><img class=\"hh-health-approved-image\" src=\"./assets/health-medical-lena-approved-v548.webp?v=548\" alt=\"Léna orvosnő a sötétkék digitális egészségügyi vezérlőteremben, esti Budapest háttérrel\" width=\"1672\" height=\"941\" decoding=\"async\" fetchpriority=\"high\"><button type=\"button\" class=\"hhHealthHeroNativeTap553\" aria-label=\"Profilváltás: koppints a Hero-képre\" onclick=\"if(typeof window.hhHealthHeroNative553Tap==='function')return window.hhHealthHeroNative553Tap(event);if(typeof window.hhToggleProfileOneClick==='function'){window.hhToggleProfileOneClick();return false;}return false;\"></button>")
-    .replace('</head>',shortcutHead+'\n'+hhHomeBoot+noFlashHead+'</head>')
+    .replace('</head>',shortcutHead+'\n'+hhHomeBoot+noFlashHead+dockPrepaint+'</head>')
     .replace(/<body([^>]*)>/i,function(opening){return opening+oneFallback+'<script src="./health-route-tap-v547.js?v=547"><\/script>'});
   // Keep bundled Home untouched: activate only its existing Digital Wellbeing tile.
   const digitalHealthTileLive=html.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"");
@@ -164,6 +181,12 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
   const liveWithWellbeingClick=live.replace('</body>','<script src="./digital-wellbeing-home-link-v435.js?v=435-s24-tile-click"><\/script><script src="./digital-health-nav-bridge-v436.js?v=436-allowlisted-route"><\/script><script src="./hh-one-repair-routing-v503.js?v=503&device=504"><\/script><script src="./hh-one-service-intelligence-v501.js?v=501-level3-advice"><\/script><script src="./hh-one-rag-v500.js?v=504-glass-top-left&repair=503&device=504&fix=755"><\/script><script src="./premium-glass-home-v520.js?v=785-family-live-ask-direct-756"><\/script><script src="./home-hero-info-glass-v522.js?v=528-default-home"><\/script><script src="./premium-home-compact-v525.js?v=544-glass-stack-below-hero"><\/script><script src="./activity-premium-glass-v533.js?v=533.5-activity-loading"><\/script><script src="./health-module-routing-v545.js?v=545-egeszseg-naming-route"><\/script><script src="./health-premium-glass-v546.js?v=546"><\/script><script src="./health-hero-guard-v549.js?v=549"><\/script><script src="./health-interactions-v552.js?v=745-admin-nav"><\/script><script src="./health-hero-native-v553.js?v=553"><\/script><script src="./health-restore-v555.js?v=555"><\/script><script src="./health-quick-grid-v558.js?v=558"><\/script><script src="./health-timeline-entry-v761.js?v=761-submenu"><\/script><script src="./health-kpi-icons-v560.js?v=560"><\/script><script src="./hh-global-glass-v562.js?v=562"><\/script><script src="./ask-lena-chat-enhance-v566.js?v=699-profile-quick-scroll"><\/script><script src="./ask-lena-hero-profile-v589.js?v=589"><\/script><script src="./health-records-diag-v570.js?v=571-stack-trace"><\/script><script src="./health-records-landing-v573.js?v=573"><\/script><script src="./health-measurements-hero-v591.js?v=591"><\/script><script src="./hh-profile-standard-v652.js?v=653-fullscreen-regression-fix"><\/script><script src="./hh-development-charter-admin-v658.js?v=731-dropbox-first-analytics&medicalMaster=715&masterQA=710"><\/script><script src="./hh-mkb-batch-admin-v662.js?v=696-mkb-scope-audit"><\/script><script src="./hh-drive-server-oauth-v683.js?v=689-server-pdf-cleanup"><\/script><script src="./mkb-fact-rules-v670.js?v=671-precise-dates"><\/script><script src="./mkb-lab-rules-v672.js?v=673-minimal-evidence"><\/script><script src="./mkb-timeline-v674.js?v=674-event-grouping"><\/script><script src="./mkb-evidence-audit-v675.js?v=675-sha-proof"><\/script><script src="./mkb-evidence-i10-v698.js?v=699-candidate-integrity&date=704"><\/script><script src="./mkb-full-index-v699.js?v=699-verified-patient-catalog&date=704"><\/script><script src="./hh-mkb-facts-admin-v670.js?v=675-evidence-drilldown"><\/script><script src="./ask-lena-mkb-v676.js?v=699-all-indexed-documents&date=704"><\/script><script src="./mkb-ai-context-v677.js?v=699-source-date-clarity&date=704"><\/script><script src="./hh-pdf-device-audit-v691.js?v=693-sha-audit-counts"><\/script><script src="./medical-master-export-v715.js?v=715-bottom-of-records"><\/script><script src="./hh-chatgpt-dropbox-analytics-v732.js?v=737-scope-safe-diagnostic"><\/script><script src="./hh-chatgpt-manual-export-v738.js?v=738-24h-digital"><\/script><script src="./hh-chatgpt-target-auth-v739.js?v=739-pkce&account=871"><\/script><script src="./hh-chatgpt-target-onboard-v739.js?v=740-target-folder-read"><\/script><script src="./hh-chatgpt-target-probe-v741.js?v=741-readback"><\/script><script src="./hh-chatgpt-profile-sync-v742.js?v=742-profile-optin-verified"><\/script><script src="./hh-project-hours-dropbox-v748.js?v=748-project-hours-sync"><\/script><script src="./hh-architecture-admin-v744.js?v=745-inline-admin-grand-design"><\/script><script src="./hh-unified-admin-v745.js?v=747-sh9-version-center&admin=748"><\/script><script src="./sh9-version-model-v1.js?v=1"><\/script><script src="./sh9-version-center-v1.js?v=1&fix=755"><\/script><script src="./hh-admin-mobile-focus-v748.js?v=748&outlook=2&fix=806&one=752&stable=809&usage=870"><\/script><script src="./hh-service-portal-v806.js?v=806&oauth=1"><\/script><script src="./hh-ask-lena-project-admin-v756.js?v=756"><\/script><link rel="stylesheet" href="./nutrition/hh-observation-rag-v728.css?v=728-inline-bs-aj"><script src="./hh-observation-rag-v728.js?v=728-shared-scale"><\/script><script src="./timeline-truth-v725.js?v=728-inline-bs-aj"><\/script></body>');
   document.write(liveWithWellbeingClick.replace('</body>','<link rel="stylesheet" href="./sh9-unified-nav-v24.css?v=24"><script defer src="./sh9-unified-nav-v24.js?v=24"><\/script><script defer src="../sh9/family-hub/sh9-tasks-golden-v901.js?v=901"><\/script><script defer src="../sh9/family-hub/family-notifier-v880.js?v=915-usage-firebreak"><\/script></body>'));
   document.close();
+  // If the new nav fails to initialize, restore the preserved (dark) legacy
+  // navigation rather than strand a user without working page controls.
+  if(dockExpected)setTimeout(function(){
+    document.documentElement.dataset.hhNavBoot=
+      document.getElementById('sh9GlobalNavV24')?'ready':'fallback';
+  },6500);
   // Reassert the Daily theme on the reconstructed document as well.
   // The app uses document.open/write, so this guard also prevents white-theme fallback.
   try{document.documentElement.dataset.hhDailyGlass=new URLSearchParams(location.search).get('hhdailyglass')==='0'?'off':'on'}catch(e){document.documentElement.dataset.hhDailyGlass='on'}
