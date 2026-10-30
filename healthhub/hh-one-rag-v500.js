@@ -419,7 +419,9 @@ async function sendRemote(owner,id,kind,options){
   if(!root.confirm('Elindítsuk '+(owner==='monika'?'Mónika':'Zsolt')+
      ' kijelölt telefonján a '+label+'? A telefon késve válaszolhat.'))return;
   sending=true;renderPanel();
-  var response=await root.hhOrchestratorDispatchScope355(owner,id,kind,kind==='remote_config'?options:null);
+  var response=kind==='remote_config'?
+    await root.hhOrchestratorDispatchScope355(owner,id,kind,options):
+    await root.hhOrchestratorDispatchScope355(owner,id,kind);
   state.feedback='Kérés sorban · '+response.commandId+
     '. A telefon visszaigazolásáig NINCS végrehajtási bizonyíték.';
  }catch(e){state.feedback='Nem sikerült: '+safeText(e&&e.message||e)}
