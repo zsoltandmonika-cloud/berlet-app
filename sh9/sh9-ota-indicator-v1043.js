@@ -65,7 +65,15 @@
    'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
    'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
  }
- el.addEventListener('click',()=>showManualFallback());
+ // One real tap launches the native installer. Manual failover appears ONLY
+ // if the same page remains visible because Android did not open the handler.
+ el.addEventListener('click',()=>{
+  if(el.dataset.state!=='update')return;
+  manual.hidden=true;
+  w.setTimeout(()=>{
+   if(!d.hidden&&el.dataset.state==='update')showManualFallback();
+  },1800);
+ });
  manualClose.addEventListener('click',()=>{manual.hidden=true;el.focus()});
 
  function state(name,message,link){
@@ -75,7 +83,7 @@
   el.href=link||SETTINGS;
   detail.textContent=message;
   el.querySelector('.sh9-ota-label-v1043').textContent=
-    name==='update'?'UPDATE':name==='ok'?'':name==='warning'?'!':'?';
+    name==='update'?'FRISSÍTÉS':name==='ok'?'':name==='warning'?'!':'?';
  }
  function valid(m){
   if(!m||m.schema!=='healthhub.connect.ota/1'||
@@ -104,8 +112,8 @@
    const service=nativeHealth();
    if(m.versionCode>build&&m.rolloutProfiles.includes(owner)){
     approvedRelease=m.downloadUrl;
-    state('update','SYSTEM UPDATE AVAILABLE · HH One v'+m.version+
-      ' · koppints az ellenőrzött frissítéshez.',build>=38?DIRECT:SETTINGS);
+    state('update','FRISSÍTÉS ELÉRHETŐ · HH One v'+m.version+
+      ' · egy koppintás a telepítéshez.',build>=38?DIRECT:SETTINGS);
    }else if(service==='warning'){
     state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',SETTINGS);
    }else if(m.versionCode<=build&&service==='ok'){
