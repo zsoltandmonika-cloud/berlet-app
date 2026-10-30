@@ -355,10 +355,36 @@ class Sh9WebActivity : ComponentActivity() {
             val profile = getSharedPreferences(SyncScheduler.PREFS, MODE_PRIVATE)
                 .getString("device_owner_profile", null)
                 ?.takeIf { it == "zsolt" || it == "monika" }
+            val prefs = getSharedPreferences(SyncScheduler.PREFS, MODE_PRIVATE)
+            val current = System.currentTimeMillis()
+            val expectingGps = FamilyGuardContinuity.enabled(this) &&
+                FamilyGuardNativeRelay.enabled(this)
+            // This is a momentary, read-only assessment of THIS installed app.
+            // Do not expose coordinates, tokens or health records to the web page.
+            val gpsPrefs = getSharedPreferences(Sh9GpsService.PREFS, MODE_PRIVATE)
+            val lastFix = gpsPrefs.getLong(Sh9GpsService.KEY_LAST_FIX_AT, 0L)
+            val lastUpload = prefs.getLong(FamilyGuardNativeRelay.KEY_LAST_UPLOAD, 0L)
+            val uploadError = prefs.getString(FamilyGuardNativeRelay.KEY_RESULT, "") ?: ""
+            val networkValidated = OneRemoteAdmin.network(this).opt("internetValidated")
+            fun stale(stamp: Long): Boolean = stamp > 0 &&
+                (stamp > current + 5_000L || current - stamp > 6 * 60_000L)
+            val nativeHealth = when {
+                profile == null -> "unknown"
+                networkValidated == false -> "warning"
+                !expectingGps -> "ok"
+                !FamilyGuardContinuity.hasBackgroundLocation(this) -> "warning"
+                !Sh9GpsService.active -> "warning"
+                uploadError.startsWith("network-error:") -> "warning"
+                stale(lastFix) || stale(lastUpload) -> "warning"
+                lastFix == 0L || lastUpload == 0L -> "unknown"
+                else -> "ok"
+            }
             val launcher = Uri.parse(HOME).buildUpon()
                 .appendQueryParameter("hhBuildCode", BuildConfig.VERSION_CODE.toString())
                 .appendQueryParameter("hhOwner", profile ?: "")
-                .appendQueryParameter("hhfresh", System.currentTimeMillis().toString())
+                .appendQueryParameter("hhServiceHealth", nativeHealth)
+                .appendQueryParameter("hhServiceSeenAt", current.toString())
+                .appendQueryParameter("hhfresh", current.toString())
                 .build().toString()
             view.loadUrl(floatingTaskUrl(intent?.data) ?: launcher)
         } else view.restoreState(savedInstanceState)
