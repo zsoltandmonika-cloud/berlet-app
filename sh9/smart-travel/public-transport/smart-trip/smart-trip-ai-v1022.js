@@ -256,6 +256,13 @@
   }
   renderJourneys(rank(result.journeys,query,instant),query,instant);
  }
+ function profileChanged(clearFields){
+  const p=profile();
+  d.documentElement.dataset.st22Profile=p;
+  const button=$('st22Profile');
+  if(button){button.textContent=(p==='m'?'Mónika':'Zsolt')+' ⇄';button.setAttribute('aria-label','Profilváltás: '+(p==='m'?'Mónikáról Zsoltra':'Zsoltról Mónikára'))}
+  if(clearFields){clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
+ }
  function showFamilyMap(){
   clearAll();
   const query=snapshot();
@@ -284,7 +291,13 @@
   const note=$('st22Notice');
   if(note)note.hidden=!note.hidden;
  });
- w.addEventListener('pageshow',()=>{d.documentElement.dataset.st22Profile=profile()});
+ $('st22Profile')?.addEventListener('click',()=>{
+  try{w.localStorage.setItem('hh-profile',profile()==='m'?'z':'m')}catch(_){say('A profilváltás nem menthető a böngészőben.');return}
+  profileChanged(true);
+ });
+ w.addEventListener('pageshow',()=>profileChanged(false));
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile')profileChanged(true)});
+ profileChanged(false);
  updateMode('now');
  w.SH9_SMART_TRIP_AI_V1022=Object.freeze({version:'1022',snapshot,loadRailData,rank});
 })(window,document);
