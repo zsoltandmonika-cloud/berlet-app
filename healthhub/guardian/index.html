@@ -125,6 +125,19 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 }
 </style>
 <title>HealthHub · Family Guard</title>
+<style id="guardian-remote-service-style-v1040">
+/* Small, folded by default; no effect on approved hero, map, or controls. */
+.guardian-remote-service-v1040{margin:9px 0;padding:10px;border:1px solid rgba(157,205,250,.53);border-radius:12px;background:linear-gradient(130deg,rgba(31,66,122,.65),rgba(65,36,100,.5));color:#f4f8ff;backdrop-filter:blur(12px)}
+.guardian-remote-service-v1040 summary{cursor:pointer;min-height:40px;display:flex;align-items:center;padding:4px 6px;font:800 12px/1.25 system-ui;color:#f6efff;touch-action:manipulation}
+.guardian-remote-service-v1040 summary:focus-visible{outline:2px solid #d7e9ff;border-radius:8px}
+.guardian-remote-service-v1040 .guardian-remote-safety-v1040{font:500 11px/1.5 system-ui;color:#e1eafe;margin:9px 0}
+.guardian-remote-service-v1040 pre{margin:10px 0;padding:10px;border:1px solid rgba(168,192,243,.4);border-radius:10px;background:rgba(5,17,49,.52);color:#f6f8ff;white-space:pre-wrap;overflow-wrap:anywhere;font:600 11px/1.5 system-ui;user-select:text}
+.guardian-remote-buttons-v1040{display:flex;gap:7px;flex-wrap:wrap}
+.guardian-remote-buttons-v1040 button{min-height:43px;padding:8px 10px;border:1px solid rgba(204,220,255,.62);border-radius:10px;background:rgba(78,111,164,.65);color:#fff;font:800 11px/1.2 system-ui;touch-action:manipulation}
+.guardian-remote-buttons-v1040 button:disabled{opacity:.43;cursor:not-allowed}
+.guardian-remote-buttons-v1040 button:not(:disabled){cursor:pointer}
+</style>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
@@ -793,6 +806,17 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
    <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
    <p id="guardianSourceStatusV1038" class="guardian-live-note" role="status">📡 Adatcsatorna: ellenőrzésre vár. A privát Dropbox-állapot csak hitelesítés után látható.</p>
+   <details id="guardianRemoteServiceV1040" class="guardian-remote-service-v1040" aria-label="Family Guard távoli diagnosztika és GPS helyreállítás">
+    <summary>🩺 Remote Diagnosis · GPS Service Recovery</summary>
+    <p class="guardian-remote-safety-v1040">📱 A kijelölt telefon valódi natív GPS- és Dropbox-állapota. Csak privát családi hozzáféréssel. A GPS-újraindítást a tulajdonos hagyja jóvá a telefonján.</p>
+    <pre id="guardianRemoteServiceStateV1040" role="status" aria-live="polite">Nyisd meg a diagnosztikát az ellenőrzéshez. Nem indít háttérlekérdezést.</pre>
+    <div class="guardian-remote-buttons-v1040">
+     <button type="button" id="guardianRemoteRefreshV1040">↻ Ellenőrzés</button>
+     <button type="button" id="guardianRemoteDiagV1040" disabled>🩺 Távoli DIAG</button>
+     <button type="button" id="guardianRemoteRestartV1040" disabled>📍 GPS RESTART KÉRÉS</button>
+    </div>
+    <p class="guardian-remote-safety-v1040">Az elküldött kérés nem bizonyítja a végrehajtást. Az Android időzített parancsátvétele késhet. Nem kapcsoljuk be a másik telefon GPS-ét jóváhagyás nélkül.</p>
+   </details>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
    <p class="guardian-live-note">🔒 Az automatikus előtéri induláshoz egyszeri, visszavonható engedély kell minden saját telefonon. Másik profilra váltás nem indít idegen helymegosztást. Leállításkor az automatikus újraindítás is kikapcsol. 20 mp frissítés nélkül a jelölő UTOLSÓ ISMERT HELY állapotra vált (legfeljebb 12 óráig). Tudatos leállításkor a szerveroldali hely törlődik. Lezárt telefonon a böngésző nem végez háttérkövetést.</p>
@@ -853,6 +877,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <script defer src="./guardian-profile-follow-v837.js?v=865-adaptive-continuous-verified-gps&handoff=839&speed=851&smoothing=1004-bus-latency-1005"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
 <script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics"></script>
+<script defer src="./guardian-remote-service-v1040.js?v=1040-private-owner-approved-recovery"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>
