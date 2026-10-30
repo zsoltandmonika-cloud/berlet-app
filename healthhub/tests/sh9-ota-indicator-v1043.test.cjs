@@ -13,7 +13,15 @@ const native=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const ota=JSON.parse(read('healthhub/data/bridge-ota.json'));
 function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,error=false,nativeLaunch=true}={}){
  const led={textContent:''};
- const el={dataset:{state:'unknown'},title:'',href:'',setAttribute(name,value){this[name]=value;},querySelector(){return led}};
+ const handler={};
+ const el={dataset:{state:'unknown'},title:'',href:'',
+   setAttribute(name,value){this[name]=value;},querySelector(){return led},
+   addEventListener(type,callback){handler['indicator:'+type]=callback},focus(){}};
+ const manual={hidden:true};
+ const manualClose={addEventListener(type,callback){handler['close:'+type]=callback}};
+ const manualStatus={textContent:''};
+ const manualSettings={href:''};
+ const manualApk={href:'#',hidden:true};
  const detail={textContent:''};
  const events={};
  const session={};
@@ -24,10 +32,12 @@ function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,
   setTimeout:()=>{},
   addEventListener:(type,fn)=>events[type]=fn
  };
- const d={getElementById:id=>id==='sh9OtaIndicatorV1043'?el:id==='sh9OtaStateV1043'?detail:null,
-  addEventListener:(type,fn)=>events[type]=fn,hidden:false};
+ const elements={sh9OtaIndicatorV1043:el,sh9OtaStateV1043:detail,sh9OtaManualV1044:manual,
+  sh9OtaManualCloseV1044:manualClose,sh9OtaManualStatusV1044:manualStatus,
+  sh9OtaManualSettingsV1044:manualSettings,sh9OtaManualApkV1044:manualApk};
+ const d={getElementById:id=>elements[id]||null,addEventListener:(type,fn)=>events[type]=fn,hidden:false};
  vm.runInNewContext(js,{window:w,document:d,URLSearchParams,Date,Number,JSON,Math,Error,Array,Set});
- return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events})));
+ return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events,handler,manual,manualStatus,manualApk})));
 }
 test('official SH9 layout retains 9 real modules and top-right compact lamp',()=>{
  assert.equal((home.match(/class="tile"/g)||[]).length,9);
@@ -41,6 +51,10 @@ test('official SH9 layout retains 9 real modules and top-right compact lamp',()=
  assert.match(css,/data-state="update"/);
  assert.match(css,/data-state="warning"/);
  assert.match(css,/prefers-reduced-motion/);
+ assert.match(home,/id="sh9OtaManualV1044"/);
+ assert.match(home,/id="sh9OtaManualApkV1044"/);
+ assert.match(css,/min-height:44px;min-width:44px/);
+ assert.match(css,/position:fixed;z-index:101/);
 });
 test('genuine native startup passes a short-lived status, not GPS history or secrets',()=>{
  assert.match(native,/appendQueryParameter\("hhServiceHealth", nativeHealth\)/);
@@ -84,4 +98,29 @@ test('signed update channel only; never downloads or installs automatically',()=
  assert.match(js,/m\.rolloutProfiles\.includes\(owner\)/);
  assert.match(js,/m\.downloadUrl===link/);
  assert.doesNotMatch(js,/openSystemInstaller|fetch\(.+\.apk|eval\(|navigator\.geolocation/);
+});
+
+test('one tap shows manual recovery link, no auto-download, and only a verified owner-approved new APK',async()=>{
+ const release={...ota,versionCode:38,version:'0.15.11',downloadUrl:
+  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.11/HealthHub-Connect-v0.15.11-ota.apk'};
+ const view=await run({build:37,health:'ok',owner:'monika',release});
+ assert.equal(view.manual.hidden,true);
+ assert.equal(view.manualApk.hidden,true);
+ view.handler['indicator:click']();
+ assert.equal(view.manual.hidden,false);
+ assert.equal(view.manualApk.hidden,false);
+ assert.equal(view.manualApk.href,release.downloadUrl);
+ assert.match(view.manualStatus.textContent,/kézi letöltés/);
+ view.handler['close:click']();
+ assert.equal(view.manual.hidden,true);
+ const excluded=await run({build:37,health:'ok',owner:'monika',
+  release:{...release,rolloutProfiles:['zsolt']}});
+ excluded.handler['indicator:click']();
+ assert.equal(excluded.manualApk.hidden,true);
+ const malformed=await run({build:37,health:'ok',release:{...release,downloadUrl:'https://example.com/fake.apk'}});
+ malformed.handler['indicator:click']();
+ assert.equal(malformed.manualApk.hidden,true);
+ const stale=await run({build:38,health:'ok',release});
+ stale.handler['indicator:click']();
+ assert.equal(stale.manualApk.hidden,true);
 });
