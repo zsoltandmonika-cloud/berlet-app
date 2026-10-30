@@ -13,6 +13,7 @@ html[data-hh-records-v1015="on"] #healthSection[data-hh-records-search-v1016="on
  height:38px!important;min-height:38px!important;
  padding:0 10px!important;margin:0!important;
  z-index:26!important;box-sizing:border-box!important;
+ pointer-events:auto!important;text-align:left!important;
  border-radius:999px!important;
  background:rgba(6,20,44,.83)!important;
  border:1px solid rgba(246,174,227,.68)!important;
