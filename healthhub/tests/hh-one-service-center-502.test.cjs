@@ -15,7 +15,7 @@ assert.match(v305,/if\(scope==='ota'&&selected\.some/,'OTA requires compatible C
 assert.match(one,/Number\(d\.buildCode\)>=20/,'OTA should work on current Connect v0.14');
 assert.match(one,/sendRemote\(p,d\.deviceId,'ota'\)/);
 assert.match(one,/sendRemote\(p,d\.deviceId,'diagnostics'\)/);
-assert.match(one,/root\.hhOrchestratorDispatchScope355\(owner,id,kind\)/);
+assert.match(one,/root\.hhOrchestratorDispatchScope355\(owner,id,kind(?:,kind==='remote_config'\?options:null)?\)/);
 assert.match(one,/state\.registry\.activePhones\[owner\]===id/,'prevent sending to other device');
 assert.match(one,/root\.confirm\(/,'operator confirmation required');
 assert.match(one,/NEM automatikus telepítés/);
