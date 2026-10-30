@@ -346,7 +346,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
  :root[data-guardian-profile="m"] #guardianAdminControlsV963{background:#f5e1ee!important}
 }
 </style>
-<link rel="stylesheet" href="./guardian-satellite-v1033.css?v=1033-move-controls-hd-layer">
+<link rel="stylesheet" href="./guardian-satellite-v1033.css?v=1035-remember-key-controls">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -947,13 +947,15 @@ document.addEventListener('click',function(event){
  <p>Az ingyenes MapTiler fiókban készíts böngészős API-kulcsot, és korlátozd a <strong>zsoltandmonika-cloud.github.io</strong> webhelyre. A kulcsot csak ennek a böngészőlapnak a munkamenetében tároljuk, nem a GitHubban.</p>
  <label for="guardianSatelliteKeyV1033">MapTiler API-kulcs</label>
  <input id="guardianSatelliteKeyV1033" type="password" autocomplete="off" spellcheck="false" placeholder="API-kulcs beillesztése" maxlength="160">
+ <label for="guardianSatelliteRememberV1035" class="hh-satellite-remember-v1035"><input type="checkbox" id="guardianSatelliteRememberV1035" checked> <span>Jegyezze meg ezen a készüléken (nem kell újra beírni)</span></label>
  <p id="guardianSatelliteErrorV1033" role="status" aria-live="polite"></p>
  <div class="guardian-sat-actions">
   <button type="button" id="guardianSatelliteSaveV1033">🛰️ Műhold bekapcsolása</button>
   <button type="button" id="guardianSatelliteCancelV1033">Mégsem</button>
+  <button type="button" id="guardianSatelliteForgetV1035">Mentett kulcs törlése</button>
  </div>
  <p style="margin-top:12px"><a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener noreferrer">MapTiler API-kulcsok kezelése</a></p>
 </dialog>
-<script defer src="./guardian-satellite-v1033.js?v=1033-raster-open-key-onclick"></script>
+<script defer src="./guardian-satellite-v1033.js?v=1035-remember-device-key"></script>
 </body>
 </html>
