@@ -19,6 +19,8 @@ const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-
 const AUTO_KEY='hh-guardian-foreground-auto-v786';
 const validIntervals=[1000,3000,5000,10000,30000,60000];
 let user=null,access=[],map=null,peerMarker=null,peerCoord=null,sharing=false,sharingProfile=null;
+// Restored sessions need verification before the login button is exposed.
+let authPending=true;
 let interval=5000,pollTimer=null,polling=false,generation=0,lastUploaded=0,lastSeen=null;
 let uploads=Promise.resolve(),settingsWrites=Promise.resolve(),settingsSignature='',authGeneration=0,authInFlight=false,peerAvailable=false,peerUpdatedAt=null;
 // GPS Data Saver v868: share a short-lived authenticated GPS read between the
@@ -72,9 +74,10 @@ function updateUi(){
  const ownerNotice=$('guardianLiveOwnerHelp811'),ownerFix=$('guardianLiveResolveOwner811');
  if(ownerNotice)ownerNotice.hidden=!ownerMismatch;
  if(ownerFix)ownerFix.hidden=!ownerMismatch;
- set('guardianLiveAuth',user?'Hitelesítve · családi hozzáférés ellenőrizve':'Google-bejelentkezés szükséges');
+ set('guardianLiveAuth',user?'Hitelesítve · családi hozzáférés ellenőrizve':
+  authPending?'Mentett bejelentkezés ellenőrzése…':'Google-bejelentkezés szükséges');
  const login=$('guardianLiveLogin'),logout=$('guardianLiveLogout');
- if(login)login.hidden=!!user;if(logout)logout.hidden=!user;
+ if(login)login.hidden=!!user||authPending;if(logout)logout.hidden=!user;
  const start=$('guardianLiveStart'),stop=$('guardianLiveStop');
  if(start){start.disabled=!meReady||sharing||ownerMismatch;start.hidden=sharing}
  if(stop){stop.disabled=!sharing;stop.hidden=!sharing}
@@ -357,6 +360,20 @@ async function loadSettings(){
   resetPolling();set('guardianLocationSyncStatus','Helybeállítások · frissítési idő betöltve; nézet: Követés + 3D + Család');
  }catch(e){set('guardianLocationSyncStatus','Helybeállítások · felhőkapcsolat nem elérhető: '+(e&&e.message||'hálózat'))}
 }
+// A transient network/provider failure is not evidence of a signed-out user.
+// GPS upload and peer reads remain disabled until user AND profile ACL validate.
+function temporaryAuthError(error){
+ const status=Number(error&&error.status);
+ return w.navigator?.onLine===false||!Number.isFinite(status)||status===0||status===429||status>=500;
+}
+let authRetryTimer=null;
+function scheduleAuthRetry(){
+ if(authRetryTimer!==null||d.hidden)return;
+ authRetryTimer=w.setTimeout(()=>{
+  authRetryTimer=null;
+  if(!user&&w.navigator?.onLine!==false)refreshAuth();
+ },30000); // bounded; no auth request storm
+}
 async function refreshAuth(){
  if(!api||authInFlight)return;
  locationReads.clear();
@@ -364,21 +381,44 @@ async function refreshAuth(){
  const token=++authGeneration;
  try{
   const who=await api.auth.getUser();
-  if(who.error||!who.data||!who.data.user){if(sharing)stopSharing();user=null;access=[];removePeer();setPeerState('Google-bejelentkezés szükséges');msg('A Live működéséhez családi Google-bejelentkezés szükséges.');return}
+  if(who.error||!who.data||!who.data.user){
+   if(sharing)stopSharing();
+   user=null;access=[];removePeer();
+   if(who.error&&temporaryAuthError(who.error)){
+    authPending=true;
+    setPeerState('Mentett bejelentkezés ellenőrzésére várunk');
+    msg('Átmeneti hálózati hiba. A mentett belépést újraellenőrizzük, ne jelentkezz be újra.');
+    scheduleAuthRetry();return;
+   }
+   authPending=false;
+   setPeerState('Google-bejelentkezés szükséges');
+   msg('A Live működéséhez családi Google-bejelentkezés szükséges.');return;
+  }
   const u=who.data.user;
   const {data,error}=await api.from('hh_profile_access').select('profile_key').in('profile_key',['monika','zsolt']);
   if(error)throw error;
   if(token!==authGeneration)return;
   const profileKeys=(data||[]).map(x=>x.profile_key).filter(x=>x==='monika'||x==='zsolt');
   if(sharing&&user&&user.id!==u.id)stopSharing();
-  user=u;access=profileKeys;
+  user=u;access=profileKeys;authPending=false;
   if(!access.includes(self()))msg('Ezzel a fiókkal nincs hozzáférés a kiválasztott profilhoz.');
   else msg('Bejelentkezve. Élő megosztás csak a saját indítógomb megnyomása után.');
   resetPolling();
   await loadSettings();
   maybeAutoStart();
- }catch(e){if(sharing)stopSharing();user=null;access=[];msg('Hitelesítés/hálózat hiba: '+(e&&e.message||'kapcsolat'))}
- finally{authInFlight=false;updateUi();if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'))}
+ }catch(e){
+  if(sharing)stopSharing();
+  user=null;access=[];
+  // A denied/revoked account is not a temporary network problem.
+  authPending=temporaryAuthError(e);
+  msg(authPending?
+   'A mentett belépés ellenőrzése átmenetileg nem elérhető. Megismételjük a próbát.':
+   'A jogosultság ellenőrzése sikertelen; ellenőrizd a Google-belépést.');
+  if(authPending)scheduleAuthRetry();
+ }finally{
+  authInFlight=false;updateUi();
+  if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));
+ }
 }
 function startSharing(){
  const p=self();
@@ -447,7 +487,7 @@ function init(){
   const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
   if(error)msg('Google-belépés nem indítható: '+error.message);
  });
- const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];removePeer();resetPolling();updateUi();msg('Kijelentkezve.');if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));});
+ const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];authPending=false;removePeer();resetPolling();updateUi();msg('Kijelentkezve.');if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));});
  const start=$('guardianLiveStart');if(start)start.addEventListener('click',startSharing);
  const stop=$('guardianLiveStop');if(stop)stop.addEventListener('click',userStopSharing);
  const disable=$('guardianLiveDisableAuto');if(disable)disable.addEventListener('click',userStopSharing);
@@ -475,6 +515,7 @@ function init(){
  // Network recovery gets one immediate authenticated read; the normal
  // timer remains in charge afterwards. Poll() already deduplicates.
  w.addEventListener('online',()=>{
+  if(!d.hidden&&!user&&api)refreshAuth();
   if(!d.hidden&&user&&pollTimer!==null){
    locationReads.clear();poll();
   }

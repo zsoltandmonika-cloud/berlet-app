@@ -1309,11 +1309,15 @@ test('v827 foreground resumes approved owner after temporary auth loss, never an
  assert.equal(follows,0,'transient auth failure must not begin GPS/host upload');
  assert.equal(authCalls,1);
  assert.match(controls.guardianLiveAutoStatus.textContent,/Google-bejelentkezés/);
+ assert.equal(controls.guardianLiveLogin.hidden,true,'temporary offline check must not ask for a new Google login');
+ assert.match(controls.guardianLiveAuth.textContent,/Mentett bejelentkezés ellenőrzése/);
  windowListeners.pageshow();
  await new Promise(resolve=>setImmediate(resolve));
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(authCalls,2,'foreground retry rechecks auth');
  assert.equal(follows,1,'same already consented Monika phone resumes location');
+ assert.equal(controls.guardianLiveLogin.hidden,true,'restored session must not show login');
+ assert.match(controls.guardianLiveAuth.textContent,/Hitelesítve/);
  assert.equal(dialogs,0,'no repeat permission dialog');
  store['hh-profile']='z';
  windowListeners.storage({key:'hh-profile'});
@@ -1342,4 +1346,14 @@ test('v827 clearly distinguishes GPS follow camera from authorized automatic GPS
  assert.match(guardian,/if\(!active\)\{start\(\);return\}/,'only consented owner can call startFollowing');
  assert.match(html,/id="guardianLiveAutoStatus"/);
  assert.doesNotMatch(live,/service_role|sb_secret_/);
+});
+
+
+test('v1036 Guardian and Buddy notifier reuse a single persisted auth client',()=>{
+ const live=read('guardian/guardian-live-v785.js');
+ const note=read('../sh9/family-hub/family-notifier-v880.js');
+ assert.match(live,/storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true/);
+ assert.match(note,/HH_GUARDIAN_LIVE_V785\?\.getClient\?\.\(\)\|\|w\.supabase\.createClient/);
+ assert.match(live,/function scheduleAuthRetry\(\)/);
+ assert.match(live,/authPending\?'Mentett bejelentkezés ellenőrzése/);
 });

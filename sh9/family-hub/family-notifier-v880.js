@@ -25,7 +25,9 @@ async function ensureApi(){
   if(!w.supabase?.createClient)await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js');
   const cfg=w.HH_CENTRAL_VAULT;
   if(!cfg?.enabled||!w.supabase?.createClient)return false;
-  api=w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{
+  // Reuse Guardian's session client on its own page: multiple auto-refreshing
+  // clients must not compete to rotate the same persisted OAuth refresh token.
+  api=w.HH_GUARDIAN_LIVE_V785?.getClient?.()||w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{
    storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'
   }});
   api.auth.onAuthStateChange((event,session)=>{
