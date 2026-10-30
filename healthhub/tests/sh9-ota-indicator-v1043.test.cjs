@@ -25,11 +25,12 @@ function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,
  const detail={textContent:''};
  const events={};
  const session={};
+ const timers=[];
  const w={
   location:{search:nativeLaunch?'?sh9native=1&hhBuildCode='+build+'&hhOwner='+owner+'&hhServiceHealth='+health+'&hhServiceSeenAt='+seenAt:''},
   sessionStorage:{getItem:k=>session[k]||null,setItem:(k,v)=>{session[k]=v}},
   fetch:async()=>{if(error)throw Error('offline');return {ok:true,json:async()=>release}},
-  setTimeout:()=>{},
+  setTimeout:(fn,ms)=>timers.push({fn,ms}),
   addEventListener:(type,fn)=>events[type]=fn
  };
  const elements={sh9OtaIndicatorV1043:el,sh9OtaStateV1043:detail,sh9OtaManualV1044:manual,
@@ -37,7 +38,7 @@ function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,
   sh9OtaManualSettingsV1044:manualSettings,sh9OtaManualApkV1044:manualApk};
  const d={getElementById:id=>elements[id]||null,addEventListener:(type,fn)=>events[type]=fn,hidden:false};
  vm.runInNewContext(js,{window:w,document:d,URLSearchParams,Date,Number,JSON,Math,Error,Array,Set});
- return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events,handler,manual,manualStatus,manualApk})));
+ return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events,handler,manual,manualStatus,manualApk,timers,document:d})));
 }
 test('official SH9 layout retains 9 real modules and top-right compact lamp',()=>{
  assert.equal((home.match(/class="tile"/g)||[]).length,9);
@@ -76,7 +77,7 @@ test('amber pulse only if newer signed OTA is approved for the actual owner',asy
   'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.11/HealthHub-Connect-v0.15.11-ota.apk'};
  const {el,detail}=await run({build:37,health:'ok',release});
  assert.equal(el.dataset.state,'update');
- assert.match(detail.textContent,/SYSTEM UPDATE AVAILABLE/);
+ assert.match(detail.textContent,/FRISSÍTÉS ELÉRHETŐ/);
  assert.match(el.href,/healthhubconnect:\/\/settings/);
  assert.doesNotMatch(el.href,/\.apk$/);
 });
@@ -100,13 +101,16 @@ test('signed update channel only; never downloads or installs automatically',()=
  assert.doesNotMatch(js,/openSystemInstaller|fetch\(.+\.apk|eval\(|navigator\.geolocation/);
 });
 
-test('one tap shows manual recovery link, no auto-download, and only a verified owner-approved new APK',async()=>{
+test('one tap tries installer directly; manual is visible only on failed handler, and verified owner APK',async()=>{
  const release={...ota,versionCode:38,version:'0.15.11',downloadUrl:
   'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.11/HealthHub-Connect-v0.15.11-ota.apk'};
  const view=await run({build:37,health:'ok',owner:'monika',release});
  assert.equal(view.manual.hidden,true);
  assert.equal(view.manualApk.hidden,true);
  view.handler['indicator:click']();
+ assert.equal(view.manual.hidden,true,'tap MUST NOT show manual menu before the app handoff');
+ assert.ok(view.timers.some(t=>t.ms===1800));
+ view.timers.find(t=>t.ms===1800).fn();
  assert.equal(view.manual.hidden,false);
  assert.equal(view.manualApk.hidden,false);
  assert.equal(view.manualApk.href,release.downloadUrl);
@@ -123,4 +127,15 @@ test('one tap shows manual recovery link, no auto-download, and only a verified 
  const stale=await run({build:38,health:'ok',release});
  stale.handler['indicator:click']();
  assert.equal(stale.manualApk.hidden,true);
+});
+
+test('v0.15.11+ opens direct native installer in one tap, background navigation hides fallback',async()=>{
+ const release={...ota,versionCode:39,version:'0.15.12',downloadUrl:
+  'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.12/HealthHub-Connect-v0.15.12-ota.apk'};
+ const view=await run({build:38,health:'ok',owner:'zsolt',release});
+ assert.equal(view.el.href,'healthhubconnect://settings?ota=install');
+ view.handler['indicator:click']();
+ view.document.hidden=true;
+ view.timers.find(t=>t.ms===1800).fn();
+ assert.equal(view.manual.hidden,true,'do not show manual menu after native navigation succeeds');
 });
