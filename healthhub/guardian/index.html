@@ -346,6 +346,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
  :root[data-guardian-profile="m"] #guardianAdminControlsV963{background:#f5e1ee!important}
 }
 </style>
+<link rel="stylesheet" href="./guardian-satellite-v1033.css?v=1033-move-controls-hd-layer">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -442,7 +443,9 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
   </button>
   <button id="guardianFollow" class="map-follow" type="button" aria-pressed="true" aria-label="Saját pozíció követése"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span><span class="guardian-control-text">Követés</span></button>
   <button id="guardian3D" class="map-3d" type="button" aria-pressed="true" aria-label="Térkép 3D nézete"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></svg></span><span class="guardian-control-text">3D</span></button>
+  <button id="guardianSatelliteV1033" class="map-satellite" type="button" aria-pressed="false" aria-label="Műholdnézet bekapcsolása"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="8" rx="1.2" transform="rotate(45 12 6.5)"/><path d="M6 11.5a8 8 0 0 0 6.5 6.5M9 10a4.8 4.8 0 0 0 5 5M15.5 18.5l4 4M12 18l2.6-2.6"/><path d="m8.2 6.9-3.5 3.5"/></svg></span><span class="guardian-control-text">Műhold</span></button>
   <button id="guardianFamilyButton" class="map-family" type="button" aria-expanded="true" aria-controls="guardianFamilyPanel"><span class="guardian-control-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19v-2.2A4.8 4.8 0 0 1 8.3 12h1.4a4.8 4.8 0 0 1 4.8 4.8V19"/><path d="M16.5 5.5a3 3 0 0 1 0 5.8M17.5 13.1a4.6 4.6 0 0 1 3 4.4V19"/></svg></span><span class="guardian-control-text">Család</span></button>
+  <a id="guardianSatelliteLogoV1033" hidden href="https://www.maptiler.com/" target="_blank" rel="noopener noreferrer" aria-label="MapTiler műholdas térkép"><img id="guardianSatelliteLogoImgV1033" data-src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler" width="85" height="24"></a>
   <div id="guardianLandmarkHint" class="guardian-landmark-hint" hidden role="status">📍 Koppints a térképre a kívánt helyen</div>
   <button type="button" id="guardianMapSearchExitV819" class="hh-map-search-exit-v819" hidden aria-label="Teljes képernyős térkép bezárása">← Vissza a Family Guardhoz</button>
   <div id="guardianMapSearchV819" class="hh-map-search-v819" role="search" aria-label="Címkeresés a Family Guard térképén">
@@ -937,5 +940,20 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
+
+<dialog id="guardianSatelliteConfigV1033" aria-labelledby="guardianSatelliteTitleV1033">
+ <h3 id="guardianSatelliteTitleV1033">🛰️ HD műholdkép · MapTiler</h3>
+ <p>A műholdnézet külön képrétegként kapcsolható be. A GPS, a családjelölők és a 3D térkép változatlanok maradnak. A képek letöltése beleszámít a MapTiler használati keretébe.</p>
+ <p>Az ingyenes MapTiler fiókban készíts böngészős API-kulcsot, és korlátozd a <strong>zsoltandmonika-cloud.github.io</strong> webhelyre. A kulcsot csak ennek a böngészőlapnak a munkamenetében tároljuk, nem a GitHubban.</p>
+ <label for="guardianSatelliteKeyV1033">MapTiler API-kulcs</label>
+ <input id="guardianSatelliteKeyV1033" type="password" autocomplete="off" spellcheck="false" placeholder="API-kulcs beillesztése" maxlength="160">
+ <p id="guardianSatelliteErrorV1033" role="status" aria-live="polite"></p>
+ <div class="guardian-sat-actions">
+  <button type="button" id="guardianSatelliteSaveV1033">🛰️ Műhold bekapcsolása</button>
+  <button type="button" id="guardianSatelliteCancelV1033">Mégsem</button>
+ </div>
+ <p style="margin-top:12px"><a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener noreferrer">MapTiler API-kulcsok kezelése</a></p>
+</dialog>
+<script defer src="./guardian-satellite-v1033.js?v=1033-raster-open-key-onclick"></script>
 </body>
 </html>
