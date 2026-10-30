@@ -354,6 +354,12 @@ class MainActivity : ComponentActivity() {
                 // User explicitly requested the native HH One screen.
                 // Its existing controls are already visible; no automatic SH9 launch.
                 status.text = "✓ HH One natív beállítások · szinkron, GPS, OTA."
+                // Only a visible, explicitly tapped deep link can invoke quick OTA.
+                // OtaUpdateManager revalidates owner rollout, version, signer and SHA-256.
+                when (data.getQueryParameter("ota")) {
+                    "install" -> installOta()
+                    "check" -> checkOta(true)
+                }
             }
         }
     }
