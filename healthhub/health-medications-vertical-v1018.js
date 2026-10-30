@@ -38,6 +38,16 @@
   track.dataset.hhMedicationsVertical='on';
   track.setAttribute('aria-label','Gyógyszerek · függőleges lista');
   var rows=Array.from(track.querySelectorAll('.hhRsmCard'));
+  var chips=toolbar&&toolbar.querySelector('.hhRsmChips');
+  if(chips&&chips.dataset.hhMeds1018SearchSync!=='on'){
+   chips.dataset.hhMeds1018SearchSync='on';
+   // v592 stops click propagation at the chip; capture + microtask lets its
+   // original category filter run first, then intersects the text search.
+   chips.addEventListener('click',function(e){
+    if(e.target&&e.target.closest&&e.target.closest('.hhRsmChip'))
+     Promise.resolve().then(decorate);
+   },true);
+  }
   rows.forEach(function(row){
    if(row.dataset.hhMedCardV1018==='on')return;
    row.dataset.hhMedCardV1018='on';
@@ -70,8 +80,11 @@
   var total=0;
   rows.forEach(function(row){
    if(q){
-    var title=row.querySelector('b'),meta=row.querySelector('small'),tag=row.querySelector('.hrTag');
-    var combined=[title&&title.textContent,meta&&meta.textContent,tag&&tag.textContent].join(' ');
+    var title=row.querySelector('b'),tag=row.querySelector('.hrTag');
+    var medText=Array.from(row.querySelectorAll('small')).find(function(node){
+     return !node.classList.contains('hhMeds1018Status');
+    });
+    var combined=[title&&title.textContent,medText&&medText.textContent,tag&&tag.textContent].join(' ');
     if(!normalize(combined).includes(q))row.hidden=true;
    }
    if(!row.hidden)total++;
