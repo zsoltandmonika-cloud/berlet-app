@@ -4,6 +4,7 @@ on:
     paths:
       - 'healthhub/hh-one-rag-v500.js'
       - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-remote-service-v1040.js'
       - 'healthhub/index.html'
       - 'healthhub/digital-health/index.html'
       - 'healthhub/tests/hh-one-remote-gps-v1040.test.cjs'
@@ -13,6 +14,7 @@ on:
     paths:
       - 'healthhub/hh-one-rag-v500.js'
       - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-remote-service-v1040.js'
       - 'healthhub/index.html'
       - 'healthhub/digital-health/index.html'
       - 'healthhub/tests/hh-one-remote-gps-v1040.test.cjs'
@@ -26,4 +28,5 @@ jobs:
           node-version: '22'
       - run: |
           node --check healthhub/hh-one-rag-v500.js
+          node --check healthhub/guardian/guardian-remote-service-v1040.js
           node --test healthhub/tests/hh-one-remote-gps-v1040.test.cjs
