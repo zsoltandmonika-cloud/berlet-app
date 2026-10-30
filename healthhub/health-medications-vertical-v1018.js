@@ -59,8 +59,9 @@
    badge.appendChild(make('small','hhMeds1018Status',value||'Gyógyszer'));
    badge.setAttribute('aria-label',value||'Gyógyszer');
    var statusCode=normalize(value);
-   badge.dataset.hhMedStatus=statusCode.includes('aktualis')||statusCode.includes('aktiv')?'current'
-    :statusCode.includes('korabbi')||statusCode.includes('inaktiv')||statusCode.includes('nem szedi')?'past':'other';
+   var isPast=/korabbi|inaktiv|nem szedi|elhagyott|megszunt|leallitott/.test(statusCode);
+   badge.dataset.hhMedStatus=isPast?'past'
+    :/aktualis|aktiv/.test(statusCode)?'current':'other';
    row.insertBefore(badge,row.firstChild);
    // Preserve original status node for the canonical quick-filter logic.
    var buttons=row.querySelector('.hhRsmActions');
