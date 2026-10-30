@@ -348,10 +348,20 @@ class Sh9WebActivity : ComponentActivity() {
         setContentView(view)
         // Timestamp affects only the public SH9 entry document. Relative
         // module routes remain the same first-party GitHub Pages paths.
-        if (savedInstanceState == null)
-            view.loadUrl(floatingTaskUrl(intent?.data) ?:
-                (HOME + "&hhfresh=" + System.currentTimeMillis()))
-        else view.restoreState(savedInstanceState)
+        if (savedInstanceState == null) {
+            // Only display metadata, never an authorization token or admin capability.
+            // The SH9 status light compares this installed version to the signed OTA
+            // manifest; Android still independently verifies every installation.
+            val profile = getSharedPreferences(SyncScheduler.PREFS, MODE_PRIVATE)
+                .getString("device_owner_profile", null)
+                ?.takeIf { it == "zsolt" || it == "monika" }
+            val launcher = Uri.parse(HOME).buildUpon()
+                .appendQueryParameter("hhBuildCode", BuildConfig.VERSION_CODE.toString())
+                .appendQueryParameter("hhOwner", profile ?: "")
+                .appendQueryParameter("hhfresh", System.currentTimeMillis().toString())
+                .build().toString()
+            view.loadUrl(floatingTaskUrl(intent?.data) ?: launcher)
+        } else view.restoreState(savedInstanceState)
     }
 
     private fun hideBars() {
