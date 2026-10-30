@@ -7,20 +7,14 @@
  'use strict';
  var expected='Gyógyszerek',observer=null,observed=null,queued=false;
  function label(){
-  var buttons=Array.from(d.querySelectorAll('#health .quick .q'));
-  if(!buttons.length)return null;
-  var b=buttons.find(function(x){return /gy[oó]gyszer/i.test(x.textContent||'')})||buttons[2];
-  if(!b)return null;
-  return Array.from(b.children).find(function(x){
-   return x.tagName==='SPAN'&&!x.classList.contains('qbox');
-  })||null;
+  // The launcher is in Premium Home, NOT the inner Egészség quick grid.
+  return d.querySelector('#home .hhpg-tile[data-key="meds"] .hhpg-label');
  }
  function clean(){
   var target=label();
   if(!target)return;
   if(target.textContent.trim()!==expected)target.textContent=expected;
-  if(!target.parentNode.getAttribute('aria-label'))
-   target.parentNode.setAttribute('aria-label',expected);
+  target.parentNode.setAttribute('aria-label',expected+' megnyitása');
   if(observed===target)return;
   if(observer)observer.disconnect();
   observed=target;
@@ -36,9 +30,9 @@
   });
  }
  function init(){
-  if(!d.getElementById('health'))return;
+  if(!d.getElementById('home'))return;
   var s=d.createElement('style');s.id='hhMedsLauncherV1020Style';
-  s.textContent='#health .quick .q:nth-child(3)>span:not(.qbox){white-space:nowrap!important;font-size:11px!important;letter-spacing:-.02em!important;overflow:visible!important}';
+  s.textContent='#home .hhpg-tile[data-key="meds"] .hhpg-label{white-space:nowrap!important;font-size:11px!important;letter-spacing:-.025em!important;max-width:100%!important;overflow:visible!important}';
   if(!d.getElementById(s.id))d.head.appendChild(s);
   clean();w.addEventListener('pageshow',queue);w.addEventListener('healthhub:profile-changed',queue);
  }
