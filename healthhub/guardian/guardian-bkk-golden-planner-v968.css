@@ -135,7 +135,7 @@
 }
 #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubSwapV806 span{display:none!important}
 #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
- display:grid;grid-template-columns:1.55fr 1fr;gap:0;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;
  min-width:0;height:68px;border:1px solid var(--goutline);border-radius:9px;
  background:linear-gradient(120deg,rgba(51,73,117,.82),rgba(41,31,70,.89))
 }
