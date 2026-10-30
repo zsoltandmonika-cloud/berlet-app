@@ -125,6 +125,19 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 }
 </style>
 <title>HealthHub · Family Guard</title>
+<style id="guardian-ota-style-v1042">
+.guardian-hero .guardian-ota-alert-v1042{position:absolute;z-index:8;right:11px;top:8px;display:flex;align-items:center;gap:7px;padding:8px 11px;min-height:36px;background:linear-gradient(110deg,rgba(19,41,87,.90),rgba(74,43,97,.88));color:#fff;border:1px solid rgba(243,213,255,.76);border-radius:999px;box-shadow:0 4px 16px rgba(13,18,41,.25);font:800 11px/1.15 system-ui;text-decoration:none;backdrop-filter:blur(13px)}
+.guardian-hero .guardian-ota-alert-v1042[hidden]{display:none!important}
+.guardian-ota-dot-v1042{width:9px;height:9px;border-radius:50%;background:#f1b540;box-shadow:0 0 7px #ffba38;animation:hhGuardianOtaBlink 1.65s ease-in-out infinite}
+@keyframes hhGuardianOtaBlink{0%,100%{opacity:1}50%{opacity:.32}}
+@media (prefers-reduced-motion:reduce){.guardian-ota-dot-v1042{animation:none}}
+.guardian-ota-status-v1042{padding:9px;border:1px solid rgba(188,219,245,.5);border-radius:12px}
+.guardian-ota-status-v1042 p{margin:6px 0;color:inherit;font:600 12px/1.5 system-ui}
+.guardian-ota-status-v1042 button,.guardian-ota-status-v1042 a{display:inline-block;min-height:42px;margin:4px 7px 7px 0;padding:9px 12px;border:1px solid rgba(169,190,238,.7);border-radius:10px;background:rgba(72,109,157,.6);color:inherit;font:800 12px/1.25 system-ui;text-decoration:none}
+.guardian-ota-status-v1042 a[hidden]{display:none!important}
+.guardian-ota-status-v1042 small{display:block;font:500 11px/1.5 system-ui}
+</style>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="./guardian.css?v=761-first-map">
 <link rel="stylesheet" href="./guardian-golden-v762.css?v=762-glass-map">
@@ -418,6 +431,9 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
      </span>
      <span class="hh-health-popup-explain-v845" id="guardianHealthNoteV845">Tájékoztató státusz · koppints a becsukáshoz</span>
    </button>
+  <a id="guardianOtaAlertV1042" class="guardian-ota-alert-v1042" hidden href="#" aria-label="HH One új frissítés elérhető">
+    <span class="guardian-ota-dot-v1042" aria-hidden="true"></span><span>📦 HH One UPDATE</span>
+  </a>
   <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
    <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
    <div class="guardian-hero-monitor-members">
@@ -793,6 +809,13 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
    <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
    <p id="guardianSourceStatusV1038" class="guardian-live-note" role="status">📡 Adatcsatorna: ellenőrzésre vár. A privát Dropbox-állapot csak hitelesítés után látható.</p>
+   <div class="guardian-live-note guardian-ota-status-v1042">
+    <strong>📦 HH One · Quick Update</strong>
+    <p id="guardianOtaStatusV1042" role="status">Verzió-ellenőrzés az oldal megnyitásakor. Csak hitelesített telefonjelentés alapján jelez.</p>
+    <button type="button" id="guardianOtaCheckV1042">↻ Frissítés ellenőrzése</button>
+    <a id="guardianOtaOpenV1042" href="#" hidden>📥 Letöltés és telepítés</a>
+    <small>Az OTA az adott telefonon indul; Android-telepítési jóváhagyás szükséges. A Remote Admin csak külön telefonos engedéllyel aktiválható.</small>
+   </div>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
    <p class="guardian-live-note">🔒 Az automatikus előtéri induláshoz egyszeri, visszavonható engedély kell minden saját telefonon. Másik profilra váltás nem indít idegen helymegosztást. Leállításkor az automatikus újraindítás is kikapcsol. 20 mp frissítés nélkül a jelölő UTOLSÓ ISMERT HELY állapotra vált (legfeljebb 12 óráig). Tudatos leállításkor a szerveroldali hely törlődik. Lezárt telefonon a böngésző nem végez háttérkövetést.</p>
@@ -958,5 +981,6 @@ document.addEventListener('click',function(event){
  <p style="margin-top:12px"><a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener noreferrer">MapTiler API-kulcsok kezelése</a></p>
 </dialog>
 <script defer src="./guardian-satellite-v1033.js?v=1035-remember-device-key"></script>
+<script defer src="./guardian-ota-assistant-v1042.js?v=1042-signed-owner-verified-quick-update"></script>
 </body>
 </html>
