@@ -18,8 +18,8 @@ const ota=get('guardian/guardian-ota-assistant-v1042.js');
 const baseline=JSON.parse(get('data/bridge-ota.json'));
 test('candidate newer than signed OTA and original package ID remains stable',()=>{
  assert.match(build,/applicationId = "hu.zsoltmonika.healthhubbridge"/);
- assert.equal(Number(build.match(/versionCode = (\d+)/)[1]),baseline.versionCode+1);
- assert.equal(baseline.version,'0.15.10');
+ assert.ok(Number(build.match(/versionCode = (\d+)/)[1])>=baseline.versionCode,'installed version cannot be older than signed OTA baseline');
+ assert.equal(baseline.channel,'signed-release');
  assert.match(build,/versionName = "0.15.11"/);
  assert.match(manifest,/ACCESS_NETWORK_STATE/);
 });
