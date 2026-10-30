@@ -245,17 +245,22 @@ async function render(profileOverride){
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
   syncProfileTheme(requestedProfile);
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése, egy pillanat...</div></div>'+nav();
- var raw=await load(requestedProfile);
+ // v1013: independent source reads run concurrently rather than
+ // serializing the Health Connect Dropbox, height and Samsung Dropbox waits.
+ // Preserve all profile/freshness checks and Samsung's original merge.
+ var distEngine=window.HH_DISTANCE_ENGINE_V369,samsungApi=window.HH_SAMSUNG_SOURCE_V371;
+ var heightPromise=distEngine&&distEngine.height?
+  Promise.resolve().then(function(){return distEngine.height(requestedProfile)}).catch(function(){return null}):
+  Promise.resolve(null);
+ var samsungPromise=samsungApi&&samsungApi.load?
+  Promise.resolve().then(function(){return samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT)})
+   .catch(function(){return {status:'unavailable',data:null,profile:requestedProfile}}):
+  Promise.resolve({status:'not_configured',data:null,profile:requestedProfile});
+ var sources=await Promise.all([load(requestedProfile),heightPromise,samsungPromise]);
  if(renderId!==activityRenderSeq)return;
- var profileHeight=null,distEngine=window.HH_DISTANCE_ENGINE_V369;
- if(distEngine&&distEngine.height){try{profileHeight=await distEngine.height(requestedProfile)}catch(e){}}
- if(renderId!==activityRenderSeq)return;
- var c=collect(raw,requestedProfile),samsungState={status:'not_configured',data:null},samsungApi=window.HH_SAMSUNG_SOURCE_V371;
- if(samsungApi&&samsungApi.load){
-  samsungState=await samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT);
-  if(renderId!==activityRenderSeq)return;
-  c=samsungApi.merge(c,samsungState,requestedProfile);
- }
+ var raw=sources[0],profileHeight=sources[1],samsungState=sources[2];
+ var c=collect(raw,requestedProfile);
+ if(samsungApi&&samsungApi.merge)c=samsungApi.merge(c,samsungState,requestedProfile);
  var view=dayView(c),m=metrics(view,requestedProfile,profileHeight);
  window.hhActivity191SamsungSource=samsungState;
  window.hhActivity191Cache=c;window.hhActivity191View=view;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
@@ -422,12 +427,24 @@ function ensure(){
 }
 window.hhOpenActivity=function(){
  ensure();document.getElementById('hhActivityPage191').classList.add('on');render();
- if(typeof window.hhHealthCloudSync==='function')window.hhHealthCloudSync(false).then(function(changed){if(changed)render()}).catch(function(){});
+ // A successful cloud import already emits health-cloud-synced and is handled
+ // below. Do not start another full render from the same completion callback.
+ if(typeof window.hhHealthCloudSync==='function')
+  window.hhHealthCloudSync(false).catch(function(){});
 }
 window.hhRenderActivity191=render;
+var activityRefreshTimer=0;
 function refreshIfOpen(){
  var p=document.getElementById('hhActivityPage191');
- if(p&&p.classList.contains('on'))setTimeout(render,40);
+ if(!p||!p.classList.contains('on'))return;
+ // Imported + cloud-synced are commonly dispatched together. Debounce them
+ // to a single refresh, so the waiting state isn't reset needlessly.
+ clearTimeout(activityRefreshTimer);
+ activityRefreshTimer=setTimeout(function(){
+  activityRefreshTimer=0;
+  var page=document.getElementById('hhActivityPage191');
+  if(page&&page.classList.contains('on'))render();
+ },220);
 }
 window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
 window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen);
