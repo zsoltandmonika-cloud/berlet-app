@@ -20,7 +20,7 @@
  const label=p=>p==='monika'?'Mónika':'Zsolt';
  const authorized=()=>w.HH_GUARDIAN_LIVE_V785?.familyAuthorized===true;
  const validId=id=>typeof id==='string'&&/^android-[a-zA-Z0-9-]{1,83}$/.test(id);
- const noOffer=(message)=>{notice.hidden=true;action.href='#';check.disabled=false;if(message)feedback.textContent=message};
+ const noOffer=(message)=>{notice.hidden=true;action.hidden=true;action.href='#';check.disabled=false;if(message)feedback.textContent=message};
  async function token(){
   const v=w.HH_DROPBOX_VAULT;
   if(v?.connected?.()&&typeof v.accessToken==='function')return v.accessToken();
@@ -88,7 +88,7 @@
    action.textContent=installed>=38?'📦 Frissítés · HH One megnyitása':'📥 Frissítés · APK letöltése';
    action.setAttribute('aria-label',label(p)+' HH One v'+m.version+
      ' frissítés. A telepítés az adott telefonon és Android-jóváhagyással történik.');
-   notice.hidden=false;
+   notice.hidden=false;action.hidden=false;
    feedback.textContent='🟠 '+label(p)+': HH One v'+m.version+
     ' elérhető, telepített build '+installed+'. A letöltést Mónika/Zsolt saját telefonján kell elindítani.';
   }catch(e){
