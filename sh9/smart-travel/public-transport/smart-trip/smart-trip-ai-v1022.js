@@ -301,28 +301,26 @@
   catch(_){say('A Family Guard térképre történő átadás nem sikerült.');return}
   w.location.assign('../../../../healthhub/guardian/#hhSmartHubDestinationV802');
  }
- // v1028: one dependable Samsung native picker, opened on any part of the tile.
- // Calling showPicker() synchronously inside click/keydown preserves user activation.
+ // v1029: a real full-tile hit button opens the native input picker.
+ // No nested label synthetic click and no competing input-icon activation.
  [date,time].forEach(input=>{
   if(!input)return;
   const tile=input.closest('.st22-setting');
-  if(!tile)return;
-  tile.tabIndex=0;
-  tile.setAttribute('aria-label',input.type==='date'?'Dátum kiválasztása':'Időpont kiválasztása');
-  const openPicker=()=>{
+  const hit=tile?.querySelector('.st22-picker-hit');
+  if(!hit)return;
+  function openPicker(){
    try{if(typeof input.showPicker==='function'){input.showPicker();return}}catch(_){}
    input.focus({preventScroll:true});
-  };
-  tile.addEventListener('click',event=>{
-   if(event.target===input)return; // native input handles its own direct activation
-   event.preventDefault(); // avoid synthetic label-to-input double activation
-   openPicker();
-  });
-  tile.addEventListener('keydown',event=>{
-   if(event.key!=='Enter'&&event.key!==' ')return;
-   event.preventDefault();
-   openPicker();
-  });
+   try{input.click()}catch(_){}
+  }
+  hit.addEventListener('click',openPicker);
+  function syncAccessible(){
+   const prefix=input.type==='date'?'Dátum':'Időpont';
+   hit.setAttribute('aria-label',prefix+' kiválasztása'+(input.value?' · '+input.value:''));
+  }
+  input.addEventListener('change',syncAccessible);
+  input.addEventListener('input',syncAccessible);
+  syncAccessible();
  });
  fields.forEach(wire);
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
