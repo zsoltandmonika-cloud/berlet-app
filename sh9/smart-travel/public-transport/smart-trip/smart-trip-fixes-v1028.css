@@ -100,3 +100,28 @@
   .st22-setting input{font-size:12px}
   .st22-mode button{font-size:10.5px}
 }
+
+
+/* v1029 · Deterministic touch hit area on ALL of each glass picker card.
+   The visible input remains native, but the overlay is the only pointer target. */
+.st22-setting{position:relative;isolation:isolate}
+.st22-setting label{font-size:11px;line-height:1.2;pointer-events:none}
+.st22-setting input{position:relative;z-index:1;pointer-events:none}
+.st22-picker-hit{
+ position:absolute;
+ z-index:4;
+ inset:0;
+ display:block;
+ width:100%;
+ height:100%;
+ padding:0;
+ margin:0;
+ border:0;
+ border-radius:inherit;
+ background:transparent;
+ color:transparent;
+ cursor:pointer;
+ touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+}
+.st22-picker-hit:focus-visible{outline:3px solid #f1d9ff;outline-offset:-3px}
