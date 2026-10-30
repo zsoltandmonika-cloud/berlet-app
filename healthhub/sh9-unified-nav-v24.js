@@ -81,6 +81,8 @@ function initialize(){
  });
  d.body.appendChild(dock);
  d.documentElement.dataset.sh9UnifiedNav='on';
+ // v1012: release first-paint guard only after the replacement dock exists.
+ if(d.documentElement.dataset.hhDockPrepaint==='pending')d.documentElement.dataset.hhDockPrepaint='ready';
  display(dock);
  if(isHH){
   const observer=new MutationObserver(function(){display(dock);});
