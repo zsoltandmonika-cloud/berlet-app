@@ -1,0 +1,69 @@
+/* Family Guard v1033 - Satellite switch, Golden Standard four-button stack.
+   Visually focused: existing MapLibre map, family markers and GPS untouched. */
+.map-card #guardianFollow.map-follow,
+.map-card #guardian3D.map-3d,
+.map-card #guardianSatelliteV1033.map-satellite,
+.map-card #guardianFamilyButton.map-family{
+ right:4px!important;
+ width:89px!important;min-width:89px!important;
+ height:36px!important;min-height:36px!important;
+ padding:3px 5px!important;
+ gap:4px!important;
+ border-radius:13px!important;
+ font-size:10px!important;
+ line-height:1.12!important;
+ touch-action:manipulation;
+}
+.map-card #guardianFollow.map-follow{top:3px!important}
+.map-card #guardian3D.map-3d{top:41px!important}
+.map-card #guardianSatelliteV1033.map-satellite{top:79px!important;z-index:8!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.map-card #guardianFamilyButton.map-family{top:117px!important}
+.map-card #guardianSatelliteV1033 .guardian-control-icon{width:27px!important;min-width:27px!important;flex-basis:27px!important;height:27px!important;border-radius:10px!important}
+.map-card #guardianSatelliteV1033 .guardian-control-icon svg{width:18px!important;height:18px!important}
+.map-card #guardianSatelliteV1033[aria-pressed="true"]{
+ color:var(--guard-cyan,#a8ebff)!important;
+ border-color:var(--guard-cyan,#a8ebff)!important;
+ box-shadow:0 0 12px var(--guard-glow,#3995ff55)!important
+}
+/* Move fullscreen enlargement a little lower, leave camera/GPS logic alone. */
+.map-card #guardianMapSizeToggleV864.hh-map-size-toggle-v864{top:17px!important}
+.map-card.hh-map-full-v819 #guardianMapSizeToggleV864.hh-map-size-toggle-v864{
+ top:calc(18px + env(safe-area-inset-top,0px))!important
+}
+/* Zoom controls sit below the enlarged four-button stack. */
+@media (max-width:600px) and (orientation:portrait){
+ body .map-card #guardianMap .maplibregl-ctrl-bottom-right,
+ body .map-card.hh-map-full-v819 #guardianMap .maplibregl-ctrl-bottom-right,
+ body .map-card:fullscreen #guardianMap .maplibregl-ctrl-bottom-right{
+  top:clamp(237px,54%,calc(100% - 80px))!important;
+  bottom:auto!important;
+  transform:translateY(-50%)!important;
+ }
+}
+.map-card[data-hh-satellite="on"] #guardianMap .maplibregl-canvas{filter:none!important}
+#guardianSatelliteConfigV1033{
+ box-sizing:border-box;border:1px solid #9dcdf5a5;
+ border-radius:18px;padding:20px;width:min(92vw,440px);
+ max-height:min(80dvh,610px);overflow-y:auto;
+ color:#f1f7ff;background:linear-gradient(145deg,#163c64,#241e45);
+ box-shadow:0 14px 42px #010714bb;
+}
+#guardianSatelliteConfigV1033::backdrop{background:#030c1acf}
+#guardianSatelliteConfigV1033 h3{font-size:18px;margin:0 0 8px}
+#guardianSatelliteConfigV1033 p{font-size:13px;line-height:1.45;margin:0 0 12px;color:#e5effb}
+#guardianSatelliteConfigV1033 label{display:block;font-size:12px;font-weight:750;margin-bottom:6px}
+#guardianSatelliteKeyV1033{
+ display:block;box-sizing:border-box;width:100%;height:46px;
+ padding:10px;color:#fff;background:#071e3c;border:1px solid #9ac9ec;
+ border-radius:11px;font:600 13px/1.2 system-ui
+}
+#guardianSatelliteConfigV1033 .guardian-sat-actions{
+ display:flex;flex-wrap:wrap;gap:8px;margin-top:13px
+}
+#guardianSatelliteConfigV1033 button{
+ min-height:45px;padding:10px 14px;border:1px solid #aad6fa;
+ background:#194879;color:#fff;border-radius:11px;font-weight:800;cursor:pointer
+}
+#guardianSatelliteConfigV1033 button:disabled{opacity:.6}
+#guardianSatelliteConfigV1033 a{color:#a9e9ff}
+#guardianSatelliteErrorV1033{font-size:12px!important;color:#ffd9df!important;margin-top:8px!important}
