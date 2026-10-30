@@ -323,6 +323,15 @@
   syncAccessible();
  });
  fields.forEach(wire);
+ // v1031: refresh an open suggestion list after the shared 40 places sync.
+ w.addEventListener('hh-travel-favorites-changed',()=>{
+  fields.forEach(field=>{
+   if(d.activeElement!==field.input)return;
+   const q=field.input.value.trim();
+   const fav=q?suggestions(q):favoriteItems('');
+   if(fav.length)render(field,fav.slice(0,8));
+  });
+ });
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
  $('st22Swap')?.addEventListener('click',()=>{
   clearAll();const v=from.value;from.value=to.value;to.value=v;
