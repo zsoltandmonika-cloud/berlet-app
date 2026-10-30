@@ -81,3 +81,18 @@
 }
 .map-card #guardianSatelliteLogoV1033[hidden]{display:none!important}
 .map-card #guardianSatelliteLogoV1033 img{display:block!important;width:85px!important;height:auto!important;max-height:25px!important}
+
+/* v1035 · Trusted-device remembrance is explicit and reversible. */
+#guardianSatelliteConfigV1033 .hh-satellite-remember-v1035{
+ display:flex;align-items:center;gap:11px;
+ margin:11px 0 5px;cursor:pointer;
+ font:700 12px/1.4 system-ui;color:#e9f7ff
+}
+#guardianSatelliteRememberV1035{
+ width:20px;height:20px;min-width:20px;accent-color:#74c1f7;
+ margin:0;cursor:pointer
+}
+#guardianSatelliteForgetV1035{
+ background:#3b2847!important;border-color:#a5a8c7!important;
+ font-size:12px!important
+}
