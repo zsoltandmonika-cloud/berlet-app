@@ -34,7 +34,7 @@ test('one active upload, no backlog, bounded network failures, selected phone & 
  assert.doesNotMatch(relay,/Supabase|upsert\(|saveTrack|trackHistory/);
 });
 test('signed v0.15.9 remains published until manual gated v0.15.10 release',()=>{
- assert.match(android,/versionCode = 37/);
+ assert.match(android,/versionCode = 38/);
  assert.match(android,/versionName = "0\.15\.10"/);
  assert.equal(baseline.versionCode,36);
  assert.equal(baseline.version,'0.15.9');
