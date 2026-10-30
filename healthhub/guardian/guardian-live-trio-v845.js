@@ -206,6 +206,24 @@
   try{return JSON.parse(w.localStorage.getItem('hh-nutrition-total-energy-'+profile)||'null')}
   catch(_){return null}
  }
+ // Distinguish a real phone measurement gap from a missing/failed private reader.
+ // Never label any remote phone online based on the viewer's local connection.
+ function connectionDiagnostic(g,profile,now=Date.now()){
+  const owner=profile==='monika'?'Mónika':'Zsolt';
+  if(!g)return '📡 '+owner+': nincs ellenőrzött adatcsatorna.';
+  if(g.nativeStatus==='not-connected')return '⚠ '+owner+': ezen a megjelenítőn nincs Dropbox Vault kapcsolat. A telefon állapota ismeretlen.';
+  if(g.nativeStatus==='error')return '⚠ '+owner+': privát Dropbox-adatolvasási hiba. A telefon kapcsolata ebből nem állapítható meg.';
+  if(g.nativeStatus==='revoked')return '⛔ '+owner+': a natív helymegosztás visszavonva.';
+  if(g.nativeStatus==='missing')return '⚠ '+owner+': nincs natív HH One helyadat a privát tárhelyen.';
+  if(g.nativeStatus==='invalid')return '⚠ '+owner+': a natív adat érvénytelen vagy túl régi.';
+  if(g.nativeStatus==='ok'&&g.native){
+   const age=now-Date.parse(g.native.updated_at);
+   if(Number.isFinite(age)&&age>=0)
+    return age<=75000?'✓ '+owner+': HH One GPS-mérés '+Math.ceil(age/1000)+' mp-es.':
+     '⚠ '+owner+': az utolsó HH One GPS-mérés '+Math.ceil(age/60000)+' perce volt. Nincs bizonyított élő jel.';
+  }
+  return '📡 '+owner+': nincs ellenőrizhető natív mérés.';
+ }
  function init(){
   const d=w?.document;
   if(!d)return null;
@@ -283,24 +301,6 @@
     else nutrition=readLocalNutrition(profile);
    }catch(_){nutrition=readLocalNutrition(profile)}
    return {sleep:sleepIndex(rows,stamp),nutrition};
-  }
-  // Distinguish a real phone measurement gap from a missing/failed private reader.
-  // Never label any remote phone online based on the viewer's local connection.
-  function connectionDiagnostic(g,profile,now=Date.now()){
-   const owner=profile==='monika'?'Mónika':'Zsolt';
-   if(!g)return '📡 '+owner+': nincs ellenőrzött adatcsatorna.';
-   if(g.nativeStatus==='not-connected')return '⚠ '+owner+': ezen a megjelenítőn nincs Dropbox Vault kapcsolat. A telefon állapota ismeretlen.';
-   if(g.nativeStatus==='error')return '⚠ '+owner+': privát Dropbox-adatolvasási hiba. A telefon kapcsolata ebből nem állapítható meg.';
-   if(g.nativeStatus==='revoked')return '⛔ '+owner+': a natív helymegosztás visszavonva.';
-   if(g.nativeStatus==='missing')return '⚠ '+owner+': nincs natív HH One helyadat a privát tárhelyen.';
-   if(g.nativeStatus==='invalid')return '⚠ '+owner+': a natív adat érvénytelen vagy túl régi.';
-   if(g.nativeStatus==='ok'&&g.native){
-    const age=now-Date.parse(g.native.updated_at);
-    if(Number.isFinite(age)&&age>=0)
-     return age<=75000?'✓ '+owner+': HH One GPS-mérés '+Math.ceil(age/1000)+' mp-es.':
-      '⚠ '+owner+': az utolsó HH One GPS-mérés '+Math.ceil(age/60000)+' perce volt. Nincs bizonyított élő jel.';
-   }
-   return '📡 '+owner+': nincs ellenőrizhető natív mérés.';
   }
   async function fetchGps(profile){
    const live=auth(),client=live?.getClient?.();
