@@ -79,3 +79,25 @@ test('first party WebView preserves the explicit OTA deep-link and Android insta
  assert.match(app,/OtaUpdateManager\.openSystemInstaller\(this@MainActivity, content\)/);
  assert.doesNotMatch(app,/PackageInstaller\.SessionParams|setInstallerPackageName\(/);
 });
+
+test('SH9 startpage shows honest auto-check green/amber OTA lamp, not GPS health',()=>{
+ const page=get('../sh9/index.html');
+ const js=get('../sh9/sh9-ota-indicator-v1043.js');
+ const css=get('../sh9/sh9-ota-indicator-v1043.css');
+ assert.match(page,/id="sh9OtaIndicatorV1043"/);
+ assert.match(page,/sh9-ota-indicator-v1043\.js\?v=1043/);
+ assert.match(page,/sh9-ota-indicator-v1043\.css\?v=1043/);
+ assert.match(js,/hhBuildCode/);
+ assert.match(js,/hhOwner/);
+ assert.match(js,/m\.versionCode>build&&m\.rolloutProfiles\.includes\(owner\)/);
+ assert.match(js,/state\('ok'/);
+ assert.match(js,/state\('update'/);
+ assert.match(js,/state\('unknown'/);
+ assert.match(js,/healthhubconnect:\/\/settings\?ota=install/);
+ assert.match(js,/void check\(false\)/);
+ assert.match(js,/sha256/);
+ assert.match(css,/data-state="update"/);
+ assert.match(css,/prefers-reduced-motion/);
+ assert.doesNotMatch(js,/navigator\.geolocation|setInterval\(|downloadVerified\(/);
+ assert.doesNotMatch(js,/GPS.*online/);
+});
