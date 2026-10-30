@@ -54,9 +54,9 @@ html[data-hh-scroll-select="preview"] #healthSection #healthSubContent
 }
 html[data-hh-scroll-select="preview"] #healthSection #healthSubContent
  .hhMeds1018 .hhRsmNote{
- display:block!important;margin:1px 0 6px!important;padding:0 2px!important;
- color:var(--hhMeds1018-mute)!important;
- font:550 9px/1.35 system-ui,sans-serif!important;
+ /* v1021: the redundant medication status explanation is removed only
+    from the picker UI. Canonical medication statuses and data are intact. */
+ display:none!important;
 }
 html[data-hh-scroll-select="preview"] #healthSection #healthSubContent
  .hhMeds1018 .hhRsmTrack{
