@@ -382,9 +382,12 @@ async function refreshAuth(){
  try{
   const who=await api.auth.getUser();
   if(who.error||!who.data||!who.data.user){
-   if(sharing)stopSharing();
+   const transient=!!who.error&&temporaryAuthError(who.error);
+   // A temporary auth outage must NEVER DELETE a consented owner's last
+   // verified server fix. Pause publishing; restart only after ACL recheck.
+   if(sharing){if(transient)onGpsPaused();else stopSharing()}
    user=null;access=[];removePeer();
-   if(who.error&&temporaryAuthError(who.error)){
+   if(transient){
     authPending=true;
     setPeerState('Mentett bejelentkezés ellenőrzésére várunk');
     msg('Átmeneti hálózati hiba. A mentett belépést újraellenőrizzük, ne jelentkezz be újra.');
@@ -407,10 +410,12 @@ async function refreshAuth(){
   await loadSettings();
   maybeAutoStart();
  }catch(e){
-  if(sharing)stopSharing();
+  const transient=temporaryAuthError(e);
+  // ACL/network outage: no new uploads, but preserve the timestamped last
+  // known point. Only actual revocation/sign-out may clear the server row.
+  if(sharing){if(transient)onGpsPaused();else stopSharing()}
   user=null;access=[];
-  // A denied/revoked account is not a temporary network problem.
-  authPending=temporaryAuthError(e);
+  authPending=transient;
   msg(authPending?
    'A mentett belépés ellenőrzése átmenetileg nem elérhető. Megismételjük a próbát.':
    'A jogosultság ellenőrzése sikertelen; ellenőrizd a Google-belépést.');
