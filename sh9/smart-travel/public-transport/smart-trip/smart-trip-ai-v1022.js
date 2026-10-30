@@ -9,6 +9,7 @@
  const form=$('st22Form'),from=$('st22From'),to=$('st22To'),status=$('st22Status');
  if(!form||!from||!to||!status)return;
  const list=$('st22JourneyList'),source=$('st22Source'),date=$('st22Date'),time=$('st22Time'),priority=$('st22Priority');
+ const results=$('st22Results');
  const geo=w.HH_SMART_HUB_FIELDS_V806,rail=w.SH9_MAV_GTFS_CORE_V1;
  const API='https://photon.komoot.io/api/';
  const sessionKey='sh9-bkk-grand-planner-handoff-v1';
@@ -234,13 +235,26 @@
   });
   source.textContent='Privát MÁV GTFS · helyi menetrend';
   say(journeys.length+' valódi, helyi menetrendi útvonal. Más közlekedési módokat csak hiteles adatforrás bekötése után tudunk összehasonlítani.');
+  focusResults();
+ }
+ function focusResults(){
+  if(!results||results.hidden)return;
+  (w.requestAnimationFrame||function(cb){cb()})(()=>{
+   results.scrollIntoView?.({
+    behavior:w.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',
+    block:'nearest'
+   });
+  });
  }
  function unavailable(message){
+  if(results)results.hidden=false;
   list.replaceChildren();source.textContent='Adatforrás: ellenőrzés alatt';
   say(message);
+  focusResults();
  }
  async function searchTrip(event){
   event.preventDefault();clearAll();
+  if(results)results.hidden=false;
   const query=snapshot();
   if(!query.from||!query.to){unavailable('Az útvonalhoz mindkét hely szükséges. Válassz indulási helyet és célt a prediktív listából.');return}
   if(fold(query.from)===fold(query.to)){unavailable('Az indulási és érkezési hely nem lehet azonos.');return}
@@ -270,7 +284,7 @@
    button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
    button.title=name+' · Profilváltás';
   }
-  if(clearFields){clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
+  if(clearFields){clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
  }
  function showFamilyMap(){
   clearAll();
