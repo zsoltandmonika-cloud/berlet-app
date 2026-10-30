@@ -1,0 +1,100 @@
+name: HH One · Promote verified signed OTA pilot to family
+
+# No silent updates, new APK, or rebuilds: reuse the exact already-signed file.
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Only after an actual successful Zsolt phone test: enter PROMOTE_TO_MONIKA"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: healthhub-connect-ota-release
+  cancel-in-progress: false
+
+jobs:
+  promote-existing-signed-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Confirm owner approval and exact main branch
+        env:
+          APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          if [[ "$APPROVAL" != "PROMOTE_TO_MONIKA" ]]; then
+            echo "::error::Successful real-phone pilot approval required."
+            exit 1
+          fi
+          test "$GITHUB_REF_NAME" = "main"
+          git pull --ff-only origin main
+      - name: Validate signed pilot manifest
+        id: pilot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib, re
+          m=json.loads(pathlib.Path('healthhub/data/bridge-ota.json').read_text(encoding='utf-8'))
+          g=pathlib.Path('healthhub/android-bridge/app/build.gradle.kts').read_text(encoding='utf-8')
+          assert m.get('schema')=='healthhub.connect.ota/1'
+          assert m.get('channel')=='signed-release'
+          assert m.get('applicationId')=='hu.zsoltmonika.healthhubbridge'
+          assert m.get('rolloutProfiles')==['zsolt'], 'Only a Zsolt-only signed pilot can be promoted'
+          v=m.get('version','')
+          assert re.fullmatch(r'\d+\.\d+\.\d+',v)
+          assert m.get('versionCode')==int(re.search(r'versionCode = (\d+)',g).group(1))
+          assert v==re.search(r'versionName = "([^"]+)"',g).group(1)
+          assert re.fullmatch(r'[a-f0-9]{64}',m.get('sha256',''))
+          tag='healthhub-connect-ota-v'+v
+          filename='HealthHub-Connect-v'+v+'-ota.apk'
+          url='https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/'+tag+'/'+filename
+          assert m['downloadUrl']==url
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+            f.write('version='+v+'\n')
+            f.write('tag='+tag+'\n')
+            f.write('filename='+filename+'\n')
+            f.write('sha256='+m['sha256']+'\n')
+          PY
+      - name: Download exact published asset and verify SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.pilot.outputs.tag }}
+          FILENAME: ${{ steps.pilot.outputs.filename }}
+          SHA256: ${{ steps.pilot.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ota-verified"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$FILENAME" --dir "$RUNNER_TEMP/ota-verified"
+          echo "$SHA256  $RUNNER_TEMP/ota-verified/$FILENAME" | sha256sum --check --status
+          test -s "$RUNNER_TEMP/ota-verified/$FILENAME"
+          echo "Verified existing release asset and published manifest SHA-256." >> "$GITHUB_STEP_SUMMARY"
+      - name: Promote the SAME signed version, no APK replacement
+        env:
+          VERSION: ${{ steps.pilot.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, os
+          p=pathlib.Path('healthhub/data/bridge-ota.json')
+          m=json.loads(p.read_text(encoding='utf-8'))
+          assert m.get('version')==os.environ['VERSION']
+          assert m.get('rolloutProfiles')==['zsolt']
+          m['rolloutProfiles']=['zsolt','monika']
+          p.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+          git config user.name "healthhub-ota-bot"
+          git config user.email "healthhub-ota-bot@users.noreply.github.com"
+          git add healthhub/data/bridge-ota.json
+          git diff --cached --exit-code && { echo "::error::No pilot promotion change"; exit 1; } || true
+          git commit -m "release: promote verified HH One v$VERSION OTA to family"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "The same immutable SHA-256-verified APK is now available to both profiles." >> "$GITHUB_STEP_SUMMARY"
