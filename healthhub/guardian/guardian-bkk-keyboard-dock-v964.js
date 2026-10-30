@@ -116,11 +116,18 @@
    field.addEventListener('click',()=>{
     if(!active&&!closing&&mobile())open(kind);
    });
-   field.addEventListener('focus',()=>{
-    if(!active&&!closing&&mobile())open(kind);
+   // v1034: NEVER pop the fullscreen destination sheet on focus alone.
+   // Mobile Chrome/Samsung can restore input focus during navigation/page load.
+   // Require a deliberate user tap, typed input or keyboard activation.
+   field.addEventListener('input',event=>{
+    if(event.isTrusted&&!active&&!closing&&mobile()&&d.activeElement===field)open(kind);
    });
    field.addEventListener('keydown',event=>{
-    if(event.key==='Escape'&&active){event.preventDefault();close()}
+    if(event.key==='Escape'&&active){event.preventDefault();close();return}
+    if(!active&&!closing&&mobile()&&event.isTrusted&&
+      (event.key==='Enter'||event.key==='ArrowDown')){
+     event.preventDefault();open(kind);
+    }
    });
   }
   // In the original BKK controller, only a result-button click selects a place.
