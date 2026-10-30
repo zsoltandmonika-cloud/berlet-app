@@ -76,3 +76,131 @@ button{cursor:pointer;touch-action:manipulation}a{text-decoration:none}
 :focus-visible{outline:2px solid #e8f6ff;outline-offset:2px}
 @media(max-width:360px){.st22-shell{padding-inline:6px}.st22-header{width:calc(100% + 12px);margin-inline:-6px}.st22-planner-head h2{font-size:10.5px}.st22-mode button{font-size:7px}.st22-routebox{grid-template-columns:57% minmax(0,1fr);gap:5px}.st22-setting{grid-template-columns:28px minmax(0,1fr);font-size:8px}.st22-setting input{font-size:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+/* Smart Trip v1026 · One full-height planner, native readable typography.
+   Keep v1025 approved family hero, 45×45 avatar and SH9 taskbar unchanged.
+   Route results are embedded in the same card and hidden before searching. */
+.st22-shell{
+ display:flex;
+ flex-direction:column;
+ min-height:100dvh;
+}
+.st22-header{flex:none}
+.st22-card{
+ flex:1 0 auto;
+ display:flex;
+ flex-direction:column;
+ min-height:0;
+ margin-bottom:0;
+ padding:12px 11px 11px;
+}
+#st22Form{
+ flex:1 0 auto;
+ display:flex;
+ flex-direction:column;
+ min-width:0;
+ min-height:0;
+}
+.st22-planner-head{grid-template-columns:39% minmax(0,61%);margin-bottom:11px}
+.st22-planner-head h2{font-size:15px;letter-spacing:-.02em}
+.st22-mode{height:45px}
+.st22-mode button{
+ font-size:11px;
+ line-height:1.13;
+ white-space:normal;
+ overflow-wrap:normal;
+ font-weight:760;
+}
+.st22-routebox{gap:7px;margin-bottom:11px}
+.st22-route,.st22-settings{height:96px}
+.st22-place{padding:2px 2px}
+.st22-place label{
+ margin:2px 0 1px;
+ font-size:11.5px;
+ line-height:1.15;
+ font-weight:800;
+}
+.st22-place input{
+ height:27px;
+ font-size:13px;
+ font-weight:780;
+ line-height:1.2;
+}
+.st22-swap{height:43px;font-size:22px}
+.st22-setting{
+ grid-template-columns:40px minmax(0,1fr);
+ gap:2px;
+ font-size:11px;
+ font-weight:790;
+}
+.st22-setting input{
+ font-size:12.5px;
+ height:32px;
+ padding:0 2px;
+ min-width:0;
+}
+.st22-favorites{
+ height:46px;
+ min-height:46px;
+ font-size:13px;
+ margin-bottom:11px;
+}
+.st22-opt{
+ min-height:48px;
+ margin-bottom:11px;
+ gap:7px;
+ padding:5px 8px;
+}
+.st22-opt label{font-size:12px;line-height:1.25}
+.st22-opt select{
+ height:37px;
+ font-size:12.5px;
+ font-weight:750;
+}
+.st22-actions{margin-top:auto;padding-top:12px;gap:9px}
+.st22-actions button{
+ min-height:50px;
+ padding:9px 6px;
+ font-size:13px;
+ font-weight:850;
+}
+.st22-suggestions{max-height:245px}
+.st22-suggestions button{
+ min-height:48px;
+ padding:9px 7px;
+ gap:6px;
+}
+.st22-suggestions button span{min-width:0}
+.st22-suggestions button strong{font-size:12px;line-height:1.2;overflow-wrap:anywhere}
+.st22-suggestions button small{font-size:10.5px;line-height:1.2}
+.st22-suggestions button em{font-size:9.5px;flex-shrink:0}
+.st22-results{
+ flex:none;
+ margin:15px 0 0;
+ padding:12px 0 1px;
+ border:0;
+ border-top:1px solid var(--st22-line);
+ border-radius:0;
+ background:transparent;
+ box-shadow:none;
+ -webkit-backdrop-filter:none;
+ backdrop-filter:none;
+}
+.st22-results[hidden]{display:none!important}
+.st22-results-head strong{font-size:14px}
+.st22-results-head span{font-size:11px}
+#st22Status{font-size:12px;line-height:1.5}
+.st22-journey h3{font-size:13px}
+.st22-journey .st22-times{font-size:19px}
+.st22-journey small,.st22-journey ul{font-size:12px;line-height:1.4}
+@media(max-width:380px){
+ .st22-card{padding:10px 8px}
+ .st22-planner-head{display:flex;flex-direction:column;align-items:stretch;gap:7px}
+ .st22-mode{width:100%;height:44px}
+ .st22-mode button{font-size:11px}
+ .st22-routebox{grid-template-columns:57% minmax(0,1fr);gap:5px}
+ .st22-setting{grid-template-columns:31px minmax(0,1fr);font-size:10px}
+ .st22-setting input{font-size:12px}
+ .st22-opt label{font-size:11.5px}
+}
