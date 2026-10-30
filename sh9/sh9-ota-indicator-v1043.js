@@ -94,8 +94,18 @@
     state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',SETTINGS);
    }
   }catch(_){
-   state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjének megnyitásához.',SETTINGS);
+   if(nativeHealth()==='warning')
+    state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',SETTINGS);
+   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjének megnyitásához.',SETTINGS);
   }finally{busy=false}
+ }
+ // A still-open page must not keep showing yesterday's healthy boot snapshot.
+ if(known&&Number.isFinite(Number(cached?.seenAt))&&cached.seenAt>0){
+  const remaining=Math.max(0,STATUS_MAX_AGE-(Date.now()-cached.seenAt));
+  w.setTimeout(()=>{
+   if(el.dataset.state==='ok'&&nativeHealth()!=='ok')
+    state('unknown','A telefon natív állapotjelentése már nem friss. Nyisd meg a HH One-t új ellenőrzéshez.',SETTINGS);
+  },Math.min(remaining+1000,STATUS_MAX_AGE+1000));
  }
  state('unknown','HH One frissítés ellenőrzése…',SETTINGS);
  void check(false);
