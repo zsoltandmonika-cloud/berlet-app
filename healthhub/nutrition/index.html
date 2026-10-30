@@ -1,6 +1,32 @@
 <!doctype html>
 <html lang="hu">
 <head>
+<!-- v1012: before first paint, keep the retired dock offscreen until SH9 replaces it.
+     If the SH9 script cannot mount, restore the still-working (dark) fallback dock. -->
+<script id="hh-dock-boot-v1012">
+(function(){
+ try{if(new URLSearchParams(location.search).get('sh9dock')==='0')return}catch(_){}
+ document.documentElement.dataset.hhDockPrepaint='pending';
+ setTimeout(function(){
+  if(document.documentElement.dataset.hhDockPrepaint!=='pending')return;
+  document.documentElement.dataset.hhDockPrepaint=
+   document.getElementById('sh9GlobalNavV24')?'ready':'fallback';
+ },7000);
+})();
+</script>
+<style id="hh-dock-prepaint-v1012">
+html[data-hh-dock-prepaint="pending"] .hhBottomNav{visibility:hidden!important}
+html[data-hh-dock-prepaint] .hhBottomNav{
+ background:rgba(15,30,54,.97)!important;
+ border-top-color:rgba(140,198,243,.25)!important;
+ box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+ color:#b9d0e8!important
+}
+html[data-hh-dock-prepaint] .hhBottomNav :is(a,button){
+ color:#b9d0e8!important
+}
+</style>
+
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
 <title>HealthHub · Nutrition v650 · GyorsNasi</title>
