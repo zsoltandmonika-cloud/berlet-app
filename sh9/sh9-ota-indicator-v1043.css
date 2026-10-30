@@ -25,6 +25,12 @@
  background:#ffc345;box-shadow:0 0 0 2px rgba(255,204,74,.32),0 0 13px #ffc344;
  animation:sh9OtaPulseV1043 1.4s ease-in-out infinite;
 }
+.sh9-ota-indicator-v1043[data-state="warning"]{
+ background:rgba(63,19,37,.91);border-color:rgba(255,136,150,.86);
+}
+.sh9-ota-indicator-v1043[data-state="warning"] .sh9-ota-led-v1043{
+ background:#ff5a70;box-shadow:0 0 0 2px rgba(255,87,107,.26),0 0 13px rgba(255,87,107,.8);
+}
 .sh9-ota-label-v1043:empty{display:none}
 @keyframes sh9OtaPulseV1043{0%,100%{opacity:1}50%{opacity:.25}}
 @media(prefers-reduced-motion:reduce){.sh9-ota-indicator-v1043 .sh9-ota-led-v1043{animation:none}}
