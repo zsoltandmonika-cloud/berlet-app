@@ -323,8 +323,11 @@ class Sh9WebActivity : ComponentActivity() {
                             }
                             .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         startActivity(settings)
+                        finish()
                     }
-                    finish()
+                    // Keep the SH9 start page under the direct installer.
+                    // If installation is cancelled, Android Back returns to SH9,
+                    // never to a hidden developer/settings menu.
                     return true
                 }
                 if (u.scheme == "https" && u.host == HOST && u.path?.startsWith(BASE) == true) {
