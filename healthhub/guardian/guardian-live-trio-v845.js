@@ -336,7 +336,14 @@
   const profileButton=d.getElementById('guardianProfileSwitch');
   profileButton?.addEventListener('click',()=>w.setTimeout?.(()=>{invalidate();refresh()},0));
   w.addEventListener?.('storage',e=>{if(e.key==='hh-profile'){invalidate();refresh()}});
-  w.addEventListener?.('hh-guardian-auth-changed',()=>{invalidate();refresh()});
+  w.addEventListener?.('hh-guardian-auth-changed',()=>{
+   // A normal token refresh must not erase GPS, Sleep and Nutrition tiles.
+   // Revocation, wrong account and actual profile changes still clear them.
+   const p=selected();
+   if(!permitted(auth(),p)){invalidate();return}
+   if(p!==lastProfile){invalidate()}
+   refresh();
+  });
   d.addEventListener?.('visibilitychange',()=>{if(d.hidden){invalidate()}else refresh()});
   w.addEventListener?.('pageshow',refresh);
   w.setInterval?.(refresh,30000);
