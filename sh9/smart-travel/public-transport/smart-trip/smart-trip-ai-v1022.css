@@ -1,0 +1,57 @@
+/* Smart Trip AI v1022 · standalone native Golden Glass, S24 portrait. */
+:root{color-scheme:dark;--st22-accent:#8acafa;--st22-soft:#cee7ff;--st22-edge:rgba(183,223,255,.45);--st22-plate:linear-gradient(146deg,rgba(31,60,100,.84),rgba(20,25,59,.94));--st22-bg:#0b1425}
+:root[data-st22-profile="m"]{--st22-accent:#ffd1ee;--st22-soft:#ffe4f4;--st22-edge:rgba(245,184,229,.55);--st22-plate:linear-gradient(146deg,rgba(84,44,102,.84),rgba(29,27,74,.94))}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#f1f7ff;background:var(--st22-bg)}
+body{background:radial-gradient(ellipse at 32% -20%,rgba(102,76,186,.32),transparent 52%),var(--st22-bg)}
+a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}
+[hidden]{display:none!important}
+.st22-shell{max-width:480px;margin:0 auto;padding:12px 12px calc(95px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;min-height:100dvh}
+.st22-header{position:relative;min-height:155px;border:1px solid var(--st22-edge);border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(34,46,86,.7),rgba(16,23,55,.93));box-shadow:0 7px 25px #0008}
+.st22-header:before{content:"";position:absolute;inset:0;background:url("../../../../healthhub/nutrition/healthhub-nutrition-lena-buddy-approved.webp") 68% 39%/cover no-repeat;opacity:.7}
+.st22-header:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,14,40,.93) 0%,rgba(11,19,53,.75) 44%,rgba(20,17,60,.08) 100%);pointer-events:none}
+.st22-back{z-index:2;position:absolute;top:9px;left:9px;display:grid;place-items:center;width:37px;height:34px;border:1px solid var(--st22-edge);border-radius:12px;background:#10213abb;font-size:26px;font-weight:750}
+.st22-brand-art{position:absolute;right:9px;top:7px;width:48%;max-width:190px;height:auto;border-radius:12px;opacity:.86;filter:drop-shadow(0 0 9px rgba(211,97,232,.3));z-index:2}
+.st22-heading{z-index:2;position:absolute;left:14px;bottom:15px;max-width:68%}
+.st22-kicker{font-size:9px;font-weight:850;letter-spacing:.07em;color:var(--st22-soft)}
+.st22-heading h1{margin:3px 0 3px;font-size:23px;line-height:1.05;letter-spacing:-.04em;text-shadow:0 2px 9px #001}
+.st22-heading small{font-weight:600;font-size:10px;color:#d3e4fa}
+.st22-card,.st22-results{border:1px solid var(--st22-edge);border-radius:16px;padding:12px;background:var(--st22-plate);box-shadow:0 8px 25px #0003,inset 0 1px rgba(255,255,255,.11);backdrop-filter:blur(14px)}
+.st22-mode{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:10px}
+.st22-mode button{min-height:37px;border:1px solid var(--st22-edge);border-radius:11px;background:#152a50ad;color:#e4efff;font-size:10px;font-weight:780;padding:5px 3px}
+.st22-mode button.active{background:linear-gradient(125deg,#ec6cbd,#8e66dd);color:#fff;border-color:#e2b7f5}
+:root[data-st22-profile="z"] .st22-mode button.active{background:linear-gradient(125deg,#249cdb,#476bd9)}
+.st22-route{display:grid;grid-template-columns:17px minmax(0,1fr) 35px;gap:6px;align-items:center;padding:7px 6px;border-radius:13px;border:1px solid var(--st22-edge);background:#0e1d3eb3}
+.st22-lines{height:97px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;position:relative}
+.st22-lines:before{content:"";width:2px;position:absolute;top:23px;bottom:23px;background:#a6b6df88}
+.st22-lines i{z-index:1;width:11px;height:11px;border:3px solid #4eb5ff;border-radius:50%;background:#101b3c}.st22-lines i+ i{border-color:#f58acc}
+.st22-stations{display:flex;flex-direction:column;min-width:0;gap:3px}
+.st22-place{position:relative;min-width:0}.st22-place+.st22-place{border-top:1px solid #c6d8ec33;padding-top:5px}
+.st22-place label{display:block;color:var(--st22-soft);font-size:9px;font-weight:850;margin:0 2px 2px}
+.st22-place input{border:0;outline:0;border-radius:6px;background:transparent;color:#fff;width:100%;height:28px;font-size:12px;font-weight:750;padding:2px;min-width:0}
+.st22-place input::placeholder{color:#a4b7d4;font-weight:600}
+.st22-place input:focus{background:#6c6aac24;box-shadow:0 0 0 1px var(--st22-edge)}
+.st22-swap{border:1px solid var(--st22-edge);border-radius:9px;background:#785ab17a;color:#fff;font-size:20px;height:40px;min-width:35px}
+.st22-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.st22-setting{display:flex;flex-direction:column;gap:5px;min-width:0;background:#172953a3;border:1px solid var(--st22-edge);border-radius:11px;padding:7px 9px;color:var(--st22-soft);font-size:10px;font-weight:800}
+.st22-setting input{background:transparent;color:#fff;border:0;min-width:0;height:25px;font-size:12px;font-weight:750;color-scheme:dark}
+.st22-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--st22-edge);border-radius:11px;background:#18294cb8;margin-bottom:10px}
+.st22-opt label{font-size:10px;font-weight:750;max-width:42%}.st22-opt select{width:56%;min-width:0;background:#1f2855;color:#fff;border:1px solid var(--st22-edge);border-radius:8px;padding:7px 4px;font-size:10px}
+.st22-actions{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px}
+.st22-actions button{min-height:43px;border-radius:10px;font-size:11px;font-weight:850;padding:8px 5px}
+.st22-primary{border:1px solid #ffb7eb;background:linear-gradient(120deg,#e964bb,#9867e2);color:#fff}
+.st22-secondary{border:1px solid var(--st22-edge);background:#244574bf;color:#fff}
+.st22-hint,.st22-footer{font-size:10px;line-height:1.45;color:#c4d5ed}.st22-hint{margin:10px 0 0}.st22-footer{padding:4px 6px 0}
+.st22-results-head{display:flex;align-items:start;justify-content:space-between;gap:8px;margin-bottom:7px}
+.st22-results-head strong{font-size:12px}.st22-results-head span{font-size:9px;color:var(--st22-soft);text-align:right}
+#st22Status{font-size:11px;line-height:1.5;color:#d8e6f8;margin:5px 0}
+.st22-journey{padding:11px;border-radius:12px;border:1px solid var(--st22-edge);margin:10px 0;background:linear-gradient(120deg,#233965b5,#352652bc);display:flex;flex-direction:column;gap:5px}
+.st22-journey h3{font-size:13px;margin:0}.st22-journey .st22-times{font-size:18px;font-weight:850}.st22-journey small{color:#cfdbef;font-size:10px}.st22-journey ul{margin:6px 0;padding-left:20px;font-size:10px;color:#d5e5f4}
+.st22-suggestions{position:absolute;z-index:70;left:0;right:0;top:100%;border:1px solid var(--st22-edge);border-radius:11px;background:#112045f7;box-shadow:0 12px 26px #000b;max-height:220px;overflow-y:auto;padding:3px;backdrop-filter:blur(12px)}
+.st22-suggestions button{display:flex;justify-content:space-between;gap:6px;align-items:center;text-align:left;width:100%;border:0;border-bottom:1px solid #b8c8dd24;background:transparent;color:#fff;padding:9px 7px;min-height:42px}
+.st22-suggestions button:focus-visible,.st22-suggestions button:hover{background:#8e79d544}
+.st22-suggestions button strong{display:block;font-size:11px}.st22-suggestions button small{display:block;font-size:9px;color:#aac8e9}.st22-suggestions button em{font-style:normal;font-size:9px;font-weight:750;color:var(--st22-soft);white-space:nowrap}
+.st22-nav{position:fixed;z-index:80;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);min-height:63px;padding:5px 8px calc(8px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#0a1e39f5;border-top:1px solid var(--st22-edge);backdrop-filter:blur(18px)}
+.st22-nav a{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;font-size:21px;line-height:1.2}.st22-nav small{font-size:10px;font-weight:650;color:#cddff2}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--st22-accent);outline-offset:2px}
+@media(max-width:360px){.st22-shell{padding-inline:8px}.st22-brand-art{max-width:150px}.st22-mode button{font-size:9px}.st22-heading h1{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
