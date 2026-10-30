@@ -1,224 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-29",
-  "generatedAt": "2026-10-29T11:56:22+01:00",
-  "headline": "A reggel fő témái: Audio reveals exchanges between control centre and drivers before deadly Spain train crash; Flávio Bolsonaro denies fleeing Brazil after landing in Miami",
+  "date": "2026-10-30",
+  "generatedAt": "2026-10-30T11:54:12+01:00",
+  "headline": "A reggel fő témái: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens; Mushroom murderer fails to overturn convictions in Australian court challenge",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Audio reveals exchanges between control centre and drivers before deadly Spain train crash",
-        "BBC World: Flávio Bolsonaro denies fleeing Brazil after landing in Miami",
-        "BBC World: Netanyahu's bloc leading Israel election but short of majority, partial results show",
-        "BBC World: Carney to push for closer ties at Canada-EU summit in Montreal"
+        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
+        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
+        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery",
+        "BBC World: How Kenyans got caught in $130m US ghost student scam"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Audio reveals exchanges between control centre and drivers before deadly Spain train crash",
-        "BBC World: Flávio Bolsonaro denies fleeing Brazil after landing in Miami",
-        "BBC World: Carney to push for closer ties at Canada-EU summit in Montreal"
+        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
+        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
+        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Audio reveals exchanges between control centre and drivers before deadly Spain train crash",
-        "BBC World: Flávio Bolsonaro denies fleeing Brazil after landing in Miami",
-        "BBC World: Netanyahu's bloc leading Israel election but short of majority, partial results show"
+        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
+        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
+        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Világgazdaság: Ursula von der Leyen ezt nem várta: Ausztria és Magyarország egymás után fenyegette meg Brüsszelt, hogy a legdurvább eszközhöz nyúl, ha nem változtat – kifakadt az osztrák kancellár - Világgazdaság",
-        "Portfolio.hu: Elszálltak az ingatlanárak Európában, egy mutatóban pedig ismét az utolsó helyen kullog Magyarország - Portfolio.hu",
-        "Economx: Magyar euró! Itt a hivatalos dátum, mikorra lesz kész a bevezetésre Magyarország - Economx"
+        "Portfolio.hu: Fontos bejelentés: Magyarország ismét hozzáfér az EGT és Norvég Alapok forrásaihoz - Portfolio.hu",
+        "24.hu: Két balatonnyi víz hiányzik Magyarország talajából - 24.hu",
+        "Magyarország Kormánya: Történelmi cseh–magyar kormányülés Prágában - Magyarország Kormánya"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Poundland's future hangs in the balance as chain edges towards collapse",
-        "BBC Business: I earn £30,000. I'm angry there was no fuel duty cut in the Budget",
-        "BBC Business: What we now know about the UK economy in four charts"
+        "BBC Business: From Levi's to Primark - the fashion chains selling mended clothes",
+        "BBC Business: Streeting denies 'kicking can down the road' in defence spending row",
+        "BBC Business: Yorkshire Water boss resigns after firm downgraded"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Ofcom outlines age check methods ahead of social media ban for under-16s",
-        "BBC Technology: Details of thousands of US immigration agents leaked in major hack",
-        "BBC Technology: Microsoft profits soar days after announcing thousands of layoffs"
+        "BBC Technology: Crypto giant Binance hit by $6.3bn hack suspected to be largest in history",
+        "BBC Technology: How video game remakes tap the power of nostalgia",
+        "BBC Technology: Google value plunges by $500bn as AI search hits ad sales"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Poundland's future hangs in the balance as chain edges towards collapse (BBC Business)."
+        "Figyelmi pont: Syrians struggle with soaring prices as crisis challenges post-Assad recovery (BBC World).",
+        "Figyelmi pont: Faisal Islam: This Budget was micro and that was deliberate (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Audio reveals exchanges between control centre and drivers before deadly Spain train crash",
-        "BBC World: Flávio Bolsonaro denies fleeing Brazil after landing in Miami"
+        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
+        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Audio reveals exchanges between control centre and drivers before deadly Spain train crash",
+      "title": "Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmqxnl312v34o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c60me298k1yeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Mushroom murderer fails to overturn convictions in Australian court challenge",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck8dz8j5n993o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Syrians struggle with soaring prices as crisis challenges post-Assad recovery",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmn4egvez1yzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "How Kenyans got caught in $130m US ghost student scam",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cxvgdzpy7241o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Helicopter carrying six people crashes in northern Indian state",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cr93zxyn9eqeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Human rights lawyer couple sentenced to 10 years' prison in Pakistan",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/crq5nplyvlg8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Google value plunges by $500bn as AI search hits ad sales",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cm9qzdqpxy48o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-29"
     },
     {
-      "title": "Flávio Bolsonaro denies fleeing Brazil after landing in Miami",
+      "title": "Record number of purges as Xi emphasises 'party discipline' at China political gathering",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6kglwe4lxwzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
+      "url": "https://www.bbc.co.uk/news/articles/cq5ynw94k7kzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "Netanyahu's bloc leading Israel election but short of majority, partial results show",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmdx3knq1xexo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Carney to push for closer ties at Canada-EU summit in Montreal",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq8ezj7jylrzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Building boom puts 300,000 people in the path of potential Himalayan disasters",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c574pj3zljvjo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Death of US actress Hayden Panettiere ruled accidental, ending local police probe",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6lylxjkkp0vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Details of thousands of US immigration agents leaked in major hack",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq8jzkpjr28vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Elon Musk is a 'real genius', Putin says after satellite talks with SpaceX boss",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c63djl148n3eo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Ursula von der Leyen ezt nem várta: Ausztria és Magyarország egymás után fenyegette meg Brüsszelt, hogy a legdurvább eszközhöz nyúl, ha nem változtat – kifakadt az osztrák kancellár - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQcFByQVo3S2dvWnFvX2ZtVmJvQ3ZPbFZDNUNabUhsVnNUOHVVYkZPcU84X1RaQjJUSGVpR0VFckl0M1VjTTRLbDZtMnY5UllRbGd3N1BYb1haeHdnd1FNN2toZ2stSGpZUC1ldW4waFhSMnhiS0FBUFdVaG1XU2VscGlpbWRvNlZkXzVhTDNB?oc=5",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Elszálltak az ingatlanárak Európában, egy mutatóban pedig ismét az utolsó helyen kullog Magyarország - Portfolio.hu",
+      "title": "Fontos bejelentés: Magyarország ismét hozzáfér az EGT és Norvég Alapok forrásaihoz - Portfolio.hu",
       "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNREd0bUsyVk5pMTA2UlVZOE56RHQ2LXRSN0pTRXN1Zkg2bEtnM1BzV3MyQ2NXRnJ5ZTNCOXN6QjdTajA4enlEcDdVQUtzcmNzdzBMQUh4YWxWazE3dG4xQlQ1eXBLMUkzTDhmMFlUa0VMQVY1dzN5SWpoZzNwZjVwMVk3X0dCX2JPbUdQN2Fpblk2UjFxazluOVUwenRKU2VxV1pDekZkcHVpazBRXzcwemlTSnlXX2c5SjJqTFJlX0dHMEx2TzRNRDZpbjNQN2tic1JRckxsS2tWejNHUjdSVnZsd9IB6AFBVV95cUxPclUyZDBwazF5cV9YWGVfaVZhbkl1X1QweWRLRF9fNVJjREUxS1Y0ekhjNXFQdVFueTA4ZHhnNU5RQ0hTT2pMNUdOMVBUVVFLMUFIcEJvY2hDTjBKZFlhcjBfSkkwQkZLR3h5SjJGY2hXRG9nb2ZqZmItYTNFNElSclUzam1XaWVQdFJEdFZKWTYzeUpYLTdlNkZUTEw1VVZlU3JVMG9GbjNFMWhwS3V5anZhdDhIRG5QSkxDbHI2cW5iQnJObjhBVEtQbFV6UTJCRnBxRV9uLTY2UnlnY1hLRlZXQ3pKdFM3?oc=5",
-      "publishedAt": "2026-10-29"
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOekJOSzVyRlh3dTZESW5xQkxCS0ZmLVZYUkVtOTI0ejB4NVVNU3lPRDRYSVNER1lpT0VJWjZWOEwzN3JsXy1COVpIRFVXVHRLLWNYS1h0anVSQjlMczFFQUR2eHJldzl4RGRJMk5OZFI2SVMyYkVYcl9RaGozMW1iTVAtUUp3T29TSG1RNVA0b2J2Yks1YVZVbXF1VWZWY0F0YmNYcExmLW9ZaS1Zd3JnSFBFa0xVTlg1aEdBUEJVdW1kaDVjcHQzWktMMNIB0AFBVV95cUxQd1VTaVA1dFZ1dE5DMHRiMU9zZUlLbm9wZVptT0EtTjI5SldXdG5KXzhIOE4zRnR6V1htMW9aNFRDMU5pbHE2YU9wTGVDdktBcDZ2Mi1Sb0xRZW00R0tOTGNSbHlCZExKNlN5bW9ObXBxbHFFQldYUVRRNjE2QTQxckRYLWdNUnRiX3ItOVlRcHVmdUdYSzMwSTFhZ3JLX0c4cFI5ZWVaelJhdHZ3SDR6NnhPN0VVSjMyMkw0U2xQN0tRTG8yVmQ0Zlhzb3NPXzF3?oc=5",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "Magyar euró! Itt a hivatalos dátum, mikorra lesz kész a bevezetésre Magyarország - Economx",
-      "publisher": "Economx",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOQm1tYjBGc2ZGcDVadElnWlpvU2JjT2szWVF5XzlVUHgzSHo1UG5rVHUzbVoxSFIySERLR2Y1WkZobkhqV3o1cWVXenR2VFZueTZ6eTkya2ZpV1FvblJ2cUVCVlB0N0FvTnM3NGc1TDNFRjBFUVJqZmJmdVlFT3B1ZFVsWEt2d082VzhsdWFWZlJXeC11bEVnUzVxWDlKM1ZTay1BMllmbzFLTjc3RS15MUdsdVR5dw?oc=5",
-      "publishedAt": "2026-10-29"
+      "title": "Két balatonnyi víz hiányzik Magyarország talajából - 24.hu",
+      "publisher": "24.hu",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1HSzVsbVpPd2hnaFZfbkpVOTFJX3JPd0JUWk0ydDRWZ2JIcktoZVZRX2h6SG5wNkozdVcwZHpQZkNRVUVjMlo2R2ZLQWd6aWpYUzBoTkE5SVJ5V19ndmxkNFZJVnRRbVRxRjBocVBnVTdqUVFvVlBNT0M4SE4?oc=5",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "A mai Magyarország területén olyan úthálózatot építettek ki közel kétezer évvel ezelőtt, amelynek nyomai ma is felfedezhetők - Raketa.hu",
-      "publisher": "Raketa.hu",
-      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOWXpIcHZuV0lLTmJCdnc1cEJNS3FOcWNLUmVsbkZTMmRmVmNndHBleGt2OXhUR3ptczVrcnpuTjJ5N09VcG5MQ3FQN3FmNDF6SmlEVXVRZ2h6eUstd1B2TFdETnlmTmNQQjVLaS1CVTJhcnhHdy1YWGRXelhpVl8xZy1FdU16dGpwVTlmRk1sSVlycWw2T0JWQkR0Y1RtbGQ2d2xJMHF6X3JWRUt5T2pjOHhyTVlVRGVmNW5OYUJGbnhDOFh1Y3k3TkJOVHZwRVVkZlVTa1hocEU?oc=5",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Ezermilliárdos számlát kaphat Magyarország: adóemelést és átcsoportosítást is hozhat a NATO elvárása - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxPRS1qZFQ2eVQyODlJczdKdXdaeENVNkIwd0QyWTFjRzdtWk1CdmVYNlU5cGM0dzdnVnR5Y0UyX1NwRzQ5N0cxRElCTnhkcUl5eFFsSEItc3BqdUdlSTA0bXpqc0staExEemRXSGE2aXkyUkw4ZVl2VnhyVG5vSEF0Q2hmTTdVaGMxb0ZRcExDNUZxY2k5Y1V5QVRjUW5lZjZieDNRQkVsOEpBbVZsckZTNzZfclpEeFV1em5sZTlrdEYzNERuMVRIRlRtZzN6bHhjaTdXemZMUmlXMzFVVTVGQmhVSGF1QjTSAewBQVVfeXFMTWdhdHljNzM4R18wV1VqY1RYZWZsRnZLaVZ6Mk9tX0lRRWFfajNKVWFicXN3c2dYTC1uaThXOV81Z01vbTk0QWRaNHAtZTB1MEF6QjV4akhSZjdBaHVUWHFkcDVmaGNMT3Zkem9hNzZleVh5b3dMZDd3UnItQzQtXzdsMEZpOW5OQVliSUhjOG15NmtFbjB2RndNZGI5ajcxaWJsS0hJRmFhbWVkU0xzZE5CSzVZc19HN2JkZVJNcnQ1WlN3aWhTdjk5cXQ0RVMxSW43QlE4ajNuT0tJbFlaNm9qR1c1ZWE2Z1lkNWg?oc=5",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Tiborcz István neve eltűnt a magántőkealapokból – barátait, üzlettársait és az egyik leggazdagabb magyart viszont megtaláltuk - Szeretlek Magyarország",
-      "publisher": "Szeretlek Magyarország",
-      "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxPRVpaT3h2YnZGUXRraFA0V2JQbFdnblRLNnA2T0NvcFBGZDVzZEszNzFpc2RaR2tyZUdxRE8zRnZiVjEwQlVhbUE0UnlYRW9RN3JqYXFXOFFaZXhXYnhtN29SZHdqb2hwLWRMNHk3Sk5sMTdFU0tSNm9QNkVnUFNjX3MtYnAxRUxzNTlJY0thZmMtZHQ1M043VUtLLWNKNmhIV0JtTFV1M2xrSmF5WEtMWW1SbUZBT21teF91TktUaW1scTJkdUdCYXlldENDamVubTJaNnB1UUhiR290dHZwaVIzSFQ2dHVvbGtWOEpQSXRRQU9hdXR5eWZlZlhBZw?oc=5",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Üzbegisztán magyarországi nagykövetét fogadta dr. Szabó Imre Szilárd - Magyarország Kormánya",
+      "title": "Történelmi cseh–magyar kormányülés Prágában - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOU1pYSUdwYnplNFRtN0RlNEdzWWJDQ3ZXTjhXTEpBeGRZaHVoU05Kc0NxNTdaanZEVzhQNnh2UWZvOFo4dXFscFc3OERXcWRJTU51S1N2SGhjOF9RQnJmV05sT2JVWFFfTjlJRmdPMF9jWUxKZ1hKeHJJbEJ0UXZVUk1jZHJ2bXNMVElCSWtvc0oyczZFTDFSZzBiRHhvenBFd2g4RmpQSFNRWDRIWnlYcTRtT3hkQ3hJYXByeVEyY2JXYUNkZGtOMk9OTlc3TWtqSE9zaTB3SQ?oc=5",
-      "publishedAt": "2026-10-29"
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5hRXpWRzBDNEhTaXMtZ2hqaC11UHJBZ0d1akZPazQxNUZuZWV0QjNDaXFpZEVKVmhBenRONkY5STNjOUtTTWNueEhtdUU1ZndIMC1IX3A5Umo5MHNzU19ZZ3J3VDl5M0cyamN6Y2RqYklTaTdENEE?oc=5",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "Magyarország Kormánya. . Érkezés Prágába Andrej Babiš cseh miniszterelnökhöz - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxObE1oU1d5am54M3RYWUVMS19tVGhyRXRXM0ZjcV9LTG5uZGlNNVB6RlhaNmRFTDVkcEdJZ2YyUTF1YWJqeUVHMTdQdXE0aEZxcWI1RzJaN1FyeEdwbWUzdXFHNzVzWVp5N0pUUl80c0p1ck1YLURuX2hZdWRzaUc3Qzg4RlRPYzZDbm5ralU1QndEZnpURTQwcl8wMFBWcklBdE5BaElrZGYzdmttQnVfY2M0MkJ1bnFBVm10WFV4MlpENXU2ZnRMY0JzRDVtdDFSd0s5MGEzb2gzMjhneDhnZg?oc=5",
-      "publishedAt": "2026-10-29"
+      "title": "600 milliárdos gigaüzletet ütött nyélbe, ki is vonul két országból a Tesco. Kiderült, hogy Magyarország is köztük van-e - Forbes.hu",
+      "publisher": "Forbes.hu",
+      "url": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxOS1dWOGFyWmEzV0pUV2E4RTFHYUVjeldCbkJCbmR5UE5oU0FrVGI3WXNYR25Eam5IZExPSlVoenNZSm53a2luWFM5U0M5QkctSy04VlBla3pKVXJjalNnQkZNMDVVaVVNVEZJUEhDeXdjYVFrTUZMWGVWZzVrZGdHRU5Oa2pwR09vRkl0Vm1TUXdhRTF1cUtxel9CNUdMRG5jeWhzdy1vWFdnVXhOSHVpU2JUTkR1UGFMbkplNTFBNEdTRnpxNmdkZ0hhNnBieEVuOTI0bHhVX05DTElHZnc?oc=5",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "Poundland's future hangs in the balance as chain edges towards collapse",
+      "title": "Két tapasztalt vezetővel erősödött a Rossmann Magyarország - Behaviour – a HR-magazin",
+      "publisher": "Behaviour – a HR-magazin",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPMVdvSmxybURKSVRiazFrSUltRW1wLXNDNGZFREFPWThqT244VEtMY1pZTjhycDNLbms5c3pjaENaaEFHdzVMSEFOOG53d3hpLVp6c1VFTHZVSnJXNzVlZVFDdi1NaXpaQmdJaTNpbEk4T2sxRi1haW5MUEFUMjZSYzVXd3RWMW8?oc=5",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "A magyarorszag.hu leállása csak a jéghegy csúcsa volt: 19 kormányzati rendszert érintett a múlt héten felfedezett PHP-hiba - Qubit",
+      "publisher": "Qubit",
+      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNcERDazdITUotbnVQdXVySlRiSlNPS0N0TjdBdnYxMUg2NnI4NkhjU1BVUEg5TkhubTVLYmV2SHJadjZBbU1veWYzOVJOOEFMUktVMHEySElwN0FGS3ZDSndOT25OeC1RR296UHhVMkRFRmpFVVRWX2hhOFlRTVBYMUo5SEVsRnJuTkw2dG5aaWUyaUlJeWY5WUhUX1NZZlBmazV4dlVDV19iTGNfWGhTYUhqQmRmTFRyWHNYSVU3bVd2ZXBmXzVUM1NsendBbUhsd2NXM01zMmJZYldQMkpOUE93?oc=5",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Két fontos megállapodást kötött Magyarország és az Egyesült Államok – az energiaellátás is terítékre került - Frisss.hu",
+      "publisher": "Frisss.hu",
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOODJmc2VuaGU5OXBhc05MdVFRM2tkN294UmlHRDBhZ0wzeHJkZGZPZ3d2czdkOENlWUpyazRad3Nsa3c4S194OGZMN242T0dQN2ZtQWdLVzNlUW1rMkxIdmN0dmhuZWxhQ2pjZGE2bHMyUWZrQnpNWktNYV83aVdxZHNmTjhFcFA4RW41TTRzNEgzZWZtVVJxQ1pmaElMSXNfUGJyUDVoLUZIRDR4VEF6LUZ6M2p2VTVIMFZnWDZkaUhiRDBwSFFSRWxmSFE2bVVnckpZ?oc=5",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Drasztikus lépésre szánta el magát a Tesco: Magyarország is hamarosan sorra kerülhet? - Blikk",
+      "publisher": "Blikk",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQTzZfU0JORlYzOFZuZ2NieGxVMzEyczBkemhKMXZQZEE3YzFWcm1fVm1jamFWNVhhczlaMXgtZVRBSEhKUVZzbXJ1Smkxa2RfTHhtT25uUEtJbEhZMjZRUXE1eFlYZFFXX1VBQkRZZHN6dkMycWhMZ29VSHBTb29lS3hHTlE1Umw3UEJBNXlVUDVZTFd0SGxfajJSRDhYaWVCLVVwbWJUdlE0dUg1Slkxbg?oc=5",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "From Levi's to Primark - the fashion chains selling mended clothes",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmwy9qe5r1z3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Streeting denies 'kicking can down the road' in defence spending row",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cw62yrzxjnk4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Yorkshire Water boss resigns after firm downgraded",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckzd623pldqgo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "How video game remakes tap the power of nostalgia",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm9qz428nnljo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Burnham 'ready to support' Poundland staff as retailer faces collapse",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cqrky1p4dlm7o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-29"
     },
     {
-      "title": "I earn £30,000. I'm angry there was no fuel duty cut in the Budget",
+      "title": "Faisal Islam: This Budget was micro and that was deliberate",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmx235r9wr3yo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cwx283zynnv3o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-29"
     },
     {
-      "title": "What we now know about the UK economy in four charts",
+      "title": "Crypto giant Binance hit by $6.3bn hack suspected to be largest in history",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c9x28350ly07o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
+      "url": "https://www.bbc.co.uk/news/articles/cwg7xp8kx4v5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
     },
     {
-      "title": "What the Budget offers for under 25s - and what it leaves out",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c60e05yn3w9zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "'I live with a ghost' - inside the haunted homes attracting bargain hunters",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqwy78elyrlzo?at_medium=RSS&at_campaign=rss",
+      "title": "Ofcom outlines age check methods ahead of social media ban for under-16s",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/c6ly3027820lo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Your pay, energy bills and savings: How the Budget affects you",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cr0j05vxlwjzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Healey unveils £100 for energy bills and bank tax in first Budget",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqpvgxz3y49go?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
-    },
-    {
-      "title": "Dharshini David: Healey buys himself some time, but big questions still unanswered",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqe9l4px0yzxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-28"
     }
   ]
 }
