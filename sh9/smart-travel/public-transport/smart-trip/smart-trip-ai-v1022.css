@@ -50,8 +50,11 @@ a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cur
 .st22-suggestions button{display:flex;justify-content:space-between;gap:6px;align-items:center;text-align:left;width:100%;border:0;border-bottom:1px solid #b8c8dd24;background:transparent;color:#fff;padding:9px 7px;min-height:42px}
 .st22-suggestions button:focus-visible,.st22-suggestions button:hover{background:#8e79d544}
 .st22-suggestions button strong{display:block;font-size:11px}.st22-suggestions button small{display:block;font-size:9px;color:#aac8e9}.st22-suggestions button em{font-style:normal;font-size:9px;font-weight:750;color:var(--st22-soft);white-space:nowrap}
-.st22-nav{position:fixed;z-index:80;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);min-height:63px;padding:5px 8px calc(8px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#0a1e39f5;border-top:1px solid var(--st22-edge);backdrop-filter:blur(18px)}
-.st22-nav a{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;font-size:21px;line-height:1.2}.st22-nav small{font-size:10px;font-weight:650;color:#cddff2}
+.st22-nav{position:fixed;z-index:80;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);min-height:63px;padding:5px 5px calc(8px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#0a1e39f5;border-top:1px solid var(--st22-edge);backdrop-filter:blur(18px)}
+.st22-nav a,.st22-nav button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:transparent;border:0;min-width:0;padding:3px 0;line-height:1.2;color:#cbdcf3}
+.st22-nav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.st22-nav small{font-size:10px;font-weight:650;color:#cddff2}
+.st22-notice{position:fixed;z-index:90;bottom:84px;left:50%;transform:translateX(-50%);width:min(91vw,350px);border:1px solid var(--st22-edge);border-radius:12px;padding:12px;background:#172b52;color:#fff;font-size:11px;box-shadow:0 8px 20px #0007}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--st22-accent);outline-offset:2px}
 @media(max-width:360px){.st22-shell{padding-inline:8px}.st22-brand-art{max-width:150px}.st22-mode button{font-size:9px}.st22-heading h1{font-size:20px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
