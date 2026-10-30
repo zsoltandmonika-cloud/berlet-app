@@ -38,8 +38,9 @@
 /* v1044: zero layout shift, phone-sized, readable manual failover. */
 .sh9-ota-manual-v1044[hidden],.sh9-ota-manual-v1044 a[hidden]{display:none!important}
 .sh9-ota-manual-v1044{
- box-sizing:border-box;position:absolute;z-index:13;right:8px;top:56px;
- width:min(304px,calc(100% - 16px));max-height:calc(100% - 62px);overflow:auto;
+ box-sizing:border-box;position:fixed;z-index:101;right:max(8px,calc((100vw - 420px)/2 + 8px));
+ top:calc(60px + env(safe-area-inset-top,0px));
+ width:min(304px,calc(100vw - 16px));max-height:min(74dvh,390px);overflow:auto;
  padding:11px;background:linear-gradient(135deg,rgba(7,28,62,.96),rgba(40,30,72,.96));
  border:1px solid rgba(188,218,255,.7);border-radius:16px;
  box-shadow:0 9px 24px rgba(0,7,22,.6);color:#f3f8ff;
