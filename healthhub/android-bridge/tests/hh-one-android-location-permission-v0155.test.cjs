@@ -11,7 +11,7 @@ const service=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9GpsServi
 const build=read('app/build.gradle.kts');
 
 test('v0.15.10 signed OTA candidate above installed build33',()=>{
- assert.match(build,/versionCode = 37/);
+ assert.match(build,/versionCode = 38/);
  assert.match(build,/versionName = "0\.15\.10"/);
  assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
 });
