@@ -16,24 +16,36 @@
  const qs=new URLSearchParams(w.location.search);
  const queryBuild=Number(qs.get('hhBuildCode'));
  const queryOwner=qs.get('hhOwner');
+ const queryHealth=qs.get('hhServiceHealth');
+ const querySeen=Number(qs.get('hhServiceSeenAt'));
  const native=qs.get('sh9native')==='1';
  const trustedLaunch=native&&Number.isInteger(queryBuild)&&queryBuild>0&&
    (queryOwner==='zsolt'||queryOwner==='monika');
  const KEY='sh9-ota-native-session-v1043';
+ const STATUS_MAX_AGE=10*60*1000;
+ const allowedHealth=['ok','warning','unknown'];
  let cached=null;
  try{
    if(trustedLaunch){
-     cached={build:queryBuild,owner:queryOwner};
+     cached={build:queryBuild,owner:queryOwner,
+       health:allowedHealth.includes(queryHealth)?queryHealth:'unknown',
+       seenAt:Number.isFinite(querySeen)&&querySeen>0?querySeen:0};
      w.sessionStorage?.setItem(KEY,JSON.stringify(cached));
    }else{
      const raw=JSON.parse(w.sessionStorage?.getItem(KEY)||'null');
      if(raw&&Number.isInteger(raw.build)&&raw.build>0&&
        (raw.owner==='zsolt'||raw.owner==='monika'))cached=raw;
    }
- }catch(_){cached=trustedLaunch?{build:queryBuild,owner:queryOwner}:null}
+ }catch(_){cached=trustedLaunch?{build:queryBuild,owner:queryOwner,
+   health:allowedHealth.includes(queryHealth)?queryHealth:'unknown',seenAt:querySeen}:null}
  const build=cached?.build;
  const owner=cached?.owner;
  const known=!!cached;
+ function nativeHealth(){
+  const seen=Number(cached?.seenAt);
+  if(!Number.isFinite(seen)||seen<=0||seen>Date.now()+5000||Date.now()-seen>STATUS_MAX_AGE)return 'unknown';
+  return allowedHealth.includes(cached?.health)?cached.health:'unknown';
+ }
  let last=0,busy=false;
  function state(name,message,link){
   el.dataset.state=name;
@@ -42,7 +54,7 @@
   el.href=link||SETTINGS;
   detail.textContent=message;
   el.querySelector('.sh9-ota-label-v1043').textContent=
-    name==='update'?'UPDATE':name==='ok'?'':'?';
+    name==='update'?'UPDATE':name==='ok'?'':name==='warning'?'!':'?';
  }
  function valid(m){
   if(!m||m.schema!=='healthhub.connect.ota/1'||
@@ -67,12 +79,17 @@
    if(!r.ok)throw Error('OTA manifest HTTP '+r.status);
    const m=await r.json();
    if(!valid(m))throw Error('Nem ellenőrizhető aláírt OTA kiadás.');
+   const service=nativeHealth();
    if(m.versionCode>build&&m.rolloutProfiles.includes(owner)){
     state('update','SYSTEM UPDATE AVAILABLE · HH One v'+m.version+
-      ' · nyomj ide a telepítéshez.',build>=38?DIRECT:SETTINGS);
+      ' · koppints az ellenőrzött frissítéshez.',build>=38?DIRECT:SETTINGS);
+   }else if(service==='warning'){
+    state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',SETTINGS);
+   }else if(m.versionCode<=build&&service==='ok'){
+    state('ok','SH9 SYSTEM OK · HH One naprakész (build '+build+
+      ') és a natív szolgáltatás az indításkor rendben volt. Nem folyamatos mérés.',SETTINGS);
    }else if(m.versionCode<=build){
-    state('ok','HH One naprakész · telepített build '+build+
-      ' · OTA v'+m.version+'. Ez nem GPS-állapotjelzés.',SETTINGS);
+    state('unknown','HH One naprakész · a natív szolgáltatás aktuális állapota még nem igazolt.',SETTINGS);
    }else{
     state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',SETTINGS);
    }
@@ -82,6 +99,12 @@
  }
  state('unknown','HH One frissítés ellenőrzése…',SETTINGS);
  void check(false);
- d.addEventListener('visibilitychange',()=>{if(!d.hidden)void check(false)});
- w.addEventListener('pageshow',()=>void check(false));
+ d.addEventListener('visibilitychange',()=>{if(!d.hidden){
+  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás állapotellenőrzése elöregedett. Koppints a HH One-hoz.',SETTINGS);
+  void check(false);
+ }});
+ w.addEventListener('pageshow',()=>{
+  if(el.dataset.state==='ok'&&nativeHealth()!=='ok')state('unknown','A natív szolgáltatás ellenőrzése már nem friss. Koppints a HH One-hoz.',SETTINGS);
+  void check(false);
+ });
 })(window,document);
