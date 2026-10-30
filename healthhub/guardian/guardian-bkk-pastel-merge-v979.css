@@ -1,0 +1,137 @@
+/* Family Guard v979 · Golden BKK planner melts into the existing
+   profile-aware pastel one-card sheet. Visual-only: no geometry, logic,
+   GPS, network, time-picker or profile data changes. Loaded after v975. */
+
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968.hh-bkk-golden-v968{
+ --gtext:var(--hhg-ink,#193653);
+ --gmuted:var(--hhg-muted,#4d6984);
+ --gaccent:var(--hhg-accent,#78b4e6);
+ --goutline:rgba(255,255,255,.72);
+ --gdeep:rgba(255,255,255,.26);
+ --gglow:transparent;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ padding:8px 0 9px!important;
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-head-v968 h2{
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939{
+ background:rgba(255,255,255,.38)!important;
+ border-color:rgba(255,255,255,.72)!important;
+ box-shadow:none!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button{
+ color:var(--hhg-muted,#4d6984)!important;
+ background:transparent!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ background:var(--hhg-selected,rgba(153,207,247,.68))!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.72)!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806{
+ background:rgba(255,255,255,.32)!important;
+ border-color:rgba(255,255,255,.76)!important;
+ box-shadow:none!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806 > [data-golden-field="from"]{
+ border-bottom-color:rgba(113,105,143,.18)!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input{
+ color:var(--hhg-ink,#193653)!important;
+ text-shadow:none!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input::placeholder{
+ color:var(--hhg-muted,#4d6984)!important;
+ opacity:.90!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968:before{
+ background:rgba(104,121,146,.34)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-rail-v968 span{
+ background:rgba(255,255,255,.82)!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubCurrentPositionV860,
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubSwapV806{
+ background:var(--hhg-selected,rgba(153,207,247,.68))!important;
+ border-color:rgba(255,255,255,.72)!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:none!important;
+}
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-smart-hub-current-icon-v860{
+ color:var(--hhg-ink,#193653)!important;
+}
+/* Same sheet, no separate dark date box; retain 50/50 and whole-area taps. */
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ background:rgba(255,255,255,.24)!important;
+ border-color:rgba(255,255,255,.68)!important;
+ box-shadow:none!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968),
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968) > span,
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-date-v968,.hh-bkk-golden-time-v968) b{
+ color:var(--hhg-ink,#193653)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ border-left-color:rgba(113,105,143,.19)!important;
+}
+/* Main actions should remain recognizable, not neon or dark inset tiles. */
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-actions-v968 button,
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-quick-v968 button{
+ color:var(--hhg-ink,#193653)!important;
+ border-color:rgba(255,255,255,.76)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.62)!important;
+ text-shadow:none!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-search-v968{
+ background:linear-gradient(125deg,var(--hhg-selected,rgba(153,207,247,.68)),rgba(255,255,255,.57))!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-schedule-v968{
+ background:rgba(255,255,255,.42)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-quick-v968 button{
+ background:rgba(255,255,255,.37)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-trips-v968{
+ background:rgba(255,255,255,.35)!important;
+ border-color:rgba(255,255,255,.68)!important;
+ color:var(--hhg-ink,#193653)!important;
+ box-shadow:none!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-saved-v968{
+ border-bottom-color:rgba(113,105,143,.19)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-saved-v968 button{
+ background:var(--hhg-selected,rgba(153,207,247,.68))!important;
+ color:var(--hhg-ink,#193653)!important;
+ border-color:rgba(255,255,255,.75)!important;
+}
+:root[data-guardian-profile] #hhBkkGoldenPlannerV968
+ :is(.hh-bkk-golden-status-v968,#hhPlannerTimeStatusV939){
+ color:var(--hhg-ink,#193653)!important;
+}
+/* The 'Innen · Következő járatok' action is injected after the route actions.
+   Override its separate saturated gradient without changing its click handler. */
+:root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkNearQuickV975.hh-bkk-near-quick-v975{
+ background:linear-gradient(120deg,var(--hhg-selected,rgba(153,207,247,.68)),rgba(255,255,255,.53))!important;
+ color:var(--hhg-ink,#193653)!important;
+ border-color:rgba(255,255,255,.80)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.68)!important;
+ text-shadow:none!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ :root[data-guardian-profile] #hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968,
+ :root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 #hhSmartHubPairedV806,
+ :root[data-guardian-profile] #hhSmartHubDestinationV802 #hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939{
+  background:#fff!important;
+ }
+}
