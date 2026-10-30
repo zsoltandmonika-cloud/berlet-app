@@ -20,7 +20,7 @@
  const label=p=>p==='monika'?'Mónika':'Zsolt';
  const authorized=()=>w.HH_GUARDIAN_LIVE_V785?.familyAuthorized===true;
  const validId=id=>typeof id==='string'&&/^android-[a-zA-Z0-9-]{1,83}$/.test(id);
- const noOffer=(message)=>{notice.hidden=true;action.hidden=true;action.href='#';check.disabled=false;if(message)feedback.textContent=message};
+ const noOffer=(message)=>{notice.hidden=true;notice.href='#';action.hidden=true;action.href='#';check.disabled=false;if(message)feedback.textContent=message};
  async function token(){
   const v=w.HH_DROPBOX_VAULT;
   if(v?.connected?.()&&typeof v.accessToken==='function')return v.accessToken();
@@ -79,13 +79,22 @@
    if(device?.schema!=='healthhub.orchestrator.device/1'||device.deviceType!=='android'||
      device.deviceId!==id||device.activeProfile!==p)throw Error('A telefon és tulajdonosi profil nem egyezik.');
    const installed=Number(device.buildCode);
+   const lastSeen=Date.parse(device.lastSeenAt||'');
+   if(!Number.isFinite(lastSeen)||lastSeen>Date.now()+5000||Date.now()-lastSeen>20*60000){
+    noOffer('A telefon utolsó jelentése régi. Nincs igazolt friss verzióállapot; a frissítés manuálisan ellenőrizhető a HH One-ban.');
+    return;
+   }
    if(!Number.isInteger(installed)||installed<1){noOffer('A telepített HH One verziója nem ellenőrizhető.');return}
    if(installed>=m.versionCode){
     noOffer('✓ '+label(p)+': HH One naprakész a legutóbbi telefonjelentés szerint (build '+installed+').');
     return;
    }
-   action.href=installed>=38?'healthhubconnect://settings?ota=install':m.downloadUrl;
-   action.textContent=installed>=38?'📦 Frissítés · HH One megnyitása':'📥 Frissítés · APK letöltése';
+   // The installed v0.15.10 already supports the signed OTA installer from its
+   // settings screen. Older clients cannot understand the new ?ota=install deep link.
+   // One family click opens HH One, then one tap on its existing "Telepítés" button.
+   action.href=installed>=38?'healthhubconnect://settings?ota=install':'healthhubconnect://settings';
+   notice.href=action.href;
+   action.textContent=installed>=38?'📦 Ellenőrzött frissítés telepítése':'📦 HH One telepítő megnyitása';
    action.setAttribute('aria-label',label(p)+' HH One v'+m.version+
      ' frissítés. A telepítés az adott telefonon és Android-jóváhagyással történik.');
    notice.hidden=false;action.hidden=false;
@@ -101,6 +110,9 @@
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'){epoch++;lastRead=0;void refresh(true)}});
  d.getElementById('guardianProfileSwitch')?.addEventListener('click',()=>{
   epoch++;lastRead=0;w.setTimeout(()=>void refresh(true),80);
+ });
+ notice.addEventListener('click',e=>{
+  if(notice.hidden||notice.getAttribute('href')==='#')e.preventDefault();
  });
  action.addEventListener('click',e=>{
   if(notice.hidden||action.getAttribute('href')==='#'){e.preventDefault();return}
