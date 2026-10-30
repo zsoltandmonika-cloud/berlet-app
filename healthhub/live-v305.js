@@ -252,11 +252,11 @@ function eligiblePhone(d,r,profile){
  if(r.archived.includes(d.deviceId))return false;
  return r.activePhones[d.activeProfile]===d.deviceId;
 }
-async function dispatch(profileScope,deviceFilter,overrideScope){
+async function dispatch(profileScope,deviceFilter,overrideScope,adminConfig){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'].includes(scope))
+ if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request','gps_repair','remote_config','agent_reconcile'].includes(scope))
   throw new Error('Ismeretlen vagy nem támogatott Android távoli művelet.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
@@ -273,6 +273,15 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  if(['gps_stop','gps_resume_request','sos_contact_request'].includes(scope)&&selected.some(function(d){
    return !Array.isArray(d.capabilities)||!d.capabilities.includes(scope)||Number(d.buildCode)<33;
   }))throw new Error('A kijelölt HH One v0.15.6+ nem jelezte a vészhelyzeti művelet előzetes tulajdonosi engedélyét.');
+ if(['gps_repair','remote_config','agent_reconcile'].includes(scope)&&selected.some(function(d){
+   return !Array.isArray(d.capabilities)||!d.capabilities.includes(scope)||Number(d.buildCode)<38;
+ }))throw new Error('SH9 Remote Admin v0.15.11+ és egyszeri telefonos jóváhagyás szükséges.');
+ if(scope==='remote_config'&&!(adminConfig&&
+   Object.keys(adminConfig).length===1&&Number.isInteger(adminConfig.gpsIntervalSeconds)&&
+   [15,30,60].includes(adminConfig.gpsIntervalSeconds)))
+   throw new Error('A Remote Config csak az engedélyezett GPS 15/30/60 mp értéket fogadja el.');
+ if(scope!=='remote_config'&&adminConfig!=null)
+   throw new Error('Ehhez a parancshoz nem tartozhat konfigurációs payload.');
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
   var cmd={
@@ -281,6 +290,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
       (['gps_stop','gps_resume_request','sos_contact_request'].includes(scope)?40*60*1000:24*3600*1000)).toISOString(),
    requestedBy:deviceId(),profileScope:d.activeProfile,scopes:[scope],state:'pending'
   };
+  if(scope==='remote_config')cmd.config={gpsIntervalSeconds:adminConfig.gpsIntervalSeconds};
   await upload(commandPath(d.deviceId),cmd);
   await upload(statusPath(d.deviceId),{
    schema:'healthhub.orchestrator.status/1',deviceId:d.deviceId,deviceType:d.deviceType||'device',
@@ -293,7 +303,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope){
  return {commandId:id,devices:selected.length};
 }
 window.hhOrchestratorDispatch305=function(profile,device){return dispatch(profile||'all',device||null)};
-window.hhOrchestratorDispatchScope355=function(profile,device,scope){return dispatch(profile||'all',device||null,scope||'health')};
+window.hhOrchestratorDispatchScope355=function(profile,device,scope,config){return dispatch(profile||'all',device||null,scope||'health',config)};
 window.hhOrchestratorCheck305=function(){return checkCommand(true)};
 window.hhOrchestratorHeartbeat305=heartbeat;
 window.hhOrchestratorDevices305=loadDevices;
