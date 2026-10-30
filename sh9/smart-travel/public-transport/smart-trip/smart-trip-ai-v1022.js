@@ -263,7 +263,13 @@
   const p=profile();
   d.documentElement.dataset.st22Profile=p;
   const button=$('st22Profile');
-  if(button){button.textContent=(p==='m'?'Mónika':'Zsolt')+' ⇄';button.setAttribute('aria-label','Profilváltás: '+(p==='m'?'Mónikáról Zsoltra':'Zsoltról Mónikára'))}
+  if(button){
+   const name=p==='m'?'Mónika':'Zsolt';
+   const photo=$('st22ProfilePhoto'),avatars=w.HH_GOLDEN_AVATARS_V529||{};
+   if(photo){if(avatars[p])photo.src=avatars[p];photo.alt=name+' eredeti profilképe'}
+   button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
+   button.title=name+' · Profilváltás';
+  }
   if(clearFields){clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
  }
  function showFamilyMap(){
@@ -289,6 +295,10 @@
  });
  d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place'))fields.forEach(close)});
  form.addEventListener('submit',searchTrip);
+ $('st22Favorites')?.addEventListener('click',()=>{
+  const field=!from.value.trim()?from:!to.value.trim()?to:from;
+  field.focus();field.scrollIntoView?.({behavior:'smooth',block:'center'});
+ });
  $('st22Map')?.addEventListener('click',showFamilyMap);
  $('st22Notifier')?.addEventListener('click',()=>{
   const note=$('st22Notice');
