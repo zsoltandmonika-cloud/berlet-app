@@ -198,8 +198,11 @@ object OtaUpdateManager {
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, "HealthHub alkalmazásfrissítések", NotificationManager.IMPORTANCE_DEFAULT)
         )
-        val tapIntent = Intent(context, MainActivity::class.java).apply {
-            putExtra("openNativeSettings", true)
+        // A real tap on this Android notification is explicit owner consent
+        // to START verification, NOT consent to silently install an APK.
+        // Reuses the same one-tap signed updater as the SH9 amber indicator.
+        val tapIntent = Intent(context, OneTapOtaActivity::class.java).apply {
+            putExtra(OneTapOtaActivity.EXTRA_FROM_SH9_TAP, true)
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
         val tap = PendingIntent.getActivity(

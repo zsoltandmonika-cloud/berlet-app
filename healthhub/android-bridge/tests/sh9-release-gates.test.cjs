@@ -79,7 +79,8 @@ test('one-tap SH9 startup and safe automatic signed OTA notifications',()=>{
   assert.match(activity,/intent\?\.getBooleanExtra\("openNativeSettings", false\) != true/);
   assert.match(updates,/PeriodicWorkRequestBuilder<OtaCheckWorker>\(6, TimeUnit.HOURS\)/);
   assert.match(updates,/ExistingPeriodicWorkPolicy.UPDATE/);
-  assert.match(updates,/putExtra\("openNativeSettings", true\)/);
+  assert.match(updates,/Intent\(context, OneTapOtaActivity::class\.java\)/);
+  assert.match(updates,/OneTapOtaActivity\.EXTRA_FROM_SH9_TAP, true/);
   assert.match(activity,/OtaUpdateManager.notifyAvailable\(this@MainActivity, found\)/);
   assert.doesNotMatch(updates,/ACTION_INSTALL_PACKAGE|REQUEST_DELETE_PACKAGES/);
 });

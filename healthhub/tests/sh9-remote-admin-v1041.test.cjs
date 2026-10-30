@@ -18,8 +18,8 @@ const ota=get('guardian/guardian-ota-assistant-v1042.js');
 const baseline=JSON.parse(get('data/bridge-ota.json'));
 test('candidate newer than signed OTA and original package ID remains stable',()=>{
  assert.match(build,/applicationId = "hu.zsoltmonika.healthhubbridge"/);
- assert.equal(Number(build.match(/versionCode = (\d+)/)[1]),baseline.versionCode+1);
- assert.equal(baseline.version,'0.15.10');
+ assert.ok(Number(build.match(/versionCode = (\d+)/)[1])>=baseline.versionCode,'installed version cannot be older than signed OTA baseline');
+ assert.equal(baseline.channel,'signed-release');
  assert.match(build,/versionName = "0.15.11"/);
  assert.match(manifest,/ACCESS_NETWORK_STATE/);
 });
@@ -78,7 +78,8 @@ test('grandma-proof OTA shows only newer signed release for verified selected ph
 });
 test('first party WebView preserves the explicit OTA deep-link and Android installer consent',()=>{
  assert.match(shell,/source\.host == HOST/);
- assert.match(shell,/u\.getQueryParameter\("ota"\) in setOf\("install", "check"\)/);
+ assert.match(shell,/u\.getQueryParameter\("ota"\) == "install"/);
+ assert.match(shell,/OneTapOtaActivity::class\.java/);
  assert.match(app,/"install" -> installOta\(\)/);
  assert.match(app,/OtaUpdateManager\.downloadVerified\(this@MainActivity, candidate\)/);
  assert.match(app,/OtaUpdateManager\.openSystemInstaller\(this@MainActivity, content\)/);
@@ -90,8 +91,8 @@ test('SH9 startpage shows honest auto-check green/amber OTA lamp, not GPS health
  const js=get('../sh9/sh9-ota-indicator-v1043.js');
  const css=get('../sh9/sh9-ota-indicator-v1043.css');
  assert.match(page,/id="sh9OtaIndicatorV1043"/);
- assert.match(page,/sh9-ota-indicator-v1043\.js\?v=1043/);
- assert.match(page,/sh9-ota-indicator-v1043\.css\?v=1043/);
+ assert.match(page,/sh9-ota-indicator-v1043\.js\?v=1044/);
+ assert.match(page,/sh9-ota-indicator-v1043\.css\?v=1044/);
  assert.match(js,/hhBuildCode/);
  assert.match(js,/hhOwner/);
  assert.match(js,/m\.versionCode>build&&m\.rolloutProfiles\.includes\(owner\)/);

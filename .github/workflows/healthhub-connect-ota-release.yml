@@ -43,8 +43,9 @@ jobs:
           if [[ -n "$HH_OTA_KEYSTORE_B64" && -n "$HH_OTA_KEYSTORE_PASSWORD" && -n "$HH_OTA_KEY_ALIAS" && -n "$HH_OTA_KEY_PASSWORD" ]]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::OTA signing not configured. NO update is released. See healthhub/android-bridge/OTA_DEPLOYMENT.md"
+            echo "::error::OTA signing not configured. NO update released. Configure the four HH_OTA signing secrets; see healthhub/android-bridge/OTA_DEPLOYMENT.md"
             echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
 
       - uses: actions/setup-java@v4
