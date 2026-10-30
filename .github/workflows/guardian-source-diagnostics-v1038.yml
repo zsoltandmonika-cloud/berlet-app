@@ -1,0 +1,28 @@
+name: Family Guard native source diagnostics v1038
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+      - 'healthhub/guardian/guardian-profile-battery-v841.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-source-diagnostics-v1038.test.cjs'
+      - '.github/workflows/guardian-source-diagnostics-v1038.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+      - 'healthhub/guardian/guardian-profile-battery-v841.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-source-diagnostics-v1038.test.cjs'
+jobs:
+  source-diagnostics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check healthhub/guardian/guardian-live-trio-v845.js
+          node --check healthhub/guardian/guardian-profile-battery-v841.js
+          node --test healthhub/tests/guardian-source-diagnostics-v1038.test.cjs
