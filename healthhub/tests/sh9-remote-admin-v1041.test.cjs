@@ -27,6 +27,11 @@ test('remote admin is opt-in, owner-bound, can be revoked, and not a remote shel
  assert.match(admin,/KEY_CONSENT = "hh_one_remote_admin_consent_v1041"/);
  assert.match(admin,/getBoolean\(KEY_CONSENT, false\)/);
  assert.match(app,/setPositiveButton\("Egyszer engedélyezem"/);
+ assert.match(app,/openSh9WithRemoteAdminConsent\(\)/);
+ assert.match(app,/KEY_FIRST_RUN_SHOWN/);
+ assert.match(app,/setPositiveButton\("✅ Engedélyezem"/);
+ assert.match(app,/setNegativeButton\("Most nem"/);
+ assert.match(app,/putBoolean\(OneRemoteAdmin.KEY_CONSENT, allow\)/);
  assert.match(app,/deviceOwnerProfile\(\) == null/);
  assert.match(app,/OneRemoteAdmin\.revoke\(prefs\)/);
  assert.match(app,/putBoolean\(OneRemoteAdmin.KEY_CONSENT, false\)/);
