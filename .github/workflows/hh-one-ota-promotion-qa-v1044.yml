@@ -5,11 +5,23 @@ on:
       - '.github/workflows/hh-one-ota-promote-family-v1044.yml'
       - '.github/workflows/hh-one-ota-promotion-qa-v1044.yml'
       - 'healthhub/tests/ota-pilot-promotion-v1044.test.cjs'
+      - 'healthhub/android-bridge/tests/hh-one-ota-direct-v1044.test.cjs'
+      - 'healthhub/tests/sh9-ota-indicator-v1043.test.cjs'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/index.html'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OneTapOtaActivity.kt'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt'
   push:
     branches: [main]
     paths:
       - '.github/workflows/hh-one-ota-promote-family-v1044.yml'
       - 'healthhub/tests/ota-pilot-promotion-v1044.test.cjs'
+      - 'healthhub/android-bridge/tests/hh-one-ota-direct-v1044.test.cjs'
+      - 'healthhub/tests/sh9-ota-indicator-v1043.test.cjs'
+      - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/index.html'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OneTapOtaActivity.kt'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt'
 jobs:
   promotion-guardrails:
     runs-on: ubuntu-latest
@@ -21,4 +33,5 @@ jobs:
       - name: Validate workflow syntax and release guardrails
         run: |
           ruby -e 'require "yaml"; YAML.load_file(".github/workflows/hh-one-ota-promote-family-v1044.yml", aliases: true)'
-          node --test healthhub/tests/ota-pilot-promotion-v1044.test.cjs
+          node --check sh9/sh9-ota-indicator-v1043.js
+          node --test healthhub/tests/ota-pilot-promotion-v1044.test.cjs healthhub/tests/sh9-ota-indicator-v1043.test.cjs healthhub/android-bridge/tests/hh-one-ota-direct-v1044.test.cjs
