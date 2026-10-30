@@ -1,0 +1,112 @@
+/* Family Guard · HH One owner-controlled OTA assistant v1042.
+ * No background downloads or installation. Reads one signed-release manifest
+ * and 2 private device-registry files on demand, max once per six hours unless
+ * the family admin explicitly presses "Ellenőrzés".
+ */
+(function(w,d){
+ 'use strict';
+ const notice=d.getElementById('guardianOtaAlertV1042');
+ const action=d.getElementById('guardianOtaOpenV1042');
+ const check=d.getElementById('guardianOtaCheckV1042');
+ const feedback=d.getElementById('guardianOtaStatusV1042');
+ if(!notice||!action||!check||!feedback)return;
+ const REG='/HealthHub/orchestrator/device-registry-v401.json';
+ const PREFIX='/HealthHub/orchestrator/devices/';
+ const CACHE_MS=6*3600000;
+ const TOKEN='hh-dropbox-token-v2',APP='t68rmhh5f1l8d85';
+ const OTA='../data/bridge-ota.json';
+ let busy=false,lastRead=0,epoch=0;
+ const owner=()=>w.localStorage?.getItem('hh-profile')==='m'?'monika':'zsolt';
+ const label=p=>p==='monika'?'Mónika':'Zsolt';
+ const authorized=()=>w.HH_GUARDIAN_LIVE_V785?.familyAuthorized===true;
+ const validId=id=>typeof id==='string'&&/^android-[a-zA-Z0-9-]{1,83}$/.test(id);
+ const noOffer=(message)=>{notice.hidden=true;action.href='#';check.disabled=false;if(message)feedback.textContent=message};
+ async function token(){
+  const v=w.HH_DROPBOX_VAULT;
+  if(v?.connected?.()&&typeof v.accessToken==='function')return v.accessToken();
+  let t=null;
+  try{t=JSON.parse(w.localStorage?.getItem(TOKEN)||'null')}catch(_){}
+  if(!t||typeof t.refresh_token!=='string')throw Error('Dropbox Vault kapcsolat hiányzik ebben a böngészőben.');
+  if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
+  const res=await w.fetch('https://api.dropboxapi.com/oauth2/token',{
+   method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+   body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP})
+  });
+  if(!res.ok)throw Error('Dropbox kapcsolat megújítása sikertelen.');
+  const body=await res.json();
+  if(typeof body.access_token!=='string')throw Error('Dropbox hozzáférés nem használható.');
+  t.access_token=body.access_token;
+  t.expires_at=Date.now()+(Number(body.expires_in)||14400)*1000-60000;
+  w.localStorage.setItem(TOKEN,JSON.stringify(t));
+  return t.access_token;
+ }
+ async function read(path){
+  const v=w.HH_DROPBOX_VAULT;
+  if(v?.connected?.()&&typeof v.downloadJson==='function')return v.downloadJson(path);
+  const t=await token();
+  const r=await w.fetch('https://content.dropboxapi.com/2/files/download',{
+   method:'POST',headers:{Authorization:'Bearer '+t,'Dropbox-API-Arg':JSON.stringify({path})},cache:'no-store'
+  });
+  if(!r.ok)throw Error('Privát eszközadat nem elérhető: '+r.status);
+  return r.json();
+ }
+ function validRelease(m,p){
+  if(!m||m.schema!=='healthhub.connect.ota/1'||m.channel!=='signed-release'||
+    m.applicationId!=='hu.zsoltmonika.healthhubbridge'||!Number.isInteger(m.versionCode)||
+    !/^\d+\.\d+\.\d+$/.test(m.version||'')||!/^[a-f0-9]{64}$/.test(m.sha256||'')||
+    !Array.isArray(m.rolloutProfiles)||!m.rolloutProfiles.includes(p))return false;
+  const expected='https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/'+
+   'healthhub-connect-ota-v'+m.version+'/HealthHub-Connect-v'+m.version+'-ota.apk';
+  return m.downloadUrl===expected;
+ }
+ async function refresh(force){
+  if(busy||(!force&&Date.now()-lastRead<CACHE_MS))return;
+  const generation=++epoch,p=owner();
+  busy=true;lastRead=Date.now();check.disabled=true;noOffer('📦 HH One: kiadási verzió ellenőrzése…');
+  try{
+   // The public release may only be advertised after manual signed publication.
+   const releaseRes=await w.fetch(OTA,{cache:'no-store'});
+   if(!releaseRes.ok)throw Error('OTA verzióleíró nem érhető el.');
+   const m=await releaseRes.json();
+   if(!validRelease(m,p)){noOffer('Ehhez a profilhoz nincs ellenőrzött OTA-kiadás.');return}
+   if(!authorized()){noOffer('A frissítésjelzéshez hitelesített Family Live és Dropbox Vault szükséges.');return}
+   const registry=await read(REG);
+   const id=registry?.activePhones?.[p];
+   if(registry?.schema!=='healthhub.device_registry/1'||!Array.isArray(registry.archived)||
+      !validId(id)||registry.archived.includes(id))throw Error('A kijelölt fizikai telefon nincs hitelesítve.');
+   const device=await read(PREFIX+id+'.json');
+   if(generation!==epoch||p!==owner()||!authorized())return;
+   if(device?.schema!=='healthhub.orchestrator.device/1'||device.deviceType!=='android'||
+     device.deviceId!==id||device.activeProfile!==p)throw Error('A telefon és tulajdonosi profil nem egyezik.');
+   const installed=Number(device.buildCode);
+   if(!Number.isInteger(installed)||installed<1){noOffer('A telepített HH One verziója nem ellenőrizhető.');return}
+   if(installed>=m.versionCode){
+    noOffer('✓ '+label(p)+': HH One naprakész a legutóbbi telefonjelentés szerint (build '+installed+').');
+    return;
+   }
+   action.href=installed>=38?'healthhubconnect://settings?ota=install':m.downloadUrl;
+   action.textContent=installed>=38?'📦 Frissítés · HH One megnyitása':'📥 Frissítés · APK letöltése';
+   action.setAttribute('aria-label',label(p)+' HH One v'+m.version+
+     ' frissítés. A telepítés az adott telefonon és Android-jóváhagyással történik.');
+   notice.hidden=false;
+   feedback.textContent='🟠 '+label(p)+': HH One v'+m.version+
+    ' elérhető, telepített build '+installed+'. A letöltést Mónika/Zsolt saját telefonján kell elindítani.';
+  }catch(e){
+   noOffer('⚠ OTA állapot nem igazolható: '+String(e?.message||e).slice(0,140));
+  }finally{busy=false;check.disabled=false}
+ }
+ check.addEventListener('click',()=>void refresh(true));
+ d.addEventListener('visibilitychange',()=>{if(!d.hidden)void refresh(false)});
+ w.addEventListener('hh-guardian-auth-changed',()=>{epoch++;lastRead=0;void refresh(true)});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'){epoch++;lastRead=0;void refresh(true)}});
+ d.getElementById('guardianProfileSwitch')?.addEventListener('click',()=>{
+  epoch++;lastRead=0;w.setTimeout(()=>void refresh(true),80);
+ });
+ action.addEventListener('click',e=>{
+  if(notice.hidden||action.getAttribute('href')==='#'){e.preventDefault();return}
+  // Never treat a remote viewer's profile as the device's local owner.
+  // Android HH One checks its own actual owner and signed rollout once opened.
+  feedback.textContent='A frissítés AZON a telefonon indul, amelyiken erre koppintottál. Az Android telepítéshez jóváhagyást kér.';
+ });
+ w.setTimeout(()=>void refresh(false),2200);
+})(window,document);
