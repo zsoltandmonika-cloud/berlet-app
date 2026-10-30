@@ -37,8 +37,8 @@
     <button type="button" id="st22Swap" class="st22-swap" aria-label="Indulási hely és cél felcserélése">⇅</button>
    </div>
    <div class="st22-settings">
-    <label class="st22-setting">📅 Dátum<input id="st22Date" type="date" required></label>
-    <label class="st22-setting">◷ Időpont<input id="st22Time" type="time" step="60" required></label>
+    <div class="st22-setting"><label for="st22Date">📅 Dátum</label><input id="st22Date" type="date" required><button type="button" class="st22-picker-hit" data-st22-picker="st22Date" aria-label="Dátum kiválasztása"></button></div>
+    <div class="st22-setting"><label for="st22Time">◷ Időpont</label><input id="st22Time" type="time" step="60" required><button type="button" class="st22-picker-hit" data-st22-picker="st22Time" aria-label="Időpont kiválasztása"></button></div>
    </div>
    </div>
    <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
