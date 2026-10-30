@@ -7,26 +7,26 @@
 <meta name="description" content="HealthHub Smart Trip AI · Saját prediktív útvonaltervező">
 <title>Smart Trip AI · HealthHub</title>
 <link rel="icon" type="image/png" href="../../../assets/sh9-icon.png">
-<link rel="stylesheet" href="./smart-trip-ai-v1022.css?v=1022-pink-blue-profile">
-<link rel="stylesheet" href="./smart-trip-hero-image-v1023.css?v=1023-approved-family-budapest">
-<link rel="stylesheet" href="./smart-trip-hero-layout-v1024.css?v=1024-no-overlap-detail">
+<link rel="preload" href="./assets/smart-trip-ai-approved-hero-1280-v1025.avif" as="image" type="image/avif">
+<link rel="stylesheet" href="./smart-trip-golden-v1025.css?v=1025-original-mav-layout">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
- <header class="st22-header" aria-label="Smart Trip AI: Zsolt, Mónika, Léna, Buddy és Corky Budapest futurisztikus útvonaltérképe előtt">
-  <a class="st22-back" href="../" aria-label="Vissza a Smart Travel közlekedéshez">‹</a>
-  <img src="../assets/smarttrip-approved-card-v5.webp" width="857" height="218" alt="A megszokott Smart Trip AI családi grafika" class="st22-brand-art">
-  <div class="st22-heading"><span class="st22-kicker">LÉNA · SAJÁT ÚTVONALTERVEZŐ</span><h1>Smart Trip AI</h1><small>Saját útvonalajánlás · BKK és Volán integráció készül</small></div>
-  <button type="button" id="st22Profile" class="st22-profile" aria-label="Profilváltás">Mónika ⇄</button>
-  <button type="button" class="st22-hero-detail" id="st22HeroExpand" aria-haspopup="dialog" aria-controls="st22HeroDialog" aria-label="Smart Trip AI hero kép nagyítása">⛶ Kép nagyban</button>
+ <header class="st22-header" aria-label="Smart Trip AI · jóváhagyott budapesti családi hero">
+  <img class="st22-hero-img" src="./assets/smart-trip-ai-approved-hero-1280-v1025.avif?v=1025" width="1280" height="853" decoding="async" fetchpriority="high" alt="Smart Trip AI: Zsolt, Mónika, Léna, Buddy és Corky a futurisztikus budapesti útvonaltérképnél">
+  <button id="st22Profile" class="st22-profile" type="button" aria-label="Profilváltás"><img id="st22ProfilePhoto" alt="Aktív családi profil" width="41" height="41" decoding="async"></button>
  </header>
  <section class="st22-card" aria-label="Smart Trip AI útvonaltervező">
-  <div class="st22-mode" role="group" aria-label="Utazás időzítése">
-   <button type="button" class="active" data-st22-mode="now" aria-pressed="true">Indulás most</button>
-   <button type="button" data-st22-mode="depart" aria-pressed="false">Indulás ekkor</button>
-   <button type="button" data-st22-mode="arrive" aria-pressed="false">Érkezés ekkor</button>
+  <div class="st22-planner-head">
+   <h2>⌖ Útvonaltervező</h2>
+   <div class="st22-mode" role="group" aria-label="Utazás időzítése">
+    <button type="button" class="active" data-st22-mode="now" aria-pressed="true">Indulás most</button>
+    <button type="button" data-st22-mode="depart" aria-pressed="false">Indulás ekkor</button>
+    <button type="button" data-st22-mode="arrive" aria-pressed="false">Érkezés ekkor</button>
+   </div>
   </div>
   <form id="st22Form" autocomplete="off">
+   <div class="st22-routebox">
    <div class="st22-route">
     <div class="st22-lines" aria-hidden="true"><i></i><i></i></div>
     <div class="st22-stations">
@@ -39,17 +39,17 @@
     <label class="st22-setting">📅 Dátum<input id="st22Date" type="date" required></label>
     <label class="st22-setting">◷ Időpont<input id="st22Time" type="time" step="60" required></label>
    </div>
+   </div>
+   <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="duration">⚡ Legrövidebb menetidő</option><option value="departure">◷ Legkorábbi indulás</option></select></div>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">🗺️ Térképen</button></div>
   </form>
-  <p class="st22-hint">Gépelés közben saját javaslatok jelennek meg. A térkép a meglévő Family Guard térkép, csak kifejezett koppintásra nyílik meg.</p>
  </section>
  <section class="st22-results" id="st22Results" aria-live="polite" aria-label="Saját útvonaljavaslatok">
   <div class="st22-results-head"><strong>✨ Léna útvonaljavaslatai</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
   <p id="st22Status" role="status">Válassz ki két helyet, vagy írj be állomásneveket. A keresés nem nyit meg idegen szolgáltatói oldalt.</p>
   <div id="st22JourneyList"></div>
  </section>
- <footer class="st22-footer">Az útvonalakat csak rendelkezésre álló, ellenőrzött menetrendi adatokból számoljuk. Élő késést, gyaloglási időt és járatot nem találunk ki. Az online helyjavaslatokhoz Photon címkeresést használhatunk, adatküldés csak gépeléskor.</footer>
 </main>
 <nav class="st22-nav" aria-label="SH9 Golden Standard navigáció">
  <a href="../../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><small>Kezdőlap</small></a>
@@ -59,12 +59,10 @@
  <a href="../../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><small>Admin</small></a>
 </nav>
 <div id="st22Notice" class="st22-notice" role="status" hidden>Az értesítéseket a HealthHub főoldalon tudod kezelni.</div>
-<dialog class="st22-hero-dialog" id="st22HeroDialog" aria-label="A Smart Trip AI Golden Standard képe nagy méretben">
-  <div class="st22-zoom-header"><span>✨ Smart Trip AI · húzd a képet a részletekhez</span><button type="button" id="st22HeroClose" class="st22-zoom-close">✕ Bezárás</button></div>
-  <div id="st22HeroScroll" class="st22-zoom-scroller"><div id="st22HeroPoster" class="st22-zoom-poster" role="img" aria-label="Zsolt, Mónika, Léna, Buddy és Corky a futurisztikus budapesti közlekedési központban"></div></div>
-</dialog>
+
 <script src="../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=806-predictive-core"></script>
 <script src="../mav/rail-gtfs-core-v1.js?v=1022-read-only-routing"></script>
-<script src="./smart-trip-ai-v1022.js?v=1022-map-rail-predictive-final"></script>
-<script src="./smart-trip-hero-layout-v1024.js?v=1024-hero-zoom-scroll"></script>
+<script src="../../../../healthhub/golden-standard-avatars-v529.js?v=529"></script>
+<script src="./smart-trip-ai-v1022.js?v=1025-golden-profile-favorites"></script>
+
 </body></html>
