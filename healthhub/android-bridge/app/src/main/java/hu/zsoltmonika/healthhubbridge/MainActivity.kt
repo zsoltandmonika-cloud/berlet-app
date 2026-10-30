@@ -195,8 +195,37 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null &&
             intent?.getBooleanExtra("openNativeSettings", false) != true &&
             intent?.data == null) {
-            startActivity(Intent(this, Sh9WebActivity::class.java))
+            openSh9WithRemoteAdminConsent()
         }
+    }
+
+    private fun openSh9WithRemoteAdminConsent() {
+        val openLauncher = { startActivity(Intent(this, Sh9WebActivity::class.java)) }
+        // Never enable remotely or silently. Owner sees a single clear choice
+        // on first launch after upgrading this signed HH One application.
+        if (deviceOwnerProfile() == null || OneRemoteAdmin.consent(prefs) ||
+            prefs.getBoolean(OneRemoteAdmin.KEY_FIRST_RUN_SHOWN, false)) {
+            openLauncher()
+            return
+        }
+        fun finish(allow: Boolean) {
+            prefs.edit()
+                .putBoolean(OneRemoteAdmin.KEY_FIRST_RUN_SHOWN, true)
+                .putBoolean(OneRemoteAdmin.KEY_CONSENT, allow).apply()
+            if (allow) OrchestratorScheduler.runNow(this)
+            openLauncher()
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("🛠️ SH9 · Egyszeri Remote Admin engedély")
+            .setMessage("Engedélyezed a saját HH One/SH9 szolgáltatásainak távoli, " +
+                "naplózott karbantartását? Ez csak a GPS már engedélyezett működésének " +
+                "helyreállítási kísérletét, a 15/30/60 mp beállítást és a SH9 ütemezéseinek " +
+                "javítását engedi. Nem kapcsol be új helymegosztást, nem ad rendszerszintű " +
+                "jogokat és nem telepít APK-t jóváhagyás nélkül. Később bármikor kikapcsolható.")
+            .setPositiveButton("✅ Engedélyezem") { _, _ -> finish(true) }
+            .setNegativeButton("Most nem") { _, _ -> finish(false) }
+            .setOnCancelListener { finish(false) }
+            .show()
     }
 
     override fun onNewIntent(intent: Intent) {
