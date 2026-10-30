@@ -126,14 +126,14 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 </style>
 <title>HealthHub · Family Guard</title>
 <style id="guardian-ota-style-v1042">
-.guardian-hero .guardian-ota-alert-v1042{position:absolute;z-index:8;right:11px;top:8px;display:flex;align-items:center;gap:7px;padding:8px 11px;min-height:36px;background:linear-gradient(110deg,rgba(19,41,87,.90),rgba(74,43,97,.88));color:#fff;border:1px solid rgba(243,213,255,.76);border-radius:999px;box-shadow:0 4px 16px rgba(13,18,41,.25);font:800 11px/1.15 system-ui;text-decoration:none;backdrop-filter:blur(13px)}
+.guardian-hero .guardian-ota-alert-v1042{position:absolute;z-index:8;right:11px;top:8px;display:flex;align-items:center;gap:7px;padding:8px 11px;min-height:44px;background:linear-gradient(110deg,rgba(19,41,87,.90),rgba(74,43,97,.88));color:#fff;border:1px solid rgba(243,213,255,.76);border-radius:999px;box-shadow:0 4px 16px rgba(13,18,41,.25);font:800 12px/1.15 system-ui;text-decoration:none;backdrop-filter:blur(13px)}
 .guardian-hero .guardian-ota-alert-v1042[hidden]{display:none!important}
 .guardian-ota-dot-v1042{width:9px;height:9px;border-radius:50%;background:#f1b540;box-shadow:0 0 7px #ffba38;animation:hhGuardianOtaBlink 1.65s ease-in-out infinite}
 @keyframes hhGuardianOtaBlink{0%,100%{opacity:1}50%{opacity:.32}}
 @media (prefers-reduced-motion:reduce){.guardian-ota-dot-v1042{animation:none}}
 .guardian-ota-status-v1042{padding:9px;border:1px solid rgba(188,219,245,.5);border-radius:12px}
 .guardian-ota-status-v1042 p{margin:6px 0;color:inherit;font:600 12px/1.5 system-ui}
-.guardian-ota-status-v1042 button,.guardian-ota-status-v1042 a{display:inline-block;min-height:42px;margin:4px 7px 7px 0;padding:9px 12px;border:1px solid rgba(169,190,238,.7);border-radius:10px;background:rgba(72,109,157,.6);color:inherit;font:800 12px/1.25 system-ui;text-decoration:none}
+.guardian-ota-status-v1042 button,.guardian-ota-status-v1042 a{display:inline-block;min-height:44px;margin:4px 7px 7px 0;padding:9px 12px;border:1px solid rgba(169,190,238,.7);border-radius:10px;background:rgba(72,109,157,.6);color:inherit;font:800 12px/1.25 system-ui;text-decoration:none}
 .guardian-ota-status-v1042 a[hidden]{display:none!important}
 .guardian-ota-status-v1042 small{display:block;font:500 11px/1.5 system-ui}
 </style>
@@ -432,7 +432,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
      <span class="hh-health-popup-explain-v845" id="guardianHealthNoteV845">Tájékoztató státusz · koppints a becsukáshoz</span>
    </button>
   <a id="guardianOtaAlertV1042" class="guardian-ota-alert-v1042" hidden href="#" aria-label="HH One új frissítés elérhető">
-    <span class="guardian-ota-dot-v1042" aria-hidden="true"></span><span>📦 HH One UPDATE</span>
+    <span class="guardian-ota-dot-v1042" aria-hidden="true"></span><span>📦 Frissítés elérhető</span>
   </a>
   <div class="guardian-hero-monitor" aria-label="A monitoron a két eredeti HealthHub családi profil, csak vizuális illusztráció">
    <strong class="guardian-hero-monitor-title">CSALÁDI TÉRKÉP</strong>
@@ -814,7 +814,8 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
     <p id="guardianOtaStatusV1042" role="status">Verzió-ellenőrzés az oldal megnyitásakor. Csak hitelesített telefonjelentés alapján jelez.</p>
     <button type="button" id="guardianOtaCheckV1042">↻ Frissítés ellenőrzése</button>
     <a id="guardianOtaOpenV1042" href="#" hidden>📥 Letöltés és telepítés</a>
-    <small>Az OTA az adott telefonon indul; Android-telepítési jóváhagyás szükséges. A Remote Admin csak külön telefonos engedéllyel aktiválható.</small>
+    <a id="guardianOtaFallbackV1042" href="healthhubconnect://settings">📱 Frissítő megnyitása a saját telefonomon</a>
+    <small>Ha nincs új frissítés, nem villog. Az APK ellenőrzése után az Android kéri a telepítés jóváhagyását. A távoli adminisztráció engedélyét külön kell megadni.</small>
    </div>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
