@@ -33,11 +33,11 @@ assert.match(guardian,/guardian-remote-service-v1040\.js\?v=1040-private-owner-a
 assert.match(fg,/HH_GUARDIAN_LIVE_V785\?\.familyAuthorized===true/);
 assert.match(fg,/healthhub\.device_registry\/1/);
 assert.match(fg,/device\.activeProfile===profile/);
-assert.match(fg,/reg\.archived\.includes\(id\)/);
+assert.match(fg,/registry\.archived\.includes\(id\)/);
 assert.match(fg,/gps_resume_request/);
 assert.match(fg,/if\(!w\.confirm\(/);
 assert.match(fg,/state:'pending'/);
-assert.match(fg,/Az elküldött kérés nem bizonyítja/);
+assert.match(guardian,/Az elküldött kérés nem bizonyítja/);
 assert.doesNotMatch(fg,/Sh9GpsService\.start\(|navigator\.geolocation|setInterval\(/);
 assert.match(home,/hh-one-rag-v500\.js\?v=504-glass-top-left[^"]*remote=1040/);
 assert.doesNotMatch(ui,/Sh9GpsService\.start\(/);
