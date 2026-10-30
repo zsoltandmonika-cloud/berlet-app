@@ -37,3 +37,10 @@ test('unexpected Android install permission has guided one-time flow; manual act
  assert.match(app,/Bezárás/);
  assert.match(app,/setOnClickListener \{[\s\S]*MainActivity::class\.java/);
 });
+
+test('owner-tapped Android OTA notification also opens the signed updater directly',()=>{
+ assert.match(ota,/Intent\(context, OneTapOtaActivity::class\.java\)/);
+ assert.match(ota,/OneTapOtaActivity\.EXTRA_FROM_SH9_TAP, true/);
+ assert.match(ota,/PendingIntent\.getActivity/);
+ assert.doesNotMatch(ota,/val tapIntent = Intent\(context, MainActivity::class\.java\)/);
+});
