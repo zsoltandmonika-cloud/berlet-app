@@ -1,0 +1,33 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const trio=require('../guardian/guardian-live-trio-v845.js');
+test('v1038 connectivity diagnostics separates Dropbox viewer errors and stale remote GPS',()=>{
+ const now=Date.parse('2026-10-30T18:00:00Z');
+ const base={native:{updated_at:new Date(now-20000).toISOString()},nativeStatus:'ok'};
+ assert.match(trio.connectionDiagnostic(base,'monika',now),/20 mp-es/);
+ assert.match(trio.connectionDiagnostic({...base,native:{updated_at:new Date(now-200000).toISOString()}},'monika',now),/Nincs bizonyított élő jel/);
+ assert.match(trio.connectionDiagnostic({nativeStatus:'not-connected'},'monika',now),/ezen a megjelenítőn/);
+ assert.match(trio.connectionDiagnostic({nativeStatus:'error'},'monika',now),/Dropbox-adatolvasási hiba/);
+ assert.match(trio.connectionDiagnostic({nativeStatus:'revoked'},'monika',now),/visszavonva/);
+ assert.match(trio.connectionDiagnostic({nativeStatus:'missing'},'monika',now),/nincs natív/);
+ assert.match(trio.connectionDiagnostic({nativeStatus:'invalid'},'monika',now),/érvénytelen/);
+ assert.doesNotMatch(trio.connectionDiagnostic({nativeStatus:'error'},'monika',now),/offline a telefon/);
+});
+test('v1038 diagnostics does not fake location, speed or battery data',()=>{
+ const html=read('healthhub/guardian/index.html');
+ const source=read('healthhub/guardian/guardian-live-trio-v845.js');
+ const battery=read('healthhub/guardian/guardian-profile-battery-v841.js');
+ assert.match(html,/id="guardianSourceStatusV1038"/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=1038-native-read-diagnostics/);
+ assert.match(html,/guardian-profile-battery-v841\.js\?v=1038-fresh-cache-on-dropbox-error/);
+ assert.match(source,/diagnostic:connectionDiagnostic\(g,p,Date\.now\(\)\)/);
+ assert.match(source,/nativeStatus=result\?\.status\|\|'error'/);
+ assert.match(battery,/last\?\.profile===profile&&Date\.now\(\)-last\.ts<=FRESH_MS/);
+ assert.match(battery,/if\(next\|\|response\?\.status!=='error'\|\|!oldIsFresh\)paint\(next\)/);
+ assert.doesNotMatch(source,/navigator\.geolocation|getCurrentPosition\(/);
+});
