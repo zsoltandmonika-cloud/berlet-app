@@ -74,9 +74,12 @@
     const response=await r.read(profile);
     if(ticket!==seq||d.hidden||profile!==getProfile()||!permitted(auth(),profile))return;
     const next=response?.status==='ok'?validSnapshot(response.data,profile):null;
-    paint(next);
+    // Transient Dropbox failure must not erase a still-fresh, verified battery.
+    // Once its true measurement timestamp expires, show unknown, not false live.
+    const oldIsFresh=last?.profile===profile&&Date.now()-last.ts<=FRESH_MS;
+    if(next||response?.status!=='error'||!oldIsFresh)paint(next);
    }catch(_){
-    if(ticket===seq)paint(null);
+    if(ticket===seq&&!(last?.profile===profile&&Date.now()-last.ts<=FRESH_MS))paint(null);
    }finally{
     pending=false;
     if(queued){queued=false;w.setTimeout?.(refresh,0)}
