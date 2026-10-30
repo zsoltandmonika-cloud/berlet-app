@@ -56,6 +56,8 @@
         </receiver>
         <!-- SH9 visual shell and native GPS share this application's existing signed OTA identity. -->
         <activity android:name=".Sh9WebActivity" android:exported="false" />
+        <!-- SH9 owner-only signed update, no direct public intent filter. -->
+        <activity android:name=".OneTapOtaActivity" android:exported="false" />
         <service android:name=".Sh9GpsService"
             android:exported="false"
             android:foregroundServiceType="location"
