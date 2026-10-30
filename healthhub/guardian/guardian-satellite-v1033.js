@@ -19,12 +19,48 @@
  const SOURCE='hh-guardian-satellite-tiles-v1033';
  const LAYER='hh-guardian-satellite-raster-v1033';
  const STORE='hh-maptiler-satellite-key-session-v1033';
+ const DEVICE_STORE='hh-maptiler-browser-key-device-v1035';
+ const REMEMBER='hh-maptiler-remember-device-v1035';
+ const remember=$('guardianSatelliteRememberV1035');
+ const forget=$('guardianSatelliteForgetV1035');
  const tileJsonUrl='https://api.maptiler.com/tiles/satellite-v2/tiles.json';
  let on=false,working=false,key=null,cachedMeta=null;
  const map=()=>w.HH_GUARDIAN_V761?.map||null;
  const msg=(s)=>{if(error)error.textContent=s||''};
  function kvalid(v){return /^[a-zA-Z0-9_-]{10,160}$/.test(v)}
- try{const fromSession=w.sessionStorage?.getItem(STORE);if(kvalid(fromSession))key=fromSession}catch(_){}
+ // The MapTiler browser key is public when used in raster URLs, not a
+ // Supabase user token or password. Device storage is opt-in/explicit and is
+ // safe only when the key is restricted to our GitHub Pages origin.
+ try{
+  const device=w.localStorage?.getItem(DEVICE_STORE);
+  const fromSession=w.sessionStorage?.getItem(STORE);
+  if(kvalid(device))key=device;
+  else if(kvalid(fromSession))key=fromSession;
+  if(remember)remember.checked=w.localStorage?.getItem(REMEMBER)!=='off';
+ }catch(_){}
+ function saveKey(value){
+  try{
+   if(remember?.checked!==false){
+    w.localStorage?.setItem(DEVICE_STORE,value);
+    w.localStorage?.setItem(REMEMBER,'on');
+   }else{
+    w.localStorage?.removeItem(DEVICE_STORE);
+    w.localStorage?.setItem(REMEMBER,'off');
+   }
+  }catch(_){/* Private/incognito mode: still works in this tab. */}
+  try{w.sessionStorage?.setItem(STORE,value)}catch(_){}
+ }
+ function forgetKey(){
+  key=null;cachedMeta=null;
+  try{w.localStorage?.removeItem(DEVICE_STORE)}catch(_){}
+  try{w.sessionStorage?.removeItem(STORE)}catch(_){}
+  field.value='';
+  disable();
+  msg('A mentett műholdkulcsot töröltük erről a készülékről.');
+ }
+ // Upgrade previously-used session keys without requesting another entry,
+ // honoring the explicit request to remember the trusted browser device.
+ if(key&&remember?.checked!==false)saveKey(key);
  function setVisual(value){
   on=!!value;
   button.setAttribute('aria-pressed',String(on));
@@ -109,7 +145,7 @@
    }
    ensureSource(m,meta,value);
    key=value;cachedMeta=meta;
-   try{w.sessionStorage?.setItem(STORE,value)}catch(_){}
+   saveKey(value);
    setVisual(true);closeDialog();msg('');
   }catch(e){
    setVisual(false);
@@ -128,6 +164,13 @@
   void turnOn(value);
  });
  field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ok.click()}});
+ if(forget)forget.addEventListener('click',forgetKey);
+ if(remember)remember.addEventListener('change',()=>{
+  if(remember.checked&&key)saveKey(key);
+  if(!remember.checked){
+   try{w.localStorage?.removeItem(DEVICE_STORE);w.localStorage?.setItem(REMEMBER,'off')}catch(_){}
+  }
+ });
  cancel.addEventListener('click',closeDialog);
  setVisual(false);
 })(window,document);
