@@ -1,0 +1,29 @@
+name: Family Guard auth and GPS recovery v1037
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/guardian-profile-battery-v841.js'
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+      - 'healthhub/tests/guardian-auth-recovery-v1037.test.cjs'
+      - '.github/workflows/guardian-auth-gps-v1037.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/tests/guardian-auth-recovery-v1037.test.cjs'
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/guardian-profile-battery-v841.js'
+      - 'healthhub/guardian/guardian-live-trio-v845.js'
+jobs:
+  auth-gps-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check healthhub/guardian/guardian-live-v785.js
+          node --check healthhub/guardian/guardian-profile-battery-v841.js
+          node --check healthhub/guardian/guardian-live-trio-v845.js
+          node --test healthhub/tests/guardian-auth-recovery-v1037.test.cjs
