@@ -204,3 +204,52 @@ button{cursor:pointer;touch-action:manipulation}a{text-decoration:none}
  .st22-setting input{font-size:12px}
  .st22-opt label{font-size:11.5px}
 }
+
+
+/* v1027 · Stable native-aspect hero + scroll-safe fixed footer.
+   The approved artwork stays unchanged: never crop its painted bottom controls. */
+.st22-shell{
+ overflow:visible;
+ overflow-x:visible;
+ padding-bottom:calc(91px + env(safe-area-inset-bottom,0px));
+}
+.st22-header{
+ aspect-ratio:auto;
+ height:auto;
+ min-height:0;
+ max-height:none;
+ overflow:hidden;
+ flex:0 0 auto;
+}
+.st22-hero-img{
+ width:100%;
+ max-width:100%;
+ height:auto;
+ aspect-ratio:1280/853;
+ object-fit:contain;
+ object-position:center center;
+ display:block;
+}
+.st22-card{
+ flex:1 1 auto;
+ min-height:0;
+}
+#st22Form{flex:1 1 auto}
+.st22-actions{min-height:62px}
+.st22-actions button{min-height:50px}
+.st22-setting{
+ position:relative;
+ cursor:pointer;
+ touch-action:manipulation;
+ min-height:46px;
+}
+.st22-setting input{
+ position:relative;
+ z-index:1;
+ cursor:pointer;
+}
+/* Do not let the browser clip the bottom buttons behind the fixed taskbar.
+   If system font size or viewport height makes the card taller, page scrolling remains available. */
+@supports (min-height:100dvh){
+ .st22-shell{min-height:100dvh}
+}
