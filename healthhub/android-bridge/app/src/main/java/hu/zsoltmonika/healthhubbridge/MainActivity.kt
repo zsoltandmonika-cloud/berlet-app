@@ -417,7 +417,8 @@ class MainActivity : ComponentActivity() {
                 }
                 CollectionEngine.clearAndStop(this@MainActivity)
                 prefs.edit().remove("device_owner_profile")
-                    .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false).apply()
+                    .putBoolean(OneTechnicalDiagnostics.KEY_CONSENT, false)
+                    .putBoolean(OneRemoteAdmin.KEY_CONSENT, false).apply()
                 updateOwnerUi()
                 status.text = "A telefon tulajdonosa feloldva. A következő SYNC NOW rögzíti az aktuális profilt."
             }
@@ -662,6 +663,50 @@ class MainActivity : ComponentActivity() {
         updateDiagnosticToggle()
         root.addView(diagnosisToggle)
 
+        root.addView(TextView(this).apply {
+            text = "🛠️ SH9 · Távoli rendszergazdai műveletek"
+            textSize = 18f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(0xFF0B2D50.toInt())
+            setPadding(0, 18, 0, 5)
+        })
+        val adminToggle = Button(this)
+        fun updateAdminToggle() {
+            adminToggle.text = if (OneRemoteAdmin.consent(prefs))
+                "🟢 SH9 Remote Admin ENGEDÉLYEZVE · visszavonás"
+            else "⚪ SH9 Remote Admin KI · egyszeri engedélyezés"
+        }
+        adminToggle.setOnClickListener {
+            if (OneRemoteAdmin.consent(prefs)) {
+                OneRemoteAdmin.revoke(prefs)
+                OrchestratorScheduler.runNow(this@MainActivity)
+                updateAdminToggle()
+                status.text = "Távoli SH9 adminisztráció kikapcsolva."
+            } else {
+                android.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("SH9 · Távoli Admin Agent")
+                    .setMessage("Engedélyezed a saját SH9 alkalmazás távoli, naplózott adminisztrációját: " +
+                        "15/30/60 mp GPS-frissítési konfiguráció, már engedélyezett GPS-szolgáltatás " +
+                        "helyreállítási próbája és SH9 háttérfeladatok ütemezésének javítása. " +
+                        "Nem kapcsolja be a GPS-megosztást, nem telepít APK-t, nem módosít " +
+                        "Android-engedélyeket, nem vezérli a képernyőt, és nem indít tetszőleges kódot. " +
+                        "Minden művelet készülékhez és tulajdonosi profilhoz kötött; bármikor kikapcsolható.")
+                    .setPositiveButton("Egyszer engedélyezem") { _, _ ->
+                        if (deviceOwnerProfile() == null) {
+                            status.text = "Előbb rögzítsd a készülék tulajdonosát."
+                        } else {
+                            prefs.edit().putBoolean(OneRemoteAdmin.KEY_CONSENT, true).apply()
+                            OrchestratorScheduler.runNow(this@MainActivity)
+                            updateAdminToggle()
+                            status.text = "SH9 Remote Admin engedélyezve."
+                        }
+                    }
+                    .setNegativeButton("Mégsem", null).show()
+            }
+        }
+        updateAdminToggle()
+        root.addView(adminToggle)
+ 
         root.addView(TextView(this).apply {
             text = "🐿️ SH9 · Közös Android alkalmazás"
             textSize = 18f
