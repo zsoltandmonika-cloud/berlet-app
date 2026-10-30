@@ -56,14 +56,15 @@
   touch-action:manipulation;
 }
 .st22-setting{
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:center;
+  display:grid;
+  grid-template-columns:45px minmax(0,1fr);
+  align-items:center;
+  gap:3px;
   min-height:46px;
   cursor:pointer;
   position:relative;
-  padding:5px 8px;
+  padding:4px 6px;
+  font-size:11px;
   user-select:none;
   -webkit-user-select:none;
   touch-action:manipulation;
@@ -95,7 +96,7 @@
 }
 @media (max-width:360px){
   .st22-header{width:calc(100% + 12px);margin-left:-6px;margin-right:-6px}
-  .st22-setting{padding:4px 5px}
+  .st22-setting{padding:4px 5px;grid-template-columns:37px minmax(0,1fr)}
   .st22-setting input{font-size:12px}
   .st22-mode button{font-size:10.5px}
 }
