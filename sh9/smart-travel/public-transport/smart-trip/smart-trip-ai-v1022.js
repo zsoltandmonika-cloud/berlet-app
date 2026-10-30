@@ -301,6 +301,22 @@
   catch(_){say('A Family Guard térképre történő átadás nem sikerült.');return}
   w.location.assign('../../../../healthhub/guardian/#hhSmartHubDestinationV802');
  }
+ // v1027: Native picker can be opened by tapping ANYWHERE on its glass card.
+ // showPicker must run synchronously under the user's gesture on Samsung Chrome.
+ // Do not replace the inputs: native date/time values, locale and form validation stay intact.
+ [date,time].forEach(input=>{
+  if(!input)return;
+  const tile=input.closest('.st22-setting');
+  if(!tile)return;
+  tile.addEventListener('click',event=>{
+   // Cancel only the label's synthetic follow-up click, not direct input interaction.
+   if(event.target!==input)event.preventDefault();
+   try{
+    if(typeof input.showPicker==='function'){input.showPicker();return}
+   }catch(_){}
+   input.focus({preventScroll:true});
+  });
+ });
  fields.forEach(wire);
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
  $('st22Swap')?.addEventListener('click',()=>{
