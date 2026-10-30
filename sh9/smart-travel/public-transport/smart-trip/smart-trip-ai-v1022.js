@@ -213,13 +213,21 @@
    const times=d.createElement('div');times.className='st22-times';times.textContent=stamp(j.departure)+' → '+stamp(j.arrival);
    const desc=d.createElement('small');
    desc.textContent=(j.durationMinutes||0)+' perc · '+j.transfers+' átszállás · '+waitSum(j,pivot)+' perc ismert várakozás · menetrendi, nem élő';
+   const explanation=d.createElement('small');
+   explanation.textContent='✨ Léna: '+(priority.value==='wait'
+     ?'A várakozási időt részesítettem előnyben.'
+     :priority.value==='transfers'?'Az átszállások számát részesítettem előnyben.'
+     :priority.value==='duration'?'A teljes menetidőt részesítettem előnyben.'
+     :priority.value==='departure'?'A korábbi indulást részesítettem előnyben.'
+     :'A menetidőt, átszállásokat és az ismert várakozást együtt mérlegeltem.')
+     +' Ez menetrendi értékelés, nem élő forgalmi előrejelzés.';
    const details=d.createElement('ul');
    (j.legs||[]).forEach((leg,k)=>{
     const step=d.createElement('li');
     step.textContent=(k?'Átszállás · ':'')+leg.from+' '+stamp(leg.departure)+' → '+leg.to+' '+stamp(leg.arrival)+' · '+leg.service;
     details.append(step);
    });
-   card.append(title,times,desc,details);list.append(card);
+   card.append(title,times,desc,explanation,details);list.append(card);
   });
   source.textContent='Privát MÁV GTFS · helyi menetrend';
   say(journeys.length+' valódi, helyi menetrendi útvonal. Más közlekedési módokat csak hiteles adatforrás bekötése után tudunk összehasonlítani.');
@@ -272,6 +280,10 @@
  d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place'))fields.forEach(close)});
  form.addEventListener('submit',searchTrip);
  $('st22Map')?.addEventListener('click',showFamilyMap);
+ $('st22Notifier')?.addEventListener('click',()=>{
+  const note=$('st22Notice');
+  if(note)note.hidden=!note.hidden;
+ });
  w.addEventListener('pageshow',()=>{d.documentElement.dataset.st22Profile=profile()});
  updateMode('now');
  w.SH9_SMART_TRIP_AI_V1022=Object.freeze({version:'1022',snapshot,loadRailData,rank});
