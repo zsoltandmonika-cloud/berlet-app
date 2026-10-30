@@ -10,9 +10,9 @@ const manifest=read('app/src/main/AndroidManifest.xml');
 const service=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9GpsService.kt');
 const build=read('app/build.gradle.kts');
 
-test('v0.15.10 signed OTA candidate above installed build33',()=>{
+test('v0.15.11 signed OTA candidate above installed build33',()=>{
  assert.match(build,/versionCode = 38/);
- assert.match(build,/versionName = "0\.15\.10"/);
+ assert.match(build,/versionName = "0\.15\.11"/);
  assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
 });
 test('user opted in to Android Always location in system settings, never auto-grant',()=>{
