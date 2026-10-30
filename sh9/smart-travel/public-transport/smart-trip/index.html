@@ -8,7 +8,7 @@
 <title>Smart Trip AI · HealthHub</title>
 <link rel="icon" type="image/png" href="../../../assets/sh9-icon.png">
 <link rel="preload" href="./assets/smart-trip-ai-approved-hero-1280-v1025.avif" as="image" type="image/avif">
-<link rel="stylesheet" href="./smart-trip-golden-v1025.css?v=1025-original-mav-layout">
+<link rel="stylesheet" href="./smart-trip-golden-v1025.css?v=1026-full-height-readable">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
@@ -44,11 +44,11 @@
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="duration">⚡ Legrövidebb menetidő</option><option value="departure">◷ Legkorábbi indulás</option></select></div>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">🗺️ Térképen</button></div>
   </form>
- </section>
- <section class="st22-results" id="st22Results" aria-live="polite" aria-label="Saját útvonaljavaslatok">
-  <div class="st22-results-head"><strong>✨ Léna útvonaljavaslatai</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
+  <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
+  <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
   <p id="st22Status" role="status">Válassz ki két helyet, vagy írj be állomásneveket. A keresés nem nyit meg idegen szolgáltatói oldalt.</p>
   <div id="st22JourneyList"></div>
+  </section>
  </section>
 </main>
 <nav class="st22-nav" aria-label="SH9 Golden Standard navigáció">
@@ -63,6 +63,6 @@
 <script src="../../../../healthhub/guardian/guardian-smart-hub-fields-v806.js?v=806-predictive-core"></script>
 <script src="../mav/rail-gtfs-core-v1.js?v=1022-read-only-routing"></script>
 <script src="../../../../healthhub/golden-standard-avatars-v529.js?v=529"></script>
-<script src="./smart-trip-ai-v1022.js?v=1025-golden-profile-favorites"></script>
+<script src="./smart-trip-ai-v1022.js?v=1026-on-demand-results"></script>
 
 </body></html>
