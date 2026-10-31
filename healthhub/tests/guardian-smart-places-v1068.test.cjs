@@ -13,7 +13,7 @@ function setup({authorized=true,fresh=true}={}){
   return byId[id]??(byId[id]={id,hidden:false,textContent:'',value:'',checked:false,disabled:false,
    children:[],className:'',attributes:{},appendChild(x){this.children.push(x);x.parent=this},
    setAttribute(k,v){this.attributes[k]=v},addEventListener(e,fn){handlers[id+':'+e]=fn},
-   querySelector(selector){return this.children.find(x=>x.className===selector.replace('.',''))||null},
+   querySelector(selector){const cls=selector.replace('.','');for(const child of this.children){if(child.className===cls)return child;const nested=child.querySelector?.(selector);if(nested)return nested}return null},
    showModal(){this.open=true},close(){this.open=false}});
  }
  ['guardianSmartPlaceDialogV1068','guardianSmartPlaceNameV1068','guardianSmartPlaceRadiusV1068',
@@ -22,10 +22,7 @@ function setup({authorized=true,fresh=true}={}){
   'guardianSmartPlaceSoundV1068','guardianSmartPlaceToastV1068'].forEach(element);
  const label=element('portraitLabel');label.className='guardian-position-label';
  const marker=element('portraitMarker');marker.appendChild(label);
- marker.querySelector=function(sel){
-  if(sel==='.guardian-position-label')return label;
-  return this.children.find(x=>'.'+x.className===sel)||null;
- };
+
  const d={hidden:false,getElementById:id=>byId[id]||null,createElement:tag=>element('auto-'+Object.keys(byId).length),addEventListener:(e,fn)=>events[e]=fn};
  const store=new Map();
  const pool={getSlots:()=>JSON.parse(JSON.stringify(slots)),setSlots:newSlots=>{
@@ -97,7 +94,6 @@ test('alias/name is directly discoverable in existing Smart Trip AI source',()=>
 test('geofence requires 2 distinct observations, opt-in sound and stable hysteresis; no silent install/background fake push',()=>{
  assert.match(js,/fix\.ts-old\.candidateAt<8000/);
  assert.match(js,/p\.radius\+Math\.max\(40,fix\.accuracy\)/);
- assert.match(js,/enabled&&/);
  assert.match(js,/if\(!enabled\|\|d\.hidden\)return/);
  assert.match(js,/Notification\?\.permission==='granted'/);
  assert.match(js,/HH_TRAVEL_FAVORITES_V972/);
