@@ -76,6 +76,16 @@
    return personal.concat(shared);
   };
   const localMatches=query=>matchSaved(readSaved(),query);
+  // Saved labels replace temporary search pins at the same verified point.
+  w.addEventListener?.('hh-smart-place-saved-v1069',e=>{
+   const fix=e?.detail;
+   if(!current||!ownMarker||!fix||!Number.isFinite(fix.lat)||!Number.isFinite(fix.lng))return;
+   const metres=Math.hypot((current.lat-fix.lat)*111195,
+    (current.lng-fix.lng)*111195*Math.cos(fix.lat*Math.PI/180));
+   if(metres>30)return;
+   ownMarker.remove();ownMarker=null;
+  });
+
   const map=()=>w.HH_GUARDIAN_V761&&w.HH_GUARDIAN_V761.map;
   const report=s=>{message.textContent=s};
   const resize=()=>{const m=map();if(m&&typeof m.resize==='function')try{m.resize()}catch(_){}};

@@ -460,6 +460,19 @@
   const profileSwitch=$('guardianProfileSwitch');
   if(profileSwitch)profileSwitch.addEventListener('click',()=>w.setTimeout(refreshProfile,0));
   if(w.addEventListener)w.addEventListener('storage',e=>{if(e.key==='hh-profile')refreshProfile()});
+  // Preserve full route endpoints; clear only a redundant Smart Places locator pin.
+  if(w.addEventListener)w.addEventListener('hh-smart-place-saved-v1069',e=>{
+   const fix=e?.detail;
+   if(!fix||!Number.isFinite(fix.lat)||!Number.isFinite(fix.lng)||
+      state.origin&&state.destination)return;
+   for(const kind of modes){
+    const place=state[kind];if(!place||!markers[kind])continue;
+    const metres=Math.hypot((place.lat-fix.lat)*111195,
+     (place.lng-fix.lng)*111195*Math.cos(fix.lat*Math.PI/180));
+    if(metres>30)continue;
+    try{markers[kind].remove()}catch(_){}markers[kind]=null;
+   }
+  });
   // A verified map result fills the existing Hová field and triggers the single planner.
   if(w.addEventListener)w.addEventListener('hh-guardian-map-destination-v819',e=>{
    if(!e||!validPlace(e.detail))return;

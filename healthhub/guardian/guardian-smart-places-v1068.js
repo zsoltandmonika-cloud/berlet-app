@@ -70,14 +70,20 @@
   if(!tag){
    const parent=marker.querySelector?.('.guardian-position-label');
    if(!parent)return;
-   tag=d.createElement('span');tag.className='hh-smart-place-location-v1068';
+   tag=d.createElement('button');tag.type='button';
+   tag.className='hh-smart-place-location-v1068';
+   tag.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    if(last&&fresh(last)&&authorized(last.profile)&&nearest(last))openEditor();
+   });
    parent.appendChild(tag);
   }
   const place=fresh(fix)?nearest(fix):null;
-  tag.textContent=place?'📍 '+place.name:'';
+  tag.textContent=place?place.name:'';
   tag.hidden=!place;
+  if(place)tag.setAttribute('aria-label',place.name+' · mentett hely szerkesztése');
   const button=marker.querySelector?.('.hh-smart-place-save-v1068');
-  if(button)button.textContent=place?'✏️ Szerkesztés':'📍 Rögzítés';
+  if(button){button.hidden=!!place;button.textContent='📍 Rögzítés';}
  }
  function tone(which){
   if(!enabled||which==='silent'||d.hidden)return;
@@ -126,7 +132,10 @@
  }
  function putFix(fix,node){
   if(!fresh(fix)||!authorized(fix.profile)){last=null;marker=node||null;previous.clear();
-   if(marker){const tag=marker.querySelector?.('.hh-smart-place-location-v1068');if(tag)tag.hidden=true}
+   if(marker){
+    const tag=marker.querySelector?.('.hh-smart-place-location-v1068');if(tag)tag.hidden=true;
+    const action=marker.querySelector?.('.hh-smart-place-save-v1068');if(action)action.hidden=true;
+   }
    return;
   }
   last={...fix};marker=node||marker;
@@ -167,6 +176,7 @@
   const i=existing?.index??slots.findIndex(x=>!x.place);
   if(i<0||i>=slots.length)throw Error('A 40 családi kedvenc hely betelt. Szabadíts fel egy helyet.');
   const place={name:clean,subtitle:encode(last.profile,r,a,b),lat:last.lat,lng:last.lng};
+  const savedFix={profile:last.profile,lat:last.lat,lng:last.lng};
   slots[i]={label:clean,place};
   if(!p.setSlots(slots))throw Error('Nem sikerült menteni.');
   const synced=await p.sync(true);
@@ -175,8 +185,10 @@
   if(!synced)w.setTimeout?.(()=>{
    if(!d.hidden)void p.sync(true).catch(()=>{});
   },5000);
-  previous.delete(last.profile+':'+i);
+  previous.delete(savedFix.profile+':'+i);
   bubble(last);
+  // Remove redundant locator pins on this device, without changing routing state.
+  try{w.dispatchEvent?.(new w.CustomEvent('hh-smart-place-saved-v1069',{detail:savedFix}))}catch(_){}
   return {name:clean,synced};
  }
  async function quickSave(){
