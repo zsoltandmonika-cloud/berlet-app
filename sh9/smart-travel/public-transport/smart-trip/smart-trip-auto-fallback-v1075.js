@@ -11,7 +11,10 @@
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
  function valid(q){
-  return !!q&&typeof q.from==='string'&&q.from.trim().length>=2&&
+  if(!q||!/^\d{4}-\d{2}-\d{2}$/.test(q.date||''))return false;
+  const date=new Date(q.date+'T12:00:00Z');
+  if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==q.date)return false;
+  return typeof q.from==='string'&&q.from.trim().length>=2&&
    typeof q.to==='string'&&q.to.trim().length>=2&&
    q.from.trim().toLocaleLowerCase('hu-HU')!==q.to.trim().toLocaleLowerCase('hu-HU')&&
    ['now','depart','arrive'].includes(q.mode)&&
