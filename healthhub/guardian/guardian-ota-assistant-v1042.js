@@ -64,12 +64,9 @@
   const generation=++epoch,p=owner();
   busy=true;lastRead=Date.now();check.disabled=true;noOffer('📦 HH One: kiadási verzió ellenőrzése…');
   try{
-   // The public release may only be advertised after manual signed publication.
-   const releaseRes=await w.fetch(OTA,{cache:'no-store'});
-   if(!releaseRes.ok)throw Error('OTA verzióleíró nem érhető el.');
-   const m=await releaseRes.json();
-   if(!validRelease(m,p)){noOffer('Ehhez a profilhoz nincs ellenőrzött OTA-kiadás.');return}
-   if(!authorized()){noOffer('A frissítésjelzéshez hitelesített Family Live és Dropbox Vault szükséges.');return}
+   // Live phone evidence is NOT gated by OTA rollout. This must work for
+   // Mónika even while a signed APK pilot is available only to Zsolt.
+   if(!authorized()){noOffer('Az eszközállapothoz hitelesített Family Live és Dropbox Vault szükséges.');return}
    const registry=await read(REG);
    const id=registry?.activePhones?.[p];
    if(registry?.schema!=='healthhub.device_registry/1'||!Array.isArray(registry.archived)||
@@ -93,6 +90,12 @@
      bluetoothEnabled:typeof device.bluetoothEnabled==='boolean'?device.bluetoothEnabled:null
     }}));
    }
+   // Independent signed-release check. A profile without OTA rollout still
+   // receives read-only Wi-Fi/Mobile/Bluetooth evidence above.
+   const releaseRes=await w.fetch(OTA,{cache:'no-store'});
+   if(!releaseRes.ok)throw Error('OTA verzióleíró nem érhető el.');
+   const m=await releaseRes.json();
+   if(!validRelease(m,p)){noOffer('Ehhez a profilhoz nincs ellenőrzött OTA-kiadás.');return}
    const installed=Number(device.buildCode);
    const lastSeen=Date.parse(device.lastSeenAt||'');
    if(!Number.isFinite(lastSeen)||lastSeen>Date.now()+5000||Date.now()-lastSeen>20*60000){
