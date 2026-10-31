@@ -1,8 +1,8 @@
-/* Family Guard v1033 · manual MapTiler Satellite toggle, no polling/GPS.
+/* Family Guard v1048 · opt-in saved-key MapTiler Satellite auto-start, no polling/GPS.
  * Adds/removes a raster overlay on existing MapLibre style, NOT map.setStyle:
  * family/BKK/GPS markers, trails, 3D buildings and labels stay in place.
- * MapTiler key is never committed or saved in localStorage. One browser-tab
- * session only. Require MapTiler origin-restricted browser key.
+ * MapTiler browser key may be remembered on an explicitly trusted device.
+ * Auto-start requires an existing saved key, not a new permission or consent.
  */
 (function(w,d){
  'use strict';
@@ -21,10 +21,11 @@
  const STORE='hh-maptiler-satellite-key-session-v1033';
  const DEVICE_STORE='hh-maptiler-browser-key-device-v1035';
  const REMEMBER='hh-maptiler-remember-device-v1035';
+ const AUTO_PREF='hh-maptiler-satellite-auto-v1048';
  const remember=$('guardianSatelliteRememberV1035');
  const forget=$('guardianSatelliteForgetV1035');
  const tileJsonUrl='https://api.maptiler.com/tiles/satellite-v2/tiles.json';
- let on=false,working=false,key=null,cachedMeta=null;
+ let on=false,working=false,key=null,cachedMeta=null,autoAttempted=false,autoAttachedMap=null;
  const map=()=>w.HH_GUARDIAN_V761?.map||null;
  const msg=(s)=>{if(error)error.textContent=s||''};
  function kvalid(v){return /^[a-zA-Z0-9_-]{10,160}$/.test(v)}
@@ -38,6 +39,12 @@
   else if(kvalid(fromSession))key=fromSession;
   if(remember)remember.checked=w.localStorage?.getItem(REMEMBER)!=='off';
  }catch(_){}
+ function autoDisabled(){
+  try{return w.localStorage?.getItem(AUTO_PREF)==='off'}catch(_){return false}
+ }
+ function setAutoPreference(enabled){
+  try{w.localStorage?.setItem(AUTO_PREF,enabled?'on':'off')}catch(_){}
+ }
  function saveKey(value){
   try{
    if(remember?.checked!==false){
@@ -65,6 +72,7 @@
   on=!!value;
   button.setAttribute('aria-pressed',String(on));
   button.setAttribute('aria-label',on?'Műholdnézet kikapcsolása':'Műholdnézet bekapcsolása');
+  button.title=on?'Műholdnézet kikapcsolása':'Műholdnézet bekapcsolása';
   card.dataset.hhSatellite=on?'on':'off';
   if(logo){
    if(on){
@@ -86,7 +94,7 @@
   try{if(!dialog.open)dialog.showModal()}catch(_){dialog.setAttribute('open','')}
  }
  async function validateKey(value){
-  // One small request on explicit user action only; use the returned TileJSON,
+  // One small request on manual toggle or a saved-key startup; use the returned TileJSON,
   // never request it again during this map session.
   const url=tileJsonUrl+'?key='+encodeURIComponent(value);
   const res=await w.fetch(url,{method:'GET',mode:'cors',cache:'default'});
@@ -126,10 +134,10 @@
   if(m?.getLayer?.(LAYER))m.setLayoutProperty(LAYER,'visibility','none');
   setVisual(false);
  }
- async function turnOn(value){
+ async function turnOn(value,automatic=false){
   if(working)return;
   const m=map();
-  if(!m){showDialog('A Family Guard térkép még nem áll készen.');return}
+  if(!m){if(!automatic)showDialog('A Family Guard térkép még nem áll készen.');return}
   setBusy(true);
   try{
    const meta=cachedMeta&&value===key?cachedMeta:await validateKey(value);
@@ -147,14 +155,20 @@
    key=value;cachedMeta=meta;
    saveKey(value);
    setVisual(true);closeDialog();msg('');
+   if(!automatic)setAutoPreference(true);
   }catch(e){
-   setVisual(false);
-   showDialog(e?.message||'Nem sikerült betölteni a műholdas térképet.');
+   disable();
+   const reason=e?.message||'Nem sikerült betölteni a műholdas térképet.';
+   if(automatic){
+    // No modal on startup: keep the fully usable 3D vector map.
+    button.title='Műhold nem érhető el: '+String(reason).slice(0,120)+' · Koppints az újrapróbáláshoz.';
+    msg('Automatikus műholdindítás sikertelen: '+reason);
+   }else showDialog(reason);
   }finally{setBusy(false)}
  }
  button.addEventListener('click',()=>{
   if(working)return;
-  if(on){disable();return}
+  if(on){disable();setAutoPreference(false);return}
   if(!key){showDialog('Adj meg egy, a GitHub Pages domainre korlátozott MapTiler API-kulcsot.');return}
   void turnOn(key);
  });
@@ -173,4 +187,24 @@
  });
  cancel.addEventListener('click',closeDialog);
  setVisual(false);
+ // Start ONLY after the existing 3D MapLibre style is ready. Do not poll,
+ // auto-open a permission dialog or switch off 3D/building extrusion.
+ function autoEnable(){
+  if(autoAttempted||!key||autoDisabled()||d.hidden||working||on)return;
+  const m=map();
+  if(!m)return;
+  if(m.isStyleLoaded?.()){
+   autoAttempted=true;
+   void turnOn(key,true);
+   return;
+  }
+  if(autoAttachedMap===m)return;
+  if(typeof m.once==='function'){
+   autoAttachedMap=m;
+   m.once('load',()=>{autoAttachedMap=null;autoEnable()});
+  }
+ }
+ w.addEventListener?.('hh-guardian-map-ready-v839',autoEnable);
+ d.addEventListener?.('visibilitychange',()=>{if(!d.hidden)autoEnable()});
+ autoEnable();
 })(window,document);
