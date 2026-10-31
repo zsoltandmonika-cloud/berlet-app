@@ -184,7 +184,30 @@ class MainActivity : ComponentActivity() {
         // the external Google browser. No access/refresh tokens cross an intent.
         // The PKCE verifier stays in the app-private WebView storage.
         val data = i?.data ?: return false
-        if (data.scheme != "healthhubconnect" || data.host != "auth-return") return false
+        if (data.scheme != "healthhubconnect") return false
+        if (data.host == "dropbox-web-return") {
+            val authPrefs = getSharedPreferences("hh_one_native_pkce_v1063", MODE_PRIVATE)
+            val expected = authPrefs.getString("dropbox_state", null)
+            val pending = authPrefs.getLong("dropbox_pending_at", 0L)
+            val code = data.getQueryParameter("code")
+            val state = data.getQueryParameter("state")
+            // Consume before dispatch to disallow replay even on failure.
+            authPrefs.edit().remove("dropbox_state").remove("dropbox_pending_at").apply()
+            val age = System.currentTimeMillis() - pending
+            if (pending > 0L && age in 0L..300_000L &&
+                expected != null && expected == state &&
+                code != null && Regex("[A-Za-z0-9._~-]{8,1024}").matches(code)) {
+                startActivity(Intent(this, Sh9WebActivity::class.java)
+                    .putExtra(Sh9WebActivity.EXTRA_DROPBOX_AUTH_CODE_V1063, code)
+                    .putExtra(Sh9WebActivity.EXTRA_DROPBOX_AUTH_STATE_V1063, expected)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            } else {
+                startActivity(Intent(this, Sh9WebActivity::class.java))
+            }
+            finish()
+            return true
+        }
+        if (data.host != "auth-return") return false
         val code = data.getQueryParameter("code")
             val authPrefs = getSharedPreferences("hh_one_native_pkce_v1063", MODE_PRIVATE)
             val pending = authPrefs.getLong("pending_at", 0L)
