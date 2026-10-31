@@ -255,6 +255,10 @@
     const selected=read(w.localStorage,active()).find(t=>t.id===params.get('trip'));
     if(selected)show(selected);else showSaved();
    }else if(params.get('view')==='my-trips')showSaved();
+   else if(w.location.hash==='#import'){
+    say('Válassz .json fájlt vagy illeszd be a TripPack JSON-t.');
+    if(!importer.open)importer.showModal();
+   }
   }catch(_){}
  }
  return Object.freeze({normalize,read,save,remove,mount,SCHEMA,MAX_BYTES,MAX_SAVED});
