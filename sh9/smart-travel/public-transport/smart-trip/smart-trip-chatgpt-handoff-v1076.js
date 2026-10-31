@@ -50,7 +50,7 @@
    'Fontos: '+requested,
    'Adj egy legjobb útvonalat pontos járatokkal, átszállásokkal és gyaloglással; ha szükséges, B tervet.',
    'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.',
-   'Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack.json-t (schema: sh9.trip-pack/1); ha nem tudsz fájlt adni, egyetlen tiszta JSON-kódblokkot. Mezők: title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives,sources[{name,url}]. A mode walk/bus/tram/metro/train/hev/other; a status timetable/estimated/unknown; az ismeretlen idő null. Csak az útitervben szereplő, megalapozott adatokat használd.'
+   'Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack.json-t (schema: sh9.trip-pack/1); ha nem tudsz fájlt adni, egyetlen tiszta JSON-kódblokkot. Mezők: title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives,sources[{name,url}]. A mode walk/bus/tram/metro/train/hev/other; a status timetable/estimated/unknown. MINDEN departure/arrival HH:mm (pl. 15:18) vagy null; az ismeretlen idő null, ISO-időpont tilos. A séma kulcsa kötelező. Csak megalapozott adatot használj.'
   ].join('\n');
   return body.length<=LIMIT?body:null;
  }
