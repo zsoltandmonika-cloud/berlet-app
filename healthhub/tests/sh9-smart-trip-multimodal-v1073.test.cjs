@@ -7,7 +7,7 @@ const html=read('sh9/smart-travel/public-transport/smart-trip/index.html');
 const ui=read('sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js');
 const runtime=read('sh9/smart-travel/public-transport/smart-trip/smart-trip-multimodal-runtime-v1073.js');
 const cfg=read('sh9/smart-travel/public-transport/smart-trip/smart-trip-multimodal-config-v1073.js');
-const iso=(m=0)=>new Date(Date.now()+3600000+m*60000).toISOString();
+const base=Date.now()+3600000;const iso=(m=0)=>new Date(base+m*60000).toISOString();
 const query=()=>({from:'Testvérhegy lakókert',to:'Bécsi Corner',mode:'depart',when:iso(),priority:'balanced'});
 function route({service='260',agency='BKK Zrt.',type='BUS',depart=10,arrive=22}={}){
  return {travelMode:'TRANSIT',transitDetails:{
