@@ -94,18 +94,18 @@ test('candidate build40 stays unpublished, signed OTA baseline stays v0.15.12/bu
 });
 
 test('WebView Dropbox PKCE state remains inside app; Chrome and native Dropbox modes are unchanged',()=>{
- assert.match(vault,/nativeOAuth\\?'hhweb_':''/);
+ assert.match(vault,/nativeOAuth\?'hhweb_':''/);
  assert.match(vault,/completeNativeOAuth:completeNativeOAuth/);
- assert.match(vault,/handleCallback\\(code,state\\)/);
- assert.match(vault,/state&&state\\.indexOf\\('hhbridge_'\\)===0/);
+ assert.match(vault,/handleCallback\(code,state\)/);
+ assert.match(vault,/state&&state\.indexOf\('hhbridge_'\)===0/);
  assert.match(healthHub,/hh-one-native-dropbox-return-v1063/);
- assert.match(healthHub,/dropbox-web-return\\?code=/);
- assert.match(kotlin,/www\\.dropbox\\.com/);
- assert.match(kotlin,/hhweb_\\[A-Za-z0-9_-\\]/);
+ assert.match(healthHub,/dropbox-web-return\?code=/);
+ assert.match(kotlin,/www\.dropbox\.com/);
+ assert.match(kotlin,/hhweb_\[A-Za-z0-9_-\]/);
  assert.match(kotlin,/EXTRA_DROPBOX_AUTH_STATE_V1063/);
- assert.match(main,/data\\.host == "dropbox-web-return"/);
+ assert.match(main,/data\.host == "dropbox-web-return"/);
  assert.match(main,/expected == state/);
- assert.match(main,/remove\\("dropbox_state"\\)\\.remove\\("dropbox_pending_at"\\)/);
+ assert.match(main,/remove\("dropbox_state"\)\.remove\("dropbox_pending_at"\)/);
  assert.match(manifest,/android:host="dropbox-web-return"/);
- assert.doesNotMatch(kotlin,/addJavascriptInterface\\(/);
+ assert.doesNotMatch(kotlin,/addJavascriptInterface\(/);
 });
