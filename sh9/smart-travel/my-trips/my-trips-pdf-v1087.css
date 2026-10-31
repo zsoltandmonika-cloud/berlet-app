@@ -1,0 +1,102 @@
+/* SH9 My Trips v1087 · private PDF reader: full-screen native Golden Glass.
+   Samsung touch targets, bounded scroll, blue/pink profile accents. */
+.mt-reader{
+ position:fixed;inset:0;box-sizing:border-box;margin:0;padding:0;
+ width:100vw;height:100dvh;min-height:100dvh;
+ max-width:none;max-height:none;overflow:hidden;
+ border:0;border-radius:0;
+ display:none;flex-direction:column;
+ color:#f9f5ff;background:#101b32;
+ color-scheme:dark;
+}
+.mt-reader[open]{display:flex}
+:root[data-mt-profile="m"] .mt-reader{background:#251833}
+.mt-reader::backdrop{background:rgba(2,5,18,.91)}
+.mt-reader-head{
+ flex:none;min-height:65px;display:flex;align-items:center;justify-content:space-between;
+ gap:10px;padding:10px 13px;
+ background:linear-gradient(108deg,rgba(57,91,151,.90),rgba(89,49,119,.85));
+ border-bottom:1px solid var(--mt-border);
+ box-shadow:inset 0 1px rgba(255,255,255,.19);
+}
+:root[data-mt-profile="m"] .mt-reader-head{
+ background:linear-gradient(108deg,rgba(121,56,135,.91),rgba(88,48,122,.88));
+}
+.mt-reader-brand{min-width:0;display:flex;flex-direction:column;gap:3px}
+.mt-reader-brand small{
+ color:var(--mt-accent);font-size:10px;font-weight:850;
+ letter-spacing:.06em;
+}
+.mt-reader-brand strong{
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ font-size:13px;font-weight:850;
+}
+#mtReaderClose{
+ flex:none;display:grid;place-items:center;width:43px;height:43px;
+ padding:0;border-radius:12px;border:1px solid var(--mt-border);
+ background:rgba(39,58,102,.66);color:#fff;font-size:22px;
+}
+.mt-reader-controls{
+ flex:none;display:flex;align-items:center;justify-content:center;
+ flex-wrap:nowrap;gap:4px;padding:7px 7px;min-height:49px;
+ border-bottom:1px solid var(--mt-border);
+ background:linear-gradient(120deg,rgba(50,70,113,.84),rgba(77,53,119,.78));
+}
+.mt-reader-controls button{
+ display:grid;place-items:center;flex:none;
+ height:36px;min-width:34px;
+ padding:0 7px;border:1px solid var(--mt-border);
+ border-radius:9px;background:rgba(38,56,95,.63);
+ color:#fff;font-weight:900;font-size:18px;
+}
+.mt-reader-controls button:disabled{opacity:.35}
+#mtReaderFit{font-size:10px;min-width:56px;font-weight:820}
+.mt-reader-controls span:not(.mt-reader-separator){
+ flex:none;min-width:43px;text-align:center;
+ font-size:10px;font-weight:900;color:var(--mt-accent);
+ white-space:nowrap;
+}
+.mt-reader-separator{
+ width:1px;height:25px;flex:none;margin:0 1px;
+ background:rgba(235,223,255,.23);
+}
+.mt-reader-scroll{
+ flex:1;min-height:0;min-width:0;
+ display:block;overflow:auto;overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;
+ background:#182338;
+ text-align:center;
+}
+:root[data-mt-profile="m"] .mt-reader-scroll{background:#251e34}
+#mtReaderCanvas{
+ display:block;margin:10px auto;
+ background:#fff;
+ box-shadow:0 5px 20px rgba(0,0,0,.45);
+}
+.mt-reader-footer{
+ flex:none;min-height:59px;
+ padding:9px 10px calc(9px + env(safe-area-inset-bottom,0px));
+ display:flex;align-items:center;justify-content:space-between;gap:7px;
+ background:linear-gradient(135deg,rgba(57,81,137,.87),rgba(61,40,96,.92));
+ border-top:1px solid var(--mt-border);
+}
+#mtReaderStatus{
+ flex:1;min-width:0;
+ font-size:10px;color:#e4def6;line-height:1.3;
+ overflow:hidden;text-overflow:ellipsis;
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+.mt-reader-actions{display:flex;gap:5px;flex:none}
+.mt-reader-actions button{
+ min-height:40px;padding:7px 9px;
+ border:1px solid var(--mt-border);border-radius:9px;
+ background:linear-gradient(120deg,var(--mt-action-a),var(--mt-action-b));
+ color:#fff;font-size:10px;font-weight:850;
+}
+.mt-reader button:focus-visible{outline:3px solid var(--mt-accent);outline-offset:1px}
+@media(max-width:355px){
+ .mt-reader-controls{gap:2px;padding:6px 3px}
+ .mt-reader-controls button{min-width:29px;padding:0 5px}
+ #mtReaderFit{min-width:46px}
+ .mt-reader-controls span:not(.mt-reader-separator){min-width:39px}
+}

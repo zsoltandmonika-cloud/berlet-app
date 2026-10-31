@@ -7,6 +7,7 @@
 <title>My Trips · SH9 Smart Travel</title>
 <link rel="icon" type="image/png" href="../../assets/sh9-icon.png">
 <link rel="stylesheet" href="./my-trips-v1080.css?v=1086-compact-cloud-tickets">
+<link rel="stylesheet" href="./my-trips-pdf-v1087.css?v=1087-sh9-secure-reader">
 </head>
 <body>
 <main class="mt-shell">
@@ -43,6 +44,32 @@
  </label>
  <p id="mtFilesStatus" class="mt-files-status" role="status">Privát csatolmányok</p>
 </dialog>
+<dialog id="mtReaderDialog" class="mt-reader" aria-label="SH9 PDF-olvasó" aria-modal="true">
+ <header class="mt-reader-head">
+  <div class="mt-reader-brand"><small>📄 SH9 · MY TRIPS</small><strong id="mtReaderTitle">Menetjegy.pdf</strong></div>
+  <button id="mtReaderClose" type="button" aria-label="PDF-olvasó bezárása">✕</button>
+ </header>
+ <nav class="mt-reader-controls" aria-label="PDF-lapozás és nagyítás">
+  <button id="mtReaderPrev" type="button" aria-label="Előző oldal">‹</button>
+  <span id="mtReaderPages" aria-live="polite">…</span>
+  <button id="mtReaderNext" type="button" aria-label="Következő oldal">›</button>
+  <span class="mt-reader-separator"></span>
+  <button id="mtReaderMinus" type="button" aria-label="Kicsinyítés">−</button>
+  <span id="mtReaderZoom">100%</span>
+  <button id="mtReaderPlus" type="button" aria-label="Nagyítás">+</button>
+  <button id="mtReaderFit" type="button" aria-label="Szélességhez igazítás">Illesztés</button>
+ </nav>
+ <section id="mtReaderScroll" class="mt-reader-scroll" aria-label="PDF oldal megtekintése">
+  <canvas id="mtReaderCanvas" aria-label="Megnyitott PDF-oldal"></canvas>
+ </section>
+ <footer class="mt-reader-footer">
+  <span id="mtReaderStatus" role="status">PDF betöltése…</span>
+  <div class="mt-reader-actions">
+   <button id="mtReaderDownload" type="button">↓ Mentés</button>
+   <button id="mtReaderSystem" type="button">↗ Rendszer</button>
+  </div>
+ </footer>
+</dialog>
 <nav class="mt-nav" aria-label="SH9 Golden Standard navigáció">
  <a href="../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
  <a href="../../../healthhub/index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a>
@@ -55,6 +82,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script src="../public-transport/smart-trip/smart-trip-pack-v1078.js?v=1086-direct-my-trips"></script>
 <script src="./my-trips-v1080.js?v=1086-compact-ticket-cards"></script>
+<script src="./my-trips-pdf-v1087.js?v=1087-pdfjs-canvas"></script>
 <script src="./my-trips-cloud-v1086.js?v=1086-private-family-sync"></script>
 </body>
 </html>
