@@ -20,6 +20,7 @@ function scene({profile='z',build=40,age=10000,registryValid=true,deviceValid=tr
  'sh9OtaManualStatusV1044','sh9OtaManualSettingsV1044','sh9OtaManualApkV1044',
  'sh9OtaDeviceSelectV1067','sh9OtaRefreshV1067','sh9OtaConnectVaultV1067'];
  ids.forEach(make);elements.label={textContent:''};elements.sh9OtaManualV1044.hidden=true;
+ elements.sh9OtaManualApkV1044.hidden=true;elements.sh9OtaConnectVaultV1067.hidden=true;
  const events={};
  const d={hidden:false,getElementById:id=>elements[id]||null,addEventListener:(n,fn)=>events[n]=fn};
  const w={location:{search:nativeLaunch?'?sh9native=1&hhBuildCode=40&hhOwner=zsolt':''},
@@ -75,7 +76,7 @@ test('missing Dropbox, old heartbeat, invalid registry, mismatched device, bad r
   const s=scene(options);await s.settle();
   assert.equal(s.elements.sh9OtaIndicatorV1043.dataset.state,'unknown',JSON.stringify(options));
   assert.equal(s.elements.sh9OtaIndicatorV1043.href,'healthhubconnect://settings?ota=check');
-  assert.equal(s.elements.sh9OtaManualApkV1044.hidden,false); // hidden after check? adjust below
+  assert.equal(s.elements.sh9OtaManualApkV1044.hidden,true);
  }
 });
 test('no automatic APK download, installation, GPS, location, polling or new remote write',()=>{
