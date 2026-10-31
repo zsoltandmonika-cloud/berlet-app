@@ -16,7 +16,7 @@
  const local={origin:null,destination:null};
  const fields=[{input:from,key:'origin',box:$('st22FromList')},{input:to,key:'destination',box:$('st22ToList')}];
  const timers=new Map(),pending=new Map(),items=new Map();
- let lastOnline=0,railData=null,railNames=[],railLoading=null,mode='now';
+ let lastOnline=0,lastSmartPlaceSync=0,railData=null,railNames=[],railLoading=null,mode='now';
  let tripCounter=0;
  function profile(){try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}}
  d.documentElement.dataset.st22Profile=profile();
@@ -123,6 +123,13 @@
  function wire(field){
   field.input.addEventListener('input',()=>handleInput(field));
   field.input.addEventListener('focus',()=>{
+   // A newly recorded SH9 Smart Place is an existing family favorite.
+   // One user-triggered, max once / 2 min cloud refresh avoids a stale
+   // browser cache without per-keystroke Supabase calls or polling.
+   const family=w.HH_TRAVEL_FAVORITES_V972;
+   if(family?.sync&&Date.now()-lastSmartPlaceSync>2*60*1000){
+    lastSmartPlaceSync=Date.now();void family.sync(true).catch(()=>{});
+   }
    if(field.input.value.trim())render(field,suggestions(field.input.value.trim()));
    else{const fav=favoriteItems('');if(fav.length)render(field,fav.slice(0,6))}
    void loadRailData().then(()=>{if(d.activeElement===field.input&&field.input.value.trim())render(field,suggestions(field.input.value.trim()))});

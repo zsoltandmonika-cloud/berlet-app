@@ -1,0 +1,36 @@
+name: Family Guard Smart Places v1068 browser sync and geofence QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-smart-places-v1068.js'
+      - 'healthhub/guardian/guardian-smart-places-v1068.css'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
+      - '.github/workflows/guardian-smart-places-v1068-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-smart-places-v1068.js'
+      - 'healthhub/guardian/guardian-smart-places-v1068.css'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
+jobs:
+  smart-places:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and focused Smart Places regression
+        run: |
+          node --check healthhub/guardian/guardian-smart-places-v1068.js
+          node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --test healthhub/tests/guardian-smart-places-v1068.test.cjs
