@@ -18,7 +18,24 @@ test('SH9 Outlook Agenda flags true overlapping busy intervals',()=>{
  assert.equal(result.events.length,2);
  assert.deepEqual([...result.conflicts].sort(),['A','B']);
  assert.equal(model.headline(result,new Date('2026-10-26T07:00:00Z')).status,'conflict');
- assert.match(model.headline(result,new Date('2026-10-26T07:00:00Z')).value,/2 ütköző/);
+ assert.match(model.headline(result,new Date('2026-10-26T07:00:00Z')).value,/^⚠ /);
+ assert.match(model.headline(result,new Date('2026-10-26T07:00:00Z')).value,/09:00/);
+ assert.equal(model.headline(result,new Date('2026-10-26T07:00:00Z')).detail,'A');
+});
+test('Calendar preview shows actual Budapest date and time above the subject',()=>{
+ const future=ev('Próbaesemény','2026-11-03T15:00:00','2026-11-03T16:00:00');
+ const h=model.headline(model.analyze([future]),new Date('2026-10-31T12:00:00Z'));
+ assert.equal(h.status,'ready');
+ assert.match(h.value,/2026/);
+ assert.match(h.value,/nov/);
+ assert.match(h.value,/3/);
+ assert.match(h.value,/16:00/);
+ assert.doesNotMatch(h.value,/Következő|^Ma /);
+ assert.equal(h.detail,'Próbaesemény');
+ const today=model.headline(model.analyze([future]),new Date('2026-11-03T09:00:00Z'));
+ assert.match(today.value,/2026.*nov.*3/);
+ const crossYear=ev('Évkezdés','2027-01-01T09:00:00','2027-01-01T10:00:00');
+ assert.match(model.headline(model.analyze([crossYear]),new Date('2026-12-31T19:00:00Z')).value,/2027/);
 });
 test('Adjacency, free times, canceled events and duplicates cannot create phantom collisions',()=>{
  const touch=ev('C','2026-10-26T09:00:00','2026-10-26T10:00:00');
@@ -69,8 +86,8 @@ test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fa
 });
 
 test('Golden pink/purple highlights only live Outlook values and agenda entries',()=>{
- assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=6-direct-agenda"/);
- assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
+ assert.match(html,/href="\.\/outlook-agenda-v1\.css\?v=8-date-time-first"/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#d8bafa\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
  assert.match(css,/\.sh9-agenda-subject\{[^}]*color:#f4b7ea/);
  assert.match(css,/\.sh9-agenda-hour\{[^}]*color:#d8bafa/);
@@ -100,7 +117,7 @@ test('Daily nameday, weather reading, calendar entry are pink; alerts retain the
  assert.match(css,/#sh9NamedayCell \.sh9-nameday-label\{color:#bde4ff\}/);
  assert.match(css,/#sh9WeatherCell6 \.sh9-info-value,/);
  assert.match(css,/#sh9WeatherCell6 \.sh9-info-sub,/);
- assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#f4b7ea\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#d8bafa\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="conflict"\] \.sh9-info-value\{color:#ffd6ad\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="error"\] \.sh9-info-value\{color:#ffd9d9\}/);
