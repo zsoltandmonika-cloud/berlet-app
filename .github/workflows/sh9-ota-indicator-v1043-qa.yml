@@ -4,9 +4,11 @@ on:
     paths:
       - 'sh9/index.html'
       - 'sh9/sh9-ota-indicator-v1043.js'
+      - 'sh9/sh9-ota-browser-v1067.js'
       - 'sh9/sh9-ota-indicator-v1043.css'
       - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt'
       - 'healthhub/tests/sh9-ota-indicator-v1043.test.cjs'
+      - 'healthhub/tests/sh9-ota-browser-v1067.test.cjs'
       - '.github/workflows/sh9-ota-indicator-v1043-qa.yml'
   push:
     branches: [main]
@@ -26,4 +28,5 @@ jobs:
           node-version: '22'
       - run: |
           node --check sh9/sh9-ota-indicator-v1043.js
-          node --test healthhub/tests/sh9-ota-indicator-v1043.test.cjs
+          node --check sh9/sh9-ota-browser-v1067.js
+          node --test healthhub/tests/sh9-ota-indicator-v1043.test.cjs healthhub/tests/sh9-ota-browser-v1067.test.cjs

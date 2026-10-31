@@ -96,7 +96,7 @@ test('GPS service trouble is reported separately and never masks OTA current bui
 });
 test('no false OTA green on browser without installed build or on invalid release',async()=>{
  const release=makeRelease('0.15.10',37);
- assert.equal((await run({nativeLaunch:false,release})).el.dataset.state,'release');
+ assert.equal((await run({nativeLaunch:false,release})).el.dataset.state,'unknown');
  assert.equal((await run({health:'unknown',release})).el.dataset.state,'ok');
  assert.equal((await run({seenAt:Date.now()-11*60000,release})).el.dataset.state,'ok');
  assert.equal((await run({release:{...release,channel:'unsigned-test'}})).el.dataset.state,'unknown');
@@ -159,22 +159,12 @@ test('manual OTA failover is ONE native check tap on v0.15.11+, legacy versions 
  const old=await run({build:37,health:'ok',release:makeRelease('0.15.10',37)});
  assert.equal(old.el.href,'healthhubconnect://settings');
  const untrusted=await run({nativeLaunch:false,release:upToDate});
- assert.equal(untrusted.el.href,'healthhubconnect://settings');
+ assert.equal(untrusted.el.dataset.state,'unknown');
+ assert.equal(untrusted.handler['indicator:click'],undefined);
  assert.match(native,/u.getQueryParameter\("ota"\) == "check"/);
 });
 
-test('legacy build37 without native build metadata stays unknown, but click offers safe native installer fallback',async()=>{
- const view=await run({nativeLaunch:false});
- assert.equal(view.el.dataset.state,'release');
- assert.match(view.detail.textContent,/telepített verzió nem igazolt/);
- assert.equal(view.el.href,'healthhubconnect://settings');
- view.handler['indicator:click']();
- assert.equal(view.manual.hidden,false,'Legacy/PWA has immediate safe manual fallback');
- assert.equal(view.manualApk.hidden,false);
- assert.equal(view.manualApk.href,ota.downloadUrl);
- assert.equal(view.manualSettings.href,'healthhubconnect://settings');
- assert.match(view.manualSettings.textContent,/natív frissítő/);
-});
+
 test('validated build38 eligible for v0.15.12 uses one-tap installer and never fake APK link on offline errors',async()=>{
  const valid=await run({build:38,owner:'monika',release:makeRelease('0.15.12',39)});
  assert.equal(valid.el.dataset.state,'update');
@@ -193,37 +183,13 @@ test('foreground OTA checks use bounded five-minute cooldown, not six-hour delay
  assert.match(js,/visibilitychange/);
  assert.match(js,/pageshow/);
  assert.doesNotMatch(js,/setInterval\(/);
- assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1062-legacy-release/);
+ assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1067-native-only/);
 });
 
-test('both Zsolt and Mónika browser/PWA startpages show release without inventing installed build',async()=>{
- for(const owner of ['zsolt','monika']){
-  const view=await run({owner,nativeLaunch:false,release:makeRelease('0.15.12',39)});
-  assert.equal(view.el.dataset.state,'release');
-  assert.match(view.detail.textContent,/build 39/);
-  assert.equal(view.led.textContent,'OTA');
-  view.handler['indicator:click']({preventDefault(){}});
-  assert.equal(view.manual.hidden,false);
-  assert.equal(view.manualApk.hidden,false);
-  assert.equal(view.manualApk.href,ota.downloadUrl);
-  assert.equal(view.manualSettings.href,'healthhubconnect://settings');
-  assert.match(view.manualStatus.textContent,/telepített buildszáma/);
- }
-});
-test('browser/PWA cannot offer APK when family is not eligible or manifest URL is invalid',async()=>{
- for(const release of [
-  {...makeRelease('0.15.12',39),rolloutProfiles:['zsolt']},
-  {...makeRelease('0.15.12',39),downloadUrl:'https://attacker.invalid/release.apk'}
- ]){
-  const view=await run({nativeLaunch:false,release});
-  assert.equal(view.el.dataset.state,'unknown');
-  view.handler['indicator:click']({preventDefault(){}});
-  assert.equal(view.manual.hidden,false);
-  assert.equal(view.manualApk.hidden,true);
- }
-});
-test('neutral published release is blue and both JS/CSS are fresh after deployment',()=>{
+
+
+test('native WebView retains CSS and correct versioned script after Chrome split',()=>{
  assert.match(css,/data-state="release"/);
  assert.match(home,/sh9-ota-indicator-v1043\.css\?v=1062-legacy-release/);
- assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1062-legacy-release/);
+ assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1067-native-only/);
 });

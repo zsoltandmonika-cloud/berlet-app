@@ -91,7 +91,7 @@ test('SH9 startpage shows honest auto-check green/amber OTA lamp, not GPS health
  const js=get('../sh9/sh9-ota-indicator-v1043.js');
  const css=get('../sh9/sh9-ota-indicator-v1043.css');
  assert.match(page,/id="sh9OtaIndicatorV1043"/);
- assert.match(page,/sh9-ota-indicator-v1043\.js\?v=(?:1044|1061-status-install|1062-legacy-release)/);
+ assert.match(page,/sh9-ota-indicator-v1043\.js\?v=(?:1044|1061-status-install|1062-legacy-release|1067-native-only)/);
  assert.match(page,/sh9-ota-indicator-v1043\.css\?v=(?:1044|1062-legacy-release)/);
  assert.match(js,/hhBuildCode/);
  assert.match(js,/hhOwner/);
