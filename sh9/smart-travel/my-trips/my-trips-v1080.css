@@ -421,3 +421,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
  .mt-file-row{gap:4px;padding:8px 6px}
  .mt-file-row button{padding:5px}
 }
+
+/* v1089: per-trip explicit delete, compact and profile-themed */
+.mt-trip-actions .mt-trip-delete{border:1px solid rgba(255,174,184,.56);border-radius:10px;background:rgba(124,36,64,.44);color:#ffe2e7;min-height:40px;padding:8px 13px;font-size:12px;font-weight:800}
+.mt-trip-actions .mt-trip-delete:disabled{opacity:.5;cursor:wait}
