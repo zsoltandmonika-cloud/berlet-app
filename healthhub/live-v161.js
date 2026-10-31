@@ -23,7 +23,10 @@ function clearToken(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem
 function connected(){var t=readToken();return !!(t&&t.refresh_token)}
 
 async function connect(){
- var verifier=randomToken(64),challenge=await sha256b64(verifier),state=randomToken(24);
+ var verifier=randomToken(64),challenge=await sha256b64(verifier);
+ var nativeOAuth=false;
+ try{nativeOAuth=sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){}
+ var state=(nativeOAuth?'hhweb_':'')+randomToken(24);
  localStorage.setItem(PKCE_KEY,JSON.stringify({verifier:verifier,state:state,createdAt:Date.now()}));
  var u=new URL('https://www.dropbox.com/oauth2/authorize');
  u.searchParams.set('client_id',APP_KEY);
@@ -36,8 +39,11 @@ async function connect(){
  u.searchParams.set('state',state);
  location.href=u.toString();
 }
-async function handleCallback(){
- var u=new URL(location.href),code=u.searchParams.get('code'),state=u.searchParams.get('state'),err=u.searchParams.get('error');
+async function handleCallback(codeOverride,stateOverride){
+ var u=new URL(location.href),
+  code=codeOverride||u.searchParams.get('code'),
+  state=stateOverride||u.searchParams.get('state'),
+  err=codeOverride?null:u.searchParams.get('error');
  if(err){toast('Dropbox engedélyezés sikertelen: '+(u.searchParams.get('error_description')||err));history.replaceState({},'',REDIRECT);return}
  if(!code)return;
  if(state&&state.indexOf('hhbridge_')===0){
@@ -254,5 +260,13 @@ handleCallback().then(function(){setTimeout(function(){window.hhDropboxAutoSync&
 setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'startup')},1400);
 window.addEventListener('focus',function(){setTimeout(decorate,150)});
 document.documentElement.dataset.healthhubDropboxVault='1.235.1';
-window.HH_DROPBOX_VAULT={connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
+async function completeNativeOAuth(code,state){
+ var native=false;
+ try{native=sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){}
+ if(!native||!(/^[A-Za-z0-9._~-]{8,1024}$/).test(code||'')||
+  !(/^hhweb_[A-Za-z0-9_-]{24,128}$/).test(state||''))return false;
+ await handleCallback(code,state);
+ return connected();
+}
+window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
 })();
