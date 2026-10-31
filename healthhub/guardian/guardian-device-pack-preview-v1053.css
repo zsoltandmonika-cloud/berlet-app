@@ -59,6 +59,11 @@ html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845 .hh-device-pack-signal-v1053[data-signal="green"] svg{color:#4af2b2;filter:drop-shadow(0 0 4px #4af2b277)}
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845 .hh-device-pack-signal-v1053[data-signal="amber"] svg{color:#ffc76c}
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845 .hh-device-pack-signal-v1053[data-signal="red"] svg{color:#ff7c97}
+/* Original Bluetooth-mark deep blue when and only when the native radio says ON.
+   A pale halo keeps the blue glyph legible over the dark glass. */
+html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845 .hh-device-pack-signal-v1053[data-signal="blue"] svg{
+ color:#15539a;filter:drop-shadow(0 0 3px rgba(174,229,255,.94))
+}
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845 .hh-device-pack-signal-v1053[data-signal="gray"] svg{color:#aabbd7}
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845
  .hh-guardian-card-top-v845{max-width:100%;gap:2px!important}
