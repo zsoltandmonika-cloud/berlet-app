@@ -16,9 +16,9 @@
   header.textContent='';
   const logo=d.createElement('img');
   logo.className='fg-brand-image-v1056';
-  logo.src='../assets/sh9-family-guard-logo-v1056.webp';
+  logo.src='../assets/sh9-family-guard-logo-v1057.webp';
   logo.alt='SH9 Family Guard · Biztonság és monitoring';
-  logo.width=160;logo.height=51;logo.decoding='async';
+  logo.width=640;logo.height=214;logo.decoding='async';
   logo.setAttribute('draggable','false');
   header.appendChild(logo);
   return true;
