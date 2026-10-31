@@ -2,12 +2,11 @@
   "schema": "healthhub.connect.ota/1",
   "channel": "signed-release",
   "applicationId": "hu.zsoltmonika.healthhubbridge",
-  "version": "0.15.12",
-  "versionCode": 39,
+  "version": "0.15.13",
+  "versionCode": 40,
   "rolloutProfiles": [
-    "zsolt",
-    "monika"
+    "zsolt"
   ],
-  "downloadUrl": "https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.12/HealthHub-Connect-v0.15.12-ota.apk",
-  "sha256": "9ebd187748e56f47d08d90930893bf6ea263e7c83361ecbd3d90a047348174a1"
+  "downloadUrl": "https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.13/HealthHub-Connect-v0.15.13-ota.apk",
+  "sha256": "4b1c010e50190a2b275517f43982b2d30bdc780251f30819ef63884c26a98abd"
 }
