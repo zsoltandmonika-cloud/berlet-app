@@ -1,0 +1,36 @@
+name: SH9 Smart Trip AI Fullscreen Results v1072 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.css'
+      - 'healthhub/tests/sh9-smart-trip-results-v1072.test.cjs'
+      - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
+      - '.github/workflows/sh9-smart-trip-results-v1072-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.css'
+      - 'healthhub/tests/sh9-smart-trip-results-v1072.test.cjs'
+      - '.github/workflows/sh9-smart-trip-results-v1072-qa.yml'
+permissions:
+  contents: read
+jobs:
+  full-screen-trip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and verified visual journey QA
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js
+          node --test healthhub/tests/sh9-smart-trip-results-v1072.test.cjs
+          node --test healthhub/tests/guardian-smart-places-v1068.test.cjs

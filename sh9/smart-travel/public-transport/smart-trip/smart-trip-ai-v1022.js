@@ -9,7 +9,8 @@
  const form=$('st22Form'),from=$('st22From'),to=$('st22To'),status=$('st22Status');
  if(!form||!from||!to||!status)return;
  const list=$('st22JourneyList'),source=$('st22Source'),date=$('st22Date'),time=$('st22Time'),priority=$('st22Priority');
- const results=$('st22Results');
+ const results=$('st22Results'),resultRenderer=w.SH9_SMART_TRIP_RESULT_V1072;
+ const resultView=resultRenderer?.mount?.(w,d);
  const geo=w.HH_SMART_HUB_FIELDS_V806,rail=w.SH9_MAV_GTFS_CORE_V1;
  const API='https://photon.komoot.io/api/';
  const sessionKey='sh9-bkk-grand-planner-handoff-v1';
@@ -17,7 +18,7 @@
  const fields=[{input:from,key:'origin',box:$('st22FromList')},{input:to,key:'destination',box:$('st22ToList')}];
  const timers=new Map(),pending=new Map(),items=new Map();
  let lastOnline=0,lastSmartPlaceSync=0,railData=null,railNames=[],railLoading=null,mode='now';
- let tripCounter=0;
+ let tripCounter=0,searchCounter=0;
  function profile(){try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}}
  d.documentElement.dataset.st22Profile=profile();
  function fold(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU').replace(/\s+/g,' ').trim()}
@@ -215,34 +216,28 @@
   }).slice(0,8);
  }
  function stamp(iso){try{return new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'}).format(new Date(iso))}catch(_){return '—'}}
- function renderJourneys(journeys,query,when){
-  list.replaceChildren();
-  const pivot=Date.parse(when);
-  journeys.forEach((j,i)=>{
-   const card=d.createElement('article');card.className='st22-journey';
-   const title=d.createElement('h3');title.textContent=(i===0?'✨ Léna ajánlása · ':'🚆 Alternatíva · ')+(j.transfers?j.transfers+' átszállás':'Közvetlen');
-   const times=d.createElement('div');times.className='st22-times';times.textContent=stamp(j.departure)+' → '+stamp(j.arrival);
-   const desc=d.createElement('small');
-   desc.textContent=(j.durationMinutes||0)+' perc · '+j.transfers+' átszállás · '+waitSum(j,pivot)+' perc ismert várakozás · menetrendi, nem élő';
-   const explanation=d.createElement('small');
-   explanation.textContent='✨ Léna: '+(priority.value==='wait'
-     ?'A várakozási időt részesítettem előnyben.'
-     :priority.value==='transfers'?'Az átszállások számát részesítettem előnyben.'
-     :priority.value==='duration'?'A teljes menetidőt részesítettem előnyben.'
-     :priority.value==='departure'?'A korábbi indulást részesítettem előnyben.'
-     :'A menetidőt, átszállásokat és az ismert várakozást együtt mérlegeltem.')
-     +' Ez menetrendi értékelés, nem élő forgalmi előrejelzés.';
-   const details=d.createElement('ul');
-   (j.legs||[]).forEach((leg,k)=>{
-    const step=d.createElement('li');
-    step.textContent=(k?'Átszállás · ':'')+leg.from+' '+stamp(leg.departure)+' → '+leg.to+' '+stamp(leg.arrival)+' · '+leg.service;
-    details.append(step);
-   });
-   card.append(title,times,desc,explanation,details);list.append(card);
+ function renderJourneys(journeys,query,when,verifiedFeed){
+  // Verified local rail GTFS only. No invented door-to-door walking or BKK/Volan transfers.
+  if(!verifiedFeed||!rail?.validate?.(verifiedFeed,{allowPrivate:true})){
+   unavailable('A menetrendi adatforrás ellenőrzése sikertelen. Kitalált útvonalat nem mutatunk.');
+   return;
+  }
+  const generation=Date.parse(verifiedFeed.generatedAt||'');
+  if(!Number.isFinite(generation)||generation>Date.now()+60000||Date.now()-generation>90*86400000){
+   unavailable('A helyi menetrendi adatállomány túl régi vagy hibás dátumú. Frissítsd az ellenőrzött menetrendet.');
+   return;
+  }
+  const prepared=resultRenderer?.prepare?.(journeys,{
+   verified:true,kind:'local-private-gtfs',coverage:'station-to-station',
+   name:verifiedFeed.source||'Privát vasúti GTFS',generatedAt:verifiedFeed.generatedAt
   });
-  source.textContent='Privát MÁV GTFS · helyi menetrend';
-  say(journeys.length+' valódi, helyi menetrendi útvonal. Más közlekedési módokat csak hiteles adatforrás bekötése után tudunk összehasonlítani.');
-  focusResults();
+  if(!prepared?.items?.length){
+   unavailable('Nincs megjeleníthető, ellenőrzött útiterv. Kitalált szakaszokat nem mutatunk.');
+   return;
+  }
+  source.textContent=prepared.source.name+' · helyi menetrend · nem élő';
+  if(resultView?.open?.(prepared)){if(results)results.hidden=true;return}
+  unavailable('A teljes képernyős eredménynézet ezen a készüléken nem érhető el.');
  }
  function focusResults(){
   if(!results||results.hidden)return;
@@ -260,7 +255,8 @@
   focusResults();
  }
  async function searchTrip(event){
-  event.preventDefault();clearAll();
+  event.preventDefault();clearAll();resultView?.unlockSound?.();
+  const searchId=++searchCounter;
   if(results)results.hidden=false;
   const query=snapshot();
   if(!query.from||!query.to){unavailable('Az útvonalhoz mindkét hely szükséges. Válassz indulási helyet és célt a prediktív listából.');return}
@@ -269,6 +265,7 @@
    unavailable('Kérlek, válassz érvényes dátumot és időpontot.');return}
   unavailable('Ellenőrzöm a saját, helyben elérhető menetrendi adatokat…');
   const available=await loadRailData();
+  if(searchId!==searchCounter)return;
   if(!available){unavailable('A saját Smart Trip kereső működik, de ezen a készüléken nincs ellenőrzött, privát MÁV-menetrend. Az útvonalhoz BKK/Volán adatok bekötése is szükséges. Nem mutatunk kitalált járatot.');return}
   const instant=whenInstant(query);
   if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
@@ -278,7 +275,7 @@
     ?'Az adott cím vagy megálló nem azonosítható egyértelműen a helyi MÁV-menetrendben. Válassz a prediktív vasútállomás-listából, vagy használd a Family Guard térképet.'
     :'A kiválasztott időben nincs ellenőrzött vasúti találat az elérhető helyi menetrendben.');return
   }
-  renderJourneys(rank(result.journeys,query,instant),query,instant);
+  renderJourneys(rank(result.journeys,query,instant),query,instant,available);
  }
  function profileChanged(clearFields){
   const p=profile();
@@ -291,7 +288,7 @@
    button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
    button.title=name+' · Profilváltás';
   }
-  if(clearFields){clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
+  if(clearFields){searchCounter++;resultView?.close?.();clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
  }
  function showFamilyMap(){
   clearAll();
