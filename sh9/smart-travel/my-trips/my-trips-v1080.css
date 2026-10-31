@@ -241,3 +241,99 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 @media(prefers-reduced-motion:reduce){
  .mt-action,.mt-hero>img{transition:none}
 }
+
+
+/* v1085 · SH9 Golden Screen Standard, matching Smart Trip AI / MÁV:
+   unoccluded approved hero, canonical 45px bottom-left profile avatar,
+   title below photo, slim 3-button glass toolbar. Same palette + saved TripPack UI. */
+.mt-hero{
+ height:auto;
+ min-height:0;
+ aspect-ratio:1402 / 1122;
+ border-radius:15px;
+}
+.mt-hero>img{
+ position:absolute;inset:0;width:100%;height:100%;
+ object-fit:cover;object-position:center;
+ filter:brightness(1.09) saturate(1.04);
+}
+.mt-hero-shade{
+ background:linear-gradient(0deg,rgba(10,18,43,.24),transparent 28%);
+}
+.mt-hero::after{opacity:.4}
+.mt-hero-profile{
+ position:absolute;z-index:8;
+ left:6px;bottom:9px;
+ top:auto;right:auto;
+ width:45px;height:45px;min-width:45px;max-width:45px;
+ display:grid;place-items:center;
+ border:2px solid rgba(237,248,255,.97);
+ border-radius:15px;
+ padding:0;margin:0;
+ background:rgba(12,33,63,.46);
+ backdrop-filter:blur(12px);
+ -webkit-backdrop-filter:blur(12px);
+ box-shadow:inset 0 1px rgba(255,255,255,.34),0 3px 12px rgba(0,0,0,.45);
+ overflow:hidden;
+}
+.mt-hero-profile img{
+ width:41px;height:41px;display:block;
+ object-fit:cover;border-radius:12px;pointer-events:none;
+}
+:root[data-mt-profile="m"] .mt-hero-profile{
+ border-color:#ffe5f1;
+ background:rgba(86,29,81,.48);
+}
+.mt-heading{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:13px 10px 11px;
+ border-bottom:1px solid rgba(170,205,252,.24);
+}
+.mt-heading-copy{min-width:0}
+.mt-heading-copy small{
+ color:var(--mt-accent);
+ font-size:10px;font-weight:850;
+ letter-spacing:.08em;line-height:1.2;
+}
+.mt-heading-copy h1{
+ margin:2px 0 1px;
+ font-size:23px;line-height:1.13;
+ font-weight:900;letter-spacing:-.035em;
+}
+.mt-heading-copy p{
+ margin:0;
+ font-size:10.5px;color:#e0d7f4;line-height:1.4;
+}
+.mt-heading-profile{
+ flex:none;max-width:90px;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:30px;padding:6px 10px;border-radius:999px;
+ color:var(--mt-accent);
+ background:var(--mt-soft);
+ border:1px solid var(--mt-border);
+ font-size:11px;font-weight:850;
+ box-shadow:inset 0 1px rgba(255,255,255,.18);
+}
+.mt-quick{
+ gap:6px;margin-top:8px;
+}
+.mt-quick .mt-action{
+ min-height:55px;height:55px;max-height:55px;
+ padding:5px 6px;gap:1px;
+ border-radius:12px;
+ box-shadow:inset 0 1px rgba(255,255,255,.25),0 4px 10px rgba(0,0,0,.13);
+}
+.mt-quick .mt-action span{
+ display:block;
+ font-size:19px;line-height:1.1;
+}
+.mt-quick .mt-action strong{
+ font-size:10px;line-height:1.2;font-weight:850;
+}
+.mt-overline{margin-top:14px}
+@media(max-width:360px){
+ .mt-hero{height:auto;aspect-ratio:1402 / 1122}
+ .mt-quick .mt-action{min-height:51px;height:51px;max-height:51px}
+ .mt-heading{padding:11px 6px 9px}
+ .mt-heading-copy h1{font-size:21px}
+}
