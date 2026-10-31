@@ -158,7 +158,7 @@
   const full=rows.filter(x=>x.doorToDoor);
   const list=full.length?full:rows;
   const src={kind:'verified-multimodal',verified:true,coverage:full.length?'door-to-door':'station-to-station',
-   name:'Google Maps · tömegközlekedési útvonal',generatedAt:now.toISOString(),attribution:'© Google Maps'};
+   name:'Google Maps · tömegközlekedési útvonal',generatedAt:now.toISOString(),attribution:'© Google Maps',walkTimeEstimated:true};
   return renderer?.prepare?.(list,src)||null;
  }
  return Object.freeze({request,mapsUrl,normalizeRoutes,rank,verifiedPackage});
