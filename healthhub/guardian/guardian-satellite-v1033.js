@@ -1,4 +1,4 @@
-/* Family Guard v1048 · opt-in saved-key MapTiler Satellite auto-start, no polling/GPS.
+/* Family Guard v1049 · reliable saved-key 3D + satellite launch, no polling/GPS.
  * Adds/removes a raster overlay on existing MapLibre style, NOT map.setStyle:
  * family/BKK/GPS markers, trails, 3D buildings and labels stay in place.
  * MapTiler browser key may be remembered on an explicitly trusted device.
@@ -21,11 +21,10 @@
  const STORE='hh-maptiler-satellite-key-session-v1033';
  const DEVICE_STORE='hh-maptiler-browser-key-device-v1035';
  const REMEMBER='hh-maptiler-remember-device-v1035';
- const AUTO_PREF='hh-maptiler-satellite-auto-v1048';
  const remember=$('guardianSatelliteRememberV1035');
  const forget=$('guardianSatelliteForgetV1035');
  const tileJsonUrl='https://api.maptiler.com/tiles/satellite-v2/tiles.json';
- let on=false,working=false,key=null,cachedMeta=null,autoAttempted=false,autoAttachedMap=null;
+ let on=false,working=false,key=null,cachedMeta=null,autoAttempted=false,manualOff=false;
  const map=()=>w.HH_GUARDIAN_V761?.map||null;
  const msg=(s)=>{if(error)error.textContent=s||''};
  function kvalid(v){return /^[a-zA-Z0-9_-]{10,160}$/.test(v)}
@@ -39,12 +38,8 @@
   else if(kvalid(fromSession))key=fromSession;
   if(remember)remember.checked=w.localStorage?.getItem(REMEMBER)!=='off';
  }catch(_){}
- function autoDisabled(){
-  try{return w.localStorage?.getItem(AUTO_PREF)==='off'}catch(_){return false}
- }
- function setAutoPreference(enabled){
-  try{w.localStorage?.setItem(AUTO_PREF,enabled?'on':'off')}catch(_){}
- }
+ // A manual OFF lasts only until the next page opening. Never let an old
+ // stored v1048 OFF override the family's explicit default-satellite request.
  function saveKey(value){
   try{
    if(remember?.checked!==false){
@@ -137,25 +132,22 @@
  async function turnOn(value,automatic=false){
   if(working)return;
   const m=map();
-  if(!m){if(!automatic)showDialog('A Family Guard térkép még nem áll készen.');return}
+  // The Guardian dispatches map-ready only AFTER adding the route line.
+  // MapLibre isStyleLoaded() can still be false while tiles are loading, so
+  // waiting on a second 'load' event would hang after the first load event.
+  if(!m?.getLayer?.('guardian-route-line')){
+   if(!automatic)showDialog('A 3D térkép még töltődik. Próbáld újra a betöltés után.');
+   return;
+  }
   setBusy(true);
   try{
    const meta=cachedMeta&&value===key?cachedMeta:await validateKey(value);
-   if(!m.isStyleLoaded?.()){
-    // MapLibre may still be loading the initial street map. Do not alter it
-    // until its style is ready; no background retries or repeated tile calls.
-    await new Promise((resolve,reject)=>{
-     const finish=()=>{m.off('load',finish);resolve()};
-     m.on('load',finish);
-     // If we missed the event while attaching, still finish immediately.
-     if(m.isStyleLoaded?.())finish();
-    });
-   }
+   if(!m.getLayer?.('guardian-route-line'))throw Error('A térkép újratöltődött, próbáld újra.');
    ensureSource(m,meta,value);
    key=value;cachedMeta=meta;
    saveKey(value);
    setVisual(true);closeDialog();msg('');
-   if(!automatic)setAutoPreference(true);
+   manualOff=false;
   }catch(e){
    disable();
    const reason=e?.message||'Nem sikerült betölteni a műholdas térképet.';
@@ -168,7 +160,7 @@
  }
  button.addEventListener('click',()=>{
   if(working)return;
-  if(on){disable();setAutoPreference(false);return}
+  if(on){disable();manualOff=true;return}
   if(!key){showDialog('Adj meg egy, a GitHub Pages domainre korlátozott MapTiler API-kulcsot.');return}
   void turnOn(key);
  });
@@ -190,19 +182,13 @@
  // Start ONLY after the existing 3D MapLibre style is ready. Do not poll,
  // auto-open a permission dialog or switch off 3D/building extrusion.
  function autoEnable(){
-  if(autoAttempted||!key||autoDisabled()||d.hidden||working||on)return;
+  if(autoAttempted||!key||manualOff||d.hidden||working||on)return;
   const m=map();
-  if(!m)return;
-  if(m.isStyleLoaded?.()){
-   autoAttempted=true;
-   void turnOn(key,true);
-   return;
-  }
-  if(autoAttachedMap===m)return;
-  if(typeof m.once==='function'){
-   autoAttachedMap=m;
-   m.once('load',()=>{autoAttachedMap=null;autoEnable()});
-  }
+  // This is reliable both when the satellite script loads after map-ready
+  // and when the map-ready event arrives after this script initializes.
+  if(!m?.getLayer?.('guardian-route-line'))return;
+  autoAttempted=true;
+  void turnOn(key,true);
  }
  w.addEventListener?.('hh-guardian-map-ready-v839',autoEnable);
  d.addEventListener?.('visibilitychange',()=>{if(!d.hidden)autoEnable()});
