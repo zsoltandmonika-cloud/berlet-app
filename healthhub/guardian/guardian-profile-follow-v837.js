@@ -173,6 +173,7 @@
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
    moveFrame=null;markerCoord=null;lastPaintTs=0;lastReceiveAt=0;lastMotionDuration=820;
+   w.HH_GUARDIAN_SMART_PLACES_V1068?.onFix?.(null,null);
    if(marker){try{marker.remove()}catch(_){}marker=null}
    markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
@@ -291,6 +292,8 @@
     markerCoord=[fix.lng,fix.lat];lastPaintTs=fix.ts;
    }else paintCoordinate(fix);
    paintSpeed(fix);
+   // One verified fix, one existing portrait; Smart Places adds no GPS read.
+   w.HH_GUARDIAN_SMART_PLACES_V1068?.onFix?.(fix,markerNode);
    guardian()?.setRemoteMarkerPreferred?.(true);
    const own=d.getElementById('guardianMeState');
    if(own)own.textContent='🟢 '+fix.source+' · friss profilpozíció';
