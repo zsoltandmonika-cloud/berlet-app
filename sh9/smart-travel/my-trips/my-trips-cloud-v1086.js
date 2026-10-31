@@ -59,13 +59,15 @@
     .eq('profile_key',key).limit(60);
    if(error)throw Error(error.message);
    const remote=data||[],remoteIds=new Set(remote.map(x=>x.trip_id)),remoteFingerprints=new Map();
+   const deletedIds=new Set(remote.filter(x=>x.trip_data?.deletedTripId).map(x=>x.trip_data.deletedTripId));
+   const deletedFingerprints=new Set(remote.filter(x=>x.trip_data?.deletedFingerprint).map(x=>x.trip_data.deletedFingerprint));
    for(const item of remote)try{
-    if(validId(item.trip_id))remoteFingerprints.set(fingerprint(pack.normalize(item.trip_data)),item.trip_id);
+    if(validId(item.trip_id)&&!item.trip_data?.deletedTripId)remoteFingerprints.set(fingerprint(pack.normalize(item.trip_data)),item.trip_id);
    }catch(_){}
    // Reconcile independent imports of the exact same itinerary to ONE cloud ID.
    // Otherwise tickets might attach to different IDs on the two Galaxy phones.
-   let changed=false;
-   const merged=local.map(t=>{
+   let changed=local.some(t=>deletedIds.has(t.id)||deletedFingerprints.has(fingerprint(t)));
+   const merged=local.filter(t=>!deletedIds.has(t.id)&&!deletedFingerprints.has(fingerprint(t))).map(t=>{
     const canonical=remoteFingerprints.get(fingerprint(t));
     if(!canonical||canonical===t.id)return t;
     changed=true;
@@ -87,10 +89,10 @@
    const ids=new Set(merged.map(t=>t.id));
    const known=new Set(merged.map(fingerprint));
    for(const x of remote){
-    if(ids.has(x.trip_id)||!validId(x.trip_id))continue;
+    if(ids.has(x.trip_id)||!validId(x.trip_id)||x.trip_data?.deletedTripId||deletedIds.has(x.trip_id))continue;
     try{
      const j=pack.normalize(x.trip_data),f=fingerprint(j);
-     if(known.has(f))continue;
+     if(known.has(f)||deletedFingerprints.has(f))continue;
      merged.push({...j,id:x.trip_id,savedAt:Number(x.trip_data?.savedAt)||Date.now()});
      known.add(f);ids.add(x.trip_id);changed=true;
     }catch(_){}
@@ -241,6 +243,8 @@
   busy=true;msg('Útiterv biztonságos törlése…');
   try{
    const c=await authorized(),key=cloudProfile(p);
+   const current=pack.read(w.localStorage,p).find(t=>t.id===id);
+   if(!current)throw Error('Az útvonal már nincs a helyi mentésekben.');
    if(p!==profile())throw Error('Közben megváltozott a profil.');
    const {data:attachments,error:listError}=await c.from(FILES)
     .select('id,storage_path').eq('profile_key',key).eq('trip_id',id).limit(100);
@@ -254,6 +258,13 @@
    }
    const {error:tripError}=await c.from(TRIPS).delete().eq('profile_key',key).eq('trip_id',id);
    if(tripError)throw Error('Felhőből törlés: '+tripError.message);
+   // Persist an authenticated cloud tombstone so another phone cannot re-upload a stale local copy.
+   const markerId='tp-del-'+Date.now().toString(36)+'-'+Math.round(Math.random()*1e8).toString(36);
+   const {error:markerError}=await c.from(TRIPS).insert({
+    profile_key:key,trip_id:markerId,
+    trip_data:{deletedTripId:id,deletedFingerprint:fingerprint(current),deletedAt:new Date().toISOString()}
+   });
+   if(markerError)throw Error('A másik telefon elleni törlésvédelem nem menthető: '+markerError.message);
    if(p!==profile())throw Error('Profilváltás történt; frissítsd a listát.');
    if(!pack.remove(w.localStorage,p,id))throw Error('Felhőből törölve, de a helyi mentés frissítése nem sikerült. Frissítsd az oldalt.');
    try{w.localStorage.removeItem(localKey(p)+'-manual-step-'+id)}catch(_){}
