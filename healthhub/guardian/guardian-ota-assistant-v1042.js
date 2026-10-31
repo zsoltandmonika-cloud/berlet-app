@@ -15,7 +15,7 @@
  const CACHE_MS=5*60000; // foreground-only state freshness; no background polling
  const TOKEN='hh-dropbox-token-v2',APP='t68rmhh5f1l8d85';
  const OTA='../data/bridge-ota.json';
- let busy=false,lastRead=0,epoch=0;
+ let busy=false,lastRead=0,epoch=0,pendingRefresh=false;
  const owner=()=>w.localStorage?.getItem('hh-profile')==='m'?'monika':'zsolt';
  const label=p=>p==='monika'?'Mónika':'Zsolt';
  const authorized=()=>w.HH_GUARDIAN_LIVE_V785?.familyAuthorized===true;
@@ -60,7 +60,10 @@
   return m.downloadUrl===expected;
  }
  async function refresh(force){
-  if(busy||(!force&&Date.now()-lastRead<CACHE_MS))return;
+  // A profile change during another phone's read must not silently disappear.
+  // Queue exactly one read for the newly selected profile, not a polling loop.
+  if(busy){if(force)pendingRefresh=true;return}
+  if(!force&&Date.now()-lastRead<CACHE_MS)return;
   const generation=++epoch,p=owner();
   busy=true;lastRead=Date.now();check.disabled=true;noOffer('📦 HH One: kiadási verzió ellenőrzése…');
   try{
@@ -95,7 +98,10 @@
    const releaseRes=await w.fetch(OTA,{cache:'no-store'});
    if(!releaseRes.ok)throw Error('OTA verzióleíró nem érhető el.');
    const m=await releaseRes.json();
-   if(!validRelease(m,p)){noOffer('Ehhez a profilhoz nincs ellenőrzött OTA-kiadás.');return}
+   if(!validRelease(m,p)){
+    noOffer(label(p)+': telefonállapot lekérdezve; az OTA-frissítés erre a profilra még nem engedélyezett.');
+    return;
+   }
    const installed=Number(device.buildCode);
    const lastSeen=Date.parse(device.lastSeenAt||'');
    if(!Number.isFinite(lastSeen)||lastSeen>Date.now()+5000||Date.now()-lastSeen>20*60000){
@@ -120,7 +126,10 @@
     ' elérhető, telepített build '+installed+'. A letöltést Mónika/Zsolt saját telefonján kell elindítani.';
   }catch(e){
    noOffer('⚠ OTA állapot nem igazolható: '+String(e?.message||e).slice(0,140));
-  }finally{busy=false;check.disabled=false}
+  }finally{
+   busy=false;check.disabled=false;
+   if(pendingRefresh){pendingRefresh=false;void refresh(true)}
+  }
  }
  check.addEventListener('click',()=>void refresh(true));
  d.addEventListener('visibilitychange',()=>{if(!d.hidden)void refresh(false)});
