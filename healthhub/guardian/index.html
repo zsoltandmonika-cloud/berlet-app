@@ -28,6 +28,35 @@ html[data-hh-dock-prepaint] .hhBottomNav :is(a,button){
 </style>
 
 <meta charset="utf-8">
+<script id="hh-one-native-pkce-return-v1063">
+/* A Supabase PKCE code is never exchanged in this EXTERNAL browser:
+   its verifier remains inside the HH One app-private WebView storage. */
+(function(){
+ try{
+  const p=new URLSearchParams(location.search),code=p.get('code');
+  if(p.get('sh9native')==='1'&&Number(p.get('hhBuildCode'))>=40&&
+    ['zsolt','monika'].includes(p.get('hhOwner'))){
+   sessionStorage.setItem('hh-one-native-oauth-v1063','1');
+  }
+  if(!code||!(/^[A-Za-z0-9._~-]{8,1024}$/).test(code))return;
+  history.replaceState(history.state,'',location.pathname+location.hash);
+  document.addEventListener('DOMContentLoaded',function(){
+   const panel=document.createElement('section');
+   panel.id='hhNativeOAuthReturnV1063';
+   panel.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;justify-content:center;align-items:center;padding:20px;background:#071a36;color:#fff;font:16px/1.5 system-ui';
+   const inner=document.createElement('div');
+   inner.style.cssText='max-width:370px;text-align:center';
+   const h=document.createElement('h2');h.textContent='🔐 HH One · Biztonságos visszatérés';
+   const p=document.createElement('p');p.textContent='A Google-belépés elkészült. Koppints az alábbi gombra, hogy a HH One saját munkamenetében fejeződjön be.';
+   const btn=document.createElement('button');btn.type='button';btn.textContent='📱 Vissza a HH One-hoz';
+   btn.style.cssText='min-height:52px;padding:12px 22px;border-radius:14px;background:#367dce;color:white;border:1px solid #a2d2ff;font:700 16px system-ui';
+   btn.onclick=function(){location.href='healthhubconnect://auth-return?code='+encodeURIComponent(code)};
+   inner.append(h,p,btn);panel.append(inner);document.body.append(panel);
+  },{once:true});
+ }catch(_){}
+})();
+</script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1425">
 <script>
@@ -898,7 +927,8 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./guardian.js?v=862-owner-safe-boarding-bubble&service=806&attrib=831&handoff=839"></script>
 <script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay&battery=841"></script>
-<script defer src="./guardian-live-v785.js?v=1037-preserve-own-gps&native=156&autofollow=827"></script>
+<script defer src="./guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
+<script defer src="./guardian-live-v785.js?v=1063-pkce-native-login&native=156&autofollow=827"></script>
 <script defer src="./guardian-profile-follow-v837.js?v=865-adaptive-continuous-verified-gps&handoff=839&speed=851&smoothing=1004-bus-latency-1005"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
 <script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics"></script>
