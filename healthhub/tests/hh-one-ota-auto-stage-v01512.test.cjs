@@ -43,4 +43,7 @@ test('Bluetooth, Wi-Fi and cellular proof is processed before OTA rollout gate e
  assert.ok(pEvidence>0 && pRollout>pEvidence);
  assert.match(guardian,/bluetoothEnabled:typeof device\.bluetoothEnabled==='boolean'/);
  assert.match(html,/guardian-ota-assistant-v1042\.js\?v=1059-independent-device-evidence/);
+ assert.match(guardian,/const CACHE_MS=5\*60000/);
+ assert.match(guardian,/visibilitychange/);
+ assert.doesNotMatch(guardian,/setInterval\(/);
 });
