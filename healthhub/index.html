@@ -2,6 +2,34 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
+<script id="hh-one-native-dropbox-return-v1063">
+/* Only the browser callback for a WebView-owned hhweb_ PKCE state is shown.
+   All ordinary Chrome, Dropbox native-hhbridge_ and Health Vault flows stay unchanged. */
+(function(){
+ try{
+  var q=new URLSearchParams(location.search),state=q.get('state'),code=q.get('code');
+  if(q.get('sh9native')==='1'&&Number(q.get('hhBuildCode'))>=40&&
+     ['zsolt','monika'].includes(q.get('hhOwner'))){
+   sessionStorage.setItem('hh-one-native-oauth-v1063','1');
+  }
+  if(!(/^hhweb_[A-Za-z0-9_-]{24,128}$/).test(state||'')||
+     !(/^[A-Za-z0-9._~-]{8,1024}$/).test(code||''))return;
+  history.replaceState(history.state,'',location.pathname+location.hash);
+  document.addEventListener('DOMContentLoaded',function(){
+   var overlay=document.createElement('section');
+   overlay.id='hhNativeDropboxReturnV1063';
+   overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#071a36;color:#fff;padding:22px;font:16px/1.5 system-ui';
+   var box=document.createElement('div');box.style.cssText='max-width:370px;text-align:center';
+   var title=document.createElement('h2');title.textContent='☁️ Dropbox · HH One';
+   var note=document.createElement('p');note.textContent='A Dropbox jóváhagyása elkészült. Térj vissza a HH One-hoz a biztonságos kapcsolat befejezéséhez.';
+   var button=document.createElement('button');button.type='button';button.textContent='📱 Vissza a HH One-hoz';
+   button.style.cssText='min-height:52px;padding:12px 22px;border-radius:14px;background:#367dce;color:#fff;border:1px solid #a2d2ff;font:700 16px system-ui';
+   button.onclick=function(){location.href='healthhubconnect://dropbox-web-return?code='+encodeURIComponent(code)+'&state='+encodeURIComponent(state)};
+   box.append(title,note,button);overlay.append(box);document.body.append(overlay);
+  },{once:true});
+ }catch(_){}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b2d50">
 <title>HealthHub</title>
