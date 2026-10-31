@@ -12,6 +12,8 @@ const kotlin=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const main=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt');
 const manifest=read('healthhub/android-bridge/app/src/main/AndroidManifest.xml');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
+const vault=read('healthhub/live-v161.js');
+const healthHub=read('healthhub/index.html');
 const release=JSON.parse(read('healthhub/data/bridge-ota.json'));
 const AUTH='https://vhsrupphzcjkdrusonzh.supabase.co/auth/v1/authorize';
 const REDIRECT='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/guardian/';
@@ -89,4 +91,21 @@ test('candidate build40 stays unpublished, signed OTA baseline stays v0.15.12/bu
  assert.match(gradle,/versionName = "0\.15\.13"/);
  assert.equal(release.versionCode,39);
  assert.equal(release.version,'0.15.12');
+});
+
+test('WebView Dropbox PKCE state remains inside app; Chrome and native Dropbox modes are unchanged',()=>{
+ assert.match(vault,/nativeOAuth\\?'hhweb_':''/);
+ assert.match(vault,/completeNativeOAuth:completeNativeOAuth/);
+ assert.match(vault,/handleCallback\\(code,state\\)/);
+ assert.match(vault,/state&&state\\.indexOf\\('hhbridge_'\\)===0/);
+ assert.match(healthHub,/hh-one-native-dropbox-return-v1063/);
+ assert.match(healthHub,/dropbox-web-return\\?code=/);
+ assert.match(kotlin,/www\\.dropbox\\.com/);
+ assert.match(kotlin,/hhweb_\\[A-Za-z0-9_-\\]/);
+ assert.match(kotlin,/EXTRA_DROPBOX_AUTH_STATE_V1063/);
+ assert.match(main,/data\\.host == "dropbox-web-return"/);
+ assert.match(main,/expected == state/);
+ assert.match(main,/remove\\("dropbox_state"\\)\\.remove\\("dropbox_pending_at"\\)/);
+ assert.match(manifest,/android:host="dropbox-web-return"/);
+ assert.doesNotMatch(kotlin,/addJavascriptInterface\\(/);
 });
