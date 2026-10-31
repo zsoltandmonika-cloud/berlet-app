@@ -4,6 +4,8 @@ on:
     paths:
       - 'healthhub/android-bridge/**'
       - 'healthhub/guardian/guardian-native-auth-v1063.js'
+      - 'healthhub/live-v161.js'
+      - 'healthhub/index.html'
       - 'healthhub/guardian/guardian-live-v785.js'
       - 'healthhub/guardian/index.html'
       - 'sh9/family-hub/family-tasks-v880.js'
@@ -38,6 +40,7 @@ jobs:
         run: |
           node --test tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
           node --check ../guardian/guardian-native-auth-v1063.js
+          node --check ../live-v161.js
           node --check ../guardian/guardian-live-v785.js
           node --check ../../sh9/family-hub/family-tasks-v880.js
           node --test ../tests/hh-one-native-auth-pkce-v1063.test.cjs ../tests/hh-one-ota-auto-stage-v01512.test.cjs ../tests/sh9-remote-admin-v1041.test.cjs
