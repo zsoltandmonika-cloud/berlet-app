@@ -9,7 +9,7 @@
   const fromList=d.getElementById('st22FromList'),toList=d.getElementById('st22ToList');
   if(!from||!to||!fromList||!toList||d.getElementById('st22KeyboardDockV1088'))return;
   const fields={origin:{input:from,list:fromList},destination:{input:to,list:toList}};
-  const mobile=()=>!!w.matchMedia?.('(max-width:640px)').matches;
+  const mobile=()=>!!(w.matchMedia&&w.matchMedia('(max-width:640px)').matches);
   const dock=d.createElement('section');
   dock.id='st22KeyboardDockV1088';
   dock.className='st22-keyboard-v1088';
@@ -83,6 +83,8 @@
    active=null;
    dock.hidden=true;dock.style.top='';dock.style.height='';
    delete dock.dataset.kind;
+   // Existing controller cancels any pending network prediction after dismissal.
+   w.dispatchEvent(new CustomEvent('sh9-smart-trip-predictive-close-v1088',{detail:{key:previous===fields.origin?'origin':'destination'}}));
    closing=false;
   }
   function trigger(key,event){
@@ -127,7 +129,7 @@
    w.visualViewport.addEventListener('resize',schedule,{passive:true});
    w.visualViewport.addEventListener('scroll',schedule,{passive:true});
   }
-  w.SH9_SMART_TRIP_KEYBOARD_V1088=Object.freeze({get isOpen(){return !!active},close});
+  w.SH9_SMART_TRIP_KEYBOARD_V1088=Object.freeze({get isOpen(){return !!active},open,close});
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
