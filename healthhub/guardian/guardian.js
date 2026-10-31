@@ -338,12 +338,6 @@ function enableFollow(){
  if(follow&&marker&&map)
   map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
 }
-function toggleFamily(){
- const panel=$('guardianFamilyPanel'),button=$('guardianFamilyButton');
- if(!panel||!button)return;
- panel.hidden=!panel.hidden;
- button.setAttribute('aria-expanded',String(!panel.hidden));
-}
 function tapSound(){
  // Match the HH One canonical 900 Hz / 40 ms profile tap, never auto-play.
  try{
@@ -536,7 +530,6 @@ $('guardianStop').addEventListener('click',stop);
 $('guardianClear').addEventListener('click',clear);
 $('guardianFollow').addEventListener('click',enableFollow);
 $('guardian3D').addEventListener('click',toggle3D);
-$('guardianFamilyButton').addEventListener('click',toggleFamily);
 $('guardianProfileSwitch').addEventListener('click',switchProfile);
 if(typeof d.querySelectorAll==='function'){
  const toast=$('guardianNavToast');
@@ -567,12 +560,11 @@ w.addEventListener('storage',function(e){if(e.key==='hh-profile'){
  if(w.HH_GUARDIAN_LIVE_V785)w.HH_GUARDIAN_LIVE_V785.onProfileChanged();
  if(map&&ready)applyGoldenMapStyle();
 }});
-// Every page load opens with Follow + 3D + Family as the map view.
-// This is presentation-only; no GPS, permission prompt or location upload.
+// Family Live is the native Család accordion inside the existing Admin settings.
+// Keep Follow and 3D on the map; no new GPS, permissions or upload side effects.
 follow=true;threeD=true;
-const familyPanel=$('guardianFamilyPanel'),familyButton=$('guardianFamilyButton');
+const familyPanel=$('guardianFamilyPanel');
 if(familyPanel)familyPanel.hidden=false;
-if(familyButton)familyButton.setAttribute('aria-expanded','true');
 theme();renderButtons();initMap();
 w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
   if(marker)paintOwnTransit(lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null);
