@@ -140,20 +140,18 @@
     approvedRelease=m.downloadUrl;
     state('update','FRISSÍTÉS ELÉRHETŐ · HH One v'+m.version+
       ' · egy koppintás a telepítéshez.',build>=38?DIRECT:SETTINGS);
-   }else if(service==='warning'){
-    state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',manualCheckLink);
-   }else if(m.versionCode<=build&&service==='ok'){
-    state('ok','SH9 SYSTEM OK · HH One naprakész (build '+build+
-      ') és a natív szolgáltatás az indításkor rendben volt. Nem folyamatos mérés.',manualCheckLink);
    }else if(m.versionCode<=build){
-    state('unknown','HH One naprakész · a natív szolgáltatás aktuális állapota még nem igazolt.',manualCheckLink);
+    // OTA state and GPS/Family Guard service state are independent.
+    // A stopped GPS service cannot turn a verified current APK red/gray.
+    state('ok','HH One OTA NAPRAKÉSZ · Telepített build '+build+
+      ' · kiadott build '+m.versionCode+
+      (service==='warning'?' · A Family Guard szolgáltatása külön figyelmet igényel.':''),manualCheckLink);
    }else{
     state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',manualCheckLink);
    }
   }catch(_){
-   if(nativeHealth()==='warning')
-    state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',manualCheckLink);
-   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjéhez; nem mutatunk hamis zöld állapotot.',manualCheckLink);
+   state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjéhez; nem mutatunk hamis zöld állapotot.'+
+    (nativeHealth()==='warning'?' A Family Guard szolgáltatási hibája külön ellenőrizendő.':''),manualCheckLink);
   }finally{busy=false}
  }
  // A still-open page must not keep showing yesterday's healthy boot snapshot.
