@@ -80,6 +80,18 @@
    const url=new URL('../public-transport/smart-trip/',d.baseURI);
    url.searchParams.set('trip',trip.id);
    go.href=url.href;
+   const del=node('button','mt-trip-delete','🗑️ Törlés',actions);
+   del.type='button';
+   del.setAttribute('aria-label',trip.title+' útiterv törlése');
+   del.addEventListener('click',async()=>{
+    if(!w.confirm('Végleg törlöd ezt az útitervet Mónika és Zsolt közös felhőjéből is?\\n'+trip.title+'\\nA csatolt jegyek is törlődnek.'))return;
+    if(active()!==p){w.alert('Profilváltás történt. Próbáld újra.');return}
+    const remove=w.SH9_MY_TRIPS_CLOUD_V1086?.deleteTrip;
+    if(typeof remove!=='function'){w.alert('A biztonságos felhőtörlés nem érhető el. Frissítsd az oldalt.');return}
+    del.disabled=true;del.textContent='Törlés…';
+    try{await remove(p,trip.id);render()}
+    catch(e){w.alert('Nem sikerült törölni: '+(e.message||'ismeretlen hiba'));del.disabled=false;del.textContent='🗑️ Törlés'}
+   });
   }
  }
  $('mtReload')?.addEventListener('click',()=>{render();w.dispatchEvent(new CustomEvent('sh9-my-trips-cloud-sync-request',{detail:{p:active()}}))});
