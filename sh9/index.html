@@ -92,10 +92,17 @@ body{background:#0b1425}
  <span id="sh9OtaStateV1043" class="visually-hidden" role="status" aria-live="polite">HH One OTA állapot ellenőrzése…</span>
  <section id="sh9OtaManualV1044" class="sh9-ota-manual-v1044" aria-label="Frissítés tartalék módja" hidden>
   <div class="sh9-ota-manual-heading-v1044">
-   <strong>📦 Frissítés · tartalék megoldás</strong>
+   <strong>📦 HH One · OTA állapot és frissítés</strong>
    <button type="button" id="sh9OtaManualCloseV1044" aria-label="Frissítési panel bezárása">×</button>
   </div>
-  <p id="sh9OtaManualStatusV1044" role="status">Ha nem nyílt meg a HH One, válaszd a kézi frissítést.</p>
+  <p id="sh9OtaManualStatusV1044" role="status">A telefon ellenőrzése folyamatban…</p>
+  <label class="sh9-ota-owner-v1067" for="sh9OtaDeviceSelectV1067">Figyelt családi telefon
+   <select id="sh9OtaDeviceSelectV1067" aria-label="Kijelölt családi telefon">
+    <option value="">Válassz telefont…</option><option value="zsolt">Zsolt telefonja</option><option value="monika">Mónika telefonja</option>
+   </select>
+  </label>
+  <button type="button" class="sh9-ota-recheck-v1067" id="sh9OtaRefreshV1067">🔄 Friss OTA-állapot lekérése</button>
+  <a id="sh9OtaConnectVaultV1067" href="../healthhub/index.html?sh9nav=admin" hidden>🔐 Dropbox-kapcsolat ellenőrzése</a>
   <a id="sh9OtaManualSettingsV1044" href="healthhubconnect://settings">📱 HH One frissítő megnyitása</a>
   <a id="sh9OtaManualApkV1044" href="#" hidden rel="noopener noreferrer" target="_blank">📥 Hitelesített APK kézi letöltése</a>
   <small>Az APK-t csak a hivatalos, engedélyezett kiadásból ajánljuk fel. A telepítést az Androidon jóvá kell hagyni.</small>
@@ -155,5 +162,5 @@ body{background:#0b1425}
 (function(){'use strict';const m=document.getElementById('modal'),c=document.getElementById('close'),msg=m.querySelector('.dialog p'),standardMessage=msg.textContent;document.querySelectorAll('[data-name],[data-nav]').forEach(b=>b.addEventListener('click',()=>{if(b.tagName==='A'&&b.hasAttribute('href'))return;if(b.dataset.nav==='Kezdőlap')return;if(b.dataset.nav==='Vissza'){if(history.length>1){history.back();return;}document.getElementById('modal-title').textContent='Vissza';msg.textContent='Nincs előző oldal az SH9 előzményeiben.';m.classList.add('on');c.focus();return;}if(b.dataset.name==='Ask Léna'){const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;if(api&&typeof api.openProject==='function')api.openProject();else location.assign('../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');return;}if(b.dataset.href){location.assign(new URL(b.dataset.href,document.baseURI).href);return;}msg.textContent=standardMessage;document.getElementById('modal-title').textContent=b.dataset.name||b.dataset.nav;m.classList.add('on');c.focus();}));function close(){m.classList.remove('on')}c.addEventListener('click',close);m.addEventListener('click',e=>{if(e.target===m)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});})();
 </script><script defer src="./sh9-info-v6.js?v=10-label-value"></script><script defer src="./outlook-agenda-model-v1.js?v=1"></script><script defer src="./outlook-session-v2.js?v=2"></script><script defer src="./outlook-agenda-v1.js?v=7-direct-agenda"></script><script src="./pwa-install-v1.js?v=1" defer></script><script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=901"></script>
 <script defer src="./family-hub/family-notifier-v880.js?v=915-usage-firebreak"></script>
-<script defer src="./sh9-ota-indicator-v1043.js?v=1062-legacy-release"></script>
+<script defer src="./sh9-ota-indicator-v1043.js?v=1067-native-only"></script><script defer src="./sh9-ota-browser-v1067.js?v=1067-chrome-edge-phone-evidence"></script>
 </body></html>
