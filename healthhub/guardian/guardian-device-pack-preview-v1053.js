@@ -46,7 +46,7 @@
    details:isUpdate?'Ellenőrzött, kiadott HH One-frissítés elérhető a kiválasztott telefonhoz.':
     isCurrent?'Az utolsó ellenőrzött Android- és aláírt kiadási jelentés alapján naprakész.':
     'Nincs friss, hitelesített HH One verzió-összehasonlítás. Nem állítjuk, hogy naprakész.'};
-  const cloudState={color:d?'green':online===false?'red':'gray',
+  const cloudState={color:online===false?'red':d?'green':'gray',
    details:d?'Sikeres, hitelesített Dropbox eszközregiszter-olvasás: '+
     new Date(Date.parse(d.verifiedAt)).toLocaleString('hu-HU')+
     '. Supabase külön nem igazolt. Ez nem igazolja a GPS- vagy egészségadat-feltöltést.':
@@ -75,7 +75,7 @@
   dialog.append(title,desc,close);d.body.appendChild(dialog);
   close.addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
-  let previous=null,otaState='unknown';
+  let previous=null;
   const selected=()=>owner(w.localStorage);
   function checkOta(){
    const msg=d.getElementById('guardianOtaStatusV1042')?.textContent||'';
@@ -116,6 +116,23 @@
    if(value?.profile!==selected())return;
    previous=value;paint();
   });
+  // Keep the old Battery/GPS evidence and nodes; enable preview-only details.
+  for(const [id,title] of [['guardianBatteryV841','Battery'],['guardianGpsCardV845','GPS']]){
+   const old=d.getElementById(id);
+   if(!old)continue;
+   old.setAttribute('tabindex','0');old.setAttribute('role','button');
+   old.addEventListener('click',()=>{
+    const p=selected()==='monika'?'Mónika':'Zsolt';
+    const current=old.getAttribute('aria-label')||'Nincs friss, hitelesített adat';
+    const lbl=title==='Battery'?'Akkumulátor':title;
+    title.textContent=p+' · '+lbl;
+    desc.textContent=current;
+    dialog.showModal?.();
+   });
+   old.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();old.click()}
+   });
+  }
   const profileButton=d.getElementById('guardianProfileSwitch');
   profileButton?.addEventListener('click',()=>w.setTimeout(clear,0));
   w.addEventListener('storage',event=>{if(event.key==='hh-profile')clear()});
@@ -128,6 +145,8 @@
   if(feedback&&typeof w.MutationObserver==='function')new w.MutationObserver(paint)
    .observe(feedback,{childList:true,characterData:true,subtree:true});
   d.addEventListener('visibilitychange',()=>{if(!d.hidden)paint()});
+  // Only refresh local color freshness, never issue a background API request.
+  w.setInterval?.(()=>{if(!d.hidden)paint()},60000);
   paint();
   return true;
  }
