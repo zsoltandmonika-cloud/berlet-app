@@ -117,14 +117,14 @@
    previous=value;paint();
   });
   // Keep the old Battery/GPS evidence and nodes; enable preview-only details.
-  for(const [id,title] of [['guardianBatteryV841','Battery'],['guardianGpsCardV845','GPS']]){
+  for(const [id,kind] of [['guardianBatteryV841','Battery'],['guardianGpsCardV845','GPS']]){
    const old=d.getElementById(id);
    if(!old)continue;
    old.setAttribute('tabindex','0');old.setAttribute('role','button');
    old.addEventListener('click',()=>{
     const p=selected()==='monika'?'Mónika':'Zsolt';
     const current=old.getAttribute('aria-label')||'Nincs friss, hitelesített adat';
-    const lbl=title==='Battery'?'Akkumulátor':title;
+    const lbl=kind==='Battery'?'Akkumulátor':kind;
     title.textContent=p+' · '+lbl;
     desc.textContent=current;
     dialog.showModal?.();
