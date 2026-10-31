@@ -90,6 +90,7 @@ class OrchestratorWorker(
             .put("familyGuardGpsAutoRestarts", FamilyGuardContinuity.enabled(applicationContext))
             .put("remoteAdminAllowed", OneRemoteAdmin.consent(prefs))
             .put("networkStatus", OneRemoteAdmin.network(applicationContext))
+            .put("bluetoothEnabled", OneRemoteAdmin.bluetoothEnabled(applicationContext))
             .put("batteryPct", OneRemoteAdmin.battery(applicationContext))
             .put("familyGuardNativeGpsActive", Sh9GpsService.active)
             .put("smartLocationEngine", applicationContext.getSharedPreferences(

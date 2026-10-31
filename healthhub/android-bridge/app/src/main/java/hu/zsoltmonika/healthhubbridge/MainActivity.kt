@@ -108,6 +108,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Permission is requested only when the phone owner taps the Bluetooth status button.
+    // Declining it leaves the Family Guard radio indicator gray/unknown.
+    private val bluetoothPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        status.text = if (granted)
+            "✓ Bluetooth-állapot engedélyezve. Az SH9 a következő hitelesített telefonjelentésből frissül."
+        else
+            "Bluetooth-állapot nincs engedélyezve; az SH9 továbbra is ismeretlennek jelöli."
+        if (granted) OrchestratorScheduler.runNow(this)
+    }
+
     // Optional terrain access has its own launcher so refusal cannot disable ordinary sync.
     private val terrainPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
@@ -832,6 +844,19 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { toggleBatterySharing() }
         }
         root.addView(familyBatteryButton)
+        root.addView(Button(this).apply {
+            text = "🔵 Family Guard Bluetooth · állapot megosztása"
+            setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    ContextCompat.checkSelfPermission(this@MainActivity,
+                        Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    bluetoothPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                } else {
+                    OrchestratorScheduler.runNow(this@MainActivity)
+                    status.text = "Bluetooth-állapot lekérdezése ütemezve; az SH9 a következő hitelesített jelentésből frissül."
+                }
+            }
+        })
         root.addView(Button(this).apply {
             text = "📍 Android helyszolgáltatás beállításai"
             setOnClickListener { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }

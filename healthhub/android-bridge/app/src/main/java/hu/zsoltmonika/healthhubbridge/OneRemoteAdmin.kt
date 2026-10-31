@@ -1,12 +1,16 @@
 package hu.zsoltmonika.healthhubbridge
 
+import android.Manifest
+import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.BatteryManager
+import android.os.Build
 import org.json.JSONObject
 
 /**
@@ -41,6 +45,20 @@ internal object OneRemoteAdmin {
         val validated = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         return JSONObject().put("transport", kind)
             .put("internetValidated", validated ?: JSONObject.NULL)
+    }
+
+    /** Read only the local Bluetooth radio switch; no scans, pairing or device IDs.
+     * On Android 12+, lack of Nearby Devices permission means unknown, never OFF.
+     */
+    fun bluetoothEnabled(context: Context): Any {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) !=
+            PackageManager.PERMISSION_GRANTED) return JSONObject.NULL
+        val enabled = runCatching {
+            (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)
+                ?.adapter?.isEnabled
+        }.getOrNull()
+        return enabled ?: JSONObject.NULL
     }
 
     /** Battery is never uploaded unless the owner separately opted into family battery sharing. */

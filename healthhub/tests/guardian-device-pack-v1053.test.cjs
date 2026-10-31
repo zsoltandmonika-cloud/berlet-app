@@ -73,3 +73,6 @@ test('pure client UI consumes native OTA report, no new API or Android permissio
  assert.match(ota,/networkStatus:\{transport:transport,/);
  assert.doesNotMatch(source,/healthhubconnect:\/\/settings\?ota=install/);
 });
+
+// Include the dark-blue Bluetooth regression gates in the established device-pack QA.
+require('./guardian-bluetooth-radio-v1058.test.cjs');

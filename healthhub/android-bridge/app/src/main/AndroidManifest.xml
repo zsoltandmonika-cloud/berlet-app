@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Read-only transport state for owner-consented native service diagnostics. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Optional read of Bluetooth ON/OFF; Android 12+ needs explicit Nearby Devices approval.
+         No scan, pairing, device address or remote toggle is implemented. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <!-- Camera is optional and requested only when first-party Nutrition scanner is opened. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />

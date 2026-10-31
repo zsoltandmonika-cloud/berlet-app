@@ -56,7 +56,13 @@
    ota:otaState,
    wifi:link('wifi'),
    mobile:{...link('mobile'),details:link('mobile').details+' A 3G/4G/5G technológia ebből az adatból nem azonosítható.'},
-   bluetooth:{color:'gray',details:'A HH One agent Bluetooth-állapotot még nem továbbít. Nem állítjuk, hogy ki van kapcsolva.'},
+   bluetooth:{
+    color:d?.bluetoothEnabled===true?'blue':'gray',
+    details:!d?'Nincs friss, ellenőrzött Bluetooth-állapotjelentés a kiválasztott telefonról.':
+     d.bluetoothEnabled===true?'Bluetooth BE a kiválasztott telefon legutóbbi hitelesített Android-jelentése szerint. Ez nem bizonyítja, hogy egy eszköz csatlakozik.':
+     d.bluetoothEnabled===false?'Bluetooth KI a kiválasztott telefon legutóbbi hitelesített Android-jelentése szerint.':
+     'Bluetooth-állapot nem igazolható. HH One alkalmazásban a Bluetooth-státusz megosztásához külön Android-engedély szükséges.'
+   },
    cloud:cloudState
   };
  }
