@@ -86,3 +86,34 @@ test('saved trips and JSON-file/paste tools exist in native SH9',()=>{
  assert.match(source,/f\.size>MAX_BYTES/);
  assert.doesNotMatch(source,/api\.openai\.com|OPENAI_API_KEY|setInterval\(/);
 });
+
+test('ChatGPT ISO timestamps, BOM and fenced JSON safely normalize to Budapest HH:mm without editing route claims',()=>{
+ const iso='2026-11-02T15:10:00+01:00';
+ const raw={
+  ...valid,travelDate:'2026-11-02',departure:iso,arrival:'2026-11-02T15:38:00+01:00',
+  segments:valid.segments.slice(0,3).map((x,i)=>({...x,
+   departure:['2026-11-02T15:10:00+01:00','2026-11-02T15:18:00+01:00','2026-11-02T15:33:00+01:00'][i],
+   arrival:['2026-11-02T15:12:00+01:00','2026-11-02T15:33:00+01:00','2026-11-02T15:38:00+01:00'][i]
+  }))
+ };
+ const out=pack.normalize('\uFEFF'+JSON.stringify(raw));
+ assert.equal(out.departure,'15:10');
+ assert.equal(out.arrival,'15:38');
+ assert.equal(out.segments[1].departure,'15:18');
+ assert.equal(out.segments[2].arrival,'15:38');
+ assert.equal(out.segments[1].line,'1054');
+ assert.equal(out.segments[1].status,'timetable');
+ assert.equal(pack.normalize('Pretext\n'+String.fromCharCode(96).repeat(3)+'json\n'+JSON.stringify(raw)+'\n'+String.fromCharCode(96).repeat(3)).segments[1].arrival,'15:33');
+ assert.equal(pack.normalize({tripPack:raw}).departure,'15:10');
+ const withoutSchema={...raw};delete withoutSchema.schema;
+ assert.equal(pack.normalize(withoutSchema).schema,'sh9.trip-pack/1');
+ assert.throws(()=>pack.normalize({...raw,schema:'other/v1'}));
+ assert.throws(()=>pack.normalize({...raw,departure:'2026-11-02T15:10:00'}));
+ assert.throws(()=>pack.normalize({...raw,segments:raw.segments.map(x=>({...x,arrival:'invalid'}))}));
+ assert.match(assert.throws(()=>pack.normalize('<html>Not found</html>'))?.message||'',/JSON|weboldal/i);
+});
+test('single confirmed transport leg is importable without fabricating an extra walking segment',()=>{
+ const simple={...valid,segments:[{mode:'bus',line:'9',from:'Kolosy tér',to:'Nyugati pályaudvar M',departure:'15:18',arrival:'15:33',status:'estimated'}]};
+ assert.equal(pack.normalize(simple).segments.length,1);
+ assert.throws(()=>pack.normalize({...simple,segments:[]}));
+});
