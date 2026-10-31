@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 39
-        versionName = "0.15.12"
-        // v0.15.12/build39 Bluetooth and automatically verified OTA staging above signed v0.15.11/build38.
+        versionCode = 40
+        versionName = "0.15.13"
+        // v0.15.13/build40: candidate native external-browser PKCE login; signed OTA promotion is separately gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
     }

@@ -10,9 +10,10 @@
 'use strict';
 const $=id=>d.getElementById(id);
 const cfg=w.HH_CENTRAL_VAULT;
+const NATIVE_OAUTH=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
 const api=cfg&&cfg.enabled&&cfg.supabaseUrl&&cfg.publishableKey&&w.supabase&&w.supabase.createClient
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{
-  auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}
+  auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:NATIVE_OAUTH?'pkce':'implicit'}
  }):null;
 const TABLE='hh_guardian_live_locations',PREF_TABLE='hh_guardian_location_settings',AGE_MS=20000,LAST_KNOWN_MS=12*60*60*1000,ACCURACY_LIMIT=100;
 const DEVICE_KEY='hh-guardian-own-phone-profile-v785',INTERVAL_KEY='hh-guardian-refresh-v785';
@@ -489,8 +490,15 @@ function init(){
  const login=$('guardianLiveLogin');if(login)login.addEventListener('click',async()=>{
   if(!api){msg('Supabase-kapcsolat nem elérhető.');return}
   msg('Google bejelentkezés megnyitása…');
-  const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
-  if(error)msg('Google-belépés nem indítható: '+error.message);
+  try{
+   if(NATIVE_OAUTH){
+    const bridged=await w.HH_ONE_NATIVE_AUTH_V1063?.start?.(api);
+    if(!bridged)throw Error('A HH One natív bejelentkezési híd nem áll készen.');
+    return;
+   }
+   const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
+   if(error)throw error;
+  }catch(e){msg('Google-belépés nem indítható: '+String(e?.message||'kapcsolati hiba').slice(0,130))}
  });
  const logout=$('guardianLiveLogout');if(logout)logout.addEventListener('click',async()=>{await stopSharing();if(api)await api.auth.signOut();user=null;access=[];authPending=false;removePeer();resetPolling();updateUi();msg('Kijelentkezve.');if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));});
  const start=$('guardianLiveStart');if(start)start.addEventListener('click',startSharing);

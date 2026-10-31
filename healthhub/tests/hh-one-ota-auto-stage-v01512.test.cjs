@@ -12,8 +12,8 @@ const workflow=read('../.github/workflows/healthhub-connect-ota-release.yml');
 const published=JSON.parse(read('data/bridge-ota.json'));
 
 test('next candidate is monotonic and the published signed manifest is unchanged until approved release',()=>{
- assert.match(gradle,/versionCode = 39/);
- assert.match(gradle,/versionName = "0\.15\.12"/);
+ assert.match(gradle,/versionCode = 40/);
+ assert.match(gradle,/versionName = "0\.15\.13"/);
  assert.equal(published.versionCode,39);
  assert.equal(published.version,'0.15.12');
  assert.match(workflow,/workflow_dispatch:/);

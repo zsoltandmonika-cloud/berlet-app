@@ -110,6 +110,22 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="healthhubconnect" android:host="settings" />
             </intent-filter>
+            <!-- One-time Supabase PKCE CODE only; never tokens. Auth verifier stays
+                 in this application's first-party WebView localStorage. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="healthhubconnect" android:host="auth-return" />
+            </intent-filter>
+            <!-- Separate, state-bound WebView Dropbox PKCE return; does not alter
+                 existing native HH One Dropbox OAuth credentials. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="healthhubconnect" android:host="dropbox-web-return" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

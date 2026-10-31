@@ -3,6 +3,14 @@ on:
   pull_request:
     paths:
       - 'healthhub/android-bridge/**'
+      - 'healthhub/guardian/guardian-native-auth-v1063.js'
+      - 'healthhub/live-v161.js'
+      - 'healthhub/index.html'
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/index.html'
+      - 'sh9/family-hub/family-tasks-v880.js'
+      - 'sh9/family-hub/index.html'
+      - 'healthhub/tests/hh-one-native-auth-pkce-v1063.test.cjs'
       - '.github/workflows/hh-sh9-unified-android-qa.yml'
   workflow_dispatch:
 permissions:
@@ -29,7 +37,13 @@ jobs:
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
       - name: Signed release candidate and Android permissions safety checks
-        run: node --test tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
+        run: |
+          node --test tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
+          node --check ../guardian/guardian-native-auth-v1063.js
+          node --check ../live-v161.js
+          node --check ../guardian/guardian-live-v785.js
+          node --check ../../sh9/family-hub/family-tasks-v880.js
+          node --test ../tests/hh-one-native-auth-pkce-v1063.test.cjs ../tests/hh-one-ota-auto-stage-v01512.test.cjs ../tests/sh9-remote-admin-v1041.test.cjs
       - name: Compile unified Android and run unit tests
         run: gradle :app:assembleDebug :app:testDebugUnitTest --no-daemon --stacktrace
       - name: Verify permissions and package identity in debug APK

@@ -27,6 +27,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONObject
 import androidx.activity.ComponentActivity
 
 /**
@@ -45,6 +46,16 @@ class Sh9WebActivity : ComponentActivity() {
             "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1"
         private const val HOST = "zsoltandmonika-cloud.github.io"
         private const val BASE = "/berlet-app/"
+        const val EXTRA_GOOGLE_AUTH_CODE_V1063 = "hh_google_pkce_code_v1063"
+        const val EXTRA_DROPBOX_AUTH_CODE_V1063 = "hh_dropbox_pkce_code_v1063"
+        const val EXTRA_DROPBOX_AUTH_STATE_V1063 = "hh_dropbox_pkce_state_v1063"
+        private const val DROPBOX_REDIRECT =
+            "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/"
+        private const val AUTH_PREFS = "hh_one_native_pkce_v1063"
+        private const val AUTH_PENDING_AT = "pending_at"
+        private const val SUPABASE_HOST = "vhsrupphzcjkdrusonzh.supabase.co"
+        private const val AUTH_REDIRECT =
+            "https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/guardian/"
     }
 
     // Only allow the native Floating Buddy "open task" intent to reach a
@@ -61,6 +72,141 @@ class Sh9WebActivity : ComponentActivity() {
     }
 
     private var web: WebView? = null
+    private var pendingGoogleCode: String? = null
+    private var pendingDropboxCode: String? = null
+    private var pendingDropboxState: String? = null
+    private var googleAuthDispatchRetries = 0
+    private var dropboxAuthDispatchRetries = 0
+
+    private fun launchDropboxOAuth(url: Uri) {
+        val state = url.getQueryParameter("state") ?: ""
+        val challenge = url.getQueryParameter("code_challenge") ?: ""
+        if (url.scheme != "https" || url.host != "www.dropbox.com" ||
+            url.path != "/oauth2/authorize" ||
+            url.getQueryParameter("client_id") != "t68rmhh5f1l8d85" ||
+            url.getQueryParameter("response_type") != "code" ||
+            url.getQueryParameter("redirect_uri") != DROPBOX_REDIRECT ||
+            url.getQueryParameter("code_challenge_method") != "S256" ||
+            url.getQueryParameter("token_access_type") != "offline" ||
+            !Regex("hhweb_[A-Za-z0-9_-]{24,128}").matches(state) ||
+            !Regex("[A-Za-z0-9_-]{43,128}").matches(challenge)) return
+        getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit()
+            .putString("dropbox_state", state)
+            .putLong("dropbox_pending_at", System.currentTimeMillis()).apply()
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE))
+        } catch (_: Exception) {
+            getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit()
+                .remove("dropbox_state").remove("dropbox_pending_at").apply()
+        }
+    }
+
+    private fun healthhubAuthUrl(): String {
+        val owner = getSharedPreferences(SyncScheduler.PREFS, MODE_PRIVATE)
+            .getString("device_owner_profile", null)
+            ?.takeIf { it == "zsolt" || it == "monika" } ?: ""
+        return Uri.parse(DROPBOX_REDIRECT).buildUpon()
+            .appendQueryParameter("sh9native", "1")
+            .appendQueryParameter("hhBuildCode", BuildConfig.VERSION_CODE.toString())
+            .appendQueryParameter("hhOwner", owner).build().toString()
+    }
+
+    private fun dispatchDropboxCode(view: WebView) {
+        val code = pendingDropboxCode ?: return
+        val state = pendingDropboxState ?: return
+        if (++dropboxAuthDispatchRetries > 24) {
+            pendingDropboxCode = null
+            pendingDropboxState = null
+            return
+        }
+        val page = runCatching { Uri.parse(view.url ?: "") }.getOrNull()
+        if (page?.scheme != "https" || page.host != HOST ||
+            page.path != "/berlet-app/healthhub/") return
+        val js = "(function(){var a=window.HH_DROPBOX_VAULT;" +
+            "if(!a||!a.completeNativeOAuth)return false;" +
+            "a.completeNativeOAuth(" + JSONObject.quote(code) + "," +
+            JSONObject.quote(state) + ");return true})()"
+        view.evaluateJavascript(js) { result ->
+            if (result == "true") {
+                pendingDropboxCode = null
+                pendingDropboxState = null
+            } else if (pendingDropboxCode == code) {
+                view.postDelayed({ dispatchDropboxCode(view) }, 550L)
+            }
+        }
+    }
+
+    private fun launchOAuth(url: Uri) {
+        // Strict allowlist of Supabase Google PKCE requests initiated from a
+        // real first-party main-frame tap. Never treat a URL as permission.
+        val authorize = runCatching { Uri.parse(url.getQueryParameter("url") ?: "") }.getOrNull()
+        val challenge = authorize?.getQueryParameter("code_challenge") ?: ""
+        val good = authorize != null && authorize.scheme == "https" &&
+            authorize.host == SUPABASE_HOST &&
+            authorize.path == "/auth/v1/authorize" &&
+            authorize.getQueryParameter("provider") == "google" &&
+            authorize.getQueryParameter("redirect_to") == AUTH_REDIRECT &&
+            authorize.getQueryParameter("code_challenge_method") == "s256" &&
+            Regex("[A-Za-z0-9_-]{43,128}").matches(challenge)
+        if (!good) return
+        getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit()
+            .putLong(AUTH_PENDING_AT, System.currentTimeMillis()).apply()
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, authorize).addCategory(Intent.CATEGORY_BROWSABLE))
+        } catch (_: Exception) {
+            getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit().remove(AUTH_PENDING_AT).apply()
+        }
+    }
+
+    private fun guardianAuthUrl(): String {
+        val owner = getSharedPreferences(SyncScheduler.PREFS, MODE_PRIVATE)
+            .getString("device_owner_profile", null)
+            ?.takeIf { it == "zsolt" || it == "monika" } ?: ""
+        return Uri.parse(AUTH_REDIRECT).buildUpon()
+            .appendQueryParameter("sh9native", "1")
+            .appendQueryParameter("hhBuildCode", BuildConfig.VERSION_CODE.toString())
+            .appendQueryParameter("hhOwner", owner).build().toString()
+    }
+
+    private fun dispatchGoogleCode(view: WebView) {
+        val code = pendingGoogleCode ?: return
+        if (++googleAuthDispatchRetries > 24) {
+            pendingGoogleCode = null
+            return
+        }
+        val page = runCatching { Uri.parse(view.url ?: "") }.getOrNull()
+        if (page?.scheme != "https" || page.host != HOST ||
+            page.path != "/berlet-app/healthhub/guardian/") return
+        val script = "(function(){var a=window.HH_ONE_NATIVE_AUTH_V1063;" +
+            "if(!a||!a.active())return false;" +
+            "a.complete(" + JSONObject.quote(code) + ");return true})()"
+        view.evaluateJavascript(script) { result ->
+            if (result == "true") pendingGoogleCode = null
+            else if (pendingGoogleCode == code) view.postDelayed({ dispatchGoogleCode(view) }, 550L)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val dbCode = intent.getStringExtra(EXTRA_DROPBOX_AUTH_CODE_V1063)
+        val dbState = intent.getStringExtra(EXTRA_DROPBOX_AUTH_STATE_V1063)
+        if (dbCode != null && dbState != null &&
+            Regex("[A-Za-z0-9._~-]{8,1024}").matches(dbCode) &&
+            Regex("hhweb_[A-Za-z0-9_-]{24,128}").matches(dbState)) {
+            pendingDropboxCode = dbCode
+            pendingDropboxState = dbState
+            dropboxAuthDispatchRetries = 0
+            web?.loadUrl(healthhubAuthUrl())
+            return
+        }
+        val code = intent.getStringExtra(EXTRA_GOOGLE_AUTH_CODE_V1063)
+        if (code != null && Regex("[A-Za-z0-9._~-]{8,1024}").matches(code)) {
+            pendingGoogleCode = code
+            googleAuthDispatchRetries = 0
+            web?.loadUrl(guardianAuthUrl())
+        }
+    }
     private var pendingGeoOrigin: String? = null
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
     private var pendingVideoRequest: PermissionRequest? = null
@@ -247,6 +393,12 @@ class Sh9WebActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingGoogleCode = intent?.getStringExtra(EXTRA_GOOGLE_AUTH_CODE_V1063)
+            ?.takeIf { Regex("[A-Za-z0-9._~-]{8,1024}").matches(it) }
+        pendingDropboxCode = intent?.getStringExtra(EXTRA_DROPBOX_AUTH_CODE_V1063)
+            ?.takeIf { Regex("[A-Za-z0-9._~-]{8,1024}").matches(it) }
+        pendingDropboxState = intent?.getStringExtra(EXTRA_DROPBOX_AUTH_STATE_V1063)
+            ?.takeIf { Regex("hhweb_[A-Za-z0-9_-]{24,128}").matches(it) }
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
@@ -299,8 +451,27 @@ class Sh9WebActivity : ComponentActivity() {
             ): Boolean = showFileChooser(webView, filePathCallback, fileChooserParams)
         }
         view.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                if (pendingGoogleCode != null) dispatchGoogleCode(view)
+                if (pendingDropboxCode != null) dispatchDropboxCode(view)
+            }
+
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val u = request.url
+                if (request.isForMainFrame && u.scheme == "healthhubconnect" &&
+                    u.host == "auth-start" && trustedPage(Uri.parse(view.url ?: ""))) {
+                    launchOAuth(u)
+                    return true
+                }
+                // Dropbox authorization is explicitly launched externally, but
+                // its verifier and resulting browser session stay in this WebView.
+                if (request.isForMainFrame && u.scheme == "https" &&
+                    u.host == "www.dropbox.com" && u.path == "/oauth2/authorize" &&
+                    trustedPage(Uri.parse(view.url ?: ""))) {
+                    launchDropboxOAuth(u)
+                    return true
+                }
                 // Only a main-frame navigation from our first-party pages can request
                 // the native settings screen. The SH9 WebView itself NEVER reopens.
                 // REORDER_TO_FRONT resumes the existing HH One settings activity,
@@ -394,7 +565,7 @@ class Sh9WebActivity : ComponentActivity() {
                 .appendQueryParameter("hhServiceSeenAt", current.toString())
                 .appendQueryParameter("hhfresh", current.toString())
                 .build().toString()
-            view.loadUrl(floatingTaskUrl(intent?.data) ?: launcher)
+            view.loadUrl(if (pendingGoogleCode != null) guardianAuthUrl() else if (pendingDropboxCode != null) healthhubAuthUrl() else floatingTaskUrl(intent?.data) ?: launcher)
         } else view.restoreState(savedInstanceState)
     }
 

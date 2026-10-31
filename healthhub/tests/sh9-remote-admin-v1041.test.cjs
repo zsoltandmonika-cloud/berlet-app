@@ -20,7 +20,7 @@ test('candidate newer than signed OTA and original package ID remains stable',()
  assert.match(build,/applicationId = "hu.zsoltmonika.healthhubbridge"/);
  assert.ok(Number(build.match(/versionCode = (\d+)/)[1])>=baseline.versionCode,'installed version cannot be older than signed OTA baseline');
  assert.equal(baseline.channel,'signed-release');
- assert.match(build,/versionName = "0.15.12"/);
+ assert.match(build,/versionName = "0.15.13"/);
  assert.match(manifest,/ACCESS_NETWORK_STATE/);
 });
 test('remote admin is opt-in, owner-bound, can be revoked, and not a remote shell',()=>{
