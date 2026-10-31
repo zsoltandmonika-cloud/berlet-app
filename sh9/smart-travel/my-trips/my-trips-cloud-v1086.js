@@ -58,18 +58,34 @@
    const {data,error}=await c.from(TRIPS).select('trip_id,trip_data')
     .eq('profile_key',key).limit(60);
    if(error)throw Error(error.message);
-   const remote=data||[],remoteIds=new Set(remote.map(x=>x.trip_id)),remoteFingerprints=new Set();
-   for(const item of remote)try{remoteFingerprints.add(fingerprint(pack.normalize(item.trip_data)))}catch(_){}
-   // Non-destructive first import: a phone never overwrites an existing cloud trip.
-   for(const t of local){
+   const remote=data||[],remoteIds=new Set(remote.map(x=>x.trip_id)),remoteFingerprints=new Map();
+   for(const item of remote)try{
+    if(validId(item.trip_id))remoteFingerprints.set(fingerprint(pack.normalize(item.trip_data)),item.trip_id);
+   }catch(_){}
+   // Reconcile independent imports of the exact same itinerary to ONE cloud ID.
+   // Otherwise tickets might attach to different IDs on the two Galaxy phones.
+   let changed=false;
+   const merged=local.map(t=>{
+    const canonical=remoteFingerprints.get(fingerprint(t));
+    if(!canonical||canonical===t.id)return t;
+    changed=true;
+    try{
+     const progressKey=id=>localKey(p)+'-manual-step-'+id;
+     const state=w.localStorage.getItem(progressKey(t.id));
+     if(state!==null&&w.localStorage.getItem(progressKey(canonical))===null)
+      w.localStorage.setItem(progressKey(canonical),state);
+    }catch(_){}
+    return {...t,id:canonical};
+   });
+   // Never overwrite existing cloud documents (including first phone's metadata).
+   for(const t of merged){
     if(!validId(t.id)||remoteIds.has(t.id)||remoteFingerprints.has(fingerprint(t)))continue;
     const {error:put}=await c.from(TRIPS).insert({profile_key:key,trip_id:t.id,trip_data:t});
     if(put&&put.code!=='23505')throw Error('Út mentése: '+put.message);
-    remoteIds.add(t.id);remoteFingerprints.add(fingerprint(t));
+    remoteIds.add(t.id);remoteFingerprints.set(fingerprint(t),t.id);
    }
-   let changed=false;
-   const merged=[...local],ids=new Set(local.map(t=>t.id));
-   const known=new Set(local.map(fingerprint));
+   const ids=new Set(merged.map(t=>t.id));
+   const known=new Set(merged.map(fingerprint));
    for(const x of remote){
     if(ids.has(x.trip_id)||!validId(x.trip_id))continue;
     try{
