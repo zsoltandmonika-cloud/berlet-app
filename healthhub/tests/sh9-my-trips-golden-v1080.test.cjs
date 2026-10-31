@@ -198,3 +198,25 @@ test('v1086 one canonical My Trips screen with per-trip multi-ticket private syn
  assert.match(sql,/hh_trip_ticket_storage_insert/);
  assert.match(sql,/hh_trip_ticket_storage_delete/);
 });
+
+test('v1087 in-app PDF reader and saved-trip cloud attachment integration',()=>{
+ const reader=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.js');
+ const style=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.css');
+ const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ assert.match(page,/id="mtReaderDialog"/);
+ assert.match(page,/id="mtReaderCanvas"/);
+ assert.match(page,/id="mtReaderScroll"/);
+ for(const id of ['mtReaderClose','mtReaderPrev','mtReaderNext','mtReaderMinus','mtReaderPlus',
+  'mtReaderFit','mtReaderDownload','mtReaderSystem','mtReaderPages','mtReaderZoom'])
+  assert.ok(page.includes('id="'+id+'"'));
+ assert.match(page,/my-trips-pdf-v1087\.js/);
+ assert.match(page,/my-trips-pdf-v1087\.css/);
+ assert.match(reader,/pdfjs-dist@6\.4\.299\/build\//);
+ assert.match(reader,/getDocument\(\{data:bytes,isEvalSupported:false,enableScripting:false\}\)/);
+ assert.match(reader,/w\.SH9_TRIP_PDF_VIEWER_V1087/);
+ assert.match(style,/\.mt-reader\[open\]\{display:flex\}/);
+ assert.match(style,/height:100dvh/);
+ assert.match(cloud,/const isPdf=file\.file_type==='application\/pdf'/);
+ assert.match(cloud,/await reader\.open\(data,file\.file_name\)/);
+ assert.match(cloud,/storage\.from\(BUCKET\)\.download\(file\.storage_path\)/);
+});
