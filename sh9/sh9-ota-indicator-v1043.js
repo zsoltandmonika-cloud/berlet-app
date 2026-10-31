@@ -67,16 +67,26 @@
   manualApk.href=canDownload?approvedRelease:'#';
   manualSettings.href=manualCheckLink;
   manualSettings.textContent=known&&build>=38?'📱 HH One OTA ellenőrzés':'📱 HH One natív frissítő megnyitása';
-  manualStatus.textContent=canDownload?
-   'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
-   'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
+  manualStatus.textContent=canDownload&&!known?
+   'Hivatalos HH One kiadás elérhető. A telefon telepített buildszáma ezen a felületen ismeretlen; először próbáld meg a natív frissítőt, vagy válaszd a hivatalos APK letöltését. Az Android telepítéshez jóváhagyást kér.':
+   canDownload?
+    'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
+    'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
  }
  // One real tap starts either native install (v0.15.11+) or native OTA
  // settings (legacy build37). If Android has no handler, offer a compact
  // MANUAL fallback on the same page, regardless of indicator colour.
  // Unknown/stale build NEVER receives an unverified direct APK link.
- el.addEventListener('click',()=>{
+ el.addEventListener('click',event=>{
   manual.hidden=true;
+  // Browser/PWA and old build37 cannot prove the local installed version.
+  // Keep this interaction on the page so there is always a visible action,
+  // even when Android cannot handle a native custom-scheme link.
+  if(!known){
+   event?.preventDefault?.();
+   showManualFallback();
+   return;
+  }
   w.setTimeout(()=>{
    if(!d.hidden)showManualFallback();
   },1800);
@@ -90,7 +100,7 @@
   el.href=link||manualCheckLink;
   detail.textContent=message;
   el.querySelector('.sh9-ota-label-v1043').textContent=
-    name==='update'?'FRISSÍTÉS':name==='ok'?'':name==='warning'?'!':'?';
+    name==='update'?'FRISSÍTÉS':name==='release'?'OTA':name==='ok'?'':name==='warning'?'!':'?';
  }
  function valid(m){
   if(!m||m.schema!=='healthhub.connect.ota/1'||
@@ -107,34 +117,41 @@
   if(busy||(!force&&Date.now()-last<REFRESH_MS))return;
   last=Date.now();busy=true;approvedRelease=null;
   manualApk.hidden=true;manualApk.href='#';
-  if(!known){
-   state('unknown','HH One verzió nem igazolt ezen a felületen. Koppints a natív frissítő megnyitásához; régebbi telepítésnél a Telepítés gomb is szükséges.',manualCheckLink);
-   busy=false;return;
-  }
   try{
    const r=await w.fetch(MANIFEST,{cache:'no-store'});
    if(!r.ok)throw Error('OTA manifest HTTP '+r.status);
    const m=await r.json();
    if(!valid(m))throw Error('Nem ellenőrizhető aláírt OTA kiadás.');
+   // Without Android build evidence this is release discovery, NOT a claim
+   // that the phone needs an update. Offer the verified published family
+   // release safely without fabricating a build number or OTA entitlement.
+   if(!known){
+    if(m.rolloutProfiles.includes('zsolt')&&m.rolloutProfiles.includes('monika')){
+     approvedRelease=m.downloadUrl;
+     state('release','HH One v'+m.version+' (build '+m.versionCode+
+       ') családi OTA-kiadás elérhető. A telepített verzió nem igazolt; koppints a frissítési lehetőségekhez.',SETTINGS);
+    }else{
+     state('unknown','A telefon buildszáma nem ismert, és nincs mindkét profilra engedélyezett családi kiadás.',SETTINGS);
+    }
+    return;
+   }
    const service=nativeHealth();
    if(m.versionCode>build&&m.rolloutProfiles.includes(owner)){
     approvedRelease=m.downloadUrl;
     state('update','FRISSÍTÉS ELÉRHETŐ · HH One v'+m.version+
       ' · egy koppintás a telepítéshez.',build>=38?DIRECT:SETTINGS);
-   }else if(service==='warning'){
-    state('warning','SH9 SERVICE NEEDS ATTENTION · Indításkor észlelt szolgáltatási hiba. Koppints a HH One diagnosztikához.',manualCheckLink);
-   }else if(m.versionCode<=build&&service==='ok'){
-    state('ok','SH9 SYSTEM OK · HH One naprakész (build '+build+
-      ') és a natív szolgáltatás az indításkor rendben volt. Nem folyamatos mérés.',manualCheckLink);
    }else if(m.versionCode<=build){
-    state('unknown','HH One naprakész · a natív szolgáltatás aktuális állapota még nem igazolt.',manualCheckLink);
+    // OTA state and GPS/Family Guard service state are independent.
+    // A stopped GPS service cannot turn a verified current APK red/gray.
+    state('ok','HH One OTA NAPRAKÉSZ · Telepített build '+build+
+      ' · kiadott build '+m.versionCode+
+      (service==='warning'?' · A Family Guard szolgáltatása külön figyelmet igényel.':''),manualCheckLink);
    }else{
     state('unknown','Nincs ehhez a profilhoz jóváhagyott új kiadás.',manualCheckLink);
    }
   }catch(_){
-   if(nativeHealth()==='warning')
-    state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',manualCheckLink);
-   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjéhez; nem mutatunk hamis zöld állapotot.',manualCheckLink);
+   state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjéhez; nem mutatunk hamis zöld állapotot.'+
+    (nativeHealth()==='warning'?' A Family Guard szolgáltatási hibája külön ellenőrizendő.':''),manualCheckLink);
   }finally{busy=false}
  }
  // A still-open page must not keep showing yesterday's healthy boot snapshot.

@@ -25,6 +25,9 @@
  background:#ffc345;box-shadow:0 0 0 2px rgba(255,204,74,.32),0 0 13px #ffc344;
  animation:sh9OtaPulseV1043 1.4s ease-in-out infinite;
 }
+/* Neutral official release, not a claim about the installed Android build. */
+.sh9-ota-indicator-v1043[data-state="release"]{border-color:rgba(107,178,254,.84);background:rgba(9,37,77,.88)}
+.sh9-ota-indicator-v1043[data-state="release"] .sh9-ota-led-v1043{background:#5fafff;box-shadow:0 0 0 2px rgba(87,159,244,.26),0 0 10px rgba(95,175,255,.72)}
 .sh9-ota-indicator-v1043[data-state="warning"]{
  background:rgba(63,19,37,.91);border-color:rgba(255,136,150,.86);
 }
