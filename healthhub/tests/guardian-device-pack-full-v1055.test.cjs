@@ -16,7 +16,7 @@ test('v1055 is a separate opt-in preview; v1052, v1053 and v1054 survive',()=>{
  assert.match(html,/guardian-device-pack-full-v1055\.css\?v=1055-full-height-preview/);
  assert.match(html,/guardian-device-pack-full-v1055\.js\?v=1055-logo-and-icons/);
  assert.match(html,/guardian-device-pack-tall-v1054\.js\?v=1054-brand-header/);
- assert.match(html,/guardian-device-pack-preview-v1053\.js\?v=(?:1053-optin-preview|1058-bluetooth-blue)/);
+ assert.match(html,/guardian-device-pack-preview-v1053\.js\?v=(?:1053-optin-preview|1058-bluetooth-blue|1060-verified-network-detail)/);
 });
 
 test('single tall Premium Glass panel reaches the hero bottom and retains spare future space',()=>{
