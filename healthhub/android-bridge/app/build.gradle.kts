@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 40
-        versionName = "0.15.13"
-        // v0.15.13/build40: candidate native external-browser PKCE login; signed OTA promotion is separately gated.
+        versionCode = 41
+        versionName = "0.15.14"
+        // v0.15.14/build41: owner-approved native GPS foreground resume, without overriding explicit STOP.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
     }
