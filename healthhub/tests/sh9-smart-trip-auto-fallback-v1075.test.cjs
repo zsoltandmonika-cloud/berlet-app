@@ -32,7 +32,7 @@ test('guard refuses third-party, wrong-mode, invalid and popup targets',()=>{
  const fake={mapsUrl:()=> 'https://attacker.example/route?api=1&travelmode=transit&destination=x'};
  assert.equal(fallback.go(fake,query,loc,{assign(){throw Error('must not happen')}}),false);
  assert.equal(fallback.go({mapsUrl:()=> 'https://www.google.com/maps/?api=1&travelmode=transit&destination=x'},query,loc,{assign(){}}),false);
- assert.equal(fallback.valid({...query,date:'2026-99-99'}),true,'shape alone is checked by caller; later calendar validation is mandatory');
+ assert.equal(fallback.valid({...query,date:'2026-99-99'}),false);
  assert.equal(fallback.go(model,query,loc,{assign(){throw Error('blocked')}}),false);
 });
 test('no embarrassing Google button or separate next-click CTA survives in Smart Trip UI',()=>{
