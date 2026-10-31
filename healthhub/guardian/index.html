@@ -359,7 +359,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
  :root[data-guardian-profile="m"] #guardianAdminControlsV963{background:#f5e1ee!important}
 }
 </style>
-<link rel="stylesheet" href="./guardian-satellite-v1033.css?v=1051-maptiler-soft-glass">
+<link rel="stylesheet" href="./guardian-satellite-v1033.css?v=1052-compact-maptiler-mobile">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -981,7 +981,16 @@ document.addEventListener('click',function(event){
  </div>
  <p style="margin-top:12px"><a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener noreferrer">MapTiler API-kulcsok kezelése</a></p>
 </dialog>
-<script defer src="./guardian-satellite-v1033.js?v=1049-satellite-on-launch"></script>
+<dialog id="guardianMaptilerAttributionV1052" aria-labelledby="guardianMaptilerAttributionTitleV1052">
+ <h3 id="guardianMaptilerAttributionTitleV1052">Térképforrások</h3>
+ <a class="hh-maptiler-logo-v1052" href="https://www.maptiler.com/" target="_blank" rel="noopener noreferrer" aria-label="MapTiler hivatalos oldala"><img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler" width="85" height="24"></a>
+ <p class="hh-maptiler-source-links-v1052">
+  <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">© MapTiler</a>
+  · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>
+ </p>
+ <button id="guardianMaptilerAttributionCloseV1052" type="button">Bezárás</button>
+</dialog>
+<script defer src="./guardian-satellite-v1033.js?v=1052-compact-attribution-mobile"></script>
 <script defer src="./guardian-ota-assistant-v1042.js?v=1042-signed-owner-verified-quick-update"></script>
 </body>
 </html>
