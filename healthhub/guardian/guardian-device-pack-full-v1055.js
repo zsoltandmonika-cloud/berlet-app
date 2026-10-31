@@ -11,7 +11,7 @@
   head.setAttribute('role','img');
   head.setAttribute('aria-label','HealthHub Family Guard');
   // An independent, scalable rendition of the existing pink/blue shield brand.
-  // No caption, tagline or other copy.
+  // No supplementary words beyond the approved brand title.
   head.innerHTML='<svg class="fg-shield-v1055" viewBox="0 0 64 74" aria-hidden="true" focusable="false">'+
    '<defs><linearGradient id="fgShieldGradV1055" x1="0" y1="0" x2="1" y2="1">'+
    '<stop offset="0" stop-color="#ff57bf"/><stop offset=".36" stop-color="#d457fb"/>'+
