@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./smart-trip-fixes-v1028.css?v=1029-full-tile-picker">
 <link rel="stylesheet" href="./smart-trip-fullscreen-map-v1032.css?v=1032-true-fullscreen">
 <link rel="stylesheet" href="./smart-trip-result-v1072.css?v=1072-fullscreen-one-card">
+<link rel="stylesheet" href="./smart-trip-multimodal-v1073.css?v=1073-verified-transit-fallback">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
@@ -50,6 +51,8 @@
   <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
   <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
   <p id="st22Status" role="status">Válassz ki két helyet, vagy írj be állomásneveket. A keresés nem nyit meg idegen szolgáltatói oldalt.</p>
+  <button id="st22ExternalTrip" type="button" class="st22-external-trip" hidden>🗺️ Teljes útvonal Google Térképen · BKK / MÁV / Volán + séta</button>
+  <p id="st22ExternalNote" class="st22-external-note" hidden>A külső útvonaltervező külön nyílik meg. Az SH9 dátum- és érkezési beállításait ott szükség esetén újra kell választani.</p>
   <div id="st22JourneyList"></div>
   </section>
  </section>
@@ -99,7 +102,10 @@
 <script src="../mav/rail-gtfs-core-v1.js?v=1022-read-only-routing"></script>
 <script src="../../../../healthhub/golden-standard-avatars-v529.js?v=529"></script>
 <script src="./smart-trip-result-v1072.js?v=1072-verified-single-result"></script>
-<script src="./smart-trip-ai-v1022.js?v=1072-fullscreen-results-smart-places"></script>
+<script src="./smart-trip-multimodal-config-v1073.js?v=1073-disabled-by-default"></script>
+<script src="./smart-trip-multimodal-v1073.js?v=1073-official-google-transit-normalizer"></script>
+<script src="./smart-trip-multimodal-runtime-v1073.js?v=1073-auth-and-budget-gate"></script>
+<script src="./smart-trip-ai-v1022.js?v=1073-full-coverage-opt-in-fallback"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
 </body></html>

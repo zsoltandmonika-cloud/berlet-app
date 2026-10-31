@@ -112,6 +112,8 @@
   return {items,source:{
    name:label,coverage:source.coverage,
    generatedAt:txt(source.generatedAt||'',40),
+   attribution:txt(source.attribution||'',80),
+   walkTimeEstimated:source.walkTimeEstimated===true,
    live:false,verified:true
   }};
  }
@@ -181,14 +183,16 @@
     [j.durationMinutes+' p','Teljes menetidő'],
     [String(j.transfers),'Átszállás'],
     [j.interchangeWait+' p','Csatlakozási várakozás'],
-    [j.walkingMinutes===null?'Nincs adat':j.walkingMinutes+' p','Ellenőrzött séta']
+    [j.walkingMinutes===null?'Nincs adat':j.walkingMinutes+' p','Tervezett séta']
    ].forEach(([val,label])=>{
     const card=node('div','st22-r-metric',null,metrics);
     node('strong','',val,card);node('small','',label,card);
    });
    const meta=node('p','st22-r-evidence',null,panel);
    meta.textContent='✓ '+source.name+' · Ellenőrzött menetrend, nem élő járatkövetés'+
-    (source.generatedAt?' · Adatállomány: '+source.generatedAt.slice(0,10):'');
+    (source.generatedAt?' · Forrásfrissítés: '+source.generatedAt.slice(0,10):'')+
+    (source.attribution?' · '+source.attribution:'')+
+    (source.walkTimeEstimated?' · Sétaidők: szolgáltatói becslés':'');
    if(!j.doorToDoor){
     const warn=node('p','st22-r-limitation',null,panel);
     warn.textContent='ⓘ Egyelőre állomástól állomásig ellenőrzött útvonal. A háztól a megállóig és a célig tartó séta nincs kiszámítva. BKK/Volán kombináció csak hiteles közös tervezőadat után.';
@@ -218,7 +222,7 @@
    node('p','',j.transfers===0?'Átszállás nélküli menetrendi lehetőség.':
     j.transfers===1?'Egy átszállásos, ellenőrzött menetrendi útvonal.':
     j.transfers+' átszállás szükséges.',rationale);
-   node('p','',j.doorToDoor?'A gyalogos szakaszok is ellenőrzött útvonaladatból származnak.':
+   node('p','',j.doorToDoor?'A gyalogos szakaszok útvonaladata hiteles forrásból származik; a sétaidő becslés.':
     'Az ötcsillagos, ajtótól ajtóig minősítéshez a gyalogos összeköttetést is ellenőrizni kell.',rationale);
   }
   function open(data){

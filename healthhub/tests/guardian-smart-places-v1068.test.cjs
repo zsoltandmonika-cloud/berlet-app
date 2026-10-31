@@ -97,7 +97,7 @@ test('alias/name is directly discoverable in existing Smart Trip AI source',()=>
  assert.match(smartTrip,/displayName\|\|x\.name/);
  assert.match(smartTrip,/lastSmartPlaceSync/);
  assert.match(smartTrip,/family\.sync\(true\)/);
- assert.match(tripHtml,/smart-trip-ai-v1022\.js\?v=1072-fullscreen-results-smart-places/);
+ assert.match(tripHtml,/smart-trip-ai-v1022\.js\?v=1073-full-coverage-opt-in-fallback/);
  assert.match(html,/guardian-smart-places-v1068\.js\?v=1068-family-sync-geofence/);
  assert.match(html,/guardian-profile-follow-v837\.js\?v=1068-smart-places-hook/);
  assert.match(html,/guardianSmartPlaceSoundV1068/);

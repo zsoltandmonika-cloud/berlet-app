@@ -1,0 +1,17 @@
+/* Full-coverage fallback: SH9 premium glass, only after a failed/native-unavailable search. */
+.st22-external-trip{
+ display:block;width:100%;min-height:51px;margin:11px 0 7px;padding:11px 12px;
+ color:#e8f7ff;font-size:12px;font-weight:850;line-height:1.4;text-align:center;
+ background:linear-gradient(114deg,rgba(37,112,176,.86),rgba(66,54,131,.89));
+ border:1px solid rgba(156,211,255,.67);border-radius:13px;cursor:pointer;
+ box-shadow:inset 0 1px rgba(255,255,255,.2),0 4px 15px #0004;
+ touch-action:manipulation;
+}
+:root[data-st22-profile="m"] .st22-external-trip{
+ color:#fff3fc;border-color:rgba(255,176,234,.64);
+ background:linear-gradient(112deg,rgba(174,73,153,.84),rgba(101,54,139,.90));
+}
+.st22-external-trip[hidden],.st22-external-note[hidden]{display:none!important}
+.st22-external-note{
+ font-size:10px;line-height:1.45;color:#c6dbf5;padding:0 3px 6px;margin:0
+}

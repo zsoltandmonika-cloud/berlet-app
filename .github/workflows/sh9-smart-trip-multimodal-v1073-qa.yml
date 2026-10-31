@@ -1,0 +1,33 @@
+name: SH9 Smart Trip multimodal adapter v1073 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/**'
+      - 'healthhub/tests/sh9-smart-trip-multimodal-v1073.test.cjs'
+      - 'healthhub/tests/sh9-smart-trip-results-v1072.test.cjs'
+      - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
+      - '.github/workflows/sh9-smart-trip-multimodal-v1073-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/**'
+      - 'healthhub/tests/sh9-smart-trip-multimodal-v1073.test.cjs'
+      - '.github/workflows/sh9-smart-trip-multimodal-v1073-qa.yml'
+permissions:
+  contents: read
+jobs:
+  multimodal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and verified-provider adapter + unchanged v1072 UI tests
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-multimodal-v1073.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-multimodal-runtime-v1073.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --test healthhub/tests/sh9-smart-trip-multimodal-v1073.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-results-v1072.test.cjs
+          node --test healthhub/tests/guardian-smart-places-v1068.test.cjs
