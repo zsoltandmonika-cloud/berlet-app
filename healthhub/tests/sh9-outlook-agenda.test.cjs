@@ -27,13 +27,13 @@ test('Calendar preview shows actual Budapest date and time above the subject',()
  const h=model.headline(model.analyze([future]),new Date('2026-10-31T12:00:00Z'));
  assert.equal(h.status,'ready');
  assert.match(h.value,/2026/);
- assert.match(h.value,/nov/);
+ assert.match(h.value,/11\.03/);
  assert.match(h.value,/3/);
  assert.match(h.value,/16:00/);
  assert.doesNotMatch(h.value,/Következő|^Ma /);
  assert.equal(h.detail,'Próbaesemény');
  const today=model.headline(model.analyze([future]),new Date('2026-11-03T09:00:00Z'));
- assert.match(today.value,/2026.*nov.*3/);
+ assert.match(today.value,/2026\.11\.03\./);
  const crossYear=ev('Évkezdés','2027-01-01T09:00:00','2027-01-01T10:00:00');
  assert.match(model.headline(model.analyze([crossYear]),new Date('2026-12-31T19:00:00Z')).value,/2027/);
 });
