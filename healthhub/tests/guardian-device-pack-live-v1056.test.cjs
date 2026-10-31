@@ -44,11 +44,11 @@ test('the full card uses 50%-ish premium glass and all 4 status rows without ove
  assert.match(css,/grid-template-rows:25% repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/height:98\.5%!important/);
  assert.match(css,/width:36\.7%!important/);
- assert.match(css,/rgba\\(18,40,87,\\.48\\)/);
- assert.match(css,/rgba\\(77,35,112,\\.52\\)/);
- assert.match(css,/rgba\\(21,36,83,\\.76\\)/);
- assert.match(css,/rgba\\(69,36,95,\\.77\\)/);
- assert.doesNotMatch(css,/rgba\\(18,40,87,\\.56\\)/);
+ assert.match(css,/rgba\(18,40,87,\.48\)/);
+ assert.match(css,/rgba\(77,35,112,\.52\)/);
+ assert.match(css,/rgba\(21,36,83,\.76\)/);
+ assert.match(css,/rgba\(69,36,95,\.77\)/);
+ assert.doesNotMatch(css,/rgba\(18,40,87,\.56\)/);
  assert.match(css,/backdrop-filter:blur\(16px\)/);
  assert.match(css,/hh-device-pack-signal-v1053 svg\{\s*width:clamp\(17px,4\.6vw,23px\)/);
  assert.match(css,/min-height:0!important/);
