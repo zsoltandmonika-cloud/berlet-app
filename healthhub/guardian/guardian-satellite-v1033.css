@@ -124,11 +124,23 @@
  width:92px!important;min-height:26px!important;
  display:flex!important;align-items:center!important;justify-content:center!important;
  padding:2px 4px!important;box-sizing:border-box!important;
- background:#fffef6eb!important;border:1px solid #dae8f9!important;
- border-radius:7px!important;box-shadow:0 3px 12px #0b223a75!important;
+ /* v1051: preserve the required official, clickable MapTiler Free logo;
+    soften only our app-added opaque white background/frame. */
+ background:rgba(247,251,255,.72)!important;
+ border:1px solid rgba(255,255,255,.36)!important;
+ border-radius:7px!important;
+ -webkit-backdrop-filter:blur(9px) saturate(115%)!important;
+ backdrop-filter:blur(9px) saturate(115%)!important;
+ box-shadow:0 2px 9px rgba(5,25,47,.18),inset 0 1px rgba(255,255,255,.23)!important;
 }
 .map-card #guardianSatelliteLogoV1033[hidden]{display:none!important}
-.map-card #guardianSatelliteLogoV1033 img{display:block!important;width:85px!important;height:auto!important;max-height:25px!important}
+.map-card #guardianSatelliteLogoV1033 img{
+ display:block!important;width:85px!important;height:auto!important;max-height:25px!important;
+ opacity:1!important;filter:none!important
+}
+.map-card #guardianSatelliteLogoV1033:focus-visible{
+ outline:2px solid #eaf8ff!important;outline-offset:2px!important
+}
 
 /* v1035 · Trusted-device remembrance is explicit and reversible. */
 #guardianSatelliteConfigV1033 .hh-satellite-remember-v1035{
