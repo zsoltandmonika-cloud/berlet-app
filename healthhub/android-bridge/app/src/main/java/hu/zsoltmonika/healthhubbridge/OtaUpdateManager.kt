@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
@@ -131,8 +133,21 @@ object OtaUpdateManager {
         }
     }
 
-    // Prefer a private app-cache download with content-URI sharing. Nothing is
-    // accepted from a remote command without an explicit tap on the phone.
+    // Only stage on real validated, unmetered Wi-Fi. Cellular, captive
+    // portals and metered hotspots never auto-download APKs.
+    // This does not grant install permission or start the system installer.
+    fun automaticDownloadAllowed(context: Context): Boolean {
+        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            ?: return false
+        val network = manager.activeNetwork ?: return false
+        val caps = manager.getNetworkCapabilities(network) ?: return false
+        return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+    }
+
+    // Prefer a private app-cache download with content-URI sharing. Background
+    // prep is allowed, but Android installation ALWAYS needs owner approval.
     suspend fun downloadVerified(context: Context, candidate: Candidate): Uri =
         withContext(Dispatchers.IO) {
             if (candidate.versionCode <= BuildConfig.VERSION_CODE) error("Nem újabb verzió.")
@@ -142,6 +157,27 @@ object OtaUpdateManager {
             val target = File(folder, "HealthHub-Connect-v${candidate.version}-ota.apk")
             val temp = File(folder, "healthhub-download.part")
             try {
+                // A previously staged file can be reused, but only after
+                // rechecking its SHA-256 against the current signed manifest.
+                // No repeat downloads every six hours.
+                if (target.isFile && target.length() in 10000L..MAX_APK_BYTES) {
+                    val digest = MessageDigest.getInstance("SHA-256")
+                    target.inputStream().use { stream ->
+                        val buffer = ByteArray(65536)
+                        while (true) {
+                            val n = stream.read(buffer)
+                            if (n < 0) break
+                            digest.update(buffer, 0, n)
+                        }
+                    }
+                    val hash = digest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                    if (hash == candidate.sha256) {
+                        return@withContext FileProvider.getUriForFile(
+                            context, context.packageName + ".ota", target
+                        )
+                    }
+                }
+                target.delete() // never reuse an unverified cached APK
                 val digest = MessageDigest.getInstance("SHA-256")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.connectTimeout = 15000
@@ -190,7 +226,7 @@ object OtaUpdateManager {
     fun unknownSourcesAllowed(context: Context): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.O || context.packageManager.canRequestPackageInstalls()
 
-    fun notifyAvailable(context: Context, candidate: Candidate) {
+    fun notifyAvailable(context: Context, candidate: Candidate, prepared: Boolean = false) {
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED) return
@@ -211,7 +247,9 @@ object OtaUpdateManager {
         val notification = android.app.Notification.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentTitle("HealthHub Connect v${candidate.version}")
-            .setContentText("Ellenőrzött frissítés elérhető. Koppints a telepítési jóváhagyáshoz.")
+            .setContentText(if (prepared)
+                "Frissítés ellenőrizve és előkészítve. Koppints a telepítéshez."
+                else "Ellenőrzött frissítés elérhető. Koppints a telepítési jóváhagyáshoz.")
             .setContentIntent(tap)
             .setAutoCancel(true)
             .build()
@@ -227,7 +265,18 @@ class OtaCheckWorker(context: Context, params: WorkerParameters) : CoroutineWork
     override suspend fun doWork(): Result {
         return try {
             val candidate = OtaUpdateManager.check(applicationContext)
-            if (candidate != null) OtaUpdateManager.notifyAvailable(applicationContext, candidate)
+            if (candidate != null) {
+                var prepared = false
+                if (OtaUpdateManager.automaticDownloadAllowed(applicationContext)) {
+                    try {
+                        OtaUpdateManager.downloadVerified(applicationContext, candidate)
+                        prepared = true
+                    } catch (_: Exception) {
+                        // Failed staging must not suppress the one-tap manual fallback.
+                    }
+                }
+                OtaUpdateManager.notifyAvailable(applicationContext, candidate, prepared)
+            }
             Result.success()
         } catch (_: Exception) {
             Result.retry()
