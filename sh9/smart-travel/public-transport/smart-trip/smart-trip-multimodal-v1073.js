@@ -103,7 +103,7 @@
      s.arrival=s.departure+s.ms;
     }else if(following){
      const nextRideIndex=parsed.findIndex(x=>x.kind==='ride');
-     const before=parsed.slice(i,nextRideIndex).filter(x=>x.kind==='walk');
+     const before=parsed.slice(0,nextRideIndex).filter(x=>x.kind==='walk');
      const total=before.reduce((sum,x)=>sum+x.ms,0);
      const used=earlierWalks.reduce((sum,x)=>sum+x.ms,0);
      // before[] covers all pre-first-ride walks; anchor latest arrival to first boarding.
