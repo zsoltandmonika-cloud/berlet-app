@@ -31,6 +31,14 @@ html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845>
  color:#f7fbff!important;opacity:1!important;text-shadow:0 1px 3px rgba(0,6,22,.6);
 }
 html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845>
+:is(.guardian-battery-v841,.hh-gps-v845){
+ pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important;
+}
+html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845>
+:is(.guardian-battery-v841,.hh-gps-v845):focus-visible{
+ outline:2px solid #e4f9ff!important;outline-offset:-2px!important
+}
+html[data-hh-device-pack-preview="on"] .guardian-hero>#guardianTrioV845>
 :is(.hh-health-v845,.hh-device-pack-signal-v1053){
  pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
 }
