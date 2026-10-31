@@ -31,7 +31,7 @@ test('no extra custom modal click needed; official link is real even without Jav
  assert.doesNotMatch(agenda,/card\.addEventListener\('click',openPanel\)/);
  assert.match(css,/#sh9CalendarCell\.sh9-calendar-click-target\{[\s\S]*?text-decoration:none/);
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
- assert.match(html,/outlook-agenda-v1\.css\?v=6-direct-agenda/);
+ assert.match(html,/outlook-agenda-v1\.css\?v=8-date-time-first/);
 });
 test('native Android handles external Outlook HTTPS in existing system browser',()=>{
  assert.match(agenda,/if\(NATIVE\)\{\s*card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\);\s*w\.location\.assign\(OUTLOOK_AGENDA\)/);
