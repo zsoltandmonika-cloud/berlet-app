@@ -13,7 +13,22 @@
  const take=(v,n)=>Array.isArray(v)?v.slice(0,n):[];
  const validDay=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&
   Number.isFinite(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v;
- const validHour=v=>v===null||v===undefined||v===''||typeof v==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+ // Accept timezone-aware ISO-8601 timestamps from ChatGPT but store Budapest HH:mm.
+ const clock=v=>{
+  if(v===null||v===undefined||v==='')return null;
+  if(typeof v!=='string')throw Error('Időpont nem szöveg.');
+  if(/^([01]\d|2[0-3]):[0-5]\d$/.test(v))return v;
+  if(/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(v))return v.slice(0,5);
+  if(/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-](?:0\d|1\d|2[0-3]):[0-5]\d)$/.test(v)){
+   const d=new Date(v);
+   if(Number.isFinite(d.getTime())){
+    const h=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',
+     hour:'2-digit',minute:'2-digit',hour12:false,hourCycle:'h23'}).format(d);
+    if(/^([01]\d|2[0-3]):[0-5]\d$/.test(h))return h;
+   }
+  }
+  throw Error('Hibás időpont: HH:mm vagy időzónás ISO-dátum szükséges.');
+ };
  const key=p=>'sh9-smart-trip-pack-v1078-'+(p==='m'?'m':'z');
  const icons={walk:'🚶',bus:'🚌',tram:'🚋',metro:'🚇',train:'🚆',hev:'🚈',other:'🚏'};
  function normalize(input){
@@ -42,16 +57,20 @@
   if(!validDay(raw.travelDate))throw Error('Hibás utazási dátum.');
   const from=safe(raw.from),to=safe(raw.to),title=safe(raw.title,140);
   if(from.length<2||to.length<2||from===to)throw Error('Hiányzik az indulás vagy a cél.');
-  if(!validHour(raw.departure)||!validHour(raw.arrival))throw Error('Hibás indulási vagy érkezési idő.');
+  let departure,arrival;
+  try{departure=clock(raw.departure);arrival=clock(raw.arrival)}
+  catch(_){throw Error('Az indulási vagy érkezési időpont hibás.')}
   if(!Array.isArray(raw.segments)||raw.segments.length<1||raw.segments.length>24)
    throw Error('1–24 valós útvonalszakasz szükséges.');
   const segments=raw.segments.map((x,i)=>{
-   if(!x||!MODES.has(x.mode)||!validHour(x.departure)||!validHour(x.arrival))
-    throw Error('Hibás útvonalszakasz: '+(i+1));
+   if(!x||!MODES.has(x.mode))throw Error('Hibás útvonalszakasz: '+(i+1));
+   let legDeparture,legArrival;
+   try{legDeparture=clock(x.departure);legArrival=clock(x.arrival)}
+   catch(_){throw Error('Hibás időpont az útvonalszakasznál: '+(i+1))}
    const a=safe(x.from,120),b=safe(x.to,120);
    if(!a||!b)throw Error('Hiányzó szakaszmegálló: '+(i+1));
-   return {mode:x.mode,line:safe(x.line,55),from:a,to:b,departure:x.departure||null,
-    arrival:x.arrival||null,status:STATES.has(x.status)?x.status:'unknown',note:safe(x.note,300)};
+   return {mode:x.mode,line:safe(x.line,55),from:a,to:b,departure:legDeparture,
+    arrival:legArrival,status:STATES.has(x.status)?x.status:'unknown',note:safe(x.note,300)};
   });
   if(!segments.some(x=>x.mode!=='walk'))throw Error('Hiányzik a közlekedési járat.');
   const alerts=take(raw.alerts,12).map(x=>({title:safe(x?.title,100),text:safe(x?.text,400)})).filter(x=>x.title&&x.text);
@@ -62,7 +81,7 @@
    return {name,url};
   }).filter(x=>x.name);
   return {schema:SCHEMA,title:title||from+' → '+to,travelDate:raw.travelDate,from,to,
-   departure:raw.departure||null,arrival:raw.arrival||null,
+   departure,arrival,
    arrivalStatus:STATES.has(raw.arrivalStatus)?raw.arrivalStatus:'estimated',
    summary:safe(raw.summary,600),segments,alerts,alternatives,sources};
  }
