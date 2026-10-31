@@ -1,0 +1,33 @@
+name: SH9 Smart Trip keyboard dock v1088 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-keyboard-dock-v1088.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-keyboard-dock-v1088.css'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'healthhub/tests/sh9-smart-trip-keyboard-v1088.test.cjs'
+      - '.github/workflows/sh9-smart-trip-keyboard-v1088-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-keyboard-dock-v1088.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-keyboard-dock-v1088.css'
+      - 'healthhub/tests/sh9-smart-trip-keyboard-v1088.test.cjs'
+permissions:
+  contents: read
+jobs:
+  samsung-keyboard-dock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify BKK predictive dock and unchanged Smart Trip flows
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-keyboard-dock-v1088.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --test healthhub/tests/sh9-smart-trip-keyboard-v1088.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-chatgpt-default-v1076.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-pack-v1078.test.cjs

@@ -1,0 +1,122 @@
+/* SH9 Smart Trip AI · BKK Grand v4 Golden keyboard dock adaptation v1088.
+ * Full-width top editor ABOVE Samsung/Edge software keyboard.
+ * Moves, rather than duplicates, the real existing predictive list.
+ */
+#st22KeyboardDockV1088.st22-keyboard-v1088{
+ --st22-kb-ink:#17365b;--st22-kb-muted:#4b6788;
+ --st22-kb-accent:#82b9e9;--st22-kb-selected:rgba(104,170,235,.30);
+ --st22-kb-border:rgba(255,255,255,.88);
+ position:fixed!important;left:7px!important;right:7px!important;
+ width:auto!important;max-width:560px;margin:0 auto!important;
+ min-width:0;min-height:0;box-sizing:border-box;z-index:100050!important;
+ display:flex;flex-direction:column;gap:8px;
+ padding:10px 10px 12px;border:1px solid var(--st22-kb-border);
+ border-radius:18px;color:var(--st22-kb-ink);
+ background:linear-gradient(138deg,rgba(225,241,254,.98),rgba(191,222,248,.97));
+ box-shadow:0 15px 40px rgba(2,13,40,.30),inset 0 1px rgba(255,255,255,.96);
+ -webkit-backdrop-filter:blur(22px) saturate(125%);
+ backdrop-filter:blur(22px) saturate(125%);
+}
+:root[data-st22-profile="m"] #st22KeyboardDockV1088{
+ --st22-kb-ink:#562946;--st22-kb-muted:#77536d;
+ --st22-kb-accent:#df96c8;--st22-kb-selected:rgba(224,112,193,.28);
+ background:linear-gradient(140deg,rgba(255,237,248,.98),rgba(239,209,233,.97));
+}
+#st22KeyboardDockV1088[hidden]{display:none!important}
+#st22KeyboardDockV1088 .st22-keyboard-head-v1088{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:8px;min-height:40px;flex:none;
+}
+#st22KeyboardDockV1088 .st22-keyboard-head-v1088 strong{
+ color:var(--st22-kb-ink);font:830 14px/1.3 system-ui,sans-serif;
+}
+#st22KeyboardDockV1088 #st22KeyboardCloseV1088{
+ flex:0 0 43px;width:43px;height:43px;padding:0;
+ display:grid;place-items:center;border:1px solid var(--st22-kb-border);
+ border-radius:11px;background:var(--st22-kb-selected);
+ color:var(--st22-kb-ink);font:850 21px/1 system-ui,sans-serif;
+ cursor:pointer;touch-action:manipulation;
+}
+#st22KeyboardDockV1088 .st22-keyboard-input-v1088{
+ display:flex;align-items:center;width:100%;min-width:0;
+ min-height:49px;flex:none;
+}
+#st22KeyboardDockV1088 .st22-keyboard-input-v1088 input{
+ display:block;flex:1;width:100%;min-width:0;
+ height:49px;min-height:49px;
+ margin:0;padding:9px 12px;
+ border:2px solid var(--st22-kb-accent);border-radius:12px;
+ outline:none;background:rgba(255,255,255,.75);
+ box-shadow:0 0 0 1px rgba(255,255,255,.63);
+ color:var(--st22-kb-ink);font:680 16px/1.25 system-ui,sans-serif;
+ -webkit-appearance:none;appearance:none;color-scheme:light;
+}
+#st22KeyboardDockV1088 .st22-keyboard-input-v1088 input::placeholder{
+ color:var(--st22-kb-muted);opacity:.95;font-size:14px;
+}
+#st22KeyboardDockV1088 .st22-keyboard-caption-v1088{
+ flex:none;padding:8px 3px 0;
+ border-top:1px solid rgba(121,139,169,.25);
+ color:var(--st22-kb-muted);font:750 11px/1.35 system-ui,sans-serif;
+}
+#st22KeyboardDockV1088 :is(#st22FromList,#st22ToList).st22-suggestions{
+ box-sizing:border-box;
+ position:relative!important;top:auto!important;right:auto!important;left:auto!important;
+ width:100%!important;min-width:0;min-height:0;
+ flex:1 1 auto;
+ display:flex!important;flex-direction:column;gap:7px;align-items:stretch;
+ padding:2px 2px 5px!important;margin:0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+ max-height:none!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+ visibility:visible!important;pointer-events:auto!important;
+}
+#st22KeyboardDockV1088 :is(#st22FromList,#st22ToList)[hidden]{
+ display:none!important;
+}
+#st22KeyboardDockV1088 .st22-suggestions button{
+ display:flex!important;align-items:center;justify-content:space-between;
+ box-sizing:border-box;min-width:0;width:100%;flex:none;gap:8px;
+ min-height:57px;padding:9px 10px;
+ border:1px solid var(--st22-kb-border)!important;border-radius:12px;
+ background:var(--st22-kb-selected)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.7);
+ color:var(--st22-kb-ink)!important;text-align:left;
+ cursor:pointer;touch-action:manipulation;
+}
+#st22KeyboardDockV1088 .st22-suggestions button:hover,
+#st22KeyboardDockV1088 .st22-suggestions button:focus-visible{
+ background:rgba(255,255,255,.58)!important;
+}
+#st22KeyboardDockV1088 .st22-suggestions button span{
+ display:flex;flex-direction:column;min-width:0;flex:1;gap:4px;
+}
+#st22KeyboardDockV1088 .st22-suggestions button strong{
+ color:var(--st22-kb-ink);font:810 13px/1.25 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+#st22KeyboardDockV1088 .st22-suggestions button small{
+ color:var(--st22-kb-muted);font:560 11px/1.3 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+#st22KeyboardDockV1088 .st22-suggestions button em{
+ flex:none;max-width:85px;text-align:center;white-space:normal;
+ padding:5px 6px;border:1px solid var(--st22-kb-border);
+ border-radius:8px;background:rgba(255,255,255,.32);
+ color:var(--st22-kb-ink);font:780 9px/1.2 system-ui,sans-serif;
+}
+#st22KeyboardDockV1088 :is(button,input):focus-visible{
+ outline:2px solid var(--st22-kb-accent);outline-offset:2px;
+}
+@media(max-width:390px){
+ #st22KeyboardDockV1088.st22-keyboard-v1088{
+  left:5px!important;right:5px!important;padding:9px 8px;
+ }
+ #st22KeyboardDockV1088 .st22-suggestions button{gap:6px;padding:8px;min-height:53px}
+}
+@media(prefers-reduced-transparency:reduce){
+ #st22KeyboardDockV1088{background:#dcebf9!important;backdrop-filter:none!important}
+ :root[data-st22-profile="m"] #st22KeyboardDockV1088{background:#f5dfed!important}
+}
