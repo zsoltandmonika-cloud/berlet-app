@@ -179,14 +179,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private fun completeNativeOAuth(i: Intent?): Boolean {
         // Only a short-lived, one-time OAuth authorization CODE enters through
         // the external Google browser. No access/refresh tokens cross an intent.
         // The PKCE verifier stays in the app-private WebView storage.
-        if (intent?.data?.scheme == "healthhubconnect" &&
-            intent?.data?.host == "auth-return") {
-            val code = intent?.data?.getQueryParameter("code")
+        if (i?.data?.scheme != "healthhubconnect" || i.data?.host != "auth-return") return false
+        run {
+            val code = i.data?.getQueryParameter("code")
             val authPrefs = getSharedPreferences("hh_one_native_pkce_v1063", MODE_PRIVATE)
             val pending = authPrefs.getLong("pending_at", 0L)
             authPrefs.edit().remove("pending_at").apply()
@@ -200,8 +199,13 @@ class MainActivity : ComponentActivity() {
                 startActivity(Intent(this, Sh9WebActivity::class.java))
             }
             finish()
-            return
+            return true
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (completeNativeOAuth(intent)) return
         setContentView(buildUi())
         DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
@@ -264,6 +268,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (completeNativeOAuth(intent)) return
         // settings deep-links are display-only. In particular, they must not
         // run OAuth, change Dropbox credentials, or relaunch SH9.
         handleIntent(intent)
