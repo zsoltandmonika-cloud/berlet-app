@@ -20,17 +20,31 @@
   let raw=input;
   if(typeof raw==='string'){
    if(raw.length>MAX_BYTES)throw Error('A fájl túl nagy. Maximum 60 KB.');
-   const data=raw.trim().replace(/^\x60{3}(?:json)?\s*/i,'').replace(/\s*\x60{3}$/,'');
-   try{raw=JSON.parse(data)}catch(_){throw Error('Nem érvényes JSON-fájl.')}
+   // ChatGPT may add a UTF-8 BOM or return the JSON inside a Markdown code
+   // fence. Strip that transport wrapper only, never manufacture route data.
+   const txt=raw.replace(/^\uFEFF/,'').trim();
+   const fenced=txt.match(/(?:^|\r?\n)\x60{3}json[ \t]*\r?\n([\s\S]*?)\r?\n\x60{3}/i);
+   const data=(fenced?fenced[1]:txt.replace(/^\x60{3}(?:json)?[ \t]*\r?\n/i,'').replace(/\r?\n\x60{3}$/,'')).trim();
+   if(!data)throw Error('A letöltött JSON-fájl üres.');
+   if(data.startsWith('<'))throw Error('A letöltött fájl weboldalnak tűnik, nem JSON-nak. A ChatGPT-ben a tényleges JSON-fájlt töltsd le.');
+   try{raw=JSON.parse(data)}
+   catch(_){throw Error('A fájl nem teljes vagy nem szabályos JSON. ChatGPT-ben kérj érvényes, nyers SH9 TripPack JSON exportot.')}
   }
+  // Accept only explicit AI-output wrappers that contain a real TripPack.
+  if(raw&&typeof raw==='object'&&!Array.isArray(raw)&&raw.tripPack?.schema===SCHEMA)raw=raw.tripPack;
+  // A missing schema is a harmless transport mistake only when the remaining
+  // route has the exact named TripPack fields. A wrong schema still fails.
+  if(raw&&typeof raw==='object'&&!Array.isArray(raw)&&raw.schema===undefined&&
+    typeof raw.travelDate==='string'&&typeof raw.from==='string'&&
+    typeof raw.to==='string'&&Array.isArray(raw.segments))raw={...raw,schema:SCHEMA};
   if(!raw||typeof raw!=='object'||Array.isArray(raw)||raw.schema!==SCHEMA)
-   throw Error('Nem SH9 TripPack v1 fájl.');
+   throw Error('Nem SH9 TripPack v1 fájl: hiányzik a megfelelő séma vagy az útiterv.');
   if(!validDay(raw.travelDate))throw Error('Hibás utazási dátum.');
   const from=safe(raw.from),to=safe(raw.to),title=safe(raw.title,140);
   if(from.length<2||to.length<2||from===to)throw Error('Hiányzik az indulás vagy a cél.');
   if(!validHour(raw.departure)||!validHour(raw.arrival))throw Error('Hibás indulási vagy érkezési idő.');
-  if(!Array.isArray(raw.segments)||raw.segments.length<2||raw.segments.length>24)
-   throw Error('2–24 útvonalszakasz szükséges.');
+  if(!Array.isArray(raw.segments)||raw.segments.length<1||raw.segments.length>24)
+   throw Error('1–24 valós útvonalszakasz szükséges.');
   const segments=raw.segments.map((x,i)=>{
    if(!x||!MODES.has(x.mode)||!validHour(x.departure)||!validHour(x.arrival))
     throw Error('Hibás útvonalszakasz: '+(i+1));
