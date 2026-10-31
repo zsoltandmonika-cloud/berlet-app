@@ -235,6 +235,34 @@
   }catch(e){status('⚠️ Törlés: '+(e.message||'Sikertelen'))}
   finally{busy=false}
  }
+ async function deleteTrip(p,id){
+  if(busy)throw Error('Szinkronizálás folyamatban. Próbáld újra.');
+  if(p!==profile()||!validId(id))throw Error('Érvénytelen profil vagy útvonal.');
+  busy=true;msg('Útiterv biztonságos törlése…');
+  try{
+   const c=await authorized(),key=cloudProfile(p);
+   if(p!==profile())throw Error('Közben megváltozott a profil.');
+   const {data:attachments,error:listError}=await c.from(FILES)
+    .select('id,storage_path').eq('profile_key',key).eq('trip_id',id).limit(100);
+   if(listError)throw Error('Csatolmányok ellenőrzése: '+listError.message);
+   const paths=(attachments||[]).map(x=>x.storage_path).filter(Boolean);
+   if(paths.length){
+    const {error:storageError}=await c.storage.from(BUCKET).remove(paths);
+    if(storageError)throw Error('Jegyek törlése: '+storageError.message);
+    const {error:fileError}=await c.from(FILES).delete().eq('profile_key',key).eq('trip_id',id);
+    if(fileError)throw Error('Jegyadatok törlése: '+fileError.message);
+   }
+   const {error:tripError}=await c.from(TRIPS).delete().eq('profile_key',key).eq('trip_id',id);
+   if(tripError)throw Error('Felhőből törlés: '+tripError.message);
+   if(p!==profile())throw Error('Profilváltás történt; frissítsd a listát.');
+   if(!pack.remove(w.localStorage,p,id))throw Error('Felhőből törölve, de a helyi mentés frissítése nem sikerült. Frissítsd az oldalt.');
+   try{w.localStorage.removeItem(localKey(p)+'-manual-step-'+id)}catch(_){}
+   msg('✓ Útiterv törölve a helyi és felhőbeli mentésekből');
+   w.dispatchEvent(new Event('sh9-my-trips-cloud-synced'));
+  }catch(e){msg('⚠️ '+(e.message||'Törlési hiba'));throw e}
+  finally{busy=false}
+ }
+ w.SH9_MY_TRIPS_CLOUD_V1086=Object.freeze({deleteTrip});
  $('mtFilesClose')?.addEventListener('click',()=>{
   if($('mtFilesDialog').open)$('mtFilesDialog').close();
   dialog=null;for(const u of blobUrls)try{w.URL.revokeObjectURL(u)}catch(_){}blobUrls=[];
