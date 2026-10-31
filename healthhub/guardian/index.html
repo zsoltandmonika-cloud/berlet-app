@@ -366,9 +366,9 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <script>
 /* Independent preview switches: leave normal v1052 and v1053 unchanged. */
 const hhPackPreview=new URLSearchParams(location.search);
-if(["v1053","v1054","v1055"].includes(hhPackPreview.get("devicePack"))){
+if(hhPackPreview.get("devicePack")==="v1053"||hhPackPreview.get("devicePack")==="v1054"||hhPackPreview.get("devicePack")==="v1055"){
  document.documentElement.dataset.hhDevicePackPreview="on";
- if(["v1054","v1055"].includes(hhPackPreview.get("devicePack")))document.documentElement.dataset.hhDevicePackLayout="tall";
+ if(hhPackPreview.get("devicePack")==="v1054"||hhPackPreview.get("devicePack")==="v1055")document.documentElement.dataset.hhDevicePackLayout="tall";
  if(hhPackPreview.get("devicePack")==="v1055")document.documentElement.dataset.hhDevicePackFullV1055="on";
 }
 </script>
