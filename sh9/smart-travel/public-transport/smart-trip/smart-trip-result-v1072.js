@@ -10,6 +10,14 @@
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
  const MAX=8,MAX_MS=24*60*60000;
+ // Future provider slots are deliberately not active booking/routing integrations.
+ // Wolt is a delivery service, not a passenger transport leg.
+ const FUTURE_PROVIDERS=Object.freeze({
+  fotaxi:{kind:'taxi',status:'not-connected'},
+  uber:{kind:'ridehail',status:'not-connected'},
+  sharedCar:{kind:'carshare',status:'not-connected'},
+  wolt:{kind:'delivery',status:'not-connected'}
+ });
  const txt=(x,n=110)=>String(x??'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,n);
  const ms=x=>{const t=Date.parse(x||'');return Number.isFinite(t)?t:NaN};
  function identity(leg,source){
@@ -17,6 +25,11 @@
   const agency=txt(leg.agency||leg.operator||'',80).toLocaleLowerCase('hu-HU');
   const vehicle=txt(leg.vehicleType||leg.mode||'',50).toUpperCase();
   const route=txt(leg.service||'',50);
+  // Only render real booked/quoted passenger legs after future adapter verification.
+  if(agency.includes('főtaxi')||agency.includes('fotaxi'))return {kind:'taxi',name:'Főtaxi',icon:'🚕'};
+  if(agency.includes('uber'))return {kind:'ridehail',name:'Uber',icon:'🚘'};
+  if(vehicle==='SHARED_CAR'||vehicle==='CARSHARE')return {kind:'carshare',name:'Közösségi autó',icon:'🚙'};
+  if(agency.includes('wolt'))return {kind:'delivery',name:'Wolt · kiszállítás',icon:'📦'};
   const src=source?.kind==='local-private-gtfs'?txt(source.name,90).toLocaleLowerCase('hu-HU'):'';
   if(agency.includes('volán')||agency.includes('volan'))return {kind:'volan',name:'Volán',icon:'🚌'};
   if(agency.includes('bkk')||agency.includes('budapesti közlekedési')){
@@ -46,6 +59,7 @@
    if(!from||!to)return null;
    if(kind==='walk'&&(leg.walkingVerified!==true||!Number.isFinite(leg.distanceMeters)||leg.distanceMeters<0||leg.distanceMeters>30000))return null;
    const branded=identity(leg,source);
+   if(branded.kind==='delivery')return null; // Food delivery is not a passenger itinerary.
    segments.push({
     kind,brand:branded.kind,brandName:branded.name,icon:branded.icon,
     from,to,startMs:start,endMs:end,service:kind==='walk'?'':txt(leg.service||'Járat',55),
@@ -83,13 +97,14 @@
  function prepare(journeys,source){
   if(!source||source.verified!==true||!['local-private-gtfs','verified-multimodal'].includes(source.kind)||
      !['station-to-station','door-to-door'].includes(source.coverage)||
+     (source.kind==='local-private-gtfs'&&source.coverage!=='station-to-station')||
      !Array.isArray(journeys))return null;
   const label=txt(source.name,100)||'Ellenőrzött menetrend';
   const items=[],dedup=new Set();
   for(const raw of journeys.slice(0,60)){
    const j=normalizeJourney(raw,source);
    if(!j)continue;
-   const key=j.segments.map(s=>s.service+'@'+s.startMs+'>'+s.to).join('|');
+   const key=j.segments.map(s=>s.brand+':'+s.from+':'+s.service+'@'+s.startMs+'>'+s.to).join('|');
    if(dedup.has(key))continue;dedup.add(key);items.push(j);
    if(items.length>=MAX)break;
   }
@@ -103,8 +118,8 @@
  function mount(w,d){
   const dialog=d.getElementById('st22ResultDialog'),panel=d.getElementById('st22ResultBody'),
    counter=d.getElementById('st22ResultCounter'),next=d.getElementById('st22ResultNext'),
-   close=d.getElementById('st22ResultClose'),sound=d.getElementById('st22ResultSound');
-  if(!dialog||!panel||!counter||!next||!close||!sound)return null;
+   close=d.getElementById('st22ResultClose'),back=d.getElementById('st22ResultBack'),sound=d.getElementById('st22ResultSound');
+  if(!dialog||!panel||!counter||!next||!close||!back||!sound)return null;
   const KEY='sh9-smart-trip-result-tadaa-v1072';
   let state=null,index=0,focused=null,context=null,enabled=true;
   try{enabled=w.localStorage.getItem(KEY)!=='off'}catch(_){}
@@ -215,6 +230,7 @@
   }
   function hide(){if(dialog.open)dialog.close();state=null}
   close.addEventListener('click',hide);
+  back.addEventListener('click',hide);
   next.addEventListener('click',()=>{if(state&&index<state.items.length-1){index++;draw();panel.scrollTop=0}});
   sound.addEventListener('click',()=>{
    enabled=!enabled;try{w.localStorage.setItem(KEY,enabled?'on':'off')}catch(_){}
@@ -224,5 +240,5 @@
   buttonSound();
   return {open,close:hide,unlockSound,displayed:()=>state?{index,count:state.items.length}:null};
  }
- return Object.freeze({identity,normalizeJourney,prepare,mount});
+ return Object.freeze({identity,normalizeJourney,prepare,mount,FUTURE_PROVIDERS});
 });
