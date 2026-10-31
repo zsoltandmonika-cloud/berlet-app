@@ -13,6 +13,7 @@
  const multiGateway=w.SH9_SMART_TRIP_MULTIMODAL_RUNTIME_V1073;
  const multiModel=w.SH9_SMART_TRIP_MULTIMODAL_V1073;
  const autoFallback=w.SH9_SMART_TRIP_AUTO_FALLBACK_V1075;
+ const chatgpt=w.SH9_SMART_TRIP_CHATGPT_V1076;
  const methodSelect=$('st22SearchMethod');
  const resultView=resultRenderer?.mount?.(w,d);
  const geo=w.HH_SMART_HUB_FIELDS_V806,rail=w.SH9_MAV_GTFS_CORE_V1;
@@ -253,26 +254,32 @@
    });
   });
  }
- const METHOD_KEY='sh9-smart-trip-search-method-v1075-';
- const allowedMethods=new Set(['auto','native','external']);
+ const METHOD_KEY='sh9-smart-trip-search-method-v1076-';
+ const LEGACY_METHOD_KEY='sh9-smart-trip-search-method-v1075-';
+ const allowedMethods=new Set(['chatgpt','google','native']);
  function searchMethod(){
-  return allowedMethods.has(methodSelect?.value)?methodSelect.value:'auto';
+  return allowedMethods.has(methodSelect?.value)?methodSelect.value:'chatgpt';
  }
  function restoreMethod(){
   if(!methodSelect)return;
   const p=profile();
   try{
    const saved=w.localStorage.getItem(METHOD_KEY+p);
-   methodSelect.value=allowedMethods.has(saved)?saved:'auto';
-  }catch(_){methodSelect.value='auto'}
+   const legacy=w.localStorage.getItem(LEGACY_METHOD_KEY+p);
+   methodSelect.value=allowedMethods.has(saved)?saved:legacy==='external'?'google':legacy==='native'?'native':'chatgpt';
+  }catch(_){methodSelect.value='chatgpt'}
  }
- function handoff(query){
+ function googleHandoff(query){
   if(autoFallback?.go?.(multiModel,query,local,w.location))return true;
-  unavailable('A külső útvonaltervező nem nyitható meg. Ellenőrizd a kiválasztott címeket.');
+  unavailable('A Google Térkép nem nyitható meg. Ellenőrizd a kiválasztott címeket.');
   return false;
  }
- function noVerifiedRoute(message,query){
-  if(searchMethod()!=='native'&&handoff(query))return;
+ function chatgptHandoff(query){
+  if(chatgpt?.go?.(query,local,priority?.value,w.location))return true;
+  unavailable('A ChatGPT nem nyitható meg. Ellenőrizd a kiválasztott címeket.');
+  return false;
+ }
+ function noVerifiedRoute(message){
   unavailable(message);
  }
  function unavailable(message){
@@ -293,7 +300,11 @@
   unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…');
   const instant=whenInstant(query);
   if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
-  if(searchMethod()==='external'){handoff(query);return}
+  const method=searchMethod();
+  if(method==='chatgpt'){chatgptHandoff(query);return}
+  if(method==='google'){googleHandoff(query);return}
+  // Only the explicitly selected SH9 experimental mode reaches the limited
+  // local GTFS / gated (disabled-by-default) multimodal backend.
   // Paid native multimodal backend is OFF by default. It runs only after the
   // explicit approval flags, family authorization and endpoint are configured.
   if(multiGateway?.enabled?.()){
@@ -306,15 +317,15 @@
   }
   const available=await loadRailData();
   if(searchId!==searchCounter)return;
-  if(!available){noVerifiedRoute('Ezen a készüléken nincs ellenőrzött saját útvonaladat. A kizárólag SH9 keresés nem tud találatot adni.',query);return}
+  if(!available){noVerifiedRoute('Ezen a készüléken nincs ellenőrzött saját útvonaladat. Próbáld a Léna (ChatGPT) keresést.');return}
   const result=rail.route(available,{from:query.from,to:query.to,mode:query.mode,when:instant},{limit:60,maxTransfers:1,localOnly:true,ranking:'recommended'});
   if(result.status!=='ok'||!result.journeys?.length){
    noVerifiedRoute(result.status==='station-not-in-feed'
     ?'A helyi MÁV-menetrend nem ismeri fel a címeket állomásként.'
-    :'A kiválasztott időben nincs ellenőrzött helyi vasúti találat.',query);return
+    :'A kiválasztott időben nincs ellenőrzött helyi vasúti találat.');return
   }
   if(!renderJourneys(rank(result.journeys,query,instant),query,instant,available))
-   noVerifiedRoute('A helyi menetrend nem adott megjeleníthető, ellenőrzött útitervet.',query);
+   noVerifiedRoute('A helyi menetrend nem adott megjeleníthető, ellenőrzött útitervet.');
  }
  function profileChanged(clearFields){
   const p=profile();
