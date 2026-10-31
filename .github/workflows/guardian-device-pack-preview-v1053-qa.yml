@@ -7,6 +7,7 @@ on:
       - 'healthhub/guardian/guardian-device-pack-preview-v1053.js'
       - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
       - 'healthhub/tests/guardian-device-pack-v1053.test.cjs'
+      - 'healthhub/tests/guardian-monika-network-refresh-v1060.test.cjs'
       - '.github/workflows/guardian-device-pack-preview-v1053-qa.yml'
   push:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - 'healthhub/guardian/guardian-device-pack-preview-v1053.js'
       - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
       - 'healthhub/tests/guardian-device-pack-v1053.test.cjs'
+      - 'healthhub/tests/guardian-monika-network-refresh-v1060.test.cjs'
       - '.github/workflows/guardian-device-pack-preview-v1053-qa.yml'
 jobs:
   preview:
@@ -32,4 +34,4 @@ jobs:
           node --check healthhub/guardian/guardian-device-pack-preview-v1053.js
           node --check healthhub/guardian/guardian-ota-assistant-v1042.js
       - name: Validate 8-icon preview only, truthfulness and Golden Standard isolation
-        run: node --test healthhub/tests/guardian-device-pack-v1053.test.cjs
+        run: node --test healthhub/tests/guardian-device-pack-v1053.test.cjs healthhub/tests/guardian-monika-network-refresh-v1060.test.cjs

@@ -14,8 +14,8 @@ const published=JSON.parse(read('data/bridge-ota.json'));
 test('next candidate is monotonic and the published signed manifest is unchanged until approved release',()=>{
  assert.match(gradle,/versionCode = 39/);
  assert.match(gradle,/versionName = "0\.15\.12"/);
- assert.equal(published.versionCode,38);
- assert.equal(published.version,'0.15.11');
+ assert.equal(published.versionCode,39);
+ assert.equal(published.version,'0.15.12');
  assert.match(workflow,/workflow_dispatch:/);
  assert.match(workflow,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
 });
@@ -42,7 +42,7 @@ test('Bluetooth, Wi-Fi and cellular proof is processed before OTA rollout gate e
  const pRollout=guardian.indexOf("if(!validRelease(m,p))");
  assert.ok(pEvidence>0 && pRollout>pEvidence);
  assert.match(guardian,/bluetoothEnabled:typeof device\.bluetoothEnabled==='boolean'/);
- assert.match(html,/guardian-ota-assistant-v1042\.js\?v=1059-independent-device-evidence/);
+ assert.match(html,/guardian-ota-assistant-v1042\.js\?v=1060-monika-network-refresh/);
  assert.match(guardian,/const CACHE_MS=5\*60000/);
  assert.match(guardian,/visibilitychange/);
  assert.doesNotMatch(guardian,/setInterval\(/);
