@@ -84,3 +84,26 @@ test('shared normalized JSON remains valid and saved lists are data driven',()=>
  assert.equal(api.read(storage,'z').length,0);
  assert.equal(api.read(storage,'m')[0].segments[1].line,'1054');
 });
+
+test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segment boundaries',()=>{
+ assert.match(pack,/st22-tp-flow-v1083/);
+ assert.match(pack,/endpoint\(j\.from,'Kiindulópont',j\.departure,false\)/);
+ assert.match(pack,/endpoint\(j\.to,'Érkezési hely',j\.arrival,true\)/);
+ assert.match(pack,/const leg=j\.segments\[i\]/);
+ assert.match(pack,/st22-tp-ride-flow/);
+ assert.match(pack,/Felszállás/);
+ assert.match(pack,/Leszállás/);
+ assert.match(pack,/node\('strong','',leg\.from,board\)/);
+ assert.match(pack,/node\('strong','',leg\.to,exit\)/);
+ assert.match(pack,/proof\(leg\.status\)/);
+ assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083::before/);
+ assert.match(css,/--st22-flow-rail/);
+ assert.match(css,/\.st22-tp-tram\{--st22-mode:#edca69\}/);
+ assert.match(css,/\.st22-tp-hev\{--st22-mode:#94ceb0\}/);
+ assert.match(css,/\.st22-tp-walk\{--st22-mode:#dfa4d4\}/);
+ assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083 \.st22-tp-ride-stop/);
+ assert.match(smart,/v=1083-bkk-flow-premium/);
+ assert.match(smart,/v=1083-bkk-flow-endpoints/);
+ assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
+ assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
+});
