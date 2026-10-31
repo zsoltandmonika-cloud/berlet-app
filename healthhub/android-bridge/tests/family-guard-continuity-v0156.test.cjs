@@ -15,7 +15,7 @@ const admin=read('healthhub/hh-one-rag-v500.js');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
 
 test('signed HH One v0.15.11 build38 keeps same physical app identity',()=>{
- assert.match(gradle,/versionCode = 39/);
+ assert.match(gradle,/versionCode = 40/);
  assert.match(gradle,/versionName = "0\.15\.12"/);
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
 });
