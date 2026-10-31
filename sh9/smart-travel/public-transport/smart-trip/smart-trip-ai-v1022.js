@@ -378,6 +378,12 @@
   syncAccessible();
  });
  fields.forEach(wire);
+ // Mobile keyboard dock is a view of these ORIGINAL fields. On dismissal,
+ // cancel pending Photon requests so predictions cannot leak into the planner.
+ w.addEventListener('sh9-smart-trip-predictive-close-v1088',e=>{
+  const field=fields.find(f=>f.key===e.detail?.key);
+  if(field){abort(field.key);close(field)}
+ });
  // v1031: refresh an open suggestion list after the shared 40 places sync.
  w.addEventListener('hh-travel-favorites-changed',()=>{
   fields.forEach(field=>{
@@ -392,7 +398,7 @@
   clearAll();const v=from.value;from.value=to.value;to.value=v;
   const t=local.origin;local.origin=local.destination;local.destination=t;
  });
- d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place'))fields.forEach(close)});
+ d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place')&&!e.target.closest('#st22KeyboardDockV1088'))fields.forEach(close)});
  form.addEventListener('submit',searchTrip);
  methodSelect?.addEventListener('change',()=>{
   const choice=searchMethod();
@@ -401,6 +407,8 @@
  });
  $('st22Favorites')?.addEventListener('click',()=>{
   const field=!from.value.trim()?from:!to.value.trim()?to:from;
+  const dock=w.SH9_SMART_TRIP_KEYBOARD_V1088;
+  if(dock?.open&&w.matchMedia?.('(max-width:640px)').matches){dock.open(field===from?'origin':'destination');return}
   field.focus();field.scrollIntoView?.({behavior:'smooth',block:'center'});
  });
  // v1032: the Map button is owned by the full-screen MapLibre overlay.
