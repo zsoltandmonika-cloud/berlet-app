@@ -1361,9 +1361,13 @@ class MainActivity : ComponentActivity() {
             "provider-unavailable", "no-provider" -> "Helyszolgáltatás átmenetileg nem elérhető"
             else -> "Első GPS-indításra vár"
         }
+        val continuity = if (FamilyGuardContinuity.enabled(this))
+            "🛡️ Automatikus natív GPS-helyreállítás: jóváhagyva"
+        else "⚠️ GPS csak kézzel indul · az automatikus helyreállítás nincs engedélyezve"
         gpsSummary.text = (if (running) "🟢 Smart Location aktív" else "⚪ Helymeghatározás leállítva") +
             "\nMérési alap: $engineLabel · mód: $mode" +
-            "\nCél-időköz: $period mp · utolsó valódi fix: $lastText"
+            "\nCél-időköz: $period mp · utolsó valódi fix: $lastText" +
+            "\n$continuity"
         gpsToggleButton.text = if (running) "⏹ GPS leállítása" else "📍 GPS bekapcsolása"
         if (::gpsBootButton.isInitialized) {
             val approved = FamilyGuardContinuity.enabled(this)
