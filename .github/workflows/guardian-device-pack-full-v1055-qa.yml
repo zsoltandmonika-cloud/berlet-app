@@ -1,0 +1,31 @@
+name: Guardian Full Height Device Pack v1055 preview QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-full-v1055.css'
+      - 'healthhub/guardian/guardian-device-pack-full-v1055.js'
+      - 'healthhub/tests/guardian-device-pack-full-v1055.test.cjs'
+      - '.github/workflows/guardian-device-pack-full-v1055-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-full-v1055.css'
+      - 'healthhub/guardian/guardian-device-pack-full-v1055.js'
+      - 'healthhub/tests/guardian-device-pack-full-v1055.test.cjs'
+      - '.github/workflows/guardian-device-pack-full-v1055-qa.yml'
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax validation
+        run: node --check healthhub/guardian/guardian-device-pack-full-v1055.js
+      - name: Verify full glass preview plus prior v1054/v1053 isolation
+        run: node --test healthhub/tests/guardian-device-pack-full-v1055.test.cjs healthhub/tests/guardian-device-pack-tall-v1054.test.cjs healthhub/tests/guardian-device-pack-v1053.test.cjs
