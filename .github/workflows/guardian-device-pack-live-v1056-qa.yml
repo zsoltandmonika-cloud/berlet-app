@@ -1,0 +1,34 @@
+name: Family Guard v1056 live SH9 brand + connectivity pack QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-live-v1056.css'
+      - 'healthhub/guardian/guardian-device-pack-live-v1056.js'
+      - 'healthhub/assets/sh9-family-guard-logo-v1056.webp'
+      - 'healthhub/tests/guardian-device-pack-live-v1056.test.cjs'
+      - '.github/workflows/guardian-device-pack-live-v1056-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-live-v1056.css'
+      - 'healthhub/guardian/guardian-device-pack-live-v1056.js'
+      - 'healthhub/assets/sh9-family-guard-logo-v1056.webp'
+      - 'healthhub/tests/guardian-device-pack-live-v1056.test.cjs'
+      - '.github/workflows/guardian-device-pack-live-v1056-qa.yml'
+jobs:
+  device-pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: node --check healthhub/guardian/guardian-device-pack-live-v1056.js
+      - name: Source image, default rollout, rollback, 8 sources and previous preview gates
+        run: |
+          node --test healthhub/tests/guardian-device-pack-live-v1056.test.cjs healthhub/tests/guardian-device-pack-full-v1055.test.cjs healthhub/tests/guardian-device-pack-tall-v1054.test.cjs healthhub/tests/guardian-device-pack-v1053.test.cjs
