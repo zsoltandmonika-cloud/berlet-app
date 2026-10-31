@@ -363,14 +363,27 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-device-pack-preview-v1053.css?v=1053-glass-preview">
 <link rel="stylesheet" href="./guardian-device-pack-tall-v1054.css?v=1054-laptop-clear-logo">
 <link rel="stylesheet" href="./guardian-device-pack-full-v1055.css?v=1055-full-height-preview">
+<link rel="stylesheet" href="./guardian-device-pack-live-v1056.css?v=1056-production-glass-layout">
 <script>
 /* Independent preview switches: leave normal v1052 and v1053 unchanged. */
 const hhPackPreview=new URLSearchParams(location.search);
-if(hhPackPreview.get("devicePack")==="v1053"||hhPackPreview.get("devicePack")==="v1054"||hhPackPreview.get("devicePack")==="v1055"){
+const hhPackMode=hhPackPreview.get("devicePack");
+const hhPackDefault=hhPackMode===null&&hhPackPreview.get("sh9Transit")!=="1";
+if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
+   hhPackPreview.get("devicePack")==="v1054"||
+   hhPackPreview.get("devicePack")==="v1055"||
+   hhPackPreview.get("devicePack")==="v1056"){
  document.documentElement.dataset.hhDevicePackPreview="on";
- if(hhPackPreview.get("devicePack")==="v1054"||hhPackPreview.get("devicePack")==="v1055")document.documentElement.dataset.hhDevicePackLayout="tall";
- if(hhPackPreview.get("devicePack")==="v1055")document.documentElement.dataset.hhDevicePackFullV1055="on";
+ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1054"||
+    hhPackPreview.get("devicePack")==="v1055"||
+    hhPackPreview.get("devicePack")==="v1056")document.documentElement.dataset.hhDevicePackLayout="tall";
+ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1055"||
+    hhPackPreview.get("devicePack")==="v1056")document.documentElement.dataset.hhDevicePackFullV1055="on";
+ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1056")
+    document.documentElement.dataset.hhDevicePackLiveV1056="on";
 }
+// Restore the previous unmodified status trio at ?devicePack=v1052.
+// Preserve the existing transit-only app shell when ?sh9Transit=1.
 </script>
 </head>
 <body>
@@ -1007,5 +1020,6 @@ document.addEventListener('click',function(event){
 <script defer src="./guardian-device-pack-preview-v1053.js?v=1053-optin-preview"></script>
 <script defer src="./guardian-device-pack-tall-v1054.js?v=1054-brand-header"></script>
 <script defer src="./guardian-device-pack-full-v1055.js?v=1055-logo-and-icons"></script>
+<script defer src="./guardian-device-pack-live-v1056.js?v=1056-official-image"></script>
 </body>
 </html>
