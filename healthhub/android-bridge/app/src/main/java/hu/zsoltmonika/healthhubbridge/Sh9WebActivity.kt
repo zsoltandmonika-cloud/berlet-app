@@ -75,7 +75,7 @@ class Sh9WebActivity : ComponentActivity() {
         // real first-party main-frame tap. Never treat a URL as permission.
         val authorize = runCatching { Uri.parse(url.getQueryParameter("url") ?: "") }.getOrNull()
         val challenge = authorize?.getQueryParameter("code_challenge") ?: ""
-        val good = authorize?.scheme == "https" &&
+        val good = authorize != null && authorize.scheme == "https" &&
             authorize.host == SUPABASE_HOST &&
             authorize.path == "/auth/v1/authorize" &&
             authorize.getQueryParameter("provider") == "google" &&
@@ -87,7 +87,7 @@ class Sh9WebActivity : ComponentActivity() {
             .putLong(AUTH_PENDING_AT, System.currentTimeMillis()).apply()
         try {
             startActivity(Intent(Intent.ACTION_VIEW, authorize).addCategory(Intent.CATEGORY_BROWSABLE))
-        } catch (_: ActivityNotFoundException) {
+        } catch (_: Exception) {
             getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit().remove(AUTH_PENDING_AT).apply()
         }
     }
