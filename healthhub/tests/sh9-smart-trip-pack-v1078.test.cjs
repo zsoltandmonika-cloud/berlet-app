@@ -71,7 +71,7 @@ test('rendering uses textContent only, never promotes imported claims to verifie
  assert.doesNotMatch(source,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.match(source,/\.textContent=String\(value\)/);
  assert.match(source,/Menetrendi adat \(AI állítása\)/);
- assert.match(source,/nem élőben hitelesített/);
+ assert.doesNotMatch(source,/st22-tp-limitation/);
 });
 test('saved trips and JSON-file/paste tools exist in native SH9',()=>{
  for(const id of ['st22TripPackImport','st22TripPackSaved','st22TripPackDialog',
