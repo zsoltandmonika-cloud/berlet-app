@@ -172,7 +172,12 @@
    }
    if(j.alerts.length){
     const warnings=node('section','st22-tp-alerts',null,body);
-    node('h4','','⚠️ Fontos figyelmeztetések',warnings);
+    const warningHead=node('div','st22-tp-alert-head',null,warnings);
+    const warningIcon=node('span','st22-tp-alert-icon','⚠︎',warningHead);
+    warningIcon.setAttribute('aria-hidden','true');
+    const warningTitle=node('div','st22-tp-alert-title',null,warningHead);
+    node('h4','','Fontos figyelmeztetések',warningTitle);
+    node('small','','KÉRJÜK, OLVASD EL INDULÁS ELŐTT',warningTitle);
     for(const a of j.alerts){const item=node('div','st22-tp-alert-item',null,warnings);
      node('strong','',a.title,item);node('p','',a.text,item)}
    }

@@ -23,8 +23,6 @@
 .st22-tp-detail small{font-size:11px;line-height:1.5;color:#b7d2f3}
 .st22-tp-heading{font-size:13px;color:#f1f7ff;margin:16px 0 7px}
 .st22-tp-note{font-size:12px;line-height:1.6;padding:10px 12px;margin:6px 0;background:#1e37618c;border-radius:10px}
-.st22-tp-alerts{padding:13px;border:1px solid #e8c46e8f;border-radius:12px;background:#4a392b77}
-.st22-tp-alerts h4{margin:0 0 9px}.st22-tp-alerts div{margin:8px 0}.st22-tp-alerts p{font-size:12px;line-height:1.5;margin:4px 0 0}
 .st22-tp-source{display:block;width:fit-content;max-width:100%;overflow-wrap:anywhere;padding:7px 0;color:#a8d9ff;font-size:12px;text-decoration:underline}
 .st22-tp-saved{padding:14px;margin:9px 0;border:1px solid #b7d9f46e;background:#203d6aa8;border-radius:13px;display:flex;flex-direction:column;gap:7px}
 .st22-tp-saved small{font-size:11px;line-height:1.4;color:#c6dcf3}
@@ -108,8 +106,6 @@
  background:linear-gradient(135deg,rgba(28,69,118,.68),rgba(20,39,83,.78));overflow:hidden}
 .st22-tp-backup summary{padding:14px;font-size:13px;font-weight:840;cursor:pointer}
 .st22-tp-backup .st22-tp-note{margin:4px 10px 10px}
-.st22-tp-alerts{margin-top:17px;border-radius:13px;background:linear-gradient(125deg,rgba(87,66,37,.65),rgba(48,40,55,.62))}
-.st22-tp-alert-item{padding:6px 0}
 .st22-tp-sources{margin:17px 0;padding:12px 14px;border:1px solid rgba(153,203,243,.35);border-radius:12px;background:rgba(27,48,84,.50)}
 .st22-tp-viewer-footer{display:flex;margin:14px 0 8px}
 .st22-tp-list-head{margin-bottom:12px}
@@ -128,4 +124,74 @@
 @media(max-width:355px){
  .st22-tp-clock strong{font-size:27px}.st22-tp-metric small{font-size:7px}
  .st22-tp-metric strong{font-size:11px}
+}
+
+
+/* SH9 v1082 · Important TripPack warnings: red-alert premium glass, not amber/brown.
+   Scope deliberately limited to the imported trip viewer alert section.
+   Always-on warning cue, no animation, profile-independent severity styling. */
+#st22TripPackDialog .st22-tp-alerts{
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:18px 0 16px;padding:15px 15px 13px 17px;
+ border:1.5px solid rgba(255,119,139,.95);border-radius:17px;
+ background:
+   radial-gradient(ellipse at 100% 0%,rgba(229,72,106,.20),transparent 49%),
+   linear-gradient(125deg,rgba(71,35,68,.93),rgba(31,35,68,.96) 65%,rgba(44,26,55,.94));
+ box-shadow:inset 0 1px rgba(255,227,238,.16),0 10px 26px rgba(5,8,24,.35),0 0 0 1px rgba(238,95,116,.13);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ color:#f9f2fb;
+}
+#st22TripPackDialog .st22-tp-alerts::before{
+ content:"";position:absolute;inset:14px auto 14px 0;width:4px;
+ border-radius:0 4px 4px 0;background:linear-gradient(#ff8c93,#e95b84);
+ box-shadow:0 0 10px rgba(232,101,132,.20);pointer-events:none;
+}
+#st22TripPackDialog .st22-tp-alert-head{
+ display:flex;align-items:center;gap:11px;min-width:0;
+ padding-bottom:13px;margin-bottom:5px;
+ border-bottom:1px solid rgba(255,173,191,.21);
+}
+#st22TripPackDialog .st22-tp-alert-icon{
+ flex:0 0 43px;width:43px;height:43px;
+ display:grid;place-items:center;border-radius:13px;
+ border:1px solid rgba(255,174,185,.73);
+ background:linear-gradient(145deg,rgba(221,75,106,.96),rgba(149,47,83,.92));
+ box-shadow:inset 0 1px rgba(255,236,239,.27),0 5px 13px rgba(10,9,30,.25);
+ color:#fff9fa;font:900 26px/1 "Segoe UI Symbol","Noto Sans Symbols 2",sans-serif;
+}
+#st22TripPackDialog .st22-tp-alert-title{min-width:0}
+#st22TripPackDialog .st22-tp-alert-title h4{
+ margin:0 0 3px;color:#fff5f8;
+ font-size:clamp(14px,4vw,17px);line-height:1.24;
+ font-weight:880;letter-spacing:-.018em;
+}
+#st22TripPackDialog .st22-tp-alert-title small{
+ display:block;color:#ffbdcb;letter-spacing:.07em;
+ font-size:9px;font-weight:820;line-height:1.4;
+}
+#st22TripPackDialog .st22-tp-alert-item{
+ position:relative;margin:0;padding:12px 2px 12px 17px;
+ background:transparent;
+}
+#st22TripPackDialog .st22-tp-alert-item + .st22-tp-alert-item{
+ border-top:1px solid rgba(255,175,198,.16);
+}
+#st22TripPackDialog .st22-tp-alert-item::before{
+ content:"";position:absolute;left:1px;top:18px;width:7px;height:7px;
+ border:1px solid rgba(255,201,213,.75);
+ border-radius:50%;background:#ff889f;
+ box-shadow:0 0 0 3px rgba(238,104,140,.13);
+}
+#st22TripPackDialog .st22-tp-alert-item strong{
+ display:block;font-size:13px;line-height:1.4;
+ color:#fff4f7;font-weight:850;
+}
+#st22TripPackDialog .st22-tp-alert-item p{
+ margin:5px 0 0;color:#e1d7e9;
+ font-size:12px;line-height:1.57;overflow-wrap:anywhere;
+}
+@media(max-width:355px){
+ #st22TripPackDialog .st22-tp-alerts{padding:13px 11px 11px 15px}
+ #st22TripPackDialog .st22-tp-alert-title h4{font-size:14px}
+ #st22TripPackDialog .st22-tp-alert-icon{flex-basis:38px;width:38px;height:38px;font-size:23px}
 }
