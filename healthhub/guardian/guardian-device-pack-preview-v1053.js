@@ -33,7 +33,11 @@
   function link(kind){
    const active=d&&transport===kind;
    return {color:!d?'gray':active?(validation===true?'green':'amber'):'gray',
-    details:!d?'Nincs friss, kiválasztott telefonról származó, ellenőrzött Android-hálózati jelentés.':
+    details:!d?(record?.profile===p&&Number.isInteger(record?.buildCode)&&record.buildCode<38?
+      'A kiválasztott telefon HH One build '+record.buildCode+' verziója még nem tud Wi-Fi/mobil állapotot jelenteni. A natív HH One 0.15.11 (build 38) vagy újabb kiadása szükséges.':
+      'Nincs friss, kiválasztott telefonról származó, ellenőrzött Android-hálózati jelentés. Ellenőrizd a HH One szinkront és a Dropbox-kapcsolatot.'):
+     !['wifi','mobile','ethernet'].includes(transport)?
+      'A telefon legutóbbi jelentésében nem szerepel használható Wi-Fi/mobil hálózati adatútvonal. '+(Number.isInteger(d.buildCode)?'Telepített HH One build: '+d.buildCode+'. ':'')+'Ha a build 38-nál régebbi, natív HH One frissítés szükséges.':
      active?'A kiválasztott telefon '+(kind==='wifi'?'Wi-Fi':'mobiladat')+
       ' adatútvonalon jelentkezett; internet validálása: '+
       (validation===true?'igen':validation===false?'nem':'ismeretlen')+
