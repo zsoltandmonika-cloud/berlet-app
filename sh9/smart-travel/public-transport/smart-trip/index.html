@@ -101,8 +101,8 @@
  <div class="st22-tp-toolbar"><strong>📥 ChatGPT útiterv importálása</strong><button id="st22TripPackImportClose" type="button">✕ Bezárás</button></div>
  <div class="st22-tp-body">
   <div class="st22-tp-import">
-   <p>A ChatGPT-kutatás végén kérd az SH9 TripPack JSON fájlt. A teljes útitervet a saját SH9-arculattal rajzoljuk újra. Nem szükséges PDF-et visszaolvasni.</p>
-   <button id="st22TripPackCopy" type="button">📋 JSON-exportkérés másolása ChatGPT-hez</button>
+   <p>A ChatGPT már az útiterv után automatikusan kéri az SH9 TripPack JSON-t is. Töltsd fel a .json fájlt, vagy illeszd be a kapott JSON-kódblokkot. Az exportkérés gomb csak tartalék, ha nem érkezett JSON.</p>
+   <button id="st22TripPackCopy" type="button">📋 Tartalék: JSON-export újrakérése</button>
    <label for="st22TripPackFile">Letöltött .json útiterv kiválasztása</label>
    <input id="st22TripPackFile" type="file" accept=".json,application/json">
    <label for="st22TripPackPaste">Vagy illeszd be a teljes JSON-t</label>
@@ -127,7 +127,7 @@
 <script src="./smart-trip-multimodal-v1073.js?v=1073-official-google-transit-normalizer"></script>
 <script src="./smart-trip-multimodal-runtime-v1073.js?v=1073-auth-and-budget-gate"></script>
 <script src="./smart-trip-auto-fallback-v1075.js?v=1075-one-search-no-extra-button"></script>
-<script src="./smart-trip-chatgpt-handoff-v1076.js?v=1077-concise-gpt-brief"></script>
+<script src="./smart-trip-chatgpt-handoff-v1076.js?v=1089-automatic-trippack-export"></script>
 <script src="./smart-trip-pack-v1078.js?v=1083-bkk-flow-endpoints"></script>
 <script src="./smart-trip-ai-v1022.js?v=1076-chatgpt-default-explicit-google"></script>
 <script src="./smart-trip-keyboard-dock-v1088.js?v=1088-real-predictive-portal"></script>
