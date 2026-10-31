@@ -43,7 +43,7 @@ function run({build=37,health='ok',owner='monika',seenAt=Date.now(),release=ota,
   sh9OtaManualSettingsV1044:manualSettings,sh9OtaManualApkV1044:manualApk};
  const d={getElementById:id=>elements[id]||null,addEventListener:(type,fn)=>events[type]=fn,hidden:false};
  vm.runInNewContext(js,{window:w,document:d,URLSearchParams,Date,Number,JSON,Math,Error,Array,Set});
- return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events,handler,manual,manualStatus,manualApk,timers,document:d})));
+ return new Promise(resolve=>setImmediate(()=>resolve({el,detail,led,events,handler,manual,manualStatus,manualSettings,manualApk,timers,document:d})));
 }
 test('official SH9 layout retains 9 real modules and top-right compact lamp',()=>{
  assert.equal((home.match(/class="tile"/g)||[]).length,9);
@@ -158,4 +158,39 @@ test('manual OTA failover is ONE native check tap on v0.15.11+, legacy versions 
  const untrusted=await run({nativeLaunch:false,release:upToDate});
  assert.equal(untrusted.el.href,'healthhubconnect://settings');
  assert.match(native,/u.getQueryParameter\("ota"\) == "check"/);
+});
+
+test('legacy build37 without native build metadata stays unknown, but click offers safe native installer fallback',async()=>{
+ const view=await run({nativeLaunch:false});
+ assert.equal(view.el.dataset.state,'unknown');
+ assert.match(view.detail.textContent,/verzió nem igazolt/);
+ assert.equal(view.el.href,'healthhubconnect://settings');
+ view.handler['indicator:click']();
+ assert.equal(view.manual.hidden,true);
+ const timer=view.timers.find(t=>t.ms===1800);assert.ok(timer);
+ timer.fn();
+ assert.equal(view.manual.hidden,false);
+ assert.equal(view.manualApk.hidden,true);
+ assert.equal(view.manualSettings.href,'healthhubconnect://settings');
+ assert.match(view.manualSettings.textContent,/natív frissítő/);
+});
+test('validated build38 eligible for v0.15.12 uses one-tap installer and never fake APK link on offline errors',async()=>{
+ const valid=await run({build:38,owner:'monika',release:makeRelease('0.15.12',39)});
+ assert.equal(valid.el.dataset.state,'update');
+ assert.equal(valid.el.href,'healthhubconnect://settings?ota=install');
+ const bad=await run({build:38,error:true});
+ assert.equal(bad.el.dataset.state,'unknown');
+ bad.handler['indicator:click']();
+ bad.timers.find(t=>t.ms===1800).fn();
+ assert.equal(bad.manual.hidden,false);
+ assert.equal(bad.manualApk.hidden,true);
+ assert.equal(bad.manualSettings.href,'healthhubconnect://settings?ota=check');
+});
+test('foreground OTA checks use bounded five-minute cooldown, not six-hour delay or background polling',()=>{
+ assert.match(js,/const REFRESH_MS=5\*60\*1000/);
+ assert.match(js,/Date\.now\(\)-last<REFRESH_MS/);
+ assert.match(js,/visibilitychange/);
+ assert.match(js,/pageshow/);
+ assert.doesNotMatch(js,/setInterval\(/);
+ assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1061-status-install/);
 });
