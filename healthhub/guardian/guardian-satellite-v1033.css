@@ -142,6 +142,64 @@
  outline:2px solid #eaf8ff!important;outline-offset:2px!important
 }
 
+/* v1052 · mobile MapTiler logo remains visible at one-quarter-width (~23px).
+   Tap opens the full-size, legible official logo and © source links.
+   Free plan attribution must remain visible in-map. Desktop logo is unchanged. */
+@media (max-width:600px) {
+ .map-card #guardianSatelliteLogoV1033 {
+  width:23px!important;min-width:23px!important;
+  height:23px!important;min-height:23px!important;
+  padding:0!important;border-radius:7px!important;
+  background:rgba(245,251,255,.82)!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+  display:grid!important;place-items:center!important;
+  box-shadow:0 2px 8px rgba(7,25,46,.22)!important;
+ }
+ /* Keep the real provider logo visible in-map even on MapTiler Free. */
+ .map-card #guardianSatelliteLogoV1033 img {
+  display:block!important;width:20px!important;max-width:20px!important;
+  height:auto!important;max-height:14px!important;
+  opacity:1!important;filter:none!important;
+ }
+ /* Larger transparent hit area, without enlarging the visible 23px badge. */
+ .map-card #guardianSatelliteLogoV1033::after {
+  content:"";position:absolute;inset:-11px;
+  background:transparent;pointer-events:auto;
+ }
+ .map-card #guardianSatelliteLogoV1033[hidden]{display:none!important}
+}
+#guardianMaptilerAttributionV1052 {
+ box-sizing:border-box;width:min(88vw,320px);max-width:320px;
+ padding:18px 18px 16px;border-radius:17px;
+ border:1px solid rgba(174,216,247,.78);
+ background:linear-gradient(145deg,rgba(30,62,100,.98),rgba(20,33,66,.99));
+ color:#f7faff;box-shadow:0 14px 35px rgba(5,16,39,.45);
+ font:650 13px/1.5 system-ui,sans-serif;text-align:center;
+}
+#guardianMaptilerAttributionV1052::backdrop{background:rgba(4,13,32,.5)}
+#guardianMaptilerAttributionV1052 h3{font-size:15px;margin:0 0 12px;color:#fff}
+#guardianMaptilerAttributionV1052 .hh-maptiler-logo-v1052 {
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:37px;padding:5px 10px;background:#fff;border-radius:8px;
+}
+#guardianMaptilerAttributionV1052 .hh-maptiler-logo-v1052 img {
+ display:block;width:85px;height:auto;max-height:25px;opacity:1;filter:none
+}
+#guardianMaptilerAttributionV1052 .hh-maptiler-source-links-v1052{
+ margin:12px 0;line-height:1.8
+}
+#guardianMaptilerAttributionV1052 .hh-maptiler-source-links-v1052 a {
+ color:#b6e7ff;text-decoration:underline;text-underline-offset:2px
+}
+#guardianMaptilerAttributionCloseV1052 {
+ min-width:96px;min-height:44px;border-radius:12px;cursor:pointer;
+ border:1px solid rgba(176,222,255,.75);background:rgba(90,145,198,.4);
+ color:#fff;font:800 13px/1 system-ui,sans-serif
+}
+#guardianMaptilerAttributionV1052 :focus-visible {
+ outline:2px solid #d6f5ff;outline-offset:3px
+}
+
 /* v1035 · Trusted-device remembrance is explicit and reversible. */
 #guardianSatelliteConfigV1033 .hh-satellite-remember-v1035{
  display:flex;align-items:center;gap:11px;

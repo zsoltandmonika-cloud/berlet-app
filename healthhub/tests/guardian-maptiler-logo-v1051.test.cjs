@@ -35,7 +35,7 @@ test('official wordmark remains full-scale, crisp and clickable',()=>{
 });
 
 test('change is isolated to stylesheet presentation, not satellite behavior',()=>{
- assert.match(html,/guardian-satellite-v1033\.css\?v=1051-maptiler-soft-glass/);
- assert.match(html,/guardian-satellite-v1033\.js\?v=1049-satellite-on-launch/);
+ assert.match(html,/guardian-satellite-v1033\.css\?v=1052-compact-maptiler-mobile/);
+ assert.match(html,/guardian-satellite-v1033\.js\?v=1052-compact-attribution-mobile/);
  assert.doesNotMatch(css,/navigator\.geolocation|fetch\(|supabase|dropbox|localStorage|sessionStorage/i);
 });

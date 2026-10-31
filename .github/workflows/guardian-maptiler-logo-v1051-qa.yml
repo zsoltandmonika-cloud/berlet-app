@@ -1,17 +1,21 @@
-name: Family Guard MapTiler logo glass v1051 QA
+name: Family Guard MapTiler attribution v1052 QA
 on:
   pull_request:
     paths:
       - 'healthhub/guardian/guardian-satellite-v1033.css'
+      - 'healthhub/guardian/guardian-satellite-v1033.js'
       - 'healthhub/guardian/index.html'
       - 'healthhub/tests/guardian-maptiler-logo-v1051.test.cjs'
+      - 'healthhub/tests/guardian-maptiler-compact-v1052.test.cjs'
       - '.github/workflows/guardian-maptiler-logo-v1051-qa.yml'
   push:
     branches: [main]
     paths:
       - 'healthhub/guardian/guardian-satellite-v1033.css'
+      - 'healthhub/guardian/guardian-satellite-v1033.js'
       - 'healthhub/guardian/index.html'
       - 'healthhub/tests/guardian-maptiler-logo-v1051.test.cjs'
+      - 'healthhub/tests/guardian-maptiler-compact-v1052.test.cjs'
       - '.github/workflows/guardian-maptiler-logo-v1051-qa.yml'
 jobs:
   logo:
@@ -23,5 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate preserved MapTiler attribution and softened glass style
-        run: node --test healthhub/tests/guardian-maptiler-logo-v1051.test.cjs
+      - name: Check satellite JavaScript syntax
+        run: node --check healthhub/guardian/guardian-satellite-v1033.js
+      - name: Validate visible quarter-size logo and clickable source dialog
+        run: node --test healthhub/tests/guardian-maptiler-logo-v1051.test.cjs healthhub/tests/guardian-maptiler-compact-v1052.test.cjs

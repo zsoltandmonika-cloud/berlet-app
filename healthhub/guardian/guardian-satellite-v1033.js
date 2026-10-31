@@ -1,4 +1,4 @@
-/* Family Guard v1049 · reliable saved-key 3D + satellite launch, no polling/GPS.
+/* Family Guard v1052 · reliable 3D satellite launch with compact mobile attribution, no polling/GPS.
  * Adds/removes a raster overlay on existing MapLibre style, NOT map.setStyle:
  * family/BKK/GPS markers, trails, 3D buildings and labels stay in place.
  * MapTiler browser key may be remembered on an explicitly trusted device.
@@ -15,6 +15,8 @@
  const cancel=$('guardianSatelliteCancelV1033');
  const error=$('guardianSatelliteErrorV1033');
  const logo=$('guardianSatelliteLogoV1033');
+ const attribution=$('guardianMaptilerAttributionV1052');
+ const attributionClose=$('guardianMaptilerAttributionCloseV1052');
  if(!button||!card||!dialog||!field||!ok||!cancel)return;
  const SOURCE='hh-guardian-satellite-tiles-v1033';
  const LAYER='hh-guardian-satellite-raster-v1033';
@@ -178,6 +180,25 @@
   }
  });
  cancel.addEventListener('click',closeDialog);
+ // The MapTiler Free attribution is visible/readable inside a one-tap source
+ // dialog on narrow mobile screens, as permitted by MapTiler's mobile terms.
+ // Desktop keeps the original linked full-size logo.
+ const compactAttribution=()=>!!w.matchMedia?.('(max-width:600px)')?.matches;
+ if(logo&&attribution&&typeof logo.addEventListener==='function'){
+  if(compactAttribution()){
+   logo.setAttribute('aria-haspopup','dialog');
+   logo.setAttribute('aria-label','Térképforrások megnyitása (MapTiler)');
+  }
+  logo.addEventListener('click',event=>{
+   if(!on||!compactAttribution()||typeof attribution.showModal!=='function')return;
+   event.preventDefault();
+   try{if(!attribution.open)attribution.showModal()}catch(_){
+    // The underlying official MapTiler link remains available as fallback.
+    w.open?.('https://www.maptiler.com/','_blank','noopener,noreferrer');
+   }
+  });
+  attributionClose?.addEventListener('click',()=>{if(attribution.open)attribution.close()});
+ }
  setVisual(false);
  // Start ONLY after the existing 3D MapLibre style is ready. Do not poll,
  // auto-open a permission dialog or switch off 3D/building extrusion.
