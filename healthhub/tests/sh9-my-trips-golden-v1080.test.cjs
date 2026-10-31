@@ -51,6 +51,15 @@ test('golden header explicitly shows large times, derived duration, transfers an
  assert.doesNotMatch(pack,/st22-tp-limitation/);
  assert.match(pack,/document|body\.replaceChildren\(\)/);
  assert.match(css,/data-st22-profile="m"/);
+
+ assert.match(pack,/st22-tp-alert-head/);
+ assert.match(pack,/st22-tp-alert-icon/);
+ assert.match(pack,/Fontos figyelmeztetések/);
+ assert.match(css,/#st22TripPackDialog \\.st22-tp-alerts/);
+ assert.match(css,/rgba\\(255,119,139,\\.95\\)/);
+ assert.match(css,/st22-tp-alert-item \\+ \\.st22-tp-alert-item/);
+ assert.doesNotMatch(css,/#st22TripPackDialog \\.st22-tp-alerts\\{[^}]*rgba\\(87,66,37/);
+
  assert.match(pageCss,/data-mt-profile="m"/);
  assert.match(pageCss,/SH9 Smart Travel My Trips v1080/);
 });
