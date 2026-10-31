@@ -13,13 +13,12 @@
  const close=$('guardianSmartPlaceCloseV1068'),feedback=$('guardianSmartPlaceStatusV1068');
  const enable=$('guardianSmartPlaceSoundV1068'),toast=$('guardianSmartPlaceToastV1068');
  const MARK='Smart Places',RADII=[100,150,200,300],SOUNDS=['chime','bell','digital','silent'];
- const LABELS={chime:'Lágy csengő',bell:'Dupla csilingelés',digital:'Digitális',silent:'Néma'};
  const KEY='hh-smart-places-alerts-v1068',MAX_MS=75000,MAX_ACCURACY=100;
  const pool=()=>w.HH_TRAVEL_FAVORITES_V972;
  const live=()=>w.HH_GUARDIAN_LIVE_V785;
  const own=p=>p==='monika'?'Mónika':'Zsolt';
  const validOwner=p=>p==='monika'||p==='zsolt';
- let last=null,marker=null,matched=null,previous=new Map(),audio=null,enabled=false,flashTimer=0;
+ let last=null,marker=null,previous=new Map(),audio=null,enabled=false,flashTimer=0;
  try{enabled=w.localStorage?.getItem(KEY)==='on'}catch(_){}
  enable.checked=enabled;
  function authorized(profile){
@@ -77,7 +76,8 @@
   const place=fresh(fix)?nearest(fix):null;
   tag.textContent=place?'📍 '+place.name:'';
   tag.hidden=!place;
-  matched=place;
+  const button=marker.querySelector?.('.hh-smart-place-save-v1068');
+  if(button)button.textContent=place?'✏️ Szerkesztés':'📍 Rögzítés';
  }
  function tone(which){
   if(!enabled||which==='silent'||d.hidden)return;
@@ -125,7 +125,7 @@
   }
  }
  function putFix(fix,node){
-  if(!fresh(fix)||!authorized(fix.profile)){last=null;marker=node||null;matched=null;
+  if(!fresh(fix)||!authorized(fix.profile)){last=null;marker=node||null;previous.clear();
    if(marker){const tag=marker.querySelector?.('.hh-smart-place-location-v1068');if(tag)tag.hidden=true}
    return;
   }
@@ -215,7 +215,12 @@
   }
   message(enabled?'🔔 Helyi hangok bekapcsolva ebben a böngészőben.':'🔕 Hangjelzések kikapcsolva.');
  });
- w.addEventListener?.('hh-travel-favorites-changed',()=>{previous.clear();if(last)bubble(last)});
+ let slotSignature=JSON.stringify(places('zsolt').concat(places('monika')));
+ w.addEventListener?.('hh-travel-favorites-changed',()=>{
+  const newSignature=JSON.stringify(places('zsolt').concat(places('monika')));
+  if(newSignature===slotSignature)return;
+  slotSignature=newSignature;previous.clear();if(last)bubble(last);
+ });
  w.addEventListener?.('storage',e=>{if(e.key==='hh-family-favorite-places-v972'&&last){previous.clear();bubble(last)}});
  w.addEventListener?.('pagehide',()=>{previous.clear()});
  // A selected-portrait paint drives this module. No extra sensor or polling.
