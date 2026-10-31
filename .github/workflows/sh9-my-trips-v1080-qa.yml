@@ -1,0 +1,35 @@
+name: SH9 My Trips Golden v1080 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/my-trips/**'
+      - 'sh9/smart-travel/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.css'
+      - 'healthhub/tests/sh9-my-trips-golden-v1080.test.cjs'
+      - '.github/workflows/sh9-my-trips-v1080-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/my-trips/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js'
+      - '.github/workflows/sh9-my-trips-v1080-qa.yml'
+permissions:
+  contents: read
+jobs:
+  golden-my-trips:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate My Trips UI, saved TripPack and previous functions
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js
+          node --check sh9/smart-travel/my-trips/my-trips-v1080.js
+          node --test healthhub/tests/sh9-my-trips-golden-v1080.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-pack-v1078.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-chatgpt-default-v1076.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-auto-fallback-v1075.test.cjs
+          node --test healthhub/tests/sh9-smart-trip-results-v1072.test.cjs

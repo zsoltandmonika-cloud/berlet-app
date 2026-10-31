@@ -89,59 +89,136 @@
   const name=m=>({walk:'Séta',bus:'Autóbusz',tram:'Villamos',metro:'Metró',train:'Vonat',hev:'HÉV',other:'Egyéb'}[m]||'Útvonal');
   const when=t=>t||'Időpont nem igazolt';
   const proof=s=>s==='timetable'?'📋 Menetrendi adat (AI állítása)':s==='estimated'?'≈ Becsült':'? Ellenőrizetlen';
+  const timeToMinute=s=>typeof s==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(s)?
+    Number(s.slice(0,2))*60+Number(s.slice(3,5)):null;
+  function metrics(trip){
+   const a=timeToMinute(trip.departure),b=timeToMinute(trip.arrival);
+   const minutes=a===null||b===null?null:(b>=a?b-a:1440-a+b);
+   const rides=trip.segments.filter(s=>s.mode!=='walk').length;
+   return {duration:minutes===null?'Nem ismert':Math.floor(minutes/60)+' ó '+String(minutes%60).padStart(2,'0')+' p',
+    transfers:Math.max(0,rides-1)};
+  }
+  const progressKey=(p,id)=>key(p)+'-manual-step-'+safe(id,70);
+  function progress(trip,p){
+   if(!trip?.id)return -1;
+   try{
+    const raw=w.localStorage.getItem(progressKey(p,trip.id));
+    if(raw===null)return -1;
+    const v=Number(raw);
+    return Number.isInteger(v)&&v>=0&&v<=trip.segments.length?v:-1;
+   }catch(_){return -1}
+  }
+  function setProgress(trip,p,step){
+   if(!trip?.id||step<0||step>trip.segments.length)return false;
+   try{w.localStorage.setItem(progressKey(p,trip.id),String(step));return true}catch(_){return false}
+  }
+  const progressLabel=(trip,p)=>{
+   const step=progress(trip,p);
+   return step===trip.segments.length?'✓ Befejezett':step>=0?'▶ Folyamatban · '+(step+1)+'/'+trip.segments.length:'◷ Tervezett';
+  };
   function show(j){
-   body.replaceChildren();
-   const head=node('header','st22-tp-head',null,body);
-   node('div','st22-tp-eyebrow','✨ SH9 · SMART TRIP AI · MENTETT ÚTITERV',head);
+   body.replaceChildren();body.scrollTop=0;
+   const p=active(),m=metrics(j),at=progress(j,p);
+   const head=node('header','st22-tp-head st22-tp-head-golden',null,body);
+   const pre=node('div','st22-tp-pretitle',null,head);
+   node('span','st22-tp-eyebrow','✦ SH9 · SMART TRIP AI',pre);
+   node('span','st22-tp-datestamp',j.travelDate,pre);
    node('h2','',j.title,head);
-   node('p','',j.travelDate+' · '+j.from+' → '+j.to,head);
-   const stats=node('div','st22-tp-stats',null,body);
-   node('span','','Indulás: '+when(j.departure),stats);
-   node('span','','Érkezés: '+when(j.arrival)+' · '+proof(j.arrivalStatus),stats);
+   const journey=node('div','st22-tp-directions',null,head);
+   node('span','',j.from,journey);node('span','st22-tp-route-arrow','→',journey);node('span','',j.to,journey);
+   const times=node('div','st22-tp-clock-grid',null,head);
+   const begin=node('div','st22-tp-clock',null,times);
+   node('small','','INDULÁS',begin);node('strong','',when(j.departure),begin);
+   const finish=node('div','st22-tp-clock',null,times);
+   node('small','','ÉRKEZÉS',finish);node('strong','',when(j.arrival),finish);
+   const stats=node('div','st22-tp-metrics',null,head);
+   const duration=node('div','st22-tp-metric',null,stats);
+   node('small','','TELJES MENETIDŐ',duration);node('strong','',m.duration,duration);
+   const transfers=node('div','st22-tp-metric',null,stats);
+   node('small','','ÁTSZÁLLÁSOK',transfers);node('strong','',String(m.transfers),transfers);
+   const confidence=node('div','st22-tp-metric',null,stats);
+   node('small','','ÉRKEZÉS STÁTUSZA',confidence);
+   node('strong','',j.arrivalStatus==='timetable'?'Menetrendi':j.arrivalStatus==='estimated'?'Becsült':'Ellenőrizetlen',confidence);
+   const tripStatus=node('div','st22-tp-trip-state',null,body);
+   node('strong','',progressLabel(j,p),tripStatus);
+   node('span','','Manuális követés · nem GPS vagy élő menetrend',tripStatus);
    if(j.summary)node('p','st22-tp-summary',j.summary,body);
-   node('p','st22-tp-limitation','ℹ️ ChatGPT-ből importált terv, nem élőben hitelesített járatinformáció. Indulás előtt ellenőrizd az időpontokat.',body);
+   node('p','st22-tp-limitation','ⓘ ChatGPT-ből importált útiterv, nem élőben hitelesített járatinformáció. Indulás előtt ellenőrizd az aktuális időpontokat.',body);
+   node('h3','st22-tp-timeline-title','Útvonal lépésről lépésre',body);
    const timeline=node('ol','st22-tp-timeline',null,body);
-   for(const leg of j.segments){
-    const row=node('li','st22-tp-step st22-tp-'+leg.mode,null,timeline);
-    node('div','st22-tp-icon',icons[leg.mode],row);
+   for(let i=0;i<j.segments.length;i++){
+    const leg=j.segments[i];
+    const cls=at===j.segments.length||at>=0&&i<at?' st22-tp-done':at===i?' st22-tp-current':'';
+    const row=node('li','st22-tp-step st22-tp-'+leg.mode+cls,null,timeline);
+    node('div','st22-tp-icon',at===j.segments.length||at>=0&&i<at?'✓':icons[leg.mode],row);
     const detail=node('div','st22-tp-detail',null,row);
-    node('strong','',when(leg.departure)+' · '+(leg.line?leg.line+' · ':'')+name(leg.mode),detail);
-    node('span','',leg.from+' → '+leg.to,detail);
-    node('small','',proof(leg.status)+(leg.note?' · '+leg.note:''),detail);
+    const line=node('div','st22-tp-line',null,detail);
+    node('strong','st22-tp-time',when(leg.departure),line);
+    if(leg.line)node('span','st22-tp-service',leg.line,line);
+    node('span','st22-tp-mode',name(leg.mode),line);
+    node('span','st22-tp-stops',leg.from+' → '+leg.to,detail);
+    node('small','st22-tp-proof',proof(leg.status)+(leg.note?' · '+leg.note:''),detail);
+   }
+   if(j.id){
+    const controls=node('div','st22-tp-follow-actions',null,body);
+    const next=node('button','st22-tp-next','',controls);
+    next.textContent=at<0?'▶ Utazás indítása':at>=j.segments.length?'✓ Utazás befejezve':
+      at===j.segments.length-1?'🏁 Utazás befejezése':'✓ Következő szakasz';
+    next.disabled=at>=j.segments.length;
+    next.addEventListener('click',()=>{if(setProgress(j,p,at+1))show(j)});
+    if(at>=0){
+     const reset=node('button','st22-tp-reset','↺ Követés újrakezdése',controls);
+     reset.addEventListener('click',()=>{if(setProgress(j,p,0))show(j)});
+    }
    }
    if(j.alerts.length){
     const warnings=node('section','st22-tp-alerts',null,body);
-    node('h4','','⚠️ Figyelmeztetések',warnings);
-    for(const a of j.alerts){const item=node('div','',null,warnings);
+    node('h4','','⚠️ Fontos figyelmeztetések',warnings);
+    for(const a of j.alerts){const item=node('div','st22-tp-alert-item',null,warnings);
      node('strong','',a.title,item);node('p','',a.text,item)}
    }
    if(j.alternatives.length){
-    node('h4','st22-tp-heading','🔄 B terv',body);
-    for(const a of j.alternatives)node('p','st22-tp-note',a,body);
+    const backup=node('details','st22-tp-backup',null,body);
+    node('summary','','🔄 B terv · ha változik az út',backup);
+    for(const a of j.alternatives)node('p','st22-tp-note',a,backup);
    }
    if(j.sources.length){
-    node('h4','st22-tp-heading','Források',body);
+    const src=node('section','st22-tp-sources',null,body);
+    node('h4','st22-tp-heading','Menetrendi források',src);
     for(const source of j.sources){
-     if(source.url){const a=node('a','st22-tp-source',source.name,body);
+     if(source.url){const a=node('a','st22-tp-source',source.name,src);
       a.href=source.url;a.rel='noopener noreferrer';a.target='_blank'}
-     else node('p','st22-tp-note',source.name,body);
+     else node('p','st22-tp-note',source.name,src);
     }
    }
+   const footer=node('div','st22-tp-viewer-footer',null,body);
+   node('button','','← My Trips',footer).addEventListener('click',showSaved);
    if(!viewer.open)viewer.showModal();
   }
   function showSaved(){
-   body.replaceChildren();
-   const h=node('header','st22-tp-head',null,body);
-   node('h2','','💾 Mentett útvonaltervek',h);
+   body.replaceChildren();body.scrollTop=0;
+   const h=node('header','st22-tp-head st22-tp-list-head',null,body);
+   node('div','st22-tp-eyebrow','✦ SH9 · SMART TRAVEL',h);
+   node('h2','','💾 My Trips',h);
+   node('p','','Mentett teljes útitervek · '+(active()==='m'?'Mónika':'Zsolt')+' profil',h);
    const items=read(w.localStorage,active());
-   if(!items.length)node('p','st22-tp-note','Még nincs elmentett teljes útvonalterv ezen a készüléken.',body);
+   if(!items.length)node('p','st22-tp-note','Még nincs mentett teljes útiterv ezen a készüléken. A Smart Trip AI-ban importált JSON itt is megjelenik.',body);
    for(const trip of items){
-    const row=node('div','st22-tp-saved',null,body);
-    node('strong','',trip.title,row);node('small','',trip.travelDate+' · '+trip.from+' → '+trip.to,row);
+    const row=node('article','st22-tp-saved',null,body);
+    const upper=node('div','st22-tp-saved-top',null,row);
+    node('strong','',trip.title,upper);
+    node('span','st22-tp-saved-status',progressLabel(trip,active()),upper);
+    node('small','',trip.travelDate+' · '+trip.from+' → '+trip.to,row);
+    const m=metrics(trip);
+    node('small','st22-tp-saved-meta',
+     '🕓 '+when(trip.departure)+' → '+when(trip.arrival)+' · '+m.duration+' · '+m.transfers+' átszállás',row);
     const actions=node('div','st22-tp-actions',null,row);
-    node('button','', 'Megnyitás',actions).addEventListener('click',()=>show(trip));
-    node('button','', 'Törlés',actions).addEventListener('click',()=>{
-     if(remove(w.localStorage,active(),trip.id))showSaved();
+    node('button','','Teljes képernyős megnyitás',actions).addEventListener('click',()=>show(trip));
+    node('button','','Törlés',actions).addEventListener('click',()=>{
+     if(remove(w.localStorage,active(),trip.id)){
+      try{w.localStorage.removeItem(progressKey(active(),trip.id))}catch(_){}
+      showSaved();
+     }
     });
    }
    if(!viewer.open)viewer.showModal();
@@ -171,6 +248,18 @@
     ()=>say('A másolás nem sikerült.'));
   });
   w.addEventListener('storage',e=>{if(e.key==='hh-profile'){close(viewer);close(importer)}});
+  // A dedicated My Trips page links directly to this existing fullscreen viewer.
+  try{
+   const params=new URL(w.location.href).searchParams;
+   if(params.has('trip')){
+    const selected=read(w.localStorage,active()).find(t=>t.id===params.get('trip'));
+    if(selected)show(selected);else showSaved();
+   }else if(params.get('view')==='my-trips')showSaved();
+   else if(w.location.hash==='#import'){
+    say('Válassz .json fájlt vagy illeszd be a TripPack JSON-t.');
+    if(!importer.open)importer.showModal();
+   }
+  }catch(_){}
  }
  return Object.freeze({normalize,read,save,remove,mount,SCHEMA,MAX_BYTES,MAX_SAVED});
 });

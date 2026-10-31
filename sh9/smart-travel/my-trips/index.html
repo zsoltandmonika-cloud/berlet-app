@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1425">
+<meta name="description" content="SH9 Smart Travel · My Trips – személyes mentett utazások">
+<title>My Trips · SH9 Smart Travel</title>
+<link rel="icon" type="image/png" href="../../assets/sh9-icon.png">
+<link rel="stylesheet" href="./my-trips-v1080.css?v=1080-sh9-golden">
+</head>
+<body>
+<main class="mt-shell">
+ <header class="mt-hero" aria-label="SH9 Smart Travel · családi utazásaim">
+  <img src="../../assets/SH9_Smart_Travel_Hero_1402x1122.png" alt="Smart Travel – Zsolt, Mónika, Léna, Corky és Buddy" width="1402" height="1122">
+  <div class="mt-hero-shade"></div>
+  <div class="mt-hero-wordmark"><small>✦ SH9 · SMART TRAVEL</small><h1>My Trips</h1><span>Utazási terveink</span></div>
+  <a class="mt-return" href="../" aria-label="Vissza a Smart Travel kezdőlapra">‹ Vissza</a>
+ </header>
+ <section class="mt-intro" aria-label="Mentett utazások">
+  <div><strong>💼 Mentett utazásaim</strong><p>Útiterv • teljes képernyős követés • B terv</p></div>
+  <div id="mtProfile" class="mt-profile" aria-label="Aktív családi profil">Zsolt</div>
+ </section>
+ <section class="mt-quick" aria-label="Gyorsműveletek">
+  <a href="../public-transport/smart-trip/" class="mt-action"><span>✨</span><strong>Smart Trip AI</strong><small>Új útvonal</small></a>
+  <a href="../public-transport/smart-trip/#import" class="mt-action"><span>📥</span><strong>Import</strong><small>TripPack JSON</small></a>
+  <button type="button" id="mtReload" class="mt-action"><span>⟳</span><strong>Frissítés</strong><small>Mentett utak</small></button>
+ </section>
+ <div class="mt-overline"><h2>Utazási terveim</h2><span id="mtCount">0 útiterv</span></div>
+ <section id="mtTripList" class="mt-list" aria-live="polite" aria-label="Mentett TripPack útitervek"></section>
+ <p class="mt-note">ⓘ A ChatGPT-ből importált útvonaltervek nem helyettesítik az élő menetrendet. A mentések jelenleg ezen a készüléken, profilonként külön tárolódnak.</p>
+</main>
+<nav class="mt-nav" aria-label="SH9 Golden Standard navigáció">
+ <a href="../../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+ <a href="../../../healthhub/index.html?sh9nav=timeline" aria-label="Idővonal"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>Idővonal</span></a>
+ <a href="../" aria-label="Vissza"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></a>
+ <a href="../../../healthhub/index.html?sh9nav=notifications" aria-label="Értesítések"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></a>
+ <a href="../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2v4l-3 1 1 3-3-2 1-3-3-2 1 3-3-1V9l3-2-1-3z"/></svg><span>Admin</span></a>
+</nav>
+<script src="../public-transport/smart-trip/smart-trip-pack-v1078.js?v=1079-shared-readonly-pack"></script>
+<script src="./my-trips-v1080.js?v=1080-my-trips-list"></script>
+</body>
+</html>
