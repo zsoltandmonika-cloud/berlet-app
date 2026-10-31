@@ -32,10 +32,21 @@
  }
  function render(){
   const p=active(),items=pack.read(w.localStorage,p);
+  const name=p==='m'?'Mónika':'Zsolt';
   d.documentElement.dataset.mtProfile=p;
   const theme=d.querySelector('meta[name="theme-color"]');
   if(theme)theme.content=p==='m'?'#241a3a':'#101d36';
-  $('mtProfile').textContent=p==='m'?'Mónika':'Zsolt';
+  const button=$('mtProfile'),photo=$('mtProfilePhoto');
+  const avatars=w.HH_GOLDEN_AVATARS_V529||{};
+  if(photo){
+   if(avatars[p])photo.src=avatars[p];
+   photo.alt=name+' profilképe';
+  }
+  if(button){
+   button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
+   button.title=name+' · Profilváltás';
+  }
+  $('mtProfileName').textContent=name;
   $('mtCount').textContent=items.length+' útiterv';
   root.replaceChildren();
   if(!items.length){
@@ -65,7 +76,25 @@
   }
  }
  $('mtReload')?.addEventListener('click',render);
+ $('mtProfile')?.addEventListener('click',()=>{
+  const next=active()==='m'?'z':'m';
+  try{
+   w.localStorage.setItem('hh-profile',next);
+   if(w.localStorage.getItem('hh-profile')!==next)throw Error('Nincs helyi tárolási engedély.');
+  }catch(_){
+   const label=$('mtProfileName');
+   if(label)label.textContent='Váltási hiba';
+   return;
+  }
+  render();
+  try{w.dispatchEvent(new CustomEvent('healthhub:profile-changed',{
+   detail:{code:next,profile:next==='m'?'monika':'zsolt',name:next==='m'?'Mónika':'Zsolt',source:'sh9-my-trips'}
+  }))}catch(_){}
+ });
  w.addEventListener('pageshow',render);
- w.addEventListener('storage',render);
+ w.addEventListener('storage',e=>{
+  if(!e.key||e.key==='hh-profile'||e.key.startsWith('sh9-smart-trip-pack-v1078-'))render();
+ });
+ d.addEventListener('visibilitychange',()=>{if(!d.hidden)render()});
  render();
 })(window,document);
