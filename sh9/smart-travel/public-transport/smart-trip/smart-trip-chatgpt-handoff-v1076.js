@@ -14,8 +14,9 @@
  const LIMIT=1600;
  const PRIORITY={
   balanced:'Léna ajánlása: kevés várakozás és gyaloglás, kevés átszállás, jó csatlakozási biztonság',
-  wait:'Lehető legkevesebb várakozás',
-  transfers:'Lehető legkevesebb átszállás',
+  wait:'Elsődleges szempont a lehető legkevesebb várakozás; másodlagosan kevés átszállás és gyaloglás, biztonságos csatlakozásokkal',
+  transfers:'Elsődleges szempont a lehető legkevesebb átszállás; másodlagosan rövid gyaloglás és várakozás, biztonságos csatlakozásokkal',
+  walk:'Elsődleges szempont a lehető legkevesebb gyaloglás; másodlagosan kevés átszállás és várakozás, biztonságos csatlakozásokkal',
   duration:'Legrövidebb teljes menetidő',
   departure:'A legkorábbi megfelelő indulás'
  };
