@@ -10,6 +10,9 @@
  if(!form||!from||!to||!status)return;
  const list=$('st22JourneyList'),source=$('st22Source'),date=$('st22Date'),time=$('st22Time'),priority=$('st22Priority');
  const results=$('st22Results'),resultRenderer=w.SH9_SMART_TRIP_RESULT_V1072;
+ const multiGateway=w.SH9_SMART_TRIP_MULTIMODAL_RUNTIME_V1073;
+ const multiModel=w.SH9_SMART_TRIP_MULTIMODAL_V1073;
+ const externalTrip=$('st22ExternalTrip'),externalNote=$('st22ExternalNote');
  const resultView=resultRenderer?.mount?.(w,d);
  const geo=w.HH_SMART_HUB_FIELDS_V806,rail=w.SH9_MAV_GTFS_CORE_V1;
  const API='https://photon.komoot.io/api/';
@@ -248,14 +251,27 @@
    });
   });
  }
- function unavailable(message){
+ function resetExternal(){
+  if(externalTrip)externalTrip.hidden=true;
+  if(externalNote)externalNote.hidden=true;
+ }
+ function offerExternal(query){
+  if(!externalTrip||!multiModel?.mapsUrl||!query?.from||!query?.to)return;
+  const url=multiModel.mapsUrl(query,local);
+  if(!url)return;
+  externalTrip.hidden=false;
+  if(externalNote)externalNote.hidden=false;
+ }
+ function unavailable(message,allowExternal=true){
   if(results)results.hidden=false;
   list.replaceChildren();source.textContent='Adatforrás: ellenőrzés alatt';
   say(message);
+  resetExternal();
+  if(allowExternal)offerExternal(snapshot());
   focusResults();
  }
  async function searchTrip(event){
-  event.preventDefault();clearAll();resultView?.unlockSound?.();
+  event.preventDefault();clearAll();resultView?.unlockSound?.();resetExternal();
   const searchId=++searchCounter;
   if(results)results.hidden=false;
   const query=snapshot();
@@ -263,12 +279,22 @@
   if(fold(query.from)===fold(query.to)){unavailable('Az indulási és érkezési hely nem lehet azonos.');return}
   if(!/^\d{4}-\d{2}-\d{2}$/.test(query.date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(query.time)){
    unavailable('Kérlek, válassz érvényes dátumot és időpontot.');return}
-  unavailable('Ellenőrzöm a saját, helyben elérhető menetrendi adatokat…');
+  unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…',false);
+  const instant=whenInstant(query);
+  if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
+  // Paid native multimodal backend is OFF by default. It runs only after the
+  // explicit approval flags, family authorization and endpoint are configured.
+  if(multiGateway?.enabled?.()){
+   const unified=await multiGateway.search({...query,when:instant,priority:priority.value},local,resultRenderer);
+   if(searchId!==searchCounter)return;
+   if(unified.status==='ok'&&resultView?.open?.(unified.data)){
+    if(results)results.hidden=true;
+    return;
+   }
+  }
   const available=await loadRailData();
   if(searchId!==searchCounter)return;
   if(!available){unavailable('A saját Smart Trip kereső működik, de ezen a készüléken nincs ellenőrzött, privát MÁV-menetrend. Az útvonalhoz BKK/Volán adatok bekötése is szükséges. Nem mutatunk kitalált járatot.');return}
-  const instant=whenInstant(query);
-  if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
   const result=rail.route(available,{from:query.from,to:query.to,mode:query.mode,when:instant},{limit:60,maxTransfers:1,localOnly:true,ranking:'recommended'});
   if(result.status!=='ok'||!result.journeys?.length){
    unavailable(result.status==='station-not-in-feed'
@@ -288,7 +314,7 @@
    button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
    button.title=name+' · Profilváltás';
   }
-  if(clearFields){searchCounter++;resultView?.close?.();clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
+  if(clearFields){searchCounter++;resetExternal();resultView?.close?.();clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
  }
  function showFamilyMap(){
   clearAll();
@@ -343,6 +369,13 @@
  });
  d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place'))fields.forEach(close)});
  form.addEventListener('submit',searchTrip);
+ externalTrip?.addEventListener('click',()=>{
+  const url=multiModel?.mapsUrl?.(snapshot(),local);
+  if(!url){say('A teljes útvonalhoz válassz érvényes indulási helyet és célállomást.');return}
+  // Google Maps URL documents transit mode but not date/arrival constraints.
+  // Only a real user's click opens the third-party journey planner.
+  w.location.assign(url);
+ });
  $('st22Favorites')?.addEventListener('click',()=>{
   const field=!from.value.trim()?from:!to.value.trim()?to:from;
   field.focus();field.scrollIntoView?.({behavior:'smooth',block:'center'});
