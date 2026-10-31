@@ -25,6 +25,7 @@ function run({device=storage(),session=storage(),loaded=true,failed=false}={}){
  const events={};
  const sources={};
  const layers={'guardian-buildings-3d':{id:'guardian-buildings-3d'}};
+ if(loaded)layers['guardian-route-line']={id:'guardian-route-line'};
  const map={
   isStyleLoaded(){return loaded},
   once(t,fn){events[t]=fn},
@@ -34,7 +35,11 @@ function run({device=storage(),session=storage(),loaded=true,failed=false}={}){
   addLayer(v,before){layers[v.id]={...v,before}},
   setLayoutProperty(k,p,v){if(!layers[k])throw Error('Missing map layer');layers[k].layout??={};layers[k].layout[p]=v},
   getStyle(){return {layers:[{id:'guardian-buildings-3d',type:'fill-extrusion'}]}},
-  load(){loaded=true;events.load?.();delete events.load}
+  load({tilesStillLoading=false}={}){
+   if(!tilesStillLoading)loaded=true;
+   layers['guardian-route-line']={id:'guardian-route-line'};
+   handlers['hh-guardian-map-ready-v839']?.();
+  }
  };
  const nodes=new Map();
  function node(id){
@@ -86,22 +91,24 @@ test('without an existing key the normal 3D map stays untouched and no request i
  assert.equal(x.network,0);assert.equal(x.button.getAttribute('aria-pressed'),'false');
  assert.equal(x.layers[LAYER],undefined);assert.equal(x.dialogs,0);
 });
-test('explicitly disabled autostart respects the family member until manually enabled',async()=>{
+test('old stored OFF preference cannot prevent family default satellite on launch',async()=>{
  const device=storage({[KEY]:'ValidSavedKey_12345',[PREF]:'off'});
- const x=run({device});await flush();assert.equal(x.network,0);
- x.button.click();await flush();
- assert.equal(x.network,1);assert.equal(device.getItem(PREF),'on');
+ const x=run({device});await flush();
+ assert.equal(x.network,1);
  assert.equal(x.card.dataset.hhSatellite,'on');
+ assert.equal(device.getItem(PREF),'off','legacy preference is not silently altered');
 });
-test('manual off is remembered and a fresh opening remains ordinary 3D',async()=>{
+test('manual OFF stays off until reopening, when saved-key satellite auto-starts again',async()=>{
  const device=storage({[KEY]:'ValidSavedKey_12345'});
  const a=run({device});await flush();
  a.button.click();
  assert.equal(a.card.dataset.hhSatellite,'off');
  assert.equal(a.layers[LAYER].layout.visibility,'none');
- assert.equal(device.getItem(PREF),'off');
+ a.handlers.visibilitychange?.();await flush();
+ assert.equal(a.card.dataset.hhSatellite,'off','returning to tab must not undo manual OFF');
+ assert.equal(device.getItem(PREF),null,'manual OFF must not persist across page openings');
  const b=run({device});await flush();
- assert.equal(b.network,0);assert.equal(b.layers[LAYER],undefined);
+ assert.equal(b.network,1);assert.equal(b.card.dataset.hhSatellite,'on');
 });
 test('MapTiler rejection keeps 3D available; startup never raises an intrusive modal',async()=>{
  const x=run({device:storage({[KEY]:'InvalidSavedKey_12345'}),failed:true});
@@ -114,11 +121,18 @@ test('MapTiler rejection keeps 3D available; startup never raises an intrusive m
  x.button.click();await flush();
  assert.equal(x.dialogs,1,'manual tap can display the actionable error');
 });
-test('auto-enable waits for MapLibre style load, no polling or premature network fetch',async()=>{
+test('auto-enable waits for Guardian map-ready, no polling or premature network fetch',async()=>{
  const x=run({device:storage({[KEY]:'ValidSavedKey_12345'}),loaded:false});
  await flush();assert.equal(x.network,0);
  x.map.load();await flush();
  assert.equal(x.network,1);assert.equal(x.card.dataset.hhSatellite,'on');
+ assert.equal(x.dialogs,0);
+});
+test('map-ready fires while isStyleLoaded is false during extra tile loading',async()=>{
+ const x=run({device:storage({[KEY]:'ValidSavedKey_12345'}),loaded:false});
+ x.map.load({tilesStillLoading:true});await flush();
+ assert.equal(x.network,1,'Guardian ready even when MapLibre awaits more tiles');
+ assert.equal(x.button.getAttribute('aria-pressed'),'true');
  assert.equal(x.dialogs,0);
 });
 test('only a structurally valid saved key can autostart satellite',async()=>{
@@ -126,9 +140,11 @@ test('only a structurally valid saved key can autostart satellite',async()=>{
  assert.equal(x.network,0);assert.equal(x.dialogs,0);
 });
 test('satellite remains an optional UI-only overlay; no GPS, interval or new consent path',()=>{
- assert.match(html,/guardian-satellite-v1033\.js\?v=1048-auto-3d-satellite/);
+ assert.match(html,/guardian-satellite-v1033\.js\?v=1049-satellite-on-launch/);
  assert.match(script,/autoEnable\(\)/);
  assert.match(script,/hh-guardian-map-ready-v839/);
- assert.match(script,/autoDisabled\(\)/);
+ assert.match(script,/manualOff/);
+ assert.match(script,/guardian-route-line/);
+ assert.doesNotMatch(script,/m\.on\('load',finish\)/);
  assert.doesNotMatch(script,/navigator\.geolocation|watchPosition|setInterval\(|setTimeout\(|map\.setStyle\s*\(/);
 });
