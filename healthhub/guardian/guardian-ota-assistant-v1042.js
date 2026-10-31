@@ -78,6 +78,19 @@
    if(generation!==epoch||p!==owner()||!authorized())return;
    if(device?.schema!=='healthhub.orchestrator.device/1'||device.deviceType!=='android'||
      device.deviceId!==id||device.activeProfile!==p)throw Error('A telefon és tulajdonosi profil nem egyezik.');
+   // v1053 preview: pass along ONLY sanitized, already verified device state.
+   // No new Dropbox/Supabase read, no extra polling, no device ID or tokens.
+   if(d.documentElement?.dataset?.hhDevicePackPreview==='on'&&
+      typeof w.CustomEvent==='function'&&typeof w.dispatchEvent==='function'){
+    const net=device.networkStatus&&typeof device.networkStatus==='object'?device.networkStatus:{};
+    const transport=['wifi','mobile','ethernet'].includes(net.transport)?net.transport:'unknown';
+    w.dispatchEvent(new w.CustomEvent('hh-guardian-device-evidence-v1053',{detail:{
+     profile:p,lastSeenAt:device.lastSeenAt,
+     verifiedAt:new Date().toISOString(),
+     networkStatus:{transport:transport,
+       internetValidated:typeof net.internetValidated==='boolean'?net.internetValidated:null}
+    }}));
+   }
    const installed=Number(device.buildCode);
    const lastSeen=Date.parse(device.lastSeenAt||'');
    if(!Number.isFinite(lastSeen)||lastSeen>Date.now()+5000||Date.now()-lastSeen>20*60000){
