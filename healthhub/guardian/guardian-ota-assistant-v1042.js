@@ -1,7 +1,7 @@
 /* Family Guard · HH One owner-controlled OTA assistant v1042.
  * No background downloads or installation. Reads one signed-release manifest
- * and 2 private device-registry files on demand, max once per six hours unless
- * the family admin explicitly presses "Ellenőrzés".
+ * and 2 private device-registry files only on page entry / return, with a
+ * bounded five-minute cooldown unless the admin presses "Ellenőrzés".
  */
 (function(w,d){
  'use strict';
@@ -12,7 +12,7 @@
  if(!notice||!action||!check||!feedback)return;
  const REG='/HealthHub/orchestrator/device-registry-v401.json';
  const PREFIX='/HealthHub/orchestrator/devices/';
- const CACHE_MS=6*3600000;
+ const CACHE_MS=5*60000; // foreground-only state freshness; no background polling
  const TOKEN='hh-dropbox-token-v2',APP='t68rmhh5f1l8d85';
  const OTA='../data/bridge-ota.json';
  let busy=false,lastRead=0,epoch=0;
