@@ -88,7 +88,9 @@
      profile:p,lastSeenAt:device.lastSeenAt,
      verifiedAt:new Date().toISOString(),
      networkStatus:{transport:transport,
-       internetValidated:typeof net.internetValidated==='boolean'?net.internetValidated:null}
+       internetValidated:typeof net.internetValidated==='boolean'?net.internetValidated:null},
+     // Native HH One reports only the radio on/off flag; no paired-device data.
+     bluetoothEnabled:typeof device.bluetoothEnabled==='boolean'?device.bluetoothEnabled:null
     }}));
    }
    const installed=Number(device.buildCode);
