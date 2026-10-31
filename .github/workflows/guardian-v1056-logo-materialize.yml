@@ -37,7 +37,7 @@ jobs:
           missing=declared-len(b)
           assert 0<=missing<=3, 'Logo has unexpected structural damage'
           if missing:
-              p.write_bytes(b+b'\\x00'*missing)
+              p.write_bytes(b+bytes(missing))
           PY
           python -m pip -q install pillow
           python - <<'PY'
