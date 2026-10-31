@@ -170,6 +170,11 @@
   slots[i]={label:clean,place};
   if(!p.setSlots(slots))throw Error('Nem sikerült menteni.');
   const synced=await p.sync(true);
+  // The family favorites module may already be synchronizing. One bounded
+  // retry makes an overlapping in-flight save flush without introducing polling.
+  if(!synced)w.setTimeout?.(()=>{
+   if(!d.hidden)void p.sync(true).catch(()=>{});
+  },5000);
   previous.delete(last.profile+':'+i);
   bubble(last);
   return {name:clean,synced};
@@ -222,6 +227,16 @@
   slotSignature=newSignature;previous.clear();if(last)bubble(last);
  });
  w.addEventListener?.('storage',e=>{if(e.key==='hh-family-favorite-places-v972'&&last){previous.clear();bubble(last)}});
+ let lastForegroundRead=0;
+ function foregroundSync(){
+  if(d.hidden||Date.now()-lastForegroundRead<5*60*1000)return;
+  lastForegroundRead=Date.now();
+  const shared=pool();
+  if(shared?.sync)void shared.sync(true).catch(()=>{});
+ }
+ w.addEventListener?.('pageshow',foregroundSync);
+ w.addEventListener?.('focus',foregroundSync);
+ d.addEventListener?.('visibilitychange',()=>{if(!d.hidden)foregroundSync()});
  w.addEventListener?.('pagehide',()=>{previous.clear()});
  // A selected-portrait paint drives this module. No extra sensor or polling.
  w.HH_GUARDIAN_SMART_PLACES_V1068=Object.freeze({onFix:putFix,encode,decode,distance,places,
