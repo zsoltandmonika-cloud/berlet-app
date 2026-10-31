@@ -198,19 +198,27 @@
   finally{busy=false;$('mtFileInput').disabled=false;$('mtFileInput').value=''}
  }
  async function openFile(file){
-  // Open the tab synchronously inside the click to avoid Samsung browser popup blocking.
-  const tab=w.open('about:blank','_blank');
+  const isPdf=file.file_type==='application/pdf';
+  // PDF in the SH9 fullscreen reader; non-PDF e-tickets use the established image flow.
+  // New tabs for images must be opened synchronously inside the user click.
+  const tab=isPdf?null:w.open('about:blank','_blank');
   try{
-   status('Jegy letöltése…');
+   status('Privát jegy letöltése…');
    const c=await authorized();
    const {data,error}=await c.storage.from(BUCKET).download(file.storage_path);
    if(error||!data)throw Error(error?.message||'Nem sikerült megnyitni.');
-   const url=w.URL.createObjectURL(data);
-   blobUrls.push(url);
-   if(tab)tab.location.href=url;
-   else{
-    const a=node('a','',null,d.body);
-    a.href=url;a.download=file.file_name;a.click();a.remove();
+   if(isPdf){
+    const reader=w.SH9_TRIP_PDF_VIEWER_V1087;
+    if(!reader?.open)throw Error('A belső PDF-olvasó nincs betöltve.');
+    await reader.open(data,file.file_name);
+   }else{
+    const url=w.URL.createObjectURL(data);
+    blobUrls.push(url);
+    if(tab)tab.location.href=url;
+    else{
+     const a=node('a','',null,d.body);
+     a.href=url;a.download=file.file_name;a.click();a.remove();
+    }
    }
    status('✓ Jegy megnyitva · '+file.file_name);
   }catch(e){if(tab)tab.close();status('⚠️ '+(e.message||'Nem sikerült megnyitni'))}
