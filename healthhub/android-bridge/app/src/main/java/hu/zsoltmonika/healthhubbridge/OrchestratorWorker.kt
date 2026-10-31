@@ -421,13 +421,29 @@ class OrchestratorWorker(
             }
 
             prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
+            // A queued recovery is NOT a failure and NOT verified success. Keep
+            // the backward-compatible "partial" protocol state, but tell the
+            // family member what actually happened rather than showing an error.
+            val pendingSteps = (0 until steps.length()).count {
+                steps.optJSONObject(it)?.optString("status") == "queued"
+            }
+            val omittedSteps = (0 until steps.length()).count {
+                steps.optJSONObject(it)?.optString("status") == "skipped"
+            }
             val finalState = if (failed == 0 && skipped == 0) "done" else "partial"
+            val finalMessage = when {
+                failed > 0 ->
+                    "$failed művelet sikertelen vagy elutasított. A részletes lépésállapot és a friss telefonjelentés ellenőrizendő."
+                pendingSteps > 0 && omittedSteps > 0 ->
+                    "$pendingSteps művelet elindítva vagy jóváhagyásra vár, $omittedSteps művelet kihagyva. Ez még nem igazolt siker."
+                pendingSteps > 0 ->
+                    "$pendingSteps művelet elindítva vagy jóváhagyásra vár. A végrehajtást friss telefonjelentéssel kell igazolni."
+                omittedSteps > 0 ->
+                    "$omittedSteps művelet kihagyva vagy nem támogatott; a többi befejeződött."
+                else -> "A kért műveletek ténylegesen befejeződtek."
+            }
             writeStatus(
-                prefs, id, cmd, finalState, steps,
-                if (finalState == "done") "A kért műveletek ténylegesen befejeződtek."
-                else if (requestedScopes.any { it in setOf("gps_stop", "gps_resume_request", "sos_contact_request") })
-                    "Vészhelyzeti parancs feldolgozva. KÉRÉS vagy értesítés, nem megerősített követés/hívás."
-                else "Egy vagy több művelet sikertelen vagy nem támogatott.",
+                prefs, id, cmd, finalState, steps, finalMessage,
                 startedAt, technicalSnapshot
             )
             uploadHeartbeat(prefs, id, owner)
