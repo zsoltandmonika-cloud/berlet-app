@@ -107,3 +107,15 @@ test('SH9 startpage shows honest auto-check green/amber OTA lamp, not GPS health
  assert.doesNotMatch(js,/navigator\.geolocation|setInterval\(|downloadVerified\(/);
  assert.doesNotMatch(js,/GPS.*online/);
 });
+
+test('remote repair that is merely queued is not falsely reported as a failure or confirmed success',()=>{
+ const worker=get(dir+'OrchestratorWorker.kt');
+ assert.match(worker,/val pendingSteps = \(0 until steps\.length\(\)\)\.count/);
+ assert.match(worker,/val omittedSteps = \(0 until steps\.length\(\)\)\.count/);
+ assert.match(worker,/pendingSteps > 0/);
+ assert.match(worker,/elindítva vagy jóváhagyásra vár/);
+ assert.match(worker,/friss telefonjelentéssel kell igazolni/);
+ assert.match(worker,/failed > 0/);
+ assert.match(worker,/val finalState = if \(failed == 0 && skipped == 0\) "done" else "partial"/);
+ assert.doesNotMatch(worker,/Egy vagy több művelet sikertelen vagy nem támogatott\./);
+});
