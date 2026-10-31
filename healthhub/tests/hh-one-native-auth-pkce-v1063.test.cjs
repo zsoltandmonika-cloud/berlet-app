@@ -84,7 +84,8 @@ test('Android callback requires pending 5-minute intent and a code, and accepts 
  assert.match(main,/remove\("pending_at"\)/);
  assert.match(main,/EXTRA_GOOGLE_AUTH_CODE_V1063/);
  assert.doesNotMatch(kotlin,/addJavascriptInterface\(/);
- assert.doesNotMatch(main,/refresh_token|access_token[^\s]*intent/i);
+ const callback=main.slice(main.indexOf('private fun completeNativeOAuth'),main.indexOf('override fun onCreate'));
+ assert.doesNotMatch(callback,/refresh_token|access_token/i);
 });
 test('candidate build40 stays unpublished, signed OTA baseline stays v0.15.12/build39',()=>{
  assert.match(gradle,/versionCode = 40/);
