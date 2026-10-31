@@ -337,3 +337,87 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
  .mt-heading{padding:11px 6px 9px}
  .mt-heading-copy h1{font-size:21px}
 }
+
+
+/* SH9 v1086: keep one saved trip card in S24 Ultra viewport with the bottom taskbar;
+   no reduction to tap target size. Better visible title, top-right attachment action. */
+.mt-hero{height:clamp(225px,61vw,270px);aspect-ratio:auto}
+.mt-hero>img{object-position:center 46%}
+.mt-heading{padding-top:9px;padding-bottom:8px}
+.mt-heading-copy h1{font-size:21px}
+.mt-quick{margin-top:6px}
+.mt-quick .mt-action{height:46px;min-height:46px;max-height:46px}
+.mt-quick .mt-action span{font-size:16px}
+.mt-overline{margin-top:10px;margin-bottom:7px}
+.mt-trip-compact{padding:10px 11px 10px;border-radius:14px}
+.mt-trip-compact .mt-trip-top{align-items:center;gap:7px}
+.mt-trip-compact .mt-trip-title{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.mt-trip-compact .mt-trip-title strong{font-size:12px;line-height:1.25;font-weight:870}
+.mt-trip-compact .mt-trip-date{margin:0;font-size:9px}
+.mt-trip-tickets{
+ flex:none;min-width:104px;max-width:115px;
+ padding:8px 7px;min-height:42px;
+ border:1px solid var(--mt-border);border-radius:11px;
+ background:linear-gradient(135deg,var(--mt-action-a),var(--mt-action-b));
+ box-shadow:inset 0 1px rgba(255,255,255,.24);
+ color:#fff;font-size:10px;line-height:1.25;font-weight:870;
+}
+.mt-trip-compact .mt-trip-route{font-size:10.5px;margin-top:6px;line-height:1.32}
+.mt-trip-compact .mt-trip-info{margin-top:7px;gap:5px}
+.mt-trip-compact .mt-trip-info span{padding:6px 3px;font-size:10px}
+.mt-trip-compact .mt-trip-actions{margin-top:7px}
+.mt-trip-compact .mt-trip-actions a{min-height:39px;padding:7px;font-size:11px}
+.mt-sync-status{
+ margin:11px 2px;padding:8px 9px;border-radius:9px;
+ color:#d5e6fc;border:1px solid rgba(159,207,242,.31);
+ background:rgba(25,47,86,.45);font-size:10px;line-height:1.5;
+}
+.mt-files-dialog{
+ box-sizing:border-box;
+ position:fixed;inset:auto 0 0;
+ margin:auto auto 0;width:min(100%,440px);
+ height:min(87dvh,740px);max-height:87dvh;
+ padding:14px 13px calc(17px + env(safe-area-inset-bottom,0px));
+ border:1px solid var(--mt-border);border-radius:20px 20px 0 0;
+ color:var(--mt-ink);background:linear-gradient(140deg,#302043,#152a4d 60%,#13223c);
+ box-shadow:0 -15px 45px #000a;
+ overflow-y:auto;overscroll-behavior:contain;
+}
+:root[data-mt-profile="m"] .mt-files-dialog{background:linear-gradient(140deg,#4b295d,#322049 60%,#201f42)}
+.mt-files-dialog::backdrop{background:rgba(0,5,20,.76);backdrop-filter:blur(5px)}
+.mt-files-head{display:flex;align-items:start;justify-content:space-between;gap:10px}
+.mt-files-head small{font-size:10px;color:var(--mt-accent);font-weight:850}
+.mt-files-head h2{font-size:19px;line-height:1.25;margin:5px 0 4px}
+.mt-files-head p{margin:0;color:#d8cde7;font-size:11px;overflow-wrap:anywhere}
+#mtFilesClose{border:1px solid var(--mt-border);border-radius:11px;background:rgba(88,72,117,.65);font-size:18px;min-width:41px;min-height:41px}
+.mt-files-count{display:flex;justify-content:space-between;align-items:center;margin:18px 0 12px;gap:6px}
+.mt-files-count strong{color:var(--mt-accent);font-size:12px}
+.mt-files-count button{min-height:38px;border:1px solid var(--mt-border);border-radius:9px;padding:7px 12px;background:rgba(88,82,151,.47);font-size:11px}
+.mt-files-list{display:flex;flex-direction:column;gap:7px}
+.mt-file-row{display:flex;align-items:center;gap:7px;padding:10px 9px;border:1px solid var(--mt-border);border-radius:12px;background:rgba(76,91,142,.40)}
+.mt-file-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.mt-file-info strong{font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.mt-file-info small{font-size:9px;color:#c9d7f1}
+.mt-file-row button{min-height:38px;border:1px solid var(--mt-border);border-radius:9px;font-size:10px;font-weight:800;padding:5px 8px}
+.mt-file-open{background:linear-gradient(115deg,var(--mt-action-a),var(--mt-action-b))}
+.mt-file-remove{background:rgba(82,51,81,.55)}
+.mt-file-empty{font-size:12px;color:#e1d5ee;text-align:center;padding:20px 9px}
+.mt-files-upload{
+ margin-top:14px;position:relative;display:flex;flex-direction:column;gap:4px;
+ align-items:center;justify-content:center;min-height:90px;padding:10px;
+ text-align:center;border:1px dashed var(--mt-border);border-radius:14px;
+ color:#fff;background:linear-gradient(125deg,var(--mt-action-a),var(--mt-action-b));
+ cursor:pointer;
+}
+.mt-files-upload span{font-size:12px;font-weight:870}
+.mt-files-upload small{font-size:10px;color:#edf3ff}
+.mt-files-upload input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.mt-files-upload:focus-within{outline:3px solid var(--mt-accent);outline-offset:3px}
+.mt-files-status{color:#d7def3;font-size:11px;margin-top:11px;line-height:1.45}
+@media(max-width:360px){
+ .mt-hero{height:clamp(213px,62vw,247px);aspect-ratio:auto}
+ .mt-quick .mt-action{height:43px;min-height:43px;max-height:43px}
+ .mt-trip-tickets{min-width:95px;max-width:102px;font-size:9px}
+ .mt-file-row{gap:4px;padding:8px 6px}
+ .mt-file-row button{padding:5px}
+}

@@ -220,36 +220,13 @@
     }
    }
    const footer=node('div','st22-tp-viewer-footer',null,body);
-   node('button','','← My Trips',footer).addEventListener('click',showSaved);
+   node('button','','← My Trips',footer).addEventListener('click',openMyTrips);
    if(!viewer.open)viewer.showModal();
   }
-  function showSaved(){
-   body.replaceChildren();body.scrollTop=0;
-   const h=node('header','st22-tp-head st22-tp-list-head',null,body);
-   node('div','st22-tp-eyebrow','✦ SH9 · SMART TRAVEL',h);
-   node('h2','','💾 My Trips',h);
-   node('p','','Mentett teljes útitervek · '+(active()==='m'?'Mónika':'Zsolt')+' profil',h);
-   const items=read(w.localStorage,active());
-   if(!items.length)node('p','st22-tp-note','Még nincs mentett teljes útiterv ezen a készüléken. A Smart Trip AI-ban importált JSON itt is megjelenik.',body);
-   for(const trip of items){
-    const row=node('article','st22-tp-saved',null,body);
-    const upper=node('div','st22-tp-saved-top',null,row);
-    node('strong','',trip.title,upper);
-    node('span','st22-tp-saved-status',progressLabel(trip,active()),upper);
-    node('small','',trip.travelDate+' · '+trip.from+' → '+trip.to,row);
-    const m=metrics(trip);
-    node('small','st22-tp-saved-meta',
-     '🕓 '+when(trip.departure)+' → '+when(trip.arrival)+' · '+m.duration+' · '+m.transfers+' átszállás',row);
-    const actions=node('div','st22-tp-actions',null,row);
-    node('button','','Teljes képernyős megnyitás',actions).addEventListener('click',()=>show(trip));
-    node('button','','Törlés',actions).addEventListener('click',()=>{
-     if(remove(w.localStorage,active(),trip.id)){
-      try{w.localStorage.removeItem(progressKey(active(),trip.id))}catch(_){}
-      showSaved();
-     }
-    });
-   }
-   if(!viewer.open)viewer.showModal();
+  // Single source of truth for saved trips: the dedicated SH9 My Trips page.
+  function openMyTrips(){
+   close(viewer);
+   w.location.assign(new URL('../../my-trips/',w.location.href).href);
   }
   function doImport(data){
    try{const item=save(w.localStorage,active(),data);
@@ -260,7 +237,7 @@
    say('Válassz .json fájlt vagy illeszd be a TripPack JSON-t.');
    pasted.value='';file.value='';if(!importer.open)importer.showModal();
   });
-  $('st22TripPackSaved')?.addEventListener('click',showSaved);
+  $('st22TripPackSaved')?.addEventListener('click',openMyTrips);
   $('st22TripPackImportClose')?.addEventListener('click',()=>close(importer));
   $('st22TripPackClose')?.addEventListener('click',()=>close(viewer));
   $('st22TripPackDoImport')?.addEventListener('click',()=>doImport(pasted.value));
@@ -281,8 +258,8 @@
    const params=new URL(w.location.href).searchParams;
    if(params.has('trip')){
     const selected=read(w.localStorage,active()).find(t=>t.id===params.get('trip'));
-    if(selected)show(selected);else showSaved();
-   }else if(params.get('view')==='my-trips')showSaved();
+    if(selected)show(selected);else openMyTrips();
+   }else if(params.get('view')==='my-trips')openMyTrips();
    else if(w.location.hash==='#import'){
     say('Válassz .json fájlt vagy illeszd be a TripPack JSON-t.');
     if(!importer.open)importer.showModal();

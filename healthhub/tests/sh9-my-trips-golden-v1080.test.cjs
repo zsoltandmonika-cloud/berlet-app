@@ -110,8 +110,8 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
- assert.match(page,/my-trips-v1080\.css\?v=1085-golden-profile-compact/);
- assert.match(page,/my-trips-v1080\.js\?v=1085-profile-avatar-golden/);
+ assert.match(page,/my-trips-v1080\.css\?v=1086-compact-cloud-tickets/);
+ assert.match(page,/my-trips-v1080\.js\?v=1086-compact-ticket-cards/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -153,4 +153,48 @@ test('v1085 matches canonical SH9 hero controls, no upper-right Back and uses ge
  assert.match(pageJs,/w\.addEventListener\('storage',e=>/);
  assert.match(pageJs,/pack\.read\(w\.localStorage,p\)/);
  assert.match(pageJs,/url\.searchParams\.set\('trip',trip\.id\)/);
+});
+
+test('v1086 one canonical My Trips screen with per-trip multi-ticket private sync',()=>{
+ const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ const sql=read('supabase/migrations/20261031200000_sh9_my_trips_private_cloud_tickets.sql');
+ assert.match(pack,/function openMyTrips\(\)/);
+ assert.match(pack,/w\.location\.assign\(new URL\('\.\.\/\.\.\/my-trips\/',w\.location\.href\)\.href\)/);
+ assert.match(pack,/\$\('st22TripPackSaved'\)\?\.addEventListener\('click',openMyTrips\)/);
+ assert.doesNotMatch(pack,/function showSaved\(/);
+ assert.match(pack,/if\(selected\)show\(selected\);else openMyTrips\(\)/);
+ assert.match(page,/id="mtFilesDialog"/);
+ assert.match(page,/type="file" multiple accept=/);
+ assert.match(page,/mtFileInput/);
+ assert.match(page,/mtSyncStatus/);
+ assert.match(page,/my-trips-cloud-v1086\.js/);
+ assert.match(page,/supabase\.min\.js/);
+ assert.match(pageJs,/Jegyek · csatolmányok/);
+ assert.match(pageJs,/sh9-my-trips-open-files/);
+ assert.match(pageJs,/sh9-my-trips-cloud-sync-request/);
+ assert.match(pageCss,/\.mt-trip-compact/);
+ assert.match(pageCss,/\.mt-trip-tickets/);
+ assert.match(pageCss,/\.mt-files-dialog/);
+ assert.match(cloud,/HH_CENTRAL_VAULT/);
+ assert.match(cloud,/hh-guardian-family-auth-v785/);
+ assert.match(cloud,/client\(\)/);
+ assert.match(cloud,/auth\.getSession\(\)/);
+ assert.match(cloud,/profile_key:key,trip_id:t\.id,trip_data:t/);
+ assert.match(cloud,/remoteFingerprints\.get\(fingerprint\(t\)\)/);
+ assert.match(cloud,/hh-my-trip-tickets/);
+ assert.match(cloud,/upsert:false/);
+ assert.match(cloud,/MAX_COUNT=12,MAX_BYTES=15e6,MAX_TOTAL=75e6/);
+ assert.match(cloud,/await c\.storage\.from\(BUCKET\)\.download\(file\.storage_path\)/);
+ assert.doesNotMatch(cloud,/getPublicUrl|createSignedUrl|service_role|sk-proj/);
+ assert.doesNotMatch(cloud,/setInterval\(|navigator\.geolocation/);
+ assert.match(sql,/create table if not exists public\.hh_my_trip_packs/);
+ assert.match(sql,/create table if not exists public\.hh_my_trip_attachments/);
+ assert.match(sql,/alter table public\.hh_my_trip_packs enable row level security/);
+ assert.match(sql,/alter table public\.hh_my_trip_attachments enable row level security/);
+ assert.match(sql,/hh_profile_access/);
+ assert.match(sql,/storage\.buckets\(id,name,public,file_size_limit,allowed_mime_types\)/);
+ assert.match(sql,/hh-my-trip-tickets.*false,15000000/);
+ assert.match(sql,/hh_trip_ticket_storage_select/);
+ assert.match(sql,/hh_trip_ticket_storage_insert/);
+ assert.match(sql,/hh_trip_ticket_storage_delete/);
 });

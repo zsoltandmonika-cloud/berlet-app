@@ -58,24 +58,31 @@
    return;
   }
   for(const trip of items){
-   const card=node('article','mt-trip',null,root);
+   const card=node('article','mt-trip mt-trip-compact',null,root);
    const header=node('div','mt-trip-top',null,card);
-   node('strong','',trip.title,header);
-   node('span','mt-trip-badge',phase(trip,p),header);
-   node('div','mt-trip-date',trip.travelDate,card);
+   const title=node('div','mt-trip-title',null,header);
+   node('strong','',trip.title,title);
+   node('span','mt-trip-date',trip.travelDate,title);
+   const tickets=node('button','mt-trip-tickets','🎟️ Jegyek · csatolmányok',header);
+   tickets.type='button';
+   tickets.title='Ehhez az utazáshoz tartozó menetjegyek és PDF-ek';
+   tickets.setAttribute('aria-label',trip.title+' · Jegyek és csatolmányok megnyitása');
+   tickets.addEventListener('click',()=>w.dispatchEvent(new CustomEvent('sh9-my-trips-open-files',{
+    detail:{p,trip}
+   })));
    node('div','mt-trip-route',trip.from+' → '+trip.to,card);
    const bar=node('div','mt-trip-info',null,card),m=stats(trip);
    node('span','','⏱ '+(trip.departure||'—'),bar);
    node('span','','🏁 '+(trip.arrival||'—'),bar);
    node('span','','⇄ '+m.transfers+' átsz.',bar);
    const actions=node('div','mt-trip-actions',null,card);
-   const go=node('a','','Teljes képernyős útiterv',actions);
+   const go=node('a','','Útiterv megnyitása',actions);
    const url=new URL('../public-transport/smart-trip/',d.baseURI);
    url.searchParams.set('trip',trip.id);
    go.href=url.href;
   }
  }
- $('mtReload')?.addEventListener('click',render);
+ $('mtReload')?.addEventListener('click',()=>{render();w.dispatchEvent(new CustomEvent('sh9-my-trips-cloud-sync-request',{detail:{p:active()}}))});
  $('mtProfile')?.addEventListener('click',()=>{
   const next=active()==='m'?'z':'m';
   try{
@@ -87,10 +94,12 @@
    return;
   }
   render();
+  w.dispatchEvent(new CustomEvent('sh9-my-trips-cloud-sync-request',{detail:{p:next}}));
   try{w.dispatchEvent(new CustomEvent('healthhub:profile-changed',{
    detail:{code:next,profile:next==='m'?'monika':'zsolt',name:next==='m'?'Mónika':'Zsolt',source:'sh9-my-trips'}
   }))}catch(_){}
  });
+ w.addEventListener('sh9-my-trips-cloud-synced',render);
  w.addEventListener('pageshow',render);
  w.addEventListener('storage',e=>{
   if(!e.key||e.key==='hh-profile'||e.key.startsWith('sh9-smart-trip-pack-v1078-'))render();
