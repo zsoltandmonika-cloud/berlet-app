@@ -1,0 +1,35 @@
+name: Family Guard unified device pack v1053 preview QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-preview-v1053.css'
+      - 'healthhub/guardian/guardian-device-pack-preview-v1053.js'
+      - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
+      - 'healthhub/tests/guardian-device-pack-v1053.test.cjs'
+      - '.github/workflows/guardian-device-pack-preview-v1053-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/guardian-device-pack-preview-v1053.css'
+      - 'healthhub/guardian/guardian-device-pack-preview-v1053.js'
+      - 'healthhub/guardian/guardian-ota-assistant-v1042.js'
+      - 'healthhub/tests/guardian-device-pack-v1053.test.cjs'
+      - '.github/workflows/guardian-device-pack-preview-v1053-qa.yml'
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source syntax
+        run: |
+          node --check healthhub/guardian/guardian-device-pack-preview-v1053.js
+          node --check healthhub/guardian/guardian-ota-assistant-v1042.js
+      - name: Validate 8-icon preview only, truthfulness and Golden Standard isolation
+        run: node --test healthhub/tests/guardian-device-pack-v1053.test.cjs
