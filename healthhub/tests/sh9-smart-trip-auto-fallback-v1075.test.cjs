@@ -39,16 +39,17 @@ test('no embarrassing Google button or separate next-click CTA survives in Smart
  assert.doesNotMatch(html,/id="st22ExternalTrip"|id="st22ExternalNote"/);
  assert.doesNotMatch(js,/externalTrip\?\.addEventListener|offerExternal\(/);
  assert.match(html,/id="st22SearchMethod"/);
- assert.match(html,/value="auto"[^>]*>✨ Léna/);
+ assert.match(html,/value="chatgpt"[^>]*>✨ Léna · ChatGPT/);
+ assert.match(html,/value="google"/);
  assert.match(html,/value="native"/);
- assert.match(html,/value="external"/);
- assert.match(js,/if\(searchMethod\(\)==='external'\)\{handoff\(query\);return\}/);
+ assert.match(js,/if\(method==='chatgpt'\)\{chatgptHandoff\(query\);return\}/);
+ assert.match(js,/if\(method==='google'\)\{googleHandoff\(query\);return\}/);
  assert.match(js,/noVerifiedRoute\(/);
- assert.match(js,/if\(searchMethod\(\)!=='native'&&handoff\(query\)\)return/);
+ assert.doesNotMatch(js,/if\(searchMethod\(\)!=='native'&&handoff\(query\)\)return/);
 });
 test('default search method is per profile, editable, restored after profile switch',()=>{
- assert.match(js,/METHOD_KEY='sh9-smart-trip-search-method-v1075-'/);
- assert.match(js,/const allowedMethods=new Set\(\['auto','native','external'\]\)/);
+ assert.match(js,/METHOD_KEY='sh9-smart-trip-search-method-v1076-'/);
+ assert.match(js,/const allowedMethods=new Set\(\['chatgpt','google','native'\]\)/);
  assert.match(js,/w\.localStorage\.setItem\(METHOD_KEY\+profile\(\),choice\)/);
  assert.match(js,/const saved=w\.localStorage\.getItem\(METHOD_KEY\+p\)/);
  assert.match(js,/restoreMethod\(\);\s*if\(clearFields\)/);
