@@ -12,7 +12,8 @@
  const results=$('st22Results'),resultRenderer=w.SH9_SMART_TRIP_RESULT_V1072;
  const multiGateway=w.SH9_SMART_TRIP_MULTIMODAL_RUNTIME_V1073;
  const multiModel=w.SH9_SMART_TRIP_MULTIMODAL_V1073;
- const externalTrip=$('st22ExternalTrip'),externalNote=$('st22ExternalNote');
+ const autoFallback=w.SH9_SMART_TRIP_AUTO_FALLBACK_V1075;
+ const methodSelect=$('st22SearchMethod');
  const resultView=resultRenderer?.mount?.(w,d);
  const geo=w.HH_SMART_HUB_FIELDS_V806,rail=w.SH9_MAV_GTFS_CORE_V1;
  const API='https://photon.komoot.io/api/';
@@ -239,8 +240,9 @@
    return;
   }
   source.textContent=prepared.source.name+' · helyi menetrend · nem élő';
-  if(resultView?.open?.(prepared)){if(results)results.hidden=true;return}
+  if(resultView?.open?.(prepared)){if(results)results.hidden=true;return true}
   unavailable('A teljes képernyős eredménynézet ezen a készüléken nem érhető el.');
+  return false;
  }
  function focusResults(){
   if(!results||results.hidden)return;
@@ -251,27 +253,36 @@
    });
   });
  }
- function resetExternal(){
-  if(externalTrip)externalTrip.hidden=true;
-  if(externalNote)externalNote.hidden=true;
+ const METHOD_KEY='sh9-smart-trip-search-method-v1075-';
+ const allowedMethods=new Set(['auto','native','external']);
+ function searchMethod(){
+  return allowedMethods.has(methodSelect?.value)?methodSelect.value:'auto';
  }
- function offerExternal(query){
-  if(!externalTrip||!multiModel?.mapsUrl||!query?.from||!query?.to)return;
-  const url=multiModel.mapsUrl(query,local);
-  if(!url)return;
-  externalTrip.hidden=false;
-  if(externalNote)externalNote.hidden=false;
+ function restoreMethod(){
+  if(!methodSelect)return;
+  const p=profile();
+  try{
+   const saved=w.localStorage.getItem(METHOD_KEY+p);
+   methodSelect.value=allowedMethods.has(saved)?saved:'auto';
+  }catch(_){methodSelect.value='auto'}
  }
- function unavailable(message,allowExternal=true){
+ function handoff(query){
+  if(autoFallback?.go?.(multiModel,query,local,w.location))return true;
+  unavailable('A külső útvonaltervező nem nyitható meg. Ellenőrizd a kiválasztott címeket.');
+  return false;
+ }
+ function noVerifiedRoute(message,query){
+  if(searchMethod()!=='native'&&handoff(query))return;
+  unavailable(message);
+ }
+ function unavailable(message){
   if(results)results.hidden=false;
   list.replaceChildren();source.textContent='Adatforrás: ellenőrzés alatt';
   say(message);
-  resetExternal();
-  if(allowExternal)offerExternal(snapshot());
   focusResults();
  }
  async function searchTrip(event){
-  event.preventDefault();clearAll();resultView?.unlockSound?.();resetExternal();
+  event.preventDefault();clearAll();resultView?.unlockSound?.();
   const searchId=++searchCounter;
   if(results)results.hidden=false;
   const query=snapshot();
@@ -279,9 +290,10 @@
   if(fold(query.from)===fold(query.to)){unavailable('Az indulási és érkezési hely nem lehet azonos.');return}
   if(!/^\d{4}-\d{2}-\d{2}$/.test(query.date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(query.time)){
    unavailable('Kérlek, válassz érvényes dátumot és időpontot.');return}
-  unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…',false);
+  unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…');
   const instant=whenInstant(query);
   if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
+  if(searchMethod()==='external'){handoff(query);return}
   // Paid native multimodal backend is OFF by default. It runs only after the
   // explicit approval flags, family authorization and endpoint are configured.
   if(multiGateway?.enabled?.()){
@@ -294,14 +306,15 @@
   }
   const available=await loadRailData();
   if(searchId!==searchCounter)return;
-  if(!available){unavailable('A saját Smart Trip kereső működik, de ezen a készüléken nincs ellenőrzött, privát MÁV-menetrend. Az útvonalhoz BKK/Volán adatok bekötése is szükséges. Nem mutatunk kitalált járatot.');return}
+  if(!available){noVerifiedRoute('Ezen a készüléken nincs ellenőrzött saját útvonaladat. A kizárólag SH9 keresés nem tud találatot adni.',query);return}
   const result=rail.route(available,{from:query.from,to:query.to,mode:query.mode,when:instant},{limit:60,maxTransfers:1,localOnly:true,ranking:'recommended'});
   if(result.status!=='ok'||!result.journeys?.length){
-   unavailable(result.status==='station-not-in-feed'
-    ?'Az adott cím vagy megálló nem azonosítható egyértelműen a helyi MÁV-menetrendben. Válassz a prediktív vasútállomás-listából, vagy használd a Family Guard térképet.'
-    :'A kiválasztott időben nincs ellenőrzött vasúti találat az elérhető helyi menetrendben.');return
+   noVerifiedRoute(result.status==='station-not-in-feed'
+    ?'A helyi MÁV-menetrend nem ismeri fel a címeket állomásként.'
+    :'A kiválasztott időben nincs ellenőrzött helyi vasúti találat.',query);return
   }
-  renderJourneys(rank(result.journeys,query,instant),query,instant,available);
+  if(!renderJourneys(rank(result.journeys,query,instant),query,instant,available))
+   noVerifiedRoute('A helyi menetrend nem adott megjeleníthető, ellenőrzött útitervet.',query);
  }
  function profileChanged(clearFields){
   const p=profile();
@@ -314,7 +327,8 @@
    button.setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(p==='m'?'Zsoltra':'Mónikára')+'.');
    button.title=name+' · Profilváltás';
   }
-  if(clearFields){searchCounter++;resetExternal();resultView?.close?.();clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
+  restoreMethod();
+  if(clearFields){searchCounter++;resultView?.close?.();clearAll();from.value='';to.value='';local.origin=null;local.destination=null;list.replaceChildren();if(results)results.hidden=true;say('Profilváltás kész. Válassz két új helyet a saját útvonaltervezéshez.')}
  }
  function showFamilyMap(){
   clearAll();
@@ -369,12 +383,10 @@
  });
  d.addEventListener('pointerdown',e=>{if(!e.target.closest('.st22-place'))fields.forEach(close)});
  form.addEventListener('submit',searchTrip);
- externalTrip?.addEventListener('click',()=>{
-  const url=multiModel?.mapsUrl?.(snapshot(),local);
-  if(!url){say('A teljes útvonalhoz válassz érvényes indulási helyet és célállomást.');return}
-  // Google Maps URL documents transit mode but not date/arrival constraints.
-  // Only a real user's click opens the third-party journey planner.
-  w.location.assign(url);
+ methodSelect?.addEventListener('change',()=>{
+  const choice=searchMethod();
+  try{w.localStorage.setItem(METHOD_KEY+profile(),choice)}
+  catch(_){say('A keresési mód most használható, de a mentése sikertelen.')}
  });
  $('st22Favorites')?.addEventListener('click',()=>{
   const field=!from.value.trim()?from:!to.value.trim()?to:from;
