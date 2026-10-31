@@ -1,0 +1,53 @@
+/* SH9 Smart Places v1068 · restrained glass UI; no map/layout changes. */
+#guardianMap .guardian-selected-profile-position-v837 .hh-smart-place-save-v1068{
+ position:absolute!important;top:-27px!important;left:50%!important;transform:translateX(-50%)!important;
+ z-index:9!important;display:block!important;white-space:nowrap!important;
+ min-height:27px!important;min-width:76px!important;padding:4px 8px!important;
+ border:1px solid rgba(187,227,255,.78)!important;border-radius:12px!important;
+ background:rgba(12,40,88,.74)!important;backdrop-filter:blur(12px)!important;
+ color:#fff!important;font:800 10px/1.2 system-ui!important;pointer-events:auto!important;cursor:pointer!important;
+ box-shadow:0 3px 9px rgba(1,9,31,.28)!important;
+}
+#guardianMap .guardian-selected-profile-position-v837[data-guardian-person="m"] .hh-smart-place-save-v1068{
+ border-color:rgba(255,199,236,.87)!important;background:rgba(88,32,100,.76)!important;
+}
+#guardianMap .guardian-selected-profile-position-v837 .hh-smart-place-location-v1068{
+ display:block!important;max-width:118px!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ color:#f8ffda!important;font:800 9px/1.3 system-ui!important;text-align:center!important;
+ white-space:nowrap!important;text-shadow:0 1px 2px rgba(0,0,0,.55)!important;
+}
+#guardianMap .hh-smart-place-location-v1068[hidden]{display:none!important}
+#guardianMap .guardian-selected-profile-position-v837 .hh-smart-place-save-v1068:focus-visible{
+ outline:2px solid #fff!important;outline-offset:2px!important;
+}
+#guardianSmartPlaceDialogV1068{
+ box-sizing:border-box;width:min(93vw,400px);max-height:88dvh;overflow:auto;
+ margin:auto;padding:17px;color:#effaff;background:linear-gradient(148deg,#18385e,#221942);
+ border:1px solid rgba(159,211,249,.74);border-radius:18px;
+ box-shadow:0 17px 45px rgba(1,7,29,.64);font:500 13px/1.4 system-ui;
+}
+#guardianSmartPlaceDialogV1068::backdrop{background:rgba(3,8,31,.74)}
+#guardianSmartPlaceDialogV1068 h3{margin:0 0 7px;font:800 19px/1.2 system-ui;color:#fff}
+#guardianSmartPlaceDialogV1068 p{margin:5px 0 12px;color:#cfe6ff}
+#guardianSmartPlaceDialogV1068 .hh-sp-form{display:grid;gap:9px}
+#guardianSmartPlaceDialogV1068 label{display:grid;gap:4px;font-weight:750}
+#guardianSmartPlaceDialogV1068 input:not([type="checkbox"]),
+#guardianSmartPlaceDialogV1068 select{
+ box-sizing:border-box;width:100%;min-height:43px;border-radius:10px;padding:7px 9px;
+ background:rgba(8,18,52,.75);border:1px solid rgba(173,218,255,.65);
+ color:#fff;font:700 14px/1.3 system-ui;
+}
+#guardianSmartPlaceDialogV1068 .hh-sp-check{display:flex;align-items:center;gap:9px}
+#guardianSmartPlaceDialogV1068 .hh-sp-check input{width:20px;height:20px;accent-color:#6ed6ff}
+#guardianSmartPlaceDialogV1068 .hh-sp-buttons{display:flex;flex-wrap:wrap;gap:7px}
+#guardianSmartPlaceDialogV1068 button{flex:1;min-width:72px;min-height:44px;color:white;font-weight:800;border-radius:10px;background:#194e8c;border:1px solid rgba(158,210,248,.72)}
+#guardianSmartPlaceDialogV1068 #guardianSmartPlaceDeleteV1068{background:#713954}
+#guardianSmartPlaceDialogV1068 [hidden]{display:none!important}
+#guardianSmartPlaceToastV1068{
+ position:fixed;bottom:max(80px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+ width:max-content;max-width:90vw;z-index:250;padding:12px 15px;box-sizing:border-box;
+ background:rgba(17,42,89,.91);backdrop-filter:blur(16px);border:1px solid #b6e9ff;border-radius:14px;
+ color:#fff;font:750 12px/1.3 system-ui;box-shadow:0 6px 25px #030b22a8;
+}
+#guardianSmartPlaceToastV1068[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){#guardianSmartPlaceDialogV1068 *{transition:none!important}}
