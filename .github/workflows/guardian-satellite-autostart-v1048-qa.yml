@@ -1,0 +1,29 @@
+name: Family Guard · 3D + satellite autostart v1048 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-satellite-v1033.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-satellite-autostart-v1048.test.cjs'
+      - '.github/workflows/guardian-satellite-autostart-v1048-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-satellite-v1033.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-satellite-autostart-v1048.test.cjs'
+      - '.github/workflows/guardian-satellite-autostart-v1048-qa.yml'
+jobs:
+  satellite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check satellite JavaScript syntax
+        run: node --check healthhub/guardian/guardian-satellite-v1033.js
+      - name: Verify saved-key auto-start, fallbacks and manual controls
+        run: node --test healthhub/tests/guardian-satellite-autostart-v1048.test.cjs
