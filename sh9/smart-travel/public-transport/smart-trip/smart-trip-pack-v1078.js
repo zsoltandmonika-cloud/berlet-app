@@ -143,7 +143,6 @@
    node('strong','',progressLabel(j,p),tripStatus);
    node('span','','Manuális követés · nem GPS vagy élő menetrend',tripStatus);
    if(j.summary)node('p','st22-tp-summary',j.summary,body);
-   node('p','st22-tp-limitation','ⓘ ChatGPT-ből importált útiterv, nem élőben hitelesített járatinformáció. Indulás előtt ellenőrizd az aktuális időpontokat.',body);
    node('h3','st22-tp-timeline-title','Útvonal lépésről lépésre',body);
    const timeline=node('ol','st22-tp-timeline',null,body);
    for(let i=0;i<j.segments.length;i++){
