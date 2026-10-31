@@ -19,7 +19,7 @@ test('ChatGPT is default, Google is only an explicitly chosen dropdown item, no 
 });
 test('ChatGPT handoff includes user selected matched favorites, date, preferences, holidays and verification',()=>{
  const prompt=ai.prompt(q,places,'wait');
- assert.ok(prompt&&prompt.length>250&&prompt.length<850,'brief must stay short, not burden ChatGPT with excessive rules');
+ assert.ok(prompt&&prompt.length>450&&prompt.length<1350,'keep route-first prompt concise despite automatic TripPack export');
  assert.match(prompt,/Otthon \(kijelölt hely koordinátája: 47\.54512, 19\.03534\)/);
  assert.match(prompt,/Mónika · Anyuka \(kijelölt hely koordinátája: 48\.25343, 20\.64156\)/);
  assert.match(prompt,/2026-11-01 07:30/);
@@ -30,6 +30,14 @@ test('ChatGPT handoff includes user selected matched favorites, date, preference
  assert.match(prompt,/tömegközlekedési utat/);
  assert.doesNotMatch(prompt,/KÜLÖNLEGES NAPOK:|ELLENŐRZÉS:|Személyes egészségügyi adatokat|temetői és forgalmi|időrendi táblázat/);
  assert.match(prompt,/B tervet/);
+ assert.match(prompt,/Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack\.json-t/);
+ assert.match(prompt,/schema: sh9\.trip-pack\/1/);
+ assert.match(prompt,/segments\[\{mode,line,from,to,departure,arrival,status,note\}\]/);
+ assert.match(prompt,/alerts\[\{title,text\}\]/);
+ assert.match(prompt,/sources\[\{name,url\}\]/);
+ assert.match(prompt,/status timetable\/estimated\/unknown/);
+ assert.match(prompt,/ismeretlen idő null/);
+ assert.match(prompt,/egyetlen tiszta JSON-kódblokkot/);
  const u=new URL(ai.url(q,places,'wait'));
  assert.equal(u.origin,'https://chatgpt.com');
  assert.equal(u.pathname,'/');
