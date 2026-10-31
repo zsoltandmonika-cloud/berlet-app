@@ -71,9 +71,8 @@
   if(!next)return {value:'Nincs közelgő esemény',detail:'Agenda megnyitása',status:'ready'};
   // Use the actual Budapest date and time, even for today's event and across year boundaries.
   const when=new Date(next.startMs);
-  const date=new Intl.DateTimeFormat('hu-HU',{
-   timeZone:'Europe/Budapest',year:'numeric',month:'short',day:'numeric',weekday:'short'
-  }).format(when);
+  // Compact numeric date fits the 3-column, 64px SH9 ribbon on S24 screens.
+  const date=todayKey(next.startMs).replace(/-/g,'.')+'.';
   const hour=next.allDay?'egész nap':new Intl.DateTimeFormat('hu-HU',{
    timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'
   }).format(when);
