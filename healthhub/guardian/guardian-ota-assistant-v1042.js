@@ -87,6 +87,8 @@
     w.dispatchEvent(new w.CustomEvent('hh-guardian-device-evidence-v1053',{detail:{
      profile:p,lastSeenAt:device.lastSeenAt,
      verifiedAt:new Date().toISOString(),
+     // Only the coarse native build number, never a device identifier or token.
+     buildCode:Number.isInteger(Number(device.buildCode))&&Number(device.buildCode)>0?Number(device.buildCode):null,
      networkStatus:{transport:transport,
        internetValidated:typeof net.internetValidated==='boolean'?net.internetValidated:null},
      // Native HH One reports only the radio on/off flag; no paired-device data.
