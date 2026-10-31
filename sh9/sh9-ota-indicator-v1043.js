@@ -7,6 +7,9 @@
  */
 (function(w,d){
  'use strict';
+ // v1067: the old native WebView build-in-query shortcut MUST NOT run in
+ // Chrome/Edge. A separate browser verifier uses private device heartbeats.
+ if(new URLSearchParams(w.location.search).get('sh9native')!=='1')return;
  const el=d.getElementById('sh9OtaIndicatorV1043');
  const detail=d.getElementById('sh9OtaStateV1043');
  const manual=d.getElementById('sh9OtaManualV1044');
