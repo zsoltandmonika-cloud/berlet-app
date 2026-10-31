@@ -1991,6 +1991,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Restore only an already owner-approved native GPS foreground service.
+        // A deliberate STOP clears approval and is never overridden.
+        FamilyGuardContinuity.resumeApprovedGpsOnForeground(this)
         if (::status.isInitialized) {
             ResilientHealthSync.schedule(this)
             updateResilientStatus()
