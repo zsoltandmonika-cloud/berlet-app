@@ -5,9 +5,10 @@
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id), cfg=w.HH_CENTRAL_VAULT;
+const NATIVE_OAUTH=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
 const api=cfg&&cfg.enabled&&w.supabase?.createClient
  ?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,
- {auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}}):null;
+ {auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:NATIVE_OAUTH?'pkce':'implicit'}}):null;
 const TABLE='hh_family_tasks',LOG='hh_family_task_logbook',HIDDEN_LOG='hh_family_task_logbook_hidden',HIDDEN_TASK='hh_family_task_hidden',PRESET_TABLE='hh_family_task_presets';
 const CAT_TABLE='hh_family_task_categories';
 const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
@@ -570,8 +571,15 @@ function wire(){
  }));
  $('fhLogin').addEventListener('click',async()=>{
   if(!api)return;
-  const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
-  if(error)announce('Belépési hiba: '+error.message);
+  try{
+   if(NATIVE_OAUTH){
+    const bridged=await w.HH_ONE_NATIVE_AUTH_V1063?.start?.(api);
+    if(!bridged)throw Error('A natív bejelentkezési híd nem áll készen.');
+    return;
+   }
+   const {error}=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
+   if(error)throw error;
+  }catch(e){announce('Belépési hiba: '+String(e?.message||'kapcsolat').slice(0,130))}
  });
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'){showHidden=false;authSync(true)}});
  d.addEventListener('visibilitychange',refreshWhenForeground);
