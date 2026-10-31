@@ -1,0 +1,43 @@
+name: Family Guard v1056 uploaded logo asset materialization
+on:
+  push:
+    branches:
+      - feature/guardian-full-height-brand-v1056
+    paths:
+      - '.github/workflows/guardian-v1056-logo-materialize.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/guardian-full-height-brand-v1056
+          persist-credentials: true
+      - name: Restore original user-supplied logo from private repo git object
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir -p healthhub/assets
+          gh api "repos/$REPO/git/blobs/4d54788b37e2794d9db12d765e4440404ef62c3c" --jq '.content' | base64 -d > healthhub/assets/sh9-family-guard-logo-v1056.webp
+          file healthhub/assets/sh9-family-guard-logo-v1056.webp
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('healthhub/assets/sh9-family-guard-logo-v1056.webp')
+          b=p.read_bytes()
+          assert b[:4]==b'RIFF' and b[8:12]==b'WEBP'
+          declared=int.from_bytes(b[4:8],'little')+8
+          print('WebP bytes:',len(b),'declared bytes:',declared)
+          assert len(b)==declared, 'Refusing to publish an incomplete logo file'
+          PY
+      - name: Commit the exact logo to the preview branch (never directly main)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add healthhub/assets/sh9-family-guard-logo-v1056.webp
+          git diff --cached --quiet && exit 0
+          git commit -m "asset(Guardian v1056): original supplied SH9 Family Guard logo"
+          git push origin HEAD:feature/guardian-full-height-brand-v1056
