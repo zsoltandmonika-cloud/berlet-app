@@ -238,6 +238,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-profile-follow-v837.css?v=837-selected-profile-pin">
 <link rel="stylesheet" href="./guardian-profile-foreground-v838.css?v=838-gps-portraits-top">
 <link rel="stylesheet" href="./guardian-speed-glass-v850.css?v=851-attached-name-dropdown">
+<link rel="stylesheet" href="./guardian-smart-places-v1068.css?v=1068-first-browser-release">
 <link rel="stylesheet" href="./guardian-profile-battery-v841.css?v=841-hero-owner-battery">
 <link rel="stylesheet" href="./guardian-live-trio-v845.css?v=849-type-minus-one">
 <link rel="stylesheet" href="./guardian-soft-glass-v852.css?v=852-pastel-profile-compact">
@@ -919,6 +920,35 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
  <a href="../index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><span>Admin</span></a>
 </nav>
 <div id="sh9TransitNoticeV927" hidden role="status"></div>
+<dialog id="guardianSmartPlaceDialogV1068" aria-labelledby="guardianSmartPlaceTitleV1068" aria-modal="true">
+ <h3 id="guardianSmartPlaceTitleV1068">📍 SH9 Smart Places</h3>
+ <p>Egy koppintással mentett, friss GPS-hely. A név és a 150 méteres zóna utólag szerkeszthető, a családi kedvencek közé szinkronizálódik.</p>
+ <div class="hh-sp-form">
+  <label for="guardianSmartPlaceNameV1068">Hely neve
+   <input id="guardianSmartPlaceNameV1068" maxlength="40" autocomplete="off" placeholder="Például: Anyunál">
+  </label>
+  <label for="guardianSmartPlaceRadiusV1068">Érkezési zóna
+   <select id="guardianSmartPlaceRadiusV1068"><option value="100">100 méter</option><option value="150" selected>150 méter</option><option value="200">200 méter</option><option value="300">300 méter</option></select>
+  </label>
+  <label for="guardianSmartPlaceArrivalV1068">Érkezési hang
+   <select id="guardianSmartPlaceArrivalV1068"><option value="chime">🔔 Lágy csengő</option><option value="bell">🎵 Dupla csilingelés</option><option value="digital">📱 Digitális jelzés</option><option value="silent">🔕 Néma</option></select>
+  </label>
+  <label for="guardianSmartPlaceDepartureV1068">Távozási hang
+   <select id="guardianSmartPlaceDepartureV1068"><option value="chime">🔔 Lágy csengő</option><option value="bell" selected>🎵 Dupla csilingelés</option><option value="digital">📱 Digitális jelzés</option><option value="silent">🔕 Néma</option></select>
+  </label>
+  <label class="hh-sp-check" for="guardianSmartPlaceSoundV1068">
+   <input id="guardianSmartPlaceSoundV1068" type="checkbox"> Hang és értesítés engedélyezése ebben a böngészőben
+  </label>
+  <p id="guardianSmartPlaceStatusV1068" role="status" aria-live="polite">A családi hely frissítése ellenőrzés alatt.</p>
+  <div class="hh-sp-buttons">
+   <button type="button" id="guardianSmartPlaceSaveV1068">💾 Mentés + SYNC</button>
+   <button type="button" id="guardianSmartPlaceDeleteV1068" hidden>🗑️ Törlés</button>
+   <button type="button" id="guardianSmartPlaceCloseV1068">Bezárás</button>
+  </div>
+  <small>A hangjelzések az aktív oldalon működnek. Lezárt telefonon Chrome/Edge nem garantálja a helyi riasztást. A GPS megosztását nem módosítja.</small>
+ </div>
+</dialog>
+<div id="guardianSmartPlaceToastV1068" role="status" aria-live="polite" hidden></div>
 <script src="../golden-standard-avatars-v529.js?v=529-existing-photos"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="./guardian-icons-v784.js?v=784-translucent-svg-icons"></script>
@@ -929,7 +959,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-native-dropbox-v156.js?v=156-private-native-relay&battery=841"></script>
 <script defer src="./guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
 <script defer src="./guardian-live-v785.js?v=1063-pkce-native-login&native=156&autofollow=827"></script>
-<script defer src="./guardian-profile-follow-v837.js?v=865-adaptive-continuous-verified-gps&handoff=839&speed=851&smoothing=1004-bus-latency-1005"></script>
+<script defer src="./guardian-profile-follow-v837.js?v=1068-smart-places-hook&handoff=839&speed=851&smoothing=1004-bus-latency-1005"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
 <script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
@@ -942,6 +972,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-bkk-extra-route-v912.js?v=913-static-no-auto-popup"></script>
 <script defer src="./guardian-bkk-watchlist-v814.js?v=960-editor-anchors-before-favorites"></script>
 <script defer src="./guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script>
+<script defer src="./guardian-smart-places-v1068.js?v=1068-family-sync-geofence"></script>
 <script defer src="./guardian-smart-hub-fields-v806.js?v=972-40-common-places&pin=829"></script>
 <script defer src="./guardian-bkk-keyboard-dock-v964.js?v=1034-no-auto-search-on-entry"></script>
 <script defer src="./guardian-map-search-v819.js?v=864-one-tap-full-minimize"></script>
