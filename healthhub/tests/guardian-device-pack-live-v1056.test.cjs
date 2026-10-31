@@ -20,7 +20,7 @@ test('default production Family Guard uses v1056; v1052, v1053, v1054, v1055 sta
  }
  assert.match(html,/dataset\.hhDevicePackLiveV1056="on"/);
  assert.match(html,/devicePack=v1052/);
- assert.match(html,/guardian-device-pack-live-v1056\.css\?v=1056-production-glass-layout/);
+ assert.match(html,/guardian-device-pack-live-v1056\.css\?v=1059-softer-premium-transparency/);
  assert.match(html,/guardian-device-pack-live-v1056\.js\?v=1057-original-logo-full-res/);
  assert.match(js,/hhDevicePackLiveV1056!=='on'/);
  assert.match(html,/guardian-satellite-v1033\.js\?v=1052-compact-attribution-mobile/);
@@ -44,7 +44,11 @@ test('the full card uses 50%-ish premium glass and all 4 status rows without ove
  assert.match(css,/grid-template-rows:25% repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/height:98\.5%!important/);
  assert.match(css,/width:36\.7%!important/);
- assert.match(css,/rgba\(18,40,87,\.56\)/);
+ assert.match(css,/rgba\\(18,40,87,\\.48\\)/);
+ assert.match(css,/rgba\\(77,35,112,\\.52\\)/);
+ assert.match(css,/rgba\\(21,36,83,\\.76\\)/);
+ assert.match(css,/rgba\\(69,36,95,\\.77\\)/);
+ assert.doesNotMatch(css,/rgba\\(18,40,87,\\.56\\)/);
  assert.match(css,/backdrop-filter:blur\(16px\)/);
  assert.match(css,/hh-device-pack-signal-v1053 svg\{\s*width:clamp\(17px,4\.6vw,23px\)/);
  assert.match(css,/min-height:0!important/);
