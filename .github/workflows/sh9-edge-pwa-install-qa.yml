@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: "22"
       - name: SH9 install manifest, icons, launch and cache isolation
-        run: node --test sh9/tests/edge-install.test.cjs
+        run: node --test sh9/tests/edge-install.test.cjs sh9/tests/native-nav-fallback-v1064.test.cjs
       - name: Check optional service worker and installer scripts
         run: |
           node --check sh9/sw.js

@@ -106,7 +106,7 @@ test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',
  assert.match(app,/const OUTLOOK_AGENDA='https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'/);
  assert.match(app,/await getAccessToken\(\)/);
  assert.match(app,/Microsoft-belépés/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ assert.equal((html.match(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name=/g)||[]).length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
 

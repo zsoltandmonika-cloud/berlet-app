@@ -46,10 +46,10 @@ test('All-day busy conflicts count; tentative and out-of-office count; free birt
  assert.equal(model.headline(model.analyze([]),new Date('2026-10-26')).status,'ready');
 });
 test('SH9 launchpad keeps exactly nine original modules and standard taskbar',()=>{
- assert.equal([...html.matchAll(/class="tile" type="button" data-name="/g)].length,9);
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal([...html.matchAll(/data-nav="/g)].length,5);
  for(const s of ['HealthHub','Family Guard','Smart Travel','Ask Léna'])assert.match(html,new RegExp('data-name="'+s+'"'));
- assert.match(html,/data-name="Smart Travel" data-href="\.\/smart-travel\/"/);
+ assert.match(html,/<a class="tile" href="\.\/smart-travel\/" data-name="Smart Travel"/);
 });
 test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fake synced events',()=>{
  for(const id of ['sh9CalendarCell','sh9CalendarSummary','sh9CalendarValue','sh9CalendarSub','sh9AgendaDialog','sh9AgendaList','sh9AgendaStatus','sh9AgendaConnect','sh9AgendaSave','sh9AgendaAccount','sh9AgendaClientId']){
