@@ -257,5 +257,5 @@
    }else if(params.get('view')==='my-trips')showSaved();
   }catch(_){}
  }
- return Object.freeze({normalize,read,save,remove,mount,metrics,SCHEMA,MAX_BYTES,MAX_SAVED});
+ return Object.freeze({normalize,read,save,remove,mount,SCHEMA,MAX_BYTES,MAX_SAVED});
 });
