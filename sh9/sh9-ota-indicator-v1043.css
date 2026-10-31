@@ -64,3 +64,12 @@
  outline:2px solid #c8edff;outline-offset:2px}
 .sh9-ota-manual-v1044 small{display:block;margin-top:8px;color:#ccdaf3;
  font-size:10px;line-height:1.35}
+
+/* v1067 browser-only status panel, consistent with the original glass style. */
+.sh9-ota-owner-v1067{display:flex;flex-direction:column;gap:4px;margin:7px 0;font-weight:800;color:#eef7ff}
+.sh9-ota-owner-v1067 select,.sh9-ota-recheck-v1067{min-height:44px;width:100%;border:1px solid rgba(193,224,255,.63);border-radius:10px;background:rgba(63,111,164,.55);color:#fff;padding:8px;font:750 12px/1.3 system-ui}
+.sh9-ota-owner-v1067 option{color:#132746;background:#f2f7ff}
+.sh9-ota-recheck-v1067{margin:4px 0 6px;cursor:pointer}
+.sh9-ota-recheck-v1067:disabled{opacity:.6;cursor:progress}
+.sh9-ota-recheck-v1067:focus-visible,.sh9-ota-owner-v1067 select:focus-visible{outline:2px solid #c8edff;outline-offset:2px}
+.sh9-ota-manual-v1044 #sh9OtaConnectVaultV1067[hidden]{display:none!important}
