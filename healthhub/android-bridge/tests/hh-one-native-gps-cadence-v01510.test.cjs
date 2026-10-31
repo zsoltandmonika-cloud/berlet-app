@@ -33,9 +33,9 @@ test('one active upload, no backlog, bounded network failures, selected phone & 
  assert.match(relay,/uploadLock\.lock\(\)/);
  assert.doesNotMatch(relay,/Supabase|upsert\(|saveTrack|trackHistory/);
 });
-test('signed v0.15.10 remains published until manual gated v0.15.11 release',()=>{
- assert.match(android,/versionCode = 38/);
- assert.match(android,/versionName = "0\.15\.11"/);
- assert.equal(baseline.versionCode,37);
- assert.equal(baseline.version,'0.15.9');
+test('signed v0.15.11 remains published until manual gated v0.15.12 release',()=>{
+ assert.match(android,/versionCode = 39/);
+ assert.match(android,/versionName = "0\.15\.12"/);
+ assert.equal(baseline.versionCode,38);
+ assert.equal(baseline.version,'0.15.11');
 });
