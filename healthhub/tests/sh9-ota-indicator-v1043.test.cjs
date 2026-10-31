@@ -71,11 +71,11 @@ test('genuine native startup passes a short-lived status, not GPS history or sec
  assert.match(native,/KEY_LAST_UPLOAD/);
  assert.doesNotMatch(native,/appendQueryParameter\("(?:latitude|longitude|gpsToken|healthRecord|accessToken)"/);
 });
-test('green only if signed-release baseline is installed and verified native health is fresh',async()=>{
+test('verified signed OTA is green when installed, independently of GPS health',async()=>{
  const release=makeRelease('0.15.10',37);
  const {el,detail}=await run({build:37,health:'ok',release});
  assert.equal(el.dataset.state,'ok');
- assert.match(detail.textContent,/indításkor rendben/);
+ assert.match(detail.textContent,/OTA NAPRAKÉSZ/);
 });
 test('amber pulse only if newer signed OTA is approved for the actual owner',async()=>{
  const release=makeRelease('0.15.11',38);
@@ -85,18 +85,21 @@ test('amber pulse only if newer signed OTA is approved for the actual owner',asy
  assert.match(el.href,/healthhubconnect:\/\/settings/);
  assert.doesNotMatch(el.href,/\.apk$/);
 });
-test('red if current owner phone reported real service failure, even if OTA cannot be checked',async()=>{
+test('GPS service trouble is reported separately and never masks OTA current build',async()=>{
  const release=makeRelease('0.15.10',37);
  const a=await run({build:37,health:'warning',release});
- assert.equal(a.el.dataset.state,'warning');
+ assert.equal(a.el.dataset.state,'ok');
+ assert.match(a.detail.textContent,/külön figyelmet igényel/);
  const b=await run({build:37,health:'warning',error:true});
- assert.equal(b.el.dataset.state,'warning');
+ assert.equal(b.el.dataset.state,'unknown');
+ assert.match(b.detail.textContent,/szolgáltatási hibája/);
 });
-test('no false green on browser, stale native boot snapshot, or unspecified service health',async()=>{
+test('no false OTA green on browser without installed build or on invalid release',async()=>{
  const release=makeRelease('0.15.10',37);
  assert.equal((await run({nativeLaunch:false,release})).el.dataset.state,'release');
- assert.equal((await run({health:'unknown',release})).el.dataset.state,'unknown');
- assert.equal((await run({seenAt:Date.now()-11*60000,release})).el.dataset.state,'unknown');
+ assert.equal((await run({health:'unknown',release})).el.dataset.state,'ok');
+ assert.equal((await run({seenAt:Date.now()-11*60000,release})).el.dataset.state,'ok');
+ assert.equal((await run({release:{...release,channel:'unsigned-test'}})).el.dataset.state,'unknown');
 });
 test('signed update channel only; never downloads or installs automatically',()=>{
  assert.match(js,/healthhub\.connect\.ota\/1/);
@@ -148,7 +151,7 @@ test('manual OTA failover is ONE native check tap on v0.15.11+, legacy versions 
  assert.equal(current.el.dataset.state,'ok');
  assert.equal(current.el.href,'healthhubconnect://settings?ota=check');
  const red=await run({build:38,health:'warning',release:upToDate});
- assert.equal(red.el.dataset.state,'warning');
+ assert.equal(red.el.dataset.state,'ok');
  assert.equal(red.el.href,'healthhubconnect://settings?ota=check');
  const offline=await run({build:38,health:'unknown',error:true});
  assert.equal(offline.el.dataset.state,'unknown');
