@@ -23,8 +23,6 @@
 .st22-tp-detail small{font-size:11px;line-height:1.5;color:#b7d2f3}
 .st22-tp-heading{font-size:13px;color:#f1f7ff;margin:16px 0 7px}
 .st22-tp-note{font-size:12px;line-height:1.6;padding:10px 12px;margin:6px 0;background:#1e37618c;border-radius:10px}
-.st22-tp-alerts{padding:13px;border:1px solid #e8c46e8f;border-radius:12px;background:#4a392b77}
-.st22-tp-alerts h4{margin:0 0 9px}.st22-tp-alerts div{margin:8px 0}.st22-tp-alerts p{font-size:12px;line-height:1.5;margin:4px 0 0}
 .st22-tp-source{display:block;width:fit-content;max-width:100%;overflow-wrap:anywhere;padding:7px 0;color:#a8d9ff;font-size:12px;text-decoration:underline}
 .st22-tp-saved{padding:14px;margin:9px 0;border:1px solid #b7d9f46e;background:#203d6aa8;border-radius:13px;display:flex;flex-direction:column;gap:7px}
 .st22-tp-saved small{font-size:11px;line-height:1.4;color:#c6dcf3}
@@ -108,8 +106,6 @@
  background:linear-gradient(135deg,rgba(28,69,118,.68),rgba(20,39,83,.78));overflow:hidden}
 .st22-tp-backup summary{padding:14px;font-size:13px;font-weight:840;cursor:pointer}
 .st22-tp-backup .st22-tp-note{margin:4px 10px 10px}
-.st22-tp-alerts{margin-top:17px;border-radius:13px;background:linear-gradient(125deg,rgba(87,66,37,.65),rgba(48,40,55,.62))}
-.st22-tp-alert-item{padding:6px 0}
 .st22-tp-sources{margin:17px 0;padding:12px 14px;border:1px solid rgba(153,203,243,.35);border-radius:12px;background:rgba(27,48,84,.50)}
 .st22-tp-viewer-footer{display:flex;margin:14px 0 8px}
 .st22-tp-list-head{margin-bottom:12px}
