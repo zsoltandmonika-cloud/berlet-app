@@ -31,9 +31,10 @@ test('v962 exactly one shared Family Live + GPS glass shell contains BOTH intact
  assert.equal((html.match(/<details\b/g)||[]).length,(html.match(/<\/details>/g)||[]).length);
 });
 
-test('v962 GPS Stop and retry remain accessible even if map Family section is collapsed',()=>{
+test('v1070 native Család control belongs to Admin and preserves GPS stop/retry',()=>{
  assert.match(guardian,/familyPanel\.hidden=false/);
- assert.match(guardian,/guardianFamilyButton/);
+ assert.match(html,/<summary id="guardianFamilyButton" class="family-live-control-head-v962"/);
+ assert.doesNotMatch(guardian,/\$\('guardianFamilyButton'\)\.addEventListener\('click'/);
  assert.match(html,/aria-controls="guardianFamilyPanel"/);
  assert.match(css,/#guardianFamilyLiveControlV962 > #guardianFamilyPanel\.family-panel\[hidden\]\{\s*display:none!important/);
  assert.match(css,/#guardianFamilyLiveControlV962 > \.gps-panel\{/);
