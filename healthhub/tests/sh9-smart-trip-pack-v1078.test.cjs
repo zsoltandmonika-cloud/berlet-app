@@ -110,7 +110,8 @@ test('ChatGPT ISO timestamps, BOM and fenced JSON safely normalize to Budapest H
  assert.throws(()=>pack.normalize({...raw,schema:'other/v1'}));
  assert.throws(()=>pack.normalize({...raw,departure:'2026-11-02T15:10:00'}));
  assert.throws(()=>pack.normalize({...raw,segments:raw.segments.map(x=>({...x,arrival:'invalid'}))}));
- assert.match(assert.throws(()=>pack.normalize('<html>Not found</html>'))?.message||'',/JSON|weboldal/i);
+ let htmlError=null;try{pack.normalize('<html>Not found</html>')}catch(e){htmlError=e}
+ assert.ok(htmlError);assert.match(htmlError.message,/JSON|weboldal/i);
 });
 test('single confirmed transport leg is importable without fabricating an extra walking segment',()=>{
  const simple={...valid,segments:[{mode:'bus',line:'9',from:'Kolosy tér',to:'Nyugati pályaudvar M',departure:'15:18',arrival:'15:33',status:'estimated'}]};
