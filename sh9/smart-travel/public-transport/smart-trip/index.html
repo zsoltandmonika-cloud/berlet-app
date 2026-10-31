@@ -46,13 +46,12 @@
    </div>
    <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="duration">⚡ Legrövidebb menetidő</option><option value="departure">◷ Legkorábbi indulás</option></select></div>
+   <div class="st22-opt"><label for="st22SearchMethod">Alapértelmezett keresés</label><select id="st22SearchMethod" aria-label="Keresési módszer, profilonként mentve"><option value="auto">✨ Léna · automatikus</option><option value="native">🧠 Csak SH9 útvonal</option><option value="external">🗺️ Külső útvonaltervező</option></select></div>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">Térkép</button></div>
   </form>
   <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
   <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
   <p id="st22Status" role="status">Válassz ki két helyet, vagy írj be állomásneveket. A keresés nem nyit meg idegen szolgáltatói oldalt.</p>
-  <button id="st22ExternalTrip" type="button" class="st22-external-trip" hidden>🗺️ Teljes útvonal Google Térképen · BKK / MÁV / Volán + séta</button>
-  <p id="st22ExternalNote" class="st22-external-note" hidden>A külső útvonaltervező külön nyílik meg. Az SH9 dátum- és érkezési beállításait ott szükség esetén újra kell választani.</p>
   <div id="st22JourneyList"></div>
   </section>
  </section>
@@ -105,7 +104,8 @@
 <script src="./smart-trip-multimodal-config-v1073.js?v=1073-disabled-by-default"></script>
 <script src="./smart-trip-multimodal-v1073.js?v=1073-official-google-transit-normalizer"></script>
 <script src="./smart-trip-multimodal-runtime-v1073.js?v=1073-auth-and-budget-gate"></script>
-<script src="./smart-trip-ai-v1022.js?v=1073-full-coverage-opt-in-fallback"></script>
+<script src="./smart-trip-auto-fallback-v1075.js?v=1075-one-search-no-extra-button"></script>
+<script src="./smart-trip-ai-v1022.js?v=1075-profile-search-method-auto-fallback"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
 </body></html>
