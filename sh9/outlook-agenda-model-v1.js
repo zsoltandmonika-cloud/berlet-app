@@ -67,12 +67,20 @@
   const clashes=result&&result.conflicts instanceof Set?result.conflicts:new Set();
   const future=list.filter(e=>e.endMs>current);
   const relevantClashes=future.filter(e=>clashes.has(e.id));
-  if(relevantClashes.length)return {value:'⚠ '+relevantClashes.length+' ütköző program',detail:'Agenda · időpontütközés',status:'conflict'};
   const next=future[0];
   if(!next)return {value:'Nincs közelgő esemény',detail:'Agenda megnyitása',status:'ready'};
-  const df=new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'});
-  const day=todayKey(current)===todayKey(next.startMs)?'Ma':'Következő';
-  return {value:day+' '+(next.allDay?'egész nap':df.format(next.startMs)),detail:next.title,status:'ready'};
+  // Use the actual Budapest date and time, even for today's event and across year boundaries.
+  const when=new Date(next.startMs);
+  // Compact numeric date fits the 3-column, 64px SH9 ribbon on S24 screens.
+  const date=todayKey(next.startMs).replace(/-/g,'.')+'.';
+  const hour=next.allDay?'egész nap':new Intl.DateTimeFormat('hu-HU',{
+   timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'
+  }).format(when);
+  return {
+   value:(relevantClashes.length?'⚠ ':'')+date+' · '+hour,
+   detail:next.title,
+   status:relevantClashes.length?'conflict':'ready'
+  };
  }
  return Object.freeze({normalize:normalize,analyze:analyze,conflictIds:conflictIds,headline:headline,todayKey:todayKey});
 });

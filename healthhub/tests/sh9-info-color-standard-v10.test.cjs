@@ -17,9 +17,10 @@ test('all three SH9 fixed category labels and nameday label use identical blue',
  assert.match(stripe,/<span class="sh9-nameday-label">NÉVNAP · <\/span>/);
  assert.doesNotMatch(stripe,/DÁTUM · NÉVNAP/);
 });
-test('date, Salamon, weather, and calendar values share exactly one pink color',()=>{
+test('calendar date is lavender and subject pink while other live values stay pink',()=>{
  assert.match(css,/#sh9NamedayCell \.sh9-info-value,\s*#sh9NamedayCell \.sh9-nameday-value,\s*#sh9WeatherCell6 \.sh9-info-value,\s*#sh9WeatherCell6 \.sh9-info-sub,\s*#sh9CalendarCell \.sh9-calendar-summary \.sh9-info-value,\s*#sh9CalendarCell \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
  assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#f4b7ea\}/);
+ assert.match(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-value\{color:#d8bafa\}/);
  assert.doesNotMatch(css,/#sh9CalendarCell\[data-status="ready"\] \.sh9-calendar-summary \.sh9-info-sub\{color:#d8bafa\}/);
  assert.match(stripe,/id="sh9NamedayValue6" class="sh9-nameday-value"/);
  assert.match(js,/var nameEl=document\.getElementById\('sh9NamedayValue6'\)/);
@@ -33,10 +34,10 @@ test('warning and error values remain meaningful, while their heading remains sa
  assert.doesNotMatch(css,/#sh9CalendarCell\[data-status="conflict"\] \.sh9-info-heading/);
 });
 test('cache bust, navigation, calendar sign-in, and Outlook monthly route are retained',()=>{
- assert.match(html,/outlook-agenda-v1\.css\?v=6-direct-agenda/);
+ assert.match(html,/outlook-agenda-v1\.css\?v=8-date-time-first/);
  assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
  assert.match(stripe,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });

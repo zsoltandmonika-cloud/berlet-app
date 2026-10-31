@@ -31,7 +31,7 @@ test('no extra custom modal click needed; official link is real even without Jav
  assert.doesNotMatch(agenda,/card\.addEventListener\('click',openPanel\)/);
  assert.match(css,/#sh9CalendarCell\.sh9-calendar-click-target\{[\s\S]*?text-decoration:none/);
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
- assert.match(html,/outlook-agenda-v1\.css\?v=6-direct-agenda/);
+ assert.match(html,/outlook-agenda-v1\.css\?v=8-date-time-first/);
 });
 test('native Android handles external Outlook HTTPS in existing system browser',()=>{
  assert.match(agenda,/if\(NATIVE\)\{\s*card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\);\s*w\.location\.assign\(OUTLOOK_AGENDA\)/);
@@ -46,6 +46,6 @@ test('local private SH9 Agenda still exists for Admin Microsoft Calendar setting
  assert.match(html,/id="sh9AgendaDialog"/);
  assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_blank" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
  assert.match(agenda,/offline_access User\.Read Calendars\.Read/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });

@@ -54,7 +54,8 @@ test('full date/nameday tile opens the actual Outlook monthly link rather than S
  assert.ok(calendar);
  assert.match(calendar[0],/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
  assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ // SH9 modules can be either direct <a> links or action <button> tiles.
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
 
