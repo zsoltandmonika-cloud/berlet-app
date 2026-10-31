@@ -64,6 +64,8 @@ test('real walking distance/duration combined with actual BKK schedule creates f
  assert.equal(prepared.items[0].walkingMinutes,9);
  assert.equal(prepared.items[0].segments[1].brand,'bus');
  assert.equal(prepared.source.name,'Google Maps · tömegközlekedési útvonal');
+ assert.equal(prepared.source.attribution,'© Google Maps');
+ assert.equal(prepared.source.walkTimeEstimated,true);
  assert.equal(prepared.items[0].stars,5);
 });
 test('multiple approach walks are sequential, with no overlap or fake wait',()=>{
