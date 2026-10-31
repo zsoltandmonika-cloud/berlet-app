@@ -7,6 +7,7 @@ const css=read('guardian/guardian-smart-places-v1068.css');
 const html=read('guardian/index.html');
 const follow=read('guardian/guardian-profile-follow-v837.js');
 const smartTrip=read('../sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js');
+const tripHtml=read('../sh9/smart-travel/public-transport/smart-trip/index.html');
 function setup({authorized=true,fresh=true}={}){
  const byId={},handlers={},events={},slots=Array.from({length:40},()=>({label:'Szabad',place:null})),calls=[];
  function element(id){
@@ -86,6 +87,9 @@ test('invalid, stale, unauthorized positions cannot become family saved destinat
 test('alias/name is directly discoverable in existing Smart Trip AI source',()=>{
  assert.match(smartTrip,/geo\?\.favoriteSuggestions\?\.\(w\.localStorage,q,12\)/);
  assert.match(smartTrip,/displayName\|\|x\.name/);
+ assert.match(smartTrip,/lastSmartPlaceSync/);
+ assert.match(smartTrip,/family\.sync\(true\)/);
+ assert.match(tripHtml,/smart-trip-ai-v1022\.js\?v=1068-smart-places-synced-search/);
  assert.match(html,/guardian-smart-places-v1068\.js\?v=1068-family-sync-geofence/);
  assert.match(html,/guardian-profile-follow-v837\.js\?v=1068-smart-places-hook/);
  assert.match(html,/guardianSmartPlaceSoundV1068/);
