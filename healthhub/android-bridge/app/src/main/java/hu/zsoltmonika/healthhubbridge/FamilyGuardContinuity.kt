@@ -20,6 +20,9 @@ object FamilyGuardContinuity {
     const val KEY_REMOTE_STOP = "family_guard_remote_stop_v156"
     const val KEY_RESTORED_AT = "family_guard_last_restore_v156"
     const val KEY_BOOT_RESULT = "family_guard_boot_result_v156"
+    const val KEY_FOREGROUND_RESTORE_RESULT = "family_guard_foreground_restore_result_v041"
+    private const val KEY_FOREGROUND_RESTORE_ATTEMPT = "family_guard_foreground_restore_attempt_v041"
+    private const val FOREGROUND_RETRY_MS = 2 * 60_000L
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
