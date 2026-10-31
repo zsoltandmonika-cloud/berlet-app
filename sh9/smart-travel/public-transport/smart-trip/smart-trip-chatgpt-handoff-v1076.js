@@ -11,7 +11,7 @@
  if(root)root.SH9_SMART_TRIP_CHATGPT_V1076=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const LIMIT=4500;
+ const LIMIT=1600;
  const PRIORITY={
   balanced:'Léna ajánlása: kevés várakozás és gyaloglás, kevés átszállás, jó csatlakozási biztonság',
   wait:'Lehető legkevesebb várakozás',
@@ -40,17 +40,16 @@
   const destination=safe(q.to)+point(q.to,points?.destination);
   const timing=q.mode==='arrive'?'Legkésőbb érkezés: ':q.mode==='depart'?'Indulás időpontja: ':'Indulás most, referenciaidő: ';
   const requested=PRIORITY[priority]||PRIORITY.balanced;
+  // GPT already understands routing. Supply only the user's context and
+  // safety-critical verification criteria; avoid overconstraining research.
   const body=[
-   'Léna, a HealthHub SH9 Smart Trip AI-ból indítom a keresést. Válaszolj MAGYARUL, használj naprakész, ellenőrizhető menetrendi forrásokat és adj konkrét, ajtótól ajtóig tartó tömegközlekedési útitervet.',
-   'Indulás: '+departure+'.',
-   'Érkezés: '+destination+'.',
-   timing+q.date+' '+q.time+' (Europe/Budapest).',
-   'Prioritás: '+requested+'.',
-   'Vizsgáld a BKK, MÁV, Volán és gyalogos szakaszokat; javasolj egy legjobb és szükség esetén egy tartalék útvonalat.',
-   'ELLENŐRZÉS: keresd meg a tényleges napi menetrendet, járatszámot, megállókat és csatlakozásokat, és jelöld az egyes időpontokat ellenőrzöttnek vagy becsültnek. Közölj hivatalos forráshivatkozásokat. Ha egy adat nem ellenőrizhető, ne találj ki pontos időt vagy ötcsillagos értékelést.',
-   'KÜLÖNLEGES NAPOK: ellenőrizd az adott nap munkaszüneti/ünnepi menetrendjét, temetői és forgalmi változásait, esetleges vágányzárat, és jelezd, ha ezek érintik az útvonalat.',
-   'Csatlakozási biztonság: számolj reális sétával, várakozással, késéskockázattal és ritkán járó utolsó helyi busszal; adj használható B tervet. Személyes egészségügyi adatokat ne feltételezz.',
-   'A válasz elején legyen egy tömör ajánlás, utána időrendi táblázat, az adatbizonytalanságok és a kockázatok.'
+   'Léna, tervezz egy jó, ajtótól ajtóig tartó tömegközlekedési utat.',
+   'Honnan: '+departure,
+   'Hová: '+destination,
+   timing+q.date+' '+q.time+' (Budapest)',
+   'Fontos: '+requested,
+   'Adj egy legjobb útvonalat pontos járatokkal, átszállásokkal és gyaloglással; ha szükséges, B tervet.',
+   'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.'
   ].join('\n');
   return body.length<=LIMIT?body:null;
  }
