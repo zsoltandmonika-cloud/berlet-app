@@ -69,6 +69,37 @@ object FamilyGuardContinuity {
         context.stopService(Intent(context, Sh9GpsService::class.java))
     }
 
+    /**
+     * Recover a previously owner-approved GPS session when HH One is visibly
+     * foregrounded. The WebView does not enable GPS or grant permissions.
+     *
+     * Manual/notification STOP clears KEY_AUTO_GPS, so it is never undone here.
+     * A two-minute retry gate prevents repeated Android FGS start failures.
+     */
+    fun resumeApprovedGpsOnForeground(context: Context): String {
+        if (!enabled(context)) return "not-approved"
+        if (Sh9GpsService.active) return "already-running"
+        if (!hasOwner(context)) return "missing-owner"
+        if (!hasBackgroundLocation(context)) return "background-permission-missing"
+        if (!gpsAvailable(context)) return "location-disabled"
+
+        val now = System.currentTimeMillis()
+        val state = prefs(context)
+        val last = state.getLong(KEY_FOREGROUND_RESTORE_ATTEMPT, 0L)
+        if (last > 0L && now >= last && now - last < FOREGROUND_RETRY_MS)
+            return "retry-cooldown"
+
+        state.edit().putLong(KEY_FOREGROUND_RESTORE_ATTEMPT, now).apply()
+        val result = try {
+            Sh9GpsService.start(context)
+            "start-requested"
+        } catch (e: Exception) {
+            "android-restricted-" + e.javaClass.simpleName.take(40)
+        }
+        state.edit().putString(KEY_FOREGROUND_RESTORE_RESULT, result).apply()
+        return result
+    }
+
     fun restartApprovedGps(context: Context): String {
         val result = when {
             !enabled(context) -> "disabled"
