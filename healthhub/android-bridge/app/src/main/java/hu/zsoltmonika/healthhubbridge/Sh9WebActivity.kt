@@ -75,6 +75,8 @@ class Sh9WebActivity : ComponentActivity() {
     private var pendingGoogleCode: String? = null
     private var pendingDropboxCode: String? = null
     private var pendingDropboxState: String? = null
+    private var googleAuthDispatchRetries = 0
+    private var dropboxAuthDispatchRetries = 0
 
     private fun launchDropboxOAuth(url: Uri) {
         val state = url.getQueryParameter("state") ?: ""
@@ -112,6 +114,11 @@ class Sh9WebActivity : ComponentActivity() {
     private fun dispatchDropboxCode(view: WebView) {
         val code = pendingDropboxCode ?: return
         val state = pendingDropboxState ?: return
+        if (++dropboxAuthDispatchRetries > 24) {
+            pendingDropboxCode = null
+            pendingDropboxState = null
+            return
+        }
         val page = runCatching { Uri.parse(view.url ?: "") }.getOrNull()
         if (page?.scheme != "https" || page.host != HOST ||
             page.path != "/berlet-app/healthhub/") return
@@ -163,6 +170,10 @@ class Sh9WebActivity : ComponentActivity() {
 
     private fun dispatchGoogleCode(view: WebView) {
         val code = pendingGoogleCode ?: return
+        if (++googleAuthDispatchRetries > 24) {
+            pendingGoogleCode = null
+            return
+        }
         val page = runCatching { Uri.parse(view.url ?: "") }.getOrNull()
         if (page?.scheme != "https" || page.host != HOST ||
             page.path != "/berlet-app/healthhub/guardian/") return
@@ -185,12 +196,14 @@ class Sh9WebActivity : ComponentActivity() {
             Regex("hhweb_[A-Za-z0-9_-]{24,128}").matches(dbState)) {
             pendingDropboxCode = dbCode
             pendingDropboxState = dbState
+            dropboxAuthDispatchRetries = 0
             web?.loadUrl(healthhubAuthUrl())
             return
         }
         val code = intent.getStringExtra(EXTRA_GOOGLE_AUTH_CODE_V1063)
         if (code != null && Regex("[A-Za-z0-9._~-]{8,1024}").matches(code)) {
             pendingGoogleCode = code
+            googleAuthDispatchRetries = 0
             web?.loadUrl(guardianAuthUrl())
         }
     }
