@@ -127,3 +127,30 @@ test('v1084 keeps Smart Travel hero and uses taller brighter Smart Trip visual l
  assert.match(pageJs,/url\.searchParams\.set\('trip',trip\.id\)/);
  assert.doesNotMatch(pageJs,/navigator\.geolocation|fetch\(|setInterval\(/);
 });
+
+test('v1085 matches canonical SH9 hero controls, no upper-right Back and uses genuine photo avatars',()=>{
+ assert.match(page,/<button id="mtProfile" class="mt-hero-profile" type="button"/);
+ assert.match(page,/<img id="mtProfilePhoto" alt="Zsolt profilképe"/);
+ assert.match(page,/golden-standard-avatars-v529\.js\?v=529/);
+ assert.doesNotMatch(page,/<a class="mt-return"/);
+ assert.doesNotMatch(page,/class="mt-hero-wordmark"/);
+ assert.match(page,/<section class="mt-heading"/);
+ assert.match(page,/id="mtProfileName"/);
+ assert.match(page,/class="mt-quick" aria-label="My Trips gyorsműveletek"/);
+ assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
+ assert.match(pageCss,/\.mt-hero-profile\{/);
+ assert.match(pageCss,/left:6px;bottom:9px/);
+ assert.match(pageCss,/width:45px;height:45px;min-width:45px;max-width:45px/);
+ assert.match(pageCss,/\.mt-quick \.mt-action\{/);
+ assert.match(pageCss,/min-height:55px;height:55px;max-height:55px/);
+ assert.match(pageCss,/:root\[data-mt-profile="m"\] \.mt-hero-profile/);
+ assert.match(pageJs,/w\.HH_GOLDEN_AVATARS_V529\|\|\{\}/);
+ assert.match(pageJs,/photo\.src=avatars\[p\]/);
+ assert.match(pageJs,/button\.setAttribute\('aria-label'/);
+ assert.match(pageJs,/w\.localStorage\.setItem\('hh-profile',next\)/);
+ assert.match(pageJs,/if\(w\.localStorage\.getItem\('hh-profile'\)!==next\)/);
+ assert.match(pageJs,/w\.dispatchEvent\(new CustomEvent\('healthhub:profile-changed'/);
+ assert.match(pageJs,/w\.addEventListener\('storage',e=>/);
+ assert.match(pageJs,/pack\.read\(w\.localStorage,p\)/);
+ assert.match(pageJs,/url\.searchParams\.set\('trip',trip\.id\)/);
+});
