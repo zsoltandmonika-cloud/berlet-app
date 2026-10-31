@@ -144,7 +144,20 @@
    node('span','','Manuális követés · nem GPS vagy élő menetrend',tripStatus);
    if(j.summary)node('p','st22-tp-summary',j.summary,body);
    node('h3','st22-tp-timeline-title','Útvonal lépésről lépésre',body);
-   const timeline=node('ol','st22-tp-timeline',null,body);
+   const timeline=node('ol','st22-tp-timeline st22-tp-flow-v1083',null,body);
+   // Reuse the Family Guard v854 Trip Flow rail, keeping the established SH9 dark cards.
+   // Only existing TripPack endpoints are shown. No invented intermediate stops, distance or ETA.
+   const endpoint=(where,role,clock,end)=>{
+    const item=node('li','st22-tp-flow-endpoint'+(end?' st22-tp-flow-end':' st22-tp-flow-start'),null,timeline);
+    const pin=node('div','st22-tp-flow-pin',null,item);
+    const dot=node('span','st22-tp-flow-dot','',pin);
+    dot.setAttribute('aria-hidden','true');
+    const copy=node('div','st22-tp-flow-copy',null,item);
+    const heading=node('strong','',where,copy);
+    node('small','',role+(clock?' · '+clock:''),copy);
+    return heading;
+   };
+   endpoint(j.from,'Kiindulópont',j.departure,false);
    for(let i=0;i<j.segments.length;i++){
     const leg=j.segments[i];
     const cls=at===j.segments.length||at>=0&&i<at?' st22-tp-done':at===i?' st22-tp-current':'';
@@ -155,9 +168,20 @@
     node('strong','st22-tp-time',when(leg.departure),line);
     if(leg.line)node('span','st22-tp-service',leg.line,line);
     node('span','st22-tp-mode',name(leg.mode),line);
-    node('span','st22-tp-stops',leg.from+' → '+leg.to,detail);
+    if(leg.mode==='walk'){
+     node('span','st22-tp-stops',leg.from+' → '+leg.to,detail);
+    }else{
+     const ride=node('div','st22-tp-ride-flow',null,detail);
+     const board=node('div','st22-tp-ride-stop st22-tp-board',null,ride);
+     node('small','','Felszállás',board);
+     node('strong','',leg.from,board);
+     const exit=node('div','st22-tp-ride-stop st22-tp-alight',null,ride);
+     node('small','','Leszállás'+(leg.arrival?' · '+leg.arrival:''),exit);
+     node('strong','',leg.to,exit);
+    }
     node('small','st22-tp-proof',proof(leg.status)+(leg.note?' · '+leg.note:''),detail);
    }
+   endpoint(j.to,'Érkezési hely',j.arrival,true);
    if(j.id){
     const controls=node('div','st22-tp-follow-actions',null,body);
     const next=node('button','st22-tp-next','',controls);
