@@ -33,6 +33,8 @@
  function render(){
   const p=active(),items=pack.read(w.localStorage,p);
   d.documentElement.dataset.mtProfile=p;
+  const theme=d.querySelector('meta[name="theme-color"]');
+  if(theme)theme.content=p==='m'?'#241a3a':'#101d36';
   $('mtProfile').textContent=p==='m'?'Mónika':'Zsolt';
   $('mtCount').textContent=items.length+' útiterv';
   root.replaceChildren();

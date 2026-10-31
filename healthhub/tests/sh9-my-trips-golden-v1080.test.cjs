@@ -107,3 +107,23 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
  assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
 });
+
+test('v1084 keeps Smart Travel hero and uses taller brighter Smart Trip visual language',()=>{
+ assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
+ assert.match(page,/my-trips-v1080\.css\?v=1084-soft-smart-trip-pink-blue/);
+ assert.match(page,/my-trips-v1080\.js\?v=1084-profile-s24-theme/);
+ assert.match(pageCss,/height:clamp\(218px,68vw,295px\)/);
+ assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
+ assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
+ assert.match(pageCss,/--mt-panel-high:rgba\(66,118,172,\.81\)/);
+ assert.match(pageCss,/--mt-panel-high:rgba\(135,71,145,\.78\)/);
+ assert.match(pageCss,/:root\[data-mt-profile="m"\]/);
+ assert.match(pageCss,/--mt-accent:#bbe8ff/);
+ assert.match(pageCss,/--mt-accent:#ffd0ee/);
+ assert.match(pageCss,/\.mt-trip-actions a/);
+ assert.match(pageJs,/d\.documentElement\.dataset\.mtProfile=p/);
+ assert.match(pageJs,/if\(theme\)theme\.content=p==='m'\?'#241a3a':'#101d36'/);
+ assert.match(pageJs,/pack\.read\(w\.localStorage,p\)/);
+ assert.match(pageJs,/url\.searchParams\.set\('trip',trip\.id\)/);
+ assert.doesNotMatch(pageJs,/navigator\.geolocation|fetch\(|setInterval\(/);
+});
