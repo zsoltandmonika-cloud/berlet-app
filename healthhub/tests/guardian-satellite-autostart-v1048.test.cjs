@@ -140,7 +140,7 @@ test('only a structurally valid saved key can autostart satellite',async()=>{
  assert.equal(x.network,0);assert.equal(x.dialogs,0);
 });
 test('satellite remains an optional UI-only overlay; no GPS, interval or new consent path',()=>{
- assert.match(html,/guardian-satellite-v1033\.js\?v=1049-satellite-on-launch/);
+ assert.match(html,/guardian-satellite-v1033\.js\?v=1052-compact-attribution-mobile/);
  assert.match(script,/autoEnable\(\)/);
  assert.match(script,/hh-guardian-map-ready-v839/);
  assert.match(script,/manualOff/);
