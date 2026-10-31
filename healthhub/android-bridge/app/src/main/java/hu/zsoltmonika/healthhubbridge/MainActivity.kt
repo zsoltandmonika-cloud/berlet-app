@@ -183,9 +183,9 @@ class MainActivity : ComponentActivity() {
         // Only a short-lived, one-time OAuth authorization CODE enters through
         // the external Google browser. No access/refresh tokens cross an intent.
         // The PKCE verifier stays in the app-private WebView storage.
-        if (i?.data?.scheme != "healthhubconnect" || i.data?.host != "auth-return") return false
-        run {
-            val code = i.data?.getQueryParameter("code")
+        val data = i?.data ?: return false
+        if (data.scheme != "healthhubconnect" || data.host != "auth-return") return false
+        val code = data.getQueryParameter("code")
             val authPrefs = getSharedPreferences("hh_one_native_pkce_v1063", MODE_PRIVATE)
             val pending = authPrefs.getLong("pending_at", 0L)
             authPrefs.edit().remove("pending_at").apply()
@@ -200,7 +200,6 @@ class MainActivity : ComponentActivity() {
             }
             finish()
             return true
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
