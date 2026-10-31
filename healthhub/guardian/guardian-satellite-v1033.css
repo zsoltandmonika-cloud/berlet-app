@@ -142,9 +142,9 @@
  outline:2px solid #eaf8ff!important;outline-offset:2px!important
 }
 
-/* v1052 · mobile attribution fits in one-quarter-width (~23 px) trigger.
-   The required full-size, clickable MapTiler logo and © source links open
-   together in a single-tap contextual dialog. Desktop logo stays original. */
+/* v1052 · mobile MapTiler logo remains visible at one-quarter-width (~23px).
+   Tap opens the full-size, legible official logo and © source links.
+   Free plan attribution must remain visible in-map. Desktop logo is unchanged. */
 @media (max-width:600px) {
  .map-card #guardianSatelliteLogoV1033 {
   width:23px!important;min-width:23px!important;
@@ -155,10 +155,16 @@
   display:grid!important;place-items:center!important;
   box-shadow:0 2px 8px rgba(7,25,46,.22)!important;
  }
- .map-card #guardianSatelliteLogoV1033 img {display:none!important}
- .map-card #guardianSatelliteLogoV1033::before {
-  content:"ⓘ";display:block;color:#214c78;font:900 19px/1 system-ui,sans-serif;
-  text-align:center;
+ /* Keep the real provider logo visible in-map even on MapTiler Free. */
+ .map-card #guardianSatelliteLogoV1033 img {
+  display:block!important;width:20px!important;max-width:20px!important;
+  height:auto!important;max-height:14px!important;
+  opacity:1!important;filter:none!important;
+ }
+ /* Larger transparent hit area, without enlarging the visible 23px badge. */
+ .map-card #guardianSatelliteLogoV1033::after {
+  content:"";position:absolute;inset:-11px;
+  background:transparent;pointer-events:auto;
  }
  .map-card #guardianSatelliteLogoV1033[hidden]{display:none!important}
 }
