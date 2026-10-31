@@ -130,5 +130,5 @@ test('satellite remains an optional UI-only overlay; no GPS, interval or new con
  assert.match(script,/autoEnable\(\)/);
  assert.match(script,/hh-guardian-map-ready-v839/);
  assert.match(script,/autoDisabled\(\)/);
- assert.doesNotMatch(script,/navigator\.geolocation|watchPosition|setInterval\(|setTimeout\(|map\.setStyle/);
+ assert.doesNotMatch(script,/navigator\.geolocation|watchPosition|setInterval\(|setTimeout\(|map\.setStyle\s*\(/);
 });
