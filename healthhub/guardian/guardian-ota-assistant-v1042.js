@@ -15,7 +15,7 @@
  const CACHE_MS=5*60000; // foreground-only state freshness; no background polling
  const TOKEN='hh-dropbox-token-v2',APP='t68rmhh5f1l8d85';
  const OTA='../data/bridge-ota.json';
- let busy=false,lastRead=0,epoch=0,pendingRefresh=false;
+ let busy=false,lastRead=0,epoch=0,pendingRefresh=false,activeProfile=null,activeEpoch=0;
  const owner=()=>w.localStorage?.getItem('hh-profile')==='m'?'monika':'zsolt';
  const label=p=>p==='monika'?'Mónika':'Zsolt';
  const authorized=()=>w.HH_GUARDIAN_LIVE_V785?.familyAuthorized===true;
@@ -62,9 +62,13 @@
  async function refresh(force){
   // A profile change during another phone's read must not silently disappear.
   // Queue exactly one read for the newly selected profile, not a polling loop.
-  if(busy){if(force)pendingRefresh=true;return}
+  if(busy){
+   if(force&&(owner()!==activeProfile||epoch!==activeEpoch))pendingRefresh=true;
+   return;
+  }
   if(!force&&Date.now()-lastRead<CACHE_MS)return;
   const generation=++epoch,p=owner();
+  activeProfile=p;activeEpoch=generation;
   busy=true;lastRead=Date.now();check.disabled=true;noOffer('📦 HH One: kiadási verzió ellenőrzése…');
   try{
    // Live phone evidence is NOT gated by OTA rollout. This must work for
@@ -129,7 +133,7 @@
   }catch(e){
    noOffer('⚠ OTA állapot nem igazolható: '+String(e?.message||e).slice(0,140));
   }finally{
-   busy=false;check.disabled=false;
+   busy=false;activeProfile=null;check.disabled=false;
    if(pendingRefresh){pendingRefresh=false;void refresh(true)}
   }
  }
