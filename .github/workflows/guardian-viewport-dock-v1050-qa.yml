@@ -1,0 +1,29 @@
+name: Family Guard · SH9 visible dock viewport v1050 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-map-dock-fill-v828.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-viewport-dock-v1050.test.cjs'
+      - '.github/workflows/guardian-viewport-dock-v1050-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-map-dock-fill-v828.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-viewport-dock-v1050.test.cjs'
+      - '.github/workflows/guardian-viewport-dock-v1050-qa.yml'
+jobs:
+  viewport:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check healthhub/guardian/guardian-map-dock-fill-v828.js
+      - name: Mobile visible dock, refresh and keyboard checks
+        run: node --test healthhub/tests/guardian-viewport-dock-v1050.test.cjs
