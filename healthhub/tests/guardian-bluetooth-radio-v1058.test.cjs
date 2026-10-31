@@ -46,7 +46,7 @@ test('UI uses the original deep-blue Bluetooth color, but keeps approved brand i
  assert.match(css,/data-signal="blue"\] svg/);
  assert.match(css,/#15539a/);
  assert.match(html,/guardian-device-pack-preview-v1053\.css\?v=1058-bluetooth-blue/);
- assert.match(html,/guardian-ota-assistant-v1042\.js\?v=1058-bluetooth-verified/);
+ assert.match(html,/guardian-ota-assistant-v1042\.js\?v=1059-independent-device-evidence/);
  assert.match(read('guardian/guardian-device-pack-live-v1056.js'),/sh9-family-guard-logo-v1057\.webp/);
 });
 test('Native on/off from permission-gated HH One heartbeat; no scan or pairing',()=>{

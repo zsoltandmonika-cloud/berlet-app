@@ -11,9 +11,10 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 38
-        versionName = "0.15.11"
-        // v0.15.11/build38 native Remote Admin candidate above signed OTA v0.15.10/build37.
+        versionCode = 39
+        versionName = "0.15.12"
+        // v0.15.12/build39 Bluetooth and automatically verified OTA staging above signed v0.15.11/build38.
+        // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
     }
 
