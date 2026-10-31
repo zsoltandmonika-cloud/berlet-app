@@ -38,6 +38,6 @@ test('cache bust, navigation, calendar sign-in, and Outlook monthly route are re
  assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
  assert.match(stripe,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
