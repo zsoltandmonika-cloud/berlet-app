@@ -583,6 +583,14 @@ class Sh9WebActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // The launcher is the actual everyday HH One entrypoint. MainActivity
+        // may remain behind this WebView; neither pagehide nor web GPS state
+        // is authoritative for the approved Android foreground GPS service.
+        FamilyGuardContinuity.resumeApprovedGpsOnForeground(this)
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) hideBars()
