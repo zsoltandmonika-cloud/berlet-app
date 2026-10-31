@@ -76,6 +76,14 @@ test('rename edit uses same synced favorite slot; no duplicate on same spot',asy
  assert.equal(x.api.decode(x.slots[0].place.subtitle).radius,200);
  assert.equal(x.api.decode(x.slots[0].place.subtitle).departure,'silent');
  assert.match(x.marker.querySelector('.guardian-position-label').children[0].textContent,/Anyunál/);
+ const chip=x.marker.querySelector('.hh-smart-place-location-v1068');
+ assert.equal(chip.hidden,false);
+ assert.equal(x.marker.querySelector('.hh-smart-place-save-v1068').hidden,true,
+  'the pre-save action disappears after saving');
+ x.byId.guardianSmartPlaceDialogV1068.close();
+ x.handlers[chip.id+':click']({stopPropagation(){},preventDefault(){}});
+ assert.equal(x.byId.guardianSmartPlaceDialogV1068.open,true,
+  'tapping the saved place name opens its editor');
 });
 test('invalid, stale, unauthorized positions cannot become family saved destinations',async()=>{
  for(const settings of [{fresh:false},{authorized:false}]){
