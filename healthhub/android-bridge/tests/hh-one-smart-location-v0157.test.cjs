@@ -13,7 +13,7 @@ const admin=read('healthhub/hh-one-rag-v500.js');
 test('v0.15.11 build38 is same OTA-signed application with verified FLP dependency',()=>{
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
  assert.match(gradle,/versionName = "0\.15\.12"/);
- assert.match(gradle,/versionCode = 39/);
+ assert.match(gradle,/versionCode = 40/);
  assert.match(gradle,/play-services-location:21\.3\.0/);
 });
 test('native background location FGS requests FLP before supported Android fallback',()=>{
