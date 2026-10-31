@@ -19,15 +19,16 @@ test('ChatGPT is default, Google is only an explicitly chosen dropdown item, no 
 });
 test('ChatGPT handoff includes user selected matched favorites, date, preferences, holidays and verification',()=>{
  const prompt=ai.prompt(q,places,'wait');
- assert.ok(prompt&&prompt.length>500);
+ assert.ok(prompt&&prompt.length>250&&prompt.length<850,'brief must stay short, not burden ChatGPT with excessive rules');
  assert.match(prompt,/Otthon \(kijelölt hely koordinátája: 47\.54512, 19\.03534\)/);
  assert.match(prompt,/Mónika · Anyuka \(kijelölt hely koordinátája: 48\.25343, 20\.64156\)/);
  assert.match(prompt,/2026-11-01 07:30/);
  assert.match(prompt,/Lehető legkevesebb várakozás/);
- assert.match(prompt,/ÜNNEPI|KÜLÖNLEGES NAPOK/);
- assert.match(prompt,/hivatalos forráshivatkozásokat/);
- assert.match(prompt,/ne találj ki pontos időt/);
- assert.match(prompt,/BKK, MÁV, Volán/);
+ assert.match(prompt,/ünnepi vagy forgalmi eltéréseket/);
+ assert.match(prompt,/forráslinket/);
+ assert.match(prompt,/bizonytalan időpontokat jelöld becsültnek/);
+ assert.match(prompt,/tömegközlekedési utat/);
+ assert.doesNotMatch(prompt,/KÜLÖNLEGES NAPOK:|ELLENŐRZÉS:|Személyes egészségügyi adatokat|temetői és forgalmi|időrendi táblázat/);
  assert.match(prompt,/B tervet/);
  const u=new URL(ai.url(q,places,'wait'));
  assert.equal(u.origin,'https://chatgpt.com');
@@ -54,8 +55,8 @@ test('stale, mismatching or out-of-country favorite coordinates cannot be leaked
  const prompt=ai.prompt(q,{origin:{...places.origin,name:'A szomszéd helye'},destination:{...places.destination,lat:40}},'balanced');
  assert.ok(prompt);
  assert.doesNotMatch(prompt,/47\.54512|48\.25343/);
- assert.match(prompt,/Indulás: Otthon/);
- assert.match(prompt,/Érkezés: Mónika · Anyuka/);
+ assert.match(prompt,/Honnan: Otthon/);
+ assert.match(prompt,/Hová: Mónika · Anyuka/);
  assert.equal(ai.prompt({...q,time:'99:55'},places,'balanced'),null);
  assert.equal(ai.prompt({...q,from:' '},places,'balanced'),null);
 });
