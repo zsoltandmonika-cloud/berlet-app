@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./smart-trip-fixes-v1028.css?v=1029-full-tile-picker">
 <link rel="stylesheet" href="./smart-trip-fullscreen-map-v1032.css?v=1032-true-fullscreen">
 <link rel="stylesheet" href="./smart-trip-result-v1072.css?v=1072-fullscreen-one-card">
+<link rel="stylesheet" href="./smart-trip-pack-v1078.css?v=1078-saved-trips-glass">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
@@ -47,6 +48,7 @@
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="duration">⚡ Legrövidebb menetidő</option><option value="departure">◷ Legkorábbi indulás</option></select></div>
    <div class="st22-opt"><label for="st22SearchMethod">Keresőmotor · alapértelmezett</label><select id="st22SearchMethod" aria-label="Alapértelmezett keresőmotor, profilonként mentve"><option value="chatgpt">✨ Léna · ChatGPT</option><option value="google">🗺️ Google Térkép</option><option value="native">🧠 SH9 saját · kísérleti</option></select></div>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">Térkép</button></div>
+   <div class="st22-tp-tools"><button id="st22TripPackImport" type="button">📥 Útiterv importálása</button><button id="st22TripPackSaved" type="button">💾 Mentett útvonalak</button></div>
   </form>
   <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
   <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
@@ -90,6 +92,26 @@
  </div>
 </dialog>
 
+<dialog id="st22TripPackDialog" aria-label="Mentett SH9 Smart Trip teljes útvonalterv" aria-modal="true">
+ <div class="st22-tp-toolbar"><strong>✨ SH9 · Smart Trip AI</strong><button id="st22TripPackClose" type="button">✕ Bezárás</button></div>
+ <div class="st22-tp-body" id="st22TripPackBody"></div>
+</dialog>
+<dialog id="st22TripImportDialog" aria-label="ChatGPT TripPack JSON importálása" aria-modal="true">
+ <div class="st22-tp-toolbar"><strong>📥 ChatGPT útiterv importálása</strong><button id="st22TripPackImportClose" type="button">✕ Bezárás</button></div>
+ <div class="st22-tp-body">
+  <div class="st22-tp-import">
+   <p>A ChatGPT-kutatás végén kérd az SH9 TripPack JSON fájlt. A teljes útitervet a saját SH9-arculattal rajzoljuk újra. Nem szükséges PDF-et visszaolvasni.</p>
+   <button id="st22TripPackCopy" type="button">📋 JSON-exportkérés másolása ChatGPT-hez</button>
+   <label for="st22TripPackFile">Letöltött .json útiterv kiválasztása</label>
+   <input id="st22TripPackFile" type="file" accept=".json,application/json">
+   <label for="st22TripPackPaste">Vagy illeszd be a teljes JSON-t</label>
+   <textarea id="st22TripPackPaste" maxlength="60000" placeholder='{"schema":"sh9.trip-pack/1", ...}'></textarea>
+   <button id="st22TripPackDoImport" type="button">✓ Importálás és mentés</button>
+   <p id="st22TripPackStatus" role="status" aria-live="polite"></p>
+  </div>
+ </div>
+</dialog>
+
 <!-- v1031: same 40 shared family places as Family Guard, MÁV and Volán.
      Local cache first; authorized cloud refresh uses the existing v972 20-minute TTL.
      Only the public Supabase browser key and the existing RLS-scoped session are used. -->
@@ -105,6 +127,7 @@
 <script src="./smart-trip-multimodal-runtime-v1073.js?v=1073-auth-and-budget-gate"></script>
 <script src="./smart-trip-auto-fallback-v1075.js?v=1075-one-search-no-extra-button"></script>
 <script src="./smart-trip-chatgpt-handoff-v1076.js?v=1077-concise-gpt-brief"></script>
+<script src="./smart-trip-pack-v1078.js?v=1078-import-profile-local"></script>
 <script src="./smart-trip-ai-v1022.js?v=1076-chatgpt-default-explicit-google"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
