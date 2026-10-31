@@ -181,6 +181,27 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Only a short-lived, one-time OAuth authorization CODE enters through
+        // the external Google browser. No access/refresh tokens cross an intent.
+        // The PKCE verifier stays in the app-private WebView storage.
+        if (intent?.data?.scheme == "healthhubconnect" &&
+            intent?.data?.host == "auth-return") {
+            val code = intent?.data?.getQueryParameter("code")
+            val authPrefs = getSharedPreferences("hh_one_native_pkce_v1063", MODE_PRIVATE)
+            val pending = authPrefs.getLong("pending_at", 0L)
+            authPrefs.edit().remove("pending_at").apply()
+            val age = System.currentTimeMillis() - pending
+            if (pending > 0L && age in 0L..300_000L &&
+                code != null && Regex("[A-Za-z0-9._~-]{8,1024}").matches(code)) {
+                startActivity(Intent(this, Sh9WebActivity::class.java)
+                    .putExtra(Sh9WebActivity.EXTRA_GOOGLE_AUTH_CODE_V1063, code)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            } else {
+                startActivity(Intent(this, Sh9WebActivity::class.java))
+            }
+            finish()
+            return
+        }
         setContentView(buildUi())
         DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
