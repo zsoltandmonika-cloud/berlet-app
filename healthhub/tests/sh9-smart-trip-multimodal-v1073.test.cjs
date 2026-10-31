@@ -126,9 +126,10 @@ test('gated runtime is default-off, never leaks keys or calls paid Google endpoi
  assert.doesNotMatch(cfg,/sk-[_\w]+|AIza[\w-]+/);
  assert.match(html,/smart-trip-multimodal-v1073\.js/);
  assert.match(html,/smart-trip-multimodal-runtime-v1073\.js/);
- assert.match(html,/id="st22ExternalTrip"/);
- assert.match(html,/id="st22ExternalNote"/);
+ assert.doesNotMatch(html,/id="st22ExternalTrip"|id="st22ExternalNote"/);
+ assert.match(html,/id="st22SearchMethod"/);
+ assert.match(html,/smart-trip-auto-fallback-v1075\.js/);
  assert.match(ui,/multiGateway\.search\(/);
- assert.match(ui,/multiModel\?\.mapsUrl\?\.\(snapshot\(\),local\)/);
- assert.match(ui,/w\.location\.assign\(url\)/);
+ assert.match(ui,/autoFallback\?\.go\?\.\(multiModel,query,local,w\.location\)/);
+ assert.match(ui,/METHOD_KEY\+profile\(\)/);
 });
