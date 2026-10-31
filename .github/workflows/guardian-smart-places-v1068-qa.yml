@@ -6,6 +6,8 @@ on:
       - 'healthhub/guardian/guardian-smart-places-v1068.js'
       - 'healthhub/guardian/guardian-smart-places-v1068.css'
       - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
       - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
       - '.github/workflows/guardian-smart-places-v1068-qa.yml'
   push:
@@ -15,6 +17,8 @@ on:
       - 'healthhub/guardian/guardian-smart-places-v1068.js'
       - 'healthhub/guardian/guardian-smart-places-v1068.css'
       - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
       - 'healthhub/tests/guardian-smart-places-v1068.test.cjs'
 jobs:
   smart-places:
@@ -28,4 +32,5 @@ jobs:
         run: |
           node --check healthhub/guardian/guardian-smart-places-v1068.js
           node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
           node --test healthhub/tests/guardian-smart-places-v1068.test.cjs
