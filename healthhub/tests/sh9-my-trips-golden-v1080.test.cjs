@@ -55,10 +55,10 @@ test('golden header explicitly shows large times, derived duration, transfers an
  assert.match(pack,/st22-tp-alert-head/);
  assert.match(pack,/st22-tp-alert-icon/);
  assert.match(pack,/Fontos figyelmeztetések/);
- assert.match(css,/#st22TripPackDialog \\.st22-tp-alerts/);
- assert.match(css,/rgba\\(255,119,139,\\.95\\)/);
- assert.match(css,/st22-tp-alert-item \\+ \\.st22-tp-alert-item/);
- assert.doesNotMatch(css,/#st22TripPackDialog \\.st22-tp-alerts\\{[^}]*rgba\\(87,66,37/);
+ assert.ok(css.includes('#st22TripPackDialog .st22-tp-alerts{'));
+ assert.ok(css.includes('rgba(255,119,139,.95)'));
+ assert.ok(css.includes('st22-tp-alert-item + .st22-tp-alert-item'));
+ assert.ok(!css.includes('rgba(87,66,37,.65)'));
 
  assert.match(pageCss,/data-mt-profile="m"/);
  assert.match(pageCss,/SH9 Smart Travel My Trips v1080/);
