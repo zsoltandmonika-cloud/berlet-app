@@ -1,194 +1,200 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-30",
-  "generatedAt": "2026-10-30T11:54:12+01:00",
-  "headline": "A reggel fő témái: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens; Mushroom murderer fails to overturn convictions in Australian court challenge",
+  "date": "2026-10-31",
+  "generatedAt": "2026-10-31T11:26:02+01:00",
+  "headline": "A reggel fő témái: US approves sale of 500 Patriot missiles to Ukraine; Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
-        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
-        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery",
-        "BBC World: How Kenyans got caught in $130m US ghost student scam"
+        "BBC World: US approves sale of 500 Patriot missiles to Ukraine",
+        "BBC World: Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea",
+        "BBC World: Why North Korea's 'elite' hackers are the prime suspect in major Binance hack",
+        "BBC World: Police deployed during stand-off over control of top Poland court"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
-        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
-        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery"
+        "BBC World: US approves sale of 500 Patriot missiles to Ukraine",
+        "BBC World: Why North Korea's 'elite' hackers are the prime suspect in major Binance hack",
+        "BBC World: Police deployed during stand-off over control of top Poland court"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
-        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge",
-        "BBC World: Syrians struggle with soaring prices as crisis challenges post-Assad recovery"
+        "BBC World: US approves sale of 500 Patriot missiles to Ukraine",
+        "BBC World: Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea",
+        "BBC World: Why North Korea's 'elite' hackers are the prime suspect in major Binance hack"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Fontos bejelentés: Magyarország ismét hozzáfér az EGT és Norvég Alapok forrásaihoz - Portfolio.hu",
-        "24.hu: Két balatonnyi víz hiányzik Magyarország talajából - 24.hu",
-        "Magyarország Kormánya: Történelmi cseh–magyar kormányülés Prágában - Magyarország Kormánya"
+        "Világgazdaság: Magyarország elbukott két óriási új autógyárat, mégse itt épülnek meg - Világgazdaság",
+        "444: A leválthatatlanok leváltása: mit üzen Magyarország és Szerbia a világnak? - 444",
+        "Mezőhír: Bajban az őszi vetés, Magyarország is érintett - Mezőhír"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: From Levi's to Primark - the fashion chains selling mended clothes",
-        "BBC Business: Streeting denies 'kicking can down the road' in defence spending row",
-        "BBC Business: Yorkshire Water boss resigns after firm downgraded"
+        "BBC Business: Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea",
+        "BBC Business: US tech stocks see sharp falls as AI spending nears $1tn",
+        "BBC Business: What we know about Binance's $6.3bn hack"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Crypto giant Binance hit by $6.3bn hack suspected to be largest in history",
-        "BBC Technology: How video game remakes tap the power of nostalgia",
-        "BBC Technology: Google value plunges by $500bn as AI search hits ad sales"
+        "BBC Technology: Why North Korea's 'elite' hackers are the prime suspect in major Binance hack",
+        "BBC Technology: US tech stocks see sharp falls as AI spending nears $1tn",
+        "BBC Technology: Google value plunges by $500bn as its own AI search hits ad sales"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Syrians struggle with soaring prices as crisis challenges post-Assad recovery (BBC World).",
-        "Figyelmi pont: Faisal Islam: This Budget was micro and that was deliberate (BBC Business)."
+        "Figyelmi pont: US approves sale of 500 Patriot missiles to Ukraine (BBC World).",
+        "Figyelmi pont: Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
-        "BBC World: Mushroom murderer fails to overturn convictions in Australian court challenge"
+        "BBC World: US approves sale of 500 Patriot missiles to Ukraine",
+        "BBC World: Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Residents leave devastated Russian-occupied Oleshky as evacuation corridor opens",
+      "title": "US approves sale of 500 Patriot missiles to Ukraine",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c3vgxznlx7jzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-31"
+    },
+    {
+      "title": "Crypto giant Binance attempting to recover $6.3bn stolen in hack linked to North Korea",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwe8lp7zy07zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Why North Korea's 'elite' hackers are the prime suspect in major Binance hack",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ck9dz3v7z7v3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-31"
+    },
+    {
+      "title": "Police deployed during stand-off over control of top Poland court",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/crz9824d5e88o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-31"
+    },
+    {
+      "title": "Spain train disaster clouds Sánchez chances of re-election",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmeweppr990qo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-31"
+    },
+    {
+      "title": "G20 'family photo' cancelled after protests over presence of Russian minister",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmd6dp2y576do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Global nature talks reach deal but money remains an issue",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cw1l32qyj8pqo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-31"
+    },
+    {
+      "title": "Hundreds evacuated from Russian-occupied Oleshky during rare Ukraine ceasefire",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/c60me298k1yeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Mushroom murderer fails to overturn convictions in Australian court challenge",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck8dz8j5n993o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
+      "title": "Magyarország elbukott két óriási új autógyárat, mégse itt épülnek meg - Világgazdaság",
+      "publisher": "Világgazdaság",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQSmlEU3NveWVUZGRoVEc2SXNNVFFZWnVmb2NEc3ZCNExfU04ycEpfSndHUkJmLXRaVnlyS1YwTUJEWnFLVklaWTlDcXBQUElIZG5MNDJadmZmTHZxRy1nVWxWbEtHTU5WOUU2SnJjSHY0RmNzbEkyUVpJTlY4djExZVdGYl9Rc0FMRVI3d2wtMGhtVDh6VDlMSFdJMVY0T1NWd25zbVNPSU5mWEU?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Syrians struggle with soaring prices as crisis challenges post-Assad recovery",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmn4egvez1yzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
+      "title": "A leválthatatlanok leváltása: mit üzen Magyarország és Szerbia a világnak? - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOV3FwcE9mMVZ2Z09VV2NmQ0ZTclpLNTFRM05HYV9WcDhkYUY3ckVneEFmOGtNanpDOHdUeE5rUzFHMm5ldWNsdVVGV0lidmFGbHdZeVlTeW1QU1ZDdE5lWEJ4SmZoMjBWdnktemVtc0VPZEJ3UERiMWVvbi1YRjJpS2V0cVRyblluaFRMRW5Ed2lrdE1LSkVVNEQxdmd1TXc?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "How Kenyans got caught in $130m US ghost student scam",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxvgdzpy7241o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
+      "title": "Bajban az őszi vetés, Magyarország is érintett - Mezőhír",
+      "publisher": "Mezőhír",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5FZVo3OVV0emxZZGdFZnNYMHZSV3pvMlNYTmJTS1I2al9xN3RWZndkc3FJUG84a3RnU3lSUlZpNUNWaEl3b3REOWZNNEpydlVXY3lGZzAtWFRpMkJOME9JamRnWDAtQk91dGlLQ1lvSTNkNTQ?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Helicopter carrying six people crashes in northern Indian state",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr93zxyn9eqeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
+      "title": "Kiszárad Magyarország? Óriási küzdelem indulhat a túlélésért - Agrárszektor",
+      "publisher": "Agrárszektor",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPc2ZuX1ljZDBnVWhRejVjemg3a3BTNVhKSi1uREhwM0x5eEdjWDFpYmxjWVU0dUt3UGxDTl9nSThyTVNuMDFYMy1hTk5WOFpIU3dYZFF3THZ1Y2JDYzJHaXFkT0NDb0ZabXgzM3F5VGJ6V1FFdXVMV0RNYlBMeEJUQlhUdDU1VWFfN3hjdVRKMTNMLUM5MXpTb2Zfb1BZcGN0RmttNGw0d0ZmeTFi?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Human rights lawyer couple sentenced to 10 years' prison in Pakistan",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crq5nplyvlg8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "Google value plunges by $500bn as AI search hits ad sales",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm9qzdqpxy48o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Record number of purges as Xi emphasises 'party discipline' at China political gathering",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq5ynw94k7kzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "Fontos bejelentés: Magyarország ismét hozzáfér az EGT és Norvég Alapok forrásaihoz - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOekJOSzVyRlh3dTZESW5xQkxCS0ZmLVZYUkVtOTI0ejB4NVVNU3lPRDRYSVNER1lpT0VJWjZWOEwzN3JsXy1COVpIRFVXVHRLLWNYS1h0anVSQjlMczFFQUR2eHJldzl4RGRJMk5OZFI2SVMyYkVYcl9RaGozMW1iTVAtUUp3T29TSG1RNVA0b2J2Yks1YVZVbXF1VWZWY0F0YmNYcExmLW9ZaS1Zd3JnSFBFa0xVTlg1aEdBUEJVdW1kaDVjcHQzWktMMNIB0AFBVV95cUxQd1VTaVA1dFZ1dE5DMHRiMU9zZUlLbm9wZVptT0EtTjI5SldXdG5KXzhIOE4zRnR6V1htMW9aNFRDMU5pbHE2YU9wTGVDdktBcDZ2Mi1Sb0xRZW00R0tOTGNSbHlCZExKNlN5bW9ObXBxbHFFQldYUVRRNjE2QTQxckRYLWdNUnRiX3ItOVlRcHVmdUdYSzMwSTFhZ3JLX0c4cFI5ZWVaelJhdHZ3SDR6NnhPN0VVSjMyMkw0U2xQN0tRTG8yVmQ0Zlhzb3NPXzF3?oc=5",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "Két balatonnyi víz hiányzik Magyarország talajából - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1HSzVsbVpPd2hnaFZfbkpVOTFJX3JPd0JUWk0ydDRWZ2JIcktoZVZRX2h6SG5wNkozdVcwZHpQZkNRVUVjMlo2R2ZLQWd6aWpYUzBoTkE5SVJ5V19ndmxkNFZJVnRRbVRxRjBocVBnVTdqUVFvVlBNT0M4SE4?oc=5",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "Történelmi cseh–magyar kormányülés Prágában - Magyarország Kormánya",
+      "title": "Benyújtotta a jövő évi költségvetés tervezetét az Országgyűlésnek a kormány - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5hRXpWRzBDNEhTaXMtZ2hqaC11UHJBZ0d1akZPazQxNUZuZWV0QjNDaXFpZEVKVmhBenRONkY5STNjOUtTTWNueEhtdUU1ZndIMC1IX3A5Umo5MHNzU19ZZ3J3VDl5M0cyamN6Y2RqYklTaTdENEE?oc=5",
-      "publishedAt": "2026-10-30"
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNUXhnWHVMYlo3YWZlOFdqTC1QbHAyLXdjUnluYjkxYlp0bGNGR21JUWYyaC1pa0RaLUhyU21vUC1UVm9qYU1iY09RMVRqZkUxYXJmRUNFY2lVSnFNRWZFWnBaTFlkOXRNbGtfU05wOFk1NGI3dXR4WTNMMWtmZlBjTWNZS1Q4X3dGcVh5QVkwdzBOX0FjSmJSREFqSk0xb3NMMHc?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "600 milliárdos gigaüzletet ütött nyélbe, ki is vonul két országból a Tesco. Kiderült, hogy Magyarország is köztük van-e - Forbes.hu",
-      "publisher": "Forbes.hu",
-      "url": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxOS1dWOGFyWmEzV0pUV2E4RTFHYUVjeldCbkJCbmR5UE5oU0FrVGI3WXNYR25Eam5IZExPSlVoenNZSm53a2luWFM5U0M5QkctSy04VlBla3pKVXJjalNnQkZNMDVVaVVNVEZJUEhDeXdjYVFrTUZMWGVWZzVrZGdHRU5Oa2pwR09vRkl0Vm1TUXdhRTF1cUtxel9CNUdMRG5jeWhzdy1vWFdnVXhOSHVpU2JUTkR1UGFMbkplNTFBNEdTRnpxNmdkZ0hhNnBieEVuOTI0bHhVX05DTElHZnc?oc=5",
-      "publishedAt": "2026-10-30"
+      "title": "Gazdaság: Gazdasági szakadék alakult ki Magyarországon, így néz ki - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPbXdLV25PSHF3WTBWQmNXczJvU1k5bzcxY0dLb1UzX2RkM0dodFVVX0Z1dTMxWWRHYlRZTHV1blFsQTNJdDZuV3pDYTF1T2tGVHp4NDk4Skc4dXBBRXNjWE9ZZnk3MFBsY1FZTjRjOHF0TXV6SndZTWpQbU13QThIM3YxUEVPZ00?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Két tapasztalt vezetővel erősödött a Rossmann Magyarország - Behaviour – a HR-magazin",
-      "publisher": "Behaviour – a HR-magazin",
-      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPMVdvSmxybURKSVRiazFrSUltRW1wLXNDNGZFREFPWThqT244VEtMY1pZTjhycDNLbms5c3pjaENaaEFHdzVMSEFOOG53d3hpLVp6c1VFTHZVSnJXNzVlZVFDdi1NaXpaQmdJaTNpbEk4T2sxRi1haW5MUEFUMjZSYzVXd3RWMW8?oc=5",
-      "publishedAt": "2026-10-30"
+      "title": "Villámértékelések a magyar csapatok EK meccsei után - WBASKET",
+      "publisher": "WBASKET",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5sSU5VbjMzY1NNeG5uU3ExV055VEJIbnVnbkdXUWlHVHBKZVpNRDFIV1dHdHdSamVKdWZlcmNpc0RWTEpyR1pBYWVOZW9wZklLejVvUlRjU21kS3RJMGxQaUxnUDRIUU83NmFwQ0J5VkwxR1FzdU94M0JxZw?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "A magyarorszag.hu leállása csak a jéghegy csúcsa volt: 19 kormányzati rendszert érintett a múlt héten felfedezett PHP-hiba - Qubit",
-      "publisher": "Qubit",
-      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNcERDazdITUotbnVQdXVySlRiSlNPS0N0TjdBdnYxMUg2NnI4NkhjU1BVUEg5TkhubTVLYmV2SHJadjZBbU1veWYzOVJOOEFMUktVMHEySElwN0FGS3ZDSndOT25OeC1RR296UHhVMkRFRmpFVVRWX2hhOFlRTVBYMUo5SEVsRnJuTkw2dG5aaWUyaUlJeWY5WUhUX1NZZlBmazV4dlVDV19iTGNfWGhTYUhqQmRmTFRyWHNYSVU3bVd2ZXBmXzVUM1NsendBbUhsd2NXM01zMmJZYldQMkpOUE93?oc=5",
-      "publishedAt": "2026-10-30"
+      "title": "Tiborcz István neve eltűnt a magántőkealapokból – barátait, üzlettársait és az egyik leggazdagabb magyart viszont megtaláltuk - Szeretlek Magyarország",
+      "publisher": "Szeretlek Magyarország",
+      "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxPRVpaT3h2YnZGUXRraFA0V2JQbFdnblRLNnA2T0NvcFBGZDVzZEszNzFpc2RaR2tyZUdxRE8zRnZiVjEwQlVhbUE0UnlYRW9RN3JqYXFXOFFaZXhXYnhtN29SZHdqb2hwLWRMNHk3Sk5sMTdFU0tSNm9QNkVnUFNjX3MtYnAxRUxzNTlJY0thZmMtZHQ1M043VUtLLWNKNmhIV0JtTFV1M2xrSmF5WEtMWW1SbUZBT21teF91TktUaW1scTJkdUdCYXlldENDamVubTJaNnB1UUhiR290dHZwaVIzSFQ2dHVvbGtWOEpQSXRRQU9hdXR5eWZlZlhBZw?oc=5",
+      "publishedAt": "2026-10-31"
     },
     {
-      "title": "Két fontos megállapodást kötött Magyarország és az Egyesült Államok – az energiaellátás is terítékre került - Frisss.hu",
-      "publisher": "Frisss.hu",
-      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOODJmc2VuaGU5OXBhc05MdVFRM2tkN294UmlHRDBhZ0wzeHJkZGZPZ3d2czdkOENlWUpyazRad3Nsa3c4S194OGZMN242T0dQN2ZtQWdLVzNlUW1rMkxIdmN0dmhuZWxhQ2pjZGE2bHMyUWZrQnpNWktNYV83aVdxZHNmTjhFcFA4RW41TTRzNEgzZWZtVVJxQ1pmaElMSXNfUGJyUDVoLUZIRDR4VEF6LUZ6M2p2VTVIMFZnWDZkaUhiRDBwSFFSRWxmSFE2bVVnckpZ?oc=5",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "Drasztikus lépésre szánta el magát a Tesco: Magyarország is hamarosan sorra kerülhet? - Blikk",
-      "publisher": "Blikk",
-      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQTzZfU0JORlYzOFZuZ2NieGxVMzEyczBkemhKMXZQZEE3YzFWcm1fVm1jamFWNVhhczlaMXgtZVRBSEhKUVZzbXJ1Smkxa2RfTHhtT25uUEtJbEhZMjZRUXE1eFlYZFFXX1VBQkRZZHN6dkMycWhMZ29VSHBTb29lS3hHTlE1Umw3UEJBNXlVUDVZTFd0SGxfajJSRDhYaWVCLVVwbWJUdlE0dUg1Slkxbg?oc=5",
-      "publishedAt": "2026-10-30"
-    },
-    {
-      "title": "From Levi's to Primark - the fashion chains selling mended clothes",
+      "title": "US tech stocks see sharp falls as AI spending nears $1tn",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmwy9qe5r1z3o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cvwy72e0n72yo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-30"
     },
     {
-      "title": "Streeting denies 'kicking can down the road' in defence spending row",
+      "title": "What we know about Binance's $6.3bn hack",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cw62yrzxjnk4o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/videos/cv2d62e34rw5o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-30"
     },
     {
-      "title": "Yorkshire Water boss resigns after firm downgraded",
+      "title": "City of London chief tops UK Black Powerlist",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckzd623pldqgo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c98rz4pxm4ymo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "How Poundland grew from a market stall to a high street giant",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cw07304l5je7o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-30"
     },
     {
@@ -198,28 +204,22 @@
       "publishedAt": "2026-10-30"
     },
     {
-      "title": "Burnham 'ready to support' Poundland staff as retailer faces collapse",
+      "title": "Yorkshire Water boss resigns after firm downgraded",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqrky1p4dlm7o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Faisal Islam: This Budget was micro and that was deliberate",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwx283zynnv3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
-    },
-    {
-      "title": "Crypto giant Binance hit by $6.3bn hack suspected to be largest in history",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwg7xp8kx4v5o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/ckzd623pldqgo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-10-30"
     },
     {
-      "title": "Ofcom outlines age check methods ahead of social media ban for under-16s",
+      "title": "Streeting denies 'kicking can down the road' in defence spending row",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cw62yrzxjnk4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
+    },
+    {
+      "title": "Google value plunges by $500bn as its own AI search hits ad sales",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/c6ly3027820lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-10-29"
+      "url": "https://www.bbc.co.uk/news/articles/cm9qzdqpxy48o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-10-30"
     }
   ]
 }
