@@ -19,7 +19,8 @@
  const DIRECT='healthhubconnect://settings?ota=install';
  const SETTINGS='healthhubconnect://settings';
  const CHECK='healthhubconnect://settings?ota=check';
- const SIX_HOURS=6*60*60*1000;
+ // Foreground-only release refresh: a family OTA rollout must not remain hidden for six hours.
+ const REFRESH_MS=5*60*1000;
  const qs=new URLSearchParams(w.location.search);
  const queryBuild=Number(qs.get('hhBuildCode'));
  const queryOwner=qs.get('hhOwner');
@@ -65,17 +66,19 @@
   manualApk.hidden=!canDownload;
   manualApk.href=canDownload?approvedRelease:'#';
   manualSettings.href=manualCheckLink;
+  manualSettings.textContent=known&&build>=38?'📱 HH One OTA ellenőrzés':'📱 HH One natív frissítő megnyitása';
   manualStatus.textContent=canDownload?
    'Ha a gyors telepítés nem nyílt meg, a telefonodon válaszd a HH One frissítőt vagy a hivatalos APK kézi letöltését.':
    'A frissítés verziója ezen a telefonon nem igazolt. Nyisd meg a HH One saját frissítőjét; kézi APK-t csak ellenőrzött kiadásnál mutatunk.';
  }
- // One real tap launches the native installer. Manual failover appears ONLY
- // if the same page remains visible because Android did not open the handler.
+ // One real tap starts either native install (v0.15.11+) or native OTA
+ // settings (legacy build37). If Android has no handler, offer a compact
+ // MANUAL fallback on the same page, regardless of indicator colour.
+ // Unknown/stale build NEVER receives an unverified direct APK link.
  el.addEventListener('click',()=>{
-  if(el.dataset.state!=='update')return;
   manual.hidden=true;
   w.setTimeout(()=>{
-   if(!d.hidden&&el.dataset.state==='update')showManualFallback();
+   if(!d.hidden)showManualFallback();
   },1800);
  });
  manualClose.addEventListener('click',()=>{manual.hidden=true;el.focus()});
@@ -101,11 +104,11 @@
   return m.downloadUrl===link;
  }
  async function check(force){
-  if(busy||(!force&&Date.now()-last<SIX_HOURS))return;
+  if(busy||(!force&&Date.now()-last<REFRESH_MS))return;
   last=Date.now();busy=true;approvedRelease=null;
   manualApk.hidden=true;manualApk.href='#';
   if(!known){
-   state('unknown','HH One verziója ezen a felületen nem ellenőrizhető. Nyisd meg a HH One alkalmazást.',manualCheckLink);
+   state('unknown','HH One verzió nem igazolt ezen a felületen. Koppints a natív frissítő megnyitásához; régebbi telepítésnél a Telepítés gomb is szükséges.',manualCheckLink);
    busy=false;return;
   }
   try{
@@ -131,7 +134,7 @@
   }catch(_){
    if(nativeHealth()==='warning')
     state('warning','SH9 SERVICE NEEDS ATTENTION · A natív szolgáltatás indításkor hibás volt; OTA állapot ismeretlen.',manualCheckLink);
-   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjének megnyitásához.',manualCheckLink);
+   else state('unknown','OTA-állapot nem ellenőrizhető. Koppints a HH One frissítőjéhez; nem mutatunk hamis zöld állapotot.',manualCheckLink);
   }finally{busy=false}
  }
  // A still-open page must not keep showing yesterday's healthy boot snapshot.
