@@ -48,7 +48,7 @@ test('golden header explicitly shows large times, derived duration, transfers an
  for(const klass of ['st22-tp-clock-grid','st22-tp-metrics','st22-tp-clock strong',
   'st22-tp-head-golden','st22-tp-current','st22-tp-done'])assert.ok(css.includes(klass));
  assert.match(pack,/Menetrendi adat \(AI állítása\)/);
- assert.match(pack,/nem élőben hitelesített/);
+ assert.doesNotMatch(pack,/st22-tp-limitation/);
  assert.match(pack,/document|body\.replaceChildren\(\)/);
  assert.match(css,/data-st22-profile="m"/);
  assert.match(pageCss,/data-mt-profile="m"/);
