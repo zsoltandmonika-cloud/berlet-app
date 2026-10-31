@@ -46,6 +46,6 @@ test('local private SH9 Agenda still exists for Admin Microsoft Calendar setting
  assert.match(html,/id="sh9AgendaDialog"/);
  assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_blank" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
  assert.match(agenda,/offline_access User\.Read Calendars\.Read/);
- assert.equal((html.match(/class="tile" type="button" data-name=/g)||[]).length,9);
+ assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
