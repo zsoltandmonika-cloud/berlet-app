@@ -272,7 +272,25 @@ let profile='z';try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}cat
 function syncProfile(){document.documentElement.dataset.profile=profile;const name=profile==='m'?'Mónika':'Zsolt',avatars=window.HH_GOLDEN_AVATARS_V529;const photo=$('profile-photo');if(avatars)photo.src=avatars[profile]||avatars.z;photo.alt=name+' profilképe';window.SH9_VOLAN_JOURNEYS_UI?.render();$('profile').title=name+' · Profilváltás';$('profile').setAttribute('aria-label','Aktív profil: '+name+'. Váltás '+(profile==='m'?'Zsoltra':'Mónikára'))}
 $('profile').addEventListener('click',()=>{profile=profile==='m'?'z':'m';try{localStorage.setItem('hh-profile',profile)}catch(_){}syncProfile();toast('Aktív profil: '+(profile==='m'?'Mónika':'Zsolt'))});syncProfile();
 let dismiss;function toast(message){const el=$('volan-toast');el.textContent=message;el.hidden=false;clearTimeout(dismiss);dismiss=setTimeout(()=>el.hidden=true,3600)}
-document.querySelectorAll('[data-stage]').forEach(el=>el.addEventListener('click',()=>toast('Volán '+el.dataset.stage+' · bekötés a következő lépésben')));
+// Volán quick navigation: real destinations, no placeholder toasts.
+ const official=(url)=>{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer external';document.body.append(a);a.click();a.remove()};
+ const quickActions={
+  menetrend:()=>official('https://menetrendek.hu/'),
+  kedvencek:()=>{
+   const favorites=window.HH_TRAVEL_FAVORITES_UI_V972;
+   if(typeof favorites?.open==='function'){favorites.open();return}
+   const trigger=$('hhTravelFavOpenV972');
+   if(trigger){trigger.click();return}
+   toast('A családi kedvencek még nem töltődtek be. Frissítsd az oldalt.');
+  },
+  'élő autóbuszok':()=>official('https://mavplusz.hu/'),
+  jegyek:()=>official('https://jegy.mav.hu/')
+ };
+ document.querySelectorAll('[data-stage]').forEach(el=>el.addEventListener('click',()=>{
+  const action=el.closest('.quick')?quickActions[el.dataset.stage]:null;
+  if(action){action();return}
+  toast('Volán '+el.dataset.stage+' · bekötés a következő lépésben');
+ }));
 document.querySelector('[data-go="planner"]').addEventListener('click',()=>$('planner').scrollIntoView({behavior:'smooth',block:'start'}));
 let mode='now';function setMode(next){
  mode=next;
@@ -321,6 +339,6 @@ window.SH9_VOLAN_PLANNER_V3={
 };
 $('swap').addEventListener('click',()=>{const from=$('from').value;$('from').value=$('to').value;$('to').value=from;toast('Megállók felcserélve · dátum és időpont változatlan.')});
 $('find').addEventListener('click',()=>{const a=$('from').value.trim(),b=$('to').value.trim();if(a.length<2||b.length<2||a===b){toast('Adj meg két különböző buszmegállót.');return}toast('Saját útvonal-előnézet: '+a+' → '+b+'. Élő Volán-menetrend még nincs bekötve.')});
-$('refresh').addEventListener('click',()=>toast('Hivatalos Volán-menetrend hivatkozása külön bekötésre vár.'));
+$('refresh').addEventListener('click',()=>official('https://menetrendek.hu/'));
 })();
 </script><script src="./volan-journey-manager-v3.js"></script><script src="./volan-bus-info-v1.js"></script><script defer src="../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script><script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script><script defer src="../../../../healthhub/guardian/guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script><script defer src="../transport-family-favorites-v972.js?v=972-family-40"></script><link rel="stylesheet" href="../sh9-reservation-v986.css?v=986"><script src="../sh9-reservation-v986.js?v=987-example-handoff"></script><link rel="stylesheet" href="./volan-gtfs-v990.css?v=990"><script src="../mav/rail-gtfs-core-v1.js?v=990-local-volan"></script><script src="./volan-gtfs-v990.js?v=995-predict-focus"></script><link rel="stylesheet" href="./volan-date-v992.css?v=992"><script src="./volan-date-v992.js?v=992"></script><link rel="stylesheet" href="./volan-predict-v995.css?v=995"><link rel="stylesheet" href="./volan-full-v996.css?v=996"><link rel="stylesheet" href="./volan-results-v997.css?v=997"><link rel="stylesheet" href="./volan-booking-v1000.css?v=1000"><link rel="stylesheet" href="./volan-direct-v1001.css?v=1001"><script src="./volan-booking-v1000.js?v=1000"></script><script src="./volan-direct-v1001.js?v=1001"></script><script src="./volan-results-v997.js?v=1001-direct"></script><link rel="stylesheet" href="./volan-smart-places-v998.css?v=998"><script src="./volan-stop-resolver-v998.js?v=998"></script><script src="./volan-full-v996.js?v=999-tadaa"></script><script src="./volan-tadaa-v999.js?v=999"></script></body></html>
