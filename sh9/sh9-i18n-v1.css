@@ -67,3 +67,11 @@
  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
  backdrop-filter:blur(18px) saturate(145%)!important;
 }
+
+/* v906 · Tasks capsule a shade lighter than the language switch.
+   Keep identical 90×47 sizing, clear text and Golden Glass blur. */
+#sh9HeaderControlsV2 #sh9TasksGolden{
+ background:linear-gradient(145deg,rgba(25,52,86,.33),rgba(6,21,48,.23))!important;
+ border-color:rgba(205,229,255,.39)!important;
+ box-shadow:0 4px 13px rgba(0,5,18,.22),inset 0 1px rgba(255,255,255,.23)!important;
+}
