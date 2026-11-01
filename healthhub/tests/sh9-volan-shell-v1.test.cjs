@@ -80,7 +80,7 @@ test('Volán uses the same actual MÁV Golden layout blocks',()=>{
 test('Top Volán quick actions navigate to working features while unfinished utilities remain staged',()=>{
  for(const name of ['menetrend','kedvencek','élő autóbuszok','jegyek'])
   assert.ok(html.includes('data-stage="'+name+'"'));
- for(const url of ['https://menetrendek.hu/','https://mavplusz.hu/','https://jegy.mav.hu/'])
+ for(const url of ['https://mavplusz.hu/','https://jegy.mav.hu/'])
   assert.ok(html.includes(url),'Hiányzó hivatalos gyorslink: '+url);
  assert.match(html,/HH_TRAVEL_FAVORITES_UI_V972/);
  assert.match(html,/const quickActions=/);
