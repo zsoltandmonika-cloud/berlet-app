@@ -132,10 +132,10 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 </style><link rel="stylesheet" href="./hh-buddy-mood-v627.css?v=627-hd-faces">
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
-<link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=722-left-buddy-bigger">
+<link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=1120-card-edit">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
-<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1119-category-chips">
+<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1120-card-image">
 <link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=650-bristol-photo-edit">
 <link rel="stylesheet" href="./hh-bristol-wheel-v649.css?v=650-editable-photos">
 <link rel="stylesheet" href="./hh-urine-color-wheel-v650.css?v=650-apple-juice">
@@ -236,6 +236,14 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
    <form class="hh-quick-form" id="hhQuickEditorForm">
     <div class="hh-quick-field wide"><label for="hhQuickEditName">Recept neve</label><input id="hhQuickEditName" maxlength="80" autocomplete="off" required placeholder="Pl. Mónika reggeli cappuccino"></div>
     <div class="hh-quick-field wide"><label for="hhQuickEditDescription">Rövid leírás a kártyán</label><input id="hhQuickEditDescription" maxlength="160" placeholder="Pl. Krémes, finom, a reggel fénypontja"></div>
+    <div id="hhQuickSharedControls" class="hh-quick-shared-controls" hidden>
+      <strong>☁️ Közös családi kártya · mindkét profilban</strong>
+      <label for="hhQuickSharedCategories">Kategóriák (vesszővel elválasztva)</label>
+      <input id="hhQuickSharedCategories" maxlength="300" placeholder="Pennék, Tésztaételek">
+      <label class="hh-quick-shared-check"><input type="checkbox" id="hhQuickSharedFavorite"> ⭐ Megjelenjen a Kedvencek között</label>
+      <label class="hh-quick-shared-check"><input type="checkbox" id="hhQuickSharedAutoImage"> ✨ Automatikus prémium AI-kép készítése mentéskor</label>
+      <small>A kép a szerkesztett ételnévből készül, Puter AI-val. Ha már van fotó, külön választhatod az újragenerálást.</small>
+    </div>
     <div class="hh-quick-field"><label for="hhQuickEditCategory">Kategória</label><select id="hhQuickEditCategory"><option>Italok</option><option>Édesség</option><option>Reggeli</option><option>Főételek</option><option>Gyümölcs</option></select></div>
     <div class="hh-quick-field"><label for="hhQuickEditMeal">Étkezés</label><select id="hhQuickEditMeal"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb</option></select></div>
     <div class="hh-quick-field"><label for="hhQuickEditKcal">Kalória / fix adag (kcal)</label><input id="hhQuickEditKcal" type="number" inputmode="decimal" min="0" max="5000" step=".1" required></div>
@@ -317,11 +325,11 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./nutrition-image-v641.js?v=644-shared-image-cache"></script>
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=729-summary-visible"></script>
-<script defer src="./hh-quick-recipe-wheel-v635.js?v=1118-shared-favorites"></script>
+<script defer src="./hh-quick-recipe-wheel-v635.js?v=1120-card-edit"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=751-single-owner"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
-<script defer src="./hh-shared-food-library-v1118.js?v=1118-shared"></script>
-<script defer src="./hh-lena-ai-scan-page-v753.js?v=1119-category-chips"></script>
+<script defer src="./hh-shared-food-library-v1118.js?v=1120-card-auto-image"></script>
+<script defer src="./hh-lena-ai-scan-page-v753.js?v=1120-card-image"></script>
 <script defer src="./hh-bristol-wheel-v649.js?v=650-bristol-photo-edit"></script>
 <script defer src="./hh-urine-color-wheel-v650.js?v=650-shaded-juice-glasses"></script>
 <script>
@@ -1042,6 +1050,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <label class="hhScanSharedCheck753"><input type="checkbox" id="hhScanSharedFavorite753" checked> ⭐ Kedvencekben is megjelenjen</label>
     <label class="hhScanSharedCheck753"><input type="checkbox" id="hhScanSharedPuter753"> 📖 Léna Recepttárba is (Puter, külön szinkron)</label>
     <div class="hhScanSharedImage753"><button type="button" id="hhScanSharedEnhance753">✨ HQ fotófinomítás</button><small id="hhScanSharedImageStatus753">Opcionális, az eredeti fotó alapján</small></div>
+    <label class="hhScanSharedCheck753"><input type="checkbox" id="hhScanSharedAutoImage753" checked> ✨ Automatikus AI-kártyakép a végleges ételnévből</label>
     <button type="button" id="hhScanSharedSave753">☁️ Mentés a közös gyűjteménybe</button>
     <p id="hhScanSharedStatus753" role="status" aria-live="polite"></p>
    </section>
