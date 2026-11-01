@@ -21,6 +21,15 @@
   departure:'A legkorábbi megfelelő indulás'
  };
  const safe=s=>String(s||'').trim().replace(/[\u0000-\u001f<>]/g,' ').replace(/\s+/g,' ').slice(0,120);
+ // v1111: static location preference is stored in SH9 context, not
+ // assumed to be recalled from ChatGPT memory in a fresh external chat.
+ const MOM_ALIAS='Mónika · Anyuka';
+ function specificPreference(q,points){
+  const selected=[['from','origin'],['to','destination']].some(([key,side])=>
+   safe(q?.[key])===MOM_ALIAS&&safe(points?.[side]?.name)===MOM_ALIAS);
+  return selected?'Helyi preferencia: Anyuka otthona kb. 50 m a kazincbarcikai Volán-állomástól. Ellenőrizd először a megfelelő közvetlen Volán-járatot; csak igazolt menetrend esetén ajánld.':'';
+ }
+
  function point(q,p){
   if(!p||safe(p.name)!==safe(q)||!Number.isFinite(p.lat)||!Number.isFinite(p.lng)||
     p.lat<45||p.lat>49||p.lng<16||p.lng>23)return '';
@@ -49,10 +58,11 @@
    'Hová: '+destination,
    timing+q.date+' '+q.time+' (Budapest)',
    'Fontos: '+requested,
+   specificPreference(q,points),
    'Adj pontosan egy legjobb útvonalat konkrét járatokkal, átszállásokkal és gyaloglással. Alternatív útvonalakat ne keress és ne adj meg.',
    'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.',
    'Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack.json-t (schema: sh9.trip-pack/1); ha nem tudsz fájlt adni, egyetlen tiszta JSON-kódblokkot. Mezők: title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives:[],sources[{name,url}]. A mode walk/bus/tram/metro/train/hev/other; a status timetable/estimated/unknown. MINDEN departure/arrival HH:mm (pl. 15:18) vagy null; az ismeretlen idő null, ISO-időpont tilos. A séma kulcsa kötelező. Csak megalapozott adatot használj.'
-  ].join('\n');
+  ].filter(Boolean).join('\n');
   return body.length<=LIMIT?body:null;
  }
  function url(q,points,priority){
