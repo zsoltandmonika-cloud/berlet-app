@@ -53,7 +53,7 @@ test('Standalone page has five-taskbar nav and does not pre-link placeholders or
  assert.match(html,/data-stage="megálló infó"/);
  assert.match(html,/data-stage="jegyvásárlás"/);
  assert.doesNotMatch(html,/<script[^>]*src="\.\/rail-/);
- assert.doesNotMatch(html,/\bfetch\(|XMLHttpRequest|setInterval\(|supabase\.co|mavplusz\.hu|navigator\.geolocation/);
+ assert.doesNotMatch(html,/\bfetch\(|XMLHttpRequest|setInterval\(|supabase\.co|navigator\.geolocation/);
  assert.match(html,/16:55 nem hitelesített buszindulás/);
 });
 test('No cross-transport migration, unapproved Volán data claim or false live departures',()=>{
@@ -77,9 +77,14 @@ test('Volán uses the same actual MÁV Golden layout blocks',()=>{
  assert.match(html,/id="rail-time-trigger"/);
  assert.match(html,/data-icon="bus"/);
 });
-test('All bus functions remain unlinked until one-by-one activation',()=>{
+test('Top Volán quick actions navigate to working features while unfinished utilities remain staged',()=>{
  for(const name of ['menetrend','kedvencek','élő autóbuszok','jegyek'])
   assert.ok(html.includes('data-stage="'+name+'"'));
+ for(const url of ['https://menetrendek.hu/','https://mavplusz.hu/','https://jegy.mav.hu/'])
+  assert.ok(html.includes(url),'Hiányzó hivatalos gyorslink: '+url);
+ assert.match(html,/HH_TRAVEL_FAVORITES_UI_V972/);
+ assert.match(html,/const quickActions=/);
+ assert.match(html,/const action=el.closest\('\.quick'\)/);
  assert.doesNotMatch(html,/\bfetch\s*\(|\bXMLHttpRequest\b|navigator\.geolocation/);
  assert.doesNotMatch(html,/src="\.\/rail-.*\.js"/);
 });
