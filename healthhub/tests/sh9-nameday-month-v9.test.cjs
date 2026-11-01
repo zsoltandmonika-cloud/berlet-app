@@ -35,7 +35,7 @@ test('date tile shows DÁTUM, actual date and a single NÉVNAP · Salamon line',
  assert.match(nodes.sh9Date6.textContent,/október 24/);
  assert.equal(nodes.sh9NamedayValue6.textContent,'Salamon');
  assert.equal((nodes.sh9NamedayValue6.textContent.match(/névnap/gi)||[]).length,0);
- assert.match(html,/<span class="sh9-nameday-label">NÉVNAP · <\/span><span id="sh9NamedayValue6"/);
+ assert.match(html,/<span class="sh9-nameday-label" data-i18n="info.nameday">NÉVNAP · <\/span><span id="sh9NamedayValue6"/);
  assert.equal(requests.filter(x=>x.includes('namedays.json')).length,1);
 });
 
@@ -47,20 +47,20 @@ test('full date/nameday tile opens the actual Outlook monthly link rather than S
  assert.match(tile,/target="_blank"/);
  assert.match(tile,/rel="noopener noreferrer external"/);
  assert.match(tile,/data-calendar-view="month"/);
- assert.match(tile,/class="sh9-info-heading">DÁTUM<\/span>/);
+ assert.match(tile,/class="sh9-info-heading" data-i18n="info.date">DÁTUM<\/span>/);
  assert.match(tile,/<span id="sh9Date6"[^>]*>[^<]+<\/span><span id="sh9Nameday6"/);
  assert.doesNotMatch(tile,/view\/agenda|sh9AgendaDialog|DÁTUM · NÉVNAP/);
  const calendar=html.match(/<a id="sh9CalendarCell"[\s\S]*?<\/a>/);
  assert.ok(calendar);
  assert.match(calendar[0],/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
- assert.match(html,/sh9-info-v6\.js\?v=10-label-value/);
+ assert.match(html,/sh9-info-v6\.js\?v=1-en-ca-localized/);
  // SH9 modules can be either direct <a> links or action <button> tiles.
  assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
 
 test('nameday data error still uses one label and never invents a name',()=>{
- assert.match(script,/nameEl\.textContent='nem elérhető'/);
+ assert.match(script,/nameEl\.textContent=tr\('nameday\.unavailable','nem elérhető'\)/);
  assert.doesNotMatch(script,/names\.join\(', '\)\+' névnap'/);
  assert.doesNotMatch(script,/location\.reload|localStorage\.clear|sessionStorage\.clear/);
 });
