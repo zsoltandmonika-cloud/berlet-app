@@ -350,7 +350,7 @@
    }else if(urls.size>1){
     $('mtTrackingStatus').textContent='⚠️ Több különböző járatlink szerepel a jegyeken. Nem választok találomra.'+(nums?' Járatszámok: '+nums:'');
    }else{
-    $('mtTrackingStatus').textContent='Nem találtam konkrét MÁVPlusz-triplinket.'+(nums?' Lehetséges járatszám(ok): '+nums+'.':'')+' A járatszámból nem képezhető biztonságosan belső link. Másold be a pontos járat linkjét.';
+    $('mtTrackingStatus').textContent='A jegy nem tartalmaz közvetlen MÁVPlusz-járatlinket.'+(nums?' Felismert járatszám-jelölt(ek): '+nums+'.':' A járatszám nem azonosítható biztosan a PDF szövegéből.')+' A MÁVPluszban keresd meg a dátumhoz tartozó járatot, nyisd meg, és másold ide annak /trip/ linkjét.';
    }
    status('✓ PDF-vizsgálat lezárult · nincs külső AI-adattovábbítás');
   }catch(e){
