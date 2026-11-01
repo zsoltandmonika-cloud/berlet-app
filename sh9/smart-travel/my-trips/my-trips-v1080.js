@@ -100,23 +100,37 @@
     const number=pack.trackingNumber(inputs.trackingNumber.value);
     const service=pack.trackingNumber(inputs.trackingService.value,3);
     if(!number||!service){feedback.textContent='Add meg mindkét számot (pl. 1054 és 18).';return}
-    const verified=pack.trackingDeepLink(trip,number,service);
-    const target=verified||'https://mavplusz.hu/';
-    const link=node('a','',null,d.body);
-    link.href=target;link.target='_blank';link.rel='noopener noreferrer external';link.referrerPolicy='no-referrer';
-    link.click();link.remove();
-    feedback.textContent=verified?'A MÁVPlusz járatoldal megnyílt. Mentés…':
-     'Nincs ellenőrzött közvetlen járatlink; MÁVPlusz kereső megnyitva. Mentés…';
+    const tracking=w.SH9_TRIP_TRACKING_V1097;
     const save=w.SH9_MY_TRIPS_CLOUD_V1086?.saveTrackingPair;
     if(typeof save!=='function'){feedback.textContent='A mentőszolgáltatás nem érhető el.';return}
+    const known=pack.trackingDeepLink(trip,number,service);
+    let pending=null;
+    if(known){
+     const a=node('a','',null,d.body);
+     a.href=known;a.target='_blank';a.rel='noopener noreferrer external';a.referrerPolicy='no-referrer';
+     a.click();a.remove();
+    }else if(tracking)pending=tracking.openPending();
     follow.disabled=true;
-    void save(p,trip.id,number,service,verified).then(()=>{
-     feedback.textContent=verified?'✓ Számok és járatlink szinkronizálva.':
-      '✓ Számok szinkronizálva; közvetlen járatlink még nincs.';
-    }).catch(err=>{
-     feedback.textContent='⚠️ Mentési hiba: '+(err?.message||'nem sikerült');
-     follow.disabled=false;
-    });
+    feedback.textContent='Járat azonosítása és mentése…';
+    void (async()=>{
+     try{
+      const result=known?{url:known,source:'saved'}:await tracking?.lookup(trip,number,service);
+      const verified=result?.url||'';
+      if(!known){
+       if(tracking)tracking.finishPending(pending,verified);
+       else w.location.assign('https://mavplusz.hu/');
+      }
+      feedback.textContent=verified?'✓ Konkrét járat megnyitva. Szinkronizálás…':
+       'Nincs egyértelmű azonosító; MÁVPlusz kereső megnyitva. Mentés…';
+      await save(p,trip.id,number,service,verified);
+      feedback.textContent=verified?'✓ Számok és követési link az útitervbe mentve.':
+       '✓ A két szám mentve. Közvetlen link még nincs.';
+     }catch(err){
+      if(!known&&pending&&!pending.closed)tracking?.finishPending(pending,'');
+      feedback.textContent='⚠️ '+(err?.message||'A mentés nem sikerült.');
+      follow.disabled=false;
+     }
+    })();
    });
    const actions=node('div','mt-trip-actions',null,card);
    const go=node('a','','Útiterv megnyitása',actions);
