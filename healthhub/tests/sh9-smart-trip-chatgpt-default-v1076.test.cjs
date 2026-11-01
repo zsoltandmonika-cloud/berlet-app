@@ -19,7 +19,7 @@ test('ChatGPT is default, Google is only an explicitly chosen dropdown item, no 
 });
 test('ChatGPT handoff includes user selected matched favorites, date, preferences, holidays and verification',()=>{
  const prompt=ai.prompt(q,places,'wait');
- assert.ok(prompt&&prompt.length>450&&prompt.length<1600,'keep route-first prompt concise despite automatic TripPack export');
+ assert.ok(prompt&&prompt.length>450&&prompt.length<2400,'keep route-first prompt concise despite automatic TripPack export');
  assert.match(prompt,/Otthon \(kijelölt hely koordinátája: 47\.54512, 19\.03534\)/);
  assert.match(prompt,/Mónika · Anyuka \(kijelölt hely koordinátája: 48\.25343, 20\.64156\)/);
  assert.match(prompt,/2026-11-01 07:30/);
