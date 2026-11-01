@@ -119,17 +119,32 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             raise ValueError("No usable scheduled departures")
         referenced_stops = {ev[1] for trip in trips.values() for ev in trip["events"]}
         stops = {}
+        # Full official BKK name index is for autocomplete ONLY. It never
+        # expands the 4-line routing graph or fabricates connections.
+        search_names = {}
         for row in table(zf, "stops.txt"):
             stop_id = row.get("stop_id")
+            name = (row.get("stop_name") or "").strip()
+            try:
+                lat, lon = float(row.get("stop_lat") or "nan"), float(row.get("stop_lon") or "nan")
+                valid = bool(name and 45 <= lat <= 49 and 16 <= lon <= 23)
+            except (TypeError, ValueError):
+                valid = False
+            if valid:
+                safe = name[:120]
+                search_names.setdefault(safe.casefold(), safe)
             if stop_id not in referenced_stops:
                 continue
-            name = (row.get("stop_name") or "").strip()
-            lat, lon = float(row.get("stop_lat") or "nan"), float(row.get("stop_lon") or "nan")
-            if not name or not 45 <= lat <= 49 or not 16 <= lon <= 23:
-                raise ValueError("Stop without valid name and Hungarian coordinates")
+            if not valid:
+                raise ValueError("Route stop without valid name and Hungarian coordinates")
             stops[stop_id] = [name[:120], round(lat, 6), round(lon, 6)]
         if len(stops) != len(referenced_stops):
             raise ValueError("Missing referenced stops")
+        if len(search_names) > 12000:
+            raise ValueError("Full BKK stop index too large")
+        search_stops = sorted(search_names.values(), key=str.casefold)
+        if len(search_stops) < len({value[0] for value in stops.values()}):
+            raise ValueError("Incomplete BKK search stop index")
         # calendar supports dates + optional exceptions.
         services = {}
         for row in table(zf, "calendar.txt"):
@@ -181,7 +196,8 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             "coverage": "stop-to-stop", "live": False,
             "feedStart": feed_start, "feedEnd": feed_end,
             "routes": sorted(set(value[0] for value in route_ids.values())),
-            "stops": stops, "services": services, "trips": trip_list,
+            "stops": stops, "searchStops": search_stops,
+            "services": services, "trips": trip_list,
         }
         encoded = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         if len(encoded) > MAX_OUTPUT:
