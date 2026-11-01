@@ -106,3 +106,25 @@ test('Travel tile displays Tömegközlekedés / Public Transport while preservin
  assert.equal(lang.api.t('travel.publicAria'),'Open Public Transport');
  assert.equal(lang.api.translations.hu['travel.publicTitle'],'Tömegközlekedés');
 });
+
+test('SH9 Travel titles: HU / en-CA labels match the approved simple module names',()=>{
+ const approved=[
+  ['Road Travel','road','Autózás','Road Travel'],
+  ['Air Travel','air','Repülés','Air Travel'],
+  ['My Trips','trips','Utazásaink','My Trips'],
+  ['My Places','places','Kedvenc helyek','My Places'],
+  ['Shared Mobility','shared','Megosztott járművek','Shared Mobility']
+ ];
+ const hu=mount('hu').api,en=mount('en').api;
+ for(const [internal,key,local,english] of approved){
+  assert.ok(travel.includes('data-name="'+internal+'"'));
+  assert.ok(travel.includes('<strong data-i18n="travel.'+key+'Title">'+local+'</strong>'));
+  assert.equal(hu.t('travel.'+key+'Title'),local);
+  assert.equal(en.t('travel.'+key+'Title'),english);
+  assert.equal(hu.t('travel.'+key+'Aria'),local+' megnyitása');
+ }
+ assert.match(travel,/data-name="My Trips" data-href="\.\/my-trips\/"/);
+ assert.match(travel,/data-name="My Places" data-href="\.\.\/\.\.\/healthhub\/guardian\/#hhSmartHubFavoritesV806"/);
+ assert.match(travel,/data-name="Shared Mobility" data-pending="true"/);
+ assert.match(travel,/showPending\(b\.dataset\.name,b\)/);
+});
