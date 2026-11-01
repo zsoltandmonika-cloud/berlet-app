@@ -1,0 +1,31 @@
+name: SH9 Léna Three Provider Result Merge v1110
+on:
+  push:
+    paths:
+      - 'sh9/smart-travel/smart-trip/provider-results-merge-v1110.mjs'
+      - 'healthhub/tests/sh9-provider-result-merge-v1110.test.mjs'
+      - 'healthhub/guardian/guardian-bkk-timetable-v859.js'
+      - '.github/workflows/sh9-provider-result-merge-v1110.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/smart-trip/provider-results-merge-v1110.mjs'
+      - 'healthhub/tests/sh9-provider-result-merge-v1110.test.mjs'
+      - 'healthhub/guardian/guardian-bkk-timetable-v859.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provider-aggregation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static syntax and output contracts
+        run: |
+          node --check sh9/smart-travel/smart-trip/provider-results-merge-v1110.mjs
+          node --check healthhub/guardian/guardian-bkk-timetable-v859.js
+          node --test healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
+          node --test healthhub/tests/sh9-my-trips-golden-v1080.test.cjs
