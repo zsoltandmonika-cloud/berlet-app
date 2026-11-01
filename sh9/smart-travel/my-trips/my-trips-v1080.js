@@ -75,6 +75,8 @@
    node('span','','⏱ '+(trip.departure||'—'),bar);
    node('span','','🏁 '+(trip.arrival||'—'),bar);
    node('span','','⇄ '+m.transfers+' átsz.',bar);
+   if(Number.isInteger(trip.rating)&&trip.rating>=1&&trip.rating<=5)
+    node('span','mt-rating-summary','⭐ '+trip.rating+'/5',bar);
    const form=node('form','mt-tracking-inline',null,card),inputs={};
    for(const field of [
     {label:'Vonat / viszonylat',key:'trackingNumber',max:6,placeholder:'pl. 1054'},
