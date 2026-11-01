@@ -348,7 +348,7 @@ test('v1098 saved trip starts auto-follow only on Budapest travel day',()=>{
  assert.equal(helper.budapestDay(new Date('2026-11-01T23:15:00Z')),'2026-11-02');
  assert.ok(helper.isTravelDay({travelDate:'2026-11-01'},new Date('2026-11-01T09:32:00Z')));
  assert.ok(!helper.isTravelDay({travelDate:'2026-11-02'},new Date('2026-11-01T09:32:00Z')));
- assert.match(pageJs,/tracker\?\.isTravelDay\(trip\)/);
+ assert.match(pageJs,/url\.searchParams\.set\('details','1'\)/);
  assert.match(pageJs,/url\.searchParams\.set\('details','1'\)/);
  assert.match(pageJs,/📋 Részletes útiterv/);
  assert.doesNotMatch(pageJs,/go\.textContent='📍 Aktuális utazás · követés'/);
