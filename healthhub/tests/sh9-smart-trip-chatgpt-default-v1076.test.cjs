@@ -70,7 +70,7 @@ test('stale, mismatching or out-of-country favorite coordinates cannot be leaked
 });
 test('profile independent defaults preserve legacy explicit Google choice and no new API cost',()=>{
  assert.match(ui,/METHOD_KEY='sh9-smart-trip-search-method-v1076-'/);
- assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native','lena_native'\]\)/);
+ assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native','lena_native','bkk_gtfs'\]\)/);
  assert.match(ui,/saved\)\?saved:legacy==='external'\?'google'/);
  assert.match(ui,/w\.localStorage\.getItem\(METHOD_KEY\+p\)/);
  assert.match(ui,/w\.localStorage\.setItem\(METHOD_KEY\+profile\(\),choice\)/);
