@@ -57,11 +57,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/bkk-pilot"
-          url='https://go.bkk.hu/api/static/v1/public-gtfs/budapest_gtfs.zip'
-          curl --fail --show-error --location --silent \
-            --retry 2 --connect-timeout 12 --max-time 150 \
-            --max-filesize 90000000 \
-            "$url" -o "$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip"
+          output="$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip"
+          # Both links are official BKK endpoints. No mirror/third-party data.
+          if ! curl --fail --show-error --location --silent \
+               --retry 2 --connect-timeout 12 --max-time 150 \
+               --max-filesize 90000000 \
+               'https://go.bkk.hu/api/static/v1/public-gtfs/budapest_gtfs.zip' -o "$output"; then
+            rm -f "$output"
+            curl --fail --show-error --location --silent \
+              --retry 2 --connect-timeout 12 --max-time 150 \
+              --max-filesize 90000000 \
+              'https://bkk.hu/gtfs/budapest_gtfs.zip' -o "$output"
+          fi
           export BKK_ZIP="$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip"
           python - <<'PY'
           import os, zipfile
