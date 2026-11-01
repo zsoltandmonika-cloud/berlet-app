@@ -210,7 +210,23 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=908-profile-colors-offset/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=909-quiet-glass/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+
+test('SH9 v909 restores the refined Golden Glass appearance to all 3 controls',()=>{
+ for(const name of ['#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before',
+  '#sh9HeaderControlsV2 #sh9TasksGolden::before',
+  '.hero #sh9LauncherProfileV1::before'])assert.ok(css.includes(name),name);
+ assert.match(css,/top:50%;height:34px/);
+ assert.match(css,/\.hero #sh9LauncherProfileMarkV1\{display:none!important\}/);
+ assert.match(css,/#sh9HeaderControlsV2 #sh9LanguageSwitchV1\{[\s\S]*?width:90px;height:47px/);
+ assert.match(css,/#sh9HeaderControlsV2 #sh9TasksGolden\{[\s\S]*?width:90px!important;height:47px!important/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?width:90px;height:47px/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="z"\]::before/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]::before/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?bottom:-6px/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
