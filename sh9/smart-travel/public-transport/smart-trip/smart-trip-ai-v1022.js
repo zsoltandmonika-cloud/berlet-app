@@ -256,7 +256,7 @@
  }
  const METHOD_KEY='sh9-smart-trip-search-method-v1076-';
  const LEGACY_METHOD_KEY='sh9-smart-trip-search-method-v1075-';
- const allowedMethods=new Set(['chatgpt','google','native']);
+ const allowedMethods=new Set(['chatgpt','google','native','lena_native']);
  function searchMethod(){
   return allowedMethods.has(methodSelect?.value)?methodSelect.value:'chatgpt';
  }
@@ -303,6 +303,35 @@
   const method=searchMethod();
   if(method==='chatgpt'){chatgptHandoff(query);return}
   if(method==='google'){googleHandoff(query);return}
+  if(method==='lena_native'){
+   const pilot=w.SH9_LENA_NATIVE_V1104;
+   if(!pilot?.search){unavailable('Léna Native előnézet nem töltődött be. Frissítsd az oldalt.');return}
+   unavailable('🧪 Léna Native: szolgáltatói keresés ellenőrzése…');
+   const result=await pilot.search(query,instant,local,profile(),priority.value);
+   if(searchId!==searchCounter)return;
+   if(result.status==='saved'){
+    say('✓ Útiterv felhőbe mentve · Trip Flow megnyitása…');
+    const url=new URL('./',w.location.href);
+    url.searchParams.set('trip',result.tripId);
+    url.searchParams.set('details','1');
+    w.location.assign(url.href);
+    return;
+   }
+   const messages={
+    source_not_ready:'🧪 Léna Native előnézet működik, de az ellenőrzött szolgáltató és a költségkeret még nincs aktiválva. Nem történt fizetős keresés vagy mentés.',
+    authentication_missing:'A privát kereséshez jelentkezz be a Family Guardba.',
+    access_denied:'Ehhez a profilhoz nincs felhőjogosultság.',
+    no_verified_route:'A szolgáltató erre az időpontra nem igazolt járatot. Kitalált útvonalat nem mentünk.',
+    session_limit:'Tesztkorlát: 3 keresés munkamenetenként.',
+    cooldown:'Próbáld újra legalább 20 másodperc múlva.',
+    save_failed:'A felhőmentés nem sikerült, ezért az útiterv nem mentődött.',
+    cloud_saved_local_failed:'A felhőmentés megtörtént, de a telefonos tároló nem frissült. My Trips → Frissítés.',
+    service_missing:'A tesztkapcsolat beállításai hiányoznak.',
+    network_unavailable:'A Léna Native próbakapcsolat most nem elérhető.'
+   };
+   unavailable(messages[result.status]||'🧪 Léna Native teszt: '+String(result.status||'ismeretlen állapot'));
+   return;
+  }
   // Only the explicitly selected SH9 experimental mode reaches the limited
   // local GTFS / gated (disabled-by-default) multimodal backend.
   // Paid native multimodal backend is OFF by default. It runs only after the
