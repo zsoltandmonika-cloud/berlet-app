@@ -9,6 +9,7 @@ const food=$('addFood'),drink=$('addDrink'),entry=$('entryDialog'),select=$('foo
 if(!food||!drink||!entry||!select)return;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 let bypass=false,kind='food',step='categories',items=[],selection=0,categories=[],category='',scrollTimer=null,selectedMeal='';
+let lastSharedLogId='',lastSharedLogAt=0;
 const dialog=document.createElement('dialog');
 dialog.id='hhBevitelPicker';dialog.className='hh-bevitel-picker';
 dialog.setAttribute('aria-label','HealthHub · gördíthető étel- és italválasztó');
@@ -133,6 +134,7 @@ function advance(){
   category=picked.category;step='foods';render();return;
  }
  if(picked.sharedId){
+  if(lastSharedLogId===picked.sharedId&&Date.now()-lastSharedLogAt<1600)return;
   const item=window.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.().find(x=>x.id===picked.sharedId);
   const api=window.HH_NUTRITION_QUICK_API;
   if(!item||!api?.recordRecipe){
@@ -144,6 +146,7 @@ function advance(){
     id:'quick:shared-'+item.id,name:item.name,nutrients:item.nutrients,
     kind:item.kind,meal:item.meal,icon:'🍽️',ingredients:item.ingredients
    },selectedMeal||item.meal);
+   lastSharedLogId=picked.sharedId;lastSharedLogAt=Date.now();
    dialog.close();
   }catch(err){note.textContent='Naplózás sikertelen: '+String(err?.message||err).slice(0,110)}
   return;
