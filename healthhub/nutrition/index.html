@@ -132,7 +132,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 </style><link rel="stylesheet" href="./hh-buddy-mood-v627.css?v=627-hd-faces">
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
-<link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=1120-card-edit">
+<link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=1121-shared-reorder">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
 <link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1120-card-image">
@@ -239,7 +239,8 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
     <div id="hhQuickSharedControls" class="hh-quick-shared-controls" hidden>
       <strong>☁️ Közös családi kártya · mindkét profilban</strong>
       <label for="hhQuickSharedCategories">Kategóriák (vesszővel elválasztva)</label>
-      <input id="hhQuickSharedCategories" maxlength="300" placeholder="Pennék, Tésztaételek">
+      <input id="hhQuickSharedCategories" maxlength="300" placeholder="Pennék, Főételek">
+      <button type="button" id="hhQuickSharedMainCourse" class="hh-quick-category-shortcut">➕ Főételekhez is</button>
       <label class="hh-quick-shared-check"><input type="checkbox" id="hhQuickSharedFavorite"> ⭐ Megjelenjen a Kedvencek között</label>
       <label class="hh-quick-shared-check"><input type="checkbox" id="hhQuickSharedAutoImage"> ✨ Automatikus prémium AI-kép készítése mentéskor</label>
       <small>A kép a szerkesztett ételnévből készül, Puter AI-val. Ha már van fotó, külön választhatod az újragenerálást.</small>
@@ -325,10 +326,10 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./nutrition-image-v641.js?v=644-shared-image-cache"></script>
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=729-summary-visible"></script>
-<script defer src="./hh-quick-recipe-wheel-v635.js?v=1120-card-edit"></script>
-<script defer src="./hh-bevitel-premium-v643.js?v=751-single-owner"></script>
+<script defer src="./hh-quick-recipe-wheel-v635.js?v=1121-shared-reorder"></script>
+<script defer src="./hh-bevitel-premium-v643.js?v=1121-shared-main-dishes"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
-<script defer src="./hh-shared-food-library-v1118.js?v=1120-card-auto-image"></script>
+<script defer src="./hh-shared-food-library-v1118.js?v=1121-shared-order"></script>
 <script defer src="./hh-lena-ai-scan-page-v753.js?v=1120-card-image"></script>
 <script defer src="./hh-bristol-wheel-v649.js?v=650-bristol-photo-edit"></script>
 <script defer src="./hh-urine-color-wheel-v650.js?v=650-shaded-juice-glasses"></script>
