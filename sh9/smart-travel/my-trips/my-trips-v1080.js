@@ -75,19 +75,49 @@
    node('span','','⏱ '+(trip.departure||'—'),bar);
    node('span','','🏁 '+(trip.arrival||'—'),bar);
    node('span','','⇄ '+m.transfers+' átsz.',bar);
-   const tracking=pack.trackingUrl(trip.trackingUrl);
-   const followBox=node('div','mt-trip-tracking',null,card);
-   if(tracking){
-    const follow=node('a','mt-follow-link','📍 Élő követés · MÁVPlusz ↗',followBox);
-    follow.href=tracking;follow.target='_blank';follow.rel='noopener noreferrer external';
-    follow.setAttribute('aria-label',trip.title+' · MÁVPlusz járat követése');
-   }else{
-    const setup=node('button','mt-follow-setup','📍 Élő követés beállítása',followBox);
-    setup.type='button';
-    setup.addEventListener('click',()=>w.dispatchEvent(new CustomEvent('sh9-my-trips-open-files',{
-     detail:{p,trip,focusTracking:true}
-    })));
+   const form=node('form','mt-tracking-inline',null,card),inputs={};
+   for(const field of [
+    {label:'Vonat / viszonylat',key:'trackingNumber',max:6,placeholder:'pl. 1054'},
+    {label:'Járat',key:'trackingService',max:3,placeholder:'pl. 18'}
+   ]){
+    const label=node('label','mt-tracking-field',null,form);
+    node('span','',field.label,label);
+    const input=node('input','',null,label);
+    input.type='text';input.inputMode='numeric';input.autocomplete='off';
+    input.pattern='[0-9]{1,'+field.max+'}';
+    input.maxLength=field.max;input.placeholder=field.placeholder;
+    input.value=trip[field.key]||'';
+    input.setAttribute('aria-label',field.label);
+    inputs[field.key]=input;
    }
+   const follow=node('button','mt-tracking-button','📍 Követés ↗',form);
+   follow.type='submit';
+   const feedback=node('small','mt-tracking-feedback','',form);
+   feedback.setAttribute('role','status');
+   form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(active()!==p){feedback.textContent='Profilváltás történt.';return}
+    const number=pack.trackingNumber(inputs.trackingNumber.value);
+    const service=pack.trackingNumber(inputs.trackingService.value,3);
+    if(!number||!service){feedback.textContent='Add meg mindkét számot (pl. 1054 és 18).';return}
+    const verified=pack.trackingDeepLink(trip,number,service);
+    const target=verified||'https://mavplusz.hu/';
+    const link=node('a','',null,d.body);
+    link.href=target;link.target='_blank';link.rel='noopener noreferrer external';link.referrerPolicy='no-referrer';
+    link.click();link.remove();
+    feedback.textContent=verified?'A MÁVPlusz járatoldal megnyílt. Mentés…':
+     'Nincs ellenőrzött közvetlen járatlink; MÁVPlusz kereső megnyitva. Mentés…';
+    const save=w.SH9_MY_TRIPS_CLOUD_V1086?.saveTrackingPair;
+    if(typeof save!=='function'){feedback.textContent='A mentőszolgáltatás nem érhető el.';return}
+    follow.disabled=true;
+    void save(p,trip.id,number,service,verified).then(()=>{
+     feedback.textContent=verified?'✓ Számok és járatlink szinkronizálva.':
+      '✓ Számok szinkronizálva; közvetlen járatlink még nincs.';
+    }).catch(err=>{
+     feedback.textContent='⚠️ Mentési hiba: '+(err?.message||'nem sikerült');
+     follow.disabled=false;
+    });
+   });
    const actions=node('div','mt-trip-actions',null,card);
    const go=node('a','','Útiterv megnyitása',actions);
    const url=new URL('../public-transport/smart-trip/',d.baseURI);
