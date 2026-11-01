@@ -181,10 +181,33 @@ function refresh(){
  $('hhScanSave753').disabled=busy||!valid(draft);
 }
 function suggestTags(name){return /penn[eé]/i.test(name)?'Pennék':/tészta/i.test(name)?'Tésztaételek':''}
+function sharedSelectedTags(){
+ return [...new Set($('hhScanSharedTags753').value.split(',').map(x=>x.trim()).filter(Boolean))];
+}
+function renderSharedPresets(){
+ const host=$('hhScanSharedPresets753');if(!host)return;
+ const stored=w.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.()||[];
+ const labels=[...new Set(['Pennék','Tésztaételek','Főételek','Édességek',...stored.flatMap(x=>x.categories||[])])].slice(0,9);
+ const selected=sharedSelectedTags();
+ host.replaceChildren();
+ for(const category of labels){
+  const b=mk('button','','+ category);
+  b.type='button';b.textContent=(category==='Pennék'?'🍝 ':category==='Tésztaételek'?'🍜 ':'📁 ')+category;
+  b.dataset.category=category;
+  b.setAttribute('aria-pressed',String(selected.includes(category)));
+  b.onclick=()=>{
+   const chosen=sharedSelectedTags(),at=chosen.indexOf(category);
+   if(at<0)chosen.push(category);else chosen.splice(at,1);
+   $('hhScanSharedTags753').value=chosen.join(', ');renderSharedPresets();
+  };
+  host.append(b);
+ }
+}
 function showResult(data,withSound=true){
  draft=data;barcode=data.code||'';unit=data.unit||'g';
  $('hhScanName753').value=data.name;$('hhScanDate753').textContent=stamp();
  if(!sharedId)$('hhScanSharedTags753').value=suggestTags(data.name);
+ renderSharedPresets();
  $('hhScanOrigin753').textContent=barcode?'📦 Open Food Facts · '+barcode:'✨ Puter AI fotófelismerés · '+(data.model||model);
  $('hhScanNotes753').textContent=data.notes||'A fotó alapján az adag csak becsülhető.';
  const box=$('hhScanIngredients753');box.replaceChildren();
@@ -321,7 +344,7 @@ function reset(modeNext){
  sharedId=null;sharedEnhance=false;sharedBusy=false;
  $('hhScanSharedTags753').value='';$('hhScanSharedFavorite753').checked=true;
  $('hhScanSharedPuter753').checked=false;$('hhScanSharedEnhance753').textContent='✨ HQ fotófinomítás';
- $('hhScanSharedImageStatus753').textContent='Opcionális, az eredeti fotó alapján';sharedStatus('');
+ $('hhScanSharedImageStatus753').textContent='Opcionális, az eredeti fotó alapján';sharedStatus('');renderSharedPresets();
  $('hhScanManualRow753').hidden=mode!=='barcode';$('hhScanManual753').value='';
  $('hhScanTabFood753').setAttribute('aria-selected',String(mode==='food'));
  $('hhScanTabBarcode753').setAttribute('aria-selected',String(mode==='barcode'));
@@ -350,7 +373,9 @@ function route(){
  if(!page)return;
  const active=w.location.hash===PAGE;
  page.hidden=!active;d.body.classList.toggle('hhScanOpen753',active);
- if(active){syncProfile();cameraOn();if(!editing)revealCaptureControls()}else{requestId++;busy=false;cameraOff();clearPhoto()}
+ if(active){syncProfile();cameraOn();if(!editing)revealCaptureControls();
+  w.HH_SHARED_FOOD_LIBRARY_V1118?.load?.(true).then(renderSharedPresets).catch(()=>{});
+ }else{requestId++;busy=false;cameraOff();clearPhoto()}
 }
 function open(row=null){
  if(!page)init();if(!page)return;
@@ -385,11 +410,13 @@ function init(){
  $('hhScanSave753').onclick=save;
  $('hhScanSharedSave753').onclick=()=>{void saveShared()};
  $('hhScanSharedEnhance753').onclick=()=>{void toggleSharedEnhance()};
+ $('hhScanSharedTags753').addEventListener('input',renderSharedPresets);
  $('hhScanAgain753').onclick=()=>{editing=null;clearPhoto();reset(mode);void cameraOn()};
  $('hhScanEdit753').onclick=()=>{const first=$('hhScanIngredients753').querySelector('details');if(first){first.open=true;first.scrollIntoView({behavior:'smooth',block:'center'})}};
  $('hhScanIngredients753').addEventListener('input',editField);
  $('hhScanName753').addEventListener('input',e=>{if(draft){draft.name=e.target.value;refresh()}
-  if(!$('hhScanSharedTags753').value.trim())$('hhScanSharedTags753').value=suggestTags(e.target.value)});
+  if(!$('hhScanSharedTags753').value.trim())$('hhScanSharedTags753').value=suggestTags(e.target.value);
+  renderSharedPresets()});
  $('hhScanMeal753').addEventListener('change',refresh);
  $('hhBevitelAI').addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();open()},true);
  if(vision())vision().open=open;
