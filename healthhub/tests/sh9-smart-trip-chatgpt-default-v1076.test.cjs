@@ -52,8 +52,8 @@ test('selected family profile is passed only to optional Supabase save',()=>{
  assert.match(z,/profile_key=zsolt/);
  assert.match(m,/profile_key=monika/);
  assert.doesNotMatch(m,/profile_key=zsolt/);
- assert.doesNotMatch(ai.prompt(q,places,'balanced'),/public\\.hh_my_trip_packs/);
- assert.match(ui,/chatgpt\\?\\.go\\?\\.\\(query,local,priority\\?\\.value,w\\.location,profile\\(\\)\\)/);
+ assert.equal(ai.prompt(q,places,'balanced').includes('public.hh_my_trip_packs'),false);
+ assert.ok(ui.includes('chatgpt?.go?.(query,local,priority?.value,w.location,profile())'));
  assert.match(z,/Ha a mentés nem sikerült, ne állítsd, hogy sikerült/);
  assert.match(z,/Ha nincs igazolt felhőmentés/);
 });
