@@ -1,0 +1,39 @@
+/* SH9 v1 · move the prominent Ask Léna action from the center tile
+   into the second taskbar slot. Keep the Shopping tile glass-blue.
+   Visual-only: no grid, routing, profile, GPS or OTA behaviour changed. */
+.wrap .grid>.tile:nth-child(5){
+ border:1px solid var(--hhpg-border);
+ background-image:linear-gradient(144deg,rgba(95,160,231,.2),rgba(30,57,94,.4) 55%,rgba(70,43,99,.27))!important;
+ background-color:transparent;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 8px 20px rgba(0,9,25,.26);
+}
+.wrap .grid>.tile:nth-child(5) .tile-inner{
+ color:#a9f0fc;
+ background:linear-gradient(135deg,rgba(160,226,250,.23),rgba(67,87,186,.22));
+ border-color:rgba(198,233,255,.35);
+}
+.wrap .grid>.tile:nth-child(5) .mod-name{color:#eff8ff}
+.wrap .grid>.tile:nth-child(5):focus-visible{outline-color:#a1f6f1}
+.wrap .nav button[data-nav="Ask Léna"]{
+ border:1px solid rgba(242,160,222,.62);
+ border-radius:15px;
+ background:linear-gradient(144deg,rgba(137,90,193,.34),rgba(52,40,89,.75) 57%,rgba(181,67,147,.32));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 0 12px rgba(224,91,181,.15);
+ color:#ffe1f5;
+}
+.wrap .nav button[data-nav="Ask Léna"] svg{
+ color:#f5b5e8;
+ background:rgba(240,148,217,.16);
+ border-radius:50%;
+ padding:4px;
+ box-sizing:content-box;
+}
+.wrap .nav button[data-nav="Ask Léna"] span{color:#ffe1f5;font-weight:800}
+.wrap .nav button[data-nav="Ask Léna"]:focus-visible{
+ outline:3px solid #ffd6f3;outline-offset:2px
+}
+.wrap .nav button[data-nav="Ask Léna"]:active{background:rgba(137,90,193,.54)}
+@media(max-width:360px){
+ .wrap .nav button[data-nav="Ask Léna"]{border-radius:12px}
+ .wrap .nav button[data-nav="Ask Léna"] svg{padding:3px}
+}
