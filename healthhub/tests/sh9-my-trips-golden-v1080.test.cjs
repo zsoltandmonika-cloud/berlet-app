@@ -258,3 +258,19 @@ test('v1093 MÁVPlusz live trip tracking uses exact validated trip links and no 
   segments:[{mode:'train',line:'15406',from:'Budapest',to:'Kazincbarcika'}],trackingUrl:valid};
  assert.equal(m.exports.normalize(itinerary).trackingUrl,valid);
 });
+
+test('v1094 PDF number parser does not invent train numbers from calendar dates',()=>{
+ const reader=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.js');
+ const snippet=reader.split(' function ticketNumbers(items){')[1]?.split(' // Detect only embedded text')[0];
+ assert.ok(snippet,'PDF reader number extraction missing');
+ const detect=new Function('function ticketNumbers(items){'+snippet+';return ticketNumbers;')();
+ const item=(str,x,y)=>({str,transform:[1,0,0,1,x,y]});
+ assert.deepEqual(detect([item('Járat',0,130),item('18',80,130),item('2026',120,130)]),[]);
+ assert.deepEqual(detect([item('Járat',0,130),item('2026',80,130)]),[]);
+ assert.deepEqual(detect([item('Járat',0,130),item('2026',80,110)]),[]);
+ assert.deepEqual(detect([item('Vonatszám:',0,130),item('15406',90,130)]),['15406']);
+ assert.deepEqual(detect([item('IC',0,130),item('1054',45,130)]),['1054']);
+ assert.match(page,/mt-tracking-search/);
+ assert.match(pageCss,/\.mt-tracking-search/);
+ assert.match(page,/my-trips-pdf-v1087\.js\?v=1094-ticket-number-fix/);
+});
