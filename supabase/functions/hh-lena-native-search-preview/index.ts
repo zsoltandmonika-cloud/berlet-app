@@ -12,7 +12,11 @@ const ORIGIN="https://zsoltandmonika-cloud.github.io";
 const GOOGLE="https://routes.googleapis.com/directions/v2:computeRoutes";
 const MAX_SIZE=6000;
 const env=k=>Deno.env.get(k)||"";
-const canPaid=()=>env("HH_LENA_NATIVE_ROUTING_APPROVED")==="true"&&
+// Hard lock until an atomic daily quota reservation is implemented and QA'd.
+// Environment flags alone are not a real spending limit.
+const ATOMIC_QUOTA_GUARD_READY=false;
+const canPaid=()=>ATOMIC_QUOTA_GUARD_READY&&
+ env("HH_LENA_NATIVE_ROUTING_APPROVED")==="true"&&
  env("HH_LENA_NATIVE_BUDGET_ENFORCED")==="true"&&
  env("HH_LENA_NATIVE_ROUTING_API_KEY").length>25;
 const aiApproved=()=>canPaid()&&env("HH_LENA_NATIVE_AI_APPROVED")==="true"&&
@@ -84,7 +88,7 @@ async function optionalAiRanking(query,offers){
   if(typeof content!=="string")return {choice:0,why:""};
   const output=JSON.parse(content);
   if(Number.isInteger(output.index)&&output.index>=0&&output.index<offers.length)
-   return {choice:output.index,why:cleanReason(output.why)};
+   return {choice:output.index,why:cleanReason(output.why),used:true};
  }catch(_){}
  finally{clearTimeout(timer)}
  return {choice:0,why:""};
@@ -173,7 +177,7 @@ async function handle(req){
   const saved=await saveAuthorized(auth,query.profile,pack);
   return response(req,200,{status:saved.alreadySaved?"already_saved":"saved",
    tripId:saved.tripId,tripPack:saved.tripPack,saved:true,
-   aiUsed:aiApproved()&&verified.length>1,provider:"Google Maps · transit"});
+   aiUsed:ai.used===true,provider:"Google Maps · transit"});
  }catch(_){return response(req,503,{status:"save_failed",saved:false})}
 }
 Deno.serve(async req=>{
