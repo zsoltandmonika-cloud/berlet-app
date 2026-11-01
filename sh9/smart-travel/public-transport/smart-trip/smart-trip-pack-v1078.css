@@ -317,3 +317,14 @@
  #st22TripPackDialog .st22-tp-flow-v1083 .st22-tp-step{gap:7px;padding-right:8px}
  #st22TripPackDialog .st22-tp-flow-v1083 .st22-tp-flow-endpoint{gap:7px;padding-right:8px}
 }
+
+/* v1097: remembered MÁVPlusz tracking identifiers in full-screen Trip Flow */
+.st22-tp-live-panel{margin:10px 0;padding:12px;border-radius:12px;border:1px solid #90b9e577;background:linear-gradient(125deg,rgba(37,89,135,.46),rgba(43,47,103,.53))}
+.st22-tp-live-title{font-size:13px;font-weight:850;color:#e9f7ff}
+.st22-tp-live-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.st22-tp-live-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:10px;color:#cce4ff;font-weight:750}
+.st22-tp-live-field input{box-sizing:border-box;width:100%;height:39px;padding:7px 10px;border:1px solid #96b6db77;border-radius:9px;background:rgba(20,38,81,.7);color:#f7fbff;font-size:17px;font-weight:850}
+.st22-tp-live-button{width:100%;min-height:43px;border:1px solid #a7c6e788;border-radius:10px;background:linear-gradient(115deg,#345f94,#5e519a);color:#fff;font-size:12px;font-weight:850}
+.st22-tp-live-button:disabled{opacity:.6}
+.st22-tp-live-status{display:block;font-size:10px;line-height:1.4;color:#c8e9ff;margin-top:6px}
+.st22-tp-live-status:empty{display:none}
