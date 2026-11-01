@@ -185,7 +185,10 @@
   };
   function show(j){
    body.replaceChildren();body.scrollTop=0;
-   const p=active(),m=metrics(j),at=progress(j,p);
+   const p=active();
+   // Always show the current saved TripPack, including any new tracking fields.
+   if(j?.id)j=read(w.localStorage,p).find(t=>t.id===j.id)||j;
+   const m=metrics(j),at=progress(j,p);
    const head=node('header','st22-tp-head st22-tp-head-golden',null,body);
    const pre=node('div','st22-tp-pretitle',null,head);
    node('span','st22-tp-eyebrow','✦ SH9 · SMART TRIP AI',pre);
@@ -209,6 +212,47 @@
    const tripStatus=node('div','st22-tp-trip-state',null,body);
    node('strong','',progressLabel(j,p),tripStatus);
    node('span','','Manuális követés · nem GPS vagy élő menetrend',tripStatus);
+   if(j.id&&j.trackingNumber&&j.trackingService){
+    const panel=node('section','st22-tp-live-panel',null,body);
+    node('strong','st22-tp-live-title','📍 MÁVPlusz · járatkövetés',panel);
+    const values=node('div','st22-tp-live-values',null,panel);
+    for(const field of [
+     ['Vonat / viszonylat',j.trackingNumber],['Járat',j.trackingService]
+    ]){
+     const label=node('label','st22-tp-live-field',null,values);
+     node('span','',field[0],label);
+     const input=node('input','',null,label);
+     input.type='text';input.readOnly=true;input.value=field[1];
+     input.setAttribute('aria-label',field[0]+' · mentett');
+    }
+    const follow=node('button','st22-tp-live-button','📍 Követés ↗',panel);
+    follow.type='button';
+    const feedback=node('small','st22-tp-live-status','',panel);
+    feedback.setAttribute('role','status');
+    follow.addEventListener('click',()=>{
+     const known=trackingDeepLink(j,j.trackingNumber,j.trackingService);
+     if(known){
+      const a=node('a','',null,d.body);
+      a.href=known;a.target='_blank';a.rel='noopener noreferrer external';
+      a.referrerPolicy='no-referrer';a.click();a.remove();
+      feedback.textContent='Konkrét MÁVPlusz járat megnyitva.';
+      return;
+     }
+     const tracking=w.SH9_TRIP_TRACKING_V1097;
+     if(!tracking){feedback.textContent='A követés szolgáltatása nem érhető el.';return}
+     const pending=tracking.openPending();
+     follow.disabled=true;feedback.textContent='Járat azonosítása…';
+     void tracking.lookup(j,j.trackingNumber,j.trackingService).then(result=>{
+      tracking.finishPending(pending,result.url);
+      feedback.textContent=result.url?
+       'Járat azonosítva a helyi GTFS-adatokból.':
+       'Nincs biztos járatazonosító, a MÁVPlusz keresője nyílt meg.';
+     }).catch(()=>{
+      tracking.finishPending(pending,'');
+      feedback.textContent='A járat azonosítása nem sikerült.';
+     }).finally(()=>{follow.disabled=false});
+    });
+   }
    if(j.summary)node('p','st22-tp-summary',j.summary,body);
    node('h3','st22-tp-timeline-title','Útvonal lépésről lépésre',body);
    const timeline=node('ol','st22-tp-timeline st22-tp-flow-v1083',null,body);
