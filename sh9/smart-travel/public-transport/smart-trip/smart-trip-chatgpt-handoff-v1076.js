@@ -28,7 +28,7 @@
   const selected=[['from','origin'],['to','destination']].some(([key,side])=>
    safe(q?.[key])===MOM_ALIAS&&safe(points?.[side]?.name)===MOM_ALIAS&&
    Boolean(point(q[key],points[side])));
-  return selected?'Helyi preferencia: Anyuka otthona kb. 50 m a kazincbarcikai Volán-állomástól. Ellenőrizd először a megfelelő közvetlen Volán-járatot; csak igazolt menetrend esetén ajánld.':'';
+  return selected?'Kazincbarcika: a közvetlen Volán járat előnyt élvez, ha a Márka ABC közelében áll meg.':'';
  }
 
  function point(q,p){
