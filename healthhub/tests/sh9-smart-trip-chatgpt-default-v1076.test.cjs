@@ -29,7 +29,7 @@ test('ChatGPT handoff includes user selected matched favorites, date, preference
  assert.match(prompt,/bizonytalan időpontokat jelöld becsültnek/);
  assert.match(prompt,/tömegközlekedési utat/);
  assert.doesNotMatch(prompt,/KÜLÖNLEGES NAPOK:|ELLENŐRZÉS:|Személyes egészségügyi adatokat|temetői és forgalmi|időrendi táblázat/);
- assert.match(prompt,/B tervet/);
+ assert.match(prompt,/Alternatív útvonalakat ne keress/);
  assert.match(prompt,/Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack\.json-t/);
  assert.match(prompt,/schema: sh9\.trip-pack\/1/);
  assert.match(prompt,/segments\[\{mode,line,from,to,departure,arrival,status,note\}\]/);
