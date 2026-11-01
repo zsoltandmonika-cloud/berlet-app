@@ -12,6 +12,7 @@ const DATA=()=>({
  generatedAt:'2026-11-01T06:00:00Z',
  feedStart:'2026-11-01',feedEnd:'2026-11-30',
  routes:['17','19','41','260'],
+ routeModes:{'17':'tram','19':'tram','41':'tram','260':'bus'},
  stops:{'001':['Szentlélek tér',47.537,19.046],
   '002':['Bécsi út / Vörösvári út',47.548,19.029],
   '003':['Kolosy tér',47.527,19.036],
@@ -37,7 +38,7 @@ test('BKK snapshot must be recent, fully sourced, licensed and nonlive',()=>{
   x=>x.source='unknown',x=>x.license='copyright unknown',x=>x.live=true,
   x=>x.coverage='door-to-door',x=>x.sourceUrl='https://other.invalid',
   x=>x.generatedAt='2026-01-01T00:00:00Z',
-  x=>x.stops['003'][1]=200
+  x=>x.stops['003'][1]=200, x=>x.routeModes['17']='bus'
  ]){
   const data=DATA();mutation(data);assert.equal(validate(data,NOW),false);
  }
