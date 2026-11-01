@@ -191,7 +191,7 @@ function renderSharedPresets(){
  const selected=sharedSelectedTags();
  host.replaceChildren();
  for(const category of labels){
-  const b=mk('button','','+ category);
+  const b=mk('button','',category);
   b.type='button';b.textContent=(category==='Pennék'?'🍝 ':category==='Tésztaételek'?'🍜 ':'📁 ')+category;
   b.dataset.category=category;
   b.setAttribute('aria-pressed',String(selected.includes(category)));
