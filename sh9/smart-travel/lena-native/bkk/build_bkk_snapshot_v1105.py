@@ -24,6 +24,7 @@ MAX_ZIP_BYTES = 90 * 1024 * 1024
 MAX_OUTPUT = 9 * 1024 * 1024
 MAX_STOP_TIMES = 110000
 ROUTE_ID = re.compile(r"^[^\x00-\x1f<>]{1,60}$")
+GTFS_MODES = {"0": "tram", "1": "metro", "2": "train", "3": "bus", "11": "bus"}
 
 
 def table(zf: zipfile.ZipFile, filename: str):
@@ -68,8 +69,20 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
         ]
         if not rows:
             raise ValueError("No selected BKK route names found")
-        route_ids = {r["route_id"]: (r.get("route_short_name") or "").strip()
-                     for r in rows if ROUTE_ID.fullmatch(r.get("route_id") or "")}
+        route_ids = {}
+        route_modes = {}
+        for row in rows:
+            route_id = row.get("route_id") or ""
+            if not ROUTE_ID.fullmatch(route_id):
+                raise ValueError("Invalid route ID")
+            name = (row.get("route_short_name") or "").strip()
+            mode = GTFS_MODES.get((row.get("route_type") or "").strip())
+            if not mode:
+                raise ValueError("Unsupported GTFS route type for " + name)
+            if name in route_modes and route_modes[name] != mode:
+                raise ValueError("Same route short name has incompatible vehicle types")
+            route_ids[route_id] = name
+            route_modes[name] = mode
         trips = {}
         for row in table(zf, "trips.txt"):
             if row.get("route_id") in route_ids and ROUTE_ID.fullmatch(row.get("trip_id") or ""):
@@ -161,7 +174,7 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             "license": "CC-BY-4.0", "generatedAt": generated_at,
             "coverage": "stop-to-stop", "live": False,
             "feedStart": feed_start, "feedEnd": feed_end,
-            "routes": sorted(set(route_ids.values())),
+            "routes": sorted(set(route_ids.values())), "routeModes": route_modes,
             "stops": stops, "services": services, "trips": trip_list,
         }
         encoded = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
