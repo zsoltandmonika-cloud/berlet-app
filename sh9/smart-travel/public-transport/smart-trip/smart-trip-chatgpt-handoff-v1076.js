@@ -11,7 +11,7 @@
  if(root)root.SH9_SMART_TRIP_CHATGPT_V1076=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const LIMIT=1600;
+ const LIMIT=2400;
  const PRIORITY={
   balanced:'Léna ajánlása: kevés várakozás és gyaloglás, kevés átszállás, jó csatlakozási biztonság',
   wait:'Elsődleges szempont a lehető legkevesebb várakozás; másodlagosan kevés átszállás és gyaloglás, biztonságos csatlakozásokkal',
