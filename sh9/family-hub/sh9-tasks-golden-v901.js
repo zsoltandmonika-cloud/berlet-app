@@ -1,7 +1,7 @@
-/* SH9 Golden Standard Tasks v903 · collision-safe position.
-   Default remains top-left; only on the SH9 home with the flag switch
-   move below the flags. Bottom-left is reserved for profile switching.
-   Same single Tasks link, no new data requests or navigation changes. */
+/* SH9 Golden Standard Tasks v904 · one shared, accessible Tasks link.
+   SH9 launcher: inside the Golden Glass row, immediately right of HU/EN flags
+   and matching their full control size. Other pages: preserve original position.
+   Bottom-left profile switch and navigation remain untouched. */
 (function(w,d){
  'use strict';
  if(w.SH9_TASKS_GOLDEN_V901)return;
@@ -24,9 +24,6 @@
  backdrop-filter:blur(17px)!important;-webkit-backdrop-filter:blur(17px)!important;
  pointer-events:auto;cursor:pointer;transition:none!important;transform:none!important;
 }
-#sh9TasksGolden[data-task-position="below-language"]{
- top:calc(62px + env(safe-area-inset-top,0px))!important;
-}
 #sh9TasksGolden:focus-visible{outline:2px solid #a6e7ff;outline-offset:2px}
 `;
  function install(){
@@ -40,10 +37,15 @@
    // Move the SAME anchor to body so it remains visible above full-screen Quick Add.
    d.body.append(b);
   }
-  // The language flags exist only on the SH9 startpage today.
-  // The profile switch remains untouched on all other modules.
-  if(d.getElementById('sh9LanguageSwitchV1'))b.setAttribute('data-task-position','below-language');
-  else b.removeAttribute('data-task-position');
+  // Reparent the SAME anchor, never clone it. The layout container handles
+  // equal sizing and alignment without hard-coded viewport coordinates.
+  const header=d.getElementById('sh9HeaderControlsV2');
+  if(header&&d.getElementById('sh9LanguageSwitchV1')){
+   header.append(b);
+   b.setAttribute('data-task-position','next-to-language');
+  }else{
+   b.removeAttribute('data-task-position');
+  }
   b.href=HOME;
   b.textContent='Tasks';
   b.setAttribute('aria-label','Family Tasks megnyitása');
