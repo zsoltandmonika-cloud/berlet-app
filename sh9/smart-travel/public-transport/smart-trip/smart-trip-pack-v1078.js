@@ -117,7 +117,12 @@
    summary:safe(raw.summary,600),segments,alerts,alternatives,sources,
    ...(trackingUrl(raw.trackingUrl)?{trackingUrl:trackingUrl(raw.trackingUrl)}:{}),
    ...(trackingNumber(raw.trackingNumber)?{trackingNumber:trackingNumber(raw.trackingNumber)}:{}),
-   ...(trackingNumber(raw.trackingService,3)?{trackingService:trackingNumber(raw.trackingService,3)}:{})};
+   ...(trackingNumber(raw.trackingService,3)?{trackingService:trackingNumber(raw.trackingService,3)}:{}),
+   ...(Number.isInteger(raw.rating)&&raw.rating>=1&&raw.rating<=5?{
+    rating:raw.rating,
+    ...(typeof raw.ratedAt==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/.test(raw.ratedAt)?
+     {ratedAt:raw.ratedAt.slice(0,35)}:{})
+   }:{})};
  }
  function read(storage,p){
   try{
@@ -329,6 +334,54 @@
       a.href=source.url;a.rel='noopener noreferrer';a.target='_blank'}
      else node('p','st22-tp-note',source.name,src);
     }
+   }
+   // End-of-trip evaluation stays in the saved itinerary and private family archive.
+   if(j.id){
+    const rating=node('section','st22-tp-rating',null,body);
+    node('h3','st22-tp-rating-title','⭐ Utazás értékelése',rating);
+    node('p','st22-tp-rating-hint','Mennyire volt jó ez az utazás?',rating);
+    const row=node('div','st22-tp-rating-stars',null,rating);
+    row.setAttribute('role','group');row.setAttribute('aria-label','Utazás értékelése 1-től 5 csillagig');
+    const prev=Number.isInteger(j.rating)&&j.rating>=1&&j.rating<=5?j.rating:0;
+    let chosen=prev;
+    const stars=[];
+    const draw=()=>{
+     for(let i=0;i<stars.length;i++){
+      const n=i+1;
+      stars[i].textContent=n<=chosen?'★':'☆';
+      stars[i].setAttribute('aria-pressed',String(n===chosen));
+      stars[i].setAttribute('aria-label',n+' csillag');
+      stars[i].classList.toggle('is-selected',n<=chosen);
+     }
+    };
+    for(let n=1;n<=5;n++){
+     const star=node('button','st22-tp-rating-star','☆',row);
+     star.type='button';
+     star.addEventListener('click',()=>{chosen=n;draw()});
+     stars.push(star);
+    }
+    draw();
+    const saveRating=node('button','st22-tp-rating-save','💾 Értékelés mentése',rating);
+    saveRating.type='button';
+    const feedback=node('small','st22-tp-rating-status',
+     prev?'Korábbi értékelés: '+prev+'/5 csillag':'Válassz 1–5 csillagot.',rating);
+    feedback.setAttribute('role','status');
+    saveRating.addEventListener('click',()=>{
+     if(!chosen){feedback.textContent='Válassz előbb csillagot.';return}
+     const service=w.SH9_TRIP_RATING_V1100;
+     if(typeof service?.saveRating!=='function'){
+      feedback.textContent='A mentés nem érhető el. Frissítsd az oldalt.';return;
+     }
+     saveRating.disabled=true;
+     feedback.textContent='Értékelés mentése a privát felhőbe…';
+     void service.saveRating(p,j.id,chosen).then(saved=>{
+      feedback.textContent='✓ '+saved.rating+'/5 csillag elmentve az útitervhez.';
+      saveRating.disabled=false;
+     }).catch(err=>{
+      feedback.textContent='⚠️ '+(err?.message||'Az értékelés mentése nem sikerült.');
+      saveRating.disabled=false;
+     });
+    });
    }
    const footer=node('div','st22-tp-viewer-footer',null,body);
    node('button','','← My Trips',footer).addEventListener('click',openMyTrips);
