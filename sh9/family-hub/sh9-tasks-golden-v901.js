@@ -1,5 +1,6 @@
-/* SH9 Golden Standard v901 — one fixed, dark-glass Tasks link on every active page.
-   No Supabase client, polling, GPS, or background network traffic. */
+/* SH9 Golden Standard Tasks v902 positioning — shared button at the lower-left
+   of the 420px app shell, safely ABOVE the bottom dock and clear of the
+   top-left HU/EN language picker. No polling, GPS, or background traffic. */
 (function(w,d){
  'use strict';
  if(w.SH9_TASKS_GOLDEN_V901)return;
@@ -8,7 +9,9 @@
  const STYLES=`
 #sh9TasksGolden{
  box-sizing:border-box!important;
- position:fixed!important;top:calc(3px + env(safe-area-inset-top,0px))!important;left:3px!important;right:auto!important;bottom:auto!important;
+ position:fixed!important;top:auto!important;right:auto!important;
+ bottom:calc(112px + env(safe-area-inset-bottom,0px))!important;
+ left:max(calc(3px + env(safe-area-inset-left,0px)),calc((100vw - 420px)/2 + 3px))!important;
  z-index:2147482000!important;display:grid!important;place-items:center;
  width:75px!important;height:30px!important;min-height:30px!important;
  max-width:75px!important;min-width:75px!important;margin:0!important;padding:5px 8px!important;
