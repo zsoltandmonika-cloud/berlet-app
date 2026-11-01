@@ -1,0 +1,20 @@
+/* SH9 v1107 · compact official BKK schedule cards; mobile-first, premium glass.
+ * The existing full-page theme, avatar hierarchy and taskbar remain unchanged.
+ */
+.st22-bkk-card {
+ display:flex;flex-direction:column;align-items:stretch;gap:8px;
+ margin:10px 0;padding:15px 16px;border-radius:16px;
+ border:1px solid rgba(166,195,220,.20);
+ background:linear-gradient(145deg,rgba(54,73,105,.24),rgba(31,39,61,.18));
+ box-shadow:0 4px 18px rgba(0,0,0,.10);color:inherit;
+}
+.st22-bkk-title{font-size:15px;line-height:1.35;letter-spacing:.01em;color:inherit}
+.st22-bkk-time{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.st22-bkk-stops{font-size:14px;line-height:1.4}
+.st22-bkk-note{font-size:12px;line-height:1.45;opacity:.73}
+.st22-bkk-save{border:1px solid rgba(156,201,230,.36);border-radius:12px;
+ padding:12px 14px;font-size:13px;font-weight:750;min-height:44px;
+ background:rgba(75,116,152,.26);color:inherit;cursor:pointer}
+.st22-bkk-save:disabled{opacity:.60;cursor:progress}
+.st22-bkk-save:focus-visible{outline:2px solid rgba(177,210,237,.92);outline-offset:2px}
+@media (max-width:480px){.st22-bkk-card{padding:12px 13px}.st22-bkk-time{font-size:20px}}
