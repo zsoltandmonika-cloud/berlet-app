@@ -75,3 +75,40 @@
  border-color:rgba(205,229,255,.39)!important;
  box-shadow:0 4px 13px rgba(0,5,18,.22),inset 0 1px rgba(255,255,255,.23)!important;
 }
+
+
+/* v907 · real profile selector, aligned vertically with 🇭🇺🇨🇦 in the
+   lower-left of the Hero. Matches its exact 90×47 Golden Glass capsule.
+   Hero positioning avoids the taskbar, info row and all nine tiles. */
+.hero #sh9LauncherProfileV1{
+ box-sizing:border-box;position:absolute;z-index:13;
+ left:9px;bottom:9px;top:auto;right:auto;
+ display:flex;align-items:center;justify-content:center;gap:3px;
+ width:90px;height:47px;min-width:90px;max-width:90px;
+ min-height:47px;max-height:47px;margin:0;padding:5px 6px;
+ appearance:none;cursor:pointer;touch-action:manipulation;
+ border:1px solid rgba(205,229,255,.46);border-radius:999px;
+ color:#f4faff;
+ background:linear-gradient(145deg,rgba(25,52,86,.48),rgba(6,21,48,.36));
+ box-shadow:0 4px 13px rgba(0,5,18,.28),inset 0 1px rgba(255,255,255,.24),inset 0 -1px rgba(134,187,239,.10);
+ -webkit-backdrop-filter:blur(18px) saturate(145%);
+ backdrop-filter:blur(18px) saturate(145%);
+ font:790 11.5px/1.1 Inter,'Segoe UI',system-ui,sans-serif;
+ -webkit-tap-highlight-color:transparent;
+}
+#sh9LauncherProfileMarkV1{
+ flex:0 0 21px;width:21px;height:21px;border-radius:50%;
+ display:grid;place-items:center;
+ color:#e8f7ff;background:rgba(83,156,231,.29);
+ border:1px solid rgba(171,214,255,.62);
+ font:800 11px/1 system-ui,sans-serif;
+}
+#sh9LauncherProfileNameV1{white-space:nowrap;min-width:0;letter-spacing:-.025em}
+#sh9LauncherProfileArrowV1{font-size:11px;color:#b9d7f2}
+#sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileMarkV1{
+ color:#ffecf8;background:rgba(215,119,180,.28);
+ border-color:rgba(251,178,224,.72);
+}
+#sh9LauncherProfileV1:focus-visible{outline:3px solid #f3fbff;outline-offset:2px}
+#sh9LauncherProfileV1:active{filter:brightness(1.16)}
+@media(max-width:360px){.hero #sh9LauncherProfileV1{left:6px}}
