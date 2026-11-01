@@ -210,7 +210,7 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=911-uniform-30/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=912-header-up10/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -241,6 +241,16 @@ test('SH9 v911 all 3 Golden Glass capsules use identical 30% fill alpha',()=>{
   assert.deepEqual(alphas,[.3,.3]);
  }
  assert.match(page,/sh9-i18n-v1\.css\?v=911-uniform-30/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+
+test('SH9 v912 moves just the language and Tasks row up 10px',()=>{
+ const pos=css.match(/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\((-?\d+)px \+ env\(safe-area-inset-top,0px\)\)/);
+ assert.ok(pos,'shared language and Tasks header positioning');
+ assert.equal(Number(pos[1]),-2,'8px to -2px is exactly 10px up');
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:9px;bottom:-6px;top:auto;right:auto/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=912-header-up10/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
