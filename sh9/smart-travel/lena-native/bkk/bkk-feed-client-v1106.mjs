@@ -16,11 +16,12 @@ function isValidManifest(m,now=Date.now()){
  if(!m||m.schema!=="sh9.bkk.feed-manifest/1"||m.filename!==SNAPSHOT||
   m.source!=="BKK Zrt., CC BY 4.0"||m.license!=="CC-BY-4.0"||
   m.coverage!=="stop-to-stop"||m.live!==false||
-  !/^[0-9a-f]{64}$/.test(m.sha256)||!Number.isInteger(m.bytes)||m.bytes<=1000||m.bytes>MAX_BYTES||
+  !/^[0-9a-f]{64}$/.test(m.sha256)||!/^[0-9a-f]{64}$/.test(m.sourceSha256)||
+  !Number.isInteger(m.bytes)||m.bytes<=1000||m.bytes>MAX_BYTES||
   !Array.isArray(m.routes)||m.routes.join(",")!=="17,19,41,260")return false;
  const generated=Date.parse(m.generatedAt),validated=Date.parse(m.validatedAt);
  if(!Number.isFinite(generated)||!Number.isFinite(validated)||
-  now-generated>36*3600000||now-validated>36*3600000||
+  now-generated>14*86400000||now-validated>36*3600000||
   generated>now+60000||validated>now+60000)return false;
  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Budapest",year:"numeric",
   month:"2-digit",day:"2-digit"}).formatToParts(new Date(now));
