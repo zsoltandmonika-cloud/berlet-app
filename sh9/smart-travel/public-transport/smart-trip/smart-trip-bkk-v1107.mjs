@@ -90,13 +90,15 @@ async function search(query,when){
  issued++;
  let feed;
  try{feed=await load()}catch(e){return {status:"feed_unavailable",detail:e?.message||""}}
- if(!stopIds(feed.data.stops,query.from).length||
-  !stopIds(feed.data.stops,query.to).length){
-  // A full-index stop can be genuine but not served by the four pilot lines.
+ const fromCovered=stopIds(feed.data.stops,query.from).length>0;
+ const toCovered=stopIds(feed.data.stops,query.to).length>0;
+ if(!fromCovered||!toCovered){
+  // Only examine the unmatched names: a valid arrival stop cannot
+  // disguise an unknown origin such as the user's home address.
   const catalogue=new Set((feed.data.searchStops||[]).map(clean));
-  if(catalogue.has(clean(query.from))||catalogue.has(clean(query.to)))
-   return {status:"not_covered_stop"};
-  return {status:"unknown_stop"};
+  const missing=[...(!fromCovered?[query.from]:[]),...(!toCovered?[query.to]:[])];
+  return {status:missing.some(name=>catalogue.has(clean(name)))?
+   "not_covered_stop":"unknown_stop"};
  }
  if(query.date<feed.data.feedStart||query.date>feed.data.feedEnd)
   return {status:"outside_feed"};
