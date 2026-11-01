@@ -306,8 +306,17 @@ async function saveShared(){
  try{
   sharedStatus('☁️ Közös Dropbox-mentés…');
   const nutrients=vision().totals(draft.items);
-  const image=photo?await sharedPhoto(sharedEnhance):null;
-  const imageRef=image?await vault.save('shared',image.dataURL):null;
+  let image=photo?await sharedPhoto(sharedEnhance):null,warning='';
+  if($('hhScanSharedAutoImage753').checked){
+   sharedStatus('✨ Léna automatikusan készíti a prémium ételkártyaképet…');
+   try{
+    const aiData=await library.generateCardImage({
+     name:title,ingredients:draft.items.map(x=>x.name).join(', '),kind:unit==='ml'?'drink':'food'});
+    image={dataURL:aiData,blob:await(await fetch(aiData)).blob()};
+   }catch(error){warning=' ⚠ AI-kép nem készült: '+String(error?.message||error).slice(0,110)+'. Eredeti fotó használva, ha van.'}
+  }
+  const existing=library.getItems?.().find(x=>x.id===sharedId);
+  const imageRef=image?await vault.save('shared',image.dataURL):(existing?.imageRef||null);
   const item=await library.upsert({
    id:sharedId,name:title,categories,favorite,kind:unit==='ml'?'drink':'food',
    meal:$('hhScanMeal753').value,imageRef,notes:draft.notes||'',
@@ -315,12 +324,12 @@ async function saveShared(){
    ingredients:draft.items.map(x=>x.name+' · '+x.grams+' '+unit).join(', ')
   });
   sharedId=item.id;
-  sharedStatus('✓ Közös Dropbox-mentés ellenőrizve · '+(favorite?'Kedvencek':'Közös ételtár')+(categories.length?' · '+categories.join(', '):''));
+  sharedStatus('✓ Közös Dropbox-mentés ellenőrizve · '+(favorite?'Kedvencek':'Közös ételtár')+(categories.length?' · '+categories.join(', '):'')+warning,!!warning);
   if(toPuter){
    try{
     sharedStatus('✓ Közös Dropbox-mentés kész. Recepttár Puter-szinkron ellenőrzése…');
     await library.publishRecipeStudio(item,image?.blob);
-    sharedStatus('✓ Közös Dropbox és Puter Recepttár mentés ellenőrizve. A Recepttár az első kategóriát használja.');
+    sharedStatus('✓ Közös Dropbox és Puter Recepttár mentés ellenőrizve. A Recepttár az első kategóriát használja.'+warning,!!warning);
    }catch(e){sharedStatus('✓ Közös Dropbox-mentés kész. ⚠ A Puter Recepttár nem frissült: '+String(e.message||e),true)}
   }
  }catch(e){sharedStatus('⚠ A közös mentés nem sikerült: '+String(e.message||e),true)}
@@ -343,7 +352,8 @@ function reset(modeNext){
  mode=modeNext;editing=null;draft=null;barcode='';unit='g';
  sharedId=null;sharedEnhance=false;sharedBusy=false;
  $('hhScanSharedTags753').value='';$('hhScanSharedFavorite753').checked=true;
- $('hhScanSharedPuter753').checked=false;$('hhScanSharedEnhance753').textContent='✨ HQ fotófinomítás';
+ $('hhScanSharedPuter753').checked=false;$('hhScanSharedAutoImage753').checked=true;
+ $('hhScanSharedEnhance753').textContent='✨ HQ fotófinomítás';
  $('hhScanSharedImageStatus753').textContent='Opcionális, az eredeti fotó alapján';sharedStatus('');renderSharedPresets();
  $('hhScanManualRow753').hidden=mode!=='barcode';$('hhScanManual753').value='';
  $('hhScanTabFood753').setAttribute('aria-selected',String(mode==='food'));
