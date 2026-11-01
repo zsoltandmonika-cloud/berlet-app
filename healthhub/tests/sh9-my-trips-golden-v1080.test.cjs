@@ -265,7 +265,7 @@ test('v1094 PDF number parser does not invent train numbers from calendar dates'
  assert.ok(snippet,'PDF reader number extraction missing');
  const detect=new Function('function ticketNumbers(items){'+snippet+';return ticketNumbers;')();
  const item=(str,x,y)=>({str,transform:[1,0,0,1,x,y]});
- assert.deepEqual(detect([item('Járat',0,130),item('18',80,130),item('2026',120,130)]),[]);
+ assert.deepEqual(detect([item('Járat',0,130),item('18',80,130),item('2026',120,130)]),['18']);
  assert.deepEqual(detect([item('Járat',0,130),item('2026',80,130)]),[]);
  assert.deepEqual(detect([item('Járat',0,130),item('2026',80,110)]),[]);
  assert.deepEqual(detect([item('Vonatszám:',0,130),item('15406',90,130)]),['15406']);
@@ -273,4 +273,29 @@ test('v1094 PDF number parser does not invent train numbers from calendar dates'
  assert.match(page,/mt-tracking-search/);
  assert.match(pageCss,/\.mt-tracking-search/);
  assert.match(page,/my-trips-pdf-v1087\.js\?v=1094-ticket-number-fix/);
+});
+
+test('v1095 Volán PDF 1054 / 18 labelled ticket fields, not 2026, seat or fare',()=>{
+ const reader=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.js');
+ const snippet=reader.split(' function ticketFields(items){')[1]?.split(' // Detect only embedded text')[0];
+ assert.ok(snippet,'Missing labelled ticket field parser');
+ const detect=new Function('function ticketFields(items){'+snippet+';return ticketFields;')();
+ const item=(str,x,y)=>({str,transform:[1,0,0,1,x,y]});
+ const ticket=[
+  item('2026.10.29. 18:33',20,200),
+  item('Érvényes:',0,180),item('2026.11.01. 07:59 - 2026.11.01. 11:07',90,180),
+  item('Vonat:',0,150),item('1054',80,150),
+  item('Járat:',0,130),item('18',80,130),
+  item('Hely:',0,110),item('034',80,110),
+  item('Ár:',0,90),item('255 Ft',80,90)
+ ];
+ assert.deepEqual(detect(ticket),{vonat:'1054',jarat:'18',ambiguous:false,numbers:['1054','18']});
+ assert.deepEqual(detect([item('Járat:',0,100),item('2026',70,100)]),
+  {vonat:null,jarat:null,ambiguous:false,numbers:[]});
+ assert.deepEqual(detect([item('Vonat: 1054',0,140),item('Járat: 18',0,120)]),
+  {vonat:'1054',jarat:'18',ambiguous:false,numbers:['1054','18']});
+ assert.match(page,/id="mtTicketVonat"/);
+ assert.match(page,/id="mtTicketJarat"/);
+ assert.match(page,/v=1095-volan-ticket-pair/);
+ assert.match(pageCss,/\.mt-ticket-recognized/);
 });
