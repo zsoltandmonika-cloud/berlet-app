@@ -94,31 +94,34 @@ test('OAuth protected resource metadata is public, no stored trip leaked',async(
 test('missing bearer cannot invoke the write tool',async()=>{
  const f=fixture({enabled:true});
  const r=await f.request(f.req('tools/call',argument(),''));
- const result=(await r.json()).result;
- assert.equal(result.isError,true);
+ const result=await r.json();
+ assert.equal(r.status,401);
+ assert.equal(result.error,'invalid_token');
  assert.match(r.headers.get('WWW-Authenticate'),/resource_metadata=/);
- assert.ok(result._meta['mcp/www_authenticate'].length>0);
  assert.equal(f.inserts,0);
 });
 test('non-OAuth session is rejected, even with verified Supabase user',async()=>{
  const f=fixture({enabled:true,claims:{client_id:undefined,scope:undefined,aud:'authenticated'}});
- const result=(await (await f.request(f.req('tools/call'))).json()).result;
- assert.equal(result.isError,true);
+ const r=await f.request(f.req('tools/call'));
+ assert.equal(r.status,401);
+ assert.equal((await r.json()).error,'invalid_token');
  assert.equal(f.inserts,0);
 });
 test('wrong OAuth audience or missing scope is rejected',async()=>{
  for(const claim of [{aud:'authenticated'},{scope:'openid'},{client_id:'intruder'}]){
   const f=fixture({enabled:true,claims:claim});
-  const res=(await (await f.request(f.req('tools/call'))).json()).result;
-  assert.equal(res.isError,true);
+  const r=await f.request(f.req('tools/call'));
+  assert.equal(r.status,401);
+  assert.equal((await r.json()).error,'invalid_token');
   assert.equal(f.inserts,0);
  }
 });
 test('no allowlist or audience configuration denies all writes',async()=>{
  for(const opts of [{clients:''},{audience:''},{userDenied:true}]){
   const f=fixture({...opts,enabled:true});
-  const res=(await (await f.request(f.req('tools/call'))).json()).result;
-  assert.equal(res.isError,true);
+  const r=await f.request(f.req('tools/call'));
+  assert.equal(r.status,401);
+  assert.equal((await r.json()).error,'invalid_token');
   assert.equal(f.inserts,0);
  }
 });
