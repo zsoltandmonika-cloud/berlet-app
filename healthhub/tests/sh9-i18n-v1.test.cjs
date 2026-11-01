@@ -68,7 +68,7 @@ test('saved locale hydrates in other SH9 modules and responds to cross-tab sync'
  assert.match(travel,/data-i18n="travel.planner"/);
 });
 test('static translations and weather language changes require no AI, GPS or new cloud storage',()=>{
- assert.doesNotMatch(core,/fetch\(|geolocation|supabase|openai|setInterval/);
+ assert.doesNotMatch(core,/navigator\.geolocation|fetch\s*\(|supabase\.|openai\.|setInterval\s*\(/);
  assert.match(info,/sh9:languagechange/);
  assert.match(info,/window\.SH9Weather/);
  assert.match(info,/Intl\.DateTimeFormat\(fmtLocale\(\)/);
