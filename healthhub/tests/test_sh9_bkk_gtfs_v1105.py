@@ -17,7 +17,7 @@ def fixture(path, *, bad_stop=False, missing_calendar=False, bad_time=False, mix
         "agency.txt": "agency_id,agency_name,agency_url,agency_timezone\nbkk,BKK,https://bkk.hu,Europe/Budapest\n",
         "routes.txt": "route_id,route_short_name,route_type\nr17,17,0\nr260,260,3\n",
         "trips.txt": "route_id,service_id,trip_id,trip_headsign\nr17,weekday,trip17,Vörösvári út\nr260,holiday,trip260,Szentlélek tér\n",
-        "stops.txt": "stop_id,stop_name,stop_lat,stop_lon\ns1,Szentlélek tér,47.537,19.046\ns2,Kolosy tér,47.527,19.036\ns3,Bécsi út / Vörösvári út,47.548,19.029\n",
+        "stops.txt": "stop_id,stop_name,stop_lat,stop_lon\ns1,Szentlélek tér,47.537,19.046\ns2,Kolosy tér,47.527,19.036\ns3,Bécsi út / Vörösvári út,47.548,19.029\ns4,Deák Ferenc tér,47.497,19.055\n",
         "stop_times.txt": (
             "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"
             f"trip17,{'48:99:00' if bad_time else '10:00:00'},10:00:00,s1,1\n"
@@ -57,6 +57,9 @@ class BkkSnapshotTests(unittest.TestCase):
                          {"17": "tram", "260": "bus"})
         self.assertEqual(len(result["trips"]), 2)
         self.assertEqual(len(result["stops"]), 3)
+        self.assertIn("Deák Ferenc tér", result["searchStops"])
+        self.assertEqual(len(result["searchStops"]), 4)
+        self.assertNotIn("s4", result["stops"])  # available in predictions, never routed
         self.assertEqual(result["services"]["weekday"]["exceptions"]["2026-11-02"], False)
         self.assertEqual(result["services"]["holiday"]["exceptions"]["2026-11-01"], True)
         self.assertIn([["s3", 86400, 86400], ["s1", 88200, 88200]],
