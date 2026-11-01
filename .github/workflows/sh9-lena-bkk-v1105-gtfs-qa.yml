@@ -43,7 +43,7 @@ jobs:
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_gtfs_v1105.py' -v
 
   official-feed-review:
-    if: github.event_name == 'workflow_dispatch' && inputs.check_live_feed
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.check_live_feed)
     needs: code-qa
     runs-on: ubuntu-latest
     timeout-minutes: 12
