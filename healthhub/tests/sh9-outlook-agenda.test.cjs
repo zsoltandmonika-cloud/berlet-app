@@ -65,7 +65,9 @@ test('All-day busy conflicts count; tentative and out-of-office count; free birt
 test('SH9 launchpad keeps exactly nine original modules and standard taskbar',()=>{
  assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal([...html.matchAll(/data-nav="/g)].length,5);
- for(const s of ['HealthHub','Family Guard','Smart Travel','Ask Léna'])assert.match(html,new RegExp('data-name="'+s+'"'));
+ for(const s of ['HealthHub','Family Guard','Smart Travel','Shopping'])assert.match(html,new RegExp('data-name="'+s+'"'));
+ assert.match(html,/data-nav="Ask Léna"/);
+ assert.doesNotMatch(html,/data-nav="Idővonal"/);
  assert.match(html,/<a class="tile" href="\.\/smart-travel\/" data-name="Smart Travel"/);
 });
 test('SH9 Start Page uses real agenda dialog and read-only gated Outlook, not fake synced events',()=>{
