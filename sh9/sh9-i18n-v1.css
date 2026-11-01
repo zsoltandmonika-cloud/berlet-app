@@ -82,7 +82,7 @@
    Hero positioning avoids the taskbar, info row and all nine tiles. */
 .hero #sh9LauncherProfileV1{
  box-sizing:border-box;position:absolute;z-index:13;
- left:9px;bottom:9px;top:auto;right:auto;
+ left:9px;bottom:-6px;top:auto;right:auto;
  display:flex;align-items:center;justify-content:center;gap:3px;
  width:90px;height:47px;min-width:90px;max-width:90px;
  min-height:47px;max-height:47px;margin:0;padding:5px 6px;
@@ -112,3 +112,33 @@
 #sh9LauncherProfileV1:focus-visible{outline:3px solid #f3fbff;outline-offset:2px}
 #sh9LauncherProfileV1:active{filter:brightness(1.16)}
 @media(max-width:360px){.hero #sh9LauncherProfileV1{left:6px}}
+
+
+/* v908 · Zsolt blue / Mónika pink Golden Glass. 15px lower:
+   former bottom 9px -> -6px; 6px extends into the reserved 7px
+   hero-to-info gap. Prevent the Hero from clipping this tap target. */
+.wrap>.hero:has(#sh9LauncherProfileV1){overflow:visible}
+.hero #sh9LauncherProfileV1[data-profile="z"]{
+ border-color:rgba(121,191,255,.72);
+ background:linear-gradient(145deg,rgba(60,139,222,.32),rgba(8,47,104,.31));
+ box-shadow:0 4px 13px rgba(0,5,18,.24),inset 0 1px rgba(221,241,255,.28),0 0 9px rgba(96,165,250,.14);
+}
+.hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileNameV1{
+ color:#b9deff;
+}
+.hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileMarkV1{
+ color:#f4faff;background:rgba(65,149,240,.39);
+ border-color:rgba(136,205,255,.83);
+}
+.hero #sh9LauncherProfileV1[data-profile="m"]{
+ border-color:rgba(249,166,211,.74);
+ background:linear-gradient(145deg,rgba(226,106,185,.29),rgba(105,37,91,.29));
+ box-shadow:0 4px 13px rgba(0,5,18,.24),inset 0 1px rgba(255,233,249,.28),0 0 9px rgba(239,131,224,.14);
+}
+.hero #sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileNameV1{
+ color:#ffd6ed;
+}
+.hero #sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileMarkV1{
+ color:#fff2fb;background:rgba(230,113,187,.39);
+ border-color:rgba(255,188,224,.85);
+}
