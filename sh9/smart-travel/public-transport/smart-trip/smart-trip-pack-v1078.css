@@ -331,3 +331,15 @@
 
 /* v1098: travel-day exact vehicle lookup indicator */
 .st22-tp-live-loading{margin:9px 0;padding:9px 11px;border:1px solid #94b4d277;border-radius:10px;background:rgba(43,77,123,.42);color:#e6f4ff;font-size:11px;line-height:1.45}
+
+/* SH9 Trip Rating v1100: five large, touch-friendly stars at the journey's end */
+.st22-tp-rating{margin:16px 0 12px;padding:14px 12px;border:1px solid #abc1dd66;border-radius:14px;background:linear-gradient(125deg,rgba(44,74,115,.42),rgba(83,48,111,.46))}
+.st22-tp-rating-title{font-size:15px;color:#f5f8ff;margin:0 0 5px;font-weight:850}
+.st22-tp-rating-hint{font-size:11px;color:#cad8ef;line-height:1.5;margin:0 0 8px}
+.st22-tp-rating-stars{display:flex;justify-content:space-around;gap:4px;margin:8px 0 12px}
+.st22-tp-rating-star{flex:1;min-width:0;min-height:49px;padding:5px 0;background:rgba(28,38,75,.55);color:#b8c0d8;border:1px solid #a0b0d555;border-radius:10px;font-size:31px;line-height:1;cursor:pointer}
+.st22-tp-rating-star.is-selected{color:#ffe4a0;border-color:#e3b86b66;background:rgba(153,104,29,.19)}
+.st22-tp-rating-star:focus-visible{outline:2px solid #ffe4a0;outline-offset:2px}
+.st22-tp-rating-save{width:100%;min-height:44px;border:1px solid #b6cee577;border-radius:11px;background:linear-gradient(115deg,#385f93,#9c559d);color:#fff;font-size:12px;font-weight:850}
+.st22-tp-rating-save:disabled{opacity:.5}
+.st22-tp-rating-status{display:block;min-height:14px;font-size:11px;color:#d9e9ff;margin-top:8px;line-height:1.45}
