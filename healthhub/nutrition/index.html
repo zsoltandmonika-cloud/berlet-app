@@ -29,7 +29,7 @@ html[data-hh-dock-prepaint] .hhBottomNav :is(a,button){
 
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#09182d"><meta name="robots" content="noindex,nofollow">
-<title>HealthHub · Nutrition v650 · GyorsNasi</title>
+<title>HealthHub · Nutrition · Kedvencek</title>
 <link rel="preload" as="image" href="./healthhub-nutrition-lena-buddy-approved.webp" type="image/webp" fetchpriority="high">
 <style>
 :root{color-scheme:dark;--ink:#f3f8ff;--soft:#aec3dc;--accent:#70bdff;--accentWash:rgba(80,164,255,.18);--line:rgba(175,212,253,.24);--good:#83eab3;--warn:#ffd18e;--bad:#ff8da3;font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
@@ -135,7 +135,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=722-left-buddy-bigger">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
-<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1117-scan-controls-top">
+<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1118-shared-cards">
 <link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=650-bristol-photo-edit">
 <link rel="stylesheet" href="./hh-bristol-wheel-v649.css?v=650-editable-photos">
 <link rel="stylesheet" href="./hh-urine-color-wheel-v650.css?v=650-apple-juice">
@@ -166,8 +166,8 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
  <div id="balanceRing" hidden></div>
 </section>
 <div class="row"><h2>☕ Gyors bevitel</h2></div>
-<button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon hh-quick-buddy-left" aria-hidden="true"><img src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></span><span class="hh-quick-launch-copy"><strong>GyorsNasi</strong><small>Kedvenceid villámgyors bevitele · 1 érintés · saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
-<div class="hh-quick-sync-bar" aria-label="GyorsNasi központi mentés"><span class="hh-quick-sync-icon" aria-hidden="true">☁️</span><span id="hhQuickCloudState" class="hh-quick-sync-text" data-state="pending" role="status" aria-live="polite">Dropbox állapotának ellenőrzése…</span><button type="button" id="hhQuickCloudManual" class="hh-quick-sync-button" title="A receptek, képek és naplóadatok frissítése a Dropboxból" aria-label="GyorsNasi szinkronizálása most">↻ Szinkron most</button></div>
+<button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon hh-quick-buddy-left" aria-hidden="true"><img src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></span><span class="hh-quick-launch-copy"><strong>Kedvencek</strong><small>Kedvenceid villámgyors bevitele · 1 érintés · saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
+<div class="hh-quick-sync-bar" aria-label="Kedvencek központi mentés"><span class="hh-quick-sync-icon" aria-hidden="true">☁️</span><span id="hhQuickCloudState" class="hh-quick-sync-text" data-state="pending" role="status" aria-live="polite">Dropbox állapotának ellenőrzése…</span><button type="button" id="hhQuickCloudManual" class="hh-quick-sync-button" title="A receptek, képek és naplóadatok frissítése a Dropboxból" aria-label="Kedvencek szinkronizálása most">↻ Szinkron most</button></div>
 <section class="hh-bevitel-section" aria-labelledby="hhBevitelHeading">
  <div class="row hh-bevitel-header"><h2 id="hhBevitelHeading">🍽️ Bevitel</h2><span class="muted">Étel · Ital · AI</span></div>
  <div class="hh-bevitel-grid" aria-label="Étel- és italbevitel módjai">
@@ -209,10 +209,10 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 </nav>
 <div class="hhNavToast" id="hhNutritionNavToast" role="status" aria-live="polite" hidden></div><div class="previewNotice" role="note"><strong>✨ HEALTHHUB · NUTRITION v644</strong><span>Személyes táplálkozási napló, helyi offline megőrzéssel és profilhoz kötött Dropbox Cloud Vault-szinkronnal. A sikeres felhőmentés állapotát a napló feletti státuszsor jelzi.</span></div><div class="foot"><img class="hh-foot-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"> HEALTHHUB · NUTRITION INTELLIGENCE v594 · LIVE BETA · Léna & Nutri Buddy</div><div class="hh-buddy-toast" id="buddyToast" role="status" aria-live="polite" aria-atomic="true" hidden><img src="./nutri-chipmunk-3d-v594.webp" alt=""><span id="buddyToastText">Sikeres mentés.</span></div>
 </main>
-<dialog id="hhQuickDialog" aria-label="HealthHub GyorsNasi">
+<dialog id="hhQuickDialog" aria-label="HealthHub Kedvencek">
  <div class="hh-quick-shell" id="hhQuickShell" data-mode="wheel">
   <header class="hh-quick-head">
-   <div class="hh-quick-brand"><span class="hh-quick-eyebrow">HEALTHHUB · LÉNA NUTRITION</span><strong>GyorsNasi</strong><small id="hhQuickProfile">Személyes kedvencek</small></div>
+   <div class="hh-quick-brand"><span class="hh-quick-eyebrow">HEALTHHUB · LÉNA NUTRITION</span><strong>Kedvencek</strong><small id="hhQuickProfile">Családi kedvencek és meglévő receptek</small></div>
    <div class="hh-quick-controls">
     <button class="hh-quick-icon-btn" id="hhQuickBack" type="button" aria-label="Vissza a receptválasztóhoz">←</button>
     <button class="hh-quick-icon-btn" id="hhQuickSound" type="button" title="Kattintáshang be- vagy kikapcsolása" aria-label="Hang be- vagy kikapcsolása">♫</button>
@@ -258,12 +258,12 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
    <div class="hh-quick-portal-hero"><span class="hh-quick-eyebrow">LÉNA IMAGE STUDIO · GYORSNASI</span><h3>✨ Képgeneráló portál</h3><p>Egységes, fotórealisztikus Nutrition-kártyakép, egyetlen generálással.</p></div>
    <div class="hh-quick-portal-grid">
     <div class="hh-quick-field"><label for="hhQuickPortalReference">1 · Forrásfotó (opcionális)</label><input id="hhQuickPortalReference" type="file" accept="image/*"><small>A forrásképet a rendszer értelmezi, majd újraalkotja a kért stílusban.</small></div>
-    <div class="hh-quick-field"><label>2 · Stílus</label><span class="hh-quick-style-preset">✦ GyorsNasi · Dark Glassy · Food Editorial</span><small>Minden receptnél ugyanaz a fény, színvilág és képarány.</small></div>
+    <div class="hh-quick-field"><label>2 · Stílus</label><span class="hh-quick-style-preset">✦ Kedvencek · Dark Glassy · Food Editorial</span><small>Minden receptnél ugyanaz a fény, színvilág és képarány.</small></div>
     <div class="hh-quick-field"><label for="hhQuickPortalPrompt">3 · Plusz képi ötlet (opcionális)</label><textarea id="hhQuickPortalPrompt" rows="3" placeholder="Pl. rengeteg friss áfonya, eper, málna és szeder; lila-pink fények"></textarea></div>
    </div>
    <button type="button" id="hhQuickGenerateImage" class="hh-quick-image-generate">✨ Kép generálása</button>
    <p id="hhQuickPortalStatus" class="hh-quick-status" role="status" aria-live="polite">Készen állunk. A szolgáltatás első használatkor engedélyezést kérhet.</p>
-   <div class="hh-quick-portal-preview"><img id="hhQuickPortalPreview" alt="Generált GyorsNasi receptfotó" hidden><span id="hhQuickPortalEmpty">🖼️<small>Az új prémium receptkép itt jelenik meg.</small></span></div>
+   <div class="hh-quick-portal-preview"><img id="hhQuickPortalPreview" alt="Generált Kedvencek receptfotó" hidden><span id="hhQuickPortalEmpty">🖼️<small>Az új prémium receptkép itt jelenik meg.</small></span></div>
    <div class="hh-quick-form-actions"><button type="button" id="hhQuickPortalBack">← Vissza</button><button type="button" id="hhQuickUseImage" class="primary" disabled>✓ Kép használata</button></div>
    <p class="hh-quick-portal-footnote">A generálás a Puter AI szolgáltatását használja, külön engedélyezést és AI-keretet igényelhet. A képet csak a Recept mentése gombbal rögzítjük a privát Nutrition-tárhelyre. Csomagolásoknál az AI újraalkotás nem az eredeti termékfotó pontos másolata.</p>
   </section>
@@ -317,10 +317,11 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./nutrition-image-v641.js?v=644-shared-image-cache"></script>
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=729-summary-visible"></script>
-<script defer src="./hh-quick-recipe-wheel-v635.js?v=722-quick-original"></script>
+<script defer src="./hh-quick-recipe-wheel-v635.js?v=1118-shared-favorites"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=751-single-owner"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
-<script defer src="./hh-lena-ai-scan-page-v753.js?v=1117-scan-controls-top"></script>
+<script defer src="./hh-shared-food-library-v1118.js?v=1118-shared"></script>
+<script defer src="./hh-lena-ai-scan-page-v753.js?v=1118-shared-scan"></script>
 <script defer src="./hh-bristol-wheel-v649.js?v=650-bristol-photo-edit"></script>
 <script defer src="./hh-urine-color-wheel-v650.js?v=650-shaded-juice-glasses"></script>
 <script>
@@ -1008,7 +1009,18 @@ document.addEventListener('DOMContentLoaded',function(){
    <p id="hhScanOrigin753" class="hhScanOrigin753"></p><p id="hhScanNotes753" class="hhScanNotes753"></p>
    <div class="hhScanResultBar753"><strong>Összetevők</strong><button type="button" id="hhScanEdit753">✎ Szerkesztés</button></div><div id="hhScanIngredients753" class="hhScanIngredients753"></div>
    <label class="hhScanMeal753">Étkezés<select id="hhScanMeal753"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb</option></select></label>
-   <button type="button" id="hhScanSave753">✓ Jóváhagyás és naplózás</button>
+   <section id="hhScanSharedSection753" class="hhScanShared753" aria-labelledby="hhScanSharedHeading753">
+    <div class="hhScanSharedHead753"><strong id="hhScanSharedHeading753">☁️ Közös ételgyűjtemény</strong><small>Nem profilfüggő · egy étel, több kategória</small></div>
+    <label class="hhScanSharedLabel753" for="hhScanSharedTags753">Kategóriák (vesszővel elválasztva)
+      <input id="hhScanSharedTags753" maxlength="300" placeholder="Pl. Pennék, Tésztaételek">
+    </label>
+    <label class="hhScanSharedCheck753"><input type="checkbox" id="hhScanSharedFavorite753" checked> ⭐ Kedvencekben is megjelenjen</label>
+    <label class="hhScanSharedCheck753"><input type="checkbox" id="hhScanSharedPuter753"> 📖 Léna Recepttárba is (Puter, külön szinkron)</label>
+    <div class="hhScanSharedImage753"><button type="button" id="hhScanSharedEnhance753">✨ HQ fotófinomítás</button><small id="hhScanSharedImageStatus753">Opcionális, az eredeti fotó alapján</small></div>
+    <button type="button" id="hhScanSharedSave753">☁️ Mentés a közös gyűjteménybe</button>
+    <p id="hhScanSharedStatus753" role="status" aria-live="polite"></p>
+   </section>
+   <button type="button" id="hhScanSave753">✓ Külön mentés a napi naplóba</button>
    <div class="hhScanSaved753"><strong>✨ TADAAA! Elmentve.</strong><p id="hhScanSavedStamp753"></p><button type="button" id="hhScanAgain753">＋ Új étel felismerése</button></div>
   </section>
   <footer class="hhScanFoot753">Termékadatok: <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener noreferrer">Open Food Facts</a> · ODbL · Ellenőrizd a csomagolás adatait.</footer>
