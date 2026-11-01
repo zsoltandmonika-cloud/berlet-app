@@ -128,3 +128,24 @@ test('SH9 Travel titles: HU / en-CA labels match the approved simple module name
  assert.match(travel,/data-name="Shared Mobility" data-pending="true"/);
  assert.match(travel,/showPending\(b\.dataset\.name,b\)/);
 });
+
+test('SH9 Shopping takes the centre tile; Ask Léna replaces Timeline in the bottom bar',()=>{
+ const titles=[...page.matchAll(/class="mod-name" data-i18n="([^"]+)">([^<]+)<\/span>/g)];
+ assert.equal(titles.length,9);
+ assert.equal(titles[4][1],'module.shopping');
+ assert.equal(titles[4][2],'Bevásárlás');
+ assert.match(page,/data-name="Shopping" aria-label="Bevásárlás megnyitása" data-i18n-aria="module\.ariaShopping"/);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+ assert.match(page,/data-nav="Ask Léna" aria-label="Ask Léna megnyitása" data-i18n-aria="nav\.ariaAsk"/);
+ assert.doesNotMatch(page,/data-nav="Idővonal"/);
+ assert.doesNotMatch(page,/data-name="Ask Léna"/);
+ assert.match(page,/b\.dataset\.name==='Ask Léna'\|\|b\.dataset\.nav==='Ask Léna'/);
+ assert.match(page,/sh9-ai-taskbar-v1\.css/);
+ assert.match(page,/data-name="Shopping"[^>]*>/);
+ assert.ok(!page.includes('data-name="Shopping" data-href='));
+ const hu=mount('hu').api,en=mount('en').api;
+ assert.equal(hu.t('module.shopping'),'Bevásárlás');
+ assert.equal(en.t('module.shopping'),'Shopping');
+ assert.equal(hu.t('nav.ask'),'Ask Léna');
+ assert.equal(en.t('nav.ariaAsk'),'Open Ask Léna');
+});
