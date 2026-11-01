@@ -56,3 +56,14 @@
  outline:3px solid #f3fbff!important;outline-offset:2px!important;
 }
 @media(max-width:360px){#sh9HeaderControlsV2{left:6px}}
+
+/* v905 · lighter Golden Glass for both equal-size header capsules.
+   Preserve size, position, tap targets and readable selected-language state. */
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1,
+#sh9HeaderControlsV2 #sh9TasksGolden{
+ background:linear-gradient(145deg,rgba(25,52,86,.48),rgba(6,21,48,.36))!important;
+ border-color:rgba(205,229,255,.46)!important;
+ box-shadow:0 4px 13px rgba(0,5,18,.28),inset 0 1px rgba(255,255,255,.24),inset 0 -1px rgba(134,187,239,.10)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+ backdrop-filter:blur(18px) saturate(145%)!important;
+}
