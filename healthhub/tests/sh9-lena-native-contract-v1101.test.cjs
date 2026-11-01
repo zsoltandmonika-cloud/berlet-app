@@ -67,6 +67,10 @@ test('authorization checked separately from AI-selected profile, deterministic i
  assert.equal(pack.normalize(a.trip_data).segments.length,2);
  assert.ok(bridge.isSameRequest(a,b));
 });
+test('unvalidated object cannot impersonate a parsed handover',()=>{
+ const fake={schema:bridge.SCHEMA,requestId:ID,profile:'m',tripPack:route()};
+ assert.throws(()=>bridge.makeRecord(fake,['m'],1793788800000),/Handover not validated/);
+});
 test('same UUID with changed route cannot overwrite earlier receipt',()=>{
  const prior=bridge.makeRecord(bridge.parseEnvelope(envelope(),pack),['m'],1793788800000);
  const revised=envelope();
