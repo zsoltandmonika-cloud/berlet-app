@@ -110,7 +110,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
- assert.match(page,/my-trips-v1080\.css\?v=1093-mav-tracking/);
+ assert.match(page,/my-trips-v1080\.css\?v=1095-volan-ticket-pair/);
  assert.match(page,/my-trips-v1080\.js\?v=1093-mav-tracking/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
@@ -261,9 +261,9 @@ test('v1093 MÁVPlusz live trip tracking uses exact validated trip links and no 
 
 test('v1094 PDF number parser does not invent train numbers from calendar dates',()=>{
  const reader=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.js');
- const snippet=reader.split(' function ticketNumbers(items){')[1]?.split(' // Detect only embedded text')[0];
+ const snippet=reader.split(' function ticketFields(items){')[1]?.split(' // Detect only embedded text')[0];
  assert.ok(snippet,'PDF reader number extraction missing');
- const detect=new Function('function ticketNumbers(items){'+snippet+';return ticketNumbers;')();
+ const detect=new Function('function ticketFields(items){'+snippet+';return ticketNumbers;')();
  const item=(str,x,y)=>({str,transform:[1,0,0,1,x,y]});
  assert.deepEqual(detect([item('Járat',0,130),item('18',80,130),item('2026',120,130)]),['18']);
  assert.deepEqual(detect([item('Járat',0,130),item('2026',80,130)]),[]);
@@ -272,7 +272,7 @@ test('v1094 PDF number parser does not invent train numbers from calendar dates'
  assert.deepEqual(detect([item('IC',0,130),item('1054',45,130)]),['1054']);
  assert.match(page,/mt-tracking-search/);
  assert.match(pageCss,/\.mt-tracking-search/);
- assert.match(page,/my-trips-pdf-v1087\.js\?v=1094-ticket-number-fix/);
+ assert.match(page,/my-trips-pdf-v1087\.js\?v=1095-volan-ticket-pair/);
 });
 
 test('v1095 Volán PDF 1054 / 18 labelled ticket fields, not 2026, seat or fare',()=>{
