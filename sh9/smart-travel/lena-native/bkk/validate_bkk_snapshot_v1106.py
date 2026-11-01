@@ -76,6 +76,17 @@ def check_data(data: dict, now: dt.datetime, previous: dict | None = None) -> di
         raise ValueError("Invalid timetable record collections")
     if len(stops) < 40 or len(stops) > 2000 or len(trips) < 1000 or len(trips) > 20000:
         raise ValueError("Unexpected timetable size / possible partial download")
+    # Full BKK autocomplete index is optional for backward-compatible
+    # synthetic fixtures; when present, it is validated but NOT routed.
+    search_stops = data.get("searchStops")
+    if search_stops is not None:
+        if (not isinstance(search_stops, list) or
+                not len({n.casefold() for n in search_stops if isinstance(n, str)}) == len(search_stops) or
+                not 40 <= len(search_stops) <= 12000 or
+                any(not isinstance(n, str) or not 2 <= len(n) <= 120 for n in search_stops)):
+            raise ValueError("Invalid full BKK search stop index")
+        if not {stop[0] for stop in stops.values()}.issubset(set(search_stops)):
+            raise ValueError("Full BKK stop index lacks an operated route stop")
     for stop_id, stop in stops.items():
         if (not isinstance(stop_id, str) or not stop_id or not isinstance(stop, list)
                 or len(stop) != 3 or not isinstance(stop[0], str) or not stop[0]
@@ -119,7 +130,9 @@ def check_data(data: dict, now: dt.datetime, previous: dict | None = None) -> di
     return {
         "source": SOURCE, "license": LICENSE,
         "routes": list(LINES), "lineTripCounts": dict(sorted(by_line.items())),
-        "stopCount": len(stops), "tripCount": len(trips),
+        "stopCount": len(stops),
+        "searchStopCount": len(search_stops) if search_stops is not None else 0,
+        "tripCount": len(trips),
         "feedStart": first.isoformat(), "feedEnd": last.isoformat(),
         "generatedAt": data["generatedAt"], "coverage": "stop-to-stop",
         "live": False,
