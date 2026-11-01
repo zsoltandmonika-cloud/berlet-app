@@ -72,6 +72,55 @@ async function upsert(input){
  }
  throw Error('Két egyidejű mentés ütközött, próbáld újra.');
 }
+/* Optional, user-initiated premium AI cover from the final edited food name.
+ * Only public food descriptions are passed to Puter. Diary and profile data are excluded.
+ */
+let aiPromise=null;
+function getPuter(){
+ if(root.puter?.ai?.txt2img)return Promise.resolve(root.puter);
+ if(aiPromise)return aiPromise;
+ aiPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');script.src='https://js.puter.com/v2/';script.async=true;
+  script.onload=()=>root.puter?.ai?.txt2img?resolve(root.puter):reject(Error('A Puter AI nem indult el.'));
+  script.onerror=()=>reject(Error('A Puter szolgáltatás nem érhető el.'));document.head.append(script);
+ }).catch(e=>{aiPromise=null;throw e});
+ return aiPromise;
+}
+async function generateCardImage({name,ingredients='',kind='food'}){
+ name=cleanText(name,80);ingredients=cleanText(ingredients,450);
+ if(name.length<2)throw Error('A képhez előbb add meg az étel nevét.');
+ const p=await getPuter();
+ const prompt=[
+  'Generate exactly one realistic premium editorial FOOD PHOTOGRAPH, not an app interface.',
+  'Subject: '+name+'. Kind: '+(kind==='drink'?'drink':'food')+'.',
+  ingredients?'Identifiable ingredients (do not invent other ingredients): '+ingredients+'.':'',
+  'A single beautiful portion centered in a 1:1 image, premium dark midnight navy studio table, subtle soft rose and blue reflections, naturally appetizing real food photography, controlled cinematic softbox lighting, crisp food texture. No letters, logos, watermarks, hands, menus, labels, plates with text, or UI.'
+ ].filter(Boolean).join(' ');
+ let generated;
+ try{generated=await p.ai.txt2img(prompt,{model:'gpt-image-2',ratio:{w:1,h:1},quality:'high'})}
+ catch(first){
+  const reason=String(first?.message||first?.code||'').toLowerCase();
+  if(/insufficient_funds|unauthorized|auth_required|popup_blocked|moderation|payment/.test(reason))throw first;
+  generated=await p.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'});
+ }
+ const src=generated?.src||generated?.url||(typeof generated==='string'?generated:'');
+ if(!src||!/^data:image\/|^https?:\/\/|^blob:/.test(src))throw Error('Nem érkezett használható AI-kép.');
+ const response=await fetch(src);
+ if(!response.ok)throw Error('A generált kép nem olvasható.');
+ const blob=await response.blob();
+ if(!blob.type.startsWith('image/'))throw Error('A szolgáltató nem képet küldött.');
+ const obj=URL.createObjectURL(blob),img=new Image();
+ try{
+  img.src=obj;await img.decode();
+  const size=640,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+  canvas.getContext('2d').drawImage(img,0,0,img.naturalWidth,img.naturalHeight,0,0,size,size);
+  for(const quality of [.77,.67,.57]){
+   const dataURL=canvas.toDataURL('image/jpeg',quality);
+   if(dataURL.length<900000)return dataURL;
+  }
+  throw Error('A generált kép túl nagy a közös képtárhoz.');
+ }finally{URL.revokeObjectURL(obj)}
+}
 /* Optional Puter Recepttár publication. Separate provider: never report success without readback. */
 async function publishRecipeStudio(item,photoBlob){
  const puter=root.puter;
@@ -91,5 +140,5 @@ async function publishRecipeStudio(item,photoBlob){
  if(!check||check.id!==rid||check.title!==item.name)throw Error('A Puter mentés ellenőrzése sikertelen.');
  return {id:rid,category:value.category};
 }
-root.HH_SHARED_FOOD_LIBRARY_V1118=Object.freeze({version:'1118',getItems:items,load,upsert,publishRecipeStudio,normalize});
+root.HH_SHARED_FOOD_LIBRARY_V1118=Object.freeze({version:'1118',getItems:items,load,upsert,publishRecipeStudio,generateCardImage,normalize});
 })(window);
