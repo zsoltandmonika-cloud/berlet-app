@@ -114,3 +114,6 @@ body.hhScanOpen753>.shell{display:none!important}
 .hhScanSharedPresets753{display:flex;flex-wrap:wrap;gap:7px}
 .hhScanSharedPresets753 button{min-height:38px;border-radius:999px;border:1px solid #6889ae;background:#0f2b48;color:#d8edfb;padding:8px 12px;font-size:12px;font-weight:720}
 .hhScanSharedPresets753 button[aria-pressed="true"]{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 30%,#102744);color:white}
+
+/* v1120 optional auto AI cover control */
+.hhScanShared753 #hhScanSharedAutoImage753{accent-color:var(--sc)}
