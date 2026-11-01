@@ -299,3 +299,24 @@ test('v1095 Volán PDF 1054 / 18 labelled ticket fields, not 2026, seat or fare'
  assert.match(page,/v=1095-volan-ticket-pair/);
  assert.match(pageCss,/\.mt-ticket-recognized/);
 });
+
+test('v1096 one-tap My Trips numeric form and exact known MÁVPlusz link',()=>{
+ const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ assert.match(pageJs,/mt-tracking-inline/);
+ assert.match(pageJs,/Vonat \/ viszonylat/);
+ assert.match(pageJs,/📍 Követés/);
+ assert.match(pageJs,/trackingDeepLink\(trip,number,service\)/);
+ assert.match(page,/class="mt-tracking-section" hidden/);
+ assert.match(cloud,/async function saveTrackingPair\(p,id,number,service,link\)/);
+ assert.match(page,/my-trips-v1080\.js\?v=1096-two-field-follow/);
+ const j=api.normalize({schema:'sh9.trip-pack/1',travelDate:'2026-11-01',
+ from:'Mónika · Anyuka',to:'Otthon',segments:[{mode:'bus',line:'1054',
+ from:'Kazincbarcika, Márka ABC',to:'Budapest, Kacsóh Pongrác út',departure:'07:59'}],
+ trackingNumber:'1054',trackingService:'18'});
+ assert.equal(j.trackingNumber,'1054');assert.equal(j.trackingService,'18');
+ assert.equal(api.trackingDeepLink(j,'1054','18'),
+  'https://mavplusz.hu/#/trip/hkir:hkir_1054_18-2?ui_activeItinerary=-1');
+ assert.equal(api.trackingDeepLink({...j,travelDate:'2026-11-02'},'1054','18'),'');
+ assert.equal(api.trackingDeepLink(j,'1055','18'),'');
+ assert.equal(api.trackingDeepLink({...j,from:'Budapest',to:'Pécs',segments:[]},'1054','18'),'');
+});
