@@ -29,6 +29,16 @@
   }
   throw Error('Hibás időpont: HH:mm vagy időzónás ISO-dátum szükséges.');
  };
+ // Only verified MÁVPlusz trip deep-links may be used for one-tap tracking.
+ function trackingUrl(raw){
+  if(typeof raw!=='string'||raw.length>300)return '';
+  try{
+   const u=new URL(raw.trim());
+   if(u.protocol!=='https:'||u.hostname!=='mavplusz.hu'||u.port||u.username||u.password||u.pathname!=='/'||u.search)return '';
+   if(!/^#\/trip\/[a-z0-9_:.-]{3,120}(?:\?ui_activeItinerary=-?\d+)?$/i.test(u.hash))return '';
+   return u.href;
+  }catch(_){return ''}
+ }
  const key=p=>'sh9-smart-trip-pack-v1078-'+(p==='m'?'m':'z');
  const icons={walk:'🚶',bus:'🚌',tram:'🚋',metro:'🚇',train:'🚆',hev:'🚈',other:'🚏'};
  function normalize(input){
@@ -83,7 +93,8 @@
   return {schema:SCHEMA,title:title||from+' → '+to,travelDate:raw.travelDate,from,to,
    departure,arrival,
    arrivalStatus:STATES.has(raw.arrivalStatus)?raw.arrivalStatus:'estimated',
-   summary:safe(raw.summary,600),segments,alerts,alternatives,sources};
+   summary:safe(raw.summary,600),segments,alerts,alternatives,sources,
+   ...(trackingUrl(raw.trackingUrl)?{trackingUrl:trackingUrl(raw.trackingUrl)}:{})};
  }
  function read(storage,p){
   try{
@@ -299,5 +310,5 @@
    }
   }catch(_){}
  }
- return Object.freeze({normalize,read,save,remove,mount,SCHEMA,MAX_BYTES,MAX_SAVED});
+ return Object.freeze({normalize,read,save,remove,mount,trackingUrl,SCHEMA,MAX_BYTES,MAX_SAVED});
 });
