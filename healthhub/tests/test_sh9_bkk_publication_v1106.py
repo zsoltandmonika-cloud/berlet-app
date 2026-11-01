@@ -89,11 +89,31 @@ class PublishGateTests(unittest.TestCase):
             path=pathlib.Path(dir)/"data.json"
             encoded=json.dumps(fixture(),ensure_ascii=False).encode("utf-8")
             path.write_bytes(encoded)
-            result=gate.validate_file(path,NOW)
+            result=gate.validate_file(path,NOW,source_sha256='a'*64)
             self.assertEqual(result["sha256"],hashlib.sha256(encoded).hexdigest())
             self.assertEqual(result["bytes"],len(encoded))
+            self.assertEqual(result["sourceSha256"],"a"*64)
             self.assertEqual(result["schema"],"sh9.bkk.feed-manifest/1")
             self.assertEqual(result["license"],"CC-BY-4.0")
+
+    def test_reuse_validated_unchanged_official_feed_without_rebuild(self):
+        data=fixture()
+        data["generatedAt"]=(NOW-dt.timedelta(days=5)).isoformat().replace("+00:00","Z")
+        result=gate.check_data(data,NOW)
+        self.assertEqual(result["tripCount"],1200)
+
+    def test_reject_snapshot_older_than_fourteen_days(self):
+        data=fixture()
+        data["generatedAt"]=(NOW-dt.timedelta(days=15)).isoformat().replace("+00:00","Z")
+        with self.assertRaisesRegex(ValueError,"stale"):
+            gate.check_data(data,NOW)
+
+    def test_provenance_digest_required(self):
+        with tempfile.TemporaryDirectory() as dir:
+            path=pathlib.Path(dir)/"feed.json"
+            path.write_text(json.dumps(fixture()),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"provenance"):
+                gate.validate_file(path,NOW)
 
     def test_stale_processing_timestamp_refused(self):
         data=fixture()
