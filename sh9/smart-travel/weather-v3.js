@@ -62,12 +62,19 @@
     if(!widget||!cityEl||!tempEl||!conditionEl||!iconEl||buttons.length!==4)return;
     const cache=new Map();
     let active='budapest',sequence=0,controller=null;
+    function english(){return w.SH9_I18N_V1?.getLanguage?.()==='en'}
+    function weatherText(label){
+      if(!english())return label;
+      return ({'Derült':'Clear','Tiszta éjszaka':'Clear night','Kevés felhő':'Mostly clear',
+        'Változóan felhős':'Partly cloudy','Borult':'Overcast','Köd':'Fog','Szitálás':'Drizzle',
+        'Eső':'Rain','Havazás':'Snow','Zápor':'Showers','Zivatar':'Thunderstorm','Időjárás':'Weather'})[label]||label;
+    }
     function updateSelected(){
       const city=CITIES[active];
       cityEl.textContent=city.label;
       widget.href=city.forecastUrl;
-      widget.title=city.label+' · részletes időjárás-előrejelzés';
-      widget.setAttribute('aria-label',city.label+' időjárás-előrejelzésének megnyitása');
+      widget.title=city.label+(english()?' · detailed weather forecast':' · részletes időjárás-előrejelzés');
+      widget.setAttribute('aria-label',english()?'Open '+city.label+' weather forecast':city.label+' időjárás-előrejelzésének megnyitása');
       buttons.forEach(function(b){
         const selected=b.dataset.city===active;
         b.classList.toggle('is-active',selected);
@@ -77,19 +84,19 @@
     function render(data){
       tempEl.textContent=data.temp+'°C';
       iconEl.textContent=data.visual.icon;
-      conditionEl.textContent=data.visual.label;
+      conditionEl.textContent=weatherText(data.visual.label);
       widget.dataset.weatherStatus='ready';
     }
     function loading(){
       tempEl.textContent='--°C';
       iconEl.textContent='🌤️';
-      conditionEl.textContent='Időjárás betöltése…';
+      conditionEl.textContent=english()?'Loading weather…':'Időjárás betöltése…';
       widget.dataset.weatherStatus='loading';
     }
     function failure(){
       tempEl.textContent='--°C';
       iconEl.textContent='🌡️';
-      conditionEl.textContent='Adat nem elérhető';
+      conditionEl.textContent=english()?'Weather unavailable':'Adat nem elérhető';
       widget.dataset.weatherStatus='error';
     }
     async function refresh(force){
@@ -129,6 +136,13 @@
     }
     function wake(){if(!d.hidden)void refresh(false)}
     d.addEventListener('visibilitychange',wake);
+    w.addEventListener('sh9:languagechange',function(){
+      updateSelected();
+      const saved=cache.get(active);
+      if(widget.dataset.weatherStatus==='ready'&&saved)render(saved.value);
+      else if(widget.dataset.weatherStatus==='error')failure();
+      else loading();
+    });
     w.addEventListener('pageshow',wake);
     w.addEventListener('focus',wake);
     w.setInterval(wake,15*60*1000);
