@@ -111,7 +111,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
  assert.match(page,/my-trips-v1080\.css\?v=1096-two-field-follow/);
- assert.match(page,/my-trips-v1080\.js\?v=1098-travel-day-follow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -308,7 +308,7 @@ test('v1096 one-tap My Trips numeric form and exact known MÁVPlusz link',()=>{
  assert.match(pageJs,/trackingDeepLink\(trip,number,service\)/);
  assert.match(page,/class="mt-tracking-section" hidden/);
  assert.match(cloud,/async function saveTrackingPair\(p,id,number,service,link\)/);
- assert.match(page,/my-trips-v1080\.js\?v=1098-travel-day-follow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
  const j=api.normalize({schema:'sh9.trip-pack/1',travelDate:'2026-11-01',
  from:'Mónika · Anyuka',to:'Otthon',segments:[{mode:'bus',line:'1054',
  from:'Kazincbarcika, Márka ABC',to:'Budapest, Kacsóh Pongrác út',departure:'07:59'}],
@@ -349,7 +349,9 @@ test('v1098 saved trip starts auto-follow only on Budapest travel day',()=>{
  assert.ok(helper.isTravelDay({travelDate:'2026-11-01'},new Date('2026-11-01T09:32:00Z')));
  assert.ok(!helper.isTravelDay({travelDate:'2026-11-02'},new Date('2026-11-01T09:32:00Z')));
  assert.match(pageJs,/tracker\?\.isTravelDay\(trip\)/);
- assert.match(pageJs,/go\.textContent='📍 Aktuális utazás · követés'/);
+ assert.match(pageJs,/url\.searchParams\.set\('details','1'\)/);
+ assert.match(pageJs,/📋 Részletes útiterv/);
+ assert.doesNotMatch(pageJs,/go\.textContent='📍 Aktuális utazás · követés'/);
  assert.match(pack,/tracker\?\.isTravelDay\(selected\)/);
  assert.match(pack,/!params\.has\('details'\)/);
  assert.match(pack,/w\.location\.replace\(exact\)/);
@@ -357,4 +359,14 @@ test('v1098 saved trip starts auto-follow only on Budapest travel day',()=>{
  assert.match(page,/my-trips-tracking-v1097\.js\?v=1098-travel-day-follow/);
  assert.match(smart,/smart-trip-pack-v1078\.js\?v=1098-travel-day-follow/);
  assert.ok(smart.indexOf('my-trips-tracking-v1097.js')<smart.indexOf('smart-trip-pack-v1078.js'));
+});
+
+test('v1099 full saved Trip Flow stays accessible every day, separately from MÁVPlusz',()=>{
+ assert.match(pageJs,/const go=node\('a','mt-trip-details','📋 Részletes útiterv',actions\)/);
+ assert.match(pageJs,/url\.searchParams\.set\('trip',trip\.id\)/);
+ assert.match(pageJs,/url\.searchParams\.set\('details','1'\)/);
+ assert.doesNotMatch(pageJs,/url\.searchParams\.set\('follow','1'\)/);
+ assert.match(pageJs,/const follow=node\('button','mt-tracking-button','📍 Követés ↗',form\)/);
+ assert.match(pack,/!params\.has\('details'\)/);
+ assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
 });
