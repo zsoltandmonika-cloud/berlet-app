@@ -133,26 +133,13 @@
     })();
    });
    const actions=node('div','mt-trip-actions',null,card);
-   const go=node('a','','Útiterv megnyitása',actions);
+   // The full itinerary MUST remain available even on the travel date.
+   // ?details=1 bypasses the automatic MÁVPlusz handoff in the TripPack viewer.
+   const go=node('a','mt-trip-details','📋 Részletes útiterv',actions);
    const url=new URL('../public-transport/smart-trip/',d.baseURI);
    url.searchParams.set('trip',trip.id);
+   url.searchParams.set('details','1');
    go.href=url.href;
-   // Opening a saved trip on its Budapest-local travel date should follow
-   // the identified service directly. On every other day, show Trip Flow.
-   const tracker=w.SH9_TRIP_TRACKING_V1097;
-   if(tracker?.isTravelDay(trip)&&trip.trackingNumber&&trip.trackingService){
-    const direct=pack.trackingDeepLink(trip,trip.trackingNumber,trip.trackingService);
-    if(direct){
-     go.textContent='📍 Aktuális utazás · követés';
-     go.href=direct;
-     go.target='_self';
-     go.rel='noopener noreferrer external';
-    }else{
-     go.textContent='📍 Aktuális utazás · követés keresése';
-     url.searchParams.set('follow','1');
-     go.href=url.href;
-    }
-   }
    const del=node('button','mt-trip-delete','🗑️ Törlés',actions);
    del.type='button';
    del.setAttribute('aria-label',trip.title+' útiterv törlése');
