@@ -274,7 +274,7 @@ async function saveShared(){
  if(!library?.upsert)return sharedStatus('A közös ételtár nem töltődött be.',true);
  const title=$('hhScanName753').value.trim();
  if(!valid({...draft,name:title}))return sharedStatus('Mentés előtt ellenőrizd az étel nevét és tápértékét.',true);
- const categories=[...new Set($('hhScanSharedTags753').value.split(',').map(x=>x.trim().replace(/\\s+/g,' ').slice(0,45)).filter(Boolean))].slice(0,12);
+ const categories=[...new Set($('hhScanSharedTags753').value.split(',').map(x=>x.trim().replace(/\s+/g,' ').slice(0,45)).filter(Boolean))].slice(0,12);
  const favorite=$('hhScanSharedFavorite753').checked;
  if(!categories.length&&!favorite)return sharedStatus('Jelölj ki legalább egy kategóriát vagy a Kedvenceket.',true);
  const toPuter=$('hhScanSharedPuter753').checked;
