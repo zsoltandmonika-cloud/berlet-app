@@ -94,5 +94,27 @@
   const a=d.createElement('a');a.href=u;a.target='_blank';a.rel='noopener noreferrer';d.body.appendChild(a);a.click();a.remove();
  });
  w.addEventListener('beforeunload',()=>{if(previewUrl)w.URL.revokeObjectURL(previewUrl)});
- w.SH9_TRIP_PDF_VIEWER_V1087=Object.freeze({open,close});
+ // Read only embedded PDF text and actual hyperlinks, never infer provider trip IDs.
+ async function inspect(file){
+  if(!file||file.size>15000000)throw Error('Túl nagy PDF.');
+  const lib=await engine();
+  const loader=lib.getDocument({
+   data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false,enableScripting:false
+  });
+  const urls=new Set(),numbers=new Set();
+  try{
+   const document=await loader.promise;
+   for(let p=1;p<=Math.min(document.numPages,5);p++){
+    const page=await document.getPage(p);
+    const annotations=await page.getAnnotations({intent:'display'});
+    for(const a of annotations||[])if(typeof a?.url==='string')urls.add(a.url);
+    const content=await page.getTextContent();
+    const text=(content.items||[]).map(x=>x.str||'').join(' ').slice(0,20000);
+    for(const m of text.matchAll(/https?:\/\/mavplusz\.hu\/#\/trip\/[a-z0-9_:.-]{3,120}(?:\?ui_activeItinerary=-?\d+)?/gi))urls.add(m[0]);
+    for(const m of text.matchAll(/\b(?:vonat(?:szám)?|járat(?:szám)?|train|IC|IR)\s*(?:száma)?\s*[:#-]?\s*([0-9]{2,6})\b/gi))numbers.add(m[1]);
+   }
+   return {urls:[...urls],numbers:[...numbers]};
+  }finally{try{await loader.destroy()}catch(_){}}
+ }
+ w.SH9_TRIP_PDF_VIEWER_V1087=Object.freeze({open,close,inspect});
 })(window,document);
