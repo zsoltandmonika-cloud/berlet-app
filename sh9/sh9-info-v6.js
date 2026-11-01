@@ -96,7 +96,7 @@
   var p=setDate();
   if(currentDay!==p.month+'-'+p.day)showNameday(p);
  }
- window.addEventListener('sh9:languagechange',function(){
+ window.addEventListener?.('sh9:languagechange',function(){
   setDate();
   if(nameEl.textContent==='nem elérhető'||nameEl.textContent==='unavailable')
    nameEl.textContent=tr('nameday.unavailable','nem elérhető');
