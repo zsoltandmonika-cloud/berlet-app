@@ -6,7 +6,7 @@
 <meta name="description" content="SH9 Smart Travel · My Trips – személyes mentett utazások">
 <title>My Trips · SH9 Smart Travel</title>
 <link rel="icon" type="image/png" href="../../assets/sh9-icon.png">
-<link rel="stylesheet" href="./my-trips-v1080.css?v=1094-ticket-number-fix">
+<link rel="stylesheet" href="./my-trips-v1080.css?v=1095-volan-ticket-pair">
 <link rel="stylesheet" href="./my-trips-pdf-v1087.css?v=1087-sh9-secure-reader">
 </head>
 <body>
@@ -51,7 +51,12 @@
    <button id="mtTrackingScan" type="button">🔎 PDF felismerés</button>
    <button id="mtTrackingSave" type="button">💾 Link mentése</button>
   </div>
-  <p id="mtTrackingStatus" role="status"></p>\n  <a class="mt-tracking-search" href="https://mavplusz.hu/" target="_blank" rel="noopener noreferrer external">🔎 Járat megkeresése a MÁVPluszban ↗</a>
+  <div id="mtTicketRecognized" class="mt-ticket-recognized" hidden aria-label="PDF-ből felismert jegyazonosítók">
+   <span>🚌 Vonat / viszonylat <strong id="mtTicketVonat">—</strong></span>
+   <span>🎟️ Járat <strong id="mtTicketJarat">—</strong></span>
+  </div>
+  <p id="mtTrackingStatus" role="status"></p>
+  <a class="mt-tracking-search" href="https://mavplusz.hu/" target="_blank" rel="noopener noreferrer external">🔎 Járat megkeresése a MÁVPluszban ↗</a>
  </section>
  <p id="mtFilesStatus" class="mt-files-status" role="status">Privát csatolmányok</p>
 </dialog>
@@ -93,7 +98,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script src="../public-transport/smart-trip/smart-trip-pack-v1078.js?v=1093-tracking"></script>
 <script src="./my-trips-v1080.js?v=1093-mav-tracking"></script>
-<script src="./my-trips-pdf-v1087.js?v=1094-ticket-number-fix"></script>
-<script src="./my-trips-cloud-v1086.js?v=1094-ticket-number-fix"></script>
+<script src="./my-trips-pdf-v1087.js?v=1095-volan-ticket-pair"></script>
+<script src="./my-trips-cloud-v1086.js?v=1095-volan-ticket-pair"></script>
 </body>
 </html>
