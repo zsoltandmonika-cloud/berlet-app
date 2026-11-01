@@ -27,7 +27,7 @@ function normalize(data){
   if(!valid)continue;
   const imageRef=cloud()?.checkImageRef&&r.imageRef?(()=>{try{cloud().checkImageRef('shared',r.imageRef);return r.imageRef}catch(_){return null}})():null;
   out.items[id]={id,name,categories:cats,favorite:!!r.favorite,kind:r.kind==='drink'?'drink':'food',
-   meal:cleanText(r.meal,35)||'Ebéd',nutrients,ingredients:cleanText(r.ingredients,2000),description:cleanText(r.description,160),imageRef,
+   meal:cleanText(r.meal,35)||'Ebéd',nutrients,ingredients:cleanText(r.ingredients,2000),description:cleanText(r.description,160),imageRef,order:Number.isFinite(Number(r.order))&&r.order!=null?Math.max(0,Math.min(9999,Number(r.order))):null,
    notes:cleanText(r.notes,450),createdAt:cleanText(r.createdAt,45),updatedAt:cleanText(r.updatedAt,45)};
  }
  return out;
@@ -40,7 +40,14 @@ function cache(data){
 }
 let current=fresh(),loading=null;
 try{current=normalize(JSON.parse(root.localStorage.getItem(KEY)||'null'))}catch(_){}
-function items(){return Object.values(current.items).sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)))}
+function favoriteSort(a,b){
+ const rank=x=>x.order==null?1e6:x.order;
+ return rank(a)-rank(b)||String(b.updatedAt).localeCompare(String(a.updatedAt))||a.id.localeCompare(b.id);
+}
+function items(){return Object.values(current.items).sort((a,b)=>a.favorite===b.favorite?
+  favoriteSort(a,b):(a.favorite?-1:1))}
+function favorites(){return items().filter(x=>x.favorite)}
+
 async function load(force=false){
  if(loading)return loading;
  if(!force&&Object.keys(current.items).length)return items();
@@ -62,7 +69,9 @@ async function upsert(input){
  for(let attempt=0;attempt<4;attempt++){
   const remote=await cloud().downloadSharedFoods();
   const data=normalize(remote.data||fresh());
-  row.createdAt=data.items[id]?.createdAt||now();row.updatedAt=now();
+  row.createdAt=data.items[id]?.createdAt||now();
+  if(input.order==null&&data.items[id]?.order!=null)row.order=data.items[id].order;
+  row.updatedAt=now();
   data.items[id]={...row};data.updatedAt=now();
   try{
    await cloud().uploadSharedFoods(data,remote.rev);
@@ -71,6 +80,26 @@ async function upsert(input){
   }catch(e){if(e.status===409&&attempt<3)continue;throw e}
  }
  throw Error('Két egyidejű mentés ütközött, próbáld újra.');
+}
+/* CAS reorder: one shared order for the household, without changing profile diaries. */
+async function reorderFavorites(ids){
+ if(!cloud()?.connected())throw Error('A közös sorrend mentéséhez Dropbox-kapcsolat kell.');
+ if(!Array.isArray(ids)||ids.length>200||new Set(ids).size!==ids.length||ids.some(id=>!validId(id)))
+  throw Error('Érvénytelen kedvencsorrend.');
+ for(let attempt=0;attempt<4;attempt++){
+  const remote=await cloud().downloadSharedFoods(),data=normalize(remote.data||fresh());
+  const currentIds=Object.values(data.items).filter(x=>x.favorite).map(x=>x.id).sort((a,b)=>favoriteSort(data.items[a],data.items[b]));
+  if(ids.length!==currentIds.length||ids.some(id=>!data.items[id]?.favorite))
+   throw Error('A közös Kedvencek megváltoztak. Frissítsd a listát.');
+  const time=now();
+  ids.forEach((id,i)=>{data.items[id].order=(i+1)*10;data.items[id].updatedAt=time});
+  data.updatedAt=time;
+  try{
+   await cloud().uploadSharedFoods(data,remote.rev);
+   current=cache(data);return favorites();
+  }catch(err){if(err.status===409&&attempt<3)continue;throw err}
+ }
+ throw Error('A sorrendmentés ütközött. Próbáld újra.');
 }
 /* Optional, user-initiated premium AI cover from the final edited food name.
  * Only public food descriptions are passed to Puter. Diary and profile data are excluded.
@@ -140,5 +169,5 @@ async function publishRecipeStudio(item,photoBlob){
  if(!check||check.id!==rid||check.title!==item.name)throw Error('A Puter mentés ellenőrzése sikertelen.');
  return {id:rid,category:value.category};
 }
-root.HH_SHARED_FOOD_LIBRARY_V1118=Object.freeze({version:'1118',getItems:items,load,upsert,publishRecipeStudio,generateCardImage,normalize});
+root.HH_SHARED_FOOD_LIBRARY_V1118=Object.freeze({version:'1118',getItems:items,getFavorites:favorites,load,upsert,reorderFavorites,publishRecipeStudio,generateCardImage,normalize});
 })(window);
