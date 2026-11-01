@@ -460,3 +460,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 .mt-tracking-button:disabled{opacity:.58}
 .mt-tracking-feedback{grid-column:1/-1;display:block;min-height:0;color:#e4ecfd;font-size:10px;line-height:1.4}
 .mt-tracking-feedback:empty{display:none}
+
+/* v1100: a saved rating is visible as a compact My Trips badge */
+.mt-trip-info .mt-rating-summary{border-color:rgba(225,180,94,.58);color:#ffe4a5;background:rgba(111,76,39,.38);font-weight:850}
