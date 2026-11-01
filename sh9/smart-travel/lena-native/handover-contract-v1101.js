@@ -14,6 +14,7 @@
  const MAX_BYTES=64000;
  const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
  const VALID_PROFILES=new Set(['m','z']);
+ const validated=new WeakSet();
  const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
  const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v)&&
   (Object.getPrototypeOf(v)===Object.prototype||Object.getPrototypeOf(v)===null);
@@ -35,13 +36,15 @@
   if(!VALID_PROFILES.has(value.profile))throw Error('Invalid requested profile');
   if(!plain(value.tripPack))throw Error('Missing TripPack object');
   const normalized=tripPackApi.normalize(value.tripPack);
-  return Object.freeze({
+  const parsed=Object.freeze({
    schema:SCHEMA,requestId:value.requestId.toLowerCase(),profile:value.profile,
    tripPack:normalized
   });
+  validated.add(parsed);
+  return parsed;
  }
  function makeRecord(parsed,authorizedProfiles,serverTimestamp){
-  if(!parsed||parsed.schema!==SCHEMA||!UUID.test(parsed.requestId))
+  if(!parsed||!validated.has(parsed)||parsed.schema!==SCHEMA||!UUID.test(parsed.requestId))
    throw Error('Handover not validated');
   // 'authorizedProfiles' MUST come from a server-side database membership check,
   // never from the model, JSON payload, browser or caller-supplied trust assertion.
