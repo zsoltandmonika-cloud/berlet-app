@@ -31,19 +31,31 @@ test('ChatGPT handoff includes user selected matched favorites, date, preference
  assert.match(prompt,/tömegközlekedési utat/);
  assert.doesNotMatch(prompt,/KÜLÖNLEGES NAPOK:|ELLENŐRZÉS:|Személyes egészségügyi adatokat|temetői és forgalmi|időrendi táblázat/);
  assert.match(prompt,/Alternatív útvonalakat ne keress/);
- assert.match(prompt,/Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack\.json-t/);
- assert.match(prompt,/schema: sh9\.trip-pack\/1/);
+ assert.match(prompt,/Az útitervből készíts sh9\.trip-pack\/1 JSON-t/);
+ assert.match(prompt,/sh9\.trip-pack\/1/);
  assert.match(prompt,/segments\[\{mode,line,from,to,departure,arrival,status,note\}\]/);
  assert.match(prompt,/alerts\[\{title,text\}\]/);
  assert.match(prompt,/sources\[\{name,url\}\]/);
- assert.match(prompt,/status timetable\/estimated\/unknown/);
- assert.match(prompt,/ismeretlen idő null/);
+ assert.match(prompt,/status: timetable\/estimated\/unknown/);
+ assert.match(prompt,/Idők: HH:mm vagy null/);
  assert.match(prompt,/egyetlen tiszta JSON-kódblokkot/);
  const u=new URL(ai.url(q,places,'wait'));
  assert.equal(u.origin,'https://chatgpt.com');
  assert.equal(u.pathname,'/');
  assert.equal(u.searchParams.get('q'),prompt);
  assert.equal([...u.searchParams.keys()].join(','),'q');
+});
+test('selected family profile is passed only to optional Supabase save',()=>{
+ const z=ai.prompt(q,places,'balanced','z');
+ const m=ai.prompt(q,places,'balanced','m');
+ assert.ok(z&&z.length<2400&&m&&m.length<2400);
+ assert.match(z,/profile_key=zsolt/);
+ assert.match(m,/profile_key=monika/);
+ assert.doesNotMatch(m,/profile_key=zsolt/);
+ assert.doesNotMatch(ai.prompt(q,places,'balanced'),/public\\.hh_my_trip_packs/);
+ assert.match(ui,/chatgpt\\?\\.go\\?\\.\\(query,local,priority\\?\\.value,w\\.location,profile\\(\\)\\)/);
+ assert.match(z,/Ha a mentés nem sikerült, ne állítsd, hogy sikerült/);
+ assert.match(z,/Ha nincs igazolt felhőmentés/);
 });
 test('ChatGPT handoff is one user action, no API key, no extra button, never hidden redirects',()=>{
  let count=0,value='';
