@@ -1,0 +1,28 @@
+name: SH9 Lena Native MCP OAuth Preview v1103
+on:
+  push:
+    paths:
+      - 'supabase/functions/hh-lena-mcp-preview/**'
+      - 'healthhub/tests/sh9-lena-mcp-v1103.test.mjs'
+      - '.github/workflows/sh9-lena-native-v1103-mcp-qa.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-lena-mcp-preview/**'
+      - 'healthhub/tests/sh9-lena-mcp-v1103.test.mjs'
+      - '.github/workflows/sh9-lena-native-v1103-mcp-qa.yml'
+permissions:
+  contents: read
+jobs:
+  mcp-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate MCP server, auth-deny and idempotence
+        run: |
+          node --check supabase/functions/hh-lena-handover-preview/trip-pack-core.mjs
+          node --check supabase/functions/hh-lena-handover-preview/handover-core.mjs
+          node --test healthhub/tests/sh9-lena-mcp-v1103.test.mjs
