@@ -23,7 +23,7 @@ test('ChatGPT handoff includes user selected matched favorites, date, preference
  assert.match(prompt,/Otthon \(kijelölt hely koordinátája: 47\.54512, 19\.03534\)/);
  assert.match(prompt,/Mónika · Anyuka \(kijelölt hely koordinátája: 48\.25343, 20\.64156\)/);
  assert.match(prompt,/2026-11-01 07:30/);
- assert.match(prompt,/Lehető legkevesebb várakozás/);
+ assert.match(prompt,/lehető legkevesebb várakozás/i);
  assert.match(prompt,/ünnepi vagy forgalmi eltéréseket/);
  assert.match(prompt,/forráslinket/);
  assert.match(prompt,/bizonytalan időpontokat jelöld becsültnek/);
@@ -70,7 +70,7 @@ test('stale, mismatching or out-of-country favorite coordinates cannot be leaked
 });
 test('profile independent defaults preserve legacy explicit Google choice and no new API cost',()=>{
  assert.match(ui,/METHOD_KEY='sh9-smart-trip-search-method-v1076-'/);
- assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native'\]\)/);
+ assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native','lena_native'\]\)/);
  assert.match(ui,/saved\)\?saved:legacy==='external'\?'google'/);
  assert.match(ui,/w\.localStorage\.getItem\(METHOD_KEY\+p\)/);
  assert.match(ui,/w\.localStorage\.setItem\(METHOD_KEY\+profile\(\),choice\)/);
