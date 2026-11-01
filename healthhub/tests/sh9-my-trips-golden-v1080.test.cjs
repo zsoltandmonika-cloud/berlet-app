@@ -103,7 +103,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
  assert.match(css,/\.st22-tp-walk\{--st22-mode:#dfa4d4\}/);
  assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083 \.st22-tp-ride-stop/);
  assert.match(smart,/v=1098-travel-day-follow/);
- assert.match(smart,/smart-trip-pack-v1078\.js\?v=1098-travel-day-follow/);
+ assert.match(smart,/smart-trip-pack-v1078\.js\?v=1100-trip-rating/);
  assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
 });
@@ -111,7 +111,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
  assert.match(page,/my-trips-v1080\.css\?v=1096-two-field-follow/);
- assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1100-trip-rating/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -308,7 +308,7 @@ test('v1096 one-tap My Trips numeric form and exact known MÁVPlusz link',()=>{
  assert.match(pageJs,/trackingDeepLink\(trip,number,service\)/);
  assert.match(page,/class="mt-tracking-section" hidden/);
  assert.match(cloud,/async function saveTrackingPair\(p,id,number,service,link\)/);
- assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1100-trip-rating/);
  const j=api.normalize({schema:'sh9.trip-pack/1',travelDate:'2026-11-01',
  from:'Mónika · Anyuka',to:'Otthon',segments:[{mode:'bus',line:'1054',
  from:'Kazincbarcika, Márka ABC',to:'Budapest, Kacsóh Pongrác út',departure:'07:59'}],
@@ -357,7 +357,7 @@ test('v1098 saved trip starts auto-follow only on Budapest travel day',()=>{
  assert.match(pack,/w\.location\.replace\(exact\)/);
  assert.match(pack,/w\.location\.replace\(result\.url\)/);
  assert.match(page,/my-trips-tracking-v1097\.js\?v=1098-travel-day-follow/);
- assert.match(smart,/smart-trip-pack-v1078\.js\?v=1098-travel-day-follow/);
+ assert.match(smart,/smart-trip-pack-v1078\.js\?v=1100-trip-rating/);
  assert.ok(smart.indexOf('my-trips-tracking-v1097.js')<smart.indexOf('smart-trip-pack-v1078.js'));
 });
 
@@ -368,5 +368,64 @@ test('v1099 full saved Trip Flow stays accessible every day, separately from MÁ
  assert.doesNotMatch(pageJs,/url\.searchParams\.set\('follow','1'\)/);
  assert.match(pageJs,/const follow=node\('button','mt-tracking-button','📍 Követés ↗',form\)/);
  assert.match(pack,/!params\.has\('details'\)/);
- assert.match(page,/my-trips-v1080\.js\?v=1099-always-show-trip-flow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1100-trip-rating/);
+});
+
+test('v1100 1-5 stars at the end of full Trip Flow and persistent private archive',async()=>{
+ const ratingSrc=read('sh9/smart-travel/my-trips/my-trips-rating-v1100.js');
+ const cloudSrc=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ assert.match(pack,/st22-tp-rating-stars/);
+ assert.match(pack,/st22-tp-rating-save/);
+ assert.match(pack,/⭐ Utazás értékelése/);
+ assert.ok(pack.indexOf('st22-tp-rating-title')>pack.indexOf("if(j.sources.length)"));
+ assert.ok(pack.indexOf('st22-tp-rating-title')<pack.indexOf('st22-tp-viewer-footer'));
+ assert.match(pageJs,/mt-rating-summary/);
+ assert.match(page,/my-trips-cloud-v1086\.js\?v=1100-trip-rating/);
+ assert.match(smart,/my-trips-rating-v1100\.js\?v=1100-trip-rating/);
+ assert.match(cloudSrc,/cloudRating!==localRating/);
+ assert.match(cloudSrc,/ratedAt:oldRatedAt/);
+ assert.doesNotMatch(ratingSrc,/service_role|api\.openai\.com/);
+ const itinerary=api.normalize({
+  schema:'sh9.trip-pack/1',travelDate:'2026-11-01',from:'Kazincbarcika',to:'Budapest',
+  segments:[{mode:'bus',line:'1054',from:'Kazincbarcika',to:'Budapest'}],
+  rating:4,ratedAt:'2026-11-01T12:00:00.000Z'
+ });
+ assert.equal(itinerary.rating,4);
+ assert.equal(itinerary.ratedAt,'2026-11-01T12:00:00.000Z');
+ assert.equal(api.normalize({...itinerary,rating:0}).rating,undefined);
+ assert.equal(api.normalize({...itinerary,rating:6}).rating,undefined);
+ assert.equal(api.normalize({...itinerary,rating:'4'}).rating,undefined);
+ const id='tp-rating-test',base={...itinerary,id};
+ const profileStorage=new Map([['hh-profile','m'],
+  ['sh9-smart-trip-pack-v1078-m',JSON.stringify([base])]]);
+ const updates=[];
+ const tableQuery={
+  select(){return this},
+  eq(){return this},
+  maybeSingle:async()=>({data:{trip_data:base},error:null}),
+  update(payload){updates.push(payload);return this},
+  single:async()=>({data:{trip_id:id},error:null})
+ };
+ const fake={
+  HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://example.invalid',publishableKey:'example'},
+  supabase:{createClient:()=>({
+   auth:{getSession:async()=>({data:{session:{user:{id:'test'}}},error:null})},
+   from:()=>tableQuery
+  })},
+  localStorage:{getItem:k=>profileStorage.get(k)??null,setItem:(k,v)=>profileStorage.set(k,v)},
+  dispatchEvent:()=>{}
+ };
+ const mod={exports:{}};
+ const EventMock=class{constructor(name){this.type=name}};
+ new Function('window','module','Event',ratingSrc)(fake,mod,EventMock);
+ assert.equal(mod.exports.ratingValue(5),5);
+ assert.equal(mod.exports.ratingValue(0),null);
+ assert.equal(mod.exports.ratingValue(6),null);
+ assert.equal(mod.exports.ratingValue(2.5),null);
+ const saved=await mod.exports.saveRating('m',id,5);
+ assert.equal(saved.rating,5);
+ assert.equal(updates.length,1);
+ assert.equal(updates[0].trip_data.rating,5);
+ assert.equal(api.read(fake.localStorage,'m')[0].rating,5);
+ assert.equal(api.read(fake.localStorage,'m')[0].ratedAt,saved.ratedAt);
 });
