@@ -404,6 +404,17 @@
   $('st22TripPackSaved')?.addEventListener('click',openMyTrips);
   $('st22TripPackImportClose')?.addEventListener('click',()=>close(importer));
   $('st22TripPackClose')?.addEventListener('click',()=>close(viewer));
+  $('st22TripPackClipboard')?.addEventListener('click',async()=>{
+   if(!w.navigator?.clipboard?.readText){
+    say('A böngésző nem engedi a vágólap olvasását. Illeszd be a JSON-t az alábbi mezőbe.');pasted.focus();return;
+   }
+   try{
+    const value=await w.navigator.clipboard.readText();
+    if(!value.trim()){say('A vágólap üres. ChatGPT-ben másold ki a teljes TripPack JSON-t.');return}
+    if(value.length>MAX_BYTES){say('A másolt JSON túl nagy (maximum 60 KB).');return}
+    doImport(value);
+   }catch(_){say('A vágólap olvasása nem engedélyezett. Illeszd be kézzel a JSON-t.');pasted.focus()}
+  });
   $('st22TripPackDoImport')?.addEventListener('click',()=>doImport(pasted.value));
   file?.addEventListener('change',async()=>{
    const f=file.files?.[0];if(!f)return;
