@@ -1,0 +1,32 @@
+name: SH9 Lena Native Integration Contract v1101
+on:
+  push:
+    paths:
+      - 'sh9/smart-travel/lena-native/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js'
+      - 'healthhub/tests/sh9-lena-native-contract-v1101.test.cjs'
+      - '.github/workflows/sh9-lena-native-v1101-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/lena-native/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js'
+      - 'healthhub/tests/sh9-lena-native-contract-v1101.test.cjs'
+      - '.github/workflows/sh9-lena-native-v1101-qa.yml'
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate isolated contract and original TripPack normalizer
+        run: |
+          node --check sh9/smart-travel/lena-native/handover-contract-v1101.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js
+          node --test healthhub/tests/sh9-lena-native-contract-v1101.test.cjs
