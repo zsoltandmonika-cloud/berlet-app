@@ -93,3 +93,20 @@ body.hhScanOpen753>.shell{display:none!important}
 .hhScanPage753 :focus-visible{outline:2px solid var(--sc);outline-offset:3px}
 @media(max-width:430px){.hhScanBody753{width:calc(100% - 18px);gap:11px}.hhScanHero753{border-radius:16px}.hhScanHero753 #hhScanProfile753{bottom:12px;left:12px;min-height:30px;padding:5px 12px;font-size:12px}.hhScanStage753,.hhScanResults753{padding:11px}.hhScanMacros753 b{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.hhScanLine753,.hhScanProcessing753 span{animation:none!important}}
+
+/* v1118: Common household scan saves, independent of diary profile. */
+.hhScanShared753{display:flex;flex-direction:column;gap:11px;border:1px solid color-mix(in srgb,var(--sc) 52%,transparent);border-radius:17px;background:#071f36c9;padding:14px}
+.hhScanSharedHead753{display:flex;flex-direction:column;gap:2px}
+.hhScanSharedHead753 strong{font-size:15px;color:#f2f9ff}
+.hhScanSharedHead753 small,.hhScanSharedImage753 small{font-size:11px;color:#b3d5e8}
+.hhScanSharedLabel753{font-size:12px;color:#d4ebfa;display:flex;flex-direction:column;gap:6px}
+#hhScanSharedTags753{width:100%;min-height:46px;background:#081e34;color:#fff;border:1px solid #679abc;border-radius:11px;padding:10px;font-size:14px}
+.hhScanSharedCheck753{display:flex;align-items:center;gap:10px;min-height:35px;font-size:13px;color:#edf7ff}
+.hhScanSharedCheck753 input{accent-color:var(--sc);height:19px;width:19px;flex:none}
+.hhScanSharedImage753{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+#hhScanSharedEnhance753{padding:10px 13px;min-height:44px;background:#143450;color:#fff;border:1px solid #699ebc;border-radius:11px;font-weight:700}
+#hhScanSharedSave753{min-height:54px;color:white;font-size:14px;font-weight:850;background:linear-gradient(125deg,#176f7a,#22629b);border:1px solid var(--sc);border-radius:13px}
+#hhScanSharedSave753:disabled{opacity:.45}
+#hhScanSharedStatus753{margin:0;font-size:12px;color:#c6ebdd;overflow-wrap:anywhere}
+#hhScanSharedStatus753:empty{display:none}
+#hhScanSharedStatus753[data-error="true"]{color:#ffd0af}
