@@ -425,3 +425,17 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 /* v1089: per-trip explicit delete, compact and profile-themed */
 .mt-trip-actions .mt-trip-delete{border:1px solid rgba(255,174,184,.56);border-radius:10px;background:rgba(124,36,64,.44);color:#ffe2e7;min-height:40px;padding:8px 13px;font-size:12px;font-weight:800}
 .mt-trip-actions .mt-trip-delete:disabled{opacity:.5;cursor:wait}
+
+/* v1093: SH9 My Trips first-party MÁVPlusz ticket tracking handoff */
+.mt-trip-tracking{margin:8px 0 2px}
+.mt-follow-link,.mt-follow-setup{display:flex;justify-content:center;align-items:center;width:100%;min-height:40px;padding:8px 11px;border:1px solid var(--mt-border);border-radius:11px;background:linear-gradient(125deg,rgba(63,141,167,.65),rgba(81,78,159,.64));color:#f7ffff;font-size:12px;font-weight:850;text-align:center}
+.mt-follow-setup{cursor:pointer}
+.mt-tracking-section{margin-top:13px;padding:12px;border:1px solid var(--mt-border);border-radius:13px;background:rgba(53,82,126,.40);color:#edf5ff}
+.mt-tracking-section h3{font-size:14px;margin:0 0 6px}
+.mt-tracking-section p{font-size:11px;line-height:1.45;color:#dce7f8;margin:6px 0 10px}
+.mt-tracking-section label{display:block;font-size:11px;font-weight:800;margin-bottom:5px}
+.mt-tracking-section input{display:block;width:100%;min-height:43px;max-width:100%;border-radius:9px;border:1px solid var(--mt-border);background:rgba(13,25,55,.75);color:#fff;padding:9px;font-size:12px}
+.mt-tracking-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.mt-tracking-actions button{min-height:42px;border-radius:9px;border:1px solid var(--mt-border);background:linear-gradient(125deg,var(--mt-action-a),var(--mt-action-b));color:white;font-size:11px;font-weight:800}
+.mt-tracking-actions button:disabled{opacity:.55}
+#mtTrackingStatus{overflow-wrap:anywhere}
