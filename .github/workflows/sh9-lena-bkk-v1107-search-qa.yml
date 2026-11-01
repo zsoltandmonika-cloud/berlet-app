@@ -1,0 +1,40 @@
+name: SH9 Lena BKK Verified Search + My Trips v1107
+on:
+  push:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-bkk-v1107.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-bkk-v1107.css'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs'
+      - 'healthhub/tests/sh9-bkk-live-handover-v1107.test.mjs'
+      - '.github/workflows/sh9-lena-bkk-v1107-search-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/**'
+      - 'sh9/smart-travel/lena-native/bkk/**'
+      - 'healthhub/tests/sh9-bkk-live-handover-v1107.test.mjs'
+      - '.github/workflows/sh9-lena-bkk-v1107-search-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-trip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check module and search syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-bkk-v1107.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+      - name: Test signed BKK feed, GTFS, private save and legacy regressions
+        run: |
+          node --test healthhub/tests/sh9-bkk-live-handover-v1107.test.mjs
+          node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
+          node --test healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs
+          node --test healthhub/tests/sh9-smart-trip-chatgpt-default-v1076.test.cjs
+          node --test healthhub/tests/sh9-my-trips-golden-v1080.test.cjs
