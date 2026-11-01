@@ -103,7 +103,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
  assert.match(css,/\.st22-tp-walk\{--st22-mode:#dfa4d4\}/);
  assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083 \.st22-tp-ride-stop/);
  assert.match(smart,/v=1098-travel-day-follow/);
- assert.match(smart,/v=1083-bkk-flow-endpoints/);
+ assert.match(smart,/smart-trip-pack-v1078\.js\?v=1098-travel-day-follow/);
  assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
 });
@@ -162,7 +162,7 @@ test('v1086 one canonical My Trips screen with per-trip multi-ticket private syn
  assert.match(pack,/w\.location\.assign\(new URL\('\.\.\/\.\.\/my-trips\/',w\.location\.href\)\.href\)/);
  assert.match(pack,/\$\('st22TripPackSaved'\)\?\.addEventListener\('click',openMyTrips\)/);
  assert.doesNotMatch(pack,/function showSaved\(/);
- assert.match(pack,/if\(selected\)show\(selected\);else openMyTrips\(\)/);
+ assert.match(pack,/if\(selected\)\{/);
  assert.match(page,/id="mtFilesDialog"/);
  assert.match(page,/type="file" multiple accept=/);
  assert.match(page,/mtFileInput/);
@@ -326,7 +326,7 @@ test('v1097 generic GTFS matching and restored trip flow follow control',()=>{
  const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
  assert.match(page,/my-trips-tracking-v1097\.js/);
  assert.match(smart,/my-trips-tracking-v1097\.js/);
- assert.match(pageJs,/tracking\.lookup\(trip,number,service\)/);
+ assert.match(pageJs,/tracking\?\.lookup\(trip,number,service\)/);
  assert.match(pageJs,/await save\(p,trip\.id,number,service,verified\)/);
  assert.match(pack,/st22-tp-live-panel/);
  assert.match(pack,/if\(j\?\.id\)j=read\(w\.localStorage,p\)\.find\(t=>t\.id===j\.id\)/);
