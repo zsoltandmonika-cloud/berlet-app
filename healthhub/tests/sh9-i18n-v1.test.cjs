@@ -210,7 +210,7 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=909-quiet-glass/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=911-uniform-30/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -227,6 +227,20 @@ test('SH9 v909 restores the refined Golden Glass appearance to all 3 controls',(
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="z"\]::before/);
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]::before/);
  assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?bottom:-6px/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+
+test('SH9 v911 all 3 Golden Glass capsules use identical 30% fill alpha',()=>{
+ const shared=css.match(/#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,[\s\S]*?background:(linear-gradient\([^\n]+\));/);
+ const blue=css.match(/\.hero #sh9LauncherProfileV1\[data-profile="z"\]::before\{[\s\S]*?background:(linear-gradient\([^\n]+\));/);
+ const pink=css.match(/\.hero #sh9LauncherProfileV1\[data-profile="m"\]::before\{[\s\S]*?background:(linear-gradient\([^\n]+\));/);
+ for(const part of [shared,blue,pink]){
+  assert.ok(part);
+  const alphas=[...part[1].matchAll(/rgba\([0-9,]+,(\.[0-9]+)\)/g)].map(m=>Number(m[1]));
+  assert.deepEqual(alphas,[.3,.3]);
+ }
+ assert.match(page,/sh9-i18n-v1\.css\?v=911-uniform-30/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
