@@ -328,3 +328,6 @@
 .st22-tp-live-button:disabled{opacity:.6}
 .st22-tp-live-status{display:block;font-size:10px;line-height:1.4;color:#c8e9ff;margin-top:6px}
 .st22-tp-live-status:empty{display:none}
+
+/* v1098: travel-day exact vehicle lookup indicator */
+.st22-tp-live-loading{margin:9px 0;padding:9px 11px;border:1px solid #94b4d277;border-radius:10px;background:rgba(43,77,123,.42);color:#e6f4ff;font-size:11px;line-height:1.45}
