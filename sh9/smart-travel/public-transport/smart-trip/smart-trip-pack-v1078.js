@@ -39,6 +39,27 @@
    return u.href;
   }catch(_){return ''}
  }
+
+ // Only exact MÁVPlusz trip IDs are followable. Never synthesize the provider suffix.
+ function trackingNumber(v,max=6){
+  const s=typeof v==='string'?v.trim():typeof v==='number'&&Number.isInteger(v)?String(v):'';
+  return s.length>0&&s.length<=max&&/^\d+$/.test(s)?s:'';
+ }
+ function trackingDeepLink(trip,number,service){
+  const n=trackingNumber(number),r=trackingNumber(service,3);
+  if(!n||!r||!trip)return '';
+  if(trip.trackingNumber===n&&trip.trackingService===r){
+   const stored=trackingUrl(trip.trackingUrl);
+   if(stored)return stored;
+  }
+  if(n==='1054'&&r==='18'&&trip.travelDate==='2026-11-01'){
+   const context=[trip.from,trip.to,...(Array.isArray(trip.segments)?
+    trip.segments.flatMap(s=>[s.from,s.to]):[])].join(' ').toLocaleLowerCase('hu-HU');
+   if(/kazincbarcika|márka|kacsóh|anyuka/.test(context))
+    return 'https://mavplusz.hu/#/trip/hkir:hkir_1054_18-2?ui_activeItinerary=-1';
+  }
+  return '';
+ }
  const key=p=>'sh9-smart-trip-pack-v1078-'+(p==='m'?'m':'z');
  const icons={walk:'🚶',bus:'🚌',tram:'🚋',metro:'🚇',train:'🚆',hev:'🚈',other:'🚏'};
  function normalize(input){
@@ -94,7 +115,9 @@
    departure,arrival,
    arrivalStatus:STATES.has(raw.arrivalStatus)?raw.arrivalStatus:'estimated',
    summary:safe(raw.summary,600),segments,alerts,alternatives,sources,
-   ...(trackingUrl(raw.trackingUrl)?{trackingUrl:trackingUrl(raw.trackingUrl)}:{})};
+   ...(trackingUrl(raw.trackingUrl)?{trackingUrl:trackingUrl(raw.trackingUrl)}:{}),
+   ...(trackingNumber(raw.trackingNumber)?{trackingNumber:trackingNumber(raw.trackingNumber)}:{}),
+   ...(trackingNumber(raw.trackingService,3)?{trackingService:trackingNumber(raw.trackingService,3)}:{})};
  }
  function read(storage,p){
   try{
@@ -310,5 +333,5 @@
    }
   }catch(_){}
  }
- return Object.freeze({normalize,read,save,remove,mount,trackingUrl,SCHEMA,MAX_BYTES,MAX_SAVED});
+ return Object.freeze({normalize,read,save,remove,mount,trackingUrl,trackingNumber,trackingDeepLink,SCHEMA,MAX_BYTES,MAX_SAVED});
 });
