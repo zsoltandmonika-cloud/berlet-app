@@ -81,12 +81,12 @@
   // Do not reopen the Samsung keyboard or predictions after a one-tap choice.
  }
  function render(field,array){
-  const found=array.slice(0,8);field.box.replaceChildren();items.set(field.key,found);
+  const found=array.slice(0,searchMethod()==='bkk_gtfs'?12:8);field.box.replaceChildren();items.set(field.key,found);
   found.forEach((item,i)=>{
    const b=d.createElement('button');b.type='button';b.setAttribute('role','option');b.id='st22-'+field.key+'-'+i;
    const label=d.createElement('span'),strong=d.createElement('strong'),sub=d.createElement('small'),icon=d.createElement('em');
    strong.textContent=item.name;sub.textContent=item.subtitle||'Hely';label.append(strong,sub);
-   icon.textContent=item.type==='bkk_megallo'?'🚋 BKK':item.type==='kedvenc'?'★ KEDVENC':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
+   icon.textContent=item.type==='bkk_megallo'?'🚋 BKK':item.type==='bkk_katalogus'?'📍 BKK':item.type==='kedvenc'?'★ KEDVENC':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
    b.append(label,icon);
    b.addEventListener('click',()=>choose(field,item));field.box.appendChild(b);
   });
@@ -398,6 +398,7 @@
    if(result.status==='ok'){showBkkResults(result,query,searchId);return}
    const messages={
     unknown_stop:'A megadott hely nem pontos BKK-megálló. Válassz mindkét mezőben a BKK javaslatai közül.',
+    not_covered_stop:'A megálló szerepel a teljes BKK-listában, de a négy tesztjárat (17, 19, 41, 260) még nem érinti. Válassz másik BKK-megállót.',
     outside_feed:'Az adott nap nincs az ellenőrzött BKK-menetrend érvényességi időszakában.',
     no_verified_route:'Nem található közvetlen, menetrendileg ellenőrzött járat e két megálló között. Átszállást nem találgatunk.',
     feed_unavailable:'A hivatalos BKK-adat most nem elérhető, lejárt vagy sérült.',
