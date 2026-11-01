@@ -94,33 +94,31 @@
   const a=d.createElement('a');a.href=u;a.target='_blank';a.rel='noopener noreferrer';d.body.appendChild(a);a.click();a.remove();
  });
  w.addEventListener('beforeunload',()=>{if(previewUrl)w.URL.revokeObjectURL(previewUrl)});
- // Ticket numbers must come from the same visual line as an explicit train label.
- // PDF.js often returns unrelated text fragments without line breaks: do not join a whole page.
- function ticketNumbers(items){
-  const groups=[];
+ // Ticket-field extraction for MÁV/Volán tickets. Only explicit labels count.
+ // PDF.js may split "Vonat:", "1054", "Járat:", "18" into separate positioned items.
+ function ticketFields(items){
+  const lines=[];
   for(const item of (items||[]).slice(0,4000)){
    const word=String(item?.str||'').replace(/\u00a0/g,' ').normalize('NFKC').trim();
    if(!word)continue;
    const pos=item.transform,y=Array.isArray(pos)?Number(pos[5]):NaN,x=Array.isArray(pos)?Number(pos[4]):NaN;
-   let group=Number.isFinite(y)?groups.find(g=>Number.isFinite(g.y)&&Math.abs(g.y-y)<2.4):null;
-   if(!group){group={y:Number.isFinite(y)?y:null,tokens:[]};groups.push(group)}
-   group.tokens.push({word,x:Number.isFinite(x)?x:group.tokens.length});
+   let line=Number.isFinite(y)?lines.find(g=>Number.isFinite(g.y)&&Math.abs(g.y-y)<2.4):null;
+   if(!line){line={y:Number.isFinite(y)?y:null,tokens:[]};lines.push(line)}
+   line.tokens.push({word,x:Number.isFinite(x)?x:line.tokens.length});
   }
-  const found=new Set();
-  for(const group of groups){
-   const line=group.tokens.sort((a,b)=>a.x-b.x).map(x=>x.word).join(' ').slice(0,700);
-   // Reliable labels or train-category prefixes only. Years are not inferred as trains.
-   const strong=/(?:\bvonat\s*(?:sz[aá]m(?:a)?)?|\bvonatsz[aá]m(?:a)?|\btrain\s*(?:no\.?|nr\.?|number)?|\b(?:IC|IR|EC|RJX|RJ|EN)\b)\s*[:#№.\-]?\s*(\d{3,6})\b/gi;
-   const weak=/\bj[aá]rat\s*(?:sz[aá]m(?:a)?)?\s*[:#№.\-]?\s*(\d{3,6})\b/gi;
-   for(const m of line.matchAll(strong))found.add(m[1]);
-   for(const m of line.matchAll(weak)){
-    const num=Number(m[1]);
-    if(num>=2000&&num<=2100)continue; // calendar year, not a safe generic train match
-    found.add(m[1]);
-   }
+  const vonatok=new Set(),jaratok=new Set();
+  for(const group of lines){
+   const text=group.tokens.sort((a,b)=>a.x-b.x).map(x=>x.word).join(' ').slice(0,900);
+   // Bound to labelled fields, not neighboring dates, fares, seat numbers or IDs.
+   for(const m of text.matchAll(/\bvonat(?:sz[aá]m)?\s*[:：#]?\s*(\d{2,6})(?!\d)/gi))vonatok.add(m[1]);
+   for(const m of text.matchAll(/\bj[aá]rat(?:sz[aá]m)?\s*[:：#]?\s*(\d{1,3})(?!\d)/gi))jaratok.add(m[1]);
   }
-  return [...found].slice(0,12);
+  const vonat=vonatok.size===1?[...vonatok][0]:null;
+  const jarat=jaratok.size===1?[...jaratok][0]:null;
+  return {vonat,jarat,ambiguous:vonatok.size>1||jaratok.size>1,
+   numbers:[...(vonat?[vonat]:[]),...(jarat?[jarat]:[])]};
  }
+ function ticketNumbers(items){return ticketFields(items).numbers}
  // Detect only embedded text / hyperlinks. QR images or scanned text need a separate decoder.
  async function inspect(file){
   if(!file||file.size>15000000)throw Error('Túl nagy PDF.');
@@ -128,7 +126,8 @@
   const loader=lib.getDocument({
    data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false,enableScripting:false
   });
-  const urls=new Set(),numbers=new Set();
+  const urls=new Set(),vonatok=new Set(),jaratok=new Set();
+  let ambiguous=false;
   try{
    const document=await loader.promise;
    for(let p=1;p<=Math.min(document.numPages,5);p++){
@@ -138,10 +137,17 @@
     const content=await page.getTextContent();
     const text=(content.items||[]).map(x=>x.str||'').join(' ').slice(0,20000);
     for(const m of text.matchAll(/https?:\/\/mavplusz\.hu\/#\/trip\/[a-z0-9_:.-]{3,120}(?:\?ui_activeItinerary=-?\d+)?/gi))urls.add(m[0]);
-    for(const number of ticketNumbers(content.items))numbers.add(number);
+    const fields=ticketFields(content.items);
+    if(fields.vonat)vonatok.add(fields.vonat);
+    if(fields.jarat)jaratok.add(fields.jarat);
+    if(fields.ambiguous)ambiguous=true;
    }
-   return {urls:[...urls],numbers:[...numbers]};
+   ambiguous ||= vonatok.size>1||jaratok.size>1;
+   const vonat=vonatok.size===1?[...vonatok][0]:null;
+   const jarat=jaratok.size===1?[...jaratok][0]:null;
+   return {urls:[...urls],vonat,jarat,ambiguous,
+    numbers:[...(vonat?[vonat]:[]),...(jarat?[jarat]:[])]};
   }finally{try{await loader.destroy()}catch(_){}}
  }
- w.SH9_TRIP_PDF_VIEWER_V1087=Object.freeze({open,close,inspect,ticketNumbers});
+ w.SH9_TRIP_PDF_VIEWER_V1087=Object.freeze({open,close,inspect,ticketFields,ticketNumbers});
 })(window,document);
