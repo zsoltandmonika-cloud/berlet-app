@@ -139,5 +139,29 @@ async function getImage(profile,ref){
  return blob;
 }
 
-root.HH_NUTRITION_CLOUD_V626={connected,download,upload,downloadCategories,uploadCategories,putImage,getImage,checkImageRef,path:filePath,version:'644'};
+/* Shared household food library v1118: one canonical Dropbox JSON for both profiles. */
+const sharedFoodPath='/HealthHub/shared/nutrition-food-library.json';
+const sharedFoodSchema='healthhub.nutrition.shared-foods/1';
+async function downloadSharedFoods(){
+ let meta;
+ try{meta=await(await request('files/get_metadata',{path:sharedFoodPath})).json()}
+ catch(e){if(missing(e))return {data:null,rev:null};throw e}
+ const res=await request('files/download',{path:sharedFoodPath});
+ const data=await res.json();
+ if(!data||data.schemaVersion!==sharedFoodSchema||!data.items||typeof data.items!=='object'||Array.isArray(data.items))
+  throw Error('A közös ételtár fájlsémája eltér; a felhőfájl változatlan maradt');
+ let rev=meta.rev;
+ try{rev=JSON.parse(res.headers.get('Dropbox-API-Result')||'{}').rev||rev}catch(_){}
+ if(!rev)throw Error('A közös ételtár verziója nem ellenőrizhető');
+ return {data,rev};
+}
+async function uploadSharedFoods(data,rev){
+ if(!data||data.schemaVersion!==sharedFoodSchema||!data.items||typeof data.items!=='object'||Array.isArray(data.items))
+  throw Error('Érvénytelen közös ételtáradat');
+ await ensureSharedFolder();
+ const mode=rev?{'.tag':'update',update:rev}:'add';
+ const res=await request('files/upload',{path:sharedFoodPath,mode,autorename:false,mute:true,strict_conflict:true},JSON.stringify(data));
+ return await res.json();
+}
+root.HH_NUTRITION_CLOUD_V626={connected,download,upload,downloadCategories,uploadCategories,downloadSharedFoods,uploadSharedFoods,putImage,getImage,checkImageRef,path:filePath,version:'1118'};
 })(window);
