@@ -1,0 +1,35 @@
+name: SH9 Lena Native Search Preview v1104
+on:
+  push:
+    paths:
+      - 'supabase/functions/hh-lena-native-search-preview/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-native-v1104.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'healthhub/tests/sh9-lena-native-search-v1104.test.mjs'
+      - '.github/workflows/sh9-lena-native-v1104-search-qa.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-lena-native-search-preview/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-native-v1104.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'healthhub/tests/sh9-lena-native-search-v1104.test.mjs'
+      - '.github/workflows/sh9-lena-native-v1104-search-qa.yml'
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source, offline adapter tests and unchanged default
+        run: |
+          node --check supabase/functions/hh-lena-native-search-preview/lena-native-core.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-native-v1104.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --test healthhub/tests/sh9-lena-native-search-v1104.test.mjs
+          node --test healthhub/tests/sh9-smart-trip-chatgpt-default-v1076.test.cjs
+          node --test healthhub/tests/sh9-my-trips-golden-v1080.test.cjs
