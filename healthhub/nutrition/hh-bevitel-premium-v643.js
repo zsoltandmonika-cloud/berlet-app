@@ -52,7 +52,18 @@ function parseOption(o){
   name:split>=0?text.slice(split+3).trim():text,icon:cardIcon(text)};
 }
 function sourceItems(){
- return Array.from(select.options).filter(x=>x.value).map(parseOption);
+ const ordinary=Array.from(select.options).filter(x=>x.value).map(parseOption);
+ const shared=window.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.()||[];
+ const sharedOptions=[];
+ for(const r of shared){
+  if(!r.categories?.length||r.kind!==kind)continue;
+  for(const category of r.categories){
+   if(!category||category==='Kedvencek')continue;
+   sharedOptions.push({id:'shared:'+r.id,sharedId:r.id,category,name:r.name,icon:'🍽️',
+    imageRef:r.imageRef,nutrients:r.nutrients});
+  }
+ }
+ return [...ordinary,...sharedOptions];
 }
 function center(i,smooth=true){
  const card=rail.children[i];if(!card)return;
@@ -63,10 +74,10 @@ function activeUI(){
  [...rail.children].forEach((node,i)=>{node.dataset.active=String(i===selection);node.setAttribute('aria-current',String(i===selection))});
  const item=items[selection];
  selected.textContent=item?item.name:'Nincs találat';
- detail.textContent=step==='categories'?'Koppints a kategóriára':'Egy adag méretét a következő képernyőn állíthatod';
+ detail.textContent=step==='categories'?'Koppints a kategóriára':item?.sharedId?'Közös családi étel · 1 mentett adag':'Egy adag méretét a következő képernyőn állíthatod';
  count.textContent=items.length?(selection+1)+' / '+items.length:'';
  next.disabled=!item;next.textContent=step==='categories'
-  ?(item?.id===COOKBOOK_ID?'Recepttár ›':'Ételek ›'):'Adag beállítása ›';
+  ?(item?.id===COOKBOOK_ID?'Recepttár ›':'Ételek ›'):(item?.sharedId?'1 adag naplózása ›':'Adag beállítása ›');
  back.textContent=step==='categories'?'← Bezárás':'← Kategóriák';
 }
 function render(){
@@ -89,6 +100,16 @@ function render(){
    photo.src='../../recepttar/assets/lena-kitchen-banner-crisp.png?v=5';
    art.replaceChildren(photo);
   }else if(step==='categories')window.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.(kind,r.category,art);
+  else if(r.sharedId&&r.imageRef){
+   const vault=window.HH_NUTRITION_IMAGE_V641;
+   if(vault?.refValid?.('shared',r.imageRef)){
+    vault.load('shared',r.imageRef).then(url=>{
+     if(!card.isConnected)return;
+     const img=document.createElement('img');img.src=url;img.alt='Közös ételfotó';img.loading='lazy';
+     art.replaceChildren(img);
+    }).catch(()=>{});
+   }
+  }
   const copy=document.createElement('div');copy.className='hh-bevitel-picker-card-copy';
   const n=document.createElement('strong');n.textContent=r.name;
   const subtitle=document.createElement('small');subtitle.textContent=r.category===COOKBOOK_ID?'Saját receptek és recepttár':step==='categories'?'Görgethető '+(kind==='drink'?'italok':'ételek'):category;
@@ -110,6 +131,22 @@ function advance(){
    return;
   }
   category=picked.category;step='foods';render();return;
+ }
+ if(picked.sharedId){
+  const item=window.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.().find(x=>x.id===picked.sharedId);
+  const api=window.HH_NUTRITION_QUICK_API;
+  if(!item||!api?.recordRecipe){
+   note.textContent='A közös étel nem érhető el. Frissítsd a listát.';return;
+  }
+  if(!window.confirm('Naplózzam a(z) '+item.name+' ételből 1 mentett adagot a saját naplóba?'))return;
+  try{
+   api.recordRecipe({
+    id:'quick:shared-'+item.id,name:item.name,nutrients:item.nutrients,
+    kind:item.kind,meal:item.meal,icon:'🍽️',ingredients:item.ingredients
+   },selectedMeal||item.meal);
+   dialog.close();
+  }catch(err){note.textContent='Naplózás sikertelen: '+String(err?.message||err).slice(0,110)}
+  return;
  }
  // Reopen the proven Nutrition portion form with the selected food.
  dialog.close();
@@ -153,6 +190,10 @@ function open(kindNext,button){
  categories=withCookbook(kind,window.HH_BEVITEL_CATEGORY_V644?.decorate?.(kind,[...map.values()])||[...map.values()]);
  if(!categories.length){$('hhBevitelInfo').textContent='Ehhez a típushoz jelenleg nincs étel vagy ital. Saját ételt a napi napló + Saját étel gombjával hozhatsz létre.';$('hhBevitelInfo').hidden=false;return}
  render();dialog.showModal();
+ // Refresh categories when the family library loads from the other phone.
+ window.HH_SHARED_FOOD_LIBRARY_V1118?.load?.(true).then(()=>{
+  if(dialog.open&&step==='categories')window.HH_BEVITEL_PICKER_V643?.refreshCategories?.();
+ }).catch(()=>{});
 }
 for(const [node,type] of [[food,'food'],[drink,'drink']]){
  node.addEventListener('click',e=>{
@@ -174,6 +215,7 @@ window.HH_BEVITEL_PICKER_V643={
  }
 };
 window.addEventListener('healthhub:bevitel-categories-updated',()=>window.HH_BEVITEL_PICKER_V643.refreshCategories());
+window.addEventListener('healthhub:shared-foods-updated',()=>window.HH_BEVITEL_PICKER_V643.refreshCategories());
 rail.addEventListener('scroll',()=>{
  clearTimeout(scrollTimer);
  scrollTimer=setTimeout(()=>{
