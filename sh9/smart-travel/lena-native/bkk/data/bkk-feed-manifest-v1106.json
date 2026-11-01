@@ -1,0 +1,28 @@
+{
+  "schema": "sh9.bkk.feed-manifest/1",
+  "filename": "bkk-selected-routes-v1106.json",
+  "sha256": "8e28f56ef83b5f186024b7a6eb76d4984f63c3cc4a4646572b9e398a83583c66",
+  "bytes": 4931984,
+  "validatedAt": "2026-11-01T16:25:47.513745Z",
+  "source": "BKK Zrt., CC BY 4.0",
+  "license": "CC-BY-4.0",
+  "routes": [
+    "17",
+    "19",
+    "41",
+    "260"
+  ],
+  "lineTripCounts": {
+    "17": 1501,
+    "19": 2802,
+    "260": 648,
+    "41": 2156
+  },
+  "stopCount": 153,
+  "tripCount": 7107,
+  "feedStart": "2026-10-30",
+  "feedEnd": "2026-12-01",
+  "generatedAt": "2026-11-01T16:25:28Z",
+  "coverage": "stop-to-stop",
+  "live": false
+}
