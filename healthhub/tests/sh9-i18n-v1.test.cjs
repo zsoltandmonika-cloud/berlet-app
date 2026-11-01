@@ -199,3 +199,18 @@ test('SH9 v907 profile switch toggles canonical shared preference and respects H
  assert.equal(name.textContent,'Mónika');
  assert.doesNotMatch(source,/fetch\s*\(|supabase\.|geolocation|setInterval\s*\(/);
 });
+
+
+test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Golden Glass accents',()=>{
+ const bottom=css.match(/\.hero #sh9LauncherProfileV1\{[\s\S]*?bottom:(-?\d+)px;/);
+ assert.ok(bottom);
+ assert.equal(Number(bottom[1]),-6,'9px - 15px = -6px (exact shift)');
+ assert.match(css,/\.wrap>\.hero:has\(#sh9LauncherProfileV1\)\{overflow:visible\}/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="z"\]\{/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
+ assert.match(css,/#sh9LauncherProfileMarkV1\{/);
+ assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=908-profile-colors-offset/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
