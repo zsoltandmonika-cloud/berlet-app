@@ -439,3 +439,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 .mt-tracking-actions button{min-height:42px;border-radius:9px;border:1px solid var(--mt-border);background:linear-gradient(125deg,var(--mt-action-a),var(--mt-action-b));color:white;font-size:11px;font-weight:800}
 .mt-tracking-actions button:disabled{opacity:.55}
 #mtTrackingStatus{overflow-wrap:anywhere}
+
+/* v1094: honest, direct official timetable search fallback */
+.mt-tracking-search{display:flex;align-items:center;justify-content:center;min-height:39px;margin-top:9px;padding:9px 10px;border:1px solid var(--mt-border);border-radius:10px;background:rgba(84,137,185,.30);color:#e7f6ff;text-decoration:none;font-size:11px;font-weight:800;text-align:center}
+.mt-tracking-search:focus-visible{outline:2px solid var(--mt-accent);outline-offset:2px}
