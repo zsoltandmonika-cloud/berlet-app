@@ -11,7 +11,7 @@ body.hhScanOpen753>.shell{display:none!important}
 .hhScanHeading753{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:0 3px;min-height:33px}
 .hhScanHeading753 h1{flex:1;min-width:0;font-size:clamp(15px,4.2vw,23px);line-height:1.12;letter-spacing:-.035em;font-weight:850;white-space:nowrap;margin:0;color:#f0f8ff}
 .hhScanHeading753 #hhScanBack753{flex:none;align-self:center;min-height:30px;padding:5px 10px;color:#eaf7ff;border:1px solid color-mix(in srgb,var(--sc) 45%,transparent);border-radius:999px;background:rgba(6,20,44,.75);font:750 11px system-ui,-apple-system,Segoe UI,sans-serif}
-.hhScanTabs753{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.hhScanTabs753{display:grid;grid-template-columns:1fr 1fr;gap:7px;scroll-margin-top:82px}
 .hhScanTabs753 button{border:1px solid #426b93;background:#122c4a;color:#b4d0e8;min-height:45px;border-radius:13px;font-weight:780;font-size:13px}
 .hhScanTabs753 button[aria-selected="true"]{border-color:var(--sc);color:#fff;background:color-mix(in srgb,var(--sc) 20%,#122d4a);box-shadow:0 0 16px var(--scWash)}
 .hhScanStage753,.hhScanResults753{border-radius:20px;background:linear-gradient(150deg,#173553ec,#0a1b33ef);border:1px solid #79b2de58;box-shadow:inset 0 1px #ffffff12,0 14px 32px #0005;padding:13px;display:flex;flex-direction:column;gap:12px}
