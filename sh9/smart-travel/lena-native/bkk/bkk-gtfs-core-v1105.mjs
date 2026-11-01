@@ -48,6 +48,19 @@ function validate(data,at=Date.now()){
   if(!id||!Array.isArray(s)||s.length!==3||typeof s[0]!=="string"||s[0].length>130||
    !Number.isFinite(s[1])||s[1]<45||s[1]>49||!Number.isFinite(s[2])||s[2]<16||s[2]>23)return false;
  const stopIDs=new Set(stops.map(([id])=>id));
+ // The extra names expand only predictive typing, never routing.
+ if(data.searchStops!==undefined){
+  if(!Array.isArray(data.searchStops)||data.searchStops.length<2||
+   data.searchStops.length>12000)return false;
+  const names=new Set();
+  for(const name of data.searchStops){
+   if(typeof name!=="string"||name.length<2||name.length>120)return false;
+   const key=norm(name);
+   if(names.has(key))return false;
+   names.add(key);
+  }
+  if(stops.some(([,stop])=>!names.has(norm(stop[0]))))return false;
+ }
  const routes=new Set(data.routes);
  for(const trip of data.trips){
   if(!Array.isArray(trip)||trip.length!==5||!routes.has(trip[0])||
