@@ -144,7 +144,8 @@
 }
 
 
-/* v910 · More transparent Golden Glass backgrounds; unchanged dimensions.
+/* v911 · All three Golden Glass capsules share identical 30% background opacity.
+   v910 · More transparent Golden Glass backgrounds; unchanged dimensions.
    v909 · SH9 quiet Golden Glass pills. Recreate the compact, elegant
    Family Guard profile style across ALL THREE launcher controls.
    Actual hit targets remain 90×47; the glass visual is 34px tall.
@@ -167,7 +168,7 @@
  left:0;right:0;top:50%;height:34px;
  transform:translateY(-50%);
  border:1px solid rgba(187,218,244,.47);border-radius:999px;
- background:linear-gradient(145deg,rgba(15,39,74,.35),rgba(7,21,47,.30));
+ background:linear-gradient(145deg,rgba(15,39,74,.30),rgba(7,21,47,.30));
  box-shadow:0 3px 12px rgba(1,8,25,.32),inset 0 1px 0 rgba(255,255,255,.21);
  backdrop-filter:blur(16px) saturate(140%);
  -webkit-backdrop-filter:blur(16px) saturate(140%);
@@ -195,11 +196,11 @@
 .hero #sh9LauncherProfileArrowV1{font-size:12px;opacity:.85}
 .hero #sh9LauncherProfileV1[data-profile="z"]::before{
  border-color:rgba(115,185,251,.75);
- background:linear-gradient(145deg,rgba(16,48,88,.37),rgba(8,27,62,.30));
+ background:linear-gradient(145deg,rgba(16,48,88,.30),rgba(8,27,62,.30));
 }
 .hero #sh9LauncherProfileV1[data-profile="m"]::before{
  border-color:rgba(246,157,206,.74);
- background:linear-gradient(145deg,rgba(67,27,70,.34),rgba(21,23,54,.31));
+ background:linear-gradient(145deg,rgba(67,27,70,.30),rgba(21,23,54,.30));
 }
 .hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileNameV1,
 .hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileArrowV1{color:#b6dfff!important}
