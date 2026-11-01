@@ -59,8 +59,11 @@
  }
  function fingerprint(t){
   if(!t||typeof t!=='object'||!Array.isArray(t.segments))return '';
-  return [t.travelDate,t.from,t.to,t.departure,
-   t.segments.map(s=>String(s.line||'')+':'+String(s.departure||'')).join('|')].join('|');
+  // Full logical itinerary. Exclude mutable user edits (rating/tracking) so
+  // retrying a completed request cannot overwrite later annotations.
+  const fields=['schema','title','travelDate','from','to','departure','arrival',
+   'arrivalStatus','summary','segments','alerts','alternatives','sources'];
+  return JSON.stringify(fields.map(k=>has(t,k)?t[k]:null));
  }
  function isSameRequest(existing,proposed){
   if(!existing||!proposed)return false;
