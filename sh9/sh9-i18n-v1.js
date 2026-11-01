@@ -1,0 +1,101 @@
+/* SH9 language core v1 · HU / Canadian English. Presentation only.
+   No profile, geolocation, health, API, navigation, or database mutations.
+   Extend by adding approved translations and data-i18n attributes. */
+(function(w,d){
+'use strict';
+if(w.SH9_I18N_V1)return;
+const KEY='sh9-language-v1',DEFAULT='hu';
+const dict=Object.freeze({
+ hu:Object.freeze({
+  'nav.home':'Kezdőlap','nav.timeline':'Idővonal','nav.back':'Vissza','nav.notifications':'Értesítések','nav.admin':'Admin',
+  'info.date':'DÁTUM','info.nameday':'NÉVNAP · ','info.weather':'IDŐJÁRÁS','info.calendar':'NAPTÁR',
+  'info.loading':'Betöltés…','info.dateLoading':'Dátum betöltése…','info.notConnected':'Nincs összekötve',
+  'info.openAgenda':'Agenda megnyitása ›',
+  'modal.unavailable':'Ez a modul még fejlesztés alatt áll. A HealthHub és a Family Guard már elérhető az SH9-ből.',
+  'modal.close':'Bezárás','modal.noHistory':'Nincs előző oldal az SH9 előzményeiben.',
+  'aria.hero':'SH9 SmartHub Nine, Buddy mókus asszisztens, futurisztikus kilencmodulos központ',
+  'aria.info':'Mai információk: dátum, névnap, időjárás, naptár',
+  'aria.grid':'SH9 kilenc modulja','aria.nav':'SH9 navigáció',
+  'aria.nameday':'Dátum és névnap · Outlook havi naptár megnyitása',
+  'aria.weather':'Budapest részletes időjárás-előrejelzésének megnyitása',
+  'aria.agenda':'Outlook Agenda megnyitása közvetlenül',
+  'aria.ota':'HH One frissítések ellenőrzése',
+  'lang.hu':'Magyar','lang.en':'Kanadai angol',
+  'wx.notAvailable':'Nem elérhető','wx.noData':'Budapest · nincs friss adat',
+  'wx.error':'Az élő időjárás lekérése sikertelen',
+  'nameday.unavailable':'nem elérhető',
+  'wx.0':'Derült','wx.1':'Többnyire derült','wx.2':'Részben felhős','wx.3':'Borult',
+  'wx.45':'Köd','wx.51':'Szitálás','wx.61':'Eső','wx.71':'Havazás',
+  'wx.80':'Zápor','wx.85':'Hózápor','wx.95':'Zivatar','wx.other':'Változó'
+ }),
+ en:Object.freeze({
+  'nav.home':'Home','nav.timeline':'Timeline','nav.back':'Back','nav.notifications':'Notifications','nav.admin':'Admin',
+  'info.date':'DATE','info.nameday':'NAME DAY · ','info.weather':'WEATHER','info.calendar':'CALENDAR',
+  'info.loading':'Loading…','info.dateLoading':'Loading date…','info.notConnected':'Not connected',
+  'info.openAgenda':'Open agenda ›',
+  'modal.unavailable':'This module is still in development. HealthHub and Family Guard are already available in SH9.',
+  'modal.close':'Close','modal.noHistory':'There is no previous page in SH9 history.',
+  'aria.hero':'SH9 SmartHub Nine, Buddy the squirrel assistant, nine-module family dashboard',
+  'aria.info':'Today: date, name day, weather and calendar',
+  'aria.grid':'SH9 nine modules','aria.nav':'SH9 navigation',
+  'aria.nameday':'Date and name day · open Outlook month view',
+  'aria.weather':'Open detailed Budapest weather forecast',
+  'aria.agenda':'Open Outlook agenda directly',
+  'aria.ota':'Check HH One updates',
+  'lang.hu':'Hungarian','lang.en':'Canadian English',
+  'wx.notAvailable':'Unavailable','wx.noData':'Budapest · no recent data',
+  'wx.error':'Live weather could not be loaded',
+  'nameday.unavailable':'unavailable',
+  'wx.0':'Clear','wx.1':'Mostly clear','wx.2':'Partly cloudy','wx.3':'Overcast',
+  'wx.45':'Fog','wx.51':'Drizzle','wx.61':'Rain','wx.71':'Snow',
+  'wx.80':'Showers','wx.85':'Snow showers','wx.95':'Thunderstorm','wx.other':'Variable'
+ })
+});
+function normalize(value){return value==='en'||value==='en-CA'?'en':'hu'}
+function read(){
+ try{return normalize(w.localStorage?.getItem(KEY))}catch(_){return DEFAULT}
+}
+let language=read();
+function t(key){return dict[language][key]||dict.hu[key]||key}
+function apply(root){
+ if(!d?.querySelectorAll)return;
+ const scope=root||d;
+ if(scope.querySelectorAll){
+  scope.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(k&&t(k))el.textContent=t(k)});
+  scope.querySelectorAll('[data-i18n-aria]').forEach(el=>{const k=el.getAttribute('data-i18n-aria');if(k)el.setAttribute('aria-label',t(k))});
+  scope.querySelectorAll('[data-i18n-title]').forEach(el=>{const k=el.getAttribute('data-i18n-title');if(k)el.title=t(k)});
+ }
+ if(d.documentElement)d.documentElement.lang=language==='en'?'en-CA':'hu-HU';
+ if(d.querySelectorAll)d.querySelectorAll('[data-sh9-lang]').forEach(el=>{
+  const selected=el.getAttribute('data-sh9-lang')===language;
+  el.setAttribute('aria-pressed',String(selected));
+  el.setAttribute('aria-label',t('lang.'+el.getAttribute('data-sh9-lang')));
+  el.title=t('lang.'+el.getAttribute('data-sh9-lang'));
+ });
+}
+function notify(){
+ try{w.dispatchEvent(new CustomEvent('sh9:languagechange',{detail:{language,locale:locale()}}))}catch(_){}
+}
+function setLanguage(next){
+ const v=normalize(next);
+ if(v===language){apply();return language}
+ language=v;
+ try{w.localStorage?.setItem(KEY,v)}catch(_){}
+ apply();notify();
+ return language;
+}
+function locale(){return language==='en'?'en-CA':'hu-HU'}
+function date(value,options){return new Intl.DateTimeFormat(locale(),options).format(value)}
+function init(){
+ apply();
+ if(d.querySelectorAll)d.querySelectorAll('[data-sh9-lang]').forEach(button=>{
+  button.addEventListener('click',()=>setLanguage(button.getAttribute('data-sh9-lang')));
+ });
+ notify();
+}
+w.SH9_I18N_V1=Object.freeze({version:'1',storageKey:KEY,getLanguage:()=>language,setLanguage,t,locale,date,apply,translations:dict});
+if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
+w.addEventListener?.('storage',e=>{
+ if(e.key===KEY){language=normalize(e.newValue);apply();notify()}
+});
+})(window,document);
