@@ -72,15 +72,26 @@ jobs:
               if not required.issubset(files) or z.testzip() is not None:
                   raise SystemExit("BKK ZIP missing records or failed CRC")
           PY
-      - name: Convert to unpublished candidate
+      - name: Reuse unchanged official feed or convert new ZIP
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/sh9-bkk-v1106/out"
-          python sh9/smart-travel/lena-native/bkk/build_bkk_snapshot_v1105.py \
-            --zip "$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip" \
-            --routes 17 19 41 260 \
-            --output "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+          sha="$(sha256sum "$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip" | cut -d ' ' -f 1)"
+          printf '%s' "$sha" > "$RUNNER_TEMP/sh9-bkk-v1106/official-sha256.txt"
+          previous_sha=''
+          if [[ -s "$TARGET_DIR/$MANIFEST_NAME" ]]; then
+            previous_sha="$(python -c 'import json,sys;print(json.load(open(sys.argv[1],encoding="utf8")).get("sourceSha256",""))' "$TARGET_DIR/$MANIFEST_NAME")"
+          fi
+          if [[ "$previous_sha" == "$sha" && -s "$TARGET_DIR/$DATA_NAME" ]]; then
+            echo "Official BKK ZIP SHA256 unchanged: reusing last validated GTFS snapshot."
+            cp "$TARGET_DIR/$DATA_NAME" "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+          else
+            python sh9/smart-travel/lena-native/bkk/build_bkk_snapshot_v1105.py \
+              --zip "$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip" \
+              --routes 17 19 41 260 \
+              --output "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+          fi
       - name: Reject outdated, incomplete, inconsistent or distorted GTFS
         shell: bash
         run: |
@@ -92,6 +103,7 @@ jobs:
           python sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py \
             --snapshot "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME" \
             --manifest "$RUNNER_TEMP/sh9-bkk-v1106/out/$MANIFEST_NAME" \
+            --source-sha256 "$(cat "$RUNNER_TEMP/sh9-bkk-v1106/official-sha256.txt")" \
             "${args[@]}"
           node healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs \
             "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
