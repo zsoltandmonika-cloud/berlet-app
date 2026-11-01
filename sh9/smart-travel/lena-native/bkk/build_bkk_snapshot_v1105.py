@@ -76,7 +76,6 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
         if not rows:
             raise ValueError("No selected BKK route names found")
         route_ids = {}
-        route_modes = {}
         for row in rows:
             route_id = row.get("route_id") or ""
             if not ROUTE_ID.fullmatch(route_id):
@@ -85,15 +84,16 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             mode = GTFS_MODES.get((row.get("route_type") or "").strip())
             if not mode:
                 raise ValueError("Unsupported GTFS route type for " + name)
-            if name in route_modes and route_modes[name] != mode:
-                raise ValueError("Same route short name has incompatible vehicle types")
-            route_ids[route_id] = name
-            route_modes[name] = mode
+            # The same public route number may have different GTFS route_ids,
+            # e.g. a tram service and an officially scheduled replacement bus.
+            # Vehicle mode MUST follow route_id, not the displayed short name.
+            route_ids[route_id] = (name, mode)
         trips = {}
         for row in table(zf, "trips.txt"):
             if row.get("route_id") in route_ids and ROUTE_ID.fullmatch(row.get("trip_id") or ""):
                 trips[row["trip_id"]] = {
-                    "route": route_ids[row["route_id"]],
+                    "route": route_ids[row["route_id"]][0],
+                    "mode": route_ids[row["route_id"]][1],
                     "service": row.get("service_id", ""),
                     "headsign": (row.get("trip_headsign") or "")[:100],
                     "events": [],
@@ -168,7 +168,7 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
                    events[i + 1][2] < events[i][3] for i in range(len(events) - 1)):
                 raise ValueError("Unsorted or overlapping stop sequences")
             trip_list.append([trip["route"], trip["service"], trip["headsign"],
-                              [list(e[1:]) for e in events]])
+                              [list(e[1:]) for e in events], trip["mode"]])
         # Feed validity envelope uses actual service calendars, not build time.
         starts = [v["start"] for v in services.values() if v["start"]]
         ends = [v["end"] for v in services.values() if v["end"]]
@@ -180,7 +180,7 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             "license": "CC-BY-4.0", "generatedAt": generated_at,
             "coverage": "stop-to-stop", "live": False,
             "feedStart": feed_start, "feedEnd": feed_end,
-            "routes": sorted(set(route_ids.values())), "routeModes": route_modes,
+            "routes": sorted(set(value[0] for value in route_ids.values())),
             "stops": stops, "services": services, "trips": trip_list,
         }
         encoded = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
