@@ -1,0 +1,102 @@
+name: SH9 Lena BKK GTFS Data Quality v1105
+
+on:
+  push:
+    paths:
+      - "sh9/smart-travel/lena-native/bkk/**"
+      - "healthhub/tests/sh9-lena-bkk-v1105.test.mjs"
+      - "healthhub/tests/test_sh9_bkk_gtfs_v1105.py"
+      - ".github/workflows/sh9-lena-bkk-v1105-gtfs-qa.yml"
+  pull_request:
+    paths:
+      - "sh9/smart-travel/lena-native/bkk/**"
+      - "healthhub/tests/sh9-lena-bkk-v1105.test.mjs"
+      - "healthhub/tests/test_sh9_bkk_gtfs_v1105.py"
+      - ".github/workflows/sh9-lena-bkk-v1105-gtfs-qa.yml"
+  workflow_dispatch:
+    inputs:
+      check_live_feed:
+        description: "Official BKK GTFS ZIP fetch + unpublished pilot snapshot QA (no production deploy)"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  code-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate BKK engine + TripPack strict contract
+        run: |
+          node --check sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs
+          node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
+          python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_gtfs_v1105.py' -v
+
+  official-feed-review:
+    if: github.event_name == 'workflow_dispatch' && inputs.check_live_feed
+    needs: code-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download official BKK timetable only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bkk-pilot"
+          url='https://go.bkk.hu/api/static/v1/public-gtfs/budapest_gtfs.zip'
+          curl --fail --show-error --location --silent \
+            --retry 2 --connect-timeout 12 --max-time 150 \
+            --max-filesize 90000000 \
+            "$url" -o "$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip"
+          export BKK_ZIP="$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip"
+          python - <<'PY'
+          import os, zipfile
+          p=os.environ["BKK_ZIP"]
+          with zipfile.ZipFile(p) as z:
+              if z.testzip() is not None:
+                  raise SystemExit("Corrupted official GTFS ZIP")
+              required={"agency.txt","routes.txt","trips.txt","stops.txt","stop_times.txt"}
+              names={x.split("/")[-1] for x in z.namelist()}
+              if not required.issubset(names):
+                  raise SystemExit("Not an official-looking GTFS: missing required files")
+              print("Official BKK ZIP inspected:",len(z.infolist()),"files")
+          PY
+      - name: Convert only verified lines to review artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bkk-out"
+          python sh9/smart-travel/lena-native/bkk/build_bkk_snapshot_v1105.py \
+            --zip "$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip" \
+            --routes 17 19 41 260 \
+            --output "$RUNNER_TEMP/bkk-out/bkk-selected-routes-v1105.json"
+          python - <<'PY'
+          import json,os
+          p=os.path.join(os.environ["RUNNER_TEMP"],"bkk-out/bkk-selected-routes-v1105.json")
+          with open(p,encoding="utf8") as f: d=json.load(f)
+          print("BKK ZIP ->",len(d["routes"]),"routes /",len(d["trips"]),"trips /",len(d["stops"]),"stops")
+          print("feedStart:",d["feedStart"],"feedEnd:",d["feedEnd"])
+          if not {"17","19","41","260"}.issubset(d["routes"]):
+              raise SystemExit("Not every required SH9 family line is present")
+          PY
+      - name: Archive for HUMAN review only (not automatically published)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sh9-bkk-v1105-qa-only
+          path: ${{ runner.temp }}/bkk-out/bkk-selected-routes-v1105.json
+          retention-days: 7
+          if-no-files-found: error
