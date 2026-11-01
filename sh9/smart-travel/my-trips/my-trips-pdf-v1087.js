@@ -111,6 +111,7 @@
    const text=group.tokens.sort((a,b)=>a.x-b.x).map(x=>x.word).join(' ').slice(0,900);
    // Bound to labelled fields, not neighboring dates, fares, seat numbers or IDs.
    for(const m of text.matchAll(/\bvonat(?:sz[aá]m)?\s*[:：#]?\s*(\d{2,6})(?!\d)/gi))vonatok.add(m[1]);
+   for(const m of text.matchAll(/\b(?:IC|IR|EC|RJX|RJ|EN)\s*[:：#]?\s*(\d{2,6})(?!\d)/gi))vonatok.add(m[1]);
    for(const m of text.matchAll(/\bj[aá]rat(?:sz[aá]m)?\s*[:：#]?\s*(\d{1,3})(?!\d)/gi))jaratok.add(m[1]);
   }
   const vonat=vonatok.size===1?[...vonatok][0]:null;
