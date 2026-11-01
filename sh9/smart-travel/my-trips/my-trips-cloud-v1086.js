@@ -74,12 +74,19 @@
     const url=pack.trackingUrl(data?.trackingUrl);
     const number=pack.trackingNumber(data?.trackingNumber);
     const service=pack.trackingNumber(data?.trackingService,3);
+    const cloudRating=Number.isInteger(data?.rating)&&data.rating>=1&&data.rating<=5?data.rating:null;
+    const localRating=Number.isInteger(t.rating)&&t.rating>=1&&t.rating<=5?t.rating:null;
     if(url!==pack.trackingUrl(t.trackingUrl)||
      number!==pack.trackingNumber(t.trackingNumber)||
-     service!==pack.trackingNumber(t.trackingService,3))changed=true;
-    const {trackingUrl:oldUrl,trackingNumber:oldNumber,trackingService:oldService,...rest}=t;
+     service!==pack.trackingNumber(t.trackingService,3)||
+     cloudRating!==localRating||
+     (cloudRating&&data.ratedAt!==t.ratedAt))changed=true;
+    const {trackingUrl:oldUrl,trackingNumber:oldNumber,trackingService:oldService,
+     rating:oldRating,ratedAt:oldRatedAt,...rest}=t;
     return {...rest,...(url?{trackingUrl:url}:{}),
-     ...(number?{trackingNumber:number}:{}),...(service?{trackingService:service}:{})};
+     ...(number?{trackingNumber:number}:{}),...(service?{trackingService:service}:{}),
+     ...(cloudRating?{rating:cloudRating,
+      ...(typeof data.ratedAt==='string'?{ratedAt:data.ratedAt}:{})}:{})};
    };
    const merged=local.filter(t=>!deletedIds.has(t.id)&&!deletedFingerprints.has(fingerprint(t))).map(t=>{
     const canonical=remoteFingerprints.get(fingerprint(t));
