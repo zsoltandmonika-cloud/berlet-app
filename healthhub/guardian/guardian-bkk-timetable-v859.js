@@ -124,7 +124,13 @@
     walkVerified:false,verified:true,source:'BKK_GTFS',
     generatedAt:schedule.generatedAt,
     matchedLegs:legs.map((t,i)=>({lineId:t.routeId,boardStopId:t.boardId,
-     alightStopId:t.alightId,tripId:t.tripId}))
+     alightStopId:t.alightId,tripId:t.tripId})),
+    // SH9 v1110: expose exact provider-matched GTFS leg clocks.
+    // No second routing pass and no guessed interchanges.
+    legTimes:legs.map(t=>({
+     departure:new Date(t.board*60000).toISOString(),
+     arrival:new Date(t.alight*60000).toISOString()
+    }))
    });
   }
   out.sort((a,b)=>mode==='arrive'
