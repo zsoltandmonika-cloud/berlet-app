@@ -11,6 +11,7 @@ on:
       - "sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py"
       - "sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs"
       - "healthhub/tests/test_sh9_bkk_publication_v1106.py"
+      - "healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs"
       - "healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs"
 
 permissions:
@@ -46,6 +47,7 @@ jobs:
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_gtfs_v1105.py' -v
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_publication_v1106.py' -v
           node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
+          node --test healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs
       - name: Fetch a single official BKK GTFS archive
         shell: bash
         run: |
