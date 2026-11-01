@@ -157,3 +157,13 @@
 
 /* v722 · Slightly larger Buddy, responsive without changing GyorsNasi card size. */
 @media(max-width:400px){#hhQuickLaunch .hh-quick-buddy-left{width:60px;height:60px;flex-basis:60px}}
+
+/* v1120 shared household card editor */
+#hhQuickSharedControls{display:flex;flex-direction:column;gap:10px;grid-column:1/-1;padding:13px;border:1px solid #669fc47d;border-radius:15px;background:#0c2d47d9}
+#hhQuickSharedControls[hidden],#hhQuickEditorForm .hh-quick-field[hidden]{display:none!important}
+#hhQuickSharedControls strong{font-size:13px;color:#e9f6ff}
+#hhQuickSharedControls label{font-size:12px;color:#e1eef9}
+#hhQuickSharedCategories{width:100%;min-height:44px;border:1px solid #699bbe;border-radius:11px;background:#081b30;color:#fff;padding:9px;font-size:14px}
+#hhQuickSharedControls .hh-quick-shared-check{display:flex;align-items:center;gap:10px;min-height:39px}
+#hhQuickSharedControls .hh-quick-shared-check input{width:18px;height:18px;flex:none;accent-color:var(--accent,#72b9f6)}
+#hhQuickSharedControls small{font-size:11px;color:#b5cee0;line-height:1.5}
