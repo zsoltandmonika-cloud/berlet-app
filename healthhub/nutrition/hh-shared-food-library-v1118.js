@@ -27,7 +27,7 @@ function normalize(data){
   if(!valid)continue;
   const imageRef=cloud()?.checkImageRef&&r.imageRef?(()=>{try{cloud().checkImageRef('shared',r.imageRef);return r.imageRef}catch(_){return null}})():null;
   out.items[id]={id,name,categories:cats,favorite:!!r.favorite,kind:r.kind==='drink'?'drink':'food',
-   meal:cleanText(r.meal,35)||'Ebéd',nutrients,ingredients:cleanText(r.ingredients,2000),imageRef,
+   meal:cleanText(r.meal,35)||'Ebéd',nutrients,ingredients:cleanText(r.ingredients,2000),description:cleanText(r.description,160),imageRef,
    notes:cleanText(r.notes,450),createdAt:cleanText(r.createdAt,45),updatedAt:cleanText(r.updatedAt,45)};
  }
  return out;
