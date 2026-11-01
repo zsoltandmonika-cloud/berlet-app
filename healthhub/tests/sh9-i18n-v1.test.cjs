@@ -96,3 +96,13 @@ test('launchpad keeps stable identifiers but shows concise translated family mod
  assert.match(travel,/<title data-i18n="travel\.pageTitle">SH9 · Utazás<\/title>/);
  assert.match(travel,/data-i18n-aria="travel\.heroAria"/);
 });
+
+
+test('Travel tile displays Tömegközlekedés / Public Transport while preserving its original route',()=>{
+ assert.match(travel,/data-name="Public Transport" data-href="\.\/public-transport\/" aria-label="Tömegközlekedés megnyitása" data-i18n-aria="travel\.publicAria"/);
+ assert.match(travel,/<strong data-i18n="travel\.publicTitle">Tömegközlekedés<\/strong>/);
+ const lang=mount('en');
+ assert.equal(lang.api.t('travel.publicTitle'),'Public Transport');
+ assert.equal(lang.api.t('travel.publicAria'),'Open Public Transport');
+ assert.equal(lang.api.translations.hu['travel.publicTitle'],'Tömegközlekedés');
+});
