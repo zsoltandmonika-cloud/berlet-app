@@ -8,6 +8,7 @@ const $=id=>d.getElementById(id),api=()=>w.HH_NUTRITION_QUICK_API,vision=()=>w.H
 const PAGE='#lena-ai-scan',MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
 let page=null,mode='food',stage='capture',stream=null,photo=null,photoUrl='',draft=null,editing=null,profile='',busy=false,requestId=0,fromTile=false;
 let puterPromise=null,zxingPromise=null,model='',barcode='',unit='g',audio=null;
+let sharedId=null,sharedBusy=false,sharedEnhance=false;
 const mk=(tag,cls,text)=>{const e=d.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
 const fmt=n=>n==null||!Number.isFinite(n)?'—':Number(n).toLocaleString('hu-HU',{maximumFractionDigits:1});
 const stamp=()=>new Date().toLocaleString('hu-HU',{dateStyle:'medium',timeStyle:'short'});
@@ -179,9 +180,11 @@ function refresh(){
  for(const key of ['protein','carbs','fat'])$('hhScan_'+key+'753').textContent=fmt(sums[key])+' g';
  $('hhScanSave753').disabled=busy||!valid(draft);
 }
+function suggestTags(name){return /penn[eé]/i.test(name)?'Pennék':/tészta/i.test(name)?'Tésztaételek':''}
 function showResult(data,withSound=true){
  draft=data;barcode=data.code||'';unit=data.unit||'g';
  $('hhScanName753').value=data.name;$('hhScanDate753').textContent=stamp();
+ if(!sharedId)$('hhScanSharedTags753').value=suggestTags(data.name);
  $('hhScanOrigin753').textContent=barcode?'📦 Open Food Facts · '+barcode:'✨ Puter AI fotófelismerés · '+(data.model||model);
  $('hhScanNotes753').textContent=data.notes||'A fotó alapján az adag csak becsülhető.';
  const box=$('hhScanIngredients753');box.replaceChildren();
@@ -233,6 +236,73 @@ async function scan(){
  }catch(e){if(serial===requestId){stageTo('capture');status('⚠ '+String(e.message||e),true)}}
  finally{if(serial===requestId){busy=false;stageTo(stage)}}
 }
+
+function sharedStatus(message,bad=false){
+ const el=$('hhScanSharedStatus753');if(!el)return;el.textContent=message;el.dataset.error=String(bad);
+}
+async function sharedPhoto(enhanced){
+ if(!photo)return null;
+ const url=URL.createObjectURL(photo),img=new Image();
+ try{
+  img.src=url;await img.decode();
+  const size=Math.min(720,img.naturalWidth,img.naturalHeight);
+  const c=d.createElement('canvas');c.width=size;c.height=size;
+  const ctx=c.getContext('2d');
+  if(enhanced)ctx.filter='brightness(1.035) contrast(1.08) saturate(1.11)';
+  ctx.drawImage(img,0,0,c.width,c.height);
+  const blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(Error('A JPEG-kép nem készíthető el')),'image/jpeg',.75));
+  if(blob.size>700000)throw Error('A kép túl nagy. Válassz kisebb saját képet.');
+  return {dataURL:c.toDataURL('image/jpeg',.75),blob};
+ }finally{URL.revokeObjectURL(url)}
+}
+async function toggleSharedEnhance(){
+ if(sharedBusy||!photo)return sharedStatus('A képjavításhoz előbb készíts vagy tölts fel fotót.',true);
+ try{
+  sharedEnhance=!sharedEnhance;
+  const btn=$('hhScanSharedEnhance753');
+  if(sharedEnhance){
+   const result=await sharedPhoto(true);
+   $('hhScanPhoto753').src=result.dataURL;
+   btn.textContent='↶ Eredeti fotó visszaállítása';
+  }else{$('hhScanPhoto753').src=photoUrl;btn.textContent='✨ HQ fotófinomítás'}
+  $('hhScanSharedImageStatus753').textContent=sharedEnhance?'Finomított színek és kontraszt · nem AI által újragenerált kép':'Opcionális, az eredeti fotó alapján';
+ }catch(e){sharedEnhance=false;sharedStatus('Képhiba: '+String(e.message||e),true)}
+}
+async function saveShared(){
+ if(sharedBusy||busy)return;
+ const library=w.HH_SHARED_FOOD_LIBRARY_V1118,vault=w.HH_NUTRITION_IMAGE_V641;
+ if(!library?.upsert)return sharedStatus('A közös ételtár nem töltődött be.',true);
+ const title=$('hhScanName753').value.trim();
+ if(!valid({...draft,name:title}))return sharedStatus('Mentés előtt ellenőrizd az étel nevét és tápértékét.',true);
+ const categories=[...new Set($('hhScanSharedTags753').value.split(',').map(x=>x.trim().replace(/\\s+/g,' ').slice(0,45)).filter(Boolean))].slice(0,12);
+ const favorite=$('hhScanSharedFavorite753').checked;
+ if(!categories.length&&!favorite)return sharedStatus('Jelölj ki legalább egy kategóriát vagy a Kedvenceket.',true);
+ const toPuter=$('hhScanSharedPuter753').checked;
+ if(toPuter&&!categories.length)return sharedStatus('A Recepttárhoz írj be legalább egy kategóriát.',true);
+ sharedBusy=true;$('hhScanSharedSave753').disabled=true;
+ try{
+  sharedStatus('☁️ Közös Dropbox-mentés…');
+  const nutrients=vision().totals(draft.items);
+  const image=photo?await sharedPhoto(sharedEnhance):null;
+  const imageRef=image?await vault.save('shared',image.dataURL):null;
+  const item=await library.upsert({
+   id:sharedId,name:title,categories,favorite,kind:unit==='ml'?'drink':'food',
+   meal:$('hhScanMeal753').value,imageRef,notes:draft.notes||'',
+   nutrients:Object.fromEntries(['kcal','protein','carbs','fat'].map(k=>[k,Number(nutrients[k])||0])),
+   ingredients:draft.items.map(x=>x.name+' · '+x.grams+' '+unit).join(', ')
+  });
+  sharedId=item.id;
+  sharedStatus('✓ Közös Dropbox-mentés ellenőrizve · '+(favorite?'Kedvencek':'Közös ételtár')+(categories.length?' · '+categories.join(', '):''));
+  if(toPuter){
+   try{
+    sharedStatus('✓ Közös Dropbox-mentés kész. Recepttár Puter-szinkron ellenőrzése…');
+    await library.publishRecipeStudio(item,image?.blob);
+    sharedStatus('✓ Közös Dropbox és Puter Recepttár mentés ellenőrizve. A Recepttár az első kategóriát használja.');
+   }catch(e){sharedStatus('✓ Közös Dropbox-mentés kész. ⚠ A Puter Recepttár nem frissült: '+String(e.message||e),true)}
+  }
+ }catch(e){sharedStatus('⚠ A közös mentés nem sikerült: '+String(e.message||e),true)}
+ finally{sharedBusy=false;$('hhScanSharedSave753').disabled=false}
+}
 function save(){
  if(busy||profile!==api()?.getProfile())return status('A profil megváltozott. Indíts új felismerést.',true);
  if(draft)draft.name=$('hhScanName753').value.trim();
@@ -248,6 +318,10 @@ function save(){
 }
 function reset(modeNext){
  mode=modeNext;editing=null;draft=null;barcode='';unit='g';
+ sharedId=null;sharedEnhance=false;sharedBusy=false;
+ $('hhScanSharedTags753').value='';$('hhScanSharedFavorite753').checked=true;
+ $('hhScanSharedPuter753').checked=false;$('hhScanSharedEnhance753').textContent='✨ HQ fotófinomítás';
+ $('hhScanSharedImageStatus753').textContent='Opcionális, az eredeti fotó alapján';sharedStatus('');
  $('hhScanManualRow753').hidden=mode!=='barcode';$('hhScanManual753').value='';
  $('hhScanTabFood753').setAttribute('aria-selected',String(mode==='food'));
  $('hhScanTabBarcode753').setAttribute('aria-selected',String(mode==='barcode'));
@@ -309,10 +383,13 @@ function init(){
  $('hhScanManualGo753').onclick=()=>{if(!busy){mode='barcode';void scan()}};
  $('hhScanManual753').onkeydown=e=>{if(e.key==='Enter'&&!busy){e.preventDefault();void scan()}};
  $('hhScanSave753').onclick=save;
+ $('hhScanSharedSave753').onclick=()=>{void saveShared()};
+ $('hhScanSharedEnhance753').onclick=()=>{void toggleSharedEnhance()};
  $('hhScanAgain753').onclick=()=>{editing=null;clearPhoto();reset(mode);void cameraOn()};
  $('hhScanEdit753').onclick=()=>{const first=$('hhScanIngredients753').querySelector('details');if(first){first.open=true;first.scrollIntoView({behavior:'smooth',block:'center'})}};
  $('hhScanIngredients753').addEventListener('input',editField);
- $('hhScanName753').addEventListener('input',e=>{if(draft){draft.name=e.target.value;refresh()}});
+ $('hhScanName753').addEventListener('input',e=>{if(draft){draft.name=e.target.value;refresh()}
+  if(!$('hhScanSharedTags753').value.trim())$('hhScanSharedTags753').value=suggestTags(e.target.value)});
  $('hhScanMeal753').addEventListener('change',refresh);
  $('hhBevitelAI').addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();open()},true);
  if(vision())vision().open=open;
