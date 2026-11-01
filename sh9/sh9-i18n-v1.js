@@ -7,10 +7,10 @@ if(w.SH9_I18N_V1)return;
 const KEY='sh9-language-v1',DEFAULT='hu';
 const dict=Object.freeze({
  hu:Object.freeze({
-  'module.health':'Egészség','module.guard':'Family Guard','module.travel':'Utazás',
+  'module.health':'Egészség','module.guard':'Biztonság','module.travel':'Utazás',
   'module.entertainment':'Szórakozás','module.ask':'Ask Léna','module.sports':'Sport',
   'module.daily':'Családi aktualitások','module.people':'Kapcsolatok','module.lifestyle':'Életmód',
-  'module.ariaHealth':'Egészség megnyitása','module.ariaTravel':'Utazás megnyitása','module.ariaSports':'Sport megnyitása',
+  'module.ariaHealth':'Egészség megnyitása','module.ariaGuard':'Biztonság megnyitása','module.ariaTravel':'Utazás megnyitása','module.ariaSports':'Sport megnyitása',
   'module.ariaPeople':'Kapcsolatok megnyitása','module.ariaLifestyle':'Életmód megnyitása',
   'module.ariaEntertainment':'Szórakozás megnyitása','module.ariaDaily':'Családi aktualitások megnyitása',
   'travel.pageTitle':'SH9 · Utazás',
@@ -47,10 +47,10 @@ const dict=Object.freeze({
   'wx.80':'Zápor','wx.85':'Hózápor','wx.95':'Zivatar','wx.other':'Változó'
  }),
  en:Object.freeze({
-  'module.health':'Health','module.guard':'Family Guard','module.travel':'Travel',
+  'module.health':'Health','module.guard':'Safety','module.travel':'Travel',
   'module.entertainment':'Entertainment','module.ask':'Ask Léna','module.sports':'Sports',
   'module.daily':'Family Updates','module.people':'People','module.lifestyle':'Lifestyle',
-  'module.ariaHealth':'Open Health','module.ariaTravel':'Open Travel','module.ariaSports':'Open Sports',
+  'module.ariaHealth':'Open Health','module.ariaGuard':'Open Safety','module.ariaTravel':'Open Travel','module.ariaSports':'Open Sports',
   'module.ariaPeople':'Open People','module.ariaLifestyle':'Open Lifestyle',
   'module.ariaEntertainment':'Open Entertainment','module.ariaDaily':'Open Family Updates',
   'travel.pageTitle':'SH9 · Travel',
