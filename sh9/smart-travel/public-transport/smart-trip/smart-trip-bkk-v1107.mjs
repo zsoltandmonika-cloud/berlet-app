@@ -4,7 +4,7 @@
  * authenticated Supabase Auth + hh_profile_access check + RLS enforcement.
  * No service role key, OpenAI key or paid API.
  */
-import {readOfficialSnapshot} from "../../lena-native/bkk/bkk-feed-client-v1106.mjs";
+import {readOfficialSnapshot,isValidManifest} from "../../lena-native/bkk/bkk-feed-client-v1106.mjs";
 import {find,toTripPack,stopIds} from "../../lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 
 const SOURCE="BKK Zrt., CC BY 4.0";
@@ -37,11 +37,13 @@ function dbClient(){
  return client;
 }
 async function load(){
- if(fetched)return fetched;
+ if(fetched&&isValidManifest(fetched.manifest,Date.now()))return fetched;
+ fetched=null;
  if(loading)return loading;
  loading=readOfficialSnapshot().then(({data,manifest})=>{
+  if(!isValidManifest(manifest,Date.now()))throw Error("bkk_feed_expired");
   fetched=Object.freeze({data,manifest});return fetched;
- }).catch(e=>{loading=null;throw e});
+ }).catch(e=>{fetched=null;throw e}).finally(()=>{loading=null});
  return loading;
 }
 function suggestions(input){
@@ -114,7 +116,7 @@ async function save(item,expectedProfile){
   activeSearch.profile!==expectedProfile||profiles()!==expectedProfile||
   !["m","z"].includes(expectedProfile))return {status:"profile_changed_or_unverified"};
  if(!fetched||activeSearch.manifestSha!==fetched.manifest.sha256||
-  Date.now()-Date.parse(fetched.manifest.validatedAt)>36*3600000)
+  !isValidManifest(fetched.manifest,Date.now()))
   return {status:"feed_expired"};
  const normalizer=globalThis.SH9_SMART_TRIP_PACK_V1078;
  if(!normalizer?.normalize)return {status:"trip_pack_unavailable"};
