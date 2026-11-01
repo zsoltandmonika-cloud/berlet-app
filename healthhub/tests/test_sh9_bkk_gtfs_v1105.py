@@ -48,6 +48,7 @@ class BkkSnapshotTests(unittest.TestCase):
         self.assertEqual(result["coverage"], "stop-to-stop")
         self.assertEqual(result["live"], False)
         self.assertEqual(result["routes"], ["17", "260"])
+        self.assertEqual(result["routeModes"], {"17": "tram", "260": "bus"})
         self.assertEqual(len(result["trips"]), 2)
         self.assertEqual(len(result["stops"]), 3)
         self.assertEqual(result["services"]["weekday"]["exceptions"]["2026-11-02"], False)
