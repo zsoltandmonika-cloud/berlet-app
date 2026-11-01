@@ -4,8 +4,8 @@ const dir=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(dir,p),
 const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=read('hh-lena-ai-scan-page-v753.css'),journal=read('nutrition-preview-v592.js');
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=754-on-open-top/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=755-singleline-heading/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1117-scan-controls-top/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1117-scan-controls-top/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.doesNotMatch(html,/class="hhScanTop753"/);
 assert.doesNotMatch(html,/AI FOOD STUDIO/);
@@ -25,7 +25,9 @@ assert.match(css,/healthhub-nutrition-lena-buddy-approved\.webp/);
 assert.match(css,/\[data-profile="monika"\]/);
 assert.match(css,/hhScanSweep753/);
 assert.match(script,/w\.history\.pushState/);
-assert.match(script,/w\.scrollTo\?\.\(0,0\)/);
+assert.match(html,/id="hhScanTabs753" class="hhScanTabs753"/);
+assert.match(css,/\.hhScanTabs753\{[^}]*scroll-margin-top:82px/);
+assert.match(script,/tabs\.scrollIntoView\?\.\(\{behavior:'smooth',block:'start'\}\)/);
 assert.match(script,/if\(row\?\.aiVision\)editing=row/);
 assert.match(script,/stopImmediatePropagation/);
 assert.match(script,/getUserMedia/);
@@ -64,7 +66,8 @@ assert.equal(a.nutrients({'energy-kj_100g':418.4}).kcal,100);
 const ids=[...html.matchAll(/id="(hhScan[^"]+|hhLenaScanPage753|hhBevitelAI|profileBtn)"/g)].map(x=>x[1]);
 const registry=new Map();
 class Element{
- constructor(id){this.id=id;this.dataset={};this.handlers={};this.hidden=true;this.classList={toggle(){},add(){},remove(){}};this.value='';this.textContent='';}
+ constructor(id){this.id=id;this.dataset={};this.handlers={};this.hidden=true;this.classList={toggle(){},add(){},remove(){}};this.value='';this.textContent='';this.scrollCount=0;}
+ scrollIntoView(options){this.scrollCount++;this.scrollOptions=options}
  addEventListener(n,fn,capture){(this.handlers[n]??=[]).push({fn,capture})}
  setAttribute(n,v){this[n]=v}
  removeAttribute(n){delete this[n]}
@@ -83,10 +86,15 @@ const e={prevented:false,stopped:false,preventDefault(){this.prevented=true},sto
 tile.handlers.click[0].fn(e);
 assert.equal(w.location.hash,'#lena-ai-scan');
 assert.equal(page.hidden,false);
-assert.equal(w.lastTop?.[0],0);
-assert.equal(w.lastTop?.[1],0);
+assert.ok(registry.get('hhScanTabs753').scrollCount>=1);
+assert.equal(registry.get('hhScanTabs753').scrollOptions.block,'start');
 assert.equal(page.dataset.profile,'zsolt');
 assert.equal(e.prevented,true);
 assert.equal(e.stopped,true);
 assert.equal(typeof w.HH_FOOD_VISION_V750.open,'function');
+registry.get('hhScanTabBarcode753').onclick();
+assert.equal(registry.get('hhScanTabs753').scrollOptions.behavior,'smooth');
+assert.equal(page.dataset.stage,'capture');
+registry.get('hhScanTabFood753').onclick();
+assert.ok(registry.get('hhScanTabs753').scrollCount>=3);
 console.log('PASS v753: full-page route, square scan, barcode validation, OFF v3 data, safe unknown nutrition, profile and camera click smoke.');
