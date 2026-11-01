@@ -73,3 +73,24 @@ test('static translations and weather language changes require no AI, GPS or new
  assert.match(info,/window\.SH9Weather/);
  assert.match(info,/Intl\.DateTimeFormat\(fmtLocale\(\)/);
 });
+
+
+test('launchpad keeps stable identifiers but shows concise translated family module labels',()=>{
+ const expected=[
+  ['travel','Utazás','Travel'],['sports','Sport','Sports'],
+  ['daily','Családi aktualitások','Family Updates'],
+  ['people','Kapcsolatok','People'],['lifestyle','Életmód','Lifestyle']
+ ];
+ assert.match(page,/data-name="Smart Travel"[^>]*data-i18n-aria="module\.ariaTravel"/);
+ assert.match(page,/href="\.\/smart-travel\/"/);
+ const count=[...page.matchAll(/class="mod-name" data-i18n="module\.([^"]+)"/g)];
+ assert.equal(count.length,9);
+ for(const [key,hu,en] of expected){
+  assert.ok(page.includes('data-i18n="module.'+key+'">'+hu+'</span>'));
+  const local=mount('en');
+  assert.equal(local.api.t('module.'+key),en);
+  assert.equal(local.api.translations.hu['module.'+key],hu);
+ }
+ assert.match(travel,/<title data-i18n="travel\.pageTitle">SH9 · Utazás<\/title>/);
+ assert.match(travel,/data-i18n-aria="travel\.heroAria"/);
+});
