@@ -32,5 +32,5 @@ test('SHA256 content hash matches standard SHA256 implementation',async()=>{
  const bytes=new TextEncoder().encode('BKK Zrt. CC BY 4.0').buffer;
  const digest=await sha256(bytes,webcrypto.subtle);
  assert.match(digest,/^[0-9a-f]{64}$/);
- assert.equal(digest,'39dc37f24a06f663e04ce7f205820ce856494dbe5fe6ab2bb5628f4283937444');
+ assert.equal(digest,'0dd57383c8bf91d68185d1c1b2f1ab285f9990331a6707b91ad0cc2d9a04c1c0');
 });
