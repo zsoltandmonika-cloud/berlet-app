@@ -32,11 +32,11 @@ const dataset={
   s4:["Teszt Széll Kálmán tér",47.507,19.026]
  },
  services:{all:{start:dateAt(-1),end:dateAt(14),days:[1,1,1,1,1,1,1],exceptions:{}}},
- trips:lines.map((line,i)=>[line,"all","Példajárat",[
+ trips:Array.from({length:32},(_,j)=>{const line=lines[j%4],i=j%4;return [line,"all","Példajárat",[
   ["s1",36000+i*60,36000+i*60],
   ["s2",36600+i*60,36600+i*60],
   ["s3",37200+i*60,37200+i*60]
- ],line==="260"?"bus":"tram"])
+ ],line==="260"?"bus":"tram"];})
 };
 const encoded=new TextEncoder().encode(JSON.stringify(dataset));
 const sha=Array.from(new Uint8Array(await webcrypto.subtle.digest("SHA-256",encoded)))
