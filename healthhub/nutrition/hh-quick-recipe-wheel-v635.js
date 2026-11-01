@@ -218,9 +218,10 @@ function showWheel(wantedId=''){
 }
 function showDialog(){
  // Read the household library when opening, including edits from the other phone.
- window.HH_SHARED_FOOD_LIBRARY_V1118?.load?.(true).then(()=>{
-  if(dlg.open&&shell.dataset.mode==='wheel')showWheel(activeId);
- }).catch(()=>{});
+ if(window.HH_SHARED_FOOD_LIBRARY_V1118?.load)
+  window.HH_SHARED_FOOD_LIBRARY_V1118.load(true).then(()=>{
+   if(dlg.open&&shell.dataset.mode==='wheel')showWheel(activeId);
+  }).catch(()=>{});
 shell.dataset.mode='wheel';$('hhQuickSuccess').dataset.open='false';
  $('hhQuickSound').textContent=localStorage.getItem(keySound)==='off'?'🔇':'♫';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Közös + saját · Mónika naplója':'Közös + saját · Zsolt naplója';
