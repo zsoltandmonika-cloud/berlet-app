@@ -52,14 +52,17 @@ function validate(data,at=Date.now()){
  if(data.searchStops!==undefined){
   if(!Array.isArray(data.searchStops)||data.searchStops.length<2||
    data.searchStops.length>12000)return false;
-  const names=new Set();
+  const names=new Set(),normalized=new Set();
   for(const name of data.searchStops){
    if(typeof name!=="string"||name.length<2||name.length>120)return false;
-   const key=norm(name);
+   const key=name.toLocaleLowerCase("hu-HU");
    if(names.has(key))return false;
    names.add(key);
+   normalized.add(norm(name));
   }
-  if(stops.some(([,stop])=>!names.has(norm(stop[0]))))return false;
+  // Official names such as an accented and unaccented variant may match
+  // after accent stripping; those are not corrupt duplicate GTFS stops.
+  if(stops.some(([,stop])=>!normalized.has(norm(stop[0]))))return false;
  }
  const routes=new Set(data.routes);
  for(const trip of data.trips){
