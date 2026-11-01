@@ -99,8 +99,8 @@ test('Golden pink/purple highlights only live Outlook values and agenda entries'
 test('All three SH9 live info cells have full-size accessible click targets and safe destinations',()=>{
  const strip=html.slice(html.indexOf('<section id="sh9InfoBar6"'),html.indexOf('</section>',html.indexOf('<section id="sh9InfoBar6"')));
  assert.match(strip,/<a id="sh9NamedayCell" class="sh9-info-cell sh9-info-tap" href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
- assert.match(strip,/<span class="sh9-info-heading">DÁTUM<\/span><span id="sh9Date6"/);
- assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub"><span class="sh9-nameday-label">NÉVNAP · <\/span><span id="sh9NamedayValue6" class="sh9-nameday-value">betöltés/);
+ assert.match(strip,/<span class="sh9-info-heading" data-i18n="info.date">DÁTUM<\/span><span id="sh9Date6"/);
+ assert.match(strip,/<span id="sh9Nameday6" class="sh9-info-sub"><span class="sh9-nameday-label" data-i18n="info.nameday">NÉVNAP · <\/span><span id="sh9NamedayValue6" class="sh9-nameday-value">betöltés/);
  assert.match(strip,/<a id="sh9WeatherCell6" class="sh9-info-cell sh9-info-tap" href="https:\/\/www\.meteoblue\.com\/en\/weather\/week\/budapest_hungary_3054643"/);
  assert.match(strip,/<a id="sh9CalendarCell" class="sh9-info-cell sh9-calendar-click-target" href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
  assert.doesNotMatch(script,/card\.addEventListener\('click',show\)/);
