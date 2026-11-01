@@ -16,6 +16,9 @@ test('Native fallback link visuals and default navigation stay enabled when JS r
  assert.match(home,/\.wrap \.grid>a\.tile\{text-decoration:none;color:inherit\}/);
  assert.match(home,/if\(b\.tagName==='A'&&b\.hasAttribute\('href'\)\)return;/);
  assert.match(home,/data-name="Entertainment"/);
- assert.match(home,/data-name="Ask Léna"/);
+ assert.match(home,/data-nav="Ask Léna"/);
+ assert.match(home,/data-name="Shopping"/);
+ assert.match(home,/b\.dataset\.nav==='Ask Léna'/);
+ assert.doesNotMatch(home,/data-nav="Idővonal"/);
  assert.match(home,/sh9-ota-indicator-v1043\.js/);
 });
