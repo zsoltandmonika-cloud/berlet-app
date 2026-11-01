@@ -67,7 +67,11 @@
   }
   return exact.concat(begins,inside).slice(0,7).map(name=>({name,subtitle:'Helyi MÁV GTFS-állomás · menetrendi adat',type:'vasút'}));
  }
- function suggestions(q){const f=favoriteItems(q),s=localStations(q),seen=new Set();return [...f,...s].filter(item=>{const key=fold(item.name)+'|'+(item.lat||'');if(seen.has(key))return false;seen.add(key);return true}).slice(0,8)}
+ function suggestions(q){
+  if(searchMethod()==='bkk_gtfs')return w.SH9_BKK_SEARCH_V1107?.suggestions?.(q)||[];
+  const f=favoriteItems(q),s=localStations(q),seen=new Set();
+  return [...f,...s].filter(item=>{const key=fold(item.name)+'|'+(item.lat||'');if(seen.has(key))return false;seen.add(key);return true}).slice(0,8)
+ }
  function choose(field,item){
   abort(field.key);
   field.input.value=item.name;
@@ -82,7 +86,7 @@
    const b=d.createElement('button');b.type='button';b.setAttribute('role','option');b.id='st22-'+field.key+'-'+i;
    const label=d.createElement('span'),strong=d.createElement('strong'),sub=d.createElement('small'),icon=d.createElement('em');
    strong.textContent=item.name;sub.textContent=item.subtitle||'Hely';label.append(strong,sub);
-   icon.textContent=item.type==='kedvenc'?'★ KEDVENC':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
+   icon.textContent=item.type==='bkk_megallo'?'🚋 BKK':item.type==='kedvenc'?'★ KEDVENC':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
    b.append(label,icon);
    b.addEventListener('click',()=>choose(field,item));field.box.appendChild(b);
   });
@@ -123,6 +127,15 @@
   render(field,known);
   // The existing favorite/rail station index is free and instant.
   // Contact Photon only when the local index cannot offer a useful match.
+  if(searchMethod()==='bkk_gtfs'){
+   if(!known.length&&q.length>=2){
+    const bkk=w.SH9_BKK_SEARCH_V1107;
+    if(bkk?.load)void bkk.load().then(()=>{
+     if(field.input.value.trim()===q&&searchMethod()==='bkk_gtfs')render(field,suggestions(q))
+    }).catch(()=>say('BKK: az ellenőrzött megállóadat most nem érhető el.'));
+   }
+   return; // No Photon guessing in official BKK stop-to-stop mode.
+  }
   if(q.length<3||known.length)return;
   timers.set(field.key,w.setTimeout(()=>{if(field.input.value.trim()===q)void fetchRemote(field,q,id)},470));
  }
@@ -137,8 +150,14 @@
     lastSmartPlaceSync=Date.now();void family.sync(true).catch(()=>{});
    }
    if(field.input.value.trim())render(field,suggestions(field.input.value.trim()));
-   else{const fav=favoriteItems('');if(fav.length)render(field,fav.slice(0,6))}
-   void loadRailData().then(()=>{if(d.activeElement===field.input&&field.input.value.trim())render(field,suggestions(field.input.value.trim()))});
+   else if(searchMethod()!=='bkk_gtfs'){const fav=favoriteItems('');if(fav.length)render(field,fav.slice(0,6))}
+   if(searchMethod()==='bkk_gtfs'){
+    const bkk=w.SH9_BKK_SEARCH_V1107;
+    if(bkk?.load)void bkk.load().then(()=>{
+     if(d.activeElement===field.input&&field.input.value.trim())
+      render(field,suggestions(field.input.value.trim()))
+    }).catch(()=>say('Nem sikerült letölteni a hiteles BKK-menetrendet.'));
+   }else void loadRailData().then(()=>{if(d.activeElement===field.input&&field.input.value.trim())render(field,suggestions(field.input.value.trim()))});
   });
   field.input.addEventListener('keydown',e=>{
    if(e.key==='Escape'){close(field);return}
@@ -256,7 +275,7 @@
  }
  const METHOD_KEY='sh9-smart-trip-search-method-v1076-';
  const LEGACY_METHOD_KEY='sh9-smart-trip-search-method-v1075-';
- const allowedMethods=new Set(['chatgpt','google','native','lena_native']);
+ const allowedMethods=new Set(['chatgpt','google','native','lena_native','bkk_gtfs']);
  function searchMethod(){
   return allowedMethods.has(methodSelect?.value)?methodSelect.value:'chatgpt';
  }
@@ -288,6 +307,71 @@
   say(message);
   focusResults();
  }
+
+ function bkkTime(iso){
+  try{return new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',
+   hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(iso))}
+  catch(_){return '—'}
+ }
+ function bkkTag(tag,cls,value,parent){
+  const node=d.createElement(tag);
+  if(cls)node.className=cls;
+  node.textContent=String(value??'');
+  if(parent)parent.appendChild(node);
+  return node;
+ }
+ function showBkkResults(data,query,searchId){
+  if(results)results.hidden=false;
+  list.replaceChildren();
+  source.textContent='BKK Zrt. · CC BY 4.0 · hivatalos GTFS, nem élő';
+  say('✓ Ellenőrzött megállóközi menetrend · Nincs gyaloglás vagy átszállás hozzáadva.');
+  const currentProfile=profile();
+  data.results.slice(0,5).forEach((item,i)=>{
+   const card=bkkTag('article','st22-bkk-card','',list);
+   bkkTag('strong','st22-bkk-title',(i===0?'★ Ajánlott · ':'')+item.line+
+    (item.mode==='bus'?' 🚌 busz':item.mode==='tram'?' 🚋 villamos':item.mode==='metro'?' 🚇 metró':' 🚆 vasút'),card);
+   bkkTag('div','st22-bkk-time',bkkTime(item.departure)+' → '+bkkTime(item.arrival),card);
+   bkkTag('div','st22-bkk-stops',item.from+' → '+item.to,card);
+   bkkTag('small','st22-bkk-note','Menetrendi indulás · '+query.date+
+    ' · Nem élő követés · Csak megállótól megállóig',card);
+   const save=bkkTag('button','st22-bkk-save','💾 Mentés My Tripsbe',card);
+   save.type='button';
+   save.addEventListener('click',async()=>{
+    if(searchId!==searchCounter||currentProfile!==profile()){
+     say('A keresés vagy a családi profil megváltozott. Indíts új keresést.');return;
+    }
+    save.disabled=true;save.textContent='🔐 Jogosultság és felhőmentés ellenőrzése…';
+    let result;
+    try{result=await w.SH9_BKK_SEARCH_V1107.save(item,currentProfile)}
+    catch(_){result={status:'save_failed'}}
+    if(searchId!==searchCounter||currentProfile!==profile()){
+     say('A profil változott a mentés közben. Ellenőrizd a My Tripsben.');return;
+    }
+    if(result?.status==='saved'){
+     save.textContent='✓ Mentve · My Trips megnyitása';
+     say('✓ Hitelesített BKK TripPack mentve · My Trips megnyitása.');
+     const url=new URL('../../my-trips/',w.location.href);
+     url.searchParams.set('trip',result.tripId);
+     url.searchParams.set('details','1');
+     w.location.assign(url.href);return;
+    }
+    const statuses={
+     login_required:'A mentéshez jelentkezz be a Family Guardba.',
+     access_denied:'Nem vagy jogosult a kiválasztott családi profil mentéseire.',
+     profile_changed_or_unverified:'Profilváltás vagy elavult találat. Indíts új keresést.',
+     feed_expired:'A hivatalos BKK-menetrend időközben lejárt. Új keresés szükséges.',
+     cloud_saved_local_pending:'A felhőmentés megtörtént, de a helyi másolat még nem frissült. My Trips → Szinkron.',
+     confirmation_failed:'A felhőmentést nem sikerült visszaigazolni. Ellenőrizd a My Tripsben.',
+     cloud_read_failed:'A privát felhőarchívum most nem olvasható.',
+     cloud_write_failed:'Nem sikerült a felhőbe menteni.',
+     save_failed:'Nem sikerült elmenteni az útvonalat.'
+    };
+    say('⚠️ '+(statuses[result?.status]||'A mentés nem igazolt: '+String(result?.status||'hiba')));
+    save.textContent='💾 Mentés My Tripsbe';save.disabled=false;
+   });
+  });
+  focusResults();
+ }
  async function searchTrip(event){
   event.preventDefault();clearAll();resultView?.unlockSound?.();
   const searchId=++searchCounter;
@@ -303,6 +387,27 @@
   const method=searchMethod();
   if(method==='chatgpt'){chatgptHandoff(query);return}
   if(method==='google'){googleHandoff(query);return}
+  if(method==='bkk_gtfs'){
+   const engine=w.SH9_BKK_SEARCH_V1107;
+   if(!engine?.search){unavailable('A BKK v1107 próbamotor nem töltődött be. Frissítsd az oldalt.');return}
+   unavailable('🔎 Hivatalos BKK-menetrend betöltése és ellenőrzése…');
+   let result;
+   try{result=await engine.search(query,instant)}
+   catch(_){result={status:'feed_unavailable'}}
+   if(searchId!==searchCounter)return;
+   if(result.status==='ok'){showBkkResults(result,query,searchId);return}
+   const messages={
+    unknown_stop:'A megadott hely nem pontos BKK-megálló. Válassz mindkét mezőben a BKK javaslatai közül.',
+    outside_feed:'Az adott nap nincs az ellenőrzött BKK-menetrend érvényességi időszakában.',
+    no_verified_route:'Nem található közvetlen, menetrendileg ellenőrzött járat e két megálló között. Átszállást nem találgatunk.',
+    feed_unavailable:'A hivatalos BKK-adat most nem elérhető, lejárt vagy sérült.',
+    session_limit:'A BKK-próbakeresés napi munkameneti kerete elfogyott.',
+    invalid_query:'A dátum, idő vagy indulási és érkezési megálló érvénytelen.',
+    invalid_trip_pack:'A menetrendi adat nem felel meg a biztonságos SH9 TripPack-sémának.'
+   };
+   unavailable(messages[result.status]||'BKK menetrendi keresés: '+String(result.status));
+   return;
+  }
   if(method==='lena_native'){
    const pilot=w.SH9_LENA_NATIVE_V1104;
    if(!pilot?.search){unavailable('Léna Native előnézet nem töltődött be. Frissítsd az oldalt.');return}
@@ -431,6 +536,15 @@
  form.addEventListener('submit',searchTrip);
  methodSelect?.addEventListener('change',()=>{
   const choice=searchMethod();
+  fields.forEach(f=>{abort(f.key);close(f)});
+  if(choice==='bkk_gtfs'){
+   say('🚌 BKK v1107: írj be két pontos BKK-megállót. A hivatalos GTFS csak menetrendi, nem élő.');
+   const engine=w.SH9_BKK_SEARCH_V1107;
+   if(engine?.load)void engine.load().then(()=>{
+    const focused=fields.find(f=>f.input===d.activeElement);
+    if(focused&&focused.input.value.trim())render(focused,suggestions(focused.input.value.trim()));
+   }).catch(()=>say('BKK: a menetrendi adat ellenőrzése sikertelen. Próbáld újra.'));
+  }
   try{w.localStorage.setItem(METHOD_KEY+profile(),choice)}
   catch(_){say('A keresési mód most használható, de a mentése sikertelen.')}
  });
