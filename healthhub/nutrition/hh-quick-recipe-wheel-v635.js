@@ -276,7 +276,7 @@ function showEditor(recipeId,create=false){
    btn.disabled=index+dir<0||index+dir>=items.length;
    btn.addEventListener('click',()=>{
     try{
-     const ids=allRecipes().map(q=>q.id),from=ids.indexOf(item.id),to=from+dir;
+     const ids=allRecipes().filter(q=>!q.shared).map(q=>q.id),from=ids.indexOf(item.id),to=from+dir;
      if(from<0||to<0||to>=ids.length)return;
      [ids[from],ids[to]]=[ids[to],ids[from]];
      api.reorderRecipes(ids);
