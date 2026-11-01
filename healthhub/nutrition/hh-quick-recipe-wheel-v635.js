@@ -86,7 +86,7 @@ function allRecipes(){
  (window.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.()||[]).filter(x=>x.favorite).forEach(x=>{
   base.push({id:'quick:shared-'+x.id,shared:true,sharedFoodId:x.id,name:x.name,
    category:x.categories[0]||'Kedvencek',categories:x.categories,kind:x.kind||'food',
-   icon:'🍽️',theme:'meal',meal:x.meal||'Ebéd',description:'Közös kedvenc · '+(x.categories.join(', ')||'AI Scan'),
+   icon:'🍽️',theme:'meal',meal:x.meal||'Ebéd',description:x.description||'Közös kedvenc · '+(x.categories.join(', ')||'AI Scan'),
    ingredients:x.ingredients||'',nutrients:{...x.nutrients},imageRef:x.imageRef,imageScope:'shared',
    archived:false,order:500,updatedAt:x.updatedAt});
  });
@@ -172,8 +172,8 @@ function selectUI(){
 $('hhQuickSelected').textContent=q?q.name:'Nincs aktív recept';
  $('hhQuickSelectedNote').textContent=q?((q.kind==='drink'&&Number(q.volumeMl)>0?fmt(q.volumeMl)+' ml':'1 beállított adag')+' · '+fmt(q.nutrients.kcal)+' kcal'):'A Stúdióban új receptet hozhatsz létre.';
  $('hhQuickRecord').disabled=!q||busy;
- $('hhQuickEdit').disabled=!q||!!q.shared;
- $('hhQuickEdit').title=q?.shared?'A közös kedvenc szerkesztése az AI Scan mentőfelületén történik':'Recept szerkesztése';
+ $('hhQuickEdit').disabled=!q;
+ $('hhQuickEdit').title=q?.shared?'Közös ételkártya szerkesztése':'Recept szerkesztése';
  const dots=$('hhQuickDots');dots.replaceChildren();
  if(recipes.length>0&&recipes.length<=15)recipes.forEach((_,i)=>{let el=document.createElement('span');el.className='hh-quick-dot';el.dataset.active=String(i===selection);dots.append(el)});
  if(recipes.length>15){const counter=document.createElement('span');counter.className='hh-quick-index';counter.textContent=(selection+1)+' / '+recipes.length;dots.append(counter)}
@@ -243,11 +243,22 @@ function showEditor(recipeId,create=false){
  shell.dataset.mode='edit';
  $('hhQuickSuccess').dataset.open='false';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Közös + saját · Mónika naplója':'Közös + saját · Zsolt naplója';
- const items=allRecipes().filter(x=>!x.shared);
+ const items=allRecipes();
  let q=(!create&&items.find(x=>x.id===recipeId))||null;
  if(!q){q=seed('new-'+(window.crypto?.randomUUID?.()||Date.now().toString(36)).replace(/[^a-z0-9_-]/gi,'').slice(0,35),'Új kedvenc','🍽️','meal','Főételek','Ebéd','Saját recept','',{kcal:0,protein:0,carbs:0,fat:0},(items.length+1)*10)}
  editing={...q,nutrients:{...q.nutrients}};
- photoData=editing.image||'';photoRemoved=false;
+ photoData=editing.image||'';photoRemoved=false;portalPhotoData='';
+ const common=!!q.shared;
+ shell.dataset.shared=String(common);
+ $('hhQuickSharedControls').hidden=!common;
+ for(const id of ['hhQuickEditCategory','hhQuickEditOrder','hhQuickEditArchived','hhQuickEditIcon','hhQuickEditTheme']){
+  const field=$(id)?.closest('.hh-quick-field');
+  if(field)field.hidden=common;
+ }
+ $('hhQuickSharedCategories').value=common?(q.categories||[]).join(', '):'';
+ $('hhQuickSharedFavorite').checked=common?true:false;
+ $('hhQuickSharedAutoImage').checked=common&&!q.imageRef;
+ $('hhQuickStudioHeading').textContent=common?'Közös ételkártya szerkesztése':'Recept szerkesztése';
  $('hhQuickEditName').value=q.name==='Új kedvenc'?'':q.name;
  $('hhQuickEditDescription').value=q.description||'';
  $('hhQuickEditCategory').value=q.category||'Főételek';
@@ -260,7 +271,7 @@ function showEditor(recipeId,create=false){
  $('hhQuickEditArchived').checked=!!q.archived;
  $('hhQuickEditPhoto').value='';
  $('hhQuickEditStatus').textContent=photoData?'Saját kép csatolva. Képcseréhez válassz másikat.':(editing.imageRef?'☁️ Receptkép a privát központi Dropbox képtárban. Más eszközökön is megjelenhet.':'Az új kép opcionális; minden recepthez jár egységes glassy illusztráció.');
- $('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
+ if(!common)$('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
  const list=document.createDocumentFragment();
  const createBtn=document.createElement('button');createBtn.type='button';createBtn.textContent='＋ Új recept';createBtn.addEventListener('click',()=>showEditor(null,true));list.append(createBtn);
  items.forEach((item,index)=>{
@@ -269,6 +280,7 @@ function showEditor(recipeId,create=false){
   name.textContent=(item.archived?'◌ ':'')+(item.icon||'🍽️')+' '+item.name;
   name.setAttribute('aria-pressed',String(editing.id===item.id));
   name.addEventListener('click',()=>showEditor(item.id));
+  if(item.shared){line.append(name);list.append(line);return}
   const arrows=document.createElement('div');arrows.className='hh-quick-arrows';
   for(const [dir,label] of [[-1,'Feljebb'],[1,'Lejjebb']]){
    const btn=document.createElement('button');btn.type='button';btn.className='hh-quick-move';
@@ -314,8 +326,53 @@ async function onPhoto(e){
  try{photoData=await compressImage(file);photoRemoved=false;$('hhQuickEditStatus').textContent='✓ Fotó csatolva ('+Math.round(photoData.length*0.75/1024)+' KB). Mentéskor a központi Dropbox képtárba kerül (ha csatlakozik a Dropbox).'}
  catch(err){$('hhQuickEditStatus').textContent='Képhiba: '+err.message}
 }
+async function saveSharedEdit(e){
+ e?.preventDefault?.();
+ if(!editing?.shared||editSaving)return;
+ const lib=window.HH_SHARED_FOOD_LIBRARY_V1118,vault=window.HH_NUTRITION_IMAGE_V641;
+ const status=$('hhQuickEditStatus'),submit=$('hhQuickEditorForm').querySelector('button[type="submit"]');
+ if(!lib?.upsert||!vault?.save)return void(status.textContent='A közös ételtár vagy a képtár nem elérhető.');
+ const existing=lib.getItems().find(x=>x.id===editing.sharedFoodId);
+ if(!existing)return void(status.textContent='A közös ételkártya nem található. Frissítsd a gyűjteményt.');
+ const name=str($('hhQuickEditName').value,80),description=str($('hhQuickEditDescription').value,160),
+  ingredients=str($('hhQuickEditIngredients').value,2000);
+ const cats=[...new Set($('hhQuickSharedCategories').value.split(',').map(x=>str(x,45)).filter(Boolean))].slice(0,12);
+ const favorite=$('hhQuickSharedFavorite').checked;
+ if(name.length<2||(!favorite&&!cats.length))return void(status.textContent='Adj meg nevet és legalább egy célkategóriát vagy Kedvencek jelölést.');
+ const nutrients={},limits={kcal:5000,protein:1000,carbs:1000,fat:1000};
+ for(const [key,limit] of Object.entries(limits)){
+  const raw=$('hhQuickEdit'+key[0].toUpperCase()+key.slice(1)).value;
+  const n=raw===''?null:safeNum(raw,limit);
+  if(n==null)return void(status.textContent='Érvénytelen tápérték: '+key);
+  nutrients[key]=n;
+ }
+ editSaving=true;submit.disabled=true;
+ let warning='';
+ try{
+  let imageRef=photoRemoved?null:(existing.imageRef||null);
+  if($('hhQuickSharedAutoImage').checked&&!photoData){
+   status.textContent='✨ Automatikus prémium kártyakép generálása a szerkesztett névből…';
+   try{photoData=await lib.generateCardImage({name,ingredients,kind:existing.kind})}
+   catch(err){warning=' ⚠ AI-kép nem készült: '+String(err?.message||err).slice(0,130)+' (a korábbi kép megmaradt).'}
+  }
+  if(photoData){
+   status.textContent='☁️ A közös kártyakép feltöltése Dropboxba…';
+   imageRef=await vault.save('shared',photoData);
+  }
+  status.textContent='☁️ A közös ételkártya mentése…';
+  const saved=await lib.upsert({...existing,name,description,ingredients,categories:cats,favorite,nutrients,imageRef,
+   meal:$('hhQuickEditMeal').value});
+  editing={...saved,shared:true,sharedFoodId:saved.id,nutrients:{...saved.nutrients}};
+  photoRemoved=false;photoData='';
+  activeId='quick:shared-'+saved.id;
+  status.textContent='✓ Közös ételkártya mentve. Zsolt és Mónika is ugyanazt látja.'+warning;
+  if(!warning){shell.dataset.mode='wheel';showWheel(activeId)}
+ }catch(err){status.textContent='⚠ Közös mentési hiba: '+String(err?.message||err)}
+ finally{editSaving=false;submit.disabled=false}
+}
 async function saveEdit(e){
  e.preventDefault();if(!editing||editSaving)return;
+ if(editing.shared)return saveSharedEdit(e);
  const name=str($('hhQuickEditName').value,80),desc=str($('hhQuickEditDescription').value,160);
  const ingredients=str($('hhQuickEditIngredients').value,2000),cat=str($('hhQuickEditCategory').value,45);
  const nutrients={},caps={kcal:5000,protein:500,carbs:1000,fat:500};
