@@ -38,7 +38,7 @@ test('BKK snapshot must be recent, fully sourced, licensed and nonlive',()=>{
   x=>x.source='unknown',x=>x.license='copyright unknown',x=>x.live=true,
   x=>x.coverage='door-to-door',x=>x.sourceUrl='https://other.invalid',
   x=>x.generatedAt='2026-01-01T00:00:00Z',
-  x=>x.stops['003'][1]=200, x=>x.routeModes['17']='bus'
+  x=>x.stops['003'][1]=200, x=>x.routeModes['17']='ferry'
  ]){
   const data=DATA();mutation(data);assert.equal(validate(data,NOW),false);
  }
