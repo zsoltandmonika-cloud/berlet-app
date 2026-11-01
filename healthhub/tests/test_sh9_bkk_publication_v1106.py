@@ -117,7 +117,7 @@ class PublishGateTests(unittest.TestCase):
 
     def test_stale_processing_timestamp_refused(self):
         data=fixture()
-        data["generatedAt"]="2026-10-30T01:00:00Z"
+        data["generatedAt"]="2026-10-01T01:00:00Z"
         with self.assertRaisesRegex(ValueError,"stale"):
             gate.check_data(data,NOW)
 
