@@ -5,7 +5,8 @@
  * No service role key, OpenAI key or paid API.
  */
 import {readOfficialSnapshot,isValidManifest} from "../../lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {find,toTripPack,stopIds} from "../../lena-native/bkk/bkk-gtfs-core-v1105.mjs";
+import {stopIds} from "../../lena-native/bkk/bkk-gtfs-core-v1105.mjs";
+import {findConnections,toConnectionPack} from "../../lena-native/bkk/bkk-one-transfer-v1109.mjs";
 
 const SOURCE="BKK Zrt., CC BY 4.0";
 const SESSION_KEY="hh-guardian-family-auth-v785";
@@ -102,18 +103,17 @@ async function search(query,when){
  }
  if(query.date<feed.data.feedStart||query.date>feed.data.feedEnd)
   return {status:"outside_feed"};
- const options=find(feed.data,{...query,when},Date.now()).slice(0,MAX_OPTIONS);
+ const options=findConnections(feed.data,{...query,when},Date.now()).slice(0,MAX_OPTIONS);
  if(!options.length)return {status:"no_verified_route"};
  const normalizer=globalThis.SH9_SMART_TRIP_PACK_V1078;
  if(!normalizer?.normalize)return {status:"trip_pack_unavailable"};
  const results=[];
  for(const route of options){
   try{
-   const item=normalizer.normalize(toTripPack(query,route));
-   if(item.segments.length===1&&item.segments[0].line===route.line&&
-    item.segments[0].mode===route.mode)results.push(Object.freeze({
-     ...route,tripPack:item
-    }));
+   const item=normalizer.normalize(toConnectionPack(query,route));
+   if(item.segments.length===route.legs.length&&
+    item.segments.every((leg,i)=>leg.line===route.legs[i].line&&leg.mode===route.legs[i].mode))
+    results.push(Object.freeze({...route,tripPack:item}));
   }catch(_){}
  }
  if(!results.length)return {status:"invalid_trip_pack"};
@@ -142,11 +142,15 @@ async function save(item,expectedProfile){
  if(!normalizer?.normalize)return {status:"trip_pack_unavailable"};
  let verified;
  try{
-  const matching=find(fetched.data,{...activeSearch.query,when:activeSearch.when},Date.now());
-  const same=matching.find(x=>x.line===item.line&&x.mode===item.mode&&
-   x.from===item.from&&x.to===item.to&&x.departure===item.departure&&x.arrival===item.arrival);
+  const matching=findConnections(fetched.data,
+   {...activeSearch.query,when:activeSearch.when},Date.now());
+  const same=matching.find(x=>x.from===item.from&&x.to===item.to&&
+   x.departure===item.departure&&x.arrival===item.arrival&&
+   x.legs.length===item.legs.length&&x.legs.every((leg,i)=>
+    leg.line===item.legs[i].line&&leg.mode===item.legs[i].mode&&
+    leg.departure===item.legs[i].departure&&leg.arrival===item.legs[i].arrival));
   if(!same)return {status:"trip_no_longer_verified"};
-  verified=normalizer.normalize(toTripPack(activeSearch.query,same));
+  verified=normalizer.normalize(toConnectionPack(activeSearch.query,same));
   if(signature(verified)!==signature(item.tripPack))return {status:"trip_changed"};
  }catch(_){return {status:"trip_changed"}}
  const db=dbClient();
