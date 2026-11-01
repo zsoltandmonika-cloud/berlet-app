@@ -149,3 +149,53 @@ test('SH9 Shopping takes the centre tile; Ask Léna replaces Timeline in the bot
  assert.equal(hu.t('nav.ask'),'Ask Léna');
  assert.equal(en.t('nav.ariaAsk'),'Open Ask Léna');
 });
+
+
+test('SH9 v907 profile pill is same 90x47 Golden Glass size as the HU/CA control',()=>{
+ assert.match(page,/id="sh9LauncherProfileV1"/);
+ assert.match(page,/sh9-launcher-profile-v1\.js\?v=907-profile-toggle/);
+ assert.ok(page.indexOf('sh9LauncherProfileV1')>page.indexOf('sh9HeaderControlsV2'));
+ assert.match(css,/#sh9HeaderControlsV2 #sh9LanguageSwitchV1[\\s\\S]*?width:90px;height:47px/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1[\\s\\S]*?width:90px;height:47px/);
+ assert.match(css,/#sh9LauncherProfileV1\[data-profile="m"\]/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+test('SH9 v907 profile switch toggles canonical shared preference and respects HU/EN',()=>{
+ const source=read('sh9/sh9-launcher-profile-v1.js');
+ const pill=new Element(),mark=new Element(),name=new Element();
+ pill.dataset={};
+ const nodes={sh9LauncherProfileV1:pill,sh9LauncherProfileMarkV1:mark,sh9LauncherProfileNameV1:name};
+ const store=new Map(),events={},dispatched=[];
+ let language='hu';
+ const document={readyState:'complete',getElementById:id=>nodes[id]||null};
+ const window={
+  localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},
+  SH9_I18N_V1:{getLanguage:()=>language},
+  addEventListener:(key,fn)=>{events[key]=fn},
+  dispatchEvent:event=>dispatched.push(event.type)
+ };
+ class CustomEvent{constructor(type,opts){this.type=type;this.detail=opts?.detail}}
+ vm.runInNewContext(source,{window,document,CustomEvent});
+ assert.equal(name.textContent,'Zsolt');
+ assert.equal(mark.textContent,'Z');
+ assert.equal(pill.getAttribute('data-profile'),'z');
+ pill.click();
+ assert.equal(store.get('hh-profile'),'m');
+ assert.equal(name.textContent,'Mónika');
+ assert.equal(mark.textContent,'M');
+ assert.equal(pill.getAttribute('data-profile'),'m');
+ assert.equal(pill.getAttribute('aria-label'),'Profilváltás Zsolt profiljára');
+ assert.deepEqual(dispatched,['hh-family-profile-changed']);
+ language='en';
+ events['sh9:languagechange']();
+ assert.equal(pill.getAttribute('aria-label'),'Switch profile to Zsolt');
+ pill.click();
+ assert.equal(store.get('hh-profile'),'z');
+ assert.equal(name.textContent,'Zsolt');
+ assert.equal(dispatched.length,2);
+ store.set('hh-profile','m');
+ events.storage({key:'hh-profile'});
+ assert.equal(name.textContent,'Mónika');
+ assert.doesNotMatch(source,/fetch\s*\(|supabase\.|geolocation|setInterval\s*\(/);
+});
