@@ -324,16 +324,28 @@
   if(results)results.hidden=false;
   list.replaceChildren();
   source.textContent='BKK Zrt. · CC BY 4.0 · hivatalos GTFS, nem élő';
-  say('✓ Ellenőrzött megállóközi menetrend · Nincs gyaloglás vagy átszállás hozzáadva.');
+  say('✓ BKK menetrend · közvetlen vagy 1 átszállásos út. A gyalogos kapcsolat és élő késés nincs ellenőrizve.');
   const currentProfile=profile();
   data.results.slice(0,5).forEach((item,i)=>{
    const card=bkkTag('article','st22-bkk-card','',list);
-   bkkTag('strong','st22-bkk-title',(i===0?'★ Ajánlott · ':'')+item.line+
-    (item.mode==='bus'?' 🚌 busz':item.mode==='tram'?' 🚋 villamos':item.mode==='metro'?' 🚇 metró':' 🚆 vasút'),card);
+   const parts=Array.isArray(item.legs)?item.legs:[item];
+   const badge=parts.map(leg=>leg.line+(leg.mode==='bus'?' 🚌':
+    leg.mode==='tram'?' 🚋':leg.mode==='metro'?' 🚇':' 🚆')).join(' → ');
+   bkkTag('strong','st22-bkk-title',(i===0?'★ Ajánlott · ':'')+badge,card);
    bkkTag('div','st22-bkk-time',bkkTime(item.departure)+' → '+bkkTime(item.arrival),card);
    bkkTag('div','st22-bkk-stops',item.from+' → '+item.to,card);
-   bkkTag('small','st22-bkk-note','Menetrendi indulás · '+query.date+
-    ' · Nem élő követés · Csak megállótól megállóig',card);
+   if(parts.length===2){
+    parts.forEach((leg,j)=>{
+     bkkTag('div','st22-bkk-leg',(j+1)+'. '+leg.line+
+      ' · '+bkkTime(leg.departure)+'–'+bkkTime(leg.arrival)+
+      ' · '+leg.from+' → '+leg.to,card);
+    });
+    bkkTag('small','st22-bkk-transfer','↪ Átszállás: '+item.transfer.from+
+     ' · '+item.transfer.waitMinutes+' perc menetrendi idő · '+
+     item.transfer.airMeters+' m légvonalban. Gyalogos út és késés nem ellenőrzött.',card);
+   }
+   bkkTag('small','st22-bkk-note','BKK menetrendi indulás · '+query.date+
+    ' · Nem valós idejű · Megállótól megállóig',card);
    const save=bkkTag('button','st22-bkk-save','💾 Mentés My Tripsbe',card);
    save.type='button';
    save.addEventListener('click',async()=>{
@@ -400,7 +412,7 @@
     unknown_stop:'A megadott hely nem pontos BKK-megálló. Válassz mindkét mezőben a BKK javaslatai közül.',
     not_covered_stop:'A megálló szerepel a teljes BKK-listában, de a négy tesztjárat (17, 19, 41, 260) még nem érinti. Válassz másik BKK-megállót.',
     outside_feed:'Az adott nap nincs az ellenőrzött BKK-menetrend érvényességi időszakában.',
-    no_verified_route:'Nem található közvetlen, menetrendileg ellenőrzött járat e két megálló között. Átszállást nem találgatunk.',
+    no_verified_route:'Nem található ellenőrzött közvetlen vagy egy átszállásos kapcsolat a négy próba-járat menetrendjében. A teljes BKK-hálózat még nincs bekötve.',
     feed_unavailable:'A hivatalos BKK-adat most nem elérhető, lejárt vagy sérült.',
     session_limit:'A BKK-próbakeresés napi munkameneti kerete elfogyott.',
     invalid_query:'A dátum, idő vagy indulási és érkezési megálló érvénytelen.',
