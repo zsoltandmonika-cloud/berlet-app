@@ -262,11 +262,21 @@ function syncProfile(){
  if(profile&&next!==profile){draft=null;editing=null;clearPhoto();reset(mode);status('Profilváltás: a korábbi felismerés nem lett mentve.')}
  profile=next;
 }
+// Keep both scan modes visible at the top while placing the SCAN action on screen.
+// scroll-margin-top reserves space for the floating Tasks overlay / phone chrome.
+function revealCaptureControls(){
+ const tabs=$('hhScanTabs753');
+ if(!tabs||page?.hidden)return;
+ const scroll=()=>{if(!page?.hidden&&stage==='capture')
+   tabs.scrollIntoView?.({behavior:'smooth',block:'start'})};
+ if(typeof w.requestAnimationFrame==='function')w.requestAnimationFrame(scroll);
+ else scroll();
+}
 function route(){
  if(!page)return;
  const active=w.location.hash===PAGE;
  page.hidden=!active;d.body.classList.toggle('hhScanOpen753',active);
- if(active){syncProfile();w.scrollTo?.(0,0);cameraOn()}else{requestId++;busy=false;cameraOff();clearPhoto()}
+ if(active){syncProfile();cameraOn();if(!editing)revealCaptureControls()}else{requestId++;busy=false;cameraOff();clearPhoto()}
 }
 function open(row=null){
  if(!page)init();if(!page)return;
@@ -279,7 +289,7 @@ function open(row=null){
   $('hhScanManual753').value=row.aiVision.barcode||'';$('hhScanMeal753').value=row.meal;
   showResult({name:row.name,model:row.aiVision.model||'',code:row.aiVision.barcode||'',unit:row.aiVision.unit||'g',notes:row.aiVision.notes||'',
    items:row.aiVision.components.map(x=>({name:x.name,grams:x.grams,per:{...x.per100},uncertain:!!x.uncertain}))},false);
- }else{$('hhScanMeal753').value=mealByClock();reset('food')}
+ }else{$('hhScanMeal753').value=mealByClock();reset('food');revealCaptureControls()}
 }
 function close(){
  if(busy)return;
@@ -291,8 +301,8 @@ function init(){
  page=$('hhLenaScanPage753');if(!page)return;
  $('hhScanBack753').onclick=close;
  $('hhScanProfile753').onclick=()=>{$('profileBtn')?.click();syncProfile()};
- $('hhScanTabFood753').onclick=()=>reset('food');
- $('hhScanTabBarcode753').onclick=()=>reset('barcode');
+ $('hhScanTabFood753').onclick=()=>{reset('food');revealCaptureControls()};
+ $('hhScanTabBarcode753').onclick=()=>{reset('barcode');revealCaptureControls()};
  $('hhScanButton753').onclick=()=>{void scan()};
  $('hhScanOwn753').onclick=()=>$('hhScanFile753').click();
  $('hhScanFile753').onchange=e=>{const f=e.target.files?.[0];if(f)void ownImage(f);e.target.value=''};
