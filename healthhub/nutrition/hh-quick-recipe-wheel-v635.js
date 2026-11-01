@@ -88,11 +88,16 @@ function allRecipes(){
    category:x.categories[0]||'Kedvencek',categories:x.categories,kind:x.kind||'food',
    icon:'🍽️',theme:'meal',meal:x.meal||'Ebéd',description:x.description||'Közös kedvenc · '+(x.categories.join(', ')||'AI Scan'),
    ingredients:x.ingredients||'',nutrients:{...x.nutrients},imageRef:x.imageRef,imageScope:'shared',
-   archived:false,order:500,updatedAt:x.updatedAt});
+   archived:false,order:x.order,updatedAt:x.updatedAt});
  });
  const stored=Array.isArray(data.quickRecipeOrder?.ids)?data.quickRecipeOrder.ids:[];
  const at=new Map(stored.map((id,i)=>[id,i]));
  return base.sort((a,b)=>{
+  if(!!a.shared!==!!b.shared)return a.shared?-1:1;
+  if(a.shared&&b.shared){
+   const rank=q=>q.order==null?1e6:Number(q.order);
+   return rank(a)-rank(b)||String(b.updatedAt).localeCompare(String(a.updatedAt))||a.id.localeCompare(b.id);
+  }
   if(stored.length){const ai=at.has(a.id)?at.get(a.id):10000+(Number(a.order)||500);
    const bi=at.has(b.id)?at.get(b.id):10000+(Number(b.order)||500);
    return ai-bi||a.name.localeCompare(b.name,'hu');}
@@ -243,7 +248,7 @@ function showEditor(recipeId,create=false){
  shell.dataset.mode='edit';
  $('hhQuickSuccess').dataset.open='false';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Közös + saját · Mónika naplója':'Közös + saját · Zsolt naplója';
- const items=allRecipes().filter(x=>!x.shared||x.id===recipeId);
+ const items=allRecipes();
  let q=(!create&&items.find(x=>x.id===recipeId))||null;
  if(!q){q=seed('new-'+(window.crypto?.randomUUID?.()||Date.now().toString(36)).replace(/[^a-z0-9_-]/gi,'').slice(0,35),'Új kedvenc','🍽️','meal','Főételek','Ebéd','Saját recept','',{kcal:0,protein:0,carbs:0,fat:0},(items.length+1)*10)}
  editing={...q,nutrients:{...q.nutrients}};
@@ -256,6 +261,12 @@ function showEditor(recipeId,create=false){
   if(field)field.hidden=common;
  }
  $('hhQuickSharedCategories').value=common?(q.categories||[]).join(', '):'';
+ if(common){
+  const tag=$('hhQuickSharedMainCourse');
+  if(tag){const active=(q.categories||[]).includes('Főételek');
+   tag.textContent=active?'✓ Főételekben szerepel':'➕ Főételekhez is';
+   tag.dataset.selected=String(active)}
+ }
  $('hhQuickSharedFavorite').checked=common?true:false;
  $('hhQuickSharedAutoImage').checked=common&&!q.imageRef;
  $('hhQuickStudioHeading').textContent=common?'Közös ételkártya szerkesztése':'Recept szerkesztése';
@@ -273,6 +284,7 @@ function showEditor(recipeId,create=false){
  $('hhQuickEditStatus').textContent=photoData?'Saját kép csatolva. Képcseréhez válassz másikat.':(editing.imageRef?'☁️ Receptkép a privát központi Dropbox képtárban. Más eszközökön is megjelenhet.':'Az új kép opcionális; minden recepthez jár egységes glassy illusztráció.');
  if(!common)$('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
  const list=document.createDocumentFragment();
+ const personal=items.filter(x=>!x.shared),shared=items.filter(x=>x.shared);
  const createBtn=document.createElement('button');createBtn.type='button';createBtn.textContent='＋ Új recept';createBtn.addEventListener('click',()=>showEditor(null,true));list.append(createBtn);
  items.forEach((item,index)=>{
   const line=document.createElement('div');line.className='hh-quick-edit-row';
@@ -280,22 +292,28 @@ function showEditor(recipeId,create=false){
   name.textContent=(item.archived?'◌ ':'')+(item.icon||'🍽️')+' '+item.name;
   name.setAttribute('aria-pressed',String(editing.id===item.id));
   name.addEventListener('click',()=>showEditor(item.id));
-  if(item.shared){line.append(name);list.append(line);return}
+  const photo=document.createElement('div');paintArtwork(photo,item);photo.classList.add('hh-quick-edit-thumb');
+  line.append(photo);
   const arrows=document.createElement('div');arrows.className='hh-quick-arrows';
   for(const [dir,label] of [[-1,'Feljebb'],[1,'Lejjebb']]){
    const btn=document.createElement('button');btn.type='button';btn.className='hh-quick-move';
    btn.textContent=dir<0?'↑':'↓';btn.title=label+': '+item.name;btn.setAttribute('aria-label',label+': '+item.name);
-   btn.disabled=index+dir<0||index+dir>=items.length;
-   btn.addEventListener('click',()=>{
+   const group=item.shared?shared:personal,from=group.findIndex(x=>x.id===item.id);
+   btn.disabled=from+dir<0||from+dir>=group.length;
+   btn.addEventListener('click',async()=>{
+    if(editSaving)return;
+    const ids=group.map(x=>item.shared?x.sharedFoodId:x.id),to=from+dir;
+    if(from<0||to<0||to>=ids.length)return;
+    [ids[from],ids[to]]=[ids[to],ids[from]];
+    btn.disabled=true;
     try{
-     const ids=allRecipes().filter(q=>!q.shared).map(q=>q.id),from=ids.indexOf(item.id),to=from+dir;
-     if(from<0||to<0||to>=ids.length)return;
-     [ids[from],ids[to]]=[ids[to],ids[from]];
-     api.reorderRecipes(ids);
-     $('hhQuickEditStatus').textContent='✓ Sorrend mentve. A körhinta is ezt használja.';
+     if(item.shared){
+      $('hhQuickEditStatus').textContent='☁️ Közös Kedvencek sorrendjének mentése…';
+      await window.HH_SHARED_FOOD_LIBRARY_V1118.reorderFavorites(ids);
+     }else api.reorderRecipes(ids);
      showEditor(item.id);
-     $('hhQuickEditStatus').textContent='✓ Sorrend mentve! A körhinta már az új sorrendet használja.';
-    }catch(e){$('hhQuickEditStatus').textContent='Sorrend mentési hiba: '+e.message}
+     $('hhQuickEditStatus').textContent='✓ Sorrend mentve. '+(item.shared?'Mindkét profilban azonos.':'Saját sorrend frissítve.');
+    }catch(e){$('hhQuickEditStatus').textContent='⚠ Sorrendmentési hiba: '+e.message;btn.disabled=false}
    });
    arrows.append(btn);
   }
@@ -588,6 +606,13 @@ $('hhQuickRecord').addEventListener('click',recordSelected);
 $('hhQuickSuccessDone').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';hideDialog()});
 $('hhQuickAgain').addEventListener('click',()=>{$('hhQuickSuccess').dataset.open='false';showWheel(activeId)});
 $('hhQuickSound').addEventListener('click',()=>{const disabled=localStorage.getItem(keySound)==='off';localStorage.setItem(keySound,disabled?'on':'off');$('hhQuickSound').textContent=disabled?'♫':'🔇';if(disabled)tada()});
+$('hhQuickSharedMainCourse')?.addEventListener('click',()=>{
+ const field=$('hhQuickSharedCategories'),parts=[...new Set(field.value.split(',').map(x=>x.trim()).filter(Boolean))];
+ if(!parts.includes('Főételek'))parts.push('Főételek');
+ field.value=parts.join(', ');
+ const button=$('hhQuickSharedMainCourse');button.textContent='✓ Főételek kijelölve · Mentés szükséges';
+ button.dataset.selected='true';
+});
 $('hhQuickImagePortalOpen').addEventListener('click',showPortal);
 $('hhQuickPortalBack').addEventListener('click',()=>{shell.dataset.mode='edit'});
 $('hhQuickGenerateImage').addEventListener('click',generatePortalImage);
