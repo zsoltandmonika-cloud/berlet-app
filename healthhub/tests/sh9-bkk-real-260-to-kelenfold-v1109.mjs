@@ -20,6 +20,17 @@ if(!matches.length){
  const to=stops.filter(x=>x[0].toLowerCase().includes("kelenföld")).map(x=>x[0]);
  const interchange=stops.filter(x=>x[0].toLowerCase().includes("vörösvári")).map(x=>x[0]);
  console.error("Official source candidate stops:",JSON.stringify({from,to,interchange}));
+ const core=await import("../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs");
+ const bus=core.find(data,{...request,to:"Bécsi út / Vörösvári út"},at);
+ const tram=core.find(data,{...request,from:"Bécsi út / Vörösvári út"},at);
+ const coords=Object.entries(data.stops).filter(([id,x])=>
+  x[0]==="Bécsi út / Vörösvári út").map(([id,x])=>({id,stop:x,
+  lines:[...new Set(data.trips.filter(t=>t[3].some(e=>e[0]===id)).map(t=>t[0]))]}));
+ console.error("BKK real transfer diagnostic",JSON.stringify({
+  bus:bus.slice(0,5),tram:tram.slice(0,5),coords,
+  busTripCount:data.trips.filter(t=>t[0]==="260").length,
+  tramTripCount:data.trips.filter(t=>t[0]==="19").length
+ }));
  throw Error("Citronella -> Kelenföld must find real one-transfer BKK option");
 }
 const matching=matches.find(x=>x.transfers===1&&x.legs.length===2&&
