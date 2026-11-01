@@ -80,12 +80,14 @@ body{background:#0b1425}
  .wrap .grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:300px}
  .wrap .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);margin:0!important;z-index:15}
 }
-</style><link rel="stylesheet" href="./sh9-ai-taskbar-v1.css?v=1-pink-nav"><link rel="stylesheet" href="./sh9-i18n-v1.css?v=1-flags"><link rel="stylesheet" href="./outlook-agenda-v1.css?v=8-date-time-first"><link rel="stylesheet" href="./sh9-ota-indicator-v1043.css?v=1062-legacy-release"></head><body>
+</style><link rel="stylesheet" href="./sh9-ai-taskbar-v1.css?v=1-pink-nav"><link rel="stylesheet" href="./sh9-i18n-v1.css?v=904-equal-controls"><link rel="stylesheet" href="./outlook-agenda-v1.css?v=8-date-time-first"><link rel="stylesheet" href="./sh9-ota-indicator-v1043.css?v=1062-legacy-release"></head><body>
 <main class="wrap">
 <section class="hero" aria-label="SH9 SmartHub Nine, Buddy mókus asszisztens, futurisztikus kilencmodulos központ" data-i18n-aria="aria.hero">
- <div id="sh9LanguageSwitchV1" class="sh9-language-v1" role="group" aria-label="Language / Nyelv">
-  <button type="button" data-sh9-lang="hu" aria-pressed="true" aria-label="Magyar" title="Magyar">🇭🇺</button>
-  <button type="button" data-sh9-lang="en" aria-pressed="false" aria-label="Canadian English" title="Canadian English">🇨🇦</button>
+ <div id="sh9HeaderControlsV2" class="sh9-hero-left-controls-v2">
+  <div id="sh9LanguageSwitchV1" class="sh9-language-v1" role="group" aria-label="Language / Nyelv">
+   <button type="button" data-sh9-lang="hu" aria-pressed="true" aria-label="Magyar" title="Magyar">🇭🇺</button>
+   <button type="button" data-sh9-lang="en" aria-pressed="false" aria-label="Canadian English" title="Canadian English">🇨🇦</button>
+  </div>
  </div>
  <a id="sh9OtaIndicatorV1043" class="sh9-ota-indicator-v1043" data-state="unknown"
     href="healthhubconnect://settings" data-i18n-aria="aria.ota" aria-label="HH One frissítések ellenőrzése"
@@ -164,7 +166,7 @@ body{background:#0b1425}
 <script defer src="../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script>
 (function(){'use strict';const m=document.getElementById('modal'),c=document.getElementById('close'),msg=m.querySelector('.dialog p'),standardMessage=msg.textContent;document.querySelectorAll('[data-name],[data-nav]').forEach(b=>b.addEventListener('click',()=>{if(b.tagName==='A'&&b.hasAttribute('href'))return;if(b.dataset.nav==='Kezdőlap')return;if(b.dataset.nav==='Vissza'){if(history.length>1){history.back();return;}document.getElementById('modal-title').textContent='Vissza';msg.textContent=window.SH9_I18N_V1?.t('modal.noHistory')||'Nincs előző oldal az SH9 előzményeiben.';m.classList.add('on');c.focus();return;}if(b.dataset.name==='Ask Léna'||b.dataset.nav==='Ask Léna'){const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;if(api&&typeof api.openProject==='function')api.openProject();else location.assign('../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');return;}if(b.dataset.href){location.assign(new URL(b.dataset.href,document.baseURI).href);return;}msg.textContent=window.SH9_I18N_V1?.t('modal.unavailable')||standardMessage;document.getElementById('modal-title').textContent=(b.dataset.name?b.querySelector('.mod-name')?.textContent:null)||b.dataset.name||(window.SH9_I18N_V1?.t('nav.'+({Kezdőlap:'home',Idővonal:'timeline',Vissza:'back',Értesítések:'notifications',Admin:'admin'}[b.dataset.nav]))||b.dataset.nav);m.classList.add('on');c.focus();}));function close(){m.classList.remove('on')}c.addEventListener('click',close);m.addEventListener('click',e=>{if(e.target===m)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});})();
-</script><script defer src="./sh9-i18n-v1.js?v=5-shopping-ai-taskbar"></script><script defer src="./sh9-info-v6.js?v=1-en-ca-localized"></script><script defer src="./outlook-agenda-model-v1.js?v=8-date-time-first"></script><script defer src="./outlook-session-v2.js?v=2"></script><script defer src="./outlook-agenda-v1.js?v=7-direct-agenda"></script><script src="./pwa-install-v1.js?v=1" defer></script><script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=903-collision-safe"></script>
+</script><script defer src="./sh9-i18n-v1.js?v=5-shopping-ai-taskbar"></script><script defer src="./sh9-info-v6.js?v=1-en-ca-localized"></script><script defer src="./outlook-agenda-model-v1.js?v=8-date-time-first"></script><script defer src="./outlook-session-v2.js?v=2"></script><script defer src="./outlook-agenda-v1.js?v=7-direct-agenda"></script><script src="./pwa-install-v1.js?v=1" defer></script><script defer src="/berlet-app/sh9/family-hub/sh9-tasks-golden-v901.js?v=904-equal-glass"></script>
 <script defer src="./family-hub/family-notifier-v880.js?v=915-usage-firebreak"></script>
 <script defer src="./sh9-ota-indicator-v1043.js?v=1067-native-only"></script><script defer src="./sh9-ota-browser-v1067.js?v=1067-chrome-edge-phone-evidence"></script>
 </body></html>
