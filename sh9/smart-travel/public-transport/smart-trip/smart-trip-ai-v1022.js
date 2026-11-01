@@ -294,7 +294,7 @@
   return false;
  }
  function chatgptHandoff(query){
-  if(chatgpt?.go?.(query,local,priority?.value,w.location))return true;
+  if(chatgpt?.go?.(query,local,priority?.value,w.location,profile()))return true;
   unavailable('A ChatGPT nem nyitható meg. Ellenőrizd a kiválasztott címeket.');
   return false;
  }
