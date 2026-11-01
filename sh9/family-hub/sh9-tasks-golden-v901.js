@@ -1,6 +1,7 @@
-/* SH9 Golden Standard Tasks v902 positioning — shared button at the lower-left
-   of the 420px app shell, safely ABOVE the bottom dock and clear of the
-   top-left HU/EN language picker. No polling, GPS, or background traffic. */
+/* SH9 Golden Standard Tasks v903 · collision-safe position.
+   Default remains top-left; only on the SH9 home with the flag switch
+   move below the flags. Bottom-left is reserved for profile switching.
+   Same single Tasks link, no new data requests or navigation changes. */
 (function(w,d){
  'use strict';
  if(w.SH9_TASKS_GOLDEN_V901)return;
@@ -9,8 +10,7 @@
  const STYLES=`
 #sh9TasksGolden{
  box-sizing:border-box!important;
- position:fixed!important;top:auto!important;right:auto!important;
- bottom:calc(112px + env(safe-area-inset-bottom,0px))!important;
+ position:fixed!important;top:calc(3px + env(safe-area-inset-top,0px))!important;right:auto!important;bottom:auto!important;
  left:max(calc(3px + env(safe-area-inset-left,0px)),calc((100vw - 420px)/2 + 3px))!important;
  z-index:2147482000!important;display:grid!important;place-items:center;
  width:75px!important;height:30px!important;min-height:30px!important;
@@ -23,6 +23,9 @@
  box-shadow:inset 0 1px rgba(255,255,255,.23),0 4px 14px #0006!important;
  backdrop-filter:blur(17px)!important;-webkit-backdrop-filter:blur(17px)!important;
  pointer-events:auto;cursor:pointer;transition:none!important;transform:none!important;
+}
+#sh9TasksGolden[data-task-position="below-language"]{
+ top:calc(62px + env(safe-area-inset-top,0px))!important;
 }
 #sh9TasksGolden:focus-visible{outline:2px solid #a6e7ff;outline-offset:2px}
 `;
@@ -37,6 +40,10 @@
    // Move the SAME anchor to body so it remains visible above full-screen Quick Add.
    d.body.append(b);
   }
+  // The language flags exist only on the SH9 startpage today.
+  // The profile switch remains untouched on all other modules.
+  if(d.getElementById('sh9LanguageSwitchV1'))b.setAttribute('data-task-position','below-language');
+  else b.removeAttribute('data-task-position');
   b.href=HOME;
   b.textContent='Tasks';
   b.setAttribute('aria-label','Family Tasks megnyitása');
