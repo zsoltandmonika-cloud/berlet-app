@@ -85,7 +85,19 @@ jobs:
           if [[ -s "$TARGET_DIR/$MANIFEST_NAME" ]]; then
             previous_sha="$(python -c 'import json,sys;print(json.load(open(sys.argv[1],encoding="utf8")).get("sourceSha256",""))' "$TARGET_DIR/$MANIFEST_NAME")"
           fi
-          if [[ "$previous_sha" == "$sha" && -s "$TARGET_DIR/$DATA_NAME" ]]; then
+          full_index_ready=false
+          if [[ -s "$TARGET_DIR/$DATA_NAME" ]]; then
+            if python - "$TARGET_DIR/$DATA_NAME" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          names=d.get("searchStops")
+          stops=d.get("stops") or {}
+          if not isinstance(names,list) or len(names)<=len(stops) or len(names)>12000:
+              raise SystemExit(1)
+          PY
+            then full_index_ready=true; fi
+          fi
+          if [[ "$previous_sha" == "$sha" && "$full_index_ready" == true && -s "$TARGET_DIR/$DATA_NAME" ]]; then
             echo "Official BKK ZIP SHA256 unchanged: reusing last validated GTFS snapshot."
             cp "$TARGET_DIR/$DATA_NAME" "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
           else
