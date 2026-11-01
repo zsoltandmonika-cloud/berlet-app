@@ -210,7 +210,7 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -240,7 +240,7 @@ test('SH9 v911 all 3 Golden Glass capsules use identical 30% fill alpha',()=>{
   const alphas=[...part[1].matchAll(/rgba\([0-9,]+,(\.[0-9]+)\)/g)].map(m=>Number(m[1]));
   assert.deepEqual(alphas,[.3,.3]);
  }
- assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -249,18 +249,30 @@ test('SH9 v912 moves just the language and Tasks row up 10px',()=>{
  const pos=css.match(/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\((-?\d+)px \+ env\(safe-area-inset-top,0px\)\)/);
  assert.ok(pos,'shared language and Tasks header positioning');
  assert.equal(Number(pos[1]),-2,'8px to -2px is exactly 10px up');
- assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:9px;bottom:-6px;top:auto;right:auto/);
- assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:5px;bottom:-6px;top:auto;right:auto/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
 
-test('SH9 v913 retains 30% Golden Glass but uses clear cool-blue and pink profile tint',()=>{
- assert.match(css,/background:linear-gradient\(145deg,rgba\(38,135,242,.30\),rgba\(22,91,192,.30\)\);/);
- assert.match(css,/background:linear-gradient\(145deg,rgba\(231,76,173,.30\),rgba\(166,55,158,.30\)\);/);
- assert.match(css,/#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,[\s\S]*?background:linear-gradient\(145deg,rgba\(15,39,74,.30\),rgba\(7,21,47,.30\)\);/);
- assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:9px;bottom:-6px;top:auto;right:auto/);
- assert.match(css,/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\(-2px \+ env\(safe-area-inset-top,0px\)\)/);
+
+test('SH9 v914 aligns language/Tasks and profile 4px left with identical glass backgrounds',()=>{
+ const shared=css.match(/#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,[\s\S]*?background:(linear-gradient\([^\n]+\));/);
+ assert.ok(shared,'shared Golden Glass fill');
+ assert.equal(shared[1],'linear-gradient(145deg,rgba(15,39,74,.30),rgba(7,21,47,.30))');
+ const variants=['z','m'].map(p=>{
+  const rule=css.match(new RegExp('\\.hero #sh9LauncherProfileV1\\[data-profile="'+p+'"\\]::before\\{([^}]+)\\}'));
+  assert.ok(rule,'profile '+p+' border accent');
+  assert.doesNotMatch(rule[1],/background:/,'profile must inherit exactly the Tasks background');
+  return rule[1];
+ });
+ assert.match(variants[0],/border-color:rgba\(115,185,251,.75\)/);
+ assert.match(variants[1],/border-color:rgba\(246,157,206,.74\)/);
+ assert.match(css,/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\(-2px \+ env\(safe-area-inset-top,0px\)\);\s*left:5px/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:5px;bottom:-6px;top:auto;right:auto/);
+ assert.match(css,/@media\(max-width:360px\)\{#sh9HeaderControlsV2\{left:2px\}\}/);
+ assert.match(css,/@media\(max-width:360px\)\{\.hero #sh9LauncherProfileV1\{left:2px\}\}/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
