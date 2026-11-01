@@ -26,6 +26,17 @@
 }
 #sh9TasksGolden:focus-visible{outline:2px solid #a6e7ff;outline-offset:2px}
 `;
+ function updateLabel(){
+  const b=d.getElementById('sh9TasksGolden');
+  if(!b)return;
+  const api=w.SH9_I18N_V1;
+  let lang='hu';
+  try{lang=api?.getLanguage?.()||(w.localStorage?.getItem('sh9-language-v1')==='en'?'en':'hu')}catch(_){}
+  const en=lang==='en'||lang==='en-CA';
+  b.textContent=api?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
+  b.setAttribute('aria-label',api?.t?.('tasks.aria')||(en?'Open Family Tasks':'Családi feladatok megnyitása'));
+  b.setAttribute('title',api?.t?.('tasks.title')||(en?'Family Tasks':'Családi feladatok'));
+ }
  function install(){
   if(!d.body)return;
   let style=d.getElementById('sh9TasksGoldenStyle');
@@ -47,11 +58,11 @@
    b.removeAttribute('data-task-position');
   }
   b.href=HOME;
-  b.textContent='Tasks';
-  b.setAttribute('aria-label','Family Tasks megnyitása');
-  b.setAttribute('title','Family Tasks');
+  updateLabel();
   d.querySelectorAll('.fh-badge').forEach(el=>{if(el!==b)el.remove()});
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',install,{once:true});
  else install();
+ w.addEventListener?.('sh9:languagechange',updateLabel);
+ w.addEventListener?.('storage',e=>{if(e.key==='sh9-language-v1')updateLabel()});
 })(window,document);
