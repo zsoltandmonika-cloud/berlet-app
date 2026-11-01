@@ -31,6 +31,8 @@ const dataset={
   s3:["Teszt Bécsi út Vörösvári út",47.548,19.029],
   s4:["Teszt Széll Kálmán tér",47.507,19.026]
  },
+ searchStops:["Teszt Szentlélek tér","Teszt Kolosy tér","Teszt Bécsi út Vörösvári út",
+  "Teszt Széll Kálmán tér","Budapest-Nyugati","Deák Ferenc tér","Kossuth Lajos tér"],
  services:{all:{start:dateAt(-1),end:dateAt(14),days:[1,1,1,1,1,1,1],exceptions:{}}},
  trips:Array.from({length:32},(_,j)=>{const line=lines[j%4],i=j%4;return [line,"all","Példajárat",[
   ["s1",36000+i*60,36000+i*60],
@@ -117,6 +119,9 @@ test("BKK manifest integrity, verified read and stop predictions",async()=>{
  assert.equal(data.data.routes.length,4);
  assert.equal(bkk.suggestions("Teszt Szent")[0]?.name,"Teszt Szentlélek tér");
  assert.equal(bkk.suggestions("Ismeretlen utca").length,0);
+ assert.equal(bkk.suggestions("Nyugati")[0]?.name,"Budapest-Nyugati");
+ assert.equal(bkk.suggestions("Nyugati")[0]?.routable,false);
+ assert.equal(bkk.suggestions("Szent")[0]?.routable,true);
  assert.ok(fetches>=2);
 });
 test("verified scheduled one-ride search makes normalized SH9 TripPack",async()=>{
@@ -135,6 +140,7 @@ test("verified scheduled one-ride search makes normalized SH9 TripPack",async()=
 });
 test("unknown stop and invalid query produce no fabricated route",async()=>{
  assert.equal((await bkk.search({...query,from:"Otthon"},when)).status,"unknown_stop");
+ assert.equal((await bkk.search({...query,from:"Budapest-Nyugati"},when)).status,"not_covered_stop");
  assert.equal((await bkk.search({...query,to:query.from},when)).status,"invalid_query");
 });
 test("manual save refuses missing login and other family access",async()=>{
