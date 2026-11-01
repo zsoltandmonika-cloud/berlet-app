@@ -59,6 +59,7 @@
    'Hová: '+destination,
    timing+q.date+' '+q.time+' (Budapest)',
    'Fontos: '+requested,
+   'Távolsági preferencia: 1. közvetlen Volán, 2. Sajó Expressz, 3. egyéb expresszvonat, utána más járatok. Csak menetrendileg megfelelő, ésszerű várakozású és biztonságos csatlakozású megoldást válassz; helyi utakra ez nem vonatkozik.',
    specificPreference(q,points),
    'Adj pontosan egy legjobb útvonalat konkrét járatokkal, átszállásokkal és gyaloglással. Alternatív útvonalakat ne keress és ne adj meg.',
    'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.',
