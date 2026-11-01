@@ -59,6 +59,7 @@
     .eq('profile_key',key).limit(60);
    if(error)throw Error(error.message);
    const remote=data||[],remoteIds=new Set(remote.map(x=>x.trip_id)),remoteFingerprints=new Map();
+   const remoteById=new Map(remote.map(x=>[x.trip_id,x.trip_data]));
    const deletedIds=new Set(remote.filter(x=>x.trip_data?.deletedTripId).map(x=>x.trip_data.deletedTripId));
    const deletedFingerprints=new Set(remote.filter(x=>x.trip_data?.deletedFingerprint).map(x=>x.trip_data.deletedFingerprint));
    for(const item of remote)try{
@@ -67,9 +68,17 @@
    // Reconcile independent imports of the exact same itinerary to ONE cloud ID.
    // Otherwise tickets might attach to different IDs on the two Galaxy phones.
    let changed=local.some(t=>deletedIds.has(t.id)||deletedFingerprints.has(fingerprint(t)));
+   const withCloudTracking=(t,id)=>{
+    if(!remoteById.has(id))return t;
+    const remoteUrl=pack.trackingUrl(remoteById.get(id)?.trackingUrl);
+    const localUrl=pack.trackingUrl(t.trackingUrl);
+    if(remoteUrl!==localUrl)changed=true;
+    const {trackingUrl:ignored,...rest}=t;
+    return remoteUrl?{...rest,trackingUrl:remoteUrl}:rest;
+   };
    const merged=local.filter(t=>!deletedIds.has(t.id)&&!deletedFingerprints.has(fingerprint(t))).map(t=>{
     const canonical=remoteFingerprints.get(fingerprint(t));
-    if(!canonical||canonical===t.id)return t;
+    if(!canonical||canonical===t.id)return withCloudTracking(t,t.id);
     changed=true;
     try{
      const progressKey=id=>localKey(p)+'-manual-step-'+id;
@@ -77,7 +86,7 @@
      if(state!==null&&w.localStorage.getItem(progressKey(canonical))===null)
       w.localStorage.setItem(progressKey(canonical),state);
     }catch(_){}
-    return {...t,id:canonical};
+    return withCloudTracking({...t,id:canonical},canonical);
    });
    // Never overwrite existing cloud documents (including first phone's metadata).
    for(const t of merged){
@@ -154,6 +163,12 @@
   if(!validId(trip?.id))return;
   dialog={p,trip};
   $('mtFilesTitle').textContent=trip.title;
+  $('mtTrackingUrl').value=pack.trackingUrl(
+   pack.read(w.localStorage,p).find(x=>x.id===trip.id)?.trackingUrl
+  );
+  $('mtTrackingStatus').textContent=$('mtTrackingUrl').value?
+   '✓ MÁVPlusz-követés mentve · a megfelelő járatot ellenőrizd induláskor.':
+   'A járatszám nem azonos a MÁVPlusz belső trip-azonosítójával.';
   $('mtFilesCount').textContent='…';
   $('mtFilesList').replaceChildren();
   $('mtFileInput').value='';
@@ -273,7 +288,91 @@
   }catch(e){msg('⚠️ '+(e.message||'Törlési hiba'));throw e}
   finally{busy=false}
  }
- w.SH9_MY_TRIPS_CLOUD_V1086=Object.freeze({deleteTrip});
+ async function saveTrackingLink(p,id,raw){
+  if(busy)throw Error('Szinkronizálás folyamatban. Próbáld újra.');
+  if(p!==profile()||!validId(id))throw Error('A profil vagy az útiterv megváltozott.');
+  const url=pack.trackingUrl(raw);
+  if(raw&& !url)throw Error('Csak konkrét, https://mavplusz.hu/#/trip/... kezdetű járatlink menthető.');
+  busy=true;
+  try{
+   const trip=pack.read(w.localStorage,p).find(t=>t.id===id);
+   if(!trip)throw Error('Az útiterv nem található.');
+   const c=await ensureTrip(p,trip),key=cloudProfile(p);
+   const {data,error}=await c.from(TRIPS).select('trip_data')
+    .eq('profile_key',key).eq('trip_id',id).single();
+   if(error||!data)throw Error('Felhőadat lekérése: '+(error?.message||'hiányzik'));
+   if(profile()!==p)throw Error('Profilváltás történt.');
+   const updated={...data.trip_data};
+   if(url)updated.trackingUrl=url;else delete updated.trackingUrl;
+   const {data:confirmed,error:err}=await c.from(TRIPS).update({
+    trip_data:updated,updated_at:new Date().toISOString()
+   }).eq('profile_key',key).eq('trip_id',id).select('trip_id').single();
+   if(err||!confirmed)throw Error('Követési link mentése: '+(err?.message||'nem igazolt'));
+   const list=pack.read(w.localStorage,p).map(t=>{
+    if(t.id!==id)return t;
+    const {trackingUrl:unused,...rest}=t;
+    return url?{...rest,trackingUrl:url}:rest;
+   });
+   w.localStorage.setItem(localKey(p),JSON.stringify(list));
+   w.dispatchEvent(new Event('sh9-my-trips-cloud-synced'));
+   msg(url?'✓ MÁVPlusz követési link szinkronizálva':'✓ Követési link törölve');
+   return url;
+  }finally{busy=false}
+ }
+ async function scanTicketPdfs(){
+  if(!dialog||busy)return;
+  const view=dialog,button=$('mtTrackingScan');
+  if(button.disabled)return;
+  button.disabled=true;
+  try{
+   status('PDF-jegyek helyi vizsgálata…');
+   const {c,items}=await rows();
+   const pdfs=items.filter(x=>x.file_type==='application/pdf').slice(0,5);
+   if(!pdfs.length)throw Error('Ehhez az útitervhez nincs PDF-jegy.');
+   const reader=w.SH9_TRIP_PDF_VIEWER_V1087;
+   if(typeof reader?.inspect!=='function')throw Error('PDF-felismerő nem érhető el.');
+   const urls=new Set(),numbers=new Set();
+   for(const file of pdfs){
+    if(dialog!==view||profile()!==view.p)throw Error('Közben megváltozott az útiterv vagy profil.');
+    const {data,error}=await c.storage.from(BUCKET).download(file.storage_path);
+    if(error||!data)throw Error('A PDF nem tölthető le.');
+    const result=await reader.inspect(data);
+    for(const u of result.urls)if(pack.trackingUrl(u))urls.add(pack.trackingUrl(u));
+    for(const n of result.numbers)numbers.add(n);
+   }
+   const nums=[...numbers].slice(0,6).join(', ');
+   if(dialog!==view)throw Error('Másik útiterv nyílt meg.');
+   if(urls.size===1){
+    const url=[...urls][0];
+    $('mtTrackingUrl').value=url;
+    await saveTrackingLink(view.p,view.trip.id,url);
+    $('mtTrackingStatus').textContent='✓ A PDF-ben talált konkrét MÁVPlusz járatlink mentve.'+(nums?' Járatszám-jelöltek: '+nums:'');
+   }else if(urls.size>1){
+    $('mtTrackingStatus').textContent='⚠️ Több különböző járatlink szerepel a jegyeken. Nem választok találomra.'+(nums?' Járatszámok: '+nums:'');
+   }else{
+    $('mtTrackingStatus').textContent='Nem találtam konkrét MÁVPlusz-triplinket.'+(nums?' Lehetséges járatszám(ok): '+nums+'.':'')+' A járatszámból nem képezhető biztonságosan belső link. Másold be a pontos járat linkjét.';
+   }
+   status('✓ PDF-vizsgálat lezárult · nincs külső AI-adattovábbítás');
+  }catch(e){
+   $('mtTrackingStatus').textContent='⚠️ '+(e.message||'A felismerés nem sikerült.');
+   status('⚠️ PDF-vizsgálat: '+(e.message||'hiba'));
+  }finally{button.disabled=false}
+ }
+ $('mtTrackingSave')?.addEventListener('click',async()=>{
+  if(!dialog)return;
+  const {p,trip}=dialog,button=$('mtTrackingSave'),value=$('mtTrackingUrl').value.trim();
+  button.disabled=true;
+  $('mtTrackingStatus').textContent='Követési link mentése…';
+  try{
+   await saveTrackingLink(p,trip.id,value);
+   $('mtTrackingStatus').textContent=value?
+    '✓ Követési link mentve mindkét telefonhoz.':
+    '✓ Követési link törölve.';
+  }catch(e){$('mtTrackingStatus').textContent='⚠️ '+(e.message||'Nem sikerült.')}
+  finally{button.disabled=false}
+ });
+ $('mtTrackingScan')?.addEventListener('click',()=>void scanTicketPdfs());
+ w.SH9_MY_TRIPS_CLOUD_V1086=Object.freeze({deleteTrip,saveTrackingLink});
  $('mtFilesClose')?.addEventListener('click',()=>{
   if($('mtFilesDialog').open)$('mtFilesDialog').close();
   dialog=null;for(const u of blobUrls)try{w.URL.revokeObjectURL(u)}catch(_){}blobUrls=[];
@@ -281,7 +380,10 @@
  $('mtFilesReload')?.addEventListener('click',()=>void refreshFiles());
  $('mtFileInput')?.addEventListener('change',e=>void upload(e.target.files));
  w.addEventListener('sh9-my-trips-open-files',e=>{
-  if(e.detail?.p===profile())openPanel(e.detail.p,e.detail.trip);
+  if(e.detail?.p===profile()){
+   openPanel(e.detail.p,e.detail.trip);
+   if(e.detail.focusTracking)$('mtTrackingUrl')?.focus();
+  }
  });
  w.addEventListener('sh9-my-trips-cloud-sync-request',e=>{
   if(!w.navigator?.onLine){msg('⚠️ Offline · szinkron szükséges');return}
