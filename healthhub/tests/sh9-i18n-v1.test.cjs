@@ -77,11 +77,12 @@ test('static translations and weather language changes require no AI, GPS or new
 
 test('launchpad keeps stable identifiers but shows concise translated family module labels',()=>{
  const expected=[
-  ['health','Egészség','Health'],['travel','Utazás','Travel'],['sports','Sport','Sports'],
+  ['health','Egészség','Health'],['guard','Biztonság','Safety'],['travel','Utazás','Travel'],['sports','Sport','Sports'],
   ['daily','Családi aktualitások','Family Updates'],
   ['people','Kapcsolatok','People'],['lifestyle','Életmód','Lifestyle']
  ];
  assert.match(page,/data-name="HealthHub" aria-label="Egészség megnyitása" data-i18n-aria="module\.ariaHealth"/);
+ assert.match(page,/data-name="Family Guard" aria-label="Biztonság megnyitása" data-i18n-aria="module\.ariaGuard"/);
  assert.match(page,/data-name="Smart Travel"[^>]*data-i18n-aria="module\.ariaTravel"/);
  assert.match(page,/href="\.\/smart-travel\/"/);
  const count=[...page.matchAll(/class="mod-name" data-i18n="module\.([^"]+)"/g)];
