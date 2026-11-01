@@ -101,6 +101,15 @@
   }catch(_){return ''}
   finally{close(db)}
  }
+ function budapestDay(at=new Date()){
+  const parts={};
+  const fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit'});
+  for(const item of fmt.formatToParts(at))if(item.type!=='literal')parts[item.type]=item.value;
+  return parts.year+'-'+parts.month+'-'+parts.day;
+ }
+ function isTravelDay(trip,at=new Date()){
+  return typeof trip?.travelDate==='string'&&trip.travelDate===budapestDay(at);
+ }
  async function lookup(trip,route,run){
   const pack=PACK();
   if(!pack)return {url:'',source:'missing'};
@@ -122,5 +131,5 @@
   if(tab&&!tab.closed){try{tab.location.replace(safe);return}catch(_){}}
   w.location.assign(safe);
  }
- w.SH9_TRIP_TRACKING_V1097=Object.freeze({lookup,gtfsUrl,openPending,finishPending,serviceValid,boardingMatch});
+ w.SH9_TRIP_TRACKING_V1097=Object.freeze({lookup,gtfsUrl,openPending,finishPending,serviceValid,boardingMatch,budapestDay,isTravelDay});
 })(window);
