@@ -369,7 +369,32 @@
    const params=new URL(w.location.href).searchParams;
    if(params.has('trip')){
     const selected=read(w.localStorage,active()).find(t=>t.id===params.get('trip'));
-    if(selected)show(selected);else openMyTrips();
+    if(selected){
+     show(selected);
+     // A saved journey opens its MÁVPlusz follower on the actual travel day.
+     // ?details=1 explicitly keeps the full itinerary available.
+     const tracker=w.SH9_TRIP_TRACKING_V1097;
+     if(tracker?.isTravelDay(selected)&&!params.has('details')&&
+      selected.trackingNumber&&selected.trackingService){
+      const exact=trackingDeepLink(selected,selected.trackingNumber,selected.trackingService);
+      if(exact){
+       w.location.replace(exact); // one immediate navigation, no popup
+      }else{
+       const notice=node('p','st22-tp-live-loading','📍 Járat azonosítása a mai utazáshoz…',body);
+       void tracker.lookup(selected,selected.trackingNumber,selected.trackingService).then(result=>{
+        if(result.url){
+         // Capture locally now; shared cloud persistence remains with My Trips.
+         const keyName=key(active()),items=read(w.localStorage,active());
+         const update=items.map(t=>t.id===selected.id?{...t,trackingUrl:result.url}:t);
+         try{w.localStorage.setItem(keyName,JSON.stringify(update))}catch(_){}
+         w.location.replace(result.url);
+        }else{
+         notice.textContent='A konkrét járat nem azonosítható biztosan. Az útiterv megnyílt, a Követés gomb használható.';
+        }
+       }).catch(()=>{notice.textContent='A járatazonosító most nem kérhető le. Az útiterv továbbra is elérhető.'});
+      }
+     }
+    }else openMyTrips();
    }else if(params.get('view')==='my-trips')openMyTrips();
    else if(w.location.hash==='#import'){
     say('Válassz .json fájlt vagy illeszd be a TripPack JSON-t.');
