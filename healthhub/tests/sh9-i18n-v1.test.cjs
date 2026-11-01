@@ -210,7 +210,7 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=912-header-up10/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -240,7 +240,7 @@ test('SH9 v911 all 3 Golden Glass capsules use identical 30% fill alpha',()=>{
   const alphas=[...part[1].matchAll(/rgba\([0-9,]+,(\.[0-9]+)\)/g)].map(m=>Number(m[1]));
   assert.deepEqual(alphas,[.3,.3]);
  }
- assert.match(page,/sh9-i18n-v1\.css\?v=911-uniform-30/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -250,7 +250,17 @@ test('SH9 v912 moves just the language and Tasks row up 10px',()=>{
  assert.ok(pos,'shared language and Tasks header positioning');
  assert.equal(Number(pos[1]),-2,'8px to -2px is exactly 10px up');
  assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:9px;bottom:-6px;top:auto;right:auto/);
- assert.match(page,/sh9-i18n-v1\.css\?v=912-header-up10/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=913-profile-cool-tint/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+
+test('SH9 v913 retains 30% Golden Glass but uses clear cool-blue and pink profile tint',()=>{
+ assert.match(css,/background:linear-gradient\(145deg,rgba\(38,135,242,.30\),rgba\(22,91,192,.30\)\);/);
+ assert.match(css,/background:linear-gradient\(145deg,rgba\(231,76,173,.30\),rgba\(166,55,158,.30\)\);/);
+ assert.match(css,/#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,[\s\S]*?background:linear-gradient\(145deg,rgba\(15,39,74,.30\),rgba\(7,21,47,.30\)\);/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:9px;bottom:-6px;top:auto;right:auto/);
+ assert.match(css,/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\(-2px \+ env\(safe-area-inset-top,0px\)\)/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
