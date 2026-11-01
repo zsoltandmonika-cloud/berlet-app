@@ -541,6 +541,8 @@
   });
  });
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
+ // Explicit date/time editing always changes an implicit 'now' search to a scheduled departure.
+ [date,time].forEach(field=>field?.addEventListener('change',()=>{if(mode==='now')updateMode('depart')}));
  $('st22Swap')?.addEventListener('click',()=>{
   clearAll();const v=from.value;from.value=to.value;to.value=v;
   const t=local.origin;local.origin=local.destination;local.destination=t;
