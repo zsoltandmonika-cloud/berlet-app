@@ -449,3 +449,14 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 .mt-ticket-recognized[hidden]{display:none}
 .mt-ticket-recognized span{display:flex;flex-direction:column;gap:5px;border:1px solid var(--mt-border);border-radius:9px;background:rgba(14,43,82,.48);padding:10px;font-size:10px;font-weight:750;color:#d8efff}
 .mt-ticket-recognized strong{font-size:22px;color:#fff;line-height:1.1}
+
+/* v1096 compact direct tracking: two fields, one button, zero PDF steps */
+.mt-tracking-section[hidden]{display:none!important}
+.mt-tracking-inline{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0 5px}
+.mt-tracking-field{display:flex;flex-direction:column;gap:5px;min-width:0;color:#d9e9ff;font-size:10.5px;font-weight:750}
+.mt-tracking-field input{box-sizing:border-box;width:100%;height:42px;min-height:42px;border:1px solid var(--mt-border);border-radius:10px;background:rgba(13,28,60,.74);color:#fff;padding:7px 10px;font-size:16px;font-weight:850;letter-spacing:.5px}
+.mt-tracking-field input:focus-visible{outline:2px solid var(--mt-accent);outline-offset:1px}
+.mt-tracking-button{grid-column:1/-1;border:1px solid var(--mt-border);border-radius:11px;min-height:43px;background:linear-gradient(115deg,var(--mt-action-a),var(--mt-action-b));color:#fff;font-size:12px;font-weight:850;cursor:pointer}
+.mt-tracking-button:disabled{opacity:.58}
+.mt-tracking-feedback{grid-column:1/-1;display:block;min-height:0;color:#e4ecfd;font-size:10px;line-height:1.4}
+.mt-tracking-feedback:empty{display:none}
