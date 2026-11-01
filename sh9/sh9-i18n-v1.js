@@ -7,6 +7,14 @@ if(w.SH9_I18N_V1)return;
 const KEY='sh9-language-v1',DEFAULT='hu';
 const dict=Object.freeze({
  hu:Object.freeze({
+  'module.health':'HealthHub','module.guard':'Family Guard','module.travel':'Utazás',
+  'module.entertainment':'Szórakozás','module.ask':'Ask Léna','module.sports':'Sport',
+  'module.daily':'Napi aktualitások','module.people':'Kapcsolatok','module.lifestyle':'Életmód',
+  'module.ariaTravel':'Utazás megnyitása','module.ariaSports':'Sport megnyitása',
+  'module.ariaPeople':'Kapcsolatok megnyitása','module.ariaLifestyle':'Életmód megnyitása',
+  'module.ariaEntertainment':'Szórakozás megnyitása','module.ariaDaily':'Napi aktualitások megnyitása',
+  'travel.pageTitle':'SH9 · Utazás',
+  'travel.heroAria':'Utazás · Róma, Párizs, Dubai · Léna, Mónika, Zsolt, Corky és Buddy',
   'nav.home':'Kezdőlap','nav.timeline':'Idővonal','nav.back':'Vissza','nav.notifications':'Értesítések','nav.admin':'Admin',
   'info.date':'DÁTUM','info.nameday':'NÉVNAP · ','info.weather':'IDŐJÁRÁS','info.calendar':'NAPTÁR',
   'info.loading':'Betöltés…','info.dateLoading':'Dátum betöltése…','info.notConnected':'Nincs összekötve',
@@ -39,6 +47,14 @@ const dict=Object.freeze({
   'wx.80':'Zápor','wx.85':'Hózápor','wx.95':'Zivatar','wx.other':'Változó'
  }),
  en:Object.freeze({
+  'module.health':'HealthHub','module.guard':'Family Guard','module.travel':'Travel',
+  'module.entertainment':'Entertainment','module.ask':'Ask Léna','module.sports':'Sports',
+  'module.daily':'Daily Updates','module.people':'People','module.lifestyle':'Lifestyle',
+  'module.ariaTravel':'Open Travel','module.ariaSports':'Open Sports',
+  'module.ariaPeople':'Open People','module.ariaLifestyle':'Open Lifestyle',
+  'module.ariaEntertainment':'Open Entertainment','module.ariaDaily':'Open Daily Updates',
+  'travel.pageTitle':'SH9 · Travel',
+  'travel.heroAria':'Travel · Rome, Paris and Dubai · Léna, Mónika, Zsolt, Corky and Buddy',
   'nav.home':'Home','nav.timeline':'Timeline','nav.back':'Back','nav.notifications':'Notifications','nav.admin':'Admin',
   'info.date':'DATE','info.nameday':'NAME DAY · ','info.weather':'WEATHER','info.calendar':'CALENDAR',
   'info.loading':'Loading…','info.dateLoading':'Loading date…','info.notConnected':'Not connected',
