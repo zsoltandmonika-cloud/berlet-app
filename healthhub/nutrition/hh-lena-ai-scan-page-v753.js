@@ -374,7 +374,7 @@ function route(){
  const active=w.location.hash===PAGE;
  page.hidden=!active;d.body.classList.toggle('hhScanOpen753',active);
  if(active){syncProfile();cameraOn();if(!editing)revealCaptureControls();
-  w.HH_SHARED_FOOD_LIBRARY_V1118?.load?.(true).then(renderSharedPresets).catch(()=>{});
+  if(w.HH_SHARED_FOOD_LIBRARY_V1118?.load)w.HH_SHARED_FOOD_LIBRARY_V1118.load(true).then(renderSharedPresets).catch(()=>{});
  }else{requestId++;busy=false;cameraOff();clearPhoto()}
 }
 function open(row=null){
