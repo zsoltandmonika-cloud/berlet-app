@@ -102,7 +102,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
  assert.match(css,/\.st22-tp-hev\{--st22-mode:#94ceb0\}/);
  assert.match(css,/\.st22-tp-walk\{--st22-mode:#dfa4d4\}/);
  assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083 \.st22-tp-ride-stop/);
- assert.match(smart,/v=1083-bkk-flow-premium/);
+ assert.match(smart,/v=1097-saved-follow-in-viewer/);
  assert.match(smart,/v=1083-bkk-flow-endpoints/);
  assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
@@ -111,7 +111,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
  assert.match(page,/my-trips-v1080\.css\?v=1096-two-field-follow/);
- assert.match(page,/my-trips-v1080\.js\?v=1096-two-field-follow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1097-generic-gtfs-lookup/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -308,7 +308,7 @@ test('v1096 one-tap My Trips numeric form and exact known MÁVPlusz link',()=>{
  assert.match(pageJs,/trackingDeepLink\(trip,number,service\)/);
  assert.match(page,/class="mt-tracking-section" hidden/);
  assert.match(cloud,/async function saveTrackingPair\(p,id,number,service,link\)/);
- assert.match(page,/my-trips-v1080\.js\?v=1096-two-field-follow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1097-generic-gtfs-lookup/);
  const j=api.normalize({schema:'sh9.trip-pack/1',travelDate:'2026-11-01',
  from:'Mónika · Anyuka',to:'Otthon',segments:[{mode:'bus',line:'1054',
  from:'Kazincbarcika, Márka ABC',to:'Budapest, Kacsóh Pongrác út',departure:'07:59'}],
@@ -319,4 +319,21 @@ test('v1096 one-tap My Trips numeric form and exact known MÁVPlusz link',()=>{
  assert.equal(api.trackingDeepLink({...j,travelDate:'2026-11-02'},'1054','18'),'');
  assert.equal(api.trackingDeepLink(j,'1055','18'),'');
  assert.equal(api.trackingDeepLink({...j,from:'Budapest',to:'Pécs',segments:[]},'1054','18'),'');
+});
+
+test('v1097 generic GTFS matching and restored trip flow follow control',()=>{
+ const resolver=read('sh9/smart-travel/my-trips/my-trips-tracking-v1097.js');
+ const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ assert.match(page,/my-trips-tracking-v1097\.js/);
+ assert.match(smart,/my-trips-tracking-v1097\.js/);
+ assert.match(pageJs,/tracking\.lookup\(trip,number,service\)/);
+ assert.match(pageJs,/await save\(p,trip\.id,number,service,verified\)/);
+ assert.match(pack,/st22-tp-live-panel/);
+ assert.match(pack,/if\(j\?\.id\)j=read\(w\.localStorage,p\)\.find\(t=>t\.id===j\.id\)/);
+ assert.match(css,/\.st22-tp-live-panel/);
+ assert.match(cloud,/trackingNumber:n,trackingService:r/);
+ assert.match(resolver,/serviceValid\(service,trip\.travelDate\)/);
+ assert.match(resolver,/distinct\.length!==1/);
+ assert.match(resolver,/IDBKeyRange\.bound/);
+ assert.match(resolver,/trackingDeepLink\(trip,route,run\)/);
 });
