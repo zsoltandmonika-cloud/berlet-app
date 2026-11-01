@@ -27,7 +27,7 @@
    Two equal-size controls, responsive and clear of the OTA indicator. */
 #sh9HeaderControlsV2{
  position:absolute;z-index:13;
- top:calc(8px + env(safe-area-inset-top,0px));
+ top:calc(-2px + env(safe-area-inset-top,0px));
  left:9px;
  display:flex;align-items:stretch;gap:6px;
 }
@@ -209,3 +209,6 @@
 @media(max-width:360px){
  #sh9HeaderControlsV2 #sh9LanguageSwitchV1 button{min-height:30px;min-width:33px;font-size:17px}
 }
+
+/* v912 · Move the language / Tasks pair up exactly 10px as one row.
+   Both capsules keep their 90×47 hit areas and 30% Golden Glass fills. */
