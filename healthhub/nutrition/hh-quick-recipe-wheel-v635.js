@@ -243,7 +243,7 @@ function showEditor(recipeId,create=false){
  shell.dataset.mode='edit';
  $('hhQuickSuccess').dataset.open='false';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Közös + saját · Mónika naplója':'Közös + saját · Zsolt naplója';
- const items=allRecipes();
+ const items=allRecipes().filter(x=>!x.shared||x.id===recipeId);
  let q=(!create&&items.find(x=>x.id===recipeId))||null;
  if(!q){q=seed('new-'+(window.crypto?.randomUUID?.()||Date.now().toString(36)).replace(/[^a-z0-9_-]/gi,'').slice(0,35),'Új kedvenc','🍽️','meal','Főételek','Ebéd','Saját recept','',{kcal:0,protein:0,carbs:0,fat:0},(items.length+1)*10)}
  editing={...q,nutrients:{...q.nutrients}};
