@@ -194,9 +194,10 @@ function open(kindNext,button){
  if(!categories.length){$('hhBevitelInfo').textContent='Ehhez a típushoz jelenleg nincs étel vagy ital. Saját ételt a napi napló + Saját étel gombjával hozhatsz létre.';$('hhBevitelInfo').hidden=false;return}
  render();dialog.showModal();
  // Refresh categories when the family library loads from the other phone.
- window.HH_SHARED_FOOD_LIBRARY_V1118?.load?.(true).then(()=>{
-  if(dialog.open&&step==='categories')window.HH_BEVITEL_PICKER_V643?.refreshCategories?.();
- }).catch(()=>{});
+ if(window.HH_SHARED_FOOD_LIBRARY_V1118?.load)
+  window.HH_SHARED_FOOD_LIBRARY_V1118.load(true).then(()=>{
+   if(dialog.open&&step==='categories')window.HH_BEVITEL_PICKER_V643?.refreshCategories?.();
+  }).catch(()=>{});
 }
 for(const [node,type] of [[food,'food'],[drink,'drink']]){
  node.addEventListener('click',e=>{
