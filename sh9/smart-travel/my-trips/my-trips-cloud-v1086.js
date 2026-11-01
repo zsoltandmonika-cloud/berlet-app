@@ -70,11 +70,16 @@
    let changed=local.some(t=>deletedIds.has(t.id)||deletedFingerprints.has(fingerprint(t)));
    const withCloudTracking=(t,id)=>{
     if(!remoteById.has(id))return t;
-    const remoteUrl=pack.trackingUrl(remoteById.get(id)?.trackingUrl);
-    const localUrl=pack.trackingUrl(t.trackingUrl);
-    if(remoteUrl!==localUrl)changed=true;
-    const {trackingUrl:ignored,...rest}=t;
-    return remoteUrl?{...rest,trackingUrl:remoteUrl}:rest;
+    const data=remoteById.get(id);
+    const url=pack.trackingUrl(data?.trackingUrl);
+    const number=pack.trackingNumber(data?.trackingNumber);
+    const service=pack.trackingNumber(data?.trackingService,3);
+    if(url!==pack.trackingUrl(t.trackingUrl)||
+     number!==pack.trackingNumber(t.trackingNumber)||
+     service!==pack.trackingNumber(t.trackingService,3))changed=true;
+    const {trackingUrl:oldUrl,trackingNumber:oldNumber,trackingService:oldService,...rest}=t;
+    return {...rest,...(url?{trackingUrl:url}:{}),
+     ...(number?{trackingNumber:number}:{}),...(service?{trackingService:service}:{})};
    };
    const merged=local.filter(t=>!deletedIds.has(t.id)&&!deletedFingerprints.has(fingerprint(t))).map(t=>{
     const canonical=remoteFingerprints.get(fingerprint(t));
@@ -291,6 +296,40 @@
   }catch(e){msg('⚠️ '+(e.message||'Törlési hiba'));throw e}
   finally{busy=false}
  }
+
+ async function saveTrackingPair(p,id,number,service,link){
+  const n=pack.trackingNumber(number),r=pack.trackingNumber(service,3);
+  if(!n||!r||p!==profile()||!validId(id))throw Error('Érvénytelen szám vagy profil.');
+  for(let i=0;busy&&i<40;i++)
+   await new Promise(resolve=>setTimeout(resolve,125));
+  if(busy)throw Error('A felhőszinkron még folyamatban van.');
+  busy=true;
+  try{
+   const trip=pack.read(w.localStorage,p).find(t=>t.id===id);
+   if(!trip)throw Error('Az útiterv nem található.');
+   const verified=pack.trackingUrl(link);
+   const c=await ensureTrip(p,trip),key=cloudProfile(p);
+   const {data,error}=await c.from(TRIPS).select('trip_data')
+    .eq('profile_key',key).eq('trip_id',id).single();
+   if(error||!data)throw Error('Felhőolvasás sikertelen: '+(error?.message||'nincs adat'));
+   if(profile()!==p)throw Error('Profilváltás történt.');
+   const updated={...data.trip_data,trackingNumber:n,trackingService:r};
+   if(verified)updated.trackingUrl=verified;else delete updated.trackingUrl;
+   const {data:confirmed,error:failure}=await c.from(TRIPS).update({
+    trip_data:updated,updated_at:new Date().toISOString()
+   }).eq('profile_key',key).eq('trip_id',id).select('trip_id').single();
+   if(failure||!confirmed)throw Error('Felhőmentés sikertelen: '+(failure?.message||'nincs visszaigazolás'));
+   const list=pack.read(w.localStorage,p).map(t=>{
+    if(t.id!==id)return t;
+    const {trackingUrl:old,...rest}=t;
+    return {...rest,trackingNumber:n,trackingService:r,...(verified?{trackingUrl:verified}:{})};
+   });
+   w.localStorage.setItem(localKey(p),JSON.stringify(list));
+   msg('✓ Követési adatok szinkronizálva');
+   w.dispatchEvent(new Event('sh9-my-trips-cloud-synced'));
+   return verified;
+  }finally{busy=false}
+ }
  async function saveTrackingLink(p,id,raw){
   if(busy)throw Error('Szinkronizálás folyamatban. Próbáld újra.');
   if(p!==profile()||!validId(id))throw Error('A profil vagy az útiterv megváltozott.');
@@ -389,7 +428,7 @@
   finally{button.disabled=false}
  });
  $('mtTrackingScan')?.addEventListener('click',()=>void scanTicketPdfs());
- w.SH9_MY_TRIPS_CLOUD_V1086=Object.freeze({deleteTrip,saveTrackingLink});
+ w.SH9_MY_TRIPS_CLOUD_V1086=Object.freeze({deleteTrip,saveTrackingLink,saveTrackingPair});
  $('mtFilesClose')?.addEventListener('click',()=>{
   if($('mtFilesDialog').open)$('mtFilesDialog').close();
   dialog=null;for(const u of blobUrls)try{w.URL.revokeObjectURL(u)}catch(_){}blobUrls=[];
