@@ -407,6 +407,7 @@ test('v1100 1-5 stars at the end of full Trip Flow and persistent private archiv
   single:async()=>({data:{trip_id:id},error:null})
  };
  const fake={
+  SH9_SMART_TRIP_PACK_V1078:api,
   HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://example.invalid',publishableKey:'example'},
   supabase:{createClient:()=>({
    auth:{getSession:async()=>({data:{session:{user:{id:'test'}}},error:null})},
