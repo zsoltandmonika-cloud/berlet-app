@@ -19,7 +19,7 @@ SOURCE = "BKK Zrt., CC BY 4.0"
 URL = "https://bkk.hu/gtfs/budapest_gtfs.zip"
 LINES = ("17", "19", "41", "260")
 MAX_BYTES = 9 * 1024 * 1024
-MAX_AGE = dt.timedelta(minutes=30)
+MAX_AGE = dt.timedelta(days=14)
 TZ = ZoneInfo("Europe/Budapest")
 FIELDS = ("routes", "stops", "trips", "services")
 
@@ -126,7 +126,9 @@ def check_data(data: dict, now: dt.datetime, previous: dict | None = None) -> di
     }
 
 
-def validate_file(file: pathlib.Path, now: dt.datetime, previous_file: pathlib.Path | None = None) -> dict:
+def validate_file(file: pathlib.Path, now: dt.datetime, previous_file: pathlib.Path | None = None, source_sha256: str | None = None) -> dict:
+    if not isinstance(source_sha256, str) or len(source_sha256) != 64 or not all(ch in '0123456789abcdef' for ch in source_sha256):
+        raise ValueError('Missing official BKK ZIP SHA256 provenance')
     if not file.is_file() or file.stat().st_size > MAX_BYTES:
         raise ValueError("Missing or oversized BKK JSON")
     content = file.read_bytes()
@@ -137,6 +139,7 @@ def validate_file(file: pathlib.Path, now: dt.datetime, previous_file: pathlib.P
         "schema": "sh9.bkk.feed-manifest/1",
         "filename": "bkk-selected-routes-v1106.json",
         "sha256": hashlib.sha256(content).hexdigest(),
+        "sourceSha256": source_sha256,
         "bytes": len(content),
         "validatedAt": now.astimezone(dt.timezone.utc).isoformat().replace("+00:00", "Z"),
         **info,
@@ -148,9 +151,10 @@ def main() -> None:
     parser.add_argument("--snapshot", required=True, type=pathlib.Path)
     parser.add_argument("--manifest", required=True, type=pathlib.Path)
     parser.add_argument("--previous", type=pathlib.Path)
+    parser.add_argument("--source-sha256", required=True)
     args = parser.parse_args()
     now = dt.datetime.now(dt.timezone.utc)
-    manifest = validate_file(args.snapshot, now, args.previous)
+    manifest = validate_file(args.snapshot, now, args.previous, args.source_sha256)
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("BKK publication gate PASS:", manifest["tripCount"], "trips;",
