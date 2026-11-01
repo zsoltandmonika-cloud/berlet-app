@@ -142,3 +142,68 @@
  color:#fff2fb;background:rgba(230,113,187,.39);
  border-color:rgba(255,188,224,.85);
 }
+
+
+/* v909 · SH9 quiet Golden Glass pills. Recreate the compact, elegant
+   Family Guard profile style across ALL THREE launcher controls.
+   Actual hit targets remain 90×47; the glass visual is 34px tall.
+   The original top row, lower-left profile position and 15px offset stay. */
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1,
+#sh9HeaderControlsV2 #sh9TasksGolden,
+.hero #sh9LauncherProfileV1,
+.hero #sh9LauncherProfileV1[data-profile="z"],
+.hero #sh9LauncherProfileV1[data-profile="m"]{
+ isolation:isolate;
+ background:transparent!important;
+ border-color:transparent!important;
+ box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,
+#sh9HeaderControlsV2 #sh9TasksGolden::before,
+.hero #sh9LauncherProfileV1::before{
+ content:"";position:absolute;z-index:-1;
+ left:0;right:0;top:50%;height:34px;
+ transform:translateY(-50%);
+ border:1px solid rgba(187,218,244,.47);border-radius:999px;
+ background:linear-gradient(145deg,rgba(15,39,74,.60),rgba(7,21,47,.57));
+ box-shadow:0 3px 12px rgba(1,8,25,.32),inset 0 1px 0 rgba(255,255,255,.21);
+ backdrop-filter:blur(16px) saturate(140%);
+ -webkit-backdrop-filter:blur(16px) saturate(140%);
+ pointer-events:none;
+}
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1{padding:4px!important}
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1 button{
+ min-width:34px;min-height:30px;font-size:17px;padding:2px 4px;
+}
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1 button[aria-pressed="true"]{
+ background:rgba(83,153,219,.17);
+ border-color:rgba(168,212,253,.48);
+ box-shadow:inset 0 1px rgba(255,255,255,.13);
+}
+#sh9HeaderControlsV2 #sh9TasksGolden{
+ font-size:11px!important;font-weight:750!important;
+ letter-spacing:.005em!important;
+}
+.hero #sh9LauncherProfileV1{
+ gap:4px;font-size:11px;font-weight:760;
+ padding:5px 6px;
+}
+.hero #sh9LauncherProfileMarkV1{display:none!important}
+.hero #sh9LauncherProfileNameV1{color:#eef8ff!important;letter-spacing:0}
+.hero #sh9LauncherProfileArrowV1{font-size:12px;opacity:.85}
+.hero #sh9LauncherProfileV1[data-profile="z"]::before{
+ border-color:rgba(115,185,251,.75);
+ background:linear-gradient(145deg,rgba(16,48,88,.65),rgba(8,27,62,.56));
+}
+.hero #sh9LauncherProfileV1[data-profile="m"]::before{
+ border-color:rgba(246,157,206,.74);
+ background:linear-gradient(145deg,rgba(67,27,70,.59),rgba(21,23,54,.59));
+}
+.hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileNameV1,
+.hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileArrowV1{color:#b6dfff!important}
+.hero #sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileNameV1,
+.hero #sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileArrowV1{color:#ffd5ee!important}
+@media(max-width:360px){
+ #sh9HeaderControlsV2 #sh9LanguageSwitchV1 button{min-height:30px;min-width:33px;font-size:17px}
+}
