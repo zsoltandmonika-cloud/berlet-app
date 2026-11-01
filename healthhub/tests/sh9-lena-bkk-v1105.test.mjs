@@ -12,7 +12,6 @@ const DATA=()=>({
  generatedAt:'2026-11-01T06:00:00Z',
  feedStart:'2026-11-01',feedEnd:'2026-11-30',
  routes:['17','19','41','260'],
- routeModes:{'17':'tram','19':'tram','41':'tram','260':'bus'},
  stops:{'001':['Szentlélek tér',47.537,19.046],
   '002':['Bécsi út / Vörösvári út',47.548,19.029],
   '003':['Kolosy tér',47.527,19.036],
@@ -25,9 +24,9 @@ const DATA=()=>({
  },
  trips:[
   ['17','workdays','Bécsi út / Vörösvári út',[
-   ['001',10*3600,10*3600],['003',10*3600+600,10*3600+630],['002',10*3600+1200,10*3600+1200]]],
+   ['001',10*3600,10*3600],['003',10*3600+600,10*3600+630],['002',10*3600+1200,10*3600+1200]],'tram'],
   ['260','sundays','Szentlélek tér',[
-   ['004',9*3600,9*3600],['002',9*3600+600,9*3600+600],['001',9*3600+1200,9*3600+1200]]]
+   ['004',9*3600,9*3600],['002',9*3600+600,9*3600+600],['001',9*3600+1200,9*3600+1200]],'bus']
  ]
 });
 const q=()=>({date:'2026-11-02',from:'Szentlélek tér',to:'Bécsi út / Vörösvári út',
@@ -38,7 +37,7 @@ test('BKK snapshot must be recent, fully sourced, licensed and nonlive',()=>{
   x=>x.source='unknown',x=>x.license='copyright unknown',x=>x.live=true,
   x=>x.coverage='door-to-door',x=>x.sourceUrl='https://other.invalid',
   x=>x.generatedAt='2026-01-01T00:00:00Z',
-  x=>x.stops['003'][1]=200, x=>x.routeModes['17']='ferry'
+  x=>x.stops['003'][1]=200, x=>x.trips[0][4]='ferry'
  ]){
   const data=DATA();mutation(data);assert.equal(validate(data,NOW),false);
  }
@@ -82,6 +81,17 @@ test('no train or ferry is fabricated, bus route remains bus',()=>{
  assert.equal(trip.segments[0].mode,'bus');
  assert.equal(trip.segments[0].line,'260');
  assert.equal(trip.alternatives.length,0);
+});
+test('identical route number may represent official tram and replacement bus',()=>{
+ const data=DATA();
+ data.trips.push(['17','workdays','Pótlóbusz',[
+  ['001',11*3600,11*3600],['002',11*3600+900,11*3600+900]
+ ],'bus']);
+ assert.equal(validate(data,NOW),true);
+ const found=find(data,{...q(),when:'2026-11-02T08:30:00Z'},NOW);
+ assert.equal(found.some(x=>x.mode==='tram'),true);
+ assert.equal(found.some(x=>x.mode==='bus'),true);
+ for(const trip of found)assert.equal(normalize(toTripPack(q(),trip)).segments[0].mode,trip.mode);
 });
 test('DST and service time conversion are bounded and Budapest-local',()=>{
  assert.ok(Number.isFinite(wallEpoch('2026-11-02',10*60)));
