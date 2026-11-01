@@ -22,7 +22,7 @@ SOURCE_URL = "https://bkk.hu/gtfs/budapest_gtfs.zip"
 REQUIRED = {"agency.txt", "routes.txt", "trips.txt", "stop_times.txt", "stops.txt"}
 MAX_ZIP_BYTES = 90 * 1024 * 1024
 MAX_OUTPUT = 9 * 1024 * 1024
-MAX_STOP_TIMES = 110000
+MAX_STOP_TIMES = 240000
 ROUTE_ID = re.compile(r"^[^\x00-\x1f<>]{1,60}$")
 GTFS_MODES = {"0": "tram", "1": "metro", "2": "train", "3": "bus", "11": "bus"}
 
@@ -32,7 +32,10 @@ def table(zf: zipfile.ZipFile, filename: str):
     if match is None:
         return []
     info = zf.getinfo(match)
-    if info.file_size > 150 * 1024 * 1024:
+    # The official BKK archive can decompress to >500 MB. Stream stop_times
+    # (never load it into RAM), but cap each member and reject zip bombs.
+    cap = 650 if filename == "stop_times.txt" else 150
+    if info.file_size > cap * 1024 * 1024:
         raise ValueError(f"{filename}: uncompressed CSV too large")
     with zf.open(match) as stream:
         yield from csv.DictReader(io.TextIOWrapper(stream, encoding="utf-8-sig", newline=""))
@@ -60,6 +63,9 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
     if zip_path.stat().st_size > MAX_ZIP_BYTES:
         raise ValueError("GTFS ZIP too large for pilot")
     with zipfile.ZipFile(zip_path) as zf:
+        entries = zf.infolist()
+        if len(entries) > 100 or sum(e.file_size for e in entries) > 800 * 1024 * 1024:
+            raise ValueError("Suspicious or oversized expanded GTFS ZIP")
         names = {name.split("/")[-1].lower() for name in zf.namelist()}
         if not REQUIRED.issubset(names):
             raise ValueError("Missing mandatory GTFS CSV files")
