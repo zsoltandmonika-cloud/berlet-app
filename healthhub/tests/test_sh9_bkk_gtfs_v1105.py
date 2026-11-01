@@ -81,7 +81,7 @@ class BkkSnapshotTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             file = pathlib.Path(temp) / "gtfs.zip"
             fixture(file, bad_time=True)
-            with self.assertRaisesRegex(ValueError, "Invalid GTFS time"):
+            with self.assertRaisesRegex(ValueError, "Out-of-range GTFS time"):
                 builder.build(file, {"17"}, "2026-11-01T12:00:00Z")
 
 
