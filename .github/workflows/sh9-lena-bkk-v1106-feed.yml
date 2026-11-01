@@ -1,0 +1,117 @@
+name: SH9 Lena BKK Verified Scheduled Feed v1106
+on:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sh9-lena-bkk-v1106-feed.yml"
+      - "sh9/smart-travel/lena-native/bkk/build_bkk_snapshot_v1105.py"
+      - "sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py"
+      - "sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs"
+      - "healthhub/tests/test_sh9_bkk_publication_v1106.py"
+      - "healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs"
+
+permissions:
+  contents: write
+concurrency:
+  group: sh9-lena-bkk-verified-feed
+  cancel-in-progress: false
+
+jobs:
+  validate-and-publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TARGET_DIR: sh9/smart-travel/lena-native/bkk/data
+      DATA_NAME: bkk-selected-routes-v1106.json
+      MANIFEST_NAME: bkk-feed-manifest-v1106.json
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify offline security and GTFS contract
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_gtfs_v1105.py' -v
+          python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_publication_v1106.py' -v
+          node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
+      - name: Fetch a single official BKK GTFS archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sh9-bkk-v1106"
+          zip="$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip"
+          if ! curl --fail --show-error --silent --location \
+              --retry 2 --connect-timeout 15 --max-time 150 \
+              --max-filesize 90000000 \
+              'https://go.bkk.hu/api/static/v1/public-gtfs/budapest_gtfs.zip' -o "$zip"; then
+            rm -f "$zip"
+            curl --fail --show-error --silent --location \
+              --retry 2 --connect-timeout 15 --max-time 150 \
+              --max-filesize 90000000 \
+              'https://bkk.hu/gtfs/budapest_gtfs.zip' -o "$zip"
+          fi
+          BKK_ZIP="$zip" python - <<'PY'
+          import os,zipfile
+          with zipfile.ZipFile(os.environ['BKK_ZIP']) as z:
+              if len(z.infolist())>100 or sum(f.file_size for f in z.infolist())>800*1024*1024:
+                  raise SystemExit("BKK GTFS ZIP expansion limit exceeded")
+              required={"agency.txt","routes.txt","trips.txt","stops.txt","stop_times.txt"}
+              files={p.split("/")[-1].lower() for p in z.namelist()}
+              if not required.issubset(files) or z.testzip() is not None:
+                  raise SystemExit("BKK ZIP missing records or failed CRC")
+          PY
+      - name: Convert to unpublished candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sh9-bkk-v1106/out"
+          python sh9/smart-travel/lena-native/bkk/build_bkk_snapshot_v1105.py \
+            --zip "$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip" \
+            --routes 17 19 41 260 \
+            --output "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+      - name: Reject outdated, incomplete, inconsistent or distorted GTFS
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ -f "$TARGET_DIR/$DATA_NAME" ]]; then
+            args+=(--previous "$TARGET_DIR/$DATA_NAME")
+          fi
+          python sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py \
+            --snapshot "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME" \
+            --manifest "$RUNNER_TEMP/sh9-bkk-v1106/out/$MANIFEST_NAME" \
+            "${args[@]}"
+          node healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs \
+            "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+      - name: Publish ONLY verified open timetable data
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$TARGET_DIR"
+          cp "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME" "$TARGET_DIR/$DATA_NAME"
+          cp "$RUNNER_TEMP/sh9-bkk-v1106/out/$MANIFEST_NAME" "$TARGET_DIR/$MANIFEST_NAME"
+          git add -- "$TARGET_DIR/$DATA_NAME" "$TARGET_DIR/$MANIFEST_NAME"
+          if git diff --cached --quiet; then
+            echo "No verified feed changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data(sh9): refresh verified BKK GTFS v1106 [skip ci]"
+          git push origin HEAD:main
+      - name: Audit (no health data, TripPack writes or secrets)
+        run: |
+          echo "Public BKK CC BY 4.0 schedule only, not real-time service."
+          echo "Validated snapshot and checksum manifest committed, or rejected without changing last known-good."
