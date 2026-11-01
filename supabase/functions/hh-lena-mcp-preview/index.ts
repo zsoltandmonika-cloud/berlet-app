@@ -4,6 +4,7 @@
  * gated tools/call. Supabase Auth OAuth2.1 is the designated authorization
  * server; its OAuth Server + consent screen are NOT enabled by this deploy.
  * Defaults: no clients allowed, no writes, and no model/API calls.
+ * Token audience and trip.write scope REQUIRE an OAuth issuer with resource-bound tokens. Supabase OAuth currently needs explicit configuration/hook support. This is not a working end-to-end OAuth flow.
  * Note: verify_jwt=false at Edge ingress ONLY so OAuth resource metadata and
  * anonymous tools/list can be fetched; every tool/call validates JWT server-side.
  */
@@ -183,7 +184,8 @@ async function handle(req){
  if(input.params?.name!==TOOL)return json(error(id,-32602,"Unknown tool"));
  const identity=await authorize(req);
  if(!identity){
-  return json(authError(id,"Token, scope, resource vagy OAuth kliensazonosító hiányzik"),200,{
+  return json({error:"invalid_token",error_description:
+   "MCP resource OAuth token required; Supabase OAuth resource audience and client authorization must be configured"},401,{
    "WWW-Authenticate":challenge()
   });
  }
