@@ -48,17 +48,29 @@ async function load(){
 }
 function suggestions(input){
  if(!fetched||typeof input!=="string")return [];
- const wanted=clean(input),stopNames=[...new Set(Object.values(fetched.data.stops).map(s=>s[0]))];
- if(wanted.length<2)return [];
- const prefix=[],rest=[];
- for(const name of stopNames){
-  const val=clean(name);
-  if(val===wanted||val.startsWith(wanted))prefix.push(name);
-  else if(val.includes(wanted))rest.push(name);
- }
- return prefix.concat(rest).slice(0,8).map(name=>({
-  name,subtitle:"Hivatalos BKK GTFS-megálló · nem élő adat",
-  type:"bkk_megallo"
+ const wanted=clean(input);
+ if(wanted.length<1)return [];
+ const routeNames=new Set(Object.values(fetched.data.stops).map(s=>clean(s[0])));
+ const stopNames=Array.isArray(fetched.data.searchStops)?
+  fetched.data.searchStops:[...new Set(Object.values(fetched.data.stops).map(s=>s[0]))];
+ // Prefer full matching words and the four pilot lines. Include official
+ // out-of-coverage stops with an explicit label, NOT fabricated routes.
+ const matched=stopNames.filter(n=>clean(n).includes(wanted)).map(name=>{
+  const val=clean(name),routable=routeNames.has(val);
+  const words=val.split(" ");
+  const rank=val===wanted?0:val.startsWith(wanted)?1:
+   words.some(word=>word.startsWith(wanted))?2:3;
+  return {name,routable,rank};
+ });
+ matched.sort((a,b)=>a.rank-b.rank||
+  Number(b.routable)-Number(a.routable)||
+  a.name.localeCompare(b.name,"hu-HU"));
+ return matched.slice(0,12).map(({name,routable})=>({
+  name,subtitle:routable?
+   "🚋 BKK megálló · a 4 próba-járat útvonalán":
+   "📍 BKK megálló · még nincs útvonaltervezés hozzá",
+  type:routable?"bkk_megallo":"bkk_katalogus",
+  routable
  }));
 }
 function validateInput(q,when){
@@ -79,7 +91,13 @@ async function search(query,when){
  let feed;
  try{feed=await load()}catch(e){return {status:"feed_unavailable",detail:e?.message||""}}
  if(!stopIds(feed.data.stops,query.from).length||
-  !stopIds(feed.data.stops,query.to).length)return {status:"unknown_stop"};
+  !stopIds(feed.data.stops,query.to).length){
+  // A full-index stop can be genuine but not served by the four pilot lines.
+  const catalogue=new Set((feed.data.searchStops||[]).map(clean));
+  if(catalogue.has(clean(query.from))||catalogue.has(clean(query.to)))
+   return {status:"not_covered_stop"};
+  return {status:"unknown_stop"};
+ }
  if(query.date<feed.data.feedStart||query.date>feed.data.feedEnd)
   return {status:"outside_feed"};
  const options=find(feed.data,{...query,when},Date.now()).slice(0,MAX_OPTIONS);
