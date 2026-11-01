@@ -110,8 +110,8 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
- assert.match(page,/my-trips-v1080\.css\?v=1086-compact-cloud-tickets/);
- assert.match(page,/my-trips-v1080\.js\?v=1086-compact-ticket-cards/);
+ assert.match(page,/my-trips-v1080\.css\?v=1093-mav-tracking/);
+ assert.match(page,/my-trips-v1080\.js\?v=1093-mav-tracking/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -219,4 +219,42 @@ test('v1087 in-app PDF reader and saved-trip cloud attachment integration',()=>{
  assert.match(cloud,/const isPdf=file\.file_type==='application\/pdf'/);
  assert.match(cloud,/await reader\.open\(data,file\.file_name\)/);
  assert.match(cloud,/storage\.from\(BUCKET\)\.download\(file\.storage_path\)/);
+});
+
+test('v1093 MÁVPlusz live trip tracking uses exact validated trip links and no guessed IDs',()=>{
+ const cloud=read('sh9/smart-travel/my-trips/my-trips-cloud-v1086.js');
+ const pdf=read('sh9/smart-travel/my-trips/my-trips-pdf-v1087.js');
+ const valid='https://mavplusz.hu/#/trip/hkir:hkir_1054_18-2?ui_activeItinerary=-1';
+ assert.match(page,/id="mtTrackingScan"/);
+ assert.match(page,/id="mtTrackingSave"/);
+ assert.match(page,/id="mtTrackingUrl"/);
+ assert.match(pageJs,/mt-follow-link/);
+ assert.match(pageJs,/mt-follow-setup/);
+ assert.match(pageJs,/pack\.trackingUrl\(trip\.trackingUrl\)/);
+ assert.match(pageCss,/\.mt-tracking-section/);
+ assert.match(pack,/function trackingUrl\(raw\)/);
+ assert.match(cloud,/async function saveTrackingLink\(p,id,raw\)/);
+ assert.match(cloud,/async function scanTicketPdfs\(\)/);
+ assert.match(cloud,/withCloudTracking/);
+ assert.match(cloud,/\.from\(TRIPS\)\.update\(\{/);
+ assert.match(pdf,/async function inspect\(file\)/);
+ assert.match(pdf,/page\.getAnnotations/);
+ assert.match(pdf,/page\.getTextContent/);
+ assert.doesNotMatch(cloud,/api\.openai\.com|sk-proj|service_role/);
+ const m={exports:{}};
+ const FakeUrl=class{
+  constructor(str){
+   const x=/^(https?):\/\/([^/#?]+)(\/)?(\?[^#]*)?(#.*)?$/.exec(str);
+   if(!x)throw Error('invalid URL');
+   this.protocol=x[1]+':';this.hostname=x[2];this.port='';this.username='';this.password='';
+   this.pathname=x[3]||'/';this.search=x[4]||'';this.hash=x[5]||'';this.href=str;
+  }
+ };
+ new Function('URL','module','window',pack)(FakeUrl,m,null);
+ assert.equal(m.exports.trackingUrl(valid),valid);
+ assert.equal(m.exports.trackingUrl('https://evil.invalid/#/trip/hkir:hkir_1054_18-2'),'');
+ assert.equal(m.exports.trackingUrl('https://mavplusz.hu/#/route/mvkzrt:122'),'');
+ const itinerary={schema:'sh9.trip-pack/1',travelDate:'2026-11-01',from:'Budapest',to:'Kazincbarcika',
+  segments:[{mode:'train',line:'15406',from:'Budapest',to:'Kazincbarcika'}],trackingUrl:valid};
+ assert.equal(m.exports.normalize(itinerary).trackingUrl,valid);
 });
