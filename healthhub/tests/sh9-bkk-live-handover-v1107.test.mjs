@@ -6,7 +6,6 @@ import assert from "node:assert/strict";
 import {webcrypto} from "node:crypto";
 import {wallEpoch} from "../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 import {normalize} from "../../supabase/functions/hh-lena-handover-preview/trip-pack-core.mjs";
-globalThis.crypto=webcrypto;
 const date=(()=>{
  const p=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{
   timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"
