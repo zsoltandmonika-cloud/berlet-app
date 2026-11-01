@@ -28,7 +28,7 @@
 #sh9HeaderControlsV2{
  position:absolute;z-index:13;
  top:calc(-2px + env(safe-area-inset-top,0px));
- left:9px;
+ left:5px;
  display:flex;align-items:stretch;gap:6px;
 }
 #sh9HeaderControlsV2 #sh9LanguageSwitchV1{
@@ -55,7 +55,7 @@
 #sh9HeaderControlsV2 #sh9TasksGolden:focus-visible{
  outline:3px solid #f3fbff!important;outline-offset:2px!important;
 }
-@media(max-width:360px){#sh9HeaderControlsV2{left:6px}}
+@media(max-width:360px){#sh9HeaderControlsV2{left:2px}}
 
 /* v905 · lighter Golden Glass for both equal-size header capsules.
    Preserve size, position, tap targets and readable selected-language state. */
@@ -82,7 +82,7 @@
    Hero positioning avoids the taskbar, info row and all nine tiles. */
 .hero #sh9LauncherProfileV1{
  box-sizing:border-box;position:absolute;z-index:13;
- left:9px;bottom:-6px;top:auto;right:auto;
+ left:5px;bottom:-6px;top:auto;right:auto;
  display:flex;align-items:center;justify-content:center;gap:3px;
  width:90px;height:47px;min-width:90px;max-width:90px;
  min-height:47px;max-height:47px;margin:0;padding:5px 6px;
@@ -111,7 +111,7 @@
 }
 #sh9LauncherProfileV1:focus-visible{outline:3px solid #f3fbff;outline-offset:2px}
 #sh9LauncherProfileV1:active{filter:brightness(1.16)}
-@media(max-width:360px){.hero #sh9LauncherProfileV1{left:6px}}
+@media(max-width:360px){.hero #sh9LauncherProfileV1{left:2px}}
 
 
 /* v908 · Zsolt blue / Mónika pink Golden Glass. 15px lower:
@@ -196,11 +196,9 @@
 .hero #sh9LauncherProfileArrowV1{font-size:12px;opacity:.85}
 .hero #sh9LauncherProfileV1[data-profile="z"]::before{
  border-color:rgba(115,185,251,.75);
- background:linear-gradient(145deg,rgba(38,135,242,.30),rgba(22,91,192,.30));
 }
 .hero #sh9LauncherProfileV1[data-profile="m"]::before{
  border-color:rgba(246,157,206,.74);
- background:linear-gradient(145deg,rgba(231,76,173,.30),rgba(166,55,158,.30));
 }
 .hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileNameV1,
 .hero #sh9LauncherProfileV1[data-profile="z"] #sh9LauncherProfileArrowV1{color:#b6dfff!important}
@@ -215,3 +213,8 @@
 
 /* v913 · Cool, saturated blue/pink profile tint at the SAME 30% opacity.
    No transparency, dimension, position, or language/Tasks changes. */
+
+/* v914 · All three capsules share the EXACT neutral Tasks glass fill
+   (30% opacity). Profile identity is shown only by text and border.
+   Language + Tasks and lower profile each shift 4px to the left.
+   Preserve their vertical positions and full touch areas. */
