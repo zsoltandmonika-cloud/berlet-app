@@ -8,6 +8,8 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/index.html'
       - 'sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs'
       - 'healthhub/tests/sh9-bkk-live-handover-v1107.test.mjs'
+      - 'healthhub/tests/sh9-smart-trip-chatgpt-default-v1076.test.cjs'
+      - 'healthhub/tests/sh9-my-trips-golden-v1080.test.cjs'
       - '.github/workflows/sh9-lena-bkk-v1107-search-qa.yml'
   pull_request:
     paths:
