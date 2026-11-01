@@ -51,12 +51,12 @@ function parseOption(o){
  return {id:o.value,category:raw.replace(/^[^\p{L}\p{N}]+/u,'').trim()||'Egyéb',
   name:split>=0?text.slice(split+3).trim():text,icon:cardIcon(text)};
 }
-function sourceItems(){
+function sourceItems(kindRequested=kind){
  const ordinary=Array.from(select.options).filter(x=>x.value).map(parseOption);
  const shared=window.HH_SHARED_FOOD_LIBRARY_V1118?.getItems?.()||[];
  const sharedOptions=[];
  for(const r of shared){
-  if(!r.categories?.length||r.kind!==kind)continue;
+  if(!r.categories?.length||r.kind!==kindRequested)continue;
   for(const category of r.categories){
    if(!category||category==='Kedvencek')continue;
    sharedOptions.push({id:'shared:'+r.id,sharedId:r.id,category,name:r.name,icon:'🍽️',
@@ -176,7 +176,7 @@ function open(kindNext,button){
  delete entry.dataset.hhMealChosen;
  bypass=true;
  try{button.click();}finally{bypass=false}
- items=sourceItems();
+ items=sourceItems(kindNext);
  if(entry.open)entry.close();
  kind=kindNext;step='categories';category='';
  // Native portion form was primed by button.click() above and supplied the
