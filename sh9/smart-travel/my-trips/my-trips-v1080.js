@@ -75,6 +75,19 @@
    node('span','','⏱ '+(trip.departure||'—'),bar);
    node('span','','🏁 '+(trip.arrival||'—'),bar);
    node('span','','⇄ '+m.transfers+' átsz.',bar);
+   const tracking=pack.trackingUrl(trip.trackingUrl);
+   const followBox=node('div','mt-trip-tracking',null,card);
+   if(tracking){
+    const follow=node('a','mt-follow-link','📍 Élő követés · MÁVPlusz ↗',followBox);
+    follow.href=tracking;follow.target='_blank';follow.rel='noopener noreferrer external';
+    follow.setAttribute('aria-label',trip.title+' · MÁVPlusz járat követése');
+   }else{
+    const setup=node('button','mt-follow-setup','📍 Élő követés beállítása',followBox);
+    setup.type='button';
+    setup.addEventListener('click',()=>w.dispatchEvent(new CustomEvent('sh9-my-trips-open-files',{
+     detail:{p,trip,focusTracking:true}
+    })));
+   }
    const actions=node('div','mt-trip-actions',null,card);
    const go=node('a','','Útiterv megnyitása',actions);
    const url=new URL('../public-transport/smart-trip/',d.baseURI);
