@@ -110,3 +110,7 @@ body.hhScanOpen753>.shell{display:none!important}
 #hhScanSharedStatus753{margin:0;font-size:12px;color:#c6ebdd;overflow-wrap:anywhere}
 #hhScanSharedStatus753:empty{display:none}
 #hhScanSharedStatus753[data-error="true"]{color:#ffd0af}
+
+.hhScanSharedPresets753{display:flex;flex-wrap:wrap;gap:7px}
+.hhScanSharedPresets753 button{min-height:38px;border-radius:999px;border:1px solid #6889ae;background:#0f2b48;color:#d8edfb;padding:8px 12px;font-size:12px;font-weight:720}
+.hhScanSharedPresets753 button[aria-pressed="true"]{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 30%,#102744);color:white}
