@@ -166,6 +166,9 @@
   $('mtTrackingUrl').value=pack.trackingUrl(
    pack.read(w.localStorage,p).find(x=>x.id===trip.id)?.trackingUrl
   );
+  $('mtTicketRecognized').hidden=true;
+  $('mtTicketVonat').textContent='—';
+  $('mtTicketJarat').textContent='—';
   $('mtTrackingStatus').textContent=$('mtTrackingUrl').value?
    '✓ MÁVPlusz-követés mentve · a megfelelő járatot ellenőrizd induláskor.':
    'A járatszám nem azonos a MÁVPlusz belső trip-azonosítójával.';
@@ -331,26 +334,40 @@
    if(!pdfs.length)throw Error('Ehhez az útitervhez nincs PDF-jegy.');
    const reader=w.SH9_TRIP_PDF_VIEWER_V1087;
    if(typeof reader?.inspect!=='function')throw Error('PDF-felismerő nem érhető el.');
-   const urls=new Set(),numbers=new Set();
+   const urls=new Set(),vonatok=new Set(),jaratok=new Set();
+   let ambiguous=false;
    for(const file of pdfs){
     if(dialog!==view||profile()!==view.p)throw Error('Közben megváltozott az útiterv vagy profil.');
     const {data,error}=await c.storage.from(BUCKET).download(file.storage_path);
     if(error||!data)throw Error('A PDF nem tölthető le.');
     const result=await reader.inspect(data);
     for(const u of result.urls)if(pack.trackingUrl(u))urls.add(pack.trackingUrl(u));
-    for(const n of result.numbers)numbers.add(n);
+    if(result.vonat)vonatok.add(result.vonat);
+    if(result.jarat)jaratok.add(result.jarat);
+    if(result.ambiguous)ambiguous=true;
    }
-   const nums=[...numbers].slice(0,6).join(', ');
+   ambiguous ||= vonatok.size>1||jaratok.size>1;
+   const vonat=vonatok.size===1?[...vonatok][0]:null;
+   const jarat=jaratok.size===1?[...jaratok][0]:null;
+   $('mtTicketRecognized').hidden=!(vonat||jarat);
+   $('mtTicketVonat').textContent=vonat||'Nem ismert';
+   $('mtTicketJarat').textContent=jarat||'Nem ismert';
+   const nums=vonat&&jarat?'Vonat: '+vonat+' · Járat: '+jarat:
+    (vonat?'Vonat: '+vonat:jarat?'Járat: '+jarat:'');
+   const label=ambiguous?'⚠️ Több különböző azonosító szerepel a jegyeken. Ellenőrizd a PDF-et. ':
+    vonat&&jarat?'✓ Mindkét jegymező felismerve. ':
+    nums?'Részleges jegyfelismerés. ':'Nem található mindkét feliratozott szám. ';
    if(dialog!==view)throw Error('Másik útiterv nyílt meg.');
    if(urls.size===1){
     const url=[...urls][0];
     $('mtTrackingUrl').value=url;
     await saveTrackingLink(view.p,view.trip.id,url);
-    $('mtTrackingStatus').textContent='✓ A PDF-ben talált konkrét MÁVPlusz járatlink mentve.'+(nums?' Járatszám-jelöltek: '+nums:'');
+    $('mtTrackingStatus').textContent=label+'✓ A PDF-ben talált konkrét MÁVPlusz járatlink mentve.'+(nums?' '+nums:'');
    }else if(urls.size>1){
-    $('mtTrackingStatus').textContent='⚠️ Több különböző járatlink szerepel a jegyeken. Nem választok találomra.'+(nums?' Járatszámok: '+nums:'');
+    $('mtTrackingStatus').textContent=label+'⚠️ Több különböző járatlink szerepel a jegyeken. Nem választok találomra.'+(nums?' '+nums:'');
    }else{
-    $('mtTrackingStatus').textContent='A jegy nem tartalmaz közvetlen MÁVPlusz-járatlinket.'+(nums?' Felismert járatszám-jelölt(ek): '+nums+'.':' A járatszám nem azonosítható biztosan a PDF szövegéből.')+' A MÁVPluszban keresd meg a dátumhoz tartozó járatot, nyisd meg, és másold ide annak /trip/ linkjét.';
+    $('mtTrackingStatus').textContent=label+(nums?nums+'. ':'')+
+     'A jegyben nincs MÁVPlusz-triplink. A követéshez az ellenőrzött belső járatazonosító is szükséges; a két szám önmagában nem elég.';
    }
    status('✓ PDF-vizsgálat lezárult · nincs külső AI-adattovábbítás');
   }catch(e){
