@@ -63,8 +63,7 @@
    specificPreference(q,points),
    'Adj pontosan egy legjobb útvonalat konkrét járatokkal, átszállásokkal és gyaloglással. Alternatív útvonalakat ne keress és ne adj meg.',
    'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.',
-   'Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack.json-t (schema: sh9.trip-pack/1); ha nem tudsz fájlt adni, egyetlen tiszta JSON-kódblokkot. Mezők: title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives:[],sources[{name,url}]. A mode walk/bus/tram/metro/train/hev/other; a status timetable/estimated/unknown. MINDEN departure/arrival HH:mm (pl. 15:18) vagy null; az ismeretlen idő null, ISO-időpont tilos. A séma kulcsa kötelező. Csak megalapozott adatot használj.',
-   'A válaszod végén a JSON-t külön, másolható ```json kódblokkban is add meg. Utána az utolsó sor pontosan ez legyen: 📋 Másolás ikon: egy érintés.'
+   'Az útiterv UTÁN automatikusan készíts letölthető SH9_TripPack.json-t (schema: sh9.trip-pack/1); ha nem tudsz fájlt adni, egyetlen tiszta JSON-kódblokkot. Mezők: title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives:[],sources[{name,url}]. A mode walk/bus/tram/metro/train/hev/other; a status timetable/estimated/unknown. MINDEN departure/arrival HH:mm (pl. 15:18) vagy null; az ismeretlen idő null, ISO-időpont tilos. A séma kulcsa kötelező. Csak megalapozott adatot használj.'
   ].filter(Boolean).join('\n');
   return body.length<=LIMIT?body:null;
  }
