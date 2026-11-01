@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="./smart-trip-result-v1072.css?v=1072-fullscreen-one-card">
 <link rel="stylesheet" href="./smart-trip-pack-v1078.css?v=1100-trip-rating">
 <link rel="stylesheet" href="./smart-trip-keyboard-dock-v1088.css?v=1088-bkk-golden-keyboard-safe">
+<link rel="stylesheet" href="./smart-trip-bkk-v1107.css?v=1107-glass-cards">
 </head>
 <body>
 <main class="st22-shell" id="st22Shell">
@@ -47,7 +48,7 @@
    </div>
    <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="walk">🚶 Legkevesebb gyaloglás</option></select></div>
-   <div class="st22-opt"><label for="st22SearchMethod">Keresőmotor · alapértelmezett</label><select id="st22SearchMethod" aria-label="Alapértelmezett keresőmotor, profilonként mentve"><option value="chatgpt">✨ Léna · ChatGPT</option><option value="google">🗺️ Google Térkép</option><option value="native">🧠 SH9 saját · kísérleti</option><option value="lena_native">🧪 Léna Native AI · előnézet</option></select></div>
+   <div class="st22-opt"><label for="st22SearchMethod">Keresőmotor · alapértelmezett</label><select id="st22SearchMethod" aria-label="Alapértelmezett keresőmotor, profilonként mentve"><option value="chatgpt">✨ Léna · ChatGPT</option><option value="google">🗺️ Google Térkép</option><option value="native">🧠 SH9 saját · kísérleti</option><option value="lena_native">🧪 Léna Native AI · előnézet</option><option value="bkk_gtfs">🚌 Léna BKK · hiteles menetrend (próba)</option></select></div>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">Térkép</button></div>
    <div class="st22-tp-tools"><button id="st22TripPackImport" type="button">📥 Útiterv importálása</button><button id="st22TripPackSaved" type="button">💾 Mentett útvonalak</button></div>
   </form>
@@ -132,7 +133,8 @@
 <script src="../../my-trips/my-trips-rating-v1100.js?v=1100-trip-rating"></script>
 <script src="./smart-trip-pack-v1078.js?v=1100-trip-rating"></script>
 <script src="./smart-trip-lena-native-v1104.js?v=1104-explicit-closed-pilot"></script>
-<script src="./smart-trip-ai-v1022.js?v=1104-explicit-native-preview"></script>
+<script type="module" src="./smart-trip-bkk-v1107.mjs?v=1107-bkk-verified-stop-search"></script>
+<script src="./smart-trip-ai-v1022.js?v=1107-bkk-verified-search"></script>
 <script src="./smart-trip-keyboard-dock-v1088.js?v=1088-real-predictive-portal"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
