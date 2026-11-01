@@ -37,6 +37,7 @@ function validate(data,at=Date.now()){
   data.sourceUrl!=="https://bkk.hu/gtfs/budapest_gtfs.zip"||
   !date(data.feedStart)||!date(data.feedEnd)||data.feedEnd<data.feedStart||
   !Array.isArray(data.routes)||!data.routes.length||data.routes.length>24||
+  !data.routeModes||typeof data.routeModes!=="object"||Array.isArray(data.routeModes)||
   typeof data.stops!=="object"||!data.stops||Array.isArray(data.stops)||
   typeof data.services!=="object"||!data.services||Array.isArray(data.services)||
   !Array.isArray(data.trips)||!data.trips.length||data.trips.length>20000)return false;
@@ -49,6 +50,10 @@ function validate(data,at=Date.now()){
    !Number.isFinite(s[1])||s[1]<45||s[1]>49||!Number.isFinite(s[2])||s[2]<16||s[2]>23)return false;
  const stopIDs=new Set(stops.map(([id])=>id));
  const routes=new Set(data.routes);
+ for(const route of routes){
+  if(!["bus","tram","metro","train"].includes(data.routeModes[route]))return false;
+ }
+ if(Object.keys(data.routeModes).some(route=>!routes.has(route)))return false;
  for(const trip of data.trips){
   if(!Array.isArray(trip)||trip.length!==4||!routes.has(trip[0])||
    !Object.prototype.hasOwnProperty.call(data.services,trip[1])||
@@ -92,7 +97,7 @@ function find(data,q,at=Date.now()){
      if(!Number.isFinite(arrival)||arrival<=depart||
       arrival-depart>4*3600000||q.mode==="arrive"&&arrival>pivot)continue;
      const origin=data.stops[events[i][0]][0],destination=data.stops[events[j][0]][0];
-     results.push({line:trip[0],headsign:trip[2],
+     results.push({line:trip[0],mode:data.routeModes[trip[0]],headsign:trip[2],
       from:origin,to:destination,departure:new Date(depart).toISOString(),
       arrival:new Date(arrival).toISOString(),status:"timetable",
       source:"BKK Zrt., CC BY 4.0",coverage:"stop-to-stop"});
@@ -108,9 +113,9 @@ function find(data,q,at=Date.now()){
 }
 const HH=iso=>new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit",
  hourCycle:"h23"}).format(new Date(iso));
-const mode=line=>line==="260"?"bus":/^\d{1,3}$/.test(line)?"tram":"other";
-function toTripPack(q,route){
+ function toTripPack(q,route){
  if(!route||route.source!=="BKK Zrt., CC BY 4.0"||route.coverage!=="stop-to-stop"||
+  !["bus","tram","metro","train"].includes(route.mode)||
   !q||norm(route.from)!==norm(q.from)||norm(route.to)!==norm(q.to))
   throw Error("not_exact_stop_to_stop");
  return {
@@ -119,7 +124,7 @@ function toTripPack(q,route){
   departure:HH(route.departure),arrival:HH(route.arrival),arrivalStatus:"timetable",
   summary:"BKK GTFS tervezett indulás, kizárólag megállótól megállóig. Nem ajtótól ajtóig tartó útiterv; gyaloglás, késés és valós idejű forgalom nincs ellenőrizve.",
   segments:[{
-   mode:mode(route.line),line:route.line,from:route.from,to:route.to,
+   mode:route.mode,line:route.line,from:route.from,to:route.to,
    departure:HH(route.departure),arrival:HH(route.arrival),status:"timetable",
    note:"BKK Zrt. GTFS: menetrend szerinti adat, nem élő járatkövetés."
   }],
