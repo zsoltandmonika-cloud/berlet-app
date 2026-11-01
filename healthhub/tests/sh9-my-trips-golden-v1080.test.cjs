@@ -110,8 +110,8 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
- assert.match(page,/my-trips-v1080\.css\?v=1095-volan-ticket-pair/);
- assert.match(page,/my-trips-v1080\.js\?v=1093-mav-tracking/);
+ assert.match(page,/my-trips-v1080\.css\?v=1096-two-field-follow/);
+ assert.match(page,/my-trips-v1080\.js\?v=1096-two-field-follow/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
  assert.match(pageCss,/backdrop-filter:blur\(14px\)/);
@@ -228,9 +228,9 @@ test('v1093 MÁVPlusz live trip tracking uses exact validated trip links and no 
  assert.match(page,/id="mtTrackingScan"/);
  assert.match(page,/id="mtTrackingSave"/);
  assert.match(page,/id="mtTrackingUrl"/);
- assert.match(pageJs,/mt-follow-link/);
- assert.match(pageJs,/mt-follow-setup/);
- assert.match(pageJs,/pack\.trackingUrl\(trip\.trackingUrl\)/);
+ assert.match(pageJs,/mt-tracking-inline/);
+ assert.match(pageJs,/mt-tracking-button/);
+ assert.match(pageJs,/pack\.trackingDeepLink\(trip,number,service\)/);
  assert.match(pageCss,/\.mt-tracking-section/);
  assert.match(pack,/function trackingUrl\(raw\)/);
  assert.match(cloud,/async function saveTrackingLink\(p,id,raw\)/);
