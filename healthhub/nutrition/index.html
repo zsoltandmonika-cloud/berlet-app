@@ -133,6 +133,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=1121-shared-reorder">
+<link rel="stylesheet" href="./hh-manual-intake-v1130.css?v=1130-voice-predictive">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
 <link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1120-card-image">
@@ -189,6 +190,48 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
 <div class="row"><h2>☕ Gyors bevitel</h2></div>
 <button type="button" id="hhQuickLaunch" aria-haspopup="dialog" aria-controls="hhQuickDialog"><span class="hh-quick-launch-icon hh-quick-buddy-left" aria-hidden="true"><img src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></span><span class="hh-quick-launch-copy"><strong>Kedvencek</strong><small>Kedvenceid villámgyors bevitele · 1 érintés · saját receptek</small></span><span class="hh-quick-launch-arrow" aria-hidden="true">›</span></button>
 <div class="hh-quick-sync-bar" aria-label="Kedvencek központi mentés"><span class="hh-quick-sync-icon" aria-hidden="true">☁️</span><span id="hhQuickCloudState" class="hh-quick-sync-text" data-state="pending" role="status" aria-live="polite">Dropbox állapotának ellenőrzése…</span><button type="button" id="hhQuickCloudManual" class="hh-quick-sync-button" title="A receptek, képek és naplóadatok frissítése a Dropboxból" aria-label="Kedvencek szinkronizálása most">↻ Szinkron most</button></div>
+<!-- Nutrition v1130 · One-tap, lightweight manual food entry between Kedvencek and Bevitel. -->
+<button type="button" id="hhManualLaunch1130" aria-haspopup="dialog" aria-controls="hhManualDialog1130">
+ <span class="hh-manual-plus" aria-hidden="true">＋</span>
+ <span class="hh-manual-copy"><strong>Kézi hozzáadás</strong><small>Beírás · 🎤 diktálás · ✨ Léna AI-becslés</small></span>
+ <span class="hh-manual-arrow" aria-hidden="true">›</span>
+</button>
+<dialog id="hhManualDialog1130" aria-label="Kézi ételbevitel">
+ <form id="hhManualForm1130">
+  <div class="hh-manual-head"><h2>＋ Kézi ételbevitel</h2><button type="button" class="hh-manual-closer" id="hhManualClose1130" aria-label="Bezárás">×</button></div>
+  <label>Étel vagy ital neve
+   <div class="hh-manual-name"><input id="hhManualName1130" list="hhManualNames1130" maxlength="80" autocomplete="off" placeholder="Pl. Rakott krumpli" required><button type="button" id="hhManualVoice1130" class="hh-manual-voice" aria-label="Magyar hangbevitel">🎤</button></div>
+   <datalist id="hhManualNames1130"></datalist>
+  </label>
+  <div class="hh-manual-fields">
+   <label>Mennyiség <input id="hhManualQty1130" type="number" min="1" max="3000" step="1" inputmode="decimal" value="250" required></label>
+   <label>Mértékegység <select id="hhManualUnit1130"><option value="g">gramm (g)</option><option value="ml">milliliter (ml)</option></select></label>
+   <label>Étkezés <select id="hhManualMeal1130"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb</option></select></label>
+   <label>Kategória <select id="hhManualCategory1130"></select></label>
+  </div>
+  <div class="hh-manual-fields">
+   <label>Kalória · teljes adag <input id="hhManualKcal1130" type="number" min="0" max="5000" step="0.1" inputmode="decimal" placeholder="Nem kötelező"></label>
+   <div style="display:grid;align-content:end"><button type="button" class="hh-manual-secondary" id="hhManualEstimate1130">✨ AI-becslés</button></div>
+  </div>
+  <details><summary style="cursor:pointer;font-size:12px;color:#c8e3ff">Többi tápérték (opcionális)</summary>
+   <div class="hh-manual-fields" style="margin-top:10px">
+    <label>Fehérje (g) <input id="hhManualProtein1130" type="number" min="0" step="0.1" inputmode="decimal"></label>
+    <label>Szénhidrát (g) <input id="hhManualCarbs1130" type="number" min="0" step="0.1" inputmode="decimal"></label>
+    <label>Zsír (g) <input id="hhManualFat1130" type="number" min="0" step="0.1" inputmode="decimal"></label>
+   </div>
+  </details>
+  <div class="hh-manual-options">
+   <label class="hh-manual-check"><input type="checkbox" id="hhManualSaveFood1130"> Mentés a választott ételkategóriába</label>
+   <label class="hh-manual-check"><input type="checkbox" id="hhManualFavorite1130"> ⭐ Mentés a Kedvencekhez</label>
+   <label class="hh-manual-check" id="hhManualFamilyWrap1130"><input type="checkbox" id="hhManualFamily1130"> ☁️ Közös családi ételtár (Dropbox)</label>
+  </div>
+  <div class="hh-manual-actions"><button type="button" class="hh-manual-secondary" id="hhManualImage1130">✨ Kártyakép</button><span class="hh-manual-caption">A kép opcionális és AI-keretet használhat.</span></div>
+  <img id="hhManualPhoto1130" class="hh-manual-image" alt="Generált ételkártyakép előnézete" hidden>
+  <p id="hhManualStatus1130" class="hh-manual-status" role="status" aria-live="polite"></p>
+  <button type="submit" class="hh-manual-primary" id="hhManualSubmit1130">✓ Naplózás</button>
+  <small class="hh-manual-caption">Az AI tájékoztató becslés. Ismeretlen kalória esetén a napló „— kcal” értéket mutat, nem nullát. Minden a kiválasztott profilba kerül.</small>
+ </form>
+</dialog>
 <section class="hh-bevitel-section" aria-labelledby="hhBevitelHeading">
  <div class="row hh-bevitel-header"><h2 id="hhBevitelHeading">🍽️ Bevitel</h2><span class="muted">Étel · Ital · AI</span></div>
  <div class="hh-bevitel-grid" aria-label="Étel- és italbevitel módjai">
@@ -348,6 +391,7 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=729-summary-visible"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=1121-shared-reorder"></script>
+<script defer src="./hh-manual-intake-v1130.js?v=1130-voice-predictive"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=1121-shared-main-dishes"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
 <script defer src="./hh-shared-food-library-v1118.js?v=1121-shared-order"></script>
