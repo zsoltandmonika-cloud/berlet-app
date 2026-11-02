@@ -98,16 +98,20 @@
   paint();notifyProfile(next);
  }
  const heroSelectors=[
-  '.st-hero','.fh-hero','.guardian-hero','.mt-hero','.st22-hero',
-  '.hero-art','.bkk-hero','.studio-hero','.studio-stage',
-  '.hero','#heroH','.transport-grand','.transport-hero',
-  '.app-header','.topbar','main.shell','main.app','main','.shell'
+  '.st-hero','.fh-hero','.guardian-hero','.mt-hero','.st22-header',
+  '.hero-art','.transport-visual','.bkk-hero',
+  '.app-header','.topbar','.hero','#heroH'
  ];
  function resolveHost(){
+  // Recipe Studio can render a hidden modal Hero: prefer its visible header.
+  // Nutrition's decorative role=img must not contain interactive controls.
+  if(d.getElementById('nutritionApprovedHero')||d.getElementById('profileBtn'))return d.body;
   for(const selector of heroSelectors){
    const el=d.querySelector(selector);
-   if(el&&el!==d.body)return el;
+   if(el&&el!==d.body&&!el.closest?.('[hidden]'))return el;
   }
+  // Long dashboards and unmatched category nodes need viewport-fixed controls,
+  // not a profile capsule stranded at the very bottom of a scrolling page.
   return d.body;
  }
  function init(){
