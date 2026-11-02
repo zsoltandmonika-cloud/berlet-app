@@ -1,0 +1,40 @@
+/* HealthHub Nutrition v1130 · Lightweight manual intake, profile-pastel glass. */
+#hhManualLaunch1130{display:flex;align-items:center;gap:14px;width:100%;min-height:74px;margin:9px 0 16px;
+ padding:10px 14px;text-align:left;color:#eff7ff;background:linear-gradient(115deg,rgba(15,42,73,.92),rgba(34,40,80,.68));
+ border:1px solid color-mix(in srgb,var(--accent) 62%,#a1b8cc);border-radius:20px;
+ box-shadow:inset 0 1px 0 #ffffff1c,0 8px 20px #0003;touch-action:manipulation}
+#hhManualLaunch1130 .hh-manual-plus{display:grid;place-items:center;width:53px;height:53px;flex:none;font:400 42px/1 system-ui;
+ color:var(--accent);background:var(--accentWash);border:1px solid var(--accent);border-radius:17px}
+#hhManualLaunch1130 .hh-manual-copy{display:grid;gap:4px;min-width:0;flex:1}
+#hhManualLaunch1130 strong{font:850 16px/1.2 system-ui}#hhManualLaunch1130 small{font:500 11px/1.25 system-ui;color:#bbd4ef}
+#hhManualLaunch1130 .hh-manual-arrow{font-size:26px;color:var(--accent)}
+#hhManualDialog1130{box-sizing:border-box;inset:0;max-width:min(430px,100vw);width:calc(100vw - 16px);
+ max-height:calc(100dvh - 28px);margin:auto;padding:0;overflow:auto;color:#f3f9ff;border:1px solid color-mix(in srgb,var(--accent) 56%,#9dbad5);
+ border-radius:22px;background:linear-gradient(140deg,#112c4b,#0a1830 70%,#282046);box-shadow:0 25px 60px #000b}
+#hhManualDialog1130::backdrop{background:#010919cf;backdrop-filter:blur(6px)}
+#hhManualDialog1130 *{box-sizing:border-box}
+#hhManualDialog1130 form{display:grid;gap:12px;padding:18px}
+#hhManualDialog1130 .hh-manual-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#hhManualDialog1130 h2{font-size:19px;margin:0;color:#f5faff}
+#hhManualDialog1130 .hh-manual-closer{font-size:26px;min-width:44px;height:44px;border:1px solid #aec4dc56;border-radius:13px;color:#fff;background:#ffffff10}
+#hhManualDialog1130 label{display:grid;gap:6px;font-size:12px;font-weight:750;color:#cce2f8}
+#hhManualDialog1130 input:not([type=checkbox]),#hhManualDialog1130 select{min-width:0;width:100%;min-height:44px;padding:10px 11px;
+ font:600 15px/1.3 system-ui;border:1px solid #8eb5d966;border-radius:12px;background:#10253f;color:#fff}
+#hhManualDialog1130 input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent)}
+#hhManualDialog1130 .hh-manual-name{display:flex;gap:8px}
+#hhManualDialog1130 .hh-manual-name input{flex:1}
+#hhManualDialog1130 .hh-manual-voice{min-width:48px;height:46px;border:1px solid var(--accent);background:var(--accentWash);border-radius:13px;font-size:22px}
+#hhManualDialog1130 .hh-manual-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#hhManualDialog1130 .hh-manual-options{display:grid;gap:8px;padding:10px;background:#ffffff08;border:1px solid #aac4df26;border-radius:14px}
+#hhManualDialog1130 .hh-manual-check{display:flex;gap:9px;align-items:center;min-height:32px;font-size:13px}
+#hhManualDialog1130 .hh-manual-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#hhManualDialog1130 button{min-height:44px;cursor:pointer}
+#hhManualDialog1130 .hh-manual-secondary{border:1px solid #9cbedb66;background:#24416588;color:#eff8ff;border-radius:12px;font-weight:700}
+#hhManualDialog1130 .hh-manual-primary{width:100%;min-height:50px;border:0;border-radius:14px;background:var(--accent);
+ color:#07172b;font-weight:900;font-size:15px}
+#hhManualDialog1130 .hh-manual-status{min-height:18px;margin:0;font-size:12px;line-height:1.45;color:#bfdaf7}
+#hhManualDialog1130 .hh-manual-status[data-error=true]{color:#ffb5c1}
+#hhManualDialog1130 .hh-manual-image{display:block;width:120px;height:120px;object-fit:cover;border-radius:16px;border:1px solid var(--accent)}
+#hhManualDialog1130 .hh-manual-image[hidden],#hhManualDialog1130 [hidden]{display:none!important}
+#hhManualDialog1130 .hh-manual-caption{font-size:11px;font-weight:500;color:#b8cbe4}
+@media(max-width:360px){#hhManualDialog1130 form{padding:13px;gap:10px}#hhManualLaunch1130{padding:9px}#hhManualLaunch1130 strong{font-size:14px}}
