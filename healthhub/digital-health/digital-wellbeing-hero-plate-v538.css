@@ -1,0 +1,55 @@
+/* Digital Wellbeing v538 · one premium frosted/stroked hero board.
+ * The approved artwork, screen heading and clock/strapline card belong to a
+ * SINGLE shared opaque glass plate. All controls and telemetry stay intact.
+ * Matched to v537 tiles backplate; no reflow of child dimensions. */
+.shell > .dw-wellbeing-hero-plate-v538 {
+ box-sizing:border-box;
+ position:relative;
+ isolation:isolate;
+ margin:-9px -9px 0;
+ padding:8px 8px 11px;
+ border:1px solid rgba(174,213,247,.37);
+ border-radius:23px;
+ background:linear-gradient(135deg,
+  rgba(17,47,92,.76) 0%,
+  rgba(11,32,70,.69) 51%,
+  rgba(29,29,72,.72) 100%);
+ -webkit-backdrop-filter:blur(12px) saturate(125%);
+ backdrop-filter:blur(12px) saturate(125%);
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.19),
+  inset 0 0 0 1px rgba(92,147,206,.05),
+  0 12px 30px rgba(0,8,28,.27);
+}
+/* The wrapper expands OUTWARD. Children keep their original geometry,
+   including the approved hero image and four-zone Glass Dock. */
+.shell > .dw-wellbeing-hero-plate-v538 > .hero-art,
+.shell > .dw-wellbeing-hero-plate-v538 > .header,
+.shell > .dw-wellbeing-hero-plate-v538 > .hero {
+ max-width:100%;
+}
+html[data-hh-digital-dock-profile="m"]
+.shell > .dw-wellbeing-hero-plate-v538 {
+ border-color:rgba(249,166,211,.43);
+ background:linear-gradient(135deg,
+  rgba(49,34,84,.76),rgba(32,29,76,.70) 51%,rgba(61,31,78,.71));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.16),
+  0 12px 30px rgba(18,6,29,.27);
+}
+@media(max-width:390px){
+ .shell > .dw-wellbeing-hero-plate-v538 {
+  margin:-7px -7px 0;
+  padding:6px 6px 9px;
+  border-radius:19px;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ .shell > .dw-wellbeing-hero-plate-v538 {
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:rgba(16,38,77,.95);
+ }
+ html[data-hh-digital-dock-profile="m"]
+ .shell > .dw-wellbeing-hero-plate-v538{
+  background:rgba(48,29,77,.95);
+ }
+}
