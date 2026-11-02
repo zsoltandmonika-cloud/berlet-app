@@ -269,15 +269,13 @@ html[data-hh-premium-preview="on"] #home.on .homeSurface{
  margin-top:58px!important;
 }
 
-/* v545 · SHO Glass Dock · approved 2px downward + 2px inset per side.
-   HEALTHHUB HOME ONLY: the Hero image, date/weather/name-day glass,
-   profile-sensitive colors, 50px dock and buttons remain untouched.
-   The v544 Hero already allows overflow, so the -1px bottom is not clipped.
-   SH9 standalone launcher, Leletek, Gyógyszerek and other pages unchanged. */
+/* v546 · SHO Glass Dock · 2px down, 3px inset per side (final 1px trim).
+   HEALTHHUB HOME ONLY: Hero, date/weather/name-day glass, 50px height,
+   profile-dependent colors and every other page remain untouched. */
 html[data-hh-premium-preview="on"] #home.on
 #heroHome[data-sh9-golden-host="on"] > #sh9UnifiedGlassDockV34{
- left:4px!important;
- right:4px!important;
+ left:5px!important;
+ right:5px!important;
  bottom:-1px!important;
  top:auto!important;
 }
