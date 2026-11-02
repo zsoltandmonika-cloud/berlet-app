@@ -185,3 +185,21 @@ body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page
   left:2px!important;
  }
 }
+
+/* v921 · Health Page hero: use exactly the same three-pills placement as Home.
+   Some HealthHub hero rules reposition all direct div children, hiding the rail. */
+body[data-sh9-golden-three="on"] #health.page.on #heroH[data-sh9-golden-host="on"]{
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+}
+body[data-sh9-golden-three="on"] #health.page.on #heroH > #sh9HeaderControlsV2{
+ position:absolute!important;display:flex!important;visibility:visible!important;opacity:1!important;
+ top:2px!important;left:5px!important;right:auto!important;bottom:auto!important;
+ width:auto!important;max-width:none!important;height:47px!important;
+ transform:none!important;z-index:101!important;pointer-events:auto!important;
+ align-items:stretch!important;justify-content:flex-start!important;gap:6px!important;
+}
+body[data-sh9-golden-three="on"] #health.page.on #heroH > #sh9LauncherProfileV1{
+ position:absolute!important;display:flex!important;visibility:visible!important;opacity:1!important;
+ top:auto!important;bottom:2px!important;left:5px!important;right:auto!important;
+ transform:none!important;z-index:101!important;pointer-events:auto!important;
+}
