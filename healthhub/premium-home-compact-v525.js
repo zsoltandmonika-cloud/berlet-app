@@ -46,7 +46,7 @@
   if(!panel||document.getElementById('hhpgV525Styles'))return;
   var link=document.createElement('link');
   link.id='hhpgV525Styles';
-  link.rel='stylesheet';link.href='./premium-home-compact-v525.css?v=545-home-dock-inset-down2';
+  link.rel='stylesheet';link.href='./premium-home-compact-v525.css?v=546-home-dock-final-1px-trim';
   document.head.appendChild(link);
   makeCompact(document.getElementById('dateHome'),'date');
   makeCompact(document.getElementById('namedayHome'),'nameday');
