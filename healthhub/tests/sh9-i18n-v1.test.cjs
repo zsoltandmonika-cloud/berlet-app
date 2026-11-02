@@ -210,7 +210,7 @@ test('SH9 v908 profile pill moves down exactly 15px and uses profile-specific Go
  assert.match(css,/\.hero #sh9LauncherProfileV1\[data-profile="m"\]\{/);
  assert.match(css,/#sh9LauncherProfileMarkV1\{/);
  assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
- assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=915-solid-navy-zero-transparency/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -240,7 +240,7 @@ test('SH9 v911 all 3 Golden Glass capsules use identical 30% fill alpha',()=>{
   const alphas=[...part[1].matchAll(/rgba\([0-9,]+,(\.[0-9]+)\)/g)].map(m=>Number(m[1]));
   assert.deepEqual(alphas,[.3,.3]);
  }
- assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=915-solid-navy-zero-transparency/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -250,7 +250,7 @@ test('SH9 v912 moves just the language and Tasks row up 10px',()=>{
  assert.ok(pos,'shared language and Tasks header positioning');
  assert.equal(Number(pos[1]),-2,'8px to -2px is exactly 10px up');
  assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:5px;bottom:-6px;top:auto;right:auto/);
- assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=915-solid-navy-zero-transparency/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
@@ -272,7 +272,30 @@ test('SH9 v914 aligns language/Tasks and profile 4px left with identical glass b
  assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:5px;bottom:-6px;top:auto;right:auto/);
  assert.match(css,/@media\(max-width:360px\)\{#sh9HeaderControlsV2\{left:2px\}\}/);
  assert.match(css,/@media\(max-width:360px\)\{\.hero #sh9LauncherProfileV1\{left:2px\}\}/);
- assert.match(page,/sh9-i18n-v1\.css\?v=914-uniform-glass-left4/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=915-solid-navy-zero-transparency/);
+ assert.equal((page.match(/class="tile"/g)||[]).length,9);
+ assert.equal((page.match(/data-nav="/g)||[]).length,5);
+});
+
+test('SH9 v915 all three capsules use same fully opaque navy background, border and shadow',()=>{
+ const final=css.slice(css.indexOf('/* v915 · FINAL SH9 three-pill uniform style'));
+ assert.ok(final.length>300,'uniform v915 CSS appended last');
+ for(const sel of [
+  '#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before',
+  '#sh9HeaderControlsV2 #sh9TasksGolden::before',
+  '.hero #sh9LauncherProfileV1::before',
+  '.hero #sh9LauncherProfileV1[data-profile="z"]::before',
+  '.hero #sh9LauncherProfileV1[data-profile="m"]::before'
+ ])assert.ok(final.includes(sel),sel);
+ assert.match(final,/background:#0c2446!important/);
+ assert.match(final,/border-color:#668bb4!important/);
+ assert.match(final,/backdrop-filter:none!important/);
+ assert.doesNotMatch(final,/background:rgba\(|background:linear-gradient\(/);
+ assert.match(css,/#sh9HeaderControlsV2\{\s*position:absolute;z-index:13;\s*top:calc\(-2px \+ env\(safe-area-inset-top,0px\)\);\s*left:5px/);
+ assert.match(css,/\.hero #sh9LauncherProfileV1\{[\s\S]*?left:5px;bottom:-6px;top:auto;right:auto/);
+ assert.match(css,/width:90px;height:47px;min-width:90px;max-width:90px/);
+ assert.match(css,/top:50%;height:34px/);
+ assert.match(page,/sh9-i18n-v1\.css\?v=915-solid-navy-zero-transparency/);
  assert.equal((page.match(/class="tile"/g)||[]).length,9);
  assert.equal((page.match(/data-nav="/g)||[]).length,5);
 });
