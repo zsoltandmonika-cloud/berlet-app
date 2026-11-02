@@ -11,9 +11,11 @@ assert.match(core,/hhDiaryEntryCount1134/);
 assert.match(page,/id="hhDiaryEntryCount1134"/);
 for(const [name,source] of [['nutrition',core],['manual',manual],['shared library',library]])
  new vm.Script(source,{filename:name+'.js'});
-assert.ok(page.includes('v=1135-click-save-diagnostic'));
+assert.ok(page.includes('v=1137-profile-tada-after-save'));
 assert.ok(page.includes('v=1135-write-display-protection'));
 assert.ok(page.includes('v=1135-multi-image-fallback'));
+assert.ok(page.includes('hh-nutrition-quick-glass-v1137.css?v=1137-premium-four-tiles'));
+assert.ok(page.includes('hh-nutrition-quick-glass-v1137.js?v=1137-quick-buttons-tada'));
 assert.match(core,/entryFoodExplicitlyChosen/);
 assert.match(core,/selected\.value!==currentFood/);
 assert.match(core,/saved\.name!==name\|\|saved\.foodId!==rec\.foodId/);
