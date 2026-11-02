@@ -163,10 +163,13 @@
  function scheduleHealthAnchor(){
   if(!healthShell()||pendingAnchor)return;
   pendingAnchor=true;
-  (w.requestAnimationFrame||w.setTimeout||function(fn){fn()})(()=>{
+  const applyAnchor=()=>{
    pendingAnchor=false;
    if($('sh9LauncherProfileV1'))anchorTo(healthHost());
-  });
+  };
+  if(typeof w.requestAnimationFrame==='function')w.requestAnimationFrame(applyAnchor);
+  else if(typeof w.setTimeout==='function')w.setTimeout(applyAnchor,0);
+  else applyAnchor();
  }
  function observeHealthPages(){
   if(!healthShell()||typeof MutationObserver==='undefined')return;
