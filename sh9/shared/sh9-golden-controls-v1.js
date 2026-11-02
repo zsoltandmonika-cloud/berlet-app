@@ -126,6 +126,8 @@
    const aria=w.SH9_I18N_V1?.t?.('tasks.aria')||(en?'Open Family Tasks':'Családi feladatok megnyitása');
    task.setAttribute('aria-label',aria);task.title=aria;
   }
+  const dockLanguageLabel=$('sh9DockLanguageLabelV34');
+  if(dockLanguageLabel)dockLanguageLabel.textContent=en?'Language':'Nyelv';
   d.querySelectorAll('#sh9LanguageSwitchV1 [data-sh9-lang]').forEach(el=>{
    const c=el.getAttribute('data-sh9-lang'),yes=c===(en?'en':'hu');
    el.setAttribute('aria-pressed',String(yes));
