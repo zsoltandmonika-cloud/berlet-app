@@ -22,9 +22,13 @@ const pages=[
 test('Golden Standard triple controls appear on every navigable category tree page and leaf',()=>{
  for(const file of pages){
   const html=read(file);
-  const count=file==='healthhub/index.html'?2:1; // Classic fallback gets its own document.open() shell.
-  assert.equal((html.match(/sh9-golden-controls-v1\.css\?v=918-global-all/g)||[]).length,count,file+' style');
-  assert.equal((html.match(/sh9-golden-controls-v1\.js\?v=918-global-all/g)||[]).length,count,file+' runtime');
+  const health=file==='healthhub/index.html';
+  const count=health?2:1; // Fallback is a reconstructed document.
+  const version=health?'919-health-hero-anchor':'918-global-all';
+  const styles=[...html.matchAll(/sh9-golden-controls-v1\.css\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
+  const scripts=[...html.matchAll(/sh9-golden-controls-v1\.js\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
+  assert.deepEqual(styles,Array(count).fill(version),file+' CSS version');
+  assert.deepEqual(scripts,Array(count).fill(version),file+' JS version');
   assert.doesNotMatch(html,/sh9-tasks-golden-v901\.js/,file+' duplicate old Tasks script');
  }
 });
@@ -69,4 +73,25 @@ test('all 22 user-facing HTML pages are covered; archived releases and auth call
   p==='healthhub/architecture-grand-design.html';
  const uncovered=htmlPaths.filter(p=>!excluded(p)&&!pages.includes(p));
  assert.deepEqual(uncovered,[], 'Uncovered user-facing category leaves: '+uncovered.join(', '));
+});
+
+test('HealthHub v919 Golden Controls follow active Egészség subpage Hero',()=>{
+ const src=read('sh9/shared/sh9-golden-controls-v1.js');
+ const css=read('sh9/shared/sh9-golden-controls-v1.css');
+ const health=read('healthhub/index.html');
+ const legacy=read('healthhub/health-subhero-layout-v576.css');
+ assert.match(src,/visibleOverlay\('healthSection'\)/);
+ assert.match(src,/sub\.querySelector\('\.healthSubHero'\)/);
+ assert.match(src,/anchorTo\(healthHost\(\)\)/);
+ assert.match(src,/new MutationObserver\(changes=>/);
+ assert.match(src,/attributeFilter:\['class','hidden'\]/);
+ assert.match(src,/observeHealthPages\(\)/);
+ assert.match(css,/#healthSection\.page\.on \.healthSubHero > #sh9HeaderControlsV2\{/);
+ assert.match(css,/#healthSection\.page\.on \.healthSubHero > #sh9LauncherProfileV1\{/);
+ assert.match(css,/left:5px!important;top:2px!important;/);
+ assert.match(css,/left:5px!important;bottom:0!important;/);
+ assert.match(css,/transform:none!important;/);
+ assert.match(legacy,/\.healthSubHero > div/);
+ assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=919-health-hero-anchor/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=919-health-hero-anchor/g)||[]).length,2);
 });
