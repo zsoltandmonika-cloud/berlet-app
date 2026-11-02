@@ -1,13 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
-<title>SHO · Smart Hub One</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t d">
+<title id="t">SHO – Smart Hub One</title>
+<desc id="d">SHO fehér monogram kék-pink fényívvel, prémium üveg ikonon</desc>
 <defs>
- <linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7de2ff"/><stop offset=".5" stop-color="#b5afff"/><stop offset="1" stop-color="#ffa0d8"/></linearGradient>
- <radialGradient id="b"><stop stop-color="#16396d"/><stop offset="1" stop-color="#061329"/></radialGradient>
- <filter id="glow"><feGaussianBlur stdDeviation="10" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <radialGradient id="bg" cx=".16" cy=".10" r="1.25"><stop stop-color="#1f67ad"/><stop offset=".40" stop-color="#123363"/><stop offset=".8" stop-color="#101932"/><stop offset="1" stop-color="#311f51"/></radialGradient>
+ <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6de3ff"/><stop offset=".46" stop-color="#73bfff"/><stop offset=".70" stop-color="#bd93ff"/><stop offset="1" stop-color="#ff82d2"/></linearGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8ce2ff"/><stop offset=".45" stop-color="#8272de"/><stop offset="1" stop-color="#ff8bda"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#ffffff" stop-opacity=".25"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".035"/><stop offset="1" stop-color="#ffffff" stop-opacity=".11"/></linearGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+ <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="shadow"><feDropShadow dx="0" dy="11" stdDeviation="12" flood-color="#061027" flood-opacity=".75"/></filter>
 </defs>
-<rect width="512" height="512" rx="112" fill="url(#b)"/>
-<rect x="10" y="10" width="492" height="492" rx="103" fill="none" stroke="url(#g)" stroke-opacity=".67" stroke-width="7"/>
-<path d="M105 160 C130 112 193 108 256 159 C320 211 382 204 404 160 C424 119 381 102 349 118 C316 132 291 159 256 192 C220 225 183 254 140 242 C104 232 88 194 105 160Z" transform="translate(0 -16)" fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="round" filter="url(#glow)"/>
-<text x="256" y="348" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="166" font-weight="900" letter-spacing="-14" fill="#ffffff">SHO</text>
-<text x="256" y="395" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="29" font-weight="700" letter-spacing="8" fill="#b9d9f4">SMART HUB ONE</text>
+<rect x="16" y="16" width="480" height="480" rx="110" fill="#070f23"/>
+<rect x="22" y="22" width="468" height="468" rx="107" fill="url(#bg)" stroke="url(#edge)" stroke-width="7" filter="url(#shadow)"/>
+<ellipse cx="120" cy="155" rx="138" ry="112" fill="#59bfff" opacity=".18" filter="url(#blur)"/>
+<ellipse cx="418" cy="368" rx="116" ry="135" fill="#ff79cb" opacity=".24" filter="url(#blur)"/>
+<rect x="33" y="33" width="446" height="446" rx="97" fill="url(#glass)" stroke="#ffffff" stroke-opacity=".30" stroke-width="2"/>
+<g transform="rotate(-19 256 253)" fill="none" stroke-linecap="round">
+ <ellipse cx="255" cy="251" rx="172" ry="102" stroke="#6cf0ff" stroke-width="21" opacity=".20" filter="url(#glow)"/>
+ <path d="M89 257 A172 102 0 0 1 421 214" stroke="url(#ring)" stroke-width="16" filter="url(#glow)"/>
+ <path d="M422 248 A172 102 0 0 1 93 290" stroke="url(#ring)" stroke-width="17" filter="url(#glow)"/>
+</g>
+<text x="254" y="304" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="146" font-style="italic" font-weight="900" letter-spacing="-7" paint-order="stroke" stroke="#17264d" stroke-opacity=".65" stroke-width="8" fill="#fff" filter="url(#shadow)">SHO</text>
+<path d="M87 97C169 58 240 61 310 77" fill="none" stroke="#e5faff" stroke-opacity=".30" stroke-width="8" stroke-linecap="round"/>
 </svg>
