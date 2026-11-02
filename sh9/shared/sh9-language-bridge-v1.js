@@ -4,6 +4,34 @@
 'use strict';
 if(w.SH9_LANGUAGE_BRIDGE_V1)return;
 const lex=[
+ ['Medical Records','Leletek'],
+ ['Medications','Gyógyszerek'],
+ ['Léna\'s Explanation','Léna magyarázata'],
+ ['Léna\'s explanation','Léna magyarázat'],
+ ['Create / Edit Explanation','Magyarázat készítése / szerkesztése'],
+ ['Import Previous Explanations','Régi magyarázatok importálása'],
+ ['Summary','Röviden'],
+ ['Key Findings','A lelet fő pontjai'],
+ ['What Does This Mean?','Mit jelent közérthetően?'],
+ ['What to Watch For','Mire érdemes figyelni?'],
+ ['Questions for Your Next Appointment','Kérdések a következő kontrollra'],
+ ['Edit','Szerkesztés'],
+ ['Original PDF','Eredeti PDF'],
+ ['Restore Previous Version','Régi változat visszaállítása'],
+ ['Measurements','Mérések'],
+ ['Devices','Eszközök'],
+ ['Appointments','Időpontok'],
+ ['Search medical records…','Lelet keresése…'],
+ ['Search medications…','Gyógyszer keresése…'],
+ ['Search medical records','Keresés a leletek között'],
+ ['Search medications','Keresés a gyógyszerek között'],
+ ['Morning medications','Reggeli gyógyszerek'],
+ ['Evening medications','Esti gyógyszerek'],
+ ['Health Overview','Egészség áttekintés'],
+ ['Document summary','Dokumentum összefoglaló'],
+ ['Verified','Ellenőrizve'],
+ ['Important','Fontos'],
+ ['No explanation is available for this document yet','Ehhez a dokumentumhoz még nincs átvitt magyarázat'],
  ['Quick Update','Gyorsfrissítés'],
  ['Usage Control Center','Használatfelügyelet'],
  ['Digital Wellbeing','Digitális Jólét'],
@@ -81,9 +109,9 @@ function init(){
  if(typeof MutationObserver!=='undefined'){
   const mo=new MutationObserver(records=>{
    if(working)return;
-   if(records.some(r=>r.type==='childList'&&r.addedNodes.length))schedule();
+   if(records.some(r=>(r.type==='childList'&&r.addedNodes.length)||r.type==='characterData'))schedule();
   });
-  mo.observe(d.body,{subtree:true,childList:true});
+  mo.observe(d.body,{subtree:true,childList:true,characterData:true});
  }
  w.addEventListener('sh9:languagechange',schedule);
  w.addEventListener('storage',e=>{if(e.key==='sh9-language-v1')schedule()});
