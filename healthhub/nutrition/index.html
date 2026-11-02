@@ -142,6 +142,22 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-observation-rag-v728.css?v=729-summary-visible">
 
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=926-nutrition-hero-profile">
+<style id="hh-nutrition-golden-profile-click-v927">
+/* The retired .top .controls is an invisible clickable box over the approved
+   bottom-left pill. Prevent ghost hit testing and put the interactive hero host
+   above the old header. Native #profileBtn remains in the DOM, so the shared
+   pill can still invoke its authentic profile-change handler via .click(). */
+body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost{
+ position:relative!important;z-index:21!important;
+}
+body[data-sh9-golden-three="on"] .top .controls{
+ pointer-events:none!important;
+}
+body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV1{
+ pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
+ z-index:110!important;
+}
+</style>
 <style id="hh-nutrition-golden-hero-anchor-v926">.hh-nutrition-golden-hero-host{position:relative;isolation:isolate}body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV1{position:absolute!important;top:auto!important;bottom:2px!important;left:5px!important;right:auto!important;transform:none!important;z-index:110!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}</style>
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head>
