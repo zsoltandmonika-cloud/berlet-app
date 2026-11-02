@@ -1,7 +1,6 @@
-/* SH9 Golden Standard · 3 shared controls · pilot v917.
-   One language capsule, one Tasks shortcut, one canonical profile switch.
-   SH9 launcher reuses v916 nodes; Family Tasks delegates to its native
-   permission-aware toggle. No cloud/network/medical-data mutation. */
+/* SH9 Golden Standard · global three-control system v918.
+   Every navigable user-facing leaf page shares ONE visual standard.
+   Existing module profile handlers own authorization and refresh. */
 (function(w,d){
  'use strict';
  if(w.SH9_GOLDEN_CONTROLS_V1)return;
@@ -12,6 +11,14 @@
   try{return w.SH9_I18N_V1?.getLanguage?.()==='en'?'en':w.localStorage?.getItem(LANG)==='en'?'en':'hu'}
   catch(_){return 'hu'}
  };
+ const nativeIds=['fhProfileSwitch','guardianProfileSwitch','profileBtn','st22Profile','mtProfile','profile','hhProfileStandard652','hhDigitalProfileDock'];
+ function nativeButton(){
+  for(const id of nativeIds){
+   const element=$(id);
+   if(element&&element.tagName==='BUTTON')return element;
+  }
+  return null;
+ }
  function add(tag,id,parent){
   const el=d.createElement(tag);el.id=id;parent.appendChild(el);return el;
  }
@@ -25,8 +32,7 @@
    const b=d.createElement('button');b.type='button';b.textContent=flag;
    b.setAttribute('data-sh9-lang',code);group.appendChild(b);
    b.addEventListener('click',()=>{
-    const api=w.SH9_I18N_V1;
-    if(api?.setLanguage)api.setLanguage(code);
+    if(w.SH9_I18N_V1?.setLanguage)w.SH9_I18N_V1.setLanguage(code);
     else{
      try{w.localStorage?.setItem(LANG,code)}catch(_){}
      try{w.dispatchEvent(new CustomEvent('sh9:languagechange',{detail:{language:code}}))}catch(_){}
@@ -45,54 +51,76 @@
    const label=$('sh9LauncherProfileNameV1'),mark=$('sh9LauncherProfileMarkV1');
    if(label)label.textContent=name;
    if(mark)mark.textContent=current==='m'?'M':'Z';
-   const description=en?'Switch profile to '+next:'Profilváltás '+next+' profiljára';
-   b.setAttribute('aria-label',description);b.title=description;
+   const text=en?'Switch profile to '+next:'Profilváltás '+next+' profiljára';
+   b.setAttribute('aria-label',text);b.title=text;
   }
-  const hero=d.querySelector('[data-sh9-golden-profile]');
-  if(hero)hero.setAttribute('data-sh9-golden-profile',current);
+  const host=d.querySelector('[data-sh9-golden-host]');
+  if(host)host.setAttribute('data-sh9-golden-profile',current);
+  d.documentElement.setAttribute('data-sh9-golden-profile',current);
   const task=$('sh9TasksGolden');
   if(task){
-   const api=w.SH9_I18N_V1;
-   task.textContent=api?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
-   const aria=api?.t?.('tasks.aria')||(en?'Open Family Tasks':'Családi feladatok megnyitása');
-   task.setAttribute('aria-label',aria);
-   task.title=aria;
+   task.textContent=w.SH9_I18N_V1?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
+   const aria=w.SH9_I18N_V1?.t?.('tasks.aria')||(en?'Open Family Tasks':'Családi feladatok megnyitása');
+   task.setAttribute('aria-label',aria);task.title=aria;
   }
   d.querySelectorAll('#sh9LanguageSwitchV1 [data-sh9-lang]').forEach(el=>{
-   const selected=el.getAttribute('data-sh9-lang')===(en?'en':'hu');
-   el.setAttribute('aria-pressed',String(selected));
-   el.title=el.getAttribute('data-sh9-lang')==='hu'?'Magyar':'Canadian English';
+   const c=el.getAttribute('data-sh9-lang'),yes=c===(en?'en':'hu');
+   el.setAttribute('aria-pressed',String(yes));
+   el.setAttribute('aria-label',c==='hu'?'Magyar':'Canadian English');
+   el.title=c==='hu'?'Magyar':'Canadian English';
   });
  }
+ function notifyProfile(next){
+  try{w.dispatchEvent(new CustomEvent('hh-family-profile-changed',{detail:{profile:next==='m'?'monika':'zsolt'}}))}catch(_){}
+  try{w.dispatchEvent(new CustomEvent('sh9:profilechange',{detail:{profile:next}}))}catch(_){}
+ }
  function toggle(){
-  const before=profile();
-  // Family Tasks' native handler checks authorization and refreshes its lists.
-  const original=$('fhProfileSwitch');
-  if(original&&w.FAMILY_TASKS_V880){
-   original.click();
+  const native=nativeButton(),before=profile();
+  if(native){
+   native.click(); // Use the module's real permissions, state and refresh.
    paint();
+   w.setTimeout?.(paint,0);
+   w.setTimeout?.(paint,120);
    return;
   }
-  // Do not silently bypass Family Tasks permissions if its controller failed.
-  if(original)return;
+  if(typeof w.hhToggleProfileOneClick==='function'){
+   w.hhToggleProfileOneClick();paint();w.setTimeout?.(paint,0);return;
+  }
+  if(typeof w.setProfile==='function'){
+   w.setProfile(before==='m'?'z':'m');paint();w.setTimeout?.(paint,0);return;
+  }
+  // Lightweight leaf pages that only persist a profile preference.
   const next=before==='m'?'z':'m';
   try{w.localStorage?.setItem(KEY,next)}catch(_){return}
   if(profile()!==next)return;
-  paint();
-  try{w.dispatchEvent(new CustomEvent('hh-family-profile-changed',{detail:{profile:next==='m'?'monika':'zsolt'}}))}catch(_){}
+  const root=d.documentElement;
+  if(root.hasAttribute('data-profile'))root.setAttribute('data-profile',next);
+  paint();notifyProfile(next);
+ }
+ const heroSelectors=[
+  '.st-hero','.fh-hero','.guardian-hero','.mt-hero','.st22-hero',
+  '.hero-art','.bkk-hero','.studio-hero','.studio-stage',
+  '.hero','#heroH','.transport-grand','.transport-hero',
+  '.app-header','.topbar','main.shell','main.app','main','.shell'
+ ];
+ function resolveHost(){
+  for(const selector of heroSelectors){
+   const el=d.querySelector(selector);
+   if(el&&el!==d.body)return el;
+  }
+  return d.body;
  }
  function init(){
   if(!d.body)return;
-  const hero=d.querySelector('.hero')||d.querySelector('.st-hero')||d.querySelector('.fh-hero');
-  if(!hero)return; // Keep legacy controls if a compatible hero is missing.
-  const family=!!d.getElementById('fhProfileSwitch');
-  if(family&&!w.FAMILY_TASKS_V880)return; // fail-safe: native controls remain visible.
-  const launcher=!!d.getElementById('sh9HeaderControlsV2');
+  const family=!!$('fhProfileSwitch');
+  if(family&&!w.FAMILY_TASKS_V880)return; // Unavailable native controller: legacy switch remains usable.
+  const host=resolveHost();
+  const launcher=!!$('sh9HeaderControlsV2');
+  const floating=host===d.body;
+  host.setAttribute('data-sh9-golden-host','on');
+  if(floating)d.body.setAttribute('data-sh9-golden-floating','on');
   let header=$('sh9HeaderControlsV2');
-  if(!header){
-   header=add('div','sh9HeaderControlsV2',hero);
-   header.className='sh9-hero-left-controls-v2';
-  }
+  if(!header){header=add('div','sh9HeaderControlsV2',host);header.className='sh9-hero-left-controls-v2'}
   flags(header);
   let task=$('sh9TasksGolden');
   if(!task)task=add('a','sh9TasksGolden',header);
@@ -100,9 +128,9 @@
   task.href=HOME;
   let b=$('sh9LauncherProfileV1');
   if(!b){
-   b=add('button','sh9LauncherProfileV1',hero);b.type='button';
-   const label=add('span','sh9LauncherProfileNameV1',b);
-   label.setAttribute('aria-hidden','true');
+   b=add('button','sh9LauncherProfileV1',host);b.type='button';
+   const name=add('span','sh9LauncherProfileNameV1',b);
+   name.setAttribute('aria-hidden','true');
    const arrow=add('span','sh9LauncherProfileArrowV1',b);
    arrow.setAttribute('aria-hidden','true');arrow.textContent='⇄';
   }
@@ -110,15 +138,15 @@
    b.dataset.sh9GoldenBound='1';
    b.addEventListener('click',toggle);
   }
-  hero.setAttribute('data-sh9-golden-profile',profile());
   d.body.setAttribute('data-sh9-golden-three','on');
   if(family)d.body.setAttribute('data-sh9-golden-family','on');
+  if(nativeButton()||typeof w.hhToggleProfileOneClick==='function'||typeof w.setProfile==='function')
+   d.body.setAttribute('data-sh9-golden-native','on');
   if(!launcher)d.body.setAttribute('data-sh9-golden-pilot','on');
-  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'917-pilot',paint});
+  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'918-global',paint});
   paint();
  }
- if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
- else init();
+ if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
  w.addEventListener?.('sh9:languagechange',paint);
  w.addEventListener?.('hh-family-profile-changed',paint);
  w.addEventListener?.('storage',e=>{if(e.key===KEY||e.key===LANG)paint()});
