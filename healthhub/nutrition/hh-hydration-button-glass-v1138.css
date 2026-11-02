@@ -1,0 +1,96 @@
+/* HealthHub Nutrition v1138 · Aqua Premium Glass micro-theme
+   STRICTLY BUTTON SKIN ONLY: #waterQuickAdd, #hhWaterSave, #hhJarReset.
+   Pitcher, numeric hydration state, goal field, layout, and JS are untouched.
+   Existing 250 ml / save target / reset semantics remain unchanged. */
+
+#balanceCard .hh-water-preset :is(#waterQuickAdd,#hhWaterSave,#hhJarReset) {
+ position:relative!important;
+ isolation:isolate;
+ overflow:hidden;
+ -webkit-backdrop-filter:blur(12px);
+ backdrop-filter:blur(12px);
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:filter .16s ease,transform .16s ease,border-color .16s ease!important;
+}
+
+/* Hero action: crystal-aqua tint with a watery reflection, but unchanged 50px footprint. */
+#balanceCard .hh-water-preset #waterQuickAdd {
+ color:#f8fdff!important;
+ background:
+   radial-gradient(ellipse at 18% 2%,rgba(226,255,255,.30),transparent 42%),
+   linear-gradient(130deg,rgba(43,174,211,.98) 0%,rgba(19,115,174,.97) 49%,rgba(24,80,142,.98) 100%)!important;
+ border:1px solid color-mix(in srgb,var(--accent) 26%,#a2eff5 74%)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.55),
+   inset 0 -8px 18px rgba(6,51,100,.18),
+   0 7px 18px rgba(0,26,64,.35),
+   0 0 16px rgba(90,220,251,.18)!important;
+ text-shadow:0 1px 2px rgba(0,30,67,.40);
+}
+#balanceCard .hh-water-preset #waterQuickAdd::before {
+ content:"💧";
+ position:relative;z-index:1;display:inline-block;flex:none;
+ font-size:19px;line-height:1;
+ filter:drop-shadow(0 2px 3px rgba(1,61,104,.4));
+}
+#balanceCard .hh-water-preset #waterQuickAdd::after {
+ content:"";position:absolute;pointer-events:none;
+ left:-9%;right:-9%;top:-55%;height:83%;
+ border-radius:50%;
+ background:linear-gradient(180deg,rgba(255,255,255,.23),rgba(255,255,255,.02));
+ transform:rotate(-7deg);
+}
+
+/* Secondary water action: visually quieter; no implication that diary data is erased. */
+#balanceCard .hh-water-preset #hhJarReset {
+ color:#c9eff9!important;
+ background:
+   radial-gradient(circle at 21% 0%,rgba(105,220,244,.13),transparent 52%),
+   linear-gradient(140deg,rgba(25,66,99,.79),rgba(19,39,70,.89))!important;
+ border:1px solid color-mix(in srgb,var(--accent) 21%,#79c8e2 79%)!important;
+ box-shadow:inset 0 1px 0 rgba(218,250,255,.22),0 4px 14px rgba(0,9,30,.19)!important;
+}
+#balanceCard .hh-water-preset #hhJarReset::before {
+ content:"↺";display:inline-block;flex:none;font-size:21px;
+ font-weight:650;line-height:1;color:#9fe8fa;
+}
+
+/* Compact utility: keep current goal/input layout and 45px button size. */
+#balanceCard .hh-water-preset #hhWaterSave {
+ display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;
+ gap:5px!important;
+ color:#eafaff!important;
+ background:linear-gradient(140deg,rgba(36,97,129,.92),rgba(24,57,94,.93))!important;
+ border:1px solid color-mix(in srgb,var(--accent) 26%,#92d7e9 74%)!important;
+ box-shadow:inset 0 1px 0 rgba(230,255,255,.26),0 3px 12px rgba(0,13,45,.20)!important;
+}
+#balanceCard .hh-water-preset #hhWaterSave::before {
+ content:"✓";font-size:13px;font-weight:900;line-height:1;color:#b6f4ff;
+}
+#balanceCard .hh-water-preset :is(#waterQuickAdd,#hhWaterSave,#hhJarReset):active {
+ transform:scale(.98);
+ filter:brightness(1.09);
+}
+#balanceCard .hh-water-preset :is(#waterQuickAdd,#hhWaterSave,#hhJarReset):focus-visible {
+ outline:2px solid var(--accent)!important;outline-offset:3px!important;
+}
+#balanceCard .hh-water-preset :is(#waterQuickAdd,#hhWaterSave,#hhJarReset):disabled {
+ opacity:.55!important;filter:saturate(.6);cursor:not-allowed;
+}
+
+/* In Mónika's profile the glass picks up a soft pink rim; water stays aqua. */
+html[data-profile="monika"] #balanceCard .hh-water-preset #waterQuickAdd {
+ border-color:#e8bddf!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.58),
+  0 7px 18px rgba(0,26,64,.31),0 0 12px rgba(246,172,217,.21)!important;
+}
+html[data-profile="monika"] #balanceCard .hh-water-preset :is(#hhJarReset,#hhWaterSave) {
+ border-color:color-mix(in srgb,#edb4d8 35%,#90d7ee 65%)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #balanceCard .hh-water-preset :is(#waterQuickAdd,#hhWaterSave,#hhJarReset){
+  transition:none!important;
+ }
+}
