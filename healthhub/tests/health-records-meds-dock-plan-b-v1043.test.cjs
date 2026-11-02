@@ -18,11 +18,15 @@ test('Leletek + Gyógyszerek render the same working search in Hero and Golden D
  assert.match(search,/hero\.appendChild\(search\)/);
  assert.match(search,/input\.placeholder=records\?/);
  assert.match(h,/health-records-hero-search-v1016\.js\?v=1017-en-search/);
- assert.match(h,/health-records-meds-plan-b-v1043\.css\?v=1044-search-75pct-up5/);
+ assert.match(h,/health-records-meds-plan-b-v1043\.css\?v=1045-centered-search/);
  assert.equal((h.match(/sh9-golden-controls-v1\.js\?v=1043-records-meds-dock-plan-b/g)||[]).length,2);
  assert.equal((h.match(/sh9-golden-controls-v1\.css\?v=1043-records-meds-dock-plan-b/g)||[]).length,2);
  assert.match(css,/\.healthSubHero > \.healthSearchWrap\[data-hh-records-search-pill="on"\]/);
  assert.match(css,/top:5px!important;bottom:auto!important/);
+ assert.match(css,/left:50%!important;right:auto!important/);
+ assert.match(css,/transform:translateX\(-50%\)!important/);
+ assert.match(css,/top:4px!important/); // Narrow-screen elevation unchanged.
+
  assert.match(css,/height:34px!important/);
 
  // Both pages share the same original search, now 75% of its previous width.
