@@ -86,3 +86,48 @@ body[data-sh9-golden-family="on"] .fh-hero .fh-module-badge{
  body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1{left:2px!important}
  body[data-sh9-golden-pilot="on"] #sh9LanguageSwitchV1 [data-sh9-lang]{min-width:33px;width:33px}
 }
+
+/* v918 · Works at every category-tree depth. Only established, non-launcher
+   hosts get relative anchoring. Long/role=img pages get a fixed safe-area dock. */
+body[data-sh9-golden-pilot="on"] [data-sh9-golden-host="on"]:not(body){
+ position:relative;
+}
+body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9HeaderControlsV2{
+ position:fixed!important;
+ z-index:2147482001!important;
+ top:calc(5px + env(safe-area-inset-top,0px))!important;
+ left:max(5px,calc((100vw - 420px)/2 + 5px))!important;
+}
+body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9LauncherProfileV1{
+ position:fixed!important;
+ z-index:2147482001!important;
+ top:auto!important;right:auto!important;
+ bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;
+ left:max(5px,calc((100vw - 420px)/2 + 5px))!important;
+}
+body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9HeaderControlsV2 #sh9TasksGolden,
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9TasksGolden{
+ position:relative!important;top:auto!important;bottom:auto!important;
+ left:auto!important;right:auto!important;
+}
+/* Legacy profile controls are visually retired only when a known native
+   controller is available. The real buttons remain in DOM so their handlers
+   enforce permissions and perform module-specific refreshes. */
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #guardianProfileSwitch,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #profileBtn,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #profile.profile,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #st22Profile,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #mtProfile,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #hhDigitalProfileDock,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #hhProfileStandard652{
+ visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+body[data-sh9-golden-pilot="on"][data-sh9-golden-family="on"] .fh-hero .fh-module-badge{
+ display:none!important;
+}
+@media(max-width:360px){
+ body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9HeaderControlsV2,
+ body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9LauncherProfileV1{
+  left:2px!important;
+ }
+}
