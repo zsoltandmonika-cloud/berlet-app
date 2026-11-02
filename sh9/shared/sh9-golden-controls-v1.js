@@ -111,20 +111,18 @@
  function healthHost(){
   // The Health screen and the dynamically-created Symptom Diary must receive
   // the same three golden pills as the Home screen, not inherit a stale hero.
-  // Nested overlays take priority over the underlying Health page.
-  // Health commonly retains .on while Sleep's three internal views are open.
-  const sleep=visibleOverlay('hhSleepPage');
-  if(sleep)return sleep.querySelector('.hhSleepDoctorHero')||sleep;
-  const activity=visibleOverlay('hhActivityPage191');
-  if(activity)return activity.querySelector('.a191Hero')||activity;
-  const sub=visibleOverlay('healthSection');
-  if(sub)return sub.querySelector('.healthSubHero')||sub;
   const journal=visibleOverlay('hhSymptomJournal307');
   if(journal)return journal.querySelector('.hhSJHero')||journal;
   const health=visibleOverlay('health');
   if(health)return health.querySelector('#heroH')||health.querySelector('.hero')||health;
   // HealthHub contains many page branches in ONE document. Choose the
   // currently visible Hero, not the scrollable BODY (v918 regression).
+  const activity=visibleOverlay('hhActivityPage191');
+  if(activity)return activity.querySelector('.a191Hero')||activity;
+  const sleep=visibleOverlay('hhSleepPage');
+  if(sleep)return sleep.querySelector('.hhSleepDoctorHero')||sleep;
+  const sub=visibleOverlay('healthSection');
+  if(sub)return sub.querySelector('.healthSubHero')||sub;
   const pages=d.querySelectorAll('.page.on');
   const active=pages.length?pages[pages.length-1]:null;
   if(active){
