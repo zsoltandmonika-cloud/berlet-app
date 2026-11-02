@@ -38,3 +38,10 @@
 #hhManualDialog1130 .hh-manual-image[hidden],#hhManualDialog1130 [hidden]{display:none!important}
 #hhManualDialog1130 .hh-manual-caption{font-size:11px;font-weight:500;color:#b8cbe4}
 @media(max-width:360px){#hhManualDialog1130 form{padding:13px;gap:10px}#hhManualLaunch1130{padding:9px}#hhManualLaunch1130 strong{font-size:14px}}
+
+/* Predictive typing remains usable in browsers that hide native datalist UI. */
+#hhManualDialog1130 .hh-manual-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:3px 0}
+#hhManualDialog1130 .hh-manual-suggestions[hidden]{display:none!important}
+#hhManualDialog1130 .hh-manual-suggestions button{min-height:38px;max-width:100%;border-radius:999px;
+ border:1px solid color-mix(in srgb,var(--accent) 50%,#89b6da);background:var(--accentWash);
+ color:#edf6ff;font:650 12px/1.3 system-ui;padding:7px 11px;text-align:left;overflow-wrap:anywhere}
