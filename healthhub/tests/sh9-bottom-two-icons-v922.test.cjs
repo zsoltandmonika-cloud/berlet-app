@@ -24,8 +24,20 @@ test('v922 two icons follow profile color using canonical GOLDEN STANDARD profil
  assert.match(css,/:root\[data-sh9-golden-profile="m"\]\{--sh9-bottom-two-icon-accent:#f9a6d3\}/);
  assert.match(css,/color:var\(--sh9-bottom-two-icon-accent\)!important/);
  assert.match(shared,/d\.documentElement\.setAttribute\('data-sh9-golden-profile',current\)/);
- assert.match(html,/sh9-bottom-two-icons-v922\.css\?v=922-only-home-and-ask/);
+ assert.match(html,/sh9-bottom-two-icons-v922\.css\?v=923-ask-label-profile/);
  assert.ok(html.indexOf('sh9-bottom-two-icons-v922.css')>html.indexOf('sh9-ai-taskbar-v1.css'));
  assert.equal((html.match(/class="tile"/g)||[]).length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
+});
+
+test('v923 only Ask Léna caption follows blue/pink icon accent while other labels stay untouched',()=>{
+ const marker='/* v923 · Ask Léna label';
+ const patch=css.slice(css.indexOf(marker));
+ assert.ok(patch.length>130);
+ assert.match(patch,/\.wrap \.nav button\[data-nav="Ask Léna"\] > span\{/);
+ assert.match(patch,/color:var\(--sh9-bottom-two-icon-accent\)!important/);
+ assert.doesNotMatch(patch,/data-nav="Kezdőlap"|data-nav="Vissza"|data-nav="Értesítések"|data-nav="Admin"/);
+ assert.match(css,/:root\{--sh9-bottom-two-icon-accent:#79bfff\}/);
+ assert.match(css,/:root\[data-sh9-golden-profile="m"\]\{--sh9-bottom-two-icon-accent:#f9a6d3\}/);
+ assert.match(html,/sh9-bottom-two-icons-v922\.css\?v=923-ask-label-profile/);
 });
