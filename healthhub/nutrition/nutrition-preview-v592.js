@@ -80,8 +80,17 @@ function normalize(x,profile){
 }
 function read(profile){try{return normalize(JSON.parse(localStorage.getItem(LS+profile)||'null'),profile)}catch(_){return fresh(profile)}}
 function write(profile,doc){
- doc.updatedAt=stamp();localStorage.setItem(LS+profile,JSON.stringify(doc));
- if(profile===active)render();
+ // v1135: Persist first. A UI render exception must not turn a durable write
+ // into a false "save failed" or prevent the Dropbox sync from being queued.
+ doc.updatedAt=stamp();
+ localStorage.setItem(LS+profile,JSON.stringify(doc));
+ if(profile===active){
+  try{render();root.hhNutritionLastRenderError=null}
+  catch(err){
+   root.hhNutritionLastRenderError=String(err?.message||err).slice(0,250);
+   console.warn('Nutrition: diary saved but screen update failed',root.hhNutritionLastRenderError);
+  }
+ }
  queueSync(profile);
 }
 function update(fn){const k=active,d=read(k);fn(d);write(k,d);}
