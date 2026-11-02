@@ -37,6 +37,8 @@ const ENTRIES=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
 const MEAL_ICONS=['☕','🍎','🍽️','🍪','🌙','➕'];
 const normalizeMeal=meal=>ENTRIES.includes(meal)?meal:(meal==='Egyéb / Brunch'?'Egyéb':null);
 let entryMealManuallyChosen=false;
+// v1132: Never allow the first (often Banana) default option to be saved without selection.
+let entryFoodExplicitlyChosen=false;
 const DOM=['milkMl','milkType','sugarCubes','cubeGrams','cinnamonGrams','ladyCount','ladyGrams','presetMeal','presetTime'];
 let active='', currentFood='', currentPreset='morning', currentEdit='', bodyKind='', activeType='food';
 let audio=null, syncTimers={}, syncRunning={}, lastCloud={}, onload=0, pendingSound=false;
@@ -654,6 +656,7 @@ function entryPreview(){
  $('entryPreview').innerHTML='<span class="nutrition-icon">'+safeText(f.icon||'🍽️')+'</span> <strong>'+fmt(result.kcal,0)+' kcal</strong><br>'+fmt(grams,1)+' g (számított adag) · Fehérje '+fmt(result.protein)+' g · Szénhidrát '+fmt(result.carbs)+' g · Zsír '+fmt(result.fat)+' g'+(result.vitc!=null?'<br>🍊 C-vitamin: '+fmt(result.vitc)+' mg':'')+'<br><span class="note">Alapadat: tájékoztató becslés / 100 g. A mértékegység tömege szerkeszthető.</span>';
 }
 function openEntry(kind,item=null){
+ entryFoodExplicitlyChosen=!!item;
  activeType=kind;currentEdit=item?.id||'';currentFood=item?.foodId||'';
  $('entryTitle').textContent=item?'Bevitel szerkesztése':(kind==='drink'?'🥤 Ital hozzáadása':'🍎 Étel hozzáadása');
  $('entryError').textContent='';$('foodSearch').value='';$('entryTime').value=item?.time||localTime();
@@ -671,6 +674,11 @@ function openEntry(kind,item=null){
 }
 function saveFood(e){
  e.preventDefault();
+ const selected=$('foodSelect').selectedOptions[0];
+ if(!entryFoodExplicitlyChosen||!currentFood||!selected||selected.value!==currentFood){
+  $('entryError').textContent='Előbb válaszd ki az ételt a listából. Az első találatot nem naplózzuk automatikusan.';
+  return;
+ }
  const f=foodBy(currentFood),q=num($('quantity').value,.01,10000),grams=q*chosenUnit();
  if(!f||q==null||!Number.isFinite(grams)||grams<=0||grams>15000){$('entryError').textContent='Válassz élelmiszert és érvényes adagot.';return;}
  const unit=$('unit').value,time=$('entryTime').value;
@@ -837,7 +845,7 @@ function openNamedFood(id,kind='food'){
  openEntry(kind);
  const food=foodBy(id);
  if(!food)return;
- currentFood=id;
+ currentFood=id;entryFoodExplicitlyChosen=true;
  $('foodSearch').value='';
  redrawSelect();
  $('foodSelect').value=id;
@@ -899,8 +907,12 @@ function events(){
  click('syncNutritionNow',()=>{syncProfile(active).catch(()=>{})});
  click('urineBtn',()=>openBody('urine'));click('stoolBtn',()=>openBody('stool'));click('bodyHistoryBtn',()=>renderBody());
  click('savePreset',savePresetOnly);
- $('foodSearch').addEventListener('input',redrawSelect);
- $('foodSelect').addEventListener('change',()=>{currentFood=$('foodSelect').value;redrawUnits();tone('tap')});
+ $('foodSearch').addEventListener('input',()=>{entryFoodExplicitlyChosen=false;redrawSelect()});
+ $('foodSelect').addEventListener('change',()=>{
+  currentFood=$('foodSelect').value;
+  entryFoodExplicitlyChosen=!!foodBy(currentFood);
+  redrawUnits();tone('tap');
+ });
  for(const id of ['quantity','unit'])$(id).addEventListener('change',entryPreview);
  $('quantity').addEventListener('input',entryPreview);
  $('entryTime').addEventListener('change',()=>{
