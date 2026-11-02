@@ -409,6 +409,15 @@ function ensureLaunch(){
  }else if(b!==q.lastElementChild)q.appendChild(b);
  /* HealthRadar can rebuild .quick with innerHTML. Rebind even when the button survives
     visually but its DOM event handler was discarded by the rebuild. */
+ // This shortcut splits its HU label across a <br>; exact-label translators cannot match it.
+ // Keep the original DOM button and click handler, update only its caption.
+ var localeEnglish=false;
+ try{localeEnglish=localStorage.getItem('sh9-language-v1')==='en'}catch(_){}
+ var caption=b.lastElementChild;
+ if(caption&&caption.tagName==='SPAN'){
+  var desired=localeEnglish?'Symptom<br>Diary':'Tünet-<br>napló';
+  if(caption.innerHTML!==desired)caption.innerHTML=desired;
+ }
  b.type='button';
  b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}openJournal()};
 }
