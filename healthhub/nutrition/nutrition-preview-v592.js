@@ -922,6 +922,50 @@ root.HH_NUTRITION_QUICK_API={
  getData:()=>clone(read(active)),
  syncNow:()=>syncProfile(active),
  getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
+ // v1130 · Minimal manual diary input. Unknown nutrition remains NULL, not 0.
+ getManualSuggestions:()=>catalog().map(f=>({name:f.name,kind:f.kind,category:f.category,
+  per100:{...f.per}})),
+ recordManualMeal:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A mentés megszakadt.');
+  const name=String(payload.name||'').trim().slice(0,80),meal=normalizeMeal(payload.meal),
+   quantity=Number(payload.quantity),unit=payload.unit==='ml'?'ml':'g',nut={};
+  if(name.length<2||!meal||!Number.isFinite(quantity)||quantity<1||quantity>3000)
+   throw Error('Az étel neve, adagja vagy étkezése hibás.');
+  for(const key of ['kcal','protein','carbs','fat']){
+   const raw=payload.nutrients?.[key],value=raw==null||raw===''?null:Number(raw);
+   if(value!=null&&(!Number.isFinite(value)||value<0||value>(key==='kcal'?5000:1000)))
+    throw Error('Hibás tápérték: '+key);
+   nut[key]=value;
+  }
+  for(const key of metrics)if(!(key in nut))nut[key]=null;
+  const now=stamp(),rec={id:uid(),createdAt:now,updatedAt:now,date:localDate(),time:localTime(),
+   meal,kind:unit==='ml'?'drink':'food',foodId:'manual:'+uid(),name,
+   icon:unit==='ml'?'🥤':'🍽️',quantity,unit,quantityText:fmt(quantity)+' '+unit,
+   nutrients:nut,source:nut.kcal==null?'manual-unknown':'estimated',manualEntry:true};
+  update(d=>d.entries.push(rec));
+  return {name,profile:active,id:rec.id,kcal:nut.kcal,date:rec.date};
+ },
+ saveManualFood:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A mentés megszakadt.');
+  const name=String(payload.name||'').trim().slice(0,80),
+   category=String(payload.category||'Egyéb').trim().slice(0,45),quantity=Number(payload.quantity),
+   kind=payload.unit==='ml'?'drink':'food',per={};
+  if(name.length<2||!category||!Number.isFinite(quantity)||quantity<1||quantity>3000)
+   throw Error('Érvénytelen élelmiszer vagy adag.');
+  for(const key of ['kcal','protein','carbs','fat']){
+   const raw=payload.nutrients?.[key],value=raw==null||raw===''?null:Number(raw);
+   if(key==='kcal'&&value==null)throw Error('Élelmiszermentéshez kalóriaadat kell.');
+   const scaled=value==null?null:Number((value*100/quantity).toFixed(3));
+   if(scaled!=null&&(!Number.isFinite(scaled)||scaled<0||scaled>(key==='kcal'?950:100)))
+    throw Error('Ellenőrizd a 100 grammra vetített tápértéket: '+key);
+   per[key]=scaled;
+  }
+  const row={id:'user:'+uid(),name,kind,category,icon:kind==='drink'?'🥤':'🍽️',per,
+   createdAt:stamp(),updatedAt:stamp()};
+  update(d=>d.catalog.push(row));
+  return row;
+ },
+
  getFoodNutrients:(id,grams)=>{const f=foodBy(id);return f?clone(calc(f.per,grams)):null},
  reorderRecipes:ids=>{
   if(!Array.isArray(ids)||ids.length>250||ids.some(id=>typeof id!=='string'||!/^quick:[a-z0-9_-]{1,80}$/i.test(id))||new Set(ids).size!==ids.length)throw Error('Érvénytelen körhinta-sorrend');
