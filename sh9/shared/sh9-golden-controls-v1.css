@@ -235,7 +235,7 @@ html[data-sh9-golden-profile="m"] body[data-sh9-golden-unified="on"],
 body[data-sh9-golden-unified="on"] [data-sh9-golden-profile="m"] {--sh9-dock-accent:#f9a6d3;--sh9-dock-wash:rgba(249,166,211,.22)}
 body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34{
  box-sizing:border-box!important;
- position:absolute!important;z-index:1010!important;
+ position:absolute!important;z-index:210!important;
  top:auto!important;bottom:1px!important;left:2px!important;right:2px!important;
  width:auto!important;height:50px!important;min-height:50px!important;max-height:50px!important;
  display:grid!important;grid-template-columns:1.1fr 1.15fr .95fr .92fr!important;
@@ -369,7 +369,7 @@ body[data-sh9-golden-unified="on"][data-sh9-golden-floating="on"] #sh9UnifiedGla
  left:50%!important;right:auto!important;bottom:auto!important;
  width:min(410px,calc(100vw - 8px))!important;
  transform:translateX(-50%)!important;
- z-index:1010!important;
+ z-index:180!important;
 }
 @media(max-width:350px){
  body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34{
