@@ -82,6 +82,7 @@ function open(){
  if(!api()?.recordManualMeal)return w.alert('A kézi bevitel még nem töltődött be. Frissítsd az oldalt.');
  session=api().getProfile();matched=null;aiEstimated=false;busy=false;clearImage();
  $('hhManualForm1130').reset();$('hhManualQty1130').value='250';
+ $('hhManualOwnPhoto1133').value='';
  const hour=new Date().getHours();
  $('hhManualMeal1130').value=hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb';
  $('hhManualFamilyWrap1130').hidden=!w.HH_NUTRITION_CLOUD_V626?.connected();
@@ -118,17 +119,33 @@ function voice(){
  $('hhManualVoice1130').textContent='⏹';tell('🎤 Figyelek. Például: „250 gramm rakott krumpli”.');
  try{recognition.start()}catch(e){recognition=null;$('hhManualVoice1130').textContent='🎤';tell(String(e.message||e),true)}
 }
+/* v1133 · use the same Puter SDK instance as AI Scan, without requiring a model-catalog call. */
 function provider(){
- if(w.puter?.ai?.chat&&w.puter?.ai?.listModels)return Promise.resolve(w.puter);
+ if(w.puter?.ai?.chat)return Promise.resolve(w.puter);
  if(aiPromise)return aiPromise;
  aiPromise=new Promise((resolve,reject)=>{
-  const ready=()=>!!w.puter?.ai?.chat&&!!w.puter?.ai?.listModels;
-  let tries=0;const poll=()=>ready()?resolve(w.puter):++tries>75?reject(Error('AI szolgáltatás nem válaszol')):setTimeout(poll,200);
-  if([...d.scripts].some(s=>s.src?.includes('js.puter.com/v2/'))){poll();return}
-  const s=d.createElement('script');s.src='https://js.puter.com/v2/';s.async=true;
-  s.onload=poll;s.onerror=()=>reject(Error('A Puter AI szolgáltatás nem tölthető be.'));d.head.append(s);
+  let tries=0,finished=false;
+  const check=(err)=>{
+   if(finished)return;
+   if(err){finished=true;reject(err);return}
+   if(w.puter?.ai?.chat){finished=true;resolve(w.puter);return}
+   if(++tries>150){finished=true;reject(Error('Puter szolgáltatás nem indult el; ellenőrizd a hálózatot és a bejelentkezést.'));return}
+   setTimeout(check,200);
+  };
+  if([...d.scripts].some(s=>s.src?.includes('js.puter.com/v2/'))){check();return}
+  const script=d.createElement('script');script.src='https://js.puter.com/v2/';script.async=true;
+  script.onload=()=>check();script.onerror=()=>check(Error('A Puter AI nem tölthető be.'));
+  d.head.append(script);
  }).catch(e=>{aiPromise=null;throw e});
  return aiPromise;
+}
+function readableAIError(e){
+ const raw=String(e?.message||e?.code||e||'ismeretlen hiba');
+ if(/insufficient.fund|credit|balance|payment|quota/i.test(raw))
+  return 'A Puter AI-keret nem elegendő. Ellenőrizd a Puter fiókot; a kézi mentés továbbra is működik.';
+ if(/auth|login|unauthori|popup.block|sign.?in/i.test(raw))
+  return 'Puter bejelentkezés vagy felugró ablak engedélyezése szükséges. '+raw.slice(0,85);
+ return raw.slice(0,230);
 }
 function extract(result){
  const raw=typeof result==='string'?result:typeof result?.message?.content==='string'?result.message.content:
@@ -142,27 +159,41 @@ function extract(result){
  }
  return {out,note:text(obj.note).slice(0,170)};
 }
+/* Text-only estimate uses documented Puter chat signatures, no listModels dependency. */
 async function estimate(){
- if(busy)return;let info;
- try{info=amount()}catch(e){return tell(e.message,true)}
- const started=session;busy=true;$('hhManualEstimate1130').disabled=true;
- tell('✨ AI-becslést kérek az ételhez és a megadott adaghoz…');
+ if(busy)return;
+ let info;try{info=amount()}catch(e){return tell(e.message,true)}
+ const started=session,originalName=info.name,originalAmount=info.quantity;
+ busy=true;$('hhManualEstimate1130').disabled=true;
+ tell('✨ Léna AI-becslés indítása · '+info.name+' · '+info.quantity+' '+info.unit+'…');
  try{
-  const p=await provider(),models=await p.ai.listModels();
-  const wanted=['gpt-6.1-sol','gemini-3.8-flash','gpt-5.6-luna'];
-  const chosen=wanted.map(n=>models.find(m=>String(m?.id||'').includes(n))?.id).find(Boolean)||
-   models.find(m=>m?.id&&m.text_input!==false)?.id;
-  if(!chosen)throw Error('Nem érhető el szöveges AI-modell.');
-  const prompt='Magyar élelmiszer- és étkezési tápértékbecslés. Válasz kizárólag JSON: {"kcal":szám,"protein":szám,"carbs":szám,"fat":szám,"note":"rövid bizonytalanság"}. '+
-    'TELJES ADAG tápértékét add meg, ne a 100 grammra vetítettet. '+info.name+', '+info.quantity+' '+info.unit+
-    '. Recept és elkészítés nem ismert, becsülj óvatosan. Bizonytalanságot jelezd. Ha nincs megfelelő adat, adj null értékeket.';
-  const result=extract(await p.ai.chat(prompt,{model:chosen,normalize:true,max_tokens:360}));
+  const p=await provider();
+  const prompt=[
+   'Magyar nyelvű, óvatos étkezési tápértékbecslést készítesz.',
+   'Csak egy érvényes JSON objektumot adj vissza: {"kcal":250,"protein":10,"carbs":35,"fat":8,"note":"becslési bizonytalanság"}',
+   'Az adatok a teljes megadott adagra vonatkoznak, NEM 100 g-ra.',
+   'Étel: '+info.name+'. Adag: '+info.quantity+' '+info.unit+'.',
+   'Nincs ismert recept vagy hozzávalólista. A note mezőben jelezd a fő bizonytalanságot.',
+   'Ne tegyél úgy, mintha mért érték lenne, ne adj egészségügyi tanácsot.',
+   'Ha az adat nem becsülhető, az értéket null-ként add meg.'
+  ].join('\n');
+  let response;
+  try{response=await p.ai.chat(prompt,{model:'gpt-5.4-nano',normalize:true,max_tokens:400})}
+  catch(first){
+   const reason=String(first?.message||first?.code||first);
+   if(/insufficient.fund|credit|balance|payment|auth|login|popup.block/i.test(reason))throw first;
+   // A different supported model can recover from a provider/model outage. Never silently fabricate values.
+   try{response=await p.ai.chat(prompt,{normalize:true,max_tokens:400})}
+   catch(second){throw Error('Első modell: '+reason.slice(0,100)+' · Második: '+String(second?.message||second?.code||second).slice(0,115))}
+  }
+  const result=extract(response);
   if(started!==api()?.getProfile()||!$('hhManualDialog1130').open||
-     text($('hhManualName1130').value)!==info.name||Number($('hhManualQty1130').value)!==info.quantity)
-   throw Error('Az étel, az adag vagy a profil közben változott.');
-  matched=null;aiEstimated=true;for(const [k,v] of Object.entries(result.out))field(k).value=v;
-  tell('✨ Becsült érték, nem mérés. '+(result.note||'Kérlek, ellenőrizd a tápértéket.'));
- }catch(e){tell('⚠ AI-becslés nem sikerült: '+String(e.message||e).slice(0,155),true)}
+     text($('hhManualName1130').value)!==originalName||Number($('hhManualQty1130').value)!==originalAmount)
+   throw Error('A profil, az étel vagy az adag módosult. Kérj új becslést.');
+  matched=null;aiEstimated=true;
+  for(const [k,v]of Object.entries(result.out))field(k).value=v;
+  tell('✓ AI becslés elkészült (nem mérés). '+(result.note||'Ellenőrizd a tápértékeket és az adagot.'));
+ }catch(e){tell('⚠ AI-becslés sikertelen: '+readableAIError(e),true)}
  finally{busy=false;$('hhManualEstimate1130').disabled=false}
 }
 async function image(){
@@ -178,7 +209,7 @@ async function image(){
    throw Error('Az étel vagy a profil közben megváltozott.');
   imageData=data;const pic=$('hhManualPhoto1130');pic.src=data;pic.hidden=false;
   tell('✓ Kártyakép elkészült. Tartós képtároláshoz Dropbox-kapcsolat szükséges.');
- }catch(e){tell('⚠ A kép nem készült el: '+String(e.message||e).slice(0,160),true)}
+ }catch(e){tell('⚠ AI-kép sikertelen: '+readableAIError(e)+' · Választhatsz saját fotót is.',true)}
  finally{busy=false;$('hhManualImage1130').disabled=false}
 }
 const newId=()=> 'quick:manual-'+(w.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9-]/gi,'').slice(0,54);
@@ -280,6 +311,31 @@ function init(){
  for(const k of KEYS)field(k).addEventListener('input',()=>{aiEstimated=false;matched=null});
  $('hhManualEstimate1130').addEventListener('click',estimate);
  $('hhManualImage1130').addEventListener('click',image);
+ $('hhManualOwnPhotoBtn1133').addEventListener('click',()=>$('hhManualOwnPhoto1133').click());
+ $('hhManualOwnPhoto1133').addEventListener('change',async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>9*1024*1024)
+   return tell('Csak JPEG/PNG/WebP fotó használható, legfeljebb 9 MB.',true);
+  const started=session;busy=true;tell('📷 Saját fotó betöltése…');
+  let src='';
+  try{
+   src=URL.createObjectURL(file);
+   const image=new Image();image.src=src;await image.decode();
+   const ratio=Math.min(1,900/Math.max(image.naturalWidth,image.naturalHeight));
+   const canvas=d.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));
+   canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
+   canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL('image/jpeg',.75);
+   if(data.length>1200000)throw Error('A fotó túl nagy, válassz kisebbet.');
+   if(started!==api()?.getProfile()||!$('hhManualDialog1130').open)
+    throw Error('A profil vagy az ablak megváltozott.');
+   imageData=data;const pic=$('hhManualPhoto1130');pic.src=data;pic.hidden=false;
+   tell('✓ Saját fotó csatolva. A gyűjteménybe mentéshez Dropbox-kapcsolat szükséges.');
+  }catch(err){tell('⚠ Fotóhiba: '+String(err.message||err).slice(0,155),true)}
+  finally{busy=false;if(src)URL.revokeObjectURL(src)}
+ });
+
  $('hhManualForm1130').addEventListener('submit',save);
  $('hhManualDialog1130').addEventListener('close',()=>{if(recognition){recognition.stop();recognition=null}});
 }
