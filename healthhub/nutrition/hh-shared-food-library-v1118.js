@@ -105,13 +105,24 @@ async function reorderFavorites(ids){
  * Only public food descriptions are passed to Puter. Diary and profile data are excluded.
  */
 let aiPromise=null;
+/* v1133: reuse the existing SDK tag to avoid duplicate-load races with AI Scan and the image studio. */
 function getPuter(){
  if(root.puter?.ai?.txt2img)return Promise.resolve(root.puter);
  if(aiPromise)return aiPromise;
  aiPromise=new Promise((resolve,reject)=>{
+  const ready=()=>!!root.puter?.ai?.txt2img;
+  let count=0,finished=false;
+  const done=(error)=>{
+   if(finished)return;
+   if(error){finished=true;reject(error)}
+   else if(ready()){finished=true;resolve(root.puter)}
+   else if(++count>150){finished=true;reject(Error('Puter nem indult el. Ellenőrizd a kapcsolatot és a Puter bejelentkezést.'))}
+   else setTimeout(()=>done(),200);
+  };
+  if([...document.scripts].some(s=>s.src?.includes('js.puter.com/v2/'))){done();return}
   const script=document.createElement('script');script.src='https://js.puter.com/v2/';script.async=true;
-  script.onload=()=>root.puter?.ai?.txt2img?resolve(root.puter):reject(Error('A Puter AI nem indult el.'));
-  script.onerror=()=>reject(Error('A Puter szolgáltatás nem érhető el.'));document.head.append(script);
+  script.onload=()=>done();script.onerror=()=>done(Error('Nem érhető el a Puter AI képgenerátor.'));
+  document.head.append(script);
  }).catch(e=>{aiPromise=null;throw e});
  return aiPromise;
 }
@@ -130,7 +141,9 @@ async function generateCardImage({name,ingredients='',kind='food'}){
  catch(first){
   const reason=String(first?.message||first?.code||'').toLowerCase();
   if(/insufficient_funds|unauthorized|auth_required|popup_blocked|moderation|payment/.test(reason))throw first;
-  generated=await p.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'});
+  try{generated=await p.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'})}
+  catch(second){throw Error('A két képgenerátor sem érhető el. Első: '+String(first?.message||first?.code||first).slice(0,125)+
+   ' · Második: '+String(second?.message||second?.code||second).slice(0,125))}
  }
  const src=generated?.src||generated?.url||(typeof generated==='string'?generated:'');
  if(!src||!/^data:image\/|^https?:\/\/|^blob:/.test(src))throw Error('Nem érkezett használható AI-kép.');
