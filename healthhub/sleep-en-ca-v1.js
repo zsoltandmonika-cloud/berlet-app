@@ -177,6 +177,10 @@
   s=s.replace(/(\d+) alvásrekord/g,'$1 sleep records');
   s=s.replace(/ · részletek/g,' · details').replace(/ · teljes időszak/g,' · total period');
   s=s.replace(/Tényleges alvás:/g,'Actual sleep:').replace(/Teljes időszak:/g,'Total period:');
+  s=s.replace(/Egy kattintás: váltás (Zsolt|Mónika) profiljára/g,'Tap once to switch to $1’s profile');
+  s=s.replace(/Váltás (Zsolt|Mónika) profiljára/g,'Switch to $1’s profile');
+  s=s.replace(/\b(\d+) mért perc\b/g,'$1 measured minutes');
+  s=s.replace(/Alvásidő trend\. Érintsd meg a mérési pontokat a pontos értékért\./g,'Sleep duration trend. Tap the measured points for exact values.');
   s=s.replace(/Forrás: /g,'Source: ').replace(/Utolsó adatimport: /g,'Last data import: ');
   s=s.replace(/Utolsó mért alvás: /g,'Last measured sleep: ');
   s=s.replace(/mért perc/g,'measured minutes').replace(/\/perc/g,'/min');
@@ -202,9 +206,14 @@
  function paintNode(node,english){
   if(!node||skip(node))return;
   if(english){
-   if(!originalText.has(node))originalText.set(node,node.nodeValue);
-   var original=originalText.get(node),next=translate(original);
-   if(next!==null&&node.nodeValue!==next)node.nodeValue=next;
+   // Preserve only texts actually changed by this adapter. Dynamic sleep
+   // measurements and countdowns must never be restored to stale values.
+   var original=originalText.has(node)?originalText.get(node):node.nodeValue;
+   var next=translate(original);
+   if(next!==null){
+    if(!originalText.has(node))originalText.set(node,original);
+    if(node.nodeValue!==next)node.nodeValue=next;
+   }
   }else if(originalText.has(node)){
    var value=originalText.get(node);
    if(node.nodeValue!==value)node.nodeValue=value;
