@@ -4,36 +4,34 @@ const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'../..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 
-test('v539 approved Digital Wellbeing hero owns one compact centered 4-zone dock',()=>{
+test('v540 Plan B: full Golden Dock fits former title/status row below Hero image',()=>{
  const html=read('healthhub/digital-health/index.html');
  const js=read('sh9/shared/sh9-golden-controls-v1.js');
- const css=read('healthhub/digital-health/digital-wellbeing-dock-fit-v539.css');
- assert.match(html,/digital-wellbeing-dock-fit-v539\.css\?v=539-compact-center/);
- assert.match(html,/sh9-golden-controls-v1\.js\?v=539-digital-hero-dock/);
+ const css=read('healthhub/digital-health/digital-wellbeing-dock-slot-v540.css');
+ const block=html.slice(html.indexOf('<main class="shell">'),
+                        html.indexOf('<div class="title-row">',html.indexOf('<main class="shell">')));
+ assert.match(html,/digital-wellbeing-dock-slot-v540\.css\?v=540-plan-b-under-hero/);
+ assert.match(html,/sh9-golden-controls-v1\.js\?v=540-plan-b-title-slot/);
  assert.ok(html.indexOf('sh9-golden-controls-v1.css')<
-           html.indexOf('digital-wellbeing-dock-fit-v539.css'),
-           'Local overrides follow shared Golden CSS');
- assert.match(js,/\.dw-wellbeing-hero-plate-v538 > \.hero-art/);
- assert.match(js,/if\(\/\\\/healthhub\\\/digital-wellbeing-preview\\\//);
- assert.match(css,/width:min\(328px,calc\(100% - 16px\)\)!important/);
- assert.match(css,/left:50%!important/);
- assert.match(css,/transform:translateX\(-50%\)!important/);
- assert.match(css,/top:9px!important/);
+           html.indexOf('digital-wellbeing-dock-slot-v540.css'));
+ assert.ok(block.indexOf('id="heroPicture"')<block.indexOf('id="dwWellbeingDockSlotV540"'));
+ assert.ok(block.indexOf('id="dwWellbeingDockSlotV540"')<block.indexOf('id="headline"'));
+ assert.doesNotMatch(block,/HEALTHHUB · PERSONAL INTELLIGENCE|KÖZPONTI ADATOKRA VÁR|<header class="header">/);
+ assert.match(js,/return d\.querySelector\('\.dw-wellbeing-hero-plate-v538 > #dwWellbeingDockSlotV540'\)\|\|d\.body;/);
+ assert.match(css,/width:calc\(100% - 4px\)!important/);
+ assert.match(css,/height:50px!important/);
  assert.match(css,/position:absolute!important/);
- assert.doesNotMatch(css,/height:|background:|font-size:|pointer-events:/);
+ assert.match(css,/top:1px!important/);
+ assert.match(css,/right:2px!important/);
+ assert.doesNotMatch(css,/#sh9LanguageSwitchV1|\.hero-art\[data-sh9-golden-host/);
 });
-
-test('v539 modifies neither Family Guard nor Sleep, transport or bottom nav',()=>{
+test('v540 preserves the page features and other module placements',()=>{
  const html=read('healthhub/digital-health/index.html');
- const css=read('healthhub/digital-health/digital-wellbeing-dock-fit-v539.css');
- assert.match(css,/\.dw-wellbeing-hero-plate-v538 > \.hero-art\[data-sh9-golden-host="on"\]/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(html,/digital-live-v507\.js/);
  assert.match(html,/digital-wellbeing-glass-backplate-v537\.css/);
  assert.match(html,/digital-wellbeing-hero-plate-v538\.css/);
  assert.equal((html.match(/<article class="card/g)||[]).length,8);
- const other=read('healthhub/guardian/index.html');
- assert.match(other,/sh9-golden-controls-v1\.js\?v=934-unified-glass-dock/);
- const health=read('healthhub/index.html');
- assert.match(health,/sh9-golden-controls-v1\.js\?v=936-sleep-extra-lift5/);
+ assert.match(read('healthhub/guardian/index.html'),/sh9-golden-controls-v1\.js\?v=934-unified-glass-dock/);
+ assert.match(read('healthhub/index.html'),/sh9-golden-controls-v1\.js\?v=936-sleep-extra-lift5/);
 });
