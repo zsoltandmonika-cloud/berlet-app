@@ -182,55 +182,91 @@ async function image(){
  finally{busy=false;$('hhManualImage1130').disabled=false}
 }
 const newId=()=> 'quick:manual-'+(w.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9-]/gi,'').slice(0,54);
+/* v1131 · Diary is PRIMARY. A favorite/category/photo failure must never cancel a food log. */
 async function save(e){
- e.preventDefault();if(busy)return;let info;
+ e.preventDefault();
+ if(busy)return;
+ let info;
  try{info=amount()}catch(err){return tell(err.message,true)}
  const food=$('hhManualSaveFood1130').checked,favorite=$('hhManualFavorite1130').checked,
-  family=$('hhManualFamily1130').checked;
- if(family&&!food&&!favorite)return tell('Válassz egy ételkategóriát vagy a Kedvenceket a közös mentéshez.',true);
- if((food||favorite)&&info.nutrients.kcal===null)
-  return tell('Kategóriába/Kedvencekbe mentéshez kcal-adat kell. Kérj AI-becslést, vagy csak naplózz.',true);
- if(family&&!w.HH_NUTRITION_CLOUD_V626?.connected())
-  return tell('Közös mentéshez Dropbox-kapcsolat szükséges.',true);
- if(family&&(food||favorite)&&KEYS.some(k=>info.nutrients[k]==null))
-  return tell('A közös családi ételtárhoz minden tápérték kell. Kérj AI-becslést.',true);
- if(food){
-  for(const k of KEYS){const n=info.nutrients[k];if(n!=null&&n*100/info.quantity>(k==='kcal'?950:100))
-   return tell('Ellenőrizd a '+k+' adatát a 100 g-ra vetítéshez.',true)}
- }
- busy=true;$('hhManualSubmit1130').disabled=true;tell('A kiválasztott helyekre mentem…');
- let recorded=false;
+  family=$('hhManualFamily1130').checked,photo=imageData;
+ const submit=$('hhManualSubmit1130'),launch=$('hhManualLaunch1130'),
+  notice=$('hhManualDiaryNotice1131');
+ busy=true;submit.disabled=true;launch.disabled=true;
+ tell('📒 Mentés a Napi naplóba…');
+ let result;
  try{
-  if(info.expectedProfile!==api()?.getProfile())throw Error('Közben megváltozott a profil.');
-  let ref=null,warning='';
-  if(imageData&&(food||favorite)){
-   const vault=w.HH_NUTRITION_IMAGE_V641;
-   if(vault?.connected())ref=await vault.save(family?'shared':session,imageData);
-   else warning=' A kártyakép Dropbox nélkül csak előnézetben látható.';
+  if(info.expectedProfile!==api()?.getProfile())throw Error('A profil közben megváltozott.');
+  result=api().recordManualMeal(info);
+  if(!result?.id||result.profile!==info.expectedProfile)throw Error('A napló visszaigazolása hiányzik.');
+ }catch(err){
+  tell('⚠ Nem sikerült a Napi napló mentése: '+String(err.message||err).slice(0,175),true);
+  busy=false;submit.disabled=false;launch.disabled=false;
+  return;
+ }
+ // This point is reached only when the canonical diary API returned a saved record.
+ $('hhManualDialog1130').close();clearImage();
+ const profileName=info.expectedProfile==='monika'?'Mónika':'Zsolt';
+ const base='✓ '+info.name+' · '+info.quantity+' '+info.unit+' · '+info.meal+
+   ' a Napi naplóba mentve ('+profileName+').';
+ notice.hidden=false;notice.dataset.state='saved';notice.textContent=base;
+ const row=d.querySelector('#log .entry[data-entry-id="'+result.id+'"]');
+ if(row){
+  row.classList.add('hh-manual-saved-row-v1131');
+  row.scrollIntoView({behavior:'smooth',block:'center'});
+ }else $('log')?.scrollIntoView({behavior:'smooth',block:'start'});
+ const completed=[],warnings=[];
+ try{
+  if(family&&!food&&!favorite)warnings.push('A családi ételtárhoz jelöld be a kategóriát vagy a Kedvenceket.');
+  else if((food||favorite)&&info.nutrients.kcal===null)
+   warnings.push('A kategóriába/Kedvencekhez külön mentés nem történt meg: előbb kcal-adat vagy AI-becslés szükséges.');
+  else if(family&&!w.HH_NUTRITION_CLOUD_V626?.connected())
+   warnings.push('A közös ételtár nem mentődött: a Dropbox nincs csatlakoztatva.');
+  else if(family&&(food||favorite)&&KEYS.some(k=>info.nutrients[k]===null))
+   warnings.push('A közös ételtárhoz négy tápérték kell. A napló már megvan.');
+  else if(food||favorite){
+   let ref=null;
+   if(photo){
+    const vault=w.HH_NUTRITION_IMAGE_V641;
+    if(vault?.connected()){
+     try{ref=await vault.save(family?'shared':info.expectedProfile,photo)}
+     catch(err){warnings.push('A fotó nem töltődött fel: '+String(err.message||err).slice(0,90))}
+    }else warnings.push('A kártyaképhez Dropbox szükséges; a szöveges mentést folytatom.');
+   }
+   if(info.expectedProfile!==api()?.getProfile())throw Error('Profilváltás miatt a gyűjteménybe mentés megszakadt. A napló megmaradt.');
+   if(family){
+    try{
+     const lib=w.HH_SHARED_FOOD_LIBRARY_V1118;
+     if(!lib?.upsert)throw Error('A közös ételtár nem elérhető.');
+     await lib.upsert({name:info.name,categories:food?[info.category]:[],
+      favorite,kind:info.unit==='ml'?'drink':'food',meal:info.meal,
+      nutrients:info.nutrients,imageRef:ref,description:info.quantity+' '+info.unit+' · kézi bevitel',
+      ingredients:'1 mentett adag: '+info.quantity+' '+info.unit});
+     completed.push('közös családi ételtár');
+    }catch(err){warnings.push('A közös ételtár nem mentődött: '+String(err.message||err).slice(0,110))}
+   }else{
+    if(food){
+     try{api().saveManualFood({...info,imageRef:ref});completed.push('saját ételkategória')}
+     catch(err){warnings.push('A saját ételkategória nem mentődött: '+String(err.message||err).slice(0,110))}
+    }
+    if(favorite){
+     try{
+      api().saveRecipe({id:newId(),name:info.name,category:info.category,
+       meal:info.meal,kind:info.unit==='ml'?'drink':'food',icon:info.unit==='ml'?'🥤':'🍽️',
+       theme:'meal',description:info.quantity+' '+info.unit+' · saját adag',
+       ingredients:'Kézi bevitel',nutrients:info.nutrients,order:700,
+       volumeMl:info.unit==='ml'?info.quantity:null,imageRef:ref,archived:false});
+      completed.push('Kedvencek');
+     }catch(err){warnings.push('A Kedvencekhez nem mentődött: '+String(err.message||err).slice(0,110))}
+    }
+   }
   }
-  if(family&&(food||favorite)){
-   const lib=w.HH_SHARED_FOOD_LIBRARY_V1118;
-   if(!lib?.upsert)throw Error('A közös ételtár nem elérhető.');
-   await lib.upsert({name:info.name,categories:food?[info.category]:[],favorite,
-    kind:info.unit==='ml'?'drink':'food',meal:info.meal,
-    nutrients:info.nutrients,imageRef:ref,description:info.quantity+' '+info.unit+' · kézi ételbevitel',
-    ingredients:'1 mentett adag: '+info.quantity+' '+info.unit});
-  }else{
-   if(food)api().saveManualFood({...info,imageRef:ref});
-   if(favorite)api().saveRecipe({id:newId(),name:info.name,category:info.category,
-    meal:info.meal,kind:info.unit==='ml'?'drink':'food',icon:info.unit==='ml'?'🥤':'🍽️',
-    theme:'meal',description:info.quantity+' '+info.unit+' · saját adag',
-    ingredients:'Kézi bevitel',nutrients:info.nutrients,order:700,
-    volumeMl:info.unit==='ml'?info.quantity:null,imageRef:ref,archived:false});
-  }
-  if(info.expectedProfile!==api()?.getProfile())throw Error('Közben megváltozott a profil.');
-  api().recordManualMeal(info);recorded=true;
-  $('hhManualDialog1130').close();clearImage();
-  const banner=$('hhBevitelInfo');
-  if(banner){banner.textContent='✓ '+info.name+' · '+info.quantity+' '+info.unit+' naplózva.'+
-    ((food||favorite)?' Gyűjteménybe is mentve.':'')+warning;banner.hidden=false}
- }catch(err){tell('⚠ '+String(err.message||err).slice(0,190)+'. Ellenőrizd a naplót újrapróbálás előtt.',true)}
- finally{busy=false;$('hhManualSubmit1130').disabled=false}
+ }catch(err){warnings.push(String(err.message||err).slice(0,175))}
+ finally{
+  if(completed.length)notice.textContent=base+' + Mentve: '+completed.join(', ')+'.';
+  if(warnings.length){notice.textContent+=' ⚠ '+warnings.join(' ');notice.dataset.state='partial'}
+  busy=false;submit.disabled=false;launch.disabled=false;
+ }
 }
 function init(){
  if(!$('hhManualLaunch1130')||!api()?.recordManualMeal)return;
