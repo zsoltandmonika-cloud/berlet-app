@@ -53,3 +53,12 @@ Minden hullám akkor elfogadható, ha mindhárom gomb ugyanúgy néz ki Zsoltná
 - **Legacy gomb:** csak az új közös vezérlés és az illetékes profilhandler megléte esetén rejtjük a régi vizuális vezérlőt; Family Tasks Quick Add saját gombja a feladatlapon működőképes marad.
 - **Kivételek:** a `healthhub/guardian/family-guard-v*.html` verziómentések, a `sh9/releases/` történeti mentései, `healthhub/force-v*.html`, az OAuth-visszahívó, valamint a dokumentációs Architecture Grand Design. Nem kategóriafabeli, aktív felhasználói modulok.
 - **Regressziós ellenőrzés:** `healthhub/tests/sh9-golden-controls-global-v918.test.cjs`. A kód- és hivatkozásellenőrzés nem helyettesíti a két Samsung Galaxy S24 Ultra készüléken történő valódi vizuális/szerepkör teszteket.
+
+## v919 · Egészség belső aloldalak pozíciójavítása (2026-11-02)
+
+- A HealthHub egyetlen HTML dokumentumon belül jeleníti meg a **másodszintű Egészség** nézetet (`#healthSection.page.on`) a Leletek, Gyógyszerek és Egészségügyi összkép tartalmaival. A v918 tévesen a `body` elemhez rögzítette a profilkapcsolót; ez lecsúszást okozott.
+- A közös JS most az **éppen aktív** nézet `.healthSubHero` eleméhez mozgatja a *három* vezérlőt, és figyeli a belső oldalváltásokat (`MutationObserver`, `class`/`hidden`).
+- A régi `health-subhero-layout-v576.css` szándékosan középre pozicionálja a `.healthSubHero > div` elemeket; a háromgombos sor szintén div. A v919 célzott, nagyobb prioritású CSS felülírja ezt **csak** a közös vezérlőn. A felső két gomb Hero-bal-fent, a profilváltó Hero-bal-lent marad.
+- Az eredeti `.backBtn` lentebb igazodik, hogy a zászlókat ne takarja. Az eredeti profil- és egészségügyi adatkezelő logika változatlan.
+- A HealthHub `index.html` mindkét példányban (kezdeti dokumentum és rekonstruált shell) új `v=919-health-hero-anchor` CSS/JS hivatkozást kapott a cache érvénytelenítésére.
+- A DOM-alapú oldalváltás szimuláció sikeres; **valódi Galaxy S24 Ultra megjelenítés/érintési teszt még szükséges**.
