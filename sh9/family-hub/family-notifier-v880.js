@@ -294,10 +294,16 @@ async function readUnread(){
    writeAck(Math.max(oldSeen,recentLimit,olderId),p);
   }
  }catch(_){}
- pending=items.filter(x=>Number(x.id)>storedAck(p)).sort((a,b)=>Number(a.id)-Number(b.id));
+ // A Realtime INSERT can arrive while this request is in flight.
+ // Never erase that newly announced notification with an older HTTP result.
+ const newer=pending.filter(e=>e.recipient_profile===p&&Number(e.id)>storedAck(p));
+ const merged=new Map([...items,...newer].map(e=>[Number(e.id),e]));
+ pending=[...merged.values()].filter(e=>Number(e.id)>storedAck(p)).sort((a,b)=>Number(a.id)-Number(b.id));
  if(!pending.some(x=>Number(x.id)===activeEventId)){activeEventId=0;holder?.replaceChildren()}
  drawPending();
- const unread=items.filter(x=>Number(x.id)>seen(p)).length;
+ const knownIds=new Set(items.map(e=>Number(e.id)));
+ const unread=items.filter(x=>Number(x.id)>seen(p)).length+
+  newer.filter(e=>Number(e.id)>seen(p)&&!knownIds.has(Number(e.id))).length;
  const n=badge.querySelector('.fh-badge-count');if(n){n.textContent=unread>49?'50+':String(unread);n.hidden=!unread}
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
  })();
