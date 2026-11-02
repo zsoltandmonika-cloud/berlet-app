@@ -62,3 +62,19 @@ Minden hullám akkor elfogadható, ha mindhárom gomb ugyanúgy néz ki Zsoltná
 - Az eredeti `.backBtn` lentebb igazodik, hogy a zászlókat ne takarja. Az eredeti profil- és egészségügyi adatkezelő logika változatlan.
 - A HealthHub `index.html` mindkét példányban (kezdeti dokumentum és rekonstruált shell) új `v=919-health-hero-anchor` CSS/JS hivatkozást kapott a cache érvénytelenítésére.
 - A DOM-alapú oldalváltás szimuláció sikeres; **valódi Galaxy S24 Ultra megjelenítés/érintési teszt még szükséges**.
+
+## v924 · Alsó navigáció új GOLDEN STANDARD (2026-11-02)
+
+**Jóváhagyott kiindulópont:** SH9 v923. **Felhasználói követelmény:** a teljes aktív főoldal/alkategória/aloldal fában ugyanaz a két alsó navigációs ikon legyen.
+
+- **Kezdőlap ikon:** átlátszó, keret/fehér kör/árnyékoló réteg nélkül, 28 × 28 px, Zsoltnál `#79BFFF`, Mónikánál `#F9A6D3`. A Kezdőlap felirat meglévő stílusa megmarad.
+- **Ask Léna ikon és felirat:** ugyanaz a profilfüggő világoskék/pink, keret és árnyékréteg nélkül; a felirat kötelezően az ikon színét követi.
+- **Többi navigációs gomb:** egyedi funkciók és eseménykezelők nem módosulnak; meglévő 5 slotos SH9-navigációban a 2. hely az Ask Léna lesz (a régi Idővonal/HealthRadar parancs közvetlen shortcutja továbbra is a HealthHub saját képernyőin elérhető). A Recepttár és Studio saját Kedvencek/Admin kezelőjét nem töröljük.
+- **Közös kód, nem oldalankénti másolat:** `sh9/shared/sh9-golden-bottom-nav-v924.css` és `sh9/shared/sh9-golden-bottom-nav-v924.js`; a `hh-profile` / `data-sh9-golden-profile` a színek egyetlen forrása.
+- **Lefedettség:** 22 aktív/tesztelhető HTML entry page, minden aloldali ág, köztük BKK Grand, MÁV, Volán, Smart Trip, My Trips, Family Tasks, Family Guard, Nutrition, Digital Health, Recepttár, Recepttár Studio és az admin/usage.
+- **HealthHub specialitás:** a `document.open/write` újraépített oldal külön is beemeli a CSS/JS-t; a dinamikusan létrejövő `#sh9GlobalNavV24` vezérlőre a komponens figyel, így nem kell véglegesen duplikálni a taskbart.
+- **Ha egy oldalon nincs natív SH9 alsó navigáció:** a közös JS biztonságos, 5 elemes navigációs fallbackot hoz létre. A Nutrition preview saját napló-dockja és a Bérlet-alkalmazás három bérletkezelő gombja megmarad, az új navigáció nem fedheti el őket.
+- **Szigorúan nem érintett:** OTA, GPS, adatbázis, egészségadatok, meglévő profiljogosultságok, a felső GOLDEN STANDARD három kapszulája, valamint a központi 3 × 3 SH9 modulkártyák.
+- **Teszt:** `healthhub/tests/sh9-golden-bottom-nav-v924.test.cjs`; statikus lefedettség és szín/DOM-szabvány. Készülékes vizuális és teljes end-to-end teszt még szükséges.
+
+**Kötelező jövőbeli szabály:** minden új aktív modul és almodul a v924 közös alsó navigációt is töltse be; ne készüljön új, oldalanként festett Home/Ask Léna ikon.
