@@ -1,4 +1,4 @@
-/* SH9 Golden Standard · global three-control system v918.
+/* SH9 Golden Standard · global unified four-control dock v934.
    Every navigable user-facing leaf page shares ONE visual standard.
    Existing module profile handlers own authorization and refresh. */
 (function(w,d){
@@ -21,6 +21,67 @@
  }
  function add(tag,id,parent){
   const el=d.createElement(tag);el.id=id;parent.appendChild(el);return el;
+ }
+ /* v34 · One shared SHO glass dock for every linked top-level and subpage.
+    Reuses native profile and language controls. Does not replace module state. */
+ const DOCK_ID='sh9UnifiedGlassDockV34',SHO='/berlet-app/sh9/?sho=wallet';
+ const DOCK_ICONS=Object.freeze({
+  profile:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20v-2.3A5.2 5.2 0 0 1 10.2 12.5h3.6A5.2 5.2 0 0 1 19 17.7V20"/><path d="m18.5 5.5 2 2-2 2m2-2h-5"/>',
+  tasks:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7.5 9 1.5 1.5 2.5-3M13.5 9H17M7.5 15h9"/>',
+  wallet:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/>'
+ });
+ function dockIcon(name){
+  return '<svg class="sh9-global-dock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+DOCK_ICONS[name]+'</svg>';
+ }
+ function dockCell(dock,part){
+  const node=d.createElement('div');
+  node.className='sh9-global-dock-cell';
+  node.setAttribute('data-sh9-dock-cell',part);
+  dock.appendChild(node);
+  return node;
+ }
+ function mountDock(host){
+  if(!host||!d.body)return;
+  let dock=$(DOCK_ID);
+  if(!dock){
+   dock=add('div',DOCK_ID,host);
+   dock.className='sh9-global-glass-dock';
+   dock.setAttribute('role','group');
+   dock.setAttribute('aria-label','SHO gyorsvezérlők');
+   dockCell(dock,'profile');dockCell(dock,'tasks');dockCell(dock,'wallet');dockCell(dock,'language');
+  }
+  if(dock.parentNode!==host)host.appendChild(dock);
+  const cell=(part)=>dock.querySelector('[data-sh9-dock-cell="'+part+'"]');
+  const b=$('sh9LauncherProfileV1'),header=$('sh9HeaderControlsV2'),task=$('sh9TasksGolden');
+  const group=$('sh9LanguageSwitchV1');
+  if(b){
+   if(b.parentNode!==cell('profile'))cell('profile').appendChild(b);
+   if(!b.querySelector('.sh9-global-dock-icon'))b.insertAdjacentHTML('afterbegin',dockIcon('profile'));
+  }
+  if(header&&header.parentNode!==cell('tasks'))cell('tasks').appendChild(header);
+  if(task&&header){
+   if(task.parentNode!==header)header.appendChild(task);
+   if(!task.querySelector('[data-sh9-dock-label]')){
+    task.replaceChildren();
+    task.insertAdjacentHTML('afterbegin',dockIcon('tasks'));
+    const title=d.createElement('span');title.setAttribute('data-sh9-dock-label','tasks');task.appendChild(title);
+   }
+  }
+  let wallet=$('sh9DockWalletV34');
+  if(!wallet){
+   wallet=add('button','sh9DockWalletV34',cell('wallet'));
+   wallet.type='button';
+   wallet.insertAdjacentHTML('afterbegin',dockIcon('wallet'));
+   const title=d.createElement('span');title.textContent='Wallet';title.className='sh9-global-dock-label';wallet.appendChild(title);
+   wallet.addEventListener('click',()=>w.location.assign(SHO));
+  }else if(wallet.parentNode!==cell('wallet'))cell('wallet').appendChild(wallet);
+  if(group&&group.parentNode!==cell('language'))cell('language').appendChild(group);
+  let languageLabel=$('sh9DockLanguageLabelV34');
+  if(!languageLabel){
+   languageLabel=add('span','sh9DockLanguageLabelV34',cell('language'));
+   languageLabel.className='sh9-global-dock-label';
+  }else if(languageLabel.parentNode!==cell('language'))cell('language').appendChild(languageLabel);
+  d.body.setAttribute('data-sh9-golden-unified','on');
  }
  function flags(header){
   let group=$('sh9LanguageSwitchV1');
@@ -59,7 +120,9 @@
   d.documentElement.setAttribute('data-sh9-golden-profile',current);
   const task=$('sh9TasksGolden');
   if(task){
-   task.textContent=w.SH9_I18N_V1?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
+   const dockLabel=task.querySelector('[data-sh9-dock-label]');
+   if(dockLabel)dockLabel.textContent=w.SH9_I18N_V1?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
+   else task.textContent=w.SH9_I18N_V1?.t?.('tasks.label')||(en?'Tasks':'Feladatok');
    const aria=w.SH9_I18N_V1?.t?.('tasks.aria')||(en?'Open Family Tasks':'Családi feladatok megnyitása');
    task.setAttribute('aria-label',aria);task.title=aria;
   }
@@ -164,9 +227,12 @@
   const fixed=host===d.body;
   if(fixed)d.body.setAttribute('data-sh9-golden-floating','on');
   else d.body.removeAttribute('data-sh9-golden-floating');
-  const header=$('sh9HeaderControlsV2'),profileButton=$('sh9LauncherProfileV1');
-  if(header&&header.parentNode!==host)host.appendChild(header);
-  if(profileButton&&profileButton.parentNode!==host)host.appendChild(profileButton);
+  if(d.body.getAttribute('data-sh9-golden-unified')==='on')mountDock(host);
+  else{
+   const header=$('sh9HeaderControlsV2'),profileButton=$('sh9LauncherProfileV1');
+   if(header&&header.parentNode!==host)host.appendChild(header);
+   if(profileButton&&profileButton.parentNode!==host)host.appendChild(profileButton);
+  }
   host.setAttribute('data-sh9-golden-profile',profile());
  }
  let pendingAnchor=false;
@@ -230,8 +296,9 @@
   if(nativeButton()||typeof w.hhToggleProfileOneClick==='function'||typeof w.setProfile==='function')
    d.body.setAttribute('data-sh9-golden-native','on');
   if(!launcher)d.body.setAttribute('data-sh9-golden-pilot','on');
+  mountDock(host);
   anchorTo(host);
-  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'919-health-hero-anchor',paint});
+  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'934-unified-glass-dock',paint});
   paint();
   if(healthShell())observeHealthPages();
  }
