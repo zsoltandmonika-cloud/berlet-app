@@ -923,8 +923,8 @@ root.HH_NUTRITION_QUICK_API={
  syncNow:()=>syncProfile(active),
  getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
  // v1130 · Minimal manual diary input. Unknown nutrition remains NULL, not 0.
- getManualSuggestions:()=>catalog().map(f=>({name:f.name,kind:f.kind,category:f.category,
-  per100:{...f.per}})),
+ getManualSuggestions:()=>catalog().map(f=>({id:f.id,name:f.name,kind:f.kind,category:f.category,
+  per100:{...f.per},imageRef:f.imageRef||null})),
  recordManualMeal:payload=>{
   if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A mentés megszakadt.');
   const name=String(payload.name||'').trim().slice(0,80),meal=normalizeMeal(payload.meal),
@@ -960,8 +960,11 @@ root.HH_NUTRITION_QUICK_API={
     throw Error('Ellenőrizd a 100 grammra vetített tápértéket: '+key);
    per[key]=scaled;
   }
+  const ref=payload.imageRef;
+  if(ref&&(!root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,ref)))
+   throw Error('Az ételfotó nem ehhez a profilhoz tartozik.');
   const row={id:'user:'+uid(),name,kind,category,icon:kind==='drink'?'🥤':'🍽️',per,
-   createdAt:stamp(),updatedAt:stamp()};
+   imageRef:ref||null,createdAt:stamp(),updatedAt:stamp()};
   update(d=>d.catalog.push(row));
   return row;
  },
