@@ -138,3 +138,50 @@ body[data-sh9-golden-pilot="on"][data-sh9-golden-family="on"] .fh-hero .fh-modul
 body[data-sh9-golden-pilot="on"] .hero .back{
  top:55px!important;
 }
+
+/* v919 · HealthHub nested Egészség -> Leletek/Gyógyszerek/Összkép
+   IMPORTANT: HealthHub v125/v576 force .healthSubHero > div to the
+   middle of the photo. The shared header IS a div, so override that
+   higher-specificity rule. Both upper pills and the profile remain
+   physically attached to the CURRENT subpage Hero, not document bottom. */
+body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero[data-sh9-golden-host="on"]{
+ position:relative!important;
+ isolation:isolate!important;
+}
+body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero > #sh9HeaderControlsV2{
+ box-sizing:border-box!important;
+ position:absolute!important;
+ display:flex!important;
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+ gap:6px!important;
+ left:5px!important;top:2px!important;
+ right:auto!important;bottom:auto!important;
+ width:auto!important;max-width:none!important;min-width:0!important;
+ height:47px!important;min-height:47px!important;
+ padding:0!important;margin:0!important;
+ transform:none!important;
+ opacity:1!important;
+ z-index:50!important;
+ pointer-events:auto!important;
+}
+body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero > #sh9LauncherProfileV1{
+ position:absolute!important;
+ left:5px!important;bottom:0!important;
+ top:auto!important;right:auto!important;
+ transform:none!important;
+ z-index:50!important;
+ opacity:1!important;
+ pointer-events:auto!important;
+}
+body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero > .backBtn{
+ top:56px!important;left:12px!important;
+}
+@media(max-width:360px){
+ body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero > #sh9HeaderControlsV2{
+  left:2px!important;
+ }
+ body[data-sh9-golden-three="on"][data-sh9-golden-pilot="on"] #healthSection.page.on .healthSubHero > #sh9LauncherProfileV1{
+  left:2px!important;
+ }
+}
