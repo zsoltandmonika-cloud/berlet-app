@@ -61,7 +61,11 @@
    if(quick.length>=3){quick[key==='records'?1:2].click();return true}
    return true;
   }
-  if(key==='sleep')return fallbackClick('Sleep')||message('Az Alvás modul még töltődik.');
+  if(key==='sleep'){
+   if(typeof root.hh225OpenSleep==='function'){root.hh225OpenSleep();return true}
+   if(typeof root.hhOpenSleep==='function'){root.hhOpenSleep();return true}
+   return fallbackClick('Sleep')||fallbackClick('Alvás')||message('Az Alvás modul még töltődik.');
+  }
   if(key==='activity'){
    if(typeof root.hhOpenActivity==='function'){root.hhOpenActivity();return true}
    return fallbackClick('Activity')||message('Az Aktivitás modul még töltődik.');
