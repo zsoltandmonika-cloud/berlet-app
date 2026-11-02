@@ -336,6 +336,7 @@ function init(){
   finally{busy=false;if(src)URL.revokeObjectURL(src)}
  });
 
+ $('hhManualSubmit1130').addEventListener('click',save);
  $('hhManualForm1130').addEventListener('submit',save);
  $('hhManualDialog1130').addEventListener('close',()=>{if(recognition){recognition.stop();recognition=null}});
 }
