@@ -210,6 +210,7 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
    <label>Étkezés <select id="hhManualMeal1130"><option>Reggeli</option><option>Tízórai</option><option>Ebéd</option><option>Uzsonna</option><option>Vacsora</option><option>Egyéb</option></select></label>
    <label>Kategória <select id="hhManualCategory1130"></select></label>
   </div>
+  <p id="hhManualStatus1130" class="hh-manual-status" role="status" aria-live="polite"></p>
   <div class="hh-manual-fields">
    <label>Kalória · teljes adag <input id="hhManualKcal1130" type="number" min="0" max="5000" step="0.1" inputmode="decimal" placeholder="Nem kötelező"></label>
    <div style="display:grid;align-content:end"><button type="button" class="hh-manual-secondary" id="hhManualEstimate1130">✨ AI-becslés</button></div>
@@ -227,9 +228,11 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
    <label class="hh-manual-check" id="hhManualFamilyWrap1130"><input type="checkbox" id="hhManualFamily1130"> ☁️ Közös családi ételtár (Dropbox)</label>
    <small class="hh-manual-caption">A naplózás az első. A kategória és a Kedvencek külön, opcionális mentések.</small>
   </div>
-  <div class="hh-manual-actions"><button type="button" class="hh-manual-secondary" id="hhManualImage1130">✨ Kártyakép</button><span class="hh-manual-caption">A kép opcionális és AI-keretet használhat.</span></div>
+  <div class="hh-manual-actions"><button type="button" class="hh-manual-secondary" id="hhManualImage1130">✨ AI-kártyakép</button><button type="button" class="hh-manual-secondary" id="hhManualOwnPhotoBtn1133">📷 Saját fotó</button></div>
+  <input type="file" id="hhManualOwnPhoto1133" accept="image/jpeg,image/png,image/webp" hidden>
+  <small class="hh-manual-caption">Az AI-kép Puter hozzáférést és AI-keretet igényelhet. Saját fotót is választhatsz.</small>
   <img id="hhManualPhoto1130" class="hh-manual-image" alt="Generált ételkártyakép előnézete" hidden>
-  <p id="hhManualStatus1130" class="hh-manual-status" role="status" aria-live="polite"></p>
+  
   <button type="submit" class="hh-manual-primary" id="hhManualSubmit1130">✓ Mentés a Napi naplóba</button>
   <small class="hh-manual-caption">Az AI tájékoztató becslés. Ismeretlen kalória esetén a napló „— kcal” értéket mutat, nem nullát. Minden a kiválasztott profilba kerül.</small>
  </form>
