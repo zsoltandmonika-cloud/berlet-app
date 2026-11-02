@@ -11,9 +11,9 @@ assert.match(core,/hhDiaryEntryCount1134/);
 assert.match(page,/id="hhDiaryEntryCount1134"/);
 for(const [name,source] of [['nutrition',core],['manual',manual],['shared library',library]])
  new vm.Script(source,{filename:name+'.js'});
-assert.ok(page.includes('v=1133-ai-estimate-photo-fallback'));
-assert.ok(page.includes('v=1134-all-meal-entries-visible'));
-assert.ok(page.includes('v=1133-sdk-singleton'));
+assert.ok(page.includes('v=1135-click-save-diagnostic'));
+assert.ok(page.includes('v=1135-write-display-protection'));
+assert.ok(page.includes('v=1135-multi-image-fallback'));
 assert.match(core,/entryFoodExplicitlyChosen/);
 assert.match(core,/selected\.value!==currentFood/);
 assert.match(core,/saved\.name!==name\|\|saved\.foodId!==rec\.foodId/);
