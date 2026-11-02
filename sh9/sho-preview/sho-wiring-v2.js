@@ -92,7 +92,11 @@ function drawViewer(){
 function paintProfile(){
  profile=get(KEY,'z')==='m'?'m':'z';
  d.documentElement.setAttribute('data-sh9-golden-profile',profile);
- $('profile').textContent=(profile==='z'?'Zsolt':'Mónika')+' ⇄';
+ const profileName=$('shoDockProfileName');
+ if(profileName){
+  profileName.textContent=profile==='z'?'Zsolt':'Mónika';
+  $('profile').setAttribute('aria-label',profile==='z'?'Váltás Mónika profiljára':'Váltás Zsolt profiljára');
+ }else $('profile').textContent=(profile==='z'?'Zsolt':'Mónika')+' ⇄';
  updatePinned();
  if(!$('overlay').hidden&&$('sheetTitle').textContent.includes('Smart Wallet'))wallet();
 }
@@ -109,7 +113,11 @@ function paintLang(){
  $('hu').setAttribute('aria-pressed',String(!english));$('en').setAttribute('aria-pressed',String(english));
  d.documentElement.lang=english?'en-CA':'hu';
  d.querySelectorAll('.module-grid [data-module]').forEach(el=>{const n=el.querySelector('b'),key=el.dataset.module;if(n)n.textContent=LABELS[lang][key]||key;});
- $('tasks').textContent=english?'Tasks':'Feladatok';
+ const tasksLabel=$('shoDockTasksLabel');
+ if(tasksLabel)tasksLabel.textContent=english?'Tasks':'Feladatok';
+ else $('tasks').textContent=english?'Tasks':'Feladatok';
+ const langLabel=$('shoDockLangLabel');
+ if(langLabel)langLabel.textContent=english?'Language':'Nyelv';
  $('dateHeading').textContent=english?'DATE':'DÁTUM';
  $('weatherHeading').textContent=english?'WEATHER':'IDŐJÁRÁS';
  $('calendarHeading').textContent=english?'CALENDAR':'NAPTÁR';
