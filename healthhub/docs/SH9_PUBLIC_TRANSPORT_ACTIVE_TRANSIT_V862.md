@@ -5,7 +5,7 @@
 
 ## Két működési mód
 
-**Elsődleges: „Felszálltam”.** Utazó egy koppintásra indítja a GPS-t használó utazási módot. A telefon friss és kellően pontos, már meglévő GPS-jele és hivatalos BKK statikus megállósorrendje alapján közeli *lehetséges* járatokat kínálunk fel. A járatszámot az utazó megerősíti. Lehetséges kézi járatszám és módválasztás, ha nincs GPS-jel. „Másik járatra szálltam” és „Utazás befejezése” gomb.
+**Elsődleges: „Felszálltam”.** Utazó egy koppintásra indítja a GPS-t használó utazási módot. A telefon friss és kellően pontos, már meglévő GPS-jele és hivatalos BKK statikus megállósorrendje alapján közeli *lehetséges* járatokat kínálunk fel. A járatszámot az utazó megerősíti. Lehetséges kézi járatszám és módválasztás, ha nincs GPS-jel. **2026-11-02, v864:** a meglévő **„Felszálltam”** főgomb a saját telefonon megerősített felszállás után **„Leszálltam”** feliratra vált. Megnyomása azonnal meghívja a meglévő utazáslezárást, törli a helyi aktív státuszt, és a családi RLS-szinkronon keresztül törli a megosztott járatjelzést. A külön „Utazás befejezése” gomb csak a még nem megerősített, tervezett / járatkiválasztási állapotban marad látható. A Live Trip Flow saját lezáró gombja továbbra is működik.
 
 **Másodlagos: előre kiválasztott útvonal.** Trip Plan Flow ajánlatokon „Kiválasztom ezt az útvonalat” gomb. A tervezett első járat az Active Transitben „tervezett” státuszt kap. A „Felszálltam a 260-ra” gomb egy érintésre „felszálltam” státuszra vált. Átszállást az utazó megerősíti.
 
