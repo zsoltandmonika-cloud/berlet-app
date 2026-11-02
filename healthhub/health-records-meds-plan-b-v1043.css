@@ -1,0 +1,89 @@
+/* HealthHub v1043 · Leletek + Gyógyszerek Plan B.
+ * The same original functional search input stays in its Hero,
+ * now smaller and at the TOP, clear of the menu and back arrow.
+ * The Golden four-zone dock is physically BELOW the Hero image.
+ * Scoped to active records/medications ONLY, never Health overview,
+ * measurements, other HealthHub modules, private data or native actions. */
+html[data-hh-system-glass="on"][data-hh-records-v1015="on"]
+#healthSection.page.on[data-hh-records-meds-dock-v1043="on"][data-hh-records-search-v1016="on"]
+.healthSubHero > .healthSearchWrap[data-hh-records-search-pill="on"] {
+ box-sizing:border-box!important;
+ position:absolute!important;
+ z-index:35!important;
+ display:flex!important;align-items:center!important;
+ top:10px!important;bottom:auto!important;
+ left:clamp(66px,18%,82px)!important;right:auto!important;
+ width:min(238px,calc(100% - 145px))!important;
+ max-width:calc(100% - 145px)!important;min-width:0!important;
+ height:34px!important;min-height:34px!important;
+ padding:0 10px!important;
+ margin:0!important;
+ transform:none!important;
+ text-align:left!important;
+ pointer-events:auto!important;touch-action:manipulation!important;
+ border-radius:999px!important;
+ background:rgba(6,20,44,.78)!important;
+ border:1px solid rgba(246,174,227,.68)!important;
+ box-shadow:0 3px 12px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.11)!important;
+ -webkit-backdrop-filter:blur(11px)!important;backdrop-filter:blur(11px)!important;
+}
+html[data-hh-system-glass="on"][data-hh-records-v1015="on"][data-hh-system-profile="z"]
+#healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+.healthSubHero > .healthSearchWrap[data-hh-records-search-pill="on"] {
+ border-color:rgba(128,196,247,.62)!important;
+}
+html[data-hh-system-glass="on"][data-hh-records-v1015="on"]
+#healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+.healthSubHero > .healthSearchWrap[data-hh-records-search-pill="on"] input {
+ box-sizing:border-box!important;
+ width:100%!important;max-width:100%!important;
+ height:32px!important;min-height:32px!important;
+ font:650 11px/1.25 system-ui,sans-serif!important;
+ padding:0 3px!important;margin:0!important;
+ text-overflow:ellipsis!important;
+}
+/* A slot occupies one natural row, AFTER the original Hero image and
+   BEFORE schedules/medical cards. Nothing floats over the Hero artwork. */
+#healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+#hhRecordsMedsGoldenDockSlotV1043 {
+ box-sizing:border-box!important;
+ position:relative!important;isolation:isolate!important;
+ display:block!important;
+ width:calc(100% - 16px)!important;min-width:0!important;
+ height:56px!important;min-height:56px!important;
+ margin:4px 8px 3px!important;padding:2px 0!important;
+ border:0!important;border-radius:15px!important;
+ background:transparent!important;
+ overflow:visible!important;
+}
+body[data-sh9-golden-unified="on"]
+#healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+#hhRecordsMedsGoldenDockSlotV1043[data-sh9-golden-host="on"]
+> #sh9UnifiedGlassDockV34 {
+ box-sizing:border-box!important;
+ position:absolute!important;z-index:210!important;
+ top:2px!important;bottom:auto!important;
+ left:0!important;right:0!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ height:50px!important;min-height:50px!important;max-height:50px!important;
+ padding:0!important;margin:0!important;
+ transform:none!important;
+}
+/* Narrow Samsung screens keep all four zones and the 3-dot button
+   independent; search never lies under the menu at upper-right. */
+@media(max-width:360px){
+ html[data-hh-system-glass="on"][data-hh-records-v1015="on"]
+ #healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+ .healthSubHero > .healthSearchWrap[data-hh-records-search-pill="on"] {
+  top:9px!important;
+  left:62px!important;
+  width:calc(100% - 132px)!important;
+  max-width:calc(100% - 132px)!important;
+  height:33px!important;min-height:33px!important;
+  padding:0 7px!important;
+ }
+ #healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
+ #hhRecordsMedsGoldenDockSlotV1043{
+  width:calc(100% - 12px)!important;margin-inline:6px!important;
+ }
+}
