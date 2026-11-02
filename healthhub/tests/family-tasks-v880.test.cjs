@@ -52,7 +52,7 @@ test('v915 firebreak avoids Auth-driven refetch loops and duplicate realtime cha
  assert.doesNotMatch(app,/onAuthStateChange\(\(\)=>w\.setTimeout\(authSync/);
  assert.match(notice,/joinInProgress/);
  assert.match(notice,/if\(!force&&ch&&user&&profile\(\)===currentProfile\)return/);
- assert.match(notice,/lastForegroundReadAt>=45000/);
+ assert.match(notice,/lastForegroundReadAt>=180000/);
  assert.match(notice,/event==='TOKEN_REFRESHED'|Token refresh/);
  assert.doesNotMatch(notice,/onAuthStateChange\(\(\)=>w\.setTimeout\(join/);
  assert.doesNotMatch(notice,/setInterval/);
@@ -74,4 +74,17 @@ test('v916 explicit Family Tasks profile switch refreshes UI and profile-scoped 
  const css=read('sh9/family-hub/family-tasks-v881.css');
  assert.ok(css.includes('.fh-hero .fh-owner{') && css.includes('pointer-events:auto'),
   'profile switch remains an interactive target');
+});
+
+test('v917 Buddy anti-spike guard keeps notifications live and avoids fake profile events',()=>{
+ assert.match(notice,/w\.addEventListener\('hh-family-profile-changed',\(\)=>join\(\)\)/);
+ assert.doesNotMatch(notice,/w\.addEventListener\('hh-family-profile-changed',join\)/);
+ assert.match(notice,/event==='SIGNED_IN'&&joinInProgress&&!user/);
+ assert.match(notice,/if\(unreadInFlight\)return unreadInFlight/);
+ assert.match(notice,/const merged=new Map/);
+ assert.match(notice,/newer\.filter\(e=>Number\(e\.id\)>seen\(p\)/);
+ assert.match(notice,/api\.channel\('hh-family-notifier-v880-'/);
+ assert.match(notice,/\.on\('postgres_changes',\{event:'INSERT'/);
+ assert.match(notice,/\.on\('postgres_changes',\{event:'\*',schema:'public',table:ACK_TABLE/);
+ assert.doesNotMatch(notice,/setInterval/);
 });
