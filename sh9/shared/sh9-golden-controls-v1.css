@@ -116,6 +116,7 @@ body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9TasksGolden{
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #guardianProfileSwitch,
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #profileBtn,
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #profile.profile,
+body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #profileLabel,
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #st22Profile,
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #mtProfile,
 body[data-sh9-golden-pilot="on"][data-sh9-golden-native="on"] #hhDigitalProfileDock,
@@ -130,4 +131,10 @@ body[data-sh9-golden-pilot="on"][data-sh9-golden-family="on"] .fh-hero .fh-modul
  body[data-sh9-golden-pilot="on"][data-sh9-golden-floating="on"] #sh9LauncherProfileV1{
   left:2px!important;
  }
+}
+
+/* Keep rail back navigation accessible below the approved top-left
+   language/Tasks row, instead of overlaying it. */
+body[data-sh9-golden-pilot="on"] .hero .back{
+ top:55px!important;
 }
