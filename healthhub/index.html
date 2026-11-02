@@ -203,7 +203,7 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
     .replace(/<body([^>]*)>/i,function(opening){return opening+oneFallback+'<script src="./health-route-tap-v547.js?v=547"><\/script>'});
   // Keep bundled Home untouched: activate only its existing Digital Wellbeing tile.
   const digitalHealthTileLive=html.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"")
-    .replace('</body>','<script src="./health-visible-labels-hu-v1.js?v=5-guard-hu"><'+'/script></body>');
+    .replace('</body>','<script src="./health-visible-labels-hu-v1.js?v=6-digital-health-hu"><'+'/script></body>');
   if(!html.startsWith('<!doctype html>')){
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
