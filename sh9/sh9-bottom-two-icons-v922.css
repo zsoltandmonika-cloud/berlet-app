@@ -1,0 +1,38 @@
+/* SH9 v922 · ONLY the bottom-nav Home and Ask Léna buttons.
+   Remove Home's white icon disc and Ask Léna's framed/shadowed plate.
+   Both icon glyphs inherit the existing profile accents; the other 3
+   bottom-nav controls, text labels, routing and touch targets are untouched. */
+:root{--sh9-bottom-two-icon-accent:#79bfff}
+:root[data-sh9-golden-profile="m"]{--sh9-bottom-two-icon-accent:#f9a6d3}
+
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"]),
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"]):active{
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ filter:none!important;
+}
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"])::before,
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"])::after{
+ content:none!important;
+ display:none!important;
+}
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"]) svg,
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"]).active svg{
+ color:var(--sh9-bottom-two-icon-accent)!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ filter:none!important;
+ width:28px!important;
+ height:28px!important;
+ padding:0!important;
+ box-sizing:border-box!important;
+}
+/* Keyboard visibility remains, but no permanent plate around either icon. */
+.wrap .nav button:is([data-nav="Kezdőlap"],[data-nav="Ask Léna"]):focus-visible{
+ outline:2px solid var(--sh9-bottom-two-icon-accent)!important;
+ outline-offset:2px!important;
+}
