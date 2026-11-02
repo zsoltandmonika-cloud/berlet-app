@@ -203,8 +203,12 @@
  }
  function resolveHost(){
   if(healthShell())return healthHost();
-  if(/\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath())||
-     /\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath()))
+  // v539 · Only the live Digital Wellbeing page: keep its compact glass dock
+  // INSIDE the approved Hero art, so it scrolls with the photo and fits the
+  // new v538 stroke panel. Preview and all other pages retain their hosts.
+  if(/\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath()))
+    return d.querySelector('.dw-wellbeing-hero-plate-v538 > .hero-art')||d.body;
+  if(/\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath()))
     return d.body;
   // Nutrition's hero remains role=img. Place interactive Golden controls
   // in its sibling overlay host, never inside the image or at page bottom.
