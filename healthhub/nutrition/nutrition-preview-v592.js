@@ -309,7 +309,7 @@ function render(){
   }
   matching.forEach(e=>{
 
-  const line=document.createElement('div');line.className='entry';
+  const line=document.createElement('div');line.className='entry';line.dataset.entryId=e.id;
   const left=document.createElement('div'),right=document.createElement('aside');
   const name=document.createElement('strong');name.textContent=(e.icon||'🍽️')+' '+e.name;
   const smaller=document.createElement('small');smaller.textContent=e.time+' · '+e.meal+(e.quantityText?' · '+e.quantityText:'')+(e.source==='estimated'?' · becsült':'');
@@ -943,6 +943,7 @@ root.HH_NUTRITION_QUICK_API={
    meal,kind:unit==='ml'?'drink':'food',foodId:'manual:'+uid(),name,
    icon:unit==='ml'?'🥤':'🍽️',quantity,unit,quantityText:fmt(quantity)+' '+unit,
    nutrients:nut,source:nut.kcal==null?'manual-unknown':'estimated',manualEntry:true};
+  if($('logDate'))$('logDate').value=rec.date; // v1131: reveal today's entry when the diary was previously on another day.
   update(d=>d.entries.push(rec));
   return {name,profile:active,id:rec.id,kcal:nut.kcal,date:rec.date};
  },
