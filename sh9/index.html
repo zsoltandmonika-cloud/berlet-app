@@ -96,6 +96,30 @@ input[type=file]{display:none}
 .hero-demo #heroWallet:focus-visible,.hero-demo #pinLauncher:focus-visible{outline:2px solid var(--accent)}
 @media(max-width:365px){.hero-demo #pinLauncher{max-width:88px}.hero-demo #heroWallet{min-width:85px;padding:0 8px}}
 
+
+/* SHO v25 · S24 Ultra portrait refinement; layout only.
+   Keep existing route handlers, Outlook, OTA and unified Golden taskbar. */
+.head{
+ background-position:50% 14px;
+}
+.pills{top:7px;left:7px;gap:5px}
+.pills .pill{height:35px;min-width:82px;padding:0 10px;border-radius:22px;font-size:11px}
+.pills .lang button{font-size:12px;line-height:1.1;padding:5px 4px}
+.profile{bottom:7px;left:7px;height:35px}
+.hero-demo{right:7px;bottom:7px}
+.hero-demo #heroWallet,.hero-demo #pinLauncher{
+ height:35px;min-width:86px;padding:0 10px;border-radius:22px;font-size:11px;
+}
+.hero > #sh9OtaIndicatorV1043.sh9-ota-indicator-v1043{
+ top:2px;right:1px;
+}
+.info{flex-basis:84px;min-height:84px}
+#sh9CalendarValue{font-size:9.8px!important;line-height:1.15!important}
+#sh9CalendarSub{font-size:9px!important;line-height:1.13!important}
+@media(max-height:740px){
+ .info{flex-basis:80px;min-height:80px}
+}
+
 </style>
 </head>
 <body>
