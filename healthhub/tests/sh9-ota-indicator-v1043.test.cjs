@@ -190,6 +190,27 @@ test('foreground OTA checks use bounded five-minute cooldown, not six-hour delay
 
 test('native WebView retains CSS and correct versioned script after Chrome split',()=>{
  assert.match(css,/data-state="release"/);
- assert.match(home,/sh9-ota-indicator-v1043\.css\?v=1062-legacy-release/);
+ assert.match(home,/sh9-ota-indicator-v1043\.css\?v=920-small-corner/);
  assert.match(home,/sh9-ota-indicator-v1043\.js\?v=1067-native-only/);
+});
+
+test('v920 start Hero OTA lamp is visually 34px top-right but keeps 44px tap and status colors',()=>{
+ const marker='/* v920 · SH9 start Hero OTA button';
+ const style=css.slice(css.indexOf(marker));
+ assert.ok(style.length>900,'v920 CSS overrides loaded last');
+ assert.match(style,/#sh9OtaIndicatorV1043\.sh9-ota-indicator-v1043\{/);
+ assert.match(style,/top:calc\(-4px \+ env\(safe-area-inset-top,0px\)\)/);
+ assert.match(style,/right:-4px/);
+ assert.match(style,/width:44px;min-width:44px;max-width:110px/);
+ assert.match(style,/height:44px;min-height:44px;max-height:44px/);
+ assert.match(style,/::before\{\s*content:"";position:absolute;inset:5px/);
+ assert.match(style,/width:10px;height:10px/);
+ assert.match(style,/data-state="update"/);
+ assert.match(style,/width:105px;min-width:105px/);
+ assert.match(style,/data-state="release"/);
+ assert.match(style,/data-state="warning"/);
+ assert.match(home,/sh9-ota-indicator-v1043\.css\?v=920-small-corner/);
+ assert.equal((home.match(/id="sh9OtaIndicatorV1043"/g)||[]).length,1);
+ assert.equal((home.match(/class="tile"/g)||[]).length,9);
+ assert.equal((home.match(/data-nav="/g)||[]).length,5);
 });
