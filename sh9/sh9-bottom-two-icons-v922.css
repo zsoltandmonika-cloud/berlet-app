@@ -36,3 +36,9 @@
  outline:2px solid var(--sh9-bottom-two-icon-accent)!important;
  outline-offset:2px!important;
 }
+
+/* v923 · Match ONLY the Ask Léna caption to its icon's profile accent.
+   The Home caption and other three navigation labels remain unchanged. */
+.wrap .nav button[data-nav="Ask Léna"] > span{
+ color:var(--sh9-bottom-two-icon-accent)!important;
+}
