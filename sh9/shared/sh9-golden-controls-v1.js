@@ -189,7 +189,29 @@
   const activity=visibleOverlay('hhActivityPage191');
   if(activity)return activity.querySelector('.a191Hero')||activity;
   const sub=visibleOverlay('healthSection');
-  if(sub)return sub.querySelector('.healthSubHero')||sub;
+  if(sub){
+   const hero=sub.querySelector('.healthSubHero');
+   // v1043 · Leletek/Gyógyszerek Plan B. Same single working dock,
+   // placed BELOW the picture inside the Health subpage content flow.
+   // All other HealthRadar subpages keep their previously approved Hero host.
+   const recordsMeds=w.healthSectionKind==='records'||w.healthSectionKind==='medications';
+   let slot=$('hhRecordsMedsGoldenDockSlotV1043');
+   if(recordsMeds&&hero){
+    if(!slot){
+     slot=d.createElement('div');
+     slot.id='hhRecordsMedsGoldenDockSlotV1043';
+     slot.className='hh-records-meds-dock-slot-v1043';
+     slot.setAttribute('aria-label','SHO Glass Dock · Profil, Feladatok, Wallet és Nyelv');
+    }
+    if(slot.previousElementSibling!==hero)hero.insertAdjacentElement('afterend',slot);
+    if(slot.hidden)slot.hidden=false;
+    sub.dataset.hhRecordsMedsDockV1043='on';
+    return slot;
+   }
+   delete sub.dataset.hhRecordsMedsDockV1043;
+   if(slot&&!slot.hidden)slot.hidden=true;
+   return hero||sub;
+  }
   const pages=d.querySelectorAll('.page.on');
   const active=pages.length?pages[pages.length-1]:null;
   if(active){
