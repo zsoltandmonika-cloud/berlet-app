@@ -1,5 +1,5 @@
 'use strict';
-/* HealthHub Nutrition v1130 · manual food flow and data safety regression. */
+/* HealthHub Nutrition v1131 · manual diary-first flow and data safety regression. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'../nutrition');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
@@ -11,9 +11,9 @@ const before=needle=>html.indexOf(needle);
 assert.ok(before('id="hhQuickLaunch"')<before('id="hhManualLaunch1130"'));
 assert.ok(before('id="hhManualLaunch1130"')<before('class="hh-bevitel-section"'));
 assert.equal((html.match(/id="hhManualLaunch1130"/g)||[]).length,1);
-assert.ok(html.includes('hh-manual-intake-v1130.css?v=1130-voice-predictive'));
-assert.ok(html.includes('hh-manual-intake-v1130.js?v=1130-voice-predictive'));
-assert.ok(html.includes('nutrition-preview-v592.js?v=1130-manual-diary-api'));
+assert.ok(html.includes('hh-manual-intake-v1130.css?v=1131-diary-confirmation'));
+assert.ok(html.includes('hh-manual-intake-v1130.js?v=1131-diary-first-verified'));
+assert.ok(html.includes('nutrition-preview-v592.js?v=1131-manual-diary-reveal'));
 assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
 assert.match(css,/#hhManualLaunch1130/);
 assert.match(css,/var\(--accent\)/);
@@ -39,4 +39,66 @@ assert.match(ui,/await lib\.upsert\(/);
 assert.match(ui,/if\(info\.expectedProfile!==api\(\)\?\.getProfile\(\)\)/);
 assert.match(bevitel,/own\?\.imageRef/);
 assert.match(bevitel,/scope=r\.sharedId\?'shared'/);
-console.log('Nutrition manual intake v1130: UI, speech, prediction, AI and profile-safe persistence checks OK');
+assert.match(core,/if\(\$\('logDate'\)\)\$\('logDate'\)\.value=rec\.date/);
+assert.match(core,/line\.dataset\.entryId=e\.id/);
+assert.match(html,/id="hhManualDiaryNotice1131"/);
+assert.match(css,/#hhManualDiaryNotice1131/);
+assert.ok(ui.indexOf('result=api().recordManualMeal(info)') < ui.indexOf('await lib.upsert('),
+ 'diary must persist before any optional cloud/catalog write');
+async function scenario(options={}){
+ const calls=[],elements=Object.create(null);
+ const el=id=>elements[id]||(elements[id]={
+  value:'',checked:false,disabled:false,hidden:false,textContent:'',dataset:{},
+  src:'',close(){calls.push('close')},scrollIntoView(){calls.push('scroll')},
+  classList:{add(){calls.push('highlight')}}
+ });
+ const doc={getElementById:el,readyState:'loading',addEventListener(){},
+  querySelector:()=>({scrollIntoView(){calls.push('scroll')},classList:{add(){calls.push('highlight')}}})};
+ const api={getProfile:()=>options.profile||'monika',
+  recordManualMeal:()=>{calls.push('diary');if(options.diaryFails)throw Error('Storage write blocked');
+   return {id:'test-diary-id',profile:'monika',date:'2026-11-02'}},
+  saveManualFood:()=>{calls.push('category');if(options.categoryFails)throw Error('Category storage failed')},
+  saveRecipe:()=>{calls.push('favorite')}
+ };
+ const w={HH_NUTRITION_QUICK_API:api,HH_NUTRITION_CLOUD_V626:{connected:()=>false}};
+ const injected=ui.replace('})(window,document);',
+   'window.__testSave=save; window.__setSession=p=>{session=p};})(window,document);');
+ assert.notEqual(injected,ui);
+ vm.runInNewContext(injected,{window:w,document:doc});
+ w.__setSession('monika');
+ Object.assign(el('hhManualName1130'),{value:'Rakott krumpli'});
+ el('hhManualQty1130').value='250';
+ el('hhManualUnit1130').value='g';
+ el('hhManualMeal1130').value='Ebéd';
+ el('hhManualCategory1130').value='Főételek';
+ el('hhManualKcal1130').value=options.kcal||'';
+ for(const k of ['Protein','Carbs','Fat'])el('hhManual'+k+'1130').value='';
+ el('hhManualSaveFood1130').checked=!!options.food;
+ el('hhManualFavorite1130').checked=!!options.favorite;
+ el('hhManualFamily1130').checked=false;
+ el('hhManualDiaryNotice1131').hidden=true;
+ await w.__testSave({preventDefault(){}});
+ return {calls,notice:el('hhManualDiaryNotice1131'),status:el('hhManualStatus1130')};
+}
+(async()=>{
+ const unknown=await scenario({food:true,favorite:true});
+ assert.equal(unknown.calls[0],'diary','missing kcal must not block diary');
+ assert.equal(unknown.notice.hidden,false);
+ assert.match(unknown.notice.textContent,/Napi naplóba mentve/);
+ assert.match(unknown.notice.textContent,/kcal-adat/);
+ const partial=await scenario({food:true,favorite:true,kcal:'350',categoryFails:true});
+ assert.deepEqual(partial.calls.slice(0,1),['diary']);
+ assert.ok(partial.calls.includes('favorite'),'failing category must not block favorite');
+ assert.match(partial.notice.textContent,/saját ételkategória nem mentődött/);
+ assert.match(partial.notice.textContent,/Mentve: Kedvencek/);
+ const simple=await scenario();
+ assert.equal(simple.calls[0],'diary');
+ assert.equal(simple.notice.dataset.state,'saved');
+ assert.ok(simple.calls.includes('scroll'));
+ const failed=await scenario({diaryFails:true,favorite:true,kcal:'350'});
+ assert.equal(failed.calls.length,1);
+ assert.equal(failed.calls[0],'diary');
+ assert.equal(failed.notice.hidden,true);
+ assert.match(failed.status.textContent,/Nem sikerült a Napi napló mentése/);
+ console.log('Nutrition v1131: manual diary-first behavior, visible confirmation, error isolation & profile checks OK');
+})().catch(error=>{console.error(error);process.exitCode=1});
