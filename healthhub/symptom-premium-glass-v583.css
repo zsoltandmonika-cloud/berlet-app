@@ -354,3 +354,16 @@ html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) :is(#hhOneRag
   outline:2px solid #edb3f2!important;
   outline-offset:3px;
 }
+
+/* v585: The visible quick tile is .qbox, not the outer transparent button. */
+#health .quick.hhSJQuick307 .hhSJLaunch307 .qbox{
+ border:2px solid #dca3e9!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,rgba(172,103,189,.46),rgba(228,143,196,.27))!important;
+ box-shadow:0 0 0 2px rgba(219,157,228,.14),0 4px 15px rgba(178,102,185,.28),inset 0 1px rgba(255,236,252,.35)!important;
+ color:#f3cdf6!important;
+}
+#health .quick.hhSJQuick307 .hhSJLaunch307 > span:last-child{
+ color:#e8b7ee!important;
+ font-weight:800!important;
+}
