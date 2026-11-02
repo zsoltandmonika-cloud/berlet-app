@@ -16,6 +16,7 @@
   notifications:'<path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/>',
   admin:'<circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/>'
  };
+ const askLabel=()=>{try{return w.localStorage?.getItem('sh9-language-v1')==='en'?'Ask Léna':'Kérdezd Lénát'}catch(_){return 'Kérdezd Lénát'}};
  const svg=type=>'<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+paths[type]+'</svg>';
  const readProfile=()=>{try{return w.localStorage?.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}};
  function paint(){
@@ -52,7 +53,7 @@
   const oldLabel=node.querySelector('span[data-i18n],span:not([data-icon]),small');
   const labelTag=oldLabel?.tagName?.toLowerCase()==='small'?'small':'span';
   const translation=oldLabel?.getAttribute?.('data-i18n');
-  const txt=label==='home'?('Kezdőlap'):('Ask Léna');
+  const txt=label==='home'?('Kezdőlap'):(askLabel());
   // Only the Home/Ask children change: never touch the other three slots.
   node.innerHTML=svg(name)+'<'+labelTag+(translation?' data-i18n="'+translation+'"':'')+'>'+txt+'</'+labelTag+'>';
  }
@@ -60,7 +61,7 @@
   if(!nav||nav.closest('dialog')||nav.hasAttribute('hidden')&&nav.classList.contains('sh9-golden-fallback-v924'))return;
   const item=candidate(nav);if(!item)return;
   const {home,askNode}=item;
-  if(nav.dataset.sh9GoldenBottomNav==='on'&&home.dataset.sh9BottomRole==='home'&&askNode.dataset.sh9BottomRole==='ask')return;
+  if(nav.dataset.sh9GoldenBottomNav==='on'&&home.dataset.sh9BottomRole==='home'&&askNode.dataset.sh9BottomRole==='ask'){const caption=askNode.querySelector('span,small');if(caption)caption.textContent=askLabel();askNode.setAttribute('aria-label',askLabel()+' megnyitása');return;}
   const nativeAsk=askNode.id==='navAsk'||askNode.dataset.nav==='Ask Léna';
   const wasNativeAsk=!!nativeAsk;
   if(home.dataset.sh9BottomRole!=='home'){
@@ -69,7 +70,7 @@
   if(askNode.dataset.sh9BottomRole!=='ask'){
    askNode.dataset.sh9BottomRole='ask';
    if(!wasNativeAsk){
-    askNode.setAttribute('aria-label','Ask Léna megnyitása');
+    askNode.setAttribute('aria-label',askLabel()+' megnyitása');
     if(askNode.tagName==='A')askNode.setAttribute('href',ASK_FALLBACK);
     if(askNode.tagName==='BUTTON')askNode.dataset.nav='Ask Léna';
     askNode.addEventListener('click',ask,true);
@@ -90,14 +91,14 @@
   nav.className='sh9-golden-fallback-v924';
   nav.setAttribute('aria-label','SH9 Golden Standard navigáció');
   const actions=[
-   ['Kezdőlap','home',HOME],['Ask Léna','ask',ASK_FALLBACK],
+   ['Kezdőlap','home',HOME],[askLabel(),'ask',ASK_FALLBACK],
    ['Vissza','back','#'],['Értesítések','notifications',HH+'?sh9nav=notifications'],
    ['Admin','admin',HH+'?sh9nav=admin']
   ];
   for(const [label,icon,url] of actions){
    const a=d.createElement('a');a.href=url;a.setAttribute('aria-label',label);
    a.innerHTML=svg(icon)+'<span>'+label+'</span>';
-   if(label==='Ask Léna')a.addEventListener('click',ask,true);
+   if(icon==='ask')a.addEventListener('click',ask,true);
    if(label==='Vissza')a.addEventListener('click',e=>{e.preventDefault();if(w.history.length>1)w.history.back();else w.location.assign(HOME)});
    nav.appendChild(a);
   }
