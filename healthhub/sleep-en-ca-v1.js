@@ -116,12 +116,18 @@
   ['LEGUTÓBBI ÉJSZAKA','LAST NIGHT'],['12 óra','12 Hours'],['24 óra','24 Hours'],
   ['Alvás','Sleep'],['Ébren (ágyban)','Awake (In Bed)'],
   ['Ágyon kívül','Out of Bed'],['Szakasz','Stage'],['Ismeretlen','Unknown'],
-  ['Kezdőlap','Home'],['Idővonal','Timeline'],['Frissítés','Refresh']
+  ['Kezdőlap','Home'],['Idővonal','Timeline'],['Frissítés','Refresh'],
+  ['❤️ ÁTLAG PULZUS','❤️ AVERAGE HEART RATE'],
+  ['↕ PULZUSTARTOMÁNY','↕ HEART-RATE RANGE'],
+  ['🫁 ÁTLAG SpO₂','🫁 AVERAGE SpO₂'],['↓ MIN. SpO₂','↓ MIN. SpO₂'],
+  ['ÉJSZAKAI ADATOK','OVERNIGHT MEASUREMENTS'],
+  ['Pulzus és oxigénszint','Heart Rate & Blood Oxygen'],
+  ['Ehhez az éjszakához most nincs időbélyegzett pulzus- vagy SpO₂-adat a szinkronizált Health Connect csomagban.','No timestamped heart-rate or SpO₂ measurements are available for this night in the synchronized Health Connect data.']
  ];
  var dictionary=new Map(translations);
  var originalText=new WeakMap(),originalAttrs=new WeakMap();
  var attrNames=['aria-label','title','placeholder'];
- var scheduled=false,root=null,observer=null;
+ var scheduled=false,root=null,observer=null,touched=false;
  function isEN(){try{return w.localStorage.getItem('sh9-language-v1')==='en'}catch(_){return false}}
  function translateDuration(s){
   return String(s).replace(/(\d+)\s+ó\s+(\d+)\s+p\b/g,'$1 hr $2 min')
@@ -186,6 +192,11 @@
   s=s.replace(/mért perc/g,'measured minutes').replace(/\/perc/g,'/min');
   s=s.replace(/ · Ébrenlét nélkül/g,' · Excluding awake time');
   s=s.replace(/Alváshatékonyság: /g,'Sleep efficiency: ');
+  s=s.replace(/🛏 Ablak: /g,'🛏 Window: ').replace(/⚡ Hatékonyság: /g,'⚡ Efficiency: ');
+  s=s.replace(/👁 Ébren: /g,'👁 Awake: ').replace(/(\d+) megszakítás/g,'$1 interruptions');
+  s=s.replace(/Utolsó adatimport: időpont nem ismert/g,'Last data import: time unknown');
+  s=s.replace(/A mai alvás még nem szerepel az átvett adatokban\. A webes frissítés csak a már szinkronizált adatokat olvassa újra\./g,
+    'Today’s sleep is not yet included in the imported data. Refreshing the website only rereads already-synchronized records.');
   s=s.replace(/ · Health Connect/g,' · Health Connect');
   s=s.replace(/(\d+)\s+ó\s+(\d+)\s+p\b/g,'$1 hr $2 min');
   s=s.replace(/(\d+)\s+ó\b/g,'$1 hr').replace(/(\d+)\s+p\b/g,'$1 min');
@@ -212,7 +223,7 @@
    var next=translate(original);
    if(next!==null){
     if(!originalText.has(node))originalText.set(node,original);
-    if(node.nodeValue!==next)node.nodeValue=next;
+    if(node.nodeValue!==next){node.nodeValue=next;touched=true;}
    }
   }else if(originalText.has(node)){
    var value=originalText.get(node);
@@ -223,13 +234,16 @@
   if(!node.getAttribute)return;
   if(english){
    var snapshot=originalAttrs.get(node);
-   if(!snapshot){snapshot={};originalAttrs.set(node,snapshot);}
    for(var i=0;i<attrNames.length;i++){
     var attr=attrNames[i],value=node.getAttribute(attr);
     if(value===null)continue;
-    if(!(attr in snapshot))snapshot[attr]=value;
-    var next=translate(snapshot[attr]);
-    if(next!==null&&value!==next)node.setAttribute(attr,next);
+    var original=snapshot&&attr in snapshot?snapshot[attr]:value;
+    var next=translate(original);
+    if(next!==null){
+     if(!snapshot){snapshot={};originalAttrs.set(node,snapshot);}
+     if(!(attr in snapshot))snapshot[attr]=original;
+     if(value!==next){node.setAttribute(attr,next);touched=true;}
+    }
    }
   }else{
    var old=originalAttrs.get(node);
@@ -239,6 +253,9 @@
  function paint(){
   if(!root||!root.isConnected)return;
   var english=isEN();
+  // Hungarian is read-only. Do not even traverse the Sleep DOM until this
+  // instance has translated something that may need restoring.
+  if(!english&&!touched)return;
   // Walk only the Sleep screen. The underlying Home, medical PDFs and shared
   // navigation are never traversed or translated by this adapter.
   var walker=d.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);
@@ -247,6 +264,7 @@
    if(node.nodeType===3)paintNode(node,english);
    else if(node.nodeType===1)paintAttrs(node,english);
   }
+  if(!english)touched=false;
  }
  function schedule(){
   if(scheduled)return;
