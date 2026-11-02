@@ -1,3 +1,5 @@
+> **2026-11-02 · V934 FELÜLÍRÁS:** A három különálló pirula vizuális szabványa megszűnt. Az összes aktív oldal új Golden Standardja a 4 zónás, 50 px magas, 40%-ban áttetsző SHO Unified Glass Dock. Részletek: [GOLDEN_STANDARD_UNIFIED_DOCK_V934.md](./GOLDEN_STANDARD_UNIFIED_DOCK_V934.md). A dokumentum alábbi részei történeti leírások; az adat- és jogosultságbiztonsági elvek változatlanok.
+
 # SH9 / HealthHub · GOLDEN STANDARD · három globális vezérlő
 
 **Állapot:** v918 globális bevezetés bekötve mind a **22 aktív, felhasználói alkalmazásoldalon és aloldalon** (beleértve a kategóriafa mélyebb BKK/MÁV/Volán/Smart Trip/My Trips ágait és a releváns előnézeteket). **A telefonos vizuális és teljes E2E jóváhagyás még hátravan.**
