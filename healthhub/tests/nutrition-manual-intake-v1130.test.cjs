@@ -1,5 +1,5 @@
 'use strict';
-/* HealthHub Nutrition v1131 · manual diary-first flow and data safety regression. */
+/* HealthHub Nutrition v1133 · manual input, banana guard and AI recoveries and data safety regression. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'../nutrition');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
@@ -12,8 +12,8 @@ assert.ok(before('id="hhQuickLaunch"')<before('id="hhManualLaunch1130"'));
 assert.ok(before('id="hhManualLaunch1130"')<before('class="hh-bevitel-section"'));
 assert.equal((html.match(/id="hhManualLaunch1130"/g)||[]).length,1);
 assert.ok(html.includes('hh-manual-intake-v1130.css?v=1131-diary-confirmation'));
-assert.ok(html.includes('hh-manual-intake-v1130.js?v=1131-diary-first-verified'));
-assert.ok(html.includes('nutrition-preview-v592.js?v=1131-manual-diary-reveal'));
+assert.ok(html.includes('hh-manual-intake-v1130.js?v=1133-ai-estimate-photo-fallback'));
+assert.ok(html.includes('nutrition-preview-v592.js?v=1133-explicit-food-safety'));
 assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
 assert.match(css,/#hhManualLaunch1130/);
 assert.match(css,/var\(--accent\)/);
@@ -41,6 +41,16 @@ assert.match(bevitel,/own\?\.imageRef/);
 assert.match(bevitel,/scope=r\.sharedId\?'shared'/);
 assert.match(core,/if\(\$\('logDate'\)\)\$\('logDate'\)\.value=rec\.date/);
 assert.match(core,/line\.dataset\.entryId=e\.id/);
+assert.match(core,/entryFoodExplicitlyChosen/);
+assert.match(core,/Előbb válaszd ki az ételt a listából/);
+assert.match(core,/selected\.value!==currentFood/);
+assert.match(core,/saved\.name!==name\|\|saved\.foodId!==rec\.foodId/);
+assert.match(html,/id="hhManualOwnPhotoBtn1133"/);
+assert.match(html,/id="hhManualOwnPhoto1133"/);
+assert.match(ui,/model:'gpt-5\.4-nano'/);
+assert.match(ui,/A Puter AI-keret nem elegendő/);
+assert.match(ui,/await p\.ai\.chat\(prompt,\{normalize:true/);
+assert.match(read('hh-shared-food-library-v1118.js'),/reuse the existing SDK tag/);
 assert.match(html,/id="hhManualDiaryNotice1131"/);
 assert.match(css,/#hhManualDiaryNotice1131/);
 assert.ok(ui.indexOf('result=api().recordManualMeal(info)') < ui.indexOf('await lib.upsert('),
@@ -100,5 +110,5 @@ async function scenario(options={}){
  assert.equal(failed.calls[0],'diary');
  assert.equal(failed.notice.hidden,true);
  assert.match(failed.status.textContent,/Nem sikerült a Napi napló mentése/);
- console.log('Nutrition v1131: manual diary-first behavior, visible confirmation, error isolation & profile checks OK');
+ console.log('Nutrition v1133: diary-first behavior, visible confirmation, error isolation & profile checks OK');
 })().catch(error=>{console.error(error);process.exitCode=1});
