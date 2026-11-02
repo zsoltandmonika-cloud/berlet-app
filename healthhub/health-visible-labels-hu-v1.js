@@ -35,7 +35,11 @@ const healthLabels=[
  ['Hozzáadás','Add'],['Mentés','Save'],['Mégse','Cancel'],
  ['Bezárás','Close'],['Keresés','Search'],['Frissítés','Refresh'],
  ['Ellenőrzés','Check'],['Beállítások','Settings'],
- ['Nincs adat','No Data'],['Nincs találat','No Results']
+ ['Nincs adat','No Data'],['Nincs találat','No Results'],
+ ['Tünetnapló','Symptom Diary'],['Tünet napló','Symptom Diary'],
+ ['Új tünet','New Symptom'],['Tünet rögzítése','Log Symptom'],
+ ['Tünet','Symptom'],['Súlyosság','Severity'],['Időtartam','Duration'],
+ ['Kezdete','Onset'],['Megjegyzés','Notes'],['Új bejegyzés','New Entry']
 ];
 const healthToEN=new Map(healthLabels);
 const healthToHU=new Map(healthLabels.map(([hu,en])=>[en,hu]));
