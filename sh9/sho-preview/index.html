@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081326">
+<title>SHO · Smart Hub One | Interaktív előnézet</title>
+<link rel="icon" type="image/svg+xml" href="../pwa-icon.svg">
+<link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
+<style>
+:root{color-scheme:dark;--accent:#79bfff;--accentSoft:rgba(121,191,255,.22);--border:rgba(150,203,255,.37);--ink:#f2f8ff;--muted:#b8cce4;--pink:#f9a6d3}
+:root[data-sh9-golden-profile="m"]{--accent:#f9a6d3;--accentSoft:rgba(249,166,211,.22);--border:rgba(249,166,211,.46)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:#030d20;color:var(--ink);font:14px/1.35 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shell{width:min(100%,420px);height:100dvh;max-height:100dvh;display:flex;flex-direction:column;gap:7px;overflow:hidden;margin:auto;padding:5px 7px 0;background:#071329}
+.head{flex:0 0 auto;position:relative;overflow:hidden;height:clamp(208px,32dvh,290px);border:1px solid var(--border);border-radius:18px;background:radial-gradient(circle at 77% 30%,rgba(242,133,206,.56),transparent 31%),radial-gradient(circle at 48% 3%,rgba(52,147,252,.68),transparent 50%),linear-gradient(148deg,#06152a 7%,#15396d 55%,#512f74 83%,#ea9d8a 110%);box-shadow:0 9px 26px #0008;isolation:isolate}
+.head:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 74% 84%,rgba(245,170,182,.4),transparent 38%),linear-gradient(0deg,#07142bdc,transparent 42%);pointer-events:none}
+.orbit{position:absolute;border:1px solid rgba(180,222,255,.6);border-radius:100%;width:330px;height:235px;right:-88px;top:-73px;transform:rotate(-24deg);box-shadow:0 0 25px rgba(96,179,255,.35),inset 0 0 15px rgba(255,146,215,.22)}
+.glass{background:linear-gradient(145deg,rgba(62,111,162,.34),rgba(18,33,67,.72));border:1px solid rgba(194,224,255,.37);box-shadow:inset 0 1px rgba(255,255,255,.15),0 4px 16px #0005;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.pills{position:absolute;z-index:4;top:4px;left:5px;display:flex;gap:6px;align-items:center}
+.pill{height:40px;min-width:85px;padding:0 12px;border-radius:24px;background:#0c2446;border:1px solid var(--accent);font-weight:750;font-size:12px}
+.lang button{background:transparent;border:0;padding:7px 4px;border-radius:50%;font-size:13px;font-weight:750}.lang .chosen{background:var(--accentSoft)}
+.led{position:absolute;right:12px;top:11px;z-index:5;border-radius:50%;height:31px;width:31px;border:1px solid #91b2de;background:#0c2446;box-shadow:0 0 10px #000c;display:grid;place-items:center}.led:before{content:"";width:12px;height:12px;border-radius:50%;background:#4ee9a0;box-shadow:0 0 11px #4ee9a0}
+.brand{position:absolute;z-index:2;right:7%;top:26%;width:62%;text-align:center;text-shadow:0 4px 18px #091533}
+.brand .infinity{font-size:34px;font-weight:900;line-height:.7;background:linear-gradient(90deg,#70dbff,#c5b8ff,#ff94d4);color:transparent;background-clip:text;-webkit-background-clip:text}
+.brand strong{display:block;font-size:clamp(49px,14vw,67px);font-weight:950;letter-spacing:-.085em;line-height:1.02;color:#fff;filter:drop-shadow(0 1px 7px #86b7ff)}
+.brand small{display:block;font-size:13px;font-weight:800;letter-spacing:.01em}.brand em{display:block;font-size:9px;font-style:normal;letter-spacing:.04em;margin-top:6px;color:#e8f5ff}
+.mascot{position:absolute;z-index:2;left:0;bottom:35px;width:39%;filter:drop-shadow(0 8px 9px #071329);display:grid;place-items:center}
+.mascot .face{font-size:93px;line-height:1.2;transform:rotate(-9deg);text-shadow:0 0 25px #fbb68b5c}
+.mascot .tag{position:absolute;bottom:0;padding:3px 10px;font-weight:800;font-size:11px;border-radius:12px;background:#061a38cc;border:1px solid #67c8ff}
+.profile{position:absolute;z-index:4;bottom:5px;left:5px;min-width:98px;height:35px;border-radius:25px;background:#0c2446;border:1px solid var(--accent);font-weight:800;font-size:13px}
+.hero-demo{position:absolute;z-index:4;bottom:9px;right:11px;display:flex;gap:6px;align-items:center}.hero-demo button{border:1px solid var(--border);border-radius:9px;padding:7px 8px;font-size:11px;background:#061934cf;font-weight:750}
+.preview-badge{position:absolute;z-index:5;top:52px;left:11px;padding:3px 7px;border-radius:6px;color:#daf3ff;font-size:9px;font-weight:800;letter-spacing:.09em;background:#07162ea8;border:1px solid #85c8f851}
+.info{display:grid;grid-template-columns:1.18fr 1fr 1fr;flex:0 0 66px;overflow:hidden;border-radius:17px;border:1px solid var(--border);background:linear-gradient(135deg,#082a50,#102a50 60%,#322047);box-shadow:inset 0 1px rgba(255,255,255,.1)}
+.info>button{min-width:0;text-align:left;border:0;background:transparent;padding:7px 8px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.info>button+button{border-left:1px solid rgba(173,217,254,.2)}
+.info b{font-size:9px;color:#b2daff;letter-spacing:.03em}.info strong{font-size:12px;line-height:1.1;color:var(--accent)}.info small{font-size:10px;color:#e0ecff}
+.module-board{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#507397 transparent;border-radius:18px 18px 0 0;border:1px solid var(--border);background:linear-gradient(150deg,#143159,#111d3f 65%,#261d49);padding:8px}
+.module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.tile{min-width:0;height:clamp(77px,10.4dvh,107px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(162,212,255,.32);border-radius:17px;background:linear-gradient(148deg,#244d80b5,#162c51dd 55%,#2a2854cc);box-shadow:inset 0 1px rgba(255,255,255,.13),0 3px 8px #0003}
+.tile:active{transform:scale(.985);border-color:var(--accent)}.tile .sym{display:grid;place-items:center;font-size:21px;width:39px;height:39px;border-radius:14px;border:1px solid #84c8fc66;background:linear-gradient(130deg,#416c9b91,#27395c99)}.tile b{font-size:11px;text-align:center;line-height:1.13;padding:0 2px}
+.tile.wallet{grid-column:span 3;height:62px;flex-direction:row;gap:13px;border-color:var(--accent);background:linear-gradient(105deg,rgba(44,121,191,.42),rgba(110,52,115,.4))}.tile.wallet .sym{width:42px;height:42px}.tile.wallet b{font-size:14px}.tile.wallet small{font-size:10px;color:var(--muted);display:block}
+.nav{flex:0 0 auto;min-height:70px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:5px 2px calc(5px + env(safe-area-inset-bottom,0px));margin:0 -4px;background:#0e1d38;border-top:1px solid #88c5f544;box-shadow:0 -5px 13px #0005}
+.nav button{min-width:0;background:transparent;border:0;padding:2px 0;display:flex;flex-direction:column;gap:3px;justify-content:center;align-items:center;text-align:center;color:#b9d0e8;font-size:10px}.nav button.active{color:var(--accent)}.nav svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.85;fill:none;stroke-linecap:round;stroke-linejoin:round}.nav span{white-space:nowrap;font-size:10px}
+.scrim{position:fixed;inset:0;background:#010916dc;z-index:30;display:flex;align-items:flex-end;justify-content:center;padding:12px 7px max(8px,env(safe-area-inset-bottom,0px))}
+.scrim[hidden]{display:none}
+.sheet{width:min(100%,420px);max-height:89dvh;overflow:auto;border-radius:23px;border:1px solid var(--border);padding:16px;background:linear-gradient(145deg,#143058,#101a35 70%,#38234c);box-shadow:0 12px 45px #000c}
+.shead{display:flex;align-items:center;justify-content:space-between;gap:8px}.shead h2{font-size:20px;margin:0}.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#14294a;font-size:19px}
+.muted{color:var(--muted);font-size:12px}.banner{padding:9px 10px;border:1px dashed var(--border);border-radius:12px;background:#09162a8c;color:#cde8ff;font-size:11px;margin:12px 0}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.action{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#17375f;font-weight:750}.action.primary{background:var(--accent);color:#09162c;border-color:var(--accent)}
+.tickets{display:flex;flex-direction:column;gap:8px;margin:13px 0}.ticket-row{width:100%;display:flex;align-items:center;gap:10px;padding:12px 10px;text-align:left;border:1px solid var(--border);border-radius:14px;background:#162d50}.ticket-row .big{font-size:27px}.ticket-row .tlabel{flex:1}.ticket-row .tlabel b{display:block}.ticket-row .tlabel small{color:var(--muted)}.ticket-row .pin{border:1px solid var(--border);background:#092342;padding:5px 8px;border-radius:12px;font-size:16px}
+.viewer{position:fixed;inset:0;z-index:50;background:#020814;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(12px + env(safe-area-inset-bottom,0px))}
+.viewer[hidden]{display:none}.viewer-top{width:min(100%,420px);display:flex;align-items:center;justify-content:space-between}.viewer-top b{font-size:17px}.ticket-view{width:min(95vw,390px);aspect-ratio:1.45;display:grid;place-items:center;border-radius:21px;border:1px solid #9bd4ff;padding:22px;text-align:center;background:linear-gradient(125deg,#e3f3ff,#fff 45%,#d4eaf6);color:#14304f;box-shadow:0 0 36px #4697d54d;overflow:hidden}.ticket-view b{display:block;font-size:clamp(23px,7vw,34px)}.ticket-view small{display:block;font-weight:750}.ticket-view p{font-size:13px}.ticket-view img{max-width:100%;max-height:100%;object-fit:contain}.demo-mark{font-size:15px;letter-spacing:.16em;color:#a31d39;font-weight:900;border:2px solid #a31d39;padding:6px 10px;transform:rotate(-9deg)}
+.toast{position:fixed;bottom:98px;left:50%;transform:translateX(-50%);z-index:55;background:#19365b;padding:9px 15px;border-radius:12px;border:1px solid var(--border);font-size:12px;box-shadow:0 6px 22px #0009;max-width:90vw;text-align:center}.toast[hidden]{display:none}
+input[type=file]{display:none}
+@media (max-height:740px){.head{height:205px}.tile{height:80px}.info{flex-basis:61px}}
+@media (max-width:350px){.head{height:203px}.tile b{font-size:10px}.pills{gap:3px}.pill{min-width:76px;padding:0 8px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<section class="head" aria-label="SHO · Smart Hub One interaktív főoldal">
+<div class="orbit" aria-hidden="true"></div>
+<div class="pills"><div class="pill lang glass" role="group" aria-label="Nyelv"><button id="hu" class="chosen" type="button">HU</button><button id="en" type="button">CA</button></div><button id="tasks" class="pill" type="button">Feladatok</button></div>
+<button id="status" class="led" type="button" aria-label="Demó rendszerállapot" title="Demó rendszerállapot"></button>
+<div class="preview-badge">SHO · INTERAKTÍV DEMÓ</div>
+<div class="mascot" aria-hidden="true"><span class="face">🐿️</span><span class="tag">Buddy</span></div>
+<div class="brand"><div class="infinity">∞</div><strong>SHO</strong><small>Smart Hub One</small><em>One Hub · One Family</em></div>
+<button id="profile" class="profile" type="button">Zsolt ⇄</button>
+<div class="hero-demo"><button type="button" id="pinLauncher" hidden>📌 Bérlet megnyitása</button><button type="button" id="heroWallet">💳 Wallet</button></div>
+</section>
+<section class="info" role="group" aria-label="Demó státuszsor">
+<button type="button" data-demo="date"><b id="dateHeading">DÁTUM</b><strong id="date"></strong><small id="nameDay">DEMO · Előnézet</small></button>
+<button type="button" data-demo="weather"><b id="weatherHeading">IDŐJÁRÁS</b><strong>☁️ – °C</strong><small>Demó · nincs élő adat</small></button>
+<button type="button" data-demo="calendar"><b id="calendarHeading">NAPTÁR</b><strong id="calStrong">Nincs bekötve</strong><small id="calSmall">Demó nézet</small></button>
+</section>
+<section class="module-board" aria-label="Modulok">
+<div class="module-grid" id="moduleGrid">
+<button class="tile" data-module="Egészség" type="button"><span class="sym">♡</span><b>Egészség</b></button>
+<button class="tile" data-module="Biztonság" type="button"><span class="sym">🛡</span><b>Biztonság</b></button>
+<button class="tile" data-module="Utazás" type="button"><span class="sym">✈</span><b>Utazás</b></button>
+<button class="tile" data-module="Szórakozás" type="button"><span class="sym">▣</span><b>Szórakozás</b></button>
+<button class="tile" data-module="Bevásárlás" type="button"><span class="sym">♙</span><b>Bevásárlás</b></button>
+<button class="tile" data-module="Sport" type="button"><span class="sym">♧</span><b>Sport</b></button>
+<button class="tile" data-module="Családi aktualitások" type="button"><span class="sym">▦</span><b>Családi aktualitások</b></button>
+<button class="tile" data-module="Kapcsolatok" type="button"><span class="sym">♙</span><b>Kapcsolatok</b></button>
+<button class="tile" data-module="Életmód" type="button"><span class="sym">♧</span><b>Életmód</b></button>
+<button class="tile wallet" data-module="Wallet" type="button"><span class="sym">💳</span><span><b>Smart Wallet</b><small>Jegyek · Bérletek · Gyorsindító</small></span></button>
+</div>
+</section>
+<nav class="nav" aria-label="Golden Standard alsó navigáció – demó" data-sh9-golden-bottom-nav="on">
+<button type="button" class="active" id="home" data-sh9-bottom-role="home"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></button>
+<button type="button" id="ask" data-sh9-bottom-role="ask"><svg viewBox="0 0 24 24"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span>Kérdezd Lénát</span></button>
+<button type="button" id="back"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></button>
+<button type="button" id="alerts"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+<button type="button" id="admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></button>
+</nav>
+</main>
+<div id="overlay" class="scrim" hidden><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="shead"><h2 id="sheetTitle">Előnézet</h2><button class="x" type="button" id="close" aria-label="Bezárás">×</button></div><div id="sheetBody"></div></section></div>
+<div id="viewer" class="viewer" hidden role="dialog" aria-modal="true" aria-label="Jegy teljes képernyős demó nézete"><div class="viewer-top"><b id="viewTitle">Jegy</b><button type="button" class="action" id="viewClose">✕ Bezárás</button></div><div class="ticket-view" id="viewContent"></div><div class="actions"><button type="button" class="action primary" id="flip">🔄 Eleje / hátulja</button><button type="button" class="action" id="viewPin">📌 Kitűzés</button></div></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<input type="file" accept="image/*" id="photo">
+<script>
+(function(){
+'use strict';
+// This is an isolated interactive prototype. NO Supabase, GPS, AI, production
+// auth, permanent storage, app navigation or service worker calls.
+const $=id=>document.getElementById(id);
+let profile='z',lang='hu',pinned='',opened='',flipped=false,toastTimer=null;
+const demo={z:[{id:'zbkk',name:'Budapest-bérlet',provider:'BKK',date:'Demó · lejárat nincs beállítva',icon:'🚌',front:null,back:null},{id:'zvonat',name:'Vonatjegy',provider:'MÁV',date:'Demó jegy',icon:'🚆',front:null,back:null}],m:[{id:'mbkk',name:'Budapest-bérlet',provider:'BKK',date:'Demó · lejárat nincs beállítva',icon:'🚌',front:null,back:null},{id:'mbusz',name:'Buszjegy',provider:'Volán',date:'Demó jegy',icon:'🚍',front:null,back:null}]};
+const labels={hu:['Egészség','Biztonság','Utazás','Szórakozás','Bevásárlás','Sport','Családi aktualitások','Kapcsolatok','Életmód'],en:['Health','Safety','Travel','Entertainment','Shopping','Sport','Family updates','People','Lifestyle']};
+function toast(s){const el=$('toast');el.textContent=s;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2400)}
+function ticket(id){return demo[profile].find(t=>t.id===id)}
+function open(title,html){$('sheetTitle').textContent=title;$('sheetBody').innerHTML=html;$('overlay').hidden=false;$('close').focus()}
+function close(){ $('overlay').hidden=true; }
+function simple(title){open(title,'<p class="banner">Interaktív SHO előnézet · ez a modul még nincs bekötve az éles SH9-be.</p><p class="muted">A végleges kiadás a meglévő funkciót változtatás nélkül nyitja meg. Ebben a demóban nem történik adatlekérés vagy mentés.</p><div class="actions"><button class="action primary" id="gotit" type="button">Rendben</button></div>');$('gotit').onclick=close}
+function wallet(){
+ let html='<p class="banner">DEMÓ: A jegyek itt csak minták. Nem érvényesek utazásra, és semmi nem kerül felhőbe.</p><div class="tickets">';
+ demo[profile].forEach(t=>{html+='<div class="ticket-row"><button class="ticket-row" data-open="'+t.id+'" type="button" style="flex:1;padding:0;border:0;background:transparent"><span class="big">'+t.icon+'</span><span class="tlabel"><b>'+t.name+'</b><small>'+t.provider+' · '+t.date+'</small></span></button><button class="pin" type="button" data-pin="'+t.id+'" aria-label="Jegy kitűzése">'+(pinned===t.id?'📌':'☆')+'</button></div>'});
+ html+='</div><div class="actions"><button class="action primary" id="addPhoto" type="button">📷 Új jegy fotója</button><button class="action" id="walletInfo" type="button">ℹ️ Információ</button></div>';
+ open('💳 Smart Wallet · '+(profile==='z'?'Zsolt':'Mónika'),html);
+ document.querySelectorAll('[data-open]').forEach(n=>n.onclick=()=>view(n.dataset.open));
+ document.querySelectorAll('[data-pin]').forEach(n=>n.onclick=()=>{setPin(n.dataset.pin);wallet()});
+ $('addPhoto').onclick=()=>$('photo').click();
+ $('walletInfo').onclick=()=>toast('Demó: a fotó kizárólag ebben az oldalmegnyitásban látható.');
+}
+function setPin(id){pinned=pinned===id?'':id;$('pinLauncher').hidden=!pinned;toast(pinned?'Jegy kitűzve · demó':'Kitűzés megszüntetve')}
+function view(id){const t=ticket(id);if(!t)return;opened=id;flipped=false;close();$('viewer').hidden=false;drawViewer()}
+function drawViewer(){const t=ticket(opened);if(!t)return;$('viewTitle').textContent=t.name+' · DEMÓ';const box=$('viewContent');box.replaceChildren();const data=flipped?t.back:t.front;if(data){const i=document.createElement('img');i.src=data;i.alt='Helyben kiválasztott jegyfotó';box.appendChild(i);return}const pane=document.createElement('div');pane.innerHTML='<small>'+t.provider+' · SHO Preview</small><b>'+t.name+'</b><p>Ez szemléltető jegykártya, nem utazásra érvényes jegy.</p><span class="demo-mark">DEMÓ</span>';box.appendChild(pane)}
+function switchProfile(){profile=profile==='z'?'m':'z';pinned='';document.documentElement.dataset.sh9GoldenProfile=profile;$('profile').textContent=(profile==='z'?'Zsolt':'Mónika')+' ⇄';$('pinLauncher').hidden=true;toast('Profil: '+(profile==='z'?'Zsolt 💙':'Mónika 🩷')+' · demó');if(!$('overlay').hidden&&$('sheetTitle').textContent.includes('Wallet'))wallet()}
+function changeLang(value){lang=value;$('hu').classList.toggle('chosen',lang==='hu');$('en').classList.toggle('chosen',lang==='en');$('hu').setAttribute('aria-pressed',String(lang==='hu'));$('en').setAttribute('aria-pressed',String(lang==='en'));document.documentElement.lang=lang==='hu'?'hu':'en';document.querySelectorAll('.module-grid .tile:not(.wallet) b').forEach((el,i)=>el.textContent=labels[lang][i]);$('tasks').textContent=lang==='hu'?'Feladatok':'Tasks';$('dateHeading').textContent=lang==='hu'?'DÁTUM':'DATE';$('weatherHeading').textContent=lang==='hu'?'IDŐJÁRÁS':'WEATHER';$('calendarHeading').textContent=lang==='hu'?'NAPTÁR':'CALENDAR';$('ask').querySelector('span').textContent=lang==='hu'?'Kérdezd Lénát':'Ask Léna';toast(lang==='hu'?'Magyar demó':'Canadian English demo')}
+const today=new Intl.DateTimeFormat('hu-HU',{month:'long',day:'numeric',weekday:'short'}).format(new Date());
+$('date').textContent=today;
+$('profile').onclick=switchProfile;
+$('hu').onclick=()=>changeLang('hu');$('en').onclick=()=>changeLang('en');
+$('tasks').onclick=()=>simple('📋 Family Tasks · demó');$('status').onclick=()=>toast('Demó mód: nincs hálózati kapcsolat vagy OTA-lekérdezés');
+$('heroWallet').onclick=wallet;$('pinLauncher').onclick=()=>view(pinned);
+document.querySelectorAll('[data-module]').forEach(el=>el.onclick=()=>el.dataset.module==='Wallet'?wallet():simple(el.dataset.module));
+document.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>simple(el.dataset.demo==='calendar'?'📅 Outlook Calendar · demó':el.dataset.demo==='weather'?'🌤️ Időjárás · demó':'📆 Dátum · demó'));
+$('home').onclick=()=>{close();$('viewer').hidden=true;$('moduleGrid').scrollIntoView({block:'nearest',behavior:'smooth'});toast('SHO kezdőlap · demó')};
+$('ask').onclick=()=>simple('✨ Léna AI · demó');$('back').onclick=()=>{if(!$('viewer').hidden){$('viewer').hidden=true;return}if(!$('overlay').hidden){close();return}toast('SHO kezdőlap · demó')};
+$('alerts').onclick=()=>simple('🔔 Értesítések · demó');$('admin').onclick=()=>simple('⚙️ Admin · demó');
+$('close').onclick=close;$('overlay').onclick=e=>{if(e.target===$('overlay'))close()};
+$('viewClose').onclick=()=>$('viewer').hidden=true;$('flip').onclick=()=>{flipped=!flipped;drawViewer()};$('viewPin').onclick=()=>setPin(opened);
+$('photo').onchange=e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Képformátum szükséges');return}const id='local'+Date.now();demo[profile].unshift({id,name:'Saját fotó · demó',provider:'Helyi kép',date:'Nem mentett kép',icon:'📸',front:URL.createObjectURL(file),back:null});e.target.value='';wallet();toast('Kép hozzáadva csak ebben a demóban')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('viewer').hidden=true;close()}});
+changeLang('hu');
+})();
+</script>
+</body></html>
