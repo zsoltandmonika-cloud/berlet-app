@@ -242,6 +242,10 @@ async function save(e){
    ' a Napi naplóba mentve ('+profileName+').';
  notice.hidden=false;notice.dataset.state='saved';notice.textContent='🎉 TADAAA! '+base;
  const toast=$('hhManualToast1135');if(toast){toast.textContent='🎉 TADAAA! '+info.name+' · '+info.quantity+' '+info.unit+' naplózva';toast.hidden=false;toast.dataset.state='saved';w.setTimeout?.(()=>{toast.hidden=true},5200)}
+ // v1137: the TADAAA sound is emitted only after the canonical diary API confirms success.
+ try{w.dispatchEvent(new CustomEvent('hh:nutrition:manual-saved',{
+  detail:{profile:info.expectedProfile,name:info.name,entryId:result.id}
+ }))}catch(_){/* Sound/celebration is optional and never blocks a saved entry. */}
  const row=d.querySelector('#log .entry[data-entry-id="'+result.id+'"]');
  if(row){
   row.classList.add('hh-manual-saved-row-v1131');
