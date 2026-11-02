@@ -43,7 +43,7 @@ const lex=[
  ['Daily Spark','Asztrológia'],
  ['Daily Headline','Vezércikk'],
  ['Daily Health','Egészségfigyelés'],
- ['Trip Planner','Útvonaltervező'],
+ ['Trip Planner','Útvonaltervezés'],
  ['Health','Egészség'],
  ['Safety','Biztonság'],
  ['Travel','Utazás'],
