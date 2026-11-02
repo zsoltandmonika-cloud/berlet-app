@@ -10,10 +10,15 @@ const KEY='hh-profile',LANG='sh9-language-v1';
 const REAL_ROUTES=Object.freeze({
  'Egészség':HH,
  'Biztonság':HH+'guardian/',
- 'Utazás':SH9+'smart-travel/'
+ 'Utazás':SH9+'smart-travel/',
+ 'Táplálkozás':HH+'nutrition/',
+ 'Aktivitás':HH+'?sho=activity',
+ 'Alvás':HH+'?sho=sleep'
 });
-const MODULES=Object.freeze(['Egészség','Biztonság','Utazás','Szórakozás','Bevásárlás','Sport','Családi aktualitások','Kapcsolatok','Életmód']);
-const LABELS={hu:MODULES,en:['Health','Safety','Travel','Entertainment','Shopping','Sport','Family updates','People','Lifestyle']};
+const LABELS={
+ hu:Object.freeze({Wallet:'Smart Wallet',Táplálkozás:'Táplálkozás',Aktivitás:'Aktivitás',Alvás:'Alvás'}),
+ en:Object.freeze({Egészség:'Health',Biztonság:'Safety',Utazás:'Travel',Szórakozás:'Entertainment',Bevásárlás:'Shopping',Sport:'Sport',Wallet:'Smart Wallet',Kapcsolatok:'People',Életmód:'Lifestyle',Táplálkozás:'Nutrition',Aktivitás:'Activity',Alvás:'Sleep'})
+};
 const demo={
  z:[{id:'zbkk',name:'Budapest-bérlet',provider:'BKK',date:'Mintabérlet',icon:'🚌',front:null,back:null},{id:'zvonat',name:'Vonatjegy',provider:'MÁV',date:'Mintajegy',icon:'🚆',front:null,back:null}],
  m:[{id:'mbkk',name:'Budapest-bérlet',provider:'BKK',date:'Mintabérlet',icon:'🚌',front:null,back:null},{id:'mbusz',name:'Buszjegy',provider:'Volán',date:'Mintajegy',icon:'🚍',front:null,back:null}]
@@ -103,7 +108,7 @@ function paintLang(){
  $('hu').classList.toggle('chosen',!english);$('en').classList.toggle('chosen',english);
  $('hu').setAttribute('aria-pressed',String(!english));$('en').setAttribute('aria-pressed',String(english));
  d.documentElement.lang=english?'en-CA':'hu';
- d.querySelectorAll('.module-grid .tile:not(.wallet) b').forEach((n,i)=>n.textContent=LABELS[lang][i]);
+ d.querySelectorAll('.module-grid [data-module]').forEach(el=>{const n=el.querySelector('b'),key=el.dataset.module;if(n)n.textContent=LABELS[lang][key]||key;});
  $('tasks').textContent=english?'Tasks':'Feladatok';
  $('dateHeading').textContent=english?'DATE':'DÁTUM';
  $('weatherHeading').textContent=english?'WEATHER':'IDŐJÁRÁS';
