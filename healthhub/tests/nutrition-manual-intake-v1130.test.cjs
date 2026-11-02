@@ -1,0 +1,42 @@
+'use strict';
+/* HealthHub Nutrition v1130 · manual food flow and data safety regression. */
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'../nutrition');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const html=read('index.html'),core=read('nutrition-preview-v592.js');
+const ui=read('hh-manual-intake-v1130.js'),css=read('hh-manual-intake-v1130.css');
+const bevitel=read('hh-bevitel-premium-v643.js');
+for(const [name,source] of [['manual',ui],['core',core],['bevitel',bevitel]])new vm.Script(source,{filename:name+'.js'});
+const before=needle=>html.indexOf(needle);
+assert.ok(before('id="hhQuickLaunch"')<before('id="hhManualLaunch1130"'));
+assert.ok(before('id="hhManualLaunch1130"')<before('class="hh-bevitel-section"'));
+assert.equal((html.match(/id="hhManualLaunch1130"/g)||[]).length,1);
+assert.ok(html.includes('hh-manual-intake-v1130.css?v=1130-voice-predictive'));
+assert.ok(html.includes('hh-manual-intake-v1130.js?v=1130-voice-predictive'));
+assert.ok(html.includes('nutrition-preview-v592.js?v=1130-manual-diary-api'));
+assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
+assert.match(css,/#hhManualLaunch1130/);
+assert.match(css,/var\(--accent\)/);
+for(const id of [...new Set([...ui.matchAll(/\$\('([^']+1130)'\)/g)].map(x=>x[1]))]){
+ assert.ok(html.includes('id="'+id+'"'),'missing manual UI '+id);
+}
+assert.match(ui,/recognition\.lang='hu-HU'/);
+assert.match(ui,/SpeechRecognition\|\|w\.webkitSpeechRecognition/);
+assert.match(ui,/showPredictions\(\)/);
+assert.match(html,/list="hhManualNames1130"/);
+assert.match(ui,/\.ai\.chat\(prompt,/);
+assert.match(ui,/\.generateCardImage\(/);
+assert.match(ui,/\.addEventListener\('click',estimate\)/);
+assert.match(ui,/\.addEventListener\('click',image\)/);
+assert.match(ui,/\.addEventListener\('submit',save\)/);
+assert.match(core,/recordManualMeal:payload=>/);
+assert.match(core,/saveManualFood:payload=>/);
+assert.match(core,/source:nut\.kcal==null\?'manual-unknown':'estimated'/);
+assert.match(ui,/api\(\)\.recordManualMeal\(info\)/);
+assert.match(ui,/api\(\)\.saveManualFood\(/);
+assert.match(ui,/api\(\)\.saveRecipe\(/);
+assert.match(ui,/await lib\.upsert\(/);
+assert.match(ui,/if\(info\.expectedProfile!==api\(\)\?\.getProfile\(\)\)/);
+assert.match(bevitel,/own\?\.imageRef/);
+assert.match(bevitel,/scope=r\.sharedId\?'shared'/);
+console.log('Nutrition manual intake v1130: UI, speech, prediction, AI and profile-safe persistence checks OK');
