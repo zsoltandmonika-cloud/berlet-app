@@ -8,7 +8,7 @@ const KEY='sh9-language-v1',DEFAULT='hu';
 const dict=Object.freeze({
  hu:Object.freeze({
   'module.health':'Egészség','module.guard':'Biztonság','module.travel':'Utazás',
-  'module.entertainment':'Szórakozás','module.ask':'Ask Léna','module.shopping':'Bevásárlás','module.sports':'Sport',
+  'module.entertainment':'Szórakozás','module.ask':'Kérdezd Lénát','module.shopping':'Bevásárlás','module.sports':'Sport',
   'module.daily':'Családi aktualitások','module.people':'Kapcsolatok','module.lifestyle':'Életmód',
   'module.ariaHealth':'Egészség megnyitása','module.ariaGuard':'Biztonság megnyitása','module.ariaTravel':'Utazás megnyitása','module.ariaSports':'Sport megnyitása',
   'module.ariaPeople':'Kapcsolatok megnyitása','module.ariaLifestyle':'Életmód megnyitása',
@@ -16,7 +16,7 @@ const dict=Object.freeze({
   'travel.pageTitle':'SH9 · Utazás',
   'travel.heroAria':'Utazás · Róma, Párizs, Dubai · Léna, Mónika, Zsolt, Corky és Buddy',
   'tasks.label':'Feladatok','tasks.aria':'Családi feladatok megnyitása','tasks.title':'Családi feladatok',
-  'nav.home':'Kezdőlap','nav.ask':'Ask Léna','nav.ariaAsk':'Ask Léna megnyitása','nav.timeline':'Idővonal','nav.back':'Vissza','nav.notifications':'Értesítések','nav.admin':'Admin',
+  'nav.home':'Kezdőlap','nav.ask':'Kérdezd Lénát','nav.ariaAsk':'Kérdezd Lénát megnyitása','nav.timeline':'Idővonal','nav.back':'Vissza','nav.notifications':'Értesítések','nav.admin':'Admin',
   'info.date':'DÁTUM','info.nameday':'NÉVNAP · ','info.weather':'IDŐJÁRÁS','info.calendar':'NAPTÁR',
   'info.loading':'Betöltés…','info.dateLoading':'Dátum betöltése…','info.notConnected':'Nincs összekötve',
   'info.openAgenda':'Agenda megnyitása ›',
