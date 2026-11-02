@@ -1,0 +1,31 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const read=p=>fs.readFileSync(path.join(__dirname,'../..',p),'utf8');
+const css=read('sh9/sh9-bottom-two-icons-v922.css');
+const html=read('sh9/index.html');
+const shared=read('sh9/shared/sh9-golden-controls-v1.js');
+test('v922 only Home and Ask Lena bottom icons are changed, not other nav buttons',()=>{
+ assert.match(css,/button:is\(\[data-nav="Kezdőlap"\],\[data-nav="Ask Léna"\]\)/);
+ assert.doesNotMatch(css,/data-nav="Vissza"|data-nav="Értesítések"|data-nav="Admin"/);
+ assert.match(css,/background:transparent!important/);
+ assert.match(css,/box-shadow:none!important/);
+ assert.match(css,/border:0!important/);
+ assert.match(css,/filter:none!important/);
+ assert.match(css,/padding:0!important/);
+ assert.match(css,/border-radius:0!important/);
+ assert.match(css,/width:28px!important/);
+ assert.match(css,/height:28px!important/);
+ assert.doesNotMatch(css,/button span/);
+ assert.doesNotMatch(css,/display:none!important/);
+});
+test('v922 two icons follow profile color using canonical GOLDEN STANDARD profile',()=>{
+ assert.match(css,/:root\{--sh9-bottom-two-icon-accent:#79bfff\}/);
+ assert.match(css,/:root\[data-sh9-golden-profile="m"\]\{--sh9-bottom-two-icon-accent:#f9a6d3\}/);
+ assert.match(css,/color:var\(--sh9-bottom-two-icon-accent\)!important/);
+ assert.match(shared,/d\.documentElement\.setAttribute\('data-sh9-golden-profile',current\)/);
+ assert.match(html,/sh9-bottom-two-icons-v922\.css\?v=922-only-home-and-ask/);
+ assert.ok(html.indexOf('sh9-bottom-two-icons-v922.css')>html.indexOf('sh9-ai-taskbar-v1.css'));
+ assert.equal((html.match(/class="tile"/g)||[]).length,9);
+ assert.equal((html.match(/data-nav="/g)||[]).length,5);
+});
