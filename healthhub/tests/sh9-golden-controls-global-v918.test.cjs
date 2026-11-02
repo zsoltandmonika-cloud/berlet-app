@@ -22,8 +22,9 @@ const pages=[
 test('Golden Standard triple controls appear on every navigable category tree page and leaf',()=>{
  for(const file of pages){
   const html=read(file);
-  assert.equal((html.match(/sh9-golden-controls-v1\.css\?v=918-global-all/g)||[]).length,1,file+' style');
-  assert.equal((html.match(/sh9-golden-controls-v1\.js\?v=918-global-all/g)||[]).length,1,file+' runtime');
+  const count=file==='healthhub/index.html'?2:1; // Classic fallback gets its own document.open() shell.
+  assert.equal((html.match(/sh9-golden-controls-v1\.css\?v=918-global-all/g)||[]).length,count,file+' style');
+  assert.equal((html.match(/sh9-golden-controls-v1\.js\?v=918-global-all/g)||[]).length,count,file+' runtime');
   assert.doesNotMatch(html,/sh9-tasks-golden-v901\.js/,file+' duplicate old Tasks script');
  }
 });
