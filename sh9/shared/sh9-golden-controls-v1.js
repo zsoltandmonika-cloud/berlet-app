@@ -217,6 +217,23 @@
   }
   return d.body;
  }
+ /* v935: approved +5px bottom offset (5px upwards) on eight named page types.
+    Only presentation; never alters native handlers or the bottom navigation. */
+ const LIFT5_ROUTES=[
+  /^\/berlet-app\/sh9\/smart-travel\/public-transport\/(?:index\.html)?$/,
+  /^\/berlet-app\/sh9\/smart-travel\/public-transport\/(?:bkk|mav|volan)\/(?:index\.html)?$/,
+  /^\/berlet-app\/sh9\/smart-travel\/public-transport\/bkk\/grand-concept\/(?:index\.html)?$/,
+  /^\/berlet-app\/sh9\/smart-travel\/my-trips\/(?:index\.html)?$/,
+  /^\/berlet-app\/healthhub\/nutrition\/(?:index\.html)?$/
+ ];
+ function lift5For(host){
+  if(LIFT5_ROUTES.some(route=>route.test(currentPath())))return true;
+  if(!healthShell()||!host)return false;
+  // HealthHub Sleep and Activity live in the same document as Home.
+  // Check the ACTIVE dock host rather than lifting every HealthHub page.
+  if(host.id==='hhSleepPage'||host.id==='hhActivityPage191')return true;
+  return !!host.closest?.('#hhSleepPage.on, #hhActivityPage191.on');
+ }
  function anchorTo(host){
   if(!host||!d.body)return;
   const previous=d.querySelector('[data-sh9-golden-host="on"]');
@@ -227,6 +244,8 @@
   if(host.getAttribute('data-sh9-golden-host')!=='on')
    host.setAttribute('data-sh9-golden-host','on');
   const fixed=host===d.body;
+  if(lift5For(host))d.body.setAttribute('data-sh9-dock-lift5','on');
+  else d.body.removeAttribute('data-sh9-dock-lift5');
   if(fixed)d.body.setAttribute('data-sh9-golden-floating','on');
   else d.body.removeAttribute('data-sh9-golden-floating');
   if(d.body.getAttribute('data-sh9-golden-unified')==='on')mountDock(host);
