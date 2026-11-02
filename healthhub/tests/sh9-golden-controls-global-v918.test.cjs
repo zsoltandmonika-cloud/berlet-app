@@ -19,13 +19,22 @@ const pages=[
  'sh9/smart-travel/public-transport/volan/index.html',
  'sh9/smart-travel/public-transport/smart-trip/index.html'
 ];
-test('Golden Standard triple controls appear on every navigable category tree page and leaf',()=>{
+const lift5Pages=new Set([
+ 'healthhub/index.html','healthhub/nutrition/index.html',
+ 'sh9/smart-travel/my-trips/index.html',
+ 'sh9/smart-travel/public-transport/index.html',
+ 'sh9/smart-travel/public-transport/bkk/index.html',
+ 'sh9/smart-travel/public-transport/bkk/grand-concept/index.html',
+ 'sh9/smart-travel/public-transport/mav/index.html',
+ 'sh9/smart-travel/public-transport/volan/index.html'
+]);
+test('Golden Standard dock appears on every navigable category tree page and leaf',()=>{
  for(const file of pages){
   const html=read(file);
   const health=file==='healthhub/index.html';
   if(file==='sh9/index.html'){ assert.match(html,/class="sho-unified-dock"/);continue; }
   const count=health?2:1; // Fallback is a reconstructed document.
-  const version='934-unified-glass-dock';
+  const version=lift5Pages.has(file)?'935-selective-dock-lift5':'934-unified-glass-dock';
   const styles=[...html.matchAll(/sh9-golden-controls-v1\.css\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   const scripts=[...html.matchAll(/sh9-golden-controls-v1\.js\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   assert.deepEqual(styles,Array(count).fill(version),file+' CSS version');
@@ -104,6 +113,40 @@ test('HealthHub v919 Golden Controls follow active Egészség subpage Hero',()=>
  assert.match(css,/left:5px!important;bottom:0!important;/);
  assert.match(css,/transform:none!important;/);
  assert.match(legacy,/\.healthSubHero > div/);
- assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=934-unified-glass-dock/g)||[]).length,2);
- assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=934-unified-glass-dock/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=935-selective-dock-lift5/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=935-selective-dock-lift5/g)||[]).length,2);
+});
+
+
+test('v935 selective Glass Dock lift is exactly 5px and excluded from unrelated pages',()=>{
+ const css=read('sh9/shared/sh9-golden-controls-v1.css');
+ const js=read('sh9/shared/sh9-golden-controls-v1.js');
+ assert.match(css,/data-sh9-dock-lift5="on"/);
+ assert.match(css,/bottom:6px!important/);
+ assert.match(css,/top:calc\(39px \+ env\(safe-area-inset-top,0px\)\)!important/);
+ assert.match(css,/height:50px!important/);
+ assert.match(css,/background:rgba\(8,42,80,.60\)!important/);
+ const begin=js.indexOf(' const LIFT5_ROUTES=');
+ const end=js.indexOf(' function anchorTo(host)',begin);
+ assert.ok(begin>=0&&end>begin,'v935 route gating exists');
+ const source=js.slice(begin,end);
+ const predicate=(pathname,isHealth)=>new Function('currentPath','healthShell',source+'return lift5For;')(
+  ()=>pathname,()=>isHealth);
+ const destinations=[
+  '/berlet-app/sh9/smart-travel/public-transport/',
+  '/berlet-app/sh9/smart-travel/public-transport/bkk/',
+  '/berlet-app/sh9/smart-travel/public-transport/bkk/grand-concept/',
+  '/berlet-app/sh9/smart-travel/public-transport/mav/',
+  '/berlet-app/sh9/smart-travel/public-transport/volan/',
+  '/berlet-app/sh9/smart-travel/my-trips/',
+  '/berlet-app/healthhub/nutrition/'
+ ];
+ for(const path of destinations)assert.equal(predicate(path,false)({id:'hero'}),true,path);
+ for(const path of ['/berlet-app/sh9/','/berlet-app/healthhub/guardian/',
+                     '/berlet-app/sh9/smart-travel/','/berlet-app/sh9/family-hub/'])
+  assert.equal(predicate(path,false)({id:'hero'}),false,path);
+ const health=predicate('/berlet-app/healthhub/',true);
+ assert.equal(health({id:'heroHome',closest:()=>null}),false,'HealthHub Home stays put');
+ assert.equal(health({id:'heroSleep',closest:()=>({id:'hhSleepPage'})}),true,'Sleep');
+ assert.equal(health({id:'heroActivity',closest:()=>({id:'hhActivityPage191'})}),true,'Activity');
 });
