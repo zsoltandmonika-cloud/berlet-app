@@ -137,14 +137,22 @@ async function generateCardImage({name,ingredients='',kind='food'}){
   'A single beautiful portion centered in a 1:1 image, premium dark midnight navy studio table, subtle soft rose and blue reflections, naturally appetizing real food photography, controlled cinematic softbox lighting, crisp food texture. No letters, logos, watermarks, hands, menus, labels, plates with text, or UI.'
  ].filter(Boolean).join(' ');
  let generated;
- try{generated=await p.ai.txt2img(prompt,{model:'gpt-image-2',ratio:{w:1,h:1},quality:'high'})}
- catch(first){
-  const reason=String(first?.message||first?.code||'').toLowerCase();
-  if(/insufficient_funds|unauthorized|auth_required|popup_blocked|moderation|payment/.test(reason))throw first;
-  try{generated=await p.ai.txt2img(prompt,{model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'})}
-  catch(second){throw Error('A két képgenerátor sem érhető el. Első: '+String(first?.message||first?.code||first).slice(0,125)+
-   ' · Második: '+String(second?.message||second?.code||second).slice(0,125))}
+ const routes=[
+  {model:'gpt-image-2',ratio:{w:1,h:1},quality:'medium'},
+  {model:'gemini-3.1-flash-image',ratio:{w:1,h:1},quality:'1K'},
+  {model:'@cf/black-forest-labs/flux-1-schnell',steps:4}
+ ];
+ const failures=[];
+ for(const route of routes){
+  try{generated=await p.ai.txt2img(prompt,route);if(generated)break}
+  catch(err){
+   const message=String(err?.message||err?.code||err);
+   failures.push(route.model+': '+message.slice(0,145));
+   if(/insufficient.fund|unauthori|auth.required|popup.block|moderation|payment|credit|balance/i.test(message))
+    throw Error('A képgenerálás fiókengedélyt vagy AI-keretet igényel. '+message.slice(0,135));
+  }
  }
+ if(!generated)throw Error('Egyik képgenerátor sem sikerült. '+failures.join(' | ').slice(0,280));
  const src=generated?.src||generated?.url||(typeof generated==='string'?generated:'');
  if(!src||!/^data:image\/|^https?:\/\/|^blob:/.test(src))throw Error('Nem érkezett használható AI-kép.');
  const response=await fetch(src);
