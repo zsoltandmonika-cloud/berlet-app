@@ -1,0 +1,51 @@
+/* Digital Wellbeing v540 · Plan B, approved on-screen correction.
+   The retired HEALTHHUB / Digital Wellbeing / central-data row is replaced
+   by the SAME four-zone Golden Glass Dock. It is below Hero artwork and
+   above the slogan+clock card within the v538 single stroked glass plate.
+   Scope ONLY to the live Digital Wellbeing page. */
+.dw-wellbeing-hero-plate-v538 > .hero-art {
+ margin-bottom:9px;
+}
+.dw-wellbeing-hero-plate-v538 > #dwWellbeingDockSlotV540 {
+ box-sizing:border-box;
+ position:relative;
+ isolation:isolate;
+ display:block;
+ width:100%;
+ height:52px;
+ min-height:52px;
+ margin:0 0 11px;
+ padding:0;
+ border:0;
+ background:transparent;
+ overflow:visible;
+}
+/* Overrides the shared dock's default absolute coordinates ONLY within
+   this slot. It is not fixed, does not sit over the picture and is not
+   constrained to the previous 328px overlay width. */
+body[data-sh9-golden-unified="on"]
+.dw-wellbeing-hero-plate-v538 > #dwWellbeingDockSlotV540[data-sh9-golden-host="on"]
+> #sh9UnifiedGlassDockV34 {
+ box-sizing:border-box!important;
+ position:absolute!important;
+ top:1px!important;
+ bottom:auto!important;
+ left:2px!important;
+ right:2px!important;
+ width:calc(100% - 4px)!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:50px!important;
+ min-height:50px!important;
+ max-height:50px!important;
+ margin:0!important;
+ padding:0!important;
+ transform:none!important;
+ z-index:210!important;
+}
+@media(max-width:350px){
+ .dw-wellbeing-hero-plate-v538 > .hero-art {margin-bottom:7px}
+ .dw-wellbeing-hero-plate-v538 > #dwWellbeingDockSlotV540{
+  height:52px;min-height:52px;margin-bottom:9px;
+ }
+}
