@@ -203,11 +203,11 @@
  }
  function resolveHost(){
   if(healthShell())return healthHost();
-  // v539 · Only the live Digital Wellbeing page: keep its compact glass dock
-  // INSIDE the approved Hero art, so it scrolls with the photo and fits the
-  // new v538 stroke panel. Preview and all other pages retain their hosts.
+  // v540 · Digital Wellbeing Plan B: the approved Hero artwork is unobstructed.
+  // Put the full four-zone Golden Dock in the former title/status row,
+  // between the artwork and the slogan/clock card, within the same glass plate.
   if(/\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath()))
-    return d.querySelector('.dw-wellbeing-hero-plate-v538 > .hero-art')||d.body;
+    return d.querySelector('.dw-wellbeing-hero-plate-v538 > #dwWellbeingDockSlotV540')||d.body;
   if(/\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath()))
     return d.body;
   // Nutrition's hero remains role=img. Place interactive Golden controls
