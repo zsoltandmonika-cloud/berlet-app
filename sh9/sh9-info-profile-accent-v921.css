@@ -1,0 +1,24 @@
+/* SH9 v921 · Start page three info values follow the selected profile.
+   Approved: Zsolt light blue, Mónika pink; secondary lines stay white.
+   Headings, layout, live data, warning state semantics stay untouched. */
+:root{
+ --sh9-info-profile-value:#79bfff;
+}
+:root[data-sh9-golden-profile="m"]{
+ --sh9-info-profile-value:#f9a6d3;
+}
+/* Only the three MID-row values, regardless of injected date/weather/event text. */
+#sh9InfoBar6 #sh9Date6,
+#sh9InfoBar6 #sh9Weather6,
+#sh9InfoBar6 #sh9CalendarValue{
+ color:var(--sh9-info-profile-value)!important;
+}
+/* Below the values: nameday, weather detail, calendar title/description.
+   Override the old pink coloring without touching the three headings. */
+#sh9InfoBar6 #sh9Nameday6,
+#sh9InfoBar6 #sh9Nameday6 .sh9-nameday-label,
+#sh9InfoBar6 #sh9Nameday6 .sh9-nameday-value,
+#sh9InfoBar6 #sh9WeatherDetail6,
+#sh9InfoBar6 #sh9CalendarSub{
+ color:#fff!important;
+}
