@@ -111,6 +111,10 @@
  function healthHost(){
   // The Health screen and the dynamically-created Symptom Diary must receive
   // the same three golden pills as the Home screen, not inherit a stale hero.
+  // A visible Sleep overlay outranks the underlying Health/Home page.
+  // Re-anchor on render; Sleep replaces its hero during loading and refresh.
+  const sleep=visibleOverlay('hhSleepPage');
+  if(sleep)return sleep.querySelector('.hhSleepDoctorHero')||sleep;
   const journal=visibleOverlay('hhSymptomJournal307');
   if(journal)return journal.querySelector('.hhSJHero')||journal;
   const health=visibleOverlay('health');
@@ -119,8 +123,6 @@
   // currently visible Hero, not the scrollable BODY (v918 regression).
   const activity=visibleOverlay('hhActivityPage191');
   if(activity)return activity.querySelector('.a191Hero')||activity;
-  const sleep=visibleOverlay('hhSleepPage');
-  if(sleep)return sleep.querySelector('.hhSleepDoctorHero')||sleep;
   const sub=visibleOverlay('healthSection');
   if(sub)return sub.querySelector('.healthSubHero')||sub;
   const pages=d.querySelectorAll('.page.on');
