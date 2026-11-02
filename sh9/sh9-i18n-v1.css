@@ -241,3 +241,20 @@
 .hero #sh9LauncherProfileV1[data-profile="m"] #sh9LauncherProfileArrowV1{
  color:#eff7ff!important;
 }
+
+/* v916 · The three solid navy capsules share one profile-driven outline.
+   The profile button's existing data-profile updates on every switch.
+   Only the borders change; background stays fully opaque #0c2446. */
+.hero:has(#sh9LauncherProfileV1[data-profile="z"]){
+ --sh9-three-pill-border:#79bfff;
+}
+.hero:has(#sh9LauncherProfileV1[data-profile="m"]){
+ --sh9-three-pill-border:#f9a6d3;
+}
+#sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,
+#sh9HeaderControlsV2 #sh9TasksGolden::before,
+.hero #sh9LauncherProfileV1::before,
+.hero #sh9LauncherProfileV1[data-profile="z"]::before,
+.hero #sh9LauncherProfileV1[data-profile="m"]::before{
+ border-color:var(--sh9-three-pill-border,#668bb4)!important;
+}
