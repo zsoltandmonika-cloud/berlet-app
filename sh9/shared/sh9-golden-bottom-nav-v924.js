@@ -50,7 +50,7 @@
   const translation=oldLabel?.getAttribute?.('data-i18n');
   const txt=label==='home'?('Kezdőlap'):('Ask Léna');
   // Only the Home/Ask children change: never touch the other three slots.
-  node.innerHTML=svg(name)+'<'+labelTag+(translation&&name==='home'?' data-i18n="'+translation+'"':'')+'>'+txt+'</'+labelTag+'>';
+  node.innerHTML=svg(name)+'<'+labelTag+(translation?' data-i18n="'+translation+'"':'')+'>'+txt+'</'+labelTag+'>';
  }
  function normalize(nav){
   if(!nav||nav.closest('dialog')||nav.hasAttribute('hidden')&&nav.classList.contains('sh9-golden-fallback-v924'))return;
@@ -109,8 +109,13 @@
    paint();
    const navs=Array.from(d.querySelectorAll(NAVS));
    for(const nav of navs)normalize(nav);
-   // Explicitly exclude unrelated nested period menus and modal footers.
-   if(!navs.some(n=>n.dataset.sh9GoldenBottomNav==='on')&&!d.querySelector('#sh9GlobalNavV24'))
+   const genuine=navs.some(n=>n.dataset.sh9GoldenBottomNav==='on'&&!n.classList.contains('sh9-golden-fallback-v924'));
+   const existing=d.querySelector('nav.sh9-golden-fallback-v924');
+   if(genuine&&existing){
+    existing.remove();
+    delete d.body.dataset.sh9GoldenFallback;
+   }
+   if(!genuine&&!existing&&!d.querySelector('#sh9GlobalNavV24'))
     fallback();
   }finally{running=false}
  }
