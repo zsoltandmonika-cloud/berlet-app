@@ -33,7 +33,7 @@ async function ensureApi(){
   api.auth.onAuthStateChange((event,session)=>{
     // v917 firebreak: the initial SIGNED_IN event normally arrives while the
     // first join is already authenticating. Do not queue a duplicate join.
-    // TOKEN_REFRESHED and repeated SIGNED_IN for the same account are not
+    // Token refresh (TOKEN_REFRESHED) and repeated SIGNED_IN are not
     // authorization or profile changes.
     if(event==='SIGNED_IN'&&joinInProgress&&!user)return;
     if(event==='SIGNED_OUT'||event==='USER_UPDATED'||
