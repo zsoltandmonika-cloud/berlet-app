@@ -1,17 +1,21 @@
-/* HealthHub home tile labels. UI only; preserves routes, stored content and handlers. */
+/* HealthHub home card labels, deliberately independent from navigation and data. */
 (function(){
 'use strict';
-const labels=new Map([['Nutrition','Táplálkozás'],['Daily Spark','Asztrológia'],['Daily Health','Napi egészség']]);
+const hu=[['Nutrition','Táplálkozás'],['Daily Spark','Asztrológia'],['Daily Health','Napi egészség']];
+const map=new Map(hu);
+let busy=false;
 function apply(){
-  let english=false;
-  try{english=localStorage.getItem('sh9-language-v1')==='en'}catch(_){}
-  if(english)return;
-  document.querySelectorAll('.homeModule b,.dailyStrip b,.detailTop b,.detailTitle h1,.dailyHealthStrip b').forEach(el=>{
-    const source=(el.textContent||'').trim();
-    if(labels.has(source))el.textContent=labels.get(source);
-  });
+ if(busy)return;
+ busy=true;
+ try{
+  const root=document.querySelector('.homeModules')||document;
+  const nodes=root.querySelectorAll('button b, .dailyStrip b, .homeModule b, .detailTop b, .detailTitle h1, .dailyHealthStrip b');
+  for(const el of nodes){
+   const source=(el.textContent||'').trim();
+   if(map.has(source))el.textContent=map.get(source);
+  }
+ }finally{busy=false}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
-new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true});
-window.addEventListener('sh9-language-change',apply);
+new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 })();
