@@ -1,0 +1,182 @@
+<!doctype html><html lang="hu"><head><script id="sh9-native-session-v1063">(function(){try{var q=new URLSearchParams(location.search);if(q.get('sh9native')==='1'&&Number(q.get('hhBuildCode'))>=40&&['zsolt','monika'].includes(q.get('hhOwner')))sessionStorage.setItem('hh-one-native-oauth-v1063','1')}catch(_){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#031229"><meta name="application-name" content="SH9 · SmartHub Nine"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./assets/sh9-icon.png"><title>SH9 · SmartHub Nine</title><link rel="icon" type="image/png" href="./assets/sh9-icon.png"><link rel="stylesheet" href="./SH9_official_v21.css?v=22"><style id="sh9-native-fit">/* Official SH9 owns its layout. Legacy native injection must not override it. */</style><style id="sh9-hh-uniform-v23">/* SH9 · HealthHub Golden Standard uniform component adaptation · v23.
+  Actual HealthHub v520 / compact v525 glass tile styling, not sprite artwork.
+  SH9 hero artwork, live info and route handling remain unchanged. */
+:root{--hhpg-border:rgba(165,210,250,.3);--hhpg-ink:#eff8ff;--hhpg-accent:#60a5fa}
+body{background:#0b1425}
+.wrap{background:#0b1425;gap:7px}
+/* Preserve SH9 approved Buddy hero and the three live info cells. */
+.wrap .grid{
+  box-sizing:border-box;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,1fr));flex:1 1 auto;min-height:0;
+  gap:6px;width:100%;margin:0!important;padding:10px 8px 9px;
+  border:1px solid rgba(169,209,255,.18);border-radius:20px 20px 0 0;
+  background:linear-gradient(145deg,rgba(29,58,96,.74),rgba(16,30,53,.93) 53%,rgba(44,33,71,.8));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -4px 34px rgba(5,15,33,.2);
+}
+.wrap .grid>a.tile{text-decoration:none;color:inherit}
+.wrap .grid>.tile{
+  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;min-height:0;width:100%;height:100%;aspect-ratio:auto;
+  margin:0;padding:5px 3px!important;appearance:none;
+  border-radius:17px;border:1px solid var(--hhpg-border);
+  background-image:linear-gradient(144deg,rgba(95,160,231,.2),rgba(30,57,94,.4) 55%,rgba(70,43,99,.27))!important;
+  background-color:transparent;background-size:auto!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 8px 20px rgba(0,9,25,.26);
+  color:#eff8ff;cursor:pointer;touch-action:manipulation;
+  backdrop-filter:blur(14px) saturate(145%);-webkit-backdrop-filter:blur(14px) saturate(145%);
+  font-family:Inter,'Segoe UI',Roboto,sans-serif;
+}
+.wrap .grid>.tile::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 30%,rgba(255,255,255,.025) 80%);
+}
+.wrap .grid>.tile .tile-inner{
+  position:relative;z-index:1;display:grid;place-items:center;flex:none;
+  width:35px;height:35px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(160,226,250,.23),rgba(67,87,186,.22));
+  border:1px solid rgba(198,233,255,.35);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 5px 12px rgba(2,9,31,.23);
+  color:#a9f0fc;
+}
+.wrap .grid>.tile .tile-inner svg{display:block;width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 4px rgba(84,225,251,.24))}
+.wrap .grid>.tile .mod-name{position:relative;z-index:1;font-size:11.2px;font-weight:790;line-height:1.16;text-align:center;overflow-wrap:anywhere;letter-spacing:-.02em;color:#eff8ff}
+.wrap .grid>.tile:nth-child(5){
+  border:1px solid rgba(242,160,222,.65);
+  background-image:linear-gradient(144deg,rgba(137,90,193,.24),rgba(52,40,89,.61) 57%,rgba(181,67,147,.2))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 7px 19px rgba(2,4,22,.27),0 0 12px rgba(224,91,181,.11);
+}
+.wrap .grid>.tile:nth-child(5)::after{display:none}
+.wrap .grid>.tile:nth-child(5) .tile-inner{color:#f5b5e8;background:linear-gradient(135deg,rgba(240,148,217,.24),rgba(100,72,165,.22));border-color:rgba(249,193,231,.42)}
+.wrap .grid>.tile:nth-child(5) .mod-name{color:#ffe1f5}
+.wrap .grid>.tile:focus-visible{outline:3px solid #a1f6f1;outline-offset:2px}
+.wrap .grid>.tile:nth-child(5):focus-visible{outline-color:#ffd6f3}
+.wrap .grid>.tile:active{transform:translateY(1px);filter:none;background-image:linear-gradient(133deg,rgba(145,207,247,.3),rgba(33,68,110,.63))!important}
+/* Exact visual language of HH Golden bottom navigation: flat dark bar, upper separator,
+   no inset blue pill frame and no outer rounded card. */
+.wrap .nav{
+  box-sizing:border-box;position:relative;left:auto;bottom:auto;transform:none;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:calc(100% + 14px);
+  margin:0 -7px!important;padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px));
+  min-height:60px;flex:0 0 auto;gap:1px;
+  border:none;border-top:1px solid rgba(140,198,243,.25);
+  border-radius:0;background:rgba(15,30,54,.97);
+  box-shadow:0 -7px 22px rgba(0,0,0,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.wrap .nav button{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:4px 0;
+  border:none;border-radius:0;background:transparent;color:#b9d0e8;box-shadow:none;font-family:Inter,'Segoe UI',Roboto,sans-serif}
+.wrap .nav button svg{width:22px;height:22px;color:inherit;filter:none;stroke-width:1.85}
+.wrap .nav button span{font-size:10px;line-height:1.1;color:inherit}
+.wrap .nav button.active{border:none;border-radius:0;background:none;color:#77baff;box-shadow:none}
+.wrap .nav button.active svg{color:#4f9cf2;background:rgba(237,247,255,.96);box-sizing:content-box;padding:6px;border-radius:50%;filter:none}
+@media(max-width:360px){
+ .wrap .grid{gap:5px;padding-inline:6px}
+ .wrap .grid>.tile{padding-inline:2px!important}
+ .wrap .grid>.tile .tile-inner{width:32px;height:32px}
+ .wrap .grid>.tile .tile-inner svg{width:19px;height:19px}
+ .wrap .grid>.tile .mod-name{font-size:10px}
+}
+@media(max-height:755px){
+ .wrap{height:auto;min-height:100dvh;overflow:visible;padding-bottom:64px}
+ .wrap .grid{flex:none;grid-template-rows:repeat(3,minmax(91px,1fr));height:300px}
+ .wrap .nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,420px);margin:0!important;z-index:15}
+}
+</style><link rel="stylesheet" href="./sh9-ai-taskbar-v1.css?v=1-pink-nav"><link rel="stylesheet" href="./sh9-i18n-v1.css?v=916-profile-borders"><link rel="stylesheet" href="./outlook-agenda-v1.css?v=8-date-time-first"><link rel="stylesheet" href="./sh9-ota-indicator-v1043.css?v=920-small-corner"><link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=918-global-all"><link rel="stylesheet" href="./sh9-info-profile-accent-v921.css?v=921-zsolt-blue-monika-pink"><link rel="stylesheet" href="./sh9-bottom-two-icons-v922.css?v=923-ask-label-profile">
+<link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
+</head><body>
+<main class="wrap">
+<section class="hero" aria-label="SH9 SmartHub Nine, Buddy mókus asszisztens, futurisztikus kilencmodulos központ" data-i18n-aria="aria.hero">
+ <div id="sh9HeaderControlsV2" class="sh9-hero-left-controls-v2">
+  <div id="sh9LanguageSwitchV1" class="sh9-language-v1" role="group" aria-label="Language / Nyelv">
+   <button type="button" data-sh9-lang="hu" aria-pressed="true" aria-label="Magyar" title="Magyar">🇭🇺</button>
+   <button type="button" data-sh9-lang="en" aria-pressed="false" aria-label="Canadian English" title="Canadian English">🇨🇦</button>
+  </div>
+ </div>
+ <button type="button" id="sh9LauncherProfileV1" data-profile="z" aria-label="Profilváltás Mónika profiljára" title="Profilváltás Mónika profiljára">
+  <span id="sh9LauncherProfileMarkV1" aria-hidden="true">Z</span>
+  <span id="sh9LauncherProfileNameV1" aria-hidden="true">Zsolt</span>
+  <span id="sh9LauncherProfileArrowV1" aria-hidden="true">⇄</span>
+ </button>
+ <a id="sh9OtaIndicatorV1043" class="sh9-ota-indicator-v1043" data-state="unknown"
+    href="healthhubconnect://settings" data-i18n-aria="aria.ota" aria-label="HH One frissítések ellenőrzése"
+    title="HH One frissítések ellenőrzése">
+  <span class="sh9-ota-led-v1043" aria-hidden="true"></span>
+  <span class="sh9-ota-label-v1043" aria-hidden="true">?</span>
+ </a>
+ <span id="sh9OtaStateV1043" class="visually-hidden" role="status" aria-live="polite">HH One OTA állapot ellenőrzése…</span>
+ <section id="sh9OtaManualV1044" class="sh9-ota-manual-v1044" aria-label="Frissítés tartalék módja" hidden>
+  <div class="sh9-ota-manual-heading-v1044">
+   <strong>📦 HH One · OTA állapot és frissítés</strong>
+   <button type="button" id="sh9OtaManualCloseV1044" aria-label="Frissítési panel bezárása">×</button>
+  </div>
+  <p id="sh9OtaManualStatusV1044" role="status">A telefon ellenőrzése folyamatban…</p>
+  <label class="sh9-ota-owner-v1067" for="sh9OtaDeviceSelectV1067">Figyelt családi telefon
+   <select id="sh9OtaDeviceSelectV1067" aria-label="Kijelölt családi telefon">
+    <option value="">Válassz telefont…</option><option value="zsolt">Zsolt telefonja</option><option value="monika">Mónika telefonja</option>
+   </select>
+  </label>
+  <button type="button" class="sh9-ota-recheck-v1067" id="sh9OtaRefreshV1067">🔄 Friss OTA-állapot lekérése</button>
+  <a id="sh9OtaConnectVaultV1067" href="../healthhub/index.html?sh9nav=admin" hidden>🔐 Dropbox-kapcsolat ellenőrzése</a>
+  <a id="sh9OtaManualSettingsV1044" href="healthhubconnect://settings">📱 HH One frissítő megnyitása</a>
+  <a id="sh9OtaManualApkV1044" href="#" hidden rel="noopener noreferrer" target="_blank">📥 Hitelesített APK kézi letöltése</a>
+  <small>Az APK-t csak a hivatalos, engedélyezett kiadásból ajánljuk fel. A telepítést az Androidon jóvá kell hagyni.</small>
+ </section>
+</section>
+<section id="sh9InfoBar6" class="sh9-info" data-i18n-aria="aria.info" role="group" aria-label="Mai információk: dátum, névnap, időjárás, naptár">
+<a id="sh9NamedayCell" class="sh9-info-cell sh9-info-tap" href="https://outlook.live.com/calendar/0/view/month" target="_blank" rel="noopener noreferrer external" data-calendar-view="month" data-i18n-aria="aria.nameday" aria-label="Dátum és névnap · Outlook havi naptár megnyitása"><span class="sh9-info-heading" data-i18n="info.date">DÁTUM</span><span id="sh9Date6" class="sh9-info-value" data-i18n="info.dateLoading">Dátum betöltése…</span><span id="sh9Nameday6" class="sh9-info-sub"><span class="sh9-nameday-label" data-i18n="info.nameday">NÉVNAP · </span><span id="sh9NamedayValue6" class="sh9-nameday-value">betöltés…</span></span></a>
+<a id="sh9WeatherCell6" class="sh9-info-cell sh9-info-tap" href="https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643" data-i18n-aria="aria.weather" aria-label="Budapest részletes időjárás-előrejelzésének megnyitása"><span class="sh9-info-heading" data-i18n="info.weather">IDŐJÁRÁS</span><span id="sh9Weather6" class="sh9-info-value">Betöltés…</span><span id="sh9WeatherDetail6" class="sh9-info-sub">Budapest</span></a>
+<a id="sh9CalendarCell" class="sh9-info-cell sh9-calendar-click-target" href="https://outlook.live.com/calendar/0/view/agenda" target="_blank" rel="noopener noreferrer external" data-calendar-view="agenda" data-status="pending" data-i18n-aria="aria.agenda" aria-label="Outlook Agenda megnyitása közvetlenül">
+<span class="sh9-info-heading" data-i18n="info.calendar">NAPTÁR</span>
+<span id="sh9CalendarSummary" class="sh9-calendar-summary">
+<span id="sh9CalendarValue" class="sh9-info-value" data-i18n="info.notConnected">Nincs összekötve</span>
+<span id="sh9CalendarSub" class="sh9-info-sub sh9-info-status" data-i18n="info.openAgenda">Agenda megnyitása ›</span>
+</span></a>
+</section>
+<section class="grid" data-i18n-aria="aria.grid" aria-label="SH9 kilenc modulja">
+<a class="tile" href="../healthhub/" data-name="HealthHub" aria-label="Egészség megnyitása" data-i18n-aria="module.ariaHealth"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7.5a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M6 12h4l2-3 2 6 2-3h2"/></svg></span><span class="mod-name" data-i18n="module.health">Egészség</span></a>
+<a class="tile" href="../healthhub/guardian/" data-name="Family Guard" aria-label="Biztonság megnyitása" data-i18n-aria="module.ariaGuard"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="M9 11h6m-3-3v6"/></svg></span><span class="mod-name" data-i18n="module.guard">Biztonság</span></a>
+<a class="tile" href="./smart-travel/" data-name="Smart Travel" aria-label="Utazás megnyitása" data-i18n-aria="module.ariaTravel"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m2 12 9 2 4 7 2-1-1-8 6-4a2 2 0 0 0-2-3l-8 6-8-4-2 2 6 5-4 4 2 1 6-4"/></svg></span><span class="mod-name" data-i18n="module.travel">Utazás</span></a>
+<button class="tile" type="button" data-name="Entertainment"  aria-label="Szórakozás megnyitása" data-i18n-aria="module.ariaEntertainment"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 11h18M5 7l3-4h4l-3 4M14 7l3-4h4l-3 4"/><path d="m10 13 5 3-5 3z"/></svg></span><span class="mod-name" data-i18n="module.entertainment">Szórakozás</span></button>
+<button class="tile" type="button" data-name="Shopping" aria-label="Bevásárlás megnyitása" data-i18n-aria="module.ariaShopping"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10h16l-1.5 10h-13L4 10Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/><path d="M8 14h8"/></svg></span><span class="mod-name" data-i18n="module.shopping">Bevásárlás</span></button>
+<button class="tile" type="button" data-name="Smart Sports"  aria-label="Sport megnyitása" data-i18n-aria="module.ariaSports"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="16.5" cy="4" r="2"/><path d="m14 9-3 5-5 1m8-6 4 3 3 1m-9 1 3 3-2 5M11 7 6 9l-2 4"/></svg></span><span class="mod-name" data-i18n="module.sports">Sport</span></button>
+<button class="tile" type="button" data-name="Daily Hub"  aria-label="Családi aktualitások megnyitása" data-i18n-aria="module.ariaDaily"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M14 15h2"/></svg></span><span class="mod-name" data-i18n="module.daily">Családi aktualitások</span></button>
+<button class="tile" type="button" data-name="Smart People"  aria-label="Kapcsolatok megnyitása" data-i18n-aria="module.ariaPeople"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-2.3A4.7 4.7 0 0 1 8.2 13h1.6a4.7 4.7 0 0 1 4.7 4.7V20M16 5.5a3 3 0 0 1 0 6M17 13.5c2.3.4 3.5 2 3.5 4.2V20"/></svg></span><span class="mod-name" data-i18n="module.people">Kapcsolatok</span></button>
+<button class="tile" type="button" data-name="Smart Lifestyle"  aria-label="Életmód megnyitása" data-i18n-aria="module.ariaLifestyle"><span class="tile-inner" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 3C12 4 6 7 5 14c-.3 3.4 1.8 5.2 4.8 5.2C17 19.2 20 9 20 3Z"/><path d="M6 20C9 14 13 11 17 8"/></svg></span><span class="mod-name" data-i18n="module.lifestyle">Életmód</span></button>
+</section><nav class="nav" data-i18n-aria="aria.nav" aria-label="SH9 navigáció">
+<button type="button" data-nav="Kezdőlap" class="active" aria-label="Kezdőlap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span data-i18n="nav.home">Kezdőlap</span></button>
+<button type="button" data-nav="Ask Léna" aria-label="Ask Léna megnyitása" data-i18n-aria="nav.ariaAsk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span data-i18n="nav.ask">Ask Léna</span></button>
+<button type="button" data-nav="Vissza" class="" aria-label="Vissza az előző oldalra"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span data-i18n="nav.back">Vissza</span></button>
+<button type="button" data-nav="Értesítések" class="" aria-label="Értesítések"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span data-i18n="nav.notifications">Értesítések</span></button>
+<button type="button" data-nav="Admin" class="" data-href="../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><span data-i18n="nav.admin">Admin</span></button>
+</nav></main>
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="dialog"><h2 id="modal-title">SH9</h2><p data-i18n="modal.unavailable">Ez a modul még fejlesztés alatt áll. A HealthHub és a Family Guard már elérhető az SH9-ből.</p><button id="close" type="button" data-i18n="modal.close">Bezárás</button></div></div>
+<section id="sh9AgendaDialog" class="sh9-agenda-overlay" role="dialog" aria-modal="true" aria-label="Outlook Agenda" hidden>
+ <div class="sh9-agenda-panel">
+  <header class="sh9-agenda-head"><div><p class="sh9-agenda-kicker">SH9 · OUTLOOK CALENDAR</p><h2>Agenda</h2></div><button id="sh9AgendaClose" type="button" class="sh9-agenda-x" aria-label="Agenda bezárása">×</button></header>
+  <div class="sh9-agenda-content">
+   <p id="sh9AgendaStatus" class="sh9-agenda-status" role="status" aria-live="polite">A Microsoft-naptár külön engedélyezést igényel.</p>
+   <div id="sh9AgendaSetup" class="sh9-agenda-setup">
+    <p>Egyszeri Microsoft-beállítás, utána automatikus belépésmegújítás ezen a készüléken (legfeljebb 24 órás frissítési munkamenet). Hozz létre személyes fiókot támogató SPA alkalmazásregisztrációt, olvasási jogosultsággal. Titkos kulcsot ne adj meg.</p>
+    <label>Microsoft Application (client) ID <input id="sh9AgendaClientId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <label>Kapcsolni kívánt Outlook e-mail <input id="sh9AgendaAccount" type="email" placeholder="Microsoft-fiók e-mail-címe" autocomplete="email" autocapitalize="off" spellcheck="false"></label>
+    <button id="sh9AgendaSave" type="button">Beállítás mentése ezen az eszközön</button>
+   </div>
+   <div class="sh9-agenda-actions">
+    <button id="sh9AgendaConnect" type="button">Microsoft-belépés</button>
+    <button id="sh9AgendaRefresh" type="button" hidden>Frissítés</button>
+    <button id="sh9AgendaDisconnect" class="sh9-agenda-danger" type="button" hidden>Kapcsolat bontása</button>
+   </div>
+   <div id="sh9AgendaList" class="sh9-agenda-list" aria-label="Időrendben rendezett Outlook események"></div>
+   <div class="sh9-agenda-outlook-footer"><a class="sh9-agenda-outlook" href="https://outlook.live.com/calendar/0/view/agenda" target="_blank" rel="noopener noreferrer external">Outlook Agenda megnyitása ↗</a></div>
+  </div>
+ </div>
+</section>
+<script defer src="../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script>
+(function(){'use strict';const m=document.getElementById('modal'),c=document.getElementById('close'),msg=m.querySelector('.dialog p'),standardMessage=msg.textContent;document.querySelectorAll('[data-name],[data-nav]').forEach(b=>b.addEventListener('click',()=>{if(b.tagName==='A'&&b.hasAttribute('href'))return;if(b.dataset.nav==='Kezdőlap')return;if(b.dataset.nav==='Vissza'){if(history.length>1){history.back();return;}document.getElementById('modal-title').textContent='Vissza';msg.textContent=window.SH9_I18N_V1?.t('modal.noHistory')||'Nincs előző oldal az SH9 előzményeiben.';m.classList.add('on');c.focus();return;}if(b.dataset.name==='Ask Léna'||b.dataset.nav==='Ask Léna'){const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;if(api&&typeof api.openProject==='function')api.openProject();else location.assign('../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');return;}if(b.dataset.href){location.assign(new URL(b.dataset.href,document.baseURI).href);return;}msg.textContent=window.SH9_I18N_V1?.t('modal.unavailable')||standardMessage;document.getElementById('modal-title').textContent=(b.dataset.name?b.querySelector('.mod-name')?.textContent:null)||b.dataset.name||(window.SH9_I18N_V1?.t('nav.'+({Kezdőlap:'home',Idővonal:'timeline',Vissza:'back',Értesítések:'notifications',Admin:'admin'}[b.dataset.nav]))||b.dataset.nav);m.classList.add('on');c.focus();}));function close(){m.classList.remove('on')}c.addEventListener('click',close);m.addEventListener('click',e=>{if(e.target===m)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});})();
+</script><script defer src="./sh9-i18n-v1.js?v=2-module-names"></script><script defer src="./sh9-info-v6.js?v=1-en-ca-localized"></script><script defer src="./outlook-agenda-model-v1.js?v=8-date-time-first"></script><script defer src="./outlook-session-v2.js?v=2"></script><script defer src="./outlook-agenda-v1.js?v=7-direct-agenda"></script><script src="./pwa-install-v1.js?v=1" defer></script>
+<script defer src="./family-hub/family-notifier-v880.js?v=918-profile-safe-usage-guard"></script>
+<script defer src="./sh9-ota-indicator-v1043.js?v=1067-native-only"></script><script defer src="./sh9-ota-browser-v1067.js?v=1067-chrome-edge-phone-evidence"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=918-global-all"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-language-bridge-v1.js?v=3-health-en-audit"></script>
+</body></html>
