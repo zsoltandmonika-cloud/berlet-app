@@ -102,24 +102,82 @@
   '.hero-art','.transport-visual','.bkk-hero',
   '.app-header','.topbar','.hero','#heroH'
  ];
+ const currentPath=()=>w.location?.pathname||'';
+ const healthShell=()=>/\/healthhub\/(?:index\.html)?$/.test(currentPath());
+ function visibleOverlay(id){
+  const el=$(id);
+  return el&&el.classList?.contains('on')?el:null;
+ }
+ function healthHost(){
+  // HealthHub contains many page branches in ONE document. Choose the
+  // currently visible Hero, not the scrollable BODY (v918 regression).
+  const activity=visibleOverlay('hhActivityPage191');
+  if(activity)return activity.querySelector('.a191Hero')||activity;
+  const sleep=visibleOverlay('hhSleepPage');
+  if(sleep)return sleep.querySelector('.hhSleepDoctorHero')||sleep;
+  const sub=visibleOverlay('healthSection');
+  if(sub)return sub.querySelector('.healthSubHero')||sub;
+  const pages=d.querySelectorAll('.page.on');
+  const active=pages.length?pages[pages.length-1]:null;
+  if(active){
+   for(const selector of ['.askHero .askHeroInner','#heroHome','#heroH','#heroT','.hhLiveHero','.hero']){
+    const hero=active.querySelector(selector);
+    if(hero)return hero;
+   }
+   return active;
+  }
+  return $('heroH')||$('heroHome')||d.body;
+ }
  function resolveHost(){
-  // HealthHub's multi-page shell and Digital Health switch views in place.
-  // Mount the controls on BODY so category branches cannot hide the Hero host.
-  const currentPath=w.location?.pathname||'';
-  if(/\/healthhub\/(?:index\.html)?$/.test(currentPath)||
-     /\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath)||
-     /\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath))
+  if(healthShell())return healthHost();
+  if(/\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath())||
+     /\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath()))
     return d.body;
-  // Recipe Studio can render a hidden modal Hero: prefer its visible header.
-  // Nutrition's decorative role=img must not contain interactive controls.
-  if(d.getElementById('nutritionApprovedHero')||d.getElementById('profileBtn')||d.querySelector('.app-header')||d.querySelector('.topbar'))return d.body;
+  // Nutrition's hero is a role=img and cannot contain interactive buttons.
+  if($('nutritionApprovedHero')||$('profileBtn')||d.querySelector('.app-header')||d.querySelector('.topbar'))
+   return d.body;
   for(const selector of heroSelectors){
    const el=d.querySelector(selector);
    if(el&&el!==d.body&&!el.closest?.('[hidden]'))return el;
   }
-  // Long dashboards and unmatched category nodes need viewport-fixed controls,
-  // not a profile capsule stranded at the very bottom of a scrolling page.
   return d.body;
+ }
+ function anchorTo(host){
+  if(!host||!d.body)return;
+  const previous=d.querySelector('[data-sh9-golden-host="on"]');
+  if(previous&&previous!==host){
+   previous.removeAttribute('data-sh9-golden-host');
+   previous.removeAttribute('data-sh9-golden-profile');
+  }
+  if(host.getAttribute('data-sh9-golden-host')!=='on')
+   host.setAttribute('data-sh9-golden-host','on');
+  const fixed=host===d.body;
+  if(fixed)d.body.setAttribute('data-sh9-golden-floating','on');
+  else d.body.removeAttribute('data-sh9-golden-floating');
+  const header=$('sh9HeaderControlsV2'),profileButton=$('sh9LauncherProfileV1');
+  if(header&&header.parentNode!==host)host.appendChild(header);
+  if(profileButton&&profileButton.parentNode!==host)host.appendChild(profileButton);
+  host.setAttribute('data-sh9-golden-profile',profile());
+ }
+ let pendingAnchor=false;
+ function scheduleHealthAnchor(){
+  if(!healthShell()||pendingAnchor)return;
+  pendingAnchor=true;
+  (w.requestAnimationFrame||w.setTimeout||function(fn){fn()})(()=>{
+   pendingAnchor=false;
+   if($('sh9LauncherProfileV1'))anchorTo(healthHost());
+  });
+ }
+ function observeHealthPages(){
+  if(!healthShell()||typeof MutationObserver==='undefined')return;
+  const observer=new MutationObserver(changes=>{
+   if(changes.some(change=>change.type==='childList'||
+      (change.type==='attributes'&&(change.attributeName==='class'||change.attributeName==='hidden'))))
+    scheduleHealthAnchor();
+  });
+  observer.observe(d.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
+  w.addEventListener?.('healthhub:pagechange',scheduleHealthAnchor);
+  w.addEventListener?.('pageshow',scheduleHealthAnchor);
  }
  function init(){
   if(!d.body)return;
@@ -154,8 +212,10 @@
   if(nativeButton()||typeof w.hhToggleProfileOneClick==='function'||typeof w.setProfile==='function')
    d.body.setAttribute('data-sh9-golden-native','on');
   if(!launcher)d.body.setAttribute('data-sh9-golden-pilot','on');
-  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'918-global',paint});
+  anchorTo(host);
+  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'919-health-hero-anchor',paint});
   paint();
+  if(healthShell())observeHealthPages();
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
  w.addEventListener?.('sh9:languagechange',paint);
