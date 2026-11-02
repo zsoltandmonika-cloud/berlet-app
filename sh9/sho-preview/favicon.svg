@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title>SHO · Smart Hub One</title>
+<defs>
+ <linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7de2ff"/><stop offset=".5" stop-color="#b5afff"/><stop offset="1" stop-color="#ffa0d8"/></linearGradient>
+ <radialGradient id="b"><stop stop-color="#16396d"/><stop offset="1" stop-color="#061329"/></radialGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="10" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="512" height="512" rx="112" fill="url(#b)"/>
+<rect x="10" y="10" width="492" height="492" rx="103" fill="none" stroke="url(#g)" stroke-opacity=".67" stroke-width="7"/>
+<path d="M105 160 C130 112 193 108 256 159 C320 211 382 204 404 160 C424 119 381 102 349 118 C316 132 291 159 256 192 C220 225 183 254 140 242 C104 232 88 194 105 160Z" transform="translate(0 -16)" fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="round" filter="url(#glow)"/>
+<text x="256" y="348" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="166" font-weight="900" letter-spacing="-14" fill="#ffffff">SHO</text>
+<text x="256" y="395" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="29" font-weight="700" letter-spacing="8" fill="#b9d9f4">SMART HUB ONE</text>
+</svg>
