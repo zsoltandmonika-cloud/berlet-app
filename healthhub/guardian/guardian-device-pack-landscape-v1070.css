@@ -1,132 +1,120 @@
-/* Family Guard v1070 · approved 4x2 LANDSCAPE hero status dashboard.
- * Production live-pack only; preserves original eight verified states,
- * branded SH9 logo, Golden Glass Dock, GPS map, OTA and bottom navigation.
- * No new telemetry or status inference. */
+/* Family Guard v1071 · retrofit original RIGHT-side transparent hero box.
+   One bounded container: optional original SH9 logo + all eight native live
+   indicators, 4 columns × 2 rows. No changes to data or click handlers.
+   Current viewport hero / approved dock / GPS map remain untouched. */
 html[data-hh-device-pack-live-v1056="on"][data-hh-guardian-landscape-v1070="on"]
 .guardian-hero > #guardianTrioV845 {
- box-sizing:border-box!important;
- position:absolute!important;
- z-index:24!important;
- top:auto!important;bottom:55px!important;
- left:2%!important;right:2%!important;
- width:96%!important;height:76px!important;
+ box-sizing:border-box!important;position:absolute!important;
+ z-index:24!important;left:auto!important;right:.75%!important;
+ top:1%!important;bottom:55px!important;
+ width:52%!important;height:auto!important;min-width:0!important;min-height:0!important;
  display:grid!important;
  grid-template-columns:repeat(4,minmax(0,1fr))!important;
- grid-template-rows:repeat(2,minmax(0,1fr))!important;
- gap:3px!important;padding:3px!important;
+ grid-template-rows:minmax(26px,30%) repeat(2,minmax(0,1fr))!important;
+ gap:2px!important;padding:3px!important;
  align-items:stretch!important;justify-content:stretch!important;
- min-width:0!important;min-height:0!important;
- border:1px solid rgba(180,221,255,.52)!important;border-radius:13px!important;
- background:linear-gradient(130deg,rgba(9,34,75,.62),rgba(22,34,79,.58))!important;
- backdrop-filter:blur(12px) saturate(120%)!important;
- -webkit-backdrop-filter:blur(12px) saturate(120%)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 4px 15px rgba(3,13,37,.22)!important;
+ border:1px solid rgba(180,221,255,.55)!important;border-radius:12px!important;
+ background:linear-gradient(155deg,rgba(17,36,86,.52),rgba(18,40,87,.49) 56%,rgba(10,26,66,.50))!important;
+ -webkit-backdrop-filter:blur(16px) saturate(1.22)!important;
+ backdrop-filter:blur(16px) saturate(1.22)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 5px 18px rgba(4,13,35,.23)!important;
  isolation:isolate!important;overflow:hidden!important;pointer-events:auto!important;
 }
 html[data-hh-device-pack-live-v1056="on"][data-hh-guardian-landscape-v1070="on"][data-guardian-profile="m"]
-.guardian-hero > #guardianTrioV845 {
- border-color:rgba(249,166,211,.62)!important;
- background:linear-gradient(130deg,rgba(44,25,77,.64),rgba(46,28,81,.60))!important;
+.guardian-hero > #guardianTrioV845{
+ border-color:rgba(255,187,236,.70)!important;
+ background:linear-gradient(150deg,rgba(77,35,112,.53),rgba(62,35,97,.50),rgba(32,27,78,.52))!important;
 }
-/* The original supplied logo sits above the status band, outside its grid. */
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianDevicePackLogoV1054 {
- box-sizing:border-box!important;
- position:absolute!important;z-index:23!important;
- top:5px!important;bottom:auto!important;left:auto!important;right:1.5%!important;
- width:37%!important;height:47px!important;min-height:0!important;
+/* Original logo is INSIDE the same transparent box, spanning all four cells.
+   It is a visual bonus, never allowed to displace the eight real indicators. */
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero
+> #guardianTrioV845 > #guardianDevicePackLogoV1054{
+ box-sizing:border-box!important;position:relative!important;
+ grid-column:1/-1!important;grid-row:1!important;
+ inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
  display:flex!important;align-items:center!important;justify-content:center!important;
- margin:0!important;padding:2px 3px!important;gap:0!important;
- border:0!important;border-radius:9px!important;
- background:rgba(13,35,78,.28)!important;
- box-shadow:none!important;backdrop-filter:blur(3px)!important;
- -webkit-backdrop-filter:blur(3px)!important;
- overflow:hidden!important;pointer-events:none!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ margin:0!important;padding:1px 4px!important;
+ border:0!important;border-bottom:1px solid rgba(208,229,255,.20)!important;
+ border-radius:6px!important;background:rgba(16,35,79,.22)!important;
+ box-shadow:none!important;backdrop-filter:none!important;
+ -webkit-backdrop-filter:none!important;
+ pointer-events:none!important;overflow:hidden!important;
 }
-html[data-hh-guardian-landscape-v1070="on"][data-guardian-profile="m"]
-.guardian-hero > #guardianDevicePackLogoV1054{
- background:rgba(46,25,74,.29)!important;
-}
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianDevicePackLogoV1054 > .fg-brand-image-v1056 {
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero
+> #guardianTrioV845 > #guardianDevicePackLogoV1054 > .fg-brand-image-v1056{
  display:block!important;width:100%!important;height:100%!important;
  max-width:100%!important;max-height:100%!important;
  object-fit:contain!important;object-position:center!important;
- filter:drop-shadow(0 0 4px rgba(75,178,255,.15))!important;
+ filter:drop-shadow(0 0 3px rgba(38,178,250,.20))!important;
 }
-/* Exactly eight existing children fill four columns and two rows.
-   No injected dummy data, replacement buttons or extra cards. */
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 >
-:is(.guardian-battery-v841,.hh-guardian-card-v845,.hh-device-pack-signal-v1053) {
- box-sizing:border-box!important;position:relative!important;
- top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+/* Eight real indicators: four across, two rows, inside the SAME parent. */
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+> :is(.guardian-battery-v841,.hh-guardian-card-v845,.hh-device-pack-signal-v1053){
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ transform:none!important;
  width:100%!important;height:100%!important;
  min-width:0!important;min-height:0!important;max-width:none!important;
  display:flex!important;flex-direction:column!important;
- justify-content:center!important;align-items:center!important;
- gap:2px!important;margin:0!important;padding:2px 1px!important;
- border:1px solid rgba(188,221,255,.17)!important;border-radius:8px!important;
- background:rgba(28,57,103,.23)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
- backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ align-items:center!important;justify-content:center!important;gap:2px!important;
+ margin:0!important;padding:2px 1px!important;
+ border:1px solid rgba(188,221,255,.18)!important;border-radius:7px!important;
+ background:rgba(28,57,103,.21)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  overflow:hidden!important;white-space:nowrap!important;
  pointer-events:auto!important;touch-action:manipulation!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 > .hh-device-pack-signal-v1053{
- flex-direction:row!important;gap:4px!important;
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+> .hh-device-pack-signal-v1053{flex-direction:column!important;gap:1px!important}
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+.hh-device-pack-signal-v1053 svg{
+ display:block!important;width:clamp(11px,2.8vw,17px)!important;
+ height:clamp(11px,2.8vw,17px)!important;flex:none!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 .hh-device-pack-signal-v1053 svg{
- width:clamp(13px,3.8vw,18px)!important;
- height:clamp(13px,3.8vw,18px)!important;flex:none!important;
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+.hh-guardian-icon-v845{
+ width:clamp(11px,2.8vw,16px)!important;height:clamp(11px,2.8vw,16px)!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 .hh-guardian-icon-v845{
- width:clamp(12px,3.4vw,16px)!important;
- height:clamp(12px,3.4vw,16px)!important;
-}
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 .hh-guardian-card-top-v845{
- max-width:100%!important;min-height:0!important;gap:3px!important;
-}
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+.hh-guardian-card-top-v845{max-width:100%!important;min-width:0!important;min-height:0!important;gap:1px!important}
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
 :is(.hh-guardian-caption-v845,#guardianBatteryCaptionV845,.hh-device-pack-signal-v1053 span){
- min-width:0!important;max-width:100%!important;
- font-size:clamp(7px,1.95vw,9px)!important;
- line-height:1.13!important;font-weight:730!important;
+ display:block!important;max-width:100%!important;min-width:0!important;
+ font-size:clamp(6px,1.54vw,8px)!important;font-weight:740!important;line-height:1.06!important;
  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
 :is(.hh-guardian-value-v845,.guardian-battery-text-v841){
- font-size:clamp(9px,2.25vw,12px)!important;
- line-height:1!important;
+ max-width:100%!important;font-size:clamp(7px,1.85vw,10px)!important;line-height:1.02!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845 .guardian-battery-icon-v841{
- width:17px!important;min-width:17px!important;height:11px!important;
- min-height:11px!important;flex-basis:17px!important;
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845
+.guardian-battery-icon-v841{
+ width:15px!important;min-width:15px!important;height:9px!important;
+ min-height:9px!important;flex-basis:15px!important;
 }
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845::before,
-html[data-hh-guardian-landscape-v1070="on"]
-.guardian-hero > #guardianTrioV845::after{
- display:none!important;content:none!important;
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845::before,
+html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845::after{
+ content:none!important;display:none!important;
 }
-@media(max-width:360px){
- html[data-hh-guardian-landscape-v1070="on"]
- .guardian-hero > #guardianTrioV845{height:72px!important;bottom:54px!important;gap:2px!important}
- html[data-hh-guardian-landscape-v1070="on"]
- .guardian-hero > #guardianTrioV845 .hh-device-pack-signal-v1053 svg{
-  width:13px!important;height:13px!important
+/* The logo is expendable; eight readable states are not. */
+@media(max-width:390px){
+ html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845{
+  width:53%!important;right:.6%!important;
+  grid-template-rows:minmax(18px,23%) repeat(2,minmax(0,1fr))!important;
+  gap:1px!important;padding:2px!important;
  }
- html[data-hh-guardian-landscape-v1070="on"]
- .guardian-hero > #guardianTrioV845 .hh-device-pack-signal-v1053{gap:2px!important}
+ html[data-hh-guardian-landscape-v1070="on"] .guardian-hero
+ > #guardianTrioV845 > #guardianDevicePackLogoV1054{padding:0!important}
+}
+@media(max-width:340px){
+ html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845{
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+ }
+ html[data-hh-guardian-landscape-v1070="on"] .guardian-hero
+ > #guardianTrioV845 > #guardianDevicePackLogoV1054{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){
- html[data-hh-guardian-landscape-v1070="on"]
- .guardian-hero > #guardianTrioV845 *{animation:none!important;transition:none!important}
+ html[data-hh-guardian-landscape-v1070="on"] .guardian-hero > #guardianTrioV845 *{
+  animation:none!important;transition:none!important
+ }
 }
