@@ -42,3 +42,16 @@ html[data-sh9-unified-nav="on"] body{padding-bottom:max(66px,env(safe-area-inset
 /* Transient no-route notices do not compete with the existing content or dialogs. */
 #sh9DockToastV24{position:fixed;z-index:88;bottom:calc(75px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:max-content;max-width:min(90vw,370px);padding:10px 14px;border:1px solid rgba(141,197,249,.55);border-radius:13px;background:#0d2949f2;color:#eef7ff;font:600 12px/1.4 Inter,'Segoe UI',sans-serif;box-shadow:0 7px 22px #0007;text-align:center}
 #sh9DockToastV24[hidden]{display:none!important}
+
+/* v25 · Sleep overlay has z-index:5000; the existing shared SH9 dock was
+   behind it. Show the same five Golden Standard buttons as on Health.
+   Do not replace Sleep content or its canonical rendering/data flow. */
+html[data-sh9-unified-nav="on"]:has(#hhSleepPage.on) #sh9GlobalNavV24.sh9GlobalNavV24{
+ z-index:8100!important;
+}
+html[data-sh9-unified-nav="on"] #hhSleepPage.on .hhSleepNav{
+ display:none!important;
+}
+html[data-sh9-unified-nav="on"]:has(#hhSleepPage.on) #sh9DockToastV24{
+ z-index:8200!important;
+}
