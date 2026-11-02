@@ -1,0 +1,27 @@
+/* Digital Wellbeing v539 · center the Golden four-control Glass Dock
+   INSIDE the real Hero artwork and the enclosing v538 glass plate.
+   Targeted to the new host only. No effect on Global SHO dock elsewhere. */
+body[data-sh9-golden-unified="on"]
+.dw-wellbeing-hero-plate-v538 > .hero-art[data-sh9-golden-host="on"]
+> #sh9UnifiedGlassDockV34 {
+ box-sizing:border-box!important;
+ position:absolute!important;
+ top:9px!important;bottom:auto!important;
+ left:50%!important;right:auto!important;
+ width:min(328px,calc(100% - 16px))!important;
+ min-width:0!important;max-width:328px!important;
+ transform:translateX(-50%)!important;
+ z-index:210!important;
+ margin:0!important;
+ /* Retain the 50px Golden Standard height and original 40% transparent glass. */
+}
+/* The shared host's four columns remain readable even on small phones.
+   Breakpoint fallback in shared CSS reduces the two language flags to 29px. */
+@media(max-width:350px){
+ body[data-sh9-golden-unified="on"]
+ .dw-wellbeing-hero-plate-v538 > .hero-art[data-sh9-golden-host="on"]
+ > #sh9UnifiedGlassDockV34 {
+  top:7px!important;
+  width:calc(100% - 12px)!important;
+ }
+}
