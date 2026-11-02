@@ -203,3 +203,24 @@ body[data-sh9-golden-three="on"] #health.page.on #heroH > #sh9LauncherProfileV1{
  top:auto!important;bottom:2px!important;left:5px!important;right:auto!important;
  transform:none!important;z-index:101!important;pointer-events:auto!important;
 }
+
+/* v924 · Sleep uses the SAME three shared pills as Health, on all Sleep views.
+   Only positioning: never touch Sleep data, renderers, profile actions. */
+body[data-sh9-golden-three="on"] #hhSleepPage.on .hhSleepDoctorHero[data-sh9-golden-host="on"]{
+ position:relative!important;isolation:isolate!important;
+}
+body[data-sh9-golden-three="on"] #hhSleepPage.on .hhSleepDoctorHero > #sh9HeaderControlsV2{
+ box-sizing:border-box!important;position:absolute!important;
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ top:2px!important;left:5px!important;right:auto!important;bottom:auto!important;
+ width:auto!important;max-width:none!important;height:47px!important;
+ margin:0!important;padding:0!important;transform:none!important;
+ align-items:stretch!important;justify-content:flex-start!important;gap:6px!important;
+ z-index:210!important;pointer-events:auto!important;
+}
+body[data-sh9-golden-three="on"] #hhSleepPage.on .hhSleepDoctorHero > #sh9LauncherProfileV1{
+ box-sizing:border-box!important;position:absolute!important;
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ top:auto!important;bottom:2px!important;left:5px!important;right:auto!important;
+ transform:none!important;z-index:210!important;pointer-events:auto!important;
+}
