@@ -8,6 +8,16 @@ const source=fs.readFileSync(path.join(root,'premium-home-compact-v525.js'),'utf
 const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.ok(html.includes('premium-home-compact-v525.js?v=545-home-dock-inset-down2'),'production compact Home cache bust');
+// v545 · Home ONLY: 2px lower and 2px narrower on EACH side.
+assert.ok(html.includes('premium-home-compact-v525.css?v=545-home-dock-inset-down2'),
+ 'approved Home CSS cache is updated');
+assert.match(css,/html\[data-hh-premium-preview="on"\] #home\.on\s+#heroHome\[data-sh9-golden-host="on"\] > #sh9UnifiedGlassDockV34\s*\{\s*left:4px!important;\s*right:4px!important;\s*bottom:-1px!important;\s*top:auto!important;/,
+ 'Home dock exact 2px lower and 2px per-side inset');
+assert.match(css,/#home\.on #heroHome\{\s*overflow:visible!important;/,
+ 'approved Hero allows dock to extend 1px without clipping');
+assert.ok(!css.includes('#healthSection.page.on #sh9UnifiedGlassDockV34'),
+ 'no v545 adjustments to Leletek and Gyógyszerek');
+
 assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='0')v='407-digital-wellbeing-family-507'"),'legacy Home remains an explicit URL fallback');
 const current=html.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1];
 assert.ok(current&&html.includes("var v='"+current.slice(1)+"'"),'normal Home shortcut matches the live build');
