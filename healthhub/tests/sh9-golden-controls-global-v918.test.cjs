@@ -23,8 +23,9 @@ test('Golden Standard triple controls appear on every navigable category tree pa
  for(const file of pages){
   const html=read(file);
   const health=file==='healthhub/index.html';
+  if(file==='sh9/index.html'){ assert.match(html,/class="sho-unified-dock"/);continue; }
   const count=health?2:1; // Fallback is a reconstructed document.
-  const version=health?'919-health-hero-anchor':'918-global-all';
+  const version='934-unified-glass-dock';
   const styles=[...html.matchAll(/sh9-golden-controls-v1\.css\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   const scripts=[...html.matchAll(/sh9-golden-controls-v1\.js\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   assert.deepEqual(styles,Array(count).fill(version),file+' CSS version');
@@ -44,19 +45,30 @@ test('native profile switches preserve module authorization instead of direct un
  assert.match(src,/w\.SH9_GOLDEN_CONTROLS_V1=Object\.freeze/);
  assert.doesNotMatch(src,/fetch\s*\(|supabase\.|navigator\.geolocation|setInterval/);
 });
-test('uniform 3 capsule visual contract and no surviving native controls when shared handler owns UI',()=>{
+test('v934 unified four-zone glass dock has production SHO dimensions and profile-aware colors',()=>{
  const css=read('sh9/shared/sh9-golden-controls-v1.css');
- assert.match(css,/background:#0c2446/);
+ const js=read('sh9/shared/sh9-golden-controls-v1.js');
+ assert.match(css,/#sh9UnifiedGlassDockV34/);
+ assert.match(css,/height:50px!important/);
+ assert.match(css,/background:rgba\(8,42,80,.60\)!important/);
+ assert.match(css,/border-radius:14px!important/);
  assert.match(css,/#79bfff/);
  assert.match(css,/#f9a6d3/);
- assert.match(css,/width:90px!important;height:47px!important/);
- assert.match(css,/top:50%;height:34px/);
+ assert.match(css,/grid-template-columns:1\.1fr 1\.15fr \.95fr \.92fr/);
+ assert.match(css,/backdrop-filter:blur\(10px\)/);
  assert.match(css,/#guardianProfileSwitch/);
  assert.match(css,/#profileLabel/);
  assert.match(css,/#fhProfileSwitch/);
  assert.match(css,/data-sh9-golden-floating/);
  assert.match(css,/visibility:hidden!important/);
- assert.match(css,/backdrop-filter:none/);
+ assert.match(js,/function mountDock\(host\)/);
+ assert.match(js,/dockCell\(dock,'profile'\)/);
+ assert.match(js,/dockCell\(dock,'tasks'\)/);
+ assert.match(js,/dockCell\(dock,'wallet'\)/);
+ assert.match(js,/dockCell\(dock,'language'\)/);
+ assert.match(js,/task\.replaceChildren\(\)/);
+ assert.match(js,/data-sh9-golden-unified/);
+ assert.match(js,/SHO='\/berlet-app\/sh9\/\?sho=wallet'/);
 });
 test('all 22 user-facing HTML pages are covered; archived releases and auth callbacks remain immutable',()=>{
  const htmlPaths=[];
@@ -70,7 +82,7 @@ test('all 22 user-facing HTML pages are covered; archived releases and auth call
  for(const d of ['sh9','healthhub','recepttar','recepttar-studio'])scan(d);
  const excluded=p=>p.includes('/releases/')||/\/family-guard-v\d+\.html$/.test(p)||
   /\/force-v\d+\.html$/.test(p)||/\/chatgpt-dropbox-callback-v\d+\.html$/.test(p)||
-  p==='healthhub/architecture-grand-design.html';
+  p==='healthhub/architecture-grand-design.html'||p==='sh9/sh9-original-v23.html'||p==='sh9/sho-preview/index.html';
  const uncovered=htmlPaths.filter(p=>!excluded(p)&&!pages.includes(p));
  assert.deepEqual(uncovered,[], 'Uncovered user-facing category leaves: '+uncovered.join(', '));
 });
@@ -92,6 +104,6 @@ test('HealthHub v919 Golden Controls follow active Egészség subpage Hero',()=>
  assert.match(css,/left:5px!important;bottom:0!important;/);
  assert.match(css,/transform:none!important;/);
  assert.match(legacy,/\.healthSubHero > div/);
- assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=919-health-hero-anchor/g)||[]).length,2);
- assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=919-health-hero-anchor/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=934-unified-glass-dock/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=934-unified-glass-dock/g)||[]).length,2);
 });
