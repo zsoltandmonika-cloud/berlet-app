@@ -35,10 +35,11 @@ test('Golden Standard dock appears on every navigable category tree page and lea
   if(file==='sh9/index.html'){ assert.match(html,/class="sho-unified-dock"/);continue; }
   const count=health?2:1; // Fallback is a reconstructed document.
   const version=file==='healthhub/index.html'?'936-sleep-extra-lift5':lift5Pages.has(file)?'935-selective-dock-lift5':'934-unified-glass-dock';
+  const jsVersion=file==='healthhub/digital-health/index.html'?'539-digital-hero-dock':version;
   const styles=[...html.matchAll(/sh9-golden-controls-v1\.css\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   const scripts=[...html.matchAll(/sh9-golden-controls-v1\.js\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   assert.deepEqual(styles,Array(count).fill(version),file+' CSS version');
-  assert.deepEqual(scripts,Array(count).fill(version),file+' JS version');
+  assert.deepEqual(scripts,Array(count).fill(jsVersion),file+' JS version');
   assert.doesNotMatch(html,/sh9-tasks-golden-v901\.js/,file+' duplicate old Tasks script');
  }
 });
