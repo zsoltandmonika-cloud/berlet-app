@@ -1,7 +1,7 @@
 /* HealthHub home card labels, deliberately independent from navigation and data. */
 (function(){
 'use strict';
-const hu=[['Nutrition','Táplálkozás'],['Daily Spark','Asztrológia'],['Daily Health','Napi egészség']];
+const hu=[['Nutrition','Táplálkozás'],['Daily Spark','Asztrológia'],['Daily Health','Napi egészség'],['Daily Headline','Vezércikk']];
 const map=new Map(hu);
 let busy=false;
 function apply(){
