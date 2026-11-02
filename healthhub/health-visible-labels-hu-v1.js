@@ -85,6 +85,60 @@ function healthPageLabels(english){
  }
 }
 
+
+// Records/Medications subpage and Léna explanation UI. Never translate PDF,
+// patient-authored fields, saved summaries, filenames, or explanation bullet points.
+const recordsUiEN=new Map([
+ ['Leletek','Medical Records'],['Gyógyszerek','Medications'],
+ ['Léna magyarázata',"Léna's Explanation"],
+ ['Léna magyarázata · szerkesztés',"Edit Léna's Explanation"],
+ ['Ehhez a dokumentumhoz még nincs átvitt magyarázat','No explanation is available for this document yet'],
+ ['Az eredeti PDF megnyitható. Léna nem következtet a fájlnévből, ezért csak az eredeti HealthRadarból átvitt vagy külön ellenőrzött magyarázat jelenik meg.','The original PDF is available. Léna does not infer findings from filenames. Only imported or verified explanations are displayed.'],
+ ['Magyarázat készítése / szerkesztése','Create / Edit Explanation'],
+ ['Régi magyarázatok importálása','Import Previous Explanations'],
+ ['Röviden','Summary'],['Dokumentum összefoglaló','Document Summary'],
+ ['A lelet fő pontjai','Key Findings'],
+ ['Mit jelent közérthetően?','What Does This Mean?'],
+ ['Mire érdemes figyelni?','What to Watch For'],
+ ['Kérdések a következő kontrollra','Questions for Your Next Appointment'],
+ ['Forrás: a kiválasztott eredeti PDF','Source: selected original PDF'],
+ ['egyedileg mentett','saved manually'],['régi HealthRadarban kézzel mentett','saved manually in previous HealthRadar'],['beépített, ellenőrzött','built-in, verified'],
+ ['Ellenőrizve:','Reviewed:'],['Fontos:','Important:'],
+ ['Ez a dokumentum közérthető összefoglalása, nem új diagnózis és nem kezelési utasítás.','This is a plain-language document summary, not a diagnosis or treatment instruction.'],
+ ['Szerkesztés','Edit'],['Régi változat visszaállítása','Restore Previous Version'],
+ ['Eredeti PDF','Original PDF'],['Cím','Title'],['Rövid összefoglaló','Short Summary'],
+ ['Ellenőrzés dátuma','Review Date'],
+ ['Csak az eredeti PDF alapján ellenőrzött tartalmat ments el. Minden új sor külön felsorolási pont lesz.','Only save content verified against the original PDF. Each new line becomes a separate bullet.'],
+ ['Magyarázat mentése','Save Explanation'],['Mégse','Cancel'],
+ ['Keresés','Search'],['Szűrők','Filters'],['Dátum','Date'],
+ ['Összes','All'],['Bezárás','Close'],['Vissza','Back']
+]);
+function translateRecordsUi(english){
+ if(!english)return;
+ const roots=['healthSection','hrDetailOverlay'].map(id=>document.getElementById(id)).filter(Boolean);
+ for(const root of roots){
+  // Only static UI elements. Do not walk medical record bodies or input values.
+  for(const el of root.querySelectorAll('button,h2,h3,h4,label > h4,small,.screenTitle,.privacyNote,b')){
+   if(el.children.length && !el.matches('.privacyNote'))continue;
+   if(el.closest('#doc1,#doc2,#doc3,#med1,#med2,#med3,.hrDetailMeta,li,textarea,[contenteditable]'))continue;
+   const value=(el.textContent||'').trim();
+   const next=recordsUiEN.get(value);
+   if(next&&next!==value)el.textContent=next;
+  }
+  for(const el of root.querySelectorAll('p,.privacyNote')){
+   if(el.closest('.hrDetailMeta,li,[contenteditable]'))continue;
+   const text=(el.textContent||'').trim(),next=recordsUiEN.get(text);
+   if(next&&el.children.length===0)el.textContent=next;
+  }
+  for(const el of root.querySelectorAll('button,input')){
+   for(const key of ['aria-label','placeholder','title']){
+    const value=el.getAttribute(key),next=recordsUiEN.get(value);
+    if(next)el.setAttribute(key,next);
+   }
+  }
+ }
+}
+
 const selectors='button b,button span,button small,a b,a span,a small,button,nav button,nav a,.page .screenTitle,.dailyStrip b,.homeModule b,.detailTop b,.detailTitle h1,.dailyHealthStrip b,.homeTile b,.tile b,.screenTitle';
 let busy=false;
 function apply(){
@@ -100,6 +154,7 @@ function apply(){
    if(next&&next!==value)el.textContent=next;
   }
   healthPageLabels(english);
+  translateRecordsUi(english);
  }catch(e){console.warn('HealthHub labels:',e)}
  finally{busy=false}
 }
