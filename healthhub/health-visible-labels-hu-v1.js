@@ -13,13 +13,14 @@ const pairs=[
  ['Family Guard','Biztonság'],['Digital Health','Digitális Jólét'],
  ['Ask Léna','Kérdezd Lénát']
 ];
-const en=new Map([...pairs.slice(0,12),['Daily Spark','Astrology'],['Daily Headline','Headline News'],['Wellbeing','Digital Health'],['Medical Records','Medical Records']]);
-const hu=new Map([...pairs.slice(12),['Health','Egészség'],['Medical Records','Leletek'],['Sleep','Alvás'],['Activity','Aktivitás'],['Astrology','Asztrológia'],['Headline News','Vezércikk'],['Wellbeing','Digitális Jólét']]);
+const en=new Map([...pairs.slice(0,12),['Daily Spark','Astrology'],['Daily Headline','Headline News'],['Wellbeing','Digital Health'],['Medical Records','Medical Records'],['Idővonal','Timeline'],['Tünetnapló','Symptom Diary'],['Tünet napló','Symptom Diary']]);
+const hu=new Map([...pairs.slice(12),['Health','Egészség'],['Medical Records','Leletek'],['Sleep','Alvás'],['Activity','Aktivitás'],['Astrology','Asztrológia'],['Headline News','Vezércikk'],['Wellbeing','Digitális Jólét'],['Timeline','Idővonal'],['Symptom Diary','Tünetnapló']]);
 
 // Dedicated Canadian-English localization for the embedded Health Page.
 // Scope to fixed UI only, never medical documents, drugs, free text or measurements.
 const healthLabels=[
  ['Egészség','Health'],['HealthRadar','Health'],
+ ['Idővonal','Timeline'],
  ['Egészség áttekintés','Health Overview'],['áttekintés','Overview'],
  ['Leletek','Medical Records'],['Gyógyszerek','Medications'],
  ['Mérések','Measurements'],['Eszközök','Devices'],['Továbbiak','More'],
@@ -84,7 +85,7 @@ function healthPageLabels(english){
  }
 }
 
-const selectors='button b,button span,button small,a b,a span,a small,.dailyStrip b,.homeModule b,.detailTop b,.detailTitle h1,.dailyHealthStrip b,.homeTile b,.tile b,.screenTitle';
+const selectors='button b,button span,button small,a b,a span,a small,button,nav button,nav a,.page .screenTitle,.dailyStrip b,.homeModule b,.detailTop b,.detailTitle h1,.dailyHealthStrip b,.homeTile b,.tile b,.screenTitle';
 let busy=false;
 function apply(){
  if(busy)return;
