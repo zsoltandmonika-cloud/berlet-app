@@ -73,3 +73,45 @@
 .sh9-ota-recheck-v1067:disabled{opacity:.6;cursor:progress}
 .sh9-ota-recheck-v1067:focus-visible,.sh9-ota-owner-v1067 select:focus-visible{outline:2px solid #c8edff;outline-offset:2px}
 .sh9-ota-manual-v1044 #sh9OtaConnectVaultV1067[hidden]{display:none!important}
+
+/* v920 · SH9 start Hero OTA button: smaller visible capsule (34px),
+   moved all the way up/right (1px visible inset). Preserve a full 44×44px
+   click target, verified status colors and the amber update animation. */
+.hero > #sh9OtaIndicatorV1043.sh9-ota-indicator-v1043{
+ box-sizing:border-box;
+ top:calc(-4px + env(safe-area-inset-top,0px));
+ right:-4px;
+ width:44px;min-width:44px;max-width:110px;
+ height:44px;min-height:44px;max-height:44px;
+ padding:0 7px;margin:0;gap:3px;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ isolation:isolate;z-index:15;
+}
+.hero > #sh9OtaIndicatorV1043::before{
+ content:"";position:absolute;inset:5px;z-index:-1;
+ border:1px solid rgba(198,223,255,.48);
+ border-radius:999px;background:rgba(4,19,45,.91);
+ box-shadow:0 3px 12px rgba(0,5,17,.43),inset 0 1px 0 rgba(255,255,255,.18);
+ pointer-events:none;
+}
+.hero > #sh9OtaIndicatorV1043 .sh9-ota-led-v1043{
+ width:10px;height:10px;
+}
+.hero > #sh9OtaIndicatorV1043[data-state="update"]{
+ width:105px;min-width:105px;padding-inline:10px;gap:5px;
+}
+.hero > #sh9OtaIndicatorV1043[data-state="update"]::before{
+ background:rgba(40,33,37,.95);border-color:rgba(255,211,119,.84);
+}
+.hero > #sh9OtaIndicatorV1043[data-state="release"]{
+ width:61px;min-width:61px;padding-inline:8px;
+}
+.hero > #sh9OtaIndicatorV1043[data-state="release"]::before{
+ background:rgba(9,37,77,.96);border-color:rgba(107,178,254,.84);
+}
+.hero > #sh9OtaIndicatorV1043[data-state="warning"]::before{
+ background:rgba(63,19,37,.96);border-color:rgba(255,136,150,.86);
+}
