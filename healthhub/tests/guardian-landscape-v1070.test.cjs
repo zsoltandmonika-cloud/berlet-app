@@ -20,16 +20,18 @@ test('Family Guard production has the landscape asset after original live pack',
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
 });
 
-test('Family Guard 4×2 landscape grid keeps all eight native state providers',()=>{
+test('Family Guard v1071 keeps all eight states in the original right-side box',()=>{
  const css=read('healthhub/guardian/guardian-device-pack-landscape-v1070.css');
  const js=read('healthhub/guardian/guardian-device-pack-landscape-v1070.js');
  assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)!important/);
- assert.match(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)!important/);
- assert.match(css,/height:76px!important/);
+ assert.match(css,/grid-template-rows:minmax\(26px,30%\) repeat\(2,minmax\(0,1fr\)\)!important/);
+ assert.match(css,/width:52%!important/);
  assert.match(css,/bottom:55px!important/);
- assert.match(css,/\.guardian-hero > #guardianDevicePackLogoV1054/);
+ assert.match(css,/> #guardianTrioV845 > #guardianDevicePackLogoV1054/);
+ assert.match(css,/grid-column:1\/-1!important/);
  assert.match(js,/cards\.length!==8/);
- assert.match(js,/hero\.insertBefore\(logo,pack\)/);
+ assert.match(js,/pack\.insertBefore\(logo,pack\.firstChild\)/);
+ assert.doesNotMatch(js,/hero\.insertBefore\(logo,pack\)/);
  for(const id of ['guardianBatteryV841','guardianGpsCardV845','guardianHealthCardV845',
                   'guardianPackOtaV1053','guardianPackWifiV1053','guardianPackMobileV1053',
                   'guardianPackBluetoothV1053','guardianPackCloudV1053']){
