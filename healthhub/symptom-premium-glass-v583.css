@@ -340,3 +340,17 @@ html[data-hh-symptom-glass="on"]:has(#hhSymptomJournal307.page.on) :is(#hhOneRag
  html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJBody{padding-left:9px!important;padding-right:9px!important}
  html[data-hh-symptom-glass="on"] #hhSymptomJournal307 .hhSJQuickAction583{font-size:10px!important}
 }
+
+/* Health Page featured Symptom Diary launcher: identical pastel lilac/pink for all profiles. */
+#health .quick button.hhSJLaunch307{
+  border:1.5px solid rgba(217,151,222,.88)!important;
+  background:linear-gradient(145deg,rgba(100,56,119,.26),rgba(233,139,192,.10))!important;
+  box-shadow:inset 0 1px 0 rgba(255,228,249,.18),0 0 0 1px rgba(210,149,225,.13),0 5px 17px rgba(167,91,175,.19)!important;
+}
+#health .quick button.hhSJLaunch307 .qbox{
+  color:#e9b3ee!important;
+}
+#health .quick button.hhSJLaunch307:focus-visible{
+  outline:2px solid #edb3f2!important;
+  outline-offset:3px;
+}
